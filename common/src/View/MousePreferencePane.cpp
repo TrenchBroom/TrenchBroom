@@ -473,8 +473,9 @@ namespace TrenchBroom {
             prefs.resetToDefault(Preferences::CameraFlyForward);
             prefs.resetToDefault(Preferences::CameraFlyBackward);
             prefs.resetToDefault(Preferences::CameraFlyLeft);
-            prefs.resetToDefault(Preferences::CameraLookSpeed);
             prefs.resetToDefault(Preferences::CameraFlyRight);
+            prefs.resetToDefault(Preferences::CameraFlyUp);
+            prefs.resetToDefault(Preferences::CameraFlyDown);
 
             prefs.resetToDefault(Preferences::CameraFlyMoveSpeed);
         }

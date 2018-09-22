@@ -36,7 +36,7 @@ namespace TrenchBroom {
             }
             
             KeyboardShortcut::sortModifierKeys(m_modifiers[0], m_modifiers[1], m_modifiers[2]);
-            wxString label = KeyboardShortcut::shortcutDisplayString(m_key, m_modifiers[0], m_modifiers[1], m_modifiers[2]);
+            const auto label = KeyboardShortcut::shortcutDisplayString(m_key, m_modifiers[0], m_modifiers[1], m_modifiers[2]);
             m_shortcutLabel->SetLabel(label);
             Refresh();
         }
@@ -49,11 +49,11 @@ namespace TrenchBroom {
             resetKey();
             resetModifiers();
             
-            wxSizer* panelSizer = new wxBoxSizer(wxVERTICAL);
+            auto* panelSizer = new wxBoxSizer(wxVERTICAL);
             panelSizer->Add(m_shortcutLabel, 0, wxEXPAND);
             m_panel->SetSizer(panelSizer);
 
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+            auto* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_panel, 1, wxEXPAND);
             SetSizer(sizer);
             
@@ -139,14 +139,15 @@ namespace TrenchBroom {
         void KeyboardShortcutEditor::OnKeyDown(wxKeyEvent& event) {
             if (IsBeingDeleted()) return;
 
-            bool wasReset = false;
+            auto wasReset = false;
+            const auto oldKey = m_key;
             if (m_resetOnNextKey) {
                 wasReset = m_key != WXK_NONE || m_modifiers[0] != WXK_NONE || m_modifiers[1] != WXK_NONE || m_modifiers[2] != WXK_NONE;
                 SetShortcut();
                 m_resetOnNextKey = false;
             }
             
-            const int key = event.GetKeyCode();
+            const auto key = event.GetKeyCode();
             switch (key) {
                 case WXK_SHIFT:
                 case WXK_ALT:
@@ -171,8 +172,11 @@ namespace TrenchBroom {
                     shortcutEvent.SetEventObject(this);
                     shortcutEvent.SetId(GetId());
                     ProcessEvent(shortcutEvent);
-                    if (shortcutEvent.IsAllowed())
+                    if (shortcutEvent.IsAllowed()) {
                         m_key = key;
+                    } else {
+                        m_key = oldKey;
+                    }
                     break;
             }
             update();
@@ -181,7 +185,7 @@ namespace TrenchBroom {
         void KeyboardShortcutEditor::OnKeyUp(wxKeyEvent& event) {
             if (IsBeingDeleted()) return;
 
-            const int key = event.GetKeyCode();
+            const auto key = event.GetKeyCode();
             switch (key) {
                 case WXK_SHIFT:
                 case WXK_ALT:
@@ -209,12 +213,15 @@ namespace TrenchBroom {
             resetModifiers();
 
             size_t count = 0;
-            if (event.ShiftDown())
+            if (event.ShiftDown()) {
                 m_modifiers[count++] = WXK_SHIFT;
-            if (event.AltDown())
+            }
+            if (event.AltDown()) {
                 m_modifiers[count++] = WXK_ALT;
-            if (event.ControlDown())
+            }
+            if (event.ControlDown()) {
                 m_modifiers[count++] = WXK_CONTROL;
+        }
         }
 
         void KeyboardShortcutEditor::resetKey() {
@@ -222,8 +229,9 @@ namespace TrenchBroom {
         }
 
         void KeyboardShortcutEditor::resetModifiers() {
-            for (size_t i = 0; i < 3; ++i)
+            for (size_t i = 0; i < 3; ++i) {
                 m_modifiers[i] = WXK_NONE;
         }
     }
+}
 }

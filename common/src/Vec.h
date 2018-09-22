@@ -77,113 +77,13 @@ public:
     static const Vec<T,S> Min;
     static const Vec<T,S> Max;
     
-    class LexicographicOrder {
-    private:
-        T m_epsilon;
-    public:
-        LexicographicOrder(const T epsilon = Math::Constants<T>::almostZero()) :
-        m_epsilon(epsilon) {}
-        
-        bool operator()(const Vec<T,S>& lhs, const Vec<T,S>& rhs) const {
-            for (size_t i = 0; i < S; ++i) {
-                if (Math::lt(lhs[i], rhs[i], m_epsilon))
-                    return true;
-                if (Math::gt(lhs[i], rhs[i], m_epsilon))
-                    return false;
-            }
-            return false;
-        }
-    };
-
-    class ErrorOrder {
-    public:
-        bool operator()(const Vec<T,S>& lhs, const Vec<T,S>& rhs) const {
-            const T lErr = (lhs - lhs.rounded()).lengthSquared();
-            const T rErr = (rhs - rhs.rounded()).lengthSquared();
-            return lErr < rErr;
-        }
-    };
-    
-    class DotOrder {
-    private:
-        const Vec<T,S>& m_dir;
-    public:
-        DotOrder(const Vec<T,S>& dir) :
-        m_dir(dir) {
-            assert(!m_dir.null());
-        }
-        
-        bool operator()(const Vec<T,S>& lhs, const Vec<T,S>& rhs) const {
-            return lhs.dot(m_dir) < rhs.dot(m_dir);
-        }
-    };
-    
-    class InverseDotOrder {
-    private:
-        const Vec<T,S>& m_dir;
-    public:
-        InverseDotOrder(const Vec<T,S>& dir) :
-        m_dir(dir) {
-            assert(!m_dir.null());
-        }
-        
-        bool operator()(const Vec<T,S>& lhs, const Vec<T,S>& rhs) const {
-            return lhs.dot(m_dir) > rhs.dot(m_dir);
-        }
-    };
-    
-    class LengthOrder {
-    public:
-        bool operator()(const Vec<T,S>& lhs, const Vec<T,S>& rhs) const {
-            return lhs.squaredLength() < rhs.squaredLength();
-        }
-    };
-    
-    typedef std::vector<Vec<T,S> > List;
-    typedef std::set<Vec<T,S>, LexicographicOrder> Set;
-    typedef std::map<Vec<T,S>, Vec<T,S>, LexicographicOrder> Map;
+    using List = std::vector<Vec<T,S>>;
     
     static const List AllAxes;
     static const List PosAxes;
     static const List NegAxes;
     
     static const List EmptyList;
-    static const Set EmptySet;
-    static const Map EmptyMap;
-    
-    template <typename O>
-    class SetOrder {
-    private:
-        O m_order;
-    public:
-        SetOrder(const O& order = O()) :
-        m_order(order) {}
-
-        bool operator()(const Set& lhs, const Set& rhs) const {
-            return compare(lhs, rhs) < 0;
-        }
-    private:
-        int compare(const Set& lhs, const Set& rhs) const {
-            if (lhs.size() < rhs.size())
-                return -1;
-            if (lhs.size() > rhs.size())
-                return 1;
-            
-            typename Set::const_iterator lIt = std::begin(lhs);
-            typename Set::const_iterator rIt = std::begin(rhs);
-            for (size_t i = 0; i < lhs.size(); ++i) {
-                const Vec& lPos = *lIt++;
-                const Vec& rPos = *rIt++;
-                
-                if (m_order(lPos, rPos))
-                    return -1;
-                if (m_order(rPos, lPos))
-                    return 1;
-            }
-            return 0;
-        }
-    };
-    
 public:
     static const Vec<T,S> axis(const size_t index) {
         Vec<T,S> axis;
@@ -1000,10 +900,6 @@ const typename Vec<T,S>::List Vec<T,S>::AllAxes = Vec<T,S>::List({ PosX, NegX, P
 
 template <typename T, size_t S>
 const typename Vec<T,S>::List Vec<T,S>::EmptyList = Vec<T,S>::List();
-template <typename T, size_t S>
-const typename Vec<T,S>::Set Vec<T,S>::EmptySet = Vec<T,S>::Set();
-template <typename T, size_t S>
-const typename Vec<T,S>::Map Vec<T,S>::EmptyMap = Vec<T,S>::Map();
 
 typedef Vec<float,1> Vec1f;
 typedef Vec<double,1> Vec1d;

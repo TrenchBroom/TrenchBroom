@@ -176,8 +176,9 @@ namespace TrenchBroom {
         
         static typename Vec<T,S>::List asVertexList(const typename Polygon<T,S>::List& polygons) {
             typename Vec<T,S>::List result;
-            for (size_t i = 0; i < polygons.size(); ++i)
-                result.insert(std::end(result), std::begin(polygons[i].m_vertices), std::end(polygons[i].m_vertices));
+            for (const auto& polygon : polygons) {
+                VectorUtils::append(result, polygon.m_vertices);
+            }
             return result;
         }
 

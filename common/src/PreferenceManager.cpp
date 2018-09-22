@@ -20,8 +20,8 @@
 #include "PreferenceManager.h"
 
 namespace TrenchBroom {
-    void PreferenceManager::markAsUnsaved(PreferenceBase* preference, ValueHolderBase::UPtr valueHolder) {
-        m_unsavedPreferences.insert(std::make_pair(preference, std::move(valueHolder)));
+    void PreferenceManager::markAsUnsaved(PreferenceBase* preference) {
+        m_unsavedPreferences.insert(preference);
     }
     
     PreferenceManager& PreferenceManager::instance() {
@@ -35,9 +35,7 @@ namespace TrenchBroom {
 
     PreferenceBase::Set PreferenceManager::saveChanges() {
         PreferenceBase::Set changedPreferences;
-        for (const auto& entry : m_unsavedPreferences) {
-            PreferenceBase* pref = entry.first;
-            
+        for (auto* pref : m_unsavedPreferences) {
             pref->save(wxConfig::Get());
             preferenceDidChangeNotifier(pref->path());
             
@@ -50,18 +48,15 @@ namespace TrenchBroom {
     
     PreferenceBase::Set PreferenceManager::discardChanges() {
         PreferenceBase::Set changedPreferences;
-        for (const auto& entry : m_unsavedPreferences) {
-            PreferenceBase* pref = entry.first;
-            ValueHolderBase* value = entry.second.get();
-
-            pref->setValue(value);
+        for (auto* pref : m_unsavedPreferences) {
+            pref->resetToPrevious();
             changedPreferences.insert(pref);
         }
-        
+
         m_unsavedPreferences.clear();
         return changedPreferences;
     }
-    
+
     PreferenceManager::PreferenceManager() {
 #if defined __APPLE__
         m_saveInstantly = true;

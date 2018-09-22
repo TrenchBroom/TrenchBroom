@@ -601,44 +601,35 @@ namespace VectorUtils {
 
     template <typename T1, typename T2>
     void append(std::vector<T1>& vec1, const std::vector<T2>& vec2) {
+        vec1.reserve(vec1.size() + vec2.size());
         vec1.insert(std::end(vec1), std::begin(vec2), std::end(vec2));
     }
 
     template <typename T1, typename T2>
     void append(std::vector<T1>& vec1, const T2* values, const size_t count) {
         vec1.reserve(vec1.size() + count);
-        for (size_t i = 0; i < count; ++i)
+        for (size_t i = 0; i < count; ++i) {
             vec1.push_back(*(values + i));
+        }
     }
 
     template <typename T, typename K, typename C>
     void append(std::vector<T>& vec, const std::map<K,T,C>& map) {
         vec.reserve(vec.size() + map.size());
-        for (const auto& entry : map)
+        for (const auto& entry : map) {
             vec.push_back(entry.second);
+        }
     }
 
-    template <typename T>
-    void sort(std::vector<T>& vec) {
-        std::sort(std::begin(vec), std::end(vec));
-    }
-
-    template <typename T, class Cmp>
-    void sort(std::vector<T>& vec, const Cmp& cmp) {
+    template <typename T, class Cmp = std::less<T>>
+    void sort(std::vector<T>& vec, const Cmp cmp = Cmp()) {
         std::sort(std::begin(vec), std::end(vec), cmp);
     }
 
-    template <typename T>
-    void sortAndRemoveDuplicates(std::vector<T>& vec) {
-        std::sort(std::begin(vec), std::end(vec));
-        typename std::vector<T>::iterator it = std::unique(std::begin(vec), std::end(vec));
-        vec.erase(it, std::end(vec));
-    }
-
-    template <typename T, class Cmp>
-    void sortAndRemoveDuplicates(std::vector<T>& vec, const Cmp& cmp) {
+    template <typename T, class Cmp = std::less<T>>
+    void sortAndRemoveDuplicates(std::vector<T>& vec, const Cmp cmp = Cmp()) {
         std::sort(std::begin(vec), std::end(vec), cmp);
-        typename std::vector<T>::iterator it = std::unique(std::begin(vec), std::end(vec), Utils::EqualsUsingLess<T, Cmp>(cmp));
+        auto it = std::unique(std::begin(vec), std::end(vec), Utils::EqualsUsingLess<T, Cmp>(cmp));
         vec.erase(it, std::end(vec));
     }
 
@@ -661,8 +652,8 @@ namespace VectorUtils {
         return output;
     }
 
-    template <typename T, typename Compare>
-    void orderedDifference(std::vector<T>& minuend, const std::vector<T>& subtrahend, const Compare& cmp) {
+    template <typename T, typename Cmp = std::less<T>>
+    void orderedDifference(std::vector<T>& minuend, const std::vector<T>& subtrahend, const Cmp cmp = Cmp()) {
         auto mIt = std::begin(minuend);
         auto sIt = std::begin(subtrahend);
         auto sEnd = std::end(subtrahend);
@@ -680,90 +671,70 @@ namespace VectorUtils {
         }
     }
 
-    template <typename T>
-    void orderedDifference(std::vector<T>& minuend, const std::vector<T>& subtrahend) {
-        orderedDifference(minuend, subtrahend, std::less<T>());
-    }
-
-    template <typename T, typename Compare>
-    bool setIsSet(const std::vector<T>& set) {
-        if (set.size() < 2)
+    template <typename T, typename Cmp = std::less<T>>
+    bool setIsSet(const std::vector<T>& set, const Cmp cmp = Cmp()) {
+        if (set.size() < 2) {
             return true;
+        }
 
-        typedef typename std::vector<T>::const_iterator I;
-        I cur = std::begin(set);
-        I next = cur + 1;
+        auto cur = std::begin(set);
+        auto next = cur + 1;
 
-        Compare cmp;
         while (next != std::end(set)) {
-            if (!cmp(*cur, *next))
+            if (!cmp(*cur, *next)) {
                 return false;
+            }
             ++cur;
             ++next;
         }
         return true;
     }
 
-    template <typename T>
-    bool setIsSet(const std::vector<T>& set) {
-        return setIsSet<T, std::less<T> >(set);
-    }
-
-
-    template <typename T, typename Compare>
-    void setCreate(std::vector<T>& vec) {
-        std::sort(std::begin(vec), std::end(vec), Compare());
-        typename std::vector<T>::iterator end = std::unique(std::begin(vec), std::end(vec));
+    template <typename T, typename Cmp = std::less<T>>
+    void setCreate(std::vector<T>& vec, const Cmp cmp = Cmp()) {
+        std::sort(std::begin(vec), std::end(vec), cmp);
+        auto end = std::unique(std::begin(vec), std::end(vec));
         vec.erase(end, std::end(vec));
     }
 
-    template <typename T>
-    void setCreate(std::vector<T>& vec) {
-        setCreate<T, std::less<T> >(vec);
+    template <typename T, typename Cmp = std::less<T>>
+    std::vector<T> setCreate(const std::vector<T>& vec, const Cmp cmp = Cmp()) {
+        auto result = vec;
+        setCreate(result, cmp);
+        return std::move(result);
     }
 
-    template <typename T1, typename T2, typename Compare>
-    bool setInsert(std::vector<T1>& vec, const T2& object, const Compare& cmp) {
-        typename std::vector<T1>::iterator it = std::lower_bound(std::begin(vec), std::end(vec), object, cmp);
+    template <typename T1, typename T2, typename Cmp = std::less<T1>>
+    bool setInsert(std::vector<T1>& vec, const T2& object, const Cmp& cmp = Cmp()) {
+        auto it = std::lower_bound(std::begin(vec), std::end(vec), object, cmp);
         if (it == std::end(vec)) {
             vec.push_back(object);
             return true;
-        }
-        if (cmp(*it, object) || cmp(object, *it)) {
+        } else if (cmp(*it, object) || cmp(object, *it)) {
             vec.insert(it, object);
             return true;
+        } else {
+            *it = object;
+            return false;
         }
-        *it = object;
-        return false;
     }
 
-    template <typename T1, typename T2, typename Compare>
-    bool setInsert(std::vector<T1>& vec, const T2& object) {
-        return setInsert(vec, object, Compare());
-    }
-
-    template <typename T, typename I, typename Compare>
-    void setInsert(std::vector<T>& vec, I cur, const I end, const Compare& cmp) {
+    template <typename T, typename I, typename Cmp = std::less<T>>
+    void setInsert(std::vector<T>& vec, I cur, const I end, const Cmp& cmp = Cmp()) {
         while (cur != end) {
             typename std::vector<T>::iterator it = std::lower_bound(std::begin(vec), std::end(vec), *cur, cmp);
-            if (it == std::end(vec))
+            if (it == std::end(vec)) {
                 vec.push_back(*cur);
-            else if (cmp(*it, *cur) || cmp(*cur, *it))
+            } else if (cmp(*it, *cur) || cmp(*cur, *it)) {
                 vec.insert(it, *cur);
-            else
+            } else
                 *it = *cur;
             ++cur;
         }
     }
 
-    template <typename T, typename I, typename Compare>
-    void setInsert(std::vector<T>& vec, I cur, const I end) {
-        return setInsert(vec, cur, end, Compare());
-    }
-
-    template <typename T1, typename T2, typename Compare>
-    bool setRemove(std::vector<T1>& vec, const T2& object) {
-        Compare cmp;
+    template <typename T1, typename T2, typename Cmp = std::less<T1>>
+    bool setRemove(std::vector<T1>& vec, const T2& object, const Cmp cmp = Cmp()) {
         typename std::vector<T1>::iterator it = std::lower_bound(std::begin(vec), std::end(vec), object, cmp);
         if (it != std::end(vec) && !cmp(*it, object) && !cmp(object, *it)) {
             vec.erase(it);
@@ -772,192 +743,57 @@ namespace VectorUtils {
         return false;
     }
 
-    template <typename T, typename I, typename Compare>
-    void setRemove(std::vector<T>& vec, I cur, const I end) {
-        Compare cmp;
+    template <typename T, typename I, typename Cmp = std::less<T>>
+    void setRemove(std::vector<T>& vec, I cur, const I end, const Cmp cmp = Cmp()) {
         while (cur != end) {
-            typename std::vector<T>::iterator it = std::lower_bound(std::begin(vec), std::end(vec), *cur, cmp);
-            if (it != std::end(vec) && !cmp(*it, *cur) && !cmp(*cur, *it))
+            auto it = std::lower_bound(std::begin(vec), std::end(vec), *cur, cmp);
+            if (it != std::end(vec) && !cmp(*it, *cur) && !cmp(*cur, *it)) {
                 vec.erase(it);
+            }
             ++cur;
         }
     }
 
-    template <typename T1, typename T2>
-    bool setInsert(std::vector<T1>& vec, const T2& object) {
-        return setInsert<T1, T2, std::less<T1> >(vec, object);
+    template <typename T, typename Cmp = std::less<T>>
+    bool setContains(const std::vector<T>& vec, const T& object, const Cmp cmp = Cmp()) {
+        return std::binary_search(std::begin(vec), std::end(vec), object, cmp);
     }
 
-    template <typename T, typename I>
-    void setInsert(std::vector<T>& vec, I cur, const I end) {
-        setInsert<T, I, std::less<T> >(vec, cur, end);
+    template <typename T, typename Cmp = std::less<T>>
+    std::vector<T> setUnion(const std::vector<T>& vec1, const std::vector<T>& vec2, const Cmp cmp = Cmp()) {
+        std::vector<T> result;
+        std::set_union(std::begin(vec1), std::end(vec1),
+                       std::begin(vec2), std::end(vec2),
+                       std::back_inserter(result), cmp);
+        return std::move(result);
     }
 
-    template <typename T1, typename T2>
-    bool setRemove(std::vector<T1>& vec, const T2& object) {
-        return setRemove<T1, T2, std::less<T1> >(vec, object);
+    template <typename T, typename Cmp = std::less<T>>
+    std::vector<T> setMinus(const std::vector<T>& minuend, const std::vector<T>& subtrahend, const Cmp cmp = Cmp()) {
+        std::vector<T> result;
+        std::set_difference(std::begin(minuend), std::end(minuend),
+                            std::begin(subtrahend), std::end(subtrahend),
+                            std::back_inserter(result), cmp);
+        return std::move(result);
     }
 
-    template <typename T, typename I>
-    void setRemove(std::vector<T>& vec, I cur, const I end) {
-        setRemove<T, I, std::less<T> >(vec, cur, end);
-    }
-
-    template <typename T, typename Compare>
-    bool setContains(const std::vector<T>& vec, const T& object) {
-        Compare cmp;
-        typename std::vector<T>::const_iterator it = std::lower_bound(std::begin(vec), std::end(vec), object, cmp);
-        return it != std::end(vec) && !cmp(*it, object) && !cmp(object, *it);
-    }
-
-    template <typename T>
-    bool setContains(const std::vector<T>& vec, const T& object) {
-        return setContains<T, std::less<T> >(vec, object);
-    }
-
-    template <typename T, typename Compare>
-    std::vector<T> setUnion(const std::vector<T>& vec1, const std::vector<T>& vec2) {
-        if (vec1.empty())
-            return vec2;
-        if (vec2.empty())
-            return vec1;
-
-        typedef typename std::vector<T> Vec;
-        typedef typename Vec::const_iterator I;
-
-        I cur1 = std::begin(vec1);
-        const I end1 = std::end(vec1);
-        I cur2 = std::begin(vec2);
-        const I end2 = std::end(vec2);
-
-        Vec result;
-        Compare cmp;
-
-        while (cur1 != end1 && cur2 != end2) {
-            if (cmp(*cur1, *cur2)) {
-                result.push_back(*cur1);
-                ++cur1;
-            } else if (cmp(*cur2, *cur1)) {
-                result.push_back(*cur2);
-                ++cur2;
-            } else {
-                // both values are equal
-                result.push_back(*cur1);
-                ++cur1;
-                ++cur2;
-            }
-        }
-
-        while (cur1 != end1)
-            result.push_back(*cur1++);
-        while (cur2 != end2)
-            result.push_back(*cur2++);
-
-        return result;
-    }
-
-    template <typename T>
-    std::vector<T> setUnion(const std::vector<T>& vec1, const std::vector<T>& vec2) {
-        return setUnion<T, std::less<T> >(vec1, vec2);
-    }
-
-    template <typename T, typename Compare>
-    std::vector<T> setMinus(const std::vector<T>& minuend, const std::vector<T>& subtrahend) {
-        if (minuend.empty() || subtrahend.empty())
-            return minuend;
-
-        typedef typename std::vector<T> Vec;
-
-        Vec result = minuend;
-        typename Vec::iterator curMin = std::begin(result);
-        typename Vec::const_iterator curSub = std::begin(subtrahend);
-        const typename Vec::const_iterator endSub = std::end(subtrahend);
-
-        Compare cmp;
-
-        while (curMin != std::end(result) && curSub != endSub) {
-            if (cmp(*curMin, *curSub)) {
-                ++curMin;
-            } else if (cmp(*curSub, *curMin)) {
-                ++curSub;
-            } else {
-                // both values are equal
-                curMin = result.erase(curMin);
-            }
-        }
-
-        return result;
-    }
-
-    template <typename T>
-    std::vector<T> setMinus(const std::vector<T>& minuend, const std::vector<T>& subtrahend) {
-        return setMinus<T, std::less<T> >(minuend, subtrahend);
-    }
-
-    template <typename T, typename Compare>
-    std::vector<T> setIntersection(const std::vector<T>& vec1, const std::vector<T>& vec2) {
-        if (vec1.empty())
-            return vec1;
-        if (vec2.empty())
-            return vec2;
-
-        typedef typename std::vector<T> Vec;
-        typedef typename Vec::const_iterator I;
-
-        I cur1 = std::begin(vec1);
-        const I end1 = std::end(vec1);
-        I cur2 = std::begin(vec2);
-        const I end2 = std::end(vec2);
-
-        Vec result;
-        Compare cmp;
-
-        while (cur1 != end1 && cur2 != end2) {
-            if (cmp(*cur1, *cur2)) {
-                ++cur1;
-            } else if (cmp(*cur2, *cur1)) {
-                ++cur2;
-            } else {
-                // both values are equal
-                result.push_back(*cur1);
-                ++cur1;
-                ++cur2;
-            }
-        }
-
-        return result;
-    }
-
-    template <typename T>
-    std::vector<T> setIntersection(const std::vector<T>& vec1, const std::vector<T>& vec2) {
-        return setIntersection<T, std::less<T> >(vec1, vec2);
+    template <typename T, typename Cmp = std::less<T>>
+    std::vector<T> setIntersection(const std::vector<T>& vec1, const std::vector<T>& vec2, const Cmp cmp = Cmp()) {
+        std::vector<T> result;
+        std::set_intersection(std::begin(vec1), std::end(vec1),
+                              std::begin(vec2), std::end(vec2),
+                              std::back_inserter(result), cmp);
+        return std::move(result);
     }
 }
 
 namespace SetUtils {
     template <typename S>
     bool subset(const S& lhs, const S& rhs) {
-        if (lhs.size() > rhs.size())
-            return false;
-
-        auto lIt = std::begin(lhs);
-        auto lEnd = std::end(lhs);
-        auto rIt = std::begin(rhs);
-        auto rEnd = std::end(rhs);
-
         typedef typename S::key_compare C;
         const C cmp = lhs.key_comp();
-
-        while (lIt != lEnd) {
-            // forward rhs until we find the element
-            while (rIt != rEnd && cmp(*rIt, *lIt)) ++rIt;
-            if (rIt == rEnd || cmp(*lIt, *rIt)) // we didn't find it
-                return false;
-
-            // we found it, continue with next element
-            ++lIt;
-        }
-        return true;
+        return std::includes(std::begin(rhs), std::end(rhs),
+                             std::begin(lhs), std::end(lhs), cmp);
     }
     
     struct SubsetCmp {

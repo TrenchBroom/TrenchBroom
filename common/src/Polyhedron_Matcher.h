@@ -25,6 +25,7 @@
 
 #include <limits>
 #include <list>
+#include <map>
 
 /**
  * This template is used to match the faces of two polyhedra. The two polyhedra are expected to have the majority of
@@ -52,12 +53,13 @@
 template <typename P>
 class PolyhedronMatcher {
 private:
-    typedef typename P::V V;
-    typedef typename P::Vertex Vertex;
-    typedef typename P::VertexList VertexList;
-    typedef typename P::Vertex::Set VertexSet;
-    typedef typename P::HalfEdge HalfEdge;
-    typedef typename P::Face Face;
+    using V = typename P::V;
+    using Vertex = typename P::Vertex;
+    using VertexList = typename P::VertexList;
+    using VertexSet = typename P::Vertex::Set;
+    using HalfEdge = typename P::HalfEdge;
+    using Face = typename P::Face;
+    using VMap = std::map<V,V>;
     
     typedef relation<Vertex*, Vertex*> VertexRelation;
     
@@ -75,12 +77,7 @@ public:
     m_right(right),
     m_vertexRelation(buildVertexRelation(m_left, m_right, vertices, delta)) {}
 
-    PolyhedronMatcher(const P& left, const P& right, const typename V::Set& vertices, const V& delta) :
-    m_left(left),
-    m_right(right),
-    m_vertexRelation(buildVertexRelation(m_left, m_right, vertices, delta)) {}
-    
-    PolyhedronMatcher(const P& left, const P& right, const typename V::Map& vertexMap) :
+    PolyhedronMatcher(const P& left, const P& right, const VMap& vertexMap) :
     m_left(left),
     m_right(right),
     m_vertexRelation(buildVertexRelation(m_left, m_right, vertexMap)) {}
@@ -227,17 +224,14 @@ private:
         do {
             const auto& position = currentLeftVertex->position();
             auto* currentRightVertex = right.findVertexByPosition(position);
-            if (currentRightVertex != nullptr)
+            if (currentRightVertex != nullptr) {
                 result.insert(currentLeftVertex, currentRightVertex);
-            
+            }
+
             currentLeftVertex = currentLeftVertex->next();
         } while (currentLeftVertex != firstLeftVertex);
 
         return expandVertexRelation(left, right, result);
-    }
-    
-    static VertexRelation buildVertexRelation(const P& left, const P& right, const typename V::List& vertices, const V& delta) {
-        return buildVertexRelation(left, right, typename V::Set(std::begin(vertices), std::end(vertices)), delta);
     }
 
     /**
@@ -254,23 +248,28 @@ private:
      * @param delta the move delta
      * @return the vertex relation
      */
-    static VertexRelation buildVertexRelation(const P& left, const P& right, const typename V::Set& vertices, const V& delta) {
-        typename V::Map vertexMap;
-        
+    static VertexRelation buildVertexRelation(const P& left, const P& right, typename V::List vertices, const V& delta) {
+        VMap vertexMap;
+
+        VectorUtils::setCreate(vertices);
+
         auto* firstVertex = left.vertices().front();
         auto* currentVertex = firstVertex;
         do {
             const auto& position = currentVertex->position();
-            if (vertices.count(position) == 0) {
-                if (right.hasVertex(position))
+            // vertices are expected to be exact positions of vertices in left, whereas the vertex positions searched for
+            // in right allow an epsilon of Math::Constants<T>::almostZero()
+            if (VectorUtils::setContains(vertices, position)) {
+                if (right.hasVertex(position)) {
                     vertexMap.insert(std::make_pair(position, position));
+                }
             } else {
                 assert(right.hasVertex(position + delta));
                 vertexMap.insert(std::make_pair(position, position + delta));
             }
             currentVertex = currentVertex->next();
         } while (currentVertex != firstVertex);
-        
+
         return buildVertexRelation(left, right, vertexMap);
     }
 
@@ -282,7 +281,7 @@ private:
      * @param vertexMap a set of corresponding vertices for which to build the relation
      * @return the vertex relation
      */
-    static VertexRelation buildVertexRelation(const P& left, const P& right, const typename V::Map& vertexMap) {
+    static VertexRelation buildVertexRelation(const P& left, const P& right, const VMap& vertexMap) {
         VertexRelation result;
         
         for (const auto& entry : vertexMap) {
