@@ -30,29 +30,6 @@
 namespace TrenchBroom {
     namespace IO {
         class TokenizerState {
-        public:
-            class Snapshot {
-            private:
-                const char* m_cur;
-                size_t m_line;
-                size_t m_column;
-                bool m_escaped;
-                
-                friend class TokenizerState;
-            private:
-                Snapshot(const TokenizerState& state) :
-                m_cur(state.m_cur),
-                m_line(state.m_line),
-                m_column(state.m_column),
-                m_escaped(state.m_escaped) {}
-
-                void restore(TokenizerState& state) const {
-                    state.m_cur = m_cur;
-                    state.m_line = m_line;
-                    state.m_column = m_column;
-                    state.m_escaped = m_escaped;
-                }
-            };
         private:
             const char* m_begin;
             const char* m_cur;
@@ -64,7 +41,9 @@ namespace TrenchBroom {
             bool m_escaped;
         public:
             TokenizerState(const char* begin, const char* end, const String& escapableChars, char escapeChar);
-            
+
+            TokenizerState* clone(const char* begin, const char* end) const;
+
             size_t length() const;
             const char* begin() const;
             const char* end() const;
@@ -92,8 +71,8 @@ namespace TrenchBroom {
             
             void errorIfEof() const;
             
-            Snapshot snapshot() const;
-            void restore(const Snapshot& snapshot);
+            TokenizerState snapshot() const;
+            void restore(const TokenizerState& snapshot);
         };
         
         template <typename TokenType>
@@ -108,7 +87,7 @@ namespace TrenchBroom {
             class SaveState {
             private:
                 StatePtr m_state;
-                TokenizerState::Snapshot m_snapshot;
+                TokenizerState m_snapshot;
             public:
                 SaveState(StatePtr state) :
                 m_state(state),
@@ -216,11 +195,15 @@ namespace TrenchBroom {
                 return m_state->length();
             }
         public:
-            TokenizerState::Snapshot snapshot() const {
+            TokenizerState snapshot() const {
                 return m_state->snapshot();
             }
+
+            void replaceState(const char* begin, const char* end) {
+                m_state.reset(m_state->clone(begin, end));
+            }
             
-            void restore(const TokenizerState::Snapshot& snapshot) {
+            void restore(const TokenizerState& snapshot) {
                 m_state->restore(snapshot);
             }
         protected:

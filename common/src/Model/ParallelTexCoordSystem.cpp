@@ -123,7 +123,7 @@ namespace TrenchBroom {
             if (angleDelta == 0.0f)
                 return;
             
-            const FloatType angle = static_cast<FloatType>(vm::radians(angleDelta));
+            const FloatType angle = static_cast<FloatType>(vm::toRadians(angleDelta));
             applyRotation(getZAxis(), angle);
         }
         
@@ -153,7 +153,7 @@ namespace TrenchBroom {
             // determine the rotation by which the texture coordinate system will be rotated about its normal
             const auto angleDelta = computeTextureAngle(oldBoundary, effectiveTransformation);
             const auto newAngle = vm::correct(vm::normalizeDegrees(attribs.rotation() + angleDelta), 4);
-            assert(!vm::isNan(newAngle));
+            assert(!vm::isnan(newAngle));
             attribs.setRotation(newAngle);
 
             // calculate the current texture coordinates of the face's center
@@ -206,7 +206,7 @@ namespace TrenchBroom {
             const vm::mat4x4 nonRotation = computeNonTextureRotation(oldNormal, newNormal, rotationScale);
             const vm::vec3 newXAxis = vm::normalize(rotationScale * m_xAxis);
             const vm::vec3 nonXAxis = vm::normalize(nonRotation * m_xAxis);
-            const FloatType angle = vm::degrees(vm::measureAngle(nonXAxis, newXAxis, newNormal));
+            const FloatType angle = vm::toDegrees(vm::measureAngle(nonXAxis, newXAxis, newNormal));
             return static_cast<float>(angle);
         }
 
@@ -239,10 +239,10 @@ namespace TrenchBroom {
             possibleTexAxes.push_back({m_xAxis, m_yAxis}); // possibleTexAxes[0] = front
             possibleTexAxes.push_back({m_yAxis, m_xAxis}); // possibleTexAxes[1] = back
             const std::vector<vm::quat3> rotations {
-                vm::quat3(normalize(m_xAxis), vm::radians(90.0)),  // possibleTexAxes[2]= bottom (90 degrees CCW about m_xAxis)
-                vm::quat3(normalize(m_xAxis), vm::radians(-90.0)), // possibleTexAxes[3] = top
-                vm::quat3(normalize(m_yAxis), vm::radians(90.0)),  // possibleTexAxes[4] = left
-                vm::quat3(normalize(m_yAxis), vm::radians(-90.0)), // possibleTexAxes[5] = right
+                vm::quat3(normalize(m_xAxis), vm::toRadians(90.0)),  // possibleTexAxes[2]= bottom (90 degrees CCW about m_xAxis)
+                vm::quat3(normalize(m_xAxis), vm::toRadians(-90.0)), // possibleTexAxes[3] = top
+                vm::quat3(normalize(m_yAxis), vm::toRadians(90.0)),  // possibleTexAxes[4] = left
+                vm::quat3(normalize(m_yAxis), vm::toRadians(-90.0)), // possibleTexAxes[5] = right
             };
             for (const vm::quat3& rotation : rotations) {
                 possibleTexAxes.push_back({rotation * m_xAxis, rotation * m_yAxis});
@@ -318,7 +318,7 @@ namespace TrenchBroom {
         float ParallelTexCoordSystem::doMeasureAngle(const float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const {
             const vm::vec3 vec(point - center);
             const auto angleInRadians = vm::measureAngle(vm::normalize(vec), vm::vec3::pos_x, vm::vec3::pos_z);
-            return static_cast<float>(currentAngle + vm::degrees(angleInRadians));
+            return static_cast<float>(currentAngle + vm::toDegrees(angleInRadians));
         }
 
         void ParallelTexCoordSystem::computeInitialAxes(const vm::vec3& normal, vm::vec3& xAxis, vm::vec3& yAxis) const {

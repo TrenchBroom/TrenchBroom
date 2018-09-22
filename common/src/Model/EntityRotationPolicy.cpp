@@ -44,7 +44,7 @@ namespace TrenchBroom {
                         return vm::mat4x4::identity;
                     } else {
                         const auto angle = static_cast<FloatType>(std::atof(angleValue.c_str()));
-                        return vm::rotationMatrix(vm::vec3::pos_z, vm::radians(angle));
+                        return vm::rotationMatrix(vm::vec3::pos_z, vm::toRadians(angle));
                     }
                 }
                 case RotationType_AngleUpDown: {
@@ -58,7 +58,7 @@ namespace TrenchBroom {
                     } else if (angle == -2.0) {
                         return vm::mat4x4::rot_90_y_ccw;
                     } else {
-                        return vm::rotationMatrix(vm::vec3::pos_z, vm::radians(angle));
+                        return vm::rotationMatrix(vm::vec3::pos_z, vm::toRadians(angle));
                     }
                 }
                 case RotationType_Euler: {
@@ -70,9 +70,9 @@ namespace TrenchBroom {
                     // z =  roll
                     // pitch is applied with an inverted sign
                     // see QuakeSpasm sources gl_rmain R_RotateForEntity function
-                    const auto roll  = +vm::radians(angles.z());
-                    const auto pitch = -vm::radians(angles.x());
-                    const auto yaw   = +vm::radians(angles.y());
+                    const auto roll  = +vm::toRadians(angles.z());
+                    const auto pitch = -vm::toRadians(angles.x());
+                    const auto yaw   = +vm::toRadians(angles.y());
                     return vm::rotationMatrix(roll, pitch, yaw);
                 }
                 case RotationType_Euler_PositivePitchDown: {
@@ -82,9 +82,9 @@ namespace TrenchBroom {
                     // x = pitch
                     // y = yaw
                     // z = roll
-                    const auto roll  = +vm::radians(angles.z());
-                    const auto pitch = +vm::radians(angles.x());
-                    const auto yaw   = +vm::radians(angles.y());
+                    const auto roll  = +vm::toRadians(angles.z());
+                    const auto pitch = +vm::toRadians(angles.x());
+                    const auto yaw   = +vm::toRadians(angles.y());
                     return vm::rotationMatrix(roll, pitch, yaw);
                 }
                 case RotationType_Mangle: {
@@ -94,9 +94,9 @@ namespace TrenchBroom {
                     // x = yaw
                     // y = -pitch
                     // z = roll
-                    const auto roll  = +vm::radians(angles.z());
-                    const auto pitch = -vm::radians(angles.y());
-                    const auto yaw   = +vm::radians(angles.x());
+                    const auto roll  = +vm::toRadians(angles.z());
+                    const auto pitch = -vm::toRadians(angles.y());
+                    const auto yaw   = +vm::toRadians(angles.x());
                     return vm::rotationMatrix(roll, pitch, yaw);
                 }
                 case RotationType_None:
@@ -228,8 +228,8 @@ namespace TrenchBroom {
             direction[2] = 0.0;
             direction = normalize(direction);
 
-            auto angle = vm::round(vm::degrees(std::acos(direction.x())));
-            if (vm::isNegative(direction.y())) {
+            auto angle = vm::round(vm::toDegrees(std::acos(direction.x())));
+            if (direction.y() < FloatType(0.0)) {
                 angle = 360.0 - angle;
             }
             angle = vm::normalizeDegrees(angle);
@@ -277,7 +277,7 @@ namespace TrenchBroom {
                 roll = measureAngle(newZ, vm::vec3::pos_z, vm::vec3::pos_x);
             }
             
-            return vm::vec3(vm::degrees(yaw), vm::degrees(pitch), vm::degrees(roll));
+            return vm::vec3(vm::toDegrees(yaw), vm::toDegrees(pitch), vm::toDegrees(roll));
         }
     }
 }

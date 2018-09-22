@@ -112,14 +112,14 @@ namespace TrenchBroom {
                 
                 if ((leftDot > 0.0) != (rightDot > 0.0)) {
                     const auto result = vm::distance(m_pickRay, vm::segment3(edge->firstVertex()->position(), edge->secondVertex()->position()));
-                    if (!vm::isNan(result.distance) && result.distance < m_closest) {
+                    if (!vm::isnan(result.distance) && result.distance < m_closest) {
                         m_closest = result.distance;
                         const auto hitPoint = m_pickRay.pointAtDistance(result.position1);
                         if (m_hitType == ResizeBrushesTool::ResizeHit2D) {
                             Model::BrushFaceList faces;
-                            if (vm::isZero(leftDot)) {
+                            if (vm::isZero(leftDot, vm::C::almostZero())) {
                                 faces.push_back(left);
-                            } else if (vm::isZero(rightDot)) {
+                            } else if (vm::isZero(rightDot, vm::C::almostZero())) {
                                 faces.push_back(right);
                             } else {
                                 if (vm::abs(leftDot) < 1.0) {
@@ -185,7 +185,7 @@ namespace TrenchBroom {
             }
             
             bool operator()(Model::BrushFace* face) const {
-                return face != m_reference && isEqual(face->boundary(), m_reference->boundary(), vm::constants<FloatType>::almostZero());
+                return face != m_reference && isEqual(face->boundary(), m_reference->boundary(), vm::C::almostZero());
             }
         };
         
@@ -253,7 +253,7 @@ namespace TrenchBroom {
             const auto absoluteFaceDelta = grid.moveDelta(dragFace, faceNormal * dragDist);
             
             const auto faceDelta = selectDelta(relativeFaceDelta, absoluteFaceDelta, dragDist);
-            if (isZero(faceDelta)) {
+            if (isZero(faceDelta, vm::C::almostZero())) {
                 return true;
             }
 
@@ -284,7 +284,7 @@ namespace TrenchBroom {
 
         void ResizeBrushesTool::commitResize() {
             MapDocumentSPtr document = lock(m_document);
-            if (isZero(m_totalDelta)) {
+            if (isZero(m_totalDelta, vm::C::almostZero())) {
                 document->cancelTransaction();
             } else {
                 document->commitTransaction();
@@ -308,9 +308,10 @@ namespace TrenchBroom {
             // First ensure that the drag can be applied at all. For this, check whether each drag faces is moved
             // "up" along its normal.
             if (!std::all_of(std::begin(m_dragFaces), std::end(m_dragFaces),
-                            [&delta](const Model::BrushFace* face) { return vm::isPositive(
-                                    dot(face->boundary().normal, delta)); }))
+                            [&delta](const Model::BrushFace* face) {
+                return dot(face->boundary().normal, delta) > FloatType(0.0); })) {
                 return false;
+            }
 
             Model::BrushList newBrushes;
             Model::BrushFaceList newDragFaces;

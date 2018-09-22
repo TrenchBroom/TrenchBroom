@@ -10,14 +10,16 @@ FILE(GLOB_RECURSE BENCHMARK_SOURCE
 	"${BENCHMARK_SOURCE_DIR}/*.cpp"	
 )
 
-# Re-use some of TrenchBroom-Test (e.g. main()) in TrenchBroom-Benchmark
-LIST(APPEND BENCHMARK_SOURCE 
-	"${TEST_SOURCE_DIR}/RunAllTests.cpp"
-	"${TEST_SOURCE_DIR}/GLInit.cpp"
-	"${TEST_SOURCE_DIR}/View/GetVersion.cpp")
-
-ADD_EXECUTABLE(TrenchBroom-Test ${TEST_SOURCE} $<TARGET_OBJECTS:common>)
-ADD_EXECUTABLE(TrenchBroom-Benchmark ${BENCHMARK_SOURCE} $<TARGET_OBJECTS:common>)
+get_target_property(common_TYPE common TYPE)
+IF(common_TYPE STREQUAL "OBJECT_LIBRARY")
+	ADD_EXECUTABLE(TrenchBroom-Test ${TEST_SOURCE} $<TARGET_OBJECTS:common>)
+	ADD_EXECUTABLE(TrenchBroom-Benchmark ${BENCHMARK_SOURCE} $<TARGET_OBJECTS:common>)
+ELSE()
+	ADD_EXECUTABLE(TrenchBroom-Test ${TEST_SOURCE})
+	ADD_EXECUTABLE(TrenchBroom-Benchmark ${BENCHMARK_SOURCE})
+	TARGET_LINK_LIBRARIES(TrenchBroom-Test common)
+	TARGET_LINK_LIBRARIES(TrenchBroom-Benchmark common)
+ENDIF()
 
 IF(COMPILER_IS_GNU AND TB_ENABLE_ASAN)
 	TARGET_LINK_LIBRARIES(TrenchBroom-Test asan)
@@ -27,8 +29,11 @@ ENDIF()
 ADD_TARGET_PROPERTY(TrenchBroom-Test INCLUDE_DIRECTORIES "${TEST_SOURCE_DIR}")
 ADD_TARGET_PROPERTY(TrenchBroom-Benchmark INCLUDE_DIRECTORIES "${BENCHMARK_SOURCE_DIR}")
 
-TARGET_LINK_LIBRARIES(TrenchBroom-Test gtest gmock ${wxWidgets_LIBRARIES} ${FREETYPE_LIBRARIES} ${FREEIMAGE_LIBRARIES} vecmath)
-TARGET_LINK_LIBRARIES(TrenchBroom-Benchmark gtest gmock ${wxWidgets_LIBRARIES} ${FREETYPE_LIBRARIES} ${FREEIMAGE_LIBRARIES} vecmath)
+TARGET_LINK_LIBRARIES(TrenchBroom-Test glew gtest gmock ${wxWidgets_LIBRARIES} ${FREETYPE_LIBRARIES} ${FREEIMAGE_LIBRARIES} vecmath)
+TARGET_LINK_LIBRARIES(TrenchBroom-Benchmark glew gtest gmock ${wxWidgets_LIBRARIES} ${FREETYPE_LIBRARIES} ${FREEIMAGE_LIBRARIES} vecmath)
+
+SET_TARGET_PROPERTIES(TrenchBroom-Test PROPERTIES COMPILE_DEFINITIONS "GLEW_STATIC")
+SET_TARGET_PROPERTIES(TrenchBroom-Benchmark PROPERTIES COMPILE_DEFINITIONS "GLEW_STATIC")
 
 IF (COMPILER_IS_MSVC)
 	TARGET_LINK_LIBRARIES(TrenchBroom-Test stackwalker)
@@ -90,3 +95,10 @@ ENDFOREACH(GAME_CONFIG_FILE)
 
 SET_XCODE_ATTRIBUTES(TrenchBroom-Test)
 SET_XCODE_ATTRIBUTES(TrenchBroom-Benchmark)
+
+# cotire
+set_target_properties(TrenchBroom-Test PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "Prefix.h")
+cotire(TrenchBroom-Test)
+
+set_target_properties(TrenchBroom-Benchmark PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "Prefix.h")
+cotire(TrenchBroom-Benchmark)

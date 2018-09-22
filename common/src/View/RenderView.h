@@ -25,6 +25,7 @@
 #include "View/GLAttribs.h"
 #include "View/GLContext.h"
 
+#include <GL/glew.h>
 #include <wx/glcanvas.h>
 
 namespace TrenchBroom {

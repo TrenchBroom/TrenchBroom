@@ -37,7 +37,7 @@ namespace TrenchBroom {
             using Token =  TokenTemplate<TokenType>;
             mutable TokenNameMap m_tokenNames;
         public:
-            virtual ~Parser() {}
+            virtual ~Parser() = default;
         protected:
             bool check(const TokenType typeMask, const Token& token) const {
                 return token.hasType(typeMask);
@@ -50,8 +50,9 @@ namespace TrenchBroom {
             }
             
             const Token& expect(ParserStatus& status, const TokenType typeMask, const Token& token) const {
-                if (!check(typeMask, token))
+                if (!check(typeMask, token)) {
                     expect(status, tokenName(typeMask), token);
+                }
                 return token;
             }
             

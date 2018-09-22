@@ -362,7 +362,7 @@ namespace TrenchBroom {
 
         BrushFace* Brush::findFace(const vm::vec3& normal) const {
             for (auto* face : m_faces) {
-                if (isEqual(face->boundary().normal, normal, vm::constants<FloatType>::almostZero())) {
+                if (isEqual(face->boundary().normal, normal, vm::C::almostZero())) {
                     return face;
             }
             }
@@ -371,7 +371,7 @@ namespace TrenchBroom {
 
         BrushFace* Brush::findFace(const vm::plane3& boundary) const {
             for (auto* face : m_faces) {
-                if (isEqual(face->boundary(), boundary, vm::constants<FloatType>::almostZero())) {
+                if (isEqual(face->boundary(), boundary, vm::C::almostZero())) {
                     return face;
                 }
             }
@@ -730,7 +730,7 @@ namespace TrenchBroom {
             result.reserve(vertexPositions.size());
 
             for (const auto& position : vertexPositions) {
-                const auto* newVertex = m_geometry->findClosestVertex(position + delta, vm::constants<FloatType>::almostZero());
+                const auto* newVertex = m_geometry->findClosestVertex(position + delta, vm::C::almostZero());
                 if (newVertex != nullptr) {
                     result.push_back(newVertex->position());
             }
@@ -753,7 +753,7 @@ namespace TrenchBroom {
             const PolyhedronMatcher<BrushGeometry> matcher(*m_geometry, newGeometry);
             doSetNewGeometry(worldBounds, matcher, newGeometry);
 
-            auto* newVertex = m_geometry->findClosestVertex(position, vm::constants<FloatType>::almostZero());
+            auto* newVertex = m_geometry->findClosestVertex(position, vm::C::almostZero());
             ensure(newVertex != nullptr, "vertex could not be added");
             return newVertex;
         }
@@ -867,7 +867,7 @@ namespace TrenchBroom {
             result.reserve(edgePositions.size());
 
             for (const auto& edgePosition : edgePositions) {
-                const auto* newEdge = m_geometry->findClosestEdge(edgePosition.start() + delta, edgePosition.end() + delta, vm::constants<FloatType>::almostZero());
+                const auto* newEdge = m_geometry->findClosestEdge(edgePosition.start() + delta, edgePosition.end() + delta, vm::C::almostZero());
                 if (newEdge != nullptr) {
                     result.push_back(vm::segment3(newEdge->firstVertex()->position(), newEdge->secondVertex()->position()));
                 }
@@ -908,7 +908,7 @@ namespace TrenchBroom {
             result.reserve(facePositions.size());
 
             for (const auto& facePosition : facePositions) {
-                const auto* newFace = m_geometry->findClosestFace(facePosition.vertices() + delta, vm::constants<FloatType>::almostZero());
+                const auto* newFace = m_geometry->findClosestFace(facePosition.vertices() + delta, vm::C::almostZero());
                 if (newFace != nullptr) {
                     result.push_back(vm::polygon3(newFace->vertexPositions()));
                 }
@@ -955,7 +955,7 @@ namespace TrenchBroom {
          */
         Brush::CanMoveVerticesResult Brush::doCanMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, vm::vec3 delta, const bool allowVertexRemoval) const {
             // Should never occur, takes care of the first row.
-            if (vertexPositions.empty() || isZero(delta)) {
+            if (vertexPositions.empty() || isZero(delta, vm::C::almostZero())) {
                 return CanMoveVerticesResult::rejectVertexMove();
             }
 
@@ -1031,7 +1031,7 @@ namespace TrenchBroom {
                         face->pointStatus(newPos) == vm::point_status::above) {
                         const auto ray = vm::ray3(oldPos, normalize(newPos - oldPos));
                         const auto distance = face->intersectWithRay(ray, vm::side::back);
-                        if (!vm::isNan(distance)) {
+                        if (!vm::isnan(distance)) {
                             return CanMoveVerticesResult::rejectVertexMove();
                     }
                 }
@@ -1064,7 +1064,7 @@ namespace TrenchBroom {
                 const auto& oldPosition = oldVertex->position();
                 const auto moved = vertexSet.count(oldPosition);
                 const auto newPosition = moved ? oldPosition + delta : oldPosition;
-                const auto* newVertex = newGeometry.findClosestVertex(newPosition, vm::constants<FloatType>::almostZero());
+                const auto* newVertex = newGeometry.findClosestVertex(newPosition, vm::C::almostZero());
                 if (newVertex != nullptr) {
                     vertexMapping.insert(std::make_pair(oldPosition, newVertex->position()));
                 }
@@ -1075,8 +1075,6 @@ namespace TrenchBroom {
         }
 
         void Brush::doSetNewGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, BrushGeometry& newGeometry) {
-            const vm::bbox3 oldBounds = bounds();
-
             matcher.processRightFaces(FaceMatchingCallback());
 
             const NotifyNodeChange nodeChange(this);
@@ -1084,7 +1082,6 @@ namespace TrenchBroom {
             updateFacesFromGeometry(worldBounds, newGeometry);
             rebuildGeometry(worldBounds);
             assert(fullySpecified());
-            nodeBoundsDidChange(oldBounds);
         }
 
         Brush::VertexSet Brush::createVertexSet(const std::vector<vm::vec3>& vertices) {
@@ -1344,7 +1341,7 @@ namespace TrenchBroom {
         void Brush::doPick(const vm::ray3& ray, PickResult& pickResult) const {
             const auto hit = findFaceHit(ray);
             if (hit.face != nullptr) {
-                ensure(!vm::isNan(hit.distance), "nan hit distance");
+                ensure(!vm::isnan(hit.distance), "nan hit distance");
                 const auto hitPoint = ray.pointAtDistance(hit.distance);
                 pickResult.addHit(Hit(BrushHit, hit.distance, hitPoint, hit.face));
             }
@@ -1366,13 +1363,13 @@ namespace TrenchBroom {
         Brush::BrushFaceHit::BrushFaceHit(BrushFace* i_face, const FloatType i_distance) : face(i_face), distance(i_distance) {}
 
         Brush::BrushFaceHit Brush::findFaceHit(const vm::ray3& ray) const {
-            if (vm::isNan(vm::intersect(ray, bounds()))) {
+            if (vm::isnan(vm::intersect(ray, bounds()))) {
                 return BrushFaceHit();
             }
 
             for (auto* face : m_faces) {
                 const auto distance = face->intersectWithRay(ray);
-                if (!vm::isNan(distance)) {
+                if (!vm::isnan(distance)) {
                     return BrushFaceHit(face, distance);
             }
             }

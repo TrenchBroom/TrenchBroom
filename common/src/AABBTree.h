@@ -542,11 +542,11 @@ public:
         if (!empty()) {
             LambdaVisitor visitor(
                     [&](const InnerNode* innerNode) {
-                        return innerNode->bounds().contains(ray.origin) || !vm::isNan(
-                                intersect(ray, innerNode->bounds()));
+                        return innerNode->bounds().contains(ray.origin) || !vm::isnan(
+                            intersect(ray, innerNode->bounds()));
                     },
                     [&](const LeafNode* leaf) {
-                        if (leaf->bounds().contains(ray.origin) || !vm::isNan(intersect(ray, leaf->bounds()))) {
+                        if (leaf->bounds().contains(ray.origin) || !vm::isnan(intersect(ray, leaf->bounds()))) {
                             out = leaf->data();
                             ++out;
                         }

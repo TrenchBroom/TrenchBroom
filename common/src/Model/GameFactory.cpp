@@ -134,12 +134,13 @@ namespace TrenchBroom {
         }
         
         void GameFactory::initializeFileSystem() {
-            const auto resourceGameDir = IO::SystemPaths::resourceDirectory() + IO::Path("games");
-            if (IO::Disk::directoryExists(resourceGameDir))
-                m_configFS.addReadableFileSystem(new IO::DiskFileSystem(resourceGameDir));
+            const IO::Path resourceGameDir = IO::SystemPaths::resourceDirectory() + IO::Path("games");
+            if (IO::Disk::directoryExists(resourceGameDir)) {
+                m_configFS.pushReadableFileSystem(new IO::DiskFileSystem(resourceGameDir));
+            }
 
-            const auto userGameDir = IO::SystemPaths::userDataDirectory() + IO::Path("games");
-            m_configFS.addWritableFileSystem(new IO::WritableDiskFileSystem(userGameDir, true));
+            const IO::Path userGameDir = IO::SystemPaths::userDataDirectory() + IO::Path("games");
+            m_configFS.pushWritableFileSystem(new IO::WritableDiskFileSystem(userGameDir, true));
         }
 
         void GameFactory::loadGameConfigs() {

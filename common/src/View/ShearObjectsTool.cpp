@@ -114,7 +114,7 @@ namespace TrenchBroom {
                 const auto poly = polygonForBBoxSide(myBounds, side);
 
                 const auto dist = vm::intersect(pickRay, poly.begin(), poly.end());
-                if (!vm::isNan(dist)) {
+                if (!vm::isnan(dist)) {
                     localPickResult.addHit(Model::Hit(ShearToolSideHit, dist, pickRay.pointAtDistance(dist), side));
                 }
             }
@@ -176,7 +176,7 @@ namespace TrenchBroom {
             ensure(m_resizing, "must be resizing already");
 
             MapDocumentSPtr document = lock(m_document);
-            if (isZero(m_dragCumulativeDelta)) {
+            if (isZero(m_dragCumulativeDelta, vm::C::almostZero())) {
                 document->cancelTransaction();
             } else {
                 document->commitTransaction();
@@ -200,7 +200,7 @@ namespace TrenchBroom {
 
             MapDocumentSPtr document = lock(m_document);
 
-            if (!isZero(delta)) {
+            if (!isZero(delta, vm::C::almostZero())) {
                 const BBoxSide side = m_dragStartHit.target<BBoxSide>();
 
                 if (document->shearObjects(bounds(), side.normal, delta)) {

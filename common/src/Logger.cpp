@@ -26,7 +26,7 @@ namespace TrenchBroom {
     
     void Logger::debug(const char* format, ...) {
 #ifndef NDEBUG
-        va_list(arguments);
+        va_list arguments;
         va_start(arguments, format);
         const String message = StringUtils::formatStringV(format, arguments);
         va_end(arguments);
@@ -47,7 +47,7 @@ namespace TrenchBroom {
     }
     
     void Logger::info(const char* format, ...) {
-        va_list(arguments);
+        va_list arguments;
         va_start(arguments, format);
         const String message = StringUtils::formatStringV(format, arguments);
         va_end(arguments);
@@ -63,7 +63,7 @@ namespace TrenchBroom {
     }
     
     void Logger::warn(const char* format, ...) {
-        va_list(arguments);
+        va_list arguments;
         va_start(arguments, format);
         const String message = StringUtils::formatStringV(format, arguments);
         va_end(arguments);
@@ -79,7 +79,7 @@ namespace TrenchBroom {
     }
     
     void Logger::error(const char* format, ...) {
-        va_list(arguments);
+        va_list arguments;
         va_start(arguments, format);
         const String message = StringUtils::formatStringV(format, arguments);
         va_end(arguments);

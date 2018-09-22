@@ -4,6 +4,13 @@ ELSE()
     cmake_minimum_required (VERSION 3.1)
 ENDIF()
 
+# Fix warning with Ninja and cotire (see https://github.com/sakra/cotire/issues/81)
+if(POLICY CMP0058)
+    cmake_policy(SET CMP0058 NEW)
+endif()
+
+include(cmake/cotire.cmake)
+
 # SET(CMAKE_VERBOSE_MAKEFILE ON)
 
 INCLUDE(cmake/Utils.cmake)
@@ -41,17 +48,10 @@ SET(LIB_BIN_DIR "${LIB_DIR}/bin")
 SET(LIB_INCLUDE_DIR "${LIB_DIR}/include")
 SET(LIB_SOURCE_DIR "${LIB_DIR}/src")
 
-INCLUDE(cmake/wxWidgets.cmake)
-INCLUDE(cmake/FreeType.cmake)
-INCLUDE(cmake/FreeImage.cmake)
-
-# Should be changed to use per directory CMakeList.txt and ADD_SUBDIRECTORY
-INCLUDE(cmake/GTest.cmake)
-INCLUDE(cmake/GMock.cmake)
-INCLUDE(cmake/Glew.cmake)
-INCLUDE(cmake/vecmath.cmake)
-INCLUDE(cmake/Common.cmake)
-INCLUDE(cmake/StackWalker.cmake)
+# Required wxWidgets version
+SET(TB_MIN_wxWidgets_VERSION_MAJOR 3)
+SET(TB_MIN_wxWidgets_VERSION_MINOR 1)
+SET(TB_MIN_wxWidgets_VERSION_PATCH 1)
 
 IF(COMPILER_IS_CLANG)
     MESSAGE(STATUS "Compiler is Clang")
@@ -83,6 +83,7 @@ IF(TB_ENABLE_ASAN)
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
     SET(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
     SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address")
+    SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fsanitize=address")
 
     # Workaround for false positives on macOS
     IF(COMPILER_IS_CLANG)
@@ -105,6 +106,18 @@ ENDIF()
 IF(CMAKE_BUILD_TYPE MATCHES "Debug")
 	ADD_DEFINITIONS(-DWXDEBUG -DDEBUG)
 ENDIF()
+
+INCLUDE(cmake/wxWidgets.cmake)
+INCLUDE(cmake/FreeType.cmake)
+INCLUDE(cmake/FreeImage.cmake)
+
+# Should be changed to use per directory CMakeList.txt and ADD_SUBDIRECTORY
+INCLUDE(cmake/GTest.cmake)
+INCLUDE(cmake/GMock.cmake)
+INCLUDE(cmake/Glew.cmake)
+INCLUDE(cmake/vecmath.cmake)
+INCLUDE(cmake/Common.cmake)
+INCLUDE(cmake/StackWalker.cmake)
 
 INCLUDE(cmake/TrenchBroomApp.cmake)
 INCLUDE(cmake/TrenchBroomTest.cmake)

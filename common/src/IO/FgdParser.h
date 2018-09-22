@@ -26,11 +26,14 @@
 #include "Assets/AssetTypes.h"
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/EntityDefinitionParser.h"
+#include "IO/FileSystemHierarchy.h"
 #include "IO/Parser.h"
 #include "IO/Token.h"
 #include "IO/Tokenizer.h"
 
 #include <vecmath/forward.h>
+
+#include <list>
 
 namespace TrenchBroom {
     namespace IO {
@@ -47,7 +50,7 @@ namespace TrenchBroom {
             static const Type Equality          = 1 <<  8; // equality sign: =
             static const Type Colon             = 1 <<  9; // colon: :
             static const Type Comma             = 1 << 10; // comma: ,
-            static const Type Eof               = 1 << 11; // end of file
+            static const Type Eof               = 1 << 12; // end of file
         }
         
         class FgdTokenizer : public Tokenizer<FgdToken::Type> {
@@ -69,19 +72,31 @@ namespace TrenchBroom {
                 T value;
                 
                 DefaultValue() : present(false) {}
-                DefaultValue(const T& i_value) : present(true), value(i_value) {}
+                explicit DefaultValue(const T& i_value) : present(true), value(i_value) {}
             };
             
             Color m_defaultEntityColor;
+
+            std::list<Path> m_paths;
+            FileSystemHierarchy m_fileSystem;
+
             FgdTokenizer m_tokenizer;
             EntityDefinitionClassInfoMap m_baseClasses;
         public:
-            FgdParser(const char* begin, const char* end, const Color& defaultEntityColor);
-            FgdParser(const String& str, const Color& defaultEntityColor);
+            FgdParser(const char* begin, const char* end, const Color& defaultEntityColor, const Path& path = Path(""));
+            FgdParser(const String& str, const Color& defaultEntityColor, const Path& path = Path(""));
+        private:
+            class PushIncludePath;
+            void pushIncludePath(const Path& path);
+            void popIncludePath();
+
+            bool isRecursiveInclude(const Path& path) const;
         private:
             TokenNameMap tokenNames() const override;
             Assets::EntityDefinitionList doParseDefinitions(ParserStatus& status) override;
-            
+
+            void parseDefinitionOrInclude(ParserStatus& status, Assets::EntityDefinitionList& definitions);
+
             Assets::EntityDefinition* parseDefinition(ParserStatus& status);
             Assets::EntityDefinition* parseSolidClass(ParserStatus& status);
             Assets::EntityDefinition* parsePointClass(ParserStatus& status);
@@ -112,6 +127,9 @@ namespace TrenchBroom {
             vm::vec3 parseVector(ParserStatus& status);
             vm::bbox3 parseSize(ParserStatus& status);
             Color parseColor(ParserStatus& status);
+
+            Assets::EntityDefinitionList parseInclude(ParserStatus& status);
+            Assets::EntityDefinitionList handleInclude(ParserStatus& status, const Path& path);
         };
     }
 }

@@ -30,7 +30,11 @@ namespace TrenchBroom {
         m_line(1),
         m_column(1),
         m_escaped(false) {}
-        
+
+        TokenizerState* TokenizerState::clone(const char* begin, const char* end) const {
+            return new TokenizerState(begin, end, m_escapableChars, m_escapeChar);
+        }
+
         size_t TokenizerState::length() const {
             return static_cast<size_t>(m_end - m_begin);
         }
@@ -127,12 +131,12 @@ namespace TrenchBroom {
                 throw ParserException("Unexpected end of file");
         }
 
-        TokenizerState::Snapshot TokenizerState::snapshot() const {
-            return Snapshot(*this);
+        TokenizerState TokenizerState::snapshot() const {
+            return TokenizerState(*this);
         }
         
-        void TokenizerState::restore(const Snapshot& snapshot) {
-            snapshot.restore(*this);
+        void TokenizerState::restore(const TokenizerState& snapshot) {
+            *this = snapshot;
         }
     }
 }

@@ -232,7 +232,7 @@ namespace TrenchBroom {
             const auto& normal = m_face->boundary().normal;
             vm::vec3 right;
             
-            if (vm::lt(vm::abs(dot(vm::vec3::pos_z, normal)), 1.0)) {
+            if (vm::abs(dot(vm::vec3::pos_z, normal)) < FloatType(1.0)) {
                 right = normalize(cross(vm::vec3::pos_z, normal));
             } else {
                 right = vm::vec3::pos_x;

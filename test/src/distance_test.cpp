@@ -31,8 +31,6 @@
 #include <vecmath/plane.h>
 #include <vecmath/distance.h>
 
-// TODO 2201: write more tests
-
 namespace vm {
     TEST(DistanceTest, distanceRayAndPoint) {
         const ray3f ray(vec3f::zero, vec3f::pos_z);

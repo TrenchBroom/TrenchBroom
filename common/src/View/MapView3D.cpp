@@ -250,7 +250,7 @@ namespace TrenchBroom {
         
         float MapView3D::rotateTextureAngle(const bool clockwise) const {
             const Grid& grid = lock(m_document)->grid();
-            const float gridAngle = static_cast<float>(vm::degrees(grid.angle()));
+            const float gridAngle = static_cast<float>(vm::toDegrees(grid.angle()));
             float angle = 0.0f;
             
             const wxMouseState mouseState = wxGetMouseState();
@@ -456,7 +456,7 @@ namespace TrenchBroom {
                 const auto ray = vm::ray3f(m_cameraPosition, -m_cameraDirection);
                 const auto newPlane = vm::plane3f(point + 64.0f * plane.normal, plane.normal);
                 const auto dist = intersect(ray, newPlane);;
-                if (!vm::isNan(dist) && dist > 0.0f) {
+                if (!vm::isnan(dist) && dist > 0.0f) {
                     m_offset = std::max(m_offset, dist);
                 }
             }
@@ -513,7 +513,7 @@ namespace TrenchBroom {
                 case vm::direction::forward: {
                     const auto plane = vm::plane3(vm::vec3(m_camera.position()), vm::vec3::pos_z);
                     const auto projectedDirection = plane.projectVector(vm::vec3(m_camera.direction()));
-                    if (isZero(projectedDirection)) {
+                    if (isZero(projectedDirection, vm::C::almostZero())) {
                         // camera is looking straight down or up
                         if (m_camera.direction().z() < 0.0) {
                             return vm::vec3(firstAxis(m_camera.up()));

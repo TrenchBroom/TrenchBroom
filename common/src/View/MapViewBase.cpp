@@ -97,7 +97,8 @@ namespace TrenchBroom {
         m_toolBox(toolBox),
         m_animationManager(new AnimationManager()),
         m_renderer(renderer),
-        m_compass(nullptr) {
+        m_compass(nullptr),
+        m_portalFileRenderer(nullptr) {
             setToolBox(toolBox);
             toolBox.addWindow(this);
             bindEvents();
@@ -238,6 +239,7 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::portalFileDidChange() {
+            invalidatePortalFileRenderer();
             Refresh();
         }
 
@@ -922,29 +924,37 @@ namespace TrenchBroom {
                 renderService.renderLineStrip(pointFile->points());
             }
         }
-        
+
         void MapViewBase::renderPortalFile(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            if (m_portalFileRenderer == nullptr) {
+                validatePortalFileRenderer(renderContext);
+                assert(m_portalFileRenderer != nullptr);
+            }
+            renderBatch.add(m_portalFileRenderer.get());
+        }
+
+        void MapViewBase::invalidatePortalFileRenderer() {
+            m_portalFileRenderer = nullptr;
+        }
+
+        void MapViewBase::validatePortalFileRenderer(Renderer::RenderContext& renderContext) {
+            assert(m_portalFileRenderer == nullptr);
+            m_portalFileRenderer = std::make_unique<Renderer::PrimitiveRenderer>();
+
             MapDocumentSPtr document = lock(m_document);
             Model::PortalFile* portalFile = document->portalFile();
             if (portalFile != nullptr) {
-                Renderer::RenderService renderService(renderContext, renderBatch);
-                
-                // render fills
-                
-                renderService.setShowBackfaces();
-                renderService.setHideOccludedObjects();
-                renderService.setForegroundColor(pref(Preferences::PortalFileFillColor));
-                
                 for (const auto& poly : portalFile->portals()) {
-                    renderService.renderFilledPolygon(poly.vertices());
-                }
-                
-                // render strokes
-                
-                renderService.setLineWidth(4.0f);
-                renderService.setForegroundColor(pref(Preferences::PortalFileBorderColor));
-                for (const auto& poly : portalFile->portals()) {
-                    renderService.renderPolygonOutline(poly.vertices());
+                    m_portalFileRenderer->renderFilledPolygon(pref(Preferences::PortalFileFillColor),
+                                                              Renderer::PrimitiveRenderer::OP_Hide,
+                                                              Renderer::PrimitiveRenderer::CP_ShowBackfaces,
+                                                              poly.vertices());
+
+                    const auto lineWidth = 4.0f;
+                    m_portalFileRenderer->renderPolygon(pref(Preferences::PortalFileBorderColor),
+                                                        lineWidth,
+                                                        Renderer::PrimitiveRenderer::OP_Hide,
+                                                        poly.vertices());
                 }
             }
         }

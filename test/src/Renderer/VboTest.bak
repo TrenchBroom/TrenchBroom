@@ -20,7 +20,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "GL/GLMock.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VboBlock.h"
 

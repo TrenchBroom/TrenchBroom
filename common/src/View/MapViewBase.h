@@ -34,6 +34,8 @@
 #include "View/UndoableCommand.h"
 #include "View/ViewTypes.h"
 
+#include <memory>
+
 namespace TrenchBroom {
     class Logger;
     
@@ -45,6 +47,7 @@ namespace TrenchBroom {
         class Camera;
         class Compass;
         class MapRenderer;
+        class PrimitiveRenderer;
         class RenderBatch;
         class RenderContext;
         class Vbo;
@@ -76,6 +79,7 @@ namespace TrenchBroom {
         private:
             Renderer::MapRenderer& m_renderer;
             Renderer::Compass* m_compass;
+            std::unique_ptr<Renderer::PrimitiveRenderer> m_portalFileRenderer;
         protected:
             MapViewBase(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager);
             
@@ -215,7 +219,11 @@ namespace TrenchBroom {
             void setupGL(Renderer::RenderContext& renderContext);
             void renderCoordinateSystem(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderPointFile(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+
             void renderPortalFile(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            void invalidatePortalFileRenderer();
+            void validatePortalFileRenderer(Renderer::RenderContext& renderContext);
+
             void renderCompass(Renderer::RenderBatch& renderBatch);
         private: // implement ToolBoxConnector
             void doShowPopupMenu() override;

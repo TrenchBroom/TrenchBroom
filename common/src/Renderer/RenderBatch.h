@@ -56,7 +56,11 @@ namespace TrenchBroom {
             void add(Renderable* renderable);
             void add(DirectRenderable* renderable);
             void add(IndexedRenderable* renderable);
-            
+
+            /**
+             * Same as `add()`, but takes ownership of the given renderable and deletes it in
+             * `~RenderBatch`.
+             */
             void addOneShot(Renderable* renderable);
             void addOneShot(DirectRenderable* renderable);
             void addOneShot(IndexedRenderable* renderable);

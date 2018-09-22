@@ -655,7 +655,7 @@ typename Polyhedron<T,FP,VP>::FaceHit Polyhedron<T,FP,VP>::pickFace(const vm::ra
     auto* currentFace = firstFace;
     do {
         const auto distance = currentFace->intersectWithRay(ray, side);
-        if (!vm::isNan(distance)) {
+        if (!vm::isnan(distance)) {
             return FaceHit(currentFace, distance);
         }
         currentFace = currentFace->next();

@@ -240,7 +240,7 @@ typename Polyhedron<T,FP,VP>::V Polyhedron<T,FP,VP>::Face::normal() const {
         const auto& p2 = current->next()->origin()->position();
         const auto& p3 = current->next()->next()->origin()->position();
         normal = cross(p2 - p1, p3 - p1);
-        if (!isZero(normal)) {
+        if (!isZero(normal, vm::constants<T>::almostZero())) {
             return normalize(normal);
         }
         current = current->next();
@@ -496,7 +496,7 @@ private:
     RayIntersection(const Type type, const T distance) :
     m_type(type),
     m_distance(distance) {
-        assert(!vm::isNan(m_distance) || m_type == Type_None);
+        assert(!vm::isnan(m_distance) || m_type == Type_None);
     }
 public:
     static RayIntersection Front(const T distance) {
@@ -533,12 +533,12 @@ typename Polyhedron<T,FP,VP>::Face::RayIntersection Polyhedron<T,FP,VP>::Face::i
     const vm::plane<T,3> plane(origin(), normal());
     const auto cos = dot(plane.normal, ray.direction);
     
-    if (vm::isZero(cos)) {
+    if (vm::isZero(cos, vm::constants<T>::almostZero())) {
         return RayIntersection::None();
     }
 
     const auto distance = vm::intersect(ray, plane, std::begin(m_boundary), std::end(m_boundary), GetVertexPosition());
-    if (vm::isNan(distance)) {
+    if (vm::isnan(distance)) {
         return RayIntersection::None();
     } else if (cos < 0.0) {
         return RayIntersection::Front(distance);

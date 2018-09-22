@@ -135,7 +135,7 @@ namespace TrenchBroom {
             bounds.max = grid.snapUp(bounds.max);
             
             for (size_t i = 0; i < 3; i++) {
-                if (vm::lte(bounds.max[i], bounds.min[i])) {
+                if (bounds.max[i] <= bounds.min[i]) {
                     if (bounds.min[i] < cameraPosition[i]) {
                         bounds.max[i] = bounds.min[i] + grid.actualSize();
                     } else {

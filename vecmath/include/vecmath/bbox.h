@@ -218,14 +218,12 @@ namespace vm {
          * Checks whether the given point is cointained in this bounding box.
          *
          * @param point the point
-         * @param epsilon an epsilon value
          * @return true if the given point is contained in the given bounding box and false otherwise
          */
-        bool contains(const vec<T,S>& point, const T epsilon = static_cast<T>(0.0)) const {
+        bool contains(const vec<T,S>& point) const {
             assert(valid());
             for (size_t i = 0; i < S; ++i) {
-                if (lt(point[i], min[i], epsilon) ||
-                    gt(point[i], max[i], epsilon)) {
+                if (point[i] < min[i] || point[i] > max[i]) {
                     return false;
                 }
             }
@@ -236,14 +234,12 @@ namespace vm {
          * Checks whether the given bounding box is contained in this bounding box.
          *
          * @param b the possibly contained bounding box
-         * @param epsilon an epsilon value
          * @return true if the given bounding box is contained in this bounding box
          */
-        bool contains(const bbox<T,S>& b, const T epsilon = static_cast<T>(0.0)) const {
+        bool contains(const bbox<T,S>& b) const {
             assert(valid());
             for (size_t i = 0; i < S; ++i) {
-                if (lt(b.min[i], min[i], epsilon) ||
-                    gt(b.max[i], max[i], epsilon)) {
+                if (b.min[i] < min[i] || b.max[i] > max[i]) {
                     return false;
                 }
             }
@@ -255,14 +251,12 @@ namespace vm {
          * checking whether given box is contained within this box such that the boxes don't touch at all.
          *
          * @param b the possibly enclosed bounding box
-         * @param epsilon an epsilon value
          * @return true if the given bounding box is enclosed in this bounding box
          */
-        bool encloses(const bbox<T,S>& b, const T epsilon = static_cast<T>(0.0)) const {
+        bool encloses(const bbox<T,S>& b) const {
             assert(valid());
             for (size_t i = 0; i < S; ++i) {
-                if (lte(b.min[i], min[i], epsilon) ||
-                    gte(b.max[i], max[i], epsilon)) {
+                if (b.min[i] <= min[i] || b.max[i] >= max[i]) {
                     return false;
                 }
             }
@@ -273,13 +267,11 @@ namespace vm {
          * Checks whether the given bounding box intersects with this bounding box.
 
          * @param b the second bounding box
-         * @param epsilon an epsilon value
          * @return true if the given bounding box intersects with this bounding box and false otherwise
          */
-        bool intersects(const bbox<T,S>& b, const T epsilon = static_cast<T>(0.0)) const {
+        bool intersects(const bbox<T,S>& b) const {
             for (size_t i = 0; i < S; ++i) {
-                if (lt(b.max[i], min[i], epsilon) ||
-                    gt(b.min[i], max[i], epsilon)) {
+                if (b.max[i] < min[i] || b.min[i] > max[i]) {
                     return false;
                 }
             }

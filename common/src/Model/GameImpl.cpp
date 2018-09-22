@@ -76,7 +76,7 @@ namespace TrenchBroom {
 
         void GameImpl::addSearchPath(const IO::Path& searchPath, Logger* logger) {
             try {
-                m_gameFS.addFileSystem(new IO::DiskFileSystem(m_gamePath + searchPath));
+                m_gameFS.pushFileSystem(new IO::DiskFileSystem(m_gamePath + searchPath));
             } catch (const FileSystemException& e) {
                 logger->error("Cannot to add file system search path '" + searchPath.asString() + "': " + String(e.what()));
             }
@@ -97,9 +97,9 @@ namespace TrenchBroom {
                     ensure(packageFile.get() != nullptr, "packageFile is null");
 
                     if (StringUtils::caseInsensitiveEqual(packageFormat, "idpak")) {
-                        m_gameFS.addFileSystem(new IO::IdPakFileSystem(packagePath, packageFile));
+                        m_gameFS.pushFileSystem(new IO::IdPakFileSystem(packagePath, packageFile));
                     } else if (StringUtils::caseInsensitiveEqual(packageFormat, "dkpak")) {
-                        m_gameFS.addFileSystem(new IO::DkPakFileSystem(packagePath, packageFile));
+                        m_gameFS.pushFileSystem(new IO::DkPakFileSystem(packagePath, packageFile));
                     }
                 }
             }
@@ -288,7 +288,7 @@ namespace TrenchBroom {
             Assets::EntityDefinitionList definitions;
             if (StringUtils::caseInsensitiveEqual("fgd", extension)) {
                 const IO::MappedFile::Ptr file = IO::Disk::openFile(IO::Disk::fixPath(path));
-                IO::FgdParser parser(file->begin(), file->end(), defaultColor);
+                IO::FgdParser parser(file->begin(), file->end(), defaultColor, file->path());
                 definitions = parser.parseDefinitions(status);
             } else if (StringUtils::caseInsensitiveEqual("def", extension)) {
                 const IO::MappedFile::Ptr file = IO::Disk::openFile(IO::Disk::fixPath(path));

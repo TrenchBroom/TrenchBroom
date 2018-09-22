@@ -386,8 +386,8 @@ namespace vm {
     }
 
     TEST(MatTest, isZero) {
-        ASSERT_TRUE(isZero(mat4x4d::zero));
-        ASSERT_FALSE(isZero(mat4x4d::identity));
+        ASSERT_TRUE(isZero(mat4x4d::zero, vm::Cd::almostZero()));
+        ASSERT_FALSE(isZero(mat4x4d::identity, vm::Cd::almostZero()));
     }
 
     TEST(MatTest, negate) {
@@ -683,7 +683,7 @@ namespace vm {
     TEST(MatTest, stripTranslation) {
         const vec3d v(2.0, 3.0, 4.0);
         const mat4x4d t = translationMatrix(v);
-        const mat4x4d r = rotationMatrix(radians(15.0), radians(30.0), radians(45.0));
+        const mat4x4d r = rotationMatrix(toRadians(15.0), toRadians(30.0), toRadians(45.0));
         ASSERT_EQ(r, stripTranslation(r * t));
         ASSERT_EQ(r, stripTranslation(t * r));
     }
