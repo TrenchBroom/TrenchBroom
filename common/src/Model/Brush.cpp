@@ -219,7 +219,7 @@ namespace TrenchBroom {
                 auto* face = faceGeometry->payload();
                 if (face != nullptr) {
                     face->invert();
-            }
+                }
             }
 
             void faceWasSplit(BrushFaceGeometry* originalGeometry, BrushFaceGeometry* cloneGeometry) override {
@@ -347,8 +347,8 @@ namespace TrenchBroom {
             if (!visitor.hasResult()) {
                 return nullptr;
             } else {
-            return visitor.result();
-        }
+                return visitor.result();
+            }
         }
 
         BrushFace* Brush::findFace(const String& textureName) const {
@@ -364,7 +364,7 @@ namespace TrenchBroom {
             for (auto* face : m_faces) {
                 if (isEqual(face->boundary().normal, normal, vm::C::almostZero())) {
                     return face;
-            }
+                }
             }
             return nullptr;
         }
@@ -454,7 +454,7 @@ namespace TrenchBroom {
             invalidateVertexCache();
             if (face->selected()) {
                 incChildSelectionCount(1);
-        }
+            }
         }
 
         void Brush::removeFace(BrushFace* face) {
@@ -513,7 +513,7 @@ namespace TrenchBroom {
         void Brush::cloneInvertedFaceAttributesFrom(const BrushList& brushes) {
             for (const auto* brush : brushes) {
                 cloneInvertedFaceAttributesFrom(brush);
-        }
+            }
         }
 
         void Brush::cloneInvertedFaceAttributesFrom(const Brush* brush) {
@@ -628,7 +628,7 @@ namespace TrenchBroom {
             for (const auto& position : positions) {
                 if (!m_geometry->hasVertex(position, epsilon)) {
                     return false;
-            }
+                }
             }
             return true;
         }
@@ -697,11 +697,11 @@ namespace TrenchBroom {
             } else {
                 for (const auto* face : m_faces) {
                     if (face->boundary().pointStatus(point) == vm::point_status::above) {
-                    return false;
-            }
+                        return false;
+                    }
                 }
-            return true;
-        }
+                return true;
+            }
         }
 
         BrushFaceList Brush::incidentFaces(const BrushVertex* vertex) const {
@@ -733,7 +733,7 @@ namespace TrenchBroom {
                 const auto* newVertex = m_geometry->findClosestVertex(position + delta, vm::C::almostZero());
                 if (newVertex != nullptr) {
                     result.push_back(newVertex->position());
-            }
+                }
             }
 
             return result;
@@ -826,7 +826,7 @@ namespace TrenchBroom {
                 const auto destination = snapToF * round(origin / snapToF);
                 if (newGeometry.hasVertex(destination)) {
                     vertexMapping.insert(std::make_pair(origin, destination));
-            }
+                }
             }
 
             const PolyhedronMatcher<BrushGeometry> matcher(*m_geometry, newGeometry, vertexMapping);
@@ -999,8 +999,8 @@ namespace TrenchBroom {
                 for (const auto& movingVertex : moving.vertexPositions()) {
                     if (!result.hasVertex(movingVertex + delta)) {
                         return CanMoveVerticesResult::rejectVertexMove();
+                    }
                 }
-            }
             }
 
             // Will the brush become invalid?
@@ -1033,9 +1033,9 @@ namespace TrenchBroom {
                         const auto distance = face->intersectWithRay(ray, vm::side::back);
                         if (!vm::isnan(distance)) {
                             return CanMoveVerticesResult::rejectVertexMove();
+                        }
                     }
                 }
-            }
             }
 
             return CanMoveVerticesResult::acceptVertexMove(result);
@@ -1217,7 +1217,7 @@ namespace TrenchBroom {
                 }
                 if (!m_geometry->faces().contains(face->geometry())) {
                     return false;
-            }
+                }
             }
 
             for (const auto* geometry : m_geometry->faces()) {
@@ -1226,7 +1226,7 @@ namespace TrenchBroom {
                 }
                 if (!VectorUtils::contains(m_faces, geometry->payload())) {
                     return false;
-            }
+                }
             }
 
             return true;
@@ -1350,7 +1350,7 @@ namespace TrenchBroom {
         void Brush::doFindNodesContaining(const vm::vec3& point, NodeList& result) {
             if (containsPoint(point)) {
                 result.push_back(this);
-        }
+            }
         }
 
         FloatType Brush::doIntersectWithRay(const vm::ray3& ray) const {
@@ -1371,7 +1371,7 @@ namespace TrenchBroom {
                 const auto distance = face->intersectWithRay(ray);
                 if (!vm::isnan(distance)) {
                     return BrushFaceHit(face, distance);
-            }
+                }
             }
             return BrushFaceHit();
         }
@@ -1425,7 +1425,7 @@ namespace TrenchBroom {
                 for (const auto& vertex : bounds.vertices()) {
                     if (!m_this->containsPoint(vertex)) {
                         return false;
-                }
+                    }
                 }
 
                 return true;

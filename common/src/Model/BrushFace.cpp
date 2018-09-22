@@ -75,7 +75,7 @@ namespace TrenchBroom {
                 auto result = weight(lhsBoundary.normal) - weight(rhsBoundary.normal);
                 if (m_deterministic) {
                     result += static_cast<int>(1000.0 * (lhsBoundary.distance - lhsBoundary.distance));
-            }
+                }
 
                 return result < 0;
             }
@@ -479,7 +479,7 @@ namespace TrenchBroom {
             for (size_t i = 0; i < 3; ++i) {
                 m_points[i] = transform * m_points[i];
             }
-
+            
             if (dot(cross(m_points[2] - m_points[0], m_points[1] - m_points[0]), m_boundary.normal) < 0.0) {
                 swap(m_points[1], m_points[2]);
             }
@@ -548,15 +548,15 @@ namespace TrenchBroom {
                 return vm::mat4x4::zero_z * m_texCoordSystem->toMatrix(offset, scale);
             } else {
                 return m_texCoordSystem->toMatrix(offset, scale);
-        }
+            }
         }
 
         vm::mat4x4 BrushFace::fromTexCoordSystemMatrix(const vm::vec2f& offset, const vm::vec2f& scale, const bool project) const {
             if (project) {
                 return projectToBoundaryMatrix() * m_texCoordSystem->fromMatrix(offset, scale);
             } else {
-            return m_texCoordSystem->fromMatrix(offset, scale);
-        }
+                return m_texCoordSystem->fromMatrix(offset, scale);
+            }
         }
 
         float BrushFace::measureTextureAngle(const vm::vec2f& center, const vm::vec2f& point) const {
@@ -687,10 +687,10 @@ namespace TrenchBroom {
                 m_brush->invalidateVertexCache();
             }
         }
-        
+
         void BrushFace::setMarked(const bool marked) const {
             m_markedToRenderFace = marked;
-            }
+        }
 
         bool BrushFace::isMarked() const {
             return m_markedToRenderFace;

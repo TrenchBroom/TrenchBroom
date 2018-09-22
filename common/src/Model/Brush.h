@@ -50,7 +50,7 @@ namespace TrenchBroom {
         class ModelFactory;
         class PickResult;
         class BrushRendererBrushCache;
-        
+
         class Brush : public Node, public Object {
         private:
             friend class SetTempFaceLinks;
@@ -60,11 +60,11 @@ namespace TrenchBroom {
             struct ProjectToVertex : public ProjectingSequenceProjector<BrushVertex*, BrushVertex*> {
                 static BrushVertex*& project(BrushVertex*& vertex);
             };
-            
+
             struct ProjectToEdge : public ProjectingSequenceProjector<BrushEdge*, BrushEdge*> {
                 static BrushEdge*& project(BrushEdge*& edge);
             };
-            
+
             class AddFaceToGeometryCallback;
             class HealEdgesCallback;
             class AddFacesToGeometry;
@@ -72,7 +72,7 @@ namespace TrenchBroom {
             typedef MoveVerticesCallback RemoveVertexCallback;
             class QueryCallback;
             class FaceMatchingCallback;
-            
+
             using VertexSet = std::set<vm::vec3>;
         public:
             typedef ConstProjectingSequence<BrushVertexList, ProjectToVertex> VertexList;
@@ -81,7 +81,7 @@ namespace TrenchBroom {
         private:
             BrushFaceList m_faces;
             BrushGeometry* m_geometry;
-            
+
             const BrushContentTypeBuilder* m_contentTypeBuilder;
             mutable BrushContentType::FlagType m_contentType;
             mutable bool m_transparent;
@@ -94,7 +94,7 @@ namespace TrenchBroom {
             void cleanup();
         public:
             Brush* clone(const vm::bbox3& worldBounds) const;
-            
+
             AttributableNode* entity() const;
         public: // face management:
             BrushFace* findFace(const String& textureName) const;
@@ -102,14 +102,14 @@ namespace TrenchBroom {
             BrushFace* findFace(const vm::plane3& boundary) const;
             BrushFace* findFace(const vm::polygon3& vertices) const;
             BrushFace* findFace(const std::vector<vm::polygon3>& candidates) const;
-            
+
             size_t faceCount() const;
             const BrushFaceList& faces() const;
             void setFaces(const vm::bbox3& worldBounds, const BrushFaceList& faces);
-            
+
             bool closed() const;
             bool fullySpecified() const;
-            
+
             void faceDidChange();
         private:
             void addFaces(const BrushFaceList& faces);
@@ -122,7 +122,7 @@ namespace TrenchBroom {
                 }
             }
             void addFace(BrushFace* face);
-            
+
             template <typename I>
             void removeFaces(I cur, I end) {
                 BrushFaceList::iterator rem = std::end(m_faces);
@@ -130,13 +130,13 @@ namespace TrenchBroom {
                     rem = doRemoveFace(std::begin(m_faces), rem, *cur);
                     ++cur;
                 }
-                
+
                 m_faces.erase(rem, std::end(m_faces));
             }
-            
+
             void removeFace(BrushFace* face);
             BrushFaceList::iterator doRemoveFace(BrushFaceList::iterator begin, BrushFaceList::iterator end, BrushFace* face);
-            
+
             void detachFaces(const BrushFaceList& faces);
             void detachFace(BrushFace* face);
         public: // clone face attributes from matching faces of other brushes
@@ -161,34 +161,34 @@ namespace TrenchBroom {
             VertexList vertices() const;
             const std::vector<vm::vec3> vertexPositions() const;
             vm::vec3 findClosestVertexPosition(const vm::vec3& position) const;
-            
+
             bool hasVertex(const vm::vec3& position, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             bool hasVertices(const std::vector<vm::vec3> positions, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             bool hasEdge(const vm::segment3& edge, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             bool hasEdges(const std::vector<vm::segment3>& edges, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             bool hasFace(const vm::polygon3& face, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             bool hasFaces(const std::vector<vm::polygon3>& faces, FloatType epsilon = static_cast<FloatType>(0.0)) const;
-            
+
             bool hasFace(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             bool hasFace(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, const vm::vec3& p4, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             bool hasFace(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, const vm::vec3& p4, const vm::vec3& p5, FloatType epsilon = static_cast<FloatType>(0.0)) const;
-            
+
             size_t edgeCount() const;
             EdgeList edges() const;
             bool containsPoint(const vm::vec3& point) const;
-            
+
             BrushFaceList incidentFaces(const BrushVertex* vertex) const;
-            
+
             // vertex operations
             bool canMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertices, const vm::vec3& delta) const;
             std::vector<vm::vec3> moveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta);
 
             bool canAddVertex(const vm::bbox3& worldBounds, const vm::vec3& position) const;
             BrushVertex* addVertex(const vm::bbox3& worldBounds, const vm::vec3& position);
-            
+
             bool canRemoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions) const;
             void removeVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions);
-            
+
             bool canSnapVertices(const vm::bbox3& worldBounds, FloatType snapTo);
             void snapVertices(const vm::bbox3& worldBounds, FloatType snapTo);
 
@@ -204,19 +204,19 @@ namespace TrenchBroom {
             public:
                 bool success;
                 BrushGeometry geometry;
-                
+
             private:
                 CanMoveVerticesResult(bool s, const BrushGeometry& g);
-                
+
             public:
                 static CanMoveVerticesResult rejectVertexMove();
                 static CanMoveVerticesResult acceptVertexMove(const BrushGeometry& result);
             };
-            
+
             CanMoveVerticesResult doCanMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, vm::vec3 delta, bool allowVertexRemoval) const;
             void doMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta);
             void doSetNewGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, BrushGeometry& newGeometry);
-            
+
             static VertexSet createVertexSet(const std::vector<vm::vec3>& vertices = std::vector<vm::vec3>(0));
         public:
             // CSG operations
@@ -250,10 +250,10 @@ namespace TrenchBroom {
         private: // implement Node interface
             const String& doGetName() const override;
             const vm::bbox3& doGetBounds() const override;
-            
+
             Node* doClone(const vm::bbox3& worldBounds) const override;
             NodeSnapshot* doTakeSnapshot() override;
-            
+
             bool doCanAddChild(const Node* child) const override;
             bool doCanRemoveChild(const Node* child) const override;
             bool doRemoveIfEmpty() const override;
@@ -278,22 +278,22 @@ namespace TrenchBroom {
             };
 
             BrushFaceHit findFaceHit(const vm::ray3& ray) const;
-            
+
             Node* doGetContainer() const override;
             Layer* doGetLayer() const override;
             Group* doGetGroup() const override;
-            
+
             void doTransform(const vm::mat4x4& transformation, bool lockTextures, const vm::bbox3& worldBounds) override;
 
             class Contains;
             bool doContains(const Node* node) const override;
-            
+
             class Intersects;
             bool doIntersects(const Node* node) const override;
         private:
             Brush(const Brush&);
             Brush& operator=(const Brush&);
-            
+
         public: // renderer cache
             /**
              * Only exposed to be called by BrushFace

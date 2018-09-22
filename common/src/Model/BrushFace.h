@@ -86,7 +86,7 @@ namespace TrenchBroom {
             
             TexCoordSystem* m_texCoordSystem;
             BrushFaceGeometry* m_geometry;
-            
+
             // brush renderer
             mutable bool m_markedToRenderFace;
         protected:
@@ -208,7 +208,7 @@ namespace TrenchBroom {
         private:
             void setPoints(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2);
             void correctPoints();
-            
+
             // renderer cache
             void invalidateVertexCache();
         public: // brush renderer
