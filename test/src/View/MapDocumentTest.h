@@ -26,6 +26,10 @@
 #include "View/MapDocument.h"
 
 namespace TrenchBroom {
+    namespace Assets {
+        class PointEntityDefinition;
+        class BrushEntityDefinition;
+    }
     namespace Model {
         class Brush;
     }
@@ -36,11 +40,14 @@ namespace TrenchBroom {
             Model::MapFormat::Type m_mapFormat;
         protected:
             MapDocumentSPtr document;
+            Assets::PointEntityDefinition* m_pointEntityDef;
+            Assets::BrushEntityDefinition* m_brushEntityDef;
         protected:
             MapDocumentTest();
             MapDocumentTest(Model::MapFormat::Type mapFormat);
             
             void SetUp() override;
+            void TearDown() override;
             
             Model::Brush* createBrush(const String& textureName = "texture");
         };

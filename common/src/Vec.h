@@ -28,7 +28,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include <cstddef>
 #include <map>
 #include <ostream>
-#include <set>
+#include <type_traits>
 #include <vector>
 
 template <typename T, size_t S>
@@ -59,19 +59,6 @@ private:
             return 1;
         return 2;
     }
-public:
-    class GridCmp {
-    private:
-        const T m_precision;
-    public:
-        GridCmp(const T precision) : m_precision(precision) {
-            assert(m_precision > 0.0);
-        }
-        
-        bool operator()(const Vec<T,S>& lhs, const Vec<T,S>& rhs) const {
-            return lhs.compareSnapped(rhs, m_precision) < 0;
-        }
-    };
 public:
     typedef Vec<float, S> FloatType;
 
@@ -232,6 +219,25 @@ public:
         setNull();
     }
             
+    // Copy and move constructors
+    Vec(const Vec<T,S>& other) = default;
+    Vec(Vec<T,S>&& other) = default;
+    
+    // Assignment operators
+    Vec<T,S>& operator=(const Vec<T,S>& other) = default;
+    Vec<T,S>& operator=(Vec<T,S>&& other) = default;
+
+    // Conversion constructor
+    template <typename U, size_t V>
+    Vec(const Vec<U,V>& other) {
+        for (size_t i = 0; i < std::min(S,V); ++i) {
+            v[i] = static_cast<T>(other[i]);
+        }
+        for (size_t i = std::min(S,V); i < S; ++i) {
+            v[i] = static_cast<T>(0.0);
+        }
+    }
+    
     template <typename U1, typename U2>
     Vec(const U1 i_x, const U2 i_y) {
         if (S > 0) {
@@ -274,16 +280,6 @@ public:
             v[i] = static_cast<T>(0.0);
     }
 
-    // We want this constructor to be non-explicit because it allows for quick conversions.
-    // cppcheck-suppress noExplicitConstructor
-    template <typename U, size_t O>
-    Vec(const Vec<U,O>& vec) {
-        for (size_t i = 0; i < std::min(S,O); ++i)
-            v[i] = static_cast<T>(vec[i]);
-        for (size_t i = std::min(S,O); i < S; ++i)
-            v[i] = static_cast<T>(0.0);
-    }
-
     template <typename U, size_t O>
     Vec(const Vec<U,O>& vec, const U last) {
         for (size_t i = 0; i < std::min(S-1,O); ++i)
@@ -303,18 +299,6 @@ public:
         v[S-1] = static_cast<T>(last);
     }
     
-    int compareSnapped(const Vec<T,S>& right, const T precision) const {
-        for (size_t i = 0; i < S; ++i) {
-            const T mine  = Math::snap(v[i], precision);
-            const T their = Math::snap(right[i], precision);
-            if (Math::lt(mine, their, 0.0))
-                return -1;
-            if (Math::gt(mine, their, 0.0))
-                return 1;
-        }
-        return 0;
-    }
-
     int compare(const Vec<T,S>& right, const T epsilon = static_cast<T>(0.0)) const {
         for (size_t i = 0; i < S; ++i) {
             if (Math::lt(v[i], right[i], epsilon))
@@ -349,15 +333,6 @@ public:
         return compare(right) >= 0;
     }
 
-    template <size_t O>
-    Vec<T,S>& operator=(const Vec<T,O>& right) {
-        for (size_t i = 0; i < std::min(S,O); ++i)
-            v[i] = right[i];
-        for (size_t i = std::min(S,O); i < S; ++i)
-            v[i] = static_cast<T>(0.0);
-        return *this;
-    }
-    
     const Vec<T,S> operator-() const {
         Vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
@@ -561,7 +536,7 @@ public:
     }
     
     bool isNormalized() const {
-        return equals(normalized());
+        return Math::one(length());
     }
     
     Vec<T,S> normalizeRadians() const {
@@ -744,8 +719,11 @@ public:
         }
     }
     
-    std::string asString(const size_t components = S) const {
+    std::string asString(const size_t components = S, const int precision = -1) const {
         StringStream result;
+        if (precision > 0) {
+            result.precision(precision);
+        }
         write(result, components);
         return result.str();
     }
@@ -793,6 +771,16 @@ public:
         return true;
     }
     
+    template <typename U>
+    Vec<U,S> makeIntegral() const {
+        static_assert(std::is_integral<U>::value, "integral result type required");
+        Vec<U, S> result;
+        for (size_t i = 0; i < S; ++i) {
+            result[i] = static_cast<U>(v[i]);
+        }
+        return result;
+    }
+
     Vec<T,S> snapped(const T precision) const {
         return Vec<T,S>(*this).snap(precision);
     }

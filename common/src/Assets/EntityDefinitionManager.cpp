@@ -34,12 +34,14 @@ namespace TrenchBroom {
         }
 
         void EntityDefinitionManager::loadDefinitions(const IO::Path& path, const IO::EntityDefinitionLoader& loader, IO::ParserStatus& status) {
-            using std::swap;
-            
-            EntityDefinitionList newDefinitions = loader.loadEntityDefinitions(status, path);
-            std::swap(m_definitions, newDefinitions);
-            VectorUtils::clearAndDelete(newDefinitions);
-            
+            setDefinitions(loader.loadEntityDefinitions(status, path));
+        }
+
+        void EntityDefinitionManager::setDefinitions(const EntityDefinitionList& newDefinitions) {
+            clear();
+
+            m_definitions = newDefinitions;
+
             updateIndices();
             updateGroups();
             updateCache();

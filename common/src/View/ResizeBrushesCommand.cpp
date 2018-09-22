@@ -32,26 +32,29 @@ namespace TrenchBroom {
         }
 
         ResizeBrushesCommand::ResizeBrushesCommand(const Polygon3::List& faces, const Vec3& delta) :
-        DocumentCommand(Type, "Resize Brushes"),
+        SnapshotCommand(Type, "Resize Brushes"),
         m_faces(faces),
         m_delta(delta) {}
         
         bool ResizeBrushesCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            m_faces = document->performResizeBrushes(m_faces, m_delta);
-            return !m_faces.empty();
+            m_newFaces = document->performResizeBrushes(m_faces, m_delta);
+            return !m_newFaces.empty();
         }
         
-        bool ResizeBrushesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
-            m_faces = document->performResizeBrushes(m_faces, -m_delta);
-            return !m_faces.empty();
-        }
-        
+
         bool ResizeBrushesCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
             return false;
         }
         
         bool ResizeBrushesCommand::doCollateWith(UndoableCommand::Ptr command) {
-            return false;
+            ResizeBrushesCommand* other = static_cast<ResizeBrushesCommand*>(command.get());
+            if (other->m_faces == m_newFaces) {
+                m_newFaces = other->m_newFaces;
+                m_delta += other->m_delta;
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 }

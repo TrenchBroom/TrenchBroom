@@ -45,6 +45,12 @@ void main() {
 	else
 		gl_FragColor = faceColor;
 
+    // Assume alpha masked or opaque.
+    // TODO: Make this optional if we gain support for translucent textures
+    if (gl_FragColor.a < 0.5) {
+        discard;
+    }
+
     gl_FragColor = vec4(vec3(Brightness / 2.0 * gl_FragColor), gl_FragColor.a);
     gl_FragColor = clamp(2.0 * gl_FragColor, 0.0, 1.0);
     gl_FragColor.a = Alpha;

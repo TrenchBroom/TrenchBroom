@@ -64,6 +64,24 @@ public:
         setIdentity();
     }
     
+    // Copy and move constructors
+    Mat(const Mat<T,R,C>& other) = default;
+    Mat(Mat<T,R,C>&& other) = default;
+    
+    // Assignment operators
+    Mat<T,R,C>& operator=(const Mat<T,R,C>& other) = default;
+    Mat<T,R,C>& operator=(Mat<T,R,C>&& other) = default;
+    
+    // Conversion constructor
+    template <typename U>
+    Mat(const Mat<U,R,C>& other) {
+        for (size_t c = 0; c < C; ++c) {
+            for (size_t r = 0; r < R; ++r) {
+                v[c][r] = static_cast<T>(other[c][r]);
+            }
+        }
+    }
+
     Mat<T,R,C>(const T v11, const T v12, const T v13,
                const T v21, const T v22, const T v23,
                const T v31, const T v32, const T v33) {
@@ -88,27 +106,7 @@ public:
                 v[c][r] = static_cast<T>(0.0);
     }
     
-    template <typename U>
-    Mat<T,R,C>(const Mat<U,R,C>& other) {
-        for (size_t c = 0; c < C; ++c)
-            for (size_t r = 0; r < R; ++r)
-                v[c][r] = static_cast<T>(other[c][r]);
-    }
-    
-    Mat(const Mat& other) {
-        for (size_t c = 0; c < C; ++c)
-            for (size_t r = 0; r < R; ++r)
-                v[c][r] = other[c][r];
-    }
-    
-    Mat<T,R,C>& operator=(const Mat<T,R,C>& right) {
-        for (size_t c = 0; c < C; c++)
-            for (size_t r = 0; r < R; r++)
-                v[c][r] = right[c][r];
-        return *this;
-    }
-    
-    Mat<T,R,C> operator-() const {
+    const Mat<T,R,C> operator-() const {
         Mat<T,R,C> result;
         for (size_t c = 0; c < C; c++)
             result[c] = -v[c];

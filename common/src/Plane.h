@@ -55,6 +55,20 @@ public:
     distance(static_cast<T>(0.0)),
     normal(Vec<T,S>::Null) {}
     
+    // Copy and move constructors
+    Plane(const Plane<T,S>& other) = default;
+    Plane(Plane<T,S>&& other) = default;
+    
+    // Assignment operators
+    Plane<T,S>& operator=(const Plane<T,S>& other) = default;
+    Plane<T,S>& operator=(Plane<T,S>&& other) = default;
+    
+    // Conversion constructor
+    template <typename U>
+    Plane(const Plane<U,S>& other) :
+    distance(static_cast<T>(other.distance)),
+    normal(other.normal) {}
+
     Plane(const T i_distance, const Vec<T,S>& i_normal) :
     distance(i_distance),
     normal(i_normal) {}
@@ -63,11 +77,6 @@ public:
     distance(i_anchor.dot(i_normal)),
     normal(i_normal) {}
             
-    template <typename U>
-    Plane(const Plane<U,S>& other) :
-    distance(static_cast<T>(other.distance)),
-    normal(other.normal) {}
-    
     static const Plane<T,S> planeContainingVector(const Vec<T,S>& position, const Vec<T,S>& normalizedVector, const Vec<T,S>& viewPoint) {
         const Vec<T,S> diff = viewPoint - position;
         const Vec<T,S> point = position + normalizedVector * diff.dot(normalizedVector);

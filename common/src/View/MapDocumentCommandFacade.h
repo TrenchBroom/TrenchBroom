@@ -76,7 +76,11 @@ namespace TrenchBroom {
             void performPushGroup(Model::Group* group);
             void performPopGroup();
         public: // transformation
-            void performTransform(const Mat4x4& transform, bool lockTextures);
+            /**
+             * @return true if the transform was applied, false if can't be applied
+             *         to everything in the selection (in which case nothing is modified).
+             */
+            bool performTransform(const Mat4x4& transform, bool lockTextures);
         public: // entity attributes
             Model::EntityAttributeSnapshot::Map performSetAttribute(const Model::AttributeName& name, const Model::AttributeValue& value);
             Model::EntityAttributeSnapshot::Map performRemoveAttribute(const Model::AttributeName& name);
@@ -93,8 +97,8 @@ namespace TrenchBroom {
             void performCopyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot* coordSystemSnapshot, const Model::BrushFaceAttributes& attribs, const Plane3& sourceFacePlane, const Model::WrapStyle wrapStyle);
             void performChangeBrushFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request);
         public: // vertices
-            Model::Snapshot* performFindPlanePoints();
-            Model::Snapshot* performSnapVertices(FloatType snapTo);
+            bool performFindPlanePoints();
+            bool performSnapVertices(FloatType snapTo);
             Vec3::List performMoveVertices(const Model::BrushVerticesMap& vertices, const Vec3& delta);
             Edge3::List performMoveEdges(const Model::BrushEdgesMap& edges, const Vec3& delta);
             Polygon3::List performMoveFaces(const Model::BrushFacesMap& faces, const Vec3& delta);

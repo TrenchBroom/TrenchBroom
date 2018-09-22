@@ -39,16 +39,20 @@ namespace TrenchBroom {
             ASSERT_EQ(Vec3::Null, brush->bounds().center());
             
             document->addNode(brush, document->currentParent());
-            
+
+            // select the top face
             document->select(brush->findFace(Vec3::PosZ));
             ASSERT_EQ(Model::BrushFaceList{brush->findFace(Vec3::PosZ)}, document->selectedBrushFaces());
-            
+
+            // deselect it
             document->deselect(brush->findFace(Vec3::PosZ));
             ASSERT_EQ(Model::BrushFaceList{}, document->selectedBrushFaces());
-            
+
+            // select the brush
             document->select(brush);
             ASSERT_EQ(Model::BrushList{brush}, document->selectedNodes().brushes());
-            
+
+            // translate the brush
             document->translateObjects(Vec3(10.0, 0.0, 0.0));
             ASSERT_EQ(Vec3(10.0, 0.0, 0.0), brush->bounds().center());
             

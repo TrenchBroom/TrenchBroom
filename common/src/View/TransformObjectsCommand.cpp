@@ -20,8 +20,6 @@
 #include "TransformObjectsCommand.h"
 
 #include "Macros.h"
-#include "Model/Snapshot.h"
-#include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 
 namespace TrenchBroom {
@@ -40,12 +38,17 @@ namespace TrenchBroom {
         
         TransformObjectsCommand::Ptr TransformObjectsCommand::scale(const BBox3& oldBBox, const BBox3& newBBox, const bool lockTextures) {
             const Mat4x4 transform = scaleBBoxMatrix(oldBBox, newBBox);
-            return Ptr(new TransformObjectsCommand(Action_Rotate, "Scale Objects", transform, lockTextures));
+            return Ptr(new TransformObjectsCommand(Action_Scale, "Scale Objects", transform, lockTextures));
+        }
+
+        TransformObjectsCommand::Ptr TransformObjectsCommand::scale(const Vec3& center, const Vec3& scaleFactors, const bool lockTextures) {
+            const Mat4x4 transform = translationMatrix(center) * scalingMatrix(scaleFactors) * translationMatrix(-center);
+            return Ptr(new TransformObjectsCommand(Action_Scale, "Scale Objects", transform, lockTextures));
         }
         
         TransformObjectsCommand::Ptr TransformObjectsCommand::shearBBox(const BBox3& box, const Vec3& sideToShear, const Vec3& delta, const bool lockTextures) {
             const Mat4x4 transform = shearBBoxMatrix(box, sideToShear, delta);
-            return Ptr(new TransformObjectsCommand(Action_Rotate, "Shear Objects", transform, lockTextures));
+            return Ptr(new TransformObjectsCommand(Action_Shear, "Shear Objects", transform, lockTextures));
         }
         
         TransformObjectsCommand::Ptr TransformObjectsCommand::flip(const Vec3& center, const Math::Axis::Type axis, const bool lockTextures) {
@@ -53,40 +56,16 @@ namespace TrenchBroom {
             return Ptr(new TransformObjectsCommand(Action_Flip, "Flip Objects", transform, lockTextures));
         }
 
-        TransformObjectsCommand::~TransformObjectsCommand() {
-            deleteSnapshot();
-        }
-        
         TransformObjectsCommand::TransformObjectsCommand(const Action action, const String& name, const Mat4x4& transform, const bool lockTextures) :
-        DocumentCommand(Type, name),
+        SnapshotCommand(Type, name),
         m_action(action),
         m_transform(transform),
-        m_lockTextures(lockTextures),
-        m_snapshot(nullptr) {}
+        m_lockTextures(lockTextures) {}
         
         bool TransformObjectsCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            takeSnapshot(document->selectedNodes().nodes());
-            document->performTransform(m_transform, m_lockTextures);
-            return true;
+            return document->performTransform(m_transform, m_lockTextures);
         }
         
-        bool TransformObjectsCommand::doPerformUndo(MapDocumentCommandFacade* document) {
-            ensure(m_snapshot != nullptr, "snapshot is null");
-            document->restoreSnapshot(m_snapshot);
-            deleteSnapshot();
-            return true;
-        }
-        
-        void TransformObjectsCommand::takeSnapshot(const Model::NodeList& nodes) {
-            assert(m_snapshot == nullptr);
-            m_snapshot = new Model::Snapshot(std::begin(nodes), std::end(nodes));
-        }
-        
-        void TransformObjectsCommand::deleteSnapshot() {
-            delete m_snapshot;
-            m_snapshot = nullptr;
-        }
-
         bool TransformObjectsCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
             return document->hasSelectedNodes();
         }

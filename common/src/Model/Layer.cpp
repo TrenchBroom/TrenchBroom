@@ -20,6 +20,7 @@
 #include "Layer.h"
 
 #include "Model/Brush.h"
+#include "Model/ComputeNodeBoundsVisitor.h"
 #include "Model/Group.h"
 #include "Model/Entity.h"
 #include "Model/IssueGenerator.h"
@@ -29,7 +30,7 @@ namespace TrenchBroom {
     namespace Model {
         Layer::Layer(const String& name, const BBox3& worldBounds) :
         m_name(name),
-        m_octree(worldBounds, static_cast<FloatType>(64.0f)) {}
+        m_boundsValid(false) {}
         
         void Layer::setName(const String& name) {
             m_name = name;
@@ -40,7 +41,10 @@ namespace TrenchBroom {
         }
 
         const BBox3& Layer::doGetBounds() const {
-            return m_octree.bounds();
+            if (!m_boundsValid) {
+                validateBounds();
+            }
+            return m_bounds;
         }
 
         Node* Layer::doClone(const BBox3& worldBounds) const {
@@ -73,65 +77,19 @@ namespace TrenchBroom {
             return false;
         }
 
-        class Layer::AddNodeToOctree : public NodeVisitor {
-        private:
-            NodeTree& m_octree;
-        public:
-            AddNodeToOctree(NodeTree& octree) :
-            m_octree(octree) {}
-        private:
-            void doVisit(World* world) override   {}
-            void doVisit(Layer* layer) override   {}
-            void doVisit(Group* group) override   { m_octree.addObject(group->bounds(), group); }
-            void doVisit(Entity* entity) override { m_octree.addObject(entity->bounds(), entity); }
-            void doVisit(Brush* brush) override   { m_octree.addObject(brush->bounds(), brush); }
-        };
-        
-        class Layer::RemoveNodeFromOctree : public NodeVisitor {
-        private:
-            NodeTree& m_octree;
-        public:
-            RemoveNodeFromOctree(NodeTree& octree) :
-            m_octree(octree) {}
-        private:
-            void doVisit(World* world) override   {}
-            void doVisit(Layer* layer) override   {}
-            void doVisit(Group* group) override   { m_octree.removeObject(group); }
-            void doVisit(Entity* entity) override { m_octree.removeObject(entity); }
-            void doVisit(Brush* brush) override   { m_octree.removeObject(brush); }
-        };
-        
-        class Layer::UpdateNodeInOctree : public NodeVisitor {
-        private:
-            NodeTree& m_octree;
-        public:
-            UpdateNodeInOctree(NodeTree& octree) :
-            m_octree(octree) {}
-        private:
-            void doVisit(World* world) override   {}
-            void doVisit(Layer* layer) override   {}
-            void doVisit(Group* group) override   { m_octree.updateObject(group->bounds(), group); }
-            void doVisit(Entity* entity) override { m_octree.updateObject(entity->bounds(), entity); }
-            void doVisit(Brush* brush) override   { m_octree.updateObject(brush->bounds(), brush); }
-        };
-
-        void Layer::doChildWasAdded(Node* node) {
-            AddNodeToOctree visitor(m_octree);
-            node->accept(visitor);
-        }
-        
-        void Layer::doChildWillBeRemoved(Node* node) {
-            RemoveNodeFromOctree visitor(m_octree);
-            node->accept(visitor);
-        }
-        
-        void Layer::doChildBoundsDidChange(Node* node) {
-            UpdateNodeInOctree visitor(m_octree);
-            node->accept(visitor);
+        void Layer::doNodeBoundsDidChange(const BBox3& oldBounds) {
+            invalidateBounds();
         }
 
         bool Layer::doSelectable() const {
             return false;
+        }
+
+        void Layer::doPick(const Ray3& ray, PickResult& pickResult) const {}
+
+        void Layer::doFindNodesContaining(const Vec3& point, NodeList& result) {
+            for (Node* child : Node::children())
+                child->findNodesContaining(point, result);
         }
 
         void Layer::doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {
@@ -146,18 +104,19 @@ namespace TrenchBroom {
             visitor.visit(this);
         }
 
-        void Layer::doPick(const Ray3& ray, PickResult& pickResult) const {
-            for (const Node* node : m_octree.findObjects(ray))
-                node->pick(ray, pickResult);
-        }
-        
-        void Layer::doFindNodesContaining(const Vec3& point, NodeList& result) {
-            for (Node* node : m_octree.findObjects(point))
-                node->findNodesContaining(point, result);
-        }
-
         FloatType Layer::doIntersectWithRay(const Ray3& ray) const {
             return Math::nan<FloatType>();
+        }
+
+        void Layer::invalidateBounds() {
+            m_boundsValid = false;
+        }
+
+        void Layer::validateBounds() const {
+            ComputeNodeBoundsVisitor visitor(BBox3(0.0));
+            iterate(visitor);
+            m_bounds = visitor.bounds();
+            m_boundsValid = true;
         }
     }
 }

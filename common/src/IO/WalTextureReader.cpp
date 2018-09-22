@@ -58,10 +58,10 @@ namespace TrenchBroom {
             const size_t height = reader.readSize<uint32_t>();
 
             const auto mipLevels = readMipOffsets(MaxMipLevels, offsets, width, height, reader);
-            Assets::setMipBufferSize(buffers, mipLevels, width, height);
+            Assets::setMipBufferSize(buffers, mipLevels, width, height, GL_RGBA);
             readMips(m_palette, mipLevels, offsets, width, height, reader, buffers, averageColor);
 
-            return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers);
+            return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers, GL_RGBA, Assets::TextureType::Opaque);
         }
 
         Assets::Texture* WalTextureReader::readDkWal(CharArrayReader& reader, const Path& path) const {
@@ -80,7 +80,7 @@ namespace TrenchBroom {
             const auto height = reader.readSize<uint32_t>();
 
             const auto mipLevels = readMipOffsets(MaxMipLevels, offsets, width, height, reader);
-            Assets::setMipBufferSize(buffers, mipLevels, width, height);
+            Assets::setMipBufferSize(buffers, mipLevels, width, height, GL_RGBA);
 
             reader.seekForward(32 + 2 * sizeof(uint32_t)); // animation name, flags, contents
             assert(reader.canRead(3 * 256));
@@ -88,7 +88,7 @@ namespace TrenchBroom {
             const auto palette = Assets::Palette::fromRaw(3 * 256, reader.cur<unsigned char>());
             readMips(palette, mipLevels, offsets, width, height, reader, buffers, averageColor);
 
-            return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers);
+            return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers, GL_RGBA, Assets::TextureType::Opaque);
         }
 
         size_t WalTextureReader::readMipOffsets(const size_t maxMipLevels, size_t offsets[], const size_t width, const size_t height, CharArrayReader& reader) const {
@@ -118,7 +118,7 @@ namespace TrenchBroom {
                 const auto size = curWidth * curHeight;
                 const auto* data = reader.cur<char>();
 
-                palette.indexedToRgb(data, size, buffers[i], tempColor);
+                palette.indexedToRgba(data, size, buffers[i], tempColor);
                 if (i == 0) {
                     averageColor = tempColor;
                 }

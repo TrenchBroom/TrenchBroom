@@ -294,6 +294,7 @@ namespace TrenchBroom {
             debugMenu->addUnmodifiableActionItem(CommandIds::Menu::DebugClipWithFace, "Clip Brush...");
             debugMenu->addUnmodifiableActionItem(CommandIds::Menu::DebugCopyJSShortcuts, "Copy Javascript Shortcut Map");
             debugMenu->addUnmodifiableActionItem(CommandIds::Menu::DebugCrash, "Crash...");
+            debugMenu->addUnmodifiableActionItem(CommandIds::Menu::DebugThrowExceptionDuringCommand, "Throw Exception During Command");
             debugMenu->addUnmodifiableActionItem(CommandIds::Menu::DebugCrashReportDialog, "Show Crash Report Dialog");
             debugMenu->addUnmodifiableActionItem(CommandIds::Menu::DebugSetWindowSize, "Set Window Size...");
 #endif

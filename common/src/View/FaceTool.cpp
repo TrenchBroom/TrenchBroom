@@ -62,7 +62,6 @@ namespace TrenchBroom {
 
             Transaction transaction(m_document, StringUtils::safePlural(handleManager().selectedHandleCount(), "Remove Face", "Remove Faces"));
             lock(m_document)->removeFaces(brushMap);
-            rebuildBrushGeometry();
         }
     }
 }

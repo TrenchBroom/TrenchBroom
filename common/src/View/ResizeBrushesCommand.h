@@ -24,16 +24,17 @@
 #include "VecMath.h"
 #include "SharedPointer.h"
 #include "Model/ModelTypes.h"
-#include "View/DocumentCommand.h"
+#include "View/SnapshotCommand.h"
 
 namespace TrenchBroom {
     namespace View {
-        class ResizeBrushesCommand : public DocumentCommand {
+        class ResizeBrushesCommand : public SnapshotCommand {
         public:
             static const CommandType Type;
             typedef std::shared_ptr<ResizeBrushesCommand> Ptr;
         private:
             Polygon3::List m_faces;
+            Polygon3::List m_newFaces;
             Vec3 m_delta;
         public:
             static Ptr resize(const Polygon3::List& faces, const Vec3& delta);
@@ -41,8 +42,7 @@ namespace TrenchBroom {
             ResizeBrushesCommand(const Polygon3::List& faces, const Vec3& delta);
             
             bool doPerformDo(MapDocumentCommandFacade* document) override;
-            bool doPerformUndo(MapDocumentCommandFacade* document) override;
-            
+
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
             
             bool doCollateWith(UndoableCommand::Ptr command) override;

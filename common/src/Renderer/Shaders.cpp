@@ -41,6 +41,7 @@ namespace TrenchBroom {
             const ShaderConfig CompassOutlineShader       = ShaderConfig("Compass Outline",                  "CompassOutline.vertsh",       "Compass.fragsh");
             const ShaderConfig CompassBackgroundShader    = ShaderConfig("Compass Background",               "VaryingPUniformC.vertsh",     "VaryingPC.fragsh");
             const ShaderConfig EntityLinkShader           = ShaderConfig("Entity Link",                      "EntityLink.vertsh",           "EntityLink.fragsh");
+            const ShaderConfig EntityLinkArrowShader      = ShaderConfig("Entity Link Arrow",                "EntityLinkArrow.vertsh",      "EntityLinkArrow.fragsh");
             const ShaderConfig TriangleShader             = ShaderConfig("Shaded Triangles",                 "Triangle.vertsh",             "Triangle.fragsh");
             const ShaderConfig UVViewShader               = ShaderConfig("UV View",                          "UVView.vertsh",               "UVView.fragsh");
         }

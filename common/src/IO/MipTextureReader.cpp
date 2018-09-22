@@ -58,20 +58,28 @@ namespace TrenchBroom {
             for (size_t i = 0; i < MipLevels; ++i)
                 offset[i] = reader.readSize<int32_t>();
             
-            Assets::setMipBufferSize(buffers, MipLevels, width, height);
+            const auto transparency = (name.size() > 0 && name.at(0) == '{')
+                    ? Assets::PaletteTransparency::Index255Transparent
+                    : Assets::PaletteTransparency::Opaque;
+
+            Assets::setMipBufferSize(buffers, MipLevels, width, height, GL_RGBA);
             Assets::Palette palette = doGetPalette(reader, offset, width, height);
             
             for (size_t i = 0; i < MipLevels; ++i) {
                 const char* data = begin + offset[i];
                 const size_t size = mipSize(width, height, i);
                 
-                palette.indexedToRgb(data, size, buffers[i], tempColor);
+                palette.indexedToRgba(data, size, buffers[i], tempColor, transparency);
                 if (i == 0)
                     averageColor = tempColor;
                 
             }
             
-            return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers);
+            const auto type = (transparency == Assets::PaletteTransparency::Index255Transparent)
+                    ? Assets::TextureType::Masked
+                    : Assets::TextureType::Opaque;
+
+            return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers, GL_RGBA, type);
         }
     }
 }

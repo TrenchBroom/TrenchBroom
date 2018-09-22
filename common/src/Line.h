@@ -35,14 +35,23 @@ public:
     point(Vec<T,S>::Null),
     direction(Vec<T,S>::Null) {}
     
-    Line(const Vec<T,S>& i_point, const Vec<T,S>& i_direction) :
-    point(i_point),
-    direction(i_direction) {}
+    // Copy and move constructors
+    Line(const Line<T,S>& other) = default;
+    Line(Line<T,S>&& other) = default;
     
+    // Assignment operators
+    Line<T,S>& operator=(const Line<T,S>& other) = default;
+    Line<T,S>& operator=(Line<T,S>&& other) = default;
+    
+    // Conversion constructor
     template <typename U>
     Line(const Line<U,S>& other) :
     point(other.point),
-    direction(other.direction) {}
+    direction(static_cast<T>(other.direction)) {}
+    
+    Line(const Vec<T,S>& i_point, const Vec<T,S>& i_direction) :
+    point(i_point),
+    direction(i_direction) {}
     
     Line<T,S> makeCanonical() const {
         // choose the point such that its support vector is orthogonal to

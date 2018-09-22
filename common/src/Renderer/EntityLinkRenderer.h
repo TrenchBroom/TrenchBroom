@@ -38,14 +38,25 @@ namespace TrenchBroom {
         
         class EntityLinkRenderer : public DirectRenderable {
         private:
-            typedef VertexSpecs::P3C4::Vertex Vertex;
-            
+            using Vertex = VertexSpecs::P3C4::Vertex;
+
+            using T03 = AttributeSpec<AttributeType_TexCoord0, GL_FLOAT, 3>;
+            using T13 = AttributeSpec<AttributeType_TexCoord1, GL_FLOAT, 3>;
+
+            using ArrowVertex = VertexSpec4<
+                    AttributeSpecs::P3,  // vertex of the arrow (exposed in shader as gl_Vertex)
+                    AttributeSpecs::C4,  // arrow color (exposed in shader as gl_Color)
+                    T03,                 // arrow position (exposed in shader as gl_MultiTexCoord0)
+                    T13>::Vertex;        // direction the arrow is pointing (exposed in shader as gl_MultiTexCoord1)
+
             View::MapDocumentWPtr m_document;
             
             Color m_defaultColor;
             Color m_selectedColor;
             
             VertexArray m_entityLinks;
+            VertexArray m_entityLinkArrows;
+
             bool m_valid;
         public:
             EntityLinkRenderer(View::MapDocumentWPtr document);
@@ -58,8 +69,13 @@ namespace TrenchBroom {
         private:
             void doPrepareVertices(Vbo& vertexVbo) override;
             void doRender(RenderContext& renderContext) override;
+            void renderLines(RenderContext& renderContext);
+            void renderArrows(RenderContext& renderContext);
         private:
             void validate();
+
+            static void getArrows(ArrowVertex::List& arrows, const Vertex::List& links);
+            static void addArrow(ArrowVertex::List& arrows, const Vec4f& color, const Vec3f& arrowPosition, const Vec3f& lineDir);
             
             class MatchEntities;
             class CollectEntitiesVisitor;

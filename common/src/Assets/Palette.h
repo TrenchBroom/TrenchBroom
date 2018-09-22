@@ -34,6 +34,10 @@ namespace TrenchBroom {
     }
     
     namespace Assets {
+        enum class PaletteTransparency {
+            Opaque, Index255Transparent
+        };
+
         class Palette {
         private:
             using RawDataPtr = std::unique_ptr<unsigned char[]>;
@@ -47,12 +51,12 @@ namespace TrenchBroom {
                 Data(size_t size, unsigned char* data);
 
                 template <typename IndexT, typename ColorT>
-                void indexedToRgb(const Buffer<IndexT>& indexedImage, const size_t pixelCount, Buffer<ColorT>& rgbImage, Color& averageColor) const {
-                    indexedToRgb(&indexedImage[0], pixelCount, rgbImage, averageColor);
+                void indexedToRgba(const Buffer<IndexT>& indexedImage, const size_t pixelCount, Buffer<ColorT>& rgbaImage, Color& averageColor, const PaletteTransparency transparency) const {
+                    indexedToRgba(&indexedImage[0], pixelCount, rgbaImage, averageColor, transparency);
                 }
                 
                 template <typename IndexT, typename ColorT>
-                void indexedToRgb(const IndexT* indexedImage, const size_t pixelCount, Buffer<ColorT>& rgbImage, Color& averageColor) const {
+                void indexedToRgba(const IndexT* indexedImage, const size_t pixelCount, Buffer<ColorT>& rgbaImage, Color& averageColor, const PaletteTransparency transparency) const {
                     double avg[3];
                     avg[0] = avg[1] = avg[2] = 0.0;
                     for (size_t i = 0; i < pixelCount; ++i) {
@@ -60,8 +64,16 @@ namespace TrenchBroom {
                         assert(index < m_size);
                         for (size_t j = 0; j < 3; ++j) {
                             const unsigned char c = m_data[index * 3 + j];
-                            rgbImage[i * 3 + j] = c;
+                            rgbaImage[i * 4 + j] = c;
                             avg[j] += static_cast<double>(c);
+                        }
+                        switch (transparency) {
+                            case PaletteTransparency::Opaque:
+                                rgbaImage[i * 4 + 3] = 0xFF;
+                                break;
+                            case PaletteTransparency::Index255Transparent:
+                                rgbaImage[i * 4 + 3] = (index == 255) ? 0x00 : 0xFF;
+                                break;
                         }
                     }
                     
@@ -87,13 +99,13 @@ namespace TrenchBroom {
             bool initialized() const;
 
             template <typename IndexT, typename ColorT>
-            void indexedToRgb(const Buffer<IndexT>& indexedImage, const size_t pixelCount, Buffer<ColorT>& rgbImage, Color& averageColor) const {
-                m_data->indexedToRgb(indexedImage, pixelCount, rgbImage, averageColor);
+            void indexedToRgba(const Buffer<IndexT>& indexedImage, const size_t pixelCount, Buffer<ColorT>& rgbaImage, Color& averageColor, const PaletteTransparency transparency = PaletteTransparency::Opaque) const {
+                m_data->indexedToRgba(indexedImage, pixelCount, rgbaImage, averageColor, transparency);
             }
             
             template <typename IndexT, typename ColorT>
-            void indexedToRgb(const IndexT* indexedImage, const size_t pixelCount, Buffer<ColorT>& rgbImage, Color& averageColor) const {
-                m_data->indexedToRgb(indexedImage, pixelCount, rgbImage, averageColor);
+            void indexedToRgba(const IndexT* indexedImage, const size_t pixelCount, Buffer<ColorT>& rgbaImage, Color& averageColor, const PaletteTransparency transparency = PaletteTransparency::Opaque) const {
+                m_data->indexedToRgba(indexedImage, pixelCount, rgbaImage, averageColor, transparency);
             }
         };
     }

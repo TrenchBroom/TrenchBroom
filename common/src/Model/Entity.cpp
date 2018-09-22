@@ -43,23 +43,23 @@ namespace TrenchBroom {
         m_boundsValid(false) {}
 
         bool Entity::brushEntity() const {
-            return !pointEntity();
+            return hasChildren();
         }
 
         bool Entity::pointEntity() const {
-            if (!hasChildren())
-                return true;
-            if (definition() == nullptr)
-                return !hasChildren();
-            return definition()->type() == Assets::EntityDefinition::Type_PointEntity;
+            return !brushEntity();
         }
         
+        bool Entity::hasEntityDefinition() const {
+            return m_definition != nullptr;
+        }
+
         bool Entity::hasBrushEntityDefinition() const {
-            return m_definition != nullptr && definition()->type() == Assets::EntityDefinition::Type_BrushEntity;
+            return hasEntityDefinition() && definition()->type() == Assets::EntityDefinition::Type_BrushEntity;
         }
 
         bool Entity::hasPointEntityDefinition() const {
-            return m_definition != nullptr && definition()->type() == Assets::EntityDefinition::Type_PointEntity;
+            return hasEntityDefinition() && definition()->type() == Assets::EntityDefinition::Type_PointEntity;
         }
         
         bool Entity::hasPointEntityModel() const {
@@ -150,19 +150,23 @@ namespace TrenchBroom {
         }
 
         void Entity::doChildWasAdded(Node* node) {
-            nodeBoundsDidChange();
+            nodeBoundsDidChange(bounds());
         }
         
         void Entity::doChildWasRemoved(Node* node) {
-            nodeBoundsDidChange();
+            nodeBoundsDidChange(bounds());
         }
 
-        void Entity::doNodeBoundsDidChange() {
+        void Entity::doNodeBoundsDidChange(const BBox3& oldBounds) {
             invalidateBounds();
         }
         
-        void Entity::doChildBoundsDidChange(Node* node) {
-            nodeBoundsDidChange();
+        void Entity::doChildBoundsDidChange(Node* node, const BBox3& oldBounds) {
+            const BBox3 myOldBounds = bounds();
+            invalidateBounds();
+            if (bounds() != myOldBounds) {
+                nodeBoundsDidChange(myOldBounds);
+            }
         }
 
         bool Entity::doSelectable() const {
@@ -170,10 +174,7 @@ namespace TrenchBroom {
         }
 
         void Entity::doPick(const Ray3& ray, PickResult& pickResult) const {
-            if (hasChildren()) {
-                for (const Node* child : Node::children())
-                    child->pick(ray, pickResult);
-            } else {
+            if (!hasChildren()) {
                 const BBox3& myBounds = bounds();
                 if (!myBounds.contains(ray.origin)) {
                     const FloatType distance = myBounds.intersectWithRay(ray);
@@ -235,8 +236,8 @@ namespace TrenchBroom {
             }
         }
         
-        void Entity::doAttributesDidChange() {
-            nodeBoundsDidChange();
+        void Entity::doAttributesDidChange(const BBox3& oldBounds) {
+            nodeBoundsDidChange(oldBounds);
         }
         
         bool Entity::doIsAttributeNameMutable(const AttributeName& name) const {

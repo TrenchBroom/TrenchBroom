@@ -111,6 +111,7 @@
 #include "View/ViewEffectsService.h"
 
 #include <cassert>
+#include <numeric>
 
 namespace TrenchBroom {
     namespace View {
@@ -760,6 +761,63 @@ namespace TrenchBroom {
             return false;
         }
         
+        Model::Entity* MapDocument::createPointEntity(const Assets::PointEntityDefinition* definition, const Vec3& delta) {
+            ensure(definition != nullptr, "definition is null");
+
+            auto* entity = m_world->createEntity();
+            entity->addOrUpdateAttribute(Model::AttributeNames::Classname, definition->name());
+
+            StringStream name;
+            name << "Create " << definition->name();
+
+            const Transaction transaction(this, name.str());
+            deselectAll();
+            addNode(entity, currentParent());
+            select(entity);
+            translateObjects(delta);
+
+            return entity;
+        }
+
+        Model::Entity* MapDocument::createBrushEntity(const Assets::BrushEntityDefinition* definition) {
+            ensure(definition != nullptr, "definition is null");
+
+            const auto brushes = selectedNodes().brushes();
+            assert(!brushes.empty());
+
+            auto* entity = m_world->createEntity();
+
+            // if all brushes belong to the same entity, and that entity is not worldspawn, copy its properties
+            auto* entityTemplate = brushes.front()->entity();
+            if (entityTemplate != m_world) {
+                for (auto* brush : brushes) {
+                    if (brush->entity() != entityTemplate) {
+                        entityTemplate = nullptr;
+                        break;
+                    }
+                }
+
+                if (entityTemplate != nullptr) {
+                    entity->setAttributes(entityTemplate->attributes());
+                }
+            }
+
+            entity->addOrUpdateAttribute(Model::AttributeNames::Classname, definition->name());
+
+            StringStream name;
+            name << "Create " << definition->name();
+
+            const Model::NodeList nodes(std::begin(brushes), std::end(brushes));
+
+            const Transaction transaction(this, name.str());
+            deselectAll();
+            addNode(entity, currentParent());
+            reparentNodes(entity, nodes);
+            select(nodes);
+
+            return entity;
+        }
+
         Model::Group* MapDocument::groupSelection(const String& name) {
             if (!hasSelectedNodes())
                 return nullptr;
@@ -943,6 +1001,10 @@ namespace TrenchBroom {
         
         bool MapDocument::scaleObjects(const BBox3& oldBBox, const BBox3& newBBox) {
             return submitAndStore(TransformObjectsCommand::scale(oldBBox, newBBox, pref(Preferences::TextureLock)));
+        }
+        
+        bool MapDocument::scaleObjects(const Vec3& center, const Vec3& scaleFactors) {
+            return submitAndStore(TransformObjectsCommand::scale(center, scaleFactors, pref(Preferences::TextureLock)));
         }
         
         bool MapDocument::shearObjects(const BBox3& box, const Vec3& sideToShear, const Vec3& delta) {
@@ -1280,11 +1342,43 @@ namespace TrenchBroom {
             } else if (selectedNodes().hasBrushes()) {
                 for (const Model::Brush* brush : selectedNodes().brushes()) {
                     StringStream str;
+                    str.precision(17);
                     for (const Model::BrushVertex* vertex : brush->vertices())
-                        str << "(" << vertex->position().asString() << ") ";
+                        str << vertex->position() << " ";
                     info(str.str());
                 }
             }
+        }
+
+        class ThrowExceptionCommand : public DocumentCommand {
+        public:
+            static const CommandType Type;
+            typedef std::shared_ptr<ThrowExceptionCommand> Ptr;
+        public:
+            ThrowExceptionCommand() : DocumentCommand(Type, "Throw Exception") {}
+
+        private:
+            bool doPerformDo(MapDocumentCommandFacade* document) override {
+                throw GeometryException();
+            }
+
+            bool doPerformUndo(MapDocumentCommandFacade* document) override {
+                return true;
+            }
+
+            bool doIsRepeatable(MapDocumentCommandFacade* document) const override {
+                return false;
+            }
+
+            bool doCollateWith(UndoableCommand::Ptr command) override {
+                return false;
+            }
+        };
+
+        const ThrowExceptionCommand::CommandType ThrowExceptionCommand::Type = Command::freeType();
+
+        bool MapDocument::throwExceptionDuringCommand() {
+            return submitAndStore(ThrowExceptionCommand::Ptr(new ThrowExceptionCommand()));
         }
 
         bool MapDocument::canUndoLastCommand() const {
@@ -1404,6 +1498,10 @@ namespace TrenchBroom {
             submitAndStore(EntityDefinitionFileCommand::set(spec));
         }
         
+        void MapDocument::setEntityDefinitions(const Assets::EntityDefinitionList& definitions) {
+            m_entityDefinitionManager->setDefinitions(definitions);
+        }
+
         IO::Path::List MapDocument::enabledTextureCollections() const {
             return m_game->extractTextureCollections(m_world);
         }
