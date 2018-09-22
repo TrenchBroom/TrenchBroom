@@ -93,7 +93,7 @@ namespace TrenchBroom {
         }
 
         Assets::Texture* EntityModel::skin(const size_t index) const {
-            return m_skins->textures()[index];
+            return m_skins->textureByIndex(index);
         }
 
         void EntityModel::prepare(const int minFilter, const int magFilter) {

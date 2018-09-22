@@ -60,6 +60,7 @@ namespace TrenchBroom {
             String name() const;
             size_t textureCount() const;
             const TextureList& textures() const;
+            Texture* textureByIndex(size_t index) const;
 
             size_t usageCount() const;
             

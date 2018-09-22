@@ -237,13 +237,14 @@ namespace TrenchBroom {
                     for (size_t k = 0; k < faceVertexCount; ++k) {
                         const int faceEdgeIndex = faceEdges[faceInfo.edgeIndex + k];
                         size_t vertexIndex;
-                        if (faceEdgeIndex < 0)
+                        if (faceEdgeIndex < 0) {
                             vertexIndex = edgeInfos[static_cast<size_t>(-faceEdgeIndex)].vertexIndex2;
-                        else
+                        } else {
                             vertexIndex = edgeInfos[static_cast<size_t>(faceEdgeIndex)].vertexIndex1;
+                        }
 
                         const auto& position = vertices[vertexIndex];
-                        const auto texCoords = textureCoords(position, textureInfo, *skin);
+                        const auto texCoords = textureCoords(position, textureInfo, skin);
                         faceVertices.push_back(Vertex(position, texCoords));
                     }
 
@@ -256,9 +257,13 @@ namespace TrenchBroom {
             }
         }
         
-        vm::vec2f Bsp29Parser::textureCoords(const vm::vec3f& vertex, const TextureInfo& textureInfo, const Assets::Texture& texture) const {
-            return vm::vec2f((dot(vertex, textureInfo.sAxis) + textureInfo.sOffset) / texture.width(),
-                         (dot(vertex, textureInfo.tAxis) + textureInfo.tOffset) / texture.height());
+        vm::vec2f Bsp29Parser::textureCoords(const vm::vec3f& vertex, const TextureInfo& textureInfo, const Assets::Texture* texture) const {
+            if (texture == nullptr) {
+                return vm::vec2f::zero;
+            } else {
+                return vm::vec2f((dot(vertex, textureInfo.sAxis) + textureInfo.sOffset) / texture->width(),
+                                 (dot(vertex, textureInfo.tAxis) + textureInfo.tOffset) / texture->height());
+            }
         }
     }
 }
