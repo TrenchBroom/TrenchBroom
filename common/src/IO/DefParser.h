@@ -49,7 +49,8 @@ namespace TrenchBroom {
             static const Type Newline         = 1 << 12; // new line
             static const Type Comma           = 1 << 13; // comma: ,
             static const Type Equality        = 1 << 14; // equality sign: =
-            static const Type Eof             = 1 << 15; // end of file
+            static const Type Minus           = 1 << 15; // minus sign: -
+            static const Type Eof             = 1 << 16; // end of file
         }
 
         class DefTokenizer : public Tokenizer<DefToken::Type> {

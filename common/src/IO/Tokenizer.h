@@ -320,8 +320,11 @@ namespace TrenchBroom {
             }
         protected:
             const char* readUntil(const String& delims) {
-                while (!eof() && !isAnyOf(curChar(), delims))
+                if (!eof()) {
+                    do {
                     advance();
+                    } while (!eof() && !isAnyOf(curChar(), delims));
+                }
                 return curPos();
             }
 

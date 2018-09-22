@@ -29,6 +29,14 @@
 #include "Model/BrushGeometry.h"
 #include "Model/Node.h"
 #include "Model/Object.h"
+#include "Renderer/BrushRendererBrushCache.h"
+#include "Renderer/VertexListBuilder.h"
+#include "Renderer/TexturedIndexArrayMap.h"
+#include "Renderer/IndexArrayMapBuilder.h"
+#include "Renderer/TexturedIndexArrayBuilder.h"
+
+#include <vector>
+#include <Renderer/BrushRendererBrushCache.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -36,6 +44,7 @@ namespace TrenchBroom {
         class BrushContentTypeBuilder;
         class ModelFactory;
         class PickResult;
+        class BrushRendererBrushCache;
         
         class Brush : public Node, public Object {
         private:
@@ -63,6 +72,7 @@ namespace TrenchBroom {
         public:
             typedef ConstProjectingSequence<BrushVertexList, ProjectToVertex> VertexList;
             typedef ConstProjectingSequence<BrushEdgeList, ProjectToEdge> EdgeList;
+
         private:
             BrushFaceList m_faces;
             BrushGeometry* m_geometry;
@@ -71,6 +81,7 @@ namespace TrenchBroom {
             mutable BrushContentType::FlagType m_contentType;
             mutable bool m_transparent;
             mutable bool m_contentTypeValid;
+            mutable Renderer::BrushRendererBrushCache m_brushRendererBrushCache;
         public:
             Brush(const BBox3& worldBounds, const BrushFaceList& faces);
             ~Brush() override;
@@ -157,7 +168,6 @@ namespace TrenchBroom {
             
             size_t edgeCount() const;
             EdgeList edges() const;
-            
             bool containsPoint(const Vec3& point) const;
             
             BrushFaceList incidentFaces(const BrushVertex* vertex) const;
@@ -267,6 +277,13 @@ namespace TrenchBroom {
         private:
             Brush(const Brush&);
             Brush& operator=(const Brush&);
+            
+        public: // renderer cache
+            /**
+             * Only exposed to be called by BrushFace
+             */
+            void invalidateVertexCache();
+            Renderer::BrushRendererBrushCache& brushRendererBrushCache() const;
         };
     }
 }

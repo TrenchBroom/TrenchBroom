@@ -257,7 +257,6 @@ namespace TrenchBroom {
                     m_palette.indexedToRgb(cursor, size, rgbImage, avgColor);
                     cursor += size;
 
-                    textureName.str();
                     textureName << m_name << "_" << i;
 
                     model->addSkin(new Assets::Texture(textureName.str(), width, height, avgColor, rgbImage));

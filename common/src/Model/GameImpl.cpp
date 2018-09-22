@@ -65,13 +65,13 @@ namespace TrenchBroom {
             const GameConfig::FileSystemConfig& fileSystemConfig = m_config.fileSystemConfig();
             if (!m_gamePath.isEmpty() && IO::Disk::directoryExists(m_gamePath)) {
                 addSearchPath(fileSystemConfig.searchPath, logger);
-                for (const IO::Path& searchPath : m_additionalSearchPaths)
-                    addSearchPath(searchPath, logger);
-                
                 addPackages(m_gamePath + fileSystemConfig.searchPath);
-                for (const IO::Path& searchPath : m_additionalSearchPaths)
+
+                for (const IO::Path& searchPath : m_additionalSearchPaths) {
+                    addSearchPath(searchPath, logger);
                     addPackages(m_gamePath + searchPath);
             }
+        }
         }
 
         void GameImpl::addSearchPath(const IO::Path& searchPath, Logger* logger) {

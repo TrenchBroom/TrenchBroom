@@ -24,25 +24,31 @@
 #include "Assets/AssetTypes.h"
 #include "Model/BrushFace.h"
 #include "Renderer/Renderable.h"
-#include "Renderer/TexturedIndexArrayRenderer.h"
 #include "Renderer/VertexArray.h"
 
 #include <map>
+#include <memory>
+#include <unordered_map>
 
 namespace TrenchBroom {
     namespace Renderer {
         class ActiveShader;
+        class BrushIndexArray;
+        class BrushVertexArray;
         class RenderBatch;
         class RenderContext;
-        class TexturedIndexArrayMap;
         class Vbo;
-        
+
+        using BrushVertexArrayPtr = std::shared_ptr<BrushVertexArray>;
+        using TextureToBrushIndicesMap = std::unordered_map<const Assets::Texture*, std::shared_ptr<BrushIndexArray>>;
+        using TextureToBrushIndicesMapPtr = std::shared_ptr<const TextureToBrushIndicesMap>;
+
         class FaceRenderer : public IndexedRenderable {
         private:
             struct RenderFunc;
-            
-            VertexArray m_vertexArray;
-            TexturedIndexArrayRenderer m_meshRenderer;
+
+            BrushVertexArrayPtr m_vertexArray;
+            TextureToBrushIndicesMapPtr m_indexArrayMap;
             Color m_faceColor;
             bool m_grayscale;
             bool m_tint;
@@ -50,7 +56,7 @@ namespace TrenchBroom {
             float m_alpha;
         public:
             FaceRenderer();
-            FaceRenderer(const VertexArray& vertexArray, const IndexArray& indexArray, const TexturedIndexArrayMap& indexArrayMap, const Color& faceColor);
+            FaceRenderer(BrushVertexArrayPtr vertexArray, TextureToBrushIndicesMapPtr indexArrayMap, const Color& faceColor);
             
             FaceRenderer(const FaceRenderer& other);
             FaceRenderer& operator=(FaceRenderer other);
@@ -63,8 +69,7 @@ namespace TrenchBroom {
             
             void render(RenderBatch& renderBatch);
         private:
-            void doPrepareVertices(Vbo& vertexVbo) override;
-            void doPrepareIndices(Vbo& indexVbo) override;
+            void prepareVerticesAndIndices(Vbo& vertexVbo, Vbo& indexVbo) override;
             void doRender(RenderContext& context) override;
         };
 
