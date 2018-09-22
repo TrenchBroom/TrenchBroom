@@ -324,6 +324,12 @@ const TT intersectRayWithTriangle(const Ray<TT, 3>& R, const Vec<TT,3>& V0, cons
     return t;
 }
 
+template <typename T, size_t S>
+std::ostream& operator<<(std::ostream& stream, const Ray<T,S>& ray) {
+    stream << "{origin:" << ray.origin << " direction:" << ray.direction << "}";
+    return stream;
+}
+
 typedef Ray<float,3> Ray3f;
 typedef Ray<double,3> Ray3d;
 

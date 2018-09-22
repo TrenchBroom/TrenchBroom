@@ -154,8 +154,9 @@ namespace TrenchBroom {
         }
 
         void UVView::doUpdateViewport(int x, int y, int width, int height) {
-            m_camera.setViewport(Renderer::Camera::Viewport(x, y, width, height));
-            m_helper.cameraViewportChanged();
+            if (m_camera.setViewport(Renderer::Camera::Viewport(x, y, width, height))) {
+                m_helper.cameraViewportChanged();
+            }
         }
         
         void UVView::doRender() {

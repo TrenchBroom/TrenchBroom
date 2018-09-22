@@ -725,6 +725,18 @@ Mat<T,3,3> rotationMatrix(const T angle) {
                       0.0,  0.0, 1.0);
 }
 
+/**
+From: http://web.archive.org:80/web/20041029003853/http://www.j3d.org/matrix_faq/matrfaq_latest.html#Q43
+*/
+template <typename T>
+Mat<T,4,4> shearMatrix(const T Sxy, const T Sxz, const T Syx, const T Syz, const T Szx, const T Szy) {
+    return Mat<T,4,4>(1.0, Syx, Szx, 0.0,
+                      Sxy, 1.0, Szy, 0.0,
+                      Sxz, Syz, 1.0, 0.0,
+                      0.0, 0.0, 0.0, 1.0);
+}
+
+
 template <typename T, size_t R, size_t C>
 const Mat<T,R,C> Mat<T,R,C>::Identity = Mat<T,R,C>().setIdentity();
 

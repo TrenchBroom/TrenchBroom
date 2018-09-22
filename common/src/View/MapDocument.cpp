@@ -356,10 +356,14 @@ namespace TrenchBroom {
             return result;
         }
         
-        void MapDocument::loadPointFile(const IO::Path& path) {
-            if (isPointFileLoaded())
+        void MapDocument::loadPointFile(const IO::Path path) {
+            if (isPointFileLoaded()) {
                 unloadPointFile();
+            }
+
+            m_pointFilePath = path;
             m_pointFile = std::make_unique<Model::PointFile>(path);
+
             info("Loaded point file " + path.asString());
             pointFileWasLoadedNotifier();
         }
@@ -368,20 +372,27 @@ namespace TrenchBroom {
             return m_pointFile != nullptr;
         }
         
+        void MapDocument::reloadPointFile() {
+            assert(isPointFileLoaded());
+            loadPointFile(m_pointFilePath);
+        }
+
         void MapDocument::unloadPointFile() {
             assert(isPointFileLoaded());
             m_pointFile = nullptr;
+            m_pointFilePath = IO::Path();
             
             info("Unloaded point file");
             pointFileWasUnloadedNotifier();
         }
         
-        void MapDocument::loadPortalFile(const IO::Path& path) {
+        void MapDocument::loadPortalFile(const IO::Path path) {
             if (isPortalFileLoaded()) {
                 unloadPortalFile();
             }
             
             try {
+                m_portalFilePath = path;
                 m_portalFile = std::make_unique<Model::PortalFile>(path);
             } catch (const std::exception &exception) {
                 info("Couldn't load portal file " + path.asString() + ": " + exception.what());
@@ -397,9 +408,15 @@ namespace TrenchBroom {
             return m_portalFile != nullptr;
         }
         
+        void MapDocument::reloadPortalFile() {
+            assert(isPortalFileLoaded());
+            loadPortalFile(m_portalFilePath);
+        }
+        
         void MapDocument::unloadPortalFile() {
             assert(isPortalFileLoaded());
             m_portalFile = nullptr;
+            m_portalFilePath = IO::Path();
             
             info("Unloaded portal file");
             portalFileWasUnloadedNotifier();
@@ -922,6 +939,14 @@ namespace TrenchBroom {
         
         bool MapDocument::rotateObjects(const Vec3& center, const Vec3& axis, const FloatType angle) {
             return submitAndStore(TransformObjectsCommand::rotate(center, axis, angle, pref(Preferences::TextureLock)));
+        }
+        
+        bool MapDocument::scaleObjects(const BBox3& oldBBox, const BBox3& newBBox) {
+            return submitAndStore(TransformObjectsCommand::scale(oldBBox, newBBox, pref(Preferences::TextureLock)));
+        }
+        
+        bool MapDocument::shearObjects(const BBox3& box, const Vec3& sideToShear, const Vec3& delta) {
+            return submitAndStore(TransformObjectsCommand::shearBBox(box, sideToShear, delta,  pref(Preferences::TextureLock)));
         }
         
         bool MapDocument::flipObjects(const Vec3& center, const Math::Axis::Type axis) {

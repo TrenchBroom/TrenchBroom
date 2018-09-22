@@ -58,6 +58,8 @@
 #include "View/MoveObjectsToolController.h"
 #include "View/ResizeBrushesToolController.h"
 #include "View/RotateObjectsToolController.h"
+#include "View/ScaleObjectsToolController.h"
+#include "View/ShearObjectsToolController.h"
 #include "View/SelectionTool.h"
 #include "View/SetBrushFaceAttributesTool.h"
 #include "View/VertexTool.h"
@@ -93,6 +95,8 @@ namespace TrenchBroom {
             addTool(new CameraTool3D(m_document, m_camera));
             addTool(new MoveObjectsToolController(toolBox.moveObjectsTool()));
             addTool(new RotateObjectsToolController3D(toolBox.rotateObjectsTool()));
+            addTool(new ScaleObjectsToolController3D(toolBox.scaleObjectsTool(), m_document));
+            addTool(new ShearObjectsToolController3D(toolBox.shearObjectsTool(), m_document));
             addTool(new ResizeBrushesToolController3D(toolBox.resizeBrushesTool()));
             addTool(new CreateComplexBrushToolController3D(toolBox.createComplexBrushTool()));
             addTool(new ClipToolController3D(toolBox.clipTool()));

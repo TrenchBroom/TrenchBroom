@@ -38,6 +38,16 @@ namespace TrenchBroom {
             return Ptr(new TransformObjectsCommand(Action_Rotate, "Rotate Objects", transform, lockTextures));
         }
         
+        TransformObjectsCommand::Ptr TransformObjectsCommand::scale(const BBox3& oldBBox, const BBox3& newBBox, const bool lockTextures) {
+            const Mat4x4 transform = scaleBBoxMatrix(oldBBox, newBBox);
+            return Ptr(new TransformObjectsCommand(Action_Rotate, "Scale Objects", transform, lockTextures));
+        }
+        
+        TransformObjectsCommand::Ptr TransformObjectsCommand::shearBBox(const BBox3& box, const Vec3& sideToShear, const Vec3& delta, const bool lockTextures) {
+            const Mat4x4 transform = shearBBoxMatrix(box, sideToShear, delta);
+            return Ptr(new TransformObjectsCommand(Action_Rotate, "Shear Objects", transform, lockTextures));
+        }
+        
         TransformObjectsCommand::Ptr TransformObjectsCommand::flip(const Vec3& center, const Math::Axis::Type axis, const bool lockTextures) {
             const Mat4x4 transform = translationMatrix(center) * mirrorMatrix<FloatType>(axis) * translationMatrix(-center);
             return Ptr(new TransformObjectsCommand(Action_Flip, "Flip Objects", transform, lockTextures));

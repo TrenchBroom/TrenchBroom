@@ -37,10 +37,13 @@ namespace TrenchBroom {
             } FaceRenderMode;
         private:
             const Model::EditorContext& m_editorContext;
-            
+
             bool m_showEntityClassnames;
             bool m_showPointEntityModels;
-            bool m_showEntityBounds;
+
+            bool m_showGroupBounds;
+            bool m_showBrushEntityBounds;
+            bool m_showPointEntityBounds;
             
             FaceRenderMode m_faceRenderMode;
             bool m_shadeFaces;
@@ -58,9 +61,15 @@ namespace TrenchBroom {
             
             bool showPointEntityModels() const;
             void setShowPointEntityModels(bool showPointEntityModels);
-            
-            bool showEntityBounds() const;
-            void setShowEntityBounds(bool showEntityBounds);
+
+            bool showGroupBounds() const;
+            void setShowGroupBounds(bool showGroupBounds);
+
+            bool showBrushEntityBounds() const;
+            void setShowBrushEntityBounds(bool showBrushEntityBounds);
+
+            bool showPointEntityBounds() const;
+            void setShowPointEntityBounds(bool showPointEntityBounds);
             
             bool showBrushes() const;
             
