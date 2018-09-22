@@ -21,16 +21,19 @@
 
 #include "Renderer/TexturedIndexRangeRenderer.h"
 
+#include <vecmath/forward.h>
+#include <vecmath/bbox.h>
+
 namespace TrenchBroom {
     namespace Assets {
-        EntityModel::Frame::Frame(const String& name, const BBox3f& bounds, const EntityModel::VertexList& vertices) :
+        EntityModel::Frame::Frame(const String& name, const vm::bbox3f& bounds, const EntityModel::VertexList& vertices) :
         m_name(name),
         m_bounds(bounds),
         m_vertices(std::move(vertices)) {}
 
         EntityModel::Frame::~Frame() {}
 
-        const BBox3f& EntityModel::Frame::bounds() const {
+        const vm::bbox3f& EntityModel::Frame::bounds() const {
             return m_bounds;
         }
 
@@ -39,7 +42,7 @@ namespace TrenchBroom {
             return doBuildRenderer(skin, vertexArray);
         }
 
-        EntityModel::IndexedFrame::IndexedFrame(const String& name, const BBox3f& bounds, const EntityModel::VertexList& vertices, const EntityModel::Indices& indices) :
+        EntityModel::IndexedFrame::IndexedFrame(const String& name, const vm::bbox3f& bounds, const EntityModel::VertexList& vertices, const EntityModel::Indices& indices) :
                 Frame(name, bounds, vertices),
                 m_indices(indices) {}
 
@@ -48,7 +51,7 @@ namespace TrenchBroom {
             return new Renderer::TexturedIndexRangeRenderer(vertices, texturedIndices);
         }
 
-        EntityModel::TexturedFrame::TexturedFrame(const String& name, const BBox3f& bounds, const EntityModel::VertexList& vertices, const EntityModel::TexturedIndices& indices) :
+        EntityModel::TexturedFrame::TexturedFrame(const String& name, const vm::bbox3f& bounds, const EntityModel::VertexList& vertices, const EntityModel::TexturedIndices& indices) :
                 Frame(name, bounds, vertices),
                 m_indices(indices) {}
 
@@ -70,7 +73,7 @@ namespace TrenchBroom {
             return m_frames[frameIndex]->buildRenderer(skin);
         }
 
-        BBox3f EntityModel::bounds(const size_t skinIndex, const size_t frameIndex) const {
+        vm::bbox3f EntityModel::bounds(const size_t skinIndex, const size_t frameIndex) const {
             ensure(skinIndex < skinCount(), "skin index out of range");
             ensure(frameIndex < frameCount(), "frame index out of range");
 
@@ -109,12 +112,12 @@ namespace TrenchBroom {
         }
 
         void EntityModel::addFrame(const String& name, const EntityModel::VertexList& vertices, const EntityModel::Indices& indices) {
-            const BBox3f bounds(std::begin(vertices), std::end(vertices), Renderer::GetVertexComponent1());
+            const auto bounds = vm::bbox3f::mergeAll(std::begin(vertices), std::end(vertices), Renderer::GetVertexComponent1());
             m_frames.push_back(std::make_unique<IndexedFrame>(name, bounds, vertices, indices));
         }
 
         void EntityModel::addFrame(const String& name, const EntityModel::VertexList& vertices, const EntityModel::TexturedIndices& indices) {
-            const BBox3f bounds(std::begin(vertices), std::end(vertices), Renderer::GetVertexComponent1());
+            const auto bounds = vm::bbox3f::mergeAll(std::begin(vertices), std::end(vertices), Renderer::GetVertexComponent1());
             m_frames.push_back(std::make_unique<TexturedFrame>(name, bounds, vertices, indices));
         }
     }

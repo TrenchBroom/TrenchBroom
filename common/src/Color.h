@@ -20,15 +20,15 @@
 #ifndef TrenchBroom_Color_h
 #define TrenchBroom_Color_h
 
-#include "Vec.h"
+#include <vecmath/vec.h>
 
-class Color : public Vec<float, 4> {
+class Color : public vm::vec<float, 4> {
 public:
     static bool canParse(const std::string& str);
     static Color parse(const std::string& str);
     
     Color();
-    Color(const Vec<float,4>& vec);
+    Color(const vec<float,4>& v);
     Color(float r, float g, float b, float a = 1.0f);
     Color(const Color& color, float a);
     Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a = 0xFF);

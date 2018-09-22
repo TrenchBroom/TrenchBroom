@@ -21,12 +21,14 @@
 #define TrenchBroom_DkmParser
 
 #include "StringUtils.h"
-#include "VecMath.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/EntityModel.h"
 #include "IO/EntityModelParser.h"
 
 #include <vector>
+
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -49,7 +51,7 @@ namespace TrenchBroom {
         // see http://tfc.duke.free.fr/coding/md2-specs-en.html
         class DkmParser : public EntityModelParser {
         private:
-            static const Vec3f Normals[162];
+            static const vm::vec3f Normals[162];
 
             struct DkmSkin {
                 char name[DkmLayout::SkinNameLength];
@@ -76,19 +78,19 @@ namespace TrenchBroom {
             typedef std::vector<DkmVertex> DkmVertexList;
             
             struct DkmFrame {
-                Vec3f scale;
-                Vec3f offset;
+                vm::vec3f scale;
+                vm::vec3f offset;
                 char name[DkmLayout::FrameNameLength];
                 DkmVertexList vertices;
                 
                 DkmFrame(size_t vertexCount);
-                Vec3f vertex(size_t index) const;
-                const Vec3f& normal(size_t index) const;
+                vm::vec3f vertex(size_t index) const;
+                const vm::vec3f& normal(size_t index) const;
             };
             typedef std::vector<DkmFrame> DkmFrameList;
 
             struct DkmMeshVertex {
-                Vec2f texCoords;
+                vm::vec2f texCoords;
                 size_t vertexIndex;
             };
             typedef std::vector<DkmMeshVertex> DkmMeshVertexList;

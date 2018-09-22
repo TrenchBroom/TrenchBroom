@@ -20,6 +20,12 @@
 #ifndef TrenchBroom_Polyhedron_Edge_h
 #define TrenchBroom_Polyhedron_Edge_h
 
+#include <vecmath/vec.h>
+#include <vecmath/plane.h>
+#include <vecmath/segment.h>
+#include <vecmath/distance.h>
+#include <vecmath/scalar.h>
+
 template <typename T, typename FP, typename VP>
 typename DoublyLinkedList<typename Polyhedron<T,FP,VP>::Edge, typename Polyhedron<T,FP,VP>::GetEdgeLink>::Link& Polyhedron<T,FP,VP>::GetEdgeLink::operator()(Edge* edge) const {
     return edge->m_link;
@@ -134,23 +140,23 @@ bool Polyhedron<T,FP,VP>::Edge::hasVertex(const Vertex* vertex) const {
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::Edge::hasPosition(const V& position, const T epsilon) const {
-    return ( firstVertex()->position().equals(position, epsilon) ||
-            secondVertex()->position().equals(position, epsilon));
+    return (isEqual( firstVertex()->position(), position, epsilon) ||
+            isEqual(secondVertex()->position(), position, epsilon));
 }
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::Edge::hasPositions(const V& position1, const V& position2, const T epsilon) const {
-    return (( firstVertex()->position().equals(position1, epsilon) &&
-             secondVertex()->position().equals(position2, epsilon)) ||
-            ( firstVertex()->position().equals(position2, epsilon) &&
-             secondVertex()->position().equals(position1, epsilon))
+    return ((isEqual( firstVertex()->position(), position1, epsilon) &&
+             isEqual(secondVertex()->position(), position2, epsilon)) ||
+            (isEqual( firstVertex()->position(), position2, epsilon) &&
+             isEqual(secondVertex()->position(), position1, epsilon))
             );
 }
 
 template <typename T, typename FP, typename VP>
 T Polyhedron<T,FP,VP>::Edge::distanceTo(const V& position1, const V& position2) const {
-    const T pos1Distance = std::min(firstVertex()->position().squaredDistanceTo(position1), secondVertex()->position().squaredDistanceTo(position1));
-    const T pos2Distance = std::min(firstVertex()->position().squaredDistanceTo(position2), secondVertex()->position().squaredDistanceTo(position2));
+    const T pos1Distance = vm::min(squaredDistance(firstVertex()->position(), position1), squaredDistance(secondVertex()->position(), position1));
+    const T pos2Distance = vm::min(squaredDistance(firstVertex()->position(), position2), squaredDistance(secondVertex()->position(), position2));
     return std::max(pos1Distance, pos2Distance);
 }
 
@@ -167,7 +173,7 @@ bool Polyhedron<T,FP,VP>::Edge::fullySpecified() const {
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::Edge::contains(const V& point, const T maxDistance) const {
-    return point.distanceToSegment(firstVertex()->position(), secondVertex()->position()).distance < maxDistance;
+    return vm::distance(vm::segment<T,3>(firstVertex()->position(), secondVertex()->position()), point).distance < maxDistance;
 }
 
 template <typename T, typename FP, typename VP>
@@ -181,7 +187,7 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::Edge::previous() const 
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::Edge::split(const Plane<T,3>& plane) {
+typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::Edge::split(const vm::plane<T,3>& plane) {
     // Do exactly what QBSP is doing:
     const T startDist = plane.pointDistance(firstVertex()->position());
     const T endDist = plane.pointDistance(secondVertex()->position());
@@ -202,11 +208,6 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::Edge::split(const Plane
     }
     
     return insertVertex(position);
-}
-
-template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::Edge::splitAtCenter() {
-    return insertVertex(center());
 }
 
 template <typename T, typename FP, typename VP>

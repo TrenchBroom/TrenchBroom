@@ -20,7 +20,6 @@
 #ifndef VertexHandleManager_h
 #define VertexHandleManager_h
 
-#include "VecMath.h"
 #include "TrenchBroom.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
@@ -28,6 +27,8 @@
 #include "Model/PickResult.h"
 #include "Renderer/Camera.h"
 #include "View/ViewTypes.h"
+
+#include <vecmath/distance.h>
 
 #include <algorithm>
 #include <functional>
@@ -411,7 +412,7 @@ namespace TrenchBroom {
             void forEachCloseHandle(const H& handle, std::function<void(HandleInfo&)> fun) {
                 static const auto epsilon = 0.001 * 0.001;
                 for (auto& entry : m_handles) {
-                    if (handle.squaredDistanceTo(entry.first) < epsilon * epsilon) {
+                    if (compare(handle, entry.first, epsilon) == 0) {
                         fun(entry.second);
                     }
                 }
@@ -523,7 +524,7 @@ namespace TrenchBroom {
         /**
          * Manages vertex handles. A vertex handle is a 3D point.
          */
-        class VertexHandleManager : public VertexHandleManagerBaseT<Vec3> {
+        class VertexHandleManager : public VertexHandleManagerBaseT<vm::vec3> {
         public:
             static const Model::Hit::HitType HandleHit;
         public:
@@ -538,7 +539,7 @@ namespace TrenchBroom {
              * @param camera the camera
              * @param pickResult the picking result to add the hits to
              */
-            void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
+            void pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
         public:
             void addHandles(const Model::Brush* brush) override;
             void removeHandles(const Model::Brush* brush) override;
@@ -557,10 +558,10 @@ namespace TrenchBroom {
          * intersect with a grid plane. Such handles are not added to this manager explicitly, but are computed on the
          * fly.
          */
-        class EdgeHandleManager : public VertexHandleManagerBaseT<Edge3> {
+        class EdgeHandleManager : public VertexHandleManagerBaseT<vm::segment3> {
         public:
             static const Model::Hit::HitType HandleHit;
-            typedef std::tuple<Edge3, Vec3> HitType;
+            typedef std::tuple<vm::segment3, vm::vec3> HitType;
         public:
             using VertexHandleManagerBase::addHandles;
             using VertexHandleManagerBase::removeHandles;
@@ -574,7 +575,7 @@ namespace TrenchBroom {
              * @param grid the current grid
              * @param pickResult the picking result to add the hits to
              */
-            void pickGridHandle(const Ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const;
+            void pickGridHandle(const vm::ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const;
 
             /**
              * Picks the center point of the edge handles contained in this manager.
@@ -583,7 +584,7 @@ namespace TrenchBroom {
              * @param camera the camera
              * @param pickResult the picking result to add the hits to
              */
-            void pickCenterHandle(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
+            void pickCenterHandle(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
         public:
             void addHandles(const Model::Brush* brush) override;
             void removeHandles(const Model::Brush* brush) override;
@@ -602,10 +603,10 @@ namespace TrenchBroom {
         * intersect with two grid planes. Such handles are not added to this manager explicitly, but are computed on the
         * fly.
         */
-        class FaceHandleManager : public VertexHandleManagerBaseT<Polygon3> {
+        class FaceHandleManager : public VertexHandleManagerBaseT<vm::polygon3> {
         public:
             static const Model::Hit::HitType HandleHit;
-            typedef std::tuple<Polygon3, Vec3> HitType;
+            typedef std::tuple<vm::polygon3, vm::vec3> HitType;
         public:
             using VertexHandleManagerBase::addHandles;
             using VertexHandleManagerBase::removeHandles;
@@ -620,7 +621,7 @@ namespace TrenchBroom {
              * @param grid the current grid
              * @param pickResult the picking result to add the hits to
              */
-            void pickGridHandle(const Ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const;
+            void pickGridHandle(const vm::ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const;
 
             /**
              * Picks the center point of the face handles contained in this manager.
@@ -629,7 +630,7 @@ namespace TrenchBroom {
              * @param camera the camera
              * @param pickResult the picking result to add the hits to
              */
-            void pickCenterHandle(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
+            void pickCenterHandle(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
         public:
             void addHandles(const Model::Brush* brush) override;
             void removeHandles(const Model::Brush* brush) override;

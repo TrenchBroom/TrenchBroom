@@ -21,18 +21,17 @@
 #define TrenchBroom_TransformObjectVisitor
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "Model/NodeVisitor.h"
 
 namespace TrenchBroom {
     namespace Model {
         class TransformObjectVisitor : public NodeVisitor {
         private:
-            const Mat4x4d& m_transformation;
+            const vm::mat4x4& m_transformation;
             bool m_lockTextures;
-            const BBox3& m_worldBounds;
+            const vm::bbox3& m_worldBounds;
         public:
-            TransformObjectVisitor(const Mat4x4d& transformation, bool lockTextures, const BBox3& worldBounds);
+            TransformObjectVisitor(const vm::mat4x4& transformation, bool lockTextures, const vm::bbox3& worldBounds);
         private:
             void doVisit(World* world) override;
             void doVisit(Layer* layer) override;

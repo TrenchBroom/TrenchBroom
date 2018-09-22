@@ -21,11 +21,12 @@
 #define BoundsGuideRenderer_h
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "Color.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/SpikeGuideRenderer.h"
 #include "View/ViewTypes.h"
+
+#include <vecmath/bbox.h>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -36,13 +37,13 @@ namespace TrenchBroom {
             View::MapDocumentWPtr m_document;
             
             Color m_color;
-            BBox3 m_bounds;
+            vm::bbox3 m_bounds;
             SpikeGuideRenderer m_spikeRenderer;
         public:
             BoundsGuideRenderer(View::MapDocumentWPtr document);
             
             void setColor(const Color& color);
-            void setBounds(const BBox3& bounds);
+            void setBounds(const vm::bbox3& bounds);
         private:
             void doPrepareVertices(Vbo& vertexVbo) override;
             void doRender(RenderContext& renderContext) override;

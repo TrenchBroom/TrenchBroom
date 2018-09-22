@@ -21,7 +21,6 @@
 #define TrenchBroom_Face
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "Allocator.h"
 #include "ProjectingSequence.h"
 #include "SharedPointer.h"
@@ -32,6 +31,10 @@
 #include "Model/ModelTypes.h"
 #include "Model/TexCoordSystem.h"
 
+#include <vecmath/vec.h>
+#include <vecmath/plane.h>
+#include <vecmath/util.h>
+
 #include <vector>
 
 namespace TrenchBroom {
@@ -41,7 +44,6 @@ namespace TrenchBroom {
     
     namespace Renderer {
         class IndexRangeMap;
-        class TexturedIndexArrayBuilder;
     }
     
     namespace Model {
@@ -60,7 +62,7 @@ namespace TrenchBroom {
              * |
              * 0-----------2
              */
-            typedef Vec3 Points[3];
+            typedef vm::vec3 Points[3];
         public:
             static const String NoTextureName;
         private:
@@ -77,7 +79,7 @@ namespace TrenchBroom {
         private:
             Brush* m_brush;
             BrushFace::Points m_points;
-            Plane3 m_boundary;
+            vm::plane3 m_boundary;
             size_t m_lineNumber;
             size_t m_lineCount;
             bool m_selected;
@@ -90,10 +92,10 @@ namespace TrenchBroom {
         protected:
             BrushFaceAttributes m_attribs;
         public:
-            BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs, TexCoordSystem* texCoordSystem);
+            BrushFace(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs, TexCoordSystem* texCoordSystem);
             
-            static BrushFace* createParaxial(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName = "");
-            static BrushFace* createParallel(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName = "");
+            static BrushFace* createParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const String& textureName = "");
+            static BrushFace* createParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const String& textureName = "");
             
             static void sortFaces(BrushFaceList& faces);
             
@@ -104,18 +106,18 @@ namespace TrenchBroom {
             BrushFaceSnapshot* takeSnapshot();
             TexCoordSystemSnapshot* takeTexCoordSystemSnapshot() const;
             void restoreTexCoordSystemSnapshot(const TexCoordSystemSnapshot* coordSystemSnapshot);
-            void copyTexCoordSystemFromFace(const TexCoordSystemSnapshot* coordSystemSnapshot, const BrushFaceAttributes& attribs, const Plane3& sourceFacePlane, const WrapStyle wrapStyle);
+            void copyTexCoordSystemFromFace(const TexCoordSystemSnapshot* coordSystemSnapshot, const BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, WrapStyle wrapStyle);
 
             Brush* brush() const;
             void setBrush(Brush* brush);
             
             const BrushFace::Points& points() const;
-            bool arePointsOnPlane(const Plane3& plane) const;
-            const Plane3& boundary() const;
-            const Vec3& normal() const;
-            Vec3 center() const;
-            Vec3 boundsCenter() const;
-            FloatType area(Math::Axis::Type axis) const;
+            bool arePointsOnPlane(const vm::plane3& plane) const;
+            const vm::plane3& boundary() const;
+            const vm::vec3& normal() const;
+            vm::vec3 center() const;
+            vm::vec3 boundsCenter() const;
+            FloatType area(vm::axis::type axis) const;
             
             const BrushFaceAttributes& attribs() const;
             void setAttribs(const BrushFaceAttributes& attribs);
@@ -124,14 +126,14 @@ namespace TrenchBroom {
             
             const String& textureName() const;
             Assets::Texture* texture() const;
-            Vec2f textureSize() const;
+            vm::vec2f textureSize() const;
             
-            const Vec2f& offset() const;
+            const vm::vec2f& offset() const;
             float xOffset() const;
             float yOffset() const;
-            Vec2f modOffset(const Vec2f& offset) const;
+            vm::vec2f modOffset(const vm::vec2f& offset) const;
 
-            const Vec2f& scale() const;
+            const vm::vec2f& scale() const;
             float xScale() const;
             float yScale() const;
 
@@ -160,51 +162,51 @@ namespace TrenchBroom {
             void setSurfaceValue(float surfaceValue);
             void setAttributes(const BrushFace* other);
 
-            Vec3 textureXAxis() const;
-            Vec3 textureYAxis() const;
+            vm::vec3 textureXAxis() const;
+            vm::vec3 textureYAxis() const;
             void resetTextureAxes();
             
-            void moveTexture(const Vec3& up, const Vec3& right, const Vec2f& offset);
+            void moveTexture(const vm::vec3& up, const vm::vec3& right, const vm::vec2f& offset);
             void rotateTexture(float angle);
-            void shearTexture(const Vec2f& factors);
+            void shearTexture(const vm::vec2f& factors);
             
-            void transform(const Mat4x4& transform, const bool lockTexture);
+            void transform(const vm::mat4x4& transform, bool lockTexture);
             void invert();
 
             void updatePointsFromVertices();
             void snapPlanePointsToInteger();
             void findIntegerPlanePoints();
             
-            Mat4x4 projectToBoundaryMatrix() const;
-            Mat4x4 toTexCoordSystemMatrix(const Vec2f& offset, const Vec2f& scale, bool project) const;
-            Mat4x4 fromTexCoordSystemMatrix(const Vec2f& offset, const Vec2f& scale, bool project) const;
-            float measureTextureAngle(const Vec2f& center, const Vec2f& point) const;
+            vm::mat4x4 projectToBoundaryMatrix() const;
+            vm::mat4x4 toTexCoordSystemMatrix(const vm::vec2f& offset, const vm::vec2f& scale, bool project) const;
+            vm::mat4x4 fromTexCoordSystemMatrix(const vm::vec2f& offset, const vm::vec2f& scale, bool project) const;
+            float measureTextureAngle(const vm::vec2f& center, const vm::vec2f& point) const;
             
             size_t vertexCount() const;
             EdgeList edges() const;
             VertexList vertices() const;
+            std::vector<vm::vec3> vertexPositions() const;
             
-            bool hasVertices(const Polygon3& vertices, FloatType epsilon = static_cast<FloatType>(0.0)) const;
-            Polygon3 polygon() const;
+            bool hasVertices(const vm::polygon3& vertices, FloatType epsilon = static_cast<FloatType>(0.0)) const;
+            vm::polygon3 polygon() const;
         public:
             BrushFaceGeometry* geometry() const;
             void setGeometry(BrushFaceGeometry* geometry);
             void invalidate();
             
-            void setFilePosition(const size_t lineNumber, const size_t lineCount);
+            void setFilePosition(size_t lineNumber, size_t lineCount);
             
             bool selected() const;
             void select();
             void deselect();
 
-            Vec2f textureCoords(const Vec3& point) const;
+            vm::vec2f textureCoords(const vm::vec3& point) const;
 
-            bool containsPoint(const Vec3& point) const;
-            FloatType intersectWithRay(const Ray3& ray) const;
+            FloatType intersectWithRay(const vm::ray3& ray) const;
             
             void printPoints() const;
         private:
-            void setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2);
+            void setPoints(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2);
             void correctPoints();
             
             // renderer cache

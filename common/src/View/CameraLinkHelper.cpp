@@ -22,11 +22,13 @@
 #include "CollectionUtils.h"
 #include "Macros.h"
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "TemporarilySetAny.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/Camera.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -59,9 +61,9 @@ namespace TrenchBroom {
                     if (camera != other) {
                         other->setZoom(camera->zoom());
                         
-                        const Vec3f oldPosition = other->position();
-                        const Vec3f factors = Vec3f::One - camera->direction().absolute() - other->direction().absolute();
-                        const Vec3f newPosition = (Vec3f::One - factors) * oldPosition + factors * camera->position();
+                        const vm::vec3f oldPosition = other->position();
+                        const vm::vec3f factors = vm::vec3f::one - abs(camera->direction()) - abs(other->direction());
+                        const vm::vec3f newPosition = (vm::vec3f::one - factors) * oldPosition + factors * camera->position();
                         other->moveTo(newPosition);
                     }
                 }

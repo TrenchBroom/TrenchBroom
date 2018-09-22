@@ -20,10 +20,12 @@
 #ifndef TrenchBroom_EntityModel
 #define TrenchBroom_EntityModel
 
-#include "VecMath.h"
 #include "Assets/TextureCollection.h"
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/TexturedIndexRangeMap.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/bbox.h>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -41,14 +43,14 @@ namespace TrenchBroom {
             class Frame {
             private:
                 String m_name;
-                BBox3f m_bounds;
+                vm::bbox3f m_bounds;
                 VertexList m_vertices;
             protected:
-                Frame(const String& name, const BBox3f& bounds, const VertexList& vertices);
+                Frame(const String& name, const vm::bbox3f& bounds, const VertexList& vertices);
             public:
                 virtual ~Frame();
 
-                const BBox3f& bounds() const;
+                const vm::bbox3f& bounds() const;
                 Renderer::TexturedIndexRangeRenderer* buildRenderer(Assets::Texture* skin);
             private:
                 virtual Renderer::TexturedIndexRangeRenderer* doBuildRenderer(Assets::Texture* skin, const Renderer::VertexArray& vertices) = 0;
@@ -58,7 +60,7 @@ namespace TrenchBroom {
             private:
                 Indices m_indices;
             public:
-                IndexedFrame(const String& name, const BBox3f& bounds, const VertexList& vertices, const Indices& indices);
+                IndexedFrame(const String& name, const vm::bbox3f& bounds, const VertexList& vertices, const Indices& indices);
             private:
                 Renderer::TexturedIndexRangeRenderer* doBuildRenderer(Assets::Texture* skin, const Renderer::VertexArray& vertices) override;
             };
@@ -67,7 +69,7 @@ namespace TrenchBroom {
             private:
                 TexturedIndices m_indices;
             public:
-                TexturedFrame(const String& name, const BBox3f& bounds, const VertexList& vertices, const TexturedIndices& indices);
+                TexturedFrame(const String& name, const vm::bbox3f& bounds, const VertexList& vertices, const TexturedIndices& indices);
             private:
                 Renderer::TexturedIndexRangeRenderer* doBuildRenderer(Assets::Texture* skin, const Renderer::VertexArray& vertices) override;
             };
@@ -84,7 +86,7 @@ namespace TrenchBroom {
             EntityModel(const String& name);
 
             Renderer::TexturedIndexRangeRenderer* buildRenderer(size_t skinIndex, size_t frameIndex) const;
-            BBox3f bounds(size_t skinIndex, size_t frameIndex) const;
+            vm::bbox3f bounds(size_t skinIndex, size_t frameIndex) const;
 
             size_t frameCount() const;
             size_t skinCount() const;

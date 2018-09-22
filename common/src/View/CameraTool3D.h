@@ -20,10 +20,12 @@
 #ifndef TrenchBroom_CameraTool3D
 #define TrenchBroom_CameraTool3D
 
-#include "VecMath.h"
 #include "View/Tool.h"
 #include "View/ToolController.h"
 #include "View/ViewTypes.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -36,7 +38,7 @@ namespace TrenchBroom {
             MapDocumentWPtr m_document;
             Renderer::PerspectiveCamera& m_camera;
             bool m_orbit;
-            Vec3f m_orbitCenter;
+            vm::vec3f m_orbitCenter;
         public:
             CameraTool3D(MapDocumentWPtr document, Renderer::PerspectiveCamera& camera);
             void fly(int dx, int dy, bool forward, bool backward, bool left, bool right, unsigned int time);

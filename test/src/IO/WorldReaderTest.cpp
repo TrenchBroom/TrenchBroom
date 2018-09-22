@@ -28,7 +28,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        inline Model::BrushFace* findFaceByPoints(const Model::BrushFaceList& faces, const Vec3& point0, const Vec3& point1, const Vec3& point2) {
+        inline Model::BrushFace* findFaceByPoints(const Model::BrushFaceList& faces, const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2) {
             for (Model::BrushFace* face : faces) {
                 if (face->points()[0] == point0 &&
                     face->points()[1] == point1 &&
@@ -51,7 +51,7 @@ namespace TrenchBroom {
                               "( 1320 504 152 ) ( 1280 505.37931034482756 197.51724137931035 ) ( 1344 512 160 ) grill_wall03b_h -56 -72 -0 1 1\n"
                               "}\n"
                               "}\n");
-            BBox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -64,7 +64,7 @@ namespace TrenchBroom {
         
         TEST(WorldReaderTest, parseEmptyMap) {
             const String data("");
-            BBox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -80,7 +80,7 @@ namespace TrenchBroom {
 
         TEST(WorldReaderTest, parseMapWithEmptyEntity) {
             const String data("{}");
-            BBox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -99,7 +99,7 @@ namespace TrenchBroom {
                               "\"classname\" \"worldspawn\""
                               "\"message\" \"yay\""
                               "}");
-            BBox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -126,7 +126,7 @@ namespace TrenchBroom {
                               "\"origin\" \"1 22 -3\""
                               "\"angle\" \" -1 \""
                               "}");
-            BBox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -164,7 +164,7 @@ namespace TrenchBroom {
                               "( 64 64  -0 ) ( 64 -0  -0 ) ( -0 64  -0 ) tex6 0 0 0 1 1\n"
                               "}\n"
                               "}\n");
-            BBox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -179,7 +179,7 @@ namespace TrenchBroom {
             const Model::BrushFaceList& faces = brush->faces();
             ASSERT_EQ(6u, faces.size());
             
-            const Model::BrushFace* face1 = findFaceByPoints(faces, Vec3(  0.0,   0.0, -16.0), Vec3(  0.0,   0.0,   0.0), Vec3( 64.0,   0.0, -16.0));
+            const Model::BrushFace* face1 = findFaceByPoints(faces, vm::vec3(  0.0,   0.0, -16.0), vm::vec3(  0.0,   0.0,   0.0), vm::vec3( 64.0,   0.0, -16.0));
             ASSERT_TRUE(face1 != nullptr);
             ASSERT_STREQ("tex1", face1->textureName().c_str());
             ASSERT_FLOAT_EQ(1.0, face1->xOffset());
@@ -188,11 +188,11 @@ namespace TrenchBroom {
             ASSERT_FLOAT_EQ(4.0, face1->xScale());
             ASSERT_FLOAT_EQ(5.0, face1->yScale());
             
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3(  0.0,   0.0, -16.0), Vec3(  0.0,  64.0, -16.0), Vec3(  0.0,   0.0,   0.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3(  0.0,   0.0, -16.0), Vec3( 64.0,   0.0, -16.0), Vec3(  0.0,  64.0, -16.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3( 64.0,  64.0,   0.0), Vec3(  0.0,  64.0,   0.0), Vec3( 64.0,  64.0, -16.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3( 64.0,  64.0,   0.0), Vec3( 64.0,  64.0, -16.0), Vec3( 64.0,   0.0,   0.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3( 64.0,  64.0,   0.0), Vec3( 64.0,   0.0,   0.0), Vec3(  0.0,  64.0,   0.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(  0.0,   0.0, -16.0), vm::vec3(  0.0,  64.0, -16.0), vm::vec3(  0.0,   0.0,   0.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(  0.0,   0.0, -16.0), vm::vec3( 64.0,   0.0, -16.0), vm::vec3(  0.0,  64.0, -16.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3( 64.0,  64.0,   0.0), vm::vec3(  0.0,  64.0,   0.0), vm::vec3( 64.0,  64.0, -16.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3( 64.0,  64.0,   0.0), vm::vec3( 64.0,  64.0, -16.0), vm::vec3( 64.0,   0.0,   0.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3( 64.0,  64.0,   0.0), vm::vec3( 64.0,   0.0,   0.0), vm::vec3(  0.0,  64.0,   0.0)) != nullptr);
             
             delete world;
         }
@@ -209,7 +209,7 @@ namespace TrenchBroom {
                               "( 64 64  -0 ) ( 64 -0  -0 ) ( -0 64  -0 ) none 0 0 0 1 1\n"
                               "}\n"
                               "}\n");
-            BBox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -224,7 +224,7 @@ namespace TrenchBroom {
             const Model::BrushFaceList& faces = brush->faces();
             ASSERT_EQ(6u, faces.size());
             
-            Model::BrushFace* face = findFaceByPoints(faces, Vec3(  0.0,   0.0, -16.0), Vec3(  0.0,   0.0,   0.0), Vec3( 64.0,   0.0, -16.0));
+            Model::BrushFace* face = findFaceByPoints(faces, vm::vec3(  0.0,   0.0, -16.0), vm::vec3(  0.0,   0.0,   0.0), vm::vec3( 64.0,   0.0, -16.0));
             ASSERT_TRUE(face != nullptr);
             ASSERT_FLOAT_EQ(22.0f, face->xOffset());
             ASSERT_FLOAT_EQ(22.0f, face->xOffset());
@@ -247,7 +247,7 @@ namespace TrenchBroom {
                               "( 64 64  -0 ) ( 64 -0  -0 ) ( -0 64  -0 ) none 0 0 0 1 1\n"
                               "}\n"
                               "}\n");
-            BBox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -262,12 +262,12 @@ namespace TrenchBroom {
             const Model::BrushFaceList faces = brush->faces();
             ASSERT_EQ(6u, faces.size());
             
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3(  0.0,   0.0, -16.0), Vec3(  0.0,   0.0,   0.0), Vec3( 64.0,   0.0, -16.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3(  0.0,   0.0, -16.0), Vec3(  0.0,  64.0, -16.0), Vec3(  0.0,   0.0,   0.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3(  0.0,   0.0, -16.0), Vec3( 64.0,   0.0, -16.0), Vec3(  0.0,  64.0, -16.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3( 64.0,  64.0,   0.0), Vec3(  0.0,  64.0,   0.0), Vec3( 64.0,  64.0, -16.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3( 64.0,  64.0,   0.0), Vec3( 64.0,  64.0, -16.0), Vec3( 64.0,   0.0,   0.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3( 64.0,  64.0,   0.0), Vec3( 64.0,   0.0,   0.0), Vec3(  0.0,  64.0,   0.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(  0.0,   0.0, -16.0), vm::vec3(  0.0,   0.0,   0.0), vm::vec3( 64.0,   0.0, -16.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(  0.0,   0.0, -16.0), vm::vec3(  0.0,  64.0, -16.0), vm::vec3(  0.0,   0.0,   0.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(  0.0,   0.0, -16.0), vm::vec3( 64.0,   0.0, -16.0), vm::vec3(  0.0,  64.0, -16.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3( 64.0,  64.0,   0.0), vm::vec3(  0.0,  64.0,   0.0), vm::vec3( 64.0,  64.0, -16.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3( 64.0,  64.0,   0.0), vm::vec3( 64.0,  64.0, -16.0), vm::vec3( 64.0,   0.0,   0.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3( 64.0,  64.0,   0.0), vm::vec3( 64.0,   0.0,   0.0), vm::vec3(  0.0,  64.0,   0.0)) != nullptr);
             
             delete world;
         }
@@ -284,7 +284,7 @@ namespace TrenchBroom {
                               "( 287 152 208 ) ( 287 152 176 ) ( 323 116 176 ) mt_sr_v13 -65 -111 -180 1 1\n"
                               "}\n"
                               "}\n");
-            BBox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -298,12 +298,12 @@ namespace TrenchBroom {
             Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
             const Model::BrushFaceList faces = brush->faces();
             ASSERT_EQ(6u, faces.size());
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3(308.0, 108.0, 176.0), Vec3(308.0, 132.0, 176.0), Vec3(252.0, 132.0, 176.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3(252.0, 132.0, 208.0), Vec3(308.0, 132.0, 208.0), Vec3(308.0, 108.0, 208.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3(288.0, 152.0, 176.0), Vec3(288.0, 152.0, 208.0), Vec3(288.0, 120.0, 208.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3(288.0, 122.0, 176.0), Vec3(288.0, 122.0, 208.0), Vec3(308.0, 102.0, 208.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3(308.0, 100.0, 176.0), Vec3(308.0, 100.0, 208.0), Vec3(324.0, 116.0, 208.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3(287.0, 152.0, 208.0), Vec3(287.0, 152.0, 176.0), Vec3(323.0, 116.0, 176.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(308.0, 108.0, 176.0), vm::vec3(308.0, 132.0, 176.0), vm::vec3(252.0, 132.0, 176.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(252.0, 132.0, 208.0), vm::vec3(308.0, 132.0, 208.0), vm::vec3(308.0, 108.0, 208.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(288.0, 152.0, 176.0), vm::vec3(288.0, 152.0, 208.0), vm::vec3(288.0, 120.0, 208.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(288.0, 122.0, 176.0), vm::vec3(288.0, 122.0, 208.0), vm::vec3(308.0, 102.0, 208.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(308.0, 100.0, 176.0), vm::vec3(308.0, 100.0, 208.0), vm::vec3(324.0, 116.0, 208.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(287.0, 152.0, 208.0), vm::vec3(287.0, 152.0, 176.0), vm::vec3(323.0, 116.0, 176.0)) != nullptr);
             
             delete world;
         }
@@ -320,7 +320,7 @@ namespace TrenchBroom {
                               "( -559 1090 96 ) ( -598 1090 96 ) ( -598 1055 96 ) mt_sr_v13 -16 0 0 1 1\n"
                               "}\n"
                               "}\n");
-            BBox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -346,7 +346,7 @@ namespace TrenchBroom {
                               "( -32 1136 32 ) ( -32 1152 -96 ) ( -32 1120 -96 ) b_rc_v4 0 32 90 1 1\n"
                               "}\n"
                               "}\n");
-            BBox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -372,7 +372,7 @@ namespace TrenchBroom {
                               "( -800 224 576 ) ( -736 224 576 ) ( -736 288 576 ) METAL4_5 [ 1 0 0 64 ] [ 0 -1 0 0 ] 0 1 1 \n"
                               "}\n"
                               "}\n");
-            BBox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -398,7 +398,7 @@ namespace TrenchBroom {
                               "( -896 1056 -416 ) ( -896 1056 -448 ) ( -896 1344 -448 ) rtz/c_mf_v3c 16 96 0 1 1 0 0 0\n"
                               "}\n"
                               "}\n");
-            BBox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -424,7 +424,7 @@ namespace TrenchBroom {
                                       "( -896 1056 -416 ) ( -896 1056 -448 ) ( -896 1344 -448 ) rtz/c_mf_v3c 16 96 0 1 1 0 0 0\n"
                                       "}\n"
                                       "}\n");
-            BBox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
 
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -475,7 +475,7 @@ namespace TrenchBroom {
 }
 )");
 
-            BBox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
 
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -501,7 +501,7 @@ namespace TrenchBroom {
                               "( -896 1056 -416 ) ( -896 1056 -448 ) ( -896 1344 -448 ) c_mf_v3c 16 96 0 1 1\n"
                               "}\n"
                               "}\n");
-            BBox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -550,7 +550,7 @@ namespace TrenchBroom {
                               "}\n"
                               "}\n"
                               );
-            BBox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -611,7 +611,7 @@ namespace TrenchBroom {
                               "}\n"
                               "}\n"
                               );
-            BBox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -688,7 +688,7 @@ namespace TrenchBroom {
                               "}\n"
                               "}\n"
                               );
-            BBox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -717,7 +717,7 @@ namespace TrenchBroom {
                               "\"classname\" \"worldspawn\"\n"
                               "}\n");
 
-            BBox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -732,7 +732,7 @@ namespace TrenchBroom {
                               "\"classname\" \"worldspawn\""
                               "\"message\" \"yay \\\"Mr. Robot!\\\"\""
                               "}");
-            BBox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -754,7 +754,7 @@ namespace TrenchBroom {
                               "\"classname\" \"worldspawn\""
                               "\"path\" \"c:\\a\\b\\c\\\""
                               "}");
-            BBox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -776,7 +776,7 @@ namespace TrenchBroom {
                               "\"classname\" \"worldspawn\""
                               "\"path\" \"c:\\\\a\\\\b\\\\c\\\\\""
                               "}");
-            BBox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -798,7 +798,7 @@ namespace TrenchBroom {
                               "\"classname\" \"worldspawn\""
                               "\"message\" \"test\\\\\""
                               "}");
-            BBox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -819,9 +819,9 @@ namespace TrenchBroom {
         TEST(WorldReaderTest, parseAttributeNewlineEscapeSequence) {
             const String data("{"
                               "\"classname\" \"worldspawn\""
-                              "\"message\" \"line1\\nline2\""
+                              "\"message\" \"vm::line1\\nvm::line2\""
                               "}");
-            BBox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -833,7 +833,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(world->children().front()->hasChildren());
             
             ASSERT_TRUE(world->hasAttribute(Model::AttributeNames::Classname));
-            ASSERT_STREQ("line1\\nline2", world->attribute("message").c_str());
+            ASSERT_STREQ("vm::line1\\nvm::line2", world->attribute("message").c_str());
             
             delete world;
         }
@@ -858,7 +858,7 @@ namespace TrenchBroom {
                               "\"origin\" \"1 22 -3\""
                               "\"angle\" \" -1 \""
                               "}");
-            BBox3 worldBounds(-8192, 8192);
+            vm::bbox3 worldBounds(-8192, 8192);
             
             using namespace testing;
             Model::MockGameSPtr game = Model::MockGame::newGame();

@@ -24,6 +24,8 @@
 #include "StringUtils.h"
 #include "Model/ModelTypes.h"
 
+#include <vecmath/forward.h>
+
 namespace TrenchBroom {
     namespace Assets {
         class Texture;
@@ -34,6 +36,7 @@ namespace TrenchBroom {
         
         class ChangeBrushFaceAttributesRequest {
         public:
+            // TODO: replace with class based enum
             typedef enum {
                 AxisOp_None,
                 AxisOp_Reset,
@@ -41,6 +44,7 @@ namespace TrenchBroom {
                 AxisOp_ToParallel
             } AxisOp;
             
+            // TODO: replace with class based enum
             typedef enum {
                 ValueOp_None,
                 ValueOp_Set,
@@ -48,6 +52,7 @@ namespace TrenchBroom {
                 ValueOp_Mul
             } ValueOp;
             
+            // TODO: replace with class based enum
             typedef enum {
                 FlagOp_None,
                 FlagOp_Replace,
@@ -55,6 +60,7 @@ namespace TrenchBroom {
                 FlagOp_Unset
             } FlagOp;
             
+            // TODO: replace with class based enum
             typedef enum {
                 TextureOp_None,
                 TextureOp_Set,
@@ -100,9 +106,9 @@ namespace TrenchBroom {
             void resetTextureAxesToParaxial();
             void resetTextureAxesToParallel();
             
-            void setOffset(const Vec2f& offset);
-            void addOffset(const Vec2f& offset);
-            void mulOffset(const Vec2f& offset);
+            void setOffset(const vm::vec2f& offset);
+            void addOffset(const vm::vec2f& offset);
+            void mulOffset(const vm::vec2f& offset);
             
             void setXOffset(float xOffset);
             void addXOffset(float xOffset);
@@ -116,9 +122,9 @@ namespace TrenchBroom {
             void addRotation(float rotation);
             void mulRotation(float rotation);
             
-            void setScale(const Vec2f& scale);
-            void addScale(const Vec2f& scale);
-            void mulScale(const Vec2f& scale);
+            void setScale(const vm::vec2f& scale);
+            void addScale(const vm::vec2f& scale);
+            void mulScale(const vm::vec2f& scale);
             
             void setXScale(float xScale);
             void addXScale(float xScale);

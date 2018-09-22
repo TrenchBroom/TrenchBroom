@@ -21,12 +21,13 @@
 #define TrenchBroom_Group
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "StringUtils.h"
 #include "Hit.h"
 #include "Model/ModelTypes.h"
 #include "Model/Node.h"
 #include "Model/Object.h"
+
+#include <vecmath/bbox.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -44,7 +45,7 @@ namespace TrenchBroom {
             
             String m_name;
             EditState m_editState;
-            mutable BBox3 m_bounds;
+            mutable vm::bbox3 m_bounds;
             mutable bool m_boundsValid;
         public:
             Group(const String& name);
@@ -64,9 +65,9 @@ namespace TrenchBroom {
             bool hasOpenedDescendant() const;
         private: // implement methods inherited from Node
             const String& doGetName() const override;
-            const BBox3& doGetBounds() const override;
+            const vm::bbox3& doGetBounds() const override;
             
-            Node* doClone(const BBox3& worldBounds) const override;
+            Node* doClone(const vm::bbox3& worldBounds) const override;
             NodeSnapshot* doTakeSnapshot() override;
 
             bool doCanAddChild(const Node* child) const override;
@@ -76,14 +77,14 @@ namespace TrenchBroom {
             void doChildWasAdded(Node* node) override;
             void doChildWasRemoved(Node* node) override;
 
-            void doNodeBoundsDidChange(const BBox3& oldBounds) override;
-            void doChildBoundsDidChange(Node* node, const BBox3& oldBounds) override;
+            void doNodeBoundsDidChange(const vm::bbox3& oldBounds) override;
+            void doChildBoundsDidChange(Node* node, const vm::bbox3& oldBounds) override;
 
             bool doSelectable() const override;
             
-            void doPick(const Ray3& ray, PickResult& pickResult) const override;
-            void doFindNodesContaining(const Vec3& point, NodeList& result) override;
-            FloatType doIntersectWithRay(const Ray3& ray) const override;
+            void doPick(const vm::ray3& ray, PickResult& pickResult) const override;
+            void doFindNodesContaining(const vm::vec3& point, NodeList& result) override;
+            FloatType doIntersectWithRay(const vm::ray3& ray) const override;
 
             void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) override;
             void doAccept(NodeVisitor& visitor) override;
@@ -93,7 +94,7 @@ namespace TrenchBroom {
             Layer* doGetLayer() const override;
             Group* doGetGroup() const override;
             
-            void doTransform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds) override;
+            void doTransform(const vm::mat4x4& transformation, bool lockTextures, const vm::bbox3& worldBounds) override;
             bool doContains(const Node* node) const override;
             bool doIntersects(const Node* node) const override;
         private:

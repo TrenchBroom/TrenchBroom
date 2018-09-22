@@ -57,23 +57,23 @@ namespace TrenchBroom {
         }
 
         static std::tuple<DragRestricter*, DragSnapper*>
-        getDragRestricterAndSnapper(const BBoxSide& side, const BBox3& bboxAtDragStart, const Renderer::Camera& camera, const Grid& grid, const bool vertical) {
+        getDragRestricterAndSnapper(const BBoxSide& side, const vm::bbox3& bboxAtDragStart, const Renderer::Camera& camera, const Grid& grid, const bool vertical) {
             DragRestricter* restricter = nullptr;
             DragSnapper* snapper = nullptr;
 
-            const Vec3 sideCenter = centerForBBoxSide(bboxAtDragStart, side);
+            const vm::vec3 sideCenter = centerForBBoxSide(bboxAtDragStart, side);
 
             if (camera.perspectiveProjection()) {
-                if (side.normal == Vec3::PosZ || side.normal == Vec3::NegZ) {
-                    restricter = new PlaneDragRestricter(Plane3(sideCenter, side.normal));
+                if (side.normal == vm::vec3::pos_z || side.normal == vm::vec3::neg_z) {
+                    restricter = new PlaneDragRestricter(vm::plane3(sideCenter, side.normal));
                     snapper = new DeltaDragSnapper(grid);
                 } else if (!vertical) {
-                    const Line3 sideways(sideCenter, crossed(side.normal, Vec3::PosZ).normalized());
+                    const vm::line3 sideways(sideCenter, normalize(cross(side.normal, vm::vec3::pos_z)));
 
                     restricter = new LineDragRestricter(sideways);
                     snapper = new LineDragSnapper(grid, sideways);
                 } else {
-                    const Line3 verticalLine(sideCenter, Vec3::PosZ);
+                    const vm::line3 verticalLine(sideCenter, vm::vec3::pos_z);
 
                     restricter = new LineDragRestricter(verticalLine);
                     snapper = new LineDragSnapper(grid, verticalLine);
@@ -81,7 +81,7 @@ namespace TrenchBroom {
             } else {
                 assert(camera.orthographicProjection());
 
-                const Line3 sideways(sideCenter, crossed(side.normal, Vec3(camera.direction())).normalized());
+                const vm::line3 sideways(sideCenter, normalize(cross(side.normal, vm::vec3(camera.direction()))));
                 restricter = new LineDragRestricter(sideways);
                 snapper = new LineDragSnapper(grid, sideways);
             }
@@ -104,7 +104,7 @@ namespace TrenchBroom {
             const BBoxSide side = m_tool->dragStartHit().target<BBoxSide>();
 
             // Can't do vertical restraint on these
-            if (side.normal == Vec3::PosZ || side.normal == Vec3::NegZ) {
+            if (side.normal == vm::vec3::pos_z || side.normal == vm::vec3::neg_z) {
                 return;
             }
 
@@ -165,17 +165,17 @@ namespace TrenchBroom {
             std::tie(restricter, snapper) = getDragRestricterAndSnapper(side, m_tool->bboxAtDragStart(), inputState.camera(), document->grid(), vertical);
 
             // Snap the initial point
-            const Vec3 initialPoint = [&]() {
-                Vec3 p = hit.hitPoint();
+            const vm::vec3 initialPoint = [&]() {
+                vm::vec3 p = hit.hitPoint();
                 restricter->hitPoint(inputState, p);
-                snapper->snap(inputState, Vec3::Null, Vec3::Null, p);
+                snapper->snap(inputState, vm::vec3::zero, vm::vec3::zero, p);
                 return p;
             }();
 
             return DragInfo(restricter, snapper, initialPoint);
         }
 
-        RestrictedDragPolicy::DragResult ShearObjectsToolController::doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
+        RestrictedDragPolicy::DragResult ShearObjectsToolController::doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) {
             const auto delta = nextHandlePosition - lastHandlePosition;
             m_tool->shearByDelta(delta);
 
@@ -204,15 +204,15 @@ namespace TrenchBroom {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
                 const auto mat = m_tool->bboxShearMatrix();
-                const auto op = [&](const Vec3 &start, const Vec3 &end) {
-                    renderService.renderLine(mat * start, mat * end);
+                const auto op = [&](const vm::vec3& start, const vm::vec3& end) {
+                    renderService.renderLine(vm::vec3f(mat * start), vm::vec3f(mat * end));
                 };
-                eachBBoxEdge(m_tool->bboxAtDragStart(), op);
+                m_tool->bboxAtDragStart().forEachEdge(op);
             }
 
             // render shear handle
             {
-                const Polygon3f poly = m_tool->shearHandle();
+                const vm::polygon3f poly = m_tool->shearHandle();
                 if (poly.vertexCount() != 0) {
                     // fill
                     {
@@ -242,7 +242,7 @@ namespace TrenchBroom {
         ShearObjectsToolController2D::ShearObjectsToolController2D(ShearObjectsTool* tool, MapDocumentWPtr document) :
         ShearObjectsToolController(tool, document) {}
         
-        void ShearObjectsToolController2D::doPick(const Ray3 &pickRay, const Renderer::Camera &camera,
+        void ShearObjectsToolController2D::doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera,
                                                   Model::PickResult &pickResult) {
             m_tool->pick2D(pickRay, camera, pickResult);
         }
@@ -252,7 +252,7 @@ namespace TrenchBroom {
         ShearObjectsToolController3D::ShearObjectsToolController3D(ShearObjectsTool* tool, MapDocumentWPtr document) :
         ShearObjectsToolController(tool, document) {}
         
-        void ShearObjectsToolController3D::doPick(const Ray3 &pickRay, const Renderer::Camera &camera,
+        void ShearObjectsToolController3D::doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera,
                                                   Model::PickResult &pickResult) {
             m_tool->pick3D(pickRay, camera, pickResult);
         }

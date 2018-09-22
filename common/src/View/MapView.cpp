@@ -19,6 +19,8 @@
 
 #include "MapView.h"
 
+#include "TrenchBroom.h"
+
 #include <cassert>
 
 namespace TrenchBroom {
@@ -49,12 +51,12 @@ namespace TrenchBroom {
             return doCanFlipObjects();
         }
         
-        void MapView::flipObjects(const Math::Direction direction) {
+        void MapView::flipObjects(const vm::direction direction) {
             assert(canFlipObjects());
             doFlipObjects(direction);
         }
 
-        Vec3 MapView::pasteObjectsDelta(const BBox3& bounds, const BBox3& referenceBounds) const {
+        vm::vec3 MapView::pasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const {
             return doGetPasteObjectsDelta(bounds, referenceBounds);
         }
         
@@ -62,7 +64,7 @@ namespace TrenchBroom {
             doFocusCameraOnSelection(animate);
         }
         
-        void MapView::moveCameraToPosition(const Vec3& position, const bool animate) {
+        void MapView::moveCameraToPosition(const vm::vec3& position, const bool animate) {
             doMoveCameraToPosition(position, animate);
         }
         

@@ -20,11 +20,14 @@
 #ifndef TrenchBroom_EntityBrowserView
 #define TrenchBroom_EntityBrowserView
 
-#include "VecMath.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Renderer/VertexSpec.h"
 #include "View/CellView.h"
 #include "View/ViewTypes.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/quat.h>
+#include <vecmath/bbox.h>
 
 namespace TrenchBroom {
     class Logger;
@@ -52,9 +55,9 @@ namespace TrenchBroom {
             const Assets::PointEntityDefinition* entityDefinition;
             EntityRenderer* modelRenderer;
             Renderer::FontDescriptor fontDescriptor;
-            BBox3f bounds;
+            vm::bbox3f bounds;
             
-            EntityCellData(const Assets::PointEntityDefinition* i_entityDefinition, EntityRenderer* i_modelRenderer, const Renderer::FontDescriptor& i_fontDescriptor, const BBox3f& i_bounds);
+            EntityCellData(const Assets::PointEntityDefinition* i_entityDefinition, EntityRenderer* i_modelRenderer, const Renderer::FontDescriptor& i_fontDescriptor, const vm::bbox3f& i_bounds);
         };
 
         class EntityBrowserView : public CellView<EntityCellData, EntityGroupData> {
@@ -67,7 +70,7 @@ namespace TrenchBroom {
             Assets::EntityDefinitionManager& m_entityDefinitionManager;
             Assets::EntityModelManager& m_entityModelManager;
             Logger& m_logger;
-            Quatf m_rotation;
+            vm::quatf m_rotation;
             
             bool m_group;
             bool m_hideUnused;
@@ -108,12 +111,12 @@ namespace TrenchBroom {
             class MeshFunc;
             void renderModels(Layout& layout, float y, float height, Renderer::Transformation& transformation);
             
-            void renderNames(Layout& layout, float y, float height, const Mat4x4f& projection);
+            void renderNames(Layout& layout, float y, float height, const vm::mat4x4f& projection);
             void renderGroupTitleBackgrounds(Layout& layout, float y, float height);
             void renderStrings(Layout& layout, float y, float height);
             StringMap collectStringVertices(Layout& layout, float y, float height);
             
-            Mat4x4f itemTransformation(const Layout::Group::Row::Cell& cell, float y, float height) const;
+            vm::mat4x4f itemTransformation(const Layout::Group::Row::Cell& cell, float y, float height) const;
             
             wxString tooltip(const Layout::Group::Row::Cell& cell) override;
         };

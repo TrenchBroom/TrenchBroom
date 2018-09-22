@@ -19,12 +19,16 @@
 
 #include "RotateObjectsToolPage.h"
 
+#include "TrenchBroom.h"
 #include "View/BorderLine.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/RotateObjectsTool.h"
 #include "View/SpinControl.h"
 #include "View/ViewConstants.h"
+
+#include <vecmath/vec.h>
+#include <vecmath/util.h>
 
 #include <wx/button.h>
 #include <wx/choice.h>
@@ -39,28 +43,28 @@ namespace TrenchBroom {
         m_document(document),
         m_tool(tool) {
             createGui();
-            m_angle->SetValue(Math::degrees(m_tool->angle()));
+            m_angle->SetValue(vm::degrees(m_tool->angle()));
         }
         
-        void RotateObjectsToolPage::setAxis(const Math::Axis::Type axis) {
+        void RotateObjectsToolPage::setAxis(const vm::axis::type axis) {
             m_axis->SetSelection(static_cast<int>(axis));
         }
 
-        void RotateObjectsToolPage::setRecentlyUsedCenters(const Vec3::List& centers) {
+        void RotateObjectsToolPage::setRecentlyUsedCenters(const std::vector<vm::vec3>& centers) {
             m_recentlyUsedCentersList->Clear();
             
-            Vec3::List::const_reverse_iterator it, end;
+            std::vector<vm::vec3>::const_reverse_iterator it, end;
             for (it = centers.rbegin(), end = centers.rend(); it != end; ++it) {
-                const Vec3& center = *it;
-                m_recentlyUsedCentersList->Append(center.asString());
+                const vm::vec3& center = *it;
+                m_recentlyUsedCentersList->Append(StringUtils::toString(center));
             }
             
             if (m_recentlyUsedCentersList->GetCount() > 0)
                 m_recentlyUsedCentersList->SetSelection(0);
         }
         
-        void RotateObjectsToolPage::setCurrentCenter(const Vec3& center) {
-            m_recentlyUsedCentersList->SetValue(center.asString());
+        void RotateObjectsToolPage::setCurrentCenter(const vm::vec3& center) {
+            m_recentlyUsedCentersList->SetValue(StringUtils::toString(center));
         }
 
         void RotateObjectsToolPage::createGui() {
@@ -75,7 +79,7 @@ namespace TrenchBroom {
             wxStaticText* text3 = new wxStaticText(this, wxID_ANY, "axis");
             m_angle = new SpinControl(this);
             m_angle->SetRange(-360.0, 360.0);
-            m_angle->SetValue(Math::degrees(m_tool->angle()));
+            m_angle->SetValue(vm::degrees(m_tool->angle()));
             m_angle->SetDigits(0, 2);
             
             wxString axes[] = { "X", "Y", "Z" };
@@ -124,13 +128,13 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             const Grid& grid = lock(m_document)->grid();
-            m_angle->SetIncrements(Math::degrees(grid.angle()), 90.0, 1.0);
+            m_angle->SetIncrements(vm::degrees(grid.angle()), 90.0, 1.0);
         }
 
         void RotateObjectsToolPage::OnCenterChanged(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             
-            const Vec3 center = Vec3::parse(m_recentlyUsedCentersList->GetValue().ToStdString());
+            const vm::vec3 center = vm::vec3::parse(m_recentlyUsedCentersList->GetValue().ToStdString());
             m_tool->setRotationCenter(center);
         }
         
@@ -143,9 +147,9 @@ namespace TrenchBroom {
         void RotateObjectsToolPage::OnAngleChanged(SpinControlEvent& event) {
             if (IsBeingDeleted()) return;
 
-            const double newAngleDegs = Math::correct(event.IsSpin() ? m_angle->GetValue() + event.GetValue() : event.GetValue());
+            const double newAngleDegs = vm::correct(event.IsSpin() ? m_angle->GetValue() + event.GetValue() : event.GetValue());
             m_angle->SetValue(newAngleDegs);
-            m_tool->setAngle(Math::radians(newAngleDegs));
+            m_tool->setAngle(vm::radians(newAngleDegs));
         }
 
         void RotateObjectsToolPage::OnUpdateRotateButton(wxUpdateUIEvent& event) {
@@ -158,22 +162,22 @@ namespace TrenchBroom {
         void RotateObjectsToolPage::OnRotate(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            const Vec3 center = m_tool->rotationCenter();
-            const Vec3 axis = getAxis();
-            const FloatType angle = Math::radians(m_angle->GetValue());
+            const vm::vec3 center = m_tool->rotationCenter();
+            const vm::vec3 axis = getAxis();
+            const FloatType angle = vm::radians(m_angle->GetValue());
             
             MapDocumentSPtr document = lock(m_document);
             document->rotateObjects(center, axis, angle);
         }
         
-        Vec3 RotateObjectsToolPage::getAxis() const {
+        vm::vec3 RotateObjectsToolPage::getAxis() const {
             switch (m_axis->GetSelection()) {
                 case 0:
-                    return Vec3::PosX;
+                    return vm::vec3::pos_x;
                 case 1:
-                    return Vec3::PosY;
+                    return vm::vec3::pos_y;
                 default:
-                    return Vec3::PosZ;
+                    return vm::vec3::pos_z;
             }
         }
     }

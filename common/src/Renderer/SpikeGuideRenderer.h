@@ -22,11 +22,12 @@
 
 #include "Color.h"
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
 #include "View/ViewTypes.h"
+
+#include <vecmath/forward.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -55,14 +56,14 @@ namespace TrenchBroom {
             SpikeGuideRenderer();
             
             void setColor(const Color& color);
-            void add(const Ray3& ray, FloatType length, View::MapDocumentSPtr document);
+            void add(const vm::ray3& ray, FloatType length, View::MapDocumentSPtr document);
             void clear();
         private:
             void doPrepareVertices(Vbo& vertexVbo) override;
             void doRender(RenderContext& renderContext) override;
         private:
-            void addPoint(const Vec3& position);
-            void addSpike(const Ray3& ray, FloatType length, FloatType maxLength);
+            void addPoint(const vm::vec3& position);
+            void addSpike(const vm::ray3& ray, FloatType length, FloatType maxLength);
             
             void validate();
         };

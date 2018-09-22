@@ -30,6 +30,9 @@
 #include "Renderer/TriangleRenderer.h"
 #include "Renderer/Vbo.h"
 
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+
 #include <map>
 
 namespace TrenchBroom {
@@ -109,7 +112,7 @@ namespace TrenchBroom {
             void renderModels(RenderContext& renderContext, RenderBatch& renderBatch);
             void renderClassnames(RenderContext& renderContext, RenderBatch& renderBatch);
             void renderAngles(RenderContext& renderContext, RenderBatch& renderBatch);
-            Vec3f::List arrowHead(float length, float width) const;
+            std::vector<vm::vec3f> arrowHead(float length, float width) const;
             
             struct BuildColoredSolidBoundsVertices;
             struct BuildColoredWireframeBoundsVertices;

@@ -23,6 +23,8 @@
 #include "TemporarilySetAny.h"
 #include "Model/BrushFace.h"
 
+#include <vecmath/vec.h>
+
 namespace TrenchBroom {
     namespace IO {
         const String& QuakeMapTokenizer::NumberDelim() {
@@ -323,7 +325,7 @@ namespace TrenchBroom {
         }
         
         void StandardMapParser::parseFace(ParserStatus& status) {
-            Vec3 texAxisX, texAxisY;
+            vm::vec3 texAxisX, texAxisY;
             
             Token token = m_tokenizer.nextToken();
             if (token.type() == QuakeMapToken::Eof)
@@ -333,13 +335,13 @@ namespace TrenchBroom {
             const size_t column = token.column();
             
             expect(QuakeMapToken::OParenthesis, token);
-            const Vec3 p1 = parseVector().corrected();
+            const vm::vec3 p1 = correct(parseVector());
             expect(QuakeMapToken::CParenthesis, token = m_tokenizer.nextToken());
             expect(QuakeMapToken::OParenthesis, token = m_tokenizer.nextToken());
-            const Vec3 p2 = parseVector().corrected();
+            const vm::vec3 p2 = correct(parseVector());
             expect(QuakeMapToken::CParenthesis, token = m_tokenizer.nextToken());
             expect(QuakeMapToken::OParenthesis, token = m_tokenizer.nextToken());
-            const Vec3 p3 = parseVector().corrected();
+            const vm::vec3 p3 = correct(parseVector());
             expect(QuakeMapToken::CParenthesis, token = m_tokenizer.nextToken());
             
             // texture names can contain braces etc, so we just read everything until the next opening bracket or number
@@ -413,16 +415,17 @@ namespace TrenchBroom {
                 }
             }
             
-            const Vec3 normal = crossed(p3 - p1, p2 - p1).normalized();
-            if (!normal.null())
+            const vm::vec3 axis = cross(p3 - p1, p2 - p1);
+            if (!isZero(axis)) {
                 brushFace(line, p1, p2, p3, attribs, texAxisX, texAxisY, status);
-            else
+            } else {
                 status.error(line, column, "Skipping face: face points are colinear");
         }
+        }
         
-        Vec3 StandardMapParser::parseVector() {
+        vm::vec3 StandardMapParser::parseVector() {
             Token token;
-            Vec3 vec;
+            vm::vec3 vec;
             
             for (size_t i = 0; i < 3; i++) {
                 expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());

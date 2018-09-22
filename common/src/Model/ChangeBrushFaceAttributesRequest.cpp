@@ -114,7 +114,7 @@ namespace TrenchBroom {
                             myValue = theirValue;
                             return true;
                         case ChangeBrushFaceAttributesRequest::ValueOp_Add:
-                            myValue += theirValue;
+                            myValue = myValue + theirValue;
                             return true;
                         case ChangeBrushFaceAttributesRequest::ValueOp_Mul:
                             return false;
@@ -131,7 +131,7 @@ namespace TrenchBroom {
                         case ChangeBrushFaceAttributesRequest::ValueOp_Add:
                             return false;
                         case ChangeBrushFaceAttributesRequest::ValueOp_Mul:
-                            myValue *= theirValue;
+                            myValue = myValue * theirValue;
                             return true;
                             switchDefault()
                     }
@@ -274,9 +274,9 @@ namespace TrenchBroom {
 
         void ChangeBrushFaceAttributesRequest::resetAll() {
             resetTextureAxes();
-            setOffset(Vec2f::Null);
+            setOffset(vm::vec2f::zero);
             setRotation(0.0f);
-            setScale(Vec2f::One);
+            setScale(vm::vec2f::one);
         }
 
         void ChangeBrushFaceAttributesRequest::setTexture(Assets::Texture* texture) {
@@ -301,17 +301,17 @@ namespace TrenchBroom {
             m_axisOp = AxisOp_ToParallel;
         }
 
-        void ChangeBrushFaceAttributesRequest::setOffset(const Vec2f& offset) {
+        void ChangeBrushFaceAttributesRequest::setOffset(const vm::vec2f& offset) {
             setXOffset(offset.x());
             setYOffset(offset.y());
         }
         
-        void ChangeBrushFaceAttributesRequest::addOffset(const Vec2f& offset) {
+        void ChangeBrushFaceAttributesRequest::addOffset(const vm::vec2f& offset) {
             addXOffset(offset.x());
             addYOffset(offset.y());
         }
         
-        void ChangeBrushFaceAttributesRequest::mulOffset(const Vec2f& offset) {
+        void ChangeBrushFaceAttributesRequest::mulOffset(const vm::vec2f& offset) {
             mulXOffset(offset.x());
             mulYOffset(offset.y());
         }
@@ -361,17 +361,17 @@ namespace TrenchBroom {
             m_rotationOp = ValueOp_Mul;
         }
         
-        void ChangeBrushFaceAttributesRequest::setScale(const Vec2f& scale) {
+        void ChangeBrushFaceAttributesRequest::setScale(const vm::vec2f& scale) {
             setXScale(scale.x());
             setYScale(scale.y());
         }
         
-        void ChangeBrushFaceAttributesRequest::addScale(const Vec2f& scale) {
+        void ChangeBrushFaceAttributesRequest::addScale(const vm::vec2f& scale) {
             addXScale(scale.x());
             addYScale(scale.y());
         }
         
-        void ChangeBrushFaceAttributesRequest::mulScale(const Vec2f& scale) {
+        void ChangeBrushFaceAttributesRequest::mulScale(const vm::vec2f& scale) {
             mulXScale(scale.x());
             mulYScale(scale.y());
         }

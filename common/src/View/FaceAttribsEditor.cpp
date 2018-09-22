@@ -219,7 +219,7 @@ namespace TrenchBroom {
 
             m_xOffsetEditor->SetIncrements(grid.actualSize(), 2.0 * grid.actualSize(), 1.0);
             m_yOffsetEditor->SetIncrements(grid.actualSize(), 2.0 * grid.actualSize(), 1.0);
-            m_rotationEditor->SetIncrements(Math::degrees(grid.angle()), 90.0, 1.0);
+            m_rotationEditor->SetIncrements(vm::degrees(grid.angle()), 90.0, 1.0);
         }
 
         void FaceAttribsEditor::createGui(GLContextManager& contextManager) {
@@ -562,7 +562,7 @@ namespace TrenchBroom {
                         m_colorEditor->ChangeValue("");
                     } else {
                         m_colorEditor->SetHint("");
-                        m_colorEditor->ChangeValue(colorValue.asString(3));
+                        m_colorEditor->ChangeValue(StringUtils::toString(colorValue));
                     }
                 } else {
                     m_colorEditor->SetHint("");

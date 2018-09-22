@@ -64,7 +64,7 @@ namespace TrenchBroom {
             ToolBoxConnector(wxWindow* window);
             virtual ~ToolBoxConnector();
             
-            const Ray3& pickRay() const;
+            const vm::ray3& pickRay() const;
             const Model::PickResult& pickResult() const;
 
             void updatePickResult();
@@ -118,7 +118,7 @@ namespace TrenchBroom {
             void showPopupMenu();
         private:
             virtual PickRequest doGetPickRequest(int x, int y) const = 0;
-            virtual Model::PickResult doPick(const Ray3& pickRay) const = 0;
+            virtual Model::PickResult doPick(const vm::ray3& pickRay) const = 0;
             virtual void doShowPopupMenu();
         };
     }

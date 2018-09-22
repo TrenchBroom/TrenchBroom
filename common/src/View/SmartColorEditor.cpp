@@ -165,15 +165,15 @@ namespace TrenchBroom {
                 Color::rgbToHSB(lr, lg, lb, lh, ls, lbr);
                 Color::rgbToHSB(rr, rg, rb, rh, rs, rbr);
                 
-                if (Math::lt(lh, rh))
+                if (vm::lt(lh, rh))
                     return true;
-                if (Math::gt(lh, rh))
+                if (vm::gt(lh, rh))
                     return false;
-                if (Math::lt(ls, rs))
+                if (vm::lt(ls, rs))
                     return true;
-                if (Math::gt(ls, rs))
+                if (vm::gt(ls, rs))
                     return false;
-                if (Math::lt(lbr, rbr))
+                if (vm::lt(lbr, rbr))
                     return true;
                 return false;
             }

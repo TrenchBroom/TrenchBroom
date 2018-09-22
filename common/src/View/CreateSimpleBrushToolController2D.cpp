@@ -26,6 +26,9 @@
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 
+#include <vecmath/intersection.h>
+#include <vecmath/scalar.h>
+
 #include <cassert>
 
 namespace TrenchBroom {
@@ -41,31 +44,36 @@ namespace TrenchBroom {
         }
         
         RestrictedDragPolicy::DragInfo CreateSimpleBrushToolController2D::doStartDrag(const InputState& inputState) {
-            if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
+            if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
                 return DragInfo();
-            if (!inputState.modifierKeysPressed(ModifierKeys::MKNone))
+            }
+            if (!inputState.modifierKeysPressed(ModifierKeys::MKNone)) {
                 return DragInfo();
-            
-            MapDocumentSPtr document = lock(m_document);
-            if (document->hasSelection())
+            }
+
+            auto document = lock(m_document);
+            if (document->hasSelection()) {
                 return DragInfo();
+            }
+
+            const auto& bounds = document->referenceBounds();
+            const auto& camera = inputState.camera();
+            const vm::plane3 plane(bounds.min, vm::vec3(firstAxis(camera.direction())));
             
-            const BBox3& bounds = document->referenceBounds();
-            const Renderer::Camera& camera = inputState.camera();
-            const Plane3 plane(bounds.min, camera.direction().firstAxis());
-            
-            const FloatType distance = plane.intersectWithRay(inputState.pickRay());
-            if (Math::isnan(distance))
+            const auto distance = vm::intersect(inputState.pickRay(), plane);
+            if (vm::isNan(distance)) {
                 return DragInfo();
-            
+            }
+
             m_initialPoint = inputState.pickRay().pointAtDistance(distance);
-            if (updateBounds(inputState, m_initialPoint))
+            if (updateBounds(inputState, m_initialPoint)) {
                 m_tool->refreshViews();
+            }
 
             return DragInfo(new PlaneDragRestricter(plane), new NoDragSnapper(), m_initialPoint);
         }
         
-        RestrictedDragPolicy::DragResult CreateSimpleBrushToolController2D::doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
+        RestrictedDragPolicy::DragResult CreateSimpleBrushToolController2D::doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) {
             if (updateBounds(inputState, nextHandlePosition)) {
                 m_tool->refreshViews();
                 return DR_Continue;
@@ -92,13 +100,13 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool CreateSimpleBrushToolController2D::updateBounds(const InputState& inputState, const Vec3& currentPoint) {
-            BBox3 bounds(m_initialPoint, m_initialPoint);
-            bounds.mergeWith(currentPoint);
+        bool CreateSimpleBrushToolController2D::updateBounds(const InputState& inputState, const vm::vec3& currentPoint) {
+            vm::bbox3 bounds(m_initialPoint, m_initialPoint);
+            bounds = merge(bounds, currentPoint);
             snapBounds(inputState, bounds);
 
             MapDocumentSPtr document = lock(m_document);
-            bounds.intersectWith(document->worldBounds());
+            bounds = vm::intersect(bounds, document->worldBounds());
             
             if (bounds.empty() || bounds == m_bounds)
                 return false;
@@ -110,15 +118,19 @@ namespace TrenchBroom {
             return true;
         }
 
-        void CreateSimpleBrushToolController2D::snapBounds(const InputState& inputState, BBox3& bounds) {
-            MapDocumentSPtr document = lock(m_document);
-            const Grid& grid = document->grid();
-            bounds.min = grid.snapDown(bounds.min);
-            bounds.max = grid.snapUp(bounds.max);
+        void CreateSimpleBrushToolController2D::snapBounds(const InputState& inputState, vm::bbox3& bounds) {
+            auto document = lock(m_document);
+            const auto& grid = document->grid();
+            auto min = grid.snapDown(bounds.min);
+            auto max = grid.snapUp(bounds.max);
             
-            const Renderer::Camera& camera = inputState.camera();
-            const BBox3& refBounds = document->referenceBounds();
-            bounds.mix(refBounds, camera.direction().firstAxis().absolute());
+            const auto& camera = inputState.camera();
+            const auto& refBounds = document->referenceBounds();
+            const auto factors = vm::vec3(abs(firstAxis(camera.direction())));
+            min = vm::mix(min, refBounds.min, factors);
+            max = vm::mix(max, refBounds.max, factors);
+
+            bounds = vm::bbox3(min, max);
         }
     }
 }

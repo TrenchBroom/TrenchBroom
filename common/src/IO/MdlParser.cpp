@@ -43,169 +43,169 @@ namespace TrenchBroom {
             // static const unsigned int FrameVertexSize   = 0x4;
         }
 
-        const Vec3f MdlParser::Normals[] = {
-            Vec3f(-0.525731f,  0.000000f,  0.850651f),
-            Vec3f(-0.442863f,  0.238856f,  0.864188f),
-            Vec3f(-0.295242f,  0.000000f,  0.955423f),
-            Vec3f(-0.309017f,  0.500000f,  0.809017f),
-            Vec3f(-0.162460f,  0.262866f,  0.951056f),
-            Vec3f(-0.000000f,  0.000000f,  1.000000f),
-            Vec3f(-0.000000f,  0.850651f,  0.525731f),
-            Vec3f(-0.147621f,  0.716567f,  0.681718f),
-            Vec3f(-0.147621f,  0.716567f,  0.681718f),
-            Vec3f(-0.000000f,  0.525731f,  0.850651f),
-            Vec3f(-0.309017f,  0.500000f,  0.809017f),
-            Vec3f(-0.525731f,  0.000000f,  0.850651f),
-            Vec3f(-0.295242f,  0.000000f,  0.955423f),
-            Vec3f(-0.442863f,  0.238856f,  0.864188f),
-            Vec3f(-0.162460f,  0.262866f,  0.951056f),
-            Vec3f(-0.681718f,  0.147621f,  0.716567f),
-            Vec3f(-0.809017f,  0.309017f,  0.500000f),
-            Vec3f(-0.587785f,  0.425325f,  0.688191f),
-            Vec3f(-0.850651f,  0.525731f,  0.000000f),
-            Vec3f(-0.864188f,  0.442863f,  0.238856f),
-            Vec3f(-0.716567f,  0.681718f,  0.147621f),
-            Vec3f(-0.688191f,  0.587785f,  0.425325f),
-            Vec3f(-0.500000f,  0.809017f,  0.309017f),
-            Vec3f(-0.238856f,  0.864188f,  0.442863f),
-            Vec3f(-0.425325f,  0.688191f,  0.587785f),
-            Vec3f(-0.716567f,  0.681718f, -0.147621f),
-            Vec3f(-0.500000f,  0.809017f, -0.309017f),
-            Vec3f(-0.525731f,  0.850651f,  0.000000f),
-            Vec3f(-0.000000f,  0.850651f, -0.525731f),
-            Vec3f(-0.238856f,  0.864188f, -0.442863f),
-            Vec3f(-0.000000f,  0.955423f, -0.295242f),
-            Vec3f(-0.262866f,  0.951056f, -0.162460f),
-            Vec3f(-0.000000f,  1.000000f,  0.000000f),
-            Vec3f(-0.000000f,  0.955423f,  0.295242f),
-            Vec3f(-0.262866f,  0.951056f,  0.162460f),
-            Vec3f(-0.238856f,  0.864188f,  0.442863f),
-            Vec3f(-0.262866f,  0.951056f,  0.162460f),
-            Vec3f(-0.500000f,  0.809017f,  0.309017f),
-            Vec3f(-0.238856f,  0.864188f, -0.442863f),
-            Vec3f(-0.262866f,  0.951056f, -0.162460f),
-            Vec3f(-0.500000f,  0.809017f, -0.309017f),
-            Vec3f(-0.850651f,  0.525731f,  0.000000f),
-            Vec3f(-0.716567f,  0.681718f,  0.147621f),
-            Vec3f(-0.716567f,  0.681718f, -0.147621f),
-            Vec3f(-0.525731f,  0.850651f,  0.000000f),
-            Vec3f(-0.425325f,  0.688191f,  0.587785f),
-            Vec3f(-0.864188f,  0.442863f,  0.238856f),
-            Vec3f(-0.688191f,  0.587785f,  0.425325f),
-            Vec3f(-0.809017f,  0.309017f,  0.500000f),
-            Vec3f(-0.681718f,  0.147621f,  0.716567f),
-            Vec3f(-0.587785f,  0.425325f,  0.688191f),
-            Vec3f(-0.955423f,  0.295242f,  0.000000f),
-            Vec3f( 1.000000f,  0.000000f,  0.000000f),
-            Vec3f(-0.951056f,  0.162460f,  0.262866f),
-            Vec3f(-0.850651f, -0.525731f,  0.000000f),
-            Vec3f(-0.955423f, -0.295242f,  0.000000f),
-            Vec3f(-0.864188f, -0.442863f,  0.238856f),
-            Vec3f(-0.951056f, -0.162460f,  0.262866f),
-            Vec3f(-0.809017f, -0.309017f,  0.500000f),
-            Vec3f(-0.681718f, -0.147621f,  0.716567f),
-            Vec3f(-0.850651f,  0.000000f,  0.525731f),
-            Vec3f(-0.864188f,  0.442863f, -0.238856f),
-            Vec3f(-0.809017f,  0.309017f, -0.500000f),
-            Vec3f(-0.951056f,  0.162460f, -0.262866f),
-            Vec3f(-0.525731f,  0.000000f, -0.850651f),
-            Vec3f(-0.681718f,  0.147621f, -0.716567f),
-            Vec3f(-0.681718f, -0.147621f, -0.716567f),
-            Vec3f(-0.850651f,  0.000000f, -0.525731f),
-            Vec3f(-0.809017f, -0.309017f, -0.500000f),
-            Vec3f(-0.864188f, -0.442863f, -0.238856f),
-            Vec3f(-0.951056f, -0.162460f, -0.262866f),
-            Vec3f(-0.147621f,  0.716567f, -0.681718f),
-            Vec3f(-0.309017f,  0.500000f, -0.809017f),
-            Vec3f(-0.425325f,  0.688191f, -0.587785f),
-            Vec3f(-0.442863f,  0.238856f, -0.864188f),
-            Vec3f(-0.587785f,  0.425325f, -0.688191f),
-            Vec3f(-0.688191f,  0.587785f, -0.425325f),
-            Vec3f(-0.147621f,  0.716567f, -0.681718f),
-            Vec3f(-0.309017f,  0.500000f, -0.809017f),
-            Vec3f(-0.000000f,  0.525731f, -0.850651f),
-            Vec3f(-0.525731f,  0.000000f, -0.850651f),
-            Vec3f(-0.442863f,  0.238856f, -0.864188f),
-            Vec3f(-0.295242f,  0.000000f, -0.955423f),
-            Vec3f(-0.162460f,  0.262866f, -0.951056f),
-            Vec3f(-0.000000f,  0.000000f, -1.000000f),
-            Vec3f(-0.295242f,  0.000000f, -0.955423f),
-            Vec3f(-0.162460f,  0.262866f, -0.951056f),
-            Vec3f(-0.442863f, -0.238856f, -0.864188f),
-            Vec3f(-0.309017f, -0.500000f, -0.809017f),
-            Vec3f(-0.162460f, -0.262866f, -0.951056f),
-            Vec3f(-0.000000f, -0.850651f, -0.525731f),
-            Vec3f(-0.147621f, -0.716567f, -0.681718f),
-            Vec3f(-0.147621f, -0.716567f, -0.681718f),
-            Vec3f(-0.000000f, -0.525731f, -0.850651f),
-            Vec3f(-0.309017f, -0.500000f, -0.809017f),
-            Vec3f(-0.442863f, -0.238856f, -0.864188f),
-            Vec3f(-0.162460f, -0.262866f, -0.951056f),
-            Vec3f(-0.238856f, -0.864188f, -0.442863f),
-            Vec3f(-0.500000f, -0.809017f, -0.309017f),
-            Vec3f(-0.425325f, -0.688191f, -0.587785f),
-            Vec3f(-0.716567f, -0.681718f, -0.147621f),
-            Vec3f(-0.688191f, -0.587785f, -0.425325f),
-            Vec3f(-0.587785f, -0.425325f, -0.688191f),
-            Vec3f(-0.000000f, -0.955423f, -0.295242f),
-            Vec3f(-0.000000f, -1.000000f,  0.000000f),
-            Vec3f(-0.262866f, -0.951056f, -0.162460f),
-            Vec3f(-0.000000f, -0.850651f,  0.525731f),
-            Vec3f(-0.000000f, -0.955423f,  0.295242f),
-            Vec3f(-0.238856f, -0.864188f,  0.442863f),
-            Vec3f(-0.262866f, -0.951056f,  0.162460f),
-            Vec3f(-0.500000f, -0.809017f,  0.309017f),
-            Vec3f(-0.716567f, -0.681718f,  0.147621f),
-            Vec3f(-0.525731f, -0.850651f,  0.000000f),
-            Vec3f(-0.238856f, -0.864188f, -0.442863f),
-            Vec3f(-0.500000f, -0.809017f, -0.309017f),
-            Vec3f(-0.262866f, -0.951056f, -0.162460f),
-            Vec3f(-0.850651f, -0.525731f,  0.000000f),
-            Vec3f(-0.716567f, -0.681718f, -0.147621f),
-            Vec3f(-0.716567f, -0.681718f,  0.147621f),
-            Vec3f(-0.525731f, -0.850651f,  0.000000f),
-            Vec3f(-0.500000f, -0.809017f,  0.309017f),
-            Vec3f(-0.238856f, -0.864188f,  0.442863f),
-            Vec3f(-0.262866f, -0.951056f,  0.162460f),
-            Vec3f(-0.864188f, -0.442863f,  0.238856f),
-            Vec3f(-0.809017f, -0.309017f,  0.500000f),
-            Vec3f(-0.688191f, -0.587785f,  0.425325f),
-            Vec3f(-0.681718f, -0.147621f,  0.716567f),
-            Vec3f(-0.442863f, -0.238856f,  0.864188f),
-            Vec3f(-0.587785f, -0.425325f,  0.688191f),
-            Vec3f(-0.309017f, -0.500000f,  0.809017f),
-            Vec3f(-0.147621f, -0.716567f,  0.681718f),
-            Vec3f(-0.425325f, -0.688191f,  0.587785f),
-            Vec3f(-0.162460f, -0.262866f,  0.951056f),
-            Vec3f(-0.442863f, -0.238856f,  0.864188f),
-            Vec3f(-0.162460f, -0.262866f,  0.951056f),
-            Vec3f(-0.309017f, -0.500000f,  0.809017f),
-            Vec3f(-0.147621f, -0.716567f,  0.681718f),
-            Vec3f(-0.000000f, -0.525731f,  0.850651f),
-            Vec3f(-0.425325f, -0.688191f,  0.587785f),
-            Vec3f(-0.587785f, -0.425325f,  0.688191f),
-            Vec3f(-0.688191f, -0.587785f,  0.425325f),
-            Vec3f(-0.955423f,  0.295242f,  0.000000f),
-            Vec3f(-0.951056f,  0.162460f,  0.262866f),
-            Vec3f(-1.000000f,  0.000000f,  0.000000f),
-            Vec3f(-0.850651f,  0.000000f,  0.525731f),
-            Vec3f(-0.955423f, -0.295242f,  0.000000f),
-            Vec3f(-0.951056f, -0.162460f,  0.262866f),
-            Vec3f(-0.864188f,  0.442863f, -0.238856f),
-            Vec3f(-0.951056f,  0.162460f, -0.262866f),
-            Vec3f(-0.809017f,  0.309017f, -0.500000f),
-            Vec3f(-0.864188f, -0.442863f, -0.238856f),
-            Vec3f(-0.951056f, -0.162460f, -0.262866f),
-            Vec3f(-0.809017f, -0.309017f, -0.500000f),
-            Vec3f(-0.681718f,  0.147621f, -0.716567f),
-            Vec3f(-0.681718f, -0.147621f, -0.716567f),
-            Vec3f(-0.850651f,  0.000000f, -0.525731f),
-            Vec3f(-0.688191f,  0.587785f, -0.425325f),
-            Vec3f(-0.587785f,  0.425325f, -0.688191f),
-            Vec3f(-0.425325f,  0.688191f, -0.587785f),
-            Vec3f(-0.425325f, -0.688191f, -0.587785f),
-            Vec3f(-0.587785f, -0.425325f, -0.688191f),
-            Vec3f(-0.688191f, -0.587785f, -0.425325f),
+        const vm::vec3f MdlParser::Normals[] = {
+            vm::vec3f(-0.525731f,  0.000000f,  0.850651f),
+            vm::vec3f(-0.442863f,  0.238856f,  0.864188f),
+            vm::vec3f(-0.295242f,  0.000000f,  0.955423f),
+            vm::vec3f(-0.309017f,  0.500000f,  0.809017f),
+            vm::vec3f(-0.162460f,  0.262866f,  0.951056f),
+            vm::vec3f(-0.000000f,  0.000000f,  1.000000f),
+            vm::vec3f(-0.000000f,  0.850651f,  0.525731f),
+            vm::vec3f(-0.147621f,  0.716567f,  0.681718f),
+            vm::vec3f(-0.147621f,  0.716567f,  0.681718f),
+            vm::vec3f(-0.000000f,  0.525731f,  0.850651f),
+            vm::vec3f(-0.309017f,  0.500000f,  0.809017f),
+            vm::vec3f(-0.525731f,  0.000000f,  0.850651f),
+            vm::vec3f(-0.295242f,  0.000000f,  0.955423f),
+            vm::vec3f(-0.442863f,  0.238856f,  0.864188f),
+            vm::vec3f(-0.162460f,  0.262866f,  0.951056f),
+            vm::vec3f(-0.681718f,  0.147621f,  0.716567f),
+            vm::vec3f(-0.809017f,  0.309017f,  0.500000f),
+            vm::vec3f(-0.587785f,  0.425325f,  0.688191f),
+            vm::vec3f(-0.850651f,  0.525731f,  0.000000f),
+            vm::vec3f(-0.864188f,  0.442863f,  0.238856f),
+            vm::vec3f(-0.716567f,  0.681718f,  0.147621f),
+            vm::vec3f(-0.688191f,  0.587785f,  0.425325f),
+            vm::vec3f(-0.500000f,  0.809017f,  0.309017f),
+            vm::vec3f(-0.238856f,  0.864188f,  0.442863f),
+            vm::vec3f(-0.425325f,  0.688191f,  0.587785f),
+            vm::vec3f(-0.716567f,  0.681718f, -0.147621f),
+            vm::vec3f(-0.500000f,  0.809017f, -0.309017f),
+            vm::vec3f(-0.525731f,  0.850651f,  0.000000f),
+            vm::vec3f(-0.000000f,  0.850651f, -0.525731f),
+            vm::vec3f(-0.238856f,  0.864188f, -0.442863f),
+            vm::vec3f(-0.000000f,  0.955423f, -0.295242f),
+            vm::vec3f(-0.262866f,  0.951056f, -0.162460f),
+            vm::vec3f(-0.000000f,  1.000000f,  0.000000f),
+            vm::vec3f(-0.000000f,  0.955423f,  0.295242f),
+            vm::vec3f(-0.262866f,  0.951056f,  0.162460f),
+            vm::vec3f(-0.238856f,  0.864188f,  0.442863f),
+            vm::vec3f(-0.262866f,  0.951056f,  0.162460f),
+            vm::vec3f(-0.500000f,  0.809017f,  0.309017f),
+            vm::vec3f(-0.238856f,  0.864188f, -0.442863f),
+            vm::vec3f(-0.262866f,  0.951056f, -0.162460f),
+            vm::vec3f(-0.500000f,  0.809017f, -0.309017f),
+            vm::vec3f(-0.850651f,  0.525731f,  0.000000f),
+            vm::vec3f(-0.716567f,  0.681718f,  0.147621f),
+            vm::vec3f(-0.716567f,  0.681718f, -0.147621f),
+            vm::vec3f(-0.525731f,  0.850651f,  0.000000f),
+            vm::vec3f(-0.425325f,  0.688191f,  0.587785f),
+            vm::vec3f(-0.864188f,  0.442863f,  0.238856f),
+            vm::vec3f(-0.688191f,  0.587785f,  0.425325f),
+            vm::vec3f(-0.809017f,  0.309017f,  0.500000f),
+            vm::vec3f(-0.681718f,  0.147621f,  0.716567f),
+            vm::vec3f(-0.587785f,  0.425325f,  0.688191f),
+            vm::vec3f(-0.955423f,  0.295242f,  0.000000f),
+            vm::vec3f( 1.000000f,  0.000000f,  0.000000f),
+            vm::vec3f(-0.951056f,  0.162460f,  0.262866f),
+            vm::vec3f(-0.850651f, -0.525731f,  0.000000f),
+            vm::vec3f(-0.955423f, -0.295242f,  0.000000f),
+            vm::vec3f(-0.864188f, -0.442863f,  0.238856f),
+            vm::vec3f(-0.951056f, -0.162460f,  0.262866f),
+            vm::vec3f(-0.809017f, -0.309017f,  0.500000f),
+            vm::vec3f(-0.681718f, -0.147621f,  0.716567f),
+            vm::vec3f(-0.850651f,  0.000000f,  0.525731f),
+            vm::vec3f(-0.864188f,  0.442863f, -0.238856f),
+            vm::vec3f(-0.809017f,  0.309017f, -0.500000f),
+            vm::vec3f(-0.951056f,  0.162460f, -0.262866f),
+            vm::vec3f(-0.525731f,  0.000000f, -0.850651f),
+            vm::vec3f(-0.681718f,  0.147621f, -0.716567f),
+            vm::vec3f(-0.681718f, -0.147621f, -0.716567f),
+            vm::vec3f(-0.850651f,  0.000000f, -0.525731f),
+            vm::vec3f(-0.809017f, -0.309017f, -0.500000f),
+            vm::vec3f(-0.864188f, -0.442863f, -0.238856f),
+            vm::vec3f(-0.951056f, -0.162460f, -0.262866f),
+            vm::vec3f(-0.147621f,  0.716567f, -0.681718f),
+            vm::vec3f(-0.309017f,  0.500000f, -0.809017f),
+            vm::vec3f(-0.425325f,  0.688191f, -0.587785f),
+            vm::vec3f(-0.442863f,  0.238856f, -0.864188f),
+            vm::vec3f(-0.587785f,  0.425325f, -0.688191f),
+            vm::vec3f(-0.688191f,  0.587785f, -0.425325f),
+            vm::vec3f(-0.147621f,  0.716567f, -0.681718f),
+            vm::vec3f(-0.309017f,  0.500000f, -0.809017f),
+            vm::vec3f(-0.000000f,  0.525731f, -0.850651f),
+            vm::vec3f(-0.525731f,  0.000000f, -0.850651f),
+            vm::vec3f(-0.442863f,  0.238856f, -0.864188f),
+            vm::vec3f(-0.295242f,  0.000000f, -0.955423f),
+            vm::vec3f(-0.162460f,  0.262866f, -0.951056f),
+            vm::vec3f(-0.000000f,  0.000000f, -1.000000f),
+            vm::vec3f(-0.295242f,  0.000000f, -0.955423f),
+            vm::vec3f(-0.162460f,  0.262866f, -0.951056f),
+            vm::vec3f(-0.442863f, -0.238856f, -0.864188f),
+            vm::vec3f(-0.309017f, -0.500000f, -0.809017f),
+            vm::vec3f(-0.162460f, -0.262866f, -0.951056f),
+            vm::vec3f(-0.000000f, -0.850651f, -0.525731f),
+            vm::vec3f(-0.147621f, -0.716567f, -0.681718f),
+            vm::vec3f(-0.147621f, -0.716567f, -0.681718f),
+            vm::vec3f(-0.000000f, -0.525731f, -0.850651f),
+            vm::vec3f(-0.309017f, -0.500000f, -0.809017f),
+            vm::vec3f(-0.442863f, -0.238856f, -0.864188f),
+            vm::vec3f(-0.162460f, -0.262866f, -0.951056f),
+            vm::vec3f(-0.238856f, -0.864188f, -0.442863f),
+            vm::vec3f(-0.500000f, -0.809017f, -0.309017f),
+            vm::vec3f(-0.425325f, -0.688191f, -0.587785f),
+            vm::vec3f(-0.716567f, -0.681718f, -0.147621f),
+            vm::vec3f(-0.688191f, -0.587785f, -0.425325f),
+            vm::vec3f(-0.587785f, -0.425325f, -0.688191f),
+            vm::vec3f(-0.000000f, -0.955423f, -0.295242f),
+            vm::vec3f(-0.000000f, -1.000000f,  0.000000f),
+            vm::vec3f(-0.262866f, -0.951056f, -0.162460f),
+            vm::vec3f(-0.000000f, -0.850651f,  0.525731f),
+            vm::vec3f(-0.000000f, -0.955423f,  0.295242f),
+            vm::vec3f(-0.238856f, -0.864188f,  0.442863f),
+            vm::vec3f(-0.262866f, -0.951056f,  0.162460f),
+            vm::vec3f(-0.500000f, -0.809017f,  0.309017f),
+            vm::vec3f(-0.716567f, -0.681718f,  0.147621f),
+            vm::vec3f(-0.525731f, -0.850651f,  0.000000f),
+            vm::vec3f(-0.238856f, -0.864188f, -0.442863f),
+            vm::vec3f(-0.500000f, -0.809017f, -0.309017f),
+            vm::vec3f(-0.262866f, -0.951056f, -0.162460f),
+            vm::vec3f(-0.850651f, -0.525731f,  0.000000f),
+            vm::vec3f(-0.716567f, -0.681718f, -0.147621f),
+            vm::vec3f(-0.716567f, -0.681718f,  0.147621f),
+            vm::vec3f(-0.525731f, -0.850651f,  0.000000f),
+            vm::vec3f(-0.500000f, -0.809017f,  0.309017f),
+            vm::vec3f(-0.238856f, -0.864188f,  0.442863f),
+            vm::vec3f(-0.262866f, -0.951056f,  0.162460f),
+            vm::vec3f(-0.864188f, -0.442863f,  0.238856f),
+            vm::vec3f(-0.809017f, -0.309017f,  0.500000f),
+            vm::vec3f(-0.688191f, -0.587785f,  0.425325f),
+            vm::vec3f(-0.681718f, -0.147621f,  0.716567f),
+            vm::vec3f(-0.442863f, -0.238856f,  0.864188f),
+            vm::vec3f(-0.587785f, -0.425325f,  0.688191f),
+            vm::vec3f(-0.309017f, -0.500000f,  0.809017f),
+            vm::vec3f(-0.147621f, -0.716567f,  0.681718f),
+            vm::vec3f(-0.425325f, -0.688191f,  0.587785f),
+            vm::vec3f(-0.162460f, -0.262866f,  0.951056f),
+            vm::vec3f(-0.442863f, -0.238856f,  0.864188f),
+            vm::vec3f(-0.162460f, -0.262866f,  0.951056f),
+            vm::vec3f(-0.309017f, -0.500000f,  0.809017f),
+            vm::vec3f(-0.147621f, -0.716567f,  0.681718f),
+            vm::vec3f(-0.000000f, -0.525731f,  0.850651f),
+            vm::vec3f(-0.425325f, -0.688191f,  0.587785f),
+            vm::vec3f(-0.587785f, -0.425325f,  0.688191f),
+            vm::vec3f(-0.688191f, -0.587785f,  0.425325f),
+            vm::vec3f(-0.955423f,  0.295242f,  0.000000f),
+            vm::vec3f(-0.951056f,  0.162460f,  0.262866f),
+            vm::vec3f(-1.000000f,  0.000000f,  0.000000f),
+            vm::vec3f(-0.850651f,  0.000000f,  0.525731f),
+            vm::vec3f(-0.955423f, -0.295242f,  0.000000f),
+            vm::vec3f(-0.951056f, -0.162460f,  0.262866f),
+            vm::vec3f(-0.864188f,  0.442863f, -0.238856f),
+            vm::vec3f(-0.951056f,  0.162460f, -0.262866f),
+            vm::vec3f(-0.809017f,  0.309017f, -0.500000f),
+            vm::vec3f(-0.864188f, -0.442863f, -0.238856f),
+            vm::vec3f(-0.951056f, -0.162460f, -0.262866f),
+            vm::vec3f(-0.809017f, -0.309017f, -0.500000f),
+            vm::vec3f(-0.681718f,  0.147621f, -0.716567f),
+            vm::vec3f(-0.681718f, -0.147621f, -0.716567f),
+            vm::vec3f(-0.850651f,  0.000000f, -0.525731f),
+            vm::vec3f(-0.688191f,  0.587785f, -0.425325f),
+            vm::vec3f(-0.587785f,  0.425325f, -0.688191f),
+            vm::vec3f(-0.425325f,  0.688191f, -0.587785f),
+            vm::vec3f(-0.425325f, -0.688191f, -0.587785f),
+            vm::vec3f(-0.587785f, -0.425325f, -0.688191f),
+            vm::vec3f(-0.688191f, -0.587785f, -0.425325f),
         };
 
         static const int MF_HOLEY = (1 << 14);
@@ -221,8 +221,8 @@ namespace TrenchBroom {
 
         Assets::EntityModel* MdlParser::doParseModel() {
             const char* cursor = m_begin + MdlLayout::HeaderScale;
-            const Vec3f scale = readVec3f(cursor);
-            const Vec3f origin = readVec3f(cursor);
+            const vm::vec3f scale = readVec3f(cursor);
+            const vm::vec3f origin = readVec3f(cursor);
             
             cursor = m_begin + MdlLayout::HeaderNumSkins;
             const size_t skinCount = readSize<int32_t>(cursor);
@@ -300,13 +300,14 @@ namespace TrenchBroom {
             MdlSkinTriangleList triangles(count);
             for (size_t i = 0; i < count; ++i) {
                 triangles[i].front = readBool<int32_t>(cursor);
-                for (size_t j = 0; j < 3; ++j)
+                for (size_t j = 0; j < 3; ++j) {
                     triangles[i].vertices[j] = readSize<int32_t>(cursor);
+            }
             }
             return triangles;
         }
 
-        void MdlParser::parseFrames(const char*& cursor, Assets::EntityModel* model, const size_t count, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, const size_t skinWidth, const size_t skinHeight, const Vec3f& origin, const Vec3f& scale) {
+        void MdlParser::parseFrames(const char*& cursor, Assets::EntityModel* model, const size_t count, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, const size_t skinWidth, const size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale) {
             for (size_t i = 0; i < count; ++i) {
                 const int type = readInt<int32_t>(cursor);
                 if (type == 0) { // single frame
@@ -325,7 +326,7 @@ namespace TrenchBroom {
             }
         }
 
-        void MdlParser::parseFrame(const char*& cursor, Assets::EntityModel* model, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, const size_t skinWidth, const size_t skinHeight, const Vec3f& origin, const Vec3f& scale) {
+        void MdlParser::parseFrame(const char*& cursor, Assets::EntityModel* model, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, const size_t skinWidth, const size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale) {
             using Vertex = Assets::EntityModel::Vertex;
             using VertexList = Vertex::List;
 
@@ -341,7 +342,7 @@ namespace TrenchBroom {
                 }
             }
 
-            Vec3f::List positions(skinVertices.size());
+            std::vector<vm::vec3f> positions(skinVertices.size());
             for (size_t i = 0; i < skinVertices.size(); ++i) {
                 positions[i] = unpackFrameVertex(packedVertices[i], origin, scale);
             }
@@ -354,10 +355,11 @@ namespace TrenchBroom {
                     const auto vertexIndex = triangle.vertices[j];
                     const auto& skinVertex = skinVertices[vertexIndex];
 
-                    Vec2f texCoords (static_cast<float>(skinVertex.s) / static_cast<float>(skinWidth),
+                    vm::vec2f texCoords (static_cast<float>(skinVertex.s) / static_cast<float>(skinWidth),
                                      static_cast<float>(skinVertex.t) / static_cast<float>(skinHeight));
-                    if (skinVertex.onseam && !triangle.front)
+                    if (skinVertex.onseam && !triangle.front) {
                         texCoords[0] += 0.5f;
+                    }
 
                     frameTriangles.push_back(Vertex(positions[vertexIndex], texCoords));
                 }
@@ -372,10 +374,11 @@ namespace TrenchBroom {
             model->addFrame(String(name), builder.vertices(), builder.indexArray());
         }
 
-        Vec3f MdlParser::unpackFrameVertex(const PackedFrameVertex& vertex, const Vec3f& origin, const Vec3f& scale) const {
-            Vec3f result;
-            for (size_t i = 0; i < 3; ++i)
+        vm::vec3f MdlParser::unpackFrameVertex(const PackedFrameVertex& vertex, const vm::vec3f& origin, const vm::vec3f& scale) const {
+            vm::vec3f result;
+            for (size_t i = 0; i < 3; ++i) {
                 result[i] = origin[i] + scale[i]*static_cast<float>(vertex[i]);
+            }
             return result;
         }
     }

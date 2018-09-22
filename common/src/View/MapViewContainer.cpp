@@ -48,13 +48,13 @@ namespace TrenchBroom {
             return current->canFlipObjects();
         }
         
-        void MapViewContainer::doFlipObjects(const Math::Direction direction) {
+        void MapViewContainer::doFlipObjects(const vm::direction direction) {
             MapView* current = currentMapView();
             ensure(current != nullptr, "current is nullptr");
             current->flipObjects(direction);
         }
 
-        Vec3 MapViewContainer::doGetPasteObjectsDelta(const BBox3& bounds, const BBox3& referenceBounds) const {
+        vm::vec3 MapViewContainer::doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const {
             MapView* current = currentMapView();
             ensure(current != nullptr, "current is nullptr");
             return current->pasteObjectsDelta(bounds, referenceBounds);

@@ -21,7 +21,6 @@
 #define TrenchBroom_FgdParser
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "Color.h"
 #include "StringUtils.h"
 #include "Assets/AssetTypes.h"
@@ -30,6 +29,8 @@
 #include "IO/Parser.h"
 #include "IO/Token.h"
 #include "IO/Tokenizer.h"
+
+#include <vecmath/forward.h>
 
 namespace TrenchBroom {
     namespace IO {
@@ -108,8 +109,8 @@ namespace TrenchBroom {
             DefaultValue<int> parseDefaultIntegerValue(ParserStatus& status);
             DefaultValue<float> parseDefaultFloatValue(ParserStatus& status);
             
-            Vec3 parseVector(ParserStatus& status);
-            BBox3 parseSize(ParserStatus& status);
+            vm::vec3 parseVector(ParserStatus& status);
+            vm::bbox3 parseSize(ParserStatus& status);
             Color parseColor(ParserStatus& status);
         };
     }

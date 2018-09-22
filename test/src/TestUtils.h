@@ -23,28 +23,50 @@
 #include <gtest/gtest.h>
 
 #include "StringUtils.h"
-#include "VecMath.h"
 #include "Model/ModelTypes.h"
 
+#include <vecmath/vec.h>
+#include <vecmath/mat.h>
+
 namespace TrenchBroom {
-    bool texCoordsEqual(const Vec2f& tc1, const Vec2f& tc2);
-    bool pointExactlyIntegral(const Vec3d &point);
+    bool texCoordsEqual(const vm::vec2f& tc1, const vm::vec2f& tc2);
+    bool pointExactlyIntegral(const vm::vec3d &point);
 
     namespace Model {
-        void assertTexture(const String& expected, const Brush* brush, const Vec3d& faceNormal);
+        void assertTexture(const String& expected, const Brush* brush, const vm::vec3d& faceNormal);
         
-        void assertTexture(const String& expected, const Brush* brush, const Vec3d& v1, const Vec3d& v2, const Vec3d& v3);
-        void assertTexture(const String& expected, const Brush* brush, const Vec3d& v1, const Vec3d& v2, const Vec3d& v3, const Vec3d& v4);
-        void assertTexture(const String& expected, const Brush* brush, const Vec3d::List& vertices);
-        void assertTexture(const String& expected, const Brush* brush, const Polygon3d& vertices);
+        void assertTexture(const String& expected, const Brush* brush, const vm::vec3d& v1, const vm::vec3d& v2, const vm::vec3d& v3);
+        void assertTexture(const String& expected, const Brush* brush, const vm::vec3d& v1, const vm::vec3d& v2, const vm::vec3d& v3, const vm::vec3d& v4);
+        void assertTexture(const String& expected, const Brush* brush, const std::vector<vm::vec3d>& vertices);
+        void assertTexture(const String& expected, const Brush* brush, const vm::polygon3d& vertices);
     }
 }
 
-#define ASSERT_VEC_EQ(vec1, vec2) ASSERT_TRUE((vec1).equals((vec2)))
-#define EXPECT_VEC_EQ(vec1, vec2) EXPECT_TRUE((vec1).equals((vec2)))
-#define ASSERT_VEC_NE(vec1, vec2) ASSERT_FALSE((vec1).equals((vec2)))
-#define ASSERT_MAT_EQ(mat1, mat2) ASSERT_TRUE((mat1).equals((mat2)))
-#define ASSERT_MAT_NE(mat1, mat2) ASSERT_FALSE((mat1).equals((mat2)))
+template <typename T, size_t S>
+void ASSERT_VEC_EQ(const vm::vec<T,S>& lhs, const vm::vec<T,S>& rhs) {
+    ASSERT_TRUE(isEqual(lhs, rhs, static_cast<T>(0.001)));
+}
+
+template <typename T, size_t S>
+void EXPECT_VEC_EQ(const vm::vec<T,S>& lhs, const vm::vec<T,S>& rhs) {
+    EXPECT_TRUE(isEqual(lhs, rhs, static_cast<T>(0.001)));
+}
+
+template <typename T, size_t S>
+void ASSERT_VEC_NE(const vm::vec<T,S>& lhs, const vm::vec<T,S>& rhs) {
+    ASSERT_FALSE(isEqual(lhs, rhs, static_cast<T>(0.001)));
+}
+
+template <typename T, size_t C, size_t R>
+void ASSERT_MAT_EQ(const vm::mat<T,R,C>& lhs, const vm::mat<T,R,C>& rhs) {
+    ASSERT_TRUE(isEqual(lhs, rhs, static_cast<T>(0.001)));
+}
+
+template <typename T, size_t C, size_t R>
+void ASSERT_MAT_NE(const vm::mat<T,R,C>& lhs, const vm::mat<T,R,C>& rhs) {
+    ASSERT_FALSE(isEqual(lhs, rhs, static_cast<T>(0.001)));
+}
+
 #define ASSERT_WXSTR_EQ(str1, str2) ASSERT_TRUE((str1).IsSameAs((str2)))
 
 #define ASSERT_TC_EQ(tc1, tc2) ASSERT_TRUE(texCoordsEqual(tc1, tc2));

@@ -20,9 +20,10 @@
 #ifndef TrenchBroom_FontGlyph
 #define TrenchBroom_FontGlyph
 
-#include "VecMath.h"
-
 #include <vector>
+
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -38,7 +39,7 @@ namespace TrenchBroom {
         public:
             FontGlyph(size_t x, size_t y, size_t w, size_t h, size_t a);
             
-            void appendVertices(Vec2f::List& vertices, int xOffset, int yOffset, size_t textureSize, bool clockwise) const;
+            void appendVertices(std::vector<vm::vec2f>& vertices, int xOffset, int yOffset, size_t textureSize, bool clockwise) const;
             int advance() const;
         };
     }

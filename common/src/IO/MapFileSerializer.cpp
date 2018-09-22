@@ -174,8 +174,8 @@ namespace TrenchBroom {
         private:
             void writeValveTextureInfo(FILE* stream, Model::BrushFace* face) {
                 const String& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
-                const Vec3 xAxis = face->textureXAxis();
-                const Vec3 yAxis = face->textureYAxis();
+                const vm::vec3 xAxis = face->textureXAxis();
+                const vm::vec3 yAxis = face->textureYAxis();
 
                 std::fprintf(stream, ValveTextureInfoFormat.c_str(),
                              textureName.c_str(),

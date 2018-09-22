@@ -21,6 +21,7 @@
 #define Polyhedron_Matcher_h
 
 #include "Polyhedron.h"
+#include "CollectionUtils.h"
 #include "Relation.h"
 
 #include <limits>
@@ -72,7 +73,7 @@ public:
     m_right(right),
     m_vertexRelation(buildVertexRelation(m_left, m_right)) {}
     
-    PolyhedronMatcher(const P& left, const P& right, const typename V::List& vertices, const V& delta) :
+    PolyhedronMatcher(const P& left, const P& right, const std::vector<V>& vertices, const V& delta) :
     m_left(left),
     m_right(right),
     m_vertexRelation(buildVertexRelation(m_left, m_right, vertices, delta)) {}
@@ -120,15 +121,15 @@ private:
         auto it = std::begin(matchingFaces);
         
         auto* result = *it++;
-        auto bestDot = rightFace->normal().dot(result->normal());
+        auto bestDot = dot(rightFace->normal(), result->normal());
 
         // exit early if we find a face with an identical normal
         while (it != std::end(matchingFaces) && bestDot < 1.0) {
             auto* currentFace = *it;
-            const auto dot = rightFace->normal().dot(currentFace->normal());
-            if (dot > bestDot) {
+            const auto currentDot = dot(rightFace->normal(), currentFace->normal());
+            if (currentDot > bestDot) {
                 result = currentFace;
-                bestDot = dot;
+                bestDot = currentDot;
             }
             ++it;
         }
@@ -248,7 +249,7 @@ private:
      * @param delta the move delta
      * @return the vertex relation
      */
-    static VertexRelation buildVertexRelation(const P& left, const P& right, typename V::List vertices, const V& delta) {
+    static VertexRelation buildVertexRelation(const P& left, const P& right, std::vector<V> vertices, const V& delta) {
         VMap vertexMap;
 
         VectorUtils::setCreate(vertices);
@@ -258,7 +259,7 @@ private:
         do {
             const auto& position = currentVertex->position();
             // vertices are expected to be exact positions of vertices in left, whereas the vertex positions searched for
-            // in right allow an epsilon of Math::Constants<T>::almostZero()
+            // in right allow an epsilon of vm::Constants<T>::almostZero()
             if (VectorUtils::setContains(vertices, position)) {
                 if (right.hasVertex(position)) {
                     vertexMap.insert(std::make_pair(position, position));

@@ -21,7 +21,6 @@
 #define TrenchBroom_ModelFactoryImpl
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "StringUtils.h"
 #include "Model/MapFormat.h"
 #include "Model/ModelFactory.h"
@@ -41,14 +40,14 @@ namespace TrenchBroom {
             ModelFactoryImpl(MapFormat::Type format, const BrushContentTypeBuilder* brushContentTypeBuilder);
         private: // implement ModelFactory interface
             MapFormat::Type doGetFormat() const override;
-            World* doCreateWorld(const BBox3& worldBounds) const override;
-            Layer* doCreateLayer(const String& name, const BBox3& worldBounds) const override;
+            World* doCreateWorld(const vm::bbox3& worldBounds) const override;
+            Layer* doCreateLayer(const String& name, const vm::bbox3& worldBounds) const override;
             Group* doCreateGroup(const String& name) const override;
             Entity* doCreateEntity() const override;
-            Brush* doCreateBrush(const BBox3& worldBounds, const BrushFaceList& faces) const override;
+            Brush* doCreateBrush(const vm::bbox3& worldBounds, const BrushFaceList& faces) const override;
             
-            BrushFace* doCreateFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const BrushFaceAttributes& attribs) const override;
-            BrushFace* doCreateFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const BrushFaceAttributes& attribs, const Vec3& texAxisX, const Vec3& texAxisY) const override;
+            BrushFace* doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const override;
+            BrushFace* doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const override;
         };
     }
 }

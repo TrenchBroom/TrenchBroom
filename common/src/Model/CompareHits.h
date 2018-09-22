@@ -21,7 +21,8 @@
 #define TrenchBroom_CompareHits
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
+
+#include <vecmath/util.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -58,10 +59,10 @@ namespace TrenchBroom {
         
         class CompareHitsBySize : public CompareHits {
         private:
-            const Math::Axis::Type m_axis;
+            const vm::axis::type m_axis;
             CompareHitsByDistance m_compareByDistance;
         public:
-            CompareHitsBySize(Math::Axis::Type axis);
+            CompareHitsBySize(vm::axis::type axis);
         private:
             int doCompare(const Hit& lhs, const Hit& rhs) const override;
             FloatType getSize(const Hit& hit) const;

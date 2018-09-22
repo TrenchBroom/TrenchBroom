@@ -77,7 +77,7 @@ namespace TrenchBroom {
 
             parseTextures(model.get());
             const TextureInfoList textureInfos = parseTextureInfos();
-            const Vec3f::List vertices = parseVertices();
+            const std::vector<vm::vec3f> vertices = parseVertices();
             const EdgeInfoList edgeInfos = parseEdgeInfos();
             const FaceInfoList faceInfos = parseFaceInfos();
             const FaceEdgeIndexList faceEdges = parseFaceEdges();
@@ -140,13 +140,13 @@ namespace TrenchBroom {
             return textureInfos;
         }
         
-        Vec3f::List Bsp29Parser::parseVertices() {
+        std::vector<vm::vec3f> Bsp29Parser::parseVertices() {
             const char* cursor = m_begin + BspLayout::DirVerticesAddress;
             const size_t verticesAddr = readSize<int32_t>(cursor);
             const size_t verticesLength = readSize<int32_t>(cursor);
             const size_t vertexCount = verticesLength/(3*sizeof(float));
             
-            Vec3f::List vertices(vertexCount);
+            std::vector<vm::vec3f> vertices(vertexCount);
             cursor = m_begin + verticesAddr;
             for (size_t i = 0; i < vertexCount; ++i)
                 vertices[i] = readVec3f(cursor);
@@ -199,7 +199,7 @@ namespace TrenchBroom {
             return faceEdges;
         }
         
-        void Bsp29Parser::parseModels(Assets::EntityModel* model, const TextureInfoList& textureInfos, const Vec3f::List& vertices, const EdgeInfoList& edgeInfos, const FaceInfoList& faceInfos, const FaceEdgeIndexList& faceEdges) {
+        void Bsp29Parser::parseModels(Assets::EntityModel* model, const TextureInfoList& textureInfos, const std::vector<vm::vec3f>& vertices, const EdgeInfoList& edgeInfos, const FaceInfoList& faceInfos, const FaceEdgeIndexList& faceEdges) {
             using Vertex = Assets::EntityModel::Vertex;
             using VertexList = Vertex::List;
 
@@ -256,9 +256,9 @@ namespace TrenchBroom {
             }
         }
         
-        Vec2f Bsp29Parser::textureCoords(const Vec3f& vertex, const TextureInfo& textureInfo, const Assets::Texture& texture) const {
-            return Vec2f::create((vertex.dot(textureInfo.sAxis) + textureInfo.sOffset) / texture.width(),
-                                 (vertex.dot(textureInfo.tAxis) + textureInfo.tOffset) / texture.height());
+        vm::vec2f Bsp29Parser::textureCoords(const vm::vec3f& vertex, const TextureInfo& textureInfo, const Assets::Texture& texture) const {
+            return vm::vec2f((dot(vertex, textureInfo.sAxis) + textureInfo.sOffset) / texture.width(),
+                         (dot(vertex, textureInfo.tAxis) + textureInfo.tOffset) / texture.height());
         }
     }
 }

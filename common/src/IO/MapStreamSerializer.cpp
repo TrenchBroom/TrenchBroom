@@ -131,8 +131,8 @@ namespace TrenchBroom {
         private:
             void writeValveTextureInfo(std::ostream& stream, Model::BrushFace* face) {
                 const String& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
-                const Vec3& xAxis = face->textureXAxis();
-                const Vec3& yAxis = face->textureYAxis();
+                const vm::vec3& xAxis = face->textureXAxis();
+                const vm::vec3& yAxis = face->textureYAxis();
 
                 stream.precision(6);
                 stream <<

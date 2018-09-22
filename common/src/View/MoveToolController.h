@@ -22,10 +22,9 @@
 
 #include "View/ToolController.h"
 
+#include "TrenchBroom.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "TrenchBroom.h"
-#include "VecMath.h"
 #include "Macros.h"
 #include "Renderer/Camera.h"
 #include "Renderer/EdgeRenderer.h"
@@ -34,6 +33,11 @@
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
 #include "View/InputState.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+#include <vecmath/line.h>
+#include <vecmath/plane.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -51,18 +55,18 @@ namespace TrenchBroom {
             } MoveType;
             
             MoveType m_lastMoveType;
-            Vec3 m_moveTraceOrigin;
-            Vec3 m_moveTraceCurPoint;
+            vm::vec3 m_moveTraceOrigin;
+            vm::vec3 m_moveTraceCurPoint;
             bool m_restricted;
         protected:
             struct MoveInfo {
                 bool move;
-                Vec3 initialPoint;
+                vm::vec3 initialPoint;
                 
                 MoveInfo() :
                 move(false) {}
                 
-                MoveInfo(const Vec3& i_initialPoint) :
+                MoveInfo(const vm::vec3& i_initialPoint) :
                 move(true),
                 initialPoint(i_initialPoint) {}
             };
@@ -74,7 +78,7 @@ namespace TrenchBroom {
         protected:
             virtual void doModifierKeyChange(const InputState& inputState) override {
                 if (Super::thisToolDragging()) {
-                    const Vec3& currentPosition = RestrictedDragPolicy::currentHandlePosition();
+                    const vm::vec3& currentPosition = RestrictedDragPolicy::currentHandlePosition();
                     
                     const MoveType nextMoveType = moveType(inputState);
                     if (nextMoveType != m_lastMoveType) {
@@ -88,7 +92,7 @@ namespace TrenchBroom {
                             m_moveTraceOrigin = m_moveTraceCurPoint = currentPosition;
                             m_restricted = true;
                         } else if (nextMoveType == MT_Restricted) {
-                            const Vec3& initialPosition = RestrictedDragPolicy::initialHandlePosition();
+                            const vm::vec3& initialPosition = RestrictedDragPolicy::initialHandlePosition();
                             RestrictedDragPolicy::setRestricter(inputState, doCreateRestrictedDragRestricter(inputState, initialPosition, currentPosition), false);
                             m_restricted = true;
                         }
@@ -139,10 +143,10 @@ namespace TrenchBroom {
                 return RestrictedDragPolicy::DragInfo(restricter, snapper, info.initialPoint);
             }
             
-            RestrictedDragPolicy::DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) override {
+            RestrictedDragPolicy::DragResult doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override {
                 const RestrictedDragPolicy::DragResult result = doMove(inputState, lastHandlePosition, nextHandlePosition);
                 if (result == RestrictedDragPolicy::DR_Continue) {
-                    m_moveTraceCurPoint += (nextHandlePosition - lastHandlePosition);
+                    m_moveTraceCurPoint = m_moveTraceCurPoint + (nextHandlePosition - lastHandlePosition);
                 }
                 return result;
             }
@@ -161,33 +165,34 @@ namespace TrenchBroom {
             }
             
             void renderMoveTrace(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-                const Vec3& start = m_moveTraceOrigin;
-                const Vec3& end = m_moveTraceCurPoint;
+                const auto& start = m_moveTraceOrigin;
+                const auto& end = m_moveTraceCurPoint;
                 if (end != start) {
-                    const Vec3 vec = end - start;
+                    const auto vec = end - start;
                     
                     Renderer::RenderService renderService(renderContext, renderBatch);
                     renderService.setShowOccludedObjects();
-                    if (m_restricted)
+                    if (m_restricted) {
                         renderService.setLineWidth(2.0f);
-                    
-                    Vec3::List stages(3);
-                    stages[0] = vec * Vec3::PosX;
-                    stages[1] = vec * Vec3::PosY;
-                    stages[2] = vec * Vec3::PosZ;
+                    }
 
-                    Color::List colors(3);
+                    std::vector<vm::vec3> stages(3);
+                    stages[0] = vec * vm::vec3::pos_x;
+                    stages[1] = vec * vm::vec3::pos_y;
+                    stages[2] = vec * vm::vec3::pos_z;
+
+                    std::vector<Color> colors(3);
                     colors[0] = pref(Preferences::XAxisColor);
                     colors[1] = pref(Preferences::YAxisColor);
                     colors[2] = pref(Preferences::ZAxisColor);
                     
-                    Vec3 lastPos = start;
+                    auto lastPos = start;
                     for (size_t i = 0; i < 3; ++i) {
-                        const Vec3& stage = stages[i];
-                        const Vec3 curPos = lastPos + stage;
+                        const auto& stage = stages[i];
+                        const auto curPos = lastPos + stage;
                         
                         renderService.setForegroundColor(colors[i]);
-                        renderService.renderLine(lastPos, curPos);
+                        renderService.renderLine(vm::vec3f(lastPos), vm::vec3f(curPos));
                         lastPos = curPos;
                     }
                     
@@ -195,32 +200,32 @@ namespace TrenchBroom {
             }
         protected: // subclassing interface
             virtual MoveInfo doStartMove(const InputState& inputState) = 0;
-            virtual RestrictedDragPolicy::DragResult doMove(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) = 0;
+            virtual RestrictedDragPolicy::DragResult doMove(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) = 0;
             virtual void doEndMove(const InputState& inputState) = 0;
             virtual void doCancelMove() = 0;
             
-            virtual DragRestricter* doCreateDefaultDragRestricter(const InputState& inputState, const Vec3& curPoint) const {
-                const Renderer::Camera& camera = inputState.camera();
+            virtual DragRestricter* doCreateDefaultDragRestricter(const InputState& inputState, const vm::vec3& curPoint) const {
+                const auto& camera = inputState.camera();
                 if (camera.perspectiveProjection()) {
-                    return new PlaneDragRestricter(Plane3(curPoint, Vec3::PosZ));
+                    return new PlaneDragRestricter(vm::plane3(curPoint, vm::vec3::pos_z));
                 } else {
-                    return new PlaneDragRestricter(Plane3(curPoint, Vec3(camera.direction().firstAxis())));
+                    return new PlaneDragRestricter(vm::plane3(curPoint, vm::vec3(firstAxis(camera.direction()))));
                 }
             }
             
-            virtual DragRestricter* doCreateVerticalDragRestricter(const InputState& inputState, const Vec3& curPoint) const {
-                const Renderer::Camera& camera = inputState.camera();
+            virtual DragRestricter* doCreateVerticalDragRestricter(const InputState& inputState, const vm::vec3& curPoint) const {
+                const auto& camera = inputState.camera();
                 if (camera.perspectiveProjection()) {
-                    return new LineDragRestricter(Line3(curPoint, Vec3::PosZ));
+                    return new LineDragRestricter(vm::line3(curPoint, vm::vec3::pos_z));
                 } else {
-                    return new PlaneDragRestricter(Plane3(curPoint, Vec3(camera.direction().firstAxis())));
+                    return new PlaneDragRestricter(vm::plane3(curPoint, vm::vec3(firstAxis(camera.direction()))));
                 }
             }
             
-            virtual DragRestricter* doCreateRestrictedDragRestricter(const InputState& inputState, const Vec3& initialPoint, const Vec3& curPoint) const {
-                const Vec3 delta = curPoint - initialPoint;
-                const Vec3 axis = delta.firstAxis();
-                return new LineDragRestricter(Line3(initialPoint, axis));
+            virtual DragRestricter* doCreateRestrictedDragRestricter(const InputState& inputState, const vm::vec3& initialPoint, const vm::vec3& curPoint) const {
+                const auto delta = curPoint - initialPoint;
+                const auto axis = firstAxis(delta);
+                return new LineDragRestricter(vm::line3(initialPoint, axis));
             }
             
             virtual DragSnapper* doCreateDragSnapper(const InputState& inputState) const {

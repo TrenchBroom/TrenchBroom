@@ -21,7 +21,8 @@
 #define TrenchBroom_PickRequest
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
+
+#include <vecmath/ray.h>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -31,13 +32,13 @@ namespace TrenchBroom {
     namespace View {
         class PickRequest {
         private:
-            Ray3 m_pickRay;
+            vm::ray3 m_pickRay;
             const Renderer::Camera* m_camera;
         public:
             PickRequest();
-            PickRequest(const Ray3& pickRay, const Renderer::Camera& camera);
+            PickRequest(const vm::ray3& pickRay, const Renderer::Camera& camera);
             
-            const Ray3& pickRay() const;
+            const vm::ray3& pickRay() const;
             const Renderer::Camera& camera() const;
         };
     }

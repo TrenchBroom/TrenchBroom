@@ -21,11 +21,13 @@
 #define TrenchBroom_ResizeBrushesTool
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "Model/Hit.h"
 #include "Model/ModelTypes.h"
 #include "View/Tool.h"
 #include "View/ViewTypes.h"
+
+#include <vecmath/vec.h>
+#include <vecmath/polygon.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -46,21 +48,21 @@ namespace TrenchBroom {
 
             MapDocumentWPtr m_document;
             Model::BrushFaceList m_dragFaces;
-            Vec3 m_dragOrigin;
-            Vec3 m_totalDelta;
+            vm::vec3 m_dragOrigin;
+            vm::vec3 m_totalDelta;
             bool m_splitBrushes;
             bool m_resizing;
         public:
-            ResizeBrushesTool(MapDocumentWPtr document);
-            ~ResizeBrushesTool();
+            explicit ResizeBrushesTool(MapDocumentWPtr document);
+            ~ResizeBrushesTool() override;
             
             bool applies() const;
             
-            Model::Hit pick2D(const Ray3& pickRay, const Model::PickResult& pickResult);
-            Model::Hit pick3D(const Ray3& pickRay, const Model::PickResult& pickResult);
+            Model::Hit pick2D(const vm::ray3& pickRay, const Model::PickResult& pickResult);
+            Model::Hit pick3D(const vm::ray3& pickRay, const Model::PickResult& pickResult);
         private:
             class PickProximateFace;
-            Model::Hit pickProximateFace(Model::Hit::HitType hitType, const Ray3& pickRay) const;
+            Model::Hit pickProximateFace(Model::Hit::HitType hitType, const vm::ray3& pickRay) const;
         public:
             bool hasDragFaces() const;
             const Model::BrushFaceList& dragFaces() const;
@@ -72,15 +74,15 @@ namespace TrenchBroom {
             Model::BrushFaceList collectDragFaces(Model::BrushFace* face) const;
         public:
             bool beginResize(const Model::PickResult& pickResult, bool split);
-            bool resize(const Ray3& pickRay, const Renderer::Camera& camera);
-            Vec3 selectDelta(const Vec3& relativeDelta, const Vec3& absoluteDelta, FloatType mouseDistance) const;
+            bool resize(const vm::ray3& pickRay, const Renderer::Camera& camera);
+            vm::vec3 selectDelta(const vm::vec3& relativeDelta, const vm::vec3& absoluteDelta, FloatType mouseDistance) const;
 
             void commitResize();
             void cancelResize();
         private:
-            bool splitBrushes(const Vec3& delta);
+            bool splitBrushes(const vm::vec3& delta);
             Model::BrushFace* findMatchingFace(Model::Brush* brush, const Model::BrushFace* reference) const;
-            Polygon3::List dragFaceDescriptors() const;
+            std::vector<vm::polygon3> dragFaceDescriptors() const;
         private:
             void bindObservers();
             void unbindObservers();
