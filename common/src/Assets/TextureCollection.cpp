@@ -85,6 +85,14 @@ namespace TrenchBroom {
             return m_textures;
         }
 
+        Texture* TextureCollection::textureByIndex(const size_t index) const {
+            if (index >= m_textures.size()) {
+                return nullptr;
+            } else {
+                return m_textures[index];
+            }
+        }
+
         size_t TextureCollection::usageCount() const {
             return m_usageCount;
         }
