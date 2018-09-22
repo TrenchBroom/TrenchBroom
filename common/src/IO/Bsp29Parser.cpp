@@ -227,22 +227,23 @@ namespace TrenchBroom {
                     for (size_t j = 0; j < modelFaceCount; ++j) {
                         const FaceInfo& faceInfo = faceInfos[modelFaceIndex + j];
                         const TextureInfo& textureInfo = textureInfos[faceInfo.textureInfoIndex];
-                        Assets::Texture* texture = textureCollection->textures()[textureInfo.textureIndex];
+                        auto* texture = textureCollection->textureByIndex(textureInfo.textureIndex);
                         const size_t faceVertexCount = faceInfo.edgeCount;
 
                         Assets::Bsp29Model::Face face(texture, faceVertexCount);
                         for (size_t k = 0; k < faceVertexCount; ++k) {
                             const int faceEdgeIndex = faceEdges[faceInfo.edgeIndex + k];
                             size_t vertexIndex;
-                            if (faceEdgeIndex < 0)
+                            if (faceEdgeIndex < 0) {
                                 vertexIndex = edgeInfos[static_cast<size_t>(-faceEdgeIndex)].vertexIndex2;
-                            else
+                            } else {
                                 vertexIndex = edgeInfos[static_cast<size_t>(faceEdgeIndex)].vertexIndex1;
-                            
+                            }
+
                             const vm::vec3f& vertex = vertices[vertexIndex];
-                            const vm::vec2f texCoords = textureCoords(vertex, textureInfo, *texture);
+                            const vm::vec2f texCoords = textureCoords(vertex, textureInfo, texture);
                             face.addVertex(vertex, texCoords);
-                            
+
                             if (!vertexMarks[vertexIndex]) {
                                 modelVertices.push_back(vertex);
                             }
@@ -261,9 +262,13 @@ namespace TrenchBroom {
             return model;
         }
         
-        vm::vec2f Bsp29Parser::textureCoords(const vm::vec3f& vertex, const TextureInfo& textureInfo, const Assets::Texture& texture) const {
-            return vm::vec2f((dot(vertex, textureInfo.sAxis) + textureInfo.sOffset) / texture.width(),
-                         (dot(vertex, textureInfo.tAxis) + textureInfo.tOffset) / texture.height());
+        vm::vec2f Bsp29Parser::textureCoords(const vm::vec3f& vertex, const TextureInfo& textureInfo, const Assets::Texture* texture) const {
+            if (texture == nullptr) {
+                return vm::vec2f::zero;
+            } else {
+                return vm::vec2f((dot(vertex, textureInfo.sAxis) + textureInfo.sOffset) / texture->width(),
+                                 (dot(vertex, textureInfo.tAxis) + textureInfo.tOffset) / texture->height());
+            }
         }
     }
 }
