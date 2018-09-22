@@ -278,7 +278,6 @@ namespace TrenchBroom {
                     m_palette.indexedToRgba(cursor, size, rgbaImage, avgColor, transparency);
                     cursor += size;
 
-                    textureName.str();
                     textureName << m_name << "_" << i;
 
                     model->addSkin(new Assets::Texture(textureName.str(), width, height, avgColor, rgbaImage, GL_RGBA, type));
@@ -302,7 +301,7 @@ namespace TrenchBroom {
                 triangles[i].front = readBool<int32_t>(cursor);
                 for (size_t j = 0; j < 3; ++j) {
                     triangles[i].vertices[j] = readSize<int32_t>(cursor);
-            }
+                }
             }
             return triangles;
         }
