@@ -118,6 +118,13 @@ namespace TrenchBroom {
                 const auto size = curWidth * curHeight;
                 const auto* data = reader.cur<char>();
 
+                // FIXME: Confirm this is actually happening because of bad data and not a bug.
+                // FIXME: Corrupt or missing mips should be deleted, rather than uploaded with garbage.
+                if (!reader.canRead(size)) {
+                    std::cerr << "WalTextureReader::readMips: buffer overrun\n";
+                    return;
+                }
+
                 palette.indexedToRgba(data, size, buffers[i], tempColor);
                 if (i == 0) {
                     averageColor = tempColor;
