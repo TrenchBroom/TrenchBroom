@@ -43,8 +43,11 @@ namespace TrenchBroom {
             }
 
             void TearDown() override {
+                // Only some of the tests add the entity to the world
+                if (m_entity->parent() == nullptr) {
+                    delete m_entity;
+                }
                 delete m_world;
-                // m_entity is deleted by m_world
             }
         };
 
