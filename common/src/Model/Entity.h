@@ -38,8 +38,8 @@ namespace TrenchBroom {
         class Entity : public AttributableNode, public Object, private EntityRotationPolicy {
         public:
             static const Hit::HitType EntityHit;
-        private:
             static const vm::bbox3 DefaultBounds;
+        private:
             mutable vm::bbox3 m_bounds;
             mutable bool m_boundsValid;
             mutable vm::vec3 m_cachedOrigin;
