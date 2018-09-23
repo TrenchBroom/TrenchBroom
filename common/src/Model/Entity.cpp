@@ -258,8 +258,11 @@ namespace TrenchBroom {
         }
         
         void Entity::doAttributesDidChange(const vm::bbox3& oldBounds) {
-            nodeBoundsDidChange(oldBounds);
+            // update m_cachedOrigin and m_cachedRotation. Must be done first because nodeBoundsDidChange() might
+            // call origin()
             cacheAttributes();
+
+            nodeBoundsDidChange(oldBounds);
         }
         
         bool Entity::doIsAttributeNameMutable(const AttributeName& name) const {
