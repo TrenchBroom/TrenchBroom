@@ -93,7 +93,7 @@ namespace TrenchBroom {
                 return p;
             }();
 
-            return {restricter, snapper, initialPoint};
+            return std::make_tuple(restricter, snapper, initialPoint);
         }
 
         static std::pair<AnchorPos, ProportionalAxes> modifierSettingsForInputState(const InputState& inputState) {
