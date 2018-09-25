@@ -1898,23 +1898,23 @@ As an example, consider the case where you want to override the builtin Quake ga
 
 Game configuration files need to specify the following information.
 
-* Game name used show in the UI and used to find resources in a sub folder of the game configuration folders
-* Game icon to show in the UI (optional)
-* File formats to identify which map file formats to support for this game
-* Filesystem to specify the game asset search paths and package file format (e.g. pak files)
-* Textures
-** Texture package format (file packages such as wad files or directory packages containing loose image files)
-** Texture format such as mip files
-** Palette file (optional)
-** The worldspawn property to store the texture packages in the map file
-* Entities
-** The builtin entity definition files
-** The default color to use in the UI
-** The supported model formats, e.g. mdl
-* Brush types to specify different types of brushes in the editor such as clip brushes or trigger brushes (optional)
-* Face attributes to specify which additional attributes to allow on brush faces (optional)
+* A **name** used show in the UI and used to find resources in a sub folder of the game configuration folders
+* An **icon** to show in the UI (optional)
+* **File formats** to identify which map file formats to support for this game
+* A **Filesystem** to specify the game asset search paths and package file format (e.g. pak files)
+* **Textures**
+	* A **texture package format** (file packages such as wad files or directory packages containing loose image files)
+	* A **texture format** such as mip files
+	* A **palette file** (optional)
+	* The **worldspawn property** to store the texture packages in the map file
+* **Entities**
+	* The builtin **entity definition files**
+	* The **default color** to use in the UI
+	* The supported **model formats**, e.g. mdl
+* **Brush content types** to specify different types of brushes in the editor such as clip brushes or trigger brushes (optional)
+* **Face attributes** to specify which additional attributes to allow on brush faces (optional)
 
-The game configuration files have a JSON-like syntax, which is explained using an example.
+The game configuration is an [expression language](#expression_language) map with a specific structure, which is explained using an example. 
 
     {
 	    "version": 1, // mandatory, indicates the version of the file's syntax
@@ -1976,7 +1976,9 @@ The game configuration files have a JSON-like syntax, which is explained using a
 
 
 
-#### Supported File Formats
+#### File Formats
+
+The file format is specified by an array under the key `fileformats`. The following formats are supported.
 
 Format       Description
 ------       -----------
@@ -1985,7 +1987,16 @@ Valve        Valve map file (like Standard, but with different texture info per 
 Quake2       Quake 2 map file
 Hexen2       Hexen 2 map file (like Quake, but with an additional, but unused value per face)
 
-#### Supported Package File Formats
+#### File System
+
+The file system is used in the editor to load game assets, and it is specified by a map under the key `filesystem`. The map contains two keys, `searchpath` and `packageformat`.
+
+* `searchpath` is the subdirectory under the game directory (set in the game preferences) at which the editor will search for game assets. The editor will search loose files in this path, but it will also mount packages found here.
+* `packageformat` specifies the format of the packages to mount. It is a map with two keys, `extension` and `format`.
+	* `extension` specifies the file extension of the package files to mount
+	* `format` specifies the format of the package files
+
+The following package formats are supported.
 
 Format       Description
 ------       -----------
