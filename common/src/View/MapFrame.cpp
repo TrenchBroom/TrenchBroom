@@ -261,7 +261,7 @@ namespace TrenchBroom {
                     return true;
                 }
                 return saveDocumentAs();
-            } catch (FileSystemException e) {
+            } catch (const FileSystemException& e) {
                 ::wxMessageBox(e.what(), "", wxOK | wxICON_ERROR, this);
                 return false;
             } catch (...) {
@@ -283,7 +283,7 @@ namespace TrenchBroom {
                 m_document->saveDocumentAs(path);
                 logger()->info("Saved " + m_document->path().asString());
                 return true;
-            } catch (FileSystemException e) {
+            } catch (const FileSystemException& e) {
                 ::wxMessageBox(e.what(), "", wxOK | wxICON_ERROR, this);
                 return false;
             } catch (...) {
@@ -310,7 +310,7 @@ namespace TrenchBroom {
                 m_document->exportDocumentAs(format, path);
                 logger()->info("Exported " + path.asString());
                 return true;
-            } catch (FileSystemException e) {
+            } catch (const FileSystemException& e) {
                 ::wxMessageBox(e.what(), "", wxOK | wxICON_ERROR, this);
                 return false;
             } catch (...) {
