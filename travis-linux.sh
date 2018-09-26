@@ -10,6 +10,14 @@ if [[ $TB_GCC8 == "true" ]] ; then
     export CC=gcc-8
     export CXX=g++-8
     sudo apt-get -y install g++-8
+elif [[ $TB_CLANG_LINUX == "true" ]] ; then
+    # see http://apt.llvm.org
+    sudo add-apt-repository -y deb https://apt.llvm.org/trusty/ llvm-toolchain-trusty-6.0 main
+    sudo add-apt-repository -y deb-src https://apt.llvm.org/trusty/ llvm-toolchain-trusty-6.0 main
+
+    export CC=clang-6
+    export CXX=clang++-6
+    sudo apt-get -y install clang-6.0
 else
     export CC=gcc-7
     export CXX=g++-7
