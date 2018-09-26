@@ -94,7 +94,7 @@ namespace TrenchBroom {
                 if (m_logger != nullptr)
                     m_logger->info("Created autosave backup at %s", backupFilePath.asString().c_str());
                 
-            } catch (const FileSystemException& e) {
+            } catch (const FileSystemException&) {
                 if (m_logger != nullptr)
                     m_logger->error("Aborting autosave");
             }
