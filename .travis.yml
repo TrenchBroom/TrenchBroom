@@ -8,10 +8,6 @@ matrix:
       dist: trusty
       sudo: required
       env: TB_GCC8=true
-    - os: linux
-      dist: trusty
-      sudo: required
-      env: TB_CLANG_LINUX=true
     - os: osx
       osx_image: xcode9.3
     - os: osx

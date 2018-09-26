@@ -10,17 +10,6 @@ if [[ $TB_GCC8 == "true" ]] ; then
     export CC=gcc-8
     export CXX=g++-8
     sudo apt-get -y install g++-8
-elif [[ $TB_CLANG_LINUX == "true" ]] ; then
-    # see http://apt.llvm.org
-    # and https://blog.kowalczyk.info/article/k/how-to-install-latest-clang-6.0-on-ubuntu-16.04-xenial-wsl.html
-    sudo apt-key add ci/llvm-snapshot.gpg.key
-    sudo add-apt-repository -y "deb https://apt.llvm.org/trusty/ llvm-toolchain-trusty-6.0 main"
-    sudo apt-get update
-    export CC=clang-6.0
-    export CXX=clang++-6.0
-    sudo apt-get -y install clang-6.0
-
-    clang++-6.0 -v
 else
     export CC=gcc-7
     export CXX=g++-7
