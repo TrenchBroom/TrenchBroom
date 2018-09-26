@@ -37,7 +37,7 @@ namespace TrenchBroom {
         m_variables(variables.clone()),
         m_gameFS(gameFS),
         m_fileSearchPaths(fileSearchPaths),
-        m_textureExtension(getTextureExtension(textureConfig)),
+        m_textureExtensions(getTextureExtension(textureConfig)),
         m_textureReader(createTextureReader(textureConfig)),
         m_textureCollectionLoader(createTextureCollectionLoader(textureConfig)) {
             ensure(m_textureReader != nullptr, "textureReader is null");
@@ -50,8 +50,8 @@ namespace TrenchBroom {
             delete m_variables;
         }
         
-        String TextureLoader::getTextureExtension(const Model::GameConfig::TextureConfig& textureConfig) const {
-            return textureConfig.format.extension;
+        const StringList& TextureLoader::getTextureExtension(const Model::GameConfig::TextureConfig& textureConfig) const {
+            return textureConfig.format.extensions;
         }
         
         TextureReader* TextureLoader::createTextureReader(const Model::GameConfig::TextureConfig& textureConfig) const {
@@ -93,7 +93,7 @@ namespace TrenchBroom {
         }
 
         Assets::TextureCollection* TextureLoader::loadTextureCollection(const Path& path) {
-            return m_textureCollectionLoader->loadTextureCollection(path, m_textureExtension, *m_textureReader);
+            return m_textureCollectionLoader->loadTextureCollection(path, m_textureExtensions, *m_textureReader);
         }
 
         void TextureLoader::loadTextures(const Path::List& paths, Assets::TextureManager& textureManager) {

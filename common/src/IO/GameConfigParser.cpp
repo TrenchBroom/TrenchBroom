@@ -77,17 +77,27 @@ namespace TrenchBroom {
 
         Model::GameConfig::PackageFormatConfig GameConfigParser::parsePackageFormatConfig(const EL::Value& value) const {
             using Model::GameConfig;
-            
-            expectStructure(value,
-                            "["
-                            "{'extension': 'String', 'format': 'String'},"
-                            "{}"
-                            "]");
 
-            const String& extension = value["extension"].stringValue();
-            const String& format = value["format"].stringValue();
-            
-            return GameConfig::PackageFormatConfig(extension, format);
+            expectMapEntry(value, "format", EL::typeForName("String"));
+            const auto formatValue = value["format"];
+            expectType(formatValue, EL::typeForName("String"));
+
+            if (value["extension"] != EL::Value::Null) {
+                const auto extensionValue = value["extension"];
+                expectType(extensionValue, EL::typeForName("String"));
+                const auto& extension = value["extension"].stringValue();
+                const auto& format = formatValue.stringValue();
+
+                return GameConfig::PackageFormatConfig(extension, format);
+            } else if (value["extensions"] != EL::Value::Null) {
+                const auto extensionsValue = value["extensions"];
+                expectType(extensionsValue, EL::typeForName("Array"));
+                const auto extensions = extensionsValue.asStringList();
+                const auto& format = formatValue.stringValue();
+
+                return GameConfig::PackageFormatConfig(extensions, format);
+            }
+            throw ParserException(value.line(), value.column(), "Expected map entry 'extension' of type 'String' or 'extensions' of type 'Array'");
         }
 
         Model::GameConfig::TextureConfig GameConfigParser::parseTextureConfig(const EL::Value& value) const {

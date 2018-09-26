@@ -273,7 +273,58 @@ namespace TrenchBroom {
                 return "";
             return filename.substr(dotIndex + 1);
         }
-        
+
+        bool Path::hasFilename(const String& filename, const bool caseSensitive) const {
+            if (caseSensitive) {
+                return StringUtils::caseSensitiveCompare(filename, this->filename());
+            } else {
+                return StringUtils::caseInsensitiveEqual(filename, this->filename());
+            }
+        }
+
+        bool Path::hasFilename(const StringList& filenames, const bool caseSensitive) const {
+            for (const auto& filename : filenames) {
+                if (hasFilename(filename, caseSensitive)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        bool Path::hasBasename(const String& basename, const bool caseSensitive) const {
+            if (caseSensitive) {
+                return StringUtils::caseSensitiveCompare(basename, this->basename());
+            } else {
+                return StringUtils::caseInsensitiveEqual(basename, this->basename());
+            }
+        }
+
+        bool Path::hasBasename(const StringList& basenames, const bool caseSensitive) const {
+            for (const auto& basename : basenames) {
+                if (hasBasename(basename, caseSensitive)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        bool Path::hasExtension(const String& extension, const bool caseSensitive) const {
+            if (caseSensitive) {
+                return StringUtils::caseSensitiveCompare(extension, this->extension());
+            } else {
+                return StringUtils::caseInsensitiveEqual(extension, this->extension());
+            }
+        }
+
+        bool Path::hasExtension(const StringList& extensions, const bool caseSensitive) const {
+            for (const auto& extension : extensions) {
+                if (hasExtension(extension, caseSensitive)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         Path Path::deleteExtension() const {
             return deleteLastComponent() + Path(basename());
         }

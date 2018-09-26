@@ -85,12 +85,12 @@ namespace TrenchBroom {
             const GameConfig::FileSystemConfig& fileSystemConfig = m_config.fileSystemConfig();
             const GameConfig::PackageFormatConfig& packageFormatConfig = fileSystemConfig.packageFormat;
 
-            const String& packageExtension = packageFormatConfig.extension;
+            const StringList& packageExtensions = packageFormatConfig.extensions;
             const String& packageFormat = packageFormatConfig.format;
 
             if (IO::Disk::directoryExists(searchPath)) {
                 const IO::DiskFileSystem diskFS(searchPath);
-                const IO::Path::List packages = diskFS.findItems(IO::Path(""), IO::FileExtensionMatcher(packageExtension));
+                const IO::Path::List packages = diskFS.findItems(IO::Path(""), IO::FileExtensionMatcher(packageExtensions));
                 for (const IO::Path& packagePath : packages) {
                     IO::MappedFile::Ptr packageFile = diskFS.openFile(packagePath);
                     ensure(packageFile.get() != nullptr, "packageFile is null");
@@ -228,7 +228,7 @@ namespace TrenchBroom {
             const GameConfig::TexturePackageConfig packageConfig = m_config.textureConfig().package;
             switch (packageConfig.type) {
                 case GameConfig::TexturePackageConfig::PT_File:
-                    return StringUtils::caseInsensitiveEqual(path.extension(), packageConfig.fileFormat.extension);
+                    return path.hasExtension(packageConfig.fileFormat.extensions, false);
                 case GameConfig::TexturePackageConfig::PT_Directory:
                 case GameConfig::TexturePackageConfig::PT_Unset:
                     return false;

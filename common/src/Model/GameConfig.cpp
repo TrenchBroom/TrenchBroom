@@ -28,14 +28,17 @@
 namespace TrenchBroom {
     namespace Model {
         GameConfig::PackageFormatConfig::PackageFormatConfig(const String& i_extension, const String& i_format) :
-        extension(i_extension),
+        extensions(1, i_extension),
+        format(i_format) {}
+
+        GameConfig::PackageFormatConfig::PackageFormatConfig(const StringList& i_extensions, const String& i_format) :
+        extensions(i_extensions),
         format(i_format) {}
 
         GameConfig::PackageFormatConfig::PackageFormatConfig() {}
 
         bool GameConfig::PackageFormatConfig::operator==(const PackageFormatConfig& other) const {
-            return (extension == other.extension &&
-                    format == other.format);
+            return (extensions == other.extensions && format == other.format);
         }
 
         GameConfig::FileSystemConfig::FileSystemConfig(const IO::Path& i_searchPath, const PackageFormatConfig& i_packageFormat) :

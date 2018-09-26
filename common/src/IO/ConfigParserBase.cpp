@@ -39,42 +39,45 @@ namespace TrenchBroom {
         EL::Expression ConfigParserBase::parseConfigFile() {
             return m_parser.parse();
         }
-        
+
         void ConfigParserBase::expectType(const EL::Value& value, const EL::ValueType type) const {
-            if (value.type() != type)
+            if (value.type() != type) {
                 throw ParserException(value.line(), value.column(), "Expected value of type '" + EL::typeName(type) + "', but got type '" + value.typeName() + "'");
+            }
         }
         
         void ConfigParserBase::expectStructure(const EL::Value& value, const String& structure) const {
             ELParser parser(ELParser::Mode::Strict, structure);
-            const EL::Value expected = parser.parse().evaluate(EL::EvaluationContext());
+            const auto expected = parser.parse().evaluate(EL::EvaluationContext());
             assert(expected.type() == EL::Type_Array);
             
-            const EL::Value& mandatory = expected[0];
+            const auto& mandatory = expected[0];
             assert(mandatory.type() == EL::Type_Map);
             
-            const EL::Value& optional = expected[1];
+            const auto& optional = expected[1];
             assert(optional.type() == EL::Type_Map);
 
             // Are all mandatory keys present?
-            for (const String& key : mandatory.keys()) {
-                const String& typeName = mandatory[key].stringValue();
-                const EL::ValueType type = EL::typeForName(typeName);
+            for (const auto& key : mandatory.keys()) {
+                const auto& typeName = mandatory[key].stringValue();
+                const auto type = EL::typeForName(typeName);
                 expectMapEntry(value, key, type);
             }
 
             // Are there any unexpected keys present?
-            for (const String& key : value.keys()) {
-                if (!mandatory.contains(key) && !optional.contains(key))
+            for (const auto& key : value.keys()) {
+                if (!mandatory.contains(key) && !optional.contains(key)) {
                     throw ParserException(value.line(), value.column(), "Unexpected map entry '" + key + "'");
+                }
             }
         }
         
         void ConfigParserBase::expectMapEntry(const EL::Value& value, const String& key, EL::ValueType type) const {
-            const EL::MapType& map = value.mapValue();
-            const EL::MapType::const_iterator it = map.find(key);
-            if (it == std::end(map))
+            const auto& map = value.mapValue();
+            const auto it = map.find(key);
+            if (it == std::end(map)) {
                 throw ParserException(value.line(), value.column(), "Expected map entry '" + key + "'");
+            }
             expectType(it->second, type);
         }
     }
