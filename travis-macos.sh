@@ -7,8 +7,8 @@ brew install cmake p7zip pandoc
 
 # Patch and build wxWidgets
 
-if [[ ! -d wx-install-cache ]]; then
-    echo "wxwidgets cache directory not found. Building wxwidgets..."
+if [[ ! -f wx-install-cache/bin/wx-config ]]; then
+    echo "wxwidgets cache directory invalid. Building wxwidgets..."
 
     wget https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxWidgets-3.1.1.7z
     if [[ "8d98975eb9f81036261c0643755b98e4bb5ab776" != $(openssl sha1 wxWidgets-3.1.1.7z | cut -f2 -d' ') ]] ; then exit 1 ; fi
