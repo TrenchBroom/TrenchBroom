@@ -27,6 +27,11 @@ fi
 
 # Patch and build wxWidgets
 
+echo "initial cache contents:"
+ls wx-install-cache
+echo "bin subdir:"
+ls wx-install-cache/bin
+
 if [[ ! -f wx-install-cache/bin/wx-config ]]; then
     echo "wxwidgets cache directory invalid. Building wxwidgets..."
 
@@ -37,11 +42,22 @@ if [[ ! -f wx-install-cache/bin/wx-config ]]; then
     #patch -p0 < ../patches/wxWidgets/*.patch || exit 1
     mkdir build-release
     cd build-release
-    ../configure --quiet --disable-shared --with-opengl --with-cxx=17 --with-gtk=2 --prefix=$(pwd)/../../wx-install-cache --disable-precomp-headers --with-libpng=builtin --with-libtiff=builtin --with-libjpeg=builtin && make -j2 && make install
+    ../configure --quiet --disable-shared --with-opengl --with-cxx=17 --with-gtk=2 --prefix=$(pwd)/../../wx-install-cache --disable-precomp-headers --with-libpng=builtin --with-libtiff=builtin --with-libjpeg=builtin && make -j2 && make -v install
     cd ..
     cd ..
 else
     echo "using cached copy of wxwidgets"
+fi
+
+echo "cache should be valid now:"
+ls wx-install-cache
+echo "bin subdir:"
+ls wx-install-cache/bin
+
+if [[ ! -f wx-install-cache/bin/wx-config ]]; then
+    echo "wxwidgets cache directory would be valid."
+else
+    echo "wxwidgets cache directory would be invalid."
 fi
 
 # Build TB
