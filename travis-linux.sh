@@ -19,6 +19,8 @@ elif [[ $TB_CLANG_LINUX == "true" ]] ; then
     export CC=clang-6.0
     export CXX=clang++-6.0
     sudo apt-get -y install clang-6.0
+
+    clang++-6.0 -v
 else
     export CC=gcc-7
     export CXX=g++-7
