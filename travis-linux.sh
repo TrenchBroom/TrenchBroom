@@ -31,6 +31,12 @@ echo "initial cache contents:"
 ls wx-install-cache
 echo "bin subdir:"
 ls wx-install-cache/bin
+echo "pwd:"
+pwd
+echo "wx-config"
+ls -al wx-install-cache/bin/wx-config
+echo "cat"
+cat wx-install-cache/bin/wx-config
 
 if [[ ! -e wx-install-cache/bin/wx-config ]]; then
     echo "wxwidgets cache directory invalid. Building wxwidgets..."
