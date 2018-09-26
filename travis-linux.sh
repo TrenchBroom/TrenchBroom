@@ -18,7 +18,7 @@ fi
 
 # Patch and build wxWidgets
 
-echo "initial cache contents:"
+echo "x initial cache contents:"
 ls wx-install-cache
 echo "bin subdir:"
 ls wx-install-cache/bin
