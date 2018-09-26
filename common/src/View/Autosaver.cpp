@@ -94,7 +94,7 @@ namespace TrenchBroom {
                 if (m_logger != nullptr)
                     m_logger->info("Created autosave backup at %s", backupFilePath.asString().c_str());
                 
-            } catch (FileSystemException e) {
+            } catch (const FileSystemException& e) {
                 if (m_logger != nullptr)
                     m_logger->error("Aborting autosave");
             }
@@ -107,7 +107,7 @@ namespace TrenchBroom {
             try {
                 // ensures that the directory exists or is created if it doesn't
                 return IO::WritableDiskFileSystem(autosavePath, true);
-            } catch (FileSystemException e) {
+            } catch (const FileSystemException& e) {
                 if (m_logger != nullptr)
                     m_logger->error("Cannot create autosave directory at %s", autosavePath.asString().c_str());
                 throw e;
@@ -156,7 +156,7 @@ namespace TrenchBroom {
                     if (m_logger != nullptr)
                         m_logger->debug("Deleted autosave backup %s", filename.asString().c_str());
                     backups.erase(std::begin(backups));
-                } catch (FileSystemException e) {
+                } catch (const FileSystemException& e) {
                     if (m_logger != nullptr)
                         m_logger->error("Cannot delete autosave backup %s", filename.asString().c_str());
                     throw e;
