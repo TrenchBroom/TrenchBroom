@@ -16,8 +16,8 @@ elif [[ $TB_CLANG_LINUX == "true" ]] ; then
     sudo apt-key add ci/llvm-snapshot.gpg.key
     sudo add-apt-repository -y "deb https://apt.llvm.org/trusty/ llvm-toolchain-trusty-6.0 main"
     sudo apt-get update
-    export CC=clang-6
-    export CXX=clang++-6
+    export CC=clang-6.0
+    export CXX=clang++-6.0
     sudo apt-get -y install clang-6.0
 else
     export CC=gcc-7
