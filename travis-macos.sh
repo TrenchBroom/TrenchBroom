@@ -7,7 +7,7 @@ brew install cmake p7zip pandoc
 
 # Patch and build wxWidgets
 
-if [[ ! -f wx-install-cache/bin/wx-config ]]; then
+if [[ ! -e wx-install-cache/bin/wx-config ]]; then
     echo "wxwidgets cache directory invalid. Building wxwidgets..."
 
     wget https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxWidgets-3.1.1.7z

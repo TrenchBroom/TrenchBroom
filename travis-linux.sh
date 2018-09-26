@@ -32,7 +32,7 @@ ls wx-install-cache
 echo "bin subdir:"
 ls wx-install-cache/bin
 
-if [[ ! -f wx-install-cache/bin/wx-config ]]; then
+if [[ ! -e wx-install-cache/bin/wx-config ]]; then
     echo "wxwidgets cache directory invalid. Building wxwidgets..."
 
     wget https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxWidgets-3.1.1.7z
@@ -54,7 +54,7 @@ ls wx-install-cache
 echo "bin subdir:"
 ls wx-install-cache/bin
 
-if [[ ! -f wx-install-cache/bin/wx-config ]]; then
+if [[ ! -e wx-install-cache/bin/wx-config ]]; then
     echo "wxwidgets cache directory would be valid."
 else
     echo "wxwidgets cache directory would be invalid."
