@@ -40,6 +40,10 @@ ls -al wx-install-cache/bin/wx-config
 echo "cat"
 cat wx-install-cache/bin/wx-config
 
+export WX_CACHE_FULLPATH="${TRAVIS_BUILD_DIR}/wx-install-cache"
+
+echo "full cache path: $WX_CACHE_FULLPATH"
+
 if [[ ! -e wx-install-cache/bin/wx-config ]]; then
     echo "wxwidgets cache directory invalid. Building wxwidgets..."
 
@@ -50,7 +54,7 @@ if [[ ! -e wx-install-cache/bin/wx-config ]]; then
     #patch -p0 < ../patches/wxWidgets/*.patch || exit 1
     mkdir build-release
     cd build-release
-    ../configure --quiet --disable-shared --with-opengl --with-cxx=17 --with-gtk=2 --prefix=$(pwd)/../../wx-install-cache --disable-precomp-headers --with-libpng=builtin --with-libtiff=builtin --with-libjpeg=builtin && make -j2 && make -v install
+    ../configure --quiet --disable-shared --with-opengl --with-cxx=17 --with-gtk=2 --prefix=$WX_CACHE_FULLPATH --disable-precomp-headers --with-libpng=builtin --with-libtiff=builtin --with-libjpeg=builtin && make -j2 && make -v install
     cd ..
     cd ..
 else
@@ -61,6 +65,10 @@ echo "cache should be valid now:"
 ls wx-install-cache
 echo "bin subdir:"
 ls wx-install-cache/bin
+echo "wx-config"
+ls -al wx-install-cache/bin/wx-config
+echo "cat"
+cat wx-install-cache/bin/wx-config
 
 if [[ ! -e wx-install-cache/bin/wx-config ]]; then
     echo "wxwidgets cache directory would be valid."
@@ -72,7 +80,7 @@ fi
 
 mkdir build
 cd build
-cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-Werror -DwxWidgets_PREFIX=$(pwd)/../wx-install-cache || exit 1
+cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-Werror -DwxWidgets_PREFIX=$WX_CACHE_FULLPATH || exit 1
 cmake --build . --config Release || exit 1
 cpack || exit 1
 

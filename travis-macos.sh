@@ -7,6 +7,8 @@ brew install cmake p7zip pandoc
 
 # Patch and build wxWidgets
 
+export WX_CACHE_FULLPATH="${TRAVIS_BUILD_DIR}/wx-install-cache"
+
 if [[ ! -e wx-install-cache/bin/wx-config ]]; then
     echo "wxwidgets cache directory invalid. Building wxwidgets..."
 
@@ -17,7 +19,7 @@ if [[ ! -e wx-install-cache/bin/wx-config ]]; then
     patch -p0 < ../patches/wxWidgets/*.patch || exit 1
     mkdir build-release
     cd build-release
-    ../configure --quiet --with-osx_cocoa --disable-shared --disable-mediactrl --with-opengl --with-macosx-version-min=10.9 --with-cxx=17 --prefix=$(pwd)/../../wx-install-cache --disable-precomp-headers --with-libpng=builtin --without-libtiff --with-libjpeg=builtin && make -j2 && make install
+    ../configure --quiet --with-osx_cocoa --disable-shared --disable-mediactrl --with-opengl --with-macosx-version-min=10.9 --with-cxx=17 --prefix=$WX_CACHE_FULLPATH --disable-precomp-headers --with-libpng=builtin --without-libtiff --with-libjpeg=builtin && make -j2 && make install
     cd ..
     cd ..
 else
@@ -39,7 +41,7 @@ echo "TB_ENABLE_ASAN: $TB_ENABLE_ASAN_VALUE"
 
 mkdir build
 cd build
-cmake .. -GXcode -DCMAKE_BUILD_TYPE="$BUILD_TYPE_VALUE" -DCMAKE_CXX_FLAGS="-Werror" -DTB_ENABLE_ASAN="$TB_ENABLE_ASAN_VALUE" -DwxWidgets_PREFIX=$(pwd)/../wx-install-cache || exit 1
+cmake .. -GXcode -DCMAKE_BUILD_TYPE="$BUILD_TYPE_VALUE" -DCMAKE_CXX_FLAGS="-Werror" -DTB_ENABLE_ASAN="$TB_ENABLE_ASAN_VALUE" -DwxWidgets_PREFIX=$WX_CACHE_FULLPATH || exit 1
 cmake --build . --config "$BUILD_TYPE_VALUE" || exit 1
 cpack -C $BUILD_TYPE_VALUE || exit 1
 
