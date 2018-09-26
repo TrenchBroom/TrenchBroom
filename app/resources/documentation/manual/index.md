@@ -1927,7 +1927,7 @@ The game configuration is an [expression language](#expression_language) map wit
 		},
 		"textures": { // where to search for textures and how to read them, see below
 	        "package": { "type": "directory", "root": "textures" },
-	        "format": { "extension": "wal", "format": "idwal" },
+	        "format": { "extensions": [ "wal" ], "format": "idwal" },
 	        "palette": "pics/colormap.pcx",
 	        "attribute": "_tb_textures"
 		},
@@ -1993,7 +1993,7 @@ The file system is used in the editor to load game assets, and it is specified b
 
 * `searchpath` is the subdirectory under the game directory (set in the game preferences) at which the editor will search for game assets. The editor will search loose files in this path, but it will also mount packages found here.
 * `packageformat` specifies the format of the packages to mount. It is a map with two keys, `extension` and `format`.
-	* `extension` specifies the file extension of the package files to mount
+	* `extensions` specifies the file extensions of the package files to mount (alternatively allows `extension` to specify only one extension)
 	* `format` specifies the format of the package files
 
 The following package formats are supported.
@@ -2026,7 +2026,7 @@ A directory based texture configuration looks as follows. It differs only in the
 
 	"textures": {
         "package": { "type": "directory", "root": "textures" },
-        "format": { "extension": "wal", "format": "idwal" },
+        "format": { "extensions": [ "wal" ], "format": "idwal" },
         "palette": "pics/colormap.pcx",
         "attribute": "_tb_textures"
 	},
@@ -2037,7 +2037,7 @@ In the case of Quake 2, the builtin game configuration specifies the search path
 
 The remaining keys in a texture configuration are the same for file based and texture based texture package configurations.
 
-The `format` key specifies the format of the texture files found in the package. For the s
+The `format` key specifies the format of the texture files found in the package.
 
 Format       Description
 ------       -----------

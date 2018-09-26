@@ -37,10 +37,11 @@ namespace TrenchBroom {
             struct PackageFormatConfig {
                 typedef std::vector<PackageFormatConfig> List;
                 
-                String extension;
+                StringList extensions;
                 String format;
-                
+
                 PackageFormatConfig(const String& i_extension, const String& i_format);
+                PackageFormatConfig(const StringList& i_extensions, const String& i_format);
                 PackageFormatConfig();
                 
                 bool operator==(const PackageFormatConfig& other) const;

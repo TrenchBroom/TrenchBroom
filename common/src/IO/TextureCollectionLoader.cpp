@@ -38,10 +38,10 @@ namespace TrenchBroom {
         TextureCollectionLoader::TextureCollectionLoader() {}
         TextureCollectionLoader::~TextureCollectionLoader() {}
 
-        Assets::TextureCollection* TextureCollectionLoader::loadTextureCollection(const Path& path, const String& textureExtension, const TextureReader& textureReader) {
+        Assets::TextureCollection* TextureCollectionLoader::loadTextureCollection(const Path& path, const StringList& textureExtensions, const TextureReader& textureReader) {
             std::unique_ptr<Assets::TextureCollection> collection(new Assets::TextureCollection(path));
             
-            for (MappedFile::Ptr file : doFindTextures(path, textureExtension)) {
+            for (MappedFile::Ptr file : doFindTextures(path, textureExtensions)) {
                 Assets::Texture* texture = textureReader.readTexture(file->begin(), file->end(), file->path());
                 collection->addTexture(texture);
             }
@@ -52,11 +52,11 @@ namespace TrenchBroom {
         FileTextureCollectionLoader::FileTextureCollectionLoader(const IO::Path::List& searchPaths) :
         m_searchPaths(searchPaths) {}
 
-        MappedFile::List FileTextureCollectionLoader::doFindTextures(const Path& path, const String& extension) {
+        MappedFile::List FileTextureCollectionLoader::doFindTextures(const Path& path, const StringList& extensions) {
             const Path wadPath = Disk::resolvePath(m_searchPaths, path);
             
             WadFileSystem wadFS(wadPath);
-            const Path::List paths = wadFS.findItems(Path(""), FileExtensionMatcher(extension));
+            const Path::List paths = wadFS.findItems(Path(""), FileExtensionMatcher(extensions));
             
             MappedFile::List result;
             result.reserve(paths.size());
@@ -70,8 +70,8 @@ namespace TrenchBroom {
         DirectoryTextureCollectionLoader::DirectoryTextureCollectionLoader(const FileSystem& gameFS) :
         m_gameFS(gameFS) {}
 
-        MappedFile::List DirectoryTextureCollectionLoader::doFindTextures(const Path& path, const String& extension) {
-            const Path::List paths = m_gameFS.findItems(path, FileExtensionMatcher(extension));
+        MappedFile::List DirectoryTextureCollectionLoader::doFindTextures(const Path& path, const StringList& extensions) {
+            const Path::List paths = m_gameFS.findItems(path, FileExtensionMatcher(extensions));
             
             MappedFile::List result;
             result.reserve(paths.size());

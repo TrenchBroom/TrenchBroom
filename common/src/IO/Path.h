@@ -84,9 +84,18 @@ namespace TrenchBroom {
             Path prefix(const size_t count) const;
             Path suffix(const size_t count) const;
             Path subPath(const size_t index, const size_t count) const;
+
             String filename() const;
             String basename() const;
             String extension() const;
+
+            bool hasFilename(const String& filename, bool caseSensitive) const;
+            bool hasFilename(const StringList& filenames, bool caseSensitive) const;
+            bool hasBasename(const String& basename, bool caseSensitive) const;
+            bool hasBasename(const StringList& basenames, bool caseSensitive) const;
+            bool hasExtension(const String& extension, bool caseSensitive) const;
+            bool hasExtension(const StringList& extensions, bool caseSensitive) const;
+
             Path deleteExtension() const;
             Path addExtension(const String& extension) const;
             Path replaceExtension(const String& extension) const;
