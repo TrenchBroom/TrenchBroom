@@ -44,6 +44,14 @@ IF (COMPILER_IS_MSVC)
 	SET_TARGET_PROPERTIES(TrenchBroom-Benchmark PROPERTIES LINK_FLAGS_RELEASE "/DEBUG /PDBSTRIPPED:Release/TrenchBroom-Benchmark-stripped.pdb /PDBALTPATH:TrenchBroom-Benchmark-stripped.pdb")
 ENDIF()
 
+# Properly link to OpenGL libraries on Unix-like systems
+IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
+    FIND_PACKAGE(OpenGL)
+    INCLUDE_DIRECTORIES(SYSTEM ${OPENGL_INCLUDE_DIR})
+    TARGET_LINK_LIBRARIES(TrenchBroom-Test ${OPENGL_LIBRARIES})
+    TARGET_LINK_LIBRARIES(TrenchBroom-Benchmark ${OPENGL_LIBRARIES})
+ENDIF()
+
 SET(RESOURCE_DEST_DIR "$<TARGET_FILE_DIR:TrenchBroom-Test>")
 SET(BENCHMARK_RESOURCE_DEST_DIR "$<TARGET_FILE_DIR:TrenchBroom-Benchmark>")
 
