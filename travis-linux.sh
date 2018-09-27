@@ -43,7 +43,7 @@ if [[ ! -e wx-install-cache/bin/wx-config ]]; then
     #patch -p0 < ../patches/wxWidgets/*.patch || exit 1
     mkdir build-release
     cd build-release
-    ../configure --quiet --disable-shared --with-opengl --with-cxx=17 --with-gtk=2 --prefix=$WX_CACHE_FULLPATH --disable-precomp-headers --with-libpng=builtin --with-libtiff=builtin --with-libjpeg=builtin && make -j2 && make -v install
+    ../configure --quiet --disable-shared --with-opengl --with-cxx=17 --with-gtk=2 --prefix=$WX_CACHE_FULLPATH --disable-precomp-headers --with-libpng=builtin --with-libtiff=builtin --with-libjpeg=builtin && make -j2 && make install
     cd ..
     cd ..
 else
@@ -60,9 +60,9 @@ echo "cat"
 cat wx-install-cache/bin/wx-config
 
 if [[ ! -e wx-install-cache/bin/wx-config ]]; then
-    echo "wxwidgets cache directory would be valid."
-else
     echo "wxwidgets cache directory would be invalid."
+else
+    echo "wxwidgets cache directory would be valid."
 fi
 
 # Build TB
