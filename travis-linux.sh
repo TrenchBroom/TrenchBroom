@@ -18,20 +18,7 @@ fi
 
 # Patch and build wxWidgets
 
-echo "x initial cache contents:"
-ls wx-install-cache
-echo "bin subdir:"
-ls wx-install-cache/bin
-echo "pwd:"
-pwd
-echo "wx-config"
-ls -al wx-install-cache/bin/wx-config
-echo "cat"
-cat wx-install-cache/bin/wx-config
-
 export WX_CACHE_FULLPATH="${TRAVIS_BUILD_DIR}/wx-install-cache"
-
-echo "full cache path: $WX_CACHE_FULLPATH"
 
 if [[ ! -e wx-install-cache/bin/wx-config ]]; then
     echo "wxwidgets cache directory invalid. Building wxwidgets..."
@@ -48,21 +35,6 @@ if [[ ! -e wx-install-cache/bin/wx-config ]]; then
     cd ..
 else
     echo "using cached copy of wxwidgets"
-fi
-
-echo "cache should be valid now:"
-ls wx-install-cache
-echo "bin subdir:"
-ls wx-install-cache/bin
-echo "wx-config"
-ls -al wx-install-cache/bin/wx-config
-echo "cat"
-cat wx-install-cache/bin/wx-config
-
-if [[ ! -e wx-install-cache/bin/wx-config ]]; then
-    echo "wxwidgets cache directory would be invalid."
-else
-    echo "wxwidgets cache directory would be valid."
 fi
 
 # Build TB

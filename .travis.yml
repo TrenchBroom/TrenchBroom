@@ -33,4 +33,4 @@ deploy:
   on:
     repo: kduske/TrenchBroom
     tags: true
-    condition: $TB_DEBUG_BUILD != 'true' && $TB_GCC8 != 'true' && $TB_CLANG_LINUX != 'true'
+    condition: $TB_DEBUG_BUILD != 'true' && $TB_GCC8 != 'true'
