@@ -2,7 +2,7 @@
     "version": 1,
 	"name": "Daikatana",
 	"icon": "Daikatana/Icon.png",
- 	"fileformats": [ "Quake2" ],
+ 	"fileformats": [ { "format": "Quake2" } ],
 	"filesystem": {
 		"searchpath": "data",
         "packageformat": { "extension": "pak", "format": "dkpak" }

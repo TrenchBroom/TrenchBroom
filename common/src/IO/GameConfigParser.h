@@ -37,6 +37,7 @@ namespace TrenchBroom {
             
             Model::GameConfig parse();
         private:
+            Model::GameConfig::MapFormatConfig::List parseMapFormatConfigs(const EL::Value& value) const;
             Model::GameConfig::FileSystemConfig parseFileSystemConfig(const EL::Value& value) const;
             Model::GameConfig::PackageFormatConfig parsePackageFormatConfig(const EL::Value& value) const;
             Model::GameConfig::TextureConfig parseTextureConfig(const EL::Value& value) const;

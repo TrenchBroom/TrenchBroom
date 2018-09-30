@@ -1462,7 +1462,7 @@ namespace TrenchBroom {
         void MapDocument::createWorld(const Model::MapFormat::Type mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game) {
             m_worldBounds = worldBounds;
             m_game = game;
-            m_world = m_game->newMap(mapFormat, m_worldBounds);
+            m_world = m_game->newMap(mapFormat, m_worldBounds, this);
             setCurrentLayer(m_world->defaultLayer());
             
             updateGameSearchPaths();

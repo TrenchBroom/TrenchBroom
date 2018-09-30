@@ -19,13 +19,8 @@
 
 #include <gtest/gtest.h>
 
-#include "CollectionUtils.h"
 #include "IO/DiskIO.h"
 #include "IO/GameConfigParser.h"
-#include "IO/Path.h"
-#include "Model/GameConfig.h"
-
-#include "Exceptions.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -41,7 +36,7 @@ namespace TrenchBroom {
                 ASSERT_NO_THROW(parser.parse()) << "Parsing game config " << path.asString() << " failed";
             }
         }
-        
+
         TEST(GameConfigParserTest, parseBlankConfig) {
             const String config("   ");
             GameConfigParser parser(config);
@@ -56,10 +51,10 @@ namespace TrenchBroom {
 
         TEST(GameConfigParserTest, parseQuakeConfig) {
             const String config("{\n"
-                                "    \"version\": 1,\n"
+                                "    \"version\": 2,\n"
                                 "	\"name\": \"Quake\",\n"
                                 "	\"icon\": \"Quake/Icon.png\",\n"
-                                " 	\"fileformats\": [ \"Standard\", \"Valve\" ],\n"
+                                " 	\"fileformats\": [ { \"format\": \"Standard\" }, { \"format\": \"Valve\" } ],\n"
                                 "	\"filesystem\": {\n"
                                 "		\"searchpath\": \"id1\",\n"
                                 "        \"packageformat\": { \"extension\": \"pak\", \"format\": \"idpak\" }\n"
@@ -118,7 +113,10 @@ namespace TrenchBroom {
             const GameConfig expected("Quake",
                                       Path(""),
                                       Path("Quake/Icon.png"),
-                                      StringUtils::makeList(2, "Standard", "Valve"),
+                                      GameConfig::MapFormatConfig::List({
+                                          GameConfig::MapFormatConfig("Standard", Path("")),
+                                          GameConfig::MapFormatConfig("Valve", Path(""))
+                                      }),
                                       GameConfig::FileSystemConfig(Path("id1"), GameConfig::PackageFormatConfig("pak", "idpak")),
                                       GameConfig::TextureConfig(GameConfig::TexturePackageConfig(GameConfig::PackageFormatConfig("wad", "wad2")),
                                                                 GameConfig::PackageFormatConfig("D", "idmip"),
@@ -143,10 +141,10 @@ namespace TrenchBroom {
 
         TEST(GameConfigParserTest, parseQuake2Config) {
             const String config("{\n"
-                                "    \"version\": 1,\n"
+                                "    \"version\": 2,\n"
                                 "    \"name\": \"Quake 2\",\n"
                                 "    \"icon\": \"Quake2/Icon.png\",\n"
-                                "    \"fileformats\": [ \"Quake2\" ],\n"
+                                "    \"fileformats\": [ { \"format\": \"Quake2\", \"initialmap\": \"Quake2/InitialMap.map\" } ],\n"
                                 "    \"filesystem\": {\n"
                                 "        \"searchpath\": \"baseq2\",\n"
                                 "        \"packageformat\": { \"extension\": \"pak\", \"format\": \"idpak\" }\n"
@@ -382,7 +380,9 @@ namespace TrenchBroom {
             const GameConfig expected("Quake 2",
                                       Path(""),
                                       Path("Quake2/Icon.png"),
-                                      StringUtils::makeList(1, "Quake2"),
+                                      GameConfig::MapFormatConfig::List({
+                                          GameConfig::MapFormatConfig("Quake2", Path("Quake2/InitialMap.map"))
+                                      }),
                                       GameConfig::FileSystemConfig(Path("baseq2"), GameConfig::PackageFormatConfig("pak", "idpak")),
                                       GameConfig::TextureConfig(GameConfig::TexturePackageConfig(Path("textures")),
                                                                 GameConfig::PackageFormatConfig("wal", "idwal"),
