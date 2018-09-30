@@ -43,8 +43,12 @@
 #include "IO/SystemPaths.h"
 #include "IO/TextureLoader.h"
 #include "Model/AttributableNodeVariableStore.h"
+#include "Model/Brush.h"
+#include "Model/BrushBuilder.h"
+#include "Model/BrushFace.h"
 #include "Model/EntityAttributes.h"
 #include "Model/GameConfig.h"
+#include "Model/Layer.h"
 #include "Model/Tutorial.h"
 #include "Model/World.h"
 
@@ -148,6 +152,10 @@ namespace TrenchBroom {
             }
 
             auto* world = new World(format, brushContentTypeBuilder(), worldBounds);
+
+            const Model::BrushBuilder builder(world, worldBounds);
+            auto* brush = builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFace::NoTextureName);
+            world->defaultLayer()->addChild(brush);
 
             return world;
         }
@@ -277,11 +285,13 @@ namespace TrenchBroom {
 
         bool GameImpl::doIsEntityDefinitionFile(const IO::Path& path) const {
             const String extension = path.extension();
-            if (StringUtils::caseInsensitiveEqual("fgd", extension))
+            if (StringUtils::caseInsensitiveEqual("fgd", extension)) {
                 return true;
-            if (StringUtils::caseInsensitiveEqual("def", extension))
+            } else if (StringUtils::caseInsensitiveEqual("def", extension)) {
                 return true;
-            return false;
+            } else {
+                return false;
+            }
         }
 
         Assets::EntityDefinitionList GameImpl::doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const {
