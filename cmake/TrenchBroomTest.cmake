@@ -82,9 +82,9 @@ ADD_CUSTOM_COMMAND(TARGET TrenchBroom-Test POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E make_directory "${RESOURCE_DEST_DIR}/data/GameConfig"
 )
 
-# Prepare to collect all cfg files to copy them to the test data
-FILE(GLOB_RECURSE GAME_CONFIG_FILES
-    "${APP_DIR}/resources/games/*.cfg"
+# Prepare to collect all game configuration files to copy them to the test data
+FILE(GLOB_RECURSE GAME_CONFIG_FILES RELATIVE "${APP_DIR}/resources/games/"
+    "GameConfig.cfg"
 )
 
 FOREACH(GAME_CONFIG_FILE ${GAME_CONFIG_FILES})
@@ -94,9 +94,9 @@ FOREACH(GAME_CONFIG_FILE ${GAME_CONFIG_FILES})
 ENDFOREACH(GAME_CONFIG_FILE)
 
 # Prepare to collect all definition files to copy them to the test data
-FILE(GLOB_RECURSE GAME_DEF_FILES
-	"${APP_DIR}/resources/games/*.def"
-	"${APP_DIR}/resources/games/*.fgd"
+FILE(GLOB_RECURSE GAME_DEF_FILES RELATIVE "${APP_DIR}/resources/games/"
+	"*.def"
+	"*.fgd"
 )
 
 FOREACH(GAME_CONFIG_FILE ${GAME_DEF_FILES})

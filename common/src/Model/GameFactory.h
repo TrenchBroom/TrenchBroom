@@ -81,6 +81,8 @@ namespace TrenchBroom {
 
             void writeGameEngineConfigs();
             void writeGameEngineConfig(const GameConfig& gameConfig);
+
+
         };
     }
 }
