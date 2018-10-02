@@ -203,25 +203,11 @@ namespace TrenchBroom {
             const vm::vec3& oldNormal = oldBoundary.normal;
             const vm::vec3  newNormal = vm::normalize(rotationScale * oldNormal);
 
-            const vm::mat4x4 nonRotation = computeNonTextureRotation(oldNormal, newNormal, rotationScale);
+            const auto nonTextureRotation = vm::quatd(oldNormal, newNormal);
             const vm::vec3 newXAxis = vm::normalize(rotationScale * m_xAxis);
-            const vm::vec3 nonXAxis = vm::normalize(nonRotation * m_xAxis);
+            const vm::vec3 nonXAxis = vm::normalize(nonTextureRotation * m_xAxis);
             const FloatType angle = vm::toDegrees(vm::measureAngle(nonXAxis, newXAxis, newNormal));
             return static_cast<float>(angle);
-        }
-
-        vm::mat4x4 ParallelTexCoordSystem::computeNonTextureRotation(const vm::vec3& oldNormal, const vm::vec3& newNormal, const vm::mat4x4& rotation) const {
-            if (oldNormal == newNormal) {
-                return vm::mat4x4::identity;
-            } else if (oldNormal == -newNormal) {
-                const vm::vec3 minorAxis = vm::majorAxis(oldNormal, 2);
-                const vm::vec3 axis = vm::normalize(vm::cross(oldNormal, minorAxis));
-                return rotationMatrix(axis, vm::C::pi());
-            } else {
-                const vm::vec3 axis = vm::normalize(vm::cross(newNormal, oldNormal));
-                const FloatType angle = vm::measureAngle(newNormal, oldNormal, axis);
-                return rotationMatrix(axis, angle);
-            }
         }
 
         void ParallelTexCoordSystem::doUpdateNormalWithProjection(const vm::vec3& oldNormal, const vm::vec3& newNormal, const BrushFaceAttributes& attribs) {
