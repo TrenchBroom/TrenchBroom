@@ -25,10 +25,8 @@
 namespace TrenchBroom {
     namespace IO {
         TEST(GameConfigParserTest, parseIncludedGameConfigs) {
-            const Path basePath = Disk::getCurrentWorkingDir() + Path("data/GameConfig");
-            const Path::List cfgFiles = Disk::findItems(basePath, [] (const Path& path, bool directory) {
-                return !directory && StringUtils::caseInsensitiveEqual(path.extension(), "cfg");
-            });
+            const Path basePath = Disk::getCurrentWorkingDir() + Path("data/games");
+            const Path::List cfgFiles = Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("cfg"));
             
             for (const Path& path : cfgFiles) {
                 MappedFile::Ptr file = Disk::openFile(path);
