@@ -1089,10 +1089,11 @@ namespace TrenchBroom {
             
             for (Model::Brush* minuend : minuends) {
                 const Model::BrushList result = minuend->subtract(*m_world, m_worldBounds, currentTextureName(), subtrahend);
+
                 if (!result.empty()) {
                     VectorUtils::append(toAdd[minuend->parent()], result);
-                    toRemove.push_back(minuend);
                 }
+                toRemove.push_back(minuend);
             }
             
             Transaction transaction(this, "CSG Subtract");

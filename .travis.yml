@@ -4,11 +4,18 @@ matrix:
     - os: linux
       dist: trusty
       sudo: required
+    - os: linux
+      dist: trusty
+      sudo: required
+      env: TB_GCC8=true
     - os: osx
       osx_image: xcode9.3
     - os: osx
       osx_image: xcode9.3
       env: TB_DEBUG_BUILD=true
+cache:
+  directories:
+  - wx-install-cache
 script:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then ./travis-macos.sh; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./travis-linux.sh; fi
@@ -26,4 +33,4 @@ deploy:
   on:
     repo: kduske/TrenchBroom
     tags: true
-    condition: $TB_DEBUG_BUILD != true
+    condition: $TB_DEBUG_BUILD != 'true' && $TB_GCC8 != 'true'
