@@ -40,9 +40,13 @@ namespace TrenchBroom {
             const auto oldWorldPos = m_camera.unproject(float(inputState.mouseX()), float(inputState.mouseY()), 0.0f);
             
             if (inputState.scrollY() > 0) {
-                m_camera.zoom(1.1f);
+                if (m_camera.zoom() < 10.0f) {
+                    m_camera.zoom(1.1f);
+                }
             } else {
-                m_camera.zoom(1.0f / 1.1f);
+                if (m_camera.zoom() > 0.1f) {
+                    m_camera.zoom(1.0f / 1.1f);
+                }
             }
 
             const auto newWorldPos = m_camera.unproject(float(inputState.mouseX()), float(inputState.mouseY()), 0.0f);
