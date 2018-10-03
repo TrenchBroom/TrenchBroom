@@ -142,7 +142,7 @@ namespace vm {
         }
 
         const auto s = dot(p.anchor() - r.origin, p.normal) / d;
-        if (s < T(0.0)) {
+        if (s < -constants<T>::almostZero()) {
             return nan<T>();
         }
 
