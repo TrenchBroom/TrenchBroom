@@ -68,23 +68,24 @@ namespace TrenchBroom {
                 return;
 
             const auto* face = m_helper.face();
-            const auto fromFace = face->fromTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
-
             const auto& boundary = face->boundary();
-            const auto toPlane = planeProjectionMatrix(boundary.distance, boundary.normal);
 
             const auto& pickRay = inputState.pickRay();
             const auto distanceToFace = vm::intersect(pickRay, boundary);
-            assert(!vm::isnan(distanceToFace));
-            const auto hitPoint = pickRay.pointAtDistance(distanceToFace);
-            
-            const auto originOnPlane   = toPlane * fromFace * vm::vec3(m_helper.originInFaceCoords());
-            const auto hitPointOnPlane = toPlane * hitPoint;
+            if (!vm::isnan(distanceToFace)) {
+                const auto hitPoint = pickRay.pointAtDistance(distanceToFace);
 
-            const auto zoom = m_helper.cameraZoom();
-            const auto error = vm::abs(RotateHandleRadius / zoom - distance(hitPointOnPlane, originOnPlane));
-            if (error <= RotateHandleWidth / zoom) {
-                pickResult.addHit(Model::Hit(AngleHandleHit, distanceToFace, hitPoint, 0, error));
+                const auto fromFace = face->fromTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
+                const auto toPlane = planeProjectionMatrix(boundary.distance, boundary.normal);
+
+                const auto originOnPlane   = toPlane * fromFace * vm::vec3(m_helper.originInFaceCoords());
+                const auto hitPointOnPlane = toPlane * hitPoint;
+
+                const auto zoom = m_helper.cameraZoom();
+                const auto error = vm::abs(RotateHandleRadius / zoom - distance(hitPointOnPlane, originOnPlane));
+                if (error <= RotateHandleWidth / zoom) {
+                    pickResult.addHit(Model::Hit(AngleHandleHit, distanceToFace, hitPoint, 0, error));
+                }
             }
         }
         

@@ -242,12 +242,11 @@ namespace TrenchBroom {
         }
 
         float ParaxialTexCoordSystem::doMeasureAngle(const float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const {
-            const vm::vec3& zAxis = vm::vec3::pos_z; //m_index == 5 ? vm::vec3::neg_z : 	vm::vec3::pos_z;
-            const vm::quat3 rot(zAxis, -vm::toRadians(currentAngle));
-            const vm::vec3 vec = rot * vm::vec3(point - center);
+            const auto rot = vm::quat3(vm::vec3::pos_z, -vm::toRadians(currentAngle));
+            const auto vec = rot * vm::vec3(point - center);
 
-            const FloatType angleInRadians = vm::C::twoPi() - vm::measureAngle(vm::normalize(vec), vm::vec3::pos_x, zAxis);
-            return static_cast<float>(vm::toDegrees(angleInRadians));
+            const auto angleInRadians = vm::C::twoPi() - vm::measureAngle(vm::normalize(vec), vm::vec3::pos_x, vm::vec3::pos_z);
+            return float(vm::toDegrees(angleInRadians));
         }
 
         void ParaxialTexCoordSystem::rotateAxes(vm::vec3& xAxis, vm::vec3& yAxis, const FloatType angleInRadians, const size_t planeNormIndex) const {

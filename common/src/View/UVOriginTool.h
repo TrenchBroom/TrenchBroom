@@ -78,6 +78,7 @@ namespace TrenchBroom {
             
             class RenderOrigin;
             void renderOriginHandle(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            bool renderHighlight(const InputState& inputState) const;
             
             bool doCancel() override;
         };

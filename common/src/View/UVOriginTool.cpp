@@ -112,12 +112,13 @@ namespace TrenchBroom {
             assert(m_helper.valid());
             
             if (!inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
-                !inputState.mouseButtonsPressed(MouseButtons::MBLeft))
+                !inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
                 return false;
-            
-            const Model::PickResult& pickResult = inputState.pickResult();
-            const Model::Hit& xHandleHit = pickResult.query().type(XHandleHit).occluded().first();
-            const Model::Hit& yHandleHit = pickResult.query().type(YHandleHit).occluded().first();
+            }
+
+            const auto& pickResult = inputState.pickResult();
+            const auto& xHandleHit = pickResult.query().type(XHandleHit).occluded().first();
+            const auto& yHandleHit = pickResult.query().type(YHandleHit).occluded().first();
 
             if (!xHandleHit.isMatch() && !yHandleHit.isMatch()) {
                 return false;
@@ -140,10 +141,11 @@ namespace TrenchBroom {
         }
         
         bool UVOriginTool::doMouseDrag(const InputState& inputState) {
-            const vm::vec2f curPoint = computeHitPoint(inputState.pickRay());
-            const vm::vec2f delta = curPoint - m_lastPoint;
+            const auto curPoint = computeHitPoint(inputState.pickRay());
+
+            const auto delta = curPoint - m_lastPoint;
             
-            const vm::vec2f snapped = snapDelta(delta * m_selector);
+            const auto snapped = snapDelta(delta * m_selector);
             if (isZero(snapped, vm::Cf::almostZero())) {
                 return true;
             } else {
@@ -159,7 +161,7 @@ namespace TrenchBroom {
             const auto& boundary = face->boundary();
             const auto distance = vm::intersect(ray, boundary);
             const auto hitPoint = ray.pointAtDistance(distance);
-            
+
             const auto transform = face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
             return vm::vec2f(transform * hitPoint);
         }
@@ -169,7 +171,7 @@ namespace TrenchBroom {
                 return delta;
             }
 
-            const Model::BrushFace* face = m_helper.face();
+            const auto* face = m_helper.face();
             ensure(face != nullptr, "face is null");
             
             // The delta is given in non-translated and non-scaled texture coordinates because that's how the origin
@@ -178,38 +180,38 @@ namespace TrenchBroom {
             // Finally, we will convert the distance back to non-translated and non-scaled texture coordinates and
             // snap the delta to the distance.
             
-            const vm::mat4x4 w2fTransform = face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
-            const vm::mat4x4 w2tTransform = face->toTexCoordSystemMatrix(face->offset(), face->scale(), true);
-            const vm::mat4x4 f2wTransform = face->fromTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
-            const vm::mat4x4 t2wTransform = face->fromTexCoordSystemMatrix(face->offset(), face->scale(), true);
-            const vm::mat4x4 f2tTransform = w2tTransform * f2wTransform;
-            const vm::mat4x4 t2fTransform = w2fTransform * t2wTransform;
+            const auto w2fTransform = face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
+            const auto w2tTransform = face->toTexCoordSystemMatrix(face->offset(), face->scale(), true);
+            const auto f2wTransform = face->fromTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
+            const auto t2wTransform = face->fromTexCoordSystemMatrix(face->offset(), face->scale(), true);
+            const auto f2tTransform = w2tTransform * f2wTransform;
+            const auto t2fTransform = w2fTransform * t2wTransform;
             
-            const vm::vec2f newOriginInFaceCoords = m_helper.originInFaceCoords() + delta;
-            const vm::vec2f newOriginInTexCoords  = vm::vec2f(f2tTransform * vm::vec3(newOriginInFaceCoords));
+            const auto newOriginInFaceCoords = m_helper.originInFaceCoords() + delta;
+            const auto newOriginInTexCoords  = vm::vec2f(f2tTransform * vm::vec3(newOriginInFaceCoords));
             
             // now snap to the vertices
             // TODO: this actually doesn't work because we're snapping to the X or Y coordinate of the vertices
             // instead, we must snap to the edges!
-            vm::vec2f distanceInTexCoords = vm::vec2f::max;
+            auto distanceInTexCoords = vm::vec2f::max;
             for (const Model::BrushVertex* vertex : face->vertices()) {
                 distanceInTexCoords = vm::absMin(distanceInTexCoords, vm::vec2f(w2tTransform * vertex->position()) - newOriginInTexCoords);
             }
 
             // and to the texture grid
-            const Assets::Texture* texture = face->texture();
+            const auto* texture = face->texture();
             if (texture != nullptr) {
                 distanceInTexCoords = vm::absMin(distanceInTexCoords, m_helper.computeDistanceFromTextureGrid(vm::vec3(newOriginInTexCoords)));
             }
 
             // finally snap to the face center
-            const vm::vec2f faceCenter(w2tTransform * face->boundsCenter());
+            const auto faceCenter = vm::vec2f(w2tTransform * face->boundsCenter());
             distanceInTexCoords = vm::absMin(distanceInTexCoords, faceCenter - newOriginInTexCoords);
 
             // now we have a distance in the scaled and translated texture coordinate system
             // so we transform the new position plus distance back to the unscaled and untranslated texture coordinate system
             // and take the actual distance
-            const vm::vec2f distanceInFaceCoords = newOriginInFaceCoords - vm::vec2f(t2fTransform * vm::vec3(newOriginInTexCoords + distanceInTexCoords));
+            const auto distanceInFaceCoords = newOriginInFaceCoords - vm::vec2f(t2fTransform * vm::vec3(newOriginInTexCoords + distanceInTexCoords));
             return m_helper.snapDelta(delta, -distanceInFaceCoords);
         }
 
@@ -297,14 +299,21 @@ namespace TrenchBroom {
         };
         
         void UVOriginTool::renderOriginHandle(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            const Model::PickResult& pickResult = inputState.pickResult();
-            const Model::Hit& xHandleHit = pickResult.query().type(XHandleHit).occluded().first();
-            const Model::Hit& yHandleHit = pickResult.query().type(YHandleHit).occluded().first();
-            
-            const bool highlight = xHandleHit.isMatch() && yHandleHit.isMatch();;
+            const auto highlight = renderHighlight(inputState);
             renderBatch.addOneShot(new RenderOrigin(m_helper, OriginHandleRadius, highlight));
         }
-        
+
+        bool UVOriginTool::renderHighlight(const InputState& inputState) const {
+            if (thisToolDragging()) {
+                return true;
+            } else {
+                const auto& pickResult = inputState.pickResult();
+                const auto& xHandleHit = pickResult.query().type(XHandleHit).occluded().first();
+                const auto& yHandleHit = pickResult.query().type(YHandleHit).occluded().first();
+                return xHandleHit.isMatch() && yHandleHit.isMatch();;
+            }
+        }
+
         bool UVOriginTool::doCancel() {
             return false;
         }
