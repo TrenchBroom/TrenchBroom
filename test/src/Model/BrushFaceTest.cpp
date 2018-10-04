@@ -636,5 +636,41 @@ namespace TrenchBroom {
             delete snapshot;
             VectorUtils::clearAndDelete(nodes);
         }
+
+        // https://github.com/kduske/TrenchBroom/issues/2315
+        TEST(BrushFaceTest, move45DegreeFace) {
+            const String data(R"(
+// entity 0
+{
+"classname" "worldspawn"
+// brush 0
+{
+( 64 64 16 ) ( 64 64 17 ) ( 64 65 16 ) __TB_empty [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 1 1
+( -64 -64 -16 ) ( -64 -64 -15 ) ( -63 -64 -16 ) __TB_empty [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1
+( 64 64 16 ) ( 64 65 16 ) ( 65 64 16 ) __TB_empty [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1
+( -64 -64 -16 ) ( -63 -64 -16 ) ( -64 -63 -16 ) __TB_empty [ -1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1
+( 32 -64 16 ) ( 48 -48 16 ) ( 48 -48 144 ) __TB_empty [ -0.707107 -0.707107 0 0 ] [ 0 0 -1 0 ] 0 1 1
+}
+}
+)");
+
+            const vm::bbox3 worldBounds(4096.0);
+            World world(MapFormat::Valve, nullptr, worldBounds);
+
+            IO::TestParserStatus status;
+            IO::NodeReader reader(data, &world);
+
+            NodeList nodes = reader.read(worldBounds, status);
+            Brush* brush = static_cast<Brush*>(nodes.at(0)->children().at(0));
+            ASSERT_NE(nullptr, brush);
+
+            // find the face
+            BrushFace* angledFace = brush->findFace(vm::vec3(-0.70710678118654746, 0.70710678118654746, 0));
+            ASSERT_NE(nullptr, angledFace);
+
+            brush->moveBoundary(worldBounds, angledFace, vm::vec3(-7.9999999999999973, 7.9999999999999973, 0), true);
+
+            VectorUtils::clearAndDelete(nodes);
+        }
     }
 }
