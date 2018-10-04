@@ -212,7 +212,7 @@ namespace TrenchBroom {
                                 e = curPos();
                             } while (!eof() && (isLetter(*e) || isDigit(*e) || *e == '_'));
                             
-                            return Token(ELToken::Variable, c, e, offset(c), startLine, startColumn);
+                            return Token(ELToken::Name, c, e, offset(c), startLine, startColumn);
                         }
                         
                         throw ParserException(startLine, startColumn, "Unexpected character: " + String(c, 1));
@@ -293,7 +293,7 @@ namespace TrenchBroom {
                 term = parseUnaryOperator();
             else if (token.hasType(ELToken::OParen))
                 term = parseGroupedTerm();
-            else if (token.hasType(ELToken::Variable))
+            else if (token.hasType(ELToken::Name))
                 term = parseVariable();
             else
                 term = parseLiteral();
@@ -326,7 +326,7 @@ namespace TrenchBroom {
 
         EL::ExpressionBase* ELParser::parseVariable() {
             Token token = m_tokenizer.nextToken();
-            expect(ELToken::Variable, token);
+            expect(ELToken::Name, token);
             return EL::VariableExpression::create(token.data(), token.line(), token.column());
         }
 
@@ -416,7 +416,7 @@ namespace TrenchBroom {
             if (!m_tokenizer.peekToken().hasType(ELToken::CBrace)) {
                 do {
                     token = m_tokenizer.nextToken();
-                    expect(ELToken::String, token);
+                    expect(ELToken::String | ELToken::Name, token);
                     const String key = token.data();
                     
                     expect(ELToken::Colon, m_tokenizer.nextToken());
@@ -521,7 +521,7 @@ namespace TrenchBroom {
 
         ELParser::TokenNameMap ELParser::tokenNames() const {
             TokenNameMap result;
-            result[ELToken::Variable]           = "variable";
+            result[ELToken::Name]           = "variable";
             result[ELToken::String]             = "string";
             result[ELToken::Number]             = "number";
             result[ELToken::Boolean]            = "boolean";

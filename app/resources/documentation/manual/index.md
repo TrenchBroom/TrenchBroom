@@ -1191,7 +1191,7 @@ Every expression is made of one single term. A term is something that can be eva
 	GroupedTerm    = "(" Term ")"
 	Term           = SimpleTerm | Switch | CompoundTerm
 
-	SimpleTerm     = Variable | Literal | Subscript | UnaryTerm | GroupedTerm
+	SimpleTerm     = Name | Literal | Subscript | UnaryTerm | GroupedTerm
 	CompoundTerm   = AlgebraicTerm | LogicalTerm | ComparisonTerm | Case
 
 	UnaryTerm      = Plus | Minus | LogicalNegation | BinaryNegation
@@ -1200,13 +1200,13 @@ Every expression is made of one single term. A term is something that can be eva
 	BinaryTerm     = BinaryAnd | BinaryXor | BinaryOr | BinaryLeftShift | BinaryRightShift
 	ComparisonTerm = Less | LessOrEqual | Equal | Inequal | GreaterOrEqual | Greater
 
-### Variables and Literals
+### Names and Literals
 
-A variable name is a string that begins with an alphabetic character or an underscore, possibly followed by more alphanumeric characters and underscores.
+A name is a string that begins with an alphabetic character or an underscore, possibly followed by more alphanumeric characters and underscores.
 
-	Variable       = ( "_" | Alpha ) { "_" | Alpha | Numeric }
+	Name       = ( "_" | Alpha ) { "_" | Alpha | Numeric }
 
-`MODS`, `_var1`, `_123` are all valid variable names while `1_MODS`, `$MODS`, `_$MODS` are not. When an expression is evaluated, all variable names are simply replaced by the values of the variables they reference. If a value is not of type `String`, it will be converted to that type. If the value is not convertible to type `String`, then an error will be thrown.
+`MODS`, `_var1`, `_123` are all valid names while `1_MODS`, `$MODS`, `_$MODS` are not. When an expression is evaluated, all variable names are simply replaced by the values of the variables they reference. If a value is not of type `String`, it will be converted to that type. If the value is not convertible to type `String`, then an error will be thrown.
 
 A literal is either a string, a number, a boolean, an array, or a map literal. 
 
@@ -1242,17 +1242,18 @@ Expression Value
 A map is a comma-separated list of of key-value pairs, enclosed in braces. Note that keys are strings, and so must be quoted. The value is separated from the key by a colon character.
 
 	Map            = "{" [ KeyValuePair { "," KeyValuePair } ] "}"
-	KeyValuePair   = String ":" Expression
+	KeyValuePair   = StringOrName ":" Expression
+	StringOrName   = String | Name
 
 An example of a valid map expression looks as follows:
 
     {
-    	"some_key"   : "a string",
-    	"other_key"  : 1+2,
-    	"another_key": [1..3]
+    	"some key"   : "a string",
+    	other_key  : 1+2,
+    	another_key: [1..3]
     }
 
-This expression evaluates to a map containing the value `"a string"` under the key `some_key`, the value `3.0` under the key `other_key`, and an array containing the values `1.0`, `2.0`, and `3.0` under the key `another_key`.
+This expression evaluates to a map containing the value `"a string"` under the key `some key`, the value `3.0` under the key `other_key`, and an array containing the values `1.0`, `2.0`, and `3.0` under the key `another_key`.
 
 ### Subscript
 
