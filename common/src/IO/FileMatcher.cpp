@@ -38,12 +38,13 @@ namespace TrenchBroom {
         }
         
         FileExtensionMatcher::FileExtensionMatcher(const String& extension) :
-        m_extension(extension) {}
-        
+        m_extensions(1, extension) {}
+
+        FileExtensionMatcher::FileExtensionMatcher(const StringList& extensions) :
+        m_extensions(extensions) {}
+
         bool FileExtensionMatcher::operator()(const Path& path, const bool directory) const {
-            if (directory)
-                return false;
-            return StringUtils::caseInsensitiveEqual(path.extension(), m_extension);
+            return !directory && path.hasExtension(m_extensions, false);
         }
         
         FileNameMatcher::FileNameMatcher(const String& pattern) :

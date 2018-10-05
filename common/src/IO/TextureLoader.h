@@ -50,13 +50,13 @@ namespace TrenchBroom {
             using ReaderPtr = std::unique_ptr<TextureReader>;
             using LoaderPtr = std::unique_ptr<TextureCollectionLoader>;
 
-            String m_textureExtension;
+            StringList m_textureExtensions;
             ReaderPtr m_textureReader;
             LoaderPtr m_textureCollectionLoader;
         public:
             TextureLoader(const EL::VariableStore& variables, const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger);
         private:
-            static String getTextureExtension(const Model::GameConfig::TextureConfig& textureConfig);
+            static StringList getTextureExtensions(const Model::GameConfig::TextureConfig& textureConfig);
             static ReaderPtr createTextureReader(const EL::VariableStore& variables, const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger);
             static Assets::Palette loadPalette(const EL::VariableStore& variables, const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger);
             static Path findPalette(const EL::VariableStore& variables, const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger);

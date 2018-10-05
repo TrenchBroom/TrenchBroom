@@ -1292,16 +1292,49 @@ namespace TrenchBroom {
                         return 0;
                     return -1;
                 case Type_Array:
-                    if (rhs.type() == Type_Array)
-                        return VectorUtils::compare(lhs.arrayValue(), rhs.arrayValue());
+                    switch (rhs.type()) {
+                        case Type_Array:
+                            return VectorUtils::compare(lhs.arrayValue(), rhs.arrayValue());
+                        case Type_Null:
+                        case Type_Undefined:
+                            return 1;
+                        case Type_Boolean:
+                        case Type_Number:
+                        case Type_String:
+                        case Type_Map:
+                        case Type_Range:
+                            break;
+                    }
                     break;
                 case Type_Map:
-                    if (rhs.type() == Type_Map)
-                        return MapUtils::compare(lhs.mapValue(), rhs.mapValue());
+                    switch (rhs.type()) {
+                        case Type_Map:
+                            return MapUtils::compare(lhs.mapValue(), rhs.mapValue());
+                        case Type_Null:
+                        case Type_Undefined:
+                            return 1;
+                        case Type_Boolean:
+                        case Type_Number:
+                        case Type_String:
+                        case Type_Array:
+                        case Type_Range:
+                            break;
+                    }
                     break;
                 case Type_Range:
-                    if (rhs.type() == Type_Range)
-                        return VectorUtils::compare(lhs.rangeValue(), rhs.rangeValue());
+                    switch (rhs.type()) {
+                        case Type_Range:
+                            return VectorUtils::compare(lhs.rangeValue(), rhs.rangeValue());
+                        case Type_Null:
+                        case Type_Undefined:
+                            return 1;
+                        case Type_Boolean:
+                        case Type_Number:
+                        case Type_String:
+                        case Type_Array:
+                        case Type_Map:
+                            break;
+                    }
                     break;
             }
             throw EvaluationError("Cannot compare value '" + lhs.describe() + "' of type '" + typeName(lhs.type()) + " to value '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + "'");

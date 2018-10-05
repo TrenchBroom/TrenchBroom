@@ -1743,11 +1743,11 @@ namespace vm {
      * @return the CCW angle
      */
     template <typename T>
-    T measureAngle(const vec<T, 3> &v, const vec<T, 3> &axis, const vec<T, 3> &up) {
+    T measureAngle(const vec<T,3>& v, const vec<T,3>& axis, const vec<T,3>& up) {
         const auto cos = dot(v, axis);
-        if (isEqual(+cos, T(1.0), vm::constants<T>::almostZero())) {
-            return static_cast<T>(0.0);
-        } else if (isEqual(-cos, T(1.0), vm::constants<T>::almostZero())) {
+        if (isEqual(cos, T(+1.0), vm::constants<T>::almostZero())) {
+            return T(0.0);
+        } else if (isEqual(cos, T(-1.0), vm::constants<T>::almostZero())) {
             return constants<T>::pi();
         } else {
             const auto perp = cross(axis, v);

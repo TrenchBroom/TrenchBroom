@@ -1,20 +1,20 @@
 {
     "version": 1,
-	"name": "Quake 2",
-	"icon": "Quake2/Icon.png",
- 	"fileformats": [ "Quake2" ],
+	"name": "Daikatana",
+	"icon": "Icon.png",
+ 	"fileformats": [ { "format": "Quake2" } ],
 	"filesystem": {
-		"searchpath": "baseq2",
-        "packageformat": { "extension": "pak", "format": "idpak" }
+		"searchpath": "data",
+        "packageformat": { "extension": "pak", "format": "dkpak" }
 	},
 	"textures": {
         "package": { "type": "directory", "root": "textures" },
-        "format": { "extension": "wal", "format": "wal" },
-        "palette": "pics/colormap.pcx",
-        "attribute": "_tb_textures"
+        "format": { "extension": "wal", "format": "dkwal" },
+        "palette": "textures/${palette}/colormap.bmp",
+    	"attribute": "_tb_textures"
 	},
   	"entities": {
-		"definitions": [ "Quake2/Quake2.fgd" ],
+		"definitions": [ "Daikatana.def" ],
     	"defaultcolor": "0.6 0.6 0.6 1.0",
 		"modelformats": [ "md2" ]
     },
@@ -35,7 +35,7 @@
             "name": "Hint brushes",
             "attribs": [ "transparent" ],
             "match": "texture",
-            "pattern": "hint*"
+            "pattern": "hint"
         },
         {
             "name": "Detail brushes",
@@ -87,14 +87,6 @@
             {
                 "name": "nodraw",
                 "description": "Used for non-fixed-size brush triggers and clip brushes"
-            },
-            {
-                "name": "hint",
-                "description": "Make a primary bsp splitter"
-            },
-            {
-                "name": "skip",
-                "description": "Completely ignore, allowing non-closed brushes"
             }
         ],
         "contentflags": [

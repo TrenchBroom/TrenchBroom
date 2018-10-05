@@ -100,6 +100,30 @@ namespace TrenchBroom {
             ASSERT_EL_EQ(map, " { \"testkey1\": 1, \"testkey2\"   :\"asdf\", \"testkey3\":{\"nestedKey\":true} }");
         }
 
+        TEST(ELParserTest, parseMapLiteralNestedInArray) {
+            EL::MapType map;
+            map.insert(std::make_pair("key", EL::Value("value")));
+
+            EL::ArrayType array;
+            array.push_back(EL::Value(map));
+
+            ASSERT_EL_EQ(array, R"([ { "key": "value" } ])");
+        }
+
+        TEST(ELParserTest, parseMapLiteralNestedInArrayNestedInMap) {
+            EL::MapType inner;
+            inner.insert(std::make_pair("key", EL::Value("value")));
+
+            EL::ArrayType array;
+            array.push_back(EL::Value(inner));
+
+            EL::MapType outer;
+            outer.insert(std::make_pair("outerkey1", EL::Value(array)));
+            outer.insert(std::make_pair("outerkey2", EL::Value("asdf")));
+
+            ASSERT_EL_EQ(outer, R"({ "outerkey1": [ { "key": "value" } ], "outerkey2": "asdf" })");
+        }
+
         TEST(ELParserTest, parseMapLiteralWithTrailingGarbage) {
             ASSERT_EL_THROW("{\n"
                             "\t\"profiles\": [],\n"

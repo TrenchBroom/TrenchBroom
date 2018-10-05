@@ -86,7 +86,7 @@ namespace TrenchBroom {
                 snapper = new LineDragSnapper(grid, sideways);
             }
 
-            return {restricter, snapper};
+            return std::make_tuple(restricter, snapper);
         }
 
         void ShearObjectsToolController::doModifierKeyChange(const InputState& inputState) {

@@ -33,7 +33,7 @@ namespace TrenchBroom {
         Model::GameConfig GameConfigParser::parse() {
             using Model::GameConfig;
           
-            const EL::Value root = parseConfigFile().evaluate(EL::EvaluationContext());
+            const auto root = parseConfigFile().evaluate(EL::EvaluationContext());
             expectType(root, EL::Type_Map);
             
             expectStructure(root,
@@ -42,21 +42,44 @@ namespace TrenchBroom {
                             "{'icon': 'String', 'faceattribs': 'Map', 'brushtypes': 'Array'}"
                             "]");
 
-            const EL::NumberType version = root["version"].numberValue();
+            const auto version = root["version"].numberValue();
             unused(version);
-            assert(version == 1.0);
+            assert(version == 2.0);
 
-            const String& name = root["name"].stringValue();
-            const Path icon(root["icon"].stringValue());
+            const auto& name = root["name"].stringValue();
+            const auto icon = Path(root["icon"].stringValue());
+
+            const auto mapFormatConfigs = parseMapFormatConfigs(root["fileformats"]);
+            const auto fileSystemConfig = parseFileSystemConfig(root["filesystem"]);
+            const auto textureConfig = parseTextureConfig(root["textures"]);
+            const auto entityConfig = parseEntityConfig(root["entities"]);
+            const auto faceAttribsConfig = parseFaceAttribsConfig(root["faceattribs"]);
+            const auto brushContentTypes = parseBrushContentTypes(root["brushtypes"], faceAttribsConfig);
             
-            const StringList fileFormats = root["fileformats"].asStringList();
-            const GameConfig::FileSystemConfig fileSystemConfig = parseFileSystemConfig(root["filesystem"]);
-            const GameConfig::TextureConfig textureConfig = parseTextureConfig(root["textures"]);
-            const GameConfig::EntityConfig entityConfig = parseEntityConfig(root["entities"]);
-            const GameConfig::FaceAttribsConfig faceAttribsConfig = parseFaceAttribsConfig(root["faceattribs"]);
-            const Model::BrushContentType::List brushContentTypes = parseBrushContentTypes(root["brushtypes"], faceAttribsConfig);
-            
-            return GameConfig(name, m_path, icon, fileFormats, fileSystemConfig, textureConfig, entityConfig, faceAttribsConfig, brushContentTypes);
+            return GameConfig(name, m_path, icon, mapFormatConfigs, fileSystemConfig, textureConfig, entityConfig, faceAttribsConfig, brushContentTypes);
+        }
+
+        Model::GameConfig::MapFormatConfig::List GameConfigParser::parseMapFormatConfigs(const EL::Value& value) const {
+            using Model::GameConfig;
+
+            expectType(value, EL::typeForName("Array"));
+
+            GameConfig::MapFormatConfig::List result;
+            for (size_t i = 0; i < value.length(); ++i) {
+                expectStructure(
+                    value[i],
+                    "["
+                    "{'format': 'String'},"
+                    "{'initialmap': 'String'}"
+                    "]");
+
+                const String& format = value[i]["format"].stringValue();
+                const String& initialMap = value[i]["initialmap"].stringValue();
+
+                result.emplace_back(format, IO::Path(initialMap));
+            }
+
+            return result;
         }
 
         Model::GameConfig::FileSystemConfig GameConfigParser::parseFileSystemConfig(const EL::Value& value) const {
@@ -77,17 +100,27 @@ namespace TrenchBroom {
 
         Model::GameConfig::PackageFormatConfig GameConfigParser::parsePackageFormatConfig(const EL::Value& value) const {
             using Model::GameConfig;
-            
-            expectStructure(value,
-                            "["
-                            "{'extension': 'String', 'format': 'String'},"
-                            "{}"
-                            "]");
 
-            const String& extension = value["extension"].stringValue();
-            const String& format = value["format"].stringValue();
-            
-            return GameConfig::PackageFormatConfig(extension, format);
+            expectMapEntry(value, "format", EL::typeForName("String"));
+            const auto formatValue = value["format"];
+            expectType(formatValue, EL::typeForName("String"));
+
+            if (value["extension"] != EL::Value::Null) {
+                const auto extensionValue = value["extension"];
+                expectType(extensionValue, EL::typeForName("String"));
+                const auto& extension = value["extension"].stringValue();
+                const auto& format = formatValue.stringValue();
+
+                return GameConfig::PackageFormatConfig(extension, format);
+            } else if (value["extensions"] != EL::Value::Null) {
+                const auto extensionsValue = value["extensions"];
+                expectType(extensionsValue, EL::typeForName("Array"));
+                const auto extensions = extensionsValue.asStringList();
+                const auto& format = formatValue.stringValue();
+
+                return GameConfig::PackageFormatConfig(extensions, format);
+            }
+            throw ParserException(value.line(), value.column(), "Expected map entry 'extension' of type 'String' or 'extensions' of type 'Array'");
         }
 
         Model::GameConfig::TextureConfig GameConfigParser::parseTextureConfig(const EL::Value& value) const {

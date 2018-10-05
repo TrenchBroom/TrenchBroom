@@ -65,8 +65,8 @@ namespace TrenchBroom {
             return doMaxPropertyLength();
         }
 
-        World* Game::newMap(const MapFormat::Type format, const vm::bbox3& worldBounds) const {
-            return doNewMap(format, worldBounds);
+        World* Game::newMap(const MapFormat::Type format, const vm::bbox3& worldBounds, Logger* logger) const {
+            return doNewMap(format, worldBounds, logger);
         }
         
         World* Game::loadMap(const MapFormat::Type format, const vm::bbox3& worldBounds, const IO::Path& path, Logger* logger) const {

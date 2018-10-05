@@ -66,9 +66,12 @@ namespace TrenchBroom {
             return GameSPtr(new GameImpl(gameConfig(gameName), gamePath(gameName), logger));
         }
         
-        const StringList& GameFactory::fileFormats(const String& gameName) const {
-            const auto& config = gameConfig(gameName);
-            return config.fileFormats();
+        StringList GameFactory::fileFormats(const String& gameName) const {
+            StringList result;
+            for (const auto& format : gameConfig(gameName).fileFormats()) {
+                result.push_back(format.format);
+            }
+            return result;
         }
 
         IO::Path GameFactory::iconPath(const String& gameName) const {

@@ -246,7 +246,6 @@ namespace TrenchBroom {
             loadAssets();
             registerIssueGenerators();
             
-            initializeWorld(worldBounds);
             clearModificationCount();
             
             documentWasNewedNotifier(this);
@@ -1090,10 +1089,11 @@ namespace TrenchBroom {
             
             for (Model::Brush* minuend : minuends) {
                 const Model::BrushList result = minuend->subtract(*m_world, m_worldBounds, currentTextureName(), subtrahend);
+
                 if (!result.empty()) {
                     VectorUtils::append(toAdd[minuend->parent()], result);
-                    toRemove.push_back(minuend);
                 }
+                toRemove.push_back(minuend);
             }
             
             Transaction transaction(this, "CSG Subtract");
@@ -1462,7 +1462,7 @@ namespace TrenchBroom {
         void MapDocument::createWorld(const Model::MapFormat::Type mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game) {
             m_worldBounds = worldBounds;
             m_game = game;
-            m_world = m_game->newMap(mapFormat, m_worldBounds);
+            m_world = m_game->newMap(mapFormat, m_worldBounds, this);
             setCurrentLayer(m_world->defaultLayer());
             
             updateGameSearchPaths();
@@ -1483,12 +1483,6 @@ namespace TrenchBroom {
             delete m_world;
             m_world = nullptr;
             m_currentLayer = nullptr;
-        }
-        
-        void MapDocument::initializeWorld(const vm::bbox3& worldBounds) {
-            const Model::BrushBuilder builder(m_world, worldBounds);
-            Model::Brush* brush = builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFace::NoTextureName);
-            addNode(brush, m_world->defaultLayer());
         }
         
         Assets::EntityDefinitionFileSpec MapDocument::entityDefinitionFile() const {

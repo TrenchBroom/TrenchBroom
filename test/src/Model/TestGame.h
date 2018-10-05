@@ -43,7 +43,7 @@ namespace TrenchBroom {
             CompilationConfig& doCompilationConfig() override;
             size_t doMaxPropertyLength() const override;
             
-            World* doNewMap(MapFormat::Type format, const vm::bbox3& worldBounds) const override;
+            World* doNewMap(MapFormat::Type format, const vm::bbox3& worldBounds, Logger* logger) const override;
             World* doLoadMap(MapFormat::Type format, const vm::bbox3& worldBounds, const IO::Path& path, Logger* logger) const override;
             void doWriteMap(World* world, const IO::Path& path) const override;
             void doExportMap(World* world, Model::ExportFormat format, const IO::Path& path) const override;

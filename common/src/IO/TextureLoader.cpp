@@ -34,15 +34,15 @@
 namespace TrenchBroom {
     namespace IO {
         TextureLoader::TextureLoader(const EL::VariableStore& variables, const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger) :
-        m_textureExtension(getTextureExtension(textureConfig)),
+        m_textureExtensions(getTextureExtensions(textureConfig)),
         m_textureReader(createTextureReader(variables, gameFS, textureConfig, logger)),
         m_textureCollectionLoader(createTextureCollectionLoader(gameFS, fileSearchPaths, textureConfig)) {
             ensure(m_textureReader != nullptr, "textureReader is null");
             ensure(m_textureCollectionLoader != nullptr, "textureCollectionLoader is null");
         }
         
-        String TextureLoader::getTextureExtension(const Model::GameConfig::TextureConfig& textureConfig) {
-            return textureConfig.format.extension;
+        StringList TextureLoader::getTextureExtensions(const Model::GameConfig::TextureConfig& textureConfig) {
+            return textureConfig.format.extensions;
         }
 
         TextureLoader::ReaderPtr TextureLoader::createTextureReader(const EL::VariableStore& variables, const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger) {
@@ -111,7 +111,7 @@ namespace TrenchBroom {
         }
 
         Assets::TextureCollection* TextureLoader::loadTextureCollection(const Path& path) {
-            return m_textureCollectionLoader->loadTextureCollection(path, m_textureExtension, *m_textureReader);
+            return m_textureCollectionLoader->loadTextureCollection(path, m_textureExtensions, *m_textureReader);
         }
 
         void TextureLoader::loadTextures(const Path::List& paths, Assets::TextureManager& textureManager) {

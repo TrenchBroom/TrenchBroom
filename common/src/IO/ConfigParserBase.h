@@ -41,7 +41,7 @@ namespace TrenchBroom {
             virtual ~ConfigParserBase();
         protected:
             EL::Expression parseConfigFile();
-            
+
             void expectType(const EL::Value& value, EL::ValueType type) const;
             void expectStructure(const EL::Value& value, const String& structure) const;
             void expectMapEntry(const EL::Value& value, const String& key, EL::ValueType type) const;
