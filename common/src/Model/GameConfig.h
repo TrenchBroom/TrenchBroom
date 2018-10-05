@@ -34,13 +34,26 @@ namespace TrenchBroom {
     namespace Model {
         class GameConfig {
         public:
+            struct MapFormatConfig {
+                using List = std::vector<MapFormatConfig>;
+
+                String format;
+                IO::Path initialMap;
+
+                MapFormatConfig(const String& i_format, const IO::Path& i_initialMap);
+                MapFormatConfig();
+
+                bool operator==(const MapFormatConfig& other) const;
+            };
+
             struct PackageFormatConfig {
                 typedef std::vector<PackageFormatConfig> List;
                 
-                String extension;
+                StringList extensions;
                 String format;
-                
+
                 PackageFormatConfig(const String& i_extension, const String& i_format);
+                PackageFormatConfig(const StringList& i_extensions, const String& i_format);
                 PackageFormatConfig();
                 
                 bool operator==(const PackageFormatConfig& other) const;
@@ -136,7 +149,7 @@ namespace TrenchBroom {
             String m_name;
             IO::Path m_path;
             IO::Path m_icon;
-            StringList m_fileFormats;
+            MapFormatConfig::List m_fileFormats;
             FileSystemConfig m_fileSystemConfig;
             TextureConfig m_textureConfig;
             EntityConfig m_entityConfig;
@@ -147,12 +160,12 @@ namespace TrenchBroom {
             size_t m_maxPropertyLength;
         public:
             GameConfig();
-            GameConfig(const String& name, const IO::Path& path, const IO::Path& icon, const StringList& fileFormats, const FileSystemConfig& fileSystemConfig, const TextureConfig& textureConfig, const EntityConfig& entityConfig, const FaceAttribsConfig& faceAttribsConfig, const BrushContentType::List& brushContentTypes);
+            GameConfig(const String& name, const IO::Path& path, const IO::Path& icon, const MapFormatConfig::List& fileFormats, const FileSystemConfig& fileSystemConfig, const TextureConfig& textureConfig, const EntityConfig& entityConfig, const FaceAttribsConfig& faceAttribsConfig, const BrushContentType::List& brushContentTypes);
             
             const String& name() const;
             const IO::Path& path() const;
             const IO::Path& icon() const;
-            const StringList& fileFormats() const;
+            const MapFormatConfig::List& fileFormats() const;
             const FileSystemConfig& fileSystemConfig() const;
             const TextureConfig& textureConfig() const;
             const EntityConfig& entityConfig() const;
@@ -168,8 +181,9 @@ namespace TrenchBroom {
             void setGameEngineConfig(const GameEngineConfig& gameEngineConfig);
             
             size_t maxPropertyLength() const;
-            
-            const IO::Path findConfigFile(const IO::Path& filePath) const;
+
+            IO::Path findInitialMap(const String& formatName) const;
+            IO::Path findConfigFile(const IO::Path& filePath) const;
             
             void addBrushContentType(const BrushContentType& contentType);
         };

@@ -68,38 +68,19 @@ IF(WIN32)
 	)
 ENDIF()
 
-# Copy some files used in unit tests
+# Clear all test fixtures
+ADD_CUSTOM_COMMAND(TARGET TrenchBroom-Test POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E remove_directory "${RESOURCE_DEST_DIR}/data"
+)
+
+# Copy test fixtures
 ADD_CUSTOM_COMMAND(TARGET TrenchBroom-Test POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/test/data" "${RESOURCE_DEST_DIR}/data"
 )
 
 ADD_CUSTOM_COMMAND(TARGET TrenchBroom-Test POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E make_directory "${RESOURCE_DEST_DIR}/data/GameConfig"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_DIR}/resources/games" "${RESOURCE_DEST_DIR}/data/games"
 )
-
-# Prepare to collect all cfg files to copy them to the test data
-FILE(GLOB_RECURSE GAME_CONFIG_FILES
-    "${APP_DIR}/resources/games/*.cfg"
-)
-
-FOREACH(GAME_CONFIG_FILE ${GAME_CONFIG_FILES})
-	ADD_CUSTOM_COMMAND(TARGET TrenchBroom-Test POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy "${GAME_CONFIG_FILE}" "${RESOURCE_DEST_DIR}/data/GameConfig"
-    )
-ENDFOREACH(GAME_CONFIG_FILE)
-
-# Prepare to collect all definition files to copy them to the test data
-FILE(GLOB_RECURSE GAME_DEF_FILES
-		"${APP_DIR}/resources/games/*.def"
-        "${APP_DIR}/resources/games/*.fgd"
-		)
-
-FOREACH(GAME_CONFIG_FILE ${GAME_DEF_FILES})
-	ADD_CUSTOM_COMMAND(TARGET TrenchBroom-Test POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy "${GAME_CONFIG_FILE}" "${RESOURCE_DEST_DIR}/data/GameConfig"
-			)
-ENDFOREACH(GAME_CONFIG_FILE)
-
 
 SET_XCODE_ATTRIBUTES(TrenchBroom-Test)
 SET_XCODE_ATTRIBUTES(TrenchBroom-Benchmark)

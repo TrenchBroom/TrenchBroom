@@ -37,9 +37,10 @@ namespace TrenchBroom {
         
         class FileExtensionMatcher {
         private:
-            String m_extension;
+            StringList m_extensions;
         public:
             FileExtensionMatcher(const String& extension);
+            FileExtensionMatcher(const StringList& extensions);
             bool operator()(const Path& path, bool directory) const;
         };
         

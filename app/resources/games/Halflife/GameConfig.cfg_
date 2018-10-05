@@ -1,20 +1,20 @@
 {
-    "version": 1,
-	"name": "Quake",
-	"icon": "Quake/Icon.png",
- 	"fileformats": [ "Standard", "Valve" ],
+    "version": 2,
+	"name": "Half-Life",
+	"icon": "Icon.png",
+ 	"fileformats": [ { "format": "Valve" } ],
 	"filesystem": {
-		"searchpath": "id1",
+		"searchpath": "valve",
         "packageformat": { "extension": "pak", "format": "idpak" }
 	},
 	"textures": {
         "package": { "type": "file", "format": { "extension": "wad", "format": "wad2" } },
-        "format": { "extension": "D", "format": "idmip" },
+        "format": { "extension": "C", "format": "hlmip" },
         "palette": "gfx/palette.lmp",
     	"attribute": "wad"
 	},
   	"entities": {
-		"definitions": [ "Quake/Quake.fgd", "Quake/Quoth2.fgd", "Quake/Rubicon2.def" ],
+		"definitions": [ "HalfLife.fgd" ],
     	"defaultcolor": "0.6 0.6 0.6 1.0",
 		"modelformats": [ "mdl", "bsp" ]
     },
@@ -35,7 +35,7 @@
             "name": "Hint brushes",
             "attribs": [ "transparent" ],
             "match": "texture",
-            "pattern": "hint*"
+            "pattern": "hint"
         },
         {
             "name": "Liquid brushes",

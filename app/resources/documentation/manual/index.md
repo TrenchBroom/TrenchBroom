@@ -1191,7 +1191,7 @@ Every expression is made of one single term. A term is something that can be eva
 	GroupedTerm    = "(" Term ")"
 	Term           = SimpleTerm | Switch | CompoundTerm
 
-	SimpleTerm     = Variable | Literal | Subscript | UnaryTerm | GroupedTerm
+	SimpleTerm     = Name | Literal | Subscript | UnaryTerm | GroupedTerm
 	CompoundTerm   = AlgebraicTerm | LogicalTerm | ComparisonTerm | Case
 
 	UnaryTerm      = Plus | Minus | LogicalNegation | BinaryNegation
@@ -1200,13 +1200,13 @@ Every expression is made of one single term. A term is something that can be eva
 	BinaryTerm     = BinaryAnd | BinaryXor | BinaryOr | BinaryLeftShift | BinaryRightShift
 	ComparisonTerm = Less | LessOrEqual | Equal | Inequal | GreaterOrEqual | Greater
 
-### Variables and Literals
+### Names and Literals
 
-A variable name is a string that begins with an alphabetic character or an underscore, possibly followed by more alphanumeric characters and underscores.
+A name is a string that begins with an alphabetic character or an underscore, possibly followed by more alphanumeric characters and underscores.
 
-	Variable       = ( "_" | Alpha ) { "_" | Alpha | Numeric }
+	Name       = ( "_" | Alpha ) { "_" | Alpha | Numeric }
 
-`MODS`, `_var1`, `_123` are all valid variable names while `1_MODS`, `$MODS`, `_$MODS` are not. When an expression is evaluated, all variable names are simply replaced by the values of the variables they reference. If a value is not of type `String`, it will be converted to that type. If the value is not convertible to type `String`, then an error will be thrown.
+`MODS`, `_var1`, `_123` are all valid names while `1_MODS`, `$MODS`, `_$MODS` are not. When an expression is evaluated, all variable names are simply replaced by the values of the variables they reference. If a value is not of type `String`, it will be converted to that type. If the value is not convertible to type `String`, then an error will be thrown.
 
 A literal is either a string, a number, a boolean, an array, or a map literal. 
 
@@ -1242,17 +1242,18 @@ Expression Value
 A map is a comma-separated list of of key-value pairs, enclosed in braces. Note that keys are strings, and so must be quoted. The value is separated from the key by a colon character.
 
 	Map            = "{" [ KeyValuePair { "," KeyValuePair } ] "}"
-	KeyValuePair   = String ":" Expression
+	KeyValuePair   = StringOrName ":" Expression
+	StringOrName   = String | Name
 
 An example of a valid map expression looks as follows:
 
     {
-    	"some_key"   : "a string",
-    	"other_key"  : 1+2,
-    	"another_key": [1..3]
+    	"some key"   : "a string",
+    	other_key  : 1+2,
+    	another_key: [1..3]
     }
 
-This expression evaluates to a map containing the value `"a string"` under the key `some_key`, the value `3.0` under the key `other_key`, and an array containing the values `1.0`, `2.0`, and `3.0` under the key `another_key`.
+This expression evaluates to a map containing the value `"a string"` under the key `some key`, the value `3.0` under the key `other_key`, and an array containing the values `1.0`, `2.0`, and `3.0` under the key `another_key`.
 
 ### Subscript
 
@@ -1888,11 +1889,11 @@ Windows 		`C:\Users\<username>\AppData\Roaming\TrenchBroom`
 macOS			`~/Library/Application Support/TrenchBroom`
 Linux 			`~/.trenchbroom`
 
-To add a new game configuration to TrenchBroom, place them into the folder `<UserDataPath>/games` -- note that you might need to create that folder if it does not exist. You will need to write your own `.cfg` file, or you can copy and rename one of the builtin files and base your game configuration on that. Additionally, you can place additional resources in a sub folder.
+To add a new game configuration to TrenchBroom, place it into a folder under `<UserDataPath>/games` -- note that you might need to create that folder if it does not exist. You will need to write your own `GameConfig.cfg` file, or you can copy one of the builtin files and base your game configuration on that. Additionally, you can place additional resources in the folder you created. As an example, suppose you want to add a game configuration for a game called "Example". For this, you would create a new folder `<UserDataPath>/games/Example`, and within that folder, you would create a game configuration file called `GameConfig.cfg`. If you need additional resource such as an icon or entity definition files, you would place those files into this newly created folder as well.
 
-To override a builtin game configuration file, copy the builtin file and place it in `<UserDataPath>/games`. TrenchBroom will prioritize your custom game configurations over the builtin files, but you can still access the resources in the game's resource sub folder without problems. If you wish, you can also override some of these resources by placing a file of the same name in your game resource sub directory.
+To override a builtin game configuration file, copy the folder containing the builtin file and place it in `<UserDataPath>/games`. TrenchBroom will prioritize your custom game configurations over the builtin files, but you can still access the resources in the game's resource sub folder without problems. If you wish, you can also override some of these resources by placing a file of the same name in your game resource sub directory.
 
-As an example, consider the case where you want to override the builtin Quake game configuration and the builtin entity definition file for Quake. Copy the file `<ResourcePath>/games/Quake.cfg` to `<UserDataPath>/games` and modify it as needed. Then copy the file `<ResourcePath>/games/Quake/Quake.fgd` to `<UserDataPath>/games/Quake` and modify it, too. When you load the game configuration in TrenchBroom, the editor will pick up the modified files instead of the builtin ones.
+As an example, consider the case where you want to override the builtin Quake game configuration and the builtin entity definition file for Quake. Copy the file `<ResourcePath>/games/Quake/GameConfig.cfg` to `<UserDataPath>/games/Quake` and modify it as needed. Then copy the file `<ResourcePath>/games/Quake/Quake.fgd` to `<UserDataPath>/games/Quake` and modify it, too. When you load the game configuration in TrenchBroom, the editor will pick up the modified files instead of the builtin ones.
 
 ### Game Configuration File Syntax
 
@@ -1917,17 +1918,21 @@ Game configuration files need to specify the following information.
 The game configuration is an [expression language](#expression_language) map with a specific structure, which is explained using an example. 
 
     {
-	    "version": 1, // mandatory, indicates the version of the file's syntax
+	    "version": 2, // mandatory, indicates the version of the file's syntax
 		"name": "Quake 2", // mandatory, the name to use in the UI
 		"icon": "Quake2/Icon.png", // optional, the icon to show in the UI
-	 	"fileformats": [ "Quake2" ], // a list of supported file formats, see below
+	 	"fileformats": [ // a list of supported file formats with custom initial maps to be loaded when a new file is created
+	 	    { "format": "Standard", "initialmap": "initial_standard.map" },
+	 	    { "format": "Valve", "initialmap": "initial_valve.map" },
+	 	    { "format": "Quake2", "initialmap": "initial_quake2.map" }
+	 	],
 		"filesystem": { // defines the file system used to search for game assets
 			"searchpath": "baseq2", // the path in the game folder at which to search for assets
 	        "packageformat": { "extension": "pak", "format": "idpak" } // the package file format
 		},
 		"textures": { // where to search for textures and how to read them, see below
 	        "package": { "type": "directory", "root": "textures" },
-	        "format": { "extension": "wal", "format": "idwal" },
+	        "format": { "extensions": [ "wal" ], "format": "idwal" },
 	        "palette": "pics/colormap.pcx",
 	        "attribute": "_tb_textures"
 		},
@@ -1978,7 +1983,7 @@ The game configuration is an [expression language](#expression_language) map wit
 
 #### File Formats
 
-The file format is specified by an array under the key `fileformats`. The following formats are supported.
+The file format is specified by an array of maps under the key `fileformats`. The following formats are supported.
 
 Format       Description
 ------       -----------
@@ -1987,13 +1992,22 @@ Valve        Valve map file (like Standard, but with different texture info per 
 Quake2       Quake 2 map file
 Hexen2       Hexen 2 map file (like Quake, but with an additional, but unused value per face)
 
+Each entry of the array must have the following structure:
+
+    { 
+    	"format": "Standard", 
+    	"initialmap: "initial_standard.map"
+    }
+
+Thereby, the `format` key is mandatory but the `initialmap` key is optional. The `initialmap` key refers to a map file in the game's configuration sub folder which should be loaded if a new document is created. If no initial map is specified, or if the file cannot be found, TrenchBroom will create a map containing a single brush at the origin.
+
 #### File System
 
 The file system is used in the editor to load game assets, and it is specified by a map under the key `filesystem`. The map contains two keys, `searchpath` and `packageformat`.
 
 * `searchpath` is the subdirectory under the game directory (set in the game preferences) at which the editor will search for game assets. The editor will search loose files in this path, but it will also mount packages found here.
 * `packageformat` specifies the format of the packages to mount. It is a map with two keys, `extension` and `format`.
-	* `extension` specifies the file extension of the package files to mount
+	* `extensions` specifies the file extensions of the package files to mount (alternatively allows `extension` to specify only one extension)
 	* `format` specifies the format of the package files
 
 The following package formats are supported.
@@ -2026,7 +2040,7 @@ A directory based texture configuration looks as follows. It differs only in the
 
 	"textures": {
         "package": { "type": "directory", "root": "textures" },
-        "format": { "extension": "wal", "format": "idwal" },
+        "format": { "extensions": [ "wal" ], "format": "idwal" },
         "palette": "pics/colormap.pcx",
         "attribute": "_tb_textures"
 	},
@@ -2037,7 +2051,7 @@ In the case of Quake 2, the builtin game configuration specifies the search path
 
 The remaining keys in a texture configuration are the same for file based and texture based texture package configurations.
 
-The `format` key specifies the format of the texture files found in the package. For the s
+The `format` key specifies the format of the texture files found in the package.
 
 Format       Description
 ------       -----------

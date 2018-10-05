@@ -27,22 +27,35 @@
 
 namespace TrenchBroom {
     namespace Model {
+        GameConfig::MapFormatConfig::MapFormatConfig(const String& i_format, const IO::Path& i_initialMap) :
+        format(i_format),
+        initialMap(i_initialMap) {}
+
+        GameConfig::MapFormatConfig::MapFormatConfig() = default;
+
+        bool GameConfig::MapFormatConfig::operator==(const MapFormatConfig& other) const {
+            return format == other.format && initialMap == other.initialMap;
+        }
+
         GameConfig::PackageFormatConfig::PackageFormatConfig(const String& i_extension, const String& i_format) :
-        extension(i_extension),
+        extensions(1, i_extension),
         format(i_format) {}
 
-        GameConfig::PackageFormatConfig::PackageFormatConfig() {}
+        GameConfig::PackageFormatConfig::PackageFormatConfig(const StringList& i_extensions, const String& i_format) :
+        extensions(i_extensions),
+        format(i_format) {}
+
+        GameConfig::PackageFormatConfig::PackageFormatConfig() = default;
 
         bool GameConfig::PackageFormatConfig::operator==(const PackageFormatConfig& other) const {
-            return (extension == other.extension &&
-                    format == other.format);
+            return (extensions == other.extensions && format == other.format);
         }
 
         GameConfig::FileSystemConfig::FileSystemConfig(const IO::Path& i_searchPath, const PackageFormatConfig& i_packageFormat) :
         searchPath(i_searchPath),
         packageFormat(i_packageFormat) {}
         
-        GameConfig::FileSystemConfig::FileSystemConfig() {}
+        GameConfig::FileSystemConfig::FileSystemConfig() = default;
         
         bool GameConfig::FileSystemConfig::operator==(const FileSystemConfig& other) const {
             return (searchPath == other.searchPath &&
@@ -72,7 +85,7 @@ namespace TrenchBroom {
         palette(i_palette),
         attribute(i_attribute) {}
 
-        GameConfig::TextureConfig::TextureConfig() {}
+        GameConfig::TextureConfig::TextureConfig() = default;
 
         bool GameConfig::TextureConfig::operator==(const TextureConfig& other) const {
             return (package == other.package &&
@@ -92,7 +105,7 @@ namespace TrenchBroom {
         modelFormats(i_modelFormats),
         defaultColor(i_defaultColor) {}
 
-        GameConfig::EntityConfig::EntityConfig() {}
+        GameConfig::EntityConfig::EntityConfig() = default;
 
         bool GameConfig::EntityConfig::operator==(const EntityConfig& other) const {
             return (defFilePaths == other.defFilePaths &&
@@ -104,22 +117,23 @@ namespace TrenchBroom {
         name(i_name),
         description(i_description) {}
 
-        GameConfig::FlagConfig::FlagConfig() {}
+        GameConfig::FlagConfig::FlagConfig() = default;
 
         bool GameConfig::FlagConfig::operator==(const FlagConfig& other) const {
             return (name == other.name &&
                     description == other.description);
         }
         
-        GameConfig::FlagsConfig::FlagsConfig() {}
+        GameConfig::FlagsConfig::FlagsConfig() = default;
 
         GameConfig::FlagsConfig::FlagsConfig(const FlagConfigList& i_flags) :
         flags(i_flags) {}
 
         int GameConfig::FlagsConfig::flagValue(const String& flagName) const {
             for (size_t i = 0; i < flags.size(); ++i) {
-                if (flags[i].name == flagName)
+                if (flags[i].name == flagName) {
                     return static_cast<int>(1 << i);
+                }
             }
             return 0;
         }
@@ -130,13 +144,15 @@ namespace TrenchBroom {
         }
         
         StringList GameConfig::FlagsConfig::flagNames(const int mask) const {
-            if (mask == 0)
+            if (mask == 0) {
                 return EmptyStringList;
-            
+            }
+
             StringList names;
             for (size_t i = 0; i < flags.size(); ++i) {
-                if (mask & (1 << i))
+                if (mask & (1 << i)) {
                     names.push_back(flags[i].name);
+                }
             }
             return names;
         }
@@ -145,7 +161,7 @@ namespace TrenchBroom {
             return flags == other.flags;
         }
 
-        GameConfig::FaceAttribsConfig::FaceAttribsConfig() {}
+        GameConfig::FaceAttribsConfig::FaceAttribsConfig() = default;
 
         GameConfig::FaceAttribsConfig::FaceAttribsConfig(const FlagConfigList& i_surfaceFlags, const FlagConfigList& i_contentFlags) :
         surfaceFlags(i_surfaceFlags),
@@ -162,7 +178,7 @@ namespace TrenchBroom {
         GameConfig::GameConfig(const String& name,
                                const IO::Path& path,
                                const IO::Path& icon,
-                               const StringList& fileFormats,
+                               const MapFormatConfig::List& fileFormats,
                                const FileSystemConfig& fileSystemConfig,
                                const TextureConfig& textureConfig,
                                const EntityConfig& entityConfig,
@@ -194,7 +210,7 @@ namespace TrenchBroom {
             return m_icon;
         }
 
-        const StringList& GameConfig::fileFormats() const {
+        const GameConfig::MapFormatConfig::List& GameConfig::fileFormats() const {
             return m_fileFormats;
         }
 
@@ -246,11 +262,21 @@ namespace TrenchBroom {
             return m_maxPropertyLength;
         }
 
-        const IO::Path GameConfig::findConfigFile(const IO::Path& filePath) const {
-            const IO::Path relPath = path().deleteLastComponent() + filePath;
-//            if (IO::Disk::fileExists(relPath))
-                return relPath;
-//            return IO::SystemPaths::resourceDirectory() + filePath;
+        IO::Path GameConfig::findInitialMap(const String& formatName) const {
+            for (const auto& format : m_fileFormats) {
+                if (format.format == formatName) {
+                    if (!format.initialMap.isEmpty()) {
+                        return findConfigFile(format.initialMap);
+                    } else {
+                        break;
+                    }
+                }
+            }
+            return IO::Path("");
+        }
+
+        IO::Path GameConfig::findConfigFile(const IO::Path& filePath) const {
+            return path().deleteLastComponent() + filePath;
         }
 
         void GameConfig::addBrushContentType(const BrushContentType& contentType) {

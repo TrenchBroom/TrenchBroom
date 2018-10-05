@@ -1,8 +1,8 @@
 {
     "version": 1,
 	"name": "Daikatana",
-	"icon": "Daikatana/Icon.png",
- 	"fileformats": [ "Quake2" ],
+	"icon": "Icon.png",
+ 	"fileformats": [ { "format": "Quake2" } ],
 	"filesystem": {
 		"searchpath": "data",
         "packageformat": { "extension": "pak", "format": "dkpak" }
@@ -14,7 +14,7 @@
     	"attribute": "_tb_textures"
 	},
   	"entities": {
-		"definitions": [ "Daikatana/Daikatana.def" ],
+		"definitions": [ "Daikatana.def" ],
     	"defaultcolor": "0.6 0.6 0.6 1.0",
 		"modelformats": [ "md2" ]
     },

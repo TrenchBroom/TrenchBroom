@@ -43,8 +43,12 @@
 #include "IO/SystemPaths.h"
 #include "IO/TextureLoader.h"
 #include "Model/AttributableNodeVariableStore.h"
+#include "Model/Brush.h"
+#include "Model/BrushBuilder.h"
+#include "Model/BrushFace.h"
 #include "Model/EntityAttributes.h"
 #include "Model/GameConfig.h"
+#include "Model/Layer.h"
 #include "Model/Tutorial.h"
 #include "Model/World.h"
 
@@ -85,12 +89,12 @@ namespace TrenchBroom {
             const GameConfig::FileSystemConfig& fileSystemConfig = m_config.fileSystemConfig();
             const GameConfig::PackageFormatConfig& packageFormatConfig = fileSystemConfig.packageFormat;
 
-            const String& packageExtension = packageFormatConfig.extension;
+            const StringList& packageExtensions = packageFormatConfig.extensions;
             const String& packageFormat = packageFormatConfig.format;
 
             if (IO::Disk::directoryExists(searchPath)) {
                 const IO::DiskFileSystem diskFS(searchPath);
-                const IO::Path::List packages = diskFS.findItems(IO::Path(""), IO::FileExtensionMatcher(packageExtension));
+                const IO::Path::List packages = diskFS.findItems(IO::Path(""), IO::FileExtensionMatcher(packageExtensions));
                 for (const IO::Path& packagePath : packages) {
                     IO::MappedFile::Ptr packageFile = diskFS.openFile(packagePath);
                     ensure(packageFile.get() != nullptr, "packageFile is null");
@@ -141,8 +145,19 @@ namespace TrenchBroom {
             return m_config.maxPropertyLength();
         }
 
-        World* GameImpl::doNewMap(const MapFormat::Type format, const vm::bbox3& worldBounds) const {
-            return new World(format, brushContentTypeBuilder(), worldBounds);
+        World* GameImpl::doNewMap(const MapFormat::Type format, const vm::bbox3& worldBounds, Logger* logger) const {
+            const auto initialMapFilePath = m_config.findInitialMap(formatName(format));
+            if (!initialMapFilePath.isEmpty() && IO::Disk::fileExists(initialMapFilePath)) {
+                return doLoadMap(format, worldBounds, initialMapFilePath, logger);
+            }
+
+            auto* world = new World(format, brushContentTypeBuilder(), worldBounds);
+
+            const Model::BrushBuilder builder(world, worldBounds);
+            auto* brush = builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFace::NoTextureName);
+            world->defaultLayer()->addChild(brush);
+
+            return world;
         }
 
         World* GameImpl::doLoadMap(const MapFormat::Type format, const vm::bbox3& worldBounds, const IO::Path& path, Logger* logger) const {
@@ -228,7 +243,7 @@ namespace TrenchBroom {
             const GameConfig::TexturePackageConfig packageConfig = m_config.textureConfig().package;
             switch (packageConfig.type) {
                 case GameConfig::TexturePackageConfig::PT_File:
-                    return StringUtils::caseInsensitiveEqual(path.extension(), packageConfig.fileFormat.extension);
+                    return path.hasExtension(packageConfig.fileFormat.extensions, false);
                 case GameConfig::TexturePackageConfig::PT_Directory:
                 case GameConfig::TexturePackageConfig::PT_Unset:
                     return false;
@@ -270,11 +285,13 @@ namespace TrenchBroom {
 
         bool GameImpl::doIsEntityDefinitionFile(const IO::Path& path) const {
             const String extension = path.extension();
-            if (StringUtils::caseInsensitiveEqual("fgd", extension))
+            if (StringUtils::caseInsensitiveEqual("fgd", extension)) {
                 return true;
-            if (StringUtils::caseInsensitiveEqual("def", extension))
+            } else if (StringUtils::caseInsensitiveEqual("def", extension)) {
                 return true;
-            return false;
+            } else {
+                return false;
+            }
         }
 
         Assets::EntityDefinitionList GameImpl::doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const {

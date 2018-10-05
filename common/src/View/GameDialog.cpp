@@ -226,15 +226,17 @@ namespace TrenchBroom {
         }
         
         void GameDialog::updateMapFormats(const String& gameName) {
-            const Model::GameFactory& gameFactory = Model::GameFactory::instance();
-            const StringList& fileFormats = gameName.empty() ? EmptyStringList : gameFactory.fileFormats(gameName);
+            const auto& gameFactory = Model::GameFactory::instance();
+            const auto fileFormats = gameName.empty() ? EmptyStringList : gameFactory.fileFormats(gameName);
             
             m_mapFormatChoice->Clear();
-            for (size_t i = 0; i < fileFormats.size(); ++i)
+            for (size_t i = 0; i < fileFormats.size(); ++i) {
                 m_mapFormatChoice->Append(fileFormats[i]);
-            
-            if (!m_mapFormatChoice->IsEmpty())
+            }
+
+            if (!m_mapFormatChoice->IsEmpty()) {
                 m_mapFormatChoice->SetSelection(0);
+            }
         }
         
         void GameDialog::gameSelected(const String& gameName) {
