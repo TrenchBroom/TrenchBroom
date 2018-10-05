@@ -47,5 +47,7 @@
 	<string>Copyright © 2010-2013 Kristian Duske. All rights reserved.</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>NSRequiresAquaSystemAppearance</key>
+	<true/>
 </dict>
 </plist>
