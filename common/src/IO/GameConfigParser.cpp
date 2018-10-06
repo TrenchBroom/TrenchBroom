@@ -247,12 +247,26 @@ namespace TrenchBroom {
                     const StringSet flagSet = entry["flags"].asStringSet();
                     int flagValue = 0;
 
-                    for (const String& currentName : flagSet) {
+                    for (const String &currentName : flagSet) {
                         const int currentValue = faceAttribsConfig.contentFlags.flagValue(currentName);
                         flagValue |= currentValue;
                     }
-                    
-                    Model::BrushContentTypeEvaluator* evaluator = Model::BrushContentTypeEvaluator::contentFlagsEvaluator(flagValue);
+
+                    Model::BrushContentTypeEvaluator *evaluator = Model::BrushContentTypeEvaluator::contentFlagsEvaluator(
+                        flagValue);
+                    contentTypes.push_back(Model::BrushContentType(name, transparent, flag, evaluator));
+                } else if (match == "surfaceflag") {
+                    expectMapEntry(entry, "flags", EL::Type_Array);
+                    const StringSet flagSet = entry["flags"].asStringSet();
+                    int flagValue = 0;
+
+                    for (const String &currentName : flagSet) {
+                        const int currentValue = faceAttribsConfig.contentFlags.flagValue(currentName);
+                        flagValue |= currentValue;
+                    }
+
+                    Model::BrushContentTypeEvaluator *evaluator = Model::BrushContentTypeEvaluator::surfaceFlagsEvaluator(
+                        flagValue);
                     contentTypes.push_back(Model::BrushContentType(name, transparent, flag, evaluator));
                 } else if (match == "classname") {
                     const String& pattern = entry["pattern"].stringValue();

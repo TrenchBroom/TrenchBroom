@@ -74,7 +74,19 @@ namespace TrenchBroom {
                 return (face->surfaceContents() & m_flags) != 0;
             }
         };
-        
+
+        class SurfaceFlagsEvaluator : public BrushFaceEvaluator {
+        private:
+            int m_flags;
+        public:
+            SurfaceFlagsEvaluator(const int flags) :
+                m_flags(flags) {}
+        private:
+            bool doEvaluate(const BrushFace* face) const override {
+                return (face->surfaceFlags() & m_flags) != 0;
+            }
+        };
+
         class EntityClassnameEvaluator : public BrushContentTypeEvaluator {
         private:
             String m_pattern;
@@ -99,6 +111,10 @@ namespace TrenchBroom {
         
         BrushContentTypeEvaluator* BrushContentTypeEvaluator::contentFlagsEvaluator(const int value) {
             return new ContentFlagsEvaluator(value);
+        }
+
+        BrushContentTypeEvaluator* BrushContentTypeEvaluator::surfaceFlagsEvaluator(const int value) {
+            return new SurfaceFlagsEvaluator(value);
         }
 
         BrushContentTypeEvaluator* BrushContentTypeEvaluator::entityClassnameEvaluator(const String& pattern) {

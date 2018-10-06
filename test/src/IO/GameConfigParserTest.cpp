@@ -193,6 +193,11 @@ namespace TrenchBroom {
                                 "            \"attribs\": [ \"transparent\" ],\n"
                                 "            \"match\": \"classname\",\n"
                                 "            \"pattern\": \"trigger*\"\n"
+                                "        },\n"
+                                "        {\n"
+                                "            \"name\": \"Warp Surface\",\n"
+                                "            \"match\": \"surfaceflag\",\n"
+                                "            \"flags\": [ \"warp\" ]\n"
                                 "        }\n"
                                 "    ],\n"
                                 "    \"faceattribs\": {\n"
@@ -402,7 +407,7 @@ namespace TrenchBroom {
             ASSERT_EQ(expected.textureConfig(), actual.textureConfig());
             ASSERT_EQ(expected.entityConfig(), actual.entityConfig());
             ASSERT_EQ(expected.faceAttribsConfig(), actual.faceAttribsConfig());
-            ASSERT_EQ(6u, actual.brushContentTypes().size());
+            ASSERT_EQ(7u, actual.brushContentTypes().size());
         }
     }
 }
