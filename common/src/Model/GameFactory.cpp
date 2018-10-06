@@ -147,11 +147,11 @@ namespace TrenchBroom {
         }
 
         void GameFactory::loadGameConfigs() {
-            const auto configFiles = m_configFS.findItems(IO::Path(""), IO::FileExtensionMatcher("cfg"));
-            
-            for (const auto& configFilePath : configFiles)
+            const auto configFiles = m_configFS.findItemsRecursively(IO::Path(""), IO::FileNameMatcher("GameConfig.cfg"));
+            for (const auto& configFilePath : configFiles) {
                 loadGameConfig(configFilePath);
-            
+            }
+
             StringUtils::sortCaseSensitive(m_names);
         }
 
