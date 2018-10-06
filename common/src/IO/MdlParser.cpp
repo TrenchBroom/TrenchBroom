@@ -220,27 +220,26 @@ namespace TrenchBroom {
         }
 
         Assets::EntityModel* MdlParser::doParseModel() {
-            const char* cursor = m_begin + MdlLayout::HeaderScale;
-            const vm::vec3f scale = readVec3f(cursor);
-            const vm::vec3f origin = readVec3f(cursor);
+            const auto* cursor = m_begin + MdlLayout::HeaderScale;
+            const auto scale = readVec3f(cursor);
+            const auto origin = readVec3f(cursor);
             
             cursor = m_begin + MdlLayout::HeaderNumSkins;
-            const size_t skinCount = readSize<int32_t>(cursor);
-            const size_t skinWidth = readSize<int32_t>(cursor);
-            const size_t skinHeight = readSize<int32_t>(cursor);
-            const size_t skinVertexCount = readSize<int32_t>(cursor);
-            const size_t skinTriangleCount = readSize<int32_t>(cursor);
-            const size_t frameCount = readSize<int32_t>(cursor);
-            /* const size_t syncType = */ readSize<int32_t>(cursor);
-            const int flags = readInt<int32_t>(cursor);
+            const auto skinCount = readSize<int32_t>(cursor);
+            const auto skinWidth = readSize<int32_t>(cursor);
+            const auto skinHeight = readSize<int32_t>(cursor);
+            const auto skinVertexCount = readSize<int32_t>(cursor);
+            const auto skinTriangleCount = readSize<int32_t>(cursor);
+            const auto frameCount = readSize<int32_t>(cursor);
+            /* const auto syncType = */ readSize<int32_t>(cursor);
+            const auto flags = readInt<int32_t>(cursor);
 
-            using ModelPtr = std::unique_ptr<Assets::EntityModel>;
-            ModelPtr model = std::make_unique<Assets::EntityModel>(m_name);
+            auto model = std::make_unique<Assets::EntityModel>(m_name);
 
             parseSkins(cursor, model.get(), skinCount, skinWidth, skinHeight, flags);
 
-            const MdlSkinVertexList skinVertices = parseSkinVertices(cursor, skinVertexCount);
-            const MdlSkinTriangleList skinTriangles = parseSkinTriangles(cursor, skinTriangleCount);
+            const auto skinVertices = parseSkinVertices(cursor, skinVertexCount);
+            const auto skinTriangles = parseSkinTriangles(cursor, skinTriangleCount);
 
             parseFrames(cursor, model.get(), frameCount, skinTriangles, skinVertices, skinWidth, skinHeight, origin, scale);
 
@@ -248,7 +247,7 @@ namespace TrenchBroom {
         }
 
         void MdlParser::parseSkins(const char*& cursor, Assets::EntityModel* model, const size_t count, const size_t width, const size_t height, const int flags) {
-            const size_t size = width * height;
+            const auto size = width * height;
             const auto transparency = (flags & MF_HOLEY)
                     ? Assets::PaletteTransparency::Index255Transparent
                     : Assets::PaletteTransparency::Opaque;
@@ -260,7 +259,7 @@ namespace TrenchBroom {
 
             cursor = m_begin + MdlLayout::Skins;
             for (size_t i = 0; i < count; ++i) {
-                const size_t skinGroup = readSize<int32_t>(cursor);
+                const auto skinGroup = readSize<int32_t>(cursor);
                 if (skinGroup == 0) {
                     Buffer<unsigned char> rgbaImage(size * 4);
                     m_palette.indexedToRgba(cursor, size, rgbaImage, avgColor, transparency);
@@ -270,7 +269,7 @@ namespace TrenchBroom {
 
                     model->addSkin(new Assets::Texture(textureName.str(), width, height, avgColor, rgbaImage, GL_RGBA, type));
                 } else {
-                    const size_t pictureCount = readSize<int32_t>(cursor);
+                    const auto pictureCount = readSize<int32_t>(cursor);
 
                     Buffer<unsigned char> rgbaImage(size * 4);
                     cursor += pictureCount * 4;
@@ -308,15 +307,15 @@ namespace TrenchBroom {
 
         void MdlParser::parseFrames(const char*& cursor, Assets::EntityModel* model, const size_t count, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, const size_t skinWidth, const size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale) {
             for (size_t i = 0; i < count; ++i) {
-                const int type = readInt<int32_t>(cursor);
+                const auto type = readInt<int32_t>(cursor);
                 if (type == 0) { // single frame
                     parseFrame(cursor, model, skinTriangles, skinVertices, skinWidth, skinHeight, origin, scale);
                 } else { // frame group, but we only read the first frame
-                    const char* base = cursor;
-                    const size_t groupFrameCount = readSize<int32_t>(cursor);
+                    const auto* base = cursor;
+                    const auto groupFrameCount = readSize<int32_t>(cursor);
 
-                    const char* frameCursor = base + MdlLayout::MultiFrameTimes + groupFrameCount * sizeof(float);
-                    parseFrame(cursor, model, skinTriangles, skinVertices, skinWidth, skinHeight, origin, scale);
+                    const auto* frameCursor = base + MdlLayout::MultiFrameTimes + groupFrameCount * sizeof(float);
+                    parseFrame(frameCursor, model, skinTriangles, skinVertices, skinWidth, skinHeight, origin, scale);
 
                     // forward to after the last group frame as if we had read them all
                     const auto offset = (groupFrameCount - 1) * (MdlLayout::SimpleFrameName + MdlLayout::SimpleFrameLength + skinVertices.size() * 4);
@@ -349,13 +348,12 @@ namespace TrenchBroom {
             VertexList frameTriangles;
             frameTriangles.reserve(skinTriangles.size());
             for (size_t i = 0; i < skinTriangles.size(); ++i) {
-                const MdlSkinTriangle& triangle = skinTriangles[i];
+                const auto& triangle = skinTriangles[i];
                 for (size_t j = 0; j < 3; ++j) {
                     const auto vertexIndex = triangle.vertices[j];
                     const auto& skinVertex = skinVertices[vertexIndex];
 
-                    vm::vec2f texCoords (static_cast<float>(skinVertex.s) / static_cast<float>(skinWidth),
-                                         static_cast<float>(skinVertex.t) / static_cast<float>(skinHeight));
+                    auto texCoords = vm::vec2f(float(skinVertex.s) / float(skinWidth), float(skinVertex.t) / float(skinHeight));
                     if (skinVertex.onseam && !triangle.front) {
                         texCoords[0] += 0.5f;
                     }

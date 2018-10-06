@@ -33,8 +33,6 @@
 namespace TrenchBroom {
     namespace Assets {
         class EntityModel;
-        class MdlModel;
-        class MdlFrame;
         class Palette;
     }
     
