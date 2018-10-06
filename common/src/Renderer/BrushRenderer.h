@@ -200,6 +200,9 @@ namespace TrenchBroom {
              * - all brushes vertices will be re-fetched from the Brush object.
              *
              * Until a brush is invalidated, we don't re-evaluate the Filter, and don't check the Brush object for modification.
+             *
+             * Additionally, calling `invalidate()` guarantees the m_brushInfo, m_transparentFaces, and m_opaqueFaces
+             * maps will be empty, so the BrushRenderer will not have any lingering Texture* pointers.
              */
             void invalidate();
             void invalidateBrushes(const Model::BrushList& brushes);

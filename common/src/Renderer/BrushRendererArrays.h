@@ -223,7 +223,10 @@ namespace TrenchBroom {
         public:
             BrushIndexArray();
 
-            bool empty() const;
+            /**
+             * Returns true if there are any valid indices to render. Ranges zeroed by zeroElementsWithKey() do not count.
+             */
+            bool hasValidIndices() const;
 
             /**
              * Call this to request writing the given number of indices.
