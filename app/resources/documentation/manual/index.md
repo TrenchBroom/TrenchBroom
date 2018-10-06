@@ -1239,7 +1239,7 @@ Expression Value
 [1+1,3.0]  An array containing the values `2.0` and `3.0`.
 [-5,-1]    An array containing the values `-5.0`, `-4.0`, ..., `-1.0`.
 
-A map is a comma-separated list of of key-value pairs, enclosed in braces. Note that keys are strings, and so must be quoted. The value is separated from the key by a colon character.
+A map is a comma-separated list of of key-value pairs, enclosed in braces. Note that keys are strings or names. To use certain special characters or whitespace in the key, it must be given as a string. The value is separated from the key by a colon character.
 
 	Map            = "{" [ KeyValuePair { "," KeyValuePair } ] "}"
 	KeyValuePair   = StringOrName ":" Expression
