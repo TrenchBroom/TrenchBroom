@@ -1519,7 +1519,6 @@ namespace TrenchBroom {
             Notifier0::NotifyAfter notifyTextureCollections(textureCollectionsDidChangeNotifier);
 
             info("Reloading texture collections");
-            unsetTextures();
             unloadTextures();
             loadTextures();
             setTextures();
