@@ -484,6 +484,7 @@ namespace TrenchBroom {
             document->groupWasClosedNotifier.addObserver(this, &MapRenderer::groupWasClosed);
             document->brushFacesDidChangeNotifier.addObserver(this, &MapRenderer::brushFacesDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &MapRenderer::selectionDidChange);
+            document->texturesWillBeUnloadedNotifier.addObserver(this, &MapRenderer::texturesWillBeUnloaded);
             document->textureCollectionsDidChangeNotifier.addObserver(this, &MapRenderer::textureCollectionsDidChange);
             document->entityDefinitionsDidChangeNotifier.addObserver(this, &MapRenderer::entityDefinitionsDidChange);
             document->modsDidChangeNotifier.addObserver(this, &MapRenderer::modsDidChange);
@@ -509,6 +510,7 @@ namespace TrenchBroom {
                 document->groupWasClosedNotifier.removeObserver(this, &MapRenderer::groupWasClosed);
                 document->brushFacesDidChangeNotifier.removeObserver(this, &MapRenderer::brushFacesDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &MapRenderer::selectionDidChange);
+                document->texturesWillBeUnloadedNotifier.removeObserver(this, &MapRenderer::texturesWillBeUnloaded);
                 document->textureCollectionsDidChangeNotifier.removeObserver(this, &MapRenderer::textureCollectionsDidChange);
                 document->entityDefinitionsDidChangeNotifier.removeObserver(this, &MapRenderer::entityDefinitionsDidChange);
                 document->modsDidChangeNotifier.removeObserver(this, &MapRenderer::modsDidChange);
@@ -593,7 +595,11 @@ namespace TrenchBroom {
                 result.insert(face->brush());
             return result;
         }
-        
+
+        void MapRenderer::texturesWillBeUnloaded() {
+            invalidateRenderers(Renderer_All);
+        }
+
         void MapRenderer::textureCollectionsDidChange() {
             invalidateRenderers(Renderer_All);
         }

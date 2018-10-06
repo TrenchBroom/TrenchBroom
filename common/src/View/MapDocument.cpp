@@ -1568,6 +1568,7 @@ namespace TrenchBroom {
         }
         
         void MapDocument::loadTextures() {
+            texturesWillBeUnloadedNotifier();
             try {
                 const IO::Path docDir = m_path.isEmpty() ? IO::Path() : m_path.deleteLastComponent();
                 m_game->loadTextureCollections(m_world, docDir, *m_textureManager);
@@ -1577,6 +1578,7 @@ namespace TrenchBroom {
         }
         
         void MapDocument::unloadTextures() {
+            texturesWillBeUnloadedNotifier();
             unsetTextures();
             m_textureManager->clear();
         }

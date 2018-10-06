@@ -139,8 +139,10 @@ namespace TrenchBroom {
             Notifier1<Model::Group*> groupWasClosedNotifier;
             
             Notifier1<const Model::BrushFaceList&> brushFacesDidChangeNotifier;
-            
+
+            Notifier0 texturesWillBeUnloadedNotifier;
             Notifier0 textureCollectionsDidChangeNotifier;
+
             Notifier0 entityDefinitionsDidChangeNotifier;
             Notifier0 modsDidChangeNotifier;
             
