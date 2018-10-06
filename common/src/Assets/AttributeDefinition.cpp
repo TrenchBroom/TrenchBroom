@@ -24,11 +24,12 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        AttributeDefinition::AttributeDefinition(const String& name, const Type type, const String& shortDescription, const String& longDescription) :
+        AttributeDefinition::AttributeDefinition(const String& name, const Type type, const String& shortDescription, const String& longDescription, const bool readOnly) :
         m_name(name),
         m_type(type),
         m_shortDescription(shortDescription),
-        m_longDescription(longDescription) {}
+        m_longDescription(longDescription),
+        m_readOnly(readOnly) {}
         
         AttributeDefinition::~AttributeDefinition() {}
         
@@ -60,6 +61,10 @@ namespace TrenchBroom {
                 result << "No description found";
             }
             return result.str();
+        }
+
+        bool AttributeDefinition::readOnly() const {
+            return m_readOnly;
         }
 
         String AttributeDefinition::safeFullDescription(const AttributeDefinition* definition) {
@@ -124,23 +129,23 @@ namespace TrenchBroom {
             }
         }
 
-        StringAttributeDefinition::StringAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const String& defaultValue) :
-        AttributeDefinitionWithDefaultValue(name, Type_StringAttribute, shortDescription, longDescription, defaultValue) {}
+        StringAttributeDefinition::StringAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const String& defaultValue, const bool readOnly) :
+        AttributeDefinitionWithDefaultValue(name, Type_StringAttribute, shortDescription, longDescription, defaultValue, readOnly) {}
         
-        StringAttributeDefinition::StringAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription) :
-        AttributeDefinitionWithDefaultValue(name, Type_StringAttribute, shortDescription, longDescription) {}
+        StringAttributeDefinition::StringAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const bool readOnly) :
+        AttributeDefinitionWithDefaultValue(name, Type_StringAttribute, shortDescription, longDescription, readOnly) {}
 
-        IntegerAttributeDefinition::IntegerAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const int defaultValue) :
-        AttributeDefinitionWithDefaultValue(name, Type_IntegerAttribute, shortDescription, longDescription, defaultValue) {}
+        IntegerAttributeDefinition::IntegerAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const int defaultValue, const bool readOnly) :
+        AttributeDefinitionWithDefaultValue(name, Type_IntegerAttribute, shortDescription, longDescription, defaultValue, readOnly) {}
         
-        IntegerAttributeDefinition::IntegerAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription) :
-        AttributeDefinitionWithDefaultValue(name, Type_IntegerAttribute, shortDescription, longDescription) {}
+        IntegerAttributeDefinition::IntegerAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const bool readOnly) :
+        AttributeDefinitionWithDefaultValue(name, Type_IntegerAttribute, shortDescription, longDescription, readOnly) {}
 
-        FloatAttributeDefinition::FloatAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const float defaultValue) :
-        AttributeDefinitionWithDefaultValue(name, Type_FloatAttribute, shortDescription, longDescription, defaultValue) {}
+        FloatAttributeDefinition::FloatAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const float defaultValue, const bool readOnly) :
+        AttributeDefinitionWithDefaultValue(name, Type_FloatAttribute, shortDescription, longDescription, defaultValue, readOnly) {}
         
-        FloatAttributeDefinition::FloatAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription) :
-        AttributeDefinitionWithDefaultValue(name, Type_FloatAttribute, shortDescription, longDescription) {}
+        FloatAttributeDefinition::FloatAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const bool readOnly) :
+        AttributeDefinitionWithDefaultValue(name, Type_FloatAttribute, shortDescription, longDescription, readOnly) {}
 
         ChoiceAttributeOption::ChoiceAttributeOption(const String& value, const String& description) :
         m_value(value),
@@ -158,12 +163,12 @@ namespace TrenchBroom {
             return m_description;
         }
 
-        ChoiceAttributeDefinition::ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::List& options, const size_t defaultValue) :
-        AttributeDefinitionWithDefaultValue(name, Type_ChoiceAttribute, shortDescription, longDescription, defaultValue),
+        ChoiceAttributeDefinition::ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::List& options, const size_t defaultValue, const bool readOnly) :
+        AttributeDefinitionWithDefaultValue(name, Type_ChoiceAttribute, shortDescription, longDescription, defaultValue, readOnly),
         m_options(options) {}
         
-        ChoiceAttributeDefinition::ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::List& options) :
-        AttributeDefinitionWithDefaultValue(name, Type_ChoiceAttribute, shortDescription, longDescription),
+        ChoiceAttributeDefinition::ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::List& options, const bool readOnly) :
+        AttributeDefinitionWithDefaultValue(name, Type_ChoiceAttribute, shortDescription, longDescription, readOnly),
         m_options(options) {}
         
         const ChoiceAttributeOption::List& ChoiceAttributeDefinition::options() const {
@@ -203,9 +208,6 @@ namespace TrenchBroom {
             return m_isDefault;
         }
 
-        FlagsAttributeDefinition::FlagsAttributeDefinition(const String& name, const int defaultValue) :
-        AttributeDefinition(name, Type_FlagsAttribute, EmptyString, EmptyString) {}
-        
         FlagsAttributeDefinition::FlagsAttributeDefinition(const String& name) :
         AttributeDefinition(name, Type_FlagsAttribute, EmptyString, EmptyString) {}
         
@@ -242,10 +244,10 @@ namespace TrenchBroom {
             return options() == static_cast<const FlagsAttributeDefinition*>(other)->options();
         }
 
-        UnknownAttributeDefinition::UnknownAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const String& defaultValue) :
-        StringAttributeDefinition(name, shortDescription, longDescription, defaultValue) {}
+        UnknownAttributeDefinition::UnknownAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const String& defaultValue, const bool readOnly) :
+        StringAttributeDefinition(name, shortDescription, longDescription, defaultValue, readOnly) {}
         
-        UnknownAttributeDefinition::UnknownAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription) :
-        StringAttributeDefinition(name, shortDescription, longDescription) {}
+        UnknownAttributeDefinition::UnknownAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const bool readOnly) :
+        StringAttributeDefinition(name, shortDescription, longDescription, readOnly) {}
     }
 }
