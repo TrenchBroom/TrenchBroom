@@ -873,9 +873,9 @@ namespace TrenchBroom {
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             Notifier0::NotifyAfter notifyTextureCollections(textureCollectionsDidChangeNotifier);
             
-            unsetTextures();
             m_game->updateTextureCollections(m_world, paths);
-            reloadTextures();
+            unsetTextures();
+            loadTextures();
             setTextures();
         }
 

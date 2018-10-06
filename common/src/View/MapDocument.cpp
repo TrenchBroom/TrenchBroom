@@ -1582,12 +1582,6 @@ namespace TrenchBroom {
             m_textureManager->clear();
         }
         
-        void MapDocument::reloadTextures() {
-            unsetTextures();
-            loadTextures();
-            setTextures();
-        }
-
         class SetEntityDefinition : public Model::NodeVisitor {
         private:
             Assets::EntityDefinitionManager& m_manager;
@@ -1658,8 +1652,9 @@ namespace TrenchBroom {
             void doVisit(Model::Group* group) override   {}
             void doVisit(Model::Entity* entity) override {}
             void doVisit(Model::Brush* brush) override   {
-                for (Model::BrushFace* face : brush->faces())
+                for (Model::BrushFace* face : brush->faces()) {
                     face->updateTexture(m_manager);
+                }
             }
         };
         
@@ -1674,8 +1669,9 @@ namespace TrenchBroom {
         }
         
         void MapDocument::setTextures(const Model::BrushFaceList& faces) {
-            for (Model::BrushFace* face : faces)
+            for (Model::BrushFace* face : faces) {
                 face->updateTexture(m_textureManager);
+            }
         }
         
         class UnsetTextures : public Model::NodeVisitor {
@@ -1685,8 +1681,9 @@ namespace TrenchBroom {
             void doVisit(Model::Group* group) override   {}
             void doVisit(Model::Entity* entity) override {}
             void doVisit(Model::Brush* brush) override   {
-                for (Model::BrushFace* face : brush->faces())
+                for (Model::BrushFace* face : brush->faces()) {
                     face->setTexture(nullptr);
+                }
             }
         };
         

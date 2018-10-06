@@ -336,7 +336,6 @@ namespace TrenchBroom {
             ensure(textureManager != nullptr, "textureManager is null");
             Assets::Texture* texture = textureManager->texture(textureName());
             setTexture(texture);
-            invalidateVertexCache();
         }
 
         void BrushFace::setTexture(Assets::Texture* texture) {

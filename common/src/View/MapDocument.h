@@ -414,8 +414,7 @@ namespace TrenchBroom {
         protected:
             void loadTextures();
             void unloadTextures();
-            void reloadTextures();
-            
+
             void setEntityDefinitions();
             void setEntityDefinitions(const Model::NodeList& nodes);
             void unsetEntityDefinitions();
