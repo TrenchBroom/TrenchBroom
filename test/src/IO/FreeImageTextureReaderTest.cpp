@@ -27,7 +27,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        inline void assertTexture(const String& name, const size_t width, const size_t height, const FileSystem& fs, const TextureReader& loader) {
+        static void assertTexture(const String& name, const size_t width, const size_t height, const FileSystem& fs, const TextureReader& loader) {
             const Assets::Texture* texture = loader.readTexture(fs.openFile(Path(name)));
             ASSERT_TRUE(texture != nullptr);
             ASSERT_EQ(name, texture->name());
