@@ -49,7 +49,74 @@ namespace TrenchBroom {
         FileTextureCollectionEditor::~FileTextureCollectionEditor() {
             unbindObservers();
         }
-        
+
+        void FileTextureCollectionEditor::debugUIConsistency() const {
+            auto document = lock(m_document);
+            auto collections = document->enabledTextureCollections();
+
+            assert(m_collections->GetCount() == collections.size());
+
+            wxArrayInt selectedIndices;
+            m_collections->GetSelections(selectedIndices);
+            for (size_t i = 0; i < selectedIndices.size(); ++i) {
+                assert(selectedIndices[i] >= 0);
+                assert(selectedIndices[i] < collections.size());
+            }
+        }
+
+        bool FileTextureCollectionEditor::canRemoveTextureCollections() const {
+            debugUIConsistency();
+
+            wxArrayInt selections;
+            m_collections->GetSelections(selections);
+            if (selections.empty()) {
+                return false;
+            }
+
+            auto document = lock(m_document);
+            auto collections = document->enabledTextureCollections();
+            for (size_t i = 0; i < selections.size(); ++i) {
+                const auto index = static_cast<size_t>(selections[i]);
+                if (index >= collections.size()) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        bool FileTextureCollectionEditor::canMoveTextureCollectionsUp() const {
+            debugUIConsistency();
+
+            wxArrayInt selections;
+            m_collections->GetSelections(selections);
+            if (selections.size() != 1) {
+                return false;
+            }
+
+            auto document = lock(m_document);
+            auto collections = document->enabledTextureCollections();
+
+            const auto index = static_cast<size_t>(selections.front());
+            return index >= 1 && index < collections.size();
+        }
+
+        bool FileTextureCollectionEditor::canMoveTextureCollectionsDown() const {
+            debugUIConsistency();
+
+            wxArrayInt selections;
+            m_collections->GetSelections(selections);
+            if (selections.size() != 1) {
+                return false;
+            }
+
+            auto document = lock(m_document);
+            auto collections = document->enabledTextureCollections();
+
+            const auto index = static_cast<size_t>(selections.front());
+            return (index + 1) < collections.size();
+        }
+
         void FileTextureCollectionEditor::OnAddTextureCollectionsClicked(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -62,13 +129,13 @@ namespace TrenchBroom {
         
         void FileTextureCollectionEditor::OnRemoveTextureCollectionsClicked(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
+            if (!canRemoveTextureCollections()) {
+                return;
+            }
 
             wxArrayInt selections;
             m_collections->GetSelections(selections);
-            if (selections.empty()) {
-                return;
-            }
-            
+
             auto document = lock(m_document);
 
             auto collections = document->enabledTextureCollections();
@@ -86,20 +153,18 @@ namespace TrenchBroom {
         
         void FileTextureCollectionEditor::OnMoveTextureCollectionUpClicked(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
+            if (!canMoveTextureCollectionsUp()) {
+                return;
+            }
 
             wxArrayInt selections;
             m_collections->GetSelections(selections);
-            if (selections.size() != 1) {
-                return;
-            }
-            
+            assert(selections.size() == 1);
+
             auto document = lock(m_document);
             auto collections = document->enabledTextureCollections();
             
             const auto index = static_cast<size_t>(selections.front());
-            if (index < 1 || index >= collections.size()) {
-                return;
-            }
             VectorUtils::swapPred(collections, index);
             
             document->setEnabledTextureCollections(collections);
@@ -108,20 +173,18 @@ namespace TrenchBroom {
         
         void FileTextureCollectionEditor::OnMoveTextureCollectionDownClicked(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
+            if (!canMoveTextureCollectionsDown()) {
+                return;
+            }
 
             wxArrayInt selections;
             m_collections->GetSelections(selections);
-            if (selections.size() != 1) {
-                return;
-            }
-            
+            assert(selections.size() == 1);
+
             auto document = lock(m_document);
             auto collections = document->enabledTextureCollections();
             
             const auto index = static_cast<size_t>(selections.front());
-            if (index + 1 >= collections.size()) {
-                return;
-            }
             VectorUtils::swapSucc(collections, index);
             
             document->setEnabledTextureCollections(collections);
@@ -138,23 +201,19 @@ namespace TrenchBroom {
         void FileTextureCollectionEditor::OnUpdateRemoveButtonUI(wxUpdateUIEvent& event) {
             if (IsBeingDeleted()) return;
 
-            wxArrayInt selections;
-            event.Enable(m_collections->GetSelections(selections) > 0);
+            event.Enable(canRemoveTextureCollections());
         }
         
         void FileTextureCollectionEditor::OnUpdateMoveUpButtonUI(wxUpdateUIEvent& event) {
             if (IsBeingDeleted()) return;
 
-            wxArrayInt selections;
-            event.Enable(m_collections->GetSelections(selections) == 1 && selections.front() > 0);
+            event.Enable(canMoveTextureCollectionsUp());
         }
         
         void FileTextureCollectionEditor::OnUpdateMoveDownButtonUI(wxUpdateUIEvent& event) {
             if (IsBeingDeleted()) return;
 
-            const auto collectionCount = static_cast<int>(m_collections->GetCount());
-            wxArrayInt selections;
-            event.Enable(m_collections->GetSelections(selections) == 1 && selections.front() < collectionCount - 1);
+            event.Enable(canMoveTextureCollectionsDown());
         }
 
         void FileTextureCollectionEditor::OnUpdateReloadTextureCollectionsButtonUI(wxUpdateUIEvent& event) {
