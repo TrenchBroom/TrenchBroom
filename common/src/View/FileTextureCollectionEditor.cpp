@@ -60,7 +60,7 @@ namespace TrenchBroom {
             m_collections->GetSelections(selectedIndices);
             for (size_t i = 0; i < selectedIndices.size(); ++i) {
                 assert(selectedIndices[i] >= 0);
-                assert(selectedIndices[i] < collections.size());
+                assert(static_cast<size_t>(selectedIndices[i]) < collections.size());
             }
         }
 
