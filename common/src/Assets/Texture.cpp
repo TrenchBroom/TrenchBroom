@@ -22,6 +22,7 @@
 #include "Assets/TextureCollection.h"
 
 #include <cassert>
+#include <algorithm>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -30,8 +31,8 @@ namespace TrenchBroom {
             assert(height > 0);
 
             // from Issues 6 in: https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_texture_non_power_of_two.txt
-            return std::make_pair(std::max(1UL, width >> level),
-                                  std::max(1UL, height >> level));
+            return std::make_pair(std::max(size_t(1), width >> level),
+                                  std::max(size_t(1), height >> level));
         }
 
         size_t bytesPerPixelForFormat(const GLenum format) {
