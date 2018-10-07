@@ -63,7 +63,8 @@ namespace TrenchBroom {
 
             std::memcpy(buffers[0].ptr(), FreeImage_GetBits(image), buffers[0].size());
             for (size_t mip = 1; mip < m_mipCount; ++mip) {
-                FIBITMAP* mipImage = FreeImage_Rescale(image, static_cast<int>(imageWidth >> mip), static_cast<int>(imageHeight >> mip), FILTER_BICUBIC);
+                const auto mipSize = Assets::sizeAtMipLevel(imageWidth, imageHeight, mip);
+                FIBITMAP* mipImage = FreeImage_Rescale(image, static_cast<int>(mipSize.first), static_cast<int>(mipSize.second), FILTER_BICUBIC);
                 std::memcpy(buffers[mip].ptr(), FreeImage_GetBits(mipImage), buffers[mip].size());
                 FreeImage_Unload(mipImage);
             }

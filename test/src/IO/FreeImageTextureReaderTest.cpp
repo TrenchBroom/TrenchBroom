@@ -40,8 +40,9 @@ namespace TrenchBroom {
             DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
 
             TextureReader::TextureNameStrategy nameStrategy;
-            FreeImageTextureReader textureLoader(nameStrategy);
-            
+            const auto mips = 4;
+            FreeImageTextureReader textureLoader(nameStrategy, mips);
+
             const Path imagePath = Disk::getCurrentWorkingDir() + Path("data/IO/Image/");
             DiskFileSystem diskFS(imagePath );
 

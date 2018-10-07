@@ -25,6 +25,15 @@
 
 namespace TrenchBroom {
     namespace Assets {
+        std::pair<size_t, size_t> sizeAtMipLevel(const size_t width, const size_t height, const size_t level) {
+            assert(width > 0);
+            assert(height > 0);
+
+            // from Issues 6 in: https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_texture_non_power_of_two.txt
+            return std::make_pair(std::max(1UL, width >> level),
+                                  std::max(1UL, height >> level));
+        }
+
         size_t bytesPerPixelForFormat(const GLenum format) {
             switch (format) {
                 case GL_RGB:
@@ -41,12 +50,10 @@ namespace TrenchBroom {
             const size_t bytesPerPixel = bytesPerPixelForFormat(format);
 
             buffers.resize(mipLevels);
-            for (size_t i = 0; i < buffers.size(); ++i) {
-                const size_t div = 1 << i;
-                const size_t size = bytesPerPixel * (width * height) / (div * div);
-                if (size > 0) {
-                    buffers[i] = Assets::TextureBuffer(size);
-                }
+            for (size_t level = 0; level < buffers.size(); ++level) {
+                const auto mipSize = sizeAtMipLevel(width, height, level);
+                const auto numBytes = bytesPerPixel * mipSize.first * mipSize.second;
+                buffers[level] = Assets::TextureBuffer(numBytes);
             }
         }
 
@@ -81,8 +88,13 @@ namespace TrenchBroom {
         m_buffers(buffers) {
             assert(m_width > 0);
             assert(m_height > 0);
-            for (size_t i = 0; i < m_buffers.size(); ++i) {
-                assert(m_buffers[i].size() >= (m_width * m_height) / ((1 << i) * (1 << i)) * bytesPerPixelForFormat(format));
+
+            const auto bytesPerPixel = bytesPerPixelForFormat(format);
+
+            for (size_t level = 0; level < m_buffers.size(); ++level) {
+                const auto mipSize = sizeAtMipLevel(m_width, m_height, level);
+                const auto numBytes = bytesPerPixel * mipSize.first * mipSize.second;
+                assert(m_buffers[level].size() >= numBytes);
             }
         }
         
@@ -177,27 +189,16 @@ namespace TrenchBroom {
                 glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, static_cast<GLint>(m_buffers.size() - 1)));
             }
 
-            /* Uncomment this and the assignments below to rescale npot textures to pot images before uploading them.
-            const size_t potWidth = vm::nextPOT(m_width);
-            const size_t potHeight = vm::nextPOT(m_height);
-            
-            if (potWidth != m_width || potHeight != m_height)
-                resizeMips(m_buffers, vec2s(m_width, m_height), vec2s(potWidth, potHeight));
-            */
-            
-            size_t mipWidth = m_width; //potWidth;
-            size_t mipHeight = m_height; //potHeight;
-
             const auto mipmapsToUpload = generateMipmaps ? 1u : m_buffers.size();
 
             for (size_t j = 0; j < mipmapsToUpload; ++j) {
+                const auto mipSize = sizeAtMipLevel(m_width, m_height, j);
+
                 const GLvoid* data = reinterpret_cast<const GLvoid*>(m_buffers[j].ptr());
                 glAssert(glTexImage2D(GL_TEXTURE_2D, static_cast<GLint>(j), GL_RGBA,
-                                      static_cast<GLsizei>(mipWidth),
-                                      static_cast<GLsizei>(mipHeight),
+                                      static_cast<GLsizei>(mipSize.first),
+                                      static_cast<GLsizei>(mipSize.second),
                                       0, m_format, GL_UNSIGNED_BYTE, data));
-                mipWidth  /= 2;
-                mipHeight /= 2;
             }
             
             m_buffers.clear();

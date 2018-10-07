@@ -25,6 +25,7 @@
 #include "StringUtils.h"
 #include "Renderer/GL.h"
 
+#include <utility>
 #include <cassert>
 #include <vector>
 
@@ -38,6 +39,7 @@ namespace TrenchBroom {
             Opaque, Masked
         };
 
+        std::pair<size_t, size_t> sizeAtMipLevel(size_t width, size_t height, size_t level);
         size_t bytesPerPixelForFormat(GLenum format);
         void setMipBufferSize(TextureBuffer::List& buffers, size_t mipLevels, size_t width, size_t height, GLenum format);
         
