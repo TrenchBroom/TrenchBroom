@@ -201,6 +201,7 @@ namespace TrenchBroom {
         };
         
         DkmParser::DkmFrame::DkmFrame(const size_t vertexCount) :
+        name(""),
         vertices(vertexCount) {}
 
         vm::vec3f DkmParser::DkmFrame::vertex(const size_t index) const {
