@@ -140,7 +140,7 @@ namespace TrenchBroom {
             
             Notifier1<const Model::BrushFaceList&> brushFacesDidChangeNotifier;
 
-            Notifier0 texturesWillBeUnloadedNotifier;
+            Notifier0 textureCollectionsWillChangeNotifier;
             Notifier0 textureCollectionsDidChangeNotifier;
 
             Notifier0 entityDefinitionsDidChangeNotifier;

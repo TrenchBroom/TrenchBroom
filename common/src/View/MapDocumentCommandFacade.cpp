@@ -871,7 +871,7 @@ namespace TrenchBroom {
         void MapDocumentCommandFacade::performSetTextureCollections(const IO::Path::List& paths) {
             const Model::NodeList nodes(1, m_world);
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-            Notifier0::NotifyAfter notifyTextureCollections(textureCollectionsDidChangeNotifier);
+            Notifier0::NotifyBeforeAndAfter notifyTextureCollections(textureCollectionsWillChangeNotifier, textureCollectionsDidChangeNotifier);
             
             m_game->updateTextureCollections(m_world, paths);
             unsetTextures();

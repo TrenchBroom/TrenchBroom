@@ -1568,7 +1568,7 @@ namespace TrenchBroom {
         }
         
         void MapDocument::loadTextures() {
-            texturesWillBeUnloadedNotifier();
+            Notifier0::NotifyBeforeAndAfter notifyTextureCollections(textureCollectionsWillChangeNotifier, textureCollectionsDidChangeNotifier);
             try {
                 const IO::Path docDir = m_path.isEmpty() ? IO::Path() : m_path.deleteLastComponent();
                 m_game->loadTextureCollections(m_world, docDir, *m_textureManager);
@@ -1578,7 +1578,7 @@ namespace TrenchBroom {
         }
         
         void MapDocument::unloadTextures() {
-            texturesWillBeUnloadedNotifier();
+            Notifier0::NotifyBeforeAndAfter notifyTextureCollections(textureCollectionsWillChangeNotifier, textureCollectionsDidChangeNotifier);
             unsetTextures();
             m_textureManager->clear();
         }
