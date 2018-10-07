@@ -89,11 +89,11 @@ namespace TrenchBroom {
             assert(m_width > 0);
             assert(m_height > 0);
 
-            const auto bytesPerPixel = bytesPerPixelForFormat(format);
+            [[maybe_unused]] const auto bytesPerPixel = bytesPerPixelForFormat(format);
 
             for (size_t level = 0; level < m_buffers.size(); ++level) {
-                const auto mipSize = sizeAtMipLevel(m_width, m_height, level);
-                const auto numBytes = bytesPerPixel * mipSize.first * mipSize.second;
+                [[maybe_unused]] const auto mipSize = sizeAtMipLevel(m_width, m_height, level);
+                [[maybe_unused]] const auto numBytes = bytesPerPixel * mipSize.first * mipSize.second;
                 assert(m_buffers[level].size() >= numBytes);
             }
         }
