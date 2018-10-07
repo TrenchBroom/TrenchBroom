@@ -24,12 +24,9 @@
 
 #include "StringUtils.h"
 #include "Model/ModelTypes.h"
-#include "IO/Path.h"
 
 #include <vecmath/vec.h>
 #include <vecmath/mat.h>
-
-#include <cctype>
 
 namespace TrenchBroom {
     bool texCoordsEqual(const vm::vec2f& tc1, const vm::vec2f& tc2);
@@ -44,8 +41,6 @@ namespace TrenchBroom {
         void assertTexture(const String& expected, const Brush* brush, const vm::polygon3d& vertices);
     }
 }
-
-std::string sanitizeTestName(const std::string& name);
 
 template <typename T, size_t S>
 void ASSERT_VEC_EQ(const vm::vec<T,S>& lhs, const vm::vec<T,S>& rhs) {

@@ -34,25 +34,21 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class ParseIncludedFgdFilesTest : public ::testing::TestWithParam<Path> {};
+        TEST(FgdParserTest, parseIncludedFgdFiles) {
+            const Path basePath = Disk::getCurrentWorkingDir() + Path("data/games");
+            const Path::List cfgFiles = Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("fgd"));
 
-        TEST_P(ParseIncludedFgdFilesTest, parse) {
-            const auto& path = GetParam();
-            MappedFile::Ptr file = Disk::openFile(path);
-            const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-            FgdParser parser(file->begin(), file->end(), defaultColor);
+            for (const Path& path : cfgFiles) {
+                MappedFile::Ptr file = Disk::openFile(path);
+                const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
+                FgdParser parser(file->begin(), file->end(), defaultColor);
 
-            TestParserStatus status;
-            ASSERT_NO_THROW(parser.parseDefinitions(status)) << "Parsing FGD file " << path.asString() << " failed";
-            ASSERT_EQ(0u, status.countStatus(Logger::LogLevel_Warn));
-            ASSERT_EQ(0u, status.countStatus(Logger::LogLevel_Error));
+                TestParserStatus status;
+                ASSERT_NO_THROW(parser.parseDefinitions(status)) << "Parsing FGD file " << path.asString() << " failed";
+                ASSERT_EQ(0u, status.countStatus(Logger::LogLevel_Warn));
+                ASSERT_EQ(0u, status.countStatus(Logger::LogLevel_Error));
+            }
         }
-
-        const auto paths = Disk::findItemsRecursively(Disk::getCurrentWorkingDir() + Path("data/games"), IO::FileExtensionMatcher("fgd"));
-        const auto pathToTestName = [](const ::testing::TestParamInfo<Path>& info) {
-            return sanitizeTestName(info.param.deleteExtension().suffix(2).asString());
-        };
-        INSTANTIATE_TEST_CASE_P(FgdParserTest, ParseIncludedFgdFilesTest, ::testing::ValuesIn(paths), pathToTestName);
 
         TEST(FgdParserTest, parseEmptyFile) {
             const String file = "";

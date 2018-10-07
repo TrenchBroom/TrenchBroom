@@ -104,13 +104,3 @@ namespace TrenchBroom {
         }
     }
 }
-
-std::string sanitizeTestName(const std::string& name) {
-    std::stringstream result;
-    for (const auto c : name) {
-        if (std::isalnum(c)) {
-            result << c;
-        }
-    }
-    return result.str();
-}

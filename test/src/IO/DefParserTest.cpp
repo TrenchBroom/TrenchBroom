@@ -33,25 +33,21 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class ParseIncludedDefFilesTest : public ::testing::TestWithParam<Path> {};
+        TEST(DefParserTest, parseIncludedDefFiles) {
+            const Path basePath = Disk::getCurrentWorkingDir() + Path("data/games");
+            const Path::List cfgFiles = Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("def"));
 
-        TEST_P(ParseIncludedDefFilesTest, parse) {
-            const auto& path = GetParam();
-            MappedFile::Ptr file = Disk::openFile(path);
-            const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-            DefParser parser(file->begin(), file->end(), defaultColor);
+            for (const Path& path : cfgFiles) {
+                MappedFile::Ptr file = Disk::openFile(path);
+                const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
+                DefParser parser(file->begin(), file->end(), defaultColor);
 
-            TestParserStatus status;
-            ASSERT_NO_THROW(parser.parseDefinitions(status)) << "Parsing DEF file " << path.asString() << " failed";
-            ASSERT_EQ(0u, status.countStatus(Logger::LogLevel_Warn));
-            ASSERT_EQ(0u, status.countStatus(Logger::LogLevel_Error));
+                TestParserStatus status;
+                ASSERT_NO_THROW(parser.parseDefinitions(status)) << "Parsing DEF file " << path.asString() << " failed";
+                ASSERT_EQ(0u, status.countStatus(Logger::LogLevel_Warn));
+                ASSERT_EQ(0u, status.countStatus(Logger::LogLevel_Error));
+            }
         }
-
-        const auto paths = Disk::findItemsRecursively(Disk::getCurrentWorkingDir() + Path("data/games"), IO::FileExtensionMatcher("def"));
-        const auto pathToTestName = [](const ::testing::TestParamInfo<Path>& info) {
-            return sanitizeTestName(info.param.deleteExtension().suffix(2).asString());
-        };
-        INSTANTIATE_TEST_CASE_P(DefParserTest, ParseIncludedDefFilesTest, ::testing::ValuesIn(paths), pathToTestName);
 
         TEST(DefParserTest, parseExtraDefFiles) {
             const Path basePath = Disk::getCurrentWorkingDir() + Path("data/IO/Def");
