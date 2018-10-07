@@ -65,7 +65,9 @@ namespace TrenchBroom {
 
             wxArrayInt selections;
             m_collections->GetSelections(selections);
-            assert(!selections.empty());
+            if (selections.empty()) {
+                return;
+            }
             
             auto document = lock(m_document);
 
@@ -87,12 +89,17 @@ namespace TrenchBroom {
 
             wxArrayInt selections;
             m_collections->GetSelections(selections);
-            assert(selections.size() == 1);
+            if (selections.size() != 1) {
+                return;
+            }
             
             auto document = lock(m_document);
             auto collections = document->enabledTextureCollections();
             
             const auto index = static_cast<size_t>(selections.front());
+            if (index < 1 || index >= collections.size()) {
+                return;
+            }
             VectorUtils::swapPred(collections, index);
             
             document->setEnabledTextureCollections(collections);
@@ -104,12 +111,17 @@ namespace TrenchBroom {
 
             wxArrayInt selections;
             m_collections->GetSelections(selections);
-            assert(selections.size() == 1);
+            if (selections.size() != 1) {
+                return;
+            }
             
             auto document = lock(m_document);
             auto collections = document->enabledTextureCollections();
             
             const auto index = static_cast<size_t>(selections.front());
+            if (index + 1 >= collections.size()) {
+                return;
+            }
             VectorUtils::swapSucc(collections, index);
             
             document->setEnabledTextureCollections(collections);
