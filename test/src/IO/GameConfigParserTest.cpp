@@ -19,21 +19,27 @@
 
 #include <gtest/gtest.h>
 
+#include "TestUtils.h"
+
 #include "IO/DiskIO.h"
 #include "IO/GameConfigParser.h"
 
 namespace TrenchBroom {
     namespace IO {
-        TEST(GameConfigParserTest, parseIncludedGameConfigs) {
-            const Path basePath = Disk::getCurrentWorkingDir() + Path("data/games");
-            const Path::List cfgFiles = Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("cfg"));
-            
-            for (const Path& path : cfgFiles) {
-                MappedFile::Ptr file = Disk::openFile(path);
-                GameConfigParser parser(file->begin(), file->end(), path);
-                ASSERT_NO_THROW(parser.parse()) << "Parsing game config " << path.asString() << " failed";
-            }
+        class ParseIncludedGameConfigFilesTest : public ::testing::TestWithParam<Path> {};
+
+        TEST_P(ParseIncludedGameConfigFilesTest, parse) {
+            const auto& path = GetParam();
+            MappedFile::Ptr file = Disk::openFile(path);
+            GameConfigParser parser(file->begin(), file->end(), path);
+            ASSERT_NO_THROW(parser.parse()) << "Parsing game config " << path.asString() << " failed";
         }
+
+        const auto paths = Disk::findItemsRecursively(Disk::getCurrentWorkingDir() + Path("data/games"), IO::FileNameMatcher("GameConfig.cfg"));
+        const auto pathToTestName = [](const ::testing::TestParamInfo<Path>& info) {
+            return sanitizeTestName(info.param.suffix(2).prefix(1).asString());
+        };
+        INSTANTIATE_TEST_CASE_P(GameConfigParserTest, ParseIncludedGameConfigFilesTest, ::testing::ValuesIn(paths), pathToTestName);
 
         TEST(GameConfigParserTest, parseBlankConfig) {
             const String config("   ");
