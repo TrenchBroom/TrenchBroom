@@ -50,7 +50,7 @@ namespace TrenchBroom {
             unbindObservers();
         }
 
-        void FileTextureCollectionEditor::debugUIConsistency() const {
+        bool FileTextureCollectionEditor::debugUIConsistency() const {
             auto document = lock(m_document);
             auto collections = document->enabledTextureCollections();
 
@@ -62,10 +62,11 @@ namespace TrenchBroom {
                 assert(selectedIndices[i] >= 0);
                 assert(static_cast<size_t>(selectedIndices[i]) < collections.size());
             }
+            return true;
         }
 
         bool FileTextureCollectionEditor::canRemoveTextureCollections() const {
-            debugUIConsistency();
+            assert(debugUIConsistency());
 
             wxArrayInt selections;
             m_collections->GetSelections(selections);
@@ -86,7 +87,7 @@ namespace TrenchBroom {
         }
 
         bool FileTextureCollectionEditor::canMoveTextureCollectionsUp() const {
-            debugUIConsistency();
+            assert(debugUIConsistency());
 
             wxArrayInt selections;
             m_collections->GetSelections(selections);
@@ -102,7 +103,7 @@ namespace TrenchBroom {
         }
 
         bool FileTextureCollectionEditor::canMoveTextureCollectionsDown() const {
-            debugUIConsistency();
+            assert(debugUIConsistency());
 
             wxArrayInt selections;
             m_collections->GetSelections(selections);

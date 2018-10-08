@@ -42,7 +42,7 @@ namespace TrenchBroom {
             FileTextureCollectionEditor(wxWindow* parent, MapDocumentWPtr document);
             ~FileTextureCollectionEditor();
 
-            void debugUIConsistency() const;
+            bool debugUIConsistency() const;
             bool canRemoveTextureCollections() const;
             bool canMoveTextureCollectionsUp() const;
             bool canMoveTextureCollectionsDown() const;
