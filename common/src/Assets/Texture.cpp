@@ -26,13 +26,13 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        std::pair<size_t, size_t> sizeAtMipLevel(const size_t width, const size_t height, const size_t level) {
+        vm::vec2s sizeAtMipLevel(const size_t width, const size_t height, const size_t level) {
             assert(width > 0);
             assert(height > 0);
 
             // from Issues 6 in: https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_texture_non_power_of_two.txt
-            return std::make_pair(std::max(size_t(1), width >> level),
-                                  std::max(size_t(1), height >> level));
+            return vm::vec2s(std::max(size_t(1), width >> level),
+                             std::max(size_t(1), height >> level));
         }
 
         size_t bytesPerPixelForFormat(const GLenum format) {
@@ -53,7 +53,7 @@ namespace TrenchBroom {
             buffers.resize(mipLevels);
             for (size_t level = 0; level < buffers.size(); ++level) {
                 const auto mipSize = sizeAtMipLevel(width, height, level);
-                const auto numBytes = bytesPerPixel * mipSize.first * mipSize.second;
+                const auto numBytes = bytesPerPixel * mipSize.x() * mipSize.y();
                 buffers[level] = Assets::TextureBuffer(numBytes);
             }
         }
@@ -94,7 +94,7 @@ namespace TrenchBroom {
 
             for (size_t level = 0; level < m_buffers.size(); ++level) {
                 [[maybe_unused]] const auto mipSize = sizeAtMipLevel(m_width, m_height, level);
-                [[maybe_unused]] const auto numBytes = bytesPerPixel * mipSize.first * mipSize.second;
+                [[maybe_unused]] const auto numBytes = bytesPerPixel * mipSize.x() * mipSize.y();
                 assert(m_buffers[level].size() >= numBytes);
             }
         }
@@ -197,8 +197,8 @@ namespace TrenchBroom {
 
                 const GLvoid* data = reinterpret_cast<const GLvoid*>(m_buffers[j].ptr());
                 glAssert(glTexImage2D(GL_TEXTURE_2D, static_cast<GLint>(j), GL_RGBA,
-                                      static_cast<GLsizei>(mipSize.first),
-                                      static_cast<GLsizei>(mipSize.second),
+                                      static_cast<GLsizei>(mipSize.x()),
+                                      static_cast<GLsizei>(mipSize.y()),
                                       0, m_format, GL_UNSIGNED_BYTE, data));
             }
             
