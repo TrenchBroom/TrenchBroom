@@ -99,6 +99,7 @@ namespace TrenchBroom {
                             restore(snapshot);
                             // fall through to allow reading numbers
                         }
+                        switchFallthrough();
                     }
                     default: {
                         const auto* e = readInteger(WordDelims);
