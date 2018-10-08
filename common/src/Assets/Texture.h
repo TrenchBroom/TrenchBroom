@@ -25,7 +25,7 @@
 #include "StringUtils.h"
 #include "Renderer/GL.h"
 
-#include <vm/forward.h>
+#include <vecmath/forward.h>
 
 #include <utility>
 #include <cassert>
