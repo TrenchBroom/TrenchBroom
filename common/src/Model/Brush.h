@@ -97,6 +97,7 @@ namespace TrenchBroom {
 
             AttributableNode* entity() const;
         public: // face management:
+            BrushFace* findFace(const String& textureName) const;
             BrushFace* findFace(const vm::vec3& normal) const;
             BrushFace* findFace(const vm::plane3& boundary) const;
             BrushFace* findFace(const vm::polygon3& vertices) const;

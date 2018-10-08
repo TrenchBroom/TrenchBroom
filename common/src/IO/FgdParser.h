@@ -118,7 +118,8 @@ namespace TrenchBroom {
             Assets::AttributeDefinitionPtr parseChoicesAttribute(ParserStatus& status, const String& name);
             Assets::AttributeDefinitionPtr parseFlagsAttribute(ParserStatus& status, const String& name);
             Assets::AttributeDefinitionPtr parseUnknownAttribute(ParserStatus& status, const String& name);
-            
+
+            bool parseReadOnlyFlag(ParserStatus& status);
             String parseAttributeDescription(ParserStatus& status);
             DefaultValue<String> parseDefaultStringValue(ParserStatus& status);
             DefaultValue<int> parseDefaultIntegerValue(ParserStatus& status);

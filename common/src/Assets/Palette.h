@@ -25,6 +25,7 @@
 #include "IO/MappedFile.h"
 
 #include <cassert>
+#include <memory>
 
 namespace TrenchBroom {
     namespace IO {
@@ -39,13 +40,15 @@ namespace TrenchBroom {
 
         class Palette {
         private:
+            using RawDataPtr = std::unique_ptr<unsigned char[]>;
+
             class Data {
             private:
                 size_t m_size;
-                unsigned char* m_data;
+                RawDataPtr m_data;
             public:
-                Data(const size_t size, unsigned char* data);
-                ~Data();
+                Data(size_t size, RawDataPtr&& data);
+                Data(size_t size, unsigned char* data);
 
                 template <typename IndexT, typename ColorT>
                 void indexedToRgba(const Buffer<IndexT>& indexedImage, const size_t pixelCount, Buffer<ColorT>& rgbaImage, Color& averageColor, const PaletteTransparency transparency) const {
@@ -83,12 +86,18 @@ namespace TrenchBroom {
             typedef std::shared_ptr<Data> DataPtr;
             DataPtr m_data;
         public:
-            Palette(const size_t size, unsigned char* data);
+            Palette();
+            Palette(size_t size, RawDataPtr&& data);
+            Palette(size_t size, unsigned char* data);
             
             static Palette loadFile(const IO::FileSystem& fs, const IO::Path& path);
             static Palette loadLmp(IO::MappedFile::Ptr file);
             static Palette loadPcx(IO::MappedFile::Ptr file);
-            
+            static Palette loadBmp(IO::MappedFile::Ptr file);
+            static Palette fromRaw(size_t size, const unsigned char* data);
+
+            bool initialized() const;
+
             template <typename IndexT, typename ColorT>
             void indexedToRgba(const Buffer<IndexT>& indexedImage, const size_t pixelCount, Buffer<ColorT>& rgbaImage, Color& averageColor, const PaletteTransparency transparency = PaletteTransparency::Opaque) const {
                 m_data->indexedToRgba(indexedImage, pixelCount, rgbaImage, averageColor, transparency);

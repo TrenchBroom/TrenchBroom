@@ -122,13 +122,22 @@ namespace TrenchBroom {
             
             virtual ~Tokenizer() {}
 
-            Token nextToken() {
-                return emitToken();
+            Token nextToken(const TokenType skipTokens = 0) {
+                Token token = emitToken();
+                while (token.hasType(skipTokens)) {
+                    token = emitToken();
+                }
+                return token;
             }
 
-            Token peekToken() {
+            Token peekToken(const TokenType skipTokens = 0) {
                 SaveState oldState(m_state);
-                return nextToken();
+                return nextToken(skipTokens);
+            }
+
+            void discardLine() {
+                discardUntil("\n");
+                discardWhile("\n");
             }
 
             String readRemainder(const TokenType delimiterType) {

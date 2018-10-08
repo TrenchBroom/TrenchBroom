@@ -35,14 +35,14 @@ namespace TrenchBroom {
         private:
             Model::NodeList m_nodes;
             Model::LockState m_lockState;
-            Model::LockStateMap m_oldState;
+            Model::LockStateMap m_oldLockState;
         public:
             static Ptr lock(const Model::NodeList& nodes);
             static Ptr unlock(const Model::NodeList& nodes);
             static Ptr reset(const Model::NodeList& nodes);
         private:
-            SetLockStateCommand(const Model::NodeList& nodes, Model::LockState state);
-            static String makeName(Model::LockState state);
+            SetLockStateCommand(const Model::NodeList& nodes, Model::LockState lockState);
+            static String makeName(Model::LockState lockState);
         private:
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doPerformUndo(MapDocumentCommandFacade* document) override;

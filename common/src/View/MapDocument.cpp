@@ -373,7 +373,7 @@ namespace TrenchBroom {
         bool MapDocument::isPointFileLoaded() const {
             return m_pointFile != nullptr;
         }
-
+        
         void MapDocument::reloadPointFile() {
             assert(isPointFileLoaded());
             loadPointFile(m_pointFilePath);
@@ -409,7 +409,7 @@ namespace TrenchBroom {
         bool MapDocument::isPortalFileLoaded() const {
             return m_portalFile != nullptr;
         }
-
+        
         void MapDocument::reloadPortalFile() {
             assert(isPortalFileLoaded());
             loadPortalFile(m_portalFilePath);
@@ -761,7 +761,7 @@ namespace TrenchBroom {
             }
             return false;
         }
-
+        
         Model::Entity* MapDocument::createPointEntity(const Assets::PointEntityDefinition* definition, const vm::vec3& delta) {
             ensure(definition != nullptr, "definition is null");
 
@@ -1003,7 +1003,7 @@ namespace TrenchBroom {
         bool MapDocument::scaleObjects(const vm::bbox3& oldBBox, const vm::bbox3& newBBox) {
             return submitAndStore(TransformObjectsCommand::scale(oldBBox, newBBox, pref(Preferences::TextureLock)));
         }
-
+        
         bool MapDocument::scaleObjects(const vm::vec3& center, const vm::vec3& scaleFactors) {
             return submitAndStore(TransformObjectsCommand::scale(center, scaleFactors, pref(Preferences::TextureLock)));
         }
@@ -1496,7 +1496,7 @@ namespace TrenchBroom {
         void MapDocument::setEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec) {
             submitAndStore(EntityDefinitionFileCommand::set(spec));
         }
-
+        
         void MapDocument::setEntityDefinitions(const Assets::EntityDefinitionList& definitions) {
             m_entityDefinitionManager->setDefinitions(definitions);
         }
@@ -1570,7 +1570,7 @@ namespace TrenchBroom {
         void MapDocument::loadTextures() {
             try {
                 const IO::Path docDir = m_path.isEmpty() ? IO::Path() : m_path.deleteLastComponent();
-                m_game->loadTextureCollections(m_world, docDir, *m_textureManager);
+                m_game->loadTextureCollections(m_world, docDir, *m_textureManager, this);
             } catch (const Exception& e) {
                 error(e.what());
             }

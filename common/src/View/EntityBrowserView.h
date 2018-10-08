@@ -52,12 +52,12 @@ namespace TrenchBroom {
         private:
             typedef Renderer::TexturedIndexRangeRenderer EntityRenderer;
         public:
-            Assets::PointEntityDefinition* entityDefinition;
+            const Assets::PointEntityDefinition* entityDefinition;
             EntityRenderer* modelRenderer;
             Renderer::FontDescriptor fontDescriptor;
             vm::bbox3f bounds;
             
-            EntityCellData(Assets::PointEntityDefinition* i_entityDefinition, EntityRenderer* i_modelRenderer, const Renderer::FontDescriptor& i_fontDescriptor, const vm::bbox3f& i_bounds);
+            EntityCellData(const Assets::PointEntityDefinition* i_entityDefinition, EntityRenderer* i_modelRenderer, const Renderer::FontDescriptor& i_fontDescriptor, const vm::bbox3f& i_bounds);
         };
 
         class EntityBrowserView : public CellView<EntityCellData, EntityGroupData> {
@@ -100,7 +100,7 @@ namespace TrenchBroom {
             void dndDidEnd() override;
             wxString dndData(const Layout::Group::Row::Cell& cell) override;
 
-            void addEntityToLayout(Layout& layout, Assets::PointEntityDefinition* definition, const Renderer::FontDescriptor& font);
+            void addEntityToLayout(Layout& layout, const Assets::PointEntityDefinition* definition, const Renderer::FontDescriptor& font);
             
             void doClear() override;
             void doRender(Layout& layout, float y, float height) override;

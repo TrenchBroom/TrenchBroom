@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "StringUtils.h"
+#include "Color.h"
 
 #include <vecmath/forward.h>
 
@@ -43,6 +44,8 @@ namespace TrenchBroom {
             int m_surfaceContents;
             int m_surfaceFlags;
             float m_surfaceValue;
+
+            Color m_color;
         public:
             BrushFaceAttributes(const String& textureName);
             BrushFaceAttributes(const BrushFaceAttributes& other);
@@ -84,6 +87,9 @@ namespace TrenchBroom {
             void setSurfaceContents(int surfaceContents);
             void setSurfaceFlags(int surfaceFlags);
             void setSurfaceValue(float surfaceValue);
+
+            const Color& color() const;
+            void setColor(const Color& color);
         };
     }
 }

@@ -68,7 +68,7 @@ namespace TrenchBroom {
             void doWriteBrushFacesToStream(World* world, const BrushFaceList& faces, std::ostream& stream) const override;
             
             TexturePackageType doTexturePackageType() const override;
-            void doLoadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager) const override;
+            void doLoadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger* logger) const override;
             IO::Path::List textureCollectionSearchPaths(const IO::Path& documentPath) const;
             
             bool doIsTextureCollection(const IO::Path& path) const override;
@@ -87,6 +87,7 @@ namespace TrenchBroom {
             Assets::EntityModel* loadBspModel(const String& name, const IO::MappedFile::Ptr& file) const;
             Assets::EntityModel* loadMdlModel(const String& name, const IO::MappedFile::Ptr& file) const;
             Assets::EntityModel* loadMd2Model(const String& name, const IO::MappedFile::Ptr& file) const;
+            Assets::EntityModel* loadDkmModel(const String& name, const IO::MappedFile::Ptr& file) const;
             Assets::Palette loadTexturePalette() const;
             
             const BrushContentType::List& doBrushContentTypes() const override;

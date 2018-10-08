@@ -32,6 +32,7 @@ namespace TrenchBroom {
             
             static BrushContentTypeEvaluator* textureNameEvaluator(const String& pattern);
             static BrushContentTypeEvaluator* contentFlagsEvaluator(int value);
+            static BrushContentTypeEvaluator* surfaceFlagsEvaluator(int value);
             static BrushContentTypeEvaluator* entityClassnameEvaluator(const String& pattern);
             
             bool evaluate(const Brush* brush) const;

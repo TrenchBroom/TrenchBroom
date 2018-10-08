@@ -214,6 +214,8 @@ namespace TrenchBroom {
             switch (format) {
                 case ImageLoader::PCX:
                     return FIF_PCX;
+                case ImageLoader::BMP:
+                    return FIF_BMP;
                 switchDefault()
             }
         }

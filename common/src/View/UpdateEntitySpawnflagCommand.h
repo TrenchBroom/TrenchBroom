@@ -39,7 +39,7 @@ namespace TrenchBroom {
         public:
             static Ptr update(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag);
         private:
-            UpdateEntitySpawnflagCommand(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag);
+            UpdateEntitySpawnflagCommand(const Model::AttributeName& attributeName, const size_t flagIndex, const bool setFlag);
             static String makeName(const bool setFlag);
 
             bool doPerformDo(MapDocumentCommandFacade* document) override;

@@ -20,11 +20,21 @@
 
 #include "Color.h"
 
+#include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
+bool Color::canParse(const std::string& str) {
+    return vm::vec4f::canParse(str) || vm::vec3f::canParse(str);
+}
+
 Color Color::parse(const std::string& str) {
-    const vec<float, 4> v = vec<float, 4>::parse(str);
-    return Color(v.x(), v.y(), v.z(), v.w());
+    if (vm::vec4f::canParse(str)) {
+        const vm::vec4f vec = vm::vec4f::parse(str);
+        return Color(vec.x(), vec.y(), vec.z(), vec.w());
+    } else {
+        const vm::vec3f vec = vm::vec3f::parse(str);
+        return Color(vec.x(), vec.y(), vec.z());
+    }
 }
 
 Color::Color() :

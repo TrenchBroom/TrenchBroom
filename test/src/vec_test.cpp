@@ -58,11 +58,27 @@ namespace vm {
     }
 
     TEST(VecTest, parseValidString) {
-        ASSERT_EQ(vec3f(1.0f, 3.0f, 3.5f), vec3f::parse("1.0 3 3.5"));
+        const String s("1.0 3 3.5");
+        ASSERT_TRUE(vec3f::canParse(s));
+        ASSERT_EQ(vec3f(1.0f, 3.0f, 3.5f), vec3f::parse(s));
     }
     
     TEST(VecTest, parseShortString) {
-        ASSERT_EQ(vec3f(1.0f, 3.0f, 0.0f), vec3f::parse("1.0 3"));
+        const String s("1.0 3");
+        ASSERT_FALSE(vec3f::canParse(s));
+        ASSERT_EQ(vec3f(1.0f, 3.0f, 0.0f), vec3f::parse(s));
+    }
+
+    TEST(VecTest, parseLongString) {
+        const String s("1.0 3 4 5");
+        ASSERT_TRUE(vec3f::canParse(s));
+        ASSERT_EQ(vec3f(1.0f, 3.0f, 4.0f), vec3f::parse(s));
+    }
+
+    TEST(VecTest, parseInvalidString) {
+        const String s("asdf");
+        ASSERT_FALSE(vec3f::canParse(s));
+        ASSERT_EQ(vec3f::zero, vec3f::parse(s));
     }
 
     TEST(VecTest, parseAll) {
@@ -100,10 +116,6 @@ namespace vm {
         ASSERT_EQ(vec3f(1, 2, 3), vec3f({ 1, 2, 3 }));
         ASSERT_EQ(vec3f(1, 2, 3), vec3f({ 1, 2, 3, 4 }));
         ASSERT_EQ(vec3f(1, 2, 0), vec3f({ 1, 2 }));
-    }
-
-    TEST(VecTest, constructWithInvalidString) {
-        ASSERT_EQ(vec3f::zero, vec3f::parse("asdf"));
     }
     
     TEST(VecTest, constructFrom2Floats) {

@@ -57,12 +57,12 @@ namespace TrenchBroom {
             const size_t height = reader.readSize<int32_t>();
             for (size_t i = 0; i < MipLevels; ++i)
                 offset[i] = reader.readSize<int32_t>();
-
+            
             const auto transparency = (name.size() > 0 && name.at(0) == '{')
                     ? Assets::PaletteTransparency::Index255Transparent
                     : Assets::PaletteTransparency::Opaque;
 
-            Assets::setMipBufferSize(buffers, width, height, GL_RGBA);
+            Assets::setMipBufferSize(buffers, MipLevels, width, height, GL_RGBA);
             Assets::Palette palette = doGetPalette(reader, offset, width, height);
             
             for (size_t i = 0; i < MipLevels; ++i) {
@@ -74,7 +74,7 @@ namespace TrenchBroom {
                     averageColor = tempColor;
                 
             }
-
+            
             const auto type = (transparency == Assets::PaletteTransparency::Index255Transparent)
                     ? Assets::TextureType::Masked
                     : Assets::TextureType::Opaque;

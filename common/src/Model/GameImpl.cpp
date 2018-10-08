@@ -24,13 +24,14 @@
 #include "IO/BrushFaceReader.h"
 #include "IO/Bsp29Parser.h"
 #include "IO/DefParser.h"
+#include "IO/DkmParser.h"
+#include "IO/DkPakFileSystem.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/FgdParser.h"
 #include "IO/FileMatcher.h"
 #include "IO/FileSystem.h"
 #include "IO/IdMipTextureReader.h"
 #include "IO/IdPakFileSystem.h"
-#include "IO/IdWalTextureReader.h"
 #include "IO/IOUtils.h"
 #include "IO/MapParser.h"
 #include "IO/MdlParser.h"
@@ -73,15 +74,15 @@ namespace TrenchBroom {
                 for (const IO::Path& searchPath : m_additionalSearchPaths) {
                     addSearchPath(searchPath, logger);
                     addPackages(m_gamePath + searchPath);
-                }
             }
+        }
         }
 
         void GameImpl::addSearchPath(const IO::Path& searchPath, Logger* logger) {
             try {
                 m_gameFS.pushFileSystem(new IO::DiskFileSystem(m_gamePath + searchPath));
             } catch (const FileSystemException& e) {
-                logger->error("Unable to add file system search path '" + searchPath.asString() + "': " + String(e.what()));
+                logger->error("Cannot to add file system search path '" + searchPath.asString() + "': " + String(e.what()));
             }
         }
         
@@ -99,8 +100,11 @@ namespace TrenchBroom {
                     IO::MappedFile::Ptr packageFile = diskFS.openFile(packagePath);
                     ensure(packageFile.get() != nullptr, "packageFile is null");
 
-                    if (StringUtils::caseInsensitiveEqual(packageFormat, "idpak"))
+                    if (StringUtils::caseInsensitiveEqual(packageFormat, "idpak")) {
                         m_gameFS.pushFileSystem(new IO::IdPakFileSystem(packagePath, packageFile));
+                    } else if (StringUtils::caseInsensitiveEqual(packageFormat, "dkpak")) {
+                        m_gameFS.pushFileSystem(new IO::DkPakFileSystem(packagePath, packageFile));
+                    }
                 }
             }
         }
@@ -222,12 +226,12 @@ namespace TrenchBroom {
             }
         }
 
-        void GameImpl::doLoadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager) const {
+        void GameImpl::doLoadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger* logger) const {
             const AttributableNodeVariableStore variables(node);
             const IO::Path::List paths = extractTextureCollections(node);
 
             const IO::Path::List fileSearchPaths = textureCollectionSearchPaths(documentPath);
-            IO::TextureLoader textureLoader(variables, m_gameFS, fileSearchPaths, m_config.textureConfig());
+            IO::TextureLoader textureLoader(variables, m_gameFS, fileSearchPaths, m_config.textureConfig(), logger);
             textureLoader.loadTextures(paths, textureManager);
         }
 
@@ -365,15 +369,19 @@ namespace TrenchBroom {
                 const String extension = StringUtils::toLower(path.extension());
                 const StringSet supported = m_config.entityConfig().modelFormats;
 
-                if (extension == "mdl" && supported.count("mdl") > 0)
+                if (extension == "mdl" && supported.count("mdl") > 0) {
                     return loadMdlModel(modelName, file);
-                if (extension == "md2" && supported.count("md2") > 0)
+                } else if (extension == "md2" && supported.count("md2") > 0) {
                     return loadMd2Model(modelName, file);
-                if (extension == "bsp" && supported.count("bsp") > 0)
+                } else if (extension == "bsp" && supported.count("bsp") > 0) {
                     return loadBspModel(modelName, file);
-                throw GameException("Unsupported model format '" + path.asString() + "'");
+                } else if (extension == "dkm" && supported.count("dkm") > 0) {
+                    return loadDkmModel(modelName, file);
+                } else {
+                    throw GameException("Unsupported model format '" + path.asString() + "'");
+                }
             } catch (FileSystemException& e) {
-                throw GameException("Cannot load model: " + String(e.what()));
+                throw GameException("Cannot load model  ö." + path.asString() + ": " + String(e.what()));
             }
         }
 
@@ -395,6 +403,11 @@ namespace TrenchBroom {
             const Assets::Palette palette = loadTexturePalette();
 
             IO::Md2Parser parser(name, file->begin(), file->end(), palette, m_gameFS);
+            return parser.parseModel();
+        }
+
+        Assets::EntityModel* GameImpl::loadDkmModel(const String& name, const IO::MappedFile::Ptr& file) const {
+            IO::DkmParser parser(name, file->begin(), file->end(), m_gameFS);
             return parser.parseModel();
         }
 

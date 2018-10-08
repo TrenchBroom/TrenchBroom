@@ -1104,7 +1104,7 @@ It is recommended to use the following general process for compiling maps and to
 
 1. Set the working directory to `${MAP_DIR_PATH}`.
 2. Add an *Export Map* task and set its target to `${WORK_DIR_PATH}/${MAP_BASE_NAME}-compile.map`.
-3. Add *Run Tool* tasks for the compilation tools that you wish to run. Use the expressions `${MAP_BASE_NAME}-compile.map`` and `${MAP_BASE_NAME}.bsp` to specify the input and output files for the tools. Since you have set a working directory, you don't need to specify absolute paths here.
+3. Add *Run Tool* tasks for the compilation tools that you wish to run. Use the expressions `${MAP_BASE_NAME}-compile.map` and `${MAP_BASE_NAME}.bsp` to specify the input and output files for the tools. Since you have set a working directory, you don't need to specify absolute paths here.
 4. Finally, add a *Copy Files* task and set its source to `${WORK_DIR_PATH}/${MAP_BASE_NAME}.bsp` and its target to `${GAME_DIR_PATH}/${MODS[-1]}/maps`. This copies the file to the maps directory within the last enabled mod.
 
 The last step will copy the bsp file to the appropriate directory within the game path. You can add more *Copy Files* tasks if the compilation produces more than just a bsp file (e.g. lightmap files). Alternatively, you can use a wildcard expression such as `${WORK_DIR_PATH}/${MAP_BASE_NAME}.*` to copy related files.
@@ -1239,7 +1239,7 @@ Expression Value
 [1+1,3.0]  An array containing the values `2.0` and `3.0`.
 [-5,-1]    An array containing the values `-5.0`, `-4.0`, ..., `-1.0`.
 
-A map is a comma-separated list of of key-value pairs, enclosed in braces. Note that keys are strings, and so must be quoted. The value is separated from the key by a colon character.
+A map is a comma-separated list of of key-value pairs, enclosed in braces. Note that keys are strings or names. To use certain special characters or whitespace in the key, it must be given as a string. The value is separated from the key by a colon character.
 
 	Map            = "{" [ KeyValuePair { "," KeyValuePair } ] "}"
 	KeyValuePair   = StringOrName ":" Expression

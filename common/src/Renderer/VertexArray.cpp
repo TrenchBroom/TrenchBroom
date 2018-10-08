@@ -63,8 +63,9 @@ namespace TrenchBroom {
         }
 
         void VertexArray::prepare(Vbo& vbo) {
-            if (!prepared() && !empty())
+            if (!prepared() && !empty()) {
                 m_holder->prepare(vbo);
+            }
             m_prepared = true;
         }
 
@@ -108,14 +109,14 @@ namespace TrenchBroom {
             assert(prepared());
             if (!m_setup) {
                 if (setup()) {
-                    const GLint* indexArray   = indices.data();
-                    const GLsizei* countArray = counts.data();
+                    const auto* indexArray = indices.data();
+                    const auto* countArray = counts.data();
                     glAssert(glMultiDrawArrays(primType, indexArray, countArray, primCount));
                     cleanup();
                 }
             } else {
-                const GLint* indexArray   = indices.data();
-                const GLsizei* countArray = counts.data();
+                const auto* indexArray = indices.data();
+                const auto* countArray = counts.data();
                 glAssert(glMultiDrawArrays(primType, indexArray, countArray, primCount));
             }
             
@@ -125,12 +126,12 @@ namespace TrenchBroom {
             assert(prepared());
             if (!m_setup) {
                 if (setup()) {
-                    const GLint* indexArray = indices.data();
+                    const auto* indexArray = indices.data();
                     glAssert(glDrawElements(primType, count, GL_UNSIGNED_INT, indexArray));
                     cleanup();
                 }
             } else {
-                const GLint* indexArray = indices.data();
+                const auto* indexArray = indices.data();
                 glAssert(glDrawElements(primType, count, GL_UNSIGNED_INT, indexArray));
             }
         }

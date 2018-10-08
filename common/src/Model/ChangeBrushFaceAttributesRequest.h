@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_ChangeBrushFaceAttributesRequest
 #define TrenchBroom_ChangeBrushFaceAttributesRequest
 
+#include "Color.h"
 #include "StringUtils.h"
 #include "Model/ModelTypes.h"
 
@@ -42,7 +43,7 @@ namespace TrenchBroom {
                 AxisOp_ToParaxial,
                 AxisOp_ToParallel
             } AxisOp;
-
+            
             // TODO: replace with class based enum
             typedef enum {
                 ValueOp_None,
@@ -50,7 +51,7 @@ namespace TrenchBroom {
                 ValueOp_Add,
                 ValueOp_Mul
             } ValueOp;
-
+            
             // TODO: replace with class based enum
             typedef enum {
                 FlagOp_None,
@@ -58,7 +59,7 @@ namespace TrenchBroom {
                 FlagOp_Set,
                 FlagOp_Unset
             } FlagOp;
-
+            
             // TODO: replace with class based enum
             typedef enum {
                 TextureOp_None,
@@ -75,6 +76,7 @@ namespace TrenchBroom {
             int m_surfaceFlags;
             int m_contentFlags;
             float m_surfaceValue;
+            Color m_colorValue;
             
             TextureOp m_textureOp;
             AxisOp m_axisOp;
@@ -86,6 +88,7 @@ namespace TrenchBroom {
             FlagOp m_surfaceFlagsOp;
             FlagOp m_contentFlagsOp;
             ValueOp m_surfaceValueOp;
+            ValueOp m_colorValueOp;
         public:
             ChangeBrushFaceAttributesRequest();
             
@@ -142,7 +145,9 @@ namespace TrenchBroom {
             void setSurfaceValue(float surfaceValue);
             void addSurfaceValue(float surfaceValue);
             void mulSurfaceValue(float surfaceValue);
-            
+
+            void setColor(const Color& colorValue);
+
             void setAll(const Model::BrushFace* face);
             void setAll(const Model::BrushFaceAttributes& attributes);
 

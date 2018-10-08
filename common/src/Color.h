@@ -24,6 +24,7 @@
 
 class Color : public vm::vec<float, 4> {
 public:
+    static bool canParse(const std::string& str);
     static Color parse(const std::string& str);
     
     Color();

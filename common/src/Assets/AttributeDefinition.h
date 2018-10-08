@@ -43,8 +43,9 @@ namespace TrenchBroom {
             Type m_type;
             String m_shortDescription;
             String m_longDescription;
+            bool m_readOnly;
         public:
-            AttributeDefinition(const String& name, const Type type, const String& shortDescription, const String& longDescription);
+            AttributeDefinition(const String& name, const Type type, const String& shortDescription, const String& longDescription, bool readOnly = false);
             virtual ~AttributeDefinition();
             
             const String& name() const;
@@ -52,6 +53,7 @@ namespace TrenchBroom {
             const String& shortDescription() const;
             const String& longDescription() const;
             String fullDescription() const;
+            bool readOnly() const;
             
             static String safeFullDescription(const AttributeDefinition* definition);
             
@@ -78,32 +80,32 @@ namespace TrenchBroom {
                 return m_defaultValue;
             }
         protected:
-            AttributeDefinitionWithDefaultValue(const String& name, const Type type, const String& shortDescription, const String& longDescription) :
-            AttributeDefinition(name, type, shortDescription, longDescription),
+            AttributeDefinitionWithDefaultValue(const String& name, const Type type, const String& shortDescription, const String& longDescription, bool readOnly = false) :
+            AttributeDefinition(name, type, shortDescription, longDescription, readOnly),
             m_hasDefaultValue(false) {}
             
-            AttributeDefinitionWithDefaultValue(const String& name, const Type type, const String& shortDescription, const String& longDescription, const T& defaultValue) :
-            AttributeDefinition(name, type, shortDescription, longDescription),
+            AttributeDefinitionWithDefaultValue(const String& name, const Type type, const String& shortDescription, const String& longDescription, const T& defaultValue, bool readOnly = false) :
+            AttributeDefinition(name, type, shortDescription, longDescription, readOnly),
             m_hasDefaultValue(true),
             m_defaultValue(defaultValue) {}
         };
         
         class StringAttributeDefinition : public AttributeDefinitionWithDefaultValue<String> {
         public:
-            StringAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const String& defaultValue);
-            StringAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription);
+            StringAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const String& defaultValue, bool readOnly = false);
+            StringAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, bool readOnly = false);
         };
         
         class IntegerAttributeDefinition : public AttributeDefinitionWithDefaultValue<int> {
         public:
-            IntegerAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const int defaultValue);
-            IntegerAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription);
+            IntegerAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const int defaultValue, bool readOnly = false);
+            IntegerAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, bool readOnly = false);
         };
         
         class FloatAttributeDefinition : public AttributeDefinitionWithDefaultValue<float> {
         public:
-            FloatAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const float defaultValue);
-            FloatAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription);
+            FloatAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const float defaultValue, bool readOnly = false);
+            FloatAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, bool readOnly = false);
         };
         
         class ChoiceAttributeOption {
@@ -123,8 +125,8 @@ namespace TrenchBroom {
         private:
             ChoiceAttributeOption::List m_options;
         public:
-            ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::List& options, const size_t defaultValue);
-            ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::List& options);
+            ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::List& options, const size_t defaultValue, bool readOnly = false);
+            ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::List& options, bool readOnly = false);
             const ChoiceAttributeOption::List& options() const;
         private:
             bool doEquals(const AttributeDefinition* other) const override;
@@ -151,7 +153,6 @@ namespace TrenchBroom {
         private:
             FlagsAttributeOption::List m_options;
         public:
-            FlagsAttributeDefinition(const String& name, const int defaultValue);
             explicit FlagsAttributeDefinition(const String& name);
 
             int defaultValue() const;
@@ -164,8 +165,8 @@ namespace TrenchBroom {
         
         class UnknownAttributeDefinition : public StringAttributeDefinition {
         public:
-            UnknownAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const String& defaultValue);
-            UnknownAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription);
+            UnknownAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const String& defaultValue, bool readOnly = false);
+            UnknownAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, bool readOnly = false);
         };
     }
 }

@@ -19,15 +19,13 @@
 
 #include "Bsp29Parser.h"
 
-#include "Macros.h"
-#include "ByteBuffer.h"
+#include <Assets/EntityModel.h>
 #include "Assets/Texture.h"
-#include "Assets/TextureCollection.h"
-#include "Assets/Bsp29Model.h"
 #include "Assets/Palette.h"
-#include "IO/MappedFile.h"
 #include "IO/IOUtils.h"
 #include "IO/IdMipTextureReader.h"
+#include "Renderer/TexturedIndexRangeMap.h"
+#include "Renderer/TexturedIndexRangeMapBuilder.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -74,18 +72,22 @@ namespace TrenchBroom {
             const int version = readInt<int32_t>(cursor);
             assert(version == 29);
             unused(version);
-            
-            Assets::TextureCollection* textures = parseTextures();
+
+            auto model = std::make_unique<Assets::EntityModel>(m_name);
+
+            parseTextures(model.get());
             const TextureInfoList textureInfos = parseTextureInfos();
             const std::vector<vm::vec3f> vertices = parseVertices();
             const EdgeInfoList edgeInfos = parseEdgeInfos();
             const FaceInfoList faceInfos = parseFaceInfos();
             const FaceEdgeIndexList faceEdges = parseFaceEdges();
             
-            return parseModels(textures, textureInfos, vertices, edgeInfos, faceInfos, faceEdges);
+            parseModels(model.get(), textureInfos, vertices, edgeInfos, faceInfos, faceEdges);
+
+            return model.release();
         }
-        
-        Assets::TextureCollection* Bsp29Parser::parseTextures() {
+
+        void Bsp29Parser::parseTextures(Assets::EntityModel* model) {
             char textureName[BspLayout::TextureNameLength + 1];
             textureName[BspLayout::TextureNameLength] = 0;
             Color averageColor;
@@ -95,10 +97,7 @@ namespace TrenchBroom {
             cursor = m_begin + textureAddr;
             const size_t textureCount = readSize<int32_t>(cursor);
             cursor -= sizeof(int32_t);
-            
-            Assets::TextureList textures;
-            textures.reserve(textureCount);
-            
+
             const TextureReader::TextureNameStrategy nameStrategy;
             IdMipTextureReader textureReader(nameStrategy, m_palette);
 
@@ -117,12 +116,9 @@ namespace TrenchBroom {
                 
                 const char* const begin = base + textureOffset;
                 const char* const end = begin + mipFileSize;
-                
-                Assets::Texture* texture = textureReader.readTexture(begin, end, Path(""));
-                textures.push_back(texture);
+
+                model->addSkin(textureReader.readTexture(begin, end, Path("")));
             }
-            
-            return new Assets::TextureCollection(IO::Path(m_name), textures);
         }
         
         Bsp29Parser::TextureInfoList Bsp29Parser::parseTextureInfos() {
@@ -203,63 +199,62 @@ namespace TrenchBroom {
             return faceEdges;
         }
         
-        Assets::Bsp29Model* Bsp29Parser::parseModels(Assets::TextureCollection* textureCollection, const TextureInfoList& textureInfos, const std::vector<vm::vec3f>& vertices, const EdgeInfoList& edgeInfos, const FaceInfoList& faceInfos, const FaceEdgeIndexList& faceEdges) {
-            
-            auto* model = new Assets::Bsp29Model(m_name, textureCollection);
-            try {
-                VertexMarkList vertexMarks(vertices.size(), false);
-                std::vector<vm::vec3f> modelVertices;
-                
-                const char* cursor = m_begin + BspLayout::DirModelAddress;
-                const size_t modelsAddr = readSize<int32_t>(cursor);
-                const size_t modelsLength = readSize<int32_t>(cursor);
-                const size_t modelCount = modelsLength / BspLayout::ModelSize;
-                
-                cursor = m_begin + modelsAddr;
-                for (size_t i = 0; i < modelCount; ++i) {
-                    cursor += BspLayout::ModelFaceIndex;
-                    const size_t modelFaceIndex = readSize<int32_t>(cursor);
-                    const size_t modelFaceCount = readSize<int32_t>(cursor);
-                    size_t totalVertexCount = 0;
-                    
-                    Assets::Bsp29Model::FaceList faces;
-                    faces.reserve(modelFaceCount);
-                    for (size_t j = 0; j < modelFaceCount; ++j) {
-                        const FaceInfo& faceInfo = faceInfos[modelFaceIndex + j];
-                        const TextureInfo& textureInfo = textureInfos[faceInfo.textureInfoIndex];
-                        auto* texture = textureCollection->textureByIndex(textureInfo.textureIndex);
-                        const size_t faceVertexCount = faceInfo.edgeCount;
+        void Bsp29Parser::parseModels(Assets::EntityModel* model, const TextureInfoList& textureInfos, const std::vector<vm::vec3f>& vertices, const EdgeInfoList& edgeInfos, const FaceInfoList& faceInfos, const FaceEdgeIndexList& faceEdges) {
+            using Vertex = Assets::EntityModel::Vertex;
+            using VertexList = Vertex::List;
 
-                        Assets::Bsp29Model::Face face(texture, faceVertexCount);
-                        for (size_t k = 0; k < faceVertexCount; ++k) {
-                            const int faceEdgeIndex = faceEdges[faceInfo.edgeIndex + k];
-                            size_t vertexIndex;
-                            if (faceEdgeIndex < 0) {
-                                vertexIndex = edgeInfos[static_cast<size_t>(-faceEdgeIndex)].vertexIndex2;
-                            } else {
-                                vertexIndex = edgeInfos[static_cast<size_t>(faceEdgeIndex)].vertexIndex1;
-                            }
+            const char* cursor = m_begin + BspLayout::DirModelAddress;
+            const auto modelsAddr = readSize<int32_t>(cursor);
+            const auto modelsLength = readSize<int32_t>(cursor);
+            const auto modelCount = modelsLength / BspLayout::ModelSize;
 
-                            const vm::vec3f& vertex = vertices[vertexIndex];
-                            const vm::vec2f texCoords = textureCoords(vertex, textureInfo, texture);
-                            face.addVertex(vertex, texCoords);
+            cursor = m_begin + modelsAddr;
+            for (size_t i = 0; i < modelCount; ++i) {
+                cursor += BspLayout::ModelFaceIndex;
+                const auto modelFaceIndex = readSize<int32_t>(cursor);
+                const auto modelFaceCount = readSize<int32_t>(cursor);
+                size_t totalVertexCount = 0;
+                Renderer::TexturedIndexRangeMap::Size size;
 
-                            if (!vertexMarks[vertexIndex]) {
-                                modelVertices.push_back(vertex);
-                            }
-                        }
-                        faces.push_back(face);
-                        totalVertexCount += faceVertexCount;
-                    }
-                    
-                    const auto bounds = vm::bbox3f::mergeAll(std::begin(modelVertices), std::end(modelVertices));
-                    model->addModel(faces, bounds);
+                for (size_t j = 0; j < modelFaceCount; ++j) {
+                    const auto& faceInfo = faceInfos[modelFaceIndex + j];
+                    const auto& textureInfo = textureInfos[faceInfo.textureInfoIndex];
+                    auto* skin = model->skin(textureInfo.textureIndex);
+                    const auto faceVertexCount = faceInfo.edgeCount;
+                    size.inc(skin, GL_POLYGON, faceVertexCount);
+                    totalVertexCount += faceVertexCount;
                 }
-            } catch (...) {
-                delete model;
-                throw;
+
+                Renderer::TexturedIndexRangeMapBuilder<Vertex::Spec> builder(totalVertexCount, size);
+                for (size_t j = 0; j < modelFaceCount; ++j) {
+                    const auto& faceInfo = faceInfos[modelFaceIndex + j];
+                    const auto& textureInfo = textureInfos[faceInfo.textureInfoIndex];
+                    auto* skin = model->skin(textureInfo.textureIndex);
+                    const auto faceVertexCount = faceInfo.edgeCount;
+
+                    VertexList faceVertices;
+                    faceVertices.reserve(faceVertexCount);
+                    for (size_t k = 0; k < faceVertexCount; ++k) {
+                        const int faceEdgeIndex = faceEdges[faceInfo.edgeIndex + k];
+                        size_t vertexIndex;
+                        if (faceEdgeIndex < 0) {
+                            vertexIndex = edgeInfos[static_cast<size_t>(-faceEdgeIndex)].vertexIndex2;
+                        } else {
+                            vertexIndex = edgeInfos[static_cast<size_t>(faceEdgeIndex)].vertexIndex1;
+                        }
+
+                        const auto& position = vertices[vertexIndex];
+                        const auto texCoords = textureCoords(position, textureInfo, skin);
+                        faceVertices.push_back(Vertex(position, texCoords));
+                    }
+
+                    builder.addPolygon(skin, faceVertices);
+                }
+
+                StringStream frameName;
+                frameName << m_name << "_" << i;
+                model->addFrame(frameName.str(), builder.vertices(), builder.indices());
             }
-            return model;
         }
         
         vm::vec2f Bsp29Parser::textureCoords(const vm::vec3f& vertex, const TextureInfo& textureInfo, const Assets::Texture* texture) const {

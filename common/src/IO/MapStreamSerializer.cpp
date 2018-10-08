@@ -23,20 +23,23 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class StandardStreamSerializer : public MapStreamSerializer {
-        private:
-            bool m_longFormat;
+        class QuakeStreamSerializer : public MapStreamSerializer {
         public:
-            StandardStreamSerializer(std::ostream& stream, const bool longFormat) :
-            MapStreamSerializer(stream),
-            m_longFormat(longFormat) {}
+            QuakeStreamSerializer(std::ostream& stream) :
+            MapStreamSerializer(stream) {}
         private:
-            void doWriteBrushFace(std::ostream& stream, Model::BrushFace* face) override {
-                const String& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
+            virtual void doWriteBrushFace(std::ostream& stream, Model::BrushFace* face) override {
+                writeFacePoints(stream, face);
+                stream << " ";
+                writeTextureInfo(stream, face);
+                stream << "\n";
+            }
+        protected:
+            void writeFacePoints(std::ostream& stream, Model::BrushFace* face) {
                 const Model::BrushFace::Points& points = face->points();
-                
-                stream <<
-                "( " <<
+
+                stream.precision(FloatPrecision);
+                stream << "( " <<
                 StringUtils::ftos(points[0].x(), FloatPrecision) << " " <<
                 StringUtils::ftos(points[0].y(), FloatPrecision) << " " <<
                 StringUtils::ftos(points[0].z(), FloatPrecision) <<" ) ( " <<
@@ -45,54 +48,92 @@ namespace TrenchBroom {
                 StringUtils::ftos(points[1].z(), FloatPrecision) << " ) ( " <<
                 StringUtils::ftos(points[2].x(), FloatPrecision) << " " <<
                 StringUtils::ftos(points[2].y(), FloatPrecision) << " " <<
-                StringUtils::ftos(points[2].z(), FloatPrecision) << " ) ";
-                
-                stream <<
-                textureName << " " <<
+                StringUtils::ftos(points[2].z(), FloatPrecision) << " )";
+            }
+
+            void writeTextureInfo(std::ostream& stream, Model::BrushFace* face) {
+                const String& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
+                stream << textureName << " " <<
                 StringUtils::ftos(face->xOffset(), FloatPrecision)  << " " <<
                 StringUtils::ftos(face->yOffset(), FloatPrecision)  << " " <<
                 StringUtils::ftos(face->rotation(), FloatPrecision) << " " <<
                 StringUtils::ftos(face->xScale(), FloatPrecision)   << " " <<
                 StringUtils::ftos(face->yScale(), FloatPrecision);
-                
-                if (m_longFormat) {
-                    stream << " " <<
-                    face->surfaceContents()  << " " <<
-                    face->surfaceFlags()     << " " <<
-                    StringUtils::ftos(face->surfaceValue(), FloatPrecision);
-                }
-                
-                stream << "\n";
             }
         };
-        
-        class ValveStreamSerializer : public MapStreamSerializer {
+
+        class Quake2StreamSerializer : public QuakeStreamSerializer {
+        public:
+            Quake2StreamSerializer(std::ostream& stream) :
+            QuakeStreamSerializer(stream) {}
+        private:
+            virtual void doWriteBrushFace(std::ostream& stream, Model::BrushFace* face) override {
+                writeFacePoints(stream, face);
+                stream << " ";
+                writeTextureInfo(stream, face);
+                if (face->hasSurfaceAttributes()) {
+                    stream << " ";
+                    writeSurfaceAttributes(stream, face);
+
+                }
+                stream << "\n";
+            }
+        protected:
+            void writeSurfaceAttributes(std::ostream& stream, Model::BrushFace* face) {
+                stream <<
+                face->surfaceContents()  << " " <<
+                face->surfaceFlags()     << " " <<
+                StringUtils::ftos(face->surfaceValue(), FloatPrecision);
+            }
+        };
+
+        class DaikatanaStreamSerializer : public Quake2StreamSerializer {
+        public:
+            DaikatanaStreamSerializer(std::ostream& stream) :
+            Quake2StreamSerializer(stream) {}
+        private:
+            virtual void doWriteBrushFace(std::ostream& stream, Model::BrushFace* face) override {
+                writeFacePoints(stream, face);
+                stream << " ";
+                writeTextureInfo(stream, face);
+                if (face->hasSurfaceAttributes() || face->hasColor()) {
+                    stream << " ";
+                    writeSurfaceAttributes(stream, face);
+
+                }
+                if (face->hasColor()) {
+                    stream << " ";
+                    writeSurfaceColor(stream, face);
+                }
+                stream << "\n";
+            }
+        protected:
+            void writeSurfaceColor(std::ostream& stream, Model::BrushFace* face) {
+                stream <<
+                static_cast<int>(face->color().r()) << " " <<
+                static_cast<int>(face->color().g()) << " " <<
+                static_cast<int>(face->color().b());
+            }
+        };
+
+        class ValveStreamSerializer : public QuakeStreamSerializer {
         public:
             ValveStreamSerializer(std::ostream& stream) :
-            MapStreamSerializer(stream) {}
+            QuakeStreamSerializer(stream) {}
         private:
             void doWriteBrushFace(std::ostream& stream, Model::BrushFace* face) override {
+
+                writeFacePoints(stream, face);
+                stream << " ";
+                writeValveTextureInfo(stream, face);
+                stream << "\n";
+            }
+        private:
+            void writeValveTextureInfo(std::ostream& stream, Model::BrushFace* face) {
                 const String& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
                 const vm::vec3& xAxis = face->textureXAxis();
                 const vm::vec3& yAxis = face->textureYAxis();
-                const Model::BrushFace::Points& points = face->points();
-                
-                stream.precision(FloatPrecision);
-                stream <<
-                "( " <<
-                points[0].x() << " " <<
-                points[0].y() << " " <<
-                points[0].z() <<
-                " ) ( "           <<
-                points[1].x() << " " <<
-                points[1].y() << " " <<
-                points[1].z() <<
-                " ) ( "           <<
-                points[2].x() << " " <<
-                points[2].y() << " " <<
-                points[2].z() <<
-                " ) ";
-                
+
                 stream.precision(6);
                 stream <<
                 textureName     << " " <<
@@ -109,52 +150,31 @@ namespace TrenchBroom {
                 " ] " <<
                 face->rotation() << " " <<
                 face->xScale()   << " " <<
-                face->yScale()   << "\n";
+                face->yScale();
             }
         };
         
-        class Hexen2StreamSerializer : public MapStreamSerializer {
+        class Hexen2StreamSerializer : public QuakeStreamSerializer {
         public:
             Hexen2StreamSerializer(std::ostream& stream) :
-            MapStreamSerializer(stream) {}
+            QuakeStreamSerializer(stream) {}
         private:
-            void doWriteBrushFace(std::ostream& stream, Model::BrushFace* face) override {
-                const String& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
-                const Model::BrushFace::Points& points = face->points();
-                
-                stream.precision(FloatPrecision);
-                stream <<
-                "( " <<
-                points[0].x() << " " <<
-                points[0].y() << " " <<
-                points[0].z() <<
-                " ) ( "           <<
-                points[1].x() << " " <<
-                points[1].y() << " " <<
-                points[1].z() <<
-                " ) ( "           <<
-                points[2].x() << " " <<
-                points[2].y() << " " <<
-                points[2].z() <<
-                " ) ";
-                
-                stream.precision(6);
-                stream <<
-                textureName             << " " <<
-                face->xOffset()          << " " <<
-                face->yOffset()          << " " <<
-                face->rotation()         << " " <<
-                face->xScale()           << " " <<
-                face->yScale()           << "\n";
+            virtual void doWriteBrushFace(std::ostream& stream, Model::BrushFace* face) override {
+                writeFacePoints(stream, face);
+                stream << " ";
+                writeTextureInfo(stream, face);
+                stream << " 0\n"; // extra value written here
             }
         };
         
         NodeSerializer::Ptr MapStreamSerializer::create(const Model::MapFormat::Type format, std::ostream& stream) {
             switch (format) {
                 case Model::MapFormat::Standard:
-                    return NodeSerializer::Ptr(new StandardStreamSerializer(stream, false));
+                    return NodeSerializer::Ptr(new QuakeStreamSerializer(stream));
                 case Model::MapFormat::Quake2:
-                    return NodeSerializer::Ptr(new StandardStreamSerializer(stream, true));
+                    return NodeSerializer::Ptr(new Quake2StreamSerializer(stream));
+                case Model::MapFormat::Daikatana:
+                    return NodeSerializer::Ptr(new DaikatanaStreamSerializer(stream));
                 case Model::MapFormat::Valve:
                     return NodeSerializer::Ptr(new ValveStreamSerializer(stream));
                 case Model::MapFormat::Hexen2:

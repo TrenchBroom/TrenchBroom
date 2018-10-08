@@ -351,6 +351,15 @@ namespace TrenchBroom {
             }
         }
 
+        BrushFace* Brush::findFace(const String& textureName) const {
+            for (BrushFace* face : m_faces) {
+                if (face->textureName() == textureName) {
+                    return face;
+                }
+            }
+            return nullptr;
+        }
+
         BrushFace* Brush::findFace(const vm::vec3& normal) const {
             for (auto* face : m_faces) {
                 if (isEqual(face->boundary().normal, normal, vm::C::almostZero())) {

@@ -1,0 +1,1566 @@
+//
+// Daikatana game definition file (.fgd)
+// Common entities
+// for Trenchbroom
+// last update: 6 Oct, 2018
+// version: 1
+//
+// written by Dekonega / dekonega(at)windowslive.com
+// email me with improvements and suggestions
+//
+
+
+//
+// worldspawn
+//
+@SolidClass = worldspawn : "Only used for the world entity"
+[
+    cinematic_intro(string) : "cinematic scene played when map loads"
+    loadscreen(string) : "loading screen"
+    palette(string) : "texture palette used"
+    ambient(integer) : "ambient light"
+    fog_value(integer) : "fog on-off/intensity"
+    fog_color(color255) : "rgb color of fog"
+    fog_start(integer) : "start of fog volume"
+    fog_end(integer) : "end of fog volume"
+    _color(color255) : "environmental color"
+	episode(choices) : "number of episode" : 1 =
+	[
+		1 : "Episode 1"
+		2 : "Episode 2"
+		3 : "Episode 3"
+		4 : "Episode 4"
+	]
+    mapname(string) : "name of the map"
+    musictrack(string) : "name of MP3 track to play when level starts"
+    sky(string) : "skybox name"
+    cloudname(string) : "name of cloud texture to use, no suffix"
+    cloudxdir(float) : "cloud x scroll value (-1 to 1, default 1.0)"
+    cloudydir(float) : "cloud y scroll value (-1 to 1, default 0.8)"
+    cloud1tile(integer) : "number of repeats of layer 1 cloud texture (default 8)"
+    cloud2tile(integer) : "number of repeats of layer 2 cloud texture (default 2)"
+    cloud1speed(integer) : "scrolling speed for layer 1 (default 1)"
+    cloud2speed(integer) : "scrolling speed for layer 2 (default 4)"
+    cloud2alpha(float) : "translucency of layer 2 (default 0.7, 0 means no layer 2)"
+    lightningfreq(float) : "min seconds between lightning flashes (default 0.25, 0 means no lightning)"    
+]
+
+
+//
+// Common properties
+//
+@BaseClass = Target
+[
+	target(target_destination) : "Target"
+]
+
+@BaseClass = Targetname
+[
+	targetname(target_source) : "Name"
+]
+
+@BaseClass = Sidekickflags
+[
+	spawnflags(Flags) =
+	[
+		1 : "Superfly" : 0
+   		2 : "Mikiko" : 0
+	]
+]
+
+@BaseClass = Appearflags
+[
+	spawnflags(Flags) =
+	[
+		4096 : "Not in Easy (Ronin)" : 0
+		8192 : "Not in Normal (Samurai)" : 0
+		16384 : "Not in Hard (Shogun)" : 0
+		32768 : "Not in Deathmatch" : 0
+	]
+]
+
+@BaseClass = DecorationFlags
+[
+	spawnflags(Flags) =
+	[
+		1: "DECO_EXPLODE" : 0
+		2: "NO_EXPLODE_NO_BREAK" : 0
+		4: "DECO_PUSHABLE" : 0
+		8: "WOOD_DEBRIS" : 0
+		16: "METAL_DEBRIS" : 0
+		32: "GLASS_DEBRIS" : 0
+		64: "GIB_DEBRIS" : 0
+		128: "ROTATE" : 0
+		256: "DECO_TRANSLUCENT" : 0
+	]
+]
+
+@BaseClass = PurifierShard
+[
+	spawnflags(Flags) =
+	[
+		1: "x" : 0
+		2: "x" : 0
+		4: "USE_TARGETS" : 0
+	]
+]
+
+@BaseClass = AntidoteFlags
+[
+	spawnflags(Flags) =
+	[
+		1: "x" : 0
+		2: "x" : 0
+		4: "USE_TARGETS" : 0
+	]
+]
+
+@BaseClass = KeyFlags
+[
+	spawnflags(Flags) =
+	[
+		1: "USE_ONCE" : 0
+		2: "UNLOCK" : 0
+		4: "USE_TARGETS" : 0
+	]
+	
+	sound(string): "sound played when the key is used"
+]
+
+@BaseClass base(Appearflags, Target, Sidekickflags) color(0 0.5 0.8) size(-16 -16 0, 16 16 32) = Ammo
+[
+	team(string) : "Team"
+]
+
+@BaseClass color(0.5 0.5 0) size(-8 -8 -8, 8 8 8) = Animal
+[
+	spawnflags(Flags) =
+	[
+		1: "WANDER" : 0
+		2: "PATHFOLLOW" : 0
+	]
+]
+
+@BaseClass base(Appearflags, Target, Sidekickflags) color(0 0.5 0.8) size(-20 -20 0, 20 20 32) = Weapons
+[
+	team(string) : "Team"
+]
+
+@BaseClass base(Appearflags, Target, Targetname) = MonsterFlags
+[
+	spawnflags(Flags) =
+	[
+		1 : "WANDER" : 0
+		2 : "PATHFOLLOW" : 0
+		4 : "NODE_WANDER" : 0
+		8 : "RANDOM_WANDER" : 0
+		16 : "IGNORE_PLAYER" : 0
+		32 : "SNIPE" : 0
+		64 : "DO_NOT_FLY" : 0
+		128 : "DO_NOT_MOVE" : 0
+		256 : "x" : 0
+		512 : "TAKE_COVER" : 0
+		1024 : "ALWAYS_GIB" : 0
+	]
+	
+	spawnname(string): "classname of entity to throw out upon death."
+	sight(integer): "Range that the monster can see the player and will react."
+	speak(integer): "Range that the monster can speak to other monsters so they can help out."
+]
+
+
+//
+// Debugging
+//
+@PointClass base(Appearflags) color(0 0.5 0.8) size(-16 -16 -24, 16 16 32) = viewthing : "For debugging level - dont use" []
+@PointClass base(Appearflags) color(1 0.5 0) size(-16 -16 -16, 16 16 16) = view_rotate : "For debugging level - dont use" []
+
+
+//
+// Lights
+//
+@BaseClass = LightStyleFX
+[
+	style(choices) : "Number of style to use, between 0-63" : 0 =
+	[
+		0: "Normal"
+		1: "Flicker #1"
+		6: "Flicker #2"
+		2: "Slow Strong Pulse"
+		3: "Candle #1"
+		7: "Candle #2"
+		8: "Candle #3"
+		4: "Fast Strobe"
+		5: "Gentle Pulse #1"
+		9: "Slow Strobe"
+		10: "Fluorescent Flicker"
+		11: "Slow pulse, no black"
+		12: "12 - 63 Custom"
+	]
+]
+
+@PointClass base(Appearflags, LightStyleFX, Target, Targetname) color(0 1 0) size(-8 -8 -8, 8 8 8) = light : "Light"
+[
+	spawnflags(Flags) =
+	[
+		1 : "Start Off" : 0
+        2 : "Flare" : 0
+	]
+
+	light(integer) : "Intensity of light" : 300
+	_cone(integer) : "Size of light (spotlight) default: 10"
+    lightstyle(string) : "String to define lightstyle"
+]
+
+@PointClass base(Appearflags) color(0.9 0.9 0.9) size(-8 -8 -8, 8 8 8) = light_flare : "Light (Flare)"
+[
+	spawnflags(Flags) =
+	[
+		1 : "Start Off" : 0
+	]
+	
+	model(string) : "Sprite model name"
+	scale(float) : "Sprite model scale" : 1.0
+]
+
+@PointClass base(Appearflags, LightStyleFX) color(0 1 0) size(-8 -8 -8, 8 8 8) = light_walltorch : "Light (Walltorch)"
+[
+	spawnflags(Flags) =
+	[
+		1 : "Start On" : 0
+	]
+
+	lightstyle(string) : "string to define lightstyle"
+]
+
+@BaseClass base(Appearflags) color(0 1 0) size(-8 -8 -28, 8 8 8) = EpisodeLight []
+
+@PointClass base(EpisodeLight) = light_e1 : "Light (Episode 1)"
+[
+	scale(string) : "Amount to scale (%f %f %f)"
+]
+
+@PointClass base(EpisodeLight) = light_e2 : "Light (Episode 2)"
+[
+	spawnflags(Flags) =
+	[
+		1 : "D2_TORCH1" : 0
+		2 : "D2_TORCH1B" : 0
+		4 : "D2_TORCH2" : 0
+		8 : "D2_TORCH3" : 0
+	]
+
+	scale(string) : "Amount to scale (%f %f %f)"
+]
+
+@PointClass base(EpisodeLight) = light_e3 : "Light (Episode 3)"
+[
+	spawnflags(Flags) =
+	[
+		1 : "D3_FIRESHELF" : 0
+		2 : "D3_CANDLE" : 0
+		4 : "D3_FLAMHOLD" : 0
+	]
+
+	scale(string) : "Amount to scale (%f %f %f)"
+]
+
+@PointClass base(EpisodeLight) = light_e4 : "Light (Episode 4)"
+[
+	spawnflags(Flags) =
+	[
+		1 : "D4_BARREL1" : 0
+	]
+
+	scale(string) : "Amount to scale (%f %f %f)"
+]
+
+@PointClass base(Appearflags, LightStyleFX) color(0 1 0) size(-8 -8 -8, 8 8 8) = light_strobe : "Light (Strobe)"
+[
+	spawnflags(Flags) =
+	[
+		1 : "START_ON" : 0
+	]
+
+	lightstyle(string) : "string to define lightstyle"
+]
+
+
+//
+// Effects
+//
+@SolidClass base(Appearflags) color(0 1 0) = effect_fog : "Fog Effect - Duh, fog." []
+
+@SolidClass base(Appearflags) color(1 1 1) = effect_snow : "Snow Effect"
+[
+	spawnflags(Flags) =
+	[
+		1 : "FALL_STRAIGHT" : 0
+	]
+
+	height(integer) : "distance the snow/rain is supposed to fall"
+]
+
+@SolidClass base(Appearflags) color(0 0.5 0.8) = effect_rain : "Rain Effect"
+[
+	spawnflags(Flags) =
+	[
+		1 : "NORTH" : 0
+		2 : "SOUTH" : 0
+		4 : "EAST" : 0
+		8 : "WEST" : 0
+	]
+	
+	height(integer) : "distance the snow/rain is supposed to fall"
+]
+
+@PointClass base(Appearflags, Target, Targetname) color(1 1 1) size(-8 -8 -8, 8 8 8) = effect_lightning : "Lightning Effect"
+[
+	spawnflags(Flags) =
+	[
+		1 : "START_ON" : 0
+		2 : "CYCLE" : 0
+		4 : "GROUND_STRIKES" : 0
+		8 : "RANDOM_DELAY" : 0
+		16 : "SPAWN_LIGHT" : 0
+		32 : "NO_CLIENTS" : 0
+		64 : "TRACE_DMG" : 0
+		128 : "STRIKE_ONCE" : 0
+		256 : "NO_SPARKS" : 0
+		512 : "CONSTANT" : 0
+		1024 : "SCORCH" : 0
+	]
+
+	delay(float) : "time between strikes (default 2.0)" : 2.0
+	dmg(float) : "damage if a PLAYER gets hit (default 0.0) based on duration (default 0.5<meaning 5x dmg)" : 0.5
+	scale(float) : "set the scale of the lightning model (default 4.0)" : 4.0
+	chance(float) : "pct chance a player will be hit (default 0.10)" : 0.10
+	modulation(float) : "% of modulation to apply to lightning. Scalar value."
+	_color(color255) : "Color of lightning. (Use 'k')"
+	gndchance(float) : "if GROUND STRIKES is checked, chance for ground hit (default 0.20)" : 0.20
+	duration(float) : "Period of time that lightning will exist during its strike.(scalar)"
+	sound(string) : "wave file to play when lightning strikes (random if > 1 defined)"
+	sound1(string) : "wave file to play when lightning strikes (random if > 1 defined)"
+	sound2(string) : "wave file to play when lightning strikes (random if > 1 defined)"
+	sound3(string) : "wave file to play when lightning strikes (random if > 1 defined)"
+]
+
+@SolidClass base(Appearflags) color(1 0.6 0.3) = effect_steam : "Steam Effect"
+[
+	spawnflags(flags) =
+	[
+		1 : "RANDOM_DELAY" : 0
+		2 : "START_ON" : 0
+		4 : "JET_ONCE" : 0
+		8 : "FREEZE_SPRAY" : 0		
+	]
+
+	delay(float) : "time between jets (default 6.0)" : 6.0
+	duration(float) : "length of time to spray (default 2.0)" : 2.0
+	vector(vector) : "direction/distance to jet steam"
+	damage(float) : "damage if a PLAYER gets hit (default 0.0)" : 0.0
+	scale(float) : "set the scale of the steam sprite (default 1.0)" : 1.0
+	sound(string) : "sound played while steam is jetting"
+]
+
+
+//
+// Specialised Effects
+//
+@PointClass base(Appearflags, Target, Targetname) color(.65 0.65 0.15) size(-8 -8 -8, 8 8 8) = sfx_complex_particle : "Complex Particle Effect"
+[
+	spawnflags(flags) =
+	[
+		1 : "P_SIMPLE" : 0
+		2 : "P_TRIANGLE" : 0
+		4 : "P_RAIN" : 0
+		8 : "P_SMOKE" : 0
+		16 : "P_FLARE" : 0
+		32 : "P_DEBRIS" : 0
+		64 : "P_SOFTROUND" : 0
+		128 : "P_BUBBLE" : 0
+		256 : "TOGGLE_EMIT" : 0
+		512 : "RANDOM_EMIT" : 0
+		1024 : "START_OFF" : 0
+		2048 : "TOGGLE" : 0
+	]
+
+	count(integer): "Number of particles to spray" : 1
+	spread(integer): "Degrees of Conic spread for the particle stream (360 = a sphere)" : 1
+	velocity(float): "How fast the particles move"
+	emission(integer): "Emission rate on a per frame basis (!<1 anything <1 will = 1)"
+	emissiontime(integer): "Amount of frames particle Emission occurs"
+	scale(float): "The size of the particles (!< 0.01f !>200.0f)"
+	delta_alpha(float): "The decay rate of the particle's life time"
+	alpha_level(float): "The initial state of the Alpha level"
+	gravity(float): "How much gravity to apply to particles." : 0
+	gravitydir(string): "Name of target that gravity will be applied towards." : "down"
+	stoptime(integer): "Time for the SFX Particle generator to spit out particles before it completely shuts down"
+	radius(integer): "Radius spread for spawning particles"
+	_color(color255): "Particle color"
+]
+
+
+//
+// Misc
+//
+@BaseClass base(Appearflags, Target, Targetname) color(1 0 0) size(-16 -16 -24, 16 16 32) = HealthStations []
+
+@PointClass base(HealthStations) = misc_hosportal : "Hosportal"
+[
+	spawnflags(flags) =
+	[
+		1 : "ALLOW_HEALTH" : 0
+	]
+
+	style(choices): "Hosportal style" : 1 =
+	[
+		0 : "large (with walls)"
+		1 : "medium (no walls)"
+		2 : "small (monitor)"
+	]
+
+	health(integer): "health of entity (0 if indestructable)"
+	max_juice(integer): "max amount of health to restore before depleted (100)"
+]
+
+@PointClass base(HealthStations) = misc_fountain : "Greek health fountain." []
+
+@PointClass base(HealthStations) = misc_drugbox : "Crate of drugs. Restores health." []
+
+@PointClass base(HealthStations) = misc_healthtree : "Healing fruit tree."
+[
+	max_fruit(choices): "max # of fruits on tree (5)" : 5 =
+	[
+		1: "1 fruit"
+		2: "2 fruits"
+		3: "3 fruits"
+		4: "4 fruits"
+		5: "5 fruits"
+
+	]
+
+	recharge_rate(integer): "recharge time (seconds) for tree"
+]
+
+@PointClass base(Appearflags) color(1 0.5 0) size(-8 -8 -8, 8 8 8) = misc_lavaball_drop : "Lavaball drop" []
+
+@PointClass base(Appearflags, Target) color(1 0.5 0) size(-8 -8 -8, 8 8 8) = misc_lavaball_toss : "Lavaball toss"
+[
+	// target(string) : "can be triggered"
+	mintime(float) : "minimum time between tosses (default = 4.0 seconds)" : 4.0
+	maxtime(float) : "maximum time between tosses (default = 12.0 seconds)" : 12.0
+	damage(integer) : "damage to do when an hitting something"
+	upmin(integer) : "minimum upward velocity (default = 200)" : 200
+	upmax(integer) : "maximum upward velocity (default = 800)" : 800
+]
+
+
+//
+// Functions
+//
+@SolidClass base(Appearflags, Targetname) color(0 0.5 0.8) = func_areaportal : "Area portal" []
+
+@SolidClass base(Appearflags) color(0 0.5 0.8) = func_group : "Group" []
+
+@PointClass base(Appearflags, Target, Targetname) color(0 0.5 0.8) size(-4 -4 -4, 4 4 4) = func_gib : "Gib Generator"
+[
+	spawnflags(Flags) =
+	[
+		1: "GIB_ROBOTIC" : 0
+		2: "GIB_BONE" : 0
+		4: "NO_BLOOD" : 0
+		8: "START_ON" : 0
+		16: "NO_TOGGLE" : 0
+	]
+	COUNT(integer): "Number of gibs to throw out per think cycle"
+	SPREAD(integer): "Degrees of Conic spread for the particle stream"
+	VELOCITY(float): "How fast the gibs move"
+	SCALE(float): "The size of the gibs"
+	STOPTIME(integer): "Time for the gib generator to spit out gibs before it toggles itself off." 
+	MIN(integer): "Min range for sound." 
+	MAX(integer): "Max range for sound." 
+	VOLUME(float): "Volume for sound." 
+]
+
+@SolidClass base(Appearflags, Target, Targetname) color(0 0.5 0.8) = func_door : "Door"
+[
+	spawnflags(Flags) =
+	[
+		1: "START_OPEN" : 0
+		2: "REVERSE" : 0
+		4: "DOOR_DONT_LINK" : 0
+		8: "TOGGLE" : 0
+		16: "AUTO_OPEN" : 0
+		32: "USE_TO_CLOSE" : 0
+		64: "CONTINUOUS" : 0
+		128: "LOOP_DOOR_SOUNDS" : 0
+		256: "STRUGGLE" : 0
+		512: "FORCEMOVE" : 0
+	]
+
+	message(string): "printed when the door is touched"
+	angle(integer): "determines the opening direction"
+	keyname(string): "if set, the player must have the specified item in their inventory"
+	health(integer): "if set, door must be shot open"
+	speed(integer): "movement speed" : 100
+	wait(integer): "time to wait before returning" : 3
+	lip(integer): "amount of door visible remaining at end of move" : 8
+	dmg(integer): "damage to inflict when blocked" : 2
+	sound_opening(string): "name of the sound to play during opening, ie. doors/creek.wav"
+	sound_open_finish(string): "name of the sound to play when opening completes, ie. doors/slam.wav"
+	sound_closing(string): "name of the sound to play when closing starts, ie. doors/creek.wav"
+	sound_close_finish(string): "name of the sound to play when closing completes, ie. doors/slam.wav"
+	cinescript(string): "name of the cinematic script to run"
+	aiscript(string): "name of the AI script to run"
+]
+
+@SolidClass base(Appearflags, Targetname) color(0 0.5 0.8) = func_plat : "Platform"
+[
+	spawnflags(Flags) =
+	[
+		1 : "PLAT_START_UP" : 0
+		2 : "X" : 0
+		4 : "X" : 0
+		8 : "PLAT_TOGGLE" : 0
+	]
+
+	message(string): "printed when the door is touched if it is a trigger door and it hasn't been fired yet"
+	angle(integer): "determines the opening direction"
+	health(integer): "if set, door must be shot open"
+	speed(integer): "movement speed (100 default)" : 100
+	wait(integer): "time to wait before returning (3 default, -1 = never return)" : 3
+	height(integer): "number of units to move the platform up from spawn position. If height is not specified, then the movement distance is determined based on the vertical size of the platform."
+	dmg(integer): "damage to inflict when blocked (2 default)" : 2
+	sound_up(string): "name of the sound to play when going up, ie. doors/creek.wav"
+	sound_top(string): "name of the sound to play when plat hits top, ie. doors/slam.wav"
+	sound_down(string): "name of the sound to play when going down, ie. doors/creek.wav"
+	sound_bottom(string): "name of the sound to play when plat hits bottom, ie. doors/slam.wav"
+	volume(float): "0.0 to 1.0"
+	min(integer): "0 to 2040 - minimum distance (volume full)"
+	max(integer): "0 to 8160 - maximum distance (volume none)"
+]
+
+@SolidClass base(Appearflags, Targetname) color(0 0.5 0.8) = func_door_rotate : "Rotating door"
+[
+	spawnflags(Flags) =
+	[
+		1: "START_OPEN" : 0
+		2: "REVERSE" : 0
+		4: "DOOR_DONT_LINK" : 0
+		8: "TOGGLE" : 0
+		16: "AUTO_OPEN" : 0
+		32: "USE_TO_CLOSE" : 0
+		64: "CONTINUOUS" : 0
+		128: "X_AXIS" : 0
+		256: "Y_AXIS" : 0
+		512: "SWING" : 0
+		1024: "STRUGGLE" : 0
+		2048: "ROTATE_LOOP_SOUNDS" : 0
+	]
+
+	distance(integer): "is how many degrees the door will be rotated."
+	speed(integer): "determines how fast the door moves; default value is 100." : 100
+	message(string): "is printed when the door is touched if it is a trigger door and it hasn't been fired yet."
+	health(integer): "if set, door must be shot open"
+	wait(integer): "wait before returning (3 default, -1 = never return)" : 3
+	damage(integer): "damage to inflict when blocked (2 default)" : 2
+	sound_opening(string): "name of the sound to play during opening, ie. doors/creek.wav"
+	sound_open_finish(string): "name of the sound to play when opening completes, ie. doors/slam.wav"
+	sound_closing(string): "name of the sound to play when closing starts, ie. doors/creek.wav"
+	sound_close_finish(string): "name of the sound to play when closing completes, ie. doors/slam.wav"
+	volume(float): "0.0 to 1.0"
+	min(integer): "0 to 2040 - minimum distance (volume full)"
+	max(integer): "0 to 8160 - maximum distance (volume none)"
+	boing(integer): "0 = ignore (default), 1 = simulate bouncing physics" : 0
+	accelerate(integer): "0 = ignore (default), 1 = accelerate rotation from 0 to speed" : 0
+	mass(integer): "0 = ignore (default), valid range is 1 = mass of player to 10. NOTE: dust and spawnquake are generated based on mass." : 0
+	dust(integer): "0 = ignore (default), 1 = create a dust cloud when the brush stops" : 0
+	spawnquake(integer): "0 = ignore (default), 1 = spawn a small quake when the brush stops" : 0
+]
+
+@SolidClass base(Appearflags, Target, Targetname) color(0 0.5 0.8) = func_rotate : "Rotate"
+[
+	 spawnflags(Flags) =
+	 [
+		 1: "START_ON" : 0
+		 2: "REVERSE" : 0
+		 4: "X_AXIS" : 0
+		 8: "Y_AXIS" : 0
+	]
+
+	speed(integer): "determines how fast it moves; default value is 100." : 100
+	dmg(integer): "damage to inflict when blocked (2 default)." : 2	
+]
+
+@SolidClass base(Appearflags, Target, Targetname) color(0 0.5 0.8) = func_wall : "Wall"
+[
+	spawnflags(Flags) =
+	[
+		1: "TRIGGER_SPAWN" : 0
+		2: "TOGGLE" : 0
+		4: "START_ON" : 0
+		8: "ANIMATED" : 0
+		16: "ANIMATED_FAST" : 0
+		32: "NOT_SOLID" : 0
+		64: "CTF_WALL_ONLY" : 0
+	]
+
+	killtarget(string): "the targetname of the entity to remove when triggered"
+	cinescript(string): "name of the cinematic script to run when toggled"
+	aiscript(string): "name of the AI script to run when toggled"
+]
+
+@SolidClass base(Appearflags, Target, Targetname) color(0 0.5 0.8) = func_button : "Button"
+[
+	spawnflags(Flags) =
+	[
+		1: "PUSH_TOUCH" : 0
+		2: "STRUGGLE" : 0
+	]
+
+	killtarget(string): "the targetname of the entity to remove when triggered"
+	keyname(string): "if set, the player must have the specified item in their inventory i.e. 'item_crypt_key'"
+	sound_use(string): "the sound to play when the button is used (defaults to none)"
+	sound_return(string): "the sound to play when the button returns (defaults to none)"
+	speed(integer): "rate of travel when button moves"
+	wait(float): "seconds to wait befor returning to useable (-1 = never return) (default 1.0)" : 1.0
+	angle(integer): "direction of travel"
+	lip(integer): "amount of button left sticking out after being pushed (default 4)" : 4
+	health(integer): "when > 0 the button must be killed in order to fire"
+	cinescript(string): "name of the cinematic script to run"
+	aiscript(string): "name of the AI script to run"
+]
+
+@SolidClass base(Appearflags, Target, Targetname) color(0 0.5 0.8) = func_multi_button : "Multi button"
+[
+	spawnflags(Flags) =
+	[
+		1: "PUSH_TOUCH" : 0
+		2: "CYCLE" : 0
+	]
+
+	killtarget(string): "the targetname of the entity to remove when triggered"
+	sound_use(string): "the sound to play when the button is used (defaults to none)"
+	sound_return(string): "the sound to play when the button returns (defaults to none)"
+	speed(integer): "rate of travel when button moves"
+	wait(integer): "seconds to wait befor returning to useable (-1 = never return)"
+	angle(integer): "direction of travel"
+	health(integer): "when > 0 the button must be killed in order to fire"
+	distance(integer): "distance button travels on each push"
+	count(integer): "number of positions this button has"
+]
+
+@PointClass base(Appearflags) color(0.5 0.3 0) size(-8 -8 -8, 8 8 8) = path_corner_train : "Tran path corner"
+[
+	spawnflags(Flags) =
+	[
+		1: "X_AXIS" : 0
+		2: "Y_AXIS" : 0
+		4: "Z_AXIS" : 0
+		8: "TRIGWAIT" : 0
+		16: "x" : 0
+		32: "TELEPORT" : 0
+		64: "x" : 0
+		128: "x" : 0
+	]
+
+	killtarget(string): "the targetname of the entity to remove when this path_corner is reached"
+	speed(integer): "rate of travel from this path_corner to the next"
+	wait(integer): "seconds to wait after the actions on this path_corner are complete"
+	sound(string): "sound to play at this path corner"
+	x_distance(integer): "distance in degrees to rotate around x axis"
+	y_distance(integer): "distance in degrees to rotate around y axis"
+	z_distance(integer): "distance in degrees to rotate around z axis"
+	x_speed(integer): "speed to rotate along x axis in degrees per second"
+	y_speed(integer): "speed to rotate along y axis in degrees per second"
+	z_speed(integer): "speed to rotate along z axis in degrees per second"
+	health(integer): "if health is set, the train will wait at this path corner until it is killed."
+	pathtarget(string): "target to trigger when this path_corner is reached"
+	cinescript(string): "name of the cinematic script to run"
+	aiscript(string): "name of the AI script to run"
+]
+
+@SolidClass base(Appearflags, Targetname) color(0 0.5 0.8) = func_door_secret : "Secret door"
+[
+	spawnflags(Flags) =
+	[
+		1: "OPEN_ONCE" : 0
+		2: "1ST_LEFT" : 0
+		4: "1ST_DOWN" : 0
+		8: "NO_SHOOT" : 0
+		16: "YES_SHOOT" : 0
+	]
+
+	message(string): "printed when the door is touched if it is a trigger door and it hasn't been fired yet"
+	angle(integer): "determines the opening direction"
+	health(integer): "if set, door must be shot open"
+	speed(integer): "movement speed (100 default)" : 100
+	wait(integer): "time to wait before returning (3 default, -1 = never return)" : 3
+	dmg(integer): "damage to inflict when blocked (2 default)" : 2
+	lip(integer): "lip"
+	sound_opening(string): "name of the sound to play during opening, ie. doors/creek.wav"
+	sound_open_finish(string): "name of the sound to play when opening completes, ie. doors/slam.wav"
+	sound_closing(string): "name of the sound to play when closing starts, ie. doors/creek.wav"
+	sound_close_finish(string): "name of the sound to play when closing completes, ie. doors/slam.wav"
+]
+
+@SolidClass base(Appearflags, Target, Targetname) color(0 0.5 0.8) = func_wall_explode : "Exploding wall"
+[
+	spawnflags(Flags) =
+	[
+		1: "ROCK_CHUNKS" : 0
+		2: "WOOD_CHUNKS" : 0
+		4: "EXTRA_CHUNKS" : 0
+		8: "EXTRA_VELOCITY" : 0
+		16: "NO_CHUNKS" : 0
+		32: "NO_SOUND" : 0
+		64: "METAL_CHUNKS" : 0
+		128: "NO_EXPLOSIONS" : 0
+	]
+
+	killtarget(string): "the targetname of the entity to remove when triggered"
+	health(integer): "ummm... this would be the health of the wall, if it is 0 then the wall can only be exploded by targetting it"
+	message(string): "this prints out when wall go boom"
+	model_1(string): "the specific pathname of the first model to throw when killed if model_1 is set then spawnflags ROCK_CHUNKS and WOOD_CHUNKS are overridden"
+	model_2(string): "the pathname of the second model"
+	model_3(string): "I wouldn't bet on it, but this is probably the name of the 3rd model"
+	group(string): "you can add a name here and group func_wall_explodes.. use triggerindex to specify priority of which one blows up first "
+	triggerindex(integer): "the lower the index, the higher it's priority (i.e. it blows up 1st func_wall_explodes with the same triggerindex blow up randomly"
+	mindamage(integer): "minimum damage it takes to destroy this wall. Any damage less than mindamage will be healed instantly so wall cannot be warn down."
+]
+
+@SolidClass base(Appearflags, Target) color(0 0.5 0.8) = func_debris : "Debris"
+[
+	spawnflags(Flags) =
+	[
+		1: "GO_TO_ACTIVATOR" : 0
+		2: "NO_ROTATE" : 0
+		4: "MOMENTUM_DAMAGE" : 0
+		8: "NO_ROTATION_ADJUST" : 0
+		16: "DROP_ONLY" : 0
+		32: "QUARTER_SIZE" : 0
+	]
+
+	fly_sound(string): "sound to play while the entity flies through the air"
+	hit_sound(string): "sound to play when the entity hits something"
+	volume(float): "0.0 to 1.0"
+	min(integer): "0 to 2040 - minimum distance (volume full)"
+	max(integer): "0 to 8160 - maximum distance (volume none)"
+	damage(integer): "amount of damage to do when hitting another object if MOMENTUM_DAMAGE is selected,"
+]
+
+@SolidClass base(Appearflags, Target) color(0 0.5 0.8) = func_debris_visible : "Visible debris"
+[
+	spawnflags(Flags) =
+	[
+		1: "GO_TO_ACTIVATOR" : 0
+		2: "NO_ROTATE" : 0
+		4: "MOMENTUM_DAMAGE" : 0
+		8: "NO_ROTATION_ADJUST" : 0
+		16: "DROP_ONLY" : 0
+		32: "QUARTER_SIZE" : 0
+	]
+
+	fly_sound(string): "sound to play while the entity flies through the air"
+	hit_sound(string): "sound to play when the entity hits something"
+	volume(float): "0.0 to 1.0"
+	min(integer): "0 to 2040 - minimum distance (volume full)"
+	max(integer): "0 to 8160 - maximum distance (volume none)"
+	damage(integer): "amount of damage to do when hitting another object"
+]
+
+@PointClass base(Appearflags) color(0 0.5 0.8) size(-8 -8 -8, 8 8 8) = func_dynalight : "Dynamic light"
+[
+	spawnflags(Flags) =
+	[
+		1: "START_ON" : 0
+		2: "SPOTLIGHT" : 0
+		4: "LIGHTFLARE" : 0
+		8: "X_AXIS" : 0
+		16: "Y_AXIS" : 0
+		32: "Z_AXIS" : 0
+		64: "REVERSE" : 0
+	]
+
+	length(integer): "length of the light beam... default is 2048" : 2048
+	light(integer): "light brightness value"
+	radius(integer): "radius of starting point, end radius is based on length default SPOTLIGHT color is white.. click color checkboxes to change colors"
+	_color(color255): "use the color selection dialog to select the color of the light"
+]
+
+@SolidClass base(Appearflags, Target) color(0 0.5 0.8) = func_explosive : "Explosive"
+[
+	spawnflags(Flags) =
+	[
+		1: "TRIGGER_SPAWN" : 0
+		2: "ANIMATED" : 0
+		4: "ANIMATED_FAST" : 0
+		8: "STONE" : 0
+		16: "WOOD" : 0
+		32: "METAL" : 0
+		64: "NO_CHUNKS" : 0
+		128: "NO_SOUND" : 0
+		256: "NO_EXPLOSION" : 0
+		512: "NOT_SOLID" : 0
+	]
+
+	damage(integer): "radius explosion of that amount, at center of brush"
+	health(integer): "defaults to 100." : 100
+	delay(float): "defaults to 1.0 to randomize the emission of debris chunks. The higher the number the longer it will take some chunks to chunk out." : 1.0
+	count(integer): "defaults to 10.  This determines how many chunks are emitted. 10 = maximum of 10 chunks but is random so could be 5-10, no less than 5." : 10
+	rndcount(integer): "defaults to 0. Random number of debris entities plus the count." : 0
+	scale(float): "This is the scale factor of the chunks. 1.0 is current Size." : 1.0
+	vectortarget(integer): "Sets the vector for the initial direction. It will be random in a 180 degree spread."
+	speed(float): "is a scaled value. 1.0 is normal speed." : 1.0
+	gravity(float): "Gravity to apply to debris. Default is 1.0.(normal)" : 1.0
+	cinescript(string): "name of the cinematic script to run"
+	aiscript(string): "name of the AI script to run"
+	volume(float): "0.0 to 1.0"
+	min(integer): "0 to 2040 - minimum distance (volume full)"
+	max(integer): "0 to 8160 - maximum distance (volume none)"
+]
+
+@SolidClass base(Appearflags, Target, Targetname) color(0 0.5 0.8) = func_water : "Water"
+[
+	spawnflags(Flags) =
+	[
+		1: "START_OPEN" : 0
+		2: "x" : 0
+		4: "x" : 0
+		8: "x" : 0
+		16: "x" : 0
+		32: "x" : 0
+		64: "x" : 0
+		128: "x" : 0
+		256: "x" : 0
+		512: "FORCEMOVE" : 0
+	]
+
+	angle(choices): "determines the opening direction (up or down only)" : -1 =
+	[
+		-1: "Up"
+		-2: "Down"
+	]
+	
+	speed(integer): "movement speed (25 default)" : 25
+	wait(integer): "wait before returning (-1 default, -1 = TOGGLE)" : -1
+	lip(integer): "lip remaining at end of move (0 default)" : 0
+	sound_opening(string): "name of the sound to play when rising"
+	sound_open_finish(string): "name of the sound to play when at the top"
+	sound_closing(string): "name of the sound to play when receeding"
+	sound_close_finish(string): "name of the sound to play when empty"
+]
+
+@PointClass base(Appearflags, Target, Targetname) color(0.3 0.1 0.6) size(-8 -8 -8, 8 8 8) = func_timer : "Timer"
+[
+	spawnflags(Flags) =
+	[
+		1: "START_ON" : 0
+		2: "USE_ONCE" : 0
+	]
+
+	wait(integer): "base time between triggering all targets, default is 1" : 1
+	random(integer): "wait variance, default is 0 so, the basic time between firing is a random time between (wait - random) and (wait + random)"
+	delay(integer): "delay before first firing when turned on, default is 0" : 0
+	pausetime(integer): "additional delay used only the very first time and only if spawned with START_ON"
+]
+
+@SolidClass base(Appearflags, Target, Targetname) color(0 0.5 0.8) = func_event_generator : "Event generator"
+[
+	spawnflags(Flags) =
+	[
+		1: "TRIGGER_ONCE" : 0
+		2: "TRIGGER_TOUCHABLE" : 0
+		4: "ALLOW_MONSTERS" : 0
+	]
+
+	sound(string): "Sound to play when triggered."
+]
+
+@SolidClass base(Appearflags, Target) color(0 0.5 0.8) = func_monitor : "Monitor"
+[
+	fov(integer): "the field of view when looking through this camera"
+	delay(integer): "Amount of time to delay before showing the monitor display."
+	wait(integer): "Amount of time to wait before allowing the user to esc from display."
+]
+
+@SolidClass base(Appearflags, Target, Targetname) color(0 0.5 0.8) = func_train : "Train"
+[
+	spawnflags(Flags) =
+	[
+		1: "x" : 0
+		2: "x" : 0
+		4: "x" : 0
+		8: "x" : 0
+		16: "x" : 0
+		32: "x" : 0
+		64: "FORCEMOVE" : 0
+		128: "START_ON" : 0
+	]
+
+	killtarget(string): "the targetname of the entity to remove when triggered"
+]
+
+
+//
+// Triggers
+//
+@SolidClass base(Appearflags) color(0.5 0.5 0.5) = trigger_console : "Console"
+[
+	spawnflags(Flags) =
+	[
+		1: "USE_ONCE" : 0
+	]
+
+	message(string): "the command to send to the console when triggered."
+]
+
+@PointClass base(Appearflags, Target, Targetname) color(1 1 0) size(-8 -8 -8, 8 8 8) = target_attractor : "Attractor"
+[
+	triggerindex(integer): "the lower the index, the higher it's priority (i.e. it attracts 1st)."
+]
+
+@SolidClass base(Appearflags) color(0.5 0.5 0.5) = trigger_changemusic : "Change music"
+[
+	path(string): "path to mp3 to play relative to data/music. ( include the extension )."
+	volume(float): "the volume to play the mp3 at ( 0 - 1 )." 
+]
+
+@SolidClass base(Appearflags) color(0.5 0.5 0.5) = trigger_superfly_spawn : "Superfly spawn" []
+@SolidClass base(Appearflags) color(0.5 0.5 0.5) = trigger_mikiko_spawn : "Mikiko spawn" []
+
+@SolidClass base() color(0.5 0.5 0.5) = trigger_script: "Script"
+[
+	spawnflags(Flags) =
+	[
+		1: "MULTIPLE" : 0
+		2: "NOTOUCH" : 0
+		4: "SUPERFLY_REQUIRED" : 0
+		8: "MIKIKO_REQUIRED" : 0
+	]
+
+	wait(float): "time to wait between retriggering (default = 2.0 seconds)" : 2.0
+	delay(float): "delay after triggering before script runs ** doesn't work with touch triggers ** (default = 0.0 seconds)" : 0.0
+	cinescript(string): "name of the cinematic script to run"
+	aiscript(string): "name of the AI script to run"
+	scriptname(string): "name of script to run"
+]
+
+@SolidClass color(0.5 0.5 0.5) = trigger_remove_inventory_item : "Remove item from inventory"
+[
+	item(string): "the name of the item to remove from the inventory of the entity that touches the trigger ( e.g. weapon_daikatana )"
+]
+
+@SolidClass color(0.5 0.5 0.5) = trigger_change_sfx : "Change SFX"
+[
+	spawnflags(Flags) =
+	[
+		1: "NORMAL" : 0
+		2: "PRESET1" : 0
+		4: "PRESET2" : 0
+		8: "PRESET3" : 0
+		16: "PRESET4" : 0
+	]
+
+	fxstyle(string): "the effect style to be activated"
+	wait(integer): "the number of seconds to wait until triggering"
+	reverb(integer): "Reverb"
+	volume(integer): "default 100" : 100
+]
+
+@SolidClass color(0.5 0.5 0.5) = trigger_secret : "Secret"
+[
+	sound(string): "name of sound to play upon firing"
+	message(string): "message to display upon last triggering"
+]
+
+@SolidClass base(Appearflags, Target, Targetname) color(0.5 0.5 0.5) = trigger_sidekick : "Sidekick trigger"
+[
+    toggle(choices): "Toggle - 0 = off, 1 = on" : 0 =
+    [
+        0: "Disabled"
+        1: "Enabled"
+    ]
+
+    sidekick(string): "Choose a sidekick to activate ('Mikiko' or 'Superfly')": "Superfly"
+    sound(string): "name of sound to play upon triggering"
+    message(string): "message to display upon last triggering"
+]
+
+@SolidClass base(Appearflags, Target, Targetname) color(0.5 0.5 0.5) = trigger_multiple : "Multiple trigger"
+[
+	spawnflags(Flags) =
+	[
+		1: "NOTOUCH" : 0
+		2: "ALLOW_MONSTERS" : 0
+		4: "ALLOW_SIDEKICKS" : 0
+	]
+
+	health(integer): "if set the trigger must be killed to activate"
+	delay(integer): "time to wait after activation before firing target"
+	wait(float): "time to wait between retriggering (default = 0.2 seconds)" : 0.2
+]
+
+@SolidClass base(Appearflags) color(0.5 0.5 0.5) = trigger_sidekick_teleport : "Teleport sidekick"
+[
+	spawnflags(Flags) =
+	[
+		1: "TELEPORT_AND_STAY" : 0
+		2: "TELEPORT_AND_COME_TO_OWNER" : 0
+		4: "MULTIUSE" : 0
+	]
+
+	sound(string): "name of sound to play upon triggering"
+	animation(string): "animtion to play when triggered"
+	wait(integer): "seconds between activations if MULTIUSE flag is set"
+	x(integer): "x location of for the sidekicks to move when triggered"
+	y(integer): "y location of for the sidekicks to move when triggered"
+	z(integer): "z location of for the sidekicks to move when triggered"
+]
+
+@SolidClass base(Appearflags) color(0.5 0.5 0.5) = trigger_sidekick_stop : "Stop sidekick"
+[
+	sound(string): "name of sound to play upon triggering"
+	animation(string): "animtion to play when triggered"
+	x(integer): "x location of for the sidekicks to move when triggered"
+	y(integer): "y location of for the sidekicks to move when triggered"
+	z(integer): "z location of for the sidekicks to move when triggered"
+]
+
+@SolidClass base(Appearflags, Target) color(0.5 0.5 0.5) = trigger_changelevel : "Change level"
+[
+	spawnflags(Flags) =
+	[
+		1: "INTERMISSION" : 0
+		2: "REQUIRES_SUPERFLY" : 0
+		4: "REQUIRES_MIKIKO" : 0
+		8: "THE_END" : 0
+		16: "KEEP_SIDEKICKS" : 0
+	]
+
+	sound(string): "name of sound to play upon firing"
+	map(string): "the name of the map to go to"
+	cinematic(string): "name of cinematic to play before exiting"
+]
+
+@SolidClass base(Appearflags) color(0.5 0.5 0.5) = trigger_counter : "Counter"
+[
+	spawnflags(Flags) =
+	[
+		1: "NO_MESSAGE" : 0
+		2: "NO_TOUCH" : 0
+		4: "INCLUDE_MONSTERS" : 0
+	]
+
+	count(integer): "number of times to trigger before firing"
+	sound(string): "name of sound to play upon firing"
+	message(string): "message to display upon last triggering"
+]
+
+@SolidClass base(Appearflags) color(0.5 0.5 0.5) = trigger_push : "Push trigger"
+[
+	spawnflags(Flags) =
+	[
+		1: "PUSH_ONCE" : 0
+		2: "ALLOW_TOGGLE" : 0
+		4: "START_DISABLED" : 0
+	]
+
+	speed(integer): "the velocity to give the object (default 1000)" : 1000
+	sound(string): "the wave to play when triggered"
+	message(string): "text message to display when triggered"
+]
+
+@SolidClass base(Appearflags, Target, Targetname) color(0.5 0.5 0.5) = trigger_teleport : "Teleport trigger"
+[
+	spawnflags(Flags) =
+	[
+		1: "PLAYER_ONLY" : 0
+		2: "NO_FLASH" : 0
+		4: "NO_ANGLE_ADJUST" : 0
+	]
+
+	sound(string): "name of sound to play upon firing, if not specified, then no sound will be played"
+	fog_value(integer): "sets fog_value to this when a teleporter is used"
+	killtarget(string): "the targetname of the entity to remove when triggered"
+	message(string): "text message to display when triggered"
+]
+
+@SolidClass base(Appearflags, Targetname) color(0.5 0.5 0.5) = trigger_once : "triggers once, then removes itself"
+[
+	spawnflags(Flags) =
+	[
+		1: "NOTOUCH" : 0
+		2: "ALLOW_MONSTERS" : 0
+		4: "ALLOW_SIDEKICKS" : 0
+	]
+
+	health(integer): "if set the trigger must be killed to activate"
+	delay(integer): "time to wait after activation before firing target"
+	wait(float): "time to wait between retriggering (default = 0.2 seconds)" : 0.2
+	sound(string): "name of sound to play upon firing"
+	killtarget(string): "the targetname of the entity to remove when triggered"
+	message(string): "text message to display when triggered"
+]
+
+@SolidClass base(Appearflags, Target, Targetname) color(0.5 0.5 0.5) = trigger_toggle : "triggers once, then when you exit resets itself to be triggered again"
+[
+	spawnflags(Flags) =
+	[
+		1: "USE_ON_EXIT" : 0
+		2: "ALLOW_MONSTERS" : 0
+		4: "ALLOW_SIDEKICKS" : 0
+		8: "SIDEKICKS_ONLY" : 0
+	]
+]
+
+@PointClass base(Appearflags, Targetname, Target) color(0.5 0.5 0.5) size(-8 -8 -8, 8 8 8) = trigger_relay : "Relay trigger"
+[
+	sound(string): "name of sound to play upon firing"
+	delay(integer): "delay"
+	killtarget(string): "the targetname of the entity to remove when triggered"
+	message(string): "text message to display when triggered"
+]
+
+@PointClass base(Appearflags, Targetname, Target) color(0.5 0.5 0.5) size(-8 -8 -8, 8 8 8) = trigger_changetarget : "Change target trigger"
+[
+	spawnflags(Flags) =
+	[
+		1: "USE_ONCE" : 0
+	]
+
+	newtarget(string): "new target for the targetted entity"
+]
+
+@SolidClass base(Appearflags, Target, Targetname) color(0.5 0.5 0.5) = trigger_hurt : "Hurt trigger"
+[
+	spawnflags(Flags) =
+	[
+		1: "ALLOW_TOGGLE" : 0
+		2: "START_DISABLED" : 0
+		4: "FLOWTHRU_DMG" : 0
+	]
+
+	message(string): "text message to display when triggered"
+	sound(string): "name of sound to play upon firing"
+	dmg(integer): "the amount of damage the trigger will do to an object"
+	wait(integer): "the number of seconds between triggerings and"
+]
+
+
+//
+// Targets
+//
+@BaseClass = TargetTriggers
+[
+	spawnflags(Flags) =
+	[
+		1: "TARGET_1" : 0
+		2: "TARGET_2" : 0
+		4: "TARGET_3" : 0
+		8: "TARGET_4" : 0
+		16: "TARGET_5" : 0
+		32: "TARGET_6" : 0
+		64: "TARGET_7" : 0
+		128: "TARGET_8" : 0
+	]
+]
+
+@PointClass base(Appearflags, TargetTriggers) color(0.5 0.5 0.5) size(-8 -8 -8, 8 8 8) = target_crosslevel_target : "Crosslevel Target" []
+@PointClass base(Appearflags, TargetTriggers) color(0.5 0.5 0.5) size(-8 -8 -8, 8 8 8) = target_crosslevel_trigger : "Crosslevel Trigger" []
+
+@PointClass base(Appearflags, Target) color(0 0.5 0.8) size(-8 -8 -8, 8 8 8) = target_laser : "Laser"
+[
+	spawnflags(Flags) =
+	[
+		1: "START_ON" : 0
+		2: "RED" : 0
+		4: "GREEN" : 0
+		8: "BLUE" : 0
+		16: "YELLOW" : 0
+		32: "LIGHTRED" : 0
+		64: "WIDE_BEAM" : 0
+	]
+
+	angle(integer): "direction of laser"
+	sound(string): "the looping sound a laser will play when activated."
+]
+
+@PointClass base(Appearflags) color(0 0.5 0.8) size(-8 -8 -8, 8 8 8) = target_earthquake : "Earthquake"
+[
+	speed(integer): "severity/speed of quake"
+	count(integer): "length/duration of quake in seconds"
+	damage(integer): "damage amount per frame"
+	radius(integer): "radius quake effects"
+	mins(float): "mins attenuation start point from earthquake spawn point(for sound)(default 2000.0f)"
+	maxs(float): "maxs attenuation end point from earthquake spawn point(end of sound)(default 2024.0f)"
+]
+
+@PointClass base(Appearflags) color(0 0.5 0.8) size(-8 -8 -8, 8 8 8) = target_spotlight : "Spotlight"
+[
+	spawnflags(Flags) =
+	[
+		1: "START_ON" : 0
+		2: "RED" : 0
+		4: "GREEN" : 0
+		8: "BLUE" : 0
+		16: "YELLOW" : 0
+		32: "LIGHTRED" : 0
+	]
+
+	length(integer): "length of the light beam.. default is 2048" : 2048
+	radius(integer): "radius of starting point, end radius is based on length"
+	_color(color255): "default color is white.. click color checkboxes to change colors"
+]
+
+@PointClass base(Appearflags) color(0 0.5 0.8) size(-8 -8 -8, 8 8 8) = target_lightramp : "Lightramp"
+[
+	spawnflags(Flags) =
+	[
+		1: "TOGGLE" : 0
+	]
+
+	speed(integer): "How many seconds the ramping will take"
+	message(string): "two letters; starting lightlevel and ending lightlevel"
+]
+
+@PointClass base(Appearflags) color(0 1 1) size(-8 -8 -24, 8 8 8) = target_monster_spawn : "Monster spawn"
+[
+	spawnflags(Flags) =
+	[
+		1 : "WANDER" : 0
+		2 : "PATHFOLLOW" : 0
+		4 : "NODE_WANDER" : 0
+		8 : "RANDOM_WANDER" : 0
+		16 : "IGNORE_PLAYER" : 0
+		32 : "SNIPE" : 0
+		64 : "DO_NOT_FLY" : 0
+		128 : "DO_NOT_MOVE" : 0
+		256 : "x" : 0
+		512 : "TAKE_COVER" : 0
+		1024 : "ALWAYS_GIB" : 0
+	]
+
+	monsterclass(string): "exact classname of monster to spawn"
+	sound(string): "wave file to play when the monster is spawned"
+	aistate(string): "AI state (see list) for monster to immediately do"
+]
+
+@PointClass base(Appearflags, Target, Targetname) color(0 1 0.5) size(-8 -8 -8, 8 8 8) = target_speaker : "Speaker"
+[
+	spawnflags(Flags) =
+	[
+		1: "LOOPED_ON" : 0
+		2: "LOOPED_OFF" : 0
+		4: "RELIABLE" : 0
+		8: "NON_DIRECTIONAL" : 0
+		16: "START_OFF" : 0
+	]
+
+	sound(string): "wav file to play, where # represents 1-6 multiple wav files activate random play mode"
+	sound1(string): "wav file to play, where # represents 1-6 multiple wav files activate random play mode"
+	sound2(string): "wav file to play, where # represents 1-6 multiple wav files activate random play mode"
+	sound3(string): "wav file to play, where # represents 1-6 multiple wav files activate random play mode"
+	sound4(string): "wav file to play, where # represents 1-6 multiple wav files activate random play mode"
+	sound5(string): "wav file to play, where # represents 1-6 multiple wav files activate random play mode"
+	sound6(string): "wav file to play, where # represents 1-6 multiple wav files activate random play mode"
+	delay(integer): "0 default - seconds between random play" : 0
+	mindelay(integer): "0 default - minimum seconds between random playings" : 0
+	volume(float): "0.0 to 1.0"
+	min(integer): "0 to 2040 - minimum distance (volume full)"
+	max(integer): "0 to 8160 - maximum distance (volume none)"
+]
+
+@PointClass base(Appearflags, Target, Targetname) color(0 0.5 0.8) size(-8 -8 -8, 8 8 8) = target_effect : "Effect"
+[
+	spawnflags(Flags) =
+	[
+		1: "START_ON" : 0
+		2: "TARGET_EFFECT_BEAMS" : 0
+		4: "TARGET_EFFECT_RANDOM" : 0
+		8: "TARGET_EFFECT_BEAMS_SMOKE" : 0
+	]
+	
+	gravity(choices): "gravity type" : 1 =
+	[
+		0: "FALL"
+		1: "RISE (default)"
+		2: "FLOAT"
+	]
+	
+	type(choices): "particle type": 5 =
+	[
+			0: "SIMPLE"
+			1: "SNOW"
+			2: "RAIN"
+			3: "BLOOD"
+			4: "BUBBLE"
+			5: "SMOKE (default)"
+			6: "SPARKS"
+			7: "BIG SPARKS"
+			8: "POISON"
+			9: "BLUE SPARKS"
+			10: "ICE"
+	]
+
+	angle(integer): "determines the direction the particles will go"
+	_color(color255): "color of the particles"
+	speed(integer): "speed of particles (default=5)" : 5
+	count(integer): "number of particles to create (default=10) (max=64)" : 10
+	length(integer): "length in seconds to spawn particles (default = 1 frame)" : 1
+	frametime(float): "length of time between particle spawns (default=0.10)" : 0.10 
+	sound(string): "wave file to play when the particles are spawned"
+]
+
+
+//
+// Decorations
+//
+@PointClass base(Appearflags, Target, Targetname) color(1 0 0) size(-8 -8 -32, 8 8 32) = deco_custom : "Custom decoration"
+[
+	spawnflags(Flags) =
+	[
+		1: "DECO_EXPLODE" : 0
+		2: "NO_EXPLODE_NO_BREAK" : 0
+		4: "DECO_PUSHABLE" : 0
+		8: "WOOD_DEBRIS" : 0
+		16: "METAL_DEBRIS" : 0
+		32: "GLASS_DEBRIS" : 0
+		64: "GIB_DEBRIS" : 0
+		128: "ROTATE" : 0
+		256: "DECO_TRANSLUCENT" : 0
+	]
+	
+	exploding(choices): "0 or 1" : 0 =
+	[
+		0: "False"
+		1: "True"
+	]
+
+	damage(integer): "damage applied when exploding. Default is 15." : 15
+	scale(float): "Scale of deco. Default 1.0." : 1.0
+	model(string): "filename of .dkm model, e.g. models/e1/a_c4.dkm"
+	mass(float): "default 1.0" : 1.0
+	frame(integer): "allows you to specify the starting frame for the model."
+	x_speed(integer): "speed to rotate along x axis in degrees per second"
+	y_speed(integer): "speed to rotate along y axis in degrees per second"
+	z_speed(integer): "speed to rotate along z axis in degrees per second"
+	alpha(float): "range 0.0-1.0. Only used if TRANSLUCENT is flagged"
+	spawnname(string): "classname of entity to throw out upon death"
+    movetype(string): "none, toss, bounce, float" : "none"
+    solidtype(string): "bbox, not" : "bbox"
+    gibtype(string): "wood, metal, glass, gibs, default is non-gibbable" : "non-gibbable"
+	hitpoints(integer): "default 20" : 20
+	mins(string): "bbox lower bounds, e.g. -8, -8, -32"
+	maxs(string): "bbox upper bounds, eg.g. 8, 8, 32"
+	animseq(integer): "allows you to specifies an animation sequence for the model this overrides the frame key.. valid sequences are 0-4  DEFAULT is 0": 0
+	seq0-seq4(string): "frames or frame sequences of animation use '-' for a set of frames use '~' to loop the frames"
+]
+
+
+//
+// Information
+//
+@BaseClass base(Appearflags, Targetname) color(1 0 0) size(-16 -16 -24, 16 16 32) = PlayerClass []
+@BaseClass base(Appearflags, Targetname) color(1 0 0) size(-8 -8 -8, 8 8 8) = CameraClass []
+@BaseClass base(Appearflags, Targetname) color(0.5 0.5 0.5) size(-8 -8 -8, 8 8 8) = TeleportClass []
+
+@BaseClass = PlayerWeaponOverride
+[
+	spawnflags(Flags) =
+	[
+		1: "OVERRIDE_WEAPONS" : 0
+		2: "WEAPON_1" : 0
+		4: "WEAPON_2" : 0
+		8: "WEAPON_3" : 0
+		16: "WEAPON_4" : 0
+		32: "WEAPON_5" : 0
+		64: "WEAPON_6" : 0
+		128: "WEAPON_7" : 0
+	]
+]
+
+@BaseClass = SidekickIdle
+[
+	spawnflags(Flags) =
+	[
+		1: "IDLE" : 0
+	]
+]
+
+@PointClass base(TeleportClass) = info_teleport_destination : "Teleport Destination - Point teleporters at this. Duh." []
+@PointClass base(CameraClass) = info_camera : "Camera" []
+@PointClass base(CameraClass) = info_null : "Null point" []
+@PointClass base(CameraClass) = info_not_null : "Not null point" []
+
+@PointClass base(CameraClass) = info_player_intermission : "Intermission camera point."
+[
+	angles(string) : "pitch yaw roll"
+]
+
+@PointClass base(PlayerClass) = info_player_start : "Location player starts in single play."
+[
+	spawnflags(Flags) =
+	[
+		1: "NO_OFFSET" : 0
+	]
+]
+
+@PointClass base(PlayerClass, SidekickIdle) = info_mikiko_start : "Location Mikiko starts in single play." []
+@PointClass base(PlayerClass, SidekickIdle) = info_superfly_start : "Location Superfly starts in single play." []
+@PointClass base(PlayerClass, SidekickIdle) = info_mikikofly_start : "Location mikikofly starts in single play." []
+@PointClass base(PlayerClass, PlayerWeaponOverride) color(1 0 1) = info_player_deathmatch : "Location player starts in deathmatch." []
+@PointClass base(PlayerClass, PlayerWeaponOverride) color(1 0 1) = info_player_coop : "Location player starts in coop." []
+@PointClass base(PlayerClass, PlayerWeaponOverride) = info_player_team1 : "Location player on team 1 starts." []
+@PointClass base(PlayerClass, PlayerWeaponOverride) color(0 0 1) = info_player_team2 : "Location player on team 2 starts." []
+
+
+//
+// Sound
+//
+@PointClass base(Appearflags, Target, Targetname) color(1 0 1) size(-8 -8 -8, 8 8 8) = sound_ambient : "Ambient Sound"
+[
+	spawnflags(Flags) =
+	[
+		1: "x" : 0
+		2: "x" : 0
+		4: "x" : 0
+		8: "NON_DIRECTIONAL" : 0
+	]
+
+	sound(string): "path to ambient sound (ie. ambience/sound.wav.)"
+]
+
+
+//
+// Node
+//
+@PointClass base(Appearflags, Target, Targetname) color(0.5 0.5 1) size(-8 -8 -8, 8 8 8) = node_node : "Node"
+[
+	number(integer): "the number of this node"
+	link(integer): "the number of the node linked to (can be up to four link fields)"
+]
+
+
+//
+// Monsters
+//
+@PointClass base(Appearflags, Target, Targetname) color(0.5 0.3 0) size(-8 -8 -8, 8 8 8) = monster_path_corner : "A path corner for a monster to travel along"
+[
+	target1(string): "Target 1"
+	target2(string): "Target 2"
+	target3(string): "Target 3"
+	target4(string): "Target 4"
+	pathtarget(string): "target of entity that will get called upon hitting this pathcorner.  This is a one shot deal."
+	aiscript(string): "name of the script to play when a monster hits this pathcorner node."
+]
+
+
+//
+// Animals
+//
+@PointClass base(Animal) model({ "path": "models/global/d4_gull.dkm" }) = e_seagull : "Seagull" []
+@PointClass base(Animal) model({ "path": "models/global/e_goldfish.dkm" }) = fish_goldfish : "Goldfish" []
+@PointClass base(Animal) model({ "path": "models/global/e_greyfish.dkm" }) = fish_grayfish : "Grayfish" []
+@PointClass base(Animal) model({ "path": "models/global/e_guppy.dkm" }) = fish_guppy1 : "Guppy 1" []
+@PointClass base(Animal) model({ "path": "models/global/e_guppy2.dkm" }) = fish_guppy2 : " Guppy 2" []
+@PointClass base(Animal) color(0.5 0.5 0) size(-40 -40 -40, 40 40 40) model({ "path": "models/global/dopefish.dkm" }) = fish_dopefish : "Dopefish" []
+
+
+//
+// Items
+//
+@BaseClass base(Appearflags, Target, Sidekickflags) color(0 0.5 0.8) size(-16 -16 -24, 16 16 8) = HealthItems
+[
+	team(string) : "Team"
+]
+
+@BaseClass base(Appearflags, Target) = ShieldItems
+[
+	team(string) : "Team"
+]
+
+@PointClass base(HealthItems) model({ "path": "models/global/a_gsoul.dkm" }) = item_goldensoul : "Maxes health to twice vitality." []
+@PointClass base(HealthItems) model({ "path": "models/e1/a1_hlth.dkm" }) = item_health_25 : "Gives 25 health" []
+@PointClass base(HealthItems) model({ "path": "models/e1/a1_hlth2.dkm" }) = item_health_50 : "Gives 50 health" []
+@PointClass base(ShieldItems) color(0 0.5 0.8) size(-16 -16 -16, 16 16 24) model({ "path": "models/global/a_mshield.dkm" }) = item_megashield : "Gives 400 armor." []
+@PointClass base(Appearflags) color(0 0.5 0.8) size(-16 -16 -16, 16 16 16) model({ "path": "models/global/a_invincibility.dkm" }) = item_invincibility : "30 seconds of invulnerability." []
+@PointClass base(Appearflags) color(0.3 0.5 0.8) size(-16 -16 -16, 16 16 16) model({ "path": "models/global/a_savegem.dkm" }) = item_savegem : "Save gems are stored in the inventory, and used to save games." []
+@PointClass base(Appearflags) color(0 0.5 0.8) size(-16 -16 -24, 16 16 8) model({ "path": "models/global/a_wraithorb.dkm" }) = item_wraithorb : "20% translucency, unlessed stopped, in which case the player is completely invisible. Lasts 60 seconds." []
+@PointClass base(Appearflags) color(0 0.5 0.8) size(-16 -16 -16, 16 16 16) model({ "path": "models/global/a_pwrb.dkm" }) = item_power_boost : "30 second boost to attack power." []
+@PointClass base(Appearflags) color(0 0.5 0.8) size(-16 -16 -16, 16 16 16) model({ "path": "models/global/a_atkb.dkm" }) = item_attack_boost : "30 second boost to attack speed." []
+@PointClass base(Appearflags) color(0 0.5 0.8) size(-16 -16 -16, 16 16 16) model({ "path": "models/global/a_spdb.dkm" }) = item_speed_boost : "30 second boost to movement speed." []
+@PointClass base(Appearflags) color(0 0.5 0.8) size(-16 -16 -16, 16 16 16) model({ "path": "models/global/a_acrb.dkm" }) = item_acro_boost : "30 second boost to jump height." []
+@PointClass base(Appearflags) color(0 0.5 0.8) size(-16 -16 -16, 16 16 16) model({ "path": "models/global/a_vtlb.dkm" }) = item_vita_boost : "30 second boost to vitality." []
+
+@SolidClass base(Appearflags) color(0.5 0.5 0.5) = trigger_capture : "Specifies a capture area for ctf/deathtag."
+[
+	spawnflags(Flags) =
+	[
+		1: "TEAM1" : 0
+		2: "TEAM2" : 0
+	]
+
+	POINTS(integer): "Number of points awarded for a capture."
+]
+
+@BaseClass = NPCAnyDirection
+[
+	spawnflags(Flags) =
+	[
+		1: "ANY_DIR" : 0
+	]
+	
+	sfly_msg(string): "message for superfly to say when hitting this trigger"
+	miko_msg(string): "message for mikiko to say when hitting this trigger"
+]
+
+@PointClass base(Appearflags) color(0.5 0.5 0.5) size(-16 -16 -24, 16 16 32) = NPCteleport_dest : "NPC Teleport Destination Area" []
+
+@SolidClass base(Appearflags, NPCAnyDirection) color(0.5 0.5 0.5) = NPCtrigger_waithere : "Makes superfly and/or Mikiko stop and wait until a new goal is"
+[
+	angle(integer): "the angle the NPC must be moving to activate the trigger, +/- 45 degrees."
+]
+
+@SolidClass base(Appearflags, NPCAnyDirection) color(0.5 0.5 0.5) = NPCtrigger_stopwaithere : "Only clients can trigger this.  It will inform all waiting NPCs"
+[
+	angle(integer): "the angle the CLIENT must be moving to activate the trigger, +/- 45 degrees."
+]
+
+@SolidClass base(Appearflags, NPCAnyDirection) color(0.5 0.5 0.5) = NPCtrigger_teleport : "Only clients can trigger this.  It will teleport all NPCs owned"
+[
+	angle(integer): "the angle the CLIENT must be moving to activate the trigger, +/- 45 degrees."
+	sfly_target(string): "targetname of entity Superfly will teleport to"
+	miko_target(string): "targetname of entity Mikiko will teleport to"
+]
+
+@PointClass color(0.8 0 0) size(-8 -8 -8, 8 8 8) = item_flag_team1 : "Team 1 Flag"
+[
+	FLAGCOLOR(choices): "Default is red" : 1 =
+	[
+		1 : "red"
+		2 : "blue"
+		3 : "chrome"
+		4 : "metal"
+		5 : "green"
+		6 : "orange"
+		7 : "purple"
+		8 : "yellow"
+	]
+]
+
+@PointClass color(0 0 0.8) size(-8 -8 -8, 8 8 8) = item_flag_team2 : "Team 2 Flag"
+[
+	FLAGCOLOR(choices): "Default is blue" : 2 =
+	[
+		1 : "red"
+		2 : "blue" 
+		3 : "chrome" 
+		4 : "metal" 
+		5 : "green" 
+		6 : "orange" 
+		7 : "purple" 
+		8 : "yellow"
+	]
+]

@@ -332,6 +332,18 @@ namespace TrenchBroom {
             return surfaceContents() != 0 || surfaceFlags() != 0 || surfaceValue() != 0.0f;
         }
 
+        bool BrushFace::hasColor() const {
+            return color().a() > 0.0f;
+        }
+
+        const Color& BrushFace::color() const {
+            return m_attribs.color();
+        }
+
+        void BrushFace::setColor(const Color& color) {
+            m_attribs.setColor(color);
+        }
+
         void BrushFace::updateTexture(Assets::TextureManager* textureManager) {
             ensure(textureManager != nullptr, "textureManager is null");
             Assets::Texture* texture = textureManager->texture(textureName());

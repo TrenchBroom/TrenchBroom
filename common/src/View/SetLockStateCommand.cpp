@@ -37,10 +37,10 @@ namespace TrenchBroom {
             return Ptr(new SetLockStateCommand(nodes, Model::Lock_Inherited));
         }
 
-        SetLockStateCommand::SetLockStateCommand(const Model::NodeList& nodes, const Model::LockState state) :
-        UndoableCommand(Type, makeName(state)),
+        SetLockStateCommand::SetLockStateCommand(const Model::NodeList& nodes, const Model::LockState lockState) :
+        UndoableCommand(Type, makeName(lockState)),
         m_nodes(nodes),
-        m_lockState(state) {}
+        m_lockState(lockState) {}
 
         String SetLockStateCommand::makeName(const Model::LockState state) {
             switch (state) {
@@ -55,20 +55,20 @@ namespace TrenchBroom {
         }
         
         bool SetLockStateCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            m_oldState = document->setLockState(m_nodes, m_lockState);
+            m_oldLockState = document->setLockState(m_nodes, m_lockState);
             return true;
         }
 
         bool SetLockStateCommand::doPerformUndo(MapDocumentCommandFacade* document) {
-            document->restoreLockState(m_oldState);
+            document->restoreLockState(m_oldLockState);
             return true;
         }
 
-        bool SetLockStateCommand::doCollateWith(UndoableCommand::Ptr command) {
+        bool SetLockStateCommand::doCollateWith(UndoableCommand::Ptr) {
             return false;
         }
 
-        bool SetLockStateCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+        bool SetLockStateCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
             return false;
         }
     }

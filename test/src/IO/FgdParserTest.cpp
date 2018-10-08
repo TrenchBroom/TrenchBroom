@@ -391,6 +391,33 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(definitions);
         }
 
+        TEST(FgdParserTest, parseReadOnlyAttribute) {
+            const String file =
+                "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
+                "[\n"
+                "   sounds(integer) readonly : \"CD track to play\" : : \"Longer description\"\n"
+                "   sounds2(integer) : \"CD track to play with default\" : 2 : \"Longer description\"\n"
+                "]\n";
+
+            const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
+            FgdParser parser(file, defaultColor);
+
+            TestParserStatus status;
+            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            ASSERT_EQ(1u, definitions.size());
+
+            Assets::EntityDefinition* definition = definitions[0];
+            ASSERT_EQ(2u, definition->attributeDefinitions().size());
+
+            const Assets::AttributeDefinition* attribute1 = definition->attributeDefinition("sounds");
+            ASSERT_TRUE(attribute1->readOnly());
+
+            const Assets::AttributeDefinition* attribute2 = definition->attributeDefinition("sounds2");
+            ASSERT_FALSE(attribute2->readOnly());
+
+            VectorUtils::clearAndDelete(definitions);
+        }
+
         TEST(FgdParserTest, parseFloatAttribute) {
             const String file =
             "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"

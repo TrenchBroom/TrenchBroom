@@ -100,6 +100,18 @@ namespace vm {
         }
 
         /**
+         * Returns whether parse() can parse S components from the given string
+         * 
+         * @param str the string to parse
+         * @return whether S components can be parsed
+         */
+        static bool canParse(const std::string& str) {
+            size_t pos = 0;
+            vec<T,S> result;
+            return doParse(str, pos, result);
+        }
+
+        /**
          * Parses the given string for a list of vectors. The syntax of the given string is as follows:
          *
          * LIST ::= VEC, { SEP, VEC }

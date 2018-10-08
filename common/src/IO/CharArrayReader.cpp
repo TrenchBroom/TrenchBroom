@@ -66,7 +66,7 @@ namespace TrenchBroom {
         }
 
         bool CharArrayReader::eof() const {
-            return canRead(0);
+            return !canRead(0);
         }
 
         String CharArrayReader::readString(const size_t size) {

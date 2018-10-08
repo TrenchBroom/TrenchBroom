@@ -46,8 +46,8 @@ namespace TrenchBroom {
             void doVisit(const Brush* brush) override   {}
             
             void visitAttributableNode(const AttributableNode* attributable) {
-                static const AttributeValue NullValue("");
-                const AttributeValue& value = attributable->attribute(m_name, NullValue);
+                static const auto NullValue("");
+                const auto& value = attributable->attribute(m_name, NullValue);
                 if (value != NullValue) {
                     const Assets::ColorRange::Type attrRange = Assets::detectColorRange(value);
                     if (m_range == Assets::ColorRange::Unset)
@@ -65,13 +65,13 @@ namespace TrenchBroom {
         }
         
         const String convertEntityColor(const String& str, const Assets::ColorRange::Type colorRange) {
-            const wxColor color = parseEntityColor(str);
+            const auto color = parseEntityColor(str);
             return entityColorAsString(color, colorRange);
         }
 
         wxColor parseEntityColor(const String& str) {
-            const StringList components = StringUtils::splitAndTrim(str, " ");
-            const Assets::ColorRange::Type range = Assets::detectColorRange(components);
+            const auto components = StringUtils::splitAndTrim(str, " ");
+            const auto range = Assets::detectColorRange(components);
             assert(range != Assets::ColorRange::Mixed);
 
             int r = 0, g = 0, b = 0;

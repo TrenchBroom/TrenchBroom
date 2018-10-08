@@ -119,6 +119,7 @@ namespace TrenchBroom {
                                       GameConfig::TextureConfig(GameConfig::TexturePackageConfig(GameConfig::PackageFormatConfig("wad", "wad2")),
                                                                 GameConfig::PackageFormatConfig("D", "idmip"),
                                                                 Path("gfx/palette.lmp"),
+                                                                Path(),
                                                                 "wad"),
                                       GameConfig::EntityConfig(VectorUtils::create<Path>(Path("Quake/Quake.fgd"), Path("Quake/Quoth2.fgd"), Path("Quake/Rubicon2.def")),
                                                                StringUtils::makeSet(2, "mdl", "bsp"),
@@ -192,6 +193,11 @@ namespace TrenchBroom {
                                 "            \"attribs\": [ \"transparent\" ],\n"
                                 "            \"match\": \"classname\",\n"
                                 "            \"pattern\": \"trigger*\"\n"
+                                "        },\n"
+                                "        {\n"
+                                "            \"name\": \"Warp Surface\",\n"
+                                "            \"match\": \"surfaceflag\",\n"
+                                "            \"flags\": [ \"warp\" ]\n"
                                 "        }\n"
                                 "    ],\n"
                                 "    \"faceattribs\": {\n"
@@ -385,6 +391,7 @@ namespace TrenchBroom {
                                       GameConfig::TextureConfig(GameConfig::TexturePackageConfig(Path("textures")),
                                                                 GameConfig::PackageFormatConfig("wal", "idwal"),
                                                                 Path("pics/colormap.pcx"),
+                                                                Path(),
                                                                 "_tb_textures"),
                                       GameConfig::EntityConfig(Path::List(1, Path("Quake2/Quake2.fgd")),
                                                                StringUtils::makeSet(1, "md2"),
@@ -400,7 +407,7 @@ namespace TrenchBroom {
             ASSERT_EQ(expected.textureConfig(), actual.textureConfig());
             ASSERT_EQ(expected.entityConfig(), actual.entityConfig());
             ASSERT_EQ(expected.faceAttribsConfig(), actual.faceAttribsConfig());
-            ASSERT_EQ(6u, actual.brushContentTypes().size());
+            ASSERT_EQ(7u, actual.brushContentTypes().size());
         }
     }
 }

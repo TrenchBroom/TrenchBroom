@@ -51,6 +51,11 @@ namespace TrenchBroom {
             void seekFromEnd(size_t offset);
             void seekForward(size_t offset);
 
+            template <typename R>
+            const R* cur() const {
+                return reinterpret_cast<const R*>(m_current);
+            }
+
             void read(char* val, size_t size);
             void read(unsigned char* val, size_t size);
             bool canRead(size_t size) const;

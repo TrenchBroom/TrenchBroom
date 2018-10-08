@@ -31,10 +31,10 @@ namespace TrenchBroom {
             return Ptr(new UpdateEntitySpawnflagCommand(name, flagIndex, setFlag));
         }
         
-        UpdateEntitySpawnflagCommand::UpdateEntitySpawnflagCommand(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag) :
+        UpdateEntitySpawnflagCommand::UpdateEntitySpawnflagCommand(const Model::AttributeName& attributeName, const size_t flagIndex, const bool setFlag) :
         DocumentCommand(Type, makeName(setFlag)),
         m_setFlag(setFlag),
-        m_attributeName(name),
+        m_attributeName(attributeName),
         m_flagIndex(flagIndex) {}
         
         String UpdateEntitySpawnflagCommand::makeName(const bool setFlag) {

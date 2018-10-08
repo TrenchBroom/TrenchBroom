@@ -114,7 +114,7 @@ namespace TrenchBroom {
                             myValue = theirValue;
                             return true;
                         case ChangeBrushFaceAttributesRequest::ValueOp_Add:
-                            myValue += theirValue;
+                            myValue = myValue + theirValue;
                             return true;
                         case ChangeBrushFaceAttributesRequest::ValueOp_Mul:
                             return false;
@@ -131,7 +131,7 @@ namespace TrenchBroom {
                         case ChangeBrushFaceAttributesRequest::ValueOp_Add:
                             return false;
                         case ChangeBrushFaceAttributesRequest::ValueOp_Mul:
-                            myValue *= theirValue;
+                            myValue = myValue * theirValue;
                             return true;
                             switchDefault()
                     }
@@ -211,7 +211,8 @@ namespace TrenchBroom {
         m_yScaleOp(ValueOp_None),
         m_surfaceFlagsOp(FlagOp_None),
         m_contentFlagsOp(FlagOp_None),
-        m_surfaceValueOp(ValueOp_None) {}
+        m_surfaceValueOp(ValueOp_None),
+        m_colorValueOp(ValueOp_None) {}
 
         void ChangeBrushFaceAttributesRequest::clear() {
             m_texture = nullptr;
@@ -227,6 +228,7 @@ namespace TrenchBroom {
             m_xScaleOp = m_yScaleOp = ValueOp_None;
             m_surfaceFlagsOp = m_contentFlagsOp = FlagOp_None;
             m_surfaceValueOp = ValueOp_None;
+            m_colorValueOp = ValueOp_None;
         }
         
         const String ChangeBrushFaceAttributesRequest::name() const {
@@ -255,6 +257,7 @@ namespace TrenchBroom {
                 face->setSurfaceFlags(evaluateFlagOp(face->surfaceFlags(), m_surfaceFlags, m_surfaceFlagsOp));
                 face->setSurfaceContents(evaluateFlagOp(face->surfaceContents(), m_contentFlags, m_contentFlagsOp));
                 face->setSurfaceValue(evaluateValueOp(face->surfaceValue(), m_surfaceValue, m_surfaceValueOp));
+                face->setColor(evaluateValueOp(face->color(), m_colorValue, m_colorValueOp));
                 
                 switch (m_axisOp) {
                     case AxisOp_Reset:
@@ -451,7 +454,12 @@ namespace TrenchBroom {
             m_surfaceValue = surfaceValue;
             m_surfaceValueOp = ValueOp_Mul;
         }
-        
+
+        void ChangeBrushFaceAttributesRequest::setColor(const Color& colorValue) {
+            m_colorValue = colorValue;
+            m_colorValueOp = ValueOp_Set;
+        }
+
         void ChangeBrushFaceAttributesRequest::setAll(const Model::BrushFace* face) {
             setAll(face->attribs());
         }
@@ -466,6 +474,7 @@ namespace TrenchBroom {
             replaceSurfaceFlags(attributes.surfaceFlags());
             replaceContentFlags(attributes.surfaceContents());
             setSurfaceValue(attributes.surfaceValue());
+            setColor(attributes.color());
         }
 
         bool ChangeBrushFaceAttributesRequest::collateWith(ChangeBrushFaceAttributesRequest& other) {
@@ -481,6 +490,8 @@ namespace TrenchBroom {
             int newSurfaceFlags = m_surfaceFlags; FlagOp newSurfaceFlagsOp = m_surfaceFlagsOp;
             int newContentFlags = m_contentFlags; FlagOp newContentFlagsOp = m_contentFlagsOp;
             float newSurfaceValue = m_surfaceValue; ValueOp newSurfaceValueOp = m_surfaceValueOp;
+
+            Color newColorValue = m_colorValue; ValueOp newColorValueOp = m_colorValueOp;
             
             if (!collateAxisOp(newAxisOp, other.m_axisOp))
                 return false;
@@ -503,6 +514,9 @@ namespace TrenchBroom {
                 return false;
             if (!collateValueOp(newSurfaceValueOp, newSurfaceValue, other.m_surfaceValueOp, other.m_surfaceValue))
                 return false;
+
+            if (!collateValueOp(newColorValueOp, newColorValue, other.m_colorValueOp, other.m_colorValue))
+                return false;
             
             m_texture = newTexture; m_textureOp = newTextureOp;
             m_axisOp = newAxisOp;
@@ -515,7 +529,9 @@ namespace TrenchBroom {
             m_surfaceFlags = newSurfaceFlags; m_surfaceFlagsOp = newSurfaceFlagsOp;
             m_contentFlags = newContentFlags; m_contentFlagsOp = newContentFlagsOp;
             m_surfaceValue = newSurfaceValue; m_surfaceValueOp = newSurfaceValueOp;
-            
+
+            m_colorValue = newColorValue; m_colorValueOp = newColorValueOp;
+
             return true;
         }
     }

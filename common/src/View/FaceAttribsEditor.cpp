@@ -27,6 +27,8 @@
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/Game.h"
 #include "Model/GameConfig.h"
+#include "Model/MapFormat.h"
+#include "Model/World.h"
 #include "View/BorderLine.h"
 #include "View/FlagChangedCommand.h"
 #include "View/FlagsPopupEditor.h"
@@ -42,6 +44,7 @@
 #include <wx/gbsizer.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
+#include <wx/textctrl.h>
 #include <wx/wupdlock.h>
 
 namespace TrenchBroom {
@@ -61,7 +64,9 @@ namespace TrenchBroom {
         m_surfaceFlagsLabel(nullptr),
         m_surfaceFlagsEditor(nullptr),
         m_contentFlagsLabel(nullptr),
-        m_contentFlagsEditor(nullptr) {
+        m_contentFlagsEditor(nullptr),
+        m_colorLabel(nullptr),
+        m_colorEditor(nullptr) {
             createGui(contextManager);
             bindEvents();
             bindObservers();
@@ -187,6 +192,25 @@ namespace TrenchBroom {
                 event.Veto();
         }
 
+        void FaceAttribsEditor::OnColorValueChanged(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            const String str = m_colorEditor->GetValue().ToStdString();
+            if (!StringUtils::isBlank(str)) {
+                if (Color::canParse(str)) {
+                    Model::ChangeBrushFaceAttributesRequest request;
+                    request.setColor(Color::parse(str));
+                    MapDocumentSPtr document = lock(m_document);
+                    document->setFaceAttributes(request);
+                }
+            } else {
+                Model::ChangeBrushFaceAttributesRequest request;
+                request.setColor(Color());
+                MapDocumentSPtr document = lock(m_document);
+                document->setFaceAttributes(request);
+            }
+        }
+
         void FaceAttribsEditor::OnIdle(wxIdleEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -258,7 +282,11 @@ namespace TrenchBroom {
             m_contentFlagsLabel = new wxStaticText(this, wxID_ANY, "Content", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
             m_contentFlagsLabel->SetFont(m_contentFlagsLabel->GetFont().Bold());
             m_contentFlagsEditor = new FlagsPopupEditor(this, 2);
-            
+
+            m_colorLabel = new wxStaticText(this, wxID_ANY, "Color", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
+            m_colorLabel->SetFont(m_colorLabel->GetFont().Bold());
+            m_colorEditor = new wxTextCtrl(this, wxID_ANY);
+
             const int LabelMargin  = LayoutConstants::NarrowHMargin;
             const int EditorMargin = LayoutConstants::WideHMargin;
             const int RowMargin    = LayoutConstants::NarrowVMargin;
@@ -303,7 +331,11 @@ namespace TrenchBroom {
             m_faceAttribsSizer->Add(m_contentFlagsLabel,  wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
             m_faceAttribsSizer->Add(m_contentFlagsEditor, wxGBPosition(r,c++), wxGBSpan(1,3), Editor2Flags, EditorMargin);
             ++r; c = 0;
-            
+
+            m_faceAttribsSizer->Add(m_colorLabel,         wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
+            m_faceAttribsSizer->Add(m_colorEditor,        wxGBPosition(r,c++), wxGBSpan(1,3), Editor2Flags, EditorMargin);
+            ++r; c = 0;
+
             m_faceAttribsSizer->AddGrowableCol(1);
             m_faceAttribsSizer->AddGrowableCol(3);
             m_faceAttribsSizer->SetItemMinSize(m_uvEditor, 100, 100);
@@ -333,6 +365,7 @@ namespace TrenchBroom {
             m_surfaceValueEditor->Bind(SPIN_CONTROL_EVENT, &FaceAttribsEditor::OnSurfaceValueChanged, this);
             m_surfaceFlagsEditor->Bind(FLAG_CHANGED_EVENT, &FaceAttribsEditor::OnSurfaceFlagChanged, this);
             m_contentFlagsEditor->Bind(FLAG_CHANGED_EVENT, &FaceAttribsEditor::OnContentFlagChanged, this);
+            m_colorEditor->Bind(wxEVT_TEXT, &FaceAttribsEditor::OnColorValueChanged, this);
             Bind(wxEVT_IDLE, &FaceAttribsEditor::OnIdle, this);
         }
         
@@ -395,7 +428,13 @@ namespace TrenchBroom {
             } else {
                 hideSurfaceAttribEditors();
             }
-            
+
+            if (hasColorAttribs()) {
+                showColorAttribEditor();
+            } else {
+                hideColorAttribEditor();
+            }
+
             if (!m_faces.empty()) {
                 bool textureMulti = false;
                 bool xOffsetMulti = false;
@@ -404,6 +443,7 @@ namespace TrenchBroom {
                 bool xScaleMulti = false;
                 bool yScaleMulti = false;
                 bool surfaceValueMulti = false;
+                bool colorValueMulti = false;
                 
                 Assets::Texture* texture = m_faces[0]->texture();
                 const float xOffset = m_faces[0]->xOffset();
@@ -416,6 +456,9 @@ namespace TrenchBroom {
                 int mixedSurfaceFlags = 0;
                 int mixedSurfaceContents = 0;
                 const float surfaceValue = m_faces[0]->surfaceValue();
+                bool hasColorValue = m_faces[0]->hasColor();
+                const Color colorValue = m_faces[0]->color();
+
                 
                 for (size_t i = 1; i < m_faces.size(); i++) {
                     Model::BrushFace* face = m_faces[i];
@@ -426,7 +469,9 @@ namespace TrenchBroom {
                     xScaleMulti             |= (xScale          != face->xScale());
                     yScaleMulti             |= (yScale          != face->yScale());
                     surfaceValueMulti       |= (surfaceValue    != face->surfaceValue());
-                    
+                    colorValueMulti         |= (colorValue      != face->color());
+                    hasColorValue           |= face->hasColor();
+
                     combineFlags(sizeof(int)*8, face->surfaceFlags(), setSurfaceFlags, mixedSurfaceFlags);
                     combineFlags(sizeof(int)*8, face->surfaceContents(), setSurfaceContents, mixedSurfaceContents);
                 }
@@ -439,6 +484,7 @@ namespace TrenchBroom {
                 m_surfaceValueEditor->Enable();
                 m_surfaceFlagsEditor->Enable();
                 m_contentFlagsEditor->Enable();
+                m_colorEditor->Enable();
                 
                 if (textureMulti) {
                     m_textureName->SetLabel("multi");
@@ -510,6 +556,18 @@ namespace TrenchBroom {
                     m_surfaceValueEditor->SetHint("");
                     m_surfaceValueEditor->SetValue(surfaceValue);
                 }
+                if (hasColorValue) {
+                    if (colorValueMulti) {
+                        m_colorEditor->SetHint("multi");
+                        m_colorEditor->ChangeValue("");
+                    } else {
+                        m_colorEditor->SetHint("");
+                        m_colorEditor->ChangeValue(StringUtils::toString(colorValue));
+                    }
+                } else {
+                    m_colorEditor->SetHint("");
+                    m_colorEditor->ChangeValue("");
+                }
                 m_surfaceFlagsEditor->setFlagValue(setSurfaceFlags, mixedSurfaceFlags);
                 m_contentFlagsEditor->setFlagValue(setSurfaceContents, mixedSurfaceContents);
             } else {
@@ -528,6 +586,8 @@ namespace TrenchBroom {
                 // m_textureView->setTexture(nullptr);
                 m_surfaceFlagsEditor->Disable();
                 m_contentFlagsEditor->Disable();
+                m_colorEditor->ChangeValue("n/a");
+                m_colorEditor->Disable();
             }
         }
 
@@ -540,7 +600,7 @@ namespace TrenchBroom {
             
             return !surfaceFlags.flags.empty() && !contentFlags.flags.empty();
         }
-        
+
         void FaceAttribsEditor::showSurfaceAttribEditors() {
             m_faceAttribsSizer->Show(m_surfaceValueLabel);
             m_faceAttribsSizer->Show(m_surfaceValueEditor);
@@ -558,6 +618,23 @@ namespace TrenchBroom {
             m_faceAttribsSizer->Hide(m_surfaceFlagsEditor);
             m_faceAttribsSizer->Hide(m_contentFlagsLabel);
             m_faceAttribsSizer->Hide(m_contentFlagsEditor);
+            GetParent()->Layout();
+        }
+
+        bool FaceAttribsEditor::hasColorAttribs() const {
+            MapDocumentSPtr document = lock(m_document);
+            return document->world()->format() == Model::MapFormat::Daikatana;
+        }
+
+        void FaceAttribsEditor::showColorAttribEditor() {
+            m_faceAttribsSizer->Show(m_colorLabel);
+            m_faceAttribsSizer->Show(m_colorEditor);
+            GetParent()->Layout();
+        }
+
+        void FaceAttribsEditor::hideColorAttribEditor() {
+            m_faceAttribsSizer->Hide(m_colorLabel);
+            m_faceAttribsSizer->Hide(m_colorEditor);
             GetParent()->Layout();
         }
 

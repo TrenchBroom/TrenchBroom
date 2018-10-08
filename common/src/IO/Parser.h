@@ -32,9 +32,9 @@ namespace TrenchBroom {
         template <typename TokenType>
         class Parser {
         protected:
-            typedef std::map<TokenType, String> TokenNameMap;
+            using TokenNameMap = std::map<TokenType, String>;
         private:
-            typedef TokenTemplate<TokenType> Token;
+            using Token =  TokenTemplate<TokenType>;
             mutable TokenNameMap m_tokenNames;
         public:
             virtual ~Parser() = default;
@@ -42,7 +42,7 @@ namespace TrenchBroom {
             bool check(const TokenType typeMask, const Token& token) const {
                 return token.hasType(typeMask);
             }
-            
+
             const Token& expect(const TokenType typeMask, const Token& token) const {
                 if (!check(typeMask, token))
                     throw ParserException(token.line(), token.column(), expectString(tokenName(typeMask), token));
@@ -58,7 +58,6 @@ namespace TrenchBroom {
             
             void expect(ParserStatus& status, const String& typeName, const Token& token) const {
                 const String msg = expectString(typeName, token);
-                // status.error(token.line(), token.column(), msg);
                 throw ParserException(token.line(), token.column(), msg);
             }
         private:

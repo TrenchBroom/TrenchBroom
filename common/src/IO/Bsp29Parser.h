@@ -23,16 +23,17 @@
 #include "StringUtils.h"
 #include "SharedPointer.h"
 #include "Assets/AssetTypes.h"
+#include "Assets/TextureCollection.h"
 #include "IO/EntityModelParser.h"
+
+#include <memory>
+#include <vector>
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
-#include <vector>
-
 namespace TrenchBroom {
     namespace Assets {
-        class Bsp29Model;
         class EntityModel;
         class Palette;
     }
@@ -62,7 +63,6 @@ namespace TrenchBroom {
             using FaceInfoList = std::vector<FaceInfo>;
             
             using FaceEdgeIndexList = std::vector<int>;
-            using VertexMarkList = std::vector<bool>;
 
             String m_name;
             const char* m_begin;
@@ -72,13 +72,13 @@ namespace TrenchBroom {
             Bsp29Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette);
         private:
             Assets::EntityModel* doParseModel() override;
-            Assets::TextureCollection* parseTextures();
+            void parseTextures(Assets::EntityModel* model);
             TextureInfoList parseTextureInfos();
             std::vector<vm::vec3f> parseVertices();
             EdgeInfoList parseEdgeInfos();
             FaceInfoList parseFaceInfos();
             FaceEdgeIndexList parseFaceEdges();
-            Assets::Bsp29Model* parseModels(Assets::TextureCollection* textureCollection, const TextureInfoList& textureInfos, const std::vector<vm::vec3f>& vertices, const EdgeInfoList& edgeInfos, const FaceInfoList& faceInfos, const FaceEdgeIndexList& faceEdges);
+            void parseModels(Assets::EntityModel* model, const TextureInfoList& textureInfos, const std::vector<vm::vec3f>& vertices, const EdgeInfoList& edgeInfos, const FaceInfoList& faceInfos, const FaceEdgeIndexList& faceEdges);
             vm::vec2f textureCoords(const vm::vec3f& vertex, const TextureInfo& textureInfo, const Assets::Texture* texture) const;
         };
     }

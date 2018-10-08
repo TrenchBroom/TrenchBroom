@@ -31,6 +31,7 @@ class wxGridBagSizer;
 class wxSpinCtrl;
 class wxSpinEvent;
 class wxStaticText;
+class wxTextCtrl;
 
 namespace TrenchBroom {
     namespace View {
@@ -64,6 +65,9 @@ namespace TrenchBroom {
             FlagsPopupEditor* m_surfaceFlagsEditor;
             wxStaticText* m_contentFlagsLabel;
             FlagsPopupEditor* m_contentFlagsEditor;
+
+            wxStaticText* m_colorLabel;
+            wxTextCtrl* m_colorEditor;
         public:
             FaceAttribsEditor(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
             ~FaceAttribsEditor();
@@ -78,6 +82,7 @@ namespace TrenchBroom {
             void OnSurfaceFlagChanged(FlagChangedCommand& command);
             void OnContentFlagChanged(FlagChangedCommand& command);
             void OnSurfaceValueChanged(SpinControlEvent& event);
+            void OnColorValueChanged(wxCommandEvent& event);
             void OnIdle(wxIdleEvent& event);
         private:
             void createGui(GLContextManager& contextManager);
@@ -97,6 +102,10 @@ namespace TrenchBroom {
             bool hasSurfaceAttribs() const;
             void showSurfaceAttribEditors();
             void hideSurfaceAttribEditors();
+
+            bool hasColorAttribs() const;
+            void showColorAttribEditor();
+            void hideColorAttribEditor();
 
             void getSurfaceFlags(wxArrayString& names, wxArrayString& descriptions) const;
             void getContentFlags(wxArrayString& names, wxArrayString& descriptions) const;

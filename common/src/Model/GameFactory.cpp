@@ -67,76 +67,68 @@ namespace TrenchBroom {
         }
         
         StringList GameFactory::fileFormats(const String& gameName) const {
-            const auto& config = gameConfig(gameName);
             StringList result;
-            for (const auto& format : config.fileFormats()) {
+            for (const auto& format : gameConfig(gameName).fileFormats()) {
                 result.push_back(format.format);
             }
             return result;
         }
 
         IO::Path GameFactory::iconPath(const String& gameName) const {
-            const auto config = gameConfig(gameName);
+            const auto& config = gameConfig(gameName);
             return config.findConfigFile(config.icon());
         }
         
         IO::Path GameFactory::gamePath(const String& gameName) const {
-            auto it = m_gamePaths.find(gameName);
-            if (it != std::end(m_gamePaths)) {
-                return pref(it->second);
-            } else {
+            const auto it = m_gamePaths.find(gameName);
+            if (it == std::end(m_gamePaths))
                 throw GameException("Unknown game: " + gameName);
-            }
+            auto& pref = it->second;
+            return PreferenceManager::instance().get(pref);
         }
         
         bool GameFactory::setGamePath(const String& gameName, const IO::Path& gamePath) {
-            auto it = m_gamePaths.find(gameName);
-            if (it != std::end(m_gamePaths)) {
-                return PreferenceManager::instance().set(it->second, gamePath);
-            } else {
+            const auto it = m_gamePaths.find(gameName);
+            if (it == std::end(m_gamePaths))
                 throw GameException("Unknown game: " + gameName);
-            }
+            auto& pref = it->second;
+            return PreferenceManager::instance().set(pref, gamePath);
         }
 
         bool GameFactory::isGamePathPreference(const String& gameName, const IO::Path& prefPath) const {
-            auto it = m_gamePaths.find(gameName);
-            if (it != std::end(m_gamePaths)) {
-                auto& pref = it->second;
-                return pref.path() == prefPath;
-            } else {
+            const auto it = m_gamePaths.find(gameName);
+            if (it == std::end(m_gamePaths))
                 throw GameException("Unknown game: " + gameName);
-            }
+            auto& pref = it->second;
+            return pref.path() == prefPath;
         }
         
         GameConfig& GameFactory::gameConfig(const String& name) {
-            auto cIt = m_configs.find(name);
-            if (cIt != std::end(m_configs)) {
-                return cIt->second;
-            } else {
+            const auto cIt = m_configs.find(name);
+            if (cIt == std::end(m_configs))
                 throw GameException("Unknown game: " + name);
-            }
+            return cIt->second;
         }
         
         const GameConfig& GameFactory::gameConfig(const String& name) const {
-            auto cIt = m_configs.find(name);
-            if (cIt != std::end(m_configs)) {
-                return cIt->second;
-            } else {
+            const auto cIt = m_configs.find(name);
+            if (cIt == std::end(m_configs))
                 throw GameException("Unknown game: " + name);
-            }
+            return cIt->second;
         }
 
         std::pair<String, MapFormat::Type> GameFactory::detectGame(const IO::Path& path) const {
-            if (!path.isEmpty() && IO::Disk::fileExists(IO::Disk::fixPath(path))) {
-                IO::OpenStream open(path, false);
-                const auto gameName = IO::readGameComment(open.stream);
-                const auto formatName = IO::readFormatComment(open.stream);
-                const auto format = mapFormat(formatName);
-                if (!gameName.empty() && format != MapFormat::Unknown) {
-                    return std::make_pair(gameName, format);
-                }
-            }
-            return std::make_pair("", MapFormat::Unknown);
+            if (path.isEmpty() || !IO::Disk::fileExists(IO::Disk::fixPath(path)))
+                return std::make_pair("", MapFormat::Unknown);
+            
+            IO::OpenStream open(path, false);
+            const String gameName = IO::readGameComment(open.stream);
+            const String formatName = IO::readFormatComment(open.stream);
+            const MapFormat::Type format = mapFormat(formatName);
+            if (gameName.empty() || format == MapFormat::Unknown)
+                return std::make_pair("", MapFormat::Unknown);
+            
+            return std::make_pair(gameName, format);
         }
 
         GameFactory::GameFactory() {
@@ -145,18 +137,18 @@ namespace TrenchBroom {
         }
         
         void GameFactory::initializeFileSystem() {
-            const auto resourceGameDir = IO::SystemPaths::resourceDirectory() + IO::Path("games");
+            const IO::Path resourceGameDir = IO::SystemPaths::resourceDirectory() + IO::Path("games");
             if (IO::Disk::directoryExists(resourceGameDir)) {
                 m_configFS.pushReadableFileSystem(new IO::DiskFileSystem(resourceGameDir));
             }
 
-            const auto userGameDir = IO::SystemPaths::userDataDirectory() + IO::Path("games");
+            const IO::Path userGameDir = IO::SystemPaths::userDataDirectory() + IO::Path("games");
             m_configFS.pushWritableFileSystem(new IO::WritableDiskFileSystem(userGameDir, true));
         }
 
         void GameFactory::loadGameConfigs() {
-            const auto configFiles = m_configFS.findItemsRecursively(IO::Path("."), IO::FileNameMatcher("GameConfig.cfg"));
-            for (const IO::Path& configFilePath : configFiles) {
+            const auto configFiles = m_configFS.findItemsRecursively(IO::Path(""), IO::FileNameMatcher("GameConfig.cfg"));
+            for (const auto& configFilePath : configFiles) {
                 loadGameConfig(configFilePath);
             }
 

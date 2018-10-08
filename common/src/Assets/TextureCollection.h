@@ -58,6 +58,7 @@ namespace TrenchBroom {
             bool loaded() const;
             const IO::Path& path() const;
             String name() const;
+            size_t textureCount() const;
             const TextureList& textures() const;
             Texture* textureByIndex(size_t index) const;
 
