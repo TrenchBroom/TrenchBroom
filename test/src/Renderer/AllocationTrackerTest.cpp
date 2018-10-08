@@ -32,6 +32,7 @@ namespace TrenchBroom {
             EXPECT_EQ(100, t.largestPossibleAllocation());
             EXPECT_EQ((std::set<AllocationTracker::Range>{{0, 100}}), t.freeBlocks());
             EXPECT_EQ((std::set<AllocationTracker::Range>{}), t.usedBlocks());
+            EXPECT_FALSE(t.hasAllocations());
         }
         
         TEST(AllocationTrackerTest, emptyConstructor) {
@@ -41,6 +42,7 @@ namespace TrenchBroom {
             EXPECT_EQ(nullptr, t.allocate(1));
             EXPECT_EQ((std::set<AllocationTracker::Range>{}), t.freeBlocks());
             EXPECT_EQ((std::set<AllocationTracker::Range>{}), t.usedBlocks());
+            EXPECT_FALSE(t.hasAllocations());
         }
 
         TEST(AllocationTrackerTest, constructWithZeroCapacity) {
@@ -50,12 +52,17 @@ namespace TrenchBroom {
             EXPECT_EQ(nullptr, t.allocate(1));
             EXPECT_EQ((std::set<AllocationTracker::Range>{}), t.freeBlocks());
             EXPECT_EQ((std::set<AllocationTracker::Range>{}), t.usedBlocks());
+            EXPECT_FALSE(t.hasAllocations());
         }
         
         TEST(AllocationTrackerTest, invalidAllocate) {
             AllocationTracker t(100);
 
             EXPECT_ANY_THROW(t.allocate(0));
+
+            EXPECT_EQ((std::set<AllocationTracker::Range>{{0, 100}}), t.freeBlocks());
+            EXPECT_EQ((std::set<AllocationTracker::Range>{}), t.usedBlocks());
+            EXPECT_FALSE(t.hasAllocations());
         }
         
         TEST(AllocationTrackerTest, fiveAllocations) {
@@ -70,6 +77,7 @@ namespace TrenchBroom {
             EXPECT_EQ(100, blocks[0]->size);
             EXPECT_EQ((std::set<AllocationTracker::Range>{{0, 100}}), t.usedBlocks());
             EXPECT_EQ((std::set<AllocationTracker::Range>{{100, 400}}), t.freeBlocks());
+            EXPECT_TRUE(t.hasAllocations());
 
             blocks[1] = t.allocate(100);
             ASSERT_NE(nullptr, blocks[1]);
@@ -187,6 +195,8 @@ namespace TrenchBroom {
             
             EXPECT_EQ((std::set<AllocationTracker::Range>{{0, 100}}), t.freeBlocks());
             EXPECT_EQ((std::set<AllocationTracker::Range>{}), t.usedBlocks());
+
+            EXPECT_FALSE(t.hasAllocations());
         }
         
         TEST(AllocationTrackerTest, expandWithFreeSpaceAtEnd) {
@@ -310,6 +320,7 @@ namespace TrenchBroom {
 
             EXPECT_EQ((std::set<AllocationTracker::Range>{}), t.usedBlocks());
             EXPECT_EQ((std::set<AllocationTracker::Range>{{0, 140 * NumBrushes}}), t.freeBlocks());
+            EXPECT_FALSE(t.hasAllocations());
 
             for (size_t i = 0; i < NumBrushes; ++i) {
                 const size_t brushSize = getBrushSizeFromRandEngine(randEngine);

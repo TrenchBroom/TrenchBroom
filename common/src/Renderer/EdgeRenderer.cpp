@@ -174,7 +174,7 @@ namespace TrenchBroom {
         }
 
         void IndexedEdgeRenderer::Render::doRender(RenderContext& renderContext) {
-            if (m_indexArray->empty()) {
+            if (!m_indexArray->hasValidIndices()) {
                 return;
             }
             renderEdges(renderContext);

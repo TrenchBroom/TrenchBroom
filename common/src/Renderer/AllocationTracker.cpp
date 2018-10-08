@@ -409,6 +409,16 @@ namespace TrenchBroom {
             checkInvariants();
         }
 
+        bool AllocationTracker::hasAllocations() const {
+            // NOTE: this loop should execute at most 2 iterations, because adjacent free blocks are always merged
+            for (Block* block = m_leftmostBlock; block != nullptr; block = block->right) {
+                if (!block->free) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
 // Testing / debugging
 
         std::set<AllocationTracker::Range> AllocationTracker::freeBlocks() const {

@@ -484,7 +484,7 @@ namespace TrenchBroom {
             document->groupWasClosedNotifier.addObserver(this, &MapRenderer::groupWasClosed);
             document->brushFacesDidChangeNotifier.addObserver(this, &MapRenderer::brushFacesDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &MapRenderer::selectionDidChange);
-            document->textureCollectionsDidChangeNotifier.addObserver(this, &MapRenderer::textureCollectionsDidChange);
+            document->textureCollectionsWillChangeNotifier.addObserver(this, &MapRenderer::textureCollectionsWillChange);
             document->entityDefinitionsDidChangeNotifier.addObserver(this, &MapRenderer::entityDefinitionsDidChange);
             document->modsDidChangeNotifier.addObserver(this, &MapRenderer::modsDidChange);
             document->editorContextDidChangeNotifier.addObserver(this, &MapRenderer::editorContextDidChange);
@@ -509,7 +509,7 @@ namespace TrenchBroom {
                 document->groupWasClosedNotifier.removeObserver(this, &MapRenderer::groupWasClosed);
                 document->brushFacesDidChangeNotifier.removeObserver(this, &MapRenderer::brushFacesDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &MapRenderer::selectionDidChange);
-                document->textureCollectionsDidChangeNotifier.removeObserver(this, &MapRenderer::textureCollectionsDidChange);
+                document->textureCollectionsWillChangeNotifier.removeObserver(this, &MapRenderer::textureCollectionsWillChange);
                 document->entityDefinitionsDidChangeNotifier.removeObserver(this, &MapRenderer::entityDefinitionsDidChange);
                 document->modsDidChangeNotifier.removeObserver(this, &MapRenderer::modsDidChange);
                 document->editorContextDidChangeNotifier.removeObserver(this, &MapRenderer::editorContextDidChange);
@@ -593,11 +593,11 @@ namespace TrenchBroom {
                 result.insert(face->brush());
             return result;
         }
-        
-        void MapRenderer::textureCollectionsDidChange() {
+
+        void MapRenderer::textureCollectionsWillChange() {
             invalidateRenderers(Renderer_All);
         }
-        
+
         void MapRenderer::entityDefinitionsDidChange() {
             reloadEntityModels();
             invalidateRenderers(Renderer_All);

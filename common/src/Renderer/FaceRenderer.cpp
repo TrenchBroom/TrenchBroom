@@ -163,7 +163,7 @@ namespace TrenchBroom {
                     glAssert(glDepthMask(GL_FALSE));
                 }
                 for (const auto& [texture, brushIndexHolderPtr] : *m_indexArrayMap) {
-                    if (brushIndexHolderPtr->empty()) {
+                    if (!brushIndexHolderPtr->hasValidIndices()) {
                         continue;
                     }
                     func.before(texture);

@@ -97,8 +97,8 @@ namespace TrenchBroom {
         BrushIndexArray::BrushIndexArray() : m_indexHolder(),
                                              m_allocationTracker(0) {}
 
-        bool BrushIndexArray::empty() const {
-            return m_indexHolder.empty();
+        bool BrushIndexArray::hasValidIndices() const {
+            return m_allocationTracker.hasAllocations();
         }
 
         std::pair<AllocationTracker::Block*, GLuint*> BrushIndexArray::getPointerToInsertElementsAt(const size_t elementCount) {

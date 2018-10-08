@@ -134,8 +134,8 @@ namespace TrenchBroom {
             
             void selectionDidChange(const View::Selection& selection);
             Model::BrushSet collectBrushes(const Model::BrushFaceList& faces);
-            
-            void textureCollectionsDidChange();
+
+            void textureCollectionsWillChange();
             void entityDefinitionsDidChange();
             void modsDidChange();
             

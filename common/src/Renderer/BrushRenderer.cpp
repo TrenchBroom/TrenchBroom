@@ -167,6 +167,10 @@ namespace TrenchBroom {
                 removeBrushFromVbo(brush);
             }
             m_invalidBrushes = m_allBrushes;
+
+            assert(m_brushInfo.empty());
+            assert(m_transparentFaces->empty());
+            assert(m_opaqueFaces->empty());
         }
 
         void BrushRenderer::invalidateBrushes(const Model::BrushList& brushes) {
@@ -564,10 +568,20 @@ namespace TrenchBroom {
             for (const auto& [texture, opaqueKey] : info.opaqueFaceIndicesKeys) {
                 std::shared_ptr<BrushIndexArray> faceIndexHolder = m_opaqueFaces->at(texture);
                 faceIndexHolder->zeroElementsWithKey(opaqueKey);
+
+                if (!faceIndexHolder->hasValidIndices()) {
+                    // There are no indices left to render for this texture, so delete the <Texture, BrushIndexArray> entry from the map
+                    m_opaqueFaces->erase(texture);
+                }
             }
             for (const auto& [texture, transparentKey] : info.transparentFaceIndicesKeys) {
                 std::shared_ptr<BrushIndexArray> faceIndexHolder = m_transparentFaces->at(texture);
                 faceIndexHolder->zeroElementsWithKey(transparentKey);
+
+                if (!faceIndexHolder->hasValidIndices()) {
+                    // There are no indices left to render for this texture, so delete the <Texture, BrushIndexArray> entry from the map
+                    m_transparentFaces->erase(texture);
+                }
             }
 
             m_brushInfo.erase(it);

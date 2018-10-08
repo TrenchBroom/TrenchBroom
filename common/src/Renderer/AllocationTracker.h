@@ -122,6 +122,11 @@ namespace TrenchBroom {
             void free(Block* block);
             size_t capacity() const;
             void expand(Index newCapacity);
+            /**
+             * @return whether there are any allocations. i.e. returns false iff the whole range managed by the allocation
+             * tracker is free. Returns false if `capacity() == 0`. Constant time.
+             */
+            bool hasAllocations() const;
 
             // Testing / debugging
 
