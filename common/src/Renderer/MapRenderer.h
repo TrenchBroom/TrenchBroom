@@ -136,7 +136,6 @@ namespace TrenchBroom {
             Model::BrushSet collectBrushes(const Model::BrushFaceList& faces);
 
             void textureCollectionsWillChange();
-            void textureCollectionsDidChange();
             void entityDefinitionsDidChange();
             void modsDidChange();
             
