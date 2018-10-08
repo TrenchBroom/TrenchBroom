@@ -86,6 +86,21 @@ namespace TrenchBroom {
                     case '\r':
                         discardWhile(Whitespace());
                         break;
+                    case '+': { // string continuation
+                        const auto snapshot = this->snapshot();
+                        advance();
+
+                        const auto* e = curPos();
+                        discardWhile(Whitespace());
+
+                        if (curChar() == '"') {
+                            return Token(FgdToken::Plus, c, e, offset(c), startLine, startColumn);
+                        } else {
+                            restore(snapshot);
+                            // fall through to allow reading numbers
+                        }
+                        switchFallthrough();
+                    }
                     default: {
                         const auto* e = readInteger(WordDelims);
                         if (e != nullptr) {
@@ -108,7 +123,7 @@ namespace TrenchBroom {
             }
             return Token(FgdToken::Eof, nullptr, nullptr, length(), line(), column());
         }
-        
+
         FgdParser::FgdParser(const char* begin, const char* end, const Color& defaultEntityColor, const Path& path) :
         m_defaultEntityColor(defaultEntityColor),
         m_tokenizer(FgdTokenizer(begin, end)) {
@@ -135,6 +150,7 @@ namespace TrenchBroom {
             names[Equality]     = "'='";
             names[Colon]        = "':'";
             names[Comma]        = "','";
+            names[Plus]         = "'+'";
             names[Eof]          = "end of file";
             return names;
         }
@@ -298,8 +314,8 @@ namespace TrenchBroom {
             token = expect(status, FgdToken::Colon | FgdToken::OBracket, m_tokenizer.peekToken());
             if (token.type() == FgdToken::Colon) {
                 m_tokenizer.nextToken();
-                token = expect(status, FgdToken::String, m_tokenizer.nextToken());
-                classInfo.setDescription(StringUtils::trim(token.data()));
+                const auto description = parseString(status);
+                classInfo.setDescription(StringUtils::trim(description));
             }
             
             classInfo.addAttributeDefinitions(parseProperties(status));
@@ -496,8 +512,7 @@ namespace TrenchBroom {
             while (token.type() != FgdToken::CBracket) {
                 const auto value = token.data();
                 expect(status, FgdToken::Colon, m_tokenizer.nextToken());
-                token = expect(status, FgdToken::String, m_tokenizer.nextToken());
-                const auto caption = token.data();
+                const auto caption = parseString(status);
                 options.push_back(Assets::ChoiceAttributeOption(value, caption));
                 token = expect(status, FgdToken::Integer | FgdToken::Decimal | FgdToken::String | FgdToken::CBracket, m_tokenizer.nextToken());
             }
@@ -522,9 +537,8 @@ namespace TrenchBroom {
             while (token.type() != FgdToken::CBracket) {
                 const auto value = token.toInteger<int>();
                 expect(status, FgdToken::Colon, m_tokenizer.nextToken());
-                token = expect(status, FgdToken::String, m_tokenizer.nextToken());
-                const auto shortDescription = token.data();
-                
+                const auto shortDescription = parseString(status);
+
                 auto defaultValue = false;
                 token = expect(status, FgdToken::Colon | FgdToken::Integer | FgdToken::CBracket, m_tokenizer.peekToken());
                 if (token.type() == FgdToken::Colon) {
@@ -537,8 +551,7 @@ namespace TrenchBroom {
                 
                 String longDescription;
                 if (token.type() == FgdToken::Colon) {
-                    token = expect(status, FgdToken::String, m_tokenizer.nextToken());
-                    longDescription = token.data();
+                    longDescription = parseString(status);
                     token = expect(status, FgdToken::Integer | FgdToken::CBracket, m_tokenizer.nextToken());
                 }
                 
@@ -577,8 +590,7 @@ namespace TrenchBroom {
                 m_tokenizer.nextToken();
                 token = expect(status, FgdToken::String | FgdToken::Colon, m_tokenizer.peekToken());
                 if (token.type() == FgdToken::String) {
-                    token = m_tokenizer.nextToken();
-                    return token.data();
+                    return parseString(status);
                 }
             }
             return EmptyString;
@@ -670,6 +682,22 @@ namespace TrenchBroom {
             expect(status, FgdToken::CParenthesis, m_tokenizer.nextToken());
             color[3] = 1.0f;
             return color;
+        }
+
+        String FgdParser::parseString(ParserStatus& status) {
+            auto token = expect(status, FgdToken::String, m_tokenizer.nextToken());
+            if (m_tokenizer.peekToken().hasType(FgdToken::Plus)) {
+                StringStream str;
+                str << token.data();
+                do {
+                    m_tokenizer.nextToken();
+                    token = expect(status, FgdToken::String, m_tokenizer.nextToken());
+                    str << token.data();
+                } while (m_tokenizer.peekToken().hasType(FgdToken::Plus));
+                return str.str();
+            } else {
+                return token.data();
+            }
         }
 
         Assets::EntityDefinitionList FgdParser::parseInclude(ParserStatus& status) {

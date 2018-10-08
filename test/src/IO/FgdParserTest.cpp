@@ -680,10 +680,12 @@ namespace TrenchBroom {
             FgdParser parser(file->begin(), file->end(), defaultColor, file->path());
 
             TestParserStatus status;
-            const auto defs = parser.parseDefinitions(status);
+            auto defs = parser.parseDefinitions(status);
             ASSERT_EQ(2u, defs.size());
             ASSERT_TRUE(std::any_of(std::begin(defs), std::end(defs), [](const auto* def) { return def->name() == "worldspawn"; }));
             ASSERT_TRUE(std::any_of(std::begin(defs), std::end(defs), [](const auto* def) { return def->name() == "info_player_start"; }));
+
+            VectorUtils::clearAndDelete(defs);
         }
 
         TEST(FgdParserTest, parseNestedInclude) {
@@ -693,11 +695,13 @@ namespace TrenchBroom {
             FgdParser parser(file->begin(), file->end(), defaultColor, file->path());
 
             TestParserStatus status;
-            const auto defs = parser.parseDefinitions(status);
+            auto defs = parser.parseDefinitions(status);
             ASSERT_EQ(3u, defs.size());
             ASSERT_TRUE(std::any_of(std::begin(defs), std::end(defs), [](const auto* def) { return def->name() == "worldspawn"; }));
             ASSERT_TRUE(std::any_of(std::begin(defs), std::end(defs), [](const auto* def) { return def->name() == "info_player_start"; }));
             ASSERT_TRUE(std::any_of(std::begin(defs), std::end(defs), [](const auto* def) { return def->name() == "info_player_coop"; }));
+
+            VectorUtils::clearAndDelete(defs);
         }
 
         TEST(FgdParserTest, parseRecursiveInclude) {
@@ -707,9 +711,34 @@ namespace TrenchBroom {
             FgdParser parser(file->begin(), file->end(), defaultColor, file->path());
 
             TestParserStatus status;
-            const auto defs = parser.parseDefinitions(status);
+            auto defs = parser.parseDefinitions(status);
             ASSERT_EQ(1u, defs.size());
             ASSERT_TRUE(std::any_of(std::begin(defs), std::end(defs), [](const auto* def) { return def->name() == "worldspawn"; }));
+
+            VectorUtils::clearAndDelete(defs);
+        }
+
+        TEST(FgdParserTest, parseStringContinuations) {
+            const String file =
+                "@PointClass = cont_description :\n"
+                "\n"
+                "        \"This is an example description for\"+\n"
+                "        \" this example entity. It will appear\"+\n"
+                "        \" in the help dialog for this entity\"\n"
+                "\n"
+                "[]";
+
+            const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
+            FgdParser parser(file, defaultColor);
+
+            TestParserStatus status;
+            auto definitions = parser.parseDefinitions(status);
+            ASSERT_EQ(1u, definitions.size());
+
+            const auto* definition = definitions.front();
+            ASSERT_EQ("This is an example description for this example entity. It will appear in the help dialog for this entity", definition->description());
+
+            VectorUtils::clearAndDelete(definitions);
         }
     }
 }

@@ -50,6 +50,7 @@ namespace TrenchBroom {
             static const Type Equality          = 1 <<  8; // equality sign: =
             static const Type Colon             = 1 <<  9; // colon: :
             static const Type Comma             = 1 << 10; // comma: ,
+            static const Type Plus              = 1 << 11; // plus: + (not used in string continuations)
             static const Type Eof               = 1 << 12; // end of file
         }
         
@@ -128,6 +129,7 @@ namespace TrenchBroom {
             vm::vec3 parseVector(ParserStatus& status);
             vm::bbox3 parseSize(ParserStatus& status);
             Color parseColor(ParserStatus& status);
+            String parseString(ParserStatus& status);
 
             Assets::EntityDefinitionList parseInclude(ParserStatus& status);
             Assets::EntityDefinitionList handleInclude(ParserStatus& status, const Path& path);
