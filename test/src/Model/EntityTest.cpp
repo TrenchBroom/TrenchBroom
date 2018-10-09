@@ -29,17 +29,23 @@
 #include "Model/World.h"
 
 #include <vecmath/vec.h>
+#include <vecmath/mat_ext.h>
 
 namespace TrenchBroom {
     namespace Model {
+        static const String TestClassname = "something";
+
         class EntityTest : public ::testing::Test {
         protected:
+            vm::bbox3d m_worldBounds;
             Entity* m_entity;
             World* m_world;
 
             void SetUp() override {
+                m_worldBounds = vm::bbox3d(8192.0);
                 m_entity = new Entity();
-                m_world = new World(MapFormat::Standard, nullptr, vm::bbox3d(8192.0));
+                m_entity->addOrUpdateAttribute(AttributeNames::Classname, TestClassname);
+                m_world = new World(MapFormat::Standard, nullptr, m_worldBounds);
             }
 
             void TearDown() override {
@@ -89,6 +95,32 @@ namespace TrenchBroom {
             m_entity->addOrUpdateAttribute("origin", "10 20 30");
             EXPECT_EQ(newOrigin, m_entity->origin());
             EXPECT_EQ(newBounds, m_entity->bounds());
+        }
+
+        TEST_F(EntityTest, requiresClassnameForRotation) {
+            m_world->defaultLayer()->addChild(m_entity);
+            m_entity->removeAttribute(AttributeNames::Classname);
+
+            EXPECT_EQ(vm::mat4x4::identity, m_entity->rotation());
+
+            const auto rotMat = vm::rotationMatrix(0.0, 0.0, vm::toRadians(90.0));
+            m_entity->transform(rotMat, true, m_worldBounds);
+
+            // rotation had no effect
+            EXPECT_EQ(vm::mat4x4::identity, m_entity->rotation());
+        }
+
+        TEST_F(EntityTest, rotateAndTranslate) {
+            m_world->defaultLayer()->addChild(m_entity);
+
+            const auto rotMat = vm::rotationMatrix(0.0, 0.0, vm::toRadians(90.0));
+
+            EXPECT_EQ(vm::mat4x4::identity, m_entity->rotation());
+            m_entity->transform(rotMat, true, m_worldBounds);
+            EXPECT_EQ(rotMat, m_entity->rotation());
+
+            m_entity->transform(vm::translationMatrix(vm::vec3d(100.0, 0.0, 0.0)), true, m_worldBounds);
+            EXPECT_EQ(rotMat, m_entity->rotation());
         }
     }
 }
