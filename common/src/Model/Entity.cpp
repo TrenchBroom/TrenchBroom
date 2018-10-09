@@ -263,6 +263,9 @@ namespace TrenchBroom {
             cacheAttributes();
 
             nodeBoundsDidChange(oldBounds);
+
+            // needs to be called again because the calculated rotation will be different after calling nodeBoundsDidChange()
+            cacheAttributes();
         }
         
         bool Entity::doIsAttributeNameMutable(const AttributeName& name) const {
