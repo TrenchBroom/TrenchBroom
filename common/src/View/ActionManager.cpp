@@ -280,7 +280,7 @@ namespace TrenchBroom {
             viewMenu->addModifiableCheckItem(CommandIds::Menu::ViewToggleInfoPanel, "Toggle Info Panel", KeyboardShortcut('4', WXK_CONTROL));
             viewMenu->addModifiableCheckItem(CommandIds::Menu::ViewToggleInspector, "Toggle Inspector", KeyboardShortcut('5', WXK_CONTROL));
             viewMenu->addSeparator();
-            viewMenu->addModifiableCheckItem(CommandIds::Menu::ViewToggleMaximizeCurrentView, "Maximize Current View", KeyboardShortcut(WXK_SPACE, WXK_CONTROL));
+            viewMenu->addModifiableCheckItem(CommandIds::Menu::ViewToggleMaximizeCurrentView, "Maximize Current View", KeyboardShortcut(WXK_FSPACE, WXK_CONTROL));
             
             Menu* runMenu = m_menuBar->addMenu("Run");
             runMenu->addModifiableActionItem(CommandIds::Menu::RunCompile, "Compile...");
@@ -300,8 +300,12 @@ namespace TrenchBroom {
 #endif
             
             Menu* helpMenu = m_menuBar->addMenu("Help");
+#ifdef _WIN32
+            helpMenu->addUnmodifiableActionItem(wxID_HELP, "TrenchBroom Manual", KeyboardShortcut(WXK_F1));
+#else
             helpMenu->addUnmodifiableActionItem(wxID_HELP, "TrenchBroom Manual");
-            
+#endif
+
 #ifdef __APPLE__
             // these won't show up in the app menu if we don't add them here
             fileMenu->addUnmodifiableActionItem(wxID_ABOUT, "About TrenchBroom");
