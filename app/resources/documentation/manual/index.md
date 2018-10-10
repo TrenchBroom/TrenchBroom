@@ -21,7 +21,8 @@ TrenchBroom is a level editing program for brush-based game engines such as Quak
 * **Brush Editing**
 	- Robust vertex editing with edge and face splitting and manipulating multiple vertices together
 	- Clipping tool with two and three points
-	- CSG operations: merge, subtract, intersect
+	- Scale and shear tools
+	- CSG operations: merge, subtract, intersect, hollow
 	- UV view for easy texture manipulations
 	- Precise texture lock for all brush editing operations
 	- Multiple texture collections
@@ -738,6 +739,15 @@ CSG subtraction takes one brush (the subtrahend) and subtracts it from a set of 
 ![CSG subtracting to create an arch](CSGSubtractArch.gif)
 
 The image above shows an example where an arch is created by subtraction. The result contains eight brushes that perfectly represent the arch. To perform a CSG subtraction, first select the minuends (the brushes you wish to subtract from) and then add the subtrahend to the selection and choose #menu(Menu/Edit/CSG/Subtract). Assuming you have selected n brushes, TrenchBroom applies the subtraction to the selected brushes by subtracting the nth selected brush (the most recently selected one) from the n-1 previously selected brushes.
+
+#### CSG Hollow
+
+
+CSG hollow is a shortcut for subtracting a smaller version of a brush from itself. This can be useful to quickly block out rooms. Just select a brush and choose #menu(Menu/Edit/CSG/Hollow) to hollow out the selected brush. The resulting walls will have a thickness of the current grid size.
+
+![CSG hollow](CSGHollow.gif)
+
+In this example, a cube is hollowed out, leaving six brushes which form the walls, floor, and ceiling of the resulting room. Note that the wall thickness is determined by the grid size.
 
 #### CSG Intersection
 
