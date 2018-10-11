@@ -58,15 +58,15 @@ namespace TrenchBroom {
         }
         
         void ParserStatus::info(const size_t line, const String& str) {
-            log(Logger::LogLevel_Debug, line, str);
+            log(Logger::LogLevel_Info, line, str);
         }
         
         void ParserStatus::warn(const size_t line, const String& str) {
-            log(Logger::LogLevel_Debug, line, str);
+            log(Logger::LogLevel_Warn, line, str);
         }
         
         void ParserStatus::error(const size_t line, const String& str) {
-            log(Logger::LogLevel_Debug, line, str);
+            log(Logger::LogLevel_Error, line, str);
         }
         
         void ParserStatus::errorAndThrow(size_t line, const String& str) {
