@@ -280,7 +280,7 @@ namespace TrenchBroom {
             viewMenu->addModifiableCheckItem(CommandIds::Menu::ViewToggleInfoPanel, "Toggle Info Panel", KeyboardShortcut('4', WXK_CONTROL));
             viewMenu->addModifiableCheckItem(CommandIds::Menu::ViewToggleInspector, "Toggle Inspector", KeyboardShortcut('5', WXK_CONTROL));
             viewMenu->addSeparator();
-            viewMenu->addModifiableCheckItem(CommandIds::Menu::ViewToggleMaximizeCurrentView, "Maximize Current View", KeyboardShortcut(WXK_FSPACE, WXK_CONTROL));
+            viewMenu->addModifiableCheckItem(CommandIds::Menu::ViewToggleMaximizeCurrentView, "Maximize Current View", KeyboardShortcut(WXK_SPACE, WXK_CONTROL));
             
             Menu* runMenu = m_menuBar->addMenu("Run");
             runMenu->addModifiableActionItem(CommandIds::Menu::RunCompile, "Compile...");
