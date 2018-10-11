@@ -41,12 +41,12 @@ namespace TrenchBroom {
             for (const Path& path : cfgFiles) {
                 MappedFile::Ptr file = Disk::openFile(path);
                 const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-                FgdParser parser(file->begin(), file->end(), defaultColor);
+                FgdParser parser(file->begin(), file->end(), defaultColor, path);
 
                 TestParserStatus status;
                 ASSERT_NO_THROW(parser.parseDefinitions(status)) << "Parsing FGD file " << path.asString() << " failed";
-                ASSERT_EQ(0u, status.countStatus(Logger::LogLevel_Warn));
-                ASSERT_EQ(0u, status.countStatus(Logger::LogLevel_Error));
+                ASSERT_EQ(0u, status.countStatus(Logger::LogLevel_Warn)) << "Parsing FGD file " << path.asString() << " produced warnings";
+                ASSERT_EQ(0u, status.countStatus(Logger::LogLevel_Error)) << "Parsing FGD file " << path.asString() << " produced errors";
             }
         }
 
