@@ -300,8 +300,12 @@ namespace TrenchBroom {
 #endif
             
             Menu* helpMenu = m_menuBar->addMenu("Help");
+#ifdef _WIN32
+            helpMenu->addUnmodifiableActionItem(wxID_HELP, "TrenchBroom Manual", KeyboardShortcut(WXK_F1));
+#else
             helpMenu->addUnmodifiableActionItem(wxID_HELP, "TrenchBroom Manual");
-            
+#endif
+
 #ifdef __APPLE__
             // these won't show up in the app menu if we don't add them here
             fileMenu->addUnmodifiableActionItem(wxID_ABOUT, "About TrenchBroom");
