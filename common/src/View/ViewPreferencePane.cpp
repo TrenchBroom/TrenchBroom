@@ -183,6 +183,16 @@ namespace TrenchBroom {
             }
         }
 
+        void ViewPreferencePane::OnFontPrefsRendererFontSizeChanged(wxScrollEvent& event) {
+            if(IsBeingDeleted()) {
+                return;
+            }
+
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.set(Preferences::RendererFontSize, m_fontPrefsRendererFontSizeSlider->GetValue());
+        }
+            
+
         void ViewPreferencePane::createGui() {
             wxWindow* viewPreferences = createViewPreferences();
             
@@ -247,7 +257,18 @@ namespace TrenchBroom {
             wxString iconSizes[7] = {"25%", "50%", "100%", "150%", "200%", "250%", "300%"};
             m_textureBrowserIconSizeChoice = new wxChoice(viewBox, wxID_ANY, wxDefaultPosition, wxDefaultSize, 7, iconSizes);
             m_textureBrowserIconSizeChoice->SetToolTip("Sets the icon size in the texture browser.");
+
+
             
+            wxStaticText* fontPrefsHeader = new wxStaticText(viewBox, wxID_ANY, "Fonts");
+            fontPrefsHeader->SetFont(fontPrefsHeader->GetFont().Bold());
+
+            wxStaticText* fontPrefsRendererFontSizeLabel = new wxStaticText(viewBox, wxID_ANY, "Renderer Font Size");
+            m_fontPrefsRendererFontSizeSlider = new wxSlider(viewBox, wxID_ANY, 10, 6, 96, wxDefaultPosition, wxDefaultSize,
+                                                             wxSL_HORIZONTAL | wxSL_BOTTOM | wxSL_VALUE_LABEL);
+            m_fontPrefsRendererFontSizeSlider->SetToolTip("Sets the font size for various labels in the 2D and 3D views.");
+
+
             
             const int HMargin           = LayoutConstants::WideHMargin;
             const int LMargin           = LayoutConstants::WideVMargin;
@@ -320,6 +341,18 @@ namespace TrenchBroom {
             sizer->Add(m_textureBrowserIconSizeChoice,      wxGBPosition( r, 1), wxDefaultSpan, ChoiceFlags, HMargin);
             ++r;
 
+
+            
+            sizer->Add(new BorderLine(viewBox),             wxGBPosition( r, 0), wxGBSpan(1,2), LineFlags, LMargin);
+            ++r;
+
+            sizer->Add(fontPrefsHeader,                     wxGBPosition( r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
+            ++r;
+
+            sizer->Add(fontPrefsRendererFontSizeLabel,      wxGBPosition( r, 0), wxDefaultSpan, LabelFlags,  HMargin);
+            sizer->Add(m_fontPrefsRendererFontSizeSlider,   wxGBPosition( r, 1), wxDefaultSpan, SliderFlags, HMargin);
+            ++r;
+ 
             sizer->Add(0, LayoutConstants::ChoiceSizeDelta, wxGBPosition( r, 0), wxGBSpan(1,2));
             
             sizer->AddGrowableCol(1);
@@ -342,6 +375,8 @@ namespace TrenchBroom {
 
             m_textureModeChoice->Bind(wxEVT_CHOICE, &ViewPreferencePane::OnTextureModeChanged, this);
             m_textureBrowserIconSizeChoice->Bind(wxEVT_CHOICE, &ViewPreferencePane::OnTextureBrowserIconSizeChanged, this);
+
+            bindSliderEvents(m_fontPrefsRendererFontSizeSlider, &ViewPreferencePane::OnFontPrefsRendererFontSizeChanged, this);
         }
 
         bool ViewPreferencePane::doCanResetToDefaults() {
@@ -359,6 +394,7 @@ namespace TrenchBroom {
             prefs.resetToDefault(Preferences::GridColor2D);
             prefs.resetToDefault(Preferences::EdgeColor);
             prefs.resetToDefault(Preferences::TextureBrowserIconSize);
+            prefs.resetToDefault(Preferences::RendererFontSize);
         }
 
         void ViewPreferencePane::doUpdateControls() {
@@ -392,6 +428,8 @@ namespace TrenchBroom {
                 m_textureBrowserIconSizeChoice->SetSelection(6);
             else
                 m_textureBrowserIconSizeChoice->SetSelection(2);
+
+            m_fontPrefsRendererFontSizeSlider->SetValue(static_cast<int>(pref(Preferences::RendererFontSize)));
         }
 
         bool ViewPreferencePane::doValidate() {
