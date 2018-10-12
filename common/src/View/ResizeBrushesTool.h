@@ -53,9 +53,10 @@ namespace TrenchBroom {
             MapDocumentWPtr m_document;
             std::vector<FaceHandle> m_dragHandles;
             vm::vec3 m_dragOrigin;
-            vm::vec3 m_totalDelta;
+            vm::vec3 m_lastPoint;
             bool m_splitBrushes;
-            bool m_resizing;
+            vm::vec3 m_totalDelta;
+            bool m_dragging;
         public:
             explicit ResizeBrushesTool(MapDocumentWPtr document);
             ~ResizeBrushesTool() override;
@@ -82,8 +83,11 @@ namespace TrenchBroom {
             bool resize(const vm::ray3& pickRay, const Renderer::Camera& camera);
             vm::vec3 selectDelta(const vm::vec3& relativeDelta, const vm::vec3& absoluteDelta, FloatType mouseDistance) const;
 
-            void commitResize();
-            void cancelResize();
+            bool beginMove(const Model::PickResult& pickResult);
+            bool move(const vm::ray3& pickRay, const Renderer::Camera& camera);
+
+            void commit();
+            void cancel();
         private:
             bool splitBrushes(const vm::vec3& delta);
             Model::BrushFace* findMatchingFace(Model::Brush* brush, const Model::BrushFace* reference) const;

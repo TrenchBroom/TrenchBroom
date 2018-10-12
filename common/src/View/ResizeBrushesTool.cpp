@@ -54,7 +54,7 @@ namespace TrenchBroom {
         Tool(true),
         m_document(document),
         m_splitBrushes(false),
-        m_resizing(false) {
+        m_dragging(false) {
             bindObservers();
         }
         
@@ -237,27 +237,28 @@ namespace TrenchBroom {
             return visitor.faces();
         }
 
-        bool ResizeBrushesTool::beginResize(const Model::PickResult& pickResult, const bool split) {
-            const Model::Hit& hit = pickResult.query().type(ResizeHit2D | ResizeHit3D).occluded().first();
-            if (!hit.isMatch())
-                return false;
-            
-            m_dragOrigin = hit.hitPoint();
-            m_totalDelta = vm::vec3::zero;
-            m_splitBrushes = split;
-
-            MapDocumentSPtr document = lock(m_document);
-            document->beginTransaction("Resize Brushes");
-            m_resizing = true;
-            return true;
-        }
-
         std::vector<ResizeBrushesTool::FaceHandle> ResizeBrushesTool::getDragHandles(const Model::BrushFaceList& faces) const {
             std::vector<FaceHandle> result;
             for (auto* face : faces) {
                 result.push_back(std::make_tuple(face->brush(), face->boundary().normal));
             }
             return result;
+        }
+
+        bool ResizeBrushesTool::beginResize(const Model::PickResult& pickResult, const bool split) {
+            const auto& hit = pickResult.query().type(ResizeHit2D | ResizeHit3D).occluded().first();
+            if (!hit.isMatch()) {
+                return false;
+            }
+
+            m_dragOrigin = hit.hitPoint();
+            m_totalDelta = vm::vec3::zero;
+            m_splitBrushes = split;
+
+            auto document = lock(m_document);
+            document->beginTransaction("Resize Brushes");
+            m_dragging = true;
+            return true;
         }
 
         bool ResizeBrushesTool::resize(const vm::ray3& pickRay, const Renderer::Camera& camera) {
@@ -308,7 +309,52 @@ namespace TrenchBroom {
                     absoluteDelta);
         }
 
-        void ResizeBrushesTool::commitResize() {
+        bool ResizeBrushesTool::beginMove(const Model::PickResult& pickResult) {
+            const auto& hit = pickResult.query().type(ResizeHit2D).occluded().first();
+            if (!hit.isMatch()) {
+                return false;
+            }
+
+            m_dragOrigin = m_lastPoint = hit.hitPoint();
+            m_totalDelta = vm::vec3::zero;
+            m_splitBrushes = false;
+
+            auto document = lock(m_document);
+            document->beginTransaction("Move Faces");
+            m_dragging = true;
+            return true;
+        }
+
+        bool ResizeBrushesTool::move(const vm::ray3& pickRay, const Renderer::Camera& camera) {
+            const auto dragPlane = vm::plane(m_dragOrigin, vm::vec3(camera.direction()));
+            const auto hitDist = vm::intersect(pickRay, dragPlane);
+            if (vm::isnan(hitDist)) {
+                return true;
+            }
+
+            const auto hitPoint = pickRay.pointAtDistance(hitDist);
+
+            auto document = lock(m_document);
+            const auto& grid = document->grid();
+            const auto delta = grid.snap(hitPoint - m_lastPoint);
+            if (vm::isZero(delta, vm::C::almostZero())) {
+                return true;
+            }
+
+            std::map<vm::polygon3, Model::BrushSet> brushMap;
+            for (const auto* face : dragFaces()) {
+                brushMap[face->polygon()].insert(face->brush());
+            }
+
+            if (document->moveFaces(brushMap, delta)) {
+                m_lastPoint = m_lastPoint + delta;
+                m_totalDelta = m_totalDelta + delta;
+            }
+
+            return true;
+        }
+
+        void ResizeBrushesTool::commit() {
             auto document = lock(m_document);
             if (isZero(m_totalDelta, vm::C::almostZero())) {
                 document->cancelTransaction();
@@ -316,14 +362,14 @@ namespace TrenchBroom {
                 document->commitTransaction();
             }
             m_dragHandles.clear();
-            m_resizing = false;
+            m_dragging = false;
         }
         
-        void ResizeBrushesTool::cancelResize() {
+        void ResizeBrushesTool::cancel() {
             auto document = lock(m_document);
             document->cancelTransaction();
             m_dragHandles.clear();
-            m_resizing = false;
+            m_dragging = false;
         }
 
         bool ResizeBrushesTool::splitBrushes(const vm::vec3& delta) {
@@ -420,13 +466,13 @@ namespace TrenchBroom {
         }
 
         void ResizeBrushesTool::nodesDidChange(const Model::NodeList& nodes) {
-            if (!m_resizing) {
+            if (!m_dragging) {
                 m_dragHandles.clear();
             }
         }
 
         void ResizeBrushesTool::selectionDidChange(const Selection& selection) {
-            if (!m_resizing) {
+            if (!m_dragging) {
                 m_dragHandles.clear();
             }
         }
