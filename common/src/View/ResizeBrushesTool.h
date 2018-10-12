@@ -29,6 +29,8 @@
 #include <vecmath/vec.h>
 #include <vecmath/polygon.h>
 
+#include <tuple>
+
 namespace TrenchBroom {
     namespace Model {
         class PickResult;
@@ -46,8 +48,10 @@ namespace TrenchBroom {
             static const Model::Hit::HitType ResizeHit3D;
             static const Model::Hit::HitType ResizeHit2D;
 
+            using FaceHandle = std::tuple<Model::Brush*, vm::vec3>;
+
             MapDocumentWPtr m_document;
-            Model::BrushFaceList m_dragFaces;
+            std::vector<FaceHandle> m_dragHandles;
             vm::vec3 m_dragOrigin;
             vm::vec3 m_totalDelta;
             bool m_splitBrushes;
@@ -65,13 +69,14 @@ namespace TrenchBroom {
             Model::Hit pickProximateFace(Model::Hit::HitType hitType, const vm::ray3& pickRay) const;
         public:
             bool hasDragFaces() const;
-            const Model::BrushFaceList& dragFaces() const;
+            Model::BrushFaceList dragFaces() const;
             void updateDragFaces(const Model::PickResult& pickResult);
         private:
-            Model::BrushFaceList getDragFaces(const Model::Hit& hit) const;
+            std::vector<FaceHandle> getDragHandles(const Model::Hit& hit) const;
             class MatchFaceBoundary;
-            Model::BrushFaceList collectDragFaces(const Model::Hit& hit) const;
+            std::vector<FaceHandle> collectDragHandles(const Model::Hit& hit) const;
             Model::BrushFaceList collectDragFaces(Model::BrushFace* face) const;
+            std::vector<FaceHandle> getDragHandles(const Model::BrushFaceList& faces) const;
         public:
             bool beginResize(const Model::PickResult& pickResult, bool split);
             bool resize(const vm::ray3& pickRay, const Renderer::Camera& camera);
