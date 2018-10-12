@@ -328,7 +328,7 @@ namespace TrenchBroom {
         }
 
         bool ResizeBrushesTool::move(const vm::ray3& pickRay, const Renderer::Camera& camera) {
-            const auto dragPlane = vm::plane(m_dragOrigin, vm::vec3(camera.direction()));
+            const auto dragPlane = vm::plane3(m_dragOrigin, vm::vec3(camera.direction()));
             const auto hitDist = vm::intersect(pickRay, dragPlane);
             if (vm::isnan(hitDist)) {
                 return true;
