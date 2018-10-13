@@ -50,10 +50,8 @@ cpack || exit 1
 
 # Run tests (wxgtk needs an X server running for the app to initialize)
 
-Xvfb :10 &
-export DISPLAY=:10
-./TrenchBroom-Test || exit 1
-./TrenchBroom-Benchmark || exit 1
+xvfb-run ./TrenchBroom-Test || exit 1
+xvfb-run ./TrenchBroom-Benchmark || exit 1
 
 echo "Shared libraries used:"
 ldd --verbose ./trenchbroom
