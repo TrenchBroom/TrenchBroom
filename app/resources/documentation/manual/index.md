@@ -614,6 +614,14 @@ The resize tool also works in the 2D viewports, of course, but the ability to mo
 
 Both snap modes are used simultaneously. There may be situations when you have to move the camera closer to a face in order to have sufficient precision when dragging the face.
 
+#### Moving Faces Instead of Resizing
+
+The brush resize tool offers a quick way to move an individual face of a brush in 2D views. Hold #key(307) in addition to #key(306) when starting to drag a face in a 2D view to enable this mode. You will notice that a face is highlighted as usual, but when you start dragging the mouse, the face will just be moved in the direction you are dragging. The move is not restricted by the face normal, and other faces will be affected as well.
+
+![Resizing multiple brushes](ResizeTool2DFaceMoving.gif)
+
+The distance is snapped to the current grid size. Moving multiple faces is possible if the faces lie on the same plane.
+
 ### Clipping
 
 Clipping is the most basic operation for Quake maps due to how brushes are [constructed from planes](#brush_geometry). In essence, all that clipping does is adding a new plane to a brush and, depending on the brush's shape, removing other planes from it if they become superfluous. In TrenchBroom, clipping is done using the clip tool, which you can activate by choosing #menu(Menu/Edit/Tools/Clip Tool). The clip tool lets you define a clip plane in various ways, and the lets you apply that plane to the selected brushes.

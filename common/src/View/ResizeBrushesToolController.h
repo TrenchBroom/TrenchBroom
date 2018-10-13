@@ -41,6 +41,12 @@ namespace TrenchBroom {
         class ResizeBrushesToolController : public ToolControllerBase<PickingPolicy, KeyPolicy, MousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy> {
         protected:
             ResizeBrushesTool* m_tool;
+        private:
+            enum class Mode {
+                Resize,
+                MoveFace
+            };
+            Mode m_mode;
         protected:
             ResizeBrushesToolController(ResizeBrushesTool* tool);
         public:
@@ -66,6 +72,7 @@ namespace TrenchBroom {
             bool doCancel() override;
 
             bool handleInput(const InputState& inputState) const;
+            virtual bool doHandleInput(const InputState& inputState) const = 0;
         private:
             virtual Model::Hit doPick(const vm::ray3& pickRay, const Model::PickResult& pickResult) = 0;
         };
@@ -75,6 +82,7 @@ namespace TrenchBroom {
             ResizeBrushesToolController2D(ResizeBrushesTool* tool);
         private:
             Model::Hit doPick(const vm::ray3& pickRay, const Model::PickResult& pickResult) override;
+            bool doHandleInput(const InputState& inputState) const override;
         };
         
         class ResizeBrushesToolController3D : public ResizeBrushesToolController {
@@ -82,6 +90,7 @@ namespace TrenchBroom {
             ResizeBrushesToolController3D(ResizeBrushesTool* tool);
         private:
             Model::Hit doPick(const vm::ray3& pickRay, const Model::PickResult& pickResult) override;
+            bool doHandleInput(const InputState& inputState) const override;
         };
     }
 }
