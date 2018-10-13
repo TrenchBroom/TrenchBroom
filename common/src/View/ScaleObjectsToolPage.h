@@ -36,15 +36,24 @@ namespace TrenchBroom {
         private:
             MapDocumentWPtr m_document;
 
-            wxTextCtrl* m_scaleFactors;
+            wxSimplebook* m_book;
+
+            wxTextCtrl* m_sizeTextBox;
+            wxTextCtrl* m_factorsTextBox;
+
+            wxChoice* m_scaleFactorsOrSize;
             wxButton* m_button;
         public:
             ScaleObjectsToolPage(wxWindow* parent, MapDocumentWPtr document);
+            void activate();
         private:
             void createGui();
             
             void OnUpdateButton(wxUpdateUIEvent& event);
             void OnApply(wxCommandEvent& event);
+
+            bool canScale() const;
+            vm::vec3 getScaleFactors() const;
         };
     }
 }

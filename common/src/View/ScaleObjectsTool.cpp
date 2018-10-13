@@ -477,6 +477,11 @@ namespace TrenchBroom {
         
         ScaleObjectsTool::~ScaleObjectsTool() = default;
 
+        bool ScaleObjectsTool::doActivate() {
+            m_toolPage->activate();
+            return true;
+        }
+
         const Model::Hit& ScaleObjectsTool::dragStartHit() const {
             return m_dragStartHit;
         }
