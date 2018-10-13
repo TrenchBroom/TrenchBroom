@@ -220,6 +220,8 @@ namespace TrenchBroom {
             explicit ScaleObjectsTool(MapDocumentWPtr document);
             ~ScaleObjectsTool() override;
 
+            bool doActivate() override;
+
             const Model::Hit& dragStartHit() const;
             bool applies() const;
 

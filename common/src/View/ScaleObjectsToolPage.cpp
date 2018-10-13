@@ -42,39 +42,89 @@ namespace TrenchBroom {
         m_document(document) {
             createGui();
         }
-        
+
+        void ScaleObjectsToolPage::activate() {
+            const auto document = lock(m_document);
+            const auto suggestedSize = document->hasSelectedNodes() ? document->selectionBounds().size() : vm::vec3::zero;
+
+            m_sizeTextBox->SetValue(StringUtils::toString(suggestedSize));
+            m_factorsTextBox->SetValue("1.0 1.0 1.0");
+        }
+
         void ScaleObjectsToolPage::createGui() {
-            wxStaticText* text = new wxStaticText(this, wxID_ANY, "Scale objects by");
-            m_scaleFactors = new wxTextCtrl(this, wxID_ANY, "1.0 1.0 1.0");
+            MapDocumentSPtr document = lock(m_document);
+
+            wxStaticText* text = new wxStaticText(this, wxID_ANY, "Scale objects");
+
+            m_book = new wxSimplebook(this);
+            m_sizeTextBox = new wxTextCtrl(m_book, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
+            m_factorsTextBox = new wxTextCtrl(m_book, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
+            m_book->AddPage(m_sizeTextBox, "");
+            m_book->AddPage(m_factorsTextBox, "");
+
+            m_sizeTextBox->Bind(wxEVT_TEXT_ENTER, &ScaleObjectsToolPage::OnApply, this);
+            m_factorsTextBox->Bind(wxEVT_TEXT_ENTER, &ScaleObjectsToolPage::OnApply, this);
+
+            const wxString choices[] = { "to size", "by factors" };
+            m_scaleFactorsOrSize = new wxChoice(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 2, choices);
+            m_scaleFactorsOrSize->Bind(wxEVT_CHOICE, [&](wxCommandEvent& event){
+                    const auto selection = m_scaleFactorsOrSize->GetSelection();
+                    if (selection != wxNOT_FOUND) {
+                        m_book->SetSelection(static_cast<size_t>(selection));
+                    }
+                });
+            m_scaleFactorsOrSize->SetSelection(0);
+
             m_button = new wxButton(this, wxID_ANY, "Apply", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
-            
+
             m_button->Bind(wxEVT_UPDATE_UI, &ScaleObjectsToolPage::OnUpdateButton, this);
             m_button->Bind(wxEVT_BUTTON, &ScaleObjectsToolPage::OnApply, this);
             
             wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
             sizer->Add(text, 0, wxALIGN_CENTER_VERTICAL);
             sizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            sizer->Add(m_scaleFactors, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->Add(m_scaleFactorsOrSize, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->AddSpacer(LayoutConstants::NarrowHMargin);
+            sizer->Add(m_book, 0, wxALIGN_CENTER_VERTICAL);
             sizer->AddSpacer(LayoutConstants::NarrowHMargin);
             sizer->Add(m_button, 0, wxALIGN_CENTER_VERTICAL);
             
             SetSizer(sizer);
         }
-        
+
+        bool ScaleObjectsToolPage::canScale() const {
+            return lock(m_document)->hasSelectedNodes();
+        }
+
         void ScaleObjectsToolPage::OnUpdateButton(wxUpdateUIEvent& event) {
             if (IsBeingDeleted()) return;
             
-            MapDocumentSPtr document = lock(m_document);
-            event.Enable(document->hasSelectedNodes());
+            event.Enable(canScale());
+        }
+
+        vm::vec3 ScaleObjectsToolPage::getScaleFactors() const {
+            switch (m_scaleFactorsOrSize->GetSelection()) {
+                case 0: {
+                    auto document = lock(m_document);
+                    const auto desiredSize = vm::vec3::parse(m_sizeTextBox->GetValue().ToStdString());
+
+                    return desiredSize / document->selectionBounds().size();
+                }
+                default:
+                    return vm::vec3::parse(m_factorsTextBox->GetValue().ToStdString());
+            }
         }
 
         void ScaleObjectsToolPage::OnApply(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            
-            const auto scaleFactors = vm::vec3::parse(m_scaleFactors->GetValue().ToStdString());
+
+            if (!canScale()) {
+                return;
+            }
 
             auto document = lock(m_document);
             const auto box = document->selectionBounds();
+            const auto scaleFactors = getScaleFactors();
 
             document->scaleObjects(box.center(), scaleFactors);
         }
