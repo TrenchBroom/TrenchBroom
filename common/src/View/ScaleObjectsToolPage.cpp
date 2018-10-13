@@ -68,7 +68,10 @@ namespace TrenchBroom {
             const wxString choices[] = { "to size", "by factors" };
             m_scaleFactorsOrSize = new wxChoice(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 2, choices);
             m_scaleFactorsOrSize->Bind(wxEVT_CHOICE, [&](wxCommandEvent& event){
-                    m_book->SetSelection(m_scaleFactorsOrSize->GetSelection());
+                    const auto selection = m_scaleFactorsOrSize->GetSelection();
+                    if (selection != wxNOT_FOUND) {
+                        m_book->SetSelection(static_cast<size_t>(selection));
+                    }
                 });
             m_scaleFactorsOrSize->SetSelection(0);
 
