@@ -53,9 +53,8 @@ namespace TrenchBroom {
         void RotateObjectsToolPage::setRecentlyUsedCenters(const std::vector<vm::vec3>& centers) {
             m_recentlyUsedCentersList->Clear();
             
-            std::vector<vm::vec3>::const_reverse_iterator it, end;
-            for (it = centers.rbegin(), end = centers.rend(); it != end; ++it) {
-                const vm::vec3& center = *it;
+            for (auto it = centers.rbegin(), end = centers.rend(); it != end; ++it) {
+                const auto& center = *it;
                 m_recentlyUsedCentersList->Append(StringUtils::toString(center));
             }
             
@@ -68,19 +67,19 @@ namespace TrenchBroom {
         }
 
         void RotateObjectsToolPage::createGui() {
-            wxStaticText* centerText = new wxStaticText(this, wxID_ANY, "Center");
+            auto* centerText = new wxStaticText(this, wxID_ANY, "Center");
             m_recentlyUsedCentersList = new wxComboBox(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxTE_PROCESS_ENTER);
             
             m_resetCenterButton = new wxButton(this, wxID_ANY, "Reset", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
             m_resetCenterButton->SetToolTip("Reset the position of the rotate handle to the center of the current selection.");
 
-            wxStaticText* text1 = new wxStaticText(this, wxID_ANY, "Rotate objects");
-            wxStaticText* text2 = new wxStaticText(this, wxID_ANY, "degs about");
-            wxStaticText* text3 = new wxStaticText(this, wxID_ANY, "axis");
+            auto* text1 = new wxStaticText(this, wxID_ANY, "Rotate objects");
+            auto* text2 = new wxStaticText(this, wxID_ANY, "degs about");
+            auto* text3 = new wxStaticText(this, wxID_ANY, "axis");
             m_angle = new SpinControl(this);
             m_angle->SetRange(-360.0, 360.0);
             m_angle->SetValue(vm::toDegrees(m_tool->angle()));
-            m_angle->SetDigits(0, 2);
+            m_angle->SetDigits(0, 4);
             
             wxString axes[] = { "X", "Y", "Z" };
             m_axis = new wxChoice(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 3, axes);
@@ -96,10 +95,10 @@ namespace TrenchBroom {
             m_rotateButton->Bind(wxEVT_UPDATE_UI, &RotateObjectsToolPage::OnUpdateRotateButton, this);
             m_rotateButton->Bind(wxEVT_BUTTON, &RotateObjectsToolPage::OnRotate, this);
             
-            BorderLine* separator = new BorderLine(this, BorderLine::Direction_Vertical);
+            auto* separator = new BorderLine(this, BorderLine::Direction_Vertical);
             separator->SetForegroundColour(Colors::separatorColor());
             
-            wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
+            auto* sizer = new wxBoxSizer(wxHORIZONTAL);
             sizer->Add(centerText, 0, wxALIGN_CENTER_VERTICAL);
             sizer->AddSpacer(LayoutConstants::NarrowHMargin);
             sizer->Add(m_recentlyUsedCentersList, 0, wxALIGN_CENTER_VERTICAL);
@@ -127,14 +126,14 @@ namespace TrenchBroom {
         void RotateObjectsToolPage::OnIdle(wxIdleEvent& event) {
             if (IsBeingDeleted()) return;
 
-            const Grid& grid = lock(m_document)->grid();
+            const auto& grid = lock(m_document)->grid();
             m_angle->SetIncrements(vm::toDegrees(grid.angle()), 90.0, 1.0);
         }
 
         void RotateObjectsToolPage::OnCenterChanged(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             
-            const vm::vec3 center = vm::vec3::parse(m_recentlyUsedCentersList->GetValue().ToStdString());
+            const auto center = vm::vec3::parse(m_recentlyUsedCentersList->GetValue().ToStdString());
             m_tool->setRotationCenter(center);
         }
         
@@ -147,7 +146,7 @@ namespace TrenchBroom {
         void RotateObjectsToolPage::OnAngleChanged(SpinControlEvent& event) {
             if (IsBeingDeleted()) return;
 
-            const double newAngleDegs = vm::correct(event.IsSpin() ? m_angle->GetValue() + event.GetValue() : event.GetValue());
+            const auto newAngleDegs = vm::correct(event.IsSpin() ? m_angle->GetValue() + event.GetValue() : event.GetValue());
             m_angle->SetValue(newAngleDegs);
             m_tool->setAngle(vm::toRadians(newAngleDegs));
         }
@@ -155,18 +154,18 @@ namespace TrenchBroom {
         void RotateObjectsToolPage::OnUpdateRotateButton(wxUpdateUIEvent& event) {
             if (IsBeingDeleted()) return;
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             event.Enable(document->hasSelectedNodes());
         }
         
         void RotateObjectsToolPage::OnRotate(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            const vm::vec3 center = m_tool->rotationCenter();
-            const vm::vec3 axis = getAxis();
-            const FloatType angle = vm::toRadians(m_angle->GetValue());
+            const auto center = m_tool->rotationCenter();
+            const auto axis = getAxis();
+            const auto angle = vm::toRadians(m_angle->GetValue());
             
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->rotateObjects(center, axis, angle);
         }
         
