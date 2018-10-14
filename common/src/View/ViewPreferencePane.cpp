@@ -271,7 +271,8 @@ namespace TrenchBroom {
             std::vector<wxString> rendererFontSizes { "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "20", "22",
                                                       "24", "26", "28", "32", "36", "40", "48", "56", "64", "72" };
             m_fontPrefsRendererFontSizeCombo = new wxComboBox(viewBox, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,
-                                                              rendererFontSizes.size(), rendererFontSizes.data(), 0, ValidIntP);
+                                                              static_cast<int>(rendererFontSizes.size()), rendererFontSizes.data(),
+                                                              0, ValidIntP);
             m_fontPrefsRendererFontSizeCombo->SetToolTip("Sets the font size for various labels in the 2D and 3D views.");
 
 
