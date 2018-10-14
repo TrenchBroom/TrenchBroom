@@ -41,8 +41,7 @@ namespace TrenchBroom {
             wxColourPickerCtrl* m_gridColorPicker;
             wxColourPickerCtrl* m_edgeColorPicker;
             wxChoice* m_textureBrowserIconSizeChoice;
-            wxSlider* m_fontPrefsRendererFontSizeSlider;
-
+            wxComboBox* m_fontPrefsRendererFontSizeCombo;
         public:
             ViewPreferencePane(wxWindow* parent);
 
@@ -55,9 +54,8 @@ namespace TrenchBroom {
             void OnGridColorChanged(wxColourPickerEvent& event);
             void OnEdgeColorChanged(wxColourPickerEvent& event);
             void OnTextureBrowserIconSizeChanged(wxCommandEvent& event);
-            void OnFontPrefsRendererFontSizeChanged(wxScrollEvent& event);
-
-          private:
+            void OnFontPrefsRendererFontSizeChanged(wxCommandEvent& event);
+       private:
             void createGui();
             wxWindow* createViewPreferences();
 

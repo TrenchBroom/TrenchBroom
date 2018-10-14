@@ -37,6 +37,7 @@
 #include <wx/slider.h>
 #include <wx/stattext.h>
 #include <wx/layout.h>
+#include <wx/valnum.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -183,15 +184,16 @@ namespace TrenchBroom {
             }
         }
 
-        void ViewPreferencePane::OnFontPrefsRendererFontSizeChanged(wxScrollEvent& event) {
+        void ViewPreferencePane::OnFontPrefsRendererFontSizeChanged(wxCommandEvent& event) {
             if(IsBeingDeleted()) {
                 return;
             }
 
             PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.set(Preferences::RendererFontSize, m_fontPrefsRendererFontSizeSlider->GetValue());
+            wxString str = m_fontPrefsRendererFontSizeCombo->GetValue();
+
+            prefs.set(Preferences::RendererFontSize, wxAtoi(str));
         }
-            
 
         void ViewPreferencePane::createGui() {
             wxWindow* viewPreferences = createViewPreferences();
@@ -263,10 +265,13 @@ namespace TrenchBroom {
             wxStaticText* fontPrefsHeader = new wxStaticText(viewBox, wxID_ANY, "Fonts");
             fontPrefsHeader->SetFont(fontPrefsHeader->GetFont().Bold());
 
+            wxIntegerValidator<unsigned int> ValidIntP;
             wxStaticText* fontPrefsRendererFontSizeLabel = new wxStaticText(viewBox, wxID_ANY, "Renderer Font Size");
-            m_fontPrefsRendererFontSizeSlider = new wxSlider(viewBox, wxID_ANY, 10, 6, 96, wxDefaultPosition, wxDefaultSize,
-                                                             wxSL_HORIZONTAL | wxSL_BOTTOM | wxSL_VALUE_LABEL);
-            m_fontPrefsRendererFontSizeSlider->SetToolTip("Sets the font size for various labels in the 2D and 3D views.");
+            wxString rendererFontSizes[23] = { "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "20", "22",
+                                               "24", "26", "28", "32", "36", "40", "48", "56", "64", "72" };
+            m_fontPrefsRendererFontSizeCombo = new wxComboBox(viewBox, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,
+                                                              23, rendererFontSizes, 0, ValidIntP);
+            m_fontPrefsRendererFontSizeCombo->SetToolTip("Sets the font size for various labels in the 2D and 3D views.");
 
 
             
@@ -279,7 +284,8 @@ namespace TrenchBroom {
             const int CheckBoxFlags     = wxLEFT;
             const int ColorPickerFlags  = wxRIGHT;
             const int LineFlags         = wxEXPAND | wxTOP;
-            
+
+           
             int r = 0;
             
             wxGridBagSizer* sizer = new wxGridBagSizer(LayoutConstants::NarrowVMargin, LayoutConstants::WideHMargin);
@@ -350,7 +356,7 @@ namespace TrenchBroom {
             ++r;
 
             sizer->Add(fontPrefsRendererFontSizeLabel,      wxGBPosition( r, 0), wxDefaultSpan, LabelFlags,  HMargin);
-            sizer->Add(m_fontPrefsRendererFontSizeSlider,   wxGBPosition( r, 1), wxDefaultSpan, SliderFlags, HMargin);
+            sizer->Add(m_fontPrefsRendererFontSizeCombo,    wxGBPosition( r, 1), wxDefaultSpan, ChoiceFlags, HMargin);
             ++r;
  
             sizer->Add(0, LayoutConstants::ChoiceSizeDelta, wxGBPosition( r, 0), wxGBSpan(1,2));
@@ -376,7 +382,8 @@ namespace TrenchBroom {
             m_textureModeChoice->Bind(wxEVT_CHOICE, &ViewPreferencePane::OnTextureModeChanged, this);
             m_textureBrowserIconSizeChoice->Bind(wxEVT_CHOICE, &ViewPreferencePane::OnTextureBrowserIconSizeChanged, this);
 
-            bindSliderEvents(m_fontPrefsRendererFontSizeSlider, &ViewPreferencePane::OnFontPrefsRendererFontSizeChanged, this);
+            m_fontPrefsRendererFontSizeCombo->Bind(wxEVT_COMBOBOX, &ViewPreferencePane::OnFontPrefsRendererFontSizeChanged, this);
+            m_fontPrefsRendererFontSizeCombo->Bind(wxEVT_TEXT, &ViewPreferencePane::OnFontPrefsRendererFontSizeChanged, this);
         }
 
         bool ViewPreferencePane::doCanResetToDefaults() {
@@ -429,7 +436,7 @@ namespace TrenchBroom {
             else
                 m_textureBrowserIconSizeChoice->SetSelection(2);
 
-            m_fontPrefsRendererFontSizeSlider->SetValue(static_cast<int>(pref(Preferences::RendererFontSize)));
+            m_fontPrefsRendererFontSizeCombo->SetValue(wxString::Format(wxT("%i"), pref(Preferences::RendererFontSize)));
         }
 
         bool ViewPreferencePane::doValidate() {
