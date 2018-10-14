@@ -143,6 +143,7 @@
 #include <wx/toolbar.h>
 #include <wx/txtstrm.h>
 #include <wx/utils.h>
+#include <wx/valnum.h>
 #include <wx/window.h>
 #include <wx/wupdlock.h>
 
