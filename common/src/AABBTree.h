@@ -266,6 +266,7 @@ private:
             if (child->bounds().contains(bounds)) {
                 auto [newChild, result] = child->remove(bounds, data);
                 if (result) {
+                    // the node to remove was found in the child's tree
                     if (newChild == nullptr) {
                         // child is a leaf, and it represents the node to remove; return sibling to the caller
                         newChild = sibling;
@@ -317,13 +318,13 @@ private:
                 return node1;
             } else if (diff2 < diff1) {
                 return node2;
-            } else if (vol1 < vol2) {
-                return node1;
-            } else if (vol2 < vol1) {
-                return node2;
             } else if (node1->height() < node2->height()) {
                 return node1;
             } else if (node2->height() < node1->height()) {
+                return node2;
+            } else if (vol1 < vol2) {
+                return node1;
+            } else if (vol2 < vol1) {
                 return node2;
             } else {
                 // I give up!
@@ -521,6 +522,10 @@ public:
         } else {
             return m_root->bounds();
         }
+    }
+
+    size_t height() const override {
+        return empty() ? 0 : m_root->height();
     }
 
     List findIntersectors(const vm::ray<T,S>& ray) const override {
