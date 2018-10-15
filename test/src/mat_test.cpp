@@ -687,4 +687,117 @@ namespace vm {
         ASSERT_EQ(r, stripTranslation(r * t));
         ASSERT_EQ(r, stripTranslation(t * r));
     }
+
+    template <typename T>
+    mat<T,4,4> pointsTransformationMatrix(const vec<T,3>& onPlane0In, const vec<T,3>& onPlane1In, const vec<T,3>& onPlane2In, const vec<T,3>& offPlaneIn,
+                                          const vec<T,3>& onPlane0Out, const vec<T,3>& onPlane1Out, const vec<T,3>& onPlane2Out, const vec<T,3>& offPlaneOut) {
+
+        const auto vec0In = onPlane1In - onPlane0In;
+        const auto vec1In = onPlane2In - onPlane0In;
+        const auto vec2In = offPlaneIn - onPlane0In;
+
+        const auto vec0Out = onPlane1Out - onPlane0Out;
+        const auto vec1Out = onPlane2Out - onPlane0Out;
+        const auto vec2Out = offPlaneOut - onPlane0Out;
+
+        // A*X=B
+
+        const vec<T,9> B {
+                vec0Out.x(),
+                vec0Out.y(),
+                vec0Out.z(),
+                vec1Out.x(),
+                vec1Out.y(),
+                vec1Out.z(),
+                vec2Out.x(),
+                vec2Out.y(),
+                vec2Out.z(),
+        };
+
+        const mat<T,9,9> A {
+                vec0In.x(), vec0In.y(), vec0In.z(), 0.0,        0.0,        0.0,        0.0,        0.0,        0.0,
+                0.0,        0.0,        0.0,        vec0In.x(), vec0In.y(), vec0In.z(), 0.0,        0.0,        0.0,
+                0.0,        0.0,        0.0,        0.0,        0.0,        0.0,        vec0In.x(), vec0In.y(), vec0In.z(),
+                vec1In.x(), vec1In.y(), vec1In.z(), 0.0,        0.0,        0.0,        0.0,        0.0,        0.0,
+                0.0,        0.0,        0.0,        vec1In.x(), vec1In.y(), vec1In.z(), 0.0,        0.0,        0.0,
+                0.0,        0.0,        0.0,        0.0,        0.0,        0.0,        vec1In.x(), vec1In.y(), vec1In.z(),
+                vec2In.x(), vec2In.y(), vec2In.z(), 0.0,        0.0,        0.0,        0.0,        0.0,        0.0,
+                0.0,        0.0,        0.0,        vec2In.x(), vec2In.y(), vec2In.z(), 0.0,        0.0,        0.0,
+                0.0,        0.0,        0.0,        0.0,        0.0,        0.0,        vec2In.x(), vec2In.y(), vec2In.z()
+        };
+
+        // can find X using X=Ainv*B
+
+        const auto Ainv = invert(A);
+        assert(std::get<0>(Ainv));
+        const vec<T,9> X = std::get<1>(Ainv) * B;
+
+        const auto Btest = A * X;
+
+        const mat<T,4,4> xformWithoutTranslation {
+                X[0], X[1], X[2], 0.0,
+                X[3], X[4], X[5], 0.0,
+                X[6], X[7], X[8], 0.0,
+                0.0,  0.0,  0.0,  1.0
+        };
+
+        const auto test2 = xformWithoutTranslation * vec4d(vec0In.x(), vec0In.y(), vec0In.z(), 1.0);//OK
+
+
+//        const mat<T,4,4> translationXform = translationMatrix(onPlane0Out - onPlane0In);
+//
+//        const auto test5 = translationXform * vec4d(onPlane0In.x(), onPlane0In.y(), onPlane0In.z(), 1.0);
+//
+//
+//        const auto ans1 =  translationXform * xformWithoutTranslation;
+//        const auto ans2 =  xformWithoutTranslation * translationXform;
+//
+//        const auto test3 = ans1 * vec4d(onPlane1In.x(), onPlane1In.y(), onPlane1In.z(), 1.0);
+//        const auto test4 = ans2 * vec4d(onPlane1In.x(), onPlane1In.y(), onPlane1In.z(), 1.0);
+
+
+        const auto ans1 = translationMatrix(onPlane0Out) * xformWithoutTranslation * translationMatrix(-onPlane0In);
+
+        return ans1;
+    }
+
+    template <typename T>
+    mat<T,4,4> pointsTransformationMatrix(const vec<T,3>& onPlane0In, const vec<T,3>& onPlane1In, const vec<T,3>& onPlane2In,
+                                          const vec<T,3>& onPlane0Out, const vec<T,3>& onPlane1Out, const vec<T,3>& onPlane2Out) {
+
+        const vec<T,3> offPlaneIn  = onPlane0In  + normalize(cross(onPlane1In  - onPlane0In,  onPlane2In  - onPlane0In));
+        const vec<T,3> offPlaneOut = onPlane0Out + normalize(cross(onPlane1Out - onPlane0Out, onPlane2Out - onPlane0Out));
+
+        return pointsTransformationMatrix(onPlane0In,  onPlane1In,  onPlane2In,  offPlaneIn,
+                                          onPlane0Out, onPlane1Out, onPlane2Out, offPlaneOut);
+    }
+
+    TEST(MatTest, pointsTransformationMatrix) {
+        const vec3d in[3] = {{2.0, 0.0, 0.0},
+                             {4.0, 0.0, 0.0},
+                             {2.0, 2.0, 0.0}};
+
+        const auto M = translationMatrix(vec3d(100.0, 100.0, 100.0)) * scalingMatrix(vec3d(2.0, 2.0, 2.0)) * rotationMatrix(vec3::pos_z, toRadians(90.0));
+
+        vec3d out[3];
+        for (size_t i=0; i<3; ++i) {
+            out[i] = M * in[i];
+
+            std::cout << "out[" << i << "]: " << out[i] << "\n";
+        }
+
+        // in[0]: 0,2,0, then 0,4,0, then 100, 104, 100
+        // in[1]: 0,4,0, then 0,8,0, then 100, 108, 100
+        // in[2]: -2,2,0, then -4,4,0, then 96, 104, 100
+
+        const auto M2 = pointsTransformationMatrix(in[0], in[1], in[2], out[0], out[1], out[2]);
+        vec3d test[3];
+        for (size_t i=0; i<3; ++i) {
+            test[i] = M2 * in[i];
+
+            std::cout << "test[" << i << "]: " << test[i] << "\n";
+
+            EXPECT_VEC_EQ(out[i], test[i]);
+        }
+    }
 }

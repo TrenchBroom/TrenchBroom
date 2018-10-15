@@ -128,6 +128,22 @@ namespace vm {
         }
 
         /**
+         * Sets the values of the newly created matrix to the given values, which are given row-by-row.
+         *
+         * @param list the initializer list with the matrix elements in row-major order
+         */
+        mat(std::initializer_list<T> list) {
+            assert(list.size() == R*C);
+            const T* listPtr = list.begin();
+
+            for (size_t c = 0; c < C; ++c) {
+                for (size_t r = 0; r < R; ++r) {
+                    v[c][r] = listPtr[c + (C * r)];
+                }
+            }
+        }
+
+        /**
          * Sets the values of the newly created matrix to the given values, and all other values to 0.
          *
          * @param v11 the value at column 1 and row 1
@@ -146,6 +162,7 @@ namespace vm {
             v[0][0] = v11; v[1][0] = v12; v[2][0] = v13;
             v[0][1] = v21; v[1][1] = v22; v[2][1] = v23;
             v[0][2] = v31; v[1][2] = v32; v[2][2] = v33;
+            // FIXME: this is broken and only fills in the bottom-right corner
             for (size_t c = 3; c < C; c++) {
                 for (size_t r = 3; r < R; r++) {
                     v[c][r] = static_cast<T>(0.0);
@@ -181,6 +198,7 @@ namespace vm {
             v[0][1] = v21; v[1][1] = v22; v[2][1] = v23; v[3][1] = v24;
             v[0][2] = v31; v[1][2] = v32; v[2][2] = v33; v[3][2] = v34;
             v[0][3] = v41; v[1][3] = v42; v[2][3] = v43; v[3][3] = v44;
+            // FIXME: this is broken and only fills in the bottom-right corner
             for (size_t c = 4; c < C; c++) {
                 for (size_t r = 4; r < R; r++) {
                     v[c][r] = static_cast<T>(0.0);
