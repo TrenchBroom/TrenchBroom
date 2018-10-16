@@ -48,6 +48,34 @@ namespace TrenchBroom {
         }
         return true;
     }
+
+    /**
+     * Assumes the UV's have been divided by the texture size.
+     */
+    bool UVListsEqual(const std::vector<vm::vec2f>& uvs,
+                      const std::vector<vm::vec2f>& transformedVertUVs) {
+        if (uvs.size() != transformedVertUVs.size()) {
+            return false;
+        }
+        if (uvs.size() < 3U) {
+            return false;
+        }
+        if (!texCoordsEqual(uvs[0], transformedVertUVs[0])) {
+            return false;
+        }
+
+        for (size_t i=1; i<uvs.size(); ++i) {
+            // note, just checking:
+            //   texCoordsEqual(uvs[i], transformedVertUVs[i]);
+            // would be too lenient.
+            const vm::vec2f expected = uvs[i] - uvs[0];
+            const vm::vec2f actual = transformedVertUVs[i] - transformedVertUVs[0];
+            if (!texCoordsEqual(expected, actual)) {
+                return false;
+            }
+        }
+        return true;
+    }
     
     TEST(TestUtilsTest, testTexCoordsEqual) {
         ASSERT_TRUE(texCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(0.0, 0.0)));

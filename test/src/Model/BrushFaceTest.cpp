@@ -143,31 +143,19 @@ namespace TrenchBroom {
             face->setXScale(1.0);
             face->setYScale(1.0);
         }
-        
+
         /**
          * Assumes the UV's have been divided by the texture size.
          */
         static void checkUVListsEqual(const std::vector<vm::vec2f> &uvs,
                                       const std::vector<vm::vec2f> &transformedVertUVs,
                                       const BrushFace* face) {
-            ASSERT_EQ(uvs.size(), transformedVertUVs.size());
-            ASSERT_GE(uvs.size(), 3U);
-
             // We require a texture, so that face->textureSize() returns a correct value and not 1x1,
             // and so face->textureCoords() returns UV's that are divided by the texture size.
             // Otherwise, the UV comparisons below could spuriously pass.
             ASSERT_NE(nullptr, face->texture());
-            
-            EXPECT_TC_EQ(uvs[0], transformedVertUVs[0]);
-            
-            for (size_t i=1; i<uvs.size(); i++) {
-                // note, just checking:
-                //   EXPECT_TC_EQ(uvs[i], transformedVertUVs[i]);
-                // would be too lenient.
-                const vm::vec2f expected = uvs[i] - uvs[0];
-                const vm::vec2f actual = transformedVertUVs[i] - transformedVertUVs[0];
-                EXPECT_VEC_EQ(expected, actual);
-            }
+
+            ASSERT_TRUE(UVListsEqual(uvs, transformedVertUVs));
         }
         
         /**

@@ -31,6 +31,8 @@
 namespace TrenchBroom {
     bool texCoordsEqual(const vm::vec2f& tc1, const vm::vec2f& tc2);
     bool pointExactlyIntegral(const vm::vec3d &point);
+    bool UVListsEqual(const std::vector<vm::vec2f>& uvs,
+                      const std::vector<vm::vec2f>& transformedVertUVs);
 
     namespace Model {
         void assertTexture(const String& expected, const Brush* brush, const vm::vec3d& faceNormal);
