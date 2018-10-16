@@ -1000,6 +1000,44 @@ namespace TrenchBroom {
             delete brush;
         }
 
+        TEST(BrushTest, moveFaceWithUVLock) {
+            const vm::bbox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, nullptr, worldBounds);
+
+            Assets::Texture testTexture("testTexture", 64, 64);
+
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createCube(64.0, "");
+            for (auto* face : brush->faces()) {
+                face->setTexture(&testTexture);
+            }
+
+            // move top face by x=+8
+            Brush* brushAfter = brush->clone(worldBounds);
+            const auto delta = vm::vec3(+8, 0.0, 0.0);
+            const auto polygonToMove = vm::polygon3(brush->findFace(vm::vec3::pos_z)->vertexPositions());
+            ASSERT_TRUE(brushAfter->canMoveFaces(worldBounds, {polygonToMove}, delta));
+            [[maybe_unused]] auto result = brushAfter->moveFaces(worldBounds, {polygonToMove}, delta);
+
+            // The move should be equivalent to shearing by this matrix
+            const auto M = shearBBoxMatrix(brush->bounds(), vm::vec3::pos_z, delta);
+
+            for (auto* oldFace : brush->faces()) {
+                const auto oldTexCoords = VectorUtils::map(oldFace->vertexPositions(), [&](auto x){ return oldFace->textureCoords(x); });
+                const auto shearedVertexPositions = VectorUtils::map(oldFace->vertexPositions(), [&](auto x){ return M * x; });
+                const auto shearedPolygon = vm::polygon3(shearedVertexPositions);
+
+                const BrushFace* newFace = brushAfter->findFace(shearedPolygon);
+                ASSERT_NE(nullptr, newFace);
+
+                const auto newTexCoords = VectorUtils::map(shearedVertexPositions, [&](auto x){ return newFace->textureCoords(x); });
+                EXPECT_TRUE(UVListsEqual(oldTexCoords, newTexCoords));
+            }
+
+            delete brush;
+            delete brushAfter;
+        }
+
         TEST(BrushTest, moveFaceDownFailure) {
             const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
