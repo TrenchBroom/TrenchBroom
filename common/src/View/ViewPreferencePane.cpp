@@ -266,7 +266,7 @@ namespace TrenchBroom {
             fontPrefsHeader->SetFont(fontPrefsHeader->GetFont().Bold());
 
             wxIntegerValidator<unsigned int> ValidIntP;
-            ValidIntP.SetRange(6, 72);
+            ValidIntP.SetRange(1, 96);
             wxStaticText* fontPrefsRendererFontSizeLabel = new wxStaticText(viewBox, wxID_ANY, "Renderer Font Size");
             std::vector<wxString> rendererFontSizes { "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "20", "22",
                                                       "24", "26", "28", "32", "36", "40", "48", "56", "64", "72" };
