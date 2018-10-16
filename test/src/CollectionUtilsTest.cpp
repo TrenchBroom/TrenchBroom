@@ -754,3 +754,8 @@ TEST(CollectionUtilsTest, listReplace) {
     ASSERT_EQ((std::list<int>{0, 1, 100, 200, 3}), list1);
     ASSERT_EQ(100, *it);
 }
+
+TEST(CollectionUtilsTest, vectorMap) {
+    EXPECT_EQ((std::vector<int>{11, 12, 13}),            VectorUtils::map(std::vector<int>{1,2,3}, [](auto x){return x + 10;}));
+    EXPECT_EQ((std::vector<float>{11.0f, 12.0f, 13.0f}), VectorUtils::map(std::vector<int>{1,2,3}, [](auto x){return x + 10.0f;}));
+}

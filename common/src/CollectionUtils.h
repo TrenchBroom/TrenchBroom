@@ -764,6 +764,18 @@ namespace VectorUtils {
                               std::back_inserter(result), cmp);
         return std::move(result);
     }
+
+    template <typename T, typename L>
+    auto map(const std::vector<T>& vec, L&& lambda) {
+        using MappedElemType = decltype(lambda(std::declval<T>()));
+
+        std::vector<MappedElemType> result;
+        result.reserve(vec.size());
+        for (const auto& elem : vec) {
+            result.push_back(lambda(elem));
+        }
+        return std::move(result);
+    }
 }
 
 namespace SetUtils {
