@@ -32,7 +32,13 @@ namespace TrenchBroom {
             delete m_factory;
             m_factory = nullptr;
         }
-        
+
+
+        void FontManager::clearCache() {
+            MapUtils::clearAndDelete(m_cache);
+            m_cache = FontCache();
+        }
+            
         TextureFont& FontManager::font(const FontDescriptor& fontDescriptor) {
             FontCache::iterator it = m_cache.lower_bound(fontDescriptor);
             if (it != std::end(m_cache) && it->first.compare(fontDescriptor) == 0)

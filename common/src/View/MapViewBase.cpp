@@ -45,6 +45,7 @@
 #include "Renderer/Camera.h"
 #include "Renderer/Compass.h"
 #include "Renderer/FontDescriptor.h"
+#include "Renderer/FontManager.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderService.h"
@@ -244,7 +245,8 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::preferenceDidChange(const IO::Path& path) {
-			updateAcceleratorTable();
+            updateAcceleratorTable();
+            fontManager().clearCache();
             Refresh();
         }
 		
