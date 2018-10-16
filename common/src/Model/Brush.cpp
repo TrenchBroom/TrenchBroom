@@ -283,18 +283,6 @@ namespace TrenchBroom {
             }
         };
 
-        class Brush::FaceMatchingCallback {
-        public:
-            void operator()(BrushFaceGeometry* left, BrushFaceGeometry* right) const {
-                auto* leftFace = left->payload();
-                auto* rightFace = leftFace->clone();
-
-                rightFace->setGeometry(right);
-                rightFace->updatePointsFromVertices();
-            }
-        };
-
-
         Brush::Brush(const vm::bbox3& worldBounds, const BrushFaceList& faces) :
         m_geometry(nullptr),
         m_contentTypeBuilder(nullptr),
@@ -1075,7 +1063,13 @@ namespace TrenchBroom {
         }
 
         void Brush::doSetNewGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, BrushGeometry& newGeometry) {
-            matcher.processRightFaces(FaceMatchingCallback());
+            matcher.processRightFaces([](BrushFaceGeometry* left, BrushFaceGeometry* right){
+                auto* leftFace = left->payload();
+                auto* rightFace = leftFace->clone();
+
+                rightFace->setGeometry(right);
+                rightFace->updatePointsFromVertices();
+            });
 
             const NotifyNodeChange nodeChange(this);
             VectorUtils::clearAndDelete(m_faces);

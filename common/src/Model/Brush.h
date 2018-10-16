@@ -71,7 +71,6 @@ namespace TrenchBroom {
             class MoveVerticesCallback;
             typedef MoveVerticesCallback RemoveVertexCallback;
             class QueryCallback;
-            class FaceMatchingCallback;
 
             using VertexSet = std::set<vm::vec3>;
         public:
