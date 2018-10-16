@@ -991,7 +991,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(newFacePositions[0].hasVertex(vm::vec3(+16.0, +16.0, +32.0)));
             ASSERT_TRUE(newFacePositions[0].hasVertex(vm::vec3(+16.0, -48.0, +32.0)));
 
-            newFacePositions = brush->moveFaces(worldBounds, newFacePositions, vm::vec3(16.0, 16.0, 0.0));
+            newFacePositions = brush->moveFaces(worldBounds, newFacePositions, vm::vec3(16.0, 16.0, 0.0), true);
             ASSERT_EQ(1u, newFacePositions.size());
             ASSERT_EQ(4u, newFacePositions[0].vertices().size());
             for (size_t i = 0; i < 4; ++i)

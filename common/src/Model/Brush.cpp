@@ -722,8 +722,8 @@ namespace TrenchBroom {
             return doCanMoveVertices(worldBounds, vertices, delta, true).success;
         }
 
-        std::vector<vm::vec3> Brush::moveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta) {
-            doMoveVertices(worldBounds, vertexPositions, delta);
+        std::vector<vm::vec3> Brush::moveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta, const bool lockTexture) {
+            doMoveVertices(worldBounds, vertexPositions, delta, lockTexture);
 
             // Collect the exact new positions of the moved vertices
             std::vector<vm::vec3> result;
@@ -855,13 +855,13 @@ namespace TrenchBroom {
             return true;
         }
 
-        std::vector<vm::segment3> Brush::moveEdges(const vm::bbox3& worldBounds, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta) {
+        std::vector<vm::segment3> Brush::moveEdges(const vm::bbox3& worldBounds, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta, const bool lockTexture) {
             assert(canMoveEdges(worldBounds, edgePositions, delta));
 
             std::vector<vm::vec3> vertexPositions;
             vm::segment3::getVertices(std::begin(edgePositions), std::end(edgePositions),
                                   std::back_inserter(vertexPositions));
-            doMoveVertices(worldBounds, vertexPositions, delta);
+            doMoveVertices(worldBounds, vertexPositions, delta, lockTexture);
 
             std::vector<vm::segment3> result;
             result.reserve(edgePositions.size());
@@ -897,12 +897,12 @@ namespace TrenchBroom {
             return true;
         }
 
-        std::vector<vm::polygon3> Brush::moveFaces(const vm::bbox3& worldBounds, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta) {
+        std::vector<vm::polygon3> Brush::moveFaces(const vm::bbox3& worldBounds, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta, const bool lockTexture) {
             assert(canMoveFaces(worldBounds, facePositions, delta));
 
             std::vector<vm::vec3> vertexPositions;
             vm::polygon3::getVertices(std::begin(facePositions), std::end(facePositions), std::back_inserter(vertexPositions));
-            doMoveVertices(worldBounds, vertexPositions, delta);
+            doMoveVertices(worldBounds, vertexPositions, delta, lockTexture);
 
             std::vector<vm::polygon3> result;
             result.reserve(facePositions.size());
@@ -1041,7 +1041,7 @@ namespace TrenchBroom {
             return CanMoveVerticesResult::acceptVertexMove(result);
         }
 
-        void Brush::doMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta) {
+        void Brush::doMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta, bool lockTexture) {
             ensure(m_geometry != nullptr, "geometry is null");
             ensure(!vertexPositions.empty(), "no vertex positions");
             assert(canMoveVertices(worldBounds, vertexPositions, delta));
