@@ -70,7 +70,7 @@ namespace TrenchBroom {
             // would be too lenient.
             const vm::vec2f expected = uvs[i] - uvs[0];
             const vm::vec2f actual = transformedVertUVs[i] - transformedVertUVs[0];
-            if (!texCoordsEqual(expected, actual)) {
+            if (!vm::isEqual(expected, actual, vm::Cf::almostZero())) {
                 return false;
             }
         }
@@ -90,6 +90,15 @@ namespace TrenchBroom {
         
         ASSERT_FALSE(texCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(0.1, 0.1)));
         ASSERT_FALSE(texCoordsEqual(vm::vec2f(-0.25, 0.0), vm::vec2f(0.25, 0.0)));
+    }
+
+    TEST(TestUtilsTest, UVListsEqual) {
+        EXPECT_TRUE(UVListsEqual({{0,0}, {1,0}, {0, 1}},  {{0,0}, {1,0}, {0, 1}}));
+        EXPECT_TRUE(UVListsEqual({{0,0}, {1,0}, {0, 1}},  {{10,0}, {11,0}, {10, 1}})); // translation by whole texture increments OK
+
+        EXPECT_FALSE(UVListsEqual({{0,0}, {1,0}, {0, 1}},  {{10.5,0}, {11.5,0}, {10.5, 1}})); // translation by partial texture increments not OK
+        EXPECT_FALSE(UVListsEqual({{0,0}, {1,0}, {0, 1}},  {{0,0}, {0,1}, {1, 0}})); // wrong order
+        EXPECT_FALSE(UVListsEqual({{0,0}, {1,0}, {0, 1}},  {{0,0}, {2,0}, {0, 2}})); // unwanted scaling
     }
     
     TEST(TestUtilsTest, pointExactlyIntegral) {
