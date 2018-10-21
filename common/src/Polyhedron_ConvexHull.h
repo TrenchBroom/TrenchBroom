@@ -687,6 +687,13 @@ void Polyhedron<T,FP,VP>::removeVertexFromPolyhedron(Vertex* vertex, Callback& c
     
     const Seam seam = createSeam(SplitByConnectivityCriterion(vertex));
     split(seam, callback);
+
+    std::cout << "Printing all faces..." << std::endl;
+    for (const auto* face : m_faces) {
+        std::cout << "Face: " << std::endl << *face;
+    }
+    std::cout << "Done." << std::endl;
+
     if (faceCount() > 1)
         sealWithMultiplePolygons(seam, callback);
     updateBounds();
@@ -888,7 +895,9 @@ void Polyhedron<T,FP,VP>::sealWithMultiplePolygons(Seam seam, Callback& callback
         sealWithSinglePolygon(seam, callback);
         return;
     }
-    
+
+    std::cout << "Printing new faces..." << std::endl;
+
     while (!seam.empty()) {
         assert(seam.size() >= 3);
         
@@ -949,9 +958,12 @@ void Polyhedron<T,FP,VP>::sealWithMultiplePolygons(Seam seam, Callback& callback
         }
         
         auto* newFace = new Face(boundary);
+        std::cout << "New Face:" << std::endl << *newFace;
         callback.faceWasCreated(newFace);
         m_faces.append(newFace, 1);
     }
+
+    std::cout << "Done." << std::endl;
 }
 
 

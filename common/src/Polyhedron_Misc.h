@@ -553,21 +553,6 @@ typename Polyhedron<T,FP,VP>::PosList Polyhedron<T,FP,VP>::vertexPositions() con
 }
 
 template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::printVertices() const {
-    const Vertex* firstVertex = m_vertices.front();
-    const Vertex* currentVertex = firstVertex;
-    do {
-        std::cout << "(" << currentVertex->position() << ")";
-        currentVertex = currentVertex->next();
-        if (currentVertex != firstVertex) {
-            std::cout << " ";
-        }
-    } while (currentVertex != firstVertex);
-    std::cout << std::endl;
-}
-
-
-template <typename T, typename FP, typename VP>
 size_t Polyhedron<T,FP,VP>::edgeCount() const {
     return m_edges.size();
 }
@@ -867,6 +852,10 @@ bool Polyhedron<T,FP,VP>::checkOverlappingFaces() const {
             const size_t sharedVertexCount = curFace1->countSharedVertices(curFace2);
             if (sharedVertexCount == curFace1->vertexCount() ||
                 sharedVertexCount == curFace2->vertexCount()) {
+
+                std::cout << "Face1: " << std::endl << *curFace1;
+                std::cout << "Face2: " << std::endl << *curFace2;
+
                 return false;
             }
             curFace2 = curFace2->next();
@@ -1156,11 +1145,12 @@ bool Polyhedron<T,FP,VP>::healEdges(Callback& callback, const T minLength) {
         const size_t oldSize = m_edges.size();
         
         const T length2 = squaredLength(currentEdge->vector());
-        if (length2 < minLength2)
+        if (length2 < minLength2) {
             currentEdge = removeEdge(currentEdge, callback);
-        else
+        } else {
             currentEdge = currentEdge->next();
-        
+        }
+
         const long sizeDelta = static_cast<long>(oldSize - m_edges.size()) - 1;
         examined -= sizeDelta;
     }

@@ -51,7 +51,7 @@ private:
         typename DoublyLinkedList<Vertex, GetVertexLink>::Link& operator()(Vertex* vertex) const;
         const typename DoublyLinkedList<Vertex, GetVertexLink>::Link& operator()(const Vertex* vertex) const;
     };
-    
+
     class GetEdgeLink {
     public:
         typename DoublyLinkedList<Edge, GetEdgeLink>::Link& operator()(Edge* edge) const;
@@ -69,7 +69,7 @@ private:
         typename DoublyLinkedList<Face, GetFaceLink>::Link& operator()(Face* face) const;
         const typename DoublyLinkedList<Face, GetFaceLink>::Link& operator()(const Face* face) const;
     };
-    
+
     typedef typename DoublyLinkedList<Vertex, GetVertexLink>::Link VertexLink;
     typedef typename DoublyLinkedList<Edge, GetEdgeLink>::Link EdgeLink;
     typedef typename DoublyLinkedList<HalfEdge, GetHalfEdgeLink>::Link HalfEdgeLink;
@@ -108,7 +108,12 @@ public:
         Vertex* previous() const;
         HalfEdge* leaving() const;
         bool incident(const Face* face) const;
-    private:
+
+        friend std::ostream& operator<<(std::ostream& stream, const Vertex& vertex) {
+            stream << vertex.position();
+            return stream;
+        }
+
         HalfEdge* findConnectingEdge(const Vertex* vertex) const;
         HalfEdge* findColinearEdge(const HalfEdge* arriving) const;
         void correctPosition(const size_t decimals = 0, const T epsilon = vm::constants<T>::correctEpsilon());
@@ -121,7 +126,7 @@ public:
         typedef std::vector<Edge*> List;
     private:
         friend class Polyhedron<T,FP,VP>;
-        
+
         HalfEdge* m_first;
         HalfEdge* m_second;
         EdgeLink m_link;
@@ -158,11 +163,11 @@ public:
         void unsetSecondEdge();
         void setSecondEdge(HalfEdge* second);
     };
-    
+
     class HalfEdge : public Allocator<HalfEdge> {
     private:
         friend class Polyhedron<T,FP,VP>;
-        
+
         Vertex* m_origin;
         Edge* m_edge;
         Face* m_face;
@@ -185,7 +190,16 @@ public:
         HalfEdge* previousIncident() const;
         HalfEdge* nextIncident() const;
         bool hasOrigins(const std::vector<V>& positions, T epsilon = static_cast<T>(0.0)) const;
-        std::string asString() const;
+
+        friend std::ostream& operator<<(std::ostream& stream, const HalfEdge& edge) {
+            stream << *edge.origin() << " --> ";
+            if (edge.destination() != nullptr) {
+                stream << *edge.destination();
+            } else {
+                stream << "NULL";
+            }
+            return stream;
+        }
     private:
         vm::point_status pointStatus(const V& faceNormal, const V& point) const;
         bool isLeavingEdge() const;
@@ -203,7 +217,7 @@ public:
         typedef std::set<Face*> Set;
     private:
         friend class Polyhedron<T,FP,VP>;
-        
+
         // Boundary is counter clockwise.
         HalfEdgeList m_boundary;
         typename FP::Type m_payload;
@@ -220,7 +234,6 @@ public:
         HalfEdge* findHalfEdge(const V& origin, T epsilon = static_cast<T>(0.0)) const;
         HalfEdge* findHalfEdge(const Vertex* origin) const;
         Edge* findEdge(const V& first, const V& second, T epsilon = static_cast<T>(0.0)) const;
-        void printBoundary() const;
         V origin() const;
         std::vector<V> vertexPositions() const;
         bool hasVertexPosition(const V& position, T epsilon = static_cast<T>(0.0)) const;
@@ -230,12 +243,22 @@ public:
         V center() const;
         T intersectWithRay(const vm::ray<T,3>& ray, const vm::side side) const;
         vm::point_status pointStatus(const V& point, T epsilon = vm::constants<T>::pointStatusEpsilon()) const;
+
+        friend std::ostream& operator<<(std::ostream& stream, const Face& face) {
+            const auto* firstEdge = face.boundary().front();
+            const auto* currentEdge = firstEdge;
+            do {
+                stream << *currentEdge << std::endl;
+                currentEdge = currentEdge->next();
+            } while (currentEdge != firstEdge);
+            return stream;
+        }    private:
     private:
         // Template methods must remain private!
         template <typename O>
         void getVertexPositions(O output) const;
         typename Vertex::Set vertexSet() const;
-        
+
         bool coplanar(const Face* other) const;
         bool verticesOnPlane(const vm::plane<T,3>& plane) const;
         void flip();
@@ -252,9 +275,9 @@ public:
         void unsetBoundaryFaces();
         void removeBoundaryFromEdges();
         void setLeavingEdges();
-        
+
         size_t countSharedVertices(const Face* other) const;
-        
+
         class RayIntersection;
         RayIntersection intersectWithRay(const vm::ray<T,3>& ray) const;
     };
@@ -289,16 +312,16 @@ protected:
     vm::bbox<T,3> m_bounds;
 public: // Constructors
     Polyhedron();
-    
+
     Polyhedron(std::initializer_list<V> positions);
     Polyhedron(std::initializer_list<V> positions, Callback& callback);
-    
+
     Polyhedron(const V& p1, const V& p2, const V& p3, const V& p4);
     Polyhedron(const V& p1, const V& p2, const V& p3, const V& p4, Callback& callback);
 
     explicit Polyhedron(const vm::bbox<T,3>& bounds);
     Polyhedron(const vm::bbox<T,3>& bounds, Callback& callback);
-    
+
     explicit Polyhedron(const std::vector<V>& positions);
     Polyhedron(const std::vector<V>& positions, Callback& callback);
 
@@ -332,18 +355,17 @@ public: // Accessors
     bool hasVertex(const std::vector<V>& positions, T epsilon = static_cast<T>(0.0)) const;
     bool hasVertices(const std::vector<V>& positions, T epsilon = static_cast<T>(0.0)) const;
     std::vector<V> vertexPositions() const;
-    void printVertices() const;
-    
+
     size_t edgeCount() const;
     const EdgeList& edges() const;
     bool hasEdge(const V& pos1, const V& pos2, T epsilon = static_cast<T>(0.0)) const;
-    
+
     size_t faceCount() const;
     const FaceList& faces() const;
     bool hasFace(const std::vector<V>& positions, T epsilon = static_cast<T>(0.0)) const;
-    
+
     const vm::bbox<T,3>& bounds() const;
-    
+
     bool empty() const;
     bool point() const;
     bool edge() const;
@@ -352,16 +374,16 @@ public: // Accessors
     bool closed() const;
 
     void clear();
-    
+
     struct FaceHit {
         Face* face;
         T distance;
-        
+
         FaceHit(Face* i_face, const T i_distance);
         FaceHit();
         bool isMatch() const;
     };
-    
+
     FaceHit pickFace(const vm::ray<T,3>& ray) const;
 public: // General purpose methods
     Vertex* findVertexByPosition(const V& position, const Vertex* except = nullptr, T epsilon = static_cast<T>(0.0)) const;
@@ -374,11 +396,11 @@ public: // General purpose methods
 private:
     template <typename O>
     void getVertexPositions(O output) const;
-    
+
     bool hasVertex(const Vertex* vertex) const;
     bool hasEdge(const Edge* edge) const;
     bool hasFace(const Face* face) const;
-    
+
     bool checkInvariant() const;
     bool checkEulerCharacteristic() const;
     bool checkOverlappingFaces() const;
@@ -392,7 +414,7 @@ private:
     bool checkEdges() const;
     bool checkEdgeLengths(const T minLength = vm::constants<T>::pointStatusEpsilon()) const;
     bool checkLeavingEdges(const Vertex* v) const;
-    
+
     void updateBounds();
 public: // Vertex correction and edge healing
     void correctVertexPositions(const size_t decimals = 0, const T epsilon = vm::constants<T>::correctEpsilon());
@@ -419,42 +441,42 @@ public:
 private:
     Vertex* addFirstPoint(const V& position, Callback& callback);
     Vertex* addSecondPoint(const V& position, Callback& callback);
-    
+
     Vertex* addThirdPoint(const V& position, Callback& callback);
     Vertex* addColinearThirdPoint(const V& position, Callback& callback);
     Vertex* addNonColinearThirdPoint(const V& position, Callback& callback);
-    
+
     Vertex* addFurtherPoint(const V& position, Callback& callback);
     Vertex* addFurtherPointToPolygon(const V& position, Callback& callback);
     Vertex* addPointToPolygon(const V& position, Callback& callback);
     void makePolygon(const std::vector<V>& positions, Callback& callback);
     Vertex* makePolyhedron(const V& position, Callback& callback);
-    
+
     Vertex* addFurtherPointToPolyhedron(const V& position, Callback& callback);
     Vertex* addPointToPolyhedron(const V& position, const Seam& seam, Callback& callback);
-    
+
     void removeSingleVertex(Vertex* vertex, Callback& callback);
     void removeVertexFromEdge(Vertex* vertex, Callback& callback);
     void removeVertexFromPolygon(Vertex* vertex, Callback& callback);
     void removeThirdVertexFromPolygon(Vertex* vertex, Callback& callback);
     void removeFurtherVertexFromPolygon(Vertex* vertex, Callback& callback);
     void removeVertexFromPolyhedron(Vertex* vertex, Callback& callback);
-    
+
     class SplittingCriterion;
     class SplitByVisibilityCriterion;
     class SplitByConnectivityCriterion;
     class SplitByNormalCriterion;
-    
+
     Seam createSeam(const SplittingCriterion& criterion);
-    
+
     void split(const Seam& seam, Callback& callback);
     void deleteFaces(HalfEdge* current, FaceSet& visitedFaces, VertexList& verticesToDelete, Callback& callback);
 
     void sealWithSinglePolygon(const Seam& seam, Callback& callback);
-    
+
     class ShiftSeamForSealing;
     void sealWithMultiplePolygons(Seam seam, Callback& callback);
-    
+
     class ShiftSeamForWeaving;
     Vertex* weave(Seam seam, const V& position, Callback& callback);
 public: // Clipping
@@ -464,7 +486,7 @@ public: // Clipping
             Type_ClipEmpty,
             Type_ClipSuccess
         } Type;
-        
+
         const Type type;
         ClipResult(const Type i_type);
         bool unchanged() const;
@@ -474,11 +496,11 @@ public: // Clipping
 
     /**
      Removes the part of the polyhedron that is in front of the given plane.
-     
+
      May throw a GeometryException if the polyhedron cannot be intersected with the given plane.
      */
     ClipResult clip(const vm::plane<T,3>& plane);
-    
+
     /**
      May throw a GeometryException if the polyhedron cannot be intersected with the given plane.
      */
@@ -494,7 +516,7 @@ public: // Intersection
     Polyhedron intersect(Polyhedron other, const Callback& callback) const;
 private:
     ClipResult checkIntersects(const vm::plane<T,3>& plane) const;
-    
+
     class NoSeamException;
 
     /**
@@ -507,7 +529,7 @@ private:
     HalfEdge* findNextIntersectingEdge(HalfEdge* searchFrom, const vm::plane<T,3>& plane) const;
 public: // Subtraction
     typedef std::list<Polyhedron> SubtractResult;
-    
+
     SubtractResult subtract(const Polyhedron& subtrahend) const;
     SubtractResult subtract(const Polyhedron& subtrahend, const Callback& callback) const;
 private:
@@ -521,21 +543,21 @@ private:
     static bool pointIntersectsEdge(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
     static bool pointIntersectsPolygon(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
     static bool pointIntersectsPolyhedron(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
-    
+
     static bool edgeIntersectsPoint(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
     static bool edgeIntersectsEdge(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
     static bool edgeIntersectsPolygon(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
     static bool edgeIntersectsPolyhedron(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
-    
+
     static bool edgeIntersectsFace(const Edge* lhsEdge, const Face* rhsFace);
-    
+
     static bool polygonIntersectsPoint(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
     static bool polygonIntersectsEdge(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
     static bool polygonIntersectsPolygon(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
     static bool polygonIntersectsPolyhedron(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
-    
+
     static bool faceIntersectsFace(const Face* lhsFace, const Face* rhsFace);
-    
+
     static bool polyhedronIntersectsPoint(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
     static bool polyhedronIntersectsEdge(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
     static bool polyhedronIntersectsPolygon(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());

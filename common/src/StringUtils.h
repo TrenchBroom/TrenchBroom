@@ -41,6 +41,28 @@ static const String EmptyString("");
 static const StringList EmptyStringList(0);
 
 namespace StringUtils {
+    struct PushPrecision {
+    private:
+        std::ostream& m_str;
+        std::streamsize m_oldPrecision;
+        std::ios::fmtflags m_oldFlags;
+    public:
+        PushPrecision(std::ostream& str, const std::streamsize precision = 20):
+        m_str(str),
+        m_oldPrecision(m_str.precision()),
+        m_oldFlags(str.flags()){
+            m_str.precision(precision);
+            m_str.setf(std::ios::fixed, std::ios::floatfield);
+            m_str << std::ios::fixed;
+        }
+
+
+        ~PushPrecision() {
+            m_str.precision(m_oldPrecision);
+            m_str.flags(m_oldFlags);
+        }
+    };
+
     struct CaseSensitiveCharCompare {
     public:
         int operator()(const char& lhs, const char& rhs) const {
