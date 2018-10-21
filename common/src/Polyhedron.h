@@ -396,8 +396,8 @@ private:
     void updateBounds();
 public: // Vertex correction and edge healing
     void correctVertexPositions(const size_t decimals = 0, const T epsilon = vm::constants<T>::correctEpsilon());
-    bool healEdges(const T minLength = vm::constants<T>::pointStatusEpsilon());
-    bool healEdges(Callback& callback, const T minLength = vm::constants<T>::pointStatusEpsilon());
+    bool healEdges(const T minLength = T(0.01));
+    bool healEdges(Callback& callback, const T minLength = T(0.01));
 private:
     Edge* removeEdge(Edge* edge, Callback& callback);
     void removeDegenerateFace(Face* face, Callback& callback);
