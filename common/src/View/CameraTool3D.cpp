@@ -78,16 +78,28 @@ namespace TrenchBroom {
         }
         
         void CameraTool3D::doMouseScroll(const InputState& inputState) {
-            const auto factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;;
+            const auto factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
+            const auto zoom = inputState.modifierKeysPressed(ModifierKeys::MKShift);
+            const auto scrollDist =
+#ifdef __APPLE__
+                zoom ? -inputState.scrollX() : inputState.scrollY(); // macOS switches scroll axis when shift is pressed
+#else
+                inputState.scrollY();
+#endif
             if (m_orbit) {
                 const auto orbitPlane = vm::plane3f(m_orbitCenter, m_camera.direction());
                 const auto maxDistance = std::max(vm::intersect(m_camera.viewRay(), orbitPlane) - 32.0f, 0.0f);
-                const auto distance = std::min(factor * inputState.scrollY() * moveSpeed(false), maxDistance);
+                const auto distance = std::min(factor * scrollDist * moveSpeed(false), maxDistance);
                 m_camera.moveBy(distance * m_camera.direction());
             } else if (move(inputState)) {
-                const auto moveDirection = pref(Preferences::CameraMoveInCursorDir) ? vm::vec3f(inputState.pickRay().direction) : m_camera.direction();
-                const auto distance = inputState.scrollY() * moveSpeed(false);
-                m_camera.moveBy(factor * distance * moveDirection);
+                if (zoom) {
+                    const auto zoomFactor = 1.0f + scrollDist / 50.0f * factor;
+                    m_camera.zoom(zoomFactor);
+                } else {
+                    const auto moveDirection = pref(Preferences::CameraMoveInCursorDir) ? vm::vec3f(inputState.pickRay().direction) : m_camera.direction();
+                    const auto distance = scrollDist * moveSpeed(false);
+                    m_camera.moveBy(factor * distance * moveDirection);
+                }
             }
         }
         
@@ -147,7 +159,7 @@ namespace TrenchBroom {
         bool CameraTool3D::move(const InputState& inputState) const {
             return ((inputState.mouseButtonsPressed(MouseButtons::MBNone) ||
                      inputState.mouseButtonsPressed(MouseButtons::MBRight)) &&
-                    inputState.checkModifierKeys(MK_No, MK_No, MK_No));
+                    inputState.checkModifierKeys(MK_No, MK_No, MK_DontCare));
         }
         
         bool CameraTool3D::look(const InputState& inputState) const {
@@ -168,38 +180,46 @@ namespace TrenchBroom {
         
         float CameraTool3D::lookSpeedH() const {
             float speed = pref(Preferences::CameraLookSpeed) / -50.0f;
-            if (pref(Preferences::CameraLookInvertH))
+            if (pref(Preferences::CameraLookInvertH)) {
                 speed *= -1.0f;
+            }
+            speed *= std::min(1.0f, m_camera.zoomedFov() / m_camera.fov());
             return speed;
         }
         
         float CameraTool3D::lookSpeedV() const {
             float speed = pref(Preferences::CameraLookSpeed) / -50.0f;
-            if (pref(Preferences::CameraLookInvertV))
+            if (pref(Preferences::CameraLookInvertV)) {
                 speed *= -1.0f;
+            }
+            speed *= std::min(1.0f, m_camera.zoomedFov() / m_camera.fov());
             return speed;
         }
         
         float CameraTool3D::panSpeedH() const {
             float speed = pref(Preferences::CameraPanSpeed);
-            if (pref(Preferences::CameraPanInvertH))
+            if (pref(Preferences::CameraPanInvertH)) {
                 speed *= -1.0f;
+            }
+            speed *= std::min(1.0f, m_camera.zoomedFov() / m_camera.fov());
             return speed;
         }
         
         float CameraTool3D::panSpeedV() const {
             float speed = pref(Preferences::CameraPanSpeed);
-            if (pref(Preferences::CameraPanInvertV))
+            if (pref(Preferences::CameraPanInvertV)) {
                 speed *= -1.0f;
+            }
+            speed *= std::min(1.0f, m_camera.zoomedFov() / m_camera.fov());
             return speed;
         }
         
         float CameraTool3D::moveSpeed(const bool altMode) const {
             float speed = pref(Preferences::CameraMoveSpeed) * 20.0f;
-            // if (slow)
-                // speed /= 10.0f;
-            if (altMode && pref(Preferences::CameraAltMoveInvert))
+            if (altMode && pref(Preferences::CameraAltMoveInvert)) {
                 speed *= -1.0f;
+            }
+            speed *= std::min(1.0f, m_camera.zoomedFov() / m_camera.fov());
             return speed;
         }
         

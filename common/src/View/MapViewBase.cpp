@@ -896,7 +896,7 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::setupGL(Renderer::RenderContext& context) {
-            const Renderer::Camera::Viewport& viewport = context.camera().unzoomedViewport();
+            const Renderer::Camera::Viewport& viewport = context.camera().viewport();
             glAssert(glViewport(viewport.x, viewport.y, viewport.width, viewport.height));
 
             glAssert(glEnable(GL_MULTISAMPLE));

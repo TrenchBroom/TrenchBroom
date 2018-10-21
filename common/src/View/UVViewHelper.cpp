@@ -118,7 +118,7 @@ namespace TrenchBroom {
             m_origin = fromFace * vm::vec3(originInFaceCoords);
         }
         
-        const Renderer::Camera& UVViewHelper::camera() const {
+        const Renderer::OrthographicCamera& UVViewHelper::camera() const {
             return m_camera;
         }
 
@@ -251,8 +251,8 @@ namespace TrenchBroom {
         void UVViewHelper::resetZoom() {
             assert(valid());
             
-            auto w = static_cast<float>(m_camera.unzoomedViewport().width);
-            auto h = static_cast<float>(m_camera.unzoomedViewport().height);
+            auto w = static_cast<float>(m_camera.viewport().width);
+            auto h = static_cast<float>(m_camera.viewport().height);
             
             if (w <= 1.0f || h <= 1.0f) {
                 return;

@@ -57,7 +57,7 @@ namespace TrenchBroom {
         
         void PointHandleRenderer::doRender(RenderContext& renderContext) {
             const Camera& camera = renderContext.camera();
-            const Camera::Viewport& viewport = camera.unzoomedViewport();
+            const Camera::Viewport& viewport = camera.viewport();
             
             const vm::mat4x4f projection = vm::orthoMatrix(-1.0f, 1.0f,
                                                            static_cast<float>(viewport.x),

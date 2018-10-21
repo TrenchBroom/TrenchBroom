@@ -29,11 +29,17 @@
 namespace TrenchBroom {
     namespace Renderer {
         OrthographicCamera::OrthographicCamera() :
-        Camera() {}
+        Camera(),
+        m_zoomedViewport(this->viewport()) {}
         
         OrthographicCamera::OrthographicCamera(const float nearPlane, const float farPlane, const Viewport& viewport, const vm::vec3f& position, const vm::vec3f& direction, const vm::vec3f& up) :
-        Camera(nearPlane, farPlane, viewport, position, direction, up) {}
-        
+        Camera(nearPlane, farPlane, viewport, position, direction, up),
+        m_zoomedViewport(this->viewport()) {}
+
+        const OrthographicCamera::Viewport& OrthographicCamera::zoomedViewport() const {
+            return m_zoomedViewport;
+        }
+
         std::vector<vm::vec3> OrthographicCamera::viewportVertices() const {
             const auto w2 = static_cast<float>(zoomedViewport().width)  / 2.0f;
             const auto h2 = static_cast<float>(zoomedViewport().height) / 2.0f;
@@ -85,6 +91,13 @@ namespace TrenchBroom {
 
         float OrthographicCamera::doGetPerspectiveScalingFactor(const vm::vec3f& position) const {
             return 1.0f / zoom();
+        }
+
+        void OrthographicCamera::doUpdateZoom() {
+            const auto& unzoomedViewport = viewport();
+            m_zoomedViewport = Viewport(unzoomedViewport.x, unzoomedViewport.y,
+                                        static_cast<int>(vm::round(unzoomedViewport.width / zoom())),
+                                        static_cast<int>(vm::round(unzoomedViewport.height / zoom())));
         }
     }
 }

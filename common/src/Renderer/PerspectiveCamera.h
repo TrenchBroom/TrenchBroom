@@ -35,6 +35,7 @@ namespace TrenchBroom {
             PerspectiveCamera(float fov, float nearPlane, float farPlane, const Viewport& viewport, const vm::vec3f& position, const vm::vec3f& direction, const vm::vec3f& up);
             
             float fov() const;
+            float zoomedFov() const;
             void setFov(float fov);
         private:
             ProjectionType doGetProjectionType() const override;
@@ -51,6 +52,8 @@ namespace TrenchBroom {
 
             float doGetPerspectiveScalingFactor(const vm::vec3f& position) const override;
             float viewportFrustumDistance() const;
+
+            void doUpdateZoom() override;
         };
     }
 }
