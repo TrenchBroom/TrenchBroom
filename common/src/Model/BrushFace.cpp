@@ -468,6 +468,11 @@ namespace TrenchBroom {
             invalidateVertexCache();
         }
 
+        void BrushFace::transformTexture(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const vm::mat4x4& transform,  bool lockTexture) {
+            const vm::vec3 invariant = oldBoundary.anchor();
+            m_texCoordSystem->transform(oldBoundary, newBoundary, transform, m_attribs, lockTexture, invariant);
+        }
+
         void BrushFace::transform(const vm::mat4x4& transform, const bool lockTexture) {
             using std::swap;
 

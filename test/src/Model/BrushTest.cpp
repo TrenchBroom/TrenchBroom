@@ -1002,7 +1002,7 @@ namespace TrenchBroom {
 
         TEST(BrushTest, moveFaceWithUVLock) {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Valve, nullptr, worldBounds);
 
             Assets::Texture testTexture("testTexture", 64, 64);
 

@@ -38,6 +38,7 @@
 #include <vecmath/vec.h>
 #include <vecmath/vec_ext.h>
 #include <vecmath/mat.h>
+#include <vecmath/mat_ext.h>
 #include <vecmath/segment.h>
 #include <vecmath/polygon.h>
 #include <vecmath/util.h>
@@ -1030,21 +1031,26 @@ namespace TrenchBroom {
         }
 
         void Brush::doMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta, bool lockTexture) {
+            const NotifyNodeChange nodeChange(this);
+            
             ensure(m_geometry != nullptr, "geometry is null");
             ensure(!vertexPositions.empty(), "no vertex positions");
             assert(canMoveVertices(worldBounds, vertexPositions, delta));
 
-            BrushGeometry newGeometry;
             const auto vertexSet = Brush::createVertexSet(vertexPositions);
-
-            for (auto* vertex : m_geometry->vertices()) {
-                const auto& position = vertex->position();
-                if (vertexSet.count(position)) {
-                    newGeometry.addPoint(position + delta);
-                } else {
-                    newGeometry.addPoint(position);
+            const auto newGeometry = [&](){
+                BrushGeometry geometry;
+                for (auto* vertex : m_geometry->vertices()) {
+                    const auto& position = vertex->position();
+                    if (vertexSet.count(position)) {
+                        geometry.addPoint(position + delta);
+                    }
+                    else {
+                        geometry.addPoint(position);
+                    }
                 }
-            }
+                return geometry;
+            }();
 
             using VecMap = std::map<vm::vec3, vm::vec3>;
             VecMap vertexMapping;
@@ -1058,11 +1064,75 @@ namespace TrenchBroom {
                 }
             }
 
-            const PolyhedronMatcher<BrushGeometry> matcher(*m_geometry, newGeometry, vertexMapping);
+            auto backup = std::shared_ptr<Brush>(this->clone(worldBounds));
+
+            const PolyhedronMatcher<BrushGeometry> matcher(*backup->m_geometry, newGeometry, vertexMapping);
             doSetNewGeometry(worldBounds, matcher, newGeometry);
+
+            // with everything else done, apply texture lock
+            if (true) {
+                const PolyhedronMatcher<BrushGeometry> matcher2(*backup->m_geometry, *m_geometry, vertexMapping);
+                std::cout << "vertex lock:\n";
+
+                matcher2.processRightFaces([&](BrushFaceGeometry* left, BrushFaceGeometry* right) {
+                    
+                    // leftFace is a face of `backup`
+                    auto* leftFace = left->payload();
+                    // rightFace is a face of `this`
+                    auto* rightFace = right->payload();
+                    
+                    assert(leftFace != nullptr);
+                    assert(leftFace->brush() == backup.get());
+                    assert(rightFace != nullptr);
+                    assert(rightFace->brush() == this);
+
+
+                    std::cout << "    processing face: " << rightFace->boundary().normal << "\n";
+
+                    std::vector<vm::vec3> unmovedVerts;
+                    std::vector<std::pair<vm::vec3, vm::vec3>> movedVerts;
+
+                    for (auto leftVert : leftFace->vertexPositions()) {
+                        if (right->hasVertexPosition(leftVert)) {
+                            unmovedVerts.push_back(leftVert);
+                        } else if (auto movedVertIt = vertexMapping.find(leftVert); movedVertIt != vertexMapping.end()) {
+                            movedVerts.push_back(*movedVertIt);
+                        }
+                    }
+
+                    std::cout << "    found " << unmovedVerts.size() << " unmoved:\n";
+                    for (const auto& unmoved : unmovedVerts) {
+                        std::cout << "        " << unmoved << "\n";
+                    }
+                    std::cout << "    found " << movedVerts.size() << " moved:\n";
+                    for (const auto& moved : movedVerts) {
+                        std::cout << "        " << moved.first << " -> " << moved.second << "\n";
+                    }
+
+                    std::vector<std::pair<vm::vec3, vm::vec3>> referenceVerts = movedVerts;
+                    for (const auto& unmovedVert : unmovedVerts) {
+                        referenceVerts.emplace_back(unmovedVert, unmovedVert);
+                    }
+
+                    if (referenceVerts.size() < 3) {
+                        std::cout << "    can't create a transform as there are not enough verts\n";
+                        return;
+                    }
+
+                    const auto M = pointsTransformationMatrix(
+                        referenceVerts[0].first, referenceVerts[1].first, referenceVerts[2].first,
+                        referenceVerts[0].second, referenceVerts[1].second, referenceVerts[2].second);
+
+                    const auto S = std::shared_ptr<TexCoordSystemSnapshot>(leftFace->takeTexCoordSystemSnapshot());
+
+                    rightFace->restoreTexCoordSystemSnapshot(S.get());
+                    rightFace->transformTexture(leftFace->boundary(), rightFace->boundary(), M, true);
+                    rightFace->resetTexCoordSystemCache();
+                });
+            }
         }
 
-        void Brush::doSetNewGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, BrushGeometry& newGeometry) {
+        void Brush::doSetNewGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, const BrushGeometry& newGeometry) {
             matcher.processRightFaces([](BrushFaceGeometry* left, BrushFaceGeometry* right){
                 auto* leftFace = left->payload();
                 auto* rightFace = leftFace->clone();
