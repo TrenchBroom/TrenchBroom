@@ -245,8 +245,11 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::preferenceDidChange(const IO::Path& path) {
+            if(path == Preferences::RendererFontSize.path()) {
+                fontManager().clearCache();
+            }
+
             updateAcceleratorTable();
-            fontManager().clearCache();
             Refresh();
         }
 		
