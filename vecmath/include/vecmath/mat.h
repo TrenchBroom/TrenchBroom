@@ -159,15 +159,10 @@ namespace vm {
         mat(const T v11, const T v12, const T v13,
             const T v21, const T v22, const T v23,
             const T v31, const T v32, const T v33) {
+            static_assert(C == 3 && R == 3, "constructor only available for 3x3 matrices");
             v[0][0] = v11; v[1][0] = v12; v[2][0] = v13;
             v[0][1] = v21; v[1][1] = v22; v[2][1] = v23;
             v[0][2] = v31; v[1][2] = v32; v[2][2] = v33;
-            // FIXME: this is broken and only fills in the bottom-right corner
-            for (size_t c = 3; c < C; c++) {
-                for (size_t r = 3; r < R; r++) {
-                    v[c][r] = static_cast<T>(0.0);
-                }
-            }
         }
 
         /**
@@ -194,16 +189,11 @@ namespace vm {
             const T v21, const T v22, const T v23, const T v24,
             const T v31, const T v32, const T v33, const T v34,
             const T v41, const T v42, const T v43, const T v44) {
+            static_assert(C == 4 && R == 4, "constructor only available for 4x4 matrices");
             v[0][0] = v11; v[1][0] = v12; v[2][0] = v13; v[3][0] = v14;
             v[0][1] = v21; v[1][1] = v22; v[2][1] = v23; v[3][1] = v24;
             v[0][2] = v31; v[1][2] = v32; v[2][2] = v33; v[3][2] = v34;
             v[0][3] = v41; v[1][3] = v42; v[2][3] = v43; v[3][3] = v44;
-            // FIXME: this is broken and only fills in the bottom-right corner
-            for (size_t c = 4; c < C; c++) {
-                for (size_t r = 4; r < R; r++) {
-                    v[c][r] = static_cast<T>(0.0);
-                }
-            }
         }
 
         /**
