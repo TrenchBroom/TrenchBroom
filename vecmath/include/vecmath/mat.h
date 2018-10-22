@@ -794,6 +794,70 @@ namespace vm {
         }
         return result;
     }
+
+    template <typename T, size_t S>
+    std::tuple<bool, mat<T,S,S>, vec<size_t,S>> lupDecomposition(mat<T,S,S> a) {
+        using std::swap;
+
+        vec<size_t,S> pi;
+        for (size_t i=0; i<S; ++i) {
+            pi[i] = i;
+        }
+        for (size_t k=0; k<S; ++k) {
+            T p(0);
+            size_t kPrime = 0;
+            for (size_t i=k; i<S; ++i) {
+                if (vm::abs(a[k][i]) > p) {
+                    p = vm::abs(a[k][i]);
+                    kPrime = i;
+                }
+            }
+            if (p == 0) {
+                return {false, {}, {}};
+            }
+            swap(pi[k], pi[kPrime]);
+            for (size_t i=0; i<S; ++i) {
+                swap(a[i][k], a[i][kPrime]);
+            }
+            for (size_t i=k+1; i<S; ++i) {
+                a[k][i] = a[k][i] / a[k][k];
+                for (size_t j=k+1; j<S; ++j) {
+                    a[j][i] = a[j][i] - a[k][i] * a[j][k];
+                }
+            }
+        }
+        return {true, a, pi};
+    }
+
+    template <typename T, size_t S>
+    vec<T,S> lupSolveInternal(const mat<T,S,S>& lu, const vec<size_t,S>& pi, const vec<T,S>& b) {
+        vec<T,S> x;
+        vec<T,S> y;
+        for (size_t i=0; i<S; ++i) {
+            T sum = T(0);
+            for (size_t j=0; j+1<=i; ++j) {
+                sum += lu[j][i] * y[j];
+            }
+            y[i] = b[pi[i]] - sum;
+        }
+        for (size_t i=S-1; i<S; --i) {
+            T sum = T(0);
+            for (size_t j=i+1; j<S; ++j) {
+                sum += lu[j][i] * x[j];
+            }
+            x[i] = (y[i] - sum) / lu[i][i];
+        }
+        return x;
+    }
+
+    template <typename T, size_t S>
+    std::tuple<bool, vec<T,S>> lupSolve(const mat<T,S,S>& a, const vec<T,S>& b) {
+        auto [success, lu, pi] = lupDecomposition(a);
+        if (!success) {
+            return {false, {}};
+        }
+        return {true, lupSolveInternal(lu, pi, b)};
+    }
 }
 
 #endif

@@ -688,6 +688,18 @@ namespace vm {
         ASSERT_EQ(r, stripTranslation(t * r));
     }
 
+    TEST(MatTest, lupSolve) {
+        const auto A = rotationMatrix(0.1, 0.2, 0.3) * translationMatrix(vec3d(100.0, 100.0, 100.0));
+        const auto x = vec4d(20, -60, 32, 1);
+        const auto b = A * x;
+
+        // solve for x
+        auto [success, x2] = lupSolve(A, b);
+        EXPECT_TRUE(success);
+        EXPECT_VEC_EQ(x, x2);
+        EXPECT_VEC_EQ(b, A * x2);
+    }
+
     TEST(MatTest, pointsTransformationMatrix) {
         const vec3d in[3] = {{2.0, 0.0, 0.0},
                              {4.0, 0.0, 0.0},
