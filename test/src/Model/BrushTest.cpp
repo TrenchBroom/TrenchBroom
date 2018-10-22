@@ -1013,11 +1013,15 @@ namespace TrenchBroom {
             }
 
             // move top face by x=+8
-            Brush* brushAfter = brush->clone(worldBounds);
-            const auto delta = vm::vec3(+8, 0.0, 0.0);
+            auto changed = std::shared_ptr<Brush>(brush->clone(worldBounds));
+            auto changedWithUVLock = std::shared_ptr<Brush>(brush->clone(worldBounds));
+
+            const auto delta = vm::vec3(+8.0, 0.0, 0.0);
             const auto polygonToMove = vm::polygon3(brush->findFace(vm::vec3::pos_z)->vertexPositions());
-            ASSERT_TRUE(brushAfter->canMoveFaces(worldBounds, {polygonToMove}, delta));
-            [[maybe_unused]] auto result = brushAfter->moveFaces(worldBounds, {polygonToMove}, delta);
+            ASSERT_TRUE(changedWithUVLock->canMoveFaces(worldBounds, {polygonToMove}, delta));
+
+            [[maybe_unused]] auto result1 = changed->moveFaces(worldBounds, {polygonToMove}, delta, false);
+            [[maybe_unused]] auto result2 = changedWithUVLock->moveFaces(worldBounds, {polygonToMove}, delta, true);
 
             // The move should be equivalent to shearing by this matrix
             const auto M = shearBBoxMatrix(brush->bounds(), vm::vec3::pos_z, delta);
@@ -1027,15 +1031,33 @@ namespace TrenchBroom {
                 const auto shearedVertexPositions = VectorUtils::map(oldFace->vertexPositions(), [&](auto x){ return M * x; });
                 const auto shearedPolygon = vm::polygon3(shearedVertexPositions);
 
-                const BrushFace* newFace = brushAfter->findFace(shearedPolygon);
-                ASSERT_NE(nullptr, newFace);
+                // The brush modified without texture lock is expected to have changed UV's on some faces, but not on others
+                {
+                    const BrushFace *newFace = changed->findFace(shearedPolygon);
+                    ASSERT_NE(nullptr, newFace);
+                    const auto newTexCoords = VectorUtils::map(shearedVertexPositions,
+                                                               [&](auto x) { return newFace->textureCoords(x); });
+                    const auto normal = oldFace->boundary().normal;
+                    if (normal == vm::vec3::pos_z
+                        || normal == vm::vec3::pos_y
+                        || normal == vm::vec3::neg_y) {
+                        EXPECT_FALSE(UVListsEqual(oldTexCoords, newTexCoords));
+                        // TODO: actually check the UV's
+                    } else {
+                        EXPECT_TRUE(UVListsEqual(oldTexCoords, newTexCoords));
+                    }
+                }
 
-                const auto newTexCoords = VectorUtils::map(shearedVertexPositions, [&](auto x){ return newFace->textureCoords(x); });
-                EXPECT_TRUE(UVListsEqual(oldTexCoords, newTexCoords));
+                // UV's should all be the same when using texture lock
+                {
+                    const BrushFace *newFaceWithUVLock = changedWithUVLock->findFace(shearedPolygon);
+                    ASSERT_NE(nullptr, newFaceWithUVLock);
+                    const auto newTexCoordsWithUVLock = VectorUtils::map(shearedVertexPositions, [&](auto x) {
+                        return newFaceWithUVLock->textureCoords(x);
+                    });
+                    EXPECT_TRUE(UVListsEqual(oldTexCoords, newTexCoordsWithUVLock));
+                }
             }
-
-            delete brush;
-            delete brushAfter;
         }
 
         TEST(BrushTest, moveFaceDownFailure) {

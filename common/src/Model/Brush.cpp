@@ -1070,7 +1070,7 @@ namespace TrenchBroom {
             doSetNewGeometry(worldBounds, matcher, newGeometry);
 
             // with everything else done, apply texture lock
-            if (true) {
+            if (lockTexture) {
                 const PolyhedronMatcher<BrushGeometry> matcher2(*backup->m_geometry, *m_geometry, vertexMapping);
                 std::cout << "vertex lock:\n";
 
