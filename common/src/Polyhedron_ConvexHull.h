@@ -55,8 +55,9 @@ public:
     bool shift(const C& criterion) {
         size_t i = 0;
         while (i < m_edges.size()) {
-            if (criterion(static_cast<const Seam&>(*this)))
+            if (criterion(static_cast<const Seam&>(*this))) {
                 return true;
+            }
             shift();
             ++i;
         }
@@ -689,13 +690,15 @@ void Polyhedron<T,FP,VP>::removeVertexFromPolyhedron(Vertex* vertex, Callback& c
     split(seam, callback);
 
     std::cout << "Printing all faces..." << std::endl;
+    size_t index = 1;
     for (const auto* face : m_faces) {
-        std::cout << "Face: " << std::endl << *face;
+        std::cout << "Face " << index++ << ": " << std::endl << *face;
     }
     std::cout << "Done." << std::endl;
 
-    if (faceCount() > 1)
+    if (faceCount() > 1) {
         sealWithMultiplePolygons(seam, callback);
+    }
     updateBounds();
 }
 
@@ -812,13 +815,16 @@ void Polyhedron<T,FP,VP>::deleteFaces(HalfEdge* first, FaceSet& visitedFaces, Ve
     delete face;
 }
 
+/**
+ * Shifts a seam so that the last point and the first two points do not lie on the same plane.
+ */
 template <typename T, typename FP, typename VP>
 class Polyhedron<T,FP,VP>::ShiftSeamForSealing {
 public:
     bool operator()(const Seam& seam) const {
         const auto* first = seam.first();
         const auto* second = seam.second();
-        
+
         if (first->firstFace() == second->firstFace()) {
             return false;
         }
@@ -845,17 +851,18 @@ private:
         if (seam.size() < 5)
             return true;
         
-        typename Seam::const_iterator it = std::begin(seam);
-        typename Seam::const_iterator end = std::end(seam);
+        auto it = std::begin(seam);
+        auto end = std::end(seam);
         
         std::advance(it, 2);
         std::advance(end, -1);
         
         while (it != end) {
-            const Edge* edge = *it;
-            const Vertex* vertex = edge->firstVertex();
-            if (plane.pointStatus(vertex->position()) == vm::point_status::above)
+            const auto* edge = *it;
+            const auto* vertex = edge->firstVertex();
+            if (plane.pointStatus(vertex->position()) == vm::point_status::above) {
                 return false;
+            }
             ++it;
         }
         return true;
@@ -897,10 +904,11 @@ void Polyhedron<T,FP,VP>::sealWithMultiplePolygons(Seam seam, Callback& callback
     }
 
     std::cout << "Printing new faces..." << std::endl;
-
+    size_t index = 1;
     while (!seam.empty()) {
         assert(seam.size() >= 3);
-        
+
+        // ensure that the last and the first two points are not on the same plane
         if (seam.size() > 3) {
             seam.shift(ShiftSeamForSealing());
         }
@@ -914,18 +922,22 @@ void Polyhedron<T,FP,VP>::sealWithMultiplePolygons(Seam seam, Callback& callback
         
         auto* secondEdge = *endIt;
         ++endIt;
-        
+
+        if (index == 6) {
+            bool b = true;
+        }
+        assert(firstEdge->firstEdge()->face() != secondEdge->firstEdge()->face());
+
         auto* firstBoundaryEdge = new HalfEdge(firstEdge->secondVertex());
         auto* secondBoundaryEdge = new HalfEdge(secondEdge->secondVertex());
-        
+
         boundary.append(firstBoundaryEdge, 1);
         boundary.append(secondBoundaryEdge, 1);
         
         firstEdge->setSecondEdge(firstBoundaryEdge);
         secondEdge->setSecondEdge(secondBoundaryEdge);
 
-        // try to add more points as long as they all lie on the same plane
-        // as the first three points
+        // try to add more points as long as they all lie on the same plane as the first three points
         
         auto* v1 = firstEdge->firstVertex();
         auto* v2 = firstEdge->secondVertex();
@@ -958,7 +970,7 @@ void Polyhedron<T,FP,VP>::sealWithMultiplePolygons(Seam seam, Callback& callback
         }
         
         auto* newFace = new Face(boundary);
-        std::cout << "New Face:" << std::endl << *newFace;
+        std::cout << "New Face " << index++ << ": " << std::endl << *newFace;
         callback.faceWasCreated(newFace);
         m_faces.append(newFace, 1);
     }
