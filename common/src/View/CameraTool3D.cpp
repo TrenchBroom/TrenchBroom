@@ -82,7 +82,7 @@ namespace TrenchBroom {
             const auto zoom = inputState.modifierKeysPressed(ModifierKeys::MKShift);
             const auto scrollDist =
 #ifdef __APPLE__
-                zoom ? -inputState.scrollX() : inputState.scrollY(); // macOS switches scroll axis when shift is pressed
+                zoom ? inputState.scrollX() : inputState.scrollY(); // macOS switches scroll axis when shift is pressed
 #else
                 inputState.scrollY();
 #endif
