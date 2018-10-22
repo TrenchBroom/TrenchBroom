@@ -47,7 +47,7 @@ namespace StringUtils {
         std::streamsize m_oldPrecision;
         std::ios::fmtflags m_oldFlags;
     public:
-        PushPrecision(std::ostream& str, const std::streamsize precision = 20):
+        PushPrecision(std::ostream& str, const std::streamsize precision = 9):
         m_str(str),
         m_oldPrecision(m_str.precision()),
         m_oldFlags(str.flags()){
