@@ -589,12 +589,8 @@ namespace vm {
                 0.0,        0.0,        0.0,        0.0,        0.0,        0.0,        vec2In.x(), vec2In.y(), vec2In.z()
         };
 
-        // can find X using X=Ainv*B
-
-        const auto Ainv = invert(A);
-        assert(std::get<0>(Ainv));
-        const vec<T,9> X = std::get<1>(Ainv) * B;
-
+        const auto [success, X] = lupSolve(A, B);
+        assert(success);
         const auto Btest = A * X;
 
         const mat<T,4,4> xformWithoutTranslation {
