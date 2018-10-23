@@ -1128,6 +1128,11 @@ namespace TrenchBroom {
                         referenceVerts[0].first, referenceVerts[1].first, referenceVerts[2].first,
                         referenceVerts[0].second, referenceVerts[1].second, referenceVerts[2].second);
 
+                    if (!(M == M)) {
+                        std::cout << "    contains nan\n";
+                        return;
+                    }
+
                     const auto S = std::shared_ptr<TexCoordSystemSnapshot>(leftFace->takeTexCoordSystemSnapshot());
 
                     rightFace->restoreTexCoordSystemSnapshot(S.get());
