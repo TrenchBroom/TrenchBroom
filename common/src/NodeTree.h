@@ -123,6 +123,13 @@ public:
     virtual const Box& bounds() const = 0;
 
     /**
+     * Returns the height of this tree.
+     *
+     * @return the height of this tree
+     */
+    virtual size_t height() const = 0;
+
+    /**
      * Finds every data item in this tree whose bounding box intersects with the given ray and retuns a list of those items.
      *
      * @param ray the ray to test
