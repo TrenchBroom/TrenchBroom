@@ -58,7 +58,7 @@ namespace TrenchBroom {
         }
         
         wxString ViewShortcut::doGetJsonString() const {
-            return shortcut().asJsonString();
+            return defaultShortcut().asJsonString();
         }
 
         const Preference<KeyboardShortcut>& ViewShortcut::doGetPreference() const {
@@ -70,7 +70,12 @@ namespace TrenchBroom {
             PreferenceManager& prefs = PreferenceManager::instance();
             return prefs.get(m_preference);
         }
-        
+
+        const KeyboardShortcut& ViewShortcut::doGetDefaultShortcut() const {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            return prefs.getDefault(m_preference);
+        }
+
         void ViewShortcut::doUpdateShortcut(const KeyboardShortcut& shortcut) {
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.set(m_preference, shortcut);

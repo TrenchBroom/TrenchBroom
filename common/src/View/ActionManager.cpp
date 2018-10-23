@@ -94,7 +94,7 @@ namespace TrenchBroom {
 
         void printActionPreference(StringStream& str, const Preference<KeyboardShortcut>& pref);
         void printActionPreference(StringStream& str, const Preference<KeyboardShortcut>& pref) {
-            str << "actions[\"" << pref.path().asString() << "\"] = " << pref.value().asJsonString() << ";" << std::endl;
+            str << "actions[\"" << pref.path().asString() << "\"] = " << pref.defaultValue().asJsonString() << ";" << std::endl;
         }
         
         void ActionManager::getActionJSTable(StringStream& str) {
