@@ -29,13 +29,14 @@ namespace TrenchBroom {
     namespace View {
         class Action {
         public:
-            typedef std::vector<Action> List;
+            using List = std::vector<Action>;
         private:
             int m_id;
             String m_name;
             bool m_modifiable;
         public:
             Action(); // default constructor required to initialize arrays of Action instances
+            explicit Action(const String& name);
             Action(int id, const String& name, bool modifiable);
             
             int id() const;

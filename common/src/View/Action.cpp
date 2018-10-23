@@ -30,7 +30,12 @@ namespace TrenchBroom {
         m_id(wxID_NONE),
         m_name(""),
         m_modifiable(false) {}
-        
+
+        Action::Action(const String& name) :
+        m_id(wxID_NONE),
+        m_name(name),
+        m_modifiable(false) {}
+
         Action::Action(const int id, const String& name, const bool modifiable) :
         m_id(id),
         m_name(name),

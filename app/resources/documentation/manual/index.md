@@ -212,6 +212,12 @@ Finally, you can move the camera to a particular position. To do this, choose #m
 
 Navigating the 2D viewports is naturally a lot simpler than navigating the 3D viewport. You can pan the viewport by holding and dragging either the middle or the right mouse button, and you can use the scroll wheel to adjust the zoom. Note that if you have set your viewport layout to show more than one 2D viewport, then the 2D viewportss are linked. Specifically, the zoom factor is linked so that you always have a consistent zoom level across all 2D viewports, and the viewports are panned simultaneously along the same axes. This means that if you pan the XY viewport along the X axis, the XZ viewport gets panned along the X axis, too, so that you don't have to pan both viewports manually. Also note that zooming always keeps the coordinates under the mouse pointer invariant, that is, you can focus on a particular object or area by hovering the mouse over it and zooming in or out.
 
+## FOV and Zoom
+
+For the 3D view, the camera FOV (field of vision) can be adjusted in the view preferences by dragging the slider. This is a permanent setting.
+
+To temporarily adjust the camera's zoom, hold #key(306) and scroll the mouse wheel. To reset the zoom factor, hit #action(Controls/Map view/Reset camera zoom).
+
 # Selection {#selection}
 
 There are two different kinds of things that can be selected in TrenchBroom: objects and brush faces. Most of the time, you will select objects such as entities and brushes. Selecting individual brush faces is only useful for changing their attributes, e.g. the textures. You can only select objects or brush faces, but not both at the same time. However, a selection of brushes (and nothing else) is treated as if all of their brush faces were selected individually.

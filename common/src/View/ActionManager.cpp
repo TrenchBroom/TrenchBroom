@@ -460,6 +460,10 @@ namespace TrenchBroom {
             createViewShortcut(KeyboardShortcut(WXK_SPACE), ActionContext_Any,
                                Action(View::CommandIds::Actions::CycleMapViews, "Cycle map view", true));
 
+            createViewShortcut(KeyboardShortcut(WXK_ESCAPE, WXK_SHIFT), ActionContext_Any,
+                               Action("No effect"),
+                               Action(View::CommandIds::Actions::ResetZoom, "Reset camera zoom", true));
+
             createViewShortcut(KeyboardShortcut(WXK_ESCAPE), ActionContext_Any,
                                Action(View::CommandIds::Actions::Cancel, "Cancel", true));
             createViewShortcut(KeyboardShortcut(WXK_ESCAPE, WXK_CONTROL), ActionContext_Any,
