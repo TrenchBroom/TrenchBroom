@@ -238,15 +238,16 @@ void Polyhedron<T,FP,VP>::removeVertex(Vertex* vertex, Callback& callback) {
     
     callback.vertexWillBeRemoved(vertex);
     
-    if (point())
+    if (point()) {
         removeSingleVertex(vertex, callback);
-    else if (edge())
+    } else if (edge()) {
         removeVertexFromEdge(vertex, callback);
-    else if (polygon())
+    } else if (polygon()) {
         removeVertexFromPolygon(vertex, callback);
-    else
+    } else {
         removeVertexFromPolyhedron(vertex, callback);
-    
+    }
+
     assert(checkInvariant());
 }
 
@@ -617,10 +618,11 @@ template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::removeVertexFromPolygon(Vertex* vertex, Callback& callback) {
     assert(polygon());
     
-    if (vertexCount() == 3)
+    if (vertexCount() == 3) {
         removeThirdVertexFromPolygon(vertex, callback);
-    else
+    } else {
         removeFurtherVertexFromPolygon(vertex, callback);
+    }
 }
 
 template <typename T, typename FP, typename VP>
@@ -763,8 +765,9 @@ void Polyhedron<T,FP,VP>::deleteFaces(HalfEdge* first, FaceSet& visitedFaces, Ve
     Face* face = first->face();
     
     // Have we already visited this face?
-    if (!visitedFaces.insert(face).second)
+    if (!visitedFaces.insert(face).second) {
         return;
+    }
 
     // Callback must be called now when the face is still fully intact.
     callback.faceWillBeDeleted(face);
@@ -816,60 +819,6 @@ void Polyhedron<T,FP,VP>::deleteFaces(HalfEdge* first, FaceSet& visitedFaces, Ve
 }
 
 /**
- * Shifts a seam so that the last point and the first two points do not lie on the same plane.
- */
-template <typename T, typename FP, typename VP>
-class Polyhedron<T,FP,VP>::ShiftSeamForSealing {
-public:
-    bool operator()(const Seam& seam) const {
-        const auto* first = seam.first();
-        const auto* second = seam.second();
-
-        if (first->firstFace() == second->firstFace()) {
-            return false;
-        }
-
-        const auto* v1 = first->firstVertex();
-        const auto* v2 = first->secondVertex();
-        const auto* v3 = second->firstVertex();
-
-        const auto [valid, plane] = fromPoints(v1->position(), v2->position(), v3->position());
-        if (!valid) {
-            return false;
-        }
-
-        const auto* last = seam.last();
-        const auto* v4 = last->secondVertex();
-        if (plane.pointStatus(v4->position()) != vm::point_status::below) {
-            return false;
-        }
-
-        return checkRemainingPoints(plane, seam);
-    }
-private:
-    bool checkRemainingPoints(const vm::plane<T,3>& plane, const Seam& seam) const {
-        if (seam.size() < 5)
-            return true;
-        
-        auto it = std::begin(seam);
-        auto end = std::end(seam);
-        
-        std::advance(it, 2);
-        std::advance(end, -1);
-        
-        while (it != end) {
-            const auto* edge = *it;
-            const auto* vertex = edge->firstVertex();
-            if (plane.pointStatus(vertex->position()) == vm::point_status::above) {
-                return false;
-            }
-            ++it;
-        }
-        return true;
-    }
-};
-
-/**
  Weaves a new cap onto the given seam edges. The new cap will be a single polygon, so we assume that all seam vertices lie
  on a plane.
  */
@@ -894,6 +843,50 @@ void Polyhedron<T,FP,VP>::sealWithSinglePolygon(const Seam& seam, Callback& call
 }
 
 template <typename T, typename FP, typename VP>
+class Polyhedron<T,FP,VP>::ShiftSeamForSealing {
+public:
+    bool operator()(const Seam& seam) const {
+        assert(seam.size() >= 3);
+
+        const auto* first = seam.first();
+        const auto* second = seam.second();
+
+        // ensure that the first two edges enclose a convex vertex
+        if (first->firstFace() == second->firstFace()) {
+            return false;
+        }
+
+        const auto* v1 = first->firstVertex();
+        const auto* v2 = first->secondVertex();
+        const auto* v3 = second->firstVertex();
+
+        // ensure that the first three vertices are not colinear
+        const auto [valid, plane] = vm::fromPoints(v1->position(), v2->position(), v3->position());
+        if (!valid) {
+            return false;
+        }
+
+        // ensure that the previous vertex is not on the same plane
+        const auto* last = seam.last();
+        const auto* v4 = last->secondVertex();
+        if (plane.pointStatus(v4->position()) == vm::point_status::inside) {
+            return false;
+        }
+
+        // check that all remaining vertices are inside or below the plane
+        for (auto it = std::next(std::begin(seam), 2), end = std::prev(std::end(seam)); it != end; ++it) {
+            const auto* edge = *it;
+            const auto* vertex = edge->firstVertex();
+            if (plane.pointStatus(vertex->position()) == vm::point_status::above) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+};
+
+template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::sealWithMultiplePolygons(Seam seam, Callback& callback) {
     assert(seam.size() >= 3);
     assert(!seam.hasMultipleLoops());
@@ -908,7 +901,10 @@ void Polyhedron<T,FP,VP>::sealWithMultiplePolygons(Seam seam, Callback& callback
     while (!seam.empty()) {
         assert(seam.size() >= 3);
 
-        // ensure that the last and the first two points are not on the same plane
+        if (index == 4) {
+            bool b = true;
+        }
+
         if (seam.size() > 3) {
             seam.shift(ShiftSeamForSealing());
         }
@@ -923,9 +919,6 @@ void Polyhedron<T,FP,VP>::sealWithMultiplePolygons(Seam seam, Callback& callback
         auto* secondEdge = *endIt;
         ++endIt;
 
-        if (index == 6) {
-            bool b = true;
-        }
         assert(firstEdge->firstEdge()->face() != secondEdge->firstEdge()->face());
 
         auto* firstBoundaryEdge = new HalfEdge(firstEdge->secondVertex());
