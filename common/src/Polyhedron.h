@@ -433,9 +433,6 @@ private:
 public:
     Vertex* addPoint(const V& position);
     Vertex* addPoint(const V& position, Callback& callback);
-    void removeVertex(Vertex* vertex);
-    void removeVertex(Vertex* vertex, Callback& callback);
-    void removeVertexByPosition(const V& position);
     void merge(const Polyhedron& other);
     void merge(const Polyhedron& other, Callback& callback);
 private:
@@ -455,13 +452,6 @@ private:
     Vertex* addFurtherPointToPolyhedron(const V& position, Callback& callback);
     Vertex* addPointToPolyhedron(const V& position, const Seam& seam, Callback& callback);
 
-    void removeSingleVertex(Vertex* vertex, Callback& callback);
-    void removeVertexFromEdge(Vertex* vertex, Callback& callback);
-    void removeVertexFromPolygon(Vertex* vertex, Callback& callback);
-    void removeThirdVertexFromPolygon(Vertex* vertex, Callback& callback);
-    void removeFurtherVertexFromPolygon(Vertex* vertex, Callback& callback);
-    void removeVertexFromPolyhedron(Vertex* vertex, Callback& callback);
-
     class SplittingCriterion;
     class SplitByVisibilityCriterion;
     class SplitByConnectivityCriterion;
@@ -473,9 +463,6 @@ private:
     void deleteFaces(HalfEdge* current, FaceSet& visitedFaces, VertexList& verticesToDelete, Callback& callback);
 
     void sealWithSinglePolygon(const Seam& seam, Callback& callback);
-
-    class ShiftSeamForSealing;
-    void sealWithMultiplePolygons(Seam seam, Callback& callback);
 
     class ShiftSeamForWeaving;
     Vertex* weave(Seam seam, const V& position, Callback& callback);

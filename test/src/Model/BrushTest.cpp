@@ -3521,7 +3521,6 @@ namespace TrenchBroom {
 
         TEST(BrushTest, moveVerticesFail_2158) {
             // see https://github.com/kduske/TrenchBroom/issues/2158
-
             const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
@@ -3679,7 +3678,6 @@ namespace TrenchBroom {
             const auto vertex2 = brush->findClosestVertexPosition(vm::vec3(-5730.730280440197,  486.0, 1108.0));
             const auto segment = vm::segment3(vertex1, vertex2);
 
-            const StringUtils::PushPrecision prec(std::cout);
             ASSERT_TRUE(brush->canMoveEdges(worldBounds, std::vector<vm::segment3>{ segment }, vm::vec3(0.0, -4.0, 0.0)));
             ASSERT_NO_THROW(brush->moveEdges(worldBounds, std::vector<vm::segment3>{ segment }, vm::vec3(0.0, -4.0, 0.0)));
         }
