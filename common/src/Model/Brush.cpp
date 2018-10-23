@@ -1133,10 +1133,14 @@ namespace TrenchBroom {
                         return;
                     }
 
-                    const auto S = std::shared_ptr<TexCoordSystemSnapshot>(leftFace->takeTexCoordSystemSnapshot());
-
-                    rightFace->restoreTexCoordSystemSnapshot(S.get());
-                    rightFace->transformTexture(leftFace->boundary(), M, true);
+                    auto leftClone = std::shared_ptr<BrushFace>(leftFace->clone());
+                    leftClone->transform(M, true);
+                    auto S = std::shared_ptr<TexCoordSystemSnapshot>(leftClone->takeTexCoordSystemSnapshot());
+                    
+                    rightFace->setAttribs(leftClone->attribs());
+                    if (S) {
+                        rightFace->copyTexCoordSystemFromFace(S.get(), leftClone->attribs().takeSnapshot(), leftClone->boundary(), WrapStyle::Rotation);
+                    }
                     rightFace->resetTexCoordSystemCache();
                 });
             }
