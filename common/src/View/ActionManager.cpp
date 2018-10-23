@@ -238,6 +238,7 @@ namespace TrenchBroom {
             editMenu->addModifiableActionItem(CommandIds::Menu::EditSnapVerticesToGrid, "Snap Vertices to Grid", KeyboardShortcut('V', WXK_SHIFT, WXK_CONTROL, WXK_ALT));
             editMenu->addSeparator();
             editMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleTextureLock, "Texture Lock");
+            editMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleUVLock, "UV Lock");
             editMenu->addModifiableActionItem(CommandIds::Menu::EditReplaceTexture, "Replace Texture...");
             
             Menu* viewMenu = m_menuBar->addMenu("View");

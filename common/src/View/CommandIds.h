@@ -33,7 +33,8 @@ namespace TrenchBroom {
                 const int EditSelectNone                     = Lowest +   5;
                 const int EditSnapVerticesToInteger          = Lowest +  12;
                 const int EditSnapVerticesToGrid             = Lowest +  13;
-                const int EditToggleTextureLock              = Lowest +  39;
+                const int EditToggleTextureLock              = Lowest +  38;
+                const int EditToggleUVLock                   = Lowest +  39;
                 const int ViewToggleShowGrid                 = Lowest +  40;
                 const int ViewToggleSnapToGrid               = Lowest +  41;
                 const int ViewSetGridSize0Point125           = Lowest +  42;
