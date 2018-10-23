@@ -1109,6 +1109,11 @@ namespace TrenchBroom {
                         std::cout << "        " << moved.first << " -> " << moved.second << "\n";
                     }
 
+                    if (movedVerts.size() == 1 && unmovedVerts.size() > 2) {
+                        std::cout << "four or more verts, but only one is moving. giving up\n";
+                        return;
+                    }
+
                     std::vector<std::pair<vm::vec3, vm::vec3>> referenceVerts = movedVerts;
                     for (const auto& unmovedVert : unmovedVerts) {
                         referenceVerts.emplace_back(unmovedVert, unmovedVert);
@@ -1126,7 +1131,7 @@ namespace TrenchBroom {
                     const auto S = std::shared_ptr<TexCoordSystemSnapshot>(leftFace->takeTexCoordSystemSnapshot());
 
                     rightFace->restoreTexCoordSystemSnapshot(S.get());
-                    rightFace->transformTexture(leftFace->boundary(), rightFace->boundary(), M, true);
+                    rightFace->transformTexture(leftFace->boundary(), M, true);
                     rightFace->resetTexCoordSystemCache();
                 });
             }
