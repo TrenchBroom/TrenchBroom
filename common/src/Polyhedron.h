@@ -38,6 +38,7 @@ public:
     using V = vm::vec<T,3>;
 private:
     using PosList = std::vector<V>;
+    static constexpr const auto MinEdgeLength = T(0.01);
 public:
     using List = std::list<Polyhedron>;
 
@@ -252,7 +253,7 @@ public:
                 currentEdge = currentEdge->next();
             } while (currentEdge != firstEdge);
             return stream;
-        }    private:
+        }
     private:
         // Template methods must remain private!
         template <typename O>
@@ -412,14 +413,14 @@ private:
     bool checkNoDegenerateFaces() const;
     bool checkVertexLeavingEdges() const;
     bool checkEdges() const;
-    bool checkEdgeLengths(const T minLength = vm::constants<T>::pointStatusEpsilon()) const;
+    bool checkEdgeLengths(const T minLength = MinEdgeLength) const;
     bool checkLeavingEdges(const Vertex* v) const;
 
     void updateBounds();
 public: // Vertex correction and edge healing
     void correctVertexPositions(const size_t decimals = 0, const T epsilon = vm::constants<T>::correctEpsilon());
-    bool healEdges(const T minLength = T(0.01));
-    bool healEdges(Callback& callback, const T minLength = T(0.01));
+    bool healEdges(const T minLength = MinEdgeLength);
+    bool healEdges(Callback& callback, const T minLength = MinEdgeLength);
 private:
     Edge* removeEdge(Edge* edge, Callback& callback);
     void removeDegenerateFace(Face* face, Callback& callback);
