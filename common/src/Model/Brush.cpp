@@ -1037,20 +1037,17 @@ namespace TrenchBroom {
             ensure(!vertexPositions.empty(), "no vertex positions");
             assert(canMoveVertices(worldBounds, vertexPositions, delta));
 
+            BrushGeometry newGeometry;
             const auto vertexSet = Brush::createVertexSet(vertexPositions);
-            const auto newGeometry = [&](){
-                BrushGeometry geometry;
-                for (auto* vertex : m_geometry->vertices()) {
-                    const auto& position = vertex->position();
-                    if (vertexSet.count(position)) {
-                        geometry.addPoint(position + delta);
-                    }
-                    else {
-                        geometry.addPoint(position);
-                    }
+
+            for (auto* vertex : m_geometry->vertices()) {
+                const auto& position = vertex->position();
+                if (vertexSet.count(position)) {
+                    newGeometry.addPoint(position + delta);
+                } else {
+                    newGeometry.addPoint(position);
                 }
-                return geometry;
-            }();
+            }
 
             using VecMap = std::map<vm::vec3, vm::vec3>;
             VecMap vertexMapping;
