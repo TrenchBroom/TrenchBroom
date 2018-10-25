@@ -740,7 +740,7 @@ namespace TrenchBroom {
             newGeometry.addPoint(position);
 
             const PolyhedronMatcher<BrushGeometry> matcher(*m_geometry, newGeometry);
-            doSetNewGeometry(worldBounds, matcher, newGeometry);
+            doSetNewGeometry(worldBounds, matcher, newGeometry, false);
 
             auto* newVertex = m_geometry->findClosestVertex(position, vm::C::almostZero());
             ensure(newVertex != nullptr, "vertex could not be added");
@@ -782,7 +782,7 @@ namespace TrenchBroom {
             }
 
             const PolyhedronMatcher<BrushGeometry> matcher(*m_geometry, newGeometry);
-            doSetNewGeometry(worldBounds, matcher, newGeometry);
+            doSetNewGeometry(worldBounds, matcher, newGeometry, false);
         }
 
         bool Brush::canSnapVertices(const vm::bbox3& worldBounds, const FloatType snapToF) {
@@ -819,7 +819,7 @@ namespace TrenchBroom {
             }
 
             const PolyhedronMatcher<BrushGeometry> matcher(*m_geometry, newGeometry, vertexMapping);
-            doSetNewGeometry(worldBounds, matcher, newGeometry);
+            doSetNewGeometry(worldBounds, matcher, newGeometry, false);
         }
 
         bool Brush::canMoveEdges(const vm::bbox3& worldBounds, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta) const {
@@ -1031,8 +1031,6 @@ namespace TrenchBroom {
         }
 
         void Brush::doMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta, bool lockTexture) {
-            const NotifyNodeChange nodeChange(this);
-            
             ensure(m_geometry != nullptr, "geometry is null");
             ensure(!vertexPositions.empty(), "no vertex positions");
             assert(canMoveVertices(worldBounds, vertexPositions, delta));
@@ -1061,41 +1059,34 @@ namespace TrenchBroom {
                 }
             }
 
-            auto backup = std::shared_ptr<Brush>(this->clone(worldBounds));
+            const PolyhedronMatcher<BrushGeometry> matcher(*m_geometry, newGeometry, vertexMapping);
+            doSetNewGeometry(worldBounds, matcher, newGeometry, lockTexture);
+        }
 
-            const PolyhedronMatcher<BrushGeometry> matcher(*backup->m_geometry, newGeometry, vertexMapping);
-            doSetNewGeometry(worldBounds, matcher, newGeometry);
+        void Brush::doSetNewGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, const BrushGeometry& newGeometry, const bool uvLock) {
+            matcher.processRightFaces([&](BrushFaceGeometry* left, BrushFaceGeometry* right){
+                auto* leftFace = left->payload();
+                auto* rightFace = leftFace->clone();
 
-            // with everything else done, apply texture lock
-            if (lockTexture) {
-                const PolyhedronMatcher<BrushGeometry> matcher2(*backup->m_geometry, *m_geometry, vertexMapping);
-                std::cout << "vertex lock:\n";
+                rightFace->setGeometry(right);
+                rightFace->updatePointsFromVertices();
 
-                matcher2.processRightFaces([&](BrushFaceGeometry* left, BrushFaceGeometry* right) {
-                    
-                    // leftFace is a face of `backup`
-                    auto* leftFace = left->payload();
-                    // rightFace is a face of `this`
-                    auto* rightFace = right->payload();
-                    
-                    assert(leftFace != nullptr);
-                    assert(leftFace->brush() == backup.get());
-                    assert(rightFace != nullptr);
-                    assert(rightFace->brush() == this);
-
-
+                if (uvLock) {
                     std::cout << "    processing face: " << rightFace->boundary().normal << "\n";
 
                     std::vector<vm::vec3> unmovedVerts;
                     std::vector<std::pair<vm::vec3, vm::vec3>> movedVerts;
 
-                    for (auto leftVert : leftFace->vertexPositions()) {
-                        if (right->hasVertexPosition(leftVert)) {
-                            unmovedVerts.push_back(leftVert);
-                        } else if (auto movedVertIt = vertexMapping.find(leftVert); movedVertIt != vertexMapping.end()) {
-                            movedVerts.push_back(*movedVertIt);
+                    matcher.visitMatchingVertexPairs(left, right, [&](BrushVertex* leftVertex, BrushVertex* rightVertex){
+                        const auto leftPosition = leftVertex->position();
+                        const auto rightPosition = rightVertex->position();
+
+                        if (isEqual(leftPosition, rightPosition, vm::constants<FloatType>::almostZero())) {
+                            unmovedVerts.push_back(leftPosition);
+                        } else {
+                            movedVerts.emplace_back(leftPosition, rightPosition);
                         }
-                    }
+                    });
 
                     std::cout << "    found " << unmovedVerts.size() << " unmoved:\n";
                     for (const auto& unmoved : unmovedVerts) {
@@ -1122,8 +1113,8 @@ namespace TrenchBroom {
                     }
 
                     const auto M = pointsTransformationMatrix(
-                        referenceVerts[0].first, referenceVerts[1].first, referenceVerts[2].first,
-                        referenceVerts[0].second, referenceVerts[1].second, referenceVerts[2].second);
+                            referenceVerts[0].first, referenceVerts[1].first, referenceVerts[2].first,
+                            referenceVerts[0].second, referenceVerts[1].second, referenceVerts[2].second);
 
                     if (!(M == M)) {
                         std::cout << "    contains nan\n";
@@ -1133,23 +1124,13 @@ namespace TrenchBroom {
                     auto leftClone = std::shared_ptr<BrushFace>(leftFace->clone());
                     leftClone->transform(M, true);
                     auto S = std::shared_ptr<TexCoordSystemSnapshot>(leftClone->takeTexCoordSystemSnapshot());
-                    
+
                     rightFace->setAttribs(leftClone->attribs());
                     if (S) {
                         rightFace->copyTexCoordSystemFromFace(S.get(), leftClone->attribs().takeSnapshot(), leftClone->boundary(), WrapStyle::Rotation);
                     }
                     rightFace->resetTexCoordSystemCache();
-                });
-            }
-        }
-
-        void Brush::doSetNewGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, const BrushGeometry& newGeometry) {
-            matcher.processRightFaces([](BrushFaceGeometry* left, BrushFaceGeometry* right){
-                auto* leftFace = left->payload();
-                auto* rightFace = leftFace->clone();
-
-                rightFace->setGeometry(right);
-                rightFace->updatePointsFromVertices();
+                }
             });
 
             const NotifyNodeChange nodeChange(this);
