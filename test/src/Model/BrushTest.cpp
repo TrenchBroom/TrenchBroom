@@ -1000,9 +1000,12 @@ namespace TrenchBroom {
             delete brush;
         }
 
-        TEST(BrushTest, moveFaceWithUVLock) {
+        class UVLockTest : public ::testing::TestWithParam<MapFormat::Type> {
+        };
+
+        TEST_P(UVLockTest, moveFaceWithUVLock) {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Valve, nullptr, worldBounds);
+            World world(GetParam(), nullptr, worldBounds);
 
             Assets::Texture testTexture("testTexture", 64, 64);
 
@@ -1031,13 +1034,14 @@ namespace TrenchBroom {
                 const auto shearedVertexPositions = VectorUtils::map(oldFace->vertexPositions(), [&](auto x){ return M * x; });
                 const auto shearedPolygon = vm::polygon3(shearedVertexPositions);
 
+                const auto normal = oldFace->boundary().normal;
+
                 // The brush modified without texture lock is expected to have changed UV's on some faces, but not on others
                 {
                     const BrushFace *newFace = changed->findFace(shearedPolygon);
                     ASSERT_NE(nullptr, newFace);
                     const auto newTexCoords = VectorUtils::map(shearedVertexPositions,
                                                                [&](auto x) { return newFace->textureCoords(x); });
-                    const auto normal = oldFace->boundary().normal;
                     if (normal == vm::vec3::pos_z
                         || normal == vm::vec3::pos_y
                         || normal == vm::vec3::neg_y) {
@@ -1048,17 +1052,24 @@ namespace TrenchBroom {
                     }
                 }
 
-                // UV's should all be the same when using texture lock
+                // UV's should all be the same when using texture lock (with Valve format).
+                // Standard format can only do UV lock on the top face, which is not sheared.
                 {
                     const BrushFace *newFaceWithUVLock = changedWithUVLock->findFace(shearedPolygon);
                     ASSERT_NE(nullptr, newFaceWithUVLock);
                     const auto newTexCoordsWithUVLock = VectorUtils::map(shearedVertexPositions, [&](auto x) {
                         return newFaceWithUVLock->textureCoords(x);
                     });
-                    EXPECT_TRUE(UVListsEqual(oldTexCoords, newTexCoordsWithUVLock));
+                    if (normal == vm::vec3d::pos_z || (GetParam() == MapFormat::Valve)) {
+                        EXPECT_TRUE(UVListsEqual(oldTexCoords, newTexCoordsWithUVLock));
+                    }
                 }
             }
         }
+
+        INSTANTIATE_TEST_CASE_P(MapFormatInstantiations,
+                                UVLockTest,
+                                ::testing::Values(MapFormat::Valve, MapFormat::Standard));
 
         TEST(BrushTest, moveFaceDownFailure) {
             const vm::bbox3 worldBounds(4096.0);
