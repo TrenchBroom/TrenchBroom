@@ -1063,6 +1063,59 @@ namespace TrenchBroom {
             doSetNewGeometry(worldBounds, matcher, newGeometry, lockTexture);
         }
 
+        std::tuple<bool, vm::mat4x4> Brush::findTransformForUVLock(const PolyhedronMatcher<BrushGeometry>& matcher, BrushFaceGeometry* left, BrushFaceGeometry* right) {
+            std::cout << "    processing face: " << right->normal() << "\n";
+
+            std::vector<vm::vec3> unmovedVerts;
+            std::vector<std::pair<vm::vec3, vm::vec3>> movedVerts;
+
+            matcher.visitMatchingVertexPairs(left, right, [&](BrushVertex* leftVertex, BrushVertex* rightVertex){
+                const auto leftPosition = leftVertex->position();
+                const auto rightPosition = rightVertex->position();
+
+                if (isEqual(leftPosition, rightPosition, vm::constants<FloatType>::almostZero())) {
+                    unmovedVerts.push_back(leftPosition);
+                } else {
+                    movedVerts.emplace_back(leftPosition, rightPosition);
+                }
+            });
+
+            std::cout << "    found " << unmovedVerts.size() << " unmoved:\n";
+            for (const auto& unmoved : unmovedVerts) {
+                std::cout << "        " << unmoved << "\n";
+            }
+            std::cout << "    found " << movedVerts.size() << " moved:\n";
+            for (const auto& moved : movedVerts) {
+                std::cout << "        " << moved.first << " -> " << moved.second << "\n";
+            }
+
+            if (movedVerts.size() == 1 && unmovedVerts.size() > 2) {
+                std::cout << "four or more verts, but only one is moving. giving up\n";
+                return {false, {}};
+            }
+
+            std::vector<std::pair<vm::vec3, vm::vec3>> referenceVerts = movedVerts;
+            for (const auto& unmovedVert : unmovedVerts) {
+                referenceVerts.emplace_back(unmovedVert, unmovedVert);
+            }
+
+            if (referenceVerts.size() < 3) {
+                std::cout << "    can't create a transform as there are not enough verts\n";
+                return {false, {}};
+            }
+
+            const auto M = pointsTransformationMatrix(
+                    referenceVerts[0].first, referenceVerts[1].first, referenceVerts[2].first,
+                    referenceVerts[0].second, referenceVerts[1].second, referenceVerts[2].second);
+
+            if (!(M == M)) {
+                std::cout << "    contains nan\n";
+                return {false, {}};
+            }
+
+            return {true, M};
+        }
+
         void Brush::doSetNewGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, const BrushGeometry& newGeometry, const bool uvLock) {
             matcher.processRightFaces([&](BrushFaceGeometry* left, BrushFaceGeometry* right){
                 auto* leftFace = left->payload();
@@ -1072,64 +1125,24 @@ namespace TrenchBroom {
                 rightFace->updatePointsFromVertices();
 
                 if (uvLock) {
-                    std::cout << "    processing face: " << rightFace->boundary().normal << "\n";
+                    const auto [success, M] = findTransformForUVLock(matcher, left, right);
+                    if (success) {
+                        // We want to re-set the texturing of `rightFace` using the texturing from M * leftFace.
+                        // We don't want to disturb the actual geometry of `rightFace` which is already finalized.
+                        // So the idea is, clone `leftFace`, transform it by M using texture lock, then copy the texture
+                        // settings from the transformed clone (which should have an identical plane to `rightFace` within
+                        // FP error) to `rightFace`.
+                        auto leftClone = std::shared_ptr<BrushFace>(leftFace->clone());
+                        leftClone->transform(M, true);
+                        auto S = std::shared_ptr<TexCoordSystemSnapshot>(leftClone->takeTexCoordSystemSnapshot());
 
-                    std::vector<vm::vec3> unmovedVerts;
-                    std::vector<std::pair<vm::vec3, vm::vec3>> movedVerts;
-
-                    matcher.visitMatchingVertexPairs(left, right, [&](BrushVertex* leftVertex, BrushVertex* rightVertex){
-                        const auto leftPosition = leftVertex->position();
-                        const auto rightPosition = rightVertex->position();
-
-                        if (isEqual(leftPosition, rightPosition, vm::constants<FloatType>::almostZero())) {
-                            unmovedVerts.push_back(leftPosition);
-                        } else {
-                            movedVerts.emplace_back(leftPosition, rightPosition);
+                        rightFace->setAttribs(leftClone->attribs());
+                        if (S) {
+                            rightFace->copyTexCoordSystemFromFace(S.get(), leftClone->attribs().takeSnapshot(),
+                                                                  leftClone->boundary(), WrapStyle::Rotation);
                         }
-                    });
-
-                    std::cout << "    found " << unmovedVerts.size() << " unmoved:\n";
-                    for (const auto& unmoved : unmovedVerts) {
-                        std::cout << "        " << unmoved << "\n";
+                        rightFace->resetTexCoordSystemCache();
                     }
-                    std::cout << "    found " << movedVerts.size() << " moved:\n";
-                    for (const auto& moved : movedVerts) {
-                        std::cout << "        " << moved.first << " -> " << moved.second << "\n";
-                    }
-
-                    if (movedVerts.size() == 1 && unmovedVerts.size() > 2) {
-                        std::cout << "four or more verts, but only one is moving. giving up\n";
-                        return;
-                    }
-
-                    std::vector<std::pair<vm::vec3, vm::vec3>> referenceVerts = movedVerts;
-                    for (const auto& unmovedVert : unmovedVerts) {
-                        referenceVerts.emplace_back(unmovedVert, unmovedVert);
-                    }
-
-                    if (referenceVerts.size() < 3) {
-                        std::cout << "    can't create a transform as there are not enough verts\n";
-                        return;
-                    }
-
-                    const auto M = pointsTransformationMatrix(
-                            referenceVerts[0].first, referenceVerts[1].first, referenceVerts[2].first,
-                            referenceVerts[0].second, referenceVerts[1].second, referenceVerts[2].second);
-
-                    if (!(M == M)) {
-                        std::cout << "    contains nan\n";
-                        return;
-                    }
-
-                    auto leftClone = std::shared_ptr<BrushFace>(leftFace->clone());
-                    leftClone->transform(M, true);
-                    auto S = std::shared_ptr<TexCoordSystemSnapshot>(leftClone->takeTexCoordSystemSnapshot());
-
-                    rightFace->setAttribs(leftClone->attribs());
-                    if (S) {
-                        rightFace->copyTexCoordSystemFromFace(S.get(), leftClone->attribs().takeSnapshot(), leftClone->boundary(), WrapStyle::Rotation);
-                    }
-                    rightFace->resetTexCoordSystemCache();
                 }
             });
 

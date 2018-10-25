@@ -214,6 +214,16 @@ namespace TrenchBroom {
 
             CanMoveVerticesResult doCanMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, vm::vec3 delta, bool allowVertexRemoval) const;
             void doMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta, bool lockTexture);
+            /**
+             * Tries to find 3 vertices in left and right that are related according to the PolyhedronMatcher, and
+             * generates an affine transform for them which can then be used to implement UV lock.
+             *
+             * @param matcher a polyhedron matcher which is used to identify related vertices
+             * @param left the face of the left polyhedron
+             * @param right the face of the right polyhedron
+             * @return {true, transform} if a transform could be found, otherwise {false, unspecified}
+             */
+            static std::tuple<bool, vm::mat4x4> findTransformForUVLock(const PolyhedronMatcher<BrushGeometry>& matcher, BrushFaceGeometry* left, BrushFaceGeometry* right);
             void doSetNewGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, const BrushGeometry& newGeometry, bool uvLock);
 
             static VertexSet createVertexSet(const std::vector<vm::vec3>& vertices = std::vector<vm::vec3>(0));
