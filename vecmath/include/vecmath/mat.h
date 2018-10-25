@@ -795,6 +795,24 @@ namespace vm {
         return result;
     }
 
+    /**
+     * Finds an LUP decomposition of matrix a.
+     *
+     * Give A, finds P,L,U satisfying PA=LU where P is a permutation matrix,
+     * where L is lower-triangular with the diagonal elements set to 1,
+     * U is upper-triangular.
+     *
+     * The permutation matrix is returned in a compressed form where each element of the vector represents a row of
+     * the permutation matrix, and a value of `i` means the `i`th column of that row is set to 1.
+     *
+     * From "LUP-Decomposition", Introduction to Algorithms by Cormen et. al., 2nd. ed. p752.
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param a the matrix to decompose
+     * @return {true, L and U packed into a single matrix, compressed permutation matrix}
+     *         or {false, unspecified, unspecified} if a decomposition doesn't exist.
+     */
     template <typename T, size_t S>
     std::tuple<bool, mat<T,S,S>, vec<size_t,S>> lupDecomposition(mat<T,S,S> a) {
         using std::swap;
@@ -829,6 +847,18 @@ namespace vm {
         return {true, a, pi};
     }
 
+    /**
+     * Solves a system of equations given an LUP factorization.
+     *
+     * From "LUP-Solve", Introduction to Algorithms by Cormen et. al., 2nd. ed. p745.
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param lu the LU factorization packed into a single matrix; see lupDecomposition()
+     * @param pi the permutation matrix packed into a vector; see lupDecomposition()
+     * @param b the target value in the system of equations a*x=b
+     * @return the solution value x in the system of equations a*x=b
+     */
     template <typename T, size_t S>
     vec<T,S> lupSolveInternal(const mat<T,S,S>& lu, const vec<size_t,S>& pi, const vec<T,S>& b) {
         vec<T,S> x;
@@ -850,6 +880,15 @@ namespace vm {
         return x;
     }
 
+    /**
+     * Solves a system of equations expressed as a*x=b, using LU factorization with pivoting.
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param a square matrix
+     * @param b column vector
+     * @return either {true, x such that a*x=b} or {false, unspecified} if no solution could be found
+     */
     template <typename T, size_t S>
     std::tuple<bool, vec<T,S>> lupSolve(const mat<T,S,S>& a, const vec<T,S>& b) {
         auto [success, lu, pi] = lupDecomposition(a);

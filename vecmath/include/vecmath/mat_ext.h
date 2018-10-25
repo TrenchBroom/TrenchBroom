@@ -551,10 +551,28 @@ namespace vm {
         return translationMatrix(vertOnOppositeSide) * shearMat * translationMatrix(-vertOnOppositeSide);
     }
 
+    /**
+    * Finds a 4x4 affine transform that will transform the first 4 points into the following 4 points.
+    *
+    * The offPlaneIn/offPlaneOut parameters should not be on the plane specified by the other 3 input/output points.
+    *
+    * @tparam T vector element type
+    * @param onPlane0In input point 0
+    * @param onPlane1In input point 1
+    * @param onPlane2In input point 2
+    * @param offPlaneIn input point 3, should be off the plane specified by input points 0, 1, 2
+    * @param onPlane0Out what input point 0 should be mapped to
+    * @param onPlane1Out what input point 1 should be mapped to
+    * @param onPlane2Out what input point 2 should be mapped to
+    * @param offPlaneOut what input point 3 should be mapped to, should be off the plane specified by output points 0, 1, 2
+    * @return a 4x4 matrix that performs the requested mapping of points
+    */
     template <typename T>
     mat<T,4,4> pointsTransformationMatrix(const vec<T,3>& onPlane0In, const vec<T,3>& onPlane1In, const vec<T,3>& onPlane2In, const vec<T,3>& offPlaneIn,
                                           const vec<T,3>& onPlane0Out, const vec<T,3>& onPlane1Out, const vec<T,3>& onPlane2Out, const vec<T,3>& offPlaneOut) {
 
+        // To simplify the matrix problem, translate the 4 input points so onPlane0In is at origin
+        // and the 4 output points so onPlane0Out is at the origin. Then, compensate for the translation at the end.
         const auto vec0In = onPlane1In - onPlane0In;
         const auto vec1In = onPlane2In - onPlane0In;
         const auto vec2In = offPlaneIn - onPlane0In;
@@ -562,6 +580,8 @@ namespace vm {
         const auto vec0Out = onPlane1Out - onPlane0Out;
         const auto vec1Out = onPlane2Out - onPlane0Out;
         const auto vec2Out = offPlaneOut - onPlane0Out;
+
+        // Set up a system of equations that will find the upper-left 3x3 part of a 4x4 affine matrix with no translation.
 
         // A*X=B
 
@@ -590,8 +610,9 @@ namespace vm {
         };
 
         const auto [success, X] = lupSolve(A, B);
-        assert(success);
-        const auto Btest = A * X;
+        if (!success) {
+            return mat<T,4,4>::fill(nan<T>());
+        }
 
         const mat<T,4,4> xformWithoutTranslation {
                 X[0], X[1], X[2], 0.0,
@@ -600,26 +621,25 @@ namespace vm {
                 0.0,  0.0,  0.0,  1.0
         };
 
-        const auto test2 = xformWithoutTranslation * vec4d(vec0In.x(), vec0In.y(), vec0In.z(), 1.0);//OK
-
-
-    //        const mat<T,4,4> translationXform = translationMatrix(onPlane0Out - onPlane0In);
-    //
-    //        const auto test5 = translationXform * vec4d(onPlane0In.x(), onPlane0In.y(), onPlane0In.z(), 1.0);
-    //
-    //
-    //        const auto ans1 =  translationXform * xformWithoutTranslation;
-    //        const auto ans2 =  xformWithoutTranslation * translationXform;
-    //
-    //        const auto test3 = ans1 * vec4d(onPlane1In.x(), onPlane1In.y(), onPlane1In.z(), 1.0);
-    //        const auto test4 = ans2 * vec4d(onPlane1In.x(), onPlane1In.y(), onPlane1In.z(), 1.0);
-
-
-        const auto ans1 = translationMatrix(onPlane0Out) * xformWithoutTranslation * translationMatrix(-onPlane0In);
-
-        return ans1;
+        return translationMatrix(onPlane0Out) * xformWithoutTranslation * translationMatrix(-onPlane0In);
     }
 
+    /**
+     * Finds a 4x4 affine transform that will transform the first 3 points into the following 3 points.
+     *
+     * Note, this leaves unspecified the scaling of the axis perpendicular the planes specified by the 3 input and
+     * output points. What it does is uniform scaling along that axis, so a point 1 unit off the input plane will
+     * be 1 unit off the output plane.
+     *
+     * @tparam T vector element type
+     * @param onPlane0In input point 0
+     * @param onPlane1In input point 1
+     * @param onPlane2In input point 2
+     * @param onPlane0Out what input point 0 should be mapped to
+     * @param onPlane1Out what input point 1 should be mapped to
+     * @param onPlane2Out what input point 2 should be mapped to
+     * @return a 4x4 matrix that performs the requested mapping of points
+     */
     template <typename T>
     mat<T,4,4> pointsTransformationMatrix(const vec<T,3>& onPlane0In, const vec<T,3>& onPlane1In, const vec<T,3>& onPlane2In,
                                           const vec<T,3>& onPlane0Out, const vec<T,3>& onPlane1Out, const vec<T,3>& onPlane2Out) {
