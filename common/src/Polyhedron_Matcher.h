@@ -165,6 +165,15 @@ private:
         return result;
     }
 public:
+    /**
+     * Visits all pairs of vertices in the vertex relation where the left vertex is in the given leftFace and the
+     * right vertex is in the given rightFace.
+     *
+     * @tparam L visitor type
+     * @param leftFace a face of the left polyhedron
+     * @param rightFace a face of the right polyhedron
+     * @param lambda visitor to run on each pair of vertices
+     */
     template <typename L>
     void visitMatchingVertexPairs(Face* leftFace, Face* rightFace, L&& lambda) const {
         auto* firstLeftEdge = leftFace->boundary().front();
