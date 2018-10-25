@@ -1069,7 +1069,8 @@ namespace TrenchBroom {
 
         INSTANTIATE_TEST_CASE_P(MapFormatInstantiations,
                                 UVLockTest,
-                                ::testing::Values(MapFormat::Valve, MapFormat::Standard));
+                                ::testing::Values(MapFormat::Valve, MapFormat::Standard),
+                                );
 
         TEST(BrushTest, moveFaceDownFailure) {
             const vm::bbox3 worldBounds(4096.0);
