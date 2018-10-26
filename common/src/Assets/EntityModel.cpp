@@ -65,24 +65,20 @@ namespace TrenchBroom {
         m_prepared(false) {}
 
         Renderer::TexturedIndexRangeRenderer* EntityModel::buildRenderer(const size_t skinIndex, const size_t frameIndex) const {
-            if (skinCount() == 0 || frameCount() == 0) {
+            if (skinIndex >= skinCount() || frameIndex >= frameCount()) {
                 return nullptr;
             } else {
-                const auto safeskinindex = std::min(skincount()-1, skinindex);
-                const auto safeframeindex = std::min(framecount()-1, frameindex);
-
                 const auto& textures = m_skins->textures();
-                auto* skin = textures[safeskinindex];
-                return m_frames[safeframeindex]->buildrenderer(skin);
+                auto* skin = textures[skinIndex];
+                return m_frames[frameIndex]->buildrenderer(skin);
             }
         }
 
         vm::bbox3f EntityModel::bounds(const size_t /* skinIndex */, const size_t frameIndex) const {
-            if (frameCount() == 0) {
+            if (frameIndex >= frameCount()) {
                 return vm::box3f(8.0f);
             } else {
-                const auto safeFrameIndex = std::min(frameCount()-1, frameIndex);
-                return m_frames[safeFrameIndex]->bounds();
+                return m_frames[frameIndex]->bounds();
             }
         }
 
@@ -99,11 +95,10 @@ namespace TrenchBroom {
         }
 
         Assets::Texture* EntityModel::skin(const size_t index) const {
-            if (skinCount() == 0) {
+            if (index >= skinCount()) {
                 return nullptr;
             } else {
-                const auto safeIndex = std::min(skinCount()-1, index);
-                return m_skins->textureByIndex(safeIndex);
+                return m_skins->textureByIndex(skinIndex);
             }
         }
 

@@ -220,9 +220,11 @@ namespace TrenchBroom {
                     const auto& faceInfo = faceInfos[modelFaceIndex + j];
                     const auto& textureInfo = textureInfos[faceInfo.textureInfoIndex];
                     auto* skin = model->skin(textureInfo.textureIndex);
-                    const auto faceVertexCount = faceInfo.edgeCount;
-                    size.inc(skin, GL_POLYGON, faceVertexCount);
-                    totalVertexCount += faceVertexCount;
+                    if (skin != nullptr) {
+                        const auto faceVertexCount = faceInfo.edgeCount;
+                        size.inc(skin, GL_POLYGON, faceVertexCount);
+                        totalVertexCount += faceVertexCount;
+                    }
                 }
 
                 Renderer::TexturedIndexRangeMapBuilder<Vertex::Spec> builder(totalVertexCount, size);
@@ -230,25 +232,27 @@ namespace TrenchBroom {
                     const auto& faceInfo = faceInfos[modelFaceIndex + j];
                     const auto& textureInfo = textureInfos[faceInfo.textureInfoIndex];
                     auto* skin = model->skin(textureInfo.textureIndex);
-                    const auto faceVertexCount = faceInfo.edgeCount;
+                    if (skin != nullptr) {
+                        const auto faceVertexCount = faceInfo.edgeCount;
 
-                    VertexList faceVertices;
-                    faceVertices.reserve(faceVertexCount);
-                    for (size_t k = 0; k < faceVertexCount; ++k) {
-                        const int faceEdgeIndex = faceEdges[faceInfo.edgeIndex + k];
-                        size_t vertexIndex;
-                        if (faceEdgeIndex < 0) {
-                            vertexIndex = edgeInfos[static_cast<size_t>(-faceEdgeIndex)].vertexIndex2;
-                        } else {
-                            vertexIndex = edgeInfos[static_cast<size_t>(faceEdgeIndex)].vertexIndex1;
+                        VertexList faceVertices;
+                        faceVertices.reserve(faceVertexCount);
+                        for (size_t k = 0; k < faceVertexCount; ++k) {
+                            const int faceEdgeIndex = faceEdges[faceInfo.edgeIndex + k];
+                            size_t vertexIndex;
+                            if (faceEdgeIndex < 0) {
+                                vertexIndex = edgeInfos[static_cast<size_t>(-faceEdgeIndex)].vertexIndex2;
+                            } else {
+                                vertexIndex = edgeInfos[static_cast<size_t>(faceEdgeIndex)].vertexIndex1;
+                            }
+
+                            const auto& position = vertices[vertexIndex];
+                            const auto texCoords = textureCoords(position, textureInfo, skin);
+                            faceVertices.push_back(Vertex(position, texCoords));
                         }
 
-                        const auto& position = vertices[vertexIndex];
-                        const auto texCoords = textureCoords(position, textureInfo, skin);
-                        faceVertices.push_back(Vertex(position, texCoords));
+                        builder.addPolygon(skin, faceVertices);
                     }
-
-                    builder.addPolygon(skin, faceVertices);
                 }
 
                 StringStream frameName;
