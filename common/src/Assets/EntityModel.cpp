@@ -70,13 +70,13 @@ namespace TrenchBroom {
             } else {
                 const auto& textures = m_skins->textures();
                 auto* skin = textures[skinIndex];
-                return m_frames[frameIndex]->buildrenderer(skin);
+                return m_frames[frameIndex]->buildRenderer(skin);
             }
         }
 
         vm::bbox3f EntityModel::bounds(const size_t /* skinIndex */, const size_t frameIndex) const {
             if (frameIndex >= frameCount()) {
-                return vm::box3f(8.0f);
+                return vm::bbox3f(8.0f);
             } else {
                 return m_frames[frameIndex]->bounds();
             }
@@ -98,7 +98,7 @@ namespace TrenchBroom {
             if (index >= skinCount()) {
                 return nullptr;
             } else {
-                return m_skins->textureByIndex(skinIndex);
+                return m_skins->textureByIndex(index);
             }
         }
 
