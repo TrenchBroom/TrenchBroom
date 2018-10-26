@@ -415,8 +415,6 @@ namespace TrenchBroom {
             /*
              This brush is broken beyond repair. When building the polyhedron, we run into problems where no seam can be
              computed. We opt to just throw an exception that case and expect it to fail without crashing.
-
-             Update: With the new min edge length of 0.01, this brush seems to build fine now.
              */
 
             const String data("{\n"
@@ -510,7 +508,7 @@ namespace TrenchBroom {
             IO::NodeReader reader(data, &world);
 
             const NodeList nodes = reader.read(worldBounds, status);
-            ASSERT_EQ(1u, nodes.size());
+            ASSERT_EQ(0u, nodes.size());
         }
 
         TEST(BrushTest, buildBrushWithShortEdges) {

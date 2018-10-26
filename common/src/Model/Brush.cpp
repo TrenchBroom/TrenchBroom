@@ -113,17 +113,17 @@ namespace TrenchBroom {
             m_geometry(geometry),
             m_brushEmpty(false),
             m_brushValid(true) {
-                HealEdgesCallback healCallback;
-
                 for (auto it = std::begin(facesToAdd), end = std::end(facesToAdd); it != end && !m_brushEmpty && m_brushValid; ++it) {
                     auto* brushFace = *it;
                     AddFaceToGeometryCallback addCallback(brushFace);
                     const auto result = m_geometry.clip(brushFace->boundary(), addCallback);
                     m_brushEmpty = result.empty();
-                    m_brushValid = m_geometry.healEdges(healCallback);
+                    // m_brushValid = m_geometry.healEdges(healCallback);
                 }
                 if (!m_brushEmpty && m_brushValid) {
                     m_geometry.correctVertexPositions();
+
+                    HealEdgesCallback healCallback;
                     m_brushValid = m_geometry.healEdges(healCallback);
                 }
             }
