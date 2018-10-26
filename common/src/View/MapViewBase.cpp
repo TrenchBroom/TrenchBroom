@@ -1096,8 +1096,8 @@ namespace TrenchBroom {
         }
         
         void MapViewBase::OnMergeGroups(wxCommandEvent& event) {
-            MapDocumentSPtr document = lock(m_document);
-            Model::Group* newGroup = findGroupToMergeGroupsInto(document->selectedNodes());
+            auto document = lock(m_document);
+            auto* newGroup = findGroupToMergeGroupsInto(document->selectedNodes());
             ensure(newGroup != nullptr, "newGroup is null");
             
             Transaction transaction(document, "Merge Groups");
@@ -1109,9 +1109,9 @@ namespace TrenchBroom {
                 return nullptr;
             }
 
-            Model::Group* mergeTarget = nullptr;
+            auto* mergeTarget = nullptr;
             
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const Model::Hit& hit = pickResult().query().pickable().type(Model::Group::GroupHit).first();
             if (hit.isMatch()) {
                 mergeTarget = Model::hitToGroup(hit);
@@ -1119,15 +1119,16 @@ namespace TrenchBroom {
                 return nullptr;
             }
             
-            const Model::NodeList& nodes = selectedNodes.nodes();
+            const auto& nodes = selectedNodes.nodes();
             const bool canReparentAll = std::all_of(nodes.begin(), nodes.end(), [&](const auto* node){
                 return node == mergeTarget || this->canReparentNode(node, mergeTarget);
             });
             
             if (canReparentAll) {
                 return mergeTarget;
+            } else {
+                return nullptr;
             }
-            return nullptr;
         }
         
         bool MapViewBase::canReparentNode(const Model::Node* node, const Model::Node* newParent) const {
