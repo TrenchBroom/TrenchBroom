@@ -1108,21 +1108,20 @@ namespace TrenchBroom {
             if (!(selectedNodes.hasOnlyGroups() && selectedNodes.groupCount() >= 2)) {
                 return nullptr;
             }
+
             Model::Group* mergeTarget = nullptr;
             
             MapDocumentSPtr document = lock(m_document);
             const Model::Hit& hit = pickResult().query().pickable().type(Model::Group::GroupHit).first();
             if (hit.isMatch()) {
                 mergeTarget = Model::hitToGroup(hit);
+            } else {
+                return nullptr;
             }
             
             const Model::NodeList& nodes = selectedNodes.nodes();
             const bool canReparentAll = std::all_of(nodes.begin(), nodes.end(), [&](const auto* node){
-                if (node == mergeTarget) {
-                    return true;
-                } else {
-                    return this->canReparentNode(node, mergeTarget);
-                }
+                return node == mergeTarget || this->canReparentNode(node, mergeTarget);
             });
             
             if (canReparentAll) {
