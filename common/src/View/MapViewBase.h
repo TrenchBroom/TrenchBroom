@@ -104,7 +104,7 @@ namespace TrenchBroom {
             void pointFileDidChange();
             void portalFileDidChange();
             void preferenceDidChange(const IO::Path& path);
-			void documentDidChange(MapDocument* document);
+            void documentDidChange(MapDocument* document);
         private: // interaction events
             void bindEvents();
             

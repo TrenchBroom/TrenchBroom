@@ -52,14 +52,33 @@ namespace TrenchBroom {
         float PerspectiveCamera::fov() const {
             return m_fov;
         }
-        
+
+        float PerspectiveCamera::zoomedFov() const {
+            // Piecewise definition of a function to get a natural feeling zoom
+            // - for values below 0.7, use the square root.
+            // - for values above 1.2, use the negated inverse (approaches 0 smoothly)
+            // - for values in between, linearly interpolate between both
+            const auto f1 = sqrt(zoom());
+            const auto f2 = (-1.0f/zoom() + 2.0f);
+            float z;
+            if (zoom() < 0.7f) {
+                z = f1;
+            } else if (zoom() < 1.2f) {
+                z = vm::mix(f1, f2, 2.0f * (zoom() - 0.7f));
+            } else {
+                z = f2;
+            }
+
+            return fov() * z;
+        }
+
         void PerspectiveCamera::setFov(const float fov) {
             assert(fov > 0.0f);
-            if (fov == m_fov)
-                return;
-            m_fov = fov;
-            m_valid = false;
-            cameraDidChangeNotifier(this);
+            if (fov != m_fov) {
+                m_fov = fov;
+                m_valid = false;
+                cameraDidChangeNotifier(this);
+            }
         }
         
         vm::ray3f PerspectiveCamera::doGetPickRay(const vm::vec3f& point) const {
@@ -72,8 +91,8 @@ namespace TrenchBroom {
         }
 
         void PerspectiveCamera::doValidateMatrices(vm::mat4x4f& projectionMatrix, vm::mat4x4f& viewMatrix) const {
-            const Viewport& viewport = unzoomedViewport();
-            projectionMatrix = vm::perspectiveMatrix(fov(), nearPlane(), farPlane(), viewport.width, viewport.height);
+            const Viewport& viewport = this->viewport();
+            projectionMatrix = vm::perspectiveMatrix(zoomedFov(), nearPlane(), farPlane(), viewport.width, viewport.height);
             viewMatrix = vm::viewMatrix(direction(), up()) * translationMatrix(-position());
         }
         
@@ -154,8 +173,8 @@ namespace TrenchBroom {
         }
 
         vm::vec2f PerspectiveCamera::getFrustum() const {
-            const auto& viewport = unzoomedViewport();
-            const auto v = std::tan(vm::toRadians(fov()) / 2.0f) * 0.75f * nearPlane();
+            const auto& viewport = this->viewport();
+            const auto v = std::tan(vm::toRadians(zoomedFov()) / 2.0f) * 0.75f * nearPlane();
             const auto h = v * static_cast<float>(viewport.width) / static_cast<float>(viewport.height);
             return vm::vec2f(h, v);
         }
@@ -166,8 +185,10 @@ namespace TrenchBroom {
         }
 
         float PerspectiveCamera::viewportFrustumDistance() const {
-            const auto height = static_cast<float>(unzoomedViewport().height);
-            return (height / 2.0f) / std::tan(vm::toRadians(m_fov) / 2.0f);
+            const auto height = static_cast<float>(viewport().height);
+            return (height / 2.0f) / std::tan(vm::toRadians(zoomedFov()) / 2.0f);
         }
+
+        void PerspectiveCamera::doUpdateZoom() {}
     }
 }

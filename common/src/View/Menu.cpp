@@ -173,7 +173,7 @@ namespace TrenchBroom {
             const IO::Path menuPath = path(label());
             
             wxString str;
-            str << "{ path: [\"" << menuPath.asString("\", \"") << "\"], shortcut: " << shortcut().asJsonString() << " }";
+            str << "{ path: [\"" << menuPath.asString("\", \"") << "\"], shortcut: " << defaultShortcut().asJsonString() << " }";
             return str;
         }
 
@@ -185,7 +185,12 @@ namespace TrenchBroom {
             PreferenceManager& prefs = PreferenceManager::instance();
             return prefs.get(m_preference);
         }
-        
+
+        const KeyboardShortcut& ActionMenuItem::doGetDefaultShortcut() const {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            return prefs.getDefault(m_preference);
+        }
+
         void ActionMenuItem::doUpdateShortcut(const KeyboardShortcut& shortcut) {
             assert(m_action.modifiable());
             

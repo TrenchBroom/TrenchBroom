@@ -129,19 +129,6 @@ bool Polyhedron<T,FP,VP>::HalfEdge::hasOrigins(const std::vector<V>& origins, co
 }
 
 template <typename T, typename FP, typename VP>
-String Polyhedron<T,FP,VP>::HalfEdge::asString() const {
-    StringStream str;
-    str << origin()->position();
-    str << " --> ";
-    if (destination() != nullptr) {
-        str << destination()->position();
-    } else {
-        str << "NULL";
-    }
-    return str.str();
-}
-
-template <typename T, typename FP, typename VP>
 vm::point_status Polyhedron<T,FP,VP>::HalfEdge::pointStatus(const V& faceNormal, const V& point) const {
     const auto normal = normalize(cross(normalize(vector()), faceNormal));
     const auto plane = vm::plane<T,3>(origin()->position(), normal);

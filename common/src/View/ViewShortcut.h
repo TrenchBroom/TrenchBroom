@@ -51,6 +51,7 @@ namespace TrenchBroom {
             wxString doGetJsonString() const override;
             const Preference<KeyboardShortcut>& doGetPreference() const override;
             const KeyboardShortcut& doGetShortcut() const override;
+            const KeyboardShortcut& doGetDefaultShortcut() const override;
             void doUpdateShortcut(const KeyboardShortcut& shortcut) override;
             wxAcceleratorEntry doGetAcceleratorEntry(ActionView view) const override;
         private:

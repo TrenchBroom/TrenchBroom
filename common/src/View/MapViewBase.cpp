@@ -252,13 +252,13 @@ namespace TrenchBroom {
             updateAcceleratorTable();
             Refresh();
         }
-		
-		void MapViewBase::documentDidChange(MapDocument* document) {
-			updatePickResult();
-			Refresh();
-		}
 
-		void MapViewBase::bindEvents() {
+        void MapViewBase::documentDidChange(MapDocument* document) {
+            updatePickResult();
+            Refresh();
+        }
+
+        void MapViewBase::bindEvents() {
             Bind(wxEVT_SET_FOCUS, &MapViewBase::OnSetFocus, this);
             Bind(wxEVT_KILL_FOCUS, &MapViewBase::OnKillFocus, this);
 
@@ -746,7 +746,7 @@ namespace TrenchBroom {
 
             updateAcceleratorTable(false);
             event.Skip();
-		}
+        }
 
         void MapViewBase::OnActivateFrame(wxActivateEvent& event) {
             if (IsBeingDeleted()) return;
@@ -901,7 +901,7 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::setupGL(Renderer::RenderContext& context) {
-            const Renderer::Camera::Viewport& viewport = context.camera().unzoomedViewport();
+            const Renderer::Camera::Viewport& viewport = context.camera().viewport();
             glAssert(glViewport(viewport.x, viewport.y, viewport.width, viewport.height));
 
             glAssert(glEnable(GL_MULTISAMPLE));

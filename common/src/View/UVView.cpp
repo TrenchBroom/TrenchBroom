@@ -184,7 +184,7 @@ namespace TrenchBroom {
         }
 
         void UVView::setupGL(Renderer::RenderContext& renderContext) {
-            const Renderer::Camera::Viewport& viewport = renderContext.camera().unzoomedViewport();
+            const Renderer::Camera::Viewport& viewport = renderContext.camera().viewport();
             glAssert(glViewport(viewport.x, viewport.y, viewport.width, viewport.height));
             
             glAssert(glEnable(GL_MULTISAMPLE));

@@ -27,10 +27,13 @@
 namespace TrenchBroom {
     namespace Renderer {
         class OrthographicCamera : public Camera {
+        private:
+            Viewport m_zoomedViewport;
         public:
             OrthographicCamera();
             OrthographicCamera(float nearPlane, float farPlane, const Viewport& viewport, const vm::vec3f& position, const vm::vec3f& direction, const vm::vec3f& up);
-            
+
+            const Viewport& zoomedViewport() const;
             std::vector<vm::vec3> viewportVertices() const;
         private:
             ProjectionType doGetProjectionType() const override;
@@ -42,6 +45,7 @@ namespace TrenchBroom {
             void doRenderFrustum(RenderContext& renderContext, Vbo& vbo, float size, const Color& color) const override;
             float doPickFrustum(float size, const vm::ray3f& ray) const override;
             float doGetPerspectiveScalingFactor(const vm::vec3f& position) const override;
+            void doUpdateZoom() override;
         };
     }
 }

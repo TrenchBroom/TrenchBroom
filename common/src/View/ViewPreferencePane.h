@@ -35,6 +35,7 @@ namespace TrenchBroom {
             wxChoice* m_layoutChoice;
             wxSlider* m_brightnessSlider;
             wxSlider* m_gridAlphaSlider;
+            wxSlider* m_fovSlider;
             wxCheckBox* m_showAxes;
             wxChoice* m_textureModeChoice;
             wxColourPickerCtrl* m_backgroundColorPicker;
@@ -48,6 +49,7 @@ namespace TrenchBroom {
             void OnLayoutChanged(wxCommandEvent& event);
             void OnBrightnessChanged(wxScrollEvent& event);
             void OnGridAlphaChanged(wxScrollEvent& event);
+            void OnFovChanged(wxScrollEvent& event);
             void OnShowAxesChanged(wxCommandEvent& event);
             void OnTextureModeChanged(wxCommandEvent& event);
             void OnBackgroundColorChanged(wxColourPickerEvent& event);

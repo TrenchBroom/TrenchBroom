@@ -99,6 +99,10 @@ namespace TrenchBroom {
             return doGetShortcut();
         }
 
+        const KeyboardShortcut& KeyboardShortcutEntry::defaultShortcut() const {
+            return doGetDefaultShortcut();
+        }
+
         bool KeyboardShortcutEntry::equals(const KeyboardShortcut& i_shortcut) const {
             return shortcut() == i_shortcut;
         }

@@ -113,17 +113,17 @@ namespace TrenchBroom {
             m_geometry(geometry),
             m_brushEmpty(false),
             m_brushValid(true) {
-                HealEdgesCallback healCallback;
-
                 for (auto it = std::begin(facesToAdd), end = std::end(facesToAdd); it != end && !m_brushEmpty && m_brushValid; ++it) {
                     auto* brushFace = *it;
                     AddFaceToGeometryCallback addCallback(brushFace);
                     const auto result = m_geometry.clip(brushFace->boundary(), addCallback);
                     m_brushEmpty = result.empty();
-                    m_brushValid = m_geometry.healEdges(healCallback);
+                    // m_brushValid = m_geometry.healEdges(healCallback);
                 }
                 if (!m_brushEmpty && m_brushValid) {
                     m_geometry.correctVertexPositions();
+
+                    HealEdgesCallback healCallback;
                     m_brushValid = m_geometry.healEdges(healCallback);
                 }
             }
@@ -763,15 +763,14 @@ namespace TrenchBroom {
             ensure(m_geometry != nullptr, "geometry is null");
             ensure(!vertexPositions.empty(), "no vertex positions");
 
-            BrushGeometry testGeometry(*m_geometry);
+            BrushGeometry testGeometry;
+            const auto vertexSet = Brush::createVertexSet(vertexPositions);
 
-            for (const auto& position : vertexPositions) {
-                auto* vertex = testGeometry.findVertexByPosition(position);
-                if (vertex == nullptr) {
-                    return false;
+            for (const auto* vertex : m_geometry->vertices()) {
+                const auto& position = vertex->position();
+                if (!vertexSet.count(position)) {
+                    testGeometry.addPoint(position);
                 }
-
-                testGeometry.removeVertex(vertex);
             }
 
             return testGeometry.polyhedron();
@@ -961,27 +960,21 @@ namespace TrenchBroom {
 
             const auto vertexSet = Brush::createVertexSet(vertexPositions);
 
-            // Start with a copy of m_geometry, then remove the vertices that are moving.
-            // Adding vertices to an empty BrushGeometry could be dangerous, if the remaining portion is just a polygon.
-            // The order in which vertices are added would determine the polygon normal, which could be wrong.
-            BrushGeometry remaining(*m_geometry);
-            for (const auto& movingPosition : vertexSet) {
-                remaining.removeVertexByPosition(movingPosition);
-            }
-
-            BrushGeometry moving(*m_geometry);
+            BrushGeometry remaining;
+            BrushGeometry moving;
             BrushGeometry result;
             for (const auto* vertex : m_geometry->vertices()) {
                 const auto& position = vertex->position();
                 if (!vertexSet.count(position)) {
-                    moving.removeVertexByPosition(position);
+                    // the vertex is not moving
+                    remaining.addPoint(position);
                     result.addPoint(position);
                 } else {
+                    // the vertex is moving
+                    moving.addPoint(position);
                     result.addPoint(position + delta);
                 }
             }
-
-            assert(remaining.vertexCount() + moving.vertexCount() == vertexCount());
 
             // Will the result go out of world bounds?
             if (!worldBounds.contains(result.bounds())) {

@@ -74,7 +74,7 @@ namespace TrenchBroom {
             const vm::vec2f originInTexCoords() const;
             void setOriginInFaceCoords(const vm::vec2f& originInFaceCoords);
 
-            const Renderer::Camera& camera() const;
+            const Renderer::OrthographicCamera& camera() const;
             float cameraZoom() const;
 
             void pickTextureGrid(const vm::ray3& ray, const Model::Hit::HitType hitTypes[2], Model::PickResult& pickResult) const;

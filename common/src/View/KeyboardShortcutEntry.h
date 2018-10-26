@@ -64,6 +64,7 @@ namespace TrenchBroom {
             
             const IO::Path& preferencePath() const;
             const KeyboardShortcut& shortcut() const;
+            const KeyboardShortcut& defaultShortcut() const;
             
             bool equals(const KeyboardShortcut& shortcut) const;
             void updateShortcut(const KeyboardShortcut& shortcut);
@@ -76,6 +77,7 @@ namespace TrenchBroom {
             virtual wxString doGetJsonString() const = 0;
             virtual const Preference<KeyboardShortcut>& doGetPreference() const = 0;
             virtual const KeyboardShortcut& doGetShortcut() const = 0;
+            virtual const KeyboardShortcut& doGetDefaultShortcut() const = 0;
             virtual void doUpdateShortcut(const KeyboardShortcut& shortcut) = 0;
             virtual wxAcceleratorEntry doGetAcceleratorEntry(ActionView view) const = 0;
         };
