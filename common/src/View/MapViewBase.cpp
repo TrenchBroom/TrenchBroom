@@ -1109,7 +1109,7 @@ namespace TrenchBroom {
                 return nullptr;
             }
 
-            auto* mergeTarget = nullptr;
+            Model::Group* mergeTarget = nullptr;
             
             auto document = lock(m_document);
             const Model::Hit& hit = pickResult().query().pickable().type(Model::Group::GroupHit).first();
