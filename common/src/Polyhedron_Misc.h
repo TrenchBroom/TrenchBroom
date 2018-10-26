@@ -1166,61 +1166,64 @@ template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::removeEdge(Edge* edge, Callback& callback) {
     // First, transfer all edges from the second to the first vertex of the given edge.
     // This results in the edge being a loop and the second vertex to be orphaned.
-    Vertex* firstVertex = edge->firstVertex();
-    Vertex* secondVertex = edge->secondVertex();
+    auto* firstVertex = edge->firstVertex();
+    auto* secondVertex = edge->secondVertex();
     while (secondVertex->leaving() != nullptr) {
-        HalfEdge* leaving = secondVertex->leaving();
-        HalfEdge* newLeaving = leaving->previous()->twin();
+        auto* leaving = secondVertex->leaving();
+        auto* newLeaving = leaving->previous()->twin();
         leaving->setOrigin(firstVertex);
-        if (newLeaving->origin() == secondVertex)
+        if (newLeaving->origin() == secondVertex) {
             secondVertex->setLeaving(newLeaving);
-        else
+        } else {
             secondVertex->setLeaving(nullptr);
+        }
     }
     
     // Remove the edge's first edge from its first face and delete the face if it degenerates
     {
-        Face* firstFace = edge->firstFace();
-        HalfEdge* firstEdge = edge->firstEdge();
-        HalfEdge* nextEdge = firstEdge->next();
+        auto* firstFace = edge->firstFace();
+        auto* firstEdge = edge->firstEdge();
+        auto* nextEdge = firstEdge->next();
         
         firstVertex->setLeaving(firstEdge->previous()->twin());
         firstFace->removeFromBoundary(firstEdge);
         nextEdge->setOrigin(firstVertex);
         delete firstEdge;
         
-        if (firstFace->vertexCount() == 2)
+        if (firstFace->vertexCount() == 2) {
             removeDegenerateFace(firstFace, callback);
+        }
     }
     
     // Remove the edges's second edge from its second face and delete the face if it degenerates
     {
-        Face* secondFace = edge->secondFace();
-        HalfEdge* secondEdge = edge->secondEdge();
+        auto* secondFace = edge->secondFace();
+        auto* secondEdge = edge->secondEdge();
         
         secondFace->removeFromBoundary(secondEdge);
         delete secondEdge;
         
-        if (secondFace->vertexCount() == 2)
+        if (secondFace->vertexCount() == 2) {
             removeDegenerateFace(secondFace, callback);
+        }
     }
     
     callback.vertexWillBeDeleted(secondVertex);
     m_vertices.remove(secondVertex);
     delete secondVertex;
     
-    Edge* result = edge->next();
+    auto* result = edge->next();
     m_edges.remove(edge);
     delete edge;
     
     // Merge faces that may have become coplanar
     {
-        HalfEdge* firstEdge = firstVertex->leaving();
-        HalfEdge* currentEdge = firstEdge;
+        auto* firstEdge = firstVertex->leaving();
+        auto* currentEdge = firstEdge;
         do {
-            HalfEdge* nextEdge = currentEdge->nextIncident();
-            Face* currentFace = firstEdge->face();
-            Face* neighbour = firstEdge->twin()->face();
+            auto* nextEdge = currentEdge->nextIncident();
+            auto* currentFace = firstEdge->face();
+            auto* neighbour = firstEdge->twin()->face();
             if (currentFace->coplanar(neighbour)) {
                 mergeNeighbours(currentEdge, callback);
             }
@@ -1235,24 +1238,24 @@ template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::removeDegenerateFace(Face* face, Callback& callback) {
     assert(face->vertexCount() == 2);
     
-    HalfEdge* halfEdge1 = face->boundary().front();
-    HalfEdge* halfEdge2 = halfEdge1->next();
+    auto* halfEdge1 = face->boundary().front();
+    auto* halfEdge2 = halfEdge1->next();
     assert(halfEdge2->next() == halfEdge1);
     assert(halfEdge1->previous() == halfEdge2);
     
-    Vertex* vertex1 = halfEdge1->origin();
-    Vertex* vertex2 = halfEdge2->origin();
+    auto* vertex1 = halfEdge1->origin();
+    auto* vertex2 = halfEdge2->origin();
     
     vertex1->setLeaving(halfEdge2->twin());
     vertex2->setLeaving(halfEdge1->twin());
     
-    Edge* edge1 = halfEdge1->edge();
-    Edge* edge2 = halfEdge2->edge();
+    auto* edge1 = halfEdge1->edge();
+    auto* edge2 = halfEdge2->edge();
     
     edge1->makeSecondEdge(halfEdge1);
     edge2->makeFirstEdge(halfEdge2);
     
-    HalfEdge* halfEdge3 = edge2->secondEdge();
+    auto* halfEdge3 = edge2->secondEdge();
     halfEdge3->unsetEdge();
     edge1->unsetSecondEdge();
     edge1->setSecondEdge(halfEdge3);
