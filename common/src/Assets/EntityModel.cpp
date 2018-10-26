@@ -64,20 +64,26 @@ namespace TrenchBroom {
         m_skins(std::make_unique<Assets::TextureCollection>()),
         m_prepared(false) {}
 
-        Renderer::TexturedIndexRangeRenderer * EntityModel::buildRenderer(const size_t skinIndex, const size_t frameIndex) const {
-            ensure(skinIndex < skinCount(), "skin index out of range");
-            ensure(frameIndex < frameCount(), "frame index out of range");
+        Renderer::TexturedIndexRangeRenderer* EntityModel::buildRenderer(const size_t skinIndex, const size_t frameIndex) const {
+            if (skinCount() == 0 || frameCount() == 0) {
+                return nullptr;
+            } else {
+                const auto safeskinindex = std::min(skincount()-1, skinindex);
+                const auto safeframeindex = std::min(framecount()-1, frameindex);
 
-            const auto& textures = m_skins->textures();
-            auto* skin = textures[skinIndex];
-            return m_frames[frameIndex]->buildRenderer(skin);
+                const auto& textures = m_skins->textures();
+                auto* skin = textures[safeskinindex];
+                return m_frames[safeframeindex]->buildrenderer(skin);
+            }
         }
 
-        vm::bbox3f EntityModel::bounds(const size_t skinIndex, const size_t frameIndex) const {
-            ensure(skinIndex < skinCount(), "skin index out of range");
-            ensure(frameIndex < frameCount(), "frame index out of range");
-
-            return m_frames[frameIndex]->bounds();
+        vm::bbox3f EntityModel::bounds(const size_t /* skinIndex */, const size_t frameIndex) const {
+            if (frameCount() == 0) {
+                return vm::box3f(8.0f);
+            } else {
+                const auto safeFrameIndex = std::min(frameCount()-1, frameIndex);
+                return m_frames[safeFrameIndex]->bounds();
+            }
         }
 
         size_t EntityModel::frameCount() const {
@@ -93,7 +99,12 @@ namespace TrenchBroom {
         }
 
         Assets::Texture* EntityModel::skin(const size_t index) const {
-            return m_skins->textureByIndex(index);
+            if (skinCount() == 0) {
+                return nullptr;
+            } else {
+                const auto safeIndex = std::min(skinCount()-1, index);
+                return m_skins->textureByIndex(safeIndex);
+            }
         }
 
         void EntityModel::prepare(const int minFilter, const int magFilter) {
