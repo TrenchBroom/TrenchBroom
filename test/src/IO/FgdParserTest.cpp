@@ -673,6 +673,24 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(definitions);
         }
 
+        TEST(FgdParserTest, parseInvalidBounds) {
+            const String file = R"(
+@PointClass size(32 32 0, -32 -32 256) model({"path" : ":progs/goddess-statue.mdl" }) =
+decor_goddess_statue : "Goddess Statue" [])";
+
+            const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
+            FgdParser parser(file, defaultColor);
+
+            TestParserStatus status;
+            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            ASSERT_EQ(1u, definitions.size());
+
+            const auto definition = static_cast<Assets::PointEntityDefinition*>(definitions[0]);
+            ASSERT_EQ(vm::bbox3d(vm::vec3d(-32.0, -32.0, 0.0), vm::vec3d(32.0, 32.0, 256.0)), definition->bounds());
+
+            VectorUtils::clearAndDelete(definitions);
+        }
+
         TEST(FgdParserTest, parseInclude) {
             const Path path = Disk::getCurrentWorkingDir() + Path("data/IO/Fgd/parseInclude/host.fgd");
             MappedFile::Ptr file = Disk::openFile(path);
