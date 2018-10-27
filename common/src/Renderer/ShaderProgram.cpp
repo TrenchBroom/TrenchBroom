@@ -137,7 +137,7 @@ namespace TrenchBroom {
             
             if (linkStatus == 0) {
                 RenderException ex;
-                ex << "Cannot link shader program " << m_name << ": ";
+                ex << "Could not link shader program " << m_name << ": ";
 
                 GLint infoLogLength = 0;
                 glAssert(glGetProgramiv(m_programId, GL_INFO_LOG_LENGTH, &infoLogLength));

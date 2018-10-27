@@ -112,8 +112,9 @@ namespace TrenchBroom {
         m_textureId(0) {}
 
         Texture::~Texture() {
-            if (m_collection == nullptr && m_textureId != 0)
+            if (m_collection == nullptr && m_textureId != 0) {
                 glAssert(glDeleteTextures(1, &m_textureId));
+            }
             m_textureId = 0;
         }
         
@@ -139,15 +140,17 @@ namespace TrenchBroom {
         
         void Texture::incUsageCount() {
             ++m_usageCount;
-            if (m_collection != nullptr)
+            if (m_collection != nullptr) {
                 m_collection->incUsageCount();
+            }
         }
         
         void Texture::decUsageCount() {
             assert(m_usageCount > 0);
             --m_usageCount;
-            if (m_collection != nullptr)
+            if (m_collection != nullptr) {
                 m_collection->decUsageCount();
+            }
         }
         
         bool Texture::overridden() const {
@@ -164,62 +167,67 @@ namespace TrenchBroom {
 
         void Texture::prepare(const GLuint textureId, const int minFilter, const int magFilter) {
             assert(textureId > 0);
-            assert(!m_buffers.empty());
-            
-            glAssert(glPixelStorei(GL_UNPACK_SWAP_BYTES, false));
-            glAssert(glPixelStorei(GL_UNPACK_LSB_FIRST, false));
-            glAssert(glPixelStorei(GL_UNPACK_ROW_LENGTH, 0));
-            glAssert(glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0));
-            glAssert(glPixelStorei(GL_UNPACK_SKIP_ROWS, 0));
-            glAssert(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
-            
-            glAssert(glBindTexture(GL_TEXTURE_2D, textureId));
-            glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter));
-            glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter));
-            glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
-            glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
-            
-            // Quake fence textures tend to have nonsense mipmaps
-            // Also generate mipmaps if we don't have any
-            const bool generateMipmaps =
-                    (m_type == TextureType::Masked) || (m_buffers.size() == 1);
+            assert(m_textureId == 0);
 
-            if (generateMipmaps) {
-                glAssert(glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE));
-            } else {
-                glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, static_cast<GLint>(m_buffers.size() - 1)));
+            if (!m_buffers.empty()) {
+                glAssert(glPixelStorei(GL_UNPACK_SWAP_BYTES, false));
+                glAssert(glPixelStorei(GL_UNPACK_LSB_FIRST, false));
+                glAssert(glPixelStorei(GL_UNPACK_ROW_LENGTH, 0));
+                glAssert(glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0));
+                glAssert(glPixelStorei(GL_UNPACK_SKIP_ROWS, 0));
+                glAssert(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
+
+                glAssert(glBindTexture(GL_TEXTURE_2D, textureId));
+                glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter));
+                glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter));
+                glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
+                glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
+
+                // Quake fence textures tend to have nonsense mipmaps
+                // Also generate mipmaps if we don't have any
+                const auto generateMipmaps = (m_type == TextureType::Masked) || (m_buffers.size() == 1);
+                if (generateMipmaps) {
+                    glAssert(glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE));
+                } else {
+                    glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, static_cast<GLint>(m_buffers.size() - 1)));
+                }
+
+                const auto mipmapsToUpload = generateMipmaps ? 1u : m_buffers.size();
+
+                for (size_t j = 0; j < mipmapsToUpload; ++j) {
+                    const auto mipSize = sizeAtMipLevel(m_width, m_height, j);
+
+                    const GLvoid* data = reinterpret_cast<const GLvoid*>(m_buffers[j].ptr());
+                    glAssert(glTexImage2D(GL_TEXTURE_2D, static_cast<GLint>(j), GL_RGBA,
+                                          static_cast<GLsizei>(mipSize.x()),
+                                          static_cast<GLsizei>(mipSize.y()),
+                                          0, m_format, GL_UNSIGNED_BYTE, data));
+                }
+
+                m_buffers.clear();
+                m_textureId = textureId;
             }
-
-            const auto mipmapsToUpload = generateMipmaps ? 1u : m_buffers.size();
-
-            for (size_t j = 0; j < mipmapsToUpload; ++j) {
-                const auto mipSize = sizeAtMipLevel(m_width, m_height, j);
-
-                const GLvoid* data = reinterpret_cast<const GLvoid*>(m_buffers[j].ptr());
-                glAssert(glTexImage2D(GL_TEXTURE_2D, static_cast<GLint>(j), GL_RGBA,
-                                      static_cast<GLsizei>(mipSize.x()),
-                                      static_cast<GLsizei>(mipSize.y()),
-                                      0, m_format, GL_UNSIGNED_BYTE, data));
-            }
-            
-            m_buffers.clear();
-            m_textureId = textureId;
         }
         
         void Texture::setMode(const int minFilter, const int magFilter) {
-            activate();
-            glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter));
-            glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter));
-            deactivate();
+            if (isPrepared()) {
+                activate();
+                glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter));
+                glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter));
+                deactivate();
+            }
         }
 
         void Texture::activate() const {
-            assert(isPrepared());
-            glAssert(glBindTexture(GL_TEXTURE_2D, m_textureId));
+            if (isPrepared()) {
+                glAssert(glBindTexture(GL_TEXTURE_2D, m_textureId));
+            }
         }
         
         void Texture::deactivate() const {
-            glAssert(glBindTexture(GL_TEXTURE_2D, 0));
+            if (isPrepared()) {
+                glAssert(glBindTexture(GL_TEXTURE_2D, 0));
+            }
         }
 
         void Texture::setCollection(TextureCollection* collection) {

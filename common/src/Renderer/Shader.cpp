@@ -33,7 +33,7 @@ namespace TrenchBroom {
             glAssert(m_shaderId = glCreateShader(m_type));
             
             if (m_shaderId == 0)
-                throw RenderException("Cannot create shader " + m_name);
+                throw RenderException("Could not create shader " + m_name);
             
             const StringList source = loadSource(path);
             const char** linePtrs = new const char*[source.size()];
@@ -49,18 +49,18 @@ namespace TrenchBroom {
             
             if (compileStatus == 0) {
                 RenderException ex;
-                ex << "Cannot compile shader " << m_name << ": ";
+                ex << "Could not compile shader " << m_name << ": ";
                 
-				GLint infoLogLength;
+                GLint infoLogLength;
                 glAssert(glGetShaderiv(m_shaderId, GL_INFO_LOG_LENGTH, &infoLogLength));
-				if (infoLogLength > 0) {
-					char* infoLog = new char[static_cast<size_t>(infoLogLength)];
-					glGetShaderInfoLog(m_shaderId, infoLogLength, &infoLogLength, infoLog);
+                if (infoLogLength > 0) {
+                    char* infoLog = new char[static_cast<size_t>(infoLogLength)];
+                    glGetShaderInfoLog(m_shaderId, infoLogLength, &infoLogLength, infoLog);
                     infoLog[infoLogLength-1] = 0;
                     
                     ex << infoLog;
-					delete [] infoLog;
-				} else {
+                    delete [] infoLog;
+                } else {
                     ex << "Unknown error";
                 }
                 
@@ -86,7 +86,7 @@ namespace TrenchBroom {
         StringList Shader::loadSource(const IO::Path& path) {
             std::fstream stream(path.asString().c_str(), std::ios::in);
             if (!stream.is_open())
-                throw RenderException("Cannot load shader source from " + path.asString());
+                throw RenderException("Could not load shader source from " + path.asString());
             
             String line;
             StringList lines;

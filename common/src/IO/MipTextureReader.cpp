@@ -64,7 +64,11 @@ namespace TrenchBroom {
 
             Assets::setMipBufferSize(buffers, MipLevels, width, height, GL_RGBA);
             Assets::Palette palette = doGetPalette(reader, offset, width, height);
-            
+
+            if (!palette.initialized()) {
+                return nullptr;
+            }
+
             for (size_t i = 0; i < MipLevels; ++i) {
                 const char* data = begin + offset[i];
                 const size_t size = mipSize(width, height, i);
