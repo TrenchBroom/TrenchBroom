@@ -272,10 +272,10 @@ namespace TrenchBroom {
                     const auto pictureCount = readSize<int32_t>(cursor);
 
                     Buffer<unsigned char> rgbaImage(size * 4);
-                    cursor += pictureCount * 4;
+                    cursor += pictureCount * 4; // skip the picture times
 
                     m_palette.indexedToRgba(cursor, size, rgbaImage, avgColor, transparency);
-                    cursor += size;
+                    cursor += pictureCount * size; // skip all pictures
 
                     textureName << m_name << "_" << i;
 
