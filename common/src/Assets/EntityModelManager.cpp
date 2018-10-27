@@ -115,14 +115,16 @@ namespace TrenchBroom {
             if (renderer == nullptr) {
                 m_rendererMismatches.insert(spec);
                 
-                if (m_logger != nullptr)
-                    m_logger->debug("Failed to construct entity model renderer for %s", spec.asString().c_str());
+                if (m_logger != nullptr) {
+                    m_logger->error("Failed to construct entity model renderer for %s, check the skin and frame indices", spec.asString().c_str());
+                }
             } else {
                 m_renderers[spec] = renderer;
                 m_unpreparedRenderers.push_back(renderer);
                 
-                if (m_logger != nullptr)
+                if (m_logger != nullptr) {
                     m_logger->debug("Constructed entity model renderer for %s", spec.asString().c_str());
+                }
             }
             return renderer;
         }

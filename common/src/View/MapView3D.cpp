@@ -80,7 +80,9 @@ namespace TrenchBroom {
             initializeCamera();
             initializeToolChain(toolBox);
             setCompass(new Renderer::Compass3D());
-			SetName("MapView3D");
+            SetName("MapView3D");
+
+            m_camera.setFov(pref(Preferences::CameraFov));
         }
 
         MapView3D::~MapView3D() {
@@ -130,16 +132,29 @@ namespace TrenchBroom {
 
         void MapView3D::bindObservers() {
             m_camera.cameraDidChangeNotifier.addObserver(this, &MapView3D::cameraDidChange);
+
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.addObserver(this, &MapView3D::preferenceDidChange);
         }
         
         void MapView3D::unbindObservers() {
             m_camera.cameraDidChangeNotifier.removeObserver(this, &MapView3D::cameraDidChange);
+
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.removeObserver(this, &MapView3D::preferenceDidChange);
         }
 
         void MapView3D::cameraDidChange(const Renderer::Camera* camera) {
             Refresh();
         }
-        
+
+        void MapView3D::preferenceDidChange(const IO::Path& path) {
+            if (path == Preferences::CameraFov.path()) {
+                m_camera.setFov(pref(Preferences::CameraFov));
+                Refresh();
+            }
+        }
+
         void MapView3D::bindEvents() {
             Bind(wxEVT_KEY_DOWN, &MapView3D::OnKeyDown, this);
             Bind(wxEVT_KEY_UP, &MapView3D::OnKeyUp, this);
@@ -158,7 +173,9 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapView3D::OnRotateTexturesCCW,            this, CommandIds::Actions::RotateTexturesCCW);
             
             Bind(wxEVT_MENU, &MapView3D::OnToggleFlyMode,                this, CommandIds::Actions::ToggleFlyMode);
-            
+
+            Bind(wxEVT_MENU, &MapView3D::OnResetZoom,                    this, CommandIds::Actions::ResetZoom);
+
             wxFrame* frame = findFrame(this);
             frame->Bind(wxEVT_ACTIVATE, &MapView3D::OnActivateFrame, this);
         }
@@ -226,7 +243,13 @@ namespace TrenchBroom {
 
             rotateTextures(rotateTextureAngle(false));
         }
-        
+
+        void MapView3D::OnResetZoom(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            m_camera.setZoom(1.0f);
+        }
+
         float MapView3D::moveTextureDistance() const {
             const Grid& grid = lock(m_document)->grid();
             const float gridSize = static_cast<float>(grid.actualSize());

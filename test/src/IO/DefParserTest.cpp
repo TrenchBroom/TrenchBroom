@@ -412,5 +412,31 @@ namespace TrenchBroom {
                                              ModelDefinition,
                                              ModelDefinitionTemplate,
                                              "{ 'model': 'maps/b_shell1.bsp', 'skin': 1, 'frame': 2 }");
-        }    }
+        }
+
+        TEST(DefParserTest, parseInvalidBounds) {
+            const String file =
+                "/*QUAKED light (0.0 1.0 0.0) (8 -8 -8) (-8 8 8) START_OFF\n"
+                "{\n"
+                "base(\"_light_style\");\n"
+                "}\n"
+                "Non-displayed light.\n"
+                "Default light value is 300\n"
+                "If targeted, it will toggle between on or off.\n"
+                "Default \"style\" is 0.\n"
+                "*/\n";
+
+            const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
+            DefParser parser(file, defaultColor);
+
+            TestParserStatus status;
+            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            ASSERT_EQ(1u, definitions.size());
+
+            const auto definition = static_cast<Assets::PointEntityDefinition*>(definitions[0]);
+            ASSERT_EQ(vm::bbox3d(8.0), definition->bounds());
+
+            VectorUtils::clearAndDelete(definitions);
+        }
+    }
 }

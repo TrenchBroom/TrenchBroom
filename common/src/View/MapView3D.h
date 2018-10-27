@@ -58,6 +58,7 @@ namespace TrenchBroom {
             void bindObservers();
             void unbindObservers();
             void cameraDidChange(const Renderer::Camera* camera);
+            void preferenceDidChange(const IO::Path& path);
         private: // interaction events
             void bindEvents();
             
@@ -74,6 +75,8 @@ namespace TrenchBroom {
             void OnMoveTexturesRight(wxCommandEvent& event);
             void OnRotateTexturesCW(wxCommandEvent& event);
             void OnRotateTexturesCCW(wxCommandEvent& event);
+
+            void OnResetZoom(wxCommandEvent& event);
 
             float moveTextureDistance() const;
             void moveTextures(const vm::vec2f& offset);

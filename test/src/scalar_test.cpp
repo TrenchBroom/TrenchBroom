@@ -184,6 +184,20 @@ namespace vm {
         ASSERT_DOUBLE_EQ(+1.0, trunc( 1.1));
     }
 
+    TEST(ScalarTest, mix) {
+        ASSERT_DOUBLE_EQ(1.0, mix(1.0, 2.0, 0.0));
+        ASSERT_DOUBLE_EQ(2.0, mix(1.0, 2.0, 1.0));
+        ASSERT_DOUBLE_EQ(1.5, mix(1.0, 2.0, 0.5));
+
+        ASSERT_DOUBLE_EQ(-1.0, mix(-1.0, 2.0, 0.0));
+        ASSERT_DOUBLE_EQ(+2.0, mix(-1.0, 2.0, 1.0));
+        ASSERT_DOUBLE_EQ(+0.5, mix(-1.0, 2.0, 0.5));
+
+        ASSERT_DOUBLE_EQ(-1.0, mix(-1.0, -2.0, 0.0));
+        ASSERT_DOUBLE_EQ(-2.0, mix(-1.0, -2.0, 1.0));
+        ASSERT_DOUBLE_EQ(-1.5, mix(-1.0, -2.0, 0.5));
+    }
+
     TEST(ScalarTest, fract) {
         ASSERT_DOUBLE_EQ(-0.2, fract(-1.2));
         ASSERT_DOUBLE_EQ( 0.0, fract(-1.0));

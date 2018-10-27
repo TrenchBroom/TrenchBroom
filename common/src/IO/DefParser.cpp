@@ -383,7 +383,7 @@ namespace TrenchBroom {
             expect(status, DefToken::OParenthesis, token = m_tokenizer.nextToken());
             bounds.max = parseVector(status);
             expect(status, DefToken::CParenthesis, token = m_tokenizer.nextToken());
-            return bounds;
+            return repair(bounds);
         }
         
         Color DefParser::parseColor(ParserStatus& status) {

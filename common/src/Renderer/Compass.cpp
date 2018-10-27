@@ -73,7 +73,7 @@ namespace TrenchBroom {
         
         void Compass::doRender(RenderContext& renderContext) {
             const auto& camera = renderContext.camera();
-            const auto& viewport = camera.unzoomedViewport();
+            const auto& viewport = camera.viewport();
             const auto viewWidth = viewport.width;
             const auto viewHeight = viewport.height;
             

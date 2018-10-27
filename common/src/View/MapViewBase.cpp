@@ -252,13 +252,13 @@ namespace TrenchBroom {
             updateAcceleratorTable();
             Refresh();
         }
-		
-		void MapViewBase::documentDidChange(MapDocument* document) {
-			updatePickResult();
-			Refresh();
-		}
 
-		void MapViewBase::bindEvents() {
+        void MapViewBase::documentDidChange(MapDocument* document) {
+            updatePickResult();
+            Refresh();
+        }
+
+        void MapViewBase::bindEvents() {
             Bind(wxEVT_SET_FOCUS, &MapViewBase::OnSetFocus, this);
             Bind(wxEVT_KILL_FOCUS, &MapViewBase::OnKillFocus, this);
 
@@ -746,7 +746,7 @@ namespace TrenchBroom {
 
             updateAcceleratorTable(false);
             event.Skip();
-		}
+        }
 
         void MapViewBase::OnActivateFrame(wxActivateEvent& event) {
             if (IsBeingDeleted()) return;
@@ -901,7 +901,7 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::setupGL(Renderer::RenderContext& context) {
-            const Renderer::Camera::Viewport& viewport = context.camera().unzoomedViewport();
+            const Renderer::Camera::Viewport& viewport = context.camera().viewport();
             glAssert(glViewport(viewport.x, viewport.y, viewport.width, viewport.height));
 
             glAssert(glEnable(GL_MULTISAMPLE));
@@ -1096,8 +1096,8 @@ namespace TrenchBroom {
         }
         
         void MapViewBase::OnMergeGroups(wxCommandEvent& event) {
-            MapDocumentSPtr document = lock(m_document);
-            Model::Group* newGroup = findGroupToMergeGroupsInto(document->selectedNodes());
+            auto document = lock(m_document);
+            auto* newGroup = findGroupToMergeGroupsInto(document->selectedNodes());
             ensure(newGroup != nullptr, "newGroup is null");
             
             Transaction transaction(document, "Merge Groups");
@@ -1108,27 +1108,27 @@ namespace TrenchBroom {
             if (!(selectedNodes.hasOnlyGroups() && selectedNodes.groupCount() >= 2)) {
                 return nullptr;
             }
+
             Model::Group* mergeTarget = nullptr;
             
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const Model::Hit& hit = pickResult().query().pickable().type(Model::Group::GroupHit).first();
             if (hit.isMatch()) {
                 mergeTarget = Model::hitToGroup(hit);
+            } else {
+                return nullptr;
             }
             
-            const Model::NodeList& nodes = selectedNodes.nodes();
+            const auto& nodes = selectedNodes.nodes();
             const bool canReparentAll = std::all_of(nodes.begin(), nodes.end(), [&](const auto* node){
-                if (node == mergeTarget) {
-                    return true;
-                } else {
-                    return this->canReparentNode(node, mergeTarget);
-                }
+                return node == mergeTarget || this->canReparentNode(node, mergeTarget);
             });
             
             if (canReparentAll) {
                 return mergeTarget;
+            } else {
+                return nullptr;
             }
-            return nullptr;
         }
         
         bool MapViewBase::canReparentNode(const Model::Node* node, const Model::Node* newParent) const {

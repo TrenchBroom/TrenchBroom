@@ -136,16 +136,6 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::Face::findEdge(const V&
 }
 
 template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::Face::printBoundary() const {
-    const auto* firstEdge = m_boundary.front();
-    const auto* currentEdge = firstEdge;
-    do {
-        std::cout << currentEdge->asString() << std::endl;
-        currentEdge = currentEdge->next();
-    } while (currentEdge != firstEdge);
-}
-
-template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::V Polyhedron<T,FP,VP>::Face::origin() const {
     const auto* edge = *std::begin(m_boundary);
     return edge->origin()->position();
@@ -546,7 +536,6 @@ typename Polyhedron<T,FP,VP>::Face::RayIntersection Polyhedron<T,FP,VP>::Face::i
         return RayIntersection::Back(distance);
     }
 }
-
 
 template <typename T, typename FP, typename VP>
 size_t Polyhedron<T,FP,VP>::Face::countSharedVertices(const Face* other) const {

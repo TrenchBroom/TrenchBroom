@@ -179,9 +179,11 @@ namespace TrenchBroom {
                 const int MoveRotationCenterDown             = Lowest +  52;
 
                 const int CycleMapViews                      = Lowest +  53;
-                
-                const int ToggleFlyMode                      = Lowest +  54;
-                const int DeactivateTool                     = Lowest +  55;
+
+                const int ResetZoom                          = Lowest +  54;
+
+                const int ToggleFlyMode                      = Lowest +  55;
+                const int DeactivateTool                     = Lowest +  56;
                 /*
                 const int CorrectVertices                    = Lowest +  82;
                  */

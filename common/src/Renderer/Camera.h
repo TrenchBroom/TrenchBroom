@@ -66,8 +66,7 @@ namespace TrenchBroom {
         private:
             float m_nearPlane;
             float m_farPlane;
-            Viewport m_unzoomedViewport;
-            Viewport m_zoomedViewport;
+            Viewport m_viewport;
             float m_zoom;
             vm::vec3f m_position;
             vm::vec3f m_direction;
@@ -94,8 +93,7 @@ namespace TrenchBroom {
             
             float nearPlane() const;
             float farPlane() const;
-            const Viewport& unzoomedViewport() const;
-            const Viewport& zoomedViewport() const;
+            const Viewport& viewport() const;
             float zoom() const;
             void zoom(float factor);
             void setZoom(float zoom);
@@ -150,7 +148,6 @@ namespace TrenchBroom {
             ProjectionType projectionType() const;
             
             void validateMatrices() const;
-            void updateZoomedViewport();
         private:
             virtual ProjectionType doGetProjectionType() const = 0;
             
@@ -161,6 +158,7 @@ namespace TrenchBroom {
             virtual void doRenderFrustum(RenderContext& renderContext, Vbo& vbo, float size, const Color& color) const = 0;
             virtual float doPickFrustum(float size, const vm::ray3f& ray) const = 0;
             virtual float doGetPerspectiveScalingFactor(const vm::vec3f& position) const = 0;
+            virtual void doUpdateZoom() = 0;
         };
     }
 }

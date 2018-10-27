@@ -293,6 +293,19 @@ namespace vm {
     }
 
     /**
+     * Linearly interpolates between the given values using the given weight.
+     *
+     * @param x the first value to interpolate
+     * @param y the second value to interpolate
+     * @param a the weight
+     * @return the interpolated values (1-a)*x + a*y
+     */
+    template <typename T>
+    T mix(const T x, const T y, const T a) {
+        return (T(1.0)-a) * x + a * y;
+    }
+
+    /**
      * Returns the fractional part of the given value.
      *
      * @tparam T argument type

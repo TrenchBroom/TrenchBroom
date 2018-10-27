@@ -666,7 +666,7 @@ namespace TrenchBroom {
                 size.min = -halfSize;
                 size.max =  halfSize;
             }
-            return size;
+            return repair(size);
         }
         
         Color FgdParser::parseColor(ParserStatus& status) {

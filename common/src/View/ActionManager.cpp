@@ -94,7 +94,7 @@ namespace TrenchBroom {
 
         void printActionPreference(StringStream& str, const Preference<KeyboardShortcut>& pref);
         void printActionPreference(StringStream& str, const Preference<KeyboardShortcut>& pref) {
-            str << "actions[\"" << pref.path().asString() << "\"] = " << pref.value().asJsonString() << ";" << std::endl;
+            str << "actions[\"" << pref.path().asString() << "\"] = " << pref.defaultValue().asJsonString() << ";" << std::endl;
         }
         
         void ActionManager::getActionJSTable(StringStream& str) {
@@ -460,6 +460,10 @@ namespace TrenchBroom {
             
             createViewShortcut(KeyboardShortcut(WXK_SPACE), ActionContext_Any,
                                Action(View::CommandIds::Actions::CycleMapViews, "Cycle map view", true));
+
+            createViewShortcut(KeyboardShortcut(WXK_ESCAPE, WXK_SHIFT), ActionContext_Any,
+                               Action("No effect"),
+                               Action(View::CommandIds::Actions::ResetZoom, "Reset camera zoom", true));
 
             createViewShortcut(KeyboardShortcut(WXK_ESCAPE), ActionContext_Any,
                                Action(View::CommandIds::Actions::Cancel, "Cancel", true));

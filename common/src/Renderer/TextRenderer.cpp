@@ -107,7 +107,7 @@ namespace TrenchBroom {
             }
             
             const Camera& camera = renderContext.camera();
-            const Camera::Viewport& viewport = camera.unzoomedViewport();
+            const Camera::Viewport& viewport = camera.viewport();
             
             const vm::vec2f size = stringSize(renderContext, string);
             const vm::vec2f offset = vm::vec2f(position.offset(camera, size)) - m_inset;
@@ -191,7 +191,7 @@ namespace TrenchBroom {
         }
 
         void TextRenderer::doRender(RenderContext& renderContext) {
-            const Camera::Viewport& viewport = renderContext.camera().unzoomedViewport();
+            const Camera::Viewport& viewport = renderContext.camera().viewport();
             const vm::mat4x4f projection = vm::orthoMatrix(0.0f, 1.0f,
                                                            static_cast<float>(viewport.x),
                                                            static_cast<float>(viewport.height),
