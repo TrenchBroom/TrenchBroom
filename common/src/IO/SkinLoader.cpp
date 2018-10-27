@@ -49,7 +49,7 @@ namespace TrenchBroom {
                     return reader.readTexture(file);
                 }
             } catch (FileSystemException& e) {
-                throw GameException("Cannot load skin: " + String(e.what()));
+                throw GameException("Could not load skin: " + String(e.what()));
             }
         }
     }

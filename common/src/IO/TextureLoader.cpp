@@ -70,18 +70,22 @@ namespace TrenchBroom {
                 return Assets::Palette::loadFile(gameFS, path);
             } catch (const Exception& e) {
                 if (logger != nullptr) {
-                    StringStream msg;
-                    msg << "Cannot load palette: " << e.what();
-                    logger->warn(msg.str());
+                    logger->error(e.what());
                 }
                 return Assets::Palette();
             }
         }
 
         Path TextureLoader::findPalette(const EL::VariableStore& variables, const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger) {
-            IO::Path path = buildPalettePath(variables, textureConfig.palette, logger);
-            if (path.isEmpty() || path.isAbsolute() || !gameFS.fileExists(path)) {
-                path = buildPalettePath(variables, textureConfig.palettefallback, logger);
+            const auto path = buildPalettePath(variables, textureConfig.palette, logger);
+            if (!isValidPalettePath(gameFS, path) && !textureConfig.palettefallback.isEmpty()) {
+                const auto fallback = buildPalettePath(variables, textureConfig.palettefallback, logger);
+                if (isValidPalettePath(gameFS, fallback)) {
+                    StringStream msg;
+                    msg << "Using fallback palette: " << fallback;
+                    logger->info(msg.str());
+                    return fallback;
+                }
             }
             return path;
         }
@@ -90,11 +94,13 @@ namespace TrenchBroom {
             try {
                 return IO::Path(EL::interpolate(pathSpec.asString(), EL::EvaluationContext(variables)));
             } catch (const Exception& e) {
-                StringStream msg;
-                msg << "Cannot load palette: " << e.what();
-                logger->warn(msg.str());
+                logger->warn(e.what());
                 return IO::Path();
             }
+        }
+
+        bool TextureLoader::isValidPalettePath(const FileSystem& gameFS, const IO::Path& path) {
+            return !path.isEmpty() && !path.isAbsolute() && gameFS.fileExists(path);
         }
 
         TextureLoader::LoaderPtr TextureLoader::createTextureCollectionLoader(const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig) {
@@ -106,7 +112,7 @@ namespace TrenchBroom {
                     return std::make_unique<DirectoryTextureCollectionLoader>(gameFS);
                 case GameConfig::TexturePackageConfig::PT_Unset:
                     throw GameException("Texture package format is not set");
-				switchDefault()
+                switchDefault()
             }
         }
 

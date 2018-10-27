@@ -51,11 +51,13 @@ namespace TrenchBroom {
             static Assets::TextureBuffer::List buffers(MaxMipLevels);
             static size_t offsets[MaxMipLevels];
 
-            assert(m_palette.initialized());
-
             const String name = reader.readString(WalLayout::TextureNameLength);
             const size_t width = reader.readSize<uint32_t>();
             const size_t height = reader.readSize<uint32_t>();
+
+            if (!m_palette.initialized()) {
+                return nullptr;
+            }
 
             const auto mipLevels = readMipOffsets(MaxMipLevels, offsets, width, height, reader);
             Assets::setMipBufferSize(buffers, mipLevels, width, height, GL_RGBA);
@@ -78,6 +80,10 @@ namespace TrenchBroom {
 
             const auto width = reader.readSize<uint32_t>();
             const auto height = reader.readSize<uint32_t>();
+
+            if (!m_palette.initialized()) {
+                return nullptr;
+            }
 
             const auto mipLevels = readMipOffsets(MaxMipLevels, offsets, width, height, reader);
             Assets::setMipBufferSize(buffers, mipLevels, width, height, GL_RGBA);
