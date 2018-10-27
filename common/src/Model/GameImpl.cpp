@@ -30,7 +30,6 @@
 #include "IO/FgdParser.h"
 #include "IO/FileMatcher.h"
 #include "IO/FileSystem.h"
-#include "IO/IdMipTextureReader.h"
 #include "IO/IdPakFileSystem.h"
 #include "IO/IOUtils.h"
 #include "IO/MapParser.h"
