@@ -64,20 +64,22 @@ namespace TrenchBroom {
         m_skins(std::make_unique<Assets::TextureCollection>()),
         m_prepared(false) {}
 
-        Renderer::TexturedIndexRangeRenderer * EntityModel::buildRenderer(const size_t skinIndex, const size_t frameIndex) const {
-            ensure(skinIndex < skinCount(), "skin index out of range");
-            ensure(frameIndex < frameCount(), "frame index out of range");
-
-            const auto& textures = m_skins->textures();
-            auto* skin = textures[skinIndex];
-            return m_frames[frameIndex]->buildRenderer(skin);
+        Renderer::TexturedIndexRangeRenderer* EntityModel::buildRenderer(const size_t skinIndex, const size_t frameIndex) const {
+            if (skinIndex >= skinCount() || frameIndex >= frameCount()) {
+                return nullptr;
+            } else {
+                const auto& textures = m_skins->textures();
+                auto* skin = textures[skinIndex];
+                return m_frames[frameIndex]->buildRenderer(skin);
+            }
         }
 
-        vm::bbox3f EntityModel::bounds(const size_t skinIndex, const size_t frameIndex) const {
-            ensure(skinIndex < skinCount(), "skin index out of range");
-            ensure(frameIndex < frameCount(), "frame index out of range");
-
-            return m_frames[frameIndex]->bounds();
+        vm::bbox3f EntityModel::bounds(const size_t /* skinIndex */, const size_t frameIndex) const {
+            if (frameIndex >= frameCount()) {
+                return vm::bbox3f(8.0f);
+            } else {
+                return m_frames[frameIndex]->bounds();
+            }
         }
 
         size_t EntityModel::frameCount() const {
@@ -93,7 +95,11 @@ namespace TrenchBroom {
         }
 
         Assets::Texture* EntityModel::skin(const size_t index) const {
-            return m_skins->textureByIndex(index);
+            if (index >= skinCount()) {
+                return nullptr;
+            } else {
+                return m_skins->textureByIndex(index);
+            }
         }
 
         void EntityModel::prepare(const int minFilter, const int magFilter) {
