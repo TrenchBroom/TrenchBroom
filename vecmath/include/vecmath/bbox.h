@@ -525,6 +525,14 @@ namespace vm {
         return lhs.min != rhs.min || lhs.max != rhs.max;
     }
 
+    template <typename T, size_t S>
+    bbox<T,S> repair(const bbox<T,S>& box) {
+        return bbox<T,S>(
+            min(box.min, box.max),
+            max(box.min, box.max)
+        );
+    }
+
     /**
      * Returns the smallest bounding box that contains the two given bounding boxes.
      *

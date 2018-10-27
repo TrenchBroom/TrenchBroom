@@ -29,13 +29,13 @@
 #include <vector>
 
 namespace vm {
-    TEST(BBoxTest, defaultConstructor) {
+    TEST(bbox_test, defaultConstructor) {
         const bbox3f bounds;
         ASSERT_EQ(vec3f::zero, bounds.min);
         ASSERT_EQ(vec3f::zero, bounds.max);
     }
 
-    TEST(BBoxTest, constructBBox3fWithMinAndMaxPoints) {
+    TEST(bbox_test, constructBBox3fWithMinAndMaxPoints) {
         const vec3f min(-1.0f, -2.0f, -3.0f);
         const vec3f max( 1.0f,  2.0f,  3.0f);
 
@@ -44,7 +44,7 @@ namespace vm {
         ASSERT_EQ(max, bounds.max);
     }
 
-    TEST(BBoxTest, constructBBox3fWithMinAndMaxValues) {
+    TEST(bbox_test, constructBBox3fWithMinAndMaxValues) {
         const auto min = -16.f;
         const auto max = +32.0f;
 
@@ -53,7 +53,7 @@ namespace vm {
         ASSERT_EQ(vec3f::fill(max), bounds.max);
     }
 
-    TEST(BBoxTest, constructBBox3fWithMinMaxValue) {
+    TEST(bbox_test, constructBBox3fWithMinMaxValue) {
         const auto minMax = 16.f;
 
         const bbox3f bounds(minMax);
@@ -61,7 +61,7 @@ namespace vm {
         ASSERT_EQ(+vec3f::fill(minMax), bounds.max);
     }
 
-    TEST(BBoxTest, mergeAll) {
+    TEST(bbox_test, mergeAll) {
         const auto points = std::vector<vec3d>{
             vec3d(-32, -16, - 8), vec3d(  0, - 4, -4),
             vec3d(+ 4, + 8, -16), vec3d(+32, +16, -4),
@@ -80,7 +80,7 @@ namespace vm {
         ASSERT_EQ(max, merged.max);
     }
 
-    TEST(BBoxTest, valid) {
+    TEST(bbox_test, valid) {
         ASSERT_TRUE(bbox3d::valid(vec3d::zero, vec3d::zero));
         ASSERT_TRUE(bbox3d::valid(vec3d(-1, -1, -1), vec3d(+1, +1, +1)));
         ASSERT_FALSE(bbox3d::valid(vec3d(+1, -1, -1), vec3d(-1, +1, +1)));
@@ -88,13 +88,13 @@ namespace vm {
         ASSERT_FALSE(bbox3d::valid(vec3d(-1, -1, +1), vec3d(+1, +1, -1)));
     }
 
-    TEST(BBoxTest, empty) {
+    TEST(bbox_test, empty) {
         ASSERT_TRUE(bbox3d().empty());
         ASSERT_FALSE(bbox3d(1.0).empty());
         ASSERT_TRUE(bbox3d(vec3d(-1, 0, -1), vec3d(+1, 0, +1)).empty());
     }
 
-    TEST(BBoxTest, center) {
+    TEST(bbox_test, center) {
         const vec3f min(-1, -2, -3);
         const vec3f max( 1,  4,  5);
         const bbox3f bounds(min, max);
@@ -102,7 +102,7 @@ namespace vm {
         ASSERT_EQ(vec3f(0, 1, 1), bounds.center());
     }
 
-    TEST(BBoxTest, size) {
+    TEST(bbox_test, size) {
         const vec3f min(-1, -2, -3);
         const vec3f max( 1,  3,  5);
         const bbox3f bounds(min, max);
@@ -110,19 +110,19 @@ namespace vm {
         ASSERT_EQ(vec3f(2, 5, 8), bounds.size());
     }
 
-    TEST(BBoxTest, volume) {
+    TEST(bbox_test, volume) {
         ASSERT_DOUBLE_EQ(0.0, bbox3d().volume());
         ASSERT_DOUBLE_EQ(4.0 * 4.0 * 4.0, bbox3d(2.0).volume());
     }
 
-    TEST(BBoxTest, containsPoint) {
+    TEST(bbox_test, containsPoint) {
         const bbox3f bounds(vec3f(-12, -3,  4), vec3f( 8, 9, 8));
         ASSERT_TRUE(bounds.contains(vec3f(2, 1, 7)));
         ASSERT_TRUE(bounds.contains(vec3f(-12, -3, 7)));
         ASSERT_FALSE(bounds.contains(vec3f(-13, -3, 7)));
     }
 
-    TEST(BBoxTest, containsBBox) {
+    TEST(bbox_test, containsBBox) {
         const bbox3f bounds1(vec3f(-12, -3,  4), vec3f( 8, 9, 8));
         const bbox3f bounds2(vec3f(-10, -2,  5), vec3f( 7, 8, 7));
         const bbox3f bounds3(vec3f(-13, -2,  5), vec3f( 7, 8, 7));
@@ -131,7 +131,7 @@ namespace vm {
         ASSERT_FALSE(bounds1.contains(bounds3));
     }
 
-    TEST(BBoxTest, enclosesBBox) {
+    TEST(bbox_test, enclosesBBox) {
         const bbox3f bounds1(vec3f(-12, -3,  4), vec3f( 8, 9, 8));
         const bbox3f bounds2(vec3f(-10, -2,  5), vec3f( 7, 8, 7));
         const bbox3f bounds3(vec3f(-10, -3,  5), vec3f( 7, 8, 7));
@@ -140,7 +140,7 @@ namespace vm {
         ASSERT_FALSE(bounds1.encloses(bounds3));
     }
 
-    TEST(BBoxTest, constrain) {
+    TEST(bbox_test, constrain) {
         const bbox3d bounds (1024.0);
         ASSERT_VEC_EQ(vec3d::zero, bounds.constrain(vec3d::zero));
         ASSERT_VEC_EQ(bounds.min, bounds.constrain(bounds.min));
@@ -152,7 +152,7 @@ namespace vm {
         ASSERT_VEC_EQ(bounds.max, bounds.constrain(bounds.max + vec3d::pos_z));
     }
 
-    TEST(BBoxTest, corner) {
+    TEST(bbox_test, corner) {
         const vec3f min(-1.0f, -2.0f, -3.0f);
         const vec3f max( 1.0f,  3.0f,  5.0f);
         const bbox3f bounds(min, max);
@@ -167,7 +167,7 @@ namespace vm {
         ASSERT_VEC_EQ(vec3f( 1.0f,  3.0f,  5.0f), bounds.corner(bbox3f::Corner::max, bbox3f::Corner::max, bbox3f::Corner::max));
     }
 
-    TEST(BBoxTest, relativePosition) {
+    TEST(bbox_test, relativePosition) {
         const bbox3f bounds(vec3f(-12.0f, -3.0f,  4.0f), vec3f( 8.0f, 9.0f, 8.0f));
         const vec3f point1(-1.0f, 0.0f, 0.0f);
         const auto pos1 = bounds.relativePosition(point1);
@@ -176,19 +176,19 @@ namespace vm {
         ASSERT_EQ(bbox3f::Range::less,   pos1[2]);
     }
 
-    TEST(BBoxTest, expand) {
+    TEST(bbox_test, expand) {
         const bbox3f bounds  (vec3f(-12.0f, -3.0f,  4.0f), vec3f( 8.0f,  9.0f,  8.0f));
         const bbox3f expanded(vec3f(-14.0f, -5.0f,  2.0f), vec3f(10.0f, 11.0f, 10.0f));
         ASSERT_EQ(expanded, bounds.expand(2.0f));
     }
 
-    TEST(BBoxTest, translate) {
+    TEST(bbox_test, translate) {
         const bbox3f bounds    (vec3f(-12.0f, -3.0f,  4.0f), vec3f( 8.0f, 9.0f, 8.0f));
         const bbox3f translated(vec3f(-10.0f, -4.0f,  1.0f), vec3f(10.0f, 8.0f, 5.0f));
         ASSERT_EQ(translated, bounds.translate(vec3f(2.0f, -1.0f, -3.0f)));
     }
 
-    TEST(BBoxTest, transform) {
+    TEST(bbox_test, transform) {
         const auto bounds = bbox3d(-2.0, +10.0);
         const auto transform = rotationMatrix(toRadians(10.0), toRadians(77.0), toRadians(227.0));
         const auto points = bounds.vertices();
@@ -198,7 +198,7 @@ namespace vm {
         ASSERT_VEC_EQ(transformed.max, bounds.transform(transform).max);
     }
 
-    TEST(BBoxTest, equal) {
+    TEST(bbox_test, equal) {
         const vec3f min(-1, -2, -3);
         const vec3f max( 1,  2,  3);
 
@@ -210,7 +210,7 @@ namespace vm {
         ASSERT_FALSE(bounds1 == bounds3);
     }
 
-    TEST(BBoxTest, notEqual) {
+    TEST(bbox_test, notEqual) {
         const vec3f min(-1, -2, -3);
         const vec3f max( 1,  2,  3);
 
@@ -222,7 +222,14 @@ namespace vm {
         ASSERT_TRUE(bounds1 != bounds3);
     }
 
-    TEST(BBoxTest, mergeWithBBox) {
+    TEST(bbox_test, repair) {
+        auto actual = bbox3d(0.0);
+        actual.min = vec3d(+8.0, -8.0, +8.0);
+        actual.max = vec3d(-8.0, +8.0, -8.0);
+        ASSERT_EQ(bbox3d(8.0), repair(actual));
+    }
+
+    TEST(bbox_test, mergeWithBBox) {
         const bbox3f bounds1(vec3f(-12.0f, -3.0f, 4.0f), vec3f(7.0f, 8.0f, 9.0f));
         const bbox3f bounds2(vec3f(-10.0f, -5.0f, 3.0f), vec3f(9.0f, 9.0f, 5.0f));
         const bbox3f merged( vec3f(-12.0f, -5.0f, 3.0f), vec3f(9.0f, 9.0f, 9.0f));
@@ -230,7 +237,7 @@ namespace vm {
         ASSERT_EQ(merged, merge(bounds1, bounds2));
     }
 
-    TEST(BBoxTest, mergeWithVec) {
+    TEST(bbox_test, mergeWithVec) {
         bbox3f bounds(vec3f(-12.0f, -3.0f, 4.0f), vec3f(7.0f, 8.0f,  9.0f));
         const vec3f  vec(-10.0f, -6.0f, 10.0f);
         const bbox3f merged(vec3f(-12.0f, -6.0f, 4.0f), vec3f(7.0f, 8.0f, 10.0f));
@@ -238,7 +245,7 @@ namespace vm {
         ASSERT_EQ(merged, merge(bounds, vec));
     }
 
-    TEST(BBoxTest, intersectsBBox) {
+    TEST(bbox_test, intersectsBBox) {
         const bbox3f bounds1(vec3f(-12.0f, -3.0f,  4.0f), vec3f(  8.0f,  9.0f,  8.0f));
         const bbox3f bounds2(vec3f(-10.0f, -2.0f,  5.0f), vec3f(  7.0f,  8.0f,  7.0f));
         const bbox3f bounds3(vec3f(-13.0f, -2.0f,  5.0f), vec3f(  7.0f,  8.0f,  7.0f));
