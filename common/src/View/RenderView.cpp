@@ -19,6 +19,7 @@
 
 #include "RenderView.h"
 #include "Exceptions.h"
+#include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/Transformation.h"
@@ -26,6 +27,7 @@
 #include "Renderer/VertexSpec.h"
 #include "View/GLContextManager.h"
 #include "View/wxUtils.h"
+#include "View/MapFrame.h"
 #include "TrenchBroomApp.h"
 
 #include <wx/dcclient.h>
@@ -63,9 +65,32 @@ namespace TrenchBroom {
                 if (!m_initialized)
                     initializeGL();
 
+                m_renderStartTimes.push_back(wxGetLocalTimeMillis());
+
                 wxPaintDC paintDC(this);
                 render();
                 SwapBuffers();
+
+                m_renderEndTimes.push_back(wxGetLocalTimeMillis());
+
+                if (wxGetLocalTimeMillis() - m_renderStartTimes.at(0) > 1000.0) {
+                    double avgFrameTime = 0.0;
+                    for (size_t i = 0; i < m_renderStartTimes.size(); ++i) {
+                        avgFrameTime += (m_renderEndTimes[i] - m_renderStartTimes[i]).ToDouble();
+                    }
+                    avgFrameTime /= static_cast<double>(m_renderStartTimes.size());
+
+                    if (MapFrame* mapFrame = findMapFrame(this); mapFrame != nullptr) {
+                        if (mapFrame->logger()) {
+                            mapFrame->logger()->info("Drew %d frames in the last second. avg frame time: %f ms\n",
+                                static_cast<int>(m_renderEndTimes.size()),
+                                avgFrameTime);
+                        }
+                    }
+
+                    m_renderStartTimes.clear();
+                    m_renderEndTimes.clear();
+                }
             }
         }
         
