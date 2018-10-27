@@ -177,6 +177,14 @@ namespace TrenchBroom {
             
             void OnMergeGroups(wxCommandEvent& event);
             Model::Group* findGroupToMergeGroupsInto(const Model::NodeCollection& selectedNodes) const;
+
+            /**
+             * Checks whether the given node can be reparented under the given new parent.
+             *
+             * @param node the node to reparent
+             * @param newParent the new parent node
+             * @return true if the given node can be reparented under the given new parent, and false otherwise
+             */
             bool canReparentNode(const Model::Node* node, const Model::Node* newParent) const;
             
             void OnMoveBrushesTo(wxCommandEvent& event);
