@@ -20,7 +20,6 @@
 #include "MapDocumentTest.h"
 
 #include "TestUtils.h"
-#include <vecmath/scalar.h>
 #include "Assets/EntityDefinition.h"
 #include "Assets/ModelDefinition.h"
 #include "Model/Brush.h"
@@ -38,12 +37,15 @@
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 
+#include <vecmath/bbox.h>
+#include <vecmath/scalar.h>
+
 namespace TrenchBroom {
     namespace View {
         MapDocumentTest::MapDocumentTest() :
         ::testing::Test(),
         m_mapFormat(Model::MapFormat::Standard) {}
-        
+
         MapDocumentTest::MapDocumentTest(const Model::MapFormat::Type mapFormat) :
         ::testing::Test(),
         m_mapFormat(mapFormat),
@@ -70,7 +72,7 @@ namespace TrenchBroom {
             Model::BrushBuilder builder(document->world(), document->worldBounds());
             return builder.createCube(32.0, textureName);
         }
-        
+
         static void checkPlanePointsIntegral(const Model::Brush *brush) {
             for (const Model::BrushFace* face : brush->faces()) {
                 for (size_t i=0; i<3; i++) {
@@ -79,93 +81,93 @@ namespace TrenchBroom {
                 }
             }
         }
-        
+
         static void checkVerticesIntegral(const Model::Brush *brush) {
             for (const Model::BrushVertex* vertex : brush->vertices())
                 ASSERT_POINT_INTEGRAL(vertex->position());
         }
-        
+
         static void checkBoundsIntegral(const Model::Brush *brush) {
             ASSERT_POINT_INTEGRAL(brush->bounds().min);
             ASSERT_POINT_INTEGRAL(brush->bounds().max);
         }
-        
+
         static void checkBrushIntegral(const Model::Brush *brush) {
             checkPlanePointsIntegral(brush);
             checkVerticesIntegral(brush);
             checkBoundsIntegral(brush);
         }
-        
+
         TEST_F(MapDocumentTest, flip) {
             Model::BrushBuilder builder(document->world(), document->worldBounds());
             Model::Brush *brush1 = builder.createCuboid(vm::bbox3(vm::vec3(0.0, 0.0, 0.0), vm::vec3(30.0, 31.0, 31.0)), "texture");
             Model::Brush *brush2 = builder.createCuboid(vm::bbox3(vm::vec3(30.0, 0.0, 0.0), vm::vec3(31.0, 31.0, 31.0)), "texture");
-            
+
             checkBrushIntegral(brush1);
             checkBrushIntegral(brush2);
-            
+
             document->addNode(brush1, document->currentParent());
             document->addNode(brush2, document->currentParent());
-            
+
             Model::NodeList brushes;
             brushes.push_back(brush1);
             brushes.push_back(brush2);
             document->select(brushes);
-            
+
             vm::vec3 boundsCenter = document->selectionBounds().center();
             ASSERT_EQ(vm::vec3(15.5, 15.5, 15.5), boundsCenter);
-            
+
             document->flipObjects(boundsCenter, vm::axis::x);
-            
+
             checkBrushIntegral(brush1);
             checkBrushIntegral(brush2);
-         
+
             ASSERT_EQ(vm::bbox3(vm::vec3(1.0, 0.0, 0.0), vm::vec3(31.0, 31.0, 31.0)), brush1->bounds());
             ASSERT_EQ(vm::bbox3(vm::vec3(0.0, 0.0, 0.0), vm::vec3(1.0, 31.0, 31.0)), brush2->bounds());
         }
-        
+
         TEST_F(MapDocumentTest, rotate) {
             Model::BrushBuilder builder(document->world(), document->worldBounds());
             Model::Brush *brush1 = builder.createCuboid(vm::bbox3(vm::vec3(0.0, 0.0, 0.0), vm::vec3(30.0, 31.0, 31.0)), "texture");
             Model::Brush *brush2 = builder.createCuboid(vm::bbox3(vm::vec3(30.0, 0.0, 0.0), vm::vec3(31.0, 31.0, 31.0)), "texture");
-            
+
             checkBrushIntegral(brush1);
             checkBrushIntegral(brush2);
-            
+
             document->addNode(brush1, document->currentParent());
             document->addNode(brush2, document->currentParent());
-            
+
             Model::NodeList brushes;
             brushes.push_back(brush1);
             brushes.push_back(brush2);
             document->select(brushes);
-            
+
             vm::vec3 boundsCenter = document->selectionBounds().center();
             ASSERT_EQ(vm::vec3(15.5, 15.5, 15.5), boundsCenter);
-            
+
             // 90 degrees CCW about the Z axis through the center of the selection
             document->rotateObjects(boundsCenter, vm::vec3::pos_z, vm::toRadians(90.0));
-            
+
             checkBrushIntegral(brush1);
             checkBrushIntegral(brush2);
-            
+
             const vm::bbox3 brush1ExpectedBounds(vm::vec3(0.0, 0.0, 0.0), vm::vec3(31.0, 30.0, 31.0));
             const vm::bbox3 brush2ExpectedBounds(vm::vec3(0.0, 30.0, 0.0), vm::vec3(31.0, 31.0, 31.0));
-            
+
             // these should be exactly integral
             ASSERT_EQ(brush1ExpectedBounds, brush1->bounds());
             ASSERT_EQ(brush2ExpectedBounds, brush2->bounds());
         }
-        
+
         TEST_F(MapDocumentTest, shearCube) {
             const vm::bbox3 initialBBox(vm::vec3(100,100,100), vm::vec3(200,200,200));
-            
+
             Model::BrushBuilder builder(document->world(), document->worldBounds());
             Model::Brush *brush1 = builder.createCuboid(initialBBox, "texture");
-            
+
             document->addNode(brush1, document->currentParent());
             document->select(Model::NodeList{brush1});
-            
+
             const std::set<vm::vec3> initialPositions{
                 // bottom face
                 {100,100,100},
@@ -179,10 +181,10 @@ namespace TrenchBroom {
                 {100,200,200},
             };
             ASSERT_EQ(initialPositions, SetUtils::makeSet(brush1->vertexPositions()));
-            
+
             // Shear the -Y face by (50, 0, 0). That means the verts with Y=100 will get sheared.
             ASSERT_TRUE(document->shearObjects(initialBBox, vm::vec3::neg_y, vm::vec3(50,0,0)));
-            
+
             const std::set<vm::vec3> shearedPositions{
                 // bottom face
                 {150,100,100},
@@ -197,16 +199,16 @@ namespace TrenchBroom {
             };
             ASSERT_EQ(shearedPositions, SetUtils::makeSet(brush1->vertexPositions()));
         }
-        
+
         TEST_F(MapDocumentTest, shearPillar) {
             const vm::bbox3 initialBBox(vm::vec3(0,0,0), vm::vec3(100,100,400));
-            
+
             Model::BrushBuilder builder(document->world(), document->worldBounds());
             Model::Brush *brush1 = builder.createCuboid(initialBBox, "texture");
-            
+
             document->addNode(brush1, document->currentParent());
             document->select(Model::NodeList{brush1});
-            
+
             const std::set<vm::vec3> initialPositions{
                 // bottom face
                 {0,  0,  0},
@@ -220,10 +222,10 @@ namespace TrenchBroom {
                 {0,  100,400},
             };
             ASSERT_EQ(initialPositions, SetUtils::makeSet(brush1->vertexPositions()));
-            
+
             // Shear the +Z face by (50, 0, 0). That means the verts with Z=400 will get sheared.
             ASSERT_TRUE(document->shearObjects(initialBBox, vm::vec3::pos_z, vm::vec3(50,0,0)));
-            
+
             const std::set<vm::vec3> shearedPositions{
                 // bottom face
                 {0,  0,  0},
@@ -277,49 +279,85 @@ namespace TrenchBroom {
             ASSERT_TRUE(document->scaleObjects(boundsCenter, vm::vec3(2.0, 1.0, 1.0)));
             ASSERT_EQ(expectedBBox, brush1->bounds());
         }
-        
-        TEST_F(MapDocumentTest, csgConvexMerge) {
+
+        TEST_F(MapDocumentTest, csgConvexMergeBrushes) {
             const Model::BrushBuilder builder(document->world(), document->worldBounds());
-            
+
             Model::Entity* entity = new Model::Entity();
             document->addNode(entity, document->currentParent());
-            
+
             Model::Brush* brush1 = builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(32, 64, 64)), "texture");
             Model::Brush* brush2 = builder.createCuboid(vm::bbox3(vm::vec3(32, 0, 0), vm::vec3(64, 64, 64)), "texture");
             document->addNode(brush1, entity);
-            document->addNode(brush2, entity);
-            ASSERT_EQ(2, entity->children().size());
-            
+            document->addNode(brush2, document->currentParent());
+            ASSERT_EQ(1, entity->children().size());
+
             document->select(Model::NodeList { brush1, brush2 });
             ASSERT_TRUE(document->csgConvexMerge());
-            ASSERT_EQ(1, entity->children().size());
-            
-            Model::Node* brush3 = entity->children()[0];            
+            ASSERT_EQ(1, entity->children().size()); // added to the parent of the first brush
+
+            Model::Node* brush3 = entity->children().front();
             ASSERT_EQ(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), brush3->bounds());
+        }
+
+        TEST_F(MapDocumentTest, csgConvexMergeFaces) {
+            const Model::BrushBuilder builder(document->world(), document->worldBounds());
+
+            Model::Entity* entity = new Model::Entity();
+            document->addNode(entity, document->currentParent());
+
+            Model::Brush* brush1 = builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(32, 64, 64)), "texture");
+            Model::Brush* brush2 = builder.createCuboid(vm::bbox3(vm::vec3(32, 0, 0), vm::vec3(64, 64, 64)), "texture");
+            document->addNode(brush1, entity);
+            document->addNode(brush2, document->currentParent());
+            ASSERT_EQ(1, entity->children().size());
+
+            auto* face1 = brush1->faces().front();
+            auto* face2 = brush2->faces().front();
+
+            document->select(Model::BrushFaceList { face1, face2 });
+            ASSERT_TRUE(document->csgConvexMerge());
+            ASSERT_EQ(2, entity->children().size()); // added to the parent of the first brush, original brush is not deleted
+
+            Model::Node* brush3 = entity->children().back();
+
+            // check our assumption about the order of the entities' children
+            assert(brush3 != brush1);
+            assert(brush3 != brush2);
+
+            const auto face1Verts = face1->vertexPositions();
+            const auto face2Verts = face2->vertexPositions();
+
+            const auto bounds = vm::merge(
+                vm::bbox3::mergeAll(std::begin(face1Verts), std::end(face1Verts), vm::identity()),
+                vm::bbox3::mergeAll(std::begin(face2Verts), std::end(face2Verts), vm::identity())
+            );
+
+            ASSERT_EQ(bounds, brush3->bounds());
         }
 
         TEST_F(MapDocumentTest, setTextureNull) {
             Model::BrushBuilder builder(document->world(), document->worldBounds());
             Model::Brush *brush1 = builder.createCube(64.0f, Model::BrushFace::NoTextureName);
-            
+
             document->addNode(brush1, document->currentParent());
             document->select(brush1);
-            
+
             document->setTexture(nullptr);
         }
-        
+
         ValveMapDocumentTest::ValveMapDocumentTest() :
         MapDocumentTest(Model::MapFormat::Valve) {}
-        
+
         TEST_F(ValveMapDocumentTest, csgConvexMergeTexturing) {
             const Model::BrushBuilder builder(document->world(), document->worldBounds());
-            
+
             Model::Entity* entity = new Model::Entity();
             document->addNode(entity, document->currentParent());
-            
+
             Model::ParallelTexCoordSystem texAlignment(vm::vec3(1, 0, 0), vm::vec3(0, 1, 0));
             Model::TexCoordSystemSnapshot* texAlignmentSnapshot = texAlignment.takeSnapshot();
-            
+
             Model::Brush* brush1 = builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(32, 64, 64)), "texture");
             Model::Brush* brush2 = builder.createCuboid(vm::bbox3(vm::vec3(32, 0, 0), vm::vec3(64, 64, 64)), "texture");
             brush1->findFace(vm::vec3::pos_z)->restoreTexCoordSystemSnapshot(texAlignmentSnapshot);
@@ -327,62 +365,62 @@ namespace TrenchBroom {
             document->addNode(brush1, entity);
             document->addNode(brush2, entity);
             ASSERT_EQ(2, entity->children().size());
-            
+
             document->select(Model::NodeList { brush1, brush2 });
             ASSERT_TRUE(document->csgConvexMerge());
             ASSERT_EQ(1, entity->children().size());
-            
+
             Model::Brush* brush3 = static_cast<Model::Brush*>(entity->children()[0]);
             Model::BrushFace* top = brush3->findFace(vm::vec3::pos_z);
             ASSERT_EQ(vm::vec3(1, 0, 0), top->textureXAxis());
             ASSERT_EQ(vm::vec3(0, 1, 0), top->textureYAxis());
-            
+
             delete texAlignmentSnapshot;
         }
-        
+
         TEST_F(ValveMapDocumentTest, csgSubtractTexturing) {
             const Model::BrushBuilder builder(document->world(), document->worldBounds());
-            
+
             Model::Entity* entity = new Model::Entity();
             document->addNode(entity, document->currentParent());
-            
+
             Model::ParallelTexCoordSystem texAlignment(vm::vec3(1, 0, 0), vm::vec3(0, 1, 0));
             Model::TexCoordSystemSnapshot* texAlignmentSnapshot = texAlignment.takeSnapshot();
-            
+
             Model::Brush* brush1 = builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture");
             Model::Brush* brush2 = builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 32)), "texture");
             brush2->findFace(vm::vec3::pos_z)->restoreTexCoordSystemSnapshot(texAlignmentSnapshot);
             document->addNode(brush1, entity);
             document->addNode(brush2, entity);
             ASSERT_EQ(2, entity->children().size());
-            
+
             document->select(Model::NodeList { brush1, brush2 });
             ASSERT_TRUE(document->csgSubtract());
             ASSERT_EQ(1, entity->children().size());
-            
+
             Model::Brush* brush3 = static_cast<Model::Brush*>(entity->children()[0]);
             ASSERT_EQ(vm::bbox3(vm::vec3(0, 0, 32), vm::vec3(64, 64, 64)), brush3->bounds());
-            
+
             // the texture alignment from the top of brush2 should have transferred
             // to the bottom face of brush3
             Model::BrushFace* top = brush3->findFace(vm::vec3::neg_z);
             ASSERT_EQ(vm::vec3(1, 0, 0), top->textureXAxis());
             ASSERT_EQ(vm::vec3(0, 1, 0), top->textureYAxis());
-            
+
             delete texAlignmentSnapshot;
         }
-        
+
         TEST_F(MapDocumentTest, newWithGroupOpen) {
             Model::Entity* entity = new Model::Entity();
             document->addNode(entity, document->currentParent());
             document->select(entity);
             Model::Group* group = document->groupSelection("my group");
             document->openGroup(group);
-            
+
             ASSERT_EQ(group, document->currentGroup());
-            
+
             document->newDocument(Model::MapFormat::Valve, MapDocument::DefaultWorldBounds, document->game());
-         	
+
             ASSERT_EQ(nullptr, document->currentGroup());
         }
 
@@ -429,37 +467,37 @@ namespace TrenchBroom {
             ASSERT_EQ(outer, innerEnt1->parent());
             ASSERT_EQ(outer, innerEnt2->parent());
         }
-        
+
         TEST_F(MapDocumentTest, ungroupLeavesPointEntitySelected) {
             Model::Entity* ent1 = new Model::Entity();
-            
+
             document->addNode(ent1, document->currentParent());
             document->select(Model::NodeList {ent1});
-            
+
             Model::Group* group = document->groupSelection("Group");
             ASSERT_EQ((Model::NodeList {group}), document->selectedNodes().nodes());
-            
+
             document->ungroupSelection();
             ASSERT_EQ((Model::NodeList {ent1}), document->selectedNodes().nodes());
         }
-        
+
         TEST_F(MapDocumentTest, ungroupLeavesBrushEntitySelected) {
             const Model::BrushBuilder builder(document->world(), document->worldBounds());
-            
+
             Model::Entity* ent1 = new Model::Entity();
             document->addNode(ent1, document->currentParent());
-            
+
             Model::Brush* brush1 = builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture");
             document->addNode(brush1, ent1);
             document->select(Model::NodeList{ent1});
             ASSERT_EQ((Model::NodeList {brush1}), document->selectedNodes().nodes());
             ASSERT_FALSE(ent1->selected());
             ASSERT_TRUE(brush1->selected());
-            
+
             Model::Group* group = document->groupSelection("Group");
             ASSERT_EQ((Model::NodeList {ent1}), group->children());
             ASSERT_EQ((Model::NodeList {group}), document->selectedNodes().nodes());
-            
+
             document->ungroupSelection();
             ASSERT_EQ((Model::NodeList {brush1}), document->selectedNodes().nodes());
             ASSERT_FALSE(ent1->selected());
@@ -469,27 +507,27 @@ namespace TrenchBroom {
         TEST_F(MapDocumentTest, mergeGroups) {
             document->selectAllNodes();
             document->deleteObjects();
-            
+
             Model::Entity* ent1 = new Model::Entity();
             document->addNode(ent1, document->currentParent());
             document->deselectAll();
             document->select(Model::NodeList {ent1});
             Model::Group* group1 = document->groupSelection("group1");
-            
+
             Model::Entity* ent2 = new Model::Entity();
             document->addNode(ent2, document->currentParent());
             document->deselectAll();
             document->select(Model::NodeList {ent2});
             Model::Group* group2 = document->groupSelection("group2");
-            
+
             ASSERT_EQ((Model::NodeSet {group1, group2}), SetUtils::makeSet(document->currentLayer()->children()));
-            
+
             document->select(Model::NodeList {group1, group2});
             document->mergeSelectedGroupsWithGroup(group2);
-            
+
             ASSERT_EQ((Model::NodeList {group2}), document->selectedNodes().nodes());
             ASSERT_EQ((Model::NodeList {group2}), document->currentLayer()->children());
-            
+
             ASSERT_EQ((Model::NodeSet {}), SetUtils::makeSet(group1->children()));
             ASSERT_EQ((Model::NodeSet {ent1, ent2}), SetUtils::makeSet(group2->children()));
         }

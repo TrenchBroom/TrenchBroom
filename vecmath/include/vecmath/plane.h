@@ -389,7 +389,7 @@ namespace vm {
      * @param get the mapping function
      * @return a pair of a boolean indicating whether the plane is valid, and the plane itself
      */
-    template <typename I, typename G = Identity>
+    template <typename I, typename G = identity>
     auto fromPoints(I cur, I end, const G& get = G()) -> std::tuple<bool, plane<typename std::remove_reference<decltype(get(*cur))>::type::type,3>> {
         using T = typename std::remove_reference<decltype(get(*cur))>::type::type;
 

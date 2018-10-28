@@ -46,7 +46,7 @@ namespace vm {
      * @param get the transformation function to apply to the range elements to obtain a point of type vec<T,S>
      * @return true if the given point is contained in the given polygon, and false otherwise
      */
-    template <typename T, typename I, typename G = Identity>
+    template <typename T, typename I, typename G = identity>
     bool contains(const vec<T,3>& p, const axis::type axis, I cur, I end, const G& get = G()) {
         const auto o = swizzle(p, axis);
 
@@ -89,7 +89,7 @@ namespace vm {
      * @param get the transformation function to apply to the range elements to obtain a point of type vec<T,S>
      * @return true if the given point is contained in the given polygon, and false otherwise
      */
-    template <typename T, typename I, typename G = Identity>
+    template <typename T, typename I, typename G = identity>
     bool contains(const vec<T,3>& p, const vec<T,3>& n, I cur, I end, const G& get = G()) {
         return contains(p, firstComponent(n), cur, end, get);
     }
@@ -108,7 +108,7 @@ namespace vm {
      * @param get the transformation function to apply to the range elements to obtain a point of type vec<T,S>
      * @return true if the given point is contained in the given polygon, and false otherwise
      */
-    template <typename T, typename I, typename G = Identity>
+    template <typename T, typename I, typename G = identity>
     bool contains(const vec<T,3>& p, I cur, I end, const G& get = G()) {
         I temp = cur;
 
@@ -277,7 +277,7 @@ namespace vm {
      * @return the distance from the origin of the ray to the point of intersection or NaN if the ray does not
      * intersect the polygon
      */
-    template <typename T, typename I, typename G = Identity>
+    template <typename T, typename I, typename G = identity>
     T intersect(const ray<T,3>& r, const plane<T,3>& p, I cur, I end, const G& get = G()) {
         const auto distance = intersect(r, p);
         if (isnan(distance)) {
@@ -304,7 +304,7 @@ namespace vm {
      * @return the distance from the origin of the ray to the point of intersection or NaN if the ray does not
      * intersect the polygon
      */
-    template <typename T, typename I, typename G = Identity>
+    template <typename T, typename I, typename G = identity>
     T intersect(const ray<T,3>& r, I cur, I end, const G& get = G()) {
         const auto [valid, plane] = fromPoints(cur, end, get);
         if (!valid) {
