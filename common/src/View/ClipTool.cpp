@@ -871,6 +871,7 @@ namespace TrenchBroom {
             document->selectionDidChangeNotifier.addObserver(this, &ClipTool::selectionDidChange);
             document->nodesWillChangeNotifier.addObserver(this, &ClipTool::nodesWillChange);
             document->nodesDidChangeNotifier.addObserver(this, &ClipTool::nodesDidChange);
+            document->brushFacesDidChangeNotifier.addObserver(this, &ClipTool::facesDidChange);
         }
         
         void ClipTool::unbindObservers() {
@@ -879,22 +880,32 @@ namespace TrenchBroom {
                 document->selectionDidChangeNotifier.removeObserver(this, &ClipTool::selectionDidChange);
                 document->nodesWillChangeNotifier.removeObserver(this, &ClipTool::nodesWillChange);
                 document->nodesDidChangeNotifier.removeObserver(this, &ClipTool::nodesDidChange);
+                document->brushFacesDidChangeNotifier.removeObserver(this, &ClipTool::facesDidChange);
             }
         }
         
         void ClipTool::selectionDidChange(const Selection& selection) {
-            if (!m_ignoreNotifications)
+            if (!m_ignoreNotifications) {
                 update();
+            }
         }
         
         void ClipTool::nodesWillChange(const Model::NodeList& nodes) {
-            if (!m_ignoreNotifications)
+            if (!m_ignoreNotifications) {
                 update();
+            }
         }
         
         void ClipTool::nodesDidChange(const Model::NodeList& nodes) {
-            if (!m_ignoreNotifications)
+            if (!m_ignoreNotifications) {
                 update();
+            }
+        }
+
+        void ClipTool::facesDidChange(const Model::BrushFaceList& nodes) {
+            if (!m_ignoreNotifications) {
+                update();
+            }
         }
     }
 }
