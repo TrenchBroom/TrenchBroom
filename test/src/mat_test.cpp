@@ -710,8 +710,6 @@ namespace vm {
         vec3d out[3];
         for (size_t i=0; i<3; ++i) {
             out[i] = M * in[i];
-
-            std::cout << "out[" << i << "]: " << out[i] << "\n";
         }
 
         // in[0]: 0,2,0, then 0,4,0, then 100, 104, 100
@@ -722,8 +720,6 @@ namespace vm {
         vec3d test[3];
         for (size_t i=0; i<3; ++i) {
             test[i] = M2 * in[i];
-
-            std::cout << "test[" << i << "]: " << test[i] << "\n";
 
             EXPECT_VEC_EQ(out[i], test[i]);
         }

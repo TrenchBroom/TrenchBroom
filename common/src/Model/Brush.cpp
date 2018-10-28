@@ -1057,8 +1057,6 @@ namespace TrenchBroom {
         }
 
         std::tuple<bool, vm::mat4x4> Brush::findTransformForUVLock(const PolyhedronMatcher<BrushGeometry>& matcher, BrushFaceGeometry* left, BrushFaceGeometry* right) {
-            std::cout << "    processing face: " << right->normal() << "\n";
-
             std::vector<vm::vec3> unmovedVerts;
             std::vector<std::pair<vm::vec3, vm::vec3>> movedVerts;
 
@@ -1073,17 +1071,9 @@ namespace TrenchBroom {
                 }
             });
 
-            std::cout << "    found " << unmovedVerts.size() << " unmoved:\n";
-            for (const auto& unmoved : unmovedVerts) {
-                std::cout << "        " << unmoved << "\n";
-            }
-            std::cout << "    found " << movedVerts.size() << " moved:\n";
-            for (const auto& moved : movedVerts) {
-                std::cout << "        " << moved.first << " -> " << moved.second << "\n";
-            }
-
             if (movedVerts.size() == 1 && unmovedVerts.size() > 2) {
-                std::cout << "four or more verts, but only one is moving. giving up\n";
+                // Four or more verts, but only one is moving. Can't do UV lock with an affine transform, so give up.
+                // (With a triangle and one vert moving, you can.)
                 return {false, {}};
             }
 
@@ -1093,7 +1083,7 @@ namespace TrenchBroom {
             }
 
             if (referenceVerts.size() < 3) {
-                std::cout << "    can't create a transform as there are not enough verts\n";
+                // Can't create a transform as there are not enough verts
                 return {false, {}};
             }
 
@@ -1102,7 +1092,7 @@ namespace TrenchBroom {
                     referenceVerts[0].second, referenceVerts[1].second, referenceVerts[2].second);
 
             if (!(M == M)) {
-                std::cout << "    contains nan\n";
+                // Transform contains nan
                 return {false, {}};
             }
 
