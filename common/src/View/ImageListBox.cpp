@@ -82,6 +82,7 @@ namespace TrenchBroom {
                 if (image != nullptr) {
                     m_imageBmp = new wxStaticBitmap(this, wxID_ANY, *image);
                     hSizer->Add(m_imageBmp, 0, wxALIGN_BOTTOM | wxTOP | wxBOTTOM, margins.y);
+                    hSizer->AddSpacer(4);
                 }
                 hSizer->Add(vSizer, 0, wxTOP | wxBOTTOM, margins.y);
                 hSizer->AddSpacer(margins.x);
