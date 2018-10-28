@@ -283,11 +283,11 @@ namespace TrenchBroom {
         TEST_F(MapDocumentTest, csgConvexMergeBrushes) {
             const Model::BrushBuilder builder(document->world(), document->worldBounds());
 
-            Model::Entity* entity = new Model::Entity();
+            auto* entity = new Model::Entity();
             document->addNode(entity, document->currentParent());
 
-            Model::Brush* brush1 = builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(32, 64, 64)), "texture");
-            Model::Brush* brush2 = builder.createCuboid(vm::bbox3(vm::vec3(32, 0, 0), vm::vec3(64, 64, 64)), "texture");
+            auto* brush1 = builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(32, 64, 64)), "texture");
+            auto* brush2 = builder.createCuboid(vm::bbox3(vm::vec3(32, 0, 0), vm::vec3(64, 64, 64)), "texture");
             document->addNode(brush1, entity);
             document->addNode(brush2, document->currentParent());
             ASSERT_EQ(1, entity->children().size());
@@ -296,18 +296,18 @@ namespace TrenchBroom {
             ASSERT_TRUE(document->csgConvexMerge());
             ASSERT_EQ(1, entity->children().size()); // added to the parent of the first brush
 
-            Model::Node* brush3 = entity->children().front();
+            auto* brush3 = entity->children().front();
             ASSERT_EQ(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), brush3->bounds());
         }
 
         TEST_F(MapDocumentTest, csgConvexMergeFaces) {
             const Model::BrushBuilder builder(document->world(), document->worldBounds());
 
-            Model::Entity* entity = new Model::Entity();
+            auto* entity = new Model::Entity();
             document->addNode(entity, document->currentParent());
 
-            Model::Brush* brush1 = builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(32, 64, 64)), "texture");
-            Model::Brush* brush2 = builder.createCuboid(vm::bbox3(vm::vec3(32, 0, 0), vm::vec3(64, 64, 64)), "texture");
+            auto* brush1 = builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(32, 64, 64)), "texture");
+            auto* brush2 = builder.createCuboid(vm::bbox3(vm::vec3(32, 0, 0), vm::vec3(64, 64, 64)), "texture");
             document->addNode(brush1, entity);
             document->addNode(brush2, document->currentParent());
             ASSERT_EQ(1, entity->children().size());
@@ -319,7 +319,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(document->csgConvexMerge());
             ASSERT_EQ(2, entity->children().size()); // added to the parent of the first brush, original brush is not deleted
 
-            Model::Node* brush3 = entity->children().back();
+            auto* brush3 = entity->children().back();
 
             // check our assumption about the order of the entities' children
             assert(brush3 != brush1);
