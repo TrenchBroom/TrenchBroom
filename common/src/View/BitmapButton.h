@@ -30,7 +30,7 @@ namespace TrenchBroom {
         protected:
             BitmapButton(wxWindow* parent, wxWindowID windowId);
         public:
-            virtual ~BitmapButton();
+            virtual ~BitmapButton() override;
 
             bool HasTransparentBackground() override;
             bool ShouldInheritColours() const override;

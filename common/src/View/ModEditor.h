@@ -52,7 +52,7 @@ namespace TrenchBroom {
             bool m_ignoreNotifier;
         public:
             ModEditor(wxWindow* parent, MapDocumentWPtr document);
-            ~ModEditor();
+            ~ModEditor() override;
 
             bool ShouldInheritColours() const override;
 
