@@ -54,19 +54,21 @@ namespace TrenchBroom {
         void LayerEditor::OnSetCurrentLayer(LayerCommand& event) {
             if (IsBeingDeleted()) return;
 
-            Model::Layer* layer = event.layer();
-            MapDocumentSPtr document = lock(m_document);
-            if (layer->locked())
+            auto* layer = event.layer();
+            auto document = lock(m_document);
+            if (layer->locked()) {
                 document->resetLock(Model::NodeList(1, layer));
-            if (layer->hidden())
+            }
+            if (layer->hidden()) {
                 document->resetVisibility(Model::NodeList(1, layer));
+            }
             document->setCurrentLayer(event.layer());
         }
 
         void LayerEditor::OnLayerRightClick(LayerCommand& event) {
             if (IsBeingDeleted()) return;
 
-            const Model::Layer* layer = event.layer();
+            const auto* layer = event.layer();
             
             wxMenu popupMenu;
             popupMenu.Append(MoveSelectionToLayerCommandId, "Move selection to layer");
@@ -103,13 +105,13 @@ namespace TrenchBroom {
         }
 
         void LayerEditor::OnUpdateToggleLayerVisibleUI(wxUpdateUIEvent& event) {
-            Model::Layer* layer = m_layerList->selectedLayer();
+            auto* layer = m_layerList->selectedLayer();
             if (layer == nullptr) {
                 event.Enable(false);
                 return;
             }
             
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             if (!layer->hidden() && layer == document->currentLayer()) {
                 event.Enable(false);
                 return;
@@ -120,11 +122,12 @@ namespace TrenchBroom {
 
         void LayerEditor::toggleLayerVisible(Model::Layer* layer) {
             ensure(layer != nullptr, "layer is null");
-            MapDocumentSPtr document = lock(m_document);
-            if (!layer->hidden())
+            auto document = lock(m_document);
+            if (!layer->hidden()) {
                 document->hide(Model::NodeList(1, layer));
-            else
+            } else {
                 document->resetVisibility(Model::NodeList(1, layer));
+            }
         }
 
         void LayerEditor::OnToggleLayerLockedFromMenu(wxCommandEvent& event) {
@@ -140,13 +143,13 @@ namespace TrenchBroom {
         }
 
         void LayerEditor::OnUpdateToggleLayerLockedUI(wxUpdateUIEvent& event) {
-            Model::Layer* layer = m_layerList->selectedLayer();
+            auto* layer = m_layerList->selectedLayer();
             if (layer == nullptr) {
                 event.Enable(false);
                 return;
             }
             
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             if (!layer->locked() && layer == document->currentLayer()) {
                 event.Enable(false);
                 return;
@@ -157,11 +160,12 @@ namespace TrenchBroom {
 
         void LayerEditor::toggleLayerLocked(Model::Layer* layer) {
             ensure(layer != nullptr, "layer is null");
-            MapDocumentSPtr document = lock(m_document);
-            if (!layer->locked())
+            auto document = lock(m_document);
+            if (!layer->locked()) {
                 document->lock(Model::NodeList(1, layer));
-            else
+            } else {
                 document->resetLock(Model::NodeList(1, layer));
+            }
         }
 
         class LayerEditor::CollectMoveableNodes : public Model::NodeVisitor {
@@ -204,7 +208,7 @@ namespace TrenchBroom {
             void doVisit(Model::Brush* brush) override   {
                 assert(brush->selected());
                 if (!brush->grouped()) {
-                    Model::AttributableNode* entity = brush->entity();
+                    auto* entity = brush->entity();
                     if (entity == m_world) {
                         m_moveNodes.insert(brush);
                         m_selectNodes.insert(brush);
@@ -221,10 +225,10 @@ namespace TrenchBroom {
         void LayerEditor::OnMoveSelectionToLayer(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            Model::Layer* layer = m_layerList->selectedLayer();
+            auto* layer = m_layerList->selectedLayer();
             ensure(layer != nullptr, "layer is null");
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             Transaction transaction(document, "Move Nodes to " + layer->name());
             moveSelectedNodesToLayer(document, layer);
         }
@@ -232,29 +236,29 @@ namespace TrenchBroom {
         void LayerEditor::OnUpdateMoveSelectionToLayerUI(wxUpdateUIEvent& event) {
             if (IsBeingDeleted()) return;
 
-            const Model::Layer* layer = m_layerList->selectedLayer();
+            const auto* layer = m_layerList->selectedLayer();
             if (layer == nullptr) {
                 event.Enable(false);
                 return;
             }
 
-            MapDocumentSPtr document = lock(m_document);
-            const Model::NodeList& nodes = document->selectedNodes().nodes();
+            auto document = lock(m_document);
+            const auto& nodes = document->selectedNodes().nodes();
             if (nodes.empty()) {
                 event.Enable(false);
                 return;
             }
 
-            for (Model::Node* node : nodes) {
-                Model::Group* nodeGroup = Model::findGroup(node);
+            for (auto* node : nodes) {
+                auto* nodeGroup = Model::findGroup(node);
                 if (nodeGroup != nullptr) {
                     event.Enable(false);
                     return;
                 }
             }
 
-            for (Model::Node* node : nodes) {
-                Model::Layer* nodeLayer = Model::findLayer(node);
+            for (auto* node : nodes) {
+                auto* nodeLayer = Model::findLayer(node);
                 if (nodeLayer != layer) {
                     event.Enable(true);
                     return;
@@ -267,15 +271,15 @@ namespace TrenchBroom {
         void LayerEditor::OnSelectAllInLayer(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            Model::Layer* layer = m_layerList->selectedLayer();
+            auto* layer = m_layerList->selectedLayer();
             ensure(layer != nullptr, "layer is null");
             
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             
             Model::CollectSelectableNodesVisitor visitor(document->editorContext());
             layer->recurse(visitor);
             
-            const Model::NodeList& nodes = visitor.nodes();
+            const auto& nodes = visitor.nodes();
             document->deselectAll();
             document->select(nodes);
         }
@@ -285,9 +289,9 @@ namespace TrenchBroom {
 
             const String name = queryLayerName();
             if (!name.empty()) {
-                MapDocumentSPtr document = lock(m_document);
-                Model::World* world = document->world();
-                Model::Layer* layer = world->createLayer(name, document->worldBounds());
+                auto document = lock(m_document);
+                auto* world = document->world();
+                auto* layer = world->createLayer(name, document->worldBounds());
                 
                 Transaction transaction(document, "Create Layer " + layer->name());
                 document->addNode(layer, world);
@@ -300,16 +304,19 @@ namespace TrenchBroom {
             while (true) {
                 wxTextEntryDialog dialog(this, "Enter a name", "Layer Name", "Unnamed");
                 dialog.CentreOnParent();
-                if (dialog.ShowModal() != wxID_OK)
+                if (dialog.ShowModal() != wxID_OK) {
                     return "";
-                
+                }
+
                 const String name = dialog.GetValue().ToStdString();
                 if (StringUtils::isBlank(name)) {
-                    if (wxMessageBox("Layer names cannot be blank.", "Error", wxOK | wxCANCEL | wxCENTRE, this) != wxOK)
+                    if (wxMessageBox("Layer names cannot be blank.", "Error", wxOK | wxCANCEL | wxCENTRE, this) != wxOK) {
                         return "";
+                    }
                 } else if (StringUtils::containsCaseInsensitive(name, "\"")) {
-                    if (wxMessageBox("Layer names cannot contain double quotes.", "Error", wxOK | wxCANCEL | wxCENTRE, this) != wxOK)
+                    if (wxMessageBox("Layer names cannot contain double quotes.", "Error", wxOK | wxCANCEL | wxCENTRE, this) != wxOK) {
                         return "";
+                    }
                 } else {
                     return name;
                 }
@@ -319,25 +326,27 @@ namespace TrenchBroom {
         void LayerEditor::OnRemoveLayer(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            Model::Layer* layer = m_layerList->selectedLayer();
+            auto* layer = m_layerList->selectedLayer();
             ensure(layer != nullptr, "layer is null");
             
-            MapDocumentSPtr document = lock(m_document);
-            Model::Layer* defaultLayer = document->world()->defaultLayer();
+            auto document = lock(m_document);
+            auto* defaultLayer = document->world()->defaultLayer();
             
             Transaction transaction(document, "Remove Layer " + layer->name());
             document->deselectAll();
-            if (layer->hasChildren())
+            if (layer->hasChildren()) {
                 document->reparentNodes(defaultLayer, layer->children());
-            if (document->currentLayer() == layer)
+            }
+            if (document->currentLayer() == layer) {
                 document->setCurrentLayer(defaultLayer);
+            }
             document->removeNode(layer);
         }
         
         void LayerEditor::OnUpdateRemoveLayerUI(wxUpdateUIEvent& event) {
             if (IsBeingDeleted()) return;
 
-            const Model::Layer* layer = m_layerList->selectedLayer();
+            const auto* layer = m_layerList->selectedLayer();
             if (layer == nullptr) {
                 event.Enable(false);
                 return;
@@ -348,45 +357,48 @@ namespace TrenchBroom {
                 return;
             }
             
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             event.Enable(layer != document->world()->defaultLayer());
         }
 
         void LayerEditor::OnShowAllLayers(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            MapDocumentSPtr document = lock(m_document);
-            const Model::LayerList& layers = document->world()->allLayers();
+            auto document = lock(m_document);
+            const auto& layers = document->world()->allLayers();
             document->resetVisibility(Model::NodeList(std::begin(layers), std::end(layers)));
         }
 
         Model::Layer* LayerEditor::findVisibleAndUnlockedLayer(const Model::Layer* except) const {
-            MapDocumentSPtr document = lock(m_document);
-            if (!document->world()->defaultLayer()->locked() && !document->world()->defaultLayer()->hidden())
+            auto document = lock(m_document);
+            if (!document->world()->defaultLayer()->locked() && !document->world()->defaultLayer()->hidden()) {
                 return document->world()->defaultLayer();
-            
-            const Model::LayerList& layers = document->world()->customLayers();
-            for (Model::Layer* layer : layers) {
-                if (layer != except && !layer->locked() && !layer->hidden())
+            }
+
+            const auto& layers = document->world()->customLayers();
+            for (auto* layer : layers) {
+                if (layer != except && !layer->locked() && !layer->hidden()) {
                     return layer;
+                }
             }
             
             return nullptr;
         }
 
         void LayerEditor::moveSelectedNodesToLayer(MapDocumentSPtr document, Model::Layer* layer) {
-            const Model::NodeList& selectedNodes = document->selectedNodes().nodes();
+            const auto& selectedNodes = document->selectedNodes().nodes();
             
             CollectMoveableNodes visitor(document->world());
             Model::Node::accept(std::begin(selectedNodes), std::end(selectedNodes), visitor);
             
-            const Model::NodeList moveNodes = visitor.moveNodes();
+            const auto moveNodes = visitor.moveNodes();
             if (!moveNodes.empty()) {
-                const Model::NodeList selectNodes = visitor.selectNodes();
+                const auto selectNodes = visitor.selectNodes();
                 document->deselectAll();
                 document->reparentNodes(layer, visitor.moveNodes());
-                if (!layer->hidden() && !layer->locked())
+                if (!layer->hidden() && !layer->locked()) {
                     document->select(visitor.selectNodes());
+                }
             }
         }
 
@@ -399,22 +411,29 @@ namespace TrenchBroom {
             m_layerList->Bind(LAYER_TOGGLE_VISIBLE_EVENT, &LayerEditor::OnToggleLayerVisibleFromList, this);
             m_layerList->Bind(LAYER_TOGGLE_LOCKED_EVENT, &LayerEditor::OnToggleLayerLockedFromList, this);
 
-            wxWindow* addLayerButton = createBitmapButton(this, "Add.png", "Add a new layer from the current selection");
-            wxWindow* removeLayerButton = createBitmapButton(this, "Remove.png", "Remove the selected layer and move its objects to the default layer");
-            wxWindow* showAllLayersButton = createBitmapButton(this, "Visible.png", "Show all layers");
-            
+            auto* addLayerButton = createBitmapButton(this, "Add.png", "Add a new layer from the current selection");
+            auto* removeLayerButton = createBitmapButton(this, "Remove.png", "Remove the selected layer and move its objects to the default layer");
+            auto* showAllLayersButton = createBitmapButton(this, "Visible.png", "Show all layers");
+
+#ifdef __WXGTK20__
+            // If we don't set the background color, the buttons will have a gray background.
+            addLayerButton->SetBackgroundColour(GetBackgroundColour());
+            removeLayerButton->SetBackgroundColour(GetBackgroundColour());
+            showAllLayersButton->SetBackgroundColour(GetBackgroundColour());
+#endif
+
             addLayerButton->Bind(wxEVT_BUTTON, &LayerEditor::OnAddLayer, this);
             removeLayerButton->Bind(wxEVT_BUTTON, &LayerEditor::OnRemoveLayer, this);
             removeLayerButton->Bind(wxEVT_UPDATE_UI, &LayerEditor::OnUpdateRemoveLayerUI, this);
             showAllLayersButton->Bind(wxEVT_BUTTON, &LayerEditor::OnShowAllLayers, this);
             
-            wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+            auto* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
             buttonSizer->Add(addLayerButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             buttonSizer->Add(removeLayerButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             buttonSizer->Add(showAllLayersButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             buttonSizer->AddStretchSpacer();
             
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+            auto* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_layerList, 1, wxEXPAND);
             sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
             sizer->Add(buttonSizer, 0, wxEXPAND);

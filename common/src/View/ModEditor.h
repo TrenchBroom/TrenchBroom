@@ -53,7 +53,9 @@ namespace TrenchBroom {
         public:
             ModEditor(wxWindow* parent, MapDocumentWPtr document);
             ~ModEditor();
-            
+
+            bool ShouldInheritColours() const override;
+
             void OnAddModClicked(wxCommandEvent& event);
             void OnRemoveModClicked(wxCommandEvent& event);
             void OnMoveModUpClicked(wxCommandEvent& event);

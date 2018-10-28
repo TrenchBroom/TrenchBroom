@@ -68,6 +68,8 @@ namespace TrenchBroom {
             Item(parent),
             m_document(document),
             m_layer(layer) {
+                InheritAttributes();
+
                 m_nameText = new wxStaticText(this, wxID_ANY, m_layer->name());
                 m_infoText = new wxStaticText(this, wxID_ANY, "");
                 m_infoText->SetForegroundColour(makeLighter(m_infoText->GetForegroundColour()));
@@ -170,6 +172,7 @@ namespace TrenchBroom {
         m_document(document) {
             bindObservers();
             bindEvents();
+            InheritAttributes();
         }
 
         LayerListBox::~LayerListBox() {

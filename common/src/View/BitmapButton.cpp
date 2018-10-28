@@ -20,26 +20,31 @@
 #include "BitmapButton.h"
 
 #include <wx/dcclient.h>
-#include <wx/log.h>
-
-#include <algorithm>
 
 namespace TrenchBroom {
     namespace View {
-        BitmapButton::BitmapButton(wxWindow* parent, wxWindowID windowId, const wxBitmap& bitmap) :
-        wxControl(parent, windowId, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE),
-        m_bitmap(bitmap),
-        m_disabledBitmap(bitmap.ConvertToDisabled()) {
-            assert(m_bitmap.IsOk());
+        BitmapButton::BitmapButton(wxWindow* parent, const wxWindowID windowId) :
+        wxWindow(parent, windowId, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE) {
+            InheritAttributes();
 
-            SetBackgroundColour(parent->GetBackgroundColour());
-            SetBackgroundStyle(wxBG_STYLE_PAINT);
-            SetMinClientSize(bitmapSize());
-            
             Bind(wxEVT_PAINT, &BitmapButton::OnPaint, this);
             Bind(wxEVT_LEFT_DOWN, &BitmapButton::OnMouseDown, this);
         }
-        
+
+        BitmapButton::~BitmapButton() = default;
+
+        bool BitmapButton::HasTransparentBackground() {
+            return true;
+        }
+
+        bool BitmapButton::ShouldInheritColours() const {
+            return true;
+        }
+
+        wxSize BitmapButton::DoGetBestClientSize() const {
+            return bitmapSize();
+        }
+
         void BitmapButton::OnPaint(wxPaintEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -49,23 +54,13 @@ namespace TrenchBroom {
             const wxPoint offset(delta.x / 2, delta.y / 2);
             
             wxPaintDC dc(this);
-            dc.SetPen(wxPen(GetBackgroundColour()));
-            dc.SetBrush(wxBrush(GetBackgroundColour()));
-            dc.DrawRectangle(GetClientRect());
             dc.DrawBitmap(currentBitmap(), offset);
         }
         
         void BitmapButton::OnMouseDown(wxMouseEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            if (!IsEnabled())
-                return;
-            
-            wxCommandEvent buttonEvent(wxEVT_BUTTON, GetId());
-            buttonEvent.SetEventObject(this);
-            buttonEvent.SetInt(1);
-            
-            ProcessEvent(buttonEvent);
+            if (!IsBeingDeleted() && IsEnabled()) {
+                processClick();
+            }
         }
 
         void BitmapButton::DoUpdateWindowUI(wxUpdateUIEvent& event) {
@@ -76,11 +71,7 @@ namespace TrenchBroom {
         }
 
         wxSize BitmapButton::bitmapSize() const {
-            return wxSize(m_bitmap.GetWidth(), m_bitmap.GetHeight());
-        }
-
-        wxBitmap BitmapButton::currentBitmap() const {
-            return IsEnabled() ? m_bitmap : m_disabledBitmap;
+            return wxSize(currentBitmap().GetWidth(), currentBitmap().GetHeight());
         }
     }
 }
