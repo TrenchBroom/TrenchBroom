@@ -738,7 +738,7 @@ namespace TrenchBroom {
             for (const auto& entry : vertices) {
                 Model::Brush* brush = entry.first;
                 const std::vector<vm::vec3>& oldPositions = entry.second;
-                const std::vector<vm::vec3> newPositions = brush->moveVertices(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock));
+                const std::vector<vm::vec3> newPositions = brush->moveVertices(m_worldBounds, oldPositions, delta);
                 VectorUtils::append(newVertexPositions, newPositions);
             }
             
@@ -759,7 +759,7 @@ namespace TrenchBroom {
             for (const auto& entry : edges) {
                 Model::Brush* brush = entry.first;
                 const std::vector<vm::segment3>& oldPositions = entry.second;
-                const std::vector<vm::segment3> newPositions = brush->moveEdges(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock));
+                const std::vector<vm::segment3> newPositions = brush->moveEdges(m_worldBounds, oldPositions, delta);
                 VectorUtils::append(newEdgePositions, newPositions);
             }
 
@@ -780,7 +780,7 @@ namespace TrenchBroom {
             for (const auto& entry : faces) {
                 Model::Brush* brush = entry.first;
                 const std::vector<vm::polygon3>& oldPositions = entry.second;
-                const std::vector<vm::polygon3> newPositions = brush->moveFaces(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock));
+                const std::vector<vm::polygon3> newPositions = brush->moveFaces(m_worldBounds, oldPositions, delta);
                 VectorUtils::append(newFacePositions, newPositions);
             }
             
