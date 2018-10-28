@@ -30,7 +30,6 @@
 #include "IO/FgdParser.h"
 #include "IO/FileMatcher.h"
 #include "IO/FileSystem.h"
-#include "IO/IdMipTextureReader.h"
 #include "IO/IdPakFileSystem.h"
 #include "IO/IOUtils.h"
 #include "IO/MapParser.h"
@@ -82,7 +81,7 @@ namespace TrenchBroom {
             try {
                 m_gameFS.pushFileSystem(new IO::DiskFileSystem(m_gamePath + searchPath));
             } catch (const FileSystemException& e) {
-                logger->error("Cannot to add file system search path '" + searchPath.asString() + "': " + String(e.what()));
+                logger->error("Could not add file system search path '" + searchPath.asString() + "': " + String(e.what()));
             }
         }
         
@@ -262,7 +261,7 @@ namespace TrenchBroom {
                     return m_gameFS.findItems(searchPath, IO::FileTypeMatcher(false, true));
                 return IO::Path::List();
             } catch (FileSystemException& e) {
-                throw GameException("Cannot find texture collections: " + String(e.what()));
+                throw GameException("Could not find texture collections: " + String(e.what()));
             }
         }
 
@@ -381,7 +380,7 @@ namespace TrenchBroom {
                     throw GameException("Unsupported model format '" + path.asString() + "'");
                 }
             } catch (FileSystemException& e) {
-                throw GameException("Cannot load model  ö." + path.asString() + ": " + String(e.what()));
+                throw GameException("Could not load model " + path.asString() + ": " + String(e.what()));
             }
         }
 

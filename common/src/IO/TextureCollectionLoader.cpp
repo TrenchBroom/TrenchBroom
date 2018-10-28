@@ -41,9 +41,11 @@ namespace TrenchBroom {
         Assets::TextureCollection* TextureCollectionLoader::loadTextureCollection(const Path& path, const StringList& textureExtensions, const TextureReader& textureReader) {
             std::unique_ptr<Assets::TextureCollection> collection(new Assets::TextureCollection(path));
             
-            for (MappedFile::Ptr file : doFindTextures(path, textureExtensions)) {
-                Assets::Texture* texture = textureReader.readTexture(file->begin(), file->end(), file->path());
-                collection->addTexture(texture);
+            for (auto file : doFindTextures(path, textureExtensions)) {
+                auto* texture = textureReader.readTexture(file->begin(), file->end(), file->path());
+                if (texture != nullptr) {
+                    collection->addTexture(texture);
+                }
             }
             
             return collection.release();
@@ -53,10 +55,10 @@ namespace TrenchBroom {
         m_searchPaths(searchPaths) {}
 
         MappedFile::List FileTextureCollectionLoader::doFindTextures(const Path& path, const StringList& extensions) {
-            const Path wadPath = Disk::resolvePath(m_searchPaths, path);
+            const auto wadPath = Disk::resolvePath(m_searchPaths, path);
             
             WadFileSystem wadFS(wadPath);
-            const Path::List paths = wadFS.findItems(Path(""), FileExtensionMatcher(extensions));
+            const auto paths = wadFS.findItems(Path(""), FileExtensionMatcher(extensions));
             
             MappedFile::List result;
             result.reserve(paths.size());
@@ -71,7 +73,7 @@ namespace TrenchBroom {
         m_gameFS(gameFS) {}
 
         MappedFile::List DirectoryTextureCollectionLoader::doFindTextures(const Path& path, const StringList& extensions) {
-            const Path::List paths = m_gameFS.findItems(path, FileExtensionMatcher(extensions));
+            const auto paths = m_gameFS.findItems(path, FileExtensionMatcher(extensions));
             
             MappedFile::List result;
             result.reserve(paths.size());
