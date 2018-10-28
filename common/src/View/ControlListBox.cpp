@@ -232,7 +232,7 @@ namespace TrenchBroom {
                 justifySizer->AddSpacer(LayoutConstants::WideHMargin);
                 justifySizer->AddStretchSpacer();
 
-                listSizer->Add(justifySizer, wxSizerFlags().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin).Expand());
+                listSizer->Add(justifySizer, wxSizerFlags().Border(wxTOP | wxBOTTOM, LayoutConstants::WideVMargin).Expand());
                 listSizer->AddStretchSpacer();
             }
             if (m_restrictToClientWidth)
