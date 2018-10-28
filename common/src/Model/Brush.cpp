@@ -1071,16 +1071,18 @@ namespace TrenchBroom {
                 }
             });
 
-            if (movedVerts.size() == 1 && unmovedVerts.size() > 2) {
-                // Four or more verts, but only one is moving. Can't do UV lock with an affine transform, so give up.
-                // (With a triangle and one vert moving, you can.)
+            // If 3 or more are unmoving, give up.
+            if (unmovedVerts.size() >= 3) {
                 return {false, {}};
             }
 
-            std::vector<std::pair<vm::vec3, vm::vec3>> referenceVerts = movedVerts;
+            std::vector<std::pair<vm::vec3, vm::vec3>> referenceVerts;
+
+            // Use unmoving, then moving
             for (const auto& unmovedVert : unmovedVerts) {
                 referenceVerts.emplace_back(unmovedVert, unmovedVert);
             }
+            VectorUtils::append(referenceVerts, movedVerts);
 
             if (referenceVerts.size() < 3) {
                 // Can't create a transform as there are not enough verts
@@ -1099,6 +1101,38 @@ namespace TrenchBroom {
             return {true, M};
         }
 
+        void Brush::applyUVLock(const PolyhedronMatcher<BrushGeometry>& matcher, BrushFaceGeometry* left, BrushFaceGeometry* right) {
+            const auto [success, M] = findTransformForUVLock(matcher, left, right);
+            if (!success) {
+                return;
+            }
+
+            auto* leftFace = left->payload();
+            auto* rightFace = right->payload();
+
+            // We want to re-set the texturing of `rightFace` using the texturing from M * leftFace.
+            // We don't want to disturb the actual geometry of `rightFace` which is already finalized.
+            // So the idea is, clone `leftFace`, transform it by M using texture lock, then copy the texture
+            // settings from the transformed clone (which should have an identical plane to `rightFace` within
+            // FP error) to `rightFace`.
+            auto leftClone = std::shared_ptr<BrushFace>(leftFace->clone());
+
+            try {
+                leftClone->transform(M, true);
+            } catch (GeometryException&) {
+                return;
+            }
+
+            auto S = std::shared_ptr<TexCoordSystemSnapshot>(leftClone->takeTexCoordSystemSnapshot());
+
+            rightFace->setAttribs(leftClone->attribs());
+            if (S) {
+                rightFace->copyTexCoordSystemFromFace(S.get(), leftClone->attribs().takeSnapshot(),
+                                                      leftClone->boundary(), WrapStyle::Rotation);
+            }
+            rightFace->resetTexCoordSystemCache();
+        }
+
         void Brush::doSetNewGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, const BrushGeometry& newGeometry, const bool uvLock) {
             matcher.processRightFaces([&](BrushFaceGeometry* left, BrushFaceGeometry* right){
                 auto* leftFace = left->payload();
@@ -1108,24 +1142,7 @@ namespace TrenchBroom {
                 rightFace->updatePointsFromVertices();
 
                 if (uvLock) {
-                    const auto [success, M] = findTransformForUVLock(matcher, left, right);
-                    if (success) {
-                        // We want to re-set the texturing of `rightFace` using the texturing from M * leftFace.
-                        // We don't want to disturb the actual geometry of `rightFace` which is already finalized.
-                        // So the idea is, clone `leftFace`, transform it by M using texture lock, then copy the texture
-                        // settings from the transformed clone (which should have an identical plane to `rightFace` within
-                        // FP error) to `rightFace`.
-                        auto leftClone = std::shared_ptr<BrushFace>(leftFace->clone());
-                        leftClone->transform(M, true);
-                        auto S = std::shared_ptr<TexCoordSystemSnapshot>(leftClone->takeTexCoordSystemSnapshot());
-
-                        rightFace->setAttribs(leftClone->attribs());
-                        if (S) {
-                            rightFace->copyTexCoordSystemFromFace(S.get(), leftClone->attribs().takeSnapshot(),
-                                                                  leftClone->boundary(), WrapStyle::Rotation);
-                        }
-                        rightFace->resetTexCoordSystemCache();
-                    }
+                    applyUVLock(matcher, left, right);
                 }
             });
 

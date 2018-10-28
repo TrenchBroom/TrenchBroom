@@ -224,6 +224,7 @@ namespace TrenchBroom {
              * @return {true, transform} if a transform could be found, otherwise {false, unspecified}
              */
             static std::tuple<bool, vm::mat4x4> findTransformForUVLock(const PolyhedronMatcher<BrushGeometry>& matcher, BrushFaceGeometry* left, BrushFaceGeometry* right);
+            void applyUVLock(const PolyhedronMatcher<BrushGeometry>& matcher, BrushFaceGeometry* left, BrushFaceGeometry* right);
             void doSetNewGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, const BrushGeometry& newGeometry, bool uvLock = false);
 
             static VertexSet createVertexSet(const std::vector<vm::vec3>& vertices = std::vector<vm::vec3>(0));
