@@ -271,6 +271,7 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesRight,            this, CommandIds::Actions::MoveVerticesRight);
             Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesUp,               this, CommandIds::Actions::MoveVerticesUp);
             Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesDown,             this, CommandIds::Actions::MoveVerticesDown);
+            Bind(wxEVT_MENU, &MapViewBase::OnToggleUVLock,                 this, CommandIds::Actions::ToggleUVLock);
             
             Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsForward,           this, CommandIds::Actions::MoveObjectsForward);
             Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsBackward,          this, CommandIds::Actions::MoveObjectsBackward);
@@ -626,6 +627,13 @@ namespace TrenchBroom {
             const Grid& grid = document->grid();
             const vm::vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
             m_toolBox.moveVertices(delta);
+        }
+
+        void MapViewBase::OnToggleUVLock(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            PreferenceManager::instance().set(Preferences::UVLock, !pref(Preferences::UVLock));
+            PreferenceManager::instance().saveChanges();
         }
 
         void MapViewBase::OnCancel(wxCommandEvent& event) {

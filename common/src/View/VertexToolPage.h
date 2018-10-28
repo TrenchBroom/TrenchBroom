@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "View/ViewTypes.h"
+#include "IO/Path.h"
 
 #include <wx/panel.h>
 
@@ -36,8 +37,14 @@ namespace TrenchBroom {
             wxCheckBox* m_uvLockCheckBox;
         public:
             VertexToolPage(wxWindow* parent, MapDocumentWPtr document);
+            virtual ~VertexToolPage();
         private:
+
             void createGui();
+            void bindObservers();
+            void unbindObservers();
+            void preferenceDidChange(const IO::Path &path);
+            void updateControls();
         };
     }
 }

@@ -119,6 +119,7 @@ namespace TrenchBroom {
         extern Preference<int> TextureMagFilter;
         
         extern Preference<bool> TextureLock;
+        extern Preference<bool> UVLock;
         
         Preference<IO::Path>& RendererFontPath();
         extern Preference<int> RendererFontSize;

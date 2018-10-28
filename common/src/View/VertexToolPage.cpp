@@ -19,27 +19,59 @@
 
 #include "VertexToolPage.h"
 
+#include "PreferenceManager.h"
+#include "Preferences.h"
+
 #include "TrenchBroom.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 
 namespace TrenchBroom {
     namespace View {
-        VertexToolPage::VertexToolPage(wxWindow* parent, MapDocumentWPtr document) :
-        wxPanel(parent),
-        m_document(document) {
+        VertexToolPage::VertexToolPage(wxWindow *parent, MapDocumentWPtr document) :
+                wxPanel(parent),
+                m_document(document) {
             createGui();
+            bindObservers();
+        }
+
+        VertexToolPage::~VertexToolPage() {
+            unbindObservers();
         }
 
         void VertexToolPage::createGui() {
             MapDocumentSPtr document = lock(m_document);
 
             m_uvLockCheckBox = new wxCheckBox(this, wxID_ANY, "UV Lock");
+            m_uvLockCheckBox->Bind(wxEVT_CHECKBOX, [&](wxCommandEvent& event){
+                PreferenceManager::instance().set(Preferences::UVLock, !pref(Preferences::UVLock));
+                PreferenceManager::instance().saveChanges();
+            });
 
-            wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
+            wxBoxSizer *sizer = new wxBoxSizer(wxHORIZONTAL);
             sizer->Add(m_uvLockCheckBox, 0, wxALIGN_CENTER_VERTICAL);
 
             SetSizer(sizer);
+
+            updateControls();
+        }
+
+        void VertexToolPage::bindObservers() {
+            PreferenceManager &prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.addObserver(this, &VertexToolPage::preferenceDidChange);
+        }
+
+        void VertexToolPage::unbindObservers() {
+            PreferenceManager &prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.removeObserver(this, &VertexToolPage::preferenceDidChange);
+        }
+
+        void VertexToolPage::preferenceDidChange(const IO::Path &path) {
+            updateControls();
+        }
+
+        void VertexToolPage::updateControls() {
+            m_uvLockCheckBox->SetValue(pref(Preferences::UVLock));
         }
     }
 }
