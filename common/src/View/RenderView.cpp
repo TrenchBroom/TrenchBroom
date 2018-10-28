@@ -33,6 +33,10 @@
 #include <wx/dcclient.h>
 #include <wx/settings.h>
 
+#ifdef _WIN32
+#include <GL/wglew.h>
+#endif
+
 #include <vecmath/vec.h>
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
@@ -150,6 +154,13 @@ namespace TrenchBroom {
         void RenderView::initializeGL() {
             const bool firstInitialization = m_glContext->initialize();
             doInitializeGL(firstInitialization);
+            
+#ifdef _WIN32
+            if (wglSwapIntervalEXT) {
+                wglSwapIntervalEXT(1);
+            }
+#endif
+
             m_initialized = true;
         }
 
