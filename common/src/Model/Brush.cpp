@@ -711,8 +711,8 @@ namespace TrenchBroom {
             return doCanMoveVertices(worldBounds, vertices, delta, true).success;
         }
 
-        std::vector<vm::vec3> Brush::moveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta, const bool lockTexture) {
-            doMoveVertices(worldBounds, vertexPositions, delta, lockTexture);
+        std::vector<vm::vec3> Brush::moveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta, const bool uvLock) {
+            doMoveVertices(worldBounds, vertexPositions, delta, uvLock);
 
             // Collect the exact new positions of the moved vertices
             std::vector<vm::vec3> result;
@@ -740,7 +740,7 @@ namespace TrenchBroom {
             newGeometry.addPoint(position);
 
             const PolyhedronMatcher<BrushGeometry> matcher(*m_geometry, newGeometry);
-            doSetNewGeometry(worldBounds, matcher, newGeometry, false);
+            doSetNewGeometry(worldBounds, matcher, newGeometry);
 
             auto* newVertex = m_geometry->findClosestVertex(position, vm::C::almostZero());
             ensure(newVertex != nullptr, "vertex could not be added");
@@ -781,7 +781,7 @@ namespace TrenchBroom {
             }
 
             const PolyhedronMatcher<BrushGeometry> matcher(*m_geometry, newGeometry);
-            doSetNewGeometry(worldBounds, matcher, newGeometry, false);
+            doSetNewGeometry(worldBounds, matcher, newGeometry);
         }
 
         bool Brush::canSnapVertices(const vm::bbox3& worldBounds, const FloatType snapToF) {
@@ -818,7 +818,7 @@ namespace TrenchBroom {
             }
 
             const PolyhedronMatcher<BrushGeometry> matcher(*m_geometry, newGeometry, vertexMapping);
-            doSetNewGeometry(worldBounds, matcher, newGeometry, false);
+            doSetNewGeometry(worldBounds, matcher, newGeometry);
         }
 
         bool Brush::canMoveEdges(const vm::bbox3& worldBounds, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta) const {
@@ -843,13 +843,13 @@ namespace TrenchBroom {
             return true;
         }
 
-        std::vector<vm::segment3> Brush::moveEdges(const vm::bbox3& worldBounds, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta, const bool lockTexture) {
+        std::vector<vm::segment3> Brush::moveEdges(const vm::bbox3& worldBounds, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta, const bool uvLock) {
             assert(canMoveEdges(worldBounds, edgePositions, delta));
 
             std::vector<vm::vec3> vertexPositions;
             vm::segment3::getVertices(std::begin(edgePositions), std::end(edgePositions),
                                   std::back_inserter(vertexPositions));
-            doMoveVertices(worldBounds, vertexPositions, delta, lockTexture);
+            doMoveVertices(worldBounds, vertexPositions, delta, uvLock);
 
             std::vector<vm::segment3> result;
             result.reserve(edgePositions.size());
@@ -885,12 +885,12 @@ namespace TrenchBroom {
             return true;
         }
 
-        std::vector<vm::polygon3> Brush::moveFaces(const vm::bbox3& worldBounds, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta, const bool lockTexture) {
+        std::vector<vm::polygon3> Brush::moveFaces(const vm::bbox3& worldBounds, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta, const bool uvLock) {
             assert(canMoveFaces(worldBounds, facePositions, delta));
 
             std::vector<vm::vec3> vertexPositions;
             vm::polygon3::getVertices(std::begin(facePositions), std::end(facePositions), std::back_inserter(vertexPositions));
-            doMoveVertices(worldBounds, vertexPositions, delta, lockTexture);
+            doMoveVertices(worldBounds, vertexPositions, delta, uvLock);
 
             std::vector<vm::polygon3> result;
             result.reserve(facePositions.size());
@@ -1023,7 +1023,7 @@ namespace TrenchBroom {
             return CanMoveVerticesResult::acceptVertexMove(result);
         }
 
-        void Brush::doMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta, bool lockTexture) {
+        void Brush::doMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta, const bool uvLock) {
             ensure(m_geometry != nullptr, "geometry is null");
             ensure(!vertexPositions.empty(), "no vertex positions");
             assert(canMoveVertices(worldBounds, vertexPositions, delta));
@@ -1053,7 +1053,7 @@ namespace TrenchBroom {
             }
 
             const PolyhedronMatcher<BrushGeometry> matcher(*m_geometry, newGeometry, vertexMapping);
-            doSetNewGeometry(worldBounds, matcher, newGeometry, lockTexture);
+            doSetNewGeometry(worldBounds, matcher, newGeometry, uvLock);
         }
 
         std::tuple<bool, vm::mat4x4> Brush::findTransformForUVLock(const PolyhedronMatcher<BrushGeometry>& matcher, BrushFaceGeometry* left, BrushFaceGeometry* right) {
