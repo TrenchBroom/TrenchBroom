@@ -209,12 +209,13 @@ namespace TrenchBroom {
             }
             
             bool doCanClip() const override {
-                if (m_numPoints < 2)
+                if (m_numPoints < 2) {
                     return false;
-                if (m_numPoints == 2) {
+                } else if (m_numPoints == 2) {
                     vm::vec3 point3;
-                    if (!computeThirdPoint(point3))
+                    if (!computeThirdPoint(point3)) {
                         return false;
+                    }
                 }
                 return true;
             }
@@ -224,12 +225,13 @@ namespace TrenchBroom {
             }
 
             bool doCanAddPoint(const vm::vec3& point) const override {
-                if (m_numPoints == 3)
+                if (m_numPoints == 3) {
                     return false;
-                
-                if (m_numPoints == 2 && colinear(m_points[0].point, m_points[1].point, point))
+                } else if (m_numPoints == 2 && colinear(m_points[0].point, m_points[1].point, point)) {
                     return false;
-                return true;
+                } else {
+                    return true;
+                }
             }
             
             void doAddPoint(const vm::vec3& point, const std::vector<vm::vec3>& helpVectors) override {
@@ -247,16 +249,18 @@ namespace TrenchBroom {
             }
             
             bool doCanDragPoint(const Model::PickResult& pickResult, vm::vec3& initialPosition) const override {
-                const Model::Hit& hit = pickResult.query().type(PointHit).occluded().first();
-                if (!hit.isMatch())
+                const auto& hit = pickResult.query().type(PointHit).occluded().first();
+                if (!hit.isMatch()) {
                     return false;
-                size_t index = hit.target<size_t>();
-                initialPosition = m_points[index].point;
-                return true;
+                } else {
+                    const auto index = hit.target<size_t>();
+                    initialPosition = m_points[index].point;
+                    return true;
+                }
             }
             
             void doBeginDragPoint(const Model::PickResult& pickResult) override {
-                const Model::Hit& hit = pickResult.query().type(PointHit).occluded().first();
+                const auto& hit = pickResult.query().type(PointHit).occluded().first();
                 assert(hit.isMatch());
                 m_dragIndex = hit.target<size_t>();
                 m_originalPoint = m_points[m_dragIndex];
@@ -271,10 +275,9 @@ namespace TrenchBroom {
             bool doDragPoint(const vm::vec3& newPosition, const std::vector<vm::vec3>& helpVectors) override {
                 ensure(m_dragIndex < m_numPoints, "drag index out of range");
                 
-                if (m_numPoints == 2 && colinear(m_points[0].point, m_points[1].point, newPosition))
+                if (m_numPoints == 2 && colinear(m_points[0].point, m_points[1].point, newPosition)) {
                     return false;
-
-                if (m_numPoints == 3) {
+                } else if (m_numPoints == 3) {
                     size_t index0, index1;
                     switch (m_dragIndex) {
                         case 0:
@@ -292,14 +295,16 @@ namespace TrenchBroom {
                             break;
                     }
                     
-                    if (colinear(m_points[index0].point, m_points[index1].point, newPosition))
+                    if (colinear(m_points[index0].point, m_points[index1].point, newPosition)) {
                         return false;
+                    }
                 }
                 
-                if (helpVectors.empty())
+                if (helpVectors.empty()) {
                     m_points[m_dragIndex] = ClipPoint(newPosition, m_points[m_dragIndex].helpVectors);
-                else
+                } else {
                     m_points[m_dragIndex] = ClipPoint(newPosition, helpVectors);
+                }
                 return true;
             }
             
@@ -444,7 +449,8 @@ namespace TrenchBroom {
             bool doSetFace(const Model::BrushFace* face) override {
                 ensure(face != nullptr, "face is null");
                 m_face = face;
-                return true; }
+                return true;
+            }
             
             void doReset() override {
                 m_face = nullptr;
@@ -503,8 +509,9 @@ namespace TrenchBroom {
         }
         
         void ClipTool::pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
-            if (m_strategy != nullptr)
+            if (m_strategy != nullptr) {
                 m_strategy->pick(pickRay, camera, pickResult);
+            }
         }
         
         void ClipTool::render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Model::PickResult& pickResult) {
@@ -531,8 +538,9 @@ namespace TrenchBroom {
         }
         
         void ClipTool::renderStrategy(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Model::PickResult& pickResult) {
-            if (m_strategy != nullptr)
+            if (m_strategy != nullptr) {
                 m_strategy->render(renderContext, renderBatch, pickResult);
+            }
         }
         
         void ClipTool::renderFeedback(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vm::vec3& point) const {
@@ -555,13 +563,13 @@ namespace TrenchBroom {
         void ClipTool::performClip() {
             if (!m_dragging && canClip()) {
                 const TemporarilySetBool ignoreNotifications(m_ignoreNotifications);
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 const Transaction transaction(document, "Clip Brushes");
 
                 // need to make a copies here so that we are not affected by the deselection
-                const Model::ParentChildrenMap toAdd = clipBrushes();
-                const Model::NodeList toRemove = document->selectedNodes().nodes();
-                const Model::NodeList addedNodes = document->addNodes(toAdd);
+                const auto toAdd = clipBrushes();
+                const auto toRemove = document->selectedNodes().nodes();
+                const auto addedNodes = document->addNodes(toAdd);
 
                 document->deselectAll();
                 document->removeNodes(toRemove);
@@ -633,13 +641,15 @@ namespace TrenchBroom {
 
         bool ClipTool::beginDragPoint(const Model::PickResult& pickResult, vm::vec3& initialPosition) {
             assert(!m_dragging);
-            if (m_strategy == nullptr)
+            if (m_strategy == nullptr) {
                 return false;
-            if (!m_strategy->canDragPoint(pickResult, initialPosition))
+            } else if (!m_strategy->canDragPoint(pickResult, initialPosition)) {
                 return false;
-            m_strategy->beginDragPoint(pickResult);
-            m_dragging = true;
-            return true;
+            } else {
+                m_strategy->beginDragPoint(pickResult);
+                m_dragging = true;
+                return true;
+            }
         }
         
         void ClipTool::beginDragLastPoint() {
@@ -652,10 +662,12 @@ namespace TrenchBroom {
         bool ClipTool::dragPoint(const vm::vec3& newPosition, const std::vector<vm::vec3>& helpVectors) {
             assert(m_dragging);
             ensure(m_strategy != nullptr, "strategy is null");
-            if (!m_strategy->dragPoint(newPosition, helpVectors))
+            if (!m_strategy->dragPoint(newPosition, helpVectors)) {
                 return false;
-            update();
-            return true;
+            } else {
+                update();
+                return true;
+            }
         }
         
         void ClipTool::endDragPoint() {
@@ -685,8 +697,9 @@ namespace TrenchBroom {
             if (m_strategy != nullptr) {
                 resetStrategy();
                 return true;
+            } else {
+                return false;
             }
-            return false;
         }
         
         void ClipTool::resetStrategy() {
@@ -730,16 +743,18 @@ namespace TrenchBroom {
                     setFaceAttributes(brush->faces(), frontFace, backFace);
                     
                     auto* frontBrush = brush->clone(worldBounds);
-                    if (frontBrush->clip(worldBounds, frontFace))
+                    if (frontBrush->clip(worldBounds, frontFace)) {
                         m_frontBrushes[parent].push_back(frontBrush);
-                    else
+                    } else {
                         delete frontBrush;
-                    
+                    }
+
                     auto* backBrush = brush->clone(worldBounds);
-                    if (backBrush->clip(worldBounds, backFace))
+                    if (backBrush->clip(worldBounds, backFace)) {
                         m_backBrushes[parent].push_back(backBrush);
-                    else
+                    } else {
                         delete backBrush;
+                    }
                 }
             } else {
                 for (auto* brush : brushes) {
@@ -763,13 +778,16 @@ namespace TrenchBroom {
                 
                 const auto bestFrontDiff = bestFrontFace->boundary().normal - frontFace->boundary().normal;
                 const auto frontDiff = face->boundary().normal - frontFace->boundary().normal;
-                if (squaredLength(frontDiff) < squaredLength(bestFrontDiff))
+                if (squaredLength(frontDiff) < squaredLength(bestFrontDiff)) {
                     bestFrontFace = face;
-                
+                }
+
                 const auto bestBackDiff = bestBackFace->boundary().normal - backFace->boundary().normal;
                 const auto backDiff = face->boundary().normal - backFace->boundary().normal;
-                if (squaredLength(backDiff) < squaredLength(bestBackDiff))
+                if (squaredLength(backDiff) < squaredLength(bestBackDiff)) {
                     bestBackFace = face;
+                }
+
                 ++faceIt;
             }
             
@@ -786,15 +804,17 @@ namespace TrenchBroom {
         
         void ClipTool::updateRenderers() {
             if (canClip()) {
-                if (keepFrontBrushes())
+                if (keepFrontBrushes()) {
                     addBrushesToRenderer(m_frontBrushes, m_remainingBrushRenderer);
-                else
+                } else {
                     addBrushesToRenderer(m_frontBrushes, m_clippedBrushRenderer);
-                
-                if (keepBackBrushes())
+                }
+
+                if (keepBackBrushes()) {
                     addBrushesToRenderer(m_backBrushes, m_remainingBrushRenderer);
-                else
+                } else {
                     addBrushesToRenderer(m_backBrushes, m_clippedBrushRenderer);
+                }
             } else {
                 addBrushesToRenderer(m_frontBrushes, m_remainingBrushRenderer);
                 addBrushesToRenderer(m_backBrushes, m_remainingBrushRenderer);
@@ -805,7 +825,7 @@ namespace TrenchBroom {
             Model::CollectBrushesVisitor collect;
             
             for (const auto& entry : map) {
-                const Model::NodeList& brushes = entry.second;
+                const auto& brushes = entry.second;
                 Model::Node::accept(std::begin(brushes), std::end(brushes), collect);
             }
             
@@ -821,12 +841,14 @@ namespace TrenchBroom {
         }
         
         bool ClipTool::doActivate() {
-            MapDocumentSPtr document = lock(m_document);
-            if (!document->selectedNodes().hasOnlyBrushes())
+            auto document = lock(m_document);
+            if (!document->selectedNodes().hasOnlyBrushes()) {
                 return false;
-            bindObservers();
-            resetStrategy();
-            return true;
+            } else {
+                bindObservers();
+                resetStrategy();
+                return true;
+            }
         }
         
         bool ClipTool::doDeactivate() {
