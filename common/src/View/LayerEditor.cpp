@@ -403,8 +403,6 @@ namespace TrenchBroom {
         }
 
         void LayerEditor::createGui() {
-            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
-            
             m_layerList = new LayerListBox(this, m_document);
             m_layerList->Bind(LAYER_SET_CURRENT_EVENT, &LayerEditor::OnSetCurrentLayer, this);
             m_layerList->Bind(LAYER_RIGHT_CLICK_EVENT, &LayerEditor::OnLayerRightClick, this);
@@ -414,13 +412,6 @@ namespace TrenchBroom {
             auto* addLayerButton = createBitmapButton(this, "Add.png", "Add a new layer from the current selection");
             auto* removeLayerButton = createBitmapButton(this, "Remove.png", "Remove the selected layer and move its objects to the default layer");
             auto* showAllLayersButton = createBitmapButton(this, "Visible.png", "Show all layers");
-
-#ifdef __WXGTK20__
-            // If we don't set the background color, the buttons will have a gray background.
-            addLayerButton->SetBackgroundColour(GetBackgroundColour());
-            removeLayerButton->SetBackgroundColour(GetBackgroundColour());
-            showAllLayersButton->SetBackgroundColour(GetBackgroundColour());
-#endif
 
             addLayerButton->Bind(wxEVT_BUTTON, &LayerEditor::OnAddLayer, this);
             removeLayerButton->Bind(wxEVT_BUTTON, &LayerEditor::OnRemoveLayer, this);
