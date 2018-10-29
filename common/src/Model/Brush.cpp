@@ -1056,15 +1056,6 @@ namespace TrenchBroom {
             doSetNewGeometry(worldBounds, matcher, newGeometry, uvLock);
         }
 
-        /**
-         * Tries to find 3 vertices in left and right that are related according to the PolyhedronMatcher, and
-         * generates an affine transform for them which can then be used to implement UV lock.
-         *
-         * @param matcher a polyhedron matcher which is used to identify related vertices
-         * @param left the face of the left polyhedron
-         * @param right the face of the right polyhedron
-         * @return {true, transform} if a transform could be found, otherwise {false, unspecified}
-         */
         std::tuple<bool, vm::mat4x4> Brush::findTransformForUVLock(const PolyhedronMatcher<BrushGeometry>& matcher, BrushFaceGeometry* left, BrushFaceGeometry* right) {
             std::vector<vm::vec3> unmovedVerts;
             std::vector<std::pair<vm::vec3, vm::vec3>> movedVerts;
@@ -1081,6 +1072,7 @@ namespace TrenchBroom {
             });
 
             // If 3 or more are unmoving, give up.
+            // (Picture a square with one corner being moved, we can't possibly lock the UV's of all 4 corners.)
             if (unmovedVerts.size() >= 3) {
                 return std::make_tuple(false, vm::mat4x4());
             }
@@ -1091,6 +1083,9 @@ namespace TrenchBroom {
             for (const auto& unmovedVert : unmovedVerts) {
                 referenceVerts.emplace_back(unmovedVert, unmovedVert);
             }
+            // TODO: When there are multiple choices of moving verts (unmovedVerts.size() + movedVerts.size() > 3)
+            // we should sort them somehow. This can be seen if you select and move 3/5 verts of a pentagon;
+            // which of the 3 moving verts currently gets UV lock is arbitrary.
             VectorUtils::append(referenceVerts, movedVerts);
 
             if (referenceVerts.size() < 3) {
@@ -1110,23 +1105,6 @@ namespace TrenchBroom {
             return std::make_tuple(true, M);
         }
 
-        /**
-         * Helper function to apply UV lock to the face `right`.
-         *
-         * It's assumed that `left` and `right` have already been identified as "matching" faces for a vertex move
-         * where `left` is a face from the polyhedron before vertex manipulation, and right is from the newly
-         * modified brush.
-         *
-         * This function tries to pick 3 vertices from `left` and `right` to generate a transform
-         * (using findTransformForUVLock), and updates the texturing of `right` using that transform applied to `left`.
-         * If it can't perform UV lock, `right` is left unmodified.
-         *
-         * This is only meant to be called in the matcher callback in Brush::doSetNewGeometry
-         *
-         * @param matcher a polyhedron matcher which is used to identify related vertices
-         * @param left the face of the left polyhedron
-         * @param right the face of the right polyhedron
-         */
         void Brush::applyUVLock(const PolyhedronMatcher<BrushGeometry>& matcher, BrushFaceGeometry* left, BrushFaceGeometry* right) {
             const auto [success, M] = findTransformForUVLock(matcher, left, right);
             if (!success) {
