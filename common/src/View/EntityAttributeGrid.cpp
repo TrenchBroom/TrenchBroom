@@ -21,6 +21,7 @@
 
 #include "Model/EntityAttributes.h"
 #include "Model/Object.h"
+#include "View/BorderLine.h"
 #include "View/EntityAttributeGridTable.h"
 #include "View/EntityAttributeSelectedCommand.h"
 #include "View/ViewConstants.h"
@@ -373,8 +374,6 @@ namespace TrenchBroom {
         };
         
         void EntityAttributeGrid::createGui(MapDocumentWPtr document) {
-            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
-            
             m_table = new EntityAttributeGridTable(document);
             
             m_grid = new wxGrid(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
@@ -425,6 +424,7 @@ namespace TrenchBroom {
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_grid, 1, wxEXPAND);
+            sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
             sizer->Add(buttonSizer, 0, wxEXPAND);
             SetSizer(sizer);
         }

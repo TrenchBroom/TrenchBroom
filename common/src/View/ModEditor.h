@@ -52,8 +52,10 @@ namespace TrenchBroom {
             bool m_ignoreNotifier;
         public:
             ModEditor(wxWindow* parent, MapDocumentWPtr document);
-            ~ModEditor();
-            
+            ~ModEditor() override;
+
+            bool ShouldInheritColours() const override;
+
             void OnAddModClicked(wxCommandEvent& event);
             void OnRemoveModClicked(wxCommandEvent& event);
             void OnMoveModUpClicked(wxCommandEvent& event);

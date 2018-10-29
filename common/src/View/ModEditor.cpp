@@ -52,12 +52,17 @@ namespace TrenchBroom {
         m_enabledModList(nullptr),
         m_filterBox(nullptr),
         m_ignoreNotifier(false) {
+            InheritAttributes();
             createGui();
             bindObservers();
         }
 
         ModEditor::~ModEditor() {
             unbindObservers();
+        }
+
+        bool ModEditor::ShouldInheritColours() const {
+            return true;
         }
 
         void ModEditor::OnAddModClicked(wxCommandEvent& event) {

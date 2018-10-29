@@ -20,24 +20,30 @@
 #ifndef TrenchBroom_BitmapButton
 #define TrenchBroom_BitmapButton
 
-#include <wx/bitmap.h>
-#include <wx/control.h>
+#include <wx/window.h>
+
+class wxBitmap;
 
 namespace TrenchBroom {
     namespace View {
-        class BitmapButton : public wxControl {
-        private:
-            wxBitmap m_bitmap;
-            wxBitmap m_disabledBitmap;
+        class BitmapButton : public wxWindow {
+        protected:
+            BitmapButton(wxWindow* parent, wxWindowID windowId);
         public:
-            BitmapButton(wxWindow* parent, wxWindowID windowId, const wxBitmap& bitmap);
-            
+            virtual ~BitmapButton() override;
+
+            bool HasTransparentBackground() override;
+            bool ShouldInheritColours() const override;
+
+            wxSize DoGetBestClientSize() const override;
+
             void OnPaint(wxPaintEvent& event);
             void OnMouseDown(wxMouseEvent& event);
             void DoUpdateWindowUI(wxUpdateUIEvent& event) override;
         private:
             wxSize bitmapSize() const;
-            wxBitmap currentBitmap() const;
+            virtual wxBitmap currentBitmap() const = 0;
+            virtual void processClick() = 0;
         };
     }
 }

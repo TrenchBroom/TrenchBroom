@@ -21,7 +21,7 @@
 
 #include "IO/Path.h"
 #include "IO/ResourceUtils.h"
-#include "View/BitmapButton.h"
+#include "View/BitmapStaticButton.h"
 #include "View/BitmapToggleButton.h"
 #include "View/BorderLine.h"
 #include "View/MapFrame.h"
@@ -103,22 +103,18 @@ namespace TrenchBroom {
         }
 
         wxWindow* createBitmapButton(wxWindow* parent, const String& image, const String& tooltip) {
-            wxBitmap bitmap = IO::loadImageResource(image);
-            assert(bitmap.IsOk());
+            auto bitmap = IO::loadImageResource(image);
 
-            BitmapButton* button = new BitmapButton(parent, wxID_ANY, bitmap);
+            auto* button = new BitmapStaticButton(parent, wxID_ANY, bitmap);
             button->SetToolTip(tooltip);
             return button;
         }
 
         wxWindow* createBitmapToggleButton(wxWindow* parent, const String& upImage, const String& downImage, const String& tooltip) {
-            wxBitmap upBitmap = IO::loadImageResource(upImage);
-            assert(upBitmap.IsOk());
+            auto upBitmap = IO::loadImageResource(upImage);
+            auto downBitmap = IO::loadImageResource(downImage);
 
-            wxBitmap downBitmap = IO::loadImageResource(downImage);
-            assert(downBitmap.IsOk());
-
-            BitmapToggleButton* button = new BitmapToggleButton(parent, wxID_ANY, upBitmap, downBitmap);
+            auto* button = new BitmapToggleButton(parent, wxID_ANY, upBitmap, downBitmap);
             button->SetToolTip(tooltip);
             return button;
         }

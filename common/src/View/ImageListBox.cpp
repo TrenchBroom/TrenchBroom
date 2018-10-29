@@ -33,7 +33,9 @@
 namespace TrenchBroom {
     namespace View {
         ImageListBox::ImageListBox(wxWindow* parent, const wxString& emptyText) :
-        ControlListBox(parent, true, emptyText) {}
+        ControlListBox(parent, true, emptyText) {
+            InheritAttributes();
+        }
 
         class ImageListBox::ImageListBoxItem : public Item {
         private:
@@ -46,6 +48,7 @@ namespace TrenchBroom {
             m_titleText(nullptr),
             m_subtitleText(nullptr),
             m_imageBmp(nullptr) {
+                InheritAttributes();
                 createGui(margins, title, subtitle, nullptr);
             }
             
@@ -54,6 +57,7 @@ namespace TrenchBroom {
             m_titleText(nullptr),
             m_subtitleText(nullptr),
             m_imageBmp(nullptr) {
+                InheritAttributes();
                 createGui(margins, title, subtitle, &image);
             }
 
@@ -72,16 +76,17 @@ namespace TrenchBroom {
                 m_subtitleText->SetWindowVariant(wxWINDOW_VARIANT_SMALL);
 #endif
                 
-                wxSizer* vSizer = new wxBoxSizer(wxVERTICAL);
+                auto* vSizer = new wxBoxSizer(wxVERTICAL);
                 vSizer->Add(m_titleText, 0);
                 vSizer->Add(m_subtitleText, 0);
                 
-                wxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
+                auto* hSizer = new wxBoxSizer(wxHORIZONTAL);
                 hSizer->AddSpacer(margins.x);
                 
                 if (image != nullptr) {
                     m_imageBmp = new wxStaticBitmap(this, wxID_ANY, *image);
                     hSizer->Add(m_imageBmp, 0, wxALIGN_BOTTOM | wxTOP | wxBOTTOM, margins.y);
+                    hSizer->AddSpacer(4);
                 }
                 hSizer->Add(vSizer, 0, wxTOP | wxBOTTOM, margins.y);
                 hSizer->AddSpacer(margins.x);
@@ -92,10 +97,11 @@ namespace TrenchBroom {
 
         ControlListBox::Item* ImageListBox::createItem(wxWindow* parent, const wxSize& margins, const size_t index) {
             wxBitmap bitmap;
-            if (image(index, bitmap))
+            if (image(index, bitmap)) {
                 return new ImageListBoxItem(parent, margins, title(index), subtitle(index), bitmap);
-            else
+            } else {
                 return new ImageListBoxItem(parent, margins, title(index), subtitle(index));
+            }
         }
 
         bool ImageListBox::image(const size_t n, wxBitmap& result) const {

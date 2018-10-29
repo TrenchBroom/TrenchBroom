@@ -19,7 +19,6 @@
 
 #include "EntityAttributeEditor.h"
 
-#include "View/BorderLine.h"
 #include "View/EntityAttributeGrid.h"
 #include "View/EntityAttributeSelectedCommand.h"
 #include "View/ViewConstants.h"
