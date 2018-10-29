@@ -44,8 +44,6 @@ namespace TrenchBroom {
             wxGLAttributes m_attribs;
             bool m_initialized;
             Color m_focusColor;
-            std::vector<wxLongLong> m_renderStartTimes;
-            std::vector<wxLongLong> m_renderEndTimes;
         protected:
             RenderView(wxWindow* parent, GLContextManager& contextManager, wxGLAttributes attribs);
         public:
