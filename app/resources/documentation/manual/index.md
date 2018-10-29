@@ -734,6 +734,14 @@ Finally, the face tool also supports the same keyboard commands as the vertex to
 - Be careful with detail brushes, they might open vis portals.
 - Detail might also result in PVS leaves too much information, better to turn some detail into actual brushes to force vis to break a room into several PVS leaves. Or use hint brushes to force vis to add more leaves.
 
+#### UV Lock
+
+The regular Texture Lock prefence doesn't apply to vertex editing - instead, there is a separate preference called UV Lock toggled with #action(Controls/Map view/Toggle UV lock) or the checkbox in the vertex editing toolbar:
+
+![Vertex editing toolbar](VertexEditingToolbar.png)
+
+When this setting is enabled, TrenchBroom will attempt to keep vertex UV coordinates the same when using the vertex editing tools.
+
 ### CSG Operations
 
 CSG stands for Constructive Solid Geometry. CSG is a technique used in professional modeling tools to create complex shape by combining simple shapes using set operators such as union (sometimes called addition), subtraction, and intersection. However, CSG union and subtraction cannot be directly applied to brushes since they may create concave shapes which cannot be represented directly using brushes (remember that brushes are always convex). But some of these operators can be emulated with brushes. TrenchBroom supports the operations _convex merge_ (in place of union), _subtraction_ (emulated by creating new brushes to represent the resulting concave shape), and _intersection_ (supported directly).
