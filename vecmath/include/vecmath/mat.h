@@ -798,7 +798,7 @@ namespace vm {
     /**
      * Finds an LUP decomposition of matrix a.
      *
-     * Give A, finds P,L,U satisfying PA=LU where P is a permutation matrix,
+     * Given A, finds P,L,U satisfying PA=LU where P is a permutation matrix,
      * where L is lower-triangular with the diagonal elements set to 1,
      * U is upper-triangular.
      *
@@ -814,7 +814,7 @@ namespace vm {
      *         or {false, unspecified, unspecified} if a decomposition doesn't exist.
      */
     template <typename T, size_t S>
-    std::tuple<bool, mat<T,S,S>, vec<size_t,S>> lupDecomposition(mat<T,S,S> a) {
+    std::tuple<bool, mat<T,S,S>, vec<size_t,S>> lupFindDecomposition(mat<T,S,S> a) {
         using std::swap;
 
         vec<size_t,S> pi;
@@ -831,7 +831,7 @@ namespace vm {
                 }
             }
             if (p == 0) {
-                return {false, {}, {}};
+                return std::make_tuple(false, mat<T,S,S>(), vec<size_t,S>());
             }
             swap(pi[k], pi[kPrime]);
             for (size_t i=0; i<S; ++i) {
@@ -844,7 +844,7 @@ namespace vm {
                 }
             }
         }
-        return {true, a, pi};
+        return std::make_tuple(true, a, pi);
     }
 
     /**
@@ -891,11 +891,11 @@ namespace vm {
      */
     template <typename T, size_t S>
     std::tuple<bool, vec<T,S>> lupSolve(const mat<T,S,S>& a, const vec<T,S>& b) {
-        auto [success, lu, pi] = lupDecomposition(a);
+        auto [success, lu, pi] = lupFindDecomposition(a);
         if (!success) {
-            return {false, {}};
+            return std::make_tuple(false, vec<T,S>());
         }
-        return {true, lupSolveInternal(lu, pi, b)};
+        return std::make_tuple(true, lupSolveInternal(lu, pi, b));
     }
 }
 

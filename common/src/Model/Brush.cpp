@@ -1056,6 +1056,15 @@ namespace TrenchBroom {
             doSetNewGeometry(worldBounds, matcher, newGeometry, uvLock);
         }
 
+        /**
+         * Tries to find 3 vertices in left and right that are related according to the PolyhedronMatcher, and
+         * generates an affine transform for them which can then be used to implement UV lock.
+         *
+         * @param matcher a polyhedron matcher which is used to identify related vertices
+         * @param left the face of the left polyhedron
+         * @param right the face of the right polyhedron
+         * @return {true, transform} if a transform could be found, otherwise {false, unspecified}
+         */
         std::tuple<bool, vm::mat4x4> Brush::findTransformForUVLock(const PolyhedronMatcher<BrushGeometry>& matcher, BrushFaceGeometry* left, BrushFaceGeometry* right) {
             std::vector<vm::vec3> unmovedVerts;
             std::vector<std::pair<vm::vec3, vm::vec3>> movedVerts;
@@ -1073,7 +1082,7 @@ namespace TrenchBroom {
 
             // If 3 or more are unmoving, give up.
             if (unmovedVerts.size() >= 3) {
-                return {false, {}};
+                return std::make_tuple(false, vm::mat4x4());
             }
 
             std::vector<std::pair<vm::vec3, vm::vec3>> referenceVerts;
@@ -1086,7 +1095,7 @@ namespace TrenchBroom {
 
             if (referenceVerts.size() < 3) {
                 // Can't create a transform as there are not enough verts
-                return {false, {}};
+                return std::make_tuple(false, vm::mat4x4());
             }
 
             const auto M = pointsTransformationMatrix(
@@ -1095,12 +1104,29 @@ namespace TrenchBroom {
 
             if (!(M == M)) {
                 // Transform contains nan
-                return {false, {}};
+                return std::make_tuple(false, vm::mat4x4());
             }
 
-            return {true, M};
+            return std::make_tuple(true, M);
         }
 
+        /**
+         * Helper function to apply UV lock to the face `right`.
+         *
+         * It's assumed that `left` and `right` have already been identified as "matching" faces for a vertex move
+         * where `left` is a face from the polyhedron before vertex manipulation, and right is from the newly
+         * modified brush.
+         *
+         * This function tries to pick 3 vertices from `left` and `right` to generate a transform
+         * (using findTransformForUVLock), and updates the texturing of `right` using that transform applied to `left`.
+         * If it can't perform UV lock, `right` is left unmodified.
+         *
+         * This is only meant to be called in the matcher callback in Brush::doSetNewGeometry
+         *
+         * @param matcher a polyhedron matcher which is used to identify related vertices
+         * @param left the face of the left polyhedron
+         * @param right the face of the right polyhedron
+         */
         void Brush::applyUVLock(const PolyhedronMatcher<BrushGeometry>& matcher, BrushFaceGeometry* left, BrushFaceGeometry* right) {
             const auto [success, M] = findTransformForUVLock(matcher, left, right);
             if (!success) {
@@ -1115,19 +1141,20 @@ namespace TrenchBroom {
             // So the idea is, clone `leftFace`, transform it by M using texture lock, then copy the texture
             // settings from the transformed clone (which should have an identical plane to `rightFace` within
             // FP error) to `rightFace`.
-            auto leftClone = std::shared_ptr<BrushFace>(leftFace->clone());
+            auto leftClone = std::unique_ptr<BrushFace>(leftFace->clone());
 
             try {
                 leftClone->transform(M, true);
-            } catch (GeometryException&) {
+            } catch (const GeometryException&) {
                 return;
             }
 
-            auto S = std::shared_ptr<TexCoordSystemSnapshot>(leftClone->takeTexCoordSystemSnapshot());
+            auto snapshot = std::unique_ptr<TexCoordSystemSnapshot>(leftClone->takeTexCoordSystemSnapshot());
 
             rightFace->setAttribs(leftClone->attribs());
-            if (S) {
-                rightFace->copyTexCoordSystemFromFace(S.get(), leftClone->attribs().takeSnapshot(),
+            if (snapshot) {
+                // Note, the wrap style doesn't matter because the source and destination faces should have the same plane
+                rightFace->copyTexCoordSystemFromFace(snapshot.get(), leftClone->attribs().takeSnapshot(),
                                                       leftClone->boundary(), WrapStyle::Rotation);
             }
             rightFace->resetTexCoordSystemCache();
