@@ -1032,37 +1032,43 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::csgConvexMerge() {
-            if (!hasSelectedBrushFaces() && !selectedNodes().hasOnlyBrushes())
+            if (!hasSelectedBrushFaces() && !selectedNodes().hasOnlyBrushes()) {
                 return false;
-            
+            }
+
             Polyhedron3 polyhedron;
             
             if (hasSelectedBrushFaces()) {
                 for (const Model::BrushFace* face : selectedBrushFaces()) {
-                    for (const Model::BrushVertex* vertex : face->vertices())
+                    for (const Model::BrushVertex* vertex : face->vertices()) {
                         polyhedron.addPoint(vertex->position());
+                    }
                 }
             } else if (selectedNodes().hasOnlyBrushes()) {
                 for (const Model::Brush* brush : selectedNodes().brushes()) {
-                    for (const Model::BrushVertex* vertex : brush->vertices())
+                    for (const Model::BrushVertex* vertex : brush->vertices()) {
                         polyhedron.addPoint(vertex->position());
+                    }
                 }
             }
             
-            if (!polyhedron.polyhedron() || !polyhedron.closed())
+            if (!polyhedron.polyhedron() || !polyhedron.closed()) {
                 return false;
-            
+            }
+
             const Model::BrushBuilder builder(m_world, m_worldBounds);
-            Model::Brush* brush = builder.createBrush(polyhedron, currentTextureName());
+            auto* brush = builder.createBrush(polyhedron, currentTextureName());
             brush->cloneFaceAttributesFrom(selectedNodes().brushes());
             
             // The nodelist is either empty or contains only brushes.
-            const Model::NodeList toRemove = selectedNodes().nodes();
+            const auto toRemove = selectedNodes().nodes();
             
             // We could be merging brushes that have different parents; use the parent of the first brush.
-            Model::Node* parent;
+            Model::Node* parent = nullptr;
             if (!selectedNodes().brushes().empty()) {
                 parent = selectedNodes().brushes().front()->parent();
+            } else if (!selectedBrushFaces().empty()) {
+                parent = selectedBrushFaces().front()->brush()->parent();
             } else {
                 parent = currentParent();
             }

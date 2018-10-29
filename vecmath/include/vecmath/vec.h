@@ -1716,7 +1716,7 @@ namespace vm {
      * @param get the transformation function, defaults to identity
      * @return the average of the vectors obtained from the given range of elements
      */
-     template <typename I, typename G = Identity>
+     template <typename I, typename G = identity>
      auto average(I cur, I end, const G& get = G()) -> typename std::remove_reference<decltype(get(*cur))>::type {
          assert(cur != end);
 

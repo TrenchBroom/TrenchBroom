@@ -25,7 +25,7 @@
 
 namespace vm {
     TEST(ScalarTest, identity) {
-        const auto id = Identity();
+        const auto id = identity();
         ASSERT_EQ(1, id(1));
         ASSERT_EQ(-1, id(-1));
         ASSERT_DOUBLE_EQ(1.234, id(1.234));

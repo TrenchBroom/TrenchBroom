@@ -126,7 +126,7 @@ namespace vm {
          * @param get the transformation
          * @return the bounding box
          */
-        template <typename I, typename G = Identity>
+        template <typename I, typename G = identity>
         static bbox<T,S> mergeAll(I cur, I end, const G& get = G()) {
             assert(cur != end);
             const auto first = get(*cur++);
