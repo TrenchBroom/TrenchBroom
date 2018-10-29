@@ -97,7 +97,12 @@ namespace TrenchBroom {
                     quickFixMenu->Append(quickFixId, quickFix->description());
                     
                     wxVariant* data = new wxVariant(reinterpret_cast<void*>(quickFix));
+
+#ifdef _WIN32
                     popupMenu.Bind(wxEVT_MENU, &IssueBrowserView::OnApplyQuickFix, this, quickFixId, quickFixId, data);
+#else
+                    quickFixMenu->Bind(wxEVT_MENU, &IssueBrowserView::OnApplyQuickFix, this, quickFixId, quickFixId, data);
+#endif
                 }
                 
                 popupMenu.AppendSeparator();
