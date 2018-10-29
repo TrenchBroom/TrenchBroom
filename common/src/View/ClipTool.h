@@ -188,6 +188,7 @@ namespace TrenchBroom {
             void selectionDidChange(const Selection& selection);
             void nodesWillChange(const Model::NodeList& nodes);
             void nodesDidChange(const Model::NodeList& nodes);
+            void facesDidChange(const Model::BrushFaceList& nodes);
         };
     }
 }
