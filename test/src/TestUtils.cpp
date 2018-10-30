@@ -48,6 +48,34 @@ namespace TrenchBroom {
         }
         return true;
     }
+
+    /**
+     * Assumes the UV's have been divided by the texture size.
+     */
+    bool UVListsEqual(const std::vector<vm::vec2f>& uvs,
+                      const std::vector<vm::vec2f>& transformedVertUVs) {
+        if (uvs.size() != transformedVertUVs.size()) {
+            return false;
+        }
+        if (uvs.size() < 3U) {
+            return false;
+        }
+        if (!texCoordsEqual(uvs[0], transformedVertUVs[0])) {
+            return false;
+        }
+
+        for (size_t i=1; i<uvs.size(); ++i) {
+            // note, just checking:
+            //   texCoordsEqual(uvs[i], transformedVertUVs[i]);
+            // would be too lenient.
+            const vm::vec2f expected = uvs[i] - uvs[0];
+            const vm::vec2f actual = transformedVertUVs[i] - transformedVertUVs[0];
+            if (!vm::isEqual(expected, actual, vm::Cf::almostZero())) {
+                return false;
+            }
+        }
+        return true;
+    }
     
     TEST(TestUtilsTest, testTexCoordsEqual) {
         ASSERT_TRUE(texCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(0.0, 0.0)));
@@ -62,6 +90,15 @@ namespace TrenchBroom {
         
         ASSERT_FALSE(texCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(0.1, 0.1)));
         ASSERT_FALSE(texCoordsEqual(vm::vec2f(-0.25, 0.0), vm::vec2f(0.25, 0.0)));
+    }
+
+    TEST(TestUtilsTest, UVListsEqual) {
+        EXPECT_TRUE(UVListsEqual({{0,0}, {1,0}, {0, 1}},  {{0,0}, {1,0}, {0, 1}}));
+        EXPECT_TRUE(UVListsEqual({{0,0}, {1,0}, {0, 1}},  {{10,0}, {11,0}, {10, 1}})); // translation by whole texture increments OK
+
+        EXPECT_FALSE(UVListsEqual({{0,0}, {1,0}, {0, 1}},  {{10.5,0}, {11.5,0}, {10.5, 1}})); // translation by partial texture increments not OK
+        EXPECT_FALSE(UVListsEqual({{0,0}, {1,0}, {0, 1}},  {{0,0}, {0,1}, {1, 0}})); // wrong order
+        EXPECT_FALSE(UVListsEqual({{0,0}, {1,0}, {0, 1}},  {{0,0}, {2,0}, {0, 2}})); // unwanted scaling
     }
     
     TEST(TestUtilsTest, pointExactlyIntegral) {

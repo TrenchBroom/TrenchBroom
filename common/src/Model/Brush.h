@@ -71,7 +71,6 @@ namespace TrenchBroom {
             class MoveVerticesCallback;
             typedef MoveVerticesCallback RemoveVertexCallback;
             class QueryCallback;
-            class FaceMatchingCallback;
 
             using VertexSet = std::set<vm::vec3>;
         public:
@@ -181,7 +180,7 @@ namespace TrenchBroom {
 
             // vertex operations
             bool canMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertices, const vm::vec3& delta) const;
-            std::vector<vm::vec3> moveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta);
+            std::vector<vm::vec3> moveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta, bool uvLock = false);
 
             bool canAddVertex(const vm::bbox3& worldBounds, const vm::vec3& position) const;
             BrushVertex* addVertex(const vm::bbox3& worldBounds, const vm::vec3& position);
@@ -194,11 +193,11 @@ namespace TrenchBroom {
 
             // edge operations
             bool canMoveEdges(const vm::bbox3& worldBounds, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta) const;
-            std::vector<vm::segment3> moveEdges(const vm::bbox3& worldBounds, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta);
+            std::vector<vm::segment3> moveEdges(const vm::bbox3& worldBounds, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta, bool uvLock = false);
 
             // face operations
             bool canMoveFaces(const vm::bbox3& worldBounds, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta) const;
-            std::vector<vm::polygon3> moveFaces(const vm::bbox3& worldBounds, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta);
+            std::vector<vm::polygon3> moveFaces(const vm::bbox3& worldBounds, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta, bool uvLock = false);
         private:
             struct CanMoveVerticesResult {
             public:
@@ -214,8 +213,36 @@ namespace TrenchBroom {
             };
 
             CanMoveVerticesResult doCanMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, vm::vec3 delta, bool allowVertexRemoval) const;
-            void doMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta);
-            void doSetNewGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, BrushGeometry& newGeometry);
+            void doMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta, bool lockTexture);
+            /**
+             * Tries to find 3 vertices in `left` and `right` that are related according to the PolyhedronMatcher, and
+             * generates an affine transform for them which can then be used to implement UV lock.
+             *
+             * @param matcher a polyhedron matcher which is used to identify related vertices
+             * @param left the face of the left polyhedron
+             * @param right the face of the right polyhedron
+             * @return {true, transform} if a transform could be found, otherwise {false, unspecified}
+             */
+            static std::tuple<bool, vm::mat4x4> findTransformForUVLock(const PolyhedronMatcher<BrushGeometry>& matcher, BrushFaceGeometry* left, BrushFaceGeometry* right);
+            /**
+             * Helper function to apply UV lock to the face `right`.
+             *
+             * It's assumed that `left` and `right` have already been identified as "matching" faces for a vertex move
+             * where `left` is a face from the polyhedron before vertex manipulation, and `right` is from the newly
+             * modified brush.
+             *
+             * This function tries to pick 3 vertices from `left` and `right` to generate a transform
+             * (using findTransformForUVLock), and updates the texturing of `right` using that transform applied to `left`.
+             * If it can't perform UV lock, `right` remains unmodified.
+             *
+             * This is only meant to be called in the matcher callback in Brush::doSetNewGeometry
+             *
+             * @param matcher a polyhedron matcher which is used to identify related vertices
+             * @param left the face of the left polyhedron
+             * @param right the face of the right polyhedron
+             */
+            void applyUVLock(const PolyhedronMatcher<BrushGeometry>& matcher, BrushFaceGeometry* left, BrushFaceGeometry* right);
+            void doSetNewGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, const BrushGeometry& newGeometry, bool uvLock = false);
 
             static VertexSet createVertexSet(const std::vector<vm::vec3>& vertices = std::vector<vm::vec3>(0));
         public:

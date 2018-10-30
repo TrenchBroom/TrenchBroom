@@ -1000,6 +1000,78 @@ namespace TrenchBroom {
             delete brush;
         }
 
+        class UVLockTest : public ::testing::TestWithParam<MapFormat::Type> {
+        };
+
+        TEST_P(UVLockTest, moveFaceWithUVLock) {
+            const vm::bbox3 worldBounds(4096.0);
+            World world(GetParam(), nullptr, worldBounds);
+
+            Assets::Texture testTexture("testTexture", 64, 64);
+
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createCube(64.0, "");
+            for (auto* face : brush->faces()) {
+                face->setTexture(&testTexture);
+            }
+
+            // move top face by x=+8
+            auto changed = std::shared_ptr<Brush>(brush->clone(worldBounds));
+            auto changedWithUVLock = std::shared_ptr<Brush>(brush->clone(worldBounds));
+
+            const auto delta = vm::vec3(+8.0, 0.0, 0.0);
+            const auto polygonToMove = vm::polygon3(brush->findFace(vm::vec3::pos_z)->vertexPositions());
+            ASSERT_TRUE(changedWithUVLock->canMoveFaces(worldBounds, {polygonToMove}, delta));
+
+            [[maybe_unused]] auto result1 = changed->moveFaces(worldBounds, {polygonToMove}, delta, false);
+            [[maybe_unused]] auto result2 = changedWithUVLock->moveFaces(worldBounds, {polygonToMove}, delta, true);
+
+            // The move should be equivalent to shearing by this matrix
+            const auto M = shearBBoxMatrix(brush->bounds(), vm::vec3::pos_z, delta);
+
+            for (auto* oldFace : brush->faces()) {
+                const auto oldTexCoords = VectorUtils::map(oldFace->vertexPositions(), [&](auto x){ return oldFace->textureCoords(x); });
+                const auto shearedVertexPositions = VectorUtils::map(oldFace->vertexPositions(), [&](auto x){ return M * x; });
+                const auto shearedPolygon = vm::polygon3(shearedVertexPositions);
+
+                const auto normal = oldFace->boundary().normal;
+
+                // The brush modified without texture lock is expected to have changed UV's on some faces, but not on others
+                {
+                    const BrushFace *newFace = changed->findFace(shearedPolygon);
+                    ASSERT_NE(nullptr, newFace);
+                    const auto newTexCoords = VectorUtils::map(shearedVertexPositions,
+                                                               [&](auto x) { return newFace->textureCoords(x); });
+                    if (normal == vm::vec3::pos_z
+                        || normal == vm::vec3::pos_y
+                        || normal == vm::vec3::neg_y) {
+                        EXPECT_FALSE(UVListsEqual(oldTexCoords, newTexCoords));
+                        // TODO: actually check the UV's
+                    } else {
+                        EXPECT_TRUE(UVListsEqual(oldTexCoords, newTexCoords));
+                    }
+                }
+
+                // UV's should all be the same when using texture lock (with Valve format).
+                // Standard format can only do UV lock on the top face, which is not sheared.
+                {
+                    const BrushFace *newFaceWithUVLock = changedWithUVLock->findFace(shearedPolygon);
+                    ASSERT_NE(nullptr, newFaceWithUVLock);
+                    const auto newTexCoordsWithUVLock = VectorUtils::map(shearedVertexPositions, [&](auto x) {
+                        return newFaceWithUVLock->textureCoords(x);
+                    });
+                    if (normal == vm::vec3d::pos_z || (GetParam() == MapFormat::Valve)) {
+                        EXPECT_TRUE(UVListsEqual(oldTexCoords, newTexCoordsWithUVLock));
+                    }
+                }
+            }
+        }
+
+        INSTANTIATE_TEST_CASE_P(MapFormatInstantiations,
+                                UVLockTest,
+                                ::testing::Values(MapFormat::Valve, MapFormat::Standard),
+                                );
+
         TEST(BrushTest, moveFaceDownFailure) {
             const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);

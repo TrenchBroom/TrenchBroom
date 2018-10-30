@@ -38,6 +38,7 @@
 #include <vecmath/vec.h>
 #include <vecmath/vec_ext.h>
 #include <vecmath/mat.h>
+#include <vecmath/mat_ext.h>
 #include <vecmath/segment.h>
 #include <vecmath/polygon.h>
 #include <vecmath/util.h>
@@ -282,18 +283,6 @@ namespace TrenchBroom {
                 return face->payload()->boundary();
             }
         };
-
-        class Brush::FaceMatchingCallback {
-        public:
-            void operator()(BrushFaceGeometry* left, BrushFaceGeometry* right) const {
-                auto* leftFace = left->payload();
-                auto* rightFace = leftFace->clone();
-
-                rightFace->setGeometry(right);
-                rightFace->updatePointsFromVertices();
-            }
-        };
-
 
         Brush::Brush(const vm::bbox3& worldBounds, const BrushFaceList& faces) :
         m_geometry(nullptr),
@@ -722,8 +711,8 @@ namespace TrenchBroom {
             return doCanMoveVertices(worldBounds, vertices, delta, true).success;
         }
 
-        std::vector<vm::vec3> Brush::moveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta) {
-            doMoveVertices(worldBounds, vertexPositions, delta);
+        std::vector<vm::vec3> Brush::moveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta, const bool uvLock) {
+            doMoveVertices(worldBounds, vertexPositions, delta, uvLock);
 
             // Collect the exact new positions of the moved vertices
             std::vector<vm::vec3> result;
@@ -854,13 +843,13 @@ namespace TrenchBroom {
             return true;
         }
 
-        std::vector<vm::segment3> Brush::moveEdges(const vm::bbox3& worldBounds, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta) {
+        std::vector<vm::segment3> Brush::moveEdges(const vm::bbox3& worldBounds, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta, const bool uvLock) {
             assert(canMoveEdges(worldBounds, edgePositions, delta));
 
             std::vector<vm::vec3> vertexPositions;
             vm::segment3::getVertices(std::begin(edgePositions), std::end(edgePositions),
                                   std::back_inserter(vertexPositions));
-            doMoveVertices(worldBounds, vertexPositions, delta);
+            doMoveVertices(worldBounds, vertexPositions, delta, uvLock);
 
             std::vector<vm::segment3> result;
             result.reserve(edgePositions.size());
@@ -896,12 +885,12 @@ namespace TrenchBroom {
             return true;
         }
 
-        std::vector<vm::polygon3> Brush::moveFaces(const vm::bbox3& worldBounds, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta) {
+        std::vector<vm::polygon3> Brush::moveFaces(const vm::bbox3& worldBounds, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta, const bool uvLock) {
             assert(canMoveFaces(worldBounds, facePositions, delta));
 
             std::vector<vm::vec3> vertexPositions;
             vm::polygon3::getVertices(std::begin(facePositions), std::end(facePositions), std::back_inserter(vertexPositions));
-            doMoveVertices(worldBounds, vertexPositions, delta);
+            doMoveVertices(worldBounds, vertexPositions, delta, uvLock);
 
             std::vector<vm::polygon3> result;
             result.reserve(facePositions.size());
@@ -1034,7 +1023,7 @@ namespace TrenchBroom {
             return CanMoveVerticesResult::acceptVertexMove(result);
         }
 
-        void Brush::doMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta) {
+        void Brush::doMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta, const bool uvLock) {
             ensure(m_geometry != nullptr, "geometry is null");
             ensure(!vertexPositions.empty(), "no vertex positions");
             assert(canMoveVertices(worldBounds, vertexPositions, delta));
@@ -1064,11 +1053,103 @@ namespace TrenchBroom {
             }
 
             const PolyhedronMatcher<BrushGeometry> matcher(*m_geometry, newGeometry, vertexMapping);
-            doSetNewGeometry(worldBounds, matcher, newGeometry);
+            doSetNewGeometry(worldBounds, matcher, newGeometry, uvLock);
         }
 
-        void Brush::doSetNewGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, BrushGeometry& newGeometry) {
-            matcher.processRightFaces(FaceMatchingCallback());
+        std::tuple<bool, vm::mat4x4> Brush::findTransformForUVLock(const PolyhedronMatcher<BrushGeometry>& matcher, BrushFaceGeometry* left, BrushFaceGeometry* right) {
+            std::vector<vm::vec3> unmovedVerts;
+            std::vector<std::pair<vm::vec3, vm::vec3>> movedVerts;
+
+            matcher.visitMatchingVertexPairs(left, right, [&](BrushVertex* leftVertex, BrushVertex* rightVertex){
+                const auto leftPosition = leftVertex->position();
+                const auto rightPosition = rightVertex->position();
+
+                if (isEqual(leftPosition, rightPosition, vm::constants<FloatType>::almostZero())) {
+                    unmovedVerts.push_back(leftPosition);
+                } else {
+                    movedVerts.emplace_back(leftPosition, rightPosition);
+                }
+            });
+
+            // If 3 or more are unmoving, give up.
+            // (Picture a square with one corner being moved, we can't possibly lock the UV's of all 4 corners.)
+            if (unmovedVerts.size() >= 3) {
+                return std::make_tuple(false, vm::mat4x4());
+            }
+
+            std::vector<std::pair<vm::vec3, vm::vec3>> referenceVerts;
+
+            // Use unmoving, then moving
+            for (const auto& unmovedVert : unmovedVerts) {
+                referenceVerts.emplace_back(unmovedVert, unmovedVert);
+            }
+            // TODO: When there are multiple choices of moving verts (unmovedVerts.size() + movedVerts.size() > 3)
+            // we should sort them somehow. This can be seen if you select and move 3/5 verts of a pentagon;
+            // which of the 3 moving verts currently gets UV lock is arbitrary.
+            VectorUtils::append(referenceVerts, movedVerts);
+
+            if (referenceVerts.size() < 3) {
+                // Can't create a transform as there are not enough verts
+                return std::make_tuple(false, vm::mat4x4());
+            }
+
+            const auto M = pointsTransformationMatrix(
+                    referenceVerts[0].first, referenceVerts[1].first, referenceVerts[2].first,
+                    referenceVerts[0].second, referenceVerts[1].second, referenceVerts[2].second);
+
+            if (!(M == M)) {
+                // Transform contains nan
+                return std::make_tuple(false, vm::mat4x4());
+            }
+
+            return std::make_tuple(true, M);
+        }
+
+        void Brush::applyUVLock(const PolyhedronMatcher<BrushGeometry>& matcher, BrushFaceGeometry* left, BrushFaceGeometry* right) {
+            const auto [success, M] = findTransformForUVLock(matcher, left, right);
+            if (!success) {
+                return;
+            }
+
+            auto* leftFace = left->payload();
+            auto* rightFace = right->payload();
+
+            // We want to re-set the texturing of `rightFace` using the texturing from M * leftFace.
+            // We don't want to disturb the actual geometry of `rightFace` which is already finalized.
+            // So the idea is, clone `leftFace`, transform it by M using texture lock, then copy the texture
+            // settings from the transformed clone (which should have an identical plane to `rightFace` within
+            // FP error) to `rightFace`.
+            auto leftClone = std::unique_ptr<BrushFace>(leftFace->clone());
+
+            try {
+                leftClone->transform(M, true);
+            } catch (const GeometryException&) {
+                return;
+            }
+
+            auto snapshot = std::unique_ptr<TexCoordSystemSnapshot>(leftClone->takeTexCoordSystemSnapshot());
+
+            rightFace->setAttribs(leftClone->attribs());
+            if (snapshot) {
+                // Note, the wrap style doesn't matter because the source and destination faces should have the same plane
+                rightFace->copyTexCoordSystemFromFace(snapshot.get(), leftClone->attribs().takeSnapshot(),
+                                                      leftClone->boundary(), WrapStyle::Rotation);
+            }
+            rightFace->resetTexCoordSystemCache();
+        }
+
+        void Brush::doSetNewGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, const BrushGeometry& newGeometry, const bool uvLock) {
+            matcher.processRightFaces([&](BrushFaceGeometry* left, BrushFaceGeometry* right){
+                auto* leftFace = left->payload();
+                auto* rightFace = leftFace->clone();
+
+                rightFace->setGeometry(right);
+                rightFace->updatePointsFromVertices();
+
+                if (uvLock) {
+                    applyUVLock(matcher, left, right);
+                }
+            });
 
             const NotifyNodeChange nodeChange(this);
             VectorUtils::clearAndDelete(m_faces);

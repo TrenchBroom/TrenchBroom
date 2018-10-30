@@ -681,6 +681,7 @@ actions["Controls/Map view/Move vertices left"] = { key:314, modifiers: [] };
 actions["Controls/Map view/Move vertices right"] = { key:316, modifiers: [] };
 actions["Controls/Map view/Move vertices backward; Move vertices up"] = { key:366, modifiers: [] };
 actions["Controls/Map view/Move vertices forward; Move vertices down"] = { key:367, modifiers: [] };
+actions["Controls/Map view/Toggle UV lock"] = { key:85, modifiers: [] };
 actions["Controls/Map view/Move rotation center up; Move rotation center forward"] = { key:315, modifiers: [] };
 actions["Controls/Map view/Move rotation center down; Move rotation center backward"] = { key:317, modifiers: [] };
 actions["Controls/Map view/Move rotation center left"] = { key:314, modifiers: [] };

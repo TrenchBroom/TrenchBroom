@@ -687,4 +687,41 @@ namespace vm {
         ASSERT_EQ(r, stripTranslation(r * t));
         ASSERT_EQ(r, stripTranslation(t * r));
     }
+
+    TEST(MatTest, lupSolve) {
+        const auto A = rotationMatrix(0.1, 0.2, 0.3) * translationMatrix(vec3d(100.0, 100.0, 100.0));
+        const auto x = vec4d(20, -60, 32, 1);
+        const auto b = A * x;
+
+        // solve for x
+        auto [success, x2] = lupSolve(A, b);
+        EXPECT_TRUE(success);
+        EXPECT_VEC_EQ(x, x2);
+        EXPECT_VEC_EQ(b, A * x2);
+    }
+
+    TEST(MatTest, pointsTransformationMatrix) {
+        const vec3d in[3] = {{2.0, 0.0, 0.0},
+                             {4.0, 0.0, 0.0},
+                             {2.0, 2.0, 0.0}};
+
+        const auto M = translationMatrix(vec3d(100.0, 100.0, 100.0)) * scalingMatrix(vec3d(2.0, 2.0, 2.0)) * rotationMatrix(vec3::pos_z, toRadians(90.0));
+
+        vec3d out[3];
+        for (size_t i=0; i<3; ++i) {
+            out[i] = M * in[i];
+        }
+
+        // in[0]: 0,2,0, then 0,4,0, then 100, 104, 100
+        // in[1]: 0,4,0, then 0,8,0, then 100, 108, 100
+        // in[2]: -2,2,0, then -4,4,0, then 96, 104, 100
+
+        const auto M2 = pointsTransformationMatrix(in[0], in[1], in[2], out[0], out[1], out[2]);
+        vec3d test[3];
+        for (size_t i=0; i<3; ++i) {
+            test[i] = M2 * in[i];
+
+            EXPECT_VEC_EQ(out[i], test[i]);
+        }
+    }
 }

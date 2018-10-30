@@ -161,6 +161,7 @@ namespace TrenchBroom {
             void OnMoveVerticesUp(wxCommandEvent& event);
             void OnMoveVerticesDown(wxCommandEvent& event);
             void moveVertices(vm::direction direction);
+            void OnToggleUVLock(wxCommandEvent& event);
             
             void OnCancel(wxCommandEvent& event);
             bool cancel();

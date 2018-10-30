@@ -164,6 +164,39 @@ private:
         
         return result;
     }
+public:
+    /**
+     * Visits all pairs of vertices in the vertex relation where the left vertex is in the given leftFace and the
+     * right vertex is in the given rightFace.
+     *
+     * @tparam L visitor type
+     * @param leftFace a face of the left polyhedron
+     * @param rightFace a face of the right polyhedron
+     * @param lambda visitor to run on each pair of vertices
+     */
+    template <typename L>
+    void visitMatchingVertexPairs(Face* leftFace, Face* rightFace, L&& lambda) const {
+        auto* firstLeftEdge = leftFace->boundary().front();
+        auto* firstRightEdge = rightFace->boundary().front();
+
+        auto* currentLeftEdge = firstLeftEdge;
+        do {
+            auto* leftVertex = currentLeftEdge->origin();
+
+            auto* currentRightEdge = firstRightEdge;
+            do {
+                auto* rightVertex = currentRightEdge->origin();
+
+                if (m_vertexRelation.contains(leftVertex, rightVertex)) {
+                    lambda(leftVertex, rightVertex);
+                }
+
+                currentRightEdge = currentRightEdge->next();
+            } while (currentRightEdge != firstRightEdge);
+
+            currentLeftEdge = currentLeftEdge->next();
+        } while (currentLeftEdge != firstLeftEdge);
+    }
 private:
     /**
      * Computes the matching score between the given left and right faces the data stored in the vertex relation.
@@ -182,27 +215,9 @@ private:
         }
 
         size_t result = 0;
-        
-        auto* firstLeftEdge = leftFace->boundary().front();
-        auto* firstRightEdge = rightFace->boundary().front();
-
-        auto* currentLeftEdge = firstLeftEdge;
-        do {
-            auto* leftVertex = currentLeftEdge->origin();
-
-            auto* currentRightEdge = firstRightEdge;
-            do {
-                auto* rightVertex = currentRightEdge->origin();
-
-                if (m_vertexRelation.contains(leftVertex, rightVertex))
-                    ++result;
-
-                currentRightEdge = currentRightEdge->next();
-            } while (currentRightEdge != firstRightEdge);
-
-            currentLeftEdge = currentLeftEdge->next();
-        } while (currentLeftEdge != firstLeftEdge);
-        
+        visitMatchingVertexPairs(leftFace, rightFace, [&](Vertex* leftVertex, Vertex* rightVertex){
+            ++result;
+        });
         return result;
     }
 private:

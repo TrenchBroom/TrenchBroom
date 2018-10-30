@@ -764,6 +764,27 @@ namespace VectorUtils {
                               std::back_inserter(result), cmp);
         return std::move(result);
     }
+
+    /**
+     * Returns a std::vector which contains `lambda` applied to each element in `vec`.
+     *
+     * @tparam T input element type
+     * @tparam L type of lambda to apply
+     * @param vec input vector
+     * @param lambda lambda to apply
+     * @return the transformed vector
+     */
+    template <typename T, typename L>
+    auto map(const std::vector<T>& vec, L&& lambda) {
+        using MappedElemType = decltype(lambda(std::declval<T>()));
+
+        std::vector<MappedElemType> result;
+        result.reserve(vec.size());
+        for (const auto& elem : vec) {
+            result.push_back(lambda(elem));
+        }
+        return std::move(result);
+    }
 }
 
 namespace SetUtils {
