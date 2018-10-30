@@ -95,7 +95,7 @@ namespace TrenchBroom {
             void clear();
             
             const String name() const;
-            void evaluate(const BrushFaceList& faces) const;
+            bool evaluate(const BrushFaceList& faces) const;
             
             void resetAll();
             

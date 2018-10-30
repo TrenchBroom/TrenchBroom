@@ -340,8 +340,13 @@ namespace TrenchBroom {
             return m_attribs.color();
         }
 
-        void BrushFace::setColor(const Color& color) {
-            m_attribs.setColor(color);
+        bool BrushFace::setColor(const Color& color) {
+            if (m_attribs.color() != color) {
+                m_attribs.setColor(color);
+                return true;
+            } else {
+                return false;
+            }
         }
 
         void BrushFace::updateTexture(Assets::TextureManager* textureManager) {
@@ -350,80 +355,112 @@ namespace TrenchBroom {
             setTexture(texture);
         }
 
-        void BrushFace::setTexture(Assets::Texture* texture) {
-            if (texture == m_attribs.texture())
-                return;
-            m_attribs.setTexture(texture);
-            if (m_brush != nullptr)
-                m_brush->faceDidChange();
-            invalidateVertexCache();
+        bool BrushFace::setTexture(Assets::Texture* texture) {
+            if (texture != m_attribs.texture()) {
+                m_attribs.setTexture(texture);
+                if (m_brush != nullptr) {
+                    m_brush->faceDidChange();
+                }
+                invalidateVertexCache();
+                return true;
+            } else {
+                return false;
+            }
         }
 
-        void BrushFace::unsetTexture() {
-            if (m_attribs.texture() == nullptr)
-                return;
-            m_attribs.unsetTexture();
-            if (m_brush != nullptr)
-                m_brush->faceDidChange();
-            invalidateVertexCache();
+        bool BrushFace::unsetTexture() {
+            if (m_attribs.texture() != nullptr) {
+                m_attribs.unsetTexture();
+                if (m_brush != nullptr) {
+                    m_brush->faceDidChange();
+                }
+                invalidateVertexCache();
+                return true;
+            } else {
+                return false;
+            }
         }
 
-        void BrushFace::setXOffset(const float i_xOffset) {
-            if (i_xOffset == xOffset())
-                return;
-            m_attribs.setXOffset(i_xOffset);
-            invalidateVertexCache();
+        bool BrushFace::setXOffset(const float i_xOffset) {
+            if (i_xOffset != xOffset()) {
+                m_attribs.setXOffset(i_xOffset);
+                invalidateVertexCache();
+                return true;
+            } else {
+                return false;
+            }
         }
 
-        void BrushFace::setYOffset(const float i_yOffset) {
-            if (i_yOffset == yOffset())
-                return;
-            m_attribs.setYOffset(i_yOffset);
-            invalidateVertexCache();
+        bool BrushFace::setYOffset(const float i_yOffset) {
+            if (i_yOffset != yOffset()) {
+                m_attribs.setYOffset(i_yOffset);
+                invalidateVertexCache();
+                return true;
+            } else {
+                return false;
+            }
         }
 
-        void BrushFace::setXScale(const float i_xScale) {
-            if (i_xScale == xScale())
-                return;
-            m_attribs.setXScale(i_xScale);
-            invalidateVertexCache();
+        bool BrushFace::setXScale(const float i_xScale) {
+            if (i_xScale != xScale()) {
+                m_attribs.setXScale(i_xScale);
+                invalidateVertexCache();
+                return true;
+            } else {
+                return false;
+            }
         }
 
-        void BrushFace::setYScale(const float i_yScale) {
-            if (i_yScale == yScale())
-                return;
-            m_attribs.setYScale(i_yScale);
-            invalidateVertexCache();
+        bool BrushFace::setYScale(const float i_yScale) {
+            if (i_yScale != yScale()) {
+                m_attribs.setYScale(i_yScale);
+                invalidateVertexCache();
+                return true;
+            } else {
+                return false;
+            }
         }
 
-        void BrushFace::setRotation(const float rotation) {
-            if (rotation == m_attribs.rotation())
-                return;
-
-            const float oldRotation = m_attribs.rotation();
-            m_attribs.setRotation(rotation);
-            m_texCoordSystem->setRotation(m_boundary.normal, oldRotation, rotation);
-            invalidateVertexCache();
+        bool BrushFace::setRotation(const float rotation) {
+            if (rotation != m_attribs.rotation()) {
+                const float oldRotation = m_attribs.rotation();
+                m_attribs.setRotation(rotation);
+                m_texCoordSystem->setRotation(m_boundary.normal, oldRotation, rotation);
+                invalidateVertexCache();
+                return true;
+            } else {
+                return false;
+            }
         }
 
-        void BrushFace::setSurfaceContents(const int surfaceContents) {
-            if (surfaceContents == m_attribs.surfaceContents())
-                return;
-            m_attribs.setSurfaceContents(surfaceContents);
-            if (m_brush != nullptr)
-                m_brush->faceDidChange();
+        bool BrushFace::setSurfaceContents(const int surfaceContents) {
+            if (surfaceContents != m_attribs.surfaceContents()) {
+                m_attribs.setSurfaceContents(surfaceContents);
+                if (m_brush != nullptr) {
+                    m_brush->faceDidChange();
+                }
+                return true;
+            } else {
+                return false;
+            }
         }
 
-        void BrushFace::setSurfaceFlags(const int surfaceFlags) {
-            if (surfaceFlags == m_attribs.surfaceFlags())
-                return;
-            m_attribs.setSurfaceFlags(surfaceFlags);
+        bool BrushFace::setSurfaceFlags(const int surfaceFlags) {
+            if (surfaceFlags != m_attribs.surfaceFlags()) {
+                m_attribs.setSurfaceFlags(surfaceFlags);
+                return true;
+            } else {
+                return false;
+            }
         }
 
-        void BrushFace::setSurfaceValue(const float surfaceValue) {
-            if (surfaceValue == m_attribs.surfaceValue())
-                return;
-            m_attribs.setSurfaceValue(surfaceValue);
+        bool BrushFace::setSurfaceValue(const float surfaceValue) {
+            if (surfaceValue != m_attribs.surfaceValue()) {
+                m_attribs.setSurfaceValue(surfaceValue);
+                return true;
+            } else {
+                return false;
+            }
         }
 
         void BrushFace::setAttributes(const BrushFace* other) {
