@@ -142,6 +142,7 @@ namespace TrenchBroom {
         
         void BrushFace::restoreTexCoordSystemSnapshot(const TexCoordSystemSnapshot* coordSystemSnapshot) {
             coordSystemSnapshot->restore(m_texCoordSystem);
+            invalidateVertexCache();
         }
 
         void BrushFace::copyTexCoordSystemFromFace(const TexCoordSystemSnapshot* coordSystemSnapshot, const BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const WrapStyle wrapStyle) {
@@ -162,6 +163,8 @@ namespace TrenchBroom {
                 const auto offsetChange = desriedCoords - currentCoords;
                 m_attribs.setOffset(correct(m_attribs.modOffset(m_attribs.offset() + offsetChange), 4));
             }
+
+            invalidateVertexCache();
         }
         
         Brush* BrushFace::brush() const {
