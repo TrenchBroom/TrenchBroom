@@ -152,15 +152,20 @@ namespace TrenchBroom {
             const auto initialMapFilePath = m_config.findInitialMap(formatName(format));
             if (!initialMapFilePath.isEmpty() && IO::Disk::fileExists(initialMapFilePath)) {
                 return doLoadMap(format, worldBounds, initialMapFilePath, logger);
+            } else {
+                auto* world = new World(format, brushContentTypeBuilder(), worldBounds);
+
+                const Model::BrushBuilder builder(world, worldBounds);
+                auto* brush = builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFace::NoTextureName);
+                world->defaultLayer()->addChild(brush);
+
+                if (format == MapFormat::Valve) {
+                    world->addOrUpdateAttribute(AttributeNames::ValveVersion, "220");
+                    world->addOrUpdateAttribute(AttributeNames::ValveMaxRange, StringUtils::toString(int(worldBounds.max[0])));
+                }
+
+                return world;
             }
-
-            auto* world = new World(format, brushContentTypeBuilder(), worldBounds);
-
-            const Model::BrushBuilder builder(world, worldBounds);
-            auto* brush = builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFace::NoTextureName);
-            world->defaultLayer()->addChild(brush);
-
-            return world;
         }
 
         World* GameImpl::doLoadMap(const MapFormat::Type format, const vm::bbox3& worldBounds, const IO::Path& path, Logger* logger) const {
