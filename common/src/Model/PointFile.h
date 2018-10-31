@@ -38,7 +38,9 @@ namespace TrenchBroom {
             size_t m_current;
         public:
             PointFile();
-            PointFile(const IO::Path& mapFilePath);
+            PointFile(const IO::Path& path);
+            
+            static bool canLoad(const IO::Path& path);
             
             bool empty() const;
             bool hasNextPoint() const;
@@ -50,7 +52,7 @@ namespace TrenchBroom {
             void advance();
             void retreat();
         private:
-            void load(const IO::Path& pointFilePath);
+            void load(const IO::Path& path);
         };
     }
 }

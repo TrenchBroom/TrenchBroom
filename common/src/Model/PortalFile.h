@@ -41,11 +41,13 @@ namespace TrenchBroom {
             /**
              * Constructor throws an exception if portalFilePath couldn't be read.
              */
-            explicit PortalFile(const IO::Path& portalFilePath);
-            
+            explicit PortalFile(const IO::Path& path);
+
+            static bool canLoad(const IO::Path& path);
+
             const std::vector<vm::polygon3f>& portals() const;
         private:
-            void load(const IO::Path& portalFilePath);
+            void load(const IO::Path& path);
         };
     }
 }

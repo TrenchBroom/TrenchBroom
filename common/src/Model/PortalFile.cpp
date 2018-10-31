@@ -34,13 +34,18 @@ namespace TrenchBroom {
         PortalFile::PortalFile(const IO::Path& path) {
             load(path);
         }
-        
+
+        bool PortalFile::canLoad(const IO::Path& path) {
+            std::fstream stream(path.asString(), std::ios::in);
+            return stream.is_open() && stream.good();
+        }
+
         const std::vector<vm::polygon3f>& PortalFile::portals() const {
             return m_portals;
         }
         
-        void PortalFile::load(const IO::Path& portalFilePath) {
-            std::fstream stream(portalFilePath.asString(), std::ios::in);
+        void PortalFile::load(const IO::Path& path) {
+            std::fstream stream(path.asString(), std::ios::in);
             if (!stream.good()) {
                 throw FileFormatException("Couldn't open file");
             }
