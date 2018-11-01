@@ -152,7 +152,7 @@ namespace TrenchBroom {
             size_t doWriteBrushFace(FILE* stream, Model::BrushFace* face) override {
                 writeFacePoints(stream, face);
                 writeTextureInfo(stream, face);
-                std::fprintf(stream, "0 \n"); // extra value written here
+                std::fprintf(stream, " 0\n"); // extra value written here
                 return 1;
             }
         };
