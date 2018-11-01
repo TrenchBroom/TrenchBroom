@@ -23,6 +23,7 @@
 #include "IO/DiskIO.h"
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
+#include "TemporarilySetAny.h"
 
 #include <wx/button.h>
 #include <wx/filedlg.h>
@@ -39,7 +40,8 @@ namespace TrenchBroom {
         m_profile(nullptr),
         m_book(nullptr),
         m_nameText(nullptr),
-        m_pathText(nullptr) {
+        m_pathText(nullptr),
+        m_ignoreNotifications(false) {
             SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
 
             m_book = new wxSimplebook(this);
@@ -47,7 +49,7 @@ namespace TrenchBroom {
             m_book->AddPage(createEditorPage(m_book), "Editor");
             m_book->SetSelection(0);
 
-            wxSizer* bookSizer = new wxBoxSizer(wxVERTICAL);
+            auto* bookSizer = new wxBoxSizer(wxVERTICAL);
             bookSizer->Add(m_book, wxSizerFlags().Expand().Proportion(1));
             SetSizer(bookSizer);
         }
@@ -60,27 +62,27 @@ namespace TrenchBroom {
         }
 
         wxWindow* GameEngineProfileEditor::createEditorPage(wxWindow* parent) {
-            wxPanel* containerPanel = new wxPanel(parent);
+            auto* containerPanel = new wxPanel(parent);
             containerPanel->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_FRAMEBK));
 
-            wxStaticText* nameLabel = new wxStaticText(containerPanel, wxID_ANY, "Name");
-            wxStaticText* pathLabel = new wxStaticText(containerPanel, wxID_ANY, "Path");
+            auto* nameLabel = new wxStaticText(containerPanel, wxID_ANY, "Name");
+            auto* pathLabel = new wxStaticText(containerPanel, wxID_ANY, "Path");
 
             m_nameText = new wxTextCtrl(containerPanel, wxID_ANY);
-            m_nameText->SetHint("not set");
+            setHint(m_nameText, "Choose a name");
             m_pathText = new wxTextCtrl(containerPanel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
-            wxButton* choosePathButton = new wxButton(containerPanel, wxID_ANY, "...", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
-            m_pathText->SetHint("not set");
+            setHint(m_pathText, "Click on the button to choose...");
+            auto* choosePathButton = new wxButton(containerPanel, wxID_ANY, "...", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
 
             m_nameText->Bind(wxEVT_TEXT, &GameEngineProfileEditor::OnNameChanged, this);
             m_pathText->Bind(wxEVT_TEXT_ENTER, &GameEngineProfileEditor::OnPathChanged, this);
             choosePathButton->Bind(wxEVT_BUTTON, &GameEngineProfileEditor::OnChangePathClicked, this);
             Bind(wxEVT_IDLE, &GameEngineProfileEditor::OnUpdatePathTextUI, this);
 
-            const int LabelFlags   = wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT;
-            const int EditorFlags  = wxALIGN_CENTER_VERTICAL | wxEXPAND;
+            const auto LabelFlags   = wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT;
+            const auto EditorFlags  = wxALIGN_CENTER_VERTICAL | wxEXPAND;
 
-            wxGridBagSizer* containerInnerSizer = new wxGridBagSizer(LayoutConstants::NarrowVMargin, LayoutConstants::NarrowHMargin);
+            auto* containerInnerSizer = new wxGridBagSizer(LayoutConstants::NarrowVMargin, LayoutConstants::NarrowHMargin);
             containerInnerSizer->Add(nameLabel,         wxGBPosition(0,0), wxDefaultSpan, LabelFlags);
             containerInnerSizer->Add(m_nameText,        wxGBPosition(0,1), wxGBSpan(1,2), EditorFlags);
             containerInnerSizer->Add(pathLabel,         wxGBPosition(1,0), wxDefaultSpan, LabelFlags);
@@ -88,7 +90,7 @@ namespace TrenchBroom {
             containerInnerSizer->Add(choosePathButton,  wxGBPosition(1,2), wxDefaultSpan, wxALIGN_CENTER_VERTICAL);
             containerInnerSizer->AddGrowableCol(1);
 
-            wxSizer* containerOuterSizer = new wxBoxSizer(wxVERTICAL);
+            auto* containerOuterSizer = new wxBoxSizer(wxVERTICAL);
             containerOuterSizer->AddSpacer(LayoutConstants::WideVMargin);
             containerOuterSizer->Add(containerInnerSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::MediumHMargin);
             containerOuterSizer->AddSpacer(LayoutConstants::WideVMargin);
@@ -99,33 +101,40 @@ namespace TrenchBroom {
 
         void GameEngineProfileEditor::OnNameChanged(wxCommandEvent& event) {
             ensure(m_profile != nullptr, "profile is null");
+
+            const TemporarilySetBool ignore(m_ignoreNotifications);
             m_profile->setName(m_nameText->GetValue().ToStdString());
         }
 
         void GameEngineProfileEditor::OnPathChanged(wxCommandEvent& event) {
             ensure(m_profile != nullptr, "profile is null");
+
+            const TemporarilySetBool ignore(m_ignoreNotifications);
             updatePath(m_pathText->GetValue());
         }
 
         void GameEngineProfileEditor::OnChangePathClicked(wxCommandEvent& event) {
-            const wxString pathStr = ::wxFileSelector("Choose engine", wxEmptyString, wxEmptyString, wxEmptyString, wxFileSelectorDefaultWildcardStr, wxFD_OPEN | wxFD_FILE_MUST_EXIST);
-            if (!pathStr.empty())
+            const auto pathStr = ::wxFileSelector("Choose engine", wxEmptyString, wxEmptyString, wxEmptyString, wxFileSelectorDefaultWildcardStr, wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+            if (!pathStr.empty()) {
                 updatePath(pathStr);
+            }
         }
 
         void GameEngineProfileEditor::OnUpdatePathTextUI(wxIdleEvent &event) {
-            if (isValidEnginePath(m_pathText->GetValue()))
-                m_pathText->SetForegroundColour(GetForegroundColour());
-            else
+            if (m_pathText->GetValue().IsEmpty() || isValidEnginePath(m_pathText->GetValue())) {
+                m_pathText->SetForegroundColour(m_nameText->GetForegroundColour());
+            } else {
                 m_pathText->SetForegroundColour(*wxRED);
+            }
         }
 
         void GameEngineProfileEditor::updatePath(const wxString& str) {
             if (isValidEnginePath(str)) {
-                const IO::Path path(str.ToStdString());
+                const auto path = IO::Path(str.ToStdString());
                 m_profile->setPath(path);
-                if (m_profile->name().empty())
+                if (m_profile->name().empty()) {
                     m_profile->setName(path.lastComponent().deleteExtension().asString());
+                }
                 refresh();
             }
         }
@@ -155,7 +164,7 @@ namespace TrenchBroom {
         }
 
         void GameEngineProfileEditor::refresh() {
-            if (m_profile != nullptr) {
+            if (m_profile != nullptr && !m_ignoreNotifications) {
                 m_nameText->ChangeValue(m_profile->name());
                 m_pathText->ChangeValue(m_profile->path().asString());
             }
@@ -163,7 +172,7 @@ namespace TrenchBroom {
 
         bool GameEngineProfileEditor::isValidEnginePath(const wxString& str) const {
             try {
-                const IO::Path path(str.ToStdString());
+                const auto path = IO::Path(str.ToStdString());
                 return IO::Disk::fileExists(path)
 #ifdef __APPLE__
                 || (IO::Disk::directoryExists(path) && StringUtils::caseInsensitiveEqual(path.extension(), "app"))

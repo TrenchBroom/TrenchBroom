@@ -37,6 +37,7 @@ namespace TrenchBroom {
             wxSimplebook* m_book;
             wxTextCtrl* m_nameText;
             wxTextCtrl* m_pathText;
+            bool m_ignoreNotifications;
         public:
             GameEngineProfileEditor(wxWindow* parent);
             ~GameEngineProfileEditor();

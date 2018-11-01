@@ -38,6 +38,7 @@
 #include "View/SpinControl.h"
 #include "View/UVEditor.h"
 #include "View/ViewUtils.h"
+#include "View/wxUtils.h"
 
 #include <wx/bitmap.h>
 #include <wx/button.h>
@@ -515,78 +516,85 @@ namespace TrenchBroom {
                     }
                 }
                 if (xOffsetMulti) {
-                    m_xOffsetEditor->SetHint("multi");
+                    setHint(m_xOffsetEditor, "multi");
                     m_xOffsetEditor->SetValue("");
                 } else {
-                    m_xOffsetEditor->SetHint("");
+                    setHint(m_xOffsetEditor, "");
                     m_xOffsetEditor->SetValue(xOffset);
                 }
                 if (yOffsetMulti) {
-                    m_yOffsetEditor->SetHint("multi");
+                    setHint(m_yOffsetEditor, "multi");
                     m_yOffsetEditor->SetValue("");
                 } else {
-                    m_yOffsetEditor->SetHint("");
+                    setHint(m_yOffsetEditor, "");
                     m_yOffsetEditor->SetValue(yOffset);
                 }
                 if (rotationMulti) {
-                    m_rotationEditor->SetHint("multi");
+                    setHint(m_rotationEditor, "multi");
                     m_rotationEditor->SetValue("");
                 } else {
-                    m_rotationEditor->SetHint("");
+                    setHint(m_rotationEditor, "");
                     m_rotationEditor->SetValue(rotation);
                 }
                 if (xScaleMulti){
-                    m_xScaleEditor->SetHint("multi");
+                    setHint(m_xScaleEditor, "multi");
                     m_xScaleEditor->SetValue("");
                 } else {
-                    m_xScaleEditor->SetHint("");
+                    setHint(m_xScaleEditor, "");
                     m_xScaleEditor->SetValue(xScale);
                 }
                 if (yScaleMulti) {
-                    m_yScaleEditor->SetHint("multi");
+                    setHint(m_yScaleEditor, "multi");
                     m_yScaleEditor->SetValue("");
                 } else {
-                    m_yScaleEditor->SetHint("");
+                    setHint(m_yScaleEditor, "");
                     m_yScaleEditor->SetValue(yScale);
                 }
                 if (surfaceValueMulti) {
-                    m_surfaceValueEditor->SetHint("multi");
+                    setHint(m_surfaceValueEditor, "multi");
                     m_surfaceValueEditor->SetValue("");
                 } else {
-                    m_surfaceValueEditor->SetHint("");
+                    setHint(m_surfaceValueEditor, "");
                     m_surfaceValueEditor->SetValue(surfaceValue);
                 }
                 if (hasColorValue) {
                     if (colorValueMulti) {
-                        m_colorEditor->SetHint("multi");
+                        setHint(m_colorEditor, "multi");
                         m_colorEditor->ChangeValue("");
                     } else {
-                        m_colorEditor->SetHint("");
+                        setHint(m_colorEditor, "");
                         m_colorEditor->ChangeValue(StringUtils::toString(colorValue));
                     }
                 } else {
-                    m_colorEditor->SetHint("");
+                    setHint(m_colorEditor, "");
                     m_colorEditor->ChangeValue("");
                 }
                 m_surfaceFlagsEditor->setFlagValue(setSurfaceFlags, mixedSurfaceFlags);
                 m_contentFlagsEditor->setFlagValue(setSurfaceContents, mixedSurfaceContents);
             } else {
-                m_xOffsetEditor->SetValue("n/a");
+                m_xOffsetEditor->SetValue("");
+                setHint(m_xOffsetEditor, "n/a");
                 m_xOffsetEditor->Disable();
-                m_yOffsetEditor->SetValue("n/a");
+                m_yOffsetEditor->SetValue("");
+                setHint(m_yOffsetEditor, "n/a");
                 m_yOffsetEditor->Disable();
-                m_xScaleEditor->SetValue("n/a");
+                m_xScaleEditor->SetValue("");
+                setHint(m_xScaleEditor, "n/a");
                 m_xScaleEditor->Disable();
-                m_yScaleEditor->SetValue("n/a");
+                m_yScaleEditor->SetValue("");
+                setHint(m_yScaleEditor, "n/a");
                 m_yScaleEditor->Disable();
-                m_rotationEditor->SetValue("n/a");
+                m_rotationEditor->SetValue("");
+                setHint(m_rotationEditor, "n/a");
                 m_rotationEditor->Disable();
-                m_surfaceValueEditor->SetValue("n/a");
+                m_surfaceValueEditor->SetValue("");
+                setHint(m_surfaceValueEditor, "n/a");
                 m_surfaceValueEditor->Disable();
                 // m_textureView->setTexture(nullptr);
                 m_surfaceFlagsEditor->Disable();
                 m_contentFlagsEditor->Disable();
-                m_colorEditor->ChangeValue("n/a");
+                m_colorEditor->ChangeValue("");
+                setHint(m_colorEditor, "n/a");
                 m_colorEditor->Disable();
             }
         }
