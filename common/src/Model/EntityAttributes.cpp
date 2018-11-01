@@ -49,6 +49,7 @@ namespace TrenchBroom {
             const AttributeName GroupName         = "_tb_name";
             const AttributeName Group             = "_tb_group";
             const AttributeName Message           = "_tb_message";
+            const AttributeName ValveVersion      = "mapversion";
         }
         
         namespace AttributeValues {

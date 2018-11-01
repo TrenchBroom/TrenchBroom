@@ -60,6 +60,7 @@ namespace TrenchBroom {
             extern const AttributeName GroupName;
             extern const AttributeName Group;
             extern const AttributeName Message;
+            extern const AttributeName ValveVersion;
         }
         
         namespace AttributeValues {
