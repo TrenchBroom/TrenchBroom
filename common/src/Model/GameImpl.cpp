@@ -161,7 +161,6 @@ namespace TrenchBroom {
 
                 if (format == MapFormat::Valve) {
                     world->addOrUpdateAttribute(AttributeNames::ValveVersion, "220");
-                    world->addOrUpdateAttribute(AttributeNames::ValveMaxRange, StringUtils::toString(int(worldBounds.max[0])));
                 }
 
                 return world;

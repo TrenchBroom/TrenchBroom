@@ -50,7 +50,6 @@ namespace TrenchBroom {
             const AttributeName Group             = "_tb_group";
             const AttributeName Message           = "_tb_message";
             const AttributeName ValveVersion      = "mapversion";
-            const AttributeName ValveMaxRange     = "MaxRange";
         }
         
         namespace AttributeValues {
