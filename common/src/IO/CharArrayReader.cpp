@@ -29,32 +29,46 @@ namespace TrenchBroom {
         m_begin(begin),
         m_end(end),
         m_current(m_begin) {
-            assert(std::less_equal<const char *>()(m_begin, m_end));
+            if (m_begin > m_end) {
+                throw CharArrayReaderException("begin must be <= end");
+            }
         }
 
         size_t CharArrayReader::size() const {
             return static_cast<size_t>(m_end - m_begin);
         }
 
+        size_t CharArrayReader::currentOffset() const {
+            return static_cast<size_t>(m_current - m_begin);
+        }
+
         void CharArrayReader::seekFromBegin(const size_t offset) {
-            assert(offset < size());
+            if (offset >= size()) {
+                throw CharArrayReaderException("seekFromBegin: can't seek to offset " + std::to_string(offset) + " in buffer of size " + std::to_string(size()));
+            }
             m_current = m_begin + offset;
         }
 
         void CharArrayReader::seekFromEnd(const size_t offset) {
-            assert(offset < size());
+            if (offset >= size()) {
+                throw CharArrayReaderException("seekFromEnd: can't seek to offset " + std::to_string(offset) + " before end in buffer of size " + std::to_string(size()));
+            }
             m_current = m_end - offset;
         }
 
         void CharArrayReader::seekForward(const size_t offset) {
-            assert(m_current + offset < m_end);
+            if (m_current + offset >= m_end) {
+                throw CharArrayReaderException("seekForward: can't seek " + std::to_string(offset) + " bytes from current offset " + std::to_string(currentOffset()) + " in buffer of size " + std::to_string(size()));
+            }
             m_current += offset;
         }
 
-        void CharArrayReader::read(char* val, const size_t size) {
-            assert(canRead(size));
-            std::memcpy(val, m_current, size);
-            m_current += size;
+        void CharArrayReader::read(char* val, const size_t readSize) {
+            if (!canRead(readSize)) {
+                throw CharArrayReaderException("read: can't read " + std::to_string(readSize) + " bytes from current offset " + std::to_string(currentOffset()) + " in buffer of size " + std::to_string(size()));
+            }
+            std::memcpy(val, m_current, readSize);
+            m_current += readSize;
         }
 
         void CharArrayReader::read(unsigned char* val, const size_t size) {
