@@ -109,6 +109,8 @@
 #include "View/SetTextureCollectionsCommand.h"
 #include "View/TransformObjectsCommand.h"
 #include "View/ViewEffectsService.h"
+#include "MapDocument.h"
+
 
 #include <vecmath/util.h>
 
@@ -359,6 +361,10 @@ namespace TrenchBroom {
         }
         
         void MapDocument::loadPointFile(const IO::Path path) {
+            if (!Model::PointFile::canLoad(path)) {
+                return;
+            }
+
             if (isPointFileLoaded()) {
                 unloadPointFile();
             }
@@ -373,7 +379,11 @@ namespace TrenchBroom {
         bool MapDocument::isPointFileLoaded() const {
             return m_pointFile != nullptr;
         }
-        
+
+        bool MapDocument::canReloadPointFile() const {
+            return m_pointFile != nullptr && Model::PointFile::canLoad(m_pointFilePath);
+        }
+
         void MapDocument::reloadPointFile() {
             assert(isPointFileLoaded());
             loadPointFile(m_pointFilePath);
@@ -389,6 +399,10 @@ namespace TrenchBroom {
         }
         
         void MapDocument::loadPortalFile(const IO::Path path) {
+            if (!Model::PortalFile::canLoad(path)) {
+                return;
+            }
+
             if (isPortalFileLoaded()) {
                 unloadPortalFile();
             }
@@ -409,7 +423,11 @@ namespace TrenchBroom {
         bool MapDocument::isPortalFileLoaded() const {
             return m_portalFile != nullptr;
         }
-        
+
+        bool MapDocument::canReloadPortalFile() const {
+            return m_portalFile != nullptr && Model::PortalFile::canLoad(m_portalFilePath);
+        }
+
         void MapDocument::reloadPortalFile() {
             assert(isPortalFileLoaded());
             loadPortalFile(m_portalFilePath);

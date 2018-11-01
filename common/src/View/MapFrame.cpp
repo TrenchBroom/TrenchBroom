@@ -834,7 +834,7 @@ namespace TrenchBroom {
         void MapFrame::OnFileReloadPointFile(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (canUnloadPointFile()) {
+            if (canReloadPointFile()) {
                 m_document->reloadPointFile();
             }
         }
@@ -862,7 +862,7 @@ namespace TrenchBroom {
         void MapFrame::OnFileReloadPortalFile(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (canUnloadPortalFile()) {
+            if (canReloadPortalFile()) {
                 m_document->reloadPortalFile();
             }
         }
@@ -1518,6 +1518,8 @@ namespace TrenchBroom {
                     event.Enable(true);
                     break;
                 case CommandIds::Menu::FileReloadPointFile:
+                    event.Enable(canReloadPointFile());
+                    break;
                 case CommandIds::Menu::FileUnloadPointFile:
                     event.Enable(canUnloadPointFile());
                     break;
@@ -1525,6 +1527,8 @@ namespace TrenchBroom {
                     event.Enable(true);
                     break;
                 case CommandIds::Menu::FileReloadPortalFile:
+                    event.Enable(canReloadPortalFile());
+                    break;
                 case CommandIds::Menu::FileUnloadPortalFile:
                     event.Enable(canUnloadPortalFile());
                     break;
@@ -1796,9 +1800,17 @@ namespace TrenchBroom {
         bool MapFrame::canUnloadPointFile() const {
             return m_document->isPointFileLoaded();
         }
-        
+
+        bool MapFrame::canReloadPointFile() const {
+            return m_document->canReloadPointFile();
+        }
+
         bool MapFrame::canUnloadPortalFile() const {
             return m_document->isPortalFileLoaded();
+        }
+
+        bool MapFrame::canReloadPortalFile() const {
+            return m_document->canReloadPortalFile();
         }
 
         bool MapFrame::canUndo() const {

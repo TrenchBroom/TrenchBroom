@@ -35,7 +35,12 @@ namespace TrenchBroom {
         m_current(0) {
             load(path);
         }
-        
+
+        bool PointFile::canLoad(const IO::Path& path) {
+            std::fstream stream(path.asString().c_str(), std::ios::in);
+            return stream.is_open() && stream.good();
+        }
+
         bool PointFile::empty() const {
             return m_points.empty();
         }
@@ -76,10 +81,10 @@ namespace TrenchBroom {
             --m_current;
         }
         
-        void PointFile::load(const IO::Path& pointFilePath) {
+        void PointFile::load(const IO::Path& path) {
             static const float Threshold = vm::toRadians(15.0f);
             
-            std::fstream stream(pointFilePath.asString().c_str(), std::ios::in);
+            std::fstream stream(path.asString().c_str(), std::ios::in);
             assert(stream.is_open());
             
             std::vector<vm::vec3f> points;
