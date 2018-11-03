@@ -199,6 +199,8 @@ Forward      #action(Controls/Camera/Move forward)
 Backward     #action(Controls/Camera/Move backward)
 Left         #action(Controls/Camera/Move left)
 Right        #action(Controls/Camera/Move right)
+Up           #action(Controls/Camera/Move up)
+Down         #action(Controls/Camera/Move down)
 
 ### Automatic Navigation
 

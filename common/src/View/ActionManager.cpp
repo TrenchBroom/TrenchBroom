@@ -107,6 +107,8 @@ namespace TrenchBroom {
             printActionPreference(str, Preferences::CameraFlyBackward);
             printActionPreference(str, Preferences::CameraFlyLeft);
             printActionPreference(str, Preferences::CameraFlyRight);
+            printActionPreference(str, Preferences::CameraFlyUp);
+            printActionPreference(str, Preferences::CameraFlyDown);
         }
 
         wxMenuBar* ActionManager::createMenuBar(const bool withShortcuts) const {
