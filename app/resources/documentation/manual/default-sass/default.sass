@@ -1,0 +1,49 @@
+@import 'modules/sass/reset'
+@import 'modules/sass/variables'
+@import 'modules/sass/specific'
+
+/* *************************************************************************** */
+/* ** Default **************************************************************** */
+/* *************************************************************************** */
+
+body
+  display: grid
+  grid-template-columns: auto auto
+  color: $default-font-color
+
+  > section, > main
+    padding: $default-space-value $default-space-value 0
+
+  #TOC
+    box-sizing: border-box
+    font-family: $default-font-family
+    font-size: $default-font-size
+    background-color: $toc-background-color
+    user-select: none
+
+    #TOC_INNER
+      #TOC_HEADER
+        text-align: center
+
+      img
+        display: inline-block
+        margin-bottom: 10px
+
+      > ul
+        margin-top: 10px
+        margin-left: 0
+        list-style-type: none
+
+        > li
+          > a
+            font-weight: $default-bold-font-weight
+
+  #CONTENT
+    overflow: auto
+    box-sizing: border-box
+    font-family: $default-font-family
+    font-size: $default-font-size
+
+    h1, h2, h3, h4
+      width: 100%
+      display: inline-block
