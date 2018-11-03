@@ -1,226 +1,232 @@
 a, abbr, acronym, address, applet, article, aside, audio, b, big, blockquote, body, canvas, caption, center, cite, code, dd, del, details, dfn, div, dl, dt, em, embed, fieldset, figcaption, figure, footer, form, h1, h2, h3, h4, h5, h6, header, hgroup, html, i, iframe, img, ins, kbd, label, legend, li, mark, menu, nav, object, ol, output, p, pre, q, ruby, s, samp, section, small, span, strike, strong, sub, summary, sup, table, tbody, td, tfoot, th, thead, time, tr, tt, u, ul, var, video {
-  margin: 0;
-  padding: 0;
-  border: 0;
-  font-size: 100%;
-  font: inherit;
-  vertical-align: baseline;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
 }
 
 body {
-  line-height: 1;
+	line-height: 1;
 }
 
 ol, ul {
-  list-style: none;
+	list-style: none;
 }
 
 blockquote, q {
-  quotes: none;
+	quotes: none;
 }
 
-blockquote: after, blockquote: before, q: after, q: before {
-  content: "";
-  content: none;
+blockquote:after, blockquote:before, q:after, q:before {
+	content: "";
+	content: none;
 }
 
 table {
-  border-collapse: collapse;
-  border-spacing: 0;
+	border-collapse: collapse;
+	border-spacing: 0;
 }
 
 pre {
-  padding: 20px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  background-color: #eee;
-  border: 1px solid #ccc;
+	padding: 20px;
+	overflow-x: auto;
+	overflow-y: hidden;
+	background-color: #eee;
+	border: 1px solid #ccc;
 }
 
 pre > div {
-  padding: 20px 20px 0;
+	padding: 20px 20px 0;
 }
 
 code {
-  font-size: .75rem;
-  font-family: Lucida Console, Monaco, monospace;
+	font-size: .75rem;
+	font-family: Lucida Console, Monaco, monospace;
 }
 
 h1, h2, h3, h4 {
-  font-weight: 700;
+	font-weight: 700;
 }
 
 h1 {
-  font-size: 2rem;
+	font-size: 2rem;
 }
 
 h2 {
-  font-size: 1.5rem;
+	font-size: 1.5rem;
 }
 
 h3, h4 {
-  font-size: 1.125rem;
+	font-size: 1.125rem;
 }
 
 p {
-  line-height: 1.5;
-  text-align: justify;
+	line-height: 1.5;
+	text-align: justify;
 }
 
 b, strong {
-  font-weight: 700;
+	font-weight: 700;
 }
 
 em, i {
-  font-style: italic;
+	font-style: italic;
 }
 
 dl {
-  line-height: 1.5;
+	line-height: 1.5;
 }
 
 dl dt {
-  font-weight: 700;
+	font-weight: 700;
 }
 
 dl dd {
-  margin-left: 40px;
+	margin-left: 40px;
 }
 
 ol {
-  list-style-type: decimal;
+	list-style-type: decimal;
 }
 
 ol, ul {
-  margin-left: 40px;
-  line-height: 1.5;
+	margin-left: 40px;
+	line-height: 1.5;
 }
 
 ul {
-  list-style-type: disc;
+	list-style-type: disc;
 }
 
 ul li ul {
-  margin-bottom: 0;
+	margin-bottom: 0;
 }
 
 ul li ul li {
-  list-style-type: circle;
+	list-style-type: circle;
 }
 
 ul li ul li ul li {
-  list-style-type: square;
+	list-style-type: square;
 }
 
 a {
-  text-decoration: none;
-  color: #07e;
+	text-decoration: none;
+	color: #07e;
 }
 
 figure {
-  background-color: #eee;
-  box-sizing: border-box;
+	background-color: #eee;
+	box-sizing: border-box;
 }
 
 figure figcaption {
-  padding: 5px 0 10px;
-  text-align: center;
-  font-size: .75rem;
-  font-weight: 700;
+	padding: 5px 0 10px;
+	text-align: center;
+	font-size: .75rem;
+	font-weight: 700;
 }
 
 img {
-  max-width: 100%;
-  padding: 5px;
-  box-sizing: border-box;
-  background-color: #eee;
+	max-width: 100%;
+	padding: 5px;
+	box-sizing: border-box;
+	background-color: #eee;
 }
 
 figure {
-  display: inline-block;
-  margin-left: 20px;
-  margin-right: 20px;
+	display: inline-block;
+	margin-left: 20px;
+	margin-right: 20px;
 }
 
 figure img {
-  margin: 0;
-  background-color: inherit;
+	margin: 0;
+	background-color: inherit;
 }
 
 p img {
-  float: left;
-  margin: 0 20px 20px 0;
+	float: left;
+	margin: 0 20px 20px 0;
 }
 
 table {
-  display: block;
-  overflow-x: auto;
-  white-space: nowrap;
+	display: block;
+	overflow-x: auto;
+	white-space: nowrap;
 }
 
 table thead tr th {
-  font-weight: 700;
+	font-weight: 700;
 }
 
 table tbody tr td, table thead tr th {
-  border: 1px solid #ccc;
-  padding: 5px 10px;
-  vertical-align: middle;
+	border: 1px solid #ccc;
+	padding: 5px 10px;
+	vertical-align: middle;
 }
 
 .shortcut {
-  font-size: .75rem;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
-  font-weight: 400;
-  border: 1px solid #ccc;
-  margin: 0 2px;
-  padding: 2px 4px;
-  background-color: #eee;
+	font-size: .75rem;
+	font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
+	font-weight: 400;
+	border: 1px solid #ccc;
+	margin: 0 2px;
+	padding: 2px 4px;
+	background-color: #eee;
 }
 
 figure, h1, h2, h3, h4, img, ol, p, pre, table, ul {
-  margin-bottom: 20px;
+	margin-bottom: 20px;
 }
 
 body {
-  display: grid;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
-  grid-template-columns: auto auto;
-  color: #333;
+	display: grid;
+	grid-template-columns: auto auto;
+	color: #333;
 }
 
 body > div {
-  padding: 20px 20px 0;
+	padding: 20px 20px 0;
 }
 
 body #TOC {
-  box-sizing: border-box;
-  font-size: 16px;
-  background-color: #eee;
-  user-select: none;
+	box-sizing: border-box;
+	font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
+	font-size: 16px;
+	background-color: #eee;
+	user-select: none;
 }
 
 body #TOC #TOC_INNER #TOC_HEADER {
-  text-align: center;
+	text-align: center;
 }
 
 body #TOC #TOC_INNER img {
-  display: inline-block;
-  margin-bottom: 10px;
+	display: inline-block;
+	margin-bottom: 10px;
 }
 
 body #TOC #TOC_INNER > ul {
-  margin-top: 10px;
-  margin-left: 0;
-  list-style-type: none;
+	margin-top: 10px;
+	margin-left: 0;
+	list-style-type: none;
 }
 
 body #TOC #TOC_INNER > ul > li > a {
-  font-weight: 700;
+	font-weight: 700;
 }
 
 body #CONTENT {
-  overflow: auto;
-  box-sizing: border-box;
-  font-size: 16px;
+	overflow: auto;
+	box-sizing: border-box;
+	font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
+	font-size: 16px;
+}
+
+body #CONTENT h1, body #CONTENT h2, body #CONTENT h3, body #CONTENT h4 {
+	width: 100%;
+  display: inline-block;
 }
