@@ -10,6 +10,7 @@ pre
   overflow-y: hidden
   background-color: $default-pre-background-color
   border: $default-border-size solid $default-border-color
+  border-radius: $default-border-radius
 
   > div
     padding: $default-space-value $default-space-value 0
@@ -83,20 +84,23 @@ a
 /* Figure */
 
 figure
+  border-radius: $default-border-radius
   background-color: $default-figure-background-color
   box-sizing: border-box
 
   figcaption
-    padding: ($default-space-value / 4) 0 ($default-space-value / 2)
+    padding: ($default-space-value / 2) 0
     text-align: center
     font-size: $default-small-font-size
     font-weight: $default-bold-font-weight
+    color: $default-figure-color
 
 /* Image */
 
 img
   max-width: 100%
-  padding: ($default-space-value / 4)
+  border-radius: $default-border-radius
+  padding: ($default-space-value / 20)
   box-sizing: border-box
   background-color: $default-image-background-color
 
@@ -142,11 +146,12 @@ table
 .shortcut
   font-size: $default-small-font-size
   font-family: $default-key-font-family
-  font-weight: $default-normal-font-weight
+  font-weight: $default-bold-font-weight
   border: $default-border-size solid $default-border-color
   margin: 0 ($default-space-value / 10)
   padding: ($default-space-value / 10) ($default-space-value / 5)
   background-color: $default-shortcut-background-color
+  border-radius: $default-border-radius
 
 /* Space */
 
