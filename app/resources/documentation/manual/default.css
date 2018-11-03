@@ -189,7 +189,7 @@ body {
 	color: #333;
 }
 
-body > div {
+body > main, body > section {
 	padding: 20px 20px 0;
 }
 
