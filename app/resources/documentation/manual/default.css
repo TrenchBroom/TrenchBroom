@@ -178,7 +178,7 @@ table tbody tr td, table thead tr th {
 	background-color: #eee;
 }
 
-figure, h1, h2, h3, h4, img, ol, p, pre, table, ul {
+dl, figure, h1, h2, h3, h4, img, ol, p, pre, table, ul {
 	margin-bottom: 20px;
 }
 
