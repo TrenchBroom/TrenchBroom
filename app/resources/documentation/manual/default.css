@@ -1,134 +1,226 @@
+a, abbr, acronym, address, applet, article, aside, audio, b, big, blockquote, body, canvas, caption, center, cite, code, dd, del, details, dfn, div, dl, dt, em, embed, fieldset, figcaption, figure, footer, form, h1, h2, h3, h4, h5, h6, header, hgroup, html, i, iframe, img, ins, kbd, label, legend, li, mark, menu, nav, object, ol, output, p, pre, q, ruby, s, samp, section, small, span, strike, strong, sub, summary, sup, table, tbody, td, tfoot, th, thead, time, tr, tt, u, ul, var, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+
 body {
-	margin: 20px;
-	padding: 0;
-	font-family: Helvetica, "Sans-serif";
-	background-color: rgb(227, 231, 235);
+  line-height: 1;
 }
 
-a {
-	text-decoration: none;
-	color: rgb(14, 117, 236);
+ol, ul {
+  list-style: none;
 }
 
-div#TOC {
-	position: fixed;
-	top: 0px;
-	left: 0px;
-	width: 300px;
-	padding: 0px;
-	max-height: 100%;
-	overflow-y: auto;
+blockquote, q {
+  quotes: none;
 }
 
-div#TOC_INNER {
-	margin: 10px;
+blockquote: after, blockquote: before, q: after, q: before {
+  content: "";
+  content: none;
 }
 
-div#TOC_HEADER {
-	text-align: center;
-}
-
-div#TOC ul {
-	margin: 0px;
-	padding-left: 20px;
-	font-weight: bold;
-}
-
-div#TOC ul ul {
-	font-weight: normal;
-}
-
-div#CONTENT {
-	top: 0px;
-	left: 300px;
-	padding-left: 30px;
-	padding-right: 30px;
-	float: left;
-	position: absolute;
-	background-color: white;
-}
-
-div#CONTENT p {
-	text-indent: 0px;
-}
-
-div.figure, figure {
-	display: inline-block;
-	padding: 5px;
-	margin-left: 40px;
-	margin-right: 40px;
-	border-radius: 5px;
-	background-color: gray;
-}
-
-div.figure img, figure img {
-	max-width: 100%;
-    height: auto;
-    width: auto\9; /* ie8 */
-}
-
-div.figure p, figcaption {
-	text-align: center;
-	color: white;
-	margin: 0px;
-	padding-top: 8px;
-}
-
-div#CONTENT dl {
-}
-
-div#CONTENT dl dt {
-	font-weight: bold;
-}
-
-div#CONTENT dd {
-	margin-bottom: 10px;
-}
-
-div#CONTENT dd > p {
-	margin-top: 0px;
-	padding-top: 0px;
-}
-
-div#CONTENT table {
-	border-collapse: collapse;
-}
-
-div#CONTENT td, th {
-	border: 1px solid gray;
-	padding: 2px 4px 2px 4px;
-}
-
-div#CONTENT p img {
-	float: left;
-	margin: 0px 15px 5px 0px;
-	padding: 5px;
-	border-radius: 5px;
-	background-color: gray;
-}
-
-div#CONTENT h1, h2, h3, h4, h5 {
-	clear: both;
-	color: black;
-	padding-top: 10px;
-	margin-top: 0px;
-}
-
-span.shortcut {
-	border: 1px solid black;
-	margin: 0px 1px 0px 1px;
-	padding: 0px 4px 0px 4px;
-	border-radius: 3px;
-	background-color: rgb(220, 220, 220);
-	font-size: 80%;
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
 }
 
 pre {
-	padding: 20px;
-	background-color: rgb(200, 200, 200);
-	border-radius: 5px;
-	border: 1px solid gray;
-    font-size: small;
-	overflow: auto;
-	max-width: 100%;
+  padding: 20px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  background-color: #eee;
+  border: 1px solid #ccc;
+}
+
+pre > div {
+  padding: 20px 20px 0;
+}
+
+code {
+  font-size: .75rem;
+  font-family: Lucida Console, Monaco, monospace;
+}
+
+h1, h2, h3, h4 {
+  font-weight: 700;
+}
+
+h1 {
+  font-size: 2rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+}
+
+h3, h4 {
+  font-size: 1.125rem;
+}
+
+p {
+  line-height: 1.5;
+  text-align: justify;
+}
+
+b, strong {
+  font-weight: 700;
+}
+
+em, i {
+  font-style: italic;
+}
+
+dl {
+  line-height: 1.5;
+}
+
+dl dt {
+  font-weight: 700;
+}
+
+dl dd {
+  margin-left: 40px;
+}
+
+ol {
+  list-style-type: decimal;
+}
+
+ol, ul {
+  margin-left: 40px;
+  line-height: 1.5;
+}
+
+ul {
+  list-style-type: disc;
+}
+
+ul li ul {
+  margin-bottom: 0;
+}
+
+ul li ul li {
+  list-style-type: circle;
+}
+
+ul li ul li ul li {
+  list-style-type: square;
+}
+
+a {
+  text-decoration: none;
+  color: #07e;
+}
+
+figure {
+  background-color: #eee;
+  box-sizing: border-box;
+}
+
+figure figcaption {
+  padding: 5px 0 10px;
+  text-align: center;
+  font-size: .75rem;
+  font-weight: 700;
+}
+
+img {
+  max-width: 100%;
+  padding: 5px;
+  box-sizing: border-box;
+  background-color: #eee;
+}
+
+figure {
+  display: inline-block;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+figure img {
+  margin: 0;
+  background-color: inherit;
+}
+
+p img {
+  float: left;
+  margin: 0 20px 20px 0;
+}
+
+table {
+  display: block;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+table thead tr th {
+  font-weight: 700;
+}
+
+table tbody tr td, table thead tr th {
+  border: 1px solid #ccc;
+  padding: 5px 10px;
+  vertical-align: middle;
+}
+
+.shortcut {
+  font-size: .75rem;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
+  font-weight: 400;
+  border: 1px solid #ccc;
+  margin: 0 2px;
+  padding: 2px 4px;
+  background-color: #eee;
+}
+
+figure, h1, h2, h3, h4, img, ol, p, pre, table, ul {
+  margin-bottom: 20px;
+}
+
+body {
+  display: grid;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
+  grid-template-columns: auto auto;
+  color: #333;
+}
+
+body > div {
+  padding: 20px 20px 0;
+}
+
+body #TOC {
+  box-sizing: border-box;
+  font-size: 16px;
+  background-color: #eee;
+  user-select: none;
+}
+
+body #TOC #TOC_INNER #TOC_HEADER {
+  text-align: center;
+}
+
+body #TOC #TOC_INNER img {
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+body #TOC #TOC_INNER > ul {
+  margin-top: 10px;
+  margin-left: 0;
+  list-style-type: none;
+}
+
+body #TOC #TOC_INNER > ul > li > a {
+  font-weight: 700;
+}
+
+body #CONTENT {
+  overflow: auto;
+  box-sizing: border-box;
+  font-size: 16px;
 }
