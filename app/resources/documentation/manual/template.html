@@ -1,56 +1,55 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"$if(lang)$ lang="$lang$" xml:lang="$lang$"$endif$$if(dir)$ dir="$dir$"$endif$>
+<!DOCTYPE html>
+$if(lang)$
+<html lang="$lang$">
+$else$
+<html>
+$endif$
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <meta http-equiv="Content-Style-Type" content="text/css" />
-  <meta name="generator" content="pandoc" />
+<meta charset="UTF-8">
+<meta name="generator" content="pandoc">
 $for(author-meta)$
-  <meta name="author" content="$author-meta$" />
+<meta name="author" content="$author-meta$">
 $endfor$
 $if(date-meta)$
-  <meta name="date" content="$date-meta$" />
+<meta name="date" content="$date-meta$">
 $endif$
 $if(keywords)$
-  <meta name="keywords" content="$for(keywords)$$keywords$$sep$, $endfor$" />
+<meta name="keywords" content="$for(keywords)$$keywords$$sep$, $endfor$">
 $endif$
-  <title>$if(title-prefix)$$title-prefix$ – $endif$$pagetitle$</title>
-  <style type="text/css">code{white-space: pre;}</style>
-$if(quotes)$
-  <style type="text/css">q { quotes: "“" "”" "‘" "’"; }</style>
-$endif$
+<title>$if(title-prefix)$$title-prefix$ – $endif$$pagetitle$</title>
 $if(highlighting-css)$
-  <style type="text/css">
+<style>
 $highlighting-css$
-  </style>
+</style>
 $endif$
-  <link rel="stylesheet" href="default.css" type="text/css" />
+<link rel="stylesheet" href="default.css">
 $if(math)$
-  $math$
+$math$
 $endif$
 $for(header-includes)$
-  $header-includes$
+$header-includes$
 $endfor$
 </head>
 <body>
-  <script src="shortcuts.js"></script>
-  <script src="shortcuts_helper.js"></script>
+<script src="shortcuts.js"></script>
+<script src="shortcuts_helper.js"></script>
 $for(include-before)$
 $include-before$
 $endfor$
 $if(toc)$
-<div id="$idprefix$TOC">
+<section id="$idprefix$TOC">
 <div id="$idprefix$TOC_INNER">
-<div id="$idprefix$TOC_HEADER">
-<img src="icon.png" alt="TrenchBroom Icon" />
+<header id="$idprefix$TOC_HEADER">
+<img src="icon.png" alt="TrenchBroom Icon">
 <h2>Table of Contents</h2>
-</div>
+</header>
 $toc$
 </div>
-</div>
+</section>
 $endif$
-<div id="$idprefix$CONTENT">
+<main id="$idprefix$CONTENT">
 $body$
-</div>
+</main>
 $for(include-after)$
 $include-after$
 $endfor$
