@@ -735,3 +735,5 @@ actions["Controls/Camera/Move forward"] = { key:87, modifiers: [] };
 actions["Controls/Camera/Move backward"] = { key:83, modifiers: [] };
 actions["Controls/Camera/Move left"] = { key:65, modifiers: [] };
 actions["Controls/Camera/Move right"] = { key:68, modifiers: [] };
+actions["Controls/Camera/Move up"] = { key:81, modifiers: [] };
+actions["Controls/Camera/Move down"] = { key:88, modifiers: [] };
