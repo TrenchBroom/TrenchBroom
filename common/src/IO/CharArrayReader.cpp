@@ -43,21 +43,21 @@ namespace TrenchBroom {
         }
 
         void CharArrayReader::seekFromBegin(const size_t offset) {
-            if (offset >= size()) {
+            if (offset > size()) {
                 throw CharArrayReaderException("seekFromBegin: can't seek to offset " + std::to_string(offset) + " in buffer of size " + std::to_string(size()));
             }
             m_current = m_begin + offset;
         }
 
         void CharArrayReader::seekFromEnd(const size_t offset) {
-            if (offset >= size()) {
+            if (offset > size()) {
                 throw CharArrayReaderException("seekFromEnd: can't seek to offset " + std::to_string(offset) + " before end in buffer of size " + std::to_string(size()));
             }
             m_current = m_end - offset;
         }
 
         void CharArrayReader::seekForward(const size_t offset) {
-            if (m_current + offset >= m_end) {
+            if (m_current + offset > m_end) {
                 throw CharArrayReaderException("seekForward: can't seek " + std::to_string(offset) + " bytes from current offset " + std::to_string(currentOffset()) + " in buffer of size " + std::to_string(size()));
             }
             m_current += offset;
@@ -80,7 +80,7 @@ namespace TrenchBroom {
         }
 
         bool CharArrayReader::eof() const {
-            return !canRead(0);
+            return m_current == m_end;
         }
 
         String CharArrayReader::readString(const size_t size) {
