@@ -160,6 +160,7 @@ table {
 
 table thead tr th {
 	font-weight: 700;
+	text-align: left;
 }
 
 table tbody tr td, table thead tr th {
@@ -228,5 +229,5 @@ body #CONTENT {
 
 body #CONTENT h1, body #CONTENT h2, body #CONTENT h3, body #CONTENT h4 {
 	width: 100%;
-  display: inline-block;
+	display: inline-block;
 }
