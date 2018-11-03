@@ -47,43 +47,53 @@ namespace TrenchBroom {
         Assets::Texture* MipTextureReader::doReadTexture(const char* const begin, const char* const end, const Path& path) const {
             static const size_t MipLevels = 4;
             
-            static Color tempColor, averageColor;
-            static Assets::TextureBuffer::List buffers(MipLevels);
-            static size_t offset[MipLevels];
-            
-            CharArrayReader reader(begin, end);
-            const String name = reader.readString(MipLayout::TextureNameLength);
-            const size_t width = reader.readSize<int32_t>();
-            const size_t height = reader.readSize<int32_t>();
-            for (size_t i = 0; i < MipLevels; ++i)
-                offset[i] = reader.readSize<int32_t>();
-            
-            const auto transparency = (name.size() > 0 && name.at(0) == '{')
-                    ? Assets::PaletteTransparency::Index255Transparent
-                    : Assets::PaletteTransparency::Opaque;
+            Color averageColor;
+            Assets::TextureBuffer::List buffers(MipLevels);
+            size_t offset[MipLevels];
 
-            Assets::setMipBufferSize(buffers, MipLevels, width, height, GL_RGBA);
-            Assets::Palette palette = doGetPalette(reader, offset, width, height);
+            try {
+                CharArrayReader reader(begin, end);
+                const String name = reader.readString(MipLayout::TextureNameLength);
+                const size_t width = reader.readSize<int32_t>();
+                const size_t height = reader.readSize<int32_t>();
+                for (size_t i = 0; i < MipLevels; ++i)
+                    offset[i] = reader.readSize<int32_t>();
 
-            if (!palette.initialized()) {
+                const auto transparency = (name.size() > 0 && name.at(0) == '{')
+                                          ? Assets::PaletteTransparency::Index255Transparent
+                                          : Assets::PaletteTransparency::Opaque;
+
+                Assets::setMipBufferSize(buffers, MipLevels, width, height, GL_RGBA);
+                Assets::Palette palette = doGetPalette(reader, offset, width, height);
+
+                if (!palette.initialized()) {
+                    return nullptr;
+                }
+
+                for (size_t i = 0; i < MipLevels; ++i) {
+                    reader.seekFromBegin(offset[i]);
+                    const char *data = reader.cur<const char>();
+                    const size_t size = mipSize(width, height, i);
+                    if (!reader.canRead(size)) {
+                        return nullptr;
+                    }
+
+                    Color tempColor;
+                    palette.indexedToRgba(data, size, buffers[i], tempColor, transparency);
+                    if (i == 0) {
+                        averageColor = tempColor;
+                    }
+                }
+
+                const auto type = (transparency == Assets::PaletteTransparency::Index255Transparent)
+                                  ? Assets::TextureType::Masked
+                                  : Assets::TextureType::Opaque;
+
+                return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers, GL_RGBA,
+                                           type);
+            } catch (const CharArrayReaderException&) {
                 return nullptr;
             }
-
-            for (size_t i = 0; i < MipLevels; ++i) {
-                const char* data = begin + offset[i];
-                const size_t size = mipSize(width, height, i);
-                
-                palette.indexedToRgba(data, size, buffers[i], tempColor, transparency);
-                if (i == 0)
-                    averageColor = tempColor;
-                
-            }
-            
-            const auto type = (transparency == Assets::PaletteTransparency::Index255Transparent)
-                    ? Assets::TextureType::Masked
-                    : Assets::TextureType::Opaque;
-
-            return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers, GL_RGBA, type);
         }
     }
 }

@@ -20,6 +20,7 @@
 #ifndef CharArrayReader_h
 #define CharArrayReader_h
 
+#include "Exceptions.h"
 #include "Macros.h"
 #include "StringUtils.h"
 
@@ -38,6 +39,11 @@
 
 namespace TrenchBroom {
     namespace IO {
+        class CharArrayReaderException : public ExceptionStream<CharArrayReaderException> {
+        public:
+            using ExceptionStream::ExceptionStream;
+        };
+
         class CharArrayReader {
         private:
             const char* const m_begin;
@@ -47,6 +53,7 @@ namespace TrenchBroom {
             CharArrayReader(const char* begin, const char* end);
 
             size_t size() const;
+            size_t currentOffset() const;
             void seekFromBegin(size_t offset);
             void seekFromEnd(size_t offset);
             void seekForward(size_t offset);

@@ -19,6 +19,7 @@
 
 #include "TextureReader.h"
 
+#include "Assets/Texture.h"
 #include "IO/FileSystem.h"
 
 #include <algorithm>
@@ -82,8 +83,8 @@ namespace TrenchBroom {
         }
 
         size_t TextureReader::mipSize(const size_t width, const size_t height, const size_t mipLevel) {
-            const size_t divisor = 1 << mipLevel;
-            return (width * height) / (divisor * divisor);
+            const auto size = Assets::sizeAtMipLevel(width, height, mipLevel);
+            return size.x() * size.y();
         }
     }
 }
