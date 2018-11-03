@@ -61,6 +61,13 @@ namespace TrenchBroom {
 
         void setWindowIcon(wxTopLevelWindow* window);
 
+        template <typename T>
+        void setHint(T* ctrl, const wxString& hint) {
+#ifndef __WXGTK20__
+            ctrl->SetHint(hint);
+#endif
+        }
+
         wxArrayString filterBySuffix(const wxArrayString& strings, const wxString& suffix, bool caseSensitive = false);
     }
 }

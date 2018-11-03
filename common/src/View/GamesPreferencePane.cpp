@@ -113,7 +113,7 @@ namespace TrenchBroom {
             auto* gamePathLabel = new wxStaticText(containerPanel, wxID_ANY, "Game Path");
 			m_gamePathText = new wxTextCtrl(containerPanel, wxID_ANY, "");
 			m_gamePathText->SetEditable(false);
-			m_gamePathText->SetHint("Click on the button to choose...");
+			setHint(m_gamePathText, "Click on the button to choose...");
             m_chooseGamePathButton = new wxButton(containerPanel, wxID_ANY, "...", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
 
             auto* configureEnginesButton = new wxButton(containerPanel, wxID_ANY, "Configure engines...");

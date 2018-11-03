@@ -39,37 +39,36 @@ namespace TrenchBroom {
         m_config(config),
         m_profileList(nullptr),
         m_profileEditor(nullptr) {
-            TitledPanel* listPanel = new TitledPanel(this, "Profiles");
-            TitledPanel* editorPanel = new TitledPanel(this, "Details");
-            listPanel->getPanel()->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
-            
+            auto* listPanel = new TitledPanel(this, "Profiles");
+            auto* editorPanel = new TitledPanel(this, "Details");
+
             m_profileList = new GameEngineProfileListBox(listPanel->getPanel(), m_config);
             m_profileEditor = new GameEngineProfileEditor(editorPanel->getPanel());
             
-            wxWindow* addProfileButton = createBitmapButton(listPanel->getPanel(), "Add.png", "Add profile");
-            wxWindow* removeProfileButton = createBitmapButton(listPanel->getPanel(), "Remove.png", "Remove the selected profile");
+            auto* addProfileButton = createBitmapButton(listPanel->getPanel(), "Add.png", "Add profile");
+            auto* removeProfileButton = createBitmapButton(listPanel->getPanel(), "Remove.png", "Remove the selected profile");
             
             addProfileButton->Bind(wxEVT_BUTTON, &GameEngineProfileManager::OnAddProfile, this);
             removeProfileButton->Bind(wxEVT_BUTTON, &GameEngineProfileManager::OnRemoveProfile, this);
             addProfileButton->Bind(wxEVT_UPDATE_UI, &GameEngineProfileManager::OnUpdateAddProfileButtonUI, this);
             removeProfileButton->Bind(wxEVT_UPDATE_UI, &GameEngineProfileManager::OnUpdateRemoveProfileButtonUI, this);
             
-            wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+            auto* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
             buttonSizer->Add(addProfileButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             buttonSizer->Add(removeProfileButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             buttonSizer->AddStretchSpacer();
             
-            wxSizer* listSizer = new wxBoxSizer(wxVERTICAL);
+            auto* listSizer = new wxBoxSizer(wxVERTICAL);
             listSizer->Add(m_profileList, 1, wxEXPAND);
             listSizer->Add(new BorderLine(listPanel->getPanel(), BorderLine::Direction_Horizontal), 0, wxEXPAND);
             listSizer->Add(buttonSizer);
             listPanel->getPanel()->SetSizer(listSizer);
             
-            wxSizer* editorSizer = new wxBoxSizer(wxVERTICAL);
+            auto* editorSizer = new wxBoxSizer(wxVERTICAL);
             editorSizer->Add(m_profileEditor, 1, wxEXPAND);
             editorPanel->getPanel()->SetSizer(editorSizer);
             
-            wxSizer* outerSizer = new wxBoxSizer(wxHORIZONTAL);
+            auto* outerSizer = new wxBoxSizer(wxHORIZONTAL);
             outerSizer->Add(listPanel, 0, wxEXPAND);
             outerSizer->Add(new BorderLine(this, BorderLine::Direction_Vertical), 0, wxEXPAND);
             outerSizer->Add(editorPanel, 1, wxEXPAND);
