@@ -66,7 +66,7 @@ namespace TrenchBroom {
 
             String m_name;
             const char* m_begin;
-            // const char* m_end;
+            const char* m_end;
             const Assets::Palette& m_palette;
         public:
             Bsp29Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette);

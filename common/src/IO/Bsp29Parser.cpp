@@ -64,7 +64,7 @@ namespace TrenchBroom {
         Bsp29Parser::Bsp29Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette) :
         m_name(name),
         m_begin(begin),
-        // m_end(end),
+        m_end(end),
         m_palette(palette) {}
         
         Assets::EntityModel* Bsp29Parser::doParseModel() {
@@ -110,12 +110,11 @@ namespace TrenchBroom {
                 }
                 cursor = base + textureOffset;
                 readBytes(cursor, textureName, BspLayout::TextureNameLength);
-                const size_t width = readSize<int32_t>(cursor);
-                const size_t height = readSize<int32_t>(cursor);
-                const size_t mipFileSize = IdMipTextureReader::mipFileSize(width, height, 4);
-                
-                const char* const begin = base + textureOffset;
-                const char* const end = begin + mipFileSize;
+
+                const char *const begin = base + textureOffset;
+                // We can't easily tell where the texture ends without duplicating all of the parsing code (including HlMip) here.
+                // Just prevent the texture reader from reading past the end of the .bsp file.
+                const char *const end = m_end;
 
                 model->addSkin(textureReader.readTexture(begin, end, Path("")));
             }
