@@ -496,6 +496,16 @@ namespace vm {
     template <typename T, size_t S>
     int compare(const vec<T,S>& lhs, const vec<T,S>& rhs, const T epsilon = T(0.0)) {
         for (size_t i = 0; i < S; ++i) {
+            // NaN handling: sort NaN's above non-NaN's, otherwise they would compare equal to any non-NaN value since
+            // both the < and > tests below fail. Note that this function will compare NaN and NaN as equal.
+            const bool lhsIsNaN = (lhs[i] != lhs[i]);
+            const bool rhsIsNaN = (rhs[i] != rhs[i]);
+            if (!lhsIsNaN && rhsIsNaN) {
+                return -1;
+            } else if (lhsIsNaN && !rhsIsNaN) {
+                return 1;
+            }
+
             if (lhs[i] < rhs[i] - epsilon) {
                 return -1;
             } else if (lhs[i] > rhs[i] + epsilon) {

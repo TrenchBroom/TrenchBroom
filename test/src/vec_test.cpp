@@ -218,6 +218,13 @@ namespace vm {
         ASSERT_EQ(+1, compare(vec3f(1, 1, 2), vec3f::one));
         ASSERT_EQ(+1, compare(vec3f(2, 0, 0), vec3f::one));
         ASSERT_EQ(+1, compare(vec3f(1, 2, 0), vec3f::one));
+
+        ASSERT_NE( 0, compare(vec3f(1, 2, 0), vec3f::NaN));
+        ASSERT_NE( 0, compare(vec3f::NaN,     vec3f(1, 2, 0)));
+        // This is inconsistent with how operator== on two float values that are NaN returns false,
+        // but it is consistent with the totalOrder() function from IEEE 754-2008
+        // It's unclear what we should do here and this may need revisiting.
+        ASSERT_EQ( 0, compare(vec3f::NaN,     vec3f::NaN));
     }
 
     TEST(VecTest, compareRanges) {
@@ -243,18 +250,42 @@ namespace vm {
         ASSERT_TRUE(isEqual(vec2f::zero, vec2f::zero, 0.0f));
         ASSERT_FALSE(isEqual(vec2f::zero, vec2f::one, 0.0f));
         ASSERT_TRUE(isEqual(vec2f::zero, vec2f::one, 2.0f));
+
+        // NaN
+        ASSERT_FALSE(isEqual(vec2f::zero, vec2f::NaN, 0.0f));
+        ASSERT_FALSE(isEqual(vec2f::NaN,  vec2f::zero, 0.0f));
+        ASSERT_FALSE(isEqual(vec2f::zero, vec2f::NaN, 2.0f));
+        ASSERT_FALSE(isEqual(vec2f::NaN, vec2f::zero, 2.0f));
+
+        // See comment in VecTest.compare.
+        ASSERT_TRUE(isEqual(vec2f::NaN, vec2f::NaN, 0.0f));
+        ASSERT_TRUE(isEqual(vec2f::NaN, vec2f::NaN, 2.0f));
     }
 
     TEST(VecTest, equal) {
         ASSERT_FALSE(vec3f(1, 2, 3) == vec3f(2, 2, 2));
         ASSERT_TRUE (vec3f(1, 2, 3) == vec3f(1, 2, 3));
         ASSERT_FALSE(vec3f(1, 2, 4) == vec3f(1, 2, 2));
+
+        // NaN
+        ASSERT_FALSE(vec2f::zero == vec2f::NaN);
+        ASSERT_FALSE(vec2f::NaN == vec2f::zero);
+
+        // See comment in VecTest.compare.
+        ASSERT_TRUE(vec2f::NaN == vec2f::NaN);
     }
 
     TEST(VecTest, notEqual) {
         ASSERT_TRUE (vec3f(1, 2, 3) != vec3f(2, 2, 2));
         ASSERT_FALSE(vec3f(1, 2, 3) != vec3f(1, 2, 3));
         ASSERT_TRUE (vec3f(1, 2, 4) != vec3f(1, 2, 2));
+
+        // NaN
+        ASSERT_TRUE(vec2f::zero != vec2f::NaN);
+        ASSERT_TRUE(vec2f::NaN != vec2f::zero);
+
+        // See comment in VecTest.compare.
+        ASSERT_FALSE(vec2f::NaN != vec2f::NaN);
     }
 
     TEST(VecTest, lessThan) {
