@@ -135,7 +135,23 @@ namespace TrenchBroom {
             void setDirection(const vm::vec3f& direction, const vm::vec3f& up);
             void rotate(float yaw, float pitch);
             void orbit(const vm::vec3f& center, float horizontal, float vertical);
-            
+            /**
+             * Makes a vm::quatf that applies the given yaw and pitch rotations to the current camera, and
+             * clamps it with clampRotationToUpright()
+             *
+             * @param yaw the yaw angle (in radians) counterclockwise about the +Z axis
+             * @param pitch the pitch angle (in radians) counterclockwise about m_right
+             * @return upright clamped rotation that applies the given yaw and pitch
+             */
+            vm::quatf clampedRotationFromYawPitch(const float yaw, const float pitch) const;
+            /**
+             * Given a rotation, clamps it so that m_up.z() remains >= 0 after the rotation.
+             *
+             * @param rotation desired rotation
+             * @return clamped rotation
+             */
+            vm::quatf clampRotationToUpright(const vm::quatf& rotation) const;
+
             void renderFrustum(RenderContext& renderContext, Vbo& vbo, float size, const Color& color) const;
             float pickFrustum(float size, const vm::ray3f& ray) const;
             
