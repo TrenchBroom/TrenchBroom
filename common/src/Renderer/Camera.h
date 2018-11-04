@@ -135,7 +135,17 @@ namespace TrenchBroom {
             void setDirection(const vm::vec3f& direction, const vm::vec3f& up);
             void rotate(float yaw, float pitch);
             void orbit(const vm::vec3f& center, float horizontal, float vertical);
-            
+            /**
+             * Given a rotation, clamps it so that up.z() remains >= 0 after the rotation.
+             *
+             * @param rotation desired rotation
+             * @param direction current forward vector
+             * @param up current up vector
+             * @param right current right vector
+             * @return clamped rotation
+             */
+            static vm::quatf clampRotationToUpright(const vm::quatf& rotation, const vm::vec3f& direction, const vm::vec3f& up, const vm::vec3f& right);
+
             void renderFrustum(RenderContext& renderContext, Vbo& vbo, float size, const Color& color) const;
             float pickFrustum(float size, const vm::ray3f& ray) const;
             

@@ -55,5 +55,16 @@ namespace TrenchBroom {
             ASSERT_FALSE(isNaN(c.right()));
             ASSERT_FALSE(isNaN(c.up()));
         }
+
+        TEST(CameraTest, testYawWhenPitchedDown) {
+            PerspectiveCamera c;
+            c.setDirection(vm::vec3f::neg_z, vm::vec3f::pos_x);
+
+            c.rotate(0.1f, 0.0f);
+
+            ASSERT_FALSE(isNaN(c.direction()));
+            ASSERT_FALSE(isNaN(c.right()));
+            ASSERT_FALSE(isNaN(c.up()));
+        }
     }
 }

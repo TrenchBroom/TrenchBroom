@@ -290,19 +290,12 @@ namespace TrenchBroom {
                 return;
             }
 
-            const auto rotation = vm::quatf(vm::vec3f::pos_z, yaw) * vm::quatf(m_right, pitch);
+            const auto desiredRotation = vm::quatf(vm::vec3f::pos_z, yaw) * vm::quatf(m_right, pitch);
+            const auto rotation = clampRotationToUpright(desiredRotation, m_direction, m_up, m_right);
+
             auto newDirection = rotation * m_direction;
             auto newUp = rotation * m_up;
-            
-            if (newUp[2] < 0.0f) {
-                newUp[2] = 0.0f;
-                newDirection[0] = 0.0f;
-                newDirection[1] = 0.0f;
-                
-                newUp = normalize(newUp);
-                newDirection = normalize(newDirection);
-            }
-            
+
             setDirection(newDirection, newUp);
         }
         
@@ -311,34 +304,42 @@ namespace TrenchBroom {
                 return;
             }
 
-            auto rotation = vm::quatf(vm::vec3f::pos_z, horizontal) * vm::quatf(m_right, vertical);
-            auto newDirection = rotation * m_direction;
-            auto newUp = rotation * m_up;
-            auto offset = m_position - center;
-            
-            if (newUp[2] < 0.0f) {
-                newUp[2] = 0.0f;
-                newDirection[0] = 0.0f;
-                newDirection[1] = 0.0f;
+            const auto desiredRotation = vm::quatf(vm::vec3f::pos_z, horizontal) * vm::quatf(m_right, vertical);
+            const auto rotation = clampRotationToUpright(desiredRotation, m_direction, m_up, m_right);
 
-                newUp = normalize(newUp);
-                newDirection = normalize(newDirection);
+            const auto newDirection = rotation * m_direction;
+            const auto newUp = rotation * m_up;
+            const auto offset = rotation * (m_position - center);
 
-                // correct rounding errors
-                const auto cos = vm::clamp(dot(m_direction, newDirection), -1.0f, 1.0f);
-                const auto angle = acosf(cos);
-                if (!vm::isZero(angle, vm::Cf::almostZero())) {
-                    const auto axis = normalize(cross(m_direction, newDirection));
-                    rotation = vm::quatf(axis, angle);
-                    offset = rotation * offset;
-                    newUp = rotation * newUp;
-                }
-            } else {
-                offset = rotation * offset;
-            }
-            
             setDirection(newDirection, newUp);
             moveTo(offset + center);
+        }
+
+        vm::quatf Camera::clampRotationToUpright(const vm::quatf& rotation, const vm::vec3f& direction, const vm::vec3f& up, const vm::vec3f& right) {
+            const auto newDirection = rotation * direction;
+            auto newUp = rotation * up;
+
+            // this is just used as the axis of rotation for the correction
+            const auto newRight = rotation * right;
+
+            if (newUp[2] < 0.0f) {
+                // newUp should be prevented from rotating below Z=0
+
+                auto newUpClamped = vm::normalize(vm::vec3f(newUp.x(), newUp.y(), 0.0f));
+                if (vm::isNaN(newUpClamped)) {
+                    newUpClamped = vm::vec3f::pos_x;
+                }
+
+                // how much does newUp need to be rotated to equal newUpClamped?
+                const auto cosAngle = vm::clamp(dot(newUpClamped, newUp), -1.0f, 1.0f);
+                const auto angle = acosf(cosAngle);
+
+                const auto correction = vm::quatf(newRight, newDirection.z() > 0 ? -angle : angle);
+
+                return correction * rotation;
+            } else {
+                return rotation;
+            }
         }
 
         void Camera::renderFrustum(RenderContext& renderContext, Vbo& vbo, const float size, const Color& color) const {
