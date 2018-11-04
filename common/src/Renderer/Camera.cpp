@@ -290,11 +290,10 @@ namespace TrenchBroom {
                 return;
             }
 
-            const auto desiredRotation = vm::quatf(vm::vec3f::pos_z, yaw) * vm::quatf(m_right, pitch);
-            const auto rotation = clampRotationToUpright(desiredRotation, m_direction, m_up, m_right);
+            const auto rotation = clampedRotationFromYawPitch(yaw, pitch);
 
-            auto newDirection = rotation * m_direction;
-            auto newUp = rotation * m_up;
+            const auto newDirection = rotation * m_direction;
+            const auto newUp = rotation * m_up;
 
             setDirection(newDirection, newUp);
         }
@@ -304,8 +303,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            const auto desiredRotation = vm::quatf(vm::vec3f::pos_z, horizontal) * vm::quatf(m_right, vertical);
-            const auto rotation = clampRotationToUpright(desiredRotation, m_direction, m_up, m_right);
+            const auto rotation = clampedRotationFromYawPitch(horizontal, vertical);
 
             const auto newDirection = rotation * m_direction;
             const auto newUp = rotation * m_up;
@@ -315,12 +313,17 @@ namespace TrenchBroom {
             moveTo(offset + center);
         }
 
-        vm::quatf Camera::clampRotationToUpright(const vm::quatf& rotation, const vm::vec3f& direction, const vm::vec3f& up, const vm::vec3f& right) {
-            const auto newDirection = rotation * direction;
-            auto newUp = rotation * up;
+        vm::quatf Camera::clampedRotationFromYawPitch(const float yaw, const float pitch) const {
+            const auto desiredRotation = vm::quatf(vm::vec3f::pos_z, yaw) * vm::quatf(m_right, pitch);
+            return clampRotationToUpright(desiredRotation);
+        }
+
+        vm::quatf Camera::clampRotationToUpright(const vm::quatf& rotation) const {
+            const auto newDirection = rotation * m_direction;
+            auto newUp = rotation * m_up;
 
             // this is just used as the axis of rotation for the correction
-            const auto newRight = rotation * right;
+            const auto newRight = rotation * m_right;
 
             if (newUp[2] < 0.0f) {
                 // newUp should be prevented from rotating below Z=0
