@@ -296,24 +296,6 @@ namespace TrenchBroom {
         }
     };
 
-    class ValueHolderBase {
-    public:
-        typedef std::unique_ptr<ValueHolderBase> UPtr;
-    };
-    
-    template <typename T>
-    class ValueHolder : public ValueHolderBase {
-    private:
-        T m_value;
-    public:
-        ValueHolder(T value) :
-        m_value(value) {}
-        
-        const T& value() const {
-            return m_value;
-        }
-    };
-    
     class PreferenceBase {
     public:
         typedef std::set<const PreferenceBase*> Set;
@@ -327,7 +309,6 @@ namespace TrenchBroom {
         virtual void load(wxConfigBase* config) const = 0;
         virtual void save(wxConfigBase* config) = 0;
         virtual void resetToPrevious() = 0;
-        virtual void setValue(const ValueHolderBase* valueHolder) = 0;
 
         bool operator==(const PreferenceBase& other) const {
             return this == &other;
@@ -359,11 +340,6 @@ namespace TrenchBroom {
             m_value = value;
         }
 
-        void setValue(const ValueHolderBase* valueHolder) override {
-            const ValueHolder<T>* actualValueHolder = static_cast<const ValueHolder<T>*>(valueHolder);
-            setValue(actualValueHolder->value());
-        }
-        
         bool initialized() const {
             return m_initialized;
         }

@@ -116,7 +116,7 @@ namespace TrenchBroom {
 
         Preference<float> Brightness(IO::Path("Renderer/Brightness"), 1.4f);
         Preference<float> GridAlpha(IO::Path("Renderer/Grid/Alpha"), 0.5f);
-        Preference<Color> GridColor2D(IO::Path("Rendere/Grid/Color2D"), Color(0.8f, 0.8f, 0.8f, 0.8f));
+        Preference<Color> GridColor2D(IO::Path("Renderer/Grid/Color2D"), Color(0.8f, 0.8f, 0.8f, 0.8f));
 
         Preference<int> TextureMinFilter(IO::Path("Renderer/Texture mode min filter"), 0x2700);
         Preference<int> TextureMagFilter(IO::Path("Renderer/Texture mode mag filter"), 0x2600);
@@ -129,7 +129,7 @@ namespace TrenchBroom {
             return fontPath;
         }
     
-    Preference<int> RendererFontSize(IO::Path("Renderer/Font size"), 13);
+        Preference<int> RendererFontSize(IO::Path("Renderer/Font size"), 13);
         
         Preference<int> BrowserFontSize(IO::Path("Browser/Font size"), 13);
         Preference<Color> BrowserTextColor(IO::Path("Browser/Text color"), Color(1.0f, 1.0f, 1.0f, 1.0f));

@@ -24,6 +24,7 @@
 
 #include "Macros.h"
 #include "RecoverableExceptions.h"
+#include "PreferenceManager.h"
 #include "TrenchBroomAppTraits.h"
 #include "TrenchBroomStackWalker.h"
 #include "IO/Path.h"
@@ -309,7 +310,13 @@ namespace TrenchBroom {
 
             return true;
         }
-        
+
+        int TrenchBroomApp::OnExit() {
+            auto& prefs = PreferenceManager::instance();
+            prefs.saveChanges();
+            return wxAppBase::OnExit();
+        }
+
         static String makeCrashReport(const String &stacktrace, const String &reason) {
             StringStream ss;
             ss << "OS:\t" << wxGetOsDescription() << std::endl;
@@ -467,15 +474,6 @@ namespace TrenchBroom {
             } catch (...) {
                 reportCrashAndExit("", "Unknown exception");
             }
-        }
-
-        int TrenchBroomApp::OnRun() {
-            const int result = wxApp::OnRun();
-            wxConfigBase* config = wxConfig::Get(false);
-            if (config != nullptr)
-                config->Flush();
-            DeletePendingObjects();
-            return result;
         }
 
         void TrenchBroomApp::OnFileNew(wxCommandEvent& event) {

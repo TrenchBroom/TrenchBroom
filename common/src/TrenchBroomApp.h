@@ -68,6 +68,7 @@ namespace TrenchBroom {
             void openAbout();
 
             bool OnInit() override;
+            int OnExit() override;
             
             bool OnExceptionInMainLoop() override;
             void OnUnhandledException() override;
@@ -75,8 +76,6 @@ namespace TrenchBroom {
         private:
             void handleException();
         public:
-            
-            int OnRun() override;
             
             void OnFileNew(wxCommandEvent& event);
             void OnFileOpen(wxCommandEvent& event);
