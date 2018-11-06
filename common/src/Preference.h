@@ -45,6 +45,7 @@ namespace TrenchBroom {
     class PreferenceSerializer<bool> {
     public:
         bool read(wxConfigBase* config, const IO::Path& path, bool& result) const {
+            const wxConfigPathChanger setPath(config, "/");
             wxString string;
             if (config->Read(path.asString('/'), &string)) {
                 long longValue = 0;
@@ -57,6 +58,7 @@ namespace TrenchBroom {
         }
         
         bool write(wxConfigBase* config, const IO::Path& path, const bool& value) const {
+            const wxConfigPathChanger setPath(config, "/");
             wxString str;
             str << (value ? 1 : 0);
             return config->Write(path.asString('/'), str);
@@ -67,6 +69,7 @@ namespace TrenchBroom {
     class PreferenceSerializer<int> {
     public:
         bool read(wxConfigBase* config, const IO::Path& path, int& result) const {
+            const wxConfigPathChanger setPath(config, "/");
             wxString string;
             if (config->Read(path.asString('/'), &string)) {
                 long longValue = 0;
@@ -79,6 +82,7 @@ namespace TrenchBroom {
         }
         
         bool write(wxConfigBase* config, const IO::Path& path, const int& value) const {
+            const wxConfigPathChanger setPath(config, "/");
             wxString str;
             str << value;
             return config->Write(path.asString('/'), str);
@@ -89,6 +93,7 @@ namespace TrenchBroom {
     class PreferenceSerializer<float> {
     public:
         bool read(wxConfigBase* config, const IO::Path& path, float& result) const {
+            const wxConfigPathChanger setPath(config, "/");
             wxString string;
             if (config->Read(path.asString('/'), &string)) {
                 double doubleValue = 0.0;
@@ -101,6 +106,7 @@ namespace TrenchBroom {
         }
         
         bool write(wxConfigBase* config, const IO::Path& path, const float& value) const {
+            const wxConfigPathChanger setPath(config, "/");
             wxString str;
             str << value;
             return config->Write(path.asString('/'), str);
@@ -111,6 +117,7 @@ namespace TrenchBroom {
     class PreferenceSerializer<double> {
     public:
         bool read(wxConfigBase* config, const IO::Path& path, double& result) const {
+            const wxConfigPathChanger setPath(config, "/");
             wxString string;
             if (config->Read(path.asString('/'), &string)) {
                 double doubleValue = 0.0;
@@ -123,6 +130,7 @@ namespace TrenchBroom {
         }
         
         bool write(wxConfigBase* config, const IO::Path& path, const double& value) const {
+            const wxConfigPathChanger setPath(config, "/");
             wxString str;
             str << value;
             return config->Write(path.asString('/'), str);
@@ -133,6 +141,7 @@ namespace TrenchBroom {
     class PreferenceSerializer<String> {
     public:
         bool read(wxConfigBase* config, const IO::Path& path, String& result) const {
+            const wxConfigPathChanger setPath(config, "/");
             wxString string;
             if (config->Read(path.asString('/'), &string)) {
                 result = string.ToStdString();
@@ -142,6 +151,7 @@ namespace TrenchBroom {
         }
         
         bool write(wxConfigBase* config, const IO::Path& path, const String& value) const {
+            const wxConfigPathChanger setPath(config, "/");
             return config->Write(path.asString('/'), wxString(value));
         }
     };
@@ -150,6 +160,7 @@ namespace TrenchBroom {
     class PreferenceSerializer<Color> {
     public:
         bool read(wxConfigBase* config, const IO::Path& path, Color& result) const {
+            const wxConfigPathChanger setPath(config, "/");
             wxString string;
             if (config->Read(path.asString('/'), &string)) {
                 result = Color::parse(string.ToStdString());
@@ -159,6 +170,7 @@ namespace TrenchBroom {
         }
         
         bool write(wxConfigBase* config, const IO::Path& path, const Color& value) const {
+            const wxConfigPathChanger setPath(config, "/");
             return config->Write(path.asString('/'), wxString(StringUtils::toString(value)));
         }
     };
@@ -167,6 +179,7 @@ namespace TrenchBroom {
     class PreferenceSerializer<View::KeyboardShortcut> {
     public:
         bool read(wxConfigBase* config, const IO::Path& path, View::KeyboardShortcut& result) const {
+            const wxConfigPathChanger setPath(config, "/");
             wxString string;
             if (config->Read(path.asString('/'), &string)) {
                 result = View::KeyboardShortcut(string);
@@ -176,6 +189,7 @@ namespace TrenchBroom {
         }
         
         bool write(wxConfigBase* config, const IO::Path& path, const View::KeyboardShortcut& value) const {
+            const wxConfigPathChanger setPath(config, "/");
             return config->Write(path.asString('/'), wxString(value.asString()));
         }
     };
@@ -184,6 +198,7 @@ namespace TrenchBroom {
     class PreferenceSerializer<IO::Path> {
     public:
         bool read(wxConfigBase* config, const IO::Path& path, IO::Path& result) const {
+            const wxConfigPathChanger setPath(config, "/");
             wxString string;
             if (config->Read(path.asString('/'), &string)) {
                 result = IO::Path(string.ToStdString());
@@ -193,6 +208,7 @@ namespace TrenchBroom {
         }
         
         bool write(wxConfigBase* config, const IO::Path& path, const IO::Path& value) const {
+            const wxConfigPathChanger setPath(config, "/");
             return config->Write(path.asString('/'), wxString(value.asString()));
         }
     };
@@ -203,11 +219,12 @@ namespace TrenchBroom {
         PreferenceSerializer<S> m_serializer;
     public:
         bool read(wxConfigBase* config, const IO::Path& path, std::vector<S>& result) const {
+            const wxConfigPathChanger setPath(config, "/");
+
             const wxString wxPath(path.asString('/'));
             if (!config->Exists(wxPath))
                 return false;
             
-            const wxString oldPath = config->GetPath();
             config->SetPath(wxPath);
 
             bool success = true;
@@ -224,8 +241,6 @@ namespace TrenchBroom {
                 } while (success && config->GetNextEntry(name, index));
             }
             
-            config->SetPath(oldPath);
-            
             using std::swap;
             if (success)
                 swap(result, temp);
@@ -233,7 +248,8 @@ namespace TrenchBroom {
         }
 
         bool write(wxConfigBase* config, const IO::Path& path, const std::vector<S>& values) const {
-            const wxString oldPath = config->GetPath();
+            const wxConfigPathChanger setPath(config, "/");
+
             config->DeleteGroup(path.asString('/'));
             config->SetPath(path.asString('/'));
 
@@ -243,7 +259,6 @@ namespace TrenchBroom {
                 m_serializer.write(config, IO::Path(name.ToStdString()), values[i]);
             }
             
-            config->SetPath(oldPath);
             return true;
         }
     };
@@ -254,9 +269,10 @@ namespace TrenchBroom {
         PreferenceSerializer<S> m_serializer;
     public:
         bool read(wxConfigBase* config, const IO::Path& path, std::map<String, S>& result) const {
-            const wxString oldPath = config->GetPath();
+            const wxConfigPathChanger setPath(config, "/");
+
             config->SetPath(path.asString('/'));
-            
+
             bool success = true;
             std::map<String, S> temp;
             
@@ -271,9 +287,7 @@ namespace TrenchBroom {
                         temp[nameStr] = value;
                 } while (success && config->GetNextEntry(name, index));
             }
-            
-            config->SetPath(oldPath);
-            
+
             using std::swap;
             if (success)
                 swap(result, temp);
@@ -281,7 +295,8 @@ namespace TrenchBroom {
         }
         
         bool write(wxConfigBase* config, const IO::Path& path, const std::map<String, S>& values) const {
-            const wxString oldPath = config->GetPath();
+            const wxConfigPathChanger setPath(config, "/");
+
             config->DeleteGroup(path.asString('/'));
             config->SetPath(path.asString('/'));
             
@@ -291,7 +306,6 @@ namespace TrenchBroom {
                 m_serializer.write(config, IO::Path(name), value);
             }
             
-            config->SetPath(oldPath);
             return true;
         }
     };
