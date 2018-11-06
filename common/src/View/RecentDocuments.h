@@ -109,6 +109,7 @@ namespace TrenchBroom {
             void loadFromConfig() {
                 m_recentDocuments.clear();
                 wxConfigBase* conf = wxConfig::Get();
+                conf->SetPath("/");
                 const wxConfigPathChanger setPath(conf, "/");
 
                 for (size_t i = 0; i < m_maxSize; ++i) {
@@ -124,6 +125,7 @@ namespace TrenchBroom {
             
             void saveToConfig() {
                 wxConfigBase* conf = wxConfig::Get();
+                conf->SetPath("/");
                 const wxConfigPathChanger setPath(conf, "/");
 
                 conf->DeleteGroup("RecentDocuments");
