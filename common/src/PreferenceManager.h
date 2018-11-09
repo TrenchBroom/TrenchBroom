@@ -52,6 +52,8 @@ namespace TrenchBroom {
         
         template <typename T>
         const T& get(const Preference<T>& preference) const {
+            ensure(wxThread::IsMain(), "PreferenceManager can only be used on the main thread");
+
             if (!preference.initialized()) {
                 preference.load(wxConfig::Get());
             }
@@ -66,6 +68,8 @@ namespace TrenchBroom {
         
         template <typename T>
         bool set(Preference<T>& preference, const T& value) {
+            ensure(wxThread::IsMain(), "PreferenceManager can only be used on the main thread");
+
             const T previousValue = preference.value();
             if (previousValue == value)
                 return false;

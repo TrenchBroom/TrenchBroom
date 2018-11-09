@@ -369,6 +369,8 @@ namespace TrenchBroom {
         }
         
         void load(wxConfigBase* config) const override {
+            ensure(wxThread::IsMain(), "wxConfig can only be used on the main thread");
+
             using std::swap;
             T temp;
             if (m_serializer.read(config, m_path, temp)) {
@@ -379,6 +381,8 @@ namespace TrenchBroom {
         }
         
         void save(wxConfigBase* config) override {
+            ensure(wxThread::IsMain(), "wxConfig can only be used on the main thread");
+
             if (m_modified) {
                 assertResult(m_serializer.write(config, m_path, m_value));
                 m_modified = false;

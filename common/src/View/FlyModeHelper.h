@@ -21,6 +21,7 @@
 #define TrenchBroom_FlyModeHelper
 
 #include <vecmath/forward.h>
+#include <vecmath/vec.h>
 
 #include <iostream>
 
@@ -35,6 +36,9 @@ class wxMouseEvent;
 namespace TrenchBroom {
     namespace Renderer {
         class Camera;
+    }
+    namespace IO {
+        class Path;
     }
     
     namespace View {
@@ -60,6 +64,10 @@ namespace TrenchBroom {
             
             wxLongLong m_lastPollTime;
             
+            // cached preferences
+            vm::vec2f m_lookSpeed;
+            float m_moveSpeed;
+
             class CameraEvent;
         public:
             FlyModeHelper(wxWindow* window, Renderer::Camera& camera);
@@ -85,8 +93,18 @@ namespace TrenchBroom {
             ExitCode Entry() override;
             vm::vec3f moveDelta();
             vm::vec2f lookDelta();
+
             vm::vec2f lookSpeed() const;
             float moveSpeed() const;
+
+            vm::vec2f cachedLookSpeed();
+            float cachedMoveSpeed();
+
+            void cachePreferences();
+
+            void bindObservers();
+            void unbindObservers();
+            void preferenceDidChange(const IO::Path& path);
         };
     }
 }
