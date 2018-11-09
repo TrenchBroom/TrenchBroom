@@ -25,6 +25,7 @@
 #include "Renderer/Camera.h"
 #include "View/ExecutableEvent.h"
 #include "View/KeyboardShortcut.h"
+#include "IO/Path.h"
 
 #include <vecmath/vec.h>
 
@@ -70,10 +71,14 @@ namespace TrenchBroom {
             resetKeys();
             m_lastPollTime = ::wxGetLocalTimeMillis();
 
+            bindObservers();
+            cachePreferences();
+
             Run();
         }
 
         FlyModeHelper::~FlyModeHelper() {
+            unbindObservers();
             /* Since the window is already deleted when this destructor is called, we omit the cleanup.
             if (enabled())
                 disable();
@@ -239,13 +244,15 @@ namespace TrenchBroom {
         }
 
         vm::vec3f FlyModeHelper::moveDelta() {
+            ensure(!wxThread::IsMain(), "moveDelta() should be called from a background thread");
+
             wxCriticalSectionLocker lock(m_critical);
 
             const wxLongLong currentTime = ::wxGetLocalTimeMillis();
             const float time = static_cast<float>((currentTime - m_lastPollTime).ToLong());
             m_lastPollTime = currentTime;
 
-            const float dist = moveSpeed() * time;
+            const float dist = cachedMoveSpeed() * time;
 
             vm::vec3f delta;
             if (m_forward) {
@@ -275,7 +282,7 @@ namespace TrenchBroom {
 
             wxCriticalSectionLocker lock(m_critical);
 
-            const vm::vec2f speed = lookSpeed();
+            const vm::vec2f speed = cachedLookSpeed();
             const float hAngle = static_cast<float>(m_currentMouseDelta.x) * speed.x();
             const float vAngle = static_cast<float>(m_currentMouseDelta.y) * speed.y();
             m_currentMouseDelta.x = m_currentMouseDelta.y = 0;
@@ -293,6 +300,49 @@ namespace TrenchBroom {
 
         float FlyModeHelper::moveSpeed() const {
             return pref(Preferences::CameraFlyMoveSpeed);
+        }
+
+        float FlyModeHelper::cachedMoveSpeed() {
+            ensure(!wxThread::IsMain(), "should be called from the background thread");
+            wxCriticalSectionLocker lock(m_critical);
+            return m_moveSpeed;
+        }
+
+        vm::vec2f FlyModeHelper::cachedLookSpeed() {
+            ensure(!wxThread::IsMain(), "should be called from the background thread");
+            wxCriticalSectionLocker lock(m_critical);
+            return m_lookSpeed;
+        }
+
+        void FlyModeHelper::cachePreferences() {
+            ensure(wxThread::IsMain(), "should be called from the main thread");
+
+            wxCriticalSectionLocker lock(m_critical);
+            m_moveSpeed = moveSpeed();
+            m_lookSpeed = lookSpeed();
+        }
+
+        void FlyModeHelper::bindObservers() {
+            ensure(wxThread::IsMain(), "should be called from the main thread");
+
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.addObserver(this, &FlyModeHelper::preferenceDidChange);
+        }
+
+        void FlyModeHelper::unbindObservers() {
+            ensure(wxThread::IsMain(), "should be called from the main thread");
+
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.removeObserver(this, &FlyModeHelper::preferenceDidChange);
+        }
+
+        void FlyModeHelper::preferenceDidChange(const IO::Path& path) {
+            ensure(wxThread::IsMain(), "should be called from the main thread");
+            if (path == Preferences::CameraFlyLookSpeed.path()
+                || path == Preferences::CameraFlyMoveSpeed.path()
+                || path == Preferences::CameraFlyInvertV.path()) {
+                cachePreferences();
+            }
         }
     }
 }
