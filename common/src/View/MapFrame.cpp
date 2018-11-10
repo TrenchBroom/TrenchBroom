@@ -1106,49 +1106,65 @@ namespace TrenchBroom {
         void MapFrame::OnEditToggleCreateComplexBrushTool(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            m_mapView->toggleCreateComplexBrushTool();
+            if (m_mapView->canToggleCreateComplexBrushTool()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+                m_mapView->toggleCreateComplexBrushTool();
+            }
         }
 
         void MapFrame::OnEditToggleClipTool(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            m_mapView->toggleClipTool();
+            if (m_mapView->canToggleClipTool()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+                m_mapView->toggleClipTool();
+            }
         }
 
         void MapFrame::OnEditToggleRotateObjectsTool(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            m_mapView->toggleRotateObjectsTool();
+            if (m_mapView->canToggleRotateObjectsTool()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+                m_mapView->toggleRotateObjectsTool();
+            }
         }
 
         void MapFrame::OnEditToggleScaleObjectsTool(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            
-            m_mapView->toggleScaleObjectsTool();
+
+            if (m_mapView->canToggleScaleObjectsTool()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+                m_mapView->toggleScaleObjectsTool();
+            }
         }
 
         void MapFrame::OnEditToggleShearObjectsTool(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            m_mapView->toggleShearObjectsTool();
+            if (m_mapView->canToggleShearObjectsTool()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+                m_mapView->toggleShearObjectsTool();
+            }
         }
         
         void MapFrame::OnEditToggleVertexTool(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            
-            m_mapView->toggleVertexTool();
+
+            if (m_mapView->canToggleVertexTools()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+                m_mapView->toggleVertexTool();
+            }
         }
         
         void MapFrame::OnEditToggleEdgeTool(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            
-            m_mapView->toggleEdgeTool();
+
+            if (m_mapView->canToggleVertexTools()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+                m_mapView->toggleEdgeTool();
+            }
         }
         
         void MapFrame::OnEditToggleFaceTool(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            
-            m_mapView->toggleFaceTool();
+
+            if (m_mapView->canToggleVertexTools()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+                m_mapView->toggleFaceTool();
+            }
         }
 
         void MapFrame::OnEditCsgConvexMerge(wxCommandEvent& event) {

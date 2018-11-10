@@ -86,7 +86,7 @@ namespace TrenchBroom {
         }
 
         MapView3D::~MapView3D() {
-            m_flyModeHelper->Delete();
+            m_flyModeHelper->Stop();
             unbindObservers();
         }
         
