@@ -25,7 +25,7 @@
 
 #include <iostream>
 
-#include <wx/thread.h>
+#include <wx/timer.h>
 #include <wx/gdicmn.h>
 #include <wx/longlong.h>
 
@@ -42,12 +42,11 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class FlyModeHelper : public wxThread {
+        class FlyModeHelper : public wxTimer {
         private:
             wxWindow* m_window;
             Renderer::Camera& m_camera;
             
-            wxCriticalSection m_critical;
             bool m_forward;
             bool m_backward;
             bool m_left;
@@ -90,21 +89,12 @@ namespace TrenchBroom {
             void resetMouse();
             wxPoint windowCenter() const;
         private:
-            ExitCode Entry() override;
+            void Notify() override;
             vm::vec3f moveDelta();
             vm::vec2f lookDelta();
 
             vm::vec2f lookSpeed() const;
             float moveSpeed() const;
-
-            vm::vec2f cachedLookSpeed();
-            float cachedMoveSpeed();
-
-            void cachePreferences();
-
-            void bindObservers();
-            void unbindObservers();
-            void preferenceDidChange(const IO::Path& path);
         };
     }
 }
