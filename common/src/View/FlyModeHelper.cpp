@@ -66,7 +66,7 @@ namespace TrenchBroom {
         FlyModeHelper::FlyModeHelper(wxWindow* window, Renderer::Camera& camera) :
         m_window(window),
         m_camera(camera),
-        m_enabled(false),
+        m_enable(false),
         m_ignoreMotionEvents(false) {
             resetKeys();
             m_lastPollTime = ::wxGetLocalTimeMillis();
@@ -84,17 +84,17 @@ namespace TrenchBroom {
         void FlyModeHelper::enable() {
             assert(!enabled());
             lockMouse();
-            m_enabled = true;
+            m_enable = true;
         }
 
         void FlyModeHelper::disable() {
             assert(enabled());
             unlockMouse();
-            m_enabled = false;
+            m_enable = false;
         }
 
         bool FlyModeHelper::enabled() const {
-            return m_enabled;
+            return m_enable;
         }
 
         void FlyModeHelper::lockMouse() {
@@ -188,7 +188,7 @@ namespace TrenchBroom {
         }
 
         void FlyModeHelper::motion(wxMouseEvent& event) {
-            if (m_enabled && !m_ignoreMotionEvents) {
+            if (m_enable && !m_ignoreMotionEvents) {
                 const wxPoint currentMousePos = m_window->ScreenToClient(::wxGetMousePosition());
                 const wxPoint delta = currentMousePos - m_lastMousePos;
                 m_currentMouseDelta += delta;
@@ -197,7 +197,7 @@ namespace TrenchBroom {
         }
 
         void FlyModeHelper::resetMouse() {
-            if (m_enabled) {
+            if (m_enable) {
                 const TemporarilySetBool ignoreMotion(m_ignoreMotionEvents);
                 m_lastMousePos = windowCenter();
                 m_window->WarpPointer(m_lastMousePos.x, m_lastMousePos.y);
@@ -255,7 +255,7 @@ namespace TrenchBroom {
         }
 
         vm::vec2f FlyModeHelper::lookDelta() {
-            if (!m_enabled) {
+            if (!m_enable) {
                 return vm::vec2f::zero;
             }
 
