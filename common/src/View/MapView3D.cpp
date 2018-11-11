@@ -21,6 +21,7 @@
 #include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "TemporarilySetAny.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
@@ -75,7 +76,8 @@ namespace TrenchBroom {
         MapView3D::MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager) :
         MapViewBase(parent, logger, document, toolBox, renderer, contextManager),
         m_flyModeTimer(this),
-        m_flyModeHelper(new FlyModeHelper(m_camera)) {
+        m_flyModeHelper(new FlyModeHelper(m_camera)),
+        m_ignoreCameraChangeEvents(false) {
             bindEvents();
             bindObservers();
             initializeCamera();
@@ -131,7 +133,10 @@ namespace TrenchBroom {
         }
 
         void MapView3D::cameraDidChange(const Renderer::Camera* camera) {
-            Refresh();
+            if (!m_ignoreCameraChangeEvents) {
+                // Don't refresh if the camera was changed in doPreRender!
+                Refresh();
+            }
         }
 
         void MapView3D::preferenceDidChange(const IO::Path& path) {
@@ -580,6 +585,7 @@ namespace TrenchBroom {
         }
 
         void MapView3D::doPreRender() {
+            const TemporarilySetBool ignoreCameraUpdates(m_ignoreCameraChangeEvents);
             m_flyModeHelper->pollAndUpdate();
         }
 
