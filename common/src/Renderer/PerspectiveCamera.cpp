@@ -54,22 +54,7 @@ namespace TrenchBroom {
         }
 
         float PerspectiveCamera::zoomedFov() const {
-            // Piecewise definition of a function to get a natural feeling zoom
-            // - for values below 0.7, use the square root.
-            // - for values above 1.2, use the negated inverse (approaches 0 smoothly)
-            // - for values in between, linearly interpolate between both
-            const auto f1 = sqrt(zoom());
-            const auto f2 = (-1.0f/zoom() + 2.0f);
-            float z;
-            if (zoom() < 0.7f) {
-                z = f1;
-            } else if (zoom() < 1.2f) {
-                z = vm::mix(f1, f2, 2.0f * (zoom() - 0.7f));
-            } else {
-                z = f2;
-            }
-
-            return fov() * z;
+            return PerspectiveCamera::computeZoomedFov(zoom(), fov());
         }
 
         void PerspectiveCamera::setFov(const float fov) {
@@ -85,7 +70,26 @@ namespace TrenchBroom {
             const vm::vec3f direction = normalize(point - position());
             return vm::ray3f(position(), direction);
         }
-        
+
+        float PerspectiveCamera::computeZoomedFov(const float zoom, const float fov) {
+            // Piecewise definition of a function to get a natural feeling zoom
+            // - for values below 0.7, use the square root.
+            // - for values above 1.2, use the negated inverse (approaches 0 smoothly)
+            // - for values in between, linearly interpolate between both
+            const auto f1 = std::sqrt(zoom);
+            const auto f2 = (-1.0f / zoom + 2.0f);
+            float z;
+            if (zoom < 0.7f) {
+                z = f1;
+            } else if (zoom < 1.2f) {
+                z = vm::mix(f1, f2, 2.0f * (zoom - 0.7f));
+            } else {
+                z = f2;
+            }
+
+            return fov * z;
+        }
+
         Camera::ProjectionType PerspectiveCamera::doGetProjectionType() const {
             return Projection_Perspective;
         }
@@ -187,6 +191,11 @@ namespace TrenchBroom {
         float PerspectiveCamera::viewportFrustumDistance() const {
             const auto height = static_cast<float>(viewport().height);
             return (height / 2.0f) / std::tan(vm::toRadians(zoomedFov()) / 2.0f);
+        }
+
+        bool PerspectiveCamera::isValidZoom(const float zoom) const {
+            const auto zoomedFov = PerspectiveCamera::computeZoomedFov(zoom, fov());
+            return vm::contains(zoomedFov, 1.0f, 150.0f);
         }
 
         void PerspectiveCamera::doUpdateZoom() {}
