@@ -174,6 +174,7 @@ namespace TrenchBroom {
             virtual void doRenderFrustum(RenderContext& renderContext, Vbo& vbo, float size, const Color& color) const = 0;
             virtual float doPickFrustum(float size, const vm::ray3f& ray) const = 0;
             virtual float doGetPerspectiveScalingFactor(const vm::vec3f& position) const = 0;
+            virtual bool isValidZoom(float zoom) const;
             virtual void doUpdateZoom() = 0;
         };
     }

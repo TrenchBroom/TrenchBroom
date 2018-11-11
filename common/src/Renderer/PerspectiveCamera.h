@@ -38,6 +38,7 @@ namespace TrenchBroom {
             float zoomedFov() const;
             void setFov(float fov);
         private:
+            static float computeZoomedFov(float zoom, float fov);
             ProjectionType doGetProjectionType() const override;
 
             void doValidateMatrices(vm::mat4x4f& projectionMatrix, vm::mat4x4f& viewMatrix) const override;
@@ -53,6 +54,7 @@ namespace TrenchBroom {
             float doGetPerspectiveScalingFactor(const vm::vec3f& position) const override;
             float viewportFrustumDistance() const;
 
+            bool isValidZoom(float zoom) const override;
             void doUpdateZoom() override;
         };
     }

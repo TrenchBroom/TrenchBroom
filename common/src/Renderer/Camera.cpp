@@ -19,14 +19,9 @@
 
 #include "Camera.h"
 
-#include <vecmath/vec.h>
-#include <vecmath/mat.h>
 #include <vecmath/ray.h>
 #include <vecmath/distance.h>
 #include <vecmath/intersection.h>
-
-#include <cassert>
-#include <algorithm>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -85,7 +80,7 @@ namespace TrenchBroom {
         
         void Camera::setZoom(const float zoom) {
             assert(zoom > 0.0f);
-            if (zoom != m_zoom) {
+            if (zoom != m_zoom && isValidZoom(zoom)) {
                 m_zoom = zoom;
                 doUpdateZoom();
                 m_valid = false;
@@ -404,6 +399,10 @@ namespace TrenchBroom {
             assert(invertible); unused(invertible);
             m_inverseMatrix = inverse;
             m_valid = true;
+        }
+
+        bool Camera::isValidZoom(const float zoom) const {
+            return true;
         }
     }
 }
