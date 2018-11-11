@@ -27,6 +27,8 @@
 #include "View/MapViewBase.h"
 #include "View/ViewTypes.h"
 
+#include <wx/timer.h>
+
 namespace TrenchBroom {
     class Logger;
 
@@ -44,6 +46,7 @@ namespace TrenchBroom {
         class MapView3D : public MapViewBase {
         private:
             Renderer::PerspectiveCamera m_camera;
+            wxTimer m_flyModeTimer;
             FlyModeHelper* m_flyModeHelper;
         public:
             MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager);
@@ -51,9 +54,6 @@ namespace TrenchBroom {
         private:
             void initializeCamera();
             void initializeToolChain(MapViewToolBox& toolBox);
-        public: // camera control
-            bool cameraFlyModeActive() const;
-            void toggleCameraFlyMode();
         private: // notification
             void bindObservers();
             void unbindObservers();
@@ -61,12 +61,12 @@ namespace TrenchBroom {
             void preferenceDidChange(const IO::Path& path);
         private: // interaction events
             void bindEvents();
-            
+
+            void OnFlyModeTimer(wxTimerEvent& event);
+
             void OnKeyDown(wxKeyEvent& event);
             void OnKeyUp(wxKeyEvent& event);
 
-            void OnMouseMotion(wxMouseEvent& event);
-            
             void OnPerformCreateBrush(wxCommandEvent& event);
 
             void OnMoveTexturesUp(wxCommandEvent& event);
@@ -82,8 +82,6 @@ namespace TrenchBroom {
             void moveTextures(const vm::vec2f& offset);
             float rotateTextureAngle(bool clockwise) const;
             void rotateTextures(float angle);
-        private: // tool mode events
-            void OnToggleFlyMode(wxCommandEvent& event);
         private: // other events
             void OnKillFocus(wxFocusEvent& event);
             void OnActivateFrame(wxActivateEvent& event);
@@ -118,6 +116,7 @@ namespace TrenchBroom {
             
             Renderer::RenderContext::RenderMode doGetRenderMode() override;
             Renderer::Camera& doGetCamera() override;
+            void doPreRender() override;
             void doRenderGrid(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
             void doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
             void doRenderTools(MapViewToolBox& toolBox, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;

@@ -30,48 +30,13 @@
 #include <vecmath/vec.h>
 
 #include <wx/time.h>
-#include <wx/window.h>
-#include <wx/app.h>
-
-#include <array>
 
 namespace TrenchBroom {
     namespace View {
-        class FlyModeHelper::CameraEvent : public ExecutableEvent::Executable {
-        private:
-            FlyModeHelper& m_helper;
-            Renderer::Camera& m_camera;
-            vm::vec3f m_moveDelta;
-            vm::vec2f m_rotateAngles;
-        public:
-            CameraEvent(FlyModeHelper& helper, Renderer::Camera& camera) :
-            m_helper(helper),
-            m_camera(camera) {}
-
-            void setMoveDelta(const vm::vec3f& moveDelta) {
-                m_moveDelta = moveDelta;
-            }
-
-            void setRotateAngles(const vm::vec2f& rotateAngles) {
-                m_rotateAngles = rotateAngles;
-            }
-        private:
-            void execute() override {
-                m_camera.moveBy(m_moveDelta);
-                m_camera.rotate(m_rotateAngles.x(), m_rotateAngles.y());
-                m_helper.resetMouse();
-            }
-        };
-
-        FlyModeHelper::FlyModeHelper(wxWindow* window, Renderer::Camera& camera) :
-        m_window(window),
-        m_camera(camera),
-        m_enable(false),
-        m_ignoreMotionEvents(false) {
+        FlyModeHelper::FlyModeHelper(Renderer::Camera& camera) :
+        m_camera(camera) {
             resetKeys();
             m_lastPollTime = ::wxGetLocalTimeMillis();
-
-            Start(1000/60);
         }
 
         FlyModeHelper::~FlyModeHelper() {
@@ -81,34 +46,17 @@ namespace TrenchBroom {
              */
         }
 
-        void FlyModeHelper::enable() {
-            assert(!enabled());
-            lockMouse();
-            m_enable = true;
-        }
+        void FlyModeHelper::pollAndUpdate() {
+            const auto currentTime = ::wxGetLocalTimeMillis();
+            const auto time = float((currentTime - m_lastPollTime).ToLong());
+            m_lastPollTime = currentTime;
 
-        void FlyModeHelper::disable() {
-            assert(enabled());
-            unlockMouse();
-            m_enable = false;
-        }
-
-        bool FlyModeHelper::enabled() const {
-            return m_enable;
-        }
-
-        void FlyModeHelper::lockMouse() {
-            m_window->SetCursor(wxCursor(wxCURSOR_BLANK));
-
-            m_originalMousePos = m_window->ScreenToClient(::wxGetMousePosition());
-            m_currentMouseDelta = wxPoint(0,0);
-            m_lastMousePos = m_originalMousePos;
-            resetMouse();
-        }
-
-        void FlyModeHelper::unlockMouse() {
-            m_window->WarpPointer(m_originalMousePos.x, m_originalMousePos.y);
-            m_window->SetCursor(wxNullCursor);
+            if (anyKeyDown()) {
+                const auto delta = moveDelta(time);
+                if (!isZero(delta, vm::Cf::almostZero())) {
+                    m_camera.moveBy(delta);
+                }
+            }
         }
 
         bool FlyModeHelper::keyDown(wxKeyEvent& event) {
@@ -119,7 +67,8 @@ namespace TrenchBroom {
             const KeyboardShortcut& up = pref(Preferences::CameraFlyUp);
             const KeyboardShortcut& down = pref(Preferences::CameraFlyDown);
 
-            bool anyMatch = false;
+            const auto wasAnyKeyDown = anyKeyDown();
+            auto anyMatch = false;
             if (forward.matchesKeyDown(event)) {
                 m_forward = true;
                 anyMatch = true;
@@ -144,6 +93,12 @@ namespace TrenchBroom {
                 m_down = true;
                 anyMatch = true;
             }
+
+            if (anyKeyDown() && !wasAnyKeyDown) {
+                // Reset the last polling time, otherwise the view will jump!
+                m_lastPollTime = ::wxGetLocalTimeMillis();
+            }
+
             return anyMatch;
         }
 
@@ -183,53 +138,15 @@ namespace TrenchBroom {
             return anyMatch;
         }
 
+        bool FlyModeHelper::anyKeyDown() const {
+            return m_forward || m_backward || m_left || m_right || m_up || m_down;
+        }
+
         void FlyModeHelper::resetKeys() {
             m_forward = m_backward = m_left = m_right = m_up = m_down = false;
         }
 
-        void FlyModeHelper::motion(wxMouseEvent& event) {
-            if (m_enable && !m_ignoreMotionEvents) {
-                const wxPoint currentMousePos = m_window->ScreenToClient(::wxGetMousePosition());
-                const wxPoint delta = currentMousePos - m_lastMousePos;
-                m_currentMouseDelta += delta;
-                m_lastMousePos = currentMousePos;
-            }
-        }
-
-        void FlyModeHelper::resetMouse() {
-            if (m_enable) {
-                const TemporarilySetBool ignoreMotion(m_ignoreMotionEvents);
-                m_lastMousePos = windowCenter();
-                m_window->WarpPointer(m_lastMousePos.x, m_lastMousePos.y);
-            }
-        }
-
-        wxPoint FlyModeHelper::windowCenter() const {
-            const wxSize size = m_window->GetSize();
-            return wxPoint(size.x / 2, size.y / 2);
-        }
-
-        void FlyModeHelper::Notify() {
-            const vm::vec3f delta = moveDelta();
-            const vm::vec2f angles = lookDelta();
-
-            if (!isZero(delta, vm::Cf::almostZero()) || !isZero(angles, vm::Cf::almostZero())) {
-                if (wxTheApp != nullptr) {
-                    CameraEvent* event = new CameraEvent(*this, m_camera);
-                    event->setMoveDelta(delta);
-                    event->setRotateAngles(angles);
-
-                    ExecutableEvent* executable = new ExecutableEvent(event);
-                    wxTheApp->QueueEvent(executable);
-                }
-            }
-        }
-
-        vm::vec3f FlyModeHelper::moveDelta() {
-            const wxLongLong currentTime = ::wxGetLocalTimeMillis();
-            const float time = static_cast<float>((currentTime - m_lastPollTime).ToLong());
-            m_lastPollTime = currentTime;
-
+        vm::vec3f FlyModeHelper::moveDelta(const float time) {
             const float dist = moveSpeed() * time;
 
             vm::vec3f delta;
@@ -252,27 +169,6 @@ namespace TrenchBroom {
                 delta = delta - vm::vec3f::pos_z * dist;
             }
             return delta;
-        }
-
-        vm::vec2f FlyModeHelper::lookDelta() {
-            if (!m_enable) {
-                return vm::vec2f::zero;
-            }
-
-            const vm::vec2f speed = lookSpeed();
-            const float hAngle = static_cast<float>(m_currentMouseDelta.x) * speed.x();
-            const float vAngle = static_cast<float>(m_currentMouseDelta.y) * speed.y();
-            m_currentMouseDelta.x = m_currentMouseDelta.y = 0;
-            return vm::vec2f(hAngle, vAngle);
-        }
-
-        vm::vec2f FlyModeHelper::lookSpeed() const {
-            vm::vec2f speed(pref(Preferences::CameraFlyLookSpeed), pref(Preferences::CameraFlyLookSpeed));
-            speed = speed / -50.0f;
-            if (pref(Preferences::CameraFlyInvertV)) {
-                speed[1] *= -1.0f;
-            }
-            return speed;
         }
 
         float FlyModeHelper::moveSpeed() const {

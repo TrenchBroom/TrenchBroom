@@ -868,6 +868,8 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::doRender() {
+            doPreRender();
+
             const IO::Path& fontPath = pref(Preferences::RendererFontPath());
             const size_t fontSize = static_cast<size_t>(pref(Preferences::RendererFontSize));
             const Renderer::FontDescriptor fontDescriptor(fontPath, fontSize);
@@ -1304,7 +1306,9 @@ namespace TrenchBroom {
             event.Enable(!isEntity(newBrushParent)
                          && !collectReparentableNodes(nodes, newBrushParent).empty());
         }
-        
+
+        void MapViewBase::doPreRender() {}
+
         void MapViewBase::doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {}
 
         bool MapViewBase::doBeforePopupMenu() { return true; }

@@ -142,24 +142,6 @@ namespace TrenchBroom {
             prefs.set(Preferences::CameraMoveInCursorDir, value);
         }
         
-        void MousePreferencePane::OnFlyLookSpeedChanged(wxScrollEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            const float value = getSliderValue(m_flyLookSpeedSlider);
-            
-            PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.set(Preferences::CameraFlyLookSpeed, value);
-        }
-        
-        void MousePreferencePane::OnInvertFlyVAxisChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            const bool value = event.GetInt() != 0;
-            
-            PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.set(Preferences::CameraFlyInvertV, value);
-        }
-        
         void MousePreferencePane::OnForwardKeyChanged(KeyboardShortcutEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -281,12 +263,9 @@ namespace TrenchBroom {
             m_invertAltMoveAxisCheckBox = new wxCheckBox(box, wxID_ANY, "Invert Z axis in Alt+MMB drag");
             m_moveInCursorDirCheckBox = new wxCheckBox(box, wxID_ANY, "Move camera towards cursor");
             
-            wxStaticText* flyPrefsHeader = new wxStaticText(box, wxID_ANY, "Fly Mode");
-            flyPrefsHeader->SetFont(lookPrefsHeader->GetFont().Bold());
-            wxStaticText* flyLookSpeedLabel = new wxStaticText(box, wxID_ANY, "Sensitivity");
-            m_flyLookSpeedSlider = new wxSlider(box, wxID_ANY, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
-            m_invertFlyVAxisCheckBox = new wxCheckBox(box, wxID_ANY, "Invert Y Axis");
-            
+            wxStaticText* keyPrefsHeader = new wxStaticText(box, wxID_ANY, "Move Keys");
+            keyPrefsHeader->SetFont(lookPrefsHeader->GetFont().Bold());
+
             wxStaticText* forwardKeyLabel = new wxStaticText(box, wxID_ANY, "Forward");
             m_forwardKeyEditor = new KeyboardShortcutEditor(box, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_THEME);
             m_forwardKeyEditor->SetMinSize(wxSize(80, wxDefaultCoord));
@@ -376,16 +355,8 @@ namespace TrenchBroom {
             ++r;
             
             
-            sizer->Add(flyPrefsHeader,              wxGBPosition(r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
+            sizer->Add(keyPrefsHeader,              wxGBPosition(r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
             ++r;
-            
-            sizer->Add(flyLookSpeedLabel,           wxGBPosition(r, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_flyLookSpeedSlider,        wxGBPosition(r, 1), wxDefaultSpan, SliderFlags, HMargin);
-            ++r;
-            
-            sizer->Add(m_invertFlyVAxisCheckBox,    wxGBPosition(r, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
-            ++r;
-            
             
             sizer->Add(forwardKeyLabel,             wxGBPosition(r, 0), wxDefaultSpan, LabelFlags, HMargin);
             sizer->Add(m_forwardKeyEditor,          wxGBPosition(r, 1), wxDefaultSpan, KeyEditorFlags, HMargin);
@@ -430,13 +401,11 @@ namespace TrenchBroom {
             m_invertMouseWheelCheckBox->Bind(wxEVT_CHECKBOX, &MousePreferencePane::OnInvertMouseWheelChanged, this);
             m_enableAltMoveCheckBox->Bind(wxEVT_CHECKBOX, &MousePreferencePane::OnEnableAltMoveChanged, this);
             m_moveInCursorDirCheckBox->Bind(wxEVT_CHECKBOX, &MousePreferencePane::OnMoveCameraInCursorDirChanged, this);
-            m_invertFlyVAxisCheckBox->Bind(wxEVT_CHECKBOX, &MousePreferencePane::OnInvertFlyVAxisChanged, this);
-            
+
             bindSliderEvents(m_lookSpeedSlider, &MousePreferencePane::OnLookSpeedChanged, this);
             bindSliderEvents(m_panSpeedSlider, &MousePreferencePane::OnPanSpeedChanged, this);
             bindSliderEvents(m_moveSpeedSlider, &MousePreferencePane::OnMoveSpeedChanged, this);
-            bindSliderEvents(m_flyLookSpeedSlider, &MousePreferencePane::OnFlyLookSpeedChanged, this);
-            
+
             m_forwardKeyEditor->Bind(KEYBOARD_SHORTCUT_EVENT, &MousePreferencePane::OnForwardKeyChanged, this);
             m_backwardKeyEditor->Bind(KEYBOARD_SHORTCUT_EVENT, &MousePreferencePane::OnBackwardKeyChanged, this);
             m_leftKeyEditor->Bind(KEYBOARD_SHORTCUT_EVENT, &MousePreferencePane::OnLeftKeyChanged, this);
@@ -467,9 +436,6 @@ namespace TrenchBroom {
             prefs.resetToDefault(Preferences::CameraAltMoveInvert);
             prefs.resetToDefault(Preferences::CameraMoveInCursorDir);
             
-            prefs.resetToDefault(Preferences::CameraFlyLookSpeed);
-            prefs.resetToDefault(Preferences::CameraFlyInvertV);
-            
             prefs.resetToDefault(Preferences::CameraFlyForward);
             prefs.resetToDefault(Preferences::CameraFlyBackward);
             prefs.resetToDefault(Preferences::CameraFlyLeft);
@@ -495,9 +461,6 @@ namespace TrenchBroom {
             m_invertAltMoveAxisCheckBox->SetValue(pref(Preferences::CameraAltMoveInvert));
             m_moveInCursorDirCheckBox->SetValue(pref(Preferences::CameraMoveInCursorDir));
 
-            setSliderValue(m_flyLookSpeedSlider, pref(Preferences::CameraFlyLookSpeed));
-            m_invertFlyVAxisCheckBox->SetValue(pref(Preferences::CameraFlyInvertV));
-            
             m_forwardKeyEditor->SetShortcut(pref(Preferences::CameraFlyForward));
             m_backwardKeyEditor->SetShortcut(pref(Preferences::CameraFlyBackward));
             m_leftKeyEditor->SetShortcut(pref(Preferences::CameraFlyLeft));

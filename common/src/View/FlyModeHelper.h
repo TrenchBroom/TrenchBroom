@@ -25,13 +25,10 @@
 
 #include <iostream>
 
-#include <wx/timer.h>
 #include <wx/gdicmn.h>
 #include <wx/longlong.h>
 
-class wxWindow;
 class wxKeyEvent;
-class wxMouseEvent;
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -42,9 +39,8 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class FlyModeHelper : public wxTimer {
+        class FlyModeHelper {
         private:
-            wxWindow* m_window;
             Renderer::Camera& m_camera;
             
             bool m_forward;
@@ -54,46 +50,19 @@ namespace TrenchBroom {
             bool m_up;
             bool m_down;
             
-            bool m_enable;
-            
-            wxPoint m_originalMousePos;
-            wxPoint m_lastMousePos;
-            wxPoint m_currentMouseDelta;
-            bool m_ignoreMotionEvents;
-            
             wxLongLong m_lastPollTime;
-            
-            // cached preferences
-            vm::vec2f m_lookSpeed;
-            float m_moveSpeed;
-
-            class CameraEvent;
         public:
-            FlyModeHelper(wxWindow* window, Renderer::Camera& camera);
-            ~FlyModeHelper() override;
+            FlyModeHelper(Renderer::Camera& camera);
+            ~FlyModeHelper();
             
-            void enable();
-            void disable();
-            bool enabled() const;
-            bool cancel();
-        private:
-            void lockMouse();
-            void unlockMouse();
+            void pollAndUpdate();
         public:
             bool keyDown(wxKeyEvent& event);
             bool keyUp(wxKeyEvent& event);
+            bool anyKeyDown() const;
             void resetKeys();
-        public:
-            void motion(wxMouseEvent& event);
         private:
-            void resetMouse();
-            wxPoint windowCenter() const;
-        private:
-            void Notify() override;
-            vm::vec3f moveDelta();
-            vm::vec2f lookDelta();
-
-            vm::vec2f lookSpeed() const;
+            vm::vec3f moveDelta(float time);
             float moveSpeed() const;
         };
     }
