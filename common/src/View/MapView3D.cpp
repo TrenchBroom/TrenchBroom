@@ -86,8 +86,6 @@ namespace TrenchBroom {
             SetName("MapView3D");
 
             m_camera.setFov(pref(Preferences::CameraFov));
-
-            m_flyModeTimer.Start(1000/60);
         }
 
         MapView3D::~MapView3D() {
@@ -181,15 +179,19 @@ namespace TrenchBroom {
         void MapView3D::OnKeyDown(wxKeyEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (!m_flyModeHelper->keyDown(event))
+            if (!m_flyModeHelper->keyDown(event)) {
                 event.Skip();
+            } else if (!m_flyModeTimer.IsRunning()) {
+                m_flyModeTimer.Start(1000/60, wxTIMER_ONE_SHOT);
+            }
         }
         
         void MapView3D::OnKeyUp(wxKeyEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (!m_flyModeHelper->keyUp(event))
+            if (!m_flyModeHelper->keyUp(event)) {
                 event.Skip();
+            }
         }
         
         void MapView3D::OnPerformCreateBrush(wxCommandEvent& event) {
@@ -587,6 +589,10 @@ namespace TrenchBroom {
         void MapView3D::doPreRender() {
             const TemporarilySetBool ignoreCameraUpdates(m_ignoreCameraChangeEvents);
             m_flyModeHelper->pollAndUpdate();
+
+            if (m_flyModeHelper->anyKeyDown() && !m_flyModeTimer.IsRunning()) {
+                m_flyModeTimer.Start(1000/60, wxTIMER_ONE_SHOT);
+            }
         }
 
         void MapView3D::doRenderGrid(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {}
