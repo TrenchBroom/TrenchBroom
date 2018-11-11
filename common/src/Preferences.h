@@ -146,10 +146,8 @@ namespace TrenchBroom {
 
         extern Preference<float> CameraFov;
         
-        extern Preference<float> CameraFlyLookSpeed;
         extern Preference<float> CameraFlyMoveSpeed;
-        extern Preference<bool> CameraFlyInvertV;
-        
+
         extern Preference<bool> Link2DCameras;
         
         extern Preference<View::KeyboardShortcut> CameraFlyForward;

@@ -30,13 +30,12 @@ namespace TrenchBroom {
             ActionContext_CreateComplexBrushTool = 1 << 3,
             ActionContext_ClipTool        = 1 << 4,
             ActionContext_RotateTool      = 1 << 5,
-            ActionContext_FlyMode         = 1 << 6,
-            ActionContext_NodeSelection   = 1 << 7,
-            ActionContext_FaceSelection   = 1 << 8,
-            ActionContext_ScaleTool       = 1 << 9,
-            ActionContext_ShearTool       = 1 << 10,
+            ActionContext_NodeSelection   = 1 << 6,
+            ActionContext_FaceSelection   = 1 << 7,
+            ActionContext_ScaleTool       = 1 << 8,
+            ActionContext_ShearTool       = 1 << 9,
             ActionContext_AnyTool         = ActionContext_AnyVertexTool | ActionContext_ClipTool | ActionContext_RotateTool | ActionContext_ScaleTool | ActionContext_ShearTool | ActionContext_CreateComplexBrushTool,
-            ActionContext_Any             = ActionContext_Default | ActionContext_AnyTool | ActionContext_FlyMode | ActionContext_NodeSelection | ActionContext_FaceSelection
+            ActionContext_Any             = ActionContext_Default | ActionContext_AnyTool | ActionContext_NodeSelection | ActionContext_FaceSelection
         } ActionContext;
 
         String actionContextName(int actionContext);

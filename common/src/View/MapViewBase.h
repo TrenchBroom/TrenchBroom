@@ -254,6 +254,7 @@ namespace TrenchBroom {
             
             virtual Renderer::RenderContext::RenderMode doGetRenderMode() = 0;
             virtual Renderer::Camera& doGetCamera() = 0;
+            virtual void doPreRender();
             virtual void doRenderGrid(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
             virtual void doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
             virtual void doRenderTools(MapViewToolBox& toolBox, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;

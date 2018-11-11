@@ -152,9 +152,7 @@ namespace TrenchBroom {
         Preference<bool> CameraMoveInCursorDir(IO::Path("Controls/Camera/Move camera in cursor dir"), false);
         Preference<float> CameraFov(IO::Path("Controls/Camera/Field of vision"), 90.0f);
 
-        Preference<float> CameraFlyLookSpeed(IO::Path("Controls/Camera/Fly look speed"), 0.5f);
         Preference<float> CameraFlyMoveSpeed(IO::Path("Controls/Camera/Fly move speed"), 0.5f);
-        Preference<bool> CameraFlyInvertV(IO::Path("Controls/Camera/Invert vertical fly"), false);
 
         Preference<bool> Link2DCameras(IO::Path("Controls/Camera/Link 2D cameras"), true);
 

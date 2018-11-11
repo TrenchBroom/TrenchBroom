@@ -21,6 +21,7 @@
 #include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "TemporarilySetAny.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
@@ -74,7 +75,9 @@ namespace TrenchBroom {
     namespace View {
         MapView3D::MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager) :
         MapViewBase(parent, logger, document, toolBox, renderer, contextManager),
-        m_flyModeHelper(new FlyModeHelper(this, m_camera)) {
+        m_flyModeTimer(this),
+        m_flyModeHelper(new FlyModeHelper(m_camera)),
+        m_ignoreCameraChangeEvents(false) {
             bindEvents();
             bindObservers();
             initializeCamera();
@@ -83,10 +86,12 @@ namespace TrenchBroom {
             SetName("MapView3D");
 
             m_camera.setFov(pref(Preferences::CameraFov));
+
+            m_flyModeTimer.Start(1000/60);
         }
 
         MapView3D::~MapView3D() {
-            m_flyModeHelper->Delete();
+            m_flyModeTimer.Stop();
             unbindObservers();
         }
         
@@ -113,23 +118,6 @@ namespace TrenchBroom {
             addTool(new CreateSimpleBrushToolController3D(toolBox.createSimpleBrushTool(), m_document));
         }
 
-        bool MapView3D::cameraFlyModeActive() const {
-            return m_flyModeHelper->enabled();
-        }
-        
-        void MapView3D::toggleCameraFlyMode() {
-            if (!cameraFlyModeActive()) {
-                m_toolBox.disable();
-                m_flyModeHelper->enable();
-            } else {
-                m_flyModeHelper->disable();
-                m_toolBox.enable();
-            }
-            m_flyModeHelper->resetKeys();
-            updateAcceleratorTable();
-            Refresh();
-        }
-
         void MapView3D::bindObservers() {
             m_camera.cameraDidChangeNotifier.addObserver(this, &MapView3D::cameraDidChange);
 
@@ -145,7 +133,10 @@ namespace TrenchBroom {
         }
 
         void MapView3D::cameraDidChange(const Renderer::Camera* camera) {
-            Refresh();
+            if (!m_ignoreCameraChangeEvents) {
+                // Don't refresh if the camera was changed in doPreRender!
+                Refresh();
+            }
         }
 
         void MapView3D::preferenceDidChange(const IO::Path& path) {
@@ -158,8 +149,7 @@ namespace TrenchBroom {
         void MapView3D::bindEvents() {
             Bind(wxEVT_KEY_DOWN, &MapView3D::OnKeyDown, this);
             Bind(wxEVT_KEY_UP, &MapView3D::OnKeyUp, this);
-            Bind(wxEVT_MOTION, &MapView3D::OnMouseMotion, this);
-            
+
             Bind(wxEVT_KILL_FOCUS, &MapView3D::OnKillFocus, this);
             
             Bind(wxEVT_MENU, &MapView3D::OnPerformCreateBrush,           this, CommandIds::Actions::PerformCreateBrush);
@@ -172,14 +162,22 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapView3D::OnRotateTexturesCW,             this, CommandIds::Actions::RotateTexturesCW);
             Bind(wxEVT_MENU, &MapView3D::OnRotateTexturesCCW,            this, CommandIds::Actions::RotateTexturesCCW);
             
-            Bind(wxEVT_MENU, &MapView3D::OnToggleFlyMode,                this, CommandIds::Actions::ToggleFlyMode);
-
             Bind(wxEVT_MENU, &MapView3D::OnResetZoom,                    this, CommandIds::Actions::ResetZoom);
 
             wxFrame* frame = findFrame(this);
             frame->Bind(wxEVT_ACTIVATE, &MapView3D::OnActivateFrame, this);
+
+            Bind(wxEVT_TIMER, &MapView3D::OnFlyModeTimer, this);
         }
-        
+
+        void MapView3D::OnFlyModeTimer(wxTimerEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            if (m_flyModeHelper->anyKeyDown()) {
+                Refresh();
+            }
+        }
+
         void MapView3D::OnKeyDown(wxKeyEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -194,13 +192,6 @@ namespace TrenchBroom {
                 event.Skip();
         }
         
-        void MapView3D::OnMouseMotion(wxMouseEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            m_flyModeHelper->motion(event);
-            event.Skip();
-        }
-
         void MapView3D::OnPerformCreateBrush(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -298,29 +289,17 @@ namespace TrenchBroom {
                 document->rotateTextures(angle);
         }
 
-        void MapView3D::OnToggleFlyMode(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            toggleCameraFlyMode();
-        }
-
         void MapView3D::OnKillFocus(wxFocusEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (cameraFlyModeActive())
-                toggleCameraFlyMode();
-            else
-                m_flyModeHelper->resetKeys();
+            m_flyModeHelper->resetKeys();
             event.Skip();
         }
 
         void MapView3D::OnActivateFrame(wxActivateEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (cameraFlyModeActive())
-                toggleCameraFlyMode();
-            else
-                m_flyModeHelper->resetKeys();
+            m_flyModeHelper->resetKeys();
             event.Skip();
         }
 
@@ -585,11 +564,7 @@ namespace TrenchBroom {
         }
 
         ActionContext MapView3D::doGetActionContext() const {
-            if (cameraFlyModeActive()) {
-                return ActionContext_FlyMode;
-            } else {
-                return ActionContext_Default;
-            }
+            return ActionContext_Default;
         }
         
         wxAcceleratorTable MapView3D::doCreateAccelerationTable(ActionContext context) const {
@@ -598,10 +573,6 @@ namespace TrenchBroom {
         }
         
         bool MapView3D::doCancel() {
-            if (cameraFlyModeActive()) {
-                toggleCameraFlyMode();
-                return true;
-            }
             return false;
         }
         
@@ -611,6 +582,11 @@ namespace TrenchBroom {
         
         Renderer::Camera& MapView3D::doGetCamera() {
             return m_camera;
+        }
+
+        void MapView3D::doPreRender() {
+            const TemporarilySetBool ignoreCameraUpdates(m_ignoreCameraChangeEvents);
+            m_flyModeHelper->pollAndUpdate();
         }
 
         void MapView3D::doRenderGrid(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {}
@@ -636,9 +612,6 @@ namespace TrenchBroom {
         }
         
         bool MapView3D::doBeforePopupMenu() {
-            if (cameraFlyModeActive())
-                return false;
-            
             m_flyModeHelper->resetKeys();
             return true;
         }

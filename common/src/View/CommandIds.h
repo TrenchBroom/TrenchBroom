@@ -182,7 +182,6 @@ namespace TrenchBroom {
 
                 const int ResetZoom                          = Lowest +  54;
 
-                const int ToggleFlyMode                      = Lowest +  55;
                 const int DeactivateTool                     = Lowest +  56;
                 /*
                 const int CorrectVertices                    = Lowest +  82;

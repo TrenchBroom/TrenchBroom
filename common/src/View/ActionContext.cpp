@@ -26,27 +26,30 @@ namespace TrenchBroom {
                 return "Any";
             
             StringList actionContexts;
-            if (actionContext & ActionContext_NodeSelection)
+            if (actionContext & ActionContext_NodeSelection) {
                 actionContexts.push_back("Objects");
-            if (actionContext & ActionContext_FaceSelection)
+            }
+            if (actionContext & ActionContext_FaceSelection) {
                 actionContexts.push_back("Textures");
+            }
 
             if ((actionContext & ActionContext_AnyTool) == ActionContext_AnyTool) {
                 actionContexts.push_back("Any Tool");
             } else {
-                if (actionContext & ActionContext_CreateComplexBrushTool)
+                if (actionContext & ActionContext_CreateComplexBrushTool) {
                     actionContexts.push_back("Create Brush Tool");
-                if (actionContext & ActionContext_ClipTool)
+                }
+                if (actionContext & ActionContext_ClipTool) {
                     actionContexts.push_back("Clip Tool");
-                if (actionContext & ActionContext_RotateTool)
+                }
+                if (actionContext & ActionContext_RotateTool) {
                     actionContexts.push_back("Rotate Tool");
-                if (actionContext & ActionContext_AnyVertexTool)
+                }
+                if (actionContext & ActionContext_AnyVertexTool) {
                     actionContexts.push_back("Any Vertex Tool");
+                }
             }
 
-            if (actionContext & ActionContext_FlyMode)
-                actionContexts.push_back("Fly Mode");
-            
             return StringUtils::join(actionContexts, ", ");
         }
     }

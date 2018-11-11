@@ -48,9 +48,7 @@ namespace TrenchBroom {
             wxCheckBox* m_enableAltMoveCheckBox;
             wxCheckBox* m_invertAltMoveAxisCheckBox;
             wxCheckBox* m_moveInCursorDirCheckBox;
-            wxSlider* m_flyLookSpeedSlider;
-            wxCheckBox* m_invertFlyVAxisCheckBox;
-            
+
             KeyboardShortcutEditor* m_forwardKeyEditor;
             KeyboardShortcutEditor* m_backwardKeyEditor;
             KeyboardShortcutEditor* m_leftKeyEditor;
@@ -76,9 +74,6 @@ namespace TrenchBroom {
             void OnInvertAltMoveAxisChanged(wxCommandEvent& event);
             void OnMoveCameraInCursorDirChanged(wxCommandEvent& event);
 
-            void OnFlyLookSpeedChanged(wxScrollEvent& event);
-            void OnInvertFlyVAxisChanged(wxCommandEvent& event);
-            
             void OnForwardKeyChanged(KeyboardShortcutEvent& event);
             void OnBackwardKeyChanged(KeyboardShortcutEvent& event);
             void OnLeftKeyChanged(KeyboardShortcutEvent& event);

@@ -181,17 +181,7 @@ Navigation in TrenchBroom is quite simple and straightforward. You will mostly u
 
 ### Looking and Moving Around
 
-In the 3D viewport, can look around by holding the right mouse button and dragging the mouse around. There are several ways to move the camera around. First and foremost, you can move the camera forward and backward in the viewing direction by spinning the scroll wheel. If you prefer to have the scroll wheel move the camera in the direction where the mouse cursor is pointing, you can check the "Move camera towards cursor" option in the preferences. To move the camera sideways and up / down, hold the middle mouse button and drag the mouse in any direction. For tablet users, there is an option in the preferences that will enable you to move the camera horizontally by holding #key(307). Additionally, you can use the [fly mode](#fly_mode) keyboard shortcuts even when fly mode is disabled.
-
-### Orbiting
-
-The camera orbit mode allows you to rotate the camera about a selectable point. To get an idea as to what this means, imagine that you define a point in the map by clicking on a brush. The point where you clicked will be the center of your camera orbit. Now image a sphere whose center is the point where you just clicked and whose radius is the distance between the camera and the point. Orbiting will move the camera on the surface of that sphere while adjusting the camera's direction so that you keep looking at the same point. Visually, this is the same as rotating the entire map about the orbit center. Of course, you are not actually rotating anything - only the camera's position and direction are modified. Note that, since up and down are always fixed, you cannot cross the north and south poles of the orbit sphere.
-
-Camera orbit mode is very useful if you are editing a brush because it allows you to view this brush from all sides quickly. Its best to try it and see for yourself how useful it is. To invoke the orbit mode, click and drag with the right mouse button while holding #key(307). The orbit center is the point in the map which you initially clicked. Dragging sideways will orbit the camera horizontally and dragging up and down will orbit the camera vertically. You can change the orbit radius during the orbit with the scroll wheel.
-
-### Fly Mode
-
-Fly mode allows you to move around freely in a map, much like "no clipping" modes in some games do. When fly mode is active, you cannot perform any editing and your mouse cursor is hidden until fly mode is deactivated again. Hit #action(Controls/Map view/Toggle fly mode) to toggle fly mode. The following table lists the keyboard shortcuts you can use to move the camera around when in fly mode.
+In the 3D viewport, can look around by holding the right mouse button and dragging the mouse around. There are several ways to move the camera around. First and foremost, you can move the camera forward and backward in the viewing direction by spinning the scroll wheel. If you prefer to have the scroll wheel move the camera in the direction where the mouse cursor is pointing, you can check the "Move camera towards cursor" option in the preferences. To move the camera sideways and up / down, hold the middle mouse button and drag the mouse in any direction. For tablet users, there is an option in the preferences that will enable you to move the camera horizontally by holding #key(307). Additionally, you can use the following keyboard shortcuts:
 
 Direction    Key
 ---------    ---
@@ -201,6 +191,12 @@ Left         #action(Controls/Camera/Move left)
 Right        #action(Controls/Camera/Move right)
 Up           #action(Controls/Camera/Move up)
 Down         #action(Controls/Camera/Move down)
+
+### Orbiting
+
+The camera orbit mode allows you to rotate the camera about a selectable point. To get an idea as to what this means, imagine that you define a point in the map by clicking on a brush. The point where you clicked will be the center of your camera orbit. Now image a sphere whose center is the point where you just clicked and whose radius is the distance between the camera and the point. Orbiting will move the camera on the surface of that sphere while adjusting the camera's direction so that you keep looking at the same point. Visually, this is the same as rotating the entire map about the orbit center. Of course, you are not actually rotating anything - only the camera's position and direction are modified. Note that, since up and down are always fixed, you cannot cross the north and south poles of the orbit sphere.
+
+Camera orbit mode is very useful if you are editing a brush because it allows you to view this brush from all sides quickly. Its best to try it and see for yourself how useful it is. To invoke the orbit mode, click and drag with the right mouse button while holding #key(307). The orbit center is the point in the map which you initially clicked. Dragging sideways will orbit the camera horizontally and dragging up and down will orbit the camera vertically. You can change the orbit radius during the orbit with the scroll wheel.
 
 ### Automatic Navigation
 
@@ -1044,7 +1040,7 @@ Setting 	Description
 Mouse Look 	Sensitivity and axis inversion for mouse look and orbiting (right click and drag)
 Mouse Pan 	Sensitivity and axis inversion for mouse panning (middle click and drag)
 Mouse Move 	Sensitivity and settings for moving the camera with the mouse. If you use a tablet, the setting "Alt+MMB drag to move camera" might make navigation easier for you.
-Fly Mode 	Sensitivity, axis inversion and keyboard shortcuts when in [fly mode](#fly_mode).
+Move Keys 	Keyboard shortcuts for moving around in the map, with a separate slider to control the speed.
 
 ## Keyboard Shortcuts
 
