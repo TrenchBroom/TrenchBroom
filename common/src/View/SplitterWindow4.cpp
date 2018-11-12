@@ -304,7 +304,8 @@ namespace TrenchBroom {
         bool SplitterWindow4::sashHitTest(const wxPoint& point, const Dim dim) const {
             const auto v = get(point, dim);
             const auto s = get(currentSashPosition(), dim);
-            return v >= s && v <= s + sashSize();
+
+            return v >= s - 1 && v <= s + sashSize() + 1;
         }
 
         void SplitterWindow4::updateSashPosition(const wxSize& oldSize, const wxSize& newSize) {
@@ -339,7 +340,7 @@ namespace TrenchBroom {
             newSashPosition.x = std::max(newSashPosition.x, leftColMinSize());
             newSashPosition.x = std::min(newSashPosition.x, GetClientSize().x - sashSize() - rightColMinSize());
             newSashPosition.y = std::max(newSashPosition.y, topRowMinSize());
-            newSashPosition.y = std::min(newSashPosition.y, GetClientSize().x - sashSize() - bottomRowMinSize());
+            newSashPosition.y = std::min(newSashPosition.y, GetClientSize().y - sashSize() - bottomRowMinSize());
             
             m_currentSplitRatios = splitRatios(newSashPosition);
             
