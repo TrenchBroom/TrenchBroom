@@ -46,8 +46,9 @@ namespace TrenchBroom {
                 m_minSizes[i] = wxDefaultSize;
             }
             
-            for (size_t i = 0; i < 2; ++i)
+            for (size_t i = 0; i < 2; ++i) {
                 m_dragging[i] = false;
+            }
 
             SetForegroundColour(Colors::borderColor());
             
@@ -94,12 +95,13 @@ namespace TrenchBroom {
             assert(minSize.x >= 0 && minSize.y >= 0);
             
             for (size_t i = 0; i < NumWindows; ++i) {
-                if (m_windows[i] == window)
+                if (m_windows[i] == window) {
                     m_minSizes[i] = minSize;
+                }
             }
 
-            const wxSize minClientSize(leftColMinSize() + rightColMinSize() + sashSize(),
-                                       topRowMinSize() + bottomRowMinSize() + sashSize());
+            const auto minClientSize = wxSize(leftColMinSize() + rightColMinSize() + sashSize(),
+                                              topRowMinSize() + bottomRowMinSize() + sashSize());
             SetMinClientSize(minClientSize);
         }
 
@@ -112,8 +114,9 @@ namespace TrenchBroom {
         void SplitterWindow4::maximize(wxWindow* window) {
             m_maximizedWindow = window;
             for (size_t i = 0; i < NumWindows; ++i) {
-                if (m_windows[i] != window)
+                if (m_windows[i] != window) {
                     m_windows[i]->Hide();
+                }
             }
             m_maximizedWindow = window;
             m_maximizedWindow->Show();
@@ -123,8 +126,9 @@ namespace TrenchBroom {
         void SplitterWindow4::restore() {
             if (m_maximizedWindow != nullptr) {
                 m_maximizedWindow = nullptr;
-                for (size_t i = 0; i < NumWindows; ++i)
+                for (size_t i = 0; i < NumWindows; ++i) {
                     m_windows[i]->Show();
+                }
                 sizeWindows();
             }
         }
@@ -143,9 +147,9 @@ namespace TrenchBroom {
         }
 
         wxRealPoint SplitterWindow4::splitRatios(const wxPoint& positions) const {
-            const wxSize size = GetSize();
-            const double x = size.x >= 0 ? static_cast<double>(positions.x) / static_cast<double>(size.x) : -1.0;
-            const double y = size.y >= 0 ? static_cast<double>(positions.y) / static_cast<double>(size.y) : -1.0;
+            const auto size = GetSize();
+            const auto x = size.x >= 0 ? static_cast<double>(positions.x) / static_cast<double>(size.x) : -1.0;
+            const auto y = size.y >= 0 ? static_cast<double>(positions.y) / static_cast<double>(size.y) : -1.0;
             return wxRealPoint(x, y);
         }
 
@@ -170,9 +174,11 @@ namespace TrenchBroom {
         }
 
         bool SplitterWindow4::containsWindow(wxWindow* window) const {
-            for (size_t i = 0; i < NumWindows; ++i)
-                if (m_windows[i] == window)
+            for (size_t i = 0; i < NumWindows; ++i) {
+                if (m_windows[i] == window) {
                     return true;
+                }
+            }
             return false;
         }
 
@@ -219,11 +225,13 @@ namespace TrenchBroom {
             if (GetCapture() == this) {
                 assert(hasWindows());
                 
-                wxPoint newPosition = currentSashPosition();
-                if (m_dragging[Dim_X])
+                auto newPosition = currentSashPosition();
+                if (m_dragging[Dim_X]) {
                     newPosition.x = event.GetPosition().x;
-                if (m_dragging[Dim_Y])
+                }
+                if (m_dragging[Dim_Y]) {
                     newPosition.y = event.GetPosition().y;
+                }
                 setSashPosition(newPosition);
                 sizeWindows();
             } else {
@@ -247,8 +255,8 @@ namespace TrenchBroom {
             dc.SetPen(wxPen(GetForegroundColour()));
             dc.SetBrush(wxBrush(GetForegroundColour()));
 
-            const wxPoint origin = GetClientAreaOrigin();
-            const wxSize size = GetClientSize();
+            const auto origin = GetClientAreaOrigin();
+            const auto size = GetClientSize();
             
             dc.DrawRectangle(currentSashPosition().x, origin.y, sashSize(), size.y);
             dc.DrawRectangle(origin.x, currentSashPosition().y, size.x, sashSize());
@@ -276,33 +284,34 @@ namespace TrenchBroom {
         }
 
         void SplitterWindow4::updateSashCursor() {
-            const wxPoint screenPos = wxGetMousePosition();
-            const wxPoint clientPos = ScreenToClient(screenPos);
-            const bool xResize = m_dragging[Dim_X] || sashHitTest(clientPos, Dim_X);
-            const bool yResize = m_dragging[Dim_Y] || sashHitTest(clientPos, Dim_Y);
+            const auto screenPos = wxGetMousePosition();
+            const auto clientPos = ScreenToClient(screenPos);
+            const auto xResize = m_dragging[Dim_X] || sashHitTest(clientPos, Dim_X);
+            const auto yResize = m_dragging[Dim_Y] || sashHitTest(clientPos, Dim_Y);
 
-            if (xResize && yResize)
+            if (xResize && yResize) {
                 wxSetCursor(wxCursor(wxCURSOR_SIZING));
-            else if (xResize)
+            } else if (xResize) {
                 wxSetCursor(wxCursor(wxCURSOR_SIZEWE));
-            else if (yResize)
+            } else if (yResize) {
                 wxSetCursor(wxCursor(wxCURSOR_SIZENS));
-            else
+            } else {
                 wxSetCursor(wxCursor(wxCURSOR_ARROW));
+            }
         }
         
         
         bool SplitterWindow4::sashHitTest(const wxPoint& point, const Dim dim) const {
-            const int v = get(point, dim);
-            const int s = get(currentSashPosition(), dim);
-            return v >= s && v <= s + sashSize();
+            const auto v = get(point, dim);
+            const auto s = get(currentSashPosition(), dim);
+
+            return v >= s - 1 && v <= s + sashSize() + 1;
         }
 
         void SplitterWindow4::updateSashPosition(const wxSize& oldSize, const wxSize& newSize) {
             if (!initSashPosition() && hasWindows()) {
-                const wxSize diff = newSize - oldSize;
-                const wxSize actualDiff(wxRound(m_gravity.x * diff.x),
-                                        wxRound(m_gravity.y * diff.y));
+                const auto diff = newSize - oldSize;
+                const auto actualDiff = wxSize(wxRound(m_gravity.x * diff.x), wxRound(m_gravity.y * diff.y));
                 setSashPosition(sashPosition(m_currentSplitRatios, oldSize) + actualDiff);
             }
         }
@@ -318,17 +327,20 @@ namespace TrenchBroom {
         }
         
         bool SplitterWindow4::setSashPosition(wxPoint newSashPosition) {
-            if (m_initialSplitRatios.x != -1.0)
+            if (m_initialSplitRatios.x != -1.0) {
                 newSashPosition.x = sashPosition(m_initialSplitRatios).x;
-            if (m_initialSplitRatios.y != -1.0)
+            }
+            if (m_initialSplitRatios.y != -1.0) {
                 newSashPosition.y = sashPosition(m_initialSplitRatios).y;
-            if (newSashPosition == currentSashPosition())
+            }
+            if (newSashPosition == currentSashPosition()) {
                 return true;
-            
+            }
+
             newSashPosition.x = std::max(newSashPosition.x, leftColMinSize());
             newSashPosition.x = std::min(newSashPosition.x, GetClientSize().x - sashSize() - rightColMinSize());
             newSashPosition.y = std::max(newSashPosition.y, topRowMinSize());
-            newSashPosition.y = std::min(newSashPosition.y, GetClientSize().x - sashSize() - bottomRowMinSize());
+            newSashPosition.y = std::min(newSashPosition.y, GetClientSize().y - sashSize() - bottomRowMinSize());
             
             m_currentSplitRatios = splitRatios(newSashPosition);
             
@@ -342,17 +354,17 @@ namespace TrenchBroom {
                 if (m_maximizedWindow != nullptr) {
                     m_maximizedWindow->SetSize(wxRect(GetClientAreaOrigin(), GetClientSize()));
                 } else {
-                    const wxPoint origin = GetClientAreaOrigin();
-                    const wxSize size = GetClientSize();
-                    const wxPoint sash = currentSashPosition();
-                    const int leftColX = origin.x;
-                    const int leftColW = sash.x;
-                    const int rightColX = leftColX + leftColW + sashSize();
-                    const int rightColW = size.x - rightColX;
-                    const int topRowY = origin.y;
-                    const int topRowH = sash.y;
-                    const int bottomRowY = topRowY + topRowH + sashSize();
-                    const int bottomRowH = size.y - bottomRowY;
+                    const auto origin = GetClientAreaOrigin();
+                    const auto size = GetClientSize();
+                    const auto sash = currentSashPosition();
+                    const auto leftColX = origin.x;
+                    const auto leftColW = sash.x;
+                    const auto rightColX = leftColX + leftColW + sashSize();
+                    const auto rightColW = size.x - rightColX;
+                    const auto topRowY = origin.y;
+                    const auto topRowH = sash.y;
+                    const auto bottomRowY = topRowY + topRowH + sashSize();
+                    const auto bottomRowH = size.y - bottomRowY;
                     
                     m_windows[Window_TopLeft]->SetPosition(wxPoint(leftColX, topRowY));
                     m_windows[Window_TopLeft]->SetSize(wxSize(leftColW, topRowH));
