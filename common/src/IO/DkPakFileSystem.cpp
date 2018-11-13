@@ -35,38 +35,30 @@ namespace TrenchBroom {
             static const size_t EntryNameLength   = 0x38;
             static const String HeaderMagic       = "PACK";
         }
-        
-        DkPakFileSystem::CompressedFile::CompressedFile(MappedFile::Ptr file, const size_t uncompressedSize) :
-        m_file(file),
-        m_uncompressedSize(uncompressedSize) {}
 
-        MappedFile::Ptr DkPakFileSystem::CompressedFile::doOpen() {
-            const char* data = decompress();
-            return MappedFile::Ptr(new MappedFileBuffer(m_file->path(), data, m_uncompressedSize));
-        }
+        std::unique_ptr<char[]> DkPakFileSystem::DkCompressedFile::decompress(MappedFile::Ptr file, const size_t uncompressedSize) const {
+            CharArrayReader reader(file->begin(), file->end());
 
-        char* DkPakFileSystem::CompressedFile::decompress() const {
-            CharArrayReader reader(m_file->begin(), m_file->end());
+            auto result = std::make_unique<char[]>(uncompressedSize);
+            auto* begin = result.get();
+            auto* curTarget = begin;
             
-            char* result = new char[m_uncompressedSize];
-            char* curTarget = result;
-            
-            unsigned char x = reader.readUnsignedChar<unsigned char>();
+            auto x = reader.readUnsignedChar<unsigned char>();
             while (!reader.eof() && x < 0xFF) {
                 if (x < 0x40) {
                     // x+1 bytes of uncompressed data follow (just read+write them as they are)
-                    const size_t len = static_cast<size_t>(x) + 1;
+                    const auto len = static_cast<size_t>(x) + 1;
                     reader.read(curTarget, len);
                     curTarget += len;
                 } else if (x < 0x80) {
                     // run-length encoded zeros, write (x - 62) zero-bytes to output
-                    const size_t len = static_cast<size_t>(x) - 62;
+                    const auto len = static_cast<size_t>(x) - 62;
                     std::memset(curTarget, 0, len);
                     curTarget += len;
                 } else if (x < 0xC0) {
                     // run-length encoded data, read one byte, write it (x-126) times to output
-                    const size_t len = static_cast<size_t>(x) - 126;
-                    const int data = reader.readInt<unsigned char>();
+                    const auto len = static_cast<size_t>(x) - 126;
+                    const auto data = reader.readInt<unsigned char>();
                     std::memset(curTarget, data, len);
                     curTarget += len;
                 } else if (x < 0xFE) {
@@ -74,11 +66,11 @@ namespace TrenchBroom {
                     // read one byte to get _offset_
                     // read (x-190) bytes from the already uncompressed and written output data,
                     // starting at (offset+2) bytes before the current write position (and add them to output, of course)
-                    const size_t len = static_cast<size_t>(x) - 190;
-                    const size_t offset = reader.readSize<unsigned char>();
-                    char* from = curTarget - (offset + 2);
+                    const auto len = static_cast<size_t>(x) - 190;
+                    const auto offset = reader.readSize<unsigned char>();
+                    auto* from = curTarget - (offset + 2);
                     
-                    assert(from >= result);
+                    assert(from >= begin);
                     assert(from <=  curTarget - len);
 
                     std::memcpy(curTarget, from, len);
@@ -100,29 +92,30 @@ namespace TrenchBroom {
             CharArrayReader reader(m_file->begin(), m_file->end());
             reader.seekFromBegin(PakLayout::HeaderMagicLength);
 
-            const size_t directoryAddress = reader.readSize<int32_t>();
-            const size_t directorySize = reader.readSize<int32_t>();
-            const size_t entryCount = directorySize / PakLayout::EntryLength;
+            const auto directoryAddress = reader.readSize<int32_t>();
+            const auto directorySize = reader.readSize<int32_t>();
+            const auto entryCount = directorySize / PakLayout::EntryLength;
             
             reader.seekFromBegin(directoryAddress);
             
             for (size_t i = 0; i < entryCount; ++i) {
-                const String entryName = reader.readString(PakLayout::EntryNameLength);
-                const size_t entryAddress = reader.readSize<int32_t>();
-                const size_t uncompressedSize = reader.readSize<int32_t>();
-                const size_t compressedSize = reader.readSize<int32_t>();
-                const bool compressed = reader.readBool<int32_t>();
-                const size_t entrySize = compressed ? compressedSize : uncompressedSize;
+                const auto entryName = reader.readString(PakLayout::EntryNameLength);
+                const auto entryAddress = reader.readSize<int32_t>();
+                const auto uncompressedSize = reader.readSize<int32_t>();
+                const auto compressedSize = reader.readSize<int32_t>();
+                const auto compressed = reader.readBool<int32_t>();
+                const auto entrySize = compressed ? compressedSize : uncompressedSize;
 
-                const char* entryBegin = m_file->begin() + entryAddress;
-                const char* entryEnd = entryBegin + entrySize;
-                const Path filePath(StringUtils::toLower(entryName));
+                const auto* entryBegin = m_file->begin() + entryAddress;
+                const auto* entryEnd = entryBegin + entrySize;
+                const auto filePath = Path(StringUtils::toLower(entryName));
                 MappedFile::Ptr entryFile(new MappedFileView(m_file, filePath, entryBegin, entryEnd));
                 
-                if (compressed)
-                    m_root.addFile(filePath, new CompressedFile(entryFile, uncompressedSize));
-                else
+                if (compressed) {
+                    m_root.addFile(filePath, new DkCompressedFile(entryFile, uncompressedSize));
+                } else {
                     m_root.addFile(filePath, new SimpleFile(entryFile));
+                }
             }
         }
     }

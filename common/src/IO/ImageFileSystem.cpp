@@ -39,7 +39,16 @@ namespace TrenchBroom {
         MappedFile::Ptr ImageFileSystem::SimpleFile::doOpen() {
             return m_file;
         }
-        
+
+        ImageFileSystem::CompressedFile::CompressedFile(MappedFile::Ptr file, const size_t uncompressedSize) :
+        m_file(file),
+        m_uncompressedSize(uncompressedSize) {}
+
+        MappedFile::Ptr ImageFileSystem::CompressedFile::doOpen() {
+            auto data = decompress(m_file, m_uncompressedSize);
+            return MappedFile::Ptr(new MappedFileBuffer(m_file->path(), std::move(data), m_uncompressedSize));
+        }
+
         ImageFileSystem::Directory::Directory(const Path& path) :
         m_path(path) {}
         

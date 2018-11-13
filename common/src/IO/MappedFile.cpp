@@ -80,13 +80,11 @@ namespace TrenchBroom {
             init(begin, begin + size);
         }
 
-        MappedFileBuffer::MappedFileBuffer(const Path& path, const char* begin, const size_t size) :
-        MappedFile(path) {
+        MappedFileBuffer::MappedFileBuffer(const Path& path, std::unique_ptr<char[]> buffer, const size_t size) :
+        MappedFile(path),
+        m_buffer(std::move(buffer)) {
+            const auto* begin = m_buffer.get();
             init(begin, begin + size);
-        }
-        
-        MappedFileBuffer::~MappedFileBuffer() {
-            delete [] m_begin;
         }
 
 #ifdef _WIN32
