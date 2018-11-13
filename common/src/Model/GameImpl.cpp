@@ -42,6 +42,7 @@
 #include "IO/SimpleParserStatus.h"
 #include "IO/SystemPaths.h"
 #include "IO/TextureLoader.h"
+#include "IO/ZipFileSystem.h"
 #include "Model/AttributableNodeVariableStore.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
@@ -103,6 +104,8 @@ namespace TrenchBroom {
                         m_gameFS.pushFileSystem(new IO::IdPakFileSystem(packagePath, packageFile));
                     } else if (StringUtils::caseInsensitiveEqual(packageFormat, "dkpak")) {
                         m_gameFS.pushFileSystem(new IO::DkPakFileSystem(packagePath, packageFile));
+                    } else if (StringUtils::caseInsensitiveEqual(packageFormat, "zip")) {
+                        m_gameFS.pushFileSystem(new IO::ZipFileSystem(packagePath, packageFile));
                     }
                 }
             }
