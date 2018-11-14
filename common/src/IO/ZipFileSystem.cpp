@@ -47,7 +47,7 @@ namespace TrenchBroom {
                 throw new FileSystemException("Could not read zip entry at " + path.asString());
             }
 
-            const auto uncompressedSize = m_entry->GetSize();
+            const auto uncompressedSize = static_cast<size_t>(m_entry->GetSize());
             auto data = std::make_unique<char[]>(uncompressedSize);
             auto* begin = data.get();
 
