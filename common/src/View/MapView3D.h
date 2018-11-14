@@ -55,6 +55,7 @@ namespace TrenchBroom {
         private:
             void initializeCamera();
             void initializeToolChain(MapViewToolBox& toolBox);
+            void triggerCameraTimer();
         private: // notification
             void bindObservers();
             void unbindObservers();

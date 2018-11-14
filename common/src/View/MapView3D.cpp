@@ -116,6 +116,10 @@ namespace TrenchBroom {
             addTool(new CreateSimpleBrushToolController3D(toolBox.createSimpleBrushTool(), m_document));
         }
 
+        void MapView3D::triggerCameraTimer() {
+            m_flyModeTimer.StartOnce(5);
+        }
+
         void MapView3D::bindObservers() {
             m_camera.cameraDidChangeNotifier.addObserver(this, &MapView3D::cameraDidChange);
 
@@ -182,7 +186,7 @@ namespace TrenchBroom {
             if (!m_flyModeHelper->keyDown(event)) {
                 event.Skip();
             } else if (!m_flyModeTimer.IsRunning()) {
-                m_flyModeTimer.Start(1000/60, wxTIMER_ONE_SHOT);
+                triggerCameraTimer();
             }
         }
         
@@ -591,7 +595,7 @@ namespace TrenchBroom {
             m_flyModeHelper->pollAndUpdate();
 
             if (m_flyModeHelper->anyKeyDown() && !m_flyModeTimer.IsRunning()) {
-                m_flyModeTimer.Start(1000/60, wxTIMER_ONE_SHOT);
+                triggerCameraTimer();
             }
         }
 
