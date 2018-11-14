@@ -33,7 +33,7 @@
 namespace TrenchBroom {
     namespace IO {
         ZipFileSystem::ZipCompressedFile::ZipCompressedFile(std::shared_ptr<wxZipInputStream> stream, std::unique_ptr<wxZipEntry> entry) :
-        m_stream(stream),
+        m_stream(std::move(stream)),
         m_entry(std::move(entry)) {}
 
         MappedFile::Ptr ZipFileSystem::ZipCompressedFile::doOpen() {
