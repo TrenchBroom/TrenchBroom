@@ -117,7 +117,7 @@ namespace TrenchBroom {
         }
 
         void MapView3D::triggerCameraTimer() {
-            m_flyModeTimer.StartOnce(5);
+            m_flyModeTimer.StartOnce(10);
         }
 
         void MapView3D::bindObservers() {
