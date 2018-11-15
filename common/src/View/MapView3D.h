@@ -27,8 +27,6 @@
 #include "View/MapViewBase.h"
 #include "View/ViewTypes.h"
 
-#include <wx/timer.h>
-
 namespace TrenchBroom {
     class Logger;
 
