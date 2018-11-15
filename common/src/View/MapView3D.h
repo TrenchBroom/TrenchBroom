@@ -46,7 +46,6 @@ namespace TrenchBroom {
         class MapView3D : public MapViewBase {
         private:
             Renderer::PerspectiveCamera m_camera;
-            wxTimer m_flyModeTimer;
             FlyModeHelper* m_flyModeHelper;
             bool m_ignoreCameraChangeEvents;
         public:
@@ -55,7 +54,6 @@ namespace TrenchBroom {
         private:
             void initializeCamera();
             void initializeToolChain(MapViewToolBox& toolBox);
-            void triggerCameraTimer();
         private: // notification
             void bindObservers();
             void unbindObservers();
@@ -64,7 +62,7 @@ namespace TrenchBroom {
         private: // interaction events
             void bindEvents();
 
-            void OnFlyModeTimer(wxTimerEvent& event);
+            void OnIdle(wxIdleEvent& event);
 
             void OnKeyDown(wxKeyEvent& event);
             void OnKeyUp(wxKeyEvent& event);
