@@ -47,7 +47,19 @@ namespace TrenchBroom {
             private:
                 MappedFile::Ptr doOpen() override;
             };
-            
+
+            class CompressedFile : public File {
+            private:
+                MappedFile::Ptr m_file;
+                const size_t m_uncompressedSize;
+            public:
+                CompressedFile(MappedFile::Ptr file, size_t uncompressedSize);
+                virtual ~CompressedFile() override = default;
+            private:
+                MappedFile::Ptr doOpen() override;
+                virtual std::unique_ptr<char[]> decompress(MappedFile::Ptr file, size_t uncompressedSize) const = 0;
+            };
+
             class Directory {
             private:
                 typedef std::map<Path, Directory*, Path::Less<StringUtils::CaseInsensitiveStringLess>> DirMap;
