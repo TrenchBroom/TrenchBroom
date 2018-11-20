@@ -56,7 +56,7 @@ namespace TrenchBroom {
             const size_t height = reader.readSize<uint32_t>();
 
             if (!m_palette.initialized()) {
-                return nullptr;
+                return new Assets::Texture(textureName(name, path), width, height);
             }
 
             const auto mipLevels = readMipOffsets(MaxMipLevels, offsets, width, height, reader);
@@ -98,7 +98,7 @@ namespace TrenchBroom {
                 return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers, GL_RGBA, Assets::TextureType::Opaque);
             }
 
-            return nullptr;
+            return new Assets::Texture(textureName(name, path), width, height);
         }
 
         size_t WalTextureReader::readMipOffsets(const size_t maxMipLevels, size_t offsets[], const size_t width, const size_t height, CharArrayReader& reader) const {

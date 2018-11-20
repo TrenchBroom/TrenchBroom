@@ -67,7 +67,7 @@ namespace TrenchBroom {
                 Assets::Palette palette = doGetPalette(reader, offset, width, height);
 
                 if (!palette.initialized()) {
-                    return nullptr;
+                    return new Assets::Texture(textureName(name, path), width, height);
                 }
 
                 for (size_t i = 0; i < MipLevels; ++i) {
