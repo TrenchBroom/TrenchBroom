@@ -64,7 +64,7 @@ namespace TrenchBroom {
         }
 
         void BitmapButton::DoUpdateWindowUI(wxUpdateUIEvent& event) {
-            if (event.GetSetEnabled() && IsEnabled() != event.GetEnabled()) {
+            if (event.GetSetEnabled() && IsThisEnabled() != event.GetEnabled()) {
                 Enable(event.GetEnabled());
                 Refresh();
             }
