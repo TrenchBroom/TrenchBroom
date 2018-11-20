@@ -352,10 +352,7 @@ namespace TrenchBroom {
         void DkmParser::loadSkins(Assets::EntityModel* model, const DkmParser::DkmSkinList& skins) {
             for (const auto& skin : skins) {
                 const auto skinPath = findSkin(skin);
-                auto* texture = loadSkin(m_fs.openFile(skinPath));
-                if (texture != nullptr) {
-                    model->addSkin(texture);
-                }
+                model->addSkin(loadSkin(m_fs.openFile(skinPath)));
             }
         }
 
