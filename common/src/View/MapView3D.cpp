@@ -75,7 +75,6 @@ namespace TrenchBroom {
     namespace View {
         MapView3D::MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager) :
         MapViewBase(parent, logger, document, toolBox, renderer, contextManager),
-        m_flyModeTimer(this),
         m_flyModeHelper(new FlyModeHelper(m_camera)),
         m_ignoreCameraChangeEvents(false) {
             bindEvents();
@@ -89,7 +88,6 @@ namespace TrenchBroom {
         }
 
         MapView3D::~MapView3D() {
-            m_flyModeTimer.Stop();
             unbindObservers();
         }
         
@@ -165,14 +163,15 @@ namespace TrenchBroom {
             wxFrame* frame = findFrame(this);
             frame->Bind(wxEVT_ACTIVATE, &MapView3D::OnActivateFrame, this);
 
-            Bind(wxEVT_TIMER, &MapView3D::OnFlyModeTimer, this);
+            Bind(wxEVT_IDLE, &MapView3D::OnIdle, this);
         }
 
-        void MapView3D::OnFlyModeTimer(wxTimerEvent& event) {
+        void MapView3D::OnIdle(wxIdleEvent& event) {
             if (IsBeingDeleted()) return;
 
             if (m_flyModeHelper->anyKeyDown()) {
                 Refresh();
+                event.RequestMore();
             }
         }
 
@@ -181,8 +180,6 @@ namespace TrenchBroom {
 
             if (!m_flyModeHelper->keyDown(event)) {
                 event.Skip();
-            } else if (!m_flyModeTimer.IsRunning()) {
-                m_flyModeTimer.Start(1000/60, wxTIMER_ONE_SHOT);
             }
         }
         
@@ -589,10 +586,6 @@ namespace TrenchBroom {
         void MapView3D::doPreRender() {
             const TemporarilySetBool ignoreCameraUpdates(m_ignoreCameraChangeEvents);
             m_flyModeHelper->pollAndUpdate();
-
-            if (m_flyModeHelper->anyKeyDown() && !m_flyModeTimer.IsRunning()) {
-                m_flyModeTimer.Start(1000/60, wxTIMER_ONE_SHOT);
-            }
         }
 
         void MapView3D::doRenderGrid(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {}
