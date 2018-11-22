@@ -33,9 +33,9 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TextureLoader::TextureLoader(const EL::VariableStore& variables, const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger) :
+        TextureLoader::TextureLoader(const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger) :
         m_textureExtensions(getTextureExtensions(textureConfig)),
-        m_textureReader(createTextureReader(variables, gameFS, textureConfig, logger)),
+        m_textureReader(createTextureReader(gameFS, textureConfig, logger)),
         m_textureCollectionLoader(createTextureCollectionLoader(gameFS, fileSearchPaths, textureConfig)) {
             ensure(m_textureReader != nullptr, "textureReader is null");
             ensure(m_textureCollectionLoader != nullptr, "textureCollectionLoader is null");
@@ -45,16 +45,16 @@ namespace TrenchBroom {
             return textureConfig.format.extensions;
         }
 
-        TextureLoader::ReaderPtr TextureLoader::createTextureReader(const EL::VariableStore& variables, const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger) {
+        TextureLoader::ReaderPtr TextureLoader::createTextureReader(const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger) {
             if (textureConfig.format.format == "idmip") {
                 TextureReader::PathSuffixNameStrategy nameStrategy(1, true);
-                return std::make_unique<IdMipTextureReader>(nameStrategy, loadPalette(variables, gameFS, textureConfig, logger));
+                return std::make_unique<IdMipTextureReader>(nameStrategy, loadPalette(gameFS, textureConfig, logger));
             } else if (textureConfig.format.format == "hlmip") {
                 TextureReader::PathSuffixNameStrategy nameStrategy(1, true);
                 return std::make_unique<HlMipTextureReader>(nameStrategy);
             } else if (textureConfig.format.format == "wal") {
                 TextureReader::PathSuffixNameStrategy nameStrategy(2, true);
-                return std::make_unique<WalTextureReader>(nameStrategy, loadPalette(variables, gameFS, textureConfig, logger));
+                return std::make_unique<WalTextureReader>(nameStrategy, loadPalette(gameFS, textureConfig, logger));
             } else if (textureConfig.format.format == "image") {
                 TextureReader::PathSuffixNameStrategy nameStrategy(2, true);
                 return std::make_unique<FreeImageTextureReader>(nameStrategy, 4);
@@ -63,10 +63,16 @@ namespace TrenchBroom {
             }
         }
         
-        Assets::Palette TextureLoader::loadPalette(const EL::VariableStore& variables, const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger) {
+        Assets::Palette TextureLoader::loadPalette(const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger) {
+            if (textureConfig.palette.isEmpty()) {
+                return Assets::Palette();
+            }
+
             try {
-                const Path path = findPalette(variables, gameFS, textureConfig, logger);
-                logger->info("Loading palette file " + path.asString());
+                const auto& path = textureConfig.palette;
+                if (logger != nullptr) {
+                    logger->info("Loading palette file " + path.asString());
+                }
                 return Assets::Palette::loadFile(gameFS, path);
             } catch (const Exception& e) {
                 if (logger != nullptr) {
@@ -74,33 +80,6 @@ namespace TrenchBroom {
                 }
                 return Assets::Palette();
             }
-        }
-
-        Path TextureLoader::findPalette(const EL::VariableStore& variables, const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger) {
-            const auto path = buildPalettePath(variables, textureConfig.palette, logger);
-            if (!isValidPalettePath(gameFS, path) && !textureConfig.palettefallback.isEmpty()) {
-                const auto fallback = buildPalettePath(variables, textureConfig.palettefallback, logger);
-                if (isValidPalettePath(gameFS, fallback)) {
-                    StringStream msg;
-                    msg << "Using fallback palette: " << fallback;
-                    logger->info(msg.str());
-                    return fallback;
-                }
-            }
-            return path;
-        }
-
-        Path TextureLoader::buildPalettePath(const EL::VariableStore& variables, const IO::Path& pathSpec, Logger* logger) {
-            try {
-                return IO::Path(EL::interpolate(pathSpec.asString(), EL::EvaluationContext(variables)));
-            } catch (const Exception& e) {
-                logger->warn(e.what());
-                return IO::Path();
-            }
-        }
-
-        bool TextureLoader::isValidPalettePath(const FileSystem& gameFS, const IO::Path& path) {
-            return !path.isEmpty() && !path.isAbsolute() && gameFS.fileExists(path);
         }
 
         TextureLoader::LoaderPtr TextureLoader::createTextureCollectionLoader(const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig) {

@@ -129,16 +129,15 @@ namespace TrenchBroom {
             expectStructure(value,
                             "["
                             "{'package': 'Map', 'format': 'Map'},"
-                            "{'attribute': 'String', 'palette': 'String', 'palettefallback': 'String'}"
+                            "{'attribute': 'String', 'palette': 'String'}"
                             "]");
 
             const GameConfig::TexturePackageConfig packageConfig = parseTexturePackageConfig(value["package"]);
             const GameConfig::PackageFormatConfig formatConfig = parsePackageFormatConfig(value["format"]);
             const Path palette(value["palette"].stringValue());
-            const Path palettefallback(value["palettefallback"].stringValue());
             const String& attribute = value["attribute"].stringValue();
 
-            return GameConfig::TextureConfig(packageConfig, formatConfig, palette, palettefallback, attribute);
+            return GameConfig::TextureConfig(packageConfig, formatConfig, palette, attribute);
         }
 
         Model::GameConfig::TexturePackageConfig GameConfigParser::parseTexturePackageConfig(const EL::Value& value) const {

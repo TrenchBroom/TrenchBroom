@@ -87,18 +87,16 @@ namespace TrenchBroom {
             reader.seekForward(32 + 2 * sizeof(uint32_t)); // animation name, flags, contents
             assert(reader.canRead(3 * 256));
 
-            if (m_palette.initialized()) {
-                readMips(m_palette, mipLevels, offsets, width, height, reader, buffers, averageColor);
-                return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers, GL_RGBA, Assets::TextureType::Opaque);
-            }
-
             const auto embeddedPalette = Assets::Palette::fromRaw(3 * 256, reader.cur<unsigned char>());
             if (embeddedPalette.initialized()) {
                 readMips(embeddedPalette, mipLevels, offsets, width, height, reader, buffers, averageColor);
                 return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers, GL_RGBA, Assets::TextureType::Opaque);
+            } else if (m_palette.initialized()) {
+                readMips(m_palette, mipLevels, offsets, width, height, reader, buffers, averageColor);
+                return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers, GL_RGBA, Assets::TextureType::Opaque);
+            } else {
+                return new Assets::Texture(textureName(name, path), width, height);
             }
-
-            return new Assets::Texture(textureName(name, path), width, height);
         }
 
         size_t WalTextureReader::readMipOffsets(const size_t maxMipLevels, size_t offsets[], const size_t width, const size_t height, CharArrayReader& reader) const {

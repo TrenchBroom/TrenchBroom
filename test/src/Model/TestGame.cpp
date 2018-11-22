@@ -19,7 +19,6 @@
 
 #include "TestGame.h"
 
-#include "EL/VariableStore.h"
 #include "IO/BrushFaceReader.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/NodeReader.h"
@@ -93,7 +92,6 @@ namespace TrenchBroom {
         }
         
         void TestGame::doLoadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger* logger) const {
-            const EL::NullVariableStore variables;
             const IO::Path::List paths = extractTextureCollections(node);
             
             const IO::Path root = IO::Disk::getCurrentWorkingDir();
@@ -103,10 +101,9 @@ namespace TrenchBroom {
             const GameConfig::TextureConfig textureConfig(GameConfig::TexturePackageConfig(GameConfig::PackageFormatConfig("wad", "idmip")),
                                                           GameConfig::PackageFormatConfig("D", "idmip"),
                                                           IO::Path("data/palette.lmp"),
-                                                          IO::Path(),
                                                           "wad");
             
-            IO::TextureLoader textureLoader(variables, fileSystem, fileSearchPaths, textureConfig, logger);
+            IO::TextureLoader textureLoader(fileSystem, fileSearchPaths, textureConfig, logger);
             textureLoader.loadTextures(paths, textureManager);
         }
         
