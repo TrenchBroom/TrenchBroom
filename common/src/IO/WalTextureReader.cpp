@@ -91,9 +91,6 @@ namespace TrenchBroom {
             if (embeddedPalette.initialized()) {
                 readMips(embeddedPalette, mipLevels, offsets, width, height, reader, buffers, averageColor);
                 return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers, GL_RGBA, Assets::TextureType::Opaque);
-            } else if (m_palette.initialized()) {
-                readMips(m_palette, mipLevels, offsets, width, height, reader, buffers, averageColor);
-                return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers, GL_RGBA, Assets::TextureType::Opaque);
             } else {
                 return new Assets::Texture(textureName(name, path), width, height);
             }
