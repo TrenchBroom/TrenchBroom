@@ -51,14 +51,15 @@ namespace TrenchBroom {
                 Data(size_t size, unsigned char* data);
 
                 template <typename IndexT, typename ColorT>
-                void indexedToRgba(const Buffer<IndexT>& indexedImage, const size_t pixelCount, Buffer<ColorT>& rgbaImage, Color& averageColor, const PaletteTransparency transparency) const {
-                    indexedToRgba(&indexedImage[0], pixelCount, rgbaImage, averageColor, transparency);
+                bool indexedToRgba(const Buffer<IndexT>& indexedImage, const size_t pixelCount, Buffer<ColorT>& rgbaImage, Color& averageColor, const PaletteTransparency transparency) const {
+                    return indexedToRgba(&indexedImage[0], pixelCount, rgbaImage, averageColor, transparency);
                 }
                 
                 template <typename IndexT, typename ColorT>
-                void indexedToRgba(const IndexT* indexedImage, const size_t pixelCount, Buffer<ColorT>& rgbaImage, Color& averageColor, const PaletteTransparency transparency) const {
+                bool indexedToRgba(const IndexT* indexedImage, const size_t pixelCount, Buffer<ColorT>& rgbaImage, Color& averageColor, const PaletteTransparency transparency) const {
                     double avg[3];
                     avg[0] = avg[1] = avg[2] = 0.0;
+                    bool hasTransparency = false;
                     for (size_t i = 0; i < pixelCount; ++i) {
                         const size_t index = static_cast<size_t>(static_cast<unsigned char>(indexedImage[i]));
                         assert(index < m_size);
@@ -73,13 +74,17 @@ namespace TrenchBroom {
                                 break;
                             case PaletteTransparency::Index255Transparent:
                                 rgbaImage[i * 4 + 3] = (index == 255) ? 0x00 : 0xFF;
+                                hasTransparency |= (index == 255);
                                 break;
                         }
                     }
                     
-                    for (size_t i = 0; i < 3; ++i)
+                    for (size_t i = 0; i < 3; ++i) {
                         averageColor[i] = static_cast<float>(avg[i] / pixelCount / 0xFF);
+                    }
                     averageColor[3] = 1.0f;
+
+                    return hasTransparency;
                 }
             };
             
@@ -99,13 +104,13 @@ namespace TrenchBroom {
             bool initialized() const;
 
             template <typename IndexT, typename ColorT>
-            void indexedToRgba(const Buffer<IndexT>& indexedImage, const size_t pixelCount, Buffer<ColorT>& rgbaImage, Color& averageColor, const PaletteTransparency transparency = PaletteTransparency::Opaque) const {
-                m_data->indexedToRgba(indexedImage, pixelCount, rgbaImage, averageColor, transparency);
+            bool indexedToRgba(const Buffer<IndexT>& indexedImage, const size_t pixelCount, Buffer<ColorT>& rgbaImage, Color& averageColor, const PaletteTransparency transparency = PaletteTransparency::Opaque) const {
+                return m_data->indexedToRgba(indexedImage, pixelCount, rgbaImage, averageColor, transparency);
             }
             
             template <typename IndexT, typename ColorT>
-            void indexedToRgba(const IndexT* indexedImage, const size_t pixelCount, Buffer<ColorT>& rgbaImage, Color& averageColor, const PaletteTransparency transparency = PaletteTransparency::Opaque) const {
-                m_data->indexedToRgba(indexedImage, pixelCount, rgbaImage, averageColor, transparency);
+            bool indexedToRgba(const IndexT* indexedImage, const size_t pixelCount, Buffer<ColorT>& rgbaImage, Color& averageColor, const PaletteTransparency transparency = PaletteTransparency::Opaque) const {
+                return m_data->indexedToRgba(indexedImage, pixelCount, rgbaImage, averageColor, transparency);
             }
         };
     }
