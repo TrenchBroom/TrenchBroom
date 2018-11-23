@@ -34,14 +34,18 @@ namespace TrenchBroom {
         m_palette(palette) {}
         
         Assets::Texture* WalTextureReader::doReadTexture(const char* const begin, const char* const end, const Path& path) const {
-            CharArrayReader reader(begin, end);
-            const char version = reader.readChar<char>();
-            reader.seekFromBegin(0);
+            try {
+                CharArrayReader reader(begin, end);
+                const char version = reader.readChar<char>();
+                reader.seekFromBegin(0);
 
-            if (version == 3) {
-                return readDkWal(reader, path);
-            } else {
-                return readQ2Wal(reader, path);
+                if (version == 3) {
+                    return readDkWal(reader, path);
+                } else {
+                    return readQ2Wal(reader, path);
+                }
+            } catch (const CharArrayReaderException&) {
+                return new Assets::Texture(textureName(path), 16, 16);
             }
         }
 
@@ -88,12 +92,8 @@ namespace TrenchBroom {
             assert(reader.canRead(3 * 256));
 
             const auto embeddedPalette = Assets::Palette::fromRaw(3 * 256, reader.cur<unsigned char>());
-            if (embeddedPalette.initialized()) {
-                readMips(embeddedPalette, mipLevels, offsets, width, height, reader, buffers, averageColor);
-                return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers, GL_RGBA, Assets::TextureType::Opaque);
-            } else {
-                return new Assets::Texture(textureName(name, path), width, height);
-            }
+            readMips(embeddedPalette, mipLevels, offsets, width, height, reader, buffers, averageColor);
+            return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers, GL_RGBA, Assets::TextureType::Opaque);
         }
 
         size_t WalTextureReader::readMipOffsets(const size_t maxMipLevels, size_t offsets[], const size_t width, const size_t height, CharArrayReader& reader) const {
