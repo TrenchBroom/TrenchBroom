@@ -42,7 +42,6 @@
 #include "IO/SimpleParserStatus.h"
 #include "IO/SystemPaths.h"
 #include "IO/TextureLoader.h"
-#include "Model/AttributableNodeVariableStore.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
@@ -230,11 +229,10 @@ namespace TrenchBroom {
         }
 
         void GameImpl::doLoadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger* logger) const {
-            const AttributableNodeVariableStore variables(node);
             const IO::Path::List paths = extractTextureCollections(node);
 
             const IO::Path::List fileSearchPaths = textureCollectionSearchPaths(documentPath);
-            IO::TextureLoader textureLoader(variables, m_gameFS, fileSearchPaths, m_config.textureConfig(), logger);
+            IO::TextureLoader textureLoader(m_gameFS, fileSearchPaths, m_config.textureConfig(), logger);
             textureLoader.loadTextures(paths, textureManager);
         }
 

@@ -79,16 +79,17 @@ namespace TrenchBroom {
             Assets::Texture* readTexture(const char* const begin, const char* const end, const Path& path) const;
         protected:
             String textureName(const String& textureName, const Path& path) const;
+            String textureName(const Path& path) const;
         private:
             /**
-             * Loads a texture and returns an Assets::Texture object allocated with new, or nullptr if the texture
-             * cannot be loaded for some reason (corrupt data, etc.). Should not throw exceptions to report errors
-             * loading textures except for unrecoverable errors (out of memory, bugs, etc.)
+             * Loads a texture and returns an Assets::Texture object allocated with new. Should not throw exceptions to
+             * report errors loading textures except for unrecoverable errors (out of memory, bugs, etc.). In all other
+             * cases, an empty placeholder texture is returned.
              *
              * @param begin start of the byte range to load the texture from
              * @param end end of the byte range to load the texture from
              * @param path path to the texture
-             * @return an Assets::Texture object allocated with new, or nullptr if the texture cannot be loaded
+             * @return an Assets::Texture object allocated with new
              */
             virtual Assets::Texture* doReadTexture(const char* const begin, const char* const end, const Path& path) const = 0;
         public:

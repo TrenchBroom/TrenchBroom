@@ -82,6 +82,10 @@ namespace TrenchBroom {
             return m_nameStrategy->textureName(textureName, path);
         }
 
+        String TextureReader::textureName(const Path& path) const {
+            return m_nameStrategy->textureName(path.lastComponent().asString(), path);
+        }
+
         size_t TextureReader::mipSize(const size_t width, const size_t height, const size_t mipLevel) {
             const auto size = Assets::sizeAtMipLevel(width, height, mipLevel);
             return size.x() * size.y();

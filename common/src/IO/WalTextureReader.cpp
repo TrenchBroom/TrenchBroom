@@ -34,14 +34,18 @@ namespace TrenchBroom {
         m_palette(palette) {}
         
         Assets::Texture* WalTextureReader::doReadTexture(const char* const begin, const char* const end, const Path& path) const {
-            CharArrayReader reader(begin, end);
-            const char version = reader.readChar<char>();
-            reader.seekFromBegin(0);
+            try {
+                CharArrayReader reader(begin, end);
+                const char version = reader.readChar<char>();
+                reader.seekFromBegin(0);
 
-            if (version == 3) {
-                return readDkWal(reader, path);
-            } else {
-                return readQ2Wal(reader, path);
+                if (version == 3) {
+                    return readDkWal(reader, path);
+                } else {
+                    return readQ2Wal(reader, path);
+                }
+            } catch (const CharArrayReaderException&) {
+                return new Assets::Texture(textureName(path), 16, 16);
             }
         }
 
@@ -56,7 +60,7 @@ namespace TrenchBroom {
             const size_t height = reader.readSize<uint32_t>();
 
             if (!m_palette.initialized()) {
-                return nullptr;
+                return new Assets::Texture(textureName(name, path), width, height);
             }
 
             const auto mipLevels = readMipOffsets(MaxMipLevels, offsets, width, height, reader);
@@ -81,19 +85,14 @@ namespace TrenchBroom {
             const auto width = reader.readSize<uint32_t>();
             const auto height = reader.readSize<uint32_t>();
 
-            if (!m_palette.initialized()) {
-                return nullptr;
-            }
-
             const auto mipLevels = readMipOffsets(MaxMipLevels, offsets, width, height, reader);
             Assets::setMipBufferSize(buffers, mipLevels, width, height, GL_RGBA);
 
             reader.seekForward(32 + 2 * sizeof(uint32_t)); // animation name, flags, contents
             assert(reader.canRead(3 * 256));
 
-            const auto palette = Assets::Palette::fromRaw(3 * 256, reader.cur<unsigned char>());
-            readMips(palette, mipLevels, offsets, width, height, reader, buffers, averageColor);
-
+            const auto embeddedPalette = Assets::Palette::fromRaw(3 * 256, reader.cur<unsigned char>());
+            readMips(embeddedPalette, mipLevels, offsets, width, height, reader, buffers, averageColor);
             return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers, GL_RGBA, Assets::TextureType::Opaque);
         }
 

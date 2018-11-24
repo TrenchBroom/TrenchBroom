@@ -33,7 +33,6 @@
 
 namespace TrenchBroom {
     class Logger;
-    class VariableTable;
 
     namespace Assets {
         class Palette;
@@ -54,14 +53,11 @@ namespace TrenchBroom {
             ReaderPtr m_textureReader;
             LoaderPtr m_textureCollectionLoader;
         public:
-            TextureLoader(const EL::VariableStore& variables, const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger);
+            TextureLoader(const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger);
         private:
             static StringList getTextureExtensions(const Model::GameConfig::TextureConfig& textureConfig);
-            static ReaderPtr createTextureReader(const EL::VariableStore& variables, const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger);
-            static Assets::Palette loadPalette(const EL::VariableStore& variables, const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger);
-            static Path findPalette(const EL::VariableStore& variables, const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger);
-            static Path buildPalettePath(const EL::VariableStore& variables, const IO::Path& pathSpec, Logger* logger);
-            static bool isValidPalettePath(const FileSystem& gameFS, const IO::Path& path);
+            static ReaderPtr createTextureReader(const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger);
+            static Assets::Palette loadPalette(const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger);
             static LoaderPtr createTextureCollectionLoader(const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig);
         public:
             Assets::TextureCollection* loadTextureCollection(const Path& path);

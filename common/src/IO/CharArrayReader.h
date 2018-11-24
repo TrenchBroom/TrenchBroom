@@ -66,6 +66,7 @@ namespace TrenchBroom {
             void read(char* val, size_t size);
             void read(unsigned char* val, size_t size);
             bool canRead(size_t size) const;
+            void ensureCanRead(size_t readSize) const;
             bool eof() const;
 
             template <typename T, typename R>

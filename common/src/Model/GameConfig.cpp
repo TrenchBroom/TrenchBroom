@@ -79,11 +79,10 @@ namespace TrenchBroom {
                     rootDirectory == other.rootDirectory);
         }
         
-        GameConfig::TextureConfig::TextureConfig(const TexturePackageConfig& i_package, const PackageFormatConfig& i_format, const IO::Path& i_palette, const IO::Path& i_palettefallback, const String& i_attribute) :
+        GameConfig::TextureConfig::TextureConfig(const TexturePackageConfig& i_package, const PackageFormatConfig& i_format, const IO::Path& i_palette, const String& i_attribute) :
         package(i_package),
         format(i_format),
         palette(i_palette),
-        palettefallback(i_palettefallback),
         attribute(i_attribute) {}
 
         GameConfig::TextureConfig::TextureConfig() = default;
@@ -92,7 +91,6 @@ namespace TrenchBroom {
             return (package == other.package &&
                     format == other.format &&
                     palette == other.palette &&
-                    palettefallback == other.palettefallback &&
                     attribute == other.attribute);
         }
         
