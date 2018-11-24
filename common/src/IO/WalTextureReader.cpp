@@ -131,7 +131,7 @@ namespace TrenchBroom {
                     return false;
                 }
 
-                hasTransparency |= (palette.indexedToRgba(data, size, buffers[i], tempColor, transparency) && i == 0);
+                hasTransparency |= (palette.indexedToRgba(data, size, buffers[i], transparency, tempColor) && i == 0);
                 if (i == 0) {
                     averageColor = tempColor;
                 }

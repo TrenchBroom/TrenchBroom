@@ -79,7 +79,7 @@ namespace TrenchBroom {
                     reader.ensureCanRead(size);
 
                     Color tempColor;
-                    palette.indexedToRgba(data, size, buffers[i], tempColor, transparency);
+                    palette.indexedToRgba(data, size, buffers[i], transparency, tempColor);
                     if (i == 0) {
                         averageColor = tempColor;
                     }

@@ -50,13 +50,39 @@ namespace TrenchBroom {
                 Data(size_t size, RawDataPtr&& data);
                 Data(size_t size, unsigned char* data);
 
+                /**
+                 * Converts the given index buffer to an RGBA image.
+                 *
+                 * @tparam IndexT the index type
+                 * @tparam ColorT the pixel type
+                 * @param indexedImage the index buffer
+                 * @param pixelCount the number of pixels
+                 * @param rgbaImage the pixel buffer
+                 * @param transparency controls whether or not the given index buffer contains a transparent index
+                 * @param averageColor output parameter for the average color of the generated pixel buffer
+                 * @return true if the given index buffer did contain a transparent index, unless the transparency parameter
+                 *     indicates that the image is opaque
+                 */
                 template <typename IndexT, typename ColorT>
-                bool indexedToRgba(const Buffer<IndexT>& indexedImage, const size_t pixelCount, Buffer<ColorT>& rgbaImage, Color& averageColor, const PaletteTransparency transparency) const {
-                    return indexedToRgba(&indexedImage[0], pixelCount, rgbaImage, averageColor, transparency);
+                bool indexedToRgba(const Buffer<IndexT>& indexedImage, const size_t pixelCount, Buffer<ColorT>& rgbaImage, const PaletteTransparency transparency, Color& averageColor) const {
+                    return indexedToRgba(&indexedImage[0], pixelCount, rgbaImage, transparency, averageColor);
                 }
-                
+
+                /**
+                 * Converts the given index buffer to an RGBA image.
+                 *
+                 * @tparam IndexT the index type
+                 * @tparam ColorT the pixel type
+                 * @param indexedImage the index buffer
+                 * @param pixelCount the number of pixels
+                 * @param rgbaImage the pixel buffer
+                 * @param transparency controls whether or not the given index buffer contains a transparent index
+                 * @param averageColor output parameter for the average color of the generated pixel buffer
+                 * @return true if the given index buffer did contain a transparent index, unless the transparency parameter
+                 *     indicates that the image is opaque
+                 */
                 template <typename IndexT, typename ColorT>
-                bool indexedToRgba(const IndexT* indexedImage, const size_t pixelCount, Buffer<ColorT>& rgbaImage, Color& averageColor, const PaletteTransparency transparency) const {
+                bool indexedToRgba(const IndexT* indexedImage, const size_t pixelCount, Buffer<ColorT>& rgbaImage, const PaletteTransparency transparency, Color& averageColor) const {
                     double avg[3];
                     avg[0] = avg[1] = avg[2] = 0.0;
                     bool hasTransparency = false;
@@ -103,14 +129,40 @@ namespace TrenchBroom {
 
             bool initialized() const;
 
+            /**
+             * Converts the given index buffer to an RGBA image.
+             *
+             * @tparam IndexT the index type
+             * @tparam ColorT the pixel type
+             * @param indexedImage the index buffer
+             * @param pixelCount the number of pixels
+             * @param rgbaImage the pixel buffer
+             * @param transparency controls whether or not the given index buffer contains a transparent index
+             * @param averageColor output parameter for the average color of the generated pixel buffer
+             * @return true if the given index buffer did contain a transparent index, unless the transparency parameter
+             *     indicates that the image is opaque
+             */
             template <typename IndexT, typename ColorT>
-            bool indexedToRgba(const Buffer<IndexT>& indexedImage, const size_t pixelCount, Buffer<ColorT>& rgbaImage, Color& averageColor, const PaletteTransparency transparency = PaletteTransparency::Opaque) const {
-                return m_data->indexedToRgba(indexedImage, pixelCount, rgbaImage, averageColor, transparency);
+            bool indexedToRgba(const Buffer<IndexT>& indexedImage, const size_t pixelCount, Buffer<ColorT>& rgbaImage, const PaletteTransparency transparency, Color& averageColor) const {
+                return m_data->indexedToRgba(indexedImage, pixelCount, rgbaImage, transparency, averageColor);
             }
-            
+
+            /**
+             * Converts the given index buffer to an RGBA image.
+             *
+             * @tparam IndexT the index type
+             * @tparam ColorT the pixel type
+             * @param indexedImage the index buffer
+             * @param pixelCount the number of pixels
+             * @param rgbaImage the pixel buffer
+             * @param transparency controls whether or not the given index buffer contains a transparent index
+             * @param averageColor output parameter for the average color of the generated pixel buffer
+             * @return true if the given index buffer did contain a transparent index, unless the transparency parameter
+             *     indicates that the image is opaque
+             */
             template <typename IndexT, typename ColorT>
-            bool indexedToRgba(const IndexT* indexedImage, const size_t pixelCount, Buffer<ColorT>& rgbaImage, Color& averageColor, const PaletteTransparency transparency = PaletteTransparency::Opaque) const {
-                return m_data->indexedToRgba(indexedImage, pixelCount, rgbaImage, averageColor, transparency);
+            bool indexedToRgba(const IndexT* indexedImage, const size_t pixelCount, Buffer<ColorT>& rgbaImage, const PaletteTransparency transparency, Color& averageColor) const {
+                return m_data->indexedToRgba(indexedImage, pixelCount, rgbaImage, transparency, averageColor);
             }
         };
     }
