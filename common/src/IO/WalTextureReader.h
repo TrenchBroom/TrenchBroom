@@ -40,7 +40,7 @@ namespace TrenchBroom {
             Assets::Texture* readQ2Wal(CharArrayReader& reader, const Path& path) const;
             Assets::Texture* readDkWal(CharArrayReader& reader, const Path& path) const;
             size_t readMipOffsets(size_t maxMipLevels, size_t offsets[], size_t width, size_t height, CharArrayReader& reader) const;
-            static void readMips(const Assets::Palette& palette, size_t mipLevels, const size_t offsets[], size_t width, size_t height, CharArrayReader& reader, Assets::TextureBuffer::List& buffers, Color& averageColor);
+            static bool readMips(const Assets::Palette& palette, size_t mipLevels, const size_t offsets[], size_t width, size_t height, CharArrayReader& reader, Assets::TextureBuffer::List& buffers, Color& averageColor, Assets::PaletteTransparency transparency);
         };
     }
 }

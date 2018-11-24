@@ -262,7 +262,7 @@ namespace TrenchBroom {
                 const auto skinGroup = readSize<int32_t>(cursor);
                 if (skinGroup == 0) {
                     Buffer<unsigned char> rgbaImage(size * 4);
-                    m_palette.indexedToRgba(cursor, size, rgbaImage, avgColor, transparency);
+                    m_palette.indexedToRgba(cursor, size, rgbaImage, transparency, avgColor);
                     cursor += size;
 
                     textureName << m_name << "_" << i;
@@ -274,7 +274,7 @@ namespace TrenchBroom {
                     Buffer<unsigned char> rgbaImage(size * 4);
                     cursor += pictureCount * 4; // skip the picture times
 
-                    m_palette.indexedToRgba(cursor, size, rgbaImage, avgColor, transparency);
+                    m_palette.indexedToRgba(cursor, size, rgbaImage, transparency, avgColor);
                     cursor += pictureCount * size; // skip all pictures
 
                     textureName << m_name << "_" << i;
