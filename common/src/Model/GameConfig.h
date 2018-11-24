@@ -91,10 +91,9 @@ namespace TrenchBroom {
                 TexturePackageConfig package;
                 PackageFormatConfig format;
                 IO::Path palette;
-                IO::Path palettefallback;
                 String attribute;
-                
-                TextureConfig(const TexturePackageConfig& i_package, const PackageFormatConfig& i_format, const IO::Path& i_palette, const IO::Path& i_palettefallback, const String& i_attribute);
+
+                TextureConfig(const TexturePackageConfig& i_package, const PackageFormatConfig& i_format, const IO::Path& i_palette, const String& i_attribute);
                 TextureConfig();
 
                 bool operator==(const TextureConfig& other) const;

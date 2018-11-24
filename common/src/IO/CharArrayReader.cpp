@@ -44,29 +44,27 @@ namespace TrenchBroom {
 
         void CharArrayReader::seekFromBegin(const size_t offset) {
             if (offset > size()) {
-                throw CharArrayReaderException("seekFromBegin: can't seek to offset " + std::to_string(offset) + " in buffer of size " + std::to_string(size()));
+                throw CharArrayReaderException("can't seek to offset " + std::to_string(offset) + " in buffer of size " + std::to_string(size()));
             }
             m_current = m_begin + offset;
         }
 
         void CharArrayReader::seekFromEnd(const size_t offset) {
             if (offset > size()) {
-                throw CharArrayReaderException("seekFromEnd: can't seek to offset " + std::to_string(offset) + " before end in buffer of size " + std::to_string(size()));
+                throw CharArrayReaderException("can't seek to offset " + std::to_string(offset) + " before end in buffer of size " + std::to_string(size()));
             }
             m_current = m_end - offset;
         }
 
         void CharArrayReader::seekForward(const size_t offset) {
             if (m_current + offset > m_end) {
-                throw CharArrayReaderException("seekForward: can't seek " + std::to_string(offset) + " bytes from current offset " + std::to_string(currentOffset()) + " in buffer of size " + std::to_string(size()));
+                throw CharArrayReaderException("can't seek " + std::to_string(offset) + " bytes from current offset " + std::to_string(currentOffset()) + " in buffer of size " + std::to_string(size()));
             }
             m_current += offset;
         }
 
         void CharArrayReader::read(char* val, const size_t readSize) {
-            if (!canRead(readSize)) {
-                throw CharArrayReaderException("read: can't read " + std::to_string(readSize) + " bytes from current offset " + std::to_string(currentOffset()) + " in buffer of size " + std::to_string(size()));
-            }
+            ensureCanRead(readSize);
             std::memcpy(val, m_current, readSize);
             m_current += readSize;
         }
@@ -77,6 +75,12 @@ namespace TrenchBroom {
 
         bool CharArrayReader::canRead(const size_t size) const {
             return static_cast<size_t>(m_end - m_current) >= size;
+        }
+
+        void CharArrayReader::ensureCanRead(const size_t readSize) const {
+            if (!canRead(readSize)) {
+                throw CharArrayReaderException("can't read " + std::to_string(readSize) + " bytes from current offset " + std::to_string(currentOffset()) + " in buffer of size " + std::to_string(size()));
+            }
         }
 
         bool CharArrayReader::eof() const {

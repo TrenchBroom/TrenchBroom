@@ -34,14 +34,18 @@ namespace TrenchBroom {
         m_palette(palette) {}
         
         Assets::Texture* WalTextureReader::doReadTexture(const char* const begin, const char* const end, const Path& path) const {
-            CharArrayReader reader(begin, end);
-            const char version = reader.readChar<char>();
-            reader.seekFromBegin(0);
+            try {
+                CharArrayReader reader(begin, end);
+                const char version = reader.readChar<char>();
+                reader.seekFromBegin(0);
 
-            if (version == 3) {
-                return readDkWal(reader, path);
-            } else {
-                return readQ2Wal(reader, path);
+                if (version == 3) {
+                    return readDkWal(reader, path);
+                } else {
+                    return readQ2Wal(reader, path);
+                }
+            } catch (const CharArrayReaderException&) {
+                return new Assets::Texture(textureName(path), 16, 16);
             }
         }
 
@@ -56,12 +60,12 @@ namespace TrenchBroom {
             const size_t height = reader.readSize<uint32_t>();
 
             if (!m_palette.initialized()) {
-                return nullptr;
+                return new Assets::Texture(textureName(name, path), width, height);
             }
 
             const auto mipLevels = readMipOffsets(MaxMipLevels, offsets, width, height, reader);
             Assets::setMipBufferSize(buffers, mipLevels, width, height, GL_RGBA);
-            readMips(m_palette, mipLevels, offsets, width, height, reader, buffers, averageColor);
+            readMips(m_palette, mipLevels, offsets, width, height, reader, buffers, averageColor, Assets::PaletteTransparency::Opaque);
 
             return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers, GL_RGBA, Assets::TextureType::Opaque);
         }
@@ -81,20 +85,15 @@ namespace TrenchBroom {
             const auto width = reader.readSize<uint32_t>();
             const auto height = reader.readSize<uint32_t>();
 
-            if (!m_palette.initialized()) {
-                return nullptr;
-            }
-
             const auto mipLevels = readMipOffsets(MaxMipLevels, offsets, width, height, reader);
             Assets::setMipBufferSize(buffers, mipLevels, width, height, GL_RGBA);
 
             reader.seekForward(32 + 2 * sizeof(uint32_t)); // animation name, flags, contents
             assert(reader.canRead(3 * 256));
 
-            const auto palette = Assets::Palette::fromRaw(3 * 256, reader.cur<unsigned char>());
-            readMips(palette, mipLevels, offsets, width, height, reader, buffers, averageColor);
-
-            return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers, GL_RGBA, Assets::TextureType::Opaque);
+            const auto embeddedPalette = Assets::Palette::fromRaw(3 * 256, reader.cur<unsigned char>());
+            const auto hasTransparency = readMips(embeddedPalette, mipLevels, offsets, width, height, reader, buffers, averageColor, Assets::PaletteTransparency::Index255Transparent);
+            return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers, GL_RGBA, hasTransparency ? Assets::TextureType::Masked : Assets::TextureType::Opaque);
         }
 
         size_t WalTextureReader::readMipOffsets(const size_t maxMipLevels, size_t offsets[], const size_t width, const size_t height, CharArrayReader& reader) const {
@@ -113,9 +112,10 @@ namespace TrenchBroom {
             return mipLevels;
         }
 
-        void WalTextureReader::readMips(const Assets::Palette& palette, const size_t mipLevels, const size_t offsets[], const size_t width, const size_t height, CharArrayReader& reader, Assets::TextureBuffer::List& buffers, Color& averageColor) {
+        bool WalTextureReader::readMips(const Assets::Palette& palette, const size_t mipLevels, const size_t offsets[], const size_t width, const size_t height, CharArrayReader& reader, Assets::TextureBuffer::List& buffers, Color& averageColor, const Assets::PaletteTransparency transparency) {
             static Color tempColor;
 
+            auto hasTransparency = false;
             for (size_t i = 0; i < mipLevels; ++i) {
                 const auto offset = offsets[i];
                 reader.seekFromBegin(offset);
@@ -128,14 +128,15 @@ namespace TrenchBroom {
                 // FIXME: Corrupt or missing mips should be deleted, rather than uploaded with garbage.
                 if (!reader.canRead(size)) {
                     std::cerr << "WalTextureReader::readMips: buffer overrun\n";
-                    return;
+                    return false;
                 }
 
-                palette.indexedToRgba(data, size, buffers[i], tempColor);
+                hasTransparency |= (palette.indexedToRgba(data, size, buffers[i], transparency, tempColor) && i == 0);
                 if (i == 0) {
                     averageColor = tempColor;
                 }
             }
+            return hasTransparency;
         }
     }
 }
