@@ -43,9 +43,7 @@ namespace TrenchBroom {
             
             for (auto file : doFindTextures(path, textureExtensions)) {
                 auto* texture = textureReader.readTexture(file->begin(), file->end(), file->path());
-                if (texture != nullptr) {
-                    collection->addTexture(texture);
-                }
+                collection->addTexture(texture);
             }
             
             return collection.release();

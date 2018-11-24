@@ -183,16 +183,20 @@ namespace TrenchBroom {
                 glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
                 glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
 
-                // Quake fence textures tend to have nonsense mipmaps
-                // Also generate mipmaps if we don't have any
-                const auto generateMipmaps = (m_type == TextureType::Masked) || (m_buffers.size() == 1);
-                if (generateMipmaps) {
+                if (m_buffers.size() == 1) {
+                    // generate mipmaps if we don't have any
                     glAssert(glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE));
+                } else if (m_type == TextureType::Masked) {
+                    // masked textures don't work well with mipmaps, so we force GL_NEAREST filtering and don't generate any
+                    glAssert(glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE));
+                    glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+                    glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
                 } else {
                     glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, static_cast<GLint>(m_buffers.size() - 1)));
                 }
 
-                const auto mipmapsToUpload = generateMipmaps ? 1u : m_buffers.size();
+                // Upload only the first mipmap for masked textures.
+                const auto mipmapsToUpload = (m_type == TextureType::Masked) ? 1u : m_buffers.size();
 
                 for (size_t j = 0; j < mipmapsToUpload; ++j) {
                     const auto mipSize = sizeAtMipLevel(m_width, m_height, j);
@@ -212,8 +216,14 @@ namespace TrenchBroom {
         void Texture::setMode(const int minFilter, const int magFilter) {
             if (isPrepared()) {
                 activate();
-                glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter));
-                glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter));
+                if (m_type == TextureType::Masked) {
+                    // Force GL_NEAREST filtering for masked textures.
+                    glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+                    glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+                } else {
+                    glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter));
+                    glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter));
+                }
                 deactivate();
             }
         }

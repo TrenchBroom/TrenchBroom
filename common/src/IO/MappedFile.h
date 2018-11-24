@@ -25,6 +25,7 @@
 #include "IO/Path.h"
 
 #include <istream>
+#include <memory>
 #include <vector>
 
 #ifdef _WIN32
@@ -64,9 +65,10 @@ namespace TrenchBroom {
         };
         
         class MappedFileBuffer : public MappedFile {
+        private:
+            std::unique_ptr<char[]> m_buffer;
         public:
-            MappedFileBuffer(const Path& path, const char* begin, size_t size);
-            ~MappedFileBuffer();
+            MappedFileBuffer(const Path& path, std::unique_ptr<char[]> buffer, size_t size);
         };
 
 #ifdef _WIN32

@@ -34,7 +34,6 @@ namespace TrenchBroom {
         
         class FileSystem {
         public:
-        public:
             FileSystem();
             FileSystem(const FileSystem& other);
             virtual ~FileSystem();
