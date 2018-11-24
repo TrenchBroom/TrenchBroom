@@ -27,8 +27,6 @@
 #include "View/MapViewBase.h"
 #include "View/ViewTypes.h"
 
-#include <wx/timer.h>
-
 namespace TrenchBroom {
     class Logger;
 
@@ -46,7 +44,6 @@ namespace TrenchBroom {
         class MapView3D : public MapViewBase {
         private:
             Renderer::PerspectiveCamera m_camera;
-            wxTimer m_flyModeTimer;
             FlyModeHelper* m_flyModeHelper;
             bool m_ignoreCameraChangeEvents;
         public:
@@ -63,7 +60,7 @@ namespace TrenchBroom {
         private: // interaction events
             void bindEvents();
 
-            void OnFlyModeTimer(wxTimerEvent& event);
+            void OnIdle(wxIdleEvent& event);
 
             void OnKeyDown(wxKeyEvent& event);
             void OnKeyUp(wxKeyEvent& event);
