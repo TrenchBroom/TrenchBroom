@@ -9,17 +9,20 @@
 - Generally, the cmake scripts don't handle paths with spaces very well, so make sure that you check out the TrenchBroom source repository somewhere on a path without any spaces.
 - For Visual Studio:
     - VS2017 is required. The community edition works fine.
-    - For VS2017, in the Visual Studio Installer, in the "Individual Components" tab, under the "Compilers, Build Tools, and Runtimes" heading, select the following components:
-      - VC++ 2017 v141 toolset for desktop (x86,x64)
-      - Windows XP support for C++
-
+    - In the Visual Studio Installer, you'll need to install:
+      - Workloads 
+        - **Desktop development with C++**
+      - Individual components
+        - **VC++ 2017 version 15.9 v14.16 latest v141 tools**
+        - **Windows Universal CRT SDK**
+        - **Windows XP support for C++**
     - Download the following wxWidgets binary packages:
         - [wxWidgets-3.1.1-headers.7z](https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxWidgets-3.1.1-headers.7z)
         - [wxMSW-3.1.1_vc141_Dev.7z](https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxMSW-3.1.1_vc141_Dev.7z)
         - [wxMSW-3.1.1_vc141_ReleaseDLL.7z](https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxMSW-3.1.1_vc141_ReleaseDLL.7z)
         - [wxMSW-3.1.1_vc141_ReleasePDB.7z](https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxMSW-3.1.1_vc141_ReleasePDB.7z)
 
-    - Unpack all files into `c:\wxWidgets-<version>` so that `include` and `lib` directories are at the same level after unpacking.
+    - Unpack all files into `<TrenchBroom directory>\wxWidgets-<version>` so that `include` and `lib` directories are at the same level after unpacking.
     - The directory layout should look like this:
 
       ```
@@ -34,26 +37,21 @@
             <wxwidgets libraries>
       ```
 
-    - Set a new environment variable `WXWIN=C:\wxWidgets-<version>` (replace the path with the path where you unpacked wxWidgets).
-    - If you want to run the binaries without using the installer, add `%WXWIN%\lib\vc141_dll` to your path. The relevant parts of my `PATH` variable look something like this:
-
-      ```
-      C:\Program Files (x86)\CMake 2.8\bin;c:\wxWidgets-3.1.1\lib\vc141_dll;
-      ```
-
   - Download and install [CMake](http://www.cmake.org) for Windows
   - Open a command prompt and change into the directory where you unpacked the TrenchBroom sources.
   - Create a new directory, e.g. "build", and change into it.
   - Run the following two commands
 
     ```
-    cmake .. -T v141_xp -DCMAKE_BUILD_TYPE=Release
+    cmake .. -T v141_xp -DCMAKE_BUILD_TYPE=Release -DwxWidgets_ROOT_DIR=%cd%/../wxWidgets-3.1.1
     cmake --build . --config Release --target TrenchBroom
     ```
 
     The `-T` option selects the "platform toolset" for the Visual Studio generator, which determines which C++ compiler and runtime the project will use. `v141_xp` is the _Visual Studio 2017_ runtime, with compatibility down to Windows XP. TrenchBroom releases and CI builds use `v141_xp`; earlier versions won't be able to compile TrenchBroom.
 
     You can replace "Release" with "Debug" if you want to create a debug build. This is also recommended if you want to work on the source in Visual Studio.
+
+  - **Note:** due to current limitations of the TrenchBroom build system, you must specify CMAKE_BUILD_TYPE when invoking cmake, and can't change between Release and Debug from Visual Studio
 
 ## Linux
 ### Dependencies

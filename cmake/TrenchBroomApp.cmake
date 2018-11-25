@@ -226,6 +226,12 @@ IF(WIN32)
         WX_LIB_TO_DLL(${WX_gl}   _${WX_LIB_DIR_PREFIX} WIN_LIB_WX_gl)
     ENDIF()
     
+    # Copy wxWidgets DLLs to app directory (not actually related to CPack but uses the WIN_LIB_WX_* variables from above)
+    ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${WIN_LIB_WX_core} $<TARGET_FILE_DIR:TrenchBroom>)
+    ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${WIN_LIB_WX_base} $<TARGET_FILE_DIR:TrenchBroom>)
+    ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${WIN_LIB_WX_adv} $<TARGET_FILE_DIR:TrenchBroom>)
+    ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${WIN_LIB_WX_gl} $<TARGET_FILE_DIR:TrenchBroom>)
+
     # Copy PDB files (msvc debug symbols)
     IF(COMPILER_IS_MSVC)
         IF(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
