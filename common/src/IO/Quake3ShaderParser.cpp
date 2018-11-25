@@ -45,6 +45,7 @@ namespace TrenchBroom {
                     case '\r':
                     case ' ':
                     case '\t':
+                        advance();
                         break;
                     case '/':
                         if (lookAhead() == '/') {
@@ -87,12 +88,13 @@ namespace TrenchBroom {
             if (m_tokenizer.peekToken().hasType(Quake3ShaderToken::Eof)) {
                 return "";
             }
+            parseTexture();
             return parseBlock();
         }
 
         String Quake3ShaderParser::parseBlock() {
-            expect(Quake3ShaderToken::OBrace, m_tokenizer.nextToken());
-            auto token = m_tokenizer.peekToken();
+            expect(Quake3ShaderToken::OBrace, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
+            auto token = m_tokenizer.peekToken(Quake3ShaderToken::Eol);
             expect(Quake3ShaderToken::CBrace | Quake3ShaderToken::OBrace | Quake3ShaderToken::String, token);
 
             while (!token.hasType(Quake3ShaderToken::CBrace)) {
@@ -107,13 +109,19 @@ namespace TrenchBroom {
                         return result;
                     }
                 }
+                token = m_tokenizer.peekToken(Quake3ShaderToken::Eol);
             }
-            expect(Quake3ShaderToken::CBrace, m_tokenizer.nextToken());
+            expect(Quake3ShaderToken::CBrace, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
             return "";
         }
 
+        String Quake3ShaderParser::parseTexture() {
+            const auto token = expect(Quake3ShaderToken::String, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
+            return token.data();
+        }
+
         String Quake3ShaderParser::parseEntry() {
-            auto token = m_tokenizer.nextToken();
+            auto token = m_tokenizer.nextToken(Quake3ShaderToken::Eol);
             expect(Quake3ShaderToken::String, token);
             const auto key = token.data();
             if (key == "qer_editorimage") {

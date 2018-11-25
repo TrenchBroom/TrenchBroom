@@ -99,7 +99,7 @@ namespace TrenchBroom {
             };
 
             StatePtr m_state;
-            
+
             template <typename T> friend class Tokenizer;
         public:
             static const String& Whitespace() {

@@ -62,6 +62,7 @@ namespace TrenchBroom {
              */
             String parse();
         private:
+            String parseTexture();
             String parseBlock();
             String parseEntry();
         private:
