@@ -20,6 +20,7 @@
 #ifndef TRENCHBROOM_Q3SHADERPARSER_H
 #define TRENCHBROOM_Q3SHADERPARSER_H
 
+#include "IO/Parser.h"
 #include "IO/Token.h"
 #include "IO/Tokenizer.h"
 
@@ -45,12 +46,26 @@ namespace TrenchBroom {
             Token emitToken() override;
         };
 
-        class Quake3ShaderParser :  public Parser<Quake3ShaderToken::Type> {
+        class Quake3ShaderParser : public Parser<Quake3ShaderToken::Type> {
         private:
             Quake3ShaderTokenizer m_tokenizer;
         public:
             Quake3ShaderParser(const char* begin, const char* end);
             Quake3ShaderParser(const String& str);
+
+            /**
+             * Parses a Quake 3 shader and returns the value of the qer_editorimage entry.
+             *
+             * @return the value of the qer_editorimage entry or an empty string if no such value was found
+             *
+             * @throws ParserException if the shader is not well-formed
+             */
+            String parse();
+        private:
+            String parseBlock();
+            String parseEntry();
+        private:
+            TokenNameMap tokenNames() const override;
         };
     }
 }

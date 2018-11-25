@@ -29,9 +29,9 @@ namespace TrenchBroom {
 
         Tokenizer<unsigned int>::Token Quake3ShaderTokenizer::emitToken() {
             while (!eof()) {
-                size_t startLine = line();
-                size_t startColumn = column();
-                const char* c = curPos();
+                const auto startLine = line();
+                const auto startColumn = column();
+                const auto* c = curPos();
                 switch (*c) {
                     case '{':
                         advance();
@@ -55,10 +55,13 @@ namespace TrenchBroom {
                         // fall through into the default case to parse a string that starts with '/'
                         switchFallthrough();
                     case '$':
-                        // fall through into the default case to parse a variable name
-                        switchFallthrough();
+                        e = readUntil(Whitespace());
+                        if (e == nullptr) {
+                            throw ParserException(startLine, startColumn, "Unexpected character: " + String(c, 1));
+                        }
+                        return Token(Quake3ShaderToken::Variable, c, e, offset(c), startLine, startColumn);
                     default:
-                        e = readDecimal(Whitespace());
+                        auto e = readDecimal(Whitespace());
                         if (e != nullptr) {
                             return Token(Quake3ShaderToken::Number, c, e, offset(c), startLine, startColumn);
                         }
@@ -70,6 +73,7 @@ namespace TrenchBroom {
                         return Token(Quake3ShaderToken::String, c, e, offset(c), startLine, startColumn);
                 }
             }
+            return Token(Quake3ShaderToken::Eof, nullptr, nullptr, length(), line(), column());
         }
 
         Quake3ShaderParser::Quake3ShaderParser(const char* begin, const char* end) :
@@ -77,5 +81,61 @@ namespace TrenchBroom {
 
         Quake3ShaderParser::Quake3ShaderParser(const String& str) :
         m_tokenizer(str) {}
+
+        String Quake3ShaderParser::parse() {
+            if (m_tokenizer.peekToken().hasType(Quake3ShaderToken::Eof)) {
+                return "";
+            }
+            return parseBlock();
+        }
+
+        String Quake3ShaderParser::parseBlock() {
+            expect(Quake3ShaderToken::OBrace, m_tokenizer.nextToken());
+            auto token = m_tokenizer.peekToken();
+            expect(Quake3ShaderToken::CBrance | Quake3ShaderToken::OBrace | Quake3ShaderToken::String, token);
+
+            while (!token.hasType(Quake3ShaderToken::CBrace)) {
+                if (token.hasType(Quake3ShaderToken::OBrace)) {
+                    const auto result = parseBlock();
+                    if (!result.empty()) {
+                        return result;
+                    }
+                } else {
+                    const auto result = parseEntry();
+                    if (!result.empty()) {
+                        return result;
+                    }
+                }
+            }
+            expect(Quake3ShaderToken::CBrace, m_tokenizer.nextToken());
+        }
+
+        String Quake3ShaderParser::parseEntry() {
+            auto token = m_tokenizer.nextToken();
+            expect(Quake3ShaderToken::String, token);
+            const auto key = token.data();
+            if (key == "qer_editorimage") {
+                token = m_tokenizer.nextToken();
+                expect(Quake3ShaderToken::String, token);
+                return token.data();
+            } else {
+                while (!m_tokenizer.nextToken().hasType(Quake3ShaderToken::Eol));
+            }
+
+            return "";
+        }
+
+        Quake3ShaderParser::TokenNameMap Quake3ShaderParser::tokenNames() const {
+            TokenNameMap result;
+            result[Quake3ShaderToken::Number]   = "number";
+            result[Quake3ShaderToken::String]   = "string";
+            result[Quake3ShaderToken::Variable] = "variable";
+            result[Quake3ShaderToken::OBrace]   = "'{'";
+            result[Quake3ShaderToken::CBrace]   = "'}'";
+            result[Quake3ShaderToken::Comment]  = "comment";
+            result[Quake3ShaderToken::Eol]      = "end of line";
+            result[Quake3ShaderToken::Eof]      = "end of file";
+            return result;
+        }
     }
 }
