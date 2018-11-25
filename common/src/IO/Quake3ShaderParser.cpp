@@ -54,14 +54,15 @@ namespace TrenchBroom {
                         }
                         // fall through into the default case to parse a string that starts with '/'
                         switchFallthrough();
-                    case '$':
-                        e = readUntil(Whitespace());
+                    case '$': {
+                        const auto* e = readUntil(Whitespace());
                         if (e == nullptr) {
                             throw ParserException(startLine, startColumn, "Unexpected character: " + String(c, 1));
                         }
                         return Token(Quake3ShaderToken::Variable, c, e, offset(c), startLine, startColumn);
+                    }
                     default:
-                        auto e = readDecimal(Whitespace());
+                        auto* e = readDecimal(Whitespace());
                         if (e != nullptr) {
                             return Token(Quake3ShaderToken::Number, c, e, offset(c), startLine, startColumn);
                         }
@@ -92,7 +93,7 @@ namespace TrenchBroom {
         String Quake3ShaderParser::parseBlock() {
             expect(Quake3ShaderToken::OBrace, m_tokenizer.nextToken());
             auto token = m_tokenizer.peekToken();
-            expect(Quake3ShaderToken::CBrance | Quake3ShaderToken::OBrace | Quake3ShaderToken::String, token);
+            expect(Quake3ShaderToken::CBrace | Quake3ShaderToken::OBrace | Quake3ShaderToken::String, token);
 
             while (!token.hasType(Quake3ShaderToken::CBrace)) {
                 if (token.hasType(Quake3ShaderToken::OBrace)) {
@@ -108,6 +109,7 @@ namespace TrenchBroom {
                 }
             }
             expect(Quake3ShaderToken::CBrace, m_tokenizer.nextToken());
+            return "";
         }
 
         String Quake3ShaderParser::parseEntry() {
