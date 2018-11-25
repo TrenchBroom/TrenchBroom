@@ -22,10 +22,14 @@
         - [wxMSW-3.1.1_vc141_ReleaseDLL.7z](https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxMSW-3.1.1_vc141_ReleaseDLL.7z)
         - [wxMSW-3.1.1_vc141_ReleasePDB.7z](https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxMSW-3.1.1_vc141_ReleasePDB.7z)
 
-    - Unpack all files into `<TrenchBroom directory>\wxWidgets-<version>` so that `include` and `lib` directories are at the same level after unpacking.
+    - Unpack the 4 wxWidgets archives into a `wxWidgets-<version>` directory next to your `TrenchBroom` directory
     - The directory layout should look like this:
 
       ```
+      TrenchBroom
+        \app
+        \benchmark
+        <other subdirectories and files>
       wxWidgets-3.1.1
         \include
             \msvc
@@ -43,7 +47,7 @@
   - Run the following two commands
 
     ```
-    cmake .. -T v141_xp -DCMAKE_BUILD_TYPE=Release -DwxWidgets_ROOT_DIR=%cd%/../wxWidgets-3.1.1
+    cmake .. -T v141_xp -DCMAKE_BUILD_TYPE=Release -DwxWidgets_ROOT_DIR=%cd%/../../wxWidgets-3.1.1
     cmake --build . --config Release --target TrenchBroom
     ```
 
