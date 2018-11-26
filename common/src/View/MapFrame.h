@@ -194,6 +194,7 @@ namespace TrenchBroom {
 
             void OnEditToggleTextureLock(wxCommandEvent& event);
             wxBitmap textureLockBitmap();
+            void OnEditToggleUVLock(wxCommandEvent& event);
 
             void OnEditSnapVerticesToInteger(wxCommandEvent& event);
             void OnEditSnapVerticesToGrid(wxCommandEvent& event);

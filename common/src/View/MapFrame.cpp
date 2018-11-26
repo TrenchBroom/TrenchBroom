@@ -735,6 +735,7 @@ namespace TrenchBroom {
             
             Bind(wxEVT_MENU, &MapFrame::OnEditReplaceTexture, this, CommandIds::Menu::EditReplaceTexture);
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleTextureLock, this, CommandIds::Menu::EditToggleTextureLock);
+            Bind(wxEVT_MENU, &MapFrame::OnEditToggleUVLock, this, CommandIds::Menu::EditToggleUVLock);
             Bind(wxEVT_MENU, &MapFrame::OnEditSnapVerticesToInteger, this, CommandIds::Menu::EditSnapVerticesToInteger);
             Bind(wxEVT_MENU, &MapFrame::OnEditSnapVerticesToGrid, this, CommandIds::Menu::EditSnapVerticesToGrid);
 
@@ -1214,6 +1215,13 @@ namespace TrenchBroom {
             return IO::loadImageResource("TextureLockOff.png");
         }
 
+        void MapFrame::OnEditToggleUVLock(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            PreferenceManager::instance().set(Preferences::UVLock, !pref(Preferences::UVLock));
+            PreferenceManager::instance().saveChanges();
+        }
+
         void MapFrame::OnEditSnapVerticesToInteger(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             
@@ -1678,6 +1686,10 @@ namespace TrenchBroom {
                 case CommandIds::Menu::EditToggleTextureLock:
                     event.Enable(true);
                     event.Check(pref(Preferences::TextureLock));
+                    break;
+                case CommandIds::Menu::EditToggleUVLock:
+                    event.Enable(true);
+                    event.Check(pref(Preferences::UVLock));
                     break;
                 case CommandIds::Menu::ViewToggleShowGrid:
                     event.Enable(true);

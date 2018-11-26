@@ -240,6 +240,7 @@ namespace TrenchBroom {
             editMenu->addModifiableActionItem(CommandIds::Menu::EditSnapVerticesToGrid, "Snap Vertices to Grid", KeyboardShortcut('V', WXK_SHIFT, WXK_CONTROL, WXK_ALT));
             editMenu->addSeparator();
             editMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleTextureLock, "Texture Lock");
+            editMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleUVLock, "UV Lock", KeyboardShortcut('U'));
             editMenu->addModifiableActionItem(CommandIds::Menu::EditReplaceTexture, "Replace Texture...");
             
             Menu* viewMenu = m_menuBar->addMenu("View");
@@ -348,8 +349,6 @@ namespace TrenchBroom {
             createViewShortcut(KeyboardShortcut(WXK_PAGEDOWN), ActionContext_AnyVertexTool,
                                Action(View::CommandIds::Actions::MoveVerticesForward, "Move vertices forward", true),
                                Action(View::CommandIds::Actions::MoveVerticesDown, "Move vertices down", true));
-            createViewShortcut(KeyboardShortcut('U'), ActionContext_AnyVertexTool,
-                               Action(View::CommandIds::Actions::ToggleUVLock, "Toggle UV lock", true));
 
             createViewShortcut(KeyboardShortcut(WXK_UP), ActionContext_RotateTool,
                                Action(View::CommandIds::Actions::MoveRotationCenterUp, "Move rotation center up", true),
