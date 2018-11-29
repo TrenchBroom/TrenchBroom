@@ -25,6 +25,10 @@
 #include "IO/Tokenizer.h"
 
 namespace TrenchBroom {
+    namespace Assets {
+        class Quake3Shader;
+    }
+
     namespace IO {
         namespace Quake3ShaderToken {
             typedef unsigned int Type;
@@ -60,11 +64,11 @@ namespace TrenchBroom {
              *
              * @throws ParserException if the shader is not well-formed
              */
-            String parse();
+            Assets::Quake3Shader parse();
         private:
-            String parseTexture();
-            String parseBlock();
-            String parseEntry();
+            void parseTexture(Assets::Quake3Shader& shader);
+            void parseBlock(Assets::Quake3Shader& shader);
+            void parseEntry(Assets::Quake3Shader& shader);
         private:
             TokenNameMap tokenNames() const override;
         };

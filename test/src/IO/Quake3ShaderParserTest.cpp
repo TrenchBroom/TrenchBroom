@@ -20,25 +20,28 @@
 #include <gtest/gtest.h>
 
 #include "StringUtils.h"
+#include "Assets/Quake3Shader.h"
 #include "IO/Quake3ShaderParser.h"
 
 namespace TrenchBroom {
     namespace IO {
         TEST(Quake3ShaderParserTest, parseEmptyShader) {
-            Quake3ShaderParser parser("");
-            ASSERT_EQ(String(), parser.parse());
+            const String data("");
+            Quake3ShaderParser parser(data);
+            ASSERT_EQ(Assets::Quake3Shader(), parser.parse());
         }
 
         TEST(Quake3ShaderParserTest, parseShaderWithEmptyBlock) {
-            Quake3ShaderParser parser(R"(
+            const String data(R"(
 textures/liquids/lavahell2 //path and name of new texture
 {}
 )");
-            ASSERT_EQ(String(), parser.parse());
+            Quake3ShaderParser parser(data);
+            ASSERT_EQ(Assets::Quake3Shader(IO::Path("textures/liquids/lavahell2"), IO::Path()), parser.parse());
         }
 
         TEST(Quake3ShaderParserTest, parseSimpleShaderWithoutEditorImage) {
-            Quake3ShaderParser parser(R"(
+            const String data(R"(
 textures/liquids/lavahell2 //path and name of new texture
 {
 
@@ -69,11 +72,12 @@ textures/liquids/lavahell2 //path and name of new texture
     }
 
 })");
-            ASSERT_EQ(String(""), parser.parse());
+            Quake3ShaderParser parser(data);
+            ASSERT_EQ(Assets::Quake3Shader(IO::Path("textures/liquids/lavahell2"), IO::Path()), parser.parse());
         }
 
         TEST(Quake3ShaderParserTest, parseSimpleShaderWithEditorImage) {
-            Quake3ShaderParser parser(R"(
+            const String data(R"(
 textures/liquids/lavahell2 //path and name of new texture
 {
 
@@ -105,12 +109,12 @@ textures/liquids/lavahell2 //path and name of new texture
     }
 
 })");
-            ASSERT_EQ(String("textures/eerie/lavahell.tga"), parser.parse());
+            Quake3ShaderParser parser(data);
+            ASSERT_EQ(Assets::Quake3Shader(IO::Path("textures/liquids/lavahell2"), IO::Path("textures/eerie/lavahell.tga")), parser.parse());
         }
 
-
         TEST(Quake3ShaderParserTest, parseComplexShaderWithEditorImage) {
-            Quake3ShaderParser parser(R"(
+            const String data(R"(
 textures/eerie/ironcrosslt2_10000
 {
 
@@ -142,7 +146,8 @@ textures/eerie/ironcrosslt2_10000
     }
 
 }})");
-            ASSERT_EQ(String("textures/gothic_light/ironcrosslt2.tga"), parser.parse());
+            Quake3ShaderParser parser(data);
+            ASSERT_EQ(Assets::Quake3Shader(IO::Path("textures/eerie/ironcrosslt2_10000"), IO::Path("textures/gothic_light/ironcrosslt2.tga")), parser.parse());
         }
     }
 }

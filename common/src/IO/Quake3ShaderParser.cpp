@@ -19,6 +19,8 @@
 
 #include "Quake3ShaderParser.h"
 
+#include "Assets/Quake3Shader.h"
+
 namespace TrenchBroom {
     namespace IO {
         Quake3ShaderTokenizer::Quake3ShaderTokenizer(const char* begin, const char* end) :
@@ -84,55 +86,48 @@ namespace TrenchBroom {
         Quake3ShaderParser::Quake3ShaderParser(const String& str) :
         m_tokenizer(str) {}
 
-        String Quake3ShaderParser::parse() {
+        Assets::Quake3Shader Quake3ShaderParser::parse() {
+            Assets::Quake3Shader result;
             if (m_tokenizer.peekToken().hasType(Quake3ShaderToken::Eof)) {
-                return "";
+                return result;
             }
-            parseTexture();
-            return parseBlock();
+            parseTexture(result);
+            parseBlock(result);
+            return result;
         }
 
-        String Quake3ShaderParser::parseBlock() {
+        void Quake3ShaderParser::parseBlock(Assets::Quake3Shader& shader) {
             expect(Quake3ShaderToken::OBrace, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
             auto token = m_tokenizer.peekToken(Quake3ShaderToken::Eol);
             expect(Quake3ShaderToken::CBrace | Quake3ShaderToken::OBrace | Quake3ShaderToken::String, token);
 
             while (!token.hasType(Quake3ShaderToken::CBrace)) {
                 if (token.hasType(Quake3ShaderToken::OBrace)) {
-                    const auto result = parseBlock();
-                    if (!result.empty()) {
-                        return result;
-                    }
+                    parseBlock(shader);
                 } else {
-                    const auto result = parseEntry();
-                    if (!result.empty()) {
-                        return result;
-                    }
+                    parseEntry(shader);
                 }
                 token = m_tokenizer.peekToken(Quake3ShaderToken::Eol);
             }
             expect(Quake3ShaderToken::CBrace, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
-            return "";
         }
 
-        String Quake3ShaderParser::parseTexture() {
+        void Quake3ShaderParser::parseTexture(Assets::Quake3Shader& shader) {
             const auto token = expect(Quake3ShaderToken::String, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
-            return token.data();
+            shader.texturePath = Path(token.data());
         }
 
-        String Quake3ShaderParser::parseEntry() {
+        void Quake3ShaderParser::parseEntry(Assets::Quake3Shader& shader) {
             auto token = m_tokenizer.nextToken(Quake3ShaderToken::Eol);
             expect(Quake3ShaderToken::String, token);
             const auto key = token.data();
             if (key == "qer_editorimage") {
                 token = m_tokenizer.nextToken();
                 expect(Quake3ShaderToken::String, token);
-                return token.data();
+                shader.qerImagePath = Path(token.data());
             } else {
                 while (!m_tokenizer.nextToken().hasType(Quake3ShaderToken::Eol));
             }
-
-            return "";
         }
 
         Quake3ShaderParser::TokenNameMap Quake3ShaderParser::tokenNames() const {
