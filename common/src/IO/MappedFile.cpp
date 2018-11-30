@@ -48,6 +48,10 @@ namespace TrenchBroom {
             return m_path;
         }
 
+        void MappedFile::setPath(const Path& path) {
+            m_path = path;
+        }
+
         size_t MappedFile::size() const {
             return static_cast<size_t>(m_end - m_begin);
         }

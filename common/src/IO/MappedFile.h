@@ -49,6 +49,8 @@ namespace TrenchBroom {
             virtual ~MappedFile();
             
             const Path& path() const;
+            void setPath(const Path& path);
+
             size_t size() const;
             const char* begin() const;
             const char* end() const;
