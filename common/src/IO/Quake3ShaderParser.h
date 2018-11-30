@@ -64,7 +64,7 @@ namespace TrenchBroom {
              *
              * @throws ParserException if the shader is not well-formed
              */
-            Assets::Quake3Shader parse();
+            std::vector<Assets::Quake3Shader> parse();
         private:
             void parseTexture(Assets::Quake3Shader& shader);
             void parseBlock(Assets::Quake3Shader& shader);

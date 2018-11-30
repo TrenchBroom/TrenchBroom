@@ -28,19 +28,23 @@ namespace TrenchBroom {
         TEST(Quake3ShaderParserTest, parseEmptyShader) {
             const String data("");
             Quake3ShaderParser parser(data);
-            ASSERT_EQ(Assets::Quake3Shader(), parser.parse());
+            const auto expected = std::vector<Assets::Quake3Shader> {};
+            ASSERT_EQ(expected, parser.parse());
         }
 
-        TEST(Quake3ShaderParserTest, parseShaderWithEmptyBlock) {
+        TEST(Quake3ShaderParserTest, parseSingleShaderWithEmptyBlock) {
             const String data(R"(
 textures/liquids/lavahell2 //path and name of new texture
 {}
 )");
+            const auto expected = std::vector<Assets::Quake3Shader>{
+                Assets::Quake3Shader(IO::Path("textures/liquids/lavahell2"), IO::Path())
+            };
             Quake3ShaderParser parser(data);
-            ASSERT_EQ(Assets::Quake3Shader(IO::Path("textures/liquids/lavahell2"), IO::Path()), parser.parse());
+            ASSERT_EQ(expected, parser.parse());
         }
 
-        TEST(Quake3ShaderParserTest, parseSimpleShaderWithoutEditorImage) {
+        TEST(Quake3ShaderParserTest, parseSingleSimpleShaderWithoutEditorImage) {
             const String data(R"(
 textures/liquids/lavahell2 //path and name of new texture
 {
@@ -72,11 +76,14 @@ textures/liquids/lavahell2 //path and name of new texture
     }
 
 })");
+            const auto expected = std::vector<Assets::Quake3Shader>{
+                Assets::Quake3Shader(IO::Path("textures/liquids/lavahell2"), IO::Path())
+            };
             Quake3ShaderParser parser(data);
-            ASSERT_EQ(Assets::Quake3Shader(IO::Path("textures/liquids/lavahell2"), IO::Path()), parser.parse());
+            ASSERT_EQ(expected, parser.parse());
         }
 
-        TEST(Quake3ShaderParserTest, parseSimpleShaderWithEditorImage) {
+        TEST(Quake3ShaderParserTest, parseSingleSimpleShaderWithEditorImage) {
             const String data(R"(
 textures/liquids/lavahell2 //path and name of new texture
 {
@@ -109,11 +116,14 @@ textures/liquids/lavahell2 //path and name of new texture
     }
 
 })");
+            const auto expected = std::vector<Assets::Quake3Shader>{
+                Assets::Quake3Shader(IO::Path("textures/liquids/lavahell2"), IO::Path("textures/eerie/lavahell.tga"))
+            };
             Quake3ShaderParser parser(data);
-            ASSERT_EQ(Assets::Quake3Shader(IO::Path("textures/liquids/lavahell2"), IO::Path("textures/eerie/lavahell.tga")), parser.parse());
+            ASSERT_EQ(expected, parser.parse());
         }
 
-        TEST(Quake3ShaderParserTest, parseComplexShaderWithEditorImage) {
+        TEST(Quake3ShaderParserTest, parseSingleComplexShaderWithEditorImage) {
             const String data(R"(
 textures/eerie/ironcrosslt2_10000
 {
@@ -145,9 +155,88 @@ textures/eerie/ironcrosslt2_10000
     blendFunc add
     }
 
-}})");
+})");
+            const auto expected = std::vector<Assets::Quake3Shader>{
+                    Assets::Quake3Shader(IO::Path("textures/eerie/ironcrosslt2_10000"), IO::Path("textures/gothic_light/ironcrosslt2.tga"))
+            };
             Quake3ShaderParser parser(data);
-            ASSERT_EQ(Assets::Quake3Shader(IO::Path("textures/eerie/ironcrosslt2_10000"), IO::Path("textures/gothic_light/ironcrosslt2.tga")), parser.parse());
+            ASSERT_EQ(expected, parser.parse());
+        }
+
+        TEST(Quake3ShaderParserTest, parseTwoShaders) {
+            const String data(R"(
+textures/eerie/ironcrosslt2_10000
+{
+
+    q3map_lightimage textures/gothic_light/ironcrosslt2.blend.tga
+    // this TGA is the source for the color of the blended light
+
+    qer_editorimage textures/gothic_light/ironcrosslt2.tga
+    //base TGA (used because the shader is used with several
+    // different light values
+
+    q3map_surfacelight 10000
+    //emitted light value of 10,000
+
+    {
+    map $lightmap
+    //source texture is affected by the lightmap
+    rgbGen identity
+    // this command handles the overbright bits created by "sunlight"
+    // in the game
+    }
+    {
+    map textures/gothic_light/ironcrosslt2.tga
+    blendFunc filter
+    rgbGen identity
+    }
+    {
+    map textures/gothic_light/ironcrosslt2.blend.tga
+    blendFunc add
+    }
+
+}
+
+textures/liquids/lavahell2 //path and name of new texture
+{
+
+    qer_editorimage textures/eerie/lavahell.tga
+    //based on this
+    qer_nocarve
+    //cannot be cut by CSG subtract
+    surfaceparm noimpact
+    //projectiles do not hit it
+    surfaceparm lava
+    //has the game properties of lava
+    surfaceparm nolightmap
+    //environment lighting does not affect
+    q3map_surfacelight 3000
+    //light is emitted
+    tessSize 256
+    //relatively large triangles
+    cull disable
+    //no sides are removed
+    deformVertexes wave 100 sin 5 5 .5 0.02
+    fogparms 0.8519142 0.309723 0.0 128 128
+    {
+    map textures/eerie/lavahell.tga
+    //base texture artwork
+    tcMod turb .25 0.2 1 0.02
+    //texture is subjected to turbulence
+    tcMod scroll 0.1 0.1
+    //the turbulence is scrolled
+    }
+
+}
+
+)");
+            const auto expected = std::vector<Assets::Quake3Shader>{
+                    Assets::Quake3Shader(IO::Path("textures/eerie/ironcrosslt2_10000"), IO::Path("textures/gothic_light/ironcrosslt2.tga")),
+                    Assets::Quake3Shader(IO::Path("textures/liquids/lavahell2"), IO::Path("textures/eerie/lavahell.tga"))
+
+            };
+            Quake3ShaderParser parser(data);
+            ASSERT_EQ(expected, parser.parse());
         }
     }
 }

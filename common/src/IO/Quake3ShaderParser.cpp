@@ -86,13 +86,14 @@ namespace TrenchBroom {
         Quake3ShaderParser::Quake3ShaderParser(const String& str) :
         m_tokenizer(str) {}
 
-        Assets::Quake3Shader Quake3ShaderParser::parse() {
-            Assets::Quake3Shader result;
-            if (m_tokenizer.peekToken().hasType(Quake3ShaderToken::Eof)) {
-                return result;
+        std::vector<Assets::Quake3Shader> Quake3ShaderParser::parse() {
+            std::vector<Assets::Quake3Shader> result;
+            while (!m_tokenizer.peekToken(Quake3ShaderToken::Eol).hasType(Quake3ShaderToken::Eof)) {
+                Assets::Quake3Shader shader;
+                parseTexture(shader);
+                parseBlock(shader);
+                result.push_back(shader);
             }
-            parseTexture(result);
-            parseBlock(result);
             return result;
         }
 
