@@ -27,41 +27,44 @@
 
 namespace TrenchBroom {
     namespace IO {
-        static void assertTexture(const String& name, const size_t width, const size_t height, const FileSystem& fs, const TextureReader& loader) {
-            const Assets::Texture* texture = loader.readTexture(fs.openFile(Path(name)));
+        static std::unique_ptr<const Assets::Texture> loadTexture(const String& name) {
+            TextureReader::TextureNameStrategy nameStrategy;
+            const auto mips = 4;
+            FreeImageTextureReader textureLoader(nameStrategy, mips);
+
+            const auto imagePath = Disk::getCurrentWorkingDir() + Path("data/IO/Image/");
+            DiskFileSystem diskFS(imagePath);
+
+            return std::unique_ptr<const Assets::Texture>{ textureLoader.readTexture(diskFS.openFile(Path(name))) };
+        }
+
+        static void assertTexture(const String& name, const size_t width, const size_t height) {
+            const auto texture = loadTexture(name);
+
             ASSERT_TRUE(texture != nullptr);
             ASSERT_EQ(name, texture->name());
             ASSERT_EQ(width, texture->width());
             ASSERT_EQ(height, texture->height());
-            delete texture;
         }
-        
+
         TEST(FreeImageTextureReaderTest, testLoadPngs) {
-            DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
+            assertTexture("5x5.png",          5,   5);
+            assertTexture("707x710.png",      707, 710);
+        }
 
-            TextureReader::TextureNameStrategy nameStrategy;
-            const auto mips = 4;
-            FreeImageTextureReader textureLoader(nameStrategy, mips);
+        TEST(FreeImageTextureReaderTest, testLoadCorruptPng) {
+            const auto texture = loadTexture("corruptPngTest.png");
 
-            const Path imagePath = Disk::getCurrentWorkingDir() + Path("data/IO/Image/");
-            DiskFileSystem diskFS(imagePath );
-
-            assertTexture("5x5.png",          5,   5,   diskFS, textureLoader);
-            assertTexture("707x710.png",      707, 710, diskFS, textureLoader);
+            // TextureReader::readTexture is supposed to return a placeholder for corrupt textures
+            ASSERT_TRUE(texture != nullptr);
+            ASSERT_EQ("corruptPngTest.png", texture->name());
+            ASSERT_NE(0, texture->width());
+            ASSERT_NE(0, texture->height());
         }
 
         // https://github.com/kduske/TrenchBroom/issues/2474
         TEST(FreeImageTextureReaderTest, testPNGContents) {
-            DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
-
-            TextureReader::TextureNameStrategy nameStrategy;
-            const auto mips = 4;
-            FreeImageTextureReader textureLoader(nameStrategy, mips);
-
-            const Path imagePath = Disk::getCurrentWorkingDir() + Path("data/IO/Image/");
-            DiskFileSystem diskFS(imagePath);
-
-            const Assets::Texture* texture = textureLoader.readTexture(diskFS.openFile(Path("pngContentsTest.png")));
+            const auto texture = loadTexture("pngContentsTest.png");
             ASSERT_TRUE(texture != nullptr);
             ASSERT_EQ(64, texture->width());
             ASSERT_EQ(64, texture->height());
@@ -95,8 +98,6 @@ namespace TrenchBroom {
                     }
                 }
             }
-
-            delete texture;
         }
     }
 }

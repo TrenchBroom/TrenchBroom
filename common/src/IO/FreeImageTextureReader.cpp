@@ -42,8 +42,13 @@ namespace TrenchBroom {
             FIMEMORY*                   imageMemory     = FreeImage_OpenMemory(imageBegin, static_cast<DWORD>(imageSize));
             const FREE_IMAGE_FORMAT     imageFormat     = FreeImage_GetFileTypeFromMemory(imageMemory);
             FIBITMAP*                   image           = FreeImage_LoadFromMemory(imageFormat, imageMemory);
-
             const String                imageName       = path.filename();
+
+            if (image == nullptr) {
+                FreeImage_CloseMemory(imageMemory);
+                return new Assets::Texture(textureName(imageName, path), 64, 64);
+            }
+
             const size_t                imageWidth      = static_cast<size_t>(FreeImage_GetWidth(image));
             const size_t                imageHeight     = static_cast<size_t>(FreeImage_GetHeight(image));
             const FREE_IMAGE_COLOR_TYPE imageColourType = FreeImage_GetColorType(image);
