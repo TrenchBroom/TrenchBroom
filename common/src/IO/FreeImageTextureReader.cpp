@@ -53,15 +53,16 @@ namespace TrenchBroom {
             const size_t                imageHeight     = static_cast<size_t>(FreeImage_GetHeight(image));
             const FREE_IMAGE_COLOR_TYPE imageColourType = FreeImage_GetColorType(image);
 
-            const auto format = GL_BGR;
+            // This is supposed to indicate whether any pixels are transparent (alpha < 100%)
+            const auto transparent = FreeImage_IsTransparent(image);
+
+            const auto format = GL_RGBA;
             Assets::TextureBuffer::List buffers(m_mipCount);
             Assets::setMipBufferSize(buffers, m_mipCount, imageWidth, imageHeight, format);
 
-            // TODO: Alpha channel seems to be unsupported by the Texture class
-
             const auto inputBytesPerPixel = FreeImage_GetLine(image) / FreeImage_GetWidth(image);
-            if (imageColourType != FIC_RGB || inputBytesPerPixel != 3) {
-                FIBITMAP* tempImage = FreeImage_ConvertTo24Bits(image);
+            if (imageColourType != FIC_RGBALPHA || inputBytesPerPixel != 4) {
+                FIBITMAP* tempImage = FreeImage_ConvertTo32Bits(image);
                 FreeImage_Unload(image);
                 image = tempImage;
             }
@@ -79,7 +80,7 @@ namespace TrenchBroom {
                 }
 
                 const auto bytesPerPixel = FreeImage_GetLine(mipImage) / FreeImage_GetWidth(mipImage);
-                ensure(bytesPerPixel == 3, "expected to have converted image to 24-bit");
+                ensure(bytesPerPixel == 4, "expected to have converted image to 32-bit");
 
                 unsigned char* outBytes = buffers.at(mip).ptr();
 
@@ -88,12 +89,12 @@ namespace TrenchBroom {
                     
                     BYTE* inPixel = scanline;
                     for (size_t x = 0; x < mipSize.x(); ++x) {
-
-                        *(outBytes++) = inPixel[FI_RGBA_BLUE];
-                        *(outBytes++) = inPixel[FI_RGBA_GREEN];
                         *(outBytes++) = inPixel[FI_RGBA_RED];
+                        *(outBytes++) = inPixel[FI_RGBA_GREEN];
+                        *(outBytes++) = inPixel[FI_RGBA_BLUE];
+                        *(outBytes++) = inPixel[FI_RGBA_ALPHA];
 
-                        inPixel += 3;
+                        inPixel += bytesPerPixel;
                     }
                 }
 
@@ -105,7 +106,9 @@ namespace TrenchBroom {
             FreeImage_Unload(image);
             FreeImage_CloseMemory(imageMemory);
 
-            return new Assets::Texture(textureName(imageName, path), imageWidth, imageHeight, Color(), buffers, format, Assets::TextureType::Opaque);
+            const auto textureType = transparent ? Assets::TextureType::Masked : Assets::TextureType::Opaque;
+
+            return new Assets::Texture(textureName(imageName, path), imageWidth, imageHeight, Color(), buffers, format, textureType);
         }
     }
 
