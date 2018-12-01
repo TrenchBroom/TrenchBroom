@@ -240,6 +240,18 @@ namespace TrenchBroom {
             }
         }
 
+        const TextureBuffer::List& Texture::buffersIfUnprepared() const {
+            return m_buffers;
+        }
+
+        GLenum Texture::format() const {
+            return m_format;
+        }
+
+        TextureType Texture::type() const {
+            return m_type;
+        }
+
         void Texture::setCollection(TextureCollection* collection) {
             m_collection = collection;
         }

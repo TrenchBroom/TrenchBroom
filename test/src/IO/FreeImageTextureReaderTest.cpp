@@ -49,5 +49,53 @@ namespace TrenchBroom {
             assertTexture("5x5.png",          5,   5,   diskFS, textureLoader);
             assertTexture("707x710.png",      707, 710, diskFS, textureLoader);
         }
+
+        // https://github.com/kduske/TrenchBroom/issues/2474
+        TEST(FreeImageTextureReaderTest, testPNGContents) {
+            DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
+
+            TextureReader::TextureNameStrategy nameStrategy;
+            const auto mips = 4;
+            FreeImageTextureReader textureLoader(nameStrategy, mips);
+
+            const Path imagePath = Disk::getCurrentWorkingDir() + Path("data/IO/Image/");
+            DiskFileSystem diskFS(imagePath);
+
+            const Assets::Texture* texture = textureLoader.readTexture(diskFS.openFile(Path("pngContentsTest.png")));
+            ASSERT_TRUE(texture != nullptr);
+            ASSERT_EQ(64, texture->width());
+            ASSERT_EQ(64, texture->height());
+            ASSERT_EQ(4, texture->buffersIfUnprepared().size());
+            ASSERT_EQ(GL_BGR, texture->format());
+
+            auto& mip0Data = texture->buffersIfUnprepared().at(0);
+            ASSERT_EQ(64 * 64 * 3, mip0Data.size());
+
+            const auto w = 64;
+            const auto h = 64;
+
+            for (int y = 0; y < h; ++y) {
+                for (int x = 0; x < w; ++x) {
+                    if (x == 0 && y == 0) {
+                        // top left pixel is red
+                        ASSERT_EQ(0,   mip0Data[w * y + x * 3]);
+                        ASSERT_EQ(0,   mip0Data[w * y + x * 3 + 1]);
+                        ASSERT_EQ(255, mip0Data[w * y + x * 3 + 2]);
+                    } else if (x == w && y == h) {
+                        // bottom right pixel is green
+                        ASSERT_EQ(0,   mip0Data[w * y + x * 3]);
+                        ASSERT_EQ(255, mip0Data[w * y + x * 3 + 1]);
+                        ASSERT_EQ(0,   mip0Data[w * y + x * 3 + 2]);
+                    } else {
+                        // others are 161, 161, 161
+                        ASSERT_EQ(161, mip0Data[w * y + x * 3]);
+                        ASSERT_EQ(161, mip0Data[w * y + x * 3 + 1]);
+                        ASSERT_EQ(161, mip0Data[w * y + x * 3 + 2]);
+                    }
+                }
+            }
+
+            delete texture;
+        }
     }
 }

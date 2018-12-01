@@ -53,7 +53,9 @@ namespace TrenchBroom {
             Assets::setMipBufferSize(buffers, m_mipCount, imageWidth, imageHeight, format);
 
             // TODO: Alpha channel seems to be unsupported by the Texture class
-            if (imageColourType != FIC_RGB) {
+
+            const auto inputBytesPerPixel = FreeImage_GetLine(image) / FreeImage_GetWidth(image);
+            if (imageColourType != FIC_RGB || inputBytesPerPixel != 3) {
                 FIBITMAP* tempImage = FreeImage_ConvertTo24Bits(image);
                 FreeImage_Unload(image);
                 image = tempImage;
@@ -61,12 +63,38 @@ namespace TrenchBroom {
 
             FreeImage_FlipVertical(image);
 
-            std::memcpy(buffers[0].ptr(), FreeImage_GetBits(image), buffers[0].size());
-            for (size_t mip = 1; mip < m_mipCount; ++mip) {
+            for (size_t mip = 0; mip < m_mipCount; ++mip) {
                 const auto mipSize = Assets::sizeAtMipLevel(imageWidth, imageHeight, mip);
-                FIBITMAP* mipImage = FreeImage_Rescale(image, static_cast<int>(mipSize.x()), static_cast<int>(mipSize.y()), FILTER_BICUBIC);
-                std::memcpy(buffers[mip].ptr(), FreeImage_GetBits(mipImage), buffers[mip].size());
-                FreeImage_Unload(mipImage);
+                
+                FIBITMAP* mipImage;
+                if (mip > 0) {
+                    mipImage = FreeImage_Rescale(image, static_cast<int>(mipSize.x()), static_cast<int>(mipSize.y()), FILTER_BICUBIC);
+                } else {
+                    mipImage = image;
+                }
+
+                const auto bytesPerPixel = FreeImage_GetLine(mipImage) / FreeImage_GetWidth(mipImage);
+                ensure(bytesPerPixel == 3, "expected to have converted image to 24-bit");
+
+                unsigned char* outBytes = buffers.at(mip).ptr();
+
+                for (size_t y = 0; y < mipSize.y(); ++y) {
+                    BYTE* const scanline = FreeImage_GetScanLine(mipImage, static_cast<int>(y));
+                    
+                    BYTE* inPixel = scanline;
+                    for (size_t x = 0; x < mipSize.x(); ++x) {
+
+                        *(outBytes++) = inPixel[FI_RGBA_BLUE];
+                        *(outBytes++) = inPixel[FI_RGBA_GREEN];
+                        *(outBytes++) = inPixel[FI_RGBA_RED];
+
+                        inPixel += 3;
+                    }
+                }
+
+                if (mip > 0) {
+                    FreeImage_Unload(mipImage);
+                }
             }
 
             FreeImage_Unload(image);
