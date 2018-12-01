@@ -71,6 +71,7 @@ namespace TrenchBroom {
             auto& mip0Data = texture->buffersIfUnprepared().at(0);
             ASSERT_EQ(64 * 64 * 3, mip0Data.size());
 
+            auto* mip0DataPtr = mip0Data.ptr();
             const auto w = 64;
             const auto h = 64;
 
@@ -78,19 +79,19 @@ namespace TrenchBroom {
                 for (int x = 0; x < w; ++x) {
                     if (x == 0 && y == 0) {
                         // top left pixel is red
-                        ASSERT_EQ(0,   mip0Data[w * y + x * 3]);
-                        ASSERT_EQ(0,   mip0Data[w * y + x * 3 + 1]);
-                        ASSERT_EQ(255, mip0Data[w * y + x * 3 + 2]);
+                        ASSERT_EQ(0,   mip0DataPtr[w * y + x * 3]);
+                        ASSERT_EQ(0,   mip0DataPtr[w * y + x * 3 + 1]);
+                        ASSERT_EQ(255, mip0DataPtr[w * y + x * 3 + 2]);
                     } else if (x == w && y == h) {
                         // bottom right pixel is green
-                        ASSERT_EQ(0,   mip0Data[w * y + x * 3]);
-                        ASSERT_EQ(255, mip0Data[w * y + x * 3 + 1]);
-                        ASSERT_EQ(0,   mip0Data[w * y + x * 3 + 2]);
+                        ASSERT_EQ(0,   mip0DataPtr[w * y + x * 3]);
+                        ASSERT_EQ(255, mip0DataPtr[w * y + x * 3 + 1]);
+                        ASSERT_EQ(0,   mip0DataPtr[w * y + x * 3 + 2]);
                     } else {
                         // others are 161, 161, 161
-                        ASSERT_EQ(161, mip0Data[w * y + x * 3]);
-                        ASSERT_EQ(161, mip0Data[w * y + x * 3 + 1]);
-                        ASSERT_EQ(161, mip0Data[w * y + x * 3 + 2]);
+                        ASSERT_EQ(161, mip0DataPtr[w * y + x * 3]);
+                        ASSERT_EQ(161, mip0DataPtr[w * y + x * 3 + 1]);
+                        ASSERT_EQ(161, mip0DataPtr[w * y + x * 3 + 2]);
                     }
                 }
             }
