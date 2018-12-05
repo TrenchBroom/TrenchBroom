@@ -17,40 +17,30 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_ZIPFILESYSTEM_H
-#define TRENCHBROOM_ZIPFILESYSTEM_H
+#ifndef TRENCHBROOM_QUAKE3SHADERFILESYSTEM_H
+#define TRENCHBROOM_QUAKE3SHADERFILESYSTEM_H
 
-
-#include "StringUtils.h"
 #include "IO/ImageFileSystem.h"
-#include "IO/Path.h"
-
-#include <memory>
-
-class wxZipInputStream;
-class wxZipEntry;
 
 namespace TrenchBroom {
+    namespace Assets {
+        class Quake3Shader;
+    }
+
     namespace IO {
-        class ZipFileSystem : public ImageFileSystem {
+        class Quake3ShaderFileSystem : public ImageFileSystemBase {
         private:
-            class ZipCompressedFile : public File {
-            private:
-                std::shared_ptr<wxZipInputStream> m_stream;
-                std::unique_ptr<wxZipEntry> m_entry;
-            public:
-                ZipCompressedFile(std::shared_ptr<wxZipInputStream> stream, std::unique_ptr<wxZipEntry> entry);
-            private:
-                Path doResolve() const override;
-                MappedFile::Ptr doOpen() const override;
-            };
+            const FileSystem& m_fs;
         public:
-            ZipFileSystem(const Path& path, MappedFile::Ptr file);
+            Quake3ShaderFileSystem(const Path& path, const FileSystem& fs);
         private:
             void doReadDirectory() override;
+
+            void processScript(const MappedFile::Ptr& file);
+            void processShader(const Assets::Quake3Shader& shader);
         };
     }
 }
 
 
-#endif //TRENCHBROOM_ZIPFILESYSTEM_H
+#endif //TRENCHBROOM_QUAKE3SHADERFILESYSTEM_H

@@ -26,6 +26,7 @@
 
 #include <cassert>
 #include <cstring>
+#include <memory>
 
 #include <wx/mstream.h>
 #include <wx/zipstrm.h>
@@ -36,7 +37,11 @@ namespace TrenchBroom {
         m_stream(std::move(stream)),
         m_entry(std::move(entry)) {}
 
-        MappedFile::Ptr ZipFileSystem::ZipCompressedFile::doOpen() {
+        Path ZipFileSystem::ZipCompressedFile::doResolve() const {
+            return Path(m_entry->GetName().ToStdString());
+        }
+
+        MappedFile::Ptr ZipFileSystem::ZipCompressedFile::doOpen() const {
             const auto path = Path(m_entry->GetName().ToStdString());
 
             if (!m_stream->OpenEntry(*m_entry)) {
@@ -54,7 +59,7 @@ namespace TrenchBroom {
             m_stream->Read(begin, uncompressedSize);
             m_stream->CloseEntry();
 
-            return MappedFile::Ptr(new MappedFileBuffer(path, std::move(data), uncompressedSize));
+            return std::make_shared<MappedFileBuffer>(path, std::move(data), uncompressedSize);
         }
 
         ZipFileSystem::ZipFileSystem(const Path& path, MappedFile::Ptr file) :
@@ -68,7 +73,7 @@ namespace TrenchBroom {
                 auto entry = std::unique_ptr<wxZipEntry>(stream->GetNextEntry());
                 if (!entry->IsDir()) {
                     const auto path = Path(entry->GetName().ToStdString());
-                    m_root.addFile(path, new ZipCompressedFile(stream, std::move(entry)));
+                    m_root.addFile(path, std::make_unique<ZipCompressedFile>(stream, std::move(entry)));
                 }
             }
         }

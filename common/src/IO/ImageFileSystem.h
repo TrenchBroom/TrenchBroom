@@ -28,24 +28,38 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class ImageFileSystem : public FileSystem {
+        class ImageFileSystemBase : public FileSystem {
         protected:
             class File {
             public:
                 virtual ~File();
-                
-                MappedFile::Ptr open();
+
+                Path resolve() const;
+                MappedFile::Ptr open() const;
             private:
-                virtual MappedFile::Ptr doOpen() = 0;
+                virtual Path doResolve() const = 0;
+                virtual MappedFile::Ptr doOpen() const = 0;
             };
-            
+
+            class LinkFile : public File {
+            private:
+                Path m_path;
+                Path m_resolvedPath;
+            public:
+                LinkFile(const Path& path, const Path& resolvedPath);
+            private:
+                Path doResolve() const override;
+                MappedFile::Ptr doOpen() const override;
+            };
+
             class SimpleFile : public File {
             private:
                 MappedFile::Ptr m_file;
             public:
                 SimpleFile(MappedFile::Ptr file);
             private:
-                MappedFile::Ptr doOpen() override;
+                Path doResolve() const override;
+                MappedFile::Ptr doOpen() const override;
             };
 
             class CompressedFile : public File {
@@ -56,42 +70,41 @@ namespace TrenchBroom {
                 CompressedFile(MappedFile::Ptr file, size_t uncompressedSize);
                 virtual ~CompressedFile() override = default;
             private:
-                MappedFile::Ptr doOpen() override;
+                Path doResolve() const override;
+                MappedFile::Ptr doOpen() const override;
                 virtual std::unique_ptr<char[]> decompress(MappedFile::Ptr file, size_t uncompressedSize) const = 0;
             };
 
             class Directory {
             private:
-                typedef std::map<Path, Directory*, Path::Less<StringUtils::CaseInsensitiveStringLess>> DirMap;
-                typedef std::map<Path, File*,      Path::Less<StringUtils::CaseInsensitiveStringLess>> FileMap;
+                typedef std::map<Path, std::unique_ptr<Directory>, Path::Less<StringUtils::CaseInsensitiveStringLess>> DirMap;
+                typedef std::map<Path, std::unique_ptr<File>,      Path::Less<StringUtils::CaseInsensitiveStringLess>> FileMap;
                 
                 Path m_path;
                 DirMap m_directories;
                 FileMap m_files;
             public:
                 Directory(const Path& path);
-                ~Directory();
-                
+
                 void addFile(const Path& path, MappedFile::Ptr file);
-                void addFile(const Path& path, File* file);
+                void addFile(const Path& path, std::unique_ptr<File> file);
                 
                 bool directoryExists(const Path& path) const;
                 bool fileExists(const Path& path) const;
                 
                 const Directory& findDirectory(const Path& path) const;
-                const MappedFile::Ptr findFile(const Path& path) const;
+                const File& findFile(const Path& path) const;
                 Path::List contents() const;
             private:
                 Directory& findOrCreateDirectory(const Path& path);
             };
         protected:
             Path m_path;
-            MappedFile::Ptr m_file;
             Directory m_root;
         protected:
-            ImageFileSystem(const Path& path, MappedFile::Ptr file);
+            ImageFileSystemBase(const Path& path);
         public:
-            virtual ~ImageFileSystem() override;
+            virtual ~ImageFileSystemBase() override;
         protected:
             void initialize();
         private:
@@ -101,8 +114,18 @@ namespace TrenchBroom {
             
             Path::List doGetDirectoryContents(const Path& path) const override;
             const MappedFile::Ptr doOpenFile(const Path& path) const override;
+            Path doResolve(const Path& path) const override;
         private:
             virtual void doReadDirectory() = 0;
+        };
+
+        class ImageFileSystem : public ImageFileSystemBase {
+        protected:
+            MappedFile::Ptr m_file;
+        protected:
+            ImageFileSystem(const Path& path, MappedFile::Ptr file);
+        public:
+            virtual ~ImageFileSystem() override;
         };
     }
 }

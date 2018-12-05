@@ -24,6 +24,7 @@
 #include "IO/IOUtils.h"
 
 #include <cassert>
+#include <memory>
 
 namespace TrenchBroom {
     namespace IO {
@@ -65,9 +66,9 @@ namespace TrenchBroom {
                 const char* entryBegin = m_file->begin() + entryAddress;
                 const char* entryEnd = entryBegin + entryLength;
                 const Path filePath(StringUtils::toLower(entryName));
-                MappedFile::Ptr entryFile(new MappedFileView(m_file, filePath, entryBegin, entryEnd));
+                const auto entryFile = std::make_shared<MappedFileView>(m_file, filePath, entryBegin, entryEnd);
 
-                m_root.addFile(filePath, new SimpleFile(entryFile));
+                m_root.addFile(filePath, std::make_unique<SimpleFile>(entryFile));
             }
         }
     }

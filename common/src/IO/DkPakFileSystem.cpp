@@ -26,6 +26,7 @@
 
 #include <cassert>
 #include <cstring>
+#include <memory>
 
 namespace TrenchBroom {
     namespace IO {
@@ -109,12 +110,12 @@ namespace TrenchBroom {
                 const auto* entryBegin = m_file->begin() + entryAddress;
                 const auto* entryEnd = entryBegin + entrySize;
                 const auto filePath = Path(StringUtils::toLower(entryName));
-                MappedFile::Ptr entryFile(new MappedFileView(m_file, filePath, entryBegin, entryEnd));
+                const auto entryFile = std::make_shared<MappedFileView>(m_file, filePath, entryBegin, entryEnd);
                 
                 if (compressed) {
-                    m_root.addFile(filePath, new DkCompressedFile(entryFile, uncompressedSize));
+                    m_root.addFile(filePath, std::make_unique<DkCompressedFile>(entryFile, uncompressedSize));
                 } else {
-                    m_root.addFile(filePath, new SimpleFile(entryFile));
+                    m_root.addFile(filePath, std::make_unique<SimpleFile>(entryFile));
                 }
             }
         }
