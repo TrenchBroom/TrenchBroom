@@ -84,7 +84,7 @@ Compiling and linking TrenchBroom requires a working OpenGL installation. [This 
   - Apply the patches in `TrenchBroom/patches/wxWidgets` as follows:
 
     ```
-    patch -p0 < <path_to_trenchbroom_directory>/patches/wxWidgets/*.patch
+    for PATCHFILE in <path to TrenchBroom>/patches/wxWidgets/*.patch; do patch -p0 < "$PATCHFILE"; done
     ```
 
   - Create two directories: `build-release` and `build-debug` (don't rename those!)
