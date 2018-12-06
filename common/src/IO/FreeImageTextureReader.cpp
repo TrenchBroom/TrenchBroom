@@ -54,7 +54,7 @@ namespace TrenchBroom {
 
                 return GL_BGRA;
             } else {
-                throw std::exception("Expected FreeImage to use RGBA or BGRA");
+                throw std::runtime_error("Expected FreeImage to use RGBA or BGRA");
             }
         }
 
