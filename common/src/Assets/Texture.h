@@ -94,7 +94,7 @@ namespace TrenchBroom {
              */
             const TextureBuffer::List& buffersIfUnprepared() const;
             /**
-             * Will be one of GL_RGB, GL_BGR, GL_RGBA.
+             * Will be one of GL_RGB, GL_BGR, GL_RGBA, GL_BGRA.
              */
             GLenum format() const;
             TextureType type() const;

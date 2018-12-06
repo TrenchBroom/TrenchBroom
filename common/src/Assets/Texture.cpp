@@ -41,6 +41,7 @@ namespace TrenchBroom {
                 case GL_BGR:
                     return 3U;
                 case GL_RGBA:
+                case GL_BGRA:
                     return 4U;
             }
             ensure(false, "unknown format");

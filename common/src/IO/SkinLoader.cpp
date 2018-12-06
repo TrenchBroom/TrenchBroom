@@ -45,7 +45,7 @@ namespace TrenchBroom {
                     IO::WalTextureReader reader(IO::TextureReader::PathSuffixNameStrategy(1, true), palette);
                     return reader.readTexture(file);
                 } else {
-                    IO::FreeImageTextureReader reader(IO::TextureReader::PathSuffixNameStrategy(1, true), 1);
+                    IO::FreeImageTextureReader reader(IO::TextureReader::PathSuffixNameStrategy(1, true));
                     return reader.readTexture(file);
                 }
             } catch (FileSystemException& e) {

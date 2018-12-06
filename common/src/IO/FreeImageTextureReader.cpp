@@ -30,10 +30,32 @@
 
 namespace TrenchBroom {
     namespace IO {
-        FreeImageTextureReader::FreeImageTextureReader(const NameStrategy& nameStrategy, const size_t mipCount) :
-        TextureReader(nameStrategy),
-        m_mipCount(mipCount) {
-            assert(m_mipCount > 0);
+        FreeImageTextureReader::FreeImageTextureReader(const NameStrategy& nameStrategy) :
+        TextureReader(nameStrategy) {}
+
+        /**
+         * The byte order of a 32bpp FIBITMAP is defined by the macros FI_RGBA_RED,
+         * FI_RGBA_GREEN, FI_RGBA_BLUE, FI_RGBA_ALPHA.
+         * From looking at FreeImage.h, there are only two possible orders,
+         * so we can handle both possible orders and map them to the relevant GL_RGBA
+         * or GL_BGRA constant.
+         */
+        static constexpr GLenum freeImage32BPPFormatToGLFormat() {            
+            if (FI_RGBA_RED == 0
+                && FI_RGBA_GREEN == 1
+                && FI_RGBA_BLUE == 2
+                && FI_RGBA_ALPHA == 3) {
+
+                return GL_RGBA;
+            } else if (FI_RGBA_BLUE == 0
+                && FI_RGBA_GREEN == 1
+                && FI_RGBA_RED == 2
+                && FI_RGBA_ALPHA == 3) {
+
+                return GL_BGRA;
+            } else {
+                throw std::exception("Expected FreeImage to use RGBA or BGRA");
+            }
         }
 
         Assets::Texture* FreeImageTextureReader::doReadTexture(const char* const begin, const char* const end, const Path& path) const {
@@ -56,9 +78,10 @@ namespace TrenchBroom {
             // This is supposed to indicate whether any pixels are transparent (alpha < 100%)
             const auto transparent = FreeImage_IsTransparent(image);
 
-            const auto format = GL_RGBA;
-            Assets::TextureBuffer::List buffers(m_mipCount);
-            Assets::setMipBufferSize(buffers, m_mipCount, imageWidth, imageHeight, format);
+            const auto mipCount = 1U;
+            constexpr auto format = freeImage32BPPFormatToGLFormat();
+            Assets::TextureBuffer::List buffers(mipCount);
+            Assets::setMipBufferSize(buffers, mipCount, imageWidth, imageHeight, format);
 
             const auto inputBytesPerPixel = FreeImage_GetLine(image) / FreeImage_GetWidth(image);
             if (imageColourType != FIC_RGBALPHA || inputBytesPerPixel != 4) {
@@ -67,49 +90,21 @@ namespace TrenchBroom {
                 image = tempImage;
             }
 
-            FreeImage_FlipVertical(image);
+            const auto bytesPerPixel = FreeImage_GetLine(image) / FreeImage_GetWidth(image);
+            ensure(bytesPerPixel == 4, "expected to have converted image to 32-bit");
 
-            for (size_t mip = 0; mip < m_mipCount; ++mip) {
-                const auto mipSize = Assets::sizeAtMipLevel(imageWidth, imageHeight, mip);
-                
-                FIBITMAP* mipImage;
-                if (mip > 0) {
-                    mipImage = FreeImage_Rescale(image, static_cast<int>(mipSize.x()), static_cast<int>(mipSize.y()), FILTER_BICUBIC);
-                } else {
-                    mipImage = image;
-                }
+            unsigned char* outBytes = buffers.at(0).ptr();
+            const auto outBytesPerRow = static_cast<int>(imageWidth * 4);
 
-                const auto bytesPerPixel = FreeImage_GetLine(mipImage) / FreeImage_GetWidth(mipImage);
-                ensure(bytesPerPixel == 4, "expected to have converted image to 32-bit");
-
-                unsigned char* outBytes = buffers.at(mip).ptr();
-
-                for (size_t y = 0; y < mipSize.y(); ++y) {
-                    BYTE* const scanline = FreeImage_GetScanLine(mipImage, static_cast<int>(y));
-                    
-                    BYTE* inPixel = scanline;
-                    for (size_t x = 0; x < mipSize.x(); ++x) {
-                        *(outBytes++) = inPixel[FI_RGBA_RED];
-                        *(outBytes++) = inPixel[FI_RGBA_GREEN];
-                        *(outBytes++) = inPixel[FI_RGBA_BLUE];
-                        *(outBytes++) = inPixel[FI_RGBA_ALPHA];
-
-                        inPixel += bytesPerPixel;
-                    }
-                }
-
-                if (mip > 0) {
-                    FreeImage_Unload(mipImage);
-                }
-            }
+            FreeImage_ConvertToRawBits(outBytes, image, outBytesPerRow, 32, FI_RGBA_RED_MASK, FI_RGBA_GREEN_MASK, FI_RGBA_BLUE_MASK, TRUE);
 
             FreeImage_Unload(image);
             FreeImage_CloseMemory(imageMemory);
 
+            
             const auto textureType = transparent ? Assets::TextureType::Masked : Assets::TextureType::Opaque;
 
             return new Assets::Texture(textureName(imageName, path), imageWidth, imageHeight, Color(), buffers, format, textureType);
         }
     }
-
 }
