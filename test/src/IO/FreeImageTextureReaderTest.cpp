@@ -67,12 +67,12 @@ namespace TrenchBroom {
             R, G, B, A
         };
 
-        static uint8_t getComponentOfPixel(const Assets::Texture* texture, const size_t x, const size_t y, const Component component) {
+        static uint8_t getComponentOfPixel(const Assets::Texture* texture, const int x, const int y, const Component component) {
             const auto format = texture->format();
 
             ensure(GL_BGRA == format || GL_RGBA == format, "expected GL_BGRA or GL_RGBA");
 
-            size_t componentIndex;
+            int componentIndex;
             if (format == GL_RGBA) {
                 switch (component) {
                     case Component::R: componentIndex = 0; break;
@@ -91,10 +91,12 @@ namespace TrenchBroom {
 
             const auto& mip0DataBuffer = texture->buffersIfUnprepared().at(0);
             ensure(texture->width() * texture->height() * 4 == mip0DataBuffer.size(), "unexpected texture data size");
+            ensure(x >= 0 && x < static_cast<int>(texture->width()), "x out of range");
+            ensure(y >= 0 && y < static_cast<int>(texture->height()), "y out of range");
 
             const uint8_t* mip0Data = mip0DataBuffer.ptr();
 
-            return mip0Data[(texture->width() * 4 * y) + (x * 4) + componentIndex];
+            return mip0Data[(static_cast<int>(texture->width()) * 4 * y) + (x * 4) + componentIndex];
         }
 
         // https://github.com/kduske/TrenchBroom/issues/2474
