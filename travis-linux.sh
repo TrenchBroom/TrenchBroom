@@ -27,7 +27,10 @@ if [[ ! -e wx-install-cache/bin/wx-config ]]; then
     if [[ "8d98975eb9f81036261c0643755b98e4bb5ab776" != $(sha1sum wxWidgets-3.1.1.7z | cut -f1 -d' ') ]] ; then exit 1 ; fi
     7z x -o"wxWidgets" -y wxWidgets-3.1.1.7z > /dev/null
     cd wxWidgets || exit 1
-    #patch -p0 < ../patches/wxWidgets/*.patch || exit 1
+    for PATCHFILE in ../patches/wxWidgets/*.patch; do
+        echo "Applying $PATCHFILE"
+        patch -p0 < "$PATCHFILE" || exit 1
+    done
     mkdir build-release
     cd build-release
     ../configure --quiet --disable-shared --with-opengl --with-cxx=17 --with-gtk=2 --prefix=$WX_CACHE_FULLPATH --disable-precomp-headers --with-libpng=builtin --with-libtiff=builtin --with-libjpeg=builtin && make -j2 && make install

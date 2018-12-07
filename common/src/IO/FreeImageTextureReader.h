@@ -28,10 +28,8 @@ namespace TrenchBroom {
         class Path;
 
         class FreeImageTextureReader : public TextureReader {
-        private:
-            size_t m_mipCount;
         public:
-            FreeImageTextureReader(const NameStrategy& nameStrategy, size_t mipCount);
+            FreeImageTextureReader(const NameStrategy& nameStrategy);
         private:
             Assets::Texture* doReadTexture(const char* const begin, const char* const end, const Path& path) const override;
         };

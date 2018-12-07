@@ -27,27 +27,147 @@
 
 namespace TrenchBroom {
     namespace IO {
-        static void assertTexture(const String& name, const size_t width, const size_t height, const FileSystem& fs, const TextureReader& loader) {
-            const Assets::Texture* texture = loader.readTexture(fs.openFile(Path(name)));
+        static std::unique_ptr<const Assets::Texture> loadTexture(const String& name) {
+            TextureReader::TextureNameStrategy nameStrategy;
+            FreeImageTextureReader textureLoader(nameStrategy);
+
+            const auto imagePath = Disk::getCurrentWorkingDir() + Path("data/IO/Image/");
+            DiskFileSystem diskFS(imagePath);
+
+            return std::unique_ptr<const Assets::Texture>{ textureLoader.readTexture(diskFS.openFile(Path(name))) };
+        }
+
+        static void assertTexture(const String& name, const size_t width, const size_t height) {
+            const auto texture = loadTexture(name);
+
             ASSERT_TRUE(texture != nullptr);
             ASSERT_EQ(name, texture->name());
             ASSERT_EQ(width, texture->width());
             ASSERT_EQ(height, texture->height());
-            delete texture;
+            ASSERT_TRUE(GL_BGRA == texture->format() || GL_RGBA == texture->format());
+            ASSERT_EQ(Assets::TextureType::Opaque, texture->type());
         }
-        
+
         TEST(FreeImageTextureReaderTest, testLoadPngs) {
-            DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
+            assertTexture("5x5.png",          5,   5);
+            assertTexture("707x710.png",      707, 710);
+        }
 
-            TextureReader::TextureNameStrategy nameStrategy;
-            const auto mips = 4;
-            FreeImageTextureReader textureLoader(nameStrategy, mips);
+        TEST(FreeImageTextureReaderTest, testLoadCorruptPng) {
+            const auto texture = loadTexture("corruptPngTest.png");
 
-            const Path imagePath = Disk::getCurrentWorkingDir() + Path("data/IO/Image/");
-            DiskFileSystem diskFS(imagePath );
+            // TextureReader::readTexture is supposed to return a placeholder for corrupt textures
+            ASSERT_TRUE(texture != nullptr);
+            ASSERT_EQ("corruptPngTest.png", texture->name());
+            ASSERT_NE(0, texture->width());
+            ASSERT_NE(0, texture->height());
+        }
 
-            assertTexture("5x5.png",          5,   5,   diskFS, textureLoader);
-            assertTexture("707x710.png",      707, 710, diskFS, textureLoader);
+        enum class Component {
+            R, G, B, A
+        };
+
+        static uint8_t getComponentOfPixel(const Assets::Texture* texture, const int x, const int y, const Component component) {
+            const auto format = texture->format();
+
+            ensure(GL_BGRA == format || GL_RGBA == format, "expected GL_BGRA or GL_RGBA");
+
+            int componentIndex;
+            if (format == GL_RGBA) {
+                switch (component) {
+                    case Component::R: componentIndex = 0; break;
+                    case Component::G: componentIndex = 1; break;
+                    case Component::B: componentIndex = 2; break;
+                    case Component::A: componentIndex = 3; break;
+                }
+            } else {
+                switch (component) {
+                    case Component::R: componentIndex = 2; break;
+                    case Component::G: componentIndex = 1; break;
+                    case Component::B: componentIndex = 0; break;
+                    case Component::A: componentIndex = 3; break;
+                }
+            }
+
+            const auto& mip0DataBuffer = texture->buffersIfUnprepared().at(0);
+            ensure(texture->width() * texture->height() * 4 == mip0DataBuffer.size(), "unexpected texture data size");
+            ensure(x >= 0 && x < static_cast<int>(texture->width()), "x out of range");
+            ensure(y >= 0 && y < static_cast<int>(texture->height()), "y out of range");
+
+            const uint8_t* mip0Data = mip0DataBuffer.ptr();
+
+            return mip0Data[(static_cast<int>(texture->width()) * 4 * y) + (x * 4) + componentIndex];
+        }
+
+        // https://github.com/kduske/TrenchBroom/issues/2474
+        TEST(FreeImageTextureReaderTest, testPNGContents) {
+            const auto texture = loadTexture("pngContentsTest.png");
+            const auto w = 64;
+            const auto h = 64;
+
+            ASSERT_TRUE(texture != nullptr);
+            ASSERT_EQ(w, texture->width());
+            ASSERT_EQ(h, texture->height());
+            ASSERT_EQ(1, texture->buffersIfUnprepared().size());
+            ASSERT_TRUE(GL_BGRA == texture->format() || GL_RGBA == texture->format());
+            ASSERT_EQ(Assets::TextureType::Opaque, texture->type());
+
+            auto* texturePtr = texture.get();
+            for (int y = 0; y < h; ++y) {
+                for (int x = 0; x < w; ++x) {
+                    if (x == 0 && y == 0) {
+                        // top left pixel is red
+                        ASSERT_EQ(255 /* R */, getComponentOfPixel(texturePtr, x, y, Component::R));
+                        ASSERT_EQ(0   /* G */, getComponentOfPixel(texturePtr, x, y, Component::G));
+                        ASSERT_EQ(0   /* B */, getComponentOfPixel(texturePtr, x, y, Component::B));
+                        ASSERT_EQ(255 /* A */, getComponentOfPixel(texturePtr, x, y, Component::A));
+                    } else if (x == (w - 1) && y == (h - 1)) {
+                        // bottom right pixel is green
+                        ASSERT_EQ(0   /* R */, getComponentOfPixel(texturePtr, x, y, Component::R));
+                        ASSERT_EQ(255 /* G */, getComponentOfPixel(texturePtr, x, y, Component::G));
+                        ASSERT_EQ(0   /* B */, getComponentOfPixel(texturePtr, x, y, Component::B));
+                        ASSERT_EQ(255 /* A */, getComponentOfPixel(texturePtr, x, y, Component::A));
+                    } else {
+                        // others are 161, 161, 161
+                        ASSERT_EQ(161 /* R */, getComponentOfPixel(texturePtr, x, y, Component::R));
+                        ASSERT_EQ(161 /* G */, getComponentOfPixel(texturePtr, x, y, Component::G));
+                        ASSERT_EQ(161 /* B */, getComponentOfPixel(texturePtr, x, y, Component::B));
+                        ASSERT_EQ(255 /* A */, getComponentOfPixel(texturePtr, x, y, Component::A));
+                    }
+                }
+            }
+        }
+
+        TEST(FreeImageTextureReaderTest, alphaMaskTest) {
+            const auto texture = loadTexture("alphaMaskTest.png");
+            const auto w = 25;
+            const auto h = 10;
+
+            ASSERT_TRUE(texture != nullptr);
+            ASSERT_EQ(w, texture->width());
+            ASSERT_EQ(h, texture->height());
+            ASSERT_EQ(1, texture->buffersIfUnprepared().size());
+            ASSERT_TRUE(GL_BGRA == texture->format() || GL_RGBA == texture->format());
+            ASSERT_EQ(Assets::TextureType::Masked, texture->type());
+
+            auto& mip0Data = texture->buffersIfUnprepared().at(0);
+            ASSERT_EQ(w * h * 4, mip0Data.size());
+
+            auto* texturePtr = texture.get();
+            for (int y = 0; y < h; ++y) {
+                for (int x = 0; x < w; ++x) {
+                    if (x == 0 && y == 0) {
+                        // top left pixel is green opaque
+                        ASSERT_EQ(0   /* R */, getComponentOfPixel(texturePtr, x, y, Component::R));
+                        ASSERT_EQ(255 /* G */, getComponentOfPixel(texturePtr, x, y, Component::G));
+                        ASSERT_EQ(0   /* B */, getComponentOfPixel(texturePtr, x, y, Component::B));
+                        ASSERT_EQ(255 /* A */, getComponentOfPixel(texturePtr, x, y, Component::A));
+                    } else {
+                        // others are fully transparent (RGB values are unknown)
+                        ASSERT_EQ(0   /* A */, getComponentOfPixel(texturePtr, x, y, Component::A));
+                    }
+                }
+            }
         }
     }
 }

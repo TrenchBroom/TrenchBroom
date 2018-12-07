@@ -57,7 +57,7 @@ namespace TrenchBroom {
                 return std::make_unique<WalTextureReader>(nameStrategy, loadPalette(gameFS, textureConfig, logger));
             } else if (textureConfig.format.format == "image") {
                 TextureReader::PathSuffixNameStrategy nameStrategy(2, true);
-                return std::make_unique<FreeImageTextureReader>(nameStrategy, 4);
+                return std::make_unique<FreeImageTextureReader>(nameStrategy);
             } else {
                 throw GameException("Unknown texture format '" + textureConfig.format.format + "'");
             }
