@@ -618,13 +618,13 @@ The resize tool also works in the 2D viewports, of course, but the ability to mo
 
 Both snap modes are used simultaneously. There may be situations when you have to move the camera closer to a face in order to have sufficient precision when dragging the face.
 
-#### Moving Faces Instead of Resizing
+#### Moving Faces Instead of Resizing {#moving_faces}
 
 The brush resize tool offers a quick way to move an individual face of a brush in 2D views. Hold #key(307) in addition to #key(306) when starting to drag a face in a 2D view to enable this mode. You will notice that a face is highlighted as usual, but when you start dragging the mouse, the face will just be moved in the direction you are dragging. The move is not restricted by the face normal, and other faces will be affected as well.
 
 ![Resizing multiple brushes](images/ResizeTool2DFaceMoving.gif)
 
-The distance is snapped to the current grid size. Moving multiple faces is possible if the faces lie on the same plane.
+The distance is snapped to the current grid size. Moving multiple faces is possible if the faces lie on the same plane. The [UV Lock](#uv_lock) setting controls whether texture lock is used when dragging faces using this mode.
 
 ### Clipping
 
@@ -732,13 +732,13 @@ Finally, the face tool also supports the same keyboard commands as the vertex to
 - Be careful with detail brushes, they might open vis portals.
 - Detail might also result in PVS leaves too much information, better to turn some detail into actual brushes to force vis to break a room into several PVS leaves. Or use hint brushes to force vis to add more leaves.
 
-#### UV Lock
+#### UV Lock {#uv_lock}
 
-The regular Texture Lock prefence doesn't apply to vertex editing - instead, there is a separate preference called UV Lock toggled with #action(Controls/Map view/Toggle UV lock) or the checkbox in the vertex editing toolbar:
+The regular Texture Lock prefence doesn't apply to vertex editing - instead, there is a separate preference called UV Lock toggled with #menu(Menu/Edit/UV Lock) or the UV Lock toolbar button:
 
-![Vertex editing toolbar](images/VertexEditingToolbar.png)
+![Face Handles](images/UVLock.png)
 
-When this setting is enabled, TrenchBroom will attempt to keep vertex UV coordinates the same when using the vertex editing tools.
+When this setting is enabled, TrenchBroom will attempt to keep vertex UV coordinates the same when using the vertex editing tools or [face moving](#moving_faces).
 
 ### CSG Operations
 
