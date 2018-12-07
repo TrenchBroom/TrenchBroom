@@ -736,7 +736,7 @@ Finally, the face tool also supports the same keyboard commands as the vertex to
 
 The regular Texture Lock prefence doesn't apply to vertex editing - instead, there is a separate preference called UV Lock toggled with #menu(Menu/Edit/UV Lock) or the UV Lock toolbar button:
 
-![Face Handles](images/UVLock.png)
+![UV Lock toolbar button](images/UVLock.png)
 
 When this setting is enabled, TrenchBroom will attempt to keep vertex UV coordinates the same when using the vertex editing tools or [face moving](#moving_faces).
 
