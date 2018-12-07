@@ -473,6 +473,7 @@ namespace TrenchBroom {
             toolBar->AddTool(CommandIds::Actions::FlipObjectsVertically, "Flip Vertically", IO::loadImageResource("FlipVertically.png"), wxNullBitmap, wxITEM_NORMAL, "Flip Vertically");
             toolBar->AddSeparator();
             toolBar->AddCheckTool(CommandIds::Menu::EditToggleTextureLock, "Texture Lock", textureLockBitmap(), wxNullBitmap, "Toggle Texture Lock");
+            toolBar->AddCheckTool(CommandIds::Menu::EditToggleUVLock, "UV Lock", UVLockBitmap(), wxNullBitmap, "Toggle UV Lock");
             toolBar->AddSeparator();
 
             const wxString gridSizes[12] = { "Grid 0.125", "Grid 0.25", "Grid 0.5", "Grid 1", "Grid 2", "Grid 4", "Grid 8", "Grid 16", "Grid 32", "Grid 64", "Grid 128", "Grid 256" };
@@ -1210,9 +1211,11 @@ namespace TrenchBroom {
         }
 
         wxBitmap MapFrame::textureLockBitmap() {
-            if (pref(Preferences::TextureLock))
+            if (pref(Preferences::TextureLock)) {
                 return IO::loadImageResource("TextureLockOn.png");
-            return IO::loadImageResource("TextureLockOff.png");
+            } else {
+                return IO::loadImageResource("TextureLockOff.png");
+            }
         }
 
         void MapFrame::OnEditToggleUVLock(wxCommandEvent& event) {
@@ -1220,6 +1223,16 @@ namespace TrenchBroom {
 
             PreferenceManager::instance().set(Preferences::UVLock, !pref(Preferences::UVLock));
             PreferenceManager::instance().saveChanges();
+
+            GetToolBar()->SetToolNormalBitmap(CommandIds::Menu::EditToggleUVLock, UVLockBitmap());
+        }
+
+        wxBitmap MapFrame::UVLockBitmap() {
+            if (pref(Preferences::UVLock)) {
+                return IO::loadImageResource("UVLockOn.png");
+            } else {
+                return IO::loadImageResource("UVLockOff.png");
+            }
         }
 
         void MapFrame::OnEditSnapVerticesToInteger(wxCommandEvent& event) {

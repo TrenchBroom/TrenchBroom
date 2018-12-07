@@ -40,7 +40,6 @@
 #include "View/Tool.h"
 #include "View/VertexCommand.h"
 #include "View/VertexHandleManager.h"
-#include "View/VertexToolPage.h"
 #include "View/ViewTypes.h"
 #include "AddBrushVerticesCommand.h"
 
@@ -76,7 +75,6 @@ namespace TrenchBroom {
             MapDocumentWPtr m_document;
         private:
             size_t m_changeCount;
-            wxWindow* m_toolPage;
         protected:
             Disjunction m_ignoreChangeNotifications;
             
@@ -87,7 +85,6 @@ namespace TrenchBroom {
             Tool(false),
             m_document(document),
             m_changeCount(0),
-            m_toolPage(nullptr),
             m_dragging(false) {}
         public:
             virtual ~VertexToolBase() override {}
@@ -331,12 +328,6 @@ namespace TrenchBroom {
                 unbindObservers();
                 handleManager().clear();
                 return true;
-            }
-
-            wxWindow* doCreatePage(wxWindow* parent) override {
-                assert(m_toolPage == nullptr);
-                m_toolPage = new VertexToolPage(parent, m_document);
-                return m_toolPage;
             }
         private: // Observers and state management
             void bindObservers() {
