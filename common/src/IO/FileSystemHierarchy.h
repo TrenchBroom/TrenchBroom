@@ -26,6 +26,7 @@
 #include "IO/FileSystem.h"
 #include "IO/Path.h"
 
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
@@ -34,13 +35,13 @@ namespace TrenchBroom {
         
         class FileSystemHierarchy : public virtual FileSystem {
         private:
-            typedef std::vector<FileSystem*> FileSystemList;
+            typedef std::vector<std::unique_ptr<FileSystem>> FileSystemList;
             FileSystemList m_fileSystems;
         public:
             FileSystemHierarchy();
             virtual ~FileSystemHierarchy() override;
             
-            void pushFileSystem(FileSystem* fileSystem);
+            void pushFileSystem(std::unique_ptr<FileSystem> fileSystem);
             void popFileSystem();
             virtual void clear();
         private:
@@ -67,8 +68,8 @@ namespace TrenchBroom {
         public:
             WritableFileSystemHierarchy();
             
-            void pushReadableFileSystem(FileSystem* fileSystem);
-            void pushWritableFileSystem(WritableFileSystem* fileSystem);
+            void pushReadableFileSystem(std::unique_ptr<FileSystem> fileSystem);
+            void pushWritableFileSystem(std::unique_ptr<WritableFileSystem> fileSystem);
             void clear() override;
         private:
             void doCreateFile(const Path& path, const String& contents) override;

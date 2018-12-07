@@ -79,7 +79,7 @@ namespace TrenchBroom {
 
         void GameImpl::addSearchPath(const IO::Path& searchPath, Logger* logger) {
             try {
-                m_gameFS.pushFileSystem(new IO::DiskFileSystem(m_gamePath + searchPath));
+                m_gameFS.pushFileSystem(std::make_unique<IO::DiskFileSystem>(m_gamePath + searchPath));
             } catch (const FileSystemException& e) {
                 logger->error("Could not add file system search path '" + searchPath.asString() + "': " + String(e.what()));
             }
@@ -100,11 +100,11 @@ namespace TrenchBroom {
                     ensure(packageFile.get() != nullptr, "packageFile is null");
 
                     if (StringUtils::caseInsensitiveEqual(packageFormat, "idpak")) {
-                        m_gameFS.pushFileSystem(new IO::IdPakFileSystem(packagePath, packageFile));
+                        m_gameFS.pushFileSystem(std::make_unique<IO::IdPakFileSystem>(packagePath, packageFile));
                     } else if (StringUtils::caseInsensitiveEqual(packageFormat, "dkpak")) {
-                        m_gameFS.pushFileSystem(new IO::DkPakFileSystem(packagePath, packageFile));
+                        m_gameFS.pushFileSystem(std::make_unique<IO::DkPakFileSystem>(packagePath, packageFile));
                     } else if (StringUtils::caseInsensitiveEqual(packageFormat, "zip")) {
-                        m_gameFS.pushFileSystem(new IO::ZipFileSystem(packagePath, packageFile));
+                        m_gameFS.pushFileSystem(std::make_unique<IO::ZipFileSystem>(packagePath, packageFile));
                     }
                 }
             }

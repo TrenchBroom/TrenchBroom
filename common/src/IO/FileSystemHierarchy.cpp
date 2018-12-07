@@ -33,19 +33,18 @@ namespace TrenchBroom {
             clear();
         }
         
-        void FileSystemHierarchy::pushFileSystem(FileSystem* fileSystem) {
+        void FileSystemHierarchy::pushFileSystem(std::unique_ptr<FileSystem> fileSystem) {
             ensure(fileSystem != nullptr, "filesystem is null");
-            m_fileSystems.push_back(fileSystem);
+            m_fileSystems.push_back(std::move(fileSystem));
         }
 
         void FileSystemHierarchy::popFileSystem() {
             ensure(!m_fileSystems.empty(), "filesystem hierarchy is empty");
-            delete m_fileSystems.back();
             m_fileSystems.pop_back();
         }
 
         void FileSystemHierarchy::clear() {
-            VectorUtils::clearAndDelete(m_fileSystems);
+            m_fileSystems.clear();
         }
 
         Path FileSystemHierarchy::doMakeAbsolute(const Path& relPath) const {
@@ -59,7 +58,7 @@ namespace TrenchBroom {
 
         bool FileSystemHierarchy::doDirectoryExists(const Path& path) const {
             for (auto it = m_fileSystems.rbegin(), end = m_fileSystems.rend(); it != end; ++it) {
-                const auto* fileSystem = *it;
+                const auto& fileSystem = *it;
                 if (fileSystem->directoryExists(path)) {
                     return true;
                 }
@@ -73,9 +72,9 @@ namespace TrenchBroom {
         
         FileSystem* FileSystemHierarchy::findFileSystemContaining(const Path& path) const {
             for (auto it = m_fileSystems.rbegin(), end = m_fileSystems.rend(); it != end; ++it) {
-                auto* fileSystem = *it;
+                auto& fileSystem = *it;
                 if (fileSystem->fileExists(path)) {
-                    return fileSystem;
+                    return fileSystem.get();
                 }
             }
             return nullptr;
@@ -84,7 +83,7 @@ namespace TrenchBroom {
         Path::List FileSystemHierarchy::doGetDirectoryContents(const Path& path) const {
             Path::List result;
             for (auto it = m_fileSystems.rbegin(), end = m_fileSystems.rend(); it != end; ++it) {
-                const auto* fileSystem = *it;
+                const auto& fileSystem = *it;
                 if (fileSystem->directoryExists(path)) {
                     const Path::List contents = fileSystem->getDirectoryContents(path);
                     VectorUtils::append(result, contents);
@@ -99,7 +98,7 @@ namespace TrenchBroom {
             const auto resolvedPath = resolve(path);
 
             for (auto it = m_fileSystems.rbegin(), end = m_fileSystems.rend(); it != end; ++it) {
-                const FileSystem* fileSystem = *it;
+                const auto& fileSystem = *it;
                 if (fileSystem->fileExists(resolvedPath)) {
                     const auto file = fileSystem->openFile(resolvedPath);
                     if (file.get() != nullptr) {
@@ -114,7 +113,7 @@ namespace TrenchBroom {
 
         Path FileSystemHierarchy::doResolve(const Path& path) const {
             for (auto it = m_fileSystems.rbegin(), end = m_fileSystems.rend(); it != end; ++it) {
-                const FileSystem* fileSystem = *it;
+                const auto& fileSystem = *it;
                 if (fileSystem->fileExists(path)) {
                     return fileSystem->resolve(path);
                 }
@@ -125,14 +124,14 @@ namespace TrenchBroom {
         WritableFileSystemHierarchy::WritableFileSystemHierarchy() :
         m_writableFileSystem(nullptr) {}
         
-        void WritableFileSystemHierarchy::pushReadableFileSystem(FileSystem* fileSystem) {
-            pushFileSystem(fileSystem);
+        void WritableFileSystemHierarchy::pushReadableFileSystem(std::unique_ptr<FileSystem> fileSystem) {
+            pushFileSystem(std::move(fileSystem));
         }
         
-        void WritableFileSystemHierarchy::pushWritableFileSystem(WritableFileSystem* fileSystem) {
+        void WritableFileSystemHierarchy::pushWritableFileSystem(std::unique_ptr<WritableFileSystem> fileSystem) {
             assert(m_writableFileSystem == nullptr);
-            pushFileSystem(fileSystem);
-            m_writableFileSystem = fileSystem;
+            m_writableFileSystem = fileSystem.get();
+            pushFileSystem(std::move(fileSystem));
         }
         
         void WritableFileSystemHierarchy::clear() {

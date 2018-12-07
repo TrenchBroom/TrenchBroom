@@ -174,7 +174,7 @@ namespace TrenchBroom {
             assert(!isRecursiveInclude(path));
 
             const auto folder = path.deleteLastComponent();
-            m_fileSystem.pushFileSystem(new DiskFileSystem(folder));
+            m_fileSystem.pushFileSystem(std::make_unique<DiskFileSystem>(folder));
             m_paths.push_back(path);
         }
 
