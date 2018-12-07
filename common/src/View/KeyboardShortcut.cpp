@@ -772,7 +772,7 @@ namespace TrenchBroom {
             wxString str;
             str << "{ key:" << key() << ", modifiers: [";
             
-            std::vector<size_t> modifiers;
+            std::vector<int> modifiers;
             modifiers.reserve(3);
 
             for (size_t i = 0; i < 3; ++i) {
