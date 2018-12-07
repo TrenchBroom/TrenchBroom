@@ -19,6 +19,9 @@
 
 #include "KeyboardShortcut.h"
 
+#include "CollectionUtils.h"
+#include "StringUtils.h"
+
 #include <wx/event.h>
 #include <wx/sstream.h>
 #if !defined __APPLE__
@@ -769,18 +772,19 @@ namespace TrenchBroom {
             wxString str;
             str << "{ key:" << key() << ", modifiers: [";
             
-            bool hadModifier = false;
+            std::vector<size_t> modifiers;
+            modifiers.reserve(3);
+
             for (size_t i = 0; i < 3; ++i) {
                 if (hasModifier(i)) {
-                    if (hadModifier)
-                        str << ", ";
-                    str << modifier(i);
-                    hadModifier = true;
-                } else {
-                    hadModifier = false;
+                    modifiers.push_back(modifier(i));
                 }
             }
-            
+
+            VectorUtils::sort(modifiers);
+
+            str << StringUtils::join(
+                VectorUtils::map(modifiers, [](auto m) { return std::to_string(m); }), ", ");
             str << "] }";
             
             return str;

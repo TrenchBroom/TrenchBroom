@@ -82,7 +82,7 @@ namespace TrenchBroom {
             m_menuBar->getShortcutEntries(entries);
             
             for (const KeyboardShortcutEntry* entry : entries) {
-                String preferencePath = entry->preferencePath().asString();
+                String preferencePath = entry->preferencePath().asString('/');
                 if (StringUtils::caseSensitiveSuffix(preferencePath, "...")) {
                     // Remove "..." suffix because pandoc will transform this into unicode ellipses.
                     preferencePath = preferencePath.substr(0, preferencePath.length() - 3);
@@ -94,14 +94,14 @@ namespace TrenchBroom {
 
         void printActionPreference(StringStream& str, const Preference<KeyboardShortcut>& pref);
         void printActionPreference(StringStream& str, const Preference<KeyboardShortcut>& pref) {
-            str << "actions[\"" << pref.path().asString() << "\"] = " << pref.defaultValue().asJsonString() << ";" << std::endl;
+            str << "actions[\"" << pref.path().asString('/') << "\"] = " << pref.defaultValue().asJsonString() << ";" << std::endl;
         }
         
         void ActionManager::getActionJSTable(StringStream& str) {
             str << "var actions = {};" << std::endl;
             
             for (ViewShortcut& entry : m_viewShortcuts)
-                str << "actions[\"" << entry.preferencePath().asString() << "\"] = " << entry.asJsonString() << ";" << std::endl;
+                str << "actions[\"" << entry.preferencePath().asString('/') << "\"] = " << entry.asJsonString() << ";" << std::endl;
             
             printActionPreference(str, Preferences::CameraFlyForward);
             printActionPreference(str, Preferences::CameraFlyBackward);
