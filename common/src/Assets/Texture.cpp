@@ -41,6 +41,7 @@ namespace TrenchBroom {
                 case GL_BGR:
                     return 3U;
                 case GL_RGBA:
+                case GL_BGRA:
                     return 4U;
             }
             ensure(false, "unknown format");
@@ -238,6 +239,18 @@ namespace TrenchBroom {
             if (isPrepared()) {
                 glAssert(glBindTexture(GL_TEXTURE_2D, 0));
             }
+        }
+
+        const TextureBuffer::List& Texture::buffersIfUnprepared() const {
+            return m_buffers;
+        }
+
+        GLenum Texture::format() const {
+            return m_format;
+        }
+
+        TextureType Texture::type() const {
+            return m_type;
         }
 
         void Texture::setCollection(TextureCollection* collection) {

@@ -9,7 +9,7 @@ FILE(GLOB_RECURSE APP_SOURCE
     "${APP_SOURCE_DIR}/*.cpp"
 )
 
-SET(APP_SOURCE ${APP_SOURCE} ${DOC_MANUAL_TARGET_FILES})
+SET(APP_SOURCE ${APP_SOURCE} ${DOC_MANUAL_TARGET_FILES} ${DOC_MANUAL_IMAGES_TARGET_FILES})
 
 # OS X app bundle configuration, must happen before the executable is added
 IF(APPLE)
@@ -58,6 +58,7 @@ IF(APPLE)
 
     # Configure manual files
     SET_SOURCE_FILES_PROPERTIES(${DOC_MANUAL_TARGET_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/manual)
+    SET_SOURCE_FILES_PROPERTIES(${DOC_MANUAL_IMAGES_TARGET_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/manual/images)
 ENDIF()
 
 # Set up resource compilation for Windows
@@ -181,6 +182,7 @@ IF(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
     # Copy manual files to resource directory
     ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:TrenchBroom>/manual/"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:TrenchBroom>/manual/images"
     )
 
     FOREACH(MANUAL_FILE ${DOC_MANUAL_TARGET_FILES})
@@ -188,6 +190,12 @@ IF(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
             COMMAND ${CMAKE_COMMAND} -E copy ${MANUAL_FILE} "$<TARGET_FILE_DIR:TrenchBroom>/manual/"
         )
     ENDFOREACH(MANUAL_FILE)
+
+    FOREACH(MANUAL_IMAGE_FILE ${DOC_MANUAL_IMAGES_TARGET_FILES})
+        ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy ${MANUAL_IMAGE_FILE} "$<TARGET_FILE_DIR:TrenchBroom>/manual/images/"
+        )
+    ENDFOREACH(MANUAL_IMAGE_FILE)
 ENDIF()
 
 # cotire
@@ -226,6 +234,12 @@ IF(WIN32)
         WX_LIB_TO_DLL(${WX_gl}   _${WX_LIB_DIR_PREFIX} WIN_LIB_WX_gl)
     ENDIF()
     
+    # Copy wxWidgets DLLs to app directory (not actually related to CPack but uses the WIN_LIB_WX_* variables from above)
+    ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${WIN_LIB_WX_core} $<TARGET_FILE_DIR:TrenchBroom>)
+    ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${WIN_LIB_WX_base} $<TARGET_FILE_DIR:TrenchBroom>)
+    ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${WIN_LIB_WX_adv} $<TARGET_FILE_DIR:TrenchBroom>)
+    ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${WIN_LIB_WX_gl} $<TARGET_FILE_DIR:TrenchBroom>)
+
     # Copy PDB files (msvc debug symbols)
     IF(COMPILER_IS_MSVC)
         IF(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
@@ -262,6 +276,9 @@ IF(WIN32)
     INSTALL(FILES
         ${DOC_MANUAL_TARGET_FILES}
         DESTINATION manual COMPONENT TrenchBroom)
+    INSTALL(FILES
+        ${DOC_MANUAL_IMAGES_TARGET_FILES}
+        DESTINATION manual/images COMPONENT TrenchBroom)
     INSTALL(DIRECTORY
         "${APP_DIR}/resources/graphics/images"
         "${APP_DIR}/resources/fonts"
