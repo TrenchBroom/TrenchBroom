@@ -137,7 +137,6 @@ namespace TrenchBroom {
                 const int MoveVerticesRight                  = Lowest +  11;
                 const int MoveVerticesUp                     = Lowest +  12;
                 const int MoveVerticesDown                   = Lowest +  13;
-                const int ToggleUVLock                       = Lowest +  14;
 
                 const int MoveObjectsForward                 = Lowest +  20;
                 const int MoveObjectsRight                   = Lowest +  21;
