@@ -30,7 +30,7 @@ index 1f1c6244ec..0aef5f0987 100644
 +    // Needs to be done here rather than at the top of this function. Otherwise,
 +    // events queued during GTKProcessEvent (e.g. Refresh() or other queued events
 +    // can be delayed indefinitely when motion events are arriving quickly 
-+    // (100Hz mouse)).
++    // (1000Hz mouse)).
 +    if (gdk_event->is_hint)
 +    {
 +        int x = 0;
