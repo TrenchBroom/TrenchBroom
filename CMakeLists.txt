@@ -9,8 +9,6 @@ if(POLICY CMP0058)
     cmake_policy(SET CMP0058 NEW)
 endif()
 
-include(cmake/cotire.cmake)
-
 # SET(CMAKE_VERBOSE_MAKEFILE ON)
 
 INCLUDE(cmake/Utils.cmake)

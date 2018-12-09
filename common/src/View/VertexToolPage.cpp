@@ -26,6 +26,9 @@
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 
+#include <wx/checkbox.h>
+#include <wx/sizer.h>
+
 namespace TrenchBroom {
     namespace View {
         VertexToolPage::VertexToolPage(wxWindow *parent, MapDocumentWPtr document) :

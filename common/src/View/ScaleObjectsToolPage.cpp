@@ -34,6 +34,7 @@
 #include <wx/sizer.h>
 #include <wx/stattext.h>
 #include <wx/combobox.h>
+#include <wx/simplebook.h>
 
 namespace TrenchBroom {
     namespace View {

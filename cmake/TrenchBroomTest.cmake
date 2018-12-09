@@ -84,10 +84,3 @@ ADD_CUSTOM_COMMAND(TARGET TrenchBroom-Test POST_BUILD
 
 SET_XCODE_ATTRIBUTES(TrenchBroom-Test)
 SET_XCODE_ATTRIBUTES(TrenchBroom-Benchmark)
-
-# cotire
-set_target_properties(TrenchBroom-Test PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "Prefix.h")
-cotire(TrenchBroom-Test)
-
-set_target_properties(TrenchBroom-Benchmark PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "Prefix.h")
-cotire(TrenchBroom-Benchmark)
