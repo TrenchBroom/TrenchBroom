@@ -199,8 +199,8 @@ IF(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
 ENDIF()
 
 # cotire
-set_target_properties(TrenchBroom PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "Prefix.h")
-cotire(TrenchBroom)
+# set_target_properties(TrenchBroom PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "Prefix.h")
+# cotire(TrenchBroom)
 
 # Common CPack configuration
 SET(APP_PACKAGE_FILE_NAME "TrenchBroom-${APP_PLATFORM_NAME}-${GIT_DESCRIBE}-${CMAKE_BUILD_TYPE}")

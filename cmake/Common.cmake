@@ -47,5 +47,5 @@ ADD_CUSTOM_TARGET(GenerateVersion
 ADD_DEPENDENCIES(common GenerateVersion)
 
 # cotire
-set_target_properties(common PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "Prefix.h")
-cotire(common)
+# set_target_properties(common PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "Prefix.h")
+# cotire(common)
