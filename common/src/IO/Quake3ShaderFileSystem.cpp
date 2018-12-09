@@ -19,6 +19,7 @@
 
 #include "Quake3ShaderFileSystem.h"
 
+#include "CollectionUtils.h"
 #include "Assets/Quake3Shader.h"
 #include "IO/Quake3ShaderParser.h"
 
@@ -26,39 +27,93 @@
 
 namespace TrenchBroom {
     namespace IO {
-        Quake3ShaderFileSystem::Quake3ShaderFileSystem(const Path& path, const FileSystem& fs) :
+        Quake3ShaderFileSystem::Quake3ShaderFileSystem(const Path& path, const Path& prefix, const FileSystem& fs, Logger* logger) :
         ImageFileSystemBase(path),
-        m_fs(fs) {}
+        m_prefix(prefix),
+        m_fs(fs),
+        m_logger(logger) {
+            initialize();
+        }
 
         void Quake3ShaderFileSystem::doReadDirectory() {
+            auto shaders = loadShaders();
+            linkShaders(shaders);
+        }
+
+        std::vector<Assets::Quake3Shader> Quake3ShaderFileSystem::loadShaders() const {
+            auto result = std::vector<Assets::Quake3Shader>();
+
             const auto paths = m_fs.findItems(Path("scripts"), FileExtensionMatcher("shader"));
             for (const auto& path : paths) {
+                m_logger->debug() << "Loading shader " << path.asString();
+
                 const auto file = m_fs.openFile(path);
-                processScript(file);
+
+                Quake3ShaderParser parser(file->begin(), file->end());
+                VectorUtils::append(result, parser.parse());
             }
+
+            m_logger->info() << "Loaded " << result.size() << " shaders";
+
+            return result;
         }
 
-        void Quake3ShaderFileSystem::processScript(const MappedFile::Ptr& file) {
-            Quake3ShaderParser parser(file->begin(), file->end());
-            const auto shaders = parser.parse();
-            for (const auto& shader : shaders) {
-                processShader(shader);
-            }
+        void Quake3ShaderFileSystem::linkShaders(std::vector<Assets::Quake3Shader>& shaders) {
+            const auto extensions = StringList {"tga", "png", "jpg", "jpeg"};
+            const auto textures = m_fs.findItemsRecursively(Path("textures"), FileExtensionMatcher(extensions));
+
+            m_logger->info() << "Linking shaders...";
+            linkTextures(textures, shaders);
+            linkStandaloneShaders(shaders);
         }
 
-        void Quake3ShaderFileSystem::processShader(const Assets::Quake3Shader& shader) {
-            const auto& texturePath = shader.texturePath;
-            const auto& imagePath = shader.qerImagePath;
-            if (!imagePath.isEmpty()) {
-                m_root.addFile(texturePath, std::make_unique<LinkFile>(texturePath, imagePath));
-            } else {
-                const auto paths = m_fs.findItems(texturePath, FileExtensionMatcher({"tga", "jpg", "jpeg", "png"}));
-                if (!paths.empty()) {
-                    m_root.addFile(texturePath, std::make_unique<LinkFile>(texturePath, paths.front()));
-                } else {
-                    // TODO: can't load this shader, we should link to a default image, but what?
+        void Quake3ShaderFileSystem::linkTextures(const Path::List& textures, std::vector<Assets::Quake3Shader>& shaders) {
+            m_logger->debug() << "Linking textures...";
+            for (const auto& texture : textures) {
+                const auto textureBasePath = texture.deleteExtension();
+
+                // Only link a shader if it has not been linked yet.
+                if (!fileExists(texture)) {
+                    const auto shaderIt = std::find_if(std::begin(shaders), std::end(shaders), [&textureBasePath](const auto& shader){
+                        return textureBasePath == shader.texturePath;
+                    });
+
+                    if (shaderIt == std::end(shaders)) {
+                        // No matching shader was found. Create a link.
+                        linkShaderToImage(texture, texture);
+                    } else {
+                        // Found a shader. If it has an editor image, we link to that. Otherwise we link to the texture.
+                        const auto& shader = *shaderIt;
+                        if (!shader.qerImagePath.isEmpty()) {
+                            linkShaderToImage(texture, shader.qerImagePath);
+                        } else {
+                            // Just link to the texture if no editor image was specified.
+                            linkShaderToImage(texture, texture);
+                        }
+
+                        // Remove the shader so that we don't revisit it when linking standalone shaders.
+                        shaders.erase(shaderIt);
+                    }
                 }
             }
+        }
+
+        void Quake3ShaderFileSystem::linkStandaloneShaders(std::vector<Assets::Quake3Shader>& shaders) {
+            m_logger->debug() << "Linking standalone shaders...";
+            for (const auto& shader : shaders) {
+                if (!shader.qerImagePath.isEmpty()) {
+                    linkShaderToImage(shader.texturePath, shader.qerImagePath);
+                } else {
+                    m_logger->debug() << "Missing editor image for shader " << shader.texturePath.asString();
+                }
+            }
+        }
+
+        void Quake3ShaderFileSystem::linkShaderToImage(const Path& shaderPath, const Path& imagePath) {
+            m_logger->debug() << "Linking shader: " << shaderPath.asString() << " -> " << imagePath.asString();
+
+            const auto actualPath = m_prefix + shaderPath;
+            m_root.addFile(actualPath, std::make_unique<LinkFile>(actualPath, imagePath));
         }
     }
 }

@@ -22,22 +22,47 @@
 
 #include "IO/ImageFileSystem.h"
 
+#include <vector>
+
 namespace TrenchBroom {
+    class Logger;
+
     namespace Assets {
         class Quake3Shader;
     }
 
     namespace IO {
+        /**
+         * Parses Quake 3 shader scripts found in a file system and creates links from the shader names to the actual
+         * image files to be loaded.
+         *
+         * This file system can be used to override the textures using their shaders. This is particularly useful when
+         * a shader provides a special editor image.
+         */
         class Quake3ShaderFileSystem : public ImageFileSystemBase {
         private:
+            Path m_prefix;
             const FileSystem& m_fs;
+            Logger* m_logger;
         public:
-            Quake3ShaderFileSystem(const Path& path, const FileSystem& fs);
+            /**
+             * Creates a new instance at the given base path that uses the given file system to find shaders and shader
+             * image resources.
+             *
+             * @param path the base path
+             * @param prefix the path at which the shader links are created
+             * @param fs the filesystem to use when searching for shaders and linking image resources
+             * @param logger the logger to use
+             */
+            Quake3ShaderFileSystem(const Path& path, const Path& m_prefix, const FileSystem& fs, Logger* logger);
         private:
             void doReadDirectory() override;
 
-            void processScript(const MappedFile::Ptr& file);
-            void processShader(const Assets::Quake3Shader& shader);
+            std::vector<Assets::Quake3Shader> loadShaders() const;
+            void linkShaders(std::vector<Assets::Quake3Shader>& shaders);
+            void linkTextures(const Path::List& textures, std::vector<Assets::Quake3Shader>& shaders);
+            void linkStandaloneShaders(std::vector<Assets::Quake3Shader>& shaders);
+            void linkShaderToImage(const Path& shaderPath, const Path& imagePath);
         };
     }
 }

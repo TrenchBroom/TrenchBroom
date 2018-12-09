@@ -46,22 +46,22 @@ namespace TrenchBroom {
             bool fileExists(const Path& path) const;
 
             template <class Matcher>
-            Path::List findItems(const Path& path, const Matcher& matcher) const {
+            Path::List findItems(const Path& directoryPath, const Matcher& matcher) const {
                 Path::List result;
-                doFindItems(path, matcher, false, result);
+                doFindItems(directoryPath, matcher, false, result);
                 return result;
             }
-            Path::List findItems(const Path& path) const;
+            Path::List findItems(const Path& directoryPath) const;
             
             template <class Matcher>
-            Path::List findItemsRecursively(const Path& path, const Matcher& matcher) const {
+            Path::List findItemsRecursively(const Path& directoryPath, const Matcher& matcher) const {
                 Path::List result;
-                doFindItems(path, matcher, true, result);
+                doFindItems(directoryPath, matcher, true, result);
                 return result;
             }
-            Path::List findItemsRecursively(const Path& path) const;
+            Path::List findItemsRecursively(const Path& directoryPath) const;
             
-            Path::List getDirectoryContents(const Path& path) const;
+            Path::List getDirectoryContents(const Path& directoryPath) const;
             const MappedFile::Ptr openFile(const Path& path) const;
 
             /**

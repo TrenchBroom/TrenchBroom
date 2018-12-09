@@ -57,23 +57,23 @@ namespace TrenchBroom {
             }
         }
 
-        Path::List FileSystem::findItems(const Path& path) const {
-            return findItems(path, FileTypeMatcher());
+        Path::List FileSystem::findItems(const Path& directoryPath) const {
+            return findItems(directoryPath, FileTypeMatcher());
         }
 
-        Path::List FileSystem::findItemsRecursively(const Path& path) const {
-            return findItemsRecursively(path, FileTypeMatcher());
+        Path::List FileSystem::findItemsRecursively(const Path& directoryPath) const {
+            return findItemsRecursively(directoryPath, FileTypeMatcher());
         }
 
-        Path::List FileSystem::getDirectoryContents(const Path& path) const {
+        Path::List FileSystem::getDirectoryContents(const Path& directoryPath) const {
             try {
-                if (path.isAbsolute())
-                    throw FileSystemException("Path is absolute: '" + path.asString() + "'");
-                if (!directoryExists(path))
-                    throw FileSystemException("Directory not found: '" + path.asString() + "'");
-                return doGetDirectoryContents(path);
+                if (directoryPath.isAbsolute())
+                    throw FileSystemException("Path is absolute: '" + directoryPath.asString() + "'");
+                if (!directoryExists(directoryPath))
+                    throw FileSystemException("Directory not found: '" + directoryPath.asString() + "'");
+                return doGetDirectoryContents(directoryPath);
             } catch (const PathException& e) {
-                throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
+                throw FileSystemException("Invalid path: '" + directoryPath.asString() + "'", e);
             }
         }
 
