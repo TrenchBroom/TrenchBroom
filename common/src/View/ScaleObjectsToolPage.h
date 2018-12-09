@@ -26,6 +26,8 @@
 #include <wx/panel.h>
 
 class wxButton;
+class wxChoice;
+class wxSimplebook;
 class wxTextCtrl;
 
 namespace TrenchBroom {

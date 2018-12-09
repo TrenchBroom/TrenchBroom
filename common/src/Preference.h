@@ -31,6 +31,7 @@
 
 #include <wx/config.h>
 #include <wx/confbase.h>
+#include <wx/thread.h>
 #include <wx/tokenzr.h>
 
 namespace TrenchBroom {

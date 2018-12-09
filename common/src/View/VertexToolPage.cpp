@@ -26,11 +26,14 @@
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 
+#include <wx/checkbox.h>
+#include <wx/sizer.h>
+
 namespace TrenchBroom {
     namespace View {
         VertexToolPage::VertexToolPage(wxWindow *parent, MapDocumentWPtr document) :
-                wxPanel(parent),
-                m_document(document) {
+        wxPanel(parent),
+        m_document(document) {
             createGui();
             bindObservers();
         }
@@ -48,7 +51,7 @@ namespace TrenchBroom {
                 PreferenceManager::instance().saveChanges();
             });
 
-            wxBoxSizer *sizer = new wxBoxSizer(wxHORIZONTAL);
+            auto* sizer = new wxBoxSizer(wxHORIZONTAL);
             sizer->Add(m_uvLockCheckBox, 0, wxALIGN_CENTER_VERTICAL);
 
             SetSizer(sizer);
