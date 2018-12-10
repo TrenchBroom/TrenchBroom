@@ -54,7 +54,7 @@ namespace TrenchBroom {
              * @param fs the filesystem to use when searching for shaders and linking image resources
              * @param logger the logger to use
              */
-            Quake3ShaderFileSystem(const Path& path, const Path& m_prefix, const FileSystem& fs, Logger* logger);
+            Quake3ShaderFileSystem(const Path& path, const Path& prefix, const FileSystem& fs, Logger* logger);
         private:
             void doReadDirectory() override;
 
