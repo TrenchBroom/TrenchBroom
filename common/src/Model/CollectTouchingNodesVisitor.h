@@ -40,12 +40,19 @@ namespace TrenchBroom {
             m_end(end) {}
             
             bool operator()(const Node* node) const {
-                I cur = m_begin;
-                while (cur != m_end) {
-                    if (*cur != node && (*cur)->intersects(node))
-                        return true;
-                    ++cur;
+                // if the node under test is one of the "search query" nodes, don't count it as touching
+                for (auto cur = m_begin; cur != m_end; ++cur) {
+                    if (*cur == node) {
+                        return false;
+                    }
                 }
+
+                for (auto cur = m_begin; cur != m_end; ++cur) {
+                    if ((*cur)->intersects(node)) {
+                        return true;
+                    }
+                }
+
                 return false;
             }
         };
