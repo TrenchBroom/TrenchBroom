@@ -27,6 +27,7 @@ class wxColourPickerEvent;
 class wxCheckBox;
 class wxChoice;
 class wxSlider;
+class wxComboBox;
 
 namespace TrenchBroom {
     namespace View {

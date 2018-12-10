@@ -45,7 +45,3 @@ ADD_TARGET_PROPERTY(common INCLUDE_DIRECTORIES ${CMAKE_CURRENT_BINARY_DIR})
 ADD_CUSTOM_TARGET(GenerateVersion
 		${CMAKE_COMMAND} -P "${CMAKE_CURRENT_BINARY_DIR}/GenerateVersion.cmake")
 ADD_DEPENDENCIES(common GenerateVersion)
-
-# cotire
-set_target_properties(common PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "Prefix.h")
-cotire(common)
