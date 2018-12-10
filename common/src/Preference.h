@@ -33,6 +33,7 @@
 #include <wx/confbase.h>
 #include <wx/thread.h>
 #include <wx/tokenzr.h>
+#include <wx/thread.h>
 
 namespace TrenchBroom {
     template <typename T>

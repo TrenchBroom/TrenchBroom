@@ -29,6 +29,8 @@ class wxButton;
 class wxChoice;
 class wxSimplebook;
 class wxTextCtrl;
+class wxSimplebook;
+class wxChoice;
 
 namespace TrenchBroom {
     namespace View {
