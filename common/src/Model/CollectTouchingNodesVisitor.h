@@ -25,6 +25,8 @@
 #include "Model/ModelTypes.h"
 #include "Model/NodePredicates.h"
 
+#include <algorithm>
+
 namespace TrenchBroom {
     namespace Model {
         class EditorContext;
@@ -40,20 +42,11 @@ namespace TrenchBroom {
             m_end(end) {}
             
             bool operator()(const Node* node) const {
-                // if the node under test is one of the "search query" nodes, don't count it as touching
-                for (auto cur = m_begin; cur != m_end; ++cur) {
-                    if (*cur == node) {
-                        return false;
-                    }
+                // if `node` is one of the search query nodes, don't count it as touching
+                if (std::any_of(m_begin, m_end, [node](const auto* cur) { return node == cur; })) {
+                    return false;
                 }
-
-                for (auto cur = m_begin; cur != m_end; ++cur) {
-                    if ((*cur)->intersects(node)) {
-                        return true;
-                    }
-                }
-
-                return false;
+                return std::any_of(m_begin, m_end, [node](const auto* cur) { return cur->intersects(node); });
             }
         };
         
