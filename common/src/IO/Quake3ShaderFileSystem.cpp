@@ -27,9 +27,8 @@
 
 namespace TrenchBroom {
     namespace IO {
-        Quake3ShaderFileSystem::Quake3ShaderFileSystem(const Path& path, const Path& prefix, const FileSystem& fs, Logger* logger) :
+        Quake3ShaderFileSystem::Quake3ShaderFileSystem(const Path& path, const FileSystem& fs, Logger* logger) :
         ImageFileSystemBase(path),
-        m_prefix(prefix),
         m_fs(fs),
         m_logger(logger) {
             initialize();
@@ -78,17 +77,11 @@ namespace TrenchBroom {
                         return textureBasePath == shader.texturePath;
                     });
 
-                    if (shaderIt == std::end(shaders)) {
-                        // No matching shader was found. Create a link.
-                        linkShaderToImage(texture, texture);
-                    } else {
+                    if (shaderIt != std::end(shaders)) {
                         // Found a shader. If it has an editor image, we link to that. Otherwise we link to the texture.
                         const auto& shader = *shaderIt;
                         if (!shader.qerImagePath.isEmpty()) {
                             linkShaderToImage(texture, shader.qerImagePath);
-                        } else {
-                            // Just link to the texture if no editor image was specified.
-                            linkShaderToImage(texture, texture);
                         }
 
                         // Remove the shader so that we don't revisit it when linking standalone shaders.
@@ -112,8 +105,7 @@ namespace TrenchBroom {
         void Quake3ShaderFileSystem::linkShaderToImage(const Path& shaderPath, const Path& imagePath) {
             m_logger->debug() << "Linking shader: " << shaderPath.asString() << " -> " << imagePath.asString();
 
-            const auto actualPath = m_prefix + shaderPath;
-            m_root.addFile(actualPath, std::make_unique<LinkFile>(actualPath, imagePath));
+            m_root.addFile(shaderPath, std::make_unique<LinkFile>(shaderPath, imagePath));
         }
     }
 }

@@ -39,20 +39,20 @@ namespace TrenchBroom {
                 const auto workDir = IO::Disk::getCurrentWorkingDir();
                 const auto testDir = workDir + Path("data/IO/Shader");
                 m_fs.pushFileSystem(std::make_unique<DiskFileSystem>(testDir));
-                m_fs.pushFileSystem(std::make_unique<Quake3ShaderFileSystem>(Path("scripts"), Path("__tb"), m_fs, &m_logger));
+                m_fs.pushFileSystem(std::make_unique<Quake3ShaderFileSystem>(Path("scripts"), m_fs, &m_logger));
             }
         };
 
         void assertShader(const Path::List& paths, const String& path);
 
         TEST_F(Quake3ShaderFileSystemTest, overrideExistingTexture) {
-            const auto items = m_fs.findItems(Path("__tb/textures/test"));
+            const auto items = m_fs.findItems(Path("textures/test"));
             ASSERT_EQ(4u, items.size());
 
-            assertShader(items, "__tb/textures/test/editor_image.jpg");
-            assertShader(items, "__tb/textures/test/test.tga");
-            assertShader(items, "__tb/textures/test/test2.tga");
-            assertShader(items, "__tb/textures/test/not_existing");
+            assertShader(items, "textures/test/editor_image.jpg");
+            assertShader(items, "textures/test/test.tga");
+            assertShader(items, "textures/test/test2.tga");
+            assertShader(items, "textures/test/not_existing");
         }
 
         void assertShader(const Path::List& paths, const String& path) {
