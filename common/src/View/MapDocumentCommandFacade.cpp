@@ -64,6 +64,7 @@ namespace TrenchBroom {
             Model::CollectRecursivelySelectedNodesVisitor descendants(false);
 
             for (Model::Node* initialNode : nodes) {
+                ensure(initialNode->isDescendantOf(m_world) || initialNode == m_world, "to select a node, it must be world or a descendant");
                 const auto nodesToSelect = initialNode->nodesRequiredForViewSelection();
                 for (Model::Node* node : nodesToSelect) {
                     if (!node->selected() /* && m_editorContext->selectable(node) remove check to allow issue objects to be selected */) {

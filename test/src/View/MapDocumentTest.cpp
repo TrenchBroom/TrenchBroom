@@ -827,5 +827,36 @@ namespace TrenchBroom {
         TEST_F(MapDocumentTest, throwExceptionDuringCommand) {
             ASSERT_THROW(document->throwExceptionDuringCommand(), GeometryException);
         }
+
+        // https://github.com/kduske/TrenchBroom/issues/2476
+        TEST_F(MapDocumentTest, selectTouching) {
+            // delete default brush
+            document->selectAllNodes();
+            document->deleteObjects();
+
+            const Model::BrushBuilder builder(document->world(), document->worldBounds());
+            const auto box = vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64));
+
+            auto *brush1 = builder.createCuboid(box, "texture");
+            document->addNode(brush1, document->currentParent());
+
+            auto *brush2 = builder.createCuboid(box.translate(vm::vec3(1, 1, 1)), "texture");
+            document->addNode(brush2, document->currentParent());
+
+            document->selectAllNodes();
+
+            EXPECT_EQ((std::vector<Model::Brush *>{brush1, brush2}), document->selectedNodes().brushes());
+            EXPECT_EQ((std::vector<Model::Node *>{brush1, brush2}), document->currentLayer()->children());
+
+            document->selectTouching(true);
+
+            // only this next line was failing
+            EXPECT_EQ(std::vector<Model::Brush *>{}, document->selectedNodes().brushes());
+            EXPECT_EQ(std::vector<Model::Node *>{}, document->currentLayer()->children());
+
+            // brush1 and brush2 are deleted
+            EXPECT_EQ(nullptr, brush1->parent());
+            EXPECT_EQ(nullptr, brush2->parent());
+        }
     }
 }
