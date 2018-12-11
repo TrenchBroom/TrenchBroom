@@ -82,7 +82,7 @@ namespace TrenchBroom {
             m_menuBar->getShortcutEntries(entries);
             
             for (const KeyboardShortcutEntry* entry : entries) {
-                String preferencePath = entry->preferencePath().asString();
+                String preferencePath = entry->preferencePath().asString('/');
                 if (StringUtils::caseSensitiveSuffix(preferencePath, "...")) {
                     // Remove "..." suffix because pandoc will transform this into unicode ellipses.
                     preferencePath = preferencePath.substr(0, preferencePath.length() - 3);
@@ -94,14 +94,14 @@ namespace TrenchBroom {
 
         void printActionPreference(StringStream& str, const Preference<KeyboardShortcut>& pref);
         void printActionPreference(StringStream& str, const Preference<KeyboardShortcut>& pref) {
-            str << "actions[\"" << pref.path().asString() << "\"] = " << pref.defaultValue().asJsonString() << ";" << std::endl;
+            str << "actions[\"" << pref.path().asString('/') << "\"] = " << pref.defaultValue().asJsonString() << ";" << std::endl;
         }
         
         void ActionManager::getActionJSTable(StringStream& str) {
             str << "var actions = {};" << std::endl;
             
             for (ViewShortcut& entry : m_viewShortcuts)
-                str << "actions[\"" << entry.preferencePath().asString() << "\"] = " << entry.asJsonString() << ";" << std::endl;
+                str << "actions[\"" << entry.preferencePath().asString('/') << "\"] = " << entry.asJsonString() << ";" << std::endl;
             
             printActionPreference(str, Preferences::CameraFlyForward);
             printActionPreference(str, Preferences::CameraFlyBackward);
@@ -240,6 +240,7 @@ namespace TrenchBroom {
             editMenu->addModifiableActionItem(CommandIds::Menu::EditSnapVerticesToGrid, "Snap Vertices to Grid", KeyboardShortcut('V', WXK_SHIFT, WXK_CONTROL, WXK_ALT));
             editMenu->addSeparator();
             editMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleTextureLock, "Texture Lock");
+            editMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleUVLock, "UV Lock", KeyboardShortcut('U'));
             editMenu->addModifiableActionItem(CommandIds::Menu::EditReplaceTexture, "Replace Texture...");
             
             Menu* viewMenu = m_menuBar->addMenu("View");
@@ -348,8 +349,6 @@ namespace TrenchBroom {
             createViewShortcut(KeyboardShortcut(WXK_PAGEDOWN), ActionContext_AnyVertexTool,
                                Action(View::CommandIds::Actions::MoveVerticesForward, "Move vertices forward", true),
                                Action(View::CommandIds::Actions::MoveVerticesDown, "Move vertices down", true));
-            createViewShortcut(KeyboardShortcut('U'), ActionContext_AnyVertexTool,
-                               Action(View::CommandIds::Actions::ToggleUVLock, "Toggle UV lock", true));
 
             createViewShortcut(KeyboardShortcut(WXK_UP), ActionContext_RotateTool,
                                Action(View::CommandIds::Actions::MoveRotationCenterUp, "Move rotation center up", true),

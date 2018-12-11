@@ -54,6 +54,7 @@ namespace TrenchBroom {
                 const int ViewMoveCameraRight                = Lowest +  57;
                 const int ViewMoveCameraUp                   = Lowest +  58;
                 const int ViewMoveCameraDown                 = Lowest +  59;
+                const int EditToggleUVLock                   = Lowest +  60;
                 const int ViewFocusCameraOnSelection         = Lowest +  72;
                 const int ViewIncGridSize                    = Lowest +  74;
                 const int ViewDecGridSize                    = Lowest +  75;
@@ -136,7 +137,6 @@ namespace TrenchBroom {
                 const int MoveVerticesRight                  = Lowest +  11;
                 const int MoveVerticesUp                     = Lowest +  12;
                 const int MoveVerticesDown                   = Lowest +  13;
-                const int ToggleUVLock                       = Lowest +  14;
 
                 const int MoveObjectsForward                 = Lowest +  20;
                 const int MoveObjectsRight                   = Lowest +  21;
