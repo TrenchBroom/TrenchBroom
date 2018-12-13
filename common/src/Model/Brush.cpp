@@ -1162,18 +1162,33 @@ namespace TrenchBroom {
             return VertexSet(std::begin(vertices), std::end(vertices));
         }
 
-        BrushList Brush::subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const Brush* subtrahend) const {
-            const auto result = m_geometry->subtract(*subtrahend->m_geometry);
+        BrushList Brush::subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const std::vector<const Brush*>& subtrahends) const {
+            auto result = std::list<BrushGeometry>{*m_geometry};
+
+            for (auto* subtrahend : subtrahends) {
+                auto nextResults = std::list<BrushGeometry>();
+
+                for (const BrushGeometry& fragment : result) {
+                    const auto subFragments = fragment.subtract(*subtrahend->m_geometry);
+                    ListUtils::append(nextResults, subFragments);
+                }
+
+                result = nextResults;
+            }
 
             BrushList brushes;
             brushes.reserve(result.size());
 
             for (const auto& geometry : result) {
-                auto* brush = createBrush(factory, worldBounds, defaultTextureName, geometry, subtrahend);
+                auto* brush = createBrush(factory, worldBounds, defaultTextureName, geometry, subtrahends);
                 brushes.push_back(brush);
             }
 
             return brushes;
+        }
+
+        BrushList Brush::subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const Brush* subtrahend) const {
+            return subtract(factory, worldBounds, defaultTextureName, std::vector<const Brush*>{subtrahend});
         }
 
         void Brush::intersect(const vm::bbox3& worldBounds, const Brush* brush) {
@@ -1198,7 +1213,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        Brush* Brush::createBrush(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const BrushGeometry& geometry, const Brush* subtrahend) const {
+        Brush* Brush::createBrush(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const BrushGeometry& geometry, const std::vector<const Brush*>& subtrahends) const {
             BrushFaceList faces(0);
             faces.reserve(geometry.faceCount());
 
@@ -1217,7 +1232,9 @@ namespace TrenchBroom {
 
             auto* brush = factory.createBrush(worldBounds, faces);
             brush->cloneFaceAttributesFrom(this);
-            brush->cloneInvertedFaceAttributesFrom(subtrahend);
+            for (const auto* subtrahend : subtrahends) {
+                brush->cloneInvertedFaceAttributesFrom(subtrahend);
+            }
             return brush;
         }
 

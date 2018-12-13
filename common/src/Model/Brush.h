@@ -247,13 +247,24 @@ namespace TrenchBroom {
             static VertexSet createVertexSet(const std::vector<vm::vec3>& vertices = std::vector<vm::vec3>(0));
         public:
             // CSG operations
+            BrushList subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const std::vector<const Brush*>& subtrahends) const;
             BrushList subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const Brush* subtrahend) const;
             void intersect(const vm::bbox3& worldBounds, const Brush* brush);
 
             // transformation
             bool canTransform(const vm::mat4x4& transformation, const vm::bbox3& worldBounds) const;
         private:
-            Brush* createBrush(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const BrushGeometry& geometry, const Brush* subtrahend) const;
+            /**
+             * Creates a brush with the given geometry, copying texture alignment from a vector of subtrahends
+             *
+             * @param factory
+             * @param worldBounds
+             * @param defaultTextureName
+             * @param geometry
+             * @param subtrahends used as a source of texture alignment only
+             * @return
+             */
+            Brush* createBrush(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const BrushGeometry& geometry, const std::vector<const Brush*>& subtrahends) const;
         private:
             void updateFacesFromGeometry(const vm::bbox3& worldBounds, const BrushGeometry& geometry);
             void updatePointsFromVertices(const vm::bbox3& worldBounds);

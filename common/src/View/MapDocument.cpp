@@ -1100,19 +1100,32 @@ namespace TrenchBroom {
         }
         
         bool MapDocument::csgSubtract() {
-            const Model::BrushList brushes = selectedNodes().brushes();
-            if (brushes.size() < 2)
+            const auto subtrahends = [this]() {
+                std::vector<const Model::Brush *> result;
+                for (auto *subtrahend : selectedNodes().brushes()) {
+                    result.push_back(subtrahend);
+                }
+                return result;
+            }();
+
+            if (subtrahends.size() == 0) {
                 return false;
-            
-            const Model::BrushList minuends(std::begin(brushes), std::end(brushes) - 1);
-            Model::Brush* subtrahend = brushes.back();
-            
+            }
+
+            // Select touching, but don't delete the subtrahends yet
+            selectTouching(false);
+
+            const auto minuends = std::vector<Model::Brush*>{selectedNodes().brushes()};
+
             Model::ParentChildrenMap toAdd;
             Model::NodeList toRemove;
-            toRemove.push_back(subtrahend);
-            
-            for (Model::Brush* minuend : minuends) {
-                const Model::BrushList result = minuend->subtract(*m_world, m_worldBounds, currentTextureName(), subtrahend);
+
+            for (auto* subtrahend : subtrahends) {
+                toRemove.push_back(const_cast<Model::Brush*>(subtrahend));
+            }
+
+            for (auto* minuend : minuends) {
+                const Model::BrushList result = minuend->subtract(*m_world, m_worldBounds, currentTextureName(), subtrahends);
 
                 if (!result.empty()) {
                     VectorUtils::append(toAdd[minuend->parent()], result);

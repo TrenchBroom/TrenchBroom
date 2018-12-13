@@ -1979,7 +1979,7 @@ namespace TrenchBroom {
         }
 
         bool MapFrame::canDoCsgSubtract() const {
-            return m_document->selectedNodes().hasOnlyBrushes() && m_document->selectedNodes().brushCount() > 1;
+            return m_document->selectedNodes().hasOnlyBrushes() && m_document->selectedNodes().brushCount() >= 1;
         }
 
         bool MapFrame::canDoCsgIntersect() const {
