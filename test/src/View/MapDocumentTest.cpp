@@ -411,6 +411,40 @@ namespace TrenchBroom {
             delete texAlignmentSnapshot;
         }
 
+        TEST_F(MapDocumentTest, csgSubtractMultipleBrushes) {
+            const Model::BrushBuilder builder(document->world(), document->worldBounds());
+
+            auto* entity = new Model::Entity();
+            document->addNode(entity, document->currentParent());
+
+            Model::Brush* minuend = builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture");
+            Model::Brush* subtrahend1 = builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(32, 32, 64)), "texture");
+            Model::Brush* subtrahend2 = builder.createCuboid(vm::bbox3(vm::vec3(32, 32, 0), vm::vec3(64, 64, 64)), "texture");
+
+            document->addNodes(Model::NodeList{minuend, subtrahend1, subtrahend2}, entity);
+            ASSERT_EQ(3, entity->children().size());
+
+            // we want to compute minuend - {subtrahend1, subtrahend2}
+            document->select(Model::NodeList{subtrahend1, subtrahend2});
+            ASSERT_TRUE(document->csgSubtract());
+            ASSERT_EQ(2, entity->children().size());
+
+            auto* remainder1 = dynamic_cast<Model::Brush*>(entity->children()[0]);
+            auto* remainder2 = dynamic_cast<Model::Brush*>(entity->children()[1]);
+            ASSERT_NE(nullptr, remainder1);
+            ASSERT_NE(nullptr, remainder2);
+
+            const auto expectedBBox1 = vm::bbox3(vm::vec3(0, 32, 0), vm::vec3(32, 64, 64));
+            const auto expectedBBox2 = vm::bbox3(vm::vec3(32, 0, 0), vm::vec3(64, 32, 64));
+
+            if (remainder1->bounds() != expectedBBox1) {
+                std::swap(remainder1, remainder2);
+            }
+
+            EXPECT_EQ(expectedBBox1, remainder1->bounds());
+            EXPECT_EQ(expectedBBox2, remainder2->bounds());
+        }
+
         TEST_F(MapDocumentTest, newWithGroupOpen) {
             Model::Entity* entity = new Model::Entity();
             document->addNode(entity, document->currentParent());
