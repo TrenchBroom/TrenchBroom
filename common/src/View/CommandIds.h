@@ -119,6 +119,8 @@ namespace TrenchBroom {
                 const int RunLaunch                          = Lowest + 151;
                 
                 const int FileRecentDocuments                = Lowest + 190;
+                const int FileReloadTextureCollections       = Lowest + 191;
+                const int FileReloadEntityDefinitions        = Lowest + 192;
 
                 const int Highest                            = Lowest + 200;
             }
