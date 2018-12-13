@@ -185,8 +185,8 @@ namespace TrenchBroom {
             fileMenu->addModifiableActionItem(CommandIds::Menu::FileReloadPortalFile, "Reload Portal File");
             fileMenu->addModifiableActionItem(CommandIds::Menu::FileUnloadPortalFile, "Unload Portal File");
             fileMenu->addSeparator();
-            fileMenu->addModifiableActionItem(CommandIds::Menu::FileReloadTextureCollections, "Reload Texture Collections");
-            fileMenu->addModifiableActionItem(CommandIds::Menu::FileReloadEntityDefinitions, "Reload Entity Definitions");
+            fileMenu->addModifiableActionItem(CommandIds::Menu::FileReloadTextureCollections, "Reload Texture Collections", KeyboardShortcut(WXK_F5));
+            fileMenu->addModifiableActionItem(CommandIds::Menu::FileReloadEntityDefinitions, "Reload Entity Definitions", KeyboardShortcut(WXK_F6));
             fileMenu->addSeparator();
             fileMenu->addUnmodifiableActionItem(wxID_CLOSE, "Close", KeyboardShortcut('W', WXK_CONTROL));
             
