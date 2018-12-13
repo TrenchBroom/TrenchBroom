@@ -888,8 +888,7 @@ namespace TrenchBroom {
         void MapFrame::OnFileReloadEntityDefinitions(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            auto oldSpec = m_document->entityDefinitionFile();
-            m_document->setEntityDefinitionFile(oldSpec);
+            m_document->reloadEntityDefinitions();
         }
 
         void MapFrame::OnFileClose(wxCommandEvent& event) {
