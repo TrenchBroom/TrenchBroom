@@ -1584,6 +1584,10 @@ namespace TrenchBroom {
                 case CommandIds::Menu::FileUnloadPortalFile:
                     event.Enable(canUnloadPortalFile());
                     break;
+                case CommandIds::Menu::FileReloadTextureCollections:
+                case CommandIds::Menu::FileReloadEntityDefinitions:
+                    event.Enable(true);
+                    break;
                 case wxID_UNDO: {
                     const ActionMenuItem* item = actionManager.findMenuItem(wxID_UNDO);
                     ensure(item != nullptr, "item is null");
