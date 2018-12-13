@@ -394,7 +394,8 @@ namespace TrenchBroom {
             document->addNode(brush2, entity);
             ASSERT_EQ(2, entity->children().size());
 
-            document->select(Model::NodeList { brush1, brush2 });
+            // we want to compute brush1 - brush2
+            document->select(Model::NodeList { brush2 });
             ASSERT_TRUE(document->csgSubtract());
             ASSERT_EQ(1, entity->children().size());
 
