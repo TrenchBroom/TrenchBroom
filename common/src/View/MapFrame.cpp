@@ -694,6 +694,8 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnFileLoadPortalFile, this, CommandIds::Menu::FileLoadPortalFile);
             Bind(wxEVT_MENU, &MapFrame::OnFileReloadPortalFile, this, CommandIds::Menu::FileReloadPortalFile);
             Bind(wxEVT_MENU, &MapFrame::OnFileUnloadPortalFile, this, CommandIds::Menu::FileUnloadPortalFile);
+            Bind(wxEVT_MENU, &MapFrame::OnFileReloadTextureCollections, this, CommandIds::Menu::FileReloadTextureCollections);
+            Bind(wxEVT_MENU, &MapFrame::OnFileReloadEntityDefinitions, this, CommandIds::Menu::FileReloadEntityDefinitions);
             Bind(wxEVT_MENU, &MapFrame::OnFileClose, this, wxID_CLOSE);
 
             Bind(wxEVT_MENU, &MapFrame::OnEditUndo, this, wxID_UNDO);
@@ -875,6 +877,18 @@ namespace TrenchBroom {
             if (canUnloadPortalFile()) {
                 m_document->unloadPortalFile();
             }
+        }
+
+        void MapFrame::OnFileReloadTextureCollections(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            m_document->reloadTextureCollections();
+        }
+
+        void MapFrame::OnFileReloadEntityDefinitions(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            m_document->reloadEntityDefinitions();
         }
 
         void MapFrame::OnFileClose(wxCommandEvent& event) {
@@ -1568,6 +1582,10 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::Menu::FileUnloadPortalFile:
                     event.Enable(canUnloadPortalFile());
+                    break;
+                case CommandIds::Menu::FileReloadTextureCollections:
+                case CommandIds::Menu::FileReloadEntityDefinitions:
+                    event.Enable(true);
                     break;
                 case wxID_UNDO: {
                     const ActionMenuItem* item = actionManager.findMenuItem(wxID_UNDO);

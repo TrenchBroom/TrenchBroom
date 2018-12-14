@@ -1548,6 +1548,11 @@ namespace TrenchBroom {
             setTextures();
         }
 
+        void MapDocument::reloadEntityDefinitions() {
+            auto oldSpec = entityDefinitionFile();
+            setEntityDefinitionFile(oldSpec);
+        }
+
         void MapDocument::loadAssets() {
             loadEntityDefinitions();
             setEntityDefinitions();
@@ -1652,7 +1657,7 @@ namespace TrenchBroom {
             Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
         }
 
-        void MapDocument::reloadEntityDefinitions() {
+        void MapDocument::reloadEntityDefinitionsInternal() {
             unloadEntityDefinitions();
             clearEntityModels();
             loadEntityDefinitions();

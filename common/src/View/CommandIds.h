@@ -104,7 +104,10 @@ namespace TrenchBroom {
                 const int EditToggleVertexTool               = Lowest + 127;
                 const int EditToggleEdgeTool                 = Lowest + 128;
                 const int EditToggleFaceTool                 = Lowest + 129;
-                
+
+                const int FileReloadTextureCollections       = Lowest + 130;
+                const int FileReloadEntityDefinitions        = Lowest + 131;
+
                 const int DebugPrintVertices                 = Lowest + 140;
                 const int DebugCreateBrush                   = Lowest + 141;
                 const int DebugCopyJSShortcuts               = Lowest + 142;
@@ -119,6 +122,8 @@ namespace TrenchBroom {
                 const int RunLaunch                          = Lowest + 151;
                 
                 const int FileRecentDocuments                = Lowest + 190;
+                // This range is reserved
+                const int FileRecentDocumentsLast            = Lowest + 199;
 
                 const int Highest                            = Lowest + 200;
             }

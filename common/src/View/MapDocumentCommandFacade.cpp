@@ -866,7 +866,7 @@ namespace TrenchBroom {
             // to avoid backslashes being misinterpreted as escape sequences
             const String formatted = StringUtils::replaceAll(spec.asString(), "\\", "/");
             m_world->addOrUpdateAttribute(Model::AttributeNames::EntityDefinitions, formatted);
-            reloadEntityDefinitions();
+            reloadEntityDefinitionsInternal();
         }
 
         void MapDocumentCommandFacade::performSetTextureCollections(const IO::Path::List& paths) {

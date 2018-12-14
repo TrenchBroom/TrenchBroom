@@ -145,6 +145,8 @@ namespace TrenchBroom {
             void OnFileLoadPortalFile(wxCommandEvent& event);
             void OnFileReloadPortalFile(wxCommandEvent& event);
             void OnFileUnloadPortalFile(wxCommandEvent& event);
+            void OnFileReloadTextureCollections(wxCommandEvent& event);
+            void OnFileReloadEntityDefinitions(wxCommandEvent& event);
             void OnFileClose(wxCommandEvent& event);
 
             void OnEditUndo(wxCommandEvent& event);
