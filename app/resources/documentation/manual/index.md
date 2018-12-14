@@ -754,11 +754,13 @@ As you can see, the newly created brush covers some areas which were not covered
 
 #### CSG Subtraction
 
-CSG subtraction takes one brush (the subtrahend) and subtracts it from a set of brushes (the minuends) by subtracting the subtrahend individually from each minuend, so we can reduce the case of multiple minuends to the case of one minuend for the following explanations. In addition, we can limit ourself to cases where the subtrahend does not protrude out of the minuend because we can chop off such parts of the subtrahend without changing the result of the subtraction. In general, the result of a CSG subtraction of two shapes is a concave shape. Since a concave shape cannot be represented directly using a single brush, it has to be represented using multiple brushes (the result set). TrenchBroom creates brushes that represent the concave shape by cutting up the minuend brush using the faces of the subtrahend brush.
+CSG subtraction takes the selected brushes (the subtrahend) and subtracts them the rest of the selectable, visible brushes in the map (the minuend). Since the result of a CSG subtraction is potentially concave, TrenchBroom creates brushes that represent the concave shape by cutting up the minuend brushes using the faces of the subtrahend brushes.
 
 ![CSG subtracting to create an arch](images/CSGSubtractArch.gif)
 
-The image above shows an example where an arch is created by subtraction. The result contains eight brushes that perfectly represent the arch. To perform a CSG subtraction, first select the minuends (the brushes you wish to subtract from) and then add the subtrahend to the selection and choose #menu(Menu/Edit/CSG/Subtract). Assuming you have selected n brushes, TrenchBroom applies the subtraction to the selected brushes by subtracting the nth selected brush (the most recently selected one) from the n-1 previously selected brushes.
+The image above shows an example where an arch is created by subtraction. The result contains eight brushes that perfectly represent the arch. To perform a CSG subtraction, select the subtrahends (the brushes you want subtracted from the world) and choose #menu(Menu/Edit/CSG/Subtract).
+
+To exclude brushes from the subtraction, you can hide them first with #menu(Menu/View/Hide).
 
 #### CSG Hollow
 

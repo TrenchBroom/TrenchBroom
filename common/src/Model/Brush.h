@@ -255,14 +255,16 @@ namespace TrenchBroom {
             bool canTransform(const vm::mat4x4& transformation, const vm::bbox3& worldBounds) const;
         private:
             /**
-             * Creates a brush with the given geometry, copying texture alignment from a vector of subtrahends
+             * Final step of CSG subtraction; takes the geometry that is the result of the subtraction, and turns it
+             * into a Brush by copying texturing from `this` (for un-clipped faces) or the brushes in `subtrahends`
+             * (for clipped faces).
              *
-             * @param factory
-             * @param worldBounds
-             * @param defaultTextureName
-             * @param geometry
+             * @param factory the model factory
+             * @param worldBounds the world bounds
+             * @param defaultTextureName default texture name
+             * @param geometry the geometry for the newly created brush
              * @param subtrahends used as a source of texture alignment only
-             * @return
+             * @return the newly created brush
              */
             Brush* createBrush(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const BrushGeometry& geometry, const std::vector<const Brush*>& subtrahends) const;
         private:
