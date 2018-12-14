@@ -568,7 +568,13 @@ namespace TrenchBroom {
                 }
                 tokens.push_back(token);
             }
-            
+
+            // selected brush faces
+            if (document->hasSelectedBrushFaces()) {
+                const auto token = numberWithSuffix(document->selectedBrushFaces().size(), "face", "faces");
+                tokens.push_back(token);
+            }
+
             // entities
             if (!selectedNodes.entities().empty()) {
                 String commonClassname = commonClassnameForEntityList(selectedNodes.entities());
@@ -592,7 +598,7 @@ namespace TrenchBroom {
                 tokens.push_back(numberWithSuffix(selectedNodes.layers().size(), "layer", "layers"));
             }
             
-            if (selectedNodes.empty()) {
+            if (tokens.empty()) {
                 tokens.push_back("nothing");
             }
             
