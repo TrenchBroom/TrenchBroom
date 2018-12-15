@@ -247,13 +247,32 @@ namespace TrenchBroom {
             static VertexSet createVertexSet(const std::vector<vm::vec3>& vertices = std::vector<vm::vec3>(0));
         public:
             // CSG operations
-            BrushList subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const Brush* subtrahend) const;
+            /**
+             * Subtracts the given subtrahends from `this`, returning the result but without modifying `this`.
+             *
+             * @param subtrahends brushes to subtract from `this`. The passed-in brushes are not modified.
+             * @return the subtraction result
+             */
+            BrushList subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const BrushList& subtrahends) const;
+            BrushList subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, Brush* subtrahend) const;
             void intersect(const vm::bbox3& worldBounds, const Brush* brush);
 
             // transformation
             bool canTransform(const vm::mat4x4& transformation, const vm::bbox3& worldBounds) const;
         private:
-            Brush* createBrush(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const BrushGeometry& geometry, const Brush* subtrahend) const;
+            /**
+             * Final step of CSG subtraction; takes the geometry that is the result of the subtraction, and turns it
+             * into a Brush by copying texturing from `this` (for un-clipped faces) or the brushes in `subtrahends`
+             * (for clipped faces).
+             *
+             * @param factory the model factory
+             * @param worldBounds the world bounds
+             * @param defaultTextureName default texture name
+             * @param geometry the geometry for the newly created brush
+             * @param subtrahends used as a source of texture alignment only
+             * @return the newly created brush
+             */
+            Brush* createBrush(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const BrushGeometry& geometry, const BrushList& subtrahends) const;
         private:
             void updateFacesFromGeometry(const vm::bbox3& worldBounds, const BrushGeometry& geometry);
             void updatePointsFromVertices(const vm::bbox3& worldBounds);
