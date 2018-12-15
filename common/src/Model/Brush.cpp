@@ -1162,7 +1162,7 @@ namespace TrenchBroom {
             return VertexSet(std::begin(vertices), std::end(vertices));
         }
 
-        BrushList Brush::subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const std::vector<const Brush*>& subtrahends) const {
+        BrushList Brush::subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const BrushList& subtrahends) const {
             auto result = std::list<BrushGeometry>{*m_geometry};
 
             for (auto* subtrahend : subtrahends) {
@@ -1187,8 +1187,8 @@ namespace TrenchBroom {
             return brushes;
         }
 
-        BrushList Brush::subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const Brush* subtrahend) const {
-            return subtract(factory, worldBounds, defaultTextureName, std::vector<const Brush*>{subtrahend});
+        BrushList Brush::subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, Brush* subtrahend) const {
+            return subtract(factory, worldBounds, defaultTextureName, BrushList{subtrahend});
         }
 
         void Brush::intersect(const vm::bbox3& worldBounds, const Brush* brush) {
@@ -1213,7 +1213,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        Brush* Brush::createBrush(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const BrushGeometry& geometry, const std::vector<const Brush*>& subtrahends) const {
+        Brush* Brush::createBrush(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const BrushGeometry& geometry, const BrushList& subtrahends) const {
             BrushFaceList faces(0);
             faces.reserve(geometry.faceCount());
 

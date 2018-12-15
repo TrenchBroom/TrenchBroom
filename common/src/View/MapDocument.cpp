@@ -1100,14 +1100,7 @@ namespace TrenchBroom {
         }
         
         bool MapDocument::csgSubtract() {
-            const auto subtrahends = [this]() {
-                std::vector<const Model::Brush *> result;
-                for (auto *subtrahend : selectedNodes().brushes()) {
-                    result.push_back(subtrahend);
-                }
-                return result;
-            }();
-
+            const auto subtrahends = Model::BrushList{selectedNodes().brushes()};
             if (subtrahends.size() == 0) {
                 return false;
             }
@@ -1115,13 +1108,13 @@ namespace TrenchBroom {
             // Select touching, but don't delete the subtrahends yet
             selectTouching(false);
 
-            const auto minuends = std::vector<Model::Brush*>{selectedNodes().brushes()};
+            const auto minuends = Model::BrushList{selectedNodes().brushes()};
 
             Model::ParentChildrenMap toAdd;
             Model::NodeList toRemove;
 
             for (auto* subtrahend : subtrahends) {
-                toRemove.push_back(const_cast<Model::Brush*>(subtrahend));
+                toRemove.push_back(subtrahend);
             }
 
             for (auto* minuend : minuends) {
