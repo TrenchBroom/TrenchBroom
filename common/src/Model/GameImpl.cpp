@@ -38,6 +38,7 @@
 #include "IO/NodeReader.h"
 #include "IO/NodeWriter.h"
 #include "IO/ObjSerializer.h"
+#include "IO/Quake3ShaderFileSystem.h"
 #include "IO/WorldReader.h"
 #include "IO/SimpleParserStatus.h"
 #include "IO/SystemPaths.h"
@@ -65,16 +66,22 @@ namespace TrenchBroom {
         }
         
         void GameImpl::initializeFileSystem(Logger* logger) {
-            const GameConfig::FileSystemConfig& fileSystemConfig = m_config.fileSystemConfig();
+            const auto& fileSystemConfig = m_config.fileSystemConfig();
             if (!m_gamePath.isEmpty() && IO::Disk::directoryExists(m_gamePath)) {
                 addSearchPath(fileSystemConfig.searchPath, logger);
                 addPackages(m_gamePath + fileSystemConfig.searchPath);
 
-                for (const IO::Path& searchPath : m_additionalSearchPaths) {
+                for (const auto& searchPath : m_additionalSearchPaths) {
                     addSearchPath(searchPath, logger);
                     addPackages(m_gamePath + searchPath);
+                }
+
+                const auto& textureConfig = m_config.textureConfig();
+                const auto& textureFormat = textureConfig.format.format;
+                if (StringUtils::caseInsensitiveEqual(textureFormat, "q3shader")) {
+                    m_gameFS.pushFileSystem(std::make_unique<IO::Quake3ShaderFileSystem>(IO::Path(), m_gameFS, logger));
+                }
             }
-        }
         }
 
         void GameImpl::addSearchPath(const IO::Path& searchPath, Logger* logger) {
