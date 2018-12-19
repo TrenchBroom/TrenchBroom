@@ -58,8 +58,9 @@ namespace TrenchBroom {
         char TokenizerState::lookAhead(const size_t offset) const {
             if (eof(m_cur + offset)) {
                 return 0;
+            } else {
+                return *(m_cur + offset);
             }
-            return *(m_cur + offset);
         }
         
         size_t TokenizerState::line() const {

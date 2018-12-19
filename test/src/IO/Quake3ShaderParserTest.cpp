@@ -238,5 +238,25 @@ textures/liquids/lavahell2 //path and name of new texture
             Quake3ShaderParser parser(data);
             ASSERT_EQ(expected, parser.parse());
         }
+
+        TEST(Quake3ShaderParserTest, parseShadersWithCommentTerminatingBlockEntry) {
+            const String data(R"(
+waterBubble
+{
+	sort	underwater
+	cull none
+	entityMergable		// this comment terminates a block entry
+	{
+		map sprites/bubble.tga
+		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
+		rgbGen		vertex
+		alphaGen	vertex
+	}
+}
+
+)");
+            Quake3ShaderParser parser(data);
+            ASSERT_NO_THROW(parser.parse());
+        }
     }
 }

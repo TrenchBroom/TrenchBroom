@@ -49,14 +49,6 @@ namespace TrenchBroom {
                     case '\t':
                         advance();
                         break;
-                    case '/':
-                        if (lookAhead() == '/') {
-                            discardUntil("\n\r");
-                            discardWhile("\n\r");
-                            break;
-                        }
-                        // fall through into the default case to parse a string that starts with '/'
-                        switchFallthrough();
                     case '$': {
                         const auto* e = readUntil(Whitespace());
                         if (e == nullptr) {
@@ -64,6 +56,15 @@ namespace TrenchBroom {
                         }
                         return Token(Quake3ShaderToken::Variable, c, e, offset(c), startLine, startColumn);
                     }
+                    case '/':
+                        if (lookAhead() == '/') {
+                            discardUntil("\n\r");
+                            // do not discard the terminating line break since it might be semantically relevant
+                            // e.g. for terminating a block entry
+                            break;
+                        }
+                        // fall through into the default case to parse a string that starts with '/'
+                        switchFallthrough();
                     default:
                         auto* e = readDecimal(Whitespace());
                         if (e != nullptr) {

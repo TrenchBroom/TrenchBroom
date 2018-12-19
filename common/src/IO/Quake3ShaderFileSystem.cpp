@@ -27,9 +27,10 @@
 
 namespace TrenchBroom {
     namespace IO {
-        Quake3ShaderFileSystem::Quake3ShaderFileSystem(const Path& path, const FileSystem& fs, Logger* logger) :
-        ImageFileSystemBase(path),
+        Quake3ShaderFileSystem::Quake3ShaderFileSystem(const FileSystem& fs, const StringList& extensions, Logger* logger) :
+        ImageFileSystemBase(Path()),
         m_fs(fs),
+        m_extensions(extensions),
         m_logger(logger) {
             initialize();
         }
@@ -58,8 +59,7 @@ namespace TrenchBroom {
         }
 
         void Quake3ShaderFileSystem::linkShaders(std::vector<Assets::Quake3Shader>& shaders) {
-            const auto extensions = StringList {"tga", "png", "jpg", "jpeg"};
-            const auto textures = m_fs.findItemsRecursively(Path("textures"), FileExtensionMatcher(extensions));
+            const auto textures = m_fs.findItemsRecursively(Path("textures"), FileExtensionMatcher(m_extensions));
 
             m_logger->info() << "Linking shaders...";
             linkTextures(textures, shaders);

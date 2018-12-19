@@ -55,7 +55,7 @@ namespace TrenchBroom {
             } else if (textureConfig.format.format == "wal") {
                 TextureReader::PathSuffixNameStrategy nameStrategy(2, true);
                 return std::make_unique<WalTextureReader>(nameStrategy, loadPalette(gameFS, textureConfig, logger));
-            } else if (textureConfig.format.format == "image") {
+            } else if (textureConfig.format.format == "image" || textureConfig.format.format == "q3shader") {
                 TextureReader::PathSuffixNameStrategy nameStrategy(2, true);
                 return std::make_unique<FreeImageTextureReader>(nameStrategy);
             } else {
