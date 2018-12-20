@@ -43,55 +43,19 @@
 
 namespace TrenchBroom {
     namespace View {
-        RenderView::RenderView(wxWindow* parent, GLContextManager& contextManager, wxGLAttributes attribs) :
-        wxGLCanvas(parent, attribs, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxFULL_REPAINT_ON_RESIZE),
-        m_glContext(contextManager.createContext(this)),
-        m_attribs(attribs),
-        m_initialized(false) {
+        RenderView::RenderView(QWidget* parent, GLContextManager& contextManager) :
+        QOpenGLWidget(parent),
+        m_glContext(contextManager.createContext(this)) {
             const wxColour color = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
             m_focusColor = fromWxColor(color);
-
-            bindEvents();
         }
         
-        RenderView::~RenderView() {}
+        RenderView::~RenderView() = default;
 
-        // to prevent flickering, see https://wiki.wxwidgets.org/Flicker-Free_Drawing
-        void RenderView::OnEraseBackground(wxEraseEvent& event) {}
-
-        void RenderView::OnPaint(wxPaintEvent& event) {
-            if (IsBeingDeleted()) return;
+        void RenderView::paintGL() {
             if (TrenchBroom::View::isReportingCrash()) return;
 
-            if (m_glContext->SetCurrent(this)) {
-                if (!m_initialized)
-                    initializeGL();
-
-                wxPaintDC paintDC(this);
-                render();
-                SwapBuffers();
-            }
-        }
-        
-        void RenderView::OnSize(wxSizeEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            updateViewport();
-            event.Skip();
-        }
-
-        void RenderView::OnSetFocus(wxFocusEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            Refresh();
-            event.Skip();
-        }
-        
-        void RenderView::OnKillFocus(wxFocusEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            Refresh();
-            event.Skip();
+            render();
         }
 
         Renderer::Vbo& RenderView::vertexVbo() {
@@ -118,32 +82,22 @@ namespace TrenchBroom {
             return GLAttribs::multisample();
         }
 
-        void RenderView::bindEvents() {
-            Bind(wxEVT_ERASE_BACKGROUND, &RenderView::OnEraseBackground, this);
-            Bind(wxEVT_PAINT, &RenderView::OnPaint, this);
-            Bind(wxEVT_SIZE, &RenderView::OnSize, this);
-            Bind(wxEVT_SET_FOCUS, &RenderView::OnSetFocus, this);
-            Bind(wxEVT_KILL_FOCUS, &RenderView::OnKillFocus, this);
-        }
-
         void RenderView::initializeGL() {
             const bool firstInitialization = m_glContext->initialize();
             doInitializeGL(firstInitialization);
-            
+
+            // TODO: replace this with Qt calls
 #ifdef _WIN32
             if (wglSwapIntervalEXT) {
                 wglSwapIntervalEXT(1);
             }
 #endif
-
-            m_initialized = true;
         }
 
-        void RenderView::updateViewport() {
-            const wxSize clientSize = GetClientSize();
-            doUpdateViewport(0, 0, clientSize.x, clientSize.y);
+        void RenderView::resizeGL(int w, int h) {
+            doUpdateViewport(0, 0, w, h);
         }
-        
+
         void RenderView::render() {
             clearBackground();
             doRender();
@@ -159,15 +113,15 @@ namespace TrenchBroom {
         }
 
         void RenderView::renderFocusIndicator() {
-            if (!doShouldRenderFocusIndicator() || !HasFocus())
+            if (!doShouldRenderFocusIndicator() || !isActiveWindow())
                 return;
             
             const Color& outer = m_focusColor;
             const Color& inner = m_focusColor;
 
-            const wxSize clientSize = GetClientSize();
-            const float w = static_cast<float>(clientSize.x);
-            const float h = static_cast<float>(clientSize.y);
+            const QSize clientSize = size();
+            const float w = static_cast<float>(clientSize.width());
+            const float h = static_cast<float>(clientSize.height());
             const float t = 1.0f;
             
             typedef Renderer::VertexSpecs::P3C4::Vertex Vertex;

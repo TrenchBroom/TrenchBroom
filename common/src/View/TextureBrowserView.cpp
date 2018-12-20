@@ -45,7 +45,7 @@ namespace TrenchBroom {
                                                wxScrollBar* scrollBar,
                                                GLContextManager& contextManager,
                                                Assets::TextureManager& textureManager) :
-        CellView(parent, contextManager, GLAttribs::attribs(), scrollBar),
+        CellView(parent, contextManager, scrollBar),
         m_textureManager(textureManager),
         m_group(false),
         m_hideUnused(false),

@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_RenderView
 #define TrenchBroom_RenderView
 
+#include <QOpenGLWidget>
+
 #include "Color.h"
 #include "Renderer/Vbo.h"
 #include "View/GLAttribs.h"
@@ -38,22 +40,18 @@ namespace TrenchBroom {
     namespace View {
         class GLContextManager;
         
-        class RenderView : public wxGLCanvas {
+        class RenderView : public QOpenGLWidget {
         private:
             GLContext::Ptr m_glContext;
-            wxGLAttributes m_attribs;
-            bool m_initialized;
             Color m_focusColor;
         protected:
-            RenderView(wxWindow* parent, GLContextManager& contextManager, wxGLAttributes attribs);
+            RenderView(QWidget* parent, GLContextManager& contextManager);
         public:
             virtual ~RenderView();
-        public:
-            void OnEraseBackground(wxEraseEvent& event);
-            void OnPaint(wxPaintEvent& event);
-            void OnSize(wxSizeEvent& event);
-            void OnSetFocus(wxFocusEvent& event);
-            void OnKillFocus(wxFocusEvent& event);
+        protected: // QOpenGLWidget overrides
+            void paintGL() override;
+            void initializeGL() override;
+            void resizeGL(int w, int h) override;
         protected:
             Renderer::Vbo& vertexVbo();
             Renderer::Vbo& indexVbo();
@@ -63,10 +61,6 @@ namespace TrenchBroom {
             int depthBits() const;
             bool multisample() const;
         private:
-            void bindEvents();
-
-            void initializeGL();
-            void updateViewport();
             void render();
             void clearBackground();
             void renderFocusIndicator();
