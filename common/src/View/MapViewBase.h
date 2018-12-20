@@ -81,7 +81,7 @@ namespace TrenchBroom {
             Renderer::Compass* m_compass;
             std::unique_ptr<Renderer::PrimitiveRenderer> m_portalFileRenderer;
         protected:
-            MapViewBase(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager);
+            MapViewBase(QWidget* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager);
             
             void setCompass(Renderer::Compass* compass);
         public:
