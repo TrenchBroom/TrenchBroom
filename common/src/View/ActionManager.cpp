@@ -17,6 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+
+#define QT_NO_OPENGL
+#include <QtWidgets>
+
 #include "ActionManager.h"
 
 #include "Preferences.h"
@@ -113,6 +117,10 @@ namespace TrenchBroom {
 
         wxMenuBar* ActionManager::createMenuBar(const bool withShortcuts) const {
             return m_menuBar->createMenuBar(withShortcuts);
+        }
+
+        QMenuBar* ActionManager::createMenuBarQt(bool withShortcuts) const {
+            return m_menuBar->createMenuBarQt(withShortcuts);
         }
 
         bool ActionManager::isMenuShortcutPreference(const IO::Path& path) const {

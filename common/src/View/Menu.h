@@ -32,6 +32,9 @@
 class wxMenu;
 class wxMenuBar;
 
+class QMenu;
+class QMenuBar;
+
 namespace TrenchBroom {
     namespace View {
         class ActionMenuItem;
@@ -60,6 +63,10 @@ namespace TrenchBroom {
             
             void appendToMenu(wxMenu* menu, bool withShortcuts) const;
             void appendToMenu(wxMenuBar* menu, bool withShortcuts) const;
+
+            void appendToMenu(QMenu* menu, bool withShortcuts) const;
+            void appendToMenu(QMenuBar* menu, bool withShortcuts) const;
+
             const ActionMenuItem* findActionMenuItem(int id) const;
             void getShortcutEntries(KeyboardShortcutEntry::List& entries);
             
@@ -67,6 +74,10 @@ namespace TrenchBroom {
         private:
             virtual void doAppendToMenu(wxMenu* menu, bool withShortcuts) const = 0;
             virtual void doAppendToMenu(wxMenuBar* menu, bool withShortcuts) const;
+
+            virtual void doAppendToMenu(QMenu* menu, bool withShortcuts) const = 0;
+            virtual void doAppendToMenu(QMenuBar* menu, bool withShortcuts) const;
+
             virtual const ActionMenuItem* doFindActionMenuItem(int id) const;
             virtual void doGetShortcutEntries(KeyboardShortcutEntry::List& entries);
             virtual void doResetShortcuts();
@@ -77,6 +88,7 @@ namespace TrenchBroom {
             SeparatorItem(MenuItemParent* parent);
         private:
             void doAppendToMenu(wxMenu* menu, bool withShortcuts) const override;
+            void doAppendToMenu(QMenu* menu, bool withShortcuts) const override;
         };
         
         class LabeledMenuItem : public MenuItem {
@@ -104,6 +116,7 @@ namespace TrenchBroom {
             IO::Path path(const String& text) const;
         private: // implement LabeledMenuItem interface
             void doAppendToMenu(wxMenu* menu, bool withShortcuts) const override;
+            void doAppendToMenu(QMenu* menu, bool withShortcuts) const override;
             const ActionMenuItem* doFindActionMenuItem(int id) const override;
             void doGetShortcutEntries(KeyboardShortcutEntry::List& entries) override;
             void doResetShortcuts() override;
@@ -140,7 +153,12 @@ namespace TrenchBroom {
         private:
             void doAppendToMenu(wxMenu* menu, bool withShortcuts) const override;
             void doAppendToMenu(wxMenuBar* menu, bool withShortcuts) const override;
+
+            void doAppendToMenu(QMenu* menu, bool withShortcuts) const override;
+            void doAppendToMenu(QMenuBar* menu, bool withShortcuts) const override;
+
             wxMenu* buildMenu(bool withShortcuts) const;
+            QMenu* buildMenuQt(bool withShortcuts) const;
 
             const ActionMenuItem* doFindActionMenuItem(int id) const override;
             void doGetShortcutEntries(KeyboardShortcutEntry::List& entries) override;
@@ -183,6 +201,7 @@ namespace TrenchBroom {
 
             Menu* addMenu(const String& label);
             wxMenuBar* createMenuBar(bool withShortcuts);
+            QMenuBar* createMenuBarQt(bool withShortcuts);
 
             void getShortcutEntries(KeyboardShortcutEntry::List& entries) const;
         };

@@ -20,6 +20,9 @@
 #ifndef TrenchBroom_wxUtils
 #define TrenchBroom_wxUtils
 
+#undef CursorShape
+#include <QString>
+
 #include "Color.h"
 #include "StringUtils.h"
 
@@ -69,6 +72,8 @@ namespace TrenchBroom {
         }
 
         wxArrayString filterBySuffix(const wxArrayString& strings, const wxString& suffix, bool caseSensitive = false);
+
+        QString wxToQString(const wxString& string);
     }
 }
 

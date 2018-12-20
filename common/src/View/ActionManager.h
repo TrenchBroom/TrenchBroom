@@ -27,6 +27,9 @@ class wxAcceleratorTable;
 class wxMenu;
 class wxMenuBar;
 
+class QMenuBar;
+class QMenu;
+
 namespace TrenchBroom {
     namespace IO {
         class Path;
@@ -61,6 +64,7 @@ namespace TrenchBroom {
             void getActionJSTable(StringStream& str);
         public:
             wxMenuBar* createMenuBar(bool withShortcuts) const;
+            QMenuBar* createMenuBarQt(bool withShortcuts) const;
             bool isMenuShortcutPreference(const IO::Path& path) const;
 
             wxAcceleratorTable createViewAcceleratorTable(ActionContext context, ActionView view) const;

@@ -176,5 +176,10 @@ namespace TrenchBroom {
             }
             return result;
         }
+
+        QString wxToQString(const wxString& string) {
+            const auto utf8 = string.ToUTF8();
+            return QString::fromUtf8(utf8.data(), utf8.length());
+        }
     }
 }

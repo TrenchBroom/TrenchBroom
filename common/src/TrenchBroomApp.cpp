@@ -17,6 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+
+#define QT_NO_OPENGL
+#include <QtWidgets>
+
 #include "TrenchBroomApp.h"
 
 #include <clocale>
@@ -52,6 +56,28 @@
 #include <wx/stdpaths.h>
 #include <wx/msgdlg.h>
 #include <wx/time.h>
+
+
+#include "View/ActionManager.h"
+
+class TestWindow : public QMainWindow
+{
+Q_OBJECT
+
+public:
+    TestWindow();
+};
+
+#include "TrenchBroomApp.moc"
+
+TestWindow::TestWindow()
+{
+    QWidget* widget = new QWidget();
+    setCentralWidget(widget);
+
+    QMenuBar* menu = TrenchBroom::View::ActionManager::instance().createMenuBarQt(true);
+    setMenuBar(menu);
+}
 
 namespace TrenchBroom {
     namespace View {
@@ -138,6 +164,11 @@ namespace TrenchBroom {
             Bind(EXECUTABLE_EVENT, &TrenchBroomApp::OnExecutableEvent, this);
 
             m_recentDocuments->didChangeNotifier.addObserver(recentDocumentsDidChangeNotifier);
+
+            QApplication app(argc, argv);
+            TestWindow window;
+            window.show();
+            app.exec();
         }
 
         TrenchBroomApp::~TrenchBroomApp() {

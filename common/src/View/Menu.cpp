@@ -17,11 +17,15 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define QT_NO_OPENGL
+#include <QtWidgets>
+
 #include "Menu.h"
 
 #include "PreferenceManager.h"
 #include "View/ActionContext.h"
 #include "View/CommandIds.h"
+#include "View/wxUtils.h"
 
 #include <wx/menu.h>
 #include <wx/menuitem.h>
@@ -30,6 +34,8 @@
 
 namespace TrenchBroom {
     namespace View {
+        // MenuItem
+
         MenuItem::MenuItem(const Type type, MenuItemParent* parent) :
         m_type(type),
         m_parent(parent) {}
@@ -51,7 +57,15 @@ namespace TrenchBroom {
         void MenuItem::appendToMenu(wxMenuBar* menu, const bool withShortcuts) const {
             doAppendToMenu(menu, withShortcuts);
         }
-        
+
+        void MenuItem::appendToMenu(QMenu* menu, const bool withShortcuts) const {
+            doAppendToMenu(menu, withShortcuts);
+        }
+
+        void MenuItem::appendToMenu(QMenuBar* menu, const bool withShortcuts) const {
+            doAppendToMenu(menu, withShortcuts);
+        }
+
         const ActionMenuItem* MenuItem::findActionMenuItem(const int id) const {
             return doFindActionMenuItem(id);
         }
@@ -66,6 +80,8 @@ namespace TrenchBroom {
 
         void MenuItem::doAppendToMenu(wxMenuBar* menu, const bool withShortcuts) const {}
 
+        void MenuItem::doAppendToMenu(QMenuBar* menu, const bool withShortcuts) const {}
+
         const ActionMenuItem* MenuItem::doFindActionMenuItem(const int id) const {
             return nullptr;
         }
@@ -74,12 +90,20 @@ namespace TrenchBroom {
 
         void MenuItem::doResetShortcuts() {}
 
+        // SeparatorItem
+
         SeparatorItem::SeparatorItem(MenuItemParent* parent) :
         MenuItem(Type_Separator, parent) {}
         
         void SeparatorItem::doAppendToMenu(wxMenu* menu, const bool withShortcuts) const {
             menu->AppendSeparator();
         }
+
+        void SeparatorItem::doAppendToMenu(QMenu* menu, const bool withShortcuts) const {
+            menu->addSeparator();
+        }
+
+        // LabeledMenuItem
 
         LabeledMenuItem::LabeledMenuItem(const Type type, MenuItemParent* parent) :
         MenuItem(type, parent) {}
@@ -132,6 +156,20 @@ namespace TrenchBroom {
                 menu->Append(id(), menuString("", withShortcuts));
             else
                 menu->AppendCheckItem(id(), menuString("", withShortcuts));
+        }
+
+        void ActionMenuItem::doAppendToMenu(QMenu* menu, const bool withShortcuts) const {
+            // FIXME: second param to QAction is usually provided (owner). What effect does not providing one have?
+
+            QAction* action = new QAction(wxToQString(menuString("", withShortcuts)));
+            if (type() == Type_Check) {
+                action->setCheckable(true);
+            } else {
+                ensure(type() == Type_Action, "expected action");
+            }
+            action->setData(QVariant(id()));
+
+            menu->addAction(action);
         }
         
         const ActionMenuItem* ActionMenuItem::doFindActionMenuItem(int id) const {
@@ -236,12 +274,35 @@ namespace TrenchBroom {
             menu->Append(subMenu, label());
         }
 
+        void MenuItemParent::doAppendToMenu(QMenu* menu, const bool withShortcuts) const {
+            QMenu* subMenu = buildMenuQt(withShortcuts);
+
+            QAction* action = menu->addMenu(subMenu);
+            action->setData(QVariant(id()));
+        }
+
+        void MenuItemParent::doAppendToMenu(QMenuBar* menu, const bool withShortcuts) const {
+            QMenu* subMenu = buildMenuQt(withShortcuts);
+
+            QAction* action = menu->addMenu(subMenu);
+            action->setData(QVariant(id()));
+        }
+
         wxMenu* MenuItemParent::buildMenu(const bool withShortcuts) const {
             wxMenu* subMenu = new wxMenu();
             
             for (const MenuItem* item : m_items)
                 item->appendToMenu(subMenu, withShortcuts);
             
+            return subMenu;
+        }
+
+        QMenu* MenuItemParent::buildMenuQt(const bool withShortcuts) const {
+            QMenu* subMenu = new QMenu(QString::fromStdString(label()));
+
+            for (const MenuItem* item : m_items)
+                item->appendToMenu(subMenu, withShortcuts);
+
             return subMenu;
         }
 
@@ -352,6 +413,14 @@ namespace TrenchBroom {
             wxMenuBar* menuBar = new wxMenuBar();
             for (const Menu* menu : m_menus)
                 menu->appendToMenu(menuBar, withShortcuts);
+            return menuBar;
+        }
+
+        QMenuBar* MenuBar::createMenuBarQt(bool withShortcuts) {
+            auto* menuBar = new QMenuBar();
+            for (const Menu* menu : m_menus) {
+                menu->appendToMenu(menuBar, withShortcuts);
+            }
             return menuBar;
         }
 
