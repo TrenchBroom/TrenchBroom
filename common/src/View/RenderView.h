@@ -48,6 +48,10 @@ namespace TrenchBroom {
             RenderView(QWidget* parent, GLContextManager& contextManager);
         public:
             virtual ~RenderView();
+        public: // wxWidgets compat
+            bool HasFocus() const;
+            bool IsBeingDeleted() const;
+            void Refresh();
         protected: // QOpenGLWidget overrides
             void paintGL() override;
             void initializeGL() override;

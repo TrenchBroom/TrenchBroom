@@ -52,6 +52,19 @@ namespace TrenchBroom {
         
         RenderView::~RenderView() = default;
 
+        bool RenderView::HasFocus() const {
+            return hasFocus();
+        }
+
+        bool RenderView::IsBeingDeleted() const {
+            return false;
+        }
+
+        void RenderView::Refresh() {
+            // Schedules a repaint with Qt
+            update();
+        }
+
         void RenderView::paintGL() {
             if (TrenchBroom::View::isReportingCrash()) return;
 
@@ -113,7 +126,7 @@ namespace TrenchBroom {
         }
 
         void RenderView::renderFocusIndicator() {
-            if (!doShouldRenderFocusIndicator() || !isActiveWindow())
+            if (!doShouldRenderFocusIndicator() || !hasFocus())
                 return;
             
             const Color& outer = m_focusColor;
