@@ -39,8 +39,9 @@ namespace TrenchBroom {
 
         bool FileSystem::directoryExists(const Path& path) const {
             try {
-                if (path.isAbsolute())
+                if (path.isAbsolute()) {
                     throw FileSystemException("Path is absolute: '" + path.asString() + "'");
+                }
                 return doDirectoryExists(path);
             } catch (const PathException& e) {
                 throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
@@ -49,8 +50,9 @@ namespace TrenchBroom {
 
         bool FileSystem::fileExists(const Path& path) const {
             try {
-                if (path.isAbsolute())
+                if (path.isAbsolute()) {
                     throw FileSystemException("Path is absolute: '" + path.asString() + "'");
+                }
                 return doFileExists(path);
             } catch (const PathException& e) {
                 throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
@@ -67,10 +69,12 @@ namespace TrenchBroom {
 
         Path::List FileSystem::getDirectoryContents(const Path& directoryPath) const {
             try {
-                if (directoryPath.isAbsolute())
+                if (directoryPath.isAbsolute()) {
                     throw FileSystemException("Path is absolute: '" + directoryPath.asString() + "'");
-                if (!directoryExists(directoryPath))
+                }
+                if (!directoryExists(directoryPath)) {
                     throw FileSystemException("Directory not found: '" + directoryPath.asString() + "'");
+                }
                 return doGetDirectoryContents(directoryPath);
             } catch (const PathException& e) {
                 throw FileSystemException("Invalid path: '" + directoryPath.asString() + "'", e);
@@ -79,11 +83,19 @@ namespace TrenchBroom {
 
         const MappedFile::Ptr FileSystem::openFile(const Path& path) const {
             try {
-                if (path.isAbsolute())
+                if (path.isAbsolute()) {
                     throw FileSystemException("Path is absolute: '" + path.asString() + "'");
-                if (!fileExists(path))
+                }
+                if (!fileExists(path)) {
                     throw FileSystemException("File not found: '" + path.asString() + "'");
-                return doOpenFile(path);
+                }
+
+                const auto resolvedPath = resolve(path);
+                if (!fileExists(resolvedPath)) {
+                    throw FileSystemException("Linked file not found: '" + resolvedPath.asString() + "' (original file: '" + path.asString() + "')");
+                }
+
+                return doOpenFile(resolvedPath);
             } catch (const PathException& e) {
                 throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
             }
@@ -119,8 +131,9 @@ namespace TrenchBroom {
 
         void WritableFileSystem::createFile(const Path& path, const String& contents) {
             try {
-                if (path.isAbsolute())
+                if (path.isAbsolute()) {
                     throw FileSystemException("Path is absolute: '" + path.asString() + "'");
+                }
                 doCreateFile(path, contents);
             } catch (const PathException& e) {
                 throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
@@ -129,8 +142,9 @@ namespace TrenchBroom {
 
         void WritableFileSystem::createDirectory(const Path& path) {
             try {
-                if (path.isAbsolute())
+                if (path.isAbsolute()) {
                     throw FileSystemException("Path is absolute: '" + path.asString() + "'");
+                }
                 doCreateDirectory(path);
             } catch (const PathException& e) {
                 throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
@@ -139,8 +153,9 @@ namespace TrenchBroom {
 
         void WritableFileSystem::deleteFile(const Path& path) {
             try {
-                if (path.isAbsolute())
+                if (path.isAbsolute()) {
                     throw FileSystemException("Path is absolute: '" + path.asString() + "'");
+                }
                 doDeleteFile(path);
             } catch (const PathException& e) {
                 throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
@@ -149,10 +164,12 @@ namespace TrenchBroom {
 
         void WritableFileSystem::copyFile(const Path& sourcePath, const Path& destPath, const bool overwrite) {
             try {
-                if (sourcePath.isAbsolute())
+                if (sourcePath.isAbsolute()) {
                     throw FileSystemException("Source path is absolute: '" + sourcePath.asString() + "'");
-                if (destPath.isAbsolute())
+                }
+                if (destPath.isAbsolute()) {
                     throw FileSystemException("Destination path is absolute: '" + destPath.asString() + "'");
+                }
                 doCopyFile(sourcePath, destPath, overwrite);
             } catch (const PathException& e) {
                 throw FileSystemException("Invalid source or destination path: '" + sourcePath.asString() + "', '" + destPath.asString() + "'", e);
@@ -161,10 +178,12 @@ namespace TrenchBroom {
 
         void WritableFileSystem::moveFile(const Path& sourcePath, const Path& destPath, const bool overwrite) {
             try {
-                if (sourcePath.isAbsolute())
+                if (sourcePath.isAbsolute()) {
                     throw FileSystemException("Source path is absolute: '" + sourcePath.asString() + "'");
-                if (destPath.isAbsolute())
+                }
+                if (destPath.isAbsolute()) {
                     throw FileSystemException("Destination path is absolute: '" + destPath.asString() + "'");
+                }
                 doMoveFile(sourcePath, destPath, overwrite);
             } catch (const PathException& e) {
                 throw FileSystemException("Invalid source or destination path: '" + sourcePath.asString() + "', '" + destPath.asString() + "'", e);

@@ -78,9 +78,10 @@ namespace TrenchBroom {
                     });
 
                     if (shaderIt != std::end(shaders)) {
-                        // Found a shader. If it has an editor image, we link to that. Otherwise we link to the texture.
+                        // Found a shader. If it has an editor image, we link to that, but only if the editor image is
+                        // different from the texture image.
                         const auto& shader = *shaderIt;
-                        if (!shader.qerImagePath.isEmpty()) {
+                        if (!shader.qerImagePath.isEmpty() && texture != shader.qerImagePath) {
                             linkShaderToImage(texture, shader.qerImagePath);
                         }
 

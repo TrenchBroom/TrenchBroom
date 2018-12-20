@@ -39,8 +39,8 @@ namespace TrenchBroom {
         TextureCollectionLoader::~TextureCollectionLoader() {}
 
         Assets::TextureCollection* TextureCollectionLoader::loadTextureCollection(const Path& path, const StringList& textureExtensions, const TextureReader& textureReader) {
-            std::unique_ptr<Assets::TextureCollection> collection(new Assets::TextureCollection(path));
-            
+            auto collection = std::make_unique<Assets::TextureCollection>(path);
+
             for (auto file : doFindTextures(path, textureExtensions)) {
                 auto* texture = textureReader.readTexture(file->begin(), file->end(), file->path());
                 collection->addTexture(texture);
