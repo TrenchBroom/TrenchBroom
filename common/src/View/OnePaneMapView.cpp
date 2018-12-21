@@ -17,6 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <QGridLayout>
+
 #include "OnePaneMapView.h"
 
 #include "Model/PointFile.h"
@@ -30,7 +32,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        OnePaneMapView::OnePaneMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) :
+        OnePaneMapView::OnePaneMapView(QWidget* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) :
         MultiMapView(parent),
         m_logger(logger),
         m_document(document),
@@ -43,11 +45,10 @@ namespace TrenchBroom {
             m_mapView = new CyclingMapView(this, m_logger, m_document, toolBox, mapRenderer, contextManager, CyclingMapView::View_ALL);
             m_mapView->linkCamera(m_linkHelper);
             addMapView(m_mapView);
-            
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_mapView, 1, wxEXPAND);
-            
-            SetSizer(sizer);
+
+            auto* layout = new QGridLayout();
+            layout->addWidget(m_mapView, 0, 0, 1, 1);
+            setLayout(layout);
         }
     }
 }

@@ -34,7 +34,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        CyclingMapView::CyclingMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, const View views) :
+        CyclingMapView::CyclingMapView(QWidget* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, const View views) :
         MapViewContainer(parent),
         m_logger(logger),
         m_document(document),
@@ -58,7 +58,7 @@ namespace TrenchBroom {
             }
 
             for (size_t i = 0; i < m_mapViews.size(); ++i) {
-                m_mapViews[i]->Hide();
+                m_mapViews[i]->hide();
             }
 
             assert(!m_mapViews.empty());
@@ -85,11 +85,11 @@ namespace TrenchBroom {
         void CyclingMapView::switchToMapView(MapViewBase* mapView) {
             auto* previousMapView = m_currentMapView;
             m_currentMapView = mapView;
-            m_currentMapView->Show();
+            m_currentMapView->show();
             if (previousMapView != nullptr) {
-                previousMapView->Hide();
+                previousMapView->hide();
             }
-            m_currentMapView->SetFocus();
+            m_currentMapView->setFocus();
 
             auto* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_currentMapView, 1, wxEXPAND);

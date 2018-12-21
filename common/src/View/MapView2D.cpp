@@ -68,7 +68,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        MapView2D::MapView2D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager, const ViewPlane viewPlane) :
+        MapView2D::MapView2D(QWidget* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager, const ViewPlane viewPlane) :
         MapViewBase(parent, logger, document, toolBox, renderer, contextManager),
         m_camera(){
             bindObservers();
@@ -76,15 +76,16 @@ namespace TrenchBroom {
             initializeToolChain(toolBox);
             setCompass(new Renderer::Compass2D());
 
+            // FIXME: Not sure if wxWindow::SetName() maps to QWidget::setWhatsThis()?
 			switch (viewPlane) {
 			case ViewPlane_XY:
-				SetName("XY View");
+				setWhatsThis("XY View");
 				break;
 			case ViewPlane_YZ:
-				SetName("YZ View");
+                setWhatsThis("YZ View");
 				break;
 			case ViewPlane_XZ:
-				SetName("XZ View");
+                setWhatsThis("XZ View");
 				break;
 			switchDefault()
 			}

@@ -25,6 +25,7 @@
 #include <vector>
 
 class wxWindow;
+class QWidget;
 
 namespace TrenchBroom {
     namespace View {
@@ -36,7 +37,7 @@ namespace TrenchBroom {
             MapViewList m_mapViews;
             MapView* m_maximizedView;
         protected:
-            MultiMapView(wxWindow* parent);
+            MultiMapView(QWidget* parent);
         public:
             virtual ~MultiMapView() override;
         protected:

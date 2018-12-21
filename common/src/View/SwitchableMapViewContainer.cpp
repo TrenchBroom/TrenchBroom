@@ -42,8 +42,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        SwitchableMapViewContainer::SwitchableMapViewContainer(wxWindow* parent, Logger* logger, MapDocumentWPtr document, GLContextManager& contextManager) :
-        wxPanel(parent),
+        SwitchableMapViewContainer::SwitchableMapViewContainer(QWidget* parent, Logger* logger, MapDocumentWPtr document, GLContextManager& contextManager) :
+        QWidget(parent),
         m_logger(logger),
         m_document(document),
         m_contextManager(contextManager),

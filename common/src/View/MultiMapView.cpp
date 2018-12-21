@@ -25,7 +25,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        MultiMapView::MultiMapView(wxWindow* parent) :
+        MultiMapView::MultiMapView(QWidget* parent) :
         MapViewContainer(parent),
         m_maximizedView(nullptr) {}
         

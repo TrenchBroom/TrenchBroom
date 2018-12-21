@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_SwitchableMapViewContainer
 #define TrenchBroom_SwitchableMapViewContainer
 
+#include <QWidget>
+
 #include "TrenchBroom.h"
 #include "View/MapViewLayout.h"
 #include "View/MapView.h"
@@ -54,7 +56,7 @@ namespace TrenchBroom {
         class EdgeTool;
         class FaceTool;
         
-        class SwitchableMapViewContainer : public wxPanel, public MapView {
+        class SwitchableMapViewContainer : public QWidget, public MapView {
         private:
             Logger* m_logger;
             MapDocumentWPtr m_document;
@@ -67,7 +69,7 @@ namespace TrenchBroom {
             
             MapViewContainer* m_mapView;
         public:
-            SwitchableMapViewContainer(wxWindow* parent, Logger* logger, MapDocumentWPtr document, GLContextManager& contextManager);
+            SwitchableMapViewContainer(QWidget* parent, Logger* logger, MapDocumentWPtr document, GLContextManager& contextManager);
             ~SwitchableMapViewContainer() override;
             
             void connectTopWidgets(Inspector* inspector);

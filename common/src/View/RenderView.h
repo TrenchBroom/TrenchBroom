@@ -20,6 +20,9 @@
 #ifndef TrenchBroom_RenderView
 #define TrenchBroom_RenderView
 
+#include <GL/glew.h>
+#undef Bool
+#undef Status
 #include <QOpenGLWidget>
 
 #include "Color.h"
@@ -27,7 +30,6 @@
 #include "View/GLAttribs.h"
 #include "View/GLContext.h"
 
-#include <GL/glew.h>
 #include <wx/glcanvas.h>
 
 namespace TrenchBroom {

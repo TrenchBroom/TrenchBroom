@@ -60,7 +60,7 @@ namespace TrenchBroom {
             MapViewList m_mapViews;
             MapViewBase* m_currentMapView;
         public:
-            CyclingMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, View views);
+            CyclingMapView(QWidget* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, View views);
         private:
             void createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, View views);
         private:

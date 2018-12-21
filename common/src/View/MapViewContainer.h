@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_MapViewContainer
 #define TrenchBroom_MapViewContainer
 
+#include <QWidget>
+
 #include "View/MapView.h"
 
 #include <wx/panel.h>
@@ -28,9 +30,9 @@ namespace TrenchBroom {
     namespace View {
         class MapViewBase;
         
-        class MapViewContainer : public wxPanel, public MapView {
+        class MapViewContainer : public QWidget, public MapView {
         public:
-            MapViewContainer(wxWindow* parent);
+            MapViewContainer(QWidget* parent);
             virtual ~MapViewContainer() override;
         public:
             bool canMaximizeCurrentView() const;
