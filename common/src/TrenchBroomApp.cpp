@@ -18,8 +18,6 @@
  */
 
 
-#define QT_NO_OPENGL
-#include <QtWidgets>
 
 #include "TrenchBroomApp.h"
 
@@ -57,6 +55,10 @@
 #include <wx/msgdlg.h>
 #include <wx/time.h>
 
+#include <QApplication>
+#include <QWidget>
+#include <QMainWindow>
+#include <QMenuBar>
 
 #include "View/ActionManager.h"
 

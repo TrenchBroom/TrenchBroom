@@ -20,17 +20,17 @@
 #ifndef TrenchBroom_RenderView
 #define TrenchBroom_RenderView
 
-#include <GL/glew.h>
-#undef Bool
-#undef Status
-#undef CursorShape
-#include <QOpenGLWidget>
 
 #include "Color.h"
 #include "Renderer/Vbo.h"
 #include "View/GLAttribs.h"
 #include "View/GLContext.h"
 
+#include <GL/glew.h>
+#undef Bool
+#undef Status
+#undef CursorShape
+#include <QOpenGLWidget>
 #include <wx/glcanvas.h>
 
 namespace TrenchBroom {

@@ -17,8 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#define QT_NO_OPENGL
 #include <QtWidgets>
 
 #include "ActionManager.h"

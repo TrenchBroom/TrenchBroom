@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_ToolBoxConnector
 #define TrenchBroom_ToolBoxConnector
 
+#include "StringUtils.h"
 #include "View/InputState.h"
 #include "View/PickRequest.h"
 

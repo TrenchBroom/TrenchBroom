@@ -20,7 +20,7 @@
 #ifndef Polyhedron_BrushGeometryPayload_h
 #define Polyhedron_BrushGeometryPayload_h
 
-#include "Renderer/GL.h"
+//#include "Renderer/GL.h"
 
 #include <limits>
 
@@ -31,7 +31,7 @@ namespace TrenchBroom {
 }
 
 struct BrushVertexPayload {
-    using Type = GLuint;
+    using Type = uint32_t; // FIXME: GLuint
     static Type defaultValue() {
         return std::numeric_limits<Type>::max();
     }
