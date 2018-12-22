@@ -29,6 +29,8 @@
 
 #include <vector>
 
+class QStackedLayout;
+
 namespace TrenchBroom {
     class Logger;
     
@@ -59,13 +61,14 @@ namespace TrenchBroom {
             typedef std::vector<MapViewBase*> MapViewList;
             MapViewList m_mapViews;
             MapViewBase* m_currentMapView;
+            QStackedLayout* m_layout;
         public:
             CyclingMapView(QWidget* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, View views);
         private:
             void createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, View views);
         private:
             void bindEvents();
-            void OnCycleMapView(wxCommandEvent& event);
+            void OnCycleMapView(int index);
         private:
             void switchToMapView(MapViewBase* mapView);
         private: // implement ViewEffectsService interface

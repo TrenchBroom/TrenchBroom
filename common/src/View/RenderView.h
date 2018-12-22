@@ -23,6 +23,7 @@
 #include <GL/glew.h>
 #undef Bool
 #undef Status
+#undef CursorShape
 #include <QOpenGLWidget>
 
 #include "Color.h"

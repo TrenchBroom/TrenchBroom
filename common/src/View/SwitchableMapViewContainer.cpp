@@ -107,6 +107,7 @@ namespace TrenchBroom {
 #endif
             }
 
+            // FIXME: not sure about this, delete it before the widget that's deleted at the top of this function? Reuse layout?
             // delete the old sizer first
             if (layout() != nullptr) {
                 delete layout();

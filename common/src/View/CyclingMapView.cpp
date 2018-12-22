@@ -32,46 +32,49 @@
 
 #include <wx/sizer.h>
 
+#include <QStackedLayout>
+
 namespace TrenchBroom {
     namespace View {
         CyclingMapView::CyclingMapView(QWidget* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, const View views) :
         MapViewContainer(parent),
         m_logger(logger),
         m_document(document),
-        m_currentMapView(nullptr) {
+        m_currentMapView(nullptr),
+        m_layout(nullptr) {
             createGui(toolBox, mapRenderer, contextManager, views);
             bindEvents();
         }
 
         void CyclingMapView::createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, const View views) {
             if (views & View_3D) {
-                m_mapViews.push_back(new MapView3D(this, m_logger, m_document, toolBox, mapRenderer, contextManager));
+                m_mapViews.push_back(new MapView3D(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager));
             }
             if (views & View_XY) {
-                m_mapViews.push_back(new MapView2D(this, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XY));
+                m_mapViews.push_back(new MapView2D(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XY));
             }
             if (views & View_XZ) {
-                m_mapViews.push_back(new MapView2D(this, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XZ));
+                m_mapViews.push_back(new MapView2D(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XZ));
             }
             if (views & View_YZ) {
-                m_mapViews.push_back(new MapView2D(this, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_YZ));
+                m_mapViews.push_back(new MapView2D(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_YZ));
             }
 
+            m_layout = new QStackedLayout();
             for (size_t i = 0; i < m_mapViews.size(); ++i) {
-                m_mapViews[i]->hide();
+                m_layout->addWidget(m_mapViews[i]);
             }
+            setLayout(m_layout);
 
             assert(!m_mapViews.empty());
             switchToMapView(m_mapViews[0]);
         }
 
         void CyclingMapView::bindEvents() {
-            Bind(wxEVT_MENU, &CyclingMapView::OnCycleMapView, this, CommandIds::Actions::CycleMapViews);
+            connect(m_layout, &QStackedLayout::currentChanged, this, &CyclingMapView::OnCycleMapView);
         }
 
-        void CyclingMapView::OnCycleMapView(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void CyclingMapView::OnCycleMapView(int /*index*/) {
             for (size_t i = 0; i < m_mapViews.size(); ++i) {
                 if (m_currentMapView == m_mapViews[i]) {
                     switchToMapView(m_mapViews[vm::succ(i, m_mapViews.size())]);
@@ -79,22 +82,15 @@ namespace TrenchBroom {
                     break;
                 }
             }
-            
         }
 
         void CyclingMapView::switchToMapView(MapViewBase* mapView) {
             auto* previousMapView = m_currentMapView;
             m_currentMapView = mapView;
-            m_currentMapView->show();
-            if (previousMapView != nullptr) {
-                previousMapView->hide();
-            }
-            m_currentMapView->setFocus();
 
-            auto* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_currentMapView, 1, wxEXPAND);
-            SetSizer(sizer);
-            Layout();
+            m_layout->setCurrentWidget(m_currentMapView);
+            // FIXME: Not sure if needed
+            //m_currentMapView->setFocus();
         }
 
         void CyclingMapView::doFlashSelection() {
