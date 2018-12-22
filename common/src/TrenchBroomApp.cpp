@@ -17,8 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #include "TrenchBroomApp.h"
 
 #include <clocale>
@@ -54,32 +52,6 @@
 #include <wx/stdpaths.h>
 #include <wx/msgdlg.h>
 #include <wx/time.h>
-
-#include <QApplication>
-#include <QWidget>
-#include <QMainWindow>
-#include <QMenuBar>
-
-#include "View/ActionManager.h"
-
-class TestWindow : public QMainWindow
-{
-Q_OBJECT
-
-public:
-    TestWindow();
-};
-
-#include "TrenchBroomApp.moc"
-
-TestWindow::TestWindow()
-{
-    QWidget* widget = new QWidget();
-    setCentralWidget(widget);
-
-    QMenuBar* menu = TrenchBroom::View::ActionManager::instance().createMenuBarQt(true);
-    setMenuBar(menu);
-}
 
 namespace TrenchBroom {
     namespace View {
@@ -166,18 +138,6 @@ namespace TrenchBroom {
             Bind(EXECUTABLE_EVENT, &TrenchBroomApp::OnExecutableEvent, this);
 
             m_recentDocuments->didChangeNotifier.addObserver(recentDocumentsDidChangeNotifier);
-
-            // Qt
-
-            QApplication app(argc, argv);
-            // Makes all QOpenGLWidget in the application share a single context
-            // (default behaviour would be for QOpenGLWidget's in a single top-level window to share a context.)
-            // see: http://doc.qt.io/qt-5/qopenglwidget.html#context-sharing
-            app.setAttribute(Qt::AA_ShareOpenGLContexts);
-
-            TestWindow window;
-            window.show();
-            app.exec();
         }
 
         TrenchBroomApp::~TrenchBroomApp() {
