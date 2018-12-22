@@ -58,7 +58,7 @@ namespace TrenchBroom {
             void updateScrollBar() {
                 if (m_scrollBar != nullptr) {
                     int position = m_scrollBar->GetThumbPosition();
-                    int thumbSize = size().height();
+                    int thumbSize = GetClientSize().y;
                     int range = static_cast<int>(m_layout.height());
                     m_scrollBar->SetScrollbar(position, thumbSize, range, thumbSize);
                 }
@@ -84,8 +84,8 @@ namespace TrenchBroom {
                     reloadLayout();
             }
         public:
-            CellView(QWidget* parent, GLContextManager& contextManager, wxScrollBar* scrollBar = nullptr) :
-            RenderView(parent, contextManager),
+            CellView(wxWindow* parent, GLContextManager& contextManager, wxGLAttributes attribs, wxScrollBar* scrollBar = nullptr) :
+            RenderView(parent, contextManager, attribs),
             m_layoutInitialized(false),
             m_valid(false),
             m_scrollBar(scrollBar) {
