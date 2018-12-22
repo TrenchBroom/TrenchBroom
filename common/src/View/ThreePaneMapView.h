@@ -55,7 +55,7 @@ namespace TrenchBroom {
             MapView2D* m_mapViewXY;
             CyclingMapView* m_mapViewZZ;
         public:
-            ThreePaneMapView(QWidget* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager);
+            ThreePaneMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager);
         private:
             void createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager);
         private: // implement MultiMapView subclassing interface
