@@ -333,14 +333,14 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/EntityAttributeGrid.cpp
 	${COMMON_SOURCE_DIR}/View/EntityAttributeGridTable.cpp
 	${COMMON_SOURCE_DIR}/View/EntityAttributeSelectedCommand.cpp
-	${COMMON_SOURCE_DIR}/View/EntityBrowser.cpp
-	${COMMON_SOURCE_DIR}/View/EntityBrowserView.cpp
+#	${COMMON_SOURCE_DIR}/View/EntityBrowser.cpp
+#	${COMMON_SOURCE_DIR}/View/EntityBrowserView.cpp
 	${COMMON_SOURCE_DIR}/View/EntityDefinitionFileChooser.cpp
 	${COMMON_SOURCE_DIR}/View/EntityDefinitionFileCommand.cpp
-	${COMMON_SOURCE_DIR}/View/EntityInspector.cpp
+#	${COMMON_SOURCE_DIR}/View/EntityInspector.cpp
 	${COMMON_SOURCE_DIR}/View/ExecutableEvent.cpp
 	${COMMON_SOURCE_DIR}/View/FaceAttribsEditor.cpp
-	${COMMON_SOURCE_DIR}/View/FaceInspector.cpp
+#	${COMMON_SOURCE_DIR}/View/FaceInspector.cpp
 	${COMMON_SOURCE_DIR}/View/FaceToolController.cpp
 	${COMMON_SOURCE_DIR}/View/FaceTool.cpp
 	${COMMON_SOURCE_DIR}/View/FileTextureCollectionEditor.cpp
@@ -350,7 +350,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/FlagsPopupEditor.cpp
 	${COMMON_SOURCE_DIR}/View/FlashSelectionAnimation.cpp
 	${COMMON_SOURCE_DIR}/View/FlyModeHelper.cpp
-	${COMMON_SOURCE_DIR}/View/FourPaneMapView.cpp
+#	${COMMON_SOURCE_DIR}/View/FourPaneMapView.cpp
 	${COMMON_SOURCE_DIR}/View/FrameManager.cpp
 	${COMMON_SOURCE_DIR}/View/GameDialog.cpp
 	${COMMON_SOURCE_DIR}/View/GameEngineDialog.cpp
@@ -388,7 +388,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/MapDocument.cpp
 	${COMMON_SOURCE_DIR}/View/MapFrame.cpp
 	${COMMON_SOURCE_DIR}/View/MapFrameDropTarget.cpp
-	${COMMON_SOURCE_DIR}/View/MapInspector.cpp
+#	${COMMON_SOURCE_DIR}/View/MapInspector.cpp
 	${COMMON_SOURCE_DIR}/View/MapView2D.cpp
 	${COMMON_SOURCE_DIR}/View/MapView3D.cpp
 	${COMMON_SOURCE_DIR}/View/MapViewBar.cpp
@@ -428,7 +428,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/RenameGroupsCommand.cpp
 	${COMMON_SOURCE_DIR}/View/RenderView.cpp
 	${COMMON_SOURCE_DIR}/View/ReparentNodesCommand.cpp
-	${COMMON_SOURCE_DIR}/View/ReplaceTextureDialog.cpp
+#	${COMMON_SOURCE_DIR}/View/ReplaceTextureDialog.cpp
 	${COMMON_SOURCE_DIR}/View/ResizeBrushesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/ResizeBrushesToolController.cpp
 	${COMMON_SOURCE_DIR}/View/ResizeBrushesTool.cpp
@@ -468,11 +468,11 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/TabBar.cpp
 	${COMMON_SOURCE_DIR}/View/TabBook.cpp
 	${COMMON_SOURCE_DIR}/View/TextCtrlOutputAdapter.cpp
-	${COMMON_SOURCE_DIR}/View/TextureBrowser.cpp
-	${COMMON_SOURCE_DIR}/View/TextureBrowserView.cpp
-	${COMMON_SOURCE_DIR}/View/TextureCollectionEditor.cpp
+#	${COMMON_SOURCE_DIR}/View/TextureBrowser.cpp
+#	${COMMON_SOURCE_DIR}/View/TextureBrowserView.cpp
+#	${COMMON_SOURCE_DIR}/View/TextureCollectionEditor.cpp
 	${COMMON_SOURCE_DIR}/View/TextureSelectedCommand.cpp
-	${COMMON_SOURCE_DIR}/View/ThreePaneMapView.cpp
+#	${COMMON_SOURCE_DIR}/View/ThreePaneMapView.cpp
 	${COMMON_SOURCE_DIR}/View/TitleBar.cpp
 	${COMMON_SOURCE_DIR}/View/TitledPanel.cpp
 	${COMMON_SOURCE_DIR}/View/ToolBoxConnector.cpp
@@ -482,18 +482,18 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/ToolController.cpp
 	${COMMON_SOURCE_DIR}/View/Tool.cpp
 	${COMMON_SOURCE_DIR}/View/TransformObjectsCommand.cpp
-	${COMMON_SOURCE_DIR}/View/TwoPaneMapView.cpp
+#	${COMMON_SOURCE_DIR}/View/TwoPaneMapView.cpp
 	${COMMON_SOURCE_DIR}/View/UndoableCommand.cpp
 	${COMMON_SOURCE_DIR}/View/UpdateEntitySpawnflagCommand.cpp
-	${COMMON_SOURCE_DIR}/View/UVCameraTool.cpp
-	${COMMON_SOURCE_DIR}/View/UVEditor.cpp
-	${COMMON_SOURCE_DIR}/View/UVOffsetTool.cpp
-	${COMMON_SOURCE_DIR}/View/UVOriginTool.cpp
-	${COMMON_SOURCE_DIR}/View/UVRotateTool.cpp
-	${COMMON_SOURCE_DIR}/View/UVScaleTool.cpp
-	${COMMON_SOURCE_DIR}/View/UVShearTool.cpp
-	${COMMON_SOURCE_DIR}/View/UVView.cpp
-	${COMMON_SOURCE_DIR}/View/UVViewHelper.cpp
+#	${COMMON_SOURCE_DIR}/View/UVCameraTool.cpp
+#	${COMMON_SOURCE_DIR}/View/UVEditor.cpp
+#	${COMMON_SOURCE_DIR}/View/UVOffsetTool.cpp
+#	${COMMON_SOURCE_DIR}/View/UVOriginTool.cpp
+#	${COMMON_SOURCE_DIR}/View/UVRotateTool.cpp
+#	${COMMON_SOURCE_DIR}/View/UVScaleTool.cpp
+#	${COMMON_SOURCE_DIR}/View/UVShearTool.cpp
+#	${COMMON_SOURCE_DIR}/View/UVView.cpp
+#	${COMMON_SOURCE_DIR}/View/UVViewHelper.cpp
 	${COMMON_SOURCE_DIR}/View/VertexCommand.cpp
 	${COMMON_SOURCE_DIR}/View/VertexHandleManager.cpp
 	${COMMON_SOURCE_DIR}/View/VertexToolController.cpp
