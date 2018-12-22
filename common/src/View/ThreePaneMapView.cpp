@@ -17,6 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <QGridLayout>
+
 #include "ThreePaneMapView.h"
 
 #include "Model/PointFile.h"
@@ -70,14 +72,15 @@ namespace TrenchBroom {
             
             m_vSplitter->splitHorizontally(m_mapViewXY, m_mapViewZZ, wxSize(100, 100), wxSize(100, 100));
             m_hSplitter->splitVertically(m_mapView3D, m_vSplitter, wxSize(100, 100), wxSize(100, 100));
-            
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_hSplitter, 1, wxEXPAND);
-            
-            SetSizer(sizer);
 
-            wxPersistenceManager::Get().RegisterAndRestore(m_hSplitter);
-            wxPersistenceManager::Get().RegisterAndRestore(m_vSplitter);
+
+            auto* layout = new QGridLayout();
+            layout->addWidget(m_hSplitter, 0, 0, 1, 1);
+            setLayout(layout);
+
+            // FIXME: Save and restore
+            //wxPersistenceManager::Get().RegisterAndRestore(m_hSplitter);
+            //wxPersistenceManager::Get().RegisterAndRestore(m_vSplitter);
         }
 
         void ThreePaneMapView::doMaximizeView(MapView* view) {

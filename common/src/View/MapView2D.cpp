@@ -77,6 +77,7 @@ namespace TrenchBroom {
             setCompass(new Renderer::Compass2D());
 
             // FIXME: Not sure if wxWindow::SetName() maps to QWidget::setWhatsThis()?
+            // FIXME: Actually, was SetName used for persistence?
 			switch (viewPlane) {
 			case ViewPlane_XY:
 				setWhatsThis("XY View");

@@ -47,7 +47,7 @@ namespace TrenchBroom {
             FlyModeHelper* m_flyModeHelper;
             bool m_ignoreCameraChangeEvents;
         public:
-            MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager);
+            MapView3D(QWidget* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager);
             ~MapView3D() override;
         private:
             void initializeCamera();

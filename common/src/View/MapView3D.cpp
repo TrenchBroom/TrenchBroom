@@ -73,7 +73,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        MapView3D::MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager) :
+        MapView3D::MapView3D(QWidget* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager) :
         MapViewBase(parent, logger, document, toolBox, renderer, contextManager),
         m_flyModeHelper(new FlyModeHelper(m_camera)),
         m_ignoreCameraChangeEvents(false) {
@@ -82,7 +82,9 @@ namespace TrenchBroom {
             initializeCamera();
             initializeToolChain(toolBox);
             setCompass(new Renderer::Compass3D());
-            SetName("MapView3D");
+
+            // FIXME: Replace
+            //SetName("MapView3D");
 
             m_camera.setFov(pref(Preferences::CameraFov));
         }
