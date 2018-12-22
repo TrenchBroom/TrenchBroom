@@ -20,10 +20,6 @@
 #ifndef TrenchBroom_GLContextManager
 #define TrenchBroom_GLContextManager
 
-#include "View/GLContext.h"
-
-class wxGLCanvas;
-
 namespace TrenchBroom {
     namespace Renderer {
         class FontManager;
@@ -34,7 +30,6 @@ namespace TrenchBroom {
     namespace View {
         class GLContextManager {
         private:
-            GLContext::Ptr m_mainContext;
             bool m_initialized;
             
             Renderer::Vbo* m_vertexVbo;
@@ -44,9 +39,6 @@ namespace TrenchBroom {
         public:
             GLContextManager();
             ~GLContextManager();
-            
-            GLContext::Ptr createContext(wxGLCanvas* canvas);
-            wxGLContext* mainContext() const;
             
             bool initialized() const;
             bool initialize();

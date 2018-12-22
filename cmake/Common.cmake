@@ -363,7 +363,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/GenericDropSource.cpp
 	${COMMON_SOURCE_DIR}/View/GetVersion.cpp
 	${COMMON_SOURCE_DIR}/View/GLAttribs.cpp
-	${COMMON_SOURCE_DIR}/View/GLContext.cpp
+#	${COMMON_SOURCE_DIR}/View/GLContext.cpp
 	${COMMON_SOURCE_DIR}/View/GLContextManager.cpp
 	${COMMON_SOURCE_DIR}/View/Grid.cpp
 	${COMMON_SOURCE_DIR}/View/ImageListBox.cpp

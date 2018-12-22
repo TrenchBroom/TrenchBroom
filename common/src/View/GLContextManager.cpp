@@ -39,17 +39,6 @@ namespace TrenchBroom {
             delete m_fontManager;
             delete m_shaderManager;
         }
-
-        GLContext::Ptr GLContextManager::createContext(wxGLCanvas* canvas) {
-            GLContext::Ptr context(new GLContext(canvas, this));
-            if (m_mainContext.get() == nullptr)
-                m_mainContext = context;
-            return context;
-        }
-
-        wxGLContext* GLContextManager::mainContext() const {
-            return m_mainContext.get();
-        }
         
         bool GLContextManager::initialized() const {
             return m_initialized;

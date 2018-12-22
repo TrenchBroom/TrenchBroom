@@ -165,7 +165,14 @@ namespace TrenchBroom {
 
             m_recentDocuments->didChangeNotifier.addObserver(recentDocumentsDidChangeNotifier);
 
+            // Qt
+
             QApplication app(argc, argv);
+            // Makes all QOpenGLWidget in the application share a single context
+            // (default behaviour would be for QOpenGLWidget's in a single top-level window to share a context.)
+            // see: http://doc.qt.io/qt-5/qopenglwidget.html#context-sharing
+            app.setAttribute(Qt::AA_ShareOpenGLContexts);
+
             TestWindow window;
             window.show();
             app.exec();

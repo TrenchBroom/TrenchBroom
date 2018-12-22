@@ -45,7 +45,7 @@ namespace TrenchBroom {
     namespace View {
         RenderView::RenderView(QWidget* parent, GLContextManager& contextManager) :
         QOpenGLWidget(parent),
-        m_glContext(contextManager.createContext(this)) {
+        m_glContext(&contextManager) {
             const wxColour color = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
             m_focusColor = fromWxColor(color);
         }

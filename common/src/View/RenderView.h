@@ -45,8 +45,8 @@ namespace TrenchBroom {
         
         class RenderView : public QOpenGLWidget {
         private:
-            GLContext::Ptr m_glContext;
             Color m_focusColor;
+            GLContextManager* m_glContext;
         protected:
             RenderView(QWidget* parent, GLContextManager& contextManager);
         public:
