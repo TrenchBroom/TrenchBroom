@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_MapViewBar
 #define TrenchBroom_MapViewBar
 
-#include <QWidget>
-
 #include "View/ContainerBar.h"
 #include "View/ViewTypes.h"
 
@@ -39,7 +37,7 @@ namespace TrenchBroom {
             wxBookCtrlBase* m_toolBook;
             ViewPopupEditor* m_viewEditor;
         public:
-            MapViewBar(QWidget* parent, MapDocumentWPtr document);
+            MapViewBar(wxWindow* parent, MapDocumentWPtr document);
             
             wxBookCtrlBase* toolBook();
             

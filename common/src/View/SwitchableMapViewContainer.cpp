@@ -39,6 +39,7 @@
 #include <vecmath/scalar.h>
 
 #include <wx/sizer.h>
+#include <QGridLayout>
 
 namespace TrenchBroom {
     namespace View {
@@ -47,8 +48,11 @@ namespace TrenchBroom {
         m_logger(logger),
         m_document(document),
         m_contextManager(contextManager),
-        m_mapViewBar(new MapViewBar(this, m_document)),
-        m_toolBox(new MapViewToolBox(m_document, m_mapViewBar->toolBook())),
+        // FIXME: Port MapViewBar
+//        m_mapViewBar(new MapViewBar(this, m_document)),
+//        m_toolBox(new MapViewToolBox(m_document, m_mapViewBar->toolBook())),
+        m_mapViewBar(nullptr),
+        m_toolBox(new MapViewToolBox(m_document, nullptr)),
         m_mapRenderer(new Renderer::MapRenderer(m_document)),
         m_mapView(nullptr) {
             switchToMapView(static_cast<MapViewLayout>(pref(Preferences::MapViewLayout)));
@@ -59,7 +63,7 @@ namespace TrenchBroom {
             unbindObservers();
             
             // we must destroy our children before we destroy our resources because they might still use them in their destructors
-            DestroyChildren();
+            delete m_mapView;
             
             delete m_toolBox;
             m_toolBox = nullptr;
@@ -78,14 +82,19 @@ namespace TrenchBroom {
 
         void SwitchableMapViewContainer::switchToMapView(const MapViewLayout viewId) {
             if (m_mapView != nullptr) {
-                m_mapView->Destroy();
+                delete m_mapView;
                 m_mapView = nullptr;
             }
 
             switch (viewId) {
                 case MapViewLayout_1Pane:
+                    // FIXME: Can we pass nullptr as the parent here, since it's added to `this` down below?
                     m_mapView = new CyclingMapView(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, m_contextManager, CyclingMapView::View_ALL);
                     break;
+                default:
+                    // FIXME: Implement others
+                    assert(0);
+#if 0
                 case MapViewLayout_2Pane:
                     m_mapView = new TwoPaneMapView(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, m_contextManager);
                     break;
@@ -95,16 +104,20 @@ namespace TrenchBroom {
                 case MapViewLayout_4Pane:
                     m_mapView = new FourPaneMapView(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, m_contextManager);
                     break;
+#endif
             }
+
+            // delete the old sizer first
+            if (layout() != nullptr) {
+                delete layout();
+            }
+
+            // FIXME: add m_mapViewBar too. Use a vertical box layout.
+            auto* layout = new QGridLayout();
+            layout->addWidget(m_mapView, 0, 0, 1, 1);
+            setLayout(layout);
             
-            SetSizer(nullptr); // delete the old sizer first
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_mapViewBar, 0, wxEXPAND);
-            sizer->Add(m_mapView, 1, wxEXPAND);
-            SetSizer(sizer);
-            Layout();
-            
-            m_mapView->SetFocus();
+            m_mapView->setFocus();
         }
 
         bool SwitchableMapViewContainer::anyToolActive() const {
@@ -290,7 +303,7 @@ namespace TrenchBroom {
         }
 
         void SwitchableMapViewContainer::refreshViews(Tool* tool) {
-            m_mapView->Refresh();
+            m_mapView->update();
         }
 
         bool SwitchableMapViewContainer::doGetIsCurrent() const {

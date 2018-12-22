@@ -23,8 +23,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        MapViewContainer::MapViewContainer(wxWindow* parent) :
-        wxPanel(parent),
+        MapViewContainer::MapViewContainer(QWidget* parent) :
+        QWidget(parent),
         MapView() {}
         
         MapViewContainer::~MapViewContainer() {}
