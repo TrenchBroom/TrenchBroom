@@ -24,14 +24,14 @@
 #include "View/InputState.h"
 #include "View/PickRequest.h"
 
-#include <wx/gdicmn.h>
-#include <wx/longlong.h>
+#include <QObject>
+#include <QPoint>
 
-class wxWindow;
-class wxKeyEvent;
-class wxFocusEvent;
-class wxMouseEvent;
-class wxMouseCaptureLostEvent;
+class QWidget;
+class QMouseEvent;
+class QWheelEvent;
+class QKeyEvent;
+class QFocusEvent;
 
 namespace TrenchBroom {
     namespace Model {
@@ -49,22 +49,25 @@ namespace TrenchBroom {
         class ToolBox;
         class ToolChain;
 
-        class ToolBoxConnector {
+        // FIXME: Don't subclass QObject, make a private QObject member variable to be the event filter
+        class ToolBoxConnector : public QObject {
         private:
-            wxWindow* m_window;
+            QWidget* m_window;
             ToolBox* m_toolBox;
             ToolChain* m_toolChain;
             
             InputState m_inputState;
             
-            wxLongLong m_clickTime;
-            wxPoint m_clickPos;
-            wxPoint m_lastMousePos;
+            ulong m_clickTime;
+            QPoint m_clickPos;
+            QPoint m_lastMousePos;
             bool m_ignoreNextDrag;
         public:
-            ToolBoxConnector(wxWindow* window);
+            ToolBoxConnector(QWidget* window);
             virtual ~ToolBoxConnector();
-            
+        protected: // QObject
+            bool eventFilter(QObject *obj, QEvent *ev) override;
+        public:
             const vm::ray3& pickRay() const;
             const Model::PickResult& pickResult() const;
 
@@ -74,33 +77,30 @@ namespace TrenchBroom {
             void setToolBox(ToolBox& toolBox);
             void addTool(ToolController* tool);
         public: // drag and drop
-            bool dragEnter(wxCoord x, wxCoord y, const String& text);
-            bool dragMove(wxCoord x, wxCoord y, const String& text);
+            bool dragEnter(int x, int y, const String& text);
+            bool dragMove(int x, int y, const String& text);
             void dragLeave();
-            bool dragDrop(wxCoord x, wxCoord y, const String& text);
+            bool dragDrop(int x, int y, const String& text);
         public: // cancel
             bool cancel();
         protected: // rendering
             void setRenderOptions(Renderer::RenderContext& renderContext);
             void renderTools(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         private:
-            void bindEvents();
-            void unbindEvents();
-
-            void OnKey(wxKeyEvent& event);
-            void OnMouseButton(wxMouseEvent& event);
-            void OnMouseDoubleClick(wxMouseEvent& event);
-            void OnMouseMotion(wxMouseEvent& event);
-            void OnMouseWheel(wxMouseEvent& event);
-            void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
-            void OnSetFocus(wxFocusEvent& event);
-            void OnKillFocus(wxFocusEvent& event);
+            void OnKey(QKeyEvent* event);
+            void OnMouseButton(QMouseEvent* event);
+            void OnMouseDoubleClick(QMouseEvent* event);
+            void OnMouseMotion(QMouseEvent* event);
+            void OnMouseWheel(QWheelEvent* event);
+            //void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
+            void OnSetFocus(QFocusEvent* event);
+            void OnKillFocus(QFocusEvent* event);
         private:
-            bool isWithinClickDistance(const wxPoint& pos) const;
+            bool isWithinClickDistance(const QPoint& pos) const;
             
-            void startDrag(wxMouseEvent& event);
-            void drag(wxMouseEvent& event);
-            void endDrag(wxMouseEvent& event);
+            void startDrag(QMouseEvent* event);
+            void drag(QMouseEvent* event);
+            void endDrag(QMouseEvent* event);
         public:
             bool cancelDrag();
         private:
@@ -113,8 +113,8 @@ namespace TrenchBroom {
             bool clearModifierKeys();
             void updateModifierKeys();
             
-            MouseButtonState mouseButton(wxMouseEvent& event);
-            void mouseMoved(const wxPoint& position);
+            MouseButtonState mouseButton(QMouseEvent* event);
+            void mouseMoved(const QPoint& position);
 
             void showPopupMenu();
         private:

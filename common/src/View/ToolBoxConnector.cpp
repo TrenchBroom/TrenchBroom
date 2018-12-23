@@ -22,23 +22,60 @@
 #include "View/ToolBox.h"
 #include "View/ToolChain.h"
 
-#include <wx/window.h>
-#include <wx/time.h>
+#include <QWidget>
+#include <QCursor>
+#include <QEvent>
+#include <QMouseEvent>
+#include <QWheelEvent>
+#include <QGuiApplication>
 
 namespace TrenchBroom {
     namespace View {
-        ToolBoxConnector::ToolBoxConnector(wxWindow* window) :
+        ToolBoxConnector::ToolBoxConnector(QWidget* window) :
         m_window(window),
         m_toolBox(nullptr),
         m_toolChain(new ToolChain()),
         m_ignoreNextDrag(false) {
             ensure(m_window != nullptr, "window is null");
-            bindEvents();
+            m_window->installEventFilter(this);
         }
 
         ToolBoxConnector::~ToolBoxConnector() {
-            unbindEvents();
+            m_window->removeEventFilter(this);
             delete m_toolChain;
+        }
+
+        bool ToolBoxConnector::eventFilter(QObject *obj, QEvent *ev) {
+            switch (ev->type()) {
+                case QEvent::KeyPress:
+                case QEvent::KeyRelease:
+                    OnKey(static_cast<QKeyEvent *>(ev));
+                    break;
+                case QEvent::MouseButtonPress:
+                case QEvent::MouseButtonRelease:
+                    OnMouseButton(static_cast<QMouseEvent *>(ev));
+                    break;
+                case QEvent::MouseButtonDblClick:
+                    OnMouseDoubleClick(static_cast<QMouseEvent *>(ev));
+                    break;
+                case QEvent::MouseMove:
+                    OnMouseMotion(static_cast<QMouseEvent *>(ev));
+                    break;
+                case QEvent::Wheel:
+                    OnMouseWheel(static_cast<QWheelEvent *>(ev));
+                    break;
+                case QEvent::FocusIn:
+                    OnSetFocus(static_cast<QFocusEvent *>(ev));
+                    break;
+                case QEvent::FocusOut:
+                    OnSetFocus(static_cast<QFocusEvent *>(ev));
+                    break;
+
+                // FIXME: handle ToolBoxConnector::OnMouseCaptureLost?
+            }
+
+            // Continue normal Qt event handling
+            return QObject::eventFilter(obj, ev);
         }
 
         const vm::ray3& ToolBoxConnector::pickRay() const {
@@ -79,18 +116,18 @@ namespace TrenchBroom {
             updatePickResult();
 
             const bool result = m_toolBox->dragEnter(m_toolChain, m_inputState, text);
-            m_window->Refresh();
+            m_window->update();
             return result;
         }
 
         bool ToolBoxConnector::dragMove(const wxCoord x, const wxCoord y, const String& text) {
             ensure(m_toolBox != nullptr, "toolBox is null");
 
-            mouseMoved(wxPoint(x, y));
+            mouseMoved(QPoint(x, y));
             updatePickResult();
 
             const bool result = m_toolBox->dragMove(m_toolChain, m_inputState, text);
-            m_window->Refresh();
+            m_window->update();
             return result;
         }
 
@@ -98,18 +135,18 @@ namespace TrenchBroom {
             ensure(m_toolBox != nullptr, "toolBox is null");
 
             m_toolBox->dragLeave(m_toolChain, m_inputState);
-            m_window->Refresh();
+            m_window->update();
         }
 
-        bool ToolBoxConnector::dragDrop(const wxCoord x, const wxCoord y, const String& text) {
+        bool ToolBoxConnector::dragDrop(const int x, const int y, const String& text) {
             ensure(m_toolBox != nullptr, "toolBox is null");
 
             updatePickResult();
 
             const bool result = m_toolBox->dragDrop(m_toolChain, m_inputState, text);
-            m_window->Refresh();
+            m_window->update();
             if (result)
-                m_window->SetFocus();
+                m_window->setFocus();
             return result;
         }
 
@@ -129,90 +166,33 @@ namespace TrenchBroom {
             ensure(m_toolBox != nullptr, "toolBox is null");
             m_toolBox->renderTools(m_toolChain, m_inputState, renderContext, renderBatch);
         }
-        
-        void ToolBoxConnector::bindEvents() {
-            m_window->Bind(wxEVT_KEY_DOWN, &ToolBoxConnector::OnKey, this);
-            m_window->Bind(wxEVT_KEY_UP, &ToolBoxConnector::OnKey, this);
-            m_window->Bind(wxEVT_LEFT_DOWN, &ToolBoxConnector::OnMouseButton, this);
-            m_window->Bind(wxEVT_LEFT_UP, &ToolBoxConnector::OnMouseButton, this);
-            m_window->Bind(wxEVT_LEFT_DCLICK, &ToolBoxConnector::OnMouseDoubleClick, this);
-            m_window->Bind(wxEVT_RIGHT_DOWN, &ToolBoxConnector::OnMouseButton, this);
-            m_window->Bind(wxEVT_RIGHT_UP, &ToolBoxConnector::OnMouseButton, this);
-            m_window->Bind(wxEVT_RIGHT_DCLICK, &ToolBoxConnector::OnMouseDoubleClick, this);
-            m_window->Bind(wxEVT_MIDDLE_DOWN, &ToolBoxConnector::OnMouseButton, this);
-            m_window->Bind(wxEVT_MIDDLE_UP, &ToolBoxConnector::OnMouseButton, this);
-            m_window->Bind(wxEVT_MIDDLE_DCLICK, &ToolBoxConnector::OnMouseDoubleClick, this);
-            m_window->Bind(wxEVT_AUX1_DOWN, &ToolBoxConnector::OnMouseButton, this);
-            m_window->Bind(wxEVT_AUX1_UP, &ToolBoxConnector::OnMouseButton, this);
-            m_window->Bind(wxEVT_AUX1_DCLICK, &ToolBoxConnector::OnMouseDoubleClick, this);
-            m_window->Bind(wxEVT_AUX2_DOWN, &ToolBoxConnector::OnMouseButton, this);
-            m_window->Bind(wxEVT_AUX2_UP, &ToolBoxConnector::OnMouseButton, this);
-            m_window->Bind(wxEVT_AUX2_DCLICK, &ToolBoxConnector::OnMouseDoubleClick, this);
-            m_window->Bind(wxEVT_MOTION, &ToolBoxConnector::OnMouseMotion, this);
-            m_window->Bind(wxEVT_MOUSEWHEEL, &ToolBoxConnector::OnMouseWheel, this);
-            m_window->Bind(wxEVT_MOUSE_CAPTURE_LOST, &ToolBoxConnector::OnMouseCaptureLost, this);
-            m_window->Bind(wxEVT_SET_FOCUS, &ToolBoxConnector::OnSetFocus, this);
-            m_window->Bind(wxEVT_KILL_FOCUS, &ToolBoxConnector::OnKillFocus, this);
-        }
-        
-        void ToolBoxConnector::unbindEvents() {
-            m_window->Unbind(wxEVT_KEY_DOWN, &ToolBoxConnector::OnKey, this);
-            m_window->Unbind(wxEVT_KEY_UP, &ToolBoxConnector::OnKey, this);
-            m_window->Unbind(wxEVT_LEFT_DOWN, &ToolBoxConnector::OnMouseButton, this);
-            m_window->Unbind(wxEVT_LEFT_UP, &ToolBoxConnector::OnMouseButton, this);
-            m_window->Unbind(wxEVT_LEFT_DCLICK, &ToolBoxConnector::OnMouseDoubleClick, this);
-            m_window->Unbind(wxEVT_RIGHT_DOWN, &ToolBoxConnector::OnMouseButton, this);
-            m_window->Unbind(wxEVT_RIGHT_UP, &ToolBoxConnector::OnMouseButton, this);
-            m_window->Unbind(wxEVT_RIGHT_DCLICK, &ToolBoxConnector::OnMouseDoubleClick, this);
-            m_window->Unbind(wxEVT_MIDDLE_DOWN, &ToolBoxConnector::OnMouseButton, this);
-            m_window->Unbind(wxEVT_MIDDLE_UP, &ToolBoxConnector::OnMouseButton, this);
-            m_window->Unbind(wxEVT_MIDDLE_DCLICK, &ToolBoxConnector::OnMouseDoubleClick, this);
-            m_window->Unbind(wxEVT_AUX1_DOWN, &ToolBoxConnector::OnMouseButton, this);
-            m_window->Unbind(wxEVT_AUX1_UP, &ToolBoxConnector::OnMouseButton, this);
-            m_window->Unbind(wxEVT_AUX1_DCLICK, &ToolBoxConnector::OnMouseDoubleClick, this);
-            m_window->Unbind(wxEVT_AUX2_DOWN, &ToolBoxConnector::OnMouseButton, this);
-            m_window->Unbind(wxEVT_AUX2_UP, &ToolBoxConnector::OnMouseButton, this);
-            m_window->Unbind(wxEVT_AUX2_DCLICK, &ToolBoxConnector::OnMouseDoubleClick, this);
-            m_window->Unbind(wxEVT_MOTION, &ToolBoxConnector::OnMouseMotion, this);
-            m_window->Unbind(wxEVT_MOUSEWHEEL, &ToolBoxConnector::OnMouseWheel, this);
-            m_window->Unbind(wxEVT_MOUSE_CAPTURE_LOST, &ToolBoxConnector::OnMouseCaptureLost, this);
-            m_window->Unbind(wxEVT_SET_FOCUS, &ToolBoxConnector::OnSetFocus, this);
-            m_window->Unbind(wxEVT_KILL_FOCUS, &ToolBoxConnector::OnKillFocus, this);
-        }
 
-        void ToolBoxConnector::OnKey(wxKeyEvent& event) {
-            if (m_window->IsBeingDeleted()) return;
-
+        void ToolBoxConnector::OnKey(QKeyEvent* event) {
             ensure(m_toolBox != nullptr, "toolBox is null");
 
-            event.Skip();
             updateModifierKeys();
-            m_window->Refresh();
+            m_window->update();
         }
 
-        void ToolBoxConnector::OnMouseButton(wxMouseEvent& event) {
-            if (m_window->IsBeingDeleted()) return;
-
+        void ToolBoxConnector::OnMouseButton(QMouseEvent* event) {
             ensure(m_toolBox != nullptr, "toolBox is null");
-
-            event.Skip();
 
             const MouseButtonState button = mouseButton(event);
             if (m_toolBox->ignoreNextClick() && button == MouseButtons::MBLeft) {
-                if (event.ButtonUp())
+                if (event->type() == QEvent::MouseButtonRelease)
                     m_toolBox->clearIgnoreNextClick();
                 return;
             }
 
-            m_window->SetFocus();
-            if (event.ButtonUp())
+            m_window->setFocus();
+            if (event->type() == QEvent::MouseButtonRelease)
                 m_toolBox->clearIgnoreNextClick();
 
             updateModifierKeys();
-            if (event.ButtonDown()) {
+            if (event->type() == QEvent::MouseButtonPress) {
                 captureMouse();
-                m_clickTime = wxGetLocalTimeMillis();
-                m_clickPos = event.GetPosition();
+                m_clickTime = event->timestamp();
+                m_clickPos = event->pos();
                 m_inputState.mouseDown(button);
                 m_toolBox->mouseDown(m_toolChain, m_inputState);
             } else {
@@ -220,14 +200,14 @@ namespace TrenchBroom {
                     endDrag(event);
                 } else if (!m_ignoreNextDrag) {
                     m_toolBox->mouseUp(m_toolChain, m_inputState);
-                    const bool handled = isWithinClickDistance(event.GetPosition()) && m_toolBox->mouseClick(m_toolChain, m_inputState);
+                    const bool handled = isWithinClickDistance(event->pos()) && m_toolBox->mouseClick(m_toolChain, m_inputState);
                     m_inputState.mouseUp(button);
                     releaseMouse();
 
                     if (button == MouseButtons::MBRight && !handled) {
                         // We miss mouse events when a popup menu is already open, so we must make sure that the input
                         // state is up to date.
-                        mouseMoved(event.GetPosition());
+                        mouseMoved(event->pos());
                         updatePickResult();
                         showPopupMenu();
                     }
@@ -241,17 +221,13 @@ namespace TrenchBroom {
             updatePickResult();
             m_ignoreNextDrag = false;
 
-            m_window->Refresh();
+            m_window->update();
         }
 
-        void ToolBoxConnector::OnMouseDoubleClick(wxMouseEvent& event) {
-            if (m_window->IsBeingDeleted()) return;
-
+        void ToolBoxConnector::OnMouseDoubleClick(QMouseEvent* event) {
             ensure(m_toolBox != nullptr, "toolBox is null");
 
-            event.Skip();
-
-            m_window->SetFocus();
+            m_window->setFocus();
             m_toolBox->clearIgnoreNextClick();
 
             const MouseButtonState button = mouseButton(event);
@@ -260,7 +236,7 @@ namespace TrenchBroom {
             if (m_toolBox->dragging()) {
                 endDrag(event);
             } else {
-                m_clickPos = event.GetPosition();
+                m_clickPos = event->pos();
                 m_inputState.mouseDown(button);
                 m_toolBox->mouseDoubleClick(m_toolChain, m_inputState);
                 m_inputState.mouseUp(button);
@@ -269,15 +245,11 @@ namespace TrenchBroom {
 
             updatePickResult();
 
-            m_window->Refresh();
+            m_window->update();
         }
 
-        void ToolBoxConnector::OnMouseMotion(wxMouseEvent& event) {
-            if (m_window->IsBeingDeleted()) return;
-
+        void ToolBoxConnector::OnMouseMotion(QMouseEvent* event) {
             ensure(m_toolBox != nullptr, "toolBox is null");
-
-            event.Skip();
 
             updateModifierKeys();
             if (m_toolBox->dragging()) {
@@ -286,96 +258,75 @@ namespace TrenchBroom {
                 if (m_inputState.mouseButtons() != MouseButtons::MBNone) {
                     startDrag(event);
                 } else {
-                    mouseMoved(event.GetPosition());
+                    mouseMoved(event->pos());
                     updatePickResult();
                     m_toolBox->mouseMove(m_toolChain, m_inputState);
                 }
             }
 
-            m_window->Refresh();
-#ifdef _WIN32
-			m_window->Update(); // neccessary for smooth rendering on Windows
-#endif
+            m_window->update();
         }
 
-        void ToolBoxConnector::OnMouseWheel(wxMouseEvent& event) {
-            if (m_window->IsBeingDeleted()) return;
-
+        void ToolBoxConnector::OnMouseWheel(QWheelEvent* event) {
             ensure(m_toolBox != nullptr, "toolBox is null");
 
-            event.Skip();
-
             updateModifierKeys();
-            const float delta = static_cast<float>(event.GetWheelRotation()) / event.GetWheelDelta() * event.GetLinesPerAction();
-            if (event.GetWheelAxis() == wxMOUSE_WHEEL_HORIZONTAL)
-                m_inputState.scroll(delta, 0.0f);
-            else if (event.GetWheelAxis() == wxMOUSE_WHEEL_VERTICAL)
-                m_inputState.scroll(0.0f, delta);
+
+            const float deltaX = event->angleDelta().x() / 120.0f;
+            const float deltaY = event->angleDelta().y() / 120.0f;
+            m_inputState.scroll(deltaX, deltaY);
             m_toolBox->mouseScroll(m_toolChain, m_inputState);
 
             updatePickResult();
-            m_window->Refresh();
+            m_window->update();
         }
 
+//        void ToolBoxConnector::OnMouseCaptureLost(wxMouseCaptureLostEvent& event) {
+//            ensure(m_toolBox != nullptr, "toolBox is null");
+//
+//            cancelDrag();
+//            m_window->update();
+//        }
 
-        void ToolBoxConnector::OnMouseCaptureLost(wxMouseCaptureLostEvent& event) {
-            if (m_window->IsBeingDeleted()) return;
-
-            ensure(m_toolBox != nullptr, "toolBox is null");
-
-            event.Skip();
-            
-            cancelDrag();
-            m_window->Refresh();
-        }
-
-        void ToolBoxConnector::OnSetFocus(wxFocusEvent& event) {
-            if (m_window->IsBeingDeleted()) return;
-
+        void ToolBoxConnector::OnSetFocus(QFocusEvent* event) {
             ensure(m_toolBox != nullptr, "toolBox is null");
             
-            event.Skip();
             updateModifierKeys();
-            m_window->Refresh();
+            m_window->update();
 
-            mouseMoved(m_window->ScreenToClient(wxGetMousePosition()));
+            mouseMoved(m_window->mapFromGlobal(QCursor::pos()));
         }
 
-        void ToolBoxConnector::OnKillFocus(wxFocusEvent& event) {
-            if (m_window->IsBeingDeleted()) return;
-
+        void ToolBoxConnector::OnKillFocus(QFocusEvent* event) {
             ensure(m_toolBox != nullptr, "toolBox is null");
 
-            event.Skip();
-            
             cancelDrag();
             releaseMouse();
             updateModifierKeys();
-            m_window->Refresh();
+            m_window->update();
         }
 
-        bool ToolBoxConnector::isWithinClickDistance(const wxPoint& pos) const {
-            return (std::abs(pos.x - m_clickPos.x) <= 1 &&
-                    std::abs(pos.y - m_clickPos.y) <= 1);
+        bool ToolBoxConnector::isWithinClickDistance(const QPoint& pos) const {
+            return (std::abs(pos.x() - m_clickPos.x()) <= 1 &&
+                    std::abs(pos.y() - m_clickPos.y()) <= 1);
         }
 
-        
-        void ToolBoxConnector::startDrag(wxMouseEvent& event) {
-            if (!isWithinClickDistance(event.GetPosition())) {
+        void ToolBoxConnector::startDrag(QMouseEvent* event) {
+            if (!isWithinClickDistance(event->pos())) {
                 const bool dragStarted = m_toolBox->startMouseDrag(m_toolChain, m_inputState);
                 if (dragStarted) {
                     m_ignoreNextDrag = true;
                     m_inputState.setAnyToolDragging(true);
                     drag(event);
                 } else {
-                    mouseMoved(event.GetPosition());
+                    mouseMoved(event->pos());
                     updatePickResult();
                 }
             }
         }
         
-        void ToolBoxConnector::drag(wxMouseEvent& event) {
-            mouseMoved(event.GetPosition());
+        void ToolBoxConnector::drag(QMouseEvent* event) {
+            mouseMoved(event->pos());
             updatePickResult();
             if (!m_toolBox->mouseDrag(m_inputState)) {
                 endDrag(event);
@@ -383,10 +334,10 @@ namespace TrenchBroom {
             }
         }
         
-        void ToolBoxConnector::endDrag(wxMouseEvent& event) {
+        void ToolBoxConnector::endDrag(QMouseEvent* event) {
             assert(m_toolBox->dragging());
             
-            const wxLongLong clickInterval = wxGetLocalTimeMillis() - m_clickTime;
+            const auto clickInterval = event->timestamp() - m_clickTime;
             if (clickInterval <= 100) {
                 cancelDrag();
             } else {
@@ -412,25 +363,20 @@ namespace TrenchBroom {
         }
         
         void ToolBoxConnector::captureMouse() {
-            if (!m_window->HasCapture() && !m_toolBox->dragging())
-                m_window->CaptureMouse();
         }
 
         void ToolBoxConnector::releaseMouse() {
-            if (m_window->HasCapture() && !m_toolBox->dragging())
-                m_window->ReleaseMouse();
         }
 
-
         ModifierKeyState ToolBoxConnector::modifierKeys() {
-            const wxMouseState mouseState = wxGetMouseState();
+            const Qt::KeyboardModifiers mouseState = QGuiApplication::keyboardModifiers();
 
             ModifierKeyState state = ModifierKeys::MKNone;
-            if (mouseState.CmdDown())
+            if (mouseState & Qt::ControlModifier)
                 state |= ModifierKeys::MKCtrlCmd;
-            if (mouseState.ShiftDown())
+            if (mouseState & Qt::ShiftModifier)
                 state |= ModifierKeys::MKShift;
-            if (mouseState.AltDown())
+            if (mouseState & Qt::AltModifier)
                 state |= ModifierKeys::MKAlt;
             return state;
         }
@@ -459,22 +405,22 @@ namespace TrenchBroom {
             }
         }
 
-        MouseButtonState ToolBoxConnector::mouseButton(wxMouseEvent& event) {
-            switch (event.GetButton()) {
-                case wxMOUSE_BTN_LEFT:
+        MouseButtonState ToolBoxConnector::mouseButton(QMouseEvent* event) {
+            switch (event->button()) {
+                case Qt::LeftButton:
                     return MouseButtons::MBLeft;
-                case wxMOUSE_BTN_MIDDLE:
+                case Qt::MidButton:
                     return MouseButtons::MBMiddle;
-                case wxMOUSE_BTN_RIGHT:
+                case Qt::RightButton:
                     return MouseButtons::MBRight;
                 default:
                     return MouseButtons::MBNone;
             }
         }
 
-        void ToolBoxConnector::mouseMoved(const wxPoint& position) {
-            const wxPoint delta = position - m_lastMousePos;
-            m_inputState.mouseMove(position.x, position.y, delta.x, delta.y);
+        void ToolBoxConnector::mouseMoved(const QPoint& position) {
+            const auto delta = position - m_lastMousePos;
+            m_inputState.mouseMove(position.x(), position.y(), delta.x(), delta.y());
             m_lastMousePos = position;
         }
 
