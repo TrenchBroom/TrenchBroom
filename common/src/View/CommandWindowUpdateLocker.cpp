@@ -23,7 +23,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        CommandWindowUpdateLocker::CommandWindowUpdateLocker(wxWindow* window, MapDocumentWPtr document) :
+        CommandWindowUpdateLocker::CommandWindowUpdateLocker(QWidget* window, MapDocumentWPtr document) :
         m_locker(window),
         m_document(document),
         m_bound(false) {}

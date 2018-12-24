@@ -22,16 +22,16 @@
 
 #include <stdio.h>
 
-class wxWindow;
+class QWidget;
 
 namespace TrenchBroom {
     namespace View {
         class NestedWindowUpdateLocker {
         private:
-            wxWindow* m_window;
+            QWidget* m_window;
             size_t m_nestingLevel;
         public:
-            NestedWindowUpdateLocker(wxWindow* window);
+            NestedWindowUpdateLocker(QWidget* window);
             
             void Freeze();
             void Thaw();

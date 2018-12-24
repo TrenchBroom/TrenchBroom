@@ -25,7 +25,7 @@
 #include "View/UndoableCommand.h"
 #include "View/ViewTypes.h"
 
-class wxWindow;
+class QWidget;
 
 namespace TrenchBroom {
     namespace View {
@@ -35,7 +35,7 @@ namespace TrenchBroom {
             MapDocumentWPtr m_document;
             bool m_bound;
         public:
-            CommandWindowUpdateLocker(wxWindow* window, MapDocumentWPtr document);
+            CommandWindowUpdateLocker(QWidget* window, MapDocumentWPtr document);
             ~CommandWindowUpdateLocker();
             
             void Start();
