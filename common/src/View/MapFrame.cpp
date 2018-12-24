@@ -111,7 +111,7 @@ namespace TrenchBroom {
         }
 
         void MapFrame::Create(FrameManager* frameManager, MapDocumentSPtr document) {
-            ensure(frameManager != nullptr, "frameManager is null");
+            //ensure(frameManager != nullptr, "frameManager is null");
             ensure(document.get() != nullptr, "document is null");
 
             m_frameManager = frameManager;

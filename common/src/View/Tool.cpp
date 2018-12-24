@@ -62,15 +62,21 @@ namespace TrenchBroom {
         }
 
         void Tool::createPage(wxBookCtrlBase* book) {
+            // FIXME: tool gui
+#if 0
             assert(m_book == nullptr);
             
             m_book = book;
             m_pageIndex = m_book->GetPageCount();
             m_book->AddPage(doCreatePage(m_book), "");
+#endif
         }
         
         void Tool::showPage() {
+            // FIXME: tool gui
+#if 0
             m_book->SetSelection(m_pageIndex);
+#endif
         }
 
         bool Tool::doActivate() {

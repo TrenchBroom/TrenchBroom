@@ -19,9 +19,14 @@
 
 #include "TrenchBroomAppQt.h"
 
+#include "Model/GameFactory.h"
 #include "View/ActionManager.h"
+#include "View/MapDocument.h"
+#include "View/MapDocumentCommandFacade.h"
+#include "View/MapFrame.h"
 
 #include <QApplication>
+#include <wx/app.h>
 
 TestWindow::TestWindow()
 {
@@ -34,13 +39,35 @@ TestWindow::TestWindow()
 
 int main(int argc, char *argv[])
 {
-    QApplication app(argc, argv);
+    wxInitialize();
+
+//    wxApp* pApp = new wxApp();
+//    wxApp::SetInstance(pApp);
+
     // Makes all QOpenGLWidget in the application share a single context
     // (default behaviour would be for QOpenGLWidget's in a single top-level window to share a context.)
     // see: http://doc.qt.io/qt-5/qopenglwidget.html#context-sharing
-    app.setAttribute(Qt::AA_ShareOpenGLContexts);
+    QApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 
-    TestWindow window;
-    window.show();
+    QApplication app(argc, argv);
+//    TestWindow window;
+//    window.show();
+
+    using namespace TrenchBroom;
+    using namespace TrenchBroom::View;
+
+    MapDocumentSPtr document = MapDocumentCommandFacade::newMapDocument();
+    MapFrame* frame = new MapFrame(nullptr, document);
+    frame->show();
+
+    String gameName = "Quake";
+    auto mapFormat = Model::MapFormat::Standard;
+
+    Model::GameFactory &gameFactory = Model::GameFactory::instance();
+    Model::GameSPtr game = gameFactory.createGame(gameName, frame->logger());
+    ensure(game.get() != nullptr, "game is null");
+
+    frame->newDocument(game, mapFormat);
+
     app.exec();
 }
