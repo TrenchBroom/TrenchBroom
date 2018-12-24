@@ -202,13 +202,19 @@ namespace TrenchBroom {
             void createBrushEntity(const Assets::BrushEntityDefinition* definition);
             bool canCreateBrushEntity();
         private: // other events
-            void OnSetFocus(wxFocusEvent& event);
-            void OnKillFocus(wxFocusEvent& event);
+        // FIXME: implement
+#if 0
             void OnActivateFrame(wxActivateEvent& event);
+#endif
+
+        // FIXME: Won't be used with QShortcut
+#if 0
         protected: // accelerator table management
             void updateAcceleratorTable();
         private:
             void updateAcceleratorTable(bool hasFocus);
+#endif
+        private:
             ActionContext actionContext() const;
         private: // implement ViewEffectsService interface
             void doFlashSelection() override;

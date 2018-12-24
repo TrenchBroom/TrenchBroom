@@ -145,6 +145,8 @@ namespace TrenchBroom {
         }
 
         void MapView3D::bindEvents() {
+            // FIXME: implement these
+#if 0
             Bind(wxEVT_MENU, &MapView3D::OnPerformCreateBrush,           this, CommandIds::Actions::PerformCreateBrush);
 
             Bind(wxEVT_MENU, &MapView3D::OnMoveTexturesUp,               this, CommandIds::Actions::MoveTexturesUp);
@@ -161,6 +163,7 @@ namespace TrenchBroom {
             frame->Bind(wxEVT_ACTIVATE, &MapView3D::OnActivateFrame, this);
 
             Bind(wxEVT_IDLE, &MapView3D::OnIdle, this);
+#endif
         }
 
         void MapView3D::OnIdle(wxIdleEvent& event) {

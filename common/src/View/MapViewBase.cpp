@@ -259,9 +259,8 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::bindEvents() {
-            Bind(wxEVT_SET_FOCUS, &MapViewBase::OnSetFocus, this);
-            Bind(wxEVT_KILL_FOCUS, &MapViewBase::OnKillFocus, this);
-
+            // FIXME: Implement with QShortcut
+#if 0
             Bind(wxEVT_MENU, &MapViewBase::OnToggleClipSide,               this, CommandIds::Actions::ToggleClipSide);
             Bind(wxEVT_MENU, &MapViewBase::OnPerformClip,                  this, CommandIds::Actions::PerformClip);
 
@@ -316,6 +315,7 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapViewBase::OnMoveBrushesTo,                this, CommandIds::MapViewPopupMenu::MoveBrushesToWorld);
             Bind(wxEVT_MENU, &MapViewBase::OnCreatePointEntity,            this, CommandIds::MapViewPopupMenu::LowestPointEntityItem, CommandIds::MapViewPopupMenu::HighestPointEntityItem);
             Bind(wxEVT_MENU, &MapViewBase::OnCreateBrushEntity,            this, CommandIds::MapViewPopupMenu::LowestBrushEntityItem, CommandIds::MapViewPopupMenu::HighestBrushEntityItem);
+#endif
 
             // FIXME: Seems like we'll need to make something emit signals, that the QActions are connected to.
 #if 0
@@ -651,22 +651,16 @@ namespace TrenchBroom {
             return document->selectedNodes().hasOnlyBrushes();
         }
 
-        void MapViewBase::OnSetFocus(wxFocusEvent& event) {
-            updateAcceleratorTable(true);
-            event.Skip();
-        }
-
-        void MapViewBase::OnKillFocus(wxFocusEvent& event) {
-            updateAcceleratorTable(false);
-            event.Skip();
-        }
-
+#if 0
         void MapViewBase::OnActivateFrame(wxActivateEvent& event) {
             if (event.GetActive())
                 updateLastActivation();
             event.Skip();
         }
+#endif
 
+// FIXME: None of this is needed with QShortcut
+#if 0
         void MapViewBase::updateAcceleratorTable() {
             updateAcceleratorTable(HasFocus());
         }
@@ -679,6 +673,7 @@ namespace TrenchBroom {
                 SetAcceleratorTable(wxNullAcceleratorTable);
             }
         }
+#endif
 
         ActionContext MapViewBase::actionContext() const {
             const ActionContext derivedContext = doGetActionContext();
