@@ -27,6 +27,7 @@
 #include <set>
 
 class wxKeyEvent;
+class QKeyEvent;
 
 namespace TrenchBroom {
     namespace View {
@@ -89,6 +90,9 @@ namespace TrenchBroom {
             
             wxAcceleratorEntry acceleratorEntry(int id) const;
             int acceleratorFlags() const;
+
+            bool matchesKeyDown(const QKeyEvent* event) const;
+            bool matchesKeyUp(const QKeyEvent* event) const;
 
             bool matchesKeyDown(const wxKeyEvent& event) const;
             bool matchesKeyUp(const wxKeyEvent& event) const;

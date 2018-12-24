@@ -27,6 +27,8 @@
 #include "View/MapViewBase.h"
 #include "View/ViewTypes.h"
 
+class QKeyEvent;
+
 namespace TrenchBroom {
     class Logger;
 
@@ -57,13 +59,14 @@ namespace TrenchBroom {
             void unbindObservers();
             void cameraDidChange(const Renderer::Camera* camera);
             void preferenceDidChange(const IO::Path& path);
+        protected: // QWidget overrides
+            void keyPressEvent(QKeyEvent* event) override;
+            void keyReleaseEvent(QKeyEvent* event) override;
+            void focusOutEvent(QFocusEvent* event) override;
         private: // interaction events
             void bindEvents();
 
             void OnIdle(wxIdleEvent& event);
-
-            void OnKeyDown(wxKeyEvent& event);
-            void OnKeyUp(wxKeyEvent& event);
 
             void OnPerformCreateBrush(wxCommandEvent& event);
 
@@ -81,7 +84,7 @@ namespace TrenchBroom {
             float rotateTextureAngle(bool clockwise) const;
             void rotateTextures(float angle);
         private: // other events
-            void OnKillFocus(wxFocusEvent& event);
+
             void OnActivateFrame(wxActivateEvent& event);
         private: // implement ToolBoxConnector interface
             PickRequest doGetPickRequest(int x, int y) const override;

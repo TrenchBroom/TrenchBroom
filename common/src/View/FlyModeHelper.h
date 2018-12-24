@@ -25,10 +25,7 @@
 
 #include <iostream>
 
-#include <wx/gdicmn.h>
-#include <wx/longlong.h>
-
-class wxKeyEvent;
+class QKeyEvent;
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -49,16 +46,16 @@ namespace TrenchBroom {
             bool m_right;
             bool m_up;
             bool m_down;
-            
-            wxLongLong m_lastPollTime;
+
+            int64_t m_lastPollTime;
         public:
             FlyModeHelper(Renderer::Camera& camera);
             ~FlyModeHelper();
             
             void pollAndUpdate();
         public:
-            bool keyDown(wxKeyEvent& event);
-            bool keyUp(wxKeyEvent& event);
+            bool keyDown(QKeyEvent* event);
+            bool keyUp(QKeyEvent* event);
             bool anyKeyDown() const;
             void resetKeys();
         private:

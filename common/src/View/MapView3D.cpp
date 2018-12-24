@@ -133,23 +133,18 @@ namespace TrenchBroom {
         void MapView3D::cameraDidChange(const Renderer::Camera* camera) {
             if (!m_ignoreCameraChangeEvents) {
                 // Don't refresh if the camera was changed in doPreRender!
-                Refresh();
+                update();
             }
         }
 
         void MapView3D::preferenceDidChange(const IO::Path& path) {
             if (path == Preferences::CameraFov.path()) {
                 m_camera.setFov(pref(Preferences::CameraFov));
-                Refresh();
+                update();
             }
         }
 
         void MapView3D::bindEvents() {
-            Bind(wxEVT_KEY_DOWN, &MapView3D::OnKeyDown, this);
-            Bind(wxEVT_KEY_UP, &MapView3D::OnKeyUp, this);
-
-            Bind(wxEVT_KILL_FOCUS, &MapView3D::OnKillFocus, this);
-            
             Bind(wxEVT_MENU, &MapView3D::OnPerformCreateBrush,           this, CommandIds::Actions::PerformCreateBrush);
 
             Bind(wxEVT_MENU, &MapView3D::OnMoveTexturesUp,               this, CommandIds::Actions::MoveTexturesUp);
@@ -169,76 +164,56 @@ namespace TrenchBroom {
         }
 
         void MapView3D::OnIdle(wxIdleEvent& event) {
-            if (IsBeingDeleted()) return;
-
             if (m_flyModeHelper->anyKeyDown()) {
-                Refresh();
+                update();
                 event.RequestMore();
             }
         }
 
-        void MapView3D::OnKeyDown(wxKeyEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapView3D::keyPressEvent(QKeyEvent* event) {
             if (!m_flyModeHelper->keyDown(event)) {
-                event.Skip();
+                // Not handled, use the default Qt event handling
+                MapViewBase::keyPressEvent(event);
             }
         }
         
-        void MapView3D::OnKeyUp(wxKeyEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapView3D::keyReleaseEvent(QKeyEvent* event) {
             if (!m_flyModeHelper->keyUp(event)) {
-                event.Skip();
+                // Not handled, use the default Qt event handling
+                MapViewBase::keyReleaseEvent(event);
             }
         }
         
         void MapView3D::OnPerformCreateBrush(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
             if (m_toolBox.createComplexBrushToolActive())
                 m_toolBox.performCreateComplexBrush();
         }
 
         void MapView3D::OnMoveTexturesUp(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
             moveTextures(vm::vec2f(0.0f, moveTextureDistance()));
         }
         
         void MapView3D::OnMoveTexturesDown(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
             moveTextures(vm::vec2f(0.0f, -moveTextureDistance()));
         }
         
         void MapView3D::OnMoveTexturesLeft(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
             moveTextures(vm::vec2f(-moveTextureDistance(), 0.0f));
         }
         
         void MapView3D::OnMoveTexturesRight(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
             moveTextures(vm::vec2f(moveTextureDistance(), 0.0f));
         }
         
         void MapView3D::OnRotateTexturesCW(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
             rotateTextures(rotateTextureAngle(true));
         }
         
         void MapView3D::OnRotateTexturesCCW(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
             rotateTextures(rotateTextureAngle(false));
         }
 
         void MapView3D::OnResetZoom(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
             m_camera.setZoom(1.0f);
         }
 
@@ -290,16 +265,13 @@ namespace TrenchBroom {
                 document->rotateTextures(angle);
         }
 
-        void MapView3D::OnKillFocus(wxFocusEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapView3D::focusOutEvent(QFocusEvent* event) {
             m_flyModeHelper->resetKeys();
-            event.Skip();
+
+            MapViewBase::focusOutEvent(event);
         }
 
         void MapView3D::OnActivateFrame(wxActivateEvent& event) {
-            if (IsBeingDeleted()) return;
-
             m_flyModeHelper->resetKeys();
             event.Skip();
         }

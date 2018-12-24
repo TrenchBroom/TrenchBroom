@@ -31,12 +31,20 @@
 
 #include <wx/time.h>
 
+#include <QElapsedTimer>
+
 namespace TrenchBroom {
     namespace View {
+        static qint64 msecsSinceReference() {
+            QElapsedTimer timer;
+            timer.start();
+            return timer.msecsSinceReference();
+        }
+
         FlyModeHelper::FlyModeHelper(Renderer::Camera& camera) :
         m_camera(camera) {
             resetKeys();
-            m_lastPollTime = ::wxGetLocalTimeMillis();
+            m_lastPollTime = msecsSinceReference();
         }
 
         FlyModeHelper::~FlyModeHelper() {
@@ -47,8 +55,8 @@ namespace TrenchBroom {
         }
 
         void FlyModeHelper::pollAndUpdate() {
-            const auto currentTime = ::wxGetLocalTimeMillis();
-            const auto time = float((currentTime - m_lastPollTime).ToLong());
+            const auto currentTime = msecsSinceReference();
+            const auto time = float(currentTime - m_lastPollTime);
             m_lastPollTime = currentTime;
 
             if (anyKeyDown()) {
@@ -59,7 +67,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool FlyModeHelper::keyDown(wxKeyEvent& event) {
+        bool FlyModeHelper::keyDown(QKeyEvent* event) {
             const KeyboardShortcut& forward = pref(Preferences::CameraFlyForward);
             const KeyboardShortcut& backward = pref(Preferences::CameraFlyBackward);
             const KeyboardShortcut& left = pref(Preferences::CameraFlyLeft);
@@ -96,13 +104,13 @@ namespace TrenchBroom {
 
             if (anyKeyDown() && !wasAnyKeyDown) {
                 // Reset the last polling time, otherwise the view will jump!
-                m_lastPollTime = ::wxGetLocalTimeMillis();
+                m_lastPollTime = msecsSinceReference();
             }
 
             return anyMatch;
         }
 
-        bool FlyModeHelper::keyUp(wxKeyEvent& event) {
+        bool FlyModeHelper::keyUp(QKeyEvent* event) {
             const KeyboardShortcut& forward = pref(Preferences::CameraFlyForward);
             const KeyboardShortcut& backward = pref(Preferences::CameraFlyBackward);
             const KeyboardShortcut& left = pref(Preferences::CameraFlyLeft);

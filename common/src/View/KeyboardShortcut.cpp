@@ -29,6 +29,8 @@
 #endif
 #include <wx/txtstrm.h>
 
+#include <QKeyEvent>
+
 #include <iostream>
 
 namespace TrenchBroom {
@@ -625,6 +627,32 @@ namespace TrenchBroom {
             }
             
             return flags;
+        }
+
+        bool KeyboardShortcut::matchesKeyDown(const QKeyEvent* event) const {
+            const int key = event->key();
+            const int modifier1 = (event->modifiers() & Qt::ControlModifier) ? WXK_CONTROL : WXK_NONE;
+            const int modifier2 = (event->modifiers() & Qt::AltModifier)  ? WXK_ALT : WXK_NONE;
+            const int modifier3 = (event->modifiers() & Qt::ShiftModifier)  ? WXK_SHIFT : WXK_NONE;
+            return matches(key, modifier1, modifier2, modifier3);
+        }
+
+        bool KeyboardShortcut::matchesKeyUp(const QKeyEvent* event) const {
+            // FIXME: will need some wx<->Qt translation
+            const int key = event->key();
+
+            if (key == m_key)
+                return true;
+
+            // FIXME: needs to be updated
+            int myModifierKeys[] = { m_modifier1, m_modifier2, m_modifier3 };
+            for (int i = 0; i < 3; ++i) {
+                if (key == myModifierKeys[i]) {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         bool KeyboardShortcut::matchesKeyDown(const wxKeyEvent &event) const {

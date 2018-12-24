@@ -85,7 +85,6 @@ namespace TrenchBroom {
         }
 
         void CyclingMapView::switchToMapView(MapViewBase* mapView) {
-            auto* previousMapView = m_currentMapView;
             m_currentMapView = mapView;
 
             m_layout->setCurrentWidget(m_currentMapView);
