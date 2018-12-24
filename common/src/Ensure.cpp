@@ -31,5 +31,7 @@ void TrenchBroom::ensureFailed(const char *file, const int line, const char *con
 
     const std::string stacktrace = TrenchBroomStackWalker::getStackTrace();
 
-    TrenchBroom::View::reportCrashAndExit(stacktrace, reason.str());
+    assert(0);
+    // FIXME: crash
+//    TrenchBroom::View::reportCrashAndExit(stacktrace, reason.str());
 }

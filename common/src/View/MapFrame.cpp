@@ -400,7 +400,8 @@ namespace TrenchBroom {
 			const ActionManager& actionManager = ActionManager::instance();
             QMenuBar* menuBar = actionManager.createMenuBarQt(m_mapView->viewportHasFocus());
             setMenuBar(menuBar);
-            addRecentDocumentsMenu(menuBar);
+            // FIXME: recents
+            //addRecentDocumentsMenu(menuBar);
         }
 
 #if 0
@@ -424,8 +425,11 @@ namespace TrenchBroom {
 #endif
 
         void MapFrame::updateRecentDocumentsMenu() {
+		    // FIXME: recents
+#if 0
             if (m_document->path().isAbsolute())
                 View::TrenchBroomApp::instance().updateRecentDocument(m_document->path());
+#endif
         }
 
         void MapFrame::createGui() {

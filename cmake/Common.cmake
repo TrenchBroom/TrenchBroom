@@ -340,7 +340,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/EntityDefinitionFileCommand.cpp
 #	${COMMON_SOURCE_DIR}/View/EntityInspector.cpp
 	${COMMON_SOURCE_DIR}/View/ExecutableEvent.cpp
-	${COMMON_SOURCE_DIR}/View/FaceAttribsEditor.cpp
+#	${COMMON_SOURCE_DIR}/View/FaceAttribsEditor.cpp
 #	${COMMON_SOURCE_DIR}/View/FaceInspector.cpp
 	${COMMON_SOURCE_DIR}/View/FaceToolController.cpp
 	${COMMON_SOURCE_DIR}/View/FaceTool.cpp
@@ -353,14 +353,14 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/FlyModeHelper.cpp
 #	${COMMON_SOURCE_DIR}/View/FourPaneMapView.cpp
 #	${COMMON_SOURCE_DIR}/View/FrameManager.cpp
-	${COMMON_SOURCE_DIR}/View/GameDialog.cpp
-	${COMMON_SOURCE_DIR}/View/GameEngineDialog.cpp
-	${COMMON_SOURCE_DIR}/View/GameEngineProfileEditor.cpp
-	${COMMON_SOURCE_DIR}/View/GameEngineProfileListBox.cpp
-	${COMMON_SOURCE_DIR}/View/GameEngineProfileManager.cpp
-	${COMMON_SOURCE_DIR}/View/GameListBox.cpp
+#	${COMMON_SOURCE_DIR}/View/GameDialog.cpp
+#	${COMMON_SOURCE_DIR}/View/GameEngineDialog.cpp
+#	${COMMON_SOURCE_DIR}/View/GameEngineProfileEditor.cpp
+#	${COMMON_SOURCE_DIR}/View/GameEngineProfileListBox.cpp
+#	${COMMON_SOURCE_DIR}/View/GameEngineProfileManager.cpp
+#	${COMMON_SOURCE_DIR}/View/GameListBox.cpp
 	${COMMON_SOURCE_DIR}/View/GameSelectionCommand.cpp
-	${COMMON_SOURCE_DIR}/View/GamesPreferencePane.cpp
+#	${COMMON_SOURCE_DIR}/View/GamesPreferencePane.cpp
 	${COMMON_SOURCE_DIR}/View/GenericDropSource.cpp
 	${COMMON_SOURCE_DIR}/View/GetVersion.cpp
 	${COMMON_SOURCE_DIR}/View/GLAttribs.cpp
@@ -370,18 +370,18 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/ImageListBox.cpp
 	${COMMON_SOURCE_DIR}/View/InfoPanel.cpp
 	${COMMON_SOURCE_DIR}/View/InputState.cpp
-	${COMMON_SOURCE_DIR}/View/Inspector.cpp
+#	${COMMON_SOURCE_DIR}/View/Inspector.cpp
 	${COMMON_SOURCE_DIR}/View/IssueBrowser.cpp
 	${COMMON_SOURCE_DIR}/View/IssueBrowserView.cpp
 	${COMMON_SOURCE_DIR}/View/KeyboardGridCellEditor.cpp
-	${COMMON_SOURCE_DIR}/View/KeyboardPreferencePane.cpp
+#	${COMMON_SOURCE_DIR}/View/KeyboardPreferencePane.cpp
 	${COMMON_SOURCE_DIR}/View/KeyboardShortcut.cpp
 	${COMMON_SOURCE_DIR}/View/KeyboardShortcutEditor.cpp
 	${COMMON_SOURCE_DIR}/View/KeyboardShortcutEntry.cpp
 	${COMMON_SOURCE_DIR}/View/KeyboardShortcutEvent.cpp
 	${COMMON_SOURCE_DIR}/View/KeyboardShortcutGridTable.cpp
 	${COMMON_SOURCE_DIR}/View/Lasso.cpp
-	${COMMON_SOURCE_DIR}/View/LaunchGameEngineDialog.cpp
+#	${COMMON_SOURCE_DIR}/View/LaunchGameEngineDialog.cpp
 	${COMMON_SOURCE_DIR}/View/LayerEditor.cpp
 	${COMMON_SOURCE_DIR}/View/LayerListBox.cpp
 	${COMMON_SOURCE_DIR}/View/LockedGridCellRenderer.cpp
@@ -400,7 +400,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/MapViewToolBox.cpp
 	${COMMON_SOURCE_DIR}/View/Menu.cpp
 	${COMMON_SOURCE_DIR}/View/ModEditor.cpp
-	${COMMON_SOURCE_DIR}/View/MousePreferencePane.cpp
+#	${COMMON_SOURCE_DIR}/View/MousePreferencePane.cpp
 	${COMMON_SOURCE_DIR}/View/MoveBrushEdgesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/MoveBrushFacesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/MoveBrushVerticesCommand.cpp
@@ -417,10 +417,10 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/PickRequest.cpp
 	${COMMON_SOURCE_DIR}/View/PopupButton.cpp
 	${COMMON_SOURCE_DIR}/View/PopupWindow.cpp
-	${COMMON_SOURCE_DIR}/View/PreferenceDialog.cpp
-	${COMMON_SOURCE_DIR}/View/PreferencePane.cpp
+#	${COMMON_SOURCE_DIR}/View/PreferenceDialog.cpp
+#	${COMMON_SOURCE_DIR}/View/PreferencePane.cpp
 	${COMMON_SOURCE_DIR}/View/RadioGroup.cpp
-	${COMMON_SOURCE_DIR}/View/RecentDocumentListBox.cpp
+#	${COMMON_SOURCE_DIR}/View/RecentDocumentListBox.cpp
 	${COMMON_SOURCE_DIR}/View/RecentDocumentSelectedCommand.cpp
 	${COMMON_SOURCE_DIR}/View/RemoveBrushEdgesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/RemoveBrushElementsCommand.cpp
@@ -502,10 +502,10 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/ViewConstants.cpp
 	${COMMON_SOURCE_DIR}/View/ViewEditor.cpp
 	${COMMON_SOURCE_DIR}/View/ViewEffectsService.cpp
-	${COMMON_SOURCE_DIR}/View/ViewPreferencePane.cpp
+#	${COMMON_SOURCE_DIR}/View/ViewPreferencePane.cpp
 	${COMMON_SOURCE_DIR}/View/ViewShortcut.cpp
 	${COMMON_SOURCE_DIR}/View/ViewUtils.cpp
-	${COMMON_SOURCE_DIR}/View/WelcomeFrame.cpp
+#	${COMMON_SOURCE_DIR}/View/WelcomeFrame.cpp
 	${COMMON_SOURCE_DIR}/View/wxKeyStrings.cpp
 	${COMMON_SOURCE_DIR}/View/wxUtils.cpp
 )

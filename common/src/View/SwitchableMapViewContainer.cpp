@@ -73,7 +73,8 @@ namespace TrenchBroom {
         }
 
         void SwitchableMapViewContainer::connectTopWidgets(Inspector* inspector) {
-            inspector->connectTopWidgets(m_mapViewBar);
+            // FIXME: inspector
+            //inspector->connectTopWidgets(m_mapViewBar);
         }
 
         bool SwitchableMapViewContainer::viewportHasFocus() const {
