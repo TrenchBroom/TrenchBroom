@@ -299,12 +299,12 @@ namespace TrenchBroom {
         vm::vec3 MapView3D::doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const {
             auto document = lock(m_document);
             const auto& grid = document->grid();
+
+            const QPoint pos = QCursor::pos();
+            const auto clientCoords = mapFromGlobal(pos);
             
-            const auto mouseState = wxGetMouseState();
-            const auto clientCoords = ScreenToClient(mouseState.GetPosition());
-            
-            if (HitTest(clientCoords) == wxHT_WINDOW_INSIDE) {
-                const auto pickRay = vm::ray3(m_camera.pickRay(clientCoords.x, clientCoords.y));
+            if (rect().contains(clientCoords)) {
+                const auto pickRay = vm::ray3(m_camera.pickRay(clientCoords.x(), clientCoords.y()));
                 
                 const auto& editorContext = document->editorContext();
                 auto pickResult = Model::PickResult::byDistance(editorContext);

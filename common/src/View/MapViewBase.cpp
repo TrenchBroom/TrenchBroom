@@ -104,7 +104,8 @@ namespace TrenchBroom {
             toolBox.addWindow(this);
             bindEvents();
             bindObservers();
-            updateAcceleratorTable(HasFocus());
+            // FIXME: shortcuts
+            //updateAcceleratorTable(hasFocus());
         }
 
         void MapViewBase::setCompass(Renderer::Compass* compass) {
@@ -193,7 +194,8 @@ namespace TrenchBroom {
 
         void MapViewBase::toolChanged(Tool* tool) {
             updatePickResult();
-            updateAcceleratorTable(HasFocus());
+            // FIXME: shortcuts
+            //updateAcceleratorTable(HasFocus());
             update();
         }
 
@@ -208,7 +210,8 @@ namespace TrenchBroom {
         }
         
         void MapViewBase::selectionDidChange(const Selection& selection) {
-            updateAcceleratorTable(HasFocus());
+            // FIXME: shortcuts
+            //updateAcceleratorTable(HasFocus());
         }
 
         void MapViewBase::textureCollectionsDidChange() {
@@ -249,7 +252,8 @@ namespace TrenchBroom {
                 fontManager().clearCache();
             }
 
-            updateAcceleratorTable();
+            // FIXME: shortcuts
+            //updateAcceleratorTable();
             update();
         }
 
@@ -702,20 +706,25 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::doFlashSelection() {
+            // FIXME: animation
+#if 0
             FlashSelectionAnimation* animation = new FlashSelectionAnimation(m_renderer, *this, 180);
             m_animationManager->runAnimation(animation, true);
+#endif
         }
 
         bool MapViewBase::doGetIsCurrent() const {
-            return HasFocus();
+            return hasFocus();
         }
         
         void MapViewBase::doSetToolBoxDropTarget() {
-            SetDropTarget(new ToolBoxDropTarget(this));
+            // FIXME: DND
+            //SetDropTarget(new ToolBoxDropTarget(this));
         }
         
         void MapViewBase::doClearDropTarget() {
-            SetDropTarget(nullptr);
+            // FIXME: DND
+            //SetDropTarget(nullptr);
         }
 
         bool MapViewBase::doCanFlipObjects() const {
@@ -895,7 +904,9 @@ namespace TrenchBroom {
         void MapViewBase::doShowPopupMenu() {
             if (!doBeforePopupMenu())
                 return;
-            
+
+            // FIXME: context menu
+#if 0
             MapDocumentSPtr document = lock(m_document);
             const Model::NodeList& nodes = document->selectedNodes().nodes();
             Model::Node* newBrushParent = findNewParentEntityForBrushes(nodes);
@@ -935,11 +946,13 @@ namespace TrenchBroom {
             
             menu.UpdateUI(this);
             PopupMenu(&menu);
-            
+#endif
             doAfterPopupMenu();
         }
 
-        wxMenu* MapViewBase::makeEntityGroupsMenu(const Assets::EntityDefinition::Type type, int id) {
+        QMenu* MapViewBase::makeEntityGroupsMenu(const Assets::EntityDefinition::Type type, int id) {
+// FIXME: context menu
+#if 0
             wxMenu* menu = new wxMenu();
             
             MapDocumentSPtr document = lock(m_document);
@@ -962,8 +975,10 @@ namespace TrenchBroom {
                     menu->AppendSubMenu(groupMenu, groupName);
                 }
             }
-            
+
             return menu;
+#endif
+            return nullptr;
         }
 
         void MapViewBase::OnAddObjectsToGroup(wxCommandEvent& event) {

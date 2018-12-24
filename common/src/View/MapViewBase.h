@@ -36,6 +36,8 @@
 
 #include <memory>
 
+class QMenu;
+
 namespace TrenchBroom {
     class Logger;
     
@@ -241,7 +243,7 @@ namespace TrenchBroom {
             void renderCompass(Renderer::RenderBatch& renderBatch);
         private: // implement ToolBoxConnector
             void doShowPopupMenu() override;
-            wxMenu* makeEntityGroupsMenu(Assets::EntityDefinition::Type type, int id);
+            QMenu* makeEntityGroupsMenu(Assets::EntityDefinition::Type type, int id);
             
             void OnUpdatePopupMenuItem(wxUpdateUIEvent& event);
             void updateGroupObjectsMenuItem(wxUpdateUIEvent& event) const;
