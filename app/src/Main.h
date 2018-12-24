@@ -22,6 +22,8 @@
 
 #include "TrenchBroomApp.h"
 
+#if 0
 DECLARE_APP(TrenchBroom::View::TrenchBroomApp)
+#endif
 
 #endif /* defined(TrenchBroom_TrenchBroomApp) */

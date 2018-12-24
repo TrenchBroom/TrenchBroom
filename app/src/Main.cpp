@@ -19,4 +19,6 @@
 
 #include "Main.h"
 
+#if 0
 IMPLEMENT_APP(TrenchBroom::View::TrenchBroomApp)
+#endif
