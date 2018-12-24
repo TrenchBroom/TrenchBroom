@@ -42,7 +42,8 @@
 namespace TrenchBroom {
     namespace View {
         MapFrame* findMapFrame(wxWindow* window) {
-            return wxDynamicCast(findFrame(window), MapFrame);
+            // FIXME:
+            return nullptr;//wxDynamicCast(findFrame(window), MapFrame);
         }
 
         wxFrame* findFrame(wxWindow* window) {
@@ -160,6 +161,11 @@ namespace TrenchBroom {
         void setWindowIcon(wxTopLevelWindow* window) {
             ensure(window != nullptr, "window is null");
             window->SetIcon(IO::loadIconResource(IO::Path("Resources/WindowIcon")));
+        }
+
+        void setWindowIcon(QMainWindow* window) {
+            ensure(window != nullptr, "window is null");
+            // FIXME: set icon
         }
 
         wxArrayString filterBySuffix(const wxArrayString& strings, const wxString& suffix, const bool caseSensitive) {

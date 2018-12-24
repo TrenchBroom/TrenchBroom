@@ -39,6 +39,8 @@ class wxSizer;
 class wxTopLevelWindow;
 class wxWindow;
 
+class QMainWindow;
+
 namespace TrenchBroom {
     namespace View {
         class MapFrame;
@@ -63,7 +65,7 @@ namespace TrenchBroom {
         wxSizer* wrapDialogButtonSizer(wxSizer* buttonSizer, wxWindow* parent);
 
         void setWindowIcon(wxTopLevelWindow* window);
-
+        void setWindowIcon(QMainWindow* window);
         template <typename T>
         void setHint(T* ctrl, const wxString& hint) {
 #ifndef __WXGTK20__

@@ -22,19 +22,18 @@
 
 #include "Model/MapFormat.h"
 #include "Model/ModelTypes.h"
-#include "View/Inspector.h"
+//#include "View/Inspector.h"
 #include "View/Selection.h"
 #include "View/ViewTypes.h"
-#include "SplitterWindow2.h"
+//#include "SplitterWindow2.h"
 
-#include <wx/dialog.h>
-#include <wx/frame.h>
+//#include <wx/event.h>
 
-class wxChoice;
-class wxTextCtrl;
-class wxTimer;
-class wxTimerEvent;
-class wxStatusBar;
+#include <QMainWindow>
+
+class QTimer;
+class QLabel;
+class QMenuBar;
 
 namespace TrenchBroom {
     class Logger;
@@ -52,30 +51,39 @@ namespace TrenchBroom {
         class Inspector;
         class SwitchableMapViewContainer;
 
-        class MapFrame : public wxFrame {
+        class MapFrame : public QMainWindow {
+            Q_OBJECT
         private:
             FrameManager* m_frameManager;
             MapDocumentSPtr m_document;
 
             Autosaver* m_autosaver;
-            wxTimer* m_autosaveTimer;
+            QTimer* m_autosaveTimer;
 
+            // FIXME: re-add all of these
+#if 0
             SplitterWindow2* m_hSplitter;
             SplitterWindow2* m_vSplitter;
+#endif
 
             GLContextManager* m_contextManager;
             SwitchableMapViewContainer* m_mapView;
+#if 0
             Console* m_console;
             Inspector* m_inspector;
+#endif
 
-            wxWindow* m_lastFocus;
+            // FIXME: only used for rebuildMenuBar(). drop?
+            //wxWindow* m_lastFocus;
 
+#if 0
             wxChoice* m_gridChoice;
-            
-            wxStatusBar* m_statusBar;
-            
+#endif
+            QLabel* m_statusBarLabel;
+
+#if 0
             wxDialog* m_compilationDialog;
-            
+#endif
             CommandWindowUpdateLocker* m_updateLocker;
         public:
             MapFrame();
@@ -83,7 +91,7 @@ namespace TrenchBroom {
             void Create(FrameManager* frameManager, MapDocumentSPtr document);
             virtual ~MapFrame();
 
-            void positionOnScreen(wxFrame* reference);
+            //void positionOnScreen(wxFrame* reference);
             MapDocumentSPtr document() const;
         public: // getters and such
             Logger* logger() const;
@@ -107,11 +115,13 @@ namespace TrenchBroom {
 			void OnActivate(wxActivateEvent& event);
 			void OnDelayedActivate(wxIdleEvent& event);
 #endif
-            void OnChildFocus(wxChildFocusEvent& event);
+            // FIXME: only used for rebuildMenuBar(). drop?
+			//void OnChildFocus(wxChildFocusEvent& event);
             void rebuildMenuBar();
             void createMenuBar();
-            void addRecentDocumentsMenu(wxMenuBar* menuBar);
-            void removeRecentDocumentsMenu(wxMenuBar* menuBar);
+
+            void addRecentDocumentsMenu(QMenuBar* menuBar);
+            void removeRecentDocumentsMenu(QMenuBar* menuBar);
             void updateRecentDocumentsMenu();
         private: // tool bar
             void createToolBar();
@@ -136,119 +146,120 @@ namespace TrenchBroom {
         private: // menu event handlers
             void bindEvents();
 
-            void OnFileSave(wxCommandEvent& event);
-            void OnFileSaveAs(wxCommandEvent& event);
-            void OnFileExportObj(wxCommandEvent& event);
-            void OnFileLoadPointFile(wxCommandEvent& event);
-            void OnFileReloadPointFile(wxCommandEvent& event);
-            void OnFileUnloadPointFile(wxCommandEvent& event);
-            void OnFileLoadPortalFile(wxCommandEvent& event);
-            void OnFileReloadPortalFile(wxCommandEvent& event);
-            void OnFileUnloadPortalFile(wxCommandEvent& event);
-            void OnFileReloadTextureCollections(wxCommandEvent& event);
-            void OnFileReloadEntityDefinitions(wxCommandEvent& event);
-            void OnFileClose(wxCommandEvent& event);
+            void OnFileSave();
+            void OnFileSaveAs();
+            void OnFileExportObj();
+            void OnFileLoadPointFile();
+            void OnFileReloadPointFile();
+            void OnFileUnloadPointFile();
+            void OnFileLoadPortalFile();
+            void OnFileReloadPortalFile();
+            void OnFileUnloadPortalFile();
+            void OnFileReloadTextureCollections();
+            void OnFileReloadEntityDefinitions();
+            void OnFileClose();
 
-            void OnEditUndo(wxCommandEvent& event);
-            void OnEditRedo(wxCommandEvent& event);
-            void OnEditRepeat(wxCommandEvent& event);
-            void OnEditClearRepeat(wxCommandEvent& event);
+            void OnEditUndo();
+            void OnEditRedo();
+            void OnEditRepeat();
+            void OnEditClearRepeat();
 
-            void OnEditCut(wxCommandEvent& event);
-            void OnEditCopy(wxCommandEvent& event);
+            void OnEditCut();
+            void OnEditCopy();
             void copyToClipboard();
 
-            void OnEditPaste(wxCommandEvent& event);
-            void OnEditPasteAtOriginalPosition(wxCommandEvent& event);
+            void OnEditPaste();
+            void OnEditPasteAtOriginalPosition();
             
             PasteType paste();
 
-            void OnEditDelete(wxCommandEvent& event);
-            void OnEditDuplicate(wxCommandEvent& event);
+            void OnEditDelete();
+            void OnEditDuplicate();
 
-            void OnEditSelectAll(wxCommandEvent& event);
-            void OnEditSelectSiblings(wxCommandEvent& event);
-            void OnEditSelectTouching(wxCommandEvent& event);
-            void OnEditSelectInside(wxCommandEvent& event);
-            void OnEditSelectTall(wxCommandEvent& event);
-            void OnEditSelectByLineNumber(wxCommandEvent& event);
-            void OnEditSelectNone(wxCommandEvent& event);
+            void OnEditSelectAll();
+            void OnEditSelectSiblings();
+            void OnEditSelectTouching();
+            void OnEditSelectInside();
+            void OnEditSelectTall();
+            void OnEditSelectByLineNumber();
+            void OnEditSelectNone();
 
-            void OnEditGroupSelectedObjects(wxCommandEvent& event);
-            void OnEditUngroupSelectedObjects(wxCommandEvent& event);
+            void OnEditGroupSelectedObjects();
+            void OnEditUngroupSelectedObjects();
 
-            void OnEditDeactivateTool(wxCommandEvent& event);
-            void OnEditToggleCreateComplexBrushTool(wxCommandEvent& event);
-            void OnEditToggleClipTool(wxCommandEvent& event);
-            void OnEditToggleRotateObjectsTool(wxCommandEvent& event);
-            void OnEditToggleScaleObjectsTool(wxCommandEvent& event);
-            void OnEditToggleShearObjectsTool(wxCommandEvent& event);
-            void OnEditToggleVertexTool(wxCommandEvent& event);
-            void OnEditToggleEdgeTool(wxCommandEvent& event);
-            void OnEditToggleFaceTool(wxCommandEvent& event);
+            void OnEditDeactivateTool();
+            void OnEditToggleCreateComplexBrushTool();
+            void OnEditToggleClipTool();
+            void OnEditToggleRotateObjectsTool();
+            void OnEditToggleScaleObjectsTool();
+            void OnEditToggleShearObjectsTool();
+            void OnEditToggleVertexTool();
+            void OnEditToggleEdgeTool();
+            void OnEditToggleFaceTool();
 
-            void OnEditCsgConvexMerge(wxCommandEvent& event);
-            void OnEditCsgSubtract(wxCommandEvent& event);
-            void OnEditCsgIntersect(wxCommandEvent& event);
-            void OnEditCsgHollow(wxCommandEvent& event);
+            void OnEditCsgConvexMerge();
+            void OnEditCsgSubtract();
+            void OnEditCsgIntersect();
+            void OnEditCsgHollow();
 
-            void OnEditReplaceTexture(wxCommandEvent& event);
+            void OnEditReplaceTexture();
 
-            void OnEditToggleTextureLock(wxCommandEvent& event);
-            wxBitmap textureLockBitmap();
-            void OnEditToggleUVLock(wxCommandEvent& event);
-            wxBitmap UVLockBitmap();
+            void OnEditToggleTextureLock();
+            //wxBitmap textureLockBitmap();
+            void OnEditToggleUVLock();
+            //wxBitmap UVLockBitmap();
 
-            void OnEditSnapVerticesToInteger(wxCommandEvent& event);
-            void OnEditSnapVerticesToGrid(wxCommandEvent& event);
+            void OnEditSnapVerticesToInteger();
+            void OnEditSnapVerticesToGrid();
 
-            void OnViewToggleShowGrid(wxCommandEvent& event);
-            void OnViewToggleSnapToGrid(wxCommandEvent& event);
-            void OnViewIncGridSize(wxCommandEvent& event);
-            void OnViewDecGridSize(wxCommandEvent& event);
-            void OnViewSetGridSize(wxCommandEvent& event);
+            void OnViewToggleShowGrid();
+            void OnViewToggleSnapToGrid();
+            void OnViewIncGridSize();
+            void OnViewDecGridSize();
+            void OnViewSetGridSize();
 
-            void OnViewMoveCameraToNextPoint(wxCommandEvent& event);
-            void OnViewMoveCameraToPreviousPoint(wxCommandEvent& event);
-            void OnViewFocusCameraOnSelection(wxCommandEvent& event);
-            void OnViewMoveCameraToPosition(wxCommandEvent& event);
+            void OnViewMoveCameraToNextPoint();
+            void OnViewMoveCameraToPreviousPoint();
+            void OnViewFocusCameraOnSelection();
+            void OnViewMoveCameraToPosition();
 
-            void OnViewHideSelectedObjects(wxCommandEvent& event);
-            void OnViewIsolateSelectedObjects(wxCommandEvent& event);
-            void OnViewShowHiddenObjects(wxCommandEvent& event);
+            void OnViewHideSelectedObjects();
+            void OnViewIsolateSelectedObjects();
+            void OnViewShowHiddenObjects();
             
-            void OnViewSwitchToMapInspector(wxCommandEvent& event);
-            void OnViewSwitchToEntityInspector(wxCommandEvent& event);
-            void OnViewSwitchToFaceInspector(wxCommandEvent& event);
+            void OnViewSwitchToMapInspector();
+            void OnViewSwitchToEntityInspector();
+            void OnViewSwitchToFaceInspector();
 
-            void switchToInspectorPage(Inspector::InspectorPage page);
+            // FIXME:
+            //void switchToInspectorPage(Inspector::InspectorPage page);
             void ensureInspectorVisible();
             
-            void OnViewToggleMaximizeCurrentView(wxCommandEvent& event);
-            void OnViewToggleInfoPanel(wxCommandEvent& event);
-            void OnViewToggleInspector(wxCommandEvent& event);
+            void OnViewToggleMaximizeCurrentView();
+            void OnViewToggleInfoPanel();
+            void OnViewToggleInspector();
 
-            void OnRunCompile(wxCommandEvent& event);
+            void OnRunCompile();
         public:
             void compilationDialogWillClose();
         private:
-            void OnRunLaunch(wxCommandEvent& event);
+            void OnRunLaunch();
 
-            void OnDebugPrintVertices(wxCommandEvent& event);
-            void OnDebugCreateBrush(wxCommandEvent& event);
-            void OnDebugCreateCube(wxCommandEvent& event);
-            void OnDebugClipBrush(wxCommandEvent& event);
-            void OnDebugCopyJSShortcutMap(wxCommandEvent& event);
-            void OnDebugCrash(wxCommandEvent& event);
-            void OnDebugThrowExceptionDuringCommand(wxCommandEvent& event);
-            void OnDebugSetWindowSize(wxCommandEvent& event);
+            void OnDebugPrintVertices();
+            void OnDebugCreateBrush();
+            void OnDebugCreateCube();
+            void OnDebugClipBrush();
+            void OnDebugCopyJSShortcutMap();
+            void OnDebugCrash();
+            void OnDebugThrowExceptionDuringCommand();
+            void OnDebugSetWindowSize();
             
-            void OnFlipObjectsHorizontally(wxCommandEvent& event);
-            void OnFlipObjectsVertically(wxCommandEvent& event);
+            void OnFlipObjectsHorizontally();
+            void OnFlipObjectsVertically();
 
-            void OnUpdateUI(wxUpdateUIEvent& event);
+//            void OnUpdateUI(wxUpdateUIEvent& event);
 
-            void OnToolBarSetGridSize(wxCommandEvent& event);
+            void OnToolBarSetGridSize();
         private:
             bool canUnloadPointFile() const;
             bool canReloadPointFile() const;
@@ -259,7 +270,7 @@ namespace TrenchBroom {
             void undo();
             bool canRedo() const;
             void redo();
-            wxTextCtrl* findFocusedTextCtrl() const;
+            //wxTextCtrl* findFocusedTextCtrl() const;
 
             bool canCut() const;
             bool canCopy() const;
@@ -289,8 +300,8 @@ namespace TrenchBroom {
             bool canCompile() const;
             bool canLaunch() const;
         private: // other event handlers
-            void OnClose(wxCloseEvent& event);
-            void OnAutosaveTimer(wxTimerEvent& event);
+  //          void OnClose(wxCloseEvent& event);
+            void OnAutosaveTimer();
         private: // grid helpers
             static int indexForGridSize(const int gridSize);
             static int gridSizeForIndex(const int index);

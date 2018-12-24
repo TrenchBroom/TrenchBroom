@@ -19,6 +19,16 @@
 
 #include "MapFrame.h"
 
+#include <QTimer>
+#include <QLabel>
+#include <QString>
+#include <QApplication>
+#include <QClipboard>
+#include <QInputDialog>
+#include <QMessageBox>
+#include <QFileDialog>
+#include <QStatusBar>
+
 #include "TrenchBroomApp.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
@@ -38,6 +48,7 @@
 #include "View/Autosaver.h"
 #include "View/BorderLine.h"
 #include "View/CachingLogger.h"
+#include "FileLogger.h"
 #include "View/ClipTool.h"
 #include "View/CommandIds.h"
 #include "View/CommandWindowUpdateLocker.h"
@@ -64,51 +75,37 @@
 
 #include <vecmath/util.h>
 
-#include <wx/clipbrd.h>
-#include <wx/display.h>
-#include <wx/filedlg.h>
-#include <wx/textdlg.h>
-#include <wx/msgdlg.h>
-#include <wx/persist.h>
-#include <wx/sizer.h>
-#include <wx/timer.h>
-#include <wx/textentry.h>
-#include <wx/choice.h>
-#include <wx/choicdlg.h>
-#include <wx/toolbar.h>
-#include <wx/statusbr.h>
-
 #include <cassert>
 #include <iterator>
 
 namespace TrenchBroom {
     namespace View {
         MapFrame::MapFrame() :
-        wxFrame(nullptr, wxID_ANY, "TrenchBroom"),
+        QMainWindow(),
         m_frameManager(nullptr),
         m_autosaver(nullptr),
         m_autosaveTimer(nullptr),
         m_contextManager(nullptr),
         m_mapView(nullptr),
-        m_console(nullptr),
-        m_inspector(nullptr),
-        m_lastFocus(nullptr),
-        m_gridChoice(nullptr),
-        m_compilationDialog(nullptr),
+//        m_console(nullptr),
+//        m_inspector(nullptr),
+//        m_lastFocus(nullptr),
+//        m_gridChoice(nullptr),
+//        m_compilationDialog(nullptr),
         m_updateLocker(nullptr) {}
 
         MapFrame::MapFrame(FrameManager* frameManager, MapDocumentSPtr document) :
-        wxFrame(nullptr, wxID_ANY, "TrenchBroom"),
+        QMainWindow(),
         m_frameManager(nullptr),
         m_autosaver(nullptr),
         m_autosaveTimer(nullptr),
         m_contextManager(nullptr),
         m_mapView(nullptr),
-        m_console(nullptr),
-        m_inspector(nullptr),
-        m_lastFocus(nullptr),
-        m_gridChoice(nullptr),
-        m_compilationDialog(nullptr),
+//        m_console(nullptr),
+//        m_inspector(nullptr),
+//        m_lastFocus(nullptr),
+//        m_gridChoice(nullptr),
+//        m_compilationDialog(nullptr),
         m_updateLocker(nullptr) {
             Create(frameManager, document);
         }
@@ -131,8 +128,8 @@ namespace TrenchBroom {
             m_document->setParentLogger(logger());
             m_document->setViewEffectsService(m_mapView);
 
-            m_autosaveTimer = new wxTimer(this);
-            m_autosaveTimer->Start(1000);
+            m_autosaveTimer = new QTimer(this);
+            m_autosaveTimer->start(1000);
 
             bindObservers();
             bindEvents();
@@ -146,6 +143,8 @@ namespace TrenchBroom {
         }
         
         static RenderView* FindChildRenderView(wxWindow *current) {
+            // FIXME: necessary in Qt?
+#if 0
             for (wxWindow *child : current->GetChildren()) {
                 RenderView *canvas = wxDynamicCast(child, RenderView);
                 if (canvas != nullptr)
@@ -155,10 +154,13 @@ namespace TrenchBroom {
                 if (canvas != nullptr)
                     return canvas;
             }
+#endif
             return nullptr;
         }
 
         MapFrame::~MapFrame() {
+            // FIXME: necessary in Qt?
+#if 0
             // Search for a RenderView (wxGLCanvas subclass) and make it current.
             RenderView* canvas = FindChildRenderView(this);
             if (canvas != nullptr && m_contextManager != nullptr) {
@@ -166,6 +168,7 @@ namespace TrenchBroom {
                 if (mainContext != nullptr)
                     mainContext->SetCurrent(*canvas);
             }
+#endif
 
             // The MapDocument's CachingLogger has a pointer to m_console, which
             // is about to be destroyed (DestroyChildren()). Clear the pointer
@@ -173,18 +176,21 @@ namespace TrenchBroom {
             m_document->setParentLogger(nullptr);
 
             // Makes IsBeingDeleted() return true
-            SendDestroyEvent();
+            // FIXME: necessary in Qt?
+//            SendDestroyEvent();
 
             m_mapView->deactivateTool();
             
             unbindObservers();
-            removeRecentDocumentsMenu(GetMenuBar());
+            // FIXME: necessary in Qt?
+//            removeRecentDocumentsMenu(GetMenuBar());
 
             delete m_updateLocker;
             m_updateLocker = nullptr;
-            
-            delete m_autosaveTimer;
-            m_autosaveTimer = nullptr;
+
+            // FIXME: I think this is deleted by the parent widget in Qt
+//            delete m_autosaveTimer;
+//            m_autosaveTimer = nullptr;
 
             delete m_autosaver;
             m_autosaver = nullptr;
@@ -192,7 +198,7 @@ namespace TrenchBroom {
             // The order of deletion here is important because both the document and the children
             // need the context manager (and its embedded VBO) to clean up their resources.
 
-            DestroyChildren(); // Destroy the children first because they might still access document resources.
+            destroy(false, true); // Destroy the children first because they might still access document resources.
             
             m_document->setViewEffectsService(nullptr);
             m_document.reset();
@@ -201,6 +207,7 @@ namespace TrenchBroom {
             m_contextManager = nullptr;
         }
 
+#if 0
         void MapFrame::positionOnScreen(wxFrame* reference) {
             const wxDisplay display;
             const wxRect displaySize = display.GetClientArea();
@@ -220,23 +227,27 @@ namespace TrenchBroom {
                 SetSize(std::min(displaySize.GetRight() - position.x, reference->GetSize().x), std::min(displaySize.GetBottom() - position.y, reference->GetSize().y));
             }
         }
+#endif
 
         MapDocumentSPtr MapFrame::document() const {
             return m_document;
         }
 
         Logger* MapFrame::logger() const {
-            return m_console;
+            // FIXME: return m_console
+            return &FileLogger::instance();
         }
 
         void MapFrame::setToolBoxDropTarget() {
-            SetDropTarget(nullptr);
+            // FIXME:
+            //SetDropTarget(nullptr);
             m_mapView->setToolBoxDropTarget();
         }
 
         void MapFrame::clearDropTarget() {
             m_mapView->clearDropTarget();
-            SetDropTarget(new MapFrameDropTarget(m_document, this));
+            // FIXME:
+            //SetDropTarget(new MapFrameDropTarget(m_document, this));
         }
 
         bool MapFrame::newDocument(Model::GameSPtr game, const Model::MapFormat::Type mapFormat) {
@@ -262,10 +273,10 @@ namespace TrenchBroom {
                 }
                 return saveDocumentAs();
             } catch (const FileSystemException& e) {
-                ::wxMessageBox(e.what(), "", wxOK | wxICON_ERROR, this);
+                QMessageBox::critical(this, "", e.what(), QMessageBox::Ok);
                 return false;
             } catch (...) {
-                ::wxMessageBox("Unknown error while saving " + m_document->path().asString(), "", wxOK | wxICON_ERROR, this);
+                QMessageBox::critical(this, "", QString::fromStdString("Unknown error while saving " + m_document->path().asString()), QMessageBox::Ok);
                 return false;
             }
         }
@@ -275,34 +286,34 @@ namespace TrenchBroom {
                 const IO::Path& originalPath = m_document->path();
                 const IO::Path directory = originalPath.deleteLastComponent();
                 const IO::Path fileName = originalPath.lastComponent();
-                wxFileDialog saveDialog(this, "Save map file", directory.asString(), fileName.asString(), "Map files (*.map)|*.map", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
-                if (saveDialog.ShowModal() == wxID_CANCEL)
+
+                const QString newFileName = QFileDialog::getSaveFileName(this, "Save map file", QString::fromStdString(originalPath.asString()), "Map files (*.map)");
+                if (newFileName.isEmpty())
                     return false;
 
-                const IO::Path path(saveDialog.GetPath().ToStdString());
+                const IO::Path path(newFileName.toStdString());
                 m_document->saveDocumentAs(path);
                 logger()->info("Saved " + m_document->path().asString());
                 return true;
             } catch (const FileSystemException& e) {
-                ::wxMessageBox(e.what(), "", wxOK | wxICON_ERROR, this);
+                QMessageBox::critical(this, "", e.what(), QMessageBox::Ok);
                 return false;
             } catch (...) {
-                ::wxMessageBox("Unknown error while saving " + m_document->filename(), "", wxOK | wxICON_ERROR, this);
+                QMessageBox::critical(this, "", QString::fromStdString("Unknown error while saving " + m_document->filename()), QMessageBox::Ok);
                 return false;
             }
         }
 
         bool MapFrame::exportDocumentAsObj() {
             const IO::Path& originalPath = m_document->path();
-            const IO::Path directory = originalPath.deleteLastComponent();
-            const IO::Path filename = originalPath.lastComponent().replaceExtension("obj");
+            const IO::Path objPath = originalPath.replaceExtension("obj");
             wxString wildcard;
-            
-            wxFileDialog saveDialog(this, "Export Wavefront OBJ file", directory.asString(), filename.asString(), "Wavefront OBJ files (*.obj)|*.obj", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
-            if (saveDialog.ShowModal() == wxID_CANCEL)
+
+            const QString newFileName = QFileDialog::getSaveFileName(this, "Export Wavefront OBJ file", QString::fromStdString(objPath.asString()), "Wavefront OBJ files (*.obj)");
+            if (newFileName.isEmpty())
                 return false;
-            
-            return exportDocument(Model::WavefrontObj, IO::Path(saveDialog.GetPath().ToStdString()));
+
+            return exportDocument(Model::WavefrontObj, IO::Path(newFileName.toStdString()));
         }
 
         bool MapFrame::exportDocument(const Model::ExportFormat format, const IO::Path& path) {
@@ -311,10 +322,10 @@ namespace TrenchBroom {
                 logger()->info("Exported " + path.asString());
                 return true;
             } catch (const FileSystemException& e) {
-                ::wxMessageBox(e.what(), "", wxOK | wxICON_ERROR, this);
+                QMessageBox::critical(this, "", e.what(), QMessageBox::Ok);
                 return false;
             } catch (...) {
-                ::wxMessageBox("Unknown error while exporting " + path.asString(), "", wxOK | wxICON_ERROR, this);
+                QMessageBox::critical(this, "", QString::fromStdString("Unknown error while exporting " + path.asString()), QMessageBox::Ok);
                 return false;
             }
         }
@@ -322,11 +333,11 @@ namespace TrenchBroom {
         bool MapFrame::confirmOrDiscardChanges() {
             if (!m_document->modified())
                 return true;
-            const int result = ::wxMessageBox(m_document->filename() + " has been modified. Do you want to save the changes?", "TrenchBroom", wxYES_NO | wxCANCEL, this);
+            const QMessageBox::StandardButton result = QMessageBox::question(this, "TrenchBroom", QString::fromStdString(m_document->filename() + " has been modified. Do you want to save the changes?"), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
             switch (result) {
-                case wxYES:
+                case QMessageBox::Yes:
                     return saveDocument();
-                case wxNO:
+                case QMessageBox::No:
                     return true;
                 default:
                     return false;
@@ -334,13 +345,9 @@ namespace TrenchBroom {
         }
 
         void MapFrame::updateTitle() {
-#ifdef __APPLE__
-            SetTitle(m_document->filename());
-            OSXSetModified(m_document->modified());
-#else
-            SetTitle(wxString(m_document->filename()) + wxString(m_document->modified() ? "*" : "") + wxString(" - TrenchBroom"));
-#endif
-            SetRepresentedFilename(m_document->path().asString());
+            setWindowModified(m_document->modified());
+            setWindowTitle(QString::fromStdString(m_document->filename()) + QString("[*] - TrenchBroom"));
+            setWindowFilePath(QString::fromStdString(m_document->path().asString()));
         }
 
 #if defined(_WIN32)
@@ -367,9 +374,9 @@ namespace TrenchBroom {
 		}
 #endif
 
+// FIXME: only used for rebuildMenuBar(). drop?
+#if 0
 		void MapFrame::OnChildFocus(wxChildFocusEvent& event) {
-            if (IsBeingDeleted()) return;
-
             wxWindow* focus = FindFocus();
             if (focus == nullptr)
                 focus = event.GetWindow();
@@ -380,21 +387,23 @@ namespace TrenchBroom {
 
 			event.Skip();
         }
+#endif
 
         void MapFrame::rebuildMenuBar() {
-            wxMenuBar* oldMenuBar = GetMenuBar();
-            removeRecentDocumentsMenu(oldMenuBar);
+//            wxMenuBar* oldMenuBar = GetMenuBar();
+//            removeRecentDocumentsMenu(oldMenuBar);
             createMenuBar();
-            oldMenuBar->Destroy();
+//            oldMenuBar->Destroy();
         }
 
         void MapFrame::createMenuBar() {
 			const ActionManager& actionManager = ActionManager::instance();
-            wxMenuBar* menuBar = actionManager.createMenuBar(m_mapView->viewportHasFocus());
-            SetMenuBar(menuBar);
+            QMenuBar* menuBar = actionManager.createMenuBarQt(m_mapView->viewportHasFocus());
+            setMenuBar(menuBar);
             addRecentDocumentsMenu(menuBar);
         }
 
+#if 0
         void MapFrame::addRecentDocumentsMenu(wxMenuBar* menuBar) {
             const ActionManager& actionManager = ActionManager::instance();
             wxMenu* recentDocumentsMenu = actionManager.findRecentDocumentsMenu(menuBar);
@@ -412,6 +421,7 @@ namespace TrenchBroom {
             TrenchBroomApp& app = TrenchBroomApp::instance();
             app.removeRecentDocumentMenu(recentDocumentsMenu);
         }
+#endif
 
         void MapFrame::updateRecentDocumentsMenu() {
             if (m_document->path().isAbsolute())
@@ -419,8 +429,10 @@ namespace TrenchBroom {
         }
 
         void MapFrame::createGui() {
-            setWindowIcon(this);
+            TrenchBroom::View::setWindowIcon(this);
+            setWindowTitle("TrenchBroom");
 
+#if 0
             m_hSplitter = new SplitterWindow2(this);
             m_hSplitter->setSashGravity(1.0);
             m_hSplitter->SetName("MapFrameHSplitter");
@@ -431,7 +443,10 @@ namespace TrenchBroom {
 
             InfoPanel* infoPanel = new InfoPanel(m_vSplitter, m_document);
             m_console = infoPanel->console();
-            m_mapView = new SwitchableMapViewContainer(m_vSplitter, m_console, m_document, *m_contextManager);
+#endif
+            m_mapView = new SwitchableMapViewContainer(nullptr, /* was m_console */ logger(), m_document, *m_contextManager);
+
+#if 0
             m_inspector = new Inspector(m_hSplitter, m_document, *m_contextManager);
 
             m_mapView->connectTopWidgets(m_inspector);
@@ -449,9 +464,14 @@ namespace TrenchBroom {
 
             wxPersistenceManager::Get().RegisterAndRestore(m_hSplitter);
             wxPersistenceManager::Get().RegisterAndRestore(m_vSplitter);
+#endif
+
+            setCentralWidget(m_mapView);
         }
 
         void MapFrame::createToolBar() {
+		    // FIXME: implement
+#if 0
             wxToolBar* toolBar = CreateToolBar(wxTB_DEFAULT_STYLE | 
 #if !defined _WIN32
 				wxTB_NODIVIDER | 
@@ -482,10 +502,12 @@ namespace TrenchBroom {
             toolBar->AddControl(m_gridChoice);
             
             toolBar->Realize();
+#endif
         }
-        
+
         void MapFrame::createStatusBar() {
-            m_statusBar = CreateStatusBar();
+            m_statusBarLabel = new QLabel();
+            statusBar()->addWidget(m_statusBarLabel);
         }
         
         static Model::AttributableNode* commonEntityForBrushList(const Model::BrushList& list) {
@@ -609,7 +631,7 @@ namespace TrenchBroom {
         }
         
         void MapFrame::updateStatusBar() {
-            m_statusBar->SetStatusText(describeSelection(m_document.get()));
+            m_statusBarLabel->setText(QString(describeSelection(m_document.get())));
         }
         
         void MapFrame::bindObservers() {
@@ -671,7 +693,8 @@ namespace TrenchBroom {
 
         void MapFrame::gridDidChange() {
             const Grid& grid = m_document->grid();
-            m_gridChoice->SetSelection(indexForGridSize(grid.size()));
+            // FIXME: toolbar
+//            m_gridChoice->SetSelection(indexForGridSize(grid.size()));
         }
         
         void MapFrame::selectionDidChange(const Selection& selection) {
@@ -691,6 +714,8 @@ namespace TrenchBroom {
         }
 
         void MapFrame::bindEvents() {
+		    // FIXME:
+#if 0
             Bind(wxEVT_MENU, &MapFrame::OnFileSave, this, wxID_SAVE);
             Bind(wxEVT_MENU, &MapFrame::OnFileSaveAs, this, wxID_SAVEAS);
             Bind(wxEVT_MENU, &MapFrame::OnFileExportObj, this, CommandIds::Menu::FileExportObj);
@@ -801,7 +826,7 @@ namespace TrenchBroom {
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, CommandIds::Actions::FlipObjectsVertically);
 
             Bind(wxEVT_CLOSE_WINDOW, &MapFrame::OnClose, this);
-            Bind(wxEVT_TIMER, &MapFrame::OnAutosaveTimer, this);
+            connect(m_autosaveTimer, &QTimer::timeout, this, &MapFrame::OnAutosaveTimer);
 			Bind(wxEVT_CHILD_FOCUS, &MapFrame::OnChildFocus, this);
 
 #if defined(_WIN32)
@@ -809,129 +834,101 @@ namespace TrenchBroom {
 #endif
 
             m_gridChoice->Bind(wxEVT_CHOICE, &MapFrame::OnToolBarSetGridSize, this);
+#endif
         }
 
-        void MapFrame::OnFileSave(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnFileSave() {
             saveDocument();
         }
 
-        void MapFrame::OnFileSaveAs(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnFileSaveAs() {
             saveDocumentAs();
         }
 
-        void MapFrame::OnFileExportObj(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-            
+        void MapFrame::OnFileExportObj() {
             exportDocumentAsObj();
         }
 
-        void MapFrame::OnFileLoadPointFile(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-            
-            wxString defaultDir;
+        void MapFrame::OnFileLoadPointFile() {
+            QString defaultDir;
             if (!m_document->path().isEmpty())
-                defaultDir = m_document->path().deleteLastComponent().asString();
-            wxFileDialog browseDialog(this, "Load Point File", defaultDir, wxEmptyString, "Point files (*.pts)|*.pts|Any files (*.*)|*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+                defaultDir = QString::fromStdString(m_document->path().deleteLastComponent().asString());
 
-            if (browseDialog.ShowModal() == wxID_OK)
-                m_document->loadPointFile(IO::Path(browseDialog.GetPath().ToStdString()));
+            const QString fileName = QFileDialog::getOpenFileName(this, "Load Point File", defaultDir, "Point files (*.pts);;Any files (*.*)");
+
+            if (!fileName.isEmpty())
+                m_document->loadPointFile(IO::Path(fileName.toStdString()));
         }
 
-        void MapFrame::OnFileReloadPointFile(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnFileReloadPointFile() {
             if (canReloadPointFile()) {
                 m_document->reloadPointFile();
             }
         }
 
-        void MapFrame::OnFileUnloadPointFile(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void MapFrame::OnFileUnloadPointFile() {
             if (canUnloadPointFile())
                 m_document->unloadPointFile();
         }
         
-        void MapFrame::OnFileLoadPortalFile(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-            
-            wxString defaultDir;
+        void MapFrame::OnFileLoadPortalFile() {
+            QString defaultDir;
             if (!m_document->path().isEmpty()) {
-                defaultDir = m_document->path().deleteLastComponent().asString();
+                defaultDir = QString::fromStdString(m_document->path().deleteLastComponent().asString());
             }
-            wxFileDialog browseDialog(this, "Load Portal File", defaultDir, wxEmptyString, "Portal files (*.prt)|*.prt|Any files (*.*)|*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
-            
-            if (browseDialog.ShowModal() == wxID_OK) {
-                m_document->loadPortalFile(IO::Path(browseDialog.GetPath().ToStdString()));
+
+            const QString fileName = QFileDialog::getOpenFileName(this, "Load Portal File", defaultDir, "Portal files (*.prt);;Any files (*.*)");
+
+            if (!fileName.isEmpty()) {
+                m_document->loadPortalFile(IO::Path(fileName.toStdString()));
             }
         }
 
-        void MapFrame::OnFileReloadPortalFile(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnFileReloadPortalFile() {
             if (canReloadPortalFile()) {
                 m_document->reloadPortalFile();
             }
         }
 
-        void MapFrame::OnFileUnloadPortalFile(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-            
+        void MapFrame::OnFileUnloadPortalFile() {
             if (canUnloadPortalFile()) {
                 m_document->unloadPortalFile();
             }
         }
 
-        void MapFrame::OnFileReloadTextureCollections(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnFileReloadTextureCollections() {
             m_document->reloadTextureCollections();
         }
 
-        void MapFrame::OnFileReloadEntityDefinitions(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnFileReloadEntityDefinitions() {
             m_document->reloadEntityDefinitions();
         }
 
-        void MapFrame::OnFileClose(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            Close();
+        void MapFrame::OnFileClose() {
+            close();
         }
 
-        void MapFrame::OnEditUndo(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void MapFrame::OnEditUndo() {
             if (canUndo()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 undo();
             }
         }
 
-        void MapFrame::OnEditRedo(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void MapFrame::OnEditRedo() {
             if (canRedo()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 redo();
             }
         }
 
-        void MapFrame::OnEditRepeat(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnEditRepeat() {
             m_document->repeatLastCommands();
         }
 
-        void MapFrame::OnEditClearRepeat(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnEditClearRepeat() {
             m_document->clearRepeatableCommands();
         }
 
-        void MapFrame::OnEditCut(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnEditCut() {
             if (canCut()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 copyToClipboard();
                 Transaction transaction(m_document, "Cut");
@@ -939,29 +936,25 @@ namespace TrenchBroom {
             }
         }
 
-        void MapFrame::OnEditCopy(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnEditCopy() {
             if (canCopy()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 copyToClipboard();
             }
         }
 
         void MapFrame::copyToClipboard() {
-            OpenClipboard openClipboard;
-            if (wxTheClipboard->IsOpened()) {
-                String str;
-                if (m_document->hasSelectedNodes())
-                    str = m_document->serializeSelectedNodes();
-                else if (m_document->hasSelectedBrushFaces())
-                    str = m_document->serializeSelectedBrushFaces();
-                wxTheClipboard->SetData(new wxTextDataObject(str));
-            }
+            QClipboard *clipboard = QApplication::clipboard();
+
+            String str;
+            if (m_document->hasSelectedNodes())
+                str = m_document->serializeSelectedNodes();
+            else if (m_document->hasSelectedBrushFaces())
+                str = m_document->serializeSelectedBrushFaces();
+
+            clipboard->setText(QString::fromStdString(str));
         }
 
-        void MapFrame::OnEditPaste(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnEditPaste() {
             if (canPaste()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 const vm::bbox3 referenceBounds = m_document->referenceBounds();
                 Transaction transaction(m_document);
@@ -973,34 +966,26 @@ namespace TrenchBroom {
             }
         }
 
-        void MapFrame::OnEditPasteAtOriginalPosition(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnEditPasteAtOriginalPosition() {
             if (canPaste()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 paste();
             }
         }
 
         PasteType MapFrame::paste() {
-            OpenClipboard openClipboard;
-            if (!wxTheClipboard->IsOpened() || !wxTheClipboard->IsSupported(wxDF_TEXT)) {
+            QClipboard *clipboard = QApplication::clipboard();
+            const QString qtext = clipboard->text();
+
+            if (qtext.isEmpty()) {
                 logger()->error("Clipboard is empty");
                 return PT_Failed;
             }
 
-            wxTextDataObject textData;
-            if (!wxTheClipboard->GetData(textData)) {
-                logger()->error("Could not get clipboard contents");
-                return PT_Failed;
-            }
-
-            const String text = textData.GetText().ToStdString();
+            const String text = qtext.toStdString();
             return m_document->paste(text);
         }
 
-        void MapFrame::OnEditDelete(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnEditDelete() {
             if (canDelete()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 if (m_mapView->clipToolActive())
                     m_mapView->clipTool()->removeLastPoint();
@@ -1015,59 +1000,46 @@ namespace TrenchBroom {
             }
         }
 
-        void MapFrame::OnEditDuplicate(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnEditDuplicate() {
             if (canDuplicate()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->duplicateObjects();
             }
         }
 
-        void MapFrame::OnEditSelectAll(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnEditSelectAll() {
             if (canSelect()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->selectAllNodes();
             }
         }
 
-        void MapFrame::OnEditSelectSiblings(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnEditSelectSiblings() {
             if (canSelectSiblings()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->selectSiblings();
             }
         }
 
-        void MapFrame::OnEditSelectTouching(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnEditSelectTouching() {
             if (canSelectByBrush()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->selectTouching(true);
             }
         }
 
-        void MapFrame::OnEditSelectInside(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnEditSelectInside() {
             if (canSelectByBrush()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->selectInside(true);
             }
         }
 
-        void MapFrame::OnEditSelectTall(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-            
+        void MapFrame::OnEditSelectTall() {
             if (canSelectTall()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_mapView->selectTall();
             }
         }
 
-        void MapFrame::OnEditSelectByLineNumber(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnEditSelectByLineNumber() {
             if (canSelect()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
-                const wxString string = wxGetTextFromUser("Enter a comma- or space separated list of line numbers.", "Select by Line Numbers", "", this);
+                const auto qstring = QInputDialog::getText(this, "Select by Line Numbers", "Enter a comma- or space separated list of line numbers.");
+                const auto string = qstring.toStdString();
                 if (string.empty())
                     return;
 
@@ -1085,17 +1057,13 @@ namespace TrenchBroom {
             }
         }
 
-        void MapFrame::OnEditSelectNone(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnEditSelectNone() {
             if (canDeselect()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->deselectAll();
             }
         }
 
-        void MapFrame::OnEditGroupSelectedObjects(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnEditGroupSelectedObjects() {
             if (canGroup()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 const String name = queryGroupName(this);
                 if (!name.empty())
@@ -1103,133 +1071,106 @@ namespace TrenchBroom {
             }
         }
 
-        void MapFrame::OnEditUngroupSelectedObjects(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnEditUngroupSelectedObjects() {
             if (canUngroup()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->ungroupSelection();
             }
         }
 
-        void MapFrame::OnEditReplaceTexture(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnEditReplaceTexture() {
+		    // FIXME:
+#if 0
             ReplaceTextureDialog dialog(this, m_document, *m_contextManager);
             dialog.CenterOnParent();
             dialog.ShowModal();
+#endif
         }
 
-        void MapFrame::OnEditDeactivateTool(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnEditDeactivateTool() {
             m_mapView->deactivateTool();
         }
 
-        void MapFrame::OnEditToggleCreateComplexBrushTool(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnEditToggleCreateComplexBrushTool() {
             if (m_mapView->canToggleCreateComplexBrushTool()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_mapView->toggleCreateComplexBrushTool();
             }
         }
 
-        void MapFrame::OnEditToggleClipTool(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnEditToggleClipTool() {
             if (m_mapView->canToggleClipTool()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_mapView->toggleClipTool();
             }
         }
 
-        void MapFrame::OnEditToggleRotateObjectsTool(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnEditToggleRotateObjectsTool() {
             if (m_mapView->canToggleRotateObjectsTool()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_mapView->toggleRotateObjectsTool();
             }
         }
 
-        void MapFrame::OnEditToggleScaleObjectsTool(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnEditToggleScaleObjectsTool() {
             if (m_mapView->canToggleScaleObjectsTool()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_mapView->toggleScaleObjectsTool();
             }
         }
 
-        void MapFrame::OnEditToggleShearObjectsTool(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnEditToggleShearObjectsTool() {
             if (m_mapView->canToggleShearObjectsTool()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_mapView->toggleShearObjectsTool();
             }
         }
         
-        void MapFrame::OnEditToggleVertexTool(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnEditToggleVertexTool() {
             if (m_mapView->canToggleVertexTools()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_mapView->toggleVertexTool();
             }
         }
         
-        void MapFrame::OnEditToggleEdgeTool(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnEditToggleEdgeTool() {
             if (m_mapView->canToggleVertexTools()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_mapView->toggleEdgeTool();
             }
         }
         
-        void MapFrame::OnEditToggleFaceTool(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnEditToggleFaceTool() {
             if (m_mapView->canToggleVertexTools()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_mapView->toggleFaceTool();
             }
         }
 
-        void MapFrame::OnEditCsgConvexMerge(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnEditCsgConvexMerge() {
             if (canDoCsgConvexMerge()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->csgConvexMerge();
             }
         }
 
-        void MapFrame::OnEditCsgSubtract(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-            
+        void MapFrame::OnEditCsgSubtract() {
             if (canDoCsgSubtract()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->csgSubtract();
             }
         }
 
-        void MapFrame::OnEditCsgIntersect(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-            
+        void MapFrame::OnEditCsgIntersect() {
             if (canDoCsgIntersect()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->csgIntersect();
             }
         }
 
-        void MapFrame::OnEditCsgHollow(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-            
+        void MapFrame::OnEditCsgHollow() {
             if (canDoCsgHollow()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->csgHollow();
             }
         }
 
-        void MapFrame::OnEditToggleTextureLock(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnEditToggleTextureLock() {
             PreferenceManager::instance().set(Preferences::TextureLock, !pref(Preferences::TextureLock));
             PreferenceManager::instance().saveChanges();
             
-            GetToolBar()->SetToolNormalBitmap(CommandIds::Menu::EditToggleTextureLock, textureLockBitmap());
+            //FIXME: Toolbar
+//             GetToolBar()->SetToolNormalBitmap(CommandIds::Menu::EditToggleTextureLock, textureLockBitmap());
         }
-
+//FIXME: Toolbar
+#if 0
         wxBitmap MapFrame::textureLockBitmap() {
             if (pref(Preferences::TextureLock)) {
                 return IO::loadImageResource("TextureLockOn.png");
@@ -1237,16 +1178,18 @@ namespace TrenchBroom {
                 return IO::loadImageResource("TextureLockOff.png");
             }
         }
+#endif
 
-        void MapFrame::OnEditToggleUVLock(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnEditToggleUVLock() {
             PreferenceManager::instance().set(Preferences::UVLock, !pref(Preferences::UVLock));
             PreferenceManager::instance().saveChanges();
 
-            GetToolBar()->SetToolNormalBitmap(CommandIds::Menu::EditToggleUVLock, UVLockBitmap());
+            //FIXME: Toolbar
+//            GetToolBar()->SetToolNormalBitmap(CommandIds::Menu::EditToggleUVLock, UVLockBitmap());
         }
 
+        //FIXME: Toolbar
+#if 0
         wxBitmap MapFrame::UVLockBitmap() {
             if (pref(Preferences::UVLock)) {
                 return IO::loadImageResource("UVLockOn.png");
@@ -1254,213 +1197,176 @@ namespace TrenchBroom {
                 return IO::loadImageResource("UVLockOff.png");
             }
         }
+#endif
 
-        void MapFrame::OnEditSnapVerticesToInteger(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-            
+        void MapFrame::OnEditSnapVerticesToInteger() {
             if (canSnapVertices()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->snapVertices(1u);
             }
         }
         
-        void MapFrame::OnEditSnapVerticesToGrid(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnEditSnapVerticesToGrid() {
             if (canSnapVertices()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->snapVertices(m_document->grid().actualSize());
             }
         }
 
-        void MapFrame::OnViewToggleShowGrid(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnViewToggleShowGrid() {
             m_document->grid().toggleVisible();
         }
 
-        void MapFrame::OnViewToggleSnapToGrid(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnViewToggleSnapToGrid() {
             m_document->grid().toggleSnap();
         }
 
-        void MapFrame::OnViewIncGridSize(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnViewIncGridSize() {
             if (canIncGridSize()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->grid().incSize();
             }
         }
 
-        void MapFrame::OnViewDecGridSize(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnViewDecGridSize() {
             if (canDecGridSize()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->grid().decSize();
             }
         }
 
-        void MapFrame::OnViewSetGridSize(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            m_document->grid().setSize(gridSizeForMenuId(event.GetId()));
+        void MapFrame::OnViewSetGridSize() {
+		    // FIXME:
+//            m_document->grid().setSize(gridSizeForMenuId(event.GetId()));
         }
 
-        void MapFrame::OnViewMoveCameraToNextPoint(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnViewMoveCameraToNextPoint() {
             if (canMoveCameraToNextPoint()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_mapView->moveCameraToNextTracePoint();
             }
         }
 
-        void MapFrame::OnViewMoveCameraToPreviousPoint(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnViewMoveCameraToPreviousPoint() {
             if (canMoveCameraToPreviousPoint()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_mapView->moveCameraToPreviousTracePoint();
             }
         }
 
-        void MapFrame::OnViewFocusCameraOnSelection(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnViewFocusCameraOnSelection() {
             if (canFocusCamera()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_mapView->focusCameraOnSelection(true);
             }
         }
 
-        void MapFrame::OnViewMoveCameraToPosition(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            wxTextEntryDialog dialog(this, "Enter a position (x y z) for the camera.", "Move Camera", "0.0 0.0 0.0");
-            if (dialog.ShowModal() == wxID_OK) {
-                const wxString str = dialog.GetValue();
-                const vm::vec3 position = vm::vec3::parse(str.ToStdString());
+        void MapFrame::OnViewMoveCameraToPosition() {
+            bool ok = false;
+            const QString str = QInputDialog::getText(this, "Move Camera", "Enter a position (x y z) for the camera.", QLineEdit::Normal, "0.0 0.0 0.0", &ok);
+            if (ok) {
+                const vm::vec3 position = vm::vec3::parse(str.toStdString());
                 m_mapView->moveCameraToPosition(position, true);
             }
         }
         
-        void MapFrame::OnViewHideSelectedObjects(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-            
+        void MapFrame::OnViewHideSelectedObjects() {
             if (canHide()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->hideSelection();
             }
         }
         
-        void MapFrame::OnViewIsolateSelectedObjects(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-            
+        void MapFrame::OnViewIsolateSelectedObjects() {
             if (canIsolate()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->isolate(m_document->selectedNodes().nodes());
             }
         }
         
-        void MapFrame::OnViewShowHiddenObjects(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-            
+        void MapFrame::OnViewShowHiddenObjects() {
             m_document->showAll();
         }
 
-        void MapFrame::OnViewSwitchToMapInspector(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            switchToInspectorPage(Inspector::InspectorPage_Map);
+        void MapFrame::OnViewSwitchToMapInspector() {
+            // FIXME:
+//            switchToInspectorPage(Inspector::InspectorPage_Map);
         }
 
-        void MapFrame::OnViewSwitchToEntityInspector(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            switchToInspectorPage(Inspector::InspectorPage_Entity);
+        void MapFrame::OnViewSwitchToEntityInspector() {
+            // FIXME:
+//            switchToInspectorPage(Inspector::InspectorPage_Entity);
         }
 
-        void MapFrame::OnViewSwitchToFaceInspector(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            switchToInspectorPage(Inspector::InspectorPage_Face);
+        void MapFrame::OnViewSwitchToFaceInspector() {
+            // FIXME:
+//            switchToInspectorPage(Inspector::InspectorPage_Face);
         }
 
+        // FIXME:
+#if 0
         void MapFrame::switchToInspectorPage(const Inspector::InspectorPage page) {
             ensureInspectorVisible();
             m_inspector->switchToPage(page);
         }
-
+#endif
         void MapFrame::ensureInspectorVisible() {
-            if (m_hSplitter->isMaximized(m_vSplitter))
-                m_hSplitter->restore();
+		    // FIXME:
+//            if (m_hSplitter->isMaximized(m_vSplitter))
+//                m_hSplitter->restore();
         }
 
-        void MapFrame::OnViewToggleMaximizeCurrentView(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-         
+        void MapFrame::OnViewToggleMaximizeCurrentView() {
             m_mapView->toggleMaximizeCurrentView();
         }
 
-        void MapFrame::OnViewToggleInfoPanel(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            if (m_vSplitter->isMaximized(m_mapView))
-                m_vSplitter->restore();
-            else
-                m_vSplitter->maximize(m_mapView);
+        void MapFrame::OnViewToggleInfoPanel() {
+            // FIXME:
+//            if (m_vSplitter->isMaximized(m_mapView))
+//                m_vSplitter->restore();
+//            else
+//                m_vSplitter->maximize(m_mapView);
         }
 
-        void MapFrame::OnViewToggleInspector(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            if (m_hSplitter->isMaximized(m_vSplitter))
-                m_hSplitter->restore();
-            else
-                m_hSplitter->maximize(m_vSplitter);
+        void MapFrame::OnViewToggleInspector() {
+            // FIXME:
+//            if (m_hSplitter->isMaximized(m_vSplitter))
+//                m_hSplitter->restore();
+//            else
+//                m_hSplitter->maximize(m_vSplitter);
         }
 
-        void MapFrame::OnRunCompile(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-            
-            if (m_compilationDialog == nullptr) {
-                m_compilationDialog = new CompilationDialog(this);
-                m_compilationDialog->Show();
-            } else {
-                m_compilationDialog->Raise();
-            }
+        void MapFrame::OnRunCompile() {
+            // FIXME:
+//            if (m_compilationDialog == nullptr) {
+//                m_compilationDialog = new CompilationDialog(this);
+//                m_compilationDialog->Show();
+//            } else {
+//                m_compilationDialog->Raise();
+//            }
         }
 
         void MapFrame::compilationDialogWillClose() {
-            m_compilationDialog = nullptr;
+            // FIXME:
+//            m_compilationDialog = nullptr;
         }
 
-        void MapFrame::OnRunLaunch(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-            
-            LaunchGameEngineDialog dialog(this, m_document);
-            dialog.ShowModal();
+        void MapFrame::OnRunLaunch() {
+            // FIXME:
+//            LaunchGameEngineDialog dialog(this, m_document);
+//            dialog.ShowModal();
         }
         
-        void MapFrame::OnDebugPrintVertices(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-            
+        void MapFrame::OnDebugPrintVertices() {
             m_document->printVertices();
         }
 
-        void MapFrame::OnDebugCreateBrush(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-            
-            wxTextEntryDialog dialog(this, "Enter a list of at least 4 points (x y z) (x y z) ...", "Create Brush", "");
-            if (dialog.ShowModal() == wxID_OK) {
-                const wxString str = dialog.GetValue();
+        void MapFrame::OnDebugCreateBrush() {
+            bool ok = false;
+            const QString str = QInputDialog::getText(this, "Create Brush", "Enter a list of at least 4 points (x y z) (x y z) ...", QLineEdit::Normal, "", &ok);
+            if (ok) {
                 std::vector<vm::vec3> positions;
-                vm::vec3::parseAll(str.ToStdString(), std::back_inserter(positions));
+                vm::vec3::parseAll(str.toStdString(), std::back_inserter(positions));
                 m_document->createBrush(positions);
             }
         }
 
-        void MapFrame::OnDebugCreateCube(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-            
-            wxTextEntryDialog dialog(this, "Enter bounding box size", "Create Cube", "");
-            if (dialog.ShowModal() == wxID_OK) {
-                const auto str = dialog.GetValue();
-                double size; str.ToDouble(&size);
+        void MapFrame::OnDebugCreateCube() {
+            bool ok = false;
+            const QString str = QInputDialog::getText(this, "Create Cube", "Enter bounding box size", QLineEdit::Normal, "", &ok);
+            if (ok) {
+                const double size = str.toDouble();
                 const vm::bbox3 bounds(size / 2.0);
                 const auto posArray = bounds.vertices();
                 const auto posList = std::vector<vm::vec3>(std::begin(posArray), std::end(posArray));
@@ -1468,28 +1374,22 @@ namespace TrenchBroom {
             }
         }
         
-        void MapFrame::OnDebugClipBrush(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-            
-            wxTextEntryDialog dialog(this, "Enter face points ( x y z ) ( x y z ) ( x y z )", "Clip Brush", "");
-            if (dialog.ShowModal() == wxID_OK) {
-                const wxString str = dialog.GetValue();
+        void MapFrame::OnDebugClipBrush() {
+            bool ok = false;
+            const QString str = QInputDialog::getText(this, "Clip Brush", "Enter face points ( x y z ) ( x y z ) ( x y z )", QLineEdit::Normal, "", &ok);
+            if (ok) {
                 std::vector<vm::vec3> points;
-                vm::vec3::parseAll(str.ToStdString(), std::back_inserter(points));
+                vm::vec3::parseAll(str.toStdString(), std::back_inserter(points));
                 assert(points.size() == 3);
                 m_document->clipBrushes(points[0], points[1], points[2]);
             }
         }
 
-        void MapFrame::OnDebugCopyJSShortcutMap(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-            
-            OpenClipboard openClipboard;
-            if (wxTheClipboard->IsOpened()) {
-                const String str = ActionManager::instance().getJSTable();
-                wxTheClipboard->SetData(new wxTextDataObject(str));
-            }
+        void MapFrame::OnDebugCopyJSShortcutMap() {
+            QClipboard *clipboard = QApplication::clipboard();
 
+            const String str = ActionManager::instance().getJSTable();
+            clipboard->setText(QString::fromStdString(str));
         }
 
 #ifdef __clang__
@@ -1510,14 +1410,14 @@ namespace TrenchBroom {
             throw e;
         }
 
-        void MapFrame::OnDebugCrash(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-            
-            wxString crashTypes[2] = { "Null pointer dereference", "Unhandled exception" };
+        void MapFrame::OnDebugCrash() {
+            QStringList items;
+            items << "Null pointer dereference" << "Unhandled exception";
 
-            wxSingleChoiceDialog d(nullptr, "Choose a crash type", "Crash", 2, crashTypes);
-            if (d.ShowModal() == wxID_OK) {
-                const int idx = d.GetSelection();
+            bool ok;
+            const QString item = QInputDialog::getItem(this, "Crash", "Choose a crash type", items, 0, false, &ok);
+            if (ok) {
+                const int idx = items.indexOf(item);
                 if (idx == 0) {
                     debugSegfault();
                 } else if (idx == 1) {
@@ -1526,39 +1426,34 @@ namespace TrenchBroom {
             }
         }
 
-        void MapFrame::OnDebugThrowExceptionDuringCommand(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnDebugThrowExceptionDuringCommand() {
             m_document->throwExceptionDuringCommand();
         }
 
-        void MapFrame::OnDebugSetWindowSize(wxCommandEvent& event) {
-            wxTextEntryDialog dialog(this, "Enter Size (W H)", "Window Size", "1920 1080");
-            if (dialog.ShowModal() == wxID_OK) {
-                const auto str = dialog.GetValue();
-                const auto size = vm::vec2i::parse(str.ToStdString());
-                SetSize(size.x(), size.y());
+        void MapFrame::OnDebugSetWindowSize() {
+            bool ok = false;
+            const QString str = QInputDialog::getText(this, "Window Size", "Enter Size (W H)", QLineEdit::Normal, "1920 1080", &ok);
+            if (ok) {
+                const auto size = vm::vec2i::parse(str.toStdString());
+                resize(size.x(), size.y());
             }
         }
 
-        void MapFrame::OnFlipObjectsHorizontally(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnFlipObjectsHorizontally() {
             if (m_mapView->canFlipObjects()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_mapView->flipObjects(vm::direction::left);
             }
         }
 
-        void MapFrame::OnFlipObjectsVertically(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapFrame::OnFlipObjectsVertically() {
             if (m_mapView->canFlipObjects()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_mapView->flipObjects(vm::direction::up);
             }
         }
 
+#if 0
         void MapFrame::OnUpdateUI(wxUpdateUIEvent& event) {
-            if (IsBeingDeleted()) return;
+		    // FIXME: implement
 
             const ActionManager& actionManager = ActionManager::instance();
 
@@ -1855,11 +1750,11 @@ namespace TrenchBroom {
                     break;
             }
         }
+#endif
 
-        void MapFrame::OnToolBarSetGridSize(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            m_document->grid().setSize(gridSizeForIndex(event.GetSelection()));
+        void MapFrame::OnToolBarSetGridSize() {
+		    // FIXME: implement
+            //m_document->grid().setSize(gridSizeForIndex(event.GetSelection()));
         }
 
         bool MapFrame::canUnloadPointFile() const {
@@ -1879,7 +1774,8 @@ namespace TrenchBroom {
         }
 
         bool MapFrame::canUndo() const {
-            auto textCtrl = findFocusedTextCtrl();
+            // FIXME:
+            auto textCtrl = nullptr;//findFocusedTextCtrl();
             if (textCtrl != nullptr) {
                 return true; // textCtrl->CanUndo();
             } else {
@@ -1890,18 +1786,21 @@ namespace TrenchBroom {
         void MapFrame::undo() {
             assert(canUndo());
 
-            auto textCtrl = findFocusedTextCtrl();
+            // FIXME:
+            auto textCtrl = nullptr;//findFocusedTextCtrl();
             if (textCtrl != nullptr) {
-                textCtrl->Undo();
+                //textCtrl->Undo();
             } else {
-                if (!m_mapView->cancelMouseDrag() && !m_inspector->cancelMouseDrag()) {
+                // FIXME:
+                if (!m_mapView->cancelMouseDrag() /* && !m_inspector->cancelMouseDrag()*/) {
                     m_document->undoLastCommand();
                 }
             }
         }
 
         bool MapFrame::canRedo() const {
-            auto textCtrl = findFocusedTextCtrl();
+            // FIXME:
+            auto textCtrl = nullptr; //findFocusedTextCtrl();
             if (textCtrl != nullptr) {
                 return true; // textCtrl->CanRedo();
             } else {
@@ -1912,17 +1811,22 @@ namespace TrenchBroom {
         void MapFrame::redo() {
             assert(canRedo());
 
-            auto textCtrl = findFocusedTextCtrl();
+            // FIXME:
+            auto textCtrl = nullptr; //findFocusedTextCtrl();
             if (textCtrl != nullptr) {
-                textCtrl->Redo();
+                //textCtrl->Redo();
             } else {
                 m_document->redoNextCommand();
             }
         }
 
+#if 0
         wxTextCtrl* MapFrame::findFocusedTextCtrl() const {
-            return dynamic_cast<wxTextCtrl*>(FindFocus());
+		    return nullptr;
+		    // FIXME:
+//            return dynamic_cast<wxTextCtrl*>(FindFocus());
         }
+#endif
 
         bool MapFrame::canCut() const {
             return m_document->hasSelectedNodes() && !m_mapView->anyToolActive();
@@ -1935,9 +1839,10 @@ namespace TrenchBroom {
         bool MapFrame::canPaste() const {
             if (!m_mapView->isCurrent())
                 return false;
-            
-            OpenClipboard openClipboard;
-            return wxTheClipboard->IsOpened() && wxTheClipboard->IsSupported(wxDF_TEXT);
+
+            QClipboard *clipboard = QApplication::clipboard();
+            return !clipboard->text().isEmpty();
+
         }
 
         bool MapFrame::canDelete() const {
@@ -2046,7 +1951,10 @@ namespace TrenchBroom {
             return m_document->persistent();
         }
 
+#if 0
         void MapFrame::OnClose(wxCloseEvent& event) {
+		    // FIXME: implement
+
             if (!IsBeingDeleted()) {
                 if (m_compilationDialog != nullptr && !m_compilationDialog->Close()) {
                     event.Veto();
@@ -2059,10 +1967,8 @@ namespace TrenchBroom {
                 }
             }
         }
-
-        void MapFrame::OnAutosaveTimer(wxTimerEvent& event) {
-            if (IsBeingDeleted()) return;
-
+#endif
+        void MapFrame::OnAutosaveTimer() {
             m_autosaver->triggerAutosave(logger());
         }
         
