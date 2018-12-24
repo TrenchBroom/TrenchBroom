@@ -298,15 +298,15 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/Command.cpp
 	${COMMON_SOURCE_DIR}/View/CommandProcessor.cpp
 	${COMMON_SOURCE_DIR}/View/CommandWindowUpdateLocker.cpp
-	${COMMON_SOURCE_DIR}/View/CompilationContext.cpp
-	${COMMON_SOURCE_DIR}/View/CompilationDialog.cpp
-	${COMMON_SOURCE_DIR}/View/CompilationProfileEditor.cpp
-	${COMMON_SOURCE_DIR}/View/CompilationProfileListBox.cpp
-	${COMMON_SOURCE_DIR}/View/CompilationProfileManager.cpp
-	${COMMON_SOURCE_DIR}/View/CompilationRun.cpp
-	${COMMON_SOURCE_DIR}/View/CompilationRunner.cpp
-	${COMMON_SOURCE_DIR}/View/CompilationTaskList.cpp
-	${COMMON_SOURCE_DIR}/View/CompilationVariables.cpp
+#	${COMMON_SOURCE_DIR}/View/CompilationContext.cpp
+#	${COMMON_SOURCE_DIR}/View/CompilationDialog.cpp
+#	${COMMON_SOURCE_DIR}/View/CompilationProfileEditor.cpp
+#	${COMMON_SOURCE_DIR}/View/CompilationProfileListBox.cpp
+#	${COMMON_SOURCE_DIR}/View/CompilationProfileManager.cpp
+#	${COMMON_SOURCE_DIR}/View/CompilationRun.cpp
+#	${COMMON_SOURCE_DIR}/View/CompilationRunner.cpp
+#	${COMMON_SOURCE_DIR}/View/CompilationTaskList.cpp
+#	${COMMON_SOURCE_DIR}/View/CompilationVariables.cpp
 	${COMMON_SOURCE_DIR}/View/Console.cpp
 	${COMMON_SOURCE_DIR}/View/ContainerBar.cpp
 	${COMMON_SOURCE_DIR}/View/ControlListBox.cpp
