@@ -28,6 +28,12 @@
 #include <wx/window.h>
 #include <wx/event.h>
 
+#include <QApplication>
+#include <QEvent>
+#include <QFocusEvent>
+#include <QEnterEvent>
+#include <QWidget>
+
 #include <cassert>
 
 namespace TrenchBroom {
@@ -42,62 +48,80 @@ namespace TrenchBroom {
         m_lastActivation(wxDateTime::Now()),
         m_enabled(true) {}
 
-        void ToolBox::addWindow(wxWindow* window) {
+        bool ToolBox::eventFilter(QObject *obj, QEvent *ev) {
+            QWidget* observedWidget = dynamic_cast<QWidget*>(obj);
+            ensure(observedWidget != nullptr, "expected a QWidget");
+
+            switch (ev->type()) {
+                case QEvent::FocusIn:
+                    OnSetFocus(static_cast<QFocusEvent *>(ev));
+                    break;
+                case QEvent::FocusOut:
+                    OnKillFocus(static_cast<QFocusEvent *>(ev));
+                    break;
+                case QEvent::Enter:
+                    OnEnterWindow(static_cast<QEnterEvent *>(ev), observedWidget);
+                    break;
+                case QEvent::Leave:
+                    OnLeaveWindow();
+                    break;
+                default:
+                    break;
+                    // FIXME: handle ToolBoxConnector::OnMouseCaptureLost?
+            }
+
+            // Continue normal Qt event handling
+            return QObject::eventFilter(obj, ev);
+        }
+
+        void ToolBox::addWindow(QWidget* window) {
             ensure(window != nullptr, "window is null");
 
-            window->Bind(wxEVT_SET_FOCUS, &ToolBox::OnSetFocus, this);
-            window->Bind(wxEVT_KILL_FOCUS, &ToolBox::OnKillFocus, this);
-            window->Bind(wxEVT_ENTER_WINDOW, &ToolBox::OnEnterWindow, this);
-            window->Bind(wxEVT_LEAVE_WINDOW, &ToolBox::OnLeaveWindow, this);
+            window->installEventFilter(this);
             m_focusGroup.push_back(window);
         }
 
-        void ToolBox::removeWindow(wxWindow* window) {
-            window->Unbind(wxEVT_SET_FOCUS, &ToolBox::OnSetFocus, this);
-            window->Unbind(wxEVT_KILL_FOCUS, &ToolBox::OnKillFocus, this);
-            window->Unbind(wxEVT_ENTER_WINDOW, &ToolBox::OnEnterWindow, this);
-            window->Unbind(wxEVT_LEAVE_WINDOW, &ToolBox::OnLeaveWindow, this);
+        void ToolBox::removeWindow(QWidget* window) {
+            window->removeEventFilter(this);
             VectorUtils::erase(m_focusGroup, window);
         }
 
-        void ToolBox::OnSetFocus(wxFocusEvent& event) {
+        void ToolBox::OnSetFocus(QFocusEvent* /*event*/) {
             if ((wxDateTime::Now() - m_lastActivation).IsShorterThan(wxTimeSpan(0, 0, 0, 100)))
                 m_ignoreNextClick = false;
             clearFocusCursor();
-            event.Skip();
         }
 
-        void ToolBox::OnKillFocus(wxFocusEvent& event) {
+        void ToolBox::OnKillFocus(QFocusEvent* /*event*/) {
             if (m_clickToActivate) {
-                const wxWindow* focusedWindow = event.GetWindow();
+                // FIXME: Check that this returns the right thing, since we're in a state when we're being notified of a widget losing focus.
+                const QWidget* focusedWindow = QApplication::focusWidget();
                 if (!VectorUtils::contains(m_focusGroup, focusedWindow)) {
                     m_ignoreNextClick = true;
                     setFocusCursor();
                 }
             }
-            event.Skip();
         }
 
-        void ToolBox::OnEnterWindow(wxMouseEvent& event) {
-            wxWindow* newFocus = static_cast<wxWindow*>(event.GetEventObject());
-            wxWindow* currentFocus = newFocus->FindFocus();
-            if (VectorUtils::contains(m_focusGroup, currentFocus) && !currentFocus->HasCapture())
-                newFocus->SetFocus();
-            event.Skip();
+        void ToolBox::OnEnterWindow(QEnterEvent* /*event*/, QWidget* enteredWidget) {
+            QWidget* newFocus = enteredWidget;
+            QWidget* currentFocus = QApplication::focusWidget();
+            // FIXME: not sure about Qt equivalent for this
+            if (VectorUtils::contains(m_focusGroup, currentFocus)/* && !currentFocus->HasCapture()*/)
+                newFocus->setFocus();
         }
 
-        void ToolBox::OnLeaveWindow(wxMouseEvent& event) {
-            event.Skip();
+        void ToolBox::OnLeaveWindow() {
         }
 
         void ToolBox::setFocusCursor() {
             for (size_t i = 0; i < m_focusGroup.size(); ++i)
-                m_focusGroup[i]->SetCursor(wxCursor(wxCURSOR_HAND));
+                m_focusGroup[i]->setCursor(Qt::OpenHandCursor);
         }
 
         void ToolBox::clearFocusCursor() {
             for (size_t i = 0; i < m_focusGroup.size(); ++i)
-                m_focusGroup[i]->SetCursor(wxCursor(wxCURSOR_ARROW));
+                m_focusGroup[i]->setCursor(Qt::ArrowCursor);
         }
 
         void ToolBox::addTool(Tool* tool) {

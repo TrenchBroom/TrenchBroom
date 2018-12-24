@@ -28,9 +28,15 @@
 #include <map>
 #include <vector>
 
+#include <QObject>
+
 class wxWindow;
 class wxFocusEvent;
 class wxMouseEvent;
+
+class QWidget;
+class QFocusEvent;
+class QEnterEvent;
 
 namespace TrenchBroom {
     namespace Model {
@@ -48,7 +54,7 @@ namespace TrenchBroom {
         class ToolController;
         class ToolChain;
         
-        class ToolBox {
+        class ToolBox : public QObject {
         private:
             ToolController* m_dragReceiver;
             ToolController* m_dropReceiver;
@@ -59,8 +65,7 @@ namespace TrenchBroom {
             typedef std::map<Tool*, ToolList> ToolMap;
             ToolMap m_deactivateWhen;
             
-            typedef std::vector<wxWindow*> WindowList;
-            WindowList m_focusGroup;
+            std::vector<QWidget*> m_focusGroup;
             
             bool m_clickToActivate;
             bool m_ignoreNextClick;
@@ -74,13 +79,15 @@ namespace TrenchBroom {
         public:
             ToolBox();
         public: // focus window management
-            void addWindow(wxWindow* window);
-            void removeWindow(wxWindow* window);
+            void addWindow(QWidget* window);
+            void removeWindow(QWidget* window);
+        protected: // QObject overrides
+            bool eventFilter(QObject *obj, QEvent *ev) override;
         private:
-            void OnSetFocus(wxFocusEvent& event);
-            void OnKillFocus(wxFocusEvent& event);
-            void OnEnterWindow(wxMouseEvent& event);
-            void OnLeaveWindow(wxMouseEvent& event);
+            void OnSetFocus(QFocusEvent* event);
+            void OnKillFocus(QFocusEvent* event);
+            void OnEnterWindow(QEnterEvent* event, QWidget* enteredWidget);
+            void OnLeaveWindow();
             void setFocusCursor();
             void clearFocusCursor();
         protected:
