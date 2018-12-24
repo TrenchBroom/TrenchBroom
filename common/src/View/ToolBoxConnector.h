@@ -49,8 +49,17 @@ namespace TrenchBroom {
         class ToolBox;
         class ToolChain;
 
-        // FIXME: Don't subclass QObject, make a private QObject member variable to be the event filter
-        class ToolBoxConnector : public QObject {
+        class ToolBoxConnector {
+        private:
+            class EventFilter : public QObject {
+            private:
+                ToolBoxConnector* m_owner;
+            public:
+                explicit EventFilter(ToolBoxConnector* owner);
+            protected: // QObject
+                bool eventFilter(QObject *obj, QEvent *ev) override;
+            };
+            friend class EventFilter;
         private:
             QWidget* m_window;
             ToolBox* m_toolBox;
@@ -62,11 +71,12 @@ namespace TrenchBroom {
             QPoint m_clickPos;
             QPoint m_lastMousePos;
             bool m_ignoreNextDrag;
+
+            EventFilter* m_eventFilter;
         public:
-            ToolBoxConnector(QWidget* window);
+            explicit ToolBoxConnector(QWidget* window);
             virtual ~ToolBoxConnector();
-        protected: // QObject
-            bool eventFilter(QObject *obj, QEvent *ev) override;
+
         public:
             const vm::ray3& pickRay() const;
             const Model::PickResult& pickResult() const;

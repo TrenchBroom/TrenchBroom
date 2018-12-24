@@ -31,52 +31,64 @@
 
 namespace TrenchBroom {
     namespace View {
-        ToolBoxConnector::ToolBoxConnector(QWidget* window) :
-        m_window(window),
-        m_toolBox(nullptr),
-        m_toolChain(new ToolChain()),
-        m_ignoreNextDrag(false) {
-            ensure(m_window != nullptr, "window is null");
-            m_window->installEventFilter(this);
-        }
+        // ToolBoxConnector::EventFilter
 
-        ToolBoxConnector::~ToolBoxConnector() {
-            m_window->removeEventFilter(this);
-            delete m_toolChain;
-        }
+        ToolBoxConnector::EventFilter::EventFilter(ToolBoxConnector* owner) :
+        QObject(),
+        m_owner(owner) {}
 
-        bool ToolBoxConnector::eventFilter(QObject *obj, QEvent *ev) {
+        bool ToolBoxConnector::EventFilter::eventFilter(QObject *obj, QEvent *ev) {
             switch (ev->type()) {
                 case QEvent::KeyPress:
                 case QEvent::KeyRelease:
-                    OnKey(static_cast<QKeyEvent *>(ev));
+                    m_owner->OnKey(static_cast<QKeyEvent *>(ev));
                     break;
                 case QEvent::MouseButtonPress:
                 case QEvent::MouseButtonRelease:
-                    OnMouseButton(static_cast<QMouseEvent *>(ev));
+                    m_owner->OnMouseButton(static_cast<QMouseEvent *>(ev));
                     break;
                 case QEvent::MouseButtonDblClick:
-                    OnMouseDoubleClick(static_cast<QMouseEvent *>(ev));
+                    m_owner->OnMouseDoubleClick(static_cast<QMouseEvent *>(ev));
                     break;
                 case QEvent::MouseMove:
-                    OnMouseMotion(static_cast<QMouseEvent *>(ev));
+                    m_owner->OnMouseMotion(static_cast<QMouseEvent *>(ev));
                     break;
                 case QEvent::Wheel:
-                    OnMouseWheel(static_cast<QWheelEvent *>(ev));
+                    m_owner->OnMouseWheel(static_cast<QWheelEvent *>(ev));
                     break;
                 case QEvent::FocusIn:
-                    OnSetFocus(static_cast<QFocusEvent *>(ev));
+                    m_owner->OnSetFocus(static_cast<QFocusEvent *>(ev));
                     break;
                 case QEvent::FocusOut:
-                    OnSetFocus(static_cast<QFocusEvent *>(ev));
+                    m_owner->OnSetFocus(static_cast<QFocusEvent *>(ev));
                     break;
-
-                // FIXME: handle ToolBoxConnector::OnMouseCaptureLost?
+                default:
+                    break;
+                    // FIXME: handle ToolBoxConnector::OnMouseCaptureLost?
             }
 
             // Continue normal Qt event handling
             return QObject::eventFilter(obj, ev);
         }
+
+        // ToolBoxConnector
+
+        ToolBoxConnector::ToolBoxConnector(QWidget* window) :
+        m_window(window),
+        m_toolBox(nullptr),
+        m_toolChain(new ToolChain()),
+        m_ignoreNextDrag(false),
+        m_eventFilter(new EventFilter(this)) {
+            ensure(m_window != nullptr, "window is null");
+            m_window->installEventFilter(m_eventFilter);
+        }
+
+        ToolBoxConnector::~ToolBoxConnector() {
+            m_window->removeEventFilter(m_eventFilter);
+            delete m_eventFilter;
+            delete m_toolChain;
+        }
+
 
         const vm::ray3& ToolBoxConnector::pickRay() const {
             return m_inputState.pickRay();
@@ -112,7 +124,7 @@ namespace TrenchBroom {
         bool ToolBoxConnector::dragEnter(const wxCoord x, const wxCoord y, const String& text) {
             ensure(m_toolBox != nullptr, "toolBox is null");
 
-            mouseMoved(wxPoint(x, y));
+            mouseMoved(QPoint(x, y));
             updatePickResult();
 
             const bool result = m_toolBox->dragEnter(m_toolChain, m_inputState, text);
