@@ -27,6 +27,8 @@ class wxString;
 class wxWindow;
 class wxArrayString;
 
+class QWidget;
+
 namespace TrenchBroom {
     class Logger;
     
@@ -48,7 +50,7 @@ namespace TrenchBroom {
         bool loadEntityDefinitionFile(MapDocumentWPtr document, wxWindow* parent, const wxString& wxPath);
         size_t loadEntityDefinitionFile(MapDocumentWPtr document, wxWindow* parent, const wxArrayString& wxPaths);
         
-        String queryGroupName(wxWindow* parent);
+        String queryGroupName(QWidget* parent);
     }
 }
 

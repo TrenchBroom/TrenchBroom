@@ -33,6 +33,11 @@
 #include <wx/msgdlg.h>
 #include <wx/textdlg.h>
 
+#include <QWidget>
+#include <QString>
+#include <QInputDialog>
+#include <QMessageBox>
+
 namespace TrenchBroom {
     namespace View {
         Assets::EntityModel* safeGetModel(Assets::EntityModelManager& manager, const Assets::ModelSpecification& spec, Logger& logger) {
@@ -140,19 +145,21 @@ namespace TrenchBroom {
             return wxPaths.size();
         }
 
-        String queryGroupName(wxWindow* parent) {
+        String queryGroupName(QWidget* parent) {
             while (true) {
-                wxTextEntryDialog dialog(parent, "Enter a name", "Group Name", "Unnamed");
-                dialog.CentreOnParent();
-                if (dialog.ShowModal() != wxID_OK)
+                bool ok;
+                QString text = QInputDialog::getText(parent, "Enter a name", "Group Name", QLineEdit::Normal, "Unnamed", &ok);
+
+                if (!ok) {
                     return "";
-                
-                const String name = dialog.GetValue().ToStdString();
+                }
+
+                const auto name = text.toStdString();
                 if (StringUtils::isBlank(name)) {
-                    if (wxMessageBox("Group names cannot be blank.", "Error", wxOK | wxCANCEL | wxCENTRE, parent) != wxOK)
+                    if (QMessageBox::warning(parent, "Error", "Group names cannot be blank.", QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok) != QMessageBox::Ok)
                         return "";
                 } else if (StringUtils::containsCaseInsensitive(name, "\"")) {
-                    if (wxMessageBox("Group names cannot contain double quotes.", "Error", wxOK | wxCANCEL | wxCENTRE, parent) != wxOK)
+                    if (QMessageBox::warning(parent, "Error", "Group names cannot contain double quotes.", QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok) != QMessageBox::Ok)
                         return "";
                 } else {
                     return name;
