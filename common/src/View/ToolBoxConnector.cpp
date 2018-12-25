@@ -41,26 +41,26 @@ namespace TrenchBroom {
             switch (ev->type()) {
                 case QEvent::KeyPress:
                 case QEvent::KeyRelease:
-                    m_owner->OnKey(static_cast<QKeyEvent *>(ev));
+                    m_owner->OnKey(dynamic_cast<QKeyEvent *>(ev));
                     break;
                 case QEvent::MouseButtonPress:
                 case QEvent::MouseButtonRelease:
-                    m_owner->OnMouseButton(static_cast<QMouseEvent *>(ev));
+                    m_owner->OnMouseButton(dynamic_cast<QMouseEvent *>(ev));
                     break;
                 case QEvent::MouseButtonDblClick:
-                    m_owner->OnMouseDoubleClick(static_cast<QMouseEvent *>(ev));
+                    m_owner->OnMouseDoubleClick(dynamic_cast<QMouseEvent *>(ev));
                     break;
                 case QEvent::MouseMove:
-                    m_owner->OnMouseMotion(static_cast<QMouseEvent *>(ev));
+                    m_owner->OnMouseMotion(dynamic_cast<QMouseEvent *>(ev));
                     break;
                 case QEvent::Wheel:
-                    m_owner->OnMouseWheel(static_cast<QWheelEvent *>(ev));
+                    m_owner->OnMouseWheel(dynamic_cast<QWheelEvent *>(ev));
                     break;
                 case QEvent::FocusIn:
-                    m_owner->OnSetFocus(static_cast<QFocusEvent *>(ev));
+                    m_owner->OnSetFocus(dynamic_cast<QFocusEvent *>(ev));
                     break;
                 case QEvent::FocusOut:
-                    m_owner->OnSetFocus(static_cast<QFocusEvent *>(ev));
+                    m_owner->OnKillFocus(dynamic_cast<QFocusEvent *>(ev));
                     break;
                 default:
                     break;
@@ -81,6 +81,7 @@ namespace TrenchBroom {
         m_eventFilter(new EventFilter(this)) {
             ensure(m_window != nullptr, "window is null");
             m_window->installEventFilter(m_eventFilter);
+            m_window->setMouseTracking(true);
         }
 
         ToolBoxConnector::~ToolBoxConnector() {
