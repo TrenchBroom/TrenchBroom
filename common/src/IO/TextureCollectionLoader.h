@@ -24,7 +24,6 @@
 #include "IO/MappedFile.h"
 #include "IO/Path.h"
 
-#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
@@ -41,9 +40,7 @@ namespace TrenchBroom {
         class TextureReader;
 
         class TextureCollectionLoader {
-        public:
         protected:
-            typedef std::unique_ptr<TextureCollectionLoader> Ptr;
             Logger* m_logger;
         protected:
             TextureCollectionLoader(Logger* logger);
