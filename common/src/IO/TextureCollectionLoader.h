@@ -42,9 +42,11 @@ namespace TrenchBroom {
 
         class TextureCollectionLoader {
         public:
-            typedef std::unique_ptr<TextureCollectionLoader> Ptr;
         protected:
-            TextureCollectionLoader();
+            typedef std::unique_ptr<TextureCollectionLoader> Ptr;
+            Logger* m_logger;
+        protected:
+            TextureCollectionLoader(Logger* logger);
         public:
             virtual ~TextureCollectionLoader();
         public:
@@ -57,7 +59,7 @@ namespace TrenchBroom {
         private:
             const Path::List m_searchPaths;
         public:
-            FileTextureCollectionLoader(const Path::List& searchPaths);
+            FileTextureCollectionLoader(Logger* logger, const Path::List& searchPaths);
         private:
             MappedFile::List doFindTextures(const Path& path, const StringList& extensions) override;
         };
@@ -66,7 +68,7 @@ namespace TrenchBroom {
         private:
             const FileSystem& m_gameFS;
         public:
-            DirectoryTextureCollectionLoader(const FileSystem& gameFS);
+            DirectoryTextureCollectionLoader(Logger* logger, const FileSystem& gameFS);
         private:
             MappedFile::List doFindTextures(const Path& path, const StringList& extensions) override;
         };

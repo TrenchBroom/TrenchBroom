@@ -90,12 +90,7 @@ namespace TrenchBroom {
                     throw FileSystemException("File not found: '" + path.asString() + "'");
                 }
 
-                const auto resolvedPath = resolve(path);
-                if (!fileExists(resolvedPath)) {
-                    throw FileSystemException("Linked file not found: '" + resolvedPath.asString() + "' (original file: '" + path.asString() + "')");
-                }
-
-                return doOpenFile(resolvedPath);
+                return doOpenFile(path);
             } catch (const PathException& e) {
                 throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
             }

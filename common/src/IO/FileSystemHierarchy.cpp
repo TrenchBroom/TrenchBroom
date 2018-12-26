@@ -108,7 +108,8 @@ namespace TrenchBroom {
                     }
                 }
             }
-            return MappedFile::Ptr();
+
+            throw FileSystemException("Linked file not found: '" + resolvedPath.asString() + "' (original file: '" + path.asString() + "')");
         }
 
         Path FileSystemHierarchy::doResolve(const Path& path) const {

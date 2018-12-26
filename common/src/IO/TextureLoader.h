@@ -58,7 +58,7 @@ namespace TrenchBroom {
             static StringList getTextureExtensions(const Model::GameConfig::TextureConfig& textureConfig);
             static ReaderPtr createTextureReader(const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger);
             static Assets::Palette loadPalette(const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger);
-            static LoaderPtr createTextureCollectionLoader(const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig);
+            static LoaderPtr createTextureCollectionLoader(const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger);
         public:
             Assets::TextureCollection* loadTextureCollection(const Path& path);
             void loadTextures(const Path::List& paths, Assets::TextureManager& textureManager);

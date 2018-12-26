@@ -19,6 +19,7 @@
 
 #include "TextureCollectionLoader.h"
 
+#include "Logger.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/TextureCollection.h"
 #include "Assets/TextureManager.h"
@@ -28,15 +29,15 @@
 #include "IO/TextureReader.h"
 #include "IO/WadFileSystem.h"
 
-#include <algorithm>
 #include <cassert>
-#include <iterator>
 #include <memory>
 
 namespace TrenchBroom {
     namespace IO {
-        TextureCollectionLoader::TextureCollectionLoader() {}
-        TextureCollectionLoader::~TextureCollectionLoader() {}
+        TextureCollectionLoader::TextureCollectionLoader(Logger* logger) :
+        m_logger(logger) {}
+
+        TextureCollectionLoader::~TextureCollectionLoader() = default;
 
         Assets::TextureCollection* TextureCollectionLoader::loadTextureCollection(const Path& path, const StringList& textureExtensions, const TextureReader& textureReader) {
             auto collection = std::make_unique<Assets::TextureCollection>(path);
@@ -49,7 +50,8 @@ namespace TrenchBroom {
             return collection.release();
         }
 
-        FileTextureCollectionLoader::FileTextureCollectionLoader(const IO::Path::List& searchPaths) :
+        FileTextureCollectionLoader::FileTextureCollectionLoader(Logger* logger, const IO::Path::List& searchPaths) :
+        TextureCollectionLoader(logger),
         m_searchPaths(searchPaths) {}
 
         MappedFile::List FileTextureCollectionLoader::doFindTextures(const Path& path, const StringList& extensions) {
@@ -60,14 +62,20 @@ namespace TrenchBroom {
             
             MappedFile::List result;
             result.reserve(paths.size());
-            
-            std::transform(std::begin(paths), std::end(paths), std::back_inserter(result),
-                           [&wadFS](const Path& filePath) { return wadFS.openFile(filePath); });
-            
+
+            for (const auto& path : paths)  {
+                try {
+                    result.push_back(wadFS.openFile(path));
+                } catch (const std::exception& e) {
+                    m_logger->warn() << e.what();
+                }
+            }
+
             return result;
         }
 
-        DirectoryTextureCollectionLoader::DirectoryTextureCollectionLoader(const FileSystem& gameFS) :
+        DirectoryTextureCollectionLoader::DirectoryTextureCollectionLoader(Logger* logger, const FileSystem& gameFS) :
+        TextureCollectionLoader(logger),
         m_gameFS(gameFS) {}
 
         MappedFile::List DirectoryTextureCollectionLoader::doFindTextures(const Path& path, const StringList& extensions) {
@@ -75,10 +83,15 @@ namespace TrenchBroom {
             
             MappedFile::List result;
             result.reserve(paths.size());
-            
-            std::transform(std::begin(paths), std::end(paths), std::back_inserter(result),
-                           [this](const Path& filePath) { return m_gameFS.openFile(filePath); });
-            
+
+            for (const auto& path : paths) {
+                try {
+                    result.push_back(m_gameFS.openFile(path));
+                } catch (const std::exception& e) {
+                    m_logger->warn() << e.what();
+                }
+            }
+
             return result;
         }
     }

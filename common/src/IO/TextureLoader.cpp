@@ -36,7 +36,7 @@ namespace TrenchBroom {
         TextureLoader::TextureLoader(const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger) :
         m_textureExtensions(getTextureExtensions(textureConfig)),
         m_textureReader(createTextureReader(gameFS, textureConfig, logger)),
-        m_textureCollectionLoader(createTextureCollectionLoader(gameFS, fileSearchPaths, textureConfig)) {
+        m_textureCollectionLoader(createTextureCollectionLoader(gameFS, fileSearchPaths, textureConfig, logger)) {
             ensure(m_textureReader != nullptr, "textureReader is null");
             ensure(m_textureCollectionLoader != nullptr, "textureCollectionLoader is null");
         }
@@ -82,13 +82,13 @@ namespace TrenchBroom {
             }
         }
 
-        TextureLoader::LoaderPtr TextureLoader::createTextureCollectionLoader(const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig) {
+        TextureLoader::LoaderPtr TextureLoader::createTextureCollectionLoader(const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger) {
             using Model::GameConfig;
             switch (textureConfig.package.type) {
                 case GameConfig::TexturePackageConfig::PT_File:
-                    return std::make_unique<FileTextureCollectionLoader>(fileSearchPaths);
+                    return std::make_unique<FileTextureCollectionLoader>(logger, fileSearchPaths);
                 case GameConfig::TexturePackageConfig::PT_Directory:
-                    return std::make_unique<DirectoryTextureCollectionLoader>(gameFS);
+                    return std::make_unique<DirectoryTextureCollectionLoader>(logger, gameFS);
                 case GameConfig::TexturePackageConfig::PT_Unset:
                     throw GameException("Texture package format is not set");
                 switchDefault()
