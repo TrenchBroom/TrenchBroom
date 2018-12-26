@@ -58,14 +58,14 @@ namespace TrenchBroom {
             const auto wadPath = Disk::resolvePath(m_searchPaths, path);
             
             WadFileSystem wadFS(wadPath);
-            const auto paths = wadFS.findItems(Path(""), FileExtensionMatcher(extensions));
+            const auto texturePaths = wadFS.findItems(Path(""), FileExtensionMatcher(extensions));
             
             MappedFile::List result;
-            result.reserve(paths.size());
+            result.reserve(texturePaths.size());
 
-            for (const auto& path : paths)  {
+            for (const auto& texturePath : texturePaths)  {
                 try {
-                    result.push_back(wadFS.openFile(path));
+                    result.push_back(wadFS.openFile(texturePath));
                 } catch (const std::exception& e) {
                     m_logger->warn() << e.what();
                 }
@@ -79,14 +79,14 @@ namespace TrenchBroom {
         m_gameFS(gameFS) {}
 
         MappedFile::List DirectoryTextureCollectionLoader::doFindTextures(const Path& path, const StringList& extensions) {
-            const auto paths = m_gameFS.findItems(path, FileExtensionMatcher(extensions));
+            const auto texturePaths = m_gameFS.findItems(path, FileExtensionMatcher(extensions));
             
             MappedFile::List result;
-            result.reserve(paths.size());
+            result.reserve(texturePaths.size());
 
-            for (const auto& path : paths) {
+            for (const auto& texturePath : texturePaths) {
                 try {
-                    result.push_back(m_gameFS.openFile(path));
+                    result.push_back(m_gameFS.openFile(texturePath));
                 } catch (const std::exception& e) {
                     m_logger->warn() << e.what();
                 }
