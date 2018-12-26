@@ -32,6 +32,7 @@
 #include <wx/time.h>
 
 #include <QElapsedTimer>
+#include <QMouseEvent>
 
 namespace TrenchBroom {
     namespace View {
@@ -118,30 +119,38 @@ namespace TrenchBroom {
             const KeyboardShortcut& up = pref(Preferences::CameraFlyUp);
             const KeyboardShortcut& down = pref(Preferences::CameraFlyDown);
 
-            bool anyMatch = false;
-            if (forward.matchesKeyUp(event)) {
+            const bool forwardMatch = forward.matchesKeyUp(event);
+            const bool backwardMatch = backward.matchesKeyUp(event);
+            const bool leftMatch = left.matchesKeyUp(event);
+            const bool rightMatch = right.matchesKeyUp(event);
+            const bool upMatch = up.matchesKeyUp(event);
+            const bool downMatch = down.matchesKeyUp(event);
+
+            const bool anyMatch = (forwardMatch || backwardMatch || leftMatch || rightMatch || upMatch || downMatch);
+
+            if (event->isAutoRepeat()) {
+                // If it's an auto-repeat event, exit early without clearing the key down state.
+                // Otherwise, the fake keyUp()/keyDown() calls would introduce movement stutters.
+                return anyMatch;
+            }
+
+            if (forwardMatch) {
                 m_forward = false;
-                anyMatch = true;
             }
-            if (backward.matchesKeyUp(event)) {
+            if (backwardMatch) {
                 m_backward = false;
-                anyMatch = true;
             }
-            if (left.matchesKeyUp(event)) {
+            if (leftMatch) {
                 m_left = false;
-                anyMatch = true;
             }
-            if (right.matchesKeyUp(event)) {
+            if (rightMatch) {
                 m_right = false;
-                anyMatch = true;
             }
-            if (up.matchesKeyUp(event)) {
+            if (upMatch) {
                 m_up = false;
-                anyMatch = true;
             }
-            if (down.matchesKeyUp(event)) {
+            if (downMatch) {
                 m_down = false;
-                anyMatch = true;
             }
             return anyMatch;
         }

@@ -164,12 +164,13 @@ namespace TrenchBroom {
 
             Bind(wxEVT_IDLE, &MapView3D::OnIdle, this);
 #endif
+            // TODO: Just override?
+            connect(this, &QOpenGLWidget::frameSwapped, this, &MapView3D::OnFrameSwapped);
         }
 
-        void MapView3D::OnIdle(wxIdleEvent& event) {
+        void MapView3D::OnFrameSwapped() {
             if (m_flyModeHelper->anyKeyDown()) {
                 update();
-                event.RequestMore();
             }
         }
 

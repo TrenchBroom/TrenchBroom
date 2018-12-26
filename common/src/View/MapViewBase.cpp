@@ -761,12 +761,15 @@ namespace TrenchBroom {
                 GLVersion  = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
 
                 m_logger->info(wxString::Format(L"Renderer info: %s version %s from %s", GLRenderer, GLVersion, GLVendor));
+            // FIXME: use Qt
+#if 0
                 m_logger->info("Depth buffer bits: %d", depthBits());
 
                 if (multisample())
                     m_logger->info("Multisampling enabled");
                 else
                     m_logger->info("Multisampling disabled");
+#endif
             }
         }
 

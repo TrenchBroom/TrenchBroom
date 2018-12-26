@@ -66,7 +66,7 @@ namespace TrenchBroom {
         private: // interaction events
             void bindEvents();
 
-            void OnIdle(wxIdleEvent& event);
+            void OnFrameSwapped();
 
             void OnPerformCreateBrush(wxCommandEvent& event);
 
