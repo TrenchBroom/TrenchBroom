@@ -272,7 +272,7 @@ Mods are stored in a worldspawn property called "_tb_mod".
 
 ### Loading Entity Definitions {#entity_definition_setup}
 
-![Entity definition editor](EntityDefinitionEditor.png) Entity definitions are text files containing information about [the meaning of entities and their properties](images/#entitiy_definitions). Depending on the game and mod you are mapping for, you might want to load different entity definitions into the editor. To load an entity definition file into TrenchBroom, switch to the entity inspector and unfold the entity definition browser at the bottom of the inspector. The entity definition browser is horizontally divided into two areas. The upper area contains a list of _builtin_ entity definition files. These are the entity definition files that came with TrenchBroom for the game you are currently working on. You can select one of these builtin files by clicking on it. TrenchBroom will load the file and update its resources accordingly. Alternatively, you may want to load an external entity definition file of your own. To do this, click the button labeled "Browse" in the lower area of the entity defiinition browser and choose the file you wish to load. Alternatively, you can just drag and drop an entity definition file onto TrenchBroom's Main Window from a file manager (such as Windows Explorer). Currently, TrenchBroom supports Radiant DEF files and [Valve FGD][FGD File Format] files. To reload the entity definitions from the currently loaded external file, you can click the button labeled "Reload" at the bottom. This may be useful if you're editing an entity definition file for a mod you're working on.
+![Entity definition editor](EntityDefinitionEditor.png) Entity definitions are text files containing information about [the meaning of entities and their properties](images/#entitiy_definitions). Depending on the game and mod you are mapping for, you might want to load different entity definitions into the editor. To load an entity definition file into TrenchBroom, switch to the entity inspector and unfold the entity definition browser at the bottom of the inspector. The entity definition browser is horizontally divided into two areas. The upper area contains a list of _builtin_ entity definition files. These are the entity definition files that came with TrenchBroom for the game you are currently working on. You can select one of these builtin files by clicking on it. TrenchBroom will load the file and update its resources accordingly. Alternatively, you may want to load an external entity definition file of your own. To do this, click the button labeled "Browse" in the lower area of the entity defiinition browser and choose the file you wish to load. Alternatively, you can just drag and drop an entity definition file onto TrenchBroom's Main Window from a file manager (such as Windows Explorer). Currently, TrenchBroom supports Radiant DEF files and [Valve FGD][FGD File Format] files. To reload the entity definitions (as well as the referenced models) from the currently loaded external file, you can click the button labeled "Reload" at the bottom or use #menu(Menu/File/Reload Entity Definitions). This may be useful if you're editing an entity definition file for a mod you're working on.
 
 Note that FGD files contain much more information than DEF files and are generally preferrable. While TrenchBroom supports both file types, its support for FGD is better and more comprehensive. Unfortunately, DEF files are still relevant because Radiant style editors require them, so TrenchBroom allows you to use them, too.
 
@@ -281,6 +281,8 @@ The path of an external entity definition file is stored in a worldspawn propert
 ### Managing Textures {#texture_management}
 
 [Texture collections](#textures) can be managed in the texture collection editor, which can be found at the bottom of the face inspector. There are two types of texture collections: file archives such as WAD files and directories containing loose textures such as WAL files. Depending on whether the game you are editing comes with internal textures or not, the texture collection editor looks and works differently.
+
+#menu(Menu/File/Reload Texture Collections) will reload all texture collections from disk, which is useful if you're modifying textures while TrenchBroom is open.
 
 #### Texture Archive Management
 
@@ -618,13 +620,13 @@ The resize tool also works in the 2D viewports, of course, but the ability to mo
 
 Both snap modes are used simultaneously. There may be situations when you have to move the camera closer to a face in order to have sufficient precision when dragging the face.
 
-#### Moving Faces Instead of Resizing
+#### Moving Faces Instead of Resizing {#moving_faces}
 
 The brush resize tool offers a quick way to move an individual face of a brush in 2D views. Hold #key(307) in addition to #key(306) when starting to drag a face in a 2D view to enable this mode. You will notice that a face is highlighted as usual, but when you start dragging the mouse, the face will just be moved in the direction you are dragging. The move is not restricted by the face normal, and other faces will be affected as well.
 
 ![Resizing multiple brushes](images/ResizeTool2DFaceMoving.gif)
 
-The distance is snapped to the current grid size. Moving multiple faces is possible if the faces lie on the same plane.
+The distance is snapped to the current grid size. Moving multiple faces is possible if the faces lie on the same plane. The [UV Lock](#uv_lock) setting controls whether texture lock is used when dragging faces using this mode.
 
 ### Clipping
 
@@ -732,13 +734,13 @@ Finally, the face tool also supports the same keyboard commands as the vertex to
 - Be careful with detail brushes, they might open vis portals.
 - Detail might also result in PVS leaves too much information, better to turn some detail into actual brushes to force vis to break a room into several PVS leaves. Or use hint brushes to force vis to add more leaves.
 
-#### UV Lock
+#### UV Lock {#uv_lock}
 
-The regular Texture Lock prefence doesn't apply to vertex editing - instead, there is a separate preference called UV Lock toggled with #action(Controls/Map view/Toggle UV lock) or the checkbox in the vertex editing toolbar:
+The regular Texture Lock prefence doesn't apply to vertex editing - instead, there is a separate preference called UV Lock toggled with #menu(Menu/Edit/UV Lock) or the UV Lock toolbar button:
 
-![Vertex editing toolbar](images/VertexEditingToolbar.png)
+![UV Lock toolbar button](images/UVLock.png)
 
-When this setting is enabled, TrenchBroom will attempt to keep vertex UV coordinates the same when using the vertex editing tools.
+When this setting is enabled, TrenchBroom will attempt to keep vertex UV coordinates the same when using the vertex editing tools or [face moving](#moving_faces).
 
 ### CSG Operations
 
@@ -754,11 +756,13 @@ As you can see, the newly created brush covers some areas which were not covered
 
 #### CSG Subtraction
 
-CSG subtraction takes one brush (the subtrahend) and subtracts it from a set of brushes (the minuends) by subtracting the subtrahend individually from each minuend, so we can reduce the case of multiple minuends to the case of one minuend for the following explanations. In addition, we can limit ourself to cases where the subtrahend does not protrude out of the minuend because we can chop off such parts of the subtrahend without changing the result of the subtraction. In general, the result of a CSG subtraction of two shapes is a concave shape. Since a concave shape cannot be represented directly using a single brush, it has to be represented using multiple brushes (the result set). TrenchBroom creates brushes that represent the concave shape by cutting up the minuend brush using the faces of the subtrahend brush.
+CSG subtraction takes the selected brushes (the subtrahend) and subtracts them the rest of the selectable, visible brushes in the map (the minuend). Since the result of a CSG subtraction is potentially concave, TrenchBroom creates brushes that represent the concave shape by cutting up the minuend brushes using the faces of the subtrahend brushes.
 
 ![CSG subtracting to create an arch](images/CSGSubtractArch.gif)
 
-The image above shows an example where an arch is created by subtraction. The result contains eight brushes that perfectly represent the arch. To perform a CSG subtraction, first select the minuends (the brushes you wish to subtract from) and then add the subtrahend to the selection and choose #menu(Menu/Edit/CSG/Subtract). Assuming you have selected n brushes, TrenchBroom applies the subtraction to the selected brushes by subtracting the nth selected brush (the most recently selected one) from the n-1 previously selected brushes.
+The image above shows an example where an arch is created by subtraction. The result contains eight brushes that perfectly represent the arch. To perform a CSG subtraction, select the subtrahends (the brushes you want subtracted from the world) and choose #menu(Menu/Edit/CSG/Subtract).
+
+To exclude brushes from the subtraction, you can hide them first with #menu(Menu/View/Hide).
 
 #### CSG Hollow
 

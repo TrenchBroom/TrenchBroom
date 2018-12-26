@@ -406,6 +406,8 @@ namespace TrenchBroom {
             IO::Path::List availableTextureCollections() const;
             void setEnabledTextureCollections(const IO::Path::List& paths);
             void reloadTextureCollections();
+
+            void reloadEntityDefinitions();
         private:
             void loadAssets();
             void unloadAssets();
@@ -423,7 +425,7 @@ namespace TrenchBroom {
             void setEntityDefinitions(const Model::NodeList& nodes);
             void unsetEntityDefinitions();
             void unsetEntityDefinitions(const Model::NodeList& nodes);
-            void reloadEntityDefinitions();
+            void reloadEntityDefinitionsInternal();
             
             void clearEntityModels();
 

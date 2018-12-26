@@ -54,6 +54,7 @@ namespace TrenchBroom {
                 const int ViewMoveCameraRight                = Lowest +  57;
                 const int ViewMoveCameraUp                   = Lowest +  58;
                 const int ViewMoveCameraDown                 = Lowest +  59;
+                const int EditToggleUVLock                   = Lowest +  60;
                 const int ViewFocusCameraOnSelection         = Lowest +  72;
                 const int ViewIncGridSize                    = Lowest +  74;
                 const int ViewDecGridSize                    = Lowest +  75;
@@ -103,7 +104,10 @@ namespace TrenchBroom {
                 const int EditToggleVertexTool               = Lowest + 127;
                 const int EditToggleEdgeTool                 = Lowest + 128;
                 const int EditToggleFaceTool                 = Lowest + 129;
-                
+
+                const int FileReloadTextureCollections       = Lowest + 130;
+                const int FileReloadEntityDefinitions        = Lowest + 131;
+
                 const int DebugPrintVertices                 = Lowest + 140;
                 const int DebugCreateBrush                   = Lowest + 141;
                 const int DebugCopyJSShortcuts               = Lowest + 142;
@@ -118,6 +122,8 @@ namespace TrenchBroom {
                 const int RunLaunch                          = Lowest + 151;
                 
                 const int FileRecentDocuments                = Lowest + 190;
+                // This range is reserved
+                const int FileRecentDocumentsLast            = Lowest + 199;
 
                 const int Highest                            = Lowest + 200;
             }
@@ -136,7 +142,6 @@ namespace TrenchBroom {
                 const int MoveVerticesRight                  = Lowest +  11;
                 const int MoveVerticesUp                     = Lowest +  12;
                 const int MoveVerticesDown                   = Lowest +  13;
-                const int ToggleUVLock                       = Lowest +  14;
 
                 const int MoveObjectsForward                 = Lowest +  20;
                 const int MoveObjectsRight                   = Lowest +  21;

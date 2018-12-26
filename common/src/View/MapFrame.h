@@ -145,6 +145,8 @@ namespace TrenchBroom {
             void OnFileLoadPortalFile(wxCommandEvent& event);
             void OnFileReloadPortalFile(wxCommandEvent& event);
             void OnFileUnloadPortalFile(wxCommandEvent& event);
+            void OnFileReloadTextureCollections(wxCommandEvent& event);
+            void OnFileReloadEntityDefinitions(wxCommandEvent& event);
             void OnFileClose(wxCommandEvent& event);
 
             void OnEditUndo(wxCommandEvent& event);
@@ -194,6 +196,8 @@ namespace TrenchBroom {
 
             void OnEditToggleTextureLock(wxCommandEvent& event);
             wxBitmap textureLockBitmap();
+            void OnEditToggleUVLock(wxCommandEvent& event);
+            wxBitmap UVLockBitmap();
 
             void OnEditSnapVerticesToInteger(wxCommandEvent& event);
             void OnEditSnapVerticesToGrid(wxCommandEvent& event);
