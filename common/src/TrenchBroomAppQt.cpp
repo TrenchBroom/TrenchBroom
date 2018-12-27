@@ -26,7 +26,10 @@
 #include "View/MapFrame.h"
 
 #include <QApplication>
+#include <QSurfaceFormat>
+
 #include <wx/app.h>
+
 
 TestWindow::TestWindow()
 {
@@ -52,6 +55,11 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 //    TestWindow window;
 //    window.show();
+
+    QSurfaceFormat format;
+    format.setDepthBufferSize(24);
+    format.setSamples(4);
+    QSurfaceFormat::setDefaultFormat(format);
 
     using namespace TrenchBroom;
     using namespace TrenchBroom::View;

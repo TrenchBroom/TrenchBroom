@@ -61,10 +61,14 @@ namespace TrenchBroom {
             }
 
             m_layout = new QStackedLayout();
+            // NOTE: It's important to setLayout() before adding widgets, rather than after. Otherwise, they
+            // get setVisible immediately (and the first render calls happen during the for loop),
+            // which breaks multisampling
+            setLayout(m_layout);
+
             for (size_t i = 0; i < m_mapViews.size(); ++i) {
                 m_layout->addWidget(m_mapViews[i]);
             }
-            setLayout(m_layout);
 
             assert(!m_mapViews.empty());
             switchToMapView(m_mapViews[0]);
