@@ -117,14 +117,14 @@ namespace TrenchBroom {
             return cIt->second;
         }
 
-        std::pair<String, MapFormat::Type> GameFactory::detectGame(const IO::Path& path) const {
+        std::pair<String, MapFormat> GameFactory::detectGame(const IO::Path& path) const {
             if (path.isEmpty() || !IO::Disk::fileExists(IO::Disk::fixPath(path)))
                 return std::make_pair("", MapFormat::Unknown);
             
             IO::OpenStream open(path, false);
             const String gameName = IO::readGameComment(open.stream);
             const String formatName = IO::readFormatComment(open.stream);
-            const MapFormat::Type format = mapFormat(formatName);
+            const MapFormat format = mapFormat(formatName);
             if (gameName.empty() || format == MapFormat::Unknown)
                 return std::make_pair("", MapFormat::Unknown);
             

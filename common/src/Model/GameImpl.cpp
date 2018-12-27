@@ -150,7 +150,7 @@ namespace TrenchBroom {
             return m_config.maxPropertyLength();
         }
 
-        World* GameImpl::doNewMap(const MapFormat::Type format, const vm::bbox3& worldBounds, Logger* logger) const {
+        World* GameImpl::doNewMap(const MapFormat format, const vm::bbox3& worldBounds, Logger* logger) const {
             const auto initialMapFilePath = m_config.findInitialMap(formatName(format));
             if (!initialMapFilePath.isEmpty() && IO::Disk::fileExists(initialMapFilePath)) {
                 return doLoadMap(format, worldBounds, initialMapFilePath, logger);
@@ -169,7 +169,7 @@ namespace TrenchBroom {
             }
         }
 
-        World* GameImpl::doLoadMap(const MapFormat::Type format, const vm::bbox3& worldBounds, const IO::Path& path, Logger* logger) const {
+        World* GameImpl::doLoadMap(const MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger* logger) const {
             IO::SimpleParserStatus parserStatus(logger);
             const IO::MappedFile::Ptr file = IO::Disk::openFile(IO::Disk::fixPath(path));
             IO::WorldReader reader(file->begin(), file->end(), brushContentTypeBuilder());

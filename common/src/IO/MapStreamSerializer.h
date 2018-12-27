@@ -31,7 +31,7 @@ namespace TrenchBroom {
         private:
             std::ostream& m_stream;
         public:
-            static Ptr create(Model::MapFormat::Type format, std::ostream& stream);
+            static Ptr create(Model::MapFormat format, std::ostream& stream);
         protected:
             MapStreamSerializer(std::ostream& stream);
         public:

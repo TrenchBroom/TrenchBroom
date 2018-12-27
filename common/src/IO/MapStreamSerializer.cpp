@@ -167,7 +167,7 @@ namespace TrenchBroom {
             }
         };
         
-        NodeSerializer::Ptr MapStreamSerializer::create(const Model::MapFormat::Type format, std::ostream& stream) {
+        NodeSerializer::Ptr MapStreamSerializer::create(const Model::MapFormat format, std::ostream& stream) {
             switch (format) {
                 case Model::MapFormat::Standard:
                     return NodeSerializer::Ptr(new QuakeStreamSerializer(stream));

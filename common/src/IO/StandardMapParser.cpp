@@ -125,8 +125,8 @@ namespace TrenchBroom {
         
         StandardMapParser::~StandardMapParser() {}
 
-        Model::MapFormat::Type StandardMapParser::detectFormat() {
-            Model::MapFormat::Type format = Model::MapFormat::Unknown;
+        Model::MapFormat StandardMapParser::detectFormat() {
+            Model::MapFormat format = Model::MapFormat::Unknown;
             
             // try to find an opening parenthesis
             Token token = m_tokenizer.peekToken();
@@ -174,7 +174,7 @@ namespace TrenchBroom {
             return format;
         }
         
-        void StandardMapParser::parseEntities(const Model::MapFormat::Type format, ParserStatus& status) {
+        void StandardMapParser::parseEntities(const Model::MapFormat format, ParserStatus& status) {
             setFormat(format);
 
             Token token = m_tokenizer.peekToken();
@@ -185,7 +185,7 @@ namespace TrenchBroom {
             }
         }
         
-        void StandardMapParser::parseBrushes(const Model::MapFormat::Type format, ParserStatus& status) {
+        void StandardMapParser::parseBrushes(const Model::MapFormat format, ParserStatus& status) {
             setFormat(format);
 
             Token token = m_tokenizer.peekToken();
@@ -196,7 +196,7 @@ namespace TrenchBroom {
             }
         }
         
-        void StandardMapParser::parseBrushFaces(const Model::MapFormat::Type format, ParserStatus& status) {
+        void StandardMapParser::parseBrushFaces(const Model::MapFormat format, ParserStatus& status) {
             setFormat(format);
 
             Token token = m_tokenizer.peekToken();
@@ -211,7 +211,7 @@ namespace TrenchBroom {
             m_tokenizer.reset();
         }
 
-        void StandardMapParser::setFormat(const Model::MapFormat::Type format) {
+        void StandardMapParser::setFormat(const Model::MapFormat format) {
             assert(format != Model::MapFormat::Unknown);
             m_format = format;
             formatSet(format);

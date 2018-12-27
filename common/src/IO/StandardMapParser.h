@@ -68,22 +68,22 @@ namespace TrenchBroom {
             typedef std::set<Model::AttributeName> AttributeNames;
 
             QuakeMapTokenizer m_tokenizer;
-            Model::MapFormat::Type m_format;
+            Model::MapFormat m_format;
         public:
             StandardMapParser(const char* begin, const char* end);
             StandardMapParser(const String& str);
             
             virtual ~StandardMapParser() override;
         protected:
-            Model::MapFormat::Type detectFormat();
+            Model::MapFormat detectFormat();
             
-            void parseEntities(Model::MapFormat::Type format, ParserStatus& status);
-            void parseBrushes(Model::MapFormat::Type format, ParserStatus& status);
-            void parseBrushFaces(Model::MapFormat::Type format, ParserStatus& status);
+            void parseEntities(Model::MapFormat format, ParserStatus& status);
+            void parseBrushes(Model::MapFormat format, ParserStatus& status);
+            void parseBrushFaces(Model::MapFormat format, ParserStatus& status);
             
             void reset();
         private:
-            void setFormat(Model::MapFormat::Type format);
+            void setFormat(Model::MapFormat format);
             
             void parseEntity(ParserStatus& status);
             void parseEntityAttribute(Model::EntityAttribute::List& attributes, AttributeNames& names, ParserStatus& status);

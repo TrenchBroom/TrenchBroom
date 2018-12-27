@@ -24,18 +24,17 @@
 
 namespace TrenchBroom {
     namespace Model {
-        namespace MapFormat {
-            typedef size_t Type;
-            static const Type Unknown   = 1 << 0;
-            static const Type Standard  = 1 << 1;
-            static const Type Quake2    = 1 << 2;
-            static const Type Valve     = 1 << 3;
-            static const Type Hexen2    = 1 << 4;
-            static const Type Daikatana = 1 << 5;
-        }
-        
-        MapFormat::Type mapFormat(const String& formatName);
-        String formatName(MapFormat::Type format);
+        enum class MapFormat {
+            Unknown,
+            Standard,
+            Quake2,
+            Valve,
+            Hexen2,
+            Daikatana
+        };
+
+        MapFormat mapFormat(const String& formatName);
+        String formatName(MapFormat format);
     }
 }
 

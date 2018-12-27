@@ -67,7 +67,7 @@ namespace TrenchBroom {
             GameConfig& gameConfig(const String& gameName);
             const GameConfig& gameConfig(const String& gameName) const;
             
-            std::pair<String, MapFormat::Type> detectGame(const IO::Path& path) const;
+            std::pair<String, MapFormat> detectGame(const IO::Path& path) const;
         private:
             GameFactory();
             void initializeFileSystem();

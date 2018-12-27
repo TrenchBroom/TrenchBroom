@@ -196,7 +196,7 @@ namespace TrenchBroom {
             }
         };
 
-        NodeSerializer::Ptr MapFileSerializer::create(const Model::MapFormat::Type format, FILE* stream) {
+        NodeSerializer::Ptr MapFileSerializer::create(const Model::MapFormat format, FILE* stream) {
             switch (format) {
                 case Model::MapFormat::Standard:
                     return NodeSerializer::Ptr(new QuakeFileSerializer(stream));

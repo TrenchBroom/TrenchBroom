@@ -42,7 +42,7 @@ namespace TrenchBroom {
             unbindObservers();
         }
 
-        bool GameDialog::showNewDocumentDialog(wxWindow* parent, String& gameName, Model::MapFormat::Type& mapFormat) {
+        bool GameDialog::showNewDocumentDialog(wxWindow* parent, String& gameName, Model::MapFormat& mapFormat) {
             GameDialog dialog;
             dialog.createDialog(parent, "Select Game", "Select a game from the list on the right, then click OK. Once the new document is created, you can set up mod directories, entity definitions and textures by going to the map inspector, the entity inspector and the face inspector, respectively.");
             if (dialog.ShowModal() != wxID_OK)
@@ -52,7 +52,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool GameDialog::showOpenDocumentDialog(wxWindow* parent, String& gameName, Model::MapFormat::Type& mapFormat) {
+        bool GameDialog::showOpenDocumentDialog(wxWindow* parent, String& gameName, Model::MapFormat& mapFormat) {
             GameDialog dialog;
             dialog.createDialog(parent, "Select Game", "TrenchBroom was unable to detect the game for the map document. Please choose a game in the game list and click OK.");
             if (dialog.ShowModal() != wxID_OK)
@@ -65,7 +65,7 @@ namespace TrenchBroom {
             return m_gameListBox->selectedGameName();
         }
         
-        Model::MapFormat::Type GameDialog::selectedMapFormat() const {
+        Model::MapFormat GameDialog::selectedMapFormat() const {
             assert(!m_mapFormatChoice->IsEmpty());
             
             const auto index = m_mapFormatChoice->GetSelection();

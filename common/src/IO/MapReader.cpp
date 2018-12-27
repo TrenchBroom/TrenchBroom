@@ -71,23 +71,23 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(m_faces);
         }
 
-        void MapReader::readEntities(Model::MapFormat::Type format, const vm::bbox3& worldBounds, ParserStatus& status) {
+        void MapReader::readEntities(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status) {
             m_worldBounds = worldBounds;
             parseEntities(format, status);
             resolveNodes(status);
         }
         
-        void MapReader::readBrushes(Model::MapFormat::Type format, const vm::bbox3& worldBounds, ParserStatus& status) {
+        void MapReader::readBrushes(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status) {
             m_worldBounds = worldBounds;
             parseBrushes(format, status);
         }
         
-        void MapReader::readBrushFaces(Model::MapFormat::Type format, const vm::bbox3& worldBounds, ParserStatus& status) {
+        void MapReader::readBrushFaces(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status) {
             m_worldBounds = worldBounds;
             parseBrushFaces(format, status);
         }
 
-        void MapReader::onFormatSet(const Model::MapFormat::Type format) {
+        void MapReader::onFormatSet(const Model::MapFormat format) {
             m_factory = initialize(format, m_worldBounds);
             ensure(m_factory != nullptr, "factory is null");
         }

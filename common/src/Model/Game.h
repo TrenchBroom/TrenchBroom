@@ -70,8 +70,8 @@ namespace TrenchBroom {
             
             size_t maxPropertyLength() const;
         public: // loading and writing map files
-            World* newMap(MapFormat::Type format, const vm::bbox3& worldBounds, Logger* logger) const;
-            World* loadMap(MapFormat::Type format, const vm::bbox3& worldBounds, const IO::Path& path, Logger* logger) const;
+            World* newMap(MapFormat format, const vm::bbox3& worldBounds, Logger* logger) const;
+            World* loadMap(MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger* logger) const;
             void writeMap(World* world, const IO::Path& path) const;
             void exportMap(World* world, Model::ExportFormat format, const IO::Path& path) const;
         public: // parsing and serializing objects
@@ -112,8 +112,8 @@ namespace TrenchBroom {
             virtual CompilationConfig& doCompilationConfig() = 0;
             virtual size_t doMaxPropertyLength() const = 0;
             
-            virtual World* doNewMap(MapFormat::Type format, const vm::bbox3& worldBounds, Logger* logger) const = 0;
-            virtual World* doLoadMap(MapFormat::Type format, const vm::bbox3& worldBounds, const IO::Path& path, Logger* logger) const = 0;
+            virtual World* doNewMap(MapFormat format, const vm::bbox3& worldBounds, Logger* logger) const = 0;
+            virtual World* doLoadMap(MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger* logger) const = 0;
             virtual void doWriteMap(World* world, const IO::Path& path) const = 0;
             virtual void doExportMap(World* world, Model::ExportFormat format, const IO::Path& path) const = 0;
 

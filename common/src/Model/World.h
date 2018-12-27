@@ -46,7 +46,7 @@ namespace TrenchBroom {
             NodeTree m_nodeTree;
             bool m_updateNodeTree;
         public:
-            World(MapFormat::Type mapFormat, const BrushContentTypeBuilder* brushContentTypeBuilder, const vm::bbox3& worldBounds);
+            World(MapFormat mapFormat, const BrushContentTypeBuilder* brushContentTypeBuilder, const vm::bbox3& worldBounds);
         public: // layer management
             Layer* defaultLayer() const;
             LayerList allLayers() const;
@@ -103,7 +103,7 @@ namespace TrenchBroom {
             vm::vec3 doGetLinkSourceAnchor() const override;
             vm::vec3 doGetLinkTargetAnchor() const override;
         private: // implement ModelFactory interface
-            MapFormat::Type doGetFormat() const override;
+            MapFormat doGetFormat() const override;
             World* doCreateWorld(const vm::bbox3& worldBounds) const override;
             Layer* doCreateLayer(const String& name, const vm::bbox3& worldBounds) const override;
             Group* doCreateGroup(const String& name) const override;

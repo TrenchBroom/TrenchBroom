@@ -56,7 +56,7 @@ namespace TrenchBroom {
             return m_nodes;
         }
         
-        Model::ModelFactory* NodeReader::initialize(const Model::MapFormat::Type format, const vm::bbox3& worldBounds) {
+        Model::ModelFactory* NodeReader::initialize(const Model::MapFormat format, const vm::bbox3& worldBounds) {
             assert(format == m_factory->format());
             return m_factory;
         }
