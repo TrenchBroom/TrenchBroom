@@ -32,24 +32,33 @@ namespace TrenchBroom {
                 return MapFormat::Hexen2;
             } else if (formatName == "Daikatana") {
                 return MapFormat::Daikatana;
+            } else if (formatName == "Quake3 (legacy)") {
+                return MapFormat::Quake3_Legacy;
+            } else if (formatName == "Quake3") {
+                return MapFormat::Quake3;
             } else {
                 return MapFormat::Unknown;
             }
         }
 
         String formatName(const MapFormat format) {
-            if (format == MapFormat::Standard) {
-                return "Standard";
-            } else if (format == MapFormat::Quake2) {
-                return "Quake2";
-            } else if (format == MapFormat::Valve) {
-                return "Valve";
-            } else if (format == MapFormat::Hexen2) {
-                return "Hexen2";
-            } else if (format == MapFormat::Daikatana) {
-                return "Daikatana";
-            } else {
-                return "Unknown";
+            switch (format) {
+                case MapFormat::Standard:
+                    return "Standard";
+                case MapFormat::Quake2:
+                    return "Quake2";
+                case MapFormat::Valve:
+                    return "Valve";
+                case MapFormat::Hexen2:
+                    return "Hexen2";
+                case MapFormat::Daikatana:
+                    return "Daikatana";
+                case MapFormat::Quake3_Legacy:
+                    return "Quake3 (legacy)";
+                case MapFormat::Quake3:
+                    return "Quake3";
+                default:
+                    return "Unknown";
             }
         }
     }
