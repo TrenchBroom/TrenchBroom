@@ -22,31 +22,35 @@
 namespace TrenchBroom {
     namespace Model {
         MapFormat mapFormat(const String& formatName) {
-            if (formatName == "Standard")
+            if (formatName == "Standard") {
                 return MapFormat::Standard;
-            if (formatName == "Quake2")
+            } else if (formatName == "Quake2") {
                 return MapFormat::Quake2;
-            if (formatName == "Valve")
+            } else if (formatName == "Valve") {
                 return MapFormat::Valve;
-            if (formatName == "Hexen2")
+            } else if (formatName == "Hexen2") {
                 return MapFormat::Hexen2;
-            if (formatName == "Daikatana")
+            } else if (formatName == "Daikatana") {
                 return MapFormat::Daikatana;
-            return MapFormat::Unknown;
+            } else {
+                return MapFormat::Unknown;
+            }
         }
 
         String formatName(const MapFormat format) {
-            if (format == MapFormat::Standard)
+            if (format == MapFormat::Standard) {
                 return "Standard";
-            if (format == MapFormat::Quake2)
+            } else if (format == MapFormat::Quake2) {
                 return "Quake2";
-            if (format == MapFormat::Valve)
+            } else if (format == MapFormat::Valve) {
                 return "Valve";
-            if (format == MapFormat::Hexen2)
+            } else if (format == MapFormat::Hexen2) {
                 return "Hexen2";
-            if (format == MapFormat::Daikatana)
+            } else if (format == MapFormat::Daikatana) {
                 return "Daikatana";
-            return "Unknown";
+            } else {
+                return "Unknown";
+            }
         }
     }
 }
