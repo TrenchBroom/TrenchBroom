@@ -37,19 +37,15 @@ namespace TrenchBroom {
         m_stream(std::move(stream)),
         m_entry(std::move(entry)) {}
 
-        Path ZipFileSystem::ZipCompressedFile::doResolve() const {
-            return Path(m_entry->GetName().ToStdString());
-        }
-
         MappedFile::Ptr ZipFileSystem::ZipCompressedFile::doOpen() const {
             const auto path = Path(m_entry->GetName().ToStdString());
 
             if (!m_stream->OpenEntry(*m_entry)) {
-                throw new FileSystemException("Could not open zip entry at " + path.asString());
+                throw FileSystemException("Could not open zip entry at " + path.asString());
             }
 
             if (!m_stream->CanRead()) {
-                throw new FileSystemException("Could not read zip entry at " + path.asString());
+                throw FileSystemException("Could not read zip entry at " + path.asString());
             }
 
             const auto uncompressedSize = static_cast<size_t>(m_entry->GetSize());

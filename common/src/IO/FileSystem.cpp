@@ -110,14 +110,6 @@ namespace TrenchBroom {
             }
         }
 
-        Path FileSystem::resolve(const Path& path) const {
-            return doResolve(path);
-        }
-
-        Path FileSystem::doResolve(const Path& path) const {
-            return path;
-        }
-
         WritableFileSystem::WritableFileSystem() {}
 
         /*

@@ -38,18 +38,20 @@ namespace TrenchBroom {
 
             const auto workDir = IO::Disk::getCurrentWorkingDir();
             const auto testDir = workDir + Path("data/IO/Shader");
+            const auto prefix = Path("textures");
             const auto extensions = StringList { "tga", "jpg" };
             fs.pushFileSystem(std::make_unique<DiskFileSystem>(testDir));
-            fs.pushFileSystem(std::make_unique<Quake3ShaderFileSystem>(fs, extensions, &logger));
+            fs.pushFileSystem(std::make_unique<Quake3ShaderFileSystem>(fs, prefix, extensions, &logger));
 
 
             const auto items = fs.findItems(Path("textures/test"));
-            ASSERT_EQ(4u, items.size());
+            ASSERT_EQ(5u, items.size());
 
             assertShader(items, "textures/test/editor_image.jpg");
             assertShader(items, "textures/test/test.tga");
             assertShader(items, "textures/test/test2.tga");
             assertShader(items, "textures/test/not_existing");
+            assertShader(items, "textures/test/not_existing2");
         }
 
         void assertShader(const Path::List& paths, const String& path) {

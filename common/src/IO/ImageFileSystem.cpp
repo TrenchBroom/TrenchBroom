@@ -30,10 +30,6 @@ namespace TrenchBroom {
     namespace IO {
         ImageFileSystemBase::File::~File() = default;
 
-        Path ImageFileSystemBase::File::resolve() const {
-            return doResolve();
-        }
-
         MappedFile::Ptr ImageFileSystemBase::File::open() const {
             return doOpen();
         }
@@ -45,20 +41,14 @@ namespace TrenchBroom {
             return m_file;
         }
 
-        Path ImageFileSystemBase::SimpleFile::doResolve() const {
-            return m_file->path();
-        }
-
-        ImageFileSystemBase::LinkFile::LinkFile(const Path& path, const Path& resolvedPath) :
+        ImageFileSystemBase::LinkFile::LinkFile(const FileSystem& fs, const Path& path, const Path& resolvedPath) :
+        m_fs(fs),
         m_path(path),
         m_resolvedPath(resolvedPath) {}
 
-        Path ImageFileSystemBase::LinkFile::doResolve() const {
-            return m_resolvedPath;
-        }
-
         MappedFile::Ptr ImageFileSystemBase::LinkFile::doOpen() const {
-            throw FileSystemException("Cannot open file link: '" + m_path.asString() + "'");
+            const auto linkedFile = m_fs.openFile(m_resolvedPath);
+            return std::make_shared<MappedFileView>(linkedFile, m_path, linkedFile->begin(), linkedFile->end());
         }
 
         ImageFileSystemBase::CompressedFile::CompressedFile(MappedFile::Ptr file, const size_t uncompressedSize) :
@@ -68,10 +58,6 @@ namespace TrenchBroom {
         MappedFile::Ptr ImageFileSystemBase::CompressedFile::doOpen() const {
             auto data = decompress(m_file, m_uncompressedSize);
             return MappedFile::Ptr(new MappedFileBuffer(m_file->path(), std::move(data), m_uncompressedSize));
-        }
-
-        Path ImageFileSystemBase::CompressedFile::doResolve() const {
-            return m_file->path();
         }
 
         ImageFileSystemBase::Directory::Directory(const Path& path) :
@@ -214,11 +200,6 @@ namespace TrenchBroom {
         const MappedFile::Ptr ImageFileSystemBase::doOpenFile(const Path& path) const {
             const auto searchPath = path.makeLowerCase();
             return m_root.findFile(path).open();
-        }
-
-        Path ImageFileSystemBase::doResolve(const Path& path) const {
-            const auto searchPath = path.makeLowerCase();
-            return m_root.findFile(path).resolve();
         }
 
         ImageFileSystem::ImageFileSystem(const Path& path, MappedFile::Ptr file) :

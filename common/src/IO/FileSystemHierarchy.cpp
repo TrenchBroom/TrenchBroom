@@ -95,31 +95,16 @@ namespace TrenchBroom {
         }
         
         const MappedFile::Ptr FileSystemHierarchy::doOpenFile(const Path& path) const {
-            const auto resolvedPath = resolve(path);
-
             for (auto it = m_fileSystems.rbegin(), end = m_fileSystems.rend(); it != end; ++it) {
                 const auto& fileSystem = *it;
-                if (fileSystem->fileExists(resolvedPath)) {
-                    const auto file = fileSystem->openFile(resolvedPath);
+                if (fileSystem->fileExists(path)) {
+                    const auto file = fileSystem->openFile(path);
                     if (file.get() != nullptr) {
-                        // Links should be transparent, so we set the original file path instead of the resolved path.
-                        file->setPath(makeAbsolute(path));
                         return file;
                     }
                 }
             }
-
-            throw FileSystemException("Linked file not found: '" + resolvedPath.asString() + "' (original file: '" + path.asString() + "')");
-        }
-
-        Path FileSystemHierarchy::doResolve(const Path& path) const {
-            for (auto it = m_fileSystems.rbegin(), end = m_fileSystems.rend(); it != end; ++it) {
-                const auto& fileSystem = *it;
-                if (fileSystem->fileExists(path)) {
-                    return fileSystem->resolve(path);
-                }
-            }
-            return path;
+            return MappedFile::Ptr();
         }
 
         WritableFileSystemHierarchy::WritableFileSystemHierarchy() :

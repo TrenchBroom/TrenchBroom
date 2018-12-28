@@ -69,9 +69,9 @@ namespace TrenchBroom {
             // To allow loading some default assets such as the empty texture, we add the game config path.
             const auto& configPath = m_config.path();
             if (!configPath.isEmpty()) {
-                const auto configDirectoryPath = configPath.deleteLastComponent();
-                if (IO::Disk::directoryExists(configDirectoryPath)) {
-                    addFileSystemPath(configDirectoryPath + IO::Path("assets"), logger);
+                const auto configAssetPath = configPath.deleteLastComponent() + IO::Path("assets");
+                if (IO::Disk::directoryExists(configAssetPath)) {
+                    addFileSystemPath(configAssetPath, logger);
                 }
             }
 
@@ -91,8 +91,9 @@ namespace TrenchBroom {
                 const auto& textureFormat = textureConfig.format.format;
                 if (StringUtils::caseInsensitiveEqual(textureFormat, "q3shader")) {
                     logger->info() << "Adding shader file system for extensions " << StringUtils::join(textureConfig.format.extensions);
+                    const auto prefix = textureConfig.package.rootDirectory;
                     const auto& extensions = textureConfig.format.extensions;
-                    m_gameFS.pushFileSystem(std::make_unique<IO::Quake3ShaderFileSystem>(m_gameFS, extensions, logger));
+                    m_gameFS.pushFileSystem(std::make_unique<IO::Quake3ShaderFileSystem>(m_gameFS, prefix, extensions, logger));
                 }
             }
         }

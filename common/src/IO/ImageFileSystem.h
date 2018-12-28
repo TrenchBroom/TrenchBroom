@@ -34,21 +34,19 @@ namespace TrenchBroom {
             public:
                 virtual ~File();
 
-                Path resolve() const;
                 MappedFile::Ptr open() const;
             private:
-                virtual Path doResolve() const = 0;
                 virtual MappedFile::Ptr doOpen() const = 0;
             };
 
             class LinkFile : public File {
             private:
+                const FileSystem& m_fs;
                 Path m_path;
                 Path m_resolvedPath;
             public:
-                LinkFile(const Path& path, const Path& resolvedPath);
+                LinkFile(const FileSystem& fs, const Path& path, const Path& resolvedPath);
             private:
-                Path doResolve() const override;
                 MappedFile::Ptr doOpen() const override;
             };
 
@@ -58,7 +56,6 @@ namespace TrenchBroom {
             public:
                 SimpleFile(MappedFile::Ptr file);
             private:
-                Path doResolve() const override;
                 MappedFile::Ptr doOpen() const override;
             };
 
@@ -70,7 +67,6 @@ namespace TrenchBroom {
                 CompressedFile(MappedFile::Ptr file, size_t uncompressedSize);
                 virtual ~CompressedFile() override = default;
             private:
-                Path doResolve() const override;
                 MappedFile::Ptr doOpen() const override;
                 virtual std::unique_ptr<char[]> decompress(MappedFile::Ptr file, size_t uncompressedSize) const = 0;
             };
@@ -114,7 +110,6 @@ namespace TrenchBroom {
             
             Path::List doGetDirectoryContents(const Path& path) const override;
             const MappedFile::Ptr doOpenFile(const Path& path) const override;
-            Path doResolve(const Path& path) const override;
         private:
             virtual void doReadDirectory() = 0;
         };

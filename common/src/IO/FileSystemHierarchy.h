@@ -52,7 +52,6 @@ namespace TrenchBroom {
             
             Path::List doGetDirectoryContents(const Path& path) const override;
             const MappedFile::Ptr doOpenFile(const Path& path) const override;
-            Path doResolve(const Path& path) const override;
 
             deleteCopyAndAssignment(FileSystemHierarchy)
         };

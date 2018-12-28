@@ -27,9 +27,10 @@
 
 namespace TrenchBroom {
     namespace IO {
-        Quake3ShaderFileSystem::Quake3ShaderFileSystem(const FileSystem& fs, const StringList& extensions, Logger* logger) :
+        Quake3ShaderFileSystem::Quake3ShaderFileSystem(const FileSystem& fs, const Path& prefix, const StringList& extensions, Logger* logger) :
         ImageFileSystemBase(Path()),
         m_fs(fs),
+        m_prefix(prefix),
         m_extensions(extensions),
         m_logger(logger) {
             initialize();
@@ -104,18 +105,20 @@ namespace TrenchBroom {
         }
 
         void Quake3ShaderFileSystem::linkShaderToImage(const Path& shaderPath, Path imagePath) {
-            if (!m_fs.fileExists(imagePath)) {
-                // If the file does not exist, we try to find one with the same basename and a valid extension.
-                const auto candidates = m_fs.findItemsWithBaseName(imagePath, m_extensions);
-                if (!candidates.empty()) {
-                    const auto replacement = candidates.front(); // just use the first candidate
-                    imagePath = replacement;
+            if (shaderPath.hasPrefix(m_prefix, false)) {
+                if (!m_fs.fileExists(imagePath)) {
+                    // If the file does not exist, we try to find one with the same basename and a valid extension.
+                    const auto candidates = m_fs.findItemsWithBaseName(imagePath, m_extensions);
+                    if (!candidates.empty()) {
+                        const auto replacement = candidates.front(); // just use the first candidate
+                        imagePath = replacement;
+                    }
                 }
-            }
-            // Don't link a file to itself.
-            if (shaderPath != imagePath) {
-                m_logger->debug() << "Linking shader: " << shaderPath << " -> " << imagePath;
-                m_root.addFile(shaderPath, std::make_unique<LinkFile>(shaderPath, imagePath));
+                // Don't link a file to itself.
+                if (shaderPath != imagePath) {
+                    m_logger->debug() << "Linking shader: " << shaderPath << " -> " << imagePath;
+                    m_root.addFile(shaderPath, std::make_unique<LinkFile>(m_fs, shaderPath, imagePath));
+                }
             }
         }
     }

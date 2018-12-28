@@ -72,15 +72,6 @@ namespace TrenchBroom {
             
             Path::List getDirectoryContents(const Path& directoryPath) const;
             const MappedFile::Ptr openFile(const Path& path) const;
-
-            /**
-             * Resolves file system links. The default implementation just returns the given path, but subclasses may
-             * override doResolve if they support file system links. This method is called when a file is opened.
-             *
-             * @param path the path to resolve
-             * @return the resolved path
-             */
-            Path resolve(const Path& path) const;
         private:
             template <class M>
             void doFindItems(const Path& searchPath, const M& matcher, const bool recurse, Path::List& result) const {
@@ -100,7 +91,6 @@ namespace TrenchBroom {
             virtual Path::List doGetDirectoryContents(const Path& path) const = 0;
 
             virtual const MappedFile::Ptr doOpenFile(const Path& path) const = 0;
-            virtual Path doResolve(const Path& path) const;
         };
         
         class WritableFileSystem : public virtual FileSystem {
