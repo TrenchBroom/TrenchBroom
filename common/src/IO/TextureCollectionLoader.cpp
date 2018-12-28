@@ -39,7 +39,7 @@ namespace TrenchBroom {
 
         TextureCollectionLoader::~TextureCollectionLoader() = default;
 
-        Assets::TextureCollection* TextureCollectionLoader::loadTextureCollection(const Path& path, const StringList& textureExtensions, const TextureReader& textureReader) {
+        std::unique_ptr<Assets::TextureCollection> TextureCollectionLoader::loadTextureCollection(const Path& path, const StringList& textureExtensions, const TextureReader& textureReader) {
             auto collection = std::make_unique<Assets::TextureCollection>(path);
 
             for (auto file : doFindTextures(path, textureExtensions)) {
@@ -47,7 +47,7 @@ namespace TrenchBroom {
                 collection->addTexture(texture);
             }
             
-            return collection.release();
+            return collection;
         }
 
         FileTextureCollectionLoader::FileTextureCollectionLoader(Logger* logger, const IO::Path::List& searchPaths) :

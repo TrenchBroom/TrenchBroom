@@ -46,7 +46,20 @@ namespace TrenchBroom {
         bool FileExtensionMatcher::operator()(const Path& path, const bool directory) const {
             return !directory && path.hasExtension(m_extensions, false);
         }
-        
+
+        FileBasenameMatcher::FileBasenameMatcher(const String& basename, const String& extension) :
+        FileExtensionMatcher(extension),
+        m_basename(basename) {}
+
+        FileBasenameMatcher::FileBasenameMatcher(const String& basename, const StringList& extensions) :
+        FileExtensionMatcher(extensions),
+        m_basename(basename) {}
+
+        bool FileBasenameMatcher::operator()(const Path& path, bool directory) const {
+            return StringUtils::caseInsensitiveEqual(path.basename(), m_basename) &&
+                   FileExtensionMatcher::operator()(path, directory);
+        }
+
         FileNameMatcher::FileNameMatcher(const String& pattern) :
         m_pattern(pattern) {}
         

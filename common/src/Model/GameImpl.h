@@ -43,8 +43,9 @@ namespace TrenchBroom {
             GameImpl(GameConfig& config, const IO::Path& gamePath, Logger* logger);
         private:
             void initializeFileSystem(Logger* logger);
-            void addSearchPath(const IO::Path& searchPath, Logger* logger);
-            void addPackages(const IO::Path& searchPath);
+            void addFileSystemSearchPath(const IO::Path& searchPath, Logger* logger);
+            void addFileSystemPath(const IO::Path& path, Logger* logger);
+            void addFileSystemPackages(const IO::Path& searchPath);
         private:
             const String& doGameName() const override;
             IO::Path doGamePath() const override;

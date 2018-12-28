@@ -20,6 +20,7 @@
 #include "TextureLoader.h"
 
 #include "Assets/Palette.h"
+#include "Assets/TextureCollection.h"
 #include "Assets/TextureManager.h"
 #include "EL/Interpolator.h"
 #include "IO/FileSystem.h"
@@ -45,7 +46,7 @@ namespace TrenchBroom {
             return textureConfig.format.extensions;
         }
 
-        TextureLoader::ReaderPtr TextureLoader::createTextureReader(const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger) {
+        std::unique_ptr<TextureReader> TextureLoader::createTextureReader(const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger) {
             if (textureConfig.format.format == "idmip") {
                 TextureReader::PathSuffixNameStrategy nameStrategy(1, true);
                 return std::make_unique<IdMipTextureReader>(nameStrategy, loadPalette(gameFS, textureConfig, logger));
@@ -82,7 +83,7 @@ namespace TrenchBroom {
             }
         }
 
-        TextureLoader::LoaderPtr TextureLoader::createTextureCollectionLoader(const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger) {
+        std::unique_ptr<TextureCollectionLoader> TextureLoader::createTextureCollectionLoader(const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger) {
             using Model::GameConfig;
             switch (textureConfig.package.type) {
                 case GameConfig::TexturePackageConfig::PT_File:
@@ -95,7 +96,7 @@ namespace TrenchBroom {
             }
         }
 
-        Assets::TextureCollection* TextureLoader::loadTextureCollection(const Path& path) {
+        std::unique_ptr<Assets::TextureCollection> TextureLoader::loadTextureCollection(const Path& path) {
             return m_textureCollectionLoader->loadTextureCollection(path, m_textureExtensions, *m_textureReader);
         }
 

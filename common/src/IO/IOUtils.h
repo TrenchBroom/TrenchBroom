@@ -62,6 +62,8 @@ namespace TrenchBroom {
             OpenStream(const Path& path, bool write);
             ~OpenStream();
 
+            std::string readAll();
+
             deleteCopyAndAssignment(OpenStream)
         };
         

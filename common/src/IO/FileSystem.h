@@ -45,6 +45,15 @@ namespace TrenchBroom {
             bool directoryExists(const Path& path) const;
             bool fileExists(const Path& path) const;
 
+            /**
+             * Find all files with the same path and base name as the given path, regardless of the extension.
+             *
+             * @param path the file path
+             * @param extensions a list of extensions to match
+             * @return a list of paths
+             */
+            Path::List findItemsWithBaseName(const Path& path, const StringList& extensions) const;
+
             template <class Matcher>
             Path::List findItems(const Path& directoryPath, const Matcher& matcher) const {
                 Path::List result;

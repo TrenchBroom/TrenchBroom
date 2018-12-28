@@ -24,6 +24,7 @@
 #include "IO/MappedFile.h"
 #include "IO/Path.h"
 
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
@@ -47,7 +48,7 @@ namespace TrenchBroom {
         public:
             virtual ~TextureCollectionLoader();
         public:
-            Assets::TextureCollection* loadTextureCollection(const Path& path, const StringList& textureExtensions, const TextureReader& textureReader);
+            std::unique_ptr<Assets::TextureCollection> loadTextureCollection(const Path& path, const StringList& textureExtensions, const TextureReader& textureReader);
         private:
             virtual MappedFile::List doFindTextures(const Path& path, const StringList& extensions) = 0;
         };

@@ -24,6 +24,8 @@
 #include "Assets/TextureCollection.h"
 #include "Assets/TextureManager.h"
 #include "IO/DiskIO.h"
+#include "IO/IOUtils.h"
+#include "IO/GameConfigParser.h"
 #include "IO/Path.h"
 #include "Model/BrushContentType.h"
 #include "Model/Entity.h"
@@ -36,22 +38,10 @@
 namespace TrenchBroom {
     namespace Model {
         TEST(GameTest, loadQuake3Shaders) {
-            auto config = GameConfig(
-                "test", // name
-                IO::Path(), // path
-                IO::Path(), // icon
-                GameConfig::MapFormatConfig::List(),
-                GameConfig::FileSystemConfig(
-                    { IO::Path("baseq3") },
-                    GameConfig::PackageFormatConfig("pk3", "zip")),
-                GameConfig::TextureConfig(
-                    GameConfig::TexturePackageConfig(IO::Path("textures")),
-                    GameConfig::PackageFormatConfig( { "", "tga", "png", "jpg", "jpeg" }, "q3shader" ),
-                    IO::Path(), // palette path
-                    "__tb_textures"), // worldspawn key
-                GameConfig::EntityConfig(),
-                GameConfig::FaceAttribsConfig(),
-                BrushContentType::List());
+            const auto configPath = IO::Disk::getCurrentWorkingDir() + IO::Path("data/games/Quake3/GameConfig.cfg");
+            const auto configStr = IO::OpenStream(configPath, false).readAll();
+            auto configParser = IO::GameConfigParser(configStr, configPath);
+            auto config = configParser.parse();
 
             const auto gamePath = IO::Disk::getCurrentWorkingDir() + IO::Path("data/Model/Game/Quake3");
             auto logger = NullLogger();
@@ -62,7 +52,7 @@ namespace TrenchBroom {
             ASSERT_EQ(IO::Path("textures/test"), textureCollections.front());
 
             auto worldspawn = Entity();
-            worldspawn.addOrUpdateAttribute("__tb_textures", textureCollections.front().asString());
+            worldspawn.addOrUpdateAttribute("_tb_textures", textureCollections.front().asString());
 
             auto textureManager = Assets::TextureManager(&logger, 0, 0);
             game.loadTextureCollections(&worldspawn, IO::Path(), textureManager, &logger);
@@ -74,7 +64,7 @@ namespace TrenchBroom {
              * textures/test/test overrides an existing texture and points it to an editor image
              * textures/test/not_existing does not override an existing texture and points to an editor image
              * textures/test/test2 overrides an existing texture, but the editor image is missing
-             * textures/test/not_existing2 does not override an existing texture, but the editor image is missing
+             * textures/test/not_existing2 does not override an existing texture, and no editor image
              *
              * The file system contains three textures:
              * textures/test/test.tga is overridden by the shader script
@@ -85,15 +75,17 @@ namespace TrenchBroom {
              * test/test
              * test/not_existing
              * test/editor_image
+             * test/not_existing2 (such shaders may be used for special surfaces, e.g. caulk)
              */
 
             const auto* collection = textureManager.collections().front();
-            ASSERT_EQ(3u, collection->textureCount());
+            ASSERT_EQ(4u, collection->textureCount());
 
             const auto& textures = collection->textures();
             ASSERT_EQ(1u, std::count_if(std::begin(textures), std::end(textures), [](const auto* t) { return t->name() == "test/test"; }));
             ASSERT_EQ(1u, std::count_if(std::begin(textures), std::end(textures), [](const auto* t) { return t->name() == "test/not_existing"; }));
             ASSERT_EQ(1u, std::count_if(std::begin(textures), std::end(textures), [](const auto* t) { return t->name() == "test/editor_image"; }));
+            ASSERT_EQ(1u, std::count_if(std::begin(textures), std::end(textures), [](const auto* t) { return t->name() == "test/not_existing2"; }));
         }
     }
 }

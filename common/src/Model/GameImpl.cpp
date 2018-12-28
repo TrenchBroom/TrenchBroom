@@ -66,14 +66,23 @@ namespace TrenchBroom {
         }
         
         void GameImpl::initializeFileSystem(Logger* logger) {
+            // To allow loading some default assets such as the empty texture, we add the game config path.
+            const auto& configPath = m_config.path();
+            if (!configPath.isEmpty()) {
+                const auto configDirectoryPath = configPath.deleteLastComponent();
+                if (IO::Disk::directoryExists(configDirectoryPath)) {
+                    addFileSystemPath(configDirectoryPath + IO::Path("assets"), logger);
+                }
+            }
+
             const auto& fileSystemConfig = m_config.fileSystemConfig();
             if (!m_gamePath.isEmpty() && IO::Disk::directoryExists(m_gamePath)) {
-                addSearchPath(fileSystemConfig.searchPath, logger);
-                addPackages(m_gamePath + fileSystemConfig.searchPath);
+                addFileSystemSearchPath(fileSystemConfig.searchPath, logger);
+                addFileSystemPackages(m_gamePath + fileSystemConfig.searchPath);
 
                 for (const auto& searchPath : m_additionalSearchPaths) {
-                    addSearchPath(searchPath, logger);
-                    addPackages(m_gamePath + searchPath);
+                    addFileSystemSearchPath(searchPath, logger);
+                    addFileSystemPackages(m_gamePath + searchPath);
                 }
 
                 // To support Quake 3 shaders, we add a shader file system that resolves the shaders
@@ -87,15 +96,19 @@ namespace TrenchBroom {
             }
         }
 
-        void GameImpl::addSearchPath(const IO::Path& searchPath, Logger* logger) {
+        void GameImpl::addFileSystemSearchPath(const IO::Path& searchPath, Logger* logger) {
+            addFileSystemPath(m_gamePath + searchPath, logger);
+        }
+
+        void GameImpl::addFileSystemPath(const IO::Path& path, Logger* logger) {
             try {
-                m_gameFS.pushFileSystem(std::make_unique<IO::DiskFileSystem>(m_gamePath + searchPath));
+                m_gameFS.pushFileSystem(std::make_unique<IO::DiskFileSystem>(path));
             } catch (const FileSystemException& e) {
-                logger->error("Could not add file system search path '" + searchPath.asString() + "': " + String(e.what()));
+                logger->error() << "Could not add file system search path '" << path.asString() + "': " << e.what();
             }
         }
-        
-        void GameImpl::addPackages(const IO::Path& searchPath) {
+
+        void GameImpl::addFileSystemPackages(const IO::Path& searchPath) {
             const auto& fileSystemConfig = m_config.fileSystemConfig();
             const auto& packageFormatConfig = fileSystemConfig.packageFormat;
 
@@ -251,9 +264,16 @@ namespace TrenchBroom {
 
         IO::Path::List GameImpl::textureCollectionSearchPaths(const IO::Path& documentPath) const {
             IO::Path::List result;
+
+            // Search for assets relative to the map file.
             result.push_back(documentPath);
+
+            // Search for assets relative to the location of the game.
             result.push_back(m_gamePath);
+
+            // Search for assets relative to the application itself.
             result.push_back(IO::SystemPaths::appDirectory());
+
             return result;
         }
 
