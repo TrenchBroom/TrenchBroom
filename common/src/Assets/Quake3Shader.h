@@ -25,14 +25,31 @@
 namespace TrenchBroom {
     namespace Assets {
         class Quake3Shader {
-        public:
-            IO::Path texturePath;
-            IO::Path qerImagePath;
+        private:
+            bool m_hasTexturePath;
+            IO::Path m_texturePath;
 
-            Quake3Shader() = default;
-            Quake3Shader(const IO::Path& i_texturePath, const IO::Path& i_qerImagePath);
+            bool m_hasQerImagePath;
+            IO::Path m_qerImagePath;
+
+            bool m_hasQerTransparency;
+            float m_qerTransparency;
+        public:
+            Quake3Shader();
 
             bool operator==(const Quake3Shader& other) const;
+
+            bool hasTexturePath() const;
+            const IO::Path& texturePath() const;
+            void setTexturePath(const IO::Path& texturePath);
+
+            bool hasQerImagePath() const;
+            const IO::Path& qerImagePath() const;
+            void setQerImagePath(const IO::Path& qerImagePath);
+
+            bool hasQerTransparency() const;
+            float qerTransparency() const;
+            void setQerTransparency(float qerTransparency);
         };
     }
 }

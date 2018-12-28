@@ -75,15 +75,15 @@ namespace TrenchBroom {
                 // Only link a shader if it has not been linked yet.
                 if (!fileExists(texture)) {
                     const auto shaderIt = std::find_if(std::begin(shaders), std::end(shaders), [&textureBasePath](const auto& shader){
-                        return textureBasePath == shader.texturePath;
+                        return textureBasePath == shader.texturePath();
                     });
 
                     if (shaderIt != std::end(shaders)) {
                         // Found a shader. If it has an editor image, we link to that, but only if the editor image is
                         // different from the texture image.
                         const auto& shader = *shaderIt;
-                        if (!shader.qerImagePath.isEmpty() && texture != shader.qerImagePath) {
-                            linkShaderToImage(texture, shader.qerImagePath);
+                        if (shader.hasQerImagePath() && texture != shader.qerImagePath()) {
+                            linkShaderToImage(texture, shader.qerImagePath(), shader);
                         }
 
                         // Remove the shader so that we don't revisit it when linking standalone shaders.
@@ -96,15 +96,15 @@ namespace TrenchBroom {
         void Quake3ShaderFileSystem::linkStandaloneShaders(std::vector<Assets::Quake3Shader>& shaders) {
             m_logger->debug() << "Linking standalone shaders...";
             for (const auto& shader : shaders) {
-                if (!shader.qerImagePath.isEmpty()) {
-                    linkShaderToImage(shader.texturePath, shader.qerImagePath);
+                if (shader.hasQerImagePath()) {
+                    linkShaderToImage(shader.texturePath(), shader.qerImagePath(), shader);
                 } else {
-                    linkShaderToImage(shader.texturePath, Path("textures/__TB_empty.tga"));
+                    linkShaderToImage(shader.texturePath(), Path("textures/__TB_empty.tga"), shader);
                 }
             }
         }
 
-        void Quake3ShaderFileSystem::linkShaderToImage(const Path& shaderPath, Path imagePath) {
+        void Quake3ShaderFileSystem::linkShaderToImage(const Path& shaderPath, Path imagePath, const Assets::Quake3Shader& shader) {
             if (shaderPath.hasPrefix(m_prefix, false)) {
                 if (!m_fs.fileExists(imagePath)) {
                     // If the file does not exist, we try to find one with the same basename and a valid extension.

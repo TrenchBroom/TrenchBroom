@@ -116,7 +116,7 @@ namespace TrenchBroom {
 
         void Quake3ShaderParser::parseTexture(Assets::Quake3Shader& shader) {
             const auto token = expect(Quake3ShaderToken::String, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
-            shader.texturePath = Path(token.data());
+            shader.setTexturePath(Path(token.data()));
         }
 
         void Quake3ShaderParser::parseEntry(Assets::Quake3Shader& shader) {
@@ -124,9 +124,11 @@ namespace TrenchBroom {
             expect(Quake3ShaderToken::String, token);
             const auto key = token.data();
             if (key == "qer_editorimage") {
-                token = m_tokenizer.nextToken();
-                expect(Quake3ShaderToken::String, token);
-                shader.qerImagePath = Path(token.data());
+                token = expect(Quake3ShaderToken::String, m_tokenizer.nextToken());
+                shader.setQerImagePath(Path(token.data()));
+            } else if (key == "qer_trans") {
+                token = expect(Quake3ShaderToken::Number, m_tokenizer.nextToken());
+                shader.setQerTransparency(token.toFloat<float>());
             } else {
                 while (!m_tokenizer.nextToken().hasType(Quake3ShaderToken::Eol));
             }

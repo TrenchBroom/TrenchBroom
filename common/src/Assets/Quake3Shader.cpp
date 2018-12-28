@@ -19,14 +19,61 @@
 
 #include "Quake3Shader.h"
 
+#include <cassert>
+
 namespace TrenchBroom {
     namespace Assets {
-        Quake3Shader::Quake3Shader(const IO::Path& i_texturePath, const IO::Path& i_qerImagePath) :
-        texturePath(i_texturePath),
-        qerImagePath(i_qerImagePath) {}
+        Quake3Shader::Quake3Shader() :
+        m_hasTexturePath(false),
+        m_hasQerImagePath(false),
+        m_hasQerTransparency(false) {}
 
         bool Quake3Shader::operator==(const Quake3Shader& other) const {
-            return texturePath == other.texturePath && qerImagePath == other.qerImagePath;
+            return (m_hasTexturePath == other.m_hasTexturePath && m_texturePath == other.m_texturePath &&
+                    m_hasQerImagePath == other.m_hasQerImagePath && m_qerImagePath == other.m_qerImagePath &&
+                    m_hasQerTransparency == other.m_hasQerTransparency && m_qerTransparency == other.m_qerTransparency);
+        }
+
+        bool Quake3Shader::hasTexturePath() const {
+            return m_hasTexturePath;
+        }
+
+        const IO::Path& Quake3Shader::texturePath() const {
+            assert(m_hasTexturePath);
+            return m_texturePath;
+        }
+
+        void Quake3Shader::setTexturePath(const IO::Path& texturePath) {
+            m_texturePath = texturePath;
+            m_hasTexturePath = true;
+        }
+
+        bool Quake3Shader::hasQerImagePath() const {
+            return m_hasQerImagePath;
+        }
+
+        const IO::Path& Quake3Shader::qerImagePath() const {
+            assert(m_hasQerImagePath);
+            return m_qerImagePath;
+        }
+
+        void Quake3Shader::setQerImagePath(const IO::Path& qerImagePath) {
+            m_qerImagePath = qerImagePath;
+            m_hasQerImagePath = true;
+        }
+
+        bool Quake3Shader::hasQerTransparency() const {
+            return m_hasQerTransparency;
+        }
+
+        float Quake3Shader::qerTransparency() const {
+            assert(m_hasQerTransparency);
+            return m_qerTransparency;
+        }
+
+        void Quake3Shader::setQerTransparency(const float qerTransparency) {
+            m_qerTransparency = qerTransparency;
+            m_hasQerTransparency = true;
         }
     }
 }

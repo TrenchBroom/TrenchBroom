@@ -63,7 +63,7 @@ namespace TrenchBroom {
             void linkShaders(std::vector<Assets::Quake3Shader>& shaders);
             void linkTextures(const Path::List& textures, std::vector<Assets::Quake3Shader>& shaders);
             void linkStandaloneShaders(std::vector<Assets::Quake3Shader>& shaders);
-            void linkShaderToImage(const Path& shaderPath, Path imagePath);
+            void linkShaderToImage(const Path& shaderPath, Path imagePath, const Assets::Quake3Shader& shader);
         };
     }
 }
