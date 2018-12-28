@@ -65,6 +65,10 @@ namespace TrenchBroom {
             }
 
             const auto directoryPath = path.deleteLastComponent();
+            if (!directoryExists(directoryPath)) {
+                return Path::List(0);
+            }
+
             const auto basename = path.basename();
             return findItems(directoryPath, FileBasenameMatcher(basename, extensions));
         }

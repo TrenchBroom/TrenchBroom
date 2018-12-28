@@ -98,24 +98,25 @@ namespace TrenchBroom {
                 if (!shader.qerImagePath.isEmpty()) {
                     linkShaderToImage(shader.texturePath, shader.qerImagePath);
                 } else {
-                    linkShaderToImage(shader.texturePath, Path("textures/__TB_empty"));
+                    linkShaderToImage(shader.texturePath, Path("textures/__TB_empty.tga"));
                 }
             }
         }
 
         void Quake3ShaderFileSystem::linkShaderToImage(const Path& shaderPath, Path imagePath) {
-            m_logger->debug() << "Linking shader: " << shaderPath << " -> " << imagePath;
-
             if (!m_fs.fileExists(imagePath)) {
                 // If the file does not exist, we try to find one with the same basename and a valid extension.
                 const auto candidates = m_fs.findItemsWithBaseName(imagePath, m_extensions);
                 if (!candidates.empty()) {
                     const auto replacement = candidates.front(); // just use the first candidate
-                    m_logger->warn() << "Could not find shader image " << imagePath << ", using " << replacement;
                     imagePath = replacement;
                 }
             }
-            m_root.addFile(shaderPath, std::make_unique<LinkFile>(shaderPath, imagePath));
+            // Don't link a file to itself.
+            if (shaderPath != imagePath) {
+                m_logger->debug() << "Linking shader: " << shaderPath << " -> " << imagePath;
+                m_root.addFile(shaderPath, std::make_unique<LinkFile>(shaderPath, imagePath));
+            }
         }
     }
 }

@@ -78,11 +78,11 @@ namespace TrenchBroom {
             const auto& fileSystemConfig = m_config.fileSystemConfig();
             if (!m_gamePath.isEmpty() && IO::Disk::directoryExists(m_gamePath)) {
                 addFileSystemSearchPath(fileSystemConfig.searchPath, logger);
-                addFileSystemPackages(m_gamePath + fileSystemConfig.searchPath);
+                addFileSystemPackages(m_gamePath + fileSystemConfig.searchPath, logger);
 
                 for (const auto& searchPath : m_additionalSearchPaths) {
                     addFileSystemSearchPath(searchPath, logger);
-                    addFileSystemPackages(m_gamePath + searchPath);
+                    addFileSystemPackages(m_gamePath + searchPath, logger);
                 }
 
                 // To support Quake 3 shaders, we add a shader file system that resolves the shaders
@@ -90,6 +90,7 @@ namespace TrenchBroom {
                 const auto& textureConfig = m_config.textureConfig();
                 const auto& textureFormat = textureConfig.format.format;
                 if (StringUtils::caseInsensitiveEqual(textureFormat, "q3shader")) {
+                    logger->info() << "Adding shader file system for extensions " << StringUtils::join(textureConfig.format.extensions);
                     const auto& extensions = textureConfig.format.extensions;
                     m_gameFS.pushFileSystem(std::make_unique<IO::Quake3ShaderFileSystem>(m_gameFS, extensions, logger));
                 }
@@ -102,13 +103,14 @@ namespace TrenchBroom {
 
         void GameImpl::addFileSystemPath(const IO::Path& path, Logger* logger) {
             try {
+                logger->info() << "Adding file system path " << path;
                 m_gameFS.pushFileSystem(std::make_unique<IO::DiskFileSystem>(path));
             } catch (const FileSystemException& e) {
-                logger->error() << "Could not add file system search path '" << path.asString() + "': " << e.what();
+                logger->error() << "Could not add file system search path '" << path << "': " << e.what();
             }
         }
 
-        void GameImpl::addFileSystemPackages(const IO::Path& searchPath) {
+        void GameImpl::addFileSystemPackages(const IO::Path& searchPath, Logger* logger) {
             const auto& fileSystemConfig = m_config.fileSystemConfig();
             const auto& packageFormatConfig = fileSystemConfig.packageFormat;
 
@@ -117,16 +119,21 @@ namespace TrenchBroom {
 
             if (IO::Disk::directoryExists(searchPath)) {
                 const IO::DiskFileSystem diskFS(searchPath);
-                const auto packages = diskFS.findItems(IO::Path(""), IO::FileExtensionMatcher(packageExtensions));
+                auto packages = diskFS.findItems(IO::Path(""), IO::FileExtensionMatcher(packageExtensions));
+                VectorUtils::sort(packages, IO::Path::Less<StringUtils::CaseInsensitiveStringLess>());
+
                 for (const auto& packagePath : packages) {
                     auto packageFile = diskFS.openFile(packagePath);
                     ensure(packageFile.get() != nullptr, "packageFile is null");
 
                     if (StringUtils::caseInsensitiveEqual(packageFormat, "idpak")) {
+                        logger->info() << "Adding file system package " << packagePath;
                         m_gameFS.pushFileSystem(std::make_unique<IO::IdPakFileSystem>(packagePath, packageFile));
                     } else if (StringUtils::caseInsensitiveEqual(packageFormat, "dkpak")) {
+                        logger->info() << "Adding file system package " << packagePath;
                         m_gameFS.pushFileSystem(std::make_unique<IO::DkPakFileSystem>(packagePath, packageFile));
                     } else if (StringUtils::caseInsensitiveEqual(packageFormat, "zip")) {
+                        logger->info() << "Adding file system package " << packagePath;
                         m_gameFS.pushFileSystem(std::make_unique<IO::ZipFileSystem>(packagePath, packageFile));
                     }
                 }
