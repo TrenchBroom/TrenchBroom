@@ -34,6 +34,7 @@
 class QTimer;
 class QLabel;
 class QMenuBar;
+class QAction;
 
 namespace TrenchBroom {
     class Logger;
@@ -85,6 +86,21 @@ namespace TrenchBroom {
             wxDialog* m_compilationDialog;
 #endif
             CommandWindowUpdateLocker* m_updateLocker;
+        private: // actions
+            QAction* fileNewAction;
+            QAction* fileOpenAction;
+            QAction* fileSaveAction;
+            QAction* fileSaveAsAction;
+            QAction* fileExportObjAction;
+            QAction* fileLoadPointFileAction;
+            QAction* fileReloadPointFileAction;
+            QAction* fileUnloadPointFileAction;
+            QAction* fileLoadPortalFileAction;
+            QAction* fileReloadPortalFileAction;
+            QAction* fileUnloadPortalFileAction;
+            QAction* fileReloadTextureCollectionsAction;
+            QAction* fileReloadEntityDefinitionsAction;
+            QAction* fileCloseAction;
         public:
             MapFrame();
             MapFrame(FrameManager* frameManager, MapDocumentSPtr document);
@@ -119,6 +135,8 @@ namespace TrenchBroom {
 			//void OnChildFocus(wxChildFocusEvent& event);
             void rebuildMenuBar();
             void createMenuBar();
+            void createActions();
+            void createMenus();
 
             void addRecentDocumentsMenu(QMenuBar* menuBar);
             void removeRecentDocumentsMenu(QMenuBar* menuBar);

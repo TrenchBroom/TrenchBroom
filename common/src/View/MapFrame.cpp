@@ -28,6 +28,10 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QStatusBar>
+#include <QAction>
+#include <QMenu>
+#include <QMenuBar>
+#include <QShortcut>
 
 #include "TrenchBroomApp.h"
 #include "Preferences.h"
@@ -123,6 +127,8 @@ namespace TrenchBroom {
             createGui();
             createToolBar();
             createMenuBar();
+            createActions();
+            createMenus();
             createStatusBar();
 
             m_document->setParentLogger(logger());
@@ -397,11 +403,84 @@ namespace TrenchBroom {
         }
 
         void MapFrame::createMenuBar() {
-			const ActionManager& actionManager = ActionManager::instance();
-            QMenuBar* menuBar = actionManager.createMenuBarQt(m_mapView->viewportHasFocus());
-            setMenuBar(menuBar);
+//			const ActionManager& actionManager = ActionManager::instance();
+//            QMenuBar* menuBar = actionManager.createMenuBarQt(m_mapView->viewportHasFocus());
+//            setMenuBar(menuBar);
+
             // FIXME: recents
             //addRecentDocumentsMenu(menuBar);
+        }
+
+        void MapFrame::createActions() {
+            fileNewAction = new QAction("New", this);
+            // FIXME: connect to TrenchBroomApp
+
+            fileOpenAction = new QAction("Open", this);
+            // FIXME: connect to TrenchBroomApp
+
+            fileSaveAction = new QAction("Save", this);
+            connect(fileSaveAction, &QAction::triggered, this, &MapFrame::OnFileSave);
+
+            fileSaveAsAction = new QAction("Save as...", this);
+            connect(fileSaveAsAction, &QAction::triggered, this, &MapFrame::OnFileSaveAs);
+
+            fileExportObjAction = new QAction("Wavefront OBJ...", this);
+            connect(fileExportObjAction, &QAction::triggered, this, &MapFrame::OnFileExportObj);
+
+            fileLoadPointFileAction = new QAction("Load Point File...", this);
+            connect(fileLoadPointFileAction, &QAction::triggered, this, &MapFrame::OnFileLoadPointFile);
+
+            fileReloadPointFileAction = new QAction("Reload Point File", this);
+            connect(fileReloadPointFileAction, &QAction::triggered, this, &MapFrame::OnFileReloadPointFile);
+
+            fileUnloadPointFileAction = new QAction("Unload Point File", this);
+            connect(fileUnloadPointFileAction, &QAction::triggered, this, &MapFrame::OnFileUnloadPointFile);
+
+            fileLoadPortalFileAction = new QAction("Load Portal File...", this);
+            connect(fileLoadPortalFileAction, &QAction::triggered, this, &MapFrame::OnFileLoadPortalFile);
+
+            fileReloadPortalFileAction = new QAction("Reload Portal File", this);
+            connect(fileReloadPortalFileAction, &QAction::triggered, this, &MapFrame::OnFileReloadPortalFile);
+
+            fileUnloadPortalFileAction = new QAction("Unload Portal File", this);
+            connect(fileUnloadPortalFileAction, &QAction::triggered, this, &MapFrame::OnFileUnloadPortalFile);
+
+            fileReloadTextureCollectionsAction = new QAction("Reload Texture Collections", this);
+            connect(fileReloadTextureCollectionsAction, &QAction::triggered, this, &MapFrame::OnFileReloadTextureCollections);
+
+            fileReloadEntityDefinitionsAction = new QAction("Reload Entity Definitions", this);
+            connect(fileReloadEntityDefinitionsAction, &QAction::triggered, this, &MapFrame::OnFileReloadEntityDefinitions);
+
+            fileCloseAction = new QAction("Close", this);
+            connect(fileCloseAction, &QAction::triggered, this, &MapFrame::OnFileClose);
+        }
+
+        void MapFrame::createMenus() {
+            QMenu* fileMenu = menuBar()->addMenu("File");
+            fileMenu->addAction(fileNewAction);// addUnmodifiableActionItem(wxID_NEW, "New", KeyboardShortcut('N', WXK_CONTROL));
+            fileMenu->addSeparator();
+            fileMenu->addAction(fileOpenAction);// UnmodifiableActionItem(wxID_OPEN, "Open...", KeyboardShortcut('O', WXK_CONTROL));
+            QMenu* openRecentMenu = fileMenu->addMenu("Open Recent");
+            fileMenu->addSeparator();
+            fileMenu->addAction(fileSaveAction);// addUnmodifiableActionItem(wxID_SAVE, "Save", KeyboardShortcut('S', WXK_CONTROL));
+            fileMenu->addAction(fileSaveAsAction); // addUnmodifiableActionItem(wxID_SAVEAS, "Save as...", KeyboardShortcut('S', WXK_SHIFT, WXK_CONTROL));
+
+            QMenu* exportMenu = fileMenu->addMenu("Export");
+            exportMenu->addAction(fileExportObjAction); // addModifiableActionItem(CommandIds::Menu::FileExportObj, "Wavefront OBJ...");
+
+            fileMenu->addSeparator();
+            fileMenu->addAction(fileLoadPointFileAction); //addModifiableActionItem(CommandIds::Menu::FileLoadPointFile, );
+            fileMenu->addAction(fileReloadPointFileAction); //addModifiableActionItem(CommandIds::Menu::FileReloadPointFile, "Reload Point File");
+            fileMenu->addAction(fileUnloadPointFileAction); //addModifiableActionItem(CommandIds::Menu::FileUnloadPointFile, "Unload Point File");
+            fileMenu->addSeparator();
+            fileMenu->addAction(fileLoadPortalFileAction); //addModifiableActionItem(CommandIds::Menu::FileLoadPortalFile, "Load Portal File...");
+            fileMenu->addAction(fileReloadPortalFileAction); //addModifiableActionItem(CommandIds::Menu::FileReloadPortalFile, "Reload Portal File");
+            fileMenu->addAction(fileUnloadPortalFileAction); //addModifiableActionItem(CommandIds::Menu::FileUnloadPortalFile, "Unload Portal File");
+            fileMenu->addSeparator();
+            fileMenu->addAction(fileReloadTextureCollectionsAction); //addModifiableActionItem(CommandIds::Menu::FileReloadTextureCollections, "Reload Texture Collections", KeyboardShortcut(WXK_F5));
+            fileMenu->addAction(fileReloadEntityDefinitionsAction); //addModifiableActionItem(CommandIds::Menu::FileReloadEntityDefinitions, "Reload Entity Definitions", KeyboardShortcut(WXK_F6));
+            fileMenu->addSeparator();
+            fileMenu->addAction(fileCloseAction);// UnmodifiableActionItem(wxID_CLOSE, "Close", KeyboardShortcut('W', WXK_CONTROL));
         }
 
 #if 0
@@ -718,21 +797,9 @@ namespace TrenchBroom {
         }
 
         void MapFrame::bindEvents() {
-		    // FIXME:
-#if 0
-            Bind(wxEVT_MENU, &MapFrame::OnFileSave, this, wxID_SAVE);
-            Bind(wxEVT_MENU, &MapFrame::OnFileSaveAs, this, wxID_SAVEAS);
-            Bind(wxEVT_MENU, &MapFrame::OnFileExportObj, this, CommandIds::Menu::FileExportObj);
-            Bind(wxEVT_MENU, &MapFrame::OnFileLoadPointFile, this, CommandIds::Menu::FileLoadPointFile);
-            Bind(wxEVT_MENU, &MapFrame::OnFileReloadPointFile, this, CommandIds::Menu::FileReloadPointFile);
-            Bind(wxEVT_MENU, &MapFrame::OnFileUnloadPointFile, this, CommandIds::Menu::FileUnloadPointFile);
-            Bind(wxEVT_MENU, &MapFrame::OnFileLoadPortalFile, this, CommandIds::Menu::FileLoadPortalFile);
-            Bind(wxEVT_MENU, &MapFrame::OnFileReloadPortalFile, this, CommandIds::Menu::FileReloadPortalFile);
-            Bind(wxEVT_MENU, &MapFrame::OnFileUnloadPortalFile, this, CommandIds::Menu::FileUnloadPortalFile);
-            Bind(wxEVT_MENU, &MapFrame::OnFileReloadTextureCollections, this, CommandIds::Menu::FileReloadTextureCollections);
-            Bind(wxEVT_MENU, &MapFrame::OnFileReloadEntityDefinitions, this, CommandIds::Menu::FileReloadEntityDefinitions);
-            Bind(wxEVT_MENU, &MapFrame::OnFileClose, this, wxID_CLOSE);
 
+            // FIXME:
+#if 0
             Bind(wxEVT_MENU, &MapFrame::OnEditUndo, this, wxID_UNDO);
             Bind(wxEVT_MENU, &MapFrame::OnEditRedo, this, wxID_REDO);
             Bind(wxEVT_MENU, &MapFrame::OnEditRepeat, this, CommandIds::Menu::EditRepeat);
