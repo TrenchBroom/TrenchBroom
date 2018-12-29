@@ -412,16 +412,22 @@ namespace TrenchBroom {
         }
 
         void MapFrame::createActions() {
+		    // File
+
             fileNewAction = new QAction("New", this);
+            fileNewAction->setShortcuts(QKeySequence::New);
             // FIXME: connect to TrenchBroomApp
 
             fileOpenAction = new QAction("Open", this);
+            fileOpenAction->setShortcuts(QKeySequence::Open);
             // FIXME: connect to TrenchBroomApp
 
             fileSaveAction = new QAction("Save", this);
+            fileSaveAction->setShortcuts(QKeySequence::Save);
             connect(fileSaveAction, &QAction::triggered, this, &MapFrame::OnFileSave);
 
             fileSaveAsAction = new QAction("Save as...", this);
+            fileSaveAsAction->setShortcuts(QKeySequence::SaveAs);
             connect(fileSaveAsAction, &QAction::triggered, this, &MapFrame::OnFileSaveAs);
 
             fileExportObjAction = new QAction("Wavefront OBJ...", this);
@@ -452,8 +458,134 @@ namespace TrenchBroom {
             connect(fileReloadEntityDefinitionsAction, &QAction::triggered, this, &MapFrame::OnFileReloadEntityDefinitions);
 
             fileCloseAction = new QAction("Close", this);
+            fileCloseAction->setShortcuts(QKeySequence::Close);
             connect(fileCloseAction, &QAction::triggered, this, &MapFrame::OnFileClose);
+
+            // Edit
+
+            editUndoAction = new QAction("Undo", this);
+            editUndoAction->setShortcuts(QKeySequence::Undo);
+            connect(editUndoAction, &QAction::triggered, this, &MapFrame::OnEditUndo); //, this, wxID_UNDO);
+
+            editRedoAction = new QAction("Redo", this);
+            editRedoAction->setShortcuts(QKeySequence::Redo);
+            connect(editRedoAction, &QAction::triggered, this, &MapFrame::OnEditRedo); //, this, wxID_REDO);
+
+            editRepeatAction = new QAction("Repeat", this);
+            connect(editRepeatAction, &QAction::triggered, this, &MapFrame::OnEditRepeat); //, this, CommandIds::Menu::EditRepeat);
+
+            editClearRepeatAction = new QAction("Clear Repeatable Commands", this);
+            connect(editClearRepeatAction, &QAction::triggered, this, &MapFrame::OnEditClearRepeat); //, this, CommandIds::Menu::EditClearRepeat);
+
+
+            editCutAction = new QAction("Cut", this);
+            editCutAction->setShortcuts(QKeySequence::Cut);
+            connect(editCutAction, &QAction::triggered, this, &MapFrame::OnEditCut); //, this, wxID_CUT);
+
+            editCopyAction = new QAction("Copy", this);
+            editCopyAction->setShortcuts(QKeySequence::Copy);
+            connect(editCopyAction, &QAction::triggered, this, &MapFrame::OnEditCopy); //, this, wxID_COPY);
+
+            editPasteAction = new QAction("Paste", this);
+            editPasteAction->setShortcuts(QKeySequence::Paste);
+            connect(editPasteAction, &QAction::triggered, this, &MapFrame::OnEditPaste); //, this, wxID_PASTE);
+
+            editPasteAtOriginalPositionAction = new QAction("Paste at Original Position", this);
+            connect(editPasteAtOriginalPositionAction, &QAction::triggered, this, &MapFrame::OnEditPasteAtOriginalPosition); //, this, CommandIds::Menu::EditPasteAtOriginalPosition);
+
+            editDuplicateAction = new QAction("Duplicate", this);
+            connect(editDuplicateAction, &QAction::triggered, this, &MapFrame::OnEditDuplicate); //, this, wxID_DUPLICATE);
+
+            editDeleteAction = new QAction("Delete", this);
+            connect(editDeleteAction, &QAction::triggered, this, &MapFrame::OnEditDelete); //, this, wxID_DELETE);
+
+
+            editSelectAllAction = new QAction("Select All", this);
+            connect(editSelectAllAction, &QAction::triggered, this, &MapFrame::OnEditSelectAll); //, this, CommandIds::Menu::EditSelectAll);
+
+            editSelectSiblingsAction = new QAction("Select Siblings", this);
+            connect(editSelectSiblingsAction, &QAction::triggered, this, &MapFrame::OnEditSelectSiblings); //, this, CommandIds::Menu::EditSelectSiblings);
+
+            editSelectTouchingAction = new QAction("Select Touching", this);
+            connect(editSelectTouchingAction, &QAction::triggered, this, &MapFrame::OnEditSelectTouching); //, this, CommandIds::Menu::EditSelectTouching);
+
+            editSelectInsideAction = new QAction("Select Inside", this);
+            connect(editSelectInsideAction, &QAction::triggered, this, &MapFrame::OnEditSelectInside); //, this, CommandIds::Menu::EditSelectInside);
+
+            editSelectTallAction = new QAction("Select Tall", this);
+            connect(editSelectTallAction, &QAction::triggered, this, &MapFrame::OnEditSelectTall); //, this, CommandIds::Menu::EditSelectTall);
+
+            editSelectByLineNumberAction = new QAction("Select by Line Number", this);
+            connect(editSelectByLineNumberAction, &QAction::triggered, this, &MapFrame::OnEditSelectByLineNumber); //, this, CommandIds::Menu::EditSelectByFilePosition);
+
+            editSelectNoneAction = new QAction("Select None", this);
+            connect(editSelectNoneAction, &QAction::triggered, this, &MapFrame::OnEditSelectNone); //, this, CommandIds::Menu::EditSelectNone);
+
+
+            editGroupSelectedObjectsAction = new QAction("Group", this);
+            connect(editGroupSelectedObjectsAction, &QAction::triggered, this, &MapFrame::OnEditGroupSelectedObjects); //, this, CommandIds::Menu::EditGroupSelection);
+
+            editUngroupSelectedObjectsAction = new QAction("Ungroup", this);
+            connect(editUngroupSelectedObjectsAction, &QAction::triggered, this, &MapFrame::OnEditUngroupSelectedObjects); //, this, CommandIds::Menu::EditUngroupSelection);
+
+
+            editDeactivateToolAction = new QAction("Deactivate Tool", this);
+            connect(editDeactivateToolAction, &QAction::triggered, this, &MapFrame::OnEditDeactivateTool); //, this, CommandIds::Menu::EditDeactivateTool);
+
+            editToggleCreateComplexBrushToolAction = new QAction("Brush Tool", this);
+            connect(editToggleCreateComplexBrushToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleCreateComplexBrushTool); //, this, CommandIds::Menu::EditToggleCreateComplexBrushTool);
+
+            editToggleClipToolAction = new QAction("Clip Tool", this);
+            connect(editToggleClipToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleClipTool); //, this, CommandIds::Menu::EditToggleClipTool);
+
+            editToggleRotateObjectsToolAction = new QAction("Rotate Tool", this);
+            connect(editToggleRotateObjectsToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleRotateObjectsTool); //, this, CommandIds::Menu::EditToggleRotateObjectsTool);
+
+            editToggleScaleObjectsToolAction = new QAction("Scale Tool", this);
+            connect(editToggleScaleObjectsToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleScaleObjectsTool); //, this, CommandIds::Menu::EditToggleScaleObjectsTool);
+
+            editToggleShearObjectsToolAction = new QAction("Shear Tool", this);
+            connect(editToggleShearObjectsToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleShearObjectsTool); //, this, CommandIds::Menu::EditToggleShearObjectsTool);
+
+            editToggleVertexToolAction = new QAction("Vertex Tool", this);
+            connect(editToggleVertexToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleVertexTool); //, this, CommandIds::Menu::EditToggleVertexTool);
+
+            editToggleEdgeToolAction = new QAction("Edge Tool", this);
+            connect(editToggleEdgeToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleEdgeTool); //, this, CommandIds::Menu::EditToggleEdgeTool);
+
+            editToggleFaceToolAction = new QAction("Face Tool", this);
+            connect(editToggleFaceToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleFaceTool); //, this, CommandIds::Menu::EditToggleFaceTool);
+
+
+            editCsgConvexMergeAction = new QAction("Convex Merge", this);
+            connect(editCsgConvexMergeAction, &QAction::triggered, this, &MapFrame::OnEditCsgConvexMerge); //, this, CommandIds::Menu::EditCsgConvexMerge);
+
+            editCsgSubtractAction = new QAction("Subtract", this);
+            connect(editCsgSubtractAction, &QAction::triggered, this, &MapFrame::OnEditCsgSubtract); //, this, CommandIds::Menu::EditCsgSubtract);
+
+            editCsgIntersectAction = new QAction("Intersect", this);
+            connect(editCsgIntersectAction, &QAction::triggered, this, &MapFrame::OnEditCsgIntersect); //, this, CommandIds::Menu::EditCsgIntersect);
+
+            editCsgHollowAction = new QAction("Hollow", this);
+            connect(editCsgHollowAction, &QAction::triggered, this, &MapFrame::OnEditCsgHollow); //, this, CommandIds::Menu::EditCsgHollow);
+
+
+            editReplaceTextureAction = new QAction("Replace Texture...", this);
+            connect(editReplaceTextureAction, &QAction::triggered, this, &MapFrame::OnEditReplaceTexture); //, this, CommandIds::Menu::EditReplaceTexture);
+
+            editToggleTextureLockAction = new QAction("Texture Lock", this);
+            connect(editToggleTextureLockAction, &QAction::triggered, this, &MapFrame::OnEditToggleTextureLock); //, this, CommandIds::Menu::EditToggleTextureLock);
+
+            editToggleUVLockAction = new QAction("UV Lock", this);
+            connect(editToggleUVLockAction, &QAction::triggered, this, &MapFrame::OnEditToggleUVLock); //, this, CommandIds::Menu::EditToggleUVLock);
+
+            editSnapVerticesToIntegerAction = new QAction("Snap Vertices to Integer", this);
+            connect(editSnapVerticesToIntegerAction, &QAction::triggered, this, &MapFrame::OnEditSnapVerticesToInteger); //, this, CommandIds::Menu::EditSnapVerticesToInteger);
+
+            editSnapVerticesToGridAction = new QAction("Snap Vertices to Grid", this);
+            connect(editSnapVerticesToGridAction, &QAction::triggered, this, &MapFrame::OnEditSnapVerticesToGrid); //, this, CommandIds::Menu::EditSnapVerticesToGrid);
         }
+
 
         void MapFrame::createMenus() {
             QMenu* fileMenu = menuBar()->addMenu("File");
@@ -481,6 +613,59 @@ namespace TrenchBroom {
             fileMenu->addAction(fileReloadEntityDefinitionsAction); //addModifiableActionItem(CommandIds::Menu::FileReloadEntityDefinitions, "Reload Entity Definitions", KeyboardShortcut(WXK_F6));
             fileMenu->addSeparator();
             fileMenu->addAction(fileCloseAction);// UnmodifiableActionItem(wxID_CLOSE, "Close", KeyboardShortcut('W', WXK_CONTROL));
+
+            QMenu *editMenu = menuBar()->addMenu("Edit");
+            editMenu->addAction(editUndoAction); //addUnmodifiableActionItem(wxID_UNDO, "Undo", KeyboardShortcut('Z', WXK_CONTROL));
+            editMenu->addAction(editRedoAction); //addUnmodifiableActionItem(wxID_REDO, "Redo", KeyboardShortcut('Z', WXK_CONTROL, WXK_SHIFT));
+            editMenu->addSeparator();
+            editMenu->addAction(editRepeatAction); //addModifiableActionItem(CommandIds::Menu::EditRepeat, "Repeat", KeyboardShortcut('R', WXK_CONTROL));
+            editMenu->addAction(editClearRepeatAction); //addModifiableActionItem(CommandIds::Menu::EditClearRepeat, "Clear Repeatable Commands", KeyboardShortcut('R', WXK_CONTROL, WXK_SHIFT));
+            editMenu->addSeparator();
+            editMenu->addAction(editCutAction); //addUnmodifiableActionItem(wxID_CUT, "Cut", KeyboardShortcut('X', WXK_CONTROL));
+            editMenu->addAction(editCopyAction); //addUnmodifiableActionItem(wxID_COPY, "Copy", KeyboardShortcut('C', WXK_CONTROL));
+            editMenu->addAction(editPasteAction); //addUnmodifiableActionItem(wxID_PASTE, "Paste", KeyboardShortcut('V', WXK_CONTROL));
+            editMenu->addAction(editPasteAtOriginalPositionAction); //addModifiableActionItem(CommandIds::Menu::EditPasteAtOriginalPosition, "Paste at Original Position", KeyboardShortcut('V', WXK_CONTROL, WXK_ALT));
+            editMenu->addAction(editDuplicateAction); //addModifiableActionItem(wxID_DUPLICATE, "Duplicate", KeyboardShortcut('D', WXK_CONTROL));
+            editMenu->addAction(editDeleteAction); //addModifiableActionItem(wxID_DELETE, "Delete", KeyboardShortcut(WXK_DELETE));
+
+            editMenu->addSeparator();
+            editMenu->addAction(editSelectAllAction); //addModifiableActionItem(CommandIds::Menu::EditSelectAll, "Select All", KeyboardShortcut('A', WXK_CONTROL));
+            editMenu->addAction(editSelectSiblingsAction); //addModifiableActionItem(CommandIds::Menu::EditSelectSiblings, "Select Siblings", KeyboardShortcut('B', WXK_CONTROL));
+            editMenu->addAction(editSelectTouchingAction); //addModifiableActionItem(CommandIds::Menu::EditSelectTouching, "Select Touching", KeyboardShortcut('T', WXK_CONTROL));
+            editMenu->addAction(editSelectInsideAction); //addModifiableActionItem(CommandIds::Menu::EditSelectInside, "Select Inside", KeyboardShortcut('E', WXK_CONTROL));
+            editMenu->addAction(editSelectTallAction); //addModifiableActionItem(CommandIds::Menu::EditSelectTall, "Select Tall", KeyboardShortcut('E', WXK_CONTROL, WXK_SHIFT));
+            editMenu->addAction(editSelectByLineNumberAction); //addModifiableActionItem(CommandIds::Menu::EditSelectByFilePosition, "Select by Line Number");
+            editMenu->addAction(editSelectNoneAction); //addModifiableActionItem(CommandIds::Menu::EditSelectNone, "Select None", KeyboardShortcut('A', WXK_CONTROL, WXK_SHIFT));
+            editMenu->addSeparator();
+
+            editMenu->addAction(editGroupSelectedObjectsAction); //addModifiableActionItem(CommandIds::Menu::EditGroupSelection, "Group", KeyboardShortcut('G', WXK_CONTROL));
+            editMenu->addAction(editUngroupSelectedObjectsAction); //addModifiableActionItem(CommandIds::Menu::EditUngroupSelection, "Ungroup", KeyboardShortcut('G', WXK_CONTROL, WXK_SHIFT));
+            editMenu->addSeparator();
+
+            QMenu* toolMenu = editMenu->addMenu("Tools");
+            toolMenu->addAction(editToggleCreateComplexBrushToolAction); //addModifiableCheckItem(CommandIds::Menu::EditToggleCreateComplexBrushTool, "Brush Tool", KeyboardShortcut('B'));
+            toolMenu->addAction(editToggleClipToolAction); //addModifiableCheckItem(CommandIds::Menu::EditToggleClipTool, "Clip Tool", KeyboardShortcut('C'));
+            toolMenu->addAction(editToggleRotateObjectsToolAction); //addModifiableCheckItem(CommandIds::Menu::EditToggleRotateObjectsTool, "Rotate Tool", KeyboardShortcut('R'));
+            toolMenu->addAction(editToggleScaleObjectsToolAction); //addModifiableCheckItem(CommandIds::Menu::EditToggleScaleObjectsTool, "Scale Tool", KeyboardShortcut('T'));
+            toolMenu->addAction(editToggleShearObjectsToolAction); //addModifiableCheckItem(CommandIds::Menu::EditToggleShearObjectsTool, "Shear Tool", KeyboardShortcut('G'));
+            toolMenu->addAction(editToggleVertexToolAction); //addModifiableCheckItem(CommandIds::Menu::EditToggleVertexTool, "Vertex Tool", KeyboardShortcut('V'));
+            toolMenu->addAction(editToggleEdgeToolAction); //addModifiableCheckItem(CommandIds::Menu::EditToggleEdgeTool, "Edge Tool", KeyboardShortcut('E'));
+            toolMenu->addAction(editToggleFaceToolAction); //addModifiableCheckItem(CommandIds::Menu::EditToggleFaceTool, "Face Tool", KeyboardShortcut('F'));
+
+            QMenu* csgMenu = editMenu->addMenu("CSG");
+            csgMenu->addAction(editCsgConvexMergeAction); // addModifiableActionItem(CommandIds::Menu::EditCsgConvexMerge, "Convex Merge", KeyboardShortcut('J', WXK_CONTROL));
+            csgMenu->addAction(editCsgSubtractAction); // addModifiableActionItem(CommandIds::Menu::EditCsgSubtract, "Subtract", KeyboardShortcut('K', WXK_CONTROL));
+            csgMenu->addAction(editCsgHollowAction); // addModifiableActionItem(CommandIds::Menu::EditCsgHollow, "Hollow", KeyboardShortcut('K', WXK_CONTROL, WXK_ALT));
+            csgMenu->addAction(editCsgIntersectAction); // addModifiableActionItem(CommandIds::Menu::EditCsgIntersect, "Intersect", KeyboardShortcut('L', WXK_CONTROL));
+
+            editMenu->addSeparator();
+            editMenu->addAction(editSnapVerticesToIntegerAction); //addModifiableActionItem(CommandIds::Menu::EditSnapVerticesToInteger, "Snap Vertices to Integer", KeyboardShortcut('V', WXK_SHIFT, WXK_CONTROL));
+            editMenu->addAction(editSnapVerticesToGridAction); //addModifiableActionItem(CommandIds::Menu::EditSnapVerticesToGrid, "Snap Vertices to Grid", KeyboardShortcut('V', WXK_SHIFT, WXK_CONTROL, WXK_ALT));
+            editMenu->addSeparator();
+            editMenu->addAction(editToggleTextureLockAction); //addModifiableCheckItem(CommandIds::Menu::EditToggleTextureLock, "Texture Lock");
+            editMenu->addAction(editToggleUVLockAction); //addModifiableCheckItem(CommandIds::Menu::EditToggleUVLock, "UV Lock", KeyboardShortcut('U'));
+            editMenu->addAction(editReplaceTextureAction); //addModifiableActionItem(CommandIds::Menu::EditReplaceTexture, "Replace Texture...");
+
         }
 
 #if 0
