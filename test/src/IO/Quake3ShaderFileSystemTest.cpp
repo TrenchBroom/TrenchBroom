@@ -22,7 +22,6 @@
 #include "Logger.h"
 #include "StringUtils.h"
 #include "IO/DiskFileSystem.h"
-#include "IO/FileSystemHierarchy.h"
 #include "IO/Path.h"
 #include "IO/Quake3ShaderFileSystem.h"
 
@@ -34,17 +33,17 @@ namespace TrenchBroom {
 
         TEST(Quake3ShaderFileSystemTest, testShaderLinking) {
             NullLogger logger;
-            FileSystemHierarchy fs;
 
             const auto workDir = IO::Disk::getCurrentWorkingDir();
             const auto testDir = workDir + Path("data/IO/Shader");
             const auto prefix = Path("textures");
             const auto extensions = StringList { "tga", "jpg" };
-            fs.pushFileSystem(std::make_unique<DiskFileSystem>(testDir));
-            fs.pushFileSystem(std::make_unique<Quake3ShaderFileSystem>(fs, prefix, extensions, &logger));
+
+            std::unique_ptr<FileSystem> fs = std::make_unique<DiskFileSystem>(testDir);
+            fs = std::make_unique<Quake3ShaderFileSystem>(std::move(fs), prefix, extensions, &logger);
 
 
-            const auto items = fs.findItems(Path("textures/test"));
+            const auto items = fs->findItems(Path("textures/test"));
             ASSERT_EQ(5u, items.size());
 
             assertShader(items, "textures/test/editor_image.jpg");

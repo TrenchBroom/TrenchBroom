@@ -20,21 +20,29 @@
 #include "FileSystem.h"
 
 #include "Exceptions.h"
-
+#include "CollectionUtils.h"
 #include "IO/FileMatcher.h"
 
 namespace TrenchBroom {
     namespace IO {
-        FileSystem::FileSystem() {}
-
-        FileSystem::FileSystem(const FileSystem& other) {}
+        FileSystem::FileSystem(std::unique_ptr<FileSystem> next) :
+        m_next(std::move(next)) {}
 
         FileSystem::~FileSystem() {}
 
-        FileSystem& FileSystem::operator=(const FileSystem& other) { return *this; }
+        bool FileSystem::hasNext() const {
+            return m_next != nullptr;
+        }
 
-        Path FileSystem::makeAbsolute(const Path& relPath) const {
-            return doMakeAbsolute(relPath);
+        const FileSystem& FileSystem::next() const {
+            if (!m_next) {
+                throw FileSystemException("File system chain ends here");
+            }
+            return *m_next;
+        }
+
+        std::unique_ptr<FileSystem> FileSystem::releaseNext() {
+            return std::move(m_next);
         }
 
         bool FileSystem::directoryExists(const Path& path) const {
@@ -42,7 +50,8 @@ namespace TrenchBroom {
                 if (path.isAbsolute()) {
                     throw FileSystemException("Path is absolute: '" + path.asString() + "'");
                 }
-                return doDirectoryExists(path);
+
+                return _directoryExists(path);
             } catch (const PathException& e) {
                 throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
             }
@@ -53,7 +62,7 @@ namespace TrenchBroom {
                 if (path.isAbsolute()) {
                     throw FileSystemException("Path is absolute: '" + path.asString() + "'");
                 }
-                return doFileExists(path);
+                return _fileExists(path);
             } catch (const PathException& e) {
                 throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
             }
@@ -89,46 +98,57 @@ namespace TrenchBroom {
                 if (!directoryExists(directoryPath)) {
                     throw FileSystemException("Directory not found: '" + directoryPath.asString() + "'");
                 }
-                return doGetDirectoryContents(directoryPath);
+
+                return _getDirectoryContents(directoryPath);
             } catch (const PathException& e) {
                 throw FileSystemException("Invalid path: '" + directoryPath.asString() + "'", e);
             }
         }
 
-        const MappedFile::Ptr FileSystem::openFile(const Path& path) const {
+        MappedFile::Ptr FileSystem::openFile(const Path& path) const {
             try {
                 if (path.isAbsolute()) {
                     throw FileSystemException("Path is absolute: '" + path.asString() + "'");
                 }
-                if (!fileExists(path)) {
-                    throw FileSystemException("File not found: '" + path.asString() + "'");
-                }
 
-                return doOpenFile(path);
+                return _openFile(path);
             } catch (const PathException& e) {
                 throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
             }
         }
 
-        WritableFileSystem::WritableFileSystem() {}
+        bool FileSystem::_directoryExists(const Path& path) const {
+            return doDirectoryExists(path) || (m_next && m_next->_directoryExists(path)) ;
+        }
 
-        /*
-         GCC complains about the call to the base class initializer missing, and Clang complains
-         about it being there. We decide to keep it there and silence the Clang warning.
-         */
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wabstract-vbase-init"
-#endif
-        WritableFileSystem::WritableFileSystem(const WritableFileSystem& other) :
-        FileSystem() {}
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
+        bool FileSystem::_fileExists(const Path& path) const {
+            return doFileExists(path) || (m_next && m_next->_fileExists(path));
+        }
+
+        Path::List FileSystem::_getDirectoryContents(const Path& directoryPath) const {
+            auto result = doGetDirectoryContents(directoryPath);
+            if (m_next) {
+                VectorUtils::append(result, m_next->_getDirectoryContents(directoryPath));
+            }
+
+            VectorUtils::sortAndRemoveDuplicates(result);
+            return result;
+        }
+
+        MappedFile::Ptr FileSystem::_openFile(const Path& path) const {
+            if (doFileExists(path)) {
+                return doOpenFile(path);
+            } else if (m_next) {
+                return m_next->_openFile(path);
+            } else {
+                throw FileSystemException("File not found: '" + path.asString() + "'");
+            }
+        }
+
+        WritableFileSystem::WritableFileSystem(std::unique_ptr<FileSystem> next) :
+        FileSystem(std::move(next)) {}
 
         WritableFileSystem::~WritableFileSystem() {}
-
-        WritableFileSystem& WritableFileSystem::operator=(const WritableFileSystem& other) { return *this; }
 
         void WritableFileSystem::createFile(const Path& path, const String& contents) {
             try {

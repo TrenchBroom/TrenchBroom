@@ -52,7 +52,7 @@ namespace TrenchBroom {
             OpenFile(const Path& path, bool write);
             ~OpenFile();
             
-            deleteCopyAndAssignment(OpenFile)
+            deleteCopyAndMove(OpenFile)
         };
         
         class OpenStream {
@@ -64,7 +64,7 @@ namespace TrenchBroom {
 
             std::string readAll();
 
-            deleteCopyAndAssignment(OpenStream)
+            deleteCopyAndMove(OpenStream)
         };
         
         String readGameComment(std::istream& stream);

@@ -25,12 +25,10 @@
 #include "IO/Bsp29Parser.h"
 #include "IO/DefParser.h"
 #include "IO/DkmParser.h"
-#include "IO/DkPakFileSystem.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/FgdParser.h"
 #include "IO/FileMatcher.h"
 #include "IO/FileSystem.h"
-#include "IO/IdPakFileSystem.h"
 #include "IO/IOUtils.h"
 #include "IO/MapParser.h"
 #include "IO/MdlParser.h"
@@ -38,7 +36,6 @@
 #include "IO/NodeReader.h"
 #include "IO/NodeWriter.h"
 #include "IO/ObjSerializer.h"
-#include "IO/Quake3ShaderFileSystem.h"
 #include "IO/WorldReader.h"
 #include "IO/SimpleParserStatus.h"
 #include "IO/SystemPaths.h"
@@ -64,81 +61,9 @@ namespace TrenchBroom {
         m_gamePath(gamePath) {
             initializeFileSystem(logger);
         }
-        
+
         void GameImpl::initializeFileSystem(Logger* logger) {
-            // To allow loading some default assets such as the empty texture, we add the game config path.
-            const auto& configPath = m_config.path();
-            if (!configPath.isEmpty()) {
-                const auto configAssetPath = configPath.deleteLastComponent() + IO::Path("assets");
-                if (IO::Disk::directoryExists(configAssetPath)) {
-                    addFileSystemPath(configAssetPath, logger);
-                }
-            }
-
-            const auto& fileSystemConfig = m_config.fileSystemConfig();
-            if (!m_gamePath.isEmpty() && IO::Disk::directoryExists(m_gamePath)) {
-                addFileSystemSearchPath(fileSystemConfig.searchPath, logger);
-                addFileSystemPackages(m_gamePath + fileSystemConfig.searchPath, logger);
-
-                for (const auto& searchPath : m_additionalSearchPaths) {
-                    addFileSystemSearchPath(searchPath, logger);
-                    addFileSystemPackages(m_gamePath + searchPath, logger);
-                }
-
-                // To support Quake 3 shaders, we add a shader file system that resolves the shaders
-                // and links them to existing texture images.
-                const auto& textureConfig = m_config.textureConfig();
-                const auto& textureFormat = textureConfig.format.format;
-                if (StringUtils::caseInsensitiveEqual(textureFormat, "q3shader")) {
-                    logger->info() << "Adding shader file system for extensions " << StringUtils::join(textureConfig.format.extensions);
-                    const auto prefix = textureConfig.package.rootDirectory;
-                    const auto& extensions = textureConfig.format.extensions;
-                    m_gameFS.pushFileSystem(std::make_unique<IO::Quake3ShaderFileSystem>(m_gameFS, prefix, extensions, logger));
-                }
-            }
-        }
-
-        void GameImpl::addFileSystemSearchPath(const IO::Path& searchPath, Logger* logger) {
-            addFileSystemPath(m_gamePath + searchPath, logger);
-        }
-
-        void GameImpl::addFileSystemPath(const IO::Path& path, Logger* logger) {
-            try {
-                logger->info() << "Adding file system path " << path;
-                m_gameFS.pushFileSystem(std::make_unique<IO::DiskFileSystem>(path));
-            } catch (const FileSystemException& e) {
-                logger->error() << "Could not add file system search path '" << path << "': " << e.what();
-            }
-        }
-
-        void GameImpl::addFileSystemPackages(const IO::Path& searchPath, Logger* logger) {
-            const auto& fileSystemConfig = m_config.fileSystemConfig();
-            const auto& packageFormatConfig = fileSystemConfig.packageFormat;
-
-            const auto& packageExtensions = packageFormatConfig.extensions;
-            const auto& packageFormat = packageFormatConfig.format;
-
-            if (IO::Disk::directoryExists(searchPath)) {
-                const IO::DiskFileSystem diskFS(searchPath);
-                auto packages = diskFS.findItems(IO::Path(""), IO::FileExtensionMatcher(packageExtensions));
-                VectorUtils::sort(packages, IO::Path::Less<StringUtils::CaseInsensitiveStringLess>());
-
-                for (const auto& packagePath : packages) {
-                    auto packageFile = diskFS.openFile(packagePath);
-                    ensure(packageFile.get() != nullptr, "packageFile is null");
-
-                    if (StringUtils::caseInsensitiveEqual(packageFormat, "idpak")) {
-                        logger->info() << "Adding file system package " << packagePath;
-                        m_gameFS.pushFileSystem(std::make_unique<IO::IdPakFileSystem>(packagePath, packageFile));
-                    } else if (StringUtils::caseInsensitiveEqual(packageFormat, "dkpak")) {
-                        logger->info() << "Adding file system package " << packagePath;
-                        m_gameFS.pushFileSystem(std::make_unique<IO::DkPakFileSystem>(packagePath, packageFile));
-                    } else if (StringUtils::caseInsensitiveEqual(packageFormat, "zip")) {
-                        logger->info() << "Adding file system package " << packagePath;
-                        m_gameFS.pushFileSystem(std::make_unique<IO::ZipFileSystem>(packagePath, packageFile));
-                    }
-                }
-            }
+            m_fs.initialize(m_config, m_gamePath, m_additionalSearchPaths, logger);
         }
 
         const String& GameImpl::doGameName() const {
@@ -151,23 +76,19 @@ namespace TrenchBroom {
 
         void GameImpl::doSetGamePath(const IO::Path& gamePath, Logger* logger) {
             m_gamePath = gamePath;
-            m_gameFS.clear();
             initializeFileSystem(logger);
         }
 
         void GameImpl::doSetAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger* logger) {
             m_additionalSearchPaths = searchPaths;
-            m_gameFS.clear();
             initializeFileSystem(logger);
         }
 
         Game::PathErrors GameImpl::doCheckAdditionalSearchPaths(const IO::Path::List& searchPaths) const {
             PathErrors result;
             for (const auto& searchPath : searchPaths) {
-                try {
-                    IO::DiskFileSystem(m_gamePath + searchPath);
-                } catch (const Exception& e) {
-                    result.insert(std::make_pair(searchPath, e.what()));
+                if (!IO::Disk::directoryExists(searchPath)) {
+                    result.insert(std::make_pair(searchPath, "Directory not found: '" + searchPath.asString() + "'"));
                 }
             }
             return result;
@@ -266,7 +187,7 @@ namespace TrenchBroom {
             const auto paths = extractTextureCollections(node);
 
             const auto fileSearchPaths = textureCollectionSearchPaths(documentPath);
-            IO::TextureLoader textureLoader(m_gameFS, fileSearchPaths, m_config.textureConfig(), logger);
+            IO::TextureLoader textureLoader(m_fs, fileSearchPaths, m_config.textureConfig(), logger);
             textureLoader.loadTextures(paths, textureManager);
         }
 
@@ -300,8 +221,8 @@ namespace TrenchBroom {
         IO::Path::List GameImpl::doFindTextureCollections() const {
             try {
                 const auto& searchPath = m_config.textureConfig().package.rootDirectory;
-                if (!searchPath.isEmpty() && m_gameFS.directoryExists(searchPath)) {
-                    return m_gameFS.findItems(searchPath, IO::FileTypeMatcher(false, true));
+                if (!searchPath.isEmpty() && m_fs.directoryExists(searchPath)) {
+                    return m_fs.findItems(searchPath, IO::FileTypeMatcher(false, true));
                 }
                 return IO::Path::List();
             } catch (FileSystemException& e) {
@@ -414,7 +335,7 @@ namespace TrenchBroom {
 
         Assets::EntityModel* GameImpl::doLoadEntityModel(const IO::Path& path) const {
             try {
-                const auto file = m_gameFS.openFile(path);
+                const auto file = m_fs.openFile(path);
                 ensure(file.get() != nullptr, "file is null");
 
                 const auto modelName = path.lastComponent().asString();
@@ -454,18 +375,18 @@ namespace TrenchBroom {
         Assets::EntityModel* GameImpl::loadMd2Model(const String& name, const IO::MappedFile::Ptr& file) const {
             const auto palette = loadTexturePalette();
 
-            IO::Md2Parser parser(name, file->begin(), file->end(), palette, m_gameFS);
+            IO::Md2Parser parser(name, file->begin(), file->end(), palette, m_fs);
             return parser.parseModel();
         }
 
         Assets::EntityModel* GameImpl::loadDkmModel(const String& name, const IO::MappedFile::Ptr& file) const {
-            IO::DkmParser parser(name, file->begin(), file->end(), m_gameFS);
+            IO::DkmParser parser(name, file->begin(), file->end(), m_fs);
             return parser.parseModel();
         }
 
         Assets::Palette GameImpl::loadTexturePalette() const {
             const auto& path = m_config.textureConfig().palette;
-            return Assets::Palette::loadFile(m_gameFS, path);
+            return Assets::Palette::loadFile(m_fs, path);
         }
 
         const BrushContentType::List& GameImpl::doBrushContentTypes() const {

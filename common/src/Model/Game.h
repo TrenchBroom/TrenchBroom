@@ -27,7 +27,6 @@
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "IO/EntityDefinitionLoader.h"
 #include "IO/EntityModelLoader.h"
-#include "IO/FileSystemHierarchy.h"
 #include "IO/TextureReader.h"
 #include "Model/GameConfig.h"
 #include "Model/MapFormat.h"

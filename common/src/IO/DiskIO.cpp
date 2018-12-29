@@ -115,15 +115,17 @@ namespace TrenchBroom {
             Path::List getDirectoryContents(const Path& path) {
                 const Path fixedPath = fixPath(path);
                 wxDir dir(fixedPath.asString());
-                if (!dir.IsOpened())
+                if (!dir.IsOpened()) {
                     throw FileSystemException("Cannot open directory: '" + fixedPath.asString() + "'");
-                
+                }
+
                 Path::List result;
                 wxString filename;
                 if (dir.GetFirst(&filename)) {
                     result.push_back(Path(filename.ToStdString()));
-                    while (dir.GetNext(&filename))
+                    while (dir.GetNext(&filename)) {
                         result.push_back(Path(filename.ToStdString()));
+                    }
                 }
                 
                 return result;

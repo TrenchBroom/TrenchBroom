@@ -174,12 +174,13 @@ namespace TrenchBroom {
             assert(!isRecursiveInclude(path));
 
             const auto folder = path.deleteLastComponent();
-            m_fileSystem.pushFileSystem(std::make_unique<DiskFileSystem>(folder));
+            m_fs = std::make_unique<DiskFileSystem>(std::move(m_fs), folder);
             m_paths.push_back(path);
         }
 
         void FgdParser::popIncludePath() {
-            m_fileSystem.popFileSystem();
+            assert(!m_paths.empty());
+            m_fs = std::move(m_fs->releaseNext());
             m_paths.pop_back();
         }
 
@@ -714,7 +715,7 @@ namespace TrenchBroom {
             auto result = Assets::EntityDefinitionList(0);
             try {
                 status.debug(m_tokenizer.line(), "Parsing included file '" + path.asString() + "'");
-                const auto file = m_fileSystem.openFile(path);
+                const auto file = m_fs->openFile(path);
                 const auto filePath = file->path();
                 status.debug(m_tokenizer.line(), "Resolved '" + path.asString() + "' to '" + filePath.asString() + "'");
 

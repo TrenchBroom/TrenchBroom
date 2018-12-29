@@ -43,7 +43,7 @@ namespace TrenchBroom {
                 virtual NameStrategy* doClone() const = 0;
                 virtual String doGetTextureName(const String& textureName, const Path& path) const = 0;
                 
-                deleteCopyAndAssignment(NameStrategy)
+                deleteCopyAndMove(NameStrategy)
             };
             
             class TextureNameStrategy : public NameStrategy {
@@ -53,7 +53,7 @@ namespace TrenchBroom {
                 NameStrategy* doClone() const override;
                 String doGetTextureName(const String& textureName, const Path& path) const override;
                 
-                deleteCopyAndAssignment(TextureNameStrategy)
+                deleteCopyAndMove(TextureNameStrategy)
             };
             
             class PathSuffixNameStrategy : public NameStrategy {
@@ -66,7 +66,7 @@ namespace TrenchBroom {
                 NameStrategy* doClone() const override;
                 String doGetTextureName(const String& textureName, const Path& path) const override;
                 
-                deleteCopyAndAssignment(PathSuffixNameStrategy)
+                deleteCopyAndMove(PathSuffixNameStrategy)
             };
         private:
             NameStrategy* m_nameStrategy;
@@ -95,7 +95,7 @@ namespace TrenchBroom {
         public:
             static size_t mipSize(size_t width, size_t height, size_t mipLevel);
             
-            deleteCopyAndAssignment(TextureReader)
+            deleteCopyAndMove(TextureReader)
         };
     }
 }

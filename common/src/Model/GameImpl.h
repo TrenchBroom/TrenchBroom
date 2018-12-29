@@ -23,9 +23,9 @@
 #include "TrenchBroom.h"
 #include "SharedPointer.h"
 #include "Assets/AssetTypes.h"
-#include "IO/FileSystemHierarchy.h"
 #include "Model/Game.h"
 #include "Model/GameConfig.h"
+#include "Model/GameFileSystem.h"
 #include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
@@ -35,17 +35,13 @@ namespace TrenchBroom {
         class GameImpl : public Game {
         private:
             GameConfig& m_config;
+            GameFileSystem m_fs;
             IO::Path m_gamePath;
             IO::Path::List m_additionalSearchPaths;
-            
-            IO::FileSystemHierarchy m_gameFS;
         public:
             GameImpl(GameConfig& config, const IO::Path& gamePath, Logger* logger);
         private:
             void initializeFileSystem(Logger* logger);
-            void addFileSystemSearchPath(const IO::Path& searchPath, Logger* logger);
-            void addFileSystemPath(const IO::Path& path, Logger* logger);
-            void addFileSystemPackages(const IO::Path& searchPath, Logger* logger);
         private:
             const String& doGameName() const override;
             IO::Path doGamePath() const override;

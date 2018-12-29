@@ -85,10 +85,13 @@ namespace TrenchBroom {
         }
         
         DkPakFileSystem::DkPakFileSystem(const Path& path, MappedFile::Ptr file) :
-        ImageFileSystem(path, file) {
+        DkPakFileSystem(nullptr, path, file) {}
+
+        DkPakFileSystem::DkPakFileSystem(std::unique_ptr<FileSystem> next, const Path& path, MappedFile::Ptr file) :
+        ImageFileSystem(std::move(next), path, file) {
             initialize();
         }
-        
+
         void DkPakFileSystem::doReadDirectory() {
             CharArrayReader reader(m_file->begin(), m_file->end());
             reader.seekFromBegin(PakLayout::HeaderMagicLength);

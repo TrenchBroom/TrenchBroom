@@ -166,7 +166,8 @@ namespace TrenchBroom {
             return it->second->findOrCreateDirectory(path.deleteFirstComponent());
         }
 
-        ImageFileSystemBase::ImageFileSystemBase(const Path& path) :
+        ImageFileSystemBase::ImageFileSystemBase(std::unique_ptr<FileSystem> next, const Path& path) :
+        FileSystem(std::move(next)),
         m_path(path),
         m_root(Path("")) {}
 
@@ -177,10 +178,6 @@ namespace TrenchBroom {
             doReadDirectory();
         }
 
-        Path ImageFileSystemBase::doMakeAbsolute(const Path& relPath) const {
-            return m_path + relPath.makeCanonical();
-        }
-        
         bool ImageFileSystemBase::doDirectoryExists(const Path& path) const {
             const auto searchPath = path.makeLowerCase();
             return m_root.directoryExists(searchPath);
@@ -202,8 +199,8 @@ namespace TrenchBroom {
             return m_root.findFile(path).open();
         }
 
-        ImageFileSystem::ImageFileSystem(const Path& path, MappedFile::Ptr file) :
-        ImageFileSystemBase(path),
+        ImageFileSystem::ImageFileSystem(std::unique_ptr<FileSystem> next, const Path& path, MappedFile::Ptr file) :
+        ImageFileSystemBase(std::move(next), path),
         m_file(file) {}
 
         ImageFileSystem::~ImageFileSystem() = default;

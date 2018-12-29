@@ -24,6 +24,8 @@
 #include "IO/FileSystem.h"
 #include "IO/Path.h"
 
+#include <memory>
+
 namespace TrenchBroom {
     namespace IO {
         class DiskFileSystem : public virtual FileSystem {
@@ -31,8 +33,10 @@ namespace TrenchBroom {
             Path m_root;
         public:
             DiskFileSystem(const Path& root, bool ensureExists = true);
-        private:
-            Path doMakeAbsolute(const Path& relPath) const override;
+            DiskFileSystem(std::unique_ptr<FileSystem> next, const Path& root, bool ensureExists = true);
+
+            Path makeAbsolute(const Path& relPath) const;
+        protected:
             bool doDirectoryExists(const Path& path) const override;
             bool doFileExists(const Path& path) const override;
             
@@ -48,6 +52,7 @@ namespace TrenchBroom {
         class WritableDiskFileSystem : public DiskFileSystem, public WritableFileSystem {
         public:
             WritableDiskFileSystem(const Path& root, bool create);
+            WritableDiskFileSystem(std::unique_ptr<FileSystem> next, const Path& root, bool create);
         private:
             void doCreateFile(const Path& path, const String& contents) override;
             void doCreateDirectory(const Path& path) override;

@@ -27,9 +27,8 @@
 
 namespace TrenchBroom {
     namespace IO {
-        Quake3ShaderFileSystem::Quake3ShaderFileSystem(const FileSystem& fs, const Path& prefix, const StringList& extensions, Logger* logger) :
-        ImageFileSystemBase(Path()),
-        m_fs(fs),
+        Quake3ShaderFileSystem::Quake3ShaderFileSystem(std::unique_ptr<FileSystem> fs, const Path& prefix, const StringList& extensions, Logger* logger) :
+        ImageFileSystemBase(std::move(fs), Path()),
         m_prefix(prefix),
         m_extensions(extensions),
         m_logger(logger) {
@@ -44,11 +43,11 @@ namespace TrenchBroom {
         std::vector<Assets::Quake3Shader> Quake3ShaderFileSystem::loadShaders() const {
             auto result = std::vector<Assets::Quake3Shader>();
 
-            const auto paths = m_fs.findItems(Path("scripts"), FileExtensionMatcher("shader"));
+            const auto paths = next().findItems(Path("scripts"), FileExtensionMatcher("shader"));
             for (const auto& path : paths) {
                 m_logger->debug() << "Loading shader " << path.asString();
 
-                const auto file = m_fs.openFile(path);
+                const auto file = next().openFile(path);
 
                 Quake3ShaderParser parser(file->begin(), file->end());
                 VectorUtils::append(result, parser.parse());
@@ -60,7 +59,7 @@ namespace TrenchBroom {
         }
 
         void Quake3ShaderFileSystem::linkShaders(std::vector<Assets::Quake3Shader>& shaders) {
-            const auto textures = m_fs.findItemsRecursively(Path("textures"), FileExtensionMatcher(m_extensions));
+            const auto textures = next().findItemsRecursively(Path("textures"), FileExtensionMatcher(m_extensions));
 
             m_logger->info() << "Linking shaders...";
             linkTextures(textures, shaders);
@@ -106,9 +105,9 @@ namespace TrenchBroom {
 
         void Quake3ShaderFileSystem::linkShaderToImage(const Path& shaderPath, Path imagePath, const Assets::Quake3Shader& shader) {
             if (shaderPath.hasPrefix(m_prefix, false)) {
-                if (!m_fs.fileExists(imagePath)) {
+                if (!next().fileExists(imagePath)) {
                     // If the file does not exist, we try to find one with the same basename and a valid extension.
-                    const auto candidates = m_fs.findItemsWithBaseName(imagePath, m_extensions);
+                    const auto candidates = next().findItemsWithBaseName(imagePath, m_extensions);
                     if (!candidates.empty()) {
                         const auto replacement = candidates.front(); // just use the first candidate
                         imagePath = replacement;
@@ -117,7 +116,7 @@ namespace TrenchBroom {
                 // Don't link a file to itself.
                 if (shaderPath != imagePath) {
                     m_logger->debug() << "Linking shader: " << shaderPath << " -> " << imagePath;
-                    m_root.addFile(shaderPath, std::make_unique<LinkFile>(m_fs, shaderPath, imagePath));
+                    m_root.addFile(shaderPath, std::make_unique<LinkFile>(next(), shaderPath, imagePath));
                 }
             }
         }

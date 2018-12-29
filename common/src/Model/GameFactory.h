@@ -22,29 +22,29 @@
 
 #include "StringUtils.h"
 #include "Preference.h"
-#include "IO/FileSystemHierarchy.h"
 #include "IO/Path.h"
 #include "Model/GameConfig.h"
 #include "Model/MapFormat.h"
 #include "Model/ModelTypes.h"
 
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
     class Logger;
     
     namespace IO {
-        class DiskFileSystem;
+        class WritableDiskFileSystem;
     }
     
     namespace Model {
         class GameFactory {
         private:
-            typedef std::map<String, GameConfig> ConfigMap;
-            typedef std::map<String, Preference<IO::Path> > GamePathMap;
-            
-            IO::WritableFileSystemHierarchy m_configFS;
-            
+            using ConfigMap = std::map<String, GameConfig>;
+            using GamePathMap = std::map<String, Preference<IO::Path> >;
+
+            std::unique_ptr<IO::WritableDiskFileSystem> m_configFS;
+
             StringList m_names;
             ConfigMap m_configs;
             mutable GamePathMap m_gamePaths;

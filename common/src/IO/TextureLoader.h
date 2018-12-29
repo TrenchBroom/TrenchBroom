@@ -60,7 +60,7 @@ namespace TrenchBroom {
             std::unique_ptr<Assets::TextureCollection> loadTextureCollection(const Path& path);
             void loadTextures(const Path::List& paths, Assets::TextureManager& textureManager);
 
-            deleteCopyAndAssignment(TextureLoader)
+            deleteCopyAndMove(TextureLoader)
         };
     }
 }

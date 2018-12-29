@@ -37,7 +37,10 @@ namespace TrenchBroom {
         }
 
         IdPakFileSystem::IdPakFileSystem(const Path& path, MappedFile::Ptr file) :
-        ImageFileSystem(path, file) {
+        IdPakFileSystem(nullptr, path, file) {}
+
+        IdPakFileSystem::IdPakFileSystem(std::unique_ptr<FileSystem> next, const Path& path, MappedFile::Ptr file) :
+        ImageFileSystem(std::move(next), path, file) {
             initialize();
         }
 

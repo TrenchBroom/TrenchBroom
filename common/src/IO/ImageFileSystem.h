@@ -25,6 +25,7 @@
 #include "IO/Path.h"
 
 #include <map>
+#include <memory>
 
 namespace TrenchBroom {
     namespace IO {
@@ -98,13 +99,12 @@ namespace TrenchBroom {
             Path m_path;
             Directory m_root;
         protected:
-            ImageFileSystemBase(const Path& path);
+            ImageFileSystemBase(std::unique_ptr<FileSystem> next, const Path& path);
         public:
             virtual ~ImageFileSystemBase() override;
         protected:
             void initialize();
         private:
-            Path doMakeAbsolute(const Path& relPath) const override;
             bool doDirectoryExists(const Path& path) const override;
             bool doFileExists(const Path& path) const override;
             
@@ -118,7 +118,7 @@ namespace TrenchBroom {
         protected:
             MappedFile::Ptr m_file;
         protected:
-            ImageFileSystem(const Path& path, MappedFile::Ptr file);
+            ImageFileSystem(std::unique_ptr<FileSystem> next, const Path& path, MappedFile::Ptr file);
         public:
             virtual ~ImageFileSystem() override;
         };

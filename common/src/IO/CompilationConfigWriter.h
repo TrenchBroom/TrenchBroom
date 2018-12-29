@@ -49,7 +49,7 @@ namespace TrenchBroom {
             
             String escape(const String& str) const;
             
-            deleteCopyAndAssignment(CompilationConfigWriter)
+            deleteCopyAndMove(CompilationConfigWriter)
         };
     }
 }

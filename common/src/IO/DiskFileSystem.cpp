@@ -30,13 +30,26 @@
 namespace TrenchBroom {
     namespace IO {
         DiskFileSystem::DiskFileSystem(const Path& root, const bool ensureExists) :
-        m_root(Disk::fixPath(root)) {
-            if (ensureExists && !Disk::directoryExists(m_root))
+        DiskFileSystem(nullptr, root, ensureExists) {}
+
+        DiskFileSystem::DiskFileSystem(std::unique_ptr<FileSystem> next, const Path& root, const bool ensureExists) :
+        FileSystem(std::move(next)),
+        m_root(root) {
+            if (ensureExists && !Disk::directoryExists(m_root)) {
                 throw FileSystemException("Directory not found: '" + m_root.asString() + "'");
+            }
         }
-        
-        Path DiskFileSystem::doMakeAbsolute(const Path& relPath) const {
-            return m_root + relPath.makeCanonical();
+
+        Path DiskFileSystem::makeAbsolute(const Path& relPath) const {
+            try {
+                if (relPath.isAbsolute()) {
+                    throw FileSystemException("Path is absolute: '" + relPath.asString() + "'");
+                }
+
+                return m_root + relPath.makeCanonical();
+            } catch (const PathException& e) {
+                throw FileSystemException("Invalid path: '" + relPath.asString() + "'", e);
+            }
         }
         
         bool DiskFileSystem::doDirectoryExists(const Path& path) const {
@@ -56,11 +69,17 @@ namespace TrenchBroom {
         }
         
         WritableDiskFileSystem::WritableDiskFileSystem(const Path& root, const bool create) :
-        DiskFileSystem(root, !create) {
-            if (create && !Disk::directoryExists(m_root))
+        WritableDiskFileSystem(nullptr, root, create) {}
+
+        WritableDiskFileSystem::WritableDiskFileSystem(std::unique_ptr<FileSystem> next, const Path& root, const bool create) :
+        FileSystem(std::move(next)), // pass the next pointer to the single shared superclass instance
+        DiskFileSystem(root, !create), // no need to pass the next pointer here
+        WritableFileSystem() { // nor here, since neither of these constructors will call the FileSystem constructor
+            if (create && !Disk::directoryExists(m_root)) {
                 Disk::createDirectory(m_root);
+            }
         }
-        
+
         void WritableDiskFileSystem::doCreateFile(const Path& path, const String& contents) {
             Disk::createFile(makeAbsolute(path), contents);
         }
