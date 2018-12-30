@@ -308,6 +308,7 @@ namespace TrenchBroom {
         public:
             bool createBrush(const std::vector<vm::vec3>& points);
             bool csgConvexMerge();
+            bool csgConvexMerge(const std::vector<vm::vec3>& points, const Model::NodeList& toRemove = Model::EmptyNodeList);
             bool csgSubtract();
             bool csgIntersect();
             bool csgHollow();

@@ -1193,7 +1193,21 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             if (canDoCsgConvexMerge()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
-                m_document->csgConvexMerge();
+                if (m_mapView->vertexToolActive()) {
+                    m_document->csgConvexMerge(m_mapView->vertexTool()->handleManager().selectedHandles());
+                } else if (m_mapView->edgeToolActive()) {
+                    std::vector<vm::vec3> vertices;
+                    const auto edges = m_mapView->edgeTool()->handleManager().selectedHandles();
+                    vm::segment3::getVertices(std::begin(edges), std::end(edges), std::back_inserter(vertices));
+                    m_document->csgConvexMerge(vertices);
+                } else if (m_mapView->faceToolActive()) {
+                    std::vector<vm::vec3> vertices;
+                    const auto faces = m_mapView->faceTool()->handleManager().selectedHandles();
+                    vm::polygon3::getVertices(std::begin(faces), std::end(faces), std::back_inserter(vertices));
+                    m_document->csgConvexMerge(vertices);
+                } else {
+                    m_document->csgConvexMerge();
+                }
             }
         }
 
@@ -1999,7 +2013,10 @@ namespace TrenchBroom {
 
         bool MapFrame::canDoCsgConvexMerge() const {
             return (m_document->hasSelectedBrushFaces() && m_document->selectedBrushFaces().size() > 1) ||
-                   (m_document->selectedNodes().hasOnlyBrushes() && m_document->selectedNodes().brushCount() > 1);
+                   (m_document->selectedNodes().hasOnlyBrushes() && m_document->selectedNodes().brushCount() > 1) ||
+                   (m_mapView->vertexToolActive() && m_mapView->vertexTool()->handleManager().selectedHandleCount() > 3) ||
+                   (m_mapView->edgeToolActive() && m_mapView->edgeTool()->handleManager().selectedHandleCount() > 1) ||
+                   (m_mapView->faceToolActive() && m_mapView->faceTool()->handleManager().selectedHandleCount() > 1);
         }
 
         bool MapFrame::canDoCsgSubtract() const {
