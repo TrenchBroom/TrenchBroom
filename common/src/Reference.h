@@ -124,8 +124,13 @@ namespace TrenchBroom {
         template <typename> friend class TypedReference;
         Reference::Holder::Ptr m_holder;
     public:
+        UntypedReference() = default;
+
         template <typename T>
         UntypedReference(const TypedReference<T>& reference) : m_holder(reference.m_holder) {}
+
+        UntypedReference(const UntypedReference& other) = default;
+        UntypedReference& operator=(const UntypedReference& other) = default;
         
         template <typename T>
         UntypedReference& operator=(const TypedReference<T>& reference) { m_holder = reference.m_holder; return *this; }

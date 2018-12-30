@@ -65,9 +65,9 @@ namespace TrenchBroom {
                     offset[i] = reader.readSize<int32_t>();
                 }
 
-                const auto transparency = (name.size() > 0 && name.at(0) == '{')
-                                          ? Assets::PaletteTransparency::Index255Transparent
-                                          : Assets::PaletteTransparency::Opaque;
+                const auto transparent = (name.size() > 0 && name.at(0) == '{')
+                                         ? Assets::PaletteTransparency::Index255Transparent
+                                         : Assets::PaletteTransparency::Opaque;
 
                 Assets::setMipBufferSize(buffers, MipLevels, width, height, GL_RGBA);
                 auto palette = doGetPalette(reader, offset, width, height);
@@ -83,18 +83,16 @@ namespace TrenchBroom {
                     reader.ensureCanRead(size);
 
                     Color tempColor;
-                    palette.indexedToRgba(data, size, buffers[i], transparency, tempColor);
+                    palette.indexedToRgba(data, size, buffers[i], transparent, tempColor);
                     if (i == 0) {
                         averageColor = tempColor;
                     }
                 }
 
-                const auto type = (transparency == Assets::PaletteTransparency::Index255Transparent)
+                const auto type = (transparent == Assets::PaletteTransparency::Index255Transparent)
                                   ? Assets::TextureType::Masked
                                   : Assets::TextureType::Opaque;
-
-                return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers, GL_RGBA,
-                                           type);
+                return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers, GL_RGBA, type);
             } catch (const CharArrayReaderException&) {
                 return new Assets::Texture(textureName(path), 16, 16);
             }

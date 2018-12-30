@@ -79,7 +79,7 @@ namespace TrenchBroom {
             const auto imageColourType = FreeImage_GetColorType(image);
 
             // This is supposed to indicate whether any pixels are transparent (alpha < 100%)
-            const auto transparent = FreeImage_IsTransparent(image);
+            const auto masked = FreeImage_IsTransparent(image);
 
             const auto mipCount = 1U;
             constexpr auto format = freeImage32BPPFormatToGLFormat();
@@ -104,9 +104,8 @@ namespace TrenchBroom {
             FreeImage_Unload(image);
             FreeImage_CloseMemory(imageMemory);
 
-            
-            const auto textureType = transparent ? Assets::TextureType::Masked : Assets::TextureType::Opaque;
-
+            const auto transparency = file->getAttribute(MappedFile::Transparency);
+            const auto textureType = Assets::Texture::selectTextureType(masked, transparency);
             return new Assets::Texture(textureName(imageName, path), imageWidth, imageHeight, Color(), buffers, format, textureType);
         }
     }

@@ -118,7 +118,17 @@ namespace TrenchBroom {
             }
             m_textureId = 0;
         }
-        
+
+        TextureType Texture::selectTextureType(const bool masked, const float transparency) {
+            if (masked) {
+                return TextureType::Masked;
+            } else if (transparency < 1.0f) {
+                return TextureType::Transparent;
+            } else {
+                return TextureType::Opaque;
+            }
+        }
+
         const String& Texture::name() const {
             return m_name;
         }
@@ -134,7 +144,11 @@ namespace TrenchBroom {
         const Color& Texture::averageColor() const {
             return m_averageColor;
         }
-        
+
+        bool Texture::transparent() const {
+            return m_type == TextureType::Transparent;
+        }
+
         size_t Texture::usageCount() const {
             return m_usageCount;
         }

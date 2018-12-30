@@ -38,7 +38,15 @@ namespace TrenchBroom {
         typedef Buffer<unsigned char> TextureBuffer;
 
         enum class TextureType {
-            Opaque, Masked
+            Opaque,
+            /**
+             * Modifies texture uploading to support mask textures.
+             */
+            Masked,
+            /**
+             * Modifies the renderer to render brushes with this texture transparent.
+             */
+            Transparent
         };
 
         vm::vec2s sizeAtMipLevel(size_t width, size_t height, size_t level);
@@ -68,11 +76,14 @@ namespace TrenchBroom {
             Texture(const String& name, size_t width, size_t height, GLenum format = GL_RGB, TextureType type = TextureType::Opaque);
             ~Texture();
 
+            static TextureType selectTextureType(bool masked, float transparency);
+
             const String& name() const;
             
             size_t width() const;
             size_t height() const;
             const Color& averageColor() const;
+            bool transparent() const;
 
             size_t usageCount() const;
             void incUsageCount();

@@ -19,6 +19,10 @@
 
 #include "BrushContentTypeBuilder.h"
 
+#include "Assets/Texture.h"
+#include "Model/Brush.h"
+#include "Model/BrushFace.h"
+
 namespace TrenchBroom {
     namespace Model {
         BrushContentTypeBuilder::Result::Result(const BrushContentType::FlagType i_contentType, const bool i_transparent) :
@@ -40,6 +44,17 @@ namespace TrenchBroom {
                     transparent |= contentType.transparent();
                 }
             }
+
+            if (!transparent) {
+                for (const auto* face : brush->faces()) {
+                    const auto* texture = face->texture();
+                    transparent = texture != nullptr && texture->transparent();
+                    if (transparent) {
+                        break;
+                    }
+                }
+            }
+
             return Result(flags, transparent);
         }
     }

@@ -21,8 +21,8 @@
 #define TRENCHBROOM_TYPEDATTRIBUTEMAP_H
 
 #include "StringUtils.h"
+#include "Reference.h"
 
-#include <any>
 #include <unordered_map>
 
 namespace TrenchBroom  {
@@ -47,7 +47,7 @@ namespace TrenchBroom  {
             }
         };
     private:
-        std::unordered_map<String, std::any> m_attributes;
+        std::unordered_map<String, UntypedReference> m_attributes;
     public:
         template <typename T>
         bool hasAttribute(const Attribute<T>& attribute) const {
@@ -60,13 +60,14 @@ namespace TrenchBroom  {
             if (it == std::end(m_attributes)) {
                 return attribute.defaultValue();
             } else {
-                return std::any_cast<T>(it->second);
+                TypedReference<T> ref(it->second);
+                return ref.get();
             }
         }
 
         template <typename T>
         void setAttribute(const Attribute<T>& attribute, const T& value) {
-            m_attributes[attribute.name()] = value;
+            m_attributes[attribute.name()] = Reference::copy(value);
         }
 
         void setAttributes(const TypedAttributeMap& attributes) {

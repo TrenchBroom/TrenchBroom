@@ -169,7 +169,7 @@ namespace TrenchBroom {
             bool m_showHiddenBrushes;
         public:
             template <typename FilterT>
-            BrushRenderer(const FilterT& filter) :
+            explicit BrushRenderer(const FilterT& filter) :
             m_filter(new FilterT(filter)),
             m_showEdges(false),
             m_grayscale(false),
@@ -180,7 +180,7 @@ namespace TrenchBroom {
                 clear();
             }
             
-            BrushRenderer(bool transparent);
+            explicit BrushRenderer(bool transparent);
             
             ~BrushRenderer();
 

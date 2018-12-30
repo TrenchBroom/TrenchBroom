@@ -71,7 +71,7 @@ namespace TrenchBroom {
         private:
             NameStrategy* m_nameStrategy;
         protected:
-            TextureReader(const NameStrategy& nameStrategy);
+            explicit TextureReader(const NameStrategy& nameStrategy);
         public:
             virtual ~TextureReader();
             
