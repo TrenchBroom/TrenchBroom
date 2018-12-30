@@ -72,7 +72,7 @@ namespace TrenchBroom {
                 const auto textureBasePath = texture.deleteExtension();
 
                 // Only link a shader if it has not been linked yet.
-                if (!fileExists(texture)) {
+                if (!fileExists(textureBasePath)) {
                     const auto shaderIt = std::find_if(std::begin(shaders), std::end(shaders), [&textureBasePath](const auto& shader){
                         return textureBasePath == shader.texturePath();
                     });

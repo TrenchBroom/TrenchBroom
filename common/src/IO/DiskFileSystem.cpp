@@ -34,18 +34,23 @@ namespace TrenchBroom {
 
         DiskFileSystem::DiskFileSystem(std::unique_ptr<FileSystem> next, const Path& root, const bool ensureExists) :
         FileSystem(std::move(next)),
-        m_root(root) {
+        m_root(root.makeCanonical()) {
             if (ensureExists && !Disk::directoryExists(m_root)) {
                 throw FileSystemException("Directory not found: '" + m_root.asString() + "'");
             }
         }
 
+        const Path& DiskFileSystem::root() const {
+            return m_root;
+        }
+
         bool DiskFileSystem::doCanMakeAbsolute(const Path& path) const {
-            return doFileExists(path) || doDirectoryExists(path);
+            const auto resolvedPath = path.makeCanonical();
+            return doFileExists(resolvedPath) || doDirectoryExists(resolvedPath);
         }
 
         Path DiskFileSystem::doMakeAbsolute(const Path& path) const {
-            return m_root + path;
+            return m_root + path.makeCanonical();
         }
 
         bool DiskFileSystem::doDirectoryExists(const Path& path) const {

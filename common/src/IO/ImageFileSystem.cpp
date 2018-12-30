@@ -179,23 +179,23 @@ namespace TrenchBroom {
         }
 
         bool ImageFileSystemBase::doDirectoryExists(const Path& path) const {
-            const auto searchPath = path.makeLowerCase();
+            const auto searchPath = path.makeLowerCase().makeCanonical();
             return m_root.directoryExists(searchPath);
         }
         
         bool ImageFileSystemBase::doFileExists(const Path& path) const {
-            const auto searchPath = path.makeLowerCase();
+            const auto searchPath = path.makeLowerCase().makeCanonical();
             return m_root.fileExists(searchPath);
         }
         
         Path::List ImageFileSystemBase::doGetDirectoryContents(const Path& path) const {
-            const auto searchPath = path.makeLowerCase();
+            const auto searchPath = path.makeLowerCase().makeCanonical();
             const auto& directory = m_root.findDirectory(path);
             return directory.contents();
         }
         
         const MappedFile::Ptr ImageFileSystemBase::doOpenFile(const Path& path) const {
-            const auto searchPath = path.makeLowerCase();
+            const auto searchPath = path.makeLowerCase().makeCanonical();
             return m_root.findFile(path).open();
         }
 

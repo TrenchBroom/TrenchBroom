@@ -62,21 +62,46 @@ namespace TrenchBroom {
              */
             Path::List findItemsWithBaseName(const Path& path, const StringList& extensions) const;
 
+            /**
+             * Find all items in the given directory that match the given matcher.
+             *
+             * @tparam Matcher the type of the matcher
+             * @param directoryPath the path to a directory to search
+             * @param matcher the matcher
+             * @return the paths to the items that matched the query
+             */
             template <class Matcher>
             Path::List findItems(const Path& directoryPath, const Matcher& matcher) const {
-                Path::List result;
-                _findItems(directoryPath, matcher, false, result);
-                return result;
+                return findItems(directoryPath, matcher, false);
             }
+
+            /**
+             * Find all items in the given directory.
+             *
+             * @param directoryPath the path to a directory to search
+             * @return the paths to the items in the given directory
+             */
             Path::List findItems(const Path& directoryPath) const;
-            
+
+            /**
+             * Find all items in the given directory and any sub directories that match the given matcher.
+             *
+             * @tparam Matcher the type of the matcher
+             * @param directoryPath the path to a directory to search
+             * @param matcher the matcher
+             * @return the paths to the items that matched the query
+             */
             template <class Matcher>
             Path::List findItemsRecursively(const Path& directoryPath, const Matcher& matcher) const {
-                Path::List result;
-                _findItems(directoryPath, matcher, true, result);
-                VectorUtils::sortAndRemoveDuplicates(result);
-                return result;
+                return findItems(directoryPath, matcher, true);
             }
+
+            /**
+             * Find all items in the given directory and any sub directories.
+             *
+             * @param directoryPath the path to a directory to search
+             * @return the paths to the items that matched the query
+             */
             Path::List findItemsRecursively(const Path& directoryPath) const;
             
             Path::List getDirectoryContents(const Path& directoryPath) const;
@@ -88,6 +113,38 @@ namespace TrenchBroom {
             bool _fileExists(const Path& path) const;
             Path::List _getDirectoryContents(const Path& directoryPath) const;
             MappedFile::Ptr _openFile(const Path& path) const;
+
+            /**
+             * Finds all items matching the given matcher at the given search path, optionally recursively. This method
+             * performs parameter checks against the search path.
+             *
+             * Delegates the query to the next file system if one exists.
+             *
+             * @tparam M the matcher type
+             * @param searchPath the search path at which to search for matches
+             * @param matcher the matcher to apply to candidates
+             * @param recurse whether or not to recurse into sub directories
+             * @param result collects the matching paths
+             */
+            template <class M>
+            Path::List findItems(const Path& searchPath, const M& matcher, const bool recurse) const {
+                try {
+                    if (searchPath.isAbsolute()) {
+                        throw FileSystemException("Path is absolute: '" + searchPath.asString() + "'");
+                    }
+
+                    if (!directoryExists(searchPath)) {
+                        throw FileSystemException("Directory not found: '" + searchPath.asString() + "'");
+                    }
+
+                    Path::List result;
+                    _findItems(searchPath, matcher, recurse, result);
+                    VectorUtils::sortAndRemoveDuplicates(result);
+                    return result;
+                } catch (const PathException& e) {
+                    throw FileSystemException("Invalid path: '" + searchPath.asString() + "'", e);
+                }
+            }
 
             /**
              * Finds all items matching the given matcher at the given search path, optionally recursively, and adds
