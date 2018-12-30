@@ -352,7 +352,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/FlashSelectionAnimation.cpp
 	${COMMON_SOURCE_DIR}/View/FlyModeHelper.cpp
 #	${COMMON_SOURCE_DIR}/View/FourPaneMapView.cpp
-#	${COMMON_SOURCE_DIR}/View/FrameManager.cpp
+	${COMMON_SOURCE_DIR}/View/FrameManager.cpp
 #	${COMMON_SOURCE_DIR}/View/GameDialog.cpp
 #	${COMMON_SOURCE_DIR}/View/GameEngineDialog.cpp
 #	${COMMON_SOURCE_DIR}/View/GameEngineProfileEditor.cpp

@@ -22,9 +22,9 @@
 
 #include "View/ViewTypes.h"
 
-#include <list>
+#include <QObject>
 
-#include <wx/event.h>
+#include <list>
 
 namespace TrenchBroom {
     namespace IO {
@@ -36,12 +36,13 @@ namespace TrenchBroom {
         
         typedef std::list<MapFrame*> FrameList;
         
-        class FrameManager {
+        class FrameManager : public QObject {
+            Q_OBJECT
         private:
             bool m_singleFrame;
             FrameList m_frames;
         public:
-            FrameManager(bool singleFrame);
+            explicit FrameManager(bool singleFrame);
             ~FrameManager();
             
             MapFrame* newFrame();
@@ -50,9 +51,9 @@ namespace TrenchBroom {
             FrameList frames() const;
             MapFrame* topFrame() const;
             bool allFramesClosed() const;
-            
-            void OnFrameActivate(wxActivateEvent& event);
+
         private:
+            void onFocusChange(QWidget* old, QWidget* now);
             MapFrame* createOrReuseFrame();
             MapFrame* createFrame(MapDocumentSPtr document);
             bool closeAllFrames(bool force);

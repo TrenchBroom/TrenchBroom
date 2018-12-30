@@ -28,19 +28,17 @@
 
 #include <cassert>
 
-#include <wx/app.h>
-#include <wx/display.h>
-#include <wx/persist.h>
-#include <wx/persist/toplevel.h>
+#include <QApplication>
 
 namespace TrenchBroom {
     namespace View {
         FrameManager::FrameManager(const bool singleFrame) :
-        m_singleFrame(singleFrame) {}
-
-        FrameManager::~FrameManager() {
-            closeAllFrames(true);
+        QObject(),
+        m_singleFrame(singleFrame) {
+            connect(qApp, &QApplication::focusChanged, this, &FrameManager::onFocusChange);
         }
+
+        FrameManager::~FrameManager() = default;
 
         MapFrame* FrameManager::newFrame() {
             return createOrReuseFrame();
@@ -62,10 +60,14 @@ namespace TrenchBroom {
             return m_frames.empty();
         }
 
-        void FrameManager::OnFrameActivate(wxActivateEvent& event) {
-            if (event.GetActive()) {
-                MapFrame* frame = static_cast<MapFrame*>(event.GetEventObject());
+        void FrameManager::onFocusChange(QWidget* old, QWidget* now) {
+            if (now == nullptr) {
+                return;
+            }
 
+            // The QApplication::focusChanged signal also notifies us of focus changes between child widgets, so
+            // get the top-level widget with QWidget::window()
+            if (MapFrame* frame = dynamic_cast<MapFrame*>(now->window()); frame) {
                 FrameList::iterator it = std::find(std::begin(m_frames), std::end(m_frames), frame);
                 assert(it != std::end(m_frames));
                 if (it != std::begin(m_frames)) {
@@ -74,7 +76,6 @@ namespace TrenchBroom {
                     m_frames.push_front(frame);
                 }
             }
-            event.Skip();
         }
 
         MapFrame* FrameManager::createOrReuseFrame() {
@@ -88,36 +89,37 @@ namespace TrenchBroom {
 
         MapFrame* FrameManager::createFrame(MapDocumentSPtr document) {
             MapFrame* frame = new MapFrame(this, document);
-            frame->SetName("MapFrame");
-            frame->positionOnScreen(topFrame());
+            // FIXME: SetName is something for wx persistence?
+            //frame->SetName("MapFrame");
+            //frame->positionOnScreen(topFrame());
 
+#if 0
             if (m_frames.empty())
                 wxPersistenceManager::Get().RegisterAndRestore(frame);
             else
                 wxPersistenceManager::Get().Register(frame);
-
+#endif
             m_frames.push_front(frame);
 
-            frame->Bind(wxEVT_ACTIVATE, &FrameManager::OnFrameActivate, this);
-            frame->Show();
-            frame->Raise();
+            frame->show();
+            frame->raise();
             return frame;
         }
 
         bool FrameManager::closeAllFrames(const bool force) {
-            MapFrame* lastFrame = nullptr;
-            unused(lastFrame);
-            while (!m_frames.empty()) {
-                MapFrame* frame = m_frames.back();
-                assert(frame != lastFrame);
-                if (!frame->Close(force))
+            auto framesCopy = m_frames;
+            for (MapFrame* frame : framesCopy) {
+                if (!frame->close()) {
                     return false;
+                }
             }
             assert(m_frames.empty());
             return true;
         }
 
         void FrameManager::removeAndDestroyFrame(MapFrame* frame) {
+            // this is called from MapFrame::~MapFrame
+
             FrameList::iterator it = std::find(std::begin(m_frames), std::end(m_frames), frame);
             if (it == std::end(m_frames))
                 // On OS X, we sometimes get two close events for a frame when terminating the app from the dock.
@@ -125,11 +127,10 @@ namespace TrenchBroom {
 
             m_frames.erase(it);
 
-            if (m_frames.empty() || wxTheApp->GetExitOnFrameDelete())
+            if (m_frames.empty() || qApp->quitOnLastWindowClosed())
                 AboutDialog::closeAboutDialog();
 
-            frame->Unbind(wxEVT_ACTIVATE, &FrameManager::OnFrameActivate, this);
-            frame->Destroy();
+            // MapFrame uses Qt::WA_DeleteOnClose so we don't delete it here
         }
     }
 }

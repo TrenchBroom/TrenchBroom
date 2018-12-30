@@ -100,7 +100,7 @@ namespace TrenchBroom {
 
         MapFrame::MapFrame(FrameManager* frameManager, MapDocumentSPtr document) :
         QMainWindow(),
-        m_frameManager(nullptr),
+        m_frameManager(frameManager),
         m_autosaver(nullptr),
         m_autosaveTimer(nullptr),
         m_contextManager(nullptr),
@@ -115,7 +115,9 @@ namespace TrenchBroom {
         }
 
         void MapFrame::Create(FrameManager* frameManager, MapDocumentSPtr document) {
-            //ensure(frameManager != nullptr, "frameManager is null");
+            setAttribute(Qt::WA_DeleteOnClose);
+
+            ensure(frameManager != nullptr, "frameManager is null");
             ensure(document.get() != nullptr, "document is null");
 
             m_frameManager = frameManager;
