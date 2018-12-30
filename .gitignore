@@ -3,6 +3,11 @@ Version.h
 Thumbs.db
 *.sublime-workspace
 
+/CMakeFiles
+/cmake
+/common.dir
+/Release
+/Debug
 /cmake-build-debug
 /cmake-build-release
 /build-debug
@@ -15,5 +20,18 @@ Thumbs.db
 /vs2015
 /vs2017
 /.idea
+/gen-manual
+/stackwalker.dir
+/glew.dir
+/TrenchBroom.dir
+/Win32
 
+
+*.vcxproj
+*.vcxproj.filters
+*.cmake
+*.sln
+*.ico
+CMakeCache.txt
+generate_checksum.bat
 app/resources/documentation/help/index.html
