@@ -50,23 +50,29 @@ namespace TrenchBroom  {
         std::unordered_map<String, std::any> m_attributes;
     public:
         template <typename T>
-        bool has(const Attribute<T>& attribute) const {
+        bool hasAttribute(const Attribute<T>& attribute) const {
             return m_attributes.find(attribute.name()) != std::end(m_attributes);
         }
 
         template <typename T>
-        const T& get(const Attribute<T>& attribute) const {
+        T getAttribute(const Attribute<T>& attribute) const {
             const auto it = m_attributes.find(attribute.name());
             if (it == std::end(m_attributes)) {
                 return attribute.defaultValue();
             } else {
-                return it->second;
+                return std::any_cast<T>(it->second);
             }
         }
 
         template <typename T>
-        void set(const Attribute<T>& attribute, const T& value) {
+        void setAttribute(const Attribute<T>& attribute, const T& value) {
             m_attributes[attribute.name()] = value;
+        }
+
+        void setAttributes(const TypedAttributeMap& attributes) {
+            for (const auto& pair : attributes.m_attributes) {
+                m_attributes[pair.first] = pair.second;
+            }
         }
     };
 }

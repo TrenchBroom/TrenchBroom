@@ -35,7 +35,7 @@ typedef void *HANDLE;
 
 namespace TrenchBroom {
     namespace IO {
-        class MappedFile {
+        class MappedFile : public TypedAttributeMap {
         public:
             using Ptr = std::shared_ptr<MappedFile>;
             using List = std::vector<Ptr>;
@@ -43,7 +43,6 @@ namespace TrenchBroom {
             static const TypedAttributeMap::Attribute<float> Transparency;
         private:
             Path m_path;
-            TypedAttributeMap m_attributes;
         protected:
             const char* m_begin;
             const char* m_end;
@@ -56,16 +55,6 @@ namespace TrenchBroom {
             size_t size() const;
             const char* begin() const;
             const char* end() const;
-
-            template <typename T>
-            const T& getAttribute(const TypedAttributeMap::Attribute<T>& attribute) const {
-                return m_attributes.get(attribute);
-            }
-
-            template <typename T>
-            void setAttribute(const TypedAttributeMap::Attribute<T>& attribute, const T& value) {
-                m_attributes.set(attribute, value);
-            }
         protected:
             void init(const char* begin, const char* end);
         };

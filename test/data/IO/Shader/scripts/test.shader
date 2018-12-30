@@ -3,6 +3,7 @@ textures/test/test // overrides an existing texture name
 
     // has existing editor image
     qer_editorimage textures/test/editor_image.jpg
+    qer_trans 0.1
 }
 
 textures/test/not_existing // does not override an existing name
@@ -10,11 +11,11 @@ textures/test/not_existing // does not override an existing name
 
     // has existing editor image
     qer_editorimage textures/test/editor_image.jpg
+    qer_trans 0.2
 }
 
 textures/test/test2 // overrides an existing texture name
 {
-
     // has missing editor image
     qer_editorimage textures/test/editor_image_missing.jpg
 }
@@ -22,4 +23,5 @@ textures/test/test2 // overrides an existing texture name
 textures/test/not_existing2 // does not override an existing name
 {
     // no editor image
+    qer_trans 0.3
 }

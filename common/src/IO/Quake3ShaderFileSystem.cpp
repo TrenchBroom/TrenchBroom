@@ -78,11 +78,15 @@ namespace TrenchBroom {
                     });
 
                     if (shaderIt != std::end(shaders)) {
-                        // Found a shader. If it has an editor image, we link to that, but only if the editor image is
-                        // different from the texture image.
+                        // Found a shader, so we link to that.
                         const auto& shader = *shaderIt;
-                        if (shader.hasQerImagePath() && texture != shader.qerImagePath()) {
+                        if (shader.hasQerImagePath()) {
+                            // Link to the shader's editor image.
                             linkShaderToImage(texture, shader.qerImagePath(), shader);
+                        } else {
+                            // If it doesn't have an editor image, link to the texture path itself.
+                            // This works because the link only considers files from chained file systems.
+                            linkShaderToImage(texture, texture, shader);
                         }
 
                         // Remove the shader so that we don't revisit it when linking standalone shaders.
@@ -98,27 +102,44 @@ namespace TrenchBroom {
                 if (shader.hasQerImagePath()) {
                     linkShaderToImage(shader.texturePath(), shader.qerImagePath(), shader);
                 } else {
-                    linkShaderToImage(shader.texturePath(), Path("textures/__TB_empty.tga"), shader);
+                    linkShaderToMissingImage(shader.texturePath(), shader);
                 }
             }
         }
 
         void Quake3ShaderFileSystem::linkShaderToImage(const Path& shaderPath, Path imagePath, const Assets::Quake3Shader& shader) {
+            // Only link those shaders which have a valid path prefix, e.g. "/textures".
             if (shaderPath.hasPrefix(m_prefix, false)) {
-                if (!next().fileExists(imagePath)) {
+                bool exists = next().fileExists(imagePath);
+                if (!exists) {
                     // If the file does not exist, we try to find one with the same basename and a valid extension.
                     const auto candidates = next().findItemsWithBaseName(imagePath, m_extensions);
                     if (!candidates.empty()) {
                         const auto replacement = candidates.front(); // just use the first candidate
                         imagePath = replacement;
+                        exists = true;
                     }
                 }
-                // Don't link a file to itself.
-                if (shaderPath != imagePath) {
-                    m_logger->debug() << "Linking shader: " << shaderPath << " -> " << imagePath;
-                    m_root.addFile(shaderPath, std::make_unique<LinkFile>(next(), shaderPath, imagePath));
+
+                if (exists) {
+                    doLinkShaderToImage(shaderPath, imagePath, shader);
+                } else {
+                    linkShaderToMissingImage(shaderPath, shader);
                 }
             }
+        }
+
+        void Quake3ShaderFileSystem::linkShaderToMissingImage(const Path& shaderPath, const Assets::Quake3Shader& shader) {
+            doLinkShaderToImage(shaderPath, Path("textures/__TB_empty.tga"), shader);
+        }
+
+        void Quake3ShaderFileSystem::doLinkShaderToImage(const Path& shaderPath, Path imagePath, const Assets::Quake3Shader& shader) {
+            m_logger->debug() << "Linking shader " << shaderPath << " to image " << imagePath;
+            auto link = std::make_unique<LinkFile>(next(), shaderPath, imagePath);
+            if (shader.hasQerTransparency()) {
+                link->setAttribute(MappedFile::Transparency, shader.qerTransparency());
+            }
+            m_root.addFile(shaderPath, std::move(link));
         }
     }
 }

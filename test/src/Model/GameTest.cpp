@@ -72,20 +72,22 @@ namespace TrenchBroom {
              * textures/test/editor_image.jpg is not overridden by a shader
              *
              * In total, we expect the following entries:
-             * test/test
-             * test/not_existing
+             * test/test -> test/editor_image.jpg
+             * test/not_existing -> test/editor_image.jpg
              * test/editor_image
-             * test/not_existing2 (such shaders may be used for special surfaces, e.g. caulk)
+             * test/not_existing2 -> __TB_empty.tga
+             * test/test2 -> __TB_empty.tga
              */
 
             const auto* collection = textureManager.collections().front();
-            ASSERT_EQ(4u, collection->textureCount());
+            ASSERT_EQ(5u, collection->textureCount());
 
             const auto& textures = collection->textures();
             ASSERT_EQ(1u, std::count_if(std::begin(textures), std::end(textures), [](const auto* t) { return t->name() == "test/test"; }));
             ASSERT_EQ(1u, std::count_if(std::begin(textures), std::end(textures), [](const auto* t) { return t->name() == "test/not_existing"; }));
             ASSERT_EQ(1u, std::count_if(std::begin(textures), std::end(textures), [](const auto* t) { return t->name() == "test/editor_image"; }));
             ASSERT_EQ(1u, std::count_if(std::begin(textures), std::end(textures), [](const auto* t) { return t->name() == "test/not_existing2"; }));
+            ASSERT_EQ(1u, std::count_if(std::begin(textures), std::end(textures), [](const auto* t) { return t->name() == "test/test2"; }));
         }
     }
 }

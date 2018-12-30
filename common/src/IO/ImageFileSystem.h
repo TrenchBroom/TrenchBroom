@@ -21,6 +21,7 @@
 #define ImageFileSystem_h
 
 #include "StringUtils.h"
+#include "TypedAttributeMap.h"
 #include "IO/FileSystem.h"
 #include "IO/Path.h"
 
@@ -31,7 +32,7 @@ namespace TrenchBroom {
     namespace IO {
         class ImageFileSystemBase : public FileSystem {
         protected:
-            class File {
+            class File : public TypedAttributeMap {
             public:
                 virtual ~File();
 

@@ -35,11 +35,15 @@ namespace TrenchBroom {
             NullLogger logger;
 
             const auto workDir = IO::Disk::getCurrentWorkingDir();
+            const auto fallbackDir = workDir + Path("games/Quake3/assets");
             const auto testDir = workDir + Path("data/IO/Shader");
             const auto prefix = Path("textures");
             const auto extensions = StringList { "tga", "jpg" };
 
-            std::unique_ptr<FileSystem> fs = std::make_unique<DiskFileSystem>(testDir);
+            // We need to add the fallback dir so that we can find "__TB_empty.tga" which is automatically linked when
+            // no editor image is available.
+            std::unique_ptr<FileSystem> fs = std::make_unique<DiskFileSystem>(fallbackDir);
+            fs = std::make_unique<DiskFileSystem>(std::move(fs), testDir);
             fs = std::make_unique<Quake3ShaderFileSystem>(std::move(fs), prefix, extensions, &logger);
 
 
@@ -51,6 +55,24 @@ namespace TrenchBroom {
             assertShader(items, "textures/test/test2.tga");
             assertShader(items, "textures/test/not_existing");
             assertShader(items, "textures/test/not_existing2");
+
+            auto file = fs->openFile(Path("textures/test/editor_image.jpg"));
+            ASSERT_FALSE(file->hasAttribute(MappedFile::Transparency));
+
+            file = fs->openFile(Path("textures/test/test.tga"));
+            ASSERT_TRUE(file->hasAttribute(MappedFile::Transparency));
+            ASSERT_FLOAT_EQ(0.1f, file->getAttribute(MappedFile::Transparency));
+
+            file = fs->openFile(Path("textures/test/test2.tga"));
+            ASSERT_FALSE(file->hasAttribute(MappedFile::Transparency));
+
+            file = fs->openFile(Path("textures/test/not_existing"));
+            ASSERT_TRUE(file->hasAttribute(MappedFile::Transparency));
+            ASSERT_FLOAT_EQ(0.2f, file->getAttribute(MappedFile::Transparency));
+
+            file = fs->openFile(Path("textures/test/not_existing2"));
+            ASSERT_TRUE(file->hasAttribute(MappedFile::Transparency));
+            ASSERT_FLOAT_EQ(0.3f, file->getAttribute(MappedFile::Transparency));
         }
 
         void assertShader(const Path::List& paths, const String& path) {

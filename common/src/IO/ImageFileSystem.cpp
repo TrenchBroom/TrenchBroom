@@ -47,8 +47,10 @@ namespace TrenchBroom {
         m_resolvedPath(resolvedPath) {}
 
         MappedFile::Ptr ImageFileSystemBase::LinkFile::doOpen() const {
-            const auto linkedFile = m_fs.openFile(m_resolvedPath);
-            return std::make_shared<MappedFileView>(linkedFile, m_path, linkedFile->begin(), linkedFile->end());
+            auto linkedFile = m_fs.openFile(m_resolvedPath);
+            auto result = std::make_shared<MappedFileView>(linkedFile, m_path, linkedFile->begin(), linkedFile->end());
+            result->setAttributes(*this);
+            return result;
         }
 
         ImageFileSystemBase::CompressedFile::CompressedFile(MappedFile::Ptr file, const size_t uncompressedSize) :
