@@ -29,7 +29,7 @@ namespace TrenchBroom {
         
         Model::CompilationConfig CompilationConfigParser::parse() {
             const EL::Value root = parseConfigFile().evaluate(EL::EvaluationContext());
-            expectType(root, EL::Type_Map);
+            expectType(root, EL::Type_Map); 
             
             expectStructure(root, "[ {'version': 'Number', 'profiles': 'Array'}, {} ]");
             

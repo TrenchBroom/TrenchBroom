@@ -79,6 +79,16 @@ namespace TrenchBroom {
             SetSizer(outerSizer);
             
             m_profileList->Bind(wxEVT_LISTBOX, &CompilationProfileManager::OnProfileSelectionChanged, this);
+
+			// Default to first item in the list if we have any profiles -Qmaster
+            if (m_config.profileCount() < 1) {
+                m_profileList->SetSelection(wxNOT_FOUND);
+            } else {
+				if (m_config.getLastUsedProfileIndex() > 0)
+					m_profileList->SetSelection(m_config.getLastUsedProfileIndex());
+				else 
+					m_profileList->SetSelection(0);
+            }
         }
 
         const Model::CompilationProfile* CompilationProfileManager::selectedProfile() const {
@@ -100,13 +110,16 @@ namespace TrenchBroom {
             if (m_config.profileCount() == 1) {
                 m_profileList->SetSelection(wxNOT_FOUND);
                 m_config.removeProfile(static_cast<size_t>(index));
+				m_config.setLastUsedProfileIndex(-1);  // Remember last selection index this session -Qmaster
             } else if (index > 0) {
                 m_profileList->SetSelection(index - 1);
                 m_config.removeProfile(static_cast<size_t>(index));
+				m_config.setLastUsedProfileIndex(index - 1);  // Remember last selection index this session -Qmaster
             } else {
                 m_profileList->SetSelection(1);
                 m_config.removeProfile(static_cast<size_t>(index));
                 m_profileList->SetSelection(0);
+				m_config.setLastUsedProfileIndex(0);  // Remember last selection index this session -Qmaster
             }
         }
         
@@ -123,8 +136,10 @@ namespace TrenchBroom {
             if (selection != wxNOT_FOUND) {
                 Model::CompilationProfile* profile = m_config.profile(static_cast<size_t>(selection));
                 m_profileEditor->setProfile(profile);
+				m_config.setLastUsedProfileIndex(static_cast<size_t>(selection));  // Remember last selection index this session -Qmaster
             } else {
                 m_profileEditor->setProfile(nullptr);
+				m_config.setLastUsedProfileIndex(-1);  // Remember last selection index this session -Qmaster
             }
         }
     }

@@ -28,11 +28,13 @@ namespace TrenchBroom {
         class CompilationConfig {
         private:
             CompilationProfile::List m_profiles;
+			size_t m_lastUsedProfileIndex; // addition 12-29-18-03 Remember last selection index -Qmaster
         public:
             mutable Notifier0 profilesDidChange;
         public:
             CompilationConfig();
             CompilationConfig(const CompilationProfile::List& profiles);
+			CompilationConfig(const CompilationProfile::List& profiles, size_t index);
             CompilationConfig(const CompilationConfig& other);
             ~CompilationConfig();
             
@@ -44,6 +46,10 @@ namespace TrenchBroom {
             
             void addProfile(CompilationProfile* profile);
             void removeProfile(size_t index);
+
+			// Remember last selection index this session -Qmaster
+			size_t getLastUsedProfileIndex() const;
+			void setLastUsedProfileIndex(size_t index); 
         };
     }
 }
