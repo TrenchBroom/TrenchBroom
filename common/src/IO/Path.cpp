@@ -490,7 +490,7 @@ namespace TrenchBroom {
 
         bool Path::hasDriveSpec(const StringList& components) {
 #ifdef _WIN32
-            if (components.empty()) {}
+            if (components.empty()) {
                 return false;
             } else {
                 return hasDriveSpec(components[0]);
