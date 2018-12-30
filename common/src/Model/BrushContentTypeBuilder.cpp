@@ -45,16 +45,6 @@ namespace TrenchBroom {
                 }
             }
 
-            if (!transparent) {
-                for (const auto* face : brush->faces()) {
-                    const auto* texture = face->texture();
-                    transparent = texture != nullptr && texture->transparent();
-                    if (transparent) {
-                        break;
-                    }
-                }
-            }
-
             return Result(flags, transparent);
         }
     }

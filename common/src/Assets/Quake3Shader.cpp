@@ -23,15 +23,14 @@
 
 namespace TrenchBroom {
     namespace Assets {
+        const TypedAttributeMap::Attribute<StringSet> Quake3Shader::SurfaceParms("surfaceparms", StringSet());
+
         Quake3Shader::Quake3Shader() :
         m_hasTexturePath(false),
-        m_hasQerImagePath(false),
-        m_hasQerTransparency(false) {}
+        m_hasQerImagePath(false) {}
 
         bool Quake3Shader::operator==(const Quake3Shader& other) const {
-            return (m_hasTexturePath == other.m_hasTexturePath && m_texturePath == other.m_texturePath &&
-                    m_hasQerImagePath == other.m_hasQerImagePath && m_qerImagePath == other.m_qerImagePath &&
-                    m_hasQerTransparency == other.m_hasQerTransparency && m_qerTransparency == other.m_qerTransparency);
+            return (m_hasTexturePath == other.m_hasTexturePath && m_texturePath == other.m_texturePath);
         }
 
         bool Quake3Shader::hasTexturePath() const {
@@ -62,18 +61,12 @@ namespace TrenchBroom {
             m_hasQerImagePath = true;
         }
 
-        bool Quake3Shader::hasQerTransparency() const {
-            return m_hasQerTransparency;
+        const StringSet& Quake3Shader::surfaceParms() const {
+            return m_surfaceParms;
         }
 
-        float Quake3Shader::qerTransparency() const {
-            assert(m_hasQerTransparency);
-            return m_qerTransparency;
-        }
-
-        void Quake3Shader::setQerTransparency(const float qerTransparency) {
-            m_qerTransparency = qerTransparency;
-            m_hasQerTransparency = true;
+        void Quake3Shader::addSurfaceParm(const String& parm) {
+            m_surfaceParms.insert(parm);
         }
     }
 }

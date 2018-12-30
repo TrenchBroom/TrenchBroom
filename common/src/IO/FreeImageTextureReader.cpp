@@ -104,9 +104,10 @@ namespace TrenchBroom {
             FreeImage_Unload(image);
             FreeImage_CloseMemory(imageMemory);
 
-            const auto transparency = file->getAttribute(MappedFile::Transparency);
-            const auto textureType = Assets::Texture::selectTextureType(masked, transparency);
-            return new Assets::Texture(textureName(imageName, path), imageWidth, imageHeight, Color(), buffers, format, textureType);
+            const auto textureType = Assets::Texture::selectTextureType(masked);
+            auto texture = new Assets::Texture(textureName(imageName, path), imageWidth, imageHeight, Color(), buffers, format, textureType);
+            texture->setAttributes(*file);
+            return texture;
         }
     }
 }

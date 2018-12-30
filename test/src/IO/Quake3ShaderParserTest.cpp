@@ -25,7 +25,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        Assets::Quake3Shader makeShader(const IO::Path& shhaderPath, const IO::Path& qerImagePath = IO::Path(), float transparency = -1.0f);
+        Assets::Quake3Shader makeShader(const IO::Path& shhaderPath, const IO::Path& qerImagePath = IO::Path(), const StringSet& surfaceParms = StringSet());
 
         TEST(Quake3ShaderParserTest, parseEmptyShader) {
             const String data("");
@@ -79,7 +79,7 @@ textures/liquids/lavahell2 //path and name of new texture
 
 })");
             const auto expected = std::vector<Assets::Quake3Shader>{
-                makeShader(IO::Path("textures/liquids/lavahell2"))
+                makeShader(IO::Path("textures/liquids/lavahell2"), IO::Path(), StringSet { "noimpact", "lava", "nolightmap" })
             };
             Quake3ShaderParser parser(data);
             ASSERT_EQ(expected, parser.parse());
@@ -119,7 +119,7 @@ textures/liquids/lavahell2 //path and name of new texture
 
 })");
             const auto expected = std::vector<Assets::Quake3Shader>{
-                makeShader(IO::Path("textures/liquids/lavahell2"), IO::Path("textures/eerie/lavahell.tga"))
+                makeShader(IO::Path("textures/liquids/lavahell2"), IO::Path("textures/eerie/lavahell.tga"), StringSet { "noimpact", "lava", "nolightmap" })
             };
             Quake3ShaderParser parser(data);
             ASSERT_EQ(expected, parser.parse());
@@ -235,7 +235,7 @@ textures/liquids/lavahell2 //path and name of new texture
 )");
             const auto expected = std::vector<Assets::Quake3Shader>{
                     makeShader(IO::Path("textures/eerie/ironcrosslt2_10000"), IO::Path("textures/gothic_light/ironcrosslt2.tga")),
-                    makeShader(IO::Path("textures/liquids/lavahell2"), IO::Path("textures/eerie/lavahell.tga"), 0.4f)
+                    makeShader(IO::Path("textures/liquids/lavahell2"), IO::Path("textures/eerie/lavahell.tga"), StringSet { "noimpact", "lava", "nolightmap" })
 
             };
             Quake3ShaderParser parser(data);
@@ -246,15 +246,15 @@ textures/liquids/lavahell2 //path and name of new texture
             const String data(R"(
 waterBubble
 {
-	sort	underwater
-	cull none
-	entityMergable		// this comment terminates a block entry
-	{
-		map sprites/bubble.tga
-		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
-		rgbGen		vertex
-		alphaGen	vertex
-	}
+    sort	underwater
+    cull none
+    entityMergable		// this comment terminates a block entry
+    {
+        map sprites/bubble.tga
+        blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
+        rgbGen		vertex
+        alphaGen	vertex
+    }
 }
 
 )");
@@ -262,15 +262,18 @@ waterBubble
             ASSERT_NO_THROW(parser.parse());
         }
 
-        Assets::Quake3Shader makeShader(const IO::Path& shaderPath, const IO::Path& qerImagePath, const float transparency) {
+        Assets::Quake3Shader makeShader(const IO::Path& shaderPath, const IO::Path& qerImagePath, const StringSet& surfaceParms) {
             auto shader = Assets::Quake3Shader();
             shader.setTexturePath(shaderPath);
+
             if (!qerImagePath.isEmpty()) {
                 shader.setQerImagePath(qerImagePath);
             }
-            if (transparency >= 0.0f) {
-                shader.setQerTransparency(transparency);
+
+            for (const auto& surfaceParm : surfaceParms) {
+                shader.addSurfaceParm(surfaceParm);
             }
+
             return shader;
         }
     }

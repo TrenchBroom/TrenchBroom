@@ -22,6 +22,8 @@
 
 #include "Model/ModelTypes.h"
 
+#include <memory>
+
 namespace TrenchBroom {
     namespace Model {
         class Brush;
@@ -30,10 +32,11 @@ namespace TrenchBroom {
         public:
             virtual ~BrushContentTypeEvaluator();
             
-            static BrushContentTypeEvaluator* textureNameEvaluator(const String& pattern);
-            static BrushContentTypeEvaluator* contentFlagsEvaluator(int value);
-            static BrushContentTypeEvaluator* surfaceFlagsEvaluator(int value);
-            static BrushContentTypeEvaluator* entityClassnameEvaluator(const String& pattern);
+            static std::unique_ptr<BrushContentTypeEvaluator> textureNameEvaluator(const String& pattern);
+            static std::unique_ptr<BrushContentTypeEvaluator> shaderSurfaceParmsEvaluator(const String& pattern);
+            static std::unique_ptr<BrushContentTypeEvaluator> contentFlagsEvaluator(int value);
+            static std::unique_ptr<BrushContentTypeEvaluator> surfaceFlagsEvaluator(int value);
+            static std::unique_ptr<BrushContentTypeEvaluator> entityClassnameEvaluator(const String& pattern);
             
             bool evaluate(const Brush* brush) const;
         private:

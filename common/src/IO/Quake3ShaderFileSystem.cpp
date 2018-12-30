@@ -135,10 +135,9 @@ namespace TrenchBroom {
 
         void Quake3ShaderFileSystem::doLinkShaderToImage(const Path& shaderPath, Path imagePath, const Assets::Quake3Shader& shader) {
             m_logger->debug() << "Linking shader " << shaderPath << " to image " << imagePath;
+
             auto link = std::make_unique<LinkFile>(next(), shaderPath, imagePath);
-            if (shader.hasQerTransparency()) {
-                link->setAttribute(MappedFile::Transparency, shader.qerTransparency());
-            }
+            link->setAttribute(Assets::Quake3Shader::SurfaceParms, shader.surfaceParms());
             m_root.addFile(shaderPath, std::move(link));
         }
     }

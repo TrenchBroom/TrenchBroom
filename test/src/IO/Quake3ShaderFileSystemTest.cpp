@@ -26,6 +26,7 @@
 #include "IO/Quake3ShaderFileSystem.h"
 
 #include <memory>
+#include <Assets/Quake3Shader.h>
 
 namespace TrenchBroom {
     namespace IO {
@@ -57,22 +58,19 @@ namespace TrenchBroom {
             assertShader(items, "textures/test/not_existing2");
 
             auto file = fs->openFile(Path("textures/test/editor_image.jpg"));
-            ASSERT_FALSE(file->hasAttribute(MappedFile::Transparency));
+            ASSERT_EQ(StringSet(), file->getAttribute(Assets::Quake3Shader::SurfaceParms));
 
             file = fs->openFile(Path("textures/test/test.tga"));
-            ASSERT_TRUE(file->hasAttribute(MappedFile::Transparency));
-            ASSERT_FLOAT_EQ(0.1f, file->getAttribute(MappedFile::Transparency));
+            ASSERT_EQ(StringSet { "noimpact" }, file->getAttribute(Assets::Quake3Shader::SurfaceParms));
 
             file = fs->openFile(Path("textures/test/test2.tga"));
-            ASSERT_FALSE(file->hasAttribute(MappedFile::Transparency));
+            ASSERT_EQ(StringSet(), file->getAttribute(Assets::Quake3Shader::SurfaceParms));
 
             file = fs->openFile(Path("textures/test/not_existing"));
-            ASSERT_TRUE(file->hasAttribute(MappedFile::Transparency));
-            ASSERT_FLOAT_EQ(0.2f, file->getAttribute(MappedFile::Transparency));
+            ASSERT_EQ(StringSet(), file->getAttribute(Assets::Quake3Shader::SurfaceParms));
 
             file = fs->openFile(Path("textures/test/not_existing2"));
-            ASSERT_TRUE(file->hasAttribute(MappedFile::Transparency));
-            ASSERT_FLOAT_EQ(0.3f, file->getAttribute(MappedFile::Transparency));
+            ASSERT_EQ(StringSet(), file->getAttribute(Assets::Quake3Shader::SurfaceParms));
         }
 
         void assertShader(const Path::List& paths, const String& path) {

@@ -22,17 +22,18 @@
 #include "Model/BrushContentTypeEvaluator.h"
 
 #include <cassert>
+#include <memory>
 
 namespace TrenchBroom {
     namespace Model {
         const BrushContentType::List BrushContentType::EmptyList = BrushContentType::List();
         
-        BrushContentType::BrushContentType(const String& name, const bool transparent, const FlagType flagValue, BrushContentTypeEvaluator* evaluator) :
+        BrushContentType::BrushContentType(const String& name, const bool transparent, const FlagType flagValue, std::unique_ptr<BrushContentTypeEvaluator> evaluator) :
         m_name(name),
         m_transparent(transparent),
         m_flagValue(flagValue),
-        m_evaluator(evaluator) {
-            ensure(m_evaluator.get() != nullptr, "evaluator is null");
+        m_evaluator(std::move(evaluator)) {
+            ensure(m_evaluator != nullptr, "evaluator is null");
         }
         
         const String& BrushContentType::name() const {

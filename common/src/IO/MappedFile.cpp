@@ -33,8 +33,6 @@
 
 namespace TrenchBroom {
     namespace IO {
-        const TypedAttributeMap::Attribute<float> MappedFile::Transparency("Transparency", 1.0f);
-
         MappedFile::MappedFile(const Path& path) :
         m_path(path),
         m_begin(nullptr),

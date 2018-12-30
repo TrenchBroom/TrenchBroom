@@ -126,9 +126,9 @@ namespace TrenchBroom {
             if (key == "qer_editorimage") {
                 token = expect(Quake3ShaderToken::String, m_tokenizer.nextToken());
                 shader.setQerImagePath(Path(token.data()));
-            } else if (key == "qer_trans") {
-                token = expect(Quake3ShaderToken::Number, m_tokenizer.nextToken());
-                shader.setQerTransparency(token.toFloat<float>());
+            } else if (key == "surfaceparm") {
+                token = expect(Quake3ShaderToken::String, m_tokenizer.nextToken());
+                shader.addSurfaceParm(token.data());
             } else {
                 while (!m_tokenizer.nextToken().hasType(Quake3ShaderToken::Eol));
             }

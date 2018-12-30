@@ -23,6 +23,7 @@
 #include "ByteBuffer.h"
 #include "Color.h"
 #include "StringUtils.h"
+#include "TypedAttributeMap.h"
 #include "Renderer/GL.h"
 
 #include <vecmath/forward.h>
@@ -42,18 +43,14 @@ namespace TrenchBroom {
             /**
              * Modifies texture uploading to support mask textures.
              */
-            Masked,
-            /**
-             * Modifies the renderer to render brushes with this texture transparent.
-             */
-            Transparent
+            Masked
         };
 
         vm::vec2s sizeAtMipLevel(size_t width, size_t height, size_t level);
         size_t bytesPerPixelForFormat(GLenum format);
         void setMipBufferSize(TextureBuffer::List& buffers, size_t mipLevels, size_t width, size_t height, GLenum format);
         
-        class Texture {
+        class Texture : public TypedAttributeMap {
         private:
             TextureCollection* m_collection;
             String m_name;
@@ -76,14 +73,13 @@ namespace TrenchBroom {
             Texture(const String& name, size_t width, size_t height, GLenum format = GL_RGB, TextureType type = TextureType::Opaque);
             ~Texture();
 
-            static TextureType selectTextureType(bool masked, float transparency);
+            static TextureType selectTextureType(bool masked);
 
             const String& name() const;
             
             size_t width() const;
             size_t height() const;
             const Color& averageColor() const;
-            bool transparent() const;
 
             size_t usageCount() const;
             void incUsageCount();

@@ -20,10 +20,12 @@
 #ifndef TrenchBroom_BrushContentType
 #define TrenchBroom_BrushContentType
 
+#include "Macros.h"
 #include "StringUtils.h"
-#include "SharedPointer.h"
+#include "Model/BrushContentTypeEvaluator.h"
 #include "Model/ModelTypes.h"
 
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
@@ -32,19 +34,19 @@ namespace TrenchBroom {
         
         class BrushContentType {
         public:
-            typedef int FlagType;
-            typedef std::vector<BrushContentType> List;
+            using FlagType = int;
+            using List = std::vector<BrushContentType>;
             static const List EmptyList;
         private:
-            typedef std::shared_ptr<BrushContentTypeEvaluator> EvaluatorPtr;
-            
             String m_name;
             bool m_transparent;
             FlagType m_flagValue;
-            EvaluatorPtr m_evaluator;
+
+            // We use a shared_ptr to allow copying and moving.
+            std::shared_ptr<BrushContentTypeEvaluator> m_evaluator;
         public:
-            BrushContentType(const String& name, bool transparent, FlagType flagValue, BrushContentTypeEvaluator* evaluator);
-            
+            BrushContentType(const String& name, bool transparent, FlagType flagValue, std::unique_ptr<BrushContentTypeEvaluator> evaluator);
+
             const String& name() const;
             bool transparent() const;
             FlagType flagValue() const;

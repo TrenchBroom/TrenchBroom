@@ -39,8 +39,6 @@ namespace TrenchBroom {
         public:
             using Ptr = std::shared_ptr<MappedFile>;
             using List = std::vector<Ptr>;
-
-            static const TypedAttributeMap::Attribute<float> Transparency;
         private:
             Path m_path;
         protected:
