@@ -45,6 +45,26 @@ namespace TrenchBroom {
             return std::move(m_next);
         }
 
+        bool FileSystem::canMakeAbsolute(const Path& path) const {
+            if (path.isAbsolute()) {
+                return false;
+            } else {
+                return _canMakeAbsolute(path);
+            }
+        }
+
+        Path FileSystem::makeAbsolute(const Path& path) const {
+            try {
+                if (!canMakeAbsolute(path)) {
+                    throw FileSystemException("Cannot make absolute path of '" + path.asString() + "'");
+                }
+
+                return _makeAbsolute(path);
+            } catch (const PathException& e) {
+                throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
+            }
+        }
+
         bool FileSystem::directoryExists(const Path& path) const {
             try {
                 if (path.isAbsolute()) {
@@ -117,6 +137,20 @@ namespace TrenchBroom {
             }
         }
 
+        bool FileSystem::_canMakeAbsolute(const Path& path) const {
+            return doCanMakeAbsolute(path) || (m_next && m_next->_canMakeAbsolute(path));
+        }
+
+        Path FileSystem::_makeAbsolute(const Path& path) const {
+            if (doCanMakeAbsolute(path)) {
+                return doMakeAbsolute(path);
+            } else if (m_next) {
+                return m_next->_makeAbsolute(path);
+            } else {
+                throw FileSystemException("Path does not exist: '" + path.asString() + "'");
+            }
+        }
+
         bool FileSystem::_directoryExists(const Path& path) const {
             return doDirectoryExists(path) || (m_next && m_next->_directoryExists(path)) ;
         }
@@ -145,10 +179,17 @@ namespace TrenchBroom {
             }
         }
 
+        bool FileSystem::doCanMakeAbsolute(const Path& path) const {
+            return false;
+        }
+
+        Path FileSystem::doMakeAbsolute(const Path& path) const {
+            throw FileSystemException("Cannot make absolute path of '" + path.asString() + "'");
+        }
+
         WritableFileSystem::WritableFileSystem(std::unique_ptr<FileSystem> next) :
         FileSystem(std::move(next)) {}
 
-        WritableFileSystem::~WritableFileSystem() {}
 
         void WritableFileSystem::createFile(const Path& path, const String& contents) {
             try {

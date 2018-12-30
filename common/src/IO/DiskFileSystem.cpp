@@ -40,34 +40,30 @@ namespace TrenchBroom {
             }
         }
 
-        Path DiskFileSystem::makeAbsolute(const Path& relPath) const {
-            try {
-                if (relPath.isAbsolute()) {
-                    throw FileSystemException("Path is absolute: '" + relPath.asString() + "'");
-                }
-
-                return m_root + relPath.makeCanonical();
-            } catch (const PathException& e) {
-                throw FileSystemException("Invalid path: '" + relPath.asString() + "'", e);
-            }
+        bool DiskFileSystem::doCanMakeAbsolute(const Path& path) const {
+            return doFileExists(path) || doDirectoryExists(path);
         }
-        
+
+        Path DiskFileSystem::doMakeAbsolute(const Path& path) const {
+            return m_root + path;
+        }
+
         bool DiskFileSystem::doDirectoryExists(const Path& path) const {
-            return Disk::directoryExists(makeAbsolute(path));
+            return Disk::directoryExists(doMakeAbsolute(path));
         }
         
         bool DiskFileSystem::doFileExists(const Path& path) const {
-            return Disk::fileExists(makeAbsolute(path));
+            return Disk::fileExists(doMakeAbsolute(path));
         }
         
         Path::List DiskFileSystem::doGetDirectoryContents(const Path& path) const {
-            return Disk::getDirectoryContents(makeAbsolute(path));
+            return Disk::getDirectoryContents(doMakeAbsolute(path));
         }
         
         const MappedFile::Ptr DiskFileSystem::doOpenFile(const Path& path) const {
-            return Disk::openFile(makeAbsolute(path));
+            return Disk::openFile(doMakeAbsolute(path));
         }
-        
+
         WritableDiskFileSystem::WritableDiskFileSystem(const Path& root, const bool create) :
         WritableDiskFileSystem(nullptr, root, create) {}
 
@@ -81,23 +77,23 @@ namespace TrenchBroom {
         }
 
         void WritableDiskFileSystem::doCreateFile(const Path& path, const String& contents) {
-            Disk::createFile(makeAbsolute(path), contents);
+            Disk::createFile(doMakeAbsolute(path), contents);
         }
 
         void WritableDiskFileSystem::doCreateDirectory(const Path& path) {
-            Disk::createDirectory(makeAbsolute(path));
+            Disk::createDirectory(doMakeAbsolute(path));
         }
         
         void WritableDiskFileSystem::doDeleteFile(const Path& path) {
-            Disk::deleteFile(makeAbsolute(path));
+            Disk::deleteFile(doMakeAbsolute(path));
         }
         
         void WritableDiskFileSystem::doCopyFile(const Path& sourcePath, const Path& destPath, const bool overwrite) {
-            Disk::copyFile(makeAbsolute(sourcePath), makeAbsolute(destPath), overwrite);
+            Disk::copyFile(doMakeAbsolute(sourcePath), doMakeAbsolute(destPath), overwrite);
         }
 
         void WritableDiskFileSystem::doMoveFile(const Path& sourcePath, const Path& destPath, const bool overwrite) {
-            Disk::moveFile(makeAbsolute(sourcePath), makeAbsolute(destPath), overwrite);
+            Disk::moveFile(doMakeAbsolute(sourcePath), doMakeAbsolute(destPath), overwrite);
         }
     }
 }

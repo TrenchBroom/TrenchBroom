@@ -116,7 +116,6 @@ namespace TrenchBroom {
                 const auto& extensions = textureConfig.format.extensions;
                 m_next = std::make_unique<IO::Quake3ShaderFileSystem>(std::move(m_next), prefix, extensions, logger);
             }
-
         }
 
         bool GameFileSystem::doDirectoryExists(const IO::Path& path) const {

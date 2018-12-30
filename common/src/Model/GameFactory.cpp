@@ -166,7 +166,8 @@ namespace TrenchBroom {
             GameConfig config;
             try {
                 const auto configFile = m_configFS->openFile(path);
-                IO::GameConfigParser parser(configFile->begin(), configFile->end(), m_configFS->makeAbsolute(path));
+                const auto absolutePath = m_configFS->makeAbsolute(path);
+                IO::GameConfigParser parser(configFile->begin(), configFile->end(), absolutePath);
                 config = parser.parse();
             } catch (const Exception& e) {
                 throw GameException("Could not load game configuration '" + path.asString() + "': " + String(e.what()));

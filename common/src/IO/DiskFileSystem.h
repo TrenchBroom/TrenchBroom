@@ -34,9 +34,10 @@ namespace TrenchBroom {
         public:
             DiskFileSystem(const Path& root, bool ensureExists = true);
             DiskFileSystem(std::unique_ptr<FileSystem> next, const Path& root, bool ensureExists = true);
-
-            Path makeAbsolute(const Path& relPath) const;
         protected:
+            bool doCanMakeAbsolute(const Path& path) const override;
+            Path doMakeAbsolute(const Path& path) const override;
+
             bool doDirectoryExists(const Path& path) const override;
             bool doFileExists(const Path& path) const override;
             

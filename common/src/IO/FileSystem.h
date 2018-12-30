@@ -47,6 +47,9 @@ namespace TrenchBroom {
             const FileSystem& next() const;
             std::unique_ptr<FileSystem> releaseNext();
 
+            bool canMakeAbsolute(const Path& path) const;
+            Path makeAbsolute(const Path& path) const;
+
             bool directoryExists(const Path& path) const;
             bool fileExists(const Path& path) const;
 
@@ -79,6 +82,8 @@ namespace TrenchBroom {
             Path::List getDirectoryContents(const Path& directoryPath) const;
             MappedFile::Ptr openFile(const Path& path) const;
         private: // private API to be used for chaining, avoids multiple checks of parameters
+            bool _canMakeAbsolute(const Path& path) const;
+            Path _makeAbsolute(const Path& path) const;
             bool _directoryExists(const Path& path) const;
             bool _fileExists(const Path& path) const;
             Path::List _getDirectoryContents(const Path& directoryPath) const;
@@ -129,6 +134,9 @@ namespace TrenchBroom {
                 }
             }
         private: // subclassing API
+            virtual bool doCanMakeAbsolute(const Path& path) const;
+            virtual Path doMakeAbsolute(const Path& path) const;
+
             virtual bool doDirectoryExists(const Path& path) const = 0;
             virtual bool doFileExists(const Path& path) const = 0;
             
@@ -140,8 +148,8 @@ namespace TrenchBroom {
         class WritableFileSystem : public virtual FileSystem {
             deleteCopyAndMove(WritableFileSystem)
         public:
-            WritableFileSystem(std::unique_ptr<FileSystem> next = std::unique_ptr<FileSystem>());
-            virtual ~WritableFileSystem();
+            explicit WritableFileSystem(std::unique_ptr<FileSystem> next = std::unique_ptr<FileSystem>());
+            ~WritableFileSystem() override = default;
 
             void createFile(const Path& path, const String& contents);
             void createDirectory(const Path& path);

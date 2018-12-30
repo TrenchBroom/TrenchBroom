@@ -1581,10 +1581,11 @@ namespace TrenchBroom {
                 m_entityDefinitionManager->loadDefinitions(path, *m_game, status);
                 info("Loaded entity definition file " + path.lastComponent().asString());
             } catch (const Exception& e) {
-                if (spec.builtin())
+                if (spec.builtin()) {
                     error("Could not load builtin entity definition file '%s': %s", spec.path().asString().c_str(), e.what());
-                else
+                } else {
                     error("Could not load external entity definition file '%s': %s", spec.path().asString().c_str(), e.what());
+                }
             }
         }
         
