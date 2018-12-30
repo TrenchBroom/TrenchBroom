@@ -21,6 +21,7 @@
 #ifndef FREEIMAGETEXTUREREADER_H
 #define FREEIMAGETEXTUREREADER_H
 
+#include "IO/MappedFile.h"
 #include "IO/TextureReader.h"
 
 namespace TrenchBroom {
@@ -31,7 +32,7 @@ namespace TrenchBroom {
         public:
             FreeImageTextureReader(const NameStrategy& nameStrategy);
         private:
-            Assets::Texture* doReadTexture(const char* const begin, const char* const end, const Path& path) const override;
+            Assets::Texture* doReadTexture(MappedFile::Ptr file) const override;
         };
     }
 }

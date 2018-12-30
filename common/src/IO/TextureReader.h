@@ -76,7 +76,6 @@ namespace TrenchBroom {
             virtual ~TextureReader();
             
             Assets::Texture* readTexture(MappedFile::Ptr file) const;
-            Assets::Texture* readTexture(const char* const begin, const char* const end, const Path& path) const;
         protected:
             String textureName(const String& textureName, const Path& path) const;
             String textureName(const Path& path) const;
@@ -91,7 +90,7 @@ namespace TrenchBroom {
              * @param path path to the texture
              * @return an Assets::Texture object allocated with new
              */
-            virtual Assets::Texture* doReadTexture(const char* const begin, const char* const end, const Path& path) const = 0;
+            virtual Assets::Texture* doReadTexture(MappedFile::Ptr file) const = 0;
         public:
             static size_t mipSize(size_t width, size_t height, size_t mipLevel);
             

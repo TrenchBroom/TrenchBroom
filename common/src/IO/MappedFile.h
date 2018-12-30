@@ -58,8 +58,14 @@ namespace TrenchBroom {
         protected:
             void init(const char* begin, const char* end);
         };
-        
-        class MappedFileView : public MappedFile {
+
+        class MappedFileBufferView : public MappedFile {
+        public:
+            MappedFileBufferView(const Path& path, const char* begin, const char* end);
+            MappedFileBufferView(const Path& path, const char* begin, size_t size);
+        };
+
+        class MappedFileView : public MappedFileBufferView {
         private:
             MappedFile::Ptr m_container;
         public:
@@ -67,7 +73,7 @@ namespace TrenchBroom {
             MappedFileView(MappedFile::Ptr container, const Path& path, const char* begin, size_t size);
         };
         
-        class MappedFileBuffer : public MappedFile {
+        class MappedFileBuffer : public MappedFileBufferView {
         private:
             std::unique_ptr<char[]> m_buffer;
         public:

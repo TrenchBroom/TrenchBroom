@@ -43,7 +43,7 @@ namespace TrenchBroom {
             auto collection = std::make_unique<Assets::TextureCollection>(path);
 
             for (auto file : doFindTextures(path, textureExtensions)) {
-                auto* texture = textureReader.readTexture(file->begin(), file->end(), file->path());
+                auto* texture = textureReader.readTexture(file);
                 collection->addTexture(texture);
             }
             

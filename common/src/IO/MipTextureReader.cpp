@@ -45,12 +45,16 @@ namespace TrenchBroom {
             return result;
         }
         
-        Assets::Texture* MipTextureReader::doReadTexture(const char* const begin, const char* const end, const Path& path) const {
+        Assets::Texture* MipTextureReader::doReadTexture(MappedFile::Ptr file) const {
             static const size_t MipLevels = 4;
             
             Color averageColor;
             Assets::TextureBuffer::List buffers(MipLevels);
             size_t offset[MipLevels];
+
+            const auto* begin = file->begin();
+            const auto* end = file->end();
+            const auto& path = file->path();
 
             try {
                 CharArrayReader reader(begin, end);

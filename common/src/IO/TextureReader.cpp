@@ -71,11 +71,7 @@ namespace TrenchBroom {
         }
         
         Assets::Texture* TextureReader::readTexture(MappedFile::Ptr file) const {
-            return readTexture(file->begin(), file->end(), file->path());
-        }
-
-        Assets::Texture* TextureReader::readTexture(const char* const begin, const char* const end, const Path& path) const {
-            return doReadTexture(begin, end, path);
+            return doReadTexture(file);
         }
 
         String TextureReader::textureName(const String& textureName, const Path& path) const {
