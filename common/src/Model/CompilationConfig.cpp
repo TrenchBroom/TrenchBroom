@@ -28,10 +28,6 @@ namespace TrenchBroom {
         CompilationConfig::CompilationConfig(const CompilationProfile::List& profiles) :
         m_profiles(profiles) {}
 
-        CompilationConfig::CompilationConfig(const CompilationProfile::List& profiles, size_t lastProfileIndex) :
-        m_profiles(profiles),
-		m_lastUsedProfileIndex(lastProfileIndex) {}
-
         CompilationConfig::CompilationConfig(const CompilationConfig& other) {
             m_profiles.reserve(other.m_profiles.size());
             
@@ -60,16 +56,6 @@ namespace TrenchBroom {
         size_t CompilationConfig::profileCount() const {
             return m_profiles.size();
         }
-
-		// Remember last selection index this session -Qmaster
-		size_t CompilationConfig::getLastUsedProfileIndex() const {
-			return m_lastUsedProfileIndex;
-		}
-
-		// Remember last selection index this session -Qmaster
-		void CompilationConfig::setLastUsedProfileIndex(size_t index) {
-			m_lastUsedProfileIndex = index;
-		}
         
         CompilationProfile* CompilationConfig::profile(const size_t index) const {
             assert(index < profileCount());
