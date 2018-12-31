@@ -124,7 +124,7 @@ namespace TrenchBroom {
              * @param searchPath the search path at which to search for matches
              * @param matcher the matcher to apply to candidates
              * @param recurse whether or not to recurse into sub directories
-             * @param result collects the matching paths
+             * @return the matching paths
              */
             template <class M>
             Path::List findItems(const Path& searchPath, const M& matcher, const bool recurse) const {
