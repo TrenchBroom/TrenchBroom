@@ -180,7 +180,7 @@ namespace TrenchBroom {
 
         void FgdParser::popIncludePath() {
             assert(!m_paths.empty());
-            m_fs = std::move(m_fs->releaseNext());
+            m_fs = m_fs->releaseNext();
             m_paths.pop_back();
         }
 
