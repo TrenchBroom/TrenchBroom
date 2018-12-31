@@ -53,6 +53,17 @@ namespace TrenchBroom {
             }
             return MR_Deny;
         }
+
+        bool FaceTool::canConvexMerge() {
+            return handleManager().selectedHandleCount() > 1;
+        }
+
+        void FaceTool::convexMerge() {
+            std::vector<vm::vec3> vertices;
+            const auto faces = handleManager().selectedHandles();
+            vm::polygon3::getVertices(std::begin(faces), std::end(faces), std::back_inserter(vertices));
+            lock(m_document)->csgConvexMerge(vertices);
+        }
         
         String FaceTool::actionName() const {
             return StringUtils::safePlural(m_faceHandles.selectedHandleCount(), "Move Face", "Move Faces");

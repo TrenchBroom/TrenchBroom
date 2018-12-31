@@ -53,6 +53,17 @@ namespace TrenchBroom {
             }
             return MR_Deny;
         }
+
+        bool EdgeTool::canConvexMerge() {
+            return handleManager().selectedHandleCount() > 1;
+        }
+
+        void EdgeTool::convexMerge() {
+            std::vector<vm::vec3> vertices;
+            const auto edges = handleManager().selectedHandles();
+            vm::segment3::getVertices(std::begin(edges), std::end(edges), std::back_inserter(vertices));
+            lock(m_document)->csgConvexMerge(vertices);
+        }
         
         String EdgeTool::actionName() const {
             return StringUtils::safePlural(m_edgeHandles.selectedHandleCount(), "Move Edge", "Move Edges");

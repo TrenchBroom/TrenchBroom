@@ -78,6 +78,9 @@ namespace TrenchBroom {
             void endMove() override;
             void cancelMove() override;
 
+            bool canConvexMerge();
+            void convexMerge();
+
             const vm::vec3& getHandlePosition(const Model::Hit& hit) const override;
             String actionName() const override;
             

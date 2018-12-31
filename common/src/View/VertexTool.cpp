@@ -168,6 +168,14 @@ namespace TrenchBroom {
             m_mode = Mode_Move;
         }
 
+        bool VertexTool::canConvexMerge() {
+            return handleManager().selectedHandleCount() > 3;
+        }
+
+        void VertexTool::convexMerge() {
+            lock(m_document)->csgConvexMerge(handleManager().selectedHandles());
+        }
+
         const vm::vec3& VertexTool::getHandlePosition(const Model::Hit& hit) const {
             assert(hit.isMatch());
             assert(hit.hasType(VertexHandleManager::HandleHit | EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit));
