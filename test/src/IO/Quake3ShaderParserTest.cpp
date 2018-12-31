@@ -26,12 +26,13 @@
 namespace TrenchBroom {
     namespace IO {
         Assets::Quake3Shader makeShader(const IO::Path& shhaderPath, const IO::Path& qerImagePath = IO::Path(), const StringSet& surfaceParms = StringSet());
+        void assertShaders(const std::vector<Assets::Quake3Shader>& expected, const std::vector<Assets::Quake3Shader>& actual);
 
         TEST(Quake3ShaderParserTest, parseEmptyShader) {
             const String data("");
             Quake3ShaderParser parser(data);
             const auto expected = std::vector<Assets::Quake3Shader> {};
-            ASSERT_EQ(expected, parser.parse());
+            assertShaders(expected, parser.parse());
         }
 
         TEST(Quake3ShaderParserTest, parseSingleShaderWithEmptyBlock) {
@@ -43,7 +44,7 @@ textures/liquids/lavahell2 //path and name of new texture
                 makeShader(IO::Path("textures/liquids/lavahell2"))
             };
             Quake3ShaderParser parser(data);
-            ASSERT_EQ(expected, parser.parse());
+            assertShaders(expected, parser.parse());
         }
 
         TEST(Quake3ShaderParserTest, parseSingleSimpleShaderWithoutEditorImage) {
@@ -82,7 +83,7 @@ textures/liquids/lavahell2 //path and name of new texture
                 makeShader(IO::Path("textures/liquids/lavahell2"), IO::Path(), StringSet { "noimpact", "lava", "nolightmap" })
             };
             Quake3ShaderParser parser(data);
-            ASSERT_EQ(expected, parser.parse());
+            assertShaders(expected, parser.parse());
         }
 
         TEST(Quake3ShaderParserTest, parseSingleSimpleShaderWithEditorImage) {
@@ -122,7 +123,7 @@ textures/liquids/lavahell2 //path and name of new texture
                 makeShader(IO::Path("textures/liquids/lavahell2"), IO::Path("textures/eerie/lavahell.tga"), StringSet { "noimpact", "lava", "nolightmap" })
             };
             Quake3ShaderParser parser(data);
-            ASSERT_EQ(expected, parser.parse());
+            assertShaders(expected, parser.parse());
         }
 
         TEST(Quake3ShaderParserTest, parseSingleComplexShaderWithEditorImage) {
@@ -162,7 +163,7 @@ textures/eerie/ironcrosslt2_10000
                     makeShader(IO::Path("textures/eerie/ironcrosslt2_10000"), IO::Path("textures/gothic_light/ironcrosslt2.tga"))
             };
             Quake3ShaderParser parser(data);
-            ASSERT_EQ(expected, parser.parse());
+            assertShaders(expected, parser.parse());
         }
 
         TEST(Quake3ShaderParserTest, parseTwoShaders) {
@@ -239,7 +240,7 @@ textures/liquids/lavahell2 //path and name of new texture
 
             };
             Quake3ShaderParser parser(data);
-            ASSERT_EQ(expected, parser.parse());
+            assertShaders(expected, parser.parse());
         }
 
         TEST(Quake3ShaderParserTest, parseShadersWithCommentTerminatingBlockEntry) {
@@ -275,6 +276,17 @@ waterBubble
             }
 
             return shader;
+        }
+
+        void assertShaders(const std::vector<Assets::Quake3Shader>& expected, const std::vector<Assets::Quake3Shader>& actual) {
+            ASSERT_EQ(expected.size(), actual.size());
+            for (const auto& expectedShader : expected) {
+                auto it = std::find(std::begin(actual), std::end(actual), expectedShader);
+                ASSERT_TRUE(it != std::end(actual));
+
+                const auto& actualShader = *it;
+                ASSERT_TRUE(isEqual(expectedShader, actualShader));
+            }
         }
     }
 }

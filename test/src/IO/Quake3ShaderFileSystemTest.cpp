@@ -36,8 +36,8 @@ namespace TrenchBroom {
             NullLogger logger;
 
             const auto workDir = IO::Disk::getCurrentWorkingDir();
-            const auto fallbackDir = workDir + Path("games/Quake3/assets");
             const auto testDir = workDir + Path("data/IO/Shader");
+            const auto fallbackDir = testDir + Path("fallback");
             const auto prefix = Path("textures");
             const auto extensions = StringList { "tga", "jpg" };
 
@@ -46,7 +46,6 @@ namespace TrenchBroom {
             std::unique_ptr<FileSystem> fs = std::make_unique<DiskFileSystem>(fallbackDir);
             fs = std::make_unique<DiskFileSystem>(std::move(fs), testDir);
             fs = std::make_unique<Quake3ShaderFileSystem>(std::move(fs), prefix, extensions, &logger);
-
 
             const auto items = fs->findItems(Path("textures/test"));
             ASSERT_EQ(5u, items.size());

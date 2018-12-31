@@ -33,6 +33,12 @@ namespace TrenchBroom {
             return (m_hasTexturePath == other.m_hasTexturePath && m_texturePath == other.m_texturePath);
         }
 
+        bool isEqual(const Quake3Shader& lhs, const Quake3Shader& rhs) {
+            return lhs.m_hasTexturePath == rhs.m_hasTexturePath && lhs.m_texturePath == rhs.m_texturePath &&
+                   lhs.m_hasQerImagePath == rhs.m_hasQerImagePath && lhs.m_qerImagePath == rhs.m_qerImagePath &&
+                   lhs.m_surfaceParms == rhs.m_surfaceParms;
+        }
+
         bool Quake3Shader::hasTexturePath() const {
             return m_hasTexturePath;
         }

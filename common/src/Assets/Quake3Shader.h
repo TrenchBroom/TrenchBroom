@@ -42,6 +42,8 @@ namespace TrenchBroom {
 
             bool operator==(const Quake3Shader& other) const;
 
+            friend bool isEqual(const Quake3Shader& lhs, const Quake3Shader& rhs);
+
             bool hasTexturePath() const;
             const IO::Path& texturePath() const;
             void setTexturePath(const IO::Path& texturePath);
