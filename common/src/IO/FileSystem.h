@@ -202,11 +202,11 @@ namespace TrenchBroom {
             virtual const MappedFile::Ptr doOpenFile(const Path& path) const = 0;
         };
         
-        class WritableFileSystem : public virtual FileSystem {
+        class WritableFileSystem {
             deleteCopyAndMove(WritableFileSystem)
         public:
-            explicit WritableFileSystem(std::unique_ptr<FileSystem> next = std::unique_ptr<FileSystem>());
-            ~WritableFileSystem() override = default;
+            WritableFileSystem();
+            virtual ~WritableFileSystem();
 
             void createFile(const Path& path, const String& contents);
             void createDirectory(const Path& path);

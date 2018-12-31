@@ -187,9 +187,8 @@ namespace TrenchBroom {
             throw FileSystemException("Cannot make absolute path of '" + path.asString() + "'");
         }
 
-        WritableFileSystem::WritableFileSystem(std::unique_ptr<FileSystem> next) :
-        FileSystem(std::move(next)) {}
-
+        WritableFileSystem::WritableFileSystem() = default;
+        WritableFileSystem::~WritableFileSystem() = default;
 
         void WritableFileSystem::createFile(const Path& path, const String& contents) {
             try {

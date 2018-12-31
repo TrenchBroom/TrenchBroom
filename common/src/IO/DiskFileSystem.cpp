@@ -73,9 +73,8 @@ namespace TrenchBroom {
         WritableDiskFileSystem(nullptr, root, create) {}
 
         WritableDiskFileSystem::WritableDiskFileSystem(std::unique_ptr<FileSystem> next, const Path& root, const bool create) :
-        FileSystem(std::move(next)), // pass the next pointer to the single shared superclass instance
-        DiskFileSystem(root, !create), // no need to pass the next pointer here
-        WritableFileSystem() { // nor here, since neither of these constructors will call the FileSystem constructor
+        DiskFileSystem(std::move(next), root, !create),
+        WritableFileSystem() {
             if (create && !Disk::directoryExists(m_root)) {
                 Disk::createDirectory(m_root);
             }

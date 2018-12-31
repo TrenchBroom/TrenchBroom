@@ -28,11 +28,11 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class DiskFileSystem : public virtual FileSystem {
+        class DiskFileSystem : public FileSystem {
         protected:
             Path m_root;
         public:
-            DiskFileSystem(const Path& root, bool ensureExists = true);
+            explicit DiskFileSystem(const Path& root, bool ensureExists = true);
             DiskFileSystem(std::unique_ptr<FileSystem> next, const Path& root, bool ensureExists = true);
 
             const Path& root() const;
