@@ -85,9 +85,7 @@ namespace TrenchBroom {
              * report errors loading textures except for unrecoverable errors (out of memory, bugs, etc.). In all other
              * cases, an empty placeholder texture is returned.
              *
-             * @param begin start of the byte range to load the texture from
-             * @param end end of the byte range to load the texture from
-             * @param path path to the texture
+             * @param file the file that contains the texture image
              * @return an Assets::Texture object allocated with new
              */
             virtual Assets::Texture* doReadTexture(MappedFile::Ptr file) const = 0;
