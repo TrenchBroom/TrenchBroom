@@ -20,9 +20,6 @@
 #include "EdgeTool.h"
 
 #include "TrenchBroom.h"
-#include "Model/Brush.h"
-#include "Model/BrushBuilder.h"
-#include "Model/World.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -55,29 +52,6 @@ namespace TrenchBroom {
                 return MR_Continue;
             }
             return MR_Deny;
-        }
-
-        bool EdgeTool::canDoCsgConvexMerge() {
-            return handleManager().selectedHandleCount() > 1;
-        }
-
-        void EdgeTool::csgConvexMerge() {
-            std::vector<vm::vec3> vertices;
-            const auto edges = handleManager().selectedHandles();
-            vm::segment3::getVertices(std::begin(edges), std::end(edges), std::back_inserter(vertices));
-            const Polyhedron3 polyhedron(vertices);
-            if (!polyhedron.polyhedron() || !polyhedron.closed()) {
-                return;
-            }
-
-            MapDocumentSPtr document = lock(m_document);
-            const Model::BrushBuilder builder(document->world(), document->worldBounds());
-            auto* brush = builder.createBrush(polyhedron, document->currentTextureName());
-            brush->cloneFaceAttributesFrom(document->selectedNodes().brushes());
-
-            const Transaction transaction(document, "CSG Convex Merge");
-            deselectAll();
-            document->addNode(brush, document->currentParent());
         }
         
         String EdgeTool::actionName() const {

@@ -23,8 +23,6 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Model/Brush.h"
-#include "Model/BrushBuilder.h"
-#include "Model/World.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderService.h"
 #include "View/Grid.h"
@@ -168,26 +166,6 @@ namespace TrenchBroom {
             m_edgeHandles.deselectAll();
             m_faceHandles.deselectAll();
             m_mode = Mode_Move;
-        }
-
-        bool VertexTool::canDoCsgConvexMerge() {
-            return handleManager().selectedHandleCount() > 3;
-        }
-
-        void VertexTool::csgConvexMerge() {
-            const Polyhedron3 polyhedron(handleManager().selectedHandles());
-            if (!polyhedron.polyhedron() || !polyhedron.closed()) {
-                return;
-            }
-
-            MapDocumentSPtr document = lock(m_document);
-            const Model::BrushBuilder builder(document->world(), document->worldBounds());
-            auto* brush = builder.createBrush(polyhedron, document->currentTextureName());
-            brush->cloneFaceAttributesFrom(document->selectedNodes().brushes());
-
-            const Transaction transaction(document, "CSG Convex Merge");
-            deselectAll();
-            document->addNode(brush, document->currentParent());
         }
 
         const vm::vec3& VertexTool::getHandlePosition(const Model::Hit& hit) const {

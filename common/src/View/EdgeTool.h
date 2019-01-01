@@ -51,9 +51,6 @@ namespace TrenchBroom {
         public:
             MoveResult move(const vm::vec3& delta) override;
 
-            bool canDoCsgConvexMerge();
-            void csgConvexMerge();
-
             String actionName() const override;
 
             void removeSelection();
