@@ -262,7 +262,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/Renderer/VertexArray.cpp
 	${COMMON_SOURCE_DIR}/StringUtils.cpp
 	${COMMON_SOURCE_DIR}/TemporarilySetAny.cpp
-#	${COMMON_SOURCE_DIR}/TrenchBroomApp.cpp
+	${COMMON_SOURCE_DIR}/TrenchBroomApp.cpp
 	${COMMON_SOURCE_DIR}/TrenchBroomAppQt.cpp
 	${COMMON_SOURCE_DIR}/TrenchBroomAppTraits.cpp
 	${COMMON_SOURCE_DIR}/TrenchBroomStackWalker.cpp

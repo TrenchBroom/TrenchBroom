@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TrenchBroomApp.h"
 #include "RenderView.h"
 #include "Exceptions.h"
 #include "PreferenceManager.h"
@@ -26,7 +27,6 @@
 #include "Renderer/VertexSpec.h"
 #include "View/GLContextManager.h"
 #include "View/wxUtils.h"
-#include "TrenchBroomApp.h"
 
 #include <wx/dcclient.h>
 #include <wx/settings.h>
@@ -100,13 +100,6 @@ namespace TrenchBroom {
         void RenderView::initializeGL() {
             const bool firstInitialization = m_glContext->initialize();
             doInitializeGL(firstInitialization);
-
-            // TODO: replace this with Qt calls
-#ifdef _WIN32
-            if (wglSwapIntervalEXT) {
-                wglSwapIntervalEXT(1);
-            }
-#endif
         }
 
         void RenderView::resizeGL(int w, int h) {

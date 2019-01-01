@@ -20,14 +20,4 @@
 #ifndef TrenchBroom_TrenchBroomAppQt
 #define TrenchBroom_TrenchBroomAppQt
 
-#include <QMainWindow>
-
-class TestWindow : public QMainWindow
-{
-    Q_OBJECT
-
-public:
-    TestWindow();
-};
-
 #endif /* defined(TrenchBroom_TrenchBroomAppQt) */

@@ -23,12 +23,9 @@
 #include "Notifier.h"
 #include "IO/Path.h"
 #include "View/FrameManager.h"
-#include "View/RecentDocuments.h"
-#include <wx/app.h>
+//#include "View/RecentDocuments.h"
 
-#include <functional>
-
-class wxExtHelpController;
+#include <QApplication>
 
 namespace TrenchBroom {
     class Logger;
@@ -37,58 +34,55 @@ namespace TrenchBroom {
     namespace View {
         class ExecutableEvent;
         
-        class TrenchBroomApp : public wxApp {
+        class TrenchBroomApp : public QApplication {
         private:
             FrameManager* m_frameManager;
-            RecentDocuments<TrenchBroomApp>* m_recentDocuments;
-            wxLongLong m_lastActivation;
+            // FIXME:
+            //RecentDocuments<TrenchBroomApp>* m_recentDocuments;
         public:
             Notifier0 recentDocumentsDidChangeNotifier;
         public:
             static TrenchBroomApp& instance();
 
-            TrenchBroomApp();
+            TrenchBroomApp(int& argc, char** argv);
             ~TrenchBroomApp() override;
-            
-            void detectAndSetupUbuntu();
-        protected:
-            wxAppTraits* CreateTraits() override;
+
         public:
             FrameManager* frameManager();
-            
+
+            // FIXME: recent
+#if 0
             const IO::Path::List& recentDocuments() const;
             void addRecentDocumentMenu(wxMenu* menu);
             void removeRecentDocumentMenu(wxMenu* menu);
             void updateRecentDocument(const IO::Path& path);
-            
+#endif
+
             bool newDocument();
             bool openDocument(const String& pathStr);
             bool recoverFromException(const RecoverableException& e, const std::function<bool()>& op);
             void openPreferences();
             void openAbout();
 
-            bool OnInit() override;
-            
+#if 0
             bool OnExceptionInMainLoop() override;
             void OnUnhandledException() override;
             void OnFatalException() override;
+#endif
         private:
             void handleException();
         public:
             
-            int OnRun() override;
-            
-            void OnFileNew(wxCommandEvent& event);
-            void OnFileOpen(wxCommandEvent& event);
-            void OnFileOpenRecent(wxCommandEvent& event);
-            void OnHelpShowManual(wxCommandEvent& event);
-            void OnOpenPreferences(wxCommandEvent& event);
-            void OnOpenAbout(wxCommandEvent& event);
-            void OnDebugShowCrashReportDialog(wxCommandEvent& event);
+            void OnFileNew();
+            void OnFileOpen();
+            void OnFileOpenRecent();
+            void OnHelpShowManual();
+            void OnOpenPreferences();
+            void OnOpenAbout();
+            void OnDebugShowCrashReportDialog();
 
             void OnExecutableEvent(ExecutableEvent& event);
-            
-            int FilterEvent(wxEvent& event) override;
+
 #ifdef __APPLE__
             void OnFileExit(wxCommandEvent& event);
             void OnUpdateUI(wxUpdateUIEvent& event);
@@ -96,8 +90,7 @@ namespace TrenchBroom {
             void MacNewFile() override;
             void MacOpenFiles(const wxArrayString& filenames) override;
 #else
-            void OnInitCmdLine(wxCmdLineParser& parser) override;
-            bool OnCmdLineParsed(wxCmdLineParser& parser) override;
+            bool openFilesOrWelcomeFrame(const QStringList& fileNames);
 #endif
         private:
             static bool useSDI();

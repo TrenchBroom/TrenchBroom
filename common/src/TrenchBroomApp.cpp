@@ -43,6 +43,8 @@
 #include "View/GetVersion.h"
 #include "View/MapViewBase.h"
 
+#include <QCommandLineParser>
+
 #include <wx/choicdlg.h>
 #include <wx/cmdline.h>
 #include <wx/filedlg.h>
@@ -56,7 +58,7 @@
 namespace TrenchBroom {
     namespace View {
         TrenchBroomApp& TrenchBroomApp::instance() {
-            TrenchBroomApp* app = static_cast<TrenchBroomApp*>(wxTheApp);
+            TrenchBroomApp* app = dynamic_cast<TrenchBroomApp*>(qApp);
             return *app;
         }
 
@@ -64,11 +66,17 @@ namespace TrenchBroom {
         LONG WINAPI TrenchBroomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionPtrs);
 #endif
 
-        TrenchBroomApp::TrenchBroomApp() :
-        wxApp(),
-        m_frameManager(nullptr),
-        m_recentDocuments(nullptr),
-        m_lastActivation(0) {
+        TrenchBroomApp::TrenchBroomApp(int& argc, char** argv) :
+        QApplication(argc, argv),
+        m_frameManager(nullptr)
+        //m_recentDocuments(nullptr)
+        {
+            // Set OpenGL defaults
+            QSurfaceFormat format;
+            format.setDepthBufferSize(24);
+            format.setSamples(4);
+            QSurfaceFormat::setDefaultFormat(format);
+
 
 #if defined(_WIN32) && defined(_MSC_VER)
             // with MSVC, set our own handler for segfaults so we can access the context
@@ -76,29 +84,23 @@ namespace TrenchBroom {
             // see also: http://crashrpt.sourceforge.net/docs/html/exception_handling.html
             SetUnhandledExceptionFilter(TrenchBroomUnhandledExceptionFilter);
 #else
+            // FIXME: add signal handler for this
             // enable having TrenchBroomApp::OnFatalException called on segfaults
-            if (!wxHandleFatalExceptions(true)) {
-                wxLogWarning("enabling wxHandleFatalExceptions failed");
-            }
 #endif
-
-            detectAndSetupUbuntu();
 
             // always set this locale so that we can properly parse floats from text files regardless of the platforms locale
             std::setlocale(LC_NUMERIC, "C");
 
-            // load image handlers
-            wxImage::AddHandler(new wxPNGHandler());
-
-            SetAppName("TrenchBroom");
-            SetAppDisplayName("TrenchBroom");
-            SetVendorDisplayName("Kristian Duske");
-            SetVendorName("Kristian Duske");
+            setApplicationName("TrenchBroom");
+            setOrganizationName("Kristian Duske");
 
             // these must be initialized here and not earlier
             m_frameManager = new FrameManager(useSDI());
+            // FIXME: recent docs
+#if 0
             m_recentDocuments = new RecentDocuments<TrenchBroomApp>(CommandIds::Menu::FileRecentDocuments, 10);
             m_recentDocuments->setHandler(this, &TrenchBroomApp::OnFileOpenRecent);
+#endif
 
 #ifdef __APPLE__
             SetExitOnFrameDelete(false);
@@ -128,6 +130,9 @@ namespace TrenchBroom {
             Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_HELP);
             Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, CommandIds::Menu::Lowest, CommandIds::Menu::Highest);
 #endif
+
+            // FIXME: Implement these
+#if 0
             Bind(wxEVT_MENU, &TrenchBroomApp::OnFileNew, this, wxID_NEW);
             Bind(wxEVT_MENU, &TrenchBroomApp::OnFileOpen, this, wxID_OPEN);
             Bind(wxEVT_MENU, &TrenchBroomApp::OnHelpShowManual, this, wxID_HELP);
@@ -138,6 +143,13 @@ namespace TrenchBroom {
             Bind(EXECUTABLE_EVENT, &TrenchBroomApp::OnExecutableEvent, this);
 
             m_recentDocuments->didChangeNotifier.addObserver(recentDocumentsDidChangeNotifier);
+
+#endif
+
+            // FIXME: Do this here, or after the exec() call?
+            QCommandLineParser parser;
+            parser.process(*this);
+            openFilesOrWelcomeFrame(parser.positionalArguments());
         }
 
         TrenchBroomApp::~TrenchBroomApp() {
@@ -146,31 +158,20 @@ namespace TrenchBroom {
             delete m_frameManager;
             m_frameManager = nullptr;
 
+// FIXME: recent
+#if 0
             m_recentDocuments->didChangeNotifier.removeObserver(recentDocumentsDidChangeNotifier);
             delete m_recentDocuments;
             m_recentDocuments = nullptr;
-        }
-
-        void TrenchBroomApp::detectAndSetupUbuntu() {
-            // detect Ubuntu Linux and set the UBUNTU_MENUPROXY environment variable if necessary
-#ifdef __WXGTK20__
-            static const wxString varName("UBUNTU_MENUPROXY");
-            if (!wxGetEnv(varName, nullptr)) {
-                const wxLinuxDistributionInfo distr = wxGetLinuxDistributionInfo();
-                if (distr.Id.Lower().Find("ubuntu") != wxNOT_FOUND)
-                    wxSetEnv(varName, "1");
-            }
 #endif
-        }
-
-        wxAppTraits* TrenchBroomApp::CreateTraits() {
-            return new TrenchBroomAppTraits();
         }
 
         FrameManager* TrenchBroomApp::frameManager() {
             return m_frameManager;
         }
 
+        // FIXME: recent
+#if 0
          const IO::Path::List& TrenchBroomApp::recentDocuments() const {
             return m_recentDocuments->recentDocuments();
         }
@@ -186,8 +187,13 @@ namespace TrenchBroom {
         void TrenchBroomApp::updateRecentDocument(const IO::Path& path) {
             m_recentDocuments->updatePath(path);
         }
+#endif
 
         bool TrenchBroomApp::newDocument() {
+            qDebug("FIXME: show newDocument frame");
+            return true;
+
+#if 0
             MapFrame* frame = nullptr;
 
             try {
@@ -206,15 +212,16 @@ namespace TrenchBroom {
                 return true;
             } catch (const RecoverableException& e) {
                 if (frame != nullptr)
-                    frame->Close();
+                    frame->close();
 
                 return recoverFromException(e, [this](){ return this->newDocument(); });
             } catch (const Exception& e) {
                 if (frame != nullptr)
-                    frame->Close();
+                    frame->close();
                 ::wxMessageBox(e.what(), "TrenchBroom", wxOK, nullptr);
                 return false;
             }
+#endif
         }
 
         bool TrenchBroomApp::openDocument(const String& pathStr) {
@@ -228,8 +235,10 @@ namespace TrenchBroom {
                 std::tie(gameName, mapFormat) = gameFactory.detectGame(path);
                 
                 if (gameName.empty() || mapFormat == Model::MapFormat::Unknown) {
-                    if (!GameDialog::showOpenDocumentDialog(nullptr, gameName, mapFormat))
-                        return false;
+                    qDebug("FIXME: show game dialog");
+                    return false;
+                    //if (!GameDialog::showOpenDocumentDialog(nullptr, gameName, mapFormat))
+                    //    return false;
                 }
 
                 frame = m_frameManager->newFrame();
@@ -240,24 +249,24 @@ namespace TrenchBroom {
                 frame->openDocument(game, mapFormat, path);
                 return true;
             } catch (const FileNotFoundException& e) {
-                m_recentDocuments->removePath(IO::Path(path));
+                //m_recentDocuments->removePath(IO::Path(path));
                 if (frame != nullptr)
-                    frame->Close();
+                    frame->close();
                 ::wxMessageBox(e.what(), "TrenchBroom", wxOK, nullptr);
                 return false;
             } catch (const RecoverableException& e) {
                 if (frame != nullptr)
-                    frame->Close();
+                    frame->close();
 
                 return recoverFromException(e, [this, &pathStr](){ return this->openDocument(pathStr); });
             } catch (const Exception& e) {
                 if (frame != nullptr)
-                    frame->Close();
+                    frame->close();
                 ::wxMessageBox(e.what(), "TrenchBroom", wxOK, nullptr);
                 return false;
             } catch (...) {
                 if (frame != nullptr)
-                    frame->Close();
+                    frame->close();
                 ::wxMessageBox(pathStr + " could not be opened.", "TrenchBroom", wxOK, nullptr);
                 return false;
             }
@@ -284,30 +293,14 @@ namespace TrenchBroom {
         }
 
         void TrenchBroomApp::openPreferences() {
+#if 0
             PreferenceDialog dialog;
             dialog.ShowModal();
+#endif
         }
 
         void TrenchBroomApp::openAbout() {
             AboutDialog::showAboutDialog();
-        }
-
-        bool TrenchBroomApp::OnInit() {
-#if defined(_WIN32)
-            // Make wxStandardPaths return the actual executable directory, without stripping off the "Debug" or "Release" directory
-            // See: https://github.com/kduske/TrenchBroom/issues/1605
-            wxStandardPaths::Get().DontIgnoreAppSubDir();
-#endif
-
-            if (!wxApp::OnInit())
-                return false;
-
-            SetAppName("TrenchBroom");
-            SetAppDisplayName("TrenchBroom");
-            SetVendorDisplayName("Kristian Duske");
-            SetVendorName("Kristian Duske");
-
-            return true;
         }
         
         static String makeCrashReport(const String &stacktrace, const String &reason) {
@@ -434,7 +427,9 @@ namespace TrenchBroom {
         bool isReportingCrash() {
             return inReportCrashAndExit;
         }
-        
+
+        // FIXME: exception handling
+#if 0
         void TrenchBroomApp::OnUnhandledException() {
             handleException();
         }
@@ -447,6 +442,7 @@ namespace TrenchBroom {
         void TrenchBroomApp::OnFatalException() {
             reportCrashAndExit(TrenchBroomStackWalker::getStackTrace(), "OnFatalException");
         }
+#endif
         
 #if defined(_WIN32) && defined(_MSC_VER)
         LONG WINAPI TrenchBroomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionPtrs) {
@@ -469,53 +465,37 @@ namespace TrenchBroom {
             }
         }
 
-        int TrenchBroomApp::OnRun() {
-            const int result = wxApp::OnRun();
-            wxConfigBase* config = wxConfig::Get(false);
-            if (config != nullptr)
-                config->Flush();
-            DeletePendingObjects();
-            return result;
-        }
-
-        void TrenchBroomApp::OnFileNew(wxCommandEvent& event) {
+        void TrenchBroomApp::OnFileNew() {
             newDocument();
         }
 
-        void TrenchBroomApp::OnFileOpen(wxCommandEvent& event) {
+        void TrenchBroomApp::OnFileOpen() {
             const wxString pathStr = ::wxLoadFileSelector("",
-#ifdef __WXGTK20__
-                                                          "",
-#else
                                                           "map",
-#endif
                                                           "", nullptr);
             if (!pathStr.empty())
                 openDocument(pathStr.ToStdString());
         }
 
-        void TrenchBroomApp::OnFileOpenRecent(wxCommandEvent& event) {
-            const wxVariant* object = static_cast<wxVariant*>(event.m_callbackUserData); // this must be changed in 2.9.5 to event.GetEventUserData()
-            ensure(object != nullptr, "object is null");
-            const wxString data = object->GetString();
-
-            openDocument(data.ToStdString());
+        void TrenchBroomApp::OnFileOpenRecent() {
+            // FIXME: get document selected from menu
+            // openDocument("");
         }
 
-        void TrenchBroomApp::OnHelpShowManual(wxCommandEvent& event) {
+        void TrenchBroomApp::OnHelpShowManual() {
             const IO::Path manualPath = IO::SystemPaths::resourceDirectory() + IO::Path("manual/index.html");
             wxLaunchDefaultApplication(manualPath.asString());
         }
 
-        void TrenchBroomApp::OnOpenPreferences(wxCommandEvent& event) {
+        void TrenchBroomApp::OnOpenPreferences() {
             openPreferences();
         }
 
-        void TrenchBroomApp::OnOpenAbout(wxCommandEvent& event) {
+        void TrenchBroomApp::OnOpenAbout() {
             openAbout();
         }
 
-        void TrenchBroomApp::OnDebugShowCrashReportDialog(wxCommandEvent& event) {
+        void TrenchBroomApp::OnDebugShowCrashReportDialog() {
             const IO::Path reportPath(IO::SystemPaths::userDataDirectory() + IO::Path("crashreport.txt"));
             const IO::Path mapPath(IO::SystemPaths::userDataDirectory() + IO::Path("crashreport.map"));
             const IO::Path logPath(IO::SystemPaths::userDataDirectory() + IO::Path("crashreport.log"));
@@ -527,23 +507,6 @@ namespace TrenchBroom {
 
         void TrenchBroomApp::OnExecutableEvent(ExecutableEvent& event) {
             event.execute();
-        }
-
-        int TrenchBroomApp::FilterEvent(wxEvent& event) {
-            if (event.GetEventObject() != nullptr) {
-                if (event.GetEventType() == wxEVT_ACTIVATE) {
-                    m_lastActivation = wxGetLocalTimeMillis();
-                } else if (event.GetEventType() == wxEVT_LEFT_DOWN ||
-                           event.GetEventType() == wxEVT_MIDDLE_DOWN ||
-                           event.GetEventType() == wxEVT_RIGHT_DOWN ||
-                           event.GetEventType() == wxEVT_LEFT_UP ||
-                           event.GetEventType() == wxEVT_MIDDLE_UP ||
-                           event.GetEventType() == wxEVT_RIGHT_UP) {
-                    if (wxGetLocalTimeMillis() - m_lastActivation <= 10)
-                        return 1;
-                }
-            }
-            return wxApp::FilterEvent(event);
         }
 
 #ifdef __APPLE__
@@ -585,26 +548,15 @@ namespace TrenchBroom {
                 openDocument(filename.ToStdString());
         }
 #else
-        void TrenchBroomApp::OnInitCmdLine(wxCmdLineParser& parser) {
-            static const wxCmdLineEntryDesc cmdLineDesc[] =
-            {
-                { wxCMD_LINE_PARAM,  nullptr, nullptr, "input file", wxCMD_LINE_VAL_STRING, useSDI() ? wxCMD_LINE_PARAM_OPTIONAL : (wxCMD_LINE_PARAM_OPTIONAL | wxCMD_LINE_PARAM_MULTIPLE) },
-                { wxCMD_LINE_NONE, nullptr, nullptr, nullptr, wxCMD_LINE_VAL_NONE, wxCMD_LINE_PARAM_OPTIONAL }
-            };
 
-            parser.SetDesc(cmdLineDesc);
-            parser.SetSwitchChars("-");
-        }
-
-        bool TrenchBroomApp::OnCmdLineParsed(wxCmdLineParser& parser) {
-            if (parser.GetParamCount() > 0) {
+        bool TrenchBroomApp::openFilesOrWelcomeFrame(const QStringList& fileNames) {
+            if (fileNames.size() > 0) {
                 if (useSDI()) {
-                    const wxString param = parser.GetParam(0);
-                    openDocument(param.ToStdString());
+                    const auto param = fileNames.at(0).toStdString();
+                    openDocument(param);
                 } else {
-                    for (size_t i = 0; i < parser.GetParamCount(); ++i) {
-                        const wxString param = parser.GetParam(i);
-                        openDocument(param.ToStdString());
+                    for (const auto& qString : fileNames) {
+                        openDocument(qString.toStdString());
                     }
                 }
             } else {
@@ -623,8 +575,11 @@ namespace TrenchBroom {
         }
 
         void TrenchBroomApp::showWelcomeFrame() {
+            qDebug("FIXME: show welcome frame");
+#if 0
             WelcomeFrame* welcomeFrame = new WelcomeFrame();
             welcomeFrame->Show();
+#endif
         }
     }
 }
