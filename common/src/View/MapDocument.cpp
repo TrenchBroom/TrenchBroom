@@ -1054,30 +1054,22 @@ namespace TrenchBroom {
                 return false;
             }
 
-            std::vector<vm::vec3> points;
+            Polyhedron3 polyhedron;
             
             if (hasSelectedBrushFaces()) {
                 for (const Model::BrushFace* face : selectedBrushFaces()) {
                     for (const Model::BrushVertex* vertex : face->vertices()) {
-                        points.push_back(vertex->position());
+                        polyhedron.addPoint(vertex->position());
                     }
                 }
             } else if (selectedNodes().hasOnlyBrushes()) {
                 for (const Model::Brush* brush : selectedNodes().brushes()) {
                     for (const Model::BrushVertex* vertex : brush->vertices()) {
-                        points.push_back(vertex->position());
+                        polyhedron.addPoint(vertex->position());
                     }
                 }
             }
-
-            // The nodelist is either empty or contains only brushes.
-            const auto toRemove = selectedNodes().nodes();
             
-            return csgConvexMerge(points, toRemove);
-        }
-
-        bool MapDocument::csgConvexMerge(const std::vector<vm::vec3>& points, const Model::NodeList& toRemove) {
-            const Polyhedron3 polyhedron(points);
             if (!polyhedron.polyhedron() || !polyhedron.closed()) {
                 return false;
             }
@@ -1085,7 +1077,10 @@ namespace TrenchBroom {
             const Model::BrushBuilder builder(m_world, m_worldBounds);
             auto* brush = builder.createBrush(polyhedron, currentTextureName());
             brush->cloneFaceAttributesFrom(selectedNodes().brushes());
-
+            
+            // The nodelist is either empty or contains only brushes.
+            const auto toRemove = selectedNodes().nodes();
+            
             // We could be merging brushes that have different parents; use the parent of the first brush.
             Model::Node* parent = nullptr;
             if (!selectedNodes().brushes().empty()) {
@@ -1095,7 +1090,7 @@ namespace TrenchBroom {
             } else {
                 parent = currentParent();
             }
-
+            
             const Transaction transaction(this, "CSG Convex Merge");
             deselectAll();
             addNode(brush, parent);

@@ -1194,11 +1194,11 @@ namespace TrenchBroom {
 
             if (canDoCsgConvexMerge()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 if (m_mapView->vertexToolActive()) {
-                    m_mapView->vertexTool()->convexMerge();
+                    m_mapView->vertexTool()->csgConvexMerge();
                 } else if (m_mapView->edgeToolActive()) {
-                    m_mapView->edgeTool()->convexMerge();
+                    m_mapView->edgeTool()->csgConvexMerge();
                 } else if (m_mapView->faceToolActive()) {
-                    m_mapView->faceTool()->convexMerge();
+                    m_mapView->faceTool()->csgConvexMerge();
                 } else {
                     m_document->csgConvexMerge();
                 }
@@ -2008,9 +2008,9 @@ namespace TrenchBroom {
         bool MapFrame::canDoCsgConvexMerge() const {
             return (m_document->hasSelectedBrushFaces() && m_document->selectedBrushFaces().size() > 1) ||
                    (m_document->selectedNodes().hasOnlyBrushes() && m_document->selectedNodes().brushCount() > 1) ||
-                   (m_mapView->vertexToolActive() && m_mapView->vertexTool()->canConvexMerge()) ||
-                   (m_mapView->edgeToolActive() && m_mapView->edgeTool()->canConvexMerge()) ||
-                   (m_mapView->faceToolActive() && m_mapView->faceTool()->canConvexMerge());
+                   (m_mapView->vertexToolActive() && m_mapView->vertexTool()->canDoCsgConvexMerge()) ||
+                   (m_mapView->edgeToolActive() && m_mapView->edgeTool()->canDoCsgConvexMerge()) ||
+                   (m_mapView->faceToolActive() && m_mapView->faceTool()->canDoCsgConvexMerge());
         }
 
         bool MapFrame::canDoCsgSubtract() const {
