@@ -70,10 +70,6 @@ namespace TrenchBroom {
             for (const auto& texture : textures) {
                 const auto shaderPath = texture.deleteExtension();
 
-                if (shaderPath == Path("textures/common/trigger")) {
-                    bool b = true;
-                }
-
                 // Only link a shader if it has not been linked yet.
                 if (!fileExists(shaderPath)) {
                     const auto shaderIt = std::find_if(std::begin(shaders), std::end(shaders), [&shaderPath](const auto& shader){
