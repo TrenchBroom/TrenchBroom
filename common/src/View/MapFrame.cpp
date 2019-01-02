@@ -131,6 +131,9 @@ namespace TrenchBroom {
             createToolBar();
             createMenuBar();
             createActions();
+
+            updateGridActions();
+
             createMenus();
             createStatusBar();
 
@@ -599,23 +602,28 @@ namespace TrenchBroom {
             connect(viewToggleSnapToGridAction, &QAction::triggered, this, &MapFrame::OnViewToggleSnapToGrid);
 
             viewIncGridSizeAction = new QAction("Increase Grid Size", this);
+            viewIncGridSizeAction->setShortcut(QKeySequence("+")); // FIXME:
             connect(viewIncGridSizeAction, &QAction::triggered, this, &MapFrame::OnViewIncGridSize);
 
             viewDecGridSizeAction = new QAction("Decrease Grid Size", this);
+            viewDecGridSizeAction->setShortcut(QKeySequence("-")); // FIXME:
             connect(viewDecGridSizeAction, &QAction::triggered, this, &MapFrame::OnViewDecGridSize);
 
             viewSetGridSizeActionGroup = new QActionGroup(this);
 
             viewSetGridSize0Point125Action = new QAction("Set Grid Size 0.125", viewSetGridSizeActionGroup);
             viewSetGridSize0Point125Action->setData(QVariant(-3));
+            viewSetGridSize0Point125Action->setCheckable(true);
             connect(viewSetGridSize0Point125Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
 
             viewSetGridSize0Point25Action = new QAction("Set Grid Size 0.25", viewSetGridSizeActionGroup);
             viewSetGridSize0Point25Action->setData(QVariant(-2));
+            viewSetGridSize0Point25Action->setCheckable(true);
             connect(viewSetGridSize0Point25Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
 
             viewSetGridSize0Point5Action = new QAction("Set Grid Size 0.5", viewSetGridSizeActionGroup);
             viewSetGridSize0Point5Action->setData(QVariant(-1));
+            viewSetGridSize0Point5Action->setCheckable(true);
             connect(viewSetGridSize0Point5Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
 
             viewSetGridSize1Action = new QAction("Set Grid Size 1", viewSetGridSizeActionGroup);
@@ -625,34 +633,42 @@ namespace TrenchBroom {
 
             viewSetGridSize2Action = new QAction("Set Grid Size 2", viewSetGridSizeActionGroup);
             viewSetGridSize2Action->setData(QVariant(1));
+            viewSetGridSize2Action->setCheckable(true);
             connect(viewSetGridSize2Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
 
             viewSetGridSize4Action = new QAction("Set Grid Size 4", viewSetGridSizeActionGroup);
             viewSetGridSize4Action->setData(QVariant(2));
+            viewSetGridSize4Action->setCheckable(true);
             connect(viewSetGridSize4Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
 
             viewSetGridSize8Action = new QAction("Set Grid Size 8", viewSetGridSizeActionGroup);
             viewSetGridSize8Action->setData(QVariant(3));
+            viewSetGridSize8Action->setCheckable(true);
             connect(viewSetGridSize8Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
 
             viewSetGridSize16Action = new QAction("Set Grid Size 16", viewSetGridSizeActionGroup);
             viewSetGridSize16Action->setData(QVariant(4));
+            viewSetGridSize16Action->setCheckable(true);
             connect(viewSetGridSize16Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
 
             viewSetGridSize32Action = new QAction("Set Grid Size 32", viewSetGridSizeActionGroup);
             viewSetGridSize32Action->setData(QVariant(5));
+            viewSetGridSize32Action->setCheckable(true);
             connect(viewSetGridSize32Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
 
             viewSetGridSize64Action = new QAction("Set Grid Size 64", viewSetGridSizeActionGroup);
             viewSetGridSize64Action->setData(QVariant(6));
+            viewSetGridSize64Action->setCheckable(true);
             connect(viewSetGridSize64Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
 
             viewSetGridSize128Action = new QAction("Set Grid Size 128", viewSetGridSizeActionGroup);
             viewSetGridSize128Action->setData(QVariant(7));
+            viewSetGridSize128Action->setCheckable(true);
             connect(viewSetGridSize128Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
 
             viewSetGridSize256Action = new QAction("Set Grid Size 256", viewSetGridSizeActionGroup);
             viewSetGridSize256Action->setData(QVariant(8));
+            viewSetGridSize256Action->setCheckable(true);
             connect(viewSetGridSize256Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
 
             viewMoveCameraToNextPointAction = new QAction("Move to Next Point", this);
@@ -884,6 +900,35 @@ namespace TrenchBroom {
             helpMenu->addAction(helpManualAction); //(wxID_HELP, "TrenchBroom Manual");
             helpMenu->addSeparator();
             helpMenu->addAction(helpAboutAction); //(wxID_ABOUT, "About TrenchBroom");
+        }
+
+        void MapFrame::updateGridActions() {
+            viewToggleShowGridAction->setChecked(m_document->grid().visible());
+            viewToggleSnapToGridAction->setChecked(m_document->grid().snap());
+
+            QAction* actions[] = {
+                viewSetGridSize0Point125Action,
+                viewSetGridSize0Point25Action,
+                viewSetGridSize0Point5Action,
+                viewSetGridSize1Action,
+                viewSetGridSize2Action,
+                viewSetGridSize4Action,
+                viewSetGridSize8Action,
+                viewSetGridSize16Action,
+                viewSetGridSize32Action,
+                viewSetGridSize64Action,
+                viewSetGridSize128Action,
+                viewSetGridSize256Action
+            };
+            constexpr int numActions = static_cast<int>(sizeof(actions) / sizeof(actions[0]));
+            const int gridSizeIndex = m_document->grid().size() - Grid::MinSize;
+
+            for (int i = 0; i < numActions; ++i) {
+                actions[i]->setChecked(i == gridSizeIndex);
+            }
+
+            viewIncGridSizeAction->setEnabled(canIncGridSize());
+            viewDecGridSizeAction->setEnabled(canDecGridSize());
         }
 
 #if 0
@@ -1181,6 +1226,8 @@ namespace TrenchBroom {
             const Grid& grid = m_document->grid();
             // FIXME: toolbar
 //            m_gridChoice->SetSelection(indexForGridSize(grid.size()));
+
+            updateGridActions();
         }
         
         void MapFrame::selectionDidChange(const Selection& selection) {
@@ -1851,35 +1898,17 @@ namespace TrenchBroom {
             const ActionManager& actionManager = ActionManager::instance();
 
             switch (event.GetId()) {
-                case wxID_OPEN:
-                case wxID_SAVE:
-                case wxID_SAVEAS:
-                case wxID_CLOSE:
-                case CommandIds::Menu::FileExportObj:
-                case CommandIds::Menu::FileOpenRecent:
-                    event.Enable(true);
-                    break;
-                case CommandIds::Menu::FileLoadPointFile:
-                    event.Enable(true);
-                    break;
                 case CommandIds::Menu::FileReloadPointFile:
                     event.Enable(canReloadPointFile());
                     break;
                 case CommandIds::Menu::FileUnloadPointFile:
                     event.Enable(canUnloadPointFile());
                     break;
-                case CommandIds::Menu::FileLoadPortalFile:
-                    event.Enable(true);
-                    break;
                 case CommandIds::Menu::FileReloadPortalFile:
                     event.Enable(canReloadPortalFile());
                     break;
                 case CommandIds::Menu::FileUnloadPortalFile:
                     event.Enable(canUnloadPortalFile());
-                    break;
-                case CommandIds::Menu::FileReloadTextureCollections:
-                case CommandIds::Menu::FileReloadEntityDefinitions:
-                    event.Enable(true);
                     break;
                 case wxID_UNDO: {
                     const ActionMenuItem* item = actionManager.findMenuItem(wxID_UNDO);
@@ -2015,68 +2044,6 @@ namespace TrenchBroom {
                 case CommandIds::Menu::EditToggleUVLock:
                     event.Enable(true);
                     event.Check(pref(Preferences::UVLock));
-                    break;
-                case CommandIds::Menu::ViewToggleShowGrid:
-                    event.Enable(true);
-                    event.Check(m_document->grid().visible());
-                    break;
-                case CommandIds::Menu::ViewToggleSnapToGrid:
-                    event.Enable(true);
-                    event.Check(m_document->grid().snap());
-                    break;
-                case CommandIds::Menu::ViewIncGridSize:
-                    event.Enable(canIncGridSize());
-                    break;
-                case CommandIds::Menu::ViewDecGridSize:
-                    event.Enable(canDecGridSize());
-                    break;
-                case CommandIds::Menu::ViewSetGridSize0Point125:
-                    event.Enable(true);
-                    event.Check(m_document->grid().size() == -3);
-                    break;
-                case CommandIds::Menu::ViewSetGridSize0Point25:
-                    event.Enable(true);
-                    event.Check(m_document->grid().size() == -2);
-                    break;
-                case CommandIds::Menu::ViewSetGridSize0Point5:
-                    event.Enable(true);
-                    event.Check(m_document->grid().size() == -1);
-                    break;
-                case CommandIds::Menu::ViewSetGridSize1:
-                    event.Enable(true);
-                    event.Check(m_document->grid().size() == 0);
-                    break;
-                case CommandIds::Menu::ViewSetGridSize2:
-                    event.Enable(true);
-                    event.Check(m_document->grid().size() == 1);
-                    break;
-                case CommandIds::Menu::ViewSetGridSize4:
-                    event.Enable(true);
-                    event.Check(m_document->grid().size() == 2);
-                    break;
-                case CommandIds::Menu::ViewSetGridSize8:
-                    event.Enable(true);
-                    event.Check(m_document->grid().size() == 3);
-                    break;
-                case CommandIds::Menu::ViewSetGridSize16:
-                    event.Enable(true);
-                    event.Check(m_document->grid().size() == 4);
-                    break;
-                case CommandIds::Menu::ViewSetGridSize32:
-                    event.Enable(true);
-                    event.Check(m_document->grid().size() == 5);
-                    break;
-                case CommandIds::Menu::ViewSetGridSize64:
-                    event.Enable(true);
-                    event.Check(m_document->grid().size() == 6);
-                    break;
-                case CommandIds::Menu::ViewSetGridSize128:
-                    event.Enable(true);
-                    event.Check(m_document->grid().size() == 7);
-                    break;
-                case CommandIds::Menu::ViewSetGridSize256:
-                    event.Enable(true);
-                    event.Check(m_document->grid().size() == 8);
                     break;
                 case CommandIds::Menu::ViewMoveCameraToNextPoint:
                     event.Enable(canMoveCameraToNextPoint());

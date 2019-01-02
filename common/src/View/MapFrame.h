@@ -226,6 +226,7 @@ namespace TrenchBroom {
             void createMenuBar();
             void createActions();
             void createMenus();
+            void updateGridActions();
 
             void addRecentDocumentsMenu(QMenuBar* menuBar);
             void removeRecentDocumentsMenu(QMenuBar* menuBar);
