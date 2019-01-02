@@ -29,6 +29,7 @@
 #include <QFileDialog>
 #include <QStatusBar>
 #include <QAction>
+#include <QActionGroup>
 #include <QMenu>
 #include <QMenuBar>
 #include <QShortcut>
@@ -586,6 +587,154 @@ namespace TrenchBroom {
 
             editSnapVerticesToGridAction = new QAction("Snap Vertices to Grid", this);
             connect(editSnapVerticesToGridAction, &QAction::triggered, this, &MapFrame::OnEditSnapVerticesToGrid); //, this, CommandIds::Menu::EditSnapVerticesToGrid);
+
+            // View
+
+            viewToggleShowGridAction = new QAction("Show Grid", this);
+            viewToggleShowGridAction->setCheckable(true);
+            connect(viewToggleShowGridAction, &QAction::triggered, this, &MapFrame::OnViewToggleShowGrid);
+
+            viewToggleSnapToGridAction = new QAction("Snap to Grid", this);
+            viewToggleSnapToGridAction->setCheckable(true);
+            connect(viewToggleSnapToGridAction, &QAction::triggered, this, &MapFrame::OnViewToggleSnapToGrid);
+
+            viewIncGridSizeAction = new QAction("Increase Grid Size", this);
+            connect(viewIncGridSizeAction, &QAction::triggered, this, &MapFrame::OnViewIncGridSize);
+
+            viewDecGridSizeAction = new QAction("Decrease Grid Size", this);
+            connect(viewDecGridSizeAction, &QAction::triggered, this, &MapFrame::OnViewDecGridSize);
+
+            viewSetGridSizeActionGroup = new QActionGroup(this);
+
+            viewSetGridSize0Point125Action = new QAction("Set Grid Size 0.125", viewSetGridSizeActionGroup);
+            viewSetGridSize0Point125Action->setData(QVariant(-3));
+            connect(viewSetGridSize0Point125Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
+
+            viewSetGridSize0Point25Action = new QAction("Set Grid Size 0.25", viewSetGridSizeActionGroup);
+            viewSetGridSize0Point25Action->setData(QVariant(-2));
+            connect(viewSetGridSize0Point25Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
+
+            viewSetGridSize0Point5Action = new QAction("Set Grid Size 0.5", viewSetGridSizeActionGroup);
+            viewSetGridSize0Point5Action->setData(QVariant(-1));
+            connect(viewSetGridSize0Point5Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
+
+            viewSetGridSize1Action = new QAction("Set Grid Size 1", viewSetGridSizeActionGroup);
+            viewSetGridSize1Action->setData(QVariant(0));
+            viewSetGridSize1Action->setCheckable(true);
+            connect(viewSetGridSize1Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
+
+            viewSetGridSize2Action = new QAction("Set Grid Size 2", viewSetGridSizeActionGroup);
+            viewSetGridSize2Action->setData(QVariant(1));
+            connect(viewSetGridSize2Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
+
+            viewSetGridSize4Action = new QAction("Set Grid Size 4", viewSetGridSizeActionGroup);
+            viewSetGridSize4Action->setData(QVariant(2));
+            connect(viewSetGridSize4Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
+
+            viewSetGridSize8Action = new QAction("Set Grid Size 8", viewSetGridSizeActionGroup);
+            viewSetGridSize8Action->setData(QVariant(3));
+            connect(viewSetGridSize8Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
+
+            viewSetGridSize16Action = new QAction("Set Grid Size 16", viewSetGridSizeActionGroup);
+            viewSetGridSize16Action->setData(QVariant(4));
+            connect(viewSetGridSize16Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
+
+            viewSetGridSize32Action = new QAction("Set Grid Size 32", viewSetGridSizeActionGroup);
+            viewSetGridSize32Action->setData(QVariant(5));
+            connect(viewSetGridSize32Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
+
+            viewSetGridSize64Action = new QAction("Set Grid Size 64", viewSetGridSizeActionGroup);
+            viewSetGridSize64Action->setData(QVariant(6));
+            connect(viewSetGridSize64Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
+
+            viewSetGridSize128Action = new QAction("Set Grid Size 128", viewSetGridSizeActionGroup);
+            viewSetGridSize128Action->setData(QVariant(7));
+            connect(viewSetGridSize128Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
+
+            viewSetGridSize256Action = new QAction("Set Grid Size 256", viewSetGridSizeActionGroup);
+            viewSetGridSize256Action->setData(QVariant(8));
+            connect(viewSetGridSize256Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
+
+            viewMoveCameraToNextPointAction = new QAction("Move to Next Point", this);
+            connect(viewMoveCameraToNextPointAction, &QAction::triggered, this, &MapFrame::OnViewMoveCameraToNextPoint);
+
+            viewMoveCameraToPreviousPointAction = new QAction("Move to Previous Point", this);
+            connect(viewMoveCameraToPreviousPointAction, &QAction::triggered, this, &MapFrame::OnViewMoveCameraToPreviousPoint);
+
+            viewFocusCameraOnSelectionAction = new QAction("Focus on Selection", this);
+            connect(viewFocusCameraOnSelectionAction, &QAction::triggered, this, &MapFrame::OnViewFocusCameraOnSelection);
+
+            viewMoveCameraToPositionAction = new QAction("Move Camera to...", this);
+            connect(viewMoveCameraToPositionAction, &QAction::triggered, this, &MapFrame::OnViewMoveCameraToPosition);
+
+            viewHideSelectionAction = new QAction("Hide", this);
+            connect(viewHideSelectionAction, &QAction::triggered, this, &MapFrame::OnViewHideSelectedObjects);
+
+            viewIsolateSelectionAction = new QAction("Isolate", this);
+            connect(viewIsolateSelectionAction, &QAction::triggered, this, &MapFrame::OnViewIsolateSelectedObjects);
+
+            viewUnhideAllAction = new QAction("Show All", this);
+            connect(viewUnhideAllAction, &QAction::triggered, this, &MapFrame::OnViewShowHiddenObjects);
+
+            viewSwitchToMapInspectorAction = new QAction("Switch to Map Inspector", this);
+            connect(viewSwitchToMapInspectorAction, &QAction::triggered, this, &MapFrame::OnViewSwitchToMapInspector);
+
+            viewSwitchToEntityInspectorAction = new QAction("Switch to Entity Inspector", this);
+            connect(viewSwitchToEntityInspectorAction, &QAction::triggered, this, &MapFrame::OnViewSwitchToEntityInspector);
+
+            viewSwitchToFaceInspectorAction = new QAction("Switch to Face Inspector", this);
+            connect(viewSwitchToFaceInspectorAction, &QAction::triggered, this, &MapFrame::OnViewSwitchToFaceInspector);
+
+            viewToggleMaximizeCurrentViewAction = new QAction("Maximize Current View", this);
+            connect(viewToggleMaximizeCurrentViewAction, &QAction::triggered, this, &MapFrame::OnViewToggleMaximizeCurrentView);
+
+            viewPreferencesAction = new QAction("Preferences...", this);
+            // FIXME: connect to ?
+
+            viewToggleInfoPanelAction = new QAction("Toggle Info Panel", this);
+            connect(viewToggleInfoPanelAction, &QAction::triggered, this, &MapFrame::OnViewToggleInfoPanel);
+
+            viewToggleInspectorAction = new QAction("Toggle Inspector", this);
+            connect(viewToggleInspectorAction, &QAction::triggered, this, &MapFrame::OnViewToggleInspector);
+
+            runCompileAction = new QAction("Compile...", this);
+            connect(runCompileAction, &QAction::triggered, this, &MapFrame::OnRunCompile);
+
+            runLaunchAction = new QAction("Launch...", this);
+            connect(runLaunchAction, &QAction::triggered, this, &MapFrame::OnRunLaunch);
+
+            debugPrintVerticesAction = new QAction("Print Vertices", this);
+            connect(debugPrintVerticesAction, &QAction::triggered, this, &MapFrame::OnDebugPrintVertices);
+
+            debugCreateBrushAction = new QAction("Create Brush...", this);
+            connect(debugCreateBrushAction, &QAction::triggered, this, &MapFrame::OnDebugCreateBrush);
+
+            debugCreateCubeAction = new QAction("Create Cube...", this);
+            connect(debugCreateCubeAction, &QAction::triggered, this, &MapFrame::OnDebugCreateCube);
+
+            debugClipWithFaceAction = new QAction("Clip Brush...", this);
+            connect(debugClipWithFaceAction, &QAction::triggered, this, &MapFrame::OnDebugClipBrush);
+
+            debugCopyJSShortcutsAction = new QAction("Copy Javascript Shortcut Map", this);
+            connect(debugCopyJSShortcutsAction, &QAction::triggered, this, &MapFrame::OnDebugCopyJSShortcutMap);
+
+            debugCrashAction = new QAction("Crash...", this);
+            connect(debugCrashAction, &QAction::triggered, this, &MapFrame::OnDebugCrash);
+
+            debugThrowExceptionDuringCommandAction = new QAction("Throw Exception During Command", this);
+            connect(debugThrowExceptionDuringCommandAction, &QAction::triggered, this, &MapFrame::OnDebugThrowExceptionDuringCommand);
+
+            debugCrashReportDialogAction = new QAction("Show Crash Report Dialog", this);
+            // FIXME: connect to ?
+
+            debugSetWindowSizeAction = new QAction("Set Window Size...", this);
+            connect(debugSetWindowSizeAction, &QAction::triggered, this, &MapFrame::OnDebugSetWindowSize);
+
+            helpManualAction = new QAction("TrenchBroom Manual", this);
+            // FIXME: connect to ?
+
+            helpAboutAction = new QAction("About TrenchBroom", this);
+            // FIXME: connect to ?
         }
 
 
@@ -668,6 +817,71 @@ namespace TrenchBroom {
             editMenu->addAction(editToggleUVLockAction); //addModifiableCheckItem(CommandIds::Menu::EditToggleUVLock, "UV Lock", KeyboardShortcut('U'));
             editMenu->addAction(editReplaceTextureAction); //addModifiableActionItem(CommandIds::Menu::EditReplaceTexture, "Replace Texture...");
 
+            QMenu* viewMenu = menuBar()->addMenu("View");
+            QMenu* gridMenu = viewMenu->addMenu("Grid");
+            gridMenu->addAction(viewToggleShowGridAction); //, "Show Grid", KeyboardShortcut('0'));
+            gridMenu->addAction(viewToggleSnapToGridAction); //, "Snap to Grid", KeyboardShortcut('0', WXK_ALT));
+            gridMenu->addAction(viewIncGridSizeAction); //, "Increase Grid Size", KeyboardShortcut('+'));
+            gridMenu->addAction(viewDecGridSizeAction); //, "Decrease Grid Size", KeyboardShortcut('-'));
+            gridMenu->addSeparator();
+            gridMenu->addAction(viewSetGridSize0Point125Action); //, "Set Grid Size 0.125");
+            gridMenu->addAction(viewSetGridSize0Point25Action); //, "Set Grid Size 0.25");
+            gridMenu->addAction(viewSetGridSize0Point5Action); //, "Set Grid Size 0.5");
+            gridMenu->addAction(viewSetGridSize1Action); //, "Set Grid Size 1", KeyboardShortcut('1'));
+            gridMenu->addAction(viewSetGridSize2Action); //, "Set Grid Size 2", KeyboardShortcut('2'));
+            gridMenu->addAction(viewSetGridSize4Action); //, "Set Grid Size 4", KeyboardShortcut('3'));
+            gridMenu->addAction(viewSetGridSize8Action); //, "Set Grid Size 8", KeyboardShortcut('4'));
+            gridMenu->addAction(viewSetGridSize16Action); //, "Set Grid Size 16", KeyboardShortcut('5'));
+            gridMenu->addAction(viewSetGridSize32Action); //, "Set Grid Size 32", KeyboardShortcut('6'));
+            gridMenu->addAction(viewSetGridSize64Action); //, "Set Grid Size 64", KeyboardShortcut('7'));
+            gridMenu->addAction(viewSetGridSize128Action); //, "Set Grid Size 128", KeyboardShortcut('8'));
+            gridMenu->addAction(viewSetGridSize256Action); //, "Set Grid Size 256", KeyboardShortcut('9'));
+
+            QMenu* cameraMenu = viewMenu->addMenu("Camera");
+            cameraMenu->addAction(viewMoveCameraToNextPointAction); //addModifiableActionItem(CommandIds::Menu::ViewMoveCameraToNextPoint, "Move to Next Point", KeyboardShortcut('.'));
+            cameraMenu->addAction(viewMoveCameraToPreviousPointAction); //addModifiableActionItem(CommandIds::Menu::ViewMoveCameraToPreviousPoint, "Move to Previous Point", KeyboardShortcut(','));
+            cameraMenu->addAction(viewFocusCameraOnSelectionAction); //addModifiableActionItem(CommandIds::Menu::ViewFocusCameraOnSelection, "Focus on Selection", KeyboardShortcut('U', WXK_CONTROL));
+            cameraMenu->addAction(viewMoveCameraToPositionAction); //addModifiableActionItem(CommandIds::Menu::ViewMoveCameraToPosition, "Move Camera to...");
+            cameraMenu->addSeparator();
+
+            viewMenu->addSeparator();
+            viewMenu->addAction(viewIsolateSelectionAction); //addModifiableActionItem(CommandIds::Menu::ViewIsolateSelection, "Isolate", KeyboardShortcut('I', WXK_CONTROL));
+            viewMenu->addAction(viewHideSelectionAction); //addModifiableActionItem(CommandIds::Menu::ViewHideSelection, "Hide", KeyboardShortcut('I', WXK_CONTROL, WXK_ALT));
+            viewMenu->addAction(viewUnhideAllAction); //addModifiableActionItem(CommandIds::Menu::ViewUnhideAll, "Show All", KeyboardShortcut('I', WXK_CONTROL, WXK_SHIFT));
+
+            viewMenu->addSeparator();
+            viewMenu->addAction(viewSwitchToMapInspectorAction); //, "Switch to Map Inspector", KeyboardShortcut('1', WXK_CONTROL));
+            viewMenu->addAction(viewSwitchToEntityInspectorAction); //, "Switch to Entity Inspector", KeyboardShortcut('2', WXK_CONTROL));
+            viewMenu->addAction(viewSwitchToFaceInspectorAction); //, "Switch to Face Inspector", KeyboardShortcut('3', WXK_CONTROL));
+            viewMenu->addSeparator();
+            viewMenu->addAction(viewToggleInfoPanelAction); //, "Toggle Info Panel", KeyboardShortcut('4', WXK_CONTROL));
+            viewMenu->addAction(viewToggleInspectorAction); //, "Toggle Inspector", KeyboardShortcut('5', WXK_CONTROL));
+            viewMenu->addSeparator();
+            viewMenu->addAction(viewToggleMaximizeCurrentViewAction); //, "Maximize Current View", KeyboardShortcut(WXK_SPACE, WXK_CONTROL));
+            viewMenu->addSeparator();
+            viewMenu->addAction(viewPreferencesAction); // wxID_PREFERENCES, "Preferences...");
+
+            QMenu* runMenu = menuBar()->addMenu("Run");
+            runMenu->addAction(runCompileAction); //CommandIds::Menu::RunCompile, "Compile...");
+            runMenu->addAction(runLaunchAction); //CommandIds::Menu::RunLaunch, "Launch...");
+
+#ifndef NDEBUG
+            QMenu* debugMenu = menuBar()->addMenu("Debug");
+            debugMenu->addAction(debugPrintVerticesAction); //(CommandIds::Menu::DebugPrintVertices, "Print Vertices");
+            debugMenu->addAction(debugCreateBrushAction); //(CommandIds::Menu::DebugCreateBrush, "Create Brush...");
+            debugMenu->addAction(debugCreateCubeAction); //(CommandIds::Menu::DebugCreateCube, "Create Cube...");
+            debugMenu->addAction(debugClipWithFaceAction); //(CommandIds::Menu::DebugClipWithFace, "Clip Brush...");
+            debugMenu->addAction(debugCopyJSShortcutsAction); //(CommandIds::Menu::DebugCopyJSShortcuts, "Copy Javascript Shortcut Map");
+            debugMenu->addAction(debugCrashAction); //(CommandIds::Menu::DebugCrash, "Crash...");
+            debugMenu->addAction(debugThrowExceptionDuringCommandAction); //(CommandIds::Menu::DebugThrowExceptionDuringCommand, "Throw Exception During Command");
+            debugMenu->addAction(debugCrashReportDialogAction); //(CommandIds::Menu::DebugCrashReportDialog, "Show Crash Report Dialog");
+            debugMenu->addAction(debugSetWindowSizeAction); //(CommandIds::Menu::DebugSetWindowSize, "Set Window Size...");
+#endif
+
+            QMenu* helpMenu = menuBar()->addMenu("Help");
+            helpMenu->addAction(helpManualAction); //(wxID_HELP, "TrenchBroom Manual");
+            helpMenu->addSeparator();
+            helpMenu->addAction(helpAboutAction); //(wxID_ABOUT, "About TrenchBroom");
         }
 
 #if 0
@@ -987,87 +1201,6 @@ namespace TrenchBroom {
 
             // FIXME:
 #if 0
-            Bind(wxEVT_MENU, &MapFrame::OnEditUndo, this, wxID_UNDO);
-            Bind(wxEVT_MENU, &MapFrame::OnEditRedo, this, wxID_REDO);
-            Bind(wxEVT_MENU, &MapFrame::OnEditRepeat, this, CommandIds::Menu::EditRepeat);
-            Bind(wxEVT_MENU, &MapFrame::OnEditClearRepeat, this, CommandIds::Menu::EditClearRepeat);
-
-            Bind(wxEVT_MENU, &MapFrame::OnEditCut, this, wxID_CUT);
-            Bind(wxEVT_MENU, &MapFrame::OnEditCopy, this, wxID_COPY);
-            Bind(wxEVT_MENU, &MapFrame::OnEditPaste, this, wxID_PASTE);
-            Bind(wxEVT_MENU, &MapFrame::OnEditPasteAtOriginalPosition, this, CommandIds::Menu::EditPasteAtOriginalPosition);
-            Bind(wxEVT_MENU, &MapFrame::OnEditDuplicate, this, wxID_DUPLICATE);
-            Bind(wxEVT_MENU, &MapFrame::OnEditDelete, this, wxID_DELETE);
-
-            Bind(wxEVT_MENU, &MapFrame::OnEditSelectAll, this, CommandIds::Menu::EditSelectAll);
-            Bind(wxEVT_MENU, &MapFrame::OnEditSelectSiblings, this, CommandIds::Menu::EditSelectSiblings);
-            Bind(wxEVT_MENU, &MapFrame::OnEditSelectTouching, this, CommandIds::Menu::EditSelectTouching);
-            Bind(wxEVT_MENU, &MapFrame::OnEditSelectInside, this, CommandIds::Menu::EditSelectInside);
-            Bind(wxEVT_MENU, &MapFrame::OnEditSelectTall, this, CommandIds::Menu::EditSelectTall);
-            Bind(wxEVT_MENU, &MapFrame::OnEditSelectByLineNumber, this, CommandIds::Menu::EditSelectByFilePosition);
-            Bind(wxEVT_MENU, &MapFrame::OnEditSelectNone, this, CommandIds::Menu::EditSelectNone);
-
-            Bind(wxEVT_MENU, &MapFrame::OnEditGroupSelectedObjects, this, CommandIds::Menu::EditGroupSelection);
-            Bind(wxEVT_MENU, &MapFrame::OnEditUngroupSelectedObjects, this, CommandIds::Menu::EditUngroupSelection);
-
-            Bind(wxEVT_MENU, &MapFrame::OnEditDeactivateTool, this, CommandIds::Menu::EditDeactivateTool);
-            Bind(wxEVT_MENU, &MapFrame::OnEditToggleCreateComplexBrushTool, this, CommandIds::Menu::EditToggleCreateComplexBrushTool);
-            Bind(wxEVT_MENU, &MapFrame::OnEditToggleClipTool, this, CommandIds::Menu::EditToggleClipTool);
-            Bind(wxEVT_MENU, &MapFrame::OnEditToggleRotateObjectsTool, this, CommandIds::Menu::EditToggleRotateObjectsTool);
-            Bind(wxEVT_MENU, &MapFrame::OnEditToggleScaleObjectsTool, this, CommandIds::Menu::EditToggleScaleObjectsTool);
-            Bind(wxEVT_MENU, &MapFrame::OnEditToggleShearObjectsTool, this, CommandIds::Menu::EditToggleShearObjectsTool);
-            Bind(wxEVT_MENU, &MapFrame::OnEditToggleVertexTool, this, CommandIds::Menu::EditToggleVertexTool);
-            Bind(wxEVT_MENU, &MapFrame::OnEditToggleEdgeTool, this, CommandIds::Menu::EditToggleEdgeTool);
-            Bind(wxEVT_MENU, &MapFrame::OnEditToggleFaceTool, this, CommandIds::Menu::EditToggleFaceTool);
-
-            Bind(wxEVT_MENU, &MapFrame::OnEditCsgConvexMerge, this, CommandIds::Menu::EditCsgConvexMerge);
-            Bind(wxEVT_MENU, &MapFrame::OnEditCsgSubtract, this, CommandIds::Menu::EditCsgSubtract);
-            Bind(wxEVT_MENU, &MapFrame::OnEditCsgIntersect, this, CommandIds::Menu::EditCsgIntersect);
-            Bind(wxEVT_MENU, &MapFrame::OnEditCsgHollow, this, CommandIds::Menu::EditCsgHollow);
-            
-            Bind(wxEVT_MENU, &MapFrame::OnEditReplaceTexture, this, CommandIds::Menu::EditReplaceTexture);
-            Bind(wxEVT_MENU, &MapFrame::OnEditToggleTextureLock, this, CommandIds::Menu::EditToggleTextureLock);
-            Bind(wxEVT_MENU, &MapFrame::OnEditToggleUVLock, this, CommandIds::Menu::EditToggleUVLock);
-            Bind(wxEVT_MENU, &MapFrame::OnEditSnapVerticesToInteger, this, CommandIds::Menu::EditSnapVerticesToInteger);
-            Bind(wxEVT_MENU, &MapFrame::OnEditSnapVerticesToGrid, this, CommandIds::Menu::EditSnapVerticesToGrid);
-
-            Bind(wxEVT_MENU, &MapFrame::OnViewToggleShowGrid, this, CommandIds::Menu::ViewToggleShowGrid);
-            Bind(wxEVT_MENU, &MapFrame::OnViewToggleSnapToGrid, this, CommandIds::Menu::ViewToggleSnapToGrid);
-            Bind(wxEVT_MENU, &MapFrame::OnViewIncGridSize, this, CommandIds::Menu::ViewIncGridSize);
-            Bind(wxEVT_MENU, &MapFrame::OnViewDecGridSize, this, CommandIds::Menu::ViewDecGridSize);
-            Bind(wxEVT_MENU, &MapFrame::OnViewSetGridSize, this, CommandIds::Menu::ViewSetGridSize0Point125, CommandIds::Menu::ViewSetGridSize256);
-
-            Bind(wxEVT_MENU, &MapFrame::OnViewMoveCameraToNextPoint, this, CommandIds::Menu::ViewMoveCameraToNextPoint);
-            Bind(wxEVT_MENU, &MapFrame::OnViewMoveCameraToPreviousPoint, this, CommandIds::Menu::ViewMoveCameraToPreviousPoint);
-            Bind(wxEVT_MENU, &MapFrame::OnViewFocusCameraOnSelection, this, CommandIds::Menu::ViewFocusCameraOnSelection);
-            Bind(wxEVT_MENU, &MapFrame::OnViewMoveCameraToPosition, this, CommandIds::Menu::ViewMoveCameraToPosition);
-            
-            Bind(wxEVT_MENU, &MapFrame::OnViewHideSelectedObjects, this, CommandIds::Menu::ViewHideSelection);
-            Bind(wxEVT_MENU, &MapFrame::OnViewIsolateSelectedObjects, this, CommandIds::Menu::ViewIsolateSelection);
-            Bind(wxEVT_MENU, &MapFrame::OnViewShowHiddenObjects, this, CommandIds::Menu::ViewUnhideAll);
-
-            Bind(wxEVT_MENU, &MapFrame::OnViewSwitchToMapInspector, this, CommandIds::Menu::ViewSwitchToMapInspector);
-            Bind(wxEVT_MENU, &MapFrame::OnViewSwitchToEntityInspector, this, CommandIds::Menu::ViewSwitchToEntityInspector);
-            Bind(wxEVT_MENU, &MapFrame::OnViewSwitchToFaceInspector, this, CommandIds::Menu::ViewSwitchToFaceInspector);
-
-            Bind(wxEVT_MENU, &MapFrame::OnViewToggleMaximizeCurrentView, this, CommandIds::Menu::ViewToggleMaximizeCurrentView);
-            Bind(wxEVT_MENU, &MapFrame::OnViewToggleInfoPanel, this, CommandIds::Menu::ViewToggleInfoPanel);
-            Bind(wxEVT_MENU, &MapFrame::OnViewToggleInspector, this, CommandIds::Menu::ViewToggleInspector);
-
-            Bind(wxEVT_MENU, &MapFrame::OnRunCompile, this, CommandIds::Menu::RunCompile);
-            Bind(wxEVT_MENU, &MapFrame::OnRunLaunch, this, CommandIds::Menu::RunLaunch);
-            
-            Bind(wxEVT_MENU, &MapFrame::OnDebugPrintVertices, this, CommandIds::Menu::DebugPrintVertices);
-            Bind(wxEVT_MENU, &MapFrame::OnDebugCreateBrush, this, CommandIds::Menu::DebugCreateBrush);
-            Bind(wxEVT_MENU, &MapFrame::OnDebugCreateCube, this, CommandIds::Menu::DebugCreateCube);
-            Bind(wxEVT_MENU, &MapFrame::OnDebugClipBrush, this, CommandIds::Menu::DebugClipWithFace);
-            Bind(wxEVT_MENU, &MapFrame::OnDebugCopyJSShortcutMap, this, CommandIds::Menu::DebugCopyJSShortcuts);
-            Bind(wxEVT_MENU, &MapFrame::OnDebugCrash, this, CommandIds::Menu::DebugCrash);
-            Bind(wxEVT_MENU, &MapFrame::OnDebugThrowExceptionDuringCommand, this, CommandIds::Menu::DebugThrowExceptionDuringCommand);
-            Bind(wxEVT_MENU, &MapFrame::OnDebugSetWindowSize, this, CommandIds::Menu::DebugSetWindowSize);
-
-            Bind(wxEVT_MENU, &MapFrame::OnFlipObjectsHorizontally, this, CommandIds::Actions::FlipObjectsHorizontally);
-            Bind(wxEVT_MENU, &MapFrame::OnFlipObjectsVertically, this, CommandIds::Actions::FlipObjectsVertically);
 
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVE);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVEAS);
@@ -1490,8 +1623,8 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnViewSetGridSize() {
-		    // FIXME:
-//            m_document->grid().setSize(gridSizeForMenuId(event.GetId()));
+		    QAction* caller = dynamic_cast<QAction*>(sender());
+            m_document->grid().setSize(caller->data().toInt());
         }
 
         void MapFrame::OnViewMoveCameraToNextPoint() {

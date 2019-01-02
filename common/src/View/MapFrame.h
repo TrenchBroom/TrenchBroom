@@ -35,6 +35,7 @@ class QTimer;
 class QLabel;
 class QMenuBar;
 class QAction;
+class QActionGroup;
 
 namespace TrenchBroom {
     class Logger;
@@ -139,6 +140,56 @@ namespace TrenchBroom {
             QAction* editToggleUVLockAction;
             QAction* editSnapVerticesToIntegerAction;
             QAction* editSnapVerticesToGridAction;
+
+            QAction* viewToggleShowGridAction;
+            QAction* viewToggleSnapToGridAction;
+            QAction* viewIncGridSizeAction;
+            QAction* viewDecGridSizeAction;
+            QActionGroup* viewSetGridSizeActionGroup;
+            QAction* viewSetGridSize0Point125Action;
+            QAction* viewSetGridSize0Point25Action;
+            QAction* viewSetGridSize0Point5Action;
+            QAction* viewSetGridSize1Action;
+            QAction* viewSetGridSize2Action;
+            QAction* viewSetGridSize4Action;
+            QAction* viewSetGridSize8Action;
+            QAction* viewSetGridSize16Action;
+            QAction* viewSetGridSize32Action;
+            QAction* viewSetGridSize64Action;
+            QAction* viewSetGridSize128Action;
+            QAction* viewSetGridSize256Action;
+
+            QAction* viewMoveCameraToNextPointAction;
+            QAction* viewMoveCameraToPreviousPointAction;
+            QAction* viewFocusCameraOnSelectionAction;
+            QAction* viewMoveCameraToPositionAction;
+
+            QAction* viewIsolateSelectionAction;
+            QAction* viewHideSelectionAction;
+            QAction* viewUnhideAllAction;
+            QAction* viewSwitchToMapInspectorAction;
+            QAction* viewSwitchToEntityInspectorAction;
+            QAction* viewSwitchToFaceInspectorAction;
+            QAction* viewToggleInfoPanelAction;
+            QAction* viewToggleInspectorAction;
+            QAction* viewToggleMaximizeCurrentViewAction;
+            QAction* viewPreferencesAction;
+
+            QAction* runCompileAction;
+            QAction* runLaunchAction;
+
+            QAction* debugPrintVerticesAction;
+            QAction* debugCreateBrushAction;
+            QAction* debugCreateCubeAction;
+            QAction* debugClipWithFaceAction;
+            QAction* debugCopyJSShortcutsAction;
+            QAction* debugCrashAction;
+            QAction* debugThrowExceptionDuringCommandAction;
+            QAction* debugCrashReportDialogAction;
+            QAction* debugSetWindowSizeAction;
+
+            QAction* helpManualAction;
+            QAction* helpAboutAction;
         public:
             MapFrame();
             MapFrame(FrameManager* frameManager, MapDocumentSPtr document);
