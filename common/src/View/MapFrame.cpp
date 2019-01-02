@@ -419,11 +419,11 @@ namespace TrenchBroom {
 
             fileNewAction = new QAction("New", this);
             fileNewAction->setShortcuts(QKeySequence::New);
-            // FIXME: connect to TrenchBroomApp
+            connect(fileNewAction, &QAction::triggered, &TrenchBroomApp::instance(), &TrenchBroomApp::OnFileNew);
 
             fileOpenAction = new QAction("Open", this);
             fileOpenAction->setShortcuts(QKeySequence::Open);
-            // FIXME: connect to TrenchBroomApp
+            connect(fileOpenAction, &QAction::triggered, &TrenchBroomApp::instance(), &TrenchBroomApp::OnFileOpen);
 
             fileSaveAction = new QAction("Save", this);
             fileSaveAction->setShortcuts(QKeySequence::Save);
@@ -689,7 +689,7 @@ namespace TrenchBroom {
             connect(viewToggleMaximizeCurrentViewAction, &QAction::triggered, this, &MapFrame::OnViewToggleMaximizeCurrentView);
 
             viewPreferencesAction = new QAction("Preferences...", this);
-            // FIXME: connect to ?
+            connect(viewPreferencesAction, &QAction::triggered, &TrenchBroomApp::instance(), &TrenchBroomApp::OnOpenPreferences);
 
             viewToggleInfoPanelAction = new QAction("Toggle Info Panel", this);
             viewToggleInfoPanelAction->setCheckable(true);
@@ -727,7 +727,7 @@ namespace TrenchBroom {
             connect(debugThrowExceptionDuringCommandAction, &QAction::triggered, this, &MapFrame::OnDebugThrowExceptionDuringCommand);
 
             debugCrashReportDialogAction = new QAction("Show Crash Report Dialog", this);
-            // FIXME: connect to ?
+            connect(viewPreferencesAction, &QAction::triggered, &TrenchBroomApp::instance(), &TrenchBroomApp::OnDebugShowCrashReportDialog);
 
             debugSetWindowSizeAction = new QAction("Set Window Size...", this);
             connect(debugSetWindowSizeAction, &QAction::triggered, this, &MapFrame::OnDebugSetWindowSize);
