@@ -46,7 +46,8 @@ namespace TrenchBroom {
                 case QEvent::MouseButtonPress:
                 case QEvent::MouseButtonRelease:
                     m_owner->OnMouseButton(dynamic_cast<QMouseEvent *>(ev));
-                    break;
+                    // FIXME: We need to consume this otherwise some Qt themes let you drag the window around by dragging on the map view - when exactly should it be consumed?
+                    return true;
                 case QEvent::MouseButtonDblClick:
                     m_owner->OnMouseDoubleClick(dynamic_cast<QMouseEvent *>(ev));
                     break;
