@@ -25,6 +25,10 @@
 #include <QCommandLineParser>
 #include <QUrl>
 #include <QDesktopServices>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QFile>
+#include <QStandardPaths>
 
 #include "Macros.h"
 #include "RecoverableExceptions.h"
@@ -46,16 +50,6 @@
 #include "View/WelcomeFrame.h"
 #include "View/GetVersion.h"
 #include "View/MapViewBase.h"
-
-#include <wx/choicdlg.h>
-#include <wx/cmdline.h>
-#include <wx/filedlg.h>
-#include <wx/generic/helpext.h>
-#include <wx/platinfo.h>
-#include <wx/utils.h>
-#include <wx/stdpaths.h>
-#include <wx/msgdlg.h>
-#include <wx/time.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -155,8 +149,6 @@ namespace TrenchBroom {
         }
 
         TrenchBroomApp::~TrenchBroomApp() {
-            wxImage::CleanUpHandlers();
-            
             delete m_frameManager;
             m_frameManager = nullptr;
 
@@ -254,7 +246,7 @@ namespace TrenchBroom {
                 //m_recentDocuments->removePath(IO::Path(path));
                 if (frame != nullptr)
                     frame->close();
-                ::wxMessageBox(e.what(), "TrenchBroom", wxOK, nullptr);
+                QMessageBox::critical(nullptr, "TrenchBroom", e.what(), QMessageBox::Ok);
                 return false;
             } catch (const RecoverableException& e) {
                 if (frame != nullptr)
@@ -264,12 +256,12 @@ namespace TrenchBroom {
             } catch (const Exception& e) {
                 if (frame != nullptr)
                     frame->close();
-                ::wxMessageBox(e.what(), "TrenchBroom", wxOK, nullptr);
+                QMessageBox::critical(nullptr, "TrenchBroom", e.what(), QMessageBox::Ok);
                 return false;
             } catch (...) {
                 if (frame != nullptr)
                     frame->close();
-                ::wxMessageBox(pathStr + " could not be opened.", "TrenchBroom", wxOK, nullptr);
+                QMessageBox::critical(nullptr, "TrenchBroom", QString::fromStdString(pathStr) + " could not be opened.", QMessageBox::Ok);
                 return false;
             }
         }
@@ -281,7 +273,9 @@ namespace TrenchBroom {
             if (!recovering) {
                 StringStream message;
                 message << e.what() << "\n\n" << e.query();
-                if (::wxMessageBox(message.str(), "TrenchBroom", wxYES_NO, nullptr) == wxYES) {
+
+                const QMessageBox::StandardButton result = QMessageBox::question(nullptr, QString("TrenchBroom"), QString::fromStdString(message.str()), QMessageBox::Yes | QMessageBox::No);
+                if (result == QMessageBox::Yes) {
                     TemporarilySetBool setRecovering(recovering);
                     e.recover();
                     return op(); // Recursive call here.
@@ -289,7 +283,7 @@ namespace TrenchBroom {
                     return false;
                 }
             } else {
-                ::wxMessageBox(e.what(), "TrenchBroom", wxOK, nullptr);
+                QMessageBox::critical(nullptr, "TrenchBroom", e.what(), QMessageBox::Ok);
                 return false;
             }
         }
@@ -351,7 +345,8 @@ namespace TrenchBroom {
             IO::Path crashLogPath;
             
             if (mapPath.isEmpty()) {
-                IO::Path docsDir(wxStandardPaths::Get().GetDocumentsDir().ToStdString());
+                // FIXME: Qt docs indicate that this directory may need to be created
+                IO::Path docsDir(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdString());
                 crashLogPath = docsDir + IO::Path("trenchbroom-crash.txt");
             } else {
                 String crashFileName = mapPath.lastComponent().deleteExtension().asString() + "-crash.txt";
@@ -410,7 +405,7 @@ namespace TrenchBroom {
             }
 
             // Copy the log file
-            if (!wxCopyFile(IO::SystemPaths::logFilePath().asString(), logPath.asString()))
+            if (!QFile::copy(QString::fromStdString(IO::SystemPaths::logFilePath().asString()), QString::fromStdString(logPath.asString())))
                 logPath = IO::Path();
             
             // write the crash log to stdout
@@ -423,7 +418,7 @@ namespace TrenchBroom {
                 dialog.ShowModal();
             }
             
-            wxAbort();
+            abort();
         }
 
         bool isReportingCrash() {
@@ -472,11 +467,10 @@ namespace TrenchBroom {
         }
 
         void TrenchBroomApp::OnFileOpen() {
-            const wxString pathStr = ::wxLoadFileSelector("",
-                                                          "map",
-                                                          "", nullptr);
-            if (!pathStr.empty())
-                openDocument(pathStr.ToStdString());
+            const QString fileName = QFileDialog::getOpenFileName(nullptr, "Open Map", "", "Map files (*.map);;Any files (*.*)");
+
+            if (!fileName.isEmpty())
+                openDocument(fileName.toStdString());
         }
 
         void TrenchBroomApp::OnFileOpenRecent() {
