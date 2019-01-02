@@ -63,6 +63,8 @@ namespace TrenchBroom {
             void keyPressEvent(QKeyEvent* event) override;
             void keyReleaseEvent(QKeyEvent* event) override;
             void focusOutEvent(QFocusEvent* event) override;
+        protected: // QOpenGLWidget overrides
+            void initializeGL() override;
         private: // interaction events
             void bindEvents();
 

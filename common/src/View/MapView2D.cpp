@@ -74,7 +74,6 @@ namespace TrenchBroom {
             bindObservers();
             initializeCamera(viewPlane);
             initializeToolChain(toolBox);
-            setCompass(new Renderer::Compass2D());
 
             // FIXME: Not sure if wxWindow::SetName() maps to QWidget::setWhatsThis()?
             // FIXME: Actually, was SetName used for persistence?
@@ -95,7 +94,7 @@ namespace TrenchBroom {
         MapView2D::~MapView2D() {
             unbindObservers();
         }
-        
+
         void MapView2D::initializeCamera(const ViewPlane viewPlane) {
             switch (viewPlane) {
                 case MapView2D::ViewPlane_XY:
@@ -158,7 +157,12 @@ namespace TrenchBroom {
             
             return pickResult;
         }
-        
+
+        void MapView2D::initializeGL() {
+            MapViewBase::initializeGL();
+            setCompass(new Renderer::Compass2D());
+        }
+
         void MapView2D::doUpdateViewport(const int x, const int y, const int width, const int height) {
             m_camera.setViewport(Renderer::Camera::Viewport(x, y, width, height));
         }

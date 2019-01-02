@@ -81,7 +81,6 @@ namespace TrenchBroom {
             bindObservers();
             initializeCamera();
             initializeToolChain(toolBox);
-            setCompass(new Renderer::Compass3D());
 
             // FIXME: Replace
             //SetName("MapView3D");
@@ -142,6 +141,11 @@ namespace TrenchBroom {
                 m_camera.setFov(pref(Preferences::CameraFov));
                 update();
             }
+        }
+
+        void MapView3D::initializeGL() {
+            MapViewBase::initializeGL();
+            setCompass(new Renderer::Compass3D());
         }
 
         void MapView3D::bindEvents() {

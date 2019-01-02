@@ -113,6 +113,10 @@ namespace TrenchBroom {
         }
         
         MapViewBase::~MapViewBase() {
+            // Deleting m_compass will access the VBO so we need to be current
+            // see: http://doc.qt.io/qt-5/qopenglwidget.html#resource-initialization-and-cleanup
+            makeCurrent();
+
             m_toolBox.removeWindow(this);
             unbindObservers();
             m_animationManager->Delete();
@@ -754,23 +758,23 @@ namespace TrenchBroom {
             return ToolBoxConnector::cancelDrag();
         }
 
-        void MapViewBase::doInitializeGL(const bool firstInitialization) {
-            if (firstInitialization) {
-                GLVendor   = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_VENDOR)));
-                GLRenderer = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
-                GLVersion  = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
+        void MapViewBase::initializeGL() {
+            RenderView::initializeGL();
+            GLVendor   = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_VENDOR)));
+            GLRenderer = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
+            GLVersion  = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
 
-                m_logger->info(wxString::Format(L"Renderer info: %s version %s from %s", GLRenderer, GLVersion, GLVendor));
-            // FIXME: use Qt
+            m_logger->info(wxString::Format(L"Renderer info: %s version %s from %s", GLRenderer, GLVersion, GLVendor));
+        // FIXME: use Qt
 #if 0
-                m_logger->info("Depth buffer bits: %d", depthBits());
+            m_logger->info("Depth buffer bits: %d", depthBits());
 
-                if (multisample())
-                    m_logger->info("Multisampling enabled");
-                else
-                    m_logger->info("Multisampling disabled");
+            if (multisample())
+                m_logger->info("Multisampling enabled");
+            else
+                m_logger->info("Multisampling disabled");
 #endif
-            }
+
         }
 
         bool MapViewBase::doShouldRenderFocusIndicator() const {

@@ -98,8 +98,7 @@ namespace TrenchBroom {
         }
 
         void RenderView::initializeGL() {
-            const bool firstInitialization = m_glContext->initialize();
-            doInitializeGL(firstInitialization);
+            m_glContext->initialize();
         }
 
         void RenderView::resizeGL(int w, int h) {
@@ -172,8 +171,6 @@ namespace TrenchBroom {
             array.render(GL_QUADS);
             glAssert(glEnable(GL_DEPTH_TEST));
         }
-
-        void RenderView::doInitializeGL(const bool firstInitialization) {}
 
         void RenderView::doUpdateViewport(const int x, const int y, const int width, const int height) {}
     }
