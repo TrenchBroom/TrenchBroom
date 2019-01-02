@@ -20,19 +20,33 @@
 #ifndef TrenchBroom_AppInfoPanel
 #define TrenchBroom_AppInfoPanel
 
-#include <wx/panel.h>
-
-class wxWindow;
+#include <QWidget>
+#include <QLabel>
 
 namespace TrenchBroom {
     namespace View {
-        class AppInfoPanel : public wxPanel {
+        class AppInfoPanel : public QWidget {
+        Q_OBJECT
+
         public:
-            AppInfoPanel(wxWindow* parent);
+            explicit AppInfoPanel(QWidget* parent);
         private:
             void createGui();
             
-            void OnClickVersionInfo(wxMouseEvent& event);
+            void OnClickVersionInfo();
+        };
+
+        class ClickableLabel : public QLabel {
+        Q_OBJECT
+
+        public:
+            explicit ClickableLabel(const QString& text, QWidget* parent = nullptr);
+
+        protected:
+            void mousePressEvent(QMouseEvent *event) override;
+
+        signals:
+            void clicked();
         };
     }
 }

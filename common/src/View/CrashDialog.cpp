@@ -76,11 +76,11 @@ namespace TrenchBroom {
             
             wxStaticText* versionLabel = new wxStaticText(reportPanel, wxID_ANY, "Version");
             versionLabel->SetFont(versionLabel->GetFont().Bold());
-            wxStaticText* versionText = new wxStaticText(reportPanel, wxID_ANY, getBuildVersion());
+            wxStaticText* versionText = new wxStaticText(reportPanel, wxID_ANY, "");// FIXME: getBuildVersion());
             
             wxStaticText* buildLabel = new wxStaticText(reportPanel, wxID_ANY, "Build");
             buildLabel->SetFont(buildLabel->GetFont().Bold());
-            wxStaticText* buildText = new wxStaticText(reportPanel, wxID_ANY, getBuildIdStr());
+            wxStaticText* buildText = new wxStaticText(reportPanel, wxID_ANY,  "");// FIXME: getBuildIdStr());
             
             wxGridBagSizer* reportPanelSizer = new wxGridBagSizer(LayoutConstants::NarrowVMargin, LayoutConstants::WideHMargin);
             reportPanelSizer->Add(text1,           wxGBPosition(0, 0), wxGBSpan(1, 2));

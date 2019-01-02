@@ -22,6 +22,10 @@
 #include <clocale>
 #include <fstream>
 
+#include <QCommandLineParser>
+#include <QUrl>
+#include <QDesktopServices>
+
 #include "Macros.h"
 #include "RecoverableExceptions.h"
 #include "TrenchBroomAppTraits.h"
@@ -43,8 +47,6 @@
 #include "View/GetVersion.h"
 #include "View/MapViewBase.h"
 
-#include <QCommandLineParser>
-
 #include <wx/choicdlg.h>
 #include <wx/cmdline.h>
 #include <wx/filedlg.h>
@@ -58,7 +60,7 @@
 namespace TrenchBroom {
     namespace View {
         TrenchBroomApp& TrenchBroomApp::instance() {
-            TrenchBroomApp* app = dynamic_cast<TrenchBroomApp*>(qApp);
+            auto* app = dynamic_cast<TrenchBroomApp*>(qApp);
             return *app;
         }
 
@@ -310,8 +312,8 @@ namespace TrenchBroom {
             ss << "GL_VENDOR:\t" << MapViewBase::glVendorString() << std::endl;
             ss << "GL_RENDERER:\t" << MapViewBase::glRendererString() << std::endl;
             ss << "GL_VERSION:\t" << MapViewBase::glVersionString() << std::endl;
-            ss << "TrenchBroom Version:\t" << getBuildVersion() << std::endl;
-            ss << "TrenchBroom Build:\t" << getBuildIdStr() << std::endl;
+            ss << "TrenchBroom Version:\t" << getBuildVersion().toStdString() << std::endl;
+            ss << "TrenchBroom Build:\t" << getBuildIdStr().toStdString() << std::endl;
             ss << "Reason:\t" << reason << std::endl;
             ss << "Stack trace:" << std::endl;
             ss << stacktrace << std::endl;
@@ -484,7 +486,9 @@ namespace TrenchBroom {
 
         void TrenchBroomApp::OnHelpShowManual() {
             const IO::Path manualPath = IO::SystemPaths::resourceDirectory() + IO::Path("manual/index.html");
-            wxLaunchDefaultApplication(manualPath.asString());
+            const String manualPathString = manualPath.asString();
+            const QUrl manualPathUrl = QUrl::fromLocalFile(QString::fromStdString(manualPathString));
+            QDesktopServices::openUrl(manualPathUrl);
         }
 
         void TrenchBroomApp::OnOpenPreferences() {

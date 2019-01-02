@@ -19,18 +19,10 @@
 
 #include "AboutDialog.h"
 
-#include "StringUtils.h"
 #include "View/AppInfoPanel.h"
-#include "View/wxUtils.h"
 
-#include <wx/button.h>
-#include <wx/panel.h>
-#include <wx/sizer.h>
-#include <wx/statline.h>
-#include <wx/stattext.h>
-#include <wx/textctrl.h>
-
-#include <iostream>
+#include <QLabel>
+#include <QHBoxLayout>
 
 namespace TrenchBroom {
     namespace View {
@@ -39,97 +31,66 @@ namespace TrenchBroom {
         void AboutDialog::showAboutDialog() {
             if (AboutDialog::instance == nullptr) {
                 AboutDialog::instance = new AboutDialog();
-                AboutDialog::instance->Show();
+                AboutDialog::instance->show();
             } else {
-                AboutDialog::instance->Raise();
+                AboutDialog::instance->show();
+                AboutDialog::instance->raise();
             }
         }
         
         void AboutDialog::closeAboutDialog() {
             if (AboutDialog::instance != nullptr)
-                AboutDialog::instance->Close();
+                AboutDialog::instance->close();
         }
 
         AboutDialog::~AboutDialog() {
             instance = nullptr;
         }
 
-        void AboutDialog::OnClickUrl(wxMouseEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            const wxVariant* var = static_cast<wxVariant*>(event.GetEventUserData());
-            const wxString url = var->GetString();
-            ::wxLaunchDefaultBrowser(url);
-        }
-
         AboutDialog::AboutDialog() :
-        wxDialog(nullptr, wxID_ANY, "About TrenchBroom", wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxDIALOG_NO_PARENT | wxSTAY_ON_TOP) {
+        QDialog() {
             createGui();
-            CenterOnScreen();
         }
         
         void AboutDialog::createGui() {
-            setWindowIcon(this);
+            // FIXME:
+            //setWindowIcon(this);
             
-            AppInfoPanel* infoPanel = new AppInfoPanel(this);
+            AppInfoPanel* infoPanel = new AppInfoPanel(nullptr);
             
-            wxStaticText* creditsText = new wxStaticText(this, wxID_ANY, "");
-            creditsText->SetLabelMarkup("<b>Developed by Kristian Duske</b>\n"
-                                 "github.com/kduske/TrenchBroom\n\n"
-                                 "<b>Contributors</b>\n"
-                                 "Corey Jones (Documentation)\n"
-                                 "Eric Wasylishen (Code, bug fixes)\n"
-                                 "Jonas Lund (Bug fixes)\n"
-                                 "negke (FGD files)\n"
-                                 "Philipp Nahratow (Bug fixes, Linux builds)\n"
-                                 "rebb (Shaders, bug fixes)\n"
-                                 "Rohit Nirmal (Bug fixes)\n"
-                                 "Scampie (Documentation)\n\n"
-                                 "<b>3rd Party Libraries, Tools and Assets</b>\n"
-                                 "wxWidgets (Cross platform GUI library)\n"
-                                 "FreeType (Font rendering library)\n"
-                                 "FreeImage (Image loading & manipulation library)\n"
-                                 "GLEW (OpenGL extension library)\n"
-                                 "Google Test (C++ testing framework)\n"
-                                 "Google Mock (C++ mocking framework)\n"
-                                 "StackWalker (C++ stack trace analyzer)\n"
-                                 "CMake (Cross platform build manager)\n"
-                                 "Pandoc (Universal document converter)\n"
-                                 "Source Sans Pro (Font)\n");
+            QLabel* creditsText = new QLabel();
+            creditsText->setText(tr("<b>Developed by Kristian Duske</b><br>"
+                                 "github.com/kduske/TrenchBroom<br><br>"
+                                 "<b>Contributors</b><br>"
+                                 "Corey Jones (Documentation)<br>"
+                                 "Eric Wasylishen (Code, bug fixes)<br>"
+                                 "Jonas Lund (Bug fixes)<br>"
+                                 "negke (FGD files)<br>"
+                                 "Philipp Nahratow (Bug fixes, Linux builds)<br>"
+                                 "rebb (Shaders, bug fixes)<br>"
+                                 "Rohit Nirmal (Bug fixes)<br>"
+                                 "Scampie (Documentation)<br><br>"
+                                 "<b>3rd Party Libraries, Tools and Assets</b><br>"
+                                 "wxWidgets (Cross platform GUI library)<br>"
+                                 "FreeType (Font rendering library)<br>"
+                                 "FreeImage (Image loading & manipulation library)<br>"
+                                 "GLEW (OpenGL extension library)<br>"
+                                 "Google Test (C++ testing framework)<br>"
+                                 "Google Mock (C++ mocking framework)<br>"
+                                 "StackWalker (C++ stack trace analyzer)<br>"
+                                 "CMake (Cross platform build manager)<br>"
+                                 "Pandoc (Universal document converter)<br>"
+                                 "Source Sans Pro (Font)<br>"));
 
-            wxSizer* outerSizer = new wxBoxSizer(wxHORIZONTAL);
-            outerSizer->AddSpacer(50);
-            outerSizer->Add(infoPanel, 0, wxALIGN_CENTER | wxBOTTOM, 20);
-            outerSizer->AddSpacer(50);
-            outerSizer->Add(creditsText, 1, wxEXPAND | wxTOP | wxBOTTOM, 20);
-            outerSizer->AddSpacer(50);
-            
-            SetSizerAndFit(outerSizer);
+            QHBoxLayout* outerSizer = new QHBoxLayout();
+            outerSizer->setContentsMargins(0, 20, 0, 20);
+            outerSizer->addSpacing(50);
+            outerSizer->addWidget(infoPanel);
+            outerSizer->addSpacing(50);
+            outerSizer->addWidget(creditsText);
+            outerSizer->addSpacing(50);
+            setLayout(outerSizer);
 
-            wxAcceleratorEntry entries[1];
-            entries[0] = wxAcceleratorEntry(wxACCEL_NORMAL, WXK_ESCAPE, wxID_CANCEL);
-            SetAcceleratorTable(wxAcceleratorTable(1, entries));
-            
-            Bind(wxEVT_MENU, &AboutDialog::OnCancel, this, wxID_CANCEL);
-            Bind(wxEVT_CLOSE_WINDOW, &AboutDialog::OnClose, this);
-        }
-
-        wxStaticText* AboutDialog::createURLText(wxWindow* parent, const String& text, const String& tooltip, const String& url) {
-            wxStaticText* statText = new wxStaticText(parent, wxID_ANY, text);
-            statText->SetFont(statText->GetFont().Underlined());
-            statText->SetForegroundColour(*wxBLUE);
-            statText->SetToolTip(tooltip);
-            statText->SetCursor(wxCURSOR_HAND);
-            statText->Bind(wxEVT_LEFT_UP, &AboutDialog::OnClickUrl, this, wxID_ANY, wxID_ANY, new wxVariant(url));
-            return statText;
-        }
-
-        void AboutDialog::OnCancel(wxCommandEvent& event) {
-            Close();
-        }
-
-        void AboutDialog::OnClose(wxCloseEvent& event) {
-            Destroy();
         }
     }
 }

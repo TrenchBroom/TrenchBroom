@@ -692,9 +692,11 @@ namespace TrenchBroom {
             // FIXME: connect to ?
 
             viewToggleInfoPanelAction = new QAction("Toggle Info Panel", this);
+            viewToggleInfoPanelAction->setCheckable(true);
             connect(viewToggleInfoPanelAction, &QAction::triggered, this, &MapFrame::OnViewToggleInfoPanel);
 
             viewToggleInspectorAction = new QAction("Toggle Inspector", this);
+            viewToggleInspectorAction->setCheckable(true);
             connect(viewToggleInspectorAction, &QAction::triggered, this, &MapFrame::OnViewToggleInspector);
 
             runCompileAction = new QAction("Compile...", this);
@@ -731,10 +733,10 @@ namespace TrenchBroom {
             connect(debugSetWindowSizeAction, &QAction::triggered, this, &MapFrame::OnDebugSetWindowSize);
 
             helpManualAction = new QAction("TrenchBroom Manual", this);
-            // FIXME: connect to ?
+            connect(helpManualAction, &QAction::triggered, &TrenchBroomApp::instance(), &TrenchBroomApp::OnHelpShowManual);
 
             helpAboutAction = new QAction("About TrenchBroom", this);
-            // FIXME: connect to ?
+            connect(helpAboutAction, &QAction::triggered, &TrenchBroomApp::instance(), &TrenchBroomApp::OnOpenAbout);
         }
 
 

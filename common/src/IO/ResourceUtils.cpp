@@ -56,5 +56,14 @@ namespace TrenchBroom {
                 return wxNullIcon;
             return wxIcon(fullPath.asString(), type, 16, 16);
         }
+
+        QPixmap loadPixmapResource(const String& name) {
+            return loadPixmapResource(IO::Path(name));
+        }
+
+        QPixmap loadPixmapResource(const IO::Path& imagePath) {
+            const IO::Path fullPath = imagePath.isAbsolute() ? imagePath : IO::SystemPaths::resourceDirectory() + IO::Path("images") + imagePath;
+            return QPixmap(QString::fromStdString(fullPath.asString()));
+        }
     }
 }

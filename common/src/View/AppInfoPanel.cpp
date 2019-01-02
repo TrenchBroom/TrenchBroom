@@ -22,69 +22,88 @@
 #include "IO/Path.h"
 #include "IO/ResourceUtils.h"
 #include "View/GetVersion.h"
-#include "View/OpenClipboard.h"
 
-#include <wx/bitmap.h>
-#include <wx/clipbrd.h>
-#include <wx/sizer.h>
-#include <wx/statbmp.h>
-#include <wx/statline.h>
-#include <wx/stattext.h>
+#include <QString>
+#include <QFont>
+#include <QLabel>
+#include <QClipboard>
+#include <QStringBuilder>
+#include <QApplication>
+#include <QFrame>
+#include <QVBoxLayout>
+#include <QPushButton>
 
 namespace TrenchBroom {
     namespace View {
-        AppInfoPanel::AppInfoPanel(wxWindow* parent) :
-        wxPanel(parent) {
+        AppInfoPanel::AppInfoPanel(QWidget* parent) :
+        QWidget(parent) {
             createGui();
         }
 
         void AppInfoPanel::createGui() {
-            const wxBitmap appIconImage = IO::loadImageResource("AppIcon.png");
-            wxStaticBitmap* appIcon = new wxStaticBitmap(this, wxID_ANY, appIconImage);
-            wxStaticText* appName = new wxStaticText(this, wxID_ANY, "TrenchBroom");
-            appName->SetFont(appName->GetFont().Larger().Larger().Larger().Larger().Bold());
-            wxStaticLine* appLine = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL);
-            wxStaticText* appClaim = new wxStaticText(this, wxID_ANY, "Level Editor");
-            
-            wxString versionStr("Version ");
-            versionStr << getBuildVersion();
-            
-            wxString buildStr("Build ");
-            buildStr << getBuildIdStr();
-            
-            wxStaticText* version = new wxStaticText(this, wxID_ANY, versionStr);
-            wxStaticText* build = new wxStaticText(this, wxID_ANY, buildStr);
-#if !defined(_WIN32)
-            version->SetFont(version->GetFont().Smaller());
-            build->SetFont(build->GetFont().Smaller());
-#endif
-            version->SetForegroundColour(wxColor(128, 128, 128));
-            build->SetForegroundColour(wxColor(128, 128, 128));
-            
-            version->SetToolTip("Click to copy to clipboard");
-            build->SetToolTip("Click to copy to clipboard");
-            
-            version->Bind(wxEVT_LEFT_DOWN, &AppInfoPanel::OnClickVersionInfo, this);
-            build->Bind(wxEVT_LEFT_DOWN, &AppInfoPanel::OnClickVersionInfo, this);
-            
-            wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(appIcon, 0, wxALIGN_CENTER_HORIZONTAL);
-            sizer->Add(appName, 0, wxALIGN_CENTER_HORIZONTAL);
-            sizer->Add(appLine, 0, wxEXPAND);
-            sizer->Add(appClaim, 0, wxALIGN_CENTER_HORIZONTAL);
-            sizer->Add(version, 0, wxALIGN_CENTER_HORIZONTAL);
-            sizer->Add(build, 0, wxALIGN_CENTER_HORIZONTAL);
-            sizer->AddStretchSpacer();
-            SetSizerAndFit(sizer);
+            QPixmap appIconImage = IO::loadPixmapResource("AppIcon.png");
+            QLabel* appIcon = new QLabel();
+            appIcon->setPixmap(appIconImage);
+
+            QFont titleFont;
+            titleFont.setPointSize(20);
+            titleFont.setBold(true);
+
+            QLabel* appName = new QLabel(tr("TrenchBroom"));
+            appName->setFont(titleFont);
+
+            QPalette lightText;
+            QColor lightColor = lightText.color(QPalette::Disabled, QPalette::WindowText);
+            lightText.setColor(QPalette::WindowText, lightColor);
+
+            QFrame* appLine = new QFrame();
+            appLine->setFrameShape(QFrame::HLine);
+            appLine->setLineWidth(2);
+            appLine->setPalette(lightText);
+            QLabel* appClaim = new QLabel(tr("Level Editor"));
+
+            ClickableLabel* version = new ClickableLabel(QString(tr("Version ")) % getBuildVersion());
+            ClickableLabel* build = new ClickableLabel(QString(tr("Build ")) % getBuildIdStr());
+
+            QFont font;
+            font.setPointSize(8);
+            version->setFont(font);
+            build->setFont(font);
+
+            version->setPalette(lightText);
+            build->setPalette(lightText);
+
+            version->setToolTip("Click to copy to clipboard");
+            build->setToolTip("Click to copy to clipboard");
+
+            connect(version, &ClickableLabel::clicked, this, &AppInfoPanel::OnClickVersionInfo);
+            connect(build, &ClickableLabel::clicked, this, &AppInfoPanel::OnClickVersionInfo);
+
+            QVBoxLayout* sizer = new QVBoxLayout();
+            sizer->setSpacing(2);
+            sizer->addStretch();
+            sizer->addWidget(appIcon, 0, Qt::AlignHCenter);
+            sizer->addWidget(appName, 0, Qt::AlignHCenter);
+            sizer->addWidget(appLine);
+            sizer->addWidget(appClaim, 0, Qt::AlignHCenter);
+            sizer->addWidget(version, 0, Qt::AlignHCenter);
+            sizer->addWidget(build, 0, Qt::AlignHCenter);
+            sizer->addStretch();
+
+            setLayout(sizer);
         }
 
-        void AppInfoPanel::OnClickVersionInfo(wxMouseEvent& event) {
-            OpenClipboard openClipboard;
-            if (wxTheClipboard->IsOpened()) {
-                wxString str;
-                str << "TrenchBroom " << getBuildVersion() << " " << " Build " << getBuildIdStr();
-                wxTheClipboard->SetData(new wxTextDataObject(str));
-            }
+        void AppInfoPanel::OnClickVersionInfo() {
+            QClipboard *clipboard = QApplication::clipboard();
+            const QString str = QString("TrenchBroom ") % getBuildVersion() % QString(" Build ") % getBuildIdStr();
+            clipboard->setText(str);
+        }
+
+        ClickableLabel::ClickableLabel(const QString& text, QWidget* parent)
+        : QLabel(text, parent) {}
+
+        void ClickableLabel::mousePressEvent(QMouseEvent*) {
+            emit clicked();
         }
     }
 }

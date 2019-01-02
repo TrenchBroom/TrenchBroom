@@ -24,12 +24,17 @@
 #include <wx/bitmap.h>
 #include <wx/icon.h>
 
+#include <QPixmap>
+
 namespace TrenchBroom {
     namespace IO {
         class Path;
         wxBitmap loadImageResource(const String& name);
         wxBitmap loadImageResource(const IO::Path& imagePath);
         wxIcon loadIconResource(const IO::Path& imagePath);
+
+        QPixmap loadPixmapResource(const String& name);
+        QPixmap loadPixmapResource(const IO::Path& imagePath);
     }
 }
 
