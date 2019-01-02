@@ -88,7 +88,7 @@ namespace TrenchBroom {
         }
         
         TestGame::TexturePackageType TestGame::doTexturePackageType() const {
-            return TP_File;
+            return TexturePackageType::File;
         }
         
         void TestGame::doLoadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger* logger) const {

@@ -23,8 +23,6 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        const TypedAttributeMap::Attribute<StringSet> Quake3Shader::SurfaceParms("surfaceparms", StringSet());
-
         Quake3Shader::Quake3Shader() :
         m_hasTexturePath(false),
         m_hasQerImagePath(false) {}
@@ -57,14 +55,22 @@ namespace TrenchBroom {
             return m_hasQerImagePath;
         }
 
-        const IO::Path& Quake3Shader::qerImagePath() const {
-            assert(m_hasQerImagePath);
-            return m_qerImagePath;
+        IO::Path Quake3Shader::qerImagePath(const IO::Path& defaultPath) const {
+            if (!m_hasQerImagePath) {
+                return defaultPath;
+            } else {
+                return m_qerImagePath;
+            }
         }
 
         void Quake3Shader::setQerImagePath(const IO::Path& qerImagePath) {
             m_qerImagePath = qerImagePath;
             m_hasQerImagePath = true;
+        }
+
+        void Quake3Shader::clearQerImagePath() {
+            m_qerImagePath = IO::Path();
+            m_hasQerImagePath = false;
         }
 
         const StringSet& Quake3Shader::surfaceParms() const {

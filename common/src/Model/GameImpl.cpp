@@ -174,9 +174,9 @@ namespace TrenchBroom {
             using Model::GameConfig;
             switch (m_config.textureConfig().package.type) {
                 case GameConfig::TexturePackageConfig::PT_File:
-                    return TP_File;
+                    return TexturePackageType::File;
                 case GameConfig::TexturePackageConfig::PT_Directory:
-                    return TP_Directory;
+                    return TexturePackageType::Directory;
                 case GameConfig::TexturePackageConfig::PT_Unset:
                     throw GameException("Texture package type is not set in game configuration");
                 switchDefault()

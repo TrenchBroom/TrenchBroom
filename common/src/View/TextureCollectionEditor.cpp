@@ -57,13 +57,13 @@ namespace TrenchBroom {
         void TextureCollectionEditor::createGui() {
             wxWindow* collectionEditor = nullptr;
             
-			auto document = lock(m_document);
+            auto document = lock(m_document);
             const Model::Game::TexturePackageType type = document->game()->texturePackageType();
             switch (type) {
-                case Model::Game::TP_File:
+                case Model::Game::TexturePackageType::File:
                     collectionEditor = new FileTextureCollectionEditor(this, m_document);
                     break;
-                case Model::Game::TP_Directory:
+                case Model::Game::TexturePackageType::Directory:
                     collectionEditor = new DirectoryTextureCollectionEditor(this, m_document);
                     break;
             }
@@ -72,7 +72,7 @@ namespace TrenchBroom {
             sizer->Add(collectionEditor, wxSizerFlags().Expand().Proportion(1));
             
             SetSizer(sizer);
-			GetParent()->Layout();
-		}
+            GetParent()->Layout();
+        }
     }
 }

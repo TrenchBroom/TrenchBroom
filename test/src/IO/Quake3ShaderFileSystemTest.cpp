@@ -30,7 +30,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        void assertShader(const Path::List& paths, const String& path);
+        void assertShader(const Path::List& paths, const Path& path);
 
         TEST(Quake3ShaderFileSystemTest, testShaderLinking) {
             NullLogger logger;
@@ -38,42 +38,26 @@ namespace TrenchBroom {
             const auto workDir = IO::Disk::getCurrentWorkingDir();
             const auto testDir = workDir + Path("data/IO/Shader");
             const auto fallbackDir = testDir + Path("fallback");
-            const auto prefix = Path("textures");
-            const auto extensions = StringList { "tga", "jpg" };
+            const auto texturePrefix = Path("textures");
 
             // We need to add the fallback dir so that we can find "__TB_empty.tga" which is automatically linked when
             // no editor image is available.
             std::unique_ptr<FileSystem> fs = std::make_unique<DiskFileSystem>(fallbackDir);
             fs = std::make_unique<DiskFileSystem>(std::move(fs), testDir);
-            fs = std::make_unique<Quake3ShaderFileSystem>(std::move(fs), prefix, extensions, &logger);
+            fs = std::make_unique<Quake3ShaderFileSystem>(std::move(fs), texturePrefix, &logger);
 
-            const auto items = fs->findItems(Path("textures/test"));
+            const auto items = fs->findItems(texturePrefix + Path("test"), FileExtensionMatcher(""));
             ASSERT_EQ(5u, items.size());
 
-            assertShader(items, "textures/test/editor_image.jpg");
-            assertShader(items, "textures/test/test.tga");
-            assertShader(items, "textures/test/test2.tga");
-            assertShader(items, "textures/test/not_existing");
-            assertShader(items, "textures/test/not_existing2");
-
-            auto file = fs->openFile(Path("textures/test/editor_image.jpg"));
-            ASSERT_EQ(StringSet(), file->getAttribute(Assets::Quake3Shader::SurfaceParms));
-
-            file = fs->openFile(Path("textures/test/test.tga"));
-            ASSERT_EQ(StringSet { "noimpact" }, file->getAttribute(Assets::Quake3Shader::SurfaceParms));
-
-            file = fs->openFile(Path("textures/test/test2.tga"));
-            ASSERT_EQ(StringSet(), file->getAttribute(Assets::Quake3Shader::SurfaceParms));
-
-            file = fs->openFile(Path("textures/test/not_existing"));
-            ASSERT_EQ(StringSet(), file->getAttribute(Assets::Quake3Shader::SurfaceParms));
-
-            file = fs->openFile(Path("textures/test/not_existing2"));
-            ASSERT_EQ(StringSet(), file->getAttribute(Assets::Quake3Shader::SurfaceParms));
+            assertShader(items, texturePrefix + Path("test/editor_image"));
+            assertShader(items, texturePrefix + Path("test/test"));
+            assertShader(items, texturePrefix + Path("test/test2"));
+            assertShader(items, texturePrefix + Path("test/not_existing"));
+            assertShader(items, texturePrefix + Path("test/not_existing2"));
         }
 
-        void assertShader(const Path::List& paths, const String& path) {
-            ASSERT_EQ(1u, std::count_if(std::begin(paths), std::end(paths), [&path](const auto& item) { return item == Path(path); }));
+        void assertShader(const Path::List& paths, const Path& path) {
+            ASSERT_EQ(1u, std::count_if(std::begin(paths), std::end(paths), [&path](const auto& item) { return item == path; }));
         }
     }
 }

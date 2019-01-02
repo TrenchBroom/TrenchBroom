@@ -33,16 +33,15 @@ namespace TrenchBroom {
 
     namespace IO {
         /**
-         * Parses Quake 3 shader scripts found in a file system and creates links from the shader names to the actual
-         * image files to be loaded.
+         * Parses Quake 3 shader scripts found in a file system and makes the shader objects available as virtual files
+         * in the file system.
          *
-         * This file system can be used to override the textures using their shaders. This is particularly useful when
-         * a shader provides a special editor image.
+         * Also scans for all textures available at a given prefix path and generates shaders for such textures which
+         * do not already have a shader by the same name.
          */
         class Quake3ShaderFileSystem : public ImageFileSystemBase {
         private:
-            Path m_prefix;
-            StringList m_extensions;
+            Path m_texturePrefix;
             Logger* m_logger;
         public:
             /**
@@ -50,11 +49,10 @@ namespace TrenchBroom {
              * image resources.
              *
              * @param fs the filesystem to use when searching for shaders and linking image resources
-             * @param prefix the path prefix to scan for textures
-             * @param extensions the texture extensions to scan
+             * @param texturePrefix the path prefix where textures are scanned
              * @param logger the logger to use
              */
-            Quake3ShaderFileSystem(std::unique_ptr<FileSystem> fs, const Path& prefix, const StringList& extensions, Logger* logger);
+            Quake3ShaderFileSystem(std::unique_ptr<FileSystem> fs, const Path& texturePrefix, Logger* logger);
         private:
             void doReadDirectory() override;
 
@@ -62,9 +60,8 @@ namespace TrenchBroom {
             void linkShaders(std::vector<Assets::Quake3Shader>& shaders);
             void linkTextures(const Path::List& textures, std::vector<Assets::Quake3Shader>& shaders);
             void linkStandaloneShaders(std::vector<Assets::Quake3Shader>& shaders);
-            void linkShaderToImage(const Path& shaderPath, Path imagePath, const Assets::Quake3Shader& shader);
-            void linkShaderToMissingImage(const Path& shaderPath, const Assets::Quake3Shader& shader);
-            void doLinkShaderToImage(const Path& shaderPath, Path imagePath, const Assets::Quake3Shader& shader);
+
+            Assets::Quake3Shader fixImagePath(Assets::Quake3Shader shader) const;
         };
     }
 }

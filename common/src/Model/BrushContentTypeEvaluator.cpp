@@ -74,7 +74,7 @@ namespace TrenchBroom {
             bool doEvaluate(const BrushFace* face) const override {
                 const auto* texture = face->texture();
                 if (texture != nullptr) {
-                    const auto& surfaceParms = texture->getAttribute(Assets::Quake3Shader::SurfaceParms);
+                    const auto& surfaceParms = texture->surfaceParms();
                     return surfaceParms.count(m_pattern) > 0;
                 } else {
                     return false;

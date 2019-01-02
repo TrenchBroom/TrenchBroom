@@ -23,7 +23,6 @@
 #include "ByteBuffer.h"
 #include "Color.h"
 #include "StringUtils.h"
-#include "TypedAttributeMap.h"
 #include "Renderer/GL.h"
 
 #include <vecmath/forward.h>
@@ -50,7 +49,7 @@ namespace TrenchBroom {
         size_t bytesPerPixelForFormat(GLenum format);
         void setMipBufferSize(TextureBuffer::List& buffers, size_t mipLevels, size_t width, size_t height, GLenum format);
         
-        class Texture : public TypedAttributeMap {
+        class Texture {
         private:
             TextureCollection* m_collection;
             String m_name;
@@ -64,6 +63,9 @@ namespace TrenchBroom {
 
             GLenum m_format;
             TextureType m_type;
+
+            // Quake 3 surface parameters; move these to materials when we add proper support for those.
+            StringSet m_surfaceParms;
 
             mutable GLuint m_textureId;
             mutable TextureBuffer::List m_buffers;
@@ -81,6 +83,9 @@ namespace TrenchBroom {
             size_t height() const;
             const Color& averageColor() const;
 
+            const StringSet& surfaceParms() const;
+            void setSurfaceParms(const StringSet& surfaceParms);
+
             size_t usageCount() const;
             void incUsageCount();
             void decUsageCount();
@@ -93,7 +98,6 @@ namespace TrenchBroom {
 
             void activate() const;
             void deactivate() const;
-
         public: // exposed for tests only
             /**
              * Returns the texture data in the format returned by format().

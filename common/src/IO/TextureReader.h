@@ -68,6 +68,18 @@ namespace TrenchBroom {
                 
                 deleteCopyAndMove(PathSuffixNameStrategy)
             };
+
+            class StaticNameStrategy : public NameStrategy {
+            private:
+                String m_name;
+            public:
+                StaticNameStrategy(const String& name);
+            private:
+                NameStrategy* doClone() const override;
+                String doGetTextureName(const String& textureName, const Path& path) const override;
+
+                deleteCopyAndMove(StaticNameStrategy)
+            };
         private:
             NameStrategy* m_nameStrategy;
         protected:

@@ -63,6 +63,17 @@ namespace TrenchBroom {
             return result.asString('/');
         }
 
+        TextureReader::StaticNameStrategy::StaticNameStrategy(const String& name) :
+        m_name(name) {}
+
+        TextureReader::NameStrategy* TextureReader::StaticNameStrategy::doClone() const {
+            return new StaticNameStrategy(m_name);
+        }
+
+        String TextureReader::StaticNameStrategy::doGetTextureName(const String& textureName, const Path& path) const {
+            return m_name;
+        }
+
         TextureReader::TextureReader(const NameStrategy& nameStrategy) :
         m_nameStrategy(nameStrategy.clone()) {}
 

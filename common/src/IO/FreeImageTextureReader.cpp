@@ -105,9 +105,7 @@ namespace TrenchBroom {
             FreeImage_CloseMemory(imageMemory);
 
             const auto textureType = Assets::Texture::selectTextureType(masked);
-            auto texture = new Assets::Texture(textureName(imageName, path), imageWidth, imageHeight, Color(), buffers, format, textureType);
-            texture->setAttributes(*file);
-            return texture;
+            return new Assets::Texture(textureName(imageName, path), imageWidth, imageHeight, Color(), buffers, format, textureType);
         }
     }
 }

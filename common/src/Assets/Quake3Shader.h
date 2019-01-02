@@ -20,15 +20,12 @@
 #ifndef TRENCHBROOM_QUAKE3SHADER_H
 #define TRENCHBROOM_QUAKE3SHADER_H
 
-#include "TypedAttributeMap.h"
 #include "StringUtils.h"
 #include "IO/Path.h"
 
 namespace TrenchBroom {
     namespace Assets {
         class Quake3Shader {
-        public:
-            static const TypedAttributeMap::Attribute<StringSet> SurfaceParms;
         private:
             bool m_hasTexturePath;
             IO::Path m_texturePath;
@@ -49,8 +46,9 @@ namespace TrenchBroom {
             void setTexturePath(const IO::Path& texturePath);
 
             bool hasQerImagePath() const;
-            const IO::Path& qerImagePath() const;
+            IO::Path qerImagePath(const IO::Path& defaultPath = IO::Path()) const;
             void setQerImagePath(const IO::Path& qerImagePath);
+            void clearQerImagePath();
 
             const StringSet& surfaceParms() const;
             void addSurfaceParm(const String& parm) ;

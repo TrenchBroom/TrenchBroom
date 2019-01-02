@@ -143,6 +143,14 @@ namespace TrenchBroom {
             return m_averageColor;
         }
 
+        const StringSet& Texture::surfaceParms() const {
+            return m_surfaceParms;
+        }
+
+        void Texture::setSurfaceParms(const StringSet& surfaceParms) {
+            m_surfaceParms = surfaceParms;
+        }
+
         size_t Texture::usageCount() const {
             return m_usageCount;
         }

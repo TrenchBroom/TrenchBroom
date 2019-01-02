@@ -21,7 +21,6 @@
 #define TrenchBroom_MappedFile
 
 #include "Exceptions.h"
-#include "TypedAttributeMap.h"
 #include "IO/Path.h"
 
 #include <istream>
@@ -35,7 +34,7 @@ typedef void *HANDLE;
 
 namespace TrenchBroom {
     namespace IO {
-        class MappedFile : public TypedAttributeMap {
+        class MappedFile {
         public:
             using Ptr = std::shared_ptr<MappedFile>;
             using List = std::vector<Ptr>;
@@ -78,11 +77,26 @@ namespace TrenchBroom {
             MappedFileBuffer(const Path& path, std::unique_ptr<char[]> buffer, size_t size);
         };
 
+        template <typename T>
+        class ObjectFile : public MappedFile {
+        private:
+            T m_object;
+        public:
+            template <typename S>
+            ObjectFile(S&& object, const Path& path) :
+            MappedFile(path),
+            m_object(std::forward<S>(object)) {}
+
+            const T& object() const {
+                return m_object;
+            }
+        };
+
 #ifdef _WIN32
         class WinMappedFile : public MappedFile {
         private:
             HANDLE m_fileHandle;
-	        HANDLE m_mappingHandle;
+            HANDLE m_mappingHandle;
             char* m_address;
         public:
             WinMappedFile(const Path& path, std::ios_base::openmode mode);

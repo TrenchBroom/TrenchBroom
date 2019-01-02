@@ -38,14 +38,6 @@ IF(APPLE)
         "${APP_DIR}/resources/games/*"
     )
 
-    IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        # Collect all untested game resources
-        FILE(GLOB_RECURSE MACOSX_GAME_FILES
-            RELATIVE ${APP_DIR}/resources/games-testing
-            "${APP_DIR}/resources/games/*"
-        )
-    ENDIF()
-
     # Set correct locations for game files
     FOREACH(GAME_FILE ${MACOSX_GAME_FILES})
         GET_FILENAME_COMPONENT(GAME_FILE_DIR "${GAME_FILE}" DIRECTORY)
@@ -54,6 +46,23 @@ IF(APPLE)
         SET(APP_SOURCE ${APP_SOURCE} ${GAME_FILE})
         SET_SOURCE_FILES_PROPERTIES(${GAME_FILE} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/games/${GAME_FILE_DIR})
     ENDFOREACH()
+
+    IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        # Collect all untested game resources
+        FILE(GLOB_RECURSE MACOSX_GAME_TESTING_FILES
+            RELATIVE ${APP_DIR}/resources/games-testing
+            "${APP_DIR}/resources/games-testing/*"
+        )
+
+        # Set correct locations for untested game files
+        FOREACH(GAME_FILE ${MACOSX_GAME_TESTING_FILES})
+            GET_FILENAME_COMPONENT(GAME_FILE_DIR "${GAME_FILE}" DIRECTORY)
+            SET(GAME_FILE "${APP_DIR}/resources/games-testing/${GAME_FILE}")
+
+            SET(APP_SOURCE ${APP_SOURCE} ${GAME_FILE})
+            SET_SOURCE_FILES_PROPERTIES(${GAME_FILE} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/games/${GAME_FILE_DIR})
+        ENDFOREACH()
+    ENDIF()
 
     # Configure shaders
     # Collect all shaders

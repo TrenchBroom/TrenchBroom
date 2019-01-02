@@ -106,15 +106,14 @@ namespace TrenchBroom {
         }
 
         void GameFileSystem::addShaderFileSystem(const GameConfig& config, Logger* logger) {
-            // To support Quake 3 shaders, we add a shader file system that resolves the shaders
-            // and links them to existing texture images.
+            // To support Quake 3 shaders, we add a shader file system that loads the shaders
+            // and makes them available as virtual files.
             const auto& textureConfig = config.textureConfig();
             const auto& textureFormat = textureConfig.format.format;
             if (StringUtils::caseInsensitiveEqual(textureFormat, "q3shader")) {
-                logger->info() << "Adding shader file system for extensions " << StringUtils::join(textureConfig.format.extensions);
-                const auto prefix = textureConfig.package.rootDirectory;
-                const auto& extensions = textureConfig.format.extensions;
-                m_next = std::make_unique<IO::Quake3ShaderFileSystem>(std::move(m_next), prefix, extensions, logger);
+                logger->info() << "Adding shader file system";
+                const auto texturePrefix = textureConfig.package.rootDirectory;
+                m_next = std::make_unique<IO::Quake3ShaderFileSystem>(std::move(m_next), texturePrefix, logger);
             }
         }
 

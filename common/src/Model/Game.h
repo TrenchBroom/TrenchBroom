@@ -44,10 +44,10 @@ namespace TrenchBroom {
         
         class Game : public IO::EntityDefinitionLoader, public IO::EntityModelLoader {
         public:
-            typedef enum {
-                TP_File,
-                TP_Directory
-            } TexturePackageType;
+            enum class TexturePackageType {
+                File,
+                Directory
+            };
         private:
             mutable BrushContentTypeBuilder* m_brushContentTypeBuilder;
         protected:
