@@ -418,6 +418,7 @@ namespace TrenchBroom {
             void loadEntityModels();
             void unloadEntityModels();
         protected:
+            void reloadTextures();
             void loadTextures();
             void unloadTextures();
 

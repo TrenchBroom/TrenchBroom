@@ -31,6 +31,7 @@
 
 #include <wx/button.h>
 #include <wx/choice.h>
+#include <wx/simplebook.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
 #include <wx/combobox.h>

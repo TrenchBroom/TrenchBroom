@@ -56,9 +56,11 @@ namespace TrenchBroom {
         }
         
         char TokenizerState::lookAhead(const size_t offset) const {
-            if (eof(m_cur + offset))
+            if (eof(m_cur + offset)) {
                 return 0;
-            return *(m_cur + offset);
+            } else {
+                return *(m_cur + offset);
+            }
         }
         
         size_t TokenizerState::line() const {
@@ -95,8 +97,9 @@ namespace TrenchBroom {
         }
         
         void TokenizerState::advance(const size_t offset) {
-            for (size_t i = 0; i < offset; ++i)
+            for (size_t i = 0; i < offset; ++i) {
                 advance();
+            }
         }
         
         void TokenizerState::advance() {
@@ -110,10 +113,11 @@ namespace TrenchBroom {
                     break;
                 default:
                     ++m_column;
-                    if (curChar() == m_escapeChar)
+                    if (curChar() == m_escapeChar) {
                         m_escaped = !m_escaped;
-                    else
+                    } else {
                         m_escaped = false;
+                    }
                     break;
             }
             ++m_cur;
@@ -127,8 +131,9 @@ namespace TrenchBroom {
         }
         
         void TokenizerState::errorIfEof() const {
-            if (eof())
+            if (eof()) {
                 throw ParserException("Unexpected end of file");
+            }
         }
 
         TokenizerState TokenizerState::snapshot() const {

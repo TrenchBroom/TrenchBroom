@@ -26,6 +26,7 @@
 
 #include <cassert>
 #include <cstring>
+#include <memory>
 
 namespace TrenchBroom {
     namespace IO {
@@ -84,10 +85,13 @@ namespace TrenchBroom {
         }
         
         DkPakFileSystem::DkPakFileSystem(const Path& path, MappedFile::Ptr file) :
-        ImageFileSystem(path, file) {
+        DkPakFileSystem(nullptr, path, file) {}
+
+        DkPakFileSystem::DkPakFileSystem(std::unique_ptr<FileSystem> next, const Path& path, MappedFile::Ptr file) :
+        ImageFileSystem(std::move(next), path, file) {
             initialize();
         }
-        
+
         void DkPakFileSystem::doReadDirectory() {
             CharArrayReader reader(m_file->begin(), m_file->end());
             reader.seekFromBegin(PakLayout::HeaderMagicLength);
@@ -109,12 +113,12 @@ namespace TrenchBroom {
                 const auto* entryBegin = m_file->begin() + entryAddress;
                 const auto* entryEnd = entryBegin + entrySize;
                 const auto filePath = Path(StringUtils::toLower(entryName));
-                MappedFile::Ptr entryFile(new MappedFileView(m_file, filePath, entryBegin, entryEnd));
+                const auto entryFile = std::make_shared<MappedFileView>(m_file, filePath, entryBegin, entryEnd);
                 
                 if (compressed) {
-                    m_root.addFile(filePath, new DkCompressedFile(entryFile, uncompressedSize));
+                    m_root.addFile(filePath, std::make_unique<DkCompressedFile>(entryFile, uncompressedSize));
                 } else {
-                    m_root.addFile(filePath, new SimpleFile(entryFile));
+                    m_root.addFile(filePath, std::make_unique<SimpleFile>(entryFile));
                 }
             }
         }

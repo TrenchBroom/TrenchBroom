@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_MappedFile
 #define TrenchBroom_MappedFile
 
-#include "SharedPointer.h"
 #include "Exceptions.h"
 #include "IO/Path.h"
 
@@ -37,8 +36,8 @@ namespace TrenchBroom {
     namespace IO {
         class MappedFile {
         public:
-            typedef std::shared_ptr<MappedFile> Ptr;
-            typedef std::vector<Ptr> List;
+            using Ptr = std::shared_ptr<MappedFile>;
+            using List = std::vector<Ptr>;
         private:
             Path m_path;
         protected:
@@ -49,14 +48,21 @@ namespace TrenchBroom {
             virtual ~MappedFile();
             
             const Path& path() const;
+
             size_t size() const;
             const char* begin() const;
             const char* end() const;
         protected:
             void init(const char* begin, const char* end);
         };
-        
-        class MappedFileView : public MappedFile {
+
+        class MappedFileBufferView : public MappedFile {
+        public:
+            MappedFileBufferView(const Path& path, const char* begin, const char* end);
+            MappedFileBufferView(const Path& path, const char* begin, size_t size);
+        };
+
+        class MappedFileView : public MappedFileBufferView {
         private:
             MappedFile::Ptr m_container;
         public:
@@ -64,18 +70,33 @@ namespace TrenchBroom {
             MappedFileView(MappedFile::Ptr container, const Path& path, const char* begin, size_t size);
         };
         
-        class MappedFileBuffer : public MappedFile {
+        class MappedFileBuffer : public MappedFileBufferView {
         private:
             std::unique_ptr<char[]> m_buffer;
         public:
             MappedFileBuffer(const Path& path, std::unique_ptr<char[]> buffer, size_t size);
         };
 
+        template <typename T>
+        class ObjectFile : public MappedFile {
+        private:
+            T m_object;
+        public:
+            template <typename S>
+            ObjectFile(S&& object, const Path& path) :
+            MappedFile(path),
+            m_object(std::forward<S>(object)) {}
+
+            const T& object() const {
+                return m_object;
+            }
+        };
+
 #ifdef _WIN32
         class WinMappedFile : public MappedFile {
         private:
             HANDLE m_fileHandle;
-	        HANDLE m_mappingHandle;
+            HANDLE m_mappingHandle;
             char* m_address;
         public:
             WinMappedFile(const Path& path, std::ios_base::openmode mode);

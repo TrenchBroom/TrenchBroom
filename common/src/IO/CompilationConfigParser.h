@@ -47,7 +47,7 @@ namespace TrenchBroom {
             Model::CompilationTask* parseCopyTask(const EL::Value& value) const;
             Model::CompilationTask* parseToolTask(const EL::Value& value) const;
 
-            deleteCopyAndAssignment(CompilationConfigParser)
+            deleteCopyAndMove(CompilationConfigParser)
         };
     }
 }

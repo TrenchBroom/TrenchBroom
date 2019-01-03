@@ -26,6 +26,7 @@
 
 #include <cassert>
 #include <cstring>
+#include <memory>
 
 #include <wx/mstream.h>
 #include <wx/zipstrm.h>
@@ -36,15 +37,15 @@ namespace TrenchBroom {
         m_stream(std::move(stream)),
         m_entry(std::move(entry)) {}
 
-        MappedFile::Ptr ZipFileSystem::ZipCompressedFile::doOpen() {
+        MappedFile::Ptr ZipFileSystem::ZipCompressedFile::doOpen() const {
             const auto path = Path(m_entry->GetName().ToStdString());
 
             if (!m_stream->OpenEntry(*m_entry)) {
-                throw new FileSystemException("Could not open zip entry at " + path.asString());
+                throw FileSystemException("Could not open zip entry at " + path.asString());
             }
 
             if (!m_stream->CanRead()) {
-                throw new FileSystemException("Could not read zip entry at " + path.asString());
+                throw FileSystemException("Could not read zip entry at " + path.asString());
             }
 
             const auto uncompressedSize = static_cast<size_t>(m_entry->GetSize());
@@ -54,11 +55,14 @@ namespace TrenchBroom {
             m_stream->Read(begin, uncompressedSize);
             m_stream->CloseEntry();
 
-            return MappedFile::Ptr(new MappedFileBuffer(path, std::move(data), uncompressedSize));
+            return std::make_shared<MappedFileBuffer>(path, std::move(data), uncompressedSize);
         }
 
         ZipFileSystem::ZipFileSystem(const Path& path, MappedFile::Ptr file) :
-        ImageFileSystem(path, file) {
+        ZipFileSystem(nullptr, path, std::move(file)) {}
+
+        ZipFileSystem::ZipFileSystem(std::unique_ptr<FileSystem> next, const Path& path, MappedFile::Ptr file) :
+        ImageFileSystem(std::move(next), path, std::move(file)) {
             initialize();
         }
 
@@ -68,7 +72,7 @@ namespace TrenchBroom {
                 auto entry = std::unique_ptr<wxZipEntry>(stream->GetNextEntry());
                 if (!entry->IsDir()) {
                     const auto path = Path(entry->GetName().ToStdString());
-                    m_root.addFile(path, new ZipCompressedFile(stream, std::move(entry)));
+                    m_root.addFile(path, std::make_unique<ZipCompressedFile>(stream, std::move(entry)));
                 }
             }
         }

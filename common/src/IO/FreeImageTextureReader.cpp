@@ -58,25 +58,28 @@ namespace TrenchBroom {
             }
         }
 
-        Assets::Texture* FreeImageTextureReader::doReadTexture(const char* const begin, const char* const end, const Path& path) const {
-            const size_t                imageSize       = static_cast<size_t>(end - begin);
-            BYTE*                       imageBegin      = reinterpret_cast<BYTE*>(const_cast<char*>(begin));
-            FIMEMORY*                   imageMemory     = FreeImage_OpenMemory(imageBegin, static_cast<DWORD>(imageSize));
-            const FREE_IMAGE_FORMAT     imageFormat     = FreeImage_GetFileTypeFromMemory(imageMemory);
-            FIBITMAP*                   image           = FreeImage_LoadFromMemory(imageFormat, imageMemory);
-            const String                imageName       = path.filename();
+        Assets::Texture* FreeImageTextureReader::doReadTexture(MappedFile::Ptr file) const {
+            const auto* begin           = file->begin();
+            const auto* end             = file->end();
+            const auto  path            = file->path();
+            const auto  imageSize       = static_cast<size_t>(end - begin);
+                  auto* imageBegin      = reinterpret_cast<BYTE*>(const_cast<char*>(begin));
+                  auto* imageMemory     = FreeImage_OpenMemory(imageBegin, static_cast<DWORD>(imageSize));
+            const auto  imageFormat     = FreeImage_GetFileTypeFromMemory(imageMemory);
+                  auto* image           = FreeImage_LoadFromMemory(imageFormat, imageMemory);
+            const auto  imageName       = path.filename();
 
             if (image == nullptr) {
                 FreeImage_CloseMemory(imageMemory);
                 return new Assets::Texture(textureName(imageName, path), 64, 64);
             }
 
-            const size_t                imageWidth      = static_cast<size_t>(FreeImage_GetWidth(image));
-            const size_t                imageHeight     = static_cast<size_t>(FreeImage_GetHeight(image));
-            const FREE_IMAGE_COLOR_TYPE imageColourType = FreeImage_GetColorType(image);
+            const auto imageWidth      = static_cast<size_t>(FreeImage_GetWidth(image));
+            const auto imageHeight     = static_cast<size_t>(FreeImage_GetHeight(image));
+            const auto imageColourType = FreeImage_GetColorType(image);
 
             // This is supposed to indicate whether any pixels are transparent (alpha < 100%)
-            const auto transparent = FreeImage_IsTransparent(image);
+            const auto masked = FreeImage_IsTransparent(image);
 
             const auto mipCount = 1U;
             constexpr auto format = freeImage32BPPFormatToGLFormat();
@@ -93,17 +96,15 @@ namespace TrenchBroom {
             const auto bytesPerPixel = FreeImage_GetLine(image) / FreeImage_GetWidth(image);
             ensure(bytesPerPixel == 4, "expected to have converted image to 32-bit");
 
-            unsigned char* outBytes = buffers.at(0).ptr();
-            const auto outBytesPerRow = static_cast<int>(imageWidth * 4);
+                  auto* outBytes = buffers.at(0).ptr();
+            const auto  outBytesPerRow = static_cast<int>(imageWidth * 4);
 
             FreeImage_ConvertToRawBits(outBytes, image, outBytesPerRow, 32, FI_RGBA_RED_MASK, FI_RGBA_GREEN_MASK, FI_RGBA_BLUE_MASK, TRUE);
 
             FreeImage_Unload(image);
             FreeImage_CloseMemory(imageMemory);
 
-            
-            const auto textureType = transparent ? Assets::TextureType::Masked : Assets::TextureType::Opaque;
-
+            const auto textureType = Assets::Texture::selectTextureType(masked);
             return new Assets::Texture(textureName(imageName, path), imageWidth, imageHeight, Color(), buffers, format, textureType);
         }
     }

@@ -27,7 +27,6 @@
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "IO/EntityDefinitionLoader.h"
 #include "IO/EntityModelLoader.h"
-#include "IO/FileSystemHierarchy.h"
 #include "IO/TextureReader.h"
 #include "Model/GameConfig.h"
 #include "Model/MapFormat.h"
@@ -45,10 +44,10 @@ namespace TrenchBroom {
         
         class Game : public IO::EntityDefinitionLoader, public IO::EntityModelLoader {
         public:
-            typedef enum {
-                TP_File,
-                TP_Directory
-            } TexturePackageType;
+            enum class TexturePackageType {
+                File,
+                Directory
+            };
         private:
             mutable BrushContentTypeBuilder* m_brushContentTypeBuilder;
         protected:
@@ -87,6 +86,7 @@ namespace TrenchBroom {
             IO::Path::List findTextureCollections() const;
             IO::Path::List extractTextureCollections(const AttributableNode* node) const;
             void updateTextureCollections(AttributableNode* node, const IO::Path::List& paths) const;
+            void reloadShaders();
         public: // entity definition handling
             bool isEntityDefinitionFile(const IO::Path& path) const;
             Assets::EntityDefinitionFileSpec::List allEntityDefinitionFiles() const;
@@ -128,6 +128,7 @@ namespace TrenchBroom {
             virtual IO::Path::List doFindTextureCollections() const = 0;
             virtual IO::Path::List doExtractTextureCollections(const AttributableNode* node) const = 0;
             virtual void doUpdateTextureCollections(AttributableNode* node, const IO::Path::List& paths) const = 0;
+            virtual void doReloadShaders() = 0;
             
             virtual bool doIsEntityDefinitionFile(const IO::Path& path) const = 0;
             virtual Assets::EntityDefinitionFileSpec::List doAllEntityDefinitionFiles() const = 0;

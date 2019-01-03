@@ -22,8 +22,20 @@
 #include <cstdarg>
 
 namespace TrenchBroom {
+    Logger::stream::stream(Logger* logger, const LogLevel logLevel) :
+    m_logger(logger),
+    m_logLevel(logLevel) {}
+
+    Logger::stream::~stream() {
+        m_logger->log(m_logLevel, m_buf.str());
+    }
+
     Logger::~Logger() {}
-    
+
+    Logger::stream Logger::debug() {
+        return Logger::stream(this, LogLevel_Debug);
+    }
+
     void Logger::debug(const char* format, ...) {
 #ifndef NDEBUG
         va_list arguments;
@@ -45,7 +57,11 @@ namespace TrenchBroom {
         log(LogLevel_Debug, message);
 #endif
     }
-    
+
+    Logger::stream Logger::info() {
+        return stream(this, LogLevel_Info);
+    }
+
     void Logger::info(const char* format, ...) {
         va_list arguments;
         va_start(arguments, format);
@@ -61,7 +77,11 @@ namespace TrenchBroom {
     void Logger::info(const wxString& message) {
         log(LogLevel_Info, message);
     }
-    
+
+    Logger::stream Logger::warn() {
+        return stream(this, LogLevel_Warn);
+    }
+
     void Logger::warn(const char* format, ...) {
         va_list arguments;
         va_start(arguments, format);
@@ -77,7 +97,11 @@ namespace TrenchBroom {
     void Logger::warn(const wxString& message) {
         log(LogLevel_Warn, message);
     }
-    
+
+    Logger::stream Logger::error() {
+        return stream(this, LogLevel_Error);
+    }
+
     void Logger::error(const char* format, ...) {
         va_list arguments;
         va_start(arguments, format);
@@ -107,4 +131,7 @@ namespace TrenchBroom {
 #endif
         doLog(level, message);
     }
+
+    void NullLogger::doLog(Logger::LogLevel level, const String& message) {}
+    void NullLogger::doLog(Logger::LogLevel level, const wxString& message) {}
 }

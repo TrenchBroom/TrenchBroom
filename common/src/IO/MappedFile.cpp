@@ -68,24 +68,25 @@ namespace TrenchBroom {
             m_end = end;
         }
 
-        MappedFileView::MappedFileView(MappedFile::Ptr container, const Path& path, const char* begin, const char* end) :
-        MappedFile(path),
-        m_container(container) {
+        MappedFileBufferView::MappedFileBufferView(const Path& path, const char* begin, const char* end) :
+        MappedFile(path) {
             init(begin, end);
         }
 
+        MappedFileBufferView::MappedFileBufferView(const Path& path, const char* begin, const size_t size) :
+        MappedFileBufferView(path, begin, begin + size) {}
+
+        MappedFileView::MappedFileView(MappedFile::Ptr container, const Path& path, const char* begin, const char* end) :
+        MappedFileBufferView(path, begin, end),
+        m_container(std::move(container)) {}
+
         MappedFileView::MappedFileView(MappedFile::Ptr container, const Path& path, const char* begin, const size_t size) :
-        MappedFile(path),
-        m_container(container) {
-            init(begin, begin + size);
-        }
+        MappedFileBufferView(path, begin, size),
+        m_container(std::move(container)) {}
 
         MappedFileBuffer::MappedFileBuffer(const Path& path, std::unique_ptr<char[]> buffer, const size_t size) :
-        MappedFile(path),
-        m_buffer(std::move(buffer)) {
-            const auto* begin = m_buffer.get();
-            init(begin, begin + size);
-        }
+        MappedFileBufferView(path, buffer.get(), buffer.get() + size),
+        m_buffer(std::move(buffer)) {}
 
 #ifdef _WIN32
         WinMappedFile::WinMappedFile(const Path& path, std::ios_base::openmode mode) :
@@ -206,15 +207,17 @@ namespace TrenchBroom {
             int flags = 0;
             int prot = 0;
             if ((mode & std::ios_base::in)) {
-                if ((mode & std::ios_base::out))
+                if ((mode & std::ios_base::out)) {
                     flags = O_RDWR;
-                else
+                } else {
                     flags = O_RDONLY;
+                }
                 prot |= PROT_READ;
             }
             if ((mode & std::ios_base::out)) {
-                if (!(mode & std::ios_base::in))
+                if (!(mode & std::ios_base::in)) {
                     flags = O_WRONLY;
+                }
                 prot |= PROT_WRITE;
             }
             

@@ -33,21 +33,41 @@ namespace TrenchBroom {
             LogLevel_Warn,
             LogLevel_Error
         } LogLevel;
+
+        class stream {
+        private:
+            Logger* m_logger;
+            LogLevel m_logLevel;
+            StringStream m_buf;
+        public:
+            stream(Logger* logger, LogLevel logLevel);
+            ~stream();
+        public:
+            template <typename T>
+            stream& operator<<(T&& arg) {
+                m_buf << std::forward<T>(arg);
+                return *this;
+            }
+        };
     public:
         virtual ~Logger();
-        
+
+        stream debug();
         void debug(const char* format, ...);
         void debug(const String& message);
         void debug(const wxString& message);
-        
+
+        stream info();
         void info(const char* format, ...);
         void info(const String& message);
         void info(const wxString& message);
-        
+
+        stream warn();
         void warn(const char* format, ...);
         void warn(const String& message);
         void warn(const wxString& message);
-        
+
+        stream error();
         void error(const char* format, ...);
         void error(const String& message);
         void error(const wxString& message);
@@ -57,6 +77,14 @@ namespace TrenchBroom {
     private:
         virtual void doLog(LogLevel level, const String& message) = 0;
         virtual void doLog(LogLevel level, const wxString& message) = 0;
+    };
+
+
+
+    class NullLogger : public Logger {
+    private:
+        void doLog(LogLevel level, const String& message) override;
+        void doLog(LogLevel level, const wxString& message) override;
     };
 }
 

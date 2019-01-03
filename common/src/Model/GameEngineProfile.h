@@ -52,7 +52,7 @@ namespace TrenchBroom {
             void setPath(const IO::Path& path);
             void setParameterSpec(const String& parameterSpec);
 
-            deleteCopyAndAssignment(GameEngineProfile)
+            deleteCopyAndMove(GameEngineProfile)
         };
     }
 }

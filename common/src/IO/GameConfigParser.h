@@ -47,7 +47,7 @@ namespace TrenchBroom {
             Model::GameConfig::FlagConfigList parseFlagConfig(const EL::Value& value) const;
             Model::BrushContentType::List parseBrushContentTypes(const EL::Value& value, const Model::GameConfig::FaceAttribsConfig& faceAttribsConfig) const;
             
-            deleteCopyAndAssignment(GameConfigParser)
+            deleteCopyAndMove(GameConfigParser)
         };
     }
 }

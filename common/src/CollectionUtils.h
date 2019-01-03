@@ -1174,18 +1174,18 @@ namespace MapUtils {
         return false;
     }
 
-    template <typename K, typename V, typename C>
-    bool insertOrReplace(std::map<K, V, C>& map, const K& key, const V& value) {
+    template <typename K, typename V, typename C, typename Val>
+    bool insertOrReplace(std::map<K, V, C>& map, const K& key, Val&& value) {
         const auto insertPos = findInsertPos(map, key);
         if (!insertPos.first) {
             assert(map.count(key) == 0);
-            map.insert(insertPos.second, std::make_pair(key, value));
+            map.insert(insertPos.second, std::make_pair(key, std::forward<Val>(value)));
             assert(map.count(key) == 1);
             return true;
         } else {
             assert(insertPos.second != std::begin(map));
             // As of C++11, the insert pos points to the upper bound of the key, so we need to rewind
-            std::prev(insertPos.second)->second = value;
+            std::prev(insertPos.second)->second = std::forward<Val>(value);
             return false;
         }
     }

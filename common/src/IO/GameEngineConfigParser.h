@@ -42,7 +42,7 @@ namespace TrenchBroom {
             Model::GameEngineProfile::List parseProfiles(const EL::Value& value) const;
             Model::GameEngineProfile* parseProfile(const EL::Value& value) const;
             
-            deleteCopyAndAssignment(GameEngineConfigParser)
+            deleteCopyAndMove(GameEngineConfigParser)
         };
     }
 }
