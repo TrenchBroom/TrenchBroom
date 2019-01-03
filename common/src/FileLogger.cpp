@@ -26,7 +26,7 @@
 
 #include <cassert>
 
-#include <wx/string.h>
+#include <QString>
 
 namespace TrenchBroom {
     FileLogger::FileLogger(const IO::Path& filePath) :
@@ -56,7 +56,7 @@ namespace TrenchBroom {
         }
     }
     
-    void FileLogger::doLog(const LogLevel level, const wxString& message) {
-        log(level, message.ToStdString());
+    void FileLogger::doLog(const LogLevel level, const QString& message) {
+        log(level, message.toStdString());
     }
 }

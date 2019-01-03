@@ -124,6 +124,10 @@ namespace TrenchBroom {
             return StringUtils::join(m_components, separator);
         }
 
+        QString Path::asQString(const char separator) const {
+            return QString::fromStdString(asString(separator));
+        }
+
         String Path::asString(const String& separator) const {
             if (m_absolute) {
 #ifdef _WIN32
@@ -137,6 +141,8 @@ namespace TrenchBroom {
             }
             return StringUtils::join(m_components, separator);
         }
+
+
 
         StringList Path::asStrings(const Path::List& paths, const char separator) {
             StringList result;
