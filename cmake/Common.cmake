@@ -47,7 +47,6 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/IO/FgdParser.cpp
 	${COMMON_SOURCE_DIR}/IO/FileMatcher.cpp
 	${COMMON_SOURCE_DIR}/IO/FileSystem.cpp
-	${COMMON_SOURCE_DIR}/IO/FileSystemHierarchy.cpp
 	${COMMON_SOURCE_DIR}/IO/FreeImageTextureReader.cpp
 	${COMMON_SOURCE_DIR}/IO/GameConfigParser.cpp
 	${COMMON_SOURCE_DIR}/IO/GameEngineConfigParser.cpp
@@ -508,6 +507,11 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/WelcomeFrame.cpp
 	${COMMON_SOURCE_DIR}/View/wxKeyStrings.cpp
 	${COMMON_SOURCE_DIR}/View/wxUtils.cpp
+	${COMMON_SOURCE_DIR}/Assets/Quake3Shader.cpp
+	${COMMON_SOURCE_DIR}/IO/Quake3ShaderFileSystem.cpp
+	${COMMON_SOURCE_DIR}/IO/Quake3ShaderParser.cpp
+	${COMMON_SOURCE_DIR}/IO/Quake3ShaderTextureReader.cpp
+	${COMMON_SOURCE_DIR}/Model/GameFileSystem.cpp
 )
 
 SET(COMMON_HEADER
@@ -567,7 +571,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/IO/FgdParser.h
 	${COMMON_SOURCE_DIR}/IO/FileMatcher.h
 	${COMMON_SOURCE_DIR}/IO/FileSystem.h
-	${COMMON_SOURCE_DIR}/IO/FileSystemHierarchy.h
 	${COMMON_SOURCE_DIR}/IO/FreeImageTextureReader.h
 	${COMMON_SOURCE_DIR}/IO/GameConfigParser.h
 	${COMMON_SOURCE_DIR}/IO/GameEngineConfigParser.h
@@ -1084,6 +1087,11 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/WelcomeFrame.h
 	${COMMON_SOURCE_DIR}/View/wxKeyStrings.h
 	${COMMON_SOURCE_DIR}/View/wxUtils.h
+	${COMMON_SOURCE_DIR}/Assets/Quake3Shader.h
+	${COMMON_SOURCE_DIR}/IO/Quake3ShaderFileSystem.h
+	${COMMON_SOURCE_DIR}/IO/Quake3ShaderParser.h
+	${COMMON_SOURCE_DIR}/IO/Quake3ShaderTextureReader.h
+	${COMMON_SOURCE_DIR}/Model/GameFileSystem.h
 )
 
 # Unfortunately, Xcode still compiles OBJECT libraries as static libraries

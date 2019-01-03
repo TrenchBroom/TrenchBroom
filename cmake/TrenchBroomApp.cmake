@@ -47,6 +47,23 @@ IF(APPLE)
         SET_SOURCE_FILES_PROPERTIES(${GAME_FILE} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/games/${GAME_FILE_DIR})
     ENDFOREACH()
 
+    IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        # Collect all untested game resources
+        FILE(GLOB_RECURSE MACOSX_GAME_TESTING_FILES
+            RELATIVE ${APP_DIR}/resources/games-testing
+            "${APP_DIR}/resources/games-testing/*"
+        )
+
+        # Set correct locations for untested game files
+        FOREACH(GAME_FILE ${MACOSX_GAME_TESTING_FILES})
+            GET_FILENAME_COMPONENT(GAME_FILE_DIR "${GAME_FILE}" DIRECTORY)
+            SET(GAME_FILE "${APP_DIR}/resources/games-testing/${GAME_FILE}")
+
+            SET(APP_SOURCE ${APP_SOURCE} ${GAME_FILE})
+            SET_SOURCE_FILES_PROPERTIES(${GAME_FILE} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/games/${GAME_FILE_DIR})
+        ENDFOREACH()
+    ENDIF()
+
     # Configure shaders
     # Collect all shaders
     FILE(GLOB_RECURSE MACOSX_SHADER_FILES
@@ -174,6 +191,13 @@ IF(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
     ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_DIR}/resources/games/" "$<TARGET_FILE_DIR:TrenchBroom>/games"
     )
+
+    IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        # Copy untested game files to resources directory
+        ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_DIR}/resources/games-testing/" "$<TARGET_FILE_DIR:TrenchBroom>/games"
+        )
+    ENDIF()
 
     # Copy shader files to resources directory
     ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD

@@ -186,9 +186,9 @@ namespace TrenchBroom {
             
             // for case sensitive file systems
             ASSERT_NO_THROW(DiskFileSystem(env.dir() + Path("ANOTHERDIR"), true));
-            
+
             const DiskFileSystem fs(env.dir() + Path("anotherDir/.."), true);
-            ASSERT_EQ(env.dir(), fs.makeAbsolute(Path("")));
+            ASSERT_EQ(fs.root(), fs.makeAbsolute(Path("")));
         }
         
         TEST(DiskFileSystemTest, directoryExists) {

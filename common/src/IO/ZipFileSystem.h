@@ -41,13 +41,13 @@ namespace TrenchBroom {
             public:
                 ZipCompressedFile(std::shared_ptr<wxZipInputStream> stream, std::unique_ptr<wxZipEntry> entry);
             private:
-                MappedFile::Ptr doOpen() override;
+                MappedFile::Ptr doOpen() const override;
             };
         public:
             ZipFileSystem(const Path& path, MappedFile::Ptr file);
+            ZipFileSystem(std::unique_ptr<FileSystem> next, const Path& path, MappedFile::Ptr file);
         private:
             void doReadDirectory() override;
-
         };
     }
 }

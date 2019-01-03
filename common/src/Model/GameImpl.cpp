@@ -25,12 +25,10 @@
 #include "IO/Bsp29Parser.h"
 #include "IO/DefParser.h"
 #include "IO/DkmParser.h"
-#include "IO/DkPakFileSystem.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/FgdParser.h"
 #include "IO/FileMatcher.h"
 #include "IO/FileSystem.h"
-#include "IO/IdPakFileSystem.h"
 #include "IO/IOUtils.h"
 #include "IO/MapParser.h"
 #include "IO/MdlParser.h"
@@ -63,51 +61,9 @@ namespace TrenchBroom {
         m_gamePath(gamePath) {
             initializeFileSystem(logger);
         }
-        
+
         void GameImpl::initializeFileSystem(Logger* logger) {
-            const GameConfig::FileSystemConfig& fileSystemConfig = m_config.fileSystemConfig();
-            if (!m_gamePath.isEmpty() && IO::Disk::directoryExists(m_gamePath)) {
-                addSearchPath(fileSystemConfig.searchPath, logger);
-                addPackages(m_gamePath + fileSystemConfig.searchPath);
-
-                for (const IO::Path& searchPath : m_additionalSearchPaths) {
-                    addSearchPath(searchPath, logger);
-                    addPackages(m_gamePath + searchPath);
-            }
-        }
-        }
-
-        void GameImpl::addSearchPath(const IO::Path& searchPath, Logger* logger) {
-            try {
-                m_gameFS.pushFileSystem(new IO::DiskFileSystem(m_gamePath + searchPath));
-            } catch (const FileSystemException& e) {
-                logger->error("Could not add file system search path '" + searchPath.asString() + "': " + String(e.what()));
-            }
-        }
-        
-        void GameImpl::addPackages(const IO::Path& searchPath) {
-            const GameConfig::FileSystemConfig& fileSystemConfig = m_config.fileSystemConfig();
-            const GameConfig::PackageFormatConfig& packageFormatConfig = fileSystemConfig.packageFormat;
-
-            const StringList& packageExtensions = packageFormatConfig.extensions;
-            const String& packageFormat = packageFormatConfig.format;
-
-            if (IO::Disk::directoryExists(searchPath)) {
-                const IO::DiskFileSystem diskFS(searchPath);
-                const IO::Path::List packages = diskFS.findItems(IO::Path(""), IO::FileExtensionMatcher(packageExtensions));
-                for (const IO::Path& packagePath : packages) {
-                    IO::MappedFile::Ptr packageFile = diskFS.openFile(packagePath);
-                    ensure(packageFile.get() != nullptr, "packageFile is null");
-
-                    if (StringUtils::caseInsensitiveEqual(packageFormat, "idpak")) {
-                        m_gameFS.pushFileSystem(new IO::IdPakFileSystem(packagePath, packageFile));
-                    } else if (StringUtils::caseInsensitiveEqual(packageFormat, "dkpak")) {
-                        m_gameFS.pushFileSystem(new IO::DkPakFileSystem(packagePath, packageFile));
-                    } else if (StringUtils::caseInsensitiveEqual(packageFormat, "zip")) {
-                        m_gameFS.pushFileSystem(new IO::ZipFileSystem(packagePath, packageFile));
-                    }
-                }
-            }
+            m_fs.initialize(m_config, m_gamePath, m_additionalSearchPaths, logger);
         }
 
         const String& GameImpl::doGameName() const {
@@ -120,23 +76,19 @@ namespace TrenchBroom {
 
         void GameImpl::doSetGamePath(const IO::Path& gamePath, Logger* logger) {
             m_gamePath = gamePath;
-            m_gameFS.clear();
             initializeFileSystem(logger);
         }
 
         void GameImpl::doSetAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger* logger) {
             m_additionalSearchPaths = searchPaths;
-            m_gameFS.clear();
             initializeFileSystem(logger);
         }
 
         Game::PathErrors GameImpl::doCheckAdditionalSearchPaths(const IO::Path::List& searchPaths) const {
             PathErrors result;
-            for (const IO::Path& searchPath : searchPaths) {
-                try {
-                    IO::DiskFileSystem(m_gamePath + searchPath);
-                } catch (const Exception& e) {
-                    result.insert(std::make_pair(searchPath, e.what()));
+            for (const auto& searchPath : searchPaths) {
+                if (!IO::Disk::directoryExists(searchPath)) {
+                    result.insert(std::make_pair(searchPath, "Directory not found: '" + searchPath.asString() + "'"));
                 }
             }
             return result;
@@ -171,13 +123,13 @@ namespace TrenchBroom {
 
         World* GameImpl::doLoadMap(const MapFormat::Type format, const vm::bbox3& worldBounds, const IO::Path& path, Logger* logger) const {
             IO::SimpleParserStatus parserStatus(logger);
-            const IO::MappedFile::Ptr file = IO::Disk::openFile(IO::Disk::fixPath(path));
+            const auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
             IO::WorldReader reader(file->begin(), file->end(), brushContentTypeBuilder());
             return reader.read(format, worldBounds, parserStatus);
         }
 
         void GameImpl::doWriteMap(World* world, const IO::Path& path) const {
-            const String mapFormatName = formatName(world->format());
+            const auto mapFormatName = formatName(world->format());
 
             IO::OpenFile open(path, true);
             IO::writeGameComment(open.file, gameName(), mapFormatName);
@@ -222,9 +174,9 @@ namespace TrenchBroom {
             using Model::GameConfig;
             switch (m_config.textureConfig().package.type) {
                 case GameConfig::TexturePackageConfig::PT_File:
-                    return TP_File;
+                    return TexturePackageType::File;
                 case GameConfig::TexturePackageConfig::PT_Directory:
-                    return TP_Directory;
+                    return TexturePackageType::Directory;
                 case GameConfig::TexturePackageConfig::PT_Unset:
                     throw GameException("Texture package type is not set in game configuration");
                 switchDefault()
@@ -232,23 +184,30 @@ namespace TrenchBroom {
         }
 
         void GameImpl::doLoadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger* logger) const {
-            const IO::Path::List paths = extractTextureCollections(node);
+            const auto paths = extractTextureCollections(node);
 
-            const IO::Path::List fileSearchPaths = textureCollectionSearchPaths(documentPath);
-            IO::TextureLoader textureLoader(m_gameFS, fileSearchPaths, m_config.textureConfig(), logger);
+            const auto fileSearchPaths = textureCollectionSearchPaths(documentPath);
+            IO::TextureLoader textureLoader(m_fs, fileSearchPaths, m_config.textureConfig(), logger);
             textureLoader.loadTextures(paths, textureManager);
         }
 
         IO::Path::List GameImpl::textureCollectionSearchPaths(const IO::Path& documentPath) const {
             IO::Path::List result;
+
+            // Search for assets relative to the map file.
             result.push_back(documentPath);
+
+            // Search for assets relative to the location of the game.
             result.push_back(m_gamePath);
+
+            // Search for assets relative to the application itself.
             result.push_back(IO::SystemPaths::appDirectory());
+
             return result;
         }
 
         bool GameImpl::doIsTextureCollection(const IO::Path& path) const {
-            const GameConfig::TexturePackageConfig packageConfig = m_config.textureConfig().package;
+            const auto& packageConfig = m_config.textureConfig().package;
             switch (packageConfig.type) {
                 case GameConfig::TexturePackageConfig::PT_File:
                     return path.hasExtension(packageConfig.fileFormat.extensions, false);
@@ -261,9 +220,10 @@ namespace TrenchBroom {
 
         IO::Path::List GameImpl::doFindTextureCollections() const {
             try {
-                const IO::Path& searchPath = m_config.textureConfig().package.rootDirectory;
-                if (!searchPath.isEmpty() && m_gameFS.directoryExists(searchPath))
-                    return m_gameFS.findItems(searchPath, IO::FileTypeMatcher(false, true));
+                const auto& searchPath = m_config.textureConfig().package.rootDirectory;
+                if (!searchPath.isEmpty() && m_fs.directoryExists(searchPath)) {
+                    return m_fs.findItems(searchPath, IO::FileTypeMatcher(false, true));
+                }
                 return IO::Path::List();
             } catch (FileSystemException& e) {
                 throw GameException("Could not find texture collections: " + String(e.what()));
@@ -271,28 +231,35 @@ namespace TrenchBroom {
         }
 
         IO::Path::List GameImpl::doExtractTextureCollections(const AttributableNode* node) const {
-            const String& property = m_config.textureConfig().attribute;
-            if (property.empty())
+            const auto& property = m_config.textureConfig().attribute;
+            if (property.empty()) {
                 return IO::Path::List(0);
+            }
 
-            const AttributeValue& pathsValue = node->attribute(property);
-            if (pathsValue.empty())
+            const auto& pathsValue = node->attribute(property);
+            if (pathsValue.empty()) {
                 return IO::Path::List(0);
+            }
 
             return IO::Path::asPaths(StringUtils::splitAndTrim(pathsValue, ';'));
         }
 
         void GameImpl::doUpdateTextureCollections(AttributableNode* node, const IO::Path::List& paths) const {
-            const String& attribute = m_config.textureConfig().attribute;
-            if (attribute.empty())
+            const auto& attribute = m_config.textureConfig().attribute;
+            if (attribute.empty()) {
                 return;
+            }
 
-            const String value = StringUtils::join(IO::Path::asStrings(paths, '/'), ';');
+            const auto value = StringUtils::join(IO::Path::asStrings(paths, '/'), ';');
             node->addOrUpdateAttribute(attribute, value);
         }
 
+        void GameImpl::doReloadShaders() {
+            m_fs.reloadShaders();
+        }
+
         bool GameImpl::doIsEntityDefinitionFile(const IO::Path& path) const {
-            const String extension = path.extension();
+            const auto extension = path.extension();
             if (StringUtils::caseInsensitiveEqual("fgd", extension)) {
                 return true;
             } else if (StringUtils::caseInsensitiveEqual("def", extension)) {
@@ -303,16 +270,16 @@ namespace TrenchBroom {
         }
 
         Assets::EntityDefinitionList GameImpl::doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const {
-            const String extension = path.extension();
-            const Color& defaultColor = m_config.entityConfig().defaultColor;
+            const auto extension = path.extension();
+            const auto& defaultColor = m_config.entityConfig().defaultColor;
 
             Assets::EntityDefinitionList definitions;
             if (StringUtils::caseInsensitiveEqual("fgd", extension)) {
-                const IO::MappedFile::Ptr file = IO::Disk::openFile(IO::Disk::fixPath(path));
+                const auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
                 IO::FgdParser parser(file->begin(), file->end(), defaultColor, file->path());
                 definitions = parser.parseDefinitions(status);
             } else if (StringUtils::caseInsensitiveEqual("def", extension)) {
-                const IO::MappedFile::Ptr file = IO::Disk::openFile(IO::Disk::fixPath(path));
+                const auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
                 IO::DefParser parser(file->begin(), file->end(), defaultColor);
                 definitions = parser.parseDefinitions(status);
             } else {
@@ -324,54 +291,60 @@ namespace TrenchBroom {
         }
 
         Assets::EntityDefinitionFileSpec::List GameImpl::doAllEntityDefinitionFiles() const {
-            const IO::Path::List paths = m_config.entityConfig().defFilePaths;
-            const size_t count = paths.size();
+            const auto paths = m_config.entityConfig().defFilePaths;
+            const auto count = paths.size();
 
             Assets::EntityDefinitionFileSpec::List result(count);
-            for (size_t i = 0; i < count; ++i)
+            for (size_t i = 0; i < count; ++i) {
                 result[i] = Assets::EntityDefinitionFileSpec::builtin(paths[i]);
+            }
 
             return result;
         }
 
         Assets::EntityDefinitionFileSpec GameImpl::doExtractEntityDefinitionFile(const AttributableNode* node) const {
-            const AttributeValue& defValue = node->attribute(AttributeNames::EntityDefinitions);
-            if (defValue.empty())
+            const auto& defValue = node->attribute(AttributeNames::EntityDefinitions);
+            if (defValue.empty()) {
                 return defaultEntityDefinitionFile();
+            }
             return Assets::EntityDefinitionFileSpec::parse(defValue);
         }
 
         Assets::EntityDefinitionFileSpec GameImpl::defaultEntityDefinitionFile() const {
-            const IO::Path::List paths = m_config.entityConfig().defFilePaths;
-            if (paths.empty())
+            const auto paths = m_config.entityConfig().defFilePaths;
+            if (paths.empty()) {
                 throw GameException("No entity definition files found for game '" + gameName() + "'");
+            }
 
-            const IO::Path& path = paths.front();
+            const auto& path = paths.front();
             return Assets::EntityDefinitionFileSpec::builtin(path);
         }
 
         IO::Path GameImpl::doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const {
-            if (!spec.valid())
+            if (!spec.valid()) {
                 throw GameException("Invalid entity definition file spec");
+            }
 
-            const IO::Path& path = spec.path();
+            const auto& path = spec.path();
             if (spec.builtin()) {
                 return m_config.findConfigFile(path);
             } else {
-                if (path.isAbsolute())
+                if (path.isAbsolute()) {
                     return path;
-                return IO::Disk::resolvePath(searchPaths, path);
+                } else {
+                    return IO::Disk::resolvePath(searchPaths, path);
+                }
             }
         }
 
         Assets::EntityModel* GameImpl::doLoadEntityModel(const IO::Path& path) const {
             try {
-                const IO::MappedFile::Ptr file = m_gameFS.openFile(path);
+                const auto file = m_fs.openFile(path);
                 ensure(file.get() != nullptr, "file is null");
 
-                const String modelName = path.lastComponent().asString();
-                const String extension = StringUtils::toLower(path.extension());
-                const StringSet supported = m_config.entityConfig().modelFormats;
+                const auto modelName = path.lastComponent().asString();
+                const auto extension = StringUtils::toLower(path.extension());
+                const auto supported = m_config.entityConfig().modelFormats;
 
                 if (extension == "mdl" && supported.count("mdl") > 0) {
                     return loadMdlModel(modelName, file);
@@ -390,37 +363,34 @@ namespace TrenchBroom {
         }
 
         Assets::EntityModel* GameImpl::loadBspModel(const String& name, const IO::MappedFile::Ptr& file) const {
-            const Assets::Palette palette = loadTexturePalette();
+            const auto palette = loadTexturePalette();
 
             IO::Bsp29Parser parser(name, file->begin(), file->end(), palette);
             return parser.parseModel();
         }
 
         Assets::EntityModel* GameImpl::loadMdlModel(const String& name, const IO::MappedFile::Ptr& file) const {
-            const Assets::Palette palette = loadTexturePalette();
+            const auto palette = loadTexturePalette();
 
             IO::MdlParser parser(name, file->begin(), file->end(), palette);
             return parser.parseModel();
         }
 
         Assets::EntityModel* GameImpl::loadMd2Model(const String& name, const IO::MappedFile::Ptr& file) const {
-            const Assets::Palette palette = loadTexturePalette();
+            const auto palette = loadTexturePalette();
 
-            IO::Md2Parser parser(name, file->begin(), file->end(), palette, m_gameFS);
+            IO::Md2Parser parser(name, file->begin(), file->end(), palette, m_fs);
             return parser.parseModel();
         }
 
         Assets::EntityModel* GameImpl::loadDkmModel(const String& name, const IO::MappedFile::Ptr& file) const {
-            IO::DkmParser parser(name, file->begin(), file->end(), m_gameFS);
+            IO::DkmParser parser(name, file->begin(), file->end(), m_fs);
             return parser.parseModel();
         }
 
         Assets::Palette GameImpl::loadTexturePalette() const {
-            // Be aware that this function does not work when the palette path contains variables.
-            // However, since so far the only game that uses such variables is Daikatana, and the
-            // Daikatana models do not refer to the global palette, we can ignore this here.
-            const IO::Path& path = m_config.textureConfig().palette;
-            return Assets::Palette::loadFile(m_gameFS, path);
+            const auto& path = m_config.textureConfig().palette;
+            return Assets::Palette::loadFile(m_fs, path);
         }
 
         const BrushContentType::List& GameImpl::doBrushContentTypes() const {
@@ -429,25 +399,28 @@ namespace TrenchBroom {
 
         StringList GameImpl::doAvailableMods() const {
             StringList result;
-            if (m_gamePath.isEmpty() || !IO::Disk::directoryExists(m_gamePath))
+            if (m_gamePath.isEmpty() || !IO::Disk::directoryExists(m_gamePath)) {
                 return result;
+            }
 
-            const String& defaultMod = m_config.fileSystemConfig().searchPath.lastComponent().asString();
+            const auto& defaultMod = m_config.fileSystemConfig().searchPath.lastComponent().asString();
             const IO::DiskFileSystem fs(m_gamePath);
-            const IO::Path::List subDirs = fs.findItems(IO::Path(""), IO::FileTypeMatcher(false, true));
+            const auto subDirs = fs.findItems(IO::Path(""), IO::FileTypeMatcher(false, true));
             for (size_t i = 0; i < subDirs.size(); ++i) {
                 const String mod = subDirs[i].lastComponent().asString();
-                if (!StringUtils::caseInsensitiveEqual(mod, defaultMod))
+                if (!StringUtils::caseInsensitiveEqual(mod, defaultMod)) {
                     result.push_back(mod);
+                }
             }
             return result;
         }
 
         StringList GameImpl::doExtractEnabledMods(const AttributableNode* node) const {
             StringList result;
-            const AttributeValue& modStr = node->attribute(AttributeNames::Mods);
-            if (modStr.empty())
+            const auto& modStr = node->attribute(AttributeNames::Mods);
+            if (modStr.empty()) {
                 return result;
+            }
 
             return StringUtils::splitAndTrim(modStr, ';');
         }

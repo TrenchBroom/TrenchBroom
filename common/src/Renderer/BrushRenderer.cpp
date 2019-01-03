@@ -258,21 +258,26 @@ namespace TrenchBroom {
         
         void BrushRenderer::renderOpaque(RenderContext& renderContext, RenderBatch& renderBatch) {
             if (!m_allBrushes.empty()) {
-                if (!valid())
+                if (!valid()) {
                     validate();
-                if (renderContext.showFaces())
+                }
+                if (renderContext.showFaces()) {
                     renderOpaqueFaces(renderBatch);
-                if (renderContext.showEdges() || m_showEdges)
+                }
+                if (renderContext.showEdges() || m_showEdges) {
                     renderEdges(renderBatch);
+                }
             }
         }
         
         void BrushRenderer::renderTransparent(RenderContext& renderContext, RenderBatch& renderBatch) {
             if (!m_allBrushes.empty()) {
-                if (!valid())
+                if (!valid()) {
                     validate();
-                if (renderContext.showFaces())
+                }
+                if (renderContext.showFaces()) {
                     renderTransparentFaces(renderBatch);
+                }
             }
         }
 
@@ -292,8 +297,9 @@ namespace TrenchBroom {
         }
         
         void BrushRenderer::renderEdges(RenderBatch& renderBatch) {
-            if (m_showOccludedEdges)
+            if (m_showOccludedEdges) {
                 m_edgeRenderer.renderOnTop(renderBatch, m_occludedEdgeColor);
+            }
             m_edgeRenderer.render(renderBatch, m_edgeColor);
         }
 
@@ -432,7 +438,7 @@ namespace TrenchBroom {
             std::memcpy(dest, cachedVertices.data(), cachedVertices.size() * sizeof(*dest));
             info.vertexHolderKey = vertBlock;
 
-            const GLuint brushVerticesStartIndex = static_cast<GLuint>(vertBlock->pos);
+            const auto brushVerticesStartIndex = static_cast<GLuint>(vertBlock->pos);
 
             // insert edge indices into VBO
             {

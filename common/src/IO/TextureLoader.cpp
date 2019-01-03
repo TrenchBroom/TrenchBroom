@@ -20,12 +20,14 @@
 #include "TextureLoader.h"
 
 #include "Assets/Palette.h"
+#include "Assets/TextureCollection.h"
 #include "Assets/TextureManager.h"
 #include "EL/Interpolator.h"
 #include "IO/FileSystem.h"
 #include "IO/FreeImageTextureReader.h"
 #include "IO/HlMipTextureReader.h"
 #include "IO/IdMipTextureReader.h"
+#include "IO/Quake3ShaderTextureReader.h"
 #include "IO/WalTextureReader.h"
 #include "IO/FreeImageTextureReader.h"
 #include "IO/Path.h"
@@ -36,7 +38,7 @@ namespace TrenchBroom {
         TextureLoader::TextureLoader(const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger) :
         m_textureExtensions(getTextureExtensions(textureConfig)),
         m_textureReader(createTextureReader(gameFS, textureConfig, logger)),
-        m_textureCollectionLoader(createTextureCollectionLoader(gameFS, fileSearchPaths, textureConfig)) {
+        m_textureCollectionLoader(createTextureCollectionLoader(gameFS, fileSearchPaths, textureConfig, logger)) {
             ensure(m_textureReader != nullptr, "textureReader is null");
             ensure(m_textureCollectionLoader != nullptr, "textureCollectionLoader is null");
         }
@@ -45,7 +47,7 @@ namespace TrenchBroom {
             return textureConfig.format.extensions;
         }
 
-        TextureLoader::ReaderPtr TextureLoader::createTextureReader(const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger) {
+        std::unique_ptr<TextureReader> TextureLoader::createTextureReader(const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger) {
             if (textureConfig.format.format == "idmip") {
                 TextureReader::PathSuffixNameStrategy nameStrategy(1, true);
                 return std::make_unique<IdMipTextureReader>(nameStrategy, loadPalette(gameFS, textureConfig, logger));
@@ -58,6 +60,9 @@ namespace TrenchBroom {
             } else if (textureConfig.format.format == "image") {
                 TextureReader::PathSuffixNameStrategy nameStrategy(2, true);
                 return std::make_unique<FreeImageTextureReader>(nameStrategy);
+            } else if (textureConfig.format.format == "q3shader") {
+                TextureReader::PathSuffixNameStrategy nameStrategy(2, true);
+                return std::make_unique<Quake3ShaderTextureReader>(nameStrategy, gameFS);
             } else {
                 throw GameException("Unknown texture format '" + textureConfig.format.format + "'");
             }
@@ -82,20 +87,20 @@ namespace TrenchBroom {
             }
         }
 
-        TextureLoader::LoaderPtr TextureLoader::createTextureCollectionLoader(const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig) {
+        std::unique_ptr<TextureCollectionLoader> TextureLoader::createTextureCollectionLoader(const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger) {
             using Model::GameConfig;
             switch (textureConfig.package.type) {
                 case GameConfig::TexturePackageConfig::PT_File:
-                    return std::make_unique<FileTextureCollectionLoader>(fileSearchPaths);
+                    return std::make_unique<FileTextureCollectionLoader>(logger, fileSearchPaths);
                 case GameConfig::TexturePackageConfig::PT_Directory:
-                    return std::make_unique<DirectoryTextureCollectionLoader>(gameFS);
+                    return std::make_unique<DirectoryTextureCollectionLoader>(logger, gameFS);
                 case GameConfig::TexturePackageConfig::PT_Unset:
                     throw GameException("Texture package format is not set");
                 switchDefault()
             }
         }
 
-        Assets::TextureCollection* TextureLoader::loadTextureCollection(const Path& path) {
+        std::unique_ptr<Assets::TextureCollection> TextureLoader::loadTextureCollection(const Path& path) {
             return m_textureCollectionLoader->loadTextureCollection(path, m_textureExtensions, *m_textureReader);
         }
 

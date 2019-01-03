@@ -24,56 +24,52 @@
 #include "IO/IOUtils.h"
 
 #include <cassert>
+#include <memory>
 
 namespace TrenchBroom {
     namespace IO {
-        ImageFileSystem::File::~File() = default;
-        
-        MappedFile::Ptr ImageFileSystem::File::open() {
+        ImageFileSystemBase::File::~File() = default;
+
+        MappedFile::Ptr ImageFileSystemBase::File::open() const {
             return doOpen();
         }
-        
-        ImageFileSystem::SimpleFile::SimpleFile(MappedFile::Ptr file) :
+
+        ImageFileSystemBase::SimpleFile::SimpleFile(MappedFile::Ptr file) :
         m_file(file) {}
         
-        MappedFile::Ptr ImageFileSystem::SimpleFile::doOpen() {
+        MappedFile::Ptr ImageFileSystemBase::SimpleFile::doOpen() const {
             return m_file;
         }
 
-        ImageFileSystem::CompressedFile::CompressedFile(MappedFile::Ptr file, const size_t uncompressedSize) :
+        ImageFileSystemBase::CompressedFile::CompressedFile(MappedFile::Ptr file, const size_t uncompressedSize) :
         m_file(file),
         m_uncompressedSize(uncompressedSize) {}
 
-        MappedFile::Ptr ImageFileSystem::CompressedFile::doOpen() {
+        MappedFile::Ptr ImageFileSystemBase::CompressedFile::doOpen() const {
             auto data = decompress(m_file, m_uncompressedSize);
             return MappedFile::Ptr(new MappedFileBuffer(m_file->path(), std::move(data), m_uncompressedSize));
         }
 
-        ImageFileSystem::Directory::Directory(const Path& path) :
+        ImageFileSystemBase::Directory::Directory(const Path& path) :
         m_path(path) {}
         
-        ImageFileSystem::Directory::~Directory() {
-            MapUtils::clearAndDelete(m_directories);
-            MapUtils::clearAndDelete(m_files);
-        }
-        
-        void ImageFileSystem::Directory::addFile(const Path& path, MappedFile::Ptr file) {
-            addFile(path, new SimpleFile(file));
+        void ImageFileSystemBase::Directory::addFile(const Path& path, MappedFile::Ptr file) {
+            addFile(path, std::make_unique<SimpleFile>(file));
         }
 
-        void ImageFileSystem::Directory::addFile(const Path& path, File* file) {
+        void ImageFileSystemBase::Directory::addFile(const Path& path, std::unique_ptr<File> file) {
             ensure(file != nullptr, "file is null");
             const auto filename = path.lastComponent();
             if (path.length() == 1) {
                 // silently overwrite duplicates, the latest entries win
-                MapUtils::insertOrReplaceAndDelete(m_files, filename, file);
+                MapUtils::insertOrReplace(m_files, filename, std::move(file));
             } else {
                 auto& dir = findOrCreateDirectory(path.deleteLastComponent());
-                dir.addFile(filename, file);
+                dir.addFile(filename, std::move(file));
             }
         }
         
-        bool ImageFileSystem::Directory::directoryExists(const Path& path) const {
+        bool ImageFileSystemBase::Directory::directoryExists(const Path& path) const {
             if (path.isEmpty()) {
                 return true;
             }
@@ -86,7 +82,7 @@ namespace TrenchBroom {
             }
         }
         
-        bool ImageFileSystem::Directory::fileExists(const Path& path) const {
+        bool ImageFileSystemBase::Directory::fileExists(const Path& path) const {
             if (path.length() == 1) {
                 return m_files.count(path) > 0;
             }
@@ -99,7 +95,7 @@ namespace TrenchBroom {
             }
         }
         
-        const ImageFileSystem::Directory& ImageFileSystem::Directory::findDirectory(const Path& path) const {
+        const ImageFileSystemBase::Directory& ImageFileSystemBase::Directory::findDirectory(const Path& path) const {
             if (path.isEmpty()) {
                 return *this;
             }
@@ -112,7 +108,7 @@ namespace TrenchBroom {
             }
         }
         
-        const MappedFile::Ptr ImageFileSystem::Directory::findFile(const Path& path) const {
+        const ImageFileSystemBase::File& ImageFileSystemBase::Directory::findFile(const Path& path) const {
             assert(!path.isEmpty());
             
             const auto name = path.firstComponent();
@@ -121,7 +117,7 @@ namespace TrenchBroom {
                 if (it == std::end(m_files)) {
                     throw FileSystemException("File not found: '" + (m_path + path).asString() + "'");
                 } else {
-                    return it->second->open();
+                    return *it->second;
                 }
             } else {
                 auto it = m_directories.find(name);
@@ -132,8 +128,8 @@ namespace TrenchBroom {
                 }
             }
         }
-        
-        Path::List ImageFileSystem::Directory::contents() const {
+
+        Path::List ImageFileSystemBase::Directory::contents() const {
             Path::List contents;
             
             for (const auto& entry : m_directories) {
@@ -147,7 +143,7 @@ namespace TrenchBroom {
             return contents;
         }
         
-        ImageFileSystem::Directory& ImageFileSystem::Directory::findOrCreateDirectory(const Path& path) {
+        ImageFileSystemBase::Directory& ImageFileSystemBase::Directory::findOrCreateDirectory(const Path& path) {
             if (path.isEmpty()) {
                 return *this;
             }
@@ -159,42 +155,49 @@ namespace TrenchBroom {
             }
             return it->second->findOrCreateDirectory(path.deleteFirstComponent());
         }
-        
-        ImageFileSystem::ImageFileSystem(const Path& path, MappedFile::Ptr file) :
-        m_path(path),
-        m_file(file),
-        m_root(Path("")) {}
-        
-        
-        ImageFileSystem::~ImageFileSystem() = default;
 
-        void ImageFileSystem::initialize() {
+        ImageFileSystemBase::ImageFileSystemBase(std::unique_ptr<FileSystem> next, const Path& path) :
+        FileSystem(std::move(next)),
+        m_path(path),
+        m_root(Path()) {}
+
+
+        ImageFileSystemBase::~ImageFileSystemBase() = default;
+
+        void ImageFileSystemBase::initialize() {
             doReadDirectory();
         }
-        
-        Path ImageFileSystem::doMakeAbsolute(const Path& relPath) const {
-            return m_path + relPath.makeCanonical();
+
+        void ImageFileSystemBase::reload() {
+            m_root = Directory(Path());
+            initialize();
         }
-        
-        bool ImageFileSystem::doDirectoryExists(const Path& path) const {
-            const auto searchPath = path.makeLowerCase();
+
+        bool ImageFileSystemBase::doDirectoryExists(const Path& path) const {
+            const auto searchPath = path.makeLowerCase().makeCanonical();
             return m_root.directoryExists(searchPath);
         }
         
-        bool ImageFileSystem::doFileExists(const Path& path) const {
-            const auto searchPath = path.makeLowerCase();
+        bool ImageFileSystemBase::doFileExists(const Path& path) const {
+            const auto searchPath = path.makeLowerCase().makeCanonical();
             return m_root.fileExists(searchPath);
         }
         
-        Path::List ImageFileSystem::doGetDirectoryContents(const Path& path) const {
-            const auto searchPath = path.makeLowerCase();
+        Path::List ImageFileSystemBase::doGetDirectoryContents(const Path& path) const {
+            const auto searchPath = path.makeLowerCase().makeCanonical();
             const auto& directory = m_root.findDirectory(path);
             return directory.contents();
         }
         
-        const MappedFile::Ptr ImageFileSystem::doOpenFile(const Path& path) const {
-            const auto searchPath = path.makeLowerCase();
-            return m_root.findFile(path);
+        const MappedFile::Ptr ImageFileSystemBase::doOpenFile(const Path& path) const {
+            const auto searchPath = path.makeLowerCase().makeCanonical();
+            return m_root.findFile(path).open();
         }
+
+        ImageFileSystem::ImageFileSystem(std::unique_ptr<FileSystem> next, const Path& path, MappedFile::Ptr file) :
+        ImageFileSystemBase(std::move(next), path),
+        m_file(file) {}
+
+        ImageFileSystem::~ImageFileSystem() = default;
     }
 }

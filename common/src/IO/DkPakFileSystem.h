@@ -39,6 +39,7 @@ namespace TrenchBroom {
             };
         public:
             DkPakFileSystem(const Path& path, MappedFile::Ptr file);
+            DkPakFileSystem(std::unique_ptr<FileSystem> next, const Path& path, MappedFile::Ptr file);
         private:
             void doReadDirectory() override;
             

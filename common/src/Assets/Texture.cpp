@@ -118,7 +118,15 @@ namespace TrenchBroom {
             }
             m_textureId = 0;
         }
-        
+
+        TextureType Texture::selectTextureType(const bool masked) {
+            if (masked) {
+                return TextureType::Masked;
+            } else {
+                return TextureType::Opaque;
+            }
+        }
+
         const String& Texture::name() const {
             return m_name;
         }
@@ -134,7 +142,15 @@ namespace TrenchBroom {
         const Color& Texture::averageColor() const {
             return m_averageColor;
         }
-        
+
+        const StringSet& Texture::surfaceParms() const {
+            return m_surfaceParms;
+        }
+
+        void Texture::setSurfaceParms(const StringSet& surfaceParms) {
+            m_surfaceParms = surfaceParms;
+        }
+
         size_t Texture::usageCount() const {
             return m_usageCount;
         }

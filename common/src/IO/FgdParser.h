@@ -26,7 +26,7 @@
 #include "Assets/AssetTypes.h"
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/EntityDefinitionParser.h"
-#include "IO/FileSystemHierarchy.h"
+#include "IO/FileSystem.h"
 #include "IO/Parser.h"
 #include "IO/Token.h"
 #include "IO/Tokenizer.h"
@@ -79,7 +79,7 @@ namespace TrenchBroom {
             Color m_defaultEntityColor;
 
             std::list<Path> m_paths;
-            FileSystemHierarchy m_fileSystem;
+            std::unique_ptr<FileSystem> m_fs;
 
             FgdTokenizer m_tokenizer;
             EntityDefinitionClassInfoMap m_baseClasses;
