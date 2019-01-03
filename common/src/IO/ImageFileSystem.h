@@ -93,6 +93,11 @@ namespace TrenchBroom {
             virtual ~ImageFileSystemBase() override;
         protected:
             void initialize();
+        public:
+            /**
+             * Reload this file system.
+             */
+            void reload();
         private:
             bool doDirectoryExists(const Path& path) const override;
             bool doFileExists(const Path& path) const override;

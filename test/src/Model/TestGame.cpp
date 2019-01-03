@@ -127,6 +127,8 @@ namespace TrenchBroom {
             const String value = StringUtils::join(IO::Path::asStrings(paths, '/'), ';');
             node->addOrUpdateAttribute("wad", value);
         }
+
+        void TestGame::doReloadShaders() {}
         
         bool TestGame::doIsEntityDefinitionFile(const IO::Path& path) const {
             return false;

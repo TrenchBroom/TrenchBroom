@@ -254,6 +254,10 @@ namespace TrenchBroom {
             node->addOrUpdateAttribute(attribute, value);
         }
 
+        void GameImpl::doReloadShaders() {
+            m_fs.reloadShaders();
+        }
+
         bool GameImpl::doIsEntityDefinitionFile(const IO::Path& path) const {
             const auto extension = path.extension();
             if (StringUtils::caseInsensitiveEqual("fgd", extension)) {

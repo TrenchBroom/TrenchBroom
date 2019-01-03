@@ -30,14 +30,19 @@ namespace TrenchBroom {
     namespace IO {
         class FileSystem;
         class Path;
+        class Quake3ShaderFileSystem;
     }
 
     namespace Model {
         class GameConfig;
 
         class GameFileSystem : public IO::FileSystem {
+        private:
+            IO::Quake3ShaderFileSystem* m_shaderFS;
         public:
+            GameFileSystem();
             void initialize(const GameConfig& config, const IO::Path& gamePath, const std::vector<IO::Path>& additionalSearchPaths, Logger* logger);
+            void reloadShaders();
         private:
             void addDefaultAssetPath(const GameConfig& config, Logger* logger);
             void addGameFileSystems(const GameConfig& config, const IO::Path& gamePath, const std::vector<IO::Path>& additionalSearchPaths, Logger* logger);

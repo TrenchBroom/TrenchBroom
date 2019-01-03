@@ -1549,8 +1549,7 @@ namespace TrenchBroom {
             Notifier0::NotifyBeforeAndAfter notifyTextureCollections(textureCollectionsWillChangeNotifier, textureCollectionsDidChangeNotifier);
 
             info("Reloading texture collections");
-            unloadTextures();
-            loadTextures();
+            reloadTextures();
             setTextures();
         }
 
@@ -1601,6 +1600,12 @@ namespace TrenchBroom {
         void MapDocument::unloadEntityModels() {
             clearEntityModels();
             m_entityModelManager->setLoader(nullptr);
+        }
+
+        void MapDocument::reloadTextures() {
+            unloadTextures();
+            m_game->reloadShaders();
+            loadTextures();
         }
         
         void MapDocument::loadTextures() {

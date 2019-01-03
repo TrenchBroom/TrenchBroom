@@ -159,13 +159,18 @@ namespace TrenchBroom {
         ImageFileSystemBase::ImageFileSystemBase(std::unique_ptr<FileSystem> next, const Path& path) :
         FileSystem(std::move(next)),
         m_path(path),
-        m_root(Path("")) {}
+        m_root(Path()) {}
 
 
         ImageFileSystemBase::~ImageFileSystemBase() = default;
 
         void ImageFileSystemBase::initialize() {
             doReadDirectory();
+        }
+
+        void ImageFileSystemBase::reload() {
+            m_root = Directory(Path());
+            initialize();
         }
 
         bool ImageFileSystemBase::doDirectoryExists(const Path& path) const {

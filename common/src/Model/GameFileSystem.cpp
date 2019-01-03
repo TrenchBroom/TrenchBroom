@@ -32,15 +32,26 @@
 
 namespace TrenchBroom {
     namespace Model {
+        GameFileSystem::GameFileSystem() :
+        FileSystem(),
+        m_shaderFS(nullptr) {}
+
         void GameFileSystem::initialize(const GameConfig& config, const IO::Path& gamePath, const std::vector<IO::Path>& additionalSearchPaths, Logger* logger) {
             // delete the existing file system
             releaseNext();
+            m_shaderFS = nullptr;
 
             addDefaultAssetPath(config, logger);
 
             if (!gamePath.isEmpty() && IO::Disk::directoryExists(gamePath)) {
                 addGameFileSystems(config, gamePath, additionalSearchPaths, logger);
                 addShaderFileSystem(config, logger);
+            }
+        }
+
+        void GameFileSystem::reloadShaders() {
+            if (m_shaderFS != nullptr) {
+                m_shaderFS->reload();
             }
         }
 
@@ -113,7 +124,9 @@ namespace TrenchBroom {
             if (StringUtils::caseInsensitiveEqual(textureFormat, "q3shader")) {
                 logger->info() << "Adding shader file system";
                 const auto texturePrefix = textureConfig.package.rootDirectory;
-                m_next = std::make_unique<IO::Quake3ShaderFileSystem>(std::move(m_next), texturePrefix, logger);
+                auto shaderFS = std::make_unique<IO::Quake3ShaderFileSystem>(std::move(m_next), texturePrefix, logger);
+                m_shaderFS = shaderFS.get();
+                m_next = std::move(shaderFS);
             }
         }
 
