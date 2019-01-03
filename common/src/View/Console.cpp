@@ -22,6 +22,8 @@
 #include "FileLogger.h"
 #include "View/ViewConstants.h"
 
+#include <QDebug>
+
 #include <wx/log.h>
 #include <wx/panel.h>
 #include <wx/sizer.h>
@@ -43,28 +45,28 @@ namespace TrenchBroom {
         }
 
         void Console::doLog(const LogLevel level, const String& message) {
-            doLog(level, wxString(message));
+            doLog(level, QString::fromStdString(message));
         }
 
-        void Console::doLog(const LogLevel level, const wxString& message) {
-            if (!message.empty()) {
+        void Console::doLog(const LogLevel level, const QString& message) {
+            if (!message.isEmpty()) {
                 logToDebugOut(level, message);
                 logToConsole(level, message);
                 FileLogger::instance().log(level, message);
             }
         }
 
-        void Console::logToDebugOut(const LogLevel level, const wxString& message) {
-            wxLogDebug(message);
+        void Console::logToDebugOut(const LogLevel level, const QString& message) {
+            qDebug("%s", message.toStdString().c_str());
         }
 
-        void Console::logToConsole(const LogLevel level, const wxString& message) {
+        void Console::logToConsole(const LogLevel level, const QString& message) {
             if (m_textView->IsBeingDeleted()) return;
                 
             wxWindowUpdateLocker locker(m_textView);
 
             const long start = m_textView->GetLastPosition();
-            m_textView->AppendText(message);
+            m_textView->AppendText(wxString(message.toStdString()));
             m_textView->AppendText("\n");
 #ifndef __APPLE__
 			m_textView->ScrollLines(5);

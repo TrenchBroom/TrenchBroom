@@ -27,6 +27,7 @@
 
 class wxString;
 class wxTextCtrl;
+class QString;
 
 namespace TrenchBroom {
     namespace View {
@@ -37,9 +38,9 @@ namespace TrenchBroom {
             Console(wxWindow* parent);
         private:
             void doLog(LogLevel level, const String& message) override;
-            void doLog(LogLevel level, const wxString& message) override;
-            void logToDebugOut(LogLevel level, const wxString& message);
-            void logToConsole(LogLevel level, const wxString& message);
+            void doLog(LogLevel level, const QString& message) override;
+            void logToDebugOut(LogLevel level, const QString& message);
+            void logToConsole(LogLevel level, const QString& message);
         };
     }
 }

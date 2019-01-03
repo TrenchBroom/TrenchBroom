@@ -118,10 +118,11 @@ namespace TrenchBroom {
             Path::List getDirectoryContents(const Path& path) {
                 const Path fixedPath = fixPath(path);
                 QDir dir(fixedPath.asQString());
+                dir.setFilter(QDir::NoDotAndDotDot | QDir::AllEntries);
 
                 Path::List result;
-                for (QFileInfo& fileInfo : dir.entryInfoList()) {
-                    result.push_back(Path(fileInfo.path().toStdString()));
+                for (QString& entry : dir.entryList()) {
+                    result.push_back(Path(entry.toStdString()));
                 }
                 return result;
             }
