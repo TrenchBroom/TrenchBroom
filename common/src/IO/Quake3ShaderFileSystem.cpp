@@ -78,13 +78,11 @@ namespace TrenchBroom {
 
                     if (shaderIt != std::end(shaders)) {
                         // Found a matching shader.
-                        auto shader = *shaderIt;
+                        auto& shader = *shaderIt;
 
                         // If the shader doesn't have a QER image path, use the texture path itself.
                         if (!shader.hasQerImagePath()) {
                             shader.setQerImagePath(texture);
-                        } else {
-                            shader = fixImagePath(std::move(shader));
                         }
 
                         if (shader.hasQerImagePath()) {
@@ -115,11 +113,9 @@ namespace TrenchBroom {
 
         void Quake3ShaderFileSystem::linkStandaloneShaders(std::vector<Assets::Quake3Shader>& shaders) {
             m_logger->debug() << "Linking standalone shaders...";
-            for (auto shader : shaders) {
+            for (const auto& shader : shaders) {
                 const auto& shaderPath = shader.texturePath();
                 if (shaderPath.hasPrefix(m_texturePrefix, false)) {
-                    shader = fixImagePath(std::move(shader));
-
                     if (shader.hasQerImagePath()) {
                         m_logger->debug() << "Linking shader " << shaderPath << " -> " << shader.qerImagePath();
                     } else {
@@ -130,23 +126,6 @@ namespace TrenchBroom {
                     m_root.addFile(shaderPath, std::make_unique<SimpleFile>(std::move(shaderFile)));
                 }
             }
-        }
-
-        Assets::Quake3Shader Quake3ShaderFileSystem::fixImagePath(Assets::Quake3Shader shader) const {
-            if (shader.hasQerImagePath()) {
-                const auto& fs = next();
-                if (!fs.fileExists(shader.qerImagePath())) {
-                    const auto candidates = fs.findItemsWithBaseName(shader.qerImagePath(), StringList { "tga", "png", "jpg", "jpeg"});
-                    if (!candidates.empty()) {
-                        m_logger->warn() << "Shader image " << shader.qerImagePath() << " not found, using " << candidates.front();
-                        shader.setQerImagePath(candidates.front());
-                    } else {
-                        m_logger->error() << "Shader image " << shader.qerImagePath() << " not found, using default texture";
-                        shader.clearQerImagePath();
-                    }
-                }
-            }
-            return shader;
         }
     }
 }

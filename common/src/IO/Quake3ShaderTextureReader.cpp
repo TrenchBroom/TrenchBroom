@@ -33,7 +33,7 @@ namespace TrenchBroom {
 
         Assets::Texture* Quake3ShaderTextureReader::doReadTexture(MappedFile::Ptr file) const {
             const auto* shaderFile = static_cast<ObjectFile<Assets::Quake3Shader>*>(file.get());
-            const auto& shader = shaderFile->object();
+            const auto shader = fixImagePath(shaderFile->object());
             const auto& imagePath = shader.qerImagePath(Path("textures/__TB_empty.tga"));
 
             auto* texture = loadTextureImage(shader.texturePath(), imagePath);
@@ -48,6 +48,21 @@ namespace TrenchBroom {
             } else {
                 return new Assets::Texture(textureName(shaderPath), 64, 64);
             }
+        }
+
+
+        Assets::Quake3Shader Quake3ShaderTextureReader::fixImagePath(Assets::Quake3Shader shader) const {
+            if (shader.hasQerImagePath()) {
+                if (!m_fs.fileExists(shader.qerImagePath())) {
+                    const auto candidates = m_fs.findItemsWithBaseName(shader.qerImagePath(), StringList { "tga", "png", "jpg", "jpeg"});
+                    if (!candidates.empty()) {
+                        shader.setQerImagePath(candidates.front());
+                    } else {
+                        shader.clearQerImagePath();
+                    }
+                }
+            }
+            return shader;
         }
     }
 }
