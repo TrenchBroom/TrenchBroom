@@ -99,5 +99,12 @@ namespace TrenchBroom {
         void WritableDiskFileSystem::doMoveFile(const Path& sourcePath, const Path& destPath, const bool overwrite) {
             Disk::moveFile(doMakeAbsolute(sourcePath), doMakeAbsolute(destPath), overwrite);
         }
+
+        void WritableDiskFileSystemWithTemporaries::doCreateFile(const Path& path, const String& contents) {
+            const Path orig = makeAbsolute(path);
+            const Path temp = orig.addExtension("tmp");
+            Disk::createFile(temp, contents);
+            Disk::moveFile(temp, orig, true);
+        }
     }
 }

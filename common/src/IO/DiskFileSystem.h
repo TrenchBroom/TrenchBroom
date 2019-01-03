@@ -48,7 +48,7 @@ namespace TrenchBroom {
         };
         
 #ifdef _MSC_VER
-// MSVC complains about the fact that this class inherits some (pure virtual) method declarations several times from different base classes, even though there is only one definition.
+// MSVC complains about the fact that these classse inherits some (pure virtual) method declarations several times from different base classes, even though there is only one definition.
 #pragma warning(push)
 #pragma warning(disable : 4250)
 #endif
@@ -62,6 +62,13 @@ namespace TrenchBroom {
             void doDeleteFile(const Path& path) override;
             void doCopyFile(const Path& sourcePath, const Path& destPath, bool overwrite) override;
             void doMoveFile(const Path& sourcePath, const Path& destPath, bool overwrite) override;
+        };
+
+        class WritableDiskFileSystemWithTemporaries : public WritableDiskFileSystem {
+        public:
+           using WritableDiskFileSystem::WritableDiskFileSystem;
+        private:
+            void doCreateFile(const Path& path, const String& contents) override;
         };
 #ifdef _MSC_VER
 #pragma warning(pop)
