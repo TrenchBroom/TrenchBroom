@@ -19,6 +19,8 @@
 
 #include "MapFormat.h"
 
+#include "Macros.h"
+
 namespace TrenchBroom {
     namespace Model {
         MapFormat mapFormat(const String& formatName) {
@@ -57,8 +59,9 @@ namespace TrenchBroom {
                     return "Quake3 (legacy)";
                 case MapFormat::Quake3:
                     return "Quake3";
-                default:
+                case MapFormat::Unknown:
                     return "Unknown";
+                switchDefault()
             }
         }
     }
