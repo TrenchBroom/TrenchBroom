@@ -48,7 +48,7 @@ namespace vm {
      * @return bool if the given float is NaN and false otherwise
      */
     template <typename T>
-    bool isnan(const T f) {
+    constexpr bool isnan(const T f) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
 #ifdef _MSC_VER
         return _isnan(f) != 0;
@@ -65,7 +65,7 @@ namespace vm {
      * @return true if the given float is positive or negative infinity
      */
     template <typename T>
-    bool isInf(const T f) {
+    constexpr bool isInf(const T f) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
         return (f ==  std::numeric_limits<T>::infinity() ||
                 f == -std::numeric_limits<T>::infinity());
@@ -78,7 +78,7 @@ namespace vm {
      * @return a value that represents NaN
      */
     template <typename T>
-    T nan() {
+    constexpr T nan() {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
         return std::numeric_limits<T>::quiet_NaN();
     }
@@ -92,7 +92,7 @@ namespace vm {
      * @return the minimum of the given values
      */
     template <typename T>
-    T min(const T lhs, const T rhs) {
+    constexpr T min(const T lhs, const T rhs) {
         if (lhs < rhs) {
             return lhs;
         } else {
@@ -109,7 +109,7 @@ namespace vm {
      * @return the maximum of the given values
      */
     template <typename T>
-    T max(const T lhs, const T rhs) {
+    constexpr T max(const T lhs, const T rhs) {
         if (lhs > rhs) {
             return lhs;
         } else {
@@ -127,7 +127,7 @@ namespace vm {
      * @return the minimum of the absolute given values
      */
     template <typename T>
-    T absMin(const T lhs, const T rhs) {
+    constexpr T absMin(const T lhs, const T rhs) {
         if (abs(lhs) < abs(rhs)) {
             return lhs;
         } else {
@@ -145,7 +145,7 @@ namespace vm {
      * @return the maximum of the absolute given values
      */
     template <typename T>
-    T absMax(const T lhs, const T rhs) {
+    constexpr T absMax(const T lhs, const T rhs) {
         if (abs(lhs) > abs(rhs)) {
             return lhs;
         } else {
@@ -162,7 +162,7 @@ namespace vm {
      * @return the absolute difference of the given values
      */
     template <typename T>
-    T absDifference(const T lhs, const T rhs) {
+    constexpr T absDifference(const T lhs, const T rhs) {
         return abs(abs(lhs) - abs(rhs));
     }
 
@@ -176,7 +176,7 @@ namespace vm {
      * @return the clamped value
      */
     template <typename T>
-    T clamp(const T v, const T minV = static_cast<T>(0.0), const T maxV = static_cast<T>(1.0)) {
+    constexpr T clamp(const T v, const T minV = static_cast<T>(0.0), const T maxV = static_cast<T>(1.0)) {
         return max(min(v, maxV), minV);
     }
 
@@ -188,7 +188,7 @@ namespace vm {
      * @return the absolute of the given value
      */
     template <typename T>
-    T abs(const T v) {
+    constexpr T abs(const T v) {
         return std::abs(v);
     }
 
@@ -200,7 +200,7 @@ namespace vm {
      * @return -1 if the given value is less then 0, +1 if the value is greater than 0, and 0 if the given value is 0
      */
     template <typename T>
-    T sign(const T v) {
+    constexpr T sign(const T v) {
         if (v < T(0)) {
             return T(-1);
         } else if (v > T(0)) {
@@ -219,7 +219,7 @@ namespace vm {
      * @return 0 or 1 depending on whether the given value is less than the given edge value or not
      */
     template <typename T>
-    T step(const T e, const T v) {
+    constexpr T step(const T e, const T v) {
         return v < e ? T(0) : T(1);
     }
 
@@ -233,7 +233,7 @@ namespace vm {
      * @return the interpolated value
      */
     template <typename T>
-    T smoothstep(const T e0, const T e1, const T v) {
+    constexpr T smoothstep(const T e0, const T e1, const T v) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
         const auto t = clamp((v - e0) / (e1 - e0), T(0), T(1));
         return t * t * (T(3) - T(2) * t);
@@ -248,7 +248,7 @@ namespace vm {
      * @return the remainder of x/y
      */
     template <typename T>
-    T mod(const T x, const T y) {
+    constexpr T mod(const T x, const T y) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
         return std::fmod(x, y);
     }
@@ -261,7 +261,7 @@ namespace vm {
      * @return the largest integer value not greater than the given value
      */
     template <typename T>
-    T floor(const T v) {
+    constexpr T floor(const T v) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
         return std::floor(v);
     }
@@ -274,7 +274,7 @@ namespace vm {
      * @return the smallest integer value not less than the given value
      */
     template <typename T>
-    T ceil(const T v) {
+    constexpr T ceil(const T v) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
         return std::ceil(v);
     }
@@ -288,7 +288,7 @@ namespace vm {
      * @return the truncated value
      */
     template <typename T>
-    T trunc(const T v) {
+    constexpr T trunc(const T v) {
         return std::trunc(v);
     }
 
@@ -301,7 +301,7 @@ namespace vm {
      * @return the interpolated values (1-a)*x + a*y
      */
     template <typename T>
-    T mix(const T x, const T y, const T a) {
+    constexpr T mix(const T x, const T y, const T a) {
         return (T(1.0)-a) * x + a * y;
     }
 
@@ -313,7 +313,7 @@ namespace vm {
      * @return the fractional part
      */
     template <typename T>
-    T fract(const T v) {
+    constexpr T fract(const T v) {
         if (v > T(0)) {
             return v - floor(v);
         } else {
@@ -329,7 +329,7 @@ namespace vm {
      * @return the nearest integer value to the given value
      */
     template <typename T>
-    T round(const T v) {
+    constexpr T round(const T v) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
         return v > 0.0 ? floor(v + static_cast<T>(0.5)) : ceil(v - static_cast<T>(0.5));
     }
@@ -344,7 +344,7 @@ namespace vm {
      * @return the rounded value
      */
     template <typename T>
-    T roundUp(const T v) {
+    constexpr T roundUp(const T v) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
         return v < 0.0 ? floor(v) : ceil(v);
     }
@@ -359,7 +359,7 @@ namespace vm {
      * @return the rounded value
      */
     template <typename T>
-    T roundDown(const T v) {
+    constexpr T roundDown(const T v) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
         // this is equivalent to calling trunc
         // we keep this function for consistency because there is no equivalent function to roundUp
@@ -375,7 +375,7 @@ namespace vm {
      * @return the rounded value
      */
     template <typename T>
-    T snap(const T v, const T grid) {
+    constexpr T snap(const T v, const T grid) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
         assert(grid != 0.0);
         return grid * round(v / grid);
@@ -390,7 +390,7 @@ namespace vm {
      * @return the rounded value
      */
     template <typename T>
-    T snapUp(const T v, const T grid) {
+    constexpr T snapUp(const T v, const T grid) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
         assert(grid > 0.0);
         return grid * roundUp(v / grid);
@@ -405,7 +405,7 @@ namespace vm {
      * @return the rounded value
      */
     template <typename T>
-    T snapDown(const T v, const T grid) {
+    constexpr T snapDown(const T v, const T grid) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
         assert(grid > 0.0);
         return grid * roundDown(v / grid);
@@ -422,7 +422,7 @@ namespace vm {
      * @return the corrected value
      */
     template <typename T>
-    T correct(const T v, const size_t decimals = 0, const T epsilon = constants<T>::correctEpsilon()) {
+    constexpr T correct(const T v, const size_t decimals = 0, const T epsilon = constants<T>::correctEpsilon()) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
         const T m = static_cast<T>(1 << decimals);
         const T r = round(v * m);
@@ -443,7 +443,7 @@ namespace vm {
      * @return true if the distance of the given values is less than the given epsilon and false otherwise
      */
     template <typename T>
-    bool isEqual(const T lhs, const T rhs, const T epsilon) {
+    constexpr bool isEqual(const T lhs, const T rhs, const T epsilon) {
         return abs(lhs - rhs) <= epsilon;
     }
 
@@ -456,7 +456,7 @@ namespace vm {
      * @return true if the distance of the given argument to 0 is less than the given epsilon
      */
     template <typename T>
-    bool isZero(const T v, const T epsilon) {
+    constexpr bool isZero(const T v, const T epsilon) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
         return abs(v) <= epsilon;
     }
@@ -472,7 +472,7 @@ namespace vm {
      * @return true if the given value is in the given interval and false otherwise
      */
     template <typename T>
-    bool contains(const T v, const T s, const T e) {
+    constexpr bool contains(const T v, const T s, const T e) {
         if (s < e) {
             return v >= s && v <= e;
         } else {
@@ -488,7 +488,7 @@ namespace vm {
      * @return the converted angle in radians
      */
     template <typename T>
-    T toRadians(const T d) {
+    constexpr T toRadians(const T d) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
         return d * constants<T>::piOverStraightAngle();
     }
@@ -501,7 +501,7 @@ namespace vm {
      * @return the converted angle in degrees
      */
     template <typename T>
-    T toDegrees(const T r) {
+    constexpr T toDegrees(const T r) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
         return r * constants<T>::straightAngleOverPi();
     }
@@ -514,10 +514,10 @@ namespace vm {
      * @return the normalized angle
      */
     template <typename T>
-    T normalizeRadians(T angle) {
+    constexpr T normalizeRadians(T angle) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
-        static const T z = static_cast<T>(0.0);
-        static const T o = constants<T>::twoPi();
+        constexpr T z = static_cast<T>(0.0);
+        constexpr T o = constants<T>::twoPi();
         while (angle < z) {
             angle += o;
         }
@@ -532,10 +532,10 @@ namespace vm {
      * @return the normalized angle
      */
     template <typename T>
-    T normalizeDegrees(T angle) {
+    constexpr T normalizeDegrees(T angle) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
-        static const T z = static_cast<T>(0.0);
-        static const T o = static_cast<T>(360.0);
+        constexpr T z = static_cast<T>(0.0);
+        constexpr T o = static_cast<T>(360.0);
         while (angle < z) {
             angle += o;
         }
@@ -553,7 +553,7 @@ namespace vm {
      * @return the succeeding value
      */
     template <typename T, typename U>
-    T succ(const T index, const U count, const T stride = static_cast<T>(1)) {
+    constexpr T succ(const T index, const U count, const T stride = static_cast<T>(1)) {
         static_assert(std::is_integral<T>::value, "T must be an integer type");
         static_assert(std::is_integral<U>::value, "U must be an integer type");
         return (index + stride) % static_cast<T>(count);
@@ -570,7 +570,7 @@ namespace vm {
      * @return the preceeding value
      */
     template <typename T, typename U>
-    T pred(const T index, const U count, const T stride = static_cast<T>(1)) {
+    constexpr T pred(const T index, const U count, const T stride = static_cast<T>(1)) {
         static_assert(std::is_integral<T>::value, "T must be an integer type");
         static_assert(std::is_integral<U>::value, "U must be an integer type");
         const auto c = static_cast<T>(count);
@@ -585,7 +585,7 @@ namespace vm {
      * @return the smallest floating point value greater than the given value
      */
     template <typename T>
-    T nextgreater(const T value) {
+    constexpr T nextgreater(const T value) {
         static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
         // TODO: does MSC not implement cmath correctly?
 #ifdef _MSC_VER
