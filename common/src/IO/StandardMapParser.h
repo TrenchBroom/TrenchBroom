@@ -47,8 +47,6 @@ namespace TrenchBroom {
             static const Type Eol           = 1 << 11; // end of line
         }
         
-        class ParserStatus;
-
         class QuakeMapTokenizer : public Tokenizer<QuakeMapToken::Type> {
         private:
             static const String& NumberDelim();
@@ -61,6 +59,8 @@ namespace TrenchBroom {
         private:
             Token emitToken() override;
         };
+
+        class ParserStatus;
 
         class StandardMapParser : public MapParser, public Parser<QuakeMapToken::Type> {
         private:

@@ -63,6 +63,17 @@ namespace TrenchBroom {
             return result.asString('/');
         }
 
+        TextureReader::StaticNameStrategy::StaticNameStrategy(const String& name) :
+        m_name(name) {}
+
+        TextureReader::NameStrategy* TextureReader::StaticNameStrategy::doClone() const {
+            return new StaticNameStrategy(m_name);
+        }
+
+        String TextureReader::StaticNameStrategy::doGetTextureName(const String& textureName, const Path& path) const {
+            return m_name;
+        }
+
         TextureReader::TextureReader(const NameStrategy& nameStrategy) :
         m_nameStrategy(nameStrategy.clone()) {}
 
@@ -71,11 +82,7 @@ namespace TrenchBroom {
         }
         
         Assets::Texture* TextureReader::readTexture(MappedFile::Ptr file) const {
-            return readTexture(file->begin(), file->end(), file->path());
-        }
-
-        Assets::Texture* TextureReader::readTexture(const char* const begin, const char* const end, const Path& path) const {
-            return doReadTexture(begin, end, path);
+            return doReadTexture(file);
         }
 
         String TextureReader::textureName(const String& textureName, const Path& path) const {

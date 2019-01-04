@@ -125,6 +125,10 @@ namespace TrenchBroom {
             doUpdateTextureCollections(node, paths);
         }
 
+        void Game::reloadShaders() {
+            doReloadShaders();
+        }
+
         bool Game::isEntityDefinitionFile(const IO::Path& path) const {
             return doIsEntityDefinitionFile(path);
         }

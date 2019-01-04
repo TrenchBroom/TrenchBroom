@@ -24,8 +24,11 @@
 #include "TrenchBroom.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Model/Brush.h"
+#include "Model/BrushBuilder.h"
 #include "Model/Hit.h"
 #include "Model/ModelTypes.h"
+#include "Model/World.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderService.h"
 #include "View/Lasso.h"
@@ -231,7 +234,32 @@ namespace TrenchBroom {
                 m_dragging = false;
                 m_ignoreChangeNotifications.popLiteral();
             }
-            
+
+        public: // csg convex merge
+            bool canDoCsgConvexMerge() {
+                return handleManager().selectedHandleCount() > 1;
+            }
+
+            void csgConvexMerge() {
+                std::vector<vm::vec3> vertices;
+                const auto handles = handleManager().selectedHandles();
+                H::getVertices(std::begin(handles), std::end(handles), std::back_inserter(vertices));
+
+                const Polyhedron3 polyhedron(vertices);
+                if (!polyhedron.polyhedron() || !polyhedron.closed()) {
+                    return;
+                }
+
+                MapDocumentSPtr document = lock(m_document);
+                const Model::BrushBuilder builder(document->world(), document->worldBounds());
+                auto* brush = builder.createBrush(polyhedron, document->currentTextureName());
+                brush->cloneFaceAttributesFrom(document->selectedNodes().brushes());
+
+                const Transaction transaction(document, "CSG Convex Merge");
+                deselectAll();
+                document->addNode(brush, document->currentParent());
+            }
+
             virtual const H& getHandlePosition(const Model::Hit& hit) const {
                 assert(hit.isMatch());
                 assert(hit.hasType(handleManager().hitType()));

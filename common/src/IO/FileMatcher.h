@@ -43,6 +43,15 @@ namespace TrenchBroom {
             FileExtensionMatcher(const StringList& extensions);
             bool operator()(const Path& path, bool directory) const;
         };
+
+        class FileBasenameMatcher : public FileExtensionMatcher {
+        private:
+            String m_basename;
+        public:
+            FileBasenameMatcher(const String& basename, const String& extension);
+            FileBasenameMatcher(const String& basename, const StringList& extensions);
+            bool operator()(const Path& path, bool directory) const;
+        };
         
         class FileNameMatcher {
         private:

@@ -52,7 +52,7 @@ namespace TrenchBroom {
             /**
              * Quake 3 legacy format (like Quake 2, no brush primitives)
              */
-            Quake3_Legacy
+            Quake3_Legacy,
             /**
              * Quake 3 with brush primitives, also allows Quake 2 brushes
              */

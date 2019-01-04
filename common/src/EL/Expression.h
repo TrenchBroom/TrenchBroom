@@ -85,7 +85,7 @@ namespace TrenchBroom {
             virtual Value doEvaluate(const EvaluationContext& context) const = 0;
             virtual void doAppendToStream(std::ostream& str) const = 0;
             
-            deleteCopyAndAssignment(ExpressionBase)
+            deleteCopyAndMove(ExpressionBase)
         };
         
         class LiteralExpression : public ExpressionBase {
@@ -101,7 +101,7 @@ namespace TrenchBroom {
             Value doEvaluate(const EvaluationContext& context) const override;
             void doAppendToStream(std::ostream& str) const override;
             
-            deleteCopyAndAssignment(LiteralExpression)
+            deleteCopyAndMove(LiteralExpression)
         };
         
         class VariableExpression : public ExpressionBase {
@@ -117,7 +117,7 @@ namespace TrenchBroom {
             Value doEvaluate(const EvaluationContext& context) const override;
             void doAppendToStream(std::ostream& str) const override;
             
-            deleteCopyAndAssignment(VariableExpression)
+            deleteCopyAndMove(VariableExpression)
         };
         
         class ArrayExpression : public ExpressionBase {
@@ -134,7 +134,7 @@ namespace TrenchBroom {
             Value doEvaluate(const EvaluationContext& context) const override;
             void doAppendToStream(std::ostream& str) const override;
             
-            deleteCopyAndAssignment(ArrayExpression)
+            deleteCopyAndMove(ArrayExpression)
         };
         
         class MapExpression : public ExpressionBase {
@@ -151,7 +151,7 @@ namespace TrenchBroom {
             Value doEvaluate(const EvaluationContext& context) const override;
             void doAppendToStream(std::ostream& str) const override;
             
-            deleteCopyAndAssignment(MapExpression)
+            deleteCopyAndMove(MapExpression)
         };
         
         class UnaryOperator : public ExpressionBase {
@@ -163,7 +163,7 @@ namespace TrenchBroom {
             virtual ~UnaryOperator() override;
         private:
             ExpressionBase* doOptimize() override;
-            deleteCopyAndAssignment(UnaryOperator)
+            deleteCopyAndMove(UnaryOperator)
         };
         
         class UnaryPlusOperator : public UnaryOperator {
@@ -176,7 +176,7 @@ namespace TrenchBroom {
             Value doEvaluate(const EvaluationContext& context) const override;
             void doAppendToStream(std::ostream& str) const override;
             
-            deleteCopyAndAssignment(UnaryPlusOperator)
+            deleteCopyAndMove(UnaryPlusOperator)
         };
         
         class UnaryMinusOperator : public UnaryOperator {
@@ -189,7 +189,7 @@ namespace TrenchBroom {
             Value doEvaluate(const EvaluationContext& context) const override;
             void doAppendToStream(std::ostream& str) const override;
             
-            deleteCopyAndAssignment(UnaryMinusOperator)
+            deleteCopyAndMove(UnaryMinusOperator)
         };
         
         class LogicalNegationOperator : public UnaryOperator {
@@ -202,7 +202,7 @@ namespace TrenchBroom {
             Value doEvaluate(const EvaluationContext& context) const override;
             void doAppendToStream(std::ostream& str) const override;
             
-            deleteCopyAndAssignment(LogicalNegationOperator)
+            deleteCopyAndMove(LogicalNegationOperator)
         };
         
         class BitwiseNegationOperator : public UnaryOperator {
@@ -215,7 +215,7 @@ namespace TrenchBroom {
             Value doEvaluate(const EvaluationContext& context) const override;
             void doAppendToStream(std::ostream& str) const override;
             
-            deleteCopyAndAssignment(BitwiseNegationOperator)
+            deleteCopyAndMove(BitwiseNegationOperator)
         };
         
         class GroupingOperator : public UnaryOperator {
@@ -228,7 +228,7 @@ namespace TrenchBroom {
             Value doEvaluate(const EvaluationContext& context) const override;
             void doAppendToStream(std::ostream& str) const override;
             
-            deleteCopyAndAssignment(GroupingOperator)
+            deleteCopyAndMove(GroupingOperator)
         };
         
         class SubscriptOperator : public ExpressionBase {
@@ -247,7 +247,7 @@ namespace TrenchBroom {
             Value doEvaluate(const EvaluationContext& context) const override;
             void doAppendToStream(std::ostream& str) const override;
             
-            deleteCopyAndAssignment(SubscriptOperator)
+            deleteCopyAndMove(SubscriptOperator)
         };
         
         class BinaryOperator : public ExpressionBase {
@@ -276,7 +276,7 @@ namespace TrenchBroom {
             bool commutative() const;
         private:
             
-            deleteCopyAndAssignment(BinaryOperator)
+            deleteCopyAndMove(BinaryOperator)
         };
         
         class AdditionOperator : public BinaryOperator {
@@ -290,7 +290,7 @@ namespace TrenchBroom {
             void doAppendToStream(std::ostream& str) const override;
             Traits doGetTraits() const override;
             
-            deleteCopyAndAssignment(AdditionOperator)
+            deleteCopyAndMove(AdditionOperator)
         };
         
         class SubtractionOperator : public BinaryOperator {
@@ -304,7 +304,7 @@ namespace TrenchBroom {
             void doAppendToStream(std::ostream& str) const override;
             Traits doGetTraits() const override;
             
-            deleteCopyAndAssignment(SubtractionOperator)
+            deleteCopyAndMove(SubtractionOperator)
         };
         
         class MultiplicationOperator : public BinaryOperator {
@@ -318,7 +318,7 @@ namespace TrenchBroom {
             void doAppendToStream(std::ostream& str) const override;
             Traits doGetTraits() const override;
             
-            deleteCopyAndAssignment(MultiplicationOperator)
+            deleteCopyAndMove(MultiplicationOperator)
         };
         
         class DivisionOperator : public BinaryOperator {
@@ -332,7 +332,7 @@ namespace TrenchBroom {
             void doAppendToStream(std::ostream& str) const override;
             Traits doGetTraits() const override;
             
-            deleteCopyAndAssignment(DivisionOperator)
+            deleteCopyAndMove(DivisionOperator)
         };
         
         class ModulusOperator : public BinaryOperator {
@@ -346,7 +346,7 @@ namespace TrenchBroom {
             void doAppendToStream(std::ostream& str) const override;
             Traits doGetTraits() const override;
             
-            deleteCopyAndAssignment(ModulusOperator)
+            deleteCopyAndMove(ModulusOperator)
         };
         
         class LogicalAndOperator : public BinaryOperator {
@@ -360,7 +360,7 @@ namespace TrenchBroom {
             void doAppendToStream(std::ostream& str) const override;
             Traits doGetTraits() const override;
             
-            deleteCopyAndAssignment(LogicalAndOperator)
+            deleteCopyAndMove(LogicalAndOperator)
         };
         
         class LogicalOrOperator : public BinaryOperator {
@@ -374,7 +374,7 @@ namespace TrenchBroom {
             void doAppendToStream(std::ostream& str) const override;
             Traits doGetTraits() const override;
             
-            deleteCopyAndAssignment(LogicalOrOperator)
+            deleteCopyAndMove(LogicalOrOperator)
         };
         
         class BitwiseAndOperator : public BinaryOperator {
@@ -388,7 +388,7 @@ namespace TrenchBroom {
             void doAppendToStream(std::ostream& str) const override;
             Traits doGetTraits() const override;
             
-            deleteCopyAndAssignment(BitwiseAndOperator)
+            deleteCopyAndMove(BitwiseAndOperator)
         };
         
         class BitwiseXorOperator : public BinaryOperator {
@@ -402,7 +402,7 @@ namespace TrenchBroom {
             void doAppendToStream(std::ostream& str) const override;
             Traits doGetTraits() const override;
             
-            deleteCopyAndAssignment(BitwiseXorOperator)
+            deleteCopyAndMove(BitwiseXorOperator)
         };
         
         class BitwiseOrOperator : public BinaryOperator {
@@ -416,7 +416,7 @@ namespace TrenchBroom {
             void doAppendToStream(std::ostream& str) const override;
             Traits doGetTraits() const override;
             
-            deleteCopyAndAssignment(BitwiseOrOperator)
+            deleteCopyAndMove(BitwiseOrOperator)
         };
         
         class BitwiseShiftLeftOperator : public BinaryOperator {
@@ -430,7 +430,7 @@ namespace TrenchBroom {
             void doAppendToStream(std::ostream& str) const override;
             Traits doGetTraits() const override;
             
-            deleteCopyAndAssignment(BitwiseShiftLeftOperator)
+            deleteCopyAndMove(BitwiseShiftLeftOperator)
         };
         
         class BitwiseShiftRightOperator : public BinaryOperator {
@@ -444,7 +444,7 @@ namespace TrenchBroom {
             void doAppendToStream(std::ostream& str) const override;
             Traits doGetTraits() const override;
             
-            deleteCopyAndAssignment(BitwiseShiftRightOperator)
+            deleteCopyAndMove(BitwiseShiftRightOperator)
         };
         
         class ComparisonOperator : public BinaryOperator {
@@ -473,7 +473,7 @@ namespace TrenchBroom {
             void doAppendToStream(std::ostream& str) const override;
             Traits doGetTraits() const override;
             
-            deleteCopyAndAssignment(ComparisonOperator)
+            deleteCopyAndMove(ComparisonOperator)
         };
         
         class RangeOperator : public BinaryOperator {
@@ -491,7 +491,7 @@ namespace TrenchBroom {
             void doAppendToStream(std::ostream& str) const override;
             Traits doGetTraits() const override;
             
-            deleteCopyAndAssignment(RangeOperator)
+            deleteCopyAndMove(RangeOperator)
         };
 
         class CaseOperator : public BinaryOperator {
@@ -505,7 +505,7 @@ namespace TrenchBroom {
             void doAppendToStream(std::ostream& str) const override;
             Traits doGetTraits() const override;
             
-            deleteCopyAndAssignment(CaseOperator)
+            deleteCopyAndMove(CaseOperator)
         };
         
         class SwitchOperator : public ExpressionBase {
@@ -523,7 +523,7 @@ namespace TrenchBroom {
             void doAppendToStream(std::ostream& str) const override;
             Value doEvaluate(const EvaluationContext& context) const override;
             
-            deleteCopyAndAssignment(SwitchOperator)
+            deleteCopyAndMove(SwitchOperator)
         };
     }
 }

@@ -41,8 +41,8 @@ namespace TrenchBroom {
             }
 
             BrushContentType createTutorialBrushContentType(const BrushContentType::FlagType flag) {
-                BrushContentTypeEvaluator* evaluator = BrushContentTypeEvaluator::entityClassnameEvaluator(Classname);
-                return BrushContentType("Tutorial brush", true, flag, evaluator);
+                auto evaluator = BrushContentTypeEvaluator::entityClassnameEvaluator(Classname);
+                return BrushContentType("Tutorial brush", true, flag, std::move(evaluator));
             }
         }
     }

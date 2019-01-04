@@ -39,7 +39,7 @@ namespace TrenchBroom {
             void doDeclare(const String& name, const EL::Value& value) override;
             void doAssign(const String& name, const EL::Value& value) override;
 
-            deleteCopyAndAssignment(AttributableNodeVariableStore)
+            deleteCopyAndMove(AttributableNodeVariableStore)
         };
     }
 }

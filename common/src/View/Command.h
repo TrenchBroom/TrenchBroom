@@ -78,7 +78,7 @@ namespace TrenchBroom {
         private:
             virtual bool doPerformDo(MapDocumentCommandFacade* document) = 0;
 
-            deleteCopyAndAssignment(Command)
+            deleteCopyAndMove(Command)
         };
     }
 }

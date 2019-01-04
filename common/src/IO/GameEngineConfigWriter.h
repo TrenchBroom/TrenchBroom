@@ -44,7 +44,7 @@ namespace TrenchBroom {
             EL::Value writeProfiles(const Model::GameEngineConfig& config) const;
             EL::Value writeProfile(const Model::GameEngineProfile* profile) const;
             
-            deleteCopyAndAssignment(GameEngineConfigWriter)
+            deleteCopyAndMove(GameEngineConfigWriter)
         };
     }
 }

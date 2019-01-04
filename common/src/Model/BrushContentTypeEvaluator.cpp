@@ -20,6 +20,8 @@
 #include "BrushContentTypeEvaluator.h"
 
 #include "Macros.h"
+#include "Assets/Quake3Shader.h"
+#include "Assets/Texture.h"
 #include "Model/AttributableNode.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
@@ -28,17 +30,15 @@ namespace TrenchBroom {
     namespace Model {
         class BrushFaceEvaluator : public BrushContentTypeEvaluator {
         public:
-            ~BrushFaceEvaluator() override {}
+            ~BrushFaceEvaluator() override = default;
         private:
             bool doEvaluate(const Brush* brush) const override {
-                const Model::BrushFaceList& faces = brush->faces();
-                Model::BrushFaceList::const_iterator it, end;
-                for (it = std::begin(faces), end = std::end(faces); it != end; ++it) {
-                    const Model::BrushFace* face = *it;
-                    if (!doEvaluate(face))
-                        return false;
+                for (const auto* face : brush->faces()) {
+                    if (doEvaluate(face)) {
+                        return true;
+                    }
                 }
-                return true;
+                return false;
             }
             
             virtual bool doEvaluate(const BrushFace* brush) const = 0;
@@ -48,18 +48,37 @@ namespace TrenchBroom {
         private:
             String m_pattern;
         public:
-            TextureNameEvaluator(const String& pattern) :
+            explicit TextureNameEvaluator(const String& pattern) :
             m_pattern(pattern) {}
         private:
             bool doEvaluate(const BrushFace* face) const override {
-                const String& textureName = face->textureName();
-                String::const_iterator begin = std::begin(textureName);
+                const auto& textureName = face->textureName();
+                auto begin = std::begin(textureName);
 
-                const size_t pos = textureName.find_last_of('/');
-                if (pos != String::npos)
-                    std::advance(begin, long(pos));
-                
+                const auto pos = textureName.find_last_of('/');
+                if (pos != String::npos) {
+                    std::advance(begin, long(pos)+1);
+                }
+
                 return StringUtils::matchesPattern(begin, std::end(textureName), std::begin(m_pattern), std::end(m_pattern), StringUtils::CharEqual<StringUtils::CaseInsensitiveCharCompare>());
+            }
+        };
+
+        class ShaderSurfaceParmsEvaluator : public BrushFaceEvaluator {
+        private:
+            String m_pattern;
+        public:
+            explicit ShaderSurfaceParmsEvaluator(const String& pattern) :
+            m_pattern(pattern) {}
+        private:
+            bool doEvaluate(const BrushFace* face) const override {
+                const auto* texture = face->texture();
+                if (texture != nullptr) {
+                    const auto& surfaceParms = texture->surfaceParms();
+                    return surfaceParms.count(m_pattern) > 0;
+                } else {
+                    return false;
+                }
             }
         };
         
@@ -67,7 +86,7 @@ namespace TrenchBroom {
         private:
             int m_flags;
         public:
-            ContentFlagsEvaluator(const int flags) :
+            explicit ContentFlagsEvaluator(const int flags) :
             m_flags(flags) {}
         private:
             bool doEvaluate(const BrushFace* face) const override {
@@ -79,7 +98,7 @@ namespace TrenchBroom {
         private:
             int m_flags;
         public:
-            SurfaceFlagsEvaluator(const int flags) :
+            explicit SurfaceFlagsEvaluator(const int flags) :
                 m_flags(flags) {}
         private:
             bool doEvaluate(const BrushFace* face) const override {
@@ -91,34 +110,39 @@ namespace TrenchBroom {
         private:
             String m_pattern;
         public:
-            EntityClassnameEvaluator(const String& pattern) :
+            explicit EntityClassnameEvaluator(const String& pattern) :
             m_pattern(pattern) {}
         private:
             bool doEvaluate(const Brush* brush) const override {
                 const AttributableNode* entity = brush->entity();
-                if (entity == nullptr)
+                if (entity == nullptr) {
                     return false;
-                
+                }
+
                 return StringUtils::caseInsensitiveMatchesPattern(entity->classname(), m_pattern);
             }
         };
         
-        BrushContentTypeEvaluator::~BrushContentTypeEvaluator() {}
+        BrushContentTypeEvaluator::~BrushContentTypeEvaluator() = default;
    
-        BrushContentTypeEvaluator* BrushContentTypeEvaluator::textureNameEvaluator(const String& pattern) {
-            return new TextureNameEvaluator(pattern);
-        }
-        
-        BrushContentTypeEvaluator* BrushContentTypeEvaluator::contentFlagsEvaluator(const int value) {
-            return new ContentFlagsEvaluator(value);
+        std::unique_ptr<BrushContentTypeEvaluator> BrushContentTypeEvaluator::textureNameEvaluator(const String& pattern) {
+            return std::make_unique<TextureNameEvaluator>(pattern);
         }
 
-        BrushContentTypeEvaluator* BrushContentTypeEvaluator::surfaceFlagsEvaluator(const int value) {
-            return new SurfaceFlagsEvaluator(value);
+        std::unique_ptr<BrushContentTypeEvaluator> BrushContentTypeEvaluator::shaderSurfaceParmsEvaluator(const String& pattern) {
+            return std::make_unique<ShaderSurfaceParmsEvaluator>(pattern);
         }
 
-        BrushContentTypeEvaluator* BrushContentTypeEvaluator::entityClassnameEvaluator(const String& pattern) {
-            return new EntityClassnameEvaluator(pattern);
+        std::unique_ptr<BrushContentTypeEvaluator> BrushContentTypeEvaluator::contentFlagsEvaluator(const int value) {
+            return std::make_unique<ContentFlagsEvaluator>(value);
+        }
+
+        std::unique_ptr<BrushContentTypeEvaluator> BrushContentTypeEvaluator::surfaceFlagsEvaluator(const int value) {
+            return std::make_unique<SurfaceFlagsEvaluator>(value);
+        }
+
+        std::unique_ptr<BrushContentTypeEvaluator> BrushContentTypeEvaluator::entityClassnameEvaluator(const String& pattern) {
+            return std::make_unique<EntityClassnameEvaluator>(pattern);
         }
 
         bool BrushContentTypeEvaluator::evaluate(const Brush* brush) const {

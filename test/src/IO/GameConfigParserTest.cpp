@@ -31,7 +31,11 @@ namespace TrenchBroom {
             for (const Path& path : cfgFiles) {
                 MappedFile::Ptr file = Disk::openFile(path);
                 GameConfigParser parser(file->begin(), file->end(), path);
-                ASSERT_NO_THROW(parser.parse()) << "Parsing game config " << path.asString() << " failed";
+                try {
+                    parser.parse();
+                } catch (const std::exception& e) {
+                    FAIL() << "Parsing game config " << path.asString() << " failed: " << e.what();
+                }
             }
         }
 

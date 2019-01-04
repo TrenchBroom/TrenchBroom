@@ -369,7 +369,19 @@ namespace StringUtils {
         }
         return result;
     }
-    
+
+    struct StringToString {
+        const String& operator()(const String& str) const {
+            return str;
+        }
+    };
+
+    struct StringToSingleQuotedString {
+        const String operator()(const String& str) const {
+            return "'" + str + "'";
+        }
+    };
+
     template <typename I, typename D1, typename D2, typename D3, typename S>
     String join(I it, I end, const D1& delim, const D2& lastDelim, const D3& delimForTwo, const S& toString) {
         if (it == end)
@@ -398,41 +410,19 @@ namespace StringUtils {
         result << lastDelim << toString(*it);
         return result.str();
     }
-    
-    template <typename T, typename D1, typename D2, typename D3, typename S>
-    String join(const std::vector<T>& objs, const D1& delim, const D2& lastDelim, const D3& delimForTwo, const S& toString) {
+
+    template <typename C, typename D1, typename D2, typename D3, typename S = StringToString>
+    String join(const C& objs, const D1& delim, const D2& lastDelim, const D3& delimForTwo, const S& toString = S()) {
         return join(std::begin(objs), std::end(objs), delim, lastDelim, delimForTwo, toString);
     }
-    
-    template <typename T, typename D, typename S>
-    String join(const std::vector<T>& objs, const D& delim, const S& toString) {
-        return join(objs, delim, delim, delim, toString);
+
+    template <typename C, typename D = String, typename S = StringToString>
+    String join(const C& objs, const D& delim = D(", "), const S& toString = S()) {
+        return join(std::begin(objs), std::end(objs), delim, delim, delim, toString);
     }
-    
+
     StringList splitAndUnescape(const String& str, char d);
     String escapeAndJoin(const StringList& strs, char d);
-    
-    struct StringToString {
-        const String& operator()(const String& str) const {
-            return str;
-        }
-    };
-
-    struct StringToSingleQuotedString {
-        const String operator()(const String& str) const {
-            return "'" + str + "'";
-        }
-    };
-    
-    template <typename D1, typename D2, typename D3>
-    String join(const StringList& objs, const D1& delim, const D2& lastDelim, const D3& delimForTwo) {
-        return join(objs, delim, lastDelim, delimForTwo, StringToString());
-    }
-
-    template <typename D>
-    String join(const StringList& strs, const D& d) {
-        return join(strs, d, d, d);
-    }
 
     StringList makeList(size_t count, const char* str1, ...);
     StringSet makeSet(size_t count, const char* str1, ...);

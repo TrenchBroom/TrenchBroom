@@ -88,7 +88,7 @@ namespace TrenchBroom {
         }
         
         TestGame::TexturePackageType TestGame::doTexturePackageType() const {
-            return TP_File;
+            return TexturePackageType::File;
         }
         
         void TestGame::doLoadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger* logger) const {
@@ -127,6 +127,8 @@ namespace TrenchBroom {
             const String value = StringUtils::join(IO::Path::asStrings(paths, '/'), ';');
             node->addOrUpdateAttribute("wad", value);
         }
+
+        void TestGame::doReloadShaders() {}
         
         bool TestGame::doIsEntityDefinitionFile(const IO::Path& path) const {
             return false;

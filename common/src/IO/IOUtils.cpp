@@ -25,6 +25,7 @@
 #include <vecmath/vec.h>
 
 #include <cstring>
+#include <streambuf>
 
 namespace TrenchBroom {
     namespace IO {
@@ -42,13 +43,20 @@ namespace TrenchBroom {
 
         OpenStream::OpenStream(const Path& path, const bool write) :
         stream(path.asString().c_str(), std::ios::in | (write ? std::ios::out : std::ios::in)) {
-            if (!stream.is_open())
+            if (!stream.is_open()) {
                 throw FileSystemException("Cannot open file: " + path.asString());
+            }
         }
         
         OpenStream::~OpenStream() {
-            if (stream.is_open())
+            if (stream.is_open()) {
                 stream.close();
+            }
+        }
+
+        std::string OpenStream::readAll() {
+            return std::string((std::istreambuf_iterator<char>(stream)),
+                                std::istreambuf_iterator<char>());
         }
 
         String readGameComment(std::istream& stream) {

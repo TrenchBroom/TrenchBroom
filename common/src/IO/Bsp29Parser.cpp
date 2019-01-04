@@ -116,7 +116,8 @@ namespace TrenchBroom {
                 // Just prevent the texture reader from reading past the end of the .bsp file.
                 const char *const end = m_end;
 
-                model->addSkin(textureReader.readTexture(begin, end, Path("")));
+                auto fileView = std::make_shared<MappedFileBufferView>(Path(), begin, end);
+                model->addSkin(textureReader.readTexture(fileView));
             }
         }
         

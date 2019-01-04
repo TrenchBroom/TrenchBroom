@@ -457,6 +457,24 @@ namespace vm {
             static_assert(S > 3);
             return vec<T,4>(x(), y(), z(), w());
         }
+
+        /**
+        * Adds the given range of vertices to the given output iterator.
+        *
+        * @tparam I the range iterator type
+        * @tparam O the output iterator type
+        * @param cur the range start
+        * @param end the range end
+        * @param out the output iterator
+        */
+        template <typename I, typename O>
+        static void getVertices(I cur, I end, O out) {
+            while (cur != end) {
+                out = *cur;
+                ++out;
+                ++cur;
+            }
+        }
     };
 
     template <typename T, size_t S>

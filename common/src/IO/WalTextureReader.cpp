@@ -33,8 +33,13 @@ namespace TrenchBroom {
         TextureReader(nameStrategy),
         m_palette(palette) {}
         
-        Assets::Texture* WalTextureReader::doReadTexture(const char* const begin, const char* const end, const Path& path) const {
+        Assets::Texture* WalTextureReader::doReadTexture(MappedFile::Ptr file) const {
+            const auto* begin = file->begin();
+            const auto* end = file->end();
+            const auto& path = file->path();
+
             try {
+
                 CharArrayReader reader(begin, end);
                 const char version = reader.readChar<char>();
                 reader.seekFromBegin(0);
@@ -66,7 +71,6 @@ namespace TrenchBroom {
             const auto mipLevels = readMipOffsets(MaxMipLevels, offsets, width, height, reader);
             Assets::setMipBufferSize(buffers, mipLevels, width, height, GL_RGBA);
             readMips(m_palette, mipLevels, offsets, width, height, reader, buffers, averageColor, Assets::PaletteTransparency::Opaque);
-
             return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers, GL_RGBA, Assets::TextureType::Opaque);
         }
 

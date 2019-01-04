@@ -59,6 +59,7 @@ namespace TrenchBroom {
             IO::Path::List doFindTextureCollections() const override;
             IO::Path::List doExtractTextureCollections(const AttributableNode* node) const override;
             void doUpdateTextureCollections(AttributableNode* node, const IO::Path::List& paths) const override;
+            void doReloadShaders() override;
             
             bool doIsEntityDefinitionFile(const IO::Path& path) const override;
             Assets::EntityDefinitionFileSpec::List doAllEntityDefinitionFiles() const override;

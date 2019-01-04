@@ -42,9 +42,11 @@ namespace TrenchBroom {
         class CompareByUsage {
         public:
             bool operator() (const Texture* left, const Texture* right) const {
-                if (left->usageCount() == right->usageCount())
+                if (left->usageCount() == right->usageCount()) {
                     return left->name() < right->name();
-                return left->usageCount() > right->usageCount();
+                } else {
+                    return left->usageCount() > right->usageCount();
+                }
             }
         };
         
@@ -59,28 +61,30 @@ namespace TrenchBroom {
         }
         
         void TextureManager::setTextureCollections(const IO::Path::List& paths, IO::TextureLoader& loader) {
-            TextureCollectionMap collections = collectionMap();
+            auto collections = collectionMap();
             m_collections.clear();
             clear();
             
-            for (const IO::Path& path : paths) {
+            for (const auto& path : paths) {
                 const auto it = collections.find(path);
                 if (it == std::end(collections) || !it->second->loaded()) {
                     try {
-                        Assets::TextureCollection* collection = loader.loadTextureCollection(path);
+                        auto collection = loader.loadTextureCollection(path);
                         m_logger->info("Loaded texture collection '" + path.asString() + "'");
-                        addTextureCollection(collection);
                         collection->usageCountDidChange.addObserver(usageCountDidChange);
+                        addTextureCollection(collection.release());
                     } catch (const Exception& e) {
                         addTextureCollection(new Assets::TextureCollection(path));
-                        if (it == std::end(collections))
+                        if (it == std::end(collections)) {
                             m_logger->error("Could not load texture collection '" + path.asString() + "': " + e.what());
+                        }
                     }
                 } else {
                     addTextureCollection(it->second);
                 }
-                if (it != std::end(collections))
+                if (it != std::end(collections)) {
                     collections.erase(it);
+                }
             }
             
             updateTextures();
@@ -88,19 +92,22 @@ namespace TrenchBroom {
         }
 
         TextureManager::TextureCollectionMap TextureManager::collectionMap() const {
-            TextureCollectionMap result;
-            for (Assets::TextureCollection* collection : m_collections)
+            auto result = TextureCollectionMap();
+            for (auto* collection : m_collections) {
                 result.insert(std::make_pair(collection->path(), collection));
+            }
             return result;
         }
 
         void TextureManager::addTextureCollection(Assets::TextureCollection* collection) {
             m_collections.push_back(collection);
-            if (collection->loaded() && !collection->prepared())
+            if (collection->loaded() && !collection->prepared()) {
                 m_toPrepare.push_back(collection);
-            
-            if (m_logger != nullptr)
+            }
+
+            if (m_logger != nullptr) {
                 m_logger->debug("Added texture collection %s", collection->path().asString().c_str());
+            }
         }
 
         void TextureManager::clear() {
@@ -127,10 +134,12 @@ namespace TrenchBroom {
         }
         
         Texture* TextureManager::texture(const String& name) const {
-            TextureMap::const_iterator it = m_texturesByName.find(StringUtils::toLower(name));
-            if (it == std::end(m_texturesByName))
+            auto it = m_texturesByName.find(StringUtils::toLower(name));
+            if (it == std::end(m_texturesByName)) {
                 return nullptr;
-            return it->second;
+            } else {
+                return it->second;
+            }
         }
         
         const TextureList& TextureManager::textures() const {
@@ -167,12 +176,12 @@ namespace TrenchBroom {
             m_texturesByName.clear();
             m_textures.clear();
             
-            for (TextureCollection* collection : m_collections) {
-                for (Texture* texture : collection->textures()) {
-                    const String key = StringUtils::toLower(texture->name());
+            for (auto* collection : m_collections) {
+                for (auto* texture : collection->textures()) {
+                    const auto key = StringUtils::toLower(texture->name());
                     texture->setOverridden(false);
                     
-                    TextureMap::iterator mIt = m_texturesByName.find(key);
+                    auto mIt = m_texturesByName.find(key);
                     if (mIt != std::end(m_texturesByName)) {
                         mIt->second->setOverridden(true);
                         mIt->second = texture;

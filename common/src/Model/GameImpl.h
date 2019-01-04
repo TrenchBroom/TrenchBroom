@@ -23,9 +23,9 @@
 #include "TrenchBroom.h"
 #include "SharedPointer.h"
 #include "Assets/AssetTypes.h"
-#include "IO/FileSystemHierarchy.h"
 #include "Model/Game.h"
 #include "Model/GameConfig.h"
+#include "Model/GameFileSystem.h"
 #include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
@@ -35,16 +35,13 @@ namespace TrenchBroom {
         class GameImpl : public Game {
         private:
             GameConfig& m_config;
+            GameFileSystem m_fs;
             IO::Path m_gamePath;
             IO::Path::List m_additionalSearchPaths;
-            
-            IO::FileSystemHierarchy m_gameFS;
         public:
             GameImpl(GameConfig& config, const IO::Path& gamePath, Logger* logger);
         private:
             void initializeFileSystem(Logger* logger);
-            void addSearchPath(const IO::Path& searchPath, Logger* logger);
-            void addPackages(const IO::Path& searchPath);
         private:
             const String& doGameName() const override;
             IO::Path doGamePath() const override;
@@ -75,6 +72,7 @@ namespace TrenchBroom {
             IO::Path::List doFindTextureCollections() const override;
             IO::Path::List doExtractTextureCollections(const AttributableNode* node) const override;
             void doUpdateTextureCollections(AttributableNode* node, const IO::Path::List& paths) const override;
+            void doReloadShaders() override;
             
             bool doIsEntityDefinitionFile(const IO::Path& path) const override;
             Assets::EntityDefinitionList doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const override;
