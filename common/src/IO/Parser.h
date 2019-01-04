@@ -61,6 +61,12 @@ namespace TrenchBroom {
                 const String msg = expectString(typeName, token);
                 throw ParserException(token.line(), token.column(), msg);
             }
+
+            void expect(const String& expected, const Token& token) const {
+                if (token.data() != expected) {
+                    throw ParserException(token.line(), token.column(), "Expected string '" + expected + "', but got '" + token.data() + "'");
+                }
+            }
         private:
             String expectString(const String& expected, const Token& token) const {
                 StringStream msg;

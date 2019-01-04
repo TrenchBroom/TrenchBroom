@@ -728,7 +728,30 @@ namespace TrenchBroom {
         }
 
         TEST(WorldReaderTest, parseBrushPrimitive) {
+            const String data(R"(
+            {
+                "classname" "worldspawn"
+                {
+                    brushDef
+                    {
+                        ( -64 64 64 ) ( 64 -64 64 ) ( -64 -64 64 ) ( ( 0.015625 0 -0 ) ( -0 0.015625 0 ) ) common/caulk 0 0 0
+                        ( -64 64 64 ) ( 64 64 -64 ) ( 64 64 64 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) common/caulk 0 0 0
+                        ( 64 64 64 ) ( 64 -64 -64 ) ( 64 -64 64 ) ( ( 0.015625 0 -0 ) ( -0 0.015625 0 ) ) common/caulk 0 0 0
+                        ( 64 64 -64 ) ( -64 -64 -64 ) ( 64 -64 -64 ) ( ( 0.015625 0 -0 ) ( -0 0.015625 0 ) ) common/caulk 0 0 0
+                        ( 64 -64 -64 ) ( -64 -64 64 ) ( 64 -64 64 ) ( ( 0.015625 0 -0 ) ( -0 0.015625 0 ) ) common/caulk 0 0 0
+                        ( -64 -64 64 ) ( -64 64 -64 ) ( -64 64 64 ) ( ( 0.015625 0 -0 ) ( -0 0.015625 0 ) ) common/caulk 0 0 0
+                    }
+                }
+            })");
 
+            vm::bbox3 worldBounds(8192);
+
+            IO::TestParserStatus status;
+            WorldReader reader(data, nullptr);
+
+            Model::World* world = reader.read(Model::MapFormat::Quake3, worldBounds, status);
+
+            delete world;
         }
         
         TEST(WorldReaderTest, parseMultipleClassnames) {

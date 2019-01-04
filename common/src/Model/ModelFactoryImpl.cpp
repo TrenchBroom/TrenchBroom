@@ -76,25 +76,23 @@ namespace TrenchBroom {
 
         BrushFace* ModelFactoryImpl::doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const {
             assert(m_format != MapFormat::Unknown);
-            switch (m_format) {
-                case MapFormat::Valve:
-                    return new BrushFace(point1, point2, point3, attribs,
-                                         new ParallelTexCoordSystem(point1, point2, point3, attribs));
-                default:
-                    return new BrushFace(point1, point2, point3, attribs,
-                                         new ParaxialTexCoordSystem(point1, point2, point3, attribs));
+            if (m_format == MapFormat::Valve) {
+                return new BrushFace(point1, point2, point3, attribs,
+                                     new ParallelTexCoordSystem(point1, point2, point3, attribs));
+            } else {
+                return new BrushFace(point1, point2, point3, attribs,
+                                     new ParaxialTexCoordSystem(point1, point2, point3, attribs));
             }
         }
 
         BrushFace* ModelFactoryImpl::doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const {
             assert(m_format != MapFormat::Unknown);
-            switch (m_format) {
-                case MapFormat::Valve:
-                    return new BrushFace(point1, point2, point3, attribs,
-                                         new ParallelTexCoordSystem(texAxisX, texAxisY));
-                default:
-                    return new BrushFace(point1, point2, point3, attribs,
-                                         new ParaxialTexCoordSystem(point1, point2, point3, attribs));
+            if (m_format == MapFormat::Valve) {
+                return new BrushFace(point1, point2, point3, attribs,
+                                     new ParallelTexCoordSystem(texAxisX, texAxisY));
+            } else {
+                return new BrushFace(point1, point2, point3, attribs,
+                                     new ParaxialTexCoordSystem(point1, point2, point3, attribs));
             }
         }
     }

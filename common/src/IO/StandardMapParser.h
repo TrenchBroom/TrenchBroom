@@ -29,6 +29,8 @@
 
 #include <vecmath/forward.h>
 
+#include <tuple>
+
 namespace TrenchBroom {
     namespace IO {
         namespace QuakeMapToken {
@@ -45,6 +47,7 @@ namespace TrenchBroom {
             static const Type Comment       = 1 <<  9; // line comment starting with ///
             static const Type Eof           = 1 << 10; // end of file
             static const Type Eol           = 1 << 11; // end of line
+            static const Type Number        = Integer | Decimal;
         }
         
         class QuakeMapTokenizer : public Tokenizer<QuakeMapToken::Type> {
@@ -87,10 +90,29 @@ namespace TrenchBroom {
             
             void parseEntity(ParserStatus& status);
             void parseEntityAttribute(Model::EntityAttribute::List& attributes, AttributeNames& names, ParserStatus& status);
-            void parseBrush(ParserStatus& status);
-            void parseFace(ParserStatus& status);
+
+            void parseBrushOrBrushPrimitive(ParserStatus& status);
+            void parseBrushPrimitive(ParserStatus& status, size_t startLine);
+            void parseBrush(ParserStatus& status, size_t startLine, bool primitive);
+
+            void parseFace(ParserStatus& status, bool primitive);
+            void parseQuakeFace(ParserStatus& status);
+            void parseQuake2Face(ParserStatus& status);
+            void parseHexen2Face(ParserStatus& status);
+            void parseDaikatanaFace(ParserStatus& status);
+            void parseValveFace(ParserStatus& status);
+            void parsePrimitiveFace(ParserStatus& status);
+            bool checkFacePoints(ParserStatus& status, const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, size_t line) const;
+
+            std::tuple<vm::vec3, vm::vec3, vm::vec3> parseFacePoints(ParserStatus& status);
+            String parseTextureName(ParserStatus& status);
+            std::tuple<vm::vec3, float, vm::vec3, float> parseValveTextureAxes(ParserStatus& status);
+            std::tuple<vm::vec3, vm::vec3> parsePrimitiveTextureAxes(ParserStatus& status);
 
             vm::vec3 parseVector();
+            float parseFloat();
+            int parseInteger();
+
             void parseExtraAttributes(ExtraAttributes& extraAttributes, ParserStatus& status);
         private: // implement Parser interface
             TokenNameMap tokenNames() const override;
