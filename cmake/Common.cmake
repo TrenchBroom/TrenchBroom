@@ -329,9 +329,9 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/EdgeToolController.cpp
 	${COMMON_SOURCE_DIR}/View/EdgeTool.cpp
 	${COMMON_SOURCE_DIR}/View/ELAutoCompleteHelper.cpp
-	${COMMON_SOURCE_DIR}/View/EntityAttributeEditor.cpp
-	${COMMON_SOURCE_DIR}/View/EntityAttributeGrid.cpp
-	${COMMON_SOURCE_DIR}/View/EntityAttributeGridTable.cpp
+#	${COMMON_SOURCE_DIR}/View/EntityAttributeEditor.cpp
+#	${COMMON_SOURCE_DIR}/View/EntityAttributeGrid.cpp
+#	${COMMON_SOURCE_DIR}/View/EntityAttributeGridTable.cpp
 	${COMMON_SOURCE_DIR}/View/EntityAttributeSelectedCommand.cpp
 #	${COMMON_SOURCE_DIR}/View/EntityBrowser.cpp
 #	${COMMON_SOURCE_DIR}/View/EntityBrowserView.cpp
@@ -451,14 +451,14 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/ShearObjectsToolController.cpp
 	${COMMON_SOURCE_DIR}/View/ShearObjectsTool.cpp
 	${COMMON_SOURCE_DIR}/View/ShearTexturesCommand.cpp
-	${COMMON_SOURCE_DIR}/View/SmartAttributeEditor.cpp
-	${COMMON_SOURCE_DIR}/View/SmartAttributeEditorManager.cpp
-	${COMMON_SOURCE_DIR}/View/SmartAttributeEditorMatcher.cpp
-	${COMMON_SOURCE_DIR}/View/SmartChoiceEditor.cpp
-	${COMMON_SOURCE_DIR}/View/SmartChoiceEditorMatcher.cpp
-	${COMMON_SOURCE_DIR}/View/SmartColorEditor.cpp
-	${COMMON_SOURCE_DIR}/View/SmartDefaultAttributeEditor.cpp
-	${COMMON_SOURCE_DIR}/View/SmartSpawnflagsEditor.cpp
+#	${COMMON_SOURCE_DIR}/View/SmartAttributeEditor.cpp
+#	${COMMON_SOURCE_DIR}/View/SmartAttributeEditorManager.cpp
+#	${COMMON_SOURCE_DIR}/View/SmartAttributeEditorMatcher.cpp
+#	${COMMON_SOURCE_DIR}/View/SmartChoiceEditor.cpp
+#	${COMMON_SOURCE_DIR}/View/SmartChoiceEditorMatcher.cpp
+#	${COMMON_SOURCE_DIR}/View/SmartColorEditor.cpp
+#	${COMMON_SOURCE_DIR}/View/SmartDefaultAttributeEditor.cpp
+#	${COMMON_SOURCE_DIR}/View/SmartSpawnflagsEditor.cpp
 	${COMMON_SOURCE_DIR}/View/SnapBrushVerticesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/SnapshotCommand.cpp
 	${COMMON_SOURCE_DIR}/View/SpinControl.cpp
@@ -1028,14 +1028,14 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/ShearObjectsToolController.h
 	${COMMON_SOURCE_DIR}/View/ShearObjectsTool.h
 	${COMMON_SOURCE_DIR}/View/ShearTexturesCommand.h
-	${COMMON_SOURCE_DIR}/View/SmartAttributeEditor.h
-	${COMMON_SOURCE_DIR}/View/SmartAttributeEditorManager.h
-	${COMMON_SOURCE_DIR}/View/SmartAttributeEditorMatcher.h
-	${COMMON_SOURCE_DIR}/View/SmartChoiceEditor.h
-	${COMMON_SOURCE_DIR}/View/SmartChoiceEditorMatcher.h
-	${COMMON_SOURCE_DIR}/View/SmartColorEditor.h
-	${COMMON_SOURCE_DIR}/View/SmartDefaultAttributeEditor.h
-	${COMMON_SOURCE_DIR}/View/SmartSpawnflagsEditor.h
+#	${COMMON_SOURCE_DIR}/View/SmartAttributeEditor.h
+#	${COMMON_SOURCE_DIR}/View/SmartAttributeEditorManager.h
+#	${COMMON_SOURCE_DIR}/View/SmartAttributeEditorMatcher.h
+#	${COMMON_SOURCE_DIR}/View/SmartChoiceEditor.h
+#	${COMMON_SOURCE_DIR}/View/SmartChoiceEditorMatcher.h
+#	${COMMON_SOURCE_DIR}/View/SmartColorEditor.h
+#	${COMMON_SOURCE_DIR}/View/SmartDefaultAttributeEditor.h
+#	${COMMON_SOURCE_DIR}/View/SmartSpawnflagsEditor.h
 	${COMMON_SOURCE_DIR}/View/SnapBrushVerticesCommand.h
 	${COMMON_SOURCE_DIR}/View/SnapshotCommand.h
 	${COMMON_SOURCE_DIR}/View/SpinControl.h

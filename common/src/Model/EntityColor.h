@@ -24,15 +24,15 @@
 #include "Assets/ColorRange.h"
 #include "Model/ModelTypes.h"
 
-#include <wx/colour.h>
+#include <QColor>
 
 namespace TrenchBroom {
     namespace Model {
         Assets::ColorRange::Type detectColorRange(const AttributeName& name, const AttributableNodeList& attributables);
         
         const String convertEntityColor(const String& str, Assets::ColorRange::Type colorRange);
-        wxColor parseEntityColor(const String& str);
-        String entityColorAsString(const wxColor& color, Assets::ColorRange::Type colorRange);
+        QColor parseEntityColor(const String& str);
+        String entityColorAsString(const QColor& color, Assets::ColorRange::Type colorRange);
     }
 }
 

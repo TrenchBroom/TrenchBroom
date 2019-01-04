@@ -21,7 +21,7 @@
 
 #include "IO/Path.h"
 
-#include <wx/filename.h>
+#include <QFileInfo>
 
 namespace TrenchBroom {
     namespace IO {
@@ -73,7 +73,7 @@ namespace TrenchBroom {
             if (directory && StringUtils::caseInsensitiveEqual(path.extension(), "app"))
                 return true;
 #endif
-            return wxFileName::IsFileExecutable(path.asString());
+            return QFileInfo(path.asQString()).isExecutable();
         }
     }
 }

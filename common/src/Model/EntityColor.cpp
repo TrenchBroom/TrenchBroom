@@ -69,7 +69,7 @@ namespace TrenchBroom {
             return entityColorAsString(color, colorRange);
         }
 
-        wxColor parseEntityColor(const String& str) {
+        QColor parseEntityColor(const String& str) {
             const auto components = StringUtils::splitAndTrim(str, " ");
             const auto range = Assets::detectColorRange(components);
             assert(range != Assets::ColorRange::Mixed);
@@ -85,15 +85,15 @@ namespace TrenchBroom {
                 b = static_cast<int>(std::atof(components[2].c_str()) * 255.0);
             }
             
-            return wxColor(r, g, b);
+            return QColor(r, g, b);
         }
 
-        String entityColorAsString(const wxColor& color, const Assets::ColorRange::Type colorRange) {
+        String entityColorAsString(const QColor& color, const Assets::ColorRange::Type colorRange) {
             StringStream result;
             if (colorRange == Assets::ColorRange::Byte) {
-                result << int(color.Red()) << " " << int(color.Green()) << " " << int(color.Blue());
+                result << int(color.red()) << " " << int(color.green()) << " " << int(color.blue());
             } else if (colorRange == Assets::ColorRange::Float) {
-                result << float(color.Red()) / 255.0f << " " << float(color.Green()) / 255.0f << " "<< float(color.Blue()) / 255.0f;
+                result << float(color.red()) / 255.0f << " " << float(color.green()) / 255.0f << " "<< float(color.blue()) / 255.0f;
             }
             return result.str();
         }

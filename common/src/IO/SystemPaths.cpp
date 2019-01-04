@@ -21,21 +21,25 @@
 
 #include "IO/Path.h"
 
-#include <wx/stdpaths.h>
-#include <wx/utils.h>
+#include <QCoreApplication>
+#include <QProcessEnvironment>
+#include <QString>
+#include <QStandardPaths>
 
 namespace TrenchBroom {
     namespace IO {
         namespace SystemPaths {
             Path appDirectory() {
-                return IO::Path(wxStandardPaths::Get().GetExecutablePath().ToStdString()).deleteLastComponent();
+                return IO::Path(QCoreApplication::applicationDirPath().toStdString());
             }
             
 #if defined __linux__ || defined __FreeBSD__
             static bool getDevMode() {
-                wxString value;
-                if (!wxGetEnv("TB_DEV_MODE", &value))
+                QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
+                QString value = environment.value("TB_DEV_MODE");
+                if (value.isEmpty()) {
                     return false;
+                }
                 return value != "0";
             }
 #endif
@@ -46,11 +50,14 @@ namespace TrenchBroom {
                 if (DevMode)
                     return appDirectory();
 #endif
-                return IO::Path(wxStandardPaths::Get().GetResourcesDir().ToStdString());
+                // FIXME: implement. Will need to return a list of Paths
+      //          return IO::Path(wxStandardPaths::Get().GetResourcesDir().ToStdString());
             }
 
             Path userDataDirectory() {
-                return IO::Path(wxStandardPaths::Get().GetUserDataDir().ToStdString());
+                // FIXME: confirm against wx
+                // FIXME: One of the uses of userDataDirectory() wants to read, not write
+                return IO::Path(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation).toStdString());
             }
             
             Path logFilePath() {
