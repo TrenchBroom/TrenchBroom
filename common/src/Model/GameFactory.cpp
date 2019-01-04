@@ -147,9 +147,9 @@ namespace TrenchBroom {
             const IO::Path userGameDir = IO::SystemPaths::userDataDirectory() + IO::Path("games");
             if (IO::Disk::directoryExists(resourceGameDir)) {
                 auto resourceFS = std::make_unique<IO::DiskFileSystem>(resourceGameDir);
-                m_configFS = std::make_unique<IO::WritableDiskFileSystem>(std::move(resourceFS), userGameDir, true);
+                m_configFS = std::make_unique<IO::WritableDiskFileSystemWithTemporaries>(std::move(resourceFS), userGameDir, true);
             } else {
-                m_configFS = std::make_unique<IO::WritableDiskFileSystem>(userGameDir, true);
+                m_configFS = std::make_unique<IO::WritableDiskFileSystemWithTemporaries>(userGameDir, true);
             }
         }
 
