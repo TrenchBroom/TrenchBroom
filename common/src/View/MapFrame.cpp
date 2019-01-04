@@ -77,6 +77,7 @@
 #include "View/VertexTool.h"
 #include "View/ViewUtils.h"
 #include "View/wxUtils.h"
+#include "View/ModifiableMenuItem.h"
 
 #include <vecmath/util.h>
 
@@ -539,27 +540,43 @@ namespace TrenchBroom {
             connect(editDeactivateToolAction, &QAction::triggered, this, &MapFrame::OnEditDeactivateTool); //, this, CommandIds::Menu::EditDeactivateTool);
 
             editToggleCreateComplexBrushToolAction = new QAction("Brush Tool", this);
+            editToggleCreateComplexBrushToolAction->setCheckable(true);
+            editToggleCreateComplexBrushToolAction->setData(QVariant::fromValue(ModifiableMenuItem(IO::Path("Brush Tool"), "B")));
             connect(editToggleCreateComplexBrushToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleCreateComplexBrushTool); //, this, CommandIds::Menu::EditToggleCreateComplexBrushTool);
 
             editToggleClipToolAction = new QAction("Clip Tool", this);
+            editToggleClipToolAction->setCheckable(true);
+            editToggleClipToolAction->setData(QVariant::fromValue(ModifiableMenuItem(IO::Path("Clip Tool"), "C")));
             connect(editToggleClipToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleClipTool); //, this, CommandIds::Menu::EditToggleClipTool);
 
             editToggleRotateObjectsToolAction = new QAction("Rotate Tool", this);
+            editToggleRotateObjectsToolAction->setCheckable(true);
+            editToggleRotateObjectsToolAction->setData(QVariant::fromValue(ModifiableMenuItem(IO::Path("Rotate Tool"), "R")));
             connect(editToggleRotateObjectsToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleRotateObjectsTool); //, this, CommandIds::Menu::EditToggleRotateObjectsTool);
 
             editToggleScaleObjectsToolAction = new QAction("Scale Tool", this);
+            editToggleScaleObjectsToolAction->setCheckable(true);
+            editToggleScaleObjectsToolAction->setData(QVariant::fromValue(ModifiableMenuItem(IO::Path("Scale Tool"), "T")));
             connect(editToggleScaleObjectsToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleScaleObjectsTool); //, this, CommandIds::Menu::EditToggleScaleObjectsTool);
 
             editToggleShearObjectsToolAction = new QAction("Shear Tool", this);
+            editToggleShearObjectsToolAction->setCheckable(true);
+            editToggleShearObjectsToolAction->setData(QVariant::fromValue(ModifiableMenuItem(IO::Path("Shear Tool"), "G")));
             connect(editToggleShearObjectsToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleShearObjectsTool); //, this, CommandIds::Menu::EditToggleShearObjectsTool);
 
             editToggleVertexToolAction = new QAction("Vertex Tool", this);
+            editToggleVertexToolAction->setCheckable(true);
+            editToggleVertexToolAction->setData(QVariant::fromValue(ModifiableMenuItem(IO::Path("Vertex Tool"), "V")));
             connect(editToggleVertexToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleVertexTool); //, this, CommandIds::Menu::EditToggleVertexTool);
 
             editToggleEdgeToolAction = new QAction("Edge Tool", this);
+            editToggleEdgeToolAction->setCheckable(true);
+            editToggleEdgeToolAction->setData(QVariant::fromValue(ModifiableMenuItem(IO::Path("Edge Tool"), "E")));
             connect(editToggleEdgeToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleEdgeTool); //, this, CommandIds::Menu::EditToggleEdgeTool);
 
             editToggleFaceToolAction = new QAction("Face Tool", this);
+            editToggleFaceToolAction->setCheckable(true);
+            editToggleFaceToolAction->setData(QVariant::fromValue(ModifiableMenuItem(IO::Path("Face Tool"), "F")));
             connect(editToggleFaceToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleFaceTool); //, this, CommandIds::Menu::EditToggleFaceTool);
 
 
@@ -753,6 +770,21 @@ namespace TrenchBroom {
 
             helpAboutAction = new QAction("About TrenchBroom", this);
             connect(helpAboutAction, &QAction::triggered, &TrenchBroomApp::instance(), &TrenchBroomApp::OnOpenAbout);
+
+            // set up bindings
+            for (QObject* child : children()) {
+                if (QAction* action = dynamic_cast<QAction*>(child); action != nullptr) {
+                    qDebug("found action %s", action->text().toStdString().c_str());
+                    if (action->data().canConvert<ModifiableMenuItem>()) {
+                        const auto menuInfo = action->data().value<ModifiableMenuItem>();
+                        qDebug("found path %s, binding: %s",
+                                menuInfo.configPath().asString().c_str(),
+                               menuInfo.defaultKey().toStdString().c_str());
+
+                        action->setShortcut(QKeySequence(menuInfo.defaultKey()));
+                    }
+                }
+            }
         }
 
 
