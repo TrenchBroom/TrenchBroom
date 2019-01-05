@@ -67,7 +67,16 @@ namespace TrenchBroom {
                     throw ParserException(token.line(), token.column(), "Expected string '" + expected + "', but got '" + token.data() + "'");
                 }
             }
-        private:
+
+            void expect(const StringList& expected, const Token& token) const {
+                for (const auto& str : expected) {
+                    if (token.data() == str) {
+                        return;
+                    }
+                }
+                throw ParserException(token.line(), token.column(), "Expected string '" + StringUtils::join(expected, "', '", "', or '", "' or '") + "', but got '" + token.data() + "'");
+            }
+       private:
             String expectString(const String& expected, const Token& token) const {
                 StringStream msg;
                 msg << "Expected " << expected << ", but got " << tokenName(token.type());

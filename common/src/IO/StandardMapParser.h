@@ -67,8 +67,11 @@ namespace TrenchBroom {
 
         class StandardMapParser : public MapParser, public Parser<QuakeMapToken::Type> {
         private:
-            typedef QuakeMapTokenizer::Token Token;
-            typedef std::set<Model::AttributeName> AttributeNames;
+            using Token = QuakeMapTokenizer::Token;
+            using AttributeNames = std::set<Model::AttributeName>;
+
+            static const String BrushPrimitiveId;
+            static const String PatchId;
 
             QuakeMapTokenizer m_tokenizer;
             Model::MapFormat m_format;
@@ -91,7 +94,7 @@ namespace TrenchBroom {
             void parseEntity(ParserStatus& status);
             void parseEntityAttribute(Model::EntityAttribute::List& attributes, AttributeNames& names, ParserStatus& status);
 
-            void parseBrushOrBrushPrimitive(ParserStatus& status);
+            void parseBrushOrBrushPrimitiveOrPatch(ParserStatus& status);
             void parseBrushPrimitive(ParserStatus& status, size_t startLine);
             void parseBrush(ParserStatus& status, size_t startLine, bool primitive);
 
@@ -104,12 +107,24 @@ namespace TrenchBroom {
             void parsePrimitiveFace(ParserStatus& status);
             bool checkFacePoints(ParserStatus& status, const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, size_t line) const;
 
+            void parsePatch(ParserStatus& status, size_t startLine);
+
             std::tuple<vm::vec3, vm::vec3, vm::vec3> parseFacePoints(ParserStatus& status);
             String parseTextureName(ParserStatus& status);
             std::tuple<vm::vec3, float, vm::vec3, float> parseValveTextureAxes(ParserStatus& status);
             std::tuple<vm::vec3, vm::vec3> parsePrimitiveTextureAxes(ParserStatus& status);
 
-            vm::vec3 parseVector();
+            template <size_t S=3, typename T=FloatType>
+            vm::vec<T,S> parseFloatVector(const QuakeMapToken::Type o, const QuakeMapToken::Type c) {
+                expect(o, m_tokenizer.nextToken());
+                vm::vec<T,S> vec;
+                for (size_t i = 0; i < S; i++) {
+                    vec[i] = expect(QuakeMapToken::Number, m_tokenizer.nextToken()).toFloat<T>();
+                }
+                expect(c, m_tokenizer.nextToken());
+                return vec;
+            }
+
             float parseFloat();
             int parseInteger();
 

@@ -24,11 +24,14 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
+#include "Model/Layer.h"
 #include "Model/World.h"
 
 namespace TrenchBroom {
     namespace IO {
-        inline Model::BrushFace* findFaceByPoints(const Model::BrushFaceList& faces, const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2) {
+        inline Model::BrushFace*
+        findFaceByPoints(const Model::BrushFaceList& faces, const vm::vec3& point0, const vm::vec3& point1,
+                         const vm::vec3& point2) {
             for (Model::BrushFace* face : faces) {
                 if (face->points()[0] == point0 &&
                     face->points()[1] == point1 &&
@@ -37,7 +40,7 @@ namespace TrenchBroom {
             }
             return nullptr;
         }
-        
+
         TEST(WorldReaderTest, parseFailure_1424) {
             const String data(R"(
 {
@@ -54,45 +57,45 @@ namespace TrenchBroom {
 })");
 
             vm::bbox3 worldBounds(8192);
-            
+
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
-            
+
             Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
-            
+
             ASSERT_TRUE(world != nullptr);
             delete world;
         }
-        
+
         TEST(WorldReaderTest, parseEmptyMap) {
             const String data("");
             vm::bbox3 worldBounds(8192);
-            
+
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
-            
+
             Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
-            
+
             ASSERT_TRUE(world != nullptr);
             ASSERT_EQ(1u, world->childCount());
             ASSERT_FALSE(world->children().front()->hasChildren());
-            
+
             delete world;
         }
 
         TEST(WorldReaderTest, parseMapWithEmptyEntity) {
             const String data("{}");
             vm::bbox3 worldBounds(8192);
-            
+
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
-            
+
             Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
-            
+
             ASSERT_TRUE(world != nullptr);
             ASSERT_EQ(1u, world->childCount());
             ASSERT_EQ(1u, world->children().front()->childCount());
-            
+
             delete world;
         }
 
@@ -105,19 +108,19 @@ namespace TrenchBroom {
 )");
 
             vm::bbox3 worldBounds(8192);
-            
+
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
-            
+
             Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
-            
+
             ASSERT_TRUE(world != nullptr);
             ASSERT_EQ(1u, world->childCount());
             ASSERT_FALSE(world->children().front()->hasChildren());
-            
+
             ASSERT_TRUE(world->hasAttribute(Model::AttributeNames::Classname));
             ASSERT_STREQ("yay", world->attribute("message").c_str());
-            
+
             delete world;
         }
 
@@ -135,12 +138,12 @@ namespace TrenchBroom {
 )");
 
             vm::bbox3 worldBounds(8192);
-            
+
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
 
             Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
-            
+
             ASSERT_TRUE(world != nullptr);
             ASSERT_TRUE(world->hasAttribute(Model::AttributeNames::Classname));
             ASSERT_STREQ("yay", world->attribute("message").c_str());
@@ -148,7 +151,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
-            
+
             Model::Entity* entity = static_cast<Model::Entity*>(defaultLayer->children().front());
             ASSERT_TRUE(entity->hasAttribute("classname"));
             ASSERT_STREQ("info_player_deathmatch", entity->attribute("classname").c_str());
@@ -156,7 +159,7 @@ namespace TrenchBroom {
             ASSERT_STREQ("1 22 -3", entity->attribute("origin").c_str());
             ASSERT_TRUE(entity->hasAttribute("angle"));
             ASSERT_STREQ(" -1 ", entity->attribute("angle").c_str());
-            
+
             delete world;
         }
 
@@ -174,7 +177,7 @@ namespace TrenchBroom {
 }
 })");
             vm::bbox3 worldBounds(8192);
-            
+
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
 
@@ -183,12 +186,13 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
-            
+
             Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
             const Model::BrushFaceList& faces = brush->faces();
             ASSERT_EQ(6u, faces.size());
-            
-            const Model::BrushFace* face1 = findFaceByPoints(faces, vm::vec3(  0.0,   0.0, -16.0), vm::vec3(  0.0,   0.0,   0.0), vm::vec3( 64.0,   0.0, -16.0));
+
+            const Model::BrushFace* face1 = findFaceByPoints(faces, vm::vec3(0.0, 0.0, -16.0), vm::vec3(0.0, 0.0, 0.0),
+                                                             vm::vec3(64.0, 0.0, -16.0));
             ASSERT_TRUE(face1 != nullptr);
             ASSERT_STREQ("tex1", face1->textureName().c_str());
             ASSERT_FLOAT_EQ(1.0, face1->xOffset());
@@ -196,13 +200,18 @@ namespace TrenchBroom {
             ASSERT_FLOAT_EQ(3.0, face1->rotation());
             ASSERT_FLOAT_EQ(4.0, face1->xScale());
             ASSERT_FLOAT_EQ(5.0, face1->yScale());
-            
-            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(  0.0,   0.0, -16.0), vm::vec3(  0.0,  64.0, -16.0), vm::vec3(  0.0,   0.0,   0.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(  0.0,   0.0, -16.0), vm::vec3( 64.0,   0.0, -16.0), vm::vec3(  0.0,  64.0, -16.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3( 64.0,  64.0,   0.0), vm::vec3(  0.0,  64.0,   0.0), vm::vec3( 64.0,  64.0, -16.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3( 64.0,  64.0,   0.0), vm::vec3( 64.0,  64.0, -16.0), vm::vec3( 64.0,   0.0,   0.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3( 64.0,  64.0,   0.0), vm::vec3( 64.0,   0.0,   0.0), vm::vec3(  0.0,  64.0,   0.0)) != nullptr);
-            
+
+            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(0.0, 0.0, -16.0), vm::vec3(0.0, 64.0, -16.0),
+                                         vm::vec3(0.0, 0.0, 0.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(0.0, 0.0, -16.0), vm::vec3(64.0, 0.0, -16.0),
+                                         vm::vec3(0.0, 64.0, -16.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(64.0, 64.0, 0.0), vm::vec3(0.0, 64.0, 0.0),
+                                         vm::vec3(64.0, 64.0, -16.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(64.0, 64.0, 0.0), vm::vec3(64.0, 64.0, -16.0),
+                                         vm::vec3(64.0, 0.0, 0.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(64.0, 64.0, 0.0), vm::vec3(64.0, 0.0, 0.0),
+                                         vm::vec3(0.0, 64.0, 0.0)) != nullptr);
+
             delete world;
         }
 
@@ -220,28 +229,29 @@ namespace TrenchBroom {
 }
 })");
             vm::bbox3 worldBounds(8192);
-            
+
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
-            
+
             Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
-            
+
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
-            
+
             Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
             const Model::BrushFaceList& faces = brush->faces();
             ASSERT_EQ(6u, faces.size());
-            
-            Model::BrushFace* face = findFaceByPoints(faces, vm::vec3(  0.0,   0.0, -16.0), vm::vec3(  0.0,   0.0,   0.0), vm::vec3( 64.0,   0.0, -16.0));
+
+            Model::BrushFace* face = findFaceByPoints(faces, vm::vec3(0.0, 0.0, -16.0), vm::vec3(0.0, 0.0, 0.0),
+                                                      vm::vec3(64.0, 0.0, -16.0));
             ASSERT_TRUE(face != nullptr);
             ASSERT_FLOAT_EQ(22.0f, face->xOffset());
             ASSERT_FLOAT_EQ(22.0f, face->xOffset());
             ASSERT_FLOAT_EQ(56.2f, face->rotation());
             ASSERT_FLOAT_EQ(1.03433f, face->xScale());
             ASSERT_FLOAT_EQ(-0.55f, face->yScale());
-            
+
             delete world;
         }
 
@@ -259,27 +269,33 @@ namespace TrenchBroom {
 }
 })");
             vm::bbox3 worldBounds(8192);
-            
+
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
-            
+
             Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
-            
+
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
-            
+
             Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
             const Model::BrushFaceList faces = brush->faces();
             ASSERT_EQ(6u, faces.size());
-            
-            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(  0.0,   0.0, -16.0), vm::vec3(  0.0,   0.0,   0.0), vm::vec3( 64.0,   0.0, -16.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(  0.0,   0.0, -16.0), vm::vec3(  0.0,  64.0, -16.0), vm::vec3(  0.0,   0.0,   0.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(  0.0,   0.0, -16.0), vm::vec3( 64.0,   0.0, -16.0), vm::vec3(  0.0,  64.0, -16.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3( 64.0,  64.0,   0.0), vm::vec3(  0.0,  64.0,   0.0), vm::vec3( 64.0,  64.0, -16.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3( 64.0,  64.0,   0.0), vm::vec3( 64.0,  64.0, -16.0), vm::vec3( 64.0,   0.0,   0.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3( 64.0,  64.0,   0.0), vm::vec3( 64.0,   0.0,   0.0), vm::vec3(  0.0,  64.0,   0.0)) != nullptr);
-            
+
+            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(0.0, 0.0, -16.0), vm::vec3(0.0, 0.0, 0.0),
+                                         vm::vec3(64.0, 0.0, -16.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(0.0, 0.0, -16.0), vm::vec3(0.0, 64.0, -16.0),
+                                         vm::vec3(0.0, 0.0, 0.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(0.0, 0.0, -16.0), vm::vec3(64.0, 0.0, -16.0),
+                                         vm::vec3(0.0, 64.0, -16.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(64.0, 64.0, 0.0), vm::vec3(0.0, 64.0, 0.0),
+                                         vm::vec3(64.0, 64.0, -16.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(64.0, 64.0, 0.0), vm::vec3(64.0, 64.0, -16.0),
+                                         vm::vec3(64.0, 0.0, 0.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(64.0, 64.0, 0.0), vm::vec3(64.0, 0.0, 0.0),
+                                         vm::vec3(0.0, 64.0, 0.0)) != nullptr);
+
             delete world;
         }
 
@@ -297,26 +313,32 @@ namespace TrenchBroom {
 }
 })");
             vm::bbox3 worldBounds(8192);
-            
+
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
-            
+
             Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
-            
+
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
-            
+
             Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
             const Model::BrushFaceList faces = brush->faces();
             ASSERT_EQ(6u, faces.size());
-            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(308.0, 108.0, 176.0), vm::vec3(308.0, 132.0, 176.0), vm::vec3(252.0, 132.0, 176.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(252.0, 132.0, 208.0), vm::vec3(308.0, 132.0, 208.0), vm::vec3(308.0, 108.0, 208.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(288.0, 152.0, 176.0), vm::vec3(288.0, 152.0, 208.0), vm::vec3(288.0, 120.0, 208.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(288.0, 122.0, 176.0), vm::vec3(288.0, 122.0, 208.0), vm::vec3(308.0, 102.0, 208.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(308.0, 100.0, 176.0), vm::vec3(308.0, 100.0, 208.0), vm::vec3(324.0, 116.0, 208.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(287.0, 152.0, 208.0), vm::vec3(287.0, 152.0, 176.0), vm::vec3(323.0, 116.0, 176.0)) != nullptr);
-            
+            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(308.0, 108.0, 176.0), vm::vec3(308.0, 132.0, 176.0),
+                                         vm::vec3(252.0, 132.0, 176.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(252.0, 132.0, 208.0), vm::vec3(308.0, 132.0, 208.0),
+                                         vm::vec3(308.0, 108.0, 208.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(288.0, 152.0, 176.0), vm::vec3(288.0, 152.0, 208.0),
+                                         vm::vec3(288.0, 120.0, 208.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(288.0, 122.0, 176.0), vm::vec3(288.0, 122.0, 208.0),
+                                         vm::vec3(308.0, 102.0, 208.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(308.0, 100.0, 176.0), vm::vec3(308.0, 100.0, 208.0),
+                                         vm::vec3(324.0, 116.0, 208.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(287.0, 152.0, 208.0), vm::vec3(287.0, 152.0, 176.0),
+                                         vm::vec3(323.0, 116.0, 176.0)) != nullptr);
+
             delete world;
         }
 
@@ -334,19 +356,19 @@ namespace TrenchBroom {
 }
 })");
             vm::bbox3 worldBounds(8192);
-            
+
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
-            
+
             Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
-            
+
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
-            
+
             delete world;
         }
-        
+
         TEST(WorldReaderTest, parseProblematicBrush3) {
             const String data(R"(
 {
@@ -361,16 +383,16 @@ namespace TrenchBroom {
 }
 })");
             vm::bbox3 worldBounds(8192);
-            
+
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
-            
+
             Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
-            
+
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
-            
+
             delete world;
         }
 
@@ -388,19 +410,19 @@ namespace TrenchBroom {
 }
 })");
             vm::bbox3 worldBounds(8192);
-            
+
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
-            
+
             Model::World* world = reader.read(Model::MapFormat::Valve, worldBounds, status);
-            
+
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
-            
+
             delete world;
         }
-        
+
         TEST(WorldReaderTest, parseQuake2Brush) {
             const String data(R"(
 {
@@ -415,16 +437,16 @@ namespace TrenchBroom {
 }
 })");
             vm::bbox3 worldBounds(8192);
-            
+
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
-            
+
             Model::World* world = reader.read(Model::MapFormat::Quake2, worldBounds, status);
-            
+
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
-            
+
             delete world;
         }
 
@@ -520,19 +542,19 @@ namespace TrenchBroom {
 }
 })");
             vm::bbox3 worldBounds(8192);
-            
+
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
-            
+
             Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
-            
+
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
-            
+
             delete world;
         }
-        
+
         TEST(WorldReaderTest, parseBrushesWithLayer) {
             const String data(R"(
 {
@@ -569,19 +591,19 @@ namespace TrenchBroom {
 }
 })");
             vm::bbox3 worldBounds(8192);
-            
+
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
-            
+
             Model::World* world = reader.read(Model::MapFormat::Quake2, worldBounds, status);
-            
+
             ASSERT_EQ(2u, world->childCount());
             ASSERT_EQ(2u, world->children().front()->childCount());
             ASSERT_EQ(1u, world->children().back()->childCount());
-            
+
             delete world;
         }
-        
+
         TEST(WorldReaderTest, parseEntitiesAndBrushesWithLayer) {
             const String data(R"(
 {
@@ -630,20 +652,20 @@ namespace TrenchBroom {
 }
 })");
             vm::bbox3 worldBounds(8192);
-            
+
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
-            
+
             Model::World* world = reader.read(Model::MapFormat::Quake2, worldBounds, status);
-            
+
             ASSERT_EQ(2u, world->childCount());
             ASSERT_EQ(2u, world->children().front()->childCount()); // default layer
             ASSERT_EQ(2u, world->children().back()->childCount()); // My Layer
             ASSERT_EQ(1u, world->children().back()->children().back()->childCount());
-            
+
             delete world;
         }
-        
+
         TEST(WorldReaderTest, parseEntitiesAndBrushesWithGroup) {
             const String data(R"(
 {
@@ -707,23 +729,23 @@ namespace TrenchBroom {
 }
 })");
             vm::bbox3 worldBounds(8192);
-            
+
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
-            
+
             Model::World* world = reader.read(Model::MapFormat::Quake2, worldBounds, status);
-            
+
             ASSERT_EQ(1u, world->childCount());
-            
+
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(3u, defaultLayer->childCount());
-            
+
             Model::Node* myGroup = defaultLayer->children().back();
             ASSERT_EQ(3u, myGroup->childCount());
-            
+
             Model::Node* mySubGroup = myGroup->children().back();
             ASSERT_EQ(1u, mySubGroup->childCount());
-            
+
             delete world;
         }
 
@@ -751,12 +773,83 @@ namespace TrenchBroom {
 
             Model::World* world = reader.read(Model::MapFormat::Quake3, worldBounds, status);
 
+            // TODO 2427: Assert one brush!
+            ASSERT_EQ(0u, world->defaultLayer()->childCount());
+
             delete world;
         }
-        
+
+        TEST(WorldReaderTest, parseBrushPrimitiveAndLegacyBrush) {
+            const String data(R"(
+{
+"classname" "worldspawn"
+{
+brushDef
+{
+( -64 64 64 ) ( 64 -64 64 ) ( -64 -64 64 ) ( ( 0.015625 0 -0 ) ( -0 0.015625 0 ) ) common/caulk 0 0 0
+( -64 64 64 ) ( 64 64 -64 ) ( 64 64 64 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) common/caulk 0 0 0
+( 64 64 64 ) ( 64 -64 -64 ) ( 64 -64 64 ) ( ( 0.015625 0 -0 ) ( -0 0.015625 0 ) ) common/caulk 0 0 0
+( 64 64 -64 ) ( -64 -64 -64 ) ( 64 -64 -64 ) ( ( 0.015625 0 -0 ) ( -0 0.015625 0 ) ) common/caulk 0 0 0
+( 64 -64 -64 ) ( -64 -64 64 ) ( 64 -64 64 ) ( ( 0.015625 0 -0 ) ( -0 0.015625 0 ) ) common/caulk 0 0 0
+( -64 -64 64 ) ( -64 64 -64 ) ( -64 64 64 ) ( ( 0.015625 0 -0 ) ( -0 0.015625 0 ) ) common/caulk 0 0 0
+}
+}
+{
+( 64 64 64 ) ( 64 -64 64 ) ( -64 64 64 ) common/caulk 0 0 0 1 1 134217728 0 0
+( 64 64 64 ) ( -64 64 64 ) ( 64 64 -64 ) common/caulk 0 0 0 1 1 134217728 0 0
+( 64 64 64 ) ( 64 64 -64 ) ( 64 -64 64 ) common/caulk 0 0 0 1 1 134217728 0 0
+( -64 -64 -64 ) ( 64 -64 -64 ) ( -64 64 -64 ) common/caulk 0 0 0 1 1 134217728 0 0
+( -64 -64 -64 ) ( -64 -64 64 ) ( 64 -64 -64 ) common/caulk 0 0 0 1 1 134217728 0 0
+( -64 -64 -64 ) ( -64 64 -64 ) ( -64 -64 64 ) common/caulk 0 0 0 1 1 134217728 0 0
+}
+})");
+
+            vm::bbox3 worldBounds(8192);
+
+            IO::TestParserStatus status;
+            WorldReader reader(data, nullptr);
+
+            Model::World* world = reader.read(Model::MapFormat::Quake3, worldBounds, status);
+
+            // TODO 2427: Assert two brushes!
+            ASSERT_EQ(1u, world->defaultLayer()->childCount());
+
+            delete world;
+        }
+
+        TEST(WorldReaderTest, parseQuake3Patch) {
+            const String data(R"(
+{
+"classname" "worldspawn"
+{
+patchDef2
+{
+common/caulk
+( 3 3 0 0 0 )
+(
+( ( -64 -64 4 0 0 ) ( -64 0 4 0 -0.25 ) ( -64 64 4 0 -0.5 ) )
+( ( 0 -64 4 0.25 0 ) ( 0 0 4 0.25 -0.25 ) ( 0 64 4 0.25 -0.5 ) )
+( ( 64 -64 4 0.5 0 ) ( 64 0 4 0.5 -0.25 ) ( 64 64 4 0.5 -0.5 ) )
+)
+}
+}
+})");
+            vm::bbox3 worldBounds(8192);
+
+            IO::TestParserStatus status;
+            WorldReader reader(data, nullptr);
+
+            Model::World* world = reader.read(Model::MapFormat::Quake3, worldBounds, status);
+
+            // TODO 2428: Assert one patch!
+            ASSERT_EQ(0u, world->defaultLayer()->childCount());
+
+            delete world;
+        }
+
         TEST(WorldReaderTest, parseMultipleClassnames) {
             // See https://github.com/kduske/TrenchBroom/issues/1485
-            
+
             const String data(R"(
 {
 "classname" "worldspawn"
@@ -764,12 +857,11 @@ namespace TrenchBroom {
 })");
 
             vm::bbox3 worldBounds(8192);
-            
+
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
-            
+
             Model::World* world = reader.read(Model::MapFormat::Quake2, worldBounds, status);
-            
             delete world;
         }
 
@@ -780,22 +872,22 @@ namespace TrenchBroom {
 "message" "yay \"Mr. Robot!\""
 })");
             vm::bbox3 worldBounds(8192);
-            
+
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
-            
+
             Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
-            
+
             ASSERT_TRUE(world != nullptr);
             ASSERT_EQ(1u, world->childCount());
             ASSERT_FALSE(world->children().front()->hasChildren());
-            
+
             ASSERT_TRUE(world->hasAttribute(Model::AttributeNames::Classname));
             ASSERT_STREQ("yay \\\"Mr. Robot!\\\"", world->attribute("message").c_str());
-            
+
             delete world;
         }
-        
+
         TEST(WorldReaderTest, parseAttributeWithUnescapedPathAndTrailingBackslash) {
             const String data(R"(
 {
@@ -803,22 +895,22 @@ namespace TrenchBroom {
 "path" "c:\a\b\c\"
 })");
             vm::bbox3 worldBounds(8192);
-            
+
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
-            
+
             Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
-            
+
             ASSERT_TRUE(world != nullptr);
             ASSERT_EQ(1u, world->childCount());
             ASSERT_FALSE(world->children().front()->hasChildren());
-            
+
             ASSERT_TRUE(world->hasAttribute(Model::AttributeNames::Classname));
             ASSERT_STREQ("c:\\a\\b\\c\\", world->attribute("path").c_str());
-            
+
             delete world;
         }
-        
+
         TEST(WorldReaderTest, parseAttributeWithEscapedPathAndTrailingBackslash) {
             const String data(R"(
 {
@@ -826,22 +918,22 @@ namespace TrenchBroom {
 "path" "c:\\a\\b\\c\\"
 })");
             vm::bbox3 worldBounds(8192);
-            
+
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
-            
+
             Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
-            
+
             ASSERT_TRUE(world != nullptr);
             ASSERT_EQ(1u, world->childCount());
             ASSERT_FALSE(world->children().front()->hasChildren());
-            
+
             ASSERT_TRUE(world->hasAttribute(Model::AttributeNames::Classname));
             ASSERT_STREQ("c:\\\\a\\\\b\\\\c\\\\", world->attribute("path").c_str());
-            
+
             delete world;
         }
-        
+
         TEST(WorldReaderTest, parseAttributeTrailingEscapedBackslash) {
             const String data(R"(
 {
@@ -850,22 +942,22 @@ namespace TrenchBroom {
 })"
             );
             vm::bbox3 worldBounds(8192);
-            
+
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
-            
+
             Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
-            
+
             ASSERT_TRUE(world != nullptr);
             ASSERT_EQ(1u, world->childCount());
             ASSERT_FALSE(world->children().front()->hasChildren());
-            
+
             ASSERT_TRUE(world->hasAttribute(Model::AttributeNames::Classname));
             ASSERT_STREQ("test\\\\", world->attribute("message").c_str());
-            
+
             delete world;
         }
-        
+
         // https://github.com/kduske/TrenchBroom/issues/1739
         TEST(WorldReaderTest, parseAttributeNewlineEscapeSequence) {
             const String data(R"(
@@ -874,19 +966,19 @@ namespace TrenchBroom {
 "message" "vm::line1\nvm::line2"
 })");
             vm::bbox3 worldBounds(8192);
-            
+
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
-            
+
             Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
-            
+
             ASSERT_TRUE(world != nullptr);
             ASSERT_EQ(1u, world->childCount());
             ASSERT_FALSE(world->children().front()->hasChildren());
-            
+
             ASSERT_TRUE(world->hasAttribute(Model::AttributeNames::Classname));
             ASSERT_STREQ("vm::line1\\nvm::line2", world->attribute("message").c_str());
-            
+
             delete world;
         }
 
