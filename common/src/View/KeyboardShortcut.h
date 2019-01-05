@@ -112,6 +112,9 @@ namespace TrenchBroom {
             wxString asJsonString() const;
             wxString asString() const;
         };
+
+        int wxModifierToQt(int wxMod);
+        int wxKeyToQt(int wxKey);
     }
 }
 
