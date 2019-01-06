@@ -540,8 +540,7 @@ namespace TrenchBroom {
 
             expect(QuakeMapToken::OParenthesis, m_tokenizer.nextToken());
 
-            // TODO 2427: remove maybe_unused
-            [[maybe_unused]] const auto [texX, texY] = parsePrimitiveTextureAxes(status);
+            /* const auto [texX, texY] = */ parsePrimitiveTextureAxes(status);
             expect(QuakeMapToken::CParenthesis, m_tokenizer.nextToken());
 
             const auto textureName = parseTextureName(status);
