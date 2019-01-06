@@ -243,4 +243,4 @@ Compiling and linking TrenchBroom requires a working OpenGL installation. [This 
 ### Notes
 - You can install your preferred wxWidgets configuration using `make install`. If you wish to do this, then you can omit specifying the `wxWidgets_PREFIX` variable when generating the build configs with Cmake.
 - The changelog is generated with `git log --oneline --decorate <LAST_REL_TAG>..HEAD`, where <LAST_REL_TAG> is replaced by whatever tag marks the last release. The generated log is then manually cleaned up.
-- To create a release, push the appropriate tag, e.g. `git tag -a v2.0.0-RC5 -m "This tag marks TrenchBroom 2 release candidate 5."`, then `git push origin v2.0.0-RC5`.
+- To create a release, push the appropriate tag, e.g. `git tag -a v2019.1 -m "This tag marks TrenchBroom 2019.1."`, then `git push origin v2019.1`.
