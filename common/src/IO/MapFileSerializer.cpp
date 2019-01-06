@@ -18,7 +18,9 @@
  */
 
 #include "MapFileSerializer.h"
+
 #include "Exceptions.h"
+#include "Macros.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/Path.h"
 #include "Model/BrushFace.h"
@@ -213,6 +215,7 @@ namespace TrenchBroom {
                     return NodeSerializer::Ptr(new Hexen2FileSerializer(stream));
                 case Model::MapFormat::Unknown:
                     throw FileFormatException("Unknown map file format");
+                switchDefault()
             }
         }
         

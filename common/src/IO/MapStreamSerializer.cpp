@@ -18,6 +18,8 @@
  */
 
 #include "MapStreamSerializer.h"
+
+#include "Macros.h"
 #include "StringUtils.h"
 #include "Model/BrushFace.h"
 
@@ -184,6 +186,7 @@ namespace TrenchBroom {
                     return NodeSerializer::Ptr(new Hexen2StreamSerializer(stream));
                 case Model::MapFormat::Unknown:
                     throw FileFormatException("Unknown map file format");
+                switchDefault()
             }
         }
 
