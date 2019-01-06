@@ -172,6 +172,9 @@ namespace TrenchBroom {
                 case Model::MapFormat::Standard:
                     return NodeSerializer::Ptr(new QuakeStreamSerializer(stream));
                 case Model::MapFormat::Quake2:
+                    // TODO 2427: Implement Quake3 serializers and use them
+                case Model::MapFormat::Quake3:
+                case Model::MapFormat::Quake3_Legacy:
                     return NodeSerializer::Ptr(new Quake2StreamSerializer(stream));
                 case Model::MapFormat::Daikatana:
                     return NodeSerializer::Ptr(new DaikatanaStreamSerializer(stream));
@@ -180,7 +183,6 @@ namespace TrenchBroom {
                 case Model::MapFormat::Hexen2:
                     return NodeSerializer::Ptr(new Hexen2StreamSerializer(stream));
                 case Model::MapFormat::Unknown:
-                default:
                     throw FileFormatException("Unknown map file format");
             }
         }
