@@ -36,6 +36,7 @@ class QLabel;
 class QMenuBar;
 class QAction;
 class QActionGroup;
+class QComboBox;
 
 namespace TrenchBroom {
     class Logger;
@@ -78,9 +79,7 @@ namespace TrenchBroom {
             // FIXME: only used for rebuildMenuBar(). drop?
             //wxWindow* m_lastFocus;
 
-#if 0
-            wxChoice* m_gridChoice;
-#endif
+            QComboBox* m_gridChoice;
             QLabel* m_statusBarLabel;
 
 #if 0
@@ -190,6 +189,9 @@ namespace TrenchBroom {
 
             QAction* helpManualAction;
             QAction* helpAboutAction;
+
+            QAction* flipObjectsHorizontallyAction;
+            QAction* flipObjectsVerticallyAction;
         public:
             MapFrame();
             MapFrame(FrameManager* frameManager, MapDocumentSPtr document);
@@ -367,7 +369,7 @@ namespace TrenchBroom {
 
 //            void OnUpdateUI(wxUpdateUIEvent& event);
 
-            void OnToolBarSetGridSize();
+            void OnToolBarSetGridSize(int index);
         private:
             bool canUnloadPointFile() const;
             bool canReloadPointFile() const;

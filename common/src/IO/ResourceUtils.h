@@ -25,6 +25,7 @@
 #include <wx/icon.h>
 
 #include <QPixmap>
+#include <QIcon>
 
 namespace TrenchBroom {
     namespace IO {
@@ -35,6 +36,9 @@ namespace TrenchBroom {
 
         QPixmap loadPixmapResource(const String& name);
         QPixmap loadPixmapResource(const IO::Path& imagePath);
+
+        QIcon loadIconResourceQt(const IO::Path& imagePath);
+        QIcon loadIconResourceOffOnQt(const IO::Path& offImagePath, const IO::Path& onImagePath);
     }
 }
 

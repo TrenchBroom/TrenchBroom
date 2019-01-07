@@ -61,13 +61,32 @@ namespace TrenchBroom {
             }
         }
 
+        static QString imagePathToString(const IO::Path& imagePath) {
+            const IO::Path fullPath = imagePath.isAbsolute() ? imagePath : IO::SystemPaths::resourceDirectory() + IO::Path("images") + imagePath;
+            return QString::fromStdString(fullPath.asString());
+        }
+
         QPixmap loadPixmapResource(const String& name) {
             return loadPixmapResource(IO::Path(name));
         }
 
         QPixmap loadPixmapResource(const IO::Path& imagePath) {
-            const IO::Path fullPath = imagePath.isAbsolute() ? imagePath : IO::SystemPaths::resourceDirectory() + IO::Path("images") + imagePath;
-            return QPixmap(QString::fromStdString(fullPath.asString()));
+            const QString imagePathString = imagePathToString(imagePath);
+            return QPixmap(imagePathString);
+        }
+
+        QIcon loadIconResourceQt(const IO::Path& imagePath) {
+            const QString imagePathString = imagePathToString(imagePath);
+            return QIcon(imagePathString);
+        }
+        QIcon loadIconResourceOffOnQt(const IO::Path& offImagePath, const IO::Path& onImagePath) {
+            const QString offImagePathString = imagePathToString(offImagePath);
+            const QString onImagePathString = imagePathToString(onImagePath);
+
+            QIcon result;
+            result.addFile(offImagePathString, QSize(), QIcon::Normal, QIcon::Off);
+            result.addFile(onImagePathString, QSize(), QIcon::Normal, QIcon::On);
+            return result;
         }
     }
 }

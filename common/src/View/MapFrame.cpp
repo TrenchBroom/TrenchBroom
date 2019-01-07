@@ -33,6 +33,8 @@
 #include <QMenu>
 #include <QMenuBar>
 #include <QShortcut>
+#include <QToolBar>
+#include <QComboBox>
 
 #include "TrenchBroomApp.h"
 #include "Preferences.h"
@@ -129,9 +131,9 @@ namespace TrenchBroom {
             m_contextManager = new GLContextManager();
 
             createGui();
-            createToolBar();
             createMenuBar();
             createActions();
+            createToolBar();
 
             updateGridActions();
 
@@ -501,6 +503,7 @@ namespace TrenchBroom {
             connect(editPasteAtOriginalPositionAction, &QAction::triggered, this, &MapFrame::OnEditPasteAtOriginalPosition); //, this, CommandIds::Menu::EditPasteAtOriginalPosition);
 
             editDuplicateAction = new QAction("Duplicate", this);
+            editDuplicateAction->setIcon(IO::loadIconResourceQt(IO::Path("DuplicateObjects.png")));
             connect(editDuplicateAction, &QAction::triggered, this, &MapFrame::OnEditDuplicate); //, this, wxID_DUPLICATE);
 
             editDeleteAction = new QAction("Delete", this);
@@ -537,44 +540,53 @@ namespace TrenchBroom {
 
 
             editDeactivateToolAction = new QAction("Deactivate Tool", this);
+            editDeactivateToolAction->setIcon(IO::loadIconResourceQt(IO::Path("NoTool.png")));
             connect(editDeactivateToolAction, &QAction::triggered, this, &MapFrame::OnEditDeactivateTool); //, this, CommandIds::Menu::EditDeactivateTool);
 
             editToggleCreateComplexBrushToolAction = new QAction("Brush Tool", this);
+            editToggleCreateComplexBrushToolAction->setIcon(IO::loadIconResourceQt(IO::Path("BrushTool.png")));
             editToggleCreateComplexBrushToolAction->setCheckable(true);
             editToggleCreateComplexBrushToolAction->setData(QVariant::fromValue(ModifiableMenuItem(IO::Path("Brush Tool"), "B")));
             connect(editToggleCreateComplexBrushToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleCreateComplexBrushTool); //, this, CommandIds::Menu::EditToggleCreateComplexBrushTool);
 
             editToggleClipToolAction = new QAction("Clip Tool", this);
+            editToggleClipToolAction->setIcon(IO::loadIconResourceQt(IO::Path("ClipTool.png")));
             editToggleClipToolAction->setCheckable(true);
             editToggleClipToolAction->setData(QVariant::fromValue(ModifiableMenuItem(IO::Path("Clip Tool"), "C")));
             connect(editToggleClipToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleClipTool); //, this, CommandIds::Menu::EditToggleClipTool);
 
             editToggleRotateObjectsToolAction = new QAction("Rotate Tool", this);
+            editToggleRotateObjectsToolAction->setIcon(IO::loadIconResourceQt(IO::Path("RotateTool.png")));
             editToggleRotateObjectsToolAction->setCheckable(true);
             editToggleRotateObjectsToolAction->setData(QVariant::fromValue(ModifiableMenuItem(IO::Path("Rotate Tool"), "R")));
             connect(editToggleRotateObjectsToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleRotateObjectsTool); //, this, CommandIds::Menu::EditToggleRotateObjectsTool);
 
             editToggleScaleObjectsToolAction = new QAction("Scale Tool", this);
+            editToggleScaleObjectsToolAction->setIcon(IO::loadIconResourceQt(IO::Path("ScaleTool.png")));
             editToggleScaleObjectsToolAction->setCheckable(true);
             editToggleScaleObjectsToolAction->setData(QVariant::fromValue(ModifiableMenuItem(IO::Path("Scale Tool"), "T")));
             connect(editToggleScaleObjectsToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleScaleObjectsTool); //, this, CommandIds::Menu::EditToggleScaleObjectsTool);
 
             editToggleShearObjectsToolAction = new QAction("Shear Tool", this);
+            editToggleShearObjectsToolAction->setIcon(IO::loadIconResourceQt(IO::Path("ShearTool.png")));
             editToggleShearObjectsToolAction->setCheckable(true);
             editToggleShearObjectsToolAction->setData(QVariant::fromValue(ModifiableMenuItem(IO::Path("Shear Tool"), "G")));
             connect(editToggleShearObjectsToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleShearObjectsTool); //, this, CommandIds::Menu::EditToggleShearObjectsTool);
 
             editToggleVertexToolAction = new QAction("Vertex Tool", this);
+            editToggleVertexToolAction->setIcon(IO::loadIconResourceQt(IO::Path("VertexTool.png")));
             editToggleVertexToolAction->setCheckable(true);
             editToggleVertexToolAction->setData(QVariant::fromValue(ModifiableMenuItem(IO::Path("Vertex Tool"), "V")));
             connect(editToggleVertexToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleVertexTool); //, this, CommandIds::Menu::EditToggleVertexTool);
 
             editToggleEdgeToolAction = new QAction("Edge Tool", this);
+            editToggleEdgeToolAction->setIcon(IO::loadIconResourceQt(IO::Path("EdgeTool.png")));
             editToggleEdgeToolAction->setCheckable(true);
             editToggleEdgeToolAction->setData(QVariant::fromValue(ModifiableMenuItem(IO::Path("Edge Tool"), "E")));
             connect(editToggleEdgeToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleEdgeTool); //, this, CommandIds::Menu::EditToggleEdgeTool);
 
             editToggleFaceToolAction = new QAction("Face Tool", this);
+            editToggleFaceToolAction->setIcon(IO::loadIconResourceQt(IO::Path("FaceTool.png")));
             editToggleFaceToolAction->setCheckable(true);
             editToggleFaceToolAction->setData(QVariant::fromValue(ModifiableMenuItem(IO::Path("Face Tool"), "F")));
             connect(editToggleFaceToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleFaceTool); //, this, CommandIds::Menu::EditToggleFaceTool);
@@ -597,9 +609,13 @@ namespace TrenchBroom {
             connect(editReplaceTextureAction, &QAction::triggered, this, &MapFrame::OnEditReplaceTexture); //, this, CommandIds::Menu::EditReplaceTexture);
 
             editToggleTextureLockAction = new QAction("Texture Lock", this);
+            editToggleTextureLockAction->setCheckable(true);
+            editToggleTextureLockAction->setIcon(IO::loadIconResourceOffOnQt(IO::Path("TextureLockOff.png"), IO::Path("TextureLockOn.png")));
             connect(editToggleTextureLockAction, &QAction::triggered, this, &MapFrame::OnEditToggleTextureLock); //, this, CommandIds::Menu::EditToggleTextureLock);
 
             editToggleUVLockAction = new QAction("UV Lock", this);
+            editToggleUVLockAction->setCheckable(true);
+            editToggleUVLockAction->setIcon(IO::loadIconResourceOffOnQt(IO::Path("UVLockOff.png"), IO::Path("UVLockOn.png")));
             connect(editToggleUVLockAction, &QAction::triggered, this, &MapFrame::OnEditToggleUVLock); //, this, CommandIds::Menu::EditToggleUVLock);
 
             editSnapVerticesToIntegerAction = new QAction("Snap Vertices to Integer", this);
@@ -770,6 +786,14 @@ namespace TrenchBroom {
 
             helpAboutAction = new QAction("About TrenchBroom", this);
             connect(helpAboutAction, &QAction::triggered, &TrenchBroomApp::instance(), &TrenchBroomApp::OnOpenAbout);
+
+            flipObjectsHorizontallyAction = new QAction("Flip Horizontally", this);
+            flipObjectsHorizontallyAction->setIcon(IO::loadIconResourceQt(IO::Path("FlipHorizontally.png")));
+            connect(flipObjectsHorizontallyAction, &QAction::triggered, this, &MapFrame::OnFlipObjectsHorizontally);
+
+            flipObjectsVerticallyAction = new QAction("Flip Vertically", this);
+            flipObjectsVerticallyAction->setIcon(IO::loadIconResourceQt(IO::Path("FlipVertically.png")));
+            connect(flipObjectsVerticallyAction, &QAction::triggered, this, &MapFrame::OnFlipObjectsVertically);
 
             // set up bindings
             for (QObject* child : children()) {
@@ -953,7 +977,7 @@ namespace TrenchBroom {
                 viewSetGridSize256Action
             };
             constexpr int numActions = static_cast<int>(sizeof(actions) / sizeof(actions[0]));
-            const int gridSizeIndex = m_document->grid().size() - Grid::MinSize;
+            const int gridSizeIndex = indexForGridSize(m_document->grid().size());
 
             for (int i = 0; i < numActions; ++i) {
                 actions[i]->setChecked(i == gridSizeIndex);
@@ -961,6 +985,9 @@ namespace TrenchBroom {
 
             viewIncGridSizeAction->setEnabled(canIncGridSize());
             viewDecGridSizeAction->setEnabled(canDecGridSize());
+
+            // Update toolbar
+            m_gridChoice->setCurrentIndex(indexForGridSize(m_document->grid().size()));
         }
 
 #if 0
@@ -1033,39 +1060,31 @@ namespace TrenchBroom {
         }
 
         void MapFrame::createToolBar() {
-		    // FIXME: implement
-#if 0
-            wxToolBar* toolBar = CreateToolBar(wxTB_DEFAULT_STYLE | 
-#if !defined _WIN32
-				wxTB_NODIVIDER | 
-#endif
-				wxTB_FLAT);
-            toolBar->SetMargins(2, 2);
-            toolBar->AddRadioTool(CommandIds::Menu::EditDeactivateTool, "Default Tool", IO::loadImageResource("NoTool.png"), wxNullBitmap, "Disable Current Tool");
-            toolBar->AddRadioTool(CommandIds::Menu::EditToggleCreateComplexBrushTool, "Brush Tool", IO::loadImageResource("BrushTool.png"), wxNullBitmap, "Brush Tool");
-            toolBar->AddRadioTool(CommandIds::Menu::EditToggleClipTool, "Clip Tool", IO::loadImageResource("ClipTool.png"), wxNullBitmap, "Clip Tool");
-            toolBar->AddRadioTool(CommandIds::Menu::EditToggleVertexTool, "Vertex Tool", IO::loadImageResource("VertexTool.png"), wxNullBitmap, "Vertex Tool");
-            toolBar->AddRadioTool(CommandIds::Menu::EditToggleEdgeTool, "Edge Tool", IO::loadImageResource("EdgeTool.png"), wxNullBitmap, "Edge Tool");
-            toolBar->AddRadioTool(CommandIds::Menu::EditToggleFaceTool, "Face Tool", IO::loadImageResource("FaceTool.png"), wxNullBitmap, "Face Tool");
-            toolBar->AddRadioTool(CommandIds::Menu::EditToggleRotateObjectsTool, "Rotate Tool", IO::loadImageResource("RotateTool.png"), wxNullBitmap, "Rotate Tool");
-            toolBar->AddRadioTool(CommandIds::Menu::EditToggleScaleObjectsTool, "Scale Tool", IO::loadImageResource("ScaleTool.png"), wxNullBitmap, "Scale Tool");
-            toolBar->AddRadioTool(CommandIds::Menu::EditToggleShearObjectsTool, "Shear Tool", IO::loadImageResource("ShearTool.png"), wxNullBitmap, "Shear Tool");
-            toolBar->AddSeparator();
-            toolBar->AddTool(wxID_DUPLICATE, "Duplicate Objects", IO::loadImageResource("DuplicateObjects.png"), wxNullBitmap, wxITEM_NORMAL, "Duplicate Objects");
-            toolBar->AddTool(CommandIds::Actions::FlipObjectsHorizontally, "Flip Horizontally", IO::loadImageResource("FlipHorizontally.png"), wxNullBitmap, wxITEM_NORMAL, "Flip Horizontally");
-            toolBar->AddTool(CommandIds::Actions::FlipObjectsVertically, "Flip Vertically", IO::loadImageResource("FlipVertically.png"), wxNullBitmap, wxITEM_NORMAL, "Flip Vertically");
-            toolBar->AddSeparator();
-            toolBar->AddCheckTool(CommandIds::Menu::EditToggleTextureLock, "Texture Lock", textureLockBitmap(), wxNullBitmap, "Toggle Texture Lock");
-            toolBar->AddCheckTool(CommandIds::Menu::EditToggleUVLock, "UV Lock", UVLockBitmap(), wxNullBitmap, "Toggle UV Lock");
-            toolBar->AddSeparator();
+		    QToolBar* toolBar = addToolBar("Toolbar");
+		    toolBar->addAction(editDeactivateToolAction);
+            toolBar->addAction(editToggleCreateComplexBrushToolAction);
+            toolBar->addAction(editToggleClipToolAction);
+            toolBar->addAction(editToggleVertexToolAction);
+            toolBar->addAction(editToggleEdgeToolAction);
+            toolBar->addAction(editToggleFaceToolAction);
+            toolBar->addAction(editToggleRotateObjectsToolAction);
+            toolBar->addAction(editToggleScaleObjectsToolAction);
+            toolBar->addAction(editToggleShearObjectsToolAction);
+            toolBar->addSeparator();
+            toolBar->addAction(editDuplicateAction);
+            toolBar->addAction(flipObjectsHorizontallyAction);
+            toolBar->addAction(flipObjectsVerticallyAction);
+            toolBar->addSeparator();
+            toolBar->addAction(editToggleTextureLockAction);
+            toolBar->addAction(editToggleUVLockAction);
+            toolBar->addSeparator();
 
-            const wxString gridSizes[12] = { "Grid 0.125", "Grid 0.25", "Grid 0.5", "Grid 1", "Grid 2", "Grid 4", "Grid 8", "Grid 16", "Grid 32", "Grid 64", "Grid 128", "Grid 256" };
-            m_gridChoice = new wxChoice(toolBar, wxID_ANY, wxDefaultPosition, wxDefaultSize, 12, gridSizes);
-            m_gridChoice->SetSelection(indexForGridSize(m_document->grid().size()));
-            toolBar->AddControl(m_gridChoice);
-            
-            toolBar->Realize();
-#endif
+            const QString gridSizes[12] = { "Grid 0.125", "Grid 0.25", "Grid 0.5", "Grid 1", "Grid 2", "Grid 4", "Grid 8", "Grid 16", "Grid 32", "Grid 64", "Grid 128", "Grid 256" };
+            m_gridChoice = new QComboBox();
+            for (int i = 0; i < 12; ++i) {
+                m_gridChoice->addItem(gridSizes[i], QVariant(gridSizeForIndex(i)));
+            }
+            toolBar->addWidget(m_gridChoice);
         }
 
         void MapFrame::createStatusBar() {
@@ -1256,9 +1275,6 @@ namespace TrenchBroom {
 
         void MapFrame::gridDidChange() {
             const Grid& grid = m_document->grid();
-            // FIXME: toolbar
-//            m_gridChoice->SetSelection(indexForGridSize(grid.size()));
-
             updateGridActions();
         }
         
@@ -1307,6 +1323,8 @@ namespace TrenchBroom {
 
             m_gridChoice->Bind(wxEVT_CHOICE, &MapFrame::OnToolBarSetGridSize, this);
 #endif
+
+            connect(m_gridChoice, QOverload<int>::of(&QComboBox::activated), this, &MapFrame::OnToolBarSetGridSize);
         }
 
         void MapFrame::OnFileSave() {
@@ -1645,39 +1663,12 @@ namespace TrenchBroom {
         void MapFrame::OnEditToggleTextureLock() {
             PreferenceManager::instance().set(Preferences::TextureLock, !pref(Preferences::TextureLock));
             PreferenceManager::instance().saveChanges();
-            
-            //FIXME: Toolbar
-//             GetToolBar()->SetToolNormalBitmap(CommandIds::Menu::EditToggleTextureLock, textureLockBitmap());
         }
-//FIXME: Toolbar
-#if 0
-        wxBitmap MapFrame::textureLockBitmap() {
-            if (pref(Preferences::TextureLock)) {
-                return IO::loadImageResource("TextureLockOn.png");
-            } else {
-                return IO::loadImageResource("TextureLockOff.png");
-            }
-        }
-#endif
 
         void MapFrame::OnEditToggleUVLock() {
             PreferenceManager::instance().set(Preferences::UVLock, !pref(Preferences::UVLock));
             PreferenceManager::instance().saveChanges();
-
-            //FIXME: Toolbar
-//            GetToolBar()->SetToolNormalBitmap(CommandIds::Menu::EditToggleUVLock, UVLockBitmap());
         }
-
-        //FIXME: Toolbar
-#if 0
-        wxBitmap MapFrame::UVLockBitmap() {
-            if (pref(Preferences::UVLock)) {
-                return IO::loadImageResource("UVLockOn.png");
-            } else {
-                return IO::loadImageResource("UVLockOff.png");
-            }
-        }
-#endif
 
         void MapFrame::OnEditSnapVerticesToInteger() {
             if (canSnapVertices()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
@@ -2152,9 +2143,8 @@ namespace TrenchBroom {
         }
 #endif
 
-        void MapFrame::OnToolBarSetGridSize() {
-		    // FIXME: implement
-            //m_document->grid().setSize(gridSizeForIndex(event.GetSelection()));
+        void MapFrame::OnToolBarSetGridSize(const int index) {
+            m_document->grid().setSize(gridSizeForIndex(index));
         }
 
         bool MapFrame::canUnloadPointFile() const {
