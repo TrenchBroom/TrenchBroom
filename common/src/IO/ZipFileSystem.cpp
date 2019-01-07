@@ -75,6 +75,10 @@ namespace TrenchBroom {
                     m_root.addFile(path, std::make_unique<ZipCompressedFile>(stream, std::move(entry)));
                 }
             }
+
+            if (stream->GetLastError() != wxSTREAM_NO_ERROR) {
+                throw FileSystemException("Error while reading compressed file");
+            }
         }
     }
 }

@@ -165,7 +165,11 @@ namespace TrenchBroom {
         ImageFileSystemBase::~ImageFileSystemBase() = default;
 
         void ImageFileSystemBase::initialize() {
-            doReadDirectory();
+            try {
+                doReadDirectory();
+            } catch (const std::exception& e) {
+                throw FileSystemException("Could not initialize image file system '" + m_path.asString() + "': " + e.what());
+            }
         }
 
         void ImageFileSystemBase::reload() {
