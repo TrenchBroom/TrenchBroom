@@ -22,6 +22,8 @@
 #include <wx/settings.h>
 #include <wx/font.h>
 
+#include <QColor>
+
 namespace TrenchBroom {
     namespace View {
         namespace Fonts {
@@ -73,6 +75,14 @@ namespace TrenchBroom {
                 *wxBLACK;
 #endif
                 return col;
+            }
+
+            QColor borderColorQt() {
+#if defined __APPLE__
+                return QColor(67, 67, 67);
+#else
+                return QColor(Qt::black);
+#endif
             }
 
             const wxColour& separatorColor() {

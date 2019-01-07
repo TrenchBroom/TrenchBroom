@@ -93,6 +93,8 @@ namespace TrenchBroom {
                 const wxString& wxPath = wxPaths[i];
                 const IO::Path absPath(wxPath.ToStdString());
                 if (game->isTextureCollection(absPath)) {
+                    assert(0); // FIXME:
+#if 0
                     ChoosePathTypeDialog pathDialog(wxGetTopLevelParent(parent), absPath, docPath, gamePath);
                     const int result = pathDialog.ShowModal();
                     if (result == wxID_CANCEL) {
@@ -101,6 +103,7 @@ namespace TrenchBroom {
                         collections.push_back(pathDialog.path());
                         ++count;
                     }
+#endif
                 }
             }
 
@@ -130,12 +133,16 @@ namespace TrenchBroom {
                     const wxString& wxPath = wxPaths[i];
                     const IO::Path absPath(wxPath.ToStdString());
                     if (game->isEntityDefinitionFile(absPath)) {
+                        // FIXME:
+                        assert(0);
+#if 0
                         ChoosePathTypeDialog pathDialog(wxGetTopLevelParent(parent), absPath, docPath, gamePath);
                         if (pathDialog.ShowModal() == wxID_OK) {
                             const Assets::EntityDefinitionFileSpec spec = Assets::EntityDefinitionFileSpec::external(pathDialog.path());
                             document->setEntityDefinitionFile(spec);
                             return i;
                         }
+#endif
                     }
                 }
             } catch (...) {

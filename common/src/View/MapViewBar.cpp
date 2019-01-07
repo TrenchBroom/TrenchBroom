@@ -55,6 +55,8 @@ namespace TrenchBroom {
         }
 
         void MapViewBar::createGui(MapDocumentWPtr document) {
+            // FIXME:
+#if 0
             m_toolBook = new wxSimplebook(this);
             m_viewEditor = new ViewPopupEditor(this, document);
             
@@ -71,6 +73,7 @@ namespace TrenchBroom {
             vSizer->AddSpacer(LayoutConstants::NarrowVMargin);
             
             SetSizer(vSizer);
+#endif
         }
     }
 }

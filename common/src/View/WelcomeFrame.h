@@ -22,32 +22,31 @@
 
 #include "IO/Path.h"
 
-#include <wx/frame.h>
+#include <QMainWindow>
 
-class wxButton;
-class wxPanel;
+class QPushButton;
 
 namespace TrenchBroom {
     namespace View {
         class RecentDocumentListBox;
         class RecentDocumentSelectedCommand;
         
-        class WelcomeFrame : public wxFrame {
+        class WelcomeFrame : public QMainWindow {
+            Q_OBJECT
         private:
-            RecentDocumentListBox* m_recentDocumentListBox;
-            wxButton* m_createNewDocumentButton;
-            wxButton* m_openOtherDocumentButton;
+            // FIXME: add
+            //RecentDocumentListBox* m_recentDocumentListBox;
+            QPushButton* m_createNewDocumentButton;
+            QPushButton* m_openOtherDocumentButton;
         public:
             WelcomeFrame();
             
-            void OnCreateNewDocumentClicked(wxCommandEvent& event);
-            void OnOpenOtherDocumentClicked(wxCommandEvent& event);
+            void OnCreateNewDocumentClicked();
+            void OnOpenOtherDocumentClicked();
             void OnRecentDocumentSelected(RecentDocumentSelectedCommand& event);
-
-            wxDECLARE_DYNAMIC_CLASS(WelcomeFrame);
         private:
             void createGui();
-            wxPanel* createAppPanel(wxWindow* parent);
+            QWidget* createAppPanel();
             void bindEvents();
         };
     }

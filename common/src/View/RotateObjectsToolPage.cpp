@@ -67,6 +67,8 @@ namespace TrenchBroom {
         }
 
         void RotateObjectsToolPage::createGui() {
+            // FIXME:
+#if 0
             auto* centerText = new wxStaticText(this, wxID_ANY, "Center");
             m_recentlyUsedCentersList = new wxComboBox(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxTE_PROCESS_ENTER);
             
@@ -121,6 +123,7 @@ namespace TrenchBroom {
             sizer->SetItemMinSize(m_angle, 80, wxDefaultCoord);
 
             SetSizer(sizer);
+#endif
         }
         
         void RotateObjectsToolPage::OnIdle(wxIdleEvent& event) {

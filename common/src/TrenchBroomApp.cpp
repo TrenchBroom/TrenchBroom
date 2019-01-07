@@ -375,6 +375,7 @@ namespace TrenchBroom {
         }
 
         void reportCrashAndExit(const String &stacktrace, const String &reason) {
+#if 0
             // just abort if we reenter reportCrashAndExit (i.e. if it crashes)
             if (inReportCrashAndExit)
                 wxAbort();
@@ -417,7 +418,8 @@ namespace TrenchBroom {
                 dialog.Create(reportPath, mapPath, logPath);
                 dialog.ShowModal();
             }
-            
+#endif
+            // FIXME:
             abort();
         }
 
@@ -497,10 +499,13 @@ namespace TrenchBroom {
             const IO::Path reportPath(IO::SystemPaths::userDataDirectory() + IO::Path("crashreport.txt"));
             const IO::Path mapPath(IO::SystemPaths::userDataDirectory() + IO::Path("crashreport.map"));
             const IO::Path logPath(IO::SystemPaths::userDataDirectory() + IO::Path("crashreport.log"));
-            
+
+            // FIXME:
+#if 0
             CrashDialog dialog;
             dialog.Create(reportPath, mapPath, logPath);
             dialog.ShowModal();
+#endif
         }
 
         void TrenchBroomApp::OnExecutableEvent(ExecutableEvent& event) {
@@ -573,11 +578,8 @@ namespace TrenchBroom {
         }
 
         void TrenchBroomApp::showWelcomeFrame() {
-            qDebug("FIXME: show welcome frame");
-#if 0
             WelcomeFrame* welcomeFrame = new WelcomeFrame();
-            welcomeFrame->Show();
-#endif
+            welcomeFrame->show();
         }
     }
 }

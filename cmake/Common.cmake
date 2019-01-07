@@ -275,7 +275,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/Animation.cpp
 	${COMMON_SOURCE_DIR}/View/AnimationCurve.cpp
 	${COMMON_SOURCE_DIR}/View/AppInfoPanel.cpp
-	${COMMON_SOURCE_DIR}/View/AutoCompleteTextControl.cpp
+#	${COMMON_SOURCE_DIR}/View/AutoCompleteTextControl.cpp
 	${COMMON_SOURCE_DIR}/View/Autosaver.cpp
 	${COMMON_SOURCE_DIR}/View/BitmapButton.cpp
 	${COMMON_SOURCE_DIR}/View/BitmapStaticButton.cpp
@@ -289,10 +289,10 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/CameraTool3D.cpp
 	${COMMON_SOURCE_DIR}/View/ChangeBrushFaceAttributesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/ChangeEntityAttributesCommand.cpp
-	${COMMON_SOURCE_DIR}/View/ChoosePathTypeDialog.cpp
+#	${COMMON_SOURCE_DIR}/View/ChoosePathTypeDialog.cpp
 	${COMMON_SOURCE_DIR}/View/ClipToolController.cpp
 	${COMMON_SOURCE_DIR}/View/ClipTool.cpp
-	${COMMON_SOURCE_DIR}/View/CollapsibleTitledPanel.cpp
+#	${COMMON_SOURCE_DIR}/View/CollapsibleTitledPanel.cpp
 	${COMMON_SOURCE_DIR}/View/ColorTable.cpp
 	${COMMON_SOURCE_DIR}/View/ColorTableSelectedCommand.cpp
 	${COMMON_SOURCE_DIR}/View/Command.cpp
@@ -309,10 +309,10 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/CompilationVariables.cpp
 	${COMMON_SOURCE_DIR}/View/Console.cpp
 	${COMMON_SOURCE_DIR}/View/ContainerBar.cpp
-	${COMMON_SOURCE_DIR}/View/ControlListBox.cpp
+#	${COMMON_SOURCE_DIR}/View/ControlListBox.cpp
 	${COMMON_SOURCE_DIR}/View/ConvertEntityColorCommand.cpp
 	${COMMON_SOURCE_DIR}/View/CopyTexCoordSystemFromFaceCommand.cpp
-	${COMMON_SOURCE_DIR}/View/CrashDialog.cpp
+#	${COMMON_SOURCE_DIR}/View/CrashDialog.cpp
 	${COMMON_SOURCE_DIR}/View/CreateBrushToolBase.cpp
 	${COMMON_SOURCE_DIR}/View/CreateComplexBrushToolController3D.cpp
 	${COMMON_SOURCE_DIR}/View/CreateComplexBrushTool.cpp
@@ -324,19 +324,19 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/CurrentGameIndicator.cpp
 	${COMMON_SOURCE_DIR}/View/CurrentGroupCommand.cpp
 	${COMMON_SOURCE_DIR}/View/CyclingMapView.cpp
-	${COMMON_SOURCE_DIR}/View/DirectoryTextureCollectionEditor.cpp
+#	${COMMON_SOURCE_DIR}/View/DirectoryTextureCollectionEditor.cpp
 	${COMMON_SOURCE_DIR}/View/DocumentCommand.cpp
 	${COMMON_SOURCE_DIR}/View/DuplicateNodesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/EdgeToolController.cpp
 	${COMMON_SOURCE_DIR}/View/EdgeTool.cpp
-	${COMMON_SOURCE_DIR}/View/ELAutoCompleteHelper.cpp
+#	${COMMON_SOURCE_DIR}/View/ELAutoCompleteHelper.cpp
 #	${COMMON_SOURCE_DIR}/View/EntityAttributeEditor.cpp
 #	${COMMON_SOURCE_DIR}/View/EntityAttributeGrid.cpp
 #	${COMMON_SOURCE_DIR}/View/EntityAttributeGridTable.cpp
 	${COMMON_SOURCE_DIR}/View/EntityAttributeSelectedCommand.cpp
 #	${COMMON_SOURCE_DIR}/View/EntityBrowser.cpp
 #	${COMMON_SOURCE_DIR}/View/EntityBrowserView.cpp
-	${COMMON_SOURCE_DIR}/View/EntityDefinitionFileChooser.cpp
+#	${COMMON_SOURCE_DIR}/View/EntityDefinitionFileChooser.cpp
 	${COMMON_SOURCE_DIR}/View/EntityDefinitionFileCommand.cpp
 #	${COMMON_SOURCE_DIR}/View/EntityInspector.cpp
 	${COMMON_SOURCE_DIR}/View/ExecutableEvent.cpp
@@ -344,7 +344,7 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/FaceInspector.cpp
 	${COMMON_SOURCE_DIR}/View/FaceToolController.cpp
 	${COMMON_SOURCE_DIR}/View/FaceTool.cpp
-	${COMMON_SOURCE_DIR}/View/FileTextureCollectionEditor.cpp
+#	${COMMON_SOURCE_DIR}/View/FileTextureCollectionEditor.cpp
 	${COMMON_SOURCE_DIR}/View/FindPlanePointsCommand.cpp
 	${COMMON_SOURCE_DIR}/View/FlagChangedCommand.cpp
 	${COMMON_SOURCE_DIR}/View/FlagsEditor.cpp
@@ -367,7 +367,7 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/GLContext.cpp
 	${COMMON_SOURCE_DIR}/View/GLContextManager.cpp
 	${COMMON_SOURCE_DIR}/View/Grid.cpp
-	${COMMON_SOURCE_DIR}/View/ImageListBox.cpp
+#	${COMMON_SOURCE_DIR}/View/ImageListBox.cpp
 	${COMMON_SOURCE_DIR}/View/InfoPanel.cpp
 	${COMMON_SOURCE_DIR}/View/InputState.cpp
 #	${COMMON_SOURCE_DIR}/View/Inspector.cpp
@@ -382,8 +382,8 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/KeyboardShortcutGridTable.cpp
 	${COMMON_SOURCE_DIR}/View/Lasso.cpp
 #	${COMMON_SOURCE_DIR}/View/LaunchGameEngineDialog.cpp
-	${COMMON_SOURCE_DIR}/View/LayerEditor.cpp
-	${COMMON_SOURCE_DIR}/View/LayerListBox.cpp
+#	${COMMON_SOURCE_DIR}/View/LayerEditor.cpp
+#	${COMMON_SOURCE_DIR}/View/LayerListBox.cpp
 	${COMMON_SOURCE_DIR}/View/LockedGridCellRenderer.cpp
 	${COMMON_SOURCE_DIR}/View/MapDocumentCommandFacade.cpp
 	${COMMON_SOURCE_DIR}/View/MapDocument.cpp
@@ -399,7 +399,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/MapView.cpp
 	${COMMON_SOURCE_DIR}/View/MapViewToolBox.cpp
 	${COMMON_SOURCE_DIR}/View/Menu.cpp
-	${COMMON_SOURCE_DIR}/View/ModEditor.cpp
+#	${COMMON_SOURCE_DIR}/View/ModEditor.cpp
 #	${COMMON_SOURCE_DIR}/View/MousePreferencePane.cpp
 	${COMMON_SOURCE_DIR}/View/MoveBrushEdgesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/MoveBrushFacesCommand.cpp
@@ -463,8 +463,8 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/SnapBrushVerticesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/SnapshotCommand.cpp
 	${COMMON_SOURCE_DIR}/View/SpinControl.cpp
-	${COMMON_SOURCE_DIR}/View/SplitterWindow2.cpp
-	${COMMON_SOURCE_DIR}/View/SplitterWindow4.cpp
+#	${COMMON_SOURCE_DIR}/View/SplitterWindow2.cpp
+#	${COMMON_SOURCE_DIR}/View/SplitterWindow4.cpp
 	${COMMON_SOURCE_DIR}/View/SwitchableMapViewContainer.cpp
 	${COMMON_SOURCE_DIR}/View/TabBar.cpp
 	${COMMON_SOURCE_DIR}/View/TabBook.cpp
@@ -474,8 +474,8 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/TextureCollectionEditor.cpp
 	${COMMON_SOURCE_DIR}/View/TextureSelectedCommand.cpp
 #	${COMMON_SOURCE_DIR}/View/ThreePaneMapView.cpp
-	${COMMON_SOURCE_DIR}/View/TitleBar.cpp
-	${COMMON_SOURCE_DIR}/View/TitledPanel.cpp
+#	${COMMON_SOURCE_DIR}/View/TitleBar.cpp
+#	${COMMON_SOURCE_DIR}/View/TitledPanel.cpp
 	${COMMON_SOURCE_DIR}/View/ToolBoxConnector.cpp
 	${COMMON_SOURCE_DIR}/View/ToolBox.cpp
 	${COMMON_SOURCE_DIR}/View/ToolBoxDropTarget.cpp
@@ -500,12 +500,12 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/VertexToolController.cpp
 	${COMMON_SOURCE_DIR}/View/VertexTool.cpp
 	${COMMON_SOURCE_DIR}/View/ViewConstants.cpp
-	${COMMON_SOURCE_DIR}/View/ViewEditor.cpp
+#	${COMMON_SOURCE_DIR}/View/ViewEditor.cpp
 	${COMMON_SOURCE_DIR}/View/ViewEffectsService.cpp
 #	${COMMON_SOURCE_DIR}/View/ViewPreferencePane.cpp
 	${COMMON_SOURCE_DIR}/View/ViewShortcut.cpp
 	${COMMON_SOURCE_DIR}/View/ViewUtils.cpp
-#	${COMMON_SOURCE_DIR}/View/WelcomeFrame.cpp
+	${COMMON_SOURCE_DIR}/View/WelcomeFrame.cpp
 	${COMMON_SOURCE_DIR}/View/wxKeyStrings.cpp
 	${COMMON_SOURCE_DIR}/View/wxUtils.cpp
 	${COMMON_SOURCE_DIR}/Assets/Quake3Shader.cpp
@@ -865,7 +865,7 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/ChoosePathTypeDialog.h
 	${COMMON_SOURCE_DIR}/View/ClipToolController.h
 	${COMMON_SOURCE_DIR}/View/ClipTool.h
-	${COMMON_SOURCE_DIR}/View/CollapsibleTitledPanel.h
+#	${COMMON_SOURCE_DIR}/View/CollapsibleTitledPanel.h
 	${COMMON_SOURCE_DIR}/View/ColorTable.h
 	${COMMON_SOURCE_DIR}/View/ColorTableSelectedCommand.h
 	${COMMON_SOURCE_DIR}/View/Command.h

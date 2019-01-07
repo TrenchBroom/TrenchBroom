@@ -153,7 +153,9 @@ namespace TrenchBroom {
 
         wxWindow* RotateObjectsTool::doCreatePage(wxWindow* parent) {
             assert(m_toolPage == nullptr);
-            m_toolPage = new RotateObjectsToolPage(parent, m_document, this);
+
+            //FIXME:
+            //m_toolPage = new RotateObjectsToolPage(parent, m_document, this);
             return m_toolPage;
         }
     }

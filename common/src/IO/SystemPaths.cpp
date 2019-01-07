@@ -51,6 +51,8 @@ namespace TrenchBroom {
                     return appDirectory();
 #endif
                 // FIXME: implement. Will need to return a list of Paths
+                assert(0);
+                return IO::Path();
       //          return IO::Path(wxStandardPaths::Get().GetResourcesDir().ToStdString());
             }
 

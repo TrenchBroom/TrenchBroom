@@ -21,35 +21,28 @@
 
 #include "View/ViewConstants.h"
 
-#include <wx/dcbuffer.h>
+#include <QPainter>
 
 namespace TrenchBroom {
     namespace View {
-        BorderLine::BorderLine(wxWindow* parent, Direction direction, const int thickness) :
-        wxWindow(parent, wxID_ANY) {
-            SetForegroundColour(Colors::borderColor());
-            SetBackgroundStyle(wxBG_STYLE_PAINT);
-            Bind(wxEVT_PAINT, &BorderLine::OnPaint, this);
+        BorderLine::BorderLine(QWidget* parent, Direction direction, const int thickness) :
+        QWidget(parent),
+        m_direction(direction),
+        m_thickness(thickness) {
             if (direction == Direction_Horizontal) {
-                const wxSize size(wxSize(wxDefaultSize.x, thickness));
-                SetMinSize(size);
-                SetMaxSize(size);
+                setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed));
             } else {
-                const wxSize size(wxSize(thickness, wxDefaultSize.y));
-                SetMinSize(size);
-                SetMaxSize(size);
+                setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Ignored));
             }
         }
-        
-        void BorderLine::OnPaint(wxPaintEvent& event) {
-            if (IsBeingDeleted()) return;
 
-            wxAutoBufferedPaintDC dc(this);
-            dc.SetPen(wxPen(GetForegroundColour()));
-            dc.SetBrush(wxBrush(GetForegroundColour()));
+        QSize BorderLine::sizeHint() const {
+            return QSize(m_thickness, m_thickness);
+        }
 
-            dc.DrawRectangle(GetClientRect());
-            event.Skip();
+        void BorderLine::paintEvent(QPaintEvent* event) {
+            QPainter painter(this);
+            painter.fillRect(this->rect(), Colors::borderColorQt());
         }
     }
 }

@@ -144,6 +144,7 @@ namespace TrenchBroom {
             return containerPanel;
         }
 
+#if 0
         wxSizer* wrapDialogButtonSizer(wxSizer* buttonSizer, wxWindow* parent) {
             wxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
             hSizer->AddSpacer(LayoutConstants::DialogButtonLeftMargin);
@@ -157,6 +158,7 @@ namespace TrenchBroom {
             vSizer->AddSpacer(LayoutConstants::DialogButtonBottomMargin);
             return vSizer;
         }
+#endif
 
         void setWindowIcon(wxTopLevelWindow* window) {
             ensure(window != nullptr, "window is null");

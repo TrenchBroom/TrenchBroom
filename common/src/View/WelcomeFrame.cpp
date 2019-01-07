@@ -27,119 +27,123 @@
 #include "View/RecentDocumentSelectedCommand.h"
 #include "View/wxUtils.h"
 
-#include <wx/panel.h>
-#include <wx/sizer.h>
-#include <wx/filedlg.h>
-#include <wx/button.h>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QPushButton>
+#include <QFileDialog>
 
 namespace TrenchBroom {
     namespace View {
-        wxIMPLEMENT_DYNAMIC_CLASS(WelcomeFrame, wxFrame)
-
         WelcomeFrame::WelcomeFrame() :
-        wxFrame(nullptr, wxID_ANY, "Welcome to TrenchBroom", wxDefaultPosition, wxDefaultSize, wxCAPTION | wxCLOSE_BOX | wxCLIP_CHILDREN) {
+        QMainWindow() {
+            //nullptr, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxCAPTION | wxCLOSE_BOX | wxCLIP_CHILDREN) {
             createGui();
             bindEvents();
-            Centre();
+            // FIXME:
+            //Centre();
         }
 
         void WelcomeFrame::createGui() {
-            setWindowIcon(this);
+            setAttribute(Qt::WA_DeleteOnClose);
+            // FIXME:
+            //setWindowIcon(this);
+            setWindowTitle("Welcome to TrenchBroom");
 
-            wxPanel* container = new wxPanel(this);
-            
-            wxPanel* appPanel = createAppPanel(container);
-            m_recentDocumentListBox = new RecentDocumentListBox(container);
-            m_recentDocumentListBox->SetToolTip("Double click on a file to open it");
-            m_recentDocumentListBox->SetMaxSize(wxSize(350, wxDefaultCoord));
-            
-            wxBoxSizer* innerSizer = new wxBoxSizer(wxHORIZONTAL);
-            innerSizer->Add(appPanel, wxSizerFlags().CenterVertical());
-            innerSizer->Add(new BorderLine(container, BorderLine::Direction_Vertical), wxSizerFlags().Expand());
-            innerSizer->Add(m_recentDocumentListBox, wxSizerFlags().Expand().Proportion(1));
-            innerSizer->SetItemMinSize(m_recentDocumentListBox, wxSize(350, 400));
-            container->SetSizer(innerSizer);
-            
-            wxBoxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-#if !defined __APPLE__
-			outerSizer->Add(new BorderLine(this), wxSizerFlags().Expand());
-#endif
-			outerSizer->Add(container, wxSizerFlags().Expand());
-            
-            SetSizerAndFit(outerSizer);
+
+            // FIXME:
+//            m_recentDocumentListBox = new RecentDocumentListBox(container);
+//            m_recentDocumentListBox->setToolTip("Double click on a file to open it");
+//            m_recentDocumentListBox->setMaxSize(wxSize(350, wxDefaultCoord));
+
+
+            QHBoxLayout* innerSizer = new QHBoxLayout();
+            innerSizer->addWidget(createAppPanel(), 1, Qt::AlignVCenter);
+            innerSizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Vertical), 0);
+            innerSizer->addWidget(new QPushButton("TODO: Recent list"), 1);
+
+            QWidget* innerContent = new QWidget();
+            innerContent->setLayout(innerSizer);
+            innerSizer->setContentsMargins(0,0,0,0);
+
+//            // FIXME:
+//            //innerSizer->addWidget(m_recentDocumentListBox, wxSizerFlags().Expand().Proportion(1));
+//            //innerSizer->SetItemMinSize(m_recentDocumentListBox, wxSize(350, 400));
+
+
+            QVBoxLayout* outerSizer = new QVBoxLayout();
+            outerSizer->setContentsMargins(0,0,0,0);
+            outerSizer->addWidget(new BorderLine(nullptr));
+            outerSizer->addWidget(innerContent);
+
+            QWidget* outerContainer = new QWidget();
+            outerContainer->setLayout(outerSizer);
+            setCentralWidget(outerContainer);
         }
 
-        void WelcomeFrame::OnCreateNewDocumentClicked(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            Hide();
+        void WelcomeFrame::OnCreateNewDocumentClicked() {
+            hide();
             TrenchBroomApp& app = TrenchBroomApp::instance();
             if (app.newDocument())
-                Destroy();
+                close();
             else
-                Show();
+                show();
         }
         
-        void WelcomeFrame::OnOpenOtherDocumentClicked(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void WelcomeFrame::OnOpenOtherDocumentClicked() {
+            const QString fileName = QFileDialog::getOpenFileName(nullptr, "Open Map", "", "Map files (*.map);;Any files (*.*)");
 
-            const wxString pathStr = ::wxLoadFileSelector("",
-#ifdef __WXGTK20__
-                                                          "",
-#else
-                                                          "map",
-#endif
-                                                          "", nullptr);
-            if (!pathStr.empty()) {
-                Hide();
+            if (!fileName.isEmpty()) {
+                hide();
                 TrenchBroomApp& app = TrenchBroomApp::instance();
-                if (app.openDocument(pathStr.ToStdString()))
-                    Destroy();
+                if (app.openDocument(fileName.toStdString()))
+                    close();
                 else
-                    Show();
+                    show();
             }
         }
 
         void WelcomeFrame::OnRecentDocumentSelected(RecentDocumentSelectedCommand& event) {
-            if (IsBeingDeleted()) return;
-
-            Hide();
+            hide();
             TrenchBroomApp& app = TrenchBroomApp::instance();
             if (app.openDocument(event.documentPath().asString()))
-                Destroy();
+                close();
             else
-                Show();
+                show();
         }
 
-        wxPanel* WelcomeFrame::createAppPanel(wxWindow* parent) {
-            wxPanel* appPanel = new wxPanel(parent);
+        QWidget* WelcomeFrame::createAppPanel() {
+            QWidget* appPanel = new QWidget();
             AppInfoPanel* infoPanel = new AppInfoPanel(appPanel);
             
-            m_createNewDocumentButton = new wxButton(appPanel, wxID_ANY, "New map...");
-            m_createNewDocumentButton->SetToolTip("Create a new map document");
-            m_openOtherDocumentButton = new wxButton(appPanel, wxID_ANY, "Browse...");
-            m_openOtherDocumentButton->SetToolTip("Open an existing map document");
-            
-            wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
-            buttonSizer->Add(m_createNewDocumentButton, 1, wxEXPAND);
-            buttonSizer->AddSpacer(LayoutConstants::WideHMargin);
-            buttonSizer->Add(m_openOtherDocumentButton, 1, wxEXPAND);
+            m_createNewDocumentButton = new QPushButton("New map...");
+            m_createNewDocumentButton->setToolTip("Create a new map document");
+            m_openOtherDocumentButton = new QPushButton("Browse...");
+            m_openOtherDocumentButton->setToolTip("Open an existing map document");
 
-            wxBoxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(infoPanel, wxSizerFlags().CenterHorizontal().Border(wxLEFT | wxRIGHT, 50));
-            outerSizer->AddSpacer(20);
-            outerSizer->Add(buttonSizer, wxSizerFlags().CenterHorizontal().Border(wxLEFT | wxRIGHT, 50));
-            outerSizer->AddSpacer(20);
+            QHBoxLayout* buttonSizer = new QHBoxLayout();
+            buttonSizer->addStretch();
+            buttonSizer->addWidget(m_createNewDocumentButton);
+            buttonSizer->addSpacing(LayoutConstants::WideHMargin);
+            buttonSizer->addWidget(m_openOtherDocumentButton);
+            buttonSizer->addStretch();
+
+            QVBoxLayout* outerSizer = new QVBoxLayout();
+            outerSizer->addWidget(infoPanel, 0, Qt::AlignHCenter);
+            outerSizer->addSpacing(20);
+            outerSizer->addLayout(buttonSizer);
+            outerSizer->addSpacing(20);
             
-            appPanel->SetSizer(outerSizer);
+            appPanel->setLayout(outerSizer);
 
             return appPanel;
         }
 
-        void WelcomeFrame::bindEvents() {
-            m_createNewDocumentButton->Bind(wxEVT_BUTTON, &WelcomeFrame::OnCreateNewDocumentClicked, this);
-            m_openOtherDocumentButton->Bind(wxEVT_BUTTON, &WelcomeFrame::OnOpenOtherDocumentClicked, this);
-            m_recentDocumentListBox->Bind(RECENT_DOCUMENT_SELECTED_EVENT, &WelcomeFrame::OnRecentDocumentSelected, this);
+        void WelcomeFrame::bindEvents() {            
+            connect(m_createNewDocumentButton, &QPushButton::clicked, this, &WelcomeFrame::OnCreateNewDocumentClicked);
+            connect(m_openOtherDocumentButton, &QPushButton::clicked, this, &WelcomeFrame::OnOpenOtherDocumentClicked);
+
+            // FIXME: implement
+//            m_recentDocumentListBox->Bind(RECENT_DOCUMENT_SELECTED_EVENT, &WelcomeFrame::OnRecentDocumentSelected, this);
         }
     }
 }

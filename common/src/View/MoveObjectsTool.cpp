@@ -92,7 +92,9 @@ namespace TrenchBroom {
         }
 
         wxWindow* MoveObjectsTool::doCreatePage(wxWindow* parent) {
-            return new MoveObjectsToolPage(parent, m_document);
+            // FIXME:
+            //return new MoveObjectsToolPage(parent, m_document);
+            return nullptr;
         }
     }
 }

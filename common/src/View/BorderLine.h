@@ -20,20 +20,26 @@
 #ifndef TrenchBroom_BorderLine
 #define TrenchBroom_BorderLine
 
-#include <wx/window.h>
+#include <QWidget>
 
 namespace TrenchBroom {
     namespace View {
-        class BorderLine : public wxWindow {
+        class BorderLine : public QWidget {
+        Q_OBJECT
         public:
             typedef enum {
                 Direction_Horizontal,
                 Direction_Vertical
             } Direction;
+        private:
+            Direction m_direction;
+            int m_thickness;
         public:
-            BorderLine(wxWindow* parent, Direction direction = Direction_Horizontal, int thickness = 1);
+            BorderLine(QWidget* parent, Direction direction = Direction_Horizontal, int thickness = 1);
             
-            void OnPaint(wxPaintEvent& event);
+            QSize sizeHint() const override;
+        protected:
+            void paintEvent(QPaintEvent *event) override;
         };
     }
 }

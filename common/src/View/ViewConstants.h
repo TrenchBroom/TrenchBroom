@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_ViewConstants_h
 #define TrenchBroom_ViewConstants_h
 
+#include <QColor>
+
 class wxColour;
 class wxFont;
 
@@ -66,7 +68,7 @@ namespace TrenchBroom {
             static const int TextBoxInnerMargin                 = 0;
             static const int TabBarBarLeftMargin                = 10;
             static const int ToggleButtonStyle                  = 0x08000000; // wxBORDER_SUNKEN
-#elif defined __WXGTK20__
+#else
             static const int DialogOuterMargin                  = 10;
             static const int DialogButtonTopMargin              = 10;
             static const int DialogButtonLeftMargin             = 8;
@@ -101,6 +103,8 @@ namespace TrenchBroom {
             const wxColour& disabledText();
             const wxColour& borderColor();
             const wxColour& separatorColor();
+
+            QColor borderColorQt();
         }
     }
 }
