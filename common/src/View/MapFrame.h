@@ -232,6 +232,8 @@ namespace TrenchBroom {
             void createMenus();
             void updateGridActions();
             void updateToolActions();
+            void updateOtherActions();
+            void updateUndoRedoActions();
 
             void addRecentDocumentsMenu(QMenuBar* menuBar);
             void removeRecentDocumentsMenu(QMenuBar* menuBar);
@@ -375,6 +377,7 @@ namespace TrenchBroom {
 //            void OnUpdateUI(wxUpdateUIEvent& event);
 
             void OnToolBarSetGridSize(int index);
+            void onFocusChange(QWidget* old, QWidget* now);
         private:
             bool canUnloadPointFile() const;
             bool canReloadPointFile() const;

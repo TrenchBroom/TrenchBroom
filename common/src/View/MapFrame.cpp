@@ -1023,6 +1023,81 @@ namespace TrenchBroom {
             editToggleFaceToolAction->setChecked(m_mapView->faceToolActive());
 		}
 
+		void MapFrame::updateOtherActions() {
+		    // FIXME: huge slowdown from this function, track down
+
+		    fileReloadPointFileAction->setEnabled(canReloadPointFile());
+            fileUnloadPointFileAction->setEnabled(canUnloadPointFile());
+            fileReloadPortalFileAction->setEnabled(canReloadPortalFile());
+            fileUnloadPortalFileAction->setEnabled(canUnloadPortalFile());
+
+            editCutAction->setEnabled(canCut());
+            editCopyAction->setEnabled(canCopy());
+            editPasteAction->setEnabled(canPaste());
+            editPasteAtOriginalPositionAction->setEnabled(canPaste());
+            editDuplicateAction->setEnabled(canDuplicate());
+            editDeleteAction->setEnabled(canDelete());
+            editSelectAllAction->setEnabled(canSelect());
+            editSelectSiblingsAction->setEnabled(canSelectSiblings());
+            editSelectTouchingAction->setEnabled(canSelectByBrush());
+            editSelectInsideAction->setEnabled(canSelectByBrush());
+            editSelectTallAction->setEnabled(canSelectTall());
+            editSelectByLineNumberAction->setEnabled(canSelect());
+            editSelectNoneAction->setEnabled(canDeselect());
+            editGroupSelectedObjectsAction->setEnabled(canGroup());
+            editUngroupSelectedObjectsAction->setEnabled(canUngroup());
+            editCsgConvexMergeAction->setEnabled(canDoCsgConvexMerge());
+            editCsgSubtractAction->setEnabled(canDoCsgSubtract());
+            editCsgIntersectAction->setEnabled(canDoCsgIntersect());
+            editCsgHollowAction->setEnabled(canDoCsgHollow());
+            editReplaceTextureAction->setEnabled(true);
+            editToggleTextureLockAction->setEnabled(true);
+            editToggleTextureLockAction->setChecked(pref(Preferences::TextureLock));
+            editToggleUVLockAction->setEnabled(true);
+            editToggleUVLockAction->setChecked(pref(Preferences::UVLock));
+            editSnapVerticesToIntegerAction->setEnabled(canSnapVertices());
+            editSnapVerticesToGridAction->setEnabled(canSnapVertices());
+
+            viewMoveCameraToNextPointAction->setEnabled(canMoveCameraToNextPoint());
+            viewMoveCameraToPreviousPointAction->setEnabled(canMoveCameraToPreviousPoint());
+            viewFocusCameraOnSelectionAction->setEnabled(canFocusCamera());
+            viewMoveCameraToPositionAction->setEnabled(true);
+            viewIsolateSelectionAction->setEnabled(canIsolate());
+            viewHideSelectionAction->setEnabled(canHide());
+            viewUnhideAllAction->setEnabled(true);
+            viewSwitchToMapInspectorAction->setEnabled(true);
+            viewSwitchToEntityInspectorAction->setEnabled(true);
+            viewSwitchToFaceInspectorAction->setEnabled(true);
+            viewToggleInfoPanelAction->setEnabled(true);
+            // FIXME:
+            //viewToggleInfoPanelAction->setChecked(!m_vSplitter->isMaximized(m_mapView));
+            viewToggleInspectorAction->setEnabled(true);
+            // FIXME:
+            //viewToggleInspectorAction->setChecked(!m_hSplitter->isMaximized(m_vSplitter));
+            viewToggleMaximizeCurrentViewAction->setEnabled(m_mapView->canMaximizeCurrentView());
+            viewToggleMaximizeCurrentViewAction->setChecked(m_mapView->currentViewMaximized());
+            viewPreferencesAction->setEnabled(true);
+            runCompileAction->setEnabled(canCompile());
+            runLaunchAction->setEnabled(canLaunch());
+            debugPrintVerticesAction->setEnabled(true);
+            debugCreateBrushAction->setEnabled(true);
+            debugCreateCubeAction->setEnabled(true);
+            debugClipWithFaceAction->setEnabled(m_document->selectedNodes().hasOnlyBrushes());
+            debugCopyJSShortcutsAction->setEnabled(true);
+            debugCrashAction->setEnabled(true);
+            debugThrowExceptionDuringCommandAction->setEnabled(true);
+            debugCrashReportDialogAction->setEnabled(true);
+            debugSetWindowSizeAction->setEnabled(true);
+            helpManualAction->setEnabled(true);
+            helpAboutAction->setEnabled(true);
+            flipObjectsHorizontallyAction->setEnabled(m_mapView->canFlipObjects());
+            flipObjectsVerticallyAction->setEnabled(m_mapView->canFlipObjects());
+		}
+
+		void MapFrame::updateUndoRedoActions() {
+            // FIXME:
+		}
+
 #if 0
         void MapFrame::addRecentDocumentsMenu(wxMenuBar* menuBar) {
             const ActionManager& actionManager = ActionManager::instance();
@@ -1319,15 +1394,18 @@ namespace TrenchBroom {
 
         void MapFrame::toolActivated(Tool* tool) {
 		    updateToolActions();
+		    updateOtherActions();
 		}
 
         void MapFrame::toolDeactivated(Tool* tool) {
             updateToolActions();
+            updateOtherActions();
         }
         
         void MapFrame::selectionDidChange(const Selection& selection) {
             updateStatusBar();
             updateToolActions();
+            updateOtherActions();
         }
         
         void MapFrame::currentLayerDidChange(const TrenchBroom::Model::Layer* layer) {
@@ -1371,6 +1449,8 @@ namespace TrenchBroom {
 
             m_gridChoice->Bind(wxEVT_CHOICE, &MapFrame::OnToolBarSetGridSize, this);
 #endif
+
+            connect(qApp, &QApplication::focusChanged, this, &MapFrame::onFocusChange);
 
             connect(m_gridChoice, QOverload<int>::of(&QComboBox::activated), this, &MapFrame::OnToolBarSetGridSize);
         }
@@ -1977,18 +2057,7 @@ namespace TrenchBroom {
             const ActionManager& actionManager = ActionManager::instance();
 
             switch (event.GetId()) {
-                case CommandIds::Menu::FileReloadPointFile:
-                    event.Enable(canReloadPointFile());
-                    break;
-                case CommandIds::Menu::FileUnloadPointFile:
-                    event.Enable(canUnloadPointFile());
-                    break;
-                case CommandIds::Menu::FileReloadPortalFile:
-                    event.Enable(canReloadPortalFile());
-                    break;
-                case CommandIds::Menu::FileUnloadPortalFile:
-                    event.Enable(canUnloadPortalFile());
-                    break;
+
                 case wxID_UNDO: {
                     const ActionMenuItem* item = actionManager.findMenuItem(wxID_UNDO);
                     ensure(item != nullptr, "item is null");
@@ -2016,138 +2085,7 @@ namespace TrenchBroom {
                     }
                     break;
                 }
-                case CommandIds::Menu::EditRepeat:
-                case CommandIds::Menu::EditClearRepeat:
-                    event.Enable(true);
-                    break;
-                case wxID_CUT:
-                    event.Enable(canCut());
-                    break;
-                case wxID_COPY:
-                    event.Enable(canCopy());
-                    break;
-                case wxID_PASTE:
-                case CommandIds::Menu::EditPasteAtOriginalPosition:
-                    event.Enable(canPaste());
-                    break;
-                case wxID_DUPLICATE:
-                    event.Enable(canDuplicate());
-                    break;
-                case wxID_DELETE:
-                    event.Enable(canDelete());
-                    break;
-                case CommandIds::Menu::EditSelectAll:
-                    event.Enable(canSelect());
-                    break;
-                case CommandIds::Menu::EditSelectSiblings:
-                    event.Enable(canSelectSiblings());
-                    break;
-                case CommandIds::Menu::EditSelectTouching:
-                case CommandIds::Menu::EditSelectInside:
-                    event.Enable(canSelectByBrush());
-                    break;
-                case CommandIds::Menu::EditSelectTall:
-                    event.Enable(canSelectTall());
-                    break;
-                case CommandIds::Menu::EditSelectByFilePosition:
-                    event.Enable(canSelect());
-                    break;
-                case CommandIds::Menu::EditSelectNone:
-                    event.Enable(canDeselect());
-                    break;
-                case CommandIds::Menu::EditGroupSelection:
-                    event.Enable(canGroup());
-                    break;
-                case CommandIds::Menu::EditUngroupSelection:
-                    event.Enable(canUngroup());
-                    break;
-                case CommandIds::Menu::EditCsgConvexMerge:
-                    event.Enable(canDoCsgConvexMerge());
-                    break;
-                case CommandIds::Menu::EditCsgSubtract:
-                    event.Enable(canDoCsgSubtract());
-                    break;
-                case CommandIds::Menu::EditCsgIntersect:
-                    event.Enable(canDoCsgIntersect());
-                    break;
-                case CommandIds::Menu::EditCsgHollow:
-                    event.Enable(canDoCsgHollow());
-                    break;
-                case CommandIds::Menu::EditSnapVerticesToInteger:
-                case CommandIds::Menu::EditSnapVerticesToGrid:
-                    event.Enable(canSnapVertices());
-                    break;
-                case CommandIds::Menu::EditReplaceTexture:
-                    event.Enable(true);
-                    break;
-                case CommandIds::Menu::EditToggleTextureLock:
-                    event.Enable(true);
-                    event.Check(pref(Preferences::TextureLock));
-                    break;
-                case CommandIds::Menu::EditToggleUVLock:
-                    event.Enable(true);
-                    event.Check(pref(Preferences::UVLock));
-                    break;
-                case CommandIds::Menu::ViewMoveCameraToNextPoint:
-                    event.Enable(canMoveCameraToNextPoint());
-                    break;
-                case CommandIds::Menu::ViewMoveCameraToPreviousPoint:
-                    event.Enable(canMoveCameraToPreviousPoint());
-                    break;
-                case CommandIds::Menu::ViewFocusCameraOnSelection:
-                    event.Enable(canFocusCamera());
-                    break;
-                case CommandIds::Menu::ViewMoveCameraToPosition:
-                    event.Enable(true);
-                    break;
-                case CommandIds::Menu::ViewHideSelection:
-                    event.Enable(canHide());
-                    break;
-                case CommandIds::Menu::ViewIsolateSelection:
-                    event.Enable(canIsolate());
-                    break;
-                case CommandIds::Menu::ViewUnhideAll:
-                    event.Enable(true);
-                    break;
-                case CommandIds::Menu::ViewSwitchToMapInspector:
-                case CommandIds::Menu::ViewSwitchToEntityInspector:
-                case CommandIds::Menu::ViewSwitchToFaceInspector:
-                    event.Enable(true);
-                    break;
-                case CommandIds::Menu::ViewToggleMaximizeCurrentView:
-                    event.Enable(m_mapView->canMaximizeCurrentView());
-                    event.Check(m_mapView->currentViewMaximized());
-                    break;
-                case CommandIds::Menu::ViewToggleInfoPanel:
-                    event.Enable(true);
-                    event.Check(!m_vSplitter->isMaximized(m_mapView));
-                    break;
-                case CommandIds::Menu::ViewToggleInspector:
-                    event.Enable(true);
-                    event.Check(!m_hSplitter->isMaximized(m_vSplitter));
-                    break;
-                case CommandIds::Menu::RunCompile:
-                    event.Enable(canCompile());
-                    break;
-                case CommandIds::Menu::RunLaunch:
-                    event.Enable(canLaunch());
-                    break;
-                case CommandIds::Menu::DebugPrintVertices:
-                case CommandIds::Menu::DebugCreateBrush:
-                case CommandIds::Menu::DebugCreateCube:
-                case CommandIds::Menu::DebugCopyJSShortcuts:
-                case CommandIds::Menu::DebugCrash:
-                case CommandIds::Menu::DebugThrowExceptionDuringCommand:
-                case CommandIds::Menu::DebugSetWindowSize:
-                    event.Enable(true);
-                    break;
-                case CommandIds::Menu::DebugClipWithFace:
-                    event.Enable(m_document->selectedNodes().hasOnlyBrushes());
-                    break;
-                case CommandIds::Actions::FlipObjectsHorizontally:
-                case CommandIds::Actions::FlipObjectsVertically:
-                    event.Enable(m_mapView->canFlipObjects());
-                    break;
+
                 default:
                     event.Enable(event.GetId() >= CommandIds::Menu::FileRecentDocuments && event.GetId() < CommandIds::Menu::FileRecentDocuments + 10);
                     break;
@@ -2158,6 +2096,10 @@ namespace TrenchBroom {
         void MapFrame::OnToolBarSetGridSize(const int index) {
             m_document->grid().setSize(gridSizeForIndex(index));
         }
+
+        void MapFrame::onFocusChange(QWidget* old, QWidget* now) {
+            updateOtherActions();
+		}
 
         bool MapFrame::canUnloadPointFile() const {
             return m_document->isPointFileLoaded();
