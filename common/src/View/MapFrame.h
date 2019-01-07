@@ -53,6 +53,7 @@ namespace TrenchBroom {
         class GLContextManager;
         class Inspector;
         class SwitchableMapViewContainer;
+        class Tool;
 
         class MapFrame : public QMainWindow {
             Q_OBJECT
@@ -121,6 +122,7 @@ namespace TrenchBroom {
             QAction* editSelectNoneAction;
             QAction* editGroupSelectedObjectsAction;
             QAction* editUngroupSelectedObjectsAction;
+            QActionGroup* editToolActionGroup;
             QAction* editDeactivateToolAction;
             QAction* editToggleCreateComplexBrushToolAction;
             QAction* editToggleClipToolAction;
@@ -229,6 +231,7 @@ namespace TrenchBroom {
             void createActions();
             void createMenus();
             void updateGridActions();
+            void updateToolActions();
 
             void addRecentDocumentsMenu(QMenuBar* menuBar);
             void removeRecentDocumentsMenu(QMenuBar* menuBar);
@@ -249,6 +252,8 @@ namespace TrenchBroom {
             void documentModificationStateDidChange();
             void preferenceDidChange(const IO::Path& path);
             void gridDidChange();
+            void toolActivated(Tool* tool);
+            void toolDeactivated(Tool* tool);
             void selectionDidChange(const Selection& selection);
             void currentLayerDidChange(const TrenchBroom::Model::Layer* layer);
             void groupWasOpened(Model::Group* group);

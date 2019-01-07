@@ -246,6 +246,10 @@ namespace TrenchBroom {
             return m_toolBox->faceTool();
         }
 
+        MapViewToolBox* SwitchableMapViewContainer::mapViewToolBox() {
+            return m_toolBox;
+        }
+
         bool SwitchableMapViewContainer::canMoveCameraToNextTracePoint() const {
             MapDocumentSPtr document = lock(m_document);
             if (!document->isPointFileLoaded())

@@ -112,7 +112,8 @@ namespace TrenchBroom {
             VertexTool* vertexTool();
             EdgeTool* edgeTool();
             FaceTool* faceTool();
-            
+            MapViewToolBox* mapViewToolBox();
+
             bool canMoveCameraToNextTracePoint() const;
             bool canMoveCameraToPreviousTracePoint() const;
             void moveCameraToNextTracePoint();

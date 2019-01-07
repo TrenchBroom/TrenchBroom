@@ -80,6 +80,7 @@
 #include "View/ViewUtils.h"
 #include "View/wxUtils.h"
 #include "View/ModifiableMenuItem.h"
+#include "View/MapViewToolBox.h"
 
 #include <vecmath/util.h>
 
@@ -136,6 +137,7 @@ namespace TrenchBroom {
             createToolBar();
 
             updateGridActions();
+            updateToolActions();
 
             createMenus();
             createStatusBar();
@@ -539,53 +541,55 @@ namespace TrenchBroom {
             connect(editUngroupSelectedObjectsAction, &QAction::triggered, this, &MapFrame::OnEditUngroupSelectedObjects); //, this, CommandIds::Menu::EditUngroupSelection);
 
 
-            editDeactivateToolAction = new QAction("Deactivate Tool", this);
+            editToolActionGroup = new QActionGroup(this);
+
+            editDeactivateToolAction = new QAction("Deactivate Tool", editToolActionGroup);
             editDeactivateToolAction->setIcon(IO::loadIconResourceQt(IO::Path("NoTool.png")));
             connect(editDeactivateToolAction, &QAction::triggered, this, &MapFrame::OnEditDeactivateTool); //, this, CommandIds::Menu::EditDeactivateTool);
 
-            editToggleCreateComplexBrushToolAction = new QAction("Brush Tool", this);
+            editToggleCreateComplexBrushToolAction = new QAction("Brush Tool", editToolActionGroup);
             editToggleCreateComplexBrushToolAction->setIcon(IO::loadIconResourceQt(IO::Path("BrushTool.png")));
             editToggleCreateComplexBrushToolAction->setCheckable(true);
             editToggleCreateComplexBrushToolAction->setData(QVariant::fromValue(ModifiableMenuItem(IO::Path("Brush Tool"), "B")));
             connect(editToggleCreateComplexBrushToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleCreateComplexBrushTool); //, this, CommandIds::Menu::EditToggleCreateComplexBrushTool);
 
-            editToggleClipToolAction = new QAction("Clip Tool", this);
+            editToggleClipToolAction = new QAction("Clip Tool", editToolActionGroup);
             editToggleClipToolAction->setIcon(IO::loadIconResourceQt(IO::Path("ClipTool.png")));
             editToggleClipToolAction->setCheckable(true);
             editToggleClipToolAction->setData(QVariant::fromValue(ModifiableMenuItem(IO::Path("Clip Tool"), "C")));
             connect(editToggleClipToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleClipTool); //, this, CommandIds::Menu::EditToggleClipTool);
 
-            editToggleRotateObjectsToolAction = new QAction("Rotate Tool", this);
+            editToggleRotateObjectsToolAction = new QAction("Rotate Tool", editToolActionGroup);
             editToggleRotateObjectsToolAction->setIcon(IO::loadIconResourceQt(IO::Path("RotateTool.png")));
             editToggleRotateObjectsToolAction->setCheckable(true);
             editToggleRotateObjectsToolAction->setData(QVariant::fromValue(ModifiableMenuItem(IO::Path("Rotate Tool"), "R")));
             connect(editToggleRotateObjectsToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleRotateObjectsTool); //, this, CommandIds::Menu::EditToggleRotateObjectsTool);
 
-            editToggleScaleObjectsToolAction = new QAction("Scale Tool", this);
+            editToggleScaleObjectsToolAction = new QAction("Scale Tool", editToolActionGroup);
             editToggleScaleObjectsToolAction->setIcon(IO::loadIconResourceQt(IO::Path("ScaleTool.png")));
             editToggleScaleObjectsToolAction->setCheckable(true);
             editToggleScaleObjectsToolAction->setData(QVariant::fromValue(ModifiableMenuItem(IO::Path("Scale Tool"), "T")));
             connect(editToggleScaleObjectsToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleScaleObjectsTool); //, this, CommandIds::Menu::EditToggleScaleObjectsTool);
 
-            editToggleShearObjectsToolAction = new QAction("Shear Tool", this);
+            editToggleShearObjectsToolAction = new QAction("Shear Tool", editToolActionGroup);
             editToggleShearObjectsToolAction->setIcon(IO::loadIconResourceQt(IO::Path("ShearTool.png")));
             editToggleShearObjectsToolAction->setCheckable(true);
             editToggleShearObjectsToolAction->setData(QVariant::fromValue(ModifiableMenuItem(IO::Path("Shear Tool"), "G")));
             connect(editToggleShearObjectsToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleShearObjectsTool); //, this, CommandIds::Menu::EditToggleShearObjectsTool);
 
-            editToggleVertexToolAction = new QAction("Vertex Tool", this);
+            editToggleVertexToolAction = new QAction("Vertex Tool", editToolActionGroup);
             editToggleVertexToolAction->setIcon(IO::loadIconResourceQt(IO::Path("VertexTool.png")));
             editToggleVertexToolAction->setCheckable(true);
             editToggleVertexToolAction->setData(QVariant::fromValue(ModifiableMenuItem(IO::Path("Vertex Tool"), "V")));
             connect(editToggleVertexToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleVertexTool); //, this, CommandIds::Menu::EditToggleVertexTool);
 
-            editToggleEdgeToolAction = new QAction("Edge Tool", this);
+            editToggleEdgeToolAction = new QAction("Edge Tool", editToolActionGroup);
             editToggleEdgeToolAction->setIcon(IO::loadIconResourceQt(IO::Path("EdgeTool.png")));
             editToggleEdgeToolAction->setCheckable(true);
             editToggleEdgeToolAction->setData(QVariant::fromValue(ModifiableMenuItem(IO::Path("Edge Tool"), "E")));
             connect(editToggleEdgeToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleEdgeTool); //, this, CommandIds::Menu::EditToggleEdgeTool);
 
-            editToggleFaceToolAction = new QAction("Face Tool", this);
+            editToggleFaceToolAction = new QAction("Face Tool", editToolActionGroup);
             editToggleFaceToolAction->setIcon(IO::loadIconResourceQt(IO::Path("FaceTool.png")));
             editToggleFaceToolAction->setCheckable(true);
             editToggleFaceToolAction->setData(QVariant::fromValue(ModifiableMenuItem(IO::Path("Face Tool"), "F")));
@@ -990,6 +994,35 @@ namespace TrenchBroom {
             m_gridChoice->setCurrentIndex(indexForGridSize(m_document->grid().size()));
         }
 
+        void MapFrame::updateToolActions() {
+            editDeactivateToolAction->setEnabled(true);
+            editDeactivateToolAction->setChecked(!m_mapView->anyToolActive());
+
+            editToggleCreateComplexBrushToolAction->setEnabled(m_mapView->canToggleCreateComplexBrushTool());
+            editToggleCreateComplexBrushToolAction->setChecked(m_mapView->createComplexBrushToolActive());
+
+            editToggleClipToolAction->setEnabled(m_mapView->canToggleClipTool());
+            editToggleClipToolAction->setChecked(m_mapView->clipToolActive());
+
+            editToggleRotateObjectsToolAction->setEnabled(m_mapView->canToggleRotateObjectsTool());
+            editToggleRotateObjectsToolAction->setChecked(m_mapView->rotateObjectsToolActive());
+
+            editToggleScaleObjectsToolAction->setEnabled(m_mapView->canToggleScaleObjectsTool());
+            editToggleScaleObjectsToolAction->setChecked(m_mapView->scaleObjectsToolActive());
+
+            editToggleShearObjectsToolAction->setEnabled(m_mapView->canToggleShearObjectsTool());
+            editToggleShearObjectsToolAction->setChecked(m_mapView->shearObjectsToolActive());
+
+            editToggleVertexToolAction->setEnabled(m_mapView->canToggleVertexTools());
+            editToggleVertexToolAction->setChecked(m_mapView->vertexToolActive());
+
+            editToggleEdgeToolAction->setEnabled(m_mapView->canToggleVertexTools());
+            editToggleEdgeToolAction->setChecked(m_mapView->edgeToolActive());
+
+            editToggleFaceToolAction->setEnabled(m_mapView->canToggleVertexTools());
+            editToggleFaceToolAction->setChecked(m_mapView->faceToolActive());
+		}
+
 #if 0
         void MapFrame::addRecentDocumentsMenu(wxMenuBar* menuBar) {
             const ActionManager& actionManager = ActionManager::instance();
@@ -1232,6 +1265,9 @@ namespace TrenchBroom {
             
             Grid& grid = m_document->grid();
             grid.gridDidChangeNotifier.addObserver(this, &MapFrame::gridDidChange);
+
+            m_mapView->mapViewToolBox()->toolActivatedNotifier.addObserver(this, &MapFrame::toolActivated);
+            m_mapView->mapViewToolBox()->toolDeactivatedNotifier.addObserver(this, &MapFrame::toolDeactivated);
         }
 
         void MapFrame::unbindObservers() {
@@ -1250,6 +1286,9 @@ namespace TrenchBroom {
             
             Grid& grid = m_document->grid();
             grid.gridDidChangeNotifier.removeObserver(this, &MapFrame::gridDidChange);
+
+            m_mapView->mapViewToolBox()->toolActivatedNotifier.removeObserver(this, &MapFrame::toolActivated);
+            m_mapView->mapViewToolBox()->toolDeactivatedNotifier.removeObserver(this, &MapFrame::toolDeactivated);
         }
 
         void MapFrame::documentWasCleared(View::MapDocument* document) {
@@ -1277,9 +1316,18 @@ namespace TrenchBroom {
             const Grid& grid = m_document->grid();
             updateGridActions();
         }
+
+        void MapFrame::toolActivated(Tool* tool) {
+		    updateToolActions();
+		}
+
+        void MapFrame::toolDeactivated(Tool* tool) {
+            updateToolActions();
+        }
         
         void MapFrame::selectionDidChange(const Selection& selection) {
             updateStatusBar();
+            updateToolActions();
         }
         
         void MapFrame::currentLayerDidChange(const TrenchBroom::Model::Layer* layer) {
@@ -2012,42 +2060,6 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::Menu::EditUngroupSelection:
                     event.Enable(canUngroup());
-                    break;
-                case CommandIds::Menu::EditDeactivateTool:
-                    event.Check(!m_mapView->anyToolActive());
-                    event.Enable(true);
-                    break;
-                case CommandIds::Menu::EditToggleCreateComplexBrushTool:
-                    event.Check(m_mapView->createComplexBrushToolActive());
-                    event.Enable(m_mapView->canToggleCreateComplexBrushTool());
-                    break;
-                case CommandIds::Menu::EditToggleClipTool:
-                    event.Check(m_mapView->clipToolActive());
-                    event.Enable(m_mapView->canToggleClipTool());
-                    break;
-                case CommandIds::Menu::EditToggleRotateObjectsTool:
-                    event.Check(m_mapView->rotateObjectsToolActive());
-                    event.Enable(m_mapView->canToggleRotateObjectsTool());
-                    break;
-                case CommandIds::Menu::EditToggleScaleObjectsTool:
-                    event.Check(m_mapView->scaleObjectsToolActive());
-                    event.Enable(m_mapView->canToggleScaleObjectsTool());
-                    break;
-                case CommandIds::Menu::EditToggleShearObjectsTool:
-                    event.Check(m_mapView->shearObjectsToolActive());
-                    event.Enable(m_mapView->canToggleShearObjectsTool());
-                    break;
-                case CommandIds::Menu::EditToggleVertexTool:
-                    event.Check(m_mapView->vertexToolActive());
-                    event.Enable(m_mapView->canToggleVertexTools());
-                    break;
-                case CommandIds::Menu::EditToggleEdgeTool:
-                    event.Check(m_mapView->edgeToolActive());
-                    event.Enable(m_mapView->canToggleVertexTools());
-                    break;
-                case CommandIds::Menu::EditToggleFaceTool:
-                    event.Check(m_mapView->faceToolActive());
-                    event.Enable(m_mapView->canToggleVertexTools());
                     break;
                 case CommandIds::Menu::EditCsgConvexMerge:
                     event.Enable(canDoCsgConvexMerge());
