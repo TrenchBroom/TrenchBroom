@@ -44,7 +44,7 @@ namespace TrenchBroom {
 
             const auto paths = next().findItems(Path("scripts"), FileExtensionMatcher("shader"));
             for (const auto& path : paths) {
-                m_logger->debug() << "Loading shader " << path.asString();
+                // m_logger->debug() << "Loading shader " << path.asString();
 
                 const auto file = next().openFile(path);
 
@@ -85,11 +85,13 @@ namespace TrenchBroom {
                             shader.setQerImagePath(texture);
                         }
 
+                        /*
                         if (shader.hasQerImagePath()) {
                             m_logger->debug() << "Linking shader " << shaderPath << " -> " << shader.qerImagePath();
                         } else {
                             m_logger->debug() << "Linking shader " << shaderPath << " -> default texture";
                         }
+                        */
 
                         auto shaderFile = std::make_shared<ObjectFile<Assets::Quake3Shader>>(shader, shaderPath);
                         m_root.addFile(shaderPath, std::make_unique<SimpleFile>(std::move(shaderFile)));
@@ -102,7 +104,7 @@ namespace TrenchBroom {
                         shader.setTexturePath(shaderPath);
                         shader.setQerImagePath(texture);
 
-                        m_logger->debug() << "Generating shader " << shaderPath << " -> " << shader.qerImagePath();
+                        // m_logger->debug() << "Generating shader " << shaderPath << " -> " << shader.qerImagePath();
 
                         auto shaderFile = std::make_shared<ObjectFile<Assets::Quake3Shader>>(std::move(shader), shaderPath);
                         m_root.addFile(shaderPath, std::make_unique<SimpleFile>(std::move(shaderFile)));
@@ -116,11 +118,13 @@ namespace TrenchBroom {
             for (const auto& shader : shaders) {
                 const auto& shaderPath = shader.texturePath();
                 if (shaderPath.hasPrefix(m_texturePrefix, false)) {
+                    /*
                     if (shader.hasQerImagePath()) {
                         m_logger->debug() << "Linking shader " << shaderPath << " -> " << shader.qerImagePath();
                     } else {
                         m_logger->debug() << "Shader " << shaderPath << " has no image";
                     }
+                    */
 
                     auto shaderFile = std::make_shared<ObjectFile<Assets::Quake3Shader>>(shader, shaderPath);
                     m_root.addFile(shaderPath, std::make_unique<SimpleFile>(std::move(shaderFile)));

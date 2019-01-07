@@ -182,8 +182,8 @@ namespace TrenchBroom {
             
             void setViewEffectsService(ViewEffectsService* viewEffectsService);
         public: // new, load, save document
-            void newDocument(Model::MapFormat::Type mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game);
-            void loadDocument(Model::MapFormat::Type mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game, const IO::Path& path);
+            void newDocument(Model::MapFormat mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game);
+            void loadDocument(Model::MapFormat mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game, const IO::Path& path);
             void saveDocument();
             void saveDocumentAs(const IO::Path& path);
             void saveDocumentTo(const IO::Path& path);
@@ -391,8 +391,8 @@ namespace TrenchBroom {
             void pick(const vm::ray3& pickRay, Model::PickResult& pickResult) const;
             Model::NodeList findNodesContaining(const vm::vec3& point) const;
         private: // world management
-            void createWorld(Model::MapFormat::Type mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game);
-            void loadWorld(Model::MapFormat::Type mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game, const IO::Path& path);
+            void createWorld(Model::MapFormat mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game);
+            void loadWorld(Model::MapFormat mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game, const IO::Path& path);
             void clearWorld();
         public: // asset management
             Assets::EntityDefinitionFileSpec entityDefinitionFile() const;

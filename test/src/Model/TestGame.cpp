@@ -54,11 +54,11 @@ namespace TrenchBroom {
             return 1024;
         }
         
-        World* TestGame::doNewMap(const MapFormat::Type format, const vm::bbox3& worldBounds, Logger* logger) const {
+        World* TestGame::doNewMap(const MapFormat format, const vm::bbox3& worldBounds, Logger* logger) const {
             return new World(format, brushContentTypeBuilder(), worldBounds);
         }
         
-        World* TestGame::doLoadMap(const MapFormat::Type format, const vm::bbox3& worldBounds, const IO::Path& path, Logger* logger) const {
+        World* TestGame::doLoadMap(const MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger* logger) const {
             return new World(format, brushContentTypeBuilder(), worldBounds);
         }
         

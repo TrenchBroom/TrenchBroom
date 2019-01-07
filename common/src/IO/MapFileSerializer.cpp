@@ -18,7 +18,9 @@
  */
 
 #include "MapFileSerializer.h"
+
 #include "Exceptions.h"
+#include "Macros.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/Path.h"
 #include "Model/BrushFace.h"
@@ -196,11 +198,14 @@ namespace TrenchBroom {
             }
         };
 
-        NodeSerializer::Ptr MapFileSerializer::create(const Model::MapFormat::Type format, FILE* stream) {
+        NodeSerializer::Ptr MapFileSerializer::create(const Model::MapFormat format, FILE* stream) {
             switch (format) {
                 case Model::MapFormat::Standard:
                     return NodeSerializer::Ptr(new QuakeFileSerializer(stream));
                 case Model::MapFormat::Quake2:
+                    // TODO 2427: Implement Quake3 serializers and use them
+                case Model::MapFormat::Quake3:
+                case Model::MapFormat::Quake3_Legacy:
                     return NodeSerializer::Ptr(new Quake2FileSerializer(stream));
                 case Model::MapFormat::Daikatana:
                     return NodeSerializer::Ptr(new DaikatanaFileSerializer(stream));
@@ -209,8 +214,8 @@ namespace TrenchBroom {
                 case Model::MapFormat::Hexen2:
                     return NodeSerializer::Ptr(new Hexen2FileSerializer(stream));
                 case Model::MapFormat::Unknown:
-                default:
                     throw FileFormatException("Unknown map file format");
+                switchDefault()
             }
         }
         

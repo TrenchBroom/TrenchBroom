@@ -19,34 +19,50 @@
 
 #include "MapFormat.h"
 
+#include "Macros.h"
+
 namespace TrenchBroom {
     namespace Model {
-        MapFormat::Type mapFormat(const String& formatName) {
-            if (formatName == "Standard")
+        MapFormat mapFormat(const String& formatName) {
+            if (formatName == "Standard") {
                 return MapFormat::Standard;
-            if (formatName == "Quake2")
+            } else if (formatName == "Quake2") {
                 return MapFormat::Quake2;
-            if (formatName == "Valve")
+            } else if (formatName == "Valve") {
                 return MapFormat::Valve;
-            if (formatName == "Hexen2")
+            } else if (formatName == "Hexen2") {
                 return MapFormat::Hexen2;
-            if (formatName == "Daikatana")
+            } else if (formatName == "Daikatana") {
                 return MapFormat::Daikatana;
-            return MapFormat::Unknown;
+            } else if (formatName == "Quake3 (legacy)") {
+                return MapFormat::Quake3_Legacy;
+            } else if (formatName == "Quake3") {
+                return MapFormat::Quake3;
+            } else {
+                return MapFormat::Unknown;
+            }
         }
 
-        String formatName(const MapFormat::Type format) {
-            if (format == MapFormat::Standard)
-                return "Standard";
-            if (format == MapFormat::Quake2)
-                return "Quake2";
-            if (format == MapFormat::Valve)
-                return "Valve";
-            if (format == MapFormat::Hexen2)
-                return "Hexen2";
-            if (format == MapFormat::Daikatana)
-                return "Daikatana";
-            return "Unknown";
+        String formatName(const MapFormat format) {
+            switch (format) {
+                case MapFormat::Standard:
+                    return "Standard";
+                case MapFormat::Quake2:
+                    return "Quake2";
+                case MapFormat::Valve:
+                    return "Valve";
+                case MapFormat::Hexen2:
+                    return "Hexen2";
+                case MapFormat::Daikatana:
+                    return "Daikatana";
+                case MapFormat::Quake3_Legacy:
+                    return "Quake3 (legacy)";
+                case MapFormat::Quake3:
+                    return "Quake3";
+                case MapFormat::Unknown:
+                    return "Unknown";
+                switchDefault()
+            }
         }
     }
 }

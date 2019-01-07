@@ -33,13 +33,13 @@ namespace TrenchBroom {
         
         class ModelFactoryImpl : public ModelFactory {
         private:
-            MapFormat::Type m_format;
+            MapFormat m_format;
             const BrushContentTypeBuilder* m_brushContentTypeBuilder;
         public:
             ModelFactoryImpl();
-            ModelFactoryImpl(MapFormat::Type format, const BrushContentTypeBuilder* brushContentTypeBuilder);
+            ModelFactoryImpl(MapFormat format, const BrushContentTypeBuilder* brushContentTypeBuilder);
         private: // implement ModelFactory interface
-            MapFormat::Type doGetFormat() const override;
+            MapFormat doGetFormat() const override;
             World* doCreateWorld(const vm::bbox3& worldBounds) const override;
             Layer* doCreateLayer(const String& name, const vm::bbox3& worldBounds) const override;
             Group* doCreateGroup(const String& name) const override;

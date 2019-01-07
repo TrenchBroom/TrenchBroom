@@ -46,11 +46,11 @@ namespace TrenchBroom {
         public:
             virtual ~GameDialog();
             
-            static bool showNewDocumentDialog(wxWindow* parent, String& gameName, Model::MapFormat::Type& mapFormat);
-            static bool showOpenDocumentDialog(wxWindow* parent, String& gameName, Model::MapFormat::Type& mapFormat);
+            static bool showNewDocumentDialog(wxWindow* parent, String& gameName, Model::MapFormat& mapFormat);
+            static bool showOpenDocumentDialog(wxWindow* parent, String& gameName, Model::MapFormat& mapFormat);
             
             String selectedGameName() const;
-            Model::MapFormat::Type selectedMapFormat() const;
+            Model::MapFormat selectedMapFormat() const;
         private:
             void OnGameSelectionChanged(GameSelectionCommand& command);
             void OnGameSelected(GameSelectionCommand& command);

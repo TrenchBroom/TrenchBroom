@@ -85,13 +85,13 @@ namespace TrenchBroom {
             MapReader(const char* begin, const char* end);
             MapReader(const String& str);
             
-            void readEntities(Model::MapFormat::Type format, const vm::bbox3& worldBounds, ParserStatus& status);
-            void readBrushes(Model::MapFormat::Type format, const vm::bbox3& worldBounds, ParserStatus& status);
-            void readBrushFaces(Model::MapFormat::Type format, const vm::bbox3& worldBounds, ParserStatus& status);
+            void readEntities(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status);
+            void readBrushes(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status);
+            void readBrushFaces(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status);
         public:
             virtual ~MapReader() override;
         private: // implement MapParser interface
-            void onFormatSet(Model::MapFormat::Type format) override;
+            void onFormatSet(Model::MapFormat format) override;
             void onBeginEntity(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) override;
             void onEndEntity(size_t startLine, size_t lineCount, ParserStatus& status) override;
             void onBeginBrush(size_t line, ParserStatus& status) override;
@@ -115,7 +115,7 @@ namespace TrenchBroom {
         protected:
             void setExtraAttributes(Model::Node* node, const ExtraAttributes& extraAttributes);
         private: // subclassing interface
-            virtual Model::ModelFactory* initialize(Model::MapFormat::Type format, const vm::bbox3& worldBounds) = 0;
+            virtual Model::ModelFactory* initialize(Model::MapFormat format, const vm::bbox3& worldBounds) = 0;
             virtual Model::Node* onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) = 0;
             virtual void onWorldspawnFilePosition(size_t startLine, size_t lineCount, ParserStatus& status) = 0;
             virtual void onLayer(Model::Layer* layer, ParserStatus& status) = 0;

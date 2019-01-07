@@ -46,7 +46,7 @@ namespace TrenchBroom {
         ::testing::Test(),
         m_mapFormat(Model::MapFormat::Standard) {}
 
-        MapDocumentTest::MapDocumentTest(const Model::MapFormat::Type mapFormat) :
+        MapDocumentTest::MapDocumentTest(const Model::MapFormat mapFormat) :
         ::testing::Test(),
         m_mapFormat(mapFormat),
         m_pointEntityDef(nullptr),

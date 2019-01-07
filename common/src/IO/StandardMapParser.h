@@ -29,6 +29,8 @@
 
 #include <vecmath/forward.h>
 
+#include <tuple>
+
 namespace TrenchBroom {
     namespace IO {
         namespace QuakeMapToken {
@@ -45,6 +47,7 @@ namespace TrenchBroom {
             static const Type Comment       = 1 <<  9; // line comment starting with ///
             static const Type Eof           = 1 << 10; // end of file
             static const Type Eol           = 1 << 11; // end of line
+            static const Type Number        = Integer | Decimal;
         }
         
         class QuakeMapTokenizer : public Tokenizer<QuakeMapToken::Type> {
@@ -64,33 +67,67 @@ namespace TrenchBroom {
 
         class StandardMapParser : public MapParser, public Parser<QuakeMapToken::Type> {
         private:
-            typedef QuakeMapTokenizer::Token Token;
-            typedef std::set<Model::AttributeName> AttributeNames;
+            using Token = QuakeMapTokenizer::Token;
+            using AttributeNames = std::set<Model::AttributeName>;
+
+            static const String BrushPrimitiveId;
+            static const String PatchId;
 
             QuakeMapTokenizer m_tokenizer;
-            Model::MapFormat::Type m_format;
+            Model::MapFormat m_format;
         public:
             StandardMapParser(const char* begin, const char* end);
             StandardMapParser(const String& str);
             
             virtual ~StandardMapParser() override;
         protected:
-            Model::MapFormat::Type detectFormat();
+            Model::MapFormat detectFormat();
             
-            void parseEntities(Model::MapFormat::Type format, ParserStatus& status);
-            void parseBrushes(Model::MapFormat::Type format, ParserStatus& status);
-            void parseBrushFaces(Model::MapFormat::Type format, ParserStatus& status);
+            void parseEntities(Model::MapFormat format, ParserStatus& status);
+            void parseBrushes(Model::MapFormat format, ParserStatus& status);
+            void parseBrushFaces(Model::MapFormat format, ParserStatus& status);
             
             void reset();
         private:
-            void setFormat(Model::MapFormat::Type format);
+            void setFormat(Model::MapFormat format);
             
             void parseEntity(ParserStatus& status);
             void parseEntityAttribute(Model::EntityAttribute::List& attributes, AttributeNames& names, ParserStatus& status);
-            void parseBrush(ParserStatus& status);
-            void parseFace(ParserStatus& status);
 
-            vm::vec3 parseVector();
+            void parseBrushOrBrushPrimitiveOrPatch(ParserStatus& status);
+            void parseBrushPrimitive(ParserStatus& status, size_t startLine);
+            void parseBrush(ParserStatus& status, size_t startLine, bool primitive);
+
+            void parseFace(ParserStatus& status, bool primitive);
+            void parseQuakeFace(ParserStatus& status);
+            void parseQuake2Face(ParserStatus& status);
+            void parseHexen2Face(ParserStatus& status);
+            void parseDaikatanaFace(ParserStatus& status);
+            void parseValveFace(ParserStatus& status);
+            void parsePrimitiveFace(ParserStatus& status);
+            bool checkFacePoints(ParserStatus& status, const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, size_t line) const;
+
+            void parsePatch(ParserStatus& status, size_t startLine);
+
+            std::tuple<vm::vec3, vm::vec3, vm::vec3> parseFacePoints(ParserStatus& status);
+            String parseTextureName(ParserStatus& status);
+            std::tuple<vm::vec3, float, vm::vec3, float> parseValveTextureAxes(ParserStatus& status);
+            std::tuple<vm::vec3, vm::vec3> parsePrimitiveTextureAxes(ParserStatus& status);
+
+            template <size_t S=3, typename T=FloatType>
+            vm::vec<T,S> parseFloatVector(const QuakeMapToken::Type o, const QuakeMapToken::Type c) {
+                expect(o, m_tokenizer.nextToken());
+                vm::vec<T,S> vec;
+                for (size_t i = 0; i < S; i++) {
+                    vec[i] = expect(QuakeMapToken::Number, m_tokenizer.nextToken()).toFloat<T>();
+                }
+                expect(c, m_tokenizer.nextToken());
+                return vec;
+            }
+
+            float parseFloat();
+            int parseInteger();
+
             void parseExtraAttributes(ExtraAttributes& extraAttributes, ParserStatus& status);
         private: // implement Parser interface
             TokenNameMap tokenNames() const override;

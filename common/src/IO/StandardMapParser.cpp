@@ -46,9 +46,9 @@ namespace TrenchBroom {
         
         QuakeMapTokenizer::Token QuakeMapTokenizer::emitToken() {
             while (!eof()) {
-                size_t startLine = line();
-                size_t startColumn = column();
-                const char* c = curPos();
+                auto startLine = line();
+                auto startColumn = column();
+                const auto* c = curPos();
                 switch (*c) {
                     case '/':
                         advance();
@@ -82,7 +82,7 @@ namespace TrenchBroom {
                     case '"': { // quoted string
                         advance();
                         c = curPos();
-                        const char* e = readQuotedString('"', "\n}");
+                        const auto* e = readQuotedString('"', "\n}");
                         return Token(QuakeMapToken::String, c, e, offset(c), startLine, startColumn);
                     }
                     case '\n':
@@ -97,23 +97,30 @@ namespace TrenchBroom {
                         discardWhile(Whitespace());
                         break;
                     default: { // whitespace, integer, decimal or word
-                        const char* e = readInteger(NumberDelim());
-                        if (e != nullptr)
+                        const auto* e = readInteger(NumberDelim());
+                        if (e != nullptr) {
                             return Token(QuakeMapToken::Integer, c, e, offset(c), startLine, startColumn);
-                        
+                        }
+
                         e = readDecimal(NumberDelim());
-                        if (e != nullptr)
+                        if (e != nullptr) {
                             return Token(QuakeMapToken::Decimal, c, e, offset(c), startLine, startColumn);
-                        
+                        }
+
                         e = readUntil(Whitespace());
-                        if (e == nullptr)
+                        if (e == nullptr) {
                             throw ParserException(startLine, startColumn, "Unexpected character: " + String(c, 1));
+                        }
+
                         return Token(QuakeMapToken::String, c, e, offset(c), startLine, startColumn);
                     }
                 }
             }
             return Token(QuakeMapToken::Eof, nullptr, nullptr, length(), line(), column());
         }
+
+        const String StandardMapParser::BrushPrimitiveId = "brushDef";
+        const String StandardMapParser::PatchId = "patchDef2";
 
         StandardMapParser::StandardMapParser(const char* begin, const char* end) :
         m_tokenizer(QuakeMapTokenizer(begin, end)),
@@ -125,59 +132,63 @@ namespace TrenchBroom {
         
         StandardMapParser::~StandardMapParser() {}
 
-        Model::MapFormat::Type StandardMapParser::detectFormat() {
-            Model::MapFormat::Type format = Model::MapFormat::Unknown;
+        Model::MapFormat StandardMapParser::detectFormat() {
+            auto format = Model::MapFormat::Unknown;
             
             // try to find an opening parenthesis
-            Token token = m_tokenizer.peekToken();
+            auto token = m_tokenizer.peekToken();
             while (token.type() != QuakeMapToken::OParenthesis &&
                    token.type() != QuakeMapToken::Eof) {
                 m_tokenizer.nextToken();
                 token = m_tokenizer.peekToken();
             }
-            if (token.type() == QuakeMapToken::Eof)
+
+            if (token.type() == QuakeMapToken::Eof) {
                 format = Model::MapFormat::Standard;
-            
+            }
+
             if (format == Model::MapFormat::Unknown) {
                 for (size_t i = 0; i < 3; ++i) {
-                    expect(QuakeMapToken::OParenthesis, token = m_tokenizer.nextToken());
-                    parseVector();
-                    expect(QuakeMapToken::CParenthesis, token = m_tokenizer.nextToken());
+                    parseFloatVector(QuakeMapToken::OParenthesis, QuakeMapToken::CParenthesis);
                 }
                 
                 // texture names can contain braces etc, so we just read everything until the next opening bracket or number
-                m_tokenizer.readRemainder(QuakeMapToken::OBracket | QuakeMapToken::Integer | QuakeMapToken::Decimal);
-                expect(QuakeMapToken::Integer | QuakeMapToken::Decimal | QuakeMapToken::OBracket, token = m_tokenizer.nextToken());
-                if (token.type() == QuakeMapToken::OBracket)
+                m_tokenizer.readRemainder(QuakeMapToken::OBracket | QuakeMapToken::Number);
+                expect(QuakeMapToken::Number | QuakeMapToken::OBracket, token = m_tokenizer.nextToken());
+                if (token.type() == QuakeMapToken::OBracket) {
                     format = Model::MapFormat::Valve;
+                }
             }
             
             if (format == Model::MapFormat::Unknown) {
-                expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken()); // y offset
-                expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken()); // rotation
-                expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken()); // x scale
-                expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken()); // y scale
-                expect(QuakeMapToken::Integer | QuakeMapToken::Decimal | QuakeMapToken::OParenthesis | QuakeMapToken::CBrace, token = m_tokenizer.nextToken());
-                if (token.type() == QuakeMapToken::OParenthesis || token.type() == QuakeMapToken::CBrace)
+                expect(QuakeMapToken::Number, token = m_tokenizer.nextToken()); // y offset
+                expect(QuakeMapToken::Number, token = m_tokenizer.nextToken()); // rotation
+                expect(QuakeMapToken::Number, token = m_tokenizer.nextToken()); // x scale
+                expect(QuakeMapToken::Number, token = m_tokenizer.nextToken()); // y scale
+                expect(QuakeMapToken::Number | QuakeMapToken::OParenthesis | QuakeMapToken::CBrace, token = m_tokenizer.nextToken());
+
+                if (token.type() == QuakeMapToken::OParenthesis || token.type() == QuakeMapToken::CBrace) {
                     format = Model::MapFormat::Standard;
+                }
             }
             
             if (format == Model::MapFormat::Unknown) {
-                expect(QuakeMapToken::Integer | QuakeMapToken::Decimal | QuakeMapToken::OParenthesis | QuakeMapToken::CBrace, token = m_tokenizer.nextToken()); // unknown Hexen 2 flag or Quake 2 surface contents
-                if (token.type() == QuakeMapToken::OParenthesis || token.type() == QuakeMapToken::CBrace)
+                expect(QuakeMapToken::Number | QuakeMapToken::OParenthesis | QuakeMapToken::CBrace, token = m_tokenizer.nextToken()); // unknown Hexen 2 flag or Quake 2 surface contents
+                if (token.type() == QuakeMapToken::OParenthesis || token.type() == QuakeMapToken::CBrace) {
                     format = Model::MapFormat::Hexen2;
-                else
+                } else {
                     format = Model::MapFormat::Quake2;
+                }
             }
             
             m_tokenizer.reset();
             return format;
         }
         
-        void StandardMapParser::parseEntities(const Model::MapFormat::Type format, ParserStatus& status) {
+        void StandardMapParser::parseEntities(const Model::MapFormat format, ParserStatus& status) {
             setFormat(format);
 
-            Token token = m_tokenizer.peekToken();
+            auto token = m_tokenizer.peekToken();
             while (token.type() != QuakeMapToken::Eof) {
                 expect(QuakeMapToken::OBrace, token);
                 parseEntity(status);
@@ -185,24 +196,25 @@ namespace TrenchBroom {
             }
         }
         
-        void StandardMapParser::parseBrushes(const Model::MapFormat::Type format, ParserStatus& status) {
+        void StandardMapParser::parseBrushes(const Model::MapFormat format, ParserStatus& status) {
             setFormat(format);
 
-            Token token = m_tokenizer.peekToken();
+            auto token = m_tokenizer.peekToken();
             while (token.type() != QuakeMapToken::Eof) {
                 expect(QuakeMapToken::OBrace, token);
-                parseBrush(status);
+                parseBrushOrBrushPrimitiveOrPatch(status);
                 token = m_tokenizer.peekToken();
             }
         }
         
-        void StandardMapParser::parseBrushFaces(const Model::MapFormat::Type format, ParserStatus& status) {
+        void StandardMapParser::parseBrushFaces(const Model::MapFormat format, ParserStatus& status) {
             setFormat(format);
 
-            Token token = m_tokenizer.peekToken();
+            auto token = m_tokenizer.peekToken();
             while (token.type() != QuakeMapToken::Eof) {
                 expect(QuakeMapToken::OParenthesis, token);
-                parseFace(status);
+                // TODO 2427: detect the face type when parsing Quake3 map faces!
+                parseFace(status, false);
                 token = m_tokenizer.peekToken();
             }
         }
@@ -211,7 +223,7 @@ namespace TrenchBroom {
             m_tokenizer.reset();
         }
 
-        void StandardMapParser::setFormat(const Model::MapFormat::Type format) {
+        void StandardMapParser::setFormat(const Model::MapFormat format) {
             assert(format != Model::MapFormat::Unknown);
             m_format = format;
             formatSet(format);
@@ -219,18 +231,19 @@ namespace TrenchBroom {
 
         void StandardMapParser::parseEntity(ParserStatus& status) {
             Token token = m_tokenizer.nextToken();
-            if (token.type() == QuakeMapToken::Eof)
+            if (token.type() == QuakeMapToken::Eof) {
                 return;
-            
+            }
+
             expect(QuakeMapToken::OBrace, token);
 
-            bool beginEntityCalled = false;
+            auto beginEntityCalled = false;
             
-            Model::EntityAttribute::List attributes;
-            AttributeNames attributeNames;
+            auto attributes = Model::EntityAttribute::List();
+            auto attributeNames = AttributeNames();
         
-            ExtraAttributes extraAttributes;
-            const size_t startLine = token.line();
+            auto extraAttributes = ExtraAttributes();
+            const auto startLine = token.line();
             
             token = m_tokenizer.peekToken();
             while (token.type() != QuakeMapToken::Eof) {
@@ -247,12 +260,13 @@ namespace TrenchBroom {
                             beginEntity(startLine, attributes, extraAttributes, status);
                             beginEntityCalled = true;
                         }
-                        parseBrush(status);
+                        parseBrushOrBrushPrimitiveOrPatch(status);
                         break;
                     case QuakeMapToken::CBrace:
                         m_tokenizer.nextToken();
-                        if (!beginEntityCalled)
+                        if (!beginEntityCalled) {
                             beginEntity(startLine, attributes, extraAttributes, status);
+                        }
                         endEntity(startLine, token.line() - startLine, status);
                         return;
                     default:
@@ -264,15 +278,15 @@ namespace TrenchBroom {
         }
         
         void StandardMapParser::parseEntityAttribute(Model::EntityAttribute::List& attributes, AttributeNames& names, ParserStatus& status) {
-            Token token = m_tokenizer.nextToken();
+            auto token = m_tokenizer.nextToken();
             assert(token.type() == QuakeMapToken::String);
-            const String name = token.data();
+            const auto name = token.data();
             
-            const size_t line = token.line();
-            const size_t column = token.column();
+            const auto line = token.line();
+            const auto column = token.column();
             
             expect(QuakeMapToken::String, token = m_tokenizer.nextToken());
-            const String value = token.data();
+            const auto value = token.data();
             
             if (names.count(name) == 0) {
                 attributes.push_back(Model::EntityAttribute(name, value, nullptr));
@@ -282,38 +296,85 @@ namespace TrenchBroom {
             }
         }
         
-        void StandardMapParser::parseBrush(ParserStatus& status) {
-            Token token = m_tokenizer.nextToken();
-            if (token.type() == QuakeMapToken::Eof)
+        void StandardMapParser::parseBrushOrBrushPrimitiveOrPatch(ParserStatus& status) {
+            // consume initial opening brace
+            auto token = expect(QuakeMapToken::OBrace | QuakeMapToken::CBrace | QuakeMapToken::Eof, m_tokenizer.nextToken());
+
+            if (token.hasType(QuakeMapToken::Eof | QuakeMapToken::CBrace)) {
                 return;
-            
-            expect(QuakeMapToken::OBrace | QuakeMapToken::CBrace, token);
-            if (token.type() == QuakeMapToken::CBrace)
-                return;
-            
-            bool beginBrushCalled = false;
-            ExtraAttributes extraAttributes;
-            const size_t startLine = token.line();
+            }
+
+            const auto startLine = token.line();
 
             token = m_tokenizer.peekToken();
-            while (token.type() != QuakeMapToken::Eof) {
+            if (m_format == Model::MapFormat::Quake3) {
+                // We expect either a brush primitive, a patch or a regular brush.
+                expect(QuakeMapToken::String | QuakeMapToken::OParenthesis, token);
+                if (token.hasType(QuakeMapToken::String)) {
+                    expect(StringList { BrushPrimitiveId, PatchId }, token);
+                    if (token.data() == BrushPrimitiveId) {
+                        parseBrushPrimitive(status, startLine);
+                    } else {
+                        parsePatch(status, startLine);
+                    }
+                } else {
+                    parseBrush(status, startLine, false);
+                }
+            } else if (m_format == Model::MapFormat::Quake3_Legacy) {
+                // We expect either a patch or a regular brush.
+                expect(QuakeMapToken::String | QuakeMapToken::OParenthesis, token);
+                if (token.hasType(QuakeMapToken::String)) {
+                    expect(PatchId, token);
+                    parsePatch(status, startLine);
+                } else {
+                    parseBrush(status, startLine, false);
+                }
+            } else {
+                expect(QuakeMapToken::OParenthesis, token);
+                parseBrush(status, startLine, false);
+            }
+
+            // consume final closing brace
+            expect(QuakeMapToken::CBrace, m_tokenizer.nextToken());
+        }
+
+        void StandardMapParser::parseBrushPrimitive(ParserStatus& status, const size_t startLine) {
+            auto token = expect(QuakeMapToken::String, m_tokenizer.nextToken());
+            expect(BrushPrimitiveId, token);
+            expect(QuakeMapToken::OBrace, m_tokenizer.nextToken());
+            parseBrush(status, startLine, true);
+            expect(QuakeMapToken::CBrace, m_tokenizer.nextToken());
+        }
+
+        void StandardMapParser::parseBrush(ParserStatus& status, const size_t startLine, const bool primitive) {
+            auto beginBrushCalled = false;
+            auto extraAttributes = ExtraAttributes();
+
+            auto token = m_tokenizer.peekToken();
+            while (!token.hasType(QuakeMapToken::Eof)) {
                 switch (token.type()) {
                     case QuakeMapToken::Comment:
                         m_tokenizer.nextToken();
                         parseExtraAttributes(extraAttributes, status);
                         break;
                     case QuakeMapToken::OParenthesis:
-                        if (!beginBrushCalled) {
+                        // TODO 2427: handle brush primitives
+                        if (!beginBrushCalled && !primitive) {
                             beginBrush(startLine, status);
                             beginBrushCalled = true;
                         }
-                        parseFace(status);
+                        parseFace(status, primitive);
                         break;
                     case QuakeMapToken::CBrace:
-                        m_tokenizer.nextToken();
-                        if (!beginBrushCalled)
-                            beginBrush(startLine, status);
-                        endBrush(startLine, token.line() - startLine, extraAttributes, status);
+                        // TODO 2427: handle brush primitives
+                        if (!primitive) {
+                            if (!beginBrushCalled) {
+                                beginBrush(startLine, status);
+                            }
+                            endBrush(startLine, token.line() - startLine, extraAttributes, status);
+                        } else {
+                            status.warn(startLine, "Skipping brush primitive: currently not supported");
+                        }
                         return;
                     default: {
                         expect(QuakeMapToken::OParenthesis | QuakeMapToken::CParenthesis, token);
@@ -324,125 +385,286 @@ namespace TrenchBroom {
             }
         }
         
-        void StandardMapParser::parseFace(ParserStatus& status) {
-            vm::vec3 texAxisX, texAxisY;
-            
-            Token token = m_tokenizer.nextToken();
-            if (token.type() == QuakeMapToken::Eof)
-                return;
-            
-            const size_t line = token.line();
-            const size_t column = token.column();
-            
-            expect(QuakeMapToken::OParenthesis, token);
-            const vm::vec3 p1 = correct(parseVector());
-            expect(QuakeMapToken::CParenthesis, token = m_tokenizer.nextToken());
-            expect(QuakeMapToken::OParenthesis, token = m_tokenizer.nextToken());
-            const vm::vec3 p2 = correct(parseVector());
-            expect(QuakeMapToken::CParenthesis, token = m_tokenizer.nextToken());
-            expect(QuakeMapToken::OParenthesis, token = m_tokenizer.nextToken());
-            const vm::vec3 p3 = correct(parseVector());
-            expect(QuakeMapToken::CParenthesis, token = m_tokenizer.nextToken());
-            
-            // texture names can contain braces etc, so we just read everything until the next opening bracket or number
-            String textureName = m_tokenizer.readAnyString(QuakeMapTokenizer::Whitespace());
-            if (textureName == Model::BrushFace::NoTextureName)
-                textureName = "";
-            
-            Model::BrushFaceAttributes attribs(textureName);
-            if (m_format == Model::MapFormat::Valve) {
-                expect(QuakeMapToken::OBracket, m_tokenizer.nextToken());
-                texAxisX = parseVector();
-                expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
-                attribs.setXOffset(token.toFloat<float>());
-                expect(QuakeMapToken::CBracket, m_tokenizer.nextToken());
-                
-                expect(QuakeMapToken::OBracket, m_tokenizer.nextToken());
-                texAxisY = parseVector();
-                expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
-                attribs.setYOffset(token.toFloat<float>());
-                expect(QuakeMapToken::CBracket, m_tokenizer.nextToken());
-            } else {
-                expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
-                attribs.setXOffset(token.toFloat<float>());
-                expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
-                attribs.setYOffset(token.toFloat<float>());
+        void StandardMapParser::parseFace(ParserStatus& status, const bool primitive) {
+            switch (m_format) {
+                case Model::MapFormat::Standard:
+                    parseQuakeFace(status);
+                    break;
+                case Model::MapFormat::Quake2:
+                case Model::MapFormat::Quake3_Legacy:
+                    parseQuake2Face(status);
+                    break;
+                case Model::MapFormat::Hexen2:
+                    parseHexen2Face(status);
+                    break;
+                case Model::MapFormat::Daikatana:
+                    parseDaikatanaFace(status);
+                    break;
+                case Model::MapFormat::Valve:
+                    parseValveFace(status);
+                    break;
+                case Model::MapFormat::Quake3:
+                    if (primitive) {
+                        parsePrimitiveFace(status);
+                    } else {
+                        parseQuake2Face(status);
+                    }
+                case Model::MapFormat::Unknown:
+                    // cannot happen
+                    break;
+                switchDefault()
             }
-            
-            expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
-            attribs.setRotation(token.toFloat<float>());
-            expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
-            attribs.setXScale(token.toFloat<float>());
-            expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
-            attribs.setYScale(token.toFloat<float>());
-            
-            // We'll be pretty lenient when parsing additional face attributes.
+        }
+
+        void StandardMapParser::parseQuakeFace(ParserStatus& status) {
+            const auto line = m_tokenizer.line();
+
+            const auto [p1, p2, p3] = parseFacePoints(status);
+            const auto textureName = parseTextureName(status);
+
+            auto attribs = Model::BrushFaceAttributes(textureName);
+            attribs.setXOffset(parseFloat());
+            attribs.setYOffset(parseFloat());
+            attribs.setRotation(parseFloat());
+            attribs.setXScale(parseFloat());
+            attribs.setYScale(parseFloat());
+
+            if (checkFacePoints(status, p1, p2, p3, line)) {
+                brushFace(line, p1, p2, p3, attribs, vm::vec3::zero, vm::vec3::zero, status);
+            }
+        }
+
+        void StandardMapParser::parseQuake2Face(ParserStatus& status) {
+            const auto line = m_tokenizer.line();
+
+            const auto [p1, p2, p3] = parseFacePoints(status);
+            const auto textureName = parseTextureName(status);
+
+            auto attribs = Model::BrushFaceAttributes(textureName);
+            attribs.setXOffset(parseFloat());
+            attribs.setYOffset(parseFloat());
+            attribs.setRotation(parseFloat());
+            attribs.setXScale(parseFloat());
+            attribs.setYScale(parseFloat());
+
+            // Quake 2 extra info is optional
             if (!check(QuakeMapToken::OParenthesis | QuakeMapToken::CBrace | QuakeMapToken::Eof, m_tokenizer.peekToken())) {
-                // There's more stuff - let's examine it!
-                expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
-                // It could be a Hexen 2 face attribute or Quake 2 content and surface flags and surface values
-                
+                attribs.setSurfaceContents(parseInteger());
+                attribs.setSurfaceFlags(parseInteger());
+                attribs.setSurfaceValue(parseFloat());
+            }
+
+            if (checkFacePoints(status, p1, p2, p3, line)) {
+                brushFace(line, p1, p2, p3, attribs, vm::vec3::zero, vm::vec3::zero, status);
+            }
+        }
+
+        void StandardMapParser::parseHexen2Face(ParserStatus& status) {
+            const auto line = m_tokenizer.line();
+
+            const auto [p1, p2, p3] = parseFacePoints(status);
+            const auto textureName = parseTextureName(status);
+
+            auto attribs = Model::BrushFaceAttributes(textureName);
+            attribs.setXOffset(parseFloat());
+            attribs.setYOffset(parseFloat());
+            attribs.setRotation(parseFloat());
+            attribs.setXScale(parseFloat());
+            attribs.setYScale(parseFloat());
+
+            // Hexen 2 extra info is optional
+            if (!check(QuakeMapToken::OParenthesis | QuakeMapToken::CBrace | QuakeMapToken::Eof, m_tokenizer.peekToken())) {
+                m_tokenizer.nextToken(); // noone seems to know what the extra value does in Hexen 2
+            }
+
+            if (checkFacePoints(status, p1, p2, p3, line)) {
+                brushFace(line, p1, p2, p3, attribs, vm::vec3::zero, vm::vec3::zero, status);
+            }
+        }
+
+        void StandardMapParser::parseDaikatanaFace(ParserStatus& status) {
+            const auto line = m_tokenizer.line();
+
+            const auto [p1, p2, p3] = parseFacePoints(status);
+            const auto textureName = parseTextureName(status);
+
+            auto attribs = Model::BrushFaceAttributes(textureName);
+            attribs.setXOffset(parseFloat());
+            attribs.setYOffset(parseFloat());
+            attribs.setRotation(parseFloat());
+            attribs.setXScale(parseFloat());
+            attribs.setYScale(parseFloat());
+
+            // Daikatana extra info is optional
+            if (check(QuakeMapToken::Integer, m_tokenizer.peekToken())) {
+                attribs.setSurfaceContents(parseInteger());
+                attribs.setSurfaceFlags(parseInteger());
+                attribs.setSurfaceValue(parseFloat());
+
+                // Daikatana color triple is optional
                 if (check(QuakeMapToken::Integer, m_tokenizer.peekToken())) {
-                    // If there's more stuff, then it's a Quake 2 surface flags!
-                    const int surfaceContents = token.toInteger<int>();
-                    token = m_tokenizer.nextToken(); // already checked it!
-                    const int surfaceFlags = token.toInteger<int>();
-                    expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
-                    const float surfaceValue = token.toFloat<float>();
-                    
-                    if (m_format == Model::MapFormat::Quake2 || m_format == Model::MapFormat::Daikatana) {
-                        attribs.setSurfaceContents(surfaceContents);
-                        attribs.setSurfaceFlags(surfaceFlags);
-                        attribs.setSurfaceValue(surfaceValue);
-                    }
-
-                    // If there's even more stuff, then it's a Daikatana color triple.
-                    if (check(QuakeMapToken::Integer, m_tokenizer.peekToken())) {
-                        token = m_tokenizer.nextToken(); // already checked it!
-                        const int red = token.toInteger<int>();
-                        expect(QuakeMapToken::Integer, token = m_tokenizer.nextToken());
-                        const int green = token.toInteger<int>();
-                        expect(QuakeMapToken::Integer, token = m_tokenizer.nextToken());
-                        const int blue = token.toInteger<int>();
-
-                        if (m_format == Model::MapFormat::Daikatana) {
-                            attribs.setColor(Color(red, green, blue));
-                        }
-                    }
-                } else {
-                    // Noone seems to know what the extra face attribute in Hexen 2 maps does, so we discard it
-                    // const int hexenValue = token.toInteger<int>();
+                    // red, green, blue
+                    attribs.setColor(Color(parseInteger(), parseInteger(), parseInteger()));
                 }
             }
 
-            const vm::vec3 axis = cross(p3 - p1, p2 - p1);
-            if (!isZero(axis, vm::C::almostZero())) {
-                brushFace(line, p1, p2, p3, attribs, texAxisX, texAxisY, status);
-            } else {
-                status.error(line, column, "Skipping face: face points are colinear");
+            if (checkFacePoints(status, p1, p2, p3, line)) {
+                brushFace(line, p1, p2, p3, attribs, vm::vec3::zero, vm::vec3::zero, status);
             }
         }
-        
-        vm::vec3 StandardMapParser::parseVector() {
-            Token token;
-            vm::vec3 vec;
-            
-            for (size_t i = 0; i < 3; i++) {
-                expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
-                vec[i] = token.toFloat<double>();
+
+        void StandardMapParser::parseValveFace(ParserStatus& status) {
+            const auto line = m_tokenizer.line();
+
+            const auto [p1, p2, p3] = parseFacePoints(status);
+            const auto textureName = parseTextureName(status);
+
+            const auto [texX, xOffset, texY, yOffset] = parseValveTextureAxes(status);
+
+            auto attribs = Model::BrushFaceAttributes(textureName);
+            attribs.setXOffset(xOffset);
+            attribs.setYOffset(yOffset);
+            attribs.setRotation(parseFloat());
+            attribs.setXScale(parseFloat());
+            attribs.setYScale(parseFloat());
+
+            if (checkFacePoints(status, p1, p2, p3, line)) {
+                brushFace(line, p1, p2, p3, attribs, texX, texY, status);
             }
-            return vec;
+        }
+
+        void StandardMapParser::parsePrimitiveFace(ParserStatus& status) {
+            const auto line = m_tokenizer.line();
+
+            const auto [p1, p2, p3] = parseFacePoints(status);
+
+            expect(QuakeMapToken::OParenthesis, m_tokenizer.nextToken());
+
+            /* const auto [texX, texY] = */ parsePrimitiveTextureAxes(status);
+            expect(QuakeMapToken::CParenthesis, m_tokenizer.nextToken());
+
+            const auto textureName = parseTextureName(status);
+
+            // TODO 2427: what to set for offset, rotation, scale?!
+            auto attribs = Model::BrushFaceAttributes(textureName);
+
+            // Quake 2 extra info is optional
+            if (!check(QuakeMapToken::OParenthesis | QuakeMapToken::CBrace | QuakeMapToken::Eof, m_tokenizer.peekToken())) {
+                attribs.setSurfaceContents(parseInteger());
+                attribs.setSurfaceFlags(parseInteger());
+                attribs.setSurfaceValue(parseFloat());
+            }
+
+            if (checkFacePoints(status, p1, p2, p3, line)) {
+                // TODO 2427: create a brush face
+                // brushFace(line, p1, p2, p3, attribs, texX, texY, status);
+            }
+        }
+
+        bool StandardMapParser::checkFacePoints(ParserStatus& status, const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, const size_t line) const {
+            const auto axis = cross(p3 - p1, p2 - p1);
+            if (!isZero(axis, vm::C::almostZero())) {
+                return true;
+            } else {
+                status.error(line, "Skipping face: face points are colinear");
+                return false;
+            }
+        }
+
+        void StandardMapParser::parsePatch(ParserStatus& status, const size_t startLine) {
+            auto token = expect(QuakeMapToken::String, m_tokenizer.nextToken());
+            expect(PatchId, token);
+            expect(QuakeMapToken::OBrace, m_tokenizer.nextToken());
+
+            parseTextureName(status);
+            expect(QuakeMapToken::OParenthesis, m_tokenizer.nextToken());
+
+            token = expect(QuakeMapToken::Integer, m_tokenizer.nextToken());
+            auto h = token.toInteger<int>();
+            if (h < 0) {
+                status.warn(token.line(), token.column(), "Negative patch height, assuming 0");
+                h = 0;
+            }
+
+            token = expect(QuakeMapToken::Integer, m_tokenizer.nextToken());
+            auto w = token.toInteger<int>();
+            if (w < 0) {
+                status.warn(token.line(), token.column(), "Negative patch width, assuming 0");
+                w = 0;
+            }
+
+            expect(QuakeMapToken::Integer, m_tokenizer.nextToken());
+            expect(QuakeMapToken::Integer, m_tokenizer.nextToken());
+            expect(QuakeMapToken::Integer, m_tokenizer.nextToken());
+            expect(QuakeMapToken::CParenthesis, m_tokenizer.nextToken());
+
+            expect(QuakeMapToken::OParenthesis, m_tokenizer.nextToken());
+            for (size_t i = 0; i < size_t(h); ++i) {
+                expect(QuakeMapToken::OParenthesis, m_tokenizer.nextToken());
+                for (size_t j = 0; j < size_t(w); ++j) {
+                    parseFloatVector<5>(QuakeMapToken::OParenthesis, QuakeMapToken::CParenthesis);
+                }
+                expect(QuakeMapToken::CParenthesis, m_tokenizer.nextToken());
+            }
+            expect(QuakeMapToken::CParenthesis, m_tokenizer.nextToken());
+
+            expect(QuakeMapToken::CBrace, m_tokenizer.nextToken());
+
+            // TODO 2428: create the actual patch
+            status.warn(startLine, "Skipping patch: currently not supported");
+        }
+
+        std::tuple<vm::vec3, vm::vec3, vm::vec3> StandardMapParser::parseFacePoints(ParserStatus& status) {
+            const auto p1 = correct(parseFloatVector(QuakeMapToken::OParenthesis, QuakeMapToken::CParenthesis));
+            const auto p2 = correct(parseFloatVector(QuakeMapToken::OParenthesis, QuakeMapToken::CParenthesis));
+            const auto p3 = correct(parseFloatVector(QuakeMapToken::OParenthesis, QuakeMapToken::CParenthesis));
+
+            return std::make_tuple(p1, p2, p3);
+        }
+
+        String StandardMapParser::parseTextureName(ParserStatus& status) {
+            auto textureName = m_tokenizer.readAnyString(QuakeMapTokenizer::Whitespace());
+            if (textureName == Model::BrushFace::NoTextureName) {
+                textureName = "";
+            }
+            return textureName;
+        }
+
+        std::tuple<vm::vec3, float, vm::vec3, float> StandardMapParser::parseValveTextureAxes(ParserStatus& status) {
+            const auto firstAxis = parseFloatVector<4>(QuakeMapToken::OBracket, QuakeMapToken::CBracket);
+            const auto texS = firstAxis.xyz();
+            const auto xOffset = static_cast<float>(firstAxis.w());
+
+            const auto secondAxis = parseFloatVector<4>(QuakeMapToken::OBracket, QuakeMapToken::CBracket);
+            const auto texT = secondAxis.xyz();
+            const auto yOffset = static_cast<float>(secondAxis.w());
+
+            return std::make_tuple(texS, xOffset, texT, yOffset);
+        }
+
+        std::tuple<vm::vec3, vm::vec3> StandardMapParser::parsePrimitiveTextureAxes(ParserStatus& status) {
+            const auto texX = correct(parseFloatVector(QuakeMapToken::OParenthesis, QuakeMapToken::CParenthesis));
+            const auto texY = correct(parseFloatVector(QuakeMapToken::OParenthesis, QuakeMapToken::CParenthesis));
+            return std::make_tuple(texX, texY);
+        }
+
+        float StandardMapParser::parseFloat() {
+            return expect(QuakeMapToken::Number, m_tokenizer.nextToken()).toFloat<float>();
+        }
+
+        int StandardMapParser::parseInteger() {
+            return expect(QuakeMapToken::Integer, m_tokenizer.nextToken()).toInteger<int>();
         }
 
         void StandardMapParser::parseExtraAttributes(ExtraAttributes& attributes, ParserStatus& status) {
             const TemporarilySetBoolFun<QuakeMapTokenizer> parseEof(&m_tokenizer, &QuakeMapTokenizer::setSkipEol, false);
-            Token token = m_tokenizer.nextToken();
+            auto token = m_tokenizer.nextToken();
             expect(QuakeMapToken::String | QuakeMapToken::Eol | QuakeMapToken::Eof, token);
             while (token.type() != QuakeMapToken::Eol && token.type() != QuakeMapToken::Eof) {
-                const String name = token.data();
+                const auto name = token.data();
                 expect(QuakeMapToken::String | QuakeMapToken::Integer, token = m_tokenizer.nextToken());
-                const String value = token.data();
-                const ExtraAttribute::Type type = token.type() == QuakeMapToken::String ? ExtraAttribute::Type_String : ExtraAttribute::Type_Integer;
+                const auto value = token.data();
+                const auto type = token.type() == QuakeMapToken::String ? ExtraAttribute::Type_String : ExtraAttribute::Type_Integer;
                 attributes.insert(std::make_pair(name, ExtraAttribute(type, name, value, token.line(), token.column())));
                 expect(QuakeMapToken::String | QuakeMapToken::Eol | QuakeMapToken::Eof, token = m_tokenizer.nextToken());
             }

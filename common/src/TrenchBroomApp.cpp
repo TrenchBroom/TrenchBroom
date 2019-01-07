@@ -192,7 +192,7 @@ namespace TrenchBroom {
 
             try {
                 String gameName;
-                Model::MapFormat::Type mapFormat = Model::MapFormat::Unknown;
+                Model::MapFormat mapFormat = Model::MapFormat::Unknown;
                 if (!GameDialog::showNewDocumentDialog(nullptr, gameName, mapFormat))
                     return false;
 
@@ -222,7 +222,7 @@ namespace TrenchBroom {
             const IO::Path path(pathStr);
             try {
                 String gameName = "";
-                Model::MapFormat::Type mapFormat = Model::MapFormat::Unknown;
+                Model::MapFormat mapFormat = Model::MapFormat::Unknown;
                 
                 Model::GameFactory& gameFactory = Model::GameFactory::instance();
                 std::tie(gameName, mapFormat) = gameFactory.detectGame(path);
