@@ -37,7 +37,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        TEST(GameTest, loadCorruptIdPak) {
+        TEST(GameTest, loadCorruptPackages {
             // https://github.com/kduske/TrenchBroom/issues/2496
 
             const auto games = IO::Path::List {

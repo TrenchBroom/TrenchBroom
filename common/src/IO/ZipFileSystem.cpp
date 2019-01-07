@@ -28,6 +28,7 @@
 #include <cstring>
 #include <memory>
 
+#include <wx/log.h>
 #include <wx/mstream.h>
 #include <wx/zipstrm.h>
 
@@ -67,6 +68,9 @@ namespace TrenchBroom {
         }
 
         void ZipFileSystem::doReadDirectory() {
+            // wxZipInputStream uses wxLogError which will pop up a dialog!
+            wxLogNull disableLogging;
+
             auto stream = std::make_shared<wxZipInputStream>(new wxMemoryInputStream(m_file->begin(), m_file->size()));
             for (int i = 0; i < stream->GetTotalEntries(); ++i) {
                 auto entry = std::unique_ptr<wxZipEntry>(stream->GetNextEntry());
