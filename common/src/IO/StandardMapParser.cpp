@@ -496,7 +496,7 @@ namespace TrenchBroom {
             attribs.setYScale(parseFloat());
 
             // Daikatana extra info is optional
-            if (!check(QuakeMapToken::OParenthesis | QuakeMapToken::CBrace | QuakeMapToken::Eof, m_tokenizer.peekToken())) {
+            if (check(QuakeMapToken::Integer, m_tokenizer.peekToken())) {
                 attribs.setSurfaceContents(parseInteger());
                 attribs.setSurfaceFlags(parseInteger());
                 attribs.setSurfaceValue(parseFloat());
