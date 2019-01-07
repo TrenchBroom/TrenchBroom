@@ -37,6 +37,27 @@
 
 namespace TrenchBroom {
     namespace Model {
+        TEST(GameTest, loadCorruptIdPak) {
+            // https://github.com/kduske/TrenchBroom/issues/2496
+
+            const auto games = IO::Path::List {
+                IO:: Path("Quake"),
+                IO::Path("Daikatana"),
+                IO::Path("Quake3")
+            };
+
+            for (const auto& game : games) {
+                const auto configPath = IO::Disk::getCurrentWorkingDir() + IO::Path("data/games") + game + IO::Path("GameConfig.cfg");
+                const auto configStr = IO::OpenStream(configPath, false).readAll();
+                auto configParser = IO::GameConfigParser(configStr, configPath);
+                auto config = configParser.parse();
+
+                const auto gamePath = IO::Disk::getCurrentWorkingDir() + IO::Path("data/Model/Game/CorruptPak");
+                auto logger = NullLogger();
+                ASSERT_NO_THROW(GameImpl(config, gamePath, &logger)) << "Should not throw when loading corrupted package file for game " << game;
+            }
+        }
+
         TEST(GameTest, loadQuake3Shaders) {
             const auto configPath = IO::Disk::getCurrentWorkingDir() + IO::Path("data/games/Quake3/GameConfig.cfg");
             const auto configStr = IO::OpenStream(configPath, false).readAll();
