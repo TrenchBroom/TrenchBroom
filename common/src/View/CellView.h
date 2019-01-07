@@ -54,6 +54,7 @@ namespace TrenchBroom {
 
             wxScrollBar* m_scrollBar;
             wxPoint m_lastMousePos;
+            bool m_potentialDrag;
 
             void updateScrollBar() {
                 if (m_scrollBar != nullptr) {
@@ -90,6 +91,7 @@ namespace TrenchBroom {
             m_valid(false),
             m_scrollBar(scrollBar) {
                 Bind(wxEVT_SIZE, &CellView::OnSize, this);
+                Bind(wxEVT_LEFT_DOWN, &CellView::OnMouseLeftDown, this);
                 Bind(wxEVT_LEFT_UP, &CellView::OnMouseLeftUp, this);
                 Bind(wxEVT_RIGHT_DOWN, &CellView::OnMouseRightDown, this);
                 Bind(wxEVT_RIGHT_UP, &CellView::OnMouseRightUp, this);
@@ -173,16 +175,55 @@ namespace TrenchBroom {
                     m_cellView.dndDidEnd();
                 }
             };
-            
+
+            void OnMouseLeftDown(wxMouseEvent& event) {
+                m_potentialDrag = true;
+            }
+
+            void OnMouseLeftUp(wxMouseEvent& event) {
+                int top = m_scrollBar != nullptr ? m_scrollBar->GetThumbPosition() : 0;
+                float x = static_cast<float>(event.GetX());
+                float y = static_cast<float>(event.GetY() + top);
+                doLeftClick(m_layout, x, y);
+            }
+
+            void OnMouseRightDown(wxMouseEvent& event) {
+                if (event.AltDown()) {
+                    m_lastMousePos = event.GetPosition();
+                    CaptureMouse();
+                }
+            }
+
+            void OnMouseRightUp(wxMouseEvent& event) {
+                if (HasCapture())
+                    ReleaseMouse();
+            }
+
+            void OnMouseCaptureLost(wxMouseCaptureLostEvent& event) {}
+
             void OnMouseMove(wxMouseEvent& event) {
                 if (event.LeftIsDown()) {
-                    startDrag(event);
+                    if (m_potentialDrag) {
+                        startDrag(event);
+                        m_potentialDrag = false;
+                    }
                 } else if (event.RightIsDown() && event.AltDown()) {
                     scroll(event);
                 } else {
                     updateTooltip(event);
                 }
+
                 m_lastMousePos = event.GetPosition();
+            }
+
+            void OnMouseWheel(wxMouseEvent& event) {
+                if (m_scrollBar != nullptr) {
+                    const int top = m_scrollBar->GetThumbPosition();
+                    const int height = static_cast<int>(m_layout.height());
+                    const int newTop = std::min(std::max(0, top - event.GetWheelRotation()), height);
+                    m_scrollBar->SetThumbPosition(newTop);
+                    Refresh();
+                }
             }
 
             void startDrag(const wxMouseEvent& event) {
@@ -225,38 +266,6 @@ namespace TrenchBroom {
                     SetToolTip(tooltip(*cell));
                 else
                     SetToolTip("");
-            }
-            
-            void OnMouseRightDown(wxMouseEvent& event) {
-                if (event.AltDown()) {
-                    m_lastMousePos = event.GetPosition();
-                    CaptureMouse();
-                }
-            }
-            
-            void OnMouseRightUp(wxMouseEvent& event) {
-                if (HasCapture())
-                    ReleaseMouse();
-            }
-            
-            void OnMouseCaptureLost(wxMouseCaptureLostEvent& event) {
-            }
-            
-            void OnMouseLeftUp(wxMouseEvent& event) {
-                int top = m_scrollBar != nullptr ? m_scrollBar->GetThumbPosition() : 0;
-                float x = static_cast<float>(event.GetX());
-                float y = static_cast<float>(event.GetY() + top);
-                doLeftClick(m_layout, x, y);
-            }
-
-            void OnMouseWheel(wxMouseEvent& event) {
-                if (m_scrollBar != nullptr) {
-                    const int top = m_scrollBar->GetThumbPosition();
-                    const int height = static_cast<int>(m_layout.height());
-                    const int newTop = std::min(std::max(0, top - event.GetWheelRotation()), height);
-                    m_scrollBar->SetThumbPosition(newTop);
-                    Refresh();
-                }
             }
         private:
             void doRender() override {
