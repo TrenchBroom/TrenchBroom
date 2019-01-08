@@ -35,21 +35,26 @@ namespace TrenchBroom {
         }
 
         void Quake3ShaderFileSystem::doReadDirectory() {
-            auto shaders = loadShaders();
-            linkShaders(shaders);
+            if (hasNext()) {
+                auto shaders = loadShaders();
+                linkShaders(shaders);
+            }
         }
 
         std::vector<Assets::Quake3Shader> Quake3ShaderFileSystem::loadShaders() const {
             auto result = std::vector<Assets::Quake3Shader>();
 
-            const auto paths = next().findItems(Path("scripts"), FileExtensionMatcher("shader"));
-            for (const auto& path : paths) {
-                // m_logger->debug() << "Loading shader " << path.asString();
+            const auto scriptsPath = Path("scripts");
+            if (next().directoryExists(scriptsPath)) {
+                const auto paths = next().findItems(scriptsPath, FileExtensionMatcher("shader"));
+                for (const auto& path : paths) {
+                    // m_logger->debug() << "Loading shader " << path.asString();
 
-                const auto file = next().openFile(path);
+                    const auto file = next().openFile(path);
 
-                Quake3ShaderParser parser(file->begin(), file->end());
-                VectorUtils::append(result, parser.parse());
+                    Quake3ShaderParser parser(file->begin(), file->end());
+                    VectorUtils::append(result, parser.parse());
+                }
             }
 
             m_logger->info() << "Loaded " << result.size() << " shaders";
