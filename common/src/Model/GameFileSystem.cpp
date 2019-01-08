@@ -100,17 +100,20 @@ namespace TrenchBroom {
 
                 for (const auto& packagePath : packages) {
                     auto packageFile = diskFS.openFile(packagePath);
-                    ensure(packageFile.get() != nullptr, "packageFile is null");
 
-                    if (StringUtils::caseInsensitiveEqual(packageFormat, "idpak")) {
-                        logger->info() << "Adding file system package " << packagePath;
-                        m_next = std::make_unique<IO::IdPakFileSystem>(std::move(m_next), packagePath, packageFile);
-                    } else if (StringUtils::caseInsensitiveEqual(packageFormat, "dkpak")) {
-                        logger->info() << "Adding file system package " << packagePath;
-                        m_next = std::make_unique<IO::DkPakFileSystem>(std::move(m_next), packagePath, packageFile);
-                    } else if (StringUtils::caseInsensitiveEqual(packageFormat, "zip")) {
-                        logger->info() << "Adding file system package " << packagePath;
-                        m_next = std::make_unique<IO::ZipFileSystem>(std::move(m_next), packagePath, packageFile);
+                    try {
+                        if (StringUtils::caseInsensitiveEqual(packageFormat, "idpak")) {
+                            logger->info() << "Adding file system package " << packagePath;
+                            m_next = std::make_unique<IO::IdPakFileSystem>(std::move(m_next), packagePath, packageFile);
+                        } else if (StringUtils::caseInsensitiveEqual(packageFormat, "dkpak")) {
+                            logger->info() << "Adding file system package " << packagePath;
+                            m_next = std::make_unique<IO::DkPakFileSystem>(std::move(m_next), packagePath, packageFile);
+                        } else if (StringUtils::caseInsensitiveEqual(packageFormat, "zip")) {
+                            logger->info() << "Adding file system package " << packagePath;
+                            m_next = std::make_unique<IO::ZipFileSystem>(std::move(m_next), packagePath, packageFile);
+                        }
+                    } catch (const std::exception& e) {
+                        logger->error() << e.what();
                     }
                 }
             }
