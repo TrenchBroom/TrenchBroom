@@ -359,6 +359,8 @@ namespace TrenchBroom {
                 }
             } catch (FileSystemException& e) {
                 throw GameException("Could not load model " + path.asString() + ": " + String(e.what()));
+            } catch (AssetException& e) {
+                throw GameException("Could not load model " + path.asString() + ": " + String(e.what()));
             }
         }
 
