@@ -23,6 +23,7 @@
 #include "TemporarilySetAny.h"
 #include "Model/BrushFace.h"
 
+#include <vecmath/plane.h>
 #include <vecmath/vec.h>
 
 namespace TrenchBroom {
@@ -562,12 +563,12 @@ namespace TrenchBroom {
         }
 
         bool StandardMapParser::checkFacePoints(ParserStatus& status, const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, const size_t line) const {
-            const auto axis = cross(p3 - p1, p2 - p1);
-            if (!isZero(axis, vm::C::almostZero())) {
-                return true;
-            } else {
+            const auto [result, _] = vm::fromPoints(p1, p2, p3); // use the same test as in the brush face initializer
+            if (!result) {
                 status.error(line, "Skipping face: face points are colinear");
                 return false;
+            } else {
+                return true;
             }
         }
 
