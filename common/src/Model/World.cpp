@@ -27,7 +27,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        World::World(MapFormat::Type mapFormat, const BrushContentTypeBuilder* brushContentTypeBuilder, const vm::bbox3& worldBounds) :
+        World::World(MapFormat mapFormat, const BrushContentTypeBuilder* brushContentTypeBuilder, const vm::bbox3& worldBounds) :
         m_factory(mapFormat, brushContentTypeBuilder),
         m_defaultLayer(nullptr),
         // m_nodeTree(VecCodeComputer<vm::vec3>(worldBounds)),
@@ -350,7 +350,7 @@ namespace TrenchBroom {
             return vm::vec3::zero;
         }
 
-        MapFormat::Type World::doGetFormat() const {
+        MapFormat World::doGetFormat() const {
             return m_factory.format();
         }
 

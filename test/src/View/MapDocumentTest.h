@@ -37,14 +37,14 @@ namespace TrenchBroom {
     namespace View {
         class MapDocumentTest : public ::testing::Test {
         private:
-            Model::MapFormat::Type m_mapFormat;
+            Model::MapFormat m_mapFormat;
         protected:
             MapDocumentSPtr document;
             Assets::PointEntityDefinition* m_pointEntityDef;
             Assets::BrushEntityDefinition* m_brushEntityDef;
         protected:
             MapDocumentTest();
-            MapDocumentTest(Model::MapFormat::Type mapFormat);
+            MapDocumentTest(Model::MapFormat mapFormat);
             
             void SetUp() override;
             void TearDown() override;

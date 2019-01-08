@@ -23,7 +23,7 @@ namespace TrenchBroom {
     namespace Model {
         ModelFactory::~ModelFactory() {}
         
-        MapFormat::Type ModelFactory::format() const {
+        MapFormat ModelFactory::format() const {
             return doGetFormat();
         }
 

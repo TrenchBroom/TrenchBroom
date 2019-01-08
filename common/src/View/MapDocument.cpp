@@ -239,7 +239,7 @@ namespace TrenchBroom {
             m_viewEffectsService = viewEffectsService;
         }
         
-        void MapDocument::newDocument(const Model::MapFormat::Type mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game) {
+        void MapDocument::newDocument(const Model::MapFormat mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game) {
             info("Creating new document");
             
             clearDocument();
@@ -253,7 +253,7 @@ namespace TrenchBroom {
             documentWasNewedNotifier(this);
         }
         
-        void MapDocument::loadDocument(const Model::MapFormat::Type mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game, const IO::Path& path) {
+        void MapDocument::loadDocument(const Model::MapFormat mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game, const IO::Path& path) {
             info("Loading document from " + path.asString());
             
             clearDocument();
@@ -1489,7 +1489,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        void MapDocument::createWorld(const Model::MapFormat::Type mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game) {
+        void MapDocument::createWorld(const Model::MapFormat mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game) {
             m_worldBounds = worldBounds;
             m_game = game;
             m_world = m_game->newMap(mapFormat, m_worldBounds, this);
@@ -1499,7 +1499,7 @@ namespace TrenchBroom {
             setPath(IO::Path(DefaultDocumentName));
         }
         
-        void MapDocument::loadWorld(const Model::MapFormat::Type mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game, const IO::Path& path) {
+        void MapDocument::loadWorld(const Model::MapFormat mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game, const IO::Path& path) {
             m_worldBounds = worldBounds;
             m_game = game;
             m_world = m_game->loadMap(mapFormat, m_worldBounds, path, this);

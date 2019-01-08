@@ -24,18 +24,57 @@
 
 namespace TrenchBroom {
     namespace Model {
-        namespace MapFormat {
-            typedef size_t Type;
-            static const Type Unknown   = 1 << 0;
-            static const Type Standard  = 1 << 1;
-            static const Type Quake2    = 1 << 2;
-            static const Type Valve     = 1 << 3;
-            static const Type Hexen2    = 1 << 4;
-            static const Type Daikatana = 1 << 5;
-        }
-        
-        MapFormat::Type mapFormat(const String& formatName);
-        String formatName(MapFormat::Type format);
+        enum class MapFormat {
+            /**
+             * Unknown map format.
+             */
+            Unknown,
+            /**
+             * Standard Quake 1 map format.
+             */
+            Standard,
+            /**
+             * Quake 2 map format.
+             */
+            Quake2,
+            /**
+             * Valve 220 map format.
+             */
+            Valve,
+            /**
+             * Hexen 2 map format.
+             */
+            Hexen2,
+            /**
+             * Daikatana map format.
+             */
+            Daikatana,
+            /**
+             * Quake 3 legacy format (like Quake 2, no brush primitives)
+             */
+            Quake3_Legacy,
+            /**
+             * Quake 3 with brush primitives, also allows Quake 2 brushes
+             */
+            Quake3
+        };
+
+        /**
+         * Returns the map format enum value with the given name. If the given name is not recognized, MapFormat::Unknown
+         * is returned.
+         *
+         * @param formatName the name
+         * @return the enum value
+         */
+        MapFormat mapFormat(const String& formatName);
+
+        /**
+         * Returns the name of the given map format enum value.
+         *
+         * @param format the enum value
+         * @return the name
+         */
+        String formatName(MapFormat format);
     }
 }
 

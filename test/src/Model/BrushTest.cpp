@@ -1000,7 +1000,7 @@ namespace TrenchBroom {
             delete brush;
         }
 
-        class UVLockTest : public ::testing::TestWithParam<MapFormat::Type> {
+        class UVLockTest : public ::testing::TestWithParam<MapFormat> {
         };
 
         TEST_P(UVLockTest, moveFaceWithUVLock) {

@@ -36,14 +36,14 @@ namespace TrenchBroom {
         m_brushContentTypeBuilder(brushContentTypeBuilder),
         m_world(nullptr) {}
         
-        Model::World* WorldReader::read(Model::MapFormat::Type format, const vm::bbox3& worldBounds, ParserStatus& status) {
+        Model::World* WorldReader::read(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status) {
             readEntities(format, worldBounds, status);
             m_world->rebuildNodeTree();
             m_world->enableNodeTreeUpdates();
             return m_world;
         }
 
-        Model::ModelFactory* WorldReader::initialize(const Model::MapFormat::Type format, const vm::bbox3& worldBounds) {
+        Model::ModelFactory* WorldReader::initialize(const Model::MapFormat format, const vm::bbox3& worldBounds) {
             assert(m_world == nullptr);
             m_world = new Model::World(format, m_brushContentTypeBuilder, worldBounds);
             m_world->disableNodeTreeUpdates();
