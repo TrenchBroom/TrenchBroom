@@ -39,7 +39,7 @@ namespace TrenchBroom {
             expectStructure(root,
                             "["
                             "{'version': 'Number', 'name': 'String', 'fileformats': 'Array', 'filesystem': 'Map', 'textures': 'Map', 'entities': 'Map'},"
-                            "{'icon': 'String', 'faceattribs': 'Map', 'brushtypes': 'Array'}"
+                            "{'icon': 'String', 'faceattribs': 'Map', 'brushtypes': 'Array', 'experimental': 'Boolean'}"
                             "]");
 
             const auto version = root["version"].numberValue();
@@ -48,6 +48,7 @@ namespace TrenchBroom {
 
             const auto& name = root["name"].stringValue();
             const auto icon = Path(root["icon"].stringValue());
+            const auto experimental = root["experimental"].booleanValue();
 
             const auto mapFormatConfigs = parseMapFormatConfigs(root["fileformats"]);
             const auto fileSystemConfig = parseFileSystemConfig(root["filesystem"]);
@@ -56,7 +57,7 @@ namespace TrenchBroom {
             const auto faceAttribsConfig = parseFaceAttribsConfig(root["faceattribs"]);
                   auto brushContentTypes = parseBrushContentTypes(root["brushtypes"], faceAttribsConfig);
             
-            return GameConfig(name, m_path, icon, mapFormatConfigs, fileSystemConfig, textureConfig, entityConfig, faceAttribsConfig, std::move(brushContentTypes));
+            return GameConfig(name, m_path, icon, experimental, mapFormatConfigs, fileSystemConfig, textureConfig, entityConfig, faceAttribsConfig, std::move(brushContentTypes));
         }
 
         Model::GameConfig::MapFormatConfig::List GameConfigParser::parseMapFormatConfigs(const EL::Value& value) const {
