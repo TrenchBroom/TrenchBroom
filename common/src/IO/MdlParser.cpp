@@ -34,7 +34,9 @@
 namespace TrenchBroom {
     namespace IO {
         namespace MdlLayout {
-            static const unsigned int HeaderScale       = 0x8;
+            static const int Ident = (('O'<<24) + ('P'<<16) + ('D'<<8) + 'I');
+            static const int Version6 = 6;
+
             static const unsigned int HeaderNumSkins    = 0x30;
             static const unsigned int Skins             = 0x54;
             static const unsigned int SimpleFrameName   = 0x8;
@@ -220,7 +222,18 @@ namespace TrenchBroom {
         }
 
         Assets::EntityModel* MdlParser::doParseModel() {
-            const auto* cursor = m_begin + MdlLayout::HeaderScale;
+            const auto* cursor = m_begin;
+
+            const auto ident = read<int32_t>(cursor);
+            const auto version = read<int32_t>(cursor);
+
+            if (ident != MdlLayout::Ident) {
+                throw AssetException() << "Unknown MDL model ident: " << ident;
+            }
+            if (version != MdlLayout::Version6) {
+                throw AssetException() << "Unknown MDL model version: " << version;
+            }
+
             const auto scale = readVec3f(cursor);
             const auto origin = readVec3f(cursor);
             
