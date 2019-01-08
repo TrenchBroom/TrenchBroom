@@ -21,9 +21,12 @@
 #define TrenchBroom_ParaxialTexCoordSystem
 
 #include "TrenchBroom.h"
+#include "Macros.h"
 #include "Model/TexCoordSystem.h"
 
 #include <vecmath/vec.h>
+
+#include <memory>
 
 namespace TrenchBroom {
     namespace Model {
@@ -39,15 +42,14 @@ namespace TrenchBroom {
         public:
             ParaxialTexCoordSystem(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs);
             ParaxialTexCoordSystem(const vm::vec3& normal, const BrushFaceAttributes& attribs);
+            ParaxialTexCoordSystem(size_t index, const vm::vec3& xAxis, const vm::vec3& yAxis);
 
             static size_t planeNormalIndex(const vm::vec3& normal);
             static void axes(size_t index, vm::vec3& xAxis, vm::vec3& yAxis);
             static void axes(size_t index, vm::vec3& xAxis, vm::vec3& yAxis, vm::vec3& projectionAxis);
         private:
-            ParaxialTexCoordSystem(size_t index, const vm::vec3& xAxis, const vm::vec3& yAxis);
-        private:
-            TexCoordSystem* doClone() const override;
-            TexCoordSystemSnapshot* doTakeSnapshot() override;
+            std::unique_ptr<TexCoordSystem> doClone() const override;
+            std::unique_ptr<TexCoordSystemSnapshot> doTakeSnapshot() override;
             void doRestoreSnapshot(const TexCoordSystemSnapshot& snapshot) override;
 
             vm::vec3 getXAxis() const override;
@@ -73,9 +75,8 @@ namespace TrenchBroom {
             float doMeasureAngle(float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const override;
         private:
             void rotateAxes(vm::vec3& xAxis, vm::vec3& yAxis, FloatType angleInRadians, size_t planeNormIndex) const;
-        private:
-            ParaxialTexCoordSystem(const ParaxialTexCoordSystem& other);
-            ParaxialTexCoordSystem& operator=(const ParaxialTexCoordSystem& other);
+
+            deleteCopyAndMove(ParaxialTexCoordSystem)
         };
     }
 }

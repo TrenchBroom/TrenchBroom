@@ -28,6 +28,8 @@
 
 #include <vecmath/plane.h>
 
+#include <memory>
+
 namespace TrenchBroom {
     namespace Model {
         class Snapshot;
@@ -41,14 +43,14 @@ namespace TrenchBroom {
         private:
             
             Model::Snapshot* m_snapshot;
-            Model::TexCoordSystemSnapshot* m_coordSystemSanpshot;
+            std::unique_ptr<Model::TexCoordSystemSnapshot> m_coordSystemSanpshot;
             const vm::plane3 m_sourceFacePlane;
             const Model::WrapStyle m_wrapStyle;
             const Model::BrushFaceAttributes m_attribs;
         public:
-            static Ptr command(const Model::TexCoordSystemSnapshot* coordSystemSanpshot, const Model::BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const Model::WrapStyle wrapStyle);
+            static Ptr command(const Model::TexCoordSystemSnapshot& coordSystemSanpshot, const Model::BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const Model::WrapStyle wrapStyle);
         private:
-            CopyTexCoordSystemFromFaceCommand(const Model::TexCoordSystemSnapshot* coordSystemSanpshot, const Model::BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const Model::WrapStyle wrapStyle);
+            CopyTexCoordSystemFromFaceCommand(const Model::TexCoordSystemSnapshot& coordSystemSanpshot, const Model::BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const Model::WrapStyle wrapStyle);
         public:
             ~CopyTexCoordSystemFromFaceCommand() override;
         private:

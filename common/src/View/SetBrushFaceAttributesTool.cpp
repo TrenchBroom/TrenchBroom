@@ -69,11 +69,10 @@ namespace TrenchBroom {
             document->deselectAll();
             document->select(targetList);
             if (copyAttributes(inputState)) {
-                Model::TexCoordSystemSnapshot* snapshot = source->takeTexCoordSystemSnapshot();
+                auto snapshot = source->takeTexCoordSystemSnapshot();
                 document->setFaceAttributes(source->attribs());
                 if (snapshot != nullptr) {
-                    document->copyTexCoordSystemFromFace(snapshot, source->attribs().takeSnapshot(), source->boundary(), wrapStyle);
-                    delete snapshot;
+                    document->copyTexCoordSystemFromFace(*snapshot, source->attribs().takeSnapshot(), source->boundary(), wrapStyle);
                 }
             } else {
                 document->setTexture(source->texture());

@@ -78,10 +78,10 @@ namespace TrenchBroom {
             assert(m_format != MapFormat::Unknown);
             if (m_format == MapFormat::Valve) {
                 return new BrushFace(point1, point2, point3, attribs,
-                                     new ParallelTexCoordSystem(point1, point2, point3, attribs));
+                                     std::make_unique<ParallelTexCoordSystem>(point1, point2, point3, attribs));
             } else {
                 return new BrushFace(point1, point2, point3, attribs,
-                                     new ParaxialTexCoordSystem(point1, point2, point3, attribs));
+                                     std::make_unique<ParaxialTexCoordSystem>(point1, point2, point3, attribs));
             }
         }
 
@@ -89,10 +89,10 @@ namespace TrenchBroom {
             assert(m_format != MapFormat::Unknown);
             if (m_format == MapFormat::Valve) {
                 return new BrushFace(point1, point2, point3, attribs,
-                                     new ParallelTexCoordSystem(texAxisX, texAxisY));
+                                     std::make_unique<ParallelTexCoordSystem>(texAxisX, texAxisY));
             } else {
                 return new BrushFace(point1, point2, point3, attribs,
-                                     new ParaxialTexCoordSystem(point1, point2, point3, attribs));
+                                     std::make_unique<ParaxialTexCoordSystem>(point1, point2, point3, attribs));
             }
         }
     }
