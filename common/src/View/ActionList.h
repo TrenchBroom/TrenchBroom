@@ -24,7 +24,9 @@
 #include "View/ActionContext.h"
 #include "View/ViewShortcut.h"
 
+#include <QMetaType>
 #include <QKeySequence>
+#include <QVariant>
 
 #include <vector>
 
@@ -39,6 +41,8 @@ namespace TrenchBroom {
             bool modifiable;
             IO::Path preferencePath;
             int actionContext;
+
+            QVariant getQVariant() const;
         };
         const std::vector<ActionInfo>& getActionInfo();
 
@@ -109,6 +113,7 @@ namespace TrenchBroom {
             ActionInfo controlsMapViewResetcamerazoomInfo;
             ActionInfo controlsMapViewCancelInfo;
             ActionInfo controlsMapViewDeactivatecurrenttoolInfo;
+
             ActionInfo menuFileNewInfo;
             ActionInfo menuFileOpenInfo;
             ActionInfo menuFileSaveInfo;
@@ -123,6 +128,7 @@ namespace TrenchBroom {
             ActionInfo menuFileReloadTextureCollectionsInfo;
             ActionInfo menuFileReloadEntityDefinitionsInfo;
             ActionInfo menuFileCloseInfo;
+
             ActionInfo menuEditUndoInfo;
             ActionInfo menuEditRedoInfo;
             ActionInfo menuEditRepeatInfo;
@@ -205,5 +211,7 @@ namespace TrenchBroom {
         };
     }
 }
+
+Q_DECLARE_METATYPE(const TrenchBroom::View::ActionInfo*)
 
 #endif /* defined(TrenchBroom_ActionList) */

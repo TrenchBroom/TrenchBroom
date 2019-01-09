@@ -23,6 +23,10 @@
 
 namespace TrenchBroom {
     namespace View {
+        QVariant ActionInfo::getQVariant() const {
+            return QVariant::fromValue(this);
+        }
+
         ActionInfo ActionList::addShortcut(const IO::Path& path, QKeySequence keySequence, int actionContext, bool modifiable) {
             ActionInfo result;
             result.preferencePath = path;

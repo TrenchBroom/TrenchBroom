@@ -265,7 +265,6 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/TrenchBroomAppQt.cpp
 	${COMMON_SOURCE_DIR}/TrenchBroomAppTraits.cpp
 	${COMMON_SOURCE_DIR}/TrenchBroomStackWalker.cpp
-	${COMMON_SOURCE_DIR}/View/ModifiableMenuItem.cpp
 	${COMMON_SOURCE_DIR}/View/AboutDialog.cpp
 	${COMMON_SOURCE_DIR}/View/ActionContext.cpp
 	${COMMON_SOURCE_DIR}/View/Action.cpp
@@ -837,7 +836,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/TrenchBroomAppTraits.h
 	${COMMON_SOURCE_DIR}/TrenchBroom.h
 	${COMMON_SOURCE_DIR}/TrenchBroomStackWalker.h
-	${COMMON_SOURCE_DIR}/View/ModifiableMenuItem.h
 	${COMMON_SOURCE_DIR}/View/AboutDialog.h
 	${COMMON_SOURCE_DIR}/View/ActionContext.h
 	${COMMON_SOURCE_DIR}/View/Action.h
