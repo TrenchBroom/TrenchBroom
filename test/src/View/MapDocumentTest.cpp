@@ -356,12 +356,12 @@ namespace TrenchBroom {
             document->addNode(entity, document->currentParent());
 
             Model::ParallelTexCoordSystem texAlignment(vm::vec3(1, 0, 0), vm::vec3(0, 1, 0));
-            Model::TexCoordSystemSnapshot* texAlignmentSnapshot = texAlignment.takeSnapshot();
+            auto texAlignmentSnapshot = texAlignment.takeSnapshot();
 
             Model::Brush* brush1 = builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(32, 64, 64)), "texture");
             Model::Brush* brush2 = builder.createCuboid(vm::bbox3(vm::vec3(32, 0, 0), vm::vec3(64, 64, 64)), "texture");
-            brush1->findFace(vm::vec3::pos_z)->restoreTexCoordSystemSnapshot(texAlignmentSnapshot);
-            brush2->findFace(vm::vec3::pos_z)->restoreTexCoordSystemSnapshot(texAlignmentSnapshot);
+            brush1->findFace(vm::vec3::pos_z)->restoreTexCoordSystemSnapshot(*texAlignmentSnapshot);
+            brush2->findFace(vm::vec3::pos_z)->restoreTexCoordSystemSnapshot(*texAlignmentSnapshot);
             document->addNode(brush1, entity);
             document->addNode(brush2, entity);
             ASSERT_EQ(2, entity->children().size());
@@ -374,8 +374,6 @@ namespace TrenchBroom {
             Model::BrushFace* top = brush3->findFace(vm::vec3::pos_z);
             ASSERT_EQ(vm::vec3(1, 0, 0), top->textureXAxis());
             ASSERT_EQ(vm::vec3(0, 1, 0), top->textureYAxis());
-
-            delete texAlignmentSnapshot;
         }
 
         TEST_F(ValveMapDocumentTest, csgSubtractTexturing) {
@@ -385,11 +383,11 @@ namespace TrenchBroom {
             document->addNode(entity, document->currentParent());
 
             Model::ParallelTexCoordSystem texAlignment(vm::vec3(1, 0, 0), vm::vec3(0, 1, 0));
-            Model::TexCoordSystemSnapshot* texAlignmentSnapshot = texAlignment.takeSnapshot();
+            auto texAlignmentSnapshot = texAlignment.takeSnapshot();
 
             Model::Brush* brush1 = builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture");
             Model::Brush* brush2 = builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 32)), "texture");
-            brush2->findFace(vm::vec3::pos_z)->restoreTexCoordSystemSnapshot(texAlignmentSnapshot);
+            brush2->findFace(vm::vec3::pos_z)->restoreTexCoordSystemSnapshot(*texAlignmentSnapshot);
             document->addNode(brush1, entity);
             document->addNode(brush2, entity);
             ASSERT_EQ(2, entity->children().size());
@@ -407,8 +405,6 @@ namespace TrenchBroom {
             Model::BrushFace* top = brush3->findFace(vm::vec3::neg_z);
             ASSERT_EQ(vm::vec3(1, 0, 0), top->textureXAxis());
             ASSERT_EQ(vm::vec3(0, 1, 0), top->textureYAxis());
-
-            delete texAlignmentSnapshot;
         }
 
         TEST_F(MapDocumentTest, csgSubtractMultipleBrushes) {

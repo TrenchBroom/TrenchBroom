@@ -35,6 +35,7 @@
 #include <vecmath/plane.h>
 #include <vecmath/util.h>
 
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
@@ -84,7 +85,7 @@ namespace TrenchBroom {
             size_t m_lineCount;
             bool m_selected;
             
-            TexCoordSystem* m_texCoordSystem;
+            std::unique_ptr<TexCoordSystem> m_texCoordSystem;
             BrushFaceGeometry* m_geometry;
 
             // brush renderer
@@ -92,7 +93,7 @@ namespace TrenchBroom {
         protected:
             BrushFaceAttributes m_attribs;
         public:
-            BrushFace(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs, TexCoordSystem* texCoordSystem);
+            BrushFace(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs, std::unique_ptr<TexCoordSystem> texCoordSystem);
             
             static BrushFace* createParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const String& textureName = "");
             static BrushFace* createParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const String& textureName = "");
@@ -104,9 +105,9 @@ namespace TrenchBroom {
             BrushFace* clone() const;
             
             BrushFaceSnapshot* takeSnapshot();
-            TexCoordSystemSnapshot* takeTexCoordSystemSnapshot() const;
-            void restoreTexCoordSystemSnapshot(const TexCoordSystemSnapshot* coordSystemSnapshot);
-            void copyTexCoordSystemFromFace(const TexCoordSystemSnapshot* coordSystemSnapshot, const BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, WrapStyle wrapStyle);
+            std::unique_ptr<TexCoordSystemSnapshot> takeTexCoordSystemSnapshot() const;
+            void restoreTexCoordSystemSnapshot(const TexCoordSystemSnapshot& coordSystemSnapshot);
+            void copyTexCoordSystemFromFace(const TexCoordSystemSnapshot& coordSystemSnapshot, const BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, WrapStyle wrapStyle);
 
             Brush* brush() const;
             void setBrush(Brush* brush);

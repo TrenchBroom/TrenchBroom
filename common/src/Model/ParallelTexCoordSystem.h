@@ -21,10 +21,13 @@
 #define TrenchBroom_ParallelTexCoordSystem
 
 #include "TrenchBroom.h"
+#include "Macros.h"
 #include "Model/TexCoordSystem.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
+
+#include <memory>
 
 namespace TrenchBroom {
     namespace Model {
@@ -39,9 +42,9 @@ namespace TrenchBroom {
             ParallelTexCoordSystemSnapshot(const vm::vec3& xAxis, const vm::vec3& yAxis);
             ParallelTexCoordSystemSnapshot(ParallelTexCoordSystem* coordSystem);
         private:
-            TexCoordSystemSnapshot* doClone() const override;
-            void doRestore(ParallelTexCoordSystem* coordSystem) const override;
-            void doRestore(ParaxialTexCoordSystem* coordSystem) const override;
+            std::unique_ptr<TexCoordSystemSnapshot> doClone() const override;
+            void doRestore(ParallelTexCoordSystem& coordSystem) const override;
+            void doRestore(ParaxialTexCoordSystem& coordSystem) const override;
         };
         
         class ParallelTexCoordSystem : public TexCoordSystem {
@@ -54,8 +57,8 @@ namespace TrenchBroom {
             ParallelTexCoordSystem(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs);
             ParallelTexCoordSystem(const vm::vec3& xAxis, const vm::vec3& yAxis);
         private:
-            TexCoordSystem* doClone() const override;
-            TexCoordSystemSnapshot* doTakeSnapshot() override;
+            std::unique_ptr<TexCoordSystem> doClone() const override;
+            std::unique_ptr<TexCoordSystemSnapshot> doTakeSnapshot() override;
             void doRestoreSnapshot(const TexCoordSystemSnapshot& snapshot) override;
             
             vm::vec3 getXAxis() const override;
@@ -83,9 +86,8 @@ namespace TrenchBroom {
 
             float doMeasureAngle(float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const override;
             void computeInitialAxes(const vm::vec3& normal, vm::vec3& xAxis, vm::vec3& yAxis) const;
-        private:
-            ParallelTexCoordSystem(const ParallelTexCoordSystem& other);
-            ParallelTexCoordSystem& operator=(const ParallelTexCoordSystem& other);
+
+            deleteCopyAndMove(ParallelTexCoordSystem)
         };
     }
 }

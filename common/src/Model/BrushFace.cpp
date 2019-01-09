@@ -50,12 +50,12 @@ namespace TrenchBroom {
             return halfEdge->edge();
         }
         
-        BrushFace::BrushFace(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs, TexCoordSystem* texCoordSystem) :
+        BrushFace::BrushFace(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs, std::unique_ptr<TexCoordSystem> texCoordSystem) :
         m_brush(nullptr),
         m_lineNumber(0),
         m_lineCount(0),
         m_selected(false),
-        m_texCoordSystem(texCoordSystem),
+        m_texCoordSystem(std::move(texCoordSystem)),
         m_geometry(nullptr),
         m_attribs(attribs) {
             ensure(m_texCoordSystem != nullptr, "texCoordSystem is null");
@@ -97,12 +97,12 @@ namespace TrenchBroom {
 
         BrushFace* BrushFace::createParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const String& textureName) {
             const BrushFaceAttributes attribs(textureName);
-            return new BrushFace(point0, point1, point2, attribs, new ParaxialTexCoordSystem(point0, point1, point2, attribs));
+            return new BrushFace(point0, point1, point2, attribs, std::make_unique<ParaxialTexCoordSystem>(point0, point1, point2, attribs));
         }
         
         BrushFace* BrushFace::createParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const String& textureName) {
             const BrushFaceAttributes attribs(textureName);
-            return new BrushFace(point0, point1, point2, attribs, new ParallelTexCoordSystem(point0, point1, point2, attribs));
+            return new BrushFace(point0, point1, point2, attribs, std::make_unique<ParallelTexCoordSystem>(point0, point1, point2, attribs));
         }
         
         void BrushFace::sortFaces(BrushFaceList& faces) {
@@ -118,7 +118,6 @@ namespace TrenchBroom {
             m_lineNumber = 0;
             m_lineCount = 0;
             m_selected = false;
-            delete m_texCoordSystem;
             m_texCoordSystem = nullptr;
             m_geometry = nullptr;
         }
@@ -133,24 +132,24 @@ namespace TrenchBroom {
         }
 
         BrushFaceSnapshot* BrushFace::takeSnapshot() {
-            return new BrushFaceSnapshot(this, m_texCoordSystem);
+            return new BrushFaceSnapshot(this, *m_texCoordSystem);
         }
         
-        TexCoordSystemSnapshot* BrushFace::takeTexCoordSystemSnapshot() const {
+        std::unique_ptr<TexCoordSystemSnapshot> BrushFace::takeTexCoordSystemSnapshot() const {
             return m_texCoordSystem->takeSnapshot();
         }
         
-        void BrushFace::restoreTexCoordSystemSnapshot(const TexCoordSystemSnapshot* coordSystemSnapshot) {
-            coordSystemSnapshot->restore(m_texCoordSystem);
+        void BrushFace::restoreTexCoordSystemSnapshot(const TexCoordSystemSnapshot& coordSystemSnapshot) {
+            coordSystemSnapshot.restore(*m_texCoordSystem);
             invalidateVertexCache();
         }
 
-        void BrushFace::copyTexCoordSystemFromFace(const TexCoordSystemSnapshot* coordSystemSnapshot, const BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const WrapStyle wrapStyle) {
+        void BrushFace::copyTexCoordSystemFromFace(const TexCoordSystemSnapshot& coordSystemSnapshot, const BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const WrapStyle wrapStyle) {
             // Get a line, and a reference point, that are on both the source face's plane and our plane
             const auto seam = vm::intersect(sourceFacePlane, m_boundary);
             const auto refPoint = seam.projectPoint(center());
             
-            coordSystemSnapshot->restore(m_texCoordSystem);
+            coordSystemSnapshot.restore(*m_texCoordSystem);
             
             // Get the texcoords at the refPoint using the source face's attribs and tex coord system
             const auto desriedCoords = m_texCoordSystem->getTexCoords(refPoint, attribs) * attribs.textureSize();
@@ -663,7 +662,7 @@ namespace TrenchBroom {
             m_points[2] = point2;
             correctPoints();
 
-            const auto [result, plane] = fromPoints(m_points[0], m_points[1], m_points[2]);
+            const auto [result, plane] = vm::fromPoints(m_points[0], m_points[1], m_points[2]);
             if (!result) {
                 GeometryException e;
                 e << "Colinear face points: (" <<

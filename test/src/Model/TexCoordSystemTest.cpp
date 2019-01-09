@@ -47,11 +47,11 @@ namespace TrenchBroom {
             ASSERT_EQ(nullptr, paraxial.takeSnapshot());
             
             ParallelTexCoordSystem parallel(vm::vec3::pos_y, vm::vec3::pos_x);
-            TexCoordSystemSnapshot *parallelSnapshot = parallel.takeSnapshot();
+            auto parallelSnapshot = parallel.takeSnapshot();
             ASSERT_NE(nullptr, parallelSnapshot);
             
-            ASSERT_DEATH(parallelSnapshot->restore(&paraxial), "");
-            parallelSnapshot->restore(&parallel);
+            ASSERT_DEATH(parallelSnapshot->restore(paraxial), "");
+            parallelSnapshot->restore(parallel);
         }
         
 #ifdef __clang__

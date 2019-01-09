@@ -22,6 +22,7 @@
 #include "TrenchBroom.h"
 #include "Exceptions.h"
 #include "TestUtils.h"
+#include "Assets/Texture.h"
 #include "IO/NodeReader.h"
 #include "IO/TestParserStatus.h"
 #include "Model/Brush.h"
@@ -41,7 +42,7 @@
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
 
-#include "Assets/Texture.h"
+#include <memory>
 
 namespace TrenchBroom {
     namespace Model {
@@ -51,7 +52,7 @@ namespace TrenchBroom {
             const vm::vec3 p2(0.0, -1.0, 4.0);
             
             const BrushFaceAttributes attribs("");
-            BrushFace face(p0, p1, p2, attribs, new ParaxialTexCoordSystem(p0, p1, p2, attribs));
+            BrushFace face(p0, p1, p2, attribs, std::make_unique<ParaxialTexCoordSystem>(p0, p1, p2, attribs));
             ASSERT_VEC_EQ(p0, face.points()[0]);
             ASSERT_VEC_EQ(p1, face.points()[1]);
             ASSERT_VEC_EQ(p2, face.points()[2]);
@@ -65,7 +66,7 @@ namespace TrenchBroom {
             const vm::vec3 p2(2.0, 0.0, 4.0);
             
             const BrushFaceAttributes attribs("");
-            ASSERT_THROW(new BrushFace(p0, p1, p2, attribs, new ParaxialTexCoordSystem(p0, p1, p2, attribs)), GeometryException);
+            ASSERT_THROW(new BrushFace(p0, p1, p2, attribs, std::make_unique<ParaxialTexCoordSystem>(p0, p1, p2, attribs)), GeometryException);
         }
         
         TEST(BrushFaceTest, textureUsageCount) {
@@ -85,7 +86,7 @@ namespace TrenchBroom {
             
             {
                 // test constructor
-                BrushFace face(p0, p1, p2, attribs, new ParaxialTexCoordSystem(p0, p1, p2, attribs));
+                BrushFace face(p0, p1, p2, attribs, std::make_unique<ParaxialTexCoordSystem>(p0, p1, p2, attribs));
                 EXPECT_EQ(2, texture.usageCount());
                 
                 // test clone()
@@ -609,19 +610,18 @@ namespace TrenchBroom {
             ASSERT_EQ(vm::vec3::pos_x, negYFace->textureXAxis());
             ASSERT_EQ(vm::vec3::neg_z, negYFace->textureYAxis());
 
-            TexCoordSystemSnapshot* snapshot = negYFace->takeTexCoordSystemSnapshot();
+            auto snapshot = negYFace->takeTexCoordSystemSnapshot();
 
             // copy texturing from the negYFace to posXFace using the rotation method
-            posXFace->copyTexCoordSystemFromFace(snapshot, negYFace->attribs(), negYFace->boundary(), WrapStyle::Rotation);
+            posXFace->copyTexCoordSystemFromFace(*snapshot, negYFace->attribs(), negYFace->boundary(), WrapStyle::Rotation);
             ASSERT_VEC_EQ(vm::vec3(0.030303030303030123, 0.96969696969696961, -0.24242424242424243), posXFace->textureXAxis());
             ASSERT_VEC_EQ(vm::vec3(-0.0037296037296037088, -0.24242424242424243, -0.97016317016317011), posXFace->textureYAxis());
 
             // copy texturing from the negYFace to posXFace using the projection method
-            posXFace->copyTexCoordSystemFromFace(snapshot, negYFace->attribs(), negYFace->boundary(), WrapStyle::Projection);
+            posXFace->copyTexCoordSystemFromFace(*snapshot, negYFace->attribs(), negYFace->boundary(), WrapStyle::Projection);
             ASSERT_VEC_EQ(vm::vec3::neg_y, posXFace->textureXAxis());
             ASSERT_VEC_EQ(vm::vec3::neg_z, posXFace->textureYAxis());
 
-            delete snapshot;
             VectorUtils::clearAndDelete(nodes);
         }
 

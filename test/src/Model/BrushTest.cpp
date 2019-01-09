@@ -3842,6 +3842,29 @@ namespace TrenchBroom {
             ASSERT_NO_THROW(reader.read(worldBounds, status));
         }
 
+        TEST(BrushTest, loadBrushFail_2491) {
+            // see https://github.com/kduske/TrenchBroom/issues/2491
+
+            const vm::bbox3 worldBounds(8192.0);
+            World world(MapFormat::Standard, nullptr, worldBounds);
+
+            const String data = R"(
+            {
+                ( -179 -179 -63 ) ( -158 -158 -69 ) ( 1.055125500745701e+154 1.0551255007456758e+154 -5.2756275037285048e+153 ) _core/tangerine -2.82843 -0 -0 0.0625 0.0625
+                ( -132 -126.3431457505086 -60 ) ( -132 188 -60 ) ( -132 -126.34314575050865 -64 ) _core/tangerine 0 0 0 0.0625 0.0625
+                ( -188 188 -60 ) ( -188 -182.34314575050769 -60 ) ( -188 188 -64 ) _core/tangerine 0 0 0 0.0625 0.0625
+                ( -132 192 -60 ) ( -188 192 -60 ) ( -132 192 -64 ) _core/tangerine -0 -0 -0 0.0625 0.0625
+                ( -188 188 -60 ) ( -132 188 -60 ) ( -188 -182.34314575050769 -60 ) _core/tangerine 32 -112 -0 0.0625 0.0625
+                ( -132 188 -64 ) ( -188 188 -64 ) ( -132 -126.34314575050865 -64 ) _core/tangerine 32 -112 -0 0.0625 0.0625
+            }
+            )";
+
+            IO::TestParserStatus status;
+            IO::NodeReader reader(data, &world);
+
+            ASSERT_NO_THROW(reader.read(worldBounds, status));
+        }
+
         std::vector<vm::vec3> asVertexList(const std::vector<vm::segment3>& edges) {
             std::vector<vm::vec3> result;
             vm::segment3::getVertices(std::begin(edges), std::end(edges), std::back_inserter(result));
