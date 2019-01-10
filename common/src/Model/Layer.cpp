@@ -77,6 +77,10 @@ namespace TrenchBroom {
             return false;
         }
 
+        bool Layer::doAddToNodeTree() const {
+            return false;
+        }
+
         void Layer::doNodeBoundsDidChange(const vm::bbox3& oldBounds) {
             invalidateBounds();
         }

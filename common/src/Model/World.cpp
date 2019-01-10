@@ -135,11 +135,15 @@ namespace TrenchBroom {
         
         class World::MatchTreeNodes {
         public:
-            bool operator()(const Model::World* world) const   { return false; }
-            bool operator()(const Model::Layer* layer) const   { return false; }
-            bool operator()(const Model::Group* group) const   { return true; }
-            bool operator()(const Model::Entity* entity) const { return true; }
-            bool operator()(const Model::Brush* brush) const   { return true; }
+            bool operator()(const Model::World* world) const   { return matches(world); }
+            bool operator()(const Model::Layer* layer) const   { return matches(layer); }
+            bool operator()(const Model::Group* group) const   { return matches(group); }
+            bool operator()(const Model::Entity* entity) const { return matches(entity); }
+            bool operator()(const Model::Brush* brush) const   { return matches(brush); }
+        private:
+            bool matches(const Model::Node* node) const {
+                return node->addToNodeTree();
+            }
         };
 
         void World::disableNodeTreeUpdates() {
@@ -245,22 +249,26 @@ namespace TrenchBroom {
             return false;
         }
 
+        bool World::doAddToNodeTree() const {
+            return false;
+        }
+
         void World::doDescendantWasAdded(Node* node, const size_t depth) {
-            if (m_updateNodeTree && depth > 1) { // ignore layers
+            if (m_updateNodeTree && node->addToNodeTree()) {
                 AddNodeToNodeTree visitor(m_nodeTree);
                 node->acceptAndRecurse(visitor);
             }
         }
 
         void World::doDescendantWillBeRemoved(Node* node, const size_t depth) {
-            if (m_updateNodeTree && depth > 1) { // ignore layers
+            if (m_updateNodeTree && node->addToNodeTree()) {
                 RemoveNodeFromNodeTree visitor(m_nodeTree);
                 node->acceptAndRecurse(visitor);
             }
         }
 
         void World::doDescendantBoundsDidChange(Node* node, const vm::bbox3& oldBounds, const size_t depth) {
-            if (m_updateNodeTree && depth > 1) { // ignore layers
+            if (m_updateNodeTree && node->addToNodeTree()) {
                 UpdateNodeInNodeTree visitor(m_nodeTree, oldBounds);
                 node->accept(visitor);
             }

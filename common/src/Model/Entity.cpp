@@ -165,6 +165,10 @@ namespace TrenchBroom {
             return true;
         }
 
+        bool Entity::doAddToNodeTree() const {
+            return true;
+        }
+
         void Entity::doChildWasAdded(Node* node) {
             nodeBoundsDidChange(bounds());
         }

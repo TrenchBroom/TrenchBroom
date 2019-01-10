@@ -99,6 +99,8 @@ namespace TrenchBroom {
             const NodeList& children() const;
             size_t descendantCount() const;
             size_t familySize() const;
+
+            bool addToNodeTree() const;
         public:
             void addChildren(const NodeList& children);
             
@@ -415,6 +417,8 @@ namespace TrenchBroom {
             virtual bool doCanAddChild(const Node* child) const = 0;
             virtual bool doCanRemoveChild(const Node* child) const = 0;
             virtual bool doRemoveIfEmpty() const = 0;
+
+            virtual bool doAddToNodeTree() const = 0;
             
             virtual void doChildWillBeAdded(Node* node);
             virtual void doChildWasAdded(Node* node);

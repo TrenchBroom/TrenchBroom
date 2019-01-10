@@ -80,6 +80,7 @@ namespace TrenchBroom {
             bool doCanAddChild(const Node* child) const override;
             bool doCanRemoveChild(const Node* child) const override;
             bool doRemoveIfEmpty() const override;
+            bool doAddToNodeTree() const override;
 
             void doDescendantWasAdded(Node* node, size_t depth) override;
             void doDescendantWillBeRemoved(Node* node, size_t depth) override;

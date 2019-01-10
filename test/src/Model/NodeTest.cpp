@@ -57,6 +57,10 @@ namespace TrenchBroom {
                 return false;
             }
             
+            bool doAddToNodeTree() const override {
+                return true;
+            }
+
             void doParentWillChange() override {
                 mockDoParentWillChange();
             }
@@ -144,6 +148,10 @@ namespace TrenchBroom {
                 return false;
             }
             
+            bool doAddToNodeTree() const override {
+                return true;
+            }
+
             bool doSelectable() const override {
                 return true;
             }
