@@ -36,6 +36,8 @@
 #include "View/MapDocument.h"
 #include "View/Selection.h"
 
+#include <algorithm>
+
 namespace TrenchBroom {
     namespace View {
         const Model::Hit::HitType ClipTool::PointHit = Model::Hit::freeHitType();
@@ -170,25 +172,28 @@ namespace TrenchBroom {
             }
 
             vm::vec3 computeHelpVector() const {
-                size_t counts[3];
-                counts[0] = counts[1] = counts[2] = 0;
+                size_t counts[6];
+                counts[0] = counts[1] = counts[2] = counts[3] = counts[4] = counts[5] = 0;
                 
                 const auto helpVectors = combineHelpVectors();
-                for (size_t i = 0; i < std::min(m_numPoints, helpVectors.size()); ++i) {
+                for (size_t i = 0; i < helpVectors.size(); ++i) {
                     const auto axis = firstComponent(helpVectors[i]);
-                    counts[axis]++;
+                    const auto index = helpVectors[i][axis] > 0.0 ? axis : axis + 3;
+                    counts[index]++;
                 }
-                
-                if (counts[0] > counts[1] && counts[0] > counts[2]) {
-                    return vm::vec3::pos_x;
-                } else if (counts[1] > counts[0] && counts[1] > counts[2]) {
-                    return vm::vec3::pos_y;
-                } else if (counts[2] > counts[0] && counts[2] > counts[1]) {
-                    return vm::vec3::pos_z;
+
+                const auto first = std::max_element(std::begin(counts), std::end(counts));
+                const auto next  = std::max_element(std::next(first),   std::end(counts));
+
+                const auto firstIndex = first - std::begin(counts);
+                const auto nextIndex = next - std::begin(counts);
+
+                if (counts[firstIndex] > counts[nextIndex]) {
+                    return vm::vec3::axis(static_cast<size_t>(firstIndex % 3));
                 } else {
                     // two counts are equal
-                    // prefer the Z axis if possible:
-                    if (counts[2] == counts[0] || counts[2] == counts[1]) {
+                    if (firstIndex % 3 == 2 || nextIndex % 3 == 2) {
+                        // prefer the Z axis if possible:
                         return vm::vec3::pos_z;
                     } else {
                         // Z axis cannot win, so X and Y axis are a tie, prefer the X axis:
@@ -204,7 +209,7 @@ namespace TrenchBroom {
                     VectorUtils::append(result, helpVectors);
                 }
                 
-                VectorUtils::sortAndRemoveDuplicates(result);
+                // VectorUtils::sortAndRemoveDuplicates(result);
                 return result;
             }
             
