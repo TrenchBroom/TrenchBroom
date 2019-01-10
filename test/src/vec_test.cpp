@@ -81,6 +81,12 @@ namespace vm {
         ASSERT_EQ(vec3f::zero, vec3f::parse(s));
     }
 
+    TEST(VecTest, parseEmptyString) {
+        const String s("");
+        ASSERT_FALSE(vec3f::canParse(s));
+        ASSERT_EQ(vec3f::zero, vec3f::parse(s));
+    }
+
     TEST(VecTest, parseAll) {
         std::vector<vec3f> result;
 

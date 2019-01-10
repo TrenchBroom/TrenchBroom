@@ -90,13 +90,17 @@ namespace vm {
          * Note that this method does not signal if the string could actually be parsed.
          *
          * @param str the string to parse
+         * @param defaultValue the default value to return if parsing fails
          * @return the vector parsed from the string
          */
-        static vec<T,S> parse(const std::string& str) {
+        static vec<T,S> parse(const std::string& str, const vec<T,S>& defaultValue = vec<T,S>::zero) {
             size_t pos = 0;
             vec<T,S> result;
-            doParse(str, pos, result);
-            return result;
+            if (doParse(str, pos, result)) {
+                return result;
+            } else {
+                return defaultValue;
+            }
         }
 
         /**
