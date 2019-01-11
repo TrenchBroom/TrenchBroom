@@ -272,6 +272,7 @@ namespace TrenchBroom {
             virtual vm::vec3 doComputePointEntityPosition(const vm::bbox3& bounds) const = 0;
 
             virtual ActionContext doGetActionContext() const = 0;
+            virtual ActionView doGetActionView() const = 0;
             virtual wxAcceleratorTable doCreateAccelerationTable(ActionContext context) const = 0;
             virtual bool doCancel() = 0;
             

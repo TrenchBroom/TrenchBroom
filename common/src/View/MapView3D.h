@@ -114,6 +114,7 @@ namespace TrenchBroom {
             vm::vec3 doComputePointEntityPosition(const vm::bbox3& bounds) const override;
             
             ActionContext doGetActionContext() const override;
+            ActionView doGetActionView() const override;
             wxAcceleratorTable doCreateAccelerationTable(ActionContext context) const override;
             bool doCancel() override;
             

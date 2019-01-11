@@ -547,7 +547,11 @@ namespace TrenchBroom {
         ActionContext MapView3D::doGetActionContext() const {
             return ActionContext_Default;
         }
-        
+
+        ActionView MapView3D::doGetActionView() const {
+            return ActionView_Map3D;
+        }
+
         wxAcceleratorTable MapView3D::doCreateAccelerationTable(ActionContext context) const {
             ActionManager& actionManager = ActionManager::instance();
             return actionManager.createViewAcceleratorTable(context, ActionView_Map3D);

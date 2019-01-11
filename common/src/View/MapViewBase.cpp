@@ -104,7 +104,11 @@ namespace TrenchBroom {
             createActions();
             bindEvents();
             bindObservers();
-            updateBindings();
+
+            //updateBindings();
+            // call updateBindings() the next time the event loop runs. We can't call it now because it needs to call
+            // a virtual function (depends on whether we are a 3D or 2D map view) which you can't do from a constructor
+            QMetaObject::invokeMethod(this, &MapViewBase::updateBindings, Qt::QueuedConnection);
         }
 
         void MapViewBase::setCompass(Renderer::Compass* compass) {
@@ -197,8 +201,7 @@ namespace TrenchBroom {
 
         void MapViewBase::toolChanged(Tool* tool) {
             updatePickResult();
-            // FIXME: shortcuts
-            //updateAcceleratorTable(HasFocus());
+            updateBindings();
             update();
         }
 
@@ -213,8 +216,7 @@ namespace TrenchBroom {
         }
         
         void MapViewBase::selectionDidChange(const Selection& selection) {
-            // FIXME: shortcuts
-            //updateAcceleratorTable(HasFocus());
+            updateBindings();
         }
 
         void MapViewBase::textureCollectionsDidChange() {
@@ -255,8 +257,7 @@ namespace TrenchBroom {
                 fontManager().clearCache();
             }
 
-            // FIXME: shortcuts
-            //updateAcceleratorTable();
+            updateBindings();
             update();
         }
 
@@ -394,13 +395,38 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::updateBindings() {
-            // set up bindings
-            for (auto [action, menuInfo] : m_actionInfoList) {
-                qDebug("found shortcut path %s, binding: %s",
-                       menuInfo->preferencePath.asString().c_str(),
-                       menuInfo->defaultKey.toString(QKeySequence::NativeText).toStdString().c_str());
+            qDebug("updating key binds");
 
-                action->setKey(menuInfo->defaultKey);
+            // refresh key bindings, start with all shortcuts enabled
+            for (auto [shortcut, menuInfo] : m_actionInfoList) {
+                shortcut->setKey(menuInfo->defaultKey);
+                shortcut->setEnabled(true);
+            }
+
+            // Disable shortcuts that are for the wrong action view (2D or 3D)
+            if (doGetActionView() != ActionView_Map2D) {
+                for (auto* shortcut : m_2DOnlyShortcuts) {
+                    shortcut->setEnabled(false);
+                }
+            }
+            if (doGetActionView() != ActionView_Map3D) {
+                for (auto* shortcut : m_3DOnlyShortcuts) {
+                    shortcut->setEnabled(false);
+                }
+            }
+
+            // Disable shortcuts that are in the wrong action context
+            const auto ourActionContext = actionContext();
+            for (auto [shortcut, menuInfo] : m_actionInfoList) {
+                const auto shortcutActionContext = menuInfo->actionContext;
+                if (0 == (ourActionContext & shortcutActionContext)) {
+                    shortcut->setEnabled(false);
+                }
+
+                qDebug("Updated shortcut (%s, pref path: %s) to: %s",
+                       shortcut->key().toString(QKeySequence::PortableText).toStdString().c_str(),
+                       menuInfo->preferencePath.asString().c_str(),
+                       shortcut->isEnabled() ? "enabled" : "disabled");
             }
         }
 
