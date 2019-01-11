@@ -49,7 +49,7 @@
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderService.h"
-#include "View/ActionManager.h"
+#include "View/ActionList.h"
 #include "View/Animation.h"
 #include "View/CameraAnimation.h"
 #include "View/CommandIds.h"
@@ -66,8 +66,7 @@
 #include <vecmath/polygon.h>
 #include <vecmath/util.h>
 
-#include <wx/frame.h>
-#include <wx/menu.h>
+#include <QShortcut>
 
 #include <algorithm>
 #include <iterator>
@@ -102,10 +101,10 @@ namespace TrenchBroom {
         m_portalFileRenderer(nullptr) {
             setToolBox(toolBox);
             toolBox.addWindow(this);
+            createActions();
             bindEvents();
             bindObservers();
-            // FIXME: shortcuts
-            //updateAcceleratorTable(hasFocus());
+            updateBindings();
         }
 
         void MapViewBase::setCompass(Renderer::Compass* compass) {
@@ -267,52 +266,9 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::bindEvents() {
-            // FIXME: Implement with QShortcut
+
+            // FIXME: popup menu bindings
 #if 0
-            Bind(wxEVT_MENU, &MapViewBase::OnToggleClipSide,               this, CommandIds::Actions::ToggleClipSide);
-            Bind(wxEVT_MENU, &MapViewBase::OnPerformClip,                  this, CommandIds::Actions::PerformClip);
-
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesForward,          this, CommandIds::Actions::MoveVerticesForward);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesBackward,         this, CommandIds::Actions::MoveVerticesBackward);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesLeft,             this, CommandIds::Actions::MoveVerticesLeft);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesRight,            this, CommandIds::Actions::MoveVerticesRight);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesUp,               this, CommandIds::Actions::MoveVerticesUp);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesDown,             this, CommandIds::Actions::MoveVerticesDown);
-            
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsForward,           this, CommandIds::Actions::MoveObjectsForward);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsBackward,          this, CommandIds::Actions::MoveObjectsBackward);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsLeft,              this, CommandIds::Actions::MoveObjectsLeft);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsRight,             this, CommandIds::Actions::MoveObjectsRight);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsUp,                this, CommandIds::Actions::MoveObjectsUp);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsDown,              this, CommandIds::Actions::MoveObjectsDown);
-
-            Bind(wxEVT_MENU, &MapViewBase::OnDuplicateObjectsForward,      this, CommandIds::Actions::DuplicateObjectsForward);
-            Bind(wxEVT_MENU, &MapViewBase::OnDuplicateObjectsBackward,     this, CommandIds::Actions::DuplicateObjectsBackward);
-            Bind(wxEVT_MENU, &MapViewBase::OnDuplicateObjectsLeft,         this, CommandIds::Actions::DuplicateObjectsLeft);
-            Bind(wxEVT_MENU, &MapViewBase::OnDuplicateObjectsRight,        this, CommandIds::Actions::DuplicateObjectsRight);
-            Bind(wxEVT_MENU, &MapViewBase::OnDuplicateObjectsUp,           this, CommandIds::Actions::DuplicateObjectsUp);
-            Bind(wxEVT_MENU, &MapViewBase::OnDuplicateObjectsDown,         this, CommandIds::Actions::DuplicateObjectsDown);
-
-            Bind(wxEVT_MENU, &MapViewBase::OnRollObjectsCW,                this, CommandIds::Actions::RollObjectsCW);
-            Bind(wxEVT_MENU, &MapViewBase::OnRollObjectsCCW,               this, CommandIds::Actions::RollObjectsCCW);
-            Bind(wxEVT_MENU, &MapViewBase::OnPitchObjectsCW,               this, CommandIds::Actions::PitchObjectsCW);
-            Bind(wxEVT_MENU, &MapViewBase::OnPitchObjectsCCW,              this, CommandIds::Actions::PitchObjectsCCW);
-            Bind(wxEVT_MENU, &MapViewBase::OnYawObjectsCW,                 this, CommandIds::Actions::YawObjectsCW);
-            Bind(wxEVT_MENU, &MapViewBase::OnYawObjectsCCW,                this, CommandIds::Actions::YawObjectsCCW);
-
-            Bind(wxEVT_MENU, &MapViewBase::OnFlipObjectsH,                 this, CommandIds::Actions::FlipObjectsHorizontally);
-            Bind(wxEVT_MENU, &MapViewBase::OnFlipObjectsV,                 this, CommandIds::Actions::FlipObjectsVertically);
-
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterForward,    this, CommandIds::Actions::MoveRotationCenterForward);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterBackward,   this, CommandIds::Actions::MoveRotationCenterBackward);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterLeft,       this, CommandIds::Actions::MoveRotationCenterLeft);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterRight,      this, CommandIds::Actions::MoveRotationCenterRight);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterUp,         this, CommandIds::Actions::MoveRotationCenterUp);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterDown,       this, CommandIds::Actions::MoveRotationCenterDown);
-
-            Bind(wxEVT_MENU, &MapViewBase::OnCancel,                       this, CommandIds::Actions::Cancel);
-            Bind(wxEVT_MENU, &MapViewBase::OnDeactivateTool,               this, CommandIds::Actions::DeactivateTool);
-            
             Bind(wxEVT_MENU, &MapViewBase::OnGroupSelectedObjects,         this, CommandIds::MapViewPopupMenu::GroupObjects);
             Bind(wxEVT_MENU, &MapViewBase::OnUngroupSelectedObjects,       this, CommandIds::MapViewPopupMenu::UngroupObjects);
             Bind(wxEVT_MENU, &MapViewBase::OnRenameGroups,                 this, CommandIds::MapViewPopupMenu::RenameGroups);
@@ -324,7 +280,6 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapViewBase::OnCreatePointEntity,            this, CommandIds::MapViewPopupMenu::LowestPointEntityItem, CommandIds::MapViewPopupMenu::HighestPointEntityItem);
             Bind(wxEVT_MENU, &MapViewBase::OnCreateBrushEntity,            this, CommandIds::MapViewPopupMenu::LowestBrushEntityItem, CommandIds::MapViewPopupMenu::HighestBrushEntityItem);
 #endif
-
             // FIXME: Seems like we'll need to make something emit signals, that the QActions are connected to.
 #if 0
             Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::GroupObjects);
@@ -340,83 +295,192 @@ namespace TrenchBroom {
 #endif
         }
 
-        void MapViewBase::OnMoveObjectsForward(wxCommandEvent& event) {
+        QShortcut* MapViewBase::createAndRegisterShortcut(const ActionInfo& info, Callback callback) {
+            QShortcut* shortcut = new QShortcut(this);
+            shortcut->setContext(Qt::WidgetShortcut); // Only in this widget
+            registerBinding(shortcut, info);
+            connect(shortcut, &QShortcut::activated, this, callback);
+            return shortcut;
+        }
+
+        void MapViewBase::createAndRegister2D3DShortcut(const ActionInfo& info, Callback callback2D, Callback callback3D) {
+            QShortcut* shortcut2D = createAndRegisterShortcut(info, callback2D);
+            m_2DOnlyShortcuts.push_back(shortcut2D);
+
+            QShortcut* shortcut3D = createAndRegisterShortcut(info, callback3D);
+            m_3DOnlyShortcuts.push_back(shortcut3D);
+        }
+
+        void MapViewBase::createActions() {
+            createAndRegisterShortcut(ActionList::instance().controlsMapViewToggleClipSideInfo, &MapViewBase::OnToggleClipSide);
+            createAndRegisterShortcut(ActionList::instance().controlsMapViewPerformclipInfo, &MapViewBase::OnPerformClip);
+
+            createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveVerticesUpForwardInfo, &MapViewBase::OnMoveVerticesUp, &MapViewBase::OnMoveVerticesForward);
+            createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveVerticesDownBackwardInfo, &MapViewBase::OnMoveVerticesDown, &MapViewBase::OnMoveVerticesBackward);
+
+            createAndRegisterShortcut(ActionList::instance().controlsMapViewMoveVerticesLeftInfo, &MapViewBase::OnMoveVerticesLeft);
+            createAndRegisterShortcut(ActionList::instance().controlsMapViewMoveVerticesRightInfo, &MapViewBase::OnMoveVerticesRight);
+
+            createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveVerticesBackwardUpInfo, &MapViewBase::OnMoveVerticesBackward, &MapViewBase::OnMoveVerticesUp);
+            createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveVerticesForwardDownInfo, &MapViewBase::OnMoveVerticesForward, &MapViewBase::OnMoveVerticesDown);
+
+            createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveObjectsUpForwardInfo, &MapViewBase::OnMoveObjectsUp, &MapViewBase::OnMoveObjectsForward);
+            createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveObjectsDownBackwardInfo, &MapViewBase::OnMoveObjectsDown, &MapViewBase::OnMoveObjectsBackward);
+            createAndRegisterShortcut(ActionList::instance().controlsMapViewMoveObjectsLeftInfo, &MapViewBase::OnMoveObjectsLeft);
+            createAndRegisterShortcut(ActionList::instance().controlsMapViewMoveObjectsRightInfo, &MapViewBase::OnMoveObjectsRight);
+
+            createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveObjectsBackwardUupInfo, &MapViewBase::OnMoveObjectsBackward, &MapViewBase::OnMoveObjectsUp);
+            createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveObjectsForwardDownInfo, &MapViewBase::OnMoveObjectsForward, &MapViewBase::OnMoveObjectsDown);
+
+#if 0
+            createAndRegisterShortcut(ActionList::instance().duplicateObjectsForwardShortcut);
+            connect(duplicateObjectsForwardShortcut, &QShortcut::activated, this, &MapViewBase::OnDuplicateObjectsForward); //,      this, CommandIds::Actions::DuplicateObjectsForward);
+
+            createAndRegisterShortcut(ActionList::instance().duplicateObjectsBackwardShortcut);
+            connect(duplicateObjectsBackwardShortcut, &QShortcut::activated, this, &MapViewBase::OnDuplicateObjectsBackward); //,     this, CommandIds::Actions::DuplicateObjectsBackward);
+
+            createAndRegisterShortcut(ActionList::instance().duplicateObjectsLeftShortcut);
+            connect(duplicateObjectsLeftShortcut, &QShortcut::activated, this, &MapViewBase::OnDuplicateObjectsLeft); //,         this, CommandIds::Actions::DuplicateObjectsLeft);
+
+            createAndRegisterShortcut(ActionList::instance().duplicateObjectsRightShortcut);
+            connect(duplicateObjectsRightShortcut, &QShortcut::activated, this, &MapViewBase::OnDuplicateObjectsRight); //,        this, CommandIds::Actions::DuplicateObjectsRight);
+
+            createAndRegisterShortcut(ActionList::instance().duplicateObjectsUpShortcut);
+            connect(duplicateObjectsUpShortcut, &QShortcut::activated, this, &MapViewBase::OnDuplicateObjectsUp); //,           this, CommandIds::Actions::DuplicateObjectsUp);
+
+            createAndRegisterShortcut(ActionList::instance().duplicateObjectsDownShortcut);
+            connect(duplicateObjectsDownShortcut, &QShortcut::activated, this, &MapViewBase::OnDuplicateObjectsDown); //,         this, CommandIds::Actions::DuplicateObjectsDown);
+
+
+            createAndRegisterShortcut(ActionList::instance().rollObjectsCWShortcut);
+            connect(rollObjectsCWShortcut, &QShortcut::activated, this, &MapViewBase::OnRollObjectsCW); //,                this, CommandIds::Actions::RollObjectsCW);
+
+            createAndRegisterShortcut(ActionList::instance().rollObjectsCCWShortcut);
+            connect(rollObjectsCCWShortcut, &QShortcut::activated, this, &MapViewBase::OnRollObjectsCCW); //,               this, CommandIds::Actions::RollObjectsCCW);
+
+            createAndRegisterShortcut(ActionList::instance().pitchObjectsCWShortcut);
+            connect(pitchObjectsCWShortcut, &QShortcut::activated, this, &MapViewBase::OnPitchObjectsCW); //,               this, CommandIds::Actions::PitchObjectsCW);
+
+            createAndRegisterShortcut(ActionList::instance().pitchObjectsCCWShortcut);
+            connect(pitchObjectsCCWShortcut, &QShortcut::activated, this, &MapViewBase::OnPitchObjectsCCW); //,              this, CommandIds::Actions::PitchObjectsCCW);
+
+            createAndRegisterShortcut(ActionList::instance().yawObjectsCWShortcut);
+            connect(yawObjectsCWShortcut, &QShortcut::activated, this, &MapViewBase::OnYawObjectsCW); //,                 this, CommandIds::Actions::YawObjectsCW);
+
+            createAndRegisterShortcut(ActionList::instance().yawObjectsCCWShortcut);
+            connect(yawObjectsCCWShortcut, &QShortcut::activated, this, &MapViewBase::OnYawObjectsCCW); //,                this, CommandIds::Actions::YawObjectsCCW);
+
+
+            createAndRegisterShortcut(ActionList::instance().flipObjectsHShortcut);
+            connect(flipObjectsHShortcut, &QShortcut::activated, this, &MapViewBase::OnFlipObjectsH); //,                 this, CommandIds::Actions::FlipObjectsHorizontally);
+
+            createAndRegisterShortcut(ActionList::instance().flipObjectsVShortcut);
+            connect(flipObjectsVShortcut, &QShortcut::activated, this, &MapViewBase::OnFlipObjectsV); //,                 this, CommandIds::Actions::FlipObjectsVertically);
+#endif
+
+            createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveRotationCenterUpForwardInfo, &MapViewBase::OnMoveRotationCenterUp, &MapViewBase::OnMoveRotationCenterForward);
+            createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveRotationCenterDownBackwardInfo, &MapViewBase::OnMoveRotationCenterDown, &MapViewBase::OnMoveRotationCenterBackward);
+            createAndRegisterShortcut(ActionList::instance().controlsMapViewMoveRotationCenterLeftInfo, &MapViewBase::OnMoveRotationCenterLeft); //,       this, CommandIds::Actions::MoveRotationCenterLeft);
+            createAndRegisterShortcut(ActionList::instance().controlsMapViewMoveRotationCenterRightInfo, &MapViewBase::OnMoveRotationCenterRight); //,      this, CommandIds::Actions::MoveRotationCenterRight);
+            createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveRotationCenterBackwardUpInfo, &MapViewBase::OnMoveRotationCenterBackward, &MapViewBase::OnMoveRotationCenterUp); //,         this, CommandIds::Actions::MoveRotationCenterUp);
+            createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveRotationCenterForwardDownInfo, &MapViewBase::OnMoveRotationCenterForward, &MapViewBase::OnMoveRotationCenterDown);
+
+            createAndRegisterShortcut(ActionList::instance().controlsMapViewCancelInfo, &MapViewBase::OnCancel);
+            createAndRegisterShortcut(ActionList::instance().controlsMapViewDeactivatecurrenttoolInfo, &MapViewBase::OnDeactivateTool);
+        }
+
+        void MapViewBase::registerBinding(QShortcut* action, const ActionInfo& info) {
+            m_actionInfoList.emplace_back(std::make_pair(action, &info));
+        }
+
+        void MapViewBase::updateBindings() {
+            // set up bindings
+            for (auto [action, menuInfo] : m_actionInfoList) {
+                qDebug("found shortcut path %s, binding: %s",
+                       menuInfo->preferencePath.asString().c_str(),
+                       menuInfo->defaultKey.toString(QKeySequence::NativeText).toStdString().c_str());
+
+                action->setKey(menuInfo->defaultKey);
+            }
+        }
+
+        void MapViewBase::OnMoveObjectsForward() {
             moveObjects(vm::direction::forward);
         }
 
-        void MapViewBase::OnMoveObjectsBackward(wxCommandEvent& event) {
+        void MapViewBase::OnMoveObjectsBackward() {
             moveObjects(vm::direction::backward);
         }
 
-        void MapViewBase::OnMoveObjectsLeft(wxCommandEvent& event) {
+        void MapViewBase::OnMoveObjectsLeft() {
             moveObjects(vm::direction::left);
         }
 
-        void MapViewBase::OnMoveObjectsRight(wxCommandEvent& event) {
+        void MapViewBase::OnMoveObjectsRight() {
             moveObjects(vm::direction::right);
         }
 
-        void MapViewBase::OnMoveObjectsUp(wxCommandEvent& event) {
+        void MapViewBase::OnMoveObjectsUp() {
             moveObjects(vm::direction::up);
         }
 
-        void MapViewBase::OnMoveObjectsDown(wxCommandEvent& event) {
+        void MapViewBase::OnMoveObjectsDown() {
             moveObjects(vm::direction::down);
         }
 
-        void MapViewBase::OnDuplicateObjectsForward(wxCommandEvent& event) {
+        void MapViewBase::OnDuplicateObjectsForward() {
             duplicateAndMoveObjects(vm::direction::forward);
         }
 
-        void MapViewBase::OnDuplicateObjectsBackward(wxCommandEvent& event) {
+        void MapViewBase::OnDuplicateObjectsBackward() {
             duplicateAndMoveObjects(vm::direction::backward);
         }
 
-        void MapViewBase::OnDuplicateObjectsLeft(wxCommandEvent& event) {
+        void MapViewBase::OnDuplicateObjectsLeft() {
             duplicateAndMoveObjects(vm::direction::left);
         }
 
-        void MapViewBase::OnDuplicateObjectsRight(wxCommandEvent& event) {
+        void MapViewBase::OnDuplicateObjectsRight() {
             duplicateAndMoveObjects(vm::direction::right);
         }
 
-        void MapViewBase::OnDuplicateObjectsUp(wxCommandEvent& event) {
+        void MapViewBase::OnDuplicateObjectsUp() {
             duplicateAndMoveObjects(vm::direction::up);
         }
 
-        void MapViewBase::OnDuplicateObjectsDown(wxCommandEvent& event) {
+        void MapViewBase::OnDuplicateObjectsDown() {
             duplicateAndMoveObjects(vm::direction::down);
         }
 
-        void MapViewBase::OnRollObjectsCW(wxCommandEvent& event) {
+        void MapViewBase::OnRollObjectsCW() {
             rotateObjects(vm::rotation_axis::roll, true);
         }
 
-        void MapViewBase::OnRollObjectsCCW(wxCommandEvent& event) {
+        void MapViewBase::OnRollObjectsCCW() {
             rotateObjects(vm::rotation_axis::roll, false);
         }
 
-        void MapViewBase::OnPitchObjectsCW(wxCommandEvent& event) {
+        void MapViewBase::OnPitchObjectsCW() {
             rotateObjects(vm::rotation_axis::pitch, true);
         }
 
-        void MapViewBase::OnPitchObjectsCCW(wxCommandEvent& event) {
+        void MapViewBase::OnPitchObjectsCCW() {
             rotateObjects(vm::rotation_axis::pitch, false);
         }
 
-        void MapViewBase::OnYawObjectsCW(wxCommandEvent& event) {
+        void MapViewBase::OnYawObjectsCW() {
             rotateObjects(vm::rotation_axis::yaw, true);
         }
 
-        void MapViewBase::OnYawObjectsCCW(wxCommandEvent& event) {
+        void MapViewBase::OnYawObjectsCCW() {
             rotateObjects(vm::rotation_axis::yaw, false);
         }
 
-        void MapViewBase::OnFlipObjectsH(wxCommandEvent& event) {
+        void MapViewBase::OnFlipObjectsH() {
             flipObjects(vm::direction::left);
         }
 
-        void MapViewBase::OnFlipObjectsV(wxCommandEvent& event) {
+        void MapViewBase::OnFlipObjectsV() {
             flipObjects(vm::direction::up);
         }
 
@@ -482,39 +546,39 @@ namespace TrenchBroom {
             return axis;
         }
 
-        void MapViewBase::OnToggleRotateObjectsTool(wxCommandEvent& event) {
+        void MapViewBase::OnToggleRotateObjectsTool() {
             m_toolBox.toggleRotateObjectsTool();
         }
 
-        void MapViewBase::OnToggleScaleObjectsTool(wxCommandEvent& event) {
+        void MapViewBase::OnToggleScaleObjectsTool() {
             m_toolBox.toggleScaleObjectsTool();
         }
 
-        void MapViewBase::OnToggleShearObjectsTool(wxCommandEvent& event) {
+        void MapViewBase::OnToggleShearObjectsTool() {
             m_toolBox.toggleShearObjectsTool();
         }
 
-        void MapViewBase::OnMoveRotationCenterForward(wxCommandEvent& event) {
+        void MapViewBase::OnMoveRotationCenterForward() {
             moveRotationCenter(vm::direction::forward);
         }
 
-        void MapViewBase::OnMoveRotationCenterBackward(wxCommandEvent& event) {
+        void MapViewBase::OnMoveRotationCenterBackward() {
             moveRotationCenter(vm::direction::backward);
         }
 
-        void MapViewBase::OnMoveRotationCenterLeft(wxCommandEvent& event) {
+        void MapViewBase::OnMoveRotationCenterLeft() {
             moveRotationCenter(vm::direction::left);
         }
 
-        void MapViewBase::OnMoveRotationCenterRight(wxCommandEvent& event) {
+        void MapViewBase::OnMoveRotationCenterRight() {
             moveRotationCenter(vm::direction::right);
         }
 
-        void MapViewBase::OnMoveRotationCenterUp(wxCommandEvent& event) {
+        void MapViewBase::OnMoveRotationCenterUp() {
             moveRotationCenter(vm::direction::up);
         }
 
-        void MapViewBase::OnMoveRotationCenterDown(wxCommandEvent& event) {
+        void MapViewBase::OnMoveRotationCenterDown() {
             moveRotationCenter(vm::direction::down);
         }
 
@@ -526,35 +590,35 @@ namespace TrenchBroom {
             update();
         }
 
-        void MapViewBase::OnToggleClipSide(wxCommandEvent& event) {
+        void MapViewBase::OnToggleClipSide() {
             m_toolBox.toggleClipSide();
         }
 
-        void MapViewBase::OnPerformClip(wxCommandEvent& event) {
+        void MapViewBase::OnPerformClip() {
             m_toolBox.performClip();
         }
 
-        void MapViewBase::OnMoveVerticesForward(wxCommandEvent& event) {
+        void MapViewBase::OnMoveVerticesForward() {
             moveVertices(vm::direction::forward);
         }
 
-        void MapViewBase::OnMoveVerticesBackward(wxCommandEvent& event) {
+        void MapViewBase::OnMoveVerticesBackward() {
             moveVertices(vm::direction::backward);
         }
 
-        void MapViewBase::OnMoveVerticesLeft(wxCommandEvent& event) {
+        void MapViewBase::OnMoveVerticesLeft() {
             moveVertices(vm::direction::left);
         }
 
-        void MapViewBase::OnMoveVerticesRight(wxCommandEvent& event) {
+        void MapViewBase::OnMoveVerticesRight() {
             moveVertices(vm::direction::right);
         }
 
-        void MapViewBase::OnMoveVerticesUp(wxCommandEvent& event) {
+        void MapViewBase::OnMoveVerticesUp() {
             moveVertices(vm::direction::up);
         }
 
-        void MapViewBase::OnMoveVerticesDown(wxCommandEvent& event) {
+        void MapViewBase::OnMoveVerticesDown() {
             moveVertices(vm::direction::down);
         }
 
@@ -565,7 +629,7 @@ namespace TrenchBroom {
             m_toolBox.moveVertices(delta);
         }
 
-        void MapViewBase::OnCancel(wxCommandEvent& event) {
+        void MapViewBase::OnCancel() {
             if (MapViewBase::cancel())
                 return;
             if (ToolBoxConnector::cancel())
@@ -583,11 +647,11 @@ namespace TrenchBroom {
             return doCancel();
         }
 
-        void MapViewBase::OnDeactivateTool(wxCommandEvent& event) {
+        void MapViewBase::OnDeactivateTool() {
             m_toolBox.deactivateAllTools();
         }
 
-        void MapViewBase::OnGroupSelectedObjects(wxCommandEvent& event) {
+        void MapViewBase::OnGroupSelectedObjects() {
             MapDocumentSPtr document = lock(m_document);
             if (document->hasSelectedNodes()) {
                 const String name = queryGroupName(this);
@@ -596,13 +660,13 @@ namespace TrenchBroom {
             }
         }
 
-        void MapViewBase::OnUngroupSelectedObjects(wxCommandEvent& event) {
+        void MapViewBase::OnUngroupSelectedObjects() {
             MapDocumentSPtr document = lock(m_document);
             if (document->hasSelectedNodes() && document->selectedNodes().hasOnlyGroups())
                 document->ungroupSelection();
         }
 
-        void MapViewBase::OnRenameGroups(wxCommandEvent& event) {
+        void MapViewBase::OnRenameGroups() {
             MapDocumentSPtr document = lock(m_document);
             assert(document->selectedNodes().hasOnlyGroups());
             const String name = queryGroupName(this);
@@ -610,22 +674,28 @@ namespace TrenchBroom {
                 document->renameGroups(name);
         }
 
-        void MapViewBase::OnCreatePointEntity(wxCommandEvent& event) {
+        void MapViewBase::OnCreatePointEntity() {
+            // FIXME:
+#if 0
             MapDocumentSPtr document = lock(m_document);
             const size_t index = static_cast<size_t>(event.GetId() - CommandIds::MapViewPopupMenu::LowestPointEntityItem);
             const Assets::EntityDefinition* definition = findEntityDefinition(Assets::EntityDefinition::Type_PointEntity, index);
             ensure(definition != nullptr, "definition is null");
             assert(definition->type() == Assets::EntityDefinition::Type_PointEntity);
             createPointEntity(static_cast<const Assets::PointEntityDefinition*>(definition));
+#endif
         }
 
-        void MapViewBase::OnCreateBrushEntity(wxCommandEvent& event) {
+        void MapViewBase::OnCreateBrushEntity() {
+            // FIXME:
+#if 0
             MapDocumentSPtr document = lock(m_document);
             const size_t index = static_cast<size_t>(event.GetId() - CommandIds::MapViewPopupMenu::LowestBrushEntityItem);
             const Assets::EntityDefinition* definition = findEntityDefinition(Assets::EntityDefinition::Type_BrushEntity, index);
             ensure(definition != nullptr, "definition is null");
             assert(definition->type() == Assets::EntityDefinition::Type_BrushEntity);
             createBrushEntity(static_cast<const Assets::BrushEntityDefinition*>(definition));
+#endif
         }
         
         Assets::EntityDefinition* MapViewBase::findEntityDefinition(const Assets::EntityDefinition::Type type, const size_t index) const {
@@ -664,22 +734,6 @@ namespace TrenchBroom {
             if (event.GetActive())
                 updateLastActivation();
             event.Skip();
-        }
-#endif
-
-// FIXME: None of this is needed with QShortcut
-#if 0
-        void MapViewBase::updateAcceleratorTable() {
-            updateAcceleratorTable(HasFocus());
-        }
-
-        void MapViewBase::updateAcceleratorTable(const bool hasFocus) {
-            if (hasFocus) {
-                const wxAcceleratorTable acceleratorTable = doCreateAccelerationTable(actionContext());
-                SetAcceleratorTable(acceleratorTable);
-            } else {
-                SetAcceleratorTable(wxNullAcceleratorTable);
-            }
         }
 #endif
 
@@ -988,7 +1042,7 @@ namespace TrenchBroom {
             return nullptr;
         }
 
-        void MapViewBase::OnAddObjectsToGroup(wxCommandEvent& event) {
+        void MapViewBase::OnAddObjectsToGroup() {
             MapDocumentSPtr document = lock(m_document);
             const Model::NodeList nodes = document->selectedNodes().nodes();
             Model::Node* newGroup = findNewGroupForObjects(nodes);
@@ -1000,7 +1054,7 @@ namespace TrenchBroom {
             document->select(newGroup);
         }
         
-        void MapViewBase::OnRemoveObjectsFromGroup(wxCommandEvent& event) {
+        void MapViewBase::OnRemoveObjectsFromGroup() {
             MapDocumentSPtr document = lock(m_document);
             const Model::NodeList nodes = document->selectedNodes().nodes();
             Model::Node* currentGroup = document->editorContext().currentGroup();
@@ -1025,7 +1079,7 @@ namespace TrenchBroom {
             return nullptr;
         }
         
-        void MapViewBase::OnMergeGroups(wxCommandEvent& event) {
+        void MapViewBase::OnMergeGroups() {
             auto document = lock(m_document);
             auto* newGroup = findGroupToMergeGroupsInto(document->selectedNodes());
             ensure(newGroup != nullptr, "newGroup is null");
@@ -1065,7 +1119,7 @@ namespace TrenchBroom {
             return newParent != node && newParent != node->parent() && !newParent->isDescendantOf(node);
         }
         
-        void MapViewBase::OnMoveBrushesTo(wxCommandEvent& event) {
+        void MapViewBase::OnMoveBrushesTo() {
             MapDocumentSPtr document = lock(m_document);
             const Model::NodeList nodes = document->selectedNodes().nodes();
             Model::Node* newParent = findNewParentEntityForBrushes(nodes);

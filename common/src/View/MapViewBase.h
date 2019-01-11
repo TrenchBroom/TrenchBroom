@@ -35,8 +35,11 @@
 #include "View/ViewTypes.h"
 
 #include <memory>
+#include <utility>
+#include <vector>
 
 class QMenu;
+class QShortcut;
 
 namespace TrenchBroom {
     class Logger;
@@ -56,6 +59,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class ActionInfo;
         class AnimationManager;
         class Command;
         class FlyModeHelper;
@@ -82,6 +86,10 @@ namespace TrenchBroom {
             Renderer::MapRenderer& m_renderer;
             Renderer::Compass* m_compass;
             std::unique_ptr<Renderer::PrimitiveRenderer> m_portalFileRenderer;
+        private: // shortcuts
+            std::vector<std::pair<QShortcut*, const ActionInfo*>> m_actionInfoList;
+            std::vector<QShortcut*> m_2DOnlyShortcuts;
+            std::vector<QShortcut*> m_3DOnlyShortcuts;
         protected:
             MapViewBase(QWidget* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager);
             
@@ -107,32 +115,39 @@ namespace TrenchBroom {
             void portalFileDidChange();
             void preferenceDidChange(const IO::Path& path);
             void documentDidChange(MapDocument* document);
+        private: // shortcut setup
+            using Callback = void (MapViewBase::*)();
+            QShortcut* createAndRegisterShortcut(const ActionInfo& info, Callback callback);
+            void createAndRegister2D3DShortcut(const ActionInfo& info, Callback callback2D, Callback callback3D);
+            void createActions();
+            void registerBinding(QShortcut* action, const ActionInfo& info);
+            void updateBindings();
         private: // interaction events
             void bindEvents();
             
-            void OnMoveObjectsForward(wxCommandEvent& event);
-            void OnMoveObjectsBackward(wxCommandEvent& event);
-            void OnMoveObjectsLeft(wxCommandEvent& event);
-            void OnMoveObjectsRight(wxCommandEvent& event);
-            void OnMoveObjectsUp(wxCommandEvent& event);
-            void OnMoveObjectsDown(wxCommandEvent& event);
+            void OnMoveObjectsForward();
+            void OnMoveObjectsBackward();
+            void OnMoveObjectsLeft();
+            void OnMoveObjectsRight();
+            void OnMoveObjectsUp();
+            void OnMoveObjectsDown();
             
-            void OnDuplicateObjectsForward(wxCommandEvent& event);
-            void OnDuplicateObjectsBackward(wxCommandEvent& event);
-            void OnDuplicateObjectsLeft(wxCommandEvent& event);
-            void OnDuplicateObjectsRight(wxCommandEvent& event);
-            void OnDuplicateObjectsUp(wxCommandEvent& event);
-            void OnDuplicateObjectsDown(wxCommandEvent& event);
+            void OnDuplicateObjectsForward();
+            void OnDuplicateObjectsBackward();
+            void OnDuplicateObjectsLeft();
+            void OnDuplicateObjectsRight();
+            void OnDuplicateObjectsUp();
+            void OnDuplicateObjectsDown();
             
-            void OnRollObjectsCW(wxCommandEvent& event);
-            void OnRollObjectsCCW(wxCommandEvent& event);
-            void OnPitchObjectsCW(wxCommandEvent& event);
-            void OnPitchObjectsCCW(wxCommandEvent& event);
-            void OnYawObjectsCW(wxCommandEvent& event);
-            void OnYawObjectsCCW(wxCommandEvent& event);
+            void OnRollObjectsCW();
+            void OnRollObjectsCCW();
+            void OnPitchObjectsCW();
+            void OnPitchObjectsCCW();
+            void OnYawObjectsCW();
+            void OnYawObjectsCCW();
             
-            void OnFlipObjectsH(wxCommandEvent& event);
-            void OnFlipObjectsV(wxCommandEvent& event);
+            void OnFlipObjectsH();
+            void OnFlipObjectsV();
             
             void duplicateAndMoveObjects(vm::direction direction);
             void duplicateObjects();
@@ -141,43 +156,43 @@ namespace TrenchBroom {
             void rotateObjects(vm::rotation_axis axis, bool clockwise);
             vm::vec3 rotationAxis(vm::rotation_axis axis, bool clockwise) const;
         private: // tool mode events
-            void OnToggleRotateObjectsTool(wxCommandEvent& event);
-            void OnMoveRotationCenterForward(wxCommandEvent& event);
-            void OnMoveRotationCenterBackward(wxCommandEvent& event);
-            void OnMoveRotationCenterLeft(wxCommandEvent& event);
-            void OnMoveRotationCenterRight(wxCommandEvent& event);
-            void OnMoveRotationCenterUp(wxCommandEvent& event);
-            void OnMoveRotationCenterDown(wxCommandEvent& event);
+            void OnToggleRotateObjectsTool();
+            void OnMoveRotationCenterForward();
+            void OnMoveRotationCenterBackward();
+            void OnMoveRotationCenterLeft();
+            void OnMoveRotationCenterRight();
+            void OnMoveRotationCenterUp();
+            void OnMoveRotationCenterDown();
             void moveRotationCenter(vm::direction direction);
             
-            void OnToggleScaleObjectsTool(wxCommandEvent& event);
-            void OnToggleShearObjectsTool(wxCommandEvent& event);
+            void OnToggleScaleObjectsTool();
+            void OnToggleShearObjectsTool();
             
-            void OnToggleClipSide(wxCommandEvent& event);
-            void OnPerformClip(wxCommandEvent& event);
+            void OnToggleClipSide();
+            void OnPerformClip();
             
-            void OnMoveVerticesForward(wxCommandEvent& event);
-            void OnMoveVerticesBackward(wxCommandEvent& event);
-            void OnMoveVerticesLeft(wxCommandEvent& event);
-            void OnMoveVerticesRight(wxCommandEvent& event);
-            void OnMoveVerticesUp(wxCommandEvent& event);
-            void OnMoveVerticesDown(wxCommandEvent& event);
+            void OnMoveVerticesForward();
+            void OnMoveVerticesBackward();
+            void OnMoveVerticesLeft();
+            void OnMoveVerticesRight();
+            void OnMoveVerticesUp();
+            void OnMoveVerticesDown();
             void moveVertices(vm::direction direction);
             
-            void OnCancel(wxCommandEvent& event);
+            void OnCancel();
             bool cancel();
             
-            void OnDeactivateTool(wxCommandEvent& event);
+            void OnDeactivateTool();
         private: // group management
-            void OnGroupSelectedObjects(wxCommandEvent& event);
-            void OnUngroupSelectedObjects(wxCommandEvent& event);
-            void OnRenameGroups(wxCommandEvent& event);
+            void OnGroupSelectedObjects();
+            void OnUngroupSelectedObjects();
+            void OnRenameGroups();
         private: // reparenting objects
-            void OnAddObjectsToGroup(wxCommandEvent& event);
-            void OnRemoveObjectsFromGroup(wxCommandEvent& event);
+            void OnAddObjectsToGroup();
+            void OnRemoveObjectsFromGroup();
             Model::Node* findNewGroupForObjects(const Model::NodeList& nodes) const;
             
-            void OnMergeGroups(wxCommandEvent& event);
+            void OnMergeGroups();
             Model::Group* findGroupToMergeGroupsInto(const Model::NodeCollection& selectedNodes) const;
 
             /**
@@ -189,15 +204,15 @@ namespace TrenchBroom {
              */
             bool canReparentNode(const Model::Node* node, const Model::Node* newParent) const;
             
-            void OnMoveBrushesTo(wxCommandEvent& event);
+            void OnMoveBrushesTo();
             Model::Node* findNewParentEntityForBrushes(const Model::NodeList& nodes) const;
             
             bool canReparentNodes(const Model::NodeList& nodes, const Model::Node* newParent) const;
             void reparentNodes(const Model::NodeList& nodes, Model::Node* newParent, bool preserveEntities);
             Model::NodeList collectReparentableNodes(const Model::NodeList& nodes, const Model::Node* newParent) const;
             
-            void OnCreatePointEntity(wxCommandEvent& event);
-            void OnCreateBrushEntity(wxCommandEvent& event);
+            void OnCreatePointEntity();
+            void OnCreateBrushEntity();
             
             Assets::EntityDefinition* findEntityDefinition(Assets::EntityDefinition::Type type, size_t index) const;
             void createPointEntity(const Assets::PointEntityDefinition* definition);
