@@ -99,7 +99,10 @@ namespace TrenchBroom {
         }
 
         void Entity::cacheAttributes() {
-            m_cachedOrigin = vm::vec3::parse(attribute(AttributeNames::Origin, ""));
+            m_cachedOrigin = vm::vec3::parse(attribute(AttributeNames::Origin, ""), vm::vec3::zero);
+            if (vm::isNaN(m_cachedOrigin)) {
+                m_cachedOrigin = vm::vec3::zero;
+            }
             m_cachedRotation = EntityRotationPolicy::getRotation(this);
         }
 
@@ -162,6 +165,10 @@ namespace TrenchBroom {
         }
         
         bool Entity::doRemoveIfEmpty() const {
+            return true;
+        }
+
+        bool Entity::doShouldAddToSpacialIndex() const {
             return true;
         }
 

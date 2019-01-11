@@ -61,7 +61,7 @@ namespace TrenchBroom {
                 
                 virtual DragRestricter* createDragRestricter(const InputState& inputState, const vm::vec3& initialPoint) const = 0;
                 virtual DragSnapper* createDragSnapper(const InputState& inputState) const = 0;
-                virtual std::vector<vm::vec3> getHelpVectors(const InputState& inputState) const = 0;
+                virtual std::vector<vm::vec3> getHelpVectors(const InputState& inputState, const vm::vec3& clipPoint) const = 0;
                 
                 void renderFeedback(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             private:

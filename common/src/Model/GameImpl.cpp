@@ -87,7 +87,8 @@ namespace TrenchBroom {
         Game::PathErrors GameImpl::doCheckAdditionalSearchPaths(const IO::Path::List& searchPaths) const {
             PathErrors result;
             for (const auto& searchPath : searchPaths) {
-                if (!IO::Disk::directoryExists(m_gamePath + searchPath)) {
+                const auto absPath = m_gamePath + searchPath;
+                if (!absPath.isAbsolute() || !IO::Disk::directoryExists(absPath)) {
                     result.insert(std::make_pair(searchPath, "Directory not found: '" + searchPath.asString() + "'"));
                 }
             }

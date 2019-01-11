@@ -468,10 +468,13 @@ public:
     }
 
     bool contains(const Box& bounds, const U& data) const override {
+        check(bounds, data);
         return (!empty() && m_root->find(bounds, data) != nullptr);
     }
 
     void insert(const Box& bounds, const U& data) override {
+        check(bounds, data);
+
         if (empty()) {
             m_root = new LeafNode(bounds, data);
         } else {
@@ -480,6 +483,8 @@ public:
     }
 
     bool remove(const Box& bounds, const U& data) override {
+        check(bounds, data);
+
         if (!empty() && m_root->bounds().contains(bounds)) {
             const auto& [newRoot, result] = m_root->remove(bounds, data);
             if (result) {
@@ -494,6 +499,9 @@ public:
     }
 
     void update(const Box& oldBounds, const Box& newBounds, const U& data) override {
+        check(oldBounds, data);
+        check(newBounds, data);
+
         if (!remove(oldBounds, data)) {
             NodeTreeException ex;
             ex << "AABB node not found with oldBounds [ ( " << oldBounds.min << " ) ( " << oldBounds.max << " ) ]: " << data;
@@ -501,7 +509,15 @@ public:
         }
         insert(newBounds, data);
     }
-
+private:
+    void check(const Box& bounds, const U& data) const {
+        if (vm::isNaN(bounds.min) || vm::isNaN(bounds.max)) {
+            NodeTreeException ex;
+            ex << "Cannot add node to AABB with invalid bounds [ ( " << bounds.min << " ) ( " << bounds.max << " ) ]: " << data;
+            throw ex;
+        }
+    }
+public:
     void clear() override {
         if (!empty()) {
             delete m_root;

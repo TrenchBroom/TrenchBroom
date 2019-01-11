@@ -77,6 +77,10 @@ namespace TrenchBroom {
             return false;
         }
 
+        bool Layer::doShouldAddToSpacialIndex() const {
+            return false;
+        }
+
         void Layer::doNodeBoundsDidChange(const vm::bbox3& oldBounds) {
             invalidateBounds();
         }

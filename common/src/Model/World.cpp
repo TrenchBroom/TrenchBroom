@@ -135,11 +135,7 @@ namespace TrenchBroom {
         
         class World::MatchTreeNodes {
         public:
-            bool operator()(const Model::World* world) const   { return false; }
-            bool operator()(const Model::Layer* layer) const   { return false; }
-            bool operator()(const Model::Group* group) const   { return true; }
-            bool operator()(const Model::Entity* entity) const { return true; }
-            bool operator()(const Model::Brush* brush) const   { return true; }
+            bool operator()(const Model::Node* node) const   { return node->shouldAddToSpacialIndex(); }
         };
 
         void World::disableNodeTreeUpdates() {
@@ -245,22 +241,26 @@ namespace TrenchBroom {
             return false;
         }
 
+        bool World::doShouldAddToSpacialIndex() const {
+            return false;
+        }
+
         void World::doDescendantWasAdded(Node* node, const size_t depth) {
-            if (m_updateNodeTree && depth > 1) { // ignore layers
+            if (m_updateNodeTree && node->shouldAddToSpacialIndex()) {
                 AddNodeToNodeTree visitor(m_nodeTree);
                 node->acceptAndRecurse(visitor);
             }
         }
 
         void World::doDescendantWillBeRemoved(Node* node, const size_t depth) {
-            if (m_updateNodeTree && depth > 1) { // ignore layers
+            if (m_updateNodeTree && node->shouldAddToSpacialIndex()) {
                 RemoveNodeFromNodeTree visitor(m_nodeTree);
                 node->acceptAndRecurse(visitor);
             }
         }
 
         void World::doDescendantBoundsDidChange(Node* node, const vm::bbox3& oldBounds, const size_t depth) {
-            if (m_updateNodeTree && depth > 1) { // ignore layers
+            if (m_updateNodeTree && node->shouldAddToSpacialIndex()) {
                 UpdateNodeInNodeTree visitor(m_nodeTree, oldBounds);
                 node->accept(visitor);
             }
