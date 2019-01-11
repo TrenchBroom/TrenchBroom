@@ -1406,7 +1406,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool Brush::doAddToNodeTree() const {
+        bool Brush::doShouldAddToSpacialIndex() const {
             return true;
         }
 

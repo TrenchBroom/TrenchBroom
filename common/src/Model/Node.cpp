@@ -146,8 +146,8 @@ namespace TrenchBroom {
             return m_descendantCount + 1;
         }
 
-        bool Node::addToNodeTree() const {
-            return doAddToNodeTree();
+        bool Node::shouldAddToSpacialIndex() const {
+            return doShouldAddToSpacialIndex();
         }
 
         void Node::addChildren(const NodeList& children) {

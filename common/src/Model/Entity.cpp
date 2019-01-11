@@ -168,8 +168,8 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool Entity::doAddToNodeTree() const {
-            return true;
+        bool Entity::doShouldAddToSpacialIndex() const {
+            return !hasChildren();
         }
 
         void Entity::doChildWasAdded(Node* node) {

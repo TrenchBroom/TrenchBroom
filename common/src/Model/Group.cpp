@@ -143,7 +143,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool Group::doAddToNodeTree() const {
+        bool Group::doShouldAddToSpacialIndex() const {
             return true;
         }
 

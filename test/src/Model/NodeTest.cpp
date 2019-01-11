@@ -57,7 +57,7 @@ namespace TrenchBroom {
                 return false;
             }
             
-            bool doAddToNodeTree() const override {
+            bool doShouldAddToSpacialIndex() const override {
                 return true;
             }
 
@@ -148,7 +148,7 @@ namespace TrenchBroom {
                 return false;
             }
             
-            bool doAddToNodeTree() const override {
+            bool doShouldAddToSpacialIndex() const override {
                 return true;
             }
 

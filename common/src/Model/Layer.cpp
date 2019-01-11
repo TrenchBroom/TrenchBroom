@@ -77,7 +77,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool Layer::doAddToNodeTree() const {
+        bool Layer::doShouldAddToSpacialIndex() const {
             return false;
         }
 
