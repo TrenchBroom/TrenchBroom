@@ -313,72 +313,47 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::createActions() {
+            // clip
             createAndRegisterShortcut(ActionList::instance().controlsMapViewToggleClipSideInfo, &MapViewBase::OnToggleClipSide);
             createAndRegisterShortcut(ActionList::instance().controlsMapViewPerformclipInfo, &MapViewBase::OnPerformClip);
 
+            // vertex movement
             createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveVerticesUpForwardInfo, &MapViewBase::OnMoveVerticesUp, &MapViewBase::OnMoveVerticesForward);
             createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveVerticesDownBackwardInfo, &MapViewBase::OnMoveVerticesDown, &MapViewBase::OnMoveVerticesBackward);
-
             createAndRegisterShortcut(ActionList::instance().controlsMapViewMoveVerticesLeftInfo, &MapViewBase::OnMoveVerticesLeft);
             createAndRegisterShortcut(ActionList::instance().controlsMapViewMoveVerticesRightInfo, &MapViewBase::OnMoveVerticesRight);
-
             createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveVerticesBackwardUpInfo, &MapViewBase::OnMoveVerticesBackward, &MapViewBase::OnMoveVerticesUp);
             createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveVerticesForwardDownInfo, &MapViewBase::OnMoveVerticesForward, &MapViewBase::OnMoveVerticesDown);
 
+            // object movement
             createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveObjectsUpForwardInfo, &MapViewBase::OnMoveObjectsUp, &MapViewBase::OnMoveObjectsForward);
             createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveObjectsDownBackwardInfo, &MapViewBase::OnMoveObjectsDown, &MapViewBase::OnMoveObjectsBackward);
             createAndRegisterShortcut(ActionList::instance().controlsMapViewMoveObjectsLeftInfo, &MapViewBase::OnMoveObjectsLeft);
             createAndRegisterShortcut(ActionList::instance().controlsMapViewMoveObjectsRightInfo, &MapViewBase::OnMoveObjectsRight);
-
             createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveObjectsBackwardUupInfo, &MapViewBase::OnMoveObjectsBackward, &MapViewBase::OnMoveObjectsUp);
             createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveObjectsForwardDownInfo, &MapViewBase::OnMoveObjectsForward, &MapViewBase::OnMoveObjectsDown);
 
-#if 0
-            createAndRegisterShortcut(ActionList::instance().duplicateObjectsForwardShortcut);
-            connect(duplicateObjectsForwardShortcut, &QShortcut::activated, this, &MapViewBase::OnDuplicateObjectsForward); //,      this, CommandIds::Actions::DuplicateObjectsForward);
+            // object rotation
+            createAndRegisterShortcut(ActionList::instance().controlsMapViewRollObjectsClockwiseInfo, &MapViewBase::OnRollObjectsCW);
+            createAndRegisterShortcut(ActionList::instance().controlsMapViewRollObjectsCounterClockwiseInfo, &MapViewBase::OnRollObjectsCCW);
+            createAndRegisterShortcut(ActionList::instance().controlsMapViewYawObjectsClockwiseInfo, &MapViewBase::OnYawObjectsCW);
+            createAndRegisterShortcut(ActionList::instance().controlsMapViewYawObjectsCounterClockwiseInfo, &MapViewBase::OnYawObjectsCCW);
+            createAndRegisterShortcut(ActionList::instance().controlsMapViewPitchobjectsClockwiseInfo, &MapViewBase::OnPitchObjectsCW);
+            createAndRegisterShortcut(ActionList::instance().controlsMapViewPitchobjectsCounterClockwiseInfo, &MapViewBase::OnPitchObjectsCCW);
 
-            createAndRegisterShortcut(ActionList::instance().duplicateObjectsBackwardShortcut);
-            connect(duplicateObjectsBackwardShortcut, &QShortcut::activated, this, &MapViewBase::OnDuplicateObjectsBackward); //,     this, CommandIds::Actions::DuplicateObjectsBackward);
+            // flips
+            createAndRegisterShortcut(ActionList::instance().controlsMapViewFlipobjectsHorizontallyInfo, &MapViewBase::OnFlipObjectsH);
+            createAndRegisterShortcut(ActionList::instance().controlsMapViewFlipobjectsBerticallyInfo, &MapViewBase::OnFlipObjectsV);
 
-            createAndRegisterShortcut(ActionList::instance().duplicateObjectsLeftShortcut);
-            connect(duplicateObjectsLeftShortcut, &QShortcut::activated, this, &MapViewBase::OnDuplicateObjectsLeft); //,         this, CommandIds::Actions::DuplicateObjectsLeft);
+            // duplicate
+            createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewDuplicateAndMoveObjectsUpForwardInfo, &MapViewBase::OnDuplicateObjectsUp, &MapViewBase::OnDuplicateObjectsForward);
+            createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewDuplicateAndMoveObjectsDownBackwardInfo, &MapViewBase::OnDuplicateObjectsDown, &MapViewBase::OnDuplicateObjectsBackward);
+            createAndRegisterShortcut(ActionList::instance().controlsMapViewDuplicateAndMoveObjectsLeftInfo, &MapViewBase::OnDuplicateObjectsLeft);
+            createAndRegisterShortcut(ActionList::instance().controlsMapViewDuplicateAndMoveObjectsRightInfo, &MapViewBase::OnDuplicateObjectsRight);
+            createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewDuplicateAndMoveObjectsBackwardUpInfo, &MapViewBase::OnDuplicateObjectsBackward, &MapViewBase::OnDuplicateObjectsUp);
+            createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewDuplicateAndMoveObjectsForwardDownInfo, &MapViewBase::OnDuplicateObjectsForward, &MapViewBase::OnDuplicateObjectsDown);
 
-            createAndRegisterShortcut(ActionList::instance().duplicateObjectsRightShortcut);
-            connect(duplicateObjectsRightShortcut, &QShortcut::activated, this, &MapViewBase::OnDuplicateObjectsRight); //,        this, CommandIds::Actions::DuplicateObjectsRight);
-
-            createAndRegisterShortcut(ActionList::instance().duplicateObjectsUpShortcut);
-            connect(duplicateObjectsUpShortcut, &QShortcut::activated, this, &MapViewBase::OnDuplicateObjectsUp); //,           this, CommandIds::Actions::DuplicateObjectsUp);
-
-            createAndRegisterShortcut(ActionList::instance().duplicateObjectsDownShortcut);
-            connect(duplicateObjectsDownShortcut, &QShortcut::activated, this, &MapViewBase::OnDuplicateObjectsDown); //,         this, CommandIds::Actions::DuplicateObjectsDown);
-
-
-            createAndRegisterShortcut(ActionList::instance().rollObjectsCWShortcut);
-            connect(rollObjectsCWShortcut, &QShortcut::activated, this, &MapViewBase::OnRollObjectsCW); //,                this, CommandIds::Actions::RollObjectsCW);
-
-            createAndRegisterShortcut(ActionList::instance().rollObjectsCCWShortcut);
-            connect(rollObjectsCCWShortcut, &QShortcut::activated, this, &MapViewBase::OnRollObjectsCCW); //,               this, CommandIds::Actions::RollObjectsCCW);
-
-            createAndRegisterShortcut(ActionList::instance().pitchObjectsCWShortcut);
-            connect(pitchObjectsCWShortcut, &QShortcut::activated, this, &MapViewBase::OnPitchObjectsCW); //,               this, CommandIds::Actions::PitchObjectsCW);
-
-            createAndRegisterShortcut(ActionList::instance().pitchObjectsCCWShortcut);
-            connect(pitchObjectsCCWShortcut, &QShortcut::activated, this, &MapViewBase::OnPitchObjectsCCW); //,              this, CommandIds::Actions::PitchObjectsCCW);
-
-            createAndRegisterShortcut(ActionList::instance().yawObjectsCWShortcut);
-            connect(yawObjectsCWShortcut, &QShortcut::activated, this, &MapViewBase::OnYawObjectsCW); //,                 this, CommandIds::Actions::YawObjectsCW);
-
-            createAndRegisterShortcut(ActionList::instance().yawObjectsCCWShortcut);
-            connect(yawObjectsCCWShortcut, &QShortcut::activated, this, &MapViewBase::OnYawObjectsCCW); //,                this, CommandIds::Actions::YawObjectsCCW);
-
-
-            createAndRegisterShortcut(ActionList::instance().flipObjectsHShortcut);
-            connect(flipObjectsHShortcut, &QShortcut::activated, this, &MapViewBase::OnFlipObjectsH); //,                 this, CommandIds::Actions::FlipObjectsHorizontally);
-
-            createAndRegisterShortcut(ActionList::instance().flipObjectsVShortcut);
-            connect(flipObjectsVShortcut, &QShortcut::activated, this, &MapViewBase::OnFlipObjectsV); //,                 this, CommandIds::Actions::FlipObjectsVertically);
-#endif
-
+            // move rotation center
             createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveRotationCenterUpForwardInfo, &MapViewBase::OnMoveRotationCenterUp, &MapViewBase::OnMoveRotationCenterForward);
             createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveRotationCenterDownBackwardInfo, &MapViewBase::OnMoveRotationCenterDown, &MapViewBase::OnMoveRotationCenterBackward);
             createAndRegisterShortcut(ActionList::instance().controlsMapViewMoveRotationCenterLeftInfo, &MapViewBase::OnMoveRotationCenterLeft); //,       this, CommandIds::Actions::MoveRotationCenterLeft);
@@ -386,6 +361,7 @@ namespace TrenchBroom {
             createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveRotationCenterBackwardUpInfo, &MapViewBase::OnMoveRotationCenterBackward, &MapViewBase::OnMoveRotationCenterUp); //,         this, CommandIds::Actions::MoveRotationCenterUp);
             createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveRotationCenterForwardDownInfo, &MapViewBase::OnMoveRotationCenterForward, &MapViewBase::OnMoveRotationCenterDown);
 
+            // current tool actions
             createAndRegisterShortcut(ActionList::instance().controlsMapViewCancelInfo, &MapViewBase::OnCancel);
             createAndRegisterShortcut(ActionList::instance().controlsMapViewDeactivatecurrenttoolInfo, &MapViewBase::OnDeactivateTool);
         }
