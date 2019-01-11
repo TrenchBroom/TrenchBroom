@@ -169,7 +169,7 @@ namespace TrenchBroom {
         }
 
         bool Entity::doShouldAddToSpacialIndex() const {
-            return !hasChildren();
+            return true;
         }
 
         void Entity::doChildWasAdded(Node* node) {
