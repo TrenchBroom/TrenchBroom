@@ -56,7 +56,6 @@ namespace TrenchBroom {
 
         MappedFile::List FileTextureCollectionLoader::doFindTextures(const Path& path, const StringList& extensions) {
             const auto wadPath = Disk::resolvePath(m_searchPaths, path);
-            
             WadFileSystem wadFS(wadPath);
             const auto texturePaths = wadFS.findItems(Path(""), FileExtensionMatcher(extensions));
             

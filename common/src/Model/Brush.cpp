@@ -1406,6 +1406,10 @@ namespace TrenchBroom {
             return false;
         }
 
+        bool Brush::doShouldAddToSpacialIndex() const {
+            return true;
+        }
+
         void Brush::doParentDidChange() {
             invalidateContentType();
         }
