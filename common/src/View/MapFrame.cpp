@@ -136,6 +136,7 @@ namespace TrenchBroom {
             createActions();
             createToolBar();
 
+            updateBindings();
             updateGridActions();
             updateToolActions();
 
@@ -426,141 +427,144 @@ namespace TrenchBroom {
 		    // File
 
             fileNewAction = new QAction("New", this);
-            fileNewAction->setData(ActionList::instance().menuFileNewInfo.getQVariant());
+            registerBinding(fileNewAction, ActionList::instance().menuFileNewInfo);
             connect(fileNewAction, &QAction::triggered, &TrenchBroomApp::instance(), &TrenchBroomApp::OnFileNew);
 
             fileOpenAction = new QAction("Open", this);
-            fileOpenAction->setData(ActionList::instance().menuFileOpenInfo.getQVariant());
+            registerBinding(fileOpenAction, ActionList::instance().menuFileOpenInfo);
             connect(fileOpenAction, &QAction::triggered, &TrenchBroomApp::instance(), &TrenchBroomApp::OnFileOpen);
 
             fileSaveAction = new QAction("Save", this);
-            fileSaveAction->setData(ActionList::instance().menuFileSaveInfo.getQVariant());
+            registerBinding(fileSaveAction, ActionList::instance().menuFileSaveInfo);
             connect(fileSaveAction, &QAction::triggered, this, &MapFrame::OnFileSave);
 
             fileSaveAsAction = new QAction("Save as...", this);
-            fileSaveAsAction->setData(ActionList::instance().menuFileSaveasInfo.getQVariant());
+            registerBinding(fileSaveAsAction, ActionList::instance().menuFileSaveasInfo);
             connect(fileSaveAsAction, &QAction::triggered, this, &MapFrame::OnFileSaveAs);
 
             fileExportObjAction = new QAction("Wavefront OBJ...", this);
-            fileExportObjAction->setData(ActionList::instance().menuFileExportWavefrontOBJInfo.getQVariant());
+            registerBinding(fileExportObjAction, ActionList::instance().menuFileExportWavefrontOBJInfo);
             connect(fileExportObjAction, &QAction::triggered, this, &MapFrame::OnFileExportObj);
 
             fileLoadPointFileAction = new QAction("Load Point File...", this);
-            fileLoadPointFileAction->setData(ActionList::instance().menuFileLoadPointFileInfo.getQVariant());
+            registerBinding(fileLoadPointFileAction, ActionList::instance().menuFileLoadPointFileInfo);
             connect(fileLoadPointFileAction, &QAction::triggered, this, &MapFrame::OnFileLoadPointFile);
 
             fileReloadPointFileAction = new QAction("Reload Point File", this);
-            fileReloadPointFileAction->setData(ActionList::instance().menuFileReloadPointFileInfo.getQVariant());
+            registerBinding(fileReloadPointFileAction, ActionList::instance().menuFileReloadPointFileInfo);
             connect(fileReloadPointFileAction, &QAction::triggered, this, &MapFrame::OnFileReloadPointFile);
 
             fileUnloadPointFileAction = new QAction("Unload Point File", this);
-            fileUnloadPointFileAction->setData(ActionList::instance().menuFileUnloadPointFileInfo.getQVariant());
+            registerBinding(fileUnloadPointFileAction, ActionList::instance().menuFileUnloadPointFileInfo);
             connect(fileUnloadPointFileAction, &QAction::triggered, this, &MapFrame::OnFileUnloadPointFile);
 
             fileLoadPortalFileAction = new QAction("Load Portal File...", this);
-            fileLoadPortalFileAction->setData(ActionList::instance().menuFileLoadPortalFileInfo.getQVariant());
+            registerBinding(fileLoadPortalFileAction, ActionList::instance().menuFileLoadPortalFileInfo);
             connect(fileLoadPortalFileAction, &QAction::triggered, this, &MapFrame::OnFileLoadPortalFile);
 
             fileReloadPortalFileAction = new QAction("Reload Portal File", this);
-            fileReloadPortalFileAction->setData(ActionList::instance().menuFileReloadPortalFileInfo.getQVariant());
+            registerBinding(fileReloadPortalFileAction, ActionList::instance().menuFileReloadPortalFileInfo);
             connect(fileReloadPortalFileAction, &QAction::triggered, this, &MapFrame::OnFileReloadPortalFile);
 
             fileUnloadPortalFileAction = new QAction("Unload Portal File", this);
-            fileUnloadPortalFileAction->setData(ActionList::instance().menuFileUnloadPortalFileInfo.getQVariant());
+            registerBinding(fileUnloadPortalFileAction, ActionList::instance().menuFileUnloadPortalFileInfo);
             connect(fileUnloadPortalFileAction, &QAction::triggered, this, &MapFrame::OnFileUnloadPortalFile);
 
             fileReloadTextureCollectionsAction = new QAction("Reload Texture Collections", this);
-            fileReloadTextureCollectionsAction->setData(ActionList::instance().menuFileReloadTextureCollectionsInfo.getQVariant());
+            registerBinding(fileReloadTextureCollectionsAction,
+                            ActionList::instance().menuFileReloadTextureCollectionsInfo);
             connect(fileReloadTextureCollectionsAction, &QAction::triggered, this, &MapFrame::OnFileReloadTextureCollections);
 
             fileReloadEntityDefinitionsAction = new QAction("Reload Entity Definitions", this);
-            fileReloadEntityDefinitionsAction->setData(ActionList::instance().menuFileReloadEntityDefinitionsInfo.getQVariant());
+            registerBinding(fileReloadEntityDefinitionsAction,
+                            ActionList::instance().menuFileReloadEntityDefinitionsInfo);
             connect(fileReloadEntityDefinitionsAction, &QAction::triggered, this, &MapFrame::OnFileReloadEntityDefinitions);
 
             fileCloseAction = new QAction("Close", this);
-            fileCloseAction->setData(ActionList::instance().menuFileCloseInfo.getQVariant());
+            registerBinding(fileCloseAction, ActionList::instance().menuFileCloseInfo);
             connect(fileCloseAction, &QAction::triggered, this, &MapFrame::OnFileClose);
 
             // Edit
 
             editUndoAction = new QAction("Undo", this);
-            editUndoAction->setData(ActionList::instance().menuEditUndoInfo.getQVariant());
+            registerBinding(editUndoAction, ActionList::instance().menuEditUndoInfo);
             connect(editUndoAction, &QAction::triggered, this, &MapFrame::OnEditUndo); //, this, wxID_UNDO);
 
             editRedoAction = new QAction("Redo", this);
-            editRedoAction->setData(ActionList::instance().menuEditRedoInfo.getQVariant());
+            registerBinding(editRedoAction, ActionList::instance().menuEditRedoInfo);
             connect(editRedoAction, &QAction::triggered, this, &MapFrame::OnEditRedo); //, this, wxID_REDO);
 
             editRepeatAction = new QAction("Repeat", this);
-            editRepeatAction->setData(ActionList::instance().menuEditRepeatInfo.getQVariant());
+            registerBinding(editRepeatAction, ActionList::instance().menuEditRepeatInfo);
             connect(editRepeatAction, &QAction::triggered, this, &MapFrame::OnEditRepeat); //, this, CommandIds::Menu::EditRepeat);
 
             editClearRepeatAction = new QAction("Clear Repeatable Commands", this);
-            editClearRepeatAction->setData(ActionList::instance().menuEditClearRepeatableCommandsInfo.getQVariant());
+            registerBinding(editClearRepeatAction, ActionList::instance().menuEditClearRepeatableCommandsInfo);
             connect(editClearRepeatAction, &QAction::triggered, this, &MapFrame::OnEditClearRepeat); //, this, CommandIds::Menu::EditClearRepeat);
 
 
             editCutAction = new QAction("Cut", this);
-            editCutAction->setData(ActionList::instance().menuEditCutInfo.getQVariant());
+            registerBinding(editCutAction, ActionList::instance().menuEditCutInfo);
             connect(editCutAction, &QAction::triggered, this, &MapFrame::OnEditCut); //, this, wxID_CUT);
 
             editCopyAction = new QAction("Copy", this);
-            editCopyAction->setData(ActionList::instance().menuEditCopyInfo.getQVariant());
+            registerBinding(editCopyAction, ActionList::instance().menuEditCopyInfo);
             connect(editCopyAction, &QAction::triggered, this, &MapFrame::OnEditCopy); //, this, wxID_COPY);
 
             editPasteAction = new QAction("Paste", this);
-            editPasteAction->setData(ActionList::instance().menuEditPasteInfo.getQVariant());
+            registerBinding(editPasteAction, ActionList::instance().menuEditPasteInfo);
             connect(editPasteAction, &QAction::triggered, this, &MapFrame::OnEditPaste);
 
             editPasteAtOriginalPositionAction = new QAction("Paste at Original Position", this);
-            editPasteAtOriginalPositionAction->setData(ActionList::instance().menuEditPasteatOriginalPositionInfo.getQVariant());
+            registerBinding(editPasteAtOriginalPositionAction,
+                            ActionList::instance().menuEditPasteatOriginalPositionInfo);
             connect(editPasteAtOriginalPositionAction, &QAction::triggered, this, &MapFrame::OnEditPasteAtOriginalPosition);
 
             editDuplicateAction = new QAction("Duplicate", this);
-            editDuplicateAction->setData(ActionList::instance().menuEditDuplicateInfo.getQVariant());
+            registerBinding(editDuplicateAction, ActionList::instance().menuEditDuplicateInfo);
             editDuplicateAction->setIcon(IO::loadIconResourceQt(IO::Path("DuplicateObjects.png")));
             connect(editDuplicateAction, &QAction::triggered, this, &MapFrame::OnEditDuplicate);
 
             editDeleteAction = new QAction("Delete", this);
-            editDeleteAction->setData(ActionList::instance().menuEditDeleteInfo.getQVariant());
+            registerBinding(editDeleteAction, ActionList::instance().menuEditDeleteInfo);
             connect(editDeleteAction, &QAction::triggered, this, &MapFrame::OnEditDelete);
 
 
             editSelectAllAction = new QAction("Select All", this);
-            editSelectAllAction->setData(ActionList::instance().menuEditSelectAllInfo.getQVariant());
+            registerBinding(editSelectAllAction, ActionList::instance().menuEditSelectAllInfo);
             connect(editSelectAllAction, &QAction::triggered, this, &MapFrame::OnEditSelectAll); //, this, CommandIds::Menu::EditSelectAll);
 
             editSelectSiblingsAction = new QAction("Select Siblings", this);
-            editSelectSiblingsAction->setData(ActionList::instance().menuEditSelectSiblingsInfo.getQVariant());
+            registerBinding(editSelectSiblingsAction, ActionList::instance().menuEditSelectSiblingsInfo);
             connect(editSelectSiblingsAction, &QAction::triggered, this, &MapFrame::OnEditSelectSiblings); //, this, CommandIds::Menu::EditSelectSiblings);
 
             editSelectTouchingAction = new QAction("Select Touching", this);
-            editSelectTouchingAction->setData(ActionList::instance().menuEditSelectTouchingInfo.getQVariant());
+            registerBinding(editSelectTouchingAction, ActionList::instance().menuEditSelectTouchingInfo);
             connect(editSelectTouchingAction, &QAction::triggered, this, &MapFrame::OnEditSelectTouching); //, this, CommandIds::Menu::EditSelectTouching);
 
             editSelectInsideAction = new QAction("Select Inside", this);
-            editSelectInsideAction->setData(ActionList::instance().menuEditSelectInsideInfo.getQVariant());
+            registerBinding(editSelectInsideAction, ActionList::instance().menuEditSelectInsideInfo);
             connect(editSelectInsideAction, &QAction::triggered, this, &MapFrame::OnEditSelectInside); //, this, CommandIds::Menu::EditSelectInside);
 
             editSelectTallAction = new QAction("Select Tall", this);
-            editSelectTallAction->setData(ActionList::instance().menuEditSelectTallInfo.getQVariant());
+            registerBinding(editSelectTallAction, ActionList::instance().menuEditSelectTallInfo);
             connect(editSelectTallAction, &QAction::triggered, this, &MapFrame::OnEditSelectTall); //, this, CommandIds::Menu::EditSelectTall);
 
             editSelectByLineNumberAction = new QAction("Select by Line Number", this);
-            editSelectByLineNumberAction->setData(ActionList::instance().menuEditSelectbyLineNumberInfo.getQVariant());
+            registerBinding(editSelectByLineNumberAction, ActionList::instance().menuEditSelectbyLineNumberInfo);
             connect(editSelectByLineNumberAction, &QAction::triggered, this, &MapFrame::OnEditSelectByLineNumber); //, this, CommandIds::Menu::EditSelectByFilePosition);
 
             editSelectNoneAction = new QAction("Select None", this);
-            editSelectNoneAction->setData(ActionList::instance().menuEditSelectNoneInfo.getQVariant());
+            registerBinding(editSelectNoneAction, ActionList::instance().menuEditSelectNoneInfo);
             connect(editSelectNoneAction, &QAction::triggered, this, &MapFrame::OnEditSelectNone); //, this, CommandIds::Menu::EditSelectNone);
 
 
             editGroupSelectedObjectsAction = new QAction("Group", this);
-            editGroupSelectedObjectsAction->setData(ActionList::instance().menuEditGroupInfo.getQVariant());
+            registerBinding(editGroupSelectedObjectsAction, ActionList::instance().menuEditGroupInfo);
             connect(editGroupSelectedObjectsAction, &QAction::triggered, this, &MapFrame::OnEditGroupSelectedObjects); //, this, CommandIds::Menu::EditGroupSelection);
 
             editUngroupSelectedObjectsAction = new QAction("Ungroup", this);
-            editUngroupSelectedObjectsAction->setData(ActionList::instance().menuEditUngroupInfo.getQVariant());
+            registerBinding(editUngroupSelectedObjectsAction, ActionList::instance().menuEditUngroupInfo);
             connect(editUngroupSelectedObjectsAction, &QAction::triggered, this, &MapFrame::OnEditUngroupSelectedObjects); //, this, CommandIds::Menu::EditUngroupSelection);
 
 
@@ -573,109 +577,111 @@ namespace TrenchBroom {
             editToggleCreateComplexBrushToolAction = new QAction("Brush Tool", editToolActionGroup);
             editToggleCreateComplexBrushToolAction->setIcon(IO::loadIconResourceQt(IO::Path("BrushTool.png")));
             editToggleCreateComplexBrushToolAction->setCheckable(true);
-            editToggleCreateComplexBrushToolAction->setData(ActionList::instance().menuEditToolsBrushToolInfo.getQVariant());
+            registerBinding(editToggleCreateComplexBrushToolAction, ActionList::instance().menuEditToolsBrushToolInfo);
             connect(editToggleCreateComplexBrushToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleCreateComplexBrushTool); //, this, CommandIds::Menu::EditToggleCreateComplexBrushTool);
 
             editToggleClipToolAction = new QAction("Clip Tool", editToolActionGroup);
             editToggleClipToolAction->setIcon(IO::loadIconResourceQt(IO::Path("ClipTool.png")));
             editToggleClipToolAction->setCheckable(true);
-            editToggleClipToolAction->setData(ActionList::instance().menuEditToolsClipToolInfo.getQVariant());
+            registerBinding(editToggleClipToolAction, ActionList::instance().menuEditToolsClipToolInfo);
             connect(editToggleClipToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleClipTool); //, this, CommandIds::Menu::EditToggleClipTool);
 
             editToggleRotateObjectsToolAction = new QAction("Rotate Tool", editToolActionGroup);
             editToggleRotateObjectsToolAction->setIcon(IO::loadIconResourceQt(IO::Path("RotateTool.png")));
             editToggleRotateObjectsToolAction->setCheckable(true);
-            editToggleRotateObjectsToolAction->setData(ActionList::instance().menuEditToolsRotateToolInfo.getQVariant());
+            registerBinding(editToggleRotateObjectsToolAction, ActionList::instance().menuEditToolsRotateToolInfo);
             connect(editToggleRotateObjectsToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleRotateObjectsTool); //, this, CommandIds::Menu::EditToggleRotateObjectsTool);
 
             editToggleScaleObjectsToolAction = new QAction("Scale Tool", editToolActionGroup);
             editToggleScaleObjectsToolAction->setIcon(IO::loadIconResourceQt(IO::Path("ScaleTool.png")));
             editToggleScaleObjectsToolAction->setCheckable(true);
-            editToggleScaleObjectsToolAction->setData(ActionList::instance().menuEditToolsScaleToolInfo.getQVariant());
+            registerBinding(editToggleScaleObjectsToolAction, ActionList::instance().menuEditToolsScaleToolInfo);
             connect(editToggleScaleObjectsToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleScaleObjectsTool); //, this, CommandIds::Menu::EditToggleScaleObjectsTool);
 
             editToggleShearObjectsToolAction = new QAction("Shear Tool", editToolActionGroup);
             editToggleShearObjectsToolAction->setIcon(IO::loadIconResourceQt(IO::Path("ShearTool.png")));
             editToggleShearObjectsToolAction->setCheckable(true);
-            editToggleShearObjectsToolAction->setData(ActionList::instance().menuEditToolsShearToolInfo.getQVariant());
+            registerBinding(editToggleShearObjectsToolAction, ActionList::instance().menuEditToolsShearToolInfo);
             connect(editToggleShearObjectsToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleShearObjectsTool); //, this, CommandIds::Menu::EditToggleShearObjectsTool);
 
             editToggleVertexToolAction = new QAction("Vertex Tool", editToolActionGroup);
             editToggleVertexToolAction->setIcon(IO::loadIconResourceQt(IO::Path("VertexTool.png")));
             editToggleVertexToolAction->setCheckable(true);
-            editToggleVertexToolAction->setData(ActionList::instance().menuEditToolsVertexToolInfo.getQVariant());
+            registerBinding(editToggleVertexToolAction, ActionList::instance().menuEditToolsVertexToolInfo);
             connect(editToggleVertexToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleVertexTool); //, this, CommandIds::Menu::EditToggleVertexTool);
 
             editToggleEdgeToolAction = new QAction("Edge Tool", editToolActionGroup);
             editToggleEdgeToolAction->setIcon(IO::loadIconResourceQt(IO::Path("EdgeTool.png")));
             editToggleEdgeToolAction->setCheckable(true);
-            editToggleEdgeToolAction->setData(ActionList::instance().menuEditToolsEdgeToolInfo.getQVariant());
+            registerBinding(editToggleEdgeToolAction, ActionList::instance().menuEditToolsEdgeToolInfo);
             connect(editToggleEdgeToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleEdgeTool); //, this, CommandIds::Menu::EditToggleEdgeTool);
 
             editToggleFaceToolAction = new QAction("Face Tool", editToolActionGroup);
             editToggleFaceToolAction->setIcon(IO::loadIconResourceQt(IO::Path("FaceTool.png")));
             editToggleFaceToolAction->setCheckable(true);
-            editToggleFaceToolAction->setData(ActionList::instance().menuEditToolsFaceToolInfo.getQVariant());
+            registerBinding(editToggleFaceToolAction, ActionList::instance().menuEditToolsFaceToolInfo);
             connect(editToggleFaceToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleFaceTool); //, this, CommandIds::Menu::EditToggleFaceTool);
 
 
             editCsgConvexMergeAction = new QAction("Convex Merge", this);
-            editCsgConvexMergeAction->setData(ActionList::instance().menuEditCSGConvexMergeInfo.getQVariant());
+            registerBinding(editCsgConvexMergeAction, ActionList::instance().menuEditCSGConvexMergeInfo);
             connect(editCsgConvexMergeAction, &QAction::triggered, this, &MapFrame::OnEditCsgConvexMerge); //, this, CommandIds::Menu::EditCsgConvexMerge);
 
             editCsgSubtractAction = new QAction("Subtract", this);
-            editCsgSubtractAction->setData(ActionList::instance().menuEditCSGSubtractInfo.getQVariant());
+            registerBinding(editCsgSubtractAction, ActionList::instance().menuEditCSGSubtractInfo);
             connect(editCsgSubtractAction, &QAction::triggered, this, &MapFrame::OnEditCsgSubtract); //, this, CommandIds::Menu::EditCsgSubtract);
 
             editCsgIntersectAction = new QAction("Intersect", this);
-            editCsgIntersectAction->setData(ActionList::instance().menuEditCSGIntersectInfo.getQVariant());
+            registerBinding(editCsgIntersectAction, ActionList::instance().menuEditCSGIntersectInfo);
             connect(editCsgIntersectAction, &QAction::triggered, this, &MapFrame::OnEditCsgIntersect); //, this, CommandIds::Menu::EditCsgIntersect);
 
             editCsgHollowAction = new QAction("Hollow", this);
-            editCsgHollowAction->setData(ActionList::instance().menuEditCSGHollowInfo.getQVariant());
+            registerBinding(editCsgHollowAction, ActionList::instance().menuEditCSGHollowInfo);
             connect(editCsgHollowAction, &QAction::triggered, this, &MapFrame::OnEditCsgHollow); //, this, CommandIds::Menu::EditCsgHollow);
 
 
             editReplaceTextureAction = new QAction("Replace Texture...", this);
-            editReplaceTextureAction->setData(ActionList::instance().menuEditReplaceTextureInfo.getQVariant());
+            registerBinding(editReplaceTextureAction, ActionList::instance().menuEditReplaceTextureInfo);
             connect(editReplaceTextureAction, &QAction::triggered, this, &MapFrame::OnEditReplaceTexture); //, this, CommandIds::Menu::EditReplaceTexture);
 
             editToggleTextureLockAction = new QAction("Texture Lock", this);
-            editToggleTextureLockAction->setData(ActionList::instance().menuEditTextureLockInfo.getQVariant());
+            registerBinding(editToggleTextureLockAction, ActionList::instance().menuEditTextureLockInfo);
             editToggleTextureLockAction->setCheckable(true);
             editToggleTextureLockAction->setIcon(IO::loadIconResourceOffOnQt(IO::Path("TextureLockOff.png"), IO::Path("TextureLockOn.png")));
             connect(editToggleTextureLockAction, &QAction::triggered, this, &MapFrame::OnEditToggleTextureLock); //, this, CommandIds::Menu::EditToggleTextureLock);
 
             editToggleUVLockAction = new QAction("UV Lock", this);
-            editToggleUVLockAction->setData(ActionList::instance().menuEditUVLockInfo.getQVariant());
+            registerBinding(editToggleUVLockAction, ActionList::instance().menuEditUVLockInfo);
             editToggleUVLockAction->setCheckable(true);
             editToggleUVLockAction->setIcon(IO::loadIconResourceOffOnQt(IO::Path("UVLockOff.png"), IO::Path("UVLockOn.png")));
             connect(editToggleUVLockAction, &QAction::triggered, this, &MapFrame::OnEditToggleUVLock); //, this, CommandIds::Menu::EditToggleUVLock);
 
             editSnapVerticesToIntegerAction = new QAction("Snap Vertices to Integer", this);
-            editSnapVerticesToIntegerAction->setData(ActionList::instance().menuEditSnapVerticestoIntegerInfo.getQVariant());
+            registerBinding(editSnapVerticesToIntegerAction, ActionList::instance().menuEditSnapVerticestoIntegerInfo);
             connect(editSnapVerticesToIntegerAction, &QAction::triggered, this, &MapFrame::OnEditSnapVerticesToInteger); //, this, CommandIds::Menu::EditSnapVerticesToInteger);
 
             editSnapVerticesToGridAction = new QAction("Snap Vertices to Grid", this);
-            editSnapVerticesToGridAction->setData(ActionList::instance().menuEditSnapVerticestoGridInfo.getQVariant());
+            registerBinding(editSnapVerticesToGridAction, ActionList::instance().menuEditSnapVerticestoGridInfo);
             connect(editSnapVerticesToGridAction, &QAction::triggered, this, &MapFrame::OnEditSnapVerticesToGrid); //, this, CommandIds::Menu::EditSnapVerticesToGrid);
 
             // View
 
             viewToggleShowGridAction = new QAction("Show Grid", this);
             viewToggleShowGridAction->setCheckable(true);
+            registerBinding(viewToggleShowGridAction, ActionList::instance().menuViewGridShowGridInfo);
             connect(viewToggleShowGridAction, &QAction::triggered, this, &MapFrame::OnViewToggleShowGrid);
 
             viewToggleSnapToGridAction = new QAction("Snap to Grid", this);
             viewToggleSnapToGridAction->setCheckable(true);
+            registerBinding(viewToggleSnapToGridAction, ActionList::instance().menuViewGridSnaptoGridInfo);
             connect(viewToggleSnapToGridAction, &QAction::triggered, this, &MapFrame::OnViewToggleSnapToGrid);
 
             viewIncGridSizeAction = new QAction("Increase Grid Size", this);
-            viewIncGridSizeAction->setShortcut(QKeySequence("+")); // FIXME:
+            registerBinding(viewIncGridSizeAction, ActionList::instance().menuViewGridIncreaseGridSizeInfo);
             connect(viewIncGridSizeAction, &QAction::triggered, this, &MapFrame::OnViewIncGridSize);
 
             viewDecGridSizeAction = new QAction("Decrease Grid Size", this);
-            viewDecGridSizeAction->setShortcut(QKeySequence("-")); // FIXME:
+            registerBinding(viewDecGridSizeAction, ActionList::instance().menuViewGridDecreaseGridSizeInfo);
             connect(viewDecGridSizeAction, &QAction::triggered, this, &MapFrame::OnViewDecGridSize);
 
             viewSetGridSizeActionGroup = new QActionGroup(this);
@@ -683,144 +689,183 @@ namespace TrenchBroom {
             viewSetGridSize0Point125Action = new QAction("Set Grid Size 0.125", viewSetGridSizeActionGroup);
             viewSetGridSize0Point125Action->setData(QVariant(-3));
             viewSetGridSize0Point125Action->setCheckable(true);
+            registerBinding(viewSetGridSize0Point125Action, ActionList::instance().menuViewGridSetGridSize0125Info);
             connect(viewSetGridSize0Point125Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
 
             viewSetGridSize0Point25Action = new QAction("Set Grid Size 0.25", viewSetGridSizeActionGroup);
             viewSetGridSize0Point25Action->setData(QVariant(-2));
             viewSetGridSize0Point25Action->setCheckable(true);
+            registerBinding(viewSetGridSize0Point25Action, ActionList::instance().menuViewGridSetGridSize025Info);
             connect(viewSetGridSize0Point25Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
 
             viewSetGridSize0Point5Action = new QAction("Set Grid Size 0.5", viewSetGridSizeActionGroup);
             viewSetGridSize0Point5Action->setData(QVariant(-1));
             viewSetGridSize0Point5Action->setCheckable(true);
+            registerBinding(viewSetGridSize0Point5Action, ActionList::instance().menuViewGridSetGridSize05Info);
             connect(viewSetGridSize0Point5Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
 
             viewSetGridSize1Action = new QAction("Set Grid Size 1", viewSetGridSizeActionGroup);
             viewSetGridSize1Action->setData(QVariant(0));
             viewSetGridSize1Action->setCheckable(true);
+            registerBinding(viewSetGridSize1Action, ActionList::instance().menuViewGridSetGridSize1Info);
             connect(viewSetGridSize1Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
 
             viewSetGridSize2Action = new QAction("Set Grid Size 2", viewSetGridSizeActionGroup);
             viewSetGridSize2Action->setData(QVariant(1));
             viewSetGridSize2Action->setCheckable(true);
+            registerBinding(viewSetGridSize2Action, ActionList::instance().menuViewGridSetGridSize2Info);
             connect(viewSetGridSize2Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
 
             viewSetGridSize4Action = new QAction("Set Grid Size 4", viewSetGridSizeActionGroup);
             viewSetGridSize4Action->setData(QVariant(2));
             viewSetGridSize4Action->setCheckable(true);
+            registerBinding(viewSetGridSize4Action, ActionList::instance().menuViewGridSetGridSize4Info);
             connect(viewSetGridSize4Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
 
             viewSetGridSize8Action = new QAction("Set Grid Size 8", viewSetGridSizeActionGroup);
             viewSetGridSize8Action->setData(QVariant(3));
             viewSetGridSize8Action->setCheckable(true);
+            registerBinding(viewSetGridSize8Action, ActionList::instance().menuViewGridSetGridSize8Info);
             connect(viewSetGridSize8Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
 
             viewSetGridSize16Action = new QAction("Set Grid Size 16", viewSetGridSizeActionGroup);
             viewSetGridSize16Action->setData(QVariant(4));
             viewSetGridSize16Action->setCheckable(true);
+            registerBinding(viewSetGridSize16Action, ActionList::instance().menuViewGridSetGridSize16Info);
             connect(viewSetGridSize16Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
 
             viewSetGridSize32Action = new QAction("Set Grid Size 32", viewSetGridSizeActionGroup);
             viewSetGridSize32Action->setData(QVariant(5));
             viewSetGridSize32Action->setCheckable(true);
+            registerBinding(viewSetGridSize32Action, ActionList::instance().menuViewGridSetGridSize32Info);
             connect(viewSetGridSize32Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
 
             viewSetGridSize64Action = new QAction("Set Grid Size 64", viewSetGridSizeActionGroup);
             viewSetGridSize64Action->setData(QVariant(6));
             viewSetGridSize64Action->setCheckable(true);
+            registerBinding(viewSetGridSize64Action, ActionList::instance().menuViewGridSetGridSize64Info);
             connect(viewSetGridSize64Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
 
             viewSetGridSize128Action = new QAction("Set Grid Size 128", viewSetGridSizeActionGroup);
             viewSetGridSize128Action->setData(QVariant(7));
             viewSetGridSize128Action->setCheckable(true);
+            registerBinding(viewSetGridSize128Action, ActionList::instance().menuViewGridSetGridSize128Info);
             connect(viewSetGridSize128Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
 
             viewSetGridSize256Action = new QAction("Set Grid Size 256", viewSetGridSizeActionGroup);
             viewSetGridSize256Action->setData(QVariant(8));
             viewSetGridSize256Action->setCheckable(true);
+            registerBinding(viewSetGridSize256Action, ActionList::instance().menuViewGridSetGridSize256Info);
             connect(viewSetGridSize256Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
 
             viewMoveCameraToNextPointAction = new QAction("Move to Next Point", this);
+            registerBinding(viewMoveCameraToNextPointAction, ActionList::instance().menuViewCameraMovetoNextPointInfo);
             connect(viewMoveCameraToNextPointAction, &QAction::triggered, this, &MapFrame::OnViewMoveCameraToNextPoint);
 
             viewMoveCameraToPreviousPointAction = new QAction("Move to Previous Point", this);
+            registerBinding(viewMoveCameraToPreviousPointAction, ActionList::instance().menuViewCameraMovetoPreviousPointInfo);
             connect(viewMoveCameraToPreviousPointAction, &QAction::triggered, this, &MapFrame::OnViewMoveCameraToPreviousPoint);
 
             viewFocusCameraOnSelectionAction = new QAction("Focus on Selection", this);
+            registerBinding(viewFocusCameraOnSelectionAction, ActionList::instance().menuViewCameraFocusonSelectionInfo);
             connect(viewFocusCameraOnSelectionAction, &QAction::triggered, this, &MapFrame::OnViewFocusCameraOnSelection);
 
             viewMoveCameraToPositionAction = new QAction("Move Camera to...", this);
+            registerBinding(viewMoveCameraToPositionAction, ActionList::instance().menuViewCameraMoveCameratoInfo);
             connect(viewMoveCameraToPositionAction, &QAction::triggered, this, &MapFrame::OnViewMoveCameraToPosition);
 
             viewHideSelectionAction = new QAction("Hide", this);
+            registerBinding(viewHideSelectionAction, ActionList::instance().menuViewHideInfo);
             connect(viewHideSelectionAction, &QAction::triggered, this, &MapFrame::OnViewHideSelectedObjects);
 
             viewIsolateSelectionAction = new QAction("Isolate", this);
+            registerBinding(viewIsolateSelectionAction, ActionList::instance().menuViewIsolateInfo);
             connect(viewIsolateSelectionAction, &QAction::triggered, this, &MapFrame::OnViewIsolateSelectedObjects);
 
             viewUnhideAllAction = new QAction("Show All", this);
+            registerBinding(viewUnhideAllAction, ActionList::instance().menuViewShowAllInfo);
             connect(viewUnhideAllAction, &QAction::triggered, this, &MapFrame::OnViewShowHiddenObjects);
 
             viewSwitchToMapInspectorAction = new QAction("Switch to Map Inspector", this);
+            registerBinding(viewSwitchToMapInspectorAction, ActionList::instance().menuViewSwitchtoMapInspectorInfo);
             connect(viewSwitchToMapInspectorAction, &QAction::triggered, this, &MapFrame::OnViewSwitchToMapInspector);
 
             viewSwitchToEntityInspectorAction = new QAction("Switch to Entity Inspector", this);
+            registerBinding(viewSwitchToEntityInspectorAction, ActionList::instance().menuViewSwitchtoEntityInspectorInfo);
             connect(viewSwitchToEntityInspectorAction, &QAction::triggered, this, &MapFrame::OnViewSwitchToEntityInspector);
 
             viewSwitchToFaceInspectorAction = new QAction("Switch to Face Inspector", this);
+            registerBinding(viewSwitchToFaceInspectorAction, ActionList::instance().menuViewSwitchtoFaceInspectorInfo);
             connect(viewSwitchToFaceInspectorAction, &QAction::triggered, this, &MapFrame::OnViewSwitchToFaceInspector);
 
             viewToggleMaximizeCurrentViewAction = new QAction("Maximize Current View", this);
+            registerBinding(viewToggleMaximizeCurrentViewAction, ActionList::instance().menuViewMaximizeCurrentViewInfo);
             connect(viewToggleMaximizeCurrentViewAction, &QAction::triggered, this, &MapFrame::OnViewToggleMaximizeCurrentView);
 
             viewPreferencesAction = new QAction("Preferences...", this);
+            registerBinding(viewPreferencesAction, ActionList::instance().menuViewPreferencesInfo);
             connect(viewPreferencesAction, &QAction::triggered, &TrenchBroomApp::instance(), &TrenchBroomApp::OnOpenPreferences);
 
             viewToggleInfoPanelAction = new QAction("Toggle Info Panel", this);
+            registerBinding(viewToggleInfoPanelAction, ActionList::instance().menuViewToggleInfoPanelInfo);
             viewToggleInfoPanelAction->setCheckable(true);
             connect(viewToggleInfoPanelAction, &QAction::triggered, this, &MapFrame::OnViewToggleInfoPanel);
 
             viewToggleInspectorAction = new QAction("Toggle Inspector", this);
+            registerBinding(viewToggleInspectorAction, ActionList::instance().menuViewToggleInspectorInfo);
             viewToggleInspectorAction->setCheckable(true);
             connect(viewToggleInspectorAction, &QAction::triggered, this, &MapFrame::OnViewToggleInspector);
 
             runCompileAction = new QAction("Compile...", this);
+            registerBinding(runCompileAction, ActionList::instance().menuRunCompileInfo);
             connect(runCompileAction, &QAction::triggered, this, &MapFrame::OnRunCompile);
 
             runLaunchAction = new QAction("Launch...", this);
+            registerBinding(runLaunchAction, ActionList::instance().menuRunLaunchInfo);
             connect(runLaunchAction, &QAction::triggered, this, &MapFrame::OnRunLaunch);
 
             debugPrintVerticesAction = new QAction("Print Vertices", this);
+            registerBinding(debugPrintVerticesAction, ActionList::instance().menuDebugPrintVerticesInfo);
             connect(debugPrintVerticesAction, &QAction::triggered, this, &MapFrame::OnDebugPrintVertices);
 
             debugCreateBrushAction = new QAction("Create Brush...", this);
+            registerBinding(debugCreateBrushAction, ActionList::instance().menuDebugCreateBrushInfo);
             connect(debugCreateBrushAction, &QAction::triggered, this, &MapFrame::OnDebugCreateBrush);
 
             debugCreateCubeAction = new QAction("Create Cube...", this);
+            registerBinding(debugCreateCubeAction, ActionList::instance().menuDebugCreateCubeInfo);
             connect(debugCreateCubeAction, &QAction::triggered, this, &MapFrame::OnDebugCreateCube);
 
             debugClipWithFaceAction = new QAction("Clip Brush...", this);
+            registerBinding(debugClipWithFaceAction, ActionList::instance().menuDebugClipBrushInfo);
             connect(debugClipWithFaceAction, &QAction::triggered, this, &MapFrame::OnDebugClipBrush);
 
             debugCopyJSShortcutsAction = new QAction("Copy Javascript Shortcut Map", this);
+            registerBinding(debugCopyJSShortcutsAction, ActionList::instance().menuDebugCopyJavascriptShortcutMapInfo);
             connect(debugCopyJSShortcutsAction, &QAction::triggered, this, &MapFrame::OnDebugCopyJSShortcutMap);
 
             debugCrashAction = new QAction("Crash...", this);
+            registerBinding(debugCrashAction, ActionList::instance().menuDebugCrashInfo);
             connect(debugCrashAction, &QAction::triggered, this, &MapFrame::OnDebugCrash);
 
             debugThrowExceptionDuringCommandAction = new QAction("Throw Exception During Command", this);
+            registerBinding(debugThrowExceptionDuringCommandAction, ActionList::instance().menuDebugThrowExceptionDuringCommandInfo);
             connect(debugThrowExceptionDuringCommandAction, &QAction::triggered, this, &MapFrame::OnDebugThrowExceptionDuringCommand);
 
             debugCrashReportDialogAction = new QAction("Show Crash Report Dialog", this);
+            registerBinding(debugCrashReportDialogAction, ActionList::instance().menuDebugShowCrashReportDialogInfo);
             connect(viewPreferencesAction, &QAction::triggered, &TrenchBroomApp::instance(), &TrenchBroomApp::OnDebugShowCrashReportDialog);
 
             debugSetWindowSizeAction = new QAction("Set Window Size...", this);
+            registerBinding(debugSetWindowSizeAction, ActionList::instance().menuDebugSetWindowSizeInfo);
             connect(debugSetWindowSizeAction, &QAction::triggered, this, &MapFrame::OnDebugSetWindowSize);
 
             helpManualAction = new QAction("TrenchBroom Manual", this);
+            registerBinding(helpManualAction, ActionList::instance().menuHelpTrenchBroomManualInfo);
             connect(helpManualAction, &QAction::triggered, &TrenchBroomApp::instance(), &TrenchBroomApp::OnHelpShowManual);
 
             helpAboutAction = new QAction("About TrenchBroom", this);
+            registerBinding(helpAboutAction, ActionList::instance().menuHelpAboutTrenchBroomInfo);
             connect(helpAboutAction, &QAction::triggered, &TrenchBroomApp::instance(), &TrenchBroomApp::OnOpenAbout);
 
             flipObjectsHorizontallyAction = new QAction("Flip Horizontally", this);
@@ -830,23 +875,22 @@ namespace TrenchBroom {
             flipObjectsVerticallyAction = new QAction("Flip Vertically", this);
             flipObjectsVerticallyAction->setIcon(IO::loadIconResourceQt(IO::Path("FlipVertically.png")));
             connect(flipObjectsVerticallyAction, &QAction::triggered, this, &MapFrame::OnFlipObjectsVertically);
-
-            // set up bindings
-            for (QObject* child : children()) {
-                if (QAction* action = dynamic_cast<QAction*>(child); action != nullptr) {
-                    qDebug("found action %s", action->text().toStdString().c_str());
-                    if (action->data().canConvert<const ActionInfo*>()) {
-                        const auto menuInfo = action->data().value<const ActionInfo*>();
-                        qDebug("found path %s, binding: %s",
-                                menuInfo->preferencePath.asString().c_str(),
-                                menuInfo->defaultKey.toString(QKeySequence::NativeText).toStdString().c_str());
-
-                        action->setShortcut(menuInfo->defaultKey);
-                    }
-                }
-            }
         }
 
+        void MapFrame::registerBinding(QAction *action, const ActionInfo &info) {
+            m_actionInfoList.emplace_back(std::make_pair(action, &info));
+		}
+
+		void MapFrame::updateBindings() {
+            // set up bindings
+            for (auto [action, menuInfo] : m_actionInfoList) {
+                qDebug("found path %s, binding: %s",
+                       menuInfo->preferencePath.asString().c_str(),
+                       menuInfo->defaultKey.toString(QKeySequence::NativeText).toStdString().c_str());
+
+                action->setShortcut(menuInfo->defaultKey);
+            }
+		}
 
         void MapFrame::createMenus() {
             QMenu* fileMenu = menuBar()->addMenu("File");

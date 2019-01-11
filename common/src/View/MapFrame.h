@@ -31,6 +31,8 @@
 
 #include <QMainWindow>
 
+#include <utility>
+
 class QTimer;
 class QLabel;
 class QMenuBar;
@@ -54,6 +56,7 @@ namespace TrenchBroom {
         class Inspector;
         class SwitchableMapViewContainer;
         class Tool;
+        class ActionInfo;
 
         class MapFrame : public QMainWindow {
             Q_OBJECT
@@ -194,6 +197,8 @@ namespace TrenchBroom {
 
             QAction* flipObjectsHorizontallyAction;
             QAction* flipObjectsVerticallyAction;
+
+            std::vector<std::pair<QAction*, const ActionInfo*>> m_actionInfoList;
         public:
             MapFrame();
             MapFrame(FrameManager* frameManager, MapDocumentSPtr document);
@@ -229,6 +234,8 @@ namespace TrenchBroom {
             void rebuildMenuBar();
             void createMenuBar();
             void createActions();
+            void registerBinding(QAction* action, const ActionInfo& info);
+            void updateBindings();
             void createMenus();
             void updateGridActions();
             void updateToolActions();
