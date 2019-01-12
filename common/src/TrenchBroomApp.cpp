@@ -303,9 +303,9 @@ namespace TrenchBroom {
             StringStream ss;
             ss << "OS:\t" << wxGetOsDescription() << std::endl;
             ss << "wxWidgets:\n" << wxGetLibraryVersionInfo().ToString() << std::endl;
-            ss << "GL_VENDOR:\t" << MapViewBase::glVendorString() << std::endl;
-            ss << "GL_RENDERER:\t" << MapViewBase::glRendererString() << std::endl;
-            ss << "GL_VERSION:\t" << MapViewBase::glVersionString() << std::endl;
+            ss << "GL_VENDOR:\t" << MapViewBase::glVendorString().toStdString() << std::endl;
+            ss << "GL_RENDERER:\t" << MapViewBase::glRendererString().toStdString() << std::endl;
+            ss << "GL_VERSION:\t" << MapViewBase::glVersionString().toStdString() << std::endl;
             ss << "TrenchBroom Version:\t" << getBuildVersion().toStdString() << std::endl;
             ss << "TrenchBroom Build:\t" << getBuildIdStr().toStdString() << std::endl;
             ss << "Reason:\t" << reason << std::endl;

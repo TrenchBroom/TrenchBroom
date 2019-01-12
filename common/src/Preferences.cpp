@@ -22,6 +22,7 @@
 #include "IO/SystemPaths.h"
 #include "View/ActionContext.h"
 #include "View/CommandIds.h"
+#include "View/MapViewLayout.h"
 
 #include <vecmath/util.h>
 

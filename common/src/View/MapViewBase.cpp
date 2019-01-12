@@ -73,21 +73,21 @@
 
 namespace TrenchBroom {
     namespace View {
-        static wxString GLVendor, GLRenderer, GLVersion;
+        static QString GLVendor, GLRenderer, GLVersion;
         
-        const wxString &MapViewBase::glRendererString() {
+        const QString &MapViewBase::glRendererString() {
             return GLRenderer;
         }
         
-        const wxString &MapViewBase::glVendorString() {
+        const QString &MapViewBase::glVendorString() {
             return GLVendor;
         }
         
-        const wxString &MapViewBase::glVersionString() {
+        const QString &MapViewBase::glVersionString() {
             return GLVersion;
         }
         
-        const wxLongLong MapViewBase::DefaultCameraAnimationDuration = 250;
+        const int MapViewBase::DefaultCameraAnimationDuration = 250;
 
         MapViewBase::MapViewBase(QWidget* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager) :
         RenderView(parent, contextManager),
@@ -816,11 +816,11 @@ namespace TrenchBroom {
 
         void MapViewBase::initializeGL() {
             RenderView::initializeGL();
-            GLVendor   = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_VENDOR)));
-            GLRenderer = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
-            GLVersion  = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
+            GLVendor   = QString::fromUtf8(reinterpret_cast<const char*>(glGetString(GL_VENDOR)));
+            GLRenderer = QString::fromUtf8(reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
+            GLVersion  = QString::fromUtf8(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
 
-            m_logger->info(wxString::Format(L"Renderer info: %s version %s from %s", GLRenderer, GLVersion, GLVendor));
+            m_logger->info(tr("Renderer info: %1 version %2 from %3").arg(GLRenderer).arg(GLVersion).arg(GLVendor));
         // FIXME: use Qt
 #if 0
             m_logger->info("Depth buffer bits: %d", depthBits());
@@ -1222,7 +1222,9 @@ namespace TrenchBroom {
             return result;
         }
 
-        void MapViewBase::OnUpdatePopupMenuItem(wxUpdateUIEvent& event) {
+        void MapViewBase::OnUpdatePopupMenuItem() {
+            // FIXME:
+#if 0
             switch (event.GetId()) {
                 case CommandIds::MapViewPopupMenu::GroupObjects:
                     updateGroupObjectsMenuItem(event);
@@ -1248,35 +1250,41 @@ namespace TrenchBroom {
                     }
                     break;
             }
+#endif
         }
 
-        void MapViewBase::updateGroupObjectsMenuItem(wxUpdateUIEvent& event) const {
+        void MapViewBase::updateGroupObjectsMenuItem() const {
             MapDocumentSPtr document = lock(m_document);
-            event.Enable(!document->selectedNodes().empty());
+            // FIXME:
+//            event.Enable(!document->selectedNodes().empty());
         }
     
-        void MapViewBase::updateUngroupObjectsMenuItem(wxUpdateUIEvent& event) const {
+        void MapViewBase::updateUngroupObjectsMenuItem() const {
             MapDocumentSPtr document = lock(m_document);
-            event.Enable(document->selectedNodes().hasOnlyGroups());
+            // FIXME:
+//            event.Enable(document->selectedNodes().hasOnlyGroups());
         }
         
-        void MapViewBase::updateMergeGroupsMenuItem(wxUpdateUIEvent& event) const {
+        void MapViewBase::updateMergeGroupsMenuItem() const {
             MapDocumentSPtr document = lock(m_document);
             Model::Node* mergeGroup = findGroupToMergeGroupsInto(document->selectedNodes());
-            event.Enable(mergeGroup != nullptr);
+            // FIXME:
+//            event.Enable(mergeGroup != nullptr);
         }
         
-        void MapViewBase::updateRenameGroupsMenuItem(wxUpdateUIEvent& event) const {
+        void MapViewBase::updateRenameGroupsMenuItem() const {
             MapDocumentSPtr document = lock(m_document);
-            event.Enable(document->selectedNodes().hasOnlyGroups());
+            // FIXME:
+//            event.Enable(document->selectedNodes().hasOnlyGroups());
         }
 
-        void MapViewBase::updateMoveBrushesToWorldMenuItem(wxUpdateUIEvent& event) const {
+        void MapViewBase::updateMoveBrushesToWorldMenuItem() const {
             MapDocumentSPtr document = lock(m_document);
             const Model::NodeList& nodes = document->selectedNodes().nodes();
             Model::Node* newBrushParent = findNewParentEntityForBrushes(nodes);
-            event.Enable(!isEntity(newBrushParent)
-                         && !collectReparentableNodes(nodes, newBrushParent).empty());
+            // FIXME:
+//            event.Enable(!isEntity(newBrushParent)
+//                         && !collectReparentableNodes(nodes, newBrushParent).empty());
         }
 
         void MapViewBase::doPreRender() {}

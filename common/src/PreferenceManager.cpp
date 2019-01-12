@@ -36,7 +36,7 @@ namespace TrenchBroom {
     PreferenceBase::Set PreferenceManager::saveChanges() {
         PreferenceBase::Set changedPreferences;
         for (auto* pref : m_unsavedPreferences) {
-            pref->save(wxConfig::Get());
+            pref->save();
             preferenceDidChangeNotifier(pref->path());
             
             changedPreferences.insert(pref);

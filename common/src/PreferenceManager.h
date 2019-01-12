@@ -26,6 +26,9 @@
 #include "StringUtils.h"
 #include "View/KeyboardShortcut.h"
 
+#include <QApplication>
+#include <QThread>
+
 #include <map>
 
 namespace TrenchBroom {
@@ -52,10 +55,11 @@ namespace TrenchBroom {
         
         template <typename T>
         const T& get(const Preference<T>& preference) const {
-            ensure(wxThread::IsMain(), "PreferenceManager can only be used on the main thread");
+            ensure(qApp->thread() == QThread::currentThread(), "PreferenceManager can only be used on the main thread");
 
+            // Only load from disk the first time it's accessed
             if (!preference.initialized()) {
-                preference.load(wxConfig::Get());
+                preference.load();
             }
 
             return preference.value();
@@ -68,7 +72,7 @@ namespace TrenchBroom {
         
         template <typename T>
         bool set(Preference<T>& preference, const T& value) {
-            ensure(wxThread::IsMain(), "PreferenceManager can only be used on the main thread");
+            ensure(qApp->thread() == QThread::currentThread(), "PreferenceManager can only be used on the main thread");
 
             const T previousValue = preference.value();
             if (previousValue == value)
@@ -76,7 +80,7 @@ namespace TrenchBroom {
             
             preference.setValue(value);
             if (saveInstantly()) {
-                preference.save(wxConfig::Get());
+                preference.save();
                 preferenceDidChangeNotifier(preference.path());
             } else {
                 markAsUnsaved(&preference);

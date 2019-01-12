@@ -40,6 +40,7 @@
 
 class QMenu;
 class QShortcut;
+class QString;
 
 namespace TrenchBroom {
     class Logger;
@@ -71,11 +72,11 @@ namespace TrenchBroom {
         
         class MapViewBase : public MapView, public RenderView, public ToolBoxConnector, public CameraLinkableView {
         public:
-            static const wxString &glRendererString();
-            static const wxString &glVendorString();
-            static const wxString &glVersionString();
+            static const QString& glRendererString();
+            static const QString& glVendorString();
+            static const QString& glVersionString();
         protected:
-            static const wxLongLong DefaultCameraAnimationDuration;
+            static const int DefaultCameraAnimationDuration;
             
             Logger* m_logger;
             MapDocumentWPtr m_document;
@@ -261,19 +262,18 @@ namespace TrenchBroom {
             void doShowPopupMenu() override;
             QMenu* makeEntityGroupsMenu(Assets::EntityDefinition::Type type, int id);
             
-            void OnUpdatePopupMenuItem(wxUpdateUIEvent& event);
-            void updateGroupObjectsMenuItem(wxUpdateUIEvent& event) const;
-            void updateUngroupObjectsMenuItem(wxUpdateUIEvent& event) const;
-            void updateMergeGroupsMenuItem(wxUpdateUIEvent& event) const;
-            void updateRenameGroupsMenuItem(wxUpdateUIEvent& event) const;
-            void updateMoveBrushesToWorldMenuItem(wxUpdateUIEvent& event) const;
+            void OnUpdatePopupMenuItem();
+            void updateGroupObjectsMenuItem() const;
+            void updateUngroupObjectsMenuItem() const;
+            void updateMergeGroupsMenuItem() const;
+            void updateRenameGroupsMenuItem() const;
+            void updateMoveBrushesToWorldMenuItem() const;
         private: // subclassing interface
             virtual vm::vec3 doGetMoveDirection(vm::direction direction) const = 0;
             virtual vm::vec3 doComputePointEntityPosition(const vm::bbox3& bounds) const = 0;
 
             virtual ActionContext doGetActionContext() const = 0;
             virtual ActionView doGetActionView() const = 0;
-            virtual wxAcceleratorTable doCreateAccelerationTable(ActionContext context) const = 0;
             virtual bool doCancel() = 0;
             
             virtual Renderer::RenderContext::RenderMode doGetRenderMode() = 0;

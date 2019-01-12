@@ -192,36 +192,36 @@ namespace TrenchBroom {
             }
         }
         
-        void MapView3D::OnPerformCreateBrush(wxCommandEvent& event) {
+        void MapView3D::OnPerformCreateBrush() {
             if (m_toolBox.createComplexBrushToolActive())
                 m_toolBox.performCreateComplexBrush();
         }
 
-        void MapView3D::OnMoveTexturesUp(wxCommandEvent& event) {
+        void MapView3D::OnMoveTexturesUp() {
             moveTextures(vm::vec2f(0.0f, moveTextureDistance()));
         }
         
-        void MapView3D::OnMoveTexturesDown(wxCommandEvent& event) {
+        void MapView3D::OnMoveTexturesDown() {
             moveTextures(vm::vec2f(0.0f, -moveTextureDistance()));
         }
         
-        void MapView3D::OnMoveTexturesLeft(wxCommandEvent& event) {
+        void MapView3D::OnMoveTexturesLeft() {
             moveTextures(vm::vec2f(-moveTextureDistance(), 0.0f));
         }
         
-        void MapView3D::OnMoveTexturesRight(wxCommandEvent& event) {
+        void MapView3D::OnMoveTexturesRight() {
             moveTextures(vm::vec2f(moveTextureDistance(), 0.0f));
         }
         
-        void MapView3D::OnRotateTexturesCW(wxCommandEvent& event) {
+        void MapView3D::OnRotateTexturesCW() {
             rotateTextures(rotateTextureAngle(true));
         }
         
-        void MapView3D::OnRotateTexturesCCW(wxCommandEvent& event) {
+        void MapView3D::OnRotateTexturesCCW() {
             rotateTextures(rotateTextureAngle(false));
         }
 
-        void MapView3D::OnResetZoom(wxCommandEvent& event) {
+        void MapView3D::OnResetZoom() {
             m_camera.setZoom(1.0f);
         }
 
@@ -279,9 +279,11 @@ namespace TrenchBroom {
             MapViewBase::focusOutEvent(event);
         }
 
-        void MapView3D::OnActivateFrame(wxActivateEvent& event) {
+        void MapView3D::OnActivateFrame() {
+            // FIXME: Hook up OnActivateFrame?
+
             m_flyModeHelper->resetKeys();
-            event.Skip();
+            //event.Skip();
         }
 
         PickRequest MapView3D::doGetPickRequest(const int x, const int y) const {
@@ -474,7 +476,7 @@ namespace TrenchBroom {
             }
         }
         
-        void MapView3D::animateCamera(const vm::vec3f& position, const vm::vec3f& direction, const vm::vec3f& up, const wxLongLong duration) {
+        void MapView3D::animateCamera(const vm::vec3f& position, const vm::vec3f& direction, const vm::vec3f& up, const int duration) {
             CameraAnimation* animation = new CameraAnimation(m_camera, position, direction, up, duration);
             m_animationManager->runAnimation(animation, true);
         }
@@ -552,11 +554,6 @@ namespace TrenchBroom {
             return ActionView_Map3D;
         }
 
-        wxAcceleratorTable MapView3D::doCreateAccelerationTable(ActionContext context) const {
-            ActionManager& actionManager = ActionManager::instance();
-            return actionManager.createViewAcceleratorTable(context, ActionView_Map3D);
-        }
-        
         bool MapView3D::doCancel() {
             return false;
         }

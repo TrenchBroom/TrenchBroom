@@ -70,16 +70,16 @@ namespace TrenchBroom {
 
             void OnFrameSwapped();
 
-            void OnPerformCreateBrush(wxCommandEvent& event);
+            void OnPerformCreateBrush();
 
-            void OnMoveTexturesUp(wxCommandEvent& event);
-            void OnMoveTexturesDown(wxCommandEvent& event);
-            void OnMoveTexturesLeft(wxCommandEvent& event);
-            void OnMoveTexturesRight(wxCommandEvent& event);
-            void OnRotateTexturesCW(wxCommandEvent& event);
-            void OnRotateTexturesCCW(wxCommandEvent& event);
+            void OnMoveTexturesUp();
+            void OnMoveTexturesDown();
+            void OnMoveTexturesLeft();
+            void OnMoveTexturesRight();
+            void OnRotateTexturesCW();
+            void OnRotateTexturesCCW();
 
-            void OnResetZoom(wxCommandEvent& event);
+            void OnResetZoom();
 
             float moveTextureDistance() const;
             void moveTextures(const vm::vec2f& offset);
@@ -87,7 +87,7 @@ namespace TrenchBroom {
             void rotateTextures(float angle);
         private: // other events
 
-            void OnActivateFrame(wxActivateEvent& event);
+            void OnActivateFrame();
         private: // implement ToolBoxConnector interface
             PickRequest doGetPickRequest(int x, int y) const override;
             Model::PickResult doPick(const vm::ray3& pickRay) const override;
@@ -106,7 +106,7 @@ namespace TrenchBroom {
             vm::vec3 focusCameraOnObjectsPosition(const Model::NodeList& nodes);
 
             void doMoveCameraToPosition(const vm::vec3& position, bool animate) override;
-            void animateCamera(const vm::vec3f& position, const vm::vec3f& direction, const vm::vec3f& up, const wxLongLong duration = DefaultCameraAnimationDuration);
+            void animateCamera(const vm::vec3f& position, const vm::vec3f& direction, const vm::vec3f& up, const int duration = DefaultCameraAnimationDuration);
             
             void doMoveCameraToCurrentTracePoint() override;
         private: // implement MapViewBase interface
@@ -115,7 +115,6 @@ namespace TrenchBroom {
             
             ActionContext doGetActionContext() const override;
             ActionView doGetActionView() const override;
-            wxAcceleratorTable doCreateAccelerationTable(ActionContext context) const override;
             bool doCancel() override;
             
             Renderer::RenderContext::RenderMode doGetRenderMode() override;

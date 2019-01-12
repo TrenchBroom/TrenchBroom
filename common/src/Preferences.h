@@ -23,14 +23,10 @@
 #include "TrenchBroom.h"
 #include "Color.h"
 #include "Preference.h"
-#include "PreferenceManager.h"
+#include "IO/Path.h"
 #include "View/KeyboardShortcut.h"
-#include "View/MapViewLayout.h"
-#include "View/ViewShortcut.h"
 
 #include <vecmath/util.h>
-
-#include <vector>
 
 namespace TrenchBroom {
     namespace Preferences {

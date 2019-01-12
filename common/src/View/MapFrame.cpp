@@ -1456,11 +1456,9 @@ namespace TrenchBroom {
         }
 
         void MapFrame::preferenceDidChange(const IO::Path& path) {
-            const ActionManager& actionManager = ActionManager::instance();
-            if (actionManager.isMenuShortcutPreference(path)) {
-                rebuildMenuBar();
-            } else if (path == Preferences::MapViewLayout.path())
+            if (path == Preferences::MapViewLayout.path()) {
                 m_mapView->switchToMapView(static_cast<MapViewLayout>(pref(Preferences::MapViewLayout)));
+            }
         }
 
         void MapFrame::gridDidChange() {
@@ -1732,17 +1730,15 @@ namespace TrenchBroom {
 
         void MapFrame::OnEditSelectByLineNumber() {
             if (canSelect()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
-                const auto qstring = QInputDialog::getText(this, "Select by Line Numbers", "Enter a comma- or space separated list of line numbers.");
-                const auto string = qstring.toStdString();
-                if (string.empty())
+                const auto string = QInputDialog::getText(this, "Select by Line Numbers", "Enter a comma- or space separated list of line numbers.");
+                if (string.isEmpty())
                     return;
 
                 std::vector<size_t> positions;
-                wxStringTokenizer tokenizer(string, ", ");
-                while (tokenizer.HasMoreTokens()) {
-                    const wxString token = tokenizer.NextToken();
-                    long position;
-                    if (token.ToLong(&position) && position > 0) {
+                for (const QString& token : string.split(", ")) {
+                    bool ok;
+                    long position = token.toLong(&ok);
+                    if (ok && position > 0) {
                         positions.push_back(static_cast<size_t>(position));
                     }
                 }
@@ -2063,8 +2059,9 @@ namespace TrenchBroom {
         void MapFrame::OnDebugCopyJSShortcutMap() {
             QClipboard *clipboard = QApplication::clipboard();
 
-            const String str = ActionManager::instance().getJSTable();
-            clipboard->setText(QString::fromStdString(str));
+            // FIXME: reimplement
+//            const String str = ActionManager::instance().getJSTable();
+//            clipboard->setText(QString::fromStdString(str));
         }
 
 #ifdef __clang__

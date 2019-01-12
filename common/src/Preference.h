@@ -25,297 +25,153 @@
 #include "Macros.h"
 #include "StringUtils.h"
 #include "IO/Path.h"
-#include "View/KeyboardShortcut.h"
 
 #include <memory>
 
-#include <wx/config.h>
-#include <wx/confbase.h>
-#include <wx/thread.h>
-#include <wx/tokenzr.h>
-#include <wx/thread.h>
+#include <QApplication>
+#include <QSettings>
+#include <QThread>
+#include <QKeySequence>
 
 namespace TrenchBroom {
     template <typename T>
     class PreferenceSerializer {
     public:
-        bool read(wxConfigBase* config, const IO::Path& path, T& result) const { return false; }
-        bool write(wxConfigBase* config, const IO::Path& path, const T& value) const { return false; }
+        bool read(QSettings* config, const QString& path, T& result) const { return false; }
+        void write(QSettings* config, const QString& path, const T& value) const {}
     };
     
     template <>
     class PreferenceSerializer<bool> {
     public:
-        bool read(wxConfigBase* config, const IO::Path& path, bool& result) const {
-            wxString string;
-            if (config->Read(path.asString('/'), &string)) {
-                long longValue = 0;
-                if (string.ToLong(&longValue)) {
-                    result = longValue != 0L;
-                    return true;
-                }
+        bool read(QSettings* config, const QString& path, bool& result) const {
+            const QVariant value = config->value(path);
+            if (!value.isValid()) {
+                return false;
             }
-            return false;
+            result = value.toBool();
+            return true;
         }
         
-        bool write(wxConfigBase* config, const IO::Path& path, const bool& value) const {
-            wxString str;
-            str << (value ? 1 : 0);
-            return config->Write(path.asString('/'), str);
+        void write(QSettings* config, const QString& path, const bool& value) const {
+            config->setValue(path, QVariant(value));
         }
     };
     
     template <>
     class PreferenceSerializer<int> {
     public:
-        bool read(wxConfigBase* config, const IO::Path& path, int& result) const {
-            wxString string;
-            if (config->Read(path.asString('/'), &string)) {
-                long longValue = 0;
-                if (string.ToLong(&longValue) && longValue >= std::numeric_limits<int>::min() && longValue <= std::numeric_limits<int>::max()) {
-                    result = static_cast<int>(longValue);
-                    return true;
-                }
-            }
-            return false;
+        bool read(QSettings* config, const QString& path, int& result) const {
+            const QVariant value = config->value(path);
+            bool ok = false;
+            result = value.toInt(&ok);
+            return ok;
         }
         
-        bool write(wxConfigBase* config, const IO::Path& path, const int& value) const {
-            wxString str;
-            str << value;
-            return config->Write(path.asString('/'), str);
+        void write(QSettings* config, const QString& path, const int& value) const {
+            config->setValue(path, QVariant(value));
         }
     };
     
     template <>
     class PreferenceSerializer<float> {
     public:
-        bool read(wxConfigBase* config, const IO::Path& path, float& result) const {
-            wxString string;
-            if (config->Read(path.asString('/'), &string)) {
-                double doubleValue = 0.0;
-                if (string.ToDouble(&doubleValue) && doubleValue >= std::numeric_limits<float>::min() && doubleValue <= std::numeric_limits<float>::max()) {
-                    result = static_cast<float>(doubleValue);
-                    return true;
-                }
-            }
-            return false;
+        bool read(QSettings* config, const QString& path, float& result) const {
+            const QVariant value = config->value(path);
+            bool ok = false;
+            result = value.toFloat(&ok);
+            return ok;
         }
         
-        bool write(wxConfigBase* config, const IO::Path& path, const float& value) const {
-            wxString str;
-            str << value;
-            return config->Write(path.asString('/'), str);
+        void write(QSettings* config, const QString& path, const float& value) const {
+            config->setValue(path, QVariant(value));
         }
     };
     
     template <>
     class PreferenceSerializer<double> {
     public:
-        bool read(wxConfigBase* config, const IO::Path& path, double& result) const {
-            wxString string;
-            if (config->Read(path.asString('/'), &string)) {
-                double doubleValue = 0.0;
-                if (string.ToDouble(&doubleValue)) {
-                    result = doubleValue;
-                    return true;
-                }
-            }
-            return false;
+        bool read(QSettings* config, const QString& path, double& result) const {
+            const QVariant value = config->value(path);
+            bool ok = false;
+            result = value.toDouble(&ok);
+            return ok;
         }
         
-        bool write(wxConfigBase* config, const IO::Path& path, const double& value) const {
-            wxString str;
-            str << value;
-            return config->Write(path.asString('/'), str);
+        void write(QSettings* config, const QString& path, const double& value) const {
+            config->setValue(path, QVariant(value));
         }
     };
     
     template <>
     class PreferenceSerializer<String> {
     public:
-        bool read(wxConfigBase* config, const IO::Path& path, String& result) const {
-            wxString string;
-            if (config->Read(path.asString('/'), &string)) {
-                result = string.ToStdString();
-                return true;
+        bool read(QSettings* config, const QString& path, String& result) const {
+            const QVariant value = config->value(path);
+            if (!value.isValid()) {
+                return false;
             }
-            return false;
+            result = value.toString().toStdString();
+            return true;
         }
         
-        bool write(wxConfigBase* config, const IO::Path& path, const String& value) const {
-            return config->Write(path.asString('/'), wxString(value));
+        void write(QSettings* config, const QString& path, const String& value) const {
+            config->setValue(path, QVariant(QString::fromStdString(value)));
         }
     };
     
     template <>
     class PreferenceSerializer<Color> {
     public:
-        bool read(wxConfigBase* config, const IO::Path& path, Color& result) const {
-            wxString string;
-            if (config->Read(path.asString('/'), &string)) {
-                result = Color::parse(string.ToStdString());
-                return true;
+        bool read(QSettings* config, const QString& path, Color& result) const {
+            const QVariant value = config->value(path);
+            if (!value.isValid()) {
+                return false;
             }
-            return false;
+            result = Color::parse(value.toString().toStdString());
+            return true;
         }
         
-        bool write(wxConfigBase* config, const IO::Path& path, const Color& value) const {
-            return config->Write(path.asString('/'), wxString(StringUtils::toString(value)));
+        void write(QSettings* config, const QString& path, const Color& value) const {
+            config->setValue(path, QVariant(QString::fromStdString(StringUtils::toString(value))));
         }
     };
     
     template<>
-    class PreferenceSerializer<View::KeyboardShortcut> {
+    class PreferenceSerializer<QKeySequence> {
     public:
-        bool read(wxConfigBase* config, const IO::Path& path, View::KeyboardShortcut& result) const {
-            wxString string;
-            if (config->Read(path.asString('/'), &string)) {
-                result = View::KeyboardShortcut(string);
-                return true;
+        bool read(QSettings* config, const QString& path, QKeySequence& result) const {
+            const QVariant value = config->value(path);
+            if (!value.isValid()) {
+                return false;
             }
-            return false;
+            // FIXME: Parse the old wxWidgets format too
+            result = QKeySequence::fromString(value.toString(), QKeySequence::PortableText);
+            return true;
         }
         
-        bool write(wxConfigBase* config, const IO::Path& path, const View::KeyboardShortcut& value) const {
-            return config->Write(path.asString('/'), wxString(value.asString()));
+        void write(QSettings* config, const QString& path, const QKeySequence& value) const {
+            config->setValue(path, QVariant(value.toString(QKeySequence::PortableText)));
         }
     };
     
     template<>
     class PreferenceSerializer<IO::Path> {
     public:
-        bool read(wxConfigBase* config, const IO::Path& path, IO::Path& result) const {
-            wxString string;
-            if (config->Read(path.asString('/'), &string)) {
-                result = IO::Path(string.ToStdString());
-                return true;
-            }
-            return false;
-        }
-        
-        bool write(wxConfigBase* config, const IO::Path& path, const IO::Path& value) const {
-            return config->Write(path.asString('/'), wxString(value.asString()));
-        }
-    };
-
-    template<typename S>
-    class PreferenceSerializer<std::vector<S> > {
-    private:
-        PreferenceSerializer<S> m_serializer;
-    public:
-        bool read(wxConfigBase* config, const IO::Path& path, std::vector<S>& result) const {
-            const wxString wxPath(path.asString('/'));
-            if (!config->Exists(wxPath))
+        bool read(QSettings* config, const QString& path, IO::Path& result) const {
+            const QVariant value = config->value(path);
+            if (!value.isValid()) {
                 return false;
-            
-            const wxString oldPath = config->GetPath();
-            config->SetPath(wxPath);
-
-            bool success = true;
-            std::vector<S> temp;
-
-            wxString name;
-            long index;
-            if (config->GetFirstEntry(name, index)) {
-                do {
-                    S value;
-                    success = m_serializer.read(config, IO::Path(name.ToStdString()), value);
-                    if (success)
-                        temp.push_back(value);
-                } while (success && config->GetNextEntry(name, index));
             }
-            
-            config->SetPath(oldPath);
-            
-            using std::swap;
-            if (success)
-                swap(result, temp);
-            return success;
-        }
-
-        bool write(wxConfigBase* config, const IO::Path& path, const std::vector<S>& values) const {
-            const wxString oldPath = config->GetPath();
-            config->DeleteGroup(path.asString('/'));
-            config->SetPath(path.asString('/'));
-
-            for (size_t i = 0; i < values.size(); ++i) {
-                wxString name;
-                name << i;
-                m_serializer.write(config, IO::Path(name.ToStdString()), values[i]);
-            }
-            
-            config->SetPath(oldPath);
+            result = IO::Path(value.toString().toStdString());
             return true;
         }
-    };
-    
-    template<typename S>
-    class PreferenceSerializer<std::map<String, S> > {
-    private:
-        PreferenceSerializer<S> m_serializer;
-    public:
-        bool read(wxConfigBase* config, const IO::Path& path, std::map<String, S>& result) const {
-            const wxString oldPath = config->GetPath();
-            config->SetPath(path.asString('/'));
-            
-            bool success = true;
-            std::map<String, S> temp;
-            
-            wxString name;
-            long index;
-            if (config->GetFirstEntry(name, index)) {
-                do {
-                    const String nameStr = name.ToStdString();
-                    S value;
-                    success = m_serializer.read(config, IO::Path(nameStr), value);
-                    if (success)
-                        temp[nameStr] = value;
-                } while (success && config->GetNextEntry(name, index));
-            }
-            
-            config->SetPath(oldPath);
-            
-            using std::swap;
-            if (success)
-                swap(result, temp);
-            return success;
-        }
         
-        bool write(wxConfigBase* config, const IO::Path& path, const std::map<String, S>& values) const {
-            const wxString oldPath = config->GetPath();
-            config->DeleteGroup(path.asString('/'));
-            config->SetPath(path.asString('/'));
-            
-            for (const auto& entry : values) {
-                const String& name = entry.first;
-                const S& value = entry.second;
-                m_serializer.write(config, IO::Path(name), value);
-            }
-            
-            config->SetPath(oldPath);
-            return true;
+        void write(QSettings* config, const QString& path, const IO::Path& value) const {
+            config->setValue(path, QVariant(QString::fromStdString(value.asString())));
         }
     };
 
-    class ValueHolderBase {
-    public:
-        typedef std::unique_ptr<ValueHolderBase> UPtr;
-    };
-    
-    template <typename T>
-    class ValueHolder : public ValueHolderBase {
-    private:
-        T m_value;
-    public:
-        ValueHolder(T value) :
-        m_value(value) {}
-        
-        const T& value() const {
-            return m_value;
-        }
-    };
-    
     class PreferenceBase {
     public:
         typedef std::set<const PreferenceBase*> Set;
@@ -326,10 +182,9 @@ namespace TrenchBroom {
         
         PreferenceBase& operator=(const PreferenceBase& other) { return *this; }
         
-        virtual void load(wxConfigBase* config) const = 0;
-        virtual void save(wxConfigBase* config) = 0;
+        virtual void load() const = 0;
+        virtual void save() = 0;
         virtual void resetToPrevious() = 0;
-        virtual void setValue(const ValueHolderBase* valueHolder) = 0;
 
         bool operator==(const PreferenceBase& other) const {
             return this == &other;
@@ -360,33 +215,32 @@ namespace TrenchBroom {
             }
             m_value = value;
         }
-
-        void setValue(const ValueHolderBase* valueHolder) override {
-            const ValueHolder<T>* actualValueHolder = static_cast<const ValueHolder<T>*>(valueHolder);
-            setValue(actualValueHolder->value());
-        }
         
         bool initialized() const {
             return m_initialized;
         }
         
-        void load(wxConfigBase* config) const override {
-            ensure(wxThread::IsMain(), "wxConfig can only be used on the main thread");
+        void load() const override {
+            ensure(qApp->thread() == QThread::currentThread(), "PreferenceManager can only be used on the main thread");
+
+            QSettings settings;
 
             using std::swap;
             T temp;
-            if (m_serializer.read(config, m_path, temp)) {
+            if (m_serializer.read(&settings, m_path.asQString('/'), temp)) {
                 std::swap(m_value, temp);
                 m_previousValue = m_value;
             }
             m_initialized = true;
         }
         
-        void save(wxConfigBase* config) override {
-            ensure(wxThread::IsMain(), "wxConfig can only be used on the main thread");
+        void save() override {
+            ensure(qApp->thread() == QThread::currentThread(), "PreferenceManager can only be used on the main thread");
 
             if (m_modified) {
-                assertResult(m_serializer.write(config, m_path, m_value));
+                QSettings settings;
+
+                m_serializer.write(&settings, m_path.asQString('/'), m_value);
                 m_modified = false;
                 m_previousValue = m_value;
             }

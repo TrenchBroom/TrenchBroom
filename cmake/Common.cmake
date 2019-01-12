@@ -267,9 +267,9 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/TrenchBroomStackWalker.cpp
 	${COMMON_SOURCE_DIR}/View/AboutDialog.cpp
 	${COMMON_SOURCE_DIR}/View/ActionContext.cpp
-	${COMMON_SOURCE_DIR}/View/Action.cpp
+#	${COMMON_SOURCE_DIR}/View/Action.cpp
 	${COMMON_SOURCE_DIR}/View/ActionList.cpp
-	${COMMON_SOURCE_DIR}/View/ActionManager.cpp
+#	${COMMON_SOURCE_DIR}/View/ActionManager.cpp
 	${COMMON_SOURCE_DIR}/View/AddBrushVerticesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/AddRemoveNodesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/Animation.cpp
@@ -373,13 +373,13 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/Inspector.cpp
 	${COMMON_SOURCE_DIR}/View/IssueBrowser.cpp
 	${COMMON_SOURCE_DIR}/View/IssueBrowserView.cpp
-	${COMMON_SOURCE_DIR}/View/KeyboardGridCellEditor.cpp
+#	${COMMON_SOURCE_DIR}/View/KeyboardGridCellEditor.cpp
 #	${COMMON_SOURCE_DIR}/View/KeyboardPreferencePane.cpp
 	${COMMON_SOURCE_DIR}/View/KeyboardShortcut.cpp
-	${COMMON_SOURCE_DIR}/View/KeyboardShortcutEditor.cpp
-	${COMMON_SOURCE_DIR}/View/KeyboardShortcutEntry.cpp
-	${COMMON_SOURCE_DIR}/View/KeyboardShortcutEvent.cpp
-	${COMMON_SOURCE_DIR}/View/KeyboardShortcutGridTable.cpp
+#	${COMMON_SOURCE_DIR}/View/KeyboardShortcutEditor.cpp
+#	${COMMON_SOURCE_DIR}/View/KeyboardShortcutEntry.cpp
+#	${COMMON_SOURCE_DIR}/View/KeyboardShortcutEvent.cpp
+#	${COMMON_SOURCE_DIR}/View/KeyboardShortcutGridTable.cpp
 	${COMMON_SOURCE_DIR}/View/Lasso.cpp
 #	${COMMON_SOURCE_DIR}/View/LaunchGameEngineDialog.cpp
 #	${COMMON_SOURCE_DIR}/View/LayerEditor.cpp
@@ -398,7 +398,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/MapViewContainer.cpp
 	${COMMON_SOURCE_DIR}/View/MapView.cpp
 	${COMMON_SOURCE_DIR}/View/MapViewToolBox.cpp
-	${COMMON_SOURCE_DIR}/View/Menu.cpp
+#	${COMMON_SOURCE_DIR}/View/Menu.cpp
 #	${COMMON_SOURCE_DIR}/View/ModEditor.cpp
 #	${COMMON_SOURCE_DIR}/View/MousePreferencePane.cpp
 	${COMMON_SOURCE_DIR}/View/MoveBrushEdgesCommand.cpp
@@ -503,7 +503,7 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/ViewEditor.cpp
 	${COMMON_SOURCE_DIR}/View/ViewEffectsService.cpp
 #	${COMMON_SOURCE_DIR}/View/ViewPreferencePane.cpp
-	${COMMON_SOURCE_DIR}/View/ViewShortcut.cpp
+#	${COMMON_SOURCE_DIR}/View/ViewShortcut.cpp
 	${COMMON_SOURCE_DIR}/View/ViewUtils.cpp
 	${COMMON_SOURCE_DIR}/View/WelcomeFrame.cpp
 	${COMMON_SOURCE_DIR}/View/wxKeyStrings.cpp
@@ -840,7 +840,7 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/ActionContext.h
 	${COMMON_SOURCE_DIR}/View/Action.h
 	${COMMON_SOURCE_DIR}/View/ActionList.h
-	${COMMON_SOURCE_DIR}/View/ActionManager.h
+#	${COMMON_SOURCE_DIR}/View/ActionManager.h
 	${COMMON_SOURCE_DIR}/View/AddBrushVerticesCommand.h
 	${COMMON_SOURCE_DIR}/View/AddRemoveNodesCommand.h
 	${COMMON_SOURCE_DIR}/View/AnimationCurve.h
