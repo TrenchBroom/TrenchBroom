@@ -95,7 +95,7 @@ namespace TrenchBroom {
         m_logger(logger),
         m_document(document),
         m_toolBox(toolBox),
-        m_animationManager(new AnimationManager()),
+        m_animationManager(new AnimationManager(this)),
         m_renderer(renderer),
         m_compass(nullptr),
         m_portalFileRenderer(nullptr) {
@@ -122,7 +122,6 @@ namespace TrenchBroom {
 
             m_toolBox.removeWindow(this);
             unbindObservers();
-            m_animationManager->Delete();
             delete m_compass;
         }
 
@@ -766,11 +765,8 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::doFlashSelection() {
-            // FIXME: animation
-#if 0
-            FlashSelectionAnimation* animation = new FlashSelectionAnimation(m_renderer, *this, 180);
+            FlashSelectionAnimation* animation = new FlashSelectionAnimation(m_renderer, this, 180);
             m_animationManager->runAnimation(animation, true);
-#endif
         }
 
         bool MapViewBase::doGetIsCurrent() const {

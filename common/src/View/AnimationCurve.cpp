@@ -31,11 +31,11 @@ namespace TrenchBroom {
             return progress;
         }
 
-        EaseInEaseOutAnimationCurve::EaseInEaseOutAnimationCurve(const wxLongLong duration) {
+        EaseInEaseOutAnimationCurve::EaseInEaseOutAnimationCurve(const double duration) {
             if (duration < 100 + 100)
                 m_threshold = 0.5;
             else
-                m_threshold = 100.0 / duration.ToDouble();
+                m_threshold = 100.0 / duration;
         }
         
         double EaseInEaseOutAnimationCurve::doApply(const double progress) const {

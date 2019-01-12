@@ -26,8 +26,8 @@
 #include <map>
 #include <vector>
 
-#include <wx/longlong.h>
-#include <wx/thread.h>
+#include <QTimer>
+#include <QElapsedTimer>
 
 namespace TrenchBroom {
     namespace View {
@@ -50,42 +50,45 @@ namespace TrenchBroom {
             const Type m_type;
             const AnimationCurve* m_curve;
             
-            const wxLongLong m_duration;
-            wxLongLong m_elapsed;
+            const double m_duration;
+            double m_elapsed;
             double m_progress;
         public:
             static Type freeType();
 
-            Animation(Type type, Curve curve, wxLongLong duration);
+            Animation(Type type, Curve curve, double duration);
             virtual ~Animation();
             
             Type type() const;
-            bool step(wxLongLong delta);
+            /**
+             * Advances the animation by the given number of milliseconds.
+             * @return true if the animation is finished.
+             */
+            bool step(double deltaMilliseconds);
             void update();
         private:
             virtual void doUpdate(double progress) = 0;
         };
-        
-        class ExecutableAnimation : public ExecutableEvent::Executable {
+
+        class AnimationManager : public QObject {
+            Q_OBJECT
         private:
-            Animation::List m_animations;
-        public:
-            ExecutableAnimation(const Animation::List& animations);
+            static const int AnimationUpdateRateHz;
         private:
-            void execute() override;
-        };
-        
-        class AnimationManager : public wxThread {
-        private:
+            /**
+             * To measure how much time to run the animation for in onTimerTick()
+             */
+            QElapsedTimer m_elapsedTimer;
+            QTimer* m_timer;
             typedef std::map<Animation::Type, Animation::List> AnimationMap;
             
             AnimationMap m_animations;
-            wxLongLong m_lastTime;
         public:
-            AnimationManager();
+            explicit AnimationManager(QObject* parent);
             void runAnimation(Animation* animation, bool replace);
+
         private:
-            ExitCode Entry() override;
+            void onTimerTick();
         };
     }
 }

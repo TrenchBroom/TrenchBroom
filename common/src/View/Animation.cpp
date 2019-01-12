@@ -29,12 +29,14 @@
 
 namespace TrenchBroom {
     namespace View {
+        // Animation
+
         Animation::Type Animation::freeType() {
             static Type type = 0;
             return type++;
         }
         
-        Animation::Animation(const Type type, const Curve curve, const wxLongLong duration) :
+        Animation::Animation(const Type type, const Curve curve, const double duration) :
         m_type(type),
         m_curve(nullptr),
         m_duration(duration),
@@ -60,27 +62,27 @@ namespace TrenchBroom {
             return m_type;
         }
         
-        bool Animation::step(const wxLongLong delta) {
+        bool Animation::step(const double delta) {
             m_elapsed = std::min(m_elapsed + delta, m_duration);
-            m_progress = m_elapsed.ToDouble() / m_duration.ToDouble();
+            m_progress = m_elapsed / m_duration;
             return m_elapsed >= m_duration;
         }
         
         void Animation::update() {
             doUpdate(m_progress);
         }
-        
-        ExecutableAnimation::ExecutableAnimation(const Animation::List& animations) :
-        m_animations(animations) {}
-        
-        void ExecutableAnimation::execute() {
-            for (Animation::Ptr animation : m_animations)
-                animation->update();
-        }
-        
-        AnimationManager::AnimationManager() :
-        m_lastTime(wxGetLocalTimeMillis()) {
-            Run();
+
+        // AnimationManager
+
+        /**
+         * Make the animations nice and smooth even on 240Hz monitors.
+         */
+        const int AnimationManager::AnimationUpdateRateHz = 250;
+
+        AnimationManager::AnimationManager(QObject* parent) :
+        QObject(parent) {
+            m_timer = new QTimer(this);
+            connect(m_timer, &QTimer::timeout, this, &AnimationManager::onTimerTick);
         }
         
         void AnimationManager::runAnimation(Animation* animation, const bool replace) {
@@ -90,45 +92,49 @@ namespace TrenchBroom {
             if (replace)
                 list.clear();
             list.push_back(Animation::Ptr(animation));
-        }
-        
-        wxThread::ExitCode AnimationManager::Entry() {
-            while (!TestDestroy()) {
-                const wxLongLong elapsed = wxGetLocalTimeMillis() - m_lastTime;
-                
-                Animation::List updateAnimations;
-                if (!m_animations.empty()) {
-                    auto mapIt = std::begin(m_animations);
-                    while (mapIt != std::end(m_animations)) {
-                        Animation::List& list = mapIt->second;
-                        auto listIt = std::begin(list);
-                        while (listIt != std::end(list)) {
-                            Animation::Ptr animation = *listIt;
-                            if (animation->step(elapsed))
-                                listIt = list.erase(listIt);
-                            updateAnimations.push_back(animation);
-                            if (listIt != std::end(list))
-                                ++listIt;
-                        }
-                        
-                        if (list.empty())
-                            m_animations.erase(mapIt++);
-                        else
-                            ++mapIt;
-                    }
-                }
-                m_lastTime += elapsed;
-                
-                if (!TestDestroy() && wxTheApp != nullptr && !updateAnimations.empty()) {
-                    ExecutableEvent::Executable::Ptr executable(new ExecutableAnimation(updateAnimations));
-                    ExecutableEvent* event = new ExecutableEvent(executable);
-                    wxTheApp->QueueEvent(event);
-                }
-                
-                Sleep(20);
+
+            // start the ticks if needed
+            if (!m_timer->isActive()) {
+                assert(!m_elapsedTimer.isValid());
+                m_elapsedTimer.start();
+
+                m_timer->start(1000 / AnimationUpdateRateHz);
             }
-            
-            return static_cast<ExitCode>(nullptr);
+        }
+
+        void AnimationManager::onTimerTick() {
+            assert(m_elapsedTimer.isValid());
+            const double msElapsed = static_cast<double>(m_elapsedTimer.restart());
+
+            // advance the animation times
+            Animation::List updateAnimations;
+            if (!m_animations.empty()) {
+                auto mapIt = std::begin(m_animations);
+                while (mapIt != std::end(m_animations)) {
+                    Animation::List& list = mapIt->second;
+                    auto listIt = std::begin(list);
+                    while (listIt != std::end(list)) {
+                        Animation::Ptr animation = *listIt;
+                        if (animation->step(msElapsed))
+                            listIt = list.erase(listIt);
+                        animation->update();
+                        updateAnimations.push_back(animation);
+                        if (listIt != std::end(list))
+                            ++listIt;
+                    }
+
+                    if (list.empty())
+                        m_animations.erase(mapIt++);
+                    else
+                        ++mapIt;
+                }
+            }
+
+            // stop the animations if all are finished
+            if (m_animations.empty()) {
+                m_elapsedTimer.invalidate();
+                m_timer->stop();
+            }
         }
     }
 }

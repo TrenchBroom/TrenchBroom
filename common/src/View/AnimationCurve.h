@@ -41,7 +41,7 @@ namespace TrenchBroom {
         private:
             double m_threshold;
         public:
-            EaseInEaseOutAnimationCurve(wxLongLong duration);
+            EaseInEaseOutAnimationCurve(double duration);
             double doApply(double progress) const override;
         };
     }
