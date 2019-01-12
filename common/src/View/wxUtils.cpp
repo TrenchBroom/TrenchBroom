@@ -27,20 +27,13 @@
 #include "View/MapFrame.h"
 #include "View/ViewConstants.h"
 
-#include <wx/bitmap.h>
-#include <wx/frame.h>
-#include <wx/listctrl.h>
-#include <wx/settings.h>
-#include <wx/sizer.h>
-#include <wx/stattext.h>
-#include <wx/tglbtn.h>
-#include <wx/window.h>
-
 #include <list>
 #include <cstdlib>
 
 namespace TrenchBroom {
     namespace View {
+        // FIXME: Port this stuff as needed
+#if 0
         MapFrame* findMapFrame(wxWindow* window) {
             // FIXME:
             return nullptr;//wxDynamicCast(findFrame(window), MapFrame);
@@ -66,15 +59,14 @@ namespace TrenchBroom {
                 result = color.ChangeLightness(70);
             return result;
         }
-
-        Color fromWxColor(const wxColor& color) {
-            const float r = static_cast<float>(color.Red())   / 255.0f;
-            const float g = static_cast<float>(color.Green()) / 255.0f;
-            const float b = static_cast<float>(color.Blue())  / 255.0f;
-            const float a = static_cast<float>(color.Alpha()) / 255.0f;
-            return Color(r, g, b, a);
+#endif
+        Color fromQColor(const QColor& color) {
+            return Color(static_cast<float>(color.redF()),
+                         static_cast<float>(color.greenF()),
+                         static_cast<float>(color.blueF()),
+                         static_cast<float>(color.alphaF()));
         }
-
+#if 0
         wxColor toWxColor(const Color& color) {
             const unsigned char r = static_cast<unsigned char>(color.r() * 255.0f);
             const unsigned char g = static_cast<unsigned char>(color.g() * 255.0f);
@@ -159,17 +151,14 @@ namespace TrenchBroom {
             return vSizer;
         }
 #endif
+#endif
 
-        void setWindowIcon(wxTopLevelWindow* window) {
+        void setWindowIcon(QWidget* window) {
             ensure(window != nullptr, "window is null");
-            window->SetIcon(IO::loadIconResource(IO::Path("Resources/WindowIcon")));
+            window->setWindowIcon(IO::loadIconResourceQt(IO::Path("Resources/WindowIcon")));
         }
 
-        void setWindowIcon(QMainWindow* window) {
-            ensure(window != nullptr, "window is null");
-            // FIXME: set icon
-        }
-
+#if 0
         wxArrayString filterBySuffix(const wxArrayString& strings, const wxString& suffix, const bool caseSensitive) {
             wxArrayString result;
             for (size_t i = 0; i < strings.size(); ++i) {
@@ -189,5 +178,6 @@ namespace TrenchBroom {
             const auto utf8 = string.ToUTF8();
             return QString::fromUtf8(utf8.data(), utf8.length());
         }
+#endif
     }
 }

@@ -20,7 +20,8 @@
 #ifndef TRENCHBROOM_ZIPFILESYSTEM_H
 #define TRENCHBROOM_ZIPFILESYSTEM_H
 
-
+// FIXME: port to something non-wx
+#if 0
 #include "StringUtils.h"
 #include "IO/ImageFileSystem.h"
 #include "IO/Path.h"
@@ -51,6 +52,6 @@ namespace TrenchBroom {
         };
     }
 }
-
+#endif
 
 #endif //TRENCHBROOM_ZIPFILESYSTEM_H

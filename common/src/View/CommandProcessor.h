@@ -26,9 +26,6 @@
 #include "View/UndoableCommand.h"
 #include "View/ViewTypes.h"
 
-// unfortunately we must depend on wx Widgets for time stamps here
-#include <wx/longlong.h>
-
 #include <vector>
 
 namespace TrenchBroom {
@@ -66,7 +63,7 @@ namespace TrenchBroom {
         
         class CommandProcessor {
         private:
-            static const wxLongLong CollationInterval;
+            static const int64_t CollationInterval;
             
             MapDocumentCommandFacade* m_document;
             
@@ -75,7 +72,7 @@ namespace TrenchBroom {
             CommandStack m_nextCommandStack;
             CommandStack m_repeatableCommandStack;
             bool m_clearRepeatableCommandStack;
-            wxLongLong m_lastCommandTimestamp;
+            int64_t m_lastCommandTimestamp;
             
             String m_groupName;
             CommandStack m_groupedCommands;
@@ -124,7 +121,7 @@ namespace TrenchBroom {
             UndoableCommand::Ptr createCommandGroup(const String& name, const CommandList& commands);
 
             bool pushLastCommand(UndoableCommand::Ptr command, bool collate);
-            bool collatable(bool collate, wxLongLong timestamp) const;
+            bool collatable(bool collate, int64_t timestamp) const;
             
             void pushNextCommand(UndoableCommand::Ptr command);
             void pushRepeatableCommand(UndoableCommand::Ptr command);

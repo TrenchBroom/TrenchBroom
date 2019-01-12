@@ -45,8 +45,7 @@ namespace TrenchBroom {
 
         void WelcomeFrame::createGui() {
             setAttribute(Qt::WA_DeleteOnClose);
-            // FIXME:
-            //setWindowIcon(this);
+            TrenchBroom::View::setWindowIcon(this);
             setWindowTitle("Welcome to TrenchBroom");
 
 

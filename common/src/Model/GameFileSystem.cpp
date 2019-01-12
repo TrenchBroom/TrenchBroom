@@ -108,10 +108,14 @@ namespace TrenchBroom {
                         } else if (StringUtils::caseInsensitiveEqual(packageFormat, "dkpak")) {
                             logger->info() << "Adding file system package " << packagePath;
                             m_next = std::make_unique<IO::DkPakFileSystem>(std::move(m_next), packagePath, packageFile);
-                        } else if (StringUtils::caseInsensitiveEqual(packageFormat, "zip")) {
+                        }
+                        // FIXME: Find something other than wx
+#if 0
+                        else if (StringUtils::caseInsensitiveEqual(packageFormat, "zip")) {
                             logger->info() << "Adding file system package " << packagePath;
                             m_next = std::make_unique<IO::ZipFileSystem>(std::move(m_next), packagePath, packageFile);
                         }
+#endif
                     } catch (const std::exception& e) {
                         logger->error() << e.what();
                     }

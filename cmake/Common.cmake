@@ -263,7 +263,6 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/TemporarilySetAny.cpp
 	${COMMON_SOURCE_DIR}/TrenchBroomApp.cpp
 	${COMMON_SOURCE_DIR}/TrenchBroomAppQt.cpp
-	${COMMON_SOURCE_DIR}/TrenchBroomAppTraits.cpp
 	${COMMON_SOURCE_DIR}/TrenchBroomStackWalker.cpp
 	${COMMON_SOURCE_DIR}/View/AboutDialog.cpp
 	${COMMON_SOURCE_DIR}/View/ActionContext.cpp
@@ -277,11 +276,11 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/AppInfoPanel.cpp
 #	${COMMON_SOURCE_DIR}/View/AutoCompleteTextControl.cpp
 	${COMMON_SOURCE_DIR}/View/Autosaver.cpp
-	${COMMON_SOURCE_DIR}/View/BitmapButton.cpp
-	${COMMON_SOURCE_DIR}/View/BitmapStaticButton.cpp
-	${COMMON_SOURCE_DIR}/View/BitmapToggleButton.cpp
+#	${COMMON_SOURCE_DIR}/View/BitmapButton.cpp
+#	${COMMON_SOURCE_DIR}/View/BitmapStaticButton.cpp
+#	${COMMON_SOURCE_DIR}/View/BitmapToggleButton.cpp
 	${COMMON_SOURCE_DIR}/View/BorderLine.cpp
-	${COMMON_SOURCE_DIR}/View/BorderPanel.cpp
+#	${COMMON_SOURCE_DIR}/View/BorderPanel.cpp
 	${COMMON_SOURCE_DIR}/View/CachingLogger.cpp
 	${COMMON_SOURCE_DIR}/View/CameraAnimation.cpp
 	${COMMON_SOURCE_DIR}/View/CameraLinkHelper.cpp
@@ -293,8 +292,8 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/ClipToolController.cpp
 	${COMMON_SOURCE_DIR}/View/ClipTool.cpp
 #	${COMMON_SOURCE_DIR}/View/CollapsibleTitledPanel.cpp
-	${COMMON_SOURCE_DIR}/View/ColorTable.cpp
-	${COMMON_SOURCE_DIR}/View/ColorTableSelectedCommand.cpp
+#	${COMMON_SOURCE_DIR}/View/ColorTable.cpp
+#	${COMMON_SOURCE_DIR}/View/ColorTableSelectedCommand.cpp
 	${COMMON_SOURCE_DIR}/View/Command.cpp
 	${COMMON_SOURCE_DIR}/View/CommandProcessor.cpp
 	${COMMON_SOURCE_DIR}/View/CommandWindowUpdateLocker.cpp
@@ -307,8 +306,8 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/CompilationRunner.cpp
 #	${COMMON_SOURCE_DIR}/View/CompilationTaskList.cpp
 #	${COMMON_SOURCE_DIR}/View/CompilationVariables.cpp
-	${COMMON_SOURCE_DIR}/View/Console.cpp
-	${COMMON_SOURCE_DIR}/View/ContainerBar.cpp
+#	${COMMON_SOURCE_DIR}/View/Console.cpp
+#	${COMMON_SOURCE_DIR}/View/ContainerBar.cpp
 #	${COMMON_SOURCE_DIR}/View/ControlListBox.cpp
 	${COMMON_SOURCE_DIR}/View/ConvertEntityColorCommand.cpp
 	${COMMON_SOURCE_DIR}/View/CopyTexCoordSystemFromFaceCommand.cpp
@@ -321,7 +320,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/CreateSimpleBrushToolController2D.cpp
 	${COMMON_SOURCE_DIR}/View/CreateSimpleBrushToolController3D.cpp
 	${COMMON_SOURCE_DIR}/View/CreateSimpleBrushTool.cpp
-	${COMMON_SOURCE_DIR}/View/CurrentGameIndicator.cpp
+#	${COMMON_SOURCE_DIR}/View/CurrentGameIndicator.cpp
 	${COMMON_SOURCE_DIR}/View/CurrentGroupCommand.cpp
 	${COMMON_SOURCE_DIR}/View/CyclingMapView.cpp
 #	${COMMON_SOURCE_DIR}/View/DirectoryTextureCollectionEditor.cpp
@@ -347,8 +346,8 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/FileTextureCollectionEditor.cpp
 	${COMMON_SOURCE_DIR}/View/FindPlanePointsCommand.cpp
 	${COMMON_SOURCE_DIR}/View/FlagChangedCommand.cpp
-	${COMMON_SOURCE_DIR}/View/FlagsEditor.cpp
-	${COMMON_SOURCE_DIR}/View/FlagsPopupEditor.cpp
+#	${COMMON_SOURCE_DIR}/View/FlagsEditor.cpp
+#	${COMMON_SOURCE_DIR}/View/FlagsPopupEditor.cpp
 	${COMMON_SOURCE_DIR}/View/FlashSelectionAnimation.cpp
 	${COMMON_SOURCE_DIR}/View/FlyModeHelper.cpp
 #	${COMMON_SOURCE_DIR}/View/FourPaneMapView.cpp
@@ -368,11 +367,11 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/GLContextManager.cpp
 	${COMMON_SOURCE_DIR}/View/Grid.cpp
 #	${COMMON_SOURCE_DIR}/View/ImageListBox.cpp
-	${COMMON_SOURCE_DIR}/View/InfoPanel.cpp
+#	${COMMON_SOURCE_DIR}/View/InfoPanel.cpp
 	${COMMON_SOURCE_DIR}/View/InputState.cpp
 #	${COMMON_SOURCE_DIR}/View/Inspector.cpp
-	${COMMON_SOURCE_DIR}/View/IssueBrowser.cpp
-	${COMMON_SOURCE_DIR}/View/IssueBrowserView.cpp
+#	${COMMON_SOURCE_DIR}/View/IssueBrowser.cpp
+#	${COMMON_SOURCE_DIR}/View/IssueBrowserView.cpp
 #	${COMMON_SOURCE_DIR}/View/KeyboardGridCellEditor.cpp
 #	${COMMON_SOURCE_DIR}/View/KeyboardPreferencePane.cpp
 	${COMMON_SOURCE_DIR}/View/KeyboardShortcut.cpp
@@ -384,7 +383,7 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/LaunchGameEngineDialog.cpp
 #	${COMMON_SOURCE_DIR}/View/LayerEditor.cpp
 #	${COMMON_SOURCE_DIR}/View/LayerListBox.cpp
-	${COMMON_SOURCE_DIR}/View/LockedGridCellRenderer.cpp
+#	${COMMON_SOURCE_DIR}/View/LockedGridCellRenderer.cpp
 	${COMMON_SOURCE_DIR}/View/MapDocumentCommandFacade.cpp
 	${COMMON_SOURCE_DIR}/View/MapDocument.cpp
 	${COMMON_SOURCE_DIR}/View/MapFrame.cpp
@@ -392,7 +391,7 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/MapInspector.cpp
 	${COMMON_SOURCE_DIR}/View/MapView2D.cpp
 	${COMMON_SOURCE_DIR}/View/MapView3D.cpp
-	${COMMON_SOURCE_DIR}/View/MapViewBar.cpp
+#	${COMMON_SOURCE_DIR}/View/MapViewBar.cpp
 	${COMMON_SOURCE_DIR}/View/MapViewBase.cpp
 	${COMMON_SOURCE_DIR}/View/MapViewConfig.cpp
 	${COMMON_SOURCE_DIR}/View/MapViewContainer.cpp
@@ -415,11 +414,11 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/PersistentSplitterWindow2.cpp
 	${COMMON_SOURCE_DIR}/View/PersistentSplitterWindow4.cpp
 	${COMMON_SOURCE_DIR}/View/PickRequest.cpp
-	${COMMON_SOURCE_DIR}/View/PopupButton.cpp
-	${COMMON_SOURCE_DIR}/View/PopupWindow.cpp
+#	${COMMON_SOURCE_DIR}/View/PopupButton.cpp
+#	${COMMON_SOURCE_DIR}/View/PopupWindow.cpp
 #	${COMMON_SOURCE_DIR}/View/PreferenceDialog.cpp
 #	${COMMON_SOURCE_DIR}/View/PreferencePane.cpp
-	${COMMON_SOURCE_DIR}/View/RadioGroup.cpp
+#	${COMMON_SOURCE_DIR}/View/RadioGroup.cpp
 #	${COMMON_SOURCE_DIR}/View/RecentDocumentListBox.cpp
 	${COMMON_SOURCE_DIR}/View/RecentDocumentSelectedCommand.cpp
 	${COMMON_SOURCE_DIR}/View/RemoveBrushEdgesCommand.cpp
@@ -466,8 +465,8 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/SplitterWindow2.cpp
 #	${COMMON_SOURCE_DIR}/View/SplitterWindow4.cpp
 	${COMMON_SOURCE_DIR}/View/SwitchableMapViewContainer.cpp
-	${COMMON_SOURCE_DIR}/View/TabBar.cpp
-	${COMMON_SOURCE_DIR}/View/TabBook.cpp
+#	${COMMON_SOURCE_DIR}/View/TabBar.cpp
+#	${COMMON_SOURCE_DIR}/View/TabBook.cpp
 	${COMMON_SOURCE_DIR}/View/TextCtrlOutputAdapter.cpp
 #	${COMMON_SOURCE_DIR}/View/TextureBrowser.cpp
 #	${COMMON_SOURCE_DIR}/View/TextureBrowserView.cpp
@@ -833,7 +832,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/StringUtils.h
 	${COMMON_SOURCE_DIR}/TemporarilySetAny.h
 	${COMMON_SOURCE_DIR}/TrenchBroomApp.h
-	${COMMON_SOURCE_DIR}/TrenchBroomAppTraits.h
 	${COMMON_SOURCE_DIR}/TrenchBroom.h
 	${COMMON_SOURCE_DIR}/TrenchBroomStackWalker.h
 	${COMMON_SOURCE_DIR}/View/AboutDialog.h
@@ -846,7 +844,7 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/AnimationCurve.h
 	${COMMON_SOURCE_DIR}/View/Animation.h
 	${COMMON_SOURCE_DIR}/View/AppInfoPanel.h
-	${COMMON_SOURCE_DIR}/View/AutoCompleteTextControl.h
+#	${COMMON_SOURCE_DIR}/View/AutoCompleteTextControl.h
 	${COMMON_SOURCE_DIR}/View/Autosaver.h
 	${COMMON_SOURCE_DIR}/View/BitmapButton.h
 	${COMMON_SOURCE_DIR}/View/BitmapStaticButton.h
@@ -869,18 +867,18 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/ColorTable.h
 	${COMMON_SOURCE_DIR}/View/ColorTableSelectedCommand.h
 	${COMMON_SOURCE_DIR}/View/Command.h
-	${COMMON_SOURCE_DIR}/View/CommandIds.h
+#	${COMMON_SOURCE_DIR}/View/CommandIds.h
 	${COMMON_SOURCE_DIR}/View/CommandProcessor.h
 	${COMMON_SOURCE_DIR}/View/CommandWindowUpdateLocker.h
-	${COMMON_SOURCE_DIR}/View/CompilationContext.h
-	${COMMON_SOURCE_DIR}/View/CompilationDialog.h
-	${COMMON_SOURCE_DIR}/View/CompilationProfileEditor.h
-	${COMMON_SOURCE_DIR}/View/CompilationProfileListBox.h
-	${COMMON_SOURCE_DIR}/View/CompilationProfileManager.h
-	${COMMON_SOURCE_DIR}/View/CompilationRun.h
-	${COMMON_SOURCE_DIR}/View/CompilationRunner.h
-	${COMMON_SOURCE_DIR}/View/CompilationTaskList.h
-	${COMMON_SOURCE_DIR}/View/CompilationVariables.h
+#	${COMMON_SOURCE_DIR}/View/CompilationContext.h
+#	${COMMON_SOURCE_DIR}/View/CompilationDialog.h
+#	${COMMON_SOURCE_DIR}/View/CompilationProfileEditor.h
+#	${COMMON_SOURCE_DIR}/View/CompilationProfileListBox.h
+#	${COMMON_SOURCE_DIR}/View/CompilationProfileManager.h
+#	${COMMON_SOURCE_DIR}/View/CompilationRun.h
+#	${COMMON_SOURCE_DIR}/View/CompilationRunner.h
+#	${COMMON_SOURCE_DIR}/View/CompilationTaskList.h
+#	${COMMON_SOURCE_DIR}/View/CompilationVariables.h
 	${COMMON_SOURCE_DIR}/View/Console.h
 	${COMMON_SOURCE_DIR}/View/ContainerBar.h
 	${COMMON_SOURCE_DIR}/View/ControlListBox.h

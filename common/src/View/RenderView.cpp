@@ -28,8 +28,7 @@
 #include "View/GLContextManager.h"
 #include "View/wxUtils.h"
 
-#include <wx/dcclient.h>
-#include <wx/settings.h>
+#include <QPalette>
 
 #ifdef _WIN32
 #include <GL/wglew.h>
@@ -46,8 +45,9 @@ namespace TrenchBroom {
         RenderView::RenderView(QWidget* parent, GLContextManager& contextManager) :
         QOpenGLWidget(parent),
         m_glContext(&contextManager) {
-            const wxColour color = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
-            m_focusColor = fromWxColor(color);
+            QPalette pal;
+            const QColor color = pal.color(QPalette::Highlight);
+            m_focusColor = fromQColor(color);
         }
         
         RenderView::~RenderView() = default;

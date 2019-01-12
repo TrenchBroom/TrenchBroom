@@ -19,6 +19,8 @@
 
 #include "ZipFileSystem.h"
 
+// FIXME: port to something non-wx
+#if 0
 #include "CollectionUtils.h"
 #include "IO/CharArrayReader.h"
 #include "IO/DiskFileSystem.h"
@@ -86,3 +88,4 @@ namespace TrenchBroom {
         }
     }
 }
+#endif

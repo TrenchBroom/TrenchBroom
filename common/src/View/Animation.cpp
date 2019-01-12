@@ -24,9 +24,6 @@
 #include <algorithm>
 #include <cassert>
 
-#include <wx/app.h>
-#include <wx/timer.h>
-
 namespace TrenchBroom {
     namespace View {
         // Animation

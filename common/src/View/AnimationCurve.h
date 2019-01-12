@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_AnimationCurve
 #define TrenchBroom_AnimationCurve
 
-#include <wx/longlong.h>
-
 namespace TrenchBroom {
     namespace View {
         class AnimationCurve {

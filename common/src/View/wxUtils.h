@@ -26,23 +26,14 @@
 #include "Color.h"
 #include "StringUtils.h"
 
+#include <QColor>
+#include <QWidget>
+
 #include <vector>
-
-#include <wx/colour.h>
-
-class wxBitmapButton;
-class wxBitmapToggleButton;
-class wxCursor;
-class wxFrame;
-class wxListCtrl;
-class wxSizer;
-class wxTopLevelWindow;
-class wxWindow;
-
-class QMainWindow;
 
 namespace TrenchBroom {
     namespace View {
+#if 0
         class MapFrame;
 
         MapFrame* findMapFrame(wxWindow* window);
@@ -65,7 +56,6 @@ namespace TrenchBroom {
         wxSizer* wrapDialogButtonSizer(wxSizer* buttonSizer, wxWindow* parent);
 
         void setWindowIcon(wxTopLevelWindow* window);
-        void setWindowIcon(QMainWindow* window);
         template <typename T>
         void setHint(T* ctrl, const wxString& hint) {
 #ifndef __WXGTK20__
@@ -76,6 +66,10 @@ namespace TrenchBroom {
         wxArrayString filterBySuffix(const wxArrayString& strings, const wxString& suffix, bool caseSensitive = false);
 
         QString wxToQString(const wxString& string);
+#endif
+
+        Color fromQColor(const QColor& color);
+        void setWindowIcon(QWidget* window);
     }
 }
 

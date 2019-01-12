@@ -23,7 +23,7 @@
 #include "TemporarilySetAny.h"
 #include "View/MapDocumentCommandFacade.h"
 
-#include <wx/time.h>
+#include <QDateTime>
 
 #include <algorithm>
 
@@ -98,7 +98,7 @@ namespace TrenchBroom {
             return false;
         }
         
-        const wxLongLong CommandProcessor::CollationInterval(1000);
+        const int64_t CommandProcessor::CollationInterval = 1000;
         
         struct CommandProcessor::SubmitAndStoreResult {
             bool submitted;
@@ -346,8 +346,8 @@ namespace TrenchBroom {
         bool CommandProcessor::pushLastCommand(UndoableCommand::Ptr command, const bool collate) {
             assert(m_groupLevel == 0);
             
-            const auto timestamp = ::wxGetLocalTimeMillis();
-            const SetLate<wxLongLong> setLastCommandTimestamp(m_lastCommandTimestamp, timestamp);
+            const int64_t timestamp = QDateTime::currentMSecsSinceEpoch();
+            const SetLate<int64_t> setLastCommandTimestamp(m_lastCommandTimestamp, timestamp);
             
             if (collatable(collate, timestamp)) {
                 auto lastCommand = m_lastCommandStack.back();
@@ -359,7 +359,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool CommandProcessor::collatable(const bool collate, const wxLongLong timestamp) const {
+        bool CommandProcessor::collatable(const bool collate, const int64_t timestamp) const {
             return collate && !m_lastCommandStack.empty() && timestamp - m_lastCommandTimestamp <= CollationInterval;
         }
         

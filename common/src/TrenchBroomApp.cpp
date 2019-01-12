@@ -32,7 +32,6 @@
 
 #include "Macros.h"
 #include "RecoverableExceptions.h"
-#include "TrenchBroomAppTraits.h"
 #include "TrenchBroomStackWalker.h"
 #include "IO/Path.h"
 #include "IO/SystemPaths.h"

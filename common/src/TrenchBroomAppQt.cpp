@@ -29,12 +29,8 @@
 #include <QApplication>
 #include <QSurfaceFormat>
 
-#include <wx/app.h>
-
 int main(int argc, char *argv[])
 {
-    wxInitialize();
-
     // Makes all QOpenGLWidget in the application share a single context
     // (default behaviour would be for QOpenGLWidget's in a single top-level window to share a context.)
     // see: http://doc.qt.io/qt-5/qopenglwidget.html#context-sharing

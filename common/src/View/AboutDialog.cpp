@@ -20,6 +20,7 @@
 #include "AboutDialog.h"
 
 #include "View/AppInfoPanel.h"
+#include "View/wxUtils.h"
 
 #include <QLabel>
 #include <QHBoxLayout>
@@ -53,8 +54,7 @@ namespace TrenchBroom {
         }
         
         void AboutDialog::createGui() {
-            // FIXME:
-            //setWindowIcon(this);
+            TrenchBroom::View::setWindowIcon(this);
             
             AppInfoPanel* infoPanel = new AppInfoPanel(nullptr);
             
