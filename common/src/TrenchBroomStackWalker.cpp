@@ -20,6 +20,8 @@
 #ifdef _WIN32
 #ifdef _MSC_VER
 #include "StackWalker.h"
+#include <QMutex>
+#include <QMutexLocker>
 #endif
 #else
 #include <execinfo.h>
@@ -51,12 +53,12 @@ namespace TrenchBroom {
       }
     };
 
-    static wxMutex s_stackWalkerMutex;
+    static QMutex s_stackWalkerMutex;
     static TBStackWalker *s_stackWalker;
 
     static String getStackTraceInternal(CONTEXT *context) {
         // StackWalker is not threadsafe so acquire a mutex
-        wxMutexLocker lock(s_stackWalkerMutex);
+        QMutexLocker lock(&s_stackWalkerMutex);
 
         if (s_stackWalker == nullptr) {
             // create a shared instance on first use

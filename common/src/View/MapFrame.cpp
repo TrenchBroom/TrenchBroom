@@ -349,7 +349,8 @@ namespace TrenchBroom {
             setWindowFilePath(QString::fromStdString(m_document->path().asString()));
         }
 
-#if defined(_WIN32)
+// FIXME: was WIN32 only, needed for Qt?
+#if 0 //defined(_WIN32)
 		/*
 		This and the following method were added to reset the menu bar correctly when the map frame
 		regains focus after the preference dialog is closed. Since the map view reports not having focus

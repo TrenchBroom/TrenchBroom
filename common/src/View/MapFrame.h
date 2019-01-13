@@ -223,7 +223,8 @@ namespace TrenchBroom {
         private: // title bar contents
             void updateTitle();
         private: // menu bar
-#if defined(_WIN32)
+// FIXME: was WIN32 only, needed for Qt?
+#if 0
 			void OnActivate(wxActivateEvent& event);
 			void OnDelayedActivate(wxIdleEvent& event);
 #endif

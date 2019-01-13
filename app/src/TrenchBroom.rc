@@ -1,7 +1,5 @@
 #include "Version.h"
 
-#include <wx/msw/wx.rc>
-
 AAAAAAAA                ICON                    "../resources/win32/icons/AppIcon.ico"
 APPICON                 ICON                    "../resources/win32/icons/DocIcon.ico"
 
