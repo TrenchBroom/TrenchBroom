@@ -144,8 +144,8 @@ namespace TrenchBroom {
                     delete [] uMappingName;
 			    } else {
                     delete [] uMappingName;
-                    throw FileSystemException("Cannot open file " + path.asString());
-                }
+					throwError(path);
+				}
 		    } else {
                 WIN32_FILE_ATTRIBUTE_DATA attrs;
                 const BOOL result = GetFileAttributesEx(uFilename, GetFileExInfoStandard, &attrs);
@@ -158,8 +158,8 @@ namespace TrenchBroom {
                 } else {
 				    CloseHandle(m_mappingHandle);
 				    m_mappingHandle = nullptr;
-                    throw FileSystemException("Cannot open file " + path.asString());
-                }
+					throwError(path);
+				}
 		    }
             
 		    if (m_mappingHandle != nullptr) {
@@ -171,14 +171,14 @@ namespace TrenchBroom {
 				    m_mappingHandle = nullptr;
 				    CloseHandle(m_fileHandle);
 				    m_fileHandle = INVALID_HANDLE_VALUE;
-                    throw FileSystemException("Cannot open file " + path.asString());
+					throwError(path);
 			    }
 		    } else {
 			    if (m_fileHandle != INVALID_HANDLE_VALUE) {
 				    CloseHandle(m_fileHandle);
 				    m_fileHandle = INVALID_HANDLE_VALUE;
-                    throw FileSystemException("Cannot open file " + path.asString());
-			    }
+					throwError(path);
+				}
 		    }
         }
         
@@ -198,6 +198,18 @@ namespace TrenchBroom {
 			    m_fileHandle = INVALID_HANDLE_VALUE;
 		    }
         }
+
+		void WinMappedFile::throwError(const Path& path) {
+			char buf[512];
+			const auto error = GetLastError();
+			FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+				NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+				buf, (sizeof(buf) / sizeof(char)), NULL);
+
+			StringStream msg;
+			msg << "Cannot open file " << path << ": " << buf << " (" << error << ")";
+			throw FileSystemException(msg.str());
+		}
 #else
         PosixMappedFile::PosixMappedFile(const Path& path, std::ios_base::openmode mode) :
         MappedFile(path),
