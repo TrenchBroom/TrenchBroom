@@ -81,7 +81,7 @@ namespace TrenchBroom {
             void OnOpenAbout();
             void OnDebugShowCrashReportDialog();
 
-            void OnExecutableEvent(ExecutableEvent& event);
+//            void OnExecutableEvent(ExecutableEvent& event);
 
 #ifdef __APPLE__
             void OnFileExit(wxCommandEvent& event);

@@ -21,8 +21,7 @@
 
 #include "IO/ResourceUtils.h"
 
-#include <wx/bookctrl.h>
-#include <wx/panel.h>
+#include <QWidget>
 
 #include <cassert>
 
@@ -87,8 +86,8 @@ namespace TrenchBroom {
             return true;
         }
 
-        wxWindow* Tool::doCreatePage(wxWindow* parent) {
-            return new wxPanel(parent);
+        QWidget* Tool::doCreatePage(QWidget* parent) {
+            return new QWidget(parent);
         }
     }
 }

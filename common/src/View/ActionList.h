@@ -22,7 +22,6 @@
 
 #include "IO/Path.h"
 #include "View/ActionContext.h"
-#include "View/ViewShortcut.h"
 
 #include <QMetaType>
 #include <QKeySequence>

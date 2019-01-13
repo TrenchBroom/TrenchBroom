@@ -27,8 +27,6 @@
 #include "View/ViewTypes.h"
 //#include "SplitterWindow2.h"
 
-//#include <wx/event.h>
-
 #include <QMainWindow>
 
 #include <utility>
@@ -430,7 +428,6 @@ namespace TrenchBroom {
         private: // grid helpers
             static int indexForGridSize(const int gridSize);
             static int gridSizeForIndex(const int index);
-            static int gridSizeForMenuId(const int menuId);
         };
     }
 }

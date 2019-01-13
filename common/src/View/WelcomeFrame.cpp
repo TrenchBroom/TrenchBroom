@@ -23,8 +23,9 @@
 #include "View/AppInfoPanel.h"
 #include "View/BorderLine.h"
 #include "View/ViewConstants.h"
-#include "View/RecentDocumentListBox.h"
-#include "View/RecentDocumentSelectedCommand.h"
+// FIXME:
+//#include "View/RecentDocumentListBox.h"
+//#include "View/RecentDocumentSelectedCommand.h"
 #include "View/wxUtils.h"
 
 #include <QVBoxLayout>
@@ -102,12 +103,15 @@ namespace TrenchBroom {
         }
 
         void WelcomeFrame::OnRecentDocumentSelected(RecentDocumentSelectedCommand& event) {
+            // FIXME:
+#if 0
             hide();
             TrenchBroomApp& app = TrenchBroomApp::instance();
             if (app.openDocument(event.documentPath().asString()))
                 close();
             else
                 show();
+#endif
         }
 
         QWidget* WelcomeFrame::createAppPanel() {

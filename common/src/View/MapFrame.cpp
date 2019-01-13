@@ -51,31 +51,29 @@
 #include "Model/NodeCollection.h"
 #include "Model/PointFile.h"
 #include "Model/World.h"
-#include "View/ActionManager.h"
 #include "View/Autosaver.h"
 #include "View/BorderLine.h"
 #include "View/CachingLogger.h"
 #include "FileLogger.h"
 #include "View/ActionList.h"
 #include "View/ClipTool.h"
-#include "View/CommandIds.h"
 #include "View/CommandWindowUpdateLocker.h"
-#include "View/CompilationDialog.h"
-#include "View/Console.h"
+// FIXME:
+//#include "View/CompilationDialog.h"
+//#include "View/Console.h"
 #include "View/EdgeTool.h"
 #include "View/FaceTool.h"
 #include "View/GLContextManager.h"
 #include "View/Grid.h"
-#include "View/InfoPanel.h"
-#include "View/Inspector.h"
-#include "View/LaunchGameEngineDialog.h"
+// FIXME:
+//#include "View/InfoPanel.h"
+//#include "View/Inspector.h"
+//#include "View/LaunchGameEngineDialog.h"
 #include "View/MapDocument.h"
-#include "View/MapFrameDropTarget.h"
-#include "View/Menu.h"
-#include "View/OpenClipboard.h"
+//#include "View/MapFrameDropTarget.h"
 #include "View/RenderView.h"
-#include "View/ReplaceTextureDialog.h"
-#include "View/SplitterWindow2.h"
+//#include "View/ReplaceTextureDialog.h"
+//#include "View/SplitterWindow2.h"
 #include "View/SwitchableMapViewContainer.h"
 #include "View/VertexTool.h"
 #include "View/ViewUtils.h"
@@ -158,22 +156,6 @@ namespace TrenchBroom {
 #ifdef __APPLE__
             m_updateLocker->Start();
 #endif
-        }
-        
-        static RenderView* FindChildRenderView(wxWindow *current) {
-            // FIXME: necessary in Qt?
-#if 0
-            for (wxWindow *child : current->GetChildren()) {
-                RenderView *canvas = wxDynamicCast(child, RenderView);
-                if (canvas != nullptr)
-                    return canvas;
-                
-                canvas = FindChildRenderView(child);
-                if (canvas != nullptr)
-                    return canvas;
-            }
-#endif
-            return nullptr;
         }
 
         MapFrame::~MapFrame() {
@@ -325,7 +307,6 @@ namespace TrenchBroom {
         bool MapFrame::exportDocumentAsObj() {
             const IO::Path& originalPath = m_document->path();
             const IO::Path objPath = originalPath.replaceExtension("obj");
-            wxString wildcard;
 
             const QString newFileName = QFileDialog::getSaveFileName(this, "Export Wavefront OBJ file", QString::fromStdString(objPath.asString()), "Wavefront OBJ files (*.obj)");
             if (newFileName.isEmpty())
@@ -1320,14 +1301,14 @@ namespace TrenchBroom {
             return std::to_string(count) + " " + StringUtils::safePlural(count, singular, plural);
         }
         
-        static wxString describeSelection(const MapDocument* document) {
-            const wxString DblArrow = wxString(" ") + wxString(wxUniChar(0x00BB)) + wxString(" ");
-            const wxString Arrow = wxString(" ") + wxString(wxUniChar(0x203A)) + wxString(" ");
-            
-            wxString result;
+        static QString describeSelection(const MapDocument* document) {
+            const QString DblArrow = QString(" ") + QString(QChar(0x00BB)) + QString(" ");
+            const QString Arrow = QString(" ") + QString(QChar(0x203A)) + QString(" ");
+
+            QString result;
             
             // current layer
-            result << document->currentLayer()->name() << DblArrow;
+            result += QString::fromStdString(document->currentLayer()->name()) + DblArrow;
             
             // open groups
             std::list<Model::Group*> groups;
@@ -1335,7 +1316,7 @@ namespace TrenchBroom {
                 groups.push_front(group);
             }
             for (Model::Group* group : groups) {
-                result << group->name() << Arrow;
+                result += QString::fromStdString(group->name()) + Arrow;
             }
             
             // build a vector of strings describing the things that are selected
@@ -1391,7 +1372,7 @@ namespace TrenchBroom {
             }
             
             // now, turn `tokens` into a comma-separated string
-            result << StringUtils::join(tokens, ", ", ", and ", " and ") << " selected";
+            result += QString::fromStdString(StringUtils::join(tokens, ", ", ", and ", " and ")) + " selected";
             
             return result;
         }
@@ -2398,13 +2379,6 @@ namespace TrenchBroom {
         
         int MapFrame::gridSizeForIndex(const int index) {
             const int size = index + Grid::MinSize;
-            assert(size <= Grid::MaxSize);
-            assert(size >= Grid::MinSize);
-            return size;
-        }
-        
-        int MapFrame::gridSizeForMenuId(const int menuId) {
-            const int size = menuId - CommandIds::Menu::ViewSetGridSize1;
             assert(size <= Grid::MaxSize);
             assert(size >= Grid::MinSize);
             return size;

@@ -123,7 +123,7 @@ namespace TrenchBroom {
             m_toolChain->append(tool);
         }
 
-        bool ToolBoxConnector::dragEnter(const wxCoord x, const wxCoord y, const String& text) {
+        bool ToolBoxConnector::dragEnter(const int x, const int y, const String& text) {
             ensure(m_toolBox != nullptr, "toolBox is null");
 
             mouseMoved(QPoint(x, y));
@@ -134,7 +134,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        bool ToolBoxConnector::dragMove(const wxCoord x, const wxCoord y, const String& text) {
+        bool ToolBoxConnector::dragMove(const int x, const int y, const String& text) {
             ensure(m_toolBox != nullptr, "toolBox is null");
 
             mouseMoved(QPoint(x, y));

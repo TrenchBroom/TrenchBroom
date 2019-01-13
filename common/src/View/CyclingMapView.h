@@ -25,8 +25,6 @@
 #include "View/MapViewContainer.h"
 #include "View/ViewTypes.h"
 
-#include <wx/panel.h>
-
 #include <vector>
 
 class QStackedLayout;

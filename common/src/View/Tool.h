@@ -23,9 +23,8 @@
 #include "Notifier.h"
 #include "StringUtils.h"
 
-class wxBitmap;
+class QWidget;
 class wxBookCtrlBase;
-class wxWindow;
 
 namespace TrenchBroom {
     namespace View {
@@ -56,7 +55,7 @@ namespace TrenchBroom {
             virtual bool doActivate();
             virtual bool doDeactivate();
 
-            virtual wxWindow* doCreatePage(wxWindow* parent);
+            virtual QWidget* doCreatePage(QWidget* parent);
         };
     }
 }

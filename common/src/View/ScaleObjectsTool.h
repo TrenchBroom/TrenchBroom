@@ -22,9 +22,11 @@
 #define TrenchBroom_ScaleObjectsTool
 
 #include "TrenchBroom.h"
+#include "MapDocument.h"
 #include "Model/Hit.h"
 #include "View/Tool.h"
-#include "View/ScaleObjectsToolPage.h"
+// FIXME: re-add
+//#include "View/ScaleObjectsToolPage.h"
 
 #include <vecmath/vec.h>
 #include <vecmath/bbox.h>
@@ -208,7 +210,8 @@ namespace TrenchBroom {
 
         private:
             MapDocumentWPtr m_document;
-            ScaleObjectsToolPage* m_toolPage;
+            // FIXME: re-add
+            //ScaleObjectsToolPage* m_toolPage;
             bool m_resizing;
             AnchorPos m_anchorPos;
             vm::bbox3 m_bboxAtDragStart;
@@ -268,7 +271,7 @@ namespace TrenchBroom {
             void cancelScale();
 
         private:
-            wxWindow* doCreatePage(wxWindow* parent) override;
+            QWidget* doCreatePage(QWidget* parent) override;
         };
     }
 }

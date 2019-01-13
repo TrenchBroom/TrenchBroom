@@ -52,14 +52,14 @@
 #include "View/ActionList.h"
 #include "View/Animation.h"
 #include "View/CameraAnimation.h"
-#include "View/CommandIds.h"
 #include "View/FlashSelectionAnimation.h"
 #include "View/FlyModeHelper.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/MapViewConfig.h"
 #include "View/MapViewToolBox.h"
-#include "View/ToolBoxDropTarget.h"
+// FIXME:
+//#include "View/ToolBoxDropTarget.h"
 #include "View/ViewUtils.h"
 #include "View/wxUtils.h"
 

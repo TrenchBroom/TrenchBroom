@@ -29,10 +29,6 @@
 
 #include <vecmath/scalar.h>
 
-#include <wx/panel.h>
-
-class wxWindow;
-
 namespace TrenchBroom {
     class Logger;
     

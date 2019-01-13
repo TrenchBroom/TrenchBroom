@@ -25,7 +25,7 @@
 
 #include <vecmath/vec.h>
 
-#include <wx/utils.h>
+#include <QCursor>
 
 namespace TrenchBroom {
     namespace View {
@@ -39,9 +39,10 @@ namespace TrenchBroom {
         m_scrollX(0.0f),
         m_scrollY(0.0f),
         m_anyToolDragging(false) {
-            const wxMouseState mouseState = wxGetMouseState();
-            m_mouseX = mouseState.GetX();
-            m_mouseY = mouseState.GetY();
+            // FIXME: Confirm coordinate system matches the wx code
+            const QPoint mouseState = QCursor::pos();
+            m_mouseX = mouseState.x();
+            m_mouseY = mouseState.y();
         }
 
         InputState::InputState(const int mouseX, const int mouseY) :

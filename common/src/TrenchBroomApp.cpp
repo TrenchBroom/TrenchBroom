@@ -29,23 +29,23 @@
 #include <QMessageBox>
 #include <QFile>
 #include <QStandardPaths>
+#include <QSysInfo>
 
 #include "Macros.h"
 #include "RecoverableExceptions.h"
 #include "TrenchBroomStackWalker.h"
 #include "IO/Path.h"
+#include "IO/DiskIO.h"
 #include "IO/SystemPaths.h"
 #include "Model/GameFactory.h"
 #include "Model/MapFormat.h"
 #include "View/AboutDialog.h"
-#include "View/ActionManager.h"
-#include "View/CommandIds.h"
-#include "View/CrashDialog.h"
-#include "View/ExecutableEvent.h"
-#include "View/GameDialog.h"
+// FIXME:
+//#include "View/CrashDialog.h"
+//#include "View/GameDialog.h"
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
-#include "View/PreferenceDialog.h"
+//#include "View/PreferenceDialog.h"
 #include "View/WelcomeFrame.h"
 #include "View/GetVersion.h"
 #include "View/MapViewBase.h"
@@ -300,8 +300,8 @@ namespace TrenchBroom {
         
         static String makeCrashReport(const String &stacktrace, const String &reason) {
             StringStream ss;
-            ss << "OS:\t" << wxGetOsDescription() << std::endl;
-            ss << "wxWidgets:\n" << wxGetLibraryVersionInfo().ToString() << std::endl;
+            ss << "OS:\t" << QSysInfo::prettyProductName().toStdString() << std::endl;
+            ss << "Qt:\t" << qVersion() << std::endl;
             ss << "GL_VENDOR:\t" << MapViewBase::glVendorString().toStdString() << std::endl;
             ss << "GL_RENDERER:\t" << MapViewBase::glRendererString().toStdString() << std::endl;
             ss << "GL_VERSION:\t" << MapViewBase::glVersionString().toStdString() << std::endl;
@@ -355,7 +355,7 @@ namespace TrenchBroom {
             // ensure it doesn't exist
             int index = 0;
             IO::Path testCrashLogPath = crashLogPath;
-            while (wxFileExists(testCrashLogPath.asString())) {
+            while (IO::Disk::fileExists(testCrashLogPath)) {
                 index++;
                 
                 StringStream testCrashLogName;
@@ -507,9 +507,12 @@ namespace TrenchBroom {
 #endif
         }
 
+        // FIXME: Probably not needed with Qt?
+#if 0
         void TrenchBroomApp::OnExecutableEvent(ExecutableEvent& event) {
             event.execute();
         }
+#endif
 
 #ifdef __APPLE__
         void TrenchBroomApp::OnFileExit(wxCommandEvent& event) {

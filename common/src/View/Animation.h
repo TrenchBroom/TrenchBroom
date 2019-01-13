@@ -21,7 +21,6 @@
 #define TrenchBroom_Animation
 
 #include "SharedPointer.h"
-#include "View/ExecutableEvent.h"
 
 #include <map>
 #include <vector>

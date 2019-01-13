@@ -24,8 +24,6 @@
 #include "View/MultiMapView.h"
 #include "View/ViewTypes.h"
 
-class wxWindow;
-
 namespace TrenchBroom {
     class Logger;
     

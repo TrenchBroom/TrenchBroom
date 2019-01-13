@@ -23,13 +23,10 @@
 #include "Preferences.h"
 #include "TemporarilySetAny.h"
 #include "Renderer/Camera.h"
-#include "View/ExecutableEvent.h"
 #include "View/KeyboardShortcut.h"
 #include "IO/Path.h"
 
 #include <vecmath/vec.h>
-
-#include <wx/time.h>
 
 #include <QElapsedTimer>
 #include <QMouseEvent>

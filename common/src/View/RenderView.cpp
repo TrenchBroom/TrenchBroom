@@ -90,11 +90,13 @@ namespace TrenchBroom {
         }
 
         int RenderView::depthBits() const {
-            return GLAttribs::depth();
+            // FIXME: implement for Qt
+            return -1;
         }
         
         bool RenderView::multisample() const {
-            return GLAttribs::multisample();
+            // FIXME: implement for Qt
+            return false;
         }
 
         void RenderView::initializeGL() {

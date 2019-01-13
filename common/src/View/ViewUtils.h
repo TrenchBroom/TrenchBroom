@@ -23,10 +23,6 @@
 #include "View/ViewTypes.h"
 #include "StringUtils.h"
 
-class wxString;
-class wxWindow;
-class wxArrayString;
-
 class QWidget;
 
 namespace TrenchBroom {
@@ -41,7 +37,9 @@ namespace TrenchBroom {
     namespace View {
         Assets::EntityModel* safeGetModel(Assets::EntityModelManager& manager, const Assets::ModelSpecification& spec, Logger& logger);
         void combineFlags(const size_t numFlags, const int newFlagValue, int& setFlags, int& mixedFlags);
-        
+
+        // FIXME:
+#if 0
         size_t loadDroppedFiles(MapDocumentWPtr document, wxWindow* parent, const wxArrayString& wxPaths);
         
         bool loadTextureCollection(MapDocumentWPtr document, wxWindow* parent, const wxString& wxPath);
@@ -49,7 +47,8 @@ namespace TrenchBroom {
         
         bool loadEntityDefinitionFile(MapDocumentWPtr document, wxWindow* parent, const wxString& wxPath);
         size_t loadEntityDefinitionFile(MapDocumentWPtr document, wxWindow* parent, const wxArrayString& wxPaths);
-        
+#endif
+
         String queryGroupName(QWidget* parent);
     }
 }

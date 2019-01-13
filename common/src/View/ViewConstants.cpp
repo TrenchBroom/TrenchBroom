@@ -19,13 +19,11 @@
 
 #include "ViewConstants.h"
 
-#include <wx/settings.h>
-#include <wx/font.h>
-
 #include <QColor>
 
 namespace TrenchBroom {
     namespace View {
+#if 0
         namespace Fonts {
             const wxFont& fixedWidthFont() {
                 static const wxFont font =
@@ -76,7 +74,8 @@ namespace TrenchBroom {
 #endif
                 return col;
             }
-
+#endif
+        namespace Colors {
             QColor borderColorQt() {
 #if defined __APPLE__
                 return QColor(67, 67, 67);
@@ -84,7 +83,9 @@ namespace TrenchBroom {
                 return QColor(Qt::black);
 #endif
             }
+        }
 
+#if 0
             const wxColour& separatorColor() {
                 static const wxColour col =
 #if defined __APPLE__
@@ -95,5 +96,6 @@ namespace TrenchBroom {
                 return col;
             }
         }
+#endif
     }
 }

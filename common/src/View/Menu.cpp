@@ -23,11 +23,7 @@
 
 #include "PreferenceManager.h"
 #include "View/ActionContext.h"
-#include "View/CommandIds.h"
 #include "View/wxUtils.h"
-
-#include <wx/menu.h>
-#include <wx/menuitem.h>
 
 #include <algorithm>
 

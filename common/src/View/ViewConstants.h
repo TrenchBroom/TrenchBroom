@@ -22,9 +22,6 @@
 
 #include <QColor>
 
-class wxColour;
-class wxFont;
-
 namespace TrenchBroom {
     namespace View {
         namespace LayoutConstants {
@@ -94,15 +91,19 @@ namespace TrenchBroom {
         }
         
         namespace Fonts {
+#if 0
             const wxFont& fixedWidthFont();
+#endif
         }
         
         namespace Colors {
+#if 0
             const wxColour& defaultText();
             const wxColour& highlightText();
             const wxColour& disabledText();
             const wxColour& borderColor();
             const wxColour& separatorColor();
+#endif
 
             QColor borderColorQt();
         }

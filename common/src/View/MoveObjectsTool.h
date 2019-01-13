@@ -55,7 +55,7 @@ namespace TrenchBroom {
         private:
             bool duplicateObjects(const InputState& inputState) const;
             
-            wxWindow* doCreatePage(wxWindow* parent) override;
+            QWidget* doCreatePage(QWidget* parent) override;
         };
     }
 }

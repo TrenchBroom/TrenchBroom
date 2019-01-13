@@ -36,12 +36,10 @@
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/SelectionBoundsRenderer.h"
-#include "View/ActionManager.h"
 #include "View/Animation.h"
 #include "View/CameraAnimation.h"
 #include "View/CameraTool3D.h"
 #include "View/ClipToolController.h"
-#include "View/CommandIds.h"
 #include "View/CreateComplexBrushToolController3D.h"
 #include "View/CreateEntityToolController.h"
 #include "View/CreateSimpleBrushToolController3D.h"
@@ -68,8 +66,6 @@
 #include "View/wxUtils.h"
 
 #include <vecmath/util.h>
-
-#include <wx/frame.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -228,12 +224,12 @@ namespace TrenchBroom {
         float MapView3D::moveTextureDistance() const {
             const Grid& grid = lock(m_document)->grid();
             const float gridSize = static_cast<float>(grid.actualSize());
-            
-            const wxMouseState mouseState = wxGetMouseState();
-            switch (mouseState.GetModifiers()) {
-                case wxMOD_CMD:
+
+            const Qt::KeyboardModifiers modifiers = QApplication::keyboardModifiers();
+            switch (modifiers) {
+                case Qt::ControlModifier:
                     return 1.0f;
-                case wxMOD_SHIFT:
+                case Qt::ShiftModifier:
                     return 2.0f * gridSize;
                 default:
                     return gridSize;
@@ -250,20 +246,19 @@ namespace TrenchBroom {
             const Grid& grid = lock(m_document)->grid();
             const float gridAngle = static_cast<float>(vm::toDegrees(grid.angle()));
             float angle = 0.0f;
-            
-            const wxMouseState mouseState = wxGetMouseState();
-            switch (mouseState.GetModifiers()) {
-                case wxMOD_CMD:
+
+            const Qt::KeyboardModifiers modifiers = QApplication::keyboardModifiers();
+            switch (modifiers) {
+                case Qt::ControlModifier:
                     angle = 1.0f;
                     break;
-                case wxMOD_SHIFT:
+                case Qt::ShiftModifier:
                     angle = 90.0f;
                     break;
                 default:
                     angle = gridAngle;
                     break;
             }
-            
             return clockwise ? angle : -angle;
         }
         

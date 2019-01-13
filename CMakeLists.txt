@@ -118,7 +118,7 @@ ENDIF()
 find_package(Qt5Widgets)
 set(CMAKE_AUTOMOC ON)
 
-INCLUDE(cmake/wxWidgets.cmake)
+#INCLUDE(cmake/wxWidgets.cmake)
 INCLUDE(cmake/FreeType.cmake)
 INCLUDE(cmake/FreeImage.cmake)
 

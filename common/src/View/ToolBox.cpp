@@ -25,14 +25,12 @@
 #include "View/ToolController.h"
 #include "View/ToolChain.h"
 
-#include <wx/window.h>
-#include <wx/event.h>
-
 #include <QApplication>
 #include <QEvent>
 #include <QFocusEvent>
 #include <QEnterEvent>
 #include <QWidget>
+#include <QDateTime>
 
 #include <cassert>
 
@@ -45,7 +43,7 @@ namespace TrenchBroom {
         m_modalTool(nullptr),
         m_clickToActivate(true),
         m_ignoreNextClick(false),
-        m_lastActivation(wxDateTime::Now()),
+        m_lastActivation(QDateTime::currentMSecsSinceEpoch()),
         m_enabled(true) {}
 
         bool ToolBox::eventFilter(QObject *obj, QEvent *ev) {
@@ -87,7 +85,7 @@ namespace TrenchBroom {
         }
 
         void ToolBox::OnSetFocus(QFocusEvent* /*event*/) {
-            if ((wxDateTime::Now() - m_lastActivation).IsShorterThan(wxTimeSpan(0, 0, 0, 100)))
+            if ((QDateTime::currentMSecsSinceEpoch() - m_lastActivation) < 100)
                 m_ignoreNextClick = false;
             clearFocusCursor();
         }
@@ -144,7 +142,7 @@ namespace TrenchBroom {
         }
 
         void ToolBox::updateLastActivation() {
-            m_lastActivation = wxDateTime::Now();
+            m_lastActivation = QDateTime::currentMSecsSinceEpoch();
         }
 
         bool ToolBox::ignoreNextClick() const {

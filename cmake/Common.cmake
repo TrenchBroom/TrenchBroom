@@ -332,20 +332,20 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/EntityAttributeEditor.cpp
 #	${COMMON_SOURCE_DIR}/View/EntityAttributeGrid.cpp
 #	${COMMON_SOURCE_DIR}/View/EntityAttributeGridTable.cpp
-	${COMMON_SOURCE_DIR}/View/EntityAttributeSelectedCommand.cpp
+#	${COMMON_SOURCE_DIR}/View/EntityAttributeSelectedCommand.cpp
 #	${COMMON_SOURCE_DIR}/View/EntityBrowser.cpp
 #	${COMMON_SOURCE_DIR}/View/EntityBrowserView.cpp
 #	${COMMON_SOURCE_DIR}/View/EntityDefinitionFileChooser.cpp
 	${COMMON_SOURCE_DIR}/View/EntityDefinitionFileCommand.cpp
 #	${COMMON_SOURCE_DIR}/View/EntityInspector.cpp
-	${COMMON_SOURCE_DIR}/View/ExecutableEvent.cpp
+#	${COMMON_SOURCE_DIR}/View/ExecutableEvent.cpp
 #	${COMMON_SOURCE_DIR}/View/FaceAttribsEditor.cpp
 #	${COMMON_SOURCE_DIR}/View/FaceInspector.cpp
 	${COMMON_SOURCE_DIR}/View/FaceToolController.cpp
 	${COMMON_SOURCE_DIR}/View/FaceTool.cpp
 #	${COMMON_SOURCE_DIR}/View/FileTextureCollectionEditor.cpp
 	${COMMON_SOURCE_DIR}/View/FindPlanePointsCommand.cpp
-	${COMMON_SOURCE_DIR}/View/FlagChangedCommand.cpp
+#	${COMMON_SOURCE_DIR}/View/FlagChangedCommand.cpp
 #	${COMMON_SOURCE_DIR}/View/FlagsEditor.cpp
 #	${COMMON_SOURCE_DIR}/View/FlagsPopupEditor.cpp
 	${COMMON_SOURCE_DIR}/View/FlashSelectionAnimation.cpp
@@ -358,11 +358,11 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/GameEngineProfileListBox.cpp
 #	${COMMON_SOURCE_DIR}/View/GameEngineProfileManager.cpp
 #	${COMMON_SOURCE_DIR}/View/GameListBox.cpp
-	${COMMON_SOURCE_DIR}/View/GameSelectionCommand.cpp
+#	${COMMON_SOURCE_DIR}/View/GameSelectionCommand.cpp
 #	${COMMON_SOURCE_DIR}/View/GamesPreferencePane.cpp
-	${COMMON_SOURCE_DIR}/View/GenericDropSource.cpp
+#	${COMMON_SOURCE_DIR}/View/GenericDropSource.cpp
 	${COMMON_SOURCE_DIR}/View/GetVersion.cpp
-	${COMMON_SOURCE_DIR}/View/GLAttribs.cpp
+#	${COMMON_SOURCE_DIR}/View/GLAttribs.cpp
 #	${COMMON_SOURCE_DIR}/View/GLContext.cpp
 	${COMMON_SOURCE_DIR}/View/GLContextManager.cpp
 	${COMMON_SOURCE_DIR}/View/Grid.cpp
@@ -387,7 +387,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/MapDocumentCommandFacade.cpp
 	${COMMON_SOURCE_DIR}/View/MapDocument.cpp
 	${COMMON_SOURCE_DIR}/View/MapFrame.cpp
-	${COMMON_SOURCE_DIR}/View/MapFrameDropTarget.cpp
+#	${COMMON_SOURCE_DIR}/View/MapFrameDropTarget.cpp
 #	${COMMON_SOURCE_DIR}/View/MapInspector.cpp
 	${COMMON_SOURCE_DIR}/View/MapView2D.cpp
 	${COMMON_SOURCE_DIR}/View/MapView3D.cpp
@@ -405,14 +405,13 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/MoveBrushVerticesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/MoveObjectsToolController.cpp
 	${COMMON_SOURCE_DIR}/View/MoveObjectsTool.cpp
-	${COMMON_SOURCE_DIR}/View/MoveObjectsToolPage.cpp
+#	${COMMON_SOURCE_DIR}/View/MoveObjectsToolPage.cpp
 	${COMMON_SOURCE_DIR}/View/MoveTexturesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/MultiMapView.cpp
 	${COMMON_SOURCE_DIR}/View/NestedWindowUpdateLocker.cpp
 	${COMMON_SOURCE_DIR}/View/OnePaneMapView.cpp
-	${COMMON_SOURCE_DIR}/View/OpenClipboard.cpp
-	${COMMON_SOURCE_DIR}/View/PersistentSplitterWindow2.cpp
-	${COMMON_SOURCE_DIR}/View/PersistentSplitterWindow4.cpp
+#	${COMMON_SOURCE_DIR}/View/PersistentSplitterWindow2.cpp
+#	${COMMON_SOURCE_DIR}/View/PersistentSplitterWindow4.cpp
 	${COMMON_SOURCE_DIR}/View/PickRequest.cpp
 #	${COMMON_SOURCE_DIR}/View/PopupButton.cpp
 #	${COMMON_SOURCE_DIR}/View/PopupWindow.cpp
@@ -420,7 +419,7 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/PreferencePane.cpp
 #	${COMMON_SOURCE_DIR}/View/RadioGroup.cpp
 #	${COMMON_SOURCE_DIR}/View/RecentDocumentListBox.cpp
-	${COMMON_SOURCE_DIR}/View/RecentDocumentSelectedCommand.cpp
+#	${COMMON_SOURCE_DIR}/View/RecentDocumentSelectedCommand.cpp
 	${COMMON_SOURCE_DIR}/View/RemoveBrushEdgesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/RemoveBrushElementsCommand.cpp
 	${COMMON_SOURCE_DIR}/View/RemoveBrushFacesCommand.cpp
@@ -435,11 +434,11 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/RotateObjectsHandle.cpp
 	${COMMON_SOURCE_DIR}/View/RotateObjectsToolController.cpp
 	${COMMON_SOURCE_DIR}/View/RotateObjectsTool.cpp
-	${COMMON_SOURCE_DIR}/View/RotateObjectsToolPage.cpp
+#	${COMMON_SOURCE_DIR}/View/RotateObjectsToolPage.cpp
 	${COMMON_SOURCE_DIR}/View/RotateTexturesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/ScaleObjectsToolController.cpp
 	${COMMON_SOURCE_DIR}/View/ScaleObjectsTool.cpp
-	${COMMON_SOURCE_DIR}/View/ScaleObjectsToolPage.cpp
+#	${COMMON_SOURCE_DIR}/View/ScaleObjectsToolPage.cpp
 	${COMMON_SOURCE_DIR}/View/SelectionCommand.cpp
 	${COMMON_SOURCE_DIR}/View/Selection.cpp
 	${COMMON_SOURCE_DIR}/View/SelectionTool.cpp
@@ -461,23 +460,23 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/SmartSpawnflagsEditor.cpp
 	${COMMON_SOURCE_DIR}/View/SnapBrushVerticesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/SnapshotCommand.cpp
-	${COMMON_SOURCE_DIR}/View/SpinControl.cpp
+#	${COMMON_SOURCE_DIR}/View/SpinControl.cpp
 #	${COMMON_SOURCE_DIR}/View/SplitterWindow2.cpp
 #	${COMMON_SOURCE_DIR}/View/SplitterWindow4.cpp
 	${COMMON_SOURCE_DIR}/View/SwitchableMapViewContainer.cpp
 #	${COMMON_SOURCE_DIR}/View/TabBar.cpp
 #	${COMMON_SOURCE_DIR}/View/TabBook.cpp
-	${COMMON_SOURCE_DIR}/View/TextCtrlOutputAdapter.cpp
+#	${COMMON_SOURCE_DIR}/View/TextCtrlOutputAdapter.cpp
 #	${COMMON_SOURCE_DIR}/View/TextureBrowser.cpp
 #	${COMMON_SOURCE_DIR}/View/TextureBrowserView.cpp
 #	${COMMON_SOURCE_DIR}/View/TextureCollectionEditor.cpp
-	${COMMON_SOURCE_DIR}/View/TextureSelectedCommand.cpp
+#	${COMMON_SOURCE_DIR}/View/TextureSelectedCommand.cpp
 #	${COMMON_SOURCE_DIR}/View/ThreePaneMapView.cpp
 #	${COMMON_SOURCE_DIR}/View/TitleBar.cpp
 #	${COMMON_SOURCE_DIR}/View/TitledPanel.cpp
 	${COMMON_SOURCE_DIR}/View/ToolBoxConnector.cpp
 	${COMMON_SOURCE_DIR}/View/ToolBox.cpp
-	${COMMON_SOURCE_DIR}/View/ToolBoxDropTarget.cpp
+#	${COMMON_SOURCE_DIR}/View/ToolBoxDropTarget.cpp
 	${COMMON_SOURCE_DIR}/View/ToolChain.cpp
 	${COMMON_SOURCE_DIR}/View/ToolController.cpp
 	${COMMON_SOURCE_DIR}/View/Tool.cpp
@@ -505,7 +504,6 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/ViewShortcut.cpp
 	${COMMON_SOURCE_DIR}/View/ViewUtils.cpp
 	${COMMON_SOURCE_DIR}/View/WelcomeFrame.cpp
-	${COMMON_SOURCE_DIR}/View/wxKeyStrings.cpp
 	${COMMON_SOURCE_DIR}/View/wxUtils.cpp
 	${COMMON_SOURCE_DIR}/Assets/Quake3Shader.cpp
 	${COMMON_SOURCE_DIR}/IO/Quake3ShaderFileSystem.cpp
@@ -986,7 +984,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/MultiMapView.h
 	${COMMON_SOURCE_DIR}/View/NestedWindowUpdateLocker.h
 	${COMMON_SOURCE_DIR}/View/OnePaneMapView.h
-	${COMMON_SOURCE_DIR}/View/OpenClipboard.h
 	${COMMON_SOURCE_DIR}/View/PersistentSplitterWindow2.h
 	${COMMON_SOURCE_DIR}/View/PersistentSplitterWindow4.h
 	${COMMON_SOURCE_DIR}/View/PickRequest.h
@@ -1085,7 +1082,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/ViewTypes.h
 	${COMMON_SOURCE_DIR}/View/ViewUtils.h
 	${COMMON_SOURCE_DIR}/View/WelcomeFrame.h
-	${COMMON_SOURCE_DIR}/View/wxKeyStrings.h
 	${COMMON_SOURCE_DIR}/View/wxUtils.h
 	${COMMON_SOURCE_DIR}/Assets/Quake3Shader.h
 	${COMMON_SOURCE_DIR}/IO/Quake3ShaderFileSystem.h

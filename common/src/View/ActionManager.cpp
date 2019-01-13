@@ -22,7 +22,6 @@
 #include "ActionManager.h"
 
 #include "Preferences.h"
-#include "View/CommandIds.h"
 #include "View/Menu.h"
 #include "View/wxKeyStrings.h"
 

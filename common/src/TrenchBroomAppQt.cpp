@@ -20,7 +20,6 @@
 #include "TrenchBroomAppQt.h"
 
 #include "Model/GameFactory.h"
-#include "View/ActionManager.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 #include "View/MapFrame.h"

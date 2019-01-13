@@ -23,16 +23,10 @@
 #include "StringUtils.h"
 #include "Notifier.h"
 
-#include <wx/datetime.h>
-
 #include <map>
 #include <vector>
 
 #include <QObject>
-
-class wxWindow;
-class wxFocusEvent;
-class wxMouseEvent;
 
 class QWidget;
 class QFocusEvent;
@@ -69,7 +63,7 @@ namespace TrenchBroom {
             
             bool m_clickToActivate;
             bool m_ignoreNextClick;
-            wxDateTime m_lastActivation;
+            int64_t m_lastActivation;
             
             bool m_enabled;
         public:

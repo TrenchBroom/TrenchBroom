@@ -19,22 +19,56 @@
 
 #include "KeyboardShortcut.h"
 
-#include "CollectionUtils.h"
-#include "StringUtils.h"
-
-#include <wx/event.h>
-#include <wx/sstream.h>
-#if !defined __APPLE__
-#include <wx/tokenzr.h>
-#endif
-#include <wx/txtstrm.h>
-
 #include <QKeyEvent>
-
-#include <iostream>
 
 namespace TrenchBroom {
     namespace View {
+        KeyboardShortcut::KeyboardShortcut(int qtKey)
+        : m_qtKey(qtKey) {}
+
+        QKeySequence KeyboardShortcut::keySequence() const {
+            return QKeySequence(m_qtKey);
+        }
+
+        bool KeyboardShortcut::matchesKeyDown(const QKeyEvent* event) const {
+            const auto ourKey = keySequence();
+            if (ourKey.isEmpty()) {
+                return false;
+            }
+
+            const auto theirKeyInt = event->key();
+            const auto ourKeyInt = keySequence()[0];
+            return ourKeyInt == theirKeyInt;
+        }
+
+        bool KeyboardShortcut::matchesKeyUp(const QKeyEvent* event) const {
+           const Qt::KeyboardModifiers AllModifiers =
+                   Qt::ShiftModifier
+                   | Qt::ControlModifier
+                   | Qt::AltModifier
+                   | Qt::MetaModifier
+                   | Qt::KeypadModifier
+                   | Qt::GroupSwitchModifier;
+
+            const auto ourKey = keySequence();
+            if (ourKey.isEmpty()) {
+                return false;
+            }
+
+            const auto theirKeyInt = event->key();
+            const auto ourKeyInt = keySequence()[0];
+
+            if (ourKeyInt == theirKeyInt) {
+                return true;
+            }
+
+            // if any of the modifiers were released, it matches
+            const auto releasedModifiers = event->key() & AllModifiers;
+            const auto ourModifiers = ourKeyInt & AllModifiers;
+            return (releasedModifiers & ourModifiers) != 0;
+        }
+
+#if 0
         bool KeyboardShortcut::MacModifierOrder::operator()(const int lhs, const int rhs) const {
             if (lhs == WXK_NONE)
                 return lhs != WXK_NONE;
@@ -823,6 +857,7 @@ namespace TrenchBroom {
             str << m_key << ":" << m_modifier1 << ":" << m_modifier2 << ":" << m_modifier3;
             return str;
         }
+#endif
 
         int wxModifierToQt(const int wxMod) {
             const auto wxMOD_ALT         = 0x0001;

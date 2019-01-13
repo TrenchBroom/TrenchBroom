@@ -26,12 +26,8 @@
 #include "Assets/ModelDefinition.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
-#include "View/ChoosePathTypeDialog.h"
+//#include "View/ChoosePathTypeDialog.h"
 #include "View/MapDocument.h"
-
-#include <wx/textentry.h>
-#include <wx/msgdlg.h>
-#include <wx/textdlg.h>
 
 #include <QWidget>
 #include <QString>
@@ -61,6 +57,8 @@ namespace TrenchBroom {
             }
         }
 
+        // FIXME:
+#if 0
         size_t loadDroppedFiles(MapDocumentWPtr document, wxWindow* parent, const wxArrayString& wxPaths) {
             size_t count = 0;
             count += loadTextureCollections(document, parent, wxPaths);
@@ -151,6 +149,7 @@ namespace TrenchBroom {
             
             return wxPaths.size();
         }
+#endif
 
         String queryGroupName(QWidget* parent) {
             while (true) {
