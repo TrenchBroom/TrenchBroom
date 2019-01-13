@@ -144,7 +144,7 @@ namespace TrenchBroom {
                     delete [] uMappingName;
 			    } else {
                     delete [] uMappingName;
-					throwError(path);
+					throwError(path, "CreateFile");
 				}
 		    } else {
                 WIN32_FILE_ATTRIBUTE_DATA attrs;
@@ -158,7 +158,7 @@ namespace TrenchBroom {
                 } else {
 				    CloseHandle(m_mappingHandle);
 				    m_mappingHandle = nullptr;
-					throwError(path);
+					throwError(path, "GetFileAttributesEx");
 				}
 		    }
             
@@ -171,13 +171,13 @@ namespace TrenchBroom {
 				    m_mappingHandle = nullptr;
 				    CloseHandle(m_fileHandle);
 				    m_fileHandle = INVALID_HANDLE_VALUE;
-					throwError(path);
+					throwError(path, "MapViewOfFile");
 			    }
 		    } else {
 			    if (m_fileHandle != INVALID_HANDLE_VALUE) {
 				    CloseHandle(m_fileHandle);
 				    m_fileHandle = INVALID_HANDLE_VALUE;
-					throwError(path);
+					throwError(path, "OpenFileMapping or CreateFileMapping");
 				}
 		    }
         }
@@ -199,7 +199,7 @@ namespace TrenchBroom {
 		    }
         }
 
-		void WinMappedFile::throwError(const Path& path) {
+		void WinMappedFile::throwError(const Path& path, const String& functionName) {
 			char buf[512];
 			const auto error = GetLastError();
 			FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
@@ -207,7 +207,7 @@ namespace TrenchBroom {
 				buf, (sizeof(buf) / sizeof(char)), NULL);
 
 			StringStream msg;
-			msg << "Cannot open file " << path << ": " << buf << " (" << error << ")";
+			msg << "Cannot open file " << path << ": Function " << functionName << " threw error " << error << " - "  << buf;
 			throw FileSystemException(msg.str());
 		}
 #else
