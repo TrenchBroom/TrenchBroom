@@ -128,19 +128,19 @@ namespace TrenchBroom {
 		    }
 		    mappingName[numChars] = 0;
             
-		    LPWSTR uMappingName = new TCHAR[numChars + 1];
+		    LPWSTR uMappingName = new WCHAR[numChars + 1];
 		    MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, mappingName, numChars, uMappingName, numChars + 1);
 		    uMappingName[numChars] = 0;
 		    delete [] mappingName;
             
-		    m_mappingHandle = OpenFileMapping(mapAccess, true, uMappingName);
+		    m_mappingHandle = OpenFileMappingW(mapAccess, true, uMappingName);
 		    if (m_mappingHandle == nullptr) {
-			    m_fileHandle = CreateFile(uFilename, accessMode, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+			    m_fileHandle = CreateFileW(uFilename, accessMode, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
                 delete [] uFilename;
 
 			    if (m_fileHandle != INVALID_HANDLE_VALUE) {
 				    size = static_cast<size_t>(GetFileSize(m_fileHandle, nullptr));
-				    m_mappingHandle = CreateFileMapping(m_fileHandle, nullptr, protect, 0, 0, uMappingName);
+				    m_mappingHandle = CreateFileMappingW(m_fileHandle, nullptr, protect, 0, 0, uMappingName);
                     delete [] uMappingName;
 			    } else {
                     delete [] uMappingName;
@@ -148,7 +148,7 @@ namespace TrenchBroom {
                 }
 		    } else {
                 WIN32_FILE_ATTRIBUTE_DATA attrs;
-                const BOOL result = GetFileAttributesEx(uFilename, GetFileExInfoStandard, &attrs);
+                const BOOL result = GetFileAttributesExW(uFilename, GetFileExInfoStandard, &attrs);
                 
                 delete [] uFilename;
                 delete [] uMappingName;
