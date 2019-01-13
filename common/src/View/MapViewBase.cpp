@@ -108,7 +108,7 @@ namespace TrenchBroom {
             //updateBindings();
             // call updateBindings() the next time the event loop runs. We can't call it now because it needs to call
             // a virtual function (depends on whether we are a 3D or 2D map view) which you can't do from a constructor
-            QMetaObject::invokeMethod(this, &MapViewBase::updateBindings, Qt::QueuedConnection);
+            QMetaObject::invokeMethod(this, "updateBindings", Qt::QueuedConnection);
         }
 
         void MapViewBase::setCompass(Renderer::Compass* compass) {
