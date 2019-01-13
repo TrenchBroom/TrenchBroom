@@ -83,7 +83,8 @@ namespace TrenchBroom {
 
 //            void OnExecutableEvent(ExecutableEvent& event);
 
-#ifdef __APPLE__
+// FIXME: add apple only for Qt
+#if 0
             void OnFileExit(wxCommandEvent& event);
             void OnUpdateUI(wxUpdateUIEvent& event);
 

@@ -58,7 +58,7 @@ namespace TrenchBroom {
         }
 
         FT_Face FreeTypeFontFactory::loadFont(const FontDescriptor& fontDescriptor) {
-            const IO::Path fontPath = fontDescriptor.path().isAbsolute() ? fontDescriptor.path() : IO::SystemPaths::resourceDirectory() + fontDescriptor.path();
+            const IO::Path fontPath = fontDescriptor.path().isAbsolute() ? fontDescriptor.path() : IO::SystemPaths::findResourceFile(fontDescriptor.path());
             
             FT_Face face;
             const FT_Error error = FT_New_Face(m_library, fontPath.asString().c_str(), 0, &face);

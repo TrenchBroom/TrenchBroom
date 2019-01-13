@@ -32,7 +32,7 @@ namespace TrenchBroom {
             Path appDirectory() {
                 return IO::Path(QCoreApplication::applicationDirPath().toStdString());
             }
-            
+
 #if defined __linux__ || defined __FreeBSD__
             static bool getDevMode() {
                 QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
@@ -43,7 +43,8 @@ namespace TrenchBroom {
                 return value != "0";
             }
 #endif
-            
+
+#if 0
             Path resourceDirectory() {
 #if defined __linux__ || defined __FreeBSD__
                 static const bool DevMode = getDevMode();
@@ -55,17 +56,30 @@ namespace TrenchBroom {
                 return IO::Path();
       //          return IO::Path(wxStandardPaths::Get().GetResourcesDir().ToStdString());
             }
+#endif
 
             Path userDataDirectory() {
                 // FIXME: confirm against wx
-                // FIXME: One of the uses of userDataDirectory() wants to read, not write
                 return IO::Path(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation).toStdString());
             }
-            
+
             Path logFilePath() {
                 return userDataDirectory() + IO::Path("TrenchBroom.log");
+            }
+
+            Path findResourceFile(const Path &file) {
+                // FIXME: see if TB_DEV_MODE hack is needed
+                return IO::Path(QStandardPaths::locate(QStandardPaths::AppLocalDataLocation,
+                                                       file.asQString(),
+                                                       QStandardPaths::LocateOption::LocateFile).toStdString());
+            }
+
+            Path findResourceDirectory(const Path &directory) {
+                // FIXME: see if TB_DEV_MODE hack is needed
+                return IO::Path(QStandardPaths::locate(QStandardPaths::AppLocalDataLocation,
+                                                       directory.asQString(),
+                                                       QStandardPaths::LocateOption::LocateDirectory).toStdString());
             }
         }
     }
 }
-

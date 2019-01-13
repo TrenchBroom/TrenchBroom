@@ -28,10 +28,12 @@ namespace TrenchBroom {
         
         namespace SystemPaths {
             Path appDirectory();
-            Path resourceDirectory();
             Path userDataDirectory();
 
             Path logFilePath();
+
+            Path findResourceFile(const Path& file);
+            Path findResourceDirectory(const Path& directory);
         }
     }
 }

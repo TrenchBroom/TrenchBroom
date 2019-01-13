@@ -25,7 +25,7 @@
 namespace TrenchBroom {
     namespace IO {
         static QString imagePathToString(const IO::Path& imagePath) {
-            const IO::Path fullPath = imagePath.isAbsolute() ? imagePath : IO::SystemPaths::resourceDirectory() + IO::Path("images") + imagePath;
+            const IO::Path fullPath = imagePath.isAbsolute() ? imagePath : IO::SystemPaths::findResourceFile(IO::Path("images") + imagePath);
             return QString::fromStdString(fullPath.asString());
         }
 

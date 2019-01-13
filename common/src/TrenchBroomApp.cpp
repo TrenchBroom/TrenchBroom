@@ -97,7 +97,8 @@ namespace TrenchBroom {
             m_recentDocuments->setHandler(this, &TrenchBroomApp::OnFileOpenRecent);
 #endif
 
-#ifdef __APPLE__
+            // FIXME: add apple only for Qt
+#if 0
             SetExitOnFrameDelete(false);
             const ActionManager& actionManager = ActionManager::instance();
             wxMenuBar* menuBar = actionManager.createMenuBar(false);
@@ -480,7 +481,7 @@ namespace TrenchBroom {
         }
 
         void TrenchBroomApp::OnHelpShowManual() {
-            const IO::Path manualPath = IO::SystemPaths::resourceDirectory() + IO::Path("manual/index.html");
+            const IO::Path manualPath = IO::SystemPaths::findResourceFile(IO::Path("manual/index.html"));
             const String manualPathString = manualPath.asString();
             const QUrl manualPathUrl = QUrl::fromLocalFile(QString::fromStdString(manualPathString));
             QDesktopServices::openUrl(manualPathUrl);
@@ -514,7 +515,8 @@ namespace TrenchBroom {
         }
 #endif
 
-#ifdef __APPLE__
+// FIXME: add apple only for Qt
+#if 0
         void TrenchBroomApp::OnFileExit(wxCommandEvent& event) {
             if (m_frameManager->closeAllFrames())
                 ExitMainLoop();

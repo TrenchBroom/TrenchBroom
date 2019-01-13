@@ -143,7 +143,7 @@ namespace TrenchBroom {
         }
         
         void GameFactory::initializeFileSystem() {
-            const IO::Path resourceGameDir = IO::SystemPaths::resourceDirectory() + IO::Path("games");
+            const IO::Path resourceGameDir = IO::SystemPaths::findResourceDirectory(IO::Path("games"));
             const IO::Path userGameDir = IO::SystemPaths::userDataDirectory() + IO::Path("games");
             if (IO::Disk::directoryExists(resourceGameDir)) {
                 auto resourceFS = std::make_unique<IO::DiskFileSystem>(resourceGameDir);
