@@ -97,56 +97,56 @@ namespace TrenchBroom {
             size_t size = 0;
             
             DWORD accessMode = 0;
-		    DWORD protect = 0;
-		    DWORD mapAccess = 0;
-		    if ((mode & (std::ios_base::in | std::ios_base::out)) == (std::ios_base::in | std::ios_base::out)) {
-			    accessMode = GENERIC_READ | GENERIC_WRITE;
-			    protect = PAGE_READWRITE;
-			    mapAccess = FILE_MAP_ALL_ACCESS;
-		    } else if (mode & (std::ios_base::out)) {
-			    accessMode = GENERIC_WRITE;
-			    protect = PAGE_READWRITE;
-			    mapAccess = FILE_MAP_WRITE;
-		    } else {
-			    accessMode = GENERIC_READ;
-			    protect = PAGE_READONLY;
-			    mapAccess = FILE_MAP_READ;
-		    }
+            DWORD protect = 0;
+            DWORD mapAccess = 0;
+            if ((mode & (std::ios_base::in | std::ios_base::out)) == (std::ios_base::in | std::ios_base::out)) {
+                accessMode = GENERIC_READ | GENERIC_WRITE;
+                protect = PAGE_READWRITE;
+                mapAccess = FILE_MAP_ALL_ACCESS;
+            } else if (mode & (std::ios_base::out)) {
+                accessMode = GENERIC_WRITE;
+                protect = PAGE_READWRITE;
+                mapAccess = FILE_MAP_WRITE;
+            } else {
+                accessMode = GENERIC_READ;
+                protect = PAGE_READONLY;
+                mapAccess = FILE_MAP_READ;
+            }
             
             const String pathStr = path.asString();
-		    const size_t numChars = pathStr.size();
-		    LPWSTR uFilename = new wchar_t[numChars + 1];
-		    MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, pathStr.c_str(), numChars, uFilename, numChars + 1);
-		    uFilename[numChars] = 0;
+            const size_t numChars = pathStr.size();
+            LPWSTR uFilename = new wchar_t[numChars + 1];
+            MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, pathStr.c_str(), numChars, uFilename, numChars + 1);
+            uFilename[numChars] = 0;
             
-		    char* mappingName = new char[numChars + 1];
-		    for (size_t i = 0; i < numChars; i++) {
-			    if (pathStr[i] == '\\')
-				    mappingName[i] = '_';
-			    else
-				    mappingName[i] = pathStr[i];
-		    }
-		    mappingName[numChars] = 0;
+            char* mappingName = new char[numChars + 1];
+            for (size_t i = 0; i < numChars; i++) {
+                if (pathStr[i] == '\\')
+                    mappingName[i] = '_';
+                else
+                    mappingName[i] = pathStr[i];
+            }
+            mappingName[numChars] = 0;
             
-		    LPWSTR uMappingName = new TCHAR[numChars + 1];
-		    MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, mappingName, numChars, uMappingName, numChars + 1);
-		    uMappingName[numChars] = 0;
-		    delete [] mappingName;
+            LPWSTR uMappingName = new TCHAR[numChars + 1];
+            MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, mappingName, numChars, uMappingName, numChars + 1);
+            uMappingName[numChars] = 0;
+            delete [] mappingName;
             
-		    m_mappingHandle = OpenFileMapping(mapAccess, true, uMappingName);
-		    if (m_mappingHandle == nullptr) {
-			    m_fileHandle = CreateFile(uFilename, accessMode, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+            m_mappingHandle = OpenFileMapping(mapAccess, true, uMappingName);
+            if (m_mappingHandle == nullptr) {
+                m_fileHandle = CreateFile(uFilename, accessMode, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
                 delete [] uFilename;
 
-			    if (m_fileHandle != INVALID_HANDLE_VALUE) {
-				    size = static_cast<size_t>(GetFileSize(m_fileHandle, nullptr));
-				    m_mappingHandle = CreateFileMapping(m_fileHandle, nullptr, protect, 0, 0, uMappingName);
+                if (m_fileHandle != INVALID_HANDLE_VALUE) {
+                    size = static_cast<size_t>(GetFileSize(m_fileHandle, nullptr));
+                    m_mappingHandle = CreateFileMapping(m_fileHandle, nullptr, protect, 0, 0, uMappingName);
                     delete [] uMappingName;
-			    } else {
+                } else {
                     delete [] uMappingName;
-					throwError(path, "CreateFile");
-				}
-		    } else {
+                    throwError(path, "CreateFile");
+                }
+            } else {
                 WIN32_FILE_ATTRIBUTE_DATA attrs;
                 const BOOL result = GetFileAttributesEx(uFilename, GetFileExInfoStandard, &attrs);
                 
@@ -156,60 +156,60 @@ namespace TrenchBroom {
                 if (result != 0) {
                     size = (attrs.nFileSizeHigh << 16) + attrs.nFileSizeLow;
                 } else {
-				    CloseHandle(m_mappingHandle);
-				    m_mappingHandle = nullptr;
-					throwError(path, "GetFileAttributesEx");
-				}
-		    }
+                    CloseHandle(m_mappingHandle);
+                    m_mappingHandle = nullptr;
+                    throwError(path, "GetFileAttributesEx");
+                }
+            }
             
-		    if (m_mappingHandle != nullptr) {
-			    m_address = static_cast<char*>(MapViewOfFile(m_mappingHandle, mapAccess, 0, 0, 0));
-			    if (m_address != nullptr) {
+            if (m_mappingHandle != nullptr) {
+                m_address = static_cast<char*>(MapViewOfFile(m_mappingHandle, mapAccess, 0, 0, 0));
+                if (m_address != nullptr) {
                     init(m_address, m_address + size);
-			    } else {
-				    CloseHandle(m_mappingHandle);
-				    m_mappingHandle = nullptr;
-				    CloseHandle(m_fileHandle);
-				    m_fileHandle = INVALID_HANDLE_VALUE;
-					throwError(path, "MapViewOfFile");
-			    }
-		    } else {
-			    if (m_fileHandle != INVALID_HANDLE_VALUE) {
-				    CloseHandle(m_fileHandle);
-				    m_fileHandle = INVALID_HANDLE_VALUE;
-					throwError(path, "OpenFileMapping or CreateFileMapping");
-				}
-		    }
+                } else {
+                    CloseHandle(m_mappingHandle);
+                    m_mappingHandle = nullptr;
+                    CloseHandle(m_fileHandle);
+                    m_fileHandle = INVALID_HANDLE_VALUE;
+                    throwError(path, "MapViewOfFile");
+                }
+            } else {
+                if (m_fileHandle != INVALID_HANDLE_VALUE) {
+                    CloseHandle(m_fileHandle);
+                    m_fileHandle = INVALID_HANDLE_VALUE;
+                    throwError(path, "OpenFileMapping or CreateFileMapping");
+                }
+            }
         }
         
         WinMappedFile::~WinMappedFile() {
             if (m_address != nullptr) {
-        	    UnmapViewOfFile(m_address);
+                UnmapViewOfFile(m_address);
                 m_address = nullptr;
             }
             
-		    if (m_mappingHandle != nullptr) {
-			    CloseHandle(m_mappingHandle);
-			    m_mappingHandle = nullptr;
-		    }
+            if (m_mappingHandle != nullptr) {
+                CloseHandle(m_mappingHandle);
+                m_mappingHandle = nullptr;
+            }
             
-		    if (m_fileHandle != INVALID_HANDLE_VALUE) {
-			    CloseHandle(m_fileHandle);
-			    m_fileHandle = INVALID_HANDLE_VALUE;
-		    }
+            if (m_fileHandle != INVALID_HANDLE_VALUE) {
+                CloseHandle(m_fileHandle);
+                m_fileHandle = INVALID_HANDLE_VALUE;
+            }
         }
 
-		void WinMappedFile::throwError(const Path& path, const String& functionName) {
-			char buf[512];
-			const auto error = GetLastError();
-			FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-				NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-				buf, (sizeof(buf) / sizeof(char)), NULL);
+        void WinMappedFile::throwError(const Path& path, const String& functionName) {
+            char buf[512];
+            const auto error = GetLastError();
+            FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                buf, (sizeof(buf) / sizeof(char)), NULL);
 
-			StringStream msg;
-			msg << "Cannot open file " << path << ": Function " << functionName << " threw error " << error << " - "  << buf;
-			throw FileSystemException(msg.str());
-		}
+            StringStream msg;
+            msg << "Cannot open file " << path << ": Function " << functionName << " threw error " << error << " - "  << buf;
+            throw FileSystemException(msg.str());
+        }
 #else
         PosixMappedFile::PosixMappedFile(const Path& path, std::ios_base::openmode mode) :
         MappedFile(path),
