@@ -144,7 +144,10 @@ namespace TrenchBroom {
         
         void GameFactory::initializeFileSystem() {
             const IO::Path resourceGameDir = IO::SystemPaths::findResourceDirectory(IO::Path("games"));
-            const IO::Path userGameDir = IO::SystemPaths::userDataDirectory() + IO::Path("games");
+            // FIXME: Change back to "games". the problems is the userDataDirectory() overlaps with and has
+            // a higher priority than the actual resources directory (TrenchBroom.app/Contents/Resources)
+            // when searching for resources.
+            const IO::Path userGameDir = IO::SystemPaths::userDataDirectory() + IO::Path("gameUserData");
             if (IO::Disk::directoryExists(resourceGameDir)) {
                 auto resourceFS = std::make_unique<IO::DiskFileSystem>(resourceGameDir);
                 m_configFS = std::make_unique<IO::WritableDiskFileSystem>(std::move(resourceFS), userGameDir, true);

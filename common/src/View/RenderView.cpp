@@ -104,6 +104,7 @@ namespace TrenchBroom {
         }
 
         void RenderView::resizeGL(int w, int h) {
+            // These are in points, not pixels
             doUpdateViewport(0, 0, w, h);
         }
 
@@ -160,7 +161,9 @@ namespace TrenchBroom {
             vertices[14] = Vertex(vm::vec3f(t, t, 0.0f), inner);
             vertices[15] = Vertex(vm::vec3f(t, h-t, 0.0f), inner);
             
-            glAssert(glViewport(0, 0, clientSize.width(), clientSize.height()));
+            glAssert(glViewport(0, 0,
+                    static_cast<int>(clientSize.width() * devicePixelRatioF()),
+                    static_cast<int>(clientSize.height() * devicePixelRatioF())));
 
             const vm::mat4x4f projection = vm::orthoMatrix(-1.0f, 1.0f, 0.0f, 0.0f, w, h);
             Renderer::Transformation transformation(projection, vm::mat4x4f::identity);
