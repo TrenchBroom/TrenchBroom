@@ -101,6 +101,8 @@ namespace TrenchBroom {
         public:
             WinMappedFile(const Path& path, std::ios_base::openmode mode);
             ~WinMappedFile();
+        private:
+            static void throwError(const Path& path, const String& functionName);
         };
 #else
         class PosixMappedFile : public MappedFile {
