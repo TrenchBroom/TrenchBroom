@@ -27,11 +27,11 @@ namespace TrenchBroom {
     namespace Model {
         TexCoordSystemSnapshot::~TexCoordSystemSnapshot() = default;
 
-        void TexCoordSystemSnapshot::restore(TexCoordSystem* coordSystem) const {
-            coordSystem->doRestoreSnapshot(*this);
+        void TexCoordSystemSnapshot::restore(TexCoordSystem& coordSystem) const {
+            coordSystem.doRestoreSnapshot(*this);
         }
 
-        TexCoordSystemSnapshot* TexCoordSystemSnapshot::clone() const {
+        std::unique_ptr<TexCoordSystemSnapshot> TexCoordSystemSnapshot::clone() const {
             return doClone();
         }
         
@@ -39,11 +39,11 @@ namespace TrenchBroom {
 
         TexCoordSystem::~TexCoordSystem() = default;
         
-        TexCoordSystem* TexCoordSystem::clone() const {
+        std::unique_ptr<TexCoordSystem> TexCoordSystem::clone() const {
             return doClone();
         }
 
-        TexCoordSystemSnapshot* TexCoordSystem::takeSnapshot() {
+        std::unique_ptr<TexCoordSystemSnapshot> TexCoordSystem::takeSnapshot() {
             return doTakeSnapshot();
         }
 

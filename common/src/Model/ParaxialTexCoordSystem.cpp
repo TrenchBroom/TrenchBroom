@@ -46,7 +46,12 @@ namespace TrenchBroom {
         m_index(0) {
             setRotation(normal, 0.0f, attribs.rotation());
         }
-        
+
+        ParaxialTexCoordSystem::ParaxialTexCoordSystem(const size_t index, const vm::vec3& xAxis, const vm::vec3& yAxis) :
+        m_index(index),
+        m_xAxis(xAxis),
+        m_yAxis(yAxis) {}
+
         size_t ParaxialTexCoordSystem::planeNormalIndex(const vm::vec3& normal) {
             size_t bestIndex = 0;
             FloatType bestDot = static_cast<FloatType>(0.0);
@@ -70,18 +75,13 @@ namespace TrenchBroom {
             yAxis = BaseAxes[index * 3 + 2];
             projectionAxis = BaseAxes[(index / 2) * 6];
         }
-        
-        ParaxialTexCoordSystem::ParaxialTexCoordSystem(const size_t index, const vm::vec3& xAxis, const vm::vec3& yAxis) :
-        m_index(index),
-        m_xAxis(xAxis),
-        m_yAxis(yAxis) {}
 
-        TexCoordSystem* ParaxialTexCoordSystem::doClone() const {
-            return new ParaxialTexCoordSystem(m_index, m_xAxis, m_yAxis);
+        std::unique_ptr<TexCoordSystem> ParaxialTexCoordSystem::doClone() const {
+            return std::make_unique<ParaxialTexCoordSystem>(m_index, m_xAxis, m_yAxis);
         }
 
-        TexCoordSystemSnapshot* ParaxialTexCoordSystem::doTakeSnapshot() {
-            return nullptr;
+        std::unique_ptr<TexCoordSystemSnapshot> ParaxialTexCoordSystem::doTakeSnapshot() {
+            return std::unique_ptr<TexCoordSystemSnapshot>();
         }
         
         void ParaxialTexCoordSystem::doRestoreSnapshot(const TexCoordSystemSnapshot& snapshot) {

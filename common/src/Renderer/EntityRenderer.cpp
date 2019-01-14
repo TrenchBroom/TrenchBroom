@@ -252,7 +252,8 @@ namespace TrenchBroom {
                 const auto center = vm::vec3f(entity->bounds().center());
                 
                 const auto toCam = renderContext.camera().position() - center;
-                if (squaredLength(toCam) > maxDistance2) {
+                // only distance cull for perspective camera, since the 2D one is always very far from the level
+                if (renderContext.camera().perspectiveProjection() && squaredLength(toCam) > maxDistance2) {
                     continue;
                 }
 

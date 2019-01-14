@@ -66,7 +66,7 @@ namespace vm {
     TEST(VecTest, parseShortString) {
         const String s("1.0 3");
         ASSERT_FALSE(vec3f::canParse(s));
-        ASSERT_EQ(vec3f(1.0f, 3.0f, 0.0f), vec3f::parse(s));
+        ASSERT_EQ(vec3f::zero, vec3f::parse(s));
     }
 
     TEST(VecTest, parseLongString) {
@@ -77,6 +77,12 @@ namespace vm {
 
     TEST(VecTest, parseInvalidString) {
         const String s("asdf");
+        ASSERT_FALSE(vec3f::canParse(s));
+        ASSERT_EQ(vec3f::zero, vec3f::parse(s));
+    }
+
+    TEST(VecTest, parseEmptyString) {
+        const String s("");
         ASSERT_FALSE(vec3f::canParse(s));
         ASSERT_EQ(vec3f::zero, vec3f::parse(s));
     }

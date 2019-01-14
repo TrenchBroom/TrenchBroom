@@ -21,8 +21,11 @@
 #define TrenchBroom_TexCoordSystem
 
 #include "TrenchBroom.h"
+#include "Macros.h"
 
 #include <vecmath/vec.h>
+
+#include <memory>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -38,12 +41,12 @@ namespace TrenchBroom {
         class TexCoordSystemSnapshot {
         public:
             virtual ~TexCoordSystemSnapshot();
-            void restore(TexCoordSystem* coordSystem) const;
-            TexCoordSystemSnapshot* clone() const;
+            void restore(TexCoordSystem& coordSystem) const;
+            std::unique_ptr<TexCoordSystemSnapshot> clone() const;
         private:
-            virtual TexCoordSystemSnapshot* doClone() const = 0;
-            virtual void doRestore(ParallelTexCoordSystem* coordSystem) const = 0;
-            virtual void doRestore(ParaxialTexCoordSystem* coordSystem) const = 0;
+            virtual std::unique_ptr<TexCoordSystemSnapshot> doClone() const = 0;
+            virtual void doRestore(ParallelTexCoordSystem& coordSystem) const = 0;
+            virtual void doRestore(ParaxialTexCoordSystem& coordSystem) const = 0;
             
             friend class ParallelTexCoordSystem;
             friend class ParaxialTexCoordSystem;
@@ -59,8 +62,8 @@ namespace TrenchBroom {
             TexCoordSystem();
             virtual ~TexCoordSystem();
             
-            TexCoordSystem* clone() const;
-            TexCoordSystemSnapshot* takeSnapshot();
+            std::unique_ptr<TexCoordSystem> clone() const;
+            std::unique_ptr<TexCoordSystemSnapshot> takeSnapshot();
             
             vm::vec3 xAxis() const;
             vm::vec3 yAxis() const;
@@ -84,8 +87,8 @@ namespace TrenchBroom {
             vm::mat4x4 fromMatrix(const vm::vec2f& offset, const vm::vec2f& scale) const;
             float measureAngle(float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const;
         private:
-            virtual TexCoordSystem* doClone() const = 0;
-            virtual TexCoordSystemSnapshot* doTakeSnapshot() = 0;
+            virtual std::unique_ptr<TexCoordSystem> doClone() const = 0;
+            virtual std::unique_ptr<TexCoordSystemSnapshot> doTakeSnapshot() = 0;
             virtual void doRestoreSnapshot(const TexCoordSystemSnapshot& snapshot) = 0;
             friend class TexCoordSystemSnapshot;
             
@@ -121,9 +124,8 @@ namespace TrenchBroom {
             vm::vec<T1,3> safeScaleAxis(const vm::vec<T1,3>& axis, const T2 factor) const {
                 return axis / safeScale(T1(factor));
             }
-        private:
-            TexCoordSystem(const TexCoordSystem& other);
-            TexCoordSystem& operator=(const TexCoordSystem& other);
+
+            deleteCopyAndMove(TexCoordSystem)
         };
     }
 }

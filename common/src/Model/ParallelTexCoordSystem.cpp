@@ -40,16 +40,16 @@ namespace TrenchBroom {
         m_xAxis(coordSystem->xAxis()),
         m_yAxis(coordSystem->yAxis()) {}
         
-        TexCoordSystemSnapshot* ParallelTexCoordSystemSnapshot::doClone() const {
-            return new ParallelTexCoordSystemSnapshot(m_xAxis, m_yAxis);
+        std::unique_ptr<TexCoordSystemSnapshot> ParallelTexCoordSystemSnapshot::doClone() const {
+            return std::make_unique<ParallelTexCoordSystemSnapshot>(m_xAxis, m_yAxis);
         }
         
-        void ParallelTexCoordSystemSnapshot::doRestore(ParallelTexCoordSystem* coordSystem) const {
-            coordSystem->m_xAxis = m_xAxis;
-            coordSystem->m_yAxis = m_yAxis;
+        void ParallelTexCoordSystemSnapshot::doRestore(ParallelTexCoordSystem& coordSystem) const {
+            coordSystem.m_xAxis = m_xAxis;
+            coordSystem.m_yAxis = m_yAxis;
         }
         
-        void ParallelTexCoordSystemSnapshot::doRestore(ParaxialTexCoordSystem* coordSystem) const {
+        void ParallelTexCoordSystemSnapshot::doRestore(ParaxialTexCoordSystem& coordSystem) const {
             ensure(false, "wrong coord system type");
         }
         
@@ -63,16 +63,16 @@ namespace TrenchBroom {
         m_xAxis(xAxis),
         m_yAxis(yAxis) {}
         
-        TexCoordSystem* ParallelTexCoordSystem::doClone() const {
-            return new ParallelTexCoordSystem(m_xAxis, m_yAxis);
+        std::unique_ptr<TexCoordSystem> ParallelTexCoordSystem::doClone() const {
+            return std::make_unique<ParallelTexCoordSystem>(m_xAxis, m_yAxis);
         }
         
-        TexCoordSystemSnapshot* ParallelTexCoordSystem::doTakeSnapshot() {
-            return new ParallelTexCoordSystemSnapshot(this);
+        std::unique_ptr<TexCoordSystemSnapshot> ParallelTexCoordSystem::doTakeSnapshot() {
+            return std::make_unique<ParallelTexCoordSystemSnapshot>(this);
         }
         
         void ParallelTexCoordSystem::doRestoreSnapshot(const TexCoordSystemSnapshot& snapshot) {
-            snapshot.doRestore(this);
+            snapshot.doRestore(*this);
         }
 
         vm::vec3 ParallelTexCoordSystem::getXAxis() const {

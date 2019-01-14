@@ -143,6 +143,10 @@ namespace TrenchBroom {
             return true;
         }
 
+        bool Group::doShouldAddToSpacialIndex() const {
+            return true;
+        }
+
         void Group::doChildWasAdded(Node* node) {
             nodeBoundsDidChange(bounds());
         }

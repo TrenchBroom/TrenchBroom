@@ -490,10 +490,9 @@ namespace TrenchBroom {
                 if (source != nullptr) {
                     destination->setAttribs(source->attribs());
 
-                    auto* snapshot = source->takeTexCoordSystemSnapshot();
+                    auto snapshot = source->takeTexCoordSystemSnapshot();
                     if (snapshot != nullptr) {
-                        destination->copyTexCoordSystemFromFace(snapshot, source->attribs().takeSnapshot(), source->boundary(), WrapStyle::Projection);
-                        delete snapshot;
+                        destination->copyTexCoordSystemFromFace(*snapshot, source->attribs().takeSnapshot(), source->boundary(), WrapStyle::Projection);
                     }
                 }
             }
@@ -512,10 +511,9 @@ namespace TrenchBroom {
                     // Todo: invert the face attributes?
                     destination->setAttribs(source->attribs());
 
-                    auto* snapshot = source->takeTexCoordSystemSnapshot();
+                    auto snapshot = source->takeTexCoordSystemSnapshot();
                     if (snapshot != nullptr) {
-                        destination->copyTexCoordSystemFromFace(snapshot, source->attribs().takeSnapshot(), destination->boundary(), WrapStyle::Projection);
-                        delete snapshot;
+                        destination->copyTexCoordSystemFromFace(*snapshot, source->attribs().takeSnapshot(), destination->boundary(), WrapStyle::Projection);
                     }
                 }
             }
@@ -1123,19 +1121,18 @@ namespace TrenchBroom {
 
             try {
                 leftClone->transform(M, true);
+
+                auto snapshot = std::unique_ptr<TexCoordSystemSnapshot>(leftClone->takeTexCoordSystemSnapshot());
+                rightFace->setAttribs(leftClone->attribs());
+                if (snapshot) {
+                    // Note, the wrap style doesn't matter because the source and destination faces should have the same plane
+                    rightFace->copyTexCoordSystemFromFace(*snapshot, leftClone->attribs().takeSnapshot(),
+                                                          leftClone->boundary(), WrapStyle::Rotation);
+                }
+                rightFace->resetTexCoordSystemCache();
             } catch (const GeometryException&) {
-                return;
+                // do nothing
             }
-
-            auto snapshot = std::unique_ptr<TexCoordSystemSnapshot>(leftClone->takeTexCoordSystemSnapshot());
-
-            rightFace->setAttribs(leftClone->attribs());
-            if (snapshot) {
-                // Note, the wrap style doesn't matter because the source and destination faces should have the same plane
-                rightFace->copyTexCoordSystemFromFace(snapshot.get(), leftClone->attribs().takeSnapshot(),
-                                                      leftClone->boundary(), WrapStyle::Rotation);
-            }
-            rightFace->resetTexCoordSystemCache();
         }
 
         void Brush::doSetNewGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, const BrushGeometry& newGeometry, const bool uvLock) {
@@ -1407,6 +1404,10 @@ namespace TrenchBroom {
 
         bool Brush::doRemoveIfEmpty() const {
             return false;
+        }
+
+        bool Brush::doShouldAddToSpacialIndex() const {
+            return true;
         }
 
         void Brush::doParentDidChange() {
