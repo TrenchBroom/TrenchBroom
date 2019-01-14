@@ -106,9 +106,6 @@ TARGET_LINK_LIBRARIES(TrenchBroom glew ${wxWidgets_LIBRARIES} ${FREETYPE_LIBRARI
 IF (COMPILER_IS_MSVC)
     TARGET_LINK_LIBRARIES(TrenchBroom stackwalker)
 ENDIF()
-IF(APPLE)
-    TARGET_LINK_LIBRARIES(TrenchBroom "-framework OpenGL")
-ENDIF()
 SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES COMPILE_DEFINITIONS "GLEW_STATIC")
 SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES AUTOMOC TRUE)
 
@@ -154,6 +151,9 @@ IF(WIN32)
     # Copy DLLs to app directory
     ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${LIB_BIN_DIR}/win32" "$<TARGET_FILE_DIR:TrenchBroom>"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Widgets>" "$<TARGET_FILE_DIR:TrenchBroom>"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Gui>" "$<TARGET_FILE_DIR:TrenchBroom>"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Core>" "$<TARGET_FILE_DIR:TrenchBroom>"
     )
 
     # Copy application and window icons to resources directory
@@ -168,12 +168,10 @@ IF(COMPILER_IS_MSVC)
     SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES LINK_FLAGS_RELEASE "/DEBUG /PDBSTRIPPED:Release/TrenchBroom-stripped.pdb /PDBALTPATH:TrenchBroom-stripped.pdb")
 ENDIF()
 
-# Properly link to OpenGL libraries on Unix-like systems
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
-    FIND_PACKAGE(OpenGL)
-    INCLUDE_DIRECTORIES(SYSTEM ${OPENGL_INCLUDE_DIR})
-    TARGET_LINK_LIBRARIES(TrenchBroom ${OPENGL_LIBRARIES})
+FIND_PACKAGE(OpenGL REQUIRED)
+TARGET_LINK_LIBRARIES(TrenchBroom OpenGL::GL)
 
+IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
     # make executable name conventional lowercase on linux
     SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES OUTPUT_NAME "trenchbroom")
 ENDIF()
@@ -247,12 +245,6 @@ IF(WIN32)
 
     FILE(GLOB WIN_LIBS "${LIB_BIN_DIR}/win32/*.dll")
     
-    # Copy wxWidgets DLLs to app directory (not actually related to CPack but uses the WIN_LIB_WX_* variables from above)
-    ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${WIN_LIB_WX_core} $<TARGET_FILE_DIR:TrenchBroom>)
-    ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${WIN_LIB_WX_base} $<TARGET_FILE_DIR:TrenchBroom>)
-    ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${WIN_LIB_WX_adv} $<TARGET_FILE_DIR:TrenchBroom>)
-    ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${WIN_LIB_WX_gl} $<TARGET_FILE_DIR:TrenchBroom>)
-
     # Copy PDB files (msvc debug symbols)
     IF(COMPILER_IS_MSVC)
         IF(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
@@ -264,10 +256,9 @@ IF(WIN32)
         
             INSTALL(FILES
                 "$<TARGET_FILE_DIR:TrenchBroom>/TrenchBroom.pdb"
-                ${WIN_PDB_WX_core}
-                ${WIN_PDB_WX_base}
-                ${WIN_PDB_WX_adv}
-                ${WIN_PDB_WX_gl}
+                $<TARGET_FILE:Qt5::Widgets>
+                $<TARGET_FILE:Qt5::Gui>
+                $<TARGET_FILE:Qt5::Core>
                 DESTINATION . COMPONENT TrenchBroom)
         ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
             INSTALL(FILES
