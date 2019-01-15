@@ -20,6 +20,7 @@
 #include "SystemPaths.h"
 
 #include "IO/Path.h"
+#include "IO/DiskIO.h"
 
 #include <QCoreApplication>
 #include <QProcessEnvironment>
@@ -33,31 +34,6 @@ namespace TrenchBroom {
                 return IO::Path(QCoreApplication::applicationDirPath().toStdString());
             }
 
-#if defined __linux__ || defined __FreeBSD__
-            static bool getDevMode() {
-                QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
-                QString value = environment.value("TB_DEV_MODE");
-                if (value.isEmpty()) {
-                    return false;
-                }
-                return value != "0";
-            }
-#endif
-
-#if 0
-            Path resourceDirectory() {
-#if defined __linux__ || defined __FreeBSD__
-                static const bool DevMode = getDevMode();
-                if (DevMode)
-                    return appDirectory();
-#endif
-                // FIXME: implement. Will need to return a list of Paths
-                assert(0);
-                return IO::Path();
-      //          return IO::Path(wxStandardPaths::Get().GetResourcesDir().ToStdString());
-            }
-#endif
-
             Path userDataDirectory() {
                 // FIXME: confirm against wx
                 return IO::Path(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation).toStdString());
@@ -68,14 +44,26 @@ namespace TrenchBroom {
             }
 
             Path findResourceFile(const Path &file) {
-                // FIXME: see if TB_DEV_MODE hack is needed
+                const auto relativeToExecutable = appDirectory() + file;
+                if (Disk::fileExists(relativeToExecutable)) {
+                    // This is for running debug builds on Linux
+                    return relativeToExecutable;
+                }
+
+                // FIXME: confirm against wx
                 return IO::Path(QStandardPaths::locate(QStandardPaths::AppLocalDataLocation,
                                                        file.asQString(),
                                                        QStandardPaths::LocateOption::LocateFile).toStdString());
             }
 
             Path findResourceDirectory(const Path &directory) {
-                // FIXME: see if TB_DEV_MODE hack is needed
+                const auto relativeToExecutable = appDirectory() + directory;
+                if (Disk::directoryExists(relativeToExecutable)) {
+                    // This is for running debug builds on Linux
+                    return relativeToExecutable;
+                }
+
+                // FIXME: confirm against wx
                 return IO::Path(QStandardPaths::locate(QStandardPaths::AppLocalDataLocation,
                                                        directory.asQString(),
                                                        QStandardPaths::LocateOption::LocateDirectory).toStdString());
