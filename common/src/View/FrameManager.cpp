@@ -91,7 +91,7 @@ namespace TrenchBroom {
             MapFrame* frame = new MapFrame(this, document);
             // FIXME: SetName is something for wx persistence?
             //frame->SetName("MapFrame");
-            //frame->positionOnScreen(topFrame());
+            frame->positionOnScreen(topFrame());
 
 #if 0
             if (m_frames.empty())

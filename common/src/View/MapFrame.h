@@ -203,7 +203,7 @@ namespace TrenchBroom {
             void Create(FrameManager* frameManager, MapDocumentSPtr document);
             virtual ~MapFrame();
 
-            //void positionOnScreen(wxFrame* reference);
+            void positionOnScreen(QWidget* reference);
             MapDocumentSPtr document() const;
         public: // getters and such
             Logger* logger() const;

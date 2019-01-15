@@ -188,10 +188,6 @@ namespace TrenchBroom {
             delete m_updateLocker;
             m_updateLocker = nullptr;
 
-            // FIXME: I think this is deleted by the parent widget in Qt
-//            delete m_autosaveTimer;
-//            m_autosaveTimer = nullptr;
-
             delete m_autosaver;
             m_autosaver = nullptr;
 
@@ -207,27 +203,16 @@ namespace TrenchBroom {
             m_contextManager = nullptr;
         }
 
-#if 0
-        void MapFrame::positionOnScreen(wxFrame* reference) {
-            const wxDisplay display;
-            const wxRect displaySize = display.GetClientArea();
-            if (reference == nullptr) {
-                SetSize(std::min(displaySize.width, 1024), std::min(displaySize.height, 768));
-                CenterOnScreen();
+        void MapFrame::positionOnScreen(QWidget* reference) {
+            // FIXME: Restore saved size from preferences here?
+
+            resize(1024, 768);
+            if (reference) {
+                move(reference->pos() + QPoint(23, 23));
             } else {
-                wxPoint position = reference->GetPosition();
-                position.x += 23;
-                position.y += 23;
-
-                if (displaySize.GetBottom() - position.x < 100 ||
-                    displaySize.GetRight() - position.y < 70)
-                    position = displaySize.GetTopLeft();
-
-                SetPosition(position);
-                SetSize(std::min(displaySize.GetRight() - position.x, reference->GetSize().x), std::min(displaySize.GetBottom() - position.y, reference->GetSize().y));
+                // FIXME: Should we bother centering it on screen like the wx version did?
             }
         }
-#endif
 
         MapDocumentSPtr MapFrame::document() const {
             return m_document;
