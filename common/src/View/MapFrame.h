@@ -228,6 +228,7 @@ namespace TrenchBroom {
             void updateToolActions();
             void updateOtherActions();
             void updateUndoRedoActions();
+            void updateClipboardActions();
 
             void addRecentDocumentsMenu(QMenuBar* menuBar);
             void removeRecentDocumentsMenu(QMenuBar* menuBar);

@@ -134,6 +134,9 @@ namespace TrenchBroom {
             updateBindings();
             updateGridActions();
             updateToolActions();
+            updateOtherActions();
+            updateUndoRedoActions();
+            updateClipboardActions();
 
             createMenus();
             createStatusBar();
@@ -1007,7 +1010,7 @@ namespace TrenchBroom {
 		}
 
 		void MapFrame::updateOtherActions() {
-		    // FIXME: huge slowdown from this function, track down
+		    // FIXME: MapDocument::persistent() does disk IO - don't do any IO in here
 
 		    fileReloadPointFileAction->setEnabled(canReloadPointFile());
             fileUnloadPointFileAction->setEnabled(canUnloadPointFile());
@@ -1016,8 +1019,7 @@ namespace TrenchBroom {
 
             editCutAction->setEnabled(canCut());
             editCopyAction->setEnabled(canCopy());
-            editPasteAction->setEnabled(canPaste());
-            editPasteAtOriginalPositionAction->setEnabled(canPaste());
+            // For paste actions, see updateClipboardActions()
             editDuplicateAction->setEnabled(canDuplicate());
             editDeleteAction->setEnabled(canDelete());
             editSelectAllAction->setEnabled(canSelect());
@@ -1080,6 +1082,12 @@ namespace TrenchBroom {
 		void MapFrame::updateUndoRedoActions() {
             // FIXME:
 		}
+
+        void MapFrame::updateClipboardActions() {
+            const bool paste = canPaste();
+            editPasteAction->setEnabled(paste);
+            editPasteAtOriginalPositionAction->setEnabled(paste);
+        }
 
 #if 0
         void MapFrame::addRecentDocumentsMenu(wxMenuBar* menuBar) {
@@ -1432,8 +1440,9 @@ namespace TrenchBroom {
 #endif
 
             connect(qApp, &QApplication::focusChanged, this, &MapFrame::onFocusChange);
-
             connect(m_gridChoice, QOverload<int>::of(&QComboBox::activated), this, &MapFrame::OnToolBarSetGridSize);
+
+            connect(QApplication::clipboard(), &QClipboard::dataChanged, this, &MapFrame::updateClipboardActions);
         }
 
         void MapFrame::OnFileSave() {
@@ -2160,13 +2169,15 @@ namespace TrenchBroom {
             return m_document->hasSelectedNodes() || m_document->hasSelectedBrushFaces();
         }
 
+        /**
+         * This is relatively expensive so only call it when the clipboard changes or e.g. the user tries to paste.
+         */
         bool MapFrame::canPaste() const {
             if (!m_mapView->isCurrent())
                 return false;
 
             QClipboard *clipboard = QApplication::clipboard();
             return !clipboard->text().isEmpty();
-
         }
 
         bool MapFrame::canDelete() const {
