@@ -115,6 +115,7 @@ namespace TrenchBroom {
             const GameConfig expected("Quake",
                                       Path(""),
                                       Path("Quake/Icon.png"),
+                                      false,
                                       GameConfig::MapFormatConfig::List({
                                           GameConfig::MapFormatConfig("Standard", Path("")),
                                           GameConfig::MapFormatConfig("Valve", Path(""))
@@ -133,6 +134,7 @@ namespace TrenchBroom {
             ASSERT_EQ(expected.name(), actual.name());
             ASSERT_EQ(expected.path(), actual.path());
             ASSERT_EQ(expected.icon(), actual.icon());
+            ASSERT_EQ(expected.experimental(), actual.experimental());
             ASSERT_EQ(expected.fileFormats(), actual.fileFormats());
             ASSERT_EQ(expected.fileSystemConfig(), actual.fileSystemConfig());
             ASSERT_EQ(expected.textureConfig(), actual.textureConfig());
@@ -387,6 +389,7 @@ namespace TrenchBroom {
             const GameConfig expected("Quake 2",
                                       Path(""),
                                       Path("Quake2/Icon.png"),
+                                      false,
                                       GameConfig::MapFormatConfig::List({
                                           GameConfig::MapFormatConfig("Quake2", Path("Quake2/InitialMap.map"))
                                       }),
@@ -404,6 +407,7 @@ namespace TrenchBroom {
             ASSERT_EQ(expected.name(), actual.name());
             ASSERT_EQ(expected.path(), actual.path());
             ASSERT_EQ(expected.icon(), actual.icon());
+            ASSERT_EQ(expected.experimental(), actual.experimental());
             ASSERT_EQ(expected.fileFormats(), actual.fileFormats());
             ASSERT_EQ(expected.fileSystemConfig(), actual.fileSystemConfig());
             ASSERT_EQ(expected.textureConfig(), actual.textureConfig());

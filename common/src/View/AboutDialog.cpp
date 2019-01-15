@@ -54,33 +54,41 @@ namespace TrenchBroom {
         }
         
         void AboutDialog::createGui() {
-            TrenchBroom::View::setWindowIcon(this);
+            const QString creditsString = tr("github.com/kduske/TrenchBroom\n\n"
+                                             "<b>Developers</b>\n"
+                                             "Kristian Duske\n"
+                                             "Eric Wasylishen\n\n"
+                                             "<b>Contributors</b>\n"
+                                             "Corey Jones (Documentation)\n"
+                                             "Philipp Nahratow (Bug fixes, Linux builds)\n"
+                                             "rebb (Shaders, bug fixes)\n"
+                                             "chronicol (Documentation)\n"
+                                             "bazhenovc (FreeImage texture loading)\n"
+                                             "Scampie (Documentation)\n"
+                                             "mittorn (Partial Half-Life support)\n"
+                                             "Matthew Borkowski (CSG merging enhancements)\n"
+                                             "Rohit Nirmal (Bug fixes)\n"
+                                             "negke (FGD files)\n"
+                                             "Jonathan Linat (Documentation)\n"
+                                             "Yuki Raven (Font size preference)\n"
+                                             "mankeli (Bug fixes)\n"
+                                             "Jonas Lund (Bug fixes)\n\n"
+                                             "<b>3rd Party Libraries, Tools and Assets</b>\n"
+                                             "wxWidgets (Cross platform GUI library)\n"
+                                             "FreeType (Font rendering library)\n"
+                                             "FreeImage (Image loading & manipulation library)\n"
+                                             "GLEW (OpenGL extension library)\n"
+                                             "Google Test (C++ testing framework)\n"
+                                             "Google Mock (C++ mocking framework)\n"
+                                             "StackWalker (C++ stack trace analyzer)\n"
+                                             "CMake (Cross platform build manager)\n"
+                                             "Pandoc (Universal document converter)\n"
+                                             "Source Sans Pro (Font)\n").replace("\n", "<br/>");
             
             AppInfoPanel* infoPanel = new AppInfoPanel(nullptr);
             
             QLabel* creditsText = new QLabel();
-            creditsText->setText(tr("<b>Developed by Kristian Duske</b><br>"
-                                 "github.com/kduske/TrenchBroom<br><br>"
-                                 "<b>Contributors</b><br>"
-                                 "Corey Jones (Documentation)<br>"
-                                 "Eric Wasylishen (Code, bug fixes)<br>"
-                                 "Jonas Lund (Bug fixes)<br>"
-                                 "negke (FGD files)<br>"
-                                 "Philipp Nahratow (Bug fixes, Linux builds)<br>"
-                                 "rebb (Shaders, bug fixes)<br>"
-                                 "Rohit Nirmal (Bug fixes)<br>"
-                                 "Scampie (Documentation)<br><br>"
-                                 "<b>3rd Party Libraries, Tools and Assets</b><br>"
-                                 "wxWidgets (Cross platform GUI library)<br>"
-                                 "FreeType (Font rendering library)<br>"
-                                 "FreeImage (Image loading & manipulation library)<br>"
-                                 "GLEW (OpenGL extension library)<br>"
-                                 "Google Test (C++ testing framework)<br>"
-                                 "Google Mock (C++ mocking framework)<br>"
-                                 "StackWalker (C++ stack trace analyzer)<br>"
-                                 "CMake (Cross platform build manager)<br>"
-                                 "Pandoc (Universal document converter)<br>"
-                                 "Source Sans Pro (Font)<br>"));
+            creditsText->setText(creditsString);
 
             QHBoxLayout* outerSizer = new QHBoxLayout();
             outerSizer->setContentsMargins(0, 20, 0, 20);

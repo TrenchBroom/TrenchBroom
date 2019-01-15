@@ -149,6 +149,7 @@ namespace TrenchBroom {
             String m_name;
             IO::Path m_path;
             IO::Path m_icon;
+            bool m_experimental;
             MapFormatConfig::List m_fileFormats;
             FileSystemConfig m_fileSystemConfig;
             TextureConfig m_textureConfig;
@@ -160,11 +161,12 @@ namespace TrenchBroom {
             size_t m_maxPropertyLength;
         public:
             GameConfig();
-            GameConfig(const String& name, const IO::Path& path, const IO::Path& icon, const MapFormatConfig::List& fileFormats, const FileSystemConfig& fileSystemConfig, const TextureConfig& textureConfig, const EntityConfig& entityConfig, const FaceAttribsConfig& faceAttribsConfig, const BrushContentType::List& brushContentTypes);
+            GameConfig(const String& name, const IO::Path& path, const IO::Path& icon, bool experimental, const MapFormatConfig::List& fileFormats, const FileSystemConfig& fileSystemConfig, const TextureConfig& textureConfig, const EntityConfig& entityConfig, const FaceAttribsConfig& faceAttribsConfig, const BrushContentType::List& brushContentTypes);
             
             const String& name() const;
             const IO::Path& path() const;
             const IO::Path& icon() const;
+            bool experimental() const;
             const MapFormatConfig::List& fileFormats() const;
             const FileSystemConfig& fileSystemConfig() const;
             const TextureConfig& textureConfig() const;
