@@ -77,12 +77,14 @@ namespace TrenchBroom {
             for (const String& gameName : gameFactory.gameList()) {
                 const IO::Path gamePath = gameFactory.gamePath(gameName);
                 IO::Path iconPath = gameFactory.iconPath(gameName);
-                if (iconPath.isEmpty())
+                if (iconPath.isEmpty()) {
                     iconPath = IO::Path("DefaultGameIcon.png");
-                
+                }
+                const bool experimental = gameFactory.gameConfig(gameName).experimental();
+
                 Info gameInfo;
                 gameInfo.image = IO::loadImageResource(iconPath);
-                gameInfo.title = gameName;
+                gameInfo.title = gameName + (experimental ? " (experimental)" : "");
                 gameInfo.subtitle = gamePath.isEmpty() ? String("Game not found") : gamePath.asString();
                 
                 m_gameInfos.push_back(gameInfo);

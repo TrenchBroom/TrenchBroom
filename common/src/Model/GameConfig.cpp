@@ -178,6 +178,7 @@ namespace TrenchBroom {
         GameConfig::GameConfig(const String& name,
                                const IO::Path& path,
                                const IO::Path& icon,
+                               const bool experimental,
                                const MapFormatConfig::List& fileFormats,
                                const FileSystemConfig& fileSystemConfig,
                                const TextureConfig& textureConfig,
@@ -187,6 +188,7 @@ namespace TrenchBroom {
         m_name(name),
         m_path(path),
         m_icon(icon),
+        m_experimental(experimental),
         m_fileFormats(fileFormats),
         m_fileSystemConfig(fileSystemConfig),
         m_textureConfig(textureConfig),
@@ -208,6 +210,10 @@ namespace TrenchBroom {
     
         const IO::Path& GameConfig::icon() const {
             return m_icon;
+        }
+
+        bool GameConfig::experimental() const {
+            return m_experimental;
         }
 
         const GameConfig::MapFormatConfig::List& GameConfig::fileFormats() const {
