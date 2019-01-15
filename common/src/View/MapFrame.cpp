@@ -96,8 +96,7 @@ namespace TrenchBroom {
         m_mapView(nullptr),
 //        m_console(nullptr),
 //        m_inspector(nullptr),
-//        m_lastFocus(nullptr),
-//        m_gridChoice(nullptr),
+        m_gridChoice(nullptr),
 //        m_compilationDialog(nullptr),
         m_updateLocker(nullptr) {}
 
@@ -110,8 +109,7 @@ namespace TrenchBroom {
         m_mapView(nullptr),
 //        m_console(nullptr),
 //        m_inspector(nullptr),
-//        m_lastFocus(nullptr),
-//        m_gridChoice(nullptr),
+        m_gridChoice(nullptr),
 //        m_compilationDialog(nullptr),
         m_updateLocker(nullptr) {
             Create(frameManager, document);
@@ -130,7 +128,6 @@ namespace TrenchBroom {
             m_contextManager = new GLContextManager();
 
             createGui();
-            createMenuBar();
             createActions();
             createToolBar();
 
@@ -182,8 +179,6 @@ namespace TrenchBroom {
             m_mapView->deactivateTool();
             
             unbindObservers();
-            // FIXME: necessary in Qt?
-//            removeRecentDocumentsMenu(GetMenuBar());
 
             delete m_updateLocker;
             m_updateLocker = nullptr;
@@ -332,62 +327,6 @@ namespace TrenchBroom {
             setWindowModified(m_document->modified());
             setWindowTitle(QString::fromStdString(m_document->filename()) + QString("[*] - TrenchBroom"));
             setWindowFilePath(QString::fromStdString(m_document->path().asString()));
-        }
-
-// FIXME: was WIN32 only, needed for Qt?
-#if 0 //defined(_WIN32)
-		/*
-		This and the following method were added to reset the menu bar correctly when the map frame
-		regains focus after the preference dialog is closed. Since the map view reports not having focus
-		when the activation event is processed, we set up a delayed processing in the next idle event.
-
-		See also issue #1762, which only affects Windows.
-		*/
-		void MapFrame::OnActivate(wxActivateEvent& event) {
-            if (IsBeingDeleted()) return;
-
-			Bind(wxEVT_IDLE, &MapFrame::OnDelayedActivate, this);
-			event.Skip();
-        }
-
-		void MapFrame::OnDelayedActivate(wxIdleEvent& event) {
-			if (IsBeingDeleted()) return;
-
-			Unbind(wxEVT_IDLE, &MapFrame::OnDelayedActivate, this);
-			rebuildMenuBar();
-			event.Skip();
-		}
-#endif
-
-// FIXME: only used for rebuildMenuBar(). drop?
-#if 0
-		void MapFrame::OnChildFocus(wxChildFocusEvent& event) {
-            wxWindow* focus = FindFocus();
-            if (focus == nullptr)
-                focus = event.GetWindow();
-            if (focus != m_lastFocus && focus != this) {
-                rebuildMenuBar();
-                m_lastFocus = focus;
-            }
-
-			event.Skip();
-        }
-#endif
-
-        void MapFrame::rebuildMenuBar() {
-//            wxMenuBar* oldMenuBar = GetMenuBar();
-//            removeRecentDocumentsMenu(oldMenuBar);
-            createMenuBar();
-//            oldMenuBar->Destroy();
-        }
-
-        void MapFrame::createMenuBar() {
-//			const ActionManager& actionManager = ActionManager::instance();
-//            QMenuBar* menuBar = actionManager.createMenuBarQt(m_mapView->viewportHasFocus());
-//            setMenuBar(menuBar);
-
-            // FIXME: recents
-            //addRecentDocumentsMenu(menuBar);
         }
 
         void MapFrame::createActions() {
@@ -865,6 +804,7 @@ namespace TrenchBroom {
             fileMenu->addSeparator();
             fileMenu->addAction(fileOpenAction);// UnmodifiableActionItem(wxID_OPEN, "Open...", KeyboardShortcut('O', WXK_CONTROL));
             QMenu* openRecentMenu = fileMenu->addMenu("Open Recent");
+            // FIXME: implement recents
             fileMenu->addSeparator();
             fileMenu->addAction(fileSaveAction);// addUnmodifiableActionItem(wxID_SAVE, "Save", KeyboardShortcut('S', WXK_CONTROL));
             fileMenu->addAction(fileSaveAsAction); // addUnmodifiableActionItem(wxID_SAVEAS, "Save as...", KeyboardShortcut('S', WXK_SHIFT, WXK_CONTROL));

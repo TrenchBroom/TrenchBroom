@@ -78,9 +78,6 @@ namespace TrenchBroom {
             Inspector* m_inspector;
 #endif
 
-            // FIXME: only used for rebuildMenuBar(). drop?
-            //wxWindow* m_lastFocus;
-
             QComboBox* m_gridChoice;
             QLabel* m_statusBarLabel;
 
@@ -223,15 +220,6 @@ namespace TrenchBroom {
         private: // title bar contents
             void updateTitle();
         private: // menu bar
-// FIXME: was WIN32 only, needed for Qt?
-#if 0
-			void OnActivate(wxActivateEvent& event);
-			void OnDelayedActivate(wxIdleEvent& event);
-#endif
-            // FIXME: only used for rebuildMenuBar(). drop?
-			//void OnChildFocus(wxChildFocusEvent& event);
-            void rebuildMenuBar();
-            void createMenuBar();
             void createActions();
             void registerBinding(QAction* action, const ActionInfo& info);
             void updateBindings();
