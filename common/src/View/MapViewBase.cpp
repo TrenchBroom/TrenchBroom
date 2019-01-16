@@ -90,7 +90,7 @@ namespace TrenchBroom {
         const int MapViewBase::DefaultCameraAnimationDuration = 250;
 
         MapViewBase::MapViewBase(QWidget* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager) :
-        RenderView(parent, contextManager),
+        RenderView(contextManager),
         ToolBoxConnector(this),
         m_logger(logger),
         m_document(document),
@@ -100,7 +100,7 @@ namespace TrenchBroom {
         m_compass(nullptr),
         m_portalFileRenderer(nullptr) {
             setToolBox(toolBox);
-            toolBox.addWindow(this);
+            toolBox.addWindow(this->widgetContainer());
             createActions();
             bindEvents();
             bindObservers();
@@ -120,7 +120,7 @@ namespace TrenchBroom {
             // see: http://doc.qt.io/qt-5/qopenglwidget.html#resource-initialization-and-cleanup
             makeCurrent();
 
-            m_toolBox.removeWindow(this);
+            m_toolBox.removeWindow(this->widgetContainer());
             unbindObservers();
             delete m_compass;
         }
@@ -296,7 +296,7 @@ namespace TrenchBroom {
         }
 
         QShortcut* MapViewBase::createAndRegisterShortcut(const ActionInfo& info, Callback callback) {
-            QShortcut* shortcut = new QShortcut(this);
+            QShortcut* shortcut = new QShortcut(this->widgetContainer());
             shortcut->setContext(Qt::WidgetShortcut); // Only in this widget
             registerBinding(shortcut, info);
             connect(shortcut, &QShortcut::activated, this, callback);
@@ -655,7 +655,7 @@ namespace TrenchBroom {
         void MapViewBase::OnGroupSelectedObjects() {
             MapDocumentSPtr document = lock(m_document);
             if (document->hasSelectedNodes()) {
-                const String name = queryGroupName(this);
+                const String name = queryGroupName(this->widgetContainer());
                 if (!name.empty())
                     document->groupSelection(name);
             }
@@ -670,7 +670,7 @@ namespace TrenchBroom {
         void MapViewBase::OnRenameGroups() {
             MapDocumentSPtr document = lock(m_document);
             assert(document->selectedNodes().hasOnlyGroups());
-            const String name = queryGroupName(this);
+            const String name = queryGroupName(this->widgetContainer());
             if (!name.empty())
                 document->renameGroups(name);
         }
@@ -765,12 +765,12 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::doFlashSelection() {
-            FlashSelectionAnimation* animation = new FlashSelectionAnimation(m_renderer, this, 180);
+            FlashSelectionAnimation* animation = new FlashSelectionAnimation(m_renderer, this->widgetContainer(), 180);
             m_animationManager->runAnimation(animation, true);
         }
 
         bool MapViewBase::doGetIsCurrent() const {
-            return hasFocus();
+            return HasFocus();
         }
         
         void MapViewBase::doSetToolBoxDropTarget() {

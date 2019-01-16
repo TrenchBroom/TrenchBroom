@@ -29,8 +29,8 @@
 #undef Bool
 #undef Status
 #undef CursorShape
-#include <QOpenGLWidget>
 #include <QElapsedTimer>
+#include <QOpenGLWindow>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -41,11 +41,13 @@ namespace TrenchBroom {
 
     namespace View {
         class GLContextManager;
-        
-        class RenderView : public QOpenGLWidget {
+        class RenderWindow;
+
+        class RenderView : public QOpenGLWindow {
         private:
             Color m_focusColor;
             GLContextManager* m_glContext;
+
         private: // FPS counter
             // stats since the last counter update
             int m_framesRendered;
@@ -55,18 +57,20 @@ namespace TrenchBroom {
             QElapsedTimer m_timeSinceLastFrame;
         protected:
             String m_currentFPS;
+
+        private:
+            QWidget* m_windowContainer;
         protected:
-            RenderView(QWidget* parent, GLContextManager& contextManager);
+            RenderView(GLContextManager& contextManager);
         public:
             virtual ~RenderView();
+        public:
+            QWidget* widgetContainer();
         public: // wxWidgets compat
             bool HasFocus() const;
             bool IsBeingDeleted() const;
             void Refresh();
-        protected: // QOpenGLWidget overrides
-            void paintGL() override;
-            void initializeGL() override;
-            void resizeGL(int w, int h) override;
+            void update();
         protected:
             Renderer::Vbo& vertexVbo();
             Renderer::Vbo& indexVbo();
@@ -75,6 +79,11 @@ namespace TrenchBroom {
             
             int depthBits() const;
             bool multisample() const;
+
+        protected: // QOpenGLWindow overrides
+            void initializeGL() override;
+            void paintGL() override;
+            void resizeGL(int w, int h) override;
         private:
             void render();
             void clearBackground();
