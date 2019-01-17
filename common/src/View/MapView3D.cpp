@@ -164,8 +164,11 @@ namespace TrenchBroom {
 
             Bind(wxEVT_IDLE, &MapView3D::OnIdle, this);
 #endif
-            // TODO: Just override?
-            connect(this, &QOpenGLWidget::frameSwapped, this, &MapView3D::OnFrameSwapped);
+
+            // Fly mode animation
+            QTimer* timer = new QTimer(this);
+            timer->start(15);
+            connect(timer, &QTimer::timeout, this, &MapView3D::OnFrameSwapped);
         }
 
         void MapView3D::OnFrameSwapped() {

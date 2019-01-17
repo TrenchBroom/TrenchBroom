@@ -44,6 +44,7 @@ namespace TrenchBroom {
     
     namespace View {
         class MapView3D : public MapViewBase {
+            Q_OBJECT
         private:
             Renderer::PerspectiveCamera m_camera;
             FlyModeHelper* m_flyModeHelper;

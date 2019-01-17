@@ -70,7 +70,8 @@ namespace TrenchBroom {
         class Selection;
         class Tool;
         
-        class MapViewBase : public MapView, public RenderView, public ToolBoxConnector, public CameraLinkableView {
+        class MapViewBase : public RenderView, public MapView, public ToolBoxConnector, public CameraLinkableView {
+            Q_OBJECT
         public:
             static const QString& glRendererString();
             static const QString& glVendorString();

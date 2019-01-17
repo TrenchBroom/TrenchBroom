@@ -29,6 +29,7 @@
 #include "View/wxUtils.h"
 
 #include <QPalette>
+#include <QTimer>
 
 #ifdef _WIN32
 #include <GL/wglew.h>
@@ -44,10 +45,24 @@ namespace TrenchBroom {
     namespace View {
         RenderView::RenderView(QWidget* parent, GLContextManager& contextManager) :
         QOpenGLWidget(parent),
-        m_glContext(&contextManager) {
+        m_glContext(&contextManager),
+        m_framesRendered(0) {
             QPalette pal;
             const QColor color = pal.color(QPalette::Highlight);
             m_focusColor = fromQColor(color);
+
+            // FPS counter
+
+            QTimer* fpsCounter = new QTimer(this);
+
+            connect(fpsCounter, &QTimer::timeout, [&](){
+                int frames = this->m_framesRendered;
+                this->m_framesRendered = 0;
+
+                printf("%s: %d fps\n", metaObject()->className(), frames);
+            });
+
+            fpsCounter->start(1000);
         }
         
         RenderView::~RenderView() = default;
@@ -71,6 +86,7 @@ namespace TrenchBroom {
             if (TrenchBroom::View::isReportingCrash()) return;
 #endif
             render();
+            m_framesRendered++;
         }
 
         Renderer::Vbo& RenderView::vertexVbo() {

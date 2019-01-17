@@ -71,10 +71,7 @@ namespace TrenchBroom {
 
         // AnimationManager
 
-        /**
-         * Make the animations nice and smooth even on 240Hz monitors.
-         */
-        const int AnimationManager::AnimationUpdateRateHz = 250;
+        const int AnimationManager::AnimationUpdateRateHz = 60;
 
         AnimationManager::AnimationManager(QObject* parent) :
         QObject(parent) {
