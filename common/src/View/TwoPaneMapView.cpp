@@ -25,14 +25,16 @@
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/MapView3D.h"
-#include "View/SplitterWindow2.h"
 
-#include <wx/persist.h>
-#include <wx/sizer.h>
+#include <QSplitter>
+#include <QHBoxLayout>
+#include <QSettings>
 
 namespace TrenchBroom {
     namespace View {
-        TwoPaneMapView::TwoPaneMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) :
+        const char* TwoPaneMapView::SaveStateKey = "2PaneMapViewHSplitter";
+
+        TwoPaneMapView::TwoPaneMapView(QWidget* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) :
         MultiMapView(parent),
         m_logger(logger),
         m_document(document),
@@ -41,15 +43,21 @@ namespace TrenchBroom {
         m_mapView2D(nullptr) {
             createGui(toolBox, mapRenderer, contextManager);
         }
-        
+
+        TwoPaneMapView::~TwoPaneMapView() {
+            saveLayoutToPrefs();
+        }
+
         void TwoPaneMapView::createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) {
 
-            m_splitter = new SplitterWindow2(this);
-            m_splitter->setSashGravity(0.5);
-            m_splitter->SetName("2PaneMapViewHSplitter");
+            // See comment in CyclingMapView::createGui
+            m_splitter = new QSplitter();
+            QHBoxLayout* layout = new QHBoxLayout();
+            setLayout(layout);
+            layout->addWidget(m_splitter);
 
-            m_mapView3D = new MapView3D(m_splitter, m_logger, m_document, toolBox, mapRenderer, contextManager);
-            m_mapView2D = new CyclingMapView(m_splitter, m_logger, m_document, toolBox, mapRenderer, contextManager, CyclingMapView::View_2D);
+            m_mapView3D = new MapView3D(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager);
+            m_mapView2D = new CyclingMapView(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager, CyclingMapView::View_2D);
             
             m_mapView3D->linkCamera(m_linkHelper);
             m_mapView2D->linkCamera(m_linkHelper);
@@ -57,26 +65,37 @@ namespace TrenchBroom {
             addMapView(m_mapView3D);
             addMapView(m_mapView2D);
             
-            m_splitter->splitVertically(m_mapView3D, m_mapView2D, wxSize(100, 100), wxSize(100, 100));
-            
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_splitter, 1, wxEXPAND);
-            
-            SetSizer(sizer);
+            m_splitter->addWidget(m_mapView3D);
+            m_splitter->addWidget(m_mapView2D);
 
-            wxPersistenceManager::Get().RegisterAndRestore(m_splitter);
+            // Configure minimum child sizes and initial splitter position at 50%
+            m_mapView2D->setMinimumSize(100, 100);
+            m_mapView3D->setMinimumSize(100, 100);
+            m_splitter->setSizes(QList<int>{1, 1});
+
+            // Load from preferences
+            QSettings settings;
+            m_splitter->restoreState(settings.value(SaveStateKey).toByteArray());
+        }
+
+        void TwoPaneMapView::saveLayoutToPrefs() {
+            QSettings settings;
+            settings.setValue(SaveStateKey, m_splitter->saveState());
         }
 
         void TwoPaneMapView::doMaximizeView(MapView* view) {
             assert(view == m_mapView2D || view == m_mapView3D);
-            if (view == m_mapView2D)
-                m_splitter->maximize(m_mapView2D);
-            else
-                m_splitter->maximize(m_mapView3D);
+            if (view == m_mapView2D) {
+                m_mapView2D->hide();
+            }
+            if (view == m_mapView3D) {
+                m_mapView3D->hide();
+            }
         }
         
         void TwoPaneMapView::doRestoreViews() {
-            m_splitter->restore();
+            m_mapView3D->show();
+            m_mapView2D->show();
         }
     }
 }

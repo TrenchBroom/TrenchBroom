@@ -481,7 +481,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/ToolController.cpp
 	${COMMON_SOURCE_DIR}/View/Tool.cpp
 	${COMMON_SOURCE_DIR}/View/TransformObjectsCommand.cpp
-#	${COMMON_SOURCE_DIR}/View/TwoPaneMapView.cpp
+	${COMMON_SOURCE_DIR}/View/TwoPaneMapView.cpp
 	${COMMON_SOURCE_DIR}/View/UndoableCommand.cpp
 	${COMMON_SOURCE_DIR}/View/UpdateEntitySpawnflagCommand.cpp
 #	${COMMON_SOURCE_DIR}/View/UVCameraTool.cpp

@@ -91,13 +91,10 @@ namespace TrenchBroom {
                     // FIXME: Can we pass nullptr as the parent here, since it's added to `this` down below?
                     m_mapView = new CyclingMapView(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, m_contextManager, CyclingMapView::View_ALL);
                     break;
-                default:
-                    // FIXME: Implement others
-                    assert(0);
-#if 0
                 case MapViewLayout_2Pane:
                     m_mapView = new TwoPaneMapView(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, m_contextManager);
                     break;
+#if 0
                 case MapViewLayout_3Pane:
                     m_mapView = new ThreePaneMapView(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, m_contextManager);
                     break;
