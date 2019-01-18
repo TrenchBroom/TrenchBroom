@@ -20,7 +20,6 @@
 #include "Autosaver.h"
 
 #include "StringUtils.h"
-#include "TemporarilySetAny.h"
 #include "IO/DiskFileSystem.h"
 #include "View/MapDocument.h"
 
@@ -31,7 +30,6 @@ namespace TrenchBroom {
     namespace View {
         Autosaver::Autosaver(View::MapDocumentWPtr document, const std::time_t saveInterval, const std::time_t idleInterval, const size_t maxBackups) :
         m_document(document),
-        m_logger(nullptr),
         m_saveInterval(saveInterval),
         m_idleInterval(idleInterval),
         m_maxBackups(maxBackups),
@@ -43,10 +41,11 @@ namespace TrenchBroom {
         
         Autosaver::~Autosaver() {
             unbindObservers();
-            triggerAutosave(nullptr);
+            NullLogger logger;
+            triggerAutosave(logger);
         }
         
-        void Autosaver::triggerAutosave(Logger* logger) {
+        void Autosaver::triggerAutosave(Logger& logger) {
             const auto currentTime = std::time(nullptr);
             
             auto document = lock(m_document);
@@ -71,11 +70,10 @@ namespace TrenchBroom {
                 return;
             }
 
-            TemporarilySetAny<Logger*> setLogger(m_logger, logger);
-            autosave(document);
+            autosave(logger, document);
         }
         
-        void Autosaver::autosave(MapDocumentSPtr document) {
+        void Autosaver::autosave(Logger& logger, MapDocumentSPtr document) {
             const auto& mapPath = document->path();
             assert(IO::Disk::fileExists(IO::Disk::fixPath(mapPath)));
             
@@ -83,10 +81,10 @@ namespace TrenchBroom {
             const auto mapBasename = mapFilename.deleteExtension();
             
             try {
-                auto fs = createBackupFileSystem(mapPath);
+                auto fs = createBackupFileSystem(logger, mapPath);
                 auto backups = collectBackups(fs, mapBasename);
                 
-                thinBackups(fs, backups);
+                thinBackups(logger, fs, backups);
                 cleanBackups(fs, backups, mapBasename);
 
                 assert(backups.size() < m_maxBackups);
@@ -98,17 +96,13 @@ namespace TrenchBroom {
                 m_lastModificationCount = document->modificationCount();
                 document->saveDocumentTo(backupFilePath);
                 
-                if (m_logger != nullptr) {
-                    m_logger->info() << "Created autosave backup at " << backupFilePath;
-                }
+                logger.info() << "Created autosave backup at " << backupFilePath;
             } catch (const FileSystemException& e) {
-                if (m_logger != nullptr) {
-                    m_logger->error() << "Aborting autosave: " << e.what();
-                }
+                logger.error() << "Aborting autosave: " << e.what();
             }
         }
         
-        IO::WritableDiskFileSystem Autosaver::createBackupFileSystem(const IO::Path& mapPath) const {
+        IO::WritableDiskFileSystem Autosaver::createBackupFileSystem(Logger& logger, const IO::Path& mapPath) const {
             const auto basePath = mapPath.deleteLastComponent();
             const auto autosavePath = basePath + IO::Path("autosave");
 
@@ -116,9 +110,7 @@ namespace TrenchBroom {
                 // ensures that the directory exists or is created if it doesn't
                 return IO::WritableDiskFileSystem(autosavePath, true);
             } catch (const FileSystemException& e) {
-                if (m_logger != nullptr) {
-                    m_logger->error() << "Cannot create autosave directory at " << autosavePath;
-                }
+                logger.error() << "Cannot create autosave directory at " << autosavePath;
                 throw e;
             }
         }
@@ -160,19 +152,15 @@ namespace TrenchBroom {
             return backups;
         }
         
-        void Autosaver::thinBackups(IO::WritableDiskFileSystem& fs, IO::Path::List& backups) const {
+        void Autosaver::thinBackups(Logger& logger, IO::WritableDiskFileSystem& fs, IO::Path::List& backups) const {
             while (backups.size() > m_maxBackups - 1) {
                 const auto filename = backups.front();
                 try {
                     fs.deleteFile(filename);
-                    if (m_logger != nullptr) {
-                        m_logger->debug() << "Deleted autosave backup " << filename;
-                    }
+                    logger.debug() << "Deleted autosave backup " << filename;
                     backups.erase(std::begin(backups));
                 } catch (const FileSystemException& e) {
-                    if (m_logger != nullptr) {
-                        m_logger->error() << "Cannot delete autosave backup " << filename;
-                    }
+                    logger.error() << "Cannot delete autosave backup " << filename;
                     throw e;
                 }
             }
