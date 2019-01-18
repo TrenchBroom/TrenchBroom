@@ -22,7 +22,7 @@
 #include "View/ToolBox.h"
 #include "View/ToolChain.h"
 
-#include <QWindow>
+#include <QWidget>
 #include <QCursor>
 #include <QEvent>
 #include <QMouseEvent>
@@ -74,7 +74,7 @@ namespace TrenchBroom {
 
         // ToolBoxConnector
 
-        ToolBoxConnector::ToolBoxConnector(QWindow* window) :
+        ToolBoxConnector::ToolBoxConnector(QWidget* window) :
         m_window(window),
         m_toolBox(nullptr),
         m_toolChain(new ToolChain()),
@@ -82,9 +82,7 @@ namespace TrenchBroom {
         m_eventFilter(new EventFilter(this)) {
             ensure(m_window != nullptr, "window is null");
             m_window->installEventFilter(m_eventFilter);
-
-            // not needed with QWindow
-            //m_window->setMouseTracking(true);
+            m_window->setMouseTracking(true);
         }
 
         ToolBoxConnector::~ToolBoxConnector() {
@@ -132,7 +130,7 @@ namespace TrenchBroom {
             updatePickResult();
 
             const bool result = m_toolBox->dragEnter(m_toolChain, m_inputState, text);
-            m_window->requestUpdate();
+            m_window->update();
             return result;
         }
 
@@ -143,7 +141,7 @@ namespace TrenchBroom {
             updatePickResult();
 
             const bool result = m_toolBox->dragMove(m_toolChain, m_inputState, text);
-            m_window->requestUpdate();
+            m_window->update();
             return result;
         }
 
@@ -151,7 +149,7 @@ namespace TrenchBroom {
             ensure(m_toolBox != nullptr, "toolBox is null");
 
             m_toolBox->dragLeave(m_toolChain, m_inputState);
-            m_window->requestUpdate();
+            m_window->update();
         }
 
         bool ToolBoxConnector::dragDrop(const int x, const int y, const String& text) {
@@ -160,9 +158,9 @@ namespace TrenchBroom {
             updatePickResult();
 
             const bool result = m_toolBox->dragDrop(m_toolChain, m_inputState, text);
-            m_window->requestUpdate();
+            m_window->update();
             if (result)
-                m_window->requestActivate();
+                m_window->setFocus();
             return result;
         }
 
@@ -187,7 +185,7 @@ namespace TrenchBroom {
             ensure(m_toolBox != nullptr, "toolBox is null");
 
             updateModifierKeys();
-            m_window->requestUpdate();
+            m_window->update();
         }
 
         void ToolBoxConnector::OnMouseButton(QMouseEvent* event) {
@@ -200,7 +198,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            m_window->requestActivate();
+            m_window->setFocus();
             if (event->type() == QEvent::MouseButtonRelease)
                 m_toolBox->clearIgnoreNextClick();
 
@@ -237,13 +235,13 @@ namespace TrenchBroom {
             updatePickResult();
             m_ignoreNextDrag = false;
 
-            m_window->requestUpdate();
+            m_window->update();
         }
 
         void ToolBoxConnector::OnMouseDoubleClick(QMouseEvent* event) {
             ensure(m_toolBox != nullptr, "toolBox is null");
 
-            m_window->requestActivate();
+            m_window->setFocus();
             m_toolBox->clearIgnoreNextClick();
 
             const MouseButtonState button = mouseButton(event);
@@ -261,7 +259,7 @@ namespace TrenchBroom {
 
             updatePickResult();
 
-            m_window->requestUpdate();
+            m_window->update();
         }
 
         void ToolBoxConnector::OnMouseMotion(QMouseEvent* event) {
@@ -280,7 +278,7 @@ namespace TrenchBroom {
                 }
             }
 
-            m_window->requestUpdate();
+            m_window->update();
         }
 
         void ToolBoxConnector::OnMouseWheel(QWheelEvent* event) {
@@ -294,21 +292,21 @@ namespace TrenchBroom {
             m_toolBox->mouseScroll(m_toolChain, m_inputState);
 
             updatePickResult();
-            m_window->requestUpdate();
+            m_window->update();
         }
 
 //        void ToolBoxConnector::OnMouseCaptureLost(wxMouseCaptureLostEvent& event) {
 //            ensure(m_toolBox != nullptr, "toolBox is null");
 //
 //            cancelDrag();
-//            m_window->requestUpdate();
+//            m_window->update();
 //        }
 
         void ToolBoxConnector::OnSetFocus(QFocusEvent* event) {
             ensure(m_toolBox != nullptr, "toolBox is null");
             
             updateModifierKeys();
-            m_window->requestUpdate();
+            m_window->update();
 
             mouseMoved(m_window->mapFromGlobal(QCursor::pos()));
         }
@@ -319,7 +317,7 @@ namespace TrenchBroom {
             cancelDrag();
             releaseMouse();
             updateModifierKeys();
-            m_window->requestUpdate();
+            m_window->update();
         }
 
         bool ToolBoxConnector::isWithinClickDistance(const QPoint& pos) const {

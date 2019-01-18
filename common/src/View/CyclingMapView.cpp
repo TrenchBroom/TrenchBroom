@@ -64,7 +64,7 @@ namespace TrenchBroom {
             setLayout(m_layout);
 
             for (size_t i = 0; i < m_mapViews.size(); ++i) {
-                m_layout->addWidget(m_mapViews[i]->widgetContainer());
+                m_layout->addWidget(m_mapViews[i]);
             }
 
             assert(!m_mapViews.empty());
@@ -88,7 +88,7 @@ namespace TrenchBroom {
         void CyclingMapView::switchToMapView(MapViewBase* mapView) {
             m_currentMapView = mapView;
 
-            m_layout->setCurrentWidget(m_currentMapView->widgetContainer());
+            m_layout->setCurrentWidget(m_currentMapView);
             // FIXME: Not sure if needed
             //m_currentMapView->setFocus();
         }

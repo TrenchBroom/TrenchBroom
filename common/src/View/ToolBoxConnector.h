@@ -27,7 +27,6 @@
 #include <QObject>
 #include <QPoint>
 
-class QWindow;
 class QWidget;
 class QMouseEvent;
 class QWheelEvent;
@@ -62,7 +61,7 @@ namespace TrenchBroom {
             };
             friend class EventFilter;
         private:
-            QWindow* m_window;
+            QWidget* m_window;
             ToolBox* m_toolBox;
             ToolChain* m_toolChain;
             
@@ -75,7 +74,7 @@ namespace TrenchBroom {
 
             EventFilter* m_eventFilter;
         public:
-            explicit ToolBoxConnector(QWindow* window);
+            explicit ToolBoxConnector(QWidget* window);
             virtual ~ToolBoxConnector();
 
         public:

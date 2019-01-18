@@ -31,9 +31,6 @@
 #include <QPalette>
 #include <QTimer>
 #include <QDateTime>
-#include <QGridLayout>
-#include <QWidget>
-#include <QGuiApplication>
 
 #ifdef _WIN32
 #include <GL/wglew.h>
@@ -47,8 +44,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        RenderView::RenderView(GLContextManager& contextManager) :
-        QOpenGLWindow(),
+        RenderView::RenderView(QWidget* parent, GLContextManager& contextManager) :
+        QOpenGLWidget(parent),
         m_glContext(&contextManager),
         m_framesRendered(0),
         m_maxFrameTimeMsecs(0),
@@ -76,18 +73,12 @@ namespace TrenchBroom {
             });
 
             fpsCounter->start(1000);
-
-            m_windowContainer = QWidget::createWindowContainer(this);
         }
         
         RenderView::~RenderView() = default;
 
-        QWidget* RenderView::widgetContainer() {
-            return m_windowContainer;
-        }
-
         bool RenderView::HasFocus() const {
-            return QGuiApplication::focusWindow() == this;
+            return hasFocus();
         }
 
         bool RenderView::IsBeingDeleted() const {
@@ -96,7 +87,7 @@ namespace TrenchBroom {
 
         void RenderView::Refresh() {
             // Schedules a repaint with Qt
-            requestUpdate();
+            update();
         }
 
         void RenderView::paintGL() {
@@ -116,10 +107,6 @@ namespace TrenchBroom {
             } else {
                 m_timeSinceLastFrame.start();
             }
-        }
-
-        void RenderView::update() {
-            Refresh();
         }
 
         Renderer::Vbo& RenderView::vertexVbo() {
@@ -172,7 +159,7 @@ namespace TrenchBroom {
         }
 
         void RenderView::renderFocusIndicator() {
-            if (!doShouldRenderFocusIndicator() || !isActive())
+            if (!doShouldRenderFocusIndicator() || !hasFocus())
                 return;
             
             const Color& outer = m_focusColor;
