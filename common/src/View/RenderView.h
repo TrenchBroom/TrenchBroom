@@ -30,6 +30,7 @@
 #undef Status
 #undef CursorShape
 #include <QOpenGLWidget>
+#include <QElapsedTimer>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -45,7 +46,15 @@ namespace TrenchBroom {
         private:
             Color m_focusColor;
             GLContextManager* m_glContext;
+        private: // FPS counter
+            // stats since the last counter update
             int m_framesRendered;
+            int m_maxFrameTimeMsecs;
+            // other
+            int64_t m_lastFPSCounterUpdate;
+            QElapsedTimer m_timeSinceLastFrame;
+        protected:
+            String m_currentFPS;
         protected:
             RenderView(QWidget* parent, GLContextManager& contextManager);
         public:

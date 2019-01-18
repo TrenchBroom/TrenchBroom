@@ -259,6 +259,7 @@ namespace TrenchBroom {
             void validatePortalFileRenderer(Renderer::RenderContext& renderContext);
 
             void renderCompass(Renderer::RenderBatch& renderBatch);
+            void renderFPS(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         private: // implement ToolBoxConnector
             void doShowPopupMenu() override;
             QMenu* makeEntityGroupsMenu(Assets::EntityDefinition::Type type, int id);

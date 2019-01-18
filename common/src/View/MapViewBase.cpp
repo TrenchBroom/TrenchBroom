@@ -872,7 +872,8 @@ namespace TrenchBroom {
             renderPointFile(renderContext, renderBatch);
             renderPortalFile(renderContext, renderBatch);
             renderCompass(renderBatch);
-            
+            renderFPS(renderContext, renderBatch);
+
             renderBatch.render(renderContext);
         }
 
@@ -948,6 +949,12 @@ namespace TrenchBroom {
         void MapViewBase::renderCompass(Renderer::RenderBatch& renderBatch) {
             if (m_compass != nullptr)
                 m_compass->render(renderBatch);
+        }
+
+        void MapViewBase::renderFPS(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            Renderer::RenderService renderService(renderContext, renderBatch);
+
+            renderService.renderHeadsUp(m_currentFPS);
         }
         
         static bool isEntity(const Model::Node* node) {

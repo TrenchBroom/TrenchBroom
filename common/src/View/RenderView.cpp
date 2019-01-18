@@ -30,6 +30,7 @@
 
 #include <QPalette>
 #include <QTimer>
+#include <QDateTime>
 
 #ifdef _WIN32
 #include <GL/wglew.h>
@@ -46,20 +47,29 @@ namespace TrenchBroom {
         RenderView::RenderView(QWidget* parent, GLContextManager& contextManager) :
         QOpenGLWidget(parent),
         m_glContext(&contextManager),
-        m_framesRendered(0) {
+        m_framesRendered(0),
+        m_maxFrameTimeMsecs(0),
+        m_lastFPSCounterUpdate(0) {
             QPalette pal;
             const QColor color = pal.color(QPalette::Highlight);
             m_focusColor = fromQColor(color);
 
             // FPS counter
-
             QTimer* fpsCounter = new QTimer(this);
 
             connect(fpsCounter, &QTimer::timeout, [&](){
-                int frames = this->m_framesRendered;
-                this->m_framesRendered = 0;
+                const int64_t currentTime = QDateTime::currentMSecsSinceEpoch();
+                const int framesRenderedInPeriod = m_framesRendered;
+                const int maxFrameTime = m_maxFrameTimeMsecs;
+                const int64_t fpsCounterPeriod = currentTime - m_lastFPSCounterUpdate;
+                const double avgFps = framesRenderedInPeriod / (fpsCounterPeriod / 1000.0);
 
-                printf("%s: %d fps\n", metaObject()->className(), frames);
+                m_framesRendered = 0;
+                m_maxFrameTimeMsecs = 0;
+                m_lastFPSCounterUpdate = currentTime;
+
+                m_currentFPS = std::string("Avg FPS: ") + std::to_string(avgFps) + " Max time between frames: " +
+                        std::to_string(maxFrameTime) + "ms. 1000ms QTimer actually took: " + std::to_string(fpsCounterPeriod);
             });
 
             fpsCounter->start(1000);
@@ -86,7 +96,17 @@ namespace TrenchBroom {
             if (TrenchBroom::View::isReportingCrash()) return;
 #endif
             render();
+
+            // Update stats
             m_framesRendered++;
+            if (m_timeSinceLastFrame.isValid()) {
+                int frameTime = static_cast<int>(m_timeSinceLastFrame.restart());
+                if (frameTime > m_maxFrameTimeMsecs) {
+                    m_maxFrameTimeMsecs = frameTime;
+                }
+            } else {
+                m_timeSinceLastFrame.start();
+            }
         }
 
         Renderer::Vbo& RenderView::vertexVbo() {
