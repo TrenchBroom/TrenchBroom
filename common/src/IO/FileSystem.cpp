@@ -46,20 +46,22 @@ namespace TrenchBroom {
         }
 
         bool FileSystem::canMakeAbsolute(const Path& path) const {
-            if (path.isAbsolute()) {
-                return false;
-            } else {
-                return _canMakeAbsolute(path);
-            }
+            return !path.isAbsolute();
         }
 
         Path FileSystem::makeAbsolute(const Path& path) const {
             try {
                 if (!canMakeAbsolute(path)) {
-                    throw FileSystemException("Cannot make absolute path of '" + path.asString() + "'");
+                    throw FileSystemException("Cannot make absolute path of: '" + path.asString() + "'");
                 }
 
-                return _makeAbsolute(path);
+                const auto result = _makeAbsolute(path);
+                if (!result.isEmpty()) {
+                    return result;
+                } else {
+                    // The path does not exist in any file system, make it absolute relative to this file system.
+                    return doMakeAbsolute(path);
+                }
             } catch (const PathException& e) {
                 throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
             }
@@ -137,17 +139,17 @@ namespace TrenchBroom {
             }
         }
 
-        bool FileSystem::_canMakeAbsolute(const Path& path) const {
-            return doCanMakeAbsolute(path) || (m_next && m_next->_canMakeAbsolute(path));
-        }
-
         Path FileSystem::_makeAbsolute(const Path& path) const {
-            if (doCanMakeAbsolute(path)) {
+            if (doFileExists(path) || doDirectoryExists(path)) {
+                // If the file is present in this file system, make it absolute here.
                 return doMakeAbsolute(path);
             } else if (m_next) {
+                // Otherwise, try the next one.
                 return m_next->_makeAbsolute(path);
             } else {
-                throw FileSystemException("Path does not exist: '" + path.asString() + "'");
+                // Otherwise, the file does not exist in any file system in this hierarchy.
+                // Return the empty path.
+                return Path();
             }
         }
 
