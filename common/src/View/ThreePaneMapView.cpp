@@ -74,16 +74,16 @@ namespace TrenchBroom {
             layout->addWidget(m_hSplitter);
 
             // Add splitter children
-            m_vSplitter->addWidget(m_mapViewXY);
+            m_vSplitter->addWidget(m_mapViewXY->widgetContainer());
             m_vSplitter->addWidget(m_mapViewZZ);
 
-            m_hSplitter->addWidget(m_mapView3D);
+            m_hSplitter->addWidget(m_mapView3D->widgetContainer());
             m_hSplitter->addWidget(m_vSplitter);
 
             // Configure minimum child sizes and initial splitter position at 50%
-            m_mapViewXY->setMinimumSize(100, 100);
+            m_mapViewXY->widgetContainer()->setMinimumSize(100, 100);
             m_mapViewZZ->setMinimumSize(100, 100);
-            m_mapView3D->setMinimumSize(100, 100);
+            m_mapView3D->widgetContainer()->setMinimumSize(100, 100);
 
             m_hSplitter->setSizes(QList<int>{1, 1});
             m_vSplitter->setSizes(QList<int>{1, 1});
@@ -106,10 +106,10 @@ namespace TrenchBroom {
                 m_vSplitter->hide();
             } else if (view == m_mapViewXY) {
                 m_mapViewZZ->hide();
-                m_mapView3D->hide();
+                m_mapView3D->widgetContainer()->hide();
             } else if (view == m_mapViewZZ) {
-                m_mapViewXY->hide();
-                m_mapView3D->hide();
+                m_mapViewXY->widgetContainer()->hide();
+                m_mapView3D->widgetContainer()->hide();
             }
         }
         

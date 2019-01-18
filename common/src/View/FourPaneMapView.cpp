@@ -79,17 +79,17 @@ namespace TrenchBroom {
             m_hSplitter->addWidget(m_rightVSplitter);
 
             // add children
-            m_leftVSplitter->addWidget(m_mapView3D);
-            m_leftVSplitter->addWidget(m_mapViewYZ);
+            m_leftVSplitter->addWidget(m_mapView3D->widgetContainer());
+            m_leftVSplitter->addWidget(m_mapViewYZ->widgetContainer());
 
-            m_rightVSplitter->addWidget(m_mapViewXY);
-            m_rightVSplitter->addWidget(m_mapViewXZ);
+            m_rightVSplitter->addWidget(m_mapViewXY->widgetContainer());
+            m_rightVSplitter->addWidget(m_mapViewXZ->widgetContainer());
 
             // Configure minimum child sizes and initial splitter position at 50%
-            m_mapView3D->setMinimumSize(100, 100);
-            m_mapViewYZ->setMinimumSize(100, 100);
-            m_mapViewXY->setMinimumSize(100, 100);
-            m_mapViewXZ->setMinimumSize(100, 100);
+            m_mapView3D->widgetContainer()->setMinimumSize(100, 100);
+            m_mapViewYZ->widgetContainer()->setMinimumSize(100, 100);
+            m_mapViewXY->widgetContainer()->setMinimumSize(100, 100);
+            m_mapViewXZ->widgetContainer()->setMinimumSize(100, 100);
 
             m_hSplitter->setSizes(QList<int>{1, 1});
             m_leftVSplitter->setSizes(QList<int>{1, 1});
@@ -124,7 +124,7 @@ namespace TrenchBroom {
         void FourPaneMapView::doMaximizeView(MapView* view) {
             assert(view == m_mapView3D || view == m_mapViewXY || view == m_mapViewXZ || view == m_mapViewYZ);
 
-            QWidget* viewAsWidget = dynamic_cast<QWidget*>(view);
+            QWidget* viewAsWidget = dynamic_cast<MapViewBase*>(view)->widgetContainer();
             assert(viewAsWidget != nullptr);
 
             const bool inLeft = m_leftVSplitter->isAncestorOf(viewAsWidget);

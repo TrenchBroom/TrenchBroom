@@ -166,9 +166,7 @@ namespace TrenchBroom {
 #endif
 
             // Fly mode animation
-            QTimer* timer = new QTimer(this);
-            timer->start(15);
-            connect(timer, &QTimer::timeout, this, &MapView3D::OnFrameSwapped);
+            connect(this, &QOpenGLWindow::frameSwapped, this, &MapView3D::OnFrameSwapped);
         }
 
         void MapView3D::OnFrameSwapped() {
@@ -308,7 +306,7 @@ namespace TrenchBroom {
             const QPoint pos = QCursor::pos();
             const auto clientCoords = mapFromGlobal(pos);
             
-            if (rect().contains(clientCoords)) {
+            if (QRect(0, 0, width(), height()).contains(clientCoords)) {
                 const auto pickRay = vm::ray3(m_camera.pickRay(clientCoords.x(), clientCoords.y()));
                 
                 const auto& editorContext = document->editorContext();

@@ -75,18 +75,18 @@ namespace TrenchBroom {
 
             // FIXME: Not sure if wxWindow::SetName() maps to QWidget::setWhatsThis()?
             // FIXME: Actually, was SetName used for persistence?
-			switch (viewPlane) {
-			case ViewPlane_XY:
-				setWhatsThis("XY View");
-				break;
-			case ViewPlane_YZ:
-                setWhatsThis("YZ View");
-				break;
-			case ViewPlane_XZ:
-                setWhatsThis("XZ View");
-				break;
-			switchDefault()
-			}
+            switch (viewPlane) {
+            case ViewPlane_XY:
+                widgetContainer()->setWhatsThis("XY View");
+                break;
+            case ViewPlane_YZ:
+                widgetContainer()->setWhatsThis("YZ View");
+                break;
+            case ViewPlane_XZ:
+                widgetContainer()->setWhatsThis("XZ View");
+                break;
+            switchDefault()
+            }
         }
 
         MapView2D::~MapView2D() {
