@@ -350,7 +350,7 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/FlagsPopupEditor.cpp
 	${COMMON_SOURCE_DIR}/View/FlashSelectionAnimation.cpp
 	${COMMON_SOURCE_DIR}/View/FlyModeHelper.cpp
-#	${COMMON_SOURCE_DIR}/View/FourPaneMapView.cpp
+	${COMMON_SOURCE_DIR}/View/FourPaneMapView.cpp
 	${COMMON_SOURCE_DIR}/View/FrameManager.cpp
 #	${COMMON_SOURCE_DIR}/View/GameDialog.cpp
 #	${COMMON_SOURCE_DIR}/View/GameEngineDialog.cpp
@@ -471,7 +471,7 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/TextureBrowserView.cpp
 #	${COMMON_SOURCE_DIR}/View/TextureCollectionEditor.cpp
 #	${COMMON_SOURCE_DIR}/View/TextureSelectedCommand.cpp
-#	${COMMON_SOURCE_DIR}/View/ThreePaneMapView.cpp
+	${COMMON_SOURCE_DIR}/View/ThreePaneMapView.cpp
 #	${COMMON_SOURCE_DIR}/View/TitleBar.cpp
 #	${COMMON_SOURCE_DIR}/View/TitledPanel.cpp
 	${COMMON_SOURCE_DIR}/View/ToolBoxConnector.cpp

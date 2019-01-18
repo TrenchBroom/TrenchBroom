@@ -94,14 +94,12 @@ namespace TrenchBroom {
                 case MapViewLayout_2Pane:
                     m_mapView = new TwoPaneMapView(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, m_contextManager);
                     break;
-#if 0
                 case MapViewLayout_3Pane:
                     m_mapView = new ThreePaneMapView(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, m_contextManager);
                     break;
                 case MapViewLayout_4Pane:
                     m_mapView = new FourPaneMapView(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, m_contextManager);
                     break;
-#endif
             }
 
             // FIXME: not sure about this, delete it before the widget that's deleted at the top of this function? Reuse layout?

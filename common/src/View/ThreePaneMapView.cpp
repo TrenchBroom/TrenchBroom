@@ -26,14 +26,17 @@
 #include "View/MapDocument.h"
 #include "View/MapView2D.h"
 #include "View/MapView3D.h"
-#include "View/SplitterWindow2.h"
 
-#include <wx/persist.h>
-#include <wx/sizer.h>
+#include <QSplitter>
+#include <QHBoxLayout>
+#include <QSettings>
 
 namespace TrenchBroom {
     namespace View {
-        ThreePaneMapView::ThreePaneMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) :
+        const char* ThreePaneMapView::HSaveStateKey = "3PaneMapViewHSplitter";
+        const char* ThreePaneMapView::VSaveStateKey = "3PaneMapViewVSplitter";
+
+        ThreePaneMapView::ThreePaneMapView(QWidget* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) :
         MultiMapView(parent),
         m_logger(logger),
         m_document(document),
@@ -44,20 +47,18 @@ namespace TrenchBroom {
         m_mapViewZZ(nullptr) {
             createGui(toolBox, mapRenderer, contextManager);
         }
-        
+
+        ThreePaneMapView::~ThreePaneMapView() {
+            saveLayoutToPrefs();
+        }
+
         void ThreePaneMapView::createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) {
+            m_hSplitter = new QSplitter();
+            m_vSplitter = new QSplitter(Qt::Vertical);
 
-            m_hSplitter = new SplitterWindow2(this);
-            m_hSplitter->setSashGravity(0.5);
-            m_hSplitter->SetName("3PaneMapViewHSplitter");
-            
-            m_vSplitter = new SplitterWindow2(m_hSplitter);
-            m_vSplitter->setSashGravity(0.5);
-            m_vSplitter->SetName("3PaneMapViewVSplitter");
-
-            m_mapView3D = new MapView3D(m_hSplitter, m_logger, m_document, toolBox, mapRenderer, contextManager);
-            m_mapViewXY = new MapView2D(m_vSplitter, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XY);
-            m_mapViewZZ = new CyclingMapView(m_vSplitter, m_logger, m_document, toolBox, mapRenderer, contextManager, CyclingMapView::View_ZZ);
+            m_mapView3D = new MapView3D(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager);
+            m_mapViewXY = new MapView2D(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XY);
+            m_mapViewZZ = new CyclingMapView(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager, CyclingMapView::View_ZZ);
             
             m_mapView3D->linkCamera(m_linkHelper);
             m_mapViewXY->linkCamera(m_linkHelper);
@@ -66,35 +67,57 @@ namespace TrenchBroom {
             addMapView(m_mapView3D);
             addMapView(m_mapViewXY);
             addMapView(m_mapViewZZ);
-            
-            m_vSplitter->splitHorizontally(m_mapViewXY, m_mapViewZZ, wxSize(100, 100), wxSize(100, 100));
-            m_hSplitter->splitVertically(m_mapView3D, m_vSplitter, wxSize(100, 100), wxSize(100, 100));
-            
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_hSplitter, 1, wxEXPAND);
-            
-            SetSizer(sizer);
 
-            wxPersistenceManager::Get().RegisterAndRestore(m_hSplitter);
-            wxPersistenceManager::Get().RegisterAndRestore(m_vSplitter);
+            // See comment in CyclingMapView::createGui
+            auto* layout = new QHBoxLayout();
+            setLayout(layout);
+            layout->addWidget(m_hSplitter);
+
+            // Add splitter children
+            m_vSplitter->addWidget(m_mapViewXY);
+            m_vSplitter->addWidget(m_mapViewZZ);
+
+            m_hSplitter->addWidget(m_mapView3D);
+            m_hSplitter->addWidget(m_vSplitter);
+
+            // Configure minimum child sizes and initial splitter position at 50%
+            m_mapViewXY->setMinimumSize(100, 100);
+            m_mapViewZZ->setMinimumSize(100, 100);
+            m_mapView3D->setMinimumSize(100, 100);
+
+            m_hSplitter->setSizes(QList<int>{1, 1});
+            m_vSplitter->setSizes(QList<int>{1, 1});
+
+            // Load from preferences
+            QSettings settings;
+            m_hSplitter->restoreState(settings.value(HSaveStateKey).toByteArray());
+            m_vSplitter->restoreState(settings.value(VSaveStateKey).toByteArray());
+        }
+
+        void ThreePaneMapView::saveLayoutToPrefs() {
+            QSettings settings;
+            settings.setValue(HSaveStateKey, m_hSplitter->saveState());
+            settings.setValue(VSaveStateKey, m_vSplitter->saveState());
         }
 
         void ThreePaneMapView::doMaximizeView(MapView* view) {
             assert(view == m_mapView3D || view == m_mapViewXY || view == m_mapViewZZ);
             if (view == m_mapView3D) {
-                m_hSplitter->maximize(m_mapView3D);
+                m_vSplitter->hide();
             } else if (view == m_mapViewXY) {
-                m_vSplitter->maximize(m_mapViewXY);
-                m_hSplitter->maximize(m_vSplitter);
+                m_mapViewZZ->hide();
+                m_mapView3D->hide();
             } else if (view == m_mapViewZZ) {
-                m_vSplitter->maximize(m_mapViewZZ);
-                m_hSplitter->maximize(m_vSplitter);
+                m_mapViewXY->hide();
+                m_mapView3D->hide();
             }
         }
         
         void ThreePaneMapView::doRestoreViews() {
-            m_hSplitter->restore();
-            m_vSplitter->restore();
+            for (int i=0; i<2; ++i) {
+                m_hSplitter->widget(i)->show();
+                m_vSplitter->widget(i)->show();
+            }
         }
     }
 }

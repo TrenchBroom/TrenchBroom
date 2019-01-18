@@ -24,34 +24,40 @@
 #include "View/MapDocument.h"
 #include "View/MapView2D.h"
 #include "View/MapView3D.h"
-#include "View/SplitterWindow4.h"
 
-#include <wx/persist.h>
-#include <wx/sizer.h>
+#include <QSplitter>
+#include <QHBoxLayout>
+#include <QSettings>
 
 namespace TrenchBroom {
     namespace View {
-        FourPaneMapView::FourPaneMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) :
+        const char* FourPaneMapView::HSaveStateKey = "4PaneMapViewHSplitter";
+        const char* FourPaneMapView::VSaveStateKey = "4PaneMapViewVSplitter";
+
+        FourPaneMapView::FourPaneMapView(QWidget* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) :
         MultiMapView(parent),
         m_logger(logger),
         m_document(document),
-        m_splitter(nullptr),
         m_mapView3D(nullptr),
         m_mapViewXY(nullptr),
         m_mapViewXZ(nullptr),
         m_mapViewYZ(nullptr) {
             createGui(toolBox, mapRenderer, contextManager);
         }
+
+        FourPaneMapView::~FourPaneMapView() {
+            saveLayoutToPrefs();
+        }
         
         void FourPaneMapView::createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) {
+            m_hSplitter = new QSplitter();
+            m_leftVSplitter = new QSplitter(Qt::Vertical);
+            m_rightVSplitter = new QSplitter(Qt::Vertical);
             
-            m_splitter = new SplitterWindow4(this);
-            m_splitter->SetName("4PaneMapViewSplitter");
-            
-            m_mapView3D = new MapView3D(m_splitter, m_logger, m_document, toolBox, mapRenderer, contextManager);
-            m_mapViewXY = new MapView2D(m_splitter, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XY);
-            m_mapViewXZ = new MapView2D(m_splitter, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XZ);
-            m_mapViewYZ = new MapView2D(m_splitter, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_YZ);
+            m_mapView3D = new MapView3D(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager);
+            m_mapViewXY = new MapView2D(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XY);
+            m_mapViewXZ = new MapView2D(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XZ);
+            m_mapViewYZ = new MapView2D(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_YZ);
             
             m_mapView3D->linkCamera(m_linkHelper);
             m_mapViewXY->linkCamera(m_linkHelper);
@@ -62,31 +68,91 @@ namespace TrenchBroom {
             addMapView(m_mapViewXY);
             addMapView(m_mapViewXZ);
             addMapView(m_mapViewYZ);
-            
-            m_splitter->split(m_mapView3D, m_mapViewXY, m_mapViewXZ, m_mapViewYZ);
-            
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_splitter, 1, wxEXPAND);
-            
-            SetSizer(sizer);
 
-            wxPersistenceManager::Get().RegisterAndRestore(m_splitter);
+            // See comment in CyclingMapView::createGui
+            auto* layout = new QHBoxLayout();
+            setLayout(layout);
+            layout->addWidget(m_hSplitter);
+
+            // left and right columns
+            m_hSplitter->addWidget(m_leftVSplitter);
+            m_hSplitter->addWidget(m_rightVSplitter);
+
+            // add children
+            m_leftVSplitter->addWidget(m_mapView3D);
+            m_leftVSplitter->addWidget(m_mapViewYZ);
+
+            m_rightVSplitter->addWidget(m_mapViewXY);
+            m_rightVSplitter->addWidget(m_mapViewXZ);
+
+            // Configure minimum child sizes and initial splitter position at 50%
+            m_mapView3D->setMinimumSize(100, 100);
+            m_mapViewYZ->setMinimumSize(100, 100);
+            m_mapViewXY->setMinimumSize(100, 100);
+            m_mapViewXZ->setMinimumSize(100, 100);
+
+            m_hSplitter->setSizes(QList<int>{1, 1});
+            m_leftVSplitter->setSizes(QList<int>{1, 1});
+            m_rightVSplitter->setSizes(QList<int>{1, 1});
+
+            // Load from preferences
+            QSettings settings;
+            m_hSplitter->restoreState(settings.value(HSaveStateKey).toByteArray());
+            m_leftVSplitter->restoreState(settings.value(VSaveStateKey).toByteArray());
+            m_rightVSplitter->restoreState(settings.value(VSaveStateKey).toByteArray());
+
+            connect(m_leftVSplitter, &QSplitter::splitterMoved, this, &FourPaneMapView::onSplitterMoved);
+            connect(m_rightVSplitter, &QSplitter::splitterMoved, this, &FourPaneMapView::onSplitterMoved);
+        }
+
+        void FourPaneMapView::saveLayoutToPrefs() {
+            QSettings settings;
+            settings.setValue(HSaveStateKey, m_hSplitter->saveState());
+            settings.setValue(VSaveStateKey, m_leftVSplitter->saveState());
+        }
+
+        void FourPaneMapView::onSplitterMoved(int pos, int index) {
+            QSplitter* moved = qobject_cast<QSplitter*>(QObject::sender());
+            QSplitter* other = (moved == m_leftVSplitter) ? m_rightVSplitter : m_leftVSplitter;
+
+            assert(index == 1);
+            assert(moved == m_leftVSplitter || moved == m_rightVSplitter);
+
+            other->setSizes(moved->sizes());
         }
 
         void FourPaneMapView::doMaximizeView(MapView* view) {
             assert(view == m_mapView3D || view == m_mapViewXY || view == m_mapViewXZ || view == m_mapViewYZ);
-            if (view == m_mapView3D)
-                m_splitter->maximize(m_mapView3D);
-            else if (view == m_mapViewXY)
-                m_splitter->maximize(m_mapViewXY);
-            else if (view == m_mapViewXZ)
-                m_splitter->maximize(m_mapViewXZ);
-            else if (view == m_mapViewYZ)
-                m_splitter->maximize(m_mapViewYZ);
+
+            QWidget* viewAsWidget = dynamic_cast<QWidget*>(view);
+            assert(viewAsWidget != nullptr);
+
+            const bool inLeft = m_leftVSplitter->isAncestorOf(viewAsWidget);
+            if (inLeft) {
+                m_rightVSplitter->hide();
+
+                if (m_leftVSplitter->widget(0) == viewAsWidget) {
+                    m_leftVSplitter->widget(1)->hide();
+                } else {
+                    m_leftVSplitter->widget(0)->hide();
+                }
+            } else {
+                m_leftVSplitter->hide();
+
+                if (m_rightVSplitter->widget(0) == viewAsWidget) {
+                    m_rightVSplitter->widget(1)->hide();
+                } else {
+                    m_rightVSplitter->widget(0)->hide();
+                }
+            }
         }
         
         void FourPaneMapView::doRestoreViews() {
-            m_splitter->restore();
+            for (int i=0; i<2; ++i) {
+                m_hSplitter->widget(i)->show();
+                m_leftVSplitter->widget(i)->show();
+                m_rightVSplitter->widget(i)->show();
+            }
         }
     }
 }
