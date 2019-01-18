@@ -26,10 +26,12 @@
 #include "View/MapDocument.h"
 #include "View/MapView2D.h"
 #include "View/MapView3D.h"
+#include "View/ActionList.h"
 
 #include <vecmath/scalar.h>
 
 #include <QStackedLayout>
+#include <QShortcut>
 
 namespace TrenchBroom {
     namespace View {
@@ -40,6 +42,8 @@ namespace TrenchBroom {
         m_currentMapView(nullptr),
         m_layout(nullptr) {
             createGui(toolBox, mapRenderer, contextManager, views);
+            createShortcuts();
+            updateShortcuts();
             bindEvents();
         }
 
@@ -71,11 +75,21 @@ namespace TrenchBroom {
             switchToMapView(m_mapViews[0]);
         }
 
-        void CyclingMapView::bindEvents() {
-            connect(m_layout, &QStackedLayout::currentChanged, this, &CyclingMapView::OnCycleMapView);
+        void CyclingMapView::createShortcuts() {
+            m_cycleShortcut = new QShortcut(this);
+            m_cycleShortcut->setContext(Qt::WidgetWithChildrenShortcut); // Only in this widget
+            connect(m_cycleShortcut, &QShortcut::activated, this, &CyclingMapView::OnCycleMapView);
         }
 
-        void CyclingMapView::OnCycleMapView(int /*index*/) {
+        void CyclingMapView::updateShortcuts() {
+            // FIXME: Get from prefs
+            m_cycleShortcut->setKey(ActionList::instance().controlsMapViewCycleMapViewInfo.defaultKey);
+        }
+
+        void CyclingMapView::bindEvents() {
+        }
+
+        void CyclingMapView::OnCycleMapView() {
             for (size_t i = 0; i < m_mapViews.size(); ++i) {
                 if (m_currentMapView == m_mapViews[i]) {
                     switchToMapView(m_mapViews[vm::succ(i, m_mapViews.size())]);
