@@ -24,11 +24,12 @@
 #include "IO/DiskFileSystem.h"
 #include "View/MapDocument.h"
 
+#include <algorithm>
 #include <cassert>
 
 namespace TrenchBroom {
     namespace View {
-        Autosaver::Autosaver(View::MapDocumentWPtr document, const time_t saveInterval, const time_t idleInterval, const size_t maxBackups) :
+        Autosaver::Autosaver(View::MapDocumentWPtr document, const std::time_t saveInterval, const std::time_t idleInterval, const size_t maxBackups) :
         m_document(document),
         m_logger(nullptr),
         m_saveInterval(saveInterval),
@@ -46,70 +47,78 @@ namespace TrenchBroom {
         }
         
         void Autosaver::triggerAutosave(Logger* logger) {
-            const time_t currentTime = time(nullptr);
+            const auto currentTime = std::time(nullptr);
             
-            MapDocumentSPtr document = lock(m_document);
-            if (!document->modified())
+            auto document = lock(m_document);
+            if (!document->modified()) {
                 return;
-            if (document->modificationCount() == m_lastModificationCount)
+            }
+            if (document->modificationCount() == m_lastModificationCount) {
                 return;
-            if (currentTime - m_lastModificationTime < m_idleInterval)
+            }
+            if (currentTime - m_lastModificationTime < m_idleInterval) {
                 return;
-            if (currentTime - m_lastSaveTime < m_saveInterval)
+            }
+            if (currentTime - m_lastSaveTime < m_saveInterval) {
                 return;
+            }
 
-            const IO::Path documentPath = document->path();
-            if (!documentPath.isAbsolute())
+            const auto documentPath = document->path();
+            if (!documentPath.isAbsolute()) {
                 return;
-            if (!IO::Disk::fileExists(IO::Disk::fixPath(document->path())))
+            }
+            if (!IO::Disk::fileExists(IO::Disk::fixPath(document->path()))) {
                 return;
-            
+            }
+
             TemporarilySetAny<Logger*> setLogger(m_logger, logger);
             autosave(document);
         }
         
         void Autosaver::autosave(MapDocumentSPtr document) {
-            const IO::Path& mapPath = document->path();
+            const auto& mapPath = document->path();
             assert(IO::Disk::fileExists(IO::Disk::fixPath(mapPath)));
             
-            const IO::Path mapFilename = mapPath.lastComponent();
-            const IO::Path mapBasename = mapFilename.deleteExtension();
+            const auto mapFilename = mapPath.lastComponent();
+            const auto mapBasename = mapFilename.deleteExtension();
             
             try {
-                IO::WritableDiskFileSystem fs = createBackupFileSystem(mapPath);
-                IO::Path::List backups = collectBackups(fs, mapBasename);
+                auto fs = createBackupFileSystem(mapPath);
+                auto backups = collectBackups(fs, mapBasename);
                 
                 thinBackups(fs, backups);
                 cleanBackups(fs, backups, mapBasename);
 
                 assert(backups.size() < m_maxBackups);
-                const size_t backupNo = backups.size() + 1;
+                const auto backupNo = backups.size() + 1;
                 
-                const IO::Path backupFilePath = fs.makeAbsolute(makeBackupName(mapBasename, backupNo));
+                const auto backupFilePath = fs.makeAbsolute(makeBackupName(mapBasename, backupNo));
 
-                m_lastSaveTime = time(nullptr);
+                m_lastSaveTime = std::time(nullptr);
                 m_lastModificationCount = document->modificationCount();
                 document->saveDocumentTo(backupFilePath);
                 
-                if (m_logger != nullptr)
-                    m_logger->info("Created autosave backup at %s", backupFilePath.asString().c_str());
-                
-            } catch (const FileSystemException&) {
-                if (m_logger != nullptr)
-                    m_logger->error("Aborting autosave");
+                if (m_logger != nullptr) {
+                    m_logger->info() << "Created autosave backup at " << backupFilePath;
+                }
+            } catch (const FileSystemException& e) {
+                if (m_logger != nullptr) {
+                    m_logger->error() << "Aborting autosave: " << e.what();
+                }
             }
         }
         
         IO::WritableDiskFileSystem Autosaver::createBackupFileSystem(const IO::Path& mapPath) const {
-            const IO::Path basePath = mapPath.deleteLastComponent();
-            const IO::Path autosavePath = basePath + IO::Path("autosave");
+            const auto basePath = mapPath.deleteLastComponent();
+            const auto autosavePath = basePath + IO::Path("autosave");
 
             try {
                 // ensures that the directory exists or is created if it doesn't
                 return IO::WritableDiskFileSystem(autosavePath, true);
             } catch (const FileSystemException& e) {
-                if (m_logger != nullptr)
-                    m_logger->error("Cannot create autosave directory at %s", autosavePath.asString().c_str());
+                if (m_logger != nullptr) {
+                    m_logger->error() << "Cannot create autosave directory at " << autosavePath;
+                }
                 throw e;
             }
         }
@@ -121,17 +130,20 @@ namespace TrenchBroom {
             mapBasename(i_mapBasename) {}
             
             bool operator()(const IO::Path& path, const bool directory) const {
-                if (directory)
+                if (directory) {
                     return false;
-                if (!StringUtils::caseInsensitiveEqual(path.extension(), "map"))
+                }
+                if (!StringUtils::caseInsensitiveEqual(path.extension(), "map")) {
                     return false;
-                
-                const IO::Path backupName = path.lastComponent().deleteExtension();
-                const IO::Path backupBasename = backupName.deleteExtension();
-                if (backupBasename != mapBasename)
+                }
+
+                const auto backupName = path.lastComponent().deleteExtension();
+                const auto backupBasename = backupName.deleteExtension();
+                if (backupBasename != mapBasename) {
                     return false;
-                
-                const size_t no = StringUtils::stringToSize(backupName.extension());
+                }
+
+                const auto no = StringUtils::stringToSize(backupName.extension());
                 return no > 0;
 
             }
@@ -143,22 +155,24 @@ namespace TrenchBroom {
         }
         
         IO::Path::List Autosaver::collectBackups(const IO::WritableDiskFileSystem& fs, const IO::Path& mapBasename) const {
-            IO::Path::List backups = fs.findItems(IO::Path(""), BackupFileMatcher(mapBasename));
+            auto backups = fs.findItems(IO::Path(""), BackupFileMatcher(mapBasename));
             std::sort(std::begin(backups), std::end(backups), compareBackupsByNo);
             return backups;
         }
         
         void Autosaver::thinBackups(IO::WritableDiskFileSystem& fs, IO::Path::List& backups) const {
             while (backups.size() > m_maxBackups - 1) {
-                const IO::Path filename = backups.front();
+                const auto filename = backups.front();
                 try {
                     fs.deleteFile(filename);
-                    if (m_logger != nullptr)
-                        m_logger->debug("Deleted autosave backup %s", filename.asString().c_str());
+                    if (m_logger != nullptr) {
+                        m_logger->debug() << "Deleted autosave backup " << filename;
+                    }
                     backups.erase(std::begin(backups));
                 } catch (const FileSystemException& e) {
-                    if (m_logger != nullptr)
-                        m_logger->error("Cannot delete autosave backup %s", filename.asString().c_str());
+                    if (m_logger != nullptr) {
+                        m_logger->error() << "Cannot delete autosave backup " << filename;
+                    }
                     throw e;
                 }
             }
@@ -166,11 +180,12 @@ namespace TrenchBroom {
         
         void Autosaver::cleanBackups(IO::WritableDiskFileSystem& fs, IO::Path::List& backups, const IO::Path& mapBasename) const {
             for (size_t i = 0; i < backups.size(); ++i) {
-                const IO::Path& oldName = backups[i].lastComponent();
-                const IO::Path newName = makeBackupName(mapBasename, i + 1);
+                const auto& oldName = backups[i].lastComponent();
+                const auto newName = makeBackupName(mapBasename, i + 1);
                 
-                if (oldName != newName)
+                if (oldName != newName) {
                     fs.moveFile(oldName, newName, false);
+                }
             }
         }
         
@@ -181,25 +196,25 @@ namespace TrenchBroom {
         }
         
         size_t extractBackupNo(const IO::Path& path) {
-            const size_t no = StringUtils::stringToSize(path.deleteExtension().extension());
+            const auto no = StringUtils::stringToSize(path.deleteExtension().extension());
             assert(no > 0);
             return no;
         }
 
         void Autosaver::bindObservers() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->documentModificationStateDidChangeNotifier.addObserver(this, &Autosaver::documentModificationCountDidChangeNotifier);
         }
         
         void Autosaver::unbindObservers() {
             if (!expired(m_document)) {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 document->documentModificationStateDidChangeNotifier.removeObserver(this, &Autosaver::documentModificationCountDidChangeNotifier);
             }
         }
         
         void Autosaver::documentModificationCountDidChangeNotifier() {
-            m_lastModificationTime = time(nullptr);
+            m_lastModificationTime = std::time(nullptr);
         }
     }
 }

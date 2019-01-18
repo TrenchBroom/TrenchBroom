@@ -40,15 +40,15 @@ namespace TrenchBroom {
             View::MapDocumentWPtr m_document;
             Logger* m_logger;
             
-            time_t m_saveInterval;
-            time_t m_idleInterval;
+            std::time_t m_saveInterval;
+            std::time_t m_idleInterval;
             size_t m_maxBackups;
             
-            time_t m_lastSaveTime;
-            time_t m_lastModificationTime;
+            std::time_t m_lastSaveTime;
+            std::time_t m_lastModificationTime;
             size_t m_lastModificationCount;
         public:
-            Autosaver(View::MapDocumentWPtr document, time_t saveInterval = 10 * 60, time_t idleInterval = 3, size_t maxBackups = 50);
+            Autosaver(View::MapDocumentWPtr document, std::time_t saveInterval = 10 * 60, std::time_t idleInterval = 3, size_t maxBackups = 50);
             ~Autosaver();
             
             void triggerAutosave(Logger* logger);
