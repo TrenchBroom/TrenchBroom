@@ -27,6 +27,7 @@
 
 #include <QApplication>
 #include <QSurfaceFormat>
+#include <QSettings>
 
 int main(int argc, char *argv[])
 {
@@ -34,6 +35,7 @@ int main(int argc, char *argv[])
     // (default behaviour would be for QOpenGLWidget's in a single top-level window to share a context.)
     // see: http://doc.qt.io/qt-5/qopenglwidget.html#context-sharing
     QApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
+    QSettings::setDefaultFormat(QSettings::IniFormat);
 
     TrenchBroom::View::TrenchBroomApp app(argc, argv);
 
