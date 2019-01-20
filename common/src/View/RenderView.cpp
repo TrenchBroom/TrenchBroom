@@ -25,6 +25,7 @@
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
 #include "View/GLContextManager.h"
+#include "View/InputEvent.h"
 #include "View/wxUtils.h"
 #include "TrenchBroomApp.h"
 
@@ -56,6 +57,38 @@ namespace TrenchBroom {
         
         RenderView::~RenderView() {}
 
+        void RenderView::OnKey(wxKeyEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            m_eventQueue.recordEvent(event);
+            event.Skip();
+            Refresh();
+        }
+
+        void RenderView::OnMouse(wxMouseEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            if (event.ButtonDown(wxMOUSE_BTN_ANY) && !HasCapture()) {
+                CaptureMouse();
+            } else if (event.ButtonUp(wxMOUSE_BTN_ANY) && HasCapture()) {
+                if (!event.LeftIsDown() && !event.MiddleIsDown() && !event.RightIsDown() && !event.Aux1IsDown() && !event.Aux2IsDown()) {
+                    ReleaseMouse();
+                }
+            }
+
+            m_eventQueue.recordEvent(event);
+            event.Skip();
+            Refresh();
+        }
+
+        void RenderView::OnMouseCaptureLost(wxMouseCaptureLostEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            m_eventQueue.recordEvent(event);
+            event.Skip();
+            Refresh();
+        }
+
         // to prevent flickering, see https://wiki.wxwidgets.org/Flicker-Free_Drawing
         void RenderView::OnEraseBackground(wxEraseEvent& event) {}
 
@@ -64,8 +97,9 @@ namespace TrenchBroom {
             if (TrenchBroom::View::isReportingCrash()) return;
 
             if (m_glContext->SetCurrent(this)) {
-                if (!m_initialized)
+                if (!m_initialized) {
                     initializeGL();
+                }
 
                 wxPaintDC paintDC(this);
                 render();
@@ -83,15 +117,15 @@ namespace TrenchBroom {
         void RenderView::OnSetFocus(wxFocusEvent& event) {
             if (IsBeingDeleted()) return;
 
-            Refresh();
             event.Skip();
+            Refresh();
         }
         
         void RenderView::OnKillFocus(wxFocusEvent& event) {
             if (IsBeingDeleted()) return;
 
-            Refresh();
-            event.Skip();
+           event.Skip();
+           Refresh();
         }
 
         Renderer::Vbo& RenderView::vertexVbo() {
@@ -124,6 +158,26 @@ namespace TrenchBroom {
             Bind(wxEVT_SIZE, &RenderView::OnSize, this);
             Bind(wxEVT_SET_FOCUS, &RenderView::OnSetFocus, this);
             Bind(wxEVT_KILL_FOCUS, &RenderView::OnKillFocus, this);
+            Bind(wxEVT_KEY_DOWN, &RenderView::OnKey, this);
+            Bind(wxEVT_KEY_UP, &RenderView::OnKey, this);
+            Bind(wxEVT_LEFT_DOWN, &RenderView::OnMouse, this);
+            Bind(wxEVT_LEFT_UP, &RenderView::OnMouse, this);
+            Bind(wxEVT_LEFT_DCLICK, &RenderView::OnMouse, this);
+            Bind(wxEVT_RIGHT_DOWN, &RenderView::OnMouse, this);
+            Bind(wxEVT_RIGHT_UP, &RenderView::OnMouse, this);
+            Bind(wxEVT_RIGHT_DCLICK, &RenderView::OnMouse, this);
+            Bind(wxEVT_MIDDLE_DOWN, &RenderView::OnMouse, this);
+            Bind(wxEVT_MIDDLE_UP, &RenderView::OnMouse, this);
+            Bind(wxEVT_MIDDLE_DCLICK, &RenderView::OnMouse, this);
+            Bind(wxEVT_AUX1_DOWN, &RenderView::OnMouse, this);
+            Bind(wxEVT_AUX1_UP, &RenderView::OnMouse, this);
+            Bind(wxEVT_AUX1_DCLICK, &RenderView::OnMouse, this);
+            Bind(wxEVT_AUX2_DOWN, &RenderView::OnMouse, this);
+            Bind(wxEVT_AUX2_UP, &RenderView::OnMouse, this);
+            Bind(wxEVT_AUX2_DCLICK, &RenderView::OnMouse, this);
+            Bind(wxEVT_MOTION, &RenderView::OnMouse, this);
+            Bind(wxEVT_MOUSEWHEEL, &RenderView::OnMouse, this);
+            Bind(wxEVT_MOUSE_CAPTURE_LOST, &RenderView::OnMouseCaptureLost, this);
         }
 
         void RenderView::initializeGL() {
@@ -145,9 +199,14 @@ namespace TrenchBroom {
         }
         
         void RenderView::render() {
+            processInput();
             clearBackground();
             doRender();
             renderFocusIndicator();
+        }
+
+        void RenderView::processInput() {
+            m_eventQueue.processEvents(*this);
         }
         
         void RenderView::clearBackground() {

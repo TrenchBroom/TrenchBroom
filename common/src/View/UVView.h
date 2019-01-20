@@ -99,6 +99,10 @@ namespace TrenchBroom {
             void renderFace(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderTextureAxes(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderToolBox(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+        public: // implement InputEventProcessor interface
+            void processEvent(const KeyEvent& event) override;
+            void processEvent(const MouseEvent& event) override;
+            void processEvent(const CancelEvent& event) override;
         private:
             PickRequest doGetPickRequest(int x, int y) const override;
             Model::PickResult doPick(const vm::ray3& pickRay) const override;

@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_ToolBoxConnector
 #define TrenchBroom_ToolBoxConnector
 
+#include "View/InputEvent.h"
 #include "View/InputState.h"
 #include "View/PickRequest.h"
 
@@ -27,10 +28,7 @@
 #include <wx/longlong.h>
 
 class wxWindow;
-class wxKeyEvent;
 class wxFocusEvent;
-class wxMouseEvent;
-class wxMouseCaptureLostEvent;
 
 namespace TrenchBroom {
     namespace Model {
@@ -48,7 +46,7 @@ namespace TrenchBroom {
         class ToolBox;
         class ToolChain;
 
-        class ToolBoxConnector {
+        class ToolBoxConnector : public InputEventProcessor {
         private:
             wxWindow* m_window;
             ToolBox* m_toolBox;
@@ -56,13 +54,12 @@ namespace TrenchBroom {
             
             InputState m_inputState;
             
-            wxLongLong m_clickTime;
-            wxPoint m_clickPos;
-            wxPoint m_lastMousePos;
+            int m_lastMouseX;
+            int m_lastMouseY;
             bool m_ignoreNextDrag;
         public:
             ToolBoxConnector(wxWindow* window);
-            virtual ~ToolBoxConnector();
+            virtual ~ToolBoxConnector() override;
             
             const vm::ray3& pickRay() const;
             const Model::PickResult& pickResult() const;
@@ -83,39 +80,31 @@ namespace TrenchBroom {
             void setRenderOptions(Renderer::RenderContext& renderContext);
             void renderTools(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         private:
-            void bindEvents();
-            void unbindEvents();
-
-            void OnKey(wxKeyEvent& event);
-            void OnMouseButton(wxMouseEvent& event);
-            void OnMouseDoubleClick(wxMouseEvent& event);
-            void OnMouseMotion(wxMouseEvent& event);
-            void OnMouseWheel(wxMouseEvent& event);
-            void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
-            void OnSetFocus(wxFocusEvent& event);
-            void OnKillFocus(wxFocusEvent& event);
-        private:
-            bool isWithinClickDistance(const wxPoint& pos) const;
-            
-            void startDrag(wxMouseEvent& event);
-            void drag(wxMouseEvent& event);
-            void endDrag(wxMouseEvent& event);
-        public:
-            bool cancelDrag();
-        private:
-            void captureMouse();
-            void releaseMouse();
-
-            
             ModifierKeyState modifierKeys();
             bool setModifierKeys();
             bool clearModifierKeys();
             void updateModifierKeys();
             
-            MouseButtonState mouseButton(wxMouseEvent& event);
-            void mouseMoved(const wxPoint& position);
-
             void showPopupMenu();
+        public: // implement InputEventProcessor interface
+            void processEvent(const KeyEvent& event) override;
+            void processEvent(const MouseEvent& event) override;
+            void processEvent(const CancelEvent& event) override;
+        private:
+            void processMouseButtonDown(const MouseEvent& event);
+            void processMouseButtonUp(const MouseEvent& event);
+            void processMouseClick(const MouseEvent& event);
+            void processMouseDoubleClick(const MouseEvent& event);
+            void processMouseMotion(const MouseEvent& event);
+            void processScroll(const MouseEvent& event);
+            void processDragStart(const MouseEvent& event);
+            void processDrag(const MouseEvent& event);
+            void processDragEnd(const MouseEvent& event);
+
+            MouseButtonState mouseButton(const MouseEvent& event);
+            void mouseMoved(int x, int y);
+        public:
+            bool cancelDrag();
         private:
             virtual PickRequest doGetPickRequest(int x, int y) const = 0;
             virtual Model::PickResult doPick(const vm::ray3& pickRay) const = 0;

@@ -971,6 +971,18 @@ namespace TrenchBroom {
                 m_compass->render(renderBatch);
         }
         
+        void MapViewBase::processEvent(const KeyEvent& event) {
+            ToolBoxConnector::processEvent(event);
+        }
+
+        void MapViewBase::processEvent(const MouseEvent& event) {
+            ToolBoxConnector::processEvent(event);
+        }
+
+        void MapViewBase::processEvent(const CancelEvent& event) {
+            ToolBoxConnector::processEvent(event);
+        }
+
         static bool isEntity(const Model::Node* node) {
             class IsEntity : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
             private:

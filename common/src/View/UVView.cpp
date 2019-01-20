@@ -327,6 +327,18 @@ namespace TrenchBroom {
             renderTools(renderContext, renderBatch);
         }
 
+        void UVView::processEvent(const KeyEvent& event) {
+            ToolBoxConnector::processEvent(event);
+        }
+
+        void UVView::processEvent(const MouseEvent& event) {
+            ToolBoxConnector::processEvent(event);
+        }
+
+        void UVView::processEvent(const CancelEvent& event) {
+            ToolBoxConnector::processEvent(event);
+        }
+
         PickRequest UVView::doGetPickRequest(const int x, const int y) const {
             return PickRequest(vm::ray3(m_camera.pickRay(x, y)), m_camera);
         }
