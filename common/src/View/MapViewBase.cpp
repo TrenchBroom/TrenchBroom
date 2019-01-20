@@ -67,6 +67,8 @@
 #include <vecmath/util.h>
 
 #include <QShortcut>
+#include <QMenu>
+#include <QString>
 
 #include <algorithm>
 #include <iterator>
@@ -266,20 +268,6 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::bindEvents() {
-
-            // FIXME: popup menu bindings
-#if 0
-            Bind(wxEVT_MENU, &MapViewBase::OnGroupSelectedObjects,         this, CommandIds::MapViewPopupMenu::GroupObjects);
-            Bind(wxEVT_MENU, &MapViewBase::OnUngroupSelectedObjects,       this, CommandIds::MapViewPopupMenu::UngroupObjects);
-            Bind(wxEVT_MENU, &MapViewBase::OnRenameGroups,                 this, CommandIds::MapViewPopupMenu::RenameGroups);
-            Bind(wxEVT_MENU, &MapViewBase::OnAddObjectsToGroup,            this, CommandIds::MapViewPopupMenu::AddObjectsToGroup);
-            Bind(wxEVT_MENU, &MapViewBase::OnRemoveObjectsFromGroup,       this, CommandIds::MapViewPopupMenu::RemoveObjectsFromGroup);
-            Bind(wxEVT_MENU, &MapViewBase::OnMergeGroups,                  this, CommandIds::MapViewPopupMenu::MergeGroups);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveBrushesTo,                this, CommandIds::MapViewPopupMenu::MoveBrushesToEntity);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveBrushesTo,                this, CommandIds::MapViewPopupMenu::MoveBrushesToWorld);
-            Bind(wxEVT_MENU, &MapViewBase::OnCreatePointEntity,            this, CommandIds::MapViewPopupMenu::LowestPointEntityItem, CommandIds::MapViewPopupMenu::HighestPointEntityItem);
-            Bind(wxEVT_MENU, &MapViewBase::OnCreateBrushEntity,            this, CommandIds::MapViewPopupMenu::LowestBrushEntityItem, CommandIds::MapViewPopupMenu::HighestBrushEntityItem);
-#endif
             // FIXME: Seems like we'll need to make something emit signals, that the QActions are connected to.
 #if 0
             Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::GroupObjects);
@@ -971,13 +959,11 @@ namespace TrenchBroom {
             node->accept(visitor);
             return visitor.result();
         }
-        
+
         void MapViewBase::doShowPopupMenu() {
             if (!doBeforePopupMenu())
                 return;
 
-            // FIXME: context menu
-#if 0
             MapDocumentSPtr document = lock(m_document);
             const Model::NodeList& nodes = document->selectedNodes().nodes();
             Model::Node* newBrushParent = findNewParentEntityForBrushes(nodes);
@@ -985,46 +971,51 @@ namespace TrenchBroom {
             Model::Node* newGroup = findNewGroupForObjects(nodes);
             Model::Node* mergeGroup = findGroupToMergeGroupsInto(document->selectedNodes());
             
-            wxMenu menu;
-            menu.SetEventHandler(this);
-            menu.Append(CommandIds::MapViewPopupMenu::GroupObjects, "Group");
-            menu.Append(CommandIds::MapViewPopupMenu::UngroupObjects, "Ungroup");
+            QMenu menu;
+            menu.addAction(tr("Group"), this, &MapViewBase::OnGroupSelectedObjects);
+            menu.addAction(tr("Ungroup"), this, &MapViewBase::OnUngroupSelectedObjects);
             if (mergeGroup != nullptr) {
-                menu.Append(CommandIds::MapViewPopupMenu::MergeGroups, "Merge Groups into " + mergeGroup->name());
+                menu.addAction(tr("Merge Groups into %1").arg(QString::fromStdString(mergeGroup->name())), this, &MapViewBase::OnMergeGroups);
             } else {
-                menu.Append(CommandIds::MapViewPopupMenu::MergeGroups, "Merge Groups");
+                menu.addAction(tr("Merge Groups"), this, &MapViewBase::OnMergeGroups);
             }
-            menu.Append(CommandIds::MapViewPopupMenu::RenameGroups, "Rename");
+            menu.addAction(tr("Rename"), this, &MapViewBase::OnRenameGroups);
             
             if (newGroup != nullptr && newGroup != currentGroup) {
-                menu.Append(CommandIds::MapViewPopupMenu::AddObjectsToGroup, "Add Objects to Group " + newGroup->name());
+                menu.addAction(tr("Add Objects to Group %1").arg(QString::fromStdString(newGroup->name())), this, &MapViewBase::OnAddObjectsToGroup);
             }
             if (currentGroup != nullptr && !document->selectedNodes().empty()) {
-                menu.Append(CommandIds::MapViewPopupMenu::RemoveObjectsFromGroup, "Remove Objects from Group " + currentGroup->name());
+                menu.addAction(tr("Remove Objects from Group %1").arg(QString::fromStdString(currentGroup->name())), this, &MapViewBase::OnRemoveObjectsFromGroup);
             }
-            menu.AppendSeparator();
+            menu.addSeparator();
             
-            menu.AppendSubMenu(makeEntityGroupsMenu(Assets::EntityDefinition::Type_PointEntity, CommandIds::MapViewPopupMenu::LowestPointEntityItem), "Create Point Entity");
-            menu.AppendSubMenu(makeEntityGroupsMenu(Assets::EntityDefinition::Type_BrushEntity, CommandIds::MapViewPopupMenu::LowestBrushEntityItem), "Create Brush Entity");
+            menu.addMenu(makeEntityGroupsMenu(Assets::EntityDefinition::Type_PointEntity));
+            menu.addMenu(makeEntityGroupsMenu(Assets::EntityDefinition::Type_BrushEntity));
             
             if (document->selectedNodes().hasOnlyBrushes()) {
                 if (!isEntity(newBrushParent)) {
-                    menu.Append(CommandIds::MapViewPopupMenu::MoveBrushesToWorld, "Move Brushes to World");
+                    menu.addAction(tr("Move Brushes to World"), this, &MapViewBase::OnMoveBrushesTo);
                 } else {
-                    menu.Append(CommandIds::MapViewPopupMenu::MoveBrushesToEntity, "Move Brushes to Entity " + newBrushParent->name());
+                    menu.addAction(tr("Move Brushes to Entity %1").arg(QString::fromStdString(newBrushParent->name())), this, &MapViewBase::OnMoveBrushesTo);
                 }
             }
-            
-            menu.UpdateUI(this);
-            PopupMenu(&menu);
-#endif
+
+            menu.exec(QCursor::pos());
+
             doAfterPopupMenu();
         }
 
-        QMenu* MapViewBase::makeEntityGroupsMenu(const Assets::EntityDefinition::Type type, int id) {
-// FIXME: context menu
-#if 0
-            wxMenu* menu = new wxMenu();
+        QMenu* MapViewBase::makeEntityGroupsMenu(const Assets::EntityDefinition::Type type) {
+            auto* menu = new QMenu();
+
+            switch (type) {
+                case Assets::EntityDefinition::Type_PointEntity:
+                    menu->setTitle(tr("Create Point Entity"));
+                    break;
+                case Assets::EntityDefinition::Type_BrushEntity:
+                    menu->setTitle(tr("Create Brush Entity"));
+                    break;
+            }
             
             MapDocumentSPtr document = lock(m_document);
             for (const Assets::EntityDefinitionGroup& group : document->entityDefinitionManager().groups()) {
@@ -1036,20 +1027,27 @@ namespace TrenchBroom {
                 );
 
                 if (!filteredDefinitions.empty()) {
-                    const String groupName = group.displayName();
-                    wxMenu* groupMenu = new wxMenu();
-                    groupMenu->SetEventHandler(this);
+                    const auto groupName = QString::fromStdString(group.displayName());
+                    auto* groupMenu = new QMenu(groupName);
                     
-                    for (Assets::EntityDefinition* definition : filteredDefinitions)
-                        groupMenu->Append(id++, definition->shortName());
+                    for (Assets::EntityDefinition* definition : filteredDefinitions) {
+                        const auto label = QString::fromStdString(definition->shortName());
+
+                        switch (type) {
+                            case Assets::EntityDefinition::Type_PointEntity:
+                                groupMenu->addAction(label, this, &MapViewBase::OnCreatePointEntity);
+                                break;
+                            case Assets::EntityDefinition::Type_BrushEntity:
+                                groupMenu->addAction(label, this, &MapViewBase::OnCreateBrushEntity);
+                                break;
+                        }
+                    }
                     
-                    menu->AppendSubMenu(groupMenu, groupName);
+                    menu->addMenu(groupMenu);
                 }
             }
 
             return menu;
-#endif
-            return nullptr;
         }
 
         void MapViewBase::OnAddObjectsToGroup() {

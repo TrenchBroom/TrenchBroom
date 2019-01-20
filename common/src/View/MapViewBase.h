@@ -41,6 +41,7 @@
 class QMenu;
 class QShortcut;
 class QString;
+class QAction;
 
 namespace TrenchBroom {
     class Logger;
@@ -225,14 +226,6 @@ namespace TrenchBroom {
 #if 0
             void OnActivateFrame(wxActivateEvent& event);
 #endif
-
-        // FIXME: Won't be used with QShortcut
-#if 0
-        protected: // accelerator table management
-            void updateAcceleratorTable();
-        private:
-            void updateAcceleratorTable(bool hasFocus);
-#endif
         private:
             ActionContext actionContext() const;
         private: // implement ViewEffectsService interface
@@ -262,7 +255,7 @@ namespace TrenchBroom {
             void renderFPS(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         private: // implement ToolBoxConnector
             void doShowPopupMenu() override;
-            QMenu* makeEntityGroupsMenu(Assets::EntityDefinition::Type type, int id);
+            QMenu* makeEntityGroupsMenu(Assets::EntityDefinition::Type type);
             
             void OnUpdatePopupMenuItem();
             void updateGroupObjectsMenuItem() const;
