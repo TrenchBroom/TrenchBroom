@@ -1040,7 +1040,12 @@ namespace TrenchBroom {
             
             menu.UpdateUI(this);
             PopupMenu(&menu);
-            
+
+            // Generate a synthetic mouse move event to update the mouse position after the popup menu closes.
+            wxMouseEvent event(wxEVT_MOTION);
+            event.SetPosition(ScreenToClient(wxGetMousePosition()));
+            OnMouse(event);
+
             doAfterPopupMenu();
         }
 

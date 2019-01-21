@@ -225,11 +225,11 @@ namespace TrenchBroom {
             const Color& inner = m_focusColor;
 
             const wxSize clientSize = GetClientSize();
-            const float w = static_cast<float>(clientSize.x);
-            const float h = static_cast<float>(clientSize.y);
-            const float t = 1.0f;
+            const auto w = static_cast<float>(clientSize.x);
+            const auto h = static_cast<float>(clientSize.y);
+            const auto t = 1.0f;
             
-            typedef Renderer::VertexSpecs::P3C4::Vertex Vertex;
+            using Vertex = Renderer::VertexSpecs::P3C4::Vertex;
             Vertex::List vertices(16);
             
             // top
@@ -258,11 +258,11 @@ namespace TrenchBroom {
             
             glAssert(glViewport(0, 0, clientSize.x, clientSize.y));
 
-            const vm::mat4x4f projection = vm::orthoMatrix(-1.0f, 1.0f, 0.0f, 0.0f, w, h);
+            const auto projection = vm::orthoMatrix(-1.0f, 1.0f, 0.0f, 0.0f, w, h);
             Renderer::Transformation transformation(projection, vm::mat4x4f::identity);
             
             glAssert(glDisable(GL_DEPTH_TEST));
-            Renderer::VertexArray array = Renderer::VertexArray::swap(vertices);
+            auto array = Renderer::VertexArray::swap(vertices);
             
             Renderer::ActivateVbo activate(vertexVbo());
             array.prepare(vertexVbo());
