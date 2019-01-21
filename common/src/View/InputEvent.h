@@ -26,6 +26,9 @@
 #include <list>
 #include <memory>
 
+// Undefine this symbol since it interferes somehow with our enums.
+#undef None
+
 namespace TrenchBroom {
     namespace View {
         class KeyEvent;
