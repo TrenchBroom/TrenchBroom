@@ -256,13 +256,12 @@ namespace TrenchBroom {
         private: // implement ToolBoxConnector
             void doShowPopupMenu() override;
             QMenu* makeEntityGroupsMenu(Assets::EntityDefinition::Type type);
-            
-            void OnUpdatePopupMenuItem();
-            void updateGroupObjectsMenuItem() const;
-            void updateUngroupObjectsMenuItem() const;
-            void updateMergeGroupsMenuItem() const;
-            void updateRenameGroupsMenuItem() const;
-            void updateMoveBrushesToWorldMenuItem() const;
+
+            bool canGroupObjects() const;
+            bool canUngroupObjects() const;
+            bool canMergeGroups() const;
+            bool canRenameGroups() const;
+            bool canMoveBrushesToWorld() const;
         private: // subclassing interface
             virtual vm::vec3 doGetMoveDirection(vm::direction direction) const = 0;
             virtual vm::vec3 doComputePointEntityPosition(const vm::bbox3& bounds) const = 0;

@@ -268,16 +268,7 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::bindEvents() {
-            // FIXME: Seems like we'll need to make something emit signals, that the QActions are connected to.
 #if 0
-            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::GroupObjects);
-            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::UngroupObjects);
-            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::MergeGroups);
-            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::RenameGroups);
-            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::MoveBrushesToWorld);
-            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::LowestPointEntityItem, CommandIds::MapViewPopupMenu::HighestPointEntityItem);
-            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::LowestBrushEntityItem, CommandIds::MapViewPopupMenu::HighestBrushEntityItem);
-
             wxFrame* frame = findFrame(this);
             frame->Bind(wxEVT_ACTIVATE, &MapViewBase::OnActivateFrame, this);
 #endif
@@ -664,27 +655,23 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::OnCreatePointEntity() {
-            // FIXME:
-#if 0
+            auto* action = qobject_cast<const QAction*>(sender());
             MapDocumentSPtr document = lock(m_document);
-            const size_t index = static_cast<size_t>(event.GetId() - CommandIds::MapViewPopupMenu::LowestPointEntityItem);
+            const size_t index = action->data().toUInt();
             const Assets::EntityDefinition* definition = findEntityDefinition(Assets::EntityDefinition::Type_PointEntity, index);
             ensure(definition != nullptr, "definition is null");
             assert(definition->type() == Assets::EntityDefinition::Type_PointEntity);
             createPointEntity(static_cast<const Assets::PointEntityDefinition*>(definition));
-#endif
         }
 
         void MapViewBase::OnCreateBrushEntity() {
-            // FIXME:
-#if 0
+            auto* action = qobject_cast<const QAction*>(sender());
             MapDocumentSPtr document = lock(m_document);
-            const size_t index = static_cast<size_t>(event.GetId() - CommandIds::MapViewPopupMenu::LowestBrushEntityItem);
+            const size_t index = action->data().toUInt();
             const Assets::EntityDefinition* definition = findEntityDefinition(Assets::EntityDefinition::Type_BrushEntity, index);
             ensure(definition != nullptr, "definition is null");
             assert(definition->type() == Assets::EntityDefinition::Type_BrushEntity);
             createBrushEntity(static_cast<const Assets::BrushEntityDefinition*>(definition));
-#endif
         }
         
         Assets::EntityDefinition* MapViewBase::findEntityDefinition(const Assets::EntityDefinition::Type type, const size_t index) const {
@@ -972,15 +959,23 @@ namespace TrenchBroom {
             Model::Node* mergeGroup = findGroupToMergeGroupsInto(document->selectedNodes());
             
             QMenu menu;
-            menu.addAction(tr("Group"), this, &MapViewBase::OnGroupSelectedObjects);
-            menu.addAction(tr("Ungroup"), this, &MapViewBase::OnUngroupSelectedObjects);
+            QAction* groupAction = menu.addAction(tr("Group"), this, &MapViewBase::OnGroupSelectedObjects);
+            groupAction->setEnabled(canGroupObjects());
+
+            QAction* ungroupAction = menu.addAction(tr("Ungroup"), this, &MapViewBase::OnUngroupSelectedObjects);
+            ungroupAction->setEnabled(canUngroupObjects());
+
+            QAction* mergeGroupAction = nullptr;
             if (mergeGroup != nullptr) {
-                menu.addAction(tr("Merge Groups into %1").arg(QString::fromStdString(mergeGroup->name())), this, &MapViewBase::OnMergeGroups);
+                mergeGroupAction = menu.addAction(tr("Merge Groups into %1").arg(QString::fromStdString(mergeGroup->name())), this, &MapViewBase::OnMergeGroups);
             } else {
-                menu.addAction(tr("Merge Groups"), this, &MapViewBase::OnMergeGroups);
+                mergeGroupAction = menu.addAction(tr("Merge Groups"), this, &MapViewBase::OnMergeGroups);
             }
-            menu.addAction(tr("Rename"), this, &MapViewBase::OnRenameGroups);
-            
+            mergeGroupAction->setEnabled(canMergeGroups());
+
+            QAction* renameAction = menu.addAction(tr("Rename"), this, &MapViewBase::OnRenameGroups);
+            renameAction->setEnabled(canRenameGroups());
+
             if (newGroup != nullptr && newGroup != currentGroup) {
                 menu.addAction(tr("Add Objects to Group %1").arg(QString::fromStdString(newGroup->name())), this, &MapViewBase::OnAddObjectsToGroup);
             }
@@ -994,7 +989,8 @@ namespace TrenchBroom {
             
             if (document->selectedNodes().hasOnlyBrushes()) {
                 if (!isEntity(newBrushParent)) {
-                    menu.addAction(tr("Move Brushes to World"), this, &MapViewBase::OnMoveBrushesTo);
+                    QAction* moveToWorldAction = menu.addAction(tr("Move Brushes to World"), this, &MapViewBase::OnMoveBrushesTo);
+                    moveToWorldAction->setEnabled(canMoveBrushesToWorld());
                 } else {
                     menu.addAction(tr("Move Brushes to Entity %1").arg(QString::fromStdString(newBrushParent->name())), this, &MapViewBase::OnMoveBrushesTo);
                 }
@@ -1016,7 +1012,10 @@ namespace TrenchBroom {
                     menu->setTitle(tr("Create Brush Entity"));
                     break;
             }
-            
+
+            const bool enableMakeBrushEntity = canCreateBrushEntity();
+            size_t id = 0;
+
             MapDocumentSPtr document = lock(m_document);
             for (const Assets::EntityDefinitionGroup& group : document->entityDefinitionManager().groups()) {
                 const Assets::EntityDefinitionList definitions = group.definitions(type, Assets::EntityDefinition::Name);
@@ -1029,18 +1028,25 @@ namespace TrenchBroom {
                 if (!filteredDefinitions.empty()) {
                     const auto groupName = QString::fromStdString(group.displayName());
                     auto* groupMenu = new QMenu(groupName);
-                    
+
                     for (Assets::EntityDefinition* definition : filteredDefinitions) {
                         const auto label = QString::fromStdString(definition->shortName());
+                        QAction *action = nullptr;
 
                         switch (type) {
-                            case Assets::EntityDefinition::Type_PointEntity:
-                                groupMenu->addAction(label, this, &MapViewBase::OnCreatePointEntity);
+                            case Assets::EntityDefinition::Type_PointEntity: {
+                                action = groupMenu->addAction(label, this, &MapViewBase::OnCreatePointEntity);
                                 break;
-                            case Assets::EntityDefinition::Type_BrushEntity:
-                                groupMenu->addAction(label, this, &MapViewBase::OnCreateBrushEntity);
+                            }
+                            case Assets::EntityDefinition::Type_BrushEntity: {
+                                action = groupMenu->addAction(label, this, &MapViewBase::OnCreateBrushEntity);
+                                action->setEnabled(enableMakeBrushEntity);
                                 break;
+                            }
                         }
+
+                        // TODO: Would be cleaner to pass this as the string entity name
+                        action->setData(QVariant::fromValue<size_t>(id++));
                     }
                     
                     menu->addMenu(groupMenu);
@@ -1228,69 +1234,33 @@ namespace TrenchBroom {
             return result;
         }
 
-        void MapViewBase::OnUpdatePopupMenuItem() {
-            // FIXME:
-#if 0
-            switch (event.GetId()) {
-                case CommandIds::MapViewPopupMenu::GroupObjects:
-                    updateGroupObjectsMenuItem(event);
-                    break;
-                case CommandIds::MapViewPopupMenu::UngroupObjects:
-                    updateUngroupObjectsMenuItem(event);
-                    break;
-                case CommandIds::MapViewPopupMenu::MergeGroups:
-                    updateMergeGroupsMenuItem(event);
-                    break;
-                case CommandIds::MapViewPopupMenu::RenameGroups:
-                    updateRenameGroupsMenuItem(event);
-                    break;
-                case CommandIds::MapViewPopupMenu::MoveBrushesToWorld:
-                    updateMoveBrushesToWorldMenuItem(event);
-                    break;
-                default:
-                    if (event.GetId() >= CommandIds::MapViewPopupMenu::LowestBrushEntityItem &&
-                        event.GetId() <= CommandIds::MapViewPopupMenu::HighestBrushEntityItem) {
-                        event.Enable(canCreateBrushEntity());
-                    } else {
-                        event.Enable(true);
-                    }
-                    break;
-            }
-#endif
-        }
-
-        void MapViewBase::updateGroupObjectsMenuItem() const {
+        bool MapViewBase::canGroupObjects() const {
             MapDocumentSPtr document = lock(m_document);
-            // FIXME:
-//            event.Enable(!document->selectedNodes().empty());
+            return !document->selectedNodes().empty();
         }
     
-        void MapViewBase::updateUngroupObjectsMenuItem() const {
+        bool MapViewBase::canUngroupObjects() const {
             MapDocumentSPtr document = lock(m_document);
-            // FIXME:
-//            event.Enable(document->selectedNodes().hasOnlyGroups());
+            return document->selectedNodes().hasOnlyGroups();
         }
         
-        void MapViewBase::updateMergeGroupsMenuItem() const {
+        bool MapViewBase::canMergeGroups() const {
             MapDocumentSPtr document = lock(m_document);
             Model::Node* mergeGroup = findGroupToMergeGroupsInto(document->selectedNodes());
-            // FIXME:
-//            event.Enable(mergeGroup != nullptr);
+            return mergeGroup != nullptr;
         }
         
-        void MapViewBase::updateRenameGroupsMenuItem() const {
+        bool MapViewBase::canRenameGroups() const {
             MapDocumentSPtr document = lock(m_document);
-            // FIXME:
-//            event.Enable(document->selectedNodes().hasOnlyGroups());
+            return document->selectedNodes().hasOnlyGroups();
         }
 
-        void MapViewBase::updateMoveBrushesToWorldMenuItem() const {
+        bool MapViewBase::canMoveBrushesToWorld() const {
             MapDocumentSPtr document = lock(m_document);
             const Model::NodeList& nodes = document->selectedNodes().nodes();
             Model::Node* newBrushParent = findNewParentEntityForBrushes(nodes);
-            // FIXME:
-//            event.Enable(!isEntity(newBrushParent)
-//                         && !collectReparentableNodes(nodes, newBrushParent).empty());
+            return !isEntity(newBrushParent)
+                && !collectReparentableNodes(nodes, newBrushParent).empty();
         }
 
         void MapViewBase::doPreRender() {}
