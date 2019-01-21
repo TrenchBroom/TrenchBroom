@@ -46,7 +46,7 @@ namespace TrenchBroom {
             bool m_initialized;
             Color m_focusColor;
 
-            InputEventQueue m_eventQueue;
+            InputEventRecorder m_eventRecorder;
         protected:
             RenderView(wxWindow* parent, GLContextManager& contextManager, wxGLAttributes attribs);
         public:

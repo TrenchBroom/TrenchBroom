@@ -60,7 +60,7 @@ namespace TrenchBroom {
         void RenderView::OnKey(wxKeyEvent& event) {
             if (IsBeingDeleted()) return;
 
-            m_eventQueue.recordEvent(event);
+            m_eventRecorder.recordEvent(event);
             event.Skip();
             Refresh();
         }
@@ -76,7 +76,7 @@ namespace TrenchBroom {
                 }
             }
 
-            m_eventQueue.recordEvent(event);
+            m_eventRecorder.recordEvent(event);
             event.Skip();
             Refresh();
         }
@@ -84,7 +84,7 @@ namespace TrenchBroom {
         void RenderView::OnMouseCaptureLost(wxMouseCaptureLostEvent& event) {
             if (IsBeingDeleted()) return;
 
-            m_eventQueue.recordEvent(event);
+            m_eventRecorder.recordEvent(event);
             event.Skip();
             Refresh();
         }
@@ -206,7 +206,7 @@ namespace TrenchBroom {
         }
 
         void RenderView::processInput() {
-            m_eventQueue.processEvents(*this);
+            m_eventRecorder.processEvents(*this);
         }
         
         void RenderView::clearBackground() {

@@ -19,6 +19,8 @@
 
 #include "InputEvent.h"
 
+#include <iostream>
+
 namespace TrenchBroom {
     namespace View {
         InputEvent::~InputEvent() = default;
@@ -28,6 +30,10 @@ namespace TrenchBroom {
         }
 
         bool InputEvent::collateWith(const MouseEvent& event) {
+            return false;
+        }
+
+        bool InputEvent::collateWith(const CancelEvent& event) {
             return false;
         }
 
@@ -72,14 +78,22 @@ namespace TrenchBroom {
             processor.processEvent(*this);
         }
 
-        InputEventQueue::InputEventQueue() :
-        m_dragging(false) {}
-
-        void InputEventQueue::recordEvent(const wxKeyEvent& wxEvent) {
-            enqueueEvent(std::make_unique<KeyEvent>(getEventType(wxEvent)));
+        void InputEventQueue::processEvents(InputEventProcessor& processor) {
+            for (const auto& event : m_eventQueue) {
+                event->processWith(processor);
+            }
+            m_eventQueue.clear();
         }
 
-        void InputEventQueue::recordEvent(const wxMouseEvent& wxEvent) {
+        InputEventRecorder::InputEventRecorder() :
+        m_dragging(false) {}
+
+
+        void InputEventRecorder::recordEvent(const wxKeyEvent& wxEvent) {
+            m_queue.enqueueEvent(std::make_unique<KeyEvent>(getEventType(wxEvent)));
+        }
+
+        void InputEventRecorder::recordEvent(const wxMouseEvent& wxEvent) {
                   auto type = getEventType(wxEvent);
             const auto button = getButton(wxEvent);
             const auto wheelAxis = getWheelAxis(wxEvent);
@@ -98,25 +112,22 @@ namespace TrenchBroom {
                     const auto minDuration = std::chrono::milliseconds(100);
                     if (duration < minDuration) {
                         // Ignore accidental drags.
-                        m_eventQueue.push_back(std::make_unique<CancelEvent>());
+                        m_queue.enqueueEvent(std::make_unique<CancelEvent>());
                         m_dragging = false;
                     } else {
-                        auto event = std::make_unique<MouseEvent>(MouseEvent::Type::DragEnd, button, wheelAxis, posX, posY, scrollDistance);
-                        enqueueEvent(std::move(event));
+                        m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::DragEnd, button, wheelAxis, posX, posY, scrollDistance));
                         m_dragging = false;
                     }
                 } else {
                     if (std::abs(posX - m_lastClickX) <= 1 && std::abs(posY - m_lastClickY) <= 1) {
                         // Ignore accidental clicks.
-                        auto event = std::make_unique<MouseEvent>(MouseEvent::Type::Click, button, wheelAxis, posX, posY, scrollDistance);
-                        enqueueEvent(std::move(event));
+                        m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::Click, button, wheelAxis, posX, posY, scrollDistance));
                     }
                 }
             } else if (type == MouseEvent::Type::Motion) {
                 if (!m_dragging && (wxEvent.LeftIsDown() || wxEvent.MiddleIsDown() || wxEvent.RightIsDown())) {
                     if (std::abs(posX - m_lastClickX) > 0 || std::abs(posY - m_lastClickY)) {
-                        auto event = std::make_unique<MouseEvent>(MouseEvent::Type::DragStart, button, wheelAxis, m_lastClickX, m_lastClickY, scrollDistance);
-                        enqueueEvent(std::move(event));
+                        m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::DragStart, button, wheelAxis, m_lastClickX, m_lastClickY, scrollDistance));
                         m_dragging = true;
                     }
                 }
@@ -125,22 +136,18 @@ namespace TrenchBroom {
                 }
             }
 
-            auto event = std::make_unique<MouseEvent>(type, button, wheelAxis, posX, posY, scrollDistance);
-            enqueueEvent(std::move(event));
+            m_queue.enqueueEvent(std::make_unique<MouseEvent>(type, button, wheelAxis, posX, posY, scrollDistance));
         }
 
-        void InputEventQueue::recordEvent(const wxMouseCaptureLostEvent& wxEvent) {
-            m_eventQueue.push_back(std::make_unique<CancelEvent>());
+        void InputEventRecorder::recordEvent(const wxMouseCaptureLostEvent& wxEvent) {
+            m_queue.enqueueEvent(std::make_unique<CancelEvent>());
         }
 
-        void InputEventQueue::processEvents(InputEventProcessor& processor) {
-            for (const auto& event : m_eventQueue) {
-                event->processWith(processor);
-            }
-            m_eventQueue.clear();
+        void InputEventRecorder::processEvents(InputEventProcessor& processor) {
+            m_queue.processEvents(processor);
         }
 
-        KeyEvent::Type InputEventQueue::getEventType(const wxKeyEvent& wxEvent) {
+        KeyEvent::Type InputEventRecorder::getEventType(const wxKeyEvent& wxEvent) {
             const auto wxType = wxEvent.GetEventType();
             if (wxType == wxEVT_KEY_DOWN) {
                 return KeyEvent::Type::Down;
@@ -151,7 +158,7 @@ namespace TrenchBroom {
             }
         }
 
-        MouseEvent::Type InputEventQueue::getEventType(const wxMouseEvent& wxEvent) {
+        MouseEvent::Type InputEventRecorder::getEventType(const wxMouseEvent& wxEvent) {
             if (wxEvent.ButtonDown(wxMOUSE_BTN_ANY)) {
                 return MouseEvent::Type::Down;
             } else if (wxEvent.ButtonUp(wxMOUSE_BTN_ANY)) {
@@ -167,7 +174,7 @@ namespace TrenchBroom {
             }
         }
 
-        MouseEvent::Button InputEventQueue::getButton(const wxMouseEvent& wxEvent) {
+        MouseEvent::Button InputEventRecorder::getButton(const wxMouseEvent& wxEvent) {
             if (wxEvent.Button(wxMOUSE_BTN_LEFT)) {
                 return MouseEvent::Button::Left;
             } else if (wxEvent.Button(wxMOUSE_BTN_MIDDLE)) {
@@ -183,7 +190,7 @@ namespace TrenchBroom {
             }
         }
 
-        MouseEvent::WheelAxis InputEventQueue::getWheelAxis(const wxMouseEvent& wxEvent) {
+        MouseEvent::WheelAxis InputEventRecorder::getWheelAxis(const wxMouseEvent& wxEvent) {
             if (wxEvent.GetWheelAxis() == wxMOUSE_WHEEL_VERTICAL) {
                 return MouseEvent::WheelAxis::Vertical;
             } else if (wxEvent.GetWheelAxis() == wxMOUSE_WHEEL_HORIZONTAL) {
@@ -193,7 +200,7 @@ namespace TrenchBroom {
             }
         }
 
-        float InputEventQueue::getScrollDistance(const wxMouseEvent& wxEvent) {
+        float InputEventRecorder::getScrollDistance(const wxMouseEvent& wxEvent) {
             return static_cast<float>(wxEvent.GetWheelRotation()) / wxEvent.GetWheelDelta() * wxEvent.GetLinesPerAction();
         }
 
