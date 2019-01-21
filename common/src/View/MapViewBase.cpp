@@ -1000,7 +1000,7 @@ namespace TrenchBroom {
         void MapViewBase::doShowPopupMenu() {
             if (!doBeforePopupMenu())
                 return;
-            
+
             MapDocumentSPtr document = lock(m_document);
             const Model::NodeList& nodes = document->selectedNodes().nodes();
             Model::Node* newBrushParent = findNewParentEntityForBrushes(nodes);

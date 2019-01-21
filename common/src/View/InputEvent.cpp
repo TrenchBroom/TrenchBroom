@@ -19,8 +19,6 @@
 
 #include "InputEvent.h"
 
-#include <iostream>
-
 namespace TrenchBroom {
     namespace View {
         InputEvent::~InputEvent() = default;
@@ -79,10 +77,16 @@ namespace TrenchBroom {
         }
 
         void InputEventQueue::processEvents(InputEventProcessor& processor) {
-            for (const auto& event : m_eventQueue) {
+            // Swap out the queue before processing it, because if processing an event blocks (e.g. a popup menu), then
+            // stale events maybe processed again.
+
+            EventQueue copy;
+            using std::swap;
+            swap(copy, m_eventQueue);
+
+            for (const auto& event : copy) {
                 event->processWith(processor);
             }
-            m_eventQueue.clear();
         }
 
         InputEventRecorder::InputEventRecorder() :
