@@ -8,7 +8,7 @@ Thumbs.db
 /build-debug
 /build-release
 /codeblocks
-/Xcode
+/Xcode*
 /vs2010
 /vs2012
 /vs2013
