@@ -276,7 +276,13 @@ namespace TrenchBroom {
 
         QShortcut* MapViewBase::createAndRegisterShortcut(const ActionInfo& info, Callback callback) {
             QShortcut* shortcut = new QShortcut(this->widgetContainer());
-            shortcut->setContext(Qt::WidgetShortcut); // Only in this widget
+
+            // Ideally, we'd use Qt::WidgetWithChildrenShortcut so the shortcuts are automatically active based on whether
+            // this map view has focus, but this doesn't work with QOpenGLWindow since it's a separate window, and the
+            // QOpenGLWindow being focused doesn't cause the widgetContainer() to be focused.
+            //
+            // Instead we need to manually disable/enable the shortcuts based on whether this map view has focus in `updateBindings()`.
+            shortcut->setContext(Qt::WindowShortcut);
             registerBinding(shortcut, info);
             connect(shortcut, &QShortcut::activated, this, callback);
             return shortcut;
@@ -351,10 +357,10 @@ namespace TrenchBroom {
         void MapViewBase::updateBindings() {
             qDebug("updating key binds");
 
-            // refresh key bindings, start with all shortcuts enabled
+            // refresh key bindings, start with all shortcuts enabled, if `this` has focus
             for (auto [shortcut, menuInfo] : m_actionInfoList) {
                 shortcut->setKey(menuInfo->defaultKey);
-                shortcut->setEnabled(true);
+                shortcut->setEnabled(HasFocus());
             }
 
             // Disable shortcuts that are for the wrong action view (2D or 3D)
