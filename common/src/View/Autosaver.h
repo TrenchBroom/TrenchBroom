@@ -38,26 +38,47 @@ namespace TrenchBroom {
         class Autosaver {
         private:
             View::MapDocumentWPtr m_document;
-            Logger* m_logger;
-            
-            time_t m_saveInterval;
-            time_t m_idleInterval;
+
+            /**
+             * The time after which a new autosave is attempted, in seconds.
+             */
+            std::time_t m_saveInterval;
+            /**
+             * The idle time. The editor must have been idle for this interval before a new autosave is attempted.
+             * In seconds.
+             */
+            std::time_t m_idleInterval;
+
+            /**
+             * The maximum number of backups to create. When this number is exceeded, old backups are deleted until
+             * the number of backups is equal to the number of backups again.
+             */
             size_t m_maxBackups;
-            
-            time_t m_lastSaveTime;
-            time_t m_lastModificationTime;
+
+            /**
+             * The time at which the last autosave has succeeded. POSIX timestamp.
+             */
+            std::time_t m_lastSaveTime;
+
+            /**
+             * The time at which the map was modified last. POSIX timestamp.
+             */
+            std::time_t m_lastModificationTime;
+
+            /**
+             * The modification count that was last recorded.
+             */
             size_t m_lastModificationCount;
         public:
-            Autosaver(View::MapDocumentWPtr document, time_t saveInterval = 10 * 60, time_t idleInterval = 3, size_t maxBackups = 50);
+            explicit Autosaver(View::MapDocumentWPtr document, std::time_t saveInterval = 10 * 60, std::time_t idleInterval = 3, size_t maxBackups = 50);
             ~Autosaver();
             
-            void triggerAutosave(Logger* logger);
+            void triggerAutosave(Logger& logger);
         private:
-            void autosave(View::MapDocumentSPtr document);
-            IO::WritableDiskFileSystem createBackupFileSystem(const IO::Path& mapPath) const;
+            void autosave(Logger& logger, View::MapDocumentSPtr document);
+            IO::WritableDiskFileSystem createBackupFileSystem(Logger& logger, const IO::Path& mapPath) const;
             IO::Path::List collectBackups(const IO::WritableDiskFileSystem& fs, const IO::Path& mapBasename) const;
-            bool isBackup(const IO::Path& backupPath, const IO::Path& mapBasename) const;
-            void thinBackups(IO::WritableDiskFileSystem& fs, IO::Path::List& backups) const;
+            void thinBackups(Logger& logger, IO::WritableDiskFileSystem& fs, IO::Path::List& backups) const;
             void cleanBackups(IO::WritableDiskFileSystem& fs, IO::Path::List& backups, const IO::Path& mapBasename) const;
             IO::Path makeBackupName(const IO::Path& mapBasename, const size_t index) const;
         private:

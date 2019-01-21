@@ -100,6 +100,21 @@ namespace TrenchBroom {
                 return deleteDirectory(m_dir);
             }
         };
+
+        TEST(FileSystemTest, makeAbsolute) {
+            TestEnvironment env;
+
+            auto fs = std::make_unique<DiskFileSystem>(env.dir() + Path("anotherDir"));
+                 fs = std::make_unique<DiskFileSystem>(std::move(fs), env.dir() + Path("dir1"));
+
+            // Existing files should be resolved against the first file system in the chain that contains them:
+            const auto absPathExisting = fs->makeAbsolute(Path("test3.map"));
+            ASSERT_EQ(env.dir() + Path("anotherDir/test3.map"), absPathExisting);
+
+            // Non existing files should be resolved against the first filesystem in the fs chain:
+            const auto absPathNotExisting = fs->makeAbsolute(Path("asdf.map"));
+            ASSERT_EQ(env.dir() + Path("dir1/asdf.map"), absPathNotExisting);
+        }
         
         TEST(DiskTest, fixPath) {
             TestEnvironment env;

@@ -2074,7 +2074,7 @@ namespace TrenchBroom {
         void MapFrame::OnAutosaveTimer(wxTimerEvent& event) {
             if (IsBeingDeleted()) return;
 
-            m_autosaver->triggerAutosave(logger());
+            m_autosaver->triggerAutosave(*logger());
         }
         
         int MapFrame::indexForGridSize(const int gridSize) {
