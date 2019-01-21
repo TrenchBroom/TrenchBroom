@@ -22,18 +22,12 @@
 #include "View/ToolBox.h"
 #include "View/ToolChain.h"
 
-#include <wx/window.h>
-#include <wx/time.h>
-
 namespace TrenchBroom {
     namespace View {
-        ToolBoxConnector::ToolBoxConnector(wxWindow* window) :
-        m_window(window),
+        ToolBoxConnector::ToolBoxConnector() :
         m_toolBox(nullptr),
         m_toolChain(new ToolChain()),
-        m_ignoreNextDrag(false) {
-            ensure(m_window != nullptr, "window is null");
-        }
+        m_ignoreNextDrag(false) {}
 
         ToolBoxConnector::~ToolBoxConnector() {
             delete m_toolChain;
@@ -76,9 +70,7 @@ namespace TrenchBroom {
             mouseMoved(x, y);
             updatePickResult();
 
-            const bool result = m_toolBox->dragEnter(m_toolChain, m_inputState, text);
-            m_window->Refresh();
-            return result;
+            return m_toolBox->dragEnter(m_toolChain, m_inputState, text);
         }
 
         bool ToolBoxConnector::dragMove(const wxCoord x, const wxCoord y, const String& text) {
@@ -87,16 +79,13 @@ namespace TrenchBroom {
             mouseMoved(x, y);
             updatePickResult();
 
-            const auto result = m_toolBox->dragMove(m_toolChain, m_inputState, text);
-            m_window->Refresh();
-            return result;
+            return m_toolBox->dragMove(m_toolChain, m_inputState, text);
         }
 
         void ToolBoxConnector::dragLeave() {
             ensure(m_toolBox != nullptr, "toolBox is null");
 
             m_toolBox->dragLeave(m_toolChain, m_inputState);
-            m_window->Refresh();
         }
 
         bool ToolBoxConnector::dragDrop(const wxCoord x, const wxCoord y, const String& text) {
@@ -104,12 +93,7 @@ namespace TrenchBroom {
 
             updatePickResult();
 
-            const auto result = m_toolBox->dragDrop(m_toolChain, m_inputState, text);
-            m_window->Refresh();
-            if (result) {
-                m_window->SetFocus();
-            }
-            return result;
+            return m_toolBox->dragDrop(m_toolChain, m_inputState, text);
         }
 
         bool ToolBoxConnector::cancel() {

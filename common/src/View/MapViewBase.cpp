@@ -92,7 +92,6 @@ namespace TrenchBroom {
 
         MapViewBase::MapViewBase(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager) :
         RenderView(parent, contextManager, GLAttribs::attribs()),
-        ToolBoxConnector(this),
         m_logger(logger),
         m_document(document),
         m_toolBox(toolBox),
@@ -805,7 +804,7 @@ namespace TrenchBroom {
         }
         
         void MapViewBase::doSetToolBoxDropTarget() {
-            SetDropTarget(new ToolBoxDropTarget(this));
+            SetDropTarget(new ToolBoxDropTarget(this, this));
         }
         
         void MapViewBase::doClearDropTarget() {

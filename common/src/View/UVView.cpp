@@ -56,7 +56,6 @@ namespace TrenchBroom {
         
         UVView::UVView(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
         RenderView(parent, contextManager, GLAttribs::attribs()),
-        ToolBoxConnector(this),
         m_document(document),
         m_helper(m_camera) {
             setToolBox(m_toolBox);

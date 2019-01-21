@@ -25,10 +25,6 @@
 #include "View/PickRequest.h"
 
 #include <wx/gdicmn.h>
-#include <wx/longlong.h>
-
-class wxWindow;
-class wxFocusEvent;
 
 namespace TrenchBroom {
     namespace Model {
@@ -48,7 +44,6 @@ namespace TrenchBroom {
 
         class ToolBoxConnector : public InputEventProcessor {
         private:
-            wxWindow* m_window;
             ToolBox* m_toolBox;
             ToolChain* m_toolChain;
             
@@ -58,8 +53,8 @@ namespace TrenchBroom {
             int m_lastMouseY;
             bool m_ignoreNextDrag;
         public:
-            ToolBoxConnector(wxWindow* window);
-            virtual ~ToolBoxConnector() override;
+            ToolBoxConnector();
+            ~ToolBoxConnector() override;
             
             const vm::ray3& pickRay() const;
             const Model::PickResult& pickResult() const;
