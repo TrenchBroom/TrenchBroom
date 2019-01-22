@@ -209,6 +209,7 @@ namespace TrenchBroom {
                 static const int UngroupObjects                     = Lowest + 5;
                 static const int RenameGroups                       = Lowest + 6;
                 static const int MergeGroups                        = Lowest + 7;
+                static const int ShowPopupMenu                      = Lowest + 8;
             }
         }
     }
