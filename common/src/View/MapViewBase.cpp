@@ -740,6 +740,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             updateAcceleratorTable(true);
+            updateModifierKeys();
             event.Skip();
         }
 
@@ -747,6 +748,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             updateAcceleratorTable(false);
+            clearModifierKeys();
             event.Skip();
         }
 

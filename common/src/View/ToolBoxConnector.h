@@ -77,9 +77,10 @@ namespace TrenchBroom {
         private:
             ModifierKeyState modifierKeys();
             bool setModifierKeys();
+        protected:
             bool clearModifierKeys();
             void updateModifierKeys();
-            
+        private:
             void showPopupMenu();
         public: // implement InputEventProcessor interface
             void processEvent(const KeyEvent& event) override;
