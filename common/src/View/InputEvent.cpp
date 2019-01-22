@@ -90,7 +90,8 @@ namespace TrenchBroom {
         }
 
         InputEventRecorder::InputEventRecorder() :
-        m_dragging(false) {}
+        m_dragging(false),
+        m_anyMouseButtonDown(false) {}
 
 
         void InputEventRecorder::recordEvent(const wxKeyEvent& wxEvent) {
@@ -109,6 +110,7 @@ namespace TrenchBroom {
                 m_lastClickX = posX;
                 m_lastClickY = posY;
                 m_lastClickTime = std::chrono::high_resolution_clock::now();
+                m_anyMouseButtonDown = true;
             } else if (type == MouseEvent::Type::Up) {
                 if (m_dragging) {
                     const auto now = std::chrono::high_resolution_clock::now();
@@ -128,8 +130,9 @@ namespace TrenchBroom {
                         m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::Click, button, wheelAxis, posX, posY, scrollDistance));
                     }
                 }
+                m_anyMouseButtonDown = false;
             } else if (type == MouseEvent::Type::Motion) {
-                if (!m_dragging && (wxEvent.LeftIsDown() || wxEvent.MiddleIsDown() || wxEvent.RightIsDown())) {
+                if (!m_dragging && m_anyMouseButtonDown) {
                     if (std::abs(posX - m_lastClickX) > 0 || std::abs(posY - m_lastClickY)) {
                         m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::DragStart, button, wheelAxis, m_lastClickX, m_lastClickY, scrollDistance));
                         m_dragging = true;
@@ -145,6 +148,7 @@ namespace TrenchBroom {
 
         void InputEventRecorder::recordEvent(const wxMouseCaptureLostEvent& wxEvent) {
             m_queue.enqueueEvent(std::make_unique<CancelEvent>());
+            m_anyMouseButtonDown = false;
         }
 
         void InputEventRecorder::processEvents(InputEventProcessor& processor) {

@@ -261,6 +261,10 @@ namespace TrenchBroom {
              */
             bool m_dragging;
             /**
+             Indicates that we received a mouse down event, cleared on mouse up.
+             */
+            bool m_anyMouseButtonDown;
+            /**
              * The X position of the last mouse down event.
              */
             int m_lastClickX;
