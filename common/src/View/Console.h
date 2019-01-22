@@ -25,17 +25,17 @@
 #include "Logger.h"
 #include "View/TabBook.h"
 
-class wxString;
-class wxTextCtrl;
+class QTextEdit;
 class QString;
+class QWidget;
 
 namespace TrenchBroom {
     namespace View {
         class Console : public TabBookPage, public Logger {
         private:
-            wxTextCtrl* m_textView;
+            QTextEdit* m_textView;
         public:
-            Console(wxWindow* parent);
+            explicit Console(QWidget* parent);
         private:
             void doLog(LogLevel level, const String& message) override;
             void doLog(LogLevel level, const QString& message) override;

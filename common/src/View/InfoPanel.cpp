@@ -23,32 +23,35 @@
 #include "IO/ResourceUtils.h"
 #include "View/Console.h"
 #include "View/ContainerBar.h"
-#include "View/IssueBrowser.h"
+//#include "View/IssueBrowser.h"
 #include "View/TabBar.h"
 #include "View/TabBook.h"
 
-#include <wx/sizer.h>
+#include <QVBoxLayout>
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace View {
-        InfoPanel::InfoPanel(wxWindow* parent, MapDocumentWPtr document) :
-        wxPanel(parent),
+        InfoPanel::InfoPanel(QWidget* parent, MapDocumentWPtr document) :
+        QWidget(parent),
         m_tabBook(nullptr),
         m_console(nullptr),
         m_issueBrowser(nullptr) {
             m_tabBook = new TabBook(this);
             
-            m_console = new Console(m_tabBook);
-            m_issueBrowser = new IssueBrowser(m_tabBook, document);
-            
-            m_tabBook->addPage(m_console, "Console");
-            m_tabBook->addPage(m_issueBrowser, "Issues");
+            m_console = new Console(nullptr);
+            //m_issueBrowser = new IssueBrowser(nullptr, document);
 
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_tabBook, 1, wxEXPAND);
-            SetSizer(sizer);
+            m_tabBook->addPage(m_console, "Console");
+            m_tabBook->addPage(new TabBookPage(nullptr), "Issues");
+            // FIXME:
+//            m_tabBook->addPage(m_issueBrowser, "Issues");
+
+            QVBoxLayout* sizer = new QVBoxLayout();
+            sizer->setContentsMargins(0, 0, 0, 0);
+            sizer->addWidget(m_tabBook);
+            setLayout(sizer);
         }
 
         Console* InfoPanel::console() const {

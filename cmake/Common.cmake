@@ -280,7 +280,7 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/BitmapStaticButton.cpp
 #	${COMMON_SOURCE_DIR}/View/BitmapToggleButton.cpp
 	${COMMON_SOURCE_DIR}/View/BorderLine.cpp
-#	${COMMON_SOURCE_DIR}/View/BorderPanel.cpp
+	${COMMON_SOURCE_DIR}/View/BorderPanel.cpp
 	${COMMON_SOURCE_DIR}/View/CachingLogger.cpp
 	${COMMON_SOURCE_DIR}/View/CameraAnimation.cpp
 	${COMMON_SOURCE_DIR}/View/CameraLinkHelper.cpp
@@ -306,8 +306,8 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/CompilationRunner.cpp
 #	${COMMON_SOURCE_DIR}/View/CompilationTaskList.cpp
 #	${COMMON_SOURCE_DIR}/View/CompilationVariables.cpp
-#	${COMMON_SOURCE_DIR}/View/Console.cpp
-#	${COMMON_SOURCE_DIR}/View/ContainerBar.cpp
+	${COMMON_SOURCE_DIR}/View/Console.cpp
+	${COMMON_SOURCE_DIR}/View/ContainerBar.cpp
 #	${COMMON_SOURCE_DIR}/View/ControlListBox.cpp
 	${COMMON_SOURCE_DIR}/View/ConvertEntityColorCommand.cpp
 	${COMMON_SOURCE_DIR}/View/CopyTexCoordSystemFromFaceCommand.cpp
@@ -367,7 +367,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/GLContextManager.cpp
 	${COMMON_SOURCE_DIR}/View/Grid.cpp
 #	${COMMON_SOURCE_DIR}/View/ImageListBox.cpp
-#	${COMMON_SOURCE_DIR}/View/InfoPanel.cpp
+	${COMMON_SOURCE_DIR}/View/InfoPanel.cpp
 	${COMMON_SOURCE_DIR}/View/InputState.cpp
 #	${COMMON_SOURCE_DIR}/View/Inspector.cpp
 #	${COMMON_SOURCE_DIR}/View/IssueBrowser.cpp
@@ -464,8 +464,8 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/SplitterWindow2.cpp
 #	${COMMON_SOURCE_DIR}/View/SplitterWindow4.cpp
 	${COMMON_SOURCE_DIR}/View/SwitchableMapViewContainer.cpp
-#	${COMMON_SOURCE_DIR}/View/TabBar.cpp
-#	${COMMON_SOURCE_DIR}/View/TabBook.cpp
+	${COMMON_SOURCE_DIR}/View/TabBar.cpp
+	${COMMON_SOURCE_DIR}/View/TabBook.cpp
 #	${COMMON_SOURCE_DIR}/View/TextCtrlOutputAdapter.cpp
 #	${COMMON_SOURCE_DIR}/View/TextureBrowser.cpp
 #	${COMMON_SOURCE_DIR}/View/TextureBrowserView.cpp

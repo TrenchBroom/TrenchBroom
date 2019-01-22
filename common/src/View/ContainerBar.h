@@ -26,7 +26,7 @@ namespace TrenchBroom {
     namespace View {
         class ContainerBar : public BorderPanel {
         public:
-            ContainerBar(wxWindow* parent, int borders);
+            explicit ContainerBar(QWidget* parent, Sides borders);
             virtual ~ContainerBar();
         };
     }

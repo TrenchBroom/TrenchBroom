@@ -110,6 +110,7 @@ namespace TrenchBroom {
 
             // FIXME: add m_mapViewBar too. Use a vertical box layout.
             auto* layout = new QGridLayout();
+            layout->setContentsMargins(0, 0, 0, 0);
             layout->addWidget(m_mapView, 0, 0, 1, 1);
             setLayout(layout);
             

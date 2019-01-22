@@ -35,6 +35,8 @@
 #include <QShortcut>
 #include <QToolBar>
 #include <QComboBox>
+#include <QSplitter>
+#include <QVBoxLayout>
 
 #include "TrenchBroomApp.h"
 #include "Preferences.h"
@@ -60,20 +62,18 @@
 #include "View/CommandWindowUpdateLocker.h"
 // FIXME:
 //#include "View/CompilationDialog.h"
-//#include "View/Console.h"
+#include "View/Console.h"
 #include "View/EdgeTool.h"
 #include "View/FaceTool.h"
 #include "View/GLContextManager.h"
 #include "View/Grid.h"
-// FIXME:
-//#include "View/InfoPanel.h"
-//#include "View/Inspector.h"
+#include "View/InfoPanel.h"
+#include "View/Inspector.h"
 //#include "View/LaunchGameEngineDialog.h"
 #include "View/MapDocument.h"
 //#include "View/MapFrameDropTarget.h"
 #include "View/RenderView.h"
 //#include "View/ReplaceTextureDialog.h"
-//#include "View/SplitterWindow2.h"
 #include "View/SwitchableMapViewContainer.h"
 #include "View/VertexTool.h"
 #include "View/ViewUtils.h"
@@ -94,7 +94,8 @@ namespace TrenchBroom {
         m_autosaveTimer(nullptr),
         m_contextManager(nullptr),
         m_mapView(nullptr),
-//        m_console(nullptr),
+        m_infoPanel(nullptr),
+        m_console(nullptr),
 //        m_inspector(nullptr),
         m_gridChoice(nullptr),
 //        m_compilationDialog(nullptr),
@@ -107,7 +108,8 @@ namespace TrenchBroom {
         m_autosaveTimer(nullptr),
         m_contextManager(nullptr),
         m_mapView(nullptr),
-//        m_console(nullptr),
+        m_infoPanel(nullptr),
+        m_console(nullptr),
 //        m_inspector(nullptr),
         m_gridChoice(nullptr),
 //        m_compilationDialog(nullptr),
@@ -153,7 +155,8 @@ namespace TrenchBroom {
             clearDropTarget();
             
             m_updateLocker = new CommandWindowUpdateLocker(this, m_document);
-#ifdef __APPLE__
+            // FIXME: Needed with Qt?
+#if 0
             m_updateLocker->Start();
 #endif
         }
@@ -217,8 +220,7 @@ namespace TrenchBroom {
         }
 
         Logger* MapFrame::logger() const {
-            // FIXME: return m_console
-            return &FileLogger::instance();
+            return m_console;
         }
 
         void MapFrame::setToolBoxDropTarget() {
@@ -1054,11 +1056,9 @@ namespace TrenchBroom {
             viewSwitchToEntityInspectorAction->setEnabled(true);
             viewSwitchToFaceInspectorAction->setEnabled(true);
             viewToggleInfoPanelAction->setEnabled(true);
-            // FIXME:
-            //viewToggleInfoPanelAction->setChecked(!m_vSplitter->isMaximized(m_mapView));
+            viewToggleInfoPanelAction->setChecked(m_infoPanel->isVisible());
             viewToggleInspectorAction->setEnabled(true);
-            // FIXME:
-            //viewToggleInspectorAction->setChecked(!m_hSplitter->isMaximized(m_vSplitter));
+            //viewToggleInspectorAction->setChecked(m_inspector->isVisible());
             viewToggleMaximizeCurrentViewAction->setEnabled(m_mapView->canMaximizeCurrentView());
             viewToggleMaximizeCurrentViewAction->setChecked(m_mapView->currentViewMaximized());
             viewPreferencesAction->setEnabled(true);
@@ -1121,41 +1121,58 @@ namespace TrenchBroom {
             TrenchBroom::View::setWindowIcon(this);
             setWindowTitle("TrenchBroom");
 
-#if 0
-            m_hSplitter = new SplitterWindow2(this);
-            m_hSplitter->setSashGravity(1.0);
-            m_hSplitter->SetName("MapFrameHSplitter");
+            // FIXME: handle sash gravity, persistence
+            m_hSplitter = new QSplitter(Qt::Horizontal);
+            m_hSplitter->setChildrenCollapsible(false);
+            //m_hSplitter->SetName("MapFrameHSplitter");
 
-            m_vSplitter = new SplitterWindow2(m_hSplitter);
-            m_vSplitter->setSashGravity(1.0);
-            m_vSplitter->SetName("MapFrameVSplitter");
+            m_vSplitter = new QSplitter(Qt::Vertical);
+            m_vSplitter->setChildrenCollapsible(false);
+            //m_vSplitter->SetName("MapFrameVSplitter");
 
-            InfoPanel* infoPanel = new InfoPanel(m_vSplitter, m_document);
-            m_console = infoPanel->console();
-#endif
-            m_mapView = new SwitchableMapViewContainer(nullptr, /* was m_console */ logger(), m_document, *m_contextManager);
+            m_infoPanel = new InfoPanel(nullptr, m_document);
+            m_console = m_infoPanel->console();
 
-#if 0
-            m_inspector = new Inspector(m_hSplitter, m_document, *m_contextManager);
+            m_mapView = new SwitchableMapViewContainer(nullptr, m_console, m_document, *m_contextManager);
 
-            m_mapView->connectTopWidgets(m_inspector);
+            //m_inspector = new Inspector(m_hSplitter, m_document, *m_contextManager);
 
-            m_vSplitter->splitHorizontally(m_mapView, infoPanel, wxSize(100, 100), wxSize(100, 100));
-            m_hSplitter->splitVertically(m_vSplitter, m_inspector, wxSize(100, 100), wxSize(350, 100));
+            //m_mapView->connectTopWidgets(m_inspector);
 
-            wxSizer* frameSizer = new wxBoxSizer(wxVERTICAL);
+            // Add widgets to splitters
+            m_vSplitter->addWidget(m_mapView);
+            m_vSplitter->addWidget(m_infoPanel);
+
+            m_hSplitter->addWidget(m_vSplitter);
+            //m_hSplitter->addWidget(m_inspector);
+
+            // Configure minimum sizes
+            m_mapView->setMinimumSize(100, 100);
+            m_infoPanel->setMinimumSize(100, 100);
+
+            m_vSplitter->setMinimumSize(100, 100);
+//            m_inspector->setMinimumSize(350, 100);
+
+            // Configure the sash gravity so the first widget gets most of the space
+            m_hSplitter->setSizes(QList<int>{1'000'000, 1});
+            m_vSplitter->setSizes(QList<int>{1'000'000, 1});
+
+            QVBoxLayout* frameSizer = new QVBoxLayout();
+            frameSizer->setContentsMargins(0, 0, 0, 0);
 #if !defined __APPLE__
-            frameSizer->Add(new BorderLine(this), 1, wxEXPAND);
+            frameSizer->addWidget(new BorderLine(nullptr));
 #endif
-            frameSizer->Add(m_hSplitter, 1, wxEXPAND);
+            frameSizer->addWidget(m_hSplitter);
 
-            SetSizer(frameSizer);
+            // FIXME:
+//            wxPersistenceManager::Get().RegisterAndRestore(m_hSplitter);
+//            wxPersistenceManager::Get().RegisterAndRestore(m_vSplitter);
 
-            wxPersistenceManager::Get().RegisterAndRestore(m_hSplitter);
-            wxPersistenceManager::Get().RegisterAndRestore(m_vSplitter);
-#endif
+            // NOTE: you can't set the layout of a QMainWindow, so make another widget to wrap this layout in
+            QWidget* layoutWrapper = new QWidget();
+            layoutWrapper->setLayout(frameSizer);
 
-            setCentralWidget(m_mapView);
+            setCentralWidget(layoutWrapper);
         }
 
         void MapFrame::createToolBar() {
@@ -1899,11 +1916,7 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnViewToggleInfoPanel() {
-            // FIXME:
-//            if (m_vSplitter->isMaximized(m_mapView))
-//                m_vSplitter->restore();
-//            else
-//                m_vSplitter->maximize(m_mapView);
+            m_infoPanel->setHidden(!m_infoPanel->isHidden());
         }
 
         void MapFrame::OnViewToggleInspector() {

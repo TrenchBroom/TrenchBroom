@@ -22,14 +22,7 @@
 
 #include "View/ViewTypes.h"
 
-#include <wx/bitmap.h>
-#include <wx/panel.h>
-
-class wxBookCtrlEvent;
-class wxButton;
-class wxCommandEvent;
-class wxSimplebook;
-class wxWindow;
+#include <QWidget>
 
 namespace TrenchBroom {
     class Logger;
@@ -40,13 +33,13 @@ namespace TrenchBroom {
         class IssueBrowser;
         class TabBook;
         
-        class InfoPanel : public wxPanel {
+        class InfoPanel : public QWidget {
         private:
             TabBook* m_tabBook;
             Console* m_console;
             IssueBrowser* m_issueBrowser;
         public:
-            InfoPanel(wxWindow* parent, MapDocumentWPtr document);
+            InfoPanel(QWidget* parent, MapDocumentWPtr document);
             Console* console() const;
         };
     }

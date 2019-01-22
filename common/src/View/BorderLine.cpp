@@ -42,7 +42,7 @@ namespace TrenchBroom {
 
         void BorderLine::paintEvent(QPaintEvent* event) {
             QPainter painter(this);
-            painter.fillRect(this->rect(), Colors::borderColorQt());
+            painter.fillRect(this->rect(), Colors::borderColor());
         }
     }
 }

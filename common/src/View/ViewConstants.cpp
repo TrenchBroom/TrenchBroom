@@ -20,82 +20,58 @@
 #include "ViewConstants.h"
 
 #include <QColor>
+#include <QPalette>
+#include <QFont>
 
 namespace TrenchBroom {
     namespace View {
-#if 0
         namespace Fonts {
-            const wxFont& fixedWidthFont() {
-                static const wxFont font =
-#if defined __APPLE__
-                wxFont(wxFontInfo().FaceName("Monaco")).Smaller();
-#elif defined _WIN32
-                wxFont(wxFontInfo().FaceName("Lucida Console"));
-#else
-                wxFont(wxFontInfo().Family(wxFONTFAMILY_MODERN)).Smaller().Smaller();
-#endif
-                return font;
+            QFont fixedWidthFont() {
+                QFont result;
+                result.setFixedPitch(true);
+                return result;
             }
         }
 
         namespace Colors {
-            const wxColour& defaultText() {
-                static const wxColour col = wxSystemSettings::GetColour(wxSYS_COLOUR_BTNTEXT);
-                return col;
+            QColor defaultText() {
+                QPalette pal;
+                QColor result = pal.color(QPalette::Normal, QPalette::WindowText);
+                return result;
             }
 
-            const wxColour& highlightText() {
+            QColor highlightText() {
                 // Used for selected tabs of TabBar control.
-                static const wxColour col =
+                QPalette pal;
+                QColor result = pal.color(QPalette::Normal, QPalette::Highlight);
+                return result;
+            }
+
+            QColor disabledText() {
+                QPalette pal;
+                QColor result = pal.color(QPalette::Disabled, QPalette::WindowText);
+                return result;
+            }
+
+            QColor borderColor() {
+                static const QColor col =
 #if defined __APPLE__
-                wxColour(26, 79, 189);
+                QColor(67, 67, 67);
 #else
-                wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
+                QColor(Qt::black);
 #endif
                 return col;
             }
 
-            const wxColour& disabledText() {
-                static const wxColour col =
+            QColor separatorColor() {
+                static const QColor col =
 #if defined __APPLE__
-                wxColour(108, 108, 108);
+                QColor(183, 183, 183);
 #else
-                wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT);
-#endif
-                return col;
-            }
-
-            const wxColour& borderColor() {
-                static const wxColour col =
-#if defined __APPLE__
-                wxColour(67, 67, 67);
-#else
-                *wxBLACK;
-#endif
-                return col;
-            }
-#endif
-        namespace Colors {
-            QColor borderColorQt() {
-#if defined __APPLE__
-                return QColor(67, 67, 67);
-#else
-                return QColor(Qt::black);
-#endif
-            }
-        }
-
-#if 0
-            const wxColour& separatorColor() {
-                static const wxColour col =
-#if defined __APPLE__
-                wxColour(183, 183, 183);
-#else
-                *wxLIGHT_GREY;
+                QColor(Qt::lightGray);
 #endif
                 return col;
             }
         }
-#endif
     }
 }

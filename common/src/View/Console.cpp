@@ -23,25 +23,28 @@
 #include "View/ViewConstants.h"
 
 #include <QDebug>
-
-#include <wx/log.h>
-#include <wx/panel.h>
-#include <wx/sizer.h>
-#include <wx/textctrl.h>
-#include <wx/wupdlock.h>
+#include <QVBoxLayout>
+#include <QTextEdit>
 
 #include <iostream>
 
 namespace TrenchBroom {
     namespace View {
-        Console::Console(wxWindow* parent) :
-        TabBookPage(parent),
-        m_textView(new wxTextCtrl(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP | wxTE_RICH2)) {
-			m_textView->SetFont(Fonts::fixedWidthFont());
+        Console::Console(QWidget* parent) :
+        TabBookPage(parent) {
+            m_textView = new QTextEdit();
+            m_textView->setReadOnly(true);
+            m_textView->setWordWrapMode(QTextOption::NoWrap);
+            m_textView->setReadOnly(true);
 
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_textView, 1, wxEXPAND);
-            SetSizer(sizer);
+            QFont font;
+            font.setFixedPitch(true);
+			m_textView->setFont(font);
+
+            QVBoxLayout* sizer = new QVBoxLayout();
+            sizer->setContentsMargins(0, 0, 0, 0);
+            sizer->addWidget(m_textView);
+            setLayout(sizer);
         }
 
         void Console::doLog(const LogLevel level, const String& message) {
@@ -61,16 +64,16 @@ namespace TrenchBroom {
         }
 
         void Console::logToConsole(const LogLevel level, const QString& message) {
-            if (m_textView->IsBeingDeleted()) return;
-                
-            wxWindowUpdateLocker locker(m_textView);
+            // FIXME: still needed?
+            //wxWindowUpdateLocker locker(m_textView);
 
+            m_textView->append(message);
+            // FIXME: color
+#if 0
             const long start = m_textView->GetLastPosition();
-            m_textView->AppendText(wxString(message.toStdString()));
+            m_textView->AppendText(message);
             m_textView->AppendText("\n");
-#ifndef __APPLE__
-			m_textView->ScrollLines(5);
-#endif
+
             const long end = m_textView->GetLastPosition();
 
             switch (level) {
@@ -87,6 +90,7 @@ namespace TrenchBroom {
                     m_textView->SetStyle(start, end, wxTextAttr(wxColor(250, 30, 60), m_textView->GetBackgroundColour()));
                     break;
             }
+#endif
         }
     }
 }

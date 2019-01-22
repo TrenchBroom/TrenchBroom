@@ -23,7 +23,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        ContainerBar::ContainerBar(wxWindow* parent, const int borders) :
+        ContainerBar::ContainerBar(QWidget* parent, const Sides borders) :
         BorderPanel(parent, borders) {}
 
         ContainerBar::~ContainerBar() {}

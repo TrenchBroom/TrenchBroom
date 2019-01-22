@@ -37,6 +37,7 @@ class QMenuBar;
 class QAction;
 class QActionGroup;
 class QComboBox;
+class QSplitter;
 
 namespace TrenchBroom {
     class Logger;
@@ -49,6 +50,7 @@ namespace TrenchBroom {
         class Autosaver;
         class CommandWindowUpdateLocker;
         class Console;
+        class InfoPanel;
         class FrameManager;
         class GLContextManager;
         class Inspector;
@@ -65,18 +67,14 @@ namespace TrenchBroom {
             Autosaver* m_autosaver;
             QTimer* m_autosaveTimer;
 
-            // FIXME: re-add all of these
-#if 0
-            SplitterWindow2* m_hSplitter;
-            SplitterWindow2* m_vSplitter;
-#endif
+            QSplitter* m_hSplitter;
+            QSplitter* m_vSplitter;
 
             GLContextManager* m_contextManager;
             SwitchableMapViewContainer* m_mapView;
-#if 0
+            InfoPanel* m_infoPanel;
             Console* m_console;
-            Inspector* m_inspector;
-#endif
+            //Inspector* m_inspector;
 
             QComboBox* m_gridChoice;
             QLabel* m_statusBarLabel;
@@ -317,9 +315,7 @@ namespace TrenchBroom {
             void OnEditReplaceTexture();
 
             void OnEditToggleTextureLock();
-            //wxBitmap textureLockBitmap();
             void OnEditToggleUVLock();
-            //wxBitmap UVLockBitmap();
 
             void OnEditSnapVerticesToInteger();
             void OnEditSnapVerticesToGrid();
@@ -368,8 +364,6 @@ namespace TrenchBroom {
             
             void OnFlipObjectsHorizontally();
             void OnFlipObjectsVertically();
-
-//            void OnUpdateUI(wxUpdateUIEvent& event);
 
             void OnToolBarSetGridSize(int index);
             void onFocusChange(QWidget* old, QWidget* now);

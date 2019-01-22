@@ -21,6 +21,7 @@
 #define TrenchBroom_ViewConstants_h
 
 #include <QColor>
+#include <QFont>
 
 namespace TrenchBroom {
     namespace View {
@@ -91,21 +92,15 @@ namespace TrenchBroom {
         }
         
         namespace Fonts {
-#if 0
-            const wxFont& fixedWidthFont();
-#endif
+            QFont fixedWidthFont();
         }
         
         namespace Colors {
-#if 0
-            const wxColour& defaultText();
-            const wxColour& highlightText();
-            const wxColour& disabledText();
-            const wxColour& borderColor();
-            const wxColour& separatorColor();
-#endif
-
-            QColor borderColorQt();
+            QColor defaultText();
+            QColor highlightText();
+            QColor disabledText();
+            QColor borderColor();
+            QColor separatorColor();
         }
     }
 }

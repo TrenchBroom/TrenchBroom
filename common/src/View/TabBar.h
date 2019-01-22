@@ -22,50 +22,58 @@
 
 #include "View/ContainerBar.h"
 
-#include <wx/stattext.h>
-
 #include <vector>
 
-class wxBookCtrlEvent;
-class wxSimplebook;
+#include <QLabel>
+
+class QStackedLayout;
+class QHBoxLayout;
 
 namespace TrenchBroom {
     namespace View {
         class TabBook;
         class TabBookPage;
-        
-        class TabBarButton : public wxStaticText {
+
+        class TabBarButton : public QLabel {
+            Q_OBJECT
         private:
             bool m_pressed;
         public:
-            TabBarButton(wxWindow* parent, const wxString& label);
-            
+            explicit TabBarButton(QWidget* parent = nullptr, const QString& label = "");
+            /**
+             * Update the label color
+             */
             void setPressed(bool pressed);
-            
-            void OnClick(wxMouseEvent& event);
+        protected:
+            void mousePressEvent(QMouseEvent *event) override;
+
+        signals:
+            void clicked();
+
         private:
             void updateLabel();
         };
         
         class TabBar : public ContainerBar {
+            Q_OBJECT
         private:
             typedef std::vector<TabBarButton*> ButtonList;
             
             TabBook* m_tabBook;
-            wxSimplebook* m_barBook;
-            wxSizer* m_controlSizer;
+
+            QStackedLayout* m_barBook;
+            QHBoxLayout* m_controlSizer;
             ButtonList m_buttons;
         public:
-            TabBar(TabBook* tabBook);
+            explicit TabBar(TabBook* tabBook);
             
-            void addTab(TabBookPage* bookPage, const wxString& title);
-            
-            void OnButtonClicked(wxCommandEvent& event);
-            void OnTabBookPageChanged(wxBookCtrlEvent& event);
+            void addTab(TabBookPage* bookPage, const QString& title);
         private:
-            size_t findButtonIndex(wxWindow* button) const;
+            void OnButtonClicked();
+            void OnTabBookPageChanged(int newIndex);
+        private:
+            size_t findButtonIndex(QWidget* button) const;
             void setButtonActive(int index);
-            void setButtonInactive(int index);
         };
     }
 }

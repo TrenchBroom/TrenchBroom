@@ -22,7 +22,7 @@
 
 #include "View/ViewTypes.h"
 
-#include <wx/panel.h>
+#include <QWidget>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -36,7 +36,7 @@ namespace TrenchBroom {
         class MapInspector;
         class TabBook;
         
-        class Inspector : public wxPanel {
+        class Inspector : public QWidget {
         public:
             typedef enum {
                 InspectorPage_Map = 0,
@@ -50,12 +50,12 @@ namespace TrenchBroom {
             EntityInspector* m_entityInspector;
             FaceInspector* m_faceInspector;
         public:
-            Inspector(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
-            void connectTopWidgets(wxWindow* master);
+            Inspector(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
+            void connectTopWidgets(QWidget* master);
             void switchToPage(InspectorPage page);
             bool cancelMouseDrag();
         private:
-            void OnTopWidgetSize(wxSizeEvent& event);
+            void OnTopWidgetSize();
         };
     }
 }
