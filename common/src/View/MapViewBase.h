@@ -36,6 +36,8 @@
 
 #include <memory>
 
+wxDECLARE_EVENT(SHOW_POPUP_MENU_EVENT, wxCommandEvent);
+
 namespace TrenchBroom {
     class Logger;
     
@@ -233,8 +235,14 @@ namespace TrenchBroom {
             void validatePortalFileRenderer(Renderer::RenderContext& renderContext);
 
             void renderCompass(Renderer::RenderBatch& renderBatch);
+        public: // implement InputEventProcessor interface
+            void processEvent(const KeyEvent& event) override;
+            void processEvent(const MouseEvent& event) override;
+            void processEvent(const CancelEvent& event) override;
         private: // implement ToolBoxConnector
             void doShowPopupMenu() override;
+            void OnShowPopupMenu(wxCommandEvent& event);
+
             wxMenu* makeEntityGroupsMenu(Assets::EntityDefinition::Type type, int id);
             
             void OnUpdatePopupMenuItem(wxUpdateUIEvent& event);

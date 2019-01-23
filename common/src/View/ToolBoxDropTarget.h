@@ -24,15 +24,18 @@
 
 #include <wx/dnd.h>
 
+class wxWindow;
+
 namespace TrenchBroom {
     namespace View {
         class ToolBoxConnector;
         
         class ToolBoxDropTarget : public wxTextDropTarget {
         private:
+            wxWindow* m_window;
             ToolBoxConnector* m_toolBoxConnector;
         public:
-            ToolBoxDropTarget(ToolBoxConnector* toolBoxConnector);
+            ToolBoxDropTarget(wxWindow* window, ToolBoxConnector* toolBoxConnector);
             
             wxDragResult OnEnter(wxCoord x, wxCoord y, wxDragResult def) override;
             wxDragResult OnDragOver(wxCoord x, wxCoord y, wxDragResult def) override;

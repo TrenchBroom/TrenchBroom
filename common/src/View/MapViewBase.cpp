@@ -72,6 +72,8 @@
 #include <algorithm>
 #include <iterator>
 
+wxDEFINE_EVENT(SHOW_POPUP_MENU_EVENT, wxCommandEvent);
+
 namespace TrenchBroom {
     namespace View {
         static wxString GLVendor, GLRenderer, GLVersion;
@@ -92,7 +94,6 @@ namespace TrenchBroom {
 
         MapViewBase::MapViewBase(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager) :
         RenderView(parent, contextManager, GLAttribs::attribs()),
-        ToolBoxConnector(this),
         m_logger(logger),
         m_document(document),
         m_toolBox(toolBox),
@@ -305,7 +306,8 @@ namespace TrenchBroom {
 
             Bind(wxEVT_MENU, &MapViewBase::OnCancel,                       this, CommandIds::Actions::Cancel);
             Bind(wxEVT_MENU, &MapViewBase::OnDeactivateTool,               this, CommandIds::Actions::DeactivateTool);
-            
+
+            Bind(SHOW_POPUP_MENU_EVENT, &MapViewBase::OnShowPopupMenu,     this, CommandIds::MapViewPopupMenu::ShowPopupMenu);
             Bind(wxEVT_MENU, &MapViewBase::OnGroupSelectedObjects,         this, CommandIds::MapViewPopupMenu::GroupObjects);
             Bind(wxEVT_MENU, &MapViewBase::OnUngroupSelectedObjects,       this, CommandIds::MapViewPopupMenu::UngroupObjects);
             Bind(wxEVT_MENU, &MapViewBase::OnRenameGroups,                 this, CommandIds::MapViewPopupMenu::RenameGroups);
@@ -738,6 +740,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             updateAcceleratorTable(true);
+            updateModifierKeys();
             event.Skip();
         }
 
@@ -745,6 +748,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             updateAcceleratorTable(false);
+            clearModifierKeys();
             event.Skip();
         }
 
@@ -805,7 +809,7 @@ namespace TrenchBroom {
         }
         
         void MapViewBase::doSetToolBoxDropTarget() {
-            SetDropTarget(new ToolBoxDropTarget(this));
+            SetDropTarget(new ToolBoxDropTarget(this, this));
         }
         
         void MapViewBase::doClearDropTarget() {
@@ -971,6 +975,18 @@ namespace TrenchBroom {
                 m_compass->render(renderBatch);
         }
         
+        void MapViewBase::processEvent(const KeyEvent& event) {
+            ToolBoxConnector::processEvent(event);
+        }
+
+        void MapViewBase::processEvent(const MouseEvent& event) {
+            ToolBoxConnector::processEvent(event);
+        }
+
+        void MapViewBase::processEvent(const CancelEvent& event) {
+            ToolBoxConnector::processEvent(event);
+        }
+
         static bool isEntity(const Model::Node* node) {
             class IsEntity : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
             private:
@@ -987,16 +1003,22 @@ namespace TrenchBroom {
         }
         
         void MapViewBase::doShowPopupMenu() {
+            // We process input events during paint event processing, but we cannot show a popup menu
+            // during paint processing, so we enqueue an event for later.
+            QueueEvent(new wxCommandEvent(SHOW_POPUP_MENU_EVENT, CommandIds::MapViewPopupMenu::ShowPopupMenu));
+        }
+
+        void MapViewBase::OnShowPopupMenu(wxCommandEvent& event) {
             if (!doBeforePopupMenu())
                 return;
-            
+
             MapDocumentSPtr document = lock(m_document);
             const Model::NodeList& nodes = document->selectedNodes().nodes();
             Model::Node* newBrushParent = findNewParentEntityForBrushes(nodes);
             Model::Node* currentGroup = document->editorContext().currentGroup();
             Model::Node* newGroup = findNewGroupForObjects(nodes);
             Model::Node* mergeGroup = findGroupToMergeGroupsInto(document->selectedNodes());
-            
+
             wxMenu menu;
             menu.SetEventHandler(this);
             menu.Append(CommandIds::MapViewPopupMenu::GroupObjects, "Group");
@@ -1007,7 +1029,7 @@ namespace TrenchBroom {
                 menu.Append(CommandIds::MapViewPopupMenu::MergeGroups, "Merge Groups");
             }
             menu.Append(CommandIds::MapViewPopupMenu::RenameGroups, "Rename");
-            
+
             if (newGroup != nullptr && newGroup != currentGroup) {
                 menu.Append(CommandIds::MapViewPopupMenu::AddObjectsToGroup, "Add Objects to Group " + newGroup->name());
             }
@@ -1015,10 +1037,10 @@ namespace TrenchBroom {
                 menu.Append(CommandIds::MapViewPopupMenu::RemoveObjectsFromGroup, "Remove Objects from Group " + currentGroup->name());
             }
             menu.AppendSeparator();
-            
+
             menu.AppendSubMenu(makeEntityGroupsMenu(Assets::EntityDefinition::Type_PointEntity, CommandIds::MapViewPopupMenu::LowestPointEntityItem), "Create Point Entity");
             menu.AppendSubMenu(makeEntityGroupsMenu(Assets::EntityDefinition::Type_BrushEntity, CommandIds::MapViewPopupMenu::LowestBrushEntityItem), "Create Brush Entity");
-            
+
             if (document->selectedNodes().hasOnlyBrushes()) {
                 if (!isEntity(newBrushParent)) {
                     menu.Append(CommandIds::MapViewPopupMenu::MoveBrushesToWorld, "Move Brushes to World");
@@ -1026,10 +1048,15 @@ namespace TrenchBroom {
                     menu.Append(CommandIds::MapViewPopupMenu::MoveBrushesToEntity, "Move Brushes to Entity " + newBrushParent->name());
                 }
             }
-            
+
             menu.UpdateUI(this);
             PopupMenu(&menu);
-            
+
+            // Generate a synthetic mouse move event to update the mouse position after the popup menu closes.
+            wxMouseEvent mouseEvent(wxEVT_MOTION);
+            mouseEvent.SetPosition(ScreenToClient(wxGetMousePosition()));
+            OnMouse(mouseEvent);
+
             doAfterPopupMenu();
         }
 

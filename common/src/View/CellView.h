@@ -312,6 +312,10 @@ namespace TrenchBroom {
             virtual wxImage dndImage(const Cell& cell) { assert(false); return wxImage(); }
             virtual wxString dndData(const Cell& cell) { assert(false); return ""; }
             virtual wxString tooltip(const Cell& cell) { return ""; }
+        public: // implement InputEventProcessor interface
+            void processEvent(const KeyEvent& event) override {}
+            void processEvent(const MouseEvent& event) override {}
+            void processEvent(const CancelEvent& event) override {}
         };
     }
 }

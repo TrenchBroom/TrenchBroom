@@ -25,6 +25,7 @@
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
 #include "View/GLContextManager.h"
+#include "View/InputEvent.h"
 #include "View/wxUtils.h"
 #include "TrenchBroomApp.h"
 
@@ -56,6 +57,38 @@ namespace TrenchBroom {
         
         RenderView::~RenderView() {}
 
+        void RenderView::OnKey(wxKeyEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            m_eventRecorder.recordEvent(event);
+            event.Skip();
+            Refresh();
+        }
+
+        void RenderView::OnMouse(wxMouseEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            if (event.ButtonDown(wxMOUSE_BTN_ANY) && !HasCapture()) {
+                CaptureMouse();
+            } else if (event.ButtonUp(wxMOUSE_BTN_ANY) && HasCapture()) {
+                if (!event.LeftIsDown() && !event.MiddleIsDown() && !event.RightIsDown() && !event.Aux1IsDown() && !event.Aux2IsDown()) {
+                    ReleaseMouse();
+                }
+            }
+
+            m_eventRecorder.recordEvent(event);
+            event.Skip();
+            Refresh();
+        }
+
+        void RenderView::OnMouseCaptureLost(wxMouseCaptureLostEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            m_eventRecorder.recordEvent(event);
+            event.Skip();
+            Refresh();
+        }
+
         // to prevent flickering, see https://wiki.wxwidgets.org/Flicker-Free_Drawing
         void RenderView::OnEraseBackground(wxEraseEvent& event) {}
 
@@ -64,8 +97,9 @@ namespace TrenchBroom {
             if (TrenchBroom::View::isReportingCrash()) return;
 
             if (m_glContext->SetCurrent(this)) {
-                if (!m_initialized)
+                if (!m_initialized) {
                     initializeGL();
+                }
 
                 wxPaintDC paintDC(this);
                 render();
@@ -83,15 +117,15 @@ namespace TrenchBroom {
         void RenderView::OnSetFocus(wxFocusEvent& event) {
             if (IsBeingDeleted()) return;
 
-            Refresh();
             event.Skip();
+            Refresh();
         }
         
         void RenderView::OnKillFocus(wxFocusEvent& event) {
             if (IsBeingDeleted()) return;
 
-            Refresh();
-            event.Skip();
+           event.Skip();
+           Refresh();
         }
 
         Renderer::Vbo& RenderView::vertexVbo() {
@@ -124,6 +158,26 @@ namespace TrenchBroom {
             Bind(wxEVT_SIZE, &RenderView::OnSize, this);
             Bind(wxEVT_SET_FOCUS, &RenderView::OnSetFocus, this);
             Bind(wxEVT_KILL_FOCUS, &RenderView::OnKillFocus, this);
+            Bind(wxEVT_KEY_DOWN, &RenderView::OnKey, this);
+            Bind(wxEVT_KEY_UP, &RenderView::OnKey, this);
+            Bind(wxEVT_LEFT_DOWN, &RenderView::OnMouse, this);
+            Bind(wxEVT_LEFT_UP, &RenderView::OnMouse, this);
+            Bind(wxEVT_LEFT_DCLICK, &RenderView::OnMouse, this);
+            Bind(wxEVT_RIGHT_DOWN, &RenderView::OnMouse, this);
+            Bind(wxEVT_RIGHT_UP, &RenderView::OnMouse, this);
+            Bind(wxEVT_RIGHT_DCLICK, &RenderView::OnMouse, this);
+            Bind(wxEVT_MIDDLE_DOWN, &RenderView::OnMouse, this);
+            Bind(wxEVT_MIDDLE_UP, &RenderView::OnMouse, this);
+            Bind(wxEVT_MIDDLE_DCLICK, &RenderView::OnMouse, this);
+            Bind(wxEVT_AUX1_DOWN, &RenderView::OnMouse, this);
+            Bind(wxEVT_AUX1_UP, &RenderView::OnMouse, this);
+            Bind(wxEVT_AUX1_DCLICK, &RenderView::OnMouse, this);
+            Bind(wxEVT_AUX2_DOWN, &RenderView::OnMouse, this);
+            Bind(wxEVT_AUX2_UP, &RenderView::OnMouse, this);
+            Bind(wxEVT_AUX2_DCLICK, &RenderView::OnMouse, this);
+            Bind(wxEVT_MOTION, &RenderView::OnMouse, this);
+            Bind(wxEVT_MOUSEWHEEL, &RenderView::OnMouse, this);
+            Bind(wxEVT_MOUSE_CAPTURE_LOST, &RenderView::OnMouseCaptureLost, this);
         }
 
         void RenderView::initializeGL() {
@@ -145,9 +199,14 @@ namespace TrenchBroom {
         }
         
         void RenderView::render() {
+            processInput();
             clearBackground();
             doRender();
             renderFocusIndicator();
+        }
+
+        void RenderView::processInput() {
+            m_eventRecorder.processEvents(*this);
         }
         
         void RenderView::clearBackground() {
@@ -166,11 +225,11 @@ namespace TrenchBroom {
             const Color& inner = m_focusColor;
 
             const wxSize clientSize = GetClientSize();
-            const float w = static_cast<float>(clientSize.x);
-            const float h = static_cast<float>(clientSize.y);
-            const float t = 1.0f;
+            const auto w = static_cast<float>(clientSize.x);
+            const auto h = static_cast<float>(clientSize.y);
+            const auto t = 1.0f;
             
-            typedef Renderer::VertexSpecs::P3C4::Vertex Vertex;
+            using Vertex = Renderer::VertexSpecs::P3C4::Vertex;
             Vertex::List vertices(16);
             
             // top
@@ -199,11 +258,11 @@ namespace TrenchBroom {
             
             glAssert(glViewport(0, 0, clientSize.x, clientSize.y));
 
-            const vm::mat4x4f projection = vm::orthoMatrix(-1.0f, 1.0f, 0.0f, 0.0f, w, h);
+            const auto projection = vm::orthoMatrix(-1.0f, 1.0f, 0.0f, 0.0f, w, h);
             Renderer::Transformation transformation(projection, vm::mat4x4f::identity);
             
             glAssert(glDisable(GL_DEPTH_TEST));
-            Renderer::VertexArray array = Renderer::VertexArray::swap(vertices);
+            auto array = Renderer::VertexArray::swap(vertices);
             
             Renderer::ActivateVbo activate(vertexVbo());
             array.prepare(vertexVbo());
