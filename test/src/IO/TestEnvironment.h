@@ -33,14 +33,14 @@ namespace TrenchBroom {
             virtual ~TestEnvironment();
 
             const Path& dir() const;
-        protected:
+        public:
             void createTestEnvironment();
             void createDirectory(const Path& path);
             void createFile(const Path& path, const String& contents);
 
             bool deleteDirectory(const Path& path);
             bool deleteTestEnvironment();
-        public:
+
             bool directoryExists(const Path& path) const;
             bool fileExists(const Path& path) const;
         private:

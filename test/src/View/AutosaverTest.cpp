@@ -162,6 +162,28 @@ namespace TrenchBroom {
             autosaver.triggerAutosave(logger);
             ASSERT_TRUE(env.fileExists(IO::Path("autosave/test.2.map")));
         }
+
+        TEST_F(MapDocumentTest, testAutosaverSavesWhenCrashFilesPresent) {
+            // https://github.com/kduske/TrenchBroom/issues/2544
+
+            IO::TestEnvironment env("autosaver_test");
+            env.createDirectory(IO::Path("autosave"));
+            env.createFile(IO::Path("autosave/test.1.map"), "some content");
+            env.createFile(IO::Path("autosave/test.1-crash.map"), "some content again");
+
+            NullLogger logger;
+
+            document->saveDocumentAs(env.dir() + IO::Path("test.map"));
+            assert(env.fileExists(IO::Path("test.map")));
+
+            Autosaver autosaver(document, 0, 0);
+
+            // modify the map
+            document->addNode(createBrush("some_texture"), document->currentLayer());
+
+            autosaver.triggerAutosave(logger);
+
+            ASSERT_TRUE(env.fileExists(IO::Path("autosave/test.2.map")));
+        }
     }
 }
-
