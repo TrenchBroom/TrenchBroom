@@ -135,6 +135,11 @@ namespace TrenchBroom {
                     return false;
                 }
 
+                const auto backupExtension = backupName.extension();
+                if (!StringUtils::isNumber(backupExtension)) {
+                    return false;
+                }
+
                 const auto no = StringUtils::stringToSize(backupName.extension());
                 return no > 0;
 
