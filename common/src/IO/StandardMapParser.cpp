@@ -86,13 +86,18 @@ namespace TrenchBroom {
                         const auto* e = readQuotedString('"', "\n}");
                         return Token(QuakeMapToken::String, c, e, offset(c), startLine, startColumn);
                     }
+                    case '\r':
+                        if (lookAhead() == '\n') {
+                            advance();
+                        }
+                        // handle carriage return without consecutive linefeed
+                        // by falling through into the line feed case
                     case '\n':
                         if (!m_skipEol) {
                             advance();
                             return Token(QuakeMapToken::Eol, c, c+1, offset(c), startLine, startColumn);
                         }
                         switchFallthrough();
-                    case '\r':
                     case ' ':
                     case '\t':
                         discardWhile(Whitespace());

@@ -83,8 +83,11 @@ namespace TrenchBroom {
                         advance();
                         return Token(DefToken::Semicolon, c, c + 1, offset(c), startLine, startColumn);
                     case '\r':
-                        advance();
-                        switchFallthrough();
+                        if (lookAhead() == '\n') {
+                            advance();
+                        }
+                        // handle carriage return without consecutive linefeed
+                        // by falling through into the line feed case
                     case '\n':
                         advance();
                         return Token(DefToken::Newline, c, c + 1, offset(c), startLine, startColumn);
