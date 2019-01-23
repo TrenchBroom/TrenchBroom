@@ -147,7 +147,7 @@ namespace TrenchBroom {
         }
         
         IO::Path::List Autosaver::collectBackups(const IO::WritableDiskFileSystem& fs, const IO::Path& mapBasename) const {
-            auto backups = fs.findItems(IO::Path(""), BackupFileMatcher(mapBasename));
+            auto backups = fs.findItems(IO::Path(), BackupFileMatcher(mapBasename));
             std::sort(std::begin(backups), std::end(backups), compareBackupsByNo);
             return backups;
         }

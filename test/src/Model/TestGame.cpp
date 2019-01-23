@@ -21,6 +21,7 @@
 
 #include "IO/BrushFaceReader.h"
 #include "IO/DiskFileSystem.h"
+#include "IO/IOUtils.h"
 #include "IO/NodeReader.h"
 #include "IO/NodeWriter.h"
 #include "IO/TestParserStatus.h"
@@ -62,7 +63,16 @@ namespace TrenchBroom {
             return new World(format, brushContentTypeBuilder(), worldBounds);
         }
         
-        void TestGame::doWriteMap(World* world, const IO::Path& path) const {}
+        void TestGame::doWriteMap(World* world, const IO::Path& path) const {
+            const auto mapFormatName = formatName(world->format());
+
+            IO::OpenFile open(path, true);
+            IO::writeGameComment(open.file, gameName(), mapFormatName);
+
+            IO::NodeWriter writer(world, open.file);
+            writer.writeMap();
+        }
+
         void TestGame::doExportMap(World* world, Model::ExportFormat format, const IO::Path& path) const {}
         
         NodeList TestGame::doParseNodes(const String& str, World* world, const vm::bbox3& worldBounds, Logger* logger) const {
