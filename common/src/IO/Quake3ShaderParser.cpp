@@ -47,6 +47,7 @@ namespace TrenchBroom {
                         }
                         // handle carriage return without consecutive linefeed
                         // by falling through into the line feed case
+                        switchFallthrough();
                     case '\n':
                         discardWhile(Whitespace()); // handle empty lines and such
                         return Token(Quake3ShaderToken::Eol, c, c + 1, offset(c), startLine, startColumn);

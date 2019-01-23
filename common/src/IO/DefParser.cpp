@@ -88,6 +88,7 @@ namespace TrenchBroom {
                         }
                         // handle carriage return without consecutive linefeed
                         // by falling through into the line feed case
+                        switchFallthrough();
                     case '\n':
                         advance();
                         return Token(DefToken::Newline, c, c + 1, offset(c), startLine, startColumn);

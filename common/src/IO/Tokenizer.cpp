@@ -113,6 +113,7 @@ namespace TrenchBroom {
                     }
                     // handle carriage return without consecutive line feed
                     // by falling through into the line feed case
+                    switchFallthrough();
                 case '\n':
                     ++m_line;
                     m_column = 1;

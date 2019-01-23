@@ -92,6 +92,7 @@ namespace TrenchBroom {
                         }
                         // handle carriage return without consecutive linefeed
                         // by falling through into the line feed case
+                        switchFallthrough();
                     case '\n':
                         if (!m_skipEol) {
                             advance();
