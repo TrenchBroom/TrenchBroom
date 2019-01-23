@@ -58,9 +58,20 @@ namespace TrenchBroom {
                     }
                     case '/':
                         if (lookAhead() == '/') {
+                            // parse single line comment starting with //
+                            advance(2);
                             discardUntil("\n\r");
                             // do not discard the terminating line break since it might be semantically relevant
                             // e.g. for terminating a block entry
+                            break;
+                        } else if (lookAhead() == '*') {
+                            // parse multiline comment delimited by /* and */
+                            advance(2);
+                            while (curChar() != '*' || lookAhead() != '/') {
+                                errorIfEof();
+                                advance();
+                            }
+                            advance(2);
                             break;
                         }
                         // fall through into the default case to parse a string that starts with '/'

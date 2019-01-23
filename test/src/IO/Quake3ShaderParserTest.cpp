@@ -263,6 +263,31 @@ waterBubble
             ASSERT_NO_THROW(parser.parse());
         }
 
+        TEST(Quake3ShaderParserTest, parseShadersWithMultilineComment) {
+            const String data(R"(
+/*
+This is a
+multiline comment.
+*/
+
+waterBubble
+{
+    sort	underwater
+    cull none
+    entityMergable		// this comment terminates a block entry
+    {
+        map sprites/bubble.tga
+        blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
+        rgbGen		vertex
+        alphaGen	vertex
+    }
+}
+
+)");
+            Quake3ShaderParser parser(data);
+            ASSERT_NO_THROW(parser.parse());
+        }
+
         Assets::Quake3Shader makeShader(const IO::Path& shaderPath, const IO::Path& qerImagePath, const StringSet& surfaceParms) {
             auto shader = Assets::Quake3Shader();
             shader.setTexturePath(shaderPath);
