@@ -83,7 +83,7 @@ namespace TrenchBroom {
             TextureCollectionPtr m_skins;
             bool m_prepared;
         public:
-            EntityModel(const String& name);
+            explicit EntityModel(const String& name);
 
             Renderer::TexturedIndexRangeRenderer* buildRenderer(size_t skinIndex, size_t frameIndex) const;
             vm::bbox3f bounds(size_t skinIndex, size_t frameIndex) const;

@@ -26,16 +26,11 @@
 
 #include <vecmath/vec.h>
 
+#include <cstdint>
 #include <cstdio>
 #include <iostream>
 #include <iterator>
 #include <vector>
-
-#ifdef _MSC_VER
-#include <cstdint>
-#elif defined __GNUC__
-#include <stdint.h>
-#endif
 
 namespace TrenchBroom {
     namespace IO {
@@ -57,6 +52,9 @@ namespace TrenchBroom {
             void seekFromBegin(size_t offset);
             void seekFromEnd(size_t offset);
             void seekForward(size_t offset);
+
+            CharArrayReader subReaderFromBegin(size_t offset, size_t length) const;
+            CharArrayReader subReaderFromBegin(size_t offset) const;
 
             template <typename R>
             const R* cur() const {
@@ -118,7 +116,7 @@ namespace TrenchBroom {
 
             String readString(size_t size);
 
-            template <typename R, size_t S, typename T>
+            template <typename R, size_t S, typename T=R>
             vm::vec<T,S> readVec() {
                 vm::vec<T,S> result;
                 for (size_t i = 0; i < S; ++i) {
