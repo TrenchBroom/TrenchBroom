@@ -36,6 +36,14 @@ namespace TrenchBroom {
         class Command;
         
         class Autosaver {
+        public:
+            class BackupFileMatcher {
+            private:
+                const IO::Path m_mapBasename;
+            public:
+                explicit BackupFileMatcher(const IO::Path& mapBasename);
+                bool operator()(const IO::Path& path, const bool directory) const;
+            };
         private:
             View::MapDocumentWPtr m_document;
 
