@@ -36,7 +36,7 @@ namespace TrenchBroom {
             NullLogger logger;
 
             const auto workDir = IO::Disk::getCurrentWorkingDir();
-            const auto testDir = workDir + Path("data/IO/Shader");
+            const auto testDir = workDir + Path("data/IO/Shader/fs");
             const auto fallbackDir = testDir + Path("fallback");
             const auto texturePrefix = Path("textures");
 

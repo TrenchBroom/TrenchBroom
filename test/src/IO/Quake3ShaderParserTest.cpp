@@ -21,6 +21,8 @@
 
 #include "StringUtils.h"
 #include "Assets/Quake3Shader.h"
+#include "IO/DiskFileSystem.h"
+#include "IO/DiskIO.h"
 #include "IO/Quake3ShaderParser.h"
 
 namespace TrenchBroom {
@@ -285,6 +287,18 @@ waterBubble
 
 )");
             Quake3ShaderParser parser(data);
+            ASSERT_NO_THROW(parser.parse());
+        }
+
+        TEST(Quake3ShaderParserTest, parseShadersWithInvalidWhitespace) {
+            // see https://github.com/kduske/TrenchBroom/issues/2537
+            // The file contains a carriage return without a consecutive line feed, which tripped the parser.
+
+            const auto workDir = Disk::getCurrentWorkingDir();
+            auto fs = DiskFileSystem(workDir + Path("data/IO/Shader/parser"));
+            auto testFile = fs.openFile(Path("am_cf_models.shader"));
+
+            Quake3ShaderParser parser(testFile->begin(), testFile->end());
             ASSERT_NO_THROW(parser.parse());
         }
 
