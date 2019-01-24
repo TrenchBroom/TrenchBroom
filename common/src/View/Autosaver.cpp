@@ -28,6 +28,33 @@
 
 namespace TrenchBroom {
     namespace View {
+        Autosaver::BackupFileMatcher::BackupFileMatcher(const IO::Path& mapBasename) :
+        m_mapBasename(mapBasename) {}
+
+        bool Autosaver::BackupFileMatcher::operator()(const IO::Path& path, const bool directory) const {
+            if (directory) {
+                return false;
+            }
+            if (!StringUtils::caseInsensitiveEqual(path.extension(), "map")) {
+                return false;
+            }
+
+            const auto backupName = path.lastComponent().deleteExtension();
+            const auto backupBasename = backupName.deleteExtension();
+            if (backupBasename != m_mapBasename) {
+                return false;
+            }
+
+            const auto backupExtension = backupName.extension();
+            if (!StringUtils::isNumber(backupExtension)) {
+                return false;
+            }
+
+            const auto no = StringUtils::stringToSize(backupName.extension());
+            return no > 0;
+
+        }
+
         Autosaver::Autosaver(View::MapDocumentWPtr document, const std::time_t saveInterval, const std::time_t idleInterval, const size_t maxBackups) :
         m_document(document),
         m_saveInterval(saveInterval),
@@ -115,37 +142,6 @@ namespace TrenchBroom {
             }
         }
 
-        struct BackupFileMatcher {
-            const IO::Path& mapBasename;
-            
-            BackupFileMatcher(const IO::Path& i_mapBasename) :
-            mapBasename(i_mapBasename) {}
-            
-            bool operator()(const IO::Path& path, const bool directory) const {
-                if (directory) {
-                    return false;
-                }
-                if (!StringUtils::caseInsensitiveEqual(path.extension(), "map")) {
-                    return false;
-                }
-
-                const auto backupName = path.lastComponent().deleteExtension();
-                const auto backupBasename = backupName.deleteExtension();
-                if (backupBasename != mapBasename) {
-                    return false;
-                }
-
-                const auto backupExtension = backupName.extension();
-                if (!StringUtils::isNumber(backupExtension)) {
-                    return false;
-                }
-
-                const auto no = StringUtils::stringToSize(backupName.extension());
-                return no > 0;
-
-            }
-        };
-        
         bool compareBackupsByNo(const IO::Path& lhs, const IO::Path& rhs);
         bool compareBackupsByNo(const IO::Path& lhs, const IO::Path& rhs) {
             return extractBackupNo(lhs) < extractBackupNo(rhs);
