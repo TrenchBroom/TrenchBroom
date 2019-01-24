@@ -2320,7 +2320,7 @@ namespace TrenchBroom {
         }
 #endif
         void MapFrame::OnAutosaveTimer() {
-            m_autosaver->triggerAutosave(logger());
+            m_autosaver->triggerAutosave(*logger());
         }
         
         int MapFrame::indexForGridSize(const int gridSize) {
