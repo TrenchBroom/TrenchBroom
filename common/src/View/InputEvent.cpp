@@ -154,11 +154,11 @@ namespace TrenchBroom {
             QPointF scrollDistance;
             if (!wxEvent->pixelDelta().isNull()) {
                 // pixelDelta() is not available everywhere and returns (0, 0) if not available.
-                // This 8.0f factor was just picked to roughly matche wxWidgets TrenchBroom
-                scrollDistance = wxEvent->pixelDelta() / 8.0f;
+                // This 8.0f factor was just picked to roughly match wxWidgets TrenchBroom
+                scrollDistance = QPointF(wxEvent->pixelDelta()) / 8.0f;
             } else {
                 // This gives scrollDistance in degrees, see: http://doc.qt.io/qt-5/qwheelevent.html#angleDelta
-                scrollDistance = wxEvent->angleDelta() / 8.0f;
+                scrollDistance = QPointF(wxEvent->angleDelta()) / 8.0f;
             }
 
             m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::Scroll, MouseEvent::Button::None, MouseEvent::WheelAxis::Horizontal, posX, posY, scrollDistance.x()));
