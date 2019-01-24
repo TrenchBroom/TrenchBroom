@@ -23,6 +23,7 @@
 
 #include "Color.h"
 #include "Renderer/Vbo.h"
+#include "View/InputEvent.h"
 #include "View/GLAttribs.h"
 
 #include <GL/glew.h>
@@ -43,10 +44,11 @@ namespace TrenchBroom {
         class GLContextManager;
         class RenderWindow;
 
-        class RenderView : public QOpenGLWindow {
+        class RenderView : public QOpenGLWindow, public InputEventProcessor {
         private:
             Color m_focusColor;
             GLContextManager* m_glContext;
+            InputEventRecorder m_eventRecorder;
 
         private: // FPS counter
             // stats since the last counter update
@@ -64,6 +66,14 @@ namespace TrenchBroom {
             RenderView(GLContextManager& contextManager);
         public:
             virtual ~RenderView();
+        protected: // QWindow overrides
+            void keyPressEvent(QKeyEvent* event) override;
+            void keyReleaseEvent(QKeyEvent* event) override;
+            void mouseDoubleClickEvent(QMouseEvent* event) override;
+            void mouseMoveEvent(QMouseEvent* event) override;
+            void mousePressEvent(QMouseEvent* event) override;
+            void mouseReleaseEvent(QMouseEvent* event) override;
+            void wheelEvent(QWheelEvent* event) override;
         public:
             QWidget* widgetContainer();
         public: // wxWidgets compat
@@ -86,6 +96,7 @@ namespace TrenchBroom {
             void resizeGL(int w, int h) override;
         private:
             void render();
+            void processInput();
             void clearBackground();
             void renderFocusIndicator();
         private:

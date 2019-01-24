@@ -368,6 +368,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/Grid.cpp
 #	${COMMON_SOURCE_DIR}/View/ImageListBox.cpp
 	${COMMON_SOURCE_DIR}/View/InfoPanel.cpp
+	${COMMON_SOURCE_DIR}/View/InputEvent.cpp
 	${COMMON_SOURCE_DIR}/View/InputState.cpp
 #	${COMMON_SOURCE_DIR}/View/Inspector.cpp
 #	${COMMON_SOURCE_DIR}/View/IssueBrowser.cpp
@@ -940,6 +941,7 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/Grid.h
 	${COMMON_SOURCE_DIR}/View/ImageListBox.h
 	${COMMON_SOURCE_DIR}/View/InfoPanel.h
+	${COMMON_SOURCE_DIR}/View/InputEvent.h
 	${COMMON_SOURCE_DIR}/View/InputState.h
 	${COMMON_SOURCE_DIR}/View/Inspector.h
 	${COMMON_SOURCE_DIR}/View/IssueBrowser.h

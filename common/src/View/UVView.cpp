@@ -56,7 +56,6 @@ namespace TrenchBroom {
         
         UVView::UVView(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
         RenderView(parent, contextManager, GLAttribs::attribs()),
-        ToolBoxConnector(this),
         m_document(document),
         m_helper(m_camera) {
             setToolBox(m_toolBox);
@@ -325,6 +324,18 @@ namespace TrenchBroom {
 
         void UVView::renderToolBox(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             renderTools(renderContext, renderBatch);
+        }
+
+        void UVView::processEvent(const KeyEvent& event) {
+            ToolBoxConnector::processEvent(event);
+        }
+
+        void UVView::processEvent(const MouseEvent& event) {
+            ToolBoxConnector::processEvent(event);
+        }
+
+        void UVView::processEvent(const CancelEvent& event) {
+            ToolBoxConnector::processEvent(event);
         }
 
         PickRequest UVView::doGetPickRequest(const int x, const int y) const {

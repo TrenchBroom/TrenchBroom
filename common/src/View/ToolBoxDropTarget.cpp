@@ -23,33 +23,45 @@
 
 #include <cassert>
 
+#include <wx/window.h>
+
 namespace TrenchBroom {
     namespace View {
-        ToolBoxDropTarget::ToolBoxDropTarget(ToolBoxConnector* toolBoxConnector) :
+        ToolBoxDropTarget::ToolBoxDropTarget(wxWindow* window, ToolBoxConnector* toolBoxConnector) :
         wxTextDropTarget(),
+        m_window(window),
         m_toolBoxConnector(toolBoxConnector) {
+            ensure(m_window != nullptr, "window is null");
             ensure(m_toolBoxConnector != nullptr, "toolBoxConnector is null");
         }
         
         wxDragResult ToolBoxDropTarget::OnEnter(const wxCoord x, const wxCoord y, const wxDragResult def) {
-            if (m_toolBoxConnector->dragEnter(x, y, getDragText()))
+            if (m_toolBoxConnector->dragEnter(x, y, getDragText())) {
+                m_window->Refresh();
                 return wxTextDropTarget::OnEnter(x, y, wxDragCopy);
+            }
             return wxTextDropTarget::OnEnter(x, y, wxDragNone);
         }
         
         wxDragResult ToolBoxDropTarget::OnDragOver(const wxCoord x, const wxCoord y, const wxDragResult def) {
-            if (m_toolBoxConnector->dragMove(x, y, getDragText()))
+            if (m_toolBoxConnector->dragMove(x, y, getDragText())) {
+                m_window->Refresh();
                 return wxTextDropTarget::OnDragOver(x, y, wxDragCopy);
+            }
             return wxTextDropTarget::OnDragOver(x, y, wxDragNone);
         }
         
         void ToolBoxDropTarget::OnLeave() {
             m_toolBoxConnector->dragLeave();
+            m_window->Refresh();
             wxTextDropTarget::OnLeave();
         }
         
         bool ToolBoxDropTarget::OnDropText(const wxCoord x, const wxCoord y, const wxString& data) {
-            return m_toolBoxConnector->dragDrop(x, y, data.ToStdString());
+            const auto result = m_toolBoxConnector->dragDrop(x, y, data.ToStdString());
+            m_window->SetFocus();
+            m_window->Refresh();
+            return result;
         }
 
         String ToolBoxDropTarget::getDragText() const {

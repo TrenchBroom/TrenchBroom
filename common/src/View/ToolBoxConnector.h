@@ -21,18 +21,9 @@
 #define TrenchBroom_ToolBoxConnector
 
 #include "StringUtils.h"
+#include "View/InputEvent.h"
 #include "View/InputState.h"
 #include "View/PickRequest.h"
-
-#include <QObject>
-#include <QPoint>
-
-class QWindow;
-class QWidget;
-class QMouseEvent;
-class QWheelEvent;
-class QKeyEvent;
-class QFocusEvent;
 
 namespace TrenchBroom {
     namespace Model {
@@ -50,33 +41,19 @@ namespace TrenchBroom {
         class ToolBox;
         class ToolChain;
 
-        class ToolBoxConnector {
+        class ToolBoxConnector : public InputEventProcessor {
         private:
-            class EventFilter : public QObject {
-            private:
-                ToolBoxConnector* m_owner;
-            public:
-                explicit EventFilter(ToolBoxConnector* owner);
-            protected: // QObject
-                bool eventFilter(QObject *obj, QEvent *ev) override;
-            };
-            friend class EventFilter;
-        private:
-            QWindow* m_window;
             ToolBox* m_toolBox;
             ToolChain* m_toolChain;
             
             InputState m_inputState;
             
-            ulong m_clickTime;
-            QPoint m_clickPos;
-            QPoint m_lastMousePos;
+            int m_lastMouseX;
+            int m_lastMouseY;
             bool m_ignoreNextDrag;
-
-            EventFilter* m_eventFilter;
         public:
-            explicit ToolBoxConnector(QWindow* window);
-            virtual ~ToolBoxConnector();
+            ToolBoxConnector();
+            ~ToolBoxConnector() override;
 
         public:
             const vm::ray3& pickRay() const;
@@ -98,36 +75,32 @@ namespace TrenchBroom {
             void setRenderOptions(Renderer::RenderContext& renderContext);
             void renderTools(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         private:
-            void OnKey(QKeyEvent* event);
-            void OnMouseButton(QMouseEvent* event);
-            void OnMouseDoubleClick(QMouseEvent* event);
-            void OnMouseMotion(QMouseEvent* event);
-            void OnMouseWheel(QWheelEvent* event);
-            //void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
-            void OnSetFocus(QFocusEvent* event);
-            void OnKillFocus(QFocusEvent* event);
-        private:
-            bool isWithinClickDistance(const QPoint& pos) const;
-            
-            void startDrag(QMouseEvent* event);
-            void drag(QMouseEvent* event);
-            void endDrag(QMouseEvent* event);
-        public:
-            bool cancelDrag();
-        private:
-            void captureMouse();
-            void releaseMouse();
-
-            
             ModifierKeyState modifierKeys();
             bool setModifierKeys();
+        protected:
             bool clearModifierKeys();
             void updateModifierKeys();
-            
-            MouseButtonState mouseButton(QMouseEvent* event);
-            void mouseMoved(const QPoint& position);
-
+        private:
             void showPopupMenu();
+        public: // implement InputEventProcessor interface
+            void processEvent(const KeyEvent& event) override;
+            void processEvent(const MouseEvent& event) override;
+            void processEvent(const CancelEvent& event) override;
+        private:
+            void processMouseButtonDown(const MouseEvent& event);
+            void processMouseButtonUp(const MouseEvent& event);
+            void processMouseClick(const MouseEvent& event);
+            void processMouseDoubleClick(const MouseEvent& event);
+            void processMouseMotion(const MouseEvent& event);
+            void processScroll(const MouseEvent& event);
+            void processDragStart(const MouseEvent& event);
+            void processDrag(const MouseEvent& event);
+            void processDragEnd(const MouseEvent& event);
+
+            MouseButtonState mouseButton(const MouseEvent& event);
+            void mouseMoved(int x, int y);
+        public:
+            bool cancelDrag();
         private:
             virtual PickRequest doGetPickRequest(int x, int y) const = 0;
             virtual Model::PickResult doPick(const vm::ray3& pickRay) const = 0;

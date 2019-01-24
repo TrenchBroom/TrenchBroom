@@ -93,7 +93,6 @@ namespace TrenchBroom {
 
         MapViewBase::MapViewBase(QWidget* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager) :
         RenderView(contextManager),
-        ToolBoxConnector(this),
         m_logger(logger),
         m_document(document),
         m_toolBox(toolBox),
@@ -712,6 +711,22 @@ namespace TrenchBroom {
         }
 
 #if 0
+        void MapViewBase::OnSetFocus(wxFocusEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            updateAcceleratorTable(true);
+            updateModifierKeys();
+            event.Skip();
+        }
+
+        void MapViewBase::OnKillFocus(wxFocusEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            updateAcceleratorTable(false);
+            clearModifierKeys();
+            event.Skip();
+        }
+
         void MapViewBase::OnActivateFrame(wxActivateEvent& event) {
             if (event.GetActive())
                 updateLastActivation();
@@ -756,7 +771,7 @@ namespace TrenchBroom {
         
         void MapViewBase::doSetToolBoxDropTarget() {
             // FIXME: DND
-            //SetDropTarget(new ToolBoxDropTarget(this));
+            //SetDropTarget(new ToolBoxDropTarget(this, this));
         }
         
         void MapViewBase::doClearDropTarget() {
@@ -937,6 +952,18 @@ namespace TrenchBroom {
 
             renderService.renderHeadsUp(m_currentFPS);
         }
+
+        void MapViewBase::processEvent(const KeyEvent& event) {
+            ToolBoxConnector::processEvent(event);
+        }
+
+        void MapViewBase::processEvent(const MouseEvent& event) {
+            ToolBoxConnector::processEvent(event);
+        }
+
+        void MapViewBase::processEvent(const CancelEvent& event) {
+            ToolBoxConnector::processEvent(event);
+        }
         
         static bool isEntity(const Model::Node* node) {
             class IsEntity : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
@@ -954,6 +981,12 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::doShowPopupMenu() {
+            // We process input events during paint event processing, but we cannot show a popup menu
+            // during paint processing, so we enqueue an event for later.
+            QMetaObject::invokeMethod(this, "OnShowPopupMenu", Qt::QueuedConnection);
+        }
+
+        void MapViewBase::OnShowPopupMenu() {
             if (!doBeforePopupMenu())
                 return;
 
@@ -1003,6 +1036,14 @@ namespace TrenchBroom {
             }
 
             menu.exec(QCursor::pos());
+
+            // Generate a synthetic mouse move event to update the mouse position after the popup menu closes.
+            // FIXME: needed with Qt?
+#if 0
+            wxMouseEvent mouseEvent(wxEVT_MOTION);
+            mouseEvent.SetPosition(ScreenToClient(wxGetMousePosition()));
+            OnMouse(mouseEvent);
+#endif
 
             doAfterPopupMenu();
         }

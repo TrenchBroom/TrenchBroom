@@ -26,6 +26,7 @@
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
 #include "View/GLContextManager.h"
+#include "View/InputEvent.h"
 #include "View/wxUtils.h"
 
 #include <QPalette>
@@ -81,6 +82,41 @@ namespace TrenchBroom {
         }
         
         RenderView::~RenderView() = default;
+
+        void RenderView::keyPressEvent(QKeyEvent* event) {
+            m_eventRecorder.recordEvent(event);
+            requestUpdate();
+        }
+
+        void RenderView::keyReleaseEvent(QKeyEvent* event) {
+            m_eventRecorder.recordEvent(event);
+            requestUpdate();
+        }
+
+        void RenderView::mouseDoubleClickEvent(QMouseEvent* event) {
+            m_eventRecorder.recordEvent(event);
+            requestUpdate();
+        }
+
+        void RenderView::mouseMoveEvent(QMouseEvent* event) {
+            m_eventRecorder.recordEvent(event);
+            requestUpdate();
+        }
+
+        void RenderView::mousePressEvent(QMouseEvent* event) {
+            m_eventRecorder.recordEvent(event);
+            requestUpdate();
+        }
+
+        void RenderView::mouseReleaseEvent(QMouseEvent* event) {
+            m_eventRecorder.recordEvent(event);
+            requestUpdate();
+        }
+
+        void RenderView::wheelEvent(QWheelEvent* event) {
+            m_eventRecorder.recordEvent(event);
+            requestUpdate();
+        }
 
         QWidget* RenderView::widgetContainer() {
             return m_windowContainer;
@@ -158,9 +194,14 @@ namespace TrenchBroom {
         }
 
         void RenderView::render() {
+            processInput();
             clearBackground();
             doRender();
             renderFocusIndicator();
+        }
+        
+        void RenderView::processInput() {
+            m_eventRecorder.processEvents(*this);
         }
         
         void RenderView::clearBackground() {
@@ -179,11 +220,11 @@ namespace TrenchBroom {
             const Color& inner = m_focusColor;
 
             const QSize clientSize = size();
-            const float w = static_cast<float>(clientSize.width());
-            const float h = static_cast<float>(clientSize.height());
-            const float t = 1.0f;
+            const auto w = static_cast<float>(clientSize.width());
+            const auto h = static_cast<float>(clientSize.height());
+            const auto t = 1.0f;
             
-            typedef Renderer::VertexSpecs::P3C4::Vertex Vertex;
+            using Vertex = Renderer::VertexSpecs::P3C4::Vertex;
             Vertex::List vertices(16);
             
             // top
@@ -214,11 +255,11 @@ namespace TrenchBroom {
                     static_cast<int>(clientSize.width() * devicePixelRatioF()),
                     static_cast<int>(clientSize.height() * devicePixelRatioF())));
 
-            const vm::mat4x4f projection = vm::orthoMatrix(-1.0f, 1.0f, 0.0f, 0.0f, w, h);
+            const auto projection = vm::orthoMatrix(-1.0f, 1.0f, 0.0f, 0.0f, w, h);
             Renderer::Transformation transformation(projection, vm::mat4x4f::identity);
             
             glAssert(glDisable(GL_DEPTH_TEST));
-            Renderer::VertexArray array = Renderer::VertexArray::swap(vertices);
+            auto array = Renderer::VertexArray::swap(vertices);
             
             Renderer::ActivateVbo activate(vertexVbo());
             array.prepare(vertexVbo());
