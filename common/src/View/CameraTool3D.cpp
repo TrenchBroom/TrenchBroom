@@ -80,12 +80,10 @@ namespace TrenchBroom {
         void CameraTool3D::doMouseScroll(const InputState& inputState) {
             const auto factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
             const auto zoom = inputState.modifierKeysPressed(ModifierKeys::MKShift);
+            // Qt switches scroll axis when alt is pressed
+            // see: https://bugreports.qt.io/browse/QTBUG-30948
             const auto scrollDist =
-#ifdef __APPLE__
-                zoom ? inputState.scrollX() : inputState.scrollY(); // macOS switches scroll axis when shift is pressed
-#else
-                inputState.scrollY();
-#endif
+                inputState.modifierKeysPressed(ModifierKeys::MKAlt) ? inputState.scrollX() : inputState.scrollY();
             if (m_orbit) {
                 const auto orbitPlane = vm::plane3f(m_orbitCenter, m_camera.direction());
                 const auto maxDistance = std::max(vm::intersect(m_camera.viewRay(), orbitPlane) - 32.0f, 0.0f);

@@ -150,7 +150,9 @@ namespace TrenchBroom {
         void InputEventRecorder::recordEvent(const QWheelEvent* wxEvent) {
             const int posX = wxEvent->x();
             const int posY = wxEvent->y();
-            const QPoint scrollDistance = wxEvent->pixelDelta();
+            // TODO: check direction on macOS
+            // TODO: could also use pixelDelta(), see http://doc.qt.io/qt-5/qwheelevent.html#angleDelta
+            const QPointF scrollDistance = wxEvent->angleDelta() / 8.0f;
 
             m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::Scroll, MouseEvent::Button::None, MouseEvent::WheelAxis::Horizontal, posX, posY, scrollDistance.x()));
             m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::Scroll, MouseEvent::Button::None, MouseEvent::WheelAxis::Vertical, posX, posY, scrollDistance.y()));
