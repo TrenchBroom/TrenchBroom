@@ -60,7 +60,7 @@ namespace TrenchBroom {
             void unbindObservers();
             void cameraDidChange(const Renderer::Camera* camera);
             void preferenceDidChange(const IO::Path& path);
-        protected: // QWidget overrides
+        protected: // QWindow overrides
             void keyPressEvent(QKeyEvent* event) override;
             void keyReleaseEvent(QKeyEvent* event) override;
             void focusOutEvent(QFocusEvent* event) override;

@@ -171,20 +171,24 @@ namespace TrenchBroom {
 
         void MapView3D::OnFrameSwapped() {
             if (m_flyModeHelper->anyKeyDown()) {
-                update();
+                requestUpdate();
             }
         }
 
         void MapView3D::keyPressEvent(QKeyEvent* event) {
-            if (!m_flyModeHelper->keyDown(event)) {
-                // Not handled, use the default Qt event handling
+            if (m_flyModeHelper->keyDown(event)) {
+                requestUpdate();
+            } else {
+                // Not handled by fly mode helper, pass to superclass
                 MapViewBase::keyPressEvent(event);
             }
         }
         
         void MapView3D::keyReleaseEvent(QKeyEvent* event) {
-            if (!m_flyModeHelper->keyUp(event)) {
-                // Not handled, use the default Qt event handling
+            if (m_flyModeHelper->keyUp(event)) {
+                requestUpdate();
+            } else {
+                // Not handled by fly mode helper, pass to superclass
                 MapViewBase::keyReleaseEvent(event);
             }
         }
