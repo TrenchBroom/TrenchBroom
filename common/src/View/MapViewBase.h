@@ -259,7 +259,9 @@ namespace TrenchBroom {
             void processEvent(const CancelEvent& event) override;
         private: // implement ToolBoxConnector
             void doShowPopupMenu() override;
+        public slots:
             void OnShowPopupMenu();
+        private:
             QMenu* makeEntityGroupsMenu(Assets::EntityDefinition::Type type);
 
             bool canGroupObjects() const;

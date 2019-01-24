@@ -45,6 +45,7 @@ namespace TrenchBroom {
         class RenderWindow;
 
         class RenderView : public QOpenGLWindow, public InputEventProcessor {
+            Q_OBJECT
         private:
             Color m_focusColor;
             GLContextManager* m_glContext;
