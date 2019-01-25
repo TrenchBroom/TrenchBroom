@@ -40,8 +40,8 @@ namespace TrenchBroom {
             m_window->SetWindowVariant(wxWINDOW_VARIANT_SMALL);
 #endif
 
-            wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-            sizer->Add(m_button);
+            auto* sizer = new QHBoxLayout();
+            sizer->addWidget(m_button);
 #ifdef __APPLE__
             sizer->SetItemMinSize(m_button, m_button->GetSize().x, m_button->GetSize().y + 1);
 #endif

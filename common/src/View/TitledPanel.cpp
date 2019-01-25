@@ -35,11 +35,11 @@ namespace TrenchBroom {
 
             m_panel = new QWidget(this);
 
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(new TitleBar(this, title, hMargin, vMargin, boldTitle), wxSizerFlags().Expand());
+            auto* sizer = new QVBoxLayout();
+            sizer->addWidget(new TitleBar(this, title, hMargin, vMargin, boldTitle), wxSizerFlags().Expand());
             if (showDivider)
-                sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
-            sizer->Add(m_panel, wxSizerFlags().Expand().Proportion(1));
+                sizer->addWidget(new BorderLine(this, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
+            sizer->addWidget(m_panel, wxSizerFlags().Expand().Proportion(1));
             SetSizer(sizer);
         }
 

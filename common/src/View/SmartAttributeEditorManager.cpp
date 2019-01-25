@@ -113,8 +113,8 @@ namespace TrenchBroom {
                 m_name = name;
                 QWidget* window = m_activeEditor->activate(this, m_name);
                 
-                wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-                sizer->Add(window, 1, wxEXPAND);
+                auto* sizer = new QVBoxLayout();
+                sizer->addWidget(window, 1, wxEXPAND);
                 SetSizer(sizer);
                 Layout();
             }

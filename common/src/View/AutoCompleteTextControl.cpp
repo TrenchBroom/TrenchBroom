@@ -26,7 +26,7 @@
 #include <wx/log.h>
 #include <wx/settings.h>
 #include <wx/sizer.h>
-#include <wx/stattext.h>
+#include <QLabel>
 
 wxDEFINE_EVENT(wxEVT_DELAYED_TEXT, wxCommandEvent);
 
@@ -123,11 +123,11 @@ namespace TrenchBroom {
                 m_descriptionText->SetWindowVariant(wxWINDOW_VARIANT_SMALL);
 #endif
 
-                wxSizer* vSizer = new wxBoxSizer(wxVERTICAL);
+                auto* vSizer = new QVBoxLayout();
                 vSizer->Add(m_valueText);
                 vSizer->Add(m_descriptionText);
 
-                wxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
+                auto* hSizer = new QHBoxLayout();
                 hSizer->Add(vSizer, wxSizerFlags().Border(wxTOP | wxBOTTOM, margins.y).Border(wxLEFT | wxRIGHT, margins.x));
 
                 SetSizer(hSizer);
@@ -150,11 +150,11 @@ namespace TrenchBroom {
             BorderPanel* panel = new BorderPanel(this, wxALL);
 
             m_list = new AutoCompletionList(panel);
-            wxSizer* panelSizer = new wxBoxSizer(wxVERTICAL);
+            auto* panelSizer = new QVBoxLayout();
             panelSizer->Add(m_list, wxSizerFlags().Expand().Proportion(1).Border(wxALL, 1));
             panel->SetSizer(panelSizer);
 
-            wxSizer* windowSizer = new wxBoxSizer(wxVERTICAL);
+            auto* windowSizer = new QVBoxLayout();
             windowSizer->Add(panel, wxSizerFlags().Expand().Proportion(1));
             SetSizer(windowSizer);
 

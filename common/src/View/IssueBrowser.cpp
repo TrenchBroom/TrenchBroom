@@ -44,8 +44,8 @@ namespace TrenchBroom {
         m_view(new IssueBrowserView(this, m_document)),
         m_showHiddenIssuesCheckBox(nullptr),
         m_filterEditor(nullptr) {
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_view, 1, wxEXPAND);
+            auto* sizer = new QVBoxLayout();
+            sizer->addWidget(m_view, 1, wxEXPAND);
             SetSizerAndFit(sizer);
             
             bindObservers();
@@ -63,9 +63,9 @@ namespace TrenchBroom {
             m_filterEditor = new FlagsPopupEditor(barPage, 1, "Filter", false);
             m_filterEditor->Bind(FLAG_CHANGED_EVENT, &IssueBrowser::OnFilterChanged, this);
             
-            wxBoxSizer* barPageSizer = new wxBoxSizer(wxHORIZONTAL);
+            wxBoxSizer* barPageSizer = new QHBoxLayout();
             barPageSizer->Add(m_showHiddenIssuesCheckBox, 0, wxALIGN_CENTER_VERTICAL);
-            barPageSizer->AddSpacer(LayoutConstants::MediumHMargin);
+            barPageSizer->addSpacing(LayoutConstants::MediumHMargin);
             barPageSizer->Add(m_filterEditor, 0, wxALIGN_CENTER_VERTICAL);
             barPage->SetSizer(barPageSizer);
             

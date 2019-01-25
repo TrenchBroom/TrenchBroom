@@ -90,8 +90,8 @@ namespace TrenchBroom {
             m_flagsEditor = new FlagsEditor(m_scrolledWindow, NumCols);
             m_flagsEditor->Bind(FLAG_CHANGED_EVENT, &SmartSpawnflagsEditor::OnFlagChanged, this);
             
-            wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_flagsEditor, 1, wxEXPAND);
+            wxBoxSizer* sizer = new QVBoxLayout();
+            sizer->addWidget(m_flagsEditor, 1, wxEXPAND);
             m_scrolledWindow->SetSizerAndFit(sizer);
             
             return m_scrolledWindow;

@@ -29,7 +29,7 @@
 #include <wx/scrolwin.h>
 #include <wx/settings.h>
 #include <wx/sizer.h>
-#include <wx/stattext.h>
+#include <QLabel>
 #include <wx/tglbtn.h>
 #include <wx/wupdlock.h>
 
@@ -91,22 +91,22 @@ namespace TrenchBroom {
                 lockButton->Bind(wxEVT_BUTTON, &LayerItem::OnToggleLocked, this);
                 lockButton->Bind(wxEVT_UPDATE_UI, &LayerItem::OnUpdateLockButton, this);
 
-                wxSizer* itemPanelTopSizer = new wxBoxSizer(wxHORIZONTAL);
+                auto* itemPanelTopSizer = new QHBoxLayout();
                 itemPanelTopSizer->Add(m_nameText, 0, wxALIGN_BOTTOM);
                 itemPanelTopSizer->Add(hiddenText, 0, wxALIGN_BOTTOM | wxRESERVE_SPACE_EVEN_IF_HIDDEN);
                 
-                wxSizer* itemPanelBottomSizer = new wxBoxSizer(wxHORIZONTAL);
+                auto* itemPanelBottomSizer = new QHBoxLayout();
                 itemPanelBottomSizer->Add(hiddenButton, 0, wxALIGN_CENTRE_VERTICAL);
                 itemPanelBottomSizer->Add(lockButton, 0, wxALIGN_CENTRE_VERTICAL);
                 itemPanelBottomSizer->Add(m_infoText, 0, wxALIGN_CENTRE_VERTICAL);
                 itemPanelBottomSizer->AddStretchSpacer();
-                itemPanelBottomSizer->AddSpacer(LayoutConstants::NarrowHMargin);
+                itemPanelBottomSizer->addSpacing(LayoutConstants::NarrowHMargin);
 
-                wxSizer* itemPanelSizer = new wxBoxSizer(wxVERTICAL);
-                itemPanelSizer->AddSpacer(LayoutConstants::NarrowVMargin);
+                auto* itemPanelSizer = new QVBoxLayout();
+                itemPanelSizer->addSpacing(LayoutConstants::NarrowVMargin);
                 itemPanelSizer->Add(itemPanelTopSizer,    0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
                 itemPanelSizer->Add(itemPanelBottomSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
-                itemPanelSizer->AddSpacer(LayoutConstants::NarrowVMargin);
+                itemPanelSizer->addSpacing(LayoutConstants::NarrowVMargin);
                 SetSizer(itemPanelSizer);
             }
 

@@ -242,20 +242,20 @@ namespace TrenchBroom {
             moveTextureCollectionDownButton->Bind(wxEVT_UPDATE_UI, &FileTextureCollectionEditor::OnUpdateMoveDownButtonUI, this);
             reloadTextureCollectionsButton->Bind(wxEVT_UPDATE_UI, &FileTextureCollectionEditor::OnUpdateReloadTextureCollectionsButtonUI, this);
 
-            auto* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+            auto* buttonSizer = new QHBoxLayout();
             buttonSizer->Add(addTextureCollectionsButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             buttonSizer->Add(removeTextureCollectionsButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            buttonSizer->AddSpacer(LayoutConstants::WideHMargin);
+            buttonSizer->addSpacing(LayoutConstants::WideHMargin);
             buttonSizer->Add(moveTextureCollectionUpButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             buttonSizer->Add(moveTextureCollectionDownButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            buttonSizer->AddSpacer(LayoutConstants::WideHMargin);
+            buttonSizer->addSpacing(LayoutConstants::WideHMargin);
             buttonSizer->Add(reloadTextureCollectionsButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             buttonSizer->AddStretchSpacer();
             
-            auto* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_collections, 1, wxEXPAND);
-            sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
-            sizer->Add(buttonSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
+            auto* sizer = new QVBoxLayout();
+            sizer->addWidget(m_collections, 1, wxEXPAND);
+            sizer->addWidget(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
+            sizer->addWidget(buttonSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
             sizer->SetItemMinSize(m_collections, 100, 70);
             
             SetSizerAndFit(sizer);

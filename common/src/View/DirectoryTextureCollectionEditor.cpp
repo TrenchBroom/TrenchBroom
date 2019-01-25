@@ -32,7 +32,7 @@
 #include <wx/listbox.h>
 #include <wx/settings.h>
 #include <wx/sizer.h>
-#include <wx/stattext.h>
+#include <QLabel>
 
 #include <cassert>
 
@@ -124,7 +124,7 @@ namespace TrenchBroom {
             
             m_availableCollectionsList = new wxListBox(availableCollectionsContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxLB_MULTIPLE | wxBORDER_NONE);
             
-            auto* availableModContainerSizer = new wxBoxSizer(wxVERTICAL);
+            auto* availableModContainerSizer = new QVBoxLayout();
             availableModContainerSizer->Add(m_availableCollectionsList, wxSizerFlags().Expand().Proportion(1));
             availableCollectionsContainer->getPanel()->SetSizer(availableModContainerSizer);
         
@@ -132,7 +132,7 @@ namespace TrenchBroom {
             enabledCollectionsContainer->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             m_enabledCollectionsList = new wxListBox(enabledCollectionsContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxLB_MULTIPLE | wxBORDER_NONE);
             
-            auto* enabledCollectionsContainerSizer = new wxBoxSizer(wxVERTICAL);
+            auto* enabledCollectionsContainerSizer = new QVBoxLayout();
             enabledCollectionsContainerSizer->Add(m_enabledCollectionsList, wxSizerFlags().Expand().Proportion(1));
             enabledCollectionsContainer->getPanel()->SetSizer(enabledCollectionsContainerSizer);
             
@@ -140,19 +140,19 @@ namespace TrenchBroom {
             auto* removeCollectionsButton = createBitmapButton(this, "Remove.png", "Disable the selected texture collections");
             auto* reloadCollectionsButton = createBitmapButton(this, "Refresh.png", "Reload all enabled texture collections");
             
-            auto* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+            auto* buttonSizer = new QHBoxLayout();
             buttonSizer->Add(addCollectionsButton, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
             buttonSizer->Add(removeCollectionsButton, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
-            buttonSizer->AddSpacer(LayoutConstants::WideHMargin);
+            buttonSizer->addSpacing(LayoutConstants::WideHMargin);
             buttonSizer->Add(reloadCollectionsButton, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
             buttonSizer->AddStretchSpacer();
             
             auto* sizer = new wxGridBagSizer(0, 0);
-            sizer->Add(availableCollectionsContainer,                           wxGBPosition(0, 0), wxDefaultSpan, wxEXPAND);
-            sizer->Add(new BorderLine(this, BorderLine::Direction_Vertical),    wxGBPosition(0, 1), wxGBSpan(3, 1), wxEXPAND);
-            sizer->Add(enabledCollectionsContainer,                             wxGBPosition(0, 2), wxDefaultSpan, wxEXPAND);
-            sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal),  wxGBPosition(1, 0), wxGBSpan(1, 3), wxEXPAND);
-            sizer->Add(buttonSizer,                                             wxGBPosition(2, 2), wxDefaultSpan, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
+            sizer->addWidget(availableCollectionsContainer,                           wxGBPosition(0, 0), wxDefaultSpan, wxEXPAND);
+            sizer->addWidget(new BorderLine(this, BorderLine::Direction_Vertical),    wxGBPosition(0, 1), wxGBSpan(3, 1), wxEXPAND);
+            sizer->addWidget(enabledCollectionsContainer,                             wxGBPosition(0, 2), wxDefaultSpan, wxEXPAND);
+            sizer->addWidget(new BorderLine(this, BorderLine::Direction_Horizontal),  wxGBPosition(1, 0), wxGBSpan(1, 3), wxEXPAND);
+            sizer->addWidget(buttonSizer,                                             wxGBPosition(2, 2), wxDefaultSpan, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
             sizer->SetItemMinSize(availableCollectionsContainer, 100, 100);
             sizer->SetItemMinSize(enabledCollectionsContainer, 100, 100);
             sizer->AddGrowableCol(0);

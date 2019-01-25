@@ -68,8 +68,8 @@ namespace TrenchBroom {
                     break;
             }
             
-            auto* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(collectionEditor, wxSizerFlags().Expand().Proportion(1));
+            auto* sizer = new QVBoxLayout();
+            sizer->addWidget(collectionEditor, wxSizerFlags().Expand().Proportion(1));
             
             SetSizer(sizer);
             GetParent()->Layout();

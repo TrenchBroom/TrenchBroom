@@ -33,7 +33,7 @@
 #include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/simplebook.h>
-#include <wx/stattext.h>
+#include <QLabel>
 #include <wx/textctrl.h>
 
 namespace TrenchBroom {
@@ -53,7 +53,7 @@ namespace TrenchBroom {
             m_book->AddPage(createEditorPage(m_book), "Editor");
             m_book->SetSelection(0);
             
-            wxSizer* bookSizer = new wxBoxSizer(wxVERTICAL);
+            auto* bookSizer = new QVBoxLayout();
             bookSizer->Add(m_book, wxSizerFlags().Expand().Proportion(1));
             SetSizer(bookSizer);
         }
@@ -95,10 +95,10 @@ namespace TrenchBroom {
             upperInnerSizer->Add(m_workDirTxt,   wxGBPosition(1, 1), wxDefaultSpan, EditorFlags);
             upperInnerSizer->AddGrowableCol(1);
             
-            wxSizer* upperOuterSizer = new wxBoxSizer(wxVERTICAL);
-            upperOuterSizer->AddSpacer(LayoutConstants::WideVMargin);
+            auto* upperOuterSizer = new QVBoxLayout();
+            upperOuterSizer->addSpacing(LayoutConstants::WideVMargin);
             upperOuterSizer->Add(upperInnerSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::MediumHMargin);
-            upperOuterSizer->AddSpacer(LayoutConstants::WideVMargin);
+            upperOuterSizer->addSpacing(LayoutConstants::WideVMargin);
             
             upperPanel->SetSizer(upperOuterSizer);
             
@@ -118,21 +118,21 @@ namespace TrenchBroom {
             moveTaskUpButton->Bind(wxEVT_UPDATE_UI, &CompilationProfileEditor::OnUpdateMoveTaskUpButtonUI, this);
             moveTaskDownButton->Bind(wxEVT_UPDATE_UI, &CompilationProfileEditor::OnUpdateMoveTaskDownButtonUI, this);
             
-            wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+            auto* buttonSizer = new QHBoxLayout();
             const wxSizerFlags buttonFlags = wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             buttonSizer->Add(addTaskButton, buttonFlags);
             buttonSizer->Add(removeTaskButton, buttonFlags);
-            buttonSizer->AddSpacer(LayoutConstants::WideHMargin);
+            buttonSizer->addSpacing(LayoutConstants::WideHMargin);
             buttonSizer->Add(moveTaskUpButton, buttonFlags);
             buttonSizer->Add(moveTaskDownButton, buttonFlags);
             buttonSizer->AddStretchSpacer();
             
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(upperPanel, wxSizerFlags().Expand());
-            sizer->Add(new BorderLine(containerPanel, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
-            sizer->Add(m_taskList, wxSizerFlags().Expand().Proportion(1));
-            sizer->Add(new BorderLine(containerPanel, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
-            sizer->Add(buttonSizer, wxSizerFlags().Expand());
+            auto* sizer = new QVBoxLayout();
+            sizer->addWidget(upperPanel, wxSizerFlags().Expand());
+            sizer->addWidget(new BorderLine(containerPanel, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
+            sizer->addWidget(m_taskList, wxSizerFlags().Expand().Proportion(1));
+            sizer->addWidget(new BorderLine(containerPanel, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
+            sizer->addWidget(buttonSizer, wxSizerFlags().Expand());
             
             containerPanel->SetSizer(sizer);
             return containerPanel;

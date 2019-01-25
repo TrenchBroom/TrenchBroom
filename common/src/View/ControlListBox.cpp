@@ -26,7 +26,7 @@
 #include <wx/listbox.h>
 #include <wx/settings.h>
 #include <wx/sizer.h>
-#include <wx/stattext.h>
+#include <QLabel>
 #include <wx/wupdlock.h>
 
 wxDEFINE_EVENT(wxEVT_LISTBOX_RCLICK, wxCommandEvent);
@@ -225,11 +225,11 @@ namespace TrenchBroom {
                 if (m_restrictToClientWidth)
                     m_emptyTextLabel->Wrap(GetClientSize().x - LayoutConstants::WideVMargin * 2);
 
-                wxSizer* justifySizer = new wxBoxSizer(wxHORIZONTAL);
+                auto* justifySizer = new QHBoxLayout();
                 justifySizer->AddStretchSpacer();
-                justifySizer->AddSpacer(LayoutConstants::WideHMargin);
+                justifySizer->addSpacing(LayoutConstants::WideHMargin);
                 justifySizer->Add(m_emptyTextLabel);
-                justifySizer->AddSpacer(LayoutConstants::WideHMargin);
+                justifySizer->addSpacing(LayoutConstants::WideHMargin);
                 justifySizer->AddStretchSpacer();
 
                 listSizer->Add(justifySizer, wxSizerFlags().Border(wxTOP | wxBOTTOM, LayoutConstants::WideVMargin).Expand());

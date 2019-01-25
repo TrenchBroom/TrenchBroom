@@ -63,7 +63,7 @@ namespace TrenchBroom {
                         m_checkBoxes[index]->SetLabel(index < labels.size() ? labels[index] : QString() << (1 << index));
                         m_checkBoxes[index]->SetToolTip(index < tooltips.size() ? tooltips[index] : "");
                         m_values[index] = values[index];
-                        sizer->Add(m_checkBoxes[index]);
+                        sizer->addWidget(m_checkBoxes[index]);
                     }
                 }
             }

@@ -415,17 +415,17 @@ namespace TrenchBroom {
             showDefaultPropertiesCheckBox->Bind(wxEVT_CHECKBOX, &EntityAttributeGrid::OnShowDefaultPropertiesCheckBox, this);
             showDefaultPropertiesCheckBox->Bind(wxEVT_UPDATE_UI, &EntityAttributeGrid::OnUpdateShowDefaultPropertiesCheckBox, this);
             
-            wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+            auto* buttonSizer = new QHBoxLayout();
             buttonSizer->Add(addAttributeButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             buttonSizer->Add(removePropertiesButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            buttonSizer->AddSpacer(LayoutConstants::WideHMargin);
+            buttonSizer->addSpacing(LayoutConstants::WideHMargin);
             buttonSizer->Add(showDefaultPropertiesCheckBox, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             buttonSizer->AddStretchSpacer();
             
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_grid, 1, wxEXPAND);
-            sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
-            sizer->Add(buttonSizer, 0, wxEXPAND);
+            auto* sizer = new QVBoxLayout();
+            sizer->addWidget(m_grid, 1, wxEXPAND);
+            sizer->addWidget(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
+            sizer->addWidget(buttonSizer, 0, wxEXPAND);
             SetSizer(sizer);
         }
         

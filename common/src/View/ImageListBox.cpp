@@ -25,7 +25,7 @@
 #include <wx/panel.h>
 #include <wx/settings.h>
 #include <wx/sizer.h>
-#include <wx/stattext.h>
+#include <QLabel>
 #include <wx/statbmp.h>
 
 #include <cassert>
@@ -76,20 +76,20 @@ namespace TrenchBroom {
                 m_subtitleText->SetWindowVariant(wxWINDOW_VARIANT_SMALL);
 #endif
                 
-                auto* vSizer = new wxBoxSizer(wxVERTICAL);
+                auto* vSizer = new QVBoxLayout();
                 vSizer->Add(m_titleText, 0);
                 vSizer->Add(m_subtitleText, 0);
                 
-                auto* hSizer = new wxBoxSizer(wxHORIZONTAL);
-                hSizer->AddSpacer(margins.x);
+                auto* hSizer = new QHBoxLayout();
+                hSizer->addSpacing(margins.x);
                 
                 if (image != nullptr) {
                     m_imageBmp = new wxStaticBitmap(this, wxID_ANY, *image);
                     hSizer->Add(m_imageBmp, 0, wxALIGN_BOTTOM | wxTOP | wxBOTTOM, margins.y);
-                    hSizer->AddSpacer(4);
+                    hSizer->addSpacing(4);
                 }
                 hSizer->Add(vSizer, 0, wxTOP | wxBOTTOM, margins.y);
-                hSizer->AddSpacer(margins.x);
+                hSizer->addSpacing(margins.x);
                 
                 SetSizer(hSizer);
             }

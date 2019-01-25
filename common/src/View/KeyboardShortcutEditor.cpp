@@ -25,7 +25,7 @@
 #include <wx/panel.h>
 #include <wx/settings.h>
 #include <wx/sizer.h>
-#include <wx/stattext.h>
+#include <QLabel>
 
 namespace TrenchBroom {
     namespace View {
@@ -49,12 +49,12 @@ namespace TrenchBroom {
             resetKey();
             resetModifiers();
             
-            auto* panelSizer = new wxBoxSizer(wxVERTICAL);
+            auto* panelSizer = new QVBoxLayout();
             panelSizer->Add(m_shortcutLabel, 0, wxEXPAND);
             m_panel->SetSizer(panelSizer);
 
-            auto* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_panel, 1, wxEXPAND);
+            auto* sizer = new QVBoxLayout();
+            sizer->addWidget(m_panel, 1, wxEXPAND);
             SetSizer(sizer);
             
             Bind(wxEVT_PAINT, &KeyboardShortcutEditor::OnPaint, this);

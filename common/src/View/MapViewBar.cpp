@@ -31,7 +31,7 @@
 #include <wx/sizer.h>
 #include <wx/srchctrl.h>
 #include <wx/statbmp.h>
-#include <wx/stattext.h>
+#include <QLabel>
 
 namespace TrenchBroom {
     namespace View {
@@ -60,17 +60,17 @@ namespace TrenchBroom {
             m_toolBook = new wxSimplebook(this);
             m_viewEditor = new ViewPopupEditor(this, document);
             
-            wxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
-            hSizer->AddSpacer(LayoutConstants::NarrowHMargin);
+            auto* hSizer = new QHBoxLayout();
+            hSizer->addSpacing(LayoutConstants::NarrowHMargin);
             hSizer->Add(m_toolBook, 1, wxEXPAND);
-            hSizer->AddSpacer(LayoutConstants::MediumHMargin);
+            hSizer->addSpacing(LayoutConstants::MediumHMargin);
             hSizer->Add(m_viewEditor, 0, wxALIGN_CENTRE_VERTICAL);
-            hSizer->AddSpacer(LayoutConstants::NarrowHMargin);
+            hSizer->addSpacing(LayoutConstants::NarrowHMargin);
             
-            wxSizer* vSizer = new wxBoxSizer(wxVERTICAL);
-            vSizer->AddSpacer(LayoutConstants::NarrowVMargin);
+            auto* vSizer = new QVBoxLayout();
+            vSizer->addSpacing(LayoutConstants::NarrowVMargin);
             vSizer->Add(hSizer, 1, wxEXPAND);
-            vSizer->AddSpacer(LayoutConstants::NarrowVMargin);
+            vSizer->addSpacing(LayoutConstants::NarrowVMargin);
             
             SetSizer(vSizer);
 #endif

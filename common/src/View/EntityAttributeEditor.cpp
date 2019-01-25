@@ -61,8 +61,8 @@ namespace TrenchBroom {
                                         wxSize(100, 50), wxSize(100, 50));
 
             
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(splitter, 1, wxEXPAND);
+            auto* sizer = new QVBoxLayout();
+            sizer->addWidget(splitter, 1, wxEXPAND);
             sizer->SetItemMinSize(m_smartEditorManager, 500, 100);
             SetSizer(sizer);
             

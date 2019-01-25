@@ -82,16 +82,16 @@ namespace TrenchBroom {
             DoSetValue(m_value);
             SetDigits(0, 0);
             
-            wxSizer* textSizer = new wxBoxSizer(wxVERTICAL);
+            auto* textSizer = new QVBoxLayout();
             textSizer->Add(m_text, 0, wxEXPAND);
             
-            wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-            sizer->Add(textSizer, 1, wxEXPAND
+            auto* sizer = new QHBoxLayout();
+            sizer->addWidget(textSizer, 1, wxEXPAND
 #ifdef _WIN32
                        | wxTOP | wxBOTTOM, 1
 #endif
             );
-            sizer->Add(m_spin);
+            sizer->addWidget(m_spin);
             SetSizer(sizer);
             
             SetInitialSize(size);

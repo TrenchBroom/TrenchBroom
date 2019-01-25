@@ -88,7 +88,7 @@ namespace TrenchBroom {
                                            document->entityModelManager(),
                                            *document);
             
-            wxSizer* browserPanelSizer = new wxBoxSizer(wxHORIZONTAL);
+            auto* browserPanelSizer = new QHBoxLayout();
             browserPanelSizer->Add(m_view, 1, wxEXPAND);
             browserPanelSizer->Add(m_scrollBar, 0, wxEXPAND);
             browserPanel->SetSizerAndFit(browserPanelSizer);
@@ -112,21 +112,21 @@ namespace TrenchBroom {
             m_usedButton->Bind(wxEVT_TOGGLEBUTTON, &EntityBrowser::OnUsedButtonToggled, this);
             m_filterBox->Bind(wxEVT_TEXT, &EntityBrowser::OnFilterPatternChanged, this);
             
-            wxSizer* controlSizer = new wxBoxSizer(wxHORIZONTAL);
-            controlSizer->AddSpacer(LayoutConstants::ChoiceLeftMargin);
+            auto* controlSizer = new QHBoxLayout();
+            controlSizer->addSpacing(LayoutConstants::ChoiceLeftMargin);
             controlSizer->Add(m_sortOrderChoice, 0, wxTOP, LayoutConstants::ChoiceTopMargin);
-            controlSizer->AddSpacer(LayoutConstants::NarrowHMargin);
+            controlSizer->addSpacing(LayoutConstants::NarrowHMargin);
             controlSizer->Add(m_groupButton, 0);
-            controlSizer->AddSpacer(LayoutConstants::NarrowHMargin);
+            controlSizer->addSpacing(LayoutConstants::NarrowHMargin);
             controlSizer->Add(m_usedButton, 0);
-            controlSizer->AddSpacer(LayoutConstants::NarrowHMargin);
+            controlSizer->addSpacing(LayoutConstants::NarrowHMargin);
             controlSizer->Add(m_filterBox, 1, wxEXPAND);
             
-            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
+            auto* outerSizer = new QVBoxLayout();
             outerSizer->Add(browserPanel, 1, wxEXPAND);
-            outerSizer->AddSpacer(LayoutConstants::NarrowVMargin);
+            outerSizer->addSpacing(LayoutConstants::NarrowVMargin);
             outerSizer->Add(controlSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
-            outerSizer->AddSpacer(LayoutConstants::NarrowVMargin);
+            outerSizer->addSpacing(LayoutConstants::NarrowVMargin);
             
             SetSizer(outerSizer);
         }

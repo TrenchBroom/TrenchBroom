@@ -119,17 +119,17 @@ namespace TrenchBroom {
             messageText->SetFont(messageText->GetFont().Bold());
             messageText->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
 
-            wxSizer* justifySizer = new wxBoxSizer(wxHORIZONTAL);
+            auto* justifySizer = new QHBoxLayout();
             justifySizer->AddStretchSpacer();
-            justifySizer->AddSpacer(LayoutConstants::WideHMargin);
+            justifySizer->addSpacing(LayoutConstants::WideHMargin);
             justifySizer->Add(messageText, wxSizerFlags().Expand());
-            justifySizer->AddSpacer(LayoutConstants::WideHMargin);
+            justifySizer->addSpacing(LayoutConstants::WideHMargin);
             justifySizer->AddStretchSpacer();
 
-            wxSizer* containerSizer = new wxBoxSizer(wxVERTICAL);
-            containerSizer->AddSpacer(LayoutConstants::WideVMargin);
+            auto* containerSizer = new QVBoxLayout();
+            containerSizer->addSpacing(LayoutConstants::WideVMargin);
             containerSizer->Add(justifySizer, wxSizerFlags().Expand());
-            containerSizer->AddSpacer(LayoutConstants::WideVMargin);
+            containerSizer->addSpacing(LayoutConstants::WideVMargin);
             containerSizer->AddStretchSpacer();
 
             containerPanel->SetSizer(containerSizer);
@@ -138,16 +138,16 @@ namespace TrenchBroom {
 
 #if 0
         wxSizer* wrapDialogButtonSizer(wxSizer* buttonSizer, QWidget* parent) {
-            wxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
-            hSizer->AddSpacer(LayoutConstants::DialogButtonLeftMargin);
+            auto* hSizer = new QHBoxLayout();
+            hSizer->addSpacing(LayoutConstants::DialogButtonLeftMargin);
             hSizer->Add(buttonSizer, wxSizerFlags().Expand().Proportion(1));
-            hSizer->AddSpacer(LayoutConstants::DialogButtonRightMargin);
+            hSizer->addSpacing(LayoutConstants::DialogButtonRightMargin);
 
-            wxSizer* vSizer = new wxBoxSizer(wxVERTICAL);
+            auto* vSizer = new QVBoxLayout();
             vSizer->Add(new BorderLine(parent, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
-            vSizer->AddSpacer(LayoutConstants::DialogButtonTopMargin);
+            vSizer->addSpacing(LayoutConstants::DialogButtonTopMargin);
             vSizer->Add(hSizer, wxSizerFlags().Expand());
-            vSizer->AddSpacer(LayoutConstants::DialogButtonBottomMargin);
+            vSizer->addSpacing(LayoutConstants::DialogButtonBottomMargin);
             return vSizer;
         }
 #endif

@@ -40,7 +40,7 @@
 #include <wx/scrolwin.h>
 #include <wx/settings.h>
 #include <wx/sizer.h>
-#include <wx/stattext.h>
+#include <QLabel>
 
 namespace TrenchBroom {
     namespace View {
@@ -139,8 +139,8 @@ namespace TrenchBroom {
             wxScrolledWindow* scrollWindow = new wxScrolledWindow(border);
             int checkBoxHeight = 1;
 
-            wxSizer* scrollWindowSizer = new wxBoxSizer(wxVERTICAL);
-            scrollWindowSizer->AddSpacer(1);
+            auto* scrollWindowSizer = new QVBoxLayout();
+            scrollWindowSizer->addSpacing(1);
             const Assets::EntityDefinitionGroup::List& groups = m_entityDefinitionManager.groups();
             for (size_t i = 0; i < groups.size(); ++i) {
                 const Assets::EntityDefinitionGroup& group = groups[i];
@@ -168,11 +168,11 @@ namespace TrenchBroom {
                 }
             }
 
-            scrollWindowSizer->AddSpacer(1);
+            scrollWindowSizer->addSpacing(1);
             scrollWindow->SetSizer(scrollWindowSizer);
             scrollWindow->SetScrollRate(1, checkBoxHeight);
 
-            wxSizer* borderSizer = new wxBoxSizer(wxVERTICAL);
+            auto* borderSizer = new QVBoxLayout();
             borderSizer->Add(scrollWindow, wxSizerFlags().Border(wxALL, 1).Expand().Proportion(1));
             border->SetSizer(borderSizer);
 
@@ -184,16 +184,16 @@ namespace TrenchBroom {
             showAllButton->Bind(wxEVT_BUTTON, &EntityDefinitionCheckBoxList::OnShowAllClicked, this);
             hideAllButton->Bind(wxEVT_BUTTON, &EntityDefinitionCheckBoxList::OnHideAllClicked, this);
 
-            wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+            auto* buttonSizer = new QHBoxLayout();
             buttonSizer->AddStretchSpacer();
-            buttonSizer->AddSpacer(LayoutConstants::NarrowHMargin);
+            buttonSizer->addSpacing(LayoutConstants::NarrowHMargin);
             buttonSizer->Add(showAllButton);
-            buttonSizer->AddSpacer(LayoutConstants::NarrowHMargin);
+            buttonSizer->addSpacing(LayoutConstants::NarrowHMargin);
             buttonSizer->Add(hideAllButton);
-            buttonSizer->AddSpacer(LayoutConstants::NarrowHMargin);
+            buttonSizer->addSpacing(LayoutConstants::NarrowHMargin);
             buttonSizer->AddStretchSpacer();
 
-            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
+            auto* outerSizer = new QVBoxLayout();
             outerSizer->Add(border, wxSizerFlags().Expand().Proportion(1));
             outerSizer->Add(buttonSizer, wxSizerFlags().Border(wxTOP | wxBOTTOM, 1).Expand());
 
@@ -396,10 +396,10 @@ namespace TrenchBroom {
             DestroyChildren();
 
             wxGridBagSizer* sizer = new wxGridBagSizer(LayoutConstants::WideVMargin, LayoutConstants::WideHMargin);
-            sizer->Add(createEntityDefinitionsPanel(this), wxGBPosition(0,0), wxGBSpan(3,1), wxEXPAND);
-            sizer->Add(createEntitiesPanel(this),          wxGBPosition(0,1), wxDefaultSpan);
-            sizer->Add(createBrushesPanel(this),           wxGBPosition(1,1), wxDefaultSpan);
-            sizer->Add(createRendererPanel(this),          wxGBPosition(2,1), wxDefaultSpan);
+            sizer->addWidget(createEntityDefinitionsPanel(this), wxGBPosition(0,0), wxGBSpan(3,1), wxEXPAND);
+            sizer->addWidget(createEntitiesPanel(this),          wxGBPosition(0,1), wxDefaultSpan);
+            sizer->addWidget(createBrushesPanel(this),           wxGBPosition(1,1), wxDefaultSpan);
+            sizer->addWidget(createRendererPanel(this),          wxGBPosition(2,1), wxDefaultSpan);
 
 			SetSizerAndFit(sizer);
 			Layout();
@@ -422,7 +422,7 @@ namespace TrenchBroom {
             Model::EditorContext& editorContext = document->editorContext();
             m_entityDefinitionCheckBoxList = new EntityDefinitionCheckBoxList(panel->getPanel(), entityDefinitionManager, editorContext);
 
-            wxSizer* panelSizer = new wxBoxSizer(wxVERTICAL);
+            auto* panelSizer = new QVBoxLayout();
             panelSizer->Add(m_entityDefinitionCheckBoxList, wxSizerFlags().Expand().Proportion(1));
             panelSizer->SetItemMinSize(m_entityDefinitionCheckBoxList, 250, wxDefaultCoord);
             panel->getPanel()->SetSizer(panelSizer);
@@ -448,13 +448,13 @@ namespace TrenchBroom {
             m_showPointEntitiesCheckBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShowPointEntitiesChanged, this);
             m_showPointEntityModelsCheckBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShowPointEntityModelsChanged, this);
 
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_showEntityClassnamesCheckBox);
-            sizer->Add(m_showGroupBoundsCheckBox);
-            sizer->Add(m_showBrushEntityBoundsCheckBox);
-            sizer->Add(m_showPointEntityBoundsCheckBox);
-            sizer->Add(m_showPointEntitiesCheckBox);
-            sizer->Add(m_showPointEntityModelsCheckBox);
+            auto* sizer = new QVBoxLayout();
+            sizer->addWidget(m_showEntityClassnamesCheckBox);
+            sizer->addWidget(m_showGroupBoundsCheckBox);
+            sizer->addWidget(m_showBrushEntityBoundsCheckBox);
+            sizer->addWidget(m_showPointEntityBoundsCheckBox);
+            sizer->addWidget(m_showPointEntitiesCheckBox);
+            sizer->addWidget(m_showPointEntityModelsCheckBox);
 
             panel->getPanel()->SetSizerAndFit(sizer);
             return panel;
@@ -495,10 +495,10 @@ namespace TrenchBroom {
             QLabel* msg = new QLabel(parent, wxID_ANY, "No brush content types found");
             msg->SetForegroundColour(*wxLIGHT_GREY);
 
-            wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-            sizer->AddSpacer(LayoutConstants::WideHMargin);
-            sizer->Add(msg, wxSizerFlags().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
-            sizer->AddSpacer(LayoutConstants::WideHMargin);
+            auto* sizer = new QHBoxLayout();
+            sizer->addSpacing(LayoutConstants::WideHMargin);
+            sizer->addWidget(msg, wxSizerFlags().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
+            sizer->addSpacing(LayoutConstants::WideHMargin);
 
             parent->SetSizerAndFit(sizer);
         }
@@ -506,7 +506,7 @@ namespace TrenchBroom {
         void ViewEditor::createBrushContentTypeFilter(QWidget* parent, const Model::BrushContentType::List& contentTypes) {
             assert(!contentTypes.empty());
 
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+            auto* sizer = new QVBoxLayout();
             for (size_t i = 0; i < contentTypes.size(); ++i) {
                 const Model::BrushContentType& contentType = contentTypes[i];
 
@@ -516,7 +516,7 @@ namespace TrenchBroom {
                 wxCheckBox* checkBox = new wxCheckBox(parent, wxID_ANY, label);
                 m_brushContentTypeCheckBoxes.push_back(checkBox);
 
-                sizer->Add(checkBox);
+                sizer->addWidget(checkBox);
                 checkBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShowBrushContentTypeChanged, this);
             }
             parent->SetSizerAndFit(sizer);
@@ -542,12 +542,12 @@ namespace TrenchBroom {
             m_showEdgesCheckBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShowEdgesChanged, this);
             m_entityLinkRadioGroup->Bind(wxEVT_RADIOGROUP, &ViewEditor::OnEntityLinkModeChanged, this);
 
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_renderModeRadioGroup);
-            sizer->Add(m_shadeFacesCheckBox);
-            sizer->Add(m_showFogCheckBox);
-            sizer->Add(m_showEdgesCheckBox);
-            sizer->Add(m_entityLinkRadioGroup);
+            auto* sizer = new QVBoxLayout();
+            sizer->addWidget(m_renderModeRadioGroup);
+            sizer->addWidget(m_shadeFacesCheckBox);
+            sizer->addWidget(m_showFogCheckBox);
+            sizer->addWidget(m_showEdgesCheckBox);
+            sizer->addWidget(m_entityLinkRadioGroup);
 
             inner->SetSizerAndFit(sizer);
             return panel;
@@ -618,16 +618,16 @@ namespace TrenchBroom {
             BorderPanel* editorContainer = new BorderPanel(m_button->GetPopupWindow(), wxALL);
             m_editor = new ViewEditor(editorContainer, document);
 
-            wxSizer* containerSizer = new wxBoxSizer(wxVERTICAL);
+            auto* containerSizer = new QVBoxLayout();
             containerSizer->Add(m_editor, wxSizerFlags().Border(wxALL, LayoutConstants::DialogOuterMargin));
             editorContainer->SetSizer(containerSizer);
 
-            wxSizer* popupSizer = new wxBoxSizer(wxVERTICAL);
+            auto* popupSizer = new QVBoxLayout();
             popupSizer->Add(editorContainer, wxSizerFlags());
             m_button->GetPopupWindow()->SetSizer(popupSizer);
 
-            wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-            sizer->Add(m_button, wxSizerFlags().CenterVertical());
+            auto* sizer = new QHBoxLayout();
+            sizer->addWidget(m_button, wxSizerFlags().CenterVertical());
             SetSizerAndFit(sizer);
         }
     }

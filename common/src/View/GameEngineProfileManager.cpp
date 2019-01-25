@@ -53,22 +53,22 @@ namespace TrenchBroom {
             addProfileButton->Bind(wxEVT_UPDATE_UI, &GameEngineProfileManager::OnUpdateAddProfileButtonUI, this);
             removeProfileButton->Bind(wxEVT_UPDATE_UI, &GameEngineProfileManager::OnUpdateRemoveProfileButtonUI, this);
             
-            auto* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+            auto* buttonSizer = new QHBoxLayout();
             buttonSizer->Add(addProfileButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             buttonSizer->Add(removeProfileButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             buttonSizer->AddStretchSpacer();
             
-            auto* listSizer = new wxBoxSizer(wxVERTICAL);
+            auto* listSizer = new QVBoxLayout();
             listSizer->Add(m_profileList, 1, wxEXPAND);
             listSizer->Add(new BorderLine(listPanel->getPanel(), BorderLine::Direction_Horizontal), 0, wxEXPAND);
             listSizer->Add(buttonSizer);
             listPanel->getPanel()->SetSizer(listSizer);
             
-            auto* editorSizer = new wxBoxSizer(wxVERTICAL);
+            auto* editorSizer = new QVBoxLayout();
             editorSizer->Add(m_profileEditor, 1, wxEXPAND);
             editorPanel->getPanel()->SetSizer(editorSizer);
             
-            auto* outerSizer = new wxBoxSizer(wxHORIZONTAL);
+            auto* outerSizer = new QHBoxLayout();
             outerSizer->Add(listPanel, 0, wxEXPAND);
             outerSizer->Add(new BorderLine(this, BorderLine::Direction_Vertical), 0, wxEXPAND);
             outerSizer->Add(editorPanel, 1, wxEXPAND);

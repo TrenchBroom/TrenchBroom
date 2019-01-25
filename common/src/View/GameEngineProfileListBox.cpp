@@ -24,7 +24,7 @@
 #include "View/wxUtils.h"
 
 #include <wx/settings.h>
-#include <wx/stattext.h>
+#include <QLabel>
 #include <wx/sizer.h>
 
 namespace TrenchBroom {
@@ -72,14 +72,14 @@ namespace TrenchBroom {
                 m_pathText->SetWindowVariant(wxWINDOW_VARIANT_SMALL);
 #endif
                 
-                wxSizer* vSizer = new wxBoxSizer(wxVERTICAL);
+                auto* vSizer = new QVBoxLayout();
                 vSizer->Add(m_nameText, wxSizerFlags().Expand());
                 vSizer->Add(m_pathText, wxSizerFlags().Expand());
                 
-                wxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
-                hSizer->AddSpacer(margins.x);
+                auto* hSizer = new QHBoxLayout();
+                hSizer->addSpacing(margins.x);
                 hSizer->Add(vSizer, wxSizerFlags().Expand().Proportion(1).Border(wxTOP | wxBOTTOM, margins.y));
-                hSizer->AddSpacer(margins.x);
+                hSizer->addSpacing(margins.x);
                 
                 SetSizer(hSizer);
                 

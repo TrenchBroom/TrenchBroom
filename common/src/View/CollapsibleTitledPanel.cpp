@@ -23,7 +23,7 @@
 #include "View/ViewConstants.h"
 
 #include <wx/sizer.h>
-#include <wx/stattext.h>
+#include <QLabel>
 
 wxDEFINE_EVENT(TITLE_BAR_CLICK, wxCommandEvent);
 
@@ -36,7 +36,7 @@ namespace TrenchBroom {
             m_stateText->SetForegroundColour(*wxLIGHT_GREY);
             
             GetSizer()->Add(m_stateText, 0, wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            GetSizer()->AddSpacer(LayoutConstants::NarrowHMargin);
+            GetSizer()->addSpacing(LayoutConstants::NarrowHMargin);
             Layout();
             
             Bind(wxEVT_LEFT_DOWN, &CollapsibleTitleBar::OnClick, this);
@@ -63,10 +63,10 @@ namespace TrenchBroom {
         m_divider(new BorderLine(this, BorderLine::Direction_Horizontal)),
         m_panel(new QWidget(this)),
         m_expanded(initiallyExpanded) {
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_titleBar, 0, wxEXPAND);
-            sizer->Add(m_divider, 0, wxEXPAND);
-            sizer->Add(m_panel, 1, wxEXPAND);
+            auto* sizer = new QVBoxLayout();
+            sizer->addWidget(m_titleBar, 0, wxEXPAND);
+            sizer->addWidget(m_divider, 0, wxEXPAND);
+            sizer->addWidget(m_panel, 1, wxEXPAND);
             SetSizer(sizer);
             
             m_titleBar->Bind(TITLE_BAR_CLICK, &CollapsibleTitledPanel::OnTitleBarClick, this);

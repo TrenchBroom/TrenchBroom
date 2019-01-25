@@ -26,7 +26,7 @@
 #include <wx/gbsizer.h>
 #include <wx/panel.h>
 #include <wx/radiobut.h>
-#include <wx/stattext.h>
+#include <QLabel>
 
 namespace TrenchBroom {
     namespace View {
@@ -113,12 +113,12 @@ namespace TrenchBroom {
             innerSizer->Add(18, 1, wxGBPosition(12, 0), wxGBSpan(1, 1));
             innerSizer->Add(gameRelativePathText, wxGBPosition(12, 1), wxGBSpan(1, 1));
             
-            wxSizer* panelSizer = new wxBoxSizer(wxVERTICAL);
+            auto* panelSizer = new QVBoxLayout();
             panelSizer->Add(innerSizer, 1, wxEXPAND | wxALL, LayoutConstants::DialogOuterMargin);
             panel->SetSizerAndFit(panelSizer);
             
             wxSizer* buttonSizer = CreateStdDialogButtonSizer(wxOK | wxCANCEL);
-            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
+            auto* outerSizer = new QVBoxLayout();
             outerSizer->Add(panel, 1, wxEXPAND);
             outerSizer->Add(wrapDialogButtonSizer(buttonSizer, this), 0, wxEXPAND);
             

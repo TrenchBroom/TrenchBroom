@@ -30,7 +30,7 @@
 #include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/statbox.h>
-#include <wx/stattext.h>
+#include <QLabel>
 
 #include <cassert>
 
@@ -42,7 +42,7 @@ namespace TrenchBroom {
         m_table(nullptr) {
             QWidget* menuShortcutGrid = createMenuShortcutGrid();
             
-            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
+            auto* outerSizer = new QVBoxLayout();
             outerSizer->Add(menuShortcutGrid, 1, wxEXPAND);
             outerSizer->SetItemMinSize(menuShortcutGrid, 900, 550);
             SetSizerAndFit(outerSizer);
@@ -91,12 +91,12 @@ namespace TrenchBroom {
             infoText->SetFont(*wxSMALL_FONT);
 #endif
             
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_grid, 1, wxEXPAND);
-            sizer->Add(new BorderLine(container, BorderLine::Direction_Horizontal), 0, wxEXPAND);
-            sizer->AddSpacer(LayoutConstants::WideVMargin);
-            sizer->Add(infoText, 0, wxALIGN_CENTER);
-            sizer->AddSpacer(LayoutConstants::NarrowVMargin);
+            auto* sizer = new QVBoxLayout();
+            sizer->addWidget(m_grid, 1, wxEXPAND);
+            sizer->addWidget(new BorderLine(container, BorderLine::Direction_Horizontal), 0, wxEXPAND);
+            sizer->addSpacing(LayoutConstants::WideVMargin);
+            sizer->addWidget(infoText, 0, wxALIGN_CENTER);
+            sizer->addSpacing(LayoutConstants::NarrowVMargin);
             container->SetSizer(sizer);
 
             return container;

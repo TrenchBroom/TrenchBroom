@@ -41,10 +41,10 @@ namespace TrenchBroom {
         }
 
         void MapInspector::createGui(MapDocumentWPtr document, GLContextManager& contextManager) {
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(createLayerEditor(this, document), 1, wxEXPAND);
-            sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
-            sizer->Add(createModEditor(this, document), 0, wxEXPAND);
+            auto* sizer = new QVBoxLayout();
+            sizer->addWidget(createLayerEditor(this, document), 1, wxEXPAND);
+            sizer->addWidget(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
+            sizer->addWidget(createModEditor(this, document), 0, wxEXPAND);
             SetSizer(sizer);
         }
 
@@ -52,8 +52,8 @@ namespace TrenchBroom {
             TitledPanel* titledPanel = new TitledPanel(parent, "Layers");
             LayerEditor* layerEditor = new LayerEditor(titledPanel->getPanel(), document);
             
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(layerEditor, 1, wxEXPAND);
+            auto* sizer = new QVBoxLayout();
+            sizer->addWidget(layerEditor, 1, wxEXPAND);
             titledPanel->getPanel()->SetSizer(sizer);
             
             return titledPanel;
@@ -63,8 +63,8 @@ namespace TrenchBroom {
             CollapsibleTitledPanel* titledPanel = new CollapsibleTitledPanel(parent, "Mods", false);
             ModEditor* modEditor = new ModEditor(titledPanel->getPanel(), document);
 
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(modEditor, 1, wxEXPAND);
+            auto* sizer = new QVBoxLayout();
+            sizer->addWidget(modEditor, 1, wxEXPAND);
             titledPanel->getPanel()->SetSizerAndFit(sizer);
             
             return titledPanel;

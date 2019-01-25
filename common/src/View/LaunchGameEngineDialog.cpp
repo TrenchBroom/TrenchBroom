@@ -37,7 +37,7 @@
 #include <wx/msgdlg.h>
 #include <wx/panel.h>
 #include <wx/sizer.h>
-#include <wx/stattext.h>
+#include <QLabel>
 #include <wx/utils.h>
 
 namespace TrenchBroom {
@@ -85,23 +85,23 @@ namespace TrenchBroom {
             
             m_parameterText->SetHelper(new ELAutoCompleteHelper(variables()));
             
-            wxSizer* midLeftSizer = new wxBoxSizer(wxVERTICAL);
-            midLeftSizer->AddSpacer(20);
+            auto* midLeftSizer = new QVBoxLayout();
+            midLeftSizer->addSpacing(20);
             midLeftSizer->Add(header, wxSizerFlags().Expand());
-            midLeftSizer->AddSpacer(20);
+            midLeftSizer->addSpacing(20);
             midLeftSizer->Add(message, wxSizerFlags().Expand());
-            midLeftSizer->AddSpacer(10);
+            midLeftSizer->addSpacing(10);
             midLeftSizer->Add(openPreferencesButton, wxSizerFlags().CenterHorizontal());
             midLeftSizer->AddStretchSpacer();
             midLeftSizer->Add(parameterLabel);
-            midLeftSizer->AddSpacer(LayoutConstants::NarrowVMargin);
+            midLeftSizer->addSpacing(LayoutConstants::NarrowVMargin);
             midLeftSizer->Add(m_parameterText, wxSizerFlags().Expand());
-            midLeftSizer->AddSpacer(20);
+            midLeftSizer->addSpacing(20);
             
-            wxSizer* midSizer = new wxBoxSizer(wxHORIZONTAL);
-            midSizer->AddSpacer(20);
+            auto* midSizer = new QHBoxLayout();
+            midSizer->addSpacing(20);
             midSizer->Add(midLeftSizer, wxSizerFlags().Expand().Proportion(1));
-            midSizer->AddSpacer(20);
+            midSizer->addSpacing(20);
             midSizer->Add(new BorderLine(midPanel, BorderLine::Direction_Vertical), wxSizerFlags().Expand());
             midSizer->Add(m_gameEngineList, wxSizerFlags().Expand());
             midSizer->SetItemMinSize(m_gameEngineList, wxSize(250, 280));
@@ -120,7 +120,7 @@ namespace TrenchBroom {
             buttonSizer->SetAffirmativeButton(launchButton);
             buttonSizer->Realize();
 
-            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
+            auto* outerSizer = new QVBoxLayout();
             outerSizer->Add(gameIndicator, wxSizerFlags().Expand());
             outerSizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
             outerSizer->Add(midPanel, wxSizerFlags().Expand().Proportion(1));

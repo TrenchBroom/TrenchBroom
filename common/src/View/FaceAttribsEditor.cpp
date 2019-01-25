@@ -44,7 +44,7 @@
 #include <wx/button.h>
 #include <wx/gbsizer.h>
 #include <wx/sizer.h>
-#include <wx/stattext.h>
+#include <QLabel>
 #include <wx/textctrl.h>
 #include <wx/wupdlock.h>
 
@@ -347,12 +347,12 @@ namespace TrenchBroom {
             m_faceAttribsSizer->SetItemMinSize(m_rotationEditor, 50, m_rotationEditor->GetSize().y);
             m_faceAttribsSizer->SetItemMinSize(m_surfaceValueEditor, 50, m_rotationEditor->GetSize().y);
             
-            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
+            auto* outerSizer = new QVBoxLayout();
             outerSizer->Add(m_uvEditor, 1, wxEXPAND);
             outerSizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
-            outerSizer->AddSpacer(LayoutConstants::WideVMargin);
+            outerSizer->addSpacing(LayoutConstants::WideVMargin);
             outerSizer->Add(m_faceAttribsSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::MediumHMargin);
-            outerSizer->AddSpacer(LayoutConstants::WideVMargin);
+            outerSizer->addSpacing(LayoutConstants::WideVMargin);
             
             SetSizer(outerSizer);
         }

@@ -21,7 +21,7 @@
 
 #include <wx/settings.h>
 #include <wx/sizer.h>
-#include <wx/stattext.h>
+#include <QLabel>
 
 #include "View/ViewConstants.h"
 
@@ -35,11 +35,11 @@ namespace TrenchBroom {
             if (boldTitle)
                 m_titleText->SetFont(m_titleText->GetFont().Bold());
             
-            wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-            sizer->AddSpacer(hMargin);
-            sizer->Add(m_titleText, 0, wxTOP | wxBOTTOM, vMargin);
+            auto* sizer = new QHBoxLayout();
+            sizer->addSpacing(hMargin);
+            sizer->addWidget(m_titleText, 0, wxTOP | wxBOTTOM, vMargin);
             sizer->AddStretchSpacer();
-            sizer->AddSpacer(hMargin);
+            sizer->addSpacing(hMargin);
 
             SetSizer(sizer);
         }

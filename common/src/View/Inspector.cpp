@@ -46,8 +46,8 @@ namespace TrenchBroom {
             m_tabBook->addPage(m_entityInspector, "Entity");
             m_tabBook->addPage(m_faceInspector, "Face");
             
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_tabBook, 1, wxEXPAND);
+            auto* sizer = new QVBoxLayout();
+            sizer->addWidget(m_tabBook, 1, wxEXPAND);
             SetSizer(sizer);
         }
 

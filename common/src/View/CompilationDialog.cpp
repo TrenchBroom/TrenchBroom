@@ -36,7 +36,7 @@
 #include <wx/msgdlg.h>
 #include <wx/settings.h>
 #include <wx/sizer.h>
-#include <wx/stattext.h>
+#include <QLabel>
 #include <wx/textctrl.h>
 
 namespace TrenchBroom {
@@ -70,11 +70,11 @@ namespace TrenchBroom {
 
             splitter->splitHorizontally(m_profileManager, outputPanel, wxSize(100, 100), wxSize(100, 100));
 
-            wxSizer* outputSizer = new wxBoxSizer(wxVERTICAL);
+            auto* outputSizer = new QVBoxLayout();
             outputSizer->Add(m_output, 1, wxEXPAND);
             outputPanel->getPanel()->SetSizer(outputSizer);
 
-            wxSizer* outerPanelSizer = new wxBoxSizer(wxVERTICAL);
+            auto* outerPanelSizer = new QVBoxLayout();
             outerPanelSizer->Add(splitter, 1, wxEXPAND);
             outerPanel->SetSizer(outerPanelSizer);
             
@@ -95,17 +95,17 @@ namespace TrenchBroom {
             
             m_currentRunLabel = new QLabel(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT);
             
-            wxSizer* currentRunLabelSizer = new wxBoxSizer(wxVERTICAL);
+            auto* currentRunLabelSizer = new QVBoxLayout();
             currentRunLabelSizer->AddStretchSpacer();
             currentRunLabelSizer->Add(m_currentRunLabel, wxSizerFlags().Expand());
             currentRunLabelSizer->AddStretchSpacer();
             
-            wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+            auto* buttonSizer = new QHBoxLayout();
             buttonSizer->Add(launchButton, wxSizerFlags().CenterVertical());
             buttonSizer->Add(currentRunLabelSizer, wxSizerFlags().Expand().Proportion(1).Border(wxLEFT | wxRIGHT, LayoutConstants::WideHMargin));
             buttonSizer->Add(stdButtonSizer);
             
-            wxSizer* dialogSizer = new wxBoxSizer(wxVERTICAL);
+            auto* dialogSizer = new QVBoxLayout();
             dialogSizer->Add(outerPanel, wxSizerFlags().Expand().Proportion(1));
             dialogSizer->Add(wrapDialogButtonSizer(buttonSizer, this), wxSizerFlags().Expand());
             SetSizer(dialogSizer);

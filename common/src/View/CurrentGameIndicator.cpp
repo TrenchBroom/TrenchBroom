@@ -26,7 +26,7 @@
 #include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/statbmp.h>
-#include <wx/stattext.h>
+#include <QLabel>
 
 namespace TrenchBroom {
     namespace View {
@@ -46,11 +46,11 @@ namespace TrenchBroom {
             QLabel* gameNameText = new QLabel(this, wxID_ANY, gameName);
             gameNameText->SetFont(gameNameText->GetFont().Larger().Larger().Bold());
             
-            wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-            sizer->AddSpacer(LayoutConstants::WideHMargin);
-            sizer->Add(gameIconImg, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::WideVMargin));
-            sizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            sizer->Add(gameNameText, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::WideVMargin));
+            auto* sizer = new QHBoxLayout();
+            sizer->addSpacing(LayoutConstants::WideHMargin);
+            sizer->addWidget(gameIconImg, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::WideVMargin));
+            sizer->addSpacing(LayoutConstants::NarrowHMargin);
+            sizer->addWidget(gameNameText, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::WideVMargin));
             SetSizer(sizer);
         }
     }

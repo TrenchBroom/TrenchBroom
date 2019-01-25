@@ -125,7 +125,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             m_view = new TextureBrowserView(browserPanel, m_scrollBar, contextManager, document->textureManager());
             
-            wxSizer* browserPanelSizer = new wxBoxSizer(wxHORIZONTAL);
+            auto* browserPanelSizer = new QHBoxLayout();
             browserPanelSizer->Add(m_view, 1, wxEXPAND);
             browserPanelSizer->Add(m_scrollBar, 0, wxEXPAND);
             browserPanel->SetSizer(browserPanelSizer);
@@ -144,21 +144,21 @@ namespace TrenchBroom {
             m_filterBox = new wxSearchCtrl(this, wxID_ANY);
             m_filterBox->ShowCancelButton(true);
             
-            wxSizer* controlSizer = new wxBoxSizer(wxHORIZONTAL);
-            controlSizer->AddSpacer(LayoutConstants::ChoiceLeftMargin);
+            auto* controlSizer = new QHBoxLayout();
+            controlSizer->addSpacing(LayoutConstants::ChoiceLeftMargin);
             controlSizer->Add(m_sortOrderChoice, 0, wxTOP, LayoutConstants::ChoiceTopMargin);
-            controlSizer->AddSpacer(LayoutConstants::NarrowHMargin);
+            controlSizer->addSpacing(LayoutConstants::NarrowHMargin);
             controlSizer->Add(m_groupButton);
-            controlSizer->AddSpacer(LayoutConstants::NarrowHMargin);
+            controlSizer->addSpacing(LayoutConstants::NarrowHMargin);
             controlSizer->Add(m_usedButton);
-            controlSizer->AddSpacer(LayoutConstants::NarrowHMargin);
+            controlSizer->addSpacing(LayoutConstants::NarrowHMargin);
             controlSizer->Add(m_filterBox, 1, wxEXPAND);
             
-            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
+            auto* outerSizer = new QVBoxLayout();
             outerSizer->Add(browserPanel, 1, wxEXPAND);
-            outerSizer->AddSpacer(LayoutConstants::NarrowVMargin);
+            outerSizer->addSpacing(LayoutConstants::NarrowVMargin);
             outerSizer->Add(controlSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
-            outerSizer->AddSpacer(LayoutConstants::NarrowVMargin);
+            outerSizer->addSpacing(LayoutConstants::NarrowVMargin);
 
             SetSizer(outerSizer);
         }

@@ -54,7 +54,7 @@ namespace TrenchBroom {
                                         createEntityBrowser(splitter, document, contextManager),
                                         wxSize(100, 150), wxSize(100, 150));
             
-            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
+            auto* outerSizer = new QVBoxLayout();
             outerSizer->Add(splitter, 1, wxEXPAND);
             outerSizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
             outerSizer->Add(createEntityDefinitionFileChooser(this, document), 0, wxEXPAND);
@@ -72,8 +72,8 @@ namespace TrenchBroom {
             TitledPanel* panel = new TitledPanel(parent, "Entity Browser");
             m_entityBrowser = new EntityBrowser(panel->getPanel(), document, contextManager);
             
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_entityBrowser, 1, wxEXPAND);
+            auto* sizer = new QVBoxLayout();
+            sizer->addWidget(m_entityBrowser, 1, wxEXPAND);
             panel->getPanel()->SetSizer(sizer);
             
             return panel;
@@ -83,8 +83,8 @@ namespace TrenchBroom {
             CollapsibleTitledPanel* panel = new CollapsibleTitledPanel(parent, "Entity Definitions", false);
             m_entityDefinitionFileChooser = new EntityDefinitionFileChooser(panel->getPanel(), document);
 
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_entityDefinitionFileChooser, 1, wxEXPAND);
+            auto* sizer = new QVBoxLayout();
+            sizer->addWidget(m_entityDefinitionFileChooser, 1, wxEXPAND);
             panel->getPanel()->SetSizer(sizer);
 
             return panel;

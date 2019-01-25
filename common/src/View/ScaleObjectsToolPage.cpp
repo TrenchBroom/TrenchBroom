@@ -33,7 +33,7 @@
 #include <wx/choice.h>
 #include <wx/simplebook.h>
 #include <wx/sizer.h>
-#include <wx/stattext.h>
+#include <QLabel>
 #include <wx/combobox.h>
 #include <wx/simplebook.h>
 
@@ -82,14 +82,14 @@ namespace TrenchBroom {
             m_button->Bind(wxEVT_UPDATE_UI, &ScaleObjectsToolPage::OnUpdateButton, this);
             m_button->Bind(wxEVT_BUTTON, &ScaleObjectsToolPage::OnApply, this);
             
-            wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-            sizer->Add(text, 0, wxALIGN_CENTER_VERTICAL);
-            sizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            sizer->Add(m_scaleFactorsOrSize, 0, wxALIGN_CENTER_VERTICAL);
-            sizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            sizer->Add(m_book, 0, wxALIGN_CENTER_VERTICAL);
-            sizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            sizer->Add(m_button, 0, wxALIGN_CENTER_VERTICAL);
+            wxBoxSizer* sizer = new QHBoxLayout();
+            sizer->addWidget(text, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->addSpacing(LayoutConstants::NarrowHMargin);
+            sizer->addWidget(m_scaleFactorsOrSize, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->addSpacing(LayoutConstants::NarrowHMargin);
+            sizer->addWidget(m_book, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->addSpacing(LayoutConstants::NarrowHMargin);
+            sizer->addWidget(m_button, 0, wxALIGN_CENTER_VERTICAL);
             
             SetSizer(sizer);
         }

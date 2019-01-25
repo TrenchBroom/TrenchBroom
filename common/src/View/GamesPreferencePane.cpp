@@ -38,7 +38,7 @@
 #include <wx/simplebook.h>
 #include <wx/sizer.h>
 #include <wx/settings.h>
-#include <wx/stattext.h>
+#include <QLabel>
 #include <wx/textctrl.h>
 
 namespace TrenchBroom {
@@ -90,17 +90,17 @@ namespace TrenchBroom {
             m_book->AddPage(createGamePreferencesPage(m_book), "Game");
             m_book->SetSelection(0);
             
-            auto* prefMarginSizer = new wxBoxSizer(wxVERTICAL);
-            prefMarginSizer->AddSpacer(LayoutConstants::WideVMargin);
+            auto* prefMarginSizer = new QVBoxLayout();
+            prefMarginSizer->addSpacing(LayoutConstants::WideVMargin);
             prefMarginSizer->Add(m_book, wxSizerFlags().Expand());
-            prefMarginSizer->AddSpacer(LayoutConstants::WideVMargin);
+            prefMarginSizer->addSpacing(LayoutConstants::WideVMargin);
             
-            auto* sizer = new wxBoxSizer(wxHORIZONTAL);
-            sizer->Add(m_gameListBox, wxSizerFlags().Expand());
-            sizer->Add(new BorderLine(this, BorderLine::Direction_Vertical), wxSizerFlags().Expand());
-            sizer->AddSpacer(LayoutConstants::WideVMargin);
-            sizer->Add(prefMarginSizer, wxSizerFlags().Expand().Proportion(1));
-            sizer->AddSpacer(LayoutConstants::WideVMargin);
+            auto* sizer = new QHBoxLayout();
+            sizer->addWidget(m_gameListBox, wxSizerFlags().Expand());
+            sizer->addWidget(new BorderLine(this, BorderLine::Direction_Vertical), wxSizerFlags().Expand());
+            sizer->addSpacing(LayoutConstants::WideVMargin);
+            sizer->addWidget(prefMarginSizer, wxSizerFlags().Expand().Proportion(1));
+            sizer->addSpacing(LayoutConstants::WideVMargin);
             sizer->SetItemMinSize(m_gameListBox, 200, 200);
             
             SetSizer(sizer);

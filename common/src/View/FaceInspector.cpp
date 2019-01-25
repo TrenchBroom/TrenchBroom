@@ -68,7 +68,7 @@ namespace TrenchBroom {
                                         createTextureBrowser(splitter, document, contextManager),
                                         wxSize(100, 200), wxSize(100, 200));
             
-            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
+            auto* outerSizer = new QVBoxLayout();
             outerSizer->Add(splitter, 1, wxEXPAND);
             outerSizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
             outerSizer->Add(createTextureCollectionEditor(this, document), 0, wxEXPAND);
@@ -86,8 +86,8 @@ namespace TrenchBroom {
             TitledPanel* panel = new TitledPanel(parent, "Texture Browser");
             m_textureBrowser = new TextureBrowser(panel->getPanel(), document, contextManager);
 
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_textureBrowser, 1, wxEXPAND);
+            auto* sizer = new QVBoxLayout();
+            sizer->addWidget(m_textureBrowser, 1, wxEXPAND);
             panel->getPanel()->SetSizer(sizer);
             
             return panel;
@@ -97,8 +97,8 @@ namespace TrenchBroom {
             CollapsibleTitledPanel* panel = new CollapsibleTitledPanel(parent, "Texture Collections", false);
             QWidget* collectionEditor = new TextureCollectionEditor(panel->getPanel(), document);
             
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(collectionEditor, 1, wxEXPAND);
+            auto* sizer = new QVBoxLayout();
+            sizer->addWidget(collectionEditor, 1, wxEXPAND);
             panel->getPanel()->SetSizer(sizer);
             
             return panel;

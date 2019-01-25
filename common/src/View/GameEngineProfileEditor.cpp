@@ -30,7 +30,7 @@
 #include <wx/gbsizer.h>
 #include <wx/settings.h>
 #include <wx/simplebook.h>
-#include <wx/stattext.h>
+#include <QLabel>
 #include <wx/textctrl.h>
 
 namespace TrenchBroom {
@@ -49,7 +49,7 @@ namespace TrenchBroom {
             m_book->AddPage(createEditorPage(m_book), "Editor");
             m_book->SetSelection(0);
 
-            auto* bookSizer = new wxBoxSizer(wxVERTICAL);
+            auto* bookSizer = new QVBoxLayout();
             bookSizer->Add(m_book, wxSizerFlags().Expand().Proportion(1));
             SetSizer(bookSizer);
         }
@@ -90,10 +90,10 @@ namespace TrenchBroom {
             containerInnerSizer->Add(choosePathButton,  wxGBPosition(1,2), wxDefaultSpan, wxALIGN_CENTER_VERTICAL);
             containerInnerSizer->AddGrowableCol(1);
 
-            auto* containerOuterSizer = new wxBoxSizer(wxVERTICAL);
-            containerOuterSizer->AddSpacer(LayoutConstants::WideVMargin);
+            auto* containerOuterSizer = new QVBoxLayout();
+            containerOuterSizer->addSpacing(LayoutConstants::WideVMargin);
             containerOuterSizer->Add(containerInnerSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::MediumHMargin);
-            containerOuterSizer->AddSpacer(LayoutConstants::WideVMargin);
+            containerOuterSizer->addSpacing(LayoutConstants::WideVMargin);
 
             containerPanel->SetSizer(containerOuterSizer);
             return containerPanel;

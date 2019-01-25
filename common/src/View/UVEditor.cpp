@@ -28,7 +28,7 @@
 #include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/spinctrl.h>
-#include <wx/stattext.h>
+#include <QLabel>
 #include <wx/textctrl.h>
 
 namespace TrenchBroom {
@@ -142,7 +142,7 @@ namespace TrenchBroom {
             m_xSubDivisionEditor->Bind(wxEVT_SPINCTRL, &UVEditor::OnSubDivisionChanged, this);
             m_ySubDivisionEditor->Bind(wxEVT_SPINCTRL, &UVEditor::OnSubDivisionChanged, this);
 
-            wxSizer* bottomSizer = new wxBoxSizer(wxHORIZONTAL);
+            auto* bottomSizer = new QHBoxLayout();
             bottomSizer->Add(resetTextureButton,                   0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::NarrowHMargin);
             bottomSizer->Add(flipTextureHButton,                   0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::NarrowHMargin);
             bottomSizer->Add(flipTextureVButton,                   0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::NarrowHMargin);
@@ -157,11 +157,11 @@ namespace TrenchBroom {
             bottomSizer->SetItemMinSize(m_xSubDivisionEditor, 50, m_xSubDivisionEditor->GetSize().y);
             bottomSizer->SetItemMinSize(m_ySubDivisionEditor, 50, m_ySubDivisionEditor->GetSize().y);
             
-            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
+            auto* outerSizer = new QVBoxLayout();
             outerSizer->Add(m_uvView, 1, wxEXPAND);
-            outerSizer->AddSpacer(LayoutConstants::NarrowVMargin);
+            outerSizer->addSpacing(LayoutConstants::NarrowVMargin);
             outerSizer->Add(bottomSizer, 0, wxLEFT | wxRIGHT | wxEXPAND, LayoutConstants::MediumHMargin);
-            outerSizer->AddSpacer(LayoutConstants::NarrowVMargin);
+            outerSizer->addSpacing(LayoutConstants::NarrowVMargin);
             
             SetSizer(outerSizer);
         }

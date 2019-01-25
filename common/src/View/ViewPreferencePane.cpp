@@ -36,7 +36,7 @@
 #include <wx/gbsizer.h>
 #include <wx/sizer.h>
 #include <wx/slider.h>
-#include <wx/stattext.h>
+#include <QLabel>
 #include <wx/layout.h>
 #include <wx/valnum.h>
 
@@ -207,10 +207,10 @@ namespace TrenchBroom {
         void ViewPreferencePane::createGui() {
             auto* viewPreferences = createViewPreferences();
             
-            auto* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->AddSpacer(LayoutConstants::NarrowVMargin);
-            sizer->Add(viewPreferences, 1, wxEXPAND);
-            sizer->AddSpacer(LayoutConstants::WideVMargin);
+            auto* sizer = new QVBoxLayout();
+            sizer->addSpacing(LayoutConstants::NarrowVMargin);
+            sizer->addWidget(viewPreferences, 1, wxEXPAND);
+            sizer->addSpacing(LayoutConstants::WideVMargin);
             
             SetMinSize(sizer->GetMinSize());
             SetSizer(sizer);
@@ -303,87 +303,87 @@ namespace TrenchBroom {
             int r = 0;
             
             auto* sizer = new wxGridBagSizer(LayoutConstants::NarrowVMargin, LayoutConstants::WideHMargin);
-            sizer->Add(viewPrefsHeader,                     wxGBPosition( r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
+            sizer->addWidget(viewPrefsHeader,                     wxGBPosition( r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
             ++r;
             
-            sizer->Add(layoutLabel,                         wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_layoutChoice,                      wxGBPosition( r, 1), wxDefaultSpan, ChoiceFlags, HMargin);
+            sizer->addWidget(layoutLabel,                         wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->addWidget(m_layoutChoice,                      wxGBPosition( r, 1), wxDefaultSpan, ChoiceFlags, HMargin);
             ++r;
             
-            sizer->Add(brightnessLabel,                     wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_brightnessSlider,                  wxGBPosition( r, 1), wxDefaultSpan, SliderFlags, HMargin);
+            sizer->addWidget(brightnessLabel,                     wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->addWidget(m_brightnessSlider,                  wxGBPosition( r, 1), wxDefaultSpan, SliderFlags, HMargin);
             ++r;
-            sizer->Add(0, LMargin,                          wxGBPosition( r, 0), wxGBSpan(1,2));
+            sizer->addWidget(0, LMargin,                          wxGBPosition( r, 0), wxGBSpan(1,2));
             ++r;
 
-            sizer->Add(gridLabel,                           wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_gridAlphaSlider,                   wxGBPosition( r, 1), wxDefaultSpan, SliderFlags, HMargin);
+            sizer->addWidget(gridLabel,                           wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->addWidget(m_gridAlphaSlider,                   wxGBPosition( r, 1), wxDefaultSpan, SliderFlags, HMargin);
             ++r;
-            sizer->Add(0, LMargin,                          wxGBPosition( r, 0), wxGBSpan(1,2));
-            ++r;
-
-            sizer->Add(fovLabel,                            wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_fovSlider,                         wxGBPosition( r, 1), wxDefaultSpan, SliderFlags, HMargin);
-            ++r;
-            sizer->Add(0, LMargin,                          wxGBPosition( r, 0), wxGBSpan(1,2));
+            sizer->addWidget(0, LMargin,                          wxGBPosition( r, 0), wxGBSpan(1,2));
             ++r;
 
-            sizer->Add(axesLabel,                           wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_showAxes,                          wxGBPosition( r, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
+            sizer->addWidget(fovLabel,                            wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->addWidget(m_fovSlider,                         wxGBPosition( r, 1), wxDefaultSpan, SliderFlags, HMargin);
             ++r;
-            
-            sizer->Add(textureModeLabel,                    wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_textureModeChoice,                 wxGBPosition( r, 1), wxDefaultSpan, ChoiceFlags, HMargin);
-            ++r;
-            
-            sizer->Add(0, LayoutConstants::ChoiceSizeDelta, wxGBPosition( r, 0), wxGBSpan(1,2));
+            sizer->addWidget(0, LMargin,                          wxGBPosition( r, 0), wxGBSpan(1,2));
             ++r;
 
-
-            
-            sizer->Add(new BorderLine(viewBox),             wxGBPosition( r, 0), wxGBSpan(1,2), LineFlags, LMargin);
+            sizer->addWidget(axesLabel,                           wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->addWidget(m_showAxes,                          wxGBPosition( r, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
             ++r;
             
-            sizer->Add(colorPrefsHeader,                    wxGBPosition( r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
+            sizer->addWidget(textureModeLabel,                    wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->addWidget(m_textureModeChoice,                 wxGBPosition( r, 1), wxDefaultSpan, ChoiceFlags, HMargin);
             ++r;
             
-            sizer->Add(backgroundColorLabel,                wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_backgroundColorPicker,             wxGBPosition( r, 1), wxDefaultSpan, ColorPickerFlags, HMargin);
-            ++r;
-            
-            sizer->Add(gridColorLabel,                      wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_gridColorPicker,                   wxGBPosition( r, 1), wxDefaultSpan, ColorPickerFlags, HMargin);
-            ++r;
-            
-            sizer->Add(edgeColorLabel,                      wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_edgeColorPicker,                   wxGBPosition( r, 1), wxDefaultSpan, ColorPickerFlags, HMargin);
-            ++r;
-            
-
-            
-            sizer->Add(new BorderLine(viewBox),             wxGBPosition( r, 0), wxGBSpan(1,2), LineFlags, LMargin);
-            ++r;
-            
-            sizer->Add(textureBrowserPrefsHeader,           wxGBPosition( r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
-            ++r;
-
-            sizer->Add(textureBrowserIconSizeLabel,         wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_textureBrowserIconSizeChoice,      wxGBPosition( r, 1), wxDefaultSpan, ChoiceFlags, HMargin);
+            sizer->addWidget(0, LayoutConstants::ChoiceSizeDelta, wxGBPosition( r, 0), wxGBSpan(1,2));
             ++r;
 
 
             
-            sizer->Add(new BorderLine(viewBox),             wxGBPosition( r, 0), wxGBSpan(1,2), LineFlags, LMargin);
+            sizer->addWidget(new BorderLine(viewBox),             wxGBPosition( r, 0), wxGBSpan(1,2), LineFlags, LMargin);
+            ++r;
+            
+            sizer->addWidget(colorPrefsHeader,                    wxGBPosition( r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
+            ++r;
+            
+            sizer->addWidget(backgroundColorLabel,                wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->addWidget(m_backgroundColorPicker,             wxGBPosition( r, 1), wxDefaultSpan, ColorPickerFlags, HMargin);
+            ++r;
+            
+            sizer->addWidget(gridColorLabel,                      wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->addWidget(m_gridColorPicker,                   wxGBPosition( r, 1), wxDefaultSpan, ColorPickerFlags, HMargin);
+            ++r;
+            
+            sizer->addWidget(edgeColorLabel,                      wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->addWidget(m_edgeColorPicker,                   wxGBPosition( r, 1), wxDefaultSpan, ColorPickerFlags, HMargin);
+            ++r;
+            
+
+            
+            sizer->addWidget(new BorderLine(viewBox),             wxGBPosition( r, 0), wxGBSpan(1,2), LineFlags, LMargin);
+            ++r;
+            
+            sizer->addWidget(textureBrowserPrefsHeader,           wxGBPosition( r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
             ++r;
 
-            sizer->Add(fontPrefsHeader,                     wxGBPosition( r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
+            sizer->addWidget(textureBrowserIconSizeLabel,         wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->addWidget(m_textureBrowserIconSizeChoice,      wxGBPosition( r, 1), wxDefaultSpan, ChoiceFlags, HMargin);
             ++r;
 
-            sizer->Add(fontPrefsRendererFontSizeLabel,      wxGBPosition( r, 0), wxDefaultSpan, LabelFlags,  HMargin);
-            sizer->Add(m_fontPrefsRendererFontSizeCombo,    wxGBPosition( r, 1), wxDefaultSpan, ChoiceFlags, HMargin);
+
+            
+            sizer->addWidget(new BorderLine(viewBox),             wxGBPosition( r, 0), wxGBSpan(1,2), LineFlags, LMargin);
+            ++r;
+
+            sizer->addWidget(fontPrefsHeader,                     wxGBPosition( r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
+            ++r;
+
+            sizer->addWidget(fontPrefsRendererFontSizeLabel,      wxGBPosition( r, 0), wxDefaultSpan, LabelFlags,  HMargin);
+            sizer->addWidget(m_fontPrefsRendererFontSizeCombo,    wxGBPosition( r, 1), wxDefaultSpan, ChoiceFlags, HMargin);
             ++r;
  
-            sizer->Add(0, LayoutConstants::ChoiceSizeDelta, wxGBPosition( r, 0), wxGBSpan(1,2));
+            sizer->addWidget(0, LayoutConstants::ChoiceSizeDelta, wxGBPosition( r, 0), wxGBSpan(1,2));
             
             sizer->AddGrowableCol(1);
             sizer->SetMinSize(500, wxDefaultCoord);

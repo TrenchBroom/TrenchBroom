@@ -31,7 +31,7 @@
 #include <wx/gbsizer.h>
 #include <wx/sizer.h>
 #include <wx/slider.h>
-#include <wx/stattext.h>
+#include <QLabel>
 
 #include <algorithm>
 
@@ -227,10 +227,10 @@ namespace TrenchBroom {
         void MousePreferencePane::createGui() {
             QWidget* mousePreferences = createCameraPreferences();
 
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->AddSpacer(LayoutConstants::NarrowVMargin);
-            sizer->Add(mousePreferences, 1, wxEXPAND);
-            sizer->AddSpacer(LayoutConstants::WideVMargin);
+            auto* sizer = new QVBoxLayout();
+            sizer->addSpacing(LayoutConstants::NarrowVMargin);
+            sizer->addWidget(mousePreferences, 1, wxEXPAND);
+            sizer->addSpacing(LayoutConstants::WideVMargin);
             
             SetMinSize(sizer->GetMinSize());
             SetSizer(sizer);
@@ -300,90 +300,90 @@ namespace TrenchBroom {
             int r = 0;
             
             wxGridBagSizer* sizer = new wxGridBagSizer(LayoutConstants::NarrowVMargin, LayoutConstants::WideHMargin);
-            sizer->Add(lookPrefsHeader,             wxGBPosition(r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
+            sizer->addWidget(lookPrefsHeader,             wxGBPosition(r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
             ++r;
             
-            sizer->Add(lookSpeedLabel,              wxGBPosition(r, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_lookSpeedSlider,           wxGBPosition(r, 1), wxDefaultSpan, SliderFlags, HMargin);
+            sizer->addWidget(lookSpeedLabel,              wxGBPosition(r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->addWidget(m_lookSpeedSlider,           wxGBPosition(r, 1), wxDefaultSpan, SliderFlags, HMargin);
             ++r;
             
-            sizer->Add(m_invertLookHAxisCheckBox,   wxGBPosition(r, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
+            sizer->addWidget(m_invertLookHAxisCheckBox,   wxGBPosition(r, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
             ++r;
             
-            sizer->Add(m_invertLookVAxisCheckBox,   wxGBPosition(r, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
+            sizer->addWidget(m_invertLookVAxisCheckBox,   wxGBPosition(r, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
             ++r;
             
-            sizer->Add(new BorderLine(box),         wxGBPosition(r, 0), wxGBSpan(1,2), LineFlags, LMargin);
+            sizer->addWidget(new BorderLine(box),         wxGBPosition(r, 0), wxGBSpan(1,2), LineFlags, LMargin);
             ++r;
             
-            sizer->Add(panPrefsHeader,              wxGBPosition(r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
+            sizer->addWidget(panPrefsHeader,              wxGBPosition(r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
             ++r;
             
-            sizer->Add(panSpeedLabel,               wxGBPosition(r, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_panSpeedSlider,            wxGBPosition(r, 1), wxDefaultSpan, SliderFlags, HMargin);
+            sizer->addWidget(panSpeedLabel,               wxGBPosition(r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->addWidget(m_panSpeedSlider,            wxGBPosition(r, 1), wxDefaultSpan, SliderFlags, HMargin);
             ++r;
             
-            sizer->Add(m_invertPanHAxisCheckBox,    wxGBPosition(r, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
+            sizer->addWidget(m_invertPanHAxisCheckBox,    wxGBPosition(r, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
             ++r;
             
-            sizer->Add(m_invertPanVAxisCheckBox,    wxGBPosition(r, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
+            sizer->addWidget(m_invertPanVAxisCheckBox,    wxGBPosition(r, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
             ++r;
             
-            sizer->Add(new BorderLine(box),         wxGBPosition(r, 0), wxGBSpan(1,2), LineFlags, LMargin);
+            sizer->addWidget(new BorderLine(box),         wxGBPosition(r, 0), wxGBSpan(1,2), LineFlags, LMargin);
             ++r;
             
-            sizer->Add(movePrefsHeader,             wxGBPosition(r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
+            sizer->addWidget(movePrefsHeader,             wxGBPosition(r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
             ++r;
             
-            sizer->Add(moveSpeedLabel,              wxGBPosition(r, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_moveSpeedSlider,           wxGBPosition(r, 1), wxDefaultSpan, SliderFlags, HMargin);
+            sizer->addWidget(moveSpeedLabel,              wxGBPosition(r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->addWidget(m_moveSpeedSlider,           wxGBPosition(r, 1), wxDefaultSpan, SliderFlags, HMargin);
             ++r;
 
-            sizer->Add(m_invertMouseWheelCheckBox,  wxGBPosition(r, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
+            sizer->addWidget(m_invertMouseWheelCheckBox,  wxGBPosition(r, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
             ++r;
             
-            sizer->Add(m_enableAltMoveCheckBox,     wxGBPosition(r, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
+            sizer->addWidget(m_enableAltMoveCheckBox,     wxGBPosition(r, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
             ++r;
             
-            sizer->Add(m_invertAltMoveAxisCheckBox, wxGBPosition(r, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
+            sizer->addWidget(m_invertAltMoveAxisCheckBox, wxGBPosition(r, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
             ++r;
             
-            sizer->Add(m_moveInCursorDirCheckBox,   wxGBPosition(r, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
+            sizer->addWidget(m_moveInCursorDirCheckBox,   wxGBPosition(r, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
             ++r;
             
-            sizer->Add(new BorderLine(box),         wxGBPosition(r, 0), wxGBSpan(1,2), LineFlags, LMargin);
+            sizer->addWidget(new BorderLine(box),         wxGBPosition(r, 0), wxGBSpan(1,2), LineFlags, LMargin);
             ++r;
             
             
-            sizer->Add(keyPrefsHeader,              wxGBPosition(r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
+            sizer->addWidget(keyPrefsHeader,              wxGBPosition(r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
             ++r;
             
-            sizer->Add(forwardKeyLabel,             wxGBPosition(r, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_forwardKeyEditor,          wxGBPosition(r, 1), wxDefaultSpan, KeyEditorFlags, HMargin);
+            sizer->addWidget(forwardKeyLabel,             wxGBPosition(r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->addWidget(m_forwardKeyEditor,          wxGBPosition(r, 1), wxDefaultSpan, KeyEditorFlags, HMargin);
             ++r;
             
-            sizer->Add(backwardKeyLabel,            wxGBPosition(r, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_backwardKeyEditor,         wxGBPosition(r, 1), wxDefaultSpan, KeyEditorFlags, HMargin);
+            sizer->addWidget(backwardKeyLabel,            wxGBPosition(r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->addWidget(m_backwardKeyEditor,         wxGBPosition(r, 1), wxDefaultSpan, KeyEditorFlags, HMargin);
             ++r;
             
-            sizer->Add(leftKeyLabel,                wxGBPosition(r, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_leftKeyEditor,             wxGBPosition(r, 1), wxDefaultSpan, KeyEditorFlags, HMargin);
+            sizer->addWidget(leftKeyLabel,                wxGBPosition(r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->addWidget(m_leftKeyEditor,             wxGBPosition(r, 1), wxDefaultSpan, KeyEditorFlags, HMargin);
             ++r;
             
-            sizer->Add(rightKeyLabel,               wxGBPosition(r, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_rightKeyEditor,            wxGBPosition(r, 1), wxDefaultSpan, KeyEditorFlags, HMargin);
+            sizer->addWidget(rightKeyLabel,               wxGBPosition(r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->addWidget(m_rightKeyEditor,            wxGBPosition(r, 1), wxDefaultSpan, KeyEditorFlags, HMargin);
             ++r;
 
-            sizer->Add(upKeyLabel,                  wxGBPosition(r, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_upKeyEditor,               wxGBPosition(r, 1), wxDefaultSpan, KeyEditorFlags, HMargin);
+            sizer->addWidget(upKeyLabel,                  wxGBPosition(r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->addWidget(m_upKeyEditor,               wxGBPosition(r, 1), wxDefaultSpan, KeyEditorFlags, HMargin);
             ++r;
 
-            sizer->Add(downKeyLabel,                wxGBPosition(r, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_downKeyEditor,             wxGBPosition(r, 1), wxDefaultSpan, KeyEditorFlags, HMargin);
+            sizer->addWidget(downKeyLabel,                wxGBPosition(r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->addWidget(m_downKeyEditor,             wxGBPosition(r, 1), wxDefaultSpan, KeyEditorFlags, HMargin);
             ++r;
 
-            sizer->Add(flyMoveSpeedLabel,           wxGBPosition(r, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_flyMoveSpeedSlider,        wxGBPosition(r, 1), wxDefaultSpan, SliderFlags, HMargin);
+            sizer->addWidget(flyMoveSpeedLabel,           wxGBPosition(r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->addWidget(m_flyMoveSpeedSlider,        wxGBPosition(r, 1), wxDefaultSpan, SliderFlags, HMargin);
             ++r;
             
 

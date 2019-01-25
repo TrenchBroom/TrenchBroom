@@ -37,7 +37,7 @@
 #include <wx/listbox.h>
 #include <wx/settings.h>
 #include <wx/sizer.h>
-#include <wx/stattext.h>
+#include <QLabel>
 
 #include <cassert>
 
@@ -104,7 +104,7 @@ namespace TrenchBroom {
             builtinContainer->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             m_builtin = new wxListBox(builtinContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxBORDER_NONE);
             
-            wxSizer* builtinSizer = new wxBoxSizer(wxVERTICAL);
+            auto* builtinSizer = new QVBoxLayout();
             builtinSizer->Add(m_builtin, 1, wxEXPAND);
             
             builtinContainer->getPanel()->SetSizer(builtinSizer);
@@ -116,21 +116,21 @@ namespace TrenchBroom {
             m_reloadExternal = new wxButton(externalContainer->getPanel(), wxID_ANY, "Reload", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
             m_reloadExternal->SetToolTip("Reload the currently loaded entity definition file");
 
-            wxSizer* externalSizer = new wxBoxSizer(wxHORIZONTAL);
-            externalSizer->AddSpacer(LayoutConstants::NarrowHMargin);
+            auto* externalSizer = new QHBoxLayout();
+            externalSizer->addSpacing(LayoutConstants::NarrowHMargin);
             externalSizer->Add(m_external, 1, wxEXPAND | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            externalSizer->AddSpacer(LayoutConstants::NarrowHMargin);
+            externalSizer->addSpacing(LayoutConstants::NarrowHMargin);
             externalSizer->Add(m_chooseExternal, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            externalSizer->AddSpacer(LayoutConstants::NarrowHMargin);
+            externalSizer->addSpacing(LayoutConstants::NarrowHMargin);
             externalSizer->Add(m_reloadExternal, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            externalSizer->AddSpacer(LayoutConstants::NarrowHMargin);
+            externalSizer->addSpacing(LayoutConstants::NarrowHMargin);
             
             externalContainer->getPanel()->SetSizer(externalSizer);
             
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(builtinContainer, 1, wxEXPAND);
-            sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
-            sizer->Add(externalContainer, 0, wxEXPAND);
+            auto* sizer = new QVBoxLayout();
+            sizer->addWidget(builtinContainer, 1, wxEXPAND);
+            sizer->addWidget(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
+            sizer->addWidget(externalContainer, 0, wxEXPAND);
             sizer->SetItemMinSize(m_builtin, 100, 70);
             
             SetSizerAndFit(sizer);

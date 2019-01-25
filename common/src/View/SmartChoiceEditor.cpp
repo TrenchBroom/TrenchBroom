@@ -26,7 +26,7 @@
 #include <wx/combobox.h>
 #include <wx/panel.h>
 #include <wx/sizer.h>
-#include <wx/stattext.h>
+#include <QLabel>
 #include <wx/wupdlock.h>
 
 #include <cassert>
@@ -65,11 +65,11 @@ namespace TrenchBroom {
             m_comboBox->Bind(wxEVT_COMBOBOX, &SmartChoiceEditor::OnComboBox, this);
             m_comboBox->Bind(wxEVT_TEXT_ENTER, &SmartChoiceEditor::OnTextEnter, this);
             
-            wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->AddSpacer(LayoutConstants::WideVMargin);
-            sizer->Add(infoText, 0, wxLEFT | wxRIGHT, LayoutConstants::WideHMargin);
-            sizer->AddSpacer(LayoutConstants::WideVMargin);
-            sizer->Add(m_comboBox, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::WideHMargin);
+            wxBoxSizer* sizer = new QVBoxLayout();
+            sizer->addSpacing(LayoutConstants::WideVMargin);
+            sizer->addWidget(infoText, 0, wxLEFT | wxRIGHT, LayoutConstants::WideHMargin);
+            sizer->addSpacing(LayoutConstants::WideVMargin);
+            sizer->addWidget(m_comboBox, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::WideHMargin);
             sizer->AddStretchSpacer();
             
             m_panel->SetSizer(sizer);

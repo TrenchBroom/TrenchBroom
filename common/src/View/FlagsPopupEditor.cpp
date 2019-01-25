@@ -25,7 +25,7 @@
 
 #include <wx/settings.h>
 #include <wx/sizer.h>
-#include <wx/stattext.h>
+#include <QLabel>
 
 namespace TrenchBroom {
     namespace View {
@@ -41,7 +41,7 @@ namespace TrenchBroom {
                 
                 m_flagsTxt = new QLabel(flagsPanel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT | wxST_ELLIPSIZE_END);
                 
-                wxSizer* flagsPanelSizer = new wxBoxSizer(wxVERTICAL);
+                auto* flagsPanelSizer = new QVBoxLayout();
                 flagsPanelSizer->AddStretchSpacer();
                 flagsPanelSizer->Add(m_flagsTxt, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::TextBoxInnerMargin);
                 flagsPanelSizer->AddStretchSpacer();
@@ -54,20 +54,20 @@ namespace TrenchBroom {
             QWidget* editorContainer = new QWidget(m_button->GetPopupWindow(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SIMPLE);
             m_editor = new FlagsEditor(editorContainer, numCols);
             
-            wxSizer* editorContainerSizer = new wxBoxSizer(wxVERTICAL);
+            auto* editorContainerSizer = new QVBoxLayout();
             editorContainerSizer->Add(m_editor, 1, wxEXPAND | wxALL, LayoutConstants::DialogOuterMargin);
             editorContainer->SetSizer(editorContainerSizer);
             
-            wxSizer* popupSizer = new wxBoxSizer(wxVERTICAL);
+            auto* popupSizer = new QVBoxLayout();
             popupSizer->Add(editorContainer, 1, wxEXPAND);
             m_button->GetPopupWindow()->SetSizerAndFit(popupSizer);
             
-            wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
+            auto* sizer = new QHBoxLayout();
             if (flagsPanel != nullptr) {
-                sizer->Add(flagsPanel, 1, wxEXPAND);
-                sizer->AddSpacer(LayoutConstants::MediumHMargin);
+                sizer->addWidget(flagsPanel, 1, wxEXPAND);
+                sizer->addSpacing(LayoutConstants::MediumHMargin);
             }
-            sizer->Add(m_button, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->addWidget(m_button, 0, wxALIGN_CENTER_VERTICAL);
             SetSizerAndFit(sizer);
             
             m_editor->Bind(FLAG_CHANGED_EVENT, &FlagsPopupEditor::OnFlagChanged, this);

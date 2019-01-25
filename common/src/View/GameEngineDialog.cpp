@@ -32,7 +32,7 @@
 #include <wx/simplebook.h>
 #include <wx/sizer.h>
 #include <wx/statbmp.h>
-#include <wx/stattext.h>
+#include <QLabel>
 #include <wx/textctrl.h>
 
 namespace TrenchBroom {
@@ -63,7 +63,7 @@ namespace TrenchBroom {
             buttonSizer->SetCancelButton(closeButton);
             buttonSizer->Realize();
             
-            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
+            auto* outerSizer = new QVBoxLayout();
             outerSizer->Add(gameIndicator, wxSizerFlags().Expand());
             outerSizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
             outerSizer->Add(m_profileManager, wxSizerFlags().Expand().Proportion(1));

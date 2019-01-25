@@ -32,7 +32,7 @@
 #include <wx/filedlg.h>
 #include <wx/gbsizer.h>
 #include <wx/sizer.h>
-#include <wx/stattext.h>
+#include <QLabel>
 #include <wx/textctrl.h>
 
 namespace TrenchBroom {
@@ -66,13 +66,13 @@ namespace TrenchBroom {
                 m_panel = new TitledPanel(this, m_title);
                 QWidget* editor = createGui(m_panel->getPanel());
 
-                wxSizer* editorSizer = new wxBoxSizer(wxVERTICAL);
-                editorSizer->AddSpacer(m_margins.y);
+                auto* editorSizer = new QVBoxLayout();
+                editorSizer->addSpacing(m_margins.y);
                 editorSizer->Add(editor, wxSizerFlags().Expand().Border(wxLEFT | wxRIGHT, m_margins.x));
-                editorSizer->AddSpacer(m_margins.y);
+                editorSizer->addSpacing(m_margins.y);
                 m_panel->getPanel()->SetSizer(editorSizer);
 
-                wxSizer* panelSizer = new wxBoxSizer(wxVERTICAL);
+                auto* panelSizer = new QVBoxLayout();
                 panelSizer->Add(m_panel, wxSizerFlags().Expand());
                 SetSizer(panelSizer);
 
@@ -177,8 +177,8 @@ namespace TrenchBroom {
                 const int LabelMargin  = LayoutConstants::NarrowHMargin;
 
                 wxGridBagSizer* sizer = new wxGridBagSizer(LayoutConstants::NarrowVMargin);
-                sizer->Add(targetLabel,     wxGBPosition(0, 0), wxDefaultSpan, LabelFlags, LabelMargin);
-                sizer->Add(m_targetEditor,  wxGBPosition(0, 1), wxDefaultSpan, EditorFlags);
+                sizer->addWidget(targetLabel,     wxGBPosition(0, 0), wxDefaultSpan, LabelFlags, LabelMargin);
+                sizer->addWidget(m_targetEditor,  wxGBPosition(0, 1), wxDefaultSpan, EditorFlags);
 
                 sizer->AddGrowableCol(1);
                 container->SetSizer(sizer);
@@ -224,10 +224,10 @@ namespace TrenchBroom {
                 const int LabelMargin  = LayoutConstants::NarrowHMargin;
 
                 wxGridBagSizer* sizer = new wxGridBagSizer(LayoutConstants::NarrowVMargin);
-                sizer->Add(sourceLabel,     wxGBPosition(0, 0), wxDefaultSpan, LabelFlags, LabelMargin);
-                sizer->Add(m_sourceEditor,  wxGBPosition(0, 1), wxDefaultSpan, EditorFlags);
-                sizer->Add(targetLabel,     wxGBPosition(1, 0), wxDefaultSpan, LabelFlags, LabelMargin);
-                sizer->Add(m_targetEditor,  wxGBPosition(1, 1), wxDefaultSpan, EditorFlags);
+                sizer->addWidget(sourceLabel,     wxGBPosition(0, 0), wxDefaultSpan, LabelFlags, LabelMargin);
+                sizer->addWidget(m_sourceEditor,  wxGBPosition(0, 1), wxDefaultSpan, EditorFlags);
+                sizer->addWidget(targetLabel,     wxGBPosition(1, 0), wxDefaultSpan, LabelFlags, LabelMargin);
+                sizer->addWidget(m_targetEditor,  wxGBPosition(1, 1), wxDefaultSpan, EditorFlags);
 
                 sizer->AddGrowableCol(1);
                 container->SetSizer(sizer);
@@ -284,11 +284,11 @@ namespace TrenchBroom {
                 const int LabelMargin  = LayoutConstants::NarrowHMargin;
 
                 wxGridBagSizer* sizer = new wxGridBagSizer(LayoutConstants::NarrowVMargin);
-                sizer->Add(toolLabel,           wxGBPosition(0, 0), wxDefaultSpan, LabelFlags, LabelMargin);
-                sizer->Add(m_toolEditor,        wxGBPosition(0, 1), wxDefaultSpan, EditorFlags);
-                sizer->Add(browseToolButton,    wxGBPosition(0, 2), wxDefaultSpan, wxLEFT, LabelMargin);
-                sizer->Add(parameterLabel,      wxGBPosition(1, 0), wxDefaultSpan, LabelFlags, LabelMargin);
-                sizer->Add(m_parametersEditor,  wxGBPosition(1, 1), wxGBSpan(1, 2), EditorFlags);
+                sizer->addWidget(toolLabel,           wxGBPosition(0, 0), wxDefaultSpan, LabelFlags, LabelMargin);
+                sizer->addWidget(m_toolEditor,        wxGBPosition(0, 1), wxDefaultSpan, EditorFlags);
+                sizer->addWidget(browseToolButton,    wxGBPosition(0, 2), wxDefaultSpan, wxLEFT, LabelMargin);
+                sizer->addWidget(parameterLabel,      wxGBPosition(1, 0), wxDefaultSpan, LabelFlags, LabelMargin);
+                sizer->addWidget(m_parametersEditor,  wxGBPosition(1, 1), wxGBSpan(1, 2), EditorFlags);
 
                 sizer->AddGrowableCol(1);
 

@@ -105,7 +105,7 @@ namespace TrenchBroom {
             m_subjectBrowser = new TextureBrowser(subjectPanel->getPanel(), m_document, contextManager);
             m_subjectBrowser->setHideUnused(true);
             
-            wxSizer* subjectPanelSizer = new wxBoxSizer(wxVERTICAL);
+            auto* subjectPanelSizer = new QVBoxLayout();
             subjectPanelSizer->Add(m_subjectBrowser, 1, wxEXPAND);
             subjectPanel->getPanel()->SetSizer(subjectPanelSizer);
             
@@ -113,11 +113,11 @@ namespace TrenchBroom {
             m_replacementBrowser = new TextureBrowser(replacementPanel->getPanel(), m_document, contextManager);
             m_replacementBrowser->setSelectedTexture(nullptr); // Override the current texture.
             
-            wxSizer* replacementPanelSizer = new wxBoxSizer(wxVERTICAL);
+            auto* replacementPanelSizer = new QVBoxLayout();
             replacementPanelSizer->Add(m_replacementBrowser, 1, wxEXPAND);
             replacementPanel->getPanel()->SetSizer(replacementPanelSizer);
             
-            wxSizer* upperSizer = new wxBoxSizer(wxHORIZONTAL);
+            auto* upperSizer = new QHBoxLayout();
             upperSizer->Add(subjectPanel, 1, wxEXPAND);
             upperSizer->Add(new BorderLine(this, BorderLine::Direction_Vertical), 0, wxEXPAND);
             upperSizer->Add(replacementPanel, 1, wxEXPAND);
@@ -135,7 +135,7 @@ namespace TrenchBroom {
             buttonSizer->SetCancelButton(closeButton);
             buttonSizer->Realize();
             
-            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
+            auto* outerSizer = new QVBoxLayout();
             outerSizer->Add(upperSizer, 1, wxEXPAND);
             outerSizer->Add(wrapDialogButtonSizer(buttonSizer, this), 0, wxEXPAND);
             SetSizer(outerSizer);

@@ -30,7 +30,7 @@
 #include <wx/panel.h>
 #include <wx/settings.h>
 #include <wx/sizer.h>
-#include <wx/stattext.h>
+#include <QLabel>
 
 
 namespace TrenchBroom {
@@ -51,10 +51,10 @@ namespace TrenchBroom {
             QLabel* header = new QLabel(headerPanel, wxID_ANY, "Crash Report");
             header->SetFont(header->GetFont().Scale(1.5).Bold());
 
-            wxSizer* headerPanelSizer = new wxBoxSizer(wxVERTICAL);
-            headerPanelSizer->AddSpacer(LayoutConstants::DialogOuterMargin);
+            auto* headerPanelSizer = new QVBoxLayout();
+            headerPanelSizer->addSpacing(LayoutConstants::DialogOuterMargin);
             headerPanelSizer->Add(header, wxSizerFlags().Border(wxLEFT | wxRIGHT, LayoutConstants::DialogOuterMargin));
-            headerPanelSizer->AddSpacer(LayoutConstants::DialogOuterMargin);
+            headerPanelSizer->addSpacing(LayoutConstants::DialogOuterMargin);
             headerPanel->SetSizer(headerPanelSizer);
             
             QLabel* text1 = new QLabel(reportPanel, wxID_ANY,
@@ -97,13 +97,13 @@ namespace TrenchBroom {
             reportPanelSizer->Add(buildLabel,      wxGBPosition(7, 0), wxGBSpan(1, 1), wxALIGN_CENTER_VERTICAL);
             reportPanelSizer->Add(buildText,       wxGBPosition(7, 1), wxGBSpan(1, 1), wxALIGN_CENTER_VERTICAL);
 
-            wxSizer* reportPanelOuterSizer = new wxBoxSizer(wxVERTICAL);
+            auto* reportPanelOuterSizer = new QVBoxLayout();
             reportPanelOuterSizer->Add(new BorderLine(reportPanel), wxSizerFlags().Expand());
             reportPanelOuterSizer->Add(reportPanelSizer, wxSizerFlags().Border(wxLEFT | wxRIGHT, LayoutConstants::DialogOuterMargin));
-            reportPanelOuterSizer->AddSpacer(LayoutConstants::DialogOuterMargin);
+            reportPanelOuterSizer->addSpacing(LayoutConstants::DialogOuterMargin);
             reportPanel->SetSizer(reportPanelOuterSizer);
 
-            wxSizer* containerPanelSizer = new wxBoxSizer(wxVERTICAL);
+            auto* containerPanelSizer = new QVBoxLayout();
             containerPanelSizer->Add(headerPanel, wxSizerFlags().Expand());
             containerPanelSizer->Add(reportPanel, wxSizerFlags().Expand());
             containerPanel->SetSizer(containerPanelSizer);
@@ -111,12 +111,12 @@ namespace TrenchBroom {
             wxButton* reportButton = new wxButton(this, wxID_APPLY, "Report");
             reportButton->Bind(wxEVT_BUTTON, &CrashDialog::OnReport, this);
             
-            wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+            auto* buttonSizer = new QHBoxLayout();
             buttonSizer->AddStretchSpacer();
             buttonSizer->Add(reportButton, wxSizerFlags().CenterVertical().Border(wxLEFT | wxRIGHT, LayoutConstants::DialogOuterMargin));
             buttonSizer->Add(CreateButtonSizer(wxCLOSE));
             
-            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
+            auto* outerSizer = new QVBoxLayout();
             outerSizer->Add(containerPanel, wxSizerFlags().Expand());
             outerSizer->Add(wrapDialogButtonSizer(buttonSizer, this), 0, wxEXPAND);
             

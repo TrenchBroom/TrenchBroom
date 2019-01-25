@@ -171,16 +171,16 @@ namespace TrenchBroom {
             resetButton->Bind(wxEVT_BUTTON, &PreferenceDialog::OnResetClicked, this);
             resetButton->Bind(wxEVT_UPDATE_UI, &PreferenceDialog::OnUpdateReset, this);
             
-            wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_toolBar, 0, wxEXPAND);
+            wxBoxSizer* sizer = new QVBoxLayout();
+            sizer->addWidget(m_toolBar, 0, wxEXPAND);
 #if !defined __APPLE__
             QWidget* line = new BorderLine(this, BorderLine::Direction_Horizontal);
-            sizer->Add(line, wxSizerFlags().Expand());
+            sizer->addWidget(line, wxSizerFlags().Expand());
             sizer->SetItemMinSize(line, wxSize(wxDefaultCoord, 1));
 #endif
-            sizer->Add(m_book, 1, wxEXPAND);
+            sizer->addWidget(m_book, 1, wxEXPAND);
 
-            wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+            auto* buttonSizer = new QHBoxLayout();
             if (!prefs.saveInstantly()) {
                 buttonSizer->Add(resetButton, wxSizerFlags().CenterVertical());
                 buttonSizer->AddStretchSpacer();
@@ -199,7 +199,7 @@ namespace TrenchBroom {
                 buttonSizer->Add(stdButtonSizer, wxSizerFlags().CenterVertical());
             }
 
-            sizer->Add(wrapDialogButtonSizer(buttonSizer, this), wxSizerFlags().Expand());
+            sizer->addWidget(wrapDialogButtonSizer(buttonSizer, this), wxSizerFlags().Expand());
             
             SetSizer(sizer);
         }

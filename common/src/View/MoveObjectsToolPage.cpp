@@ -24,7 +24,7 @@
 
 #include <wx/button.h>
 #include <wx/sizer.h>
-#include <wx/stattext.h>
+#include <QLabel>
 #include <wx/textctrl.h>
 
 namespace TrenchBroom {
@@ -44,12 +44,12 @@ namespace TrenchBroom {
             m_button->Bind(wxEVT_BUTTON, &MoveObjectsToolPage::OnApply, this);
             m_offset->Bind(wxEVT_TEXT_ENTER, &MoveObjectsToolPage::OnApply, this);
             
-            wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-            sizer->Add(text, 0, wxALIGN_CENTER_VERTICAL);
-            sizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            sizer->Add(m_offset, 0, wxALIGN_CENTER_VERTICAL);
-            sizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            sizer->Add(m_button, 0, wxALIGN_CENTER_VERTICAL);
+            wxBoxSizer* sizer = new QHBoxLayout();
+            sizer->addWidget(text, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->addSpacing(LayoutConstants::NarrowHMargin);
+            sizer->addWidget(m_offset, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->addSpacing(LayoutConstants::NarrowHMargin);
+            sizer->addWidget(m_button, 0, wxALIGN_CENTER_VERTICAL);
             
             SetSizer(sizer);
         }

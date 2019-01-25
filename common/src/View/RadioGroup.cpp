@@ -44,14 +44,14 @@ namespace TrenchBroom {
 
             m_buttons.reserve(n);
             if (n > 0) {
-                wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+                auto* sizer = new QVBoxLayout();
                 m_buttons.push_back(new wxRadioButton(this, wxID_ANY, choices[0], wxDefaultPosition, wxDefaultSize, wxRB_GROUP));
                 m_buttons.back()->Bind(wxEVT_RADIOBUTTON, &RadioGroup::OnRadioButton, this);
-                sizer->Add(m_buttons.back());
+                sizer->addWidget(m_buttons.back());
                 for (size_t i = 1; i < n; ++i) {
                     m_buttons.push_back(new wxRadioButton(this, wxID_ANY, choices[i]));
                     m_buttons.back()->Bind(wxEVT_RADIOBUTTON, &RadioGroup::OnRadioButton, this);
-                    sizer->Add(m_buttons.back());
+                    sizer->addWidget(m_buttons.back());
                 }
                 SetSizer(sizer);
             }

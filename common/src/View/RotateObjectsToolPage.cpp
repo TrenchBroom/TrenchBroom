@@ -33,7 +33,7 @@
 #include <wx/button.h>
 #include <wx/choice.h>
 #include <wx/sizer.h>
-#include <wx/stattext.h>
+#include <QLabel>
 #include <wx/combobox.h>
 
 namespace TrenchBroom {
@@ -100,26 +100,26 @@ namespace TrenchBroom {
             auto* separator = new BorderLine(this, BorderLine::Direction_Vertical);
             separator->SetForegroundColour(Colors::separatorColor());
             
-            auto* sizer = new wxBoxSizer(wxHORIZONTAL);
-            sizer->Add(centerText, 0, wxALIGN_CENTER_VERTICAL);
-            sizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            sizer->Add(m_recentlyUsedCentersList, 0, wxALIGN_CENTER_VERTICAL);
-            sizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            sizer->Add(m_resetCenterButton, 0, wxALIGN_CENTER_VERTICAL);
-            sizer->AddSpacer(LayoutConstants::MediumHMargin);
-            sizer->Add(separator, 0, wxEXPAND | wxTOP | wxBOTTOM, 2);
-            sizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            sizer->Add(text1, 0, wxALIGN_CENTER_VERTICAL);
-            sizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            sizer->Add(m_angle, 0, wxALIGN_CENTER_VERTICAL);
-            sizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            sizer->Add(text2, 0, wxALIGN_CENTER_VERTICAL);
-            sizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            sizer->Add(m_axis, 0, wxTOP, LayoutConstants::ChoiceTopMargin);
-            sizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            sizer->Add(text3, 0, wxALIGN_CENTER_VERTICAL);
-            sizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            sizer->Add(m_rotateButton, 0, wxALIGN_CENTER_VERTICAL);
+            auto* sizer = new QHBoxLayout();
+            sizer->addWidget(centerText, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->addSpacing(LayoutConstants::NarrowHMargin);
+            sizer->addWidget(m_recentlyUsedCentersList, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->addSpacing(LayoutConstants::NarrowHMargin);
+            sizer->addWidget(m_resetCenterButton, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->addSpacing(LayoutConstants::MediumHMargin);
+            sizer->addWidget(separator, 0, wxEXPAND | wxTOP | wxBOTTOM, 2);
+            sizer->addSpacing(LayoutConstants::NarrowHMargin);
+            sizer->addWidget(text1, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->addSpacing(LayoutConstants::NarrowHMargin);
+            sizer->addWidget(m_angle, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->addSpacing(LayoutConstants::NarrowHMargin);
+            sizer->addWidget(text2, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->addSpacing(LayoutConstants::NarrowHMargin);
+            sizer->addWidget(m_axis, 0, wxTOP, LayoutConstants::ChoiceTopMargin);
+            sizer->addSpacing(LayoutConstants::NarrowHMargin);
+            sizer->addWidget(text3, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->addSpacing(LayoutConstants::NarrowHMargin);
+            sizer->addWidget(m_rotateButton, 0, wxALIGN_CENTER_VERTICAL);
             sizer->SetItemMinSize(m_angle, 80, wxDefaultCoord);
 
             SetSizer(sizer);

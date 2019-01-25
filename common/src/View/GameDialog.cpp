@@ -32,7 +32,7 @@
 #include <wx/button.h>
 #include <wx/choice.h>
 #include <wx/sizer.h>
-#include <wx/stattext.h>
+#include <QLabel>
 
 #include <cassert>
 
@@ -131,7 +131,7 @@ namespace TrenchBroom {
             auto* infoPanel = createInfoPanel(this, title, infoText);
             auto* selectionPanel = createSelectionPanel(this);
 
-            auto* innerSizer = new wxBoxSizer(wxHORIZONTAL);
+            auto* innerSizer = new QHBoxLayout();
             innerSizer->Add(infoPanel, wxSizerFlags().Expand());
             innerSizer->Add(new BorderLine(this, BorderLine::Direction_Vertical), wxSizerFlags().Expand());
             innerSizer->Add(selectionPanel, wxSizerFlags().Expand().Proportion(1));
@@ -139,7 +139,7 @@ namespace TrenchBroom {
             
             auto* buttonSizer = CreateStdDialogButtonSizer(wxOK | wxCANCEL);
             
-            auto* outerSizer = new wxBoxSizer(wxVERTICAL);
+            auto* outerSizer = new QVBoxLayout();
 #if !defined __APPLE__
 			outerSizer->Add(new BorderLine(this), wxSizerFlags().Expand());
 #endif
@@ -167,16 +167,16 @@ namespace TrenchBroom {
             m_openPreferencesButton = new wxButton(infoPanel, wxID_ANY, "Open preferences...");
             m_openPreferencesButton->SetToolTip("Open the preferences dialog to manage game paths,");
             
-            auto* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->AddSpacer(20);
-            sizer->Add(header, wxSizerFlags().Border(wxLEFT | wxRIGHT, 20));
-            sizer->AddSpacer(20);
-            sizer->Add(info, wxSizerFlags().Border(wxLEFT | wxRIGHT, 20));
-            sizer->AddSpacer(10);
-            sizer->Add(setupMsg, wxSizerFlags().Border(wxLEFT | wxRIGHT, 20));
-            sizer->AddSpacer(10);
-            sizer->Add(m_openPreferencesButton, wxSizerFlags().CenterHorizontal().Border(wxLEFT | wxRIGHT, 20));
-            sizer->AddSpacer(20);
+            auto* sizer = new QVBoxLayout();
+            sizer->addSpacing(20);
+            sizer->addWidget(header, wxSizerFlags().Border(wxLEFT | wxRIGHT, 20));
+            sizer->addSpacing(20);
+            sizer->addWidget(info, wxSizerFlags().Border(wxLEFT | wxRIGHT, 20));
+            sizer->addSpacing(10);
+            sizer->addWidget(setupMsg, wxSizerFlags().Border(wxLEFT | wxRIGHT, 20));
+            sizer->addSpacing(10);
+            sizer->addWidget(m_openPreferencesButton, wxSizerFlags().CenterHorizontal().Border(wxLEFT | wxRIGHT, 20));
+            sizer->addSpacing(20);
             infoPanel->SetSizerAndFit(sizer);
             
             m_openPreferencesButton->Bind(wxEVT_BUTTON, &GameDialog::OnOpenPreferencesClicked, this);
@@ -198,20 +198,20 @@ namespace TrenchBroom {
             m_mapFormatChoice = new wxChoice(panel, wxID_ANY);
             m_mapFormatChoice->Bind(wxEVT_UPDATE_UI, &GameDialog::OnUpdateMapFormatChoice, this);
             
-            auto* mapFormatSizer = new wxBoxSizer(wxHORIZONTAL);
-            mapFormatSizer->AddSpacer(LayoutConstants::WideHMargin);
+            auto* mapFormatSizer = new QHBoxLayout();
+            mapFormatSizer->addSpacing(LayoutConstants::WideHMargin);
             mapFormatSizer->Add(header, wxSizerFlags().CenterVertical());
-            mapFormatSizer->AddSpacer(LayoutConstants::WideHMargin);
-            mapFormatSizer->AddSpacer(LayoutConstants::ChoiceLeftMargin);
+            mapFormatSizer->addSpacing(LayoutConstants::WideHMargin);
+            mapFormatSizer->addSpacing(LayoutConstants::ChoiceLeftMargin);
             mapFormatSizer->Add(m_mapFormatChoice, wxSizerFlags().Border(wxTOP, LayoutConstants::ChoiceTopMargin));
-            mapFormatSizer->AddSpacer(LayoutConstants::WideHMargin);
+            mapFormatSizer->addSpacing(LayoutConstants::WideHMargin);
             
-            auto* outerSizer = new wxBoxSizer(wxVERTICAL);
+            auto* outerSizer = new QVBoxLayout();
             outerSizer->Add(m_gameListBox, wxSizerFlags().Expand().Proportion(1));
             outerSizer->Add(new BorderLine(panel, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
-            outerSizer->AddSpacer(LayoutConstants::WideVMargin);
+            outerSizer->addSpacing(LayoutConstants::WideVMargin);
             outerSizer->Add(mapFormatSizer);
-            outerSizer->AddSpacer(LayoutConstants::WideVMargin);
+            outerSizer->addSpacing(LayoutConstants::WideVMargin);
             panel->SetSizer(outerSizer);
             
             return panel;

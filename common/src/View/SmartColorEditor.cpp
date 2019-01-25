@@ -34,7 +34,7 @@
 #include <wx/panel.h>
 #include <wx/radiobut.h>
 #include <wx/sizer.h>
-#include <wx/stattext.h>
+#include <QLabel>
 #include <wx/wupdlock.h>
 
 #include <iomanip>
@@ -84,21 +84,21 @@ namespace TrenchBroom {
             m_colorPicker = new wxColourPickerCtrl(m_panel, wxID_ANY);
             m_colorHistory = new ColorTable(m_panel, wxID_ANY, ColorHistoryCellSize);
             
-            auto* leftSizer = new wxBoxSizer(wxVERTICAL);
-            leftSizer->AddSpacer(LayoutConstants::WideVMargin);
+            auto* leftSizer = new QVBoxLayout();
+            leftSizer->addSpacing(LayoutConstants::WideVMargin);
             leftSizer->Add(rangeTxt);
-            leftSizer->AddSpacer(LayoutConstants::WideVMargin);
+            leftSizer->addSpacing(LayoutConstants::WideVMargin);
             leftSizer->Add(m_floatRadio);
-            leftSizer->AddSpacer(LayoutConstants::WideVMargin);
+            leftSizer->addSpacing(LayoutConstants::WideVMargin);
             leftSizer->Add(m_byteRadio);
-            leftSizer->AddSpacer(LayoutConstants::WideVMargin);
+            leftSizer->addSpacing(LayoutConstants::WideVMargin);
             leftSizer->Add(m_colorPicker);
             leftSizer->AddStretchSpacer();
             
-            auto* outerSizer = new wxBoxSizer(wxHORIZONTAL);
-            outerSizer->AddSpacer(LayoutConstants::WideHMargin);
+            auto* outerSizer = new QHBoxLayout();
+            outerSizer->addSpacing(LayoutConstants::WideHMargin);
             outerSizer->Add(leftSizer);
-            outerSizer->AddSpacer(LayoutConstants::WideHMargin);
+            outerSizer->addSpacing(LayoutConstants::WideHMargin);
             outerSizer->Add(new BorderLine(m_panel, BorderLine::Direction_Vertical), 0, wxEXPAND);
             outerSizer->Add(m_colorHistory, 1, wxEXPAND);
             m_panel->SetSizer(outerSizer);
