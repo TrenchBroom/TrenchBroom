@@ -104,8 +104,16 @@ namespace TrenchBroom {
         
         void TokenizerState::advance() {
             errorIfEof();
-            
+
             switch (curChar()) {
+                case '\r':
+                    if (lookAhead() == '\n') {
+                        ++m_column;
+                        break;
+                    }
+                    // handle carriage return without consecutive line feed
+                    // by falling through into the line feed case
+                    switchFallthrough();
                 case '\n':
                     ++m_line;
                     m_column = 1;

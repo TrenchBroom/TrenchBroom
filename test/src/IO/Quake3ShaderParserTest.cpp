@@ -21,6 +21,8 @@
 
 #include "StringUtils.h"
 #include "Assets/Quake3Shader.h"
+#include "IO/DiskFileSystem.h"
+#include "IO/DiskIO.h"
 #include "IO/Quake3ShaderParser.h"
 
 namespace TrenchBroom {
@@ -260,6 +262,43 @@ waterBubble
 
 )");
             Quake3ShaderParser parser(data);
+            ASSERT_NO_THROW(parser.parse());
+        }
+
+        TEST(Quake3ShaderParserTest, parseShadersWithMultilineComment) {
+            const String data(R"(
+/*
+This is a
+multiline comment.
+*/
+
+waterBubble
+{
+    sort	underwater
+    cull none
+    entityMergable		// this comment terminates a block entry
+    {
+        map sprites/bubble.tga
+        blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
+        rgbGen		vertex
+        alphaGen	vertex
+    }
+}
+
+)");
+            Quake3ShaderParser parser(data);
+            ASSERT_NO_THROW(parser.parse());
+        }
+
+        TEST(Quake3ShaderParserTest, parseShadersWithInvalidWhitespace) {
+            // see https://github.com/kduske/TrenchBroom/issues/2537
+            // The file contains a carriage return without a consecutive line feed, which tripped the parser.
+
+            const auto workDir = Disk::getCurrentWorkingDir();
+            auto fs = DiskFileSystem(workDir + Path("data/IO/Shader/parser"));
+            auto testFile = fs.openFile(Path("am_cf_models.shader"));
+
+            Quake3ShaderParser parser(testFile->begin(), testFile->end());
             ASSERT_NO_THROW(parser.parse());
         }
 
