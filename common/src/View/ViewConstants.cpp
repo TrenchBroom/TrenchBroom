@@ -27,8 +27,8 @@ namespace TrenchBroom {
     namespace View {
         namespace Fonts {
             QFont fixedWidthFont() {
-                QFont result;
-                result.setFixedPitch(true);
+                QFont result("Courier", 10);
+                result.setStyleHint(QFont::TypeWriter);
                 return result;
             }
         }

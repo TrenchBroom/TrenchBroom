@@ -25,6 +25,7 @@
 #include <QDebug>
 #include <QVBoxLayout>
 #include <QTextEdit>
+#include <QScrollBar>
 
 #include <iostream>
 
@@ -36,10 +37,6 @@ namespace TrenchBroom {
             m_textView->setReadOnly(true);
             m_textView->setWordWrapMode(QTextOption::NoWrap);
             m_textView->setReadOnly(true);
-
-            QFont font;
-            font.setFixedPitch(true);
-			m_textView->setFont(font);
 
             QVBoxLayout* sizer = new QVBoxLayout();
             sizer->setContentsMargins(0, 0, 0, 0);
@@ -64,33 +61,28 @@ namespace TrenchBroom {
         }
 
         void Console::logToConsole(const LogLevel level, const QString& message) {
-            // FIXME: still needed?
-            //wxWindowUpdateLocker locker(m_textView);
-
-            m_textView->append(message);
-            // FIXME: color
-#if 0
-            const long start = m_textView->GetLastPosition();
-            m_textView->AppendText(message);
-            m_textView->AppendText("\n");
-
-            const long end = m_textView->GetLastPosition();
-
+            QTextCharFormat format;
             switch (level) {
                 case LogLevel_Debug:
-                    m_textView->SetStyle(start, end, wxTextAttr(Colors::disabledText(), m_textView->GetBackgroundColour()));
+                    format.setForeground(QBrush(Colors::disabledText()));
                     break;
                 case LogLevel_Info:
-                    // m_textView->SetStyle(start, end, wxTextAttr(*wxBLACK, m_textView->GetBackgroundColour()));
                     break;
                 case LogLevel_Warn:
-                    m_textView->SetStyle(start, end, wxTextAttr(Colors::defaultText(), m_textView->GetBackgroundColour()));
+                    format.setForeground(QBrush(Colors::defaultText()));
                     break;
                 case LogLevel_Error:
-                    m_textView->SetStyle(start, end, wxTextAttr(wxColor(250, 30, 60), m_textView->GetBackgroundColour()));
+                    format.setForeground(QBrush(QColor(250, 30, 60)));
                     break;
             }
-#endif
+            format.setFont(Fonts::fixedWidthFont());
+
+            QTextCursor cursor(m_textView->document());
+            cursor.movePosition(QTextCursor::MoveOperation::End);
+            cursor.insertText(message, format);
+            cursor.insertText("\n");
+
+            m_textView->moveCursor(QTextCursor::MoveOperation::End);
         }
     }
 }
