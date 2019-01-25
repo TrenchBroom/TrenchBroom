@@ -31,8 +31,8 @@ class wxCheckBox;
 class wxColor;
 class wxCommandEvent;
 class wxScrolledWindow;
-class wxString;
-class wxWindow;
+class QString;
+class QWidget;
 
 namespace TrenchBroom {
     namespace View {
@@ -55,7 +55,7 @@ namespace TrenchBroom {
             
             void OnFlagChanged(FlagChangedCommand& event);
         private:
-            wxWindow* doCreateVisual(wxWindow* parent) override;
+            QWidget* doCreateVisual(QWidget* parent) override;
             void doDestroyVisual() override;
             void doUpdateVisual(const Model::AttributableNodeList& attributables) override;
             void resetScrollPos();

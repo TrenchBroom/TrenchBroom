@@ -41,7 +41,7 @@ namespace TrenchBroom {
         class EntityBrowserView;
         class GLContextManager;
         
-        class EntityBrowser : public wxPanel {
+        class EntityBrowser : public QWidget {
         private:
             MapDocumentWPtr m_document;
             wxChoice* m_sortOrderChoice;
@@ -51,7 +51,7 @@ namespace TrenchBroom {
             wxScrollBar* m_scrollBar;
             EntityBrowserView* m_view;
         public:
-            EntityBrowser(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
+            EntityBrowser(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
             ~EntityBrowser();
             
             void reload();

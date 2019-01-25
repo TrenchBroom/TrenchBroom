@@ -23,7 +23,7 @@
 #include "View/ControlListBox.h"
 #include "View/ViewTypes.h"
 
-class wxWindow;
+class QWidget;
 
 namespace TrenchBroom {
     namespace Model {
@@ -42,7 +42,7 @@ namespace TrenchBroom {
             MapDocumentWPtr m_document;
             Model::CompilationProfile* m_profile;
         public:
-            CompilationTaskList(wxWindow* parent, MapDocumentWPtr document);
+            CompilationTaskList(QWidget* parent, MapDocumentWPtr document);
             ~CompilationTaskList() override;
             
             void setProfile(Model::CompilationProfile* profile);
@@ -51,7 +51,7 @@ namespace TrenchBroom {
             void refresh();
         private:
             class CompilationTaskEditorFactory;
-            Item* createItem(wxWindow* parent, const wxSize& margins, size_t index) override;
+            Item* createItem(QWidget* parent, const wxSize& margins, size_t index) override;
         };
     }
 }

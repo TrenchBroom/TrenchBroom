@@ -111,7 +111,7 @@ namespace TrenchBroom {
             ActionMenuItem(Type type, MenuItemParent* parent, int id, const String& label, const KeyboardShortcut& defaultShortcut, bool modifiable);
             virtual ~ActionMenuItem() override;
 
-            wxString menuString(const wxString& suffix, bool withShortcuts) const;
+            QString menuString(const QString& suffix, bool withShortcuts) const;
         private:
             IO::Path path(const String& text) const;
         private: // implement LabeledMenuItem interface
@@ -126,8 +126,8 @@ namespace TrenchBroom {
         private: // implement KeyboardShortcutEntry interface
             int doGetActionContext() const override;
             bool doGetModifiable() const override;
-            wxString doGetActionDescription() const override;
-            wxString doGetJsonString() const override;
+            QString doGetActionDescription() const override;
+            QString doGetJsonString() const override;
             const Preference<KeyboardShortcut>& doGetPreference() const override;
             const KeyboardShortcut& doGetShortcut() const override;
             const KeyboardShortcut& doGetDefaultShortcut() const override;

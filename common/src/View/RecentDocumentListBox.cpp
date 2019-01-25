@@ -31,7 +31,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        RecentDocumentListBox::RecentDocumentListBox(wxWindow* parent) :
+        RecentDocumentListBox::RecentDocumentListBox(QWidget* parent) :
         ImageListBox(parent, "No Recent Documents"),
         m_documentIcon(IO::loadImageResource("DocIcon.png")) {
             assert(m_documentIcon.IsOk());
@@ -78,14 +78,14 @@ namespace TrenchBroom {
             return true;
         }
         
-        wxString RecentDocumentListBox::title(const size_t n) const {
+        QString RecentDocumentListBox::title(const size_t n) const {
             const TrenchBroomApp& app = View::TrenchBroomApp::instance();
             const IO::Path::List& recentDocuments = app.recentDocuments();
             ensure(n < recentDocuments.size(), "index out of range");
             return recentDocuments[n].lastComponent().asString();
         }
         
-        wxString RecentDocumentListBox::subtitle(const size_t n) const {
+        QString RecentDocumentListBox::subtitle(const size_t n) const {
             const TrenchBroomApp& app = View::TrenchBroomApp::instance();
             const IO::Path::List& recentDocuments = app.recentDocuments();
             ensure(n < recentDocuments.size(), "index out of range");

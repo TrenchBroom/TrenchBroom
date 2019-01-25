@@ -26,9 +26,9 @@ class wxBitmap;
 
 namespace TrenchBroom {
     namespace View {
-        class BitmapButton : public wxWindow {
+        class BitmapButton : public QWidget {
         protected:
-            BitmapButton(wxWindow* parent, wxWindowID windowId);
+            BitmapButton(QWidget* parent, wxWindowID windowId);
         public:
             virtual ~BitmapButton() override;
 

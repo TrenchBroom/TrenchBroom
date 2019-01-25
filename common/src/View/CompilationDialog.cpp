@@ -59,7 +59,7 @@ namespace TrenchBroom {
             Model::GameSPtr game = document->game();
             Model::CompilationConfig& compilationConfig = game->compilationConfig();
             
-            wxPanel* outerPanel = new wxPanel(this);
+            QWidget* outerPanel = new QWidget(this);
             SplitterWindow2* splitter = new SplitterWindow2(outerPanel);
             
             m_profileManager = new CompilationProfileManager(splitter, document , compilationConfig);
@@ -93,7 +93,7 @@ namespace TrenchBroom {
 			stdButtonSizer->SetCancelButton(closeButton);
             stdButtonSizer->Realize();
             
-            m_currentRunLabel = new wxStaticText(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT);
+            m_currentRunLabel = new QLabel(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT);
             
             wxSizer* currentRunLabelSizer = new wxBoxSizer(wxVERTICAL);
             currentRunLabelSizer->AddStretchSpacer();

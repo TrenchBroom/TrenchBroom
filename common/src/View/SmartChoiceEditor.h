@@ -26,9 +26,9 @@
 
 class wxComboBox;
 class wxCommandEvent;
-class wxPanel;
-class wxStaticText;
-class wxWindow;
+class QWidget;
+class QLabel;
+class QWidget;
 
 namespace TrenchBroom {
     namespace Assets {
@@ -38,7 +38,7 @@ namespace TrenchBroom {
     namespace View {
         class SmartChoiceEditor : public SmartAttributeEditor {
         private:
-            wxPanel* m_panel;
+            QWidget* m_panel;
             wxComboBox* m_comboBox;
         public:
             SmartChoiceEditor(View::MapDocumentWPtr document);
@@ -46,7 +46,7 @@ namespace TrenchBroom {
             void OnComboBox(wxCommandEvent& event);
             void OnTextEnter(wxCommandEvent& event);
         private:
-            wxWindow* doCreateVisual(wxWindow* parent) override;
+            QWidget* doCreateVisual(QWidget* parent) override;
             void doDestroyVisual() override;
             void doUpdateVisual(const Model::AttributableNodeList& attributables) override;
         };

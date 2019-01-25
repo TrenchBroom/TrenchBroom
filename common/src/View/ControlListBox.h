@@ -27,16 +27,16 @@
 
 wxDECLARE_EVENT(wxEVT_LISTBOX_RCLICK, wxCommandEvent);
 
-class wxStaticText;
-class wxWindow;
+class QLabel;
+class QWidget;
 
 namespace TrenchBroom {
     namespace View {
         class ControlListBox : public wxScrolledWindow {
         protected:
-            class Item : public wxWindow {
+            class Item : public QWidget {
             public:
-                Item(wxWindow* parent);
+                Item(QWidget* parent);
                 virtual ~Item() override;
                 
                 bool AcceptsFocus() const override;
@@ -44,14 +44,14 @@ namespace TrenchBroom {
                 virtual void setSelectionColours(const wxColour& foreground, const wxColour& background);
                 virtual void setDefaultColours(const wxColour& foreground, const wxColour& background);
             protected:
-                void setColours(wxWindow* window, const wxColour& foreground, const wxColour& background);
+                void setColours(QWidget* window, const wxColour& foreground, const wxColour& background);
             };
         private:
             typedef std::vector<Item*> ItemList;
             wxSize m_itemMargin;
             bool m_restrictToClientWidth;
-            wxString m_emptyText;
-            wxStaticText* m_emptyTextLabel;
+            QString m_emptyText;
+            QLabel* m_emptyTextLabel;
             bool m_showLastDivider;
             bool m_valid;
             size_t m_newItemCount;
@@ -61,7 +61,7 @@ namespace TrenchBroom {
         private:
             class Sizer;
         public:
-            ControlListBox(wxWindow* parent, bool restrictToClientWidth, const wxString& emptyText = "");
+            ControlListBox(QWidget* parent, bool restrictToClientWidth, const QString& emptyText = "");
 
             size_t GetItemCount() const;
             int GetSelection() const;
@@ -75,12 +75,12 @@ namespace TrenchBroom {
             void SetItemMargin(const wxSize& margin);
             void SetShowLastDivider(bool showLastDivider);
             
-            void SetEmptyText(const wxString& emptyText);
+            void SetEmptyText(const QString& emptyText);
         private:
             void invalidate();
             void validate();
             void refresh(size_t itemCount);
-            void bindEvents(wxWindow* window, size_t itemIndex);
+            void bindEvents(QWidget* window, size_t itemIndex);
             
             void OnIdle(wxIdleEvent& event);
             void OnSize(wxSizeEvent& event);
@@ -94,7 +94,7 @@ namespace TrenchBroom {
             void setSelection(const wxEvent& event);
             void setSelection(size_t index);
         private:
-            virtual Item* createItem(wxWindow* parent, const wxSize& margins, size_t index) = 0;
+            virtual Item* createItem(QWidget* parent, const wxSize& margins, size_t index) = 0;
         };
     }
 }

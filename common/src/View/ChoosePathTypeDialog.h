@@ -25,7 +25,7 @@
 #include <wx/dialog.h>
 
 class wxRadioButton;
-class wxWindow;
+class QWidget;
 
 namespace TrenchBroom {
     namespace View {
@@ -42,7 +42,7 @@ namespace TrenchBroom {
             wxRadioButton* m_gameRelativeRadio;
         public:
             ChoosePathTypeDialog();
-            ChoosePathTypeDialog(wxWindow* parent, const IO::Path& absPath, const IO::Path& docPath, const IO::Path& gamePath);
+            ChoosePathTypeDialog(QWidget* parent, const IO::Path& absPath, const IO::Path& docPath, const IO::Path& gamePath);
             bool Create();
             
             const IO::Path& path() const;

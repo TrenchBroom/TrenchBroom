@@ -32,18 +32,18 @@
 
 namespace TrenchBroom {
     namespace View {
-        ImageListBox::ImageListBox(wxWindow* parent, const wxString& emptyText) :
+        ImageListBox::ImageListBox(QWidget* parent, const QString& emptyText) :
         ControlListBox(parent, true, emptyText) {
             InheritAttributes();
         }
 
         class ImageListBox::ImageListBoxItem : public Item {
         private:
-            wxStaticText* m_titleText;
-            wxStaticText* m_subtitleText;
+            QLabel* m_titleText;
+            QLabel* m_subtitleText;
             wxStaticBitmap* m_imageBmp;
         public:
-            ImageListBoxItem(wxWindow* parent, const wxSize& margins, const wxString& title, const wxString& subtitle) :
+            ImageListBoxItem(QWidget* parent, const wxSize& margins, const QString& title, const QString& subtitle) :
             Item(parent),
             m_titleText(nullptr),
             m_subtitleText(nullptr),
@@ -52,7 +52,7 @@ namespace TrenchBroom {
                 createGui(margins, title, subtitle, nullptr);
             }
             
-            ImageListBoxItem(wxWindow* parent, const wxSize& margins, const wxString& title, const wxString& subtitle, const wxBitmap& image)  :
+            ImageListBoxItem(QWidget* parent, const wxSize& margins, const QString& title, const QString& subtitle, const wxBitmap& image)  :
             Item(parent),
             m_titleText(nullptr),
             m_subtitleText(nullptr),
@@ -66,9 +66,9 @@ namespace TrenchBroom {
                 m_subtitleText->SetForegroundColour(makeLighter(m_subtitleText->GetForegroundColour()));
             }
         private:
-            void createGui(const wxSize& margins, const wxString& title, const wxString& subtitle, const wxBitmap* image) {
-                m_titleText = new wxStaticText(this, wxID_ANY, title, wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_END);
-                m_subtitleText = new wxStaticText(this, wxID_ANY, subtitle, wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_MIDDLE);
+            void createGui(const wxSize& margins, const QString& title, const QString& subtitle, const wxBitmap* image) {
+                m_titleText = new QLabel(this, wxID_ANY, title, wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_END);
+                m_subtitleText = new QLabel(this, wxID_ANY, subtitle, wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_MIDDLE);
                 
                 m_titleText->SetFont(m_titleText->GetFont().Bold());
                 m_subtitleText->SetForegroundColour(makeLighter(m_subtitleText->GetForegroundColour()));
@@ -95,7 +95,7 @@ namespace TrenchBroom {
             }
         };
 
-        ControlListBox::Item* ImageListBox::createItem(wxWindow* parent, const wxSize& margins, const size_t index) {
+        ControlListBox::Item* ImageListBox::createItem(QWidget* parent, const wxSize& margins, const size_t index) {
             wxBitmap bitmap;
             if (image(index, bitmap)) {
                 return new ImageListBoxItem(parent, margins, title(index), subtitle(index), bitmap);

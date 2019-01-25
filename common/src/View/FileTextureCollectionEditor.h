@@ -33,13 +33,13 @@ namespace TrenchBroom {
     }
 
     namespace View {
-        class FileTextureCollectionEditor : public wxPanel {
+        class FileTextureCollectionEditor : public QWidget {
         private:
             MapDocumentWPtr m_document;
             
             wxListBox* m_collections;
         public:
-            FileTextureCollectionEditor(wxWindow* parent, MapDocumentWPtr document);
+            FileTextureCollectionEditor(QWidget* parent, MapDocumentWPtr document);
             ~FileTextureCollectionEditor();
 
             bool debugUIConsistency() const;

@@ -31,7 +31,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        ColorTable::ColorTable(wxWindow* parent, wxWindowID winId, int cellSize, const wxPoint& pos, const wxSize& size, long style) :
+        ColorTable::ColorTable(QWidget* parent, wxWindowID winId, int cellSize, const wxPoint& pos, const wxSize& size, long style) :
         wxScrolledWindow(parent, winId, pos, size, (style & ~static_cast<long>(wxHSCROLL)) | static_cast<long>(wxVSCROLL)),
         m_cellSize(cellSize),
         m_margin(2) {

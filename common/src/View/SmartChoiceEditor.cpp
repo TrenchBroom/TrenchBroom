@@ -52,12 +52,12 @@ namespace TrenchBroom {
             document()->setAttribute(name(), m_comboBox->GetValue().ToStdString());
         }
 
-        wxWindow* SmartChoiceEditor::doCreateVisual(wxWindow* parent) {
+        QWidget* SmartChoiceEditor::doCreateVisual(QWidget* parent) {
             assert(m_panel == nullptr);
             assert(m_comboBox == nullptr);
             
-            m_panel = new wxPanel(parent);
-            wxStaticText* infoText = new wxStaticText(m_panel, wxID_ANY, "Select a choice option:");
+            m_panel = new QWidget(parent);
+            QLabel* infoText = new QLabel(m_panel, wxID_ANY, "Select a choice option:");
 #if defined __APPLE__
             infoText->SetFont(*wxSMALL_FONT);
 #endif

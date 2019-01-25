@@ -34,8 +34,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        SplitterWindow2::SplitterWindow2(wxWindow* parent) :
-        wxPanel(parent, wxID_ANY),
+        SplitterWindow2::SplitterWindow2(QWidget* parent) :
+        QWidget(parent, wxID_ANY),
         m_splitMode(SplitMode_Unset),
         m_sash(nullptr),
         m_maximizedWindow(nullptr),
@@ -54,15 +54,15 @@ namespace TrenchBroom {
             Bind(wxEVT_IDLE, &SplitterWindow2::OnIdle, this);
         }
         
-        void SplitterWindow2::splitHorizontally(wxWindow* left, wxWindow* right, const wxSize& leftMin, const wxSize& rightMin) {
+        void SplitterWindow2::splitHorizontally(QWidget* left, QWidget* right, const wxSize& leftMin, const wxSize& rightMin) {
             split(left, right, leftMin, rightMin, SplitMode_Horizontal);
         }
         
-        void SplitterWindow2::splitVertically(wxWindow* top, wxWindow* bottom, const wxSize& topMin, const wxSize& bottomMin) {
+        void SplitterWindow2::splitVertically(QWidget* top, QWidget* bottom, const wxSize& topMin, const wxSize& bottomMin) {
             split(top, bottom, topMin, bottomMin, SplitMode_Vertical);
         }
         
-        void SplitterWindow2::setMinSize(wxWindow* window, const wxSize& minSize) {
+        void SplitterWindow2::setMinSize(QWidget* window, const wxSize& minSize) {
             assert(m_splitMode != SplitMode_Unset);
             
             wxSize splitterMinSize;
@@ -82,12 +82,12 @@ namespace TrenchBroom {
             m_sashGravity = std::max(std::min(sashGravity, 1.0), 0.0);
         }
         
-        bool SplitterWindow2::isMaximized(wxWindow* window) const {
+        bool SplitterWindow2::isMaximized(QWidget* window) const {
             assert(window == m_windows[0] || window == m_windows[1]);
             return (m_maximizedWindow == window);
         }
         
-        void SplitterWindow2::maximize(wxWindow* window) {
+        void SplitterWindow2::maximize(QWidget* window) {
             assert(window == m_windows[0] || window == m_windows[1]);
             m_maximizedWindow = window;
             m_maximizedWindow->Show();
@@ -124,7 +124,7 @@ namespace TrenchBroom {
             }
         }
 
-        void SplitterWindow2::split(wxWindow* window1, wxWindow* window2, const wxSize& min1, const wxSize& min2, const SplitMode splitMode) {
+        void SplitterWindow2::split(QWidget* window1, QWidget* window2, const wxSize& min1, const wxSize& min2, const SplitMode splitMode) {
             ensure(window1 != nullptr, "window1 is null");
             assert(window1->GetParent() == this);
             ensure(window2 != nullptr, "window2 is null");
@@ -146,7 +146,7 @@ namespace TrenchBroom {
             setMinSize(window2, min2);
         }
         
-        void SplitterWindow2::bindMouseEvents(wxWindow* window) {
+        void SplitterWindow2::bindMouseEvents(QWidget* window) {
             window->Bind(wxEVT_ENTER_WINDOW, &SplitterWindow2::OnMouseEnter, this);
             window->Bind(wxEVT_LEAVE_WINDOW, &SplitterWindow2::OnMouseLeave, this);
             window->Bind(wxEVT_LEFT_DOWN, &SplitterWindow2::OnMouseButton, this);
@@ -315,7 +315,7 @@ namespace TrenchBroom {
             return 2;
         }
  
-        wxWindow* SplitterWindow2::unmaximizedWindow() {
+        QWidget* SplitterWindow2::unmaximizedWindow() {
             ensure(m_maximizedWindow != nullptr, "maximizedWindow is null");
             return m_windows[0] == m_maximizedWindow ? m_windows[1] : m_windows[0];
         }

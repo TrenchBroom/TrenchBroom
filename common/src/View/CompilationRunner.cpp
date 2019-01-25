@@ -287,7 +287,7 @@ namespace TrenchBroom {
                 while (hasOutput) {
                     hasOutput = false;
                     if (m_process->IsInputAvailable()) {
-                        const wxString output = readStream(m_process->GetInputStream());
+                        const QString output = readStream(m_process->GetInputStream());
                         if (!output.IsEmpty()) {
                             m_context << output;
                             hasOutput = true;
@@ -295,7 +295,7 @@ namespace TrenchBroom {
                         }
                     }
                     if (m_process->IsErrorAvailable()) {
-                        const wxString output = readStream(m_process->GetErrorStream());
+                        const QString output = readStream(m_process->GetErrorStream());
                         if (!output.IsEmpty()) {
                             m_context << output;
                             hasOutput = true;
@@ -311,14 +311,14 @@ namespace TrenchBroom {
             bool readOutput() {
                 bool hasOutput = false;
                 if (m_process->IsInputAvailable()) {
-                    const wxString output = readStream(m_process->GetInputStream());
+                    const QString output = readStream(m_process->GetInputStream());
                     if (!output.IsEmpty()) {
                         m_context << output;
                         hasOutput = true;
                     }
                 }
                 if (m_process->IsErrorAvailable()) {
-                    const wxString output = readStream(m_process->GetErrorStream());
+                    const QString output = readStream(m_process->GetErrorStream());
                     if (!output.IsEmpty()) {
                         m_context << output;
                         hasOutput = true;
@@ -327,7 +327,7 @@ namespace TrenchBroom {
                 return hasOutput;
             }
             
-            wxString readStream(wxInputStream* stream) {
+            QString readStream(wxInputStream* stream) {
                 ensure(stream != nullptr, "stream is null");
                 wxStringOutputStream out;
                 if (stream->CanRead()) {
@@ -336,7 +336,7 @@ namespace TrenchBroom {
                     stream->Read(buffer, BUF_SIZE);
                     out.Write(buffer, stream->LastRead());
                 }
-                const wxString result = out.GetString();
+                const QString result = out.GetString();
                 return result;
             }
         private:

@@ -24,7 +24,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        MapFrameDropTarget::MapFrameDropTarget(MapDocumentWPtr document, wxWindow* parent) :
+        MapFrameDropTarget::MapFrameDropTarget(MapDocumentWPtr document, QWidget* parent) :
         wxFileDropTarget(),
         m_document(document),
         m_parent(parent) {}

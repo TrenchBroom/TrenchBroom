@@ -30,7 +30,7 @@ namespace TrenchBroom {
         PersistentSplitterWindow2::PersistentSplitterWindow2(SplitterWindow2* obj) :
         wxPersistentWindow(obj) {}
         
-        wxString PersistentSplitterWindow2::GetKind() const {
+        QString PersistentSplitterWindow2::GetKind() const {
             return "SplitterWindow2";
         }
         

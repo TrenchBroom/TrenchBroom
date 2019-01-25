@@ -41,15 +41,15 @@ namespace TrenchBroom {
             wxTextCtrl* m_gamePathText;
             wxButton* m_chooseGamePathButton;
         public:
-            GamesPreferencePane(wxWindow* parent);
+            GamesPreferencePane(QWidget* parent);
         private:
             void OnGameSelectionChanged(GameSelectionCommand& event);
             void OnChooseGamePathClicked(wxCommandEvent& event);
-            void updateGamePath(const wxString& str);
+            void updateGamePath(const QString& str);
             void OnConfigureenginesClicked(wxCommandEvent& event);
         private:
             void createGui();
-            wxWindow* createGamePreferencesPage(wxWindow* parent);
+            QWidget* createGamePreferencesPage(QWidget* parent);
             
             bool doCanResetToDefaults() override;
             void doResetToDefaults() override;

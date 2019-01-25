@@ -35,8 +35,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        GameEngineProfileEditor::GameEngineProfileEditor(wxWindow* parent) :
-        wxPanel(parent),
+        GameEngineProfileEditor::GameEngineProfileEditor(QWidget* parent) :
+        QWidget(parent),
         m_profile(nullptr),
         m_book(nullptr),
         m_nameText(nullptr),
@@ -61,12 +61,12 @@ namespace TrenchBroom {
             }
         }
 
-        wxWindow* GameEngineProfileEditor::createEditorPage(wxWindow* parent) {
-            auto* containerPanel = new wxPanel(parent);
+        QWidget* GameEngineProfileEditor::createEditorPage(QWidget* parent) {
+            auto* containerPanel = new QWidget(parent);
             containerPanel->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_FRAMEBK));
 
-            auto* nameLabel = new wxStaticText(containerPanel, wxID_ANY, "Name");
-            auto* pathLabel = new wxStaticText(containerPanel, wxID_ANY, "Path");
+            auto* nameLabel = new QLabel(containerPanel, wxID_ANY, "Name");
+            auto* pathLabel = new QLabel(containerPanel, wxID_ANY, "Path");
 
             m_nameText = new wxTextCtrl(containerPanel, wxID_ANY);
             setHint(m_nameText, "Choose a name");
@@ -128,7 +128,7 @@ namespace TrenchBroom {
             }
         }
 
-        void GameEngineProfileEditor::updatePath(const wxString& str) {
+        void GameEngineProfileEditor::updatePath(const QString& str) {
             if (isValidEnginePath(str)) {
                 const auto path = IO::Path(str.ToStdString());
                 m_profile->setPath(path);
@@ -170,7 +170,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool GameEngineProfileEditor::isValidEnginePath(const wxString& str) const {
+        bool GameEngineProfileEditor::isValidEnginePath(const QString& str) const {
             try {
                 const auto path = IO::Path(str.ToStdString());
                 return IO::Disk::fileExists(path)

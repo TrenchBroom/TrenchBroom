@@ -30,8 +30,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        CurrentGameIndicator::CurrentGameIndicator(wxWindow* parent, const String& gameName) :
-        wxPanel(parent) {
+        CurrentGameIndicator::CurrentGameIndicator(QWidget* parent, const String& gameName) :
+        QWidget(parent) {
             SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
 
             Model::GameFactory& gameFactory = Model::GameFactory::instance();
@@ -43,7 +43,7 @@ namespace TrenchBroom {
             
             const wxBitmap gameIcon = IO::loadImageResource(iconPath);
             wxStaticBitmap* gameIconImg = new wxStaticBitmap(this, wxID_ANY, gameIcon);
-            wxStaticText* gameNameText = new wxStaticText(this, wxID_ANY, gameName);
+            QLabel* gameNameText = new QLabel(this, wxID_ANY, gameName);
             gameNameText->SetFont(gameNameText->GetFont().Larger().Larger().Bold());
             
             wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);

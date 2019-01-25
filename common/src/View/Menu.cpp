@@ -122,8 +122,8 @@ namespace TrenchBroom {
         
         ActionMenuItem::~ActionMenuItem() {}
 
-        wxString ActionMenuItem::menuString(const wxString& suffix, const bool withShortcuts) const {
-            wxString caption;
+        QString ActionMenuItem::menuString(const QString& suffix, const bool withShortcuts) const {
+            QString caption;
             caption << label();
             if (!suffix.empty())
                 caption << " " << suffix;
@@ -198,14 +198,14 @@ namespace TrenchBroom {
             return m_action.modifiable();
         }
 
-        wxString ActionMenuItem::doGetActionDescription() const {
+        QString ActionMenuItem::doGetActionDescription() const {
             return m_preference.path().asString(" > ");
         }
         
-        wxString ActionMenuItem::doGetJsonString() const {
+        QString ActionMenuItem::doGetJsonString() const {
             const IO::Path menuPath = path(label());
             
-            wxString str;
+            QString str;
             str << "{ path: [\"" << menuPath.asString("\", \"") << "\"], shortcut: " << defaultShortcut().asJsonString() << " }";
             return str;
         }

@@ -44,8 +44,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityDefinitionCheckBoxList::EntityDefinitionCheckBoxList(wxWindow* parent, Assets::EntityDefinitionManager& entityDefinitionManager, Model::EditorContext& editorContext) :
-        wxPanel(parent),
+        EntityDefinitionCheckBoxList::EntityDefinitionCheckBoxList(QWidget* parent, Assets::EntityDefinitionManager& entityDefinitionManager, Model::EditorContext& editorContext) :
+        QWidget(parent),
         m_entityDefinitionManager(entityDefinitionManager),
         m_editorContext(editorContext) {
             createGui();
@@ -200,8 +200,8 @@ namespace TrenchBroom {
             SetSizer(outerSizer);
         }
 
-        ViewEditor::ViewEditor(wxWindow* parent, MapDocumentWPtr document) :
-        wxPanel(parent),
+        ViewEditor::ViewEditor(QWidget* parent, MapDocumentWPtr document) :
+        QWidget(parent),
         m_document(document) {
             bindObservers();
         }
@@ -413,7 +413,7 @@ namespace TrenchBroom {
 #endif
         }
 
-        wxWindow* ViewEditor::createEntityDefinitionsPanel(wxWindow* parent) {
+        QWidget* ViewEditor::createEntityDefinitionsPanel(QWidget* parent) {
             TitledPanel* panel = new TitledPanel(parent, "Entity Definitions", false);
 
             MapDocumentSPtr document = lock(m_document);
@@ -430,7 +430,7 @@ namespace TrenchBroom {
             return panel;
         }
 
-        wxWindow* ViewEditor::createEntitiesPanel(wxWindow* parent) {
+        QWidget* ViewEditor::createEntitiesPanel(QWidget* parent) {
             TitledPanel* panel = new TitledPanel(parent, "Entities", false);
 
             m_showEntityClassnamesCheckBox = new wxCheckBox(panel->getPanel(), wxID_ANY, "Show entity classnames");
@@ -460,9 +460,9 @@ namespace TrenchBroom {
             return panel;
         }
 
-        wxWindow* ViewEditor::createBrushesPanel(wxWindow* parent) {
+        QWidget* ViewEditor::createBrushesPanel(QWidget* parent) {
             TitledPanel* panel = new TitledPanel(parent, "Brushes", false);
-            wxWindow* inner = panel->getPanel();
+            QWidget* inner = panel->getPanel();
             createBrushContentTypeFilter(inner);
 
             m_showBrushesCheckBox = new wxCheckBox(panel->getPanel(), wxID_ANY, "Show brushes");
@@ -474,7 +474,7 @@ namespace TrenchBroom {
             return panel;
         }
 
-        void ViewEditor::createBrushContentTypeFilter(wxWindow* parent) {
+        void ViewEditor::createBrushContentTypeFilter(QWidget* parent) {
             m_brushContentTypeCheckBoxes.clear();
 
             MapDocumentSPtr document = lock(m_document);
@@ -491,8 +491,8 @@ namespace TrenchBroom {
             }
         }
 
-        void ViewEditor::createEmptyBrushContentTypeFilter(wxWindow* parent) {
-            wxStaticText* msg = new wxStaticText(parent, wxID_ANY, "No brush content types found");
+        void ViewEditor::createEmptyBrushContentTypeFilter(QWidget* parent) {
+            QLabel* msg = new QLabel(parent, wxID_ANY, "No brush content types found");
             msg->SetForegroundColour(*wxLIGHT_GREY);
 
             wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
@@ -503,14 +503,14 @@ namespace TrenchBroom {
             parent->SetSizerAndFit(sizer);
         }
 
-        void ViewEditor::createBrushContentTypeFilter(wxWindow* parent, const Model::BrushContentType::List& contentTypes) {
+        void ViewEditor::createBrushContentTypeFilter(QWidget* parent, const Model::BrushContentType::List& contentTypes) {
             assert(!contentTypes.empty());
 
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             for (size_t i = 0; i < contentTypes.size(); ++i) {
                 const Model::BrushContentType& contentType = contentTypes[i];
 
-                wxString label = "Show ";
+                QString label = "Show ";
                 label << StringUtils::toLower(contentType.name());
 
                 wxCheckBox* checkBox = new wxCheckBox(parent, wxID_ANY, label);
@@ -522,18 +522,18 @@ namespace TrenchBroom {
             parent->SetSizerAndFit(sizer);
         }
 
-        wxWindow* ViewEditor::createRendererPanel(wxWindow* parent) {
+        QWidget* ViewEditor::createRendererPanel(QWidget* parent) {
             TitledPanel* panel = new TitledPanel(parent, "Renderer", false);
-            wxWindow* inner = panel->getPanel();
+            QWidget* inner = panel->getPanel();
 
-            static const wxString FaceRenderModes[] = { "Show textures", "Hide textures", "Hide faces" };
+            static const QString FaceRenderModes[] = { "Show textures", "Hide textures", "Hide faces" };
             m_renderModeRadioGroup = new RadioGroup(inner, wxID_ANY, wxDefaultPosition, wxDefaultSize, 3, FaceRenderModes);
 
             m_shadeFacesCheckBox = new wxCheckBox(inner, wxID_ANY, "Shade faces");
             m_showFogCheckBox = new wxCheckBox(inner, wxID_ANY, "Use fog");
             m_showEdgesCheckBox = new wxCheckBox(inner, wxID_ANY, "Show edges");
 
-            static const wxString EntityLinkModes[] = { "Show all entity links", "Show transitively selected entity links", "Show directly selected entity links", "Hide entity links" };
+            static const QString EntityLinkModes[] = { "Show all entity links", "Show transitively selected entity links", "Show directly selected entity links", "Hide entity links" };
             m_entityLinkRadioGroup = new RadioGroup(inner, wxID_ANY, wxDefaultPosition, wxDefaultSize, 4, EntityLinkModes);
 
             m_renderModeRadioGroup->Bind(wxEVT_RADIOGROUP, &ViewEditor::OnFaceRenderModeChanged, this);
@@ -608,8 +608,8 @@ namespace TrenchBroom {
             m_entityLinkRadioGroup->SetSelection(editorContext.entityLinkMode());
         }
 
-        ViewPopupEditor::ViewPopupEditor(wxWindow* parent, MapDocumentWPtr document) :
-        wxPanel(parent),
+        ViewPopupEditor::ViewPopupEditor(QWidget* parent, MapDocumentWPtr document) :
+        QWidget(parent),
         m_button(nullptr),
         m_editor(nullptr) {
             m_button = new PopupButton(this, "View");

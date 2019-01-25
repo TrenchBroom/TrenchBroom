@@ -29,17 +29,17 @@
 
 namespace TrenchBroom {
     namespace View {
-        FlagsPopupEditor::FlagsPopupEditor(wxWindow* parent, const size_t numCols, const wxString& buttonLabel , const bool showFlagsText) :
-        wxPanel(parent),
+        FlagsPopupEditor::FlagsPopupEditor(QWidget* parent, const size_t numCols, const QString& buttonLabel , const bool showFlagsText) :
+        QWidget(parent),
         m_flagsTxt(nullptr),
         m_button(nullptr),
         m_editor(nullptr) {
-            wxPanel* flagsPanel = nullptr;
+            QWidget* flagsPanel = nullptr;
             if (showFlagsText) {
-                flagsPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
+                flagsPanel = new QWidget(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
                 flagsPanel->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
                 
-                m_flagsTxt = new wxStaticText(flagsPanel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT | wxST_ELLIPSIZE_END);
+                m_flagsTxt = new QLabel(flagsPanel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT | wxST_ELLIPSIZE_END);
                 
                 wxSizer* flagsPanelSizer = new wxBoxSizer(wxVERTICAL);
                 flagsPanelSizer->AddStretchSpacer();
@@ -51,7 +51,7 @@ namespace TrenchBroom {
             m_button = new PopupButton(this, buttonLabel);
             m_button->SetToolTip("Click to edit flags");
             
-            wxPanel* editorContainer = new wxPanel(m_button->GetPopupWindow(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SIMPLE);
+            QWidget* editorContainer = new QWidget(m_button->GetPopupWindow(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SIMPLE);
             m_editor = new FlagsEditor(editorContainer, numCols);
             
             wxSizer* editorContainerSizer = new wxBoxSizer(wxVERTICAL);
@@ -98,7 +98,7 @@ namespace TrenchBroom {
         }
 
         bool FlagsPopupEditor::Enable(bool enable) {
-            if (wxPanel::Enable(enable)) {
+            if (QWidget::Enable(enable)) {
                 m_button->Enable(enable);
                 updateFlagsText();
                 return true;
@@ -117,7 +117,7 @@ namespace TrenchBroom {
                 return;
             }
             
-            wxString label;
+            QString label;
             bool first = true;
             bool mixed = false;
             for (size_t i = 0; i < m_editor->getNumFlags() && !mixed; ++i) {

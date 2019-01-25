@@ -21,8 +21,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        PreferencePane::PreferencePane(wxWindow* parent) :
-        wxPanel(parent, wxID_ANY) {}
+        PreferencePane::PreferencePane(QWidget* parent) :
+        QWidget(parent, wxID_ANY) {}
         
         PreferencePane::~PreferencePane() {}
         

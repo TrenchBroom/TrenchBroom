@@ -29,14 +29,14 @@ class wxListBox;
 
 namespace TrenchBroom {
     namespace View {
-        class DirectoryTextureCollectionEditor : public wxPanel {
+        class DirectoryTextureCollectionEditor : public QWidget {
         private:
             MapDocumentWPtr m_document;
             
             wxListBox* m_availableCollectionsList;
             wxListBox* m_enabledCollectionsList;
         public:
-            DirectoryTextureCollectionEditor(wxWindow* parent, MapDocumentWPtr document);
+            DirectoryTextureCollectionEditor(QWidget* parent, MapDocumentWPtr document);
 			~DirectoryTextureCollectionEditor();
         private:
             void OnAddTextureCollections(wxCommandEvent& event);

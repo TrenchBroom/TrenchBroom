@@ -29,7 +29,7 @@
 
 #include <vector>
 
-class wxWindow;
+class QWidget;
 
 namespace TrenchBroom {
     namespace View {
@@ -49,7 +49,7 @@ namespace TrenchBroom {
             
             bool m_valid;
         public:
-            IssueBrowserView(wxWindow* parent, MapDocumentWPtr document);
+            IssueBrowserView(QWidget* parent, MapDocumentWPtr document);
             
             int hiddenGenerators() const;
             void setHiddenGenerators(int hiddenGenerators);
@@ -80,7 +80,7 @@ namespace TrenchBroom {
             IndexList getSelection() const;
             
             wxListItemAttr* OnGetItemAttr(long item) const override;
-            wxString OnGetItemText(long item, long column) const override;
+            QString OnGetItemText(long item, long column) const override;
             
             void bindEvents();
         private:

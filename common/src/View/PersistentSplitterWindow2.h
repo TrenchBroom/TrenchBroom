@@ -32,7 +32,7 @@ namespace TrenchBroom {
         public:
             PersistentSplitterWindow2(SplitterWindow2* obj);
             
-            wxString GetKind() const override;
+            QString GetKind() const override;
             void Save() const override;
             bool Restore() override;
         };

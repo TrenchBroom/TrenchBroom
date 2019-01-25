@@ -29,7 +29,7 @@
 
 wxDECLARE_EVENT(wxEVT_DELAYED_TEXT, wxCommandEvent);
 
-class wxStaticText;
+class QLabel;
 
 namespace TrenchBroom {
     namespace View {
@@ -38,9 +38,9 @@ namespace TrenchBroom {
             class CompletionResult {
             private:
                 struct SingleResult {
-                    wxString value;
-                    wxString description;
-                    SingleResult(const wxString& i_value, const wxString& i_description);
+                    QString value;
+                    QString description;
+                    SingleResult(const QString& i_value, const QString& i_description);
                 };
                 
                 typedef std::vector<SingleResult> List;
@@ -49,42 +49,42 @@ namespace TrenchBroom {
                 bool IsEmpty() const;
                 size_t Count() const;
                 
-                const wxString GetValue(size_t index) const;
-                const wxString GetDescription(size_t index) const;
+                const QString GetValue(size_t index) const;
+                const QString GetDescription(size_t index) const;
                 
-                void Add(const wxString& value, const wxString& description);
+                void Add(const QString& value, const QString& description);
             };
             
             class Helper {
             public:
                 virtual ~Helper();
 
-                size_t ShouldStartCompletionAfterInput(const wxString& str, wxUniChar c, size_t insertPos) const;
-                size_t ShouldStartCompletionAfterRequest(const wxString& str, size_t insertPos) const;
-                CompletionResult GetCompletions(const wxString& str, size_t startIndex, size_t count) const;
+                size_t ShouldStartCompletionAfterInput(const QString& str, wxUniChar c, size_t insertPos) const;
+                size_t ShouldStartCompletionAfterRequest(const QString& str, size_t insertPos) const;
+                CompletionResult GetCompletions(const QString& str, size_t startIndex, size_t count) const;
             private:
-                virtual size_t DoShouldStartCompletionAfterInput(const wxString& str, wxUniChar c, size_t insertPos) const = 0;
-                virtual size_t DoShouldStartCompletionAfterRequest(const wxString& str, size_t insertPos) const = 0;
-                virtual CompletionResult DoGetCompletions(const wxString& str, size_t startIndex, size_t count) const = 0;
+                virtual size_t DoShouldStartCompletionAfterInput(const QString& str, wxUniChar c, size_t insertPos) const = 0;
+                virtual size_t DoShouldStartCompletionAfterRequest(const QString& str, size_t insertPos) const = 0;
+                virtual CompletionResult DoGetCompletions(const QString& str, size_t startIndex, size_t count) const = 0;
             };
         private:
             class DefaultHelper : public Helper {
             private:
-                size_t DoShouldStartCompletionAfterInput(const wxString& str, wxUniChar c, size_t insertPos) const override;
-                size_t DoShouldStartCompletionAfterRequest(const wxString& str, size_t insertPos) const override;
-                CompletionResult DoGetCompletions(const wxString& str, size_t startIndex, size_t count) const override;
+                size_t DoShouldStartCompletionAfterInput(const QString& str, wxUniChar c, size_t insertPos) const override;
+                size_t DoShouldStartCompletionAfterRequest(const QString& str, size_t insertPos) const override;
+                CompletionResult DoGetCompletions(const QString& str, size_t startIndex, size_t count) const override;
             };
         private:
             class AutoCompletionList : public ControlListBox {
             private:
                 CompletionResult m_result;
             public:
-                AutoCompletionList(wxWindow* parent);
+                AutoCompletionList(QWidget* parent);
                 void SetResult(const CompletionResult& result);
-                const wxString CurrentSelection() const;
+                const QString CurrentSelection() const;
             private:
                 class AutoCompletionListItem;
-                Item* createItem(wxWindow* parent, const wxSize& margin, size_t index) override;
+                Item* createItem(QWidget* parent, const wxSize& margin, size_t index) override;
             };
             
             class AutoCompletionPopup : public wxPopupWindow {
@@ -112,10 +112,10 @@ namespace TrenchBroom {
             size_t m_currentStartIndex;
         public:
             AutoCompleteTextControl();
-            AutoCompleteTextControl(wxWindow* parent, wxWindowID id, const wxString& value = wxEmptyString, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0, const wxValidator& validator = wxDefaultValidator, const wxString& name = wxTextCtrlNameStr);
+            AutoCompleteTextControl(QWidget* parent, wxWindowID id, const QString& value = wxEmptyString, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0, const wxValidator& validator = wxDefaultValidator, const QString& name = wxTextCtrlNameStr);
             ~AutoCompleteTextControl();
             
-            void Create(wxWindow* parent, wxWindowID id, const wxString& value = wxEmptyString, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0, const wxValidator& validator = wxDefaultValidator, const wxString& name = wxTextCtrlNameStr);
+            void Create(QWidget* parent, wxWindowID id, const QString& value = wxEmptyString, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0, const wxValidator& validator = wxDefaultValidator, const QString& name = wxTextCtrlNameStr);
             
             void SetHelper(Helper* helper);
         private:
@@ -129,7 +129,7 @@ namespace TrenchBroom {
             void UpdateAutoCompletion();
             void EndAutoCompletion();
             
-            void PerformAutoComplete(const wxString& replacement);
+            void PerformAutoComplete(const QString& replacement);
             
             void OnKillFocus(wxFocusEvent& event);
             void OnDelayedEventBinding(wxIdleEvent& event);

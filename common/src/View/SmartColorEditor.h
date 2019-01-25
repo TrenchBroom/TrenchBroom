@@ -31,9 +31,9 @@
 class wxColourPickerCtrl;
 class wxColourPickerEvent;
 class wxCommandEvent;
-class wxPanel;
+class QWidget;
 class wxRadioButton;
-class wxWindow;
+class QWidget;
 
 namespace TrenchBroom {
     namespace View {
@@ -45,7 +45,7 @@ namespace TrenchBroom {
             static const size_t ColorHistoryCellSize = 15;
             typedef std::vector<wxColour> wxColorList;
             
-            wxPanel* m_panel;
+            QWidget* m_panel;
             wxRadioButton* m_floatRadio;
             wxRadioButton* m_byteRadio;
             wxColourPickerCtrl* m_colorPicker;
@@ -58,7 +58,7 @@ namespace TrenchBroom {
             void OnColorPickerChanged(wxColourPickerEvent& event);
             void OnColorTableSelected(ColorTableSelectedCommand& event);
         private:
-            wxWindow* doCreateVisual(wxWindow* parent) override;
+            QWidget* doCreateVisual(QWidget* parent) override;
             void doDestroyVisual() override;
             void doUpdateVisual(const Model::AttributableNodeList& attributables) override;
 

@@ -31,8 +31,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityAttributeEditor::EntityAttributeEditor(wxWindow* parent, MapDocumentWPtr document) :
-        wxPanel(parent),
+        EntityAttributeEditor::EntityAttributeEditor(QWidget* parent, MapDocumentWPtr document) :
+        QWidget(parent),
         m_document(document) {
             createGui(this, document);
         }
@@ -48,7 +48,7 @@ namespace TrenchBroom {
             }
         }
         
-        void EntityAttributeEditor::createGui(wxWindow* parent, MapDocumentWPtr document) {
+        void EntityAttributeEditor::createGui(QWidget* parent, MapDocumentWPtr document) {
             SplitterWindow2* splitter = new SplitterWindow2(parent);
             splitter->setSashGravity(1.0);
             splitter->SetName("EntityAttributeEditorSplitter");

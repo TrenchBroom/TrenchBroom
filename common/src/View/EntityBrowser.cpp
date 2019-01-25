@@ -34,8 +34,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityBrowser::EntityBrowser(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
-        wxPanel(parent),
+        EntityBrowser::EntityBrowser(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
+        QWidget(parent),
         m_document(document) {
             createGui(contextManager);
             bindObservers();
@@ -78,7 +78,7 @@ namespace TrenchBroom {
         }
 
         void EntityBrowser::createGui(GLContextManager& contextManager) {
-            wxPanel* browserPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
+            QWidget* browserPanel = new QWidget(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
             m_scrollBar = new wxScrollBar(browserPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSB_VERTICAL);
             
             MapDocumentSPtr document = lock(m_document);
@@ -93,7 +93,7 @@ namespace TrenchBroom {
             browserPanelSizer->Add(m_scrollBar, 0, wxEXPAND);
             browserPanel->SetSizerAndFit(browserPanelSizer);
             
-            const wxString sortOrders[2] = { "Name", "Usage" };
+            const QString sortOrders[2] = { "Name", "Usage" };
             m_sortOrderChoice = new wxChoice(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 2, sortOrders);
             m_sortOrderChoice->SetSelection(0);
             m_sortOrderChoice->SetToolTip("Select ordering criterion");

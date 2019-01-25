@@ -24,15 +24,15 @@ namespace TrenchBroom {
         ELAutoCompleteHelper::ELAutoCompleteHelper(const EL::VariableStore& variables) :
         m_variables(variables.clone()) {}
 
-        size_t ELAutoCompleteHelper::DoShouldStartCompletionAfterInput(const wxString& str, const wxUniChar c, const size_t insertPos) const {
+        size_t ELAutoCompleteHelper::DoShouldStartCompletionAfterInput(const QString& str, const wxUniChar c, const size_t insertPos) const {
             return str.Length() + 1;
         }
         
-        size_t ELAutoCompleteHelper::DoShouldStartCompletionAfterRequest(const wxString& str, const size_t insertPos) const {
+        size_t ELAutoCompleteHelper::DoShouldStartCompletionAfterRequest(const QString& str, const size_t insertPos) const {
             return insertPos;
         }
 
-        AutoCompleteTextControl::CompletionResult ELAutoCompleteHelper::DoGetCompletions(const wxString& str, const size_t startIndex, const size_t count) const {
+        AutoCompleteTextControl::CompletionResult ELAutoCompleteHelper::DoGetCompletions(const QString& str, const size_t startIndex, const size_t count) const {
             AutoCompleteTextControl::CompletionResult result;
             
             for (const String& variableName : m_variables->names()) {

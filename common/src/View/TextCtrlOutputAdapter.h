@@ -36,7 +36,7 @@ namespace TrenchBroom {
         private:
             wxTextCtrl* m_textCtrl;
             size_t m_lastNewLine;
-            wxString m_remainder;
+            QString m_remainder;
             wxLongLong m_lastOutputTime;
         public:
             TextCtrlOutputAdapter(wxTextCtrl* textCtrl);
@@ -52,17 +52,17 @@ namespace TrenchBroom {
             
             template <typename T>
             TextCtrlOutputAdapter& append(const T& t) {
-                wxString str;
+                QString str;
                 str << t;
                 sendAppendEvent(str);
                 return *this;
             }
         private:
-            void sendAppendEvent(const wxString& str);
+            void sendAppendEvent(const QString& str);
             void OnAsyncAppend(wxThreadEvent& event);
             void OnIdle(wxIdleEvent& event);
-            wxString compressString(const wxString& str);
-            void appendString(const wxString& str);
+            QString compressString(const QString& str);
+            void appendString(const QString& str);
             
             void bindEvents();
             void unbindEvents();

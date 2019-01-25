@@ -28,7 +28,7 @@
 class wxBitmapButton;
 class wxListBox;
 class wxSearchCtrl;
-class wxWindow;
+class QWidget;
 
 namespace TrenchBroom {
     namespace IO {
@@ -40,7 +40,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class ModEditor : public wxPanel {
+        class ModEditor : public QWidget {
         private:
             MapDocumentWPtr m_document;
             
@@ -51,7 +51,7 @@ namespace TrenchBroom {
             StringList m_availableMods;
             bool m_ignoreNotifier;
         public:
-            ModEditor(wxWindow* parent, MapDocumentWPtr document);
+            ModEditor(QWidget* parent, MapDocumentWPtr document);
             ~ModEditor() override;
 
             bool ShouldInheritColours() const override;

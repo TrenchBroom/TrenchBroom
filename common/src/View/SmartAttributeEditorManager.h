@@ -28,7 +28,7 @@
 
 #include <wx/panel.h>
 
-class wxWindow;
+class QWidget;
 
 namespace TrenchBroom {
     namespace View {
@@ -36,7 +36,7 @@ namespace TrenchBroom {
         class SmartAttributeEditor;
         class SmartAttributeEditorMatcher;
         
-        class SmartAttributeEditorManager : public wxPanel {
+        class SmartAttributeEditorManager : public QWidget {
         private:
             typedef std::shared_ptr<SmartAttributeEditor> EditorPtr;
             typedef std::shared_ptr<SmartAttributeEditorMatcher> MatcherPtr;
@@ -49,7 +49,7 @@ namespace TrenchBroom {
             Model::AttributeName m_name;
             EditorPtr m_activeEditor;
         public:
-            SmartAttributeEditorManager(wxWindow* parent, View::MapDocumentWPtr document);
+            SmartAttributeEditorManager(QWidget* parent, View::MapDocumentWPtr document);
             ~SmartAttributeEditorManager();
             
             void switchEditor(const Model::AttributeName& name, const Model::AttributableNodeList& attributables);

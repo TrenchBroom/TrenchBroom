@@ -53,7 +53,7 @@ namespace TrenchBroom {
         void TestEnvironment::createFile(const Path& path, const String& contents) {
             wxFile file;
             assertResult(file.Create((m_dir + path).asString()));
-            assertResult(file.Write(wxString(contents)));
+            assertResult(file.Write(QString(contents)));
         }
 
         bool TestEnvironment::deleteDirectory(const Path& path) {
@@ -65,7 +65,7 @@ namespace TrenchBroom {
                 wxDir dir(path.asString());
                 assert(dir.IsOpened());
 
-                wxString filename;
+                QString filename;
                 if (dir.GetFirst(&filename)) {
                     do {
                         const Path subPath = path + Path(filename.ToStdString());

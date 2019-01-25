@@ -46,7 +46,7 @@ namespace TrenchBroom {
             wxChoice* m_textureBrowserIconSizeChoice;
             wxComboBox* m_fontPrefsRendererFontSizeCombo;
         public:
-            ViewPreferencePane(wxWindow* parent);
+            ViewPreferencePane(QWidget* parent);
 
             void OnLayoutChanged(wxCommandEvent& event);
             void OnBrightnessChanged(wxScrollEvent& event);
@@ -61,7 +61,7 @@ namespace TrenchBroom {
             void OnFontPrefsRendererFontSizeChanged(wxCommandEvent& event);
        private:
             void createGui();
-            wxWindow* createViewPreferences();
+            QWidget* createViewPreferences();
 
             void bindEvents();
             

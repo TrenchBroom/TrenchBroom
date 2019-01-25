@@ -26,11 +26,11 @@
 
 namespace TrenchBroom {
     namespace View {
-        class TextureCollectionEditor : public wxPanel {
+        class TextureCollectionEditor : public QWidget {
         private:
             MapDocumentWPtr m_document;
         public:
-            TextureCollectionEditor(wxWindow* parent, MapDocumentWPtr document);
+            TextureCollectionEditor(QWidget* parent, MapDocumentWPtr document);
             ~TextureCollectionEditor();
         private:
             void documentWasNewed(MapDocument* document);

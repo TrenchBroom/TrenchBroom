@@ -32,7 +32,7 @@ namespace TrenchBroom {
         m_editor(nullptr),
         m_evtHandler(nullptr) {}
         
-        KeyboardGridCellEditor::KeyboardGridCellEditor(wxWindow* parent, wxWindowID windowId, wxEvtHandler* evtHandler, const int key, const int modifier1, const int modifier2, const int modifier3) :
+        KeyboardGridCellEditor::KeyboardGridCellEditor(QWidget* parent, wxWindowID windowId, wxEvtHandler* evtHandler, const int key, const int modifier1, const int modifier2, const int modifier3) :
         wxGridCellEditor(),
         m_editor(nullptr),
         m_evtHandler(nullptr) {
@@ -40,7 +40,7 @@ namespace TrenchBroom {
             m_editor->SetShortcut(key, modifier1, modifier2, modifier3);
         }
         
-        void KeyboardGridCellEditor::Create(wxWindow* parent, wxWindowID windowId, wxEvtHandler* evtHandler) {
+        void KeyboardGridCellEditor::Create(QWidget* parent, wxWindowID windowId, wxEvtHandler* evtHandler) {
             m_evtHandler = evtHandler;
             m_editor = new KeyboardShortcutEditor(parent, wxID_ANY);
             SetControl(m_editor);
@@ -66,7 +66,7 @@ namespace TrenchBroom {
             m_editor->SetFocus();
         }
         
-        bool KeyboardGridCellEditor::EndEdit(int row, int col, const wxGrid* grid, const wxString& oldValue, wxString* newValue) {
+        bool KeyboardGridCellEditor::EndEdit(int row, int col, const wxGrid* grid, const QString& oldValue, QString* newValue) {
             *newValue = KeyboardShortcut::shortcutDisplayString(m_editor->key(),
                                                                 m_editor->modifier1(),
                                                                 m_editor->modifier2(),
@@ -77,7 +77,7 @@ namespace TrenchBroom {
         }
         
         void KeyboardGridCellEditor::ApplyEdit(int row, int col, wxGrid* grid) {
-            wxString newValue = KeyboardShortcut::shortcutDisplayString(m_editor->key(),
+            QString newValue = KeyboardShortcut::shortcutDisplayString(m_editor->key(),
                                                                         m_editor->modifier1(),
                                                                         m_editor->modifier2(),
                                                                         m_editor->modifier3());
@@ -96,7 +96,7 @@ namespace TrenchBroom {
             m_editor->Show(show);
         }
         
-        wxString KeyboardGridCellEditor::GetValue() const {
+        QString KeyboardGridCellEditor::GetValue() const {
             return KeyboardShortcut::shortcutDisplayString(m_editor->key(),
                                                            m_editor->modifier1(),
                                                            m_editor->modifier2(),

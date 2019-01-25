@@ -38,7 +38,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        FaceInspector::FaceInspector(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
+        FaceInspector::FaceInspector(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
         TabBookPage(parent),
         m_document(document) {
 #if defined __APPLE__
@@ -77,12 +77,12 @@ namespace TrenchBroom {
             wxPersistenceManager::Get().RegisterAndRestore(splitter);
         }
 
-        wxWindow* FaceInspector::createFaceAttribsEditor(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager) {
+        QWidget* FaceInspector::createFaceAttribsEditor(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) {
             m_faceAttribsEditor = new FaceAttribsEditor(parent, document, contextManager);
             return m_faceAttribsEditor;
         }
         
-        wxWindow* FaceInspector::createTextureBrowser(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager) {
+        QWidget* FaceInspector::createTextureBrowser(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) {
             TitledPanel* panel = new TitledPanel(parent, "Texture Browser");
             m_textureBrowser = new TextureBrowser(panel->getPanel(), document, contextManager);
 
@@ -93,9 +93,9 @@ namespace TrenchBroom {
             return panel;
         }
         
-        wxWindow* FaceInspector::createTextureCollectionEditor(wxWindow* parent, MapDocumentWPtr document) {
+        QWidget* FaceInspector::createTextureCollectionEditor(QWidget* parent, MapDocumentWPtr document) {
             CollapsibleTitledPanel* panel = new CollapsibleTitledPanel(parent, "Texture Collections", false);
-            wxWindow* collectionEditor = new TextureCollectionEditor(panel->getPanel(), document);
+            QWidget* collectionEditor = new TextureCollectionEditor(panel->getPanel(), document);
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(collectionEditor, 1, wxEXPAND);

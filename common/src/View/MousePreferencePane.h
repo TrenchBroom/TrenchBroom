@@ -27,7 +27,7 @@ class wxButton;
 class wxCheckBox;
 class wxChoice;
 class wxSlider;
-class wxStaticText;
+class QLabel;
 
 namespace TrenchBroom {
     namespace View {
@@ -57,7 +57,7 @@ namespace TrenchBroom {
             KeyboardShortcutEditor* m_downKeyEditor;
             wxSlider* m_flyMoveSpeedSlider;
         public:
-            MousePreferencePane(wxWindow* parent);
+            MousePreferencePane(QWidget* parent);
         private:
             void OnLookSpeedChanged(wxScrollEvent& event);
             void OnInvertLookHAxisChanged(wxCommandEvent& event);
@@ -87,7 +87,7 @@ namespace TrenchBroom {
             void OnFlyMoveSpeedChanged(wxScrollEvent& event);
         private:
             void createGui();
-            wxWindow* createCameraPreferences();
+            QWidget* createCameraPreferences();
 
             void bindEvents();
             

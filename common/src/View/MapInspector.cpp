@@ -32,7 +32,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        MapInspector::MapInspector(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
+        MapInspector::MapInspector(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
         TabBookPage(parent) {
 #if defined __APPLE__
             SetWindowVariant(wxWINDOW_VARIANT_SMALL);
@@ -48,7 +48,7 @@ namespace TrenchBroom {
             SetSizer(sizer);
         }
 
-        wxWindow* MapInspector::createLayerEditor(wxWindow* parent, MapDocumentWPtr document) {
+        QWidget* MapInspector::createLayerEditor(QWidget* parent, MapDocumentWPtr document) {
             TitledPanel* titledPanel = new TitledPanel(parent, "Layers");
             LayerEditor* layerEditor = new LayerEditor(titledPanel->getPanel(), document);
             
@@ -59,7 +59,7 @@ namespace TrenchBroom {
             return titledPanel;
         }
 
-        wxWindow* MapInspector::createModEditor(wxWindow* parent, MapDocumentWPtr document) {
+        QWidget* MapInspector::createModEditor(QWidget* parent, MapDocumentWPtr document) {
             CollapsibleTitledPanel* titledPanel = new CollapsibleTitledPanel(parent, "Mods", false);
             ModEditor* modEditor = new ModEditor(titledPanel->getPanel(), document);
 

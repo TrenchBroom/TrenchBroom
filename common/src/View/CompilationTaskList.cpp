@@ -50,7 +50,7 @@ namespace TrenchBroom {
             typedef std::list<AutoCompleteTextControl*> AutoCompleteTextControlList;
             AutoCompleteTextControlList m_autoCompleteTextControls;
         protected:
-            TaskEditor(wxWindow* parent, const wxSize& margins, const String& title, MapDocumentWPtr document, Model::CompilationProfile* profile, T* task) :
+            TaskEditor(QWidget* parent, const wxSize& margins, const String& title, MapDocumentWPtr document, Model::CompilationProfile* profile, T* task) :
             Item(parent),
             m_margins(margins),
             m_title(title),
@@ -64,7 +64,7 @@ namespace TrenchBroom {
         public:
             void initialize() {
                 m_panel = new TitledPanel(this, m_title);
-                wxWindow* editor = createGui(m_panel->getPanel());
+                QWidget* editor = createGui(m_panel->getPanel());
 
                 wxSizer* editorSizer = new wxBoxSizer(wxVERTICAL);
                 editorSizer->AddSpacer(m_margins.y);
@@ -152,7 +152,7 @@ namespace TrenchBroom {
                     updateAutoComplete(control);
             }
             
-            virtual wxWindow* createGui(wxWindow* parent) = 0;
+            virtual QWidget* createGui(QWidget* parent) = 0;
             virtual void refresh() = 0;
         };
 
@@ -160,14 +160,14 @@ namespace TrenchBroom {
         private:
             AutoCompleteTextControl* m_targetEditor;
         public:
-            ExportMapTaskEditor(wxWindow* parent, const wxSize& margins, MapDocumentWPtr document, Model::CompilationProfile* profile, Model::CompilationExportMap* task) :
+            ExportMapTaskEditor(QWidget* parent, const wxSize& margins, MapDocumentWPtr document, Model::CompilationProfile* profile, Model::CompilationExportMap* task) :
             TaskEditor(parent, margins, "Export Map", document, profile, task),
             m_targetEditor(nullptr) {}
         private:
-            wxWindow* createGui(wxWindow* parent) override {
-                wxPanel* container = new wxPanel(parent);
+            QWidget* createGui(QWidget* parent) override {
+                QWidget* container = new QWidget(parent);
 
-                wxStaticText* targetLabel = new wxStaticText(container, wxID_ANY, "Target");
+                QLabel* targetLabel = new QLabel(container, wxID_ANY, "Target");
                 m_targetEditor = new AutoCompleteTextControl(container, wxID_ANY);
                 m_targetEditor->Bind(wxEVT_TEXT, &ExportMapTaskEditor::OnTargetSpecChanged, this);
                 enableAutoComplete(m_targetEditor);
@@ -201,20 +201,20 @@ namespace TrenchBroom {
             AutoCompleteTextControl* m_sourceEditor;
             AutoCompleteTextControl* m_targetEditor;
         public:
-            CopyFilesTaskEditor(wxWindow* parent, const wxSize& margins, MapDocumentWPtr document, Model::CompilationProfile* profile, Model::CompilationCopyFiles* task) :
+            CopyFilesTaskEditor(QWidget* parent, const wxSize& margins, MapDocumentWPtr document, Model::CompilationProfile* profile, Model::CompilationCopyFiles* task) :
             TaskEditor(parent, margins, "Copy Files", document, profile, task),
             m_sourceEditor(nullptr),
             m_targetEditor(nullptr) {}
         private:
-            wxWindow* createGui(wxWindow* parent) override {
-                wxPanel* container = new wxPanel(parent);
+            QWidget* createGui(QWidget* parent) override {
+                QWidget* container = new QWidget(parent);
 
-                wxStaticText* sourceLabel = new wxStaticText(container, wxID_ANY, "Source");
+                QLabel* sourceLabel = new QLabel(container, wxID_ANY, "Source");
                 m_sourceEditor = new AutoCompleteTextControl(container, wxID_ANY);
                 m_sourceEditor->Bind(wxEVT_TEXT, &CopyFilesTaskEditor::OnSourceSpecChanged, this);
                 enableAutoComplete(m_sourceEditor);
 
-                wxStaticText* targetLabel = new wxStaticText(container, wxID_ANY, "Target");
+                QLabel* targetLabel = new QLabel(container, wxID_ANY, "Target");
                 m_targetEditor = new AutoCompleteTextControl(container, wxID_ANY);
                 m_targetEditor->Bind(wxEVT_TEXT, &CopyFilesTaskEditor::OnTargetSpecChanged, this);
                 enableAutoComplete(m_targetEditor);
@@ -258,15 +258,15 @@ namespace TrenchBroom {
             AutoCompleteTextControl* m_toolEditor;
             AutoCompleteTextControl* m_parametersEditor;
         public:
-            RunToolTaskEditor(wxWindow* parent, const wxSize& margins, MapDocumentWPtr document, Model::CompilationProfile* profile, Model::CompilationRunTool* task) :
+            RunToolTaskEditor(QWidget* parent, const wxSize& margins, MapDocumentWPtr document, Model::CompilationProfile* profile, Model::CompilationRunTool* task) :
             TaskEditor(parent, margins, "Run Tool", document, profile, task),
             m_toolEditor(nullptr),
             m_parametersEditor(nullptr) {}
         private:
-            wxWindow* createGui(wxWindow* parent) override {
-                wxPanel* container = new wxPanel(parent);
+            QWidget* createGui(QWidget* parent) override {
+                QWidget* container = new QWidget(parent);
 
-                wxStaticText* toolLabel = new wxStaticText(container, wxID_ANY, "Tool");
+                QLabel* toolLabel = new QLabel(container, wxID_ANY, "Tool");
                 m_toolEditor = new AutoCompleteTextControl(container, wxID_ANY);
                 m_toolEditor->Bind(wxEVT_TEXT, &RunToolTaskEditor::OnToolSpecChanged, this);
                 enableAutoComplete(m_toolEditor);
@@ -274,7 +274,7 @@ namespace TrenchBroom {
                 wxButton* browseToolButton = new wxButton(container, wxID_ANY, "...", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
                 browseToolButton->Bind(wxEVT_BUTTON, &RunToolTaskEditor::OnBrowseTool, this);
 
-                wxStaticText* parameterLabel = new wxStaticText(container, wxID_ANY, "Parameters");
+                QLabel* parameterLabel = new QLabel(container, wxID_ANY, "Parameters");
                 m_parametersEditor = new AutoCompleteTextControl(container, wxID_ANY);
                 m_parametersEditor->Bind(wxEVT_TEXT, &RunToolTaskEditor::OnParameterSpecChanged, this);
                 enableAutoComplete(m_parametersEditor);
@@ -320,7 +320,7 @@ namespace TrenchBroom {
             }
         };
 
-        CompilationTaskList::CompilationTaskList(wxWindow* parent, MapDocumentWPtr document) :
+        CompilationTaskList::CompilationTaskList(QWidget* parent, MapDocumentWPtr document) :
         ControlListBox(parent, true, "Click the '+' button to create a task."),
         m_document(document),
         m_profile(nullptr) {}
@@ -352,13 +352,13 @@ namespace TrenchBroom {
 
         class CompilationTaskList::CompilationTaskEditorFactory : public Model::CompilationTaskVisitor {
         private:
-            wxWindow* m_parent;
+            QWidget* m_parent;
             const wxSize m_margins;
             MapDocumentWPtr m_document;
             Model::CompilationProfile* m_profile;
             Item* m_result;
         public:
-            CompilationTaskEditorFactory(wxWindow* parent, const wxSize& margins, MapDocumentWPtr document, Model::CompilationProfile* profile) :
+            CompilationTaskEditorFactory(QWidget* parent, const wxSize& margins, MapDocumentWPtr document, Model::CompilationProfile* profile) :
             m_parent(parent),
             m_margins(margins),
             m_document(document),
@@ -388,7 +388,7 @@ namespace TrenchBroom {
             }
         };
 
-        ControlListBox::Item* CompilationTaskList::createItem(wxWindow* parent, const wxSize& margins, const size_t index) {
+        ControlListBox::Item* CompilationTaskList::createItem(QWidget* parent, const wxSize& margins, const size_t index) {
             ensure(m_profile != nullptr, "profile is null");
 
             CompilationTaskEditorFactory factory(parent, margins, m_document, m_profile);

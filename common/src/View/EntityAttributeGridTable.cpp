@@ -317,7 +317,7 @@ namespace TrenchBroom {
             return 2;
         }
         
-        wxString EntityAttributeGridTable::GetValue(const int row, const int col) {
+        QString EntityAttributeGridTable::GetValue(const int row, const int col) {
             // Fixes a problem when the user deselects everything while editing an entity property.
             if (row < 0 || col < 0)
                 return wxEmptyString;
@@ -334,7 +334,7 @@ namespace TrenchBroom {
             return m_rows.value(rowIndex);
         }
         
-        void EntityAttributeGridTable::SetValue(const int row, const int col, const wxString& value) {
+        void EntityAttributeGridTable::SetValue(const int row, const int col, const QString& value) {
             ensure(row >= 0 && row < GetRowsCount(), "row index out of bounds");
             ensure(col >= 0 && col < GetColsCount(), "column index out of bounds");
             
@@ -421,7 +421,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        wxString EntityAttributeGridTable::GetColLabelValue(const int col) {
+        QString EntityAttributeGridTable::GetColLabelValue(const int col) {
             ensure(col >= 0 && col < GetColsCount(), "column index out of bounds");
             if (col == 0)
                 return "Key";
@@ -582,7 +582,7 @@ namespace TrenchBroom {
         wxArrayString EntityAttributeGridTable::arrayString(const StringSet& set) {
             wxArrayString result;
             for (const String& string : set)
-                result.Add(wxString(string));
+                result.Add(QString(string));
             return result;
         }
 
@@ -595,14 +595,14 @@ namespace TrenchBroom {
                 return;
             
             if (!m_rows.nameMutable(rowIndex)) {
-                wxString msg;
+                QString msg;
                 msg << "Cannot rename property '" << oldName << "' to '" << newName << "'";
                 wxMessageBox(msg, "Error", wxOK | wxICON_ERROR | wxCENTRE, GetView());
                 return;
             }
 
             if (m_rows.hasRowWithName(newName)) {
-                wxString msg;
+                QString msg;
                 msg << "A property with key '" << newName << "' already exists.\n\n Do you wish to overwrite it?";
                 if (wxMessageBox(msg, "Error", wxYES_NO | wxICON_ERROR | wxCENTRE, GetView()) == wxNO) {
                     return;
@@ -625,7 +625,7 @@ namespace TrenchBroom {
                 if (attributable->hasAttribute(name)) {
                     if (!attributable->canAddOrUpdateAttribute(name, newValue)) {
                         const Model::AttributeValue& oldValue = attributable->attribute(name);
-                        wxString msg;
+                        QString msg;
                         msg << "Cannot change property value '" << oldValue << "' to '" << newValue << "'";
                         wxMessageBox(msg, "Error", wxOK | wxICON_ERROR | wxCENTRE, GetView());
                         return;

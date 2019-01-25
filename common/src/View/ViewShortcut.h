@@ -47,8 +47,8 @@ namespace TrenchBroom {
         private: // implement KeyboardShortcutEntry interface
             int doGetActionContext() const override;
             bool doGetModifiable() const override;
-            wxString doGetActionDescription() const override;
-            wxString doGetJsonString() const override;
+            QString doGetActionDescription() const override;
+            QString doGetJsonString() const override;
             const Preference<KeyboardShortcut>& doGetPreference() const override;
             const KeyboardShortcut& doGetShortcut() const override;
             const KeyboardShortcut& doGetDefaultShortcut() const override;

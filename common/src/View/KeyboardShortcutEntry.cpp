@@ -75,19 +75,19 @@ namespace TrenchBroom {
             return (actionContext() & context) != 0;
         }
         
-        wxString KeyboardShortcutEntry::actionContextDescription() const {
+        QString KeyboardShortcutEntry::actionContextDescription() const {
             return actionContextName(actionContext());
         }
 
-        wxString KeyboardShortcutEntry::actionDescription() const {
+        QString KeyboardShortcutEntry::actionDescription() const {
             return doGetActionDescription();
         }
         
-        wxString KeyboardShortcutEntry::shortcutDescription() const {
+        QString KeyboardShortcutEntry::shortcutDescription() const {
             return shortcut().shortcutDisplayString();
         }
         
-        wxString KeyboardShortcutEntry::asJsonString() const {
+        QString KeyboardShortcutEntry::asJsonString() const {
             return doGetJsonString();
         }
 

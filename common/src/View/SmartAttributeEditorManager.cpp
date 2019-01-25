@@ -34,8 +34,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        SmartAttributeEditorManager::SmartAttributeEditorManager(wxWindow* parent, View::MapDocumentWPtr document) :
-        wxPanel(parent),
+        SmartAttributeEditorManager::SmartAttributeEditorManager(QWidget* parent, View::MapDocumentWPtr document) :
+        QWidget(parent),
         m_document(document),
         m_name("") {
             createEditors();
@@ -111,7 +111,7 @@ namespace TrenchBroom {
                 deactivateEditor();
                 m_activeEditor = editor;
                 m_name = name;
-                wxWindow* window = m_activeEditor->activate(this, m_name);
+                QWidget* window = m_activeEditor->activate(this, m_name);
                 
                 wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
                 sizer->Add(window, 1, wxEXPAND);

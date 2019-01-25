@@ -30,7 +30,7 @@ namespace TrenchBroom {
     namespace View {
         class PersistentSplitterWindow2;
         
-        class SplitterWindow2 : public wxPanel {
+        class SplitterWindow2 : public QWidget {
         private:
             static const size_t NumWindows = 2;
             static const int HalfMinSashSize = 2;
@@ -42,9 +42,9 @@ namespace TrenchBroom {
             } SplitMode;
             
             SplitMode m_splitMode;
-            wxWindow* m_sash;
-            wxWindow* m_windows[NumWindows];
-            wxWindow* m_maximizedWindow;
+            QWidget* m_sash;
+            QWidget* m_windows[NumWindows];
+            QWidget* m_maximizedWindow;
             wxSize m_minSizes[NumWindows];
             
             double m_sashGravity;
@@ -57,16 +57,16 @@ namespace TrenchBroom {
             
             friend class PersistentSplitterWindow2;
         public:
-            SplitterWindow2(wxWindow* parent);
+            SplitterWindow2(QWidget* parent);
             
-            void splitHorizontally(wxWindow* left, wxWindow* right, const wxSize& leftMin = wxDefaultSize, const wxSize& rightMin = wxDefaultSize);
-            void splitVertically(wxWindow* top, wxWindow* bottom, const wxSize& topMin = wxDefaultSize, const wxSize& bottomMin = wxDefaultSize);
+            void splitHorizontally(QWidget* left, QWidget* right, const wxSize& leftMin = wxDefaultSize, const wxSize& rightMin = wxDefaultSize);
+            void splitVertically(QWidget* top, QWidget* bottom, const wxSize& topMin = wxDefaultSize, const wxSize& bottomMin = wxDefaultSize);
             
-            void setMinSize(wxWindow* window, const wxSize& minSize);
+            void setMinSize(QWidget* window, const wxSize& minSize);
             void setSashGravity(double sashGravity);
             
-            bool isMaximized(wxWindow* window) const;
-            void maximize(wxWindow* window);
+            bool isMaximized(QWidget* window) const;
+            void maximize(QWidget* window);
             void restore();
         private:
             int currentSashPosition() const;
@@ -74,8 +74,8 @@ namespace TrenchBroom {
             int sashPosition(double ratio, wxCoord size) const;
             double splitRatio(int position) const;
             
-            void split(wxWindow* window1, wxWindow* window2, const wxSize& min1, const wxSize& min2, SplitMode splitMode);
-            void bindMouseEvents(wxWindow* window);
+            void split(QWidget* window1, QWidget* window2, const wxSize& min1, const wxSize& min2, SplitMode splitMode);
+            void bindMouseEvents(QWidget* window);
         public:
             void OnMouseEnter(wxMouseEvent& event);
             void OnMouseLeave(wxMouseEvent& event);
@@ -96,7 +96,7 @@ namespace TrenchBroom {
             void sizeWindows();
             int sashSize() const;
             
-            wxWindow* unmaximizedWindow();
+            QWidget* unmaximizedWindow();
             
             template <typename T>
             void setHV(T& p, const int h, const int v) const {

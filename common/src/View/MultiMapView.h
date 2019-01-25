@@ -24,7 +24,7 @@
 
 #include <vector>
 
-class wxWindow;
+class QWidget;
 class QWidget;
 
 namespace TrenchBroom {

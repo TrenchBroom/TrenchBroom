@@ -85,7 +85,7 @@ namespace TrenchBroom {
                     reloadLayout();
             }
         public:
-            CellView(wxWindow* parent, GLContextManager& contextManager, wxGLAttributes attribs, wxScrollBar* scrollBar = nullptr) :
+            CellView(QWidget* parent, GLContextManager& contextManager, wxGLAttributes attribs, wxScrollBar* scrollBar = nullptr) :
             RenderView(parent, contextManager, attribs),
             m_layoutInitialized(false),
             m_valid(false),
@@ -310,8 +310,8 @@ namespace TrenchBroom {
             virtual void dndWillStart() {}
             virtual void dndDidEnd() {}
             virtual wxImage dndImage(const Cell& cell) { assert(false); return wxImage(); }
-            virtual wxString dndData(const Cell& cell) { assert(false); return ""; }
-            virtual wxString tooltip(const Cell& cell) { return ""; }
+            virtual QString dndData(const Cell& cell) { assert(false); return ""; }
+            virtual QString tooltip(const Cell& cell) { return ""; }
         public: // implement InputEventProcessor interface
             void processEvent(const KeyEvent& event) override {}
             void processEvent(const MouseEvent& event) override {}

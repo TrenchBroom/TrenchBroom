@@ -44,12 +44,12 @@ namespace TrenchBroom {
             EntityBrowser* m_entityBrowser;
             EntityDefinitionFileChooser* m_entityDefinitionFileChooser;
         public:
-            EntityInspector(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
+            EntityInspector(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
         private:
             void createGui(MapDocumentWPtr document, GLContextManager& contextManager);
-            wxWindow* createAttributeEditor(wxWindow* parent, MapDocumentWPtr document);
-            wxWindow* createEntityBrowser(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
-            wxWindow* createEntityDefinitionFileChooser(wxWindow* parent, MapDocumentWPtr document);
+            QWidget* createAttributeEditor(QWidget* parent, MapDocumentWPtr document);
+            QWidget* createEntityBrowser(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
+            QWidget* createEntityDefinitionFileChooser(QWidget* parent, MapDocumentWPtr document);
         };
     }
 }

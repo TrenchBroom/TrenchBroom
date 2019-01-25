@@ -36,11 +36,11 @@
 
 namespace TrenchBroom {
     namespace View {
-        KeyboardPreferencePane::KeyboardPreferencePane(wxWindow* parent) :
+        KeyboardPreferencePane::KeyboardPreferencePane(QWidget* parent) :
         PreferencePane(parent),
         m_grid(nullptr),
         m_table(nullptr) {
-            wxWindow* menuShortcutGrid = createMenuShortcutGrid();
+            QWidget* menuShortcutGrid = createMenuShortcutGrid();
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(menuShortcutGrid, 1, wxEXPAND);
@@ -61,8 +61,8 @@ namespace TrenchBroom {
             event.Skip();
         }
         
-        wxWindow* KeyboardPreferencePane::createMenuShortcutGrid() {
-            wxPanel* container = new wxPanel(this);
+        QWidget* KeyboardPreferencePane::createMenuShortcutGrid() {
+            QWidget* container = new QWidget(this);
 
             m_table = new KeyboardShortcutGridTable();
             m_grid = new wxGrid(container, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
@@ -86,7 +86,7 @@ namespace TrenchBroom {
             
             m_table->update();
             
-            wxStaticText* infoText = new wxStaticText(container, wxID_ANY, "Click twice on a key combination to edit the shortcut. Press delete or backspace to delete a shortcut.");
+            QLabel* infoText = new QLabel(container, wxID_ANY, "Click twice on a key combination to edit the shortcut. Press delete or backspace to delete a shortcut.");
 #if defined __APPLE__
             infoText->SetFont(*wxSMALL_FONT);
 #endif

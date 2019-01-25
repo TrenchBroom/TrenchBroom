@@ -42,7 +42,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        LaunchGameEngineDialog::LaunchGameEngineDialog(wxWindow* parent, MapDocumentWPtr document) :
+        LaunchGameEngineDialog::LaunchGameEngineDialog(QWidget* parent, MapDocumentWPtr document) :
         wxDialog(parent, wxID_ANY, "Launch Engine"),
         m_document(document),
         m_gameEngineList(nullptr),
@@ -58,7 +58,7 @@ namespace TrenchBroom {
             const String& gameName = document->game()->gameName();
             CurrentGameIndicator* gameIndicator = new CurrentGameIndicator(this, gameName);
             
-            wxPanel* midPanel = new wxPanel(this);
+            QWidget* midPanel = new QWidget(this);
             
             Model::GameFactory& gameFactory = Model::GameFactory::instance();
             const Model::GameConfig& gameConfig = gameFactory.gameConfig(gameName);
@@ -66,16 +66,16 @@ namespace TrenchBroom {
             m_gameEngineList = new GameEngineProfileListBox(midPanel, gameEngineConfig);
             m_gameEngineList->SetEmptyText("Click the 'Configure engines...' button to create a game engine profile.");
             
-            wxStaticText* header = new wxStaticText(midPanel, wxID_ANY, "Launch Engine");
+            QLabel* header = new QLabel(midPanel, wxID_ANY, "Launch Engine");
             header->SetFont(header->GetFont().Larger().Larger().Bold());
             
-            wxStaticText* message = new wxStaticText(midPanel, wxID_ANY, "Select a game engine from the list on the right and edit the commandline parameters in the text box below. You can use variables to refer to the map name and other values.");
+            QLabel* message = new QLabel(midPanel, wxID_ANY, "Select a game engine from the list on the right and edit the commandline parameters in the text box below. You can use variables to refer to the map name and other values.");
             message->Wrap(350);
             
             wxButton* openPreferencesButton = new wxButton(midPanel, wxID_ANY, "Configure engines...");
             openPreferencesButton->Bind(wxEVT_BUTTON, &LaunchGameEngineDialog::OnEditGameEnginesButton, this);
             
-            wxStaticText* parameterLabel = new wxStaticText(midPanel, wxID_ANY, "Parameters");
+            QLabel* parameterLabel = new QLabel(midPanel, wxID_ANY, "Parameters");
             parameterLabel->SetFont(parameterLabel->GetFont().Bold());
             
             m_parameterText = new AutoCompleteTextControl(midPanel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
@@ -190,7 +190,7 @@ namespace TrenchBroom {
                 const String& parameterSpec = profile->parameterSpec();
                 const String parameters = EL::interpolate(parameterSpec, variables());
 
-                wxString launchStr;
+                QString launchStr;
 #ifdef __APPLE__
                 // We have to launch apps via the 'open' command so that we can properly pass parameters.
                 launchStr << "/usr/bin/open" << " " << escapedExecutablePath << " --args " << parameters;

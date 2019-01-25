@@ -29,9 +29,9 @@ namespace TrenchBroom {
         class MapFrameDropTarget : public wxFileDropTarget {
         private:
             MapDocumentWPtr m_document;
-            wxWindow* m_parent;
+            QWidget* m_parent;
         public:
-            MapFrameDropTarget(MapDocumentWPtr document, wxWindow* parent);
+            MapFrameDropTarget(MapDocumentWPtr document, QWidget* parent);
             bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames) override;
         };
     }

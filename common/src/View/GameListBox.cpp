@@ -31,7 +31,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        GameListBox::GameListBox(wxWindow* parent) :
+        GameListBox::GameListBox(QWidget* parent) :
         ImageListBox(parent, "No Games Found") {
             reloadGameInfos();
             Bind(wxEVT_LISTBOX, &GameListBox::OnListBoxChange, this);
@@ -100,12 +100,12 @@ namespace TrenchBroom {
             return true;
         }
         
-        wxString GameListBox::title(const size_t n) const {
+        QString GameListBox::title(const size_t n) const {
             ensure(n < m_gameInfos.size(), "index out of range");
             return m_gameInfos[n].title;
         }
         
-        wxString GameListBox::subtitle(const size_t n) const {
+        QString GameListBox::subtitle(const size_t n) const {
             ensure(n < m_gameInfos.size(), "index out of range");
             return m_gameInfos[n].subtitle;
         }

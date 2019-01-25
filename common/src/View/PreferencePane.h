@@ -25,9 +25,9 @@
 
 namespace TrenchBroom {
     namespace View {
-        class PreferencePane : public wxPanel {
+        class PreferencePane : public QWidget {
         public:
-            PreferencePane(wxWindow* parent);
+            PreferencePane(QWidget* parent);
             virtual ~PreferencePane();
 
             bool canResetToDefaults();

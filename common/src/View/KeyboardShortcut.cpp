@@ -128,9 +128,9 @@ namespace TrenchBroom {
             return true;
         }
         
-        wxString KeyboardShortcut::shortcutDisplayString(const int key, int modifier1, int modifier2, int modifier3) {
+        QString KeyboardShortcut::shortcutDisplayString(const int key, int modifier1, int modifier2, int modifier3) {
             sortModifierKeys(modifier1, modifier2, modifier3);
-            wxString text;
+            QString text;
 #if defined __APPLE__
             text << modifierDisplayString(modifier1) << modifierDisplayString(modifier2) << modifierDisplayString(modifier3) << keyDisplayString(key);
 #else
@@ -148,7 +148,7 @@ namespace TrenchBroom {
             return text;
         }
         
-        wxString KeyboardShortcut::keyMenuString(const int key) {
+        QString KeyboardShortcut::keyMenuString(const int key) {
             switch (key) {
                 case WXK_BACK:
                     return "Back";
@@ -230,7 +230,7 @@ namespace TrenchBroom {
                     return "F24";
                 default:
                     if (key >= 33 && key <= 126) {
-                        wxString str;
+                        QString str;
                         str << static_cast<char>(key);
                         return str;
                     }
@@ -238,7 +238,7 @@ namespace TrenchBroom {
             }
         }
         
-        wxString KeyboardShortcut::keyDisplayString(const int key) {
+        QString KeyboardShortcut::keyDisplayString(const int key) {
 #if defined __APPLE__
             switch (key) {
                 case WXK_BACK:
@@ -322,7 +322,7 @@ namespace TrenchBroom {
                 default:
                     if (key >= 33 && key <= 126) {
                         wxUniChar c(key);
-                        wxString result;
+                        QString result;
                         result << c;
                         return result;
                     }
@@ -333,7 +333,7 @@ namespace TrenchBroom {
 #endif
         }
         
-        wxString KeyboardShortcut::modifierMenuString(const int key) {
+        QString KeyboardShortcut::modifierMenuString(const int key) {
             switch (key) {
                 case WXK_SHIFT:
                     return "Shift";
@@ -346,7 +346,7 @@ namespace TrenchBroom {
             }
         }
         
-        wxString KeyboardShortcut::modifierDisplayString(const int key) {
+        QString KeyboardShortcut::modifierDisplayString(const int key) {
 #if defined __APPLE__
             switch (key) {
                 case WXK_SHIFT:
@@ -363,7 +363,7 @@ namespace TrenchBroom {
 #endif
         }
         
-        bool KeyboardShortcut::parseShortcut(const wxString& string, int& key, int& modifier1, int& modifier2, int& modifier3) {
+        bool KeyboardShortcut::parseShortcut(const QString& string, int& key, int& modifier1, int& modifier2, int& modifier3) {
             modifier1 = modifier2 = modifier3 = key = WXK_NONE;
             
             int keys[4];
@@ -390,7 +390,7 @@ namespace TrenchBroom {
             }
             
             if (keyIndex < string.Length()) {
-                wxString keyString = string.SubString(keyIndex, string.size() - 1);
+                QString keyString = string.SubString(keyIndex, string.size() - 1);
                 keys[3] = parseKeyDisplayString(keyString);
                 if (keys[3] == WXK_NONE)
                     return false;
@@ -402,7 +402,7 @@ namespace TrenchBroom {
                 if (index > 3)
                     return false;
                 
-                wxString token = tokenizer.GetNextToken();
+                QString token = tokenizer.GetNextToken();
                 if (token == L"Ctrl") {
                     keys[index] = WXK_CONTROL;
                 } else if (token == L"Alt") {
@@ -427,7 +427,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        int KeyboardShortcut::parseKeyDisplayString(const wxString& string) {
+        int KeyboardShortcut::parseKeyDisplayString(const QString& string) {
 #if defined __APPLE__
             if (string == L"\u232B")
                 return WXK_BACK;
@@ -555,7 +555,7 @@ namespace TrenchBroom {
             sortModifierKeys(m_modifier1, m_modifier2, m_modifier3);
         }
         
-        KeyboardShortcut::KeyboardShortcut(const wxString& string) {
+        KeyboardShortcut::KeyboardShortcut(const QString& string) {
             wxStringInputStream stringStream(string);
             wxTextInputStream stream(stringStream, ':');
             
@@ -783,8 +783,8 @@ namespace TrenchBroom {
             }
         }
         
-        wxString KeyboardShortcut::shortcutMenuString() const {
-            wxString text = modifierMenuString();
+        QString KeyboardShortcut::shortcutMenuString() const {
+            QString text = modifierMenuString();
             if (text.empty())
                 return keyMenuString();
             
@@ -792,11 +792,11 @@ namespace TrenchBroom {
             return text;
         }
         
-        wxString KeyboardShortcut::shortcutMenuItemString(const wxString& name) const {
+        QString KeyboardShortcut::shortcutMenuItemString(const QString& name) const {
             if (!hasKey())
                 return name;
             
-            wxString result;
+            QString result;
             result << name << "\t";
             if (hasModifier())
                 result << modifierMenuString() << "+";
@@ -804,20 +804,20 @@ namespace TrenchBroom {
             return result;
         }
         
-        wxString KeyboardShortcut::shortcutDisplayString() const {
+        QString KeyboardShortcut::shortcutDisplayString() const {
             return shortcutDisplayString(m_key, m_modifier1, m_modifier2, m_modifier3);
         }
         
-        wxString KeyboardShortcut::keyMenuString() const {
+        QString KeyboardShortcut::keyMenuString() const {
             return keyMenuString(m_key);
         }
         
-        wxString KeyboardShortcut::keyDisplayString() const {
+        QString KeyboardShortcut::keyDisplayString() const {
             return keyDisplayString(m_key);
         }
 
-        wxString KeyboardShortcut::modifierMenuString() const {
-            wxString text;
+        QString KeyboardShortcut::modifierMenuString() const {
+            QString text;
             text << modifierMenuString(m_modifier1);
             if (m_modifier1 != WXK_NONE && m_modifier2 != WXK_NONE)
                 text << "+";
@@ -830,8 +830,8 @@ namespace TrenchBroom {
             return text;
         }
         
-        wxString KeyboardShortcut::asJsonString() const {
-            wxString str;
+        QString KeyboardShortcut::asJsonString() const {
+            QString str;
             str << "{ key:" << key() << ", modifiers: [";
             
             std::vector<int> modifiers;
@@ -852,8 +852,8 @@ namespace TrenchBroom {
             return str;
         }
 
-        wxString KeyboardShortcut::asString() const {
-            wxString str;
+        QString KeyboardShortcut::asString() const {
+            QString str;
             str << m_key << ":" << m_modifier1 << ":" << m_modifier2 << ":" << m_modifier3;
             return str;
         }

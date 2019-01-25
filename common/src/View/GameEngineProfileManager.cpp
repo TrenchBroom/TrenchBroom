@@ -34,8 +34,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        GameEngineProfileManager::GameEngineProfileManager(wxWindow* parent, Model::GameEngineConfig& config) :
-        wxPanel(parent),
+        GameEngineProfileManager::GameEngineProfileManager(QWidget* parent, Model::GameEngineConfig& config) :
+        QWidget(parent),
         m_config(config),
         m_profileList(nullptr),
         m_profileEditor(nullptr) {

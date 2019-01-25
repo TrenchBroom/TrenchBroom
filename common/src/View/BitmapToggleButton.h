@@ -34,7 +34,7 @@ namespace TrenchBroom {
             wxBitmap m_downDisabledBitmap;
             bool m_state;
         public:
-            BitmapToggleButton(wxWindow* parent, wxWindowID windowId, const wxBitmap& upBitmap, const wxBitmap& downBitmap);
+            BitmapToggleButton(QWidget* parent, wxWindowID windowId, const wxBitmap& upBitmap, const wxBitmap& downBitmap);
 
             void DoUpdateWindowUI(wxUpdateUIEvent& event) override;
         private:

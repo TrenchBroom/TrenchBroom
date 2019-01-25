@@ -65,7 +65,7 @@ namespace TrenchBroom {
         
         static const size_t NumFrameLayouts = 4;
         
-        ViewPreferencePane::ViewPreferencePane(wxWindow* parent) :
+        ViewPreferencePane::ViewPreferencePane(QWidget* parent) :
         PreferencePane(parent) {
             createGui();
             bindEvents();
@@ -216,71 +216,71 @@ namespace TrenchBroom {
             SetSizer(sizer);
         }
         
-        wxWindow* ViewPreferencePane::createViewPreferences() {
-            auto* viewBox = new wxPanel(this);
+        QWidget* ViewPreferencePane::createViewPreferences() {
+            auto* viewBox = new QWidget(this);
             
-            auto* viewPrefsHeader = new wxStaticText(viewBox, wxID_ANY, "Map Views");
+            auto* viewPrefsHeader = new QLabel(viewBox, wxID_ANY, "Map Views");
             viewPrefsHeader->SetFont(viewPrefsHeader->GetFont().Bold());
             
-            wxString layoutNames[NumFrameLayouts];
+            QString layoutNames[NumFrameLayouts];
             layoutNames[0] = "One Pane";
             layoutNames[1] = "Two Panes";
             layoutNames[2] = "Three Panes";
             layoutNames[3] = "Four Panes";
             
-            auto* layoutLabel = new wxStaticText(viewBox, wxID_ANY, "Layout");
+            auto* layoutLabel = new QLabel(viewBox, wxID_ANY, "Layout");
             m_layoutChoice = new wxChoice(viewBox, wxID_ANY, wxDefaultPosition, wxDefaultSize, NumFrameLayouts, layoutNames);
             
-            auto* brightnessLabel = new wxStaticText(viewBox, wxID_ANY, "Brightness");
+            auto* brightnessLabel = new QLabel(viewBox, wxID_ANY, "Brightness");
             m_brightnessSlider = new wxSlider(viewBox, wxID_ANY, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM | wxSL_VALUE_LABEL);
-            auto* gridLabel = new wxStaticText(viewBox, wxID_ANY, "Grid");
+            auto* gridLabel = new QLabel(viewBox, wxID_ANY, "Grid");
             m_gridAlphaSlider = new wxSlider(viewBox, wxID_ANY, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM | wxSL_VALUE_LABEL);
-            auto* fovLabel = new wxStaticText(viewBox, wxID_ANY, "Field of Vision");
+            auto* fovLabel = new QLabel(viewBox, wxID_ANY, "Field of Vision");
             m_fovSlider = new wxSlider(viewBox, wxID_ANY, 90, 50, 150, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM | wxSL_VALUE_LABEL);
 
-            auto* axesLabel = new wxStaticText(viewBox, wxID_ANY, "Coordinate System");
+            auto* axesLabel = new QLabel(viewBox, wxID_ANY, "Coordinate System");
             m_showAxes = new wxCheckBox(viewBox, wxID_ANY, "Show Axes");
             
-            wxString textureModeNames[NumTextureModes];
+            QString textureModeNames[NumTextureModes];
             for (size_t i = 0; i < NumTextureModes; ++i) {
                 textureModeNames[i] = TextureModes[i].name;
             }
-            auto* textureModeLabel = new wxStaticText(viewBox, wxID_ANY, "Texture Mode");
+            auto* textureModeLabel = new QLabel(viewBox, wxID_ANY, "Texture Mode");
             m_textureModeChoice = new wxChoice(viewBox, wxID_ANY, wxDefaultPosition, wxDefaultSize, NumTextureModes, textureModeNames);
 
             
             
-            auto* colorPrefsHeader = new wxStaticText(viewBox, wxID_ANY, "Colors");
+            auto* colorPrefsHeader = new QLabel(viewBox, wxID_ANY, "Colors");
             colorPrefsHeader->SetFont(colorPrefsHeader->GetFont().Bold());
 
-            auto* backgroundColorLabel = new wxStaticText(viewBox, wxID_ANY, "Background");
+            auto* backgroundColorLabel = new QLabel(viewBox, wxID_ANY, "Background");
             m_backgroundColorPicker = new wxColourPickerCtrl(viewBox, wxID_ANY);
             
-            auto* gridColorLabel = new wxStaticText(viewBox, wxID_ANY, "Grid");
+            auto* gridColorLabel = new QLabel(viewBox, wxID_ANY, "Grid");
             m_gridColorPicker = new wxColourPickerCtrl(viewBox, wxID_ANY);
 
-            auto* edgeColorLabel = new wxStaticText(viewBox, wxID_ANY, "Edges");
+            auto* edgeColorLabel = new QLabel(viewBox, wxID_ANY, "Edges");
             m_edgeColorPicker = new wxColourPickerCtrl(viewBox, wxID_ANY);
 
             
             
-            auto* textureBrowserPrefsHeader = new wxStaticText(viewBox, wxID_ANY, "Texture Browser");
+            auto* textureBrowserPrefsHeader = new QLabel(viewBox, wxID_ANY, "Texture Browser");
             textureBrowserPrefsHeader->SetFont(textureBrowserPrefsHeader->GetFont().Bold());
 
-            auto* textureBrowserIconSizeLabel = new wxStaticText(viewBox, wxID_ANY, "Icon Size");
-            wxString iconSizes[7] = {"25%", "50%", "100%", "150%", "200%", "250%", "300%"};
+            auto* textureBrowserIconSizeLabel = new QLabel(viewBox, wxID_ANY, "Icon Size");
+            QString iconSizes[7] = {"25%", "50%", "100%", "150%", "200%", "250%", "300%"};
             m_textureBrowserIconSizeChoice = new wxChoice(viewBox, wxID_ANY, wxDefaultPosition, wxDefaultSize, 7, iconSizes);
             m_textureBrowserIconSizeChoice->SetToolTip("Sets the icon size in the texture browser.");
 
 
             
-            auto* fontPrefsHeader = new wxStaticText(viewBox, wxID_ANY, "Fonts");
+            auto* fontPrefsHeader = new QLabel(viewBox, wxID_ANY, "Fonts");
             fontPrefsHeader->SetFont(fontPrefsHeader->GetFont().Bold());
 
             wxIntegerValidator<unsigned int> ValidIntP;
             ValidIntP.SetRange(1, 96);
-            auto* fontPrefsRendererFontSizeLabel = new wxStaticText(viewBox, wxID_ANY, "Renderer Font Size");
-            std::vector<wxString> rendererFontSizes {  "8",  "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "20", "22",
+            auto* fontPrefsRendererFontSizeLabel = new QLabel(viewBox, wxID_ANY, "Renderer Font Size");
+            std::vector<QString> rendererFontSizes {  "8",  "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "20", "22",
                                                       "24", "26", "28", "32", "36", "40", "48", "56", "64", "72" };
             m_fontPrefsRendererFontSizeCombo = new wxComboBox(viewBox, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,
                                                               static_cast<int>(rendererFontSizes.size()), rendererFontSizes.data(),
@@ -464,7 +464,7 @@ namespace TrenchBroom {
                 m_textureBrowserIconSizeChoice->SetSelection(2);
             }
 
-            m_fontPrefsRendererFontSizeCombo->SetValue(wxString::Format(wxT("%i"), pref(Preferences::RendererFontSize)));
+            m_fontPrefsRendererFontSizeCombo->SetValue(QString::Format(wxT("%i"), pref(Preferences::RendererFontSize)));
         }
 
         bool ViewPreferencePane::doValidate() {

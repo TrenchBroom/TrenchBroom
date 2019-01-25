@@ -37,7 +37,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityInspector::EntityInspector(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
+        EntityInspector::EntityInspector(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
         TabBookPage(parent) {
 #if defined __APPLE__
             SetWindowVariant(wxWINDOW_VARIANT_SMALL);
@@ -63,12 +63,12 @@ namespace TrenchBroom {
             wxPersistenceManager::Get().RegisterAndRestore(splitter);
         }
         
-        wxWindow* EntityInspector::createAttributeEditor(wxWindow* parent, MapDocumentWPtr document) {
+        QWidget* EntityInspector::createAttributeEditor(QWidget* parent, MapDocumentWPtr document) {
             m_attributeEditor = new EntityAttributeEditor(parent, document);
             return m_attributeEditor;
         }
         
-        wxWindow* EntityInspector::createEntityBrowser(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager) {
+        QWidget* EntityInspector::createEntityBrowser(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) {
             TitledPanel* panel = new TitledPanel(parent, "Entity Browser");
             m_entityBrowser = new EntityBrowser(panel->getPanel(), document, contextManager);
             
@@ -79,7 +79,7 @@ namespace TrenchBroom {
             return panel;
         }
         
-        wxWindow* EntityInspector::createEntityDefinitionFileChooser(wxWindow* parent, MapDocumentWPtr document) {
+        QWidget* EntityInspector::createEntityDefinitionFileChooser(QWidget* parent, MapDocumentWPtr document) {
             CollapsibleTitledPanel* panel = new CollapsibleTitledPanel(parent, "Entity Definitions", false);
             m_entityDefinitionFileChooser = new EntityDefinitionFileChooser(panel->getPanel(), document);
 

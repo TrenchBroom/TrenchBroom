@@ -30,8 +30,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        FlagsEditor::FlagsEditor(wxWindow* parent, const size_t numCols) :
-        wxPanel(parent),
+        FlagsEditor::FlagsEditor(QWidget* parent, const size_t numCols) :
+        QWidget(parent),
         m_numCols(numCols) {
             assert(m_numCols > 0);
         }
@@ -60,7 +60,7 @@ namespace TrenchBroom {
                 for (size_t col = 0; col < m_numCols; ++col) {
                     const size_t index = col * numRows + row;
                     if (index < count) {
-                        m_checkBoxes[index]->SetLabel(index < labels.size() ? labels[index] : wxString() << (1 << index));
+                        m_checkBoxes[index]->SetLabel(index < labels.size() ? labels[index] : QString() << (1 << index));
                         m_checkBoxes[index]->SetToolTip(index < tooltips.size() ? tooltips[index] : "");
                         m_values[index] = values[index];
                         sizer->Add(m_checkBoxes[index]);
@@ -119,7 +119,7 @@ namespace TrenchBroom {
             return value;
         }
 
-        wxString FlagsEditor::getFlagLabel(const size_t index) const {
+        QString FlagsEditor::getFlagLabel(const size_t index) const {
             ensure(index < m_checkBoxes.size(), "index out of range");
             return m_checkBoxes[index]->GetLabel();
         }

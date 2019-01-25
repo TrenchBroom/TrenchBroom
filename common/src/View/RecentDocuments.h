@@ -110,8 +110,8 @@ namespace TrenchBroom {
                 m_recentDocuments.clear();
                 wxConfigBase* conf = wxConfig::Get();
                 for (size_t i = 0; i < m_maxSize; ++i) {
-                    const wxString confName = wxString("RecentDocuments/") << i;
-                    wxString value;
+                    const QString confName = QString("RecentDocuments/") << i;
+                    QString value;
                     if (conf->Read(confName, &value))
                         m_recentDocuments.push_back(IO::Path(value.ToStdString()));
                     else
@@ -123,8 +123,8 @@ namespace TrenchBroom {
                 wxConfigBase* conf = wxConfig::Get();
                 conf->DeleteGroup("RecentDocuments");
                 for (size_t i = 0; i < m_recentDocuments.size(); ++i) {
-                    const wxString confName = wxString("RecentDocuments/") << i;
-                    const wxString value = m_recentDocuments[i].asString();
+                    const QString confName = QString("RecentDocuments/") << i;
+                    const QString value = m_recentDocuments[i].asString();
                     conf->Write(confName, value);
                 }
                 conf->Flush();
@@ -139,7 +139,7 @@ namespace TrenchBroom {
             
             void createBindings() {
                 for (size_t i = 0; i < m_recentDocuments.size(); ++i) {
-                    wxVariant* data = new wxVariant(wxString(m_recentDocuments[i].asString()));
+                    wxVariant* data = new wxVariant(QString(m_recentDocuments[i].asString()));
                     const int windowId = m_baseId + static_cast<int>(i);
                     m_handler->Bind(wxEVT_MENU, m_function, m_handler, windowId, windowId, data);
                 }

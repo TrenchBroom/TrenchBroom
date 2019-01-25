@@ -33,7 +33,7 @@ namespace TrenchBroom {
         private:
             const Model::GameEngineConfig& m_config;
         public:
-            GameEngineProfileListBox(wxWindow* parent, const Model::GameEngineConfig& config);
+            GameEngineProfileListBox(QWidget* parent, const Model::GameEngineConfig& config);
             ~GameEngineProfileListBox() override;
             
             Model::GameEngineProfile* selectedProfile() const;
@@ -41,7 +41,7 @@ namespace TrenchBroom {
             void profilesDidChange();
         private:
             class ProfileItem;
-            Item* createItem(wxWindow* parent, const wxSize& margins, size_t index) override;
+            Item* createItem(QWidget* parent, const wxSize& margins, size_t index) override;
         };
     }
 }

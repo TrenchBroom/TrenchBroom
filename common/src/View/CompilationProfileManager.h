@@ -34,13 +34,13 @@ namespace TrenchBroom {
         class CompilationProfileListBox;
         class CompilationProfileEditor;
         
-        class CompilationProfileManager : public wxPanel {
+        class CompilationProfileManager : public QWidget {
         private:
             Model::CompilationConfig& m_config;
             CompilationProfileListBox* m_profileList;
             CompilationProfileEditor* m_profileEditor;
         public:
-            CompilationProfileManager(wxWindow* parent, MapDocumentWPtr document, Model::CompilationConfig& config);
+            CompilationProfileManager(QWidget* parent, MapDocumentWPtr document, Model::CompilationConfig& config);
             
             const Model::CompilationProfile* selectedProfile() const;
         private:

@@ -37,18 +37,18 @@ namespace TrenchBroom {
             ButtonList m_buttons;
         public:
             RadioGroup();
-            RadioGroup(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, size_t n, const wxString choices[]);
+            RadioGroup(QWidget* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, size_t n, const QString choices[]);
             
-            bool Create(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, size_t n, const wxString choices[]);
+            bool Create(QWidget* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, size_t n, const QString choices[]);
         public:
             unsigned int GetCount() const override;
-            wxString GetString(unsigned int index) const override;
-            void SetString(unsigned int index, const wxString& str) override;
-            int FindString(const wxString& str, bool caseSensitive = false) const override;
+            QString GetString(unsigned int index) const override;
+            void SetString(unsigned int index, const QString& str) override;
+            int FindString(const QString& str, bool caseSensitive = false) const override;
             
             void SetSelection(int index) override;
             int GetSelection() const override;
-            wxString GetStringSelection() const override;
+            QString GetStringSelection() const override;
         private:
             void OnRadioButton(wxCommandEvent& event);
         private:

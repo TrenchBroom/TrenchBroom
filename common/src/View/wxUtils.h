@@ -36,10 +36,10 @@ namespace TrenchBroom {
 #if 0
         class MapFrame;
 
-        MapFrame* findMapFrame(wxWindow* window);
-        wxFrame* findFrame(wxWindow* window);
+        MapFrame* findMapFrame(QWidget* window);
+        wxFrame* findFrame(QWidget* window);
 
-        void fitAll(wxWindow* window);
+        void fitAll(QWidget* window);
 
         wxColor makeLighter(const wxColor& color);
         Color fromWxColor(const wxColor& color);
@@ -48,24 +48,24 @@ namespace TrenchBroom {
         std::vector<size_t> getListCtrlSelection(const wxListCtrl* listCtrl);
         void deselectAllListrCtrlItems(wxListCtrl* listCtrl);
 
-        wxWindow* createBitmapButton(wxWindow* parent, const String& image, const String& tooltip);
-        wxWindow* createBitmapToggleButton(wxWindow* parent, const String& upImage, const String& downImage, const String& tooltip);
+        QWidget* createBitmapButton(QWidget* parent, const String& image, const String& tooltip);
+        QWidget* createBitmapToggleButton(QWidget* parent, const String& upImage, const String& downImage, const String& tooltip);
 
-        wxWindow* createDefaultPage(wxWindow* parent, const wxString& message);
+        QWidget* createDefaultPage(QWidget* parent, const QString& message);
 
-        wxSizer* wrapDialogButtonSizer(wxSizer* buttonSizer, wxWindow* parent);
+        wxSizer* wrapDialogButtonSizer(wxSizer* buttonSizer, QWidget* parent);
 
         void setWindowIcon(wxTopLevelWindow* window);
         template <typename T>
-        void setHint(T* ctrl, const wxString& hint) {
+        void setHint(T* ctrl, const QString& hint) {
 #ifndef __WXGTK20__
             ctrl->SetHint(hint);
 #endif
         }
 
-        wxArrayString filterBySuffix(const wxArrayString& strings, const wxString& suffix, bool caseSensitive = false);
+        wxArrayString filterBySuffix(const wxArrayString& strings, const QString& suffix, bool caseSensitive = false);
 
-        QString wxToQString(const wxString& string);
+        QString wxToQString(const QString& string);
 #endif
 
         Color fromQColor(const QColor& color);

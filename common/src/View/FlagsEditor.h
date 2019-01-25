@@ -26,11 +26,11 @@
 
 class wxCheckBox;
 class wxCommandEvent;
-class wxWindow;
+class QWidget;
 
 namespace TrenchBroom {
     namespace View {
-        class FlagsEditor : public wxPanel {
+        class FlagsEditor : public QWidget {
         private:
             typedef std::vector<wxCheckBox*> CheckBoxList;
             typedef std::vector<int> ValueList;
@@ -39,7 +39,7 @@ namespace TrenchBroom {
             CheckBoxList m_checkBoxes;
             ValueList m_values;
         public:
-            FlagsEditor(wxWindow* parent, size_t numCols);
+            FlagsEditor(QWidget* parent, size_t numCols);
             
             void setFlags(const wxArrayString& labels, const wxArrayString& tooltips = wxArrayString(0));
             void setFlags(const wxArrayInt& values, const wxArrayString& labels, const wxArrayString& tooltips = wxArrayString(0));
@@ -50,7 +50,7 @@ namespace TrenchBroom {
             bool isFlagMixed(size_t index) const;
             int getSetFlagValue() const;
             int getMixedFlagValue() const;
-            wxString getFlagLabel(size_t index) const;
+            QString getFlagLabel(size_t index) const;
             
             int lineHeight() const;
             

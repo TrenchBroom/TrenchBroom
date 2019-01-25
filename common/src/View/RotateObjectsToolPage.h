@@ -38,7 +38,7 @@ namespace TrenchBroom {
         class SpinControl;
         class SpinControlEvent;
         
-        class RotateObjectsToolPage : public wxPanel {
+        class RotateObjectsToolPage : public QWidget {
         private:
             MapDocumentWPtr m_document;
             RotateObjectsTool* m_tool;
@@ -50,7 +50,7 @@ namespace TrenchBroom {
             wxChoice* m_axis;
             wxButton* m_rotateButton;
         public:
-            RotateObjectsToolPage(wxWindow* parent, MapDocumentWPtr document, RotateObjectsTool* tool);
+            RotateObjectsToolPage(QWidget* parent, MapDocumentWPtr document, RotateObjectsTool* tool);
             void setAxis(vm::axis::type axis);
             void setRecentlyUsedCenters(const std::vector<vm::vec3>& centers);
             void setCurrentCenter(const vm::vec3& center);

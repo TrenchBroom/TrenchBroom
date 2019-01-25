@@ -36,7 +36,7 @@ namespace TrenchBroom {
         class AutoCompleteTextControl;
         class CompilationTaskList;
         
-        class CompilationProfileEditor : public wxPanel {
+        class CompilationProfileEditor : public QWidget {
         private:
             MapDocumentWPtr m_document;
             Model::CompilationProfile* m_profile;
@@ -45,10 +45,10 @@ namespace TrenchBroom {
             AutoCompleteTextControl* m_workDirTxt;
             CompilationTaskList* m_taskList;
         public:
-            CompilationProfileEditor(wxWindow* parent, MapDocumentWPtr document);
+            CompilationProfileEditor(QWidget* parent, MapDocumentWPtr document);
             ~CompilationProfileEditor();
         private:
-            wxWindow* createEditorPage(wxWindow* parent);
+            QWidget* createEditorPage(QWidget* parent);
             
             void OnNameChanged(wxCommandEvent& event);
             void OnWorkDirChanged(wxCommandEvent& event);

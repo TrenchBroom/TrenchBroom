@@ -24,7 +24,7 @@
 #include "View/ViewTypes.h"
 
 class wxCollapsiblePaneEvent;
-class wxWindow;
+class QWidget;
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -38,11 +38,11 @@ namespace TrenchBroom {
         
         class MapInspector : public TabBookPage {
         public:
-            MapInspector(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
+            MapInspector(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
         private:
             void createGui(MapDocumentWPtr document, GLContextManager& contextManager);
-            wxWindow* createLayerEditor(wxWindow* parent, MapDocumentWPtr document);
-            wxWindow* createModEditor(wxWindow* parent, MapDocumentWPtr document);
+            QWidget* createLayerEditor(QWidget* parent, MapDocumentWPtr document);
+            QWidget* createModEditor(QWidget* parent, MapDocumentWPtr document);
         };
     }
 }

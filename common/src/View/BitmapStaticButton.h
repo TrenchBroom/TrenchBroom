@@ -31,7 +31,7 @@ namespace TrenchBroom {
             wxBitmap m_bitmap;
             wxBitmap m_disabledBitmap;
         public:
-            BitmapStaticButton(wxWindow* parent, wxWindowID windowId, const wxBitmap& bitmap);
+            BitmapStaticButton(QWidget* parent, wxWindowID windowId, const wxBitmap& bitmap);
         private:
             wxBitmap currentBitmap() const override;
             void processClick() override;

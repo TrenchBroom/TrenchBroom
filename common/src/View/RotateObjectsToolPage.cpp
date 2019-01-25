@@ -38,8 +38,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        RotateObjectsToolPage::RotateObjectsToolPage(wxWindow* parent, MapDocumentWPtr document, RotateObjectsTool* tool) :
-        wxPanel(parent),
+        RotateObjectsToolPage::RotateObjectsToolPage(QWidget* parent, MapDocumentWPtr document, RotateObjectsTool* tool) :
+        QWidget(parent),
         m_document(document),
         m_tool(tool) {
             createGui();
@@ -69,21 +69,21 @@ namespace TrenchBroom {
         void RotateObjectsToolPage::createGui() {
             // FIXME:
 #if 0
-            auto* centerText = new wxStaticText(this, wxID_ANY, "Center");
+            auto* centerText = new QLabel(this, wxID_ANY, "Center");
             m_recentlyUsedCentersList = new wxComboBox(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxTE_PROCESS_ENTER);
             
             m_resetCenterButton = new wxButton(this, wxID_ANY, "Reset", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
             m_resetCenterButton->SetToolTip("Reset the position of the rotate handle to the center of the current selection.");
 
-            auto* text1 = new wxStaticText(this, wxID_ANY, "Rotate objects");
-            auto* text2 = new wxStaticText(this, wxID_ANY, "degs about");
-            auto* text3 = new wxStaticText(this, wxID_ANY, "axis");
+            auto* text1 = new QLabel(this, wxID_ANY, "Rotate objects");
+            auto* text2 = new QLabel(this, wxID_ANY, "degs about");
+            auto* text3 = new QLabel(this, wxID_ANY, "axis");
             m_angle = new SpinControl(this);
             m_angle->SetRange(-360.0, 360.0);
             m_angle->SetValue(vm::toDegrees(m_tool->angle()));
             m_angle->SetDigits(0, 4);
             
-            wxString axes[] = { "X", "Y", "Z" };
+            QString axes[] = { "X", "Y", "Z" };
             m_axis = new wxChoice(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 3, axes);
             m_axis->SetSelection(2);
             

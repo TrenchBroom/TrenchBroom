@@ -37,7 +37,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        MousePreferencePane::MousePreferencePane(wxWindow* parent) :
+        MousePreferencePane::MousePreferencePane(QWidget* parent) :
         PreferencePane(parent) {
             createGui();
             bindEvents();
@@ -225,7 +225,7 @@ namespace TrenchBroom {
         }
 
         void MousePreferencePane::createGui() {
-            wxWindow* mousePreferences = createCameraPreferences();
+            QWidget* mousePreferences = createCameraPreferences();
 
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->AddSpacer(LayoutConstants::NarrowVMargin);
@@ -236,56 +236,56 @@ namespace TrenchBroom {
             SetSizer(sizer);
         }
         
-        wxWindow* MousePreferencePane::createCameraPreferences() {
-            wxPanel* box = new wxPanel(this);
+        QWidget* MousePreferencePane::createCameraPreferences() {
+            QWidget* box = new QWidget(this);
             
-            wxStaticText* lookPrefsHeader = new wxStaticText(box, wxID_ANY, "Mouse Look");
+            QLabel* lookPrefsHeader = new QLabel(box, wxID_ANY, "Mouse Look");
             lookPrefsHeader->SetFont(lookPrefsHeader->GetFont().Bold());
-            wxStaticText* lookSpeedLabel = new wxStaticText(box, wxID_ANY, "Sensitivity");
+            QLabel* lookSpeedLabel = new QLabel(box, wxID_ANY, "Sensitivity");
             m_lookSpeedSlider = new wxSlider(box, wxID_ANY, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
             m_invertLookHAxisCheckBox = new wxCheckBox(box, wxID_ANY, "Invert X Axis");
             m_invertLookVAxisCheckBox = new wxCheckBox(box, wxID_ANY, "Invert Y Axis");
             
-            wxStaticText* panPrefsHeader = new wxStaticText(box, wxID_ANY, "Mouse Pan");
+            QLabel* panPrefsHeader = new QLabel(box, wxID_ANY, "Mouse Pan");
             panPrefsHeader->SetFont(panPrefsHeader->GetFont().Bold());
-            wxStaticText* panSpeedLabel = new wxStaticText(box, wxID_ANY, "Sensitivity");
+            QLabel* panSpeedLabel = new QLabel(box, wxID_ANY, "Sensitivity");
             m_panSpeedSlider = new wxSlider(box, wxID_ANY, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
             
             m_invertPanHAxisCheckBox = new wxCheckBox(box, wxID_ANY, "Invert X Axis");
             m_invertPanVAxisCheckBox = new wxCheckBox(box, wxID_ANY, "Invert Y Axis");
-            wxStaticText* movePrefsHeader = new wxStaticText(box, wxID_ANY, "Mouse Move");
+            QLabel* movePrefsHeader = new QLabel(box, wxID_ANY, "Mouse Move");
             movePrefsHeader->SetFont(movePrefsHeader->GetFont().Bold());
             
-            wxStaticText* moveSpeedLabel = new wxStaticText(box, wxID_ANY, "Sensitivity");
+            QLabel* moveSpeedLabel = new QLabel(box, wxID_ANY, "Sensitivity");
             m_moveSpeedSlider = new wxSlider(box, wxID_ANY, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
             m_invertMouseWheelCheckBox = new wxCheckBox(box, wxID_ANY, "Invert mouse wheel");
             m_enableAltMoveCheckBox = new wxCheckBox(box, wxID_ANY, "Alt+MMB drag to move camera");
             m_invertAltMoveAxisCheckBox = new wxCheckBox(box, wxID_ANY, "Invert Z axis in Alt+MMB drag");
             m_moveInCursorDirCheckBox = new wxCheckBox(box, wxID_ANY, "Move camera towards cursor");
             
-            wxStaticText* keyPrefsHeader = new wxStaticText(box, wxID_ANY, "Move Keys");
+            QLabel* keyPrefsHeader = new QLabel(box, wxID_ANY, "Move Keys");
             keyPrefsHeader->SetFont(lookPrefsHeader->GetFont().Bold());
 
-            wxStaticText* forwardKeyLabel = new wxStaticText(box, wxID_ANY, "Forward");
+            QLabel* forwardKeyLabel = new QLabel(box, wxID_ANY, "Forward");
             m_forwardKeyEditor = new KeyboardShortcutEditor(box, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_THEME);
             m_forwardKeyEditor->SetMinSize(wxSize(80, wxDefaultCoord));
-            wxStaticText* backwardKeyLabel = new wxStaticText(box, wxID_ANY, "Backward");
+            QLabel* backwardKeyLabel = new QLabel(box, wxID_ANY, "Backward");
             m_backwardKeyEditor = new KeyboardShortcutEditor(box, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_THEME);
             m_backwardKeyEditor->SetMinSize(wxSize(80, wxDefaultCoord));
-            wxStaticText* leftKeyLabel = new wxStaticText(box, wxID_ANY, "Left");
+            QLabel* leftKeyLabel = new QLabel(box, wxID_ANY, "Left");
             m_leftKeyEditor = new KeyboardShortcutEditor(box, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_THEME);
             m_leftKeyEditor->SetMinSize(wxSize(80, wxDefaultCoord));
-            wxStaticText* rightKeyLabel = new wxStaticText(box, wxID_ANY, "Right");
+            QLabel* rightKeyLabel = new QLabel(box, wxID_ANY, "Right");
             m_rightKeyEditor = new KeyboardShortcutEditor(box, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_THEME);
             m_rightKeyEditor->SetMinSize(wxSize(80, wxDefaultCoord));
-            wxStaticText* upKeyLabel = new wxStaticText(box, wxID_ANY, "Up");
+            QLabel* upKeyLabel = new QLabel(box, wxID_ANY, "Up");
             m_upKeyEditor = new KeyboardShortcutEditor(box, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_THEME);
             m_upKeyEditor->SetMinSize(wxSize(80, wxDefaultCoord));
-            wxStaticText* downKeyLabel = new wxStaticText(box, wxID_ANY, "Down");
+            QLabel* downKeyLabel = new QLabel(box, wxID_ANY, "Down");
             m_downKeyEditor = new KeyboardShortcutEditor(box, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_THEME);
             m_downKeyEditor->SetMinSize(wxSize(80, wxDefaultCoord));
 
-            wxStaticText* flyMoveSpeedLabel = new wxStaticText(box, wxID_ANY, "Speed");
+            QLabel* flyMoveSpeedLabel = new QLabel(box, wxID_ANY, "Speed");
             m_flyMoveSpeedSlider = new wxSlider(box, wxID_ANY, 256, 64, 512, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
 
             const int HMargin           = LayoutConstants::WideHMargin;

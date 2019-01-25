@@ -27,7 +27,7 @@
 
 class wxButton;
 class wxChoice;
-class wxWindow;
+class QWidget;
 
 namespace TrenchBroom {
     namespace IO {
@@ -46,8 +46,8 @@ namespace TrenchBroom {
         public:
             virtual ~GameDialog();
             
-            static bool showNewDocumentDialog(wxWindow* parent, String& gameName, Model::MapFormat& mapFormat);
-            static bool showOpenDocumentDialog(wxWindow* parent, String& gameName, Model::MapFormat& mapFormat);
+            static bool showNewDocumentDialog(QWidget* parent, String& gameName, Model::MapFormat& mapFormat);
+            static bool showOpenDocumentDialog(QWidget* parent, String& gameName, Model::MapFormat& mapFormat);
             
             String selectedGameName() const;
             Model::MapFormat selectedMapFormat() const;
@@ -62,11 +62,11 @@ namespace TrenchBroom {
             void OnClose(wxCloseEvent& event);
         protected:
             GameDialog();
-            void createDialog(wxWindow* parent, const wxString& title, const wxString& infoText);
+            void createDialog(QWidget* parent, const QString& title, const QString& infoText);
 
-            void createGui(const wxString& title, const wxString& infoText);
-            virtual wxWindow* createInfoPanel(wxWindow* parent, const wxString& title, const wxString& infoText);
-            virtual wxWindow* createSelectionPanel(wxWindow* parent);
+            void createGui(const QString& title, const QString& infoText);
+            virtual QWidget* createInfoPanel(QWidget* parent, const QString& title, const QString& infoText);
+            virtual QWidget* createSelectionPanel(QWidget* parent);
         private:
             bool isOkEnabled() const;
             void gameSelectionChanged(const String& gameName);

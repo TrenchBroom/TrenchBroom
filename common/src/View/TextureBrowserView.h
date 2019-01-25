@@ -69,7 +69,7 @@ namespace TrenchBroom {
             
             Assets::Texture* m_selectedTexture;
         public:
-            TextureBrowserView(wxWindow* parent,
+            TextureBrowserView(QWidget* parent,
                                wxScrollBar* scrollBar,
                                GLContextManager& contextManager,
                                Assets::TextureManager& textureManager);
@@ -114,7 +114,7 @@ namespace TrenchBroom {
             StringMap collectStringVertices(Layout& layout, float y, float height);
             
             void doLeftClick(Layout& layout, float x, float y) override;
-            wxString tooltip(const Layout::Group::Row::Cell& cell) override;
+            QString tooltip(const Layout::Group::Row::Cell& cell) override;
         };
     }
 }

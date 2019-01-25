@@ -37,7 +37,7 @@ namespace TrenchBroom {
             TextureBrowser* m_subjectBrowser;
             TextureBrowser* m_replacementBrowser;
         public:
-            ReplaceTextureDialog(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
+            ReplaceTextureDialog(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
             
             void OnReplace(wxCommandEvent& event);
         private:

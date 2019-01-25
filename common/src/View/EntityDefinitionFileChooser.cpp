@@ -43,8 +43,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityDefinitionFileChooser::EntityDefinitionFileChooser(wxWindow* parent, MapDocumentWPtr document) :
-        wxPanel(parent),
+        EntityDefinitionFileChooser::EntityDefinitionFileChooser(QWidget* parent, MapDocumentWPtr document) :
+        QWidget(parent),
         m_document(document) {
             createGui();
             bindEvents();
@@ -75,7 +75,7 @@ namespace TrenchBroom {
         void EntityDefinitionFileChooser::OnChooseExternalClicked(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            const wxString pathWxStr = ::wxFileSelector("Load Entity Definition File",
+            const QString pathWxStr = ::wxFileSelector("Load Entity Definition File",
                                                         wxEmptyString, wxEmptyString, wxEmptyString,
                                                         "Worldcraft / Hammer files (*.fgd)|*.fgd|QuakeC files (*.def)|*.def",
                                                         wxFD_OPEN | wxFD_FILE_MUST_EXIST);
@@ -110,7 +110,7 @@ namespace TrenchBroom {
             builtinContainer->getPanel()->SetSizer(builtinSizer);
             
             TitledPanel* externalContainer = new TitledPanel(this, "External", false);
-            m_external = new wxStaticText(externalContainer->getPanel(), wxID_ANY, "use builtin", wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
+            m_external = new QLabel(externalContainer->getPanel(), wxID_ANY, "use builtin", wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
             m_chooseExternal = new wxButton(externalContainer->getPanel(), wxID_ANY, "Browse...", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
             m_chooseExternal->SetToolTip("Click to browse for an entity definition file");
             m_reloadExternal = new wxButton(externalContainer->getPanel(), wxID_ANY, "Reload", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);

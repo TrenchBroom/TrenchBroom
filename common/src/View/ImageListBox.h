@@ -22,21 +22,21 @@
 
 #include "ControlListBox.h"
 
-class wxStaticText;
+class QLabel;
 class wxStaticBitmap;
 
 namespace TrenchBroom {
     namespace View {
         class ImageListBox : public ControlListBox {
         public:
-            ImageListBox(wxWindow* parent, const wxString& emptyText);
+            ImageListBox(QWidget* parent, const QString& emptyText);
         private:
             class ImageListBoxItem;
-            Item* createItem(wxWindow* parent, const wxSize& margins, size_t index) override;
+            Item* createItem(QWidget* parent, const wxSize& margins, size_t index) override;
         private:
             virtual bool image(size_t index, wxBitmap& result) const;
-            virtual wxString title(size_t index) const = 0;
-            virtual wxString subtitle(size_t index) const = 0;
+            virtual QString title(size_t index) const = 0;
+            virtual QString subtitle(size_t index) const = 0;
         };
     }
 }

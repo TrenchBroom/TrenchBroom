@@ -22,7 +22,7 @@
 
 #include <wx/dialog.h>
 
-class wxPanel;
+class QWidget;
 class wxSimplebook;
 class wxToolBar;
 class wxToolBarToolBase;

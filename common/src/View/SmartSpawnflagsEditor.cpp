@@ -81,7 +81,7 @@ namespace TrenchBroom {
             Model::Node::accept(std::begin(toUpdate), std::end(toUpdate), visitor);
         }
         
-        wxWindow* SmartSpawnflagsEditor::doCreateVisual(wxWindow* parent) {
+        QWidget* SmartSpawnflagsEditor::doCreateVisual(QWidget* parent) {
             assert(m_scrolledWindow == nullptr);
             
             m_scrolledWindow = new wxScrolledWindow(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, static_cast<long>(wxHSCROLL | wxVSCROLL | wxBORDER_NONE));
@@ -140,7 +140,7 @@ namespace TrenchBroom {
             
             // Initialize the labels and tooltips.
             for (size_t i = 0; i < NumFlags; ++i) {
-                wxString defaultLabel;
+                QString defaultLabel;
                 defaultLabel << (1 << i);
 
                 defaultLabels.push_back(defaultLabel);
@@ -151,8 +151,8 @@ namespace TrenchBroom {
             for (size_t i = 0; i < NumFlags; ++i) {
                 bool firstPass = true;
                 for (const Model::AttributableNode* attributable : attributables) {
-                    wxString label = defaultLabels[i];
-                    wxString tooltip = "";
+                    QString label = defaultLabels[i];
+                    QString tooltip = "";
 
                     const Assets::FlagsAttributeOption* flagDef = Assets::EntityDefinition::safeGetSpawnflagsAttributeOption(attributable->definition(), i);
                     if (flagDef != nullptr) {

@@ -34,7 +34,7 @@ namespace TrenchBroom {
     namespace View {
         wxIMPLEMENT_DYNAMIC_CLASS(AutoCompleteTextControl, wxTextCtrl)
 
-        AutoCompleteTextControl::CompletionResult::SingleResult::SingleResult(const wxString& i_value, const wxString& i_description) :
+        AutoCompleteTextControl::CompletionResult::SingleResult::SingleResult(const QString& i_value, const QString& i_description) :
         value(i_value),
         description(i_description) {}
 
@@ -46,50 +46,50 @@ namespace TrenchBroom {
             return m_results.size();
         }
 
-        const wxString AutoCompleteTextControl::CompletionResult::GetValue(const size_t index) const {
+        const QString AutoCompleteTextControl::CompletionResult::GetValue(const size_t index) const {
             wxASSERT(index < Count());
             return m_results[index].value;
         }
 
-        const wxString AutoCompleteTextControl::CompletionResult::GetDescription(const size_t index) const {
+        const QString AutoCompleteTextControl::CompletionResult::GetDescription(const size_t index) const {
             wxASSERT(index < Count());
             return m_results[index].description;
         }
 
-        void AutoCompleteTextControl::CompletionResult::Add(const wxString& value, const wxString& description) {
+        void AutoCompleteTextControl::CompletionResult::Add(const QString& value, const QString& description) {
             m_results.push_back(SingleResult(value, description));
         }
 
         AutoCompleteTextControl::Helper::~Helper() {}
 
-        size_t AutoCompleteTextControl::Helper::ShouldStartCompletionAfterInput(const wxString& str, const wxUniChar c, const size_t insertPos) const {
+        size_t AutoCompleteTextControl::Helper::ShouldStartCompletionAfterInput(const QString& str, const wxUniChar c, const size_t insertPos) const {
             wxASSERT(insertPos <= str.Length());
             return DoShouldStartCompletionAfterInput(str, c, insertPos);
         }
 
-        size_t AutoCompleteTextControl::Helper::ShouldStartCompletionAfterRequest(const wxString& str, const size_t insertPos) const {
+        size_t AutoCompleteTextControl::Helper::ShouldStartCompletionAfterRequest(const QString& str, const size_t insertPos) const {
             wxASSERT(insertPos <= str.Length());
             return DoShouldStartCompletionAfterRequest(str, insertPos);
         }
 
-        AutoCompleteTextControl::CompletionResult AutoCompleteTextControl::Helper::GetCompletions(const wxString& str, const size_t startIndex, const size_t count) const {
+        AutoCompleteTextControl::CompletionResult AutoCompleteTextControl::Helper::GetCompletions(const QString& str, const size_t startIndex, const size_t count) const {
             wxASSERT(startIndex + count <= str.Length());
             return DoGetCompletions(str, startIndex, count);
         }
 
-        size_t AutoCompleteTextControl::DefaultHelper::DoShouldStartCompletionAfterInput(const wxString& str, const wxUniChar c, const size_t insertPos) const {
+        size_t AutoCompleteTextControl::DefaultHelper::DoShouldStartCompletionAfterInput(const QString& str, const wxUniChar c, const size_t insertPos) const {
             return str.Length();
         }
 
-        size_t AutoCompleteTextControl::DefaultHelper::DoShouldStartCompletionAfterRequest(const wxString& str, size_t insertPos) const {
+        size_t AutoCompleteTextControl::DefaultHelper::DoShouldStartCompletionAfterRequest(const QString& str, size_t insertPos) const {
             return str.Length();
         }
 
-        AutoCompleteTextControl::CompletionResult AutoCompleteTextControl::DefaultHelper::DoGetCompletions(const wxString& str, const size_t startIndex, const size_t count) const {
+        AutoCompleteTextControl::CompletionResult AutoCompleteTextControl::DefaultHelper::DoGetCompletions(const QString& str, const size_t startIndex, const size_t count) const {
             return CompletionResult();
         }
 
-        AutoCompleteTextControl::AutoCompletionList::AutoCompletionList(wxWindow* parent) :
+        AutoCompleteTextControl::AutoCompletionList::AutoCompletionList(QWidget* parent) :
         ControlListBox(parent, false, "No completions available.") {
             SetItemMargin(wxSize(1, 1));
             SetShowLastDivider(false);
@@ -101,7 +101,7 @@ namespace TrenchBroom {
             Fit();
         }
 
-        const wxString AutoCompleteTextControl::AutoCompletionList::CurrentSelection() const {
+        const QString AutoCompleteTextControl::AutoCompletionList::CurrentSelection() const {
             wxASSERT(GetSelection() != wxNOT_FOUND);
             const size_t index = static_cast<size_t>(GetSelection());
             return m_result.GetValue(index);
@@ -109,15 +109,15 @@ namespace TrenchBroom {
 
         class AutoCompleteTextControl::AutoCompletionList::AutoCompletionListItem : public Item {
         private:
-            wxStaticText* m_valueText;
-            wxStaticText* m_descriptionText;
+            QLabel* m_valueText;
+            QLabel* m_descriptionText;
         public:
-            AutoCompletionListItem(wxWindow* parent, const wxSize& margins, const wxString& value, const wxString& description) :
+            AutoCompletionListItem(QWidget* parent, const wxSize& margins, const QString& value, const QString& description) :
             Item(parent),
             m_valueText(nullptr),
             m_descriptionText(nullptr) {
-                m_valueText = new wxStaticText(this, wxID_ANY, value);
-                m_descriptionText = new wxStaticText(this, wxID_ANY, description);
+                m_valueText = new QLabel(this, wxID_ANY, value);
+                m_descriptionText = new QLabel(this, wxID_ANY, description);
                 m_descriptionText->SetForegroundColour(makeLighter(m_descriptionText->GetForegroundColour()));
 #ifndef _WIN32
                 m_descriptionText->SetWindowVariant(wxWINDOW_VARIANT_SMALL);
@@ -139,7 +139,7 @@ namespace TrenchBroom {
             }
         };
 
-        ControlListBox::Item* AutoCompleteTextControl::AutoCompletionList::createItem(wxWindow* parent, const wxSize& margins, const size_t index) {
+        ControlListBox::Item* AutoCompleteTextControl::AutoCompletionList::createItem(QWidget* parent, const wxSize& margins, const size_t index) {
             return new AutoCompletionListItem(parent, margins, m_result.GetValue(index), m_result.GetDescription(index));
         }
 
@@ -242,7 +242,7 @@ namespace TrenchBroom {
         m_helper(nullptr),
         m_autoCompletionPopup(nullptr) {}
 
-        AutoCompleteTextControl::AutoCompleteTextControl(wxWindow* parent, wxWindowID id, const wxString& value, const wxPoint& pos, const wxSize& size, long style, const wxValidator& validator, const wxString& name) :
+        AutoCompleteTextControl::AutoCompleteTextControl(QWidget* parent, wxWindowID id, const QString& value, const wxPoint& pos, const wxSize& size, long style, const wxValidator& validator, const QString& name) :
         wxTextCtrl(),
         m_helper(nullptr),
         m_autoCompletionPopup(nullptr) {
@@ -253,7 +253,7 @@ namespace TrenchBroom {
             delete m_helper;
         }
 
-        void AutoCompleteTextControl::Create(wxWindow* parent, wxWindowID id, const wxString& value, const wxPoint& pos, const wxSize& size, long style, const wxValidator& validator, const wxString& name) {
+        void AutoCompleteTextControl::Create(QWidget* parent, wxWindowID id, const QString& value, const wxPoint& pos, const wxSize& size, long style, const wxValidator& validator, const QString& name) {
             wxTextCtrl::Create(parent, id, value, pos, size, style | wxTE_PROCESS_ENTER, validator, name);
             wxASSERT(IsSingleLine());
             m_helper = new DefaultHelper();
@@ -324,7 +324,7 @@ namespace TrenchBroom {
         void AutoCompleteTextControl::StartAutoCompletion(const size_t startIndex) {
             wxASSERT(!IsAutoCompleting());
             m_currentStartIndex = startIndex;
-            const wxString prefix = GetRange(0, static_cast<long>(m_currentStartIndex));
+            const QString prefix = GetRange(0, static_cast<long>(m_currentStartIndex));
             const wxPoint offset = wxPoint(GetTextExtent(prefix).x, 0);
             const wxPoint relPos = GetRect().GetBottomLeft() + offset;
             const wxPoint absPos = GetParent()->ClientToScreen(relPos);
@@ -348,7 +348,7 @@ namespace TrenchBroom {
             m_autoCompletionPopup = nullptr;
         }
 
-        void AutoCompleteTextControl::PerformAutoComplete(const wxString& replacement) {
+        void AutoCompleteTextControl::PerformAutoComplete(const QString& replacement) {
             wxASSERT(IsAutoCompleting());
             const long from = static_cast<long>(m_currentStartIndex);
             const long to   = GetInsertionPoint();

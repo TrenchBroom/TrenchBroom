@@ -33,12 +33,12 @@ namespace TrenchBroom {
         RadioGroup::RadioGroup() :
         wxControl() {}
 
-        RadioGroup::RadioGroup(wxWindow* parent, const wxWindowID id, const wxPoint& pos, const wxSize& size, const size_t n, const wxString choices[]) :
+        RadioGroup::RadioGroup(QWidget* parent, const wxWindowID id, const wxPoint& pos, const wxSize& size, const size_t n, const QString choices[]) :
         wxControl() {
             Create(parent, id, pos, size, n, choices);
         }
 
-        bool RadioGroup::Create(wxWindow* parent, const wxWindowID id, const wxPoint& pos, const wxSize& size, const size_t n, const wxString choices[]) {
+        bool RadioGroup::Create(QWidget* parent, const wxWindowID id, const wxPoint& pos, const wxSize& size, const size_t n, const QString choices[]) {
             if (!wxControl::Create(parent, id, pos, size, wxBORDER_NONE))
                 return false;
 
@@ -63,18 +63,18 @@ namespace TrenchBroom {
             return static_cast<unsigned int>(m_buttons.size());
         }
 
-        wxString RadioGroup::GetString(const unsigned int index) const {
+        QString RadioGroup::GetString(const unsigned int index) const {
             if (index > GetCount())
                 return "";
             return m_buttons[static_cast<size_t>(index)]->GetLabel();
         }
 
-        void RadioGroup::SetString(const unsigned int index, const wxString& str) {
+        void RadioGroup::SetString(const unsigned int index, const QString& str) {
             assert(index < GetCount());
             m_buttons[static_cast<size_t>(index)]->SetLabel(str);
         }
 
-        int RadioGroup::FindString(const wxString& str, const bool caseSensitive) const {
+        int RadioGroup::FindString(const QString& str, const bool caseSensitive) const {
             for (size_t i = 0; i < m_buttons.size(); ++i) {
                 if (m_buttons[i]->GetLabel().IsSameAs(str, caseSensitive))
                     return static_cast<int>(i);
@@ -96,7 +96,7 @@ namespace TrenchBroom {
             return wxNOT_FOUND;
         }
 
-        wxString RadioGroup::GetStringSelection() const {
+        QString RadioGroup::GetStringSelection() const {
             const int index = GetSelection();
             if (index == wxNOT_FOUND)
                 return "";

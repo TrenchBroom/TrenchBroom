@@ -26,9 +26,9 @@
 
 namespace TrenchBroom {
     namespace View {
-        class CurrentGameIndicator : public wxPanel {
+        class CurrentGameIndicator : public QWidget {
         public:
-            CurrentGameIndicator(wxWindow* parent, const String& gameName);
+            CurrentGameIndicator(QWidget* parent, const String& gameName);
         };
     }
 }

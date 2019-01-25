@@ -31,7 +31,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class GameEngineProfileEditor : public wxPanel {
+        class GameEngineProfileEditor : public QWidget {
         private:
             Model::GameEngineProfile* m_profile;
             wxSimplebook* m_book;
@@ -39,17 +39,17 @@ namespace TrenchBroom {
             wxTextCtrl* m_pathText;
             bool m_ignoreNotifications;
         public:
-            GameEngineProfileEditor(wxWindow* parent);
+            GameEngineProfileEditor(QWidget* parent);
             ~GameEngineProfileEditor();
         private:
-            wxWindow* createEditorPage(wxWindow* parent);
+            QWidget* createEditorPage(QWidget* parent);
             
             void OnNameChanged(wxCommandEvent& event);
             void OnPathChanged(wxCommandEvent& event);
             void OnChangePathClicked(wxCommandEvent& event);
             void OnUpdatePathTextUI(wxIdleEvent& event);
             
-            void updatePath(const wxString& str);
+            void updatePath(const QString& str);
         public:
             void setProfile(Model::GameEngineProfile* profile);
         private:
@@ -57,7 +57,7 @@ namespace TrenchBroom {
             void profileDidChange();
             void refresh();
             
-            bool isValidEnginePath(const wxString& str) const;
+            bool isValidEnginePath(const QString& str) const;
         };
     }
 }

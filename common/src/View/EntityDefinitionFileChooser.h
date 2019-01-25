@@ -26,20 +26,20 @@
 
 class wxButton;
 class wxListBox;
-class wxStaticText;
+class QLabel;
 
 namespace TrenchBroom {
     namespace View {
-        class EntityDefinitionFileChooser : public wxPanel {
+        class EntityDefinitionFileChooser : public QWidget {
         private:
             MapDocumentWPtr m_document;
             
             wxListBox* m_builtin;
-            wxStaticText* m_external;
+            QLabel* m_external;
             wxButton* m_chooseExternal;
             wxButton* m_reloadExternal;
         public:
-            EntityDefinitionFileChooser(wxWindow* parent, MapDocumentWPtr document);
+            EntityDefinitionFileChooser(QWidget* parent, MapDocumentWPtr document);
             ~EntityDefinitionFileChooser();
             
             void OnBuiltinSelectionChanged(wxCommandEvent& event);

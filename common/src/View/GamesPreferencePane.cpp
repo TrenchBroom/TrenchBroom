@@ -43,7 +43,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        GamesPreferencePane::GamesPreferencePane(wxWindow* parent) :
+        GamesPreferencePane::GamesPreferencePane(QWidget* parent) :
         PreferencePane(parent),
         m_gameListBox(nullptr),
         m_book(nullptr),
@@ -62,12 +62,12 @@ namespace TrenchBroom {
         void GamesPreferencePane::OnChooseGamePathClicked(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            const wxString pathStr = ::wxDirSelector("Choose game directory", wxEmptyString, wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
+            const QString pathStr = ::wxDirSelector("Choose game directory", wxEmptyString, wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
             if (!pathStr.empty())
                 updateGamePath(pathStr);
         }
 
-        void GamesPreferencePane::updateGamePath(const wxString& str) {
+        void GamesPreferencePane::updateGamePath(const QString& str) {
             const IO::Path gamePath(str.ToStdString());
             const auto gameName = m_gameListBox->selectedGameName();
             auto& gameFactory = Model::GameFactory::instance();
@@ -107,10 +107,10 @@ namespace TrenchBroom {
             SetMinSize(wxSize(600, 300));
         }
         
-        wxWindow* GamesPreferencePane::createGamePreferencesPage(wxWindow* parent) {
-            auto* containerPanel = new wxPanel(parent);
+        QWidget* GamesPreferencePane::createGamePreferencesPage(QWidget* parent) {
+            auto* containerPanel = new QWidget(parent);
 
-            auto* gamePathLabel = new wxStaticText(containerPanel, wxID_ANY, "Game Path");
+            auto* gamePathLabel = new QLabel(containerPanel, wxID_ANY, "Game Path");
 			m_gamePathText = new wxTextCtrl(containerPanel, wxID_ANY, "");
 			m_gamePathText->SetEditable(false);
 			setHint(m_gamePathText, "Click on the button to choose...");

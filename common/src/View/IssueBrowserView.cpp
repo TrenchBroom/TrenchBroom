@@ -31,7 +31,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        IssueBrowserView::IssueBrowserView(wxWindow* parent, MapDocumentWPtr document) :
+        IssueBrowserView::IssueBrowserView(QWidget* parent, MapDocumentWPtr document) :
         wxListCtrl(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT | wxLC_VIRTUAL | wxLC_HRULES | wxLC_VRULES | wxBORDER_NONE),
         m_document(document),
         m_hiddenGenerators(0),
@@ -257,13 +257,13 @@ namespace TrenchBroom {
             return nullptr;
         }
 
-        wxString IssueBrowserView::OnGetItemText(const long item, const long column) const {
+        QString IssueBrowserView::OnGetItemText(const long item, const long column) const {
             assert(item >= 0 && static_cast<size_t>(item) < m_issues.size());
             assert(column >= 0 && column < 2);
             
             Model::Issue* issue = m_issues[static_cast<size_t>(item)];
             if (column == 0) {
-                wxString result;
+                QString result;
                 result << issue->lineNumber();
                 return result;
             } else {

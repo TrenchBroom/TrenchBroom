@@ -29,8 +29,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        Inspector::Inspector(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
-        wxPanel(parent),
+        Inspector::Inspector(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
+        QWidget(parent),
         m_tabBook(nullptr),
         m_mapInspector(nullptr),
         m_entityInspector(nullptr),
@@ -51,7 +51,7 @@ namespace TrenchBroom {
             SetSizer(sizer);
         }
 
-        void Inspector::connectTopWidgets(wxWindow* master) {
+        void Inspector::connectTopWidgets(QWidget* master) {
             master->Bind(wxEVT_SIZE, &Inspector::OnTopWidgetSize, this);
         }
 

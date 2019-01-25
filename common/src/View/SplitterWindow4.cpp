@@ -34,8 +34,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        SplitterWindow4::SplitterWindow4(wxWindow* parent) :
-        wxPanel(parent),
+        SplitterWindow4::SplitterWindow4(QWidget* parent) :
+        QWidget(parent),
         m_maximizedWindow(nullptr),
         m_gravity(0.5, 0.5),
         m_initialSplitRatios(-1.0, -1.0),
@@ -61,7 +61,7 @@ namespace TrenchBroom {
             bindMouseEvents(this);
         }
         
-        void SplitterWindow4::split(wxWindow* topLeft, wxWindow* topRight, wxWindow* bottomRight, wxWindow* bottomLeft,
+        void SplitterWindow4::split(QWidget* topLeft, QWidget* topRight, QWidget* bottomRight, QWidget* bottomLeft,
                                     const wxSize& topLeftMin,
                                     const wxSize& topRightMin,
                                     const wxSize& bottomRightMin,
@@ -90,7 +90,7 @@ namespace TrenchBroom {
             }
         }
         
-        void SplitterWindow4::setMinSize(wxWindow* window, const wxSize& minSize) {
+        void SplitterWindow4::setMinSize(QWidget* window, const wxSize& minSize) {
             assert(containsWindow(window));
             assert(minSize.x >= 0 && minSize.y >= 0);
             
@@ -111,7 +111,7 @@ namespace TrenchBroom {
             m_gravity = wxRealPoint(x, y);
         }
 
-        void SplitterWindow4::maximize(wxWindow* window) {
+        void SplitterWindow4::maximize(QWidget* window) {
             m_maximizedWindow = window;
             for (size_t i = 0; i < NumWindows; ++i) {
                 if (m_windows[i] != window) {
@@ -173,7 +173,7 @@ namespace TrenchBroom {
             return m_windows[0] != nullptr;
         }
 
-        bool SplitterWindow4::containsWindow(wxWindow* window) const {
+        bool SplitterWindow4::containsWindow(QWidget* window) const {
             for (size_t i = 0; i < NumWindows; ++i) {
                 if (m_windows[i] == window) {
                     return true;
@@ -182,7 +182,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        void SplitterWindow4::bindMouseEvents(wxWindow* window) {
+        void SplitterWindow4::bindMouseEvents(QWidget* window) {
             ensure(window != nullptr, "window is null");
             window->Bind(wxEVT_ENTER_WINDOW, &SplitterWindow4::OnMouseEnter, this);
             window->Bind(wxEVT_LEAVE_WINDOW, &SplitterWindow4::OnMouseLeave, this);

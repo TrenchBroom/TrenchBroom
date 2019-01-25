@@ -29,7 +29,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        GameEngineProfileListBox::GameEngineProfileListBox(wxWindow* parent, const Model::GameEngineConfig& config)  :
+        GameEngineProfileListBox::GameEngineProfileListBox(QWidget* parent, const Model::GameEngineConfig& config)  :
         ControlListBox(parent, true, "Click the '+' button to create a game engine profile."),
         m_config(config) {
             m_config.profilesDidChange.addObserver(this, &GameEngineProfileListBox::profilesDidChange);
@@ -53,18 +53,18 @@ namespace TrenchBroom {
         class GameEngineProfileListBox::ProfileItem : public Item {
         private:
             Model::GameEngineProfile* m_profile;
-            wxStaticText* m_nameText;
-            wxStaticText* m_pathText;
+            QLabel* m_nameText;
+            QLabel* m_pathText;
         public:
-            ProfileItem(wxWindow* parent, Model::GameEngineProfile* profile, const wxSize& margins) :
+            ProfileItem(QWidget* parent, Model::GameEngineProfile* profile, const wxSize& margins) :
             Item(parent),
             m_profile(profile),
             m_nameText(nullptr),
             m_pathText(nullptr) {
                 ensure(m_profile != nullptr, "profile is null");
                 
-                m_nameText = new wxStaticText(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_END);
-                m_pathText = new wxStaticText(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_MIDDLE);
+                m_nameText = new QLabel(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_END);
+                m_pathText = new QLabel(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_MIDDLE);
                 
                 m_nameText->SetFont(m_nameText->GetFont().Bold());
                 m_pathText->SetForegroundColour(makeLighter(m_pathText->GetForegroundColour()));
@@ -131,7 +131,7 @@ namespace TrenchBroom {
             }
         };
         
-        ControlListBox::Item* GameEngineProfileListBox::createItem(wxWindow* parent, const wxSize& margins, const size_t index) {
+        ControlListBox::Item* GameEngineProfileListBox::createItem(QWidget* parent, const wxSize& margins, const size_t index) {
             Model::GameEngineProfile* profile = m_config.profile(index);
             return new ProfileItem(parent, profile, margins);
         }

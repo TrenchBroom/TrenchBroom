@@ -33,8 +33,8 @@ wxDEFINE_EVENT(wxEVT_LISTBOX_RCLICK, wxCommandEvent);
 
 namespace TrenchBroom {
     namespace View {
-        ControlListBox::Item::Item(wxWindow* parent) :
-        wxWindow(parent, wxID_ANY) {}
+        ControlListBox::Item::Item(QWidget* parent) :
+        QWidget(parent, wxID_ANY) {}
 
         ControlListBox::Item::~Item() {}
 
@@ -50,7 +50,7 @@ namespace TrenchBroom {
             setColours(this, foreground, background);
         }
 
-        void ControlListBox::Item::setColours(wxWindow* window, const wxColour& foreground, const wxColour& background) {
+        void ControlListBox::Item::setColours(QWidget* window, const wxColour& foreground, const wxColour& background) {
             if (!window->GetChildren().IsEmpty() || window->ShouldInheritColours()) {
                 if (window->GetForegroundColour() != foreground)
                     window->SetForegroundColour(foreground);
@@ -58,7 +58,7 @@ namespace TrenchBroom {
                     window->SetBackgroundColour(background);
             }
 
-            for (wxWindow* child : window->GetChildren())
+            for (QWidget* child : window->GetChildren())
                 setColours(child, foreground, background);
         }
 
@@ -80,7 +80,7 @@ namespace TrenchBroom {
             }
         };
 
-        ControlListBox::ControlListBox(wxWindow* parent, const bool restrictToClientWidth, const wxString& emptyText) :
+        ControlListBox::ControlListBox(QWidget* parent, const bool restrictToClientWidth, const QString& emptyText) :
         wxScrolledWindow(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxVSCROLL),
         m_itemMargin(LayoutConstants::MediumHMargin, LayoutConstants::WideVMargin),
         m_restrictToClientWidth(restrictToClientWidth),
@@ -174,7 +174,7 @@ namespace TrenchBroom {
             m_valid = false;
         }
 
-        void ControlListBox::SetEmptyText(const wxString& emptyText) {
+        void ControlListBox::SetEmptyText(const QString& emptyText) {
             if (m_emptyText == emptyText)
                 return;
             
@@ -219,7 +219,7 @@ namespace TrenchBroom {
                     m_items.push_back(item);
                 }
             } else if (!m_emptyText.empty()) {
-                m_emptyTextLabel = new wxStaticText(this, wxID_ANY, m_emptyText, wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE_HORIZONTAL);
+                m_emptyTextLabel = new QLabel(this, wxID_ANY, m_emptyText, wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE_HORIZONTAL);
                 m_emptyTextLabel->SetFont(m_emptyTextLabel->GetFont().Bold());
                 m_emptyTextLabel->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
                 if (m_restrictToClientWidth)
@@ -242,7 +242,7 @@ namespace TrenchBroom {
             InvalidateBestSize();
         }
 
-        void ControlListBox::bindEvents(wxWindow* window, const size_t itemIndex) {
+        void ControlListBox::bindEvents(QWidget* window, const size_t itemIndex) {
             if (window->IsFocusable()) {
                 window->Bind(wxEVT_SET_FOCUS, &ControlListBox::OnFocusChild, this, wxID_ANY, wxID_ANY, new wxVariant(long(itemIndex)));
             } else {
@@ -251,7 +251,7 @@ namespace TrenchBroom {
                 window->Bind(wxEVT_LEFT_DCLICK, &ControlListBox::OnDoubleClickChild, this);
             }
 
-            for (wxWindow* child : window->GetChildren())
+            for (QWidget* child : window->GetChildren())
                 bindEvents(child, itemIndex);
         }
 

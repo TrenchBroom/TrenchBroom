@@ -31,7 +31,7 @@
 #include "View/UVViewHelper.h"
 #include "View/ViewTypes.h"
 
-class wxWindow;
+class QWidget;
 
 namespace TrenchBroom {
     namespace IO {
@@ -69,7 +69,7 @@ namespace TrenchBroom {
 
             ToolBox m_toolBox;
         public:
-            UVView(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
+            UVView(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
             ~UVView() override;
             
             void setSubDivisions(const vm::vec2i& subDivisions);

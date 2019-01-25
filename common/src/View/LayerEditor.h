@@ -31,7 +31,7 @@ namespace TrenchBroom {
         class LayerCommand;
         class LayerListBox;
         
-        class LayerEditor : public wxPanel {
+        class LayerEditor : public QWidget {
         private:
             static const int MoveSelectionToLayerCommandId = 1;
             static const int SelectAllInLayerCommandId = 2;
@@ -42,7 +42,7 @@ namespace TrenchBroom {
             MapDocumentWPtr m_document;
             LayerListBox* m_layerList;
         public:
-            LayerEditor(wxWindow* parent, MapDocumentWPtr document);
+            LayerEditor(QWidget* parent, MapDocumentWPtr document);
         private:
             void OnSetCurrentLayer(LayerCommand& event);
             void OnLayerRightClick(LayerCommand& event);

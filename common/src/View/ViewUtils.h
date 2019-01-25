@@ -40,13 +40,13 @@ namespace TrenchBroom {
 
         // FIXME:
 #if 0
-        size_t loadDroppedFiles(MapDocumentWPtr document, wxWindow* parent, const wxArrayString& wxPaths);
+        size_t loadDroppedFiles(MapDocumentWPtr document, QWidget* parent, const wxArrayString& wxPaths);
         
-        bool loadTextureCollection(MapDocumentWPtr document, wxWindow* parent, const wxString& wxPath);
-        size_t loadTextureCollections(MapDocumentWPtr document, wxWindow* parent, const wxArrayString& wxPaths);
+        bool loadTextureCollection(MapDocumentWPtr document, QWidget* parent, const QString& wxPath);
+        size_t loadTextureCollections(MapDocumentWPtr document, QWidget* parent, const wxArrayString& wxPaths);
         
-        bool loadEntityDefinitionFile(MapDocumentWPtr document, wxWindow* parent, const wxString& wxPath);
-        size_t loadEntityDefinitionFile(MapDocumentWPtr document, wxWindow* parent, const wxArrayString& wxPaths);
+        bool loadEntityDefinitionFile(MapDocumentWPtr document, QWidget* parent, const QString& wxPath);
+        size_t loadEntityDefinitionFile(MapDocumentWPtr document, QWidget* parent, const wxArrayString& wxPaths);
 #endif
 
         String queryGroupName(QWidget* parent);

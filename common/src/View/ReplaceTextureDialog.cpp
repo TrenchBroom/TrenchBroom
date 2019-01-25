@@ -39,7 +39,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        ReplaceTextureDialog::ReplaceTextureDialog(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
+        ReplaceTextureDialog::ReplaceTextureDialog(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
         wxDialog(parent, wxID_ANY, "Replace Texture", wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER),
         m_document(document),
         m_subjectBrowser(nullptr),

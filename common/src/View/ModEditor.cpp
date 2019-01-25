@@ -45,8 +45,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        ModEditor::ModEditor(wxWindow* parent, MapDocumentWPtr document) :
-        wxPanel(parent),
+        ModEditor::ModEditor(QWidget* parent, MapDocumentWPtr document) :
+        QWidget(parent),
         m_document(document),
         m_availableModList(nullptr),
         m_enabledModList(nullptr),

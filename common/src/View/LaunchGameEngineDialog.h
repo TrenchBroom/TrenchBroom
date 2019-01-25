@@ -42,7 +42,7 @@ namespace TrenchBroom {
             AutoCompleteTextControl* m_parameterText;
             Model::GameEngineProfile* m_lastProfile;
         public:
-            LaunchGameEngineDialog(wxWindow* parent, MapDocumentWPtr document);
+            LaunchGameEngineDialog(QWidget* parent, MapDocumentWPtr document);
         private:
             void createGui();
             LaunchGameEngineVariables variables() const;

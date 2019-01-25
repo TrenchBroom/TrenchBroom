@@ -44,8 +44,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        LayerEditor::LayerEditor(wxWindow* parent, MapDocumentWPtr document) :
-        wxPanel(parent),
+        LayerEditor::LayerEditor(QWidget* parent, MapDocumentWPtr document) :
+        QWidget(parent),
         m_document(document),
         m_layerList(nullptr) {
             createGui();

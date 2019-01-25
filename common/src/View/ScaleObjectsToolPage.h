@@ -36,7 +36,7 @@ namespace TrenchBroom {
     namespace View {
         class ScaleObjectsTool;
 
-        class ScaleObjectsToolPage : public wxPanel {
+        class ScaleObjectsToolPage : public QWidget {
         private:
             MapDocumentWPtr m_document;
 
@@ -48,7 +48,7 @@ namespace TrenchBroom {
             wxChoice* m_scaleFactorsOrSize;
             wxButton* m_button;
         public:
-            ScaleObjectsToolPage(wxWindow* parent, MapDocumentWPtr document);
+            ScaleObjectsToolPage(QWidget* parent, MapDocumentWPtr document);
             void activate();
         private:
             void createGui();

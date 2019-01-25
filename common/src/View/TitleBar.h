@@ -22,15 +22,15 @@
 
 #include <wx/window.h>
 
-class wxStaticText;
+class QLabel;
 
 namespace TrenchBroom {
     namespace View {
-        class TitleBar : public wxWindow {
+        class TitleBar : public QWidget {
         protected:
-            wxStaticText* m_titleText;
+            QLabel* m_titleText;
         public:
-            TitleBar(wxWindow* parent, const wxString& title, int hMargin = 0, int vMargin = 0, bool boldTitle = true);
+            TitleBar(QWidget* parent, const QString& title, int hMargin = 0, int vMargin = 0, bool boldTitle = true);
             
             bool AcceptsFocus() const override;
         };

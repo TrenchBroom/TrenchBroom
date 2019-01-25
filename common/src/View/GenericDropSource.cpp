@@ -23,7 +23,7 @@ namespace TrenchBroom {
     namespace View {
         GenericDropSource* GenericDropSource::m_currentDropSource = nullptr;
         
-        GenericDropSource::GenericDropSource(wxDataObject& data, wxWindow* window) :
+        GenericDropSource::GenericDropSource(wxDataObject& data, QWidget* window) :
         wxDropSource(data, window) {
             m_currentDropSource = this;
         }

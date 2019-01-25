@@ -38,8 +38,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        DirectoryTextureCollectionEditor::DirectoryTextureCollectionEditor(wxWindow* parent, MapDocumentWPtr document) :
-        wxPanel(parent),
+        DirectoryTextureCollectionEditor::DirectoryTextureCollectionEditor(QWidget* parent, MapDocumentWPtr document) :
+        QWidget(parent),
         m_document(document),
         m_availableCollectionsList(nullptr),
         m_enabledCollectionsList(nullptr) {

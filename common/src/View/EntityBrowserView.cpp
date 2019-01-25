@@ -57,7 +57,7 @@ namespace TrenchBroom {
         fontDescriptor(i_fontDescriptor),
         bounds(i_bounds) {}
 
-        EntityBrowserView::EntityBrowserView(wxWindow* parent,
+        EntityBrowserView::EntityBrowserView(QWidget* parent,
                                              wxScrollBar* scrollBar,
                                              GLContextManager& contextManager,
                                              Assets::EntityDefinitionManager& entityDefinitionManager,
@@ -174,10 +174,10 @@ namespace TrenchBroom {
             mapFrame->clearDropTarget();
         }
 
-        wxString EntityBrowserView::dndData(const Layout::Group::Row::Cell& cell) {
+        QString EntityBrowserView::dndData(const Layout::Group::Row::Cell& cell) {
             static const String prefix("entity:");
             const String name = cell.item().entityDefinition->name();
-            return wxString(prefix + name);
+            return QString(prefix + name);
         }
 
         void EntityBrowserView::addEntityToLayout(Layout& layout, const Assets::PointEntityDefinition* definition, const Renderer::FontDescriptor& font) {
@@ -446,7 +446,7 @@ namespace TrenchBroom {
                     vm::translationMatrix(-boundsCenter));
         }
         
-        wxString EntityBrowserView::tooltip(const Layout::Group::Row::Cell& cell) {
+        QString EntityBrowserView::tooltip(const Layout::Group::Row::Cell& cell) {
             return cell.item().entityDefinition->name();
         }
     }

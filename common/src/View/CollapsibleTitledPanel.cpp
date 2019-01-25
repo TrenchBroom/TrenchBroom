@@ -29,9 +29,9 @@ wxDEFINE_EVENT(TITLE_BAR_CLICK, wxCommandEvent);
 
 namespace TrenchBroom {
     namespace View {
-        CollapsibleTitleBar::CollapsibleTitleBar(wxWindow* parent, const wxString& title, const wxString& stateText) :
+        CollapsibleTitleBar::CollapsibleTitleBar(QWidget* parent, const QString& title, const QString& stateText) :
         TitleBar(parent, title, LayoutConstants::NarrowHMargin, LayoutConstants::NarrowVMargin),
-        m_stateText(new wxStaticText(this, wxID_ANY, stateText)) {
+        m_stateText(new QLabel(this, wxID_ANY, stateText)) {
             m_stateText->SetFont(m_titleText->GetFont());
             m_stateText->SetForegroundColour(*wxLIGHT_GREY);
             
@@ -44,7 +44,7 @@ namespace TrenchBroom {
             m_stateText->Bind(wxEVT_LEFT_DOWN, &CollapsibleTitleBar::OnClick, this);
         }
         
-        void CollapsibleTitleBar::setStateText(const wxString& stateText) {
+        void CollapsibleTitleBar::setStateText(const QString& stateText) {
             m_stateText->SetLabel(stateText);
             Layout();
         }
@@ -57,11 +57,11 @@ namespace TrenchBroom {
             wxPostEvent(this, newEvent);
         }
 
-        CollapsibleTitledPanel::CollapsibleTitledPanel(wxWindow* parent, const wxString& title, const bool initiallyExpanded) :
-        wxPanel(parent),
+        CollapsibleTitledPanel::CollapsibleTitledPanel(QWidget* parent, const QString& title, const bool initiallyExpanded) :
+        QWidget(parent),
         m_titleBar(new CollapsibleTitleBar(this, title, "hide")),
         m_divider(new BorderLine(this, BorderLine::Direction_Horizontal)),
-        m_panel(new wxPanel(this)),
+        m_panel(new QWidget(this)),
         m_expanded(initiallyExpanded) {
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_titleBar, 0, wxEXPAND);
@@ -74,7 +74,7 @@ namespace TrenchBroom {
             update();
         }
         
-        wxWindow* CollapsibleTitledPanel::getPanel() const {
+        QWidget* CollapsibleTitledPanel::getPanel() const {
             return m_panel;
         }
 
@@ -115,7 +115,7 @@ namespace TrenchBroom {
                 m_titleBar->setStateText("show");
             }
 
-            wxWindow* window = this;
+            QWidget* window = this;
             while (window != nullptr) {
                 window->Layout();
                 window = window->GetParent();

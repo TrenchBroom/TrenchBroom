@@ -29,14 +29,14 @@ class wxTextCtrl;
 
 namespace TrenchBroom {
     namespace View {
-        class MoveObjectsToolPage : public wxPanel {
+        class MoveObjectsToolPage : public QWidget {
         private:
             MapDocumentWPtr m_document;
             
             wxTextCtrl* m_offset;
             wxButton* m_button;
         public:
-            MoveObjectsToolPage(wxWindow* parent, MapDocumentWPtr document);
+            MoveObjectsToolPage(QWidget* parent, MapDocumentWPtr document);
         private:
             void createGui();
             

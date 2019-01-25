@@ -33,12 +33,12 @@ namespace TrenchBroom {
         
         SmartAttributeEditor::~SmartAttributeEditor() {}
 
-        wxWindow* SmartAttributeEditor::activate(wxWindow* parent, const Model::AttributeName& name) {
+        QWidget* SmartAttributeEditor::activate(QWidget* parent, const Model::AttributeName& name) {
             assert(!m_active);
             
             m_name = name;
             
-            wxWindow* visual = createVisual(parent);
+            QWidget* visual = createVisual(parent);
             m_active = true;
             return visual;
         }
@@ -74,7 +74,7 @@ namespace TrenchBroom {
             assert(m_active);
             document()->setAttribute(m_name, value);
         }
-        wxWindow* SmartAttributeEditor::createVisual(wxWindow* parent) {
+        QWidget* SmartAttributeEditor::createVisual(QWidget* parent) {
             return doCreateVisual(parent);
         }
 

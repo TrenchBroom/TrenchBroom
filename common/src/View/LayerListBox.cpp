@@ -61,26 +61,26 @@ namespace TrenchBroom {
         private:
             MapDocumentWPtr m_document;
             Model::Layer* m_layer;
-            wxStaticText* m_nameText;
-            wxStaticText* m_infoText;
+            QLabel* m_nameText;
+            QLabel* m_infoText;
         public:
-            LayerItem(wxWindow* parent, MapDocumentWPtr document, Model::Layer* layer, const wxSize& margins) :
+            LayerItem(QWidget* parent, MapDocumentWPtr document, Model::Layer* layer, const wxSize& margins) :
             Item(parent),
             m_document(document),
             m_layer(layer) {
                 InheritAttributes();
 
-                m_nameText = new wxStaticText(this, wxID_ANY, m_layer->name());
-                m_infoText = new wxStaticText(this, wxID_ANY, "");
+                m_nameText = new QLabel(this, wxID_ANY, m_layer->name());
+                m_infoText = new QLabel(this, wxID_ANY, "");
                 m_infoText->SetForegroundColour(makeLighter(m_infoText->GetForegroundColour()));
                 refresh();
 
-                wxWindow* hiddenText = new wxStaticText(this, wxID_ANY, "yGp"); // this is just for keeping the correct height of the name text
+                QWidget* hiddenText = new QLabel(this, wxID_ANY, "yGp"); // this is just for keeping the correct height of the name text
                 hiddenText->SetFont(GetFont().Bold());
                 hiddenText->Hide();
                 
-                wxWindow* hiddenButton = createBitmapToggleButton(this, "Visible.png", "Invisible.png", "");
-                wxWindow* lockButton = createBitmapToggleButton(this, "Unlocked.png", "Locked.png", "");
+                QWidget* hiddenButton = createBitmapToggleButton(this, "Visible.png", "Invisible.png", "");
+                QWidget* lockButton = createBitmapToggleButton(this, "Unlocked.png", "Locked.png", "");
 
                 MapDocumentSPtr documentS = lock(m_document);
                 hiddenButton->Enable(m_layer->hidden() || m_layer != documentS->currentLayer());
@@ -123,7 +123,7 @@ namespace TrenchBroom {
                 else
                     m_nameText->SetFont(GetFont());
 
-                wxString info;
+                QString info;
                 info << m_layer->childCount() << " " << StringUtils::safePlural(m_layer->childCount(), "object", "objects");
                 m_infoText->SetLabel(info);
                 m_infoText->SetFont(GetFont());
@@ -167,7 +167,7 @@ namespace TrenchBroom {
             }
         };
 
-        LayerListBox::LayerListBox(wxWindow* parent, MapDocumentWPtr document) :
+        LayerListBox::LayerListBox(QWidget* parent, MapDocumentWPtr document) :
         ControlListBox(parent, true),
         m_document(document) {
             bindObservers();
@@ -289,7 +289,7 @@ namespace TrenchBroom {
             Bind(wxEVT_LISTBOX_RCLICK, &LayerListBox::OnRightClick, this);
         }
         
-        ControlListBox::Item* LayerListBox::createItem(wxWindow* parent, const wxSize& margins, const size_t index) {
+        ControlListBox::Item* LayerListBox::createItem(QWidget* parent, const wxSize& margins, const size_t index) {
             MapDocumentSPtr document = lock(m_document);
             const Model::World* world = document->world();
             ensure(world != nullptr, "world is null");

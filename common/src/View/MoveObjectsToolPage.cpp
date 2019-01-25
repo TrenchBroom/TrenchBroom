@@ -29,14 +29,14 @@
 
 namespace TrenchBroom {
     namespace View {
-        MoveObjectsToolPage::MoveObjectsToolPage(wxWindow* parent, MapDocumentWPtr document) :
-        wxPanel(parent),
+        MoveObjectsToolPage::MoveObjectsToolPage(QWidget* parent, MapDocumentWPtr document) :
+        QWidget(parent),
         m_document(document) {
             createGui();
         }
 
         void MoveObjectsToolPage::createGui() {
-            wxStaticText* text = new wxStaticText(this, wxID_ANY, "Move objects by");
+            QLabel* text = new QLabel(this, wxID_ANY, "Move objects by");
             m_offset = new wxTextCtrl(this, wxID_ANY, "0.0 0.0 0.0", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
             m_button = new wxButton(this, wxID_ANY, "Apply", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
          

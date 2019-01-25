@@ -59,7 +59,7 @@ namespace TrenchBroom {
 
         // FIXME:
 #if 0
-        size_t loadDroppedFiles(MapDocumentWPtr document, wxWindow* parent, const wxArrayString& wxPaths) {
+        size_t loadDroppedFiles(MapDocumentWPtr document, QWidget* parent, const wxArrayString& wxPaths) {
             size_t count = 0;
             count += loadTextureCollections(document, parent, wxPaths);
             if (loadEntityDefinitionFile(document, parent, wxPaths) < wxPaths.size())
@@ -67,13 +67,13 @@ namespace TrenchBroom {
             return count > 0;
         }
 
-        bool loadTextureCollection(MapDocumentWPtr document, wxWindow* parent, const wxString& wxPath) {
+        bool loadTextureCollection(MapDocumentWPtr document, QWidget* parent, const QString& wxPath) {
             wxArrayString wxPaths;
             wxPaths.Add(wxPath);
             return loadTextureCollections(document, parent, wxPaths) == 1;
         }
         
-        size_t loadTextureCollections(MapDocumentWPtr i_document, wxWindow* parent, const wxArrayString& wxPaths) {
+        size_t loadTextureCollections(MapDocumentWPtr i_document, QWidget* parent, const wxArrayString& wxPaths) {
             if (wxPaths.empty())
                 return 0;
             
@@ -88,7 +88,7 @@ namespace TrenchBroom {
             const IO::Path docPath = document->path();
 
             for (size_t i = 0; i < wxPaths.size(); ++i) {
-                const wxString& wxPath = wxPaths[i];
+                const QString& wxPath = wxPaths[i];
                 const IO::Path absPath(wxPath.ToStdString());
                 if (game->isTextureCollection(absPath)) {
                     assert(0); // FIXME:
@@ -110,13 +110,13 @@ namespace TrenchBroom {
             return count;
         }
 
-        bool loadEntityDefinitionFile(MapDocumentWPtr document, wxWindow* parent, const wxString& wxPath) {
+        bool loadEntityDefinitionFile(MapDocumentWPtr document, QWidget* parent, const QString& wxPath) {
             wxArrayString wxPaths;
             wxPaths.Add(wxPath);
             return loadEntityDefinitionFile(document, parent, wxPaths) == 0;
         }
 
-        size_t loadEntityDefinitionFile(MapDocumentWPtr i_document, wxWindow* parent, const wxArrayString& wxPaths) {
+        size_t loadEntityDefinitionFile(MapDocumentWPtr i_document, QWidget* parent, const wxArrayString& wxPaths) {
             if (wxPaths.empty())
                 return 0;
             
@@ -128,7 +128,7 @@ namespace TrenchBroom {
             
             try {
                 for (size_t i = 0; i < wxPaths.size(); ++i) {
-                    const wxString& wxPath = wxPaths[i];
+                    const QString& wxPath = wxPaths[i];
                     const IO::Path absPath(wxPath.ToStdString());
                     if (game->isEntityDefinitionFile(absPath)) {
                         // FIXME:

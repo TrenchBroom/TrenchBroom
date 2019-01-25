@@ -42,7 +42,7 @@ namespace TrenchBroom {
             unbindObservers();
         }
 
-        bool GameDialog::showNewDocumentDialog(wxWindow* parent, String& gameName, Model::MapFormat& mapFormat) {
+        bool GameDialog::showNewDocumentDialog(QWidget* parent, String& gameName, Model::MapFormat& mapFormat) {
             GameDialog dialog;
             dialog.createDialog(parent, "Select Game", "Select a game from the list on the right, then click OK. Once the new document is created, you can set up mod directories, entity definitions and textures by going to the map inspector, the entity inspector and the face inspector, respectively.");
             if (dialog.ShowModal() != wxID_OK)
@@ -52,7 +52,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool GameDialog::showOpenDocumentDialog(wxWindow* parent, String& gameName, Model::MapFormat& mapFormat) {
+        bool GameDialog::showOpenDocumentDialog(QWidget* parent, String& gameName, Model::MapFormat& mapFormat) {
             GameDialog dialog;
             dialog.createDialog(parent, "Select Game", "TrenchBroom was unable to detect the game for the map document. Please choose a game in the game list and click OK.");
             if (dialog.ShowModal() != wxID_OK)
@@ -118,14 +118,14 @@ namespace TrenchBroom {
         m_mapFormatChoice(nullptr),
         m_openPreferencesButton(nullptr) {}
 
-        void GameDialog::createDialog(wxWindow* parent, const wxString& title, const wxString& infoText) {
+        void GameDialog::createDialog(QWidget* parent, const QString& title, const QString& infoText) {
             Create(wxGetTopLevelParent(parent), wxID_ANY, title);
             createGui(title, infoText);
             bindObservers();
             CentreOnParent();
         }
         
-        void GameDialog::createGui(const wxString& title, const wxString& infoText) {
+        void GameDialog::createGui(const QString& title, const QString& infoText) {
             setWindowIcon(this);
 
             auto* infoPanel = createInfoPanel(this, title, infoText);
@@ -152,16 +152,16 @@ namespace TrenchBroom {
             Bind(wxEVT_CLOSE_WINDOW, &GameDialog::OnClose, this);
         }
 
-        wxWindow* GameDialog::createInfoPanel(wxWindow* parent, const wxString& title, const wxString& infoText) {
-            auto* infoPanel = new wxPanel(parent);
+        QWidget* GameDialog::createInfoPanel(QWidget* parent, const QString& title, const QString& infoText) {
+            auto* infoPanel = new QWidget(parent);
             
-            auto* header = new wxStaticText(infoPanel, wxID_ANY, title);
+            auto* header = new QLabel(infoPanel, wxID_ANY, title);
             header->SetFont(header->GetFont().Larger().Larger().Bold());
             
-            auto* info = new wxStaticText(infoPanel, wxID_ANY, infoText);
+            auto* info = new QLabel(infoPanel, wxID_ANY, infoText);
             info->Wrap(250);
             
-            auto* setupMsg = new wxStaticText(infoPanel, wxID_ANY, "To set up the game paths, click on the button below to open the preferences dialog.");
+            auto* setupMsg = new QLabel(infoPanel, wxID_ANY, "To set up the game paths, click on the button below to open the preferences dialog.");
             setupMsg->Wrap(250);
             
             m_openPreferencesButton = new wxButton(infoPanel, wxID_ANY, "Open preferences...");
@@ -184,15 +184,15 @@ namespace TrenchBroom {
             return infoPanel;
         }
         
-        wxWindow* GameDialog::createSelectionPanel(wxWindow* parent) {
-            auto* panel = new wxPanel(parent);
+        QWidget* GameDialog::createSelectionPanel(QWidget* parent) {
+            auto* panel = new QWidget(parent);
 
             m_gameListBox = new GameListBox(panel);
             m_gameListBox->SetToolTip("Double click on a game to select it");
             m_gameListBox->Bind(GAME_SELECTION_CHANGE_EVENT, &GameDialog::OnGameSelectionChanged, this);
             m_gameListBox->Bind(GAME_SELECTION_DBLCLICK_EVENT, &GameDialog::OnGameSelected, this);
 
-            auto* header = new wxStaticText(panel, wxID_ANY, "Map Format");
+            auto* header = new QLabel(panel, wxID_ANY, "Map Format");
             header->SetFont(header->GetFont().Bold());
             
             m_mapFormatChoice = new wxChoice(panel, wxID_ANY);

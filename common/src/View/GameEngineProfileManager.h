@@ -31,13 +31,13 @@ namespace TrenchBroom {
         class GameEngineProfileEditor;
         class GameEngineProfileListBox;
         
-        class GameEngineProfileManager : public wxPanel {
+        class GameEngineProfileManager : public QWidget {
         private:
             Model::GameEngineConfig& m_config;
             GameEngineProfileListBox* m_profileList;
             GameEngineProfileEditor* m_profileEditor;
         public:
-            GameEngineProfileManager(wxWindow* parent, Model::GameEngineConfig& config);
+            GameEngineProfileManager(QWidget* parent, Model::GameEngineConfig& config);
         private:
             void OnAddProfile(wxCommandEvent& event);
             void OnRemoveProfile(wxCommandEvent& event);

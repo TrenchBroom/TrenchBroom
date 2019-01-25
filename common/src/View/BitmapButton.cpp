@@ -23,8 +23,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        BitmapButton::BitmapButton(wxWindow* parent, const wxWindowID windowId) :
-        wxWindow(parent, windowId, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE) {
+        BitmapButton::BitmapButton(QWidget* parent, const wxWindowID windowId) :
+        QWidget(parent, windowId, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE) {
             InheritAttributes();
 
             Bind(wxEVT_PAINT, &BitmapButton::OnPaint, this);

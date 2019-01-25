@@ -174,7 +174,7 @@ namespace TrenchBroom {
             wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_toolBar, 0, wxEXPAND);
 #if !defined __APPLE__
-            wxWindow* line = new BorderLine(this, BorderLine::Direction_Horizontal);
+            QWidget* line = new BorderLine(this, BorderLine::Direction_Horizontal);
             sizer->Add(line, wxSizerFlags().Expand());
             sizer->SetItemMinSize(line, wxSize(wxDefaultCoord, 1));
 #endif

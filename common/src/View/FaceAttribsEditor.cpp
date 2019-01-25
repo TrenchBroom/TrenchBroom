@@ -50,8 +50,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        FaceAttribsEditor::FaceAttribsEditor(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
-        wxPanel(parent),
+        FaceAttribsEditor::FaceAttribsEditor(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
+        QWidget(parent),
         m_document(document),
         m_uvEditor(nullptr),
         m_xOffsetEditor(nullptr),
@@ -226,65 +226,65 @@ namespace TrenchBroom {
         void FaceAttribsEditor::createGui(GLContextManager& contextManager) {
             m_uvEditor = new UVEditor(this, m_document, contextManager);
             
-            wxStaticText* textureNameLabel = new wxStaticText(this, wxID_ANY, "Texture");
+            QLabel* textureNameLabel = new QLabel(this, wxID_ANY, "Texture");
             textureNameLabel->SetFont(textureNameLabel->GetFont().Bold());
-            m_textureName = new wxStaticText(this, wxID_ANY, "none");
+            m_textureName = new QLabel(this, wxID_ANY, "none");
             
-            wxStaticText* textureSizeLabel = new wxStaticText(this, wxID_ANY, "Size");
+            QLabel* textureSizeLabel = new QLabel(this, wxID_ANY, "Size");
             textureSizeLabel->SetFont(textureSizeLabel->GetFont().Bold());
-            m_textureSize = new wxStaticText(this, wxID_ANY, "");
+            m_textureSize = new QLabel(this, wxID_ANY, "");
             
             const double max = std::numeric_limits<double>::max();
             const double min = -max;
             
-            wxStaticText* xOffsetLabel = new wxStaticText(this, wxID_ANY, "X Offset");
+            QLabel* xOffsetLabel = new QLabel(this, wxID_ANY, "X Offset");
             xOffsetLabel->SetFont(xOffsetLabel->GetFont().Bold());
             m_xOffsetEditor = new SpinControl(this);
             m_xOffsetEditor->SetRange(min, max);
             m_xOffsetEditor->SetDigits(0, 6);
             
-            wxStaticText* yOffsetLabel = new wxStaticText(this, wxID_ANY, "Y Offset");
+            QLabel* yOffsetLabel = new QLabel(this, wxID_ANY, "Y Offset");
             yOffsetLabel->SetFont(yOffsetLabel->GetFont().Bold());
             m_yOffsetEditor = new SpinControl(this);
             m_yOffsetEditor->SetRange(min, max);
             m_yOffsetEditor->SetDigits(0, 6);
             
-            wxStaticText* xScaleLabel = new wxStaticText(this, wxID_ANY, "X Scale");
+            QLabel* xScaleLabel = new QLabel(this, wxID_ANY, "X Scale");
             xScaleLabel->SetFont(xScaleLabel->GetFont().Bold());
             m_xScaleEditor = new SpinControl(this);
             m_xScaleEditor->SetRange(min, max);
             m_xScaleEditor->SetIncrements(0.1, 0.25, 0.01);
             m_xScaleEditor->SetDigits(0, 6);
             
-            wxStaticText* yScaleLabel = new wxStaticText(this, wxID_ANY, "Y Scale");
+            QLabel* yScaleLabel = new QLabel(this, wxID_ANY, "Y Scale");
             yScaleLabel->SetFont(yScaleLabel->GetFont().Bold());
             m_yScaleEditor = new SpinControl(this);
             m_yScaleEditor->SetRange(min, max);
             m_yScaleEditor->SetIncrements(0.1, 0.25, 0.01);
             m_yScaleEditor->SetDigits(0, 6);
             
-            wxStaticText* rotationLabel = new wxStaticText(this, wxID_ANY, "Angle");
+            QLabel* rotationLabel = new QLabel(this, wxID_ANY, "Angle");
             rotationLabel->SetFont(rotationLabel->GetFont().Bold());
             m_rotationEditor = new SpinControl(this);
             m_rotationEditor->SetRange(min, max);
             m_rotationEditor->SetDigits(0, 6);
             
-            m_surfaceValueLabel = new wxStaticText(this, wxID_ANY, "Value", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
+            m_surfaceValueLabel = new QLabel(this, wxID_ANY, "Value", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
             m_surfaceValueLabel->SetFont(m_surfaceValueLabel->GetFont().Bold());
             m_surfaceValueEditor = new SpinControl(this);
             m_surfaceValueEditor->SetRange(min, max);
             m_surfaceValueEditor->SetIncrements(1.0, 10.0, 100.0);
             m_surfaceValueEditor->SetDigits(0, 6);
             
-            m_surfaceFlagsLabel = new wxStaticText(this, wxID_ANY, "Surface", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
+            m_surfaceFlagsLabel = new QLabel(this, wxID_ANY, "Surface", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
             m_surfaceFlagsLabel->SetFont(m_surfaceFlagsLabel->GetFont().Bold());
             m_surfaceFlagsEditor = new FlagsPopupEditor(this, 2);
             
-            m_contentFlagsLabel = new wxStaticText(this, wxID_ANY, "Content", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
+            m_contentFlagsLabel = new QLabel(this, wxID_ANY, "Content", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
             m_contentFlagsLabel->SetFont(m_contentFlagsLabel->GetFont().Bold());
             m_contentFlagsEditor = new FlagsPopupEditor(this, 2);
 
-            m_colorLabel = new wxStaticText(this, wxID_ANY, "Color", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
+            m_colorLabel = new QLabel(this, wxID_ANY, "Color", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
             m_colorLabel->SetFont(m_colorLabel->GetFont().Bold());
             m_colorEditor = new wxTextCtrl(this, wxID_ANY);
 
@@ -501,7 +501,7 @@ namespace TrenchBroom {
                         m_textureSize->SetForegroundColour(*wxLIGHT_GREY);
                     } else {
                         if (texture != nullptr) {
-                            wxString sizeLabel;
+                            QString sizeLabel;
                             sizeLabel << texture->width() << "*" << texture->height();
 
                             m_textureName->SetLabel(textureName);

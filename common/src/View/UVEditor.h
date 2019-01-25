@@ -27,14 +27,14 @@
 class wxButton;
 class wxSpinCtrl;
 class wxSpinEvent;
-class wxWindow;
+class QWidget;
 
 namespace TrenchBroom {
     namespace View {
         class GLContextManager;
         class UVView;
         
-        class UVEditor : public wxPanel {
+        class UVEditor : public QWidget {
         private:
             MapDocumentWPtr m_document;
 
@@ -42,7 +42,7 @@ namespace TrenchBroom {
             wxSpinCtrl* m_xSubDivisionEditor;
             wxSpinCtrl* m_ySubDivisionEditor;
         public:
-            UVEditor(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
+            UVEditor(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
 
             bool cancelMouseDrag();
         private:

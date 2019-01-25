@@ -26,11 +26,11 @@
 namespace TrenchBroom {
     namespace View {
         PopupWindow::PopupWindow() {}
-        PopupWindow::PopupWindow(wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, const long style, const wxString& name) {
+        PopupWindow::PopupWindow(QWidget* parent, wxWindowID id, const QString& caption, const wxPoint& pos, const wxSize& size, const long style, const QString& name) {
             Create(parent, id, caption, pos, size, style, name);
         }
 
-        bool PopupWindow::Create(wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, const long style, const wxString& name) {
+        bool PopupWindow::Create(QWidget* parent, wxWindowID id, const QString& caption, const wxPoint& pos, const wxSize& size, const long style, const QString& name) {
             if (!wxFrame::Create(parent, id, caption, pos, size, style, name))
                 return false;
 

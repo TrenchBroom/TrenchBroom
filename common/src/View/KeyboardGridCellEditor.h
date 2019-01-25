@@ -32,20 +32,20 @@ namespace TrenchBroom {
             wxEvtHandler* m_evtHandler;
         public:
             KeyboardGridCellEditor();
-            KeyboardGridCellEditor(wxWindow* parent, wxWindowID windowId, wxEvtHandler* evtHandler, int key, int modifier1, int modifier2, int modifier3);
+            KeyboardGridCellEditor(QWidget* parent, wxWindowID windowId, wxEvtHandler* evtHandler, int key, int modifier1, int modifier2, int modifier3);
             
-            void Create(wxWindow* parent, wxWindowID windowId, wxEvtHandler* evtHandler) override;
+            void Create(QWidget* parent, wxWindowID windowId, wxEvtHandler* evtHandler) override;
             wxGridCellEditor* Clone() const override;
             
             void BeginEdit(int row, int col, wxGrid* grid) override;
-            bool EndEdit(int row, int col, const wxGrid* grid, const wxString& oldValue, wxString* newValue) override;
+            bool EndEdit(int row, int col, const wxGrid* grid, const QString& oldValue, QString* newValue) override;
             void ApplyEdit(int row, int col, wxGrid* grid) override;
             void HandleReturn(wxKeyEvent& event) override;
             
             void Reset() override;
             void Show(bool show, wxGridCellAttr* attr = nullptr) override;
             
-            wxString GetValue() const override;
+            QString GetValue() const override;
         };
     }
 }

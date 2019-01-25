@@ -23,8 +23,8 @@
 #include <wx/defs.h>
 #include <wx/control.h>
 
-class wxPanel;
-class wxStaticText;
+class QWidget;
+class QLabel;
 
 namespace TrenchBroom {
     namespace View {
@@ -32,15 +32,15 @@ namespace TrenchBroom {
         
         class KeyboardShortcutEditor : public wxControl {
         private:
-            wxPanel* m_panel;
-            wxStaticText* m_shortcutLabel;
+            QWidget* m_panel;
+            QLabel* m_shortcutLabel;
             int m_key;
             int m_modifiers[3];
             bool m_resetOnNextKey;
             
             void update();
         public:
-            KeyboardShortcutEditor(wxWindow* parent, wxWindowID windowId = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0, const wxValidator& validator = wxDefaultValidator, const wxString& name = wxPanelNameStr);
+            KeyboardShortcutEditor(QWidget* parent, wxWindowID windowId = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0, const wxValidator& validator = wxDefaultValidator, const QString& name = wxPanelNameStr);
             
             int key() const;
             int modifier1() const;

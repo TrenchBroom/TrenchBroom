@@ -23,7 +23,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        BitmapStaticButton::BitmapStaticButton(wxWindow* parent, const wxWindowID windowId, const wxBitmap& bitmap) :
+        BitmapStaticButton::BitmapStaticButton(QWidget* parent, const wxWindowID windowId, const wxBitmap& bitmap) :
         BitmapButton(parent, windowId),
         m_bitmap(bitmap),
         m_disabledBitmap(bitmap.ConvertToDisabled()) {

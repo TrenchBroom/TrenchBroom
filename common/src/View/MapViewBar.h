@@ -25,7 +25,7 @@
 
 class wxBookCtrlBase;
 class wxSearchCtrl;
-class wxStaticText;
+class QLabel;
 
 namespace TrenchBroom {
     namespace View {
@@ -37,7 +37,7 @@ namespace TrenchBroom {
             wxBookCtrlBase* m_toolBook;
             ViewPopupEditor* m_viewEditor;
         public:
-            MapViewBar(wxWindow* parent, MapDocumentWPtr document);
+            MapViewBar(QWidget* parent, MapDocumentWPtr document);
             
             wxBookCtrlBase* toolBook();
             

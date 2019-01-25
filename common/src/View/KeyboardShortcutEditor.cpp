@@ -41,10 +41,10 @@ namespace TrenchBroom {
             Refresh();
         }
         
-        KeyboardShortcutEditor::KeyboardShortcutEditor(wxWindow* parent, wxWindowID windowId, const wxPoint& pos, const wxSize& size, long style, const wxValidator& validator, const wxString& name) :
+        KeyboardShortcutEditor::KeyboardShortcutEditor(QWidget* parent, wxWindowID windowId, const wxPoint& pos, const wxSize& size, long style, const wxValidator& validator, const QString& name) :
         wxControl(parent, windowId, pos, size, style | wxTAB_TRAVERSAL | wxWANTS_CHARS, validator, name),
-        m_panel(new wxPanel(this)),
-        m_shortcutLabel(new wxStaticText(m_panel, wxID_ANY, "")),
+        m_panel(new QWidget(this)),
+        m_shortcutLabel(new QLabel(m_panel, wxID_ANY, "")),
         m_resetOnNextKey(false) {
             resetKey();
             resetModifiers();

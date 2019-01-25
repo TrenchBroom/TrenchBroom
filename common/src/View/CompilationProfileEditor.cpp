@@ -38,8 +38,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        CompilationProfileEditor::CompilationProfileEditor(wxWindow* parent, MapDocumentWPtr document) :
-        wxPanel(parent),
+        CompilationProfileEditor::CompilationProfileEditor(QWidget* parent, MapDocumentWPtr document) :
+        QWidget(parent),
         m_document(document),
         m_profile(nullptr),
         m_book(nullptr),
@@ -65,15 +65,15 @@ namespace TrenchBroom {
             }
         }
         
-        wxWindow* CompilationProfileEditor::createEditorPage(wxWindow* parent) {
-            wxPanel* containerPanel = new wxPanel(parent);
+        QWidget* CompilationProfileEditor::createEditorPage(QWidget* parent) {
+            QWidget* containerPanel = new QWidget(parent);
             containerPanel->SetBackgroundColour(GetBackgroundColour());
             
-            wxPanel* upperPanel = new wxPanel(containerPanel);
+            QWidget* upperPanel = new QWidget(containerPanel);
             upperPanel->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_FRAMEBK));
             
-            wxStaticText* nameLabel = new wxStaticText(upperPanel, wxID_ANY, "Name");
-            wxStaticText* workDirLabel = new wxStaticText(upperPanel, wxID_ANY, "Working Directory");
+            QLabel* nameLabel = new QLabel(upperPanel, wxID_ANY, "Name");
+            QLabel* workDirLabel = new QLabel(upperPanel, wxID_ANY, "Working Directory");
             
             m_nameTxt = new wxTextCtrl(upperPanel, wxID_ANY);
             m_workDirTxt = new AutoCompleteTextControl(upperPanel, wxID_ANY);
@@ -104,10 +104,10 @@ namespace TrenchBroom {
             
             m_taskList = new CompilationTaskList(containerPanel, m_document);
             
-            wxWindow* addTaskButton = createBitmapButton(containerPanel, "Add.png", "Add task");
-            wxWindow* removeTaskButton = createBitmapButton(containerPanel, "Remove.png", "Remove the selected task");
-            wxWindow* moveTaskUpButton = createBitmapButton(containerPanel, "Up.png", "Move the selected task up");
-            wxWindow* moveTaskDownButton = createBitmapButton(containerPanel, "Down.png", "Move the selected task down");
+            QWidget* addTaskButton = createBitmapButton(containerPanel, "Add.png", "Add task");
+            QWidget* removeTaskButton = createBitmapButton(containerPanel, "Remove.png", "Remove the selected task");
+            QWidget* moveTaskUpButton = createBitmapButton(containerPanel, "Up.png", "Move the selected task up");
+            QWidget* moveTaskDownButton = createBitmapButton(containerPanel, "Down.png", "Move the selected task down");
             
             addTaskButton->Bind(wxEVT_BUTTON, &CompilationProfileEditor::OnAddTask, this);
             removeTaskButton->Bind(wxEVT_BUTTON, &CompilationProfileEditor::OnRemoveTask, this);

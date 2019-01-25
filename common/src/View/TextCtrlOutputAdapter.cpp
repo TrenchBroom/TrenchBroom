@@ -53,14 +53,14 @@ namespace TrenchBroom {
             return *this;
         }
 
-        void TextCtrlOutputAdapter::sendAppendEvent(const wxString& str) {
+        void TextCtrlOutputAdapter::sendAppendEvent(const QString& str) {
             wxThreadEvent* event = new wxThreadEvent(wxEVT_THREAD, m_textCtrl->GetId());
             event->SetString(str);
             m_textCtrl->GetEventHandler()->QueueEvent(event);
         }
 
         void TextCtrlOutputAdapter::OnAsyncAppend(wxThreadEvent& event) {
-            const wxString str = compressString(event.GetString());
+            const QString str = compressString(event.GetString());
             appendString(str);
             m_lastOutputTime = ::wxGetLocalTimeMillis();
         }
@@ -72,9 +72,9 @@ namespace TrenchBroom {
             }
         }
 
-        wxString TextCtrlOutputAdapter::compressString(const wxString& str) {
-            wxString fullStr = m_remainder + str;
-            wxString result;
+        QString TextCtrlOutputAdapter::compressString(const QString& str) {
+            QString fullStr = m_remainder + str;
+            QString result;
             size_t chunkStart = 0;
             size_t previousChunkStart = 0;
             for (size_t i = 0; i < fullStr.Len(); ++i) {
@@ -91,14 +91,14 @@ namespace TrenchBroom {
                 }
             }
             if (previousChunkStart < chunkStart) {
-                const wxString chunk = fullStr.Mid(previousChunkStart, chunkStart - previousChunkStart);
+                const QString chunk = fullStr.Mid(previousChunkStart, chunkStart - previousChunkStart);
                 result << chunk;
             }
             m_remainder = fullStr.Mid(chunkStart);
             return result;
         }
 
-        void TextCtrlOutputAdapter::appendString(const wxString& str) {
+        void TextCtrlOutputAdapter::appendString(const QString& str) {
             if (!str.IsEmpty()) {
                 wxWindowUpdateLocker lock(m_textCtrl);
 
@@ -114,7 +114,7 @@ namespace TrenchBroom {
                         m_textCtrl->Remove(from, to);
                         l = i;
                     } else if (c == '\n') {
-						const wxString text = str.Mid(l, i-l+1);
+						const QString text = str.Mid(l, i-l+1);
                         m_textCtrl->AppendText(text);
 #ifndef __APPLE__
 						m_textCtrl->ScrollLines(5);

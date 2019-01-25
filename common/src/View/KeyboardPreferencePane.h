@@ -34,11 +34,11 @@ namespace TrenchBroom {
             KeyboardShortcutGridTable* m_table;
             
         public:
-            KeyboardPreferencePane(wxWindow* parent);
+            KeyboardPreferencePane(QWidget* parent);
         private:
             void OnGridSize(wxSizeEvent& event);
             
-            wxWindow* createMenuShortcutGrid();
+            QWidget* createMenuShortcutGrid();
             
             bool doCanResetToDefaults() override;
             void doResetToDefaults() override;

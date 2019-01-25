@@ -22,8 +22,8 @@
 
 #include <wx/panel.h>
 
-class wxStaticText;
-class wxWindow;
+class QLabel;
+class QWidget;
 
 namespace TrenchBroom {
     namespace View {
@@ -31,13 +31,13 @@ namespace TrenchBroom {
         class FlagChangedCommand;
         class PopupButton;
         
-        class FlagsPopupEditor : public wxPanel {
+        class FlagsPopupEditor : public QWidget {
         private:
-            wxStaticText* m_flagsTxt;
+            QLabel* m_flagsTxt;
             PopupButton* m_button;
             FlagsEditor* m_editor;
         public:
-            FlagsPopupEditor(wxWindow* parent, size_t numCols, const wxString& buttonLabel = "...", bool showFlagsText = true);
+            FlagsPopupEditor(QWidget* parent, size_t numCols, const QString& buttonLabel = "...", bool showFlagsText = true);
 
             void setFlags(const wxArrayString& labels, const wxArrayString& tooltips = wxArrayString(0));
             void setFlags(const wxArrayInt& values, const wxArrayString& labels, const wxArrayString& tooltips = wxArrayString(0));

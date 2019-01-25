@@ -57,8 +57,8 @@ namespace TrenchBroom {
             return new SpinControlEvent(*this);
         }
         
-        SpinControl::SpinControl(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style, const wxValidator& validator, const wxString& name) :
-        wxPanel(parent, id, pos, size, (style & ~wxBORDER_MASK) | wxBORDER_NONE, name),
+        SpinControl::SpinControl(QWidget* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style, const wxValidator& validator, const QString& name) :
+        QWidget(parent, id, pos, size, (style & ~wxBORDER_MASK) | wxBORDER_NONE, name),
         m_text(nullptr),
         m_spin(nullptr),
         m_minValue(std::numeric_limits<double>::min()),
@@ -120,7 +120,7 @@ namespace TrenchBroom {
                 DoSetValue(doubleValue);
         }
         
-        void SpinControl::SetValue(const wxString& textValue) {
+        void SpinControl::SetValue(const QString& textValue) {
             double doubleValue;
             if (textValue.ToDouble(&doubleValue) && InRange(doubleValue)) {
                 DoSetValue(doubleValue);
@@ -156,14 +156,14 @@ namespace TrenchBroom {
             DoSetValue(m_value);
         }
         
-        void SpinControl::SetHint(const wxString& hint) {
+        void SpinControl::SetHint(const QString& hint) {
 #if defined __APPLE__
             m_text->SetHint(hint);
 #endif
         }
         
         bool SpinControl::Enable(bool enable) {
-            if (wxPanel::Enable(enable)) {
+            if (QWidget::Enable(enable)) {
                 m_text->Enable(enable);
                 m_spin->Enable(enable);
                 return true;
@@ -198,7 +198,7 @@ namespace TrenchBroom {
             if (!InRange(value))
                 return false;
             
-            const wxString str = DoFormat(value);
+            const QString str = DoFormat(value);
             str.ToDouble(&m_value);
             m_text->SetValue(str);
             m_text->SetInsertionPointEnd();
@@ -206,8 +206,8 @@ namespace TrenchBroom {
             return true;
         }
         
-        wxString SpinControl::DoFormat(const double value) const {
-            wxString str(wxString::Format(m_format.c_str(), value));
+        QString SpinControl::DoFormat(const double value) const {
+            QString str(QString::Format(m_format.c_str(), value));
 
             if (m_minDigits < m_maxDigits) {
                 while (str.Length() > m_minDigits && str.Last() == '0')

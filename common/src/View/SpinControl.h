@@ -46,7 +46,7 @@ namespace TrenchBroom {
             wxDECLARE_DYNAMIC_CLASS(SpinControlEvent);
         };
         
-        class SpinControl : public wxPanel {
+        class SpinControl : public QWidget {
         protected:
             wxTextCtrl* m_text;
             wxSpinButton* m_spin;
@@ -59,17 +59,17 @@ namespace TrenchBroom {
             double m_value;
             unsigned int m_minDigits;
             unsigned int m_maxDigits;
-            wxString m_format;
+            QString m_format;
         public:
-            SpinControl(wxWindow *parent, wxWindowID id = wxID_ANY, const wxPoint &pos=wxDefaultPosition, const wxSize &size=wxDefaultSize, long style=0, const wxValidator &validator=wxDefaultValidator, const wxString &name=wxControlNameStr);
+            SpinControl(QWidget *parent, wxWindowID id = wxID_ANY, const wxPoint &pos=wxDefaultPosition, const wxSize &size=wxDefaultSize, long style=0, const wxValidator &validator=wxDefaultValidator, const QString &name=wxControlNameStr);
             
             double GetValue() const;
             void SetValue(double doubleValue);
-            void SetValue(const wxString& textValue);
+            void SetValue(const QString& textValue);
             void SetRange(double min, double max);
             void SetIncrements(double regularIncrement, double shiftIncrement, double ctrlIncrement);
             void SetDigits(unsigned int minDigits, unsigned int maxDigits);
-            void SetHint(const wxString& hint);
+            void SetHint(const QString& hint);
             bool Enable(bool enable = true) override;
             void SetFocus() override;
         private:
@@ -78,7 +78,7 @@ namespace TrenchBroom {
             bool InRange(double value) const;
             double AdjustToRange(double value);
             bool DoSetValue(double value);
-            wxString DoFormat(double value) const;
+            QString DoFormat(double value) const;
             bool DoSendEvent(bool spin, double value);
             bool SyncFromText();
             

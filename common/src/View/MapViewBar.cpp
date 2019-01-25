@@ -35,7 +35,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        MapViewBar::MapViewBar(wxWindow* parent, MapDocumentWPtr document) :
+        MapViewBar::MapViewBar(QWidget* parent, MapDocumentWPtr document) :
         ContainerBar(parent, wxBOTTOM),
         m_document(document),
         m_toolBook(nullptr),

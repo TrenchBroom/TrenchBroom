@@ -38,8 +38,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        FileTextureCollectionEditor::FileTextureCollectionEditor(wxWindow* parent, MapDocumentWPtr document) :
-        wxPanel(parent),
+        FileTextureCollectionEditor::FileTextureCollectionEditor(QWidget* parent, MapDocumentWPtr document) :
+        QWidget(parent),
         m_document(document) {
             createGui();
             bindObservers();
@@ -121,7 +121,7 @@ namespace TrenchBroom {
         void FileTextureCollectionEditor::OnAddTextureCollectionsClicked(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            const wxString pathWxStr = ::wxFileSelector("Load Texture Collection", wxEmptyString, wxEmptyString, wxEmptyString, "", wxFD_OPEN);
+            const QString pathWxStr = ::wxFileSelector("Load Texture Collection", wxEmptyString, wxEmptyString, wxEmptyString, "", wxFD_OPEN);
             if (pathWxStr.empty())
                 return;
             

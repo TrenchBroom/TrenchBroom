@@ -34,19 +34,19 @@ namespace TrenchBroom {
     namespace View {
         // FIXME: Port this stuff as needed
 #if 0
-        MapFrame* findMapFrame(wxWindow* window) {
+        MapFrame* findMapFrame(QWidget* window) {
             // FIXME:
             return nullptr;//wxDynamicCast(findFrame(window), MapFrame);
         }
 
-        wxFrame* findFrame(wxWindow* window) {
+        wxFrame* findFrame(QWidget* window) {
             if (window == nullptr)
                 return nullptr;
             return wxDynamicCast(wxGetTopLevelParent(window), wxFrame);
         }
 
-        void fitAll(wxWindow* window) {
-            for (wxWindow* child : window->GetChildren())
+        void fitAll(QWidget* window) {
+            for (QWidget* child : window->GetChildren())
                 fitAll(child);
             window->Fit();
         }
@@ -95,7 +95,7 @@ namespace TrenchBroom {
             }
         }
 
-        wxWindow* createBitmapButton(wxWindow* parent, const String& image, const String& tooltip) {
+        QWidget* createBitmapButton(QWidget* parent, const String& image, const String& tooltip) {
             auto bitmap = IO::loadImageResource(image);
 
             auto* button = new BitmapStaticButton(parent, wxID_ANY, bitmap);
@@ -103,7 +103,7 @@ namespace TrenchBroom {
             return button;
         }
 
-        wxWindow* createBitmapToggleButton(wxWindow* parent, const String& upImage, const String& downImage, const String& tooltip) {
+        QWidget* createBitmapToggleButton(QWidget* parent, const String& upImage, const String& downImage, const String& tooltip) {
             auto upBitmap = IO::loadImageResource(upImage);
             auto downBitmap = IO::loadImageResource(downImage);
 
@@ -112,10 +112,10 @@ namespace TrenchBroom {
             return button;
         }
 
-        wxWindow* createDefaultPage(wxWindow* parent, const wxString& message) {
-            wxPanel* containerPanel = new wxPanel(parent);
+        QWidget* createDefaultPage(QWidget* parent, const QString& message) {
+            QWidget* containerPanel = new QWidget(parent);
 
-            wxStaticText* messageText = new wxStaticText(containerPanel, wxID_ANY, message);
+            QLabel* messageText = new QLabel(containerPanel, wxID_ANY, message);
             messageText->SetFont(messageText->GetFont().Bold());
             messageText->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
 
@@ -137,7 +137,7 @@ namespace TrenchBroom {
         }
 
 #if 0
-        wxSizer* wrapDialogButtonSizer(wxSizer* buttonSizer, wxWindow* parent) {
+        wxSizer* wrapDialogButtonSizer(wxSizer* buttonSizer, QWidget* parent) {
             wxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
             hSizer->AddSpacer(LayoutConstants::DialogButtonLeftMargin);
             hSizer->Add(buttonSizer, wxSizerFlags().Expand().Proportion(1));
@@ -159,10 +159,10 @@ namespace TrenchBroom {
         }
 
 #if 0
-        wxArrayString filterBySuffix(const wxArrayString& strings, const wxString& suffix, const bool caseSensitive) {
+        wxArrayString filterBySuffix(const wxArrayString& strings, const QString& suffix, const bool caseSensitive) {
             wxArrayString result;
             for (size_t i = 0; i < strings.size(); ++i) {
-                const wxString& str = strings[i];
+                const QString& str = strings[i];
                 if (caseSensitive) {
                     if (str.EndsWith(suffix))
                         result.Add(str);
@@ -174,7 +174,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        QString wxToQString(const wxString& string) {
+        QString wxToQString(const QString& string) {
             const auto utf8 = string.ToUTF8();
             return QString::fromUtf8(utf8.data(), utf8.length());
         }

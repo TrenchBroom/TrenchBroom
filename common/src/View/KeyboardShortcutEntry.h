@@ -56,11 +56,11 @@ namespace TrenchBroom {
         public:
             int actionContext() const;
             bool appliesToContext(int context) const;
-            wxString actionContextDescription() const;
+            QString actionContextDescription() const;
             
-            wxString actionDescription() const;
-            wxString shortcutDescription() const;
-            wxString asJsonString() const;
+            QString actionDescription() const;
+            QString shortcutDescription() const;
+            QString asJsonString() const;
             
             const IO::Path& preferencePath() const;
             const KeyboardShortcut& shortcut() const;
@@ -73,8 +73,8 @@ namespace TrenchBroom {
         private:
             virtual int doGetActionContext() const = 0;
             virtual bool doGetModifiable() const = 0;
-            virtual wxString doGetActionDescription() const = 0;
-            virtual wxString doGetJsonString() const = 0;
+            virtual QString doGetActionDescription() const = 0;
+            virtual QString doGetJsonString() const = 0;
             virtual const Preference<KeyboardShortcut>& doGetPreference() const = 0;
             virtual const KeyboardShortcut& doGetShortcut() const = 0;
             virtual const KeyboardShortcut& doGetDefaultShortcut() const = 0;

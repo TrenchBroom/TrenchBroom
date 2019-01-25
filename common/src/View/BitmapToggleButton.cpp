@@ -21,7 +21,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        BitmapToggleButton::BitmapToggleButton(wxWindow* parent, const wxWindowID windowId, const wxBitmap& upBitmap, const wxBitmap& downBitmap) :
+        BitmapToggleButton::BitmapToggleButton(QWidget* parent, const wxWindowID windowId, const wxBitmap& upBitmap, const wxBitmap& downBitmap) :
         BitmapButton(parent, windowId),
         m_upBitmap(upBitmap),
         m_downBitmap(downBitmap),

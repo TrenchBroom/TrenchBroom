@@ -45,15 +45,15 @@ namespace TrenchBroom {
             int GetNumberRows() override;
             int GetNumberCols() override;
             
-            wxString GetValue(int row, int col) override;
-            void SetValue(int row, int col, const wxString& value) override;
+            QString GetValue(int row, int col) override;
+            void SetValue(int row, int col, const QString& value) override;
             
             void Clear() override;
             bool InsertRows(size_t pos = 0, size_t numRows = 1) override;
             bool AppendRows(size_t numRows = 1) override;
             bool DeleteRows(size_t pos = 0, size_t numRows = 1) override;
             
-            wxString GetColLabelValue(int col) override;
+            QString GetColLabelValue(int col) override;
             wxGridCellAttr* GetAttr(int row, int col, wxGridCellAttr::wxAttrKind kind) override;
             
             bool hasDuplicates() const;

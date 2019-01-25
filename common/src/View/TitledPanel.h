@@ -24,13 +24,13 @@
 
 namespace TrenchBroom {
     namespace View {
-        class TitledPanel : public wxPanel {
+        class TitledPanel : public QWidget {
         private:
-            wxWindow* m_panel;
+            QWidget* m_panel;
         public:
-            TitledPanel(wxWindow* parent, const wxString& title, bool showDivider = true, bool boldTitle = true);
+            TitledPanel(QWidget* parent, const QString& title, bool showDivider = true, bool boldTitle = true);
             
-            wxWindow* getPanel() const;
+            QWidget* getPanel() const;
         };
     }
 }

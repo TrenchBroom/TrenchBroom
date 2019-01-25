@@ -43,7 +43,7 @@ namespace TrenchBroom {
             return 3;
         }
         
-        wxString KeyboardShortcutGridTable::GetValue(int row, int col) {
+        QString KeyboardShortcutGridTable::GetValue(int row, int col) {
             assert(row >= 0 && row < GetNumberRows());
             assert(col >= 0 && col < GetNumberCols());
             
@@ -64,7 +64,7 @@ namespace TrenchBroom {
             return "";
         }
         
-        void KeyboardShortcutGridTable::SetValue(int row, int col, const wxString& value) {
+        void KeyboardShortcutGridTable::SetValue(int row, int col, const QString& value) {
             assert(row >= 0 && row < GetNumberRows());
             assert(col == 0);
             
@@ -101,7 +101,7 @@ namespace TrenchBroom {
             return false;
         }
         
-        wxString KeyboardShortcutGridTable::GetColLabelValue(int col) {
+        QString KeyboardShortcutGridTable::GetColLabelValue(int col) {
             assert(col >= 0 && col < GetNumberCols());
             switch (col) {
                 case 0:

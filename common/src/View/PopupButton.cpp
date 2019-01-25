@@ -29,8 +29,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        PopupButton::PopupButton(wxWindow* parent, const wxString& caption) :
-        wxPanel(parent) {
+        PopupButton::PopupButton(QWidget* parent, const QString& caption) :
+        QWidget(parent) {
             m_button = new wxToggleButton(this, wxID_ANY, caption, wxDefaultPosition, wxDefaultSize, LayoutConstants::ToggleButtonStyle | wxBU_EXACTFIT);
             
             wxFrame* frame = findFrame(this);
@@ -54,7 +54,7 @@ namespace TrenchBroom {
             m_window->Bind(wxEVT_SHOW, &PopupButton::OnPopupShow, this);
         }
 
-        wxWindow* PopupButton::GetPopupWindow() const {
+        QWidget* PopupButton::GetPopupWindow() const {
             return m_window;
         }
 
@@ -80,7 +80,7 @@ namespace TrenchBroom {
         }
 
         bool PopupButton::Enable(bool enable) {
-            if (wxPanel::Enable(enable)) {
+            if (QWidget::Enable(enable)) {
                 m_button->Enable(enable);
                 return true;
             }

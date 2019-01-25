@@ -33,7 +33,7 @@ namespace TrenchBroom {
         m_descriptionTxt(nullptr),
         m_currentDefinition(nullptr) {}
 
-        wxWindow* SmartDefaultAttributeEditor::doCreateVisual(wxWindow* parent) {
+        QWidget* SmartDefaultAttributeEditor::doCreateVisual(QWidget* parent) {
             m_descriptionTxt = new wxTextCtrl(parent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_READONLY | wxTE_BESTWRAP | wxBORDER_NONE);
             return m_descriptionTxt;
         }

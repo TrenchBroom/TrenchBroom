@@ -36,8 +36,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityAttributeGrid::EntityAttributeGrid(wxWindow* parent, MapDocumentWPtr document) :
-        wxPanel(parent),
+        EntityAttributeGrid::EntityAttributeGrid(QWidget* parent, MapDocumentWPtr document) :
+        QWidget(parent),
         m_document(document),
         m_lastHoveredCell(wxGridCellCoords(-1, -1)),
         m_ignoreSelection(false),
@@ -342,7 +342,7 @@ namespace TrenchBroom {
                 textCtrl->Bind(wxEVT_CHAR_HOOK, &EntityAttributeCellEditor::OnCharHook, this);
             }
             
-            bool EndEdit(int row, int col, const wxGrid* grid, const wxString& oldval, wxString *newval) override {
+            bool EndEdit(int row, int col, const wxGrid* grid, const QString& oldval, QString *newval) override {
                 assert(grid == m_grid->gridWindow());
                 
                 wxTextCtrl *textCtrl = Text();
@@ -403,8 +403,8 @@ namespace TrenchBroom {
             m_grid->GetGridWindow()->Bind(wxEVT_MOTION, &EntityAttributeGrid::OnAttributeGridMouseMove, this);
             m_grid->Bind(wxEVT_UPDATE_UI, &EntityAttributeGrid::OnUpdateAttributeView, this);
             
-            wxWindow* addAttributeButton = createBitmapButton(this, "Add.png", "Add a new property");
-            wxWindow* removePropertiesButton = createBitmapButton(this, "Remove.png", "Remove the selected properties");
+            QWidget* addAttributeButton = createBitmapButton(this, "Add.png", "Add a new property");
+            QWidget* removePropertiesButton = createBitmapButton(this, "Remove.png", "Remove the selected properties");
 
             addAttributeButton->Bind(wxEVT_BUTTON, &EntityAttributeGrid::OnAddAttributeButton, this);
             addAttributeButton->Bind(wxEVT_UPDATE_UI, &EntityAttributeGrid::OnUpdateAddAttributeButton, this);

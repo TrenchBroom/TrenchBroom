@@ -30,7 +30,7 @@ namespace TrenchBroom {
     namespace View {
         class PersistentSplitterWindow4;
         
-        class SplitterWindow4 : public wxPanel {
+        class SplitterWindow4 : public QWidget {
         private:
             static const size_t NumWindows = 4;
             static const int HalfMinSashSize = 2;
@@ -47,8 +47,8 @@ namespace TrenchBroom {
                 Dim_Y
             } Dim;
             
-            wxWindow* m_windows[NumWindows];
-            wxWindow* m_maximizedWindow;
+            QWidget* m_windows[NumWindows];
+            QWidget* m_maximizedWindow;
             wxSize m_minSizes[NumWindows];
             
             wxRealPoint m_gravity;
@@ -60,18 +60,18 @@ namespace TrenchBroom {
             
             friend class PersistentSplitterWindow4;
         public:
-            SplitterWindow4(wxWindow* parent);
+            SplitterWindow4(QWidget* parent);
             
-            void split(wxWindow* topLeft, wxWindow* topRight, wxWindow* bottomRight, wxWindow* bottomLeft,
+            void split(QWidget* topLeft, QWidget* topRight, QWidget* bottomRight, QWidget* bottomLeft,
                        const wxSize& topLeftMin     = wxSize(0,0),
                        const wxSize& topRightMin    = wxSize(0,0),
                        const wxSize& bottomRightMin = wxSize(0,0),
                        const wxSize& bottomLeftMin  = wxSize(0,0));
 
-            void setMinSize(wxWindow* window, const wxSize& minSize);
+            void setMinSize(QWidget* window, const wxSize& minSize);
             void setSashGravity(double x, double y);
 
-            void maximize(wxWindow* window);
+            void maximize(QWidget* window);
             void restore();
         private:
             wxPoint currentSashPosition() const;
@@ -85,9 +85,9 @@ namespace TrenchBroom {
             int bottomRowMinSize() const;
             
             bool hasWindows() const;
-            bool containsWindow(wxWindow* window) const;
+            bool containsWindow(QWidget* window) const;
         private:
-            void bindMouseEvents(wxWindow* window);
+            void bindMouseEvents(QWidget* window);
             
             void OnMouseEnter(wxMouseEvent& event);
             void OnMouseLeave(wxMouseEvent& event);

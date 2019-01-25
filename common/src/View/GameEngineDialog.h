@@ -36,7 +36,7 @@ namespace TrenchBroom {
             const String m_gameName;
             GameEngineProfileManager* m_profileManager;
         public:
-            GameEngineDialog(wxWindow* parent, const String& gameName);
+            GameEngineDialog(QWidget* parent, const String& gameName);
         private:
             void createGui();
             

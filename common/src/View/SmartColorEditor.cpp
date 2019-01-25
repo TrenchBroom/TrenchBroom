@@ -69,15 +69,15 @@ namespace TrenchBroom {
             setColor(event.color());
         }
 
-        wxWindow* SmartColorEditor::doCreateVisual(wxWindow* parent) {
+        QWidget* SmartColorEditor::doCreateVisual(QWidget* parent) {
             assert(m_panel == nullptr);
             assert(m_floatRadio == nullptr);
             assert(m_byteRadio == nullptr);
             assert(m_colorPicker == nullptr);
             assert(m_colorHistory == nullptr);
             
-            m_panel = new wxPanel(parent);
-            auto* rangeTxt = new wxStaticText(m_panel, wxID_ANY, "Color range");
+            m_panel = new QWidget(parent);
+            auto* rangeTxt = new QLabel(m_panel, wxID_ANY, "Color range");
             rangeTxt->SetFont(rangeTxt->GetFont().Bold());
             m_floatRadio = new wxRadioButton(m_panel, wxID_ANY, "Float [0,1]", wxDefaultPosition, wxDefaultSize, wxRB_GROUP);
             m_byteRadio = new wxRadioButton(m_panel, wxID_ANY, "Byte [0,255]");

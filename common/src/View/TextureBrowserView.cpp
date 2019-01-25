@@ -41,7 +41,7 @@ namespace TrenchBroom {
         texture(i_texture),
         fontDescriptor(i_fontDescriptor) {}
 
-        TextureBrowserView::TextureBrowserView(wxWindow* parent,
+        TextureBrowserView::TextureBrowserView(QWidget* parent,
                                                wxScrollBar* scrollBar,
                                                GLContextManager& contextManager,
                                                Assets::TextureManager& textureManager) :
@@ -470,8 +470,8 @@ namespace TrenchBroom {
             }
         }
 
-        wxString TextureBrowserView::tooltip(const Layout::Group::Row::Cell& cell) {
-            wxString tooltip;
+        QString TextureBrowserView::tooltip(const Layout::Group::Row::Cell& cell) {
+            QString tooltip;
             tooltip << cell.item().texture->name() << "\n";
             tooltip << cell.item().texture->width() << "x" << cell.item().texture->height();
             return tooltip;

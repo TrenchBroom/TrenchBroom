@@ -23,7 +23,7 @@
 #include "View/TabBook.h"
 #include "View/ViewTypes.h"
 
-class wxWindow;
+class QWidget;
 
 namespace TrenchBroom {
     namespace Model {
@@ -46,16 +46,16 @@ namespace TrenchBroom {
             FaceAttribsEditor* m_faceAttribsEditor;
             TextureBrowser* m_textureBrowser;
         public:
-            FaceInspector(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
+            FaceInspector(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
 
             bool cancelMouseDrag();
         private:
             void OnTextureSelected(TextureSelectedCommand& event);
         private:
             void createGui(MapDocumentWPtr document, GLContextManager& contextManager);
-            wxWindow* createFaceAttribsEditor(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
-            wxWindow* createTextureBrowser(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
-            wxWindow* createTextureCollectionEditor(wxWindow* parent, MapDocumentWPtr document);
+            QWidget* createFaceAttribsEditor(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
+            QWidget* createTextureBrowser(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
+            QWidget* createTextureCollectionEditor(QWidget* parent, MapDocumentWPtr document);
             
             void bindEvents();
         };

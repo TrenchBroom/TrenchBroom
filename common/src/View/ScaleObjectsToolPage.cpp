@@ -39,8 +39,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        ScaleObjectsToolPage::ScaleObjectsToolPage(wxWindow* parent, MapDocumentWPtr document) :
-        wxPanel(parent),
+        ScaleObjectsToolPage::ScaleObjectsToolPage(QWidget* parent, MapDocumentWPtr document) :
+        QWidget(parent),
         m_document(document) {
             createGui();
         }
@@ -56,7 +56,7 @@ namespace TrenchBroom {
         void ScaleObjectsToolPage::createGui() {
             MapDocumentSPtr document = lock(m_document);
 
-            wxStaticText* text = new wxStaticText(this, wxID_ANY, "Scale objects");
+            QLabel* text = new QLabel(this, wxID_ANY, "Scale objects");
 
             m_book = new wxSimplebook(this);
             m_sizeTextBox = new wxTextCtrl(m_book, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
@@ -67,7 +67,7 @@ namespace TrenchBroom {
             m_sizeTextBox->Bind(wxEVT_TEXT_ENTER, &ScaleObjectsToolPage::OnApply, this);
             m_factorsTextBox->Bind(wxEVT_TEXT_ENTER, &ScaleObjectsToolPage::OnApply, this);
 
-            const wxString choices[] = { "to size", "by factors" };
+            const QString choices[] = { "to size", "by factors" };
             m_scaleFactorsOrSize = new wxChoice(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 2, choices);
             m_scaleFactorsOrSize->Bind(wxEVT_CHOICE, [&](wxCommandEvent& event){
                     const auto selection = m_scaleFactorsOrSize->GetSelection();

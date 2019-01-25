@@ -29,7 +29,7 @@ class wxCommandEvent;
 class wxMouseEvent;
 class wxSimplebook;
 class wxSizeEvent;
-class wxWindow;
+class QWidget;
 
 namespace TrenchBroom {
     namespace Model {
@@ -53,10 +53,10 @@ namespace TrenchBroom {
             wxCheckBox* m_showHiddenIssuesCheckBox;
             FlagsPopupEditor* m_filterEditor;
         public:
-            IssueBrowser(wxWindow* parent, MapDocumentWPtr document);
+            IssueBrowser(QWidget* parent, MapDocumentWPtr document);
             ~IssueBrowser() override;
 
-            wxWindow* createTabBarPage(wxWindow* parent) override;
+            QWidget* createTabBarPage(QWidget* parent) override;
             
             void OnShowHiddenIssuesChanged(wxCommandEvent& event);
             void OnFilterChanged(FlagChangedCommand& command);

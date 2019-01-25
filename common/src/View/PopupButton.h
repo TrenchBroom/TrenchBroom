@@ -25,20 +25,20 @@
 class wxToggleButton;
 class wxCommandEvent;
 class wxShowEvent;
-class wxWindow;
+class QWidget;
 
 namespace TrenchBroom {
     namespace View {
         class PopupWindow;
         
-        class PopupButton : public wxPanel {
+        class PopupButton : public QWidget {
         private:
             wxToggleButton* m_button;
             PopupWindow* m_window;
         public:
-            PopupButton(wxWindow* parent, const wxString& caption);
+            PopupButton(QWidget* parent, const QString& caption);
             
-            wxWindow* GetPopupWindow() const;
+            QWidget* GetPopupWindow() const;
 
             void OnButtonToggled(wxCommandEvent& event);
             void OnPopupShow(wxShowEvent& event);

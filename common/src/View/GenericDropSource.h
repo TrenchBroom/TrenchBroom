@@ -22,7 +22,7 @@
 
 #include <wx/dnd.h>
 
-class wxWindow;
+class QWidget;
 
 namespace TrenchBroom {
     namespace View {
@@ -30,7 +30,7 @@ namespace TrenchBroom {
         private:
             static GenericDropSource* m_currentDropSource;
         public:
-            GenericDropSource(wxDataObject& data, wxWindow* window);
+            GenericDropSource(wxDataObject& data, QWidget* window);
             ~GenericDropSource();
             
             static GenericDropSource* getCurrentDropSource();

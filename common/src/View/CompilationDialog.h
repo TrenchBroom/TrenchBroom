@@ -24,7 +24,7 @@
 
 #include <wx/dialog.h>
 
-class wxStaticText;
+class QLabel;
 class wxTextCtrl;
 
 namespace TrenchBroom {
@@ -37,7 +37,7 @@ namespace TrenchBroom {
         private:
             MapFrame* m_mapFrame;
             CompilationProfileManager* m_profileManager;
-            wxStaticText* m_currentRunLabel;
+            QLabel* m_currentRunLabel;
             wxTextCtrl* m_output;
             CompilationRun m_run;
         public:

@@ -38,7 +38,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        IssueBrowser::IssueBrowser(wxWindow* parent, MapDocumentWPtr document) :
+        IssueBrowser::IssueBrowser(QWidget* parent, MapDocumentWPtr document) :
         TabBookPage(parent),
         m_document(document),
         m_view(new IssueBrowserView(this, m_document)),
@@ -55,8 +55,8 @@ namespace TrenchBroom {
             unbindObservers();
         }
 
-        wxWindow* IssueBrowser::createTabBarPage(wxWindow* parent) {
-            wxPanel* barPage = new wxPanel(parent);
+        QWidget* IssueBrowser::createTabBarPage(QWidget* parent) {
+            QWidget* barPage = new QWidget(parent);
             m_showHiddenIssuesCheckBox = new wxCheckBox(barPage, wxID_ANY, "Show hidden issues");
             m_showHiddenIssuesCheckBox->Bind(wxEVT_CHECKBOX, &IssueBrowser::OnShowHiddenIssuesChanged, this);
             

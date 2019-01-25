@@ -28,14 +28,14 @@
 
 class wxButton;
 class wxCheckBox;
-class wxWindow;
+class QWidget;
 
 namespace TrenchBroom {
     namespace View {
         class EntityAttributeGridTable;
         class Selection;
         
-        class EntityAttributeGrid : public wxPanel {
+        class EntityAttributeGrid : public QWidget {
         private:
             MapDocumentWPtr m_document;
             
@@ -47,7 +47,7 @@ namespace TrenchBroom {
             Model::AttributeName m_lastSelectedName;
             int m_lastSelectedCol;
         public:
-            EntityAttributeGrid(wxWindow* parent, MapDocumentWPtr document);
+            EntityAttributeGrid(QWidget* parent, MapDocumentWPtr document);
             ~EntityAttributeGrid();
         private:
             void OnAttributeGridSize(wxSizeEvent& event);

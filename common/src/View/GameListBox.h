@@ -33,15 +33,15 @@ namespace TrenchBroom {
         private:
             struct Info {
                 wxBitmap image;
-                wxString title;
-                wxString subtitle;
+                QString title;
+                QString subtitle;
             };
             
             typedef std::vector<Info> InfoList;
             
             InfoList m_gameInfos;
         public:
-            GameListBox(wxWindow* parent);
+            GameListBox(QWidget* parent);
             
             String selectedGameName() const;
             void selectGame(int index);
@@ -51,8 +51,8 @@ namespace TrenchBroom {
             void reloadGameInfos();
         private:
             bool image(size_t n, wxBitmap& result) const override;
-            wxString title(size_t n) const override;
-            wxString subtitle(size_t n) const override;
+            QString title(size_t n) const override;
+            QString subtitle(size_t n) const override;
             
             void submitChangeEvent(wxEventType type);
         };

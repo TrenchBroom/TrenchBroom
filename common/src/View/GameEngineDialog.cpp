@@ -37,7 +37,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        GameEngineDialog::GameEngineDialog(wxWindow* parent, const String& gameName) :
+        GameEngineDialog::GameEngineDialog(QWidget* parent, const String& gameName) :
         wxDialog(parent, wxID_ANY, "Game Engines"),
         m_gameName(gameName),
         m_profileManager(nullptr) {

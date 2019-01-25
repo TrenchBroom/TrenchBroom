@@ -32,13 +32,13 @@ namespace TrenchBroom {
         private:
             const Model::CompilationConfig& m_config;
         public:
-            CompilationProfileListBox(wxWindow* parent, const Model::CompilationConfig& config);
+            CompilationProfileListBox(QWidget* parent, const Model::CompilationConfig& config);
             ~CompilationProfileListBox() override;
         private:
             void profilesDidChange();
         private:
             class ProfileItem;
-            Item* createItem(wxWindow* parent, const wxSize& margins, size_t index) override;
+            Item* createItem(QWidget* parent, const wxSize& margins, size_t index) override;
         };
     }
 }

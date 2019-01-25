@@ -27,7 +27,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        ToolBoxDropTarget::ToolBoxDropTarget(wxWindow* window, ToolBoxConnector* toolBoxConnector) :
+        ToolBoxDropTarget::ToolBoxDropTarget(QWidget* window, ToolBoxConnector* toolBoxConnector) :
         wxTextDropTarget(),
         m_window(window),
         m_toolBoxConnector(toolBoxConnector) {
@@ -57,7 +57,7 @@ namespace TrenchBroom {
             wxTextDropTarget::OnLeave();
         }
         
-        bool ToolBoxDropTarget::OnDropText(const wxCoord x, const wxCoord y, const wxString& data) {
+        bool ToolBoxDropTarget::OnDropText(const wxCoord x, const wxCoord y, const QString& data) {
             const auto result = m_toolBoxConnector->dragDrop(x, y, data.ToStdString());
             m_window->SetFocus();
             m_window->Refresh();

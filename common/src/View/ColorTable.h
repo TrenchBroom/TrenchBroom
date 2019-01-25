@@ -35,7 +35,7 @@ namespace TrenchBroom {
             ColorList m_colors;
             ColorList m_selectedColors;
         public:
-            ColorTable(wxWindow* parent, wxWindowID winId, int cellSize, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxTAB_TRAVERSAL | wxBORDER_NONE);
+            ColorTable(QWidget* parent, wxWindowID winId, int cellSize, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxTAB_TRAVERSAL | wxBORDER_NONE);
             
             void setColors(const ColorList& colors);
             void setSelection(const ColorList& colors);

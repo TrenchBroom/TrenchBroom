@@ -42,13 +42,13 @@ namespace TrenchBroom {
         void CrashDialog::Create(const IO::Path& reportPath, const IO::Path& mapPath, const IO::Path& logPath) {
             wxDialog::Create(nullptr, wxID_ANY, "Crash");
             
-            wxPanel* containerPanel = new wxPanel(this);
-            wxPanel* headerPanel = new wxPanel(containerPanel);
-            wxPanel* reportPanel = new wxPanel(containerPanel);
+            QWidget* containerPanel = new QWidget(this);
+            QWidget* headerPanel = new QWidget(containerPanel);
+            QWidget* reportPanel = new QWidget(containerPanel);
             reportPanel->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             reportPanel->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT));
             
-            wxStaticText* header = new wxStaticText(headerPanel, wxID_ANY, "Crash Report");
+            QLabel* header = new QLabel(headerPanel, wxID_ANY, "Crash Report");
             header->SetFont(header->GetFont().Scale(1.5).Bold());
 
             wxSizer* headerPanelSizer = new wxBoxSizer(wxVERTICAL);
@@ -57,30 +57,30 @@ namespace TrenchBroom {
             headerPanelSizer->AddSpacer(LayoutConstants::DialogOuterMargin);
             headerPanel->SetSizer(headerPanelSizer);
             
-            wxStaticText* text1 = new wxStaticText(reportPanel, wxID_ANY,
+            QLabel* text1 = new QLabel(reportPanel, wxID_ANY,
                                                    "TrenchBroom has crashed, but was able to save a crash report,\n"
                                                    "a log file and the current state of the map to the following locations.\n\n"
                                                    "Please create an issue report and upload all three files.");
             
-            wxStaticText* reportLabel = new wxStaticText(reportPanel, wxID_ANY, "Report");
+            QLabel* reportLabel = new QLabel(reportPanel, wxID_ANY, "Report");
             reportLabel->SetFont(reportLabel->GetFont().Bold());
-            wxStaticText* reportPathText = new wxStaticText(reportPanel, wxID_ANY, reportPath.asString());
+            QLabel* reportPathText = new QLabel(reportPanel, wxID_ANY, reportPath.asString());
 
-            wxStaticText* mapLabel = new wxStaticText(reportPanel, wxID_ANY, "Map");
+            QLabel* mapLabel = new QLabel(reportPanel, wxID_ANY, "Map");
             mapLabel->SetFont(mapLabel->GetFont().Bold());
-            wxStaticText* mapPathText = new wxStaticText(reportPanel, wxID_ANY, mapPath.asString());
+            QLabel* mapPathText = new QLabel(reportPanel, wxID_ANY, mapPath.asString());
 
-            wxStaticText* logLabel = new wxStaticText(reportPanel, wxID_ANY, "Log");
+            QLabel* logLabel = new QLabel(reportPanel, wxID_ANY, "Log");
             logLabel->SetFont(logLabel->GetFont().Bold());
-            wxStaticText* logPathText = new wxStaticText(reportPanel, wxID_ANY, logPath.asString());
+            QLabel* logPathText = new QLabel(reportPanel, wxID_ANY, logPath.asString());
             
-            wxStaticText* versionLabel = new wxStaticText(reportPanel, wxID_ANY, "Version");
+            QLabel* versionLabel = new QLabel(reportPanel, wxID_ANY, "Version");
             versionLabel->SetFont(versionLabel->GetFont().Bold());
-            wxStaticText* versionText = new wxStaticText(reportPanel, wxID_ANY, "");// FIXME: getBuildVersion());
+            QLabel* versionText = new QLabel(reportPanel, wxID_ANY, "");// FIXME: getBuildVersion());
             
-            wxStaticText* buildLabel = new wxStaticText(reportPanel, wxID_ANY, "Build");
+            QLabel* buildLabel = new QLabel(reportPanel, wxID_ANY, "Build");
             buildLabel->SetFont(buildLabel->GetFont().Bold());
-            wxStaticText* buildText = new wxStaticText(reportPanel, wxID_ANY,  "");// FIXME: getBuildIdStr());
+            QLabel* buildText = new QLabel(reportPanel, wxID_ANY,  "");// FIXME: getBuildIdStr());
             
             wxGridBagSizer* reportPanelSizer = new wxGridBagSizer(LayoutConstants::NarrowVMargin, LayoutConstants::WideHMargin);
             reportPanelSizer->Add(text1,           wxGBPosition(0, 0), wxGBSpan(1, 2));

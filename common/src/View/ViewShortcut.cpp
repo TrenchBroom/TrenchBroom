@@ -53,11 +53,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        wxString ViewShortcut::doGetActionDescription() const {
+        QString ViewShortcut::doGetActionDescription() const {
             return buildDescription(m_actions[ActionView_Map2D], m_actions[ActionView_Map3D]);
         }
         
-        wxString ViewShortcut::doGetJsonString() const {
+        QString ViewShortcut::doGetJsonString() const {
             return defaultShortcut().asJsonString();
         }
 

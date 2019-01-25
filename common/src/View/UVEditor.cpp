@@ -33,8 +33,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        UVEditor::UVEditor(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
-        wxPanel(parent),
+        UVEditor::UVEditor(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
+        QWidget(parent),
         m_document(document),
         m_uvView(nullptr),
         m_xSubDivisionEditor(nullptr),
@@ -114,11 +114,11 @@ namespace TrenchBroom {
         void UVEditor::createGui(GLContextManager& contextManager) {
             m_uvView = new UVView(this, m_document, contextManager);
             
-            wxWindow* resetTextureButton = createBitmapButton(this, "ResetTexture.png", "Reset texture alignment");
-            wxWindow* flipTextureHButton = createBitmapButton(this, "FlipTextureH.png", "Flip texture X axis");
-            wxWindow* flipTextureVButton = createBitmapButton(this, "FlipTextureV.png", "Flip texture Y axis");
-            wxWindow* rotateTextureCCWButton = createBitmapButton(this, "RotateTextureCCW.png", "Rotate texture 90° counter-clockwise");
-            wxWindow* rotateTextureCWButton = createBitmapButton(this, "RotateTextureCW.png", "Rotate texture 90° clockwise");
+            QWidget* resetTextureButton = createBitmapButton(this, "ResetTexture.png", "Reset texture alignment");
+            QWidget* flipTextureHButton = createBitmapButton(this, "FlipTextureH.png", "Flip texture X axis");
+            QWidget* flipTextureVButton = createBitmapButton(this, "FlipTextureV.png", "Flip texture Y axis");
+            QWidget* rotateTextureCCWButton = createBitmapButton(this, "RotateTextureCCW.png", "Rotate texture 90° counter-clockwise");
+            QWidget* rotateTextureCWButton = createBitmapButton(this, "RotateTextureCW.png", "Rotate texture 90° clockwise");
             
             resetTextureButton->Bind(wxEVT_BUTTON, &UVEditor::OnResetTexture, this);
             resetTextureButton->Bind(wxEVT_UPDATE_UI, &UVEditor::OnUpdateButtonUI, this);
@@ -131,7 +131,7 @@ namespace TrenchBroom {
             rotateTextureCWButton->Bind(wxEVT_BUTTON, &UVEditor::OnRotateTextureCW, this);
             rotateTextureCWButton->Bind(wxEVT_UPDATE_UI, &UVEditor::OnUpdateButtonUI, this);
 
-            wxStaticText* gridLabel = new wxStaticText(this, wxID_ANY, "Grid ");
+            QLabel* gridLabel = new QLabel(this, wxID_ANY, "Grid ");
             gridLabel->SetFont(gridLabel->GetFont().Bold());
             m_xSubDivisionEditor = new wxSpinCtrl(this, wxID_ANY, "1", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS | wxTE_PROCESS_ENTER | wxALIGN_RIGHT);
             m_xSubDivisionEditor->SetRange(1, 16);
@@ -150,9 +150,9 @@ namespace TrenchBroom {
             bottomSizer->Add(rotateTextureCWButton,                0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::NarrowHMargin);
             bottomSizer->AddStretchSpacer();
             bottomSizer->Add(gridLabel,                              0, wxALIGN_CENTER_VERTICAL);
-            bottomSizer->Add(new wxStaticText(this, wxID_ANY, "X:"), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::NarrowHMargin);
+            bottomSizer->Add(new QLabel(this, wxID_ANY, "X:"), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::NarrowHMargin);
             bottomSizer->Add(m_xSubDivisionEditor,                   0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::MediumHMargin);
-            bottomSizer->Add(new wxStaticText(this, wxID_ANY, "Y:"), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::NarrowHMargin);
+            bottomSizer->Add(new QLabel(this, wxID_ANY, "Y:"), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::NarrowHMargin);
             bottomSizer->Add(m_ySubDivisionEditor,                   0, wxALIGN_CENTER_VERTICAL);
             bottomSizer->SetItemMinSize(m_xSubDivisionEditor, 50, m_xSubDivisionEditor->GetSize().y);
             bottomSizer->SetItemMinSize(m_ySubDivisionEditor, 50, m_ySubDivisionEditor->GetSize().y);

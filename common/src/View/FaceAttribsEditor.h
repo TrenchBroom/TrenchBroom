@@ -30,7 +30,7 @@ class wxButton;
 class wxGridBagSizer;
 class wxSpinCtrl;
 class wxSpinEvent;
-class wxStaticText;
+class QLabel;
 class wxTextCtrl;
 
 namespace TrenchBroom {
@@ -44,32 +44,32 @@ namespace TrenchBroom {
         class SpinControlEvent;
         class UVEditor;
 
-        class FaceAttribsEditor : public wxPanel {
+        class FaceAttribsEditor : public QWidget {
         private:
             MapDocumentWPtr m_document;
             Model::BrushFaceList m_faces;
 
             UVEditor* m_uvEditor;
-            wxStaticText* m_textureName;
-            wxStaticText* m_textureSize;
+            QLabel* m_textureName;
+            QLabel* m_textureSize;
             SpinControl* m_xOffsetEditor;
             SpinControl* m_yOffsetEditor;
             SpinControl* m_xScaleEditor;
             SpinControl* m_yScaleEditor;
             SpinControl* m_rotationEditor;
-            wxStaticText* m_surfaceValueLabel;
+            QLabel* m_surfaceValueLabel;
             SpinControl* m_surfaceValueEditor;
             wxGridBagSizer* m_faceAttribsSizer;
             
-            wxStaticText* m_surfaceFlagsLabel;
+            QLabel* m_surfaceFlagsLabel;
             FlagsPopupEditor* m_surfaceFlagsEditor;
-            wxStaticText* m_contentFlagsLabel;
+            QLabel* m_contentFlagsLabel;
             FlagsPopupEditor* m_contentFlagsEditor;
 
-            wxStaticText* m_colorLabel;
+            QLabel* m_colorLabel;
             wxTextCtrl* m_colorEditor;
         public:
-            FaceAttribsEditor(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
+            FaceAttribsEditor(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
             ~FaceAttribsEditor();
 
             bool cancelMouseDrag();

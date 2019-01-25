@@ -32,7 +32,7 @@ namespace TrenchBroom {
         private:
             wxBitmap m_documentIcon;
         public:
-            RecentDocumentListBox(wxWindow* parent);
+            RecentDocumentListBox(QWidget* parent);
             ~RecentDocumentListBox() override;
             
             void OnListBoxDoubleClick(wxCommandEvent& event);
@@ -40,8 +40,8 @@ namespace TrenchBroom {
             void recentDocumentsDidChange();
             
             bool image(size_t n, wxBitmap& result) const override;
-            wxString title(size_t n) const override;
-            wxString subtitle(size_t n) const override;
+            QString title(size_t n) const override;
+            QString subtitle(size_t n) const override;
         };
     }
 }

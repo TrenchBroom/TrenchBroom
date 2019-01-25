@@ -24,7 +24,7 @@
 
 #include <wx/panel.h>
 
-class wxStaticText;
+class QLabel;
 
 wxDECLARE_EVENT(TITLE_BAR_CLICK, wxCommandEvent);
 
@@ -34,25 +34,25 @@ namespace TrenchBroom {
         
         class CollapsibleTitleBar : public TitleBar {
         private:
-            wxStaticText* m_stateText;
+            QLabel* m_stateText;
         public:
-            CollapsibleTitleBar(wxWindow* parent, const wxString& title, const wxString& stateText);
+            CollapsibleTitleBar(QWidget* parent, const QString& title, const QString& stateText);
             
-            void setStateText(const wxString& stateText);
+            void setStateText(const QString& stateText);
         private:
             void OnClick(wxMouseEvent& event);
         };
         
-        class CollapsibleTitledPanel : public wxPanel {
+        class CollapsibleTitledPanel : public QWidget {
         private:
             CollapsibleTitleBar* m_titleBar;
             BorderLine* m_divider;
-            wxPanel* m_panel;
+            QWidget* m_panel;
             bool m_expanded;
         public:
-            CollapsibleTitledPanel(wxWindow* parent, const wxString& title, bool initiallyExpanded = true);
+            CollapsibleTitledPanel(QWidget* parent, const QString& title, bool initiallyExpanded = true);
             
-            wxWindow* getPanel() const;
+            QWidget* getPanel() const;
 
             void expand();
             void collapse();

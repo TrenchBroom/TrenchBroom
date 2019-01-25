@@ -28,8 +28,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        TextureCollectionEditor::TextureCollectionEditor(wxWindow* parent, MapDocumentWPtr document) :
-        wxPanel(parent),
+        TextureCollectionEditor::TextureCollectionEditor(QWidget* parent, MapDocumentWPtr document) :
+        QWidget(parent),
         m_document(document) {
             MapDocumentSPtr doc = lock(m_document);
             doc->documentWasNewedNotifier.addObserver(this, &TextureCollectionEditor::documentWasNewed);
@@ -55,7 +55,7 @@ namespace TrenchBroom {
         }
         
         void TextureCollectionEditor::createGui() {
-            wxWindow* collectionEditor = nullptr;
+            QWidget* collectionEditor = nullptr;
             
             auto document = lock(m_document);
             const Model::Game::TexturePackageType type = document->game()->texturePackageType();

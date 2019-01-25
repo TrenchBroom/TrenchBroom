@@ -24,7 +24,7 @@
 
 #include <wx/dnd.h>
 
-class wxWindow;
+class QWidget;
 
 namespace TrenchBroom {
     namespace View {
@@ -32,15 +32,15 @@ namespace TrenchBroom {
         
         class ToolBoxDropTarget : public wxTextDropTarget {
         private:
-            wxWindow* m_window;
+            QWidget* m_window;
             ToolBoxConnector* m_toolBoxConnector;
         public:
-            ToolBoxDropTarget(wxWindow* window, ToolBoxConnector* toolBoxConnector);
+            ToolBoxDropTarget(QWidget* window, ToolBoxConnector* toolBoxConnector);
             
             wxDragResult OnEnter(wxCoord x, wxCoord y, wxDragResult def) override;
             wxDragResult OnDragOver(wxCoord x, wxCoord y, wxDragResult def) override;
             void OnLeave() override;
-            bool OnDropText(wxCoord x, wxCoord y, const wxString& data) override;
+            bool OnDropText(wxCoord x, wxCoord y, const QString& data) override;
         private:
             String getDragText() const;
         };

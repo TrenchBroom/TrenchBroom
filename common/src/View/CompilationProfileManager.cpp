@@ -33,8 +33,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        CompilationProfileManager::CompilationProfileManager(wxWindow* parent, MapDocumentWPtr document, Model::CompilationConfig& config) :
-        wxPanel(parent),
+        CompilationProfileManager::CompilationProfileManager(QWidget* parent, MapDocumentWPtr document, Model::CompilationConfig& config) :
+        QWidget(parent),
         m_config(config),
         m_profileList(nullptr),
         m_profileEditor() {
@@ -48,8 +48,8 @@ namespace TrenchBroom {
             m_profileList = new CompilationProfileListBox(listPanel->getPanel(), m_config);
             m_profileEditor = new CompilationProfileEditor(editorPanel->getPanel(), document);
             
-            wxWindow* addProfileButton = createBitmapButton(listPanel->getPanel(), "Add.png", "Add profile");
-            wxWindow* removeProfileButton = createBitmapButton(listPanel->getPanel(), "Remove.png", "Remove the selected profile");
+            QWidget* addProfileButton = createBitmapButton(listPanel->getPanel(), "Add.png", "Add profile");
+            QWidget* removeProfileButton = createBitmapButton(listPanel->getPanel(), "Remove.png", "Remove the selected profile");
             
             addProfileButton->Bind(wxEVT_BUTTON, &CompilationProfileManager::OnAddProfile, this);
             removeProfileButton->Bind(wxEVT_BUTTON, &CompilationProfileManager::OnRemoveProfile, this);

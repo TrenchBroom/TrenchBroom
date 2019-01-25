@@ -27,9 +27,9 @@ namespace TrenchBroom {
         class PopupWindow : public wxFrame {
         public:
             PopupWindow();
-            PopupWindow(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& caption = "", const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style =  wxFRAME_FLOAT_ON_PARENT | wxFRAME_NO_TASKBAR | wxBORDER_NONE, const wxString& name = wxFrameNameStr);
+            PopupWindow(QWidget* parent, wxWindowID id = wxID_ANY, const QString& caption = "", const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style =  wxFRAME_FLOAT_ON_PARENT | wxFRAME_NO_TASKBAR | wxBORDER_NONE, const QString& name = wxFrameNameStr);
             
-            bool Create(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& caption = "", const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style =  wxFRAME_FLOAT_ON_PARENT | wxFRAME_NO_TASKBAR | wxBORDER_NONE, const wxString& name = wxFrameNameStr);
+            bool Create(QWidget* parent, wxWindowID id = wxID_ANY, const QString& caption = "", const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style =  wxFRAME_FLOAT_ON_PARENT | wxFRAME_NO_TASKBAR | wxBORDER_NONE, const QString& name = wxFrameNameStr);
             
             void Position(const wxPoint& point, const wxSize& size);
             void Popup();

@@ -46,7 +46,7 @@ namespace TrenchBroom {
         class TextureBrowserView;
         class TextureSelectedCommand;
         
-        class TextureBrowser : public wxPanel {
+        class TextureBrowser : public QWidget {
         private:
             MapDocumentWPtr m_document;
             wxChoice* m_sortOrderChoice;
@@ -56,7 +56,7 @@ namespace TrenchBroom {
             wxScrollBar* m_scrollBar;
             TextureBrowserView* m_view;
         public:
-            TextureBrowser(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
+            TextureBrowser(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
             ~TextureBrowser();
             
             Assets::Texture* selectedTexture() const;

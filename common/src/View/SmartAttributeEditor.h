@@ -25,7 +25,7 @@
 
 #include <wx/event.h>
 
-class wxWindow;
+class QWidget;
 
 namespace TrenchBroom {
     namespace View {
@@ -42,7 +42,7 @@ namespace TrenchBroom {
             
             bool usesName(const Model::AttributeName& name) const;
             
-            wxWindow* activate(wxWindow* parent, const Model::AttributeName& name);
+            QWidget* activate(QWidget* parent, const Model::AttributeName& name);
             void update(const Model::AttributableNodeList& attributables);
             void deactivate();
         protected:
@@ -51,11 +51,11 @@ namespace TrenchBroom {
             const Model::AttributableNodeList attributables() const;
             void addOrUpdateAttribute(const Model::AttributeValue& value);
         private:
-            wxWindow* createVisual(wxWindow* parent);
+            QWidget* createVisual(QWidget* parent);
             void destroyVisual();
             void updateVisual(const Model::AttributableNodeList& attributables);
             
-            virtual wxWindow* doCreateVisual(wxWindow* parent) = 0;
+            virtual QWidget* doCreateVisual(QWidget* parent) = 0;
             virtual void doDestroyVisual() = 0;
             virtual void doUpdateVisual(const Model::AttributableNodeList& attributables) = 0;
         };

@@ -28,7 +28,7 @@
 #include <vector>
 
 class wxCheckBox;
-class wxWindow;
+class QWidget;
 
 namespace TrenchBroom {
     namespace Assets {
@@ -43,7 +43,7 @@ namespace TrenchBroom {
         class PopupButton;
         class RadioGroup;
         
-        class EntityDefinitionCheckBoxList : public wxPanel {
+        class EntityDefinitionCheckBoxList : public QWidget {
         private:
             typedef std::vector<wxCheckBox*> CheckBoxList;
 
@@ -53,7 +53,7 @@ namespace TrenchBroom {
             CheckBoxList m_groupCheckBoxes;
             CheckBoxList m_defCheckBoxes;
         public:
-            EntityDefinitionCheckBoxList(wxWindow* parent, Assets::EntityDefinitionManager& entityDefinitionManager, Model::EditorContext& editorContext);
+            EntityDefinitionCheckBoxList(QWidget* parent, Assets::EntityDefinitionManager& entityDefinitionManager, Model::EditorContext& editorContext);
             
             void refresh();
             
@@ -66,7 +66,7 @@ namespace TrenchBroom {
             void createGui();
         };
         
-        class ViewEditor : public wxPanel {
+        class ViewEditor : public QWidget {
         private:
             typedef std::vector<wxCheckBox*> CheckBoxList;
             
@@ -93,7 +93,7 @@ namespace TrenchBroom {
             
             RadioGroup* m_entityLinkRadioGroup;
         public:
-            ViewEditor(wxWindow* parent, MapDocumentWPtr document);
+            ViewEditor(QWidget* parent, MapDocumentWPtr document);
             ~ViewEditor();
             
             void OnShowEntityClassnamesChanged(wxCommandEvent& event);
@@ -120,14 +120,14 @@ namespace TrenchBroom {
             
             void createGui();
             
-            wxWindow* createEntityDefinitionsPanel(wxWindow* parent);
-            wxWindow* createEntitiesPanel(wxWindow* parent);
-            wxWindow* createBrushesPanel(wxWindow* parent);
-            void createBrushContentTypeFilter(wxWindow* parent);
-            void createEmptyBrushContentTypeFilter(wxWindow* parent);
-            void createBrushContentTypeFilter(wxWindow* parent, const Model::BrushContentType::List& contentTypes);
+            QWidget* createEntityDefinitionsPanel(QWidget* parent);
+            QWidget* createEntitiesPanel(QWidget* parent);
+            QWidget* createBrushesPanel(QWidget* parent);
+            void createBrushContentTypeFilter(QWidget* parent);
+            void createEmptyBrushContentTypeFilter(QWidget* parent);
+            void createBrushContentTypeFilter(QWidget* parent, const Model::BrushContentType::List& contentTypes);
             
-            wxWindow* createRendererPanel(wxWindow* parent);
+            QWidget* createRendererPanel(QWidget* parent);
             
             void refreshGui();
             void refreshEntityDefinitionsPanel();
@@ -136,12 +136,12 @@ namespace TrenchBroom {
             void refreshRendererPanel();
         };
         
-        class ViewPopupEditor : public wxPanel {
+        class ViewPopupEditor : public QWidget {
         private:
             PopupButton* m_button;
             ViewEditor* m_editor;
         public:
-            ViewPopupEditor(wxWindow* parent, MapDocumentWPtr document);
+            ViewPopupEditor(QWidget* parent, MapDocumentWPtr document);
         };
     }
 }

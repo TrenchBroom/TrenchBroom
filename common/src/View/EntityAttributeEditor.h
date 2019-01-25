@@ -31,18 +31,18 @@ namespace TrenchBroom {
         class EntityAttributeSelectedCommand;
         class SmartAttributeEditorManager;
         
-        class EntityAttributeEditor : public wxPanel {
+        class EntityAttributeEditor : public QWidget {
         private:
             View::MapDocumentWPtr m_document;
             EntityAttributeGrid* m_attributeGrid;
             SmartAttributeEditorManager* m_smartEditorManager;
             String m_lastSelectedAttributeName;
         public:
-            EntityAttributeEditor(wxWindow* parent, MapDocumentWPtr document);
+            EntityAttributeEditor(QWidget* parent, MapDocumentWPtr document);
             
             void OnIdle(wxIdleEvent& event);
         private:
-            void createGui(wxWindow* parent, MapDocumentWPtr document);
+            void createGui(QWidget* parent, MapDocumentWPtr document);
         };
     }
 }

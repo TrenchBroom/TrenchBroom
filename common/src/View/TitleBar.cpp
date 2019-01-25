@@ -27,9 +27,9 @@
 
 namespace TrenchBroom {
     namespace View {
-        TitleBar::TitleBar(wxWindow* parent, const wxString& title, const int hMargin, const int vMargin, const bool boldTitle) :
-        wxWindow(parent, wxID_ANY),
-        m_titleText(new wxStaticText(this, wxID_ANY, title)) {
+        TitleBar::TitleBar(QWidget* parent, const QString& title, const int hMargin, const int vMargin, const bool boldTitle) :
+        QWidget(parent, wxID_ANY),
+        m_titleText(new QLabel(this, wxID_ANY, title)) {
             SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_FRAMEBK));
             
             if (boldTitle)

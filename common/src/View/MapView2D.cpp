@@ -73,7 +73,7 @@ namespace TrenchBroom {
             initializeCamera(viewPlane);
             initializeToolChain(toolBox);
 
-            // FIXME: Not sure if wxWindow::SetName() maps to QWidget::setWhatsThis()?
+            // FIXME: Not sure if QWidget::SetName() maps to QWidget::setWhatsThis()?
             // FIXME: Actually, was SetName used for persistence?
             switch (viewPlane) {
             case ViewPlane_XY:

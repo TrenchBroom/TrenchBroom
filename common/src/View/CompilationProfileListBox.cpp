@@ -29,7 +29,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        CompilationProfileListBox::CompilationProfileListBox(wxWindow* parent, const Model::CompilationConfig& config)  :
+        CompilationProfileListBox::CompilationProfileListBox(QWidget* parent, const Model::CompilationConfig& config)  :
         ControlListBox(parent, true, "Click the '+' button to create a compilation profile."),
         m_config(config) {
             m_config.profilesDidChange.addObserver(this, &CompilationProfileListBox::profilesDidChange);
@@ -47,18 +47,18 @@ namespace TrenchBroom {
         class CompilationProfileListBox::ProfileItem : public Item {
         private:
             Model::CompilationProfile* m_profile;
-            wxStaticText* m_nameText;
-            wxStaticText* m_taskCountText;
+            QLabel* m_nameText;
+            QLabel* m_taskCountText;
         public:
-            ProfileItem(wxWindow* parent, Model::CompilationProfile* profile, const wxSize& margins) :
+            ProfileItem(QWidget* parent, Model::CompilationProfile* profile, const wxSize& margins) :
             Item(parent),
             m_profile(profile),
             m_nameText(nullptr),
             m_taskCountText(nullptr) {
                 ensure(m_profile != nullptr, "profile is null");
 
-                m_nameText = new wxStaticText(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_END);
-                m_taskCountText = new wxStaticText(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_MIDDLE);
+                m_nameText = new QLabel(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_END);
+                m_taskCountText = new QLabel(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_MIDDLE);
                 
                 m_nameText->SetFont(m_nameText->GetFont().Bold());
                 m_taskCountText->SetForegroundColour(makeLighter(m_taskCountText->GetForegroundColour()));
@@ -113,7 +113,7 @@ namespace TrenchBroom {
                     m_taskCountText->SetLabel("");
                 } else {
                     m_nameText->SetLabel(m_profile->name());
-                    wxString taskCountLabel;
+                    QString taskCountLabel;
                     taskCountLabel << m_profile->taskCount() << " tasks";
                     m_taskCountText->SetLabel(taskCountLabel);
                 }
@@ -125,7 +125,7 @@ namespace TrenchBroom {
             }
         };
 
-        ControlListBox::Item* CompilationProfileListBox::createItem(wxWindow* parent, const wxSize& margins, const size_t index) {
+        ControlListBox::Item* CompilationProfileListBox::createItem(QWidget* parent, const wxSize& margins, const size_t index) {
             Model::CompilationProfile* profile = m_config.profile(index);
             return new ProfileItem(parent, profile, margins);
         }
