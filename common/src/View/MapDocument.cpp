@@ -1105,6 +1105,7 @@ namespace TrenchBroom {
                 return false;
             }
 
+            Transaction transaction(this, "CSG Subtract");
             // Select touching, but don't delete the subtrahends yet
             selectTouching(false);
 
@@ -1125,8 +1126,7 @@ namespace TrenchBroom {
                 }
                 toRemove.push_back(minuend);
             }
-            
-            Transaction transaction(this, "CSG Subtract");
+
             deselectAll();
             const Model::NodeList added = addNodes(toAdd);
             removeNodes(toRemove);
