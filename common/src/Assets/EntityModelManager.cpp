@@ -19,8 +19,6 @@
 
 #include "EntityModelManager.h"
 
-#include "CollectionUtils.h"
-#include "Exceptions.h"
 #include "Logger.h"
 #include "Assets/EntityModel.h"
 #include "IO/EntityModelLoader.h"
@@ -64,24 +62,28 @@ namespace TrenchBroom {
         }
 
         EntityModel* EntityModelManager::model(const IO::Path& path) const {
-            if (path.isEmpty())
+            if (path.isEmpty()) {
                 return nullptr;
-            
-            ModelCache::const_iterator it = m_models.find(path);
-            if (it != std::end(m_models))
+            }
+
+            auto it = m_models.find(path);
+            if (it != std::end(m_models)) {
                 return it->second;
-            
-            if (m_modelMismatches.count(path) > 0)
+            }
+
+            if (m_modelMismatches.count(path) > 0) {
                 return nullptr;
-            
+            }
+
             try {
-                EntityModel* model = loadModel(path);
+                auto* model = loadModel(path);
                 ensure(model != nullptr, "model is null");
                 m_models[path] = model;
                 m_unpreparedModels.push_back(model);
                 
-                if (m_logger != nullptr)
+                if (m_logger != nullptr) {
                     m_logger->debug("Loaded entity model %s", path.asString().c_str());
+                }
 
                 return model;
             } catch (const GameException&) {
@@ -99,19 +101,22 @@ namespace TrenchBroom {
         }
         
         Renderer::TexturedIndexRangeRenderer* EntityModelManager::renderer(const Assets::ModelSpecification& spec) const {
-            EntityModel* entityModel = safeGetModel(spec.path);
+            auto* entityModel = safeGetModel(spec.path);
 
-            if (entityModel == nullptr)
+            if (entityModel == nullptr) {
                 return nullptr;
-            
-            RendererCache::const_iterator it = m_renderers.find(spec);
-            if (it != std::end(m_renderers))
+            }
+
+            auto it = m_renderers.find(spec);
+            if (it != std::end(m_renderers)) {
                 return it->second;
-            
-            if (m_rendererMismatches.count(spec) > 0)
+            }
+
+            if (m_rendererMismatches.count(spec) > 0) {
                 return nullptr;
-            
-            Renderer::TexturedIndexRangeRenderer* renderer = entityModel->buildRenderer(spec.skinIndex, spec.frameIndex);
+            }
+
+            auto* renderer = entityModel->buildRenderer(spec.skinIndex, spec.frameIndex);
             if (renderer == nullptr) {
                 m_rendererMismatches.insert(spec);
                 
@@ -151,7 +156,7 @@ namespace TrenchBroom {
         void EntityModelManager::resetTextureMode() {
             if (m_resetTextureMode) {
                 for (const auto& entry : m_models) {
-                    EntityModel* model = entry.second;
+                    auto* model = entry.second;
                     model->setTextureMode(m_minFilter, m_magFilter);
                 }
                 m_resetTextureMode = false;
@@ -159,14 +164,16 @@ namespace TrenchBroom {
         }
         
         void EntityModelManager::prepareModels() {
-            for (Assets::EntityModel* model : m_unpreparedModels)
+            for (auto* model : m_unpreparedModels) {
                 model->prepare(m_minFilter, m_magFilter);
+            }
             m_unpreparedModels.clear();
         }
         
         void EntityModelManager::prepareRenderers(Renderer::Vbo& vbo) {
-            for (Renderer::TexturedIndexRangeRenderer* renderer : m_unpreparedRenderers)
+            for (auto* renderer : m_unpreparedRenderers) {
                 renderer->prepare(vbo);
+            }
             m_unpreparedRenderers.clear();
         }
     }
