@@ -28,10 +28,21 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        /**
+         * Manages ranges of primitives that consist of vertices stored in a vertex array. For each primitive type,
+         * multiple ranges of vertices can be stored, each range having an offset and a length. When rendered using a
+         * vertex array, each of the ranges is rendered using the vertices in the array at the range recorded here.
+         */
         class IndexRangeMap {
         private:
             struct IndicesAndCounts {
+                /**
+                 * The offsets of the ranges stored here.
+                 */
                 GLIndices indices;
+                /**
+                 * The lengths of the ranges stored here.
+                 */
                 GLCounts counts;
                 
                 IndicesAndCounts();
@@ -45,6 +56,13 @@ namespace TrenchBroom {
             typedef std::map<PrimType, IndicesAndCounts> PrimTypeToIndexData;
             typedef std::shared_ptr<PrimTypeToIndexData> PrimTypeToIndexDataPtr;
         public:
+            /**
+             * This helper structure is used to initialize the internal data structures of an index range map to the
+             * correct sizes, avoiding the need for costly reallocation of data buffers as data is added.
+             *
+             * To record the correct sizes, call the inc method with the same parameters for every expected call to the
+             * add method of the index range map itself.
+             */
             class Size {
             private:
                 friend class IndexRangeMap;
@@ -52,7 +70,7 @@ namespace TrenchBroom {
                 typedef std::map<PrimType, size_t> PrimTypeToSize;
                 PrimTypeToSize m_sizes;
             public:
-                void inc(const PrimType primType, size_t count = 1);
+                void inc(PrimType primType, size_t count = 1);
             private:
                 void initialize(PrimTypeToIndexData& data) const;
             };
@@ -60,12 +78,43 @@ namespace TrenchBroom {
             PrimTypeToIndexDataPtr m_data;
             bool m_dynamicGrowth;
         public:
+            /**
+             * Creates a new empty index range map.
+             */
             IndexRangeMap();
-            IndexRangeMap(const Size& size);
+
+            /**
+             * Creates a new index range map and initialize the internal data structures to the sizes recorded in the
+             * given size helper.
+             *
+             * @param size the sizes to initialize this range map to
+             */
+            explicit IndexRangeMap(const Size& size);
+
+            /**
+             * Creates a new index range map containing a single range of the given primitive type, starting at the given
+             * index and with the given number of vertices.
+             *
+             * @param primType the primitive type
+             * @param index the start index of the range
+             * @param count the number of vertices in the range
+             */
             IndexRangeMap(PrimType primType, size_t index, size_t count);
-            
+
+            /**
+             * Records a range of primitives at the given index with the given length.
+             *
+             * @param primType the type of primitives in the range
+             * @param index the start index of the range
+             * @param count the number of vertices in the range
+             */
             void add(PrimType primType, size_t index, size_t count);
-            
+
+            /**
+             * Renders the primitives stored in this index range map using the vertices in the given vertex array.
+             *
+             * @param vertexArray the vertex array to render with
+             */
             void render(VertexArray& vertexArray) const;
         };
     }

@@ -31,7 +31,7 @@ namespace TrenchBroom {
 
         size_t IndexArrayMap::IndexArrayRange::add(const size_t i_count) {
             assert(capacity - count >= i_count);
-            const size_t result = offset + count;
+            const auto result = offset + count;
             count += i_count;
             return result;
         }
@@ -40,7 +40,7 @@ namespace TrenchBroom {
         m_indexCount(0) {}
         
         void IndexArrayMap::Size::inc(const PrimType primType, const size_t count) {
-            PrimTypeToSize::iterator primIt = MapUtils::findOrInsert(m_sizes, primType, 0);
+            auto primIt = MapUtils::findOrInsert(m_sizes, primType, 0);
             primIt->second += count;
             m_indexCount += count;
         }
@@ -50,10 +50,10 @@ namespace TrenchBroom {
         }
 
         void IndexArrayMap::Size::initialize(PrimTypeToRangeMap& data, const size_t baseOffset) const {
-            size_t offset = baseOffset;
+            auto offset = baseOffset;
             for (const auto& entry : m_sizes) {
-                const PrimType primType = entry.first;
-                const size_t size = entry.second;
+                const auto primType = entry.first;
+                const auto size = entry.second;
                 data.insert(std::make_pair(primType, IndexArrayRange(offset, size)));
                 offset += size;
             }
@@ -72,20 +72,20 @@ namespace TrenchBroom {
         }
 
         size_t IndexArrayMap::add(const PrimType primType, const size_t count) {
-            IndexArrayRange& range = findRange(primType);
+            auto& range = findRange(primType);
             return range.add(count);
         }
 
         void IndexArrayMap::render(IndexArray& indexArray) const {
             for (const auto& entry : *m_ranges) {
-                const PrimType primType = entry.first;
-                const IndexArrayRange& range = entry.second;
+                const auto primType = entry.first;
+                const auto& range = entry.second;
                 indexArray.render(primType, range.offset, range.count);
             }
         }
 
         IndexArrayMap::IndexArrayRange& IndexArrayMap::findRange(const PrimType primType) {
-            PrimTypeToRangeMap::iterator it = m_ranges->find(primType);
+            auto it = m_ranges->find(primType);
             assert(it != m_ranges->end());
             return it->second;
         }

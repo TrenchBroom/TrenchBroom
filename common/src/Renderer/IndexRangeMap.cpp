@@ -46,8 +46,8 @@ namespace TrenchBroom {
                 case GL_TRIANGLES:
                 case GL_QUADS: {
                     if (size() == 1) {
-                        const GLint myIndex = indices.front();
-                        GLsizei& myCount = counts.front();
+                        const auto myIndex = indices.front();
+                        auto& myCount = counts.front();
                         
                         if (index == static_cast<size_t>(myIndex) + static_cast<size_t>(myCount)) {
                             myCount += count;
@@ -70,14 +70,14 @@ namespace TrenchBroom {
         }
         
         void IndexRangeMap::Size::inc(const PrimType primType, const size_t count) {
-            PrimTypeToSize::iterator primIt = MapUtils::findOrInsert(m_sizes, primType, 0);
+            auto primIt = MapUtils::findOrInsert(m_sizes, primType, 0);
             primIt->second += count;
         }
         
         void IndexRangeMap::Size::initialize(PrimTypeToIndexData& data) const {
             for (const auto& entry : m_sizes) {
-                const PrimType primType = entry.first;
-                const size_t size = entry.second;
+                const auto primType = entry.first;
+                const auto size = entry.second;
                 data[primType].reserve(size);
             }
         }
@@ -99,22 +99,23 @@ namespace TrenchBroom {
         }
         
         void IndexRangeMap::add(const PrimType primType, const size_t index, const size_t count) {
-            PrimTypeToIndexData::iterator it = m_data->end();
-            if (m_dynamicGrowth)
+            auto it = m_data->end();
+            if (m_dynamicGrowth) {
                 it = MapUtils::findOrInsert(*m_data, primType);
-            else
+            } else {
                 it = m_data->find(primType);
+            }
             assert(it != m_data->end());
             
-            IndicesAndCounts& indicesAndCounts = it->second;
+            auto& indicesAndCounts = it->second;
             indicesAndCounts.add(primType, index, count, m_dynamicGrowth);
         }
 
         void IndexRangeMap::render(VertexArray& vertexArray) const {
             for (const auto& entry : *m_data) {
-                const PrimType primType = entry.first;
-                const IndicesAndCounts& indicesAndCounts = entry.second;
-                const GLsizei primCount = static_cast<GLsizei>(indicesAndCounts.size());
+                const auto primType = entry.first;
+                const auto& indicesAndCounts = entry.second;
+                const auto primCount = static_cast<GLsizei>(indicesAndCounts.size());
                 vertexArray.render(primType, indicesAndCounts.indices, indicesAndCounts.counts, primCount);
             }
         }
