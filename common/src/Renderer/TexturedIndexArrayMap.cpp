@@ -89,13 +89,13 @@ namespace TrenchBroom {
             render(indexArray, func);
         }
         
-        void TexturedIndexArrayMap::render(IndexArray& vertexArray, TextureRenderFunc& func) {
+        void TexturedIndexArrayMap::render(IndexArray& indexArray, TextureRenderFunc& func) {
             for (const auto& entry : *m_ranges) {
                 const Texture* texture = entry.first;
                 const IndexArrayMap& indexRange = entry.second;
                 
                 func.before(texture);
-                indexRange.render(vertexArray);
+                indexRange.render(indexArray);
                 func.after(texture);
             }
         }
