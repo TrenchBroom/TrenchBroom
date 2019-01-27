@@ -28,33 +28,31 @@ namespace TrenchBroom {
         m_current(std::end(m_sizes)) {}
         
         void TexturedIndexRangeMap::Size::inc(const Texture* texture, const PrimType primType, const size_t count) {
-            IndexRangeMap::Size& sizeForKey = findCurrent(texture);
+            auto& sizeForKey = findCurrent(texture);
             sizeForKey.inc(primType, count);
         }
 
         IndexRangeMap::Size& TexturedIndexRangeMap::Size::findCurrent(const Texture* texture) {
-            if (!isCurrent(texture))
+            if (!isCurrent(texture)) {
                 m_current = MapUtils::findOrInsert(m_sizes, texture, IndexRangeMap::Size());
+            }
             return m_current->second;
         }
         
         bool TexturedIndexRangeMap::Size::isCurrent(const Texture* texture) const {
-            if (m_current == std::end(m_sizes))
+            if (m_current == std::end(m_sizes)) {
                 return false;
-            
-            typedef TextureToSize::key_compare Cmp;
-            const Cmp& cmp = m_sizes.key_comp();
-            
-            const Texture* currentTexture = m_current->first;
-            if (cmp(texture, currentTexture) || cmp(currentTexture, texture))
-                return false;
-            return true;
+            }
+
+            const auto& cmp = m_sizes.key_comp();
+            const auto* currentTexture = m_current->first;
+            return !cmp(texture, currentTexture) && !cmp(currentTexture, texture);
         }
 
         void TexturedIndexRangeMap::Size::initialize(TextureToIndexRangeMap& data) const {
             for (const auto& entry : m_sizes) {
-                const Texture* texture = entry.first;
-                const IndexRangeMap::Size& size = entry.second;
+                const auto* texture = entry.first;
+                const auto& size = entry.second;
                 data.insert(std::make_pair(texture, IndexRangeMap(size)));
             }
         }
@@ -69,10 +67,10 @@ namespace TrenchBroom {
             size.initialize(*m_data);
         }
         
-        TexturedIndexRangeMap::TexturedIndexRangeMap(const Texture* texture, const IndexRangeMap& primitives) :
+        TexturedIndexRangeMap::TexturedIndexRangeMap(const Texture* texture, IndexRangeMap primitives) :
         m_data(new TextureToIndexRangeMap()),
         m_current(m_data->end()) {
-            m_data->insert(std::make_pair(texture, primitives));
+            add(texture, std::move(primitives));
         }
 
         TexturedIndexRangeMap::TexturedIndexRangeMap(const Texture* texture, const PrimType primType, const size_t index, const size_t count) :
@@ -82,8 +80,12 @@ namespace TrenchBroom {
         }
 
         void TexturedIndexRangeMap::add(const Texture* texture, const PrimType primType, const size_t index, const size_t count) {
-            IndexRangeMap& current = findCurrent(texture);
+            auto& current = findCurrent(texture);
             current.add(primType, index, count);
+        }
+
+        void TexturedIndexRangeMap::add(const Texture* texture, IndexRangeMap primitives) {
+            m_data->insert(std::make_pair(texture, std::move(primitives)));
         }
 
         void TexturedIndexRangeMap::render(VertexArray& vertexArray) {
@@ -93,8 +95,8 @@ namespace TrenchBroom {
         
         void TexturedIndexRangeMap::render(VertexArray& vertexArray, TextureRenderFunc& func) {
             for (const auto& entry : *m_data) {
-                const Texture* texture = entry.first;
-                const IndexRangeMap& indexArray = entry.second;
+                const auto* texture = entry.first;
+                const auto& indexArray = entry.second;
 
                 func.before(texture);
                 indexArray.render(vertexArray);
@@ -103,23 +105,21 @@ namespace TrenchBroom {
         }
 
         IndexRangeMap& TexturedIndexRangeMap::findCurrent(const Texture* texture) {
-            if (!isCurrent(texture))
+            if (!isCurrent(texture)) {
                 m_current = m_data->find(texture);
+            }
             assert(m_current != m_data->end());
             return m_current->second;
         }
         
         bool TexturedIndexRangeMap::isCurrent(const Texture* texture) const {
-            if (m_current == m_data->end())
+            if (m_current == m_data->end()) {
                 return false;
-            
-            typedef TextureToIndexRangeMap::key_compare Cmp;
-            const Cmp& cmp = m_data->key_comp();
-            
-            const Texture* currentTexture = m_current->first;
-            if (cmp(texture, currentTexture) || cmp(currentTexture, texture))
-                return false;
-            return true;
+            }
+
+            const auto& cmp = m_data->key_comp();
+            const auto* currentTexture = m_current->first;
+            return !cmp(texture, currentTexture) && !cmp(currentTexture, texture);
         }
     }
 }

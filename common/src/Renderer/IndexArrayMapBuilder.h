@@ -29,7 +29,7 @@ namespace TrenchBroom {
     namespace Renderer {
         /**
          * Builds an index array map by recording rendering primitives. The recorded data can be used to create an
-         * index array that can be uploaded to video card memory, and to render the recorded primitives using the indices
+         * index array that can be uploaded to video card memory, and to render the recorded primitives with the indices
          * from that array using the constructed index array map.
          */
         class IndexArrayMapBuilder {
@@ -106,7 +106,6 @@ namespace TrenchBroom {
              * @param i3 the index of the third vertex to record
              */
             void addTriangle(Index i1, Index i2, Index i3);
-
 
             /**
              * Adds multiple triangles, each represented by three vertices in a vertex array. The given index array contains

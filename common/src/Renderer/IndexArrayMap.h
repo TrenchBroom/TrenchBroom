@@ -80,7 +80,7 @@ namespace TrenchBroom {
                 Size();
 
                 /**
-                 * Increase the storage for the given primitive type by the given number of primitives.
+                 * Increase the storage for the given primitive type by the given number of indices.
                  *
                  * @param primType the primitive type
                  * @param count the number of primitives to account for
@@ -134,6 +134,7 @@ namespace TrenchBroom {
 
             /**
              * Renders the recorded primitives using the indices stored in the given index array.
+             *
              * @param indexArray the index array to render
              */
             void render(IndexArray& indexArray) const;
