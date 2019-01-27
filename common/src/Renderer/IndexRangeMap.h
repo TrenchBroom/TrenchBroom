@@ -79,7 +79,8 @@ namespace TrenchBroom {
             bool m_dynamicGrowth;
         public:
             /**
-             * Creates a new empty index range map.
+             * Creates a new empty index range map that allows for dynamic growth. Note that dynamic growth may
+             * incur a performance cost as data buffers are reallocated when they grow.
              */
             IndexRangeMap();
 

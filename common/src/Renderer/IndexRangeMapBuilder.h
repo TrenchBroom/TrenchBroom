@@ -188,7 +188,6 @@ namespace TrenchBroom {
                 add(GL_TRIANGLE_STRIP, m_vertexListBuilder.addTriangleStrip(vertices));
             }
 
-
             /**
              * Adds a quad with the given corners.
              *

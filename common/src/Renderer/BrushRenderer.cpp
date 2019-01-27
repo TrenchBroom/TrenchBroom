@@ -30,7 +30,7 @@
 #include "Renderer/BrushRendererArrays.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
-#include "Renderer/TexturedIndexArrayBuilder.h"
+#include "Renderer/TexturedIndexArrayMapBuilder.h"
 #include "Renderer/VertexSpec.h"
 
 #include <algorithm>

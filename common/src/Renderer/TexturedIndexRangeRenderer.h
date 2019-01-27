@@ -23,6 +23,9 @@
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/VertexArray.h"
 
+#include <memory>
+#include <vector>
+
 namespace TrenchBroom {
     namespace Assets {
         class Texture;
@@ -31,8 +34,18 @@ namespace TrenchBroom {
     namespace Renderer {
         class Vbo;
         class TextureRenderFunc;
-        
-        class TexturedIndexRangeRenderer {
+
+        class TexturedRenderer {
+            virtual ~TexturedRenderer();
+
+            virtual bool empty() const = 0;
+
+            virtual void prepare(Vbo& vbo) = 0;
+            virtual void render() = 0;
+            virtual void render(TextureRenderFunc& func) = 0;
+        };
+
+        class TexturedIndexRangeRenderer : public TexturedRenderer {
         private:
             VertexArray m_vertexArray;
             TexturedIndexRangeMap m_indexRange;
@@ -40,12 +53,27 @@ namespace TrenchBroom {
             TexturedIndexRangeRenderer();
             TexturedIndexRangeRenderer(const VertexArray& vertexArray, const TexturedIndexRangeMap& indexRange);
             TexturedIndexRangeRenderer(const VertexArray& vertexArray, const Assets::Texture* texture, const IndexRangeMap& indexRange);
+            ~TexturedIndexRangeRenderer() override;
 
-            bool empty() const;
+            bool empty() const override;
             
-            void prepare(Vbo& vbo);
-            void render();
-            void render(TextureRenderFunc& func);
+            void prepare(Vbo& vbo) override;
+            void render() override;
+            void render(TextureRenderFunc& func) override;
+        };
+
+        class MultiTexturedIndexRangeRenderer : public TexturedRenderer {
+        private:
+            std::vector<std::unique_ptr<TexturedIndexRangeRenderer>> m_renderers;
+        public:
+            MultiTexturedIndexRangeRenderer(std::vector<std::unique_ptr<TexturedIndexRangeRenderer>> renderers);
+            ~MultiTexturedIndexRangeRenderer() override;
+
+            bool empty() const override;
+
+            void prepare(Vbo& vbo) override;
+            void render() override;
+            void render(TextureRenderFunc& func) override;
         };
     }
 }
