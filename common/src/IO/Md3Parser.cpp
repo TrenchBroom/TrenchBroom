@@ -119,7 +119,7 @@ namespace TrenchBroom {
                 const auto flags = reader.readInt<int32_t>();
                 const auto frameCount = reader.readSize<int32_t>();
                 const auto shaderCount = reader.readSize<int32_t>();
-                const auto vertexCount = reader.readSize<int32_t>();
+                const auto vertexCount = reader.readSize<int32_t>(); // the number of vertices per frame!
                 const auto triangleCount = reader.readSize<int32_t>();
 
                 const auto triangleOffset = reader.readSize<int32_t>();

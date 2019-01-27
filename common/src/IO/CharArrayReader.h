@@ -56,7 +56,17 @@ namespace TrenchBroom {
             CharArrayReader subReaderFromBegin(size_t offset, size_t length) const;
             CharArrayReader subReaderFromBegin(size_t offset) const;
 
-            template <typename R>
+            template <typename R=char>
+            const R* begin() const {
+                return reinterpret_cast<const R*>(m_begin);
+            }
+
+            template <typename R=char>
+            const R* end() const {
+                return reinterpret_cast<const R*>(m_end);
+            }
+
+            template <typename R=char>
             const R* cur() const {
                 return reinterpret_cast<const R*>(m_current);
             }

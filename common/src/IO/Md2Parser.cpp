@@ -345,7 +345,7 @@ namespace TrenchBroom {
                     }
                 }
 
-                model->addFrame(frame.name, builder.vertices(), builder.indexArray());
+                model->addFrame(frame.name, builder.vertices(), builder.indices());
             }
         }
 
