@@ -100,7 +100,7 @@ namespace TrenchBroom {
             }
         }
         
-        Renderer::TexturedIndexRangeRenderer* EntityModelManager::renderer(const Assets::ModelSpecification& spec) const {
+        Renderer::TexturedRenderer* EntityModelManager::renderer(const Assets::ModelSpecification& spec) const {
             auto* entityModel = safeGetModel(spec.path);
 
             if (entityModel == nullptr) {

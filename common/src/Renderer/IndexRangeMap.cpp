@@ -68,12 +68,24 @@ namespace TrenchBroom {
                     break;
             }
         }
-        
+
+        void IndexRangeMap::IndicesAndCounts::add(const IndicesAndCounts& other, const bool dynamicGrowth) {
+            assert(dynamicGrowth || indices.capacity() >= indices.size() + other.indices.size());
+            VectorUtils::append(indices, other.indices);
+            VectorUtils::append(counts, other.counts);
+        }
+
         void IndexRangeMap::Size::inc(const PrimType primType, const size_t count) {
             auto primIt = MapUtils::findOrInsert(m_sizes, primType, 0);
             primIt->second += count;
         }
-        
+
+        void IndexRangeMap::Size::inc(const IndexRangeMap::Size& other) {
+            for (const auto& entry : other.m_sizes) {
+                inc(entry.first, entry.second);
+            }
+        }
+
         void IndexRangeMap::Size::initialize(PrimTypeToIndexData& data) const {
             for (const auto& entry : m_sizes) {
                 const auto primType = entry.first;
@@ -97,18 +109,31 @@ namespace TrenchBroom {
         m_dynamicGrowth(false) {
             m_data->insert(std::make_pair(primType, IndicesAndCounts(index, count)));
         }
-        
-        void IndexRangeMap::add(const PrimType primType, const size_t index, const size_t count) {
-            auto it = m_data->end();
-            if (m_dynamicGrowth) {
-                it = MapUtils::findOrInsert(*m_data, primType);
-            } else {
-                it = m_data->find(primType);
+
+        IndexRangeMap::Size IndexRangeMap::size() const {
+            Size result;
+            for (const auto& entry : *m_data) {
+                const auto primType = entry.first;
+                const auto& indices = entry.second;
+
+                result.inc(primType, indices.size());
             }
-            assert(it != m_data->end());
-            
-            auto& indicesAndCounts = it->second;
+            return result;
+        }
+
+        void IndexRangeMap::add(const PrimType primType, const size_t index, const size_t count) {
+            auto& indicesAndCounts = find(primType);
             indicesAndCounts.add(primType, index, count, m_dynamicGrowth);
+        }
+
+        void IndexRangeMap::add(const IndexRangeMap& other) {
+            for (const auto& entry : *other.m_data) {
+                const auto primType = entry.first;
+                const auto& indicesToAdd = entry.second;
+
+                auto& indicesAndCounts = find(primType);
+                indicesAndCounts.add(indicesToAdd, m_dynamicGrowth);
+            }
         }
 
         void IndexRangeMap::render(VertexArray& vertexArray) const {
@@ -118,6 +143,17 @@ namespace TrenchBroom {
                 const auto primCount = static_cast<GLsizei>(indicesAndCounts.size());
                 vertexArray.render(primType, indicesAndCounts.indices, indicesAndCounts.counts, primCount);
             }
+        }
+
+        IndexRangeMap::IndicesAndCounts& IndexRangeMap::find(const PrimType primType) {
+            auto it = m_data->end();
+            if (m_dynamicGrowth) {
+                it = MapUtils::findOrInsert(*m_data, primType);
+            } else {
+                it = m_data->find(primType);
+            }
+            assert(it != m_data->end());
+            return it->second;
         }
     }
 }

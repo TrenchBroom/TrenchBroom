@@ -45,6 +45,12 @@ namespace TrenchBroom {
             m_indexCount += count;
         }
 
+        void IndexArrayMap::Size::inc(const IndexArrayMap::Size& other) {
+            for (const auto& entry : other.m_sizes) {
+                inc(entry.first, entry.second);
+            }
+        }
+
         size_t IndexArrayMap::Size::indexCount() const {
             return m_indexCount;
         }
@@ -69,6 +75,16 @@ namespace TrenchBroom {
         IndexArrayMap::IndexArrayMap(const Size& size, const size_t baseOffset) :
         m_ranges(new PrimTypeToRangeMap()) {
             size.initialize(*m_ranges, baseOffset);
+        }
+
+        IndexArrayMap::Size IndexArrayMap::size() const {
+            Size result;
+            for (const auto& entry : *m_ranges) {
+                const auto primType = entry.first;
+                const auto& range = entry.second;
+                result.inc(primType, range.capacity);
+            }
+            return result;
         }
 
         size_t IndexArrayMap::add(const PrimType primType, const size_t count) {

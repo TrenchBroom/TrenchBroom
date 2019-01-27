@@ -26,46 +26,71 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        EntityModel::Frame::Frame(const String& name, const vm::bbox3f& bounds, const EntityModel::VertexList& vertices) :
+        EntityModel::Frame::Frame(const String& name, const vm::bbox3f& bounds) :
         m_name(name),
-        m_bounds(bounds),
-        m_vertices(std::move(vertices)) {}
+        m_bounds(bounds) {}
 
-        EntityModel::Frame::~Frame() {}
+        const String& EntityModel::Frame::name() const {
+            return m_name;
+        }
 
         const vm::bbox3f& EntityModel::Frame::bounds() const {
             return m_bounds;
         }
 
-        Renderer::TexturedIndexRangeRenderer* EntityModel::Frame::buildRenderer(Assets::Texture* skin) {
+        EntityModel::FrameData::FrameData(const EntityModel::VertexList& vertices) :
+        m_vertices(std::move(vertices)) {}
+
+        EntityModel::FrameData::~FrameData() {}
+
+        std::unique_ptr<Renderer::TexturedIndexRangeRenderer> EntityModel::FrameData::buildRenderer(Assets::Texture* skin) {
             const auto vertexArray = Renderer::VertexArray::ref(m_vertices);
             return doBuildRenderer(skin, vertexArray);
         }
 
-        EntityModel::IndexedFrame::IndexedFrame(const String& name, const vm::bbox3f& bounds, const EntityModel::VertexList& vertices, const EntityModel::Indices& indices) :
-                Frame(name, bounds, vertices),
-                m_indices(indices) {}
+        EntityModel::IndexedFrameData::IndexedFrameData(const EntityModel::VertexList& vertices, const EntityModel::Indices& indices) :
+        FrameData(vertices),
+        m_indices(indices) {}
 
-        Renderer::TexturedIndexRangeRenderer* EntityModel::IndexedFrame::doBuildRenderer(Assets::Texture* skin, const Renderer::VertexArray& vertices) {
+        std::unique_ptr<Renderer::TexturedIndexRangeRenderer> EntityModel::IndexedFrameData::doBuildRenderer(Assets::Texture* skin, const Renderer::VertexArray& vertices) {
             const Renderer::TexturedIndexRangeMap texturedIndices(skin, m_indices);
-            return new Renderer::TexturedIndexRangeRenderer(vertices, texturedIndices);
+            return std::make_unique<Renderer::TexturedIndexRangeRenderer>(vertices, texturedIndices);
         }
 
-        EntityModel::TexturedFrame::TexturedFrame(const String& name, const vm::bbox3f& bounds, const EntityModel::VertexList& vertices, const EntityModel::TexturedIndices& indices) :
-                Frame(name, bounds, vertices),
-                m_indices(indices) {}
+        EntityModel::TexturedFrameData::TexturedFrameData(const EntityModel::VertexList& vertices, const EntityModel::TexturedIndices& indices) :
+        FrameData(vertices),
+        m_indices(indices) {}
 
-        Renderer::TexturedIndexRangeRenderer* EntityModel::TexturedFrame::doBuildRenderer(Assets::Texture* /* skin */, const Renderer::VertexArray& vertices) {
-            return new Renderer::TexturedIndexRangeRenderer(vertices, m_indices);
+        std::unique_ptr<Renderer::TexturedIndexRangeRenderer> EntityModel::TexturedFrameData::doBuildRenderer(Assets::Texture* /* skin */, const Renderer::VertexArray& vertices) {
+            return std::make_unique<Renderer::TexturedIndexRangeRenderer>(vertices, m_indices);
         }
-        
-        EntityModel::EntityModel(const String& name) :
+
+        EntityModel::Surface::Surface(const String& name) :
         m_name(name),
-        m_skins(std::make_unique<Assets::TextureCollection>()),
-        m_prepared(false) {}
+        m_skins(std::make_unique<Assets::TextureCollection>()) {}
 
-        Renderer::TexturedIndexRangeRenderer* EntityModel::buildRenderer(const size_t skinIndex, const size_t frameIndex) const {
-            if (skinIndex >= skinCount() || frameIndex >= frameCount()) {
+        void EntityModel::Surface::prepare(const int minFilter, const int magFilter) {
+            m_skins->prepare(minFilter, magFilter);
+        }
+
+        void EntityModel::Surface::setTextureMode(const int minFilter, const int magFilter) {
+            m_skins->setTextureMode(minFilter, magFilter);
+        }
+
+        void EntityModel::Surface::addIndexedFrame(const VertexList& vertices, const Indices& indices) {
+            m_frames.push_back(std::make_unique<IndexedFrameData>(vertices, indices));
+        }
+
+        void EntityModel::Surface::addTexturedFrame(const VertexList& vertices, const TexturedIndices& indices) {
+            m_frames.push_back(std::make_unique<TexturedFrameData>(vertices, indices));
+        }
+
+        void EntityModel::Surface::addSkin(Assets::Texture* skin) {
+            m_skins->addTexture(skin);
+        }
+
+        std::unique_ptr<Renderer::TexturedIndexRangeRenderer> EntityModel::Surface::buildRenderer(size_t skinIndex, size_t frameIndex) {
+            if (skinIndex >= m_skins->textureCount() || frameIndex >= m_frames.size()) {
                 return nullptr;
             } else {
                 const auto& textures = m_skins->textures();
@@ -74,57 +99,60 @@ namespace TrenchBroom {
             }
         }
 
+        EntityModel::EntityModel(const String& name) :
+        m_name(name),
+        m_prepared(false) {}
+
+        Renderer::TexturedRenderer* EntityModel::buildRenderer(const size_t skinIndex, const size_t frameIndex) const {
+            std::vector<std::unique_ptr<Renderer::TexturedIndexRangeRenderer>> renderers;
+            for (const auto& surface : m_surfaces) {
+                auto renderer = surface->buildRenderer(skinIndex, frameIndex);
+                if (renderer != nullptr) {
+                    renderers.push_back(std::move(renderer));
+                }
+            }
+            if (renderers.empty()) {
+                return nullptr;
+            } else {
+                return new Renderer::MultiTexturedIndexRangeRenderer(std::move(renderers));
+            }
+        }
+
         vm::bbox3f EntityModel::bounds(const size_t /* skinIndex */, const size_t frameIndex) const {
-            if (frameIndex >= frameCount()) {
+            if (frameIndex >= m_frames.size()) {
                 return vm::bbox3f(8.0f);
             } else {
                 return m_frames[frameIndex]->bounds();
             }
         }
 
-        size_t EntityModel::frameCount() const {
-            return m_frames.size();
-        }
-
-        size_t EntityModel::skinCount() const {
-            return m_skins->textureCount();
-        }
-
         bool EntityModel::prepared() const {
             return m_prepared;
         }
 
-        Assets::Texture* EntityModel::skin(const size_t index) const {
-            if (index >= skinCount()) {
-                return nullptr;
-            } else {
-                return m_skins->textureByIndex(index);
-            }
-        }
-
         void EntityModel::prepare(const int minFilter, const int magFilter) {
             if (!m_prepared) {
-                m_skins->prepare(minFilter, magFilter);
+                for (auto& surface : m_surfaces) {
+                    surface->prepare(minFilter, magFilter);
+                }
                 m_prepared = true;
             }
         }
 
         void EntityModel::setTextureMode(const int minFilter, const int magFilter) {
-            m_skins->setTextureMode(minFilter, magFilter);
+            for (auto& surface : m_surfaces) {
+                surface->setTextureMode(minFilter, magFilter);
+            }
         }
 
-        void EntityModel::addSkin(Assets::Texture* skin) {
-            m_skins->addTexture(skin);
+        EntityModel::Frame& EntityModel::addFrame(const String& name, const vm::bbox3f& bounds) {
+            m_frames.push_back(std::make_unique<Frame>(name, bounds));
+            return *m_frames.back();
         }
 
-        void EntityModel::addFrame(const String& name, const EntityModel::VertexList& vertices, const EntityModel::Indices& indices) {
-            const auto bounds = vm::bbox3f::mergeAll(std::begin(vertices), std::end(vertices), Renderer::GetVertexComponent1());
-            m_frames.push_back(std::make_unique<IndexedFrame>(name, bounds, vertices, indices));
-        }
-
-        void EntityModel::addFrame(const String& name, const EntityModel::VertexList& vertices, const EntityModel::TexturedIndices& indices) {
-            const auto bounds = vm::bbox3f::mergeAll(std::begin(vertices), std::end(vertices), Renderer::GetVertexComponent1());
-            m_frames.push_back(std::make_unique<TexturedFrame>(name, bounds, vertices, indices));
+        EntityModel::Surface& EntityModel::addSurface(const String& name) {
+            m_surfaces.push_back(std::make_unique<Surface>(name));
+            return *m_surfaces.back();
         }
     }
 }

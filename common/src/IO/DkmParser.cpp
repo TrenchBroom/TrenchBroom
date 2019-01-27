@@ -340,19 +340,19 @@ namespace TrenchBroom {
         }
 
         Assets::EntityModel* DkmParser::buildModel(const DkmSkinList& skins, const DkmFrameList& frames, const DkmMeshList& meshes) {
-            using ModelPtr = std::unique_ptr<Assets::EntityModel>;
-            ModelPtr model = std::make_unique<Assets::EntityModel>(m_name);
+            auto model = std::make_unique<Assets::EntityModel>(m_name);
+            auto& surface = model->addSurface(m_name);
 
-            loadSkins(model.get(), skins);
-            buildFrames(model.get(), frames, meshes);
+            loadSkins(surface, skins);
+            buildFrames(*model, surface, frames, meshes);
 
             return model.release();
         }
 
-        void DkmParser::loadSkins(Assets::EntityModel* model, const DkmParser::DkmSkinList& skins) {
+        void DkmParser::loadSkins(Assets::EntityModel::Surface& surface, const DkmParser::DkmSkinList& skins) {
             for (const auto& skin : skins) {
                 const auto skinPath = findSkin(skin);
-                model->addSkin(loadSkin(m_fs.openFile(skinPath)));
+                surface.addSkin(loadSkin(m_fs.openFile(skinPath)));
             }
         }
 
@@ -386,30 +386,45 @@ namespace TrenchBroom {
             }
         }
 
-        void DkmParser::buildFrames(Assets::EntityModel* model, const DkmParser::DkmFrameList& frames, const DkmParser::DkmMeshList& meshes) {
+        void DkmParser::buildFrames(Assets::EntityModel& model, Assets::EntityModel::Surface& surface, const DkmParser::DkmFrameList& frames, const DkmParser::DkmMeshList& meshes) {
             for (const auto& frame: frames) {
                 size_t vertexCount = 0;
                 Renderer::IndexRangeMap::Size size;
                 for (const auto& md2Mesh : meshes) {
                     vertexCount += md2Mesh.vertices.size();
-                    if (md2Mesh.type == DkmMesh::Fan)
+                    if (md2Mesh.type == DkmMesh::Fan) {
                         size.inc(GL_TRIANGLE_FAN);
-                    else
+                    } else {
                         size.inc(GL_TRIANGLE_STRIP);
+                    }
                 }
+
+                bool boundsInitialized = false;
+                vm::bbox3f bounds;
 
                 Renderer::IndexRangeMapBuilder<Assets::EntityModel::Vertex::Spec> builder(vertexCount, size);
                 for (const auto& md2Mesh : meshes) {
                     if (!md2Mesh.vertices.empty()) {
                         vertexCount += md2Mesh.vertices.size();
-                        if (md2Mesh.type == DkmMesh::Fan)
-                            builder.addTriangleFan(getVertices(frame, md2Mesh.vertices));
-                        else
-                            builder.addTriangleStrip(getVertices(frame, md2Mesh.vertices));
+                        const auto vertices = getVertices(frame, md2Mesh.vertices);
+
+                        if (!boundsInitialized) {
+                            bounds = vm::bbox3f::mergeAll(std::begin(vertices), std::end(vertices), Renderer::GetVertexComponent1());
+                            boundsInitialized = true;
+                        } else {
+                            bounds = vm::merge(bounds, vm::bbox3f::mergeAll(std::begin(vertices), std::end(vertices), Renderer::GetVertexComponent1()));
+                        }
+
+                        if (md2Mesh.type == DkmMesh::Fan) {
+                            builder.addTriangleFan(vertices);
+                        } else {
+                            builder.addTriangleStrip(vertices);
+                        }
                     }
                 }
 
-                model->addFrame(frame.name, builder.vertices(), builder.indexArray());
+                model.addFrame(frame.name, bounds);
+                surface.addIndexedFrame(builder.vertices(), builder.indices());
             }
         }
 

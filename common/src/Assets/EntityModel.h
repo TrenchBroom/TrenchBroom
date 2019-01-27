@@ -27,9 +27,12 @@
 #include <vecmath/forward.h>
 #include <vecmath/bbox.h>
 
+#include <memory>
+
 namespace TrenchBroom {
     namespace Renderer {
         class TexturedIndexRangeRenderer;
+        class TexturedRenderer;
     }
     
     namespace Assets {
@@ -39,67 +42,83 @@ namespace TrenchBroom {
             using VertexList = Vertex::List;
             using Indices = Renderer::IndexRangeMap;
             using TexturedIndices = Renderer::TexturedIndexRangeMap;
-        private:
+        public:
             class Frame {
             private:
                 String m_name;
                 vm::bbox3f m_bounds;
-                VertexList m_vertices;
-            protected:
-                Frame(const String& name, const vm::bbox3f& bounds, const VertexList& vertices);
             public:
-                virtual ~Frame();
+                Frame(const String& name, const vm::bbox3f& bounds);
 
+                const String& name() const;
                 const vm::bbox3f& bounds() const;
-                Renderer::TexturedIndexRangeRenderer* buildRenderer(Assets::Texture* skin);
-            private:
-                virtual Renderer::TexturedIndexRangeRenderer* doBuildRenderer(Assets::Texture* skin, const Renderer::VertexArray& vertices) = 0;
             };
 
-            class IndexedFrame : public Frame {
+            class FrameData {
+            private:
+                VertexList m_vertices;
+            protected:
+                FrameData(const VertexList& vertices);
+            public:
+                virtual ~FrameData();
+                std::unique_ptr<Renderer::TexturedIndexRangeRenderer> buildRenderer(Assets::Texture* skin);
+            private:
+                virtual std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(Assets::Texture* skin, const Renderer::VertexArray& vertices) = 0;
+            };
+
+            class IndexedFrameData : public FrameData {
             private:
                 Indices m_indices;
             public:
-                IndexedFrame(const String& name, const vm::bbox3f& bounds, const VertexList& vertices, const Indices& indices);
+                IndexedFrameData(const VertexList& vertices, const Indices& indices);
             private:
-                Renderer::TexturedIndexRangeRenderer* doBuildRenderer(Assets::Texture* skin, const Renderer::VertexArray& vertices) override;
+                std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(Assets::Texture* skin, const Renderer::VertexArray& vertices) override;
             };
 
-            class TexturedFrame : public Frame {
+            class TexturedFrameData : public FrameData {
             private:
                 TexturedIndices m_indices;
             public:
-                TexturedFrame(const String& name, const vm::bbox3f& bounds, const VertexList& vertices, const TexturedIndices& indices);
+                TexturedFrameData(const VertexList& vertices, const TexturedIndices& indices);
             private:
-                Renderer::TexturedIndexRangeRenderer* doBuildRenderer(Assets::Texture* skin, const Renderer::VertexArray& vertices) override;
+                std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(Assets::Texture* skin, const Renderer::VertexArray& vertices) override;
+            };
+
+            class Surface {
+            private:
+                String m_name;
+                std::vector<std::unique_ptr<FrameData>> m_frames;
+                std::unique_ptr<TextureCollection> m_skins;
+            public:
+                Surface(const String& name);
+
+                void prepare(int minFilter, int magFilter);
+                void setTextureMode(int minFilter, int magFilter);
+
+                void addIndexedFrame(const VertexList& vertices, const Indices& indices);
+                void addTexturedFrame(const VertexList& vertices, const TexturedIndices& indices);
+
+                void addSkin(Assets::Texture* skin);
+
+                std::unique_ptr<Renderer::TexturedIndexRangeRenderer> buildRenderer(size_t skinIndex, size_t frameIndex);
             };
         private:
-            using FramePtr = std::unique_ptr<Frame>;
-            using FrameList = std::vector<FramePtr>;
-            using TextureCollectionPtr = std::unique_ptr<TextureCollection>;
-
             String m_name;
-            FrameList m_frames;
-            TextureCollectionPtr m_skins;
             bool m_prepared;
+            std::vector<std::unique_ptr<Frame>> m_frames;
+            std::vector<std::unique_ptr<Surface>> m_surfaces;
         public:
             explicit EntityModel(const String& name);
 
-            Renderer::TexturedIndexRangeRenderer* buildRenderer(size_t skinIndex, size_t frameIndex) const;
+            Renderer::TexturedRenderer* buildRenderer(size_t skinIndex, size_t frameIndex) const;
             vm::bbox3f bounds(size_t skinIndex, size_t frameIndex) const;
-
-            size_t frameCount() const;
-            size_t skinCount() const;
-
-            Assets::Texture* skin(size_t index) const;
 
             bool prepared() const;
             void prepare(int minFilter, int magFilter);
             void setTextureMode(int minFilter, int magFilter);
-        public:
-            void addSkin(Assets::Texture* skin);
-            void addFrame(const String& name, const VertexList& vertices, const Indices& indices);
-            void addFrame(const String& name, const VertexList& vertices, const TexturedIndices& indices);
+
+            Frame& addFrame(const String& name, const vm::bbox3f& bounds);
+            Surface& addSurface(const String& name);
         };
     }
 }

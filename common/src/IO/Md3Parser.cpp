@@ -134,5 +134,21 @@ namespace TrenchBroom {
                 parseVertices(reader.subReaderFromBegin(vertexOffset, vertexCount * Md3Layout::VertexLength), vertexCount);
             }
         }
+
+        void Md3Parser::parseTriangles(CharArrayReader reader, const size_t triangleCount) {
+
+        }
+
+        void Md3Parser::parseShaders(CharArrayReader reader, const size_t shaderCount) {
+
+        }
+
+        void Md3Parser::parseTexCoords(CharArrayReader reader, const size_t texCoordCount) {
+
+        }
+
+        void Md3Parser::parseVertices(CharArrayReader reader, const size_t vertexCount) {
+
+        }
     }
 }

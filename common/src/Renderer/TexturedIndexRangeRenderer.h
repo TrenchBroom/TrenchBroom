@@ -36,6 +36,7 @@ namespace TrenchBroom {
         class TextureRenderFunc;
 
         class TexturedRenderer {
+        public:
             virtual ~TexturedRenderer();
 
             virtual bool empty() const = 0;

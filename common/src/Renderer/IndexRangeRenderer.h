@@ -37,7 +37,7 @@ namespace TrenchBroom {
             template <typename VertexSpec>
             explicit IndexRangeRenderer(IndexRangeMapBuilder<VertexSpec>& builder) :
             m_vertexArray(VertexArray::swap(builder.vertices())),
-            m_indexArray(builder.indexArray()) {}
+            m_indexArray(builder.indices()) {}
             
             IndexRangeRenderer(const VertexArray& vertexArray, const IndexRangeMap& indexArray);
 

@@ -36,7 +36,7 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
-        class TexturedIndexRangeRenderer;
+        class TexturedRenderer;
         class Vbo;
     }
     
@@ -49,9 +49,9 @@ namespace TrenchBroom {
             typedef std::set<IO::Path> ModelMismatches;
             typedef std::vector<EntityModel*> ModelList;
             
-            typedef std::map<Assets::ModelSpecification, Renderer::TexturedIndexRangeRenderer*> RendererCache;
+            typedef std::map<Assets::ModelSpecification, Renderer::TexturedRenderer*> RendererCache;
             typedef std::set<Assets::ModelSpecification> RendererMismatches;
-            typedef std::vector<Renderer::TexturedIndexRangeRenderer*> RendererList;
+            typedef std::vector<Renderer::TexturedRenderer*> RendererList;
             
             Logger* m_logger;
             const IO::EntityModelLoader* m_loader;
@@ -78,7 +78,7 @@ namespace TrenchBroom {
             
             EntityModel* model(const IO::Path& path) const;
             EntityModel* safeGetModel(const IO::Path& path) const;
-            Renderer::TexturedIndexRangeRenderer* renderer(const Assets::ModelSpecification& spec) const;
+            Renderer::TexturedRenderer* renderer(const Assets::ModelSpecification& spec) const;
             
             bool hasModel(const Model::Entity* entity) const;
             bool hasModel(const Assets::ModelSpecification& spec) const;

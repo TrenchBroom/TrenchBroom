@@ -51,6 +51,7 @@ namespace TrenchBroom {
                 size_t size() const;
                 void reserve(size_t capacity);
                 void add(PrimType primType, size_t index, size_t count, bool dynamicGrowth);
+                void add(const IndicesAndCounts& other, bool dynamicGrowth);
             };
             
             typedef std::map<PrimType, IndicesAndCounts> PrimTypeToIndexData;
@@ -71,6 +72,13 @@ namespace TrenchBroom {
                 PrimTypeToSize m_sizes;
             public:
                 void inc(PrimType primType, size_t count = 1);
+
+                /**
+                 * Increase the storage by the given size.
+                 *
+                 * @param other the size to increase by
+                 */
+                void inc(const Size& other);
             private:
                 void initialize(PrimTypeToIndexData& data) const;
             };
@@ -103,6 +111,14 @@ namespace TrenchBroom {
             IndexRangeMap(PrimType primType, size_t index, size_t count);
 
             /**
+             * Returns the size of this index range map. An index range map initialized with the returned size can hold
+             * exactly the same data as this index range map.
+             *
+             * @return the size of this index range map
+             */
+            Size size() const;
+
+            /**
              * Records a range of primitives at the given index with the given length.
              *
              * @param primType the type of primitives in the range
@@ -112,11 +128,20 @@ namespace TrenchBroom {
             void add(PrimType primType, size_t index, size_t count);
 
             /**
+             * Adds all data from the given index range map to this one.
+             *
+             * @param other the index range map to add
+             */
+            void add(const IndexRangeMap& other);
+
+            /**
              * Renders the primitives stored in this index range map using the vertices in the given vertex array.
              *
              * @param vertexArray the vertex array to render with
              */
             void render(VertexArray& vertexArray) const;
+        private:
+            IndicesAndCounts& find(PrimType primType);
         };
     }
 }

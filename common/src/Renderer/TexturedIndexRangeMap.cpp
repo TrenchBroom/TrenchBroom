@@ -27,9 +27,18 @@ namespace TrenchBroom {
         TexturedIndexRangeMap::Size::Size() :
         m_current(std::end(m_sizes)) {}
         
-        void TexturedIndexRangeMap::Size::inc(const Texture* texture, const PrimType primType, const size_t count) {
+        void TexturedIndexRangeMap::Size::inc(const Texture* texture, const PrimType primType, const size_t vertexCount) {
             auto& sizeForKey = findCurrent(texture);
-            sizeForKey.inc(primType, count);
+            sizeForKey.inc(primType, vertexCount);
+        }
+
+        void TexturedIndexRangeMap::Size::inc(const TexturedIndexRangeMap::Size& other) {
+            for (const auto& entry : other.m_sizes) {
+                auto* texture = entry.first;
+                const auto& indexRange = entry.second;
+                auto& sizeForKey = findCurrent(texture);
+                sizeForKey.inc(indexRange);
+            }
         }
 
         IndexRangeMap::Size& TexturedIndexRangeMap::Size::findCurrent(const Texture* texture) {
@@ -73,19 +82,28 @@ namespace TrenchBroom {
             add(texture, std::move(primitives));
         }
 
-        TexturedIndexRangeMap::TexturedIndexRangeMap(const Texture* texture, const PrimType primType, const size_t index, const size_t count) :
+        TexturedIndexRangeMap::TexturedIndexRangeMap(const Texture* texture, const PrimType primType, const size_t index, const size_t vertexCount) :
         m_data(new TextureToIndexRangeMap()),
         m_current(m_data->end()) {
-            m_data->insert(std::make_pair(texture, IndexRangeMap(primType, index, count)));
+            m_data->insert(std::make_pair(texture, IndexRangeMap(primType, index, vertexCount)));
         }
 
-        void TexturedIndexRangeMap::add(const Texture* texture, const PrimType primType, const size_t index, const size_t count) {
+        void TexturedIndexRangeMap::add(const Texture* texture, const PrimType primType, const size_t index, const size_t vertexCount) {
             auto& current = findCurrent(texture);
-            current.add(primType, index, count);
+            current.add(primType, index, vertexCount);
         }
 
         void TexturedIndexRangeMap::add(const Texture* texture, IndexRangeMap primitives) {
             m_data->insert(std::make_pair(texture, std::move(primitives)));
+        }
+
+        void TexturedIndexRangeMap::add(const TexturedIndexRangeMap& other) {
+            for (const auto& entry : *other.m_data) {
+                auto* texture = entry.first;
+                const auto& indexRangeMap = entry.second;
+                auto& current = findCurrent(texture);
+                current.add(indexRangeMap);
+            }
         }
 
         void TexturedIndexRangeMap::render(VertexArray& vertexArray) {

@@ -88,6 +88,13 @@ namespace TrenchBroom {
                 void inc(PrimType primType, size_t count);
 
                 /**
+                 * Increase the storage by the given size.
+                 *
+                 * @param other the size to increase by
+                 */
+                void inc(const Size& other);
+
+                /**
                  * The total number of indices that have been accounted for.
                  *
                  * @return the number of indices
@@ -121,6 +128,14 @@ namespace TrenchBroom {
              * @param baseOffset the base offset for all primitive indices recorded in this index array range map
              */
             IndexArrayMap(const Size& size, size_t baseOffset);
+
+            /**
+             * Returns the size of this index array map. An index array map initialized with the returned size can hold
+             * exactly the same data as this index array map.
+             *
+             * @return the size of this index array map
+             */
+            Size size() const;
 
             /**
              * Adds the given number of primitives of the given type to this range map. Effectively, the range of

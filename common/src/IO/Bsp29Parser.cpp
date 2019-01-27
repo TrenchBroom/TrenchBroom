@@ -24,6 +24,8 @@
 #include "Assets/Palette.h"
 #include "IO/CharArrayReader.h"
 #include "IO/IdMipTextureReader.h"
+#include "Renderer/TexturedIndexRangeMap.h"
+#include "Renderer/TexturedIndexRangeMapBuilder.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -116,15 +118,26 @@ namespace TrenchBroom {
             return parseModels(reader.subReaderFromBegin(modelsOffset), modelCount, textures, textureInfos, vertices, edgeInfos, faceInfos, faceEdges);
         }
 
-        Bsp29Parser::TextureList Bsp29Parser::parseTextures(CharArrayReader reader) {
+        Assets::TextureList Bsp29Parser::parseTextures(CharArrayReader reader) {
+            const TextureReader::TextureNameStrategy nameStrategy;
+            IdMipTextureReader textureReader(nameStrategy, m_palette);
+
             const auto textureCount = reader.readSize<int32_t>();
-            Bsp29Parser::TextureList result(textureCount);
+            Assets::TextureList result(textureCount);
 
             for (size_t i = 0; i < textureCount; ++i) {
-                const auto textureOffset = reader.readSize<int32_t>();
-                auto subReader = reader.subReaderFromBegin(textureOffset);
-                result[i].begin = subReader.begin();
-                result[i].end = subReader.end();
+                const auto textureOffset = reader.readInt<int32_t>();
+                // 2153: Some BSPs contain negative texture offsets.
+                if (textureOffset < 0) {
+                    continue;
+                }
+
+                auto subReader = reader.subReaderFromBegin(static_cast<size_t>(textureOffset));
+
+                // We can't easily tell where the texture ends without duplicating all of the parsing code (including HlMip) here.
+                // Just prevent the texture reader from reading past the end of the .bsp file.
+                auto fileView = std::make_shared<MappedFileBufferView>(Path(), subReader.begin(), subReader.end());
+                result[i] = textureReader.readTexture(fileView);
             }
 
             return result;
@@ -180,63 +193,47 @@ namespace TrenchBroom {
             return result;
         }
 
-        Assets::EntityModel* Bsp29Parser::parseModels(CharArrayReader reader, const size_t modelCount, const TextureList& skins, const TextureInfoList& textureInfos, const std::vector<vm::vec3f>& vertices, const EdgeInfoList& edgeInfos, const FaceInfoList& faceInfos, const FaceEdgeIndexList& faceEdges) {
+        Assets::EntityModel* Bsp29Parser::parseModels(CharArrayReader reader, const size_t modelCount, const Assets::TextureList& skins, const TextureInfoList& textureInfos, const std::vector<vm::vec3f>& vertices, const EdgeInfoList& edgeInfos, const FaceInfoList& faceInfos, const FaceEdgeIndexList& faceEdges) {
             using Vertex = Assets::EntityModel::Vertex;
-
-            const TextureReader::TextureNameStrategy nameStrategy;
-            IdMipTextureReader textureReader(nameStrategy, m_palette);
+            using VertexList = Vertex::List;
 
             auto model = std::make_unique<Assets::EntityModel>(m_name);
+            auto& surface = model->addSurface(m_name);
+
+            for (auto* skin : skins) {
+                surface.addSkin(skin);
+            }
 
             for (size_t i = 0; i < modelCount; ++i) {
                 reader.seekForward(BspLayout::ModelFaceIndex);
                 const auto modelFaceIndex = reader.readSize<int32_t>();
                 const auto modelFaceCount = reader.readSize<int32_t>();
-
-
-                vm::bbox3f frameBounds;
-                for (size_t j = 0; j < modelFaceCount; ++j) {
-                    const auto& faceInfo = faceInfos[modelFaceIndex + j];
-                    const auto faceVertexCount = faceInfo.edgeCount;
-                    for (size_t k = 0; k < faceVertexCount; ++k) {
-                        const int faceEdgeIndex = faceEdges[faceInfo.edgeIndex + k];
-                        size_t vertexIndex;
-                        if (faceEdgeIndex < 0) {
-                            vertexIndex = edgeInfos[static_cast<size_t>(-faceEdgeIndex)].vertexIndex2;
-                        } else {
-                            vertexIndex = edgeInfos[static_cast<size_t>(faceEdgeIndex)].vertexIndex1;
-                        }
-
-                        const auto& position = vertices[vertexIndex];
-                        if (j == 0 && k == 0) {
-                            frameBounds.min = frameBounds.max = position;
-                        } else {
-                            frameBounds = vm::merge(frameBounds, position);
-                        }
-                    }
-                }
-
-                StringStream frameName;
-                frameName << m_name << "_" << i;
-                auto& frame = model->addFrame(frameName.str(), frameBounds);
+                size_t totalVertexCount = 0;
+                Renderer::TexturedIndexRangeMap::Size size;
 
                 for (size_t j = 0; j < modelFaceCount; ++j) {
                     const auto& faceInfo = faceInfos[modelFaceIndex + j];
                     const auto& textureInfo = textureInfos[faceInfo.textureInfoIndex];
+                    auto* skin = skins[textureInfo.textureIndex];
+                    if (skin != nullptr) {
+                        const auto faceVertexCount = faceInfo.edgeCount;
+                        size.inc(skin, GL_POLYGON, faceVertexCount);
+                        totalVertexCount += faceVertexCount;
+                    }
+                }
 
-                    if (textureInfo.textureIndex < skins.size()) {
-                        const auto& skinInfo = skins[textureInfo.textureIndex];
+                vm::bbox3f bounds;
 
-                        // We can't easily tell where the texture ends without duplicating all of the parsing code (including HlMip) here.
-                        // Just prevent the texture reader from reading past the end of the .bsp file.
-                        auto fileView = std::make_shared<MappedFileBufferView>(Path(), skinInfo.begin, skinInfo.end);
-                        auto* skin = textureReader.readTexture(fileView);
-
+                Renderer::TexturedIndexRangeMapBuilder<Vertex::Spec> builder(totalVertexCount, size);
+                for (size_t j = 0; j < modelFaceCount; ++j) {
+                    const auto& faceInfo = faceInfos[modelFaceIndex + j];
+                    const auto& textureInfo = textureInfos[faceInfo.textureInfoIndex];
+                    auto* skin = skins[textureInfo.textureIndex];
+                    if (skin != nullptr) {
                         const auto faceVertexCount = faceInfo.edgeCount;
 
-                        Vertex::List vertexArray;
-                        vertexArray.reserve(faceVertexCount);
-
+                        VertexList faceVertices;
+                        faceVertices.reserve(faceVertexCount);
                         for (size_t k = 0; k < faceVertexCount; ++k) {
                             const int faceEdgeIndex = faceEdges[faceInfo.edgeIndex + k];
                             size_t vertexIndex;
@@ -248,15 +245,25 @@ namespace TrenchBroom {
 
                             const auto& position = vertices[vertexIndex];
                             const auto texCoords = textureCoords(position, textureInfo, skin);
-                            vertexArray.push_back(Vertex(position, texCoords));
+
+                            if (i == 0 && j == 0) {
+                                bounds.min = bounds.max = position;
+                            } else {
+                                bounds = vm::merge(bounds, position);
+                            }
+
+                            faceVertices.push_back(Vertex(position, texCoords));
                         }
 
-
-                        Renderer::IndexRangeMap indexRangeMap(GL_POLYGON, 0, faceVertexCount);
-                        auto& surface = frame.addSurface(frameName.str(), std::move(vertexArray), std::move(indexRangeMap));
-                        surface.addSkin(skin);
+                        builder.addPolygon(skin, faceVertices);
                     }
                 }
+
+                StringStream frameName;
+                frameName << m_name << "_" << i;
+                model->addFrame(frameName.str(), bounds);
+
+                surface.addTexturedFrame(builder.vertices(), builder.indices());
             }
 
             return model.release();

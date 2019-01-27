@@ -64,8 +64,26 @@ namespace TrenchBroom {
                 TextureToSize m_sizes;
                 TextureToSize::iterator m_current;
             public:
+                /**
+                 * Creates a new instance initialized to 0.
+                 */
                 Size();
-                void inc(const Texture* texture, PrimType primType, size_t count = 1);
+
+                /**
+                 * Count the given primitive.
+                 *
+                 * @param texture the texture
+                 * @param primType the primitive type
+                 * @param vertexCount the number of vertices to count
+                 */
+                void inc(const Texture* texture, PrimType primType, size_t vertexCount = 1);
+
+                /**
+                 * Increase the storage by the given size.
+                 *
+                 * @param other the size to increase by
+                 */
+                void inc(const Size& other);
             private:
                 IndexRangeMap::Size& findCurrent(const Texture* texture);
                 bool isCurrent(const Texture* texture) const;
@@ -105,9 +123,9 @@ namespace TrenchBroom {
              * @param texture the texture
              * @param primType the primitive type
              * @param index the start index of the range
-             * @param count the number of vertices in the range
+             * @param vertexCount the number of vertices in the range
              */
-            TexturedIndexRangeMap(const Texture* texture, PrimType primType, size_t index, size_t count);
+            TexturedIndexRangeMap(const Texture* texture, PrimType primType, size_t index, size_t vertexCount);
 
             /**
              * Records a range of primitives at the given index with the given length and using the given texture.
@@ -115,9 +133,9 @@ namespace TrenchBroom {
              * @param texture the texture to use
              * @param primType the type of primitives in the range
              * @param index the start index of the range
-             * @param count the number of vertices in the range
+             * @param vertexCount the number of vertices in the range
              */
-            void add(const Texture* texture, PrimType primType, size_t index, size_t count);
+            void add(const Texture* texture, PrimType primType, size_t index, size_t vertexCount);
 
             /**
              * Records ranges of primitives using the given texture.
@@ -126,6 +144,13 @@ namespace TrenchBroom {
              * @param primitives an index range map containing the primitives
              */
             void add(const Texture* texture, IndexRangeMap primitives);
+
+            /**
+             * Adds all ranges stored in the given textured index range map to this one.
+             *
+             * @param other the textured index range map to add
+             */
+            void add(const TexturedIndexRangeMap& other);
 
             /**
              * Renders the primitives stored in this index range map using the vertices in the given vertex array.
