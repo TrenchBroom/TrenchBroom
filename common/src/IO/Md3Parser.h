@@ -21,7 +21,12 @@
 #define TRENCHBROOM_MD3PARSER_H
 
 #include "StringUtils.h"
+#include "Assets/EntityModel.h"
 #include "IO/EntityModelParser.h"
+
+#include <vecmath/forward.h>
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -30,24 +35,34 @@ namespace TrenchBroom {
 
     namespace IO {
         class CharArrayReader;
+        class FileSystem;
+        class Path;
 
         class Md3Parser : public EntityModelParser {
         private:
             String m_name;
             const char* m_begin;
             const char* m_end;
+            const FileSystem& m_fs;
+        private:
+            struct Md3Triangle {
+                size_t i1, i2, i3;
+            };
         public:
-            Md3Parser(const String& name, const char* begin, const char* end);
+            Md3Parser(const String& name, const char* begin, const char* end, const FileSystem& fs);
         private:
             Assets::EntityModel* doParseModel() override;
 
-            void parseFrames(CharArrayReader reader, size_t frameCount);
-            void parseTags(CharArrayReader reader, size_t tagCount);
-            void parseSurfaces(CharArrayReader reader, size_t surfaceCount);
-            void parseTriangles(CharArrayReader reader, size_t triangleCount);
-            void parseShaders(CharArrayReader reader, size_t shaderCount);
-            void parseTexCoords(CharArrayReader reader, size_t texCoordCount);
-            void parseVertices(CharArrayReader reader, size_t vertexCount);
+            void parseFrames(CharArrayReader reader, size_t frameCount, Assets::EntityModel& model);
+            // void parseTags(CharArrayReader reader, size_t tagCount);
+            void parseSurfaces(CharArrayReader reader, size_t surfaceCount, Assets::EntityModel& model);
+            void loadSurfaceSkins(Assets::EntityModel::Surface& surface, const std::vector<Path>& shaders);
+            void buildSurfaceFrames(Assets::EntityModel::Surface& surface, const std::vector<Md3Triangle>& triangles, const std::vector<Assets::EntityModel::Vertex>& vertices, size_t frameCount, size_t vertexCountPerFrame);
+
+            std::vector<Md3Triangle> parseTriangles(CharArrayReader reader, size_t triangleCount);
+            std::vector<Path> parseShaders(CharArrayReader reader, size_t shaderCount);
+            std::vector<Assets::EntityModel::Vertex> parseVertices(CharArrayReader xyznReader, CharArrayReader stReader, size_t vertexCount);
+
         };
     }
 }
