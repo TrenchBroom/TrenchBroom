@@ -25,45 +25,52 @@
 #include "Model/Issue.h"
 #include "Model/ModelTypes.h"
 
-#include <wx/listctrl.h>
-
 #include <vector>
 
+#include <QWidget>
+#include <QAbstractItemModel>
+
 class QWidget;
+class QTableView;
 
 namespace TrenchBroom {
     namespace View {
-        class IssueBrowserView : public wxListCtrl {
+        class IssueBrowserModel;
+
+        class IssueBrowserView : public QWidget {
+            Q_OBJECT
         private:
-            static const int ShowIssuesCommandId = 1;
-            static const int HideIssuesCommandId = 2;
-            static const int FixObjectsBaseId = 3;
-            
-            typedef std::vector<size_t> IndexList;
+            using IndexList = std::vector<size_t>;
             
             MapDocumentWPtr m_document;
-            Model::IssueList m_issues;
-            
+
             Model::IssueType m_hiddenGenerators;
             bool m_showHiddenIssues;
             
             bool m_valid;
+
+            QTableView* m_tableView;
+            IssueBrowserModel* m_tableModel;
         public:
             IssueBrowserView(QWidget* parent, MapDocumentWPtr document);
-            
+
+        private:
+            void createGui();
+
+        public:
             int hiddenGenerators() const;
             void setHiddenGenerators(int hiddenGenerators);
             void setShowHiddenIssues(bool show);
             void reload();
             void deselectAll();
             
-            void OnSize(wxSizeEvent& event);
+            //void OnSize(wxSizeEvent& event);
             
-            void OnItemRightClick(wxListEvent& event);
-            void OnItemSelectionChanged(wxListEvent& event);
-            void OnShowIssues(wxCommandEvent& event);
-            void OnHideIssues(wxCommandEvent& event);
-            void OnApplyQuickFix(wxCommandEvent& event);
+            void OnItemRightClick(const QPoint& pos);
+            void OnItemSelectionChanged();
+            void OnShowIssues();
+            void OnHideIssues();
+            void OnApplyQuickFix();
         private:
             class IssueVisible;
             class IssueCmp;
@@ -79,14 +86,34 @@ namespace TrenchBroom {
             void updateSelection();
             IndexList getSelection() const;
             
-            wxListItemAttr* OnGetItemAttr(long item) const override;
-            QString OnGetItemText(long item, long column) const override;
+//            wxListItemAttr* OnGetItemAttr(long item) const override;
+//            QString OnGetItemText(long item, long column) const override;
             
             void bindEvents();
         private:
-            void OnIdle(wxIdleEvent& event);
             void invalidate();
+        public slots:
             void validate();
+        };
+
+        /**
+         * Trivial QAbstractTableModel subclass, when the issues list changes,
+         * it just refreshes the entire list with beginResetModel()/endResetModel().
+         */
+        class IssueBrowserModel : public QAbstractTableModel {
+            Q_OBJECT
+        private:
+            Model::IssueList m_issues;
+        public:
+            explicit IssueBrowserModel(QObject* parent);
+
+            void setIssues(Model::IssueList issues);
+            const Model::IssueList& issues();
+        public: // QAbstractTableModel overrides
+            int rowCount(const QModelIndex& parent) const override;
+            int columnCount(const QModelIndex& parent) const override;
+            QVariant data(const QModelIndex& index, int role) const override;
+            QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
         };
     }
 }

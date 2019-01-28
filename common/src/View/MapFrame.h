@@ -48,7 +48,6 @@ namespace TrenchBroom {
 
     namespace View {
         class Autosaver;
-        class CommandWindowUpdateLocker;
         class Console;
         class InfoPanel;
         class FrameManager;
@@ -82,7 +81,6 @@ namespace TrenchBroom {
 #if 0
             wxDialog* m_compilationDialog;
 #endif
-            CommandWindowUpdateLocker* m_updateLocker;
         private: // actions
             QAction* fileNewAction;
             QAction* fileOpenAction;

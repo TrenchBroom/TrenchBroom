@@ -19,13 +19,11 @@
 
 #include "FlagsPopupEditor.h"
 #include "View/FlagsEditor.h"
-#include "View/FlagChangedCommand.h"
 #include "View/ViewConstants.h"
 #include "View/PopupButton.h"
 
-#include <wx/settings.h>
-#include <wx/sizer.h>
 #include <QLabel>
+#include <QHBoxLayout>
 
 namespace TrenchBroom {
     namespace View {
@@ -36,52 +34,56 @@ namespace TrenchBroom {
         m_editor(nullptr) {
             QWidget* flagsPanel = nullptr;
             if (showFlagsText) {
-                flagsPanel = new QWidget(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
-                flagsPanel->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
+                flagsPanel = new QWidget();
+                //flagsPanel->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
                 
-                m_flagsTxt = new QLabel(flagsPanel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT | wxST_ELLIPSIZE_END);
+                m_flagsTxt = new QLabel();//flagsPanel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT | wxST_ELLIPSIZE_END);
                 
                 auto* flagsPanelSizer = new QVBoxLayout();
-                flagsPanelSizer->AddStretchSpacer();
-                flagsPanelSizer->Add(m_flagsTxt, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::TextBoxInnerMargin);
-                flagsPanelSizer->AddStretchSpacer();
-                flagsPanel->SetSizer(flagsPanelSizer);
+                flagsPanelSizer->addStretch();
+                flagsPanelSizer->addWidget(m_flagsTxt); //, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::TextBoxInnerMargin);
+                flagsPanelSizer->addStretch();
+                flagsPanel->setLayout(flagsPanelSizer);
             }
             
             m_button = new PopupButton(this, buttonLabel);
-            m_button->SetToolTip("Click to edit flags");
+            m_button->setToolTip("Click to edit flags");
             
-            QWidget* editorContainer = new QWidget(m_button->GetPopupWindow(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SIMPLE);
+            auto* editorContainer = new QWidget(m_button->GetPopupWindow());//, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SIMPLE);
             m_editor = new FlagsEditor(editorContainer, numCols);
             
             auto* editorContainerSizer = new QVBoxLayout();
-            editorContainerSizer->Add(m_editor, 1, wxEXPAND | wxALL, LayoutConstants::DialogOuterMargin);
-            editorContainer->SetSizer(editorContainerSizer);
+            editorContainerSizer->addWidget(m_editor); //, 1, wxEXPAND | wxALL, LayoutConstants::DialogOuterMargin);
+            editorContainer->setLayout(editorContainerSizer);
             
             auto* popupSizer = new QVBoxLayout();
-            popupSizer->Add(editorContainer, 1, wxEXPAND);
-            m_button->GetPopupWindow()->SetSizerAndFit(popupSizer);
+            popupSizer->addWidget(editorContainer); //, 1, wxEXPAND);
+            m_button->GetPopupWindow()->setLayout(popupSizer);
             
             auto* sizer = new QHBoxLayout();
             if (flagsPanel != nullptr) {
-                sizer->addWidget(flagsPanel, 1, wxEXPAND);
+                sizer->addWidget(flagsPanel); //, 1, wxEXPAND);
                 sizer->addSpacing(LayoutConstants::MediumHMargin);
             }
-            sizer->addWidget(m_button, 0, wxALIGN_CENTER_VERTICAL);
-            SetSizerAndFit(sizer);
+            sizer->addWidget(m_button, 0, Qt::AlignVCenter); //, 0, wxALIGN_CENTER_VERTICAL);
+            setLayout(sizer);
             
-            m_editor->Bind(FLAG_CHANGED_EVENT, &FlagsPopupEditor::OnFlagChanged, this);
+            connect(m_editor, &FlagsEditor::flagChanged, this, [this](size_t index, int setFlag, int mixedFlag){
+                updateFlagsText();
+            });
+            // forward this signal
+            connect(m_editor, &FlagsEditor::flagChanged, this, &FlagsPopupEditor::flagChanged);
         }
 
-        void FlagsPopupEditor::setFlags(const wxArrayString& labels, const wxArrayString& tooltips) {
+        void FlagsPopupEditor::setFlags(const QStringList& labels, const QStringList& tooltips) {
             m_editor->setFlags(labels, tooltips);
-            m_button->GetPopupWindow()->Fit();
+            //m_button->GetPopupWindow()->Fit();
             updateFlagsText();
         }
         
-        void FlagsPopupEditor::setFlags(const wxArrayInt& values, const wxArrayString& labels, const wxArrayString& tooltips) {
+        void FlagsPopupEditor::setFlags(const QList<int>& values, const QStringList& labels, const QStringList& tooltips) {
             m_editor->setFlags(values, labels, tooltips);
-            m_button->GetPopupWindow()->Fit();
+            //m_button->GetPopupWindow()->Fit();
             updateFlagsText();
         }
 
@@ -90,13 +92,8 @@ namespace TrenchBroom {
             updateFlagsText();
         }
 
-        void FlagsPopupEditor::OnFlagChanged(FlagChangedCommand& event) {
-            if (IsBeingDeleted()) return;
-
-            updateFlagsText();
-            ProcessEvent(event);
-        }
-
+        // FIXME: what exactly is this for?
+#if 0
         bool FlagsPopupEditor::Enable(bool enable) {
             if (QWidget::Enable(enable)) {
                 m_button->Enable(enable);
@@ -105,15 +102,16 @@ namespace TrenchBroom {
             }
             return false;
         }
+#endif
         
         void FlagsPopupEditor::updateFlagsText() {
             if (m_flagsTxt == nullptr)
                 return;
             
-            if (!IsEnabled()) {
-                m_flagsTxt->SetForegroundColour(Colors::disabledText());
-                m_flagsTxt->SetLabel("n/a");
-                m_flagsTxt->UnsetToolTip();
+            if (!isEnabled()) {
+                m_flagsTxt->setDisabled(true);
+                m_flagsTxt->setText("n/a");
+                m_flagsTxt->setToolTip("");
                 return;
             }
             
@@ -126,22 +124,24 @@ namespace TrenchBroom {
                     mixed = true;
                 } else if (m_editor->isFlagSet(i)) {
                     if (!first)
-                        label << ", ";
-                    label << m_editor->getFlagLabel(i);
+                        label += ", ";
+                    label += m_editor->getFlagLabel(i);
                     first = false;
                 }
             }
             
-            m_flagsTxt->SetLabel(label);
+            m_flagsTxt->setText(label);
             if (!first)
-                m_flagsTxt->SetToolTip(label);
+                m_flagsTxt->setToolTip(label);
             else
-                m_flagsTxt->UnsetToolTip();
-            
-            if (mixed)
-                m_flagsTxt->SetForegroundColour(Colors::disabledText());
-            else
-                m_flagsTxt->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_BTNTEXT));
+                m_flagsTxt->setToolTip("");
+
+            m_flagsTxt->setDisabled(mixed);
+
+//            if (mixed)
+//                m_flagsTxt->SetForegroundColour(Colors::disabledText());
+//            else
+//                m_flagsTxt->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_BTNTEXT));
         }
     }
 }

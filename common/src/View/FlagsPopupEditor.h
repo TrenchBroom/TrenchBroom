@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_FlagsPopupEditor
 #define TrenchBroom_FlagsPopupEditor
 
-#include <wx/panel.h>
+#include <QWidget>
 
 class QLabel;
 class QWidget;
@@ -30,8 +30,12 @@ namespace TrenchBroom {
         class FlagsEditor;
         class FlagChangedCommand;
         class PopupButton;
-        
+
+        /**
+         * Button that opens up a flags editor popup
+         */
         class FlagsPopupEditor : public QWidget {
+            Q_OBJECT
         private:
             QLabel* m_flagsTxt;
             PopupButton* m_button;
@@ -39,14 +43,13 @@ namespace TrenchBroom {
         public:
             FlagsPopupEditor(QWidget* parent, size_t numCols, const QString& buttonLabel = "...", bool showFlagsText = true);
 
-            void setFlags(const wxArrayString& labels, const wxArrayString& tooltips = wxArrayString(0));
-            void setFlags(const wxArrayInt& values, const wxArrayString& labels, const wxArrayString& tooltips = wxArrayString(0));
+            void setFlags(const QStringList& labels, const QStringList& tooltips = QStringList(0));
+            void setFlags(const QList<int>& values, const QStringList& labels, const QStringList& tooltips = QStringList(0));
             void setFlagValue(int set, int mixed = 0);
-            
-            void OnFlagChanged(FlagChangedCommand& event);
-            bool Enable(bool enable = true) override;
         private:
             void updateFlagsText();
+        signals:
+            void flagChanged(size_t index, int setFlag, int mixedFlag);
         };
     }
 }

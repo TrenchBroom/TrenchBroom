@@ -296,7 +296,6 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/ColorTableSelectedCommand.cpp
 	${COMMON_SOURCE_DIR}/View/Command.cpp
 	${COMMON_SOURCE_DIR}/View/CommandProcessor.cpp
-	${COMMON_SOURCE_DIR}/View/CommandWindowUpdateLocker.cpp
 #	${COMMON_SOURCE_DIR}/View/CompilationContext.cpp
 #	${COMMON_SOURCE_DIR}/View/CompilationDialog.cpp
 #	${COMMON_SOURCE_DIR}/View/CompilationProfileEditor.cpp
@@ -345,9 +344,8 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/FaceTool.cpp
 #	${COMMON_SOURCE_DIR}/View/FileTextureCollectionEditor.cpp
 	${COMMON_SOURCE_DIR}/View/FindPlanePointsCommand.cpp
-#	${COMMON_SOURCE_DIR}/View/FlagChangedCommand.cpp
-#	${COMMON_SOURCE_DIR}/View/FlagsEditor.cpp
-#	${COMMON_SOURCE_DIR}/View/FlagsPopupEditor.cpp
+	${COMMON_SOURCE_DIR}/View/FlagsEditor.cpp
+	${COMMON_SOURCE_DIR}/View/FlagsPopupEditor.cpp
 	${COMMON_SOURCE_DIR}/View/FlashSelectionAnimation.cpp
 	${COMMON_SOURCE_DIR}/View/FlyModeHelper.cpp
 	${COMMON_SOURCE_DIR}/View/FourPaneMapView.cpp
@@ -371,8 +369,8 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/InputEvent.cpp
 	${COMMON_SOURCE_DIR}/View/InputState.cpp
 #	${COMMON_SOURCE_DIR}/View/Inspector.cpp
-#	${COMMON_SOURCE_DIR}/View/IssueBrowser.cpp
-#	${COMMON_SOURCE_DIR}/View/IssueBrowserView.cpp
+	${COMMON_SOURCE_DIR}/View/IssueBrowser.cpp
+	${COMMON_SOURCE_DIR}/View/IssueBrowserView.cpp
 #	${COMMON_SOURCE_DIR}/View/KeyboardGridCellEditor.cpp
 #	${COMMON_SOURCE_DIR}/View/KeyboardPreferencePane.cpp
 	${COMMON_SOURCE_DIR}/View/KeyboardShortcut.cpp
@@ -409,13 +407,12 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/MoveObjectsToolPage.cpp
 	${COMMON_SOURCE_DIR}/View/MoveTexturesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/MultiMapView.cpp
-	${COMMON_SOURCE_DIR}/View/NestedWindowUpdateLocker.cpp
 	${COMMON_SOURCE_DIR}/View/OnePaneMapView.cpp
 #	${COMMON_SOURCE_DIR}/View/PersistentSplitterWindow2.cpp
 #	${COMMON_SOURCE_DIR}/View/PersistentSplitterWindow4.cpp
 	${COMMON_SOURCE_DIR}/View/PickRequest.cpp
-#	${COMMON_SOURCE_DIR}/View/PopupButton.cpp
 #	${COMMON_SOURCE_DIR}/View/PopupWindow.cpp
+	${COMMON_SOURCE_DIR}/View/PopupButton.cpp
 #	${COMMON_SOURCE_DIR}/View/PreferenceDialog.cpp
 #	${COMMON_SOURCE_DIR}/View/PreferencePane.cpp
 #	${COMMON_SOURCE_DIR}/View/RadioGroup.cpp
@@ -868,7 +865,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/Command.h
 #	${COMMON_SOURCE_DIR}/View/CommandIds.h
 	${COMMON_SOURCE_DIR}/View/CommandProcessor.h
-	${COMMON_SOURCE_DIR}/View/CommandWindowUpdateLocker.h
 #	${COMMON_SOURCE_DIR}/View/CompilationContext.h
 #	${COMMON_SOURCE_DIR}/View/CompilationDialog.h
 #	${COMMON_SOURCE_DIR}/View/CompilationProfileEditor.h
@@ -918,7 +914,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/FaceTool.h
 	${COMMON_SOURCE_DIR}/View/FileTextureCollectionEditor.h
 	${COMMON_SOURCE_DIR}/View/FindPlanePointsCommand.h
-	${COMMON_SOURCE_DIR}/View/FlagChangedCommand.h
 	${COMMON_SOURCE_DIR}/View/FlagsEditor.h
 	${COMMON_SOURCE_DIR}/View/FlagsPopupEditor.h
 	${COMMON_SOURCE_DIR}/View/FlashSelectionAnimation.h
@@ -984,7 +979,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/MoveTexturesCommand.h
 	${COMMON_SOURCE_DIR}/View/MoveToolController.h
 	${COMMON_SOURCE_DIR}/View/MultiMapView.h
-	${COMMON_SOURCE_DIR}/View/NestedWindowUpdateLocker.h
 	${COMMON_SOURCE_DIR}/View/OnePaneMapView.h
 	${COMMON_SOURCE_DIR}/View/PersistentSplitterWindow2.h
 	${COMMON_SOURCE_DIR}/View/PersistentSplitterWindow4.h

@@ -71,20 +71,14 @@ namespace TrenchBroom {
             connect(m_tabBook, &TabBook::pageChanged, this, &TabBar::OnTabBookPageChanged);
 
             m_controlSizer = new QHBoxLayout();
-            // Leave the default contentsMargins
+            m_controlSizer->setContentsMargins(0, LayoutConstants::NarrowHMargin, 0, LayoutConstants::NarrowHMargin);
             m_controlSizer->addSpacing(LayoutConstants::TabBarBarLeftMargin);
             m_controlSizer->addStretch();
             m_controlSizer->addLayout(m_barBook, 0);
             assert(m_controlSizer->setAlignment(m_barBook, Qt::AlignVCenter));
             m_controlSizer->addSpacing(LayoutConstants::NarrowHMargin);
-            
-            QVBoxLayout* outerSizer = new QVBoxLayout();
-            outerSizer->setContentsMargins(0,0,0,0);
-            outerSizer->addSpacing(LayoutConstants::NarrowHMargin);
-            outerSizer->addLayout(m_controlSizer, 1);
-            outerSizer->addSpacing(LayoutConstants::NarrowHMargin);
 
-            setLayout(outerSizer);
+            setLayout(m_controlSizer);
         }
         
         void TabBar::addTab(TabBookPage* bookPage, const QString& title) {

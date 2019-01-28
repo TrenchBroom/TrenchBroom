@@ -18,73 +18,59 @@
  */
 
 #include "PopupButton.h"
-#include "View/PopupWindow.h"
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
-#include <wx/frame.h>
-#include <wx/tglbtn.h>
-#include <wx/settings.h>
-#include <wx/sizer.h>
+#include <QToolButton>
+#include <QHBoxLayout>
 
 namespace TrenchBroom {
     namespace View {
+        // PopupButton
+
         PopupButton::PopupButton(QWidget* parent, const QString& caption) :
         QWidget(parent) {
-            m_button = new wxToggleButton(this, wxID_ANY, caption, wxDefaultPosition, wxDefaultSize, LayoutConstants::ToggleButtonStyle | wxBU_EXACTFIT);
-            
-            wxFrame* frame = findFrame(this);
-            m_window = new PopupWindow(frame);
+            m_button = new QToolButton();
+            m_button->setText(caption);
 
-#if defined __APPLE__
-            m_window->SetWindowVariant(wxWINDOW_VARIANT_SMALL);
-#endif
+            m_window = new PopupWindow(this);
 
             auto* sizer = new QHBoxLayout();
+            sizer->setContentsMargins(0, 0, 0, 0);
             sizer->addWidget(m_button);
-#ifdef __APPLE__
-            sizer->SetItemMinSize(m_button, m_button->GetSize().x, m_button->GetSize().y + 1);
-#endif
-#ifdef __WXGTK20__
-            sizer->SetItemMinSize(m_button, m_button->GetSize().x + 3, m_button->GetSize().y);
-#endif
-            SetSizerAndFit(sizer);
-            
-            m_button->Bind(wxEVT_TOGGLEBUTTON, &PopupButton::OnButtonToggled, this);
-            m_window->Bind(wxEVT_SHOW, &PopupButton::OnPopupShow, this);
+            setLayout(sizer);
+
+            connect(m_button, &QAbstractButton::clicked, this, &PopupButton::OnButtonToggled);
+            connect(m_window, &PopupWindow::visibilityChanged, this, &PopupButton::OnPopupVisibilityChanged);
         }
 
         QWidget* PopupButton::GetPopupWindow() const {
             return m_window;
         }
 
-        void PopupButton::OnButtonToggled(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            if (m_button->GetValue()) {
-                wxPoint position = GetScreenRect().GetLeftTop();
-                wxSize size = GetScreenRect().GetSize();
-                m_window->Position(position, size);
-                m_window->Popup();
+        void PopupButton::OnButtonToggled(bool checked) {
+            if (checked) {
+                m_window->move(m_button->mapToGlobal(m_button->frameGeometry().bottomLeft()));
+                m_window->show();
             } else {
-                m_window->Dismiss();
+                m_window->close();
             }
         }
 
-        void PopupButton::OnPopupShow(wxShowEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            if (m_button->GetValue() != event.IsShown())
-                m_button->SetValue(event.IsShown());
-            event.Skip();
+        void PopupButton::OnPopupVisibilityChanged(bool visible) {
+            m_button->setChecked(visible);
         }
 
-        bool PopupButton::Enable(bool enable) {
-            if (QWidget::Enable(enable)) {
-                m_button->Enable(enable);
-                return true;
-            }
-            return false;
+        // PopupWindow
+
+        PopupWindow::PopupWindow(QWidget* parent) :
+        QWidget(parent, Qt::Popup) {}
+
+        void PopupWindow::closeEvent(QCloseEvent* event) {
+            emit visibilityChanged(isVisible());
+        }
+        void PopupWindow::showEvent(QShowEvent* event) {
+            emit visibilityChanged(isVisible());
         }
     }
 }

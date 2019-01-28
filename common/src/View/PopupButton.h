@@ -20,29 +20,40 @@
 #ifndef TrenchBroom_PopupButton
 #define TrenchBroom_PopupButton
 
-#include <wx/panel.h>
+#include <QWidget>
 
-class wxToggleButton;
-class wxCommandEvent;
-class wxShowEvent;
-class QWidget;
+class QToolButton;
 
 namespace TrenchBroom {
     namespace View {
         class PopupWindow;
-        
+
         class PopupButton : public QWidget {
+            Q_OBJECT
         private:
-            wxToggleButton* m_button;
+            QToolButton* m_button;
             PopupWindow* m_window;
         public:
-            PopupButton(QWidget* parent, const QString& caption);
-            
+            PopupButton(QWidget* parent = nullptr, const QString& caption = "");
+
             QWidget* GetPopupWindow() const;
 
-            void OnButtonToggled(wxCommandEvent& event);
-            void OnPopupShow(wxShowEvent& event);
-            bool Enable(bool enable = true) override;
+        private:
+            void OnButtonToggled(bool checked);
+            void OnPopupVisibilityChanged(bool visible);
+        };
+
+        class PopupWindow : public QWidget {
+            Q_OBJECT
+        public:
+            explicit PopupWindow(QWidget* parent = nullptr);
+
+        protected: // QWidget overrides
+            void closeEvent(QCloseEvent* event) override;
+            void showEvent(QShowEvent* event) override;
+
+        signals:
+            void visibilityChanged(bool visible);
         };
     }
 }

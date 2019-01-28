@@ -26,21 +26,35 @@
 #include "View/MapDocument.h"
 #include "View/wxUtils.h"
 
-#include <wx/menu.h>
-#include <wx/settings.h>
+#include <QHBoxLayout>
+#include <QTableView>
+#include <QMenu>
+#include <QHeaderView>
 
 namespace TrenchBroom {
     namespace View {
         IssueBrowserView::IssueBrowserView(QWidget* parent, MapDocumentWPtr document) :
-        wxListCtrl(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT | wxLC_VIRTUAL | wxLC_HRULES | wxLC_VRULES | wxBORDER_NONE),
+        QWidget(parent),
         m_document(document),
         m_hiddenGenerators(0),
         m_showHiddenIssues(false),
         m_valid(false) {
-            AppendColumn("Line");
-            AppendColumn("Description");
-            
+            createGui();
             bindEvents();
+        }
+
+        void IssueBrowserView::createGui() {
+            m_tableModel = new IssueBrowserModel(this);
+
+            m_tableView = new QTableView(nullptr);
+            m_tableView->setModel(m_tableModel);
+            m_tableView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
+            m_tableView->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+
+            auto* layout = new QHBoxLayout();
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->addWidget(m_tableView);
+            setLayout(layout);
         }
         
         int IssueBrowserView::hiddenGenerators() const {
@@ -64,20 +78,30 @@ namespace TrenchBroom {
         }
 
         void IssueBrowserView::deselectAll() {
-            deselectAllListrCtrlItems(this);
+            m_tableView->clearSelection();
         }
 
-        void IssueBrowserView::OnSize(wxSizeEvent& event) {
-            if (IsBeingDeleted()) return;
+        // FIXME: column sizes
+//        void IssueBrowserView::OnSize(wxSizeEvent& event) {
+//            if (IsBeingDeleted()) return;
+//
+//            const int newWidth = std::max(1, GetClientSize().x - GetColumnWidth(0));
+//            SetColumnWidth(1, newWidth);
+//            event.Skip();
+//        }
+//
+        void IssueBrowserView::OnItemRightClick(const QPoint& pos) {
+            QModelIndex index = m_tableView->indexAt(pos);
 
-            const int newWidth = std::max(1, GetClientSize().x - GetColumnWidth(0));
-            SetColumnWidth(1, newWidth);
-            event.Skip();
-        }
-        
-        void IssueBrowserView::OnItemRightClick(wxListEvent& event) {
-            if (IsBeingDeleted()) return;
+            QMenu *menu = new QMenu(this);
+            menu->addAction(new QAction("Action 1", this));
+            menu->addAction(new QAction("Action 2", this));
+            menu->addAction(new QAction("Action 3", this));
+            menu->popup(m_tableView->viewport()->mapToGlobal(pos));
 
+
+            // FIXME:
+#if 0
             if (GetSelectedItemCount() == 0 || event.GetIndex() < 0)
                 return;
             
@@ -110,23 +134,18 @@ namespace TrenchBroom {
             }
 
             PopupMenu(&popupMenu);
+#endif
         }
         
-        void IssueBrowserView::OnItemSelectionChanged(wxListEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void IssueBrowserView::OnItemSelectionChanged() {
             updateSelection();
         }
 
-        void IssueBrowserView::OnShowIssues(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void IssueBrowserView::OnShowIssues() {
             setIssueVisibility(true);
         }
         
-        void IssueBrowserView::OnHideIssues(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void IssueBrowserView::OnHideIssues() {
             setIssueVisibility(false);
         }
         
@@ -156,7 +175,7 @@ namespace TrenchBroom {
             
             Model::NodeList nodes;
             for (size_t i = 0; i < selection.size(); ++i) {
-                Model::Issue* issue = m_issues[selection[i]];
+                Model::Issue* issue = m_tableModel->issues().at(selection[i]);
                 if (!issue->addSelectableNodes(document->editorContext(), nodes)) {
                     nodes.clear();
                     break;
@@ -168,40 +187,40 @@ namespace TrenchBroom {
         }
 
         void IssueBrowserView::updateIssues() {
-            m_issues.clear();
-            
             MapDocumentSPtr document = lock(m_document);
             Model::World* world = document->world();
             if (world != nullptr) {
                 const Model::IssueGeneratorList& issueGenerators = world->registeredIssueGenerators();
                 Model::CollectMatchingIssuesVisitor<IssueVisible> visitor(issueGenerators, IssueVisible(m_hiddenGenerators, m_showHiddenIssues));
                 world->acceptAndRecurse(visitor);
-                m_issues = visitor.issues();
-                VectorUtils::sort(m_issues, IssueCmp());
+
+                Model::IssueList issues = visitor.issues();
+                VectorUtils::sort(issues, IssueCmp());
+                m_tableModel->setIssues(std::move(issues));
             }
         }
 
-        void IssueBrowserView::OnApplyQuickFix(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void IssueBrowserView::OnApplyQuickFix() {
+            // FIXME:
 
-            const wxVariant* data = static_cast<wxVariant*>(event.GetEventUserData());
-            ensure(data != nullptr, "data is null");
-            
-            const Model::IssueQuickFix* quickFix = reinterpret_cast<const Model::IssueQuickFix*>(data->GetVoidPtr());
-            ensure(quickFix != nullptr, "quickFix is null");
-
-            MapDocumentSPtr document = lock(m_document);
-            const Model::IssueList issues = collectIssues(getSelection());
-
-            const Transaction transaction(document, "Apply Quick Fix (" + quickFix->description() + ")");
-            updateSelection();
-            quickFix->apply(document.get(), issues);
+//            const wxVariant* data = static_cast<wxVariant*>(event.GetEventUserData());
+//            ensure(data != nullptr, "data is null");
+//
+//            const Model::IssueQuickFix* quickFix = reinterpret_cast<const Model::IssueQuickFix*>(data->GetVoidPtr());
+//            ensure(quickFix != nullptr, "quickFix is null");
+//
+//            MapDocumentSPtr document = lock(m_document);
+//            const Model::IssueList issues = collectIssues(getSelection());
+//
+//            const Transaction transaction(document, "Apply Quick Fix (" + quickFix->description() + ")");
+//            updateSelection();
+//            quickFix->apply(document.get(), issues);
         }
         
         Model::IssueList IssueBrowserView::collectIssues(const IndexList& indices) const {
             Model::IssueList result;
             for (size_t index : indices)
-                result.push_back(m_issues[index]);
+                result.push_back(m_tableModel->issues().at(index));
             return result;
         }
 
@@ -211,7 +230,7 @@ namespace TrenchBroom {
             
             Model::IssueType issueTypes = ~0;
             for (size_t index : indices) {
-                const Model::Issue* issue = m_issues[index];
+                const Model::Issue* issue = m_tableModel->issues().at(index);
                 issueTypes &= issue->type();
             }
             
@@ -223,7 +242,7 @@ namespace TrenchBroom {
         Model::IssueType IssueBrowserView::issueTypeMask() const {
             Model::IssueType result = ~static_cast<Model::IssueType>(0);
             for (size_t index : getSelection()) {
-                Model::Issue* issue = m_issues[index];
+                Model::Issue* issue = m_tableModel->issues().at(index);
                 result &= issue->type();
             }
             return result;
@@ -232,7 +251,7 @@ namespace TrenchBroom {
         void IssueBrowserView::setIssueVisibility(const bool show) {
             MapDocumentSPtr document = lock(m_document);
             for (size_t index : getSelection()) {
-                Model::Issue* issue = m_issues[index];
+                Model::Issue* issue = m_tableModel->issues().at(index);
                 document->setIssueHidden(issue, !show);
             }
 
@@ -240,52 +259,45 @@ namespace TrenchBroom {
         }
         
         IssueBrowserView::IndexList IssueBrowserView::getSelection() const {
-            return getListCtrlSelection(this);
+            // FIXME:
+            return {}; //getListCtrlSelection(this);
         }
         
-        wxListItemAttr* IssueBrowserView::OnGetItemAttr(const long item) const {
-            assert(item >= 0 && static_cast<size_t>(item) < m_issues.size());
+//        wxListItemAttr* IssueBrowserView::OnGetItemAttr(const long item) const {
+//            assert(item >= 0 && static_cast<size_t>(item) < m_issues.size());
+//
+//            static wxListItemAttr attr;
+//
+//            Model::Issue* issue = m_issues[static_cast<size_t>(item)];
+//            if (issue->hidden()) {
+//                attr.SetFont(GetFont().Italic());
+//                return &attr;
+//            }
+//
+//            return nullptr;
+//        }
 
-            static wxListItemAttr attr;
-            
-            Model::Issue* issue = m_issues[static_cast<size_t>(item)];
-            if (issue->hidden()) {
-                attr.SetFont(GetFont().Italic());
-                return &attr;
-            }
-            
-            return nullptr;
-        }
-
-        QString IssueBrowserView::OnGetItemText(const long item, const long column) const {
-            assert(item >= 0 && static_cast<size_t>(item) < m_issues.size());
-            assert(column >= 0 && column < 2);
-            
-            Model::Issue* issue = m_issues[static_cast<size_t>(item)];
-            if (column == 0) {
-                QString result;
-                result << issue->lineNumber();
-                return result;
-            } else {
-                return issue->description();
-            }
-        }
         
         void IssueBrowserView::bindEvents() {
-            Bind(wxEVT_SIZE, &IssueBrowserView::OnSize, this);
-            Bind(wxEVT_LIST_ITEM_RIGHT_CLICK, &IssueBrowserView::OnItemRightClick, this);
-            Bind(wxEVT_LIST_ITEM_SELECTED, &IssueBrowserView::OnItemSelectionChanged, this);
-            Bind(wxEVT_LIST_ITEM_DESELECTED, &IssueBrowserView::OnItemSelectionChanged, this);
-            Bind(wxEVT_IDLE, &IssueBrowserView::OnIdle, this);
+//            Bind(wxEVT_SIZE, &IssueBrowserView::OnSize, this);
+//            Bind(wxEVT_LIST_ITEM_RIGHT_CLICK, &IssueBrowserView::OnItemRightClick, this);
+//            Bind(wxEVT_LIST_ITEM_SELECTED, &IssueBrowserView::OnItemSelectionChanged, this);
+//            Bind(wxEVT_LIST_ITEM_DESELECTED, &IssueBrowserView::OnItemSelectionChanged, this);
+//            Bind(wxEVT_IDLE, &IssueBrowserView::OnIdle, this);
+
+            m_tableView->setContextMenuPolicy(Qt::CustomContextMenu);
+            connect(m_tableView, &QWidget::customContextMenuRequested, this, &IssueBrowserView::OnItemRightClick);
+
         }
 
-        void IssueBrowserView::OnIdle(wxIdleEvent& event) {
-            validate();
-        }
-        
+//        void IssueBrowserView::OnIdle() {
+//            validate();
+//        }
+
         void IssueBrowserView::invalidate() {
             m_valid = false;
-            SetItemCount(0);
+
+            QMetaObject::invokeMethod(this, "validate", Qt::QueuedConnection);
         }
         
         void IssueBrowserView::validate() {
@@ -293,8 +305,70 @@ namespace TrenchBroom {
                 m_valid = true;
                 
                 updateIssues();
-                SetItemCount(static_cast<long>(m_issues.size()));
             }
+        }
+
+        // IssueBrowserModel
+
+        IssueBrowserModel::IssueBrowserModel(QObject* parent)
+        : QAbstractTableModel(parent),
+          m_issues() {}
+
+        void IssueBrowserModel::setIssues(Model::IssueList issues) {
+            beginResetModel();
+            m_issues = std::move(issues);
+            endResetModel();
+        }
+
+        const Model::IssueList& IssueBrowserModel::issues() {
+            return m_issues;
+        }
+
+        int IssueBrowserModel::rowCount(const QModelIndex& parent) const {
+            if (parent.isValid()) {
+                return 0;
+            }
+            return static_cast<int>(m_issues.size());
+        }
+
+        int IssueBrowserModel::columnCount(const QModelIndex& parent) const {
+            if (parent.isValid()) {
+                return 0;
+            }
+            return 2;
+        }
+
+        QVariant IssueBrowserModel::data(const QModelIndex& index, int role) const {
+            if (role != Qt::DisplayRole
+                || !index.isValid()
+                || index.row() < 0
+                || index.row() >= static_cast<int>(m_issues.size())
+                || index.column() < 0
+                || index.column() >= 2) {
+                return QVariant();
+            }
+
+            const Model::Issue* issue = m_issues.at(static_cast<size_t>(index.row()));
+            if (index.column() == 0) {
+                return QVariant::fromValue<size_t>(issue->lineNumber());
+            } else {
+                return QVariant(QString::fromStdString(issue->description()));
+            }
+        }
+
+        QVariant IssueBrowserModel::headerData(int section, Qt::Orientation orientation, int role) const {
+            if (role != Qt::DisplayRole) {
+                return QVariant();
+            }
+
+            if (orientation == Qt::Horizontal) {
+                if (section == 0) {
+                    return QVariant(tr("Line"));
+                } else if (section == 1) {
+                    return QVariant(tr("Description"));
+                }
+            }
+            return QVariant();
         }
     }
 }

@@ -59,7 +59,6 @@
 #include "FileLogger.h"
 #include "View/ActionList.h"
 #include "View/ClipTool.h"
-#include "View/CommandWindowUpdateLocker.h"
 // FIXME:
 //#include "View/CompilationDialog.h"
 #include "View/Console.h"
@@ -97,9 +96,9 @@ namespace TrenchBroom {
         m_infoPanel(nullptr),
         m_console(nullptr),
 //        m_inspector(nullptr),
-        m_gridChoice(nullptr),
+        m_gridChoice(nullptr)
 //        m_compilationDialog(nullptr),
-        m_updateLocker(nullptr) {}
+        {}
 
         MapFrame::MapFrame(FrameManager* frameManager, MapDocumentSPtr document) :
         QMainWindow(),
@@ -111,9 +110,9 @@ namespace TrenchBroom {
         m_infoPanel(nullptr),
         m_console(nullptr),
 //        m_inspector(nullptr),
-        m_gridChoice(nullptr),
+        m_gridChoice(nullptr)
 //        m_compilationDialog(nullptr),
-        m_updateLocker(nullptr) {
+        {
             Create(frameManager, document);
         }
 
@@ -153,12 +152,6 @@ namespace TrenchBroom {
             bindEvents();
 
             clearDropTarget();
-            
-            m_updateLocker = new CommandWindowUpdateLocker(this, m_document);
-            // FIXME: Needed with Qt?
-#if 0
-            m_updateLocker->Start();
-#endif
         }
 
         MapFrame::~MapFrame() {
@@ -185,9 +178,6 @@ namespace TrenchBroom {
             m_mapView->deactivateTool();
             
             unbindObservers();
-
-            delete m_updateLocker;
-            m_updateLocker = nullptr;
 
             delete m_autosaver;
             m_autosaver = nullptr;
@@ -1159,6 +1149,7 @@ namespace TrenchBroom {
 
             QVBoxLayout* frameSizer = new QVBoxLayout();
             frameSizer->setContentsMargins(0, 0, 0, 0);
+            frameSizer->setSpacing(0); // no space between BorderLine and m_hSplitter
 #if !defined __APPLE__
             frameSizer->addWidget(new BorderLine(nullptr));
 #endif

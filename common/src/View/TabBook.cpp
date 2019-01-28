@@ -37,9 +37,12 @@ namespace TrenchBroom {
 
         TabBook::TabBook(QWidget* parent) :
         QWidget(parent),
-        m_tabBar(new TabBar(this)),
-        m_tabBook(new QStackedLayout()) {
+        m_tabBar(new TabBar(this)) {
+            m_tabBook = new QStackedLayout();
+            m_tabBook->setContentsMargins(0, 0, 0, 0);
+
             QVBoxLayout* sizer = new QVBoxLayout();
+            sizer->setSpacing(0);
             sizer->setContentsMargins(0,0,0,0);
             sizer->addWidget(m_tabBar, 0);
             sizer->addLayout(m_tabBook, 1);

@@ -23,7 +23,7 @@
 #include "IO/ResourceUtils.h"
 #include "View/Console.h"
 #include "View/ContainerBar.h"
-//#include "View/IssueBrowser.h"
+#include "View/IssueBrowser.h"
 #include "View/TabBar.h"
 #include "View/TabBook.h"
 
@@ -41,14 +41,12 @@ namespace TrenchBroom {
             m_tabBook = new TabBook(this);
             
             m_console = new Console(nullptr);
-            //m_issueBrowser = new IssueBrowser(nullptr, document);
+            m_issueBrowser = new IssueBrowser(nullptr, document);
 
-            m_tabBook->addPage(m_console, "Console");
-            m_tabBook->addPage(new TabBookPage(nullptr), "Issues");
-            // FIXME:
-//            m_tabBook->addPage(m_issueBrowser, "Issues");
+            m_tabBook->addPage(m_console, tr("Console"));
+            m_tabBook->addPage(m_issueBrowser, tr("Issues"));
 
-            QVBoxLayout* sizer = new QVBoxLayout();
+            auto* sizer = new QVBoxLayout();
             sizer->setContentsMargins(0, 0, 0, 0);
             sizer->addWidget(m_tabBook);
             setLayout(sizer);

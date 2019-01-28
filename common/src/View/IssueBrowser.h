@@ -24,11 +24,8 @@
 #include "View/ViewTypes.h"
 #include "View/TabBook.h"
 
-class wxCheckBox;
-class wxCommandEvent;
-class wxMouseEvent;
-class wxSimplebook;
-class wxSizeEvent;
+class QCheckBox;
+class QStackedLayout;
 class QWidget;
 
 namespace TrenchBroom {
@@ -42,6 +39,7 @@ namespace TrenchBroom {
         class IssueBrowserView;
         
         class IssueBrowser : public TabBookPage {
+            Q_OBJECT
         private:
             static const int SelectObjectsCommandId = 1;
             static const int ShowIssuesCommandId = 2;
@@ -50,7 +48,7 @@ namespace TrenchBroom {
 
             MapDocumentWPtr m_document;
             IssueBrowserView* m_view;
-            wxCheckBox* m_showHiddenIssuesCheckBox;
+            QCheckBox* m_showHiddenIssuesCheckBox;
             FlagsPopupEditor* m_filterEditor;
         public:
             IssueBrowser(QWidget* parent, MapDocumentWPtr document);
@@ -58,8 +56,8 @@ namespace TrenchBroom {
 
             QWidget* createTabBarPage(QWidget* parent) override;
             
-            void OnShowHiddenIssuesChanged(wxCommandEvent& event);
-            void OnFilterChanged(FlagChangedCommand& command);
+            void OnShowHiddenIssuesChanged();
+            void OnFilterChanged(size_t index, int setFlag, int mixedFlag);
         private:
             void bindObservers();
             void unbindObservers();

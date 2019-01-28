@@ -23,16 +23,15 @@
 #include "Model/Issue.h"
 #include "Model/IssueGenerator.h"
 #include "Model/World.h"
-#include "View/FlagChangedCommand.h"
 #include "View/FlagsPopupEditor.h"
 #include "View/IssueBrowserView.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 
-#include <wx/checkbox.h>
-#include <wx/menu.h>
-#include <wx/simplebook.h>
-#include <wx/sizer.h>
+#include <QList>
+#include <QStringList>
+#include <QCheckBox>
+#include <QVBoxLayout>
 
 #include <cassert>
 
@@ -45,8 +44,9 @@ namespace TrenchBroom {
         m_showHiddenIssuesCheckBox(nullptr),
         m_filterEditor(nullptr) {
             auto* sizer = new QVBoxLayout();
-            sizer->addWidget(m_view, 1, wxEXPAND);
-            SetSizerAndFit(sizer);
+            sizer->setContentsMargins(0, 0, 0, 0);
+            sizer->addWidget(m_view);
+            setLayout(sizer);
             
             bindObservers();
         }
@@ -56,32 +56,28 @@ namespace TrenchBroom {
         }
 
         QWidget* IssueBrowser::createTabBarPage(QWidget* parent) {
-            QWidget* barPage = new QWidget(parent);
-            m_showHiddenIssuesCheckBox = new wxCheckBox(barPage, wxID_ANY, "Show hidden issues");
-            m_showHiddenIssuesCheckBox->Bind(wxEVT_CHECKBOX, &IssueBrowser::OnShowHiddenIssuesChanged, this);
+            auto* barPage = new QWidget(parent);
+            m_showHiddenIssuesCheckBox = new QCheckBox("Show hidden issues");
+            connect(m_showHiddenIssuesCheckBox, &QCheckBox::stateChanged, this, &IssueBrowser::OnShowHiddenIssuesChanged);
             
-            m_filterEditor = new FlagsPopupEditor(barPage, 1, "Filter", false);
-            m_filterEditor->Bind(FLAG_CHANGED_EVENT, &IssueBrowser::OnFilterChanged, this);
-            
-            wxBoxSizer* barPageSizer = new QHBoxLayout();
-            barPageSizer->Add(m_showHiddenIssuesCheckBox, 0, wxALIGN_CENTER_VERTICAL);
+            m_filterEditor = new FlagsPopupEditor(nullptr , 1, "Filter", false);
+            connect(m_filterEditor, &FlagsPopupEditor::flagChanged, this, &IssueBrowser::OnFilterChanged);
+
+            auto* barPageSizer = new QHBoxLayout();
+            barPageSizer->addWidget(m_showHiddenIssuesCheckBox, 0, Qt::AlignVCenter);
             barPageSizer->addSpacing(LayoutConstants::MediumHMargin);
-            barPageSizer->Add(m_filterEditor, 0, wxALIGN_CENTER_VERTICAL);
-            barPage->SetSizer(barPageSizer);
+            barPageSizer->addWidget(m_filterEditor, 0, Qt::AlignVCenter);
+            barPage->setLayout(barPageSizer);
             
             return barPage;
         }
 
-        void IssueBrowser::OnShowHiddenIssuesChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            m_view->setShowHiddenIssues(m_showHiddenIssuesCheckBox->IsChecked());
+        void IssueBrowser::OnShowHiddenIssuesChanged() {
+            m_view->setShowHiddenIssues(m_showHiddenIssuesCheckBox->isChecked());
         }
 
-        void IssueBrowser::OnFilterChanged(FlagChangedCommand& command) {
-            if (IsBeingDeleted()) return;
-
-            m_view->setHiddenGenerators(~command.flagSetValue());
+        void IssueBrowser::OnFilterChanged(size_t index, int setFlag, int mixedFlag) {
+            m_view->setHiddenGenerators(~setFlag);
         }
 
         void IssueBrowser::bindObservers() {
@@ -109,17 +105,12 @@ namespace TrenchBroom {
         }
 
         void IssueBrowser::documentWasNewedOrLoaded(MapDocument* document) {
-			// workaround for wxWidgets bug http://trac.wxwidgets.org/ticket/16894
-			if (m_view->GetItemCount() > 0) {
-				m_view->EnsureVisible(0);
-			}
-			
 			updateFilterFlags();
             m_view->reload();
         }
 
         void IssueBrowser::documentWasSaved(MapDocument* document) {
-            m_view->Refresh();
+            m_view->update();
         }
         
         void IssueBrowser::nodesWereAdded(const Model::NodeList& nodes) {
@@ -139,7 +130,7 @@ namespace TrenchBroom {
         }
 
         void IssueBrowser::issueIgnoreChanged(Model::Issue* issue) {
-            m_view->Refresh();
+            m_view->update();
         }
         
         void IssueBrowser::updateFilterFlags() {
@@ -147,15 +138,15 @@ namespace TrenchBroom {
             const Model::World* world = document->world();
             const Model::IssueGeneratorList& generators = world->registeredIssueGenerators();
             
-            wxArrayInt flags;
-            wxArrayString labels;
+            QList<int> flags;
+            QStringList labels;
             
             for (const Model::IssueGenerator* generator : generators) {
                 const Model::IssueType flag = generator->type();
                 const String& description = generator->description();
                 
                 flags.push_back(flag);
-                labels.push_back(description);
+                labels.push_back(QString::fromStdString(description));
             }
 
             m_filterEditor->setFlags(flags, labels);
