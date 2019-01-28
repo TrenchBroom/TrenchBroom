@@ -441,6 +441,27 @@ namespace TrenchBroom {
             EXPECT_EQ(expectedBBox2, remainder2->bounds());
         }
 
+        TEST_F(MapDocumentTest, csgSubtractAndUndoRestoresSelection) {
+            const Model::BrushBuilder builder(document->world(), document->worldBounds());
+
+            auto* entity = new Model::Entity();
+            document->addNode(entity, document->currentParent());
+
+            Model::Brush* subtrahend1 = builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture");
+            document->addNodes(Model::NodeList{subtrahend1}, entity);
+
+            document->select(Model::NodeList{subtrahend1});
+            ASSERT_TRUE(document->csgSubtract());
+            ASSERT_EQ(0, entity->children().size());
+            EXPECT_TRUE(document->selectedNodes().empty());
+
+            // check that the selection is restored after undo
+            document->undoLastCommand();
+
+            EXPECT_TRUE(document->selectedNodes().hasOnlyBrushes());
+            EXPECT_EQ((Model::BrushList{subtrahend1}), document->selectedNodes().brushes());
+        }
+
         TEST_F(MapDocumentTest, newWithGroupOpen) {
             Model::Entity* entity = new Model::Entity();
             document->addNode(entity, document->currentParent());
