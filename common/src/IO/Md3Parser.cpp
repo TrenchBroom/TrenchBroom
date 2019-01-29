@@ -70,7 +70,7 @@ namespace TrenchBroom {
             const auto name = reader.readString(Md3Layout::ModelNameLength);
             /* const auto flags = */ reader.readInt<int32_t>();
 
-            if (IO::Path(name).lastComponent() == Path("b_flag.md3")) {
+            if (IO::Path(name).lastComponent() == Path("armor_red.md3")) {
                 bool b = true;
             }
 
@@ -225,11 +225,7 @@ namespace TrenchBroom {
             FreeImageTextureReader imageReader(nameStrategy);
 
             for (const auto& shader : shaders) {
-                auto tmp = shader;
-                if (tmp.lastComponent().deleteExtension() == Path("b_flag2")) {
-                    //tmp = tmp.deleteLastComponent() + Path("blue_fx.jpg");
-                }
-                auto file = m_fs.openFile(tmp.deleteExtension());
+                auto file = m_fs.openFile(shader.deleteExtension());
                 surface.addSkin(shaderReader.readTexture(file));
             }
         }

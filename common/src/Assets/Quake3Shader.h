@@ -29,7 +29,25 @@ namespace TrenchBroom {
     namespace Assets {
         class Quake3ShaderStage {
         public:
+            struct BlendFunc {
+                String srcFactor;
+                String destFactor;
+
+                static const String One;
+                static const String Zero;
+                static const String SrcColor;
+                static const String DestColor;
+                static const String OneMinusSrcColor;
+                static const String OneMinusDestColor;
+                static const String SrcAlpha;
+                static const String OneMinusSrcAlpha;
+
+                bool enable() const;
+                bool operator==(const BlendFunc& other) const;
+            };
+        public:
             IO::Path map;
+            BlendFunc blendFunc;
         public:
             bool operator==(const Quake3ShaderStage& other) const;
         };

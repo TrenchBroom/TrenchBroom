@@ -184,6 +184,26 @@ namespace TrenchBroom {
             if (key == "map") {
                 token = expect(Quake3ShaderToken::String | Quake3ShaderToken::Variable, m_tokenizer.nextToken());
                 stage.map = Path(token.data());
+            } else if (key == "blendFunc") {
+                token = expect(Quake3ShaderToken::String, m_tokenizer.nextToken());
+                const auto param1 = token.data();
+                if (m_tokenizer.peekToken().hasType(Quake3ShaderToken::String)) {
+                    token = m_tokenizer.nextToken();
+                    auto param2 = token.data();
+                    stage.blendFunc.srcFactor = param1;
+                    stage.blendFunc.destFactor = param2;
+                } else {
+                    if (param1 == "add") {
+                        stage.blendFunc.srcFactor = Assets::Quake3ShaderStage::BlendFunc::One;
+                        stage.blendFunc.destFactor = Assets::Quake3ShaderStage::BlendFunc::One;
+                    } else if (param1 == "filter") {
+                        stage.blendFunc.srcFactor = Assets::Quake3ShaderStage::BlendFunc::DestColor;
+                        stage.blendFunc.destFactor = Assets::Quake3ShaderStage::BlendFunc::Zero;
+                    } else if (param1 == "blend") {
+                        stage.blendFunc.srcFactor = Assets::Quake3ShaderStage::BlendFunc::SrcAlpha;
+                        stage.blendFunc.destFactor = Assets::Quake3ShaderStage::BlendFunc::OneMinusSrcAlpha;
+                    }
+                }
             } else {
                 while (!m_tokenizer.nextToken().hasType(Quake3ShaderToken::Eol));
             }

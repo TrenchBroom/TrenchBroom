@@ -53,6 +53,12 @@ namespace TrenchBroom {
             Both
         };
 
+        struct TextureBlendFunc {
+            bool enable;
+            GLenum srcFactor;
+            GLenum destFactor;
+        };
+
         vm::vec2s sizeAtMipLevel(size_t width, size_t height, size_t level);
         size_t bytesPerPixelForFormat(GLenum format);
         void setMipBufferSize(TextureBuffer::List& buffers, size_t mipLevels, size_t width, size_t height, GLenum format);
@@ -78,6 +84,9 @@ namespace TrenchBroom {
             // Quake 3 surface culling; move to materials
             TextureCulling m_culling;
 
+            // Quake 3 blend function, move to materials
+            TextureBlendFunc m_blendFunc;
+
             mutable GLuint m_textureId;
             mutable TextureBuffer::List m_buffers;
         public:
@@ -99,6 +108,9 @@ namespace TrenchBroom {
 
             TextureCulling culling() const;
             void setCulling(TextureCulling culling);
+
+            const TextureBlendFunc& blendFunc() const;
+            void setBlendFunc(GLenum srcFactor, GLenum destFactor);
 
             size_t usageCount() const;
             void incUsageCount();

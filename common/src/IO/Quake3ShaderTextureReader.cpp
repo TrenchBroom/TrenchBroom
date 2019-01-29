@@ -23,7 +23,7 @@
 #include "Assets/Texture.h"
 #include "IO/FileSystem.h"
 #include "IO/FreeImageTextureReader.h"
-#include "IO/MappedFile.h"
+#include "Renderer/GL.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -54,6 +54,16 @@ namespace TrenchBroom {
                 case Assets::Quake3Shader::Culling::None:
                     texture->setCulling(Assets::TextureCulling::None);
                     break;
+            }
+
+            if (!shader.stages.empty()) {
+                const auto& stage = shader.stages.front();
+                if (stage.blendFunc.enable()) {
+                    texture->setBlendFunc(
+                        glGetEnum(stage.blendFunc.srcFactor),
+                        glGetEnum(stage.blendFunc.destFactor)
+                    );
+                }
             }
 
             return texture;

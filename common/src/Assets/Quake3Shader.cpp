@@ -23,8 +23,25 @@
 
 namespace TrenchBroom {
     namespace Assets {
+        const String Quake3ShaderStage::BlendFunc::One = "GL_ONE";
+        const String Quake3ShaderStage::BlendFunc::Zero = "GL_ZERO";
+        const String Quake3ShaderStage::BlendFunc::SrcColor = "GL_SRC_COLOR";
+        const String Quake3ShaderStage::BlendFunc::DestColor = "GL_DST_COLOR";
+        const String Quake3ShaderStage::BlendFunc::OneMinusSrcColor = "GL_ONE_MINUS_SRC_COLOR";
+        const String Quake3ShaderStage::BlendFunc::OneMinusDestColor = "GL_ONE_MINUS_DEST_COLOR";
+        const String Quake3ShaderStage::BlendFunc::SrcAlpha = "SRC_ALPHA";
+        const String Quake3ShaderStage::BlendFunc::OneMinusSrcAlpha = "ONE_MINUS_SRC_ALPHA";
+
+        bool Quake3ShaderStage::BlendFunc::enable() const {
+            return srcFactor != "" && destFactor != "";
+        }
+
+        bool Quake3ShaderStage::BlendFunc::operator==(const BlendFunc& other) const {
+            return (srcFactor == other.srcFactor && destFactor == other.destFactor);
+        }
+
         bool Quake3ShaderStage::operator==(const Quake3ShaderStage& other) const {
-            return map == other.map;
+            return map == other.map && blendFunc == other.blendFunc;
         }
 
         bool Quake3Shader::operator==(const Quake3Shader& other) const {

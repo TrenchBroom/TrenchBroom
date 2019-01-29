@@ -20,6 +20,7 @@
 #include "Texture.h"
 #include "Assets/ImageUtils.h"
 #include "Assets/TextureCollection.h"
+#include "Renderer/GL.h"
 
 #include <cassert>
 #include <algorithm>
@@ -70,6 +71,7 @@ namespace TrenchBroom {
         m_format(format),
         m_type(type),
         m_culling(TextureCulling::Default),
+        m_blendFunc{false, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA},
         m_textureId(0) {
             assert(m_width > 0);
             assert(m_height > 0);
@@ -88,6 +90,7 @@ namespace TrenchBroom {
         m_format(format),
         m_type(type),
         m_culling(TextureCulling::Default),
+        m_blendFunc{false, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA},
         m_textureId(0),
         m_buffers(buffers) {
             assert(m_width > 0);
@@ -113,6 +116,7 @@ namespace TrenchBroom {
         m_format(format),
         m_type(type),
         m_culling(TextureCulling::Default),
+        m_blendFunc{false, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA},
         m_textureId(0) {}
 
         Texture::~Texture() {
@@ -160,6 +164,16 @@ namespace TrenchBroom {
 
         void Texture::setCulling(const TextureCulling culling) {
             m_culling = culling;
+        }
+
+        const TextureBlendFunc& Texture::blendFunc() const {
+            return m_blendFunc;
+        }
+
+        void Texture::setBlendFunc(GLenum srcFactor, GLenum destFactor) {
+            m_blendFunc.enable = true;
+            m_blendFunc.srcFactor = srcFactor;
+            m_blendFunc.destFactor = destFactor;
         }
 
         size_t Texture::usageCount() const {
@@ -273,11 +287,20 @@ namespace TrenchBroom {
                     case Assets::TextureCulling::Back:
                         break;
                 }
+
+                if (m_blendFunc.enable) {
+                    glAssert(glPushAttrib(GL_COLOR_BUFFER_BIT));
+                    glAssert(glBlendFunc(m_blendFunc.srcFactor, m_blendFunc.destFactor));
+                }
             }
         }
         
         void Texture::deactivate() const {
             if (isPrepared()) {
+                if (m_blendFunc.enable) {
+                    glAssert(glPopAttrib());
+                }
+
                 switch (m_culling) {
                     case Assets::TextureCulling::None:
                         glAssert(glEnable(GL_CULL_FACE));
