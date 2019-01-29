@@ -70,6 +70,10 @@ namespace TrenchBroom {
             const auto name = reader.readString(Md3Layout::ModelNameLength);
             /* const auto flags = */ reader.readInt<int32_t>();
 
+            if (IO::Path(name).lastComponent() == Path("b_flag.md3")) {
+                bool b = true;
+            }
+
             const auto frameCount = reader.readSize<int32_t>();
             /* const auto tagCount = */ reader.readSize<int32_t>();
             const auto surfaceCount = reader.readSize<int32_t>();
@@ -221,16 +225,12 @@ namespace TrenchBroom {
             FreeImageTextureReader imageReader(nameStrategy);
 
             for (const auto& shader : shaders) {
-                // Some models reference their textures directly without using shaders.
-                const auto basePath = shader.deleteExtension();
-                if (m_fs.fileExists(basePath)) {
-                    auto file = m_fs.openFile(basePath);
-                    surface.addSkin(shaderReader.readTexture(file));
-                } else {
-                    const auto resolvedPath = Quake3ShaderTextureReader::findTexture(m_fs, shader);
-7                    auto file = m_fs.openFile(resolvedPath);
-                    surface.addSkin(imageReader.readTexture(file));
+                auto tmp = shader;
+                if (tmp.lastComponent().deleteExtension() == Path("b_flag2")) {
+                    //tmp = tmp.deleteLastComponent() + Path("blue_fx.jpg");
                 }
+                auto file = m_fs.openFile(tmp.deleteExtension());
+                surface.addSkin(shaderReader.readTexture(file));
             }
         }
 

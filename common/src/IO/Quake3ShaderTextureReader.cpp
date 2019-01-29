@@ -55,16 +55,16 @@ namespace TrenchBroom {
         }
 
         Path Quake3ShaderTextureReader::findTexturePath(const Assets::Quake3Shader& shader) const {
-            Path texturePath = findTexture(m_fs, shader.editorImage);
+            Path texturePath = findTexture(shader.editorImage);
             if (texturePath.isEmpty()) {
-                texturePath = findTexture(m_fs, shader.shaderPath);
+                texturePath = findTexture(shader.shaderPath);
             }
             if (texturePath.isEmpty()) {
-                texturePath = findTexture(m_fs, shader.lightImage);
+                texturePath = findTexture(shader.lightImage);
             }
             if (texturePath.isEmpty()) {
                 for (const auto& stage : shader.stages) {
-                    texturePath = findTexture(m_fs, stage.map);
+                    texturePath = findTexture(stage.map);
                     if (!texturePath.isEmpty()) {
                         break;
                     }
@@ -76,9 +76,9 @@ namespace TrenchBroom {
             return texturePath;
         }
 
-        Path Quake3ShaderTextureReader::findTexture(const FileSystem& fs, const Path& texturePath) {
-            if (!texturePath.isEmpty() && (texturePath.extension().empty() || !fs.fileExists(texturePath))) {
-                const auto candidates = fs.findItemsWithBaseName(texturePath, StringList { "tga", "png", "jpg", "jpeg"});
+        Path Quake3ShaderTextureReader::findTexture(const Path& texturePath) const {
+            if (!texturePath.isEmpty() && (texturePath.extension().empty() || !m_fs.fileExists(texturePath))) {
+                const auto candidates = m_fs.findItemsWithBaseName(texturePath, StringList { "tga", "png", "jpg", "jpeg"});
                 if (!candidates.empty()) {
                     return candidates.front();
                 } else {

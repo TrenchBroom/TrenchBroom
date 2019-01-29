@@ -200,14 +200,14 @@ namespace TrenchBroom {
                 glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
                 glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
 
-                if (m_buffers.size() == 1) {
-                    // generate mipmaps if we don't have any
-                    glAssert(glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE));
-                } else if (m_type == TextureType::Masked) {
-                    // masked textures don't work well with mipmaps, so we force GL_NEAREST filtering and don't generate any
+                if (m_type == TextureType::Masked) {
+                    // masked textures don't work well with automatic mipmaps, so we force GL_NEAREST filtering and don't generate any
                     glAssert(glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE));
                     glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
                     glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+                } else if (m_buffers.size() == 1) {
+                    // generate mipmaps if we don't have any
+                    glAssert(glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE));
                 } else {
                     glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, static_cast<GLint>(m_buffers.size() - 1)));
                 }
