@@ -73,7 +73,7 @@ namespace TrenchBroom {
             m_controlSizer = new QHBoxLayout();
             m_controlSizer->setContentsMargins(0, LayoutConstants::NarrowHMargin, 0, LayoutConstants::NarrowHMargin);
             m_controlSizer->addSpacing(LayoutConstants::TabBarBarLeftMargin);
-            m_controlSizer->addStretch();
+            m_controlSizer->addStretch(1);
             m_controlSizer->addLayout(m_barBook, 0);
             assert(m_controlSizer->setAlignment(m_barBook, Qt::AlignVCenter));
             m_controlSizer->addSpacing(LayoutConstants::NarrowHMargin);

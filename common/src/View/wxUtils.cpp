@@ -179,5 +179,13 @@ namespace TrenchBroom {
             return QString::fromUtf8(utf8.data(), utf8.length());
         }
 #endif
+
+        void setDebugBackgroundColor(QWidget* widget, const QColor& color) {
+            QPalette p = widget->palette();
+            p.setColor(QPalette::Window, color);
+
+            widget->setAutoFillBackground(true);
+            widget->setPalette(p);
+        }
     }
 }

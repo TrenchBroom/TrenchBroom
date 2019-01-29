@@ -33,6 +33,8 @@
 #include <QCheckBox>
 #include <QVBoxLayout>
 
+#include <QLabel>
+
 #include <cassert>
 
 namespace TrenchBroom {
@@ -56,6 +58,8 @@ namespace TrenchBroom {
         }
 
         QWidget* IssueBrowser::createTabBarPage(QWidget* parent) {
+
+
             auto* barPage = new QWidget(parent);
             m_showHiddenIssuesCheckBox = new QCheckBox("Show hidden issues");
             connect(m_showHiddenIssuesCheckBox, &QCheckBox::stateChanged, this, &IssueBrowser::OnShowHiddenIssuesChanged);
@@ -64,8 +68,8 @@ namespace TrenchBroom {
             connect(m_filterEditor, &FlagsPopupEditor::flagChanged, this, &IssueBrowser::OnFilterChanged);
 
             auto* barPageSizer = new QHBoxLayout();
+            barPageSizer->setContentsMargins(0, 0, 0, 0);
             barPageSizer->addWidget(m_showHiddenIssuesCheckBox, 0, Qt::AlignVCenter);
-            barPageSizer->addSpacing(LayoutConstants::MediumHMargin);
             barPageSizer->addWidget(m_filterEditor, 0, Qt::AlignVCenter);
             barPage->setLayout(barPageSizer);
             

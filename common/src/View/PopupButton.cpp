@@ -32,6 +32,7 @@ namespace TrenchBroom {
         QWidget(parent) {
             m_button = new QToolButton();
             m_button->setText(caption);
+            m_button->setCheckable(true);
 
             m_window = new PopupWindow(this);
 
@@ -67,10 +68,10 @@ namespace TrenchBroom {
         QWidget(parent, Qt::Popup) {}
 
         void PopupWindow::closeEvent(QCloseEvent* event) {
-            emit visibilityChanged(isVisible());
+            emit visibilityChanged(false);
         }
         void PopupWindow::showEvent(QShowEvent* event) {
-            emit visibilityChanged(isVisible());
+            emit visibilityChanged(true);
         }
     }
 }

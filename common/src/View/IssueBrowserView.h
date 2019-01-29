@@ -40,8 +40,6 @@ namespace TrenchBroom {
         class IssueBrowserView : public QWidget {
             Q_OBJECT
         private:
-            using IndexList = std::vector<size_t>;
-            
             MapDocumentWPtr m_document;
 
             Model::IssueType m_hiddenGenerators;
@@ -63,32 +61,26 @@ namespace TrenchBroom {
             void setShowHiddenIssues(bool show);
             void reload();
             void deselectAll();
-            
-            //void OnSize(wxSizeEvent& event);
-            
+
             void OnItemRightClick(const QPoint& pos);
             void OnItemSelectionChanged();
             void OnShowIssues();
             void OnHideIssues();
-            void OnApplyQuickFix();
+            void OnApplyQuickFix(const Model::IssueQuickFix* quickFix);
         private:
             class IssueVisible;
             class IssueCmp;
             
             void updateIssues();
             
-            Model::IssueList collectIssues(const IndexList& indices) const;
-            Model::IssueQuickFixList collectQuickFixes(const IndexList& indices) const;
+            Model::IssueList collectIssues(const QList<QModelIndex>& indices) const;
+            Model::IssueQuickFixList collectQuickFixes(const QList<QModelIndex>& indices) const;
             Model::IssueType issueTypeMask() const;
             
             void setIssueVisibility(bool show);
-            
+
+            QList<QModelIndex> getSelection() const;
             void updateSelection();
-            IndexList getSelection() const;
-            
-//            wxListItemAttr* OnGetItemAttr(long item) const override;
-//            QString OnGetItemText(long item, long column) const override;
-            
             void bindEvents();
         private:
             void invalidate();

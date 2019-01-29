@@ -70,6 +70,7 @@ namespace TrenchBroom {
 
         Color fromQColor(const QColor& color);
         void setWindowIcon(QWidget* window);
+        void setDebugBackgroundColor(QWidget* widget, const QColor& color);
     }
 }
 
