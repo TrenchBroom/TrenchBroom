@@ -86,6 +86,8 @@ namespace TrenchBroom {
                         auto& shader = *shaderIt;
 
                         // If the shader doesn't have a QER image path, use the texture path itself.
+                        // Need to implement fallback logic from q3map2 shaders.c line 735ff and 1012ff
+                        // The gist: first, use qer_editorImage, then try shader name, then try q3map_lightImage, then try mapped images from stages until something is foundbe
                         if (!shader.hasQerImagePath()) {
                             shader.setQerImagePath(texture);
                         }
@@ -120,20 +122,19 @@ namespace TrenchBroom {
 
         void Quake3ShaderFileSystem::linkStandaloneShaders(std::vector<Assets::Quake3Shader>& shaders) {
             m_logger->debug() << "Linking standalone shaders...";
-            for (const auto& shader : shaders) {
+            for (auto& shader : shaders) {
                 const auto& shaderPath = shader.texturePath();
-                if (shaderPath.hasPrefix(m_texturePrefix, false)) {
-                    /*
-                    if (shader.hasQerImagePath()) {
-                        m_logger->debug() << "Linking shader " << shaderPath << " -> " << shader.qerImagePath();
-                    } else {
-                        m_logger->debug() << "Shader " << shaderPath << " has no image";
-                    }
-                    */
 
-                    auto shaderFile = std::make_shared<ObjectFile<Assets::Quake3Shader>>(shader, shaderPath);
-                    m_root.addFile(shaderPath, std::make_unique<SimpleFile>(std::move(shaderFile)));
+                /*
+                if (shader.hasQerImagePath()) {
+                    m_logger->debug() << "Linking shader " << shaderPath << " -> " << shader.qerImagePath();
+                } else {
+                    m_logger->debug() << "Shader " << shaderPath << " has no image";
                 }
+                */
+
+                auto shaderFile = std::make_shared<ObjectFile<Assets::Quake3Shader>>(shader, shaderPath);
+                m_root.addFile(shaderPath, std::make_unique<SimpleFile>(std::move(shaderFile)));
             }
         }
     }

@@ -45,7 +45,7 @@ namespace TrenchBroom {
             static const size_t DirModelAddress       = 0x74;
             // static const size_t DirModelSize          = 0x78;
             
-            static const size_t TextureNameLength     = 0x10;
+            // static const size_t TextureNameLength     = 0x10;
             
             static const size_t FaceSize              = 0x14;
             static const size_t FaceEdgeIndex         = 0x4;

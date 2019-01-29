@@ -33,6 +33,7 @@
 #include "IO/MapParser.h"
 #include "IO/MdlParser.h"
 #include "IO/Md2Parser.h"
+#include "IO/Md3Parser.h"
 #include "IO/NodeReader.h"
 #include "IO/NodeWriter.h"
 #include "IO/ObjSerializer.h"
@@ -351,6 +352,8 @@ namespace TrenchBroom {
                     return loadMdlModel(modelName, file);
                 } else if (extension == "md2" && supported.count("md2") > 0) {
                     return loadMd2Model(modelName, file);
+                } else if (extension == "md3" && supported.count("md3") > 0) {
+                    return loadMd3Model(modelName, file);
                 } else if (extension == "bsp" && supported.count("bsp") > 0) {
                     return loadBspModel(modelName, file);
                 } else if (extension == "dkm" && supported.count("dkm") > 0) {
@@ -383,6 +386,11 @@ namespace TrenchBroom {
             const auto palette = loadTexturePalette();
 
             IO::Md2Parser parser(name, file->begin(), file->end(), palette, m_fs);
+            return parser.parseModel();
+        }
+
+        Assets::EntityModel* GameImpl::loadMd3Model(const String& name, const IO::MappedFile::Ptr& file) const {
+            IO::Md3Parser parser(name, file->begin(), file->end(), m_fs);
             return parser.parseModel();
         }
 

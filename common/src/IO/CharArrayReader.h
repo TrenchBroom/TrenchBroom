@@ -41,8 +41,8 @@ namespace TrenchBroom {
 
         class CharArrayReader {
         private:
-            const char* const m_begin;
-            const char* const m_end;
+            const char* m_begin;
+            const char* m_end;
             const char* m_current;
         public:
             CharArrayReader(const char* begin, const char* end);

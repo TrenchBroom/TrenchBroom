@@ -52,14 +52,15 @@ namespace TrenchBroom {
 
 
         Assets::Quake3Shader Quake3ShaderTextureReader::fixImagePath(Assets::Quake3Shader shader) const {
-            if (shader.hasQerImagePath()) {
-                if (!m_fs.fileExists(shader.qerImagePath())) {
-                    const auto candidates = m_fs.findItemsWithBaseName(shader.qerImagePath(), StringList { "tga", "png", "jpg", "jpeg"});
-                    if (!candidates.empty()) {
-                        shader.setQerImagePath(candidates.front());
-                    } else {
-                        shader.clearQerImagePath();
-                    }
+            if (!shader.hasQerImagePath()) {
+                shader.setQerImagePath(shader.texturePath());
+            }
+            if (shader.qerImagePath().extension().empty() || !m_fs.fileExists(shader.qerImagePath())) {
+                const auto candidates = m_fs.findItemsWithBaseName(shader.qerImagePath(), StringList { "tga", "png", "jpg", "jpeg"});
+                if (!candidates.empty()) {
+                    shader.setQerImagePath(candidates.front());
+                } else {
+                    shader.clearQerImagePath();
                 }
             }
             return shader;
