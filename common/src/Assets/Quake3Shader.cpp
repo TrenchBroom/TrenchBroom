@@ -23,62 +23,27 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        Quake3Shader::Quake3Shader() :
-        m_hasTexturePath(false),
-        m_hasQerImagePath(false) {}
+        bool Quake3ShaderStage::operator==(const Quake3ShaderStage& other) const {
+            return map == other.map;
+        }
 
         bool Quake3Shader::operator==(const Quake3Shader& other) const {
-            return (m_hasTexturePath == other.m_hasTexturePath && m_texturePath == other.m_texturePath);
+            return shaderPath == other.shaderPath;
         }
 
         bool isEqual(const Quake3Shader& lhs, const Quake3Shader& rhs) {
-            return lhs.m_hasTexturePath == rhs.m_hasTexturePath && lhs.m_texturePath == rhs.m_texturePath &&
-                   lhs.m_hasQerImagePath == rhs.m_hasQerImagePath && lhs.m_qerImagePath == rhs.m_qerImagePath &&
-                   lhs.m_surfaceParms == rhs.m_surfaceParms;
+            return (
+                lhs.shaderPath == rhs.shaderPath &&
+                lhs.editorImage == rhs.editorImage &&
+                lhs.lightImage == rhs.lightImage &&
+                lhs.surfaceParms == rhs.surfaceParms &&
+                lhs.stages == rhs.stages
+            );
         }
 
-        bool Quake3Shader::hasTexturePath() const {
-            return m_hasTexturePath;
-        }
-
-        const IO::Path& Quake3Shader::texturePath() const {
-            assert(m_hasTexturePath);
-            return m_texturePath;
-        }
-
-        void Quake3Shader::setTexturePath(const IO::Path& texturePath) {
-            m_texturePath = texturePath;
-            m_hasTexturePath = true;
-        }
-
-        bool Quake3Shader::hasQerImagePath() const {
-            return m_hasQerImagePath;
-        }
-
-        IO::Path Quake3Shader::qerImagePath(const IO::Path& defaultPath) const {
-            if (!m_hasQerImagePath) {
-                return defaultPath;
-            } else {
-                return m_qerImagePath;
-            }
-        }
-
-        void Quake3Shader::setQerImagePath(const IO::Path& qerImagePath) {
-            m_qerImagePath = qerImagePath;
-            m_hasQerImagePath = true;
-        }
-
-        void Quake3Shader::clearQerImagePath() {
-            m_qerImagePath = IO::Path();
-            m_hasQerImagePath = false;
-        }
-
-        const StringSet& Quake3Shader::surfaceParms() const {
-            return m_surfaceParms;
-        }
-
-        void Quake3Shader::addSurfaceParm(const String& parm) {
-            m_surfaceParms.insert(parm);
+        Quake3ShaderStage& Quake3Shader::addStage() {
+            stages.emplace_back();
+            return stages.back();
         }
     }
 }

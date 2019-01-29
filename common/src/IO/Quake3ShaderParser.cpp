@@ -109,23 +109,36 @@ namespace TrenchBroom {
             while (!m_tokenizer.peekToken(Quake3ShaderToken::Eol).hasType(Quake3ShaderToken::Eof)) {
                 Assets::Quake3Shader shader;
                 parseTexture(shader);
-                parseBlock(shader);
+                parseBody(shader);
                 result.push_back(shader);
             }
             return result;
         }
 
-        void Quake3ShaderParser::parseBlock(Assets::Quake3Shader& shader) {
+        void Quake3ShaderParser::parseBody(Assets::Quake3Shader& shader) {
             expect(Quake3ShaderToken::OBrace, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
             auto token = m_tokenizer.peekToken(Quake3ShaderToken::Eol);
             expect(Quake3ShaderToken::CBrace | Quake3ShaderToken::OBrace | Quake3ShaderToken::String, token);
 
             while (!token.hasType(Quake3ShaderToken::CBrace)) {
                 if (token.hasType(Quake3ShaderToken::OBrace)) {
-                    parseBlock(shader);
+                    parseStage(shader);
                 } else {
-                    parseEntry(shader);
+                    parseBodyEntry(shader);
                 }
+                token = m_tokenizer.peekToken(Quake3ShaderToken::Eol);
+            }
+            expect(Quake3ShaderToken::CBrace, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
+        }
+
+        void Quake3ShaderParser::parseStage(Assets::Quake3Shader& shader) {
+            expect(Quake3ShaderToken::OBrace, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
+            auto token = m_tokenizer.peekToken(Quake3ShaderToken::Eol);
+            expect(Quake3ShaderToken::CBrace | Quake3ShaderToken::OBrace | Quake3ShaderToken::String, token);
+
+            auto& stage = shader.addStage();
+            while (!token.hasType(Quake3ShaderToken::CBrace)) {
+                parseStageEntry(stage);
                 token = m_tokenizer.peekToken(Quake3ShaderToken::Eol);
             }
             expect(Quake3ShaderToken::CBrace, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
@@ -133,19 +146,34 @@ namespace TrenchBroom {
 
         void Quake3ShaderParser::parseTexture(Assets::Quake3Shader& shader) {
             const auto token = expect(Quake3ShaderToken::String, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
-            shader.setTexturePath(Path(token.data()));
+            shader.shaderPath = Path(token.data());
         }
 
-        void Quake3ShaderParser::parseEntry(Assets::Quake3Shader& shader) {
+        void Quake3ShaderParser::parseBodyEntry(Assets::Quake3Shader& shader) {
             auto token = m_tokenizer.nextToken(Quake3ShaderToken::Eol);
             expect(Quake3ShaderToken::String, token);
             const auto key = token.data();
             if (key == "qer_editorimage") {
                 token = expect(Quake3ShaderToken::String, m_tokenizer.nextToken());
-                shader.setQerImagePath(Path(token.data()));
+                shader.editorImage = Path(token.data());
+            } else if (key == "q3map_lightImage") {
+                token = expect(Quake3ShaderToken::String, m_tokenizer.nextToken());
+                shader.lightImage = Path(token.data());
             } else if (key == "surfaceparm") {
                 token = expect(Quake3ShaderToken::String, m_tokenizer.nextToken());
-                shader.addSurfaceParm(token.data());
+                shader.surfaceParms.insert(token.data());
+            } else {
+                while (!m_tokenizer.nextToken().hasType(Quake3ShaderToken::Eol));
+            }
+        }
+
+        void Quake3ShaderParser::parseStageEntry(Assets::Quake3ShaderStage& stage) {
+            auto token = m_tokenizer.nextToken(Quake3ShaderToken::Eol);
+            expect(Quake3ShaderToken::String, token);
+            const auto key = token.data();
+            if (key == "map") {
+                token = expect(Quake3ShaderToken::String | Quake3ShaderToken::Variable, m_tokenizer.nextToken());
+                stage.map = Path(token.data());
             } else {
                 while (!m_tokenizer.nextToken().hasType(Quake3ShaderToken::Eol));
             }

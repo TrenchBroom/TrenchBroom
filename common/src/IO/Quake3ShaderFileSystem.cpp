@@ -78,27 +78,12 @@ namespace TrenchBroom {
                 // Only link a shader if it has not been linked yet.
                 if (!fileExists(shaderPath)) {
                     const auto shaderIt = std::find_if(std::begin(shaders), std::end(shaders), [&shaderPath](const auto& shader){
-                        return shaderPath == shader.texturePath();
+                        return shaderPath == shader.shaderPath;
                     });
 
                     if (shaderIt != std::end(shaders)) {
                         // Found a matching shader.
                         auto& shader = *shaderIt;
-
-                        // If the shader doesn't have a QER image path, use the texture path itself.
-                        // Need to implement fallback logic from q3map2 shaders.c line 735ff and 1012ff
-                        // The gist: first, use qer_editorImage, then try shader name, then try q3map_lightImage, then try mapped images from stages until something is foundbe
-                        if (!shader.hasQerImagePath()) {
-                            shader.setQerImagePath(texture);
-                        }
-
-                        /*
-                        if (shader.hasQerImagePath()) {
-                            m_logger->debug() << "Linking shader " << shaderPath << " -> " << shader.qerImagePath();
-                        } else {
-                            m_logger->debug() << "Linking shader " << shaderPath << " -> default texture";
-                        }
-                        */
 
                         auto shaderFile = std::make_shared<ObjectFile<Assets::Quake3Shader>>(shader, shaderPath);
                         m_root.addFile(shaderPath, std::make_unique<SimpleFile>(std::move(shaderFile)));
@@ -108,8 +93,8 @@ namespace TrenchBroom {
                     } else {
                         // No matching shader found, generate one.
                         auto shader = Assets::Quake3Shader();
-                        shader.setTexturePath(shaderPath);
-                        shader.setQerImagePath(texture);
+                        shader.shaderPath = shaderPath;
+                        shader.editorImage = texture;
 
                         // m_logger->debug() << "Generating shader " << shaderPath << " -> " << shader.qerImagePath();
 
@@ -123,16 +108,7 @@ namespace TrenchBroom {
         void Quake3ShaderFileSystem::linkStandaloneShaders(std::vector<Assets::Quake3Shader>& shaders) {
             m_logger->debug() << "Linking standalone shaders...";
             for (auto& shader : shaders) {
-                const auto& shaderPath = shader.texturePath();
-
-                /*
-                if (shader.hasQerImagePath()) {
-                    m_logger->debug() << "Linking shader " << shaderPath << " -> " << shader.qerImagePath();
-                } else {
-                    m_logger->debug() << "Shader " << shaderPath << " has no image";
-                }
-                */
-
+                const auto& shaderPath = shader.shaderPath;
                 auto shaderFile = std::make_shared<ObjectFile<Assets::Quake3Shader>>(shader, shaderPath);
                 m_root.addFile(shaderPath, std::make_unique<SimpleFile>(std::move(shaderFile)));
             }

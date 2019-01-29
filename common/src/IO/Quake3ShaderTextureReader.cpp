@@ -32,12 +32,16 @@ namespace TrenchBroom {
         m_fs(fs) {}
 
         Assets::Texture* Quake3ShaderTextureReader::doReadTexture(MappedFile::Ptr file) const {
-            const auto* shaderFile = static_cast<ObjectFile<Assets::Quake3Shader>*>(file.get());
-            const auto shader = fixImagePath(shaderFile->object());
-            const auto& imagePath = shader.qerImagePath(Path("textures/__TB_empty.tga"));
+            const auto* shaderFile = dynamic_cast<ObjectFile<Assets::Quake3Shader>*>(file.get());
+            if (shaderFile == nullptr) {
+                return nullptr;
+            }
 
-            auto* texture = loadTextureImage(shader.texturePath(), imagePath);
-            texture->setSurfaceParms(shader.surfaceParms());
+            const auto& shader = shaderFile->object();
+            const auto texturePath = findTexturePath(shader);
+
+            auto* texture = loadTextureImage(shader.shaderPath, texturePath);
+            texture->setSurfaceParms(shader.surfaceParms);
             return texture;
         }
 
@@ -50,20 +54,36 @@ namespace TrenchBroom {
             }
         }
 
-
-        Assets::Quake3Shader Quake3ShaderTextureReader::fixImagePath(Assets::Quake3Shader shader) const {
-            if (!shader.hasQerImagePath()) {
-                shader.setQerImagePath(shader.texturePath());
+        Path Quake3ShaderTextureReader::findTexturePath(const Assets::Quake3Shader& shader) const {
+            Path texturePath = findTexture(shader.editorImage);
+            if (texturePath.isEmpty()) {
+                texturePath = findTexture(shader.shaderPath);
             }
-            if (shader.qerImagePath().extension().empty() || !m_fs.fileExists(shader.qerImagePath())) {
-                const auto candidates = m_fs.findItemsWithBaseName(shader.qerImagePath(), StringList { "tga", "png", "jpg", "jpeg"});
-                if (!candidates.empty()) {
-                    shader.setQerImagePath(candidates.front());
-                } else {
-                    shader.clearQerImagePath();
+            if (texturePath.isEmpty()) {
+                texturePath = findTexture(shader.lightImage);
+            }
+            if (texturePath.isEmpty()) {
+                for (const auto& stage : shader.stages) {
+                    texturePath = findTexture(stage.map);
+                    if (!texturePath.isEmpty()) {
+                        break;
+                    }
                 }
             }
-            return shader;
+            if (texturePath.isEmpty()) {
+                texturePath = Path("textures/__TB_empty.tga");
+            }
+            return texturePath;
+        }
+
+        Path Quake3ShaderTextureReader::findTexture(const Path& texturePath) const {
+            if (!texturePath.isEmpty() && (texturePath.extension().empty() || !m_fs.fileExists(texturePath))) {
+                const auto candidates = m_fs.findItemsWithBaseName(texturePath, StringList { "tga", "png", "jpg", "jpeg"});
+                if (!candidates.empty()) {
+                    return candidates.front();
+                }
+            }
+            return Path();
         }
     }
 }
