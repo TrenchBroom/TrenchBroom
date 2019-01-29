@@ -21,6 +21,7 @@
 
 #include "IO/CharArrayReader.h"
 #include "IO/FileSystem.h"
+#include "IO/FreeImageTextureReader.h"
 #include "IO/Quake3ShaderTextureReader.h"
 #include "Renderer/IndexRangeMapBuilder.h"
 
@@ -112,10 +113,6 @@ namespace TrenchBroom {
          */
 
         void Md3Parser::parseSurfaces(CharArrayReader reader, const size_t surfaceCount, Assets::EntityModel& model) {
-            if (surfaceCount > 2) {
-                bool b = true;
-            }
-
             auto surfaceReader = reader;
             for (size_t i = 0; i < surfaceCount; ++i) {
                 const auto ident = surfaceReader.readInt<int32_t>();
@@ -220,11 +217,20 @@ namespace TrenchBroom {
 
         void Md3Parser::loadSurfaceSkins(Assets::EntityModel::Surface& surface, const std::vector<Path>& shaders) {
             TextureReader::PathSuffixNameStrategy nameStrategy(2, true);
-            Quake3ShaderTextureReader reader(nameStrategy, m_fs);
+            Quake3ShaderTextureReader shaderReader(nameStrategy, m_fs);
+            FreeImageTextureReader imageReader(nameStrategy);
 
             for (const auto& shader : shaders) {
-                auto file = m_fs.openFile(shader.deleteExtension());
-                surface.addSkin(reader.readTexture(file));
+                // Some models reference their textures directly without using shaders.
+                const auto basePath = shader.deleteExtension();
+                if (m_fs.fileExists(basePath)) {
+                    auto file = m_fs.openFile(basePath);
+                    surface.addSkin(shaderReader.readTexture(file));
+                } else {
+                    const auto resolvedPath = Quake3ShaderTextureReader::findTexture(m_fs, shader);
+7                    auto file = m_fs.openFile(resolvedPath);
+                    surface.addSkin(imageReader.readTexture(file));
+                }
             }
         }
 
