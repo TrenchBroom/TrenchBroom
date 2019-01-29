@@ -69,6 +69,7 @@ namespace TrenchBroom {
         m_overridden(false),
         m_format(format),
         m_type(type),
+        m_culling(TextureCulling::Default),
         m_textureId(0) {
             assert(m_width > 0);
             assert(m_height > 0);
@@ -86,6 +87,7 @@ namespace TrenchBroom {
         m_overridden(false),
         m_format(format),
         m_type(type),
+        m_culling(TextureCulling::Default),
         m_textureId(0),
         m_buffers(buffers) {
             assert(m_width > 0);
@@ -110,6 +112,7 @@ namespace TrenchBroom {
         m_overridden(false),
         m_format(format),
         m_type(type),
+        m_culling(TextureCulling::Default),
         m_textureId(0) {}
 
         Texture::~Texture() {
@@ -149,6 +152,14 @@ namespace TrenchBroom {
 
         void Texture::setSurfaceParms(const StringSet& surfaceParms) {
             m_surfaceParms = surfaceParms;
+        }
+
+        TextureCulling Texture::culling() const {
+            return m_culling;
+        }
+
+        void Texture::setCulling(const TextureCulling culling) {
+            m_culling = culling;
         }
 
         size_t Texture::usageCount() const {
@@ -248,11 +259,39 @@ namespace TrenchBroom {
         void Texture::activate() const {
             if (isPrepared()) {
                 glAssert(glBindTexture(GL_TEXTURE_2D, m_textureId));
+
+                switch (m_culling) {
+                    case Assets::TextureCulling::None:
+                        glAssert(glDisable(GL_CULL_FACE));
+                        break;
+                    case Assets::TextureCulling::Front:
+                        glAssert(glCullFace(GL_FRONT));
+                        break;
+                    case Assets::TextureCulling::Both:
+                        glAssert(glCullFace(GL_FRONT_AND_BACK));
+                    case Assets::TextureCulling::Default:
+                    case Assets::TextureCulling::Back:
+                        break;
+                }
             }
         }
         
         void Texture::deactivate() const {
             if (isPrepared()) {
+                switch (m_culling) {
+                    case Assets::TextureCulling::None:
+                        glAssert(glEnable(GL_CULL_FACE));
+                        break;
+                    case Assets::TextureCulling::Front:
+                        glAssert(glCullFace(GL_BACK));
+                        break;
+                    case Assets::TextureCulling::Both:
+                        glAssert(glCullFace(GL_BACK));
+                        break;
+                    case Assets::TextureCulling::Default:
+                    case Assets::TextureCulling::Back:
+                        break;
+                }
                 glAssert(glBindTexture(GL_TEXTURE_2D, 0));
             }
         }

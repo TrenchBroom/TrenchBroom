@@ -39,14 +39,10 @@ namespace TrenchBroom {
             m_indexCount += count;
         }
 
-        void TexturedIndexArrayMap::Size::inc(const TexturedIndexArrayMap::Size& other) {
-            for (const auto& entry : other.m_sizes) {
-                auto* texture = entry.first;
-                const auto& indexSize = entry.second;
-                IndexArrayMap::Size& sizeForKey = findCurrent(texture);
-                sizeForKey.inc(indexSize);
-                m_indexCount += indexSize.indexCount();
-            }
+        void TexturedIndexArrayMap::Size::inc(const TexturedIndexArrayMap::Texture* texture, const IndexArrayMap::Size& size) {
+            IndexArrayMap::Size& sizeForKey = findCurrent(texture);
+            sizeForKey.inc(size);
+            m_indexCount += size.indexCount();
         }
 
         IndexArrayMap::Size& TexturedIndexArrayMap::Size::findCurrent(const Texture* texture) {
@@ -95,7 +91,7 @@ namespace TrenchBroom {
             for (const auto& entry : *m_ranges) {
                 auto* texture = entry.first;
                 const auto indexArraySize = entry.second.size();
-
+                result.inc(texture, indexArraySize);
             }
             return result;
         }

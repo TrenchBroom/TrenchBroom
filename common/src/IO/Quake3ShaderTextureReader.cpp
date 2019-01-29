@@ -42,6 +42,20 @@ namespace TrenchBroom {
 
             auto* texture = loadTextureImage(shader.shaderPath, texturePath);
             texture->setSurfaceParms(shader.surfaceParms);
+
+            // Note that Quake 3 has a different understanding of front and back, so we need to invert them.
+            switch (shader.culling) {
+                case Assets::Quake3Shader::Culling::Front:
+                    texture->setCulling(Assets::TextureCulling::Back);
+                    break;
+                case Assets::Quake3Shader::Culling::Back:
+                    texture->setCulling(Assets::TextureCulling::Front);
+                    break;
+                case Assets::Quake3Shader::Culling::None:
+                    texture->setCulling(Assets::TextureCulling::None);
+                    break;
+            }
+
             return texture;
         }
 

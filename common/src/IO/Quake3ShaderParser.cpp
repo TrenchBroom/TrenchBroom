@@ -162,6 +162,16 @@ namespace TrenchBroom {
             } else if (key == "surfaceparm") {
                 token = expect(Quake3ShaderToken::String, m_tokenizer.nextToken());
                 shader.surfaceParms.insert(token.data());
+            } else if (key == "cull") {
+                token = expect(Quake3ShaderToken::String, m_tokenizer.nextToken());
+                const auto value = token.data();
+                if (value == "front") {
+                    shader.culling = Assets::Quake3Shader::Culling::Front;
+                } else if (value == "back") {
+                    shader.culling = Assets::Quake3Shader::Culling::Back;
+                } else if (value == "none" || value == "disable") {
+                    shader.culling = Assets::Quake3Shader::Culling::None;
+                }
             } else {
                 while (!m_tokenizer.nextToken().hasType(Quake3ShaderToken::Eol));
             }

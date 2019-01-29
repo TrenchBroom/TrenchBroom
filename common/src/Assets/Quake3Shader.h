@@ -36,10 +36,16 @@ namespace TrenchBroom {
 
         class Quake3Shader {
         public:
+            enum class Culling {
+                Front,
+                Back,
+                None
+            };
         public:
             IO::Path shaderPath;
             IO::Path editorImage;
             IO::Path lightImage;
+            Culling culling = Culling::Front;
             StringSet surfaceParms;
             std::vector<Quake3ShaderStage> stages;
         public:

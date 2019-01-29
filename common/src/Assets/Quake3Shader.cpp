@@ -36,6 +36,7 @@ namespace TrenchBroom {
                 lhs.shaderPath == rhs.shaderPath &&
                 lhs.editorImage == rhs.editorImage &&
                 lhs.lightImage == rhs.lightImage &&
+                lhs.culling == rhs.culling &&
                 lhs.surfaceParms == rhs.surfaceParms &&
                 lhs.stages == rhs.stages
             );

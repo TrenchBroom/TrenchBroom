@@ -45,6 +45,14 @@ namespace TrenchBroom {
             Masked
         };
 
+        enum class TextureCulling {
+            Default,
+            None,
+            Front,
+            Back,
+            Both
+        };
+
         vm::vec2s sizeAtMipLevel(size_t width, size_t height, size_t level);
         size_t bytesPerPixelForFormat(GLenum format);
         void setMipBufferSize(TextureBuffer::List& buffers, size_t mipLevels, size_t width, size_t height, GLenum format);
@@ -67,6 +75,9 @@ namespace TrenchBroom {
             // Quake 3 surface parameters; move these to materials when we add proper support for those.
             StringSet m_surfaceParms;
 
+            // Quake 3 surface culling; move to materials
+            TextureCulling m_culling;
+
             mutable GLuint m_textureId;
             mutable TextureBuffer::List m_buffers;
         public:
@@ -85,6 +96,9 @@ namespace TrenchBroom {
 
             const StringSet& surfaceParms() const;
             void setSurfaceParms(const StringSet& surfaceParms);
+
+            TextureCulling culling() const;
+            void setCulling(TextureCulling culling);
 
             size_t usageCount() const;
             void incUsageCount();

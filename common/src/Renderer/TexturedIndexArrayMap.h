@@ -75,9 +75,10 @@ namespace TrenchBroom {
                 /**
                  * Increase the storage by the given size.
                  *
-                 * @param other the size to increase by
+                 * @param texture the texture
+                 * @param size the size to increment by
                  */
-                void inc(const Size& other);
+                void inc(const Texture* texture, const IndexArrayMap::Size& size);
 
                 /**
                  * The total number of indices that have been accounted for.

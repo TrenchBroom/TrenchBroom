@@ -127,7 +127,7 @@ namespace TrenchBroom {
 
                 const auto surfaceName = surfaceReader.readString(Md3Layout::SurfaceNameLength);
 
-                /* const auto flags = */ surfaceReader.readInt<int32_t>();
+                const auto flags = surfaceReader.readInt<int32_t>();
                 const auto frameCount = surfaceReader.readSize<int32_t>();
                 const auto shaderCount = surfaceReader.readSize<int32_t>();
                 const auto vertexCount = surfaceReader.readSize<int32_t>(); // the number of vertices per frame!
