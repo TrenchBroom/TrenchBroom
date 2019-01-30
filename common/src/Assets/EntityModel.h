@@ -92,6 +92,8 @@ namespace TrenchBroom {
             public:
                 Surface(const String& name);
 
+                const String& name() const;
+
                 void prepare(int minFilter, int magFilter);
                 void setTextureMode(int minFilter, int magFilter);
 
@@ -102,6 +104,8 @@ namespace TrenchBroom {
 
                 size_t frameCount() const;
                 size_t skinCount() const;
+
+                const Assets::Texture* skin(const String& name) const;
 
                 std::unique_ptr<Renderer::TexturedIndexRangeRenderer> buildRenderer(size_t skinIndex, size_t frameIndex);
             };
@@ -128,6 +132,9 @@ namespace TrenchBroom {
 
             std::vector<const Frame*> frames() const;
             std::vector<const Surface*> surfaces() const;
+
+            const Frame* frame(const String& name) const;
+            const Surface* surface(const String& name) const;
         };
     }
 }

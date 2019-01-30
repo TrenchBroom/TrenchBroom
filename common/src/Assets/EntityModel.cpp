@@ -69,6 +69,10 @@ namespace TrenchBroom {
         m_name(name),
         m_skins(std::make_unique<Assets::TextureCollection>()) {}
 
+        const String& EntityModel::Surface::name() const {
+            return m_name;
+        }
+
         void EntityModel::Surface::prepare(const int minFilter, const int magFilter) {
             m_skins->prepare(minFilter, magFilter);
         }
@@ -95,6 +99,10 @@ namespace TrenchBroom {
 
         size_t EntityModel::Surface::skinCount() const {
             return m_skins->textureCount();
+        }
+
+        const Assets::Texture* EntityModel::Surface::skin(const String& name) const {
+            return m_skins->textureByName(name);
         }
 
         std::unique_ptr<Renderer::TexturedIndexRangeRenderer> EntityModel::Surface::buildRenderer(size_t skinIndex, size_t frameIndex) {
@@ -187,6 +195,24 @@ namespace TrenchBroom {
                 result.push_back(surface.get());
             }
             return result;
+        }
+
+        const EntityModel::Frame* EntityModel::frame(const String& name) const {
+            for (const auto& frame : m_frames) {
+                if (frame->name() == name) {
+                    return frame.get();
+                }
+            }
+            return nullptr;
+        }
+
+        const EntityModel::Surface* EntityModel::surface(const String& name) const {
+            for (const auto& surface : m_surfaces) {
+                if (surface->name() == name) {
+                    return surface.get();
+                }
+            }
+            return nullptr;
         }
     }
 }

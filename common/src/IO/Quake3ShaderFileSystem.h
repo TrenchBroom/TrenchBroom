@@ -36,23 +36,24 @@ namespace TrenchBroom {
          * Parses Quake 3 shader scripts found in a file system and makes the shader objects available as virtual files
          * in the file system.
          *
-         * Also scans for all textures available at a given prefix path and generates shaders for such textures which
+         * Also scans for textures available at a list of search paths and generates shaders for such textures which
          * do not already have a shader by the same name.
          */
         class Quake3ShaderFileSystem : public ImageFileSystemBase {
         private:
-            Path m_texturePrefix;
+            Path::List m_searchPaths;
             Logger* m_logger;
         public:
             /**
              * Creates a new instance at the given base path that uses the given file system to find shaders and shader
-             * image resources.
+             * image resources. The given search paths are recursively searched for textures, and any texture found that does
+             * not have a corresponding shader will have a shader generated for it.
              *
              * @param fs the filesystem to use when searching for shaders and linking image resources
-             * @param texturePrefix the path prefix where textures are scanned
+             * @param searchPaths the paths at which to search for texture images
              * @param logger the logger to use
              */
-            Quake3ShaderFileSystem(std::unique_ptr<FileSystem> fs, const Path& texturePrefix, Logger* logger);
+            Quake3ShaderFileSystem(std::unique_ptr<FileSystem> fs, Path::List searchPaths, Logger* logger);
         private:
             void doReadDirectory() override;
 

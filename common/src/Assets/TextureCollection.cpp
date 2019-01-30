@@ -97,6 +97,15 @@ namespace TrenchBroom {
             }
         }
 
+        Texture* TextureCollection::textureByName(const String& name) const {
+            for (auto* texture : m_textures) {
+                if (texture->name() == name) {
+                    return texture;
+                }
+            }
+            return nullptr;
+        }
+
         size_t TextureCollection::usageCount() const {
             return m_usageCount;
         }
