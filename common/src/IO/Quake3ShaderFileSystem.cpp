@@ -63,9 +63,16 @@ namespace TrenchBroom {
 
         void Quake3ShaderFileSystem::linkShaders(std::vector<Assets::Quake3Shader>& shaders) {
             const auto extensions = StringList { "tga", "png", "jpg", "jpeg" };
-            const auto textures = next().findItemsRecursively(m_texturePrefix, FileExtensionMatcher(extensions));
-            const auto skins = next().findItemsRecursively(Path("models"), FileExtensionMatcher(extensions));
-            const auto allImages = VectorUtils::concatenate(textures, skins);
+            const auto texturePrefix = m_texturePrefix;
+            const auto skinPrefix = Path("models");
+
+            auto allImages = Path::List();
+            if (next().directoryExists(texturePrefix)) {
+                VectorUtils::append(allImages, next().findItemsRecursively(texturePrefix, FileExtensionMatcher(extensions)));
+            }
+            if (next().directoryExists(skinPrefix)) {
+                VectorUtils::append(allImages, next().findItemsRecursively(skinPrefix, FileExtensionMatcher(extensions)));
+            }
 
             m_logger->info() << "Linking shaders...";
             linkTextures(allImages, shaders);
