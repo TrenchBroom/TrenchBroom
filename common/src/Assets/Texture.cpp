@@ -70,7 +70,7 @@ namespace TrenchBroom {
         m_overridden(false),
         m_format(format),
         m_type(type),
-        m_culling(TextureCulling::Default),
+        m_culling(TextureCulling::CullDefault),
         m_blendFunc{false, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA},
         m_textureId(0) {
             assert(m_width > 0);
@@ -89,7 +89,7 @@ namespace TrenchBroom {
         m_overridden(false),
         m_format(format),
         m_type(type),
-        m_culling(TextureCulling::Default),
+        m_culling(TextureCulling::CullDefault),
         m_blendFunc{false, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA},
         m_textureId(0),
         m_buffers(buffers) {
@@ -115,7 +115,7 @@ namespace TrenchBroom {
         m_overridden(false),
         m_format(format),
         m_type(type),
-        m_culling(TextureCulling::Default),
+        m_culling(TextureCulling::CullDefault),
         m_blendFunc{false, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA},
         m_textureId(0) {}
 
@@ -275,16 +275,16 @@ namespace TrenchBroom {
                 glAssert(glBindTexture(GL_TEXTURE_2D, m_textureId));
 
                 switch (m_culling) {
-                    case Assets::TextureCulling::None:
+                    case Assets::TextureCulling::CullNone:
                         glAssert(glDisable(GL_CULL_FACE));
                         break;
-                    case Assets::TextureCulling::Front:
+                    case Assets::TextureCulling::CullFront:
                         glAssert(glCullFace(GL_FRONT));
                         break;
-                    case Assets::TextureCulling::Both:
+                    case Assets::TextureCulling::CullBoth:
                         glAssert(glCullFace(GL_FRONT_AND_BACK));
-                    case Assets::TextureCulling::Default:
-                    case Assets::TextureCulling::Back:
+                    case Assets::TextureCulling::CullDefault:
+                    case Assets::TextureCulling::CullBack:
                         break;
                 }
 
@@ -302,17 +302,17 @@ namespace TrenchBroom {
                 }
 
                 switch (m_culling) {
-                    case Assets::TextureCulling::None:
+                    case Assets::TextureCulling::CullNone:
                         glAssert(glEnable(GL_CULL_FACE));
                         break;
-                    case Assets::TextureCulling::Front:
+                    case Assets::TextureCulling::CullFront:
                         glAssert(glCullFace(GL_BACK));
                         break;
-                    case Assets::TextureCulling::Both:
+                    case Assets::TextureCulling::CullBoth:
                         glAssert(glCullFace(GL_BACK));
                         break;
-                    case Assets::TextureCulling::Default:
-                    case Assets::TextureCulling::Back:
+                    case Assets::TextureCulling::CullDefault:
+                    case Assets::TextureCulling::CullBack:
                         break;
                 }
                 glAssert(glBindTexture(GL_TEXTURE_2D, 0));

@@ -46,11 +46,11 @@ namespace TrenchBroom {
         };
 
         enum class TextureCulling {
-            Default,
-            None,
-            Front,
-            Back,
-            Both
+            CullDefault,
+            CullNone,
+            CullFront,
+            CullBack,
+            CullBoth
         };
 
         struct TextureBlendFunc {

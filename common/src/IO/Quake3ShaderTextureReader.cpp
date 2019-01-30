@@ -46,13 +46,13 @@ namespace TrenchBroom {
             // Note that Quake 3 has a different understanding of front and back, so we need to invert them.
             switch (shader.culling) {
                 case Assets::Quake3Shader::Culling::Front:
-                    texture->setCulling(Assets::TextureCulling::Back);
+                    texture->setCulling(Assets::TextureCulling::CullBack);
                     break;
                 case Assets::Quake3Shader::Culling::Back:
-                    texture->setCulling(Assets::TextureCulling::Front);
+                    texture->setCulling(Assets::TextureCulling::CullFront);
                     break;
                 case Assets::Quake3Shader::Culling::None:
-                    texture->setCulling(Assets::TextureCulling::None);
+                    texture->setCulling(Assets::TextureCulling::CullNone);
                     break;
             }
 
