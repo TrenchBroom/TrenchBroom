@@ -27,7 +27,6 @@
 
 namespace TrenchBroom {
     namespace IO {
-        Assets::Quake3Shader makeShader(const IO::Path& shhaderPath, const IO::Path& qerImagePath = IO::Path(), const StringSet& surfaceParms = StringSet());
         void assertShaders(const std::vector<Assets::Quake3Shader>& expected, const std::vector<Assets::Quake3Shader>& actual);
 
         TEST(Quake3ShaderParserTest, parseEmptyShader) {
@@ -42,8 +41,15 @@ namespace TrenchBroom {
 textures/liquids/lavahell2 //path and name of new texture
 {}
 )");
-            const auto expected = std::vector<Assets::Quake3Shader>{
-                makeShader(IO::Path("textures/liquids/lavahell2"))
+            const auto expected = std::vector<Assets::Quake3Shader> {
+                {
+                    IO::Path("textures/liquids/lavahell2"), // shaderPath
+                    IO::Path(), // editorImage
+                    IO::Path(), // lightImage
+                    Assets::Quake3Shader::Culling::Front, // culling
+                    {}, // surfaceParms
+                    {} // stages
+                }
             };
             Quake3ShaderParser parser(data);
             assertShaders(expected, parser.parse());
@@ -81,8 +87,20 @@ textures/liquids/lavahell2 //path and name of new texture
     }
 
 })");
-            const auto expected = std::vector<Assets::Quake3Shader>{
-                makeShader(IO::Path("textures/liquids/lavahell2"), IO::Path(), StringSet { "noimpact", "lava", "nolightmap" })
+            const auto expected = std::vector<Assets::Quake3Shader> {
+                {
+                    IO::Path("textures/liquids/lavahell2"), // shaderPath
+                    IO::Path(), // editorImage
+                    IO::Path(), // lightImage
+                    Assets::Quake3Shader::Culling::None, // culling
+                    {"noimpact", "lava", "nolightmap" }, // surfaceParms
+                    {
+                        {
+                            Path("textures/eerie/lavahell.tga"), // map
+                            { "", "" } // blendFunc
+                        }
+                    } // stages
+                }
             };
             Quake3ShaderParser parser(data);
             assertShaders(expected, parser.parse());
@@ -122,7 +140,19 @@ textures/liquids/lavahell2 //path and name of new texture
 
 })");
             const auto expected = std::vector<Assets::Quake3Shader>{
-                makeShader(IO::Path("textures/liquids/lavahell2"), IO::Path("textures/eerie/lavahell.tga"), StringSet { "noimpact", "lava", "nolightmap" })
+                {
+                    IO::Path("textures/liquids/lavahell2"), // shaderPath
+                    IO::Path("textures/eerie/lavahell.tga"), // editorImage
+                    IO::Path(), // lightImage
+                    Assets::Quake3Shader::Culling::None, // culling
+                    {"noimpact", "lava", "nolightmap" }, // surfaceParms
+                    {
+                        {
+                            Path("textures/eerie/lavahell.tga"), // map
+                            { "", "" } // blendFunc
+                        }
+                    } // stages
+                }
             };
             Quake3ShaderParser parser(data);
             assertShaders(expected, parser.parse());
@@ -162,12 +192,31 @@ textures/eerie/ironcrosslt2_10000
 
 })");
             const auto expected = std::vector<Assets::Quake3Shader>{
-                    makeShader(IO::Path("textures/eerie/ironcrosslt2_10000"), IO::Path("textures/gothic_light/ironcrosslt2.tga"))
+                {
+                    IO::Path("textures/eerie/ironcrosslt2_10000"), // shaderPath
+                    IO::Path("textures/gothic_light/ironcrosslt2.tga"), // editorImage
+                    IO::Path("textures/gothic_light/ironcrosslt2.blend.tga"), // lightImage
+                    Assets::Quake3Shader::Culling::Front, // culling
+                    {}, // surfaceParms
+                    {
+                        {
+                            Path("$lightmap"), // map
+                            { "","" } // blendFunc
+                        },
+                        {
+                            Path("textures/gothic_light/ironcrosslt2.tga"), // map
+                            { "GL_DST_COLOR", "GL_ZERO" } // blendFunc
+                        },
+                        {
+                            Path("textures/gothic_light/ironcrosslt2.blend.tga"), // map
+                            { "GL_ONE", "GL_ONE" } // blendFunc
+                        }
+                    } // stages
+                }
             };
             Quake3ShaderParser parser(data);
             assertShaders(expected, parser.parse());
         }
-
         TEST(Quake3ShaderParserTest, parseTwoShaders) {
             const String data(R"(
 textures/eerie/ironcrosslt2_10000
@@ -237,9 +286,40 @@ textures/liquids/lavahell2 //path and name of new texture
 
 )");
             const auto expected = std::vector<Assets::Quake3Shader>{
-                    makeShader(IO::Path("textures/eerie/ironcrosslt2_10000"), IO::Path("textures/gothic_light/ironcrosslt2.tga")),
-                    makeShader(IO::Path("textures/liquids/lavahell2"), IO::Path("textures/eerie/lavahell.tga"), StringSet { "noimpact", "lava", "nolightmap" })
-
+                {
+                    IO::Path("textures/eerie/ironcrosslt2_10000"), // shaderPath
+                    IO::Path("textures/gothic_light/ironcrosslt2.tga"), // editorImage
+                    IO::Path("textures/gothic_light/ironcrosslt2.blend.tga"), // lightImage
+                    Assets::Quake3Shader::Culling::Front, // culling
+                    {}, // surfaceParms
+                    {
+                        {
+                            Path("$lightmap"), // map
+                            { "","" } // blendFunc
+                        },
+                        {
+                            Path("textures/gothic_light/ironcrosslt2.tga"), // map
+                            { "GL_DST_COLOR", "GL_ZERO" } // blendFunc
+                        },
+                        {
+                            Path("textures/gothic_light/ironcrosslt2.blend.tga"), // map
+                            { "GL_ONE", "GL_ONE" } // blendFunc
+                        }
+                    } // stages
+                },
+                {
+                    IO::Path("textures/liquids/lavahell2"), // shaderPath
+                    IO::Path("textures/eerie/lavahell.tga"), // editorImage
+                    IO::Path(), // lightImage
+                    Assets::Quake3Shader::Culling::None, // culling
+                    {"noimpact", "lava", "nolightmap" }, // surfaceParms
+                    {
+                        {
+                            Path("textures/eerie/lavahell.tga"), // map
+                            { "", "" } // blendFunc
+                        }
+                    } // stages
+                }
             };
             Quake3ShaderParser parser(data);
             assertShaders(expected, parser.parse());
@@ -300,21 +380,6 @@ waterBubble
 
             Quake3ShaderParser parser(testFile->begin(), testFile->end());
             ASSERT_NO_THROW(parser.parse());
-        }
-
-        Assets::Quake3Shader makeShader(const IO::Path& shaderPath, const IO::Path& qerImagePath, const StringSet& surfaceParms) {
-            auto shader = Assets::Quake3Shader();
-            shader.setTexturePath(shaderPath);
-
-            if (!qerImagePath.isEmpty()) {
-                shader.setQerImagePath(qerImagePath);
-            }
-
-            for (const auto& surfaceParm : surfaceParms) {
-                shader.addSurfaceParm(surfaceParm);
-            }
-
-            return shader;
         }
 
         void assertShaders(const std::vector<Assets::Quake3Shader>& expected, const std::vector<Assets::Quake3Shader>& actual) {

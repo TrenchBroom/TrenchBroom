@@ -89,8 +89,16 @@ namespace TrenchBroom {
             m_skins->addTexture(skin);
         }
 
+        size_t EntityModel::Surface::frameCount() const {
+            return m_frames.size();
+        }
+
+        size_t EntityModel::Surface::skinCount() const {
+            return m_skins->textureCount();
+        }
+
         std::unique_ptr<Renderer::TexturedIndexRangeRenderer> EntityModel::Surface::buildRenderer(size_t skinIndex, size_t frameIndex) {
-            if (skinIndex >= m_skins->textureCount() || frameIndex >= m_frames.size()) {
+            if (skinIndex >= skinCount() || frameIndex >= frameCount()) {
                 return nullptr;
             } else {
                 const auto& textures = m_skins->textures();
@@ -153,6 +161,32 @@ namespace TrenchBroom {
         EntityModel::Surface& EntityModel::addSurface(const String& name) {
             m_surfaces.push_back(std::make_unique<Surface>(name));
             return *m_surfaces.back();
+        }
+
+        size_t EntityModel::frameCount() const {
+            return m_frames.size();
+        }
+
+        size_t EntityModel::surfaceCount() const {
+            return m_surfaces.size();
+        }
+
+        std::vector<const EntityModel::Frame*> EntityModel::frames() const {
+            std::vector<const EntityModel::Frame*> result;
+            result.reserve(frameCount());
+            for (const auto& frame : m_frames) {
+                result.push_back(frame.get());
+            }
+            return result;
+        }
+
+        std::vector<const EntityModel::Surface*> EntityModel::surfaces() const {
+            std::vector<const EntityModel::Surface*> result;
+            result.reserve(surfaceCount());
+            for (const auto& surface : m_surfaces) {
+                result.push_back(surface.get());
+            }
+            return result;
         }
     }
 }

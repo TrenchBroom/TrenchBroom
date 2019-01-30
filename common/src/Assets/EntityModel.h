@@ -100,6 +100,9 @@ namespace TrenchBroom {
 
                 void addSkin(Assets::Texture* skin);
 
+                size_t frameCount() const;
+                size_t skinCount() const;
+
                 std::unique_ptr<Renderer::TexturedIndexRangeRenderer> buildRenderer(size_t skinIndex, size_t frameIndex);
             };
         private:
@@ -119,6 +122,12 @@ namespace TrenchBroom {
 
             Frame& addFrame(const String& name, const vm::bbox3f& bounds);
             Surface& addSurface(const String& name);
+
+            size_t frameCount() const;
+            size_t surfaceCount() const;
+
+            std::vector<const Frame*> frames() const;
+            std::vector<const Surface*> surfaces() const;
         };
     }
 }

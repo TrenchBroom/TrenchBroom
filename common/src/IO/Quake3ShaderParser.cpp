@@ -156,7 +156,7 @@ namespace TrenchBroom {
             if (key == "qer_editorimage") {
                 token = expect(Quake3ShaderToken::String, m_tokenizer.nextToken());
                 shader.editorImage = Path(token.data());
-            } else if (key == "q3map_lightImage") {
+            } else if (key == "q3map_lightimage") {
                 token = expect(Quake3ShaderToken::String, m_tokenizer.nextToken());
                 shader.lightImage = Path(token.data());
             } else if (key == "surfaceparm") {

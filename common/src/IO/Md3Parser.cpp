@@ -70,10 +70,6 @@ namespace TrenchBroom {
             const auto name = reader.readString(Md3Layout::ModelNameLength);
             /* const auto flags = */ reader.readInt<int32_t>();
 
-            if (IO::Path(name).lastComponent() == Path("armor_red.md3")) {
-                bool b = true;
-            }
-
             const auto frameCount = reader.readSize<int32_t>();
             /* const auto tagCount = */ reader.readSize<int32_t>();
             const auto surfaceCount = reader.readSize<int32_t>();
@@ -127,7 +123,7 @@ namespace TrenchBroom {
 
                 const auto surfaceName = surfaceReader.readString(Md3Layout::SurfaceNameLength);
 
-                const auto flags = surfaceReader.readInt<int32_t>();
+                /* const auto flags = */ surfaceReader.readInt<int32_t>();
                 const auto frameCount = surfaceReader.readSize<int32_t>();
                 const auto shaderCount = surfaceReader.readSize<int32_t>();
                 const auto vertexCount = surfaceReader.readSize<int32_t>(); // the number of vertices per frame!
