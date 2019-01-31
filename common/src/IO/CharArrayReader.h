@@ -26,16 +26,11 @@
 
 #include <vecmath/vec.h>
 
+#include <cstdint>
 #include <cstdio>
 #include <iostream>
 #include <iterator>
 #include <vector>
-
-#ifdef _MSC_VER
-#include <cstdint>
-#elif defined __GNUC__
-#include <stdint.h>
-#endif
 
 namespace TrenchBroom {
     namespace IO {
@@ -46,8 +41,8 @@ namespace TrenchBroom {
 
         class CharArrayReader {
         private:
-            const char* const m_begin;
-            const char* const m_end;
+            const char* m_begin;
+            const char* m_end;
             const char* m_current;
         public:
             CharArrayReader(const char* begin, const char* end);
@@ -58,7 +53,20 @@ namespace TrenchBroom {
             void seekFromEnd(size_t offset);
             void seekForward(size_t offset);
 
-            template <typename R>
+            CharArrayReader subReaderFromBegin(size_t offset, size_t length) const;
+            CharArrayReader subReaderFromBegin(size_t offset) const;
+
+            template <typename R=char>
+            const R* begin() const {
+                return reinterpret_cast<const R*>(m_begin);
+            }
+
+            template <typename R=char>
+            const R* end() const {
+                return reinterpret_cast<const R*>(m_end);
+            }
+
+            template <typename R=char>
             const R* cur() const {
                 return reinterpret_cast<const R*>(m_current);
             }
@@ -118,7 +126,7 @@ namespace TrenchBroom {
 
             String readString(size_t size);
 
-            template <typename R, size_t S, typename T>
+            template <typename R, size_t S, typename T=R>
             vm::vec<T,S> readVec() {
                 vm::vec<T,S> result;
                 for (size_t i = 0; i < S; ++i) {

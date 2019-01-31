@@ -23,7 +23,7 @@
 #include "Assets/Texture.h"
 #include "IO/FileSystem.h"
 #include "IO/FreeImageTextureReader.h"
-#include "IO/MappedFile.h"
+#include "Renderer/GL.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -32,12 +32,40 @@ namespace TrenchBroom {
         m_fs(fs) {}
 
         Assets::Texture* Quake3ShaderTextureReader::doReadTexture(MappedFile::Ptr file) const {
-            const auto* shaderFile = static_cast<ObjectFile<Assets::Quake3Shader>*>(file.get());
-            const auto shader = fixImagePath(shaderFile->object());
-            const auto& imagePath = shader.qerImagePath(Path("textures/__TB_empty.tga"));
+            const auto* shaderFile = dynamic_cast<ObjectFile<Assets::Quake3Shader>*>(file.get());
+            if (shaderFile == nullptr) {
+                return nullptr;
+            }
 
-            auto* texture = loadTextureImage(shader.texturePath(), imagePath);
-            texture->setSurfaceParms(shader.surfaceParms());
+            const auto& shader = shaderFile->object();
+            const auto texturePath = findTexturePath(shader);
+
+            auto* texture = loadTextureImage(shader.shaderPath, texturePath);
+            texture->setSurfaceParms(shader.surfaceParms);
+
+            // Note that Quake 3 has a different understanding of front and back, so we need to invert them.
+            switch (shader.culling) {
+                case Assets::Quake3Shader::Culling::Front:
+                    texture->setCulling(Assets::TextureCulling::CullBack);
+                    break;
+                case Assets::Quake3Shader::Culling::Back:
+                    texture->setCulling(Assets::TextureCulling::CullFront);
+                    break;
+                case Assets::Quake3Shader::Culling::None:
+                    texture->setCulling(Assets::TextureCulling::CullNone);
+                    break;
+            }
+
+            if (!shader.stages.empty()) {
+                const auto& stage = shader.stages.front();
+                if (stage.blendFunc.enable()) {
+                    texture->setBlendFunc(
+                        glGetEnum(stage.blendFunc.srcFactor),
+                        glGetEnum(stage.blendFunc.destFactor)
+                    );
+                }
+            }
+
             return texture;
         }
 
@@ -50,19 +78,39 @@ namespace TrenchBroom {
             }
         }
 
-
-        Assets::Quake3Shader Quake3ShaderTextureReader::fixImagePath(Assets::Quake3Shader shader) const {
-            if (shader.hasQerImagePath()) {
-                if (!m_fs.fileExists(shader.qerImagePath())) {
-                    const auto candidates = m_fs.findItemsWithBaseName(shader.qerImagePath(), StringList { "tga", "png", "jpg", "jpeg"});
-                    if (!candidates.empty()) {
-                        shader.setQerImagePath(candidates.front());
-                    } else {
-                        shader.clearQerImagePath();
+        Path Quake3ShaderTextureReader::findTexturePath(const Assets::Quake3Shader& shader) const {
+            Path texturePath = findTexture(shader.editorImage);
+            if (texturePath.isEmpty()) {
+                texturePath = findTexture(shader.shaderPath);
+            }
+            if (texturePath.isEmpty()) {
+                texturePath = findTexture(shader.lightImage);
+            }
+            if (texturePath.isEmpty()) {
+                for (const auto& stage : shader.stages) {
+                    texturePath = findTexture(stage.map);
+                    if (!texturePath.isEmpty()) {
+                        break;
                     }
                 }
             }
-            return shader;
+            if (texturePath.isEmpty()) {
+                texturePath = Path("textures/__TB_empty.tga");
+            }
+            return texturePath;
+        }
+
+        Path Quake3ShaderTextureReader::findTexture(const Path& texturePath) const {
+            if (!texturePath.isEmpty() && (texturePath.extension().empty() || !m_fs.fileExists(texturePath))) {
+                const auto candidates = m_fs.findItemsWithBaseName(texturePath, StringList { "tga", "png", "jpg", "jpeg"});
+                if (!candidates.empty()) {
+                    return candidates.front();
+                } else {
+                    return Path();
+                }
+            }
+            // texture path is empty OR (the extension is not empty AND the file exists)
+            return texturePath;
         }
     }
 }

@@ -21,6 +21,8 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        TexturedRenderer::~TexturedRenderer() = default;
+
         TexturedIndexRangeRenderer::TexturedIndexRangeRenderer() {}
 
         TexturedIndexRangeRenderer::TexturedIndexRangeRenderer(const VertexArray& vertexArray, const TexturedIndexRangeMap& indexRange) :
@@ -30,6 +32,8 @@ namespace TrenchBroom {
         TexturedIndexRangeRenderer::TexturedIndexRangeRenderer(const VertexArray& vertexArray, const Assets::Texture* texture, const IndexRangeMap& indexRange) :
         m_vertexArray(vertexArray),
         m_indexRange(texture, indexRange) {}
+
+        TexturedIndexRangeRenderer::~TexturedIndexRangeRenderer() = default;
 
         bool TexturedIndexRangeRenderer::empty() const {
             return m_vertexArray.empty();
@@ -50,6 +54,38 @@ namespace TrenchBroom {
             if (m_vertexArray.setup()) {
                 m_indexRange.render(m_vertexArray, func);
                 m_vertexArray.cleanup();
+            }
+        }
+
+        MultiTexturedIndexRangeRenderer::MultiTexturedIndexRangeRenderer(std::vector<std::unique_ptr<TexturedIndexRangeRenderer>> renderers) :
+        m_renderers(std::move(renderers)) {}
+
+        MultiTexturedIndexRangeRenderer::~MultiTexturedIndexRangeRenderer() = default;
+
+        bool MultiTexturedIndexRangeRenderer::empty() const {
+            for (const auto& renderer : m_renderers) {
+                if (!renderer->empty()) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        void MultiTexturedIndexRangeRenderer::prepare(Vbo& vbo) {
+            for (auto& renderer : m_renderers) {
+                renderer->prepare(vbo);
+            }
+        }
+
+        void MultiTexturedIndexRangeRenderer::render() {
+            for (auto& renderer : m_renderers) {
+                renderer->render();
+            }
+        }
+
+        void MultiTexturedIndexRangeRenderer::render(TextureRenderFunc& func) {
+            for (auto& renderer : m_renderers) {
+                renderer->render(func);
             }
         }
     }

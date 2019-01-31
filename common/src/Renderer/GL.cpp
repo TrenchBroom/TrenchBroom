@@ -51,4 +51,26 @@ namespace TrenchBroom {
                 return "UNKNOWN";
         }
     }
+
+    GLenum glGetEnum(const String& name) {
+        if (name == "GL_ONE") {
+            return GL_ONE;
+        } else if (name == "GL_ZERO") {
+            return GL_ZERO;
+        } else if (name == "GL_SRC_COLOR") {
+            return GL_SRC_COLOR;
+        } else if (name == "GL_DST_COLOR") {
+            return GL_DST_COLOR;
+        } else if (name == "GL_ONE_MINUS_SRC_COLOR") {
+            return GL_ONE_MINUS_SRC_COLOR;
+        } else if (name == "GL_ONE_MINUS_DST_COLOR") {
+            return GL_ONE_MINUS_DST_COLOR;
+        } else if (name == "GL_SRC_ALPHA") {
+            return GL_SRC_ALPHA;
+        } else if (name == "GL_ONE_MINUS_SRC_ALPHA") {
+            return GL_ONE_MINUS_SRC_ALPHA;
+        } else {
+            throw RenderException() << "Unknown GL enum: " << name;
+        }
+    }
 }

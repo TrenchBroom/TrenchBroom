@@ -39,9 +39,16 @@ namespace TrenchBroom {
             m_indexCount += count;
         }
 
+        void TexturedIndexArrayMap::Size::inc(const TexturedIndexArrayMap::Texture* texture, const IndexArrayMap::Size& size) {
+            IndexArrayMap::Size& sizeForKey = findCurrent(texture);
+            sizeForKey.inc(size);
+            m_indexCount += size.indexCount();
+        }
+
         IndexArrayMap::Size& TexturedIndexArrayMap::Size::findCurrent(const Texture* texture) {
-            if (!isCurrent(texture))
+            if (!isCurrent(texture)) {
                 m_current = MapUtils::findOrInsert(m_sizes, texture, IndexArrayMap::Size());
+            }
             return m_current->second;
         }
         
@@ -79,6 +86,16 @@ namespace TrenchBroom {
             size.initialize(*m_ranges);
         }
 
+        TexturedIndexArrayMap::Size TexturedIndexArrayMap::size() const {
+            Size result;
+            for (const auto& entry : *m_ranges) {
+                auto* texture = entry.first;
+                const auto indexArraySize = entry.second.size();
+                result.inc(texture, indexArraySize);
+            }
+            return result;
+        }
+
         size_t TexturedIndexArrayMap::add(const Texture* texture, const PrimType primType, const size_t count) {
             IndexArrayMap& current = findCurrent(texture);
             return current.add(primType, count);
@@ -89,13 +106,13 @@ namespace TrenchBroom {
             render(indexArray, func);
         }
         
-        void TexturedIndexArrayMap::render(IndexArray& vertexArray, TextureRenderFunc& func) {
+        void TexturedIndexArrayMap::render(IndexArray& indexArray, TextureRenderFunc& func) {
             for (const auto& entry : *m_ranges) {
                 const Texture* texture = entry.first;
                 const IndexArrayMap& indexRange = entry.second;
                 
                 func.before(texture);
-                indexRange.render(vertexArray);
+                indexRange.render(indexArray);
                 func.after(texture);
             }
         }

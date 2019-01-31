@@ -27,6 +27,7 @@
 namespace TrenchBroom {
     namespace Assets {
         class Quake3Shader;
+        class Quake3ShaderStage;
     }
 
     namespace IO {
@@ -45,7 +46,7 @@ namespace TrenchBroom {
         class Quake3ShaderTokenizer : public Tokenizer<Quake3ShaderToken::Type> {
         public:
             Quake3ShaderTokenizer(const char* begin, const char* end);
-            Quake3ShaderTokenizer(const String& str);
+            explicit Quake3ShaderTokenizer(const String& str);
         private:
             Token emitToken() override;
         };
@@ -55,7 +56,7 @@ namespace TrenchBroom {
             Quake3ShaderTokenizer m_tokenizer;
         public:
             Quake3ShaderParser(const char* begin, const char* end);
-            Quake3ShaderParser(const String& str);
+            explicit Quake3ShaderParser(const String& str);
 
             /**
              * Parses a Quake 3 shader and returns the value of the qer_editorimage entry.
@@ -67,8 +68,10 @@ namespace TrenchBroom {
             std::vector<Assets::Quake3Shader> parse();
         private:
             void parseTexture(Assets::Quake3Shader& shader);
-            void parseBlock(Assets::Quake3Shader& shader);
-            void parseEntry(Assets::Quake3Shader& shader);
+            void parseBody(Assets::Quake3Shader& shader);
+            void parseStage(Assets::Quake3Shader& shader);
+            void parseBodyEntry(Assets::Quake3Shader& shader);
+            void parseStageEntry(Assets::Quake3ShaderStage& stage);
         private:
             TokenNameMap tokenNames() const override;
         };

@@ -23,6 +23,7 @@
 #include "StringUtils.h"
 #include "ByteBuffer.h"
 #include "Assets/AssetTypes.h"
+#include "Assets/EntityModel.h"
 #include "IO/EntityModelParser.h"
 
 #include <vecmath/forward.h>
@@ -32,7 +33,6 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        class EntityModel;
         class Palette;
     }
     
@@ -66,11 +66,11 @@ namespace TrenchBroom {
         private:
             Assets::EntityModel* doParseModel() override;
 
-            void parseSkins(const char*& cursor, Assets::EntityModel* model, size_t count, size_t width, size_t height, int flags);
+            void parseSkins(const char*& cursor, Assets::EntityModel::Surface& surface, size_t count, size_t width, size_t height, int flags);
             MdlSkinVertexList parseSkinVertices(const char*& cursor, size_t count);
             MdlSkinTriangleList parseSkinTriangles(const char*& cursor, size_t count);
-            void parseFrames(const char*& cursor, Assets::EntityModel* model, size_t count, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, size_t skinWidth, size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale);
-            void parseFrame(const char*& cursor, Assets::EntityModel* model, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, size_t skinWidth, size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale);
+            void parseFrames(const char*& cursor, Assets::EntityModel& model, Assets::EntityModel::Surface& surface, size_t count, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, size_t skinWidth, size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale);
+            void parseFrame(const char*& cursor, Assets::EntityModel& model, Assets::EntityModel::Surface& surface, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, size_t skinWidth, size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale);
             vm::vec3f unpackFrameVertex(const PackedFrameVertex& vertex, const vm::vec3f& origin, const vm::vec3f& scale) const;
         };
     }

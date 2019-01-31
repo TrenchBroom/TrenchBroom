@@ -86,9 +86,10 @@ namespace TrenchBroom {
             assert(vertexCount % 4 == 0);
             IndexList indices(vertexCount);
             
-            for (size_t i = 0; i < vertexCount; ++i)
+            for (size_t i = 0; i < vertexCount; ++i) {
                 indices[i] = baseIndex + static_cast<Index>(i);
-            
+            }
+
             add(GL_QUADS, indices);
         }
         

@@ -190,7 +190,7 @@ namespace TrenchBroom {
                 
                 const auto spec = definition->defaultModel();
                 const auto* model = safeGetModel(m_entityModelManager, spec, m_logger);
-                Renderer::TexturedIndexRangeRenderer* modelRenderer = nullptr;
+                Renderer::TexturedRenderer* modelRenderer = nullptr;
                 
                 vm::bbox3f rotatedBounds;
                 if (model != nullptr) {

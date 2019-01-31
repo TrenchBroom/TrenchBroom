@@ -62,13 +62,15 @@ namespace TrenchBroom {
         void TextureRenderFunc::after(const Assets::Texture* texture) {}
         
         void DefaultTextureRenderFunc::before(const Assets::Texture* texture) {
-            if (texture != nullptr)
+            if (texture != nullptr) {
                 texture->activate();
+            }
         }
         
         void DefaultTextureRenderFunc::after(const Assets::Texture* texture) {
-            if (texture != nullptr)
+            if (texture != nullptr) {
                 texture->deactivate();
+            }
         }
 
         std::vector<vm::vec2f> circle2D(const float radius, const size_t segments) {

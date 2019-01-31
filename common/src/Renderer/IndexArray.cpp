@@ -27,22 +27,6 @@ namespace TrenchBroom {
 
         IndexArray::IndexArray() :
         m_prepared(false) {}
-        
-        IndexArray::IndexArray(const IndexArray& other) :
-        m_holder(other.m_holder),
-        m_prepared(other.m_prepared) {}
-
-        IndexArray& IndexArray::operator=(IndexArray other) {
-            using std::swap;
-            swap(*this, other);
-            return *this;
-        }
-        
-        void swap(IndexArray& left, IndexArray& right) {
-            using std::swap;
-            swap(left.m_holder, right.m_holder);
-            swap(left.m_prepared, right.m_prepared);
-        }
 
         bool IndexArray::empty() const {
             return indexCount() == 0;

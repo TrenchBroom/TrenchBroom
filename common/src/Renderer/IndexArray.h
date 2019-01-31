@@ -30,6 +30,13 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        /**
+         * Represents an array of indices. Optionally, multiple instances of this class can share the same data.
+         * Index arrays can be copied around without incurring the cost of copying the actual data.
+         *
+         * An index array can be uploaded into a vertex buffer object by calling the prepare method. Furthermore, an
+         * index array can be rendered by calling the provided render method.
+         */
         class IndexArray {
         private:
             class BaseHolder {
@@ -95,9 +102,9 @@ namespace TrenchBroom {
                 }
 
                 void doRender(PrimType primType, size_t offset, size_t count) const override {
-                    const GLsizei renderCount  = static_cast<GLsizei>(count);
-                    const GLenum indexType     = glType<Index>();
-                    const GLvoid* renderOffset = reinterpret_cast<GLvoid*>(indexOffset() + sizeof(Index) * offset);
+                    const auto renderCount  = static_cast<GLsizei>(count);
+                    const auto indexType     = glType<Index>();
+                    const auto* renderOffset = reinterpret_cast<GLvoid*>(indexOffset() + sizeof(Index) * offset);
 
                     glAssert(glDrawElements(primType, renderCount, indexType, renderOffset));
                 }
@@ -169,38 +176,99 @@ namespace TrenchBroom {
             BaseHolder::Ptr m_holder;
             bool m_prepared;
         public:
-            explicit IndexArray();
-            
+            /**
+             * Creates a new empty index array.
+             */
+            IndexArray();
+
+            /**
+             * Creates a new index array by copying the given indices. After this operation, the given vector of
+             * indices is left unchanged.
+             *
+             * @tparam Index the index type
+             * @param indices the indices to copy
+             * @return the index array
+             */
             template <typename Index>
             static IndexArray copy(const std::vector<Index>& indices) {
                 return IndexArray(BaseHolder::Ptr(new CopyHolder<Index>(indices)));
             }
-            
+
+            /**
+             * Creates a new index array by swapping the contents of the given indices. After this operation, the given
+             * vector of indices is empty.
+             *
+             * @tparam Index the index type
+             * @param indices the indices to swap
+             * @return the index array
+             */
             template <typename Index>
             static IndexArray swap(std::vector<Index>& indices) {
                 return IndexArray(BaseHolder::Ptr(new SwapHolder<Index>(indices)));
             }
-            
+
+            /**
+             * Creates a new index array by referencing the contents of the given indices. After this operation, the
+             * given vector of indices is left unchanged. Since this index array will only store a reference to the
+             * given vector, changes to the given vector are reflected in this array.
+             *
+             * A caller must ensure that this index array does not outlive the given vector of indices.
+             *
+             * @tparam Index the index type
+             * @param indices the indices to copy
+             * @return the index array
+             */
             template <typename Index>
             static IndexArray ref(const std::vector<Index>& indices) {
                 return IndexArray(BaseHolder::Ptr(new RefHolder<Index>(indices)));
             }
 
-            IndexArray(const IndexArray& other);
-            
-            IndexArray& operator=(IndexArray other);
-            friend void swap(IndexArray& left, IndexArray& right);
-            
+            /**
+             * Indicates whether this index array is empty.
+             *
+             * @return true if this index array is empty and false otherwise
+             */
             bool empty() const;
+
+            /**
+             * Returns the size of this index array in bytes.
+             *
+             * @return the size of this index array in bytes
+             */
             size_t sizeInBytes() const;
+
+            /**
+             * Returns the number of indices in this index array.
+             *
+             * @return the number of indices in this index array
+             */
             size_t indexCount() const;
-            
+
+            /**
+             * Indicates whether this index array was prepared.
+             *
+             * @return true if this index array was prepared
+             */
             bool prepared() const;
+
+            /**
+             * Prepares this index array by uploading its contents into the given vertex buffer object.
+             *
+             * @param vbo the vertex buffer object to upload to
+             */
             void prepare(Vbo& vbo);
-            
+
+            /**
+             * Renders a range of primitives of the given type using the indices stored in this index array. Assumes that
+             * an appropriate vertex array has been set up that contains the actual vertex data.
+             *
+             * @param primType the type of primitive to render
+             * @param offset the offset of the range of indices to render
+             * @param count the number of indices to render
+             */
             void render(PrimType primType, size_t offset, size_t count) const;
         private:
-            IndexArray(BaseHolder::Ptr holder);
+            explicit IndexArray(BaseHolder::Ptr holder);
         };
     }
 }

@@ -23,35 +23,54 @@
 #include "StringUtils.h"
 #include "IO/Path.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Assets {
-        class Quake3Shader {
-        private:
-            bool m_hasTexturePath;
-            IO::Path m_texturePath;
-
-            bool m_hasQerImagePath;
-            IO::Path m_qerImagePath;
-
-            StringSet m_surfaceParms;
+        class Quake3ShaderStage {
         public:
-            Quake3Shader();
+            struct BlendFunc {
+                String srcFactor;
+                String destFactor;
 
+                static const String One;
+                static const String Zero;
+                static const String SrcColor;
+                static const String DestColor;
+                static const String OneMinusSrcColor;
+                static const String OneMinusDestColor;
+                static const String SrcAlpha;
+                static const String OneMinusSrcAlpha;
+
+                bool enable() const;
+                bool operator==(const BlendFunc& other) const;
+            };
+        public:
+            IO::Path map;
+            BlendFunc blendFunc;
+        public:
+            bool operator==(const Quake3ShaderStage& other) const;
+        };
+
+        class Quake3Shader {
+        public:
+            enum class Culling {
+                Front,
+                Back,
+                None
+            };
+        public:
+            IO::Path shaderPath;
+            IO::Path editorImage;
+            IO::Path lightImage;
+            Culling culling = Culling::Front;
+            StringSet surfaceParms;
+            std::vector<Quake3ShaderStage> stages;
+        public:
             bool operator==(const Quake3Shader& other) const;
-
             friend bool isEqual(const Quake3Shader& lhs, const Quake3Shader& rhs);
 
-            bool hasTexturePath() const;
-            const IO::Path& texturePath() const;
-            void setTexturePath(const IO::Path& texturePath);
-
-            bool hasQerImagePath() const;
-            IO::Path qerImagePath(const IO::Path& defaultPath = IO::Path()) const;
-            void setQerImagePath(const IO::Path& qerImagePath);
-            void clearQerImagePath();
-
-            const StringSet& surfaceParms() const;
-            void addSurfaceParm(const String& parm) ;
+            Quake3ShaderStage& addStage();
         };
     }
 }

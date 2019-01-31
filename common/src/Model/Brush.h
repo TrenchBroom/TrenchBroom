@@ -32,7 +32,7 @@
 #include "Renderer/VertexListBuilder.h"
 #include "Renderer/TexturedIndexArrayMap.h"
 #include "Renderer/IndexArrayMapBuilder.h"
-#include "Renderer/TexturedIndexArrayBuilder.h"
+#include "Renderer/TexturedIndexArrayMapBuilder.h"
 #include "Renderer/BrushRendererBrushCache.h"
 
 #include <vecmath/forward.h>

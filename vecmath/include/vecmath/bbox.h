@@ -525,6 +525,32 @@ namespace vm {
         return lhs.min != rhs.min || lhs.max != rhs.max;
     }
 
+    /**
+     * Checks whether the given bounding boxes are component wise equal up to the given epsilon.
+     *
+     * Unline the equality operator ==, this function takes an epsilon value into account.
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param lhs the first bounding box
+     * @param rhs the second bounding box
+     * @param epsilon the epsilon value
+     * @return true if the given boundinb boxes are component wise equal up to the given epsilon value
+     */
+    template <typename T, size_t S>
+    bool isEqual(const bbox<T,S>& lhs, const bbox<T,S>& rhs, const T epsilon) {
+        return isEqual(lhs.min, rhs.min, epsilon) && isEqual(lhs.max, rhs.max, epsilon);
+    }
+
+    /**
+     * Repairs the given bounding box by ensuring that the min corner is the component wise minimum of the min and max
+     * corners, and likewise that the max corner is the component wise maximum of the min and max corners.
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param box the boundinb box to repair
+     * @return the repaired bounding box
+     */
     template <typename T, size_t S>
     bbox<T,S> repair(const bbox<T,S>& box) {
         return bbox<T,S>(
