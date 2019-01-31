@@ -20,22 +20,22 @@
 #ifndef PopupWindow_h
 #define PopupWindow_h
 
-#include <wx/frame.h>
+#include <QWidget>
 
 namespace TrenchBroom {
     namespace View {
-        class PopupWindow : public wxFrame {
+        class PopupWindow : public QWidget {
+            Q_OBJECT
         public:
-            PopupWindow();
-            PopupWindow(QWidget* parent, wxWindowID id = wxID_ANY, const QString& caption = "", const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style =  wxFRAME_FLOAT_ON_PARENT | wxFRAME_NO_TASKBAR | wxBORDER_NONE, const QString& name = wxFrameNameStr);
-            
-            bool Create(QWidget* parent, wxWindowID id = wxID_ANY, const QString& caption = "", const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style =  wxFRAME_FLOAT_ON_PARENT | wxFRAME_NO_TASKBAR | wxBORDER_NONE, const QString& name = wxFrameNameStr);
-            
-            void Position(const wxPoint& point, const wxSize& size);
-            void Popup();
-            void Dismiss();
-        private:
-            void OnActivate(wxActivateEvent& event);
+            explicit PopupWindow(QWidget* parent = nullptr);
+            void positionTouchingWidget(QWidget* refWidget);
+
+        protected: // QWidget overrides
+            void closeEvent(QCloseEvent* event) override;
+            void showEvent(QShowEvent* event) override;
+
+        signals:
+            void visibilityChanged(bool visible);
         };
     }
 }

@@ -411,7 +411,7 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/PersistentSplitterWindow2.cpp
 #	${COMMON_SOURCE_DIR}/View/PersistentSplitterWindow4.cpp
 	${COMMON_SOURCE_DIR}/View/PickRequest.cpp
-#	${COMMON_SOURCE_DIR}/View/PopupWindow.cpp
+	${COMMON_SOURCE_DIR}/View/PopupWindow.cpp
 	${COMMON_SOURCE_DIR}/View/PopupButton.cpp
 #	${COMMON_SOURCE_DIR}/View/PreferenceDialog.cpp
 #	${COMMON_SOURCE_DIR}/View/PreferencePane.cpp

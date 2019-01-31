@@ -20,14 +20,15 @@
 #include "PopupButton.h"
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
+#include "View/PopupWindow.h"
 
 #include <QToolButton>
 #include <QHBoxLayout>
+#include <QWindow>
+#include <QScreen>
 
 namespace TrenchBroom {
     namespace View {
-        // PopupButton
-
         PopupButton::PopupButton(QWidget* parent, const QString& caption) :
         QWidget(parent) {
             m_button = new QToolButton();
@@ -51,8 +52,8 @@ namespace TrenchBroom {
 
         void PopupButton::OnButtonToggled(bool checked) {
             if (checked) {
-                m_window->move(m_button->mapToGlobal(m_button->frameGeometry().bottomLeft()));
                 m_window->show();
+                m_window->positionTouchingWidget(this);
             } else {
                 m_window->close();
             }
@@ -60,18 +61,6 @@ namespace TrenchBroom {
 
         void PopupButton::OnPopupVisibilityChanged(bool visible) {
             m_button->setChecked(visible);
-        }
-
-        // PopupWindow
-
-        PopupWindow::PopupWindow(QWidget* parent) :
-        QWidget(parent, Qt::Popup) {}
-
-        void PopupWindow::closeEvent(QCloseEvent* event) {
-            emit visibilityChanged(false);
-        }
-        void PopupWindow::showEvent(QShowEvent* event) {
-            emit visibilityChanged(true);
         }
     }
 }

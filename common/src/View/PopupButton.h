@@ -42,19 +42,6 @@ namespace TrenchBroom {
             void OnButtonToggled(bool checked);
             void OnPopupVisibilityChanged(bool visible);
         };
-
-        class PopupWindow : public QWidget {
-            Q_OBJECT
-        public:
-            explicit PopupWindow(QWidget* parent = nullptr);
-
-        protected: // QWidget overrides
-            void closeEvent(QCloseEvent* event) override;
-            void showEvent(QShowEvent* event) override;
-
-        signals:
-            void visibilityChanged(bool visible);
-        };
     }
 }
 
