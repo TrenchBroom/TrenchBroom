@@ -65,6 +65,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/IO/MapReader.cpp
 	${COMMON_SOURCE_DIR}/IO/MapStreamSerializer.cpp
 	${COMMON_SOURCE_DIR}/IO/Md2Parser.cpp
+	${COMMON_SOURCE_DIR}/IO/Md3Parser.cpp
 	${COMMON_SOURCE_DIR}/IO/MdlParser.cpp
 	${COMMON_SOURCE_DIR}/IO/MipTextureReader.cpp
 	${COMMON_SOURCE_DIR}/IO/NodeReader.cpp
@@ -248,7 +249,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/Renderer/SpikeGuideRenderer.cpp
 	${COMMON_SOURCE_DIR}/Renderer/TextAnchor.cpp
 	${COMMON_SOURCE_DIR}/Renderer/TextRenderer.cpp
-	${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayBuilder.cpp
+	${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayMapBuilder.cpp
 	${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayMap.cpp
 	${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayRenderer.cpp
 	${COMMON_SOURCE_DIR}/Renderer/TexturedIndexRangeMap.cpp
@@ -585,6 +586,7 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/IO/MapReader.h
 	${COMMON_SOURCE_DIR}/IO/MapStreamSerializer.h
 	${COMMON_SOURCE_DIR}/IO/Md2Parser.h
+	${COMMON_SOURCE_DIR}/IO/Md3Parser.h
 	${COMMON_SOURCE_DIR}/IO/MdlParser.h
 	${COMMON_SOURCE_DIR}/IO/MipTextureReader.h
 	${COMMON_SOURCE_DIR}/IO/NodeReader.h
@@ -808,7 +810,7 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/Renderer/SpikeGuideRenderer.h
 	${COMMON_SOURCE_DIR}/Renderer/TextAnchor.h
 	${COMMON_SOURCE_DIR}/Renderer/TextRenderer.h
-	${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayBuilder.h
+	${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayMapBuilder.h
 	${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayMap.h
 	${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayRenderer.h
 	${COMMON_SOURCE_DIR}/Renderer/TexturedIndexRangeMapBuilder.h
