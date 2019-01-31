@@ -37,21 +37,32 @@ namespace TrenchBroom {
             const QRect refWidgetRectOnScreen = QRect(refWidget->mapToGlobal(QPoint(0, 0)), refWidget->size());
             const QSize ourSize = size();
 
-            //qDebug() << "screenGeom " << screenGeom << " refWidgetRectOnScreen " << refWidgetRectOnScreen << " our size: " << size();
+            //qDebug() << "screenGeom " << screenGeom <<
+            //            " refWidgetRectOnScreen " << refWidgetRectOnScreen <<
+            //            " our size: " << size();
 
-            int y = 0;
-            if (refWidgetRectOnScreen.bottom() + ourSize.height() <= screenGeom.height()) { // fits below?
+            // Figure out y position on screen
+            int y;
+            if (refWidgetRectOnScreen.bottom() + ourSize.height() <= screenGeom.bottom()) { // fits below?
                 y = refWidgetRectOnScreen.bottom();
-            } else if (refWidgetRectOnScreen.top() - ourSize.height() >= 0) { // fits above
+            } else if (refWidgetRectOnScreen.top() - ourSize.height() >= 0) { // fits above?
                 y = refWidgetRectOnScreen.top() - ourSize.height();
+            } else { // otherwise, center vertically on screen
+                y = refWidgetRectOnScreen.center().y() - (ourSize.height() / 2);
             }
 
-            int x = refWidgetRectOnScreen.x();
-            // FIXME: fit x on screen
-            
-            // now map x, y to the widget's coordinates
-            const QPoint desiredPointInLocalCoords = mapFromGlobal(QPoint(x, y));
-            const QPoint desiredPointInParentCoords = mapToParent(desiredPointInLocalCoords);
+            // Figure out the x position on screen
+            int x;
+            if (refWidgetRectOnScreen.right() - ourSize.width() >= 0) { // fits left?
+                x = refWidgetRectOnScreen.right() - ourSize.width();
+            } else if (refWidgetRectOnScreen.left() + ourSize.width() <= screenGeom.right()) { // fits right?
+                x = refWidgetRectOnScreen.left();
+            } else { // center horizontally on screen
+                x = refWidgetRectOnScreen.center().x() - (ourSize.width() / 2);
+            }
+
+            // Now map x, y from global to our parent's coordinates
+            const QPoint desiredPointInParentCoords = mapToParent(mapFromGlobal(QPoint(x, y)));
             setGeometry(QRect(desiredPointInParentCoords, ourSize));
         }
 

@@ -75,7 +75,6 @@ namespace TrenchBroom {
                         const int rowInt = static_cast<int>(row);
                         const int colInt = static_cast<int>(col);
 
-                        checkBox->setTristate(true);
                         checkBox->setText(indexInt < labels.size() ? labels[indexInt] : QString::number(1 << index));
                         checkBox->setToolTip(indexInt < tooltips.size() ? tooltips[indexInt] : "");
                         connect(checkBox, &QCheckBox::stateChanged, this, [=](int state){

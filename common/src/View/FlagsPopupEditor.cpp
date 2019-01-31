@@ -35,13 +35,13 @@ namespace TrenchBroom {
             QWidget* flagsPanel = nullptr;
             if (showFlagsText) {
                 flagsPanel = new QWidget();
-                //flagsPanel->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
-                
-                m_flagsTxt = new QLabel();//flagsPanel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT | wxST_ELLIPSIZE_END);
+
+                // FIXME: ellipsize?
+                m_flagsTxt = new QLabel();
                 
                 auto* flagsPanelSizer = new QVBoxLayout();
                 flagsPanelSizer->addStretch();
-                flagsPanelSizer->addWidget(m_flagsTxt); //, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::TextBoxInnerMargin);
+                flagsPanelSizer->addWidget(m_flagsTxt);
                 flagsPanelSizer->addStretch();
                 flagsPanel->setLayout(flagsPanelSizer);
             }
@@ -49,23 +49,23 @@ namespace TrenchBroom {
             m_button = new PopupButton(this, buttonLabel);
             m_button->setToolTip("Click to edit flags");
             
-            auto* editorContainer = new QWidget();//, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SIMPLE);
+            auto* editorContainer = new QWidget();
             m_editor = new FlagsEditor(editorContainer, numCols);
             
             auto* editorContainerSizer = new QVBoxLayout();
-            editorContainerSizer->addWidget(m_editor); //, 1, wxEXPAND | wxALL, LayoutConstants::DialogOuterMargin);
+            editorContainerSizer->addWidget(m_editor);
             editorContainer->setLayout(editorContainerSizer);
             
             auto* popupSizer = new QVBoxLayout();
-            popupSizer->addWidget(editorContainer); //, 1, wxEXPAND);
+            popupSizer->addWidget(editorContainer);
             m_button->GetPopupWindow()->setLayout(popupSizer);
             
             auto* sizer = new QHBoxLayout();
             if (flagsPanel != nullptr) {
-                sizer->addWidget(flagsPanel); //, 1, wxEXPAND);
+                sizer->addWidget(flagsPanel);
                 sizer->addSpacing(LayoutConstants::MediumHMargin);
             }
-            sizer->addWidget(m_button, 0, Qt::AlignVCenter); //, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->addWidget(m_button, 0, Qt::AlignVCenter);
             setLayout(sizer);
             
             connect(m_editor, &FlagsEditor::flagChanged, this, [this](size_t index, int setFlag, int mixedFlag){
@@ -77,13 +77,11 @@ namespace TrenchBroom {
 
         void FlagsPopupEditor::setFlags(const QStringList& labels, const QStringList& tooltips) {
             m_editor->setFlags(labels, tooltips);
-            //m_button->GetPopupWindow()->Fit();
             updateFlagsText();
         }
         
         void FlagsPopupEditor::setFlags(const QList<int>& values, const QStringList& labels, const QStringList& tooltips) {
             m_editor->setFlags(values, labels, tooltips);
-            //m_button->GetPopupWindow()->Fit();
             updateFlagsText();
         }
 
@@ -92,7 +90,7 @@ namespace TrenchBroom {
             updateFlagsText();
         }
 
-        // FIXME: what exactly is this for?
+        // FIXME: do we need to call updateFlagsText() when the popup is shown?
 #if 0
         bool FlagsPopupEditor::Enable(bool enable) {
             if (QWidget::Enable(enable)) {
@@ -138,10 +136,14 @@ namespace TrenchBroom {
 
             m_flagsTxt->setDisabled(mixed);
 
-//            if (mixed)
-//                m_flagsTxt->SetForegroundColour(Colors::disabledText());
-//            else
-//                m_flagsTxt->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_BTNTEXT));
+            if (mixed) {
+                // FIXME: confirm this works, factor out? Can we just disable the label instead to get the same effect?
+                QPalette pal = this->palette();
+                pal.setColor(QPalette::WindowText, pal.color(QPalette::Disabled, QPalette::WindowText));
+                m_flagsTxt->setPalette(pal);
+            } else {
+                m_flagsTxt->setPalette(this->palette());
+            }
         }
     }
 }

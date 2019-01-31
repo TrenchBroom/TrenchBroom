@@ -52,6 +52,10 @@ namespace TrenchBroom {
 
         void PopupButton::OnButtonToggled(bool checked) {
             if (checked) {
+                // TODO: unfortunately it seems like we need to show the popup first, before m_window->size() contains
+                // useful data, and we need the size to position the popup.
+                // This show() puts the window at (0, 0) on Ubuntu, but positionTouchingWidget() is able to move it
+                // without any flicker. Need to confirm on other OS'es.
                 m_window->show();
                 m_window->positionTouchingWidget(this);
             } else {

@@ -107,6 +107,7 @@ namespace TrenchBroom {
                 popupMenu->addMenu(quickFixMenu);
             }
 
+            // `pos` is in m_tableView->viewport() coordinates as per: http://doc.qt.io/qt-5/qwidget.html#customContextMenuRequested
             popupMenu->popup(m_tableView->viewport()->mapToGlobal(pos));
         }
         
