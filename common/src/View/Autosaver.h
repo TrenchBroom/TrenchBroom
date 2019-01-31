@@ -42,7 +42,7 @@ namespace TrenchBroom {
                 const IO::Path m_mapBasename;
             public:
                 explicit BackupFileMatcher(const IO::Path& mapBasename);
-                bool operator()(const IO::Path& path, const bool directory) const;
+                bool operator()(const IO::Path& path, bool directory) const;
             };
         private:
             View::MapDocumentWPtr m_document;

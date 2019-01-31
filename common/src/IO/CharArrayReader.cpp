@@ -63,6 +63,17 @@ namespace TrenchBroom {
             m_current += offset;
         }
 
+        CharArrayReader CharArrayReader::subReaderFromBegin(const size_t offset, const size_t length) const {
+            if (offset + length > size()) {
+                throw CharArrayReaderException("sub reader " + std::to_string(offset) + "," + std::to_string(length) + " out of bounds");
+            }
+            return CharArrayReader(m_begin + offset, m_begin + offset + length);
+        }
+
+        CharArrayReader CharArrayReader::subReaderFromBegin(const size_t offset) const {
+            return subReaderFromBegin(offset, size() - offset);
+        }
+
         void CharArrayReader::read(char* val, const size_t readSize) {
             ensureCanRead(readSize);
             std::memcpy(val, m_current, readSize);

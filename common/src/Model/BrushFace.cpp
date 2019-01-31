@@ -27,7 +27,7 @@
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Renderer/IndexRangeMap.h"
-#include "Renderer/TexturedIndexArrayBuilder.h"
+#include "Renderer/TexturedIndexArrayMapBuilder.h"
 
 #include <vecmath/vec.h>
 #include <vecmath/mat.h>

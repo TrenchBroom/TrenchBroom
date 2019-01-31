@@ -81,7 +81,7 @@ namespace TrenchBroom {
             // This is supposed to indicate whether any pixels are transparent (alpha < 100%)
             const auto masked = FreeImage_IsTransparent(image);
 
-            const auto mipCount = 1U;
+            const size_t mipCount = 1;
             constexpr auto format = freeImage32BPPFormatToGLFormat();
             Assets::TextureBuffer::List buffers(mipCount);
             Assets::setMipBufferSize(buffers, mipCount, imageWidth, imageHeight, format);

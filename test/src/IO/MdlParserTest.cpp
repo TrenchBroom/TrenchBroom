@@ -40,8 +40,14 @@ namespace TrenchBroom {
             auto parser = MdlParser("armor", mdlFile->begin(), mdlFile->end(), palette);
             auto* model = parser.parseModel();
             EXPECT_NE(nullptr, model);
-            EXPECT_EQ(3, model->skinCount());
-            EXPECT_EQ(1, model->frameCount());
+            EXPECT_EQ(1u, model->surfaceCount());
+            EXPECT_EQ(1u, model->frameCount());
+
+            const auto surfaces = model->surfaces();
+            const auto& surface = *surfaces.front();
+            EXPECT_EQ(3u, surface.skinCount());
+            EXPECT_EQ(1u, surface.frameCount());
+
             delete model;
         }
 

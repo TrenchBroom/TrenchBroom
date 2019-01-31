@@ -50,7 +50,8 @@ namespace TrenchBroom {
         private:
             Assets::Texture* doReadTexture(MappedFile::Ptr file) const override;
             Assets::Texture* loadTextureImage(const Path& shaderPath, const Path& imagePath) const;
-            Assets::Quake3Shader fixImagePath(Assets::Quake3Shader shader) const;
+            Path findTexturePath(const Assets::Quake3Shader& shader) const;
+            Path findTexture(const Path& texturePath) const;
         };
     }
 }

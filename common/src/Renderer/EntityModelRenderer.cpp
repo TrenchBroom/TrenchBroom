@@ -49,27 +49,29 @@ namespace TrenchBroom {
         }
         
         void EntityModelRenderer::addEntity(Model::Entity* entity) {
-            const Assets::ModelSpecification& modelSpec = entity->modelSpecification();
-            TexturedIndexRangeRenderer* renderer = m_entityModelManager.renderer(modelSpec);
+            const auto& modelSpec = entity->modelSpecification();
+            auto* renderer = m_entityModelManager.renderer(modelSpec);
             if (renderer != nullptr)
                 m_entities.insert(std::make_pair(entity, renderer));
         }
         
         void EntityModelRenderer::updateEntity(Model::Entity* entity) {
-            const Assets::ModelSpecification& modelSpec = entity->modelSpecification();
-            TexturedIndexRangeRenderer* renderer = m_entityModelManager.renderer(modelSpec);
+            const auto& modelSpec = entity->modelSpecification();
+            auto* renderer = m_entityModelManager.renderer(modelSpec);
             EntityMap::iterator it = m_entities.find(entity);
             
-            if (renderer == nullptr && it == std::end(m_entities))
+            if (renderer == nullptr && it == std::end(m_entities)) {
                 return;
-            
+            }
+
             if (it == std::end(m_entities)) {
                 m_entities.insert(std::make_pair(entity, renderer));
             } else {
-                if (renderer == nullptr)
+                if (renderer == nullptr) {
                     m_entities.erase(it);
-                else if (it->second != renderer)
+                } else if (it->second != renderer) {
                     it->second = renderer;
+                }
             }
         }
 
@@ -110,7 +112,7 @@ namespace TrenchBroom {
         }
         
         void EntityModelRenderer::doRender(RenderContext& renderContext) {
-            PreferenceManager& prefs = PreferenceManager::instance();
+            auto& prefs = PreferenceManager::instance();
             
             ActiveShader shader(renderContext.shaderManager(), Shaders::EntityModelShader);
             shader.set("Brightness", prefs.get(Preferences::Brightness));
@@ -123,11 +125,12 @@ namespace TrenchBroom {
             glAssert(glActiveTexture(GL_TEXTURE0));
             
             for (const auto& entry : m_entities) {
-                Model::Entity* entity = entry.first;
-                if (!m_showHiddenEntities && !m_editorContext.visible(entity))
+                auto* entity = entry.first;
+                if (!m_showHiddenEntities && !m_editorContext.visible(entity)) {
                     continue;
+                }
                 
-                TexturedIndexRangeRenderer* renderer = entry.second;
+                auto* renderer = entry.second;
                 
                 const vm::mat4x4f translation(vm::translationMatrix(entity->origin()));
                 const vm::mat4x4f rotation(entity->rotation());

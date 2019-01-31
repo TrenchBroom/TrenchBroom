@@ -123,9 +123,9 @@ namespace TrenchBroom {
             DkmMeshList parseMeshes(const char* begin, size_t commandCount);
 
             Assets::EntityModel* buildModel(const DkmSkinList& skins, const DkmFrameList& frames, const DkmMeshList& meshes);
-            void loadSkins(Assets::EntityModel* model, const DkmSkinList& skins);
+            void loadSkins(Assets::EntityModel::Surface& surface, const DkmSkinList& skins);
             const IO::Path findSkin(const DkmSkin& skin) const;
-            void buildFrames(Assets::EntityModel* model, const DkmFrameList& frames, const DkmMeshList& meshes);
+            void buildFrames(Assets::EntityModel& model, Assets::EntityModel::Surface& surface, const DkmFrameList& frames, const DkmMeshList& meshes);
 
             Assets::EntityModel::VertexList getVertices(const DkmFrame& frame, const DkmMeshVertexList& meshVertices) const;
         };
