@@ -263,7 +263,7 @@ namespace TrenchBroom {
                 frameName << m_name << "_" << i;
                 model->addFrame(frameName.str(), bounds);
 
-                surface.addTexturedFrame(builder.vertices(), builder.indices());
+                surface.addTexturedMesh(builder.vertices(), builder.indices());
             }
 
             return model.release();

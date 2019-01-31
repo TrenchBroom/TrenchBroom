@@ -424,7 +424,7 @@ namespace TrenchBroom {
                 }
 
                 model.addFrame(frame.name, bounds);
-                surface.addIndexedFrame(builder.vertices(), builder.indices());
+                surface.addIndexedMesh(builder.vertices(), builder.indices());
             }
         }
 

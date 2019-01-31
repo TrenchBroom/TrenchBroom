@@ -38,30 +38,30 @@ namespace TrenchBroom {
             return m_bounds;
         }
 
-        EntityModel::FrameData::FrameData(const EntityModel::VertexList& vertices) :
+        EntityModel::Mesh::Mesh(const EntityModel::VertexList& vertices) :
         m_vertices(std::move(vertices)) {}
 
-        EntityModel::FrameData::~FrameData() {}
+        EntityModel::Mesh::~Mesh() {}
 
-        std::unique_ptr<Renderer::TexturedIndexRangeRenderer> EntityModel::FrameData::buildRenderer(Assets::Texture* skin) {
+        std::unique_ptr<Renderer::TexturedIndexRangeRenderer> EntityModel::Mesh::buildRenderer(Assets::Texture* skin) {
             const auto vertexArray = Renderer::VertexArray::ref(m_vertices);
             return doBuildRenderer(skin, vertexArray);
         }
 
-        EntityModel::IndexedFrameData::IndexedFrameData(const EntityModel::VertexList& vertices, const EntityModel::Indices& indices) :
-        FrameData(vertices),
+        EntityModel::IndexedMesh::IndexedMesh(const EntityModel::VertexList& vertices, const EntityModel::Indices& indices) :
+        Mesh(vertices),
         m_indices(indices) {}
 
-        std::unique_ptr<Renderer::TexturedIndexRangeRenderer> EntityModel::IndexedFrameData::doBuildRenderer(Assets::Texture* skin, const Renderer::VertexArray& vertices) {
+        std::unique_ptr<Renderer::TexturedIndexRangeRenderer> EntityModel::IndexedMesh::doBuildRenderer(Assets::Texture* skin, const Renderer::VertexArray& vertices) {
             const Renderer::TexturedIndexRangeMap texturedIndices(skin, m_indices);
             return std::make_unique<Renderer::TexturedIndexRangeRenderer>(vertices, texturedIndices);
         }
 
-        EntityModel::TexturedFrameData::TexturedFrameData(const EntityModel::VertexList& vertices, const EntityModel::TexturedIndices& indices) :
-        FrameData(vertices),
+        EntityModel::TexturedMesh::TexturedMesh(const EntityModel::VertexList& vertices, const EntityModel::TexturedIndices& indices) :
+        Mesh(vertices),
         m_indices(indices) {}
 
-        std::unique_ptr<Renderer::TexturedIndexRangeRenderer> EntityModel::TexturedFrameData::doBuildRenderer(Assets::Texture* /* skin */, const Renderer::VertexArray& vertices) {
+        std::unique_ptr<Renderer::TexturedIndexRangeRenderer> EntityModel::TexturedMesh::doBuildRenderer(Assets::Texture* /* skin */, const Renderer::VertexArray& vertices) {
             return std::make_unique<Renderer::TexturedIndexRangeRenderer>(vertices, m_indices);
         }
 
@@ -81,12 +81,12 @@ namespace TrenchBroom {
             m_skins->setTextureMode(minFilter, magFilter);
         }
 
-        void EntityModel::Surface::addIndexedFrame(const VertexList& vertices, const Indices& indices) {
-            m_frames.push_back(std::make_unique<IndexedFrameData>(vertices, indices));
+        void EntityModel::Surface::addIndexedMesh(const VertexList& vertices, const Indices& indices) {
+            m_meshes.push_back(std::make_unique<IndexedMesh>(vertices, indices));
         }
 
-        void EntityModel::Surface::addTexturedFrame(const VertexList& vertices, const TexturedIndices& indices) {
-            m_frames.push_back(std::make_unique<TexturedFrameData>(vertices, indices));
+        void EntityModel::Surface::addTexturedMesh(const VertexList& vertices, const TexturedIndices& indices) {
+            m_meshes.push_back(std::make_unique<TexturedMesh>(vertices, indices));
         }
 
         void EntityModel::Surface::addSkin(Assets::Texture* skin) {
@@ -94,7 +94,7 @@ namespace TrenchBroom {
         }
 
         size_t EntityModel::Surface::frameCount() const {
-            return m_frames.size();
+            return m_meshes.size();
         }
 
         size_t EntityModel::Surface::skinCount() const {
@@ -111,7 +111,7 @@ namespace TrenchBroom {
             } else {
                 const auto& textures = m_skins->textures();
                 auto* skin = textures[skinIndex];
-                return m_frames[frameIndex]->buildRenderer(skin);
+                return m_meshes[frameIndex]->buildRenderer(skin);
             }
         }
 

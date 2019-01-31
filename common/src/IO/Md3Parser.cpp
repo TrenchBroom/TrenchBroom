@@ -252,7 +252,7 @@ namespace TrenchBroom {
                     frameVertices.push_back(v3);
                 }
 
-                surface.addIndexedFrame(frameVertices, rangeMap);
+                surface.addIndexedMesh(frameVertices, rangeMap);
             }
         }
     }
