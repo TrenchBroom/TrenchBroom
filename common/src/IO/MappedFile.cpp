@@ -32,6 +32,7 @@
 #endif
 
 #include <cassert>
+#include <map>
 
 namespace TrenchBroom {
     namespace IO {
@@ -90,8 +91,37 @@ namespace TrenchBroom {
         MappedFileBufferView(path, buffer.get(), buffer.get() + size),
         m_buffer(std::move(buffer)) {}
 
-#ifdef _WIN32
+        MappedFile::Ptr openMappedFile(const Path& path, const std::ios_base::openmode mode) {
+            using FileCache = std::map<Path, std::weak_ptr<MappedFile>>;
+            static FileCache fileCache;
 
+            if (mode == std::ios_base::in) {
+                const auto it = fileCache.find(path);
+                if (it != std::end(fileCache)) {
+                    auto wptr = it->second;
+                    if (wptr.expired()) {
+                        fileCache.erase(it);
+                    } else {
+                        return wptr.lock();
+                    }
+                }
+            }
+
+            auto file =
+#ifdef _WIN32
+            std::make_shared<WinMappedFile>(path, mode);
+#else
+            std::make_shared<PosixMappedFile>(path, mode);
+#endif
+
+            if (mode == std::ios_base::in) {
+                fileCache.insert(std::make_pair(path, file));
+            }
+
+            return file;
+        }
+
+#ifdef _WIN32
         using nstring = std::basic_string<char>;
         using wstring = std::basic_string<WCHAR>;
 
@@ -219,22 +249,22 @@ namespace TrenchBroom {
                 }
                 prot |= PROT_WRITE;
             }
-            
-            m_filedesc = open(path.asString().c_str(), flags);
-            if (m_filedesc >= 0) {
-                m_size = static_cast<size_t>(lseek(m_filedesc, 0, SEEK_END));
-                lseek(m_filedesc, 0, SEEK_SET);
-                m_address = static_cast<char*>(mmap(nullptr, m_size, prot, MAP_FILE | MAP_PRIVATE, m_filedesc, 0));
-                if (m_address != nullptr) {
-                    init(m_address, m_address + m_size);
-                } else {
-                    close(m_filedesc);
-                    m_filedesc = -1;
-                    throw FileSystemException("Cannot open file " + path.asString());
-                }
-            } else {
-                throw FileSystemException("Cannot open file " + path.asString());
+
+            const auto pathName = path.asString();
+            m_filedesc = open(pathName.c_str(), flags);
+            if (m_filedesc == 0) {
+                throw FileSystemException() << "Cannot open file " << path << ": open() failed";
             }
+
+            m_size = static_cast<size_t>(lseek(m_filedesc, 0, SEEK_END));
+            lseek(m_filedesc, 0, SEEK_SET);
+
+            m_address = static_cast<char*>(mmap(nullptr, m_size, prot, MAP_FILE | MAP_PRIVATE, m_filedesc, 0));
+            if (m_address == nullptr) {
+                throw FileSystemException() << "Cannot open file " << path << ": mmap() failed";
+            }
+
+            init(m_address, m_address + m_size);
         }
         
         PosixMappedFile::~PosixMappedFile() {

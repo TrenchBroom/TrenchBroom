@@ -93,6 +93,8 @@ namespace TrenchBroom {
             }
         };
 
+        MappedFile::Ptr openMappedFile(const Path& path, std::ios_base::openmode mode);
+
 #ifdef _WIN32
         class WinMappedFile : public MappedFile {
         private:
