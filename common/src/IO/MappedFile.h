@@ -30,6 +30,7 @@
 #ifdef _WIN32
 // can't include Windows.h here
 typedef void *HANDLE;
+typedef unsigned long DWORD;
 #endif
 
 namespace TrenchBroom {

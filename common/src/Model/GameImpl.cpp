@@ -76,13 +76,17 @@ namespace TrenchBroom {
         }
 
         void GameImpl::doSetGamePath(const IO::Path& gamePath, Logger* logger) {
-            m_gamePath = gamePath;
-            initializeFileSystem(logger);
+            if (gamePath != m_gamePath) {
+                m_gamePath = gamePath;
+                initializeFileSystem(logger);
+            }
         }
 
         void GameImpl::doSetAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger* logger) {
-            m_additionalSearchPaths = searchPaths;
-            initializeFileSystem(logger);
+            if (searchPaths != m_additionalSearchPaths) {
+                m_additionalSearchPaths = searchPaths;
+                initializeFileSystem(logger);
+            }
         }
 
         Game::PathErrors GameImpl::doCheckAdditionalSearchPaths(const IO::Path::List& searchPaths) const {
