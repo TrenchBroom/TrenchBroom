@@ -42,10 +42,13 @@ namespace TrenchBroom {
             writer.writeMap();
             
             const String result = str.str();
-            ASSERT_STREQ("// entity 0\n"
-                         "{\n"
-                         "\"classname\" \"worldspawn\"\n"
-                         "}\n", result.c_str());
+            ASSERT_STREQ(
+R"(// entity 0
+{
+"classname" "worldspawn"
+}
+)",
+            result.c_str());
         }
         
         TEST(NodeWriterTest, writeWorldspawn) {
@@ -60,11 +63,14 @@ namespace TrenchBroom {
             writer.writeMap();
             
             const String result = str.str();
-            ASSERT_STREQ("// entity 0\n"
-                         "{\n"
-                         "\"classname\" \"worldspawn\"\n"
-                         "\"message\" \"holy damn\"\n"
-                         "}\n", result.c_str());
+            ASSERT_STREQ(
+R"(// entity 0
+{
+"classname" "worldspawn"
+"message" "holy damn"
+}
+)",
+            result.c_str());
         }
 
         TEST(NodeWriterTest, writeDaikatanaMap) {
@@ -88,28 +94,31 @@ namespace TrenchBroom {
             writer.writeMap();
 
             const String result = str.str();
-            ASSERT_STREQ("// entity 0\n"
-                                 "{\n"
-                                 "\"classname\" \"worldspawn\"\n"
-                                 "// brush 0\n"
-                                 "{\n"
-                                 "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1 0 0 0 1 2 3\n"
-                                 "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1 0 0 0 1 2 3\n"
-                                 "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1 0 0 0 1 2 3\n"
-                                 "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1 0 0 0 1 2 3\n"
-                                 "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1 0 0 0 1 2 3\n"
-                                 "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1 0 0 0 1 2 3\n"
-                                 "}\n"
-                                 "// brush 1\n"
-                                 "{\n"
-                                 "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1\n"
-                                 "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1\n"
-                                 "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1\n"
-                                 "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1\n"
-                                 "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1\n"
-                                 "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1\n"
-                                 "}\n"
-                                 "}\n", result.c_str());
+            ASSERT_STREQ(
+R"(// entity 0
+{
+"classname" "worldspawn"
+// brush 0
+{
+( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1 0 0 0 1 2 3
+( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1 0 0 0 1 2 3
+( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1 0 0 0 1 2 3
+( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1 0 0 0 1 2 3
+( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1 0 0 0 1 2 3
+( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1 0 0 0 1 2 3
+}
+// brush 1
+{
+( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
+( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1
+( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1
+( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1
+( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1
+( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1
+}
+}
+)",
+            result.c_str());
         }
         
         TEST(NodeWriterTest, writeWorldspawnWithBrushInDefaultLayer) {
@@ -127,19 +136,22 @@ namespace TrenchBroom {
             writer.writeMap();
             
             const String result = str.str();
-            ASSERT_STREQ("// entity 0\n"
-                         "{\n"
-                         "\"classname\" \"worldspawn\"\n"
-                         "// brush 0\n"
-                         "{\n"
-                         "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1\n"
-                         "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1\n"
-                         "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1\n"
-                         "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1\n"
-                         "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1\n"
-                         "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1\n"
-                         "}\n"
-                         "}\n", result.c_str());
+            ASSERT_STREQ(
+R"(// entity 0
+{
+"classname" "worldspawn"
+// brush 0
+{
+( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
+( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1
+( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1
+( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1
+( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1
+( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1
+}
+}
+)",
+            result.c_str());
         }
         
         TEST(NodeWriterTest, writeWorldspawnWithBrushInCustomLayer) {
@@ -160,27 +172,27 @@ namespace TrenchBroom {
             writer.writeMap();
             
             ASSERT_TRUE(StringUtils::caseSensitiveMatchesPattern(str.str(),
-                                                                 "// entity 0\n"
-                                                                 "{\n"
-                                                                 "\"classname\" \"worldspawn\"\n"
-                                                                 "}\n"
-                                                                 "// entity 1\n"
-                                                                 "{\n"
-                                                                 "\"classname\" \"func_group\"\n"
-                                                                 "\"_tb_type\" \"_tb_layer\"\n"
-                                                                 "\"_tb_name\" \"Custom Layer\"\n"
-                                                                 "\"_tb_id\" \"*\"\n"
-                                                                 "// brush 0\n"
-                                                                 "{\n"
-                                                                 "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1\n"
-                                                                 "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1\n"
-                                                                 "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1\n"
-                                                                 "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1\n"
-                                                                 "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1\n"
-                                                                 "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1\n"
-                                                                 "}\n"
-                                                                 "}\n"
-                                                                 ));
+R"(// entity 0
+{
+"classname" "worldspawn"
+}
+// entity 1
+{
+"classname" "func_group"
+"_tb_type" "_tb_layer"
+"_tb_name" "Custom Layer"
+"_tb_id" "*"
+// brush 0
+{
+( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
+( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1
+( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1
+( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1
+( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1
+( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1
+}
+}
+)"));
         }
         
         TEST(NodeWriterTest, writeMapWithGroupInDefaultLayer) {
@@ -201,27 +213,27 @@ namespace TrenchBroom {
             writer.writeMap();
             
             ASSERT_TRUE(StringUtils::caseSensitiveMatchesPattern(str.str(),
-                                                                 "// entity 0\n"
-                                                                 "{\n"
-                                                                 "\"classname\" \"worldspawn\"\n"
-                                                                 "}\n"
-                                                                 "// entity 1\n"
-                                                                 "{\n"
-                                                                 "\"classname\" \"func_group\"\n"
-                                                                 "\"_tb_type\" \"_tb_group\"\n"
-                                                                 "\"_tb_name\" \"Group\"\n"
-                                                                 "\"_tb_id\" \"*\"\n"
-                                                                 "// brush 0\n"
-                                                                 "{\n"
-                                                                 "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1\n"
-                                                                 "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1\n"
-                                                                 "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1\n"
-                                                                 "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1\n"
-                                                                 "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1\n"
-                                                                 "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1\n"
-                                                                 "}\n"
-                                                                 "}\n"
-                                                                 ));
+R"(// entity 0
+{
+"classname" "worldspawn"
+}
+// entity 1
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group"
+"_tb_id" "*"
+// brush 0
+{
+( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
+( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1
+( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1
+( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1
+( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1
+( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1
+}
+}
+)"));
         }
         
         TEST(NodeWriterTest, writeMapWithGroupInCustomLayer) {
@@ -245,35 +257,35 @@ namespace TrenchBroom {
             writer.writeMap();
             
             ASSERT_TRUE(StringUtils::caseSensitiveMatchesPattern(str.str(),
-                                                                 "// entity 0\n"
-                                                                 "{\n"
-                                                                 "\"classname\" \"worldspawn\"\n"
-                                                                 "}\n"
-                                                                 "// entity 1\n"
-                                                                 "{\n"
-                                                                 "\"classname\" \"func_group\"\n"
-                                                                 "\"_tb_type\" \"_tb_layer\"\n"
-                                                                 "\"_tb_name\" \"Custom Layer\"\n"
-                                                                 "\"_tb_id\" \"*\"\n"
-                                                                 "}\n"
-                                                                 "// entity 2\n"
-                                                                 "{\n"
-                                                                 "\"classname\" \"func_group\"\n"
-                                                                 "\"_tb_type\" \"_tb_group\"\n"
-                                                                 "\"_tb_name\" \"Group\"\n"
-                                                                 "\"_tb_id\" \"*\"\n"
-                                                                 "\"_tb_layer\" \"*\"\n"
-                                                                 "// brush 0\n"
-                                                                 "{\n"
-                                                                 "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1\n"
-                                                                 "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1\n"
-                                                                 "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1\n"
-                                                                 "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1\n"
-                                                                 "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1\n"
-                                                                 "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1\n"
-                                                                 "}\n"
-                                                                 "}\n"
-                                                                 ));
+R"(// entity 0
+{
+"classname" "worldspawn"
+}
+// entity 1
+{
+"classname" "func_group"
+"_tb_type" "_tb_layer"
+"_tb_name" "Custom Layer"
+"_tb_id" "*"
+}
+// entity 2
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group"
+"_tb_id" "*"
+"_tb_layer" "*"
+// brush 0
+{
+( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
+( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1
+( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1
+( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1
+( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1
+( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1
+}
+}
+)"));
         }
         
         TEST(NodeWriterTest, writeMapWithNestedGroupInCustomLayer) {
@@ -300,43 +312,43 @@ namespace TrenchBroom {
             writer.writeMap();
             
             ASSERT_TRUE(StringUtils::caseSensitiveMatchesPattern(str.str(),
-                                                                 "// entity 0\n"
-                                                                 "{\n"
-                                                                 "\"classname\" \"worldspawn\"\n"
-                                                                 "}\n"
-                                                                 "// entity 1\n"
-                                                                 "{\n"
-                                                                 "\"classname\" \"func_group\"\n"
-                                                                 "\"_tb_type\" \"_tb_layer\"\n"
-                                                                 "\"_tb_name\" \"Custom Layer\"\n"
-                                                                 "\"_tb_id\" \"*\"\n"
-                                                                 "}\n"
-                                                                 "// entity 2\n"
-                                                                 "{\n"
-                                                                 "\"classname\" \"func_group\"\n"
-                                                                 "\"_tb_type\" \"_tb_group\"\n"
-                                                                 "\"_tb_name\" \"Outer Group\"\n"
-                                                                 "\"_tb_id\" \"*\"\n"
-                                                                 "\"_tb_layer\" \"*\"\n"
-                                                                 "}\n"
-                                                                 "// entity 3\n"
-                                                                 "{\n"
-                                                                 "\"classname\" \"func_group\"\n"
-                                                                 "\"_tb_type\" \"_tb_group\"\n"
-                                                                 "\"_tb_name\" \"Inner Group\"\n"
-                                                                 "\"_tb_id\" \"*\"\n"
-                                                                 "\"_tb_group\" \"*\"\n"
-                                                                 "// brush 0\n"
-                                                                 "{\n"
-                                                                 "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1\n"
-                                                                 "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1\n"
-                                                                 "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1\n"
-                                                                 "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1\n"
-                                                                 "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1\n"
-                                                                 "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1\n"
-                                                                 "}\n"
-                                                                 "}\n"
-                                                                 ));
+R"(// entity 0
+{
+"classname" "worldspawn"
+}
+// entity 1
+{
+"classname" "func_group"
+"_tb_type" "_tb_layer"
+"_tb_name" "Custom Layer"
+"_tb_id" "*"
+}
+// entity 2
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Outer Group"
+"_tb_id" "*"
+"_tb_layer" "*"
+}
+// entity 3
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Inner Group"
+"_tb_id" "*"
+"_tb_group" "*"
+// brush 0
+{
+( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
+( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1
+( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1
+( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1
+( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1
+( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1
+}
+}
+)"));
         }
         
         TEST(NodeWriterTest, writeNodesWithNestedGroup) {
@@ -366,36 +378,36 @@ namespace TrenchBroom {
             writer.writeNodes(nodes);
             
             ASSERT_TRUE(StringUtils::caseSensitiveMatchesPattern(str.str(),
-                                                                 "// entity 0\n"
-                                                                 "{\n"
-                                                                 "\"classname\" \"worldspawn\"\n"
-                                                                 "// brush 0\n"
-                                                                 "{\n"
-                                                                 "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) some 0 0 0 1 1\n"
-                                                                 "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) some 0 0 0 1 1\n"
-                                                                 "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) some 0 0 0 1 1\n"
-                                                                 "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) some 0 0 0 1 1\n"
-                                                                 "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) some 0 0 0 1 1\n"
-                                                                 "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) some 0 0 0 1 1\n"
-                                                                 "}\n"
-                                                                 "}\n"
-                                                                 "// entity 1\n"
-                                                                 "{\n"
-                                                                 "\"classname\" \"func_group\"\n"
-                                                                 "\"_tb_type\" \"_tb_group\"\n"
-                                                                 "\"_tb_name\" \"Inner Group\"\n"
-                                                                 "\"_tb_id\" \"*\"\n"
-                                                                 "// brush 0\n"
-                                                                 "{\n"
-                                                                 "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1\n"
-                                                                 "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1\n"
-                                                                 "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1\n"
-                                                                 "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1\n"
-                                                                 "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1\n"
-                                                                 "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1\n"
-                                                                 "}\n"
-                                                                 "}\n"
-                                                                 ));
+R"(// entity 0
+{
+"classname" "worldspawn"
+// brush 0
+{
+( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) some 0 0 0 1 1
+( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) some 0 0 0 1 1
+( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) some 0 0 0 1 1
+( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) some 0 0 0 1 1
+( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) some 0 0 0 1 1
+( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) some 0 0 0 1 1
+}
+}
+// entity 1
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Inner Group"
+"_tb_id" "*"
+// brush 0
+{
+( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
+( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1
+( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1
+( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1
+( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1
+( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1
+}
+}
+)"));
         }
         
         TEST(NodeWriterTest, writeFaces) {
@@ -410,13 +422,14 @@ namespace TrenchBroom {
             writer.writeBrushFaces(brush->faces());
             
             const String result = str.str();
-            ASSERT_STREQ("( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1\n"
-                         "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1\n"
-                         "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1\n"
-                         "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1\n"
-                         "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1\n"
-                         "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1\n",
-                         result.c_str());
+            ASSERT_STREQ(
+R"(( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
+( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1
+( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1
+( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1
+( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1
+( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1
+)", result.c_str());
             
             delete brush;
         }
@@ -427,18 +440,20 @@ namespace TrenchBroom {
             
             Model::World map(Model::MapFormat::Standard, nullptr, worldBounds);
             map.addOrUpdateAttribute("classname", "worldspawn");
-            map.addOrUpdateAttribute("message", "\"holy damn\", he said");
+            map.addOrUpdateAttribute("message", R"("holy damn", he said)");
             
             StringStream str;
             NodeWriter writer(&map, str);
             writer.writeMap();
             
             const String result = str.str();
-            ASSERT_STREQ("// entity 0\n"
-                         "{\n"
-                         "\"classname\" \"worldspawn\"\n"
-                         "\"message\" \"\\\"holy damn\\\", he said\"\n"
-                         "}\n", result.c_str());
+            ASSERT_STREQ(
+R"(// entity 0
+{
+"classname" "worldspawn"
+"message" "\"holy damn\", he said"
+}
+)", result.c_str());
         }
         
         TEST(NodeWriterTest, writePropertiesWithEscapedQuotationMarks) {
@@ -446,18 +461,20 @@ namespace TrenchBroom {
             
             Model::World map(Model::MapFormat::Standard, nullptr, worldBounds);
             map.addOrUpdateAttribute("classname", "worldspawn");
-            map.addOrUpdateAttribute("message", "\\\"holy damn\\\", he said");
+            map.addOrUpdateAttribute("message", R"(\"holy damn\", he said)");
             
             StringStream str;
             NodeWriter writer(&map, str);
             writer.writeMap();
             
             const String result = str.str();
-            ASSERT_STREQ("// entity 0\n"
-                         "{\n"
-                         "\"classname\" \"worldspawn\"\n"
-                         "\"message\" \"\\\"holy damn\\\", he said\"\n"
-                         "}\n", result.c_str());
+            ASSERT_STREQ(
+R"(// entity 0
+{
+"classname" "worldspawn"
+"message" "\"holy damn\", he said"
+}
+)", result.c_str());
         }
         
         // https://github.com/kduske/TrenchBroom/issues/1739
@@ -466,18 +483,43 @@ namespace TrenchBroom {
             
             Model::World map(Model::MapFormat::Standard, nullptr, worldBounds);
             map.addOrUpdateAttribute("classname", "worldspawn");
-            map.addOrUpdateAttribute("message", "holy damn\\nhe said");
+            map.addOrUpdateAttribute("message", R"(holy damn\nhe said)");
             
             StringStream str;
             NodeWriter writer(&map, str);
             writer.writeMap();
             
             const String result = str.str();
-            ASSERT_STREQ("// entity 0\n"
-                         "{\n"
-                         "\"classname\" \"worldspawn\"\n"
-                         "\"message\" \"holy damn\\nhe said\"\n"
-                         "}\n", result.c_str());
+            ASSERT_STREQ(
+R"(// entity 0
+{
+"classname" "worldspawn"
+"message" "holy damn\nhe said"
+}
+)", result.c_str());
+        }
+
+
+        // https://github.com/kduske/TrenchBroom/issues/2556
+        TEST(NodeWriterTest, writePropertiesWithTrailingBackslash) {
+            const vm::bbox3 worldBounds(8192.0);
+
+            Model::World map(Model::MapFormat::Standard, nullptr, worldBounds);
+            map.addOrUpdateAttribute("classname", "worldspawn");
+            map.addOrUpdateAttribute(R"(message\)", R"(holy damn\)");
+
+            StringStream str;
+            NodeWriter writer(&map, str);
+            writer.writeMap();
+
+            const String result = str.str();
+            ASSERT_STREQ(
+R"(// entity 0
+{
+"classname" "worldspawn"
+"message" "holy damn"
+}
+)", result.c_str());
         }
     }
 }
