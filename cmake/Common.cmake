@@ -892,7 +892,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/EntityAttributeEditor.h
 	${COMMON_SOURCE_DIR}/View/EntityAttributeGrid.h
 	${COMMON_SOURCE_DIR}/View/EntityAttributeGridTable.h
-	${COMMON_SOURCE_DIR}/View/EntityAttributeSelectedCommand.h
 	${COMMON_SOURCE_DIR}/View/EntityBrowser.h
 	${COMMON_SOURCE_DIR}/View/EntityBrowserView.h
 	${COMMON_SOURCE_DIR}/View/EntityDefinitionFileChooser.h
