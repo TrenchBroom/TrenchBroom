@@ -39,8 +39,7 @@ namespace TrenchBroom {
         MappedFile::MappedFile(const Path& path) :
         m_path(path),
         m_begin(nullptr),
-        m_end(nullptr) {
-        }
+        m_end(nullptr) {}
         
         MappedFile::~MappedFile() {
             m_begin = nullptr;
