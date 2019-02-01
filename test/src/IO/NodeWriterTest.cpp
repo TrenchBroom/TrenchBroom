@@ -32,6 +32,11 @@
 
 namespace TrenchBroom {
     namespace IO {
+        void assertNodeWriterResult(const String& expected, const StringStream& actual);
+        void assertNodeWriterResult(const String& expected, const StringStream& actual) {
+            ASSERT_EQ(expected, actual.str());
+        }
+
         TEST(NodeWriterTest, writeEmptyMap) {
             const vm::bbox3 worldBounds(8192.0);
             
@@ -41,14 +46,13 @@ namespace TrenchBroom {
             NodeWriter writer(&map, str);
             writer.writeMap();
             
-            const String result = str.str();
-            ASSERT_STREQ(
+            assertNodeWriterResult(
 R"(// entity 0
 {
 "classname" "worldspawn"
 }
 )",
-            result.c_str());
+            str);
         }
         
         TEST(NodeWriterTest, writeWorldspawn) {
@@ -62,15 +66,14 @@ R"(// entity 0
             NodeWriter writer(&map, str);
             writer.writeMap();
             
-            const String result = str.str();
-            ASSERT_STREQ(
+            assertNodeWriterResult(
 R"(// entity 0
 {
 "classname" "worldspawn"
 "message" "holy damn"
 }
 )",
-            result.c_str());
+            str);
         }
 
         TEST(NodeWriterTest, writeDaikatanaMap) {
@@ -93,8 +96,7 @@ R"(// entity 0
             NodeWriter writer(&map, str);
             writer.writeMap();
 
-            const String result = str.str();
-            ASSERT_STREQ(
+            assertNodeWriterResult(
 R"(// entity 0
 {
 "classname" "worldspawn"
@@ -118,7 +120,7 @@ R"(// entity 0
 }
 }
 )",
-            result.c_str());
+            str);
         }
         
         TEST(NodeWriterTest, writeWorldspawnWithBrushInDefaultLayer) {
@@ -135,8 +137,7 @@ R"(// entity 0
             NodeWriter writer(&map, str);
             writer.writeMap();
             
-            const String result = str.str();
-            ASSERT_STREQ(
+            assertNodeWriterResult(
 R"(// entity 0
 {
 "classname" "worldspawn"
@@ -151,7 +152,7 @@ R"(// entity 0
 }
 }
 )",
-            result.c_str());
+            str);
         }
         
         TEST(NodeWriterTest, writeWorldspawnWithBrushInCustomLayer) {
@@ -421,15 +422,14 @@ R"(// entity 0
             NodeWriter writer(&map, str);
             writer.writeBrushFaces(brush->faces());
             
-            const String result = str.str();
-            ASSERT_STREQ(
+            assertNodeWriterResult(
 R"(( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
 ( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1
 ( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1
 ( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1
-)", result.c_str());
+)", str);
             
             delete brush;
         }
@@ -446,14 +446,13 @@ R"(( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
             NodeWriter writer(&map, str);
             writer.writeMap();
             
-            const String result = str.str();
-            ASSERT_STREQ(
+            assertNodeWriterResult(
 R"(// entity 0
 {
 "classname" "worldspawn"
 "message" "\"holy damn\", he said"
 }
-)", result.c_str());
+)", str);
         }
         
         TEST(NodeWriterTest, writePropertiesWithEscapedQuotationMarks) {
@@ -467,14 +466,13 @@ R"(// entity 0
             NodeWriter writer(&map, str);
             writer.writeMap();
             
-            const String result = str.str();
-            ASSERT_STREQ(
+            assertNodeWriterResult(
 R"(// entity 0
 {
 "classname" "worldspawn"
 "message" "\"holy damn\", he said"
 }
-)", result.c_str());
+)", str);
         }
         
         // https://github.com/kduske/TrenchBroom/issues/1739
@@ -489,14 +487,13 @@ R"(// entity 0
             NodeWriter writer(&map, str);
             writer.writeMap();
             
-            const String result = str.str();
-            ASSERT_STREQ(
+            assertNodeWriterResult(
 R"(// entity 0
 {
 "classname" "worldspawn"
 "message" "holy damn\nhe said"
 }
-)", result.c_str());
+)", str);
         }
 
 
@@ -512,14 +509,13 @@ R"(// entity 0
             NodeWriter writer(&map, str);
             writer.writeMap();
 
-            const String result = str.str();
-            ASSERT_STREQ(
+            assertNodeWriterResult(
 R"(// entity 0
 {
 "classname" "worldspawn"
 "message" "holy damn"
 }
-)", result.c_str());
+)", str);
         }
     }
 }
