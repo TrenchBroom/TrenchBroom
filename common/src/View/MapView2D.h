@@ -23,7 +23,6 @@
 #include <vecmath/scalar.h>
 #include "Model/ModelTypes.h"
 #include "Renderer/OrthographicCamera.h"
-#include "View/Action.h"
 #include "View/MapViewBase.h"
 #include "View/ViewTypes.h"
 

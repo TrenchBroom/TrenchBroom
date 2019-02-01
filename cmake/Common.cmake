@@ -267,9 +267,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/TrenchBroomStackWalker.cpp
 	${COMMON_SOURCE_DIR}/View/AboutDialog.cpp
 	${COMMON_SOURCE_DIR}/View/ActionContext.cpp
-#	${COMMON_SOURCE_DIR}/View/Action.cpp
 	${COMMON_SOURCE_DIR}/View/ActionList.cpp
-#	${COMMON_SOURCE_DIR}/View/ActionManager.cpp
 	${COMMON_SOURCE_DIR}/View/AddBrushVerticesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/AddRemoveNodesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/Animation.cpp
@@ -397,7 +395,6 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/MapViewContainer.cpp
 	${COMMON_SOURCE_DIR}/View/MapView.cpp
 	${COMMON_SOURCE_DIR}/View/MapViewToolBox.cpp
-#	${COMMON_SOURCE_DIR}/View/Menu.cpp
 #	${COMMON_SOURCE_DIR}/View/ModEditor.cpp
 #	${COMMON_SOURCE_DIR}/View/MousePreferencePane.cpp
 	${COMMON_SOURCE_DIR}/View/MoveBrushEdgesCommand.cpp
@@ -409,8 +406,6 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/MoveTexturesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/MultiMapView.cpp
 	${COMMON_SOURCE_DIR}/View/OnePaneMapView.cpp
-#	${COMMON_SOURCE_DIR}/View/PersistentSplitterWindow2.cpp
-#	${COMMON_SOURCE_DIR}/View/PersistentSplitterWindow4.cpp
 	${COMMON_SOURCE_DIR}/View/PickRequest.cpp
 	${COMMON_SOURCE_DIR}/View/PopupWindow.cpp
 	${COMMON_SOURCE_DIR}/View/PopupButton.cpp
@@ -460,8 +455,6 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/SnapBrushVerticesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/SnapshotCommand.cpp
 #	${COMMON_SOURCE_DIR}/View/SpinControl.cpp
-#	${COMMON_SOURCE_DIR}/View/SplitterWindow2.cpp
-#	${COMMON_SOURCE_DIR}/View/SplitterWindow4.cpp
 	${COMMON_SOURCE_DIR}/View/SwitchableMapViewContainer.cpp
 	${COMMON_SOURCE_DIR}/View/TabBar.cpp
 	${COMMON_SOURCE_DIR}/View/TabBook.cpp
@@ -500,7 +493,6 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/ViewEditor.cpp
 	${COMMON_SOURCE_DIR}/View/ViewEffectsService.cpp
 #	${COMMON_SOURCE_DIR}/View/ViewPreferencePane.cpp
-#	${COMMON_SOURCE_DIR}/View/ViewShortcut.cpp
 	${COMMON_SOURCE_DIR}/View/ViewUtils.cpp
 	${COMMON_SOURCE_DIR}/View/WelcomeFrame.cpp
 	${COMMON_SOURCE_DIR}/View/wxUtils.cpp
@@ -834,9 +826,7 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/TrenchBroomStackWalker.h
 	${COMMON_SOURCE_DIR}/View/AboutDialog.h
 	${COMMON_SOURCE_DIR}/View/ActionContext.h
-	${COMMON_SOURCE_DIR}/View/Action.h
 	${COMMON_SOURCE_DIR}/View/ActionList.h
-#	${COMMON_SOURCE_DIR}/View/ActionManager.h
 	${COMMON_SOURCE_DIR}/View/AddBrushVerticesCommand.h
 	${COMMON_SOURCE_DIR}/View/AddRemoveNodesCommand.h
 	${COMMON_SOURCE_DIR}/View/AnimationCurve.h
@@ -865,7 +855,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/ColorTable.h
 	${COMMON_SOURCE_DIR}/View/ColorTableSelectedCommand.h
 	${COMMON_SOURCE_DIR}/View/Command.h
-#	${COMMON_SOURCE_DIR}/View/CommandIds.h
 	${COMMON_SOURCE_DIR}/View/CommandProcessor.h
 #	${COMMON_SOURCE_DIR}/View/CompilationContext.h
 #	${COMMON_SOURCE_DIR}/View/CompilationDialog.h
@@ -969,7 +958,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/MapView.h
 	${COMMON_SOURCE_DIR}/View/MapViewLayout.h
 	${COMMON_SOURCE_DIR}/View/MapViewToolBox.h
-	${COMMON_SOURCE_DIR}/View/Menu.h
 	${COMMON_SOURCE_DIR}/View/ModEditor.h
 	${COMMON_SOURCE_DIR}/View/MousePreferencePane.h
 	${COMMON_SOURCE_DIR}/View/MoveBrushEdgesCommand.h
@@ -982,8 +970,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/MoveToolController.h
 	${COMMON_SOURCE_DIR}/View/MultiMapView.h
 	${COMMON_SOURCE_DIR}/View/OnePaneMapView.h
-	${COMMON_SOURCE_DIR}/View/PersistentSplitterWindow2.h
-	${COMMON_SOURCE_DIR}/View/PersistentSplitterWindow4.h
 	${COMMON_SOURCE_DIR}/View/PickRequest.h
 	${COMMON_SOURCE_DIR}/View/PopupButton.h
 	${COMMON_SOURCE_DIR}/View/PopupWindow.h
@@ -1034,7 +1020,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/SnapBrushVerticesCommand.h
 	${COMMON_SOURCE_DIR}/View/SnapshotCommand.h
 	${COMMON_SOURCE_DIR}/View/SpinControl.h
-	${COMMON_SOURCE_DIR}/View/SplitterWindow2.h
 	${COMMON_SOURCE_DIR}/View/SplitterWindow4.h
 	${COMMON_SOURCE_DIR}/View/SwitchableMapViewContainer.h
 	${COMMON_SOURCE_DIR}/View/TabBar.h
@@ -1076,7 +1061,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/ViewEditor.h
 	${COMMON_SOURCE_DIR}/View/ViewEffectsService.h
 	${COMMON_SOURCE_DIR}/View/ViewPreferencePane.h
-	${COMMON_SOURCE_DIR}/View/ViewShortcut.h
 	${COMMON_SOURCE_DIR}/View/ViewTypes.h
 	${COMMON_SOURCE_DIR}/View/ViewUtils.h
 	${COMMON_SOURCE_DIR}/View/WelcomeFrame.h
