@@ -21,46 +21,43 @@
 
 #include "StringUtils.h"
 #include "View/BorderLine.h"
-#include "View/CollapsibleTitledPanel.h"
-#include "View/EntityBrowser.h"
-#include "View/EntityDefinitionFileChooser.h"
+//#include "View/CollapsibleTitledPanel.h"
+//#include "View/EntityBrowser.h"
+//#include "View/EntityDefinitionFileChooser.h"
 #include "View/EntityAttributeEditor.h"
-#include "View/SplitterWindow2.h"
-#include "View/TitledPanel.h"
+//#include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
 #include "View/MapDocument.h"
 
-#include <wx/event.h>
-#include <wx/notebook.h>
-#include <wx/persist.h>
-#include <wx/sizer.h>
+#include <QVBoxLayout>
+#include <QSplitter>
 
 namespace TrenchBroom {
     namespace View {
         EntityInspector::EntityInspector(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
         TabBookPage(parent) {
-#if defined __APPLE__
-            SetWindowVariant(wxWINDOW_VARIANT_SMALL);
-#endif
             createGui(document, contextManager);
         }
 
         void EntityInspector::createGui(MapDocumentWPtr document, GLContextManager& contextManager) {
-            SplitterWindow2* splitter = new SplitterWindow2(this);
-            splitter->setSashGravity(0.0);
-            splitter->SetName("EntityInspectorSplitter");
+            QSplitter* splitter = new QSplitter(Qt::Vertical);
+            //splitter->setSashGravity(0.0);
+            //splitter->SetName("EntityInspectorSplitter");
             
-            splitter->splitHorizontally(createAttributeEditor(splitter, document),
-                                        createEntityBrowser(splitter, document, contextManager),
-                                        wxSize(100, 150), wxSize(100, 150));
+            splitter->addWidget(createAttributeEditor(splitter, document));
+            splitter->addWidget(createEntityBrowser(splitter, document, contextManager));
+
+            m_attributeEditor->setMinimumSize(100, 150);
+            //m_entityBrowser->setMinimumSize(100, 150);
             
             auto* outerSizer = new QVBoxLayout();
-            outerSizer->Add(splitter, 1, wxEXPAND);
-            outerSizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
-            outerSizer->Add(createEntityDefinitionFileChooser(this, document), 0, wxEXPAND);
-            SetSizer(outerSizer);
-            
-            wxPersistenceManager::Get().RegisterAndRestore(splitter);
+            outerSizer->addWidget(splitter, 1);
+            outerSizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Horizontal), 0);
+            outerSizer->addWidget(createEntityDefinitionFileChooser(this, document), 0);
+            setLayout(outerSizer);
+
+            // FIXME: persist
+            //wxPersistenceManager::Get().RegisterAndRestore(splitter);
         }
         
         QWidget* EntityInspector::createAttributeEditor(QWidget* parent, MapDocumentWPtr document) {
@@ -69,6 +66,7 @@ namespace TrenchBroom {
         }
         
         QWidget* EntityInspector::createEntityBrowser(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) {
+#if 0
             TitledPanel* panel = new TitledPanel(parent, "Entity Browser");
             m_entityBrowser = new EntityBrowser(panel->getPanel(), document, contextManager);
             
@@ -77,9 +75,13 @@ namespace TrenchBroom {
             panel->getPanel()->SetSizer(sizer);
             
             return panel;
+#endif
+            m_entityBrowser = new QWidget();
+            return m_entityBrowser;
         }
         
         QWidget* EntityInspector::createEntityDefinitionFileChooser(QWidget* parent, MapDocumentWPtr document) {
+#if 0
             CollapsibleTitledPanel* panel = new CollapsibleTitledPanel(parent, "Entity Definitions", false);
             m_entityDefinitionFileChooser = new EntityDefinitionFileChooser(panel->getPanel(), document);
 
@@ -88,6 +90,8 @@ namespace TrenchBroom {
             panel->getPanel()->SetSizer(sizer);
 
             return panel;
+#endif
+            return new QWidget();
         }
     }
 }

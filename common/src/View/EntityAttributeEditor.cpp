@@ -20,14 +20,12 @@
 #include "EntityAttributeEditor.h"
 
 #include "View/EntityAttributeGrid.h"
-#include "View/EntityAttributeSelectedCommand.h"
 #include "View/ViewConstants.h"
 #include "View/MapDocument.h"
-#include "View/SmartAttributeEditorManager.h"
-#include "View/SplitterWindow2.h"
+//#include "View/SmartAttributeEditorManager.h"
 
-#include <wx/persist.h>
-#include <wx/sizer.h>
+#include <QSplitter>
+#include <QVBoxLayout>
 
 namespace TrenchBroom {
     namespace View {
@@ -37,38 +35,40 @@ namespace TrenchBroom {
             createGui(this, document);
         }
 
-        void EntityAttributeEditor::OnIdle(wxIdleEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        // FIXME: Change this to a signal/slot connection to m_attributeGrid
+        void EntityAttributeEditor::OnIdle() {
+#if 0
             const String& attributeName = m_attributeGrid->selectedRowName();
             if (!attributeName.empty() && attributeName != m_lastSelectedAttributeName) {
                 MapDocumentSPtr document = lock(m_document);
                 m_smartEditorManager->switchEditor(attributeName, document->allSelectedAttributableNodes());
                 m_lastSelectedAttributeName = attributeName;
             }
+#endif
         }
         
         void EntityAttributeEditor::createGui(QWidget* parent, MapDocumentWPtr document) {
-            SplitterWindow2* splitter = new SplitterWindow2(parent);
-            splitter->setSashGravity(1.0);
-            splitter->SetName("EntityAttributeEditorSplitter");
-            
-            m_attributeGrid = new EntityAttributeGrid(splitter, document);
-            m_smartEditorManager = new SmartAttributeEditorManager(splitter, document);
-            
-            splitter->splitHorizontally(m_attributeGrid,
-                                        m_smartEditorManager,
-                                        wxSize(100, 50), wxSize(100, 50));
+            auto* splitter = new QSplitter(Qt::Vertical);
 
+            // Configure the sash gravity so the first widget gets most of the space
+            splitter->setSizes(QList<int>{1'000'000, 1});
+            //splitter->SetName("EntityAttributeEditorSplitter");
             
+            m_attributeGrid = new EntityAttributeGrid(nullptr, document);
+            m_smartEditorManager = (SmartAttributeEditorManager*) new QWidget(); // new SmartAttributeEditorManager(nullptr, document);
+
+            splitter->addWidget(m_attributeGrid);
+            //splitter->addWidget(m_smartEditorManager);
+
+            m_attributeGrid->setMinimumSize(100, 50);
+            //m_smartEditorManager->setMinimumSize(500, 100);
+
             auto* sizer = new QVBoxLayout();
-            sizer->addWidget(splitter, 1, wxEXPAND);
-            sizer->SetItemMinSize(m_smartEditorManager, 500, 100);
-            SetSizer(sizer);
-            
-            wxPersistenceManager::Get().RegisterAndRestore(splitter);
-            
-            Bind(wxEVT_IDLE, &EntityAttributeEditor::OnIdle, this);
+            sizer->addWidget(splitter, 1);
+            setLayout(sizer);
+
+            // FIXME:
+            //wxPersistenceManager::Get().RegisterAndRestore(splitter);
         }
     }
 }

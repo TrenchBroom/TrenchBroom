@@ -23,7 +23,7 @@
 #include "StringUtils.h"
 #include "View/ViewTypes.h"
 
-#include <wx/panel.h>
+#include <QWidget>
 
 namespace TrenchBroom {
     namespace View {
@@ -39,9 +39,8 @@ namespace TrenchBroom {
             String m_lastSelectedAttributeName;
         public:
             EntityAttributeEditor(QWidget* parent, MapDocumentWPtr document);
-            
-            void OnIdle(wxIdleEvent& event);
         private:
+            void OnIdle();
             void createGui(QWidget* parent, MapDocumentWPtr document);
         };
     }

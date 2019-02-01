@@ -24,8 +24,6 @@
 #include "View/GLAttribs.h"
 #include "View/ViewTypes.h"
 
-#include <wx/panel.h>
-
 class wxToggleButton;
 class wxChoice;
 class wxGLContext;

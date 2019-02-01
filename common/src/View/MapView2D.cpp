@@ -64,6 +64,8 @@
 
 #include <vecmath/util.h>
 
+#include <QWidget>
+
 namespace TrenchBroom {
     namespace View {
         MapView2D::MapView2D(QWidget* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager, const ViewPlane viewPlane) :

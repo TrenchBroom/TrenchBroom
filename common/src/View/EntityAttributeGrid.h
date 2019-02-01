@@ -23,12 +23,12 @@
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
 
-#include <wx/grid.h>
-#include <wx/panel.h>
+#include <QWidget>
 
-class wxButton;
-class wxCheckBox;
-class QWidget;
+class QTableView;
+class QCheckBox;
+class QAbstractButton;
+class QShortcut;
 
 namespace TrenchBroom {
     namespace View {
@@ -36,57 +36,46 @@ namespace TrenchBroom {
         class Selection;
         
         class EntityAttributeGrid : public QWidget {
+            Q_OBJECT
         private:
             MapDocumentWPtr m_document;
             
             EntityAttributeGridTable* m_table;
-            wxGrid* m_grid;
-            wxGridCellCoords m_lastHoveredCell;
-            
+            QTableView* m_grid;
+            QAbstractButton* m_addAttributeButton;
+            QAbstractButton* m_removePropertiesButton;
+            QCheckBox* m_showDefaultPropertiesCheckBox;
+
+            QShortcut* m_insertRowShortcut;
+            QShortcut* m_removeRowShortcut;
+            QShortcut* m_removeRowAlternateShortcut;
+            QShortcut* m_openCellEditorShortcut;
+
             bool m_ignoreSelection;
-            Model::AttributeName m_lastSelectedName;
-            int m_lastSelectedCol;
         public:
             EntityAttributeGrid(QWidget* parent, MapDocumentWPtr document);
-            ~EntityAttributeGrid();
+            ~EntityAttributeGrid() override;
         private:
-            void OnAttributeGridSize(wxSizeEvent& event);
-            void OnAttributeGridSelectCell(wxGridEvent& event);
-            void OnAttributeGridTab(wxGridEvent& event);
+//            void OnAttributeGridSize(wxSizeEvent& event);
+//            void OnAttributeGridSelectCell(wxGridEvent& event);
+//            void OnAttributeGridTab(wxGridEvent& event);
         public:
-            void tabNavigate(int row, int col, bool forward);
-            void setLastSelectedNameAndColumn(const Model::AttributeName& name, const int col);
+//            void tabNavigate(int row, int col, bool forward);
         private:
-            void moveCursorTo(int row, int col);
-            void fireSelectionEvent(int row, int col);
+//            void moveCursorTo(int row, int col);
+//            void fireSelectionEvent(int row, int col);
         private:
-            void OnAttributeGridKeyDown(wxKeyEvent& event);
-            void OnAttributeGridKeyUp(wxKeyEvent& event);
-            bool isInsertRowShortcut(const wxKeyEvent& event) const;
-            bool isRemoveRowShortcut(const wxKeyEvent& event) const;
-            bool isOpenCellEditorShortcut(const wxKeyEvent& event) const;
-        private:
-            void OnAttributeGridMouseMove(wxMouseEvent& event);
-
-            void OnUpdateAttributeView(wxUpdateUIEvent& event);
-
-            void OnAddAttributeButton(wxCommandEvent& event);
-            void OnRemovePropertiesButton(wxCommandEvent& event);
-            
             void addAttribute();
             void removeSelectedAttributes();
             void removeAttribute(const String& key);
-            
-            void OnShowDefaultPropertiesCheckBox(wxCommandEvent& event);
-            void OnUpdateAddAttributeButton(wxUpdateUIEvent& event);
-            void OnUpdateRemovePropertiesButton(wxUpdateUIEvent& event);
-            void OnUpdateShowDefaultPropertiesCheckBox(wxUpdateUIEvent& event);
 
             bool canRemoveSelectedAttributes() const;
             std::set<int> selectedRowsAndCursorRow() const;
         private:
             void createGui(MapDocumentWPtr document);
-            
+            void createShortcuts();
+            void updateShortcuts();
+
             void bindObservers();
             void unbindObservers();
             
@@ -97,8 +86,6 @@ namespace TrenchBroom {
             void selectionDidChange(const Selection& selection);
         private:
             void updateControls();
-        public:
-            wxGrid* gridWindow() const;
         public:
             Model::AttributeName selectedRowName() const;
         };

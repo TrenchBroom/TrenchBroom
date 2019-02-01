@@ -327,15 +327,14 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/EdgeToolController.cpp
 	${COMMON_SOURCE_DIR}/View/EdgeTool.cpp
 #	${COMMON_SOURCE_DIR}/View/ELAutoCompleteHelper.cpp
-#	${COMMON_SOURCE_DIR}/View/EntityAttributeEditor.cpp
-#	${COMMON_SOURCE_DIR}/View/EntityAttributeGrid.cpp
-#	${COMMON_SOURCE_DIR}/View/EntityAttributeGridTable.cpp
-#	${COMMON_SOURCE_DIR}/View/EntityAttributeSelectedCommand.cpp
+	${COMMON_SOURCE_DIR}/View/EntityAttributeEditor.cpp
+	${COMMON_SOURCE_DIR}/View/EntityAttributeGrid.cpp
+	${COMMON_SOURCE_DIR}/View/EntityAttributeGridTable.cpp
 #	${COMMON_SOURCE_DIR}/View/EntityBrowser.cpp
 #	${COMMON_SOURCE_DIR}/View/EntityBrowserView.cpp
 #	${COMMON_SOURCE_DIR}/View/EntityDefinitionFileChooser.cpp
 	${COMMON_SOURCE_DIR}/View/EntityDefinitionFileCommand.cpp
-#	${COMMON_SOURCE_DIR}/View/EntityInspector.cpp
+	${COMMON_SOURCE_DIR}/View/EntityInspector.cpp
 #	${COMMON_SOURCE_DIR}/View/ExecutableEvent.cpp
 #	${COMMON_SOURCE_DIR}/View/FaceAttribsEditor.cpp
 #	${COMMON_SOURCE_DIR}/View/FaceInspector.cpp

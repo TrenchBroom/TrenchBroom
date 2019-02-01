@@ -23,15 +23,7 @@
 #include "View/TabBook.h"
 #include "View/ViewTypes.h"
 
-class wxButton;
-class wxCollapsiblePaneEvent;
-
 namespace TrenchBroom {
-    namespace Model {
-        class Object;
-        class SelectionResult;
-    }
-    
     namespace View {
         class EntityBrowser;
         class EntityDefinitionFileChooser;
@@ -41,7 +33,7 @@ namespace TrenchBroom {
         class EntityInspector : public TabBookPage {
         private:
             EntityAttributeEditor* m_attributeEditor;
-            EntityBrowser* m_entityBrowser;
+            QWidget* m_entityBrowser;
             EntityDefinitionFileChooser* m_entityDefinitionFileChooser;
         public:
             EntityInspector(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);

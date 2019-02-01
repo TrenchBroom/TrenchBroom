@@ -26,14 +26,254 @@
 #include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
 #include "Model/World.h"
-#include "View/LockedGridCellRenderer.h"
 #include "View/MapDocument.h"
 #include "View/ViewUtils.h"
 
-#include <wx/msgdlg.h>
+#include <QDebug>
 
 namespace TrenchBroom {
     namespace View {
+
+        // AttributeRow
+
+        AttributeRow::AttributeRow() :
+        m_nameMutable(false),
+        m_valueMutable(false),
+        m_default(false),
+        m_numEntitiesWithValueSet(0),
+        m_multi(false) {}
+
+        AttributeRow::AttributeRow(const String& name, const String& value, const bool nameMutable, const bool valueMutable, const String& tooltip, const bool isDefault) :
+                m_name(name),
+                m_value(value),
+                m_nameMutable(nameMutable),
+                m_valueMutable(valueMutable),
+                m_tooltip(tooltip),
+                m_default(isDefault),
+                m_numEntitiesWithValueSet(1),
+                m_multi(false) {
+            ensure(!m_default || m_valueMutable, "attribute row cannot be default and immutable");
+        }
+
+        const String& AttributeRow::name() const {
+            return m_name;
+        }
+
+        const String& AttributeRow::value() const {
+            return m_value;
+        }
+
+        bool AttributeRow::nameMutable() const {
+            return m_nameMutable;
+        }
+
+        bool AttributeRow::valueMutable() const {
+            return m_valueMutable;
+        }
+
+        const String& AttributeRow::tooltip() const {
+            return m_tooltip;
+        }
+
+        bool AttributeRow::isDefault() const {
+            return m_default;
+        }
+
+        void AttributeRow::merge(const String& i_value, const bool nameMutable, const bool valueMutable) {
+            m_multi |= (m_value != i_value);
+            m_nameMutable &= nameMutable;
+            m_valueMutable &= valueMutable;
+            m_default = false;
+            ++m_numEntitiesWithValueSet;
+        }
+
+        bool AttributeRow::multi() const {
+            return m_multi;
+        }
+
+        void AttributeRow::mergeRowInToMap(std::map<String, AttributeRow>* rows,
+                                    const Model::AttributeName& name, const Model::AttributeValue& value,
+                                    const Assets::AttributeDefinition* definition,
+                                    const bool nameMutable, const bool valueMutable, const bool isDefault) {
+            auto it = rows->find(name);
+            if (it == rows->end()) {
+                const String tooltip = Assets::AttributeDefinition::safeFullDescription(definition);
+
+                (*rows)[name] = AttributeRow(name, value, nameMutable, valueMutable, tooltip, isDefault);
+                return;
+            }
+
+            it->second.merge(value, nameMutable, valueMutable);
+        }
+
+        std::map<String, AttributeRow> AttributeRow::rowsForAttributableNodes(const Model::AttributableNodeList& attributables) {
+            std::map<String, AttributeRow> result;
+
+            // First, add the real key/value pairs
+            for (const Model::AttributableNode* attributable : attributables) {
+                // this happens at startup when the world is still null
+                if (attributable == nullptr) {
+                    continue;
+                }
+                for (const Model::EntityAttribute& attribute : attributable->attributes()) {
+                    const Model::AttributeName& name = attribute.name();
+                    const Model::AttributeValue& value = attribute.value();
+                    const Assets::AttributeDefinition* definition = attribute.definition();
+
+                    const bool nameMutable = attributable->isAttributeNameMutable(name);
+                    const bool valueMutable = attributable->isAttributeValueMutable(value);
+
+                    mergeRowInToMap(&result, name, value, definition, nameMutable, valueMutable, false);
+                }
+            }
+
+            // Default attributes need to be added in a second pass, because they're skipped if a real
+            // user-set attribute is present
+            for (const Model::AttributableNode* attributable : attributables) {
+                // this happens at startup when the world is still null
+                if (attributable == nullptr) {
+                    continue;
+                }
+                const Assets::EntityDefinition* entityDefinition = attributable->definition();
+                if (entityDefinition != nullptr) {
+                    for (Assets::AttributeDefinitionPtr attributeDefinition : entityDefinition->attributeDefinitions()) {
+                        const String& name = attributeDefinition->name();
+                        if (result.find(name) != result.end()) {
+                            continue;
+                        }
+
+                        const String value = Assets::AttributeDefinition::defaultValue(*attributeDefinition.get());
+                        mergeRowInToMap(&result, name, value, attributeDefinition.get(), false, true, true);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        // EntityAttributeGridTable
+
+        EntityAttributeGridTable::EntityAttributeGridTable(MapDocumentWPtr document, QObject* parent)
+                : QAbstractTableModel(parent),
+                  m_document(document) {
+            updateFromMapDocument();
+        }
+
+        static auto buildMap(const std::vector<AttributeRow>& rows) {
+            std::map<String, AttributeRow> result;
+            for (auto& row : rows) {
+                result[row.name()] = row;
+            }
+            return result;
+        }
+
+        static auto buildVec(const std::map<String, AttributeRow>& rows) {
+            std::vector<AttributeRow> result;
+            for (auto& [key, row] : rows) {
+                result.push_back(row);
+            }
+            return result;
+        }
+
+        void EntityAttributeGridTable::setRows(const std::map<String, AttributeRow>& newRows) {
+            qDebug() << "EntityAttributeGridTable::setRows " << newRows.size() << " rows.";
+
+            // Diff the incoming changes with our existing rows
+
+            std::vector<String> addedKeys;
+            std::vector<String> removedKeys;
+
+            std::map<String, AttributeRow> oldRows = buildMap(m_rows);
+
+            for (const auto& [key, row] : newRows) {
+                if (oldRows.find(key) == oldRows.end()) {
+                    addedKeys.push_back(key);
+                }
+            }
+            for (const auto& [key, row] : oldRows) {
+                if (newRows.find(key) == newRows.end()) {
+                    removedKeys.push_back(key);
+                }
+            }
+
+            beginResetModel();
+            m_rows = buildVec(newRows);
+            endResetModel();
+        }
+
+        void EntityAttributeGridTable::updateFromMapDocument() {
+            qDebug() << "updateFromMapDocument";
+
+            MapDocumentSPtr document = lock(m_document);
+
+            const auto rowsMap = AttributeRow::rowsForAttributableNodes(document->allSelectedAttributableNodes());
+
+            setRows(rowsMap);
+        }
+
+        int EntityAttributeGridTable::rowCount(const QModelIndex& parent) const {
+            if (parent.isValid()) {
+                return 0;
+            }
+            return static_cast<int>(m_rows.size());
+        }
+
+        int EntityAttributeGridTable::columnCount(const QModelIndex& parent) const {
+            if (parent.isValid()) {
+                return 0;
+            }
+            return 2;
+        }
+
+        QVariant EntityAttributeGridTable::data(const QModelIndex& index, int role) const {
+            if (!index.isValid()
+                || index.row() < 0
+                || index.row() >= static_cast<int>(m_rows.size())
+                || index.column() < 0
+                || index.column() >= 2) {
+                return QVariant();
+            }
+
+            const auto& issue = m_rows.at(static_cast<size_t>(index.row()));
+
+            if (role == Qt::DisplayRole) {
+                if (index.column() == 0) {
+                    return QVariant(QString::fromStdString(issue.name()));
+                } else {
+                    return QVariant(QString::fromStdString(issue.value()));
+                }
+            }
+//            else if (role == Qt::FontRole) {
+//                if (issue->hidden()) {
+//                    // hidden issues are italic
+//                    QFont italicFont;
+//                    italicFont.setItalic(true);
+//                    return QVariant(italicFont);
+//                }
+//                return QVariant();
+//            }
+
+            return QVariant();
+        }
+
+        QVariant EntityAttributeGridTable::headerData(int section, Qt::Orientation orientation, int role) const {
+            if (role != Qt::DisplayRole) {
+                return QVariant();
+            }
+
+            if (orientation == Qt::Horizontal) {
+                if (section == 0) {
+                    return QVariant(tr("Key"));
+                } else if (section == 1) {
+                    return QVariant(tr("Value"));
+                }
+            }
+            return QVariant();
+        }
+
+        // Begin old code
+
+#if 0
         EntityAttributeGridTable::AttributeRow::AttributeRow() :
         m_nameMutable(false),
         m_valueMutable(false),
@@ -41,7 +281,7 @@ namespace TrenchBroom {
         m_maxCount(0),
         m_count(0),
         m_multi(false) {}
-        
+
         EntityAttributeGridTable::AttributeRow::AttributeRow(const String& name, const String& value, const bool nameMutable, const bool valueMutable, const String& tooltip, const bool i_default, const size_t maxCount) :
         m_name(name),
         m_value(value),
@@ -54,19 +294,19 @@ namespace TrenchBroom {
         m_multi(false) {
             ensure(!m_default || m_valueMutable, "attribute row cannot be default and immutable");
         }
-        
+
         const String& EntityAttributeGridTable::AttributeRow::name() const {
             return m_name;
         }
-        
+
         const String& EntityAttributeGridTable::AttributeRow::value() const {
             return m_value;
         }
-        
+
         bool EntityAttributeGridTable::AttributeRow::nameMutable() const {
             return m_nameMutable;
         }
-        
+
         bool EntityAttributeGridTable::AttributeRow::valueMutable() const {
             return m_valueMutable;
         }
@@ -78,7 +318,7 @@ namespace TrenchBroom {
         bool EntityAttributeGridTable::AttributeRow::isDefault() const {
             return m_default;
         }
-        
+
         void EntityAttributeGridTable::AttributeRow::merge(const String& i_value, const bool nameMutable, const bool valueMutable) {
             m_multi |= (m_value != i_value);
             m_nameMutable &= nameMutable;
@@ -86,7 +326,7 @@ namespace TrenchBroom {
             m_default = false;
             ++m_count;
         }
-        
+
         bool EntityAttributeGridTable::AttributeRow::multi() const {
             return m_multi;
         }
@@ -681,5 +921,6 @@ namespace TrenchBroom {
                 GetView()->ProcessTableMessage(message);
             }
         }
+#endif
     }
 }

@@ -24,9 +24,11 @@
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
 
-#include <wx/grid.h>
+#include <QAbstractTableModel>
 
 #include <vector>
+#include <tuple>
+#include <map>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -34,7 +36,91 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class EntityAttributeGridTable : public wxGridTableBase {
+        using AttribRow = std::tuple<QString, QString>;
+        using RowList = std::vector<AttribRow>;
+
+        /**
+         * Viewmodel (as in MVVM) for a single row in the table
+         */
+        class AttributeRow {
+        private:
+            String m_name;
+            String m_value;
+            bool m_nameMutable;
+            bool m_valueMutable;
+            String m_tooltip;
+            /**
+             * If this is a default value from the FGD that the user hasn't explicitly set
+             */
+            bool m_default;
+
+            /**
+             * How many entities have this key set?
+             */
+            size_t m_numEntitiesWithValueSet;
+            /**
+             * Whether
+             */
+            bool m_multi;
+        public:
+            AttributeRow();
+            AttributeRow(const String& name, const String& value, bool nameMutable, bool valueMutable, const String& tooltip, bool isDefault);
+
+            const String& name() const;
+            const String& value() const;
+            bool nameMutable() const;
+            bool valueMutable() const;
+            const String& tooltip() const;
+            bool isDefault() const;
+            bool multi() const;
+
+        private:
+            void merge(const String& i_valuec, bool nameMutable, bool valueMutable);
+            static void mergeRowInToMap(std::map<String, AttributeRow>* rows,
+                                        const Model::AttributeName& name, const Model::AttributeValue& value,
+                                        const Assets::AttributeDefinition* definition,
+                                        bool nameMutable, bool valueMutable, bool isDefault);
+
+        public:
+            static std::map<String, AttributeRow> rowsForAttributableNodes(const Model::AttributableNodeList& attributables);
+        };
+
+        /**
+         * Model for the QTableView.
+         *
+         * Data flow:
+         *
+         * 1. MapDocument is modified, or entities are added/removed from the list that EntityAttributeGridTable is observing
+         * 2. EntityAttributeGridTable observes the change, and builds a list of AttributeRow for the new state
+         * 3. The new state and old state are diffed, and the necessary QAbstractTableModel methods called
+         *    to update the view correctly (preserving selection, etc.)
+         *
+         * All edits to the table flow this way; the EntityAttributeGridTable is never modified in response to
+         * a UI action.
+         */
+        class EntityAttributeGridTable : public QAbstractTableModel {
+            Q_OBJECT
+        private:
+            std::vector<AttributeRow> m_rows;
+            MapDocumentWPtr m_document;
+        public:
+            explicit EntityAttributeGridTable(MapDocumentWPtr document, QObject* parent);
+
+            void setRows(const std::map<String, AttributeRow>& newRows);
+
+            void updateFromMapDocument();
+
+        public: // QAbstractTableModel overrides
+            int rowCount(const QModelIndex& parent) const override;
+            int columnCount(const QModelIndex& parent) const override;
+            QVariant data(const QModelIndex& index, int role) const override;
+            QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+        };
+
+
+        // Begin old code
+#if 0
+        class EntityAttributeGridTable : public QAbstractItemModel {
         private:
             class AttributeRow {
             public:
@@ -149,6 +235,7 @@ namespace TrenchBroom {
             void notifyRowsAppended(size_t numRows = 1);
             void notifyRowsDeleted(size_t pos = 0, size_t numRows = 1);
         };
+#endif
     }
 }
 

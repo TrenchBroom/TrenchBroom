@@ -27,9 +27,11 @@
 #include "StringUtils.h"
 
 #include <QColor>
-#include <QWidget>
 
 #include <vector>
+
+class QWidget;
+class QAbstractButton;
 
 namespace TrenchBroom {
     namespace View {
@@ -47,8 +49,10 @@ namespace TrenchBroom {
 
         std::vector<size_t> getListCtrlSelection(const wxListCtrl* listCtrl);
         void deselectAllListrCtrlItems(wxListCtrl* listCtrl);
+#endif
 
-        QWidget* createBitmapButton(QWidget* parent, const String& image, const String& tooltip);
+        QAbstractButton* createBitmapButton(QWidget* parent, const String& image, const QString& tooltip);
+#if 0
         QWidget* createBitmapToggleButton(QWidget* parent, const String& upImage, const String& downImage, const String& tooltip);
 
         QWidget* createDefaultPage(QWidget* parent, const QString& message);

@@ -27,6 +27,8 @@
 #include "View/MapFrame.h"
 #include "View/ViewConstants.h"
 
+#include <QPushButton>
+
 #include <list>
 #include <cstdlib>
 
@@ -94,15 +96,23 @@ namespace TrenchBroom {
                 listCtrl->SetItemState(static_cast<long>(index), 0, wxLIST_STATE_SELECTED);
             }
         }
+#endif
 
-        QWidget* createBitmapButton(QWidget* parent, const String& image, const String& tooltip) {
-            auto bitmap = IO::loadImageResource(image);
+        QAbstractButton* createBitmapButton(QWidget* parent, const String& image, const QString& tooltip) {
+            QIcon icon = loadIconResourceQt(IO::Path(image));
 
-            auto* button = new BitmapStaticButton(parent, wxID_ANY, bitmap);
-            button->SetToolTip(tooltip);
+            // NOTE: according to http://doc.qt.io/qt-5/qpushbutton.html this would be more correctly
+            // be a QToolButton, but the QToolButton doesn't have a flat style on macOS
+            auto* button = new QPushButton(parent);
+            button->setAutoDefault(false);
+            button->setToolTip(tooltip);
+            button->setIcon(icon);
+            button->setFlat(true);
+
             return button;
         }
 
+#if 0
         QWidget* createBitmapToggleButton(QWidget* parent, const String& upImage, const String& downImage, const String& tooltip) {
             auto upBitmap = IO::loadImageResource(upImage);
             auto downBitmap = IO::loadImageResource(downImage);
