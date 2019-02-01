@@ -369,7 +369,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/InfoPanel.cpp
 	${COMMON_SOURCE_DIR}/View/InputEvent.cpp
 	${COMMON_SOURCE_DIR}/View/InputState.cpp
-#	${COMMON_SOURCE_DIR}/View/Inspector.cpp
+	${COMMON_SOURCE_DIR}/View/Inspector.cpp
 	${COMMON_SOURCE_DIR}/View/IssueBrowser.cpp
 	${COMMON_SOURCE_DIR}/View/IssueBrowserView.cpp
 #	${COMMON_SOURCE_DIR}/View/KeyboardGridCellEditor.cpp

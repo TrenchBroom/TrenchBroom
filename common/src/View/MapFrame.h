@@ -22,10 +22,9 @@
 
 #include "Model/MapFormat.h"
 #include "Model/ModelTypes.h"
-//#include "View/Inspector.h"
+#include "View/Inspector.h"
 #include "View/Selection.h"
 #include "View/ViewTypes.h"
-//#include "SplitterWindow2.h"
 
 #include <QMainWindow>
 
@@ -73,7 +72,7 @@ namespace TrenchBroom {
             SwitchableMapViewContainer* m_mapView;
             InfoPanel* m_infoPanel;
             Console* m_console;
-            //Inspector* m_inspector;
+            Inspector* m_inspector;
 
             QComboBox* m_gridChoice;
             QLabel* m_statusBarLabel;
@@ -337,10 +336,8 @@ namespace TrenchBroom {
             void OnViewSwitchToEntityInspector();
             void OnViewSwitchToFaceInspector();
 
-            // FIXME:
-            //void switchToInspectorPage(Inspector::InspectorPage page);
-            void ensureInspectorVisible();
-            
+            void switchToInspectorPage(Inspector::InspectorPage page);
+
             void OnViewToggleMaximizeCurrentView();
             void OnViewToggleInfoPanel();
             void OnViewToggleInspector();

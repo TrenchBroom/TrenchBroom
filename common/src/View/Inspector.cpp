@@ -25,7 +25,7 @@
 #include "View/TabBook.h"
 #include "View/TabBar.h"
 
-#include <wx/sizer.h>
+#include <QVBoxLayout>
 
 namespace TrenchBroom {
     namespace View {
@@ -38,21 +38,23 @@ namespace TrenchBroom {
             
             m_tabBook = new TabBook(this);
 
-            m_mapInspector = new MapInspector(m_tabBook, document, contextManager);
-            m_entityInspector = new EntityInspector(m_tabBook, document, contextManager);
-            m_faceInspector = new FaceInspector(m_tabBook, document, contextManager);
+            m_mapInspector = (MapInspector*) new TabBookPage(nullptr); // FIXME: MapInspector(m_tabBook, document, contextManager);
+            m_entityInspector = (EntityInspector*) new TabBookPage(nullptr); // FIXME: new EntityInspector(m_tabBook, document, contextManager);
+            m_faceInspector = (FaceInspector*) new TabBookPage(nullptr); // FIXME: new FaceInspector(m_tabBook, document, contextManager);
             
             m_tabBook->addPage(m_mapInspector, "Map");
             m_tabBook->addPage(m_entityInspector, "Entity");
             m_tabBook->addPage(m_faceInspector, "Face");
             
             auto* sizer = new QVBoxLayout();
-            sizer->addWidget(m_tabBook, 1, wxEXPAND);
-            SetSizer(sizer);
+            sizer->setContentsMargins(0, 0, 0, 0);
+            sizer->addWidget(m_tabBook);
+            setLayout(sizer);
         }
 
         void Inspector::connectTopWidgets(QWidget* master) {
-            master->Bind(wxEVT_SIZE, &Inspector::OnTopWidgetSize, this);
+            // FIXME: Not sure how to do this in Qt
+            //master->Bind(wxEVT_SIZE, &Inspector::OnTopWidgetSize, this);
         }
 
         void Inspector::switchToPage(const InspectorPage page) {
@@ -60,13 +62,13 @@ namespace TrenchBroom {
         }
 
         bool Inspector::cancelMouseDrag() {
-            return m_faceInspector->cancelMouseDrag();
+            return false; // FIXME: m_faceInspector->cancelMouseDrag();
         }
 
-        void Inspector::OnTopWidgetSize(wxSizeEvent& event) {
-            if (IsBeingDeleted()) return;
-            m_tabBook->setTabBarHeight(event.GetSize().y);
-            event.Skip();
+        void Inspector::OnTopWidgetSize() {
+//            if (IsBeingDeleted()) return;
+//            m_tabBook->setTabBarHeight(event.GetSize().y);
+//            event.Skip();
         }
     }
 }

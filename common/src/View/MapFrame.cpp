@@ -95,7 +95,7 @@ namespace TrenchBroom {
         m_mapView(nullptr),
         m_infoPanel(nullptr),
         m_console(nullptr),
-//        m_inspector(nullptr),
+        m_inspector(nullptr),
         m_gridChoice(nullptr)
 //        m_compilationDialog(nullptr),
         {}
@@ -109,7 +109,7 @@ namespace TrenchBroom {
         m_mapView(nullptr),
         m_infoPanel(nullptr),
         m_console(nullptr),
-//        m_inspector(nullptr),
+        m_inspector(nullptr),
         m_gridChoice(nullptr)
 //        m_compilationDialog(nullptr),
         {
@@ -1048,7 +1048,7 @@ namespace TrenchBroom {
             viewToggleInfoPanelAction->setEnabled(true);
             viewToggleInfoPanelAction->setChecked(m_infoPanel->isVisible());
             viewToggleInspectorAction->setEnabled(true);
-            //viewToggleInspectorAction->setChecked(m_inspector->isVisible());
+            viewToggleInspectorAction->setChecked(m_inspector->isVisible());
             viewToggleMaximizeCurrentViewAction->setEnabled(m_mapView->canMaximizeCurrentView());
             viewToggleMaximizeCurrentViewAction->setChecked(m_mapView->currentViewMaximized());
             viewPreferencesAction->setEnabled(true);
@@ -1125,23 +1125,23 @@ namespace TrenchBroom {
 
             m_mapView = new SwitchableMapViewContainer(nullptr, m_console, m_document, *m_contextManager);
 
-            //m_inspector = new Inspector(m_hSplitter, m_document, *m_contextManager);
+            m_inspector = new Inspector(nullptr, m_document, *m_contextManager);
 
-            //m_mapView->connectTopWidgets(m_inspector);
+            m_mapView->connectTopWidgets(m_inspector);
 
             // Add widgets to splitters
             m_vSplitter->addWidget(m_mapView);
             m_vSplitter->addWidget(m_infoPanel);
 
             m_hSplitter->addWidget(m_vSplitter);
-            //m_hSplitter->addWidget(m_inspector);
+            m_hSplitter->addWidget(m_inspector);
 
             // Configure minimum sizes
             m_mapView->setMinimumSize(100, 100);
             m_infoPanel->setMinimumSize(100, 100);
 
             m_vSplitter->setMinimumSize(100, 100);
-//            m_inspector->setMinimumSize(350, 100);
+            m_inspector->setMinimumSize(350, 100);
 
             // Configure the sash gravity so the first widget gets most of the space
             m_hSplitter->setSizes(QList<int>{1'000'000, 1});
@@ -1875,31 +1875,20 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnViewSwitchToMapInspector() {
-            // FIXME:
-//            switchToInspectorPage(Inspector::InspectorPage_Map);
+            switchToInspectorPage(Inspector::InspectorPage_Map);
         }
 
         void MapFrame::OnViewSwitchToEntityInspector() {
-            // FIXME:
-//            switchToInspectorPage(Inspector::InspectorPage_Entity);
+            switchToInspectorPage(Inspector::InspectorPage_Entity);
         }
 
         void MapFrame::OnViewSwitchToFaceInspector() {
-            // FIXME:
-//            switchToInspectorPage(Inspector::InspectorPage_Face);
+            switchToInspectorPage(Inspector::InspectorPage_Face);
         }
 
-        // FIXME:
-#if 0
         void MapFrame::switchToInspectorPage(const Inspector::InspectorPage page) {
-            ensureInspectorVisible();
+            m_inspector->show();
             m_inspector->switchToPage(page);
-        }
-#endif
-        void MapFrame::ensureInspectorVisible() {
-		    // FIXME:
-//            if (m_hSplitter->isMaximized(m_vSplitter))
-//                m_hSplitter->restore();
         }
 
         void MapFrame::OnViewToggleMaximizeCurrentView() {
@@ -1911,11 +1900,7 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnViewToggleInspector() {
-            // FIXME:
-//            if (m_hSplitter->isMaximized(m_vSplitter))
-//                m_hSplitter->restore();
-//            else
-//                m_hSplitter->maximize(m_vSplitter);
+            m_inspector->setHidden(!m_inspector->isHidden());
         }
 
         void MapFrame::OnRunCompile() {
