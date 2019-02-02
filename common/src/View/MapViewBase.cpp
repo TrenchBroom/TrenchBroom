@@ -382,10 +382,10 @@ namespace TrenchBroom {
                     shortcut->setEnabled(false);
                 }
 
-                qDebug("Updated shortcut (%s, pref path: %s) to: %s",
-                       shortcut->key().toString(QKeySequence::PortableText).toStdString().c_str(),
-                       menuInfo->preferencePath.asString().c_str(),
-                       shortcut->isEnabled() ? "enabled" : "disabled");
+//                qDebug("Updated shortcut (%s, pref path: %s) to: %s",
+//                       shortcut->key().toString(QKeySequence::PortableText).toStdString().c_str(),
+//                       menuInfo->preferencePath.asString().c_str(),
+//                       shortcut->isEnabled() ? "enabled" : "disabled");
             }
         }
 

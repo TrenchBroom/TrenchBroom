@@ -225,6 +225,24 @@ namespace TrenchBroom {
             return 2;
         }
 
+        Qt::ItemFlags EntityAttributeGridTable::flags(const QModelIndex &index) const {
+            const auto& issue = m_rows.at(static_cast<size_t>(index.row()));
+
+            Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+
+            if (index.column() == 0) {
+                if (issue.nameMutable()) {
+                    flags |= Qt::ItemIsEditable;
+                }
+            } else {
+                if (issue.valueMutable()) {
+                    flags |= Qt::ItemIsEditable;
+                }
+            }
+
+            return flags;
+        }
+
         QVariant EntityAttributeGridTable::data(const QModelIndex& index, int role) const {
             if (!index.isValid()
                 || index.row() < 0
@@ -254,6 +272,19 @@ namespace TrenchBroom {
 //            }
 
             return QVariant();
+        }
+
+        bool EntityAttributeGridTable::setData(const QModelIndex &index, const QVariant &value, int role) {
+            const auto& issue = m_rows.at(static_cast<size_t>(index.row()));
+
+            qDebug() << "tried to set " << QString::fromStdString(issue.name()) << " to " << value.toString();
+
+            MapDocumentSPtr document = lock(m_document);
+            if (document->setAttribute(issue.name(), value.toString().toStdString())) {
+                return true;
+            }
+
+            return false;
         }
 
         QVariant EntityAttributeGridTable::headerData(int section, Qt::Orientation orientation, int role) const {
