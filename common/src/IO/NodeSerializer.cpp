@@ -195,7 +195,15 @@ namespace TrenchBroom {
         }
 
         String NodeSerializer::escapeEntityAttribute(const String& str) const {
-            // escape bare " characters
+            // Remove a trailing unescaped backslash, as this will choke the parser.
+            const auto l = str.size();
+            if (l > 0 && str[l-1] == '\\') {
+                const auto p = str.find_last_not_of('\\');
+                if ((l - p) % 2 == 0) {
+                    // Only remove a trailing backslash if there is an uneven number of trailing backslashes.
+                    return StringUtils::escapeIfNecessary(str.substr(0, l-1), "\"");
+                }
+            }
             return StringUtils::escapeIfNecessary(str, "\"");
         }
     }
