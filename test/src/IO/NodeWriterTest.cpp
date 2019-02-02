@@ -487,6 +487,8 @@ namespace TrenchBroom {
             Model::World map(Model::MapFormat::Standard, nullptr, worldBounds);
             map.addOrUpdateAttribute("classname", "worldspawn");
             map.addOrUpdateAttribute("message\\", "holy damn\\");
+            map.addOrUpdateAttribute("message2", "holy damn\\\\");
+            map.addOrUpdateAttribute("message3", "holy damn\\\\\\");
 
             StringStream str;
             NodeWriter writer(&map, str);
@@ -497,6 +499,8 @@ namespace TrenchBroom {
                          "{\n"
                          "\"classname\" \"worldspawn\"\n"
                          "\"message\" \"holy damn\"\n"
+                         "\"message2\" \"holy damn\\\\\"\n"
+                         "\"message3\" \"holy damn\\\\\"\n"
                          "}\n", result.c_str());
         }
     }
