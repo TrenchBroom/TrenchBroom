@@ -195,6 +195,7 @@ namespace TrenchBroom {
             void setGeometry(BrushFaceGeometry* geometry);
             void invalidate();
             
+            size_t lineNumber() const;
             void setFilePosition(size_t lineNumber, size_t lineCount);
             
             bool selected() const;
@@ -222,8 +223,7 @@ namespace TrenchBroom {
             void setMarked(bool marked) const;
             bool isMarked() const;
         private:
-            BrushFace(const BrushFace& other);
-            BrushFace& operator=(const BrushFace& other);
+            deleteCopyAndMove(BrushFace)
         };
     }
 }

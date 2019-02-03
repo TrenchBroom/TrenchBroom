@@ -196,16 +196,23 @@ namespace TrenchBroom {
         }
         
         void UVScaleTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            if (m_helper.valid()) {
-                // don't overdraw the origin handles
-                const auto& pickResult = inputState.pickResult();
-                if (!pickResult.query().type(UVOriginTool::XHandleHit | UVOriginTool::YHandleHit).occluded().first().isMatch()) {
-                    auto vertices = getHandleVertices(pickResult);
-                    const Color color(1.0f, 0.0f, 0.0f, 1.0f);
+            if (!m_helper.valid()) {
+                return;
+            }
 
-                    Renderer::DirectEdgeRenderer handleRenderer(Renderer::VertexArray::swap(vertices), GL_LINES);
-                    handleRenderer.render(renderBatch, color, 0.5f);
-                }
+            const auto* face = m_helper.face();
+            if (!face->attribs().valid()) {
+                return;
+            }
+
+            // don't overdraw the origin handles
+            const auto& pickResult = inputState.pickResult();
+            if (!pickResult.query().type(UVOriginTool::XHandleHit | UVOriginTool::YHandleHit).occluded().first().isMatch()) {
+                auto vertices = getHandleVertices(pickResult);
+                const Color color(1.0f, 0.0f, 0.0f, 1.0f);
+
+                Renderer::DirectEdgeRenderer handleRenderer(Renderer::VertexArray::swap(vertices), GL_LINES);
+                handleRenderer.render(renderBatch, color, 0.5f);
             }
         }
 

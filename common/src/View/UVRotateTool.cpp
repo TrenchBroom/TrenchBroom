@@ -272,6 +272,11 @@ namespace TrenchBroom {
                 return;
             }
 
+            const auto* face = m_helper.face();
+            if (!face->attribs().valid()) {
+                return;
+            }
+
             const auto& pickResult = inputState.pickResult();
             const auto& angleHandleHit = pickResult.query().type(AngleHandleHit).occluded().first();
             const auto highlight = angleHandleHit.isMatch() || thisToolDragging();
