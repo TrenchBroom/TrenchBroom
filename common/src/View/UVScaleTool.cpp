@@ -88,6 +88,11 @@ namespace TrenchBroom {
                 return false;
             }
             
+            auto* face = m_helper.face();
+            if (!face->attribs().valid()) {
+                return false;
+            }
+
             const auto& pickResult = inputState.pickResult();
             const auto& xHit = pickResult.query().type(XHandleHit).occluded().first();
             const auto& yHit = pickResult.query().type(YHandleHit).occluded().first();
@@ -123,7 +128,10 @@ namespace TrenchBroom {
             auto newScale = face->scale();
             for (size_t i = 0; i < 2; ++i) {
                 if (m_selector[i]) {
-                    newScale[i] = newHandleDistFaceCoords[i] / curHandleDistTexCoords[i];
+                    const auto value = newHandleDistFaceCoords[i] / curHandleDistTexCoords[i];
+                    if (value != 0.0f) {
+                        newScale[i] = value;
+                    }
                 }
             }
             newScale = correct(newScale, 4, 0.0f);

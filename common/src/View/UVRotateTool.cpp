@@ -105,6 +105,10 @@ namespace TrenchBroom {
             }
 
             const auto* face = m_helper.face();
+            if (!face->attribs().valid()) {
+                return false;
+            }
+
             const auto toFace = face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
 
             const auto hitPointInFaceCoords(toFace * angleHandleHit.hitPoint());
