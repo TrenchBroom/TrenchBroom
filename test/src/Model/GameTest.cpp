@@ -75,7 +75,7 @@ namespace TrenchBroom {
             auto worldspawn = Entity();
             worldspawn.addOrUpdateAttribute("_tb_textures", textureCollections.front().asString());
 
-            auto textureManager = Assets::TextureManager(0, 0, &logger);
+            auto textureManager = Assets::TextureManager(0, 0, logger);
             game.loadTextureCollections(&worldspawn, IO::Path(), textureManager, logger);
 
             ASSERT_EQ(1u, textureManager.collections().size());
