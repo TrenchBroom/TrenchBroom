@@ -45,7 +45,7 @@ namespace TrenchBroom {
             // no editor image is available.
             std::unique_ptr<FileSystem> fs = std::make_unique<DiskFileSystem>(fallbackDir);
             fs = std::make_unique<DiskFileSystem>(std::move(fs), testDir);
-            fs = std::make_unique<Quake3ShaderFileSystem>(std::move(fs), searchPaths, &logger);
+            fs = std::make_unique<Quake3ShaderFileSystem>(std::move(fs), searchPaths, logger);
 
             const auto items = fs->findItems(texturePrefix + Path("test"), FileExtensionMatcher(""));
             ASSERT_EQ(5u, items.size());

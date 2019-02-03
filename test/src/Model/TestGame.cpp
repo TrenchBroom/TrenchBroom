@@ -42,8 +42,8 @@ namespace TrenchBroom {
             return IO::Path(".");
         }
         
-        void TestGame::doSetGamePath(const IO::Path& gamePath, Logger* logger) {}
-        void TestGame::doSetAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger* logger) {}
+        void TestGame::doSetGamePath(const IO::Path& gamePath, Logger& logger) {}
+        void TestGame::doSetAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger& logger) {}
         Game::PathErrors TestGame::doCheckAdditionalSearchPaths(const IO::Path::List& searchPaths) const { return PathErrors(); }
         
         CompilationConfig& TestGame::doCompilationConfig() {
@@ -55,11 +55,11 @@ namespace TrenchBroom {
             return 1024;
         }
         
-        World* TestGame::doNewMap(const MapFormat format, const vm::bbox3& worldBounds, Logger* logger) const {
+        World* TestGame::doNewMap(const MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const {
             return new World(format, brushContentTypeBuilder(), worldBounds);
         }
         
-        World* TestGame::doLoadMap(const MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger* logger) const {
+        World* TestGame::doLoadMap(const MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger& logger) const {
             return new World(format, brushContentTypeBuilder(), worldBounds);
         }
         
@@ -75,13 +75,13 @@ namespace TrenchBroom {
 
         void TestGame::doExportMap(World* world, Model::ExportFormat format, const IO::Path& path) const {}
         
-        NodeList TestGame::doParseNodes(const String& str, World* world, const vm::bbox3& worldBounds, Logger* logger) const {
+        NodeList TestGame::doParseNodes(const String& str, World* world, const vm::bbox3& worldBounds, Logger& logger) const {
             IO::TestParserStatus status;
             IO::NodeReader reader(str, world);
             return reader.read(worldBounds, status);
         }
         
-        BrushFaceList TestGame::doParseBrushFaces(const String& str, World* world, const vm::bbox3& worldBounds, Logger* logger) const {
+        BrushFaceList TestGame::doParseBrushFaces(const String& str, World* world, const vm::bbox3& worldBounds, Logger& logger) const {
             IO::TestParserStatus status;
             IO::BrushFaceReader reader(str, world);
             return reader.read(worldBounds, status);
@@ -101,7 +101,7 @@ namespace TrenchBroom {
             return TexturePackageType::File;
         }
         
-        void TestGame::doLoadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger* logger) const {
+        void TestGame::doLoadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const {
             const IO::Path::List paths = extractTextureCollections(node);
             
             const IO::Path root = IO::Disk::getCurrentWorkingDir();
@@ -187,7 +187,7 @@ namespace TrenchBroom {
             return Assets::EntityDefinitionList();
         }
         
-        Assets::EntityModel* TestGame::doLoadEntityModel(const IO::Path& path) const {
+        Assets::EntityModel* TestGame::doLoadEntityModel(const IO::Path& path, Logger& logger) const {
             return nullptr;
         }
     }

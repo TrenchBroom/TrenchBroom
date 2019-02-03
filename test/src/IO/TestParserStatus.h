@@ -30,6 +30,7 @@ namespace TrenchBroom {
     namespace IO {
         class TestParserStatus : public ParserStatus {
         private:
+            static NullLogger _logger;
             using StatusCounts = std::map<Logger::LogLevel, size_t>;
             StatusCounts m_statusCounts;
         public:
