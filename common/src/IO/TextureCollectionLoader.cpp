@@ -34,7 +34,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TextureCollectionLoader::TextureCollectionLoader(Logger* logger) :
+        TextureCollectionLoader::TextureCollectionLoader(Logger& logger) :
         m_logger(logger) {}
 
         TextureCollectionLoader::~TextureCollectionLoader() = default;
@@ -50,7 +50,7 @@ namespace TrenchBroom {
             return collection;
         }
 
-        FileTextureCollectionLoader::FileTextureCollectionLoader(Logger* logger, const IO::Path::List& searchPaths) :
+        FileTextureCollectionLoader::FileTextureCollectionLoader(Logger& logger, const IO::Path::List& searchPaths) :
         TextureCollectionLoader(logger),
         m_searchPaths(searchPaths) {}
 
@@ -66,14 +66,14 @@ namespace TrenchBroom {
                 try {
                     result.push_back(wadFS.openFile(texturePath));
                 } catch (const std::exception& e) {
-                    m_logger->warn() << e.what();
+                    m_logger.warn() << e.what();
                 }
             }
 
             return result;
         }
 
-        DirectoryTextureCollectionLoader::DirectoryTextureCollectionLoader(Logger* logger, const FileSystem& gameFS) :
+        DirectoryTextureCollectionLoader::DirectoryTextureCollectionLoader(Logger& logger, const FileSystem& gameFS) :
         TextureCollectionLoader(logger),
         m_gameFS(gameFS) {}
 
@@ -87,7 +87,7 @@ namespace TrenchBroom {
                 try {
                     result.push_back(m_gameFS.openFile(texturePath));
                 } catch (const std::exception& e) {
-                    m_logger->warn() << e.what();
+                    m_logger.warn() << e.what();
                 }
             }
 

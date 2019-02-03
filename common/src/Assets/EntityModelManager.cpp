@@ -144,7 +144,7 @@ namespace TrenchBroom {
 
         EntityModel* EntityModelManager::loadModel(const IO::Path& path) const {
             ensure(m_loader != nullptr, "loader is null");
-            return m_loader->loadEntityModel(path);
+            return m_loader->loadEntityModel(path, *m_logger);
         }
 
         void EntityModelManager::prepare(Renderer::Vbo& vbo) {

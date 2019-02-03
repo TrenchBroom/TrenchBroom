@@ -86,7 +86,7 @@ namespace TrenchBroom {
             void positionOnScreen(wxFrame* reference);
             MapDocumentSPtr document() const;
         public: // getters and such
-            Logger* logger() const;
+            Logger& logger() const;
         public: // drop targets
             void setToolBoxDropTarget();
             void clearDropTarget();

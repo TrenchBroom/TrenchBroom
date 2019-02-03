@@ -45,11 +45,11 @@ namespace TrenchBroom {
             return doGamePath();
         }
 
-        void Game::setGamePath(const IO::Path& gamePath, Logger* logger) {
+        void Game::setGamePath(const IO::Path& gamePath, Logger& logger) {
             doSetGamePath(gamePath, logger);
         }
 
-        void Game::setAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger* logger) {
+        void Game::setAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger& logger) {
             doSetAdditionalSearchPaths(searchPaths, logger);
         }
 
@@ -65,11 +65,11 @@ namespace TrenchBroom {
             return doMaxPropertyLength();
         }
 
-        World* Game::newMap(const MapFormat format, const vm::bbox3& worldBounds, Logger* logger) const {
+        World* Game::newMap(const MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const {
             return doNewMap(format, worldBounds, logger);
         }
         
-        World* Game::loadMap(const MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger* logger) const {
+        World* Game::loadMap(const MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger& logger) const {
             return doLoadMap(format, worldBounds, path, logger);
         }
 
@@ -83,11 +83,11 @@ namespace TrenchBroom {
             doExportMap(world, format, path);
         }
 
-        NodeList Game::parseNodes(const String& str, World* world, const vm::bbox3& worldBounds, Logger* logger) const {
+        NodeList Game::parseNodes(const String& str, World* world, const vm::bbox3& worldBounds, Logger& logger) const {
             return doParseNodes(str, world, worldBounds, logger);
         }
         
-        BrushFaceList Game::parseBrushFaces(const String& str, World* world, const vm::bbox3& worldBounds, Logger* logger) const {
+        BrushFaceList Game::parseBrushFaces(const String& str, World* world, const vm::bbox3& worldBounds, Logger& logger) const {
             return doParseBrushFaces(str, world, worldBounds, logger);
         }
 
@@ -103,7 +103,7 @@ namespace TrenchBroom {
             return doTexturePackageType();
         }
 
-        void Game::loadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger* logger) const {
+        void Game::loadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const {
             doLoadTextureCollections(node, documentPath, textureManager, logger);
         }
 

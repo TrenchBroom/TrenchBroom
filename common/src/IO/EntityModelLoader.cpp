@@ -21,10 +21,10 @@
 
 namespace TrenchBroom {
     namespace IO {
-        EntityModelLoader::~EntityModelLoader() {}
+        EntityModelLoader::~EntityModelLoader() = default;
         
-        Assets::EntityModel* EntityModelLoader::loadEntityModel(const IO::Path& path) const {
-            return doLoadEntityModel(path);
+        Assets::EntityModel* EntityModelLoader::loadEntityModel(const IO::Path& path, Logger& logger) const {
+            return doLoadEntityModel(path, logger);
         }
     }
 }

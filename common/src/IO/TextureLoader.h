@@ -50,12 +50,12 @@ namespace TrenchBroom {
             std::unique_ptr<TextureReader> m_textureReader;
             std::unique_ptr<TextureCollectionLoader> m_textureCollectionLoader;
         public:
-            TextureLoader(const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger);
+            TextureLoader(const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig, Logger& logger);
         private:
             static StringList getTextureExtensions(const Model::GameConfig::TextureConfig& textureConfig);
-            static std::unique_ptr<TextureReader> createTextureReader(const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger);
-            static Assets::Palette loadPalette(const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger);
-            static std::unique_ptr<TextureCollectionLoader> createTextureCollectionLoader(const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger);
+            static std::unique_ptr<TextureReader> createTextureReader(const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger& logger);
+            static Assets::Palette loadPalette(const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger& logger);
+            static std::unique_ptr<TextureCollectionLoader> createTextureCollectionLoader(const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig, Logger& logger);
         public:
             std::unique_ptr<Assets::TextureCollection> loadTextureCollection(const Path& path);
             void loadTextures(const Path::List& paths, Assets::TextureManager& textureManager);

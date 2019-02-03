@@ -117,7 +117,7 @@ namespace TrenchBroom {
         public:
             DkmParser(const String& name, const char* begin, const char* end, const FileSystem& fs);
         private:
-            Assets::EntityModel* doParseModel() override;
+            Assets::EntityModel* doParseModel(Logger& logger) override;
             DkmSkinList parseSkins(const char* begin, size_t skinCount);
             DkmFrameList parseFrames(const char* begin, size_t frameCount, size_t frameVertexCount, int version);
             DkmMeshList parseMeshes(const char* begin, size_t commandCount);

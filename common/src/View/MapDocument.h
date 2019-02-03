@@ -156,6 +156,8 @@ namespace TrenchBroom {
         public:
             virtual ~MapDocument() override;
         public: // accessors and such
+            Logger& logger();
+
             Model::GameSPtr game() const;
             const vm::bbox3& worldBounds() const;
             Model::World* world() const;

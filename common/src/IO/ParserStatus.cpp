@@ -22,7 +22,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        ParserStatus::ParserStatus(Logger* logger) :
+        ParserStatus::ParserStatus(Logger& logger) :
         m_logger(logger) {}
 
         ParserStatus::~ParserStatus() {}
@@ -95,8 +95,7 @@ namespace TrenchBroom {
         }
 
         void ParserStatus::doLog(const Logger::LogLevel level, const String& str) {
-            if (m_logger != nullptr)
-                m_logger->log(level, str);
+            m_logger.log(level, str);
         }
     }
 }

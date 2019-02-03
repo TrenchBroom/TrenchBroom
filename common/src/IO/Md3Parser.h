@@ -51,11 +51,11 @@ namespace TrenchBroom {
         public:
             Md3Parser(const String& name, const char* begin, const char* end, const FileSystem& fs);
         private:
-            Assets::EntityModel* doParseModel() override;
+            Assets::EntityModel* doParseModel(Logger& logger) override;
 
             void parseFrames(CharArrayReader reader, size_t frameCount, Assets::EntityModel& model);
             // void parseTags(CharArrayReader reader, size_t tagCount);
-            void parseSurfaces(CharArrayReader surfaceReader, size_t surfaceCount, Assets::EntityModel& model);
+            void parseSurfaces(CharArrayReader surfaceReader, size_t surfaceCount, Assets::EntityModel& model, Logger& logger);
 
             std::vector<Md3Triangle> parseTriangles(CharArrayReader reader, size_t triangleCount);
             std::vector<Path> parseShaders(CharArrayReader reader, size_t shaderCount);
@@ -63,7 +63,7 @@ namespace TrenchBroom {
             std::vector<vm::vec2f> parseTexCoords(CharArrayReader reader, size_t vertexCount);
             std::vector<Assets::EntityModel::Vertex> buildVertices(const std::vector<vm::vec3f>& positions, const std::vector<vm::vec2f>& texCoords, size_t frameCount, size_t vertexCount);
 
-            void loadSurfaceSkins(Assets::EntityModel::Surface& surface, const std::vector<Path>& shaders);
+            void loadSurfaceSkins(Assets::EntityModel::Surface& surface, const std::vector<Path>& shaders, Logger& logger);
             void buildSurfaceFrames(Assets::EntityModel::Surface& surface, const std::vector<Md3Triangle>& triangles, const std::vector<Assets::EntityModel::Vertex>& vertices, size_t sufaceIndex, size_t frameCount, size_t vertexCountPerFrame);
         };
     }

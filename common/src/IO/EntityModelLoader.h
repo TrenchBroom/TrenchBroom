@@ -23,15 +23,17 @@
 #include "Assets/AssetTypes.h"
 
 namespace TrenchBroom {
+    class Logger;
+
     namespace IO {
         class Path;
         
         class EntityModelLoader {
         public:
             virtual ~EntityModelLoader();
-            Assets::EntityModel* loadEntityModel(const IO::Path& path) const;
+            Assets::EntityModel* loadEntityModel(const IO::Path& path, Logger& logger) const;
         private:
-            virtual Assets::EntityModel* doLoadEntityModel(const IO::Path& path) const = 0;
+            virtual Assets::EntityModel* doLoadEntityModel(const IO::Path& path, Logger& logger) const = 0;
         };
     }
 }
