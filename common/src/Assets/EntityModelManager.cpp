@@ -27,7 +27,7 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        EntityModelManager::EntityModelManager(Logger* logger, int minFilter, int magFilter) :
+        EntityModelManager::EntityModelManager(int magFilter, int minFilter, Logger& logger) :
         m_logger(logger),
         m_loader(nullptr),
         m_minFilter(minFilter),
@@ -81,9 +81,7 @@ namespace TrenchBroom {
                 m_models[path] = model;
                 m_unpreparedModels.push_back(model);
                 
-                if (m_logger != nullptr) {
-                    m_logger->debug("Loaded entity model %s", path.asString().c_str());
-                }
+                m_logger.debug() << "Loaded entity model " << path;
 
                 return model;
             } catch (const GameException&) {
@@ -119,17 +117,11 @@ namespace TrenchBroom {
             auto* renderer = entityModel->buildRenderer(spec.skinIndex, spec.frameIndex);
             if (renderer == nullptr) {
                 m_rendererMismatches.insert(spec);
-                
-                if (m_logger != nullptr) {
-                    m_logger->error("Failed to construct entity model renderer for %s, check the skin and frame indices", spec.asString().c_str());
-                }
+                m_logger.error() << "Failed to construct entity model renderer for " << spec << ", check the skin and frame indices";
             } else {
                 m_renderers[spec] = renderer;
                 m_unpreparedRenderers.push_back(renderer);
-                
-                if (m_logger != nullptr) {
-                    m_logger->debug("Constructed entity model renderer for %s", spec.asString().c_str());
-                }
+                m_logger.debug() << "Constructed entity model renderer for " << spec;
             }
             return renderer;
         }
@@ -144,7 +136,7 @@ namespace TrenchBroom {
 
         EntityModel* EntityModelManager::loadModel(const IO::Path& path) const {
             ensure(m_loader != nullptr, "loader is null");
-            return m_loader->loadEntityModel(path, *m_logger);
+            return m_loader->loadEntityModel(path, m_logger);
         }
 
         void EntityModelManager::prepare(Renderer::Vbo& vbo) {

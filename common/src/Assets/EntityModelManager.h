@@ -45,15 +45,15 @@ namespace TrenchBroom {
         
         class EntityModelManager {
         private:
-            typedef std::map<IO::Path, EntityModel*> ModelCache;
-            typedef std::set<IO::Path> ModelMismatches;
-            typedef std::vector<EntityModel*> ModelList;
+            using ModelCache = std::map<IO::Path, EntityModel*>;
+            using ModelMismatches = std::set<IO::Path>;
+            using ModelList = std::vector<EntityModel*>;
             
-            typedef std::map<Assets::ModelSpecification, Renderer::TexturedRenderer*> RendererCache;
-            typedef std::set<Assets::ModelSpecification> RendererMismatches;
-            typedef std::vector<Renderer::TexturedRenderer*> RendererList;
+            using RendererCache = std::map<Assets::ModelSpecification, Renderer::TexturedRenderer*>;
+            using RendererMismatches = std::set<Assets::ModelSpecification>;
+            using RendererList = std::vector<Renderer::TexturedRenderer*>;
             
-            Logger* m_logger;
+            Logger& m_logger;
             const IO::EntityModelLoader* m_loader;
 
             int m_minFilter;
@@ -68,7 +68,7 @@ namespace TrenchBroom {
             mutable ModelList m_unpreparedModels;
             mutable RendererList m_unpreparedRenderers;
         public:
-            EntityModelManager(Logger* logger, int minFilter, int magFilter);
+            EntityModelManager(int magFilter, int minFilter, Logger& logger);
             ~EntityModelManager();
             
             void clear();

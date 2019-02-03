@@ -71,10 +71,9 @@ namespace TrenchBroom {
             return 0;
         }
 
-        const String ModelSpecification::asString() const {
-            StringStream str;
-            str << path.asString() << ":" << skinIndex << ":" << frameIndex;
-            return str.str();
+        std::ostream& operator<<(std::ostream& stream, const ModelSpecification& spec) {
+            stream << spec.path << ":" << spec.skinIndex << ":" << spec.frameIndex;
+            return stream;
         }
 
         ModelDefinition::ModelDefinition() :

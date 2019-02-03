@@ -130,8 +130,10 @@ namespace TrenchBroom {
         m_portalFile(nullptr),
         m_editorContext(new Model::EditorContext()),
         m_entityDefinitionManager(new Assets::EntityDefinitionManager()),
-        m_entityModelManager(new Assets::EntityModelManager(this, pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter))),
-        m_textureManager(new Assets::TextureManager(this, pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter))),
+        m_entityModelManager(
+            new Assets::EntityModelManager(pref(Preferences::TextureMagFilter), pref(Preferences::TextureMinFilter), logger())),
+        m_textureManager(
+            new Assets::TextureManager(pref(Preferences::TextureMagFilter), pref(Preferences::TextureMinFilter), logger())),
         m_mapViewConfig(new MapViewConfig(*m_editorContext)),
         m_grid(new Grid(4)),
         m_path(DefaultDocumentName),
