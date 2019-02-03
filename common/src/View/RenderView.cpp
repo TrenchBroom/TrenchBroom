@@ -69,6 +69,9 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             if (event.ButtonDown(wxMOUSE_BTN_ANY) && !HasCapture()) {
+                // This SetFocus() is needed so that RMB down sets focus; see: https://github.com/kduske/TrenchBroom/issues/2562
+                SetFocus();
+
                 CaptureMouse();
             } else if (event.ButtonUp(wxMOUSE_BTN_ANY) && HasCapture()) {
                 if (!event.LeftIsDown() && !event.MiddleIsDown() && !event.RightIsDown() && !event.Aux1IsDown() && !event.Aux2IsDown()) {
