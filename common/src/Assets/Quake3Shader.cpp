@@ -29,8 +29,8 @@ namespace TrenchBroom {
         const String Quake3ShaderStage::BlendFunc::DestColor = "GL_DST_COLOR";
         const String Quake3ShaderStage::BlendFunc::OneMinusSrcColor = "GL_ONE_MINUS_SRC_COLOR";
         const String Quake3ShaderStage::BlendFunc::OneMinusDestColor = "GL_ONE_MINUS_DEST_COLOR";
-        const String Quake3ShaderStage::BlendFunc::SrcAlpha = "SRC_ALPHA";
-        const String Quake3ShaderStage::BlendFunc::OneMinusSrcAlpha = "ONE_MINUS_SRC_ALPHA";
+        const String Quake3ShaderStage::BlendFunc::SrcAlpha = "GL_SRC_ALPHA";
+        const String Quake3ShaderStage::BlendFunc::OneMinusSrcAlpha = "GL_ONE_MINUS_SRC_ALPHA";
 
         bool Quake3ShaderStage::BlendFunc::enable() const {
             return srcFactor != "" && destFactor != "";
