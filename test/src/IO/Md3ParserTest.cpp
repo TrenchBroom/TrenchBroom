@@ -42,14 +42,14 @@ namespace TrenchBroom {
             NullLogger logger;
             auto searchPaths = Path::List { Path("models") };
             std::unique_ptr<FileSystem> fs = std::make_unique<DiskFileSystem>(IO::Disk::getCurrentWorkingDir() + Path("data/IO/Md3"));
-                                        fs = std::make_unique<Quake3ShaderFileSystem>(std::move(fs), searchPaths, &logger);
+                                        fs = std::make_unique<Quake3ShaderFileSystem>(std::move(fs), searchPaths, logger);
 
             const auto md3Path = IO::Path("models/weapons2/bfg/bfg.md3");
             const auto md3File = fs->openFile(md3Path);
             ASSERT_NE(nullptr, md3File);
 
             auto parser = Md3Parser("bfg", md3File->begin(), md3File->end(), *fs);
-            auto model = std::unique_ptr<Assets::EntityModel>(parser.parseModel());
+            auto model = std::unique_ptr<Assets::EntityModel>(parser.parseModel(logger));
             ASSERT_NE(nullptr, model);
 
             ASSERT_EQ(1u, model->frameCount());

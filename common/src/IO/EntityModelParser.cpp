@@ -23,8 +23,8 @@ namespace TrenchBroom {
     namespace IO {
         EntityModelParser::~EntityModelParser() {}
         
-        Assets::EntityModel* EntityModelParser::parseModel() {
-            return doParseModel();
+        Assets::EntityModel* EntityModelParser::parseModel(Logger& logger) {
+            return doParseModel(logger);
         }
     }
 }

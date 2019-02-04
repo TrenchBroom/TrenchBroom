@@ -64,7 +64,7 @@ namespace TrenchBroom {
         public:
             MdlParser(const String& name, const char* begin, const char* end, const Assets::Palette& palette);
         private:
-            Assets::EntityModel* doParseModel() override;
+            Assets::EntityModel* doParseModel(Logger& logger) override;
 
             void parseSkins(const char*& cursor, Assets::EntityModel::Surface& surface, size_t count, size_t width, size_t height, int flags);
             MdlSkinVertexList parseSkinVertices(const char*& cursor, size_t count);

@@ -214,7 +214,7 @@ namespace TrenchBroom {
             unused(m_end);
         }
 
-        Assets::EntityModel* MdlParser::doParseModel() {
+        Assets::EntityModel* MdlParser::doParseModel(Logger& logger) {
             const auto* cursor = m_begin;
 
             const auto ident = read<int32_t>(cursor);

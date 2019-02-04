@@ -54,7 +54,7 @@ namespace TrenchBroom {
 
                 const auto gamePath = IO::Disk::getCurrentWorkingDir() + IO::Path("data/Model/Game/CorruptPak");
                 auto logger = NullLogger();
-                ASSERT_NO_THROW(GameImpl(config, gamePath, &logger)) << "Should not throw when loading corrupted package file for game " << game;
+                ASSERT_NO_THROW(GameImpl(config, gamePath, logger)) << "Should not throw when loading corrupted package file for game " << game;
             }
         }
 
@@ -66,7 +66,7 @@ namespace TrenchBroom {
 
             const auto gamePath = IO::Disk::getCurrentWorkingDir() + IO::Path("data/Model/Game/Quake3");
             auto logger = NullLogger();
-            auto game = GameImpl(config, gamePath, &logger);
+            auto game = GameImpl(config, gamePath, logger);
 
             const auto textureCollections = game.findTextureCollections();
             ASSERT_EQ(1u, textureCollections.size());
@@ -75,8 +75,8 @@ namespace TrenchBroom {
             auto worldspawn = Entity();
             worldspawn.addOrUpdateAttribute("_tb_textures", textureCollections.front().asString());
 
-            auto textureManager = Assets::TextureManager(&logger, 0, 0);
-            game.loadTextureCollections(&worldspawn, IO::Path(), textureManager, &logger);
+            auto textureManager = Assets::TextureManager(0, 0, logger);
+            game.loadTextureCollections(&worldspawn, IO::Path(), textureManager, logger);
 
             ASSERT_EQ(1u, textureManager.collections().size());
 

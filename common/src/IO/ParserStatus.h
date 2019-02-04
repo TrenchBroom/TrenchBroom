@@ -27,9 +27,9 @@ namespace TrenchBroom {
     namespace IO {
         class ParserStatus {
         private:
-            Logger* m_logger;
+            Logger& m_logger;
         protected:
-            ParserStatus(Logger* logger);
+            explicit ParserStatus(Logger& logger);
         public:
             virtual ~ParserStatus();
         public:

@@ -19,6 +19,7 @@
 
 #include "Md3Parser.h"
 
+#include "Logger.h"
 #include "IO/CharArrayReader.h"
 #include "IO/FileSystem.h"
 #include "IO/FreeImageTextureReader.h"
@@ -53,7 +54,7 @@ namespace TrenchBroom {
             unused(m_end);
         }
 
-        Assets::EntityModel* Md3Parser::doParseModel() {
+        Assets::EntityModel* Md3Parser::doParseModel(Logger& logger) {
             CharArrayReader reader(m_begin, m_end);
 
             const auto ident = reader.readInt<int32_t>();
@@ -83,7 +84,7 @@ namespace TrenchBroom {
 
             parseFrames(reader.subReaderFromBegin(frameOffset, frameCount * Md3Layout::FrameLength), frameCount, *model);
             // parseTags(reader.subReaderFromBegin(tagOffset, tagCount * Md3Layout::TagLength), tagCount);
-            parseSurfaces(reader.subReaderFromBegin(surfaceOffset), surfaceCount, *model);
+            parseSurfaces(reader.subReaderFromBegin(surfaceOffset), surfaceCount, *model, logger);
 
             return model.release();
         }
@@ -112,7 +113,7 @@ namespace TrenchBroom {
         }
          */
 
-        void Md3Parser::parseSurfaces(CharArrayReader reader, const size_t surfaceCount, Assets::EntityModel& model) {
+        void Md3Parser::parseSurfaces(CharArrayReader reader, const size_t surfaceCount, Assets::EntityModel& model, Logger& logger) {
             auto surfaceReader = reader;
             for (size_t i = 0; i < surfaceCount; ++i) {
                 const auto ident = surfaceReader.readInt<int32_t>();
@@ -144,7 +145,7 @@ namespace TrenchBroom {
                 const auto shaders = parseShaders(surfaceReader.subReaderFromBegin(shaderOffset, shaderCount * Md3Layout::ShaderLength), shaderCount);
 
                 auto& surface = model.addSurface(surfaceName);
-                loadSurfaceSkins(surface, shaders);
+                loadSurfaceSkins(surface, shaders, logger);
                 buildSurfaceFrames(surface, triangles, vertices, i, frameCount, vertexCount);
 
                 surfaceReader = surfaceReader.subReaderFromBegin(endOffset);
@@ -215,14 +216,18 @@ namespace TrenchBroom {
             return result;
         }
 
-        void Md3Parser::loadSurfaceSkins(Assets::EntityModel::Surface& surface, const std::vector<Path>& shaders) {
+        void Md3Parser::loadSurfaceSkins(Assets::EntityModel::Surface& surface, const std::vector<Path>& shaders, Logger& logger) {
             TextureReader::PathSuffixNameStrategy nameStrategy(2, true);
             Quake3ShaderTextureReader shaderReader(nameStrategy, m_fs);
             FreeImageTextureReader imageReader(nameStrategy);
 
             for (const auto& shader : shaders) {
-                auto file = m_fs.openFile(shader.deleteExtension());
-                surface.addSkin(shaderReader.readTexture(file));
+                if (shader.isEmpty()) {
+                    logger.warn() << "Empty shader path in surface " << surface.name();
+                } else {
+                    auto file = m_fs.openFile(shader.deleteExtension());
+                    surface.addSkin(shaderReader.readTexture(file));
+                }
             }
         }
 

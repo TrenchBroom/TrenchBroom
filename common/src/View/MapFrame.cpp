@@ -128,7 +128,7 @@ namespace TrenchBroom {
             createMenuBar();
             createStatusBar();
 
-            m_document->setParentLogger(logger());
+            m_document->setParentLogger(m_console);
             m_document->setViewEffectsService(m_mapView);
 
             m_autosaveTimer = new wxTimer(this);
@@ -225,8 +225,8 @@ namespace TrenchBroom {
             return m_document;
         }
 
-        Logger* MapFrame::logger() const {
-            return m_console;
+        Logger& MapFrame::logger() const {
+            return *m_console;
         }
 
         void MapFrame::setToolBoxDropTarget() {
@@ -257,7 +257,7 @@ namespace TrenchBroom {
             try {
                 if (m_document->persistent()) {
                     m_document->saveDocument();
-                    logger()->info("Saved " + m_document->path().asString());
+                    logger().info() << "Saved " << m_document->path();
                     return true;
                 }
                 return saveDocumentAs();
@@ -281,7 +281,7 @@ namespace TrenchBroom {
 
                 const IO::Path path(saveDialog.GetPath().ToStdString());
                 m_document->saveDocumentAs(path);
-                logger()->info("Saved " + m_document->path().asString());
+                logger().info() << "Saved " << m_document->path();
                 return true;
             } catch (const FileSystemException& e) {
                 ::wxMessageBox(e.what(), "", wxOK | wxICON_ERROR, this);
@@ -308,7 +308,7 @@ namespace TrenchBroom {
         bool MapFrame::exportDocument(const Model::ExportFormat format, const IO::Path& path) {
             try {
                 m_document->exportDocumentAs(format, path);
-                logger()->info("Exported " + path.asString());
+                logger().info() << "Exported " << path;
                 return true;
             } catch (const FileSystemException& e) {
                 ::wxMessageBox(e.what(), "", wxOK | wxICON_ERROR, this);
@@ -984,13 +984,13 @@ namespace TrenchBroom {
         PasteType MapFrame::paste() {
             OpenClipboard openClipboard;
             if (!wxTheClipboard->IsOpened() || !wxTheClipboard->IsSupported(wxDF_TEXT)) {
-                logger()->error("Clipboard is empty");
+                logger().error() << "Clipboard is empty";
                 return PT_Failed;
             }
 
             wxTextDataObject textData;
             if (!wxTheClipboard->GetData(textData)) {
-                logger()->error("Could not get clipboard contents");
+                logger().error() << "Could not get clipboard contents";
                 return PT_Failed;
             }
 
@@ -2074,7 +2074,7 @@ namespace TrenchBroom {
         void MapFrame::OnAutosaveTimer(wxTimerEvent& event) {
             if (IsBeingDeleted()) return;
 
-            m_autosaver->triggerAutosave(*logger());
+            m_autosaver->triggerAutosave(logger());
         }
         
         int MapFrame::indexForGridSize(const int gridSize) {

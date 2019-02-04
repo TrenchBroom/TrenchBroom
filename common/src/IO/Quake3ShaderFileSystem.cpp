@@ -27,7 +27,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        Quake3ShaderFileSystem::Quake3ShaderFileSystem(std::unique_ptr<FileSystem> fs, Path::List searchPaths, Logger* logger) :
+        Quake3ShaderFileSystem::Quake3ShaderFileSystem(std::unique_ptr<FileSystem> fs, Path::List searchPaths, Logger& logger) :
         ImageFileSystemBase(std::move(fs), Path()),
         m_searchPaths(std::move(searchPaths)),
         m_logger(logger) {
@@ -48,7 +48,7 @@ namespace TrenchBroom {
             if (next().directoryExists(scriptsPath)) {
                 const auto paths = next().findItems(scriptsPath, FileExtensionMatcher("shader"));
                 for (const auto& path : paths) {
-                    // m_logger->debug() << "Loading shader " << path.asString();
+                    // m_logger.debug() << "Loading shader " << path.asString();
 
                     const auto file = next().openFile(path);
 
@@ -57,7 +57,7 @@ namespace TrenchBroom {
                 }
             }
 
-            m_logger->info() << "Loaded " << result.size() << " shaders";
+            m_logger.info() << "Loaded " << result.size() << " shaders";
             return result;
         }
 
@@ -71,13 +71,13 @@ namespace TrenchBroom {
                 }
             }
 
-            m_logger->info() << "Linking shaders...";
+            m_logger.info() << "Linking shaders...";
             linkTextures(allImages, shaders);
             linkStandaloneShaders(shaders);
         }
 
         void Quake3ShaderFileSystem::linkTextures(const Path::List& textures, std::vector<Assets::Quake3Shader>& shaders) {
-            m_logger->debug() << "Linking textures...";
+            m_logger.debug() << "Linking textures...";
             for (const auto& texture : textures) {
                 const auto shaderPath = texture.deleteExtension();
 
@@ -102,7 +102,7 @@ namespace TrenchBroom {
                         shader.shaderPath = shaderPath;
                         shader.editorImage = texture;
 
-                        // m_logger->debug() << "Generating shader " << shaderPath << " -> " << shader.qerImagePath();
+                        // m_logger.debug() << "Generating shader " << shaderPath << " -> " << shader.qerImagePath();
 
                         auto shaderFile = std::make_shared<ObjectFile<Assets::Quake3Shader>>(std::move(shader), shaderPath);
                         m_root.addFile(shaderPath, std::make_unique<SimpleFile>(std::move(shaderFile)));
@@ -112,7 +112,7 @@ namespace TrenchBroom {
         }
 
         void Quake3ShaderFileSystem::linkStandaloneShaders(std::vector<Assets::Quake3Shader>& shaders) {
-            m_logger->debug() << "Linking standalone shaders...";
+            m_logger.debug() << "Linking standalone shaders...";
             for (auto& shader : shaders) {
                 const auto& shaderPath = shader.shaderPath;
                 auto shaderFile = std::make_shared<ObjectFile<Assets::Quake3Shader>>(shader, shaderPath);

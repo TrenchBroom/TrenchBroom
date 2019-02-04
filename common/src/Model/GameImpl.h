@@ -39,33 +39,33 @@ namespace TrenchBroom {
             IO::Path m_gamePath;
             IO::Path::List m_additionalSearchPaths;
         public:
-            GameImpl(GameConfig& config, const IO::Path& gamePath, Logger* logger);
+            GameImpl(GameConfig& config, const IO::Path& gamePath, Logger& logger);
         private:
-            void initializeFileSystem(Logger* logger);
+            void initializeFileSystem(Logger& logger);
         private:
             const String& doGameName() const override;
             IO::Path doGamePath() const override;
-            void doSetGamePath(const IO::Path& gamePath, Logger* logger) override;
-            void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger* logger) override;
+            void doSetGamePath(const IO::Path& gamePath, Logger& logger) override;
+            void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger& logger) override;
             PathErrors doCheckAdditionalSearchPaths(const IO::Path::List& searchPaths) const override;
 
             CompilationConfig& doCompilationConfig() override;
 
             size_t doMaxPropertyLength() const override;
 
-            World* doNewMap(MapFormat format, const vm::bbox3& worldBounds, Logger* logger) const override;
-            World* doLoadMap(MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger* logger) const override;
+            World* doNewMap(MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const override;
+            World* doLoadMap(MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger& logger) const override;
             void doWriteMap(World* world, const IO::Path& path) const override;
             void doExportMap(World* world, Model::ExportFormat format, const IO::Path& path) const override;
 
-            NodeList doParseNodes(const String& str, World* world, const vm::bbox3& worldBounds, Logger* logger) const override;
-            BrushFaceList doParseBrushFaces(const String& str, World* world, const vm::bbox3& worldBounds, Logger* logger) const override;
+            NodeList doParseNodes(const String& str, World* world, const vm::bbox3& worldBounds, Logger& logger) const override;
+            BrushFaceList doParseBrushFaces(const String& str, World* world, const vm::bbox3& worldBounds, Logger& logger) const override;
             
             void doWriteNodesToStream(World* world, const Model::NodeList& nodes, std::ostream& stream) const override;
             void doWriteBrushFacesToStream(World* world, const BrushFaceList& faces, std::ostream& stream) const override;
             
             TexturePackageType doTexturePackageType() const override;
-            void doLoadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger* logger) const override;
+            void doLoadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const override;
             IO::Path::List textureCollectionSearchPaths(const IO::Path& documentPath) const;
             
             bool doIsTextureCollection(const IO::Path& path) const override;
@@ -80,13 +80,13 @@ namespace TrenchBroom {
             Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(const AttributableNode* node) const override;
             Assets::EntityDefinitionFileSpec defaultEntityDefinitionFile() const;
             IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const override;
-            Assets::EntityModel* doLoadEntityModel(const IO::Path& path) const override;
+            Assets::EntityModel* doLoadEntityModel(const IO::Path& path, Logger& logger) const override;
 
-            Assets::EntityModel* loadBspModel(const String& name, const IO::MappedFile::Ptr& file) const;
-            Assets::EntityModel* loadMdlModel(const String& name, const IO::MappedFile::Ptr& file) const;
-            Assets::EntityModel* loadMd2Model(const String& name, const IO::MappedFile::Ptr& file) const;
-            Assets::EntityModel* loadMd3Model(const String& name, const IO::MappedFile::Ptr& file) const;
-            Assets::EntityModel* loadDkmModel(const String& name, const IO::MappedFile::Ptr& file) const;
+            Assets::EntityModel* loadBspModel(const String& name, const IO::MappedFile::Ptr& file, Logger& logger) const;
+            Assets::EntityModel* loadMdlModel(const String& name, const IO::MappedFile::Ptr& file, Logger& logger) const;
+            Assets::EntityModel* loadMd2Model(const String& name, const IO::MappedFile::Ptr& file, Logger& logger) const;
+            Assets::EntityModel* loadMd3Model(const String& name, const IO::MappedFile::Ptr& file, Logger& logger) const;
+            Assets::EntityModel* loadDkmModel(const String& name, const IO::MappedFile::Ptr& file, Logger& logger) const;
             Assets::Palette loadTexturePalette() const;
             
             const BrushContentType::List& doBrushContentTypes() const override;

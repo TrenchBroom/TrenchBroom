@@ -24,6 +24,8 @@
 #include "IO/Path.h"
 #include "Model/EntityAttributes.h"
 
+#include <iostream>
+
 namespace TrenchBroom {
     namespace Assets {
         struct ModelSpecification {
@@ -32,7 +34,7 @@ namespace TrenchBroom {
             size_t frameIndex;
             
             ModelSpecification();
-            ModelSpecification(const IO::Path& i_path, const size_t i_skinIndex = 0, const size_t i_frameIndex = 0);
+            explicit ModelSpecification(const IO::Path& i_path, size_t i_skinIndex = 0, size_t i_frameIndex = 0);
 
             bool operator<(const ModelSpecification& rhs) const;
             bool operator>(const ModelSpecification& rhs) const;
@@ -41,10 +43,10 @@ namespace TrenchBroom {
             bool operator==(const ModelSpecification& rhs) const;
             bool operator!=(const ModelSpecification& rhs) const;
             int compare(const ModelSpecification& other) const;
-            
-            const String asString() const;
         };
-        
+
+        std::ostream& operator<<(std::ostream& stream, const ModelSpecification& spec);
+
         class ModelDefinition {
         private:
             EL::Expression m_expression;

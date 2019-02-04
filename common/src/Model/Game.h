@@ -59,29 +59,29 @@ namespace TrenchBroom {
             bool isGamePathPreference(const IO::Path& prefPath) const;
             
             IO::Path gamePath() const;
-            void setGamePath(const IO::Path& gamePath, Logger* logger);
-            void setAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger* logger);
-            
+            void setGamePath(const IO::Path& gamePath, Logger& logger);
+            void setAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger& logger);
+
             typedef std::map<IO::Path, String> PathErrors;
             PathErrors checkAdditionalSearchPaths(const IO::Path::List& searchPaths) const;
-            
+
             CompilationConfig& compilationConfig();
-            
+
             size_t maxPropertyLength() const;
         public: // loading and writing map files
-            World* newMap(MapFormat format, const vm::bbox3& worldBounds, Logger* logger) const;
-            World* loadMap(MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger* logger) const;
+            World* newMap(MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const;
+            World* loadMap(MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger& logger) const;
             void writeMap(World* world, const IO::Path& path) const;
             void exportMap(World* world, Model::ExportFormat format, const IO::Path& path) const;
         public: // parsing and serializing objects
-            NodeList parseNodes(const String& str, World* world, const vm::bbox3& worldBounds, Logger* logger) const;
-            BrushFaceList parseBrushFaces(const String& str, World* world, const vm::bbox3& worldBounds, Logger* logger) const;
+            NodeList parseNodes(const String& str, World* world, const vm::bbox3& worldBounds, Logger& logger) const;
+            BrushFaceList parseBrushFaces(const String& str, World* world, const vm::bbox3& worldBounds, Logger& logger) const;
 
             void writeNodesToStream(World* world, const Model::NodeList& nodes, std::ostream& stream) const;
             void writeBrushFacesToStream(World* world, const BrushFaceList& faces, std::ostream& stream) const;
         public: // texture collection handling
             TexturePackageType texturePackageType() const;
-            void loadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger* logger) const;
+            void loadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const;
             bool isTextureCollection(const IO::Path& path) const;
             IO::Path::List findTextureCollections() const;
             IO::Path::List extractTextureCollections(const AttributableNode* node) const;
@@ -105,25 +105,25 @@ namespace TrenchBroom {
         private: // subclassing interface
             virtual const String& doGameName() const = 0;
             virtual IO::Path doGamePath() const = 0;
-            virtual void doSetGamePath(const IO::Path& gamePath, Logger* logger) = 0;
-            virtual void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger* logger) = 0;
+            virtual void doSetGamePath(const IO::Path& gamePath, Logger& logger) = 0;
+            virtual void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger& logger) = 0;
             virtual PathErrors doCheckAdditionalSearchPaths(const IO::Path::List& searchPaths) const = 0;
-            
+
             virtual CompilationConfig& doCompilationConfig() = 0;
             virtual size_t doMaxPropertyLength() const = 0;
-            
-            virtual World* doNewMap(MapFormat format, const vm::bbox3& worldBounds, Logger* logger) const = 0;
-            virtual World* doLoadMap(MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger* logger) const = 0;
+
+            virtual World* doNewMap(MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const = 0;
+            virtual World* doLoadMap(MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger& logger) const = 0;
             virtual void doWriteMap(World* world, const IO::Path& path) const = 0;
             virtual void doExportMap(World* world, Model::ExportFormat format, const IO::Path& path) const = 0;
 
-            virtual NodeList doParseNodes(const String& str, World* world, const vm::bbox3& worldBounds, Logger* logger) const = 0;
-            virtual BrushFaceList doParseBrushFaces(const String& str, World* world, const vm::bbox3& worldBounds, Logger* logger) const = 0;
+            virtual NodeList doParseNodes(const String& str, World* world, const vm::bbox3& worldBounds, Logger& logger) const = 0;
+            virtual BrushFaceList doParseBrushFaces(const String& str, World* world, const vm::bbox3& worldBounds, Logger& logger) const = 0;
             virtual void doWriteNodesToStream(World* world, const Model::NodeList& nodes, std::ostream& stream) const = 0;
             virtual void doWriteBrushFacesToStream(World* world, const BrushFaceList& faces, std::ostream& stream) const = 0;
-            
+
             virtual TexturePackageType doTexturePackageType() const = 0;
-            virtual void doLoadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger* logger) const = 0;
+            virtual void doLoadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const = 0;
             virtual bool doIsTextureCollection(const IO::Path& path) const = 0;
             virtual IO::Path::List doFindTextureCollections() const = 0;
             virtual IO::Path::List doExtractTextureCollections(const AttributableNode* node) const = 0;

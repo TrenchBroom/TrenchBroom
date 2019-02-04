@@ -41,14 +41,14 @@ namespace TrenchBroom {
             IO::Quake3ShaderFileSystem* m_shaderFS;
         public:
             GameFileSystem();
-            void initialize(const GameConfig& config, const IO::Path& gamePath, const std::vector<IO::Path>& additionalSearchPaths, Logger* logger);
+            void initialize(const GameConfig& config, const IO::Path& gamePath, const std::vector<IO::Path>& additionalSearchPaths, Logger& logger);
             void reloadShaders();
         private:
-            void addDefaultAssetPath(const GameConfig& config, Logger* logger);
-            void addGameFileSystems(const GameConfig& config, const IO::Path& gamePath, const std::vector<IO::Path>& additionalSearchPaths, Logger* logger);
-            void addShaderFileSystem(const GameConfig& config, Logger* logger);
-            void addFileSystemPath(const IO::Path& path, Logger* logger);
-            void addFileSystemPackages(const GameConfig& config, const IO::Path& searchPath, Logger* logger);
+            void addDefaultAssetPath(const GameConfig& config, Logger& logger);
+            void addGameFileSystems(const GameConfig& config, const IO::Path& gamePath, const std::vector<IO::Path>& additionalSearchPaths, Logger& logger);
+            void addShaderFileSystem(const GameConfig& config, Logger& logger);
+            void addFileSystemPath(const IO::Path& path, Logger& logger);
+            void addFileSystemPackages(const GameConfig& config, const IO::Path& searchPath, Logger& logger);
         private:
             bool doDirectoryExists(const IO::Path& path) const override;
             bool doFileExists(const IO::Path& path) const override;
