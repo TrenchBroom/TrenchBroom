@@ -76,7 +76,9 @@ namespace TrenchBroom {
             
             void setTexture(Assets::Texture* texture);
             void unsetTexture();
-            
+
+            bool valid() const;
+
             void setOffset(const vm::vec2f& offset);
             void setXOffset(float xOffset);
             void setYOffset(float yOffset);

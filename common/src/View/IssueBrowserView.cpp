@@ -264,7 +264,9 @@ namespace TrenchBroom {
             Model::Issue* issue = m_issues[static_cast<size_t>(item)];
             if (column == 0) {
                 wxString result;
-                result << issue->lineNumber();
+                if (issue->lineNumber() > 0) {
+                    result << issue->lineNumber();
+                }
                 return result;
             } else {
                 return issue->description();

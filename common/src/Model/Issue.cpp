@@ -20,6 +20,7 @@
 #include "Model/Issue.h"
 
 #include "CollectionUtils.h"
+#include "Model/BrushFace.h"
 #include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/EditorContext.h"
 #include "Model/Node.h"
@@ -28,14 +29,14 @@
 
 namespace TrenchBroom {
     namespace Model {
-        Issue::~Issue() {}
+        Issue::~Issue() = default;
 
         size_t Issue::seqId() const {
             return m_seqId;
         }
 
         size_t Issue::lineNumber() const {
-            return m_node->lineNumber();
+            return doGetLineNumber();
         }
         
         const String Issue::description() const {
@@ -98,7 +99,25 @@ namespace TrenchBroom {
             return result;
         }
 
-        AttributeIssue::~AttributeIssue() {}
+        size_t Issue::doGetLineNumber() const {
+            return m_node->lineNumber();
+        }
+
+        BrushFaceIssue::BrushFaceIssue(BrushFace* face) :
+        Issue(face->brush()),
+        m_face(face) {}
+
+        BrushFaceIssue::~BrushFaceIssue() = default;
+
+        BrushFace* BrushFaceIssue::face() const {
+            return m_face;
+        }
+
+        size_t BrushFaceIssue::doGetLineNumber() const {
+            return m_face->lineNumber();
+        }
+
+        AttributeIssue::~AttributeIssue() = default;
 
         const AttributeValue& AttributeIssue::attributeValue() const {
             const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());

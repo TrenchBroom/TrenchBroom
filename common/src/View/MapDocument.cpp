@@ -59,6 +59,7 @@
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "Model/Group.h"
+#include "Model/InvalidTextureScaleIssueGenerator.h"
 #include "Model/LongAttributeNameIssueGenerator.h"
 #include "Model/LongAttributeValueIssueGenerator.h"
 #include "Model/MergeNodesIntoWorldVisitor.h"
@@ -1793,6 +1794,7 @@ namespace TrenchBroom {
             m_world->registerIssueGenerator(new Model::LongAttributeValueIssueGenerator(m_game->maxPropertyLength()));
             m_world->registerIssueGenerator(new Model::AttributeNameWithDoubleQuotationMarksIssueGenerator());
             m_world->registerIssueGenerator(new Model::AttributeValueWithDoubleQuotationMarksIssueGenerator());
+            m_world->registerIssueGenerator(new Model::InvalidTextureScaleIssueGenerator());
         }
         
         bool MapDocument::persistent() const {
