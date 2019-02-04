@@ -36,7 +36,7 @@ namespace TrenchBroom {
         private:
             BrushContentType::List m_contentTypes;
         public:
-            BrushContentTypeBuilder(const BrushContentType::List& contentTypes = BrushContentType::EmptyList);
+            explicit BrushContentTypeBuilder(const BrushContentType::List& contentTypes = BrushContentType::EmptyList);
             Result buildContentType(const Brush* brush) const;
         };
     }
