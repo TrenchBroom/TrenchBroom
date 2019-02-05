@@ -296,6 +296,7 @@ namespace StringUtils {
     
     long makeHash(const String& str);
     String toLower(const String& str);
+    String toUpper(const String& str);
     String replaceChars(const String& str, const String& needles, const String& replacements);
     String replaceAll(const String& str, const String& needle, const String& replacement);
     String capitalize(const String& str);

@@ -43,6 +43,8 @@ namespace TrenchBroom {
             static const Type Eof           = 1 << 8; // end of file
         }
 
+        class ParserStatus;
+
         class Quake3ShaderTokenizer : public Tokenizer<Quake3ShaderToken::Type> {
         public:
             Quake3ShaderTokenizer(const char* begin, const char* end);
@@ -65,13 +67,13 @@ namespace TrenchBroom {
              *
              * @throws ParserException if the shader is not well-formed
              */
-            std::vector<Assets::Quake3Shader> parse();
+            std::vector<Assets::Quake3Shader> parse(ParserStatus& status);
         private:
-            void parseTexture(Assets::Quake3Shader& shader);
-            void parseBody(Assets::Quake3Shader& shader);
-            void parseStage(Assets::Quake3Shader& shader);
-            void parseBodyEntry(Assets::Quake3Shader& shader);
-            void parseStageEntry(Assets::Quake3ShaderStage& stage);
+            void parseTexture(ParserStatus& status, Assets::Quake3Shader& shader);
+            void parseBody(ParserStatus& status, Assets::Quake3Shader& shader);
+            void parseStage(ParserStatus& status, Assets::Quake3Shader& shader);
+            void parseBodyEntry(ParserStatus& status, Assets::Quake3Shader& shader);
+            void parseStageEntry(ParserStatus& status, Assets::Quake3ShaderStage& stage);
         private:
             TokenNameMap tokenNames() const override;
         };

@@ -67,8 +67,14 @@ namespace TrenchBroom {
             return GL_ONE_MINUS_DST_COLOR;
         } else if (name == "GL_SRC_ALPHA") {
             return GL_SRC_ALPHA;
+        } else if (name == "GL_DST_ALPHA") {
+            return GL_DST_ALPHA;
         } else if (name == "GL_ONE_MINUS_SRC_ALPHA") {
             return GL_ONE_MINUS_SRC_ALPHA;
+        } else if (name == "GL_ONE_MINUS_DST_ALPHA") {
+            return GL_ONE_MINUS_DST_ALPHA;
+        } else if (name == "GL_SRC_ALPHA_SATURATE") {
+            return GL_SRC_ALPHA_SATURATE;
         } else {
             throw RenderException() << "Unknown GL enum: " << name;
         }

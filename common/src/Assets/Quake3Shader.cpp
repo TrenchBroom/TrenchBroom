@@ -28,12 +28,65 @@ namespace TrenchBroom {
         const String Quake3ShaderStage::BlendFunc::SrcColor = "GL_SRC_COLOR";
         const String Quake3ShaderStage::BlendFunc::DestColor = "GL_DST_COLOR";
         const String Quake3ShaderStage::BlendFunc::OneMinusSrcColor = "GL_ONE_MINUS_SRC_COLOR";
-        const String Quake3ShaderStage::BlendFunc::OneMinusDestColor = "GL_ONE_MINUS_DEST_COLOR";
+        const String Quake3ShaderStage::BlendFunc::OneMinusDestColor = "GL_ONE_MINUS_DST_COLOR";
         const String Quake3ShaderStage::BlendFunc::SrcAlpha = "GL_SRC_ALPHA";
+        const String Quake3ShaderStage::BlendFunc::DestAlpha = "GL_DST_ALPHA";
         const String Quake3ShaderStage::BlendFunc::OneMinusSrcAlpha = "GL_ONE_MINUS_SRC_ALPHA";
+        const String Quake3ShaderStage::BlendFunc::OneMinusDestAlpha = "GL_ONE_MINUS_DST_ALPHA";
+        const String Quake3ShaderStage::BlendFunc::SrcAlphaSaturate = "GL_SRC_ALPHA_SATURATE";
 
         bool Quake3ShaderStage::BlendFunc::enable() const {
             return srcFactor != "" && destFactor != "";
+        }
+
+        bool Quake3ShaderStage::BlendFunc::validateSrcFactor() const {
+            if (srcFactor == One) {
+                return true;
+            } else if (srcFactor == Zero) {
+                return true;
+            } else if (srcFactor == DestColor) {
+                return true;
+            } else if (srcFactor == OneMinusDestColor) {
+                return true;
+            } else if (srcFactor == SrcAlpha) {
+                return true;
+            } else if (srcFactor == DestAlpha) {
+                return true;
+            } else if (srcFactor == OneMinusSrcAlpha) {
+                return true;
+            } else if (srcFactor == OneMinusDestAlpha) {
+                return true;
+            } else if (srcFactor == SrcAlphaSaturate) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        bool Quake3ShaderStage::BlendFunc::validateDestFactor() const {
+            if (destFactor == One) {
+                return true;
+            } else if (destFactor == Zero) {
+                return true;
+            } else if (destFactor == SrcColor) {
+                return true;
+            } else if (destFactor == OneMinusSrcColor) {
+                return true;
+            } else if (destFactor == SrcAlpha) {
+                return true;
+            } else if (destFactor == DestAlpha) {
+                return true;
+            } else if (destFactor == OneMinusSrcAlpha) {
+                return true;
+            } else if (destFactor == OneMinusDestAlpha) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        void Quake3ShaderStage::BlendFunc::reset() {
+            srcFactor = destFactor = "";
         }
 
         bool Quake3ShaderStage::BlendFunc::operator==(const BlendFunc& other) const {

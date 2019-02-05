@@ -22,6 +22,7 @@
 #include "CollectionUtils.h"
 #include "Assets/Quake3Shader.h"
 #include "IO/Quake3ShaderParser.h"
+#include "IO/SimpleParserStatus.h"
 
 #include <memory>
 
@@ -53,7 +54,8 @@ namespace TrenchBroom {
                     const auto file = next().openFile(path);
 
                     Quake3ShaderParser parser(file->begin(), file->end());
-                    VectorUtils::append(result, parser.parse());
+                    SimpleParserStatus status(m_logger);
+                    VectorUtils::append(result, parser.parse(status));
                 }
             }
 
