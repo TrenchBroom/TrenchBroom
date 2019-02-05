@@ -167,21 +167,21 @@ namespace TrenchBroom {
             const wstring pathName = toWString(path.asString());
             const wstring mappingName = toWString(toMappingName(path.asString()));
 
-            m_mappingHandle = OpenFileMapping(mapAccess, true, mappingName.c_str());
+            m_mappingHandle = OpenFileMappingW(mapAccess, true, mappingName.c_str());
             if (m_mappingHandle == nullptr) {
-                m_fileHandle = CreateFile(pathName.c_str(), accessMode, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+                m_fileHandle = CreateFileW(pathName.c_str(), accessMode, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
                 if (m_fileHandle == INVALID_HANDLE_VALUE) {
                     throwError(path, "CreateFile");
                 } else {
                     size = static_cast<size_t>(GetFileSize(m_fileHandle, nullptr));
-                    m_mappingHandle = CreateFileMapping(m_fileHandle, nullptr, protect, 0, 0, mappingName.c_str());
+                    m_mappingHandle = CreateFileMappingW(m_fileHandle, nullptr, protect, 0, 0, mappingName.c_str());
                     if (m_mappingHandle == nullptr) {
                         throwError(path, "CreateFileMapping");
                     }
                 }
             } else {
                 WIN32_FILE_ATTRIBUTE_DATA attrs;
-                const BOOL result = GetFileAttributesEx(pathName.c_str(), GetFileExInfoStandard, &attrs);
+                const BOOL result = GetFileAttributesExW(pathName.c_str(), GetFileExInfoStandard, &attrs);
                 if (result == 0) {
                     throwError(path, "GetFileAttributesEx");
                 } else {
