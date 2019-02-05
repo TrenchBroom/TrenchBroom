@@ -53,7 +53,7 @@ namespace TrenchBroom {
              * @param searchPaths the paths at which to search for texture images
              * @param logger the logger to use
              */
-            Quake3ShaderFileSystem(std::unique_ptr<FileSystem> fs, Path::List searchPaths, Logger& logger);
+            Quake3ShaderFileSystem(std::shared_ptr<FileSystem> fs, Path::List searchPaths, Logger& logger);
         private:
             void doReadDirectory() override;
 

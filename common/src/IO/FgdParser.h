@@ -79,7 +79,7 @@ namespace TrenchBroom {
             Color m_defaultEntityColor;
 
             std::list<Path> m_paths;
-            std::unique_ptr<FileSystem> m_fs;
+            std::shared_ptr<FileSystem> m_fs;
 
             FgdTokenizer m_tokenizer;
             EntityDefinitionClassInfoMap m_baseClasses;

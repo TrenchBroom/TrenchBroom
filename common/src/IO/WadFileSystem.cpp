@@ -54,7 +54,7 @@ namespace TrenchBroom {
         WadFileSystem(nullptr, path, file) {
         }
 
-        WadFileSystem::WadFileSystem(std::unique_ptr<FileSystem> next, const Path& path, MappedFile::Ptr file) :
+        WadFileSystem::WadFileSystem(std::shared_ptr<FileSystem> next, const Path& path, MappedFile::Ptr file) :
         ImageFileSystem(std::move(next), path, file) {
             initialize();
         }

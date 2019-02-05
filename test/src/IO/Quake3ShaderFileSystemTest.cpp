@@ -43,9 +43,9 @@ namespace TrenchBroom {
 
             // We need to add the fallback dir so that we can find "__TB_empty.tga" which is automatically linked when
             // no editor image is available.
-            std::unique_ptr<FileSystem> fs = std::make_unique<DiskFileSystem>(fallbackDir);
-            fs = std::make_unique<DiskFileSystem>(std::move(fs), testDir);
-            fs = std::make_unique<Quake3ShaderFileSystem>(std::move(fs), searchPaths, logger);
+            std::shared_ptr<FileSystem> fs = std::make_shared<DiskFileSystem>(fallbackDir);
+            fs = std::make_shared<DiskFileSystem>(fs, testDir);
+            fs = std::make_shared<Quake3ShaderFileSystem>(fs, searchPaths, logger);
 
             const auto items = fs->findItems(texturePrefix + Path("test"), FileExtensionMatcher(""));
             ASSERT_EQ(5u, items.size());

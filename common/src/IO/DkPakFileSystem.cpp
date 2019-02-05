@@ -87,7 +87,7 @@ namespace TrenchBroom {
         DkPakFileSystem::DkPakFileSystem(const Path& path, MappedFile::Ptr file) :
         DkPakFileSystem(nullptr, path, file) {}
 
-        DkPakFileSystem::DkPakFileSystem(std::unique_ptr<FileSystem> next, const Path& path, MappedFile::Ptr file) :
+        DkPakFileSystem::DkPakFileSystem(std::shared_ptr<FileSystem> next, const Path& path, MappedFile::Ptr file) :
         ImageFileSystem(std::move(next), path, file) {
             initialize();
         }
