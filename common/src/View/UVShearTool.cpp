@@ -57,6 +57,11 @@ namespace TrenchBroom {
                 !inputState.mouseButtonsPressed(MouseButtons::MBLeft))
                 return false;
             
+            const auto* face = m_helper.face();
+            if (!face->attribs().valid()) {
+                return false;
+            }
+
             const Model::PickResult& pickResult = inputState.pickResult();
             const Model::Hit& xHit = pickResult.query().type(XHandleHit).occluded().first();
             const Model::Hit& yHit = pickResult.query().type(YHandleHit).occluded().first();
@@ -66,7 +71,6 @@ namespace TrenchBroom {
             
             m_selector = vm::vec2b(xHit.isMatch(), yHit.isMatch());
 
-            const Model::BrushFace* face = m_helper.face();
             m_xAxis = face->textureXAxis();
             m_yAxis = face->textureYAxis();
             m_initialHit = m_lastHit = getHit(inputState.pickRay());

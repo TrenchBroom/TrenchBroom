@@ -42,7 +42,7 @@ namespace TrenchBroom {
             typedef std::pair<IO::Path, TextureCollection*> TextureCollectionMapEntry;
             typedef std::map<String, Texture*> TextureMap;
             
-            Logger* m_logger;
+            Logger& m_logger;
             
             TextureCollectionList m_collections;
             
@@ -58,7 +58,7 @@ namespace TrenchBroom {
         public:
             Notifier0 usageCountDidChange;
         public:
-            TextureManager(Logger* logger, int minFilter, int magFilter);
+            TextureManager(int magFilter, int minFilter, Logger& logger);
             ~TextureManager();
 
             void setTextureCollections(const IO::Path::List& paths, IO::TextureLoader& loader);

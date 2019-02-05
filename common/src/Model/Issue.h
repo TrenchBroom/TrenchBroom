@@ -52,15 +52,28 @@ namespace TrenchBroom {
             static size_t nextSeqId();
             static IssueType freeType();
         private: // subclassing interface
+            virtual size_t doGetLineNumber() const;
             virtual IssueType doGetType() const = 0;
             virtual const String doGetDescription() const = 0;
+        };
+
+        class BrushFaceIssue : public Issue {
+        private:
+            BrushFace* const m_face;
+        protected:
+            BrushFaceIssue(BrushFace* face);
+        public:
+            ~BrushFaceIssue() override;
+            BrushFace* face() const;
+        private:
+            size_t doGetLineNumber() const override;
         };
 
         class AttributeIssue : public Issue {
         public:
             using Issue::Issue;
             
-            virtual ~AttributeIssue();
+            ~AttributeIssue() override;
             virtual const AttributeName& attributeName() const = 0;
             const AttributeValue& attributeValue() const;
         };

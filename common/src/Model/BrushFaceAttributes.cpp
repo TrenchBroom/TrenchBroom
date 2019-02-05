@@ -167,6 +167,10 @@ namespace TrenchBroom {
             m_textureName = BrushFace::NoTextureName;
         }
 
+        bool BrushFaceAttributes::valid() const {
+            return !vm::isZero(m_scale.x(), vm::Cf::almostZero()) && !vm::isZero(m_scale.y(), vm::Cf::almostZero());
+        }
+
         void BrushFaceAttributes::setOffset(const vm::vec2f& offset) {
             m_offset = offset;
         }

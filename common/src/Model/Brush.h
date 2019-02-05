@@ -124,7 +124,7 @@ namespace TrenchBroom {
 
             template <typename I>
             void removeFaces(I cur, I end) {
-                BrushFaceList::iterator rem = std::end(m_faces);
+                auto rem = std::end(m_faces);
                 while (cur != end) {
                     rem = doRemoveFace(std::begin(m_faces), rem, *cur);
                     ++cur;
@@ -321,7 +321,7 @@ namespace TrenchBroom {
             struct BrushFaceHit {
                 BrushFace* face;
                 FloatType distance;
-				BrushFaceHit();
+                BrushFaceHit();
                 BrushFaceHit(BrushFace* i_face, FloatType i_distance);
             };
 
@@ -338,16 +338,14 @@ namespace TrenchBroom {
 
             class Intersects;
             bool doIntersects(const Node* node) const override;
-        private:
-            Brush(const Brush&);
-            Brush& operator=(const Brush&);
-
         public: // renderer cache
             /**
              * Only exposed to be called by BrushFace
              */
             void invalidateVertexCache();
             Renderer::BrushRendererBrushCache& brushRendererBrushCache() const;
+        private:
+            deleteCopyAndMove(Brush)
         };
     }
 }

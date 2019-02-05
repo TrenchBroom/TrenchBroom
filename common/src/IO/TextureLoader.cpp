@@ -35,7 +35,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TextureLoader::TextureLoader(const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger) :
+        TextureLoader::TextureLoader(const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig, Logger& logger) :
         m_textureExtensions(getTextureExtensions(textureConfig)),
         m_textureReader(createTextureReader(gameFS, textureConfig, logger)),
         m_textureCollectionLoader(createTextureCollectionLoader(gameFS, fileSearchPaths, textureConfig, logger)) {
@@ -47,7 +47,7 @@ namespace TrenchBroom {
             return textureConfig.format.extensions;
         }
 
-        std::unique_ptr<TextureReader> TextureLoader::createTextureReader(const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger) {
+        std::unique_ptr<TextureReader> TextureLoader::createTextureReader(const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger& logger) {
             if (textureConfig.format.format == "idmip") {
                 TextureReader::PathSuffixNameStrategy nameStrategy(1, true);
                 return std::make_unique<IdMipTextureReader>(nameStrategy, loadPalette(gameFS, textureConfig, logger));
@@ -68,26 +68,22 @@ namespace TrenchBroom {
             }
         }
         
-        Assets::Palette TextureLoader::loadPalette(const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger) {
+        Assets::Palette TextureLoader::loadPalette(const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger& logger) {
             if (textureConfig.palette.isEmpty()) {
                 return Assets::Palette();
             }
 
             try {
                 const auto& path = textureConfig.palette;
-                if (logger != nullptr) {
-                    logger->info("Loading palette file " + path.asString());
-                }
+                logger.info() << "Loading palette file " << path;
                 return Assets::Palette::loadFile(gameFS, path);
             } catch (const Exception& e) {
-                if (logger != nullptr) {
-                    logger->error(e.what());
-                }
+                logger.error() << e.what();
                 return Assets::Palette();
             }
         }
 
-        std::unique_ptr<TextureCollectionLoader> TextureLoader::createTextureCollectionLoader(const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger) {
+        std::unique_ptr<TextureCollectionLoader> TextureLoader::createTextureCollectionLoader(const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig, Logger& logger) {
             using Model::GameConfig;
             switch (textureConfig.package.type) {
                 case GameConfig::TexturePackageConfig::PT_File:

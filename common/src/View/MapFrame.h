@@ -198,7 +198,7 @@ namespace TrenchBroom {
             void positionOnScreen(QWidget* reference);
             MapDocumentSPtr document() const;
         public: // getters and such
-            Logger* logger() const;
+            Logger& logger() const;
         public: // drop targets
             void setToolBoxDropTarget();
             void clearDropTarget();

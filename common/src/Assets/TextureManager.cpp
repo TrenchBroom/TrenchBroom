@@ -50,7 +50,7 @@ namespace TrenchBroom {
             }
         };
         
-        TextureManager::TextureManager(Logger* logger, int minFilter, int magFilter) :
+        TextureManager::TextureManager(int magFilter, int minFilter, Logger& logger) :
         m_logger(logger),
         m_minFilter(minFilter),
         m_magFilter(magFilter),
@@ -70,13 +70,13 @@ namespace TrenchBroom {
                 if (it == std::end(collections) || !it->second->loaded()) {
                     try {
                         auto collection = loader.loadTextureCollection(path);
-                        m_logger->info("Loaded texture collection '" + path.asString() + "'");
+                        m_logger.info() << "Loaded texture collection '" << path << "'";
                         collection->usageCountDidChange.addObserver(usageCountDidChange);
                         addTextureCollection(collection.release());
                     } catch (const Exception& e) {
                         addTextureCollection(new Assets::TextureCollection(path));
                         if (it == std::end(collections)) {
-                            m_logger->error("Could not load texture collection '" + path.asString() + "': " + e.what());
+                            m_logger.error() << "Could not load texture collection '" << path << "': " << e.what();
                         }
                     }
                 } else {
@@ -105,9 +105,7 @@ namespace TrenchBroom {
                 m_toPrepare.push_back(collection);
             }
 
-            if (m_logger != nullptr) {
-                m_logger->debug("Added texture collection %s", collection->path().asString().c_str());
-            }
+            m_logger.debug() << "Added texture collection " << collection->path();
         }
 
         void TextureManager::clear() {

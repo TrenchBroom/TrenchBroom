@@ -591,15 +591,18 @@ namespace TrenchBroom {
         }
         
         void Node::setIssueHidden(const IssueType type, const bool hidden) {
-            if (hidden)
+            if (hidden) {
                 m_hiddenIssues |= type;
-            else
+            } else {
                 m_hiddenIssues &= ~type;
+            }
         }
 
         void Node::validateIssues(const IssueGeneratorList& issueGenerators) {
             if (!m_issuesValid) {
-                std::for_each(std::begin(issueGenerators), std::end(issueGenerators), [this](const IssueGenerator* generator) { doGenerateIssues(generator, m_issues); });
+                for (const auto* generator : issueGenerators) {
+                    doGenerateIssues(generator, m_issues);
+                }
                 m_issuesValid = true;
             }
         }

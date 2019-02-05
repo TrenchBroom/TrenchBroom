@@ -19,6 +19,7 @@
 
 #include <gtest/gtest.h>
 
+#include "Logger.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/MappedFile.h"
@@ -30,6 +31,8 @@
 namespace TrenchBroom {
     namespace IO {
         TEST(MdlParserTest, loadValidMdl) {
+            NullLogger logger;
+
             DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
             const Assets::Palette palette = Assets::Palette::loadFile(fs, Path("data/palette.lmp"));
 
@@ -38,7 +41,7 @@ namespace TrenchBroom {
             ASSERT_NE(nullptr, mdlFile);
 
             auto parser = MdlParser("armor", mdlFile->begin(), mdlFile->end(), palette);
-            auto* model = parser.parseModel();
+            auto* model = parser.parseModel(logger);
             EXPECT_NE(nullptr, model);
             EXPECT_EQ(1u, model->surfaceCount());
             EXPECT_EQ(1u, model->frameCount());
@@ -52,6 +55,8 @@ namespace TrenchBroom {
         }
 
         TEST(MdlParserTest, loadInvalidMdl) {
+            NullLogger logger;
+
             DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
             const Assets::Palette palette = Assets::Palette::loadFile(fs, Path("data/palette.lmp"));
 
@@ -60,7 +65,7 @@ namespace TrenchBroom {
             ASSERT_NE(nullptr, mdlFile);
 
             auto parser = MdlParser("armor", mdlFile->begin(), mdlFile->end(), palette);
-            EXPECT_THROW(parser.parseModel(), AssetException);
+            EXPECT_THROW(parser.parseModel(logger), AssetException);
         }
     }
 }

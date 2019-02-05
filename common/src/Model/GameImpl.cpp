@@ -57,13 +57,13 @@
 
 namespace TrenchBroom {
     namespace Model {
-        GameImpl::GameImpl(GameConfig& config, const IO::Path& gamePath, Logger* logger) :
+        GameImpl::GameImpl(GameConfig& config, const IO::Path& gamePath, Logger& logger) :
         m_config(config),
         m_gamePath(gamePath) {
             initializeFileSystem(logger);
         }
 
-        void GameImpl::initializeFileSystem(Logger* logger) {
+        void GameImpl::initializeFileSystem(Logger& logger) {
             m_fs.initialize(m_config, m_gamePath, m_additionalSearchPaths, logger);
         }
 
@@ -75,14 +75,18 @@ namespace TrenchBroom {
             return m_gamePath;
         }
 
-        void GameImpl::doSetGamePath(const IO::Path& gamePath, Logger* logger) {
-            m_gamePath = gamePath;
-            initializeFileSystem(logger);
+        void GameImpl::doSetGamePath(const IO::Path& gamePath, Logger& logger) {
+            if (gamePath != m_gamePath) {
+                m_gamePath = gamePath;
+                initializeFileSystem(logger);
+            }
         }
 
-        void GameImpl::doSetAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger* logger) {
-            m_additionalSearchPaths = searchPaths;
-            initializeFileSystem(logger);
+        void GameImpl::doSetAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger& logger) {
+            if (searchPaths != m_additionalSearchPaths) {
+                m_additionalSearchPaths = searchPaths;
+                initializeFileSystem(logger);
+            }
         }
 
         Game::PathErrors GameImpl::doCheckAdditionalSearchPaths(const IO::Path::List& searchPaths) const {
@@ -104,7 +108,7 @@ namespace TrenchBroom {
             return m_config.maxPropertyLength();
         }
 
-        World* GameImpl::doNewMap(const MapFormat format, const vm::bbox3& worldBounds, Logger* logger) const {
+        World* GameImpl::doNewMap(const MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const {
             const auto initialMapFilePath = m_config.findInitialMap(formatName(format));
             if (!initialMapFilePath.isEmpty() && IO::Disk::fileExists(initialMapFilePath)) {
                 return doLoadMap(format, worldBounds, initialMapFilePath, logger);
@@ -123,7 +127,7 @@ namespace TrenchBroom {
             }
         }
 
-        World* GameImpl::doLoadMap(const MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger* logger) const {
+        World* GameImpl::doLoadMap(const MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger& logger) const {
             IO::SimpleParserStatus parserStatus(logger);
             const auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
             IO::WorldReader reader(file->begin(), file->end(), brushContentTypeBuilder());
@@ -150,13 +154,13 @@ namespace TrenchBroom {
             }
         }
 
-        NodeList GameImpl::doParseNodes(const String& str, World* world, const vm::bbox3& worldBounds, Logger* logger) const {
+        NodeList GameImpl::doParseNodes(const String& str, World* world, const vm::bbox3& worldBounds, Logger& logger) const {
             IO::SimpleParserStatus parserStatus(logger);
             IO::NodeReader reader(str, world);
             return reader.read(worldBounds, parserStatus);
         }
 
-        BrushFaceList GameImpl::doParseBrushFaces(const String& str, World* world, const vm::bbox3& worldBounds, Logger* logger) const {
+        BrushFaceList GameImpl::doParseBrushFaces(const String& str, World* world, const vm::bbox3& worldBounds, Logger& logger) const {
             IO::SimpleParserStatus parserStatus(logger);
             IO::BrushFaceReader reader(str, world);
             return reader.read(worldBounds, parserStatus);
@@ -185,7 +189,7 @@ namespace TrenchBroom {
             }
         }
 
-        void GameImpl::doLoadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger* logger) const {
+        void GameImpl::doLoadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const {
             const auto paths = extractTextureCollections(node);
 
             const auto fileSearchPaths = textureCollectionSearchPaths(documentPath);
@@ -339,7 +343,7 @@ namespace TrenchBroom {
             }
         }
 
-        Assets::EntityModel* GameImpl::doLoadEntityModel(const IO::Path& path) const {
+        Assets::EntityModel* GameImpl::doLoadEntityModel(const IO::Path& path, Logger& logger) const {
             try {
                 const auto file = m_fs.openFile(path);
                 ensure(file.get() != nullptr, "file is null");
@@ -349,15 +353,15 @@ namespace TrenchBroom {
                 const auto supported = m_config.entityConfig().modelFormats;
 
                 if (extension == "mdl" && supported.count("mdl") > 0) {
-                    return loadMdlModel(modelName, file);
+                    return loadMdlModel(modelName, file, logger);
                 } else if (extension == "md2" && supported.count("md2") > 0) {
-                    return loadMd2Model(modelName, file);
+                    return loadMd2Model(modelName, file, logger);
                 } else if (extension == "md3" && supported.count("md3") > 0) {
-                    return loadMd3Model(modelName, file);
+                    return loadMd3Model(modelName, file, logger);
                 } else if (extension == "bsp" && supported.count("bsp") > 0) {
-                    return loadBspModel(modelName, file);
+                    return loadBspModel(modelName, file, logger);
                 } else if (extension == "dkm" && supported.count("dkm") > 0) {
-                    return loadDkmModel(modelName, file);
+                    return loadDkmModel(modelName, file, logger);
                 } else {
                     throw GameException("Unsupported model format '" + path.asString() + "'");
                 }
@@ -368,35 +372,35 @@ namespace TrenchBroom {
             }
         }
 
-        Assets::EntityModel* GameImpl::loadBspModel(const String& name, const IO::MappedFile::Ptr& file) const {
+        Assets::EntityModel* GameImpl::loadBspModel(const String& name, const IO::MappedFile::Ptr& file, Logger& logger) const {
             const auto palette = loadTexturePalette();
 
             IO::Bsp29Parser parser(name, file->begin(), file->end(), palette);
-            return parser.parseModel();
+            return parser.parseModel(logger);
         }
 
-        Assets::EntityModel* GameImpl::loadMdlModel(const String& name, const IO::MappedFile::Ptr& file) const {
+        Assets::EntityModel* GameImpl::loadMdlModel(const String& name, const IO::MappedFile::Ptr& file, Logger& logger) const {
             const auto palette = loadTexturePalette();
 
             IO::MdlParser parser(name, file->begin(), file->end(), palette);
-            return parser.parseModel();
+            return parser.parseModel(logger);
         }
 
-        Assets::EntityModel* GameImpl::loadMd2Model(const String& name, const IO::MappedFile::Ptr& file) const {
+        Assets::EntityModel* GameImpl::loadMd2Model(const String& name, const IO::MappedFile::Ptr& file, Logger& logger) const {
             const auto palette = loadTexturePalette();
 
             IO::Md2Parser parser(name, file->begin(), file->end(), palette, m_fs);
-            return parser.parseModel();
+            return parser.parseModel(logger);
         }
 
-        Assets::EntityModel* GameImpl::loadMd3Model(const String& name, const IO::MappedFile::Ptr& file) const {
+        Assets::EntityModel* GameImpl::loadMd3Model(const String& name, const IO::MappedFile::Ptr& file, Logger& logger) const {
             IO::Md3Parser parser(name, file->begin(), file->end(), m_fs);
-            return parser.parseModel();
+            return parser.parseModel(logger);
         }
 
-        Assets::EntityModel* GameImpl::loadDkmModel(const String& name, const IO::MappedFile::Ptr& file) const {
+        Assets::EntityModel* GameImpl::loadDkmModel(const String& name, const IO::MappedFile::Ptr& file, Logger& logger) const {
             IO::DkmParser parser(name, file->begin(), file->end(), m_fs);
-            return parser.parseModel();
+            return parser.parseModel(logger);
         }
 
         Assets::Palette GameImpl::loadTexturePalette() const {

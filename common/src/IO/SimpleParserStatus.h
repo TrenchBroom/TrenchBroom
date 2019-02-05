@@ -26,7 +26,7 @@ namespace TrenchBroom {
     namespace IO {
         class SimpleParserStatus : public ParserStatus {
         public:
-            SimpleParserStatus(Logger* logger);
+            SimpleParserStatus(Logger& logger);
         private:
             void doProgress(double progress) override;
         };

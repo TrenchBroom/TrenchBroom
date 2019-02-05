@@ -23,6 +23,8 @@
 #include <iostream>
 
 namespace TrenchBroom {
+    class Logger;
+
     namespace Assets {
         class EntityModel;
     }
@@ -31,9 +33,9 @@ namespace TrenchBroom {
         class EntityModelParser {
         public:
             virtual ~EntityModelParser();
-            Assets::EntityModel* parseModel();
+            Assets::EntityModel* parseModel(Logger& logger);
         private:
-            virtual Assets::EntityModel* doParseModel() = 0;
+            virtual Assets::EntityModel* doParseModel(Logger& logger) = 0;
         };
     }
 }

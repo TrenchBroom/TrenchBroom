@@ -23,7 +23,9 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TestParserStatus::TestParserStatus() : ParserStatus(nullptr) {}
+        NullLogger TestParserStatus::_logger;
+
+        TestParserStatus::TestParserStatus() : ParserStatus(_logger) {}
 
         size_t TestParserStatus::countStatus(Logger::LogLevel level) const {
             const auto it = m_statusCounts.find(level);

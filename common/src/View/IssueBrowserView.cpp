@@ -301,7 +301,9 @@ namespace TrenchBroom {
 
             if (role == Qt::DisplayRole) {
                 if (index.column() == 0) {
-                    return QVariant::fromValue<size_t>(issue->lineNumber());
+                    if (issue->lineNumber() > 0) {
+                        return QVariant::fromValue<size_t>(issue->lineNumber());
+                    }
                 } else {
                     return QVariant(QString::fromStdString(issue->description()));
                 }

@@ -59,6 +59,7 @@
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "Model/Group.h"
+#include "Model/InvalidTextureScaleIssueGenerator.h"
 #include "Model/LongAttributeNameIssueGenerator.h"
 #include "Model/LongAttributeValueIssueGenerator.h"
 #include "Model/MergeNodesIntoWorldVisitor.h"
@@ -130,8 +131,10 @@ namespace TrenchBroom {
         m_portalFile(nullptr),
         m_editorContext(new Model::EditorContext()),
         m_entityDefinitionManager(new Assets::EntityDefinitionManager()),
-        m_entityModelManager(new Assets::EntityModelManager(this, pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter))),
-        m_textureManager(new Assets::TextureManager(this, pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter))),
+        m_entityModelManager(
+            new Assets::EntityModelManager(pref(Preferences::TextureMagFilter), pref(Preferences::TextureMinFilter), logger())),
+        m_textureManager(
+            new Assets::TextureManager(pref(Preferences::TextureMagFilter), pref(Preferences::TextureMinFilter), logger())),
         m_mapViewConfig(new MapViewConfig(*m_editorContext)),
         m_grid(new Grid(4)),
         m_path(DefaultDocumentName),
@@ -163,6 +166,10 @@ namespace TrenchBroom {
             delete m_editorContext;
         }
         
+        Logger& MapDocument::logger() {
+            return *this;
+        }
+
         Model::GameSPtr MapDocument::game() const {
             return m_game;
         }
@@ -318,12 +325,12 @@ namespace TrenchBroom {
         
         PasteType MapDocument::paste(const String& str) {
             try {
-                const Model::NodeList nodes = m_game->parseNodes(str, m_world, m_worldBounds, this);
+                const Model::NodeList nodes = m_game->parseNodes(str, m_world, m_worldBounds, logger());
                 if (!nodes.empty() && pasteNodes(nodes))
                     return PT_Node;
             } catch (const ParserException& e) {
                 try {
-                    const Model::BrushFaceList faces = m_game->parseBrushFaces(str, m_world, m_worldBounds, this);
+                    const Model::BrushFaceList faces = m_game->parseBrushFaces(str, m_world, m_worldBounds, logger());
                     if (!faces.empty() && pasteBrushFaces(faces))
                         return PT_BrushFace;
                 } catch (const ParserException&) {
@@ -1492,7 +1499,7 @@ namespace TrenchBroom {
         void MapDocument::createWorld(const Model::MapFormat mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game) {
             m_worldBounds = worldBounds;
             m_game = game;
-            m_world = m_game->newMap(mapFormat, m_worldBounds, this);
+            m_world = m_game->newMap(mapFormat, m_worldBounds, logger());
             setCurrentLayer(m_world->defaultLayer());
             
             updateGameSearchPaths();
@@ -1502,7 +1509,7 @@ namespace TrenchBroom {
         void MapDocument::loadWorld(const Model::MapFormat mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game, const IO::Path& path) {
             m_worldBounds = worldBounds;
             m_game = game;
-            m_world = m_game->loadMap(mapFormat, m_worldBounds, path, this);
+            m_world = m_game->loadMap(mapFormat, m_worldBounds, path, logger());
             setCurrentLayer(m_world->defaultLayer());
             
             updateGameSearchPaths();
@@ -1576,7 +1583,7 @@ namespace TrenchBroom {
             const Assets::EntityDefinitionFileSpec spec = entityDefinitionFile();
             try {
                 const IO::Path path = m_game->findEntityDefinitionFile(spec, externalSearchPaths());
-                IO::SimpleParserStatus status(this);
+                IO::SimpleParserStatus status(logger());
                 m_entityDefinitionManager->loadDefinitions(path, *m_game, status);
                 info("Loaded entity definition file " + path.lastComponent().asString());
             } catch (const Exception& e) {
@@ -1611,7 +1618,7 @@ namespace TrenchBroom {
         void MapDocument::loadTextures() {
             try {
                 const IO::Path docDir = m_path.isEmpty() ? IO::Path() : m_path.deleteLastComponent();
-                m_game->loadTextureCollections(m_world, docDir, *m_textureManager, this);
+                m_game->loadTextureCollections(m_world, docDir, *m_textureManager, logger());
             } catch (const Exception& e) {
                 error(e.what());
             }
@@ -1752,7 +1759,7 @@ namespace TrenchBroom {
         
         void MapDocument::updateGameSearchPaths() {
             const IO::Path::List additionalSearchPaths = IO::Path::asPaths(mods());
-            m_game->setAdditionalSearchPaths(additionalSearchPaths, this);
+            m_game->setAdditionalSearchPaths(additionalSearchPaths, logger());
         }
         
         StringList MapDocument::mods() const {
@@ -1793,6 +1800,7 @@ namespace TrenchBroom {
             m_world->registerIssueGenerator(new Model::LongAttributeValueIssueGenerator(m_game->maxPropertyLength()));
             m_world->registerIssueGenerator(new Model::AttributeNameWithDoubleQuotationMarksIssueGenerator());
             m_world->registerIssueGenerator(new Model::AttributeValueWithDoubleQuotationMarksIssueGenerator());
+            m_world->registerIssueGenerator(new Model::InvalidTextureScaleIssueGenerator());
         }
         
         bool MapDocument::persistent() const {
@@ -1853,7 +1861,7 @@ namespace TrenchBroom {
             if (isGamePathPreference(path)) {
                 const Model::GameFactory& gameFactory = Model::GameFactory::instance();
                 const IO::Path newGamePath = gameFactory.gamePath(m_game->gameName());
-                m_game->setGamePath(newGamePath, this);
+                m_game->setGamePath(newGamePath, logger());
                 
                 clearEntityModels();
                 

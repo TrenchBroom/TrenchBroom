@@ -230,7 +230,7 @@ namespace TrenchBroom {
         m_fs(fs) {}
         
         // http://tfc.duke.free.fr/old/models/md2.htm
-        Assets::EntityModel* Md2Parser::doParseModel() {
+        Assets::EntityModel* Md2Parser::doParseModel(Logger& logger) {
             const char* cursor = m_begin;
             const int ident = readInt<int32_t>(cursor);
             const int version = readInt<int32_t>(cursor);

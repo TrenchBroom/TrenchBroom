@@ -62,7 +62,7 @@ namespace TrenchBroom {
             return m_configs.size();
         }
 
-        GameSPtr GameFactory::createGame(const String& gameName, Logger* logger) {
+        GameSPtr GameFactory::createGame(const String& gameName, Logger& logger) {
             return GameSPtr(new GameImpl(gameConfig(gameName), gamePath(gameName), logger));
         }
         

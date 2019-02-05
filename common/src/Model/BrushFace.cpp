@@ -262,8 +262,9 @@ namespace TrenchBroom {
             m_attribs = attribs;
             m_texCoordSystem->setRotation(m_boundary.normal, oldRotation, m_attribs.rotation());
 
-            if (m_brush != nullptr)
+            if (m_brush != nullptr) {
                 m_brush->faceDidChange();
+            }
             
             invalidateVertexCache();
         }
@@ -353,79 +354,102 @@ namespace TrenchBroom {
         }
 
         void BrushFace::setTexture(Assets::Texture* texture) {
-            if (texture == m_attribs.texture())
-                return;
-            m_attribs.setTexture(texture);
-            if (m_brush != nullptr)
-                m_brush->faceDidChange();
-            invalidateVertexCache();
+            if (texture != m_attribs.texture()) {
+                m_attribs.setTexture(texture);
+                if (m_brush != nullptr) {
+                    m_brush->faceDidChange();
+                }
+                invalidateVertexCache();
+            }
         }
 
         void BrushFace::unsetTexture() {
-            if (m_attribs.texture() == nullptr)
-                return;
-            m_attribs.unsetTexture();
-            if (m_brush != nullptr)
-                m_brush->faceDidChange();
-            invalidateVertexCache();
+            if (m_attribs.texture() != nullptr) {
+                m_attribs.unsetTexture();
+                if (m_brush != nullptr) {
+                    m_brush->faceDidChange();
+                }
+                invalidateVertexCache();
+            }
         }
 
         void BrushFace::setXOffset(const float i_xOffset) {
-            if (i_xOffset == xOffset())
-                return;
-            m_attribs.setXOffset(i_xOffset);
-            invalidateVertexCache();
+            if (i_xOffset != xOffset()) {
+                m_attribs.setXOffset(i_xOffset);
+                if (m_brush != nullptr) {
+                    m_brush->faceDidChange();
+                }
+                invalidateVertexCache();
+            }
         }
 
         void BrushFace::setYOffset(const float i_yOffset) {
-            if (i_yOffset == yOffset())
-                return;
-            m_attribs.setYOffset(i_yOffset);
-            invalidateVertexCache();
+            if (i_yOffset != yOffset()) {
+                m_attribs.setYOffset(i_yOffset);
+                if (m_brush != nullptr) {
+                    m_brush->faceDidChange();
+                }
+                invalidateVertexCache();
+            }
         }
 
         void BrushFace::setXScale(const float i_xScale) {
-            if (i_xScale == xScale())
-                return;
-            m_attribs.setXScale(i_xScale);
-            invalidateVertexCache();
+            if (i_xScale != xScale()) {
+                m_attribs.setXScale(i_xScale);
+                if (m_brush != nullptr) {
+                    m_brush->faceDidChange();
+                }
+                invalidateVertexCache();
+            }
         }
 
         void BrushFace::setYScale(const float i_yScale) {
-            if (i_yScale == yScale())
-                return;
-            m_attribs.setYScale(i_yScale);
-            invalidateVertexCache();
+            if (i_yScale != yScale()) {
+                m_attribs.setYScale(i_yScale);
+                if (m_brush != nullptr) {
+                    m_brush->faceDidChange();
+                }
+                invalidateVertexCache();
+            }
         }
 
         void BrushFace::setRotation(const float rotation) {
-            if (rotation == m_attribs.rotation())
-                return;
-
-            const float oldRotation = m_attribs.rotation();
-            m_attribs.setRotation(rotation);
-            m_texCoordSystem->setRotation(m_boundary.normal, oldRotation, rotation);
-            invalidateVertexCache();
+            if (rotation != m_attribs.rotation()) {
+                const float oldRotation = m_attribs.rotation();
+                m_attribs.setRotation(rotation);
+                m_texCoordSystem->setRotation(m_boundary.normal, oldRotation, rotation);
+                if (m_brush != nullptr) {
+                    m_brush->faceDidChange();
+                }
+                invalidateVertexCache();
+            }
         }
 
         void BrushFace::setSurfaceContents(const int surfaceContents) {
-            if (surfaceContents == m_attribs.surfaceContents())
-                return;
-            m_attribs.setSurfaceContents(surfaceContents);
-            if (m_brush != nullptr)
-                m_brush->faceDidChange();
+            if (surfaceContents != m_attribs.surfaceContents()) {
+                m_attribs.setSurfaceContents(surfaceContents);
+                if (m_brush != nullptr) {
+                    m_brush->faceDidChange();
+                }
+            }
         }
 
         void BrushFace::setSurfaceFlags(const int surfaceFlags) {
-            if (surfaceFlags == m_attribs.surfaceFlags())
-                return;
-            m_attribs.setSurfaceFlags(surfaceFlags);
+            if (surfaceFlags != m_attribs.surfaceFlags()) {
+                m_attribs.setSurfaceFlags(surfaceFlags);
+                if (m_brush != nullptr) {
+                    m_brush->faceDidChange();
+                }
+            }
         }
 
         void BrushFace::setSurfaceValue(const float surfaceValue) {
-            if (surfaceValue == m_attribs.surfaceValue())
-                return;
-            m_attribs.setSurfaceValue(surfaceValue);
+            if (surfaceValue != m_attribs.surfaceValue()) {
+                m_attribs.setSurfaceValue(surfaceValue);
+                if (m_brush != nullptr) {
+                    m_brush->faceDidChange();
+                }
+            }
         }
 
         void BrushFace::setAttributes(const BrushFace* other) {
@@ -611,6 +635,10 @@ namespace TrenchBroom {
 
         void BrushFace::invalidate() {
             invalidateVertexCache();
+        }
+
+        size_t BrushFace::lineNumber() const {
+            return m_lineNumber;
         }
 
         void BrushFace::setFilePosition(const size_t lineNumber, const size_t lineCount) {

@@ -17,14 +17,24 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EntityModelParser.h"
+#ifndef TrenchBroom_InvalidTextureScaleIssueGenerator
+#define TrenchBroom_InvalidTextureScaleIssueGenerator
+
+#include "Model/IssueGenerator.h"
+#include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
-    namespace IO {
-        EntityModelParser::~EntityModelParser() {}
-        
-        Assets::EntityModel* EntityModelParser::parseModel(Logger& logger) {
-            return doParseModel(logger);
-        }
+    namespace Model {
+        class InvalidTextureScaleIssueGenerator : public IssueGenerator {
+        private:
+            class InvalidTextureScaleIssue;
+            class InvalidTextureScaleIssueQuickFix;
+        public:
+            InvalidTextureScaleIssueGenerator();
+        private:
+            void doGenerate(Brush* brush, IssueList& issues) const override;
+        };
     }
 }
+
+#endif /* defined(TrenchBroom_InvalidTextureScaleIssueGenerator) */

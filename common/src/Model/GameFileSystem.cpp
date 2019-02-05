@@ -36,7 +36,7 @@ namespace TrenchBroom {
         FileSystem(),
         m_shaderFS(nullptr) {}
 
-        void GameFileSystem::initialize(const GameConfig& config, const IO::Path& gamePath, const std::vector<IO::Path>& additionalSearchPaths, Logger* logger) {
+        void GameFileSystem::initialize(const GameConfig& config, const IO::Path& gamePath, const std::vector<IO::Path>& additionalSearchPaths, Logger& logger) {
             // delete the existing file system
             releaseNext();
             m_shaderFS = nullptr;
@@ -55,7 +55,7 @@ namespace TrenchBroom {
             }
         }
 
-        void GameFileSystem::addDefaultAssetPath(const GameConfig& config, Logger* logger) {
+        void GameFileSystem::addDefaultAssetPath(const GameConfig& config, Logger& logger) {
             // To allow loading some default assets such as the empty texture, we add the game config path.
             const auto& configPath = config.path();
             if (!configPath.isEmpty()) {
@@ -66,7 +66,7 @@ namespace TrenchBroom {
             }
         }
 
-        void GameFileSystem::addGameFileSystems(const GameConfig& config, const IO::Path& gamePath, const std::vector<IO::Path>& additionalSearchPaths, Logger* logger) {
+        void GameFileSystem::addGameFileSystems(const GameConfig& config, const IO::Path& gamePath, const std::vector<IO::Path>& additionalSearchPaths, Logger& logger) {
             const auto& fileSystemConfig = config.fileSystemConfig();
             addFileSystemPath(gamePath + fileSystemConfig.searchPath, logger);
             addFileSystemPackages(config, gamePath + fileSystemConfig.searchPath, logger);
@@ -77,16 +77,16 @@ namespace TrenchBroom {
             }
         }
 
-        void GameFileSystem::addFileSystemPath(const IO::Path& path, Logger* logger) {
+        void GameFileSystem::addFileSystemPath(const IO::Path& path, Logger& logger) {
             try {
-                logger->info() << "Adding file system path " << path;
+                logger.info() << "Adding file system path " << path;
                 m_next = std::make_unique<IO::DiskFileSystem>(std::move(m_next), path);
             } catch (const FileSystemException& e) {
-                logger->error() << "Could not add file system search path '" << path << "': " << e.what();
+                logger.error() << "Could not add file system search path '" << path << "': " << e.what();
             }
         }
 
-        void GameFileSystem::addFileSystemPackages(const GameConfig& config, const IO::Path& searchPath, Logger* logger) {
+        void GameFileSystem::addFileSystemPackages(const GameConfig& config, const IO::Path& searchPath, Logger& logger) {
             const auto& fileSystemConfig = config.fileSystemConfig();
             const auto& packageFormatConfig = fileSystemConfig.packageFormat;
 
@@ -103,33 +103,33 @@ namespace TrenchBroom {
 
                     try {
                         if (StringUtils::caseInsensitiveEqual(packageFormat, "idpak")) {
-                            logger->info() << "Adding file system package " << packagePath;
+                            logger.info() << "Adding file system package " << packagePath;
                             m_next = std::make_unique<IO::IdPakFileSystem>(std::move(m_next), packagePath, packageFile);
                         } else if (StringUtils::caseInsensitiveEqual(packageFormat, "dkpak")) {
-                            logger->info() << "Adding file system package " << packagePath;
+                            logger.info() << "Adding file system package " << packagePath;
                             m_next = std::make_unique<IO::DkPakFileSystem>(std::move(m_next), packagePath, packageFile);
                         }
                         // FIXME: Find something other than wx
 #if 0
                         else if (StringUtils::caseInsensitiveEqual(packageFormat, "zip")) {
-                            logger->info() << "Adding file system package " << packagePath;
+                            logger.info() << "Adding file system package " << packagePath;
                             m_next = std::make_unique<IO::ZipFileSystem>(std::move(m_next), packagePath, packageFile);
                         }
 #endif
                     } catch (const std::exception& e) {
-                        logger->error() << e.what();
+                        logger.error() << e.what();
                     }
                 }
             }
         }
 
-        void GameFileSystem::addShaderFileSystem(const GameConfig& config, Logger* logger) {
+        void GameFileSystem::addShaderFileSystem(const GameConfig& config, Logger& logger) {
             // To support Quake 3 shaders, we add a shader file system that loads the shaders
             // and makes them available as virtual files.
             const auto& textureConfig = config.textureConfig();
             const auto& textureFormat = textureConfig.format.format;
             if (StringUtils::caseInsensitiveEqual(textureFormat, "q3shader")) {
-                logger->info() << "Adding shader file system";
+                logger.info() << "Adding shader file system";
                 auto searchPaths = IO::Path::List {
                     textureConfig.package.rootDirectory,
                     IO::Path("models")
