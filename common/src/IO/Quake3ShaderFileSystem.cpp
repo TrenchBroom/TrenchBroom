@@ -54,7 +54,7 @@ namespace TrenchBroom {
                     const auto file = next().openFile(path);
 
                     Quake3ShaderParser parser(file->begin(), file->end());
-                    SimpleParserStatus status(m_logger);
+                    SimpleParserStatus status(m_logger, file->path().asString());
                     VectorUtils::append(result, parser.parse(status));
                 }
             }

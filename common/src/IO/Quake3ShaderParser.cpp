@@ -138,7 +138,7 @@ namespace TrenchBroom {
 
             auto& stage = shader.addStage();
             while (!token.hasType(Quake3ShaderToken::CBrace)) {
-                parseStageEntry(status, stage);
+                parseStageEntry(status, shader, stage);
                 token = m_tokenizer.peekToken(Quake3ShaderToken::Eol);
             }
             expect(Quake3ShaderToken::CBrace, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
@@ -177,7 +177,7 @@ namespace TrenchBroom {
             }
         }
 
-        void Quake3ShaderParser::parseStageEntry(ParserStatus& status, Assets::Quake3ShaderStage& stage) {
+        void Quake3ShaderParser::parseStageEntry(ParserStatus& status, const Assets::Quake3Shader& shader, Assets::Quake3ShaderStage& stage) {
             auto token = m_tokenizer.nextToken(Quake3ShaderToken::Eol);
             expect(Quake3ShaderToken::String, token);
             const auto key = token.data();
@@ -201,11 +201,11 @@ namespace TrenchBroom {
                     bool valid = true;
                     if (!stage.blendFunc.validateSrcFactor()) {
                         valid = false;
-                        status.warn(line, param1Column, "Unknown blendFunc source factor: " + param1);
+                        status.warn(line, param1Column, "Unknown blendFunc source factor '" + param1 + "'");
                     }
                     if (!stage.blendFunc.validateDestFactor()) {
                         valid = false;
-                        status.warn(line, param2Column, "Unknown blendFunc destination factor: " + param2);
+                        status.warn(line, param2Column, "Unknown blendFunc destination factor '" + param2 + "'");
                     }
                     if (!valid) {
                         stage.blendFunc.reset();
@@ -221,7 +221,7 @@ namespace TrenchBroom {
                         stage.blendFunc.srcFactor = Assets::Quake3ShaderStage::BlendFunc::SrcAlpha;
                         stage.blendFunc.destFactor = Assets::Quake3ShaderStage::BlendFunc::OneMinusSrcAlpha;
                     } else {
-                        status.warn(line, param1Column, "Unknown blendFunc name: " + param1);
+                        status.warn(line, param1Column, "Unknown blendFunc name '" + param1 + "'");
                     }
                 }
             } else {

@@ -73,7 +73,7 @@ namespace TrenchBroom {
             void parseBody(ParserStatus& status, Assets::Quake3Shader& shader);
             void parseStage(ParserStatus& status, Assets::Quake3Shader& shader);
             void parseBodyEntry(ParserStatus& status, Assets::Quake3Shader& shader);
-            void parseStageEntry(ParserStatus& status, Assets::Quake3ShaderStage& stage);
+            void parseStageEntry(ParserStatus& status, const Assets::Quake3Shader& shader, Assets::Quake3ShaderStage& stage);
         private:
             TokenNameMap tokenNames() const override;
         };

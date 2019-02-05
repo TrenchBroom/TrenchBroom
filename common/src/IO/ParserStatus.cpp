@@ -22,8 +22,9 @@
 
 namespace TrenchBroom {
     namespace IO {
-        ParserStatus::ParserStatus(Logger& logger) :
-        m_logger(logger) {}
+        ParserStatus::ParserStatus(Logger& logger, String prefix) :
+        m_logger(logger),
+        m_prefix(std::move(prefix)) {}
 
         ParserStatus::~ParserStatus() {}
 
@@ -80,6 +81,9 @@ namespace TrenchBroom {
 
         String ParserStatus::buildMessage(const size_t line, const size_t column, const String& str) const {
             StringStream msg;
+            if (!m_prefix.empty()) {
+                msg << m_prefix << ": ";
+            }
             msg << str << " (line " << line << ", column " << column << ")";
             return msg.str();
         }
@@ -90,6 +94,9 @@ namespace TrenchBroom {
         
         String ParserStatus::buildMessage(const size_t line, const String& str) const {
             StringStream msg;
+            if (!m_prefix.empty()) {
+                msg << m_prefix << ": ";
+            }
             msg << str << " (line " << line << ")";
             return msg.str();
         }
