@@ -248,12 +248,6 @@ IF(WIN32)
     # Copy PDB files (msvc debug symbols)
     IF(COMPILER_IS_MSVC)
         IF(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-            # Get paths to wxwidgets debug symbols
-            STRING(REGEX REPLACE "dll$" "pdb" WIN_PDB_WX_core ${WIN_LIB_WX_core})
-            STRING(REGEX REPLACE "dll$" "pdb" WIN_PDB_WX_base ${WIN_LIB_WX_base})
-            STRING(REGEX REPLACE "dll$" "pdb" WIN_PDB_WX_adv ${WIN_LIB_WX_adv})
-            STRING(REGEX REPLACE "dll$" "pdb" WIN_PDB_WX_gl ${WIN_LIB_WX_gl})
-        
             INSTALL(FILES
                 "$<TARGET_FILE_DIR:TrenchBroom>/TrenchBroom.pdb"
                 $<TARGET_FILE:Qt5::Widgets>
