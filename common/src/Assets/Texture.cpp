@@ -283,6 +283,7 @@ namespace TrenchBroom {
                         break;
                     case Assets::TextureCulling::CullBoth:
                         glAssert(glCullFace(GL_FRONT_AND_BACK));
+                        break;
                     case Assets::TextureCulling::CullDefault:
                     case Assets::TextureCulling::CullBack:
                         break;
@@ -315,6 +316,7 @@ namespace TrenchBroom {
                     case Assets::TextureCulling::CullBack:
                         break;
                 }
+
                 glAssert(glBindTexture(GL_TEXTURE_2D, 0));
             }
         }

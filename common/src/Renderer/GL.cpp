@@ -79,4 +79,33 @@ namespace TrenchBroom {
             throw RenderException() << "Unknown GL enum: " << name;
         }
     }
+
+    String glGetEnumName(const GLenum _enum) {
+        switch (_enum) {
+            case GL_ONE:
+                return "GL_ONE";
+            case GL_ZERO:
+                return "GL_ZERO";
+            case GL_SRC_COLOR:
+                return "GL_SRC_COLOR";
+            case GL_DST_COLOR:
+                return "GL_DST_COLOR";
+            case GL_ONE_MINUS_SRC_COLOR:
+                return "GL_ONE_MINUS_SRC_COLOR";
+            case GL_ONE_MINUS_DST_COLOR:
+                return "GL_ONE_MINUS_DST_COLOR";
+            case GL_SRC_ALPHA:
+                return "GL_SRC_ALPHA";
+            case GL_DST_ALPHA:
+                return "GL_DST_ALPHA";
+            case GL_ONE_MINUS_SRC_ALPHA:
+                return "GL_ONE_MINUS_SRC_ALPHA";
+            case GL_ONE_MINUS_DST_ALPHA:
+                return "GL_ONE_MINUS_DST_ALPHA";
+            case GL_SRC_ALPHA_SATURATE:
+                return "GL_SRC_ALPHA_SATURATE";
+            default:
+                return "Unknown OpenGL enum";
+        }
+    }
 }
