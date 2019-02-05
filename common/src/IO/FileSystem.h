@@ -42,8 +42,10 @@ namespace TrenchBroom {
              * Next filesystem in the search path.
              *
              * NOTE: the use of std::shared_ptr is because there is shared ownership during construction of the
-             * filesystems (e.g. Quake3ShaderFileSystem needs to access m_next in its constructor, and the code
-             * calling the constructor needs to keep a reference to the filesystem chain.)
+             * filesystems (std::unique_ptr would require std::move'ing the existing chain of filesystems when passing it
+             * to the FileSystem constructor, which means if the constructor throws, the existing filesystem chain
+             * gets destroyed. FileSystem constructors throw if there is an error creating the filesystem,
+             * so std::unique_ptr isn't usable with this design.)
              */
             std::shared_ptr<FileSystem> m_next;
         public: // public API
