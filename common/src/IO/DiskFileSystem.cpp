@@ -32,7 +32,7 @@ namespace TrenchBroom {
         DiskFileSystem::DiskFileSystem(const Path& root, const bool ensureExists) :
         DiskFileSystem(nullptr, root, ensureExists) {}
 
-        DiskFileSystem::DiskFileSystem(std::unique_ptr<FileSystem> next, const Path& root, const bool ensureExists) :
+        DiskFileSystem::DiskFileSystem(std::shared_ptr<FileSystem> next, const Path& root, const bool ensureExists) :
         FileSystem(std::move(next)),
         m_root(root.makeCanonical()) {
             if (ensureExists && !Disk::directoryExists(m_root)) {
@@ -72,7 +72,7 @@ namespace TrenchBroom {
         WritableDiskFileSystem::WritableDiskFileSystem(const Path& root, const bool create) :
         WritableDiskFileSystem(nullptr, root, create) {}
 
-        WritableDiskFileSystem::WritableDiskFileSystem(std::unique_ptr<FileSystem> next, const Path& root, const bool create) :
+        WritableDiskFileSystem::WritableDiskFileSystem(std::shared_ptr<FileSystem> next, const Path& root, const bool create) :
         DiskFileSystem(std::move(next), root, !create),
         WritableFileSystem() {
             if (create && !Disk::directoryExists(m_root)) {

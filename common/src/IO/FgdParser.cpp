@@ -174,7 +174,7 @@ namespace TrenchBroom {
             assert(!isRecursiveInclude(path));
 
             const auto folder = path.deleteLastComponent();
-            m_fs = std::make_unique<DiskFileSystem>(std::move(m_fs), folder);
+            m_fs = std::make_shared<DiskFileSystem>(m_fs, folder);
             m_paths.push_back(path);
         }
 

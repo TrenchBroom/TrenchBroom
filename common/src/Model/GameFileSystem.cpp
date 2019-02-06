@@ -80,7 +80,7 @@ namespace TrenchBroom {
         void GameFileSystem::addFileSystemPath(const IO::Path& path, Logger& logger) {
             try {
                 logger.info() << "Adding file system path " << path;
-                m_next = std::make_unique<IO::DiskFileSystem>(std::move(m_next), path);
+                m_next = std::make_shared<IO::DiskFileSystem>(m_next, path);
             } catch (const FileSystemException& e) {
                 logger.error() << "Could not add file system search path '" << path << "': " << e.what();
             }
@@ -104,13 +104,13 @@ namespace TrenchBroom {
                     try {
                         if (StringUtils::caseInsensitiveEqual(packageFormat, "idpak")) {
                             logger.info() << "Adding file system package " << packagePath;
-                            m_next = std::make_unique<IO::IdPakFileSystem>(std::move(m_next), packagePath, packageFile);
+                            m_next = std::make_shared<IO::IdPakFileSystem>(m_next, packagePath, packageFile);
                         } else if (StringUtils::caseInsensitiveEqual(packageFormat, "dkpak")) {
                             logger.info() << "Adding file system package " << packagePath;
-                            m_next = std::make_unique<IO::DkPakFileSystem>(std::move(m_next), packagePath, packageFile);
+                            m_next = std::make_shared<IO::DkPakFileSystem>(m_next, packagePath, packageFile);
                         } else if (StringUtils::caseInsensitiveEqual(packageFormat, "zip")) {
                             logger.info() << "Adding file system package " << packagePath;
-                            m_next = std::make_unique<IO::ZipFileSystem>(std::move(m_next), packagePath, packageFile);
+                            m_next = std::make_shared<IO::ZipFileSystem>(m_next, packagePath, packageFile);
                         }
                     } catch (const std::exception& e) {
                         logger.error() << e.what();
@@ -130,7 +130,7 @@ namespace TrenchBroom {
                     textureConfig.package.rootDirectory,
                     IO::Path("models")
                 };
-                auto shaderFS = std::make_unique<IO::Quake3ShaderFileSystem>(std::move(m_next), std::move(searchPaths), logger);
+                auto shaderFS = std::make_shared<IO::Quake3ShaderFileSystem>(m_next, std::move(searchPaths), logger);
                 m_shaderFS = shaderFS.get();
                 m_next = std::move(shaderFS);
             }

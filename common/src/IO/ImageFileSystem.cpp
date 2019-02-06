@@ -156,7 +156,7 @@ namespace TrenchBroom {
             return it->second->findOrCreateDirectory(path.deleteFirstComponent());
         }
 
-        ImageFileSystemBase::ImageFileSystemBase(std::unique_ptr<FileSystem> next, const Path& path) :
+        ImageFileSystemBase::ImageFileSystemBase(std::shared_ptr<FileSystem> next, const Path& path) :
         FileSystem(std::move(next)),
         m_path(path),
         m_root(Path()) {}
@@ -198,7 +198,7 @@ namespace TrenchBroom {
             return m_root.findFile(path).open();
         }
 
-        ImageFileSystem::ImageFileSystem(std::unique_ptr<FileSystem> next, const Path& path, MappedFile::Ptr file) :
+        ImageFileSystem::ImageFileSystem(std::shared_ptr<FileSystem> next, const Path& path, MappedFile::Ptr file) :
         ImageFileSystemBase(std::move(next), path),
         m_file(file) {}
 

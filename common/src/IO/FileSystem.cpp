@@ -25,7 +25,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        FileSystem::FileSystem(std::unique_ptr<FileSystem> next) :
+        FileSystem::FileSystem(std::shared_ptr<FileSystem> next) :
         m_next(std::move(next)) {}
 
         FileSystem::~FileSystem() {}
@@ -41,7 +41,7 @@ namespace TrenchBroom {
             return *m_next;
         }
 
-        std::unique_ptr<FileSystem> FileSystem::releaseNext() {
+        std::shared_ptr<FileSystem> FileSystem::releaseNext() {
             return std::move(m_next);
         }
 

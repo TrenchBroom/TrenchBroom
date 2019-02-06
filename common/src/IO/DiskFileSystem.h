@@ -33,7 +33,7 @@ namespace TrenchBroom {
             Path m_root;
         public:
             explicit DiskFileSystem(const Path& root, bool ensureExists = true);
-            DiskFileSystem(std::unique_ptr<FileSystem> next, const Path& root, bool ensureExists = true);
+            DiskFileSystem(std::shared_ptr<FileSystem> next, const Path& root, bool ensureExists = true);
 
             const Path& root() const;
         protected:
@@ -55,7 +55,7 @@ namespace TrenchBroom {
         class WritableDiskFileSystem : public DiskFileSystem, public WritableFileSystem {
         public:
             WritableDiskFileSystem(const Path& root, bool create);
-            WritableDiskFileSystem(std::unique_ptr<FileSystem> next, const Path& root, bool create);
+            WritableDiskFileSystem(std::shared_ptr<FileSystem> next, const Path& root, bool create);
         private:
             void doCreateFile(const Path& path, const String& contents) override;
             void doCreateDirectory(const Path& path) override;

@@ -28,7 +28,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        Quake3ShaderFileSystem::Quake3ShaderFileSystem(std::unique_ptr<FileSystem> fs, Path::List searchPaths, Logger& logger) :
+        Quake3ShaderFileSystem::Quake3ShaderFileSystem(std::shared_ptr<FileSystem> fs, Path::List searchPaths, Logger& logger) :
         ImageFileSystemBase(std::move(fs), Path()),
         m_searchPaths(std::move(searchPaths)),
         m_logger(logger) {
