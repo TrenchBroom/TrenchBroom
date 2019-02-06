@@ -1,5 +1,5 @@
 PATH=%PATH%;C:\Program Files (x86)\Pandoc
-SET CMAKE_PREFIX_PATH="C:\Qt\5.11.2\msvc2015"
+SET CMAKE_PREFIX_PATH="C:\Qt\5.11.2\msvc2015\lib\cmake"
 
 mkdir cmakebuild
 cd cmakebuild
