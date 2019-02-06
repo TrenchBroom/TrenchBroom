@@ -51,6 +51,8 @@ namespace TrenchBroom {
             m_tableView->setModel(m_tableModel);
             m_tableView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
             m_tableView->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+            m_tableView->horizontalHeader()->setSectionsClickable(false);
+            m_tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
 
             auto* layout = new QHBoxLayout();
             layout->setContentsMargins(0, 0, 0, 0);

@@ -175,30 +175,73 @@ namespace TrenchBroom {
             return result;
         }
 
-        void EntityAttributeGridTable::setRows(const std::map<String, AttributeRow>& newRows) {
-            qDebug() << "EntityAttributeGridTable::setRows " << newRows.size() << " rows.";
+        static auto buildAttributeToRowIndexMap(const std::vector<AttributeRow>& rows) {
+            std::map<String, int> result;
+            for (int i = 0; i < static_cast<int>(rows.size()); ++i) {
+                const AttributeRow& row = rows[i];
 
-            // Diff the incoming changes with our existing rows
+                result[row.name()] = i;
+            }
+            return result;
+        }
 
-            std::vector<String> addedKeys;
-            std::vector<String> removedKeys;
+        void EntityAttributeGridTable::setRows(const std::map<String, AttributeRow>& newRowsKeyMap) {
+            qDebug() << "EntityAttributeGridTable::setRows " << newRowsKeyMap.size() << " rows.";
 
-            std::map<String, AttributeRow> oldRows = buildMap(m_rows);
+            // Next we're going to update the persistent model indices
 
-            for (const auto& [key, row] : newRows) {
-                if (oldRows.find(key) == oldRows.end()) {
-                    addedKeys.push_back(key);
+            const std::vector<AttributeRow> newRows = buildVec(newRowsKeyMap);
+            const std::map<String, int> oldRowIndexMap = buildAttributeToRowIndexMap(m_rows);
+            const std::map<String, int> newRowIndexMap = buildAttributeToRowIndexMap(newRows);
+
+            // see: http://doc.qt.io/qt-5/model-view-programming.html#resizable-models
+            // and: http://doc.qt.io/qt-5/qabstractitemmodel.html#layoutChanged
+
+            emit layoutAboutToBeChanged();
+
+            // Figure out the mapping from old to new indices
+            const QModelIndexList oldPersistentIndices = persistentIndexList();
+            QModelIndexList newPersistentIndices;
+
+            for (const auto oldPersistentIndex : oldPersistentIndices) {
+                if (!oldPersistentIndex.isValid()) {
+                    // Shouldn't ever happen, but handle it anyway
+                    newPersistentIndices.push_back(QModelIndex());
+                    continue;
+                }
+
+                const int oldRow = oldPersistentIndex.row();
+                const int oldColumn = oldPersistentIndex.column();
+
+                const String oldKey = m_rows.at(static_cast<size_t>(oldRow)).name();
+
+                // see if there is a corresponding new row
+
+                if (auto it = newRowIndexMap.find(oldKey); it != newRowIndexMap.end()) {
+                    const int newRow = it->second;
+                    newPersistentIndices.push_back(index(newRow, oldColumn));
+                } else {
+                    newPersistentIndices.push_back(QModelIndex());
                 }
             }
-            for (const auto& [key, row] : oldRows) {
-                if (newRows.find(key) == newRows.end()) {
-                    removedKeys.push_back(key);
-                }
-            }
 
-            beginResetModel();
-            m_rows = buildVec(newRows);
-            endResetModel();
+            m_rows = newRows;
+            changePersistentIndexList(oldPersistentIndices, newPersistentIndices);
+            emit layoutChanged();
+
+            // Next tell Qt the data changed for all of the rows
+            if (!m_rows.empty()) {
+                QModelIndex topLeft = index(0, 0);
+                QModelIndex bottomRight = index(static_cast<int>(m_rows.size()) - 1, 1);
+                emit dataChanged(topLeft, bottomRight);
+            }
+        }
+
+        const AttributeRow* EntityAttributeGridTable::dataForModelIndex(const QModelIndex& index) const {
+            if (!index.isValid()) {
+                return nullptr;
+            }
+            return &m_rows.at(static_cast<size_t>(index.row()));
         }
 
         void EntityAttributeGridTable::updateFromMapDocument() {
@@ -917,41 +960,7 @@ namespace TrenchBroom {
                 notifyRowsUpdated(0, m_rows.totalRowCount());
             }
         }
-        
-        void EntityAttributeGridTable::notifyRowsUpdated(size_t pos, size_t numRows) {
-            if (GetView() != nullptr) {
-                wxGridTableMessage message(this, wxGRIDTABLE_REQUEST_VIEW_GET_VALUES,
-                                           static_cast<int>(pos),
-                                           static_cast<int>(numRows));
-                GetView()->ProcessTableMessage(message);
-            }
-        }
-        
-        void EntityAttributeGridTable::notifyRowsInserted(size_t pos, size_t numRows) {
-            if (GetView() != nullptr) {
-                wxGridTableMessage message(this, wxGRIDTABLE_NOTIFY_ROWS_INSERTED,
-                                           static_cast<int>(pos),
-                                           static_cast<int>(numRows));
-                GetView()->ProcessTableMessage(message);
-            }
-        }
-        
-        void EntityAttributeGridTable::notifyRowsAppended(size_t numRows) {
-            if (GetView() != nullptr) {
-                wxGridTableMessage message(this, wxGRIDTABLE_NOTIFY_ROWS_APPENDED,
-                                           static_cast<int>(numRows));
-                GetView()->ProcessTableMessage(message);
-            }
-        }
-        
-        void EntityAttributeGridTable::notifyRowsDeleted(size_t pos, size_t numRows) {
-            if (GetView() != nullptr) {
-                wxGridTableMessage message(this, wxGRIDTABLE_NOTIFY_ROWS_DELETED,
-                                           static_cast<int>(pos),
-                                           static_cast<int>(numRows));
-                GetView()->ProcessTableMessage(message);
-            }
-        }
+
 #endif
     }
 }

@@ -36,6 +36,8 @@
 #include <QShortcut>
 #include <QKeySequence>
 #include <QDebug>
+#include <QTextEdit>
+#include <QKeyEvent>
 
 namespace TrenchBroom {
     namespace View {
@@ -52,53 +54,6 @@ namespace TrenchBroom {
         EntityAttributeGrid::~EntityAttributeGrid() {
             unbindObservers();
         }
-
-//        void EntityAttributeGrid::OnAttributeGridSelectCell() {
-//            fireSelectionEvent(event.GetRow(), event.GetCol());
-//        }
-        
-//        void EntityAttributeGrid::tabNavigate(int row, int col, bool forward) {
-//            if (!forward) {
-//                if (col > 0)
-//                    moveCursorTo(row, col - 1);
-//                else if (row > 0)
-//                    moveCursorTo(row - 1, m_grid->GetNumberCols() - 1);
-//            } else {
-//                if (col < m_grid->GetNumberCols() - 1)
-//                    moveCursorTo(row, col + 1);
-//                else if (row < m_grid->GetNumberRows() - 1)
-//                    moveCursorTo(row + 1, 0);
-//            }
-//        }
-
-#if 0
-        void EntityAttributeGrid::OnAttributeGridTab(wxGridEvent& event) {
-            tabNavigate(event.GetRow(), event.GetCol(), !event.ShiftDown());
-        }
-        
-        void EntityAttributeGrid::moveCursorTo(const int row, const int col) {
-            {
-                const TemporarilySetBool ignoreSelection(m_ignoreSelection);
-                m_grid->GoToCell(row, col);
-                m_grid->SelectRow(row);
-            }
-            fireSelectionEvent(row, col);
-        }
-
-        void EntityAttributeGrid::fireSelectionEvent(const int row, const int col) {
-            if (!m_ignoreSelection) {
-                const Model::AttributeName name = m_table->attributeName(row);
-                m_lastSelectedName = name;
-                m_lastSelectedCol = col;
-                
-                EntityAttributeSelectedCommand command;
-                command.setName(name);
-                command.SetEventObject(this);
-                command.SetId(GetId());
-                ProcessEvent(command);
-            }
-        }
-#endif
         
         void EntityAttributeGrid::addAttribute() {
             qDebug("FIXME: addAttribute");
@@ -108,10 +63,37 @@ namespace TrenchBroom {
 //            m_grid->SelectRow(row);
 //            m_grid->GoToCell(row, 0);
 //            m_grid->ShowCellEditControl();
+
+
+
+            m_grid->setFocus();
+            MapDocumentSPtr document = lock(m_document);
+
+            document->setAttribute("new attribute", "");
         }
         
         void EntityAttributeGrid::removeSelectedAttributes() {
             qDebug("FIXME: removeSelectedAttributes");
+
+            QItemSelectionModel *s = m_grid->selectionModel();
+            if (!s->hasSelection()) {
+                return;
+            }
+            // FIXME: support more than 1 row
+            // FIXME: current vs selected
+            QModelIndex current = s->currentIndex();
+            if (!current.isValid()) {
+                return;
+            }
+
+            const AttributeRow* temp = m_table->dataForModelIndex(current);
+            String name = temp->name();
+
+            MapDocumentSPtr document = lock(m_document);
+
+            // FIXME: transaction
+            document->removeAttribute(name);
+
 
 //            assert(canRemoveSelectedAttributes());
 //
@@ -135,6 +117,9 @@ namespace TrenchBroom {
         void EntityAttributeGrid::removeAttribute(const String& key) {
             qDebug() << "removeAttribute " << QString::fromStdString(key);
 
+
+
+
 //            const int row = m_table->rowForName(key);
 //            if (row == -1)
 //                return;
@@ -149,6 +134,8 @@ namespace TrenchBroom {
         }
 
         bool EntityAttributeGrid::canRemoveSelectedAttributes() const {
+            return true;
+
             const auto rows = selectedRowsAndCursorRow();
             if (rows.empty())
                 return false;
@@ -273,21 +260,36 @@ namespace TrenchBroom {
         };
 #endif
 
+        class MyTable : public QTableView {
+        protected:
+            bool event(QEvent *event) override {
+                if (event->type() == QEvent::ShortcutOverride) {
+                    QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+
+                    if (keyEvent->key() < Qt::Key_Escape &&
+                        (keyEvent->modifiers() == Qt::NoModifier || keyEvent->modifiers() == Qt::KeypadModifier)) {
+                        qDebug("overriding shortcut key %d\n", keyEvent->key());
+                        event->setAccepted(true);
+                        return true;
+                    } else {
+                        qDebug("not overriding shortcut key %d\n", keyEvent->key());
+                    }
+
+                }
+                return QTableView::event(event);
+            }
+        };
+
         void EntityAttributeGrid::createGui(MapDocumentWPtr document) {
             m_table = new EntityAttributeGridTable(document, this);
             
-            m_grid = new QTableView();
+            m_grid = new MyTable();
             m_grid->setModel(m_table);
             m_grid->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
             m_grid->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
-            m_grid->setSelectionBehavior(QAbstractItemView::SelectRows);
-            
-//            wxGridCellTextEditor* editor = new EntityAttributeCellEditor(this, m_table);
-//            m_grid->SetDefaultEditor(editor);
+            m_grid->setSelectionBehavior(QAbstractItemView::SelectItems);
 
-//            m_grid->Bind(wxEVT_SIZE, &EntityAttributeGrid::OnAttributeGridSize, this);
 //            m_grid->Bind(wxEVT_GRID_SELECT_CELL, &EntityAttributeGrid::OnAttributeGridSelectCell, this);
-//            m_grid->Bind(wxEVT_GRID_TABBING, &EntityAttributeGrid::OnAttributeGridTab, this);
 
             m_addAttributeButton = createBitmapButton(this, "Add.png", tr("Add a new property"));
             connect(m_addAttributeButton, &QAbstractButton::clicked, this, [=](bool checked){
@@ -307,22 +309,29 @@ namespace TrenchBroom {
             // Shortcuts
 
             auto* buttonSizer = new QHBoxLayout();
-            buttonSizer->addWidget(m_addAttributeButton, 0, Qt::AlignVCenter); // wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            buttonSizer->addWidget(m_removePropertiesButton, 0, Qt::AlignVCenter); //wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->addWidget(m_addAttributeButton, 0, Qt::AlignVCenter);
+            buttonSizer->addWidget(m_removePropertiesButton, 0, Qt::AlignVCenter);
             buttonSizer->addSpacing(LayoutConstants::WideHMargin);
-            buttonSizer->addWidget(m_showDefaultPropertiesCheckBox, 0, Qt::AlignVCenter); //wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->addWidget(m_showDefaultPropertiesCheckBox, 0, Qt::AlignVCenter);
             buttonSizer->addStretch(1);
+
+            auto* te = new QTextEdit();
             
             auto* sizer = new QVBoxLayout();
             sizer->setContentsMargins(0, 0, 0, 0);
             sizer->addWidget(m_grid, 1);
             sizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Horizontal), 0);
             sizer->addLayout(buttonSizer, 0);
+            sizer->addWidget(te);
             setLayout(sizer);
+
+            printf("et: %d\n", m_grid->editTriggers());
+
+            m_grid->setEditTriggers(QAbstractItemView::SelectedClicked | QAbstractItemView::AnyKeyPressed);
         }
 
         void EntityAttributeGrid::createShortcuts() {
-            m_insertRowShortcut = new QShortcut(QKeySequence("Ctrl-Enter"), this);
+            m_insertRowShortcut = new QShortcut(QKeySequence("Ctrl-Return"), this);
             m_insertRowShortcut->setContext(Qt::WidgetWithChildrenShortcut);
             connect(m_insertRowShortcut, &QShortcut::activated, this, [=](){
                 addAttribute();
@@ -340,13 +349,15 @@ namespace TrenchBroom {
                 removeSelectedAttributes();
             });
 
-            m_openCellEditorShortcut = new QShortcut(QKeySequence("Enter"), this);
+            m_openCellEditorShortcut = new QShortcut(QKeySequence(Qt::Key_Return), this);// "Enter"), this);
             m_openCellEditorShortcut->setContext(Qt::WidgetWithChildrenShortcut);
             connect(m_openCellEditorShortcut, &QShortcut::activated, this, [=](){
-                // FIXME:
-//                if (m_grid->CanEnableCellControl()) {
-//                    m_grid->EnableCellEditControl();
-//                }
+                qDebug("enter activated unambiguously");
+                m_grid->edit(m_grid->currentIndex());
+            });
+            connect(m_openCellEditorShortcut, &QShortcut::activatedAmbiguously, this, [=](){
+                qDebug("enter activated ambiguously");
+                m_grid->edit(m_grid->currentIndex());
             });
        }
 
