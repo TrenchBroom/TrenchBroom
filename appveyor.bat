@@ -4,7 +4,9 @@ SET CMAKE_PREFIX_PATH="C:\Qt\5.11.2\msvc2015"
 mkdir cmakebuild
 cd cmakebuild
 
-cmake .. -G"Visual Studio 15 2017" -T v141_xp -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=/WX
+cmake .. -G"Visual Studio 15 2017" -T v141_xp -DCMAKE_BUILD_TYPE=Release -DTB_SKIP_TESTS=YES
+
+REM  -DCMAKE_CXX_FLAGS=/WX
 
 IF ERRORLEVEL 1 GOTO ERROR
 
@@ -18,13 +20,13 @@ IF ERRORLEVEL 1 GOTO ERROR
 
 call generate_checksum.bat
 
-Release\TrenchBroom-Test.exe
+REM Release\TrenchBroom-Test.exe
 
-IF ERRORLEVEL 1 GOTO ERROR
+REM IF ERRORLEVEL 1 GOTO ERROR
 
-Release\TrenchBroom-Benchmark.exe
+REM Release\TrenchBroom-Benchmark.exe
 
-IF ERRORLEVEL 1 GOTO ERROR
+REM IF ERRORLEVEL 1 GOTO ERROR
 
 GOTO END
 

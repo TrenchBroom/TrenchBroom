@@ -131,4 +131,7 @@ INCLUDE(cmake/Common.cmake)
 INCLUDE(cmake/StackWalker.cmake)
 
 INCLUDE(cmake/TrenchBroomApp.cmake)
-INCLUDE(cmake/TrenchBroomTest.cmake)
+
+IF(NOT TB_SKIP_TESTS)
+    INCLUDE(cmake/TrenchBroomTest.cmake)
+ENDIF()
