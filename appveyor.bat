@@ -1,6 +1,5 @@
-PATH=%PATH%;c:\wxWidgets-3.1.1\lib\vc141_dll
 PATH=%PATH%;C:\Program Files (x86)\Pandoc
-SET WXWIN="c:\wxWidgets-3.1.1"
+SET CMAKE_PREFIX_PATH="C:\Qt\5.11.2\msvc2015"
 
 mkdir cmakebuild
 cd cmakebuild
