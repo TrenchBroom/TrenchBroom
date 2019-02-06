@@ -264,6 +264,15 @@ IF(WIN32)
         $<TARGET_FILE:Qt5::Gui>
         $<TARGET_FILE:Qt5::Core>
         DESTINATION . COMPONENT TrenchBroom)
+    
+    #Qt plugins
+    INSTALL(FILES
+        $<TARGET_FILE:Qt5::QWindowsIntegrationPlugin>
+        DESTINATION platforms COMPONENT TrenchBroom)
+    INSTALL(FILES
+        $<TARGET_FILE:Qt5::QWindowsVistaStylePlugin>
+        DESTINATION styles COMPONENT TrenchBroom)
+
     INSTALL(FILES
         ${WIN_LIBS}
         DESTINATION . COMPONENT TrenchBroom)
