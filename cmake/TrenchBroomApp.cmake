@@ -250,9 +250,6 @@ IF(WIN32)
         IF(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
             INSTALL(FILES
                 "$<TARGET_FILE_DIR:TrenchBroom>/TrenchBroom.pdb"
-                $<TARGET_FILE:Qt5::Widgets>
-                $<TARGET_FILE:Qt5::Gui>
-                $<TARGET_FILE:Qt5::Core>
                 DESTINATION . COMPONENT TrenchBroom)
         ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
             INSTALL(FILES
@@ -263,10 +260,9 @@ IF(WIN32)
 
     INSTALL(TARGETS TrenchBroom RUNTIME DESTINATION . COMPONENT TrenchBroom)
     INSTALL(FILES
-        ${WIN_LIB_WX_core}
-        ${WIN_LIB_WX_base}
-        ${WIN_LIB_WX_adv}
-        ${WIN_LIB_WX_gl}
+        $<TARGET_FILE:Qt5::Widgets>
+        $<TARGET_FILE:Qt5::Gui>
+        $<TARGET_FILE:Qt5::Core>
         DESTINATION . COMPONENT TrenchBroom)
     INSTALL(FILES
         ${WIN_LIBS}
