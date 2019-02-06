@@ -1,10 +1,9 @@
 PATH=%PATH%;C:\Program Files (x86)\Pandoc
-SET CMAKE_PREFIX_PATH="C:\Qt\5.11.2\msvc2015\lib\cmake"
 
 mkdir cmakebuild
 cd cmakebuild
 
-cmake .. -G"Visual Studio 15 2017" -T v141_xp -DCMAKE_BUILD_TYPE=Release -DTB_SKIP_TESTS=YES
+cmake .. -G"Visual Studio 15 2017" -T v141_xp -DCMAKE_BUILD_TYPE=Release -DTB_SKIP_TESTS=YES -DCMAKE_PREFIX_PATH="C:\Qt\5.11.2\msvc2015"
 
 REM  -DCMAKE_CXX_FLAGS=/WX
 
