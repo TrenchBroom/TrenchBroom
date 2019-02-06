@@ -222,10 +222,7 @@ namespace TrenchBroom {
             void createBrushEntity(const Assets::BrushEntityDefinition* definition);
             bool canCreateBrushEntity();
         private: // other events
-        // FIXME: implement
-#if 0
-            void OnActivateFrame(wxActivateEvent& event);
-#endif
+            void onActiveChanged();
         private:
             ActionContext actionContext() const;
         private: // implement ViewEffectsService interface

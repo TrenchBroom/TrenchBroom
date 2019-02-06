@@ -267,10 +267,7 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::bindEvents() {
-#if 0
-            wxFrame* frame = findFrame(this);
-            frame->Bind(wxEVT_ACTIVATE, &MapViewBase::OnActivateFrame, this);
-#endif
+            connect(this, &QWindow::activeChanged, this, &MapViewBase::onActiveChanged);
         }
 
         QShortcut* MapViewBase::createAndRegisterShortcut(const ActionInfo& info, Callback callback) {
@@ -711,29 +708,18 @@ namespace TrenchBroom {
             return document->selectedNodes().hasOnlyBrushes();
         }
 
-#if 0
-        void MapViewBase::OnSetFocus(wxFocusEvent& event) {
-            if (IsBeingDeleted()) return;
+        void MapViewBase::onActiveChanged() {
+            qDebug("MapViewBase::onActiveChanged: is active: %d, is focus window: %d has focus %d",
+                (int)isActive(), (int)(QGuiApplication::focusWindow() == this), (int)HasFocus());
+            requestUpdate(); // show/hide focus rectangle
+            updateBindings(); // enable/disable QShortcut's to reflect whether we have focus (needed because of QOpenGLWindow; see comment in createAndRegisterShortcut)
 
-            updateAcceleratorTable(true);
-            updateModifierKeys();
-            event.Skip();
+            // FIXME: wx called these on focus in/out
+            //updateModifierKeys();
+            //clearModifierKeys();
+            // FIXME: wx called this when the actual window (ie MapFrame) became active:
+            // updateLastActivation();
         }
-
-        void MapViewBase::OnKillFocus(wxFocusEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            updateAcceleratorTable(false);
-            clearModifierKeys();
-            event.Skip();
-        }
-
-        void MapViewBase::OnActivateFrame(wxActivateEvent& event) {
-            if (event.GetActive())
-                updateLastActivation();
-            event.Skip();
-        }
-#endif
 
         ActionContext MapViewBase::actionContext() const {
             const ActionContext derivedContext = doGetActionContext();

@@ -213,7 +213,7 @@ namespace TrenchBroom {
         }
 
         void RenderView::renderFocusIndicator() {
-            if (!doShouldRenderFocusIndicator() || !isActive())
+            if (!doShouldRenderFocusIndicator() || !HasFocus())
                 return;
             
             const Color& outer = m_focusColor;
