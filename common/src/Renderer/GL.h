@@ -38,6 +38,7 @@ namespace TrenchBroom {
     String glGetErrorMessage(GLenum code);
 
     GLenum glGetEnum(const String& name);
+    String glGetEnumName(GLenum _enum);
 
 // #define GL_DEBUG 1
 // #define GL_LOG 1

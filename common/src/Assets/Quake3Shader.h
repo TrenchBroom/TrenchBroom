@@ -40,9 +40,16 @@ namespace TrenchBroom {
                 static const String OneMinusSrcColor;
                 static const String OneMinusDestColor;
                 static const String SrcAlpha;
+                static const String DestAlpha;
                 static const String OneMinusSrcAlpha;
+                static const String OneMinusDestAlpha;
+                static const String SrcAlphaSaturate;
 
                 bool enable() const;
+                bool validateSrcFactor() const;
+                bool validateDestFactor() const;
+                void reset();
+                
                 bool operator==(const BlendFunc& other) const;
             };
         public:

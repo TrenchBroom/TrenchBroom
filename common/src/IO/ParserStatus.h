@@ -28,8 +28,9 @@ namespace TrenchBroom {
         class ParserStatus {
         private:
             Logger& m_logger;
+            String m_prefix;
         protected:
-            explicit ParserStatus(Logger& logger);
+            explicit ParserStatus(Logger& logger, String prefix);
         public:
             virtual ~ParserStatus();
         public:
