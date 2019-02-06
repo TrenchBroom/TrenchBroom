@@ -19,16 +19,13 @@
 
 #include "FaceRenderer.h"
 
-#include "Renderer/GL.h"
 #include "Preferences.h"
-#include "PreferenceManager.h"
 #include "Assets/Texture.h"
 #include "Renderer/Camera.h"
 #include "Renderer/BrushRendererArrays.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Shaders.h"
-#include "Renderer/ShaderProgram.h"
 #include "Renderer/ShaderManager.h"
 
 namespace TrenchBroom {
@@ -55,8 +52,9 @@ namespace TrenchBroom {
             }
             
             void after(const Assets::Texture* texture) override {
-                if (texture != nullptr)
+                if (texture != nullptr) {
                     texture->deactivate();
+                }
             }
         };
         

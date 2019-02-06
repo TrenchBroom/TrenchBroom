@@ -340,7 +340,9 @@ namespace TrenchBroom {
 
                                 vertexArray.prepare(vertexVbo());
                                 vertexArray.render(GL_QUADS);
-                                
+
+                                texture->deactivate();
+
                                 ++num;
                             }
                         }

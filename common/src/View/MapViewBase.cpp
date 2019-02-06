@@ -354,6 +354,7 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::updateBindings() {
+            //return;
             qDebug("updating key binds");
 
             // refresh key bindings, start with all shortcuts enabled, if `this` has focus

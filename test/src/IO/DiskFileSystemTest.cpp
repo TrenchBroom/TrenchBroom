@@ -55,8 +55,8 @@ namespace TrenchBroom {
         TEST(FileSystemTest, makeAbsolute) {
             FSTestEnvironment env;
 
-            auto fs = std::make_unique<DiskFileSystem>(env.dir() + Path("anotherDir"));
-                 fs = std::make_unique<DiskFileSystem>(std::move(fs), env.dir() + Path("dir1"));
+            auto fs = std::make_shared<DiskFileSystem>(env.dir() + Path("anotherDir"));
+                 fs = std::make_shared<DiskFileSystem>(fs, env.dir() + Path("dir1"));
 
             // Existing files should be resolved against the first file system in the chain that contains them:
             const auto absPathExisting = fs->makeAbsolute(Path("test3.map"));

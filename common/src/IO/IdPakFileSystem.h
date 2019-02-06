@@ -30,7 +30,7 @@ namespace TrenchBroom {
         class IdPakFileSystem : public ImageFileSystem {
         public:
             IdPakFileSystem(const Path& path, MappedFile::Ptr file);
-            IdPakFileSystem(std::unique_ptr<FileSystem> next, const Path& path, MappedFile::Ptr file);
+            IdPakFileSystem(std::shared_ptr<FileSystem> next, const Path& path, MappedFile::Ptr file);
         private:
             void doReadDirectory() override;
         };

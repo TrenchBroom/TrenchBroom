@@ -46,7 +46,7 @@ namespace TrenchBroom {
             };
         public:
             ZipFileSystem(const Path& path, MappedFile::Ptr file);
-            ZipFileSystem(std::unique_ptr<FileSystem> next, const Path& path, MappedFile::Ptr file);
+            ZipFileSystem(std::shared_ptr<FileSystem> next, const Path& path, MappedFile::Ptr file);
         private:
             void doReadDirectory() override;
         };

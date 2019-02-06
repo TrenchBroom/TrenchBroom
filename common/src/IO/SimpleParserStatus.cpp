@@ -21,8 +21,8 @@
 
 namespace TrenchBroom {
     namespace IO {
-        SimpleParserStatus::SimpleParserStatus(Logger& logger) :
-        ParserStatus(logger) {}
+        SimpleParserStatus::SimpleParserStatus(Logger& logger, String prefix) :
+        ParserStatus(logger, prefix) {}
 
         void SimpleParserStatus::doProgress(const double progress) {}
     }

@@ -88,7 +88,7 @@ namespace TrenchBroom {
             Path m_path;
             Directory m_root;
         protected:
-            ImageFileSystemBase(std::unique_ptr<FileSystem> next, const Path& path);
+            ImageFileSystemBase(std::shared_ptr<FileSystem> next, const Path& path);
         public:
             virtual ~ImageFileSystemBase() override;
         protected:
@@ -112,7 +112,7 @@ namespace TrenchBroom {
         protected:
             MappedFile::Ptr m_file;
         protected:
-            ImageFileSystem(std::unique_ptr<FileSystem> next, const Path& path, MappedFile::Ptr file);
+            ImageFileSystem(std::shared_ptr<FileSystem> next, const Path& path, MappedFile::Ptr file);
         public:
             virtual ~ImageFileSystem() override;
         };

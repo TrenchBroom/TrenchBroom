@@ -25,7 +25,7 @@
 	]
 	CD(integer) : "CD track to play" : 1
 	MIDI(string) : "Midi file to play" : "casa1"
-	spawnflags(choices) : "Func_Train type" : 0 = //Spawnflags don't show for worldspawn. Needs to be edited in the .map manually
+	spawnflags2(choices) : "Func_Train type" : 0 = //Spawnflags don't show for worldspawn. Needs to be edited in the .map manually
 	[
 		0 : "Hexen2 Func_Trains"
 		1 : "PoP Func_Trains"
@@ -37,13 +37,48 @@
 // Base definitions!
 //
 
+@baseclass = Lights [
+	spawnflags(Flags) =
+	[
+		1 : "Start low" : 0
+		2 : "Hurt (PoP)" : 0
+	]
+	style(choices) : "Style (32-63 for groups)" : 0 =
+	[
+		0 : "Normal"
+		1 : "Soft flicker"
+		6 : "Faster flicker"
+
+		4 : "Low falloff"
+
+		5 : "Pulse"
+		2 : "Slow pulse in & out"
+		11 : "Quick pulse in & out"
+
+		3 : "Erratic pulse & flicker A"
+		7 : "Erratic pulse & flicker B"
+		8 : "Erratic pulse & flicker C"
+		9 : "Slow blink"
+		10 : "Fluorescent flicker"
+	]
+	light(integer) : "Brightness" : 300
+	health(integer) : "Health (shootable)"
+	lightvalue1(integer) : "Lowest light value" : 0
+	lightvalue2(integer) : "Highest light value" : 11
+	fadespeed(integer) : "Fade speed" : 1
+]
+
 @baseclass = Appearflags [
 	spawnflags(Flags) =
 	[
-		256 : "Not in Easy" : 0
-		512 : "Not in Normal" : 0
-		1024 : "Not in Hard" : 0
-		2048 : "Not in Deathmatch" : 0
+		256 : "Not for Paladin" : 0
+		512 : "Not for Crusader" : 0
+		1024 : "Not for Necromancer" : 0
+		2048 : "Not for Assassin" : 0
+		4096 : "Not in Easy" : 0
+		8192 : "Not in Normal" : 0
+		16384 : "Not in Hard" : 0
+		32768 : "Not in Deathmatch" : 0
 	]
 ]
 
@@ -108,8 +143,8 @@
 @PointClass base(Artifact) model({ "path": ":models/a_mboost.mdl" }) = art_manaboost : "Mana Boost" []
 @PointClass base(Artifact) model({ "path": ":models/a_poly.mdl" }) = art_polymorph : "Polymorph" []
 @PointClass base(Artifact) model({ "path": ":models/a_summon.mdl" }) = art_summon : "Summoning" []
-@PointClass base(Artifact) model({ "path": ":models/a_shboost.mdl" }) = art_SuperHBoost : "Super Health Boost" []
-@PointClass base(Artifact) = art_sword_and_crown : "Sword and Crown" []
+@PointClass base(Artifact) model({ "path": ":models/a_shbost.mdl" }) = art_SuperHBoost : "Super Health Boost" []
+@PointClass base(Artifact) model(":models/xcalibur.mdl") = art_sword_and_crown : "Sword and Crown" []
 @PointClass base(Artifact) model({ "path": ":models/a_telprt.mdl" }) = art_teleport : "Teleport" []
 @PointClass base(Artifact) model({ "path": ":models/a_tome.mdl" }) = art_tomeofpower : "Tome of Power" []
 @PointClass base(Artifact) model({ "path": ":models/a_torch.mdl" }) = art_torch : "Torch" []
@@ -282,7 +317,7 @@
 		2 : "Default (2)"
 		666 : "Instant kill (666)"
 	]
-	//strength(integer) : "Strength" : 1 //What is this key for?
+	strength(integer) : "Strength" : 1 //What is this key for?
 	soundtype(choices) : "Sounds" : 2 =
 	[
 		0 : "No sound"
@@ -818,74 +853,31 @@
 @PointClass base(item_mana_both) = item_mana_blue : "blue mana" []
 @PointClass base(item_mana_both) = item_mana_green : "green mana" []
 
-@PointClass base(Appearflags, Targetname) size(-8 -8 -20, 8 8 45) = item_spawner : "Item spawner"
-[
-	bluemana(integer) : "Blue mana"
-	greenmana(integer) : "Green mana"
-	cnt_torch(integer) : "Torch"
-	cnt_h_boost(integer) : "Quartz flask"
-	cnt_sh_boost(integer) : "Mystic urn"
-	cnt_mana_boost(integer) : "Krater of might"
-	cnt_teleport(integer) : "Chaos device"
-	cnt_tome(integer) : "Tome of power"
-	cnt_summon(integer) : "Stone of summoning"
-	cnt_invisibility(integer) : "Invisibility"
-	cnt_glyph(integer) : "Glyph of ancients"
-	cnt_haste(integer) : "Boots of speed"
-	cnt_blast(integer) : "Disc of repulsion"
-	cnt_polymorph(integer) : "Ovinimancer"
-	cnt_cubeofforce(integer) : "Force cube"
-	cnt_invincibility(integer) : "Invincibility"	
+@PointClass base(Appearflags, Targetname, Spawn) size(-8 -8 -20, 8 8 45) = item_spawner : "Item spawner"
+[	
 ]
 
 //
 // Lights!
 //
 
-@PointClass base(Appearflags, Targetname, Target) size(-8 -8 -8, 8 8 8) = light : "normal light"
+@PointClass base(Appearflags, Targetname, Target, Lights) size(-8 -8 -8, 8 8 8) = light : "normal light" []
+
+@baseclass = Lightdmg
 [
-	spawnflags(Flags) =
-	[
-		1 : "Start low" : 0
-		2 : "Hurt (PoP)" : 0
-	]
-	style(choices) : "Style (32-63 for groups)" : 0 =
-	[
-		0 : "Normal"
-		1 : "Soft flicker"
-		6 : "Faster flicker"
-
-		4 : "Low falloff"
-
-		5 : "Pulse"
-		2 : "Slow pulse in & out"
-		11 : "Quick pulse in & out"
-
-		3 : "Erratic pulse & flicker A"
-		7 : "Erratic pulse & flicker B"
-		8 : "Erratic pulse & flicker C"
-		9 : "Slow blink"
-		10 : "Fluorescent flicker"
-	]
-	light(integer) : "Brightness" : 300
-	health(integer) : "Health (shootable)"
-	lightvalue1(integer) : "Lowest light value" : 0
-	lightvalue2(integer) : "Highest light value" : 11
-	fadespeed(integer) : "Fade speed" : 1
-]
-@baseclass = Lightdmg [
 	dmg(integer) : "Damage (PoP)"
 ]
-@PointClass base(light, Lightdmg) size(-10 -10 -40, 10 10 40) = light_flame_large_yellow : "Flame large yellow"[]
-@PointClass base(light) size(-10 -10 -12, 12 12 18) = light_flame_small_white : "Flame small white"[]
-@PointClass base(light, Lightdmg) size(-10 -10 -12, 12 12 18) = light_flame_small_yellow : "Flame small yellow"[]
+
+@PointClass base(light, Lightdmg) model(":models/flame1.mdl") size(-10 -10 -40, 10 10 40) = light_flame_large_yellow : "Flame large yellow"[]
+@PointClass base(light) model(":models/flame2.mdl") size(-10 -10 -12, 12 12 18) = light_flame_small_white : "Flame small white"[]
+@PointClass base(light, Lightdmg) model(":models/flame2.mdl") size(-10 -10 -12, 12 12 18) = light_flame_small_yellow : "Flame small yellow"[]
 @PointClass base(light, Angles) size(-8 -8 -8, 8 8 8) = light_gem : "Gem light" []
 @PointClass base(light) size(-8 -8 -8, 8 8 8) = light_globe : "Globe" []
-@PointClass base(light) size(-8 -8 -8, 8 8 8) = light_torch_castle : "Castle torch" []
-@PointClass base(light_torch_castle) = light_torch_egypt : "Egyptian torch" []
-@PointClass base(light_torch_castle) = light_torch_meso : "Meso torch" []
-@PointClass base(light_torch_castle) = light_torch_rome : "Roman torch" []
-@PointClass base(light, Lightdmg) size(-10 -10 -20, 10 10 20) = light_torch_small_walltorch : "Walltorch"
+@PointClass base(light) model(":models/cflmtrch.mdl") size(-8 -8 -8, 8 8 8) = light_torch_castle : "Castle torch" []
+@PointClass base(light_torch_castle) model(":models/egtorch.mdl") = light_torch_egypt : "Egyptian torch" []
+@PointClass base(light_torch_castle) model(":models/mflmtrch.mdl") = light_torch_meso : "Meso torch" []
+@PointClass base(light_torch_castle)  model(":models/rflmtrch.mdl") = light_torch_rome : "Roman torch" []
+@PointClass base(light, Lightdmg) model(":models/flame.mdl") size(-10 -10 -20, 10 10 20) = light_torch_small_walltorch : "Walltorch"
 [
 	light(integer) : "Brightness" : 200
 ]
@@ -924,34 +916,34 @@
 // Monsters!
 //
 
-@BaseClass base(Appearflags, Targetname, Target) size(-16 -16 0, 16 16 50) = Monster
+@BaseClass base(Appearflags, Targetname, Target, Spawn) size(-16 -16 0, 16 16 50) = Monster
 [
 	spawnflags(Flags) =
 	[
 		1 : "Ambush" : 0 //Only wakes up when player is within this enemies line of sight
 		2 : "Stuck" : 0 //Cannot move from original position (only some enemies)
-		4 : "Jump" : 0 //Has the ability to leap forward
+		4 : "Jump" : 0 //Has the ability to leap forward; automatically set on some enemies (such as spiders)
 		8 : "Play dead (PoP)" : 0 //Possibly no useful effect?
 		16 : "Dormant" : 0 //Possibly no useful effect?
-		32 : "No drop" : 0 //Will not drop random mana or items on death? Or doesn't drop to floor on spawn?
+		32 : "No drop" : 0 //Doesn't drop to floor on spawn according to HC (may not be implemented)
 		64 : "Frozen (PoP)" : 0 //Enemy is made out of ice
 	]
 	health(integer) : "Health (PoP)"
 	experience(integer) : "Experience (PoP)" //Doesn't seem to work
 ]
 
-@PointClass base(Monster) = monster_archer : "Archer" []
-@PointClass base(Monster) = monster_archer_lord : "Archer lord" []
+@PointClass base(Monster) model(":models/archer.mdl") = monster_archer : "Archer" []
+@PointClass base(Monster) model(":models/archer.mdl") = monster_archer_lord : "Archer lord" []
 
-@PointClass base(Monster) size(-14 -14 -41, 14 14 23) = monster_fallen_angel : "Fallen angel" []
-@PointClass base(Monster) size(-14 -14 -41, 14 14 23) = monster_fallen_angel_lord : "Fallen angel lord" []
+@PointClass base(Monster) model(":models/fangel.mdl") size(-14 -14 -41, 14 14 23) = monster_fallen_angel : "Fallen angel" []
+@PointClass base(Monster) model(":models/fangel.mdl") size(-14 -14 -41, 14 14 23) = monster_fallen_angel_lord : "Fallen angel lord" []
 
-@PointClass base(Monster) size(-32 -32 0, 32 32 112) = monster_golem_stone : "Stone golem" []
-@PointClass base(Monster) size(-55 -55 0, 55 55 120) = monster_golem_iron : "Iron golem" []
-@PointClass base(Monster) size(-64 -64 0, 64 64 194) = monster_golem_bronze : "Bronze golem" []
-@PointClass base(Monster) size(-32 -32 -24, 32 32 64) = monster_golem_crystal : "Crystal golem" []
+@PointClass base(Monster) model(":models/golem_s.mdl") size(-32 -32 0, 32 32 112) = monster_golem_stone : "Stone golem" []
+@PointClass base(Monster) model(":models/golem_i.mdl")size(-55 -55 0, 55 55 120) = monster_golem_iron : "Iron golem" []
+@PointClass base(Monster) model(":models/golem_b.mdl") size(-64 -64 0, 64 64 194) = monster_golem_bronze : "Bronze golem" []
+@PointClass base(Monster) model(":models/golem_s.mdl") size(-32 -32 -24, 32 32 64) = monster_golem_crystal : "Crystal golem" []
 
-@PointClass base(Monster) size(-40 -40 -42, 40 40 42) = monster_hydra : "Hydra"
+@PointClass base(Monster) model(":models/hydra.mdl") size(-40 -40 -42, 40 40 42) = monster_hydra : "Hydra"
 [
 	spawnflags(Flags) =
 	[
@@ -960,7 +952,7 @@
 	]
 ]
 
-@PointClass base(Monster) = monster_imp_fire : "Fire imp"
+@PointClass base(Monster) model(":models/imp.mdl") = monster_imp_fire : "Fire imp"
 [
 	spawnflags(Flags) =
 	[
@@ -974,22 +966,22 @@
 	]
 	wait(integer) : "Wait (-1 for decoration)"
 ]
-@PointClass base(monster_imp_fire) = monster_imp_ice : "Ice imp" []
-@PointClass base(monster_imp_fire) = monster_imp_lord : "Lord imp" []
+@PointClass base(monster_imp_fire) model(":models/imp.mdl") = monster_imp_ice : "Ice imp" []
+@PointClass base(monster_imp_fire) model(":models/imp.mdl") = monster_imp_lord : "Lord imp" []
 
-@PointClass base(Monster) = monster_medusa_green : "Green medusa" []
-@PointClass base(monster_medusa_green) = monster_medusa_red : "Red medusa" []
+@PointClass base(Monster) model(":models/medusa.mdl") = monster_medusa_green : "Green medusa" []
+@PointClass base(monster_medusa_green) model(":models/medusa2.mdl") = monster_medusa_red : "Red medusa" []
 
-@PointClass base(Monster) size(-16 -16 0, 16 16 55) = monster_mummy : "Mummy" []
-@PointClass base(Monster) = monster_mummy_lord : "Mummy lord" []
+@PointClass base(Monster) model(":models/mummy.mdl") size(-16 -16 0, 16 16 55) = monster_mummy : "Mummy" []
+@PointClass base(monster_mummy) model(":models/mummy.mdl") = monster_mummy_lord : "Mummy lord" []
 
-@PointClass base(Monster) size(-40 -40 0, 40 40 64) = monster_scorpion_yellow : "Yellow scorpion" []
-@PointClass base(monster_scorpion_yellow) = monster_scorpion_black : "Black scorpion" []
+@PointClass base(Monster) model(":models/scorpion.mdl") size(-40 -40 0, 40 40 64) = monster_scorpion_yellow : "Yellow scorpion" []
+@PointClass base(monster_scorpion_yellow) model(":models/scorpion.mdl") = monster_scorpion_black : "Black scorpion" []
 
-@PointClass base(Monster) size(-24 -24 0, 24 24 64) = monster_skull_wizard : "Skull wizard" []
-@PointClass base(monster_skull_wizard) = monster_skull_wizard_lord : "Skull wizard lord" []
+@PointClass base(Monster) model(":models/skullwiz.mdl") size(-24 -24 0, 24 24 64) = monster_skull_wizard : "Skull wizard" []
+@PointClass base(monster_skull_wizard) model(":models/skullwiz.mdl") = monster_skull_wizard_lord : "Skull wizard lord" []
 
-@BaseClass base(Monster) = Spider
+@BaseClass base(Monster) model(":models/spider.mdl") = Spider
 [
 	spawnflags(Flags) =
 	[
@@ -1001,10 +993,10 @@
 @PointClass base(Spider) size(-12 -12 0, 12 12 16) = monster_spider_yellow_small : "Small yellow spider" []
 @PointClass base(Spider) size(-16 -16 0, 16 16 26) = monster_spider_yellow_large : "Big yellow spider" []
 
-@PointClass base(Monster) = monster_werejaguar : "Werejaguar" []
-@PointClass base(monster_werejaguar) = monster_werepanther : "Werepanther" []
+@PointClass base(Monster) model(":models/mezzoman.mdl") = monster_werejaguar : "Werejaguar" []
+@PointClass base(monster_werejaguar) model(":models/mezzoman.mdl") = monster_werepanther : "Werepanther" []
 
-@PointClass base(Appearflags, Targetname, Target) size(-16 -16 -8, 16 16 8) = monster_fish : "Fish" 
+@PointClass base(Appearflags, Targetname, Target) model(":models/fish.mdl") size(-16 -16 -8, 16 16 8) = monster_fish : "Fish" 
 [
 	skin(choices) : "Skin" : 0 =
 	[
@@ -1012,7 +1004,7 @@
 		1 : "Darker colored"
 	]
 ]
-@PointClass base(Appearflags, Targetname, Target) size(-3 -3 0, 3 3 7) = monster_rat : "Rat"
+@PointClass base(Appearflags, Targetname, Target) model(":models/rat.mdl") size(-3 -3 0, 3 3 7) = monster_rat : "Rat"
 [
 	spawnflags(Flags) =
 	[
@@ -1020,22 +1012,22 @@
 	]
 ]
 @PointClass base(monster_rat) size(-20 -20 0, 20 20 10) = monster_ratnest : "Rat's nest" []
-@PointClass base(Monster) size(-16 -16 0, 16 16 32) = monster_raven : "Raven" []
+@PointClass base(Monster) model(":models/raven.mdl") size(-16 -16 0, 16 16 32) = monster_raven : "Raven" []
 
-@PointClass base(Appearflags, Targetname, Target) size(-80 -80 0, 80 80 200) = monster_snake : "Snake"
+@PointClass base(Appearflags, Targetname, Target) model(":models/snake.mdl") size(-80 -80 0, 80 80 200) = monster_snake : "Snake"
 [
 	spawnflags(Flags) =
 	[
 		1 : "Ambush" : 0
 	]
 ]
-@PointClass base(Appearflags, Targetname, Target) size(-100 -100 0, 100 100 666) = monster_eidolon : "Eidolon" []
+@PointClass base(Appearflags, Targetname, Target) model(":models/eidolon.mdl") size(-100 -100 0, 100 100 666) = monster_eidolon : "Eidolon" []
 
 //
 // PoP Monsters!
 //
 
-@PointClass base(Monster) = monster_archer_ice : "Ice archer (PoP)" []
+@PointClass base(Monster) model(":models/archer.mdl") = monster_archer_ice : "Ice archer (PoP)" []
 @PointClass base(Monster) size(-20 -20 0, 20 20 40) = monster_pentacles : "Pentacle (PoP)"
 [
 	skin(choices) : "Skin" : 0 =
@@ -1044,19 +1036,19 @@
 		1 : "Snowy white"
 	]
 ]
-@PointClass base(Monster) = monster_weretiger : "Wear tiger (PoP)" []
-@PointClass base(Monster) = monster_weresnowleopard : "Wear leopard (PoP)" []
-@PointClass base(Monster) size(-32 -32 0, 32 32 104) = monster_yakman : "Yak (PoP)"
+@PointClass base(Monster) model(":models/mezzoman.mdl") = monster_weretiger : "Were tiger (PoP)" []
+@PointClass base(Monster) model(":models/mezzoman.mdl") = monster_weresnowleopard : "Were leopard (PoP)" []
+@PointClass base(Monster) size(-32 -32 0, 32 32 104) model(":models/yakman.mdl") = monster_yakman : "Yakman (PoP)"
 [
 	skin(choices) : "Skin" : 0 =
 	[
-		0 : "White"
-		1 : "Brown"
-		2 : "Black"
+		0 : "White" // Greater chance to shoot ice
+		1 : "Brown" // Even chance
+		2 : "Black" // Greater chance to charge
 	]
 ]
 @PointClass base(Appearflags, Targetname, Target) size(-100 -100 0, 100 100 666) = monster_eidolon_weakling : "Eidolon weakling (PoP)" []
-@PointClass base(Appearflags, Targetname, Target) size(-8 -8 -8, 8 8 8) = monster_buddha : "Praevus (PoP)"
+@PointClass base(Appearflags, Targetname, Target) model(":models/pravus.mdl") size(-8 -8 -8, 8 8 8) = monster_buddha : "Praevus (PoP)"
 [
 	netname(string) : "Netname"
 ]
@@ -1065,7 +1057,7 @@
 // Objects!
 //
 
-@PointClass base(Appearflags, Targetname, Target) size(-45 -45 0, 45 45 60) = obj_ballista : "Ballista"
+@PointClass base(Appearflags, Targetname, Target) model(":models/ballista.mdl") size(-45 -45 0, 45 45 60) = obj_ballista : "Ballista"
 [
 	spawnflags(Flags) =
 	[
@@ -1082,7 +1074,7 @@
 	//mass(integer) : "Mass"
 ]
 
-@BaseClass base(Appearflags, Targetname, Target, Angles) = Object
+@BaseClass base(Appearflags, Targetname, Target, Angles, Spawn) = Object
 [
 	health(integer) : "Health"
 	scale(integer) : "Scale"
@@ -1091,7 +1083,7 @@
 	abslight(integer) : "Absolute light value"
 ]
 
-@BaseClass base(Object) size(-13 -13 0, 13 13 36) = Barrels
+@BaseClass base(Object) model(":models/barrel.mdl") size(-13 -13 0, 13 13 36) = Barrels
 [
 	spawnflags(Flags) =
 	[
@@ -1104,37 +1096,21 @@
 @PointClass base(Barrels) = obj_barrel : "Barrel"
 [
 	health(integer) : "Health" : 25
-	bluemana(integer) : "Blue mana"
-	greenmana(integer) : "Green mana"
-	cnt_torch(integer) : "Torch"
-	cnt_h_boost(integer) : "Quartz flask"
-	cnt_sh_boost(integer) : "Mystic urn"
-	cnt_mana_boost(integer) : "Krater of might"
-	cnt_teleport(integer) : "Chaos device"
-	cnt_tome(integer) : "Tome of power"
-	cnt_summon(integer) : "Stone of summoning"
-	cnt_invisibility(integer) : "Invisibility"
-	cnt_glyph(integer) : "Glyph of ancients"
-	cnt_haste(integer) : "Boots of speed"
-	cnt_blast(integer) : "Disc of repulsion"
-	cnt_polymorph(integer) : "Ovinimancer"
-	cnt_cubeofforce(integer) : "Force cube"
-	cnt_invincibility(integer) : "Invincibility"
 ]
 @PointClass base(Barrels) = obj_barrel_exploding : "Barrel exploding" []
 @PointClass base(Barrels) = obj_barrel_indestructible : "Barrel indestructible" []
 
-@PointClass base(Object) size(-10 -10 -5, 10 10 32) = obj_barstool : "Bar stool" []
+@PointClass base(Object) model(":models/stool.mdl") size(-10 -10 -5, 10 10 32) = obj_barstool : "Bar stool" []
 @PointClass base(Object) size(-16 -16 0, 16 16 40) = obj_beefslab : "Slab o' beef" []
-@PointClass base(Object) size(-100 -100 -210, 100 100 8) = obj_bell : "Bell" []
-@PointClass base(Object) size(-30 -30 0, 30 30 40) = obj_bench : "Bench" []
-@PointClass base(Object) size(-10 -10 0, 10 10 10) = obj_bonepile : "Pile o' bones" []
+@PointClass base(Object) model(":models/bellring.mdl")  size(-100 -100 -210, 100 100 8) = obj_bell : "Bell" []
+@PointClass base(Object) model(":models/bench.mdl")  size(-30 -30 0, 30 30 40) = obj_bench : "Bench" []
+@PointClass base(Object) model(":models/bonepile.mdl") size(-10 -10 0, 10 10 10) = obj_bonepile : "Pile o' bones" []
 @PointClass base(Object) size(-8 -8 0, 8 8 10) = obj_book_closed : "Closed book" []
 @PointClass base(obj_book_closed) = obj_book_open : "Open book" []
-@PointClass base(Object) size(-16 -16 0, 16 16 40) = obj_bush1 : "Bush" []
-@PointClass base(Object) size(-36 -32 -10, 36 75 64) = obj_cart : "Cart" []
+@PointClass base(Object) model(":models/bush1.mdl") size(-16 -16 0, 16 16 40) = obj_bush1 : "Bush" []
+@PointClass base(Object) model(":models/cart.mdl") size(-36 -32 -10, 36 75 64) = obj_cart : "Cart" []
 
-@PointClass base(Appearflags, Targetname, Target, Angles) size(-160 -160 -0, 160 160 160) = obj_catapult2 : "Catapult"
+@PointClass base(Appearflags, Targetname, Target, Angles) model(":models/cattest.mdl") size(-160 -160 -0, 160 160 160) = obj_catapult2 : "Catapult"
 [
 	spawnflags(Flags) =
 	[
@@ -1175,35 +1151,19 @@
 	//soundtype
 ]
 
-@PointClass base(Object) size(-16 -16 0, 16 16 40) = obj_cauldron : "Cauldron" []
-@PointClass base(Object) size(-10 -10 -5, 10 10 40) = obj_chair : "Chair" []
+@PointClass base(Object) model(":models/cauldron.mdl") size(-16 -16 0, 16 16 40) = obj_cauldron : "Cauldron" []
+@PointClass base(Object) model(":models/chair.mdl") size(-10 -10 -5, 10 10 40) = obj_chair : "Chair" []
 @PointClass base(Object) size(-100 -100 0, 100 100 200) = obj_chaos_orb : "Chaos orb" []
 
-@PointClass base(Object) size(-16 -16 0, 16 16 32) = obj_chest1 : "Chest #1"
+@PointClass base(Object) model(":models/chest1.mdl") size(-16 -16 0, 16 16 32) = obj_chest1 : "Chest #1"
 [
 	skin(choices) : "Skin" : 0 =
 	[
 		0 : "Generic texture"
 		1 : "Roman texture"
 	]
-	bluemana(integer) : "Blue mana"
-	greenmana(integer) : "Green mana"
-	cnt_torch(integer) : "Torch"
-	cnt_h_boost(integer) : "Quartz flask"
-	cnt_sh_boost(integer) : "Mystic urn"
-	cnt_mana_boost(integer) : "Krater of might"
-	cnt_teleport(integer) : "Chaos device"
-	cnt_tome(integer) : "Tome of power"
-	cnt_summon(integer) : "Stone of summoning"
-	cnt_invisibility(integer) : "Invisibility"
-	cnt_glyph(integer) : "Glyph of ancients"
-	cnt_haste(integer) : "Boots of speed"
-	cnt_blast(integer) : "Disc of repulsion"
-	cnt_polymorph(integer) : "Ovinimancer"
-	cnt_cubeofforce(integer) : "Force cube"
-	cnt_invincibility(integer) : "Invincibility"
 ]
-@PointClass base(Object) size(-16 -16 0, 16 16 32) = obj_chest2 : "Chest #2"
+@PointClass base(Object) model(":models/chest2.mdl") size(-16 -16 0, 16 16 32) = obj_chest2 : "Chest #2"
 [
 	skin(choices) : "Skin" : 0 =
 	[
@@ -1211,26 +1171,10 @@
 		1 : "Meso texture"
 		2 : "Egypt texture"
 	]
-	bluemana(integer) : "Blue mana"
-	greenmana(integer) : "Green mana"
-	cnt_torch(integer) : "Torch"
-	cnt_h_boost(integer) : "Quartz flask"
-	cnt_sh_boost(integer) : "Mystic urn"
-	cnt_mana_boost(integer) : "Krater of might"
-	cnt_teleport(integer) : "Chaos device"
-	cnt_tome(integer) : "Tome of power"
-	cnt_summon(integer) : "Stone of summoning"
-	cnt_invisibility(integer) : "Invisibility"
-	cnt_glyph(integer) : "Glyph of ancients"
-	cnt_haste(integer) : "Boots of speed"
-	cnt_blast(integer) : "Disc of repulsion"
-	cnt_polymorph(integer) : "Ovinimancer"
-	cnt_cubeofforce(integer) : "Force cube"
-	cnt_invincibility(integer) : "Invincibility"
 ]
-@PointClass base(Object, Spawn) size(-16 -16 0, 16 16 32) = obj_chest3 : "Chest #3" []
+@PointClass base(Object) model(":models/chest3.mdl") size(-16 -16 0, 16 16 32) = obj_chest3 : "Chest #3" []
 
-@PointClass base(Object) size(-32 -32 0, 32 32 10) = obj_corpse1 : "Corpse #1"
+@PointClass base(Object) model(":models/corps1.mdl") size(-32 -32 0, 32 32 10) = obj_corpse1 : "Corpse #1"
 [
 	skin(choices) : "Skin" : 0 =
 	[
@@ -1240,7 +1184,7 @@
 		3 : "Wound, has pants"
 	]
 ]
-@PointClass base(obj_corpse1) = obj_corpse2 : "Corpse #2" 
+@PointClass base(obj_corpse1) model(":models/corps2.mdl") = obj_corpse2 : "Corpse #2" 
 [
 	skin(choices) : "Skin" : 0 =
 	[
@@ -1252,12 +1196,12 @@
 	]
 ]
 
-@PointClass base(Object) size(-26 -26 0, 26 26 70) = obj_fence : "Fence" []
-@PointClass base(Object) size(-16 -16 0, 16 16 160) = obj_flag : "Flag" []
-@PointClass base(Object) size(-24 -24 0, 24 24 80) = obj_fountain : "Fountain" []
-@PointClass base(Object) size(-16 -16 0, 16 16 80) = obj_hedge1 : "X-Mas tree" []
-@PointClass base(obj_hedge1) = obj_hedge2 : "Square, medium hedge" []
-@PointClass base(obj_hedge2) = obj_hedge3 : "Tall, thin hedge" []
+@PointClass base(Object) model(":models/fence.mdl")  size(-26 -26 0, 26 26 70) = obj_fence : "Fence" []
+@PointClass base(Object) model(":models/flag.mdl")  size(-16 -16 0, 16 16 160) = obj_flag : "Flag" []
+@PointClass base(Object) model(":models/fountain.mdl") size(-24 -24 0, 24 24 80) = obj_fountain : "Fountain" []
+@PointClass base(Object) model(":models/hedge1.mdl") size(-16 -16 0, 16 16 80) = obj_hedge1 : "X-Mas tree" []
+@PointClass base(Object) model(":models/hedge2.mdl") = obj_hedge2: "Square, medium hedge" []
+@PointClass base(Object) model(":models/hedge3.mdl") = obj_hedge3 : "Tall, thin hedge" []
 @SolidClass base(Appearflags) = obj_ice : "Ice"
 [
 	spawnflags(Flags) =
@@ -1269,39 +1213,39 @@
         abslight(integer) : "Absolute light value"
 ]
 @PointClass base(Object) size(-16 -40 0, 16 40 50) = obj_pew : "Pew" []
-@PointClass base(Object) size(-10 -10 0, 10 10 20) = obj_plant_generic : "Generic plant" []
-@PointClass base(Object) size(-10 -10 0, 10 10 40) = obj_plant_meso : "Meso plant" []
-@PointClass base(Object) size(-24 -24 0, 24 24 90) = obj_plant_rome : "Roman plant" []
-@PointClass base(Object) size(-8 -8 0, 8 8 16) = obj_playerhead_assassin : "Assassin head" []
-@PointClass base(obj_playerhead_assassin) = obj_playerhead_crusader : "Crusader head" []
-@PointClass base(obj_playerhead_assassin) = obj_playerhead_necromancer : "Necro head" []
-@PointClass base(obj_playerhead_assassin) = obj_playerhead_paladin : "Paladin head" []
-@PointClass base(Object, Spawn) size(-24 -24 0, 24 24 50) = obj_pot1 : "Pot #1" []
-@PointClass base(obj_pot1) size(-16 -16 0, 16 16 40) = obj_pot2 : "Pot #2" []
-@PointClass base(obj_pot2) = obj_pot3 : "Pot #3" []
-@PointClass base(Object) size(-8 -8 0, 8 8 32) = obj_seaweed : "Sea weed" []
-@PointClass base(Object) size(-8 -8 0, 8 8 16) = obj_skull : "Skull" []
-@PointClass base(Object) size(-16 -16 0, 16 16 40) = obj_skullstick : "1 skull, stick" []
-@PointClass base(Object) size(-16 -16 0, 16 16 40) = obj_skull_stick2 : "2 skulls, stick" []
-@PointClass base(Object) size(-60 -60 0, 60 60 120) = obj_statue_angel : "Angel" []
-@PointClass base(Object) size(-30 -30 0, 30 30 90) = obj_statue_athena : "Athena" []
-@PointClass base(Object) size(-24 -24 0, 24 24 90) = obj_statue_caesar : "Caesar" []
-@PointClass base(Object) size(-30 -30 0, 30 30 120) = obj_statue_king : "King" []
-@PointClass base(Object) size(-56 -14 0, 56 14 60) = obj_statue_lion : "Lion" []
-@PointClass base(Object) size(-30 -30 0, 30 30 80) = obj_statue_mars : "Mars" []
-@PointClass base(Object) size(-16 -16 0, 16 16 160) = obj_statue_mummy : "Mummy" []
-@PointClass base(Object) size(-16 -16 -26, 16 16 160) = obj_statue_mummy_head : "Mummy head"[]
-@PointClass base(Object) size(-30 -30 0, 30 30 100) = obj_statue_neptune : "Neptune" []
-@PointClass base(Object) size(-40 -40 0, 40 40 130) = obj_statue_olmec : "Olmec???" []
-@PointClass base(Object) size(-16 -16 0, 16 16 80) = obj_statue_snake : "Snake" []
+@PointClass base(Object, Spawn) model(":models/plantgen.mdl") size(-10 -10 0, 10 10 20) = obj_plant_generic : "Generic plant" []
+@PointClass base(Object, Spawn) model(":models/plantmez.mdl") size(-10 -10 0, 10 10 40) = obj_plant_meso : "Meso plant" []
+@PointClass base(Object, Spawn) model(":models/plantrom.mdl")  size(-24 -24 0, 24 24 90) = obj_plant_rome : "Roman plant" []
+@PointClass base(Object) model(":models/h_ass.mdl") size(-8 -8 0, 8 8 16) = obj_playerhead_assassin : "Assassin head" []
+@PointClass base(obj_playerhead_assassin) model(":models/h_cru.mdl") = obj_playerhead_crusader : "Crusader head" []
+@PointClass base(obj_playerhead_assassin) model(":models/h_nec.mdl") = obj_playerhead_necromancer : "Necro head" []
+@PointClass base(obj_playerhead_assassin) model(":models/h_ass.mdl") = obj_playerhead_paladin : "Paladin head" []
+@PointClass base(Object, Spawn) model(":models/pot1.mdl")  size(-24 -24 0, 24 24 50) = obj_pot1 : "Pot #1" []
+@PointClass base(obj_pot1) model(":models/pot2.mdl")  size(-16 -16 0, 16 16 40) = obj_pot2 : "Pot #2" []
+@PointClass base(obj_pot2) model(":models/pot3.mdl") = obj_pot3 : "Pot #3" []
+@PointClass base(Object) model(":models/seaweed.mdl") size(-8 -8 0, 8 8 32) = obj_seaweed : "Sea weed" []
+@PointClass base(Object) model(":models/skull.mdl") size(-8 -8 0, 8 8 16) = obj_skull : "Skull" []
+@PointClass base(Object) model(":models/skllstk1.mdl") size(-16 -16 0, 16 16 40) = obj_skullstick : "1 skull, stick" []
+@PointClass base(Object) model(":models/skllstk2.mdl")  size(-16 -16 0, 16 16 40) = obj_skull_stick2 : "2 skulls, stick" []
+@PointClass base(Object) model(":models/anglstat.mdl") size(-60 -60 0, 60 60 120) = obj_statue_angel : "Angel" []
+@PointClass base(Object) model(":models/athena.mdl") size(-30 -30 0, 30 30 90) = obj_statue_athena : "Athena" []
+@PointClass base(Object) model(":models/caesar.mdl")  size(-24 -24 0, 24 24 90) = obj_statue_caesar : "Caesar" []
+@PointClass base(Object) model(":models/king.mdl")  size(-30 -30 0, 30 30 120) = obj_statue_king : "King" []
+@PointClass base(Object) model(":models/lion.mdl") size(-56 -14 0, 56 14 60) = obj_statue_lion : "Lion" []
+@PointClass base(Object) model(":models/mars.mdl") size(-30 -30 0, 30 30 80) = obj_statue_mars : "Mars" []
+@PointClass base(Object) model(":models/mumstatu.mdl") size(-16 -16 0, 16 16 160) = obj_statue_mummy : "Mummy" []
+@PointClass base(Object) model(":models/muhead.mdl") size(-16 -16 -26, 16 16 160) = obj_statue_mummy_head : "Mummy head"[]
+@PointClass base(Object) model(":models/neptune.mdl") size(-30 -30 0, 30 30 100) = obj_statue_neptune : "Neptune" []
+@PointClass base(Object) model(":models/olmec1.mdl") size(-40 -40 0, 40 40 130) = obj_statue_olmec : "Olmec???" []
+@PointClass base(Object) model(":models/snkstatu.mdl") size(-16 -16 0, 16 16 80) = obj_statue_snake : "Snake" []
 @PointClass base(Object) size(-44 -44 0, 44 44 90) = obj_statue_snake_coil : "Coiling snake" []
-@PointClass base(Object) size(-36 -36 0, 36 36 248) = obj_statue_tut : "Tut" []
-@PointClass base(Object) size(-16 -16 -8, 16 16 8) = obj_sword : "Sword" []
-@PointClass base(Object) size(-24 -24 0, 24 24 60) = obj_tombstone1 : "Cross tombstone" []
-@PointClass base(Object) size(-16 -16 0, 16 16 40) = obj_tombstone2 : "Rounded tombstone" []
-@PointClass base(Object) size(-42 -42 0, 42 42 160) = obj_tree : "Leaveless tree" []
-@PointClass base(Object) size(-140 -140 -16, 140 140 220) = obj_tree2 : "Normal tree" []
-@PointClass base(Object) size(-25 -25 -25, 25 25 25) = obj_webs : "Spider web"
+@PointClass base(Object) model(":models/tutstatu.mdl") size(-36 -36 0, 36 36 248) = obj_statue_tut : "Tut" []
+@PointClass base(Object) model(":models/sword.mdl") size(-16 -16 -8, 16 16 8) = obj_sword : "Sword" []
+@PointClass base(Object) model(":models/tombstn1.mdl") size(-24 -24 0, 24 24 60) = obj_tombstone1 : "Cross tombstone" []
+@PointClass base(Object) model(":models/tombstn2.mdl") size(-16 -16 0, 16 16 40) = obj_tombstone2 : "Rounded tombstone" []
+@PointClass base(Object) model(":models/tree.mdl") size(-42 -42 0, 42 42 160) = obj_tree : "Leaveless tree" []
+@PointClass base(Object) model(":models/tree2.mdl") size(-140 -140 -16, 140 140 220) = obj_tree2 : "Normal tree" []
+@PointClass base(Object) model(":models/webs.mdl") size(-25 -25 -25, 25 25 25) = obj_webs : "Spider web"
 [
 	spawnflags(Flags) =
 	[
@@ -1360,7 +1304,7 @@
 	anglespeed(integer) : "Rotation speed"
 ]
 
-@PointClass base(Monster) size(-8 -8 0, 8 8 32) = player_sheep : "Sheep"
+@PointClass base(Monster) model(":models/sheep.mdl") size(-8 -8 0, 8 8 32) = player_sheep : "Sheep"
 [
 	spawnflags(Flags) =
 	[
@@ -1472,13 +1416,13 @@
 		6 : "Birds"
 		7 : "Raven caw"
 		8 : "Rocks falling"
-		9 : "Lava bubble"
-		10 : "Water gurgle"
-		11 : "Metal"
-		12 : "Pounding"
-		13 : "Moans and screams"
-		14 : "Creaking"
-		15 : "Chain rattling"
+		//9 : "Lava bubble"
+		//10 : "Water gurgle"
+		//11 : "Metal"
+		//12 : "Pounding"
+		//13 : "Moans and screams"
+		//14 : "Creaking"
+		//15 : "Chain rattling"
 	]
 ]
 
@@ -1593,8 +1537,8 @@
 		2 : "Monster touch" : 0
 		4 : "Push touch" : 0
 		8 : "Deactivated" : 0
-		64 : "light toggle" : 0
-		128 : "light start low" : 0
+		64 : "Light toggle" : 0
+		128 : "Light start low" : 0
 	]
 ]
 
@@ -1661,6 +1605,7 @@
         count(integer) : "Number of triggers - 1"
         mangle(string) : "Mangle (x1 x2 x3)"
 ]
+
 @SolidClass base(Trigger) = trigger_counter_reset : "Counter reset"
 [
 	spawnflags(Flags) =
@@ -1752,7 +1697,7 @@
 	wait(integer) : "Wait" : 0
 ]
 
-@SolidClass base(Trigger, Triggerflags, Puzzles) = trigger_multiple : "Multiple trigger"
+@SolidClass base(Appearflags, Targetname, Target, Trigger, Triggerflags, Puzzles) = trigger_multiple : "Multiple trigger"
 [
 	soundtype(choices) : "Sounds" : 0 =
 	[
@@ -1781,7 +1726,7 @@
 	frags(integer) : "Objective (0-63)"
 ]
 
-@SolidClass base(trigger_multiple) = trigger_once : "Single trigger" []
+@SolidClass base(Appearflags, Targetname, Target, Trigger, Puzzles, trigger_multiple) = trigger_once : "Single trigger" []
 
 @SolidClass base(Appearflags, Targetname) = trigger_push : "Push"
 [
@@ -1951,3 +1896,12 @@
 @PointClass base(wp_weapon2) = wp_weapon3 : "Weapon 3" []
 @PointClass base(wp_weapon2) = wp_weapon4_head : "Weapon 4 head" []
 @PointClass base(wp_weapon2) = wp_weapon4_staff : "Weapon 4 staff" []
+
+@SolidClass base() = func_detail: "ericw compilers - not calculated in VIS"
+[]
+
+@SolidClass base() = func_detail_illusionary: "ericw compilers - not solid and bit calculated in VIS"
+[]
+
+@SolidClass base() = func_group: "ericw compilers"
+[]

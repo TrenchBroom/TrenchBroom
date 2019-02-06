@@ -291,13 +291,13 @@ namespace TrenchBroom {
             }
             
             void setupGL() {
-                glEnable(GL_MULTISAMPLE);
-                glEnable(GL_BLEND);
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                glEnable(GL_CULL_FACE);
-                glEnable(GL_DEPTH_TEST);
-                glDepthFunc(GL_LEQUAL);
-                glShadeModel(GL_SMOOTH);
+                glAssert(glEnable(GL_MULTISAMPLE));
+                glAssert(glEnable(GL_BLEND));
+                glAssert(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+                glAssert(glEnable(GL_CULL_FACE));
+                glAssert(glEnable(GL_DEPTH_TEST));
+                glAssert(glDepthFunc(GL_LEQUAL));
+                glAssert(glShadeModel(GL_SMOOTH));
             }
             
             virtual void doInitLayout(Layout& layout) = 0;

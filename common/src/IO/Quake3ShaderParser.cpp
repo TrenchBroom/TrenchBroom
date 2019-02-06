@@ -104,52 +104,52 @@ namespace TrenchBroom {
         Quake3ShaderParser::Quake3ShaderParser(const String& str) :
         m_tokenizer(str) {}
 
-        std::vector<Assets::Quake3Shader> Quake3ShaderParser::parse() {
+        std::vector<Assets::Quake3Shader> Quake3ShaderParser::parse(ParserStatus& status) {
             std::vector<Assets::Quake3Shader> result;
             while (!m_tokenizer.peekToken(Quake3ShaderToken::Eol).hasType(Quake3ShaderToken::Eof)) {
                 Assets::Quake3Shader shader;
-                parseTexture(shader);
-                parseBody(shader);
+                parseTexture(status, shader);
+                parseBody(status, shader);
                 result.push_back(shader);
             }
             return result;
         }
 
-        void Quake3ShaderParser::parseBody(Assets::Quake3Shader& shader) {
+        void Quake3ShaderParser::parseBody(ParserStatus& status, Assets::Quake3Shader& shader) {
             expect(Quake3ShaderToken::OBrace, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
             auto token = m_tokenizer.peekToken(Quake3ShaderToken::Eol);
             expect(Quake3ShaderToken::CBrace | Quake3ShaderToken::OBrace | Quake3ShaderToken::String, token);
 
             while (!token.hasType(Quake3ShaderToken::CBrace)) {
                 if (token.hasType(Quake3ShaderToken::OBrace)) {
-                    parseStage(shader);
+                    parseStage(status, shader);
                 } else {
-                    parseBodyEntry(shader);
+                    parseBodyEntry(status, shader);
                 }
                 token = m_tokenizer.peekToken(Quake3ShaderToken::Eol);
             }
             expect(Quake3ShaderToken::CBrace, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
         }
 
-        void Quake3ShaderParser::parseStage(Assets::Quake3Shader& shader) {
+        void Quake3ShaderParser::parseStage(ParserStatus& status, Assets::Quake3Shader& shader) {
             expect(Quake3ShaderToken::OBrace, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
             auto token = m_tokenizer.peekToken(Quake3ShaderToken::Eol);
             expect(Quake3ShaderToken::CBrace | Quake3ShaderToken::OBrace | Quake3ShaderToken::String, token);
 
             auto& stage = shader.addStage();
             while (!token.hasType(Quake3ShaderToken::CBrace)) {
-                parseStageEntry(stage);
+                parseStageEntry(status, shader, stage);
                 token = m_tokenizer.peekToken(Quake3ShaderToken::Eol);
             }
             expect(Quake3ShaderToken::CBrace, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
         }
 
-        void Quake3ShaderParser::parseTexture(Assets::Quake3Shader& shader) {
+        void Quake3ShaderParser::parseTexture(ParserStatus& status, Assets::Quake3Shader& shader) {
             const auto token = expect(Quake3ShaderToken::String, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
             shader.shaderPath = Path(token.data());
         }
 
-        void Quake3ShaderParser::parseBodyEntry(Assets::Quake3Shader& shader) {
+        void Quake3ShaderParser::parseBodyEntry(ParserStatus& status, Assets::Quake3Shader& shader) {
             auto token = m_tokenizer.nextToken(Quake3ShaderToken::Eol);
             expect(Quake3ShaderToken::String, token);
             const auto key = token.data();
@@ -177,7 +177,7 @@ namespace TrenchBroom {
             }
         }
 
-        void Quake3ShaderParser::parseStageEntry(Assets::Quake3ShaderStage& stage) {
+        void Quake3ShaderParser::parseStageEntry(ParserStatus& status, const Assets::Quake3Shader& shader, Assets::Quake3ShaderStage& stage) {
             auto token = m_tokenizer.nextToken(Quake3ShaderToken::Eol);
             expect(Quake3ShaderToken::String, token);
             const auto key = token.data();
@@ -185,23 +185,43 @@ namespace TrenchBroom {
                 token = expect(Quake3ShaderToken::String | Quake3ShaderToken::Variable, m_tokenizer.nextToken());
                 stage.map = Path(token.data());
             } else if (key == "blendFunc") {
+                const auto line = token.line();
+
                 token = expect(Quake3ShaderToken::String, m_tokenizer.nextToken());
                 const auto param1 = token.data();
+                const auto param1Column = token.column();
+
                 if (m_tokenizer.peekToken().hasType(Quake3ShaderToken::String)) {
                     token = m_tokenizer.nextToken();
-                    auto param2 = token.data();
-                    stage.blendFunc.srcFactor = param1;
-                    stage.blendFunc.destFactor = param2;
+                    const auto param2 = token.data();
+                    const auto param2Column = token.column();
+                    stage.blendFunc.srcFactor = StringUtils::toUpper(param1);
+                    stage.blendFunc.destFactor = StringUtils::toUpper(param2);
+
+                    bool valid = true;
+                    if (!stage.blendFunc.validateSrcFactor()) {
+                        valid = false;
+                        status.warn(line, param1Column, "Unknown blendFunc source factor '" + param1 + "'");
+                    }
+                    if (!stage.blendFunc.validateDestFactor()) {
+                        valid = false;
+                        status.warn(line, param2Column, "Unknown blendFunc destination factor '" + param2 + "'");
+                    }
+                    if (!valid) {
+                        stage.blendFunc.reset();
+                    }
                 } else {
-                    if (param1 == "add") {
+                    if (StringUtils::caseInsensitiveEqual(param1, "add")) {
                         stage.blendFunc.srcFactor = Assets::Quake3ShaderStage::BlendFunc::One;
                         stage.blendFunc.destFactor = Assets::Quake3ShaderStage::BlendFunc::One;
-                    } else if (param1 == "filter") {
+                    } else if (StringUtils::caseInsensitiveEqual(param1, "filter")) {
                         stage.blendFunc.srcFactor = Assets::Quake3ShaderStage::BlendFunc::DestColor;
                         stage.blendFunc.destFactor = Assets::Quake3ShaderStage::BlendFunc::Zero;
-                    } else if (param1 == "blend") {
+                    } else if (StringUtils::caseInsensitiveEqual(param1, "blend")) {
                         stage.blendFunc.srcFactor = Assets::Quake3ShaderStage::BlendFunc::SrcAlpha;
                         stage.blendFunc.destFactor = Assets::Quake3ShaderStage::BlendFunc::OneMinusSrcAlpha;
+                    } else {
+                        status.warn(line, param1Column, "Unknown blendFunc name '" + param1 + "'");
                     }
                 }
             } else {

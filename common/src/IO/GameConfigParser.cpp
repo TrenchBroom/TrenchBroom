@@ -230,23 +230,24 @@ namespace TrenchBroom {
             for (size_t i = 0; i < value.length(); ++i) {
                 const auto& entry = value[i];
                 
-                expectStructure(entry, "[ {'name': 'String', 'match': 'String'}, {'attribs': 'Array', 'pattern': 'String', 'flags': 'Array' } ]");
+                expectStructure(entry, "[ {'name': 'String', 'match': 'String'}, {'attribs': 'Array', 'pattern': 'String', 'flags': 'Array', 'ignore': 'Array' } ]");
 
                 const auto& name = entry["name"].stringValue();
                 const auto transparent = entry["attribs"].asStringSet().count("transparent") > 0;
                 const auto& match = entry["match"].stringValue();
+                const auto& ignoreTexture = entry["ignore"].asStringList();
 
                 const Model::BrushContentType::FlagType flag = 1 << i;
                 
                 if (match == "texture") {
                     expectMapEntry(entry, "pattern", EL::Type_String);
                     const auto& pattern = entry["pattern"].stringValue();
-                    auto evaluator = Model::BrushContentTypeEvaluator::textureNameEvaluator(pattern);
+                    auto evaluator = Model::BrushContentTypeEvaluator::textureNameEvaluator(pattern, ignoreTexture);
                     contentTypes.push_back(Model::BrushContentType(name, transparent, flag, std::move(evaluator)));
                 } else if (match == "surfaceparm") {
                     expectMapEntry(entry, "pattern", EL::Type_String);
                     const auto& pattern = entry["pattern"].stringValue();
-                    auto evaluator = Model::BrushContentTypeEvaluator::shaderSurfaceParmsEvaluator(pattern);
+                    auto evaluator = Model::BrushContentTypeEvaluator::shaderSurfaceParmsEvaluator(pattern, ignoreTexture);
                     contentTypes.push_back(Model::BrushContentType(name, transparent, flag, std::move(evaluator)));
                 } else if (match == "contentflag") {
                     expectMapEntry(entry, "flags", EL::Type_Array);
@@ -258,7 +259,7 @@ namespace TrenchBroom {
                         flagValue |= currentValue;
                     }
 
-                    auto evaluator = Model::BrushContentTypeEvaluator::contentFlagsEvaluator(flagValue);
+                    auto evaluator = Model::BrushContentTypeEvaluator::contentFlagsEvaluator(flagValue, ignoreTexture);
                     contentTypes.push_back(Model::BrushContentType(name, transparent, flag, std::move(evaluator)));
                 } else if (match == "surfaceflag") {
                     expectMapEntry(entry, "flags", EL::Type_Array);
@@ -270,7 +271,7 @@ namespace TrenchBroom {
                         flagValue |= currentValue;
                     }
 
-                    auto evaluator = Model::BrushContentTypeEvaluator::surfaceFlagsEvaluator(flagValue);
+                    auto evaluator = Model::BrushContentTypeEvaluator::surfaceFlagsEvaluator(flagValue, ignoreTexture);
                     contentTypes.push_back(Model::BrushContentType(name, transparent, flag, std::move(evaluator)));
                 } else if (match == "classname") {
                     const String& pattern = entry["pattern"].stringValue();

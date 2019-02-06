@@ -185,7 +185,13 @@ namespace StringUtils {
         std::transform(std::begin(result), std::end(result), std::begin(result), tolower);
         return result;
     }
-    
+
+    String toUpper(const String& str) {
+        String result(str);
+        std::transform(std::begin(result), std::end(result), std::begin(result), toupper);
+        return result;
+    }
+
     String replaceChars(const String& str, const String& needles, const String& replacements) {
         if (replacements.empty() || needles.empty() || str.empty())
             return str;

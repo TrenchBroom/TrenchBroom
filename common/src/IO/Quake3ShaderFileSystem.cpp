@@ -22,12 +22,13 @@
 #include "CollectionUtils.h"
 #include "Assets/Quake3Shader.h"
 #include "IO/Quake3ShaderParser.h"
+#include "IO/SimpleParserStatus.h"
 
 #include <memory>
 
 namespace TrenchBroom {
     namespace IO {
-        Quake3ShaderFileSystem::Quake3ShaderFileSystem(std::unique_ptr<FileSystem> fs, Path::List searchPaths, Logger& logger) :
+        Quake3ShaderFileSystem::Quake3ShaderFileSystem(std::shared_ptr<FileSystem> fs, Path::List searchPaths, Logger& logger) :
         ImageFileSystemBase(std::move(fs), Path()),
         m_searchPaths(std::move(searchPaths)),
         m_logger(logger) {
@@ -53,7 +54,8 @@ namespace TrenchBroom {
                     const auto file = next().openFile(path);
 
                     Quake3ShaderParser parser(file->begin(), file->end());
-                    VectorUtils::append(result, parser.parse());
+                    SimpleParserStatus status(m_logger, file->path().asString());
+                    VectorUtils::append(result, parser.parse(status));
                 }
             }
 

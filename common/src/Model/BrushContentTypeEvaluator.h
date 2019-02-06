@@ -32,10 +32,10 @@ namespace TrenchBroom {
         public:
             virtual ~BrushContentTypeEvaluator();
             
-            static std::unique_ptr<BrushContentTypeEvaluator> textureNameEvaluator(const String& pattern);
-            static std::unique_ptr<BrushContentTypeEvaluator> shaderSurfaceParmsEvaluator(const String& pattern);
-            static std::unique_ptr<BrushContentTypeEvaluator> contentFlagsEvaluator(int value);
-            static std::unique_ptr<BrushContentTypeEvaluator> surfaceFlagsEvaluator(int value);
+            static std::unique_ptr<BrushContentTypeEvaluator> textureNameEvaluator(const String& pattern, const StringList& ignoreTexture);
+            static std::unique_ptr<BrushContentTypeEvaluator> shaderSurfaceParmsEvaluator(const String& pattern, const StringList& ignoreTexture);
+            static std::unique_ptr<BrushContentTypeEvaluator> contentFlagsEvaluator(int value, const StringList& ignoreTexture);
+            static std::unique_ptr<BrushContentTypeEvaluator> surfaceFlagsEvaluator(int value, const StringList& ignoreTexture);
             static std::unique_ptr<BrushContentTypeEvaluator> entityClassnameEvaluator(const String& pattern);
             
             bool evaluate(const Brush* brush) const;

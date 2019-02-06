@@ -38,14 +38,23 @@ namespace TrenchBroom {
         class FileSystem {
             deleteCopyAndMove(FileSystem)
         protected:
-            std::unique_ptr<FileSystem> m_next;
+            /**
+             * Next filesystem in the search path.
+             *
+             * NOTE: the use of std::shared_ptr is because there is shared ownership during construction of the
+             * filesystems (std::unique_ptr would require std::move'ing the existing chain of filesystems when passing it
+             * to the FileSystem constructor, which means if the constructor throws, the existing filesystem chain
+             * gets destroyed. FileSystem constructors throw if there is an error creating the filesystem,
+             * so std::unique_ptr isn't usable with this design.)
+             */
+            std::shared_ptr<FileSystem> m_next;
         public: // public API
-            explicit FileSystem(std::unique_ptr<FileSystem> next = std::unique_ptr<FileSystem>());
+            explicit FileSystem(std::shared_ptr<FileSystem> next = std::shared_ptr<FileSystem>());
             virtual ~FileSystem();
 
             bool hasNext() const;
             const FileSystem& next() const;
-            std::unique_ptr<FileSystem> releaseNext();
+            std::shared_ptr<FileSystem> releaseNext();
 
             bool canMakeAbsolute(const Path& path) const;
             Path makeAbsolute(const Path& path) const;

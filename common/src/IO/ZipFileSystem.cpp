@@ -64,7 +64,7 @@ namespace TrenchBroom {
         ZipFileSystem::ZipFileSystem(const Path& path, MappedFile::Ptr file) :
         ZipFileSystem(nullptr, path, std::move(file)) {}
 
-        ZipFileSystem::ZipFileSystem(std::unique_ptr<FileSystem> next, const Path& path, MappedFile::Ptr file) :
+        ZipFileSystem::ZipFileSystem(std::shared_ptr<FileSystem> next, const Path& path, MappedFile::Ptr file) :
         ImageFileSystem(std::move(next), path, std::move(file)) {
             initialize();
         }
