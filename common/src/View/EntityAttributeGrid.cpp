@@ -278,6 +278,21 @@ namespace TrenchBroom {
                 }
                 return QTableView::event(event);
             }
+
+            void keyPressEvent(QKeyEvent* event) override {
+                // Set up Qt::Key_Return to open the editor. Doing this binding via a QShortcut makes it so you can't close
+                // an open editor, so do it this way.
+                if (event->key() == Qt::Key_Return
+                    && (event->modifiers() == Qt::NoModifier || event->modifiers() == Qt::KeypadModifier)
+                    && state() != QAbstractItemView::EditingState) {
+
+                    // open the editor
+                    qDebug("opening editor...");
+                    edit(currentIndex());
+                } else {
+                    QTableView::keyPressEvent(event);
+                }
+            }
         };
 
         void EntityAttributeGrid::createGui(MapDocumentWPtr document) {
@@ -327,7 +342,7 @@ namespace TrenchBroom {
 
             printf("et: %d\n", m_grid->editTriggers());
 
-            m_grid->setEditTriggers(QAbstractItemView::SelectedClicked | QAbstractItemView::AnyKeyPressed);
+            //m_grid->setEditTriggers(QAbstractItemView::SelectedClicked | QAbstractItemView::AnyKeyPressed);
         }
 
         void EntityAttributeGrid::createShortcuts() {
@@ -349,16 +364,22 @@ namespace TrenchBroom {
                 removeSelectedAttributes();
             });
 
-            m_openCellEditorShortcut = new QShortcut(QKeySequence(Qt::Key_Return), this);// "Enter"), this);
-            m_openCellEditorShortcut->setContext(Qt::WidgetWithChildrenShortcut);
-            connect(m_openCellEditorShortcut, &QShortcut::activated, this, [=](){
-                qDebug("enter activated unambiguously");
-                m_grid->edit(m_grid->currentIndex());
-            });
-            connect(m_openCellEditorShortcut, &QShortcut::activatedAmbiguously, this, [=](){
-                qDebug("enter activated ambiguously");
-                m_grid->edit(m_grid->currentIndex());
-            });
+//            m_openCellEditorShortcut = new QShortcut(QKeySequence(Qt::Key_Return), m_grid);// "Enter"), this);
+//            //m_openCellEditorShortcut->setContext(Qt::WidgetWithChildrenShortcut);
+//            connect(m_openCellEditorShortcut, &QShortcut::activated, this, [=](){
+//                bool open = m_grid->isPersistentEditorOpen(m_grid->currentIndex());
+//
+//
+//                qDebug("enter activated unambiguously, open? %d", (int)open);
+//                if (!open) {
+//                    m_grid->edit(m_grid->currentIndex());
+//                }
+//            });
+
+//            connect(m_openCellEditorShortcut, &QShortcut::activatedAmbiguously, this, [=](){
+//                qDebug("enter activated ambiguously");
+//                m_grid->edit(m_grid->currentIndex());
+//            });
        }
 
        void EntityAttributeGrid::updateShortcuts() {

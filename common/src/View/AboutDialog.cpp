@@ -91,6 +91,7 @@ namespace TrenchBroom {
             creditsText->setText(creditsString);
 
             QHBoxLayout* outerSizer = new QHBoxLayout();
+            outerSizer->setSizeConstraint(QLayout::SetFixedSize);
             outerSizer->setContentsMargins(0, 20, 0, 20);
             outerSizer->addSpacing(50);
             outerSizer->addWidget(infoPanel);
@@ -98,7 +99,6 @@ namespace TrenchBroom {
             outerSizer->addWidget(creditsText);
             outerSizer->addSpacing(50);
             setLayout(outerSizer);
-
         }
     }
 }
