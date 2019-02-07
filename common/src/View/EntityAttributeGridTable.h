@@ -110,6 +110,7 @@ namespace TrenchBroom {
 
             const AttributeRow* dataForModelIndex(const QModelIndex& index) const;
 
+        public slots:
             void updateFromMapDocument();
 
         public: // QAbstractTableModel overrides

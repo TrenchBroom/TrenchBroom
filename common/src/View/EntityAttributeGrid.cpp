@@ -302,6 +302,7 @@ namespace TrenchBroom {
             m_grid->setModel(m_table);
             m_grid->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
             m_grid->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+            m_grid->horizontalHeader()->setSectionsClickable(false);
             m_grid->setSelectionBehavior(QAbstractItemView::SelectItems);
 
 //            m_grid->Bind(wxEVT_GRID_SELECT_CELL, &EntityAttributeGrid::OnAttributeGridSelectCell, this);
@@ -434,34 +435,11 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeGrid::updateControls() {
-            // FIXME:
-            m_table->updateFromMapDocument();
-
-            // FIXME: not sure about this stuff?
-#if 0
-            int row = m_table->rowForName(m_lastSelectedName);
-            if (row >= m_table->GetNumberRows())
-                row = m_table->GetNumberRows() - 1;
-            if (row == -1 && m_table->GetNumberRows() > 0)
-                row = 0;
-
-            if (row != -1) {
-                // 1981: Ensure that we make a cell visible only if it is completely invisible.
-                // The goal is to block the grid from redrawing itself every time this function
-                // is called.
-                if (!m_grid->IsVisible(row, m_lastSelectedCol, false)) {
-                    m_grid->MakeCellVisible(row, m_lastSelectedCol);
-                }
-                if (m_grid->GetGridCursorRow() != row || m_grid->GetGridCursorCol() != m_lastSelectedCol) {
-                    m_grid->SetGridCursor(row, m_lastSelectedCol);
-                }
-                if (!m_grid->IsInSelection(row, m_lastSelectedCol)) {
-                    m_grid->SelectRow(row);
-                }
-            } else {
-                fireSelectionEvent(row, m_lastSelectedCol);
-            }
-#endif
+            // When you change the selected entity in the map, there's a brief intermediate state where worldspawn
+            // is selected. If we call this directly, it'll cause the table to be rebuilt based on that intermediate
+            // state. Everything is fine except you lose the selected row in the table, unless it's a key
+            // name that exists in worldspawn. To avoid that problem, make a delayed call to update the table.
+            QMetaObject::invokeMethod(m_table, "updateFromMapDocument", Qt::QueuedConnection);
 
             // Update buttons/checkboxes
             MapDocumentSPtr document = lock(m_document);

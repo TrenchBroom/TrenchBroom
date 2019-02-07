@@ -269,7 +269,7 @@ namespace TrenchBroom {
         }
 
         Qt::ItemFlags EntityAttributeGridTable::flags(const QModelIndex &index) const {
-            const auto& issue = m_rows.at(static_cast<size_t>(index.row()));
+            const AttributeRow& issue = m_rows.at(static_cast<size_t>(index.row()));
 
             Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 
@@ -297,7 +297,7 @@ namespace TrenchBroom {
 
             const auto& issue = m_rows.at(static_cast<size_t>(index.row()));
 
-            if (role == Qt::DisplayRole) {
+            if (role == Qt::DisplayRole || role == Qt::EditRole) {
                 if (index.column() == 0) {
                     return QVariant(QString::fromStdString(issue.name()));
                 } else {
