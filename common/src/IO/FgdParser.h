@@ -57,7 +57,7 @@ namespace TrenchBroom {
         class FgdTokenizer : public Tokenizer<FgdToken::Type> {
         public:
             FgdTokenizer(const char* begin, const char* end);
-            FgdTokenizer(const String& str);
+            explicit FgdTokenizer(const String& str);
         private:
             static const String WordDelims;
             Token emitToken() override;
@@ -65,7 +65,7 @@ namespace TrenchBroom {
 
         class FgdParser : public EntityDefinitionParser, public Parser<FgdToken::Type> {
         private:
-            typedef FgdTokenizer::Token Token;
+            using Token = FgdTokenizer::Token;
             
             template <typename T>
             struct DefaultValue {
