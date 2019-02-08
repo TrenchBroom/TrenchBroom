@@ -309,6 +309,7 @@ namespace TrenchBroom {
             
             m_grid = new MyTable();
             m_grid->setModel(m_table);
+            m_grid->verticalHeader()->setVisible(false);
             m_grid->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
             m_grid->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
             m_grid->horizontalHeader()->setSectionsClickable(false);

@@ -339,13 +339,31 @@ namespace TrenchBroom {
         }
 
         bool EntityAttributeGridTable::setData(const QModelIndex &index, const QVariant &value, int role) {
-            const auto& issue = m_rows.at(static_cast<size_t>(index.row()));
+            const auto& attributeRow = m_rows.at(static_cast<size_t>(index.row()));
 
-            qDebug() << "tried to set " << QString::fromStdString(issue.name()) << " to " << value.toString();
+            if (role != Qt::EditRole) {
+                return false;
+            }
 
-            MapDocumentSPtr document = lock(m_document);
-            if (document->setAttribute(issue.name(), value.toString().toStdString())) {
-                return true;
+            if (index.column() == 0) {
+                // rename key
+                qDebug() << "tried to rename " << QString::fromStdString(attributeRow.name()) << " to " << value.toString();
+
+                MapDocumentSPtr document = lock(m_document);
+                if (document->renameAttribute(attributeRow.name(), value.toString().toStdString())) {
+                    // TODO: reselect new row
+                    return true;
+                }
+
+
+            } else if (index.column() == 1) {
+                qDebug() << "tried to set " << QString::fromStdString(attributeRow.name()) << " to "
+                         << value.toString();
+
+                MapDocumentSPtr document = lock(m_document);
+                if (document->setAttribute(attributeRow.name(), value.toString().toStdString())) {
+                    return true;
+                }
             }
 
             return false;

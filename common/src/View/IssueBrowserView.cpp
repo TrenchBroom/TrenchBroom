@@ -49,6 +49,7 @@ namespace TrenchBroom {
 
             m_tableView = new QTableView(nullptr);
             m_tableView->setModel(m_tableModel);
+            m_tableView->verticalHeader()->setVisible(false);
             m_tableView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
             m_tableView->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
             m_tableView->horizontalHeader()->setSectionsClickable(false);
