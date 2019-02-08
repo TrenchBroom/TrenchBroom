@@ -31,7 +31,7 @@ namespace TrenchBroom {
         m_longDescription(longDescription),
         m_readOnly(readOnly) {}
         
-        AttributeDefinition::~AttributeDefinition() {}
+        AttributeDefinition::~AttributeDefinition() = default;
         
         const String& AttributeDefinition::name() const {
             return m_name;
@@ -87,13 +87,21 @@ namespace TrenchBroom {
         String AttributeDefinition::defaultValue(const AttributeDefinition& definition) {
             switch (definition.type()) {
                 case Type_StringAttribute: {
-                    const StringAttributeDefinition& stringDef = static_cast<const StringAttributeDefinition&>(definition);
+                    const auto& stringDef = static_cast<const StringAttributeDefinition&>(definition);
                     if (!stringDef.hasDefaultValue())
                         return "";
                     return stringDef.defaultValue();
                 }
+                case Type_BooleanAttribute: {
+                    const auto& boolDef = static_cast<const BooleanAttributeDefinition&>(definition);
+                    if (!boolDef.hasDefaultValue())
+                        return "";
+                    StringStream str;
+                    str << boolDef.defaultValue();
+                    return str.str();
+                }
                 case Type_IntegerAttribute: {
-                    const IntegerAttributeDefinition& intDef = static_cast<const IntegerAttributeDefinition&>(definition);
+                    const auto& intDef = static_cast<const IntegerAttributeDefinition&>(definition);
                     if (!intDef.hasDefaultValue())
                         return "";
                     StringStream str;
@@ -101,7 +109,7 @@ namespace TrenchBroom {
                     return str.str();
                 }
                 case Type_FloatAttribute: {
-                    const FloatAttributeDefinition& floatDef = static_cast<const FloatAttributeDefinition&>(definition);
+                    const auto& floatDef = static_cast<const FloatAttributeDefinition&>(definition);
                     if (!floatDef.hasDefaultValue())
                         return "";
                     StringStream str;
@@ -109,7 +117,7 @@ namespace TrenchBroom {
                     return str.str();
                 }
                 case Type_ChoiceAttribute: {
-                    const ChoiceAttributeDefinition& choiceDef = static_cast<const ChoiceAttributeDefinition&>(definition);
+                    const auto& choiceDef = static_cast<const ChoiceAttributeDefinition&>(definition);
                     if (!choiceDef.hasDefaultValue())
                         return "";
                     StringStream str;
@@ -117,7 +125,7 @@ namespace TrenchBroom {
                     return str.str();
                 }
                 case Type_FlagsAttribute: {
-                    const FlagsAttributeDefinition& flagsDef = static_cast<const FlagsAttributeDefinition&>(definition);
+                    const auto& flagsDef = static_cast<const FlagsAttributeDefinition&>(definition);
                     StringStream str;
                     str << flagsDef.defaultValue();
                     return str.str();
@@ -134,6 +142,12 @@ namespace TrenchBroom {
         
         StringAttributeDefinition::StringAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const bool readOnly) :
         AttributeDefinitionWithDefaultValue(name, Type_StringAttribute, shortDescription, longDescription, readOnly) {}
+
+        BooleanAttributeDefinition::BooleanAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const bool defaultValue, const bool readOnly) :
+        AttributeDefinitionWithDefaultValue(name, Type_BooleanAttribute, shortDescription, longDescription, defaultValue, readOnly) {}
+
+        BooleanAttributeDefinition::BooleanAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const bool readOnly) :
+        AttributeDefinitionWithDefaultValue(name, Type_BooleanAttribute, shortDescription, longDescription, readOnly) {}
 
         IntegerAttributeDefinition::IntegerAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const int defaultValue, const bool readOnly) :
         AttributeDefinitionWithDefaultValue(name, Type_IntegerAttribute, shortDescription, longDescription, defaultValue, readOnly) {}
@@ -209,7 +223,7 @@ namespace TrenchBroom {
         }
 
         FlagsAttributeDefinition::FlagsAttributeDefinition(const String& name) :
-        AttributeDefinition(name, Type_FlagsAttribute, EmptyString, EmptyString) {}
+        AttributeDefinition(name, Type_FlagsAttribute, EmptyString, EmptyString, false) {}
         
         int FlagsAttributeDefinition::defaultValue() const {
             int value = 0;
