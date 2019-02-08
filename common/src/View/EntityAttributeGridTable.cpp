@@ -28,8 +28,12 @@
 #include "Model/World.h"
 #include "View/MapDocument.h"
 #include "View/ViewUtils.h"
+#include "View/ViewConstants.h"
+#include "IO/ResourceUtils.h"
 
 #include <QDebug>
+#include <QBrush>
+#include <QIcon>
 
 namespace TrenchBroom {
     namespace View {
@@ -295,24 +299,41 @@ namespace TrenchBroom {
                 return QVariant();
             }
 
-            const auto& issue = m_rows.at(static_cast<size_t>(index.row()));
+            const auto& row = m_rows.at(static_cast<size_t>(index.row()));
+
+            if (role == Qt::DecorationRole) {
+                if ((index.column() == 0 && !row.nameMutable())
+                    || (index.column() == 1 && !row.valueMutable())) {
+                    // return a lock icon
+
+                    QIcon icon = IO::loadIconResourceQt(IO::Path("Locked_small.png"));
+
+                    return QVariant(icon);
+                }
+            }
+
+            if (role == Qt::ForegroundRole) {
+                // return a QBrush for the text color
+                if (row.isDefault()) {
+                    return QVariant(QBrush(Colors::disabledText()));
+                }
+            }
+            if (role == Qt::FontRole) {
+                if (row.isDefault()) {
+                    QFont italicFont;
+                    italicFont.setItalic(true);
+                    return QVariant(italicFont);
+                }
+            }
 
             if (role == Qt::DisplayRole || role == Qt::EditRole) {
                 if (index.column() == 0) {
-                    return QVariant(QString::fromStdString(issue.name()));
+                    return QVariant(QString::fromStdString(row.name()));
                 } else {
-                    return QVariant(QString::fromStdString(issue.value()));
+                    return QVariant(QString::fromStdString(row.value()));
                 }
             }
-//            else if (role == Qt::FontRole) {
-//                if (issue->hidden()) {
-//                    // hidden issues are italic
-//                    QFont italicFont;
-//                    italicFont.setItalic(true);
-//                    return QVariant(italicFont);
-//                }
-//                return QVariant();
-//            }
+
 
             return QVariant();
         }

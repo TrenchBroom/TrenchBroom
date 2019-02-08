@@ -23,6 +23,8 @@
 #include <QColor>
 #include <QFont>
 
+class QWidget;
+
 namespace TrenchBroom {
     namespace View {
         namespace LayoutConstants {
@@ -94,11 +96,12 @@ namespace TrenchBroom {
         namespace Fonts {
             QFont fixedWidthFont();
         }
-        
+
         namespace Colors {
             QColor defaultText();
             QColor highlightText();
             QColor disabledText();
+            QColor disabledText(const QWidget* widget);
             QColor borderColor();
             QColor separatorColor();
         }

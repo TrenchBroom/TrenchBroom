@@ -22,6 +22,7 @@
 #include <QColor>
 #include <QPalette>
 #include <QFont>
+#include <QWidget>
 
 namespace TrenchBroom {
     namespace View {
@@ -49,6 +50,12 @@ namespace TrenchBroom {
 
             QColor disabledText() {
                 QPalette pal;
+                QColor result = pal.color(QPalette::Disabled, QPalette::WindowText);
+                return result;
+            }
+
+            QColor disabledText(const QWidget* widget) {
+                const QPalette& pal = widget->palette();
                 QColor result = pal.color(QPalette::Disabled, QPalette::WindowText);
                 return result;
             }

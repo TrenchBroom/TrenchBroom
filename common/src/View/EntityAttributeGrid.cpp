@@ -293,6 +293,15 @@ namespace TrenchBroom {
                     QTableView::keyPressEvent(event);
                 }
             }
+
+            /**
+             * The decorations (padlock icon for locked cells) goes on the right of the text
+             */
+            QStyleOptionViewItem viewOptions() const override {
+                QStyleOptionViewItem options = QTableView::viewOptions();
+                options.decorationPosition = QStyleOptionViewItem::Right;
+                return options;
+            }
         };
 
         void EntityAttributeGrid::createGui(MapDocumentWPtr document) {
@@ -304,6 +313,8 @@ namespace TrenchBroom {
             m_grid->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
             m_grid->horizontalHeader()->setSectionsClickable(false);
             m_grid->setSelectionBehavior(QAbstractItemView::SelectItems);
+
+
 
 //            m_grid->Bind(wxEVT_GRID_SELECT_CELL, &EntityAttributeGrid::OnAttributeGridSelectCell, this);
 

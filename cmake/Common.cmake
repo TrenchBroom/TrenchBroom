@@ -381,7 +381,6 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/LaunchGameEngineDialog.cpp
 #	${COMMON_SOURCE_DIR}/View/LayerEditor.cpp
 #	${COMMON_SOURCE_DIR}/View/LayerListBox.cpp
-#	${COMMON_SOURCE_DIR}/View/LockedGridCellRenderer.cpp
 	${COMMON_SOURCE_DIR}/View/MapDocumentCommandFacade.cpp
 	${COMMON_SOURCE_DIR}/View/MapDocument.cpp
 	${COMMON_SOURCE_DIR}/View/MapFrame.cpp
@@ -943,7 +942,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/LaunchGameEngineDialog.h
 	${COMMON_SOURCE_DIR}/View/LayerEditor.h
 	${COMMON_SOURCE_DIR}/View/LayerListBox.h
-	${COMMON_SOURCE_DIR}/View/LockedGridCellRenderer.h
 	${COMMON_SOURCE_DIR}/View/MapDocumentCommandFacade.h
 	${COMMON_SOURCE_DIR}/View/MapDocument.h
 	${COMMON_SOURCE_DIR}/View/MapFrameDropTarget.h
