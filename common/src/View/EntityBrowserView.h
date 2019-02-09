@@ -60,7 +60,7 @@ namespace TrenchBroom {
             EntityCellData(const Assets::PointEntityDefinition* i_entityDefinition, EntityRenderer* i_modelRenderer, const Renderer::FontDescriptor& i_fontDescriptor, const vm::bbox3f& i_bounds);
         };
 
-        class EntityBrowserView : public CellView<EntityCellData, EntityGroupData> {
+        class EntityBrowserView : public CellView/*<EntityCellData, EntityGroupData>*/ {
         private:
             typedef Renderer::TexturedRenderer EntityRenderer;
             
@@ -98,7 +98,7 @@ namespace TrenchBroom {
             bool dndEnabled() override;
             void dndWillStart() override;
             void dndDidEnd() override;
-            QString dndData(const Layout::Group::Row::Cell& cell) override;
+            wxString dndData(const Cell& cell) override;
 
             void addEntityToLayout(Layout& layout, const Assets::PointEntityDefinition* definition, const Renderer::FontDescriptor& font);
             
@@ -116,9 +116,11 @@ namespace TrenchBroom {
             void renderStrings(Layout& layout, float y, float height);
             StringMap collectStringVertices(Layout& layout, float y, float height);
             
-            vm::mat4x4f itemTransformation(const Layout::Group::Row::Cell& cell, float y, float height) const;
+            vm::mat4x4f itemTransformation(const Cell& cell, float y, float height) const;
             
-            QString tooltip(const Layout::Group::Row::Cell& cell) override;
+            wxString tooltip(const Cell& cell) override;
+
+            const EntityCellData& cellData(const Cell& cell) const;
         };
     }
 }

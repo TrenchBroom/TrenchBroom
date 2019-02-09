@@ -174,10 +174,10 @@ namespace TrenchBroom {
             mapFrame->clearDropTarget();
         }
 
-        QString EntityBrowserView::dndData(const Layout::Group::Row::Cell& cell) {
+        wxString EntityBrowserView::dndData(const Cell& cell) {
             static const String prefix("entity:");
-            const String name = cell.item().entityDefinition->name();
-            return QString(prefix + name);
+            const String name = cellData(cell).entityDefinition->name();
+            return wxString(prefix + name);
         }
 
         void EntityBrowserView::addEntityToLayout(Layout& layout, const Assets::PointEntityDefinition* definition, const Renderer::FontDescriptor& font) {
@@ -207,7 +207,7 @@ namespace TrenchBroom {
                 }
                 
                 const auto boundsSize = rotatedBounds.size();
-                layout.addItem(EntityCellData(definition, modelRenderer, actualFont, rotatedBounds),
+                layout.addItem(wxAny(std::make_shared<EntityCellData>(definition, modelRenderer, actualFont, rotatedBounds)),
                                boundsSize.y(),
                                boundsSize.z(),
                                actualSize.x(),
@@ -265,8 +265,8 @@ namespace TrenchBroom {
                         if (row.intersectsY(y, height)) {
                             for (size_t k = 0; k < row.size(); ++k) {
                                 const auto& cell = row[k];
-                                const auto* definition = cell.item().entityDefinition;
-                                auto* modelRenderer = cell.item().modelRenderer;
+                                const auto* definition = cellData(cell).entityDefinition;
+                                auto* modelRenderer = cellData(cell).modelRenderer;
                                 
                                 if (modelRenderer == nullptr) {
                                     const auto itemTrans = itemTransformation(cell, y, height);
@@ -307,7 +307,7 @@ namespace TrenchBroom {
                         if (row.intersectsY(y, height)) {
                             for (size_t k = 0; k < row.size(); ++k) {
                                 const auto& cell = row[k];
-                                auto* modelRenderer = cell.item().modelRenderer;
+                                auto* modelRenderer = cellData(cell).modelRenderer;
                                 
                                 if (modelRenderer != nullptr) {
                                     const auto itemTrans = itemTransformation(cell, y, height);
@@ -416,10 +416,10 @@ namespace TrenchBroom {
                                 const auto titleBounds = cell.titleBounds();
                                 const auto offset = vm::vec2f(titleBounds.left(), height - (titleBounds.top() - y) - titleBounds.height());
                                 
-                                Renderer::TextureFont& font = fontManager().font(cell.item().fontDescriptor);
-                                const auto quads = font.quads(cell.item().entityDefinition->name(), false, offset);
+                                Renderer::TextureFont& font = fontManager().font(cellData(cell).fontDescriptor);
+                                const auto quads = font.quads(cellData(cell).entityDefinition->name(), false, offset);
                                 const auto titleVertices = TextVertex::toList(std::begin(quads), std::begin(quads), std::begin(textColor), quads.size() / 2, 0, 2, 1, 2, 0, 0);
-                                VectorUtils::append(stringVertices[cell.item().fontDescriptor], titleVertices);
+                                VectorUtils::append(stringVertices[cellData(cell).fontDescriptor], titleVertices);
                             }
                         }
                     }
@@ -429,12 +429,12 @@ namespace TrenchBroom {
             return stringVertices;
         }
         
-        vm::mat4x4f EntityBrowserView::itemTransformation(const Layout::Group::Row::Cell& cell, const float y, const float height) const {
-            auto* definition = cell.item().entityDefinition;
+        vm::mat4x4f EntityBrowserView::itemTransformation(const Cell& cell, const float y, const float height) const {
+            auto* definition = cellData(cell).entityDefinition;
             
             const auto offset = vm::vec3f(0.0f, cell.itemBounds().left(), height - (cell.itemBounds().bottom() - y));
             const auto scaling = cell.scale();
-            const auto& rotatedBounds = cell.item().bounds;
+            const auto& rotatedBounds = cellData(cell).bounds;
             const auto rotationOffset = vm::vec3f(0.0f, -rotatedBounds.min.y(), -rotatedBounds.min.z());
             const auto boundsCenter = vm::vec3f(definition->bounds().center());
             
@@ -446,8 +446,14 @@ namespace TrenchBroom {
                     vm::translationMatrix(-boundsCenter));
         }
         
-        QString EntityBrowserView::tooltip(const Layout::Group::Row::Cell& cell) {
-            return cell.item().entityDefinition->name();
+        wxString EntityBrowserView::tooltip(const Cell& cell) {
+            return cellData(cell).entityDefinition->name();
+        }
+
+        const EntityCellData& EntityBrowserView::cellData(const Cell& cell) const {
+            wxAny any = cell.item();
+            auto ptr = any.As<std::shared_ptr<EntityCellData>>();
+            return *ptr;
         }
     }
 }

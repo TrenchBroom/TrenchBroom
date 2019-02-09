@@ -37,14 +37,13 @@
 namespace TrenchBroom {
     namespace View {
         class GLContextManager;
-        
-        template <typename CellData, typename GroupData>
+
         class CellView : public RenderView {
         protected:
-            typedef CellLayout<CellData, GroupData> Layout;
-            typedef typename Layout::Group Group;
-            typedef typename Group::Row Row;
-            typedef typename Row::Cell Cell;
+            using Layout = CellLayout;
+            using Group = LayoutGroup;
+            using Row = LayoutRow;
+            using Cell = LayoutCell;
         private:
             Layout m_layout;
             Cell* m_selectedCell;
@@ -261,7 +260,7 @@ namespace TrenchBroom {
                 int top = m_scrollBar != nullptr ? m_scrollBar->GetThumbPosition() : 0;
                 float x = static_cast<float>(event.GetX());
                 float y = static_cast<float>(event.GetY() + top);
-                const typename Layout::Group::Row::Cell* cell = nullptr;
+                const LayoutCell* cell = nullptr;
                 if (m_layout.cellAt(x, y, &cell))
                     SetToolTip(tooltip(*cell));
                 else

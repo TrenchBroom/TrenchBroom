@@ -50,7 +50,7 @@ namespace TrenchBroom {
             TextureCellData(Assets::Texture* i_texture, const Renderer::FontDescriptor& i_fontDescriptor);
         };
 
-        class TextureBrowserView : public CellView<TextureCellData, TextureGroupData> {
+        class TextureBrowserView : public CellView/*<TextureCellData, TextureGroupData>*/ {
         public:
             typedef enum {
                 SO_Name,
@@ -114,7 +114,9 @@ namespace TrenchBroom {
             StringMap collectStringVertices(Layout& layout, float y, float height);
             
             void doLeftClick(Layout& layout, float x, float y) override;
-            QString tooltip(const Layout::Group::Row::Cell& cell) override;
+            wxString tooltip(const Cell& cell) override;
+
+            const TextureCellData& cellData(const Cell& cell) const;
         };
     }
 }

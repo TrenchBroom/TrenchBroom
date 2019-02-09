@@ -147,7 +147,7 @@ namespace TrenchBroom {
             const size_t scaledTextureWidth = static_cast<size_t>(vm::round(scaleFactor * static_cast<float>(texture->width())));
             const size_t scaledTextureHeight = static_cast<size_t>(vm::round(scaleFactor * static_cast<float>(texture->height())));
             
-            layout.addItem(TextureCellData(texture, actualFont),
+            layout.addItem(wxAny(std::make_shared<TextureCellData>(texture, actualFont)),
                            scaledTextureWidth,
                            scaledTextureHeight,
                            actualSize.x(),
@@ -268,15 +268,15 @@ namespace TrenchBroom {
             BoundsVertex::List vertices;
             
             for (size_t i = 0; i < layout.size(); ++i) {
-                const Layout::Group& group = layout[i];
+                const Group& group = layout[i];
                 if (group.intersectsY(y, height)) {
                     for (size_t j = 0; j < group.size(); ++j) {
-                        const Layout::Group::Row& row = group[j];
+                        const Row& row = group[j];
                         if (row.intersectsY(y, height)) {
                             for (size_t k = 0; k < row.size(); ++k) {
-                                const Layout::Group::Row::Cell& cell = row[k];
+                                const Cell& cell = row[k];
                                 const LayoutBounds& bounds = cell.itemBounds();
-                                const Assets::Texture* texture = cell.item().texture;
+                                const Assets::Texture* texture = cellData(cell).texture;
                                 const Color& color = textureColor(*texture);
                                 vertices.push_back(BoundsVertex(vm::vec2f(bounds.left() - 2.0f, height - (bounds.top() - 2.0f - y)), color));
                                 vertices.push_back(BoundsVertex(vm::vec2f(bounds.left() - 2.0f, height - (bounds.bottom() + 2.0f - y)), color));
@@ -318,15 +318,15 @@ namespace TrenchBroom {
             Renderer::ActivateVbo activate(vertexVbo());
 
             for (size_t i = 0; i < layout.size(); ++i) {
-                const Layout::Group& group = layout[i];
+                const Group& group = layout[i];
                 if (group.intersectsY(y, height)) {
                     for (size_t j = 0; j < group.size(); ++j) {
-                        const Layout::Group::Row& row = group[j];
+                        const Row& row = group[j];
                         if (row.intersectsY(y, height)) {
                             for (size_t k = 0; k < row.size(); ++k) {
-                                const Layout::Group::Row::Cell& cell = row[k];
+                                const Cell& cell = row[k];
                                 const LayoutBounds& bounds = cell.itemBounds();
-                                const Assets::Texture* texture = cell.item().texture;
+                                const Assets::Texture* texture = cellData(cell).texture;
                                 
                                 vertices[0] = TextureVertex(vm::vec2f(bounds.left(),  height - (bounds.top() - y)),    vm::vec2f(0.0f, 0.0f));
                                 vertices[1] = TextureVertex(vm::vec2f(bounds.left(),  height - (bounds.bottom() - y)), vm::vec2f(0.0f, 1.0f));
@@ -361,7 +361,7 @@ namespace TrenchBroom {
             Vertex::List vertices;
             
             for (size_t i = 0; i < layout.size(); ++i) {
-                const Layout::Group& group = layout[i];
+                const Group& group = layout[i];
                 if (group.intersectsY(y, height)) {
                     const LayoutBounds titleBounds = layout.titleBoundsForVisibleRect(group, y, height);
                     vertices.push_back(Vertex(vm::vec2f(titleBounds.left(), height - (titleBounds.top() - y))));
@@ -438,10 +438,10 @@ namespace TrenchBroom {
                                 const auto titleBounds = cell.titleBounds();
                                 const auto offset = vm::vec2f(titleBounds.left(), height - (titleBounds.top() - y) - titleBounds.height());
                                 
-                                auto& font = fontManager().font(cell.item().fontDescriptor);
-                                const auto quads = font.quads(cell.item().texture->name(), false, offset);
+                                auto& font = fontManager().font(cellData(cell).fontDescriptor);
+                                const auto quads = font.quads(cellData(cell).texture->name(), false, offset);
                                 const auto titleVertices = TextVertex::toList(std::begin(quads), std::begin(quads), std::begin(textColor), quads.size() / 2, 0, 2, 1, 2, 0, 0);
-                                auto& vertices = stringVertices[cell.item().fontDescriptor];
+                                auto& vertices = stringVertices[cellData(cell).fontDescriptor];
                                 vertices.insert(std::end(vertices), std::begin(titleVertices), std::end(titleVertices));
                             }
                         }
@@ -453,10 +453,10 @@ namespace TrenchBroom {
         }
 
         void TextureBrowserView::doLeftClick(Layout& layout, const float x, const float y) {
-            const Layout::Group::Row::Cell* result = nullptr;
+            const Cell* result = nullptr;
             if (layout.cellAt(x, y, &result)) {
-                if (!result->item().texture->overridden()) {
-                    auto* texture = result->item().texture;
+                if (!cellData(*result).texture->overridden()) {
+                    auto* texture = cellData(*result).texture;
                     
                     TextureSelectedCommand command;
                     command.SetEventObject(this);
@@ -472,11 +472,17 @@ namespace TrenchBroom {
             }
         }
 
-        QString TextureBrowserView::tooltip(const Layout::Group::Row::Cell& cell) {
-            QString tooltip;
-            tooltip << cell.item().texture->name() << "\n";
-            tooltip << cell.item().texture->width() << "x" << cell.item().texture->height();
+        wxString TextureBrowserView::tooltip(const Cell& cell) {
+            wxString tooltip;
+            tooltip << cellData(cell).texture->name() << "\n";
+            tooltip << cellData(cell).texture->width() << "x" << cellData(cell).texture->height();
             return tooltip;
+        }
+
+        const TextureCellData& TextureBrowserView::cellData(const Cell& cell) const {
+            wxAny any = cell.item();
+            auto ptr = any.As<std::shared_ptr<TextureCellData>>();
+            return *ptr;
         }
     }
 }
