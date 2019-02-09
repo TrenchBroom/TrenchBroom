@@ -55,13 +55,13 @@ namespace TrenchBroom {
         private:
             Assets::EntityDefinitionList doParseDefinitions(ParserStatus& status) override;
             Assets::EntityDefinitionList parseClasses(const tinyxml2::XMLDocument& document, ParserStatus& status);
-            Assets::EntityDefinition* parseClass(const tinyxml2::XMLElement& element, ParserStatus& status);
-            Assets::EntityDefinition* parsePointEntityDefinition(const tinyxml2::XMLElement& element, ParserStatus& status);
-            Assets::EntityDefinition* parseBrushEntityDefinition(const tinyxml2::XMLElement& element, ParserStatus& status);
+            Assets::EntityDefinition* parseClass(const tinyxml2::XMLElement& element, const Assets::AttributeDefinitionList& attributeDeclarations, ParserStatus& status);
+            Assets::EntityDefinition* parsePointEntityDefinition(const tinyxml2::XMLElement& element, const Assets::AttributeDefinitionList& attributeDeclarations, ParserStatus& status);
+            Assets::EntityDefinition* parseBrushEntityDefinition(const tinyxml2::XMLElement& element, const Assets::AttributeDefinitionList& attributeDeclarations, ParserStatus& status);
 
             void parseSpawnflags(const tinyxml2::XMLElement& element, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status);
 
-            void parseAttributes(const tinyxml2::XMLElement& parent, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status);
+            void parseAttributes(const tinyxml2::XMLElement& parent, const Assets::AttributeDefinitionList& attributeDeclarations, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status);
             void parseUnknownAttribute(const tinyxml2::XMLElement& element, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status);
             void parseStringAttribute(const tinyxml2::XMLElement& element, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status);
             void parseBooleanAttribute(const tinyxml2::XMLElement& element, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status);

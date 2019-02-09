@@ -54,13 +54,20 @@ namespace TrenchBroom {
 
         Assets::EntityDefinitionList EntParser::parseClasses(const tinyxml2::XMLDocument& document, ParserStatus& status) {
             Assets::EntityDefinitionList result;
+            Assets::AttributeDefinitionList attributeDeclarations;
+
             const auto* classesNode = document.FirstChildElement("classes");
             if (classesNode != nullptr) {
                 const auto* currentElement = classesNode->FirstChildElement();
                 while (currentElement != nullptr) {
-                    auto* definition = parseClass(*currentElement, status);
-                    if (definition != nullptr) {
-                        result.push_back(definition);
+                    if (!std::strcmp(currentElement->Name(), "point") || !std::strcmp(currentElement->Name(), "group")) {
+                        auto* definition = parseClass(*currentElement, attributeDeclarations, status);
+                        if (definition != nullptr) {
+                            result.push_back(definition);
+                        }
+                    } else {
+                        // interpret this as an attribute declaration
+                        parseAttributeDeclaration(*currentElement, attributeDeclarations, status);
                     }
                     currentElement = currentElement->NextSiblingElement();
                 }
@@ -68,18 +75,18 @@ namespace TrenchBroom {
             return result;
         }
 
-        Assets::EntityDefinition* EntParser::parseClass(const tinyxml2::XMLElement& element, ParserStatus& status) {
+        Assets::EntityDefinition* EntParser::parseClass(const tinyxml2::XMLElement& element, const Assets::AttributeDefinitionList& attributeDeclarations, ParserStatus& status) {
             if (!std::strcmp(element.Name(), "point")) {
-                return parsePointEntityDefinition(element, status);
+                return parsePointEntityDefinition(element, attributeDeclarations, status);
             } else if (!std::strcmp(element.Name(), "group")) {
-                return parseBrushEntityDefinition(element, status);
+                return parseBrushEntityDefinition(element, attributeDeclarations, status);
             } else {
                 warn(element, "Unexpected XML element", status);
                 return nullptr;
             }
         }
 
-        Assets::EntityDefinition* EntParser::parsePointEntityDefinition(const tinyxml2::XMLElement& element, ParserStatus& status) {
+        Assets::EntityDefinition* EntParser::parsePointEntityDefinition(const tinyxml2::XMLElement& element, const Assets::AttributeDefinitionList& attributeDeclarations, ParserStatus& status) {
             const auto bounds = parseBounds(element, "box", status);
             const auto color = parseColor(element, "color", status);
             const auto model = parseString(element, "model", status);
@@ -88,24 +95,24 @@ namespace TrenchBroom {
             Assets::AttributeDefinitionList attributeDefinitions;
 
             parseSpawnflags(element, attributeDefinitions, status);
-            parseAttributes(element, attributeDefinitions, status);
+            parseAttributes(element, attributeDeclarations, attributeDefinitions, status);
 
             Assets::ModelDefinition modelDefinition(EL::LiteralExpression::create(
-                EL::Value { { "path", EL::Value(model) } },
+                EL::Value{EL::MapType{{ "path", EL::Value{model}} }},
                 static_cast<size_t>(element.GetLineNum()), 0)
             );
 
             return new Assets::PointEntityDefinition(name, color, bounds, getText(element), attributeDefinitions, modelDefinition);
         }
 
-        Assets::EntityDefinition* EntParser::parseBrushEntityDefinition(const tinyxml2::XMLElement& element, ParserStatus& status) {
+        Assets::EntityDefinition* EntParser::parseBrushEntityDefinition(const tinyxml2::XMLElement& element, const Assets::AttributeDefinitionList& attributeDeclarations, ParserStatus& status) {
             const auto color = parseColor(element, "color", status);
             const auto name = parseString(element, "name", status);
 
             Assets::AttributeDefinitionList attributeDefinitions;
 
             parseSpawnflags(element, attributeDefinitions, status);
-            parseAttributes(element, attributeDefinitions, status);
+            parseAttributes(element, attributeDeclarations, attributeDefinitions, status);
 
             return new Assets::BrushEntityDefinition(name, color, getText(element), attributeDefinitions);
         }
@@ -132,8 +139,7 @@ namespace TrenchBroom {
             }
         }
 
-        void EntParser::parseAttributes(const tinyxml2::XMLElement& parent, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
-            Assets::AttributeDefinitionList attributeDeclarations;
+        void EntParser::parseAttributes(const tinyxml2::XMLElement& parent, const Assets::AttributeDefinitionList& attributeDeclarations, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
             const auto* element = parent.FirstChildElement();
             while (element != nullptr) {
                 if (!std::strcmp(element->Name(), "angle")) {
@@ -163,20 +169,13 @@ namespace TrenchBroom {
                 } else if (!std::strcmp(element->Name(), "color")) {
                     parseUnknownAttribute(*element, attributeDefinitions, status);
                 } else {
-                    bool isDeclaredAttribute = false;
                     const auto* name = element->Name();
                     if (name) {
                         for (const auto& attributeDeclaration : attributeDeclarations) {
                             if (!std::strcmp(name, attributeDeclaration->name().c_str())) {
                                 parseDeclaredAttributeDefinition(*element, attributeDeclaration, attributeDefinitions, status);
-                                isDeclaredAttribute = true;
                             }
                         }
-                    }
-
-                    if (!isDeclaredAttribute) {
-                        // interpret this as a declaration
-                        parseAttributeDeclaration(*element, attributeDeclarations, status);
                     }
                 }
                 element = element->NextSiblingElement();

@@ -47,7 +47,7 @@ namespace TrenchBroom {
 
                 TestParserStatus status;
                 ASSERT_NO_THROW(parser.parseDefinitions(status)) << "Parsing ENT file " << path.asString() << " failed";
-                ASSERT_EQ(3u, status.countStatus(Logger::LogLevel_Warn))
+                ASSERT_EQ(2u, status.countStatus(Logger::LogLevel_Warn))
                                     << "Parsing FGD file " << path.asString() << " produced warnings";
                 ASSERT_EQ(0u, status.countStatus(Logger::LogLevel_Error))
                                     << "Parsing FGD file " << path.asString() << " produced errors";
@@ -222,12 +222,12 @@ Target this entity with a misc_model to have the model attached to the entity (s
             const String file = R"(
 <?xml version="1.0"?>
 <classes>
-<point name="_skybox" color="0.77 0.88 1.0" box="-4 -4 -4 4 4 4">
 <list name="colorIndex">
 <item name="white" value="0"/>
 <item name="red" value="1"/>
 <item name="green" value="2"/>
 </list>
+<point name="_skybox" color="0.77 0.88 1.0" box="-4 -4 -4 4 4 4">
 <colorIndex key="count" name="Text Color" value="0">Color of the location text displayed in parentheses during team chat. Set to 0-7 for color.
 0 : White (default)
 1 : Red
