@@ -98,7 +98,15 @@ namespace TrenchBroom {
         }
 
         Assets::EntityDefinition* EntParser::parseBrushEntityDefinition(const tinyxml2::XMLElement& element, ParserStatus& status) {
-            return nullptr;
+            const auto color = parseColor(element, "color", status);
+            const auto name = parseString(element, "name", status);
+
+            Assets::AttributeDefinitionList attributeDefinitions;
+
+            parseSpawnflags(element, attributeDefinitions, status);
+            parseAttributes(element, attributeDefinitions, status);
+
+            return new Assets::BrushEntityDefinition(name, color, getText(element), attributeDefinitions);
         }
 
         void EntParser::parseSpawnflags(const tinyxml2::XMLElement& element, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
@@ -146,6 +154,12 @@ namespace TrenchBroom {
                     parseTargetNameAttribute(*element, attributeDefinitions, status);
                 } else if (!std::strcmp(element->Name(), "texture")) {
                     parseTextureAttribute(*element, attributeDefinitions, status);
+                } else if (!std::strcmp(element->Name(), "sound")) {
+                    parseStringAttribute(*element, attributeDefinitions, status);
+                } else if (!std::strcmp(element->Name(), "model")) {
+                    parseStringAttribute(*element, attributeDefinitions, status);
+                } else if (!std::strcmp(element->Name(), "color")) {
+                    parseStringAttribute(*element, attributeDefinitions, status);
                 }
                 element = element->NextSiblingElement();
             }
@@ -233,13 +247,17 @@ namespace TrenchBroom {
         }
 
         void EntParser::parseTargetAttribute(const tinyxml2::XMLElement& element, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
-            // we currently do not have special support for target attributes
-            parseStringAttribute(element, attributeDefinitions, status);
+            auto factory = [](const String& name, const String& shortDesc, const String& longDesc) {
+                return std::make_shared<Assets::AttributeDefinition>(name, Assets::AttributeDefinition::Type_TargetDestinationAttribute, shortDesc, longDesc, false);
+            };
+            parseAttributeDefinition(element, factory, attributeDefinitions, status);
         }
 
         void EntParser::parseTargetNameAttribute(const tinyxml2::XMLElement& element, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
-            // we currently do not have special support for targetname attributes
-            parseStringAttribute(element, attributeDefinitions, status);
+            auto factory = [](const String& name, const String& shortDesc, const String& longDesc) {
+                return std::make_shared<Assets::AttributeDefinition>(name, Assets::AttributeDefinition::Type_TargetSourceAttribute, shortDesc, longDesc, false);
+            };
+            parseAttributeDefinition(element, factory, attributeDefinitions, status);
         }
 
         void EntParser::parseTextureAttribute(const tinyxml2::XMLElement& element, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
@@ -326,12 +344,21 @@ namespace TrenchBroom {
         }
 
         String EntParser::getText(const tinyxml2::XMLElement& element) {
-            const auto* node = element.LastChild();
-            if (node && node->ToText()) {
-                return String(node->Value());
-            } else {
-                return String();
+            // I assume that only the initial and the last text is meaningful.
+
+            StringStream str;
+            const auto* first = element.FirstChild();
+            const auto* last = element.LastChild();
+
+            if (first && first->ToText()) {
+                str << first->Value();
             }
+
+            if (last && last != first && last->ToText()) {
+                str << last->Value();
+            }
+
+            return str.str();
         }
 
 

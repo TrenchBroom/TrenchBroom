@@ -34,6 +34,8 @@
 
 namespace TrenchBroom {
     namespace IO {
+        void assertAttributeDefinition(const String& name, const Assets::AttributeDefinition::Type expectedType, const Assets::EntityDefinition* entityDefinition);
+
         TEST(EntParserTest, parseIncludedEntFiles) {
             const Path basePath = Disk::getCurrentWorkingDir() + Path("data/games");
             const Path::List cfgFiles = Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("ent"));
@@ -101,7 +103,7 @@ Updated: 2011-03-02
 
     <point name="_skybox" color="0.77 0.88 1.0" box="-4 -4 -4 4 4 4">
     -------- KEYS --------
-    <angle key="angle" name="Yaw Angle">Rotation angle of the sky surfaces.</angle>
+    asdf<angle key="angle" name="Yaw Angle">Rotation angle of the sky surfaces.</angle>
     <angles key="angles" name="Pitch Yaw Roll">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
     <real key="_scale" name="Scale" value="64">Scaling factor (default 64), good values are between 50 and 300, depending on the map.</real>
     -------- NOTES --------
@@ -121,13 +123,15 @@ Updated: 2011-03-02
             ASSERT_NE(nullptr, pointDefinition) << "Definition must be a point entity definition";
 
             const auto expectedDescription = R"(
+    -------- KEYS --------
+    asdf
     -------- NOTES --------
     Compiler-only entity that specifies the origin of a skybox (a wholly contained, separate area of the map), similar to some games portal skies. When compiled with Q3Map2, the skybox surfaces will be visible from any place where sky is normally visible. It will cast shadows on the normal parts of the map, and can be used with cloud layers and other effects.
     )";
             ASSERT_EQ(expectedDescription, pointDefinition->description()) << "Expected text value as entity defintion description";
 
-            ASSERT_TRUE(vm::isEqual(Color(0.77f, 0.88f, 1.0f, 1.0f), pointDefinition->color(), 0.01f)) << "Expected matching bounds";
-            ASSERT_TRUE(vm::isEqual(vm::bbox3(vm::vec3(-4.0, -4.0, -4.0), vm::vec3(+4.0, +4.0, +4.0)), pointDefinition->bounds(), 0.01)) << "Expected matching color";
+            ASSERT_TRUE(vm::isEqual(Color(0.77f, 0.88f, 1.0f, 1.0f), pointDefinition->color(), 0.01f)) << "Expected matching color";
+            ASSERT_TRUE(vm::isEqual(vm::bbox3(vm::vec3(-4.0, -4.0, -4.0), vm::vec3(+4.0, +4.0, +4.0)), pointDefinition->bounds(), 0.01)) << "Expected matching bounds";
 
             ASSERT_EQ(3u, pointDefinition->attributeDefinitions().size()) << "Expected three attribute definitions";
 
@@ -157,6 +161,62 @@ Updated: 2011-03-02
             ASSERT_EQ("Scaling factor (default 64), good values are between 50 and 300, depending on the map.", scaleDefinition->longDescription()) << "Expected attribute definition's long description to match element text";
         }
 
+        TEST(EntParserTest, parseSimpleGroupEntityDefinition) {
+            const String file = R"(
+<?xml version="1.0"?>
+<classes>
+<group name="func_bobbing" color="0 .4 1">
+Solid entity that oscillates back and forth in a linear motion. By default, it will have an amount of displacement in either direction equal to the dimension of the brush in the axis in which it's bobbing. Entity bobs on the Z axis (up-down) by default. It can also emit sound if the "noise" key is set. Will crush the player when blocked.
+-------- KEYS --------
+<sound key="noise" name="Sound File">Path/name of .wav file to play. Use looping sounds only (e.g. sound/world/drone6.wav - see notes).</sound>
+<model key="model2" name="Model File">Path/name of model to include (.md3 files only, e.g. models/mapobjects/jets/jets01.md3).</model>
+<color key="color" name="Model Light Color" value="1 1 1">Color of constant light of .md3 model, included with entity (default 1 1 1).</color>
+-------- Q3MAP2 KEYS --------
+<targetname key="targetname" name="Target Name">Used to attach a misc_model entity to this entity.</targetname>
+<integer key="_castshadows" name="Shadow Caster Level" value="0">Allows per-entity control over shadow casting. Defaults to 0 on entities, 1 on world. 0 = no shadow casting. 1 = cast shadows on world. &gt; 1 = cast shadows on entities with _rs (or _receiveshadows) with the corresponding value, AND world. Negative values imply same, but DO NOT cast shadows on world.</integer>
+<texture key="_celshader" name="Cel Shader">Sets the cel shader used for this geometry. Note: Omit the "textures/" prefix.</texture>
+-------- SPAWNFLAGS --------
+<flag key="X_AXIS" name="X Axis" bit="0">Entity will bob along the X axis.</flag>
+<flag key="Y_AXIS" name="Y Axis" bit="1">Entity will bob along the Y axis.</flag>
+-------- NOTES --------
+In order for the sound to be emitted from the entity, it is recommended to include a brush with an origin shader at its center, otherwise the sound will not follow the entity as it moves. When using the model2 key, the origin point of the model will correspond to the origin point defined by the origin brush.
+
+Target this entity with a misc_model to have the model attached to the entity (set the model's "target" key to the same value as this entity's "targetname").
+</group>
+</classes>)";
+
+            const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
+            EntParser parser(file, defaultColor);
+
+            TestParserStatus status;
+            const auto definitions = parser.parseDefinitions(status);
+            ASSERT_EQ(1u, definitions.size()) << "Expected one entity definition";
+
+            const auto* brushDefinition = dynamic_cast<const Assets::BrushEntityDefinition*>(definitions.front());
+            ASSERT_NE(nullptr, brushDefinition) << "Definition must be a brush entity definition";
+
+            const auto expectedDescription = R"(
+Solid entity that oscillates back and forth in a linear motion. By default, it will have an amount of displacement in either direction equal to the dimension of the brush in the axis in which it's bobbing. Entity bobs on the Z axis (up-down) by default. It can also emit sound if the "noise" key is set. Will crush the player when blocked.
+-------- KEYS --------
+
+-------- NOTES --------
+In order for the sound to be emitted from the entity, it is recommended to include a brush with an origin shader at its center, otherwise the sound will not follow the entity as it moves. When using the model2 key, the origin point of the model will correspond to the origin point defined by the origin brush.
+
+Target this entity with a misc_model to have the model attached to the entity (set the model's "target" key to the same value as this entity's "targetname").
+)";
+            ASSERT_EQ(expectedDescription, brushDefinition->description()) << "Expected text value as entity defintion description";
+
+            ASSERT_TRUE(vm::isEqual(Color(0.0f, 0.4f, 1.0f), brushDefinition->color(), 0.01f)) << "Expected matching color";
+
+            ASSERT_EQ(7u, brushDefinition->attributeDefinitions().size()) << "Expected three attribute definitions";
+            assertAttributeDefinition("noise", Assets::AttributeDefinition::Type_StringAttribute, brushDefinition);
+            assertAttributeDefinition("model2", Assets::AttributeDefinition::Type_StringAttribute, brushDefinition);
+            assertAttributeDefinition("color", Assets::AttributeDefinition::Type_StringAttribute, brushDefinition);
+            assertAttributeDefinition("targetname", Assets::AttributeDefinition::Type_TargetSourceAttribute, brushDefinition);
+            assertAttributeDefinition("_castshadows", Assets::AttributeDefinition::Type_IntegerAttribute, brushDefinition);
+            assertAttributeDefinition("_celshader", Assets::AttributeDefinition::Type_StringAttribute, brushDefinition);
+            assertAttributeDefinition("spawnflags", Assets::AttributeDefinition::Type_FlagsAttribute, brushDefinition);
+        }
 
         TEST(EntParserTest, parseInvalidRealAttributeDefinition) {
             const String file = R"(
@@ -185,5 +245,12 @@ Updated: 2011-03-02
             ASSERT_EQ(Assets::AttributeDefinition::Type_StringAttribute, scaleDefinition->type()) << "Expected angles attribute definition to be of Float type";
 
             ASSERT_EQ("asdf", scaleDefinition->defaultValue()) << "Expected correct default value for '_scale' attribute definition";
-        }    }
+        }
+
+        void assertAttributeDefinition(const String& name, const Assets::AttributeDefinition::Type expectedType, const Assets::EntityDefinition* entityDefinition) {
+            const auto* attrDefinition = entityDefinition->attributeDefinition(name);
+            ASSERT_NE(nullptr, attrDefinition) << "Missing attribute definition for '" + name + "' key";
+            ASSERT_EQ(expectedType, attrDefinition->type()) << "Expected '" + name + "' attribute definition to be of expected type";
+        }
+    }
 }
