@@ -91,7 +91,7 @@ namespace TrenchBroom {
             parseAttributes(element, attributeDefinitions, status);
 
             Assets::ModelDefinition modelDefinition(EL::LiteralExpression::create(
-                EL::Value({ { "path", EL::Value(model) } }),
+                EL::Value { { "path", EL::Value(model) } },
                 static_cast<size_t>(element.GetLineNum()), 0)
             );
 
