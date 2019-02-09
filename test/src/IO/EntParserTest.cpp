@@ -114,7 +114,7 @@ Updated: 2011-03-02
             EntParser parser(file, defaultColor);
 
             TestParserStatus status;
-            const auto definitions = parser.parseDefinitions(status);
+            auto definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size()) << "Expected one entity definition";
 
             const auto* pointDefinition = dynamic_cast<const Assets::PointEntityDefinition*>(definitions.front());
@@ -157,6 +157,8 @@ Updated: 2011-03-02
             ASSERT_EQ("Scale", scaleDefinition->shortDescription()) << "Expected attribute definition's short description to match name";
             ASSERT_EQ(64.0f, scaleDefinition->defaultValue()) << "Expected correct default value for '_scale' attribute definition";
             ASSERT_EQ("Scaling factor (default 64), good values are between 50 and 300, depending on the map.", scaleDefinition->longDescription()) << "Expected attribute definition's long description to match element text";
+
+            VectorUtils::clearAndDelete(definitions);
         }
 
         TEST(EntParserTest, parseSimpleGroupEntityDefinition) {
@@ -187,7 +189,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
             EntParser parser(file, defaultColor);
 
             TestParserStatus status;
-            const auto definitions = parser.parseDefinitions(status);
+            auto definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size()) << "Expected one entity definition";
 
             const auto* brushDefinition = dynamic_cast<const Assets::BrushEntityDefinition*>(definitions.front());
@@ -214,6 +216,8 @@ Target this entity with a misc_model to have the model attached to the entity (s
             assertAttributeDefinition("_castshadows", Assets::AttributeDefinition::Type_IntegerAttribute, brushDefinition);
             assertAttributeDefinition("_celshader", Assets::AttributeDefinition::Type_StringAttribute, brushDefinition);
             assertAttributeDefinition("spawnflags", Assets::AttributeDefinition::Type_FlagsAttribute, brushDefinition);
+
+            VectorUtils::clearAndDelete(definitions);
         }
 
         TEST(EntParserTest, parseListAttributeDefinition) {
@@ -243,7 +247,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
             EntParser parser(file, defaultColor);
 
             TestParserStatus status;
-            const auto definitions = parser.parseDefinitions(status);
+            auto definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size()) << "Expected one entity definition";
 
             const auto* pointDefinition = dynamic_cast<const Assets::PointEntityDefinition*>(definitions.front());
@@ -279,6 +283,8 @@ Target this entity with a misc_model to have the model attached to the entity (s
 
             ASSERT_EQ("2", options[2].value());
             ASSERT_EQ("green", options[2].description());
+
+            VectorUtils::clearAndDelete(definitions);
         }
 
         TEST(EntParserTest, parseInvalidRealAttributeDefinition) {
@@ -291,11 +297,11 @@ Target this entity with a misc_model to have the model attached to the entity (s
 </classes>
                         )";
 
-                        const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
+            const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             EntParser parser(file, defaultColor);
 
             TestParserStatus status;
-            const auto definitions = parser.parseDefinitions(status);
+            auto definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size()) << "Expected one entity definition";
 
             const auto* pointDefinition = dynamic_cast<const Assets::PointEntityDefinition*>(definitions.front());
@@ -308,6 +314,8 @@ Target this entity with a misc_model to have the model attached to the entity (s
             ASSERT_EQ(Assets::AttributeDefinition::Type_StringAttribute, scaleDefinition->type()) << "Expected angles attribute definition to be of Float type";
 
             ASSERT_EQ("asdf", scaleDefinition->defaultValue()) << "Expected correct default value for '_scale' attribute definition";
+
+            VectorUtils::clearAndDelete(definitions);
         }
 
         void assertAttributeDefinition(const String& name, const Assets::AttributeDefinition::Type expectedType, const Assets::EntityDefinition* entityDefinition) {
