@@ -27,6 +27,8 @@
 
 #include <vecmath/forward.h>
 
+#include <functional>
+
 namespace tinyxml2 {
     class XMLDocument;
     class XMLElement;

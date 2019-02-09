@@ -32,6 +32,7 @@
 #include <tinyxml2/tinyxml2.h>
 
 #include <cstdlib>
+#include <functional>
 
 namespace TrenchBroom {
     namespace IO {
