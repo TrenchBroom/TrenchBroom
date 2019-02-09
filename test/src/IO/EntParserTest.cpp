@@ -47,10 +47,8 @@ namespace TrenchBroom {
 
                 TestParserStatus status;
                 ASSERT_NO_THROW(parser.parseDefinitions(status)) << "Parsing ENT file " << path.asString() << " failed";
-                ASSERT_EQ(2u, status.countStatus(Logger::LogLevel_Warn))
-                                    << "Parsing FGD file " << path.asString() << " produced warnings";
                 ASSERT_EQ(0u, status.countStatus(Logger::LogLevel_Error))
-                                    << "Parsing FGD file " << path.asString() << " produced errors";
+                                    << "Parsing ENT file " << path.asString() << " produced errors";
             }
         }
 
