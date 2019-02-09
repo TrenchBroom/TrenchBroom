@@ -75,9 +75,11 @@ namespace TrenchBroom {
 
             vm::bbox3 parseBounds(const tinyxml2::XMLElement& element, const String& attributeName, ParserStatus& status);
             Color parseColor(const tinyxml2::XMLElement& element, const String& attributeName, ParserStatus& status);
-            int parseInteger(const tinyxml2::XMLElement& element, const String& attributeName, ParserStatus& status);
-            size_t parseSize(const tinyxml2::XMLElement& element, const String& attributeName, ParserStatus& status);
+            std::tuple<bool, int> parseInteger(const tinyxml2::XMLElement& element, const String& attributeName, ParserStatus& status);
+            std::tuple<bool, float> parseFloat(const tinyxml2::XMLElement& element, const String& attributeName, ParserStatus& status);
+            std::tuple<bool, size_t> parseSize(const tinyxml2::XMLElement& element, const String& attributeName, ParserStatus& status);
             String parseString(const tinyxml2::XMLElement& element, const String& attributeName, ParserStatus& status);
+            String getText(const tinyxml2::XMLElement& element);
 
             bool expectAttribute(const tinyxml2::XMLElement& element, const String& attributeName, ParserStatus& status);
             bool hasAttribute(const tinyxml2::XMLElement& element, const String& attributeName);
