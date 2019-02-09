@@ -78,7 +78,7 @@ namespace TrenchBroom {
             String m_filterText;
         public:
             EntityBrowserView(QWidget* parent,
-                              wxScrollBar* scrollBar,
+                              QScrollBar* scrollBar,
                               GLContextManager& contextManager,
                               Assets::EntityDefinitionManager& entityDefinitionManager,
                               Assets::EntityModelManager& entityModelManager,
@@ -98,7 +98,7 @@ namespace TrenchBroom {
             bool dndEnabled() override;
             void dndWillStart() override;
             void dndDidEnd() override;
-            wxString dndData(const Cell& cell) override;
+            QString dndData(const Cell& cell) override;
 
             void addEntityToLayout(Layout& layout, const Assets::PointEntityDefinition* definition, const Renderer::FontDescriptor& font);
             
@@ -117,8 +117,8 @@ namespace TrenchBroom {
             StringMap collectStringVertices(Layout& layout, float y, float height);
             
             vm::mat4x4f itemTransformation(const Cell& cell, float y, float height) const;
-            
-            wxString tooltip(const Cell& cell) override;
+
+            QString tooltip(const Cell& cell) override;
 
             const EntityCellData& cellData(const Cell& cell) const;
         };

@@ -30,7 +30,7 @@
 
 #include <map>
 
-class wxScrollBar;
+class QScrollBar;
 
 namespace TrenchBroom {
     namespace Assets {
@@ -70,7 +70,7 @@ namespace TrenchBroom {
             Assets::Texture* m_selectedTexture;
         public:
             TextureBrowserView(QWidget* parent,
-                               wxScrollBar* scrollBar,
+                               QScrollBar* scrollBar,
                                GLContextManager& contextManager,
                                Assets::TextureManager& textureManager);
             ~TextureBrowserView() override;
@@ -114,7 +114,7 @@ namespace TrenchBroom {
             StringMap collectStringVertices(Layout& layout, float y, float height);
             
             void doLeftClick(Layout& layout, float x, float y) override;
-            wxString tooltip(const Cell& cell) override;
+            QString tooltip(const Cell& cell) override;
 
             const TextureCellData& cellData(const Cell& cell) const;
         };

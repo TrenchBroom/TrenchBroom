@@ -22,7 +22,7 @@
 
 #include "Macros.h"
 
-#include <wx/any.h>
+#include <QVariant>
 
 #include <algorithm>
 #include <cassert>
@@ -95,7 +95,7 @@ namespace TrenchBroom {
         class LayoutCell {
         public:
         private:
-            wxAny m_item;
+            QVariant m_item;
             float m_x;
             float m_y;
             float m_itemWidth;
@@ -138,7 +138,7 @@ namespace TrenchBroom {
                                              m_titleHeight);
             }
         public:
-            LayoutCell(wxAny item,
+            LayoutCell(QVariant item,
                        const float x, const float y,
                        const float itemWidth, const float itemHeight,
                        const float titleWidth, const float titleHeight,
@@ -187,7 +187,7 @@ namespace TrenchBroom {
                 doLayout(maxUpScale, minWidth, maxWidth, minHeight, maxHeight);
             }
 
-            wxAny item() const {
+            QVariant item() const {
                 return m_item;
             }
 
@@ -239,7 +239,7 @@ namespace TrenchBroom {
                 return m_cells[index];
             }
 
-            bool addItem(wxAny item,
+            bool addItem(QVariant item,
                                 const float itemWidth, const float itemHeight,
                                 const float titleWidth, const float titleHeight) {
                 float x = m_bounds.right();
@@ -309,7 +309,7 @@ namespace TrenchBroom {
         private:
             using Row = LayoutRow;
             using GroupType = std::string;
-            using CellType = wxAny;
+            using CellType = QVariant;
         private:
             GroupType m_item;
             float m_cellMargin;
@@ -477,7 +477,7 @@ namespace TrenchBroom {
         private:
             using Group = LayoutGroup;
             using GroupType = std::string;
-            using CellType = wxAny;
+            using CellType = QVariant;
         private:
             float m_width;
             float m_cellMargin;

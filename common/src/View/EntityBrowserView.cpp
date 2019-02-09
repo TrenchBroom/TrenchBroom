@@ -19,6 +19,7 @@
 
 #include "EntityBrowserView.h"
 
+#include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Logger.h"
 #include "Assets/EntityDefinition.h"
@@ -49,6 +50,9 @@
 
 #include <map>
 
+// allow storing std::shared_ptr in QVariant
+Q_DECLARE_METATYPE(std::shared_ptr<TrenchBroom::View::EntityCellData>)
+
 namespace TrenchBroom {
     namespace View {
         EntityCellData::EntityCellData(const Assets::PointEntityDefinition* i_entityDefinition, EntityRenderer* i_modelRenderer, const Renderer::FontDescriptor& i_fontDescriptor, const vm::bbox3f& i_bounds) :
@@ -58,12 +62,12 @@ namespace TrenchBroom {
         bounds(i_bounds) {}
 
         EntityBrowserView::EntityBrowserView(QWidget* parent,
-                                             wxScrollBar* scrollBar,
+                                             QScrollBar* scrollBar,
                                              GLContextManager& contextManager,
                                              Assets::EntityDefinitionManager& entityDefinitionManager,
                                              Assets::EntityModelManager& entityModelManager,
                                              Logger& logger) :
-        CellView(parent, contextManager, scrollBar),
+        CellView(contextManager, scrollBar),
         m_entityDefinitionManager(entityDefinitionManager),
         m_entityModelManager(entityModelManager),
         m_logger(logger),
@@ -163,21 +167,25 @@ namespace TrenchBroom {
         }
         
         void EntityBrowserView::dndWillStart() {
+#if 0 // FIXME:DND
             MapFrame* mapFrame = findMapFrame(this);
             ensure(mapFrame != nullptr, "mapFrame is null");
             mapFrame->setToolBoxDropTarget();
+#endif
         }
         
         void EntityBrowserView::dndDidEnd() {
+#if 0 // FIXME:DND
             MapFrame* mapFrame = findMapFrame(this);
             ensure(mapFrame != nullptr, "mapFrame is null");
             mapFrame->clearDropTarget();
+#endif
         }
 
-        wxString EntityBrowserView::dndData(const Cell& cell) {
-            static const String prefix("entity:");
-            const String name = cellData(cell).entityDefinition->name();
-            return wxString(prefix + name);
+        QString EntityBrowserView::dndData(const Cell& cell) {
+            const QString prefix("entity:");
+            const QString name = QString::fromStdString(cellData(cell).entityDefinition->name());
+            return prefix + name;
         }
 
         void EntityBrowserView::addEntityToLayout(Layout& layout, const Assets::PointEntityDefinition* definition, const Renderer::FontDescriptor& font) {
@@ -207,7 +215,7 @@ namespace TrenchBroom {
                 }
                 
                 const auto boundsSize = rotatedBounds.size();
-                layout.addItem(wxAny(std::make_shared<EntityCellData>(definition, modelRenderer, actualFont, rotatedBounds)),
+                layout.addItem(QVariant::fromValue(std::make_shared<EntityCellData>(definition, modelRenderer, actualFont, rotatedBounds)),
                                boundsSize.y(),
                                boundsSize.z(),
                                actualSize.x(),
@@ -218,10 +226,10 @@ namespace TrenchBroom {
         void EntityBrowserView::doClear() {}
         
         void EntityBrowserView::doRender(Layout& layout, const float y, const float height) {
-            const float viewLeft      = static_cast<float>(GetClientRect().GetLeft());
-            const float viewTop       = static_cast<float>(GetClientRect().GetBottom());
-            const float viewRight     = static_cast<float>(GetClientRect().GetRight());
-            const float viewBottom    = static_cast<float>(GetClientRect().GetTop());
+            const float viewLeft      = static_cast<float>(0);
+            const float viewTop       = static_cast<float>(size().height());
+            const float viewRight     = static_cast<float>(size().width());
+            const float viewBottom    = static_cast<float>(0);
 
             const vm::mat4x4f projection = vm::orthoMatrix(-1024.0f, 1024.0f, viewLeft, viewTop, viewRight, viewBottom);
             const vm::mat4x4f view = vm::viewMatrix(vm::vec3f::neg_x, vm::vec3f::pos_z) * translationMatrix(vm::vec3f(256.0f, 0.0f, 0.0f));
@@ -446,13 +454,13 @@ namespace TrenchBroom {
                     vm::translationMatrix(-boundsCenter));
         }
         
-        wxString EntityBrowserView::tooltip(const Cell& cell) {
-            return cellData(cell).entityDefinition->name();
+        QString EntityBrowserView::tooltip(const Cell& cell) {
+            return QString::fromStdString(cellData(cell).entityDefinition->name());
         }
 
         const EntityCellData& EntityBrowserView::cellData(const Cell& cell) const {
-            wxAny any = cell.item();
-            auto ptr = any.As<std::shared_ptr<EntityCellData>>();
+            QVariant any = cell.item();
+            auto ptr = any.value<std::shared_ptr<EntityCellData>>();
             return *ptr;
         }
     }

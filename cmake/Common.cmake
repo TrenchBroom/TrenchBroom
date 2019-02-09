@@ -332,7 +332,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/EntityAttributeGrid.cpp
 	${COMMON_SOURCE_DIR}/View/EntityAttributeGridTable.cpp
 #	${COMMON_SOURCE_DIR}/View/EntityBrowser.cpp
-#	${COMMON_SOURCE_DIR}/View/EntityBrowserView.cpp
+	${COMMON_SOURCE_DIR}/View/EntityBrowserView.cpp
 #	${COMMON_SOURCE_DIR}/View/EntityDefinitionFileChooser.cpp
 	${COMMON_SOURCE_DIR}/View/EntityDefinitionFileCommand.cpp
 	${COMMON_SOURCE_DIR}/View/EntityInspector.cpp
@@ -357,7 +357,6 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/GameListBox.cpp
 #	${COMMON_SOURCE_DIR}/View/GameSelectionCommand.cpp
 #	${COMMON_SOURCE_DIR}/View/GamesPreferencePane.cpp
-#	${COMMON_SOURCE_DIR}/View/GenericDropSource.cpp
 	${COMMON_SOURCE_DIR}/View/GetVersion.cpp
 #	${COMMON_SOURCE_DIR}/View/GLAttribs.cpp
 #	${COMMON_SOURCE_DIR}/View/GLContext.cpp
@@ -459,9 +458,8 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/TabBook.cpp
 #	${COMMON_SOURCE_DIR}/View/TextCtrlOutputAdapter.cpp
 #	${COMMON_SOURCE_DIR}/View/TextureBrowser.cpp
-#	${COMMON_SOURCE_DIR}/View/TextureBrowserView.cpp
+	${COMMON_SOURCE_DIR}/View/TextureBrowserView.cpp
 #	${COMMON_SOURCE_DIR}/View/TextureCollectionEditor.cpp
-#	${COMMON_SOURCE_DIR}/View/TextureSelectedCommand.cpp
 	${COMMON_SOURCE_DIR}/View/ThreePaneMapView.cpp
 #	${COMMON_SOURCE_DIR}/View/TitleBar.cpp
 #	${COMMON_SOURCE_DIR}/View/TitledPanel.cpp
@@ -884,7 +882,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/CyclingMapView.h
 	${COMMON_SOURCE_DIR}/View/DirectoryTextureCollectionEditor.h
 	${COMMON_SOURCE_DIR}/View/DocumentCommand.h
-	${COMMON_SOURCE_DIR}/View/DragAndDrop.h
 	${COMMON_SOURCE_DIR}/View/DuplicateNodesCommand.h
 	${COMMON_SOURCE_DIR}/View/EdgeToolController.h
 	${COMMON_SOURCE_DIR}/View/EdgeTool.h
@@ -918,7 +915,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/GameListBox.h
 	${COMMON_SOURCE_DIR}/View/GameSelectionCommand.h
 	${COMMON_SOURCE_DIR}/View/GamesPreferencePane.h
-	${COMMON_SOURCE_DIR}/View/GenericDropSource.h
 	${COMMON_SOURCE_DIR}/View/GetVersion.h
 	${COMMON_SOURCE_DIR}/View/GLAttribs.h
 	${COMMON_SOURCE_DIR}/View/GLContext.h
@@ -1026,7 +1022,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/TextureBrowser.h
 	${COMMON_SOURCE_DIR}/View/TextureBrowserView.h
 	${COMMON_SOURCE_DIR}/View/TextureCollectionEditor.h
-	${COMMON_SOURCE_DIR}/View/TextureSelectedCommand.h
 	${COMMON_SOURCE_DIR}/View/ThreePaneMapView.h
 	${COMMON_SOURCE_DIR}/View/TitleBar.h
 	${COMMON_SOURCE_DIR}/View/TitledPanel.h

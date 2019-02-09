@@ -29,11 +29,15 @@
 #include "Renderer/ShaderManager.h"
 #include "Renderer/TextureFont.h"
 #include "Renderer/VertexArray.h"
-#include "View/TextureSelectedCommand.h"
 
 #include <vecmath/vec.h>
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
+
+#include <QTextStream>
+
+// allow storing std::shared_ptr in QVariant
+Q_DECLARE_METATYPE(std::shared_ptr<TrenchBroom::View::TextureCellData>)
 
 namespace TrenchBroom {
     namespace View {
@@ -42,10 +46,10 @@ namespace TrenchBroom {
         fontDescriptor(i_fontDescriptor) {}
 
         TextureBrowserView::TextureBrowserView(QWidget* parent,
-                                               wxScrollBar* scrollBar,
+                                               QScrollBar* scrollBar,
                                                GLContextManager& contextManager,
                                                Assets::TextureManager& textureManager) :
-        CellView(parent, contextManager, scrollBar),
+        CellView(contextManager, scrollBar),
         m_textureManager(textureManager),
         m_group(false),
         m_hideUnused(false),
@@ -147,7 +151,7 @@ namespace TrenchBroom {
             const size_t scaledTextureWidth = static_cast<size_t>(vm::round(scaleFactor * static_cast<float>(texture->width())));
             const size_t scaledTextureHeight = static_cast<size_t>(vm::round(scaleFactor * static_cast<float>(texture->height())));
             
-            layout.addItem(wxAny(std::make_shared<TextureCellData>(texture, actualFont)),
+            layout.addItem(QVariant::fromValue(std::make_shared<TextureCellData>(texture, actualFont)),
                            scaledTextureWidth,
                            scaledTextureHeight,
                            actualSize.x(),
@@ -240,10 +244,10 @@ namespace TrenchBroom {
         void TextureBrowserView::doRender(Layout& layout, const float y, const float height) {
             m_textureManager.commitChanges();
             
-            const float viewLeft      = static_cast<float>(GetClientRect().GetLeft());
-            const float viewTop       = static_cast<float>(GetClientRect().GetBottom());
-            const float viewRight     = static_cast<float>(GetClientRect().GetRight());
-            const float viewBottom    = static_cast<float>(GetClientRect().GetTop());
+            const float viewLeft      = static_cast<float>(0);
+            const float viewTop       = static_cast<float>(size().height());
+            const float viewRight     = static_cast<float>(size().width());
+            const float viewBottom    = static_cast<float>(0);
             
             const vm::mat4x4f projection = vm::orthoMatrix(-1.0f, 1.0f, viewLeft, viewTop, viewRight, viewBottom);
             const vm::mat4x4f view = vm::viewMatrix(vm::vec3f::neg_z, vm::vec3f::pos_y) * translationMatrix(vm::vec3f(0.0f, 0.0f, 0.1f));
@@ -457,31 +461,33 @@ namespace TrenchBroom {
             if (layout.cellAt(x, y, &result)) {
                 if (!cellData(*result).texture->overridden()) {
                     auto* texture = cellData(*result).texture;
-                    
+
+#if 0 // FIXME: TextureSelectedCommand
                     TextureSelectedCommand command;
                     command.SetEventObject(this);
                     command.SetId(GetId());
                     command.setTexture(texture);
                     ProcessEvent(command);
-                    
+
                     if (command.IsAllowed())
                         setSelectedTexture(texture);
-                    
+#endif
                     Refresh();
                 }
             }
         }
 
-        wxString TextureBrowserView::tooltip(const Cell& cell) {
-            wxString tooltip;
-            tooltip << cellData(cell).texture->name() << "\n";
-            tooltip << cellData(cell).texture->width() << "x" << cellData(cell).texture->height();
+        QString TextureBrowserView::tooltip(const Cell& cell) {
+            QString tooltip;
+            QTextStream ss(&tooltip);
+            ss << QString::fromStdString(cellData(cell).texture->name()) << "\n";
+            ss << cellData(cell).texture->width() << "x" << cellData(cell).texture->height();
             return tooltip;
         }
 
         const TextureCellData& TextureBrowserView::cellData(const Cell& cell) const {
-            wxAny any = cell.item();
-            auto ptr = any.As<std::shared_ptr<TextureCellData>>();
+            QVariant any = cell.item();
+            auto ptr = any.value<std::shared_ptr<TextureCellData>>();
             return *ptr;
         }
     }

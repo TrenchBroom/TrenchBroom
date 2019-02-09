@@ -25,13 +25,11 @@
 #include "Renderer/FontDescriptor.h"
 #include "Preferences.h"
 #include "View/CellLayout.h"
-#include "View/DragAndDrop.h"
 #include "View/GLAttribs.h"
 #include "View/RenderView.h"
 
-#include <wx/dnd.h>
-#include <wx/event.h>
-#include <wx/scrolbar.h>
+#include <QScrollBar>
+
 #include <algorithm>
 
 namespace TrenchBroom {
@@ -51,16 +49,18 @@ namespace TrenchBroom {
             
             bool m_valid;
 
-            wxScrollBar* m_scrollBar;
-            wxPoint m_lastMousePos;
+            QScrollBar* m_scrollBar;
+            QPoint m_lastMousePos;
             bool m_potentialDrag;
 
             void updateScrollBar() {
                 if (m_scrollBar != nullptr) {
-                    int position = m_scrollBar->GetThumbPosition();
-                    int thumbSize = GetClientSize().y;
+                    //int position = m_scrollBar->value(); // unused
+                    int thumbSize = size().height();
                     int range = static_cast<int>(m_layout.height());
-                    m_scrollBar->SetScrollbar(position, thumbSize, range, thumbSize);
+                    m_scrollBar->setRange(0, range);
+                    //m_scrollBar->setValue(position); // no-op
+                    m_scrollBar->setPageStep(thumbSize);
                 }
             }
 
@@ -84,30 +84,14 @@ namespace TrenchBroom {
                     reloadLayout();
             }
         public:
-            CellView(QWidget* parent, GLContextManager& contextManager, wxGLAttributes attribs, wxScrollBar* scrollBar = nullptr) :
-            RenderView(parent, contextManager, attribs),
+            CellView(GLContextManager& contextManager, QScrollBar* scrollBar = nullptr) :
+            RenderView(contextManager),
             m_layoutInitialized(false),
             m_valid(false),
             m_scrollBar(scrollBar) {
-                Bind(wxEVT_SIZE, &CellView::OnSize, this);
-                Bind(wxEVT_LEFT_DOWN, &CellView::OnMouseLeftDown, this);
-                Bind(wxEVT_LEFT_UP, &CellView::OnMouseLeftUp, this);
-                Bind(wxEVT_RIGHT_DOWN, &CellView::OnMouseRightDown, this);
-                Bind(wxEVT_RIGHT_UP, &CellView::OnMouseRightUp, this);
-                Bind(wxEVT_MOTION, &CellView::OnMouseMove, this);
-                Bind(wxEVT_MOUSE_CAPTURE_LOST, &CellView::OnMouseCaptureLost, this);
-
                 if (m_scrollBar != nullptr) {
-                    m_scrollBar->Bind(wxEVT_SCROLL_LINEUP, &CellView::OnScrollBarLineUp, this);
-                    m_scrollBar->Bind(wxEVT_SCROLL_LINEDOWN, &CellView::OnScrollBarLineDown, this);
-                    m_scrollBar->Bind(wxEVT_SCROLL_PAGEUP, &CellView::OnScrollBarPageUp, this);
-                    m_scrollBar->Bind(wxEVT_SCROLL_PAGEDOWN, &CellView::OnScrollBarPageDown, this);
-
-                    m_scrollBar->Bind(wxEVT_SCROLL_TOP, &CellView::OnScrollBarChange, this);
-                    m_scrollBar->Bind(wxEVT_SCROLL_BOTTOM, &CellView::OnScrollBarChange, this);
-                    m_scrollBar->Bind(wxEVT_SCROLL_THUMBTRACK, &CellView::OnScrollBarChange, this);
-
-                    Bind(wxEVT_MOUSEWHEEL, &CellView::OnMouseWheel, this);
+                    connect(m_scrollBar, &QAbstractSlider::actionTriggered, this, &CellView::onScrollBarActionTriggered);
+                    connect(m_scrollBar, &QAbstractSlider::valueChanged, this, &CellView::onScrollBarValueChanged);
                 }
             }
 
@@ -121,45 +105,42 @@ namespace TrenchBroom {
                 m_valid = true;
             }
 
-            void OnSize(wxSizeEvent& event) {
-                m_layout.setWidth(static_cast<float>(GetClientSize().x));
+            void resizeEvent(QResizeEvent* event) override {
+                m_layout.setWidth(static_cast<float>(size().width()));
                 updateScrollBar();
-                event.Skip();
+
+                RenderView::resizeEvent(event);
             }
 
-            void OnScrollBarChange(wxScrollEvent& event) {
-                Refresh();
-                event.Skip();
+            void onScrollBarValueChanged() {
+                requestUpdate();
             }
 
-            void OnScrollBarLineUp(wxScrollEvent& event) {
-                const float top = static_cast<float>(m_scrollBar->GetThumbPosition());
-                m_scrollBar->SetThumbPosition(static_cast<int>(m_layout.rowPosition(top, -1)));
-                Refresh();
-                event.Skip();
+            void onScrollBarActionTriggered(int action) {
+                const auto top = static_cast<float>(m_scrollBar->value());
+                const auto height = static_cast<float>(size().height());
+
+                // NOTE: We call setSliderPosition(), not setValue()
+                // see: https://doc.qt.io/archives/qt-4.8/qabstractslider.html#actionTriggered
+                switch (action) {
+                    case QAbstractSlider::SliderSingleStepAdd:
+                        m_scrollBar->setSliderPosition(static_cast<int>(m_layout.rowPosition(top, 1))); // line down
+                        break;
+                    case QAbstractSlider::SliderSingleStepSub:
+                        m_scrollBar->setSliderPosition(static_cast<int>(m_layout.rowPosition(top, -1))); // line up
+                        break;
+                    case QAbstractSlider::SliderPageStepAdd:
+                        m_scrollBar->setSliderPosition(static_cast<int>(m_layout.rowPosition(top, 0))); // page down
+                        break;
+                    case QAbstractSlider::SliderPageStepSub:
+                        m_scrollBar->setSliderPosition(static_cast<int>(m_layout.rowPosition(std::max(0.0f, top - height), 0))); // page up
+                        break;
+                    default:
+                        break;
+                }
+                requestUpdate();
             }
 
-            void OnScrollBarLineDown(wxScrollEvent& event) {
-                const float top = static_cast<float>(m_scrollBar->GetThumbPosition());
-                m_scrollBar->SetThumbPosition(static_cast<int>(m_layout.rowPosition(top, 1)));
-                Refresh();
-                event.Skip();
-            }
-
-            void OnScrollBarPageUp(wxScrollEvent& event) {
-                const float top = static_cast<float>(m_scrollBar->GetThumbPosition());
-                const float height = static_cast<float>(GetClientSize().y);
-                m_scrollBar->SetThumbPosition(static_cast<int>(m_layout.rowPosition(std::max(0.0f, top - height), 0)));
-                Refresh();
-                event.Skip();
-            }
-
-            void OnScrollBarPageDown(wxScrollEvent& event) {
-                const float top = static_cast<float>(m_scrollBar->GetThumbPosition());
-                m_scrollBar->SetThumbPosition(static_cast<int>(m_layout.rowPosition(top, 0)));
-                Refresh();
-                event.Skip();
-            }
 
             class DndHelper {
             private:
@@ -175,59 +156,60 @@ namespace TrenchBroom {
                 }
             };
 
-            void OnMouseLeftDown(wxMouseEvent& event) {
-                m_potentialDrag = true;
-            }
-
-            void OnMouseLeftUp(wxMouseEvent& event) {
-                int top = m_scrollBar != nullptr ? m_scrollBar->GetThumbPosition() : 0;
-                float x = static_cast<float>(event.GetX());
-                float y = static_cast<float>(event.GetY() + top);
-                doLeftClick(m_layout, x, y);
-            }
-
-            void OnMouseRightDown(wxMouseEvent& event) {
-                if (event.AltDown()) {
-                    m_lastMousePos = event.GetPosition();
-                    CaptureMouse();
+            void mousePressEvent(QMouseEvent* event) override {
+                if (event->button() == Qt::LeftButton) {
+                    m_potentialDrag = true;
+                } else if (event->button() == Qt::RightButton) {
+                    if (event->modifiers() & Qt::AltModifier) {
+                        m_lastMousePos = event->pos();
+                    }
                 }
             }
 
-            void OnMouseRightUp(wxMouseEvent& event) {
-                if (HasCapture())
-                    ReleaseMouse();
+            void mouseReleaseEvent(QMouseEvent* event) override {
+                if (event->button() == Qt::LeftButton) {
+                    int top = m_scrollBar != nullptr ? m_scrollBar->value() : 0;
+                    float x = static_cast<float>(event->localPos().x());
+                    float y = static_cast<float>(event->localPos().y());
+                    doLeftClick(m_layout, x, y);
+                }
             }
 
-            void OnMouseCaptureLost(wxMouseCaptureLostEvent& event) {}
-
-            void OnMouseMove(wxMouseEvent& event) {
-                if (event.LeftIsDown()) {
+            void mouseMoveEvent(QMouseEvent* event) override {
+                if (event->buttons() & Qt::LeftButton) {
                     if (m_potentialDrag) {
                         startDrag(event);
                         m_potentialDrag = false;
                     }
-                } else if (event.RightIsDown() && event.AltDown()) {
+                } else if ((event->buttons() & Qt::RightButton) && (event->modifiers() & Qt::AltModifier)) {
                     scroll(event);
                 } else {
                     updateTooltip(event);
                 }
 
-                m_lastMousePos = event.GetPosition();
+                m_lastMousePos = event->pos();
             }
 
-            void OnMouseWheel(wxMouseEvent& event) {
+            void wheelEvent(QWheelEvent* event) override {
                 if (m_scrollBar != nullptr) {
-                    const int top = m_scrollBar->GetThumbPosition();
+                    QPoint pixelDelta = event->pixelDelta();
+                    if (pixelDelta.isNull()) {
+                        QPoint degreeDelta = event->angleDelta() / 8;
+                        pixelDelta = degreeDelta;
+                    }
+
+                    const int top = m_scrollBar->value();
                     const int height = static_cast<int>(m_layout.height());
-                    const int newTop = std::min(std::max(0, top - event.GetWheelRotation()), height);
-                    m_scrollBar->SetThumbPosition(newTop);
-                    Refresh();
+                    const int newTop = std::min(std::max(0, top - pixelDelta.y()), height);
+                    m_scrollBar->setValue(newTop);
+                    requestUpdate();
                 }
             }
 
-            void startDrag(const wxMouseEvent& event) {
+            void startDrag(const QMouseEvent* event) {
+#if 0 // FIXME: DND
                 if (dndEnabled()) {
-                    int top = m_scrollBar != nullptr ? m_scrollBar->GetThumbPosition() : 0;
+                    int top = m_scrollBar != nullptr ? m_scrollBar->value() : 0;
                     float x = static_cast<float>(event.GetX());
                     float y = static_cast<float>(event.GetY() + top);
                     const Cell* cell = nullptr;
@@ -244,19 +226,21 @@ namespace TrenchBroom {
                         dropSource.DoDragDrop();
                     }
                 }
+#endif
             }
             
-            void scroll(const wxMouseEvent& event) {
+            void scroll(const QMouseEvent* event) {
                 if (m_scrollBar != nullptr) {
-                    const wxPoint mousePosition = event.GetPosition();
-                    const wxCoord delta = mousePosition.y - m_lastMousePos.y;
-                    const wxCoord newThumbPosition = m_scrollBar->GetThumbPosition() - delta;
-                    m_scrollBar->SetThumbPosition(newThumbPosition);
-                    Refresh();
+                    const QPoint mousePosition = event->pos();
+                    const int delta = mousePosition.y() - m_lastMousePos.y();
+                    const int newThumbPosition = m_scrollBar->value() - delta;
+                    m_scrollBar->setValue(newThumbPosition);
+                    requestUpdate();
                 }
             }
             
-            void updateTooltip(const wxMouseEvent& event) {
+            void updateTooltip(const QMouseEvent* event) {
+#if 0 // FIXME: TOOLTIPS
                 int top = m_scrollBar != nullptr ? m_scrollBar->GetThumbPosition() : 0;
                 float x = static_cast<float>(event.GetX());
                 float y = static_cast<float>(event.GetY() + top);
@@ -265,6 +249,7 @@ namespace TrenchBroom {
                     SetToolTip(tooltip(*cell));
                 else
                     SetToolTip("");
+#endif
             }
         private:
             void doRender() override {
@@ -273,20 +258,21 @@ namespace TrenchBroom {
                 if (!m_layoutInitialized)
                     initLayout();
 
-                const int top = m_scrollBar != nullptr ? m_scrollBar->GetThumbPosition() : 0;
-                const wxRect visibleRect = wxRect(wxPoint(0, top), GetClientSize());
+                // FIXME: check DPI awareness
+                const int top = m_scrollBar != nullptr ? m_scrollBar->value() : 0;
+                const QRect visibleRect = QRect(QPoint(0, top), size());
                 
-                const float y = static_cast<float>(visibleRect.GetY());
-                const float height = static_cast<float>(visibleRect.GetHeight());
+                const float y = static_cast<float>(visibleRect.y());
+                const float h = static_cast<float>(visibleRect.height());
                 
-                const GLint viewLeft      = static_cast<GLint>(GetClientRect().GetLeft());
-                const GLint viewTop       = static_cast<GLint>(GetClientRect().GetBottom());
-                const GLint viewRight     = static_cast<GLint>(GetClientRect().GetRight());
-                const GLint viewBottom    = static_cast<GLint>(GetClientRect().GetTop());
+                const GLint viewLeft      = 0; //static_cast<GLint>(GetClientRect().GetLeft());
+                const GLint viewTop       = 0; //static_cast<GLint>(GetClientRect().GetBottom());
+                const GLint viewRight     = width(); //static_cast<GLint>(GetClientRect().GetRight());
+                const GLint viewBottom    = height(); //static_cast<GLint>(GetClientRect().GetTop());
                 glViewport(viewLeft, viewBottom, viewRight - viewLeft, viewTop - viewBottom);
 
                 setupGL();
-                doRender(m_layout, y, height);
+                doRender(m_layout, y, h);
             }
             
             void setupGL() {
@@ -308,7 +294,7 @@ namespace TrenchBroom {
             virtual bool dndEnabled() { return false; }
             virtual void dndWillStart() {}
             virtual void dndDidEnd() {}
-            virtual wxImage dndImage(const Cell& cell) { assert(false); return wxImage(); }
+            virtual QPixmap dndImage(const Cell& cell) { assert(false); return QPixmap(); }
             virtual QString dndData(const Cell& cell) { assert(false); return ""; }
             virtual QString tooltip(const Cell& cell) { return ""; }
         public: // implement InputEventProcessor interface
