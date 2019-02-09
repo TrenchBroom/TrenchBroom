@@ -47,7 +47,7 @@ namespace TrenchBroom {
 
                 TestParserStatus status;
                 ASSERT_NO_THROW(parser.parseDefinitions(status)) << "Parsing ENT file " << path.asString() << " failed";
-                ASSERT_EQ(0u, status.countStatus(Logger::LogLevel_Warn))
+                ASSERT_EQ(3u, status.countStatus(Logger::LogLevel_Warn))
                                     << "Parsing FGD file " << path.asString() << " produced warnings";
                 ASSERT_EQ(0u, status.countStatus(Logger::LogLevel_Error))
                                     << "Parsing FGD file " << path.asString() << " produced errors";
@@ -216,6 +216,71 @@ Target this entity with a misc_model to have the model attached to the entity (s
             assertAttributeDefinition("_castshadows", Assets::AttributeDefinition::Type_IntegerAttribute, brushDefinition);
             assertAttributeDefinition("_celshader", Assets::AttributeDefinition::Type_StringAttribute, brushDefinition);
             assertAttributeDefinition("spawnflags", Assets::AttributeDefinition::Type_FlagsAttribute, brushDefinition);
+        }
+
+        TEST(EntParserTest, parseListAttributeDefinition) {
+            const String file = R"(
+<?xml version="1.0"?>
+<classes>
+<point name="_skybox" color="0.77 0.88 1.0" box="-4 -4 -4 4 4 4">
+<list name="colorIndex">
+<item name="white" value="0"/>
+<item name="red" value="1"/>
+<item name="green" value="2"/>
+</list>
+<colorIndex key="count" name="Text Color" value="0">Color of the location text displayed in parentheses during team chat. Set to 0-7 for color.
+0 : White (default)
+1 : Red
+2 : Green
+3 : Yellow
+4 : Blue
+5 : Cyan
+6 : Magenta
+7 : White</colorIndex>
+</point>
+</classes>
+            )";
+
+            const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
+            EntParser parser(file, defaultColor);
+
+            TestParserStatus status;
+            const auto definitions = parser.parseDefinitions(status);
+            ASSERT_EQ(1u, definitions.size()) << "Expected one entity definition";
+
+            const auto* pointDefinition = dynamic_cast<const Assets::PointEntityDefinition*>(definitions.front());
+            ASSERT_NE(nullptr, pointDefinition) << "Definition must be a point entity definition";
+
+            ASSERT_EQ(1u, pointDefinition->attributeDefinitions().size()) << "Expected one attribute definitions";
+
+            const auto* colorIndexDefinition = dynamic_cast<const Assets::ChoiceAttributeDefinition*>(pointDefinition->attributeDefinition("count"));
+            ASSERT_NE(nullptr, colorIndexDefinition) << "Missing attribute definition for 'count' key";
+            ASSERT_EQ(Assets::AttributeDefinition::Type_ChoiceAttribute, colorIndexDefinition->type()) << "Expected count attribute definition to be of choice type";
+
+            ASSERT_EQ("Text Color", colorIndexDefinition->shortDescription()) << "Expected name value as entity attribute definition short description";
+
+            const auto expectedDescription = R"(Color of the location text displayed in parentheses during team chat. Set to 0-7 for color.
+0 : White (default)
+1 : Red
+2 : Green
+3 : Yellow
+4 : Blue
+5 : Cyan
+6 : Magenta
+7 : White)";
+            ASSERT_EQ(expectedDescription, colorIndexDefinition->longDescription()) << "Expected text value as entity attribute defintion long description";
+
+            const auto& options = colorIndexDefinition->options();
+            ASSERT_EQ(3u, options.size());
+
+            ASSERT_EQ("0", options[0].value());
+            ASSERT_EQ("white", options[0].description());
+
+            ASSERT_EQ("1", options[1].value());
+            ASSERT_EQ("red", options[1].description());
+
+            ASSERT_EQ("2", options[2].value());
+            ASSERT_EQ("green", options[2].description());
         }
 
         TEST(EntParserTest, parseInvalidRealAttributeDefinition) {
