@@ -26,11 +26,12 @@
 #include "View/ViewConstants.h"
 #include "View/MapDocument.h"
 
-#include <wx/choice.h>
-#include <wx/event.h>
-#include <wx/tglbtn.h>
-#include <wx/srchctrl.h>
-#include <wx/sizer.h>
+#include <QPushButton>
+#include <QComboBox>
+#include <QLineEdit>
+#include <QScrollBar>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
 
 namespace TrenchBroom {
     namespace View {
@@ -51,84 +52,66 @@ namespace TrenchBroom {
                 m_view->Refresh();
             }
         }
-        
-        void EntityBrowser::OnSortOrderChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            const Assets::EntityDefinition::SortOrder sortOrder = event.GetSelection() == 0 ? Assets::EntityDefinition::Name : Assets::EntityDefinition::Usage;
-            m_view->setSortOrder(sortOrder);
-        }
-        
-        void EntityBrowser::OnGroupButtonToggled(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            m_view->setGroup(m_groupButton->GetValue());
-        }
-        
-        void EntityBrowser::OnUsedButtonToggled(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            m_view->setHideUnused(m_usedButton->GetValue());
-        }
-        
-        void EntityBrowser::OnFilterPatternChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            m_view->setFilterText(m_filterBox->GetValue().ToStdString());
-        }
 
         void EntityBrowser::createGui(GLContextManager& contextManager) {
-            QWidget* browserPanel = new QWidget(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
-            m_scrollBar = new wxScrollBar(browserPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSB_VERTICAL);
+            m_scrollBar = new QScrollBar(Qt::Vertical);
             
             MapDocumentSPtr document = lock(m_document);
-            m_view = new EntityBrowserView(browserPanel, m_scrollBar,
+            m_view = new EntityBrowserView(nullptr, m_scrollBar,
                                            contextManager,
                                            document->entityDefinitionManager(),
                                            document->entityModelManager(),
                                            *document);
+            m_windowContainer = QWidget::createWindowContainer(m_view);
             
             auto* browserPanelSizer = new QHBoxLayout();
-            browserPanelSizer->Add(m_view, 1, wxEXPAND);
-            browserPanelSizer->Add(m_scrollBar, 0, wxEXPAND);
-            browserPanel->SetSizerAndFit(browserPanelSizer);
-            
-            const QString sortOrders[2] = { "Name", "Usage" };
-            m_sortOrderChoice = new wxChoice(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 2, sortOrders);
-            m_sortOrderChoice->SetSelection(0);
-            m_sortOrderChoice->SetToolTip("Select ordering criterion");
+            browserPanelSizer->addWidget(m_windowContainer, 1);
+            browserPanelSizer->addWidget(m_scrollBar, 0);
 
-            m_groupButton = new wxToggleButton(this, wxID_ANY, "Group", wxDefaultPosition, wxDefaultSize, LayoutConstants::ToggleButtonStyle | wxBU_EXACTFIT);
-            m_groupButton->SetToolTip("Group entity definitions by category");
+            QWidget* browserPanel = new QWidget(this);
+            browserPanel->setLayout(browserPanelSizer);
             
-            m_usedButton = new wxToggleButton(this, wxID_ANY, "Used", wxDefaultPosition, wxDefaultSize, LayoutConstants::ToggleButtonStyle | wxBU_EXACTFIT);
-            m_usedButton->SetToolTip("Only show entity definitions currently in use");
+            m_sortOrderChoice = new QComboBox();
+            m_sortOrderChoice->addItem(tr("Name"), QVariant(Assets::EntityDefinition::Name));
+            m_sortOrderChoice->addItem(tr("Usage"), QVariant(Assets::EntityDefinition::Usage));
+            m_sortOrderChoice->setCurrentIndex(0);
+            m_sortOrderChoice->setToolTip(tr("Select ordering criterion"));
+            connect(m_sortOrderChoice, QOverload<int>::of(&QComboBox::activated), this, [=](int index){
+                auto sortOrder = static_cast<Assets::EntityDefinition::SortOrder>(m_sortOrderChoice->itemData(index).toInt());
+                m_view->setSortOrder(sortOrder);
+            });
+
+            m_groupButton = new QPushButton(tr("Group"));
+            m_groupButton->setToolTip(tr("Group entity definitions by category"));
+            m_groupButton->setCheckable(true);
+            connect(m_groupButton, &QAbstractButton::clicked, this, [=](){
+                m_view->setGroup(m_groupButton->isChecked());
+            });
             
-            m_filterBox = new wxSearchCtrl(this, wxID_ANY);
-            m_filterBox->ShowCancelButton(true);
+            m_usedButton = new QPushButton(tr("Used"));
+            m_usedButton->setToolTip(tr("Only show entity definitions currently in use"));
+            m_usedButton->setCheckable(true);
+            connect(m_usedButton, &QAbstractButton::clicked, this, [=](){
+                m_view->setHideUnused(m_usedButton->isChecked());
+            });
             
-            m_sortOrderChoice->Bind(wxEVT_CHOICE, &EntityBrowser::OnSortOrderChanged, this);
-            m_groupButton->Bind(wxEVT_TOGGLEBUTTON, &EntityBrowser::OnGroupButtonToggled, this);
-            m_usedButton->Bind(wxEVT_TOGGLEBUTTON, &EntityBrowser::OnUsedButtonToggled, this);
-            m_filterBox->Bind(wxEVT_TEXT, &EntityBrowser::OnFilterPatternChanged, this);
+            m_filterBox = new QLineEdit();
+            m_filterBox->setClearButtonEnabled(true);
+            connect(m_filterBox, &QLineEdit::textEdited, this, [=](){
+                m_view->setFilterText(m_filterBox->text().toStdString());
+            });
             
             auto* controlSizer = new QHBoxLayout();
-            controlSizer->addSpacing(LayoutConstants::ChoiceLeftMargin);
-            controlSizer->Add(m_sortOrderChoice, 0, wxTOP, LayoutConstants::ChoiceTopMargin);
-            controlSizer->addSpacing(LayoutConstants::NarrowHMargin);
-            controlSizer->Add(m_groupButton, 0);
-            controlSizer->addSpacing(LayoutConstants::NarrowHMargin);
-            controlSizer->Add(m_usedButton, 0);
-            controlSizer->addSpacing(LayoutConstants::NarrowHMargin);
-            controlSizer->Add(m_filterBox, 1, wxEXPAND);
+            controlSizer->addWidget(m_sortOrderChoice, 0);
+            controlSizer->addWidget(m_groupButton, 0);
+            controlSizer->addWidget(m_usedButton, 0);
+            controlSizer->addWidget(m_filterBox, 1);
             
             auto* outerSizer = new QVBoxLayout();
-            outerSizer->Add(browserPanel, 1, wxEXPAND);
-            outerSizer->addSpacing(LayoutConstants::NarrowVMargin);
-            outerSizer->Add(controlSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
-            outerSizer->addSpacing(LayoutConstants::NarrowVMargin);
-            
-            SetSizer(outerSizer);
+            outerSizer->addWidget(browserPanel, 1);
+            outerSizer->addLayout(controlSizer, 0);
+
+            setLayout(outerSizer);
         }
         
         void EntityBrowser::bindObservers() {

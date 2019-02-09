@@ -331,7 +331,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/EntityAttributeEditor.cpp
 	${COMMON_SOURCE_DIR}/View/EntityAttributeGrid.cpp
 	${COMMON_SOURCE_DIR}/View/EntityAttributeGridTable.cpp
-#	${COMMON_SOURCE_DIR}/View/EntityBrowser.cpp
+	${COMMON_SOURCE_DIR}/View/EntityBrowser.cpp
 	${COMMON_SOURCE_DIR}/View/EntityBrowserView.cpp
 #	${COMMON_SOURCE_DIR}/View/EntityDefinitionFileChooser.cpp
 	${COMMON_SOURCE_DIR}/View/EntityDefinitionFileCommand.cpp

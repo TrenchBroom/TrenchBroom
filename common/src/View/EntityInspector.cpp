@@ -22,7 +22,7 @@
 #include "StringUtils.h"
 #include "View/BorderLine.h"
 //#include "View/CollapsibleTitledPanel.h"
-//#include "View/EntityBrowser.h"
+#include "View/EntityBrowser.h"
 //#include "View/EntityDefinitionFileChooser.h"
 #include "View/EntityAttributeEditor.h"
 //#include "View/TitledPanel.h"
@@ -76,7 +76,7 @@ namespace TrenchBroom {
             
             return panel;
 #endif
-            m_entityBrowser = new QWidget();
+            m_entityBrowser = new EntityBrowser(nullptr, document, contextManager);
             return m_entityBrowser;
         }
         

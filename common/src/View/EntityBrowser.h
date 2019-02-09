@@ -24,11 +24,12 @@
 #include "View/GLAttribs.h"
 #include "View/ViewTypes.h"
 
-class wxToggleButton;
-class wxChoice;
-class wxGLContext;
-class wxScrollBar;
-class wxSearchCtrl;
+#include <QWidget>
+
+class QPushButton;
+class QComboBox;
+class QLineEdit;
+class QScrollBar;
 
 namespace TrenchBroom {
     namespace IO {
@@ -40,24 +41,25 @@ namespace TrenchBroom {
         class GLContextManager;
         
         class EntityBrowser : public QWidget {
+            Q_OBJECT
         private:
             MapDocumentWPtr m_document;
-            wxChoice* m_sortOrderChoice;
-            wxToggleButton* m_groupButton;
-            wxToggleButton* m_usedButton;
-            wxSearchCtrl* m_filterBox;
-            wxScrollBar* m_scrollBar;
+            QComboBox* m_sortOrderChoice;
+            QPushButton* m_groupButton;
+            QPushButton* m_usedButton;
+            QLineEdit* m_filterBox;
+            QScrollBar* m_scrollBar;
             EntityBrowserView* m_view;
+            QWidget* m_windowContainer;
         public:
             EntityBrowser(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
-            ~EntityBrowser();
+            ~EntityBrowser() override;
             
             void reload();
 
-            void OnSortOrderChanged(wxCommandEvent& event);
-            void OnGroupButtonToggled(wxCommandEvent& event);
-            void OnUsedButtonToggled(wxCommandEvent& event);
-            void OnFilterPatternChanged(wxCommandEvent& event);
+            void OnGroupButtonToggled();
+            void OnUsedButtonToggled();
+            void OnFilterPatternChanged();
         private:
             void createGui(GLContextManager& contextManager);
             
