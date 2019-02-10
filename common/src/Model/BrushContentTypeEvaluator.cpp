@@ -39,14 +39,18 @@ namespace TrenchBroom {
             ~BrushFaceEvaluator() override = default;
         private:
             bool doEvaluate(const Brush* brush) const override {
+                size_t ignored = 0;
+                size_t matched = 0;
+                
                 for (const auto* face : brush->faces()) {
-                    if (m_ignoreTexture.count(face->textureName()) == 0) {
-                        if (!doEvaluate(face)) {
-                            return false;
-                        }
+                    if (m_ignoreTexture.count(face->textureName()) > 0) {
+                        ++ignored;
+                    } else if (doEvaluate(face)) {
+                        ++matched;
                     }
                 }
-                return true;
+                
+                return matched > 0 && matched + ignored == brush->faceCount();
             }
             
             virtual bool doEvaluate(const BrushFace* brush) const = 0;
