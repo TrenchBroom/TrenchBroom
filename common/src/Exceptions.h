@@ -73,6 +73,11 @@ public:
             *this << str << " ";
         *this << "[line " << line << ", column " << column << "]";
     }
+    ParserException(const size_t line, const std::string& str = "") noexcept : ExceptionStream() {
+        if (!str.empty())
+            *this << str << " ";
+        *this << "[line " << line << "]";
+    }
 };
 
 class VboException : public ExceptionStream<VboException> {

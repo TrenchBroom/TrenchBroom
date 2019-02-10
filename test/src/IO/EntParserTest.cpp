@@ -74,6 +74,19 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(definitions);
         }
 
+        TEST(EntParserTest, parseMalformedXML) {
+            const String file =
+R"(<?xml version="1.0"?>
+<classes>
+    <point name="_skybox" color="0.77 0.88 1.0" box="-4 -4 -4 4 4 4">
+</classes>)";
+            const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
+            EntParser parser(file, defaultColor);
+
+            TestParserStatus status;
+            ASSERT_THROW(parser.parseDefinitions(status), ParserException);
+        }
+
         TEST(EntParserTest, parseSimplePointEntityDefinition) {
             const String file = R"(
 <?xml version="1.0"?>

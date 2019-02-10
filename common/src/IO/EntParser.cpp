@@ -50,6 +50,16 @@ namespace TrenchBroom {
         Assets::EntityDefinitionList EntParser::doParseDefinitions(ParserStatus& status) {
             tinyxml2::XMLDocument doc;
             doc.Parse(m_begin, static_cast<size_t>(m_end - m_begin));
+            if (doc.Error()) {
+                if (doc.ErrorID() == tinyxml2::XML_ERROR_EMPTY_DOCUMENT) {
+                    // we allow empty documents
+                    return Assets::EntityDefinitionList();
+                } else {
+                    const auto lineNum = static_cast<size_t>(doc.ErrorLineNum());
+                    const auto error = String(doc.ErrorStr());
+                    throw ParserException(lineNum, error);
+                }
+            }
             return parseClasses(doc, status);
         }
 
@@ -117,7 +127,7 @@ namespace TrenchBroom {
             if (!hasAttribute(element, "model")) {
                 return Assets::ModelDefinition();
             }
-            
+
             const auto model = parseString(element, "model", status);
 
             try {
