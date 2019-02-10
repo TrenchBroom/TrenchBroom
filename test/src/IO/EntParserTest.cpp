@@ -318,6 +318,54 @@ Target this entity with a misc_model to have the model attached to the entity (s
             VectorUtils::clearAndDelete(definitions);
         }
 
+        TEST(EntParserTest, parseLegacyModelDefinition) {
+            const String file = R"(
+<?xml version="1.0"?>
+<classes>
+<point name="ammo_bfg" color=".3 .3 1" box="-16 -16 -16 16 16 16" model="models/powerups/ammo/bfgam.md3" />
+</classes>
+            )";
+
+            const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
+            EntParser parser(file, defaultColor);
+
+            TestParserStatus status;
+            auto definitions = parser.parseDefinitions(status);
+            ASSERT_EQ(1u, definitions.size()) << "Expected one entity definition";
+
+            const auto* pointDefinition = dynamic_cast<const Assets::PointEntityDefinition*>(definitions.front());
+            ASSERT_NE(nullptr, pointDefinition) << "Definition must be a point entity definition";
+
+            const auto& modelDefinition = pointDefinition->modelDefinition();
+            ASSERT_EQ(Path("models/powerups/ammo/bfgam.md3"), modelDefinition.defaultModelSpecification().path);
+
+            VectorUtils::clearAndDelete(definitions);
+        }
+
+        TEST(EntParserTest, parseELStaticModelDefinition) {
+            const String file = R"(
+            <?xml version="1.0"?>
+            <classes>
+            <point name="ammo_bfg" color=".3 .3 1" box="-16 -16 -16 16 16 16" model="{{ spawnflags == 1 -> 'models/powerups/ammo/bfgam.md3', 'models/powerups/ammo/bfgam2.md3' }}" />
+            </classes>
+            )";
+
+            const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
+            EntParser parser(file, defaultColor);
+
+            TestParserStatus status;
+            auto definitions = parser.parseDefinitions(status);
+            ASSERT_EQ(1u, definitions.size()) << "Expected one entity definition";
+
+            const auto* pointDefinition = dynamic_cast<const Assets::PointEntityDefinition*>(definitions.front());
+            ASSERT_NE(nullptr, pointDefinition) << "Definition must be a point entity definition";
+
+            const auto& modelDefinition = pointDefinition->modelDefinition();
+            ASSERT_EQ(Path("models/powerups/ammo/bfgam2.md3"), modelDefinition.defaultModelSpecification().path);
+
+            VectorUtils::clearAndDelete(definitions);
+        }
+
         void assertAttributeDefinition(const String& name, const Assets::AttributeDefinition::Type expectedType, const Assets::EntityDefinition* entityDefinition) {
             const auto* attrDefinition = entityDefinition->attributeDefinition(name);
             ASSERT_NE(nullptr, attrDefinition) << "Missing attribute definition for '" + name + "' key";

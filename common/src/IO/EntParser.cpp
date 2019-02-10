@@ -24,6 +24,7 @@
 #include "EL/Expression.h"
 #include "EL/Types.h"
 #include "EL/Value.h"
+#include "IO/ELParser.h"
 #include "IO/ParserStatus.h"
 #include "Model/EntityAttributes.h"
 
@@ -89,18 +90,13 @@ namespace TrenchBroom {
         Assets::EntityDefinition* EntParser::parsePointEntityDefinition(const tinyxml2::XMLElement& element, const Assets::AttributeDefinitionList& attributeDeclarations, ParserStatus& status) {
             const auto bounds = parseBounds(element, "box", status);
             const auto color = parseColor(element, "color", status);
-            const auto model = parseString(element, "model", status);
             const auto name = parseString(element, "name", status);
+            const auto modelDefinition = parseModel(element, status);
 
             Assets::AttributeDefinitionList attributeDefinitions;
 
             parseSpawnflags(element, attributeDefinitions, status);
             parseAttributes(element, attributeDeclarations, attributeDefinitions, status);
-
-            Assets::ModelDefinition modelDefinition(EL::LiteralExpression::create(
-                EL::Value{EL::MapType{{ "path", EL::Value{model}} }},
-                static_cast<size_t>(element.GetLineNum()), 0)
-            );
 
             return new Assets::PointEntityDefinition(name, color, bounds, getText(element), attributeDefinitions, modelDefinition);
         }
@@ -115,6 +111,25 @@ namespace TrenchBroom {
             parseAttributes(element, attributeDeclarations, attributeDefinitions, status);
 
             return new Assets::BrushEntityDefinition(name, color, getText(element), attributeDefinitions);
+        }
+
+        Assets::ModelDefinition EntParser::parseModel(const tinyxml2::XMLElement& element, ParserStatus& status) {
+            if (!hasAttribute(element, "model")) {
+                return Assets::ModelDefinition();
+            }
+            
+            const auto model = parseString(element, "model", status);
+
+            try {
+                ELParser parser(ELParser::Mode::Lenient, model);
+                auto expression = parser.parse();
+                expression.optimize();
+                return Assets::ModelDefinition(expression);
+            } catch (const ParserException&) {
+                const auto lineNum = static_cast<size_t>(element.GetLineNum());
+                const auto expression = EL::LiteralExpression::create(EL::Value{EL::MapType{{ "path", EL::Value{model}} }}, lineNum, 0);
+                return Assets::ModelDefinition(expression);
+            }
         }
 
         void EntParser::parseSpawnflags(const tinyxml2::XMLElement& element, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {

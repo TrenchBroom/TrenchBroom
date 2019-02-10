@@ -59,6 +59,8 @@ namespace TrenchBroom {
             Assets::EntityDefinition* parsePointEntityDefinition(const tinyxml2::XMLElement& element, const Assets::AttributeDefinitionList& attributeDeclarations, ParserStatus& status);
             Assets::EntityDefinition* parseBrushEntityDefinition(const tinyxml2::XMLElement& element, const Assets::AttributeDefinitionList& attributeDeclarations, ParserStatus& status);
 
+            Assets::ModelDefinition parseModel(const tinyxml2::XMLElement& element, ParserStatus& status);
+
             void parseSpawnflags(const tinyxml2::XMLElement& element, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status);
 
             void parseAttributes(const tinyxml2::XMLElement& parent, const Assets::AttributeDefinitionList& attributeDeclarations, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status);
