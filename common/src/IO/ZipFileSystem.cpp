@@ -24,40 +24,85 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/IOUtils.h"
 
+#include <miniz/miniz.h>
+
 #include <cassert>
 #include <cstring>
 #include <memory>
-
-#include <wx/log.h>
-#include <wx/mstream.h>
-#include <wx/zipstrm.h>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
-        ZipFileSystem::ZipCompressedFile::ZipCompressedFile(std::shared_ptr<wxZipInputStream> stream, std::unique_ptr<wxZipEntry> entry) :
-        m_stream(std::move(stream)),
-        m_entry(std::move(entry)) {}
+        // MinizArchive
+
+        class MinizArchive {
+        public:
+            mz_zip_archive* archive;
+
+            MinizArchive(const char* begin, const size_t size) {
+                archive = static_cast<mz_zip_archive*>(malloc(sizeof(mz_zip_archive)));
+                ensure(archive != nullptr, "malloc failed");
+
+                mz_zip_zero_struct(archive);
+
+                if (mz_zip_reader_init_mem(archive, begin, size, 0) != MZ_TRUE) {
+                    throw FileSystemException("Error calling mz_zip_reader_init_mem");
+                }
+            }
+
+            virtual ~MinizArchive() {
+                if (archive) {
+                    mz_zip_reader_end(archive);
+                    free(archive);
+                }
+            }
+
+            /**
+             * Helper to get the filename of a file in the zip archive
+             */
+            std::string filename(const size_t fileIndex) {
+                // nameLen includes space for the null-terminator byte
+                const size_t nameLen = mz_zip_reader_get_filename(archive, fileIndex, nullptr, 0);
+                if (nameLen == 0) {
+                    return "";
+                }
+
+                std::string result;
+                result.resize(nameLen - 1);
+
+                // NOTE: this will overwrite the std::string's null terminator, which is permitted in C++17 and later
+                mz_zip_reader_get_filename(archive, fileIndex, result.data(), nameLen);
+
+                return std::move(result);
+            }
+        };
+
+        // ZipFileSystem::ZipCompressedFile
+
+        ZipFileSystem::ZipCompressedFile::ZipCompressedFile(std::shared_ptr<MinizArchive> archive, size_t fileIndex) :
+        m_archive(std::move(archive)),
+        m_fileIndex(fileIndex) {}
 
         MappedFile::Ptr ZipFileSystem::ZipCompressedFile::doOpen() const {
-            const auto path = Path(m_entry->GetName().ToStdString());
+            const auto path = Path(m_archive->filename(m_fileIndex));
 
-            if (!m_stream->OpenEntry(*m_entry)) {
-                throw FileSystemException("Could not open zip entry at " + path.asString());
+            mz_zip_archive_file_stat stat;
+            if (!mz_zip_reader_file_stat(m_archive->archive, m_fileIndex, &stat)) {
+                throw FileSystemException("mz_zip_reader_file_stat failed for " + path.asString());
             }
 
-            if (!m_stream->CanRead()) {
-                throw FileSystemException("Could not read zip entry at " + path.asString());
-            }
-
-            const auto uncompressedSize = static_cast<size_t>(m_entry->GetSize());
+            const auto uncompressedSize = stat.m_uncomp_size;
             auto data = std::make_unique<char[]>(uncompressedSize);
             auto* begin = data.get();
 
-            m_stream->Read(begin, uncompressedSize);
-            m_stream->CloseEntry();
+            if (!mz_zip_reader_extract_to_mem(m_archive->archive, m_fileIndex, begin, uncompressedSize, 0)) {
+                throw FileSystemException("mz_zip_reader_extract_to_mem failed for " + path.asString());
+            }
 
             return std::make_shared<MappedFileBuffer>(path, std::move(data), uncompressedSize);
         }
+
+        // ZipFileSystem
 
         ZipFileSystem::ZipFileSystem(const Path& path, MappedFile::Ptr file) :
         ZipFileSystem(nullptr, path, std::move(file)) {}
@@ -68,20 +113,18 @@ namespace TrenchBroom {
         }
 
         void ZipFileSystem::doReadDirectory() {
-            // wxZipInputStream uses wxLogError which will pop up a dialog!
-            wxLogNull disableLogging;
+            auto archive = std::make_shared<MinizArchive>(m_file->begin(), m_file->size());
 
-            auto stream = std::make_shared<wxZipInputStream>(new wxMemoryInputStream(m_file->begin(), m_file->size()));
-            for (int i = 0; i < stream->GetTotalEntries(); ++i) {
-                auto entry = std::unique_ptr<wxZipEntry>(stream->GetNextEntry());
-                if (!entry->IsDir()) {
-                    const auto path = Path(entry->GetName().ToStdString());
-                    m_root.addFile(path, std::make_unique<ZipCompressedFile>(stream, std::move(entry)));
+            const mz_uint numFiles = mz_zip_reader_get_num_files(archive->archive);
+            for (mz_uint i = 0; i < numFiles; ++i) {
+                if (!mz_zip_reader_is_file_a_directory(archive->archive, i)) {
+                    const auto path = Path(archive->filename(i));
+                    m_root.addFile(path, std::make_unique<ZipCompressedFile>(archive, i));
                 }
             }
 
-            if (stream->GetLastError() != wxSTREAM_NO_ERROR) {
-                throw FileSystemException("Error while reading compressed file");
+            if (auto err = mz_zip_get_last_error(archive->archive); err != MZ_ZIP_NO_ERROR) {
+                throw FileSystemException(String("Error while reading compressed file: ") + mz_zip_get_error_string(err));
             }
         }
     }
