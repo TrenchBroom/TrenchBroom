@@ -26,6 +26,7 @@
 #include "IO/DefParser.h"
 #include "IO/DkmParser.h"
 #include "IO/DiskFileSystem.h"
+#include "IO/EntParser.h"
 #include "IO/FgdParser.h"
 #include "IO/FileMatcher.h"
 #include "IO/FileSystem.h"
@@ -287,6 +288,10 @@ namespace TrenchBroom {
             } else if (StringUtils::caseInsensitiveEqual("def", extension)) {
                 const auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
                 IO::DefParser parser(file->begin(), file->end(), defaultColor);
+                definitions = parser.parseDefinitions(status);
+            } else if (StringUtils::caseInsensitiveEqual("ent", extension)) {
+                const auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
+                IO::EntParser parser(file->begin(), file->end(), defaultColor);
                 definitions = parser.parseDefinitions(status);
             } else {
                 throw GameException("Unknown entity definition format: '" + path.asString() + "'");

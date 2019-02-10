@@ -30,7 +30,7 @@ namespace TrenchBroom {
             const Color EntityColor         = Color(1.0f, 0.5f, 0.0f, 1.0f);
 
             Assets::EntityDefinition* createTutorialEntityDefinition() {
-                Assets::AttributeDefinitionPtr messageAttributeDefinition(new Assets::StringAttributeDefinition(Message, "Message to display", ""));
+                Assets::AttributeDefinitionPtr messageAttributeDefinition(new Assets::StringAttributeDefinition(Message, "Message to display", "", false));
                 
                 Assets::AttributeDefinitionList attributeDefinitions;
                 attributeDefinitions.push_back(messageAttributeDefinition);
