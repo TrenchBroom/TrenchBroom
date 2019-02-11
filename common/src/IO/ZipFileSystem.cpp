@@ -37,24 +37,18 @@ namespace TrenchBroom {
 
         class MinizArchive {
         public:
-            mz_zip_archive* archive;
+            mz_zip_archive archive;
 
             MinizArchive(const char* begin, const size_t size) {
-                archive = static_cast<mz_zip_archive*>(malloc(sizeof(mz_zip_archive)));
-                ensure(archive != nullptr, "malloc failed");
+                mz_zip_zero_struct(&archive);
 
-                mz_zip_zero_struct(archive);
-
-                if (mz_zip_reader_init_mem(archive, begin, size, 0) != MZ_TRUE) {
+                if (mz_zip_reader_init_mem(&archive, begin, size, 0) != MZ_TRUE) {
                     throw FileSystemException("Error calling mz_zip_reader_init_mem");
                 }
             }
 
             virtual ~MinizArchive() {
-                if (archive) {
-                    mz_zip_reader_end(archive);
-                    free(archive);
-                }
+                mz_zip_reader_end(&archive);
             }
 
             /**
@@ -62,7 +56,7 @@ namespace TrenchBroom {
              */
             std::string filename(const mz_uint fileIndex) {
                 // nameLen includes space for the null-terminator byte
-                const size_t nameLen = mz_zip_reader_get_filename(archive, fileIndex, nullptr, 0);
+                const size_t nameLen = mz_zip_reader_get_filename(&archive, fileIndex, nullptr, 0);
                 if (nameLen == 0) {
                     return "";
                 }
@@ -71,7 +65,7 @@ namespace TrenchBroom {
                 result.resize(nameLen - 1);
 
                 // NOTE: this will overwrite the std::string's null terminator, which is permitted in C++17 and later
-                mz_zip_reader_get_filename(archive, fileIndex, result.data(), nameLen);
+                mz_zip_reader_get_filename(&archive, fileIndex, result.data(), nameLen);
 
                 return result;
             }
@@ -79,7 +73,7 @@ namespace TrenchBroom {
 
         // ZipFileSystem::ZipCompressedFile
 
-        ZipFileSystem::ZipCompressedFile::ZipCompressedFile(std::shared_ptr<MinizArchive> archive, size_t fileIndex) :
+        ZipFileSystem::ZipCompressedFile::ZipCompressedFile(std::shared_ptr<MinizArchive> archive, unsigned int fileIndex) :
         m_archive(std::move(archive)),
         m_fileIndex(fileIndex) {}
 
@@ -87,7 +81,7 @@ namespace TrenchBroom {
             const auto path = Path(m_archive->filename(m_fileIndex));
 
             mz_zip_archive_file_stat stat;
-            if (!mz_zip_reader_file_stat(m_archive->archive, m_fileIndex, &stat)) {
+            if (!mz_zip_reader_file_stat(&m_archive->archive, m_fileIndex, &stat)) {
                 throw FileSystemException("mz_zip_reader_file_stat failed for " + path.asString());
             }
 
@@ -95,7 +89,7 @@ namespace TrenchBroom {
             auto data = std::make_unique<char[]>(uncompressedSize);
             auto* begin = data.get();
 
-            if (!mz_zip_reader_extract_to_mem(m_archive->archive, m_fileIndex, begin, uncompressedSize, 0)) {
+            if (!mz_zip_reader_extract_to_mem(&m_archive->archive, m_fileIndex, begin, uncompressedSize, 0)) {
                 throw FileSystemException("mz_zip_reader_extract_to_mem failed for " + path.asString());
             }
 
@@ -115,15 +109,15 @@ namespace TrenchBroom {
         void ZipFileSystem::doReadDirectory() {
             auto archive = std::make_shared<MinizArchive>(m_file->begin(), m_file->size());
 
-            const mz_uint numFiles = mz_zip_reader_get_num_files(archive->archive);
+            const mz_uint numFiles = mz_zip_reader_get_num_files(&archive->archive);
             for (mz_uint i = 0; i < numFiles; ++i) {
-                if (!mz_zip_reader_is_file_a_directory(archive->archive, i)) {
+                if (!mz_zip_reader_is_file_a_directory(&archive->archive, i)) {
                     const auto path = Path(archive->filename(i));
                     m_root.addFile(path, std::make_unique<ZipCompressedFile>(archive, i));
                 }
             }
 
-            if (auto err = mz_zip_get_last_error(archive->archive); err != MZ_ZIP_NO_ERROR) {
+            if (auto err = mz_zip_get_last_error(&archive->archive); err != MZ_ZIP_NO_ERROR) {
                 throw FileSystemException(String("Error while reading compressed file: ") + mz_zip_get_error_string(err));
             }
         }

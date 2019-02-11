@@ -38,7 +38,7 @@ namespace TrenchBroom {
                 std::shared_ptr<MinizArchive> m_archive;
                 unsigned int m_fileIndex;
             public:
-                ZipCompressedFile(std::shared_ptr<MinizArchive> archive, size_t fileIndex);
+                ZipCompressedFile(std::shared_ptr<MinizArchive> archive, unsigned int fileIndex);
             private:
                 MappedFile::Ptr doOpen() const override;
             };
