@@ -29,6 +29,7 @@
 #include "Model/BrushFaceAttributes.h"
 #include "Model/BrushGeometry.h"
 #include "Model/ModelTypes.h"
+#include "Model/Tag.h"
 #include "Model/TexCoordSystem.h"
 
 #include <vecmath/vec.h>
@@ -51,7 +52,7 @@ namespace TrenchBroom {
         class Brush;
         class BrushFaceSnapshot;
         
-        class BrushFace {
+        class BrushFace : public Taggable {
         public:
             /*
              * The order of points, when looking from outside the face:

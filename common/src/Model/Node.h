@@ -21,13 +21,14 @@
 #define TrenchBroom_Node
 
 #include "Model/ModelTypes.h"
+#include "Model/Tag.h"
 
 namespace TrenchBroom {
     namespace Model {
         class IssueGeneratorRegistry;
         class PickResult;
 
-        class Node {
+        class Node : public Taggable {
         private:
             Node* m_parent;
             NodeList m_children;
