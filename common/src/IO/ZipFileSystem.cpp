@@ -33,7 +33,7 @@ namespace TrenchBroom {
     namespace IO {
         // ZipFileSystem::ZipCompressedFile
 
-        ZipFileSystem::ZipCompressedFile::ZipCompressedFile(ZipFileSystem* owner, unsigned int fileIndex) :
+        ZipFileSystem::ZipCompressedFile::ZipCompressedFile(ZipFileSystem* owner, const mz_uint fileIndex) :
         m_owner(owner),
         m_fileIndex(fileIndex) {}
 

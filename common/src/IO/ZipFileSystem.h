@@ -39,7 +39,7 @@ namespace TrenchBroom {
                 ZipFileSystem* m_owner;
                 mz_uint m_fileIndex;
             public:
-                ZipCompressedFile(ZipFileSystem* owner, unsigned int fileIndex);
+                ZipCompressedFile(ZipFileSystem* owner, mz_uint fileIndex);
             private:
                 MappedFile::Ptr doOpen() const override;
             };
