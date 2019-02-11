@@ -24,8 +24,6 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/IOUtils.h"
 
-#include <miniz/miniz.h>
-
 #include <cassert>
 #include <cstring>
 #include <memory>
@@ -33,55 +31,17 @@
 
 namespace TrenchBroom {
     namespace IO {
-        // MinizArchive
-
-        class MinizArchive {
-        public:
-            mz_zip_archive archive;
-
-            MinizArchive(const char* begin, const size_t size) {
-                mz_zip_zero_struct(&archive);
-
-                if (mz_zip_reader_init_mem(&archive, begin, size, 0) != MZ_TRUE) {
-                    throw FileSystemException("Error calling mz_zip_reader_init_mem");
-                }
-            }
-
-            virtual ~MinizArchive() {
-                mz_zip_reader_end(&archive);
-            }
-
-            /**
-             * Helper to get the filename of a file in the zip archive
-             */
-            std::string filename(const mz_uint fileIndex) {
-                // nameLen includes space for the null-terminator byte
-                const mz_uint nameLen = mz_zip_reader_get_filename(&archive, fileIndex, nullptr, 0);
-                if (nameLen == 0) {
-                    return "";
-                }
-
-                std::string result;
-                result.resize(static_cast<size_t>(nameLen - 1));
-
-                // NOTE: this will overwrite the std::string's null terminator, which is permitted in C++17 and later
-                mz_zip_reader_get_filename(&archive, fileIndex, result.data(), nameLen);
-
-                return result;
-            }
-        };
-
         // ZipFileSystem::ZipCompressedFile
 
-        ZipFileSystem::ZipCompressedFile::ZipCompressedFile(std::shared_ptr<MinizArchive> archive, unsigned int fileIndex) :
-        m_archive(std::move(archive)),
+        ZipFileSystem::ZipCompressedFile::ZipCompressedFile(ZipFileSystem* owner, unsigned int fileIndex) :
+        m_owner(owner),
         m_fileIndex(fileIndex) {}
 
         MappedFile::Ptr ZipFileSystem::ZipCompressedFile::doOpen() const {
-            const auto path = Path(m_archive->filename(m_fileIndex));
+            const auto path = Path(m_owner->filename(m_fileIndex));
 
             mz_zip_archive_file_stat stat;
-            if (!mz_zip_reader_file_stat(&m_archive->archive, m_fileIndex, &stat)) {
+            if (!mz_zip_reader_file_stat(&m_owner->m_archive, m_fileIndex, &stat)) {
                 throw FileSystemException("mz_zip_reader_file_stat failed for " + path.asString());
             }
 
@@ -89,7 +49,7 @@ namespace TrenchBroom {
             auto data = std::make_unique<char[]>(static_cast<size_t>(uncompressedSize));
             auto* begin = data.get();
 
-            if (!mz_zip_reader_extract_to_mem(&m_archive->archive, m_fileIndex, begin, uncompressedSize, 0)) {
+            if (!mz_zip_reader_extract_to_mem(&m_owner->m_archive, m_fileIndex, begin, uncompressedSize, 0)) {
                 throw FileSystemException("mz_zip_reader_extract_to_mem failed for " + path.asString());
             }
 
@@ -106,20 +66,47 @@ namespace TrenchBroom {
             initialize();
         }
 
-        void ZipFileSystem::doReadDirectory() {
-            auto archive = std::make_shared<MinizArchive>(m_file->begin(), m_file->size());
+        ZipFileSystem::~ZipFileSystem() {
+            mz_zip_reader_end(&m_archive);
+        }
 
-            const mz_uint numFiles = mz_zip_reader_get_num_files(&archive->archive);
+        void ZipFileSystem::doReadDirectory() {
+            mz_zip_zero_struct(&m_archive);
+
+            if (mz_zip_reader_init_mem(&m_archive, m_file->begin(), m_file->size(), 0) != MZ_TRUE) {
+                throw FileSystemException("Error calling mz_zip_reader_init_mem");
+            }
+
+            const mz_uint numFiles = mz_zip_reader_get_num_files(&m_archive);
             for (mz_uint i = 0; i < numFiles; ++i) {
-                if (!mz_zip_reader_is_file_a_directory(&archive->archive, i)) {
-                    const auto path = Path(archive->filename(i));
-                    m_root.addFile(path, std::make_unique<ZipCompressedFile>(archive, i));
+                if (!mz_zip_reader_is_file_a_directory(&m_archive, i)) {
+                    const auto path = Path(filename(i));
+                    m_root.addFile(path, std::make_unique<ZipCompressedFile>(this, i));
                 }
             }
 
-            if (auto err = mz_zip_get_last_error(&archive->archive); err != MZ_ZIP_NO_ERROR) {
+            if (auto err = mz_zip_get_last_error(&m_archive); err != MZ_ZIP_NO_ERROR) {
                 throw FileSystemException(String("Error while reading compressed file: ") + mz_zip_get_error_string(err));
             }
+        }
+
+        /**
+         * Helper to get the filename of a file in the zip archive
+         */
+        std::string ZipFileSystem::filename(const mz_uint fileIndex) {
+            // nameLen includes space for the null-terminator byte
+            const mz_uint nameLen = mz_zip_reader_get_filename(&m_archive, fileIndex, nullptr, 0);
+            if (nameLen == 0) {
+                return "";
+            }
+
+            std::string result;
+            result.resize(static_cast<size_t>(nameLen - 1));
+
+            // NOTE: this will overwrite the std::string's null terminator, which is permitted in C++17 and later
+            mz_zip_reader_get_filename(&m_archive, fileIndex, result.data(), nameLen);
+
+            return result;
         }
     }
 }
