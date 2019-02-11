@@ -60,7 +60,7 @@ namespace TrenchBroom {
             /**
              * Helper to get the filename of a file in the zip archive
              */
-            std::string filename(const size_t fileIndex) {
+            std::string filename(const mz_uint fileIndex) {
                 // nameLen includes space for the null-terminator byte
                 const size_t nameLen = mz_zip_reader_get_filename(archive, fileIndex, nullptr, 0);
                 if (nameLen == 0) {
@@ -73,7 +73,7 @@ namespace TrenchBroom {
                 // NOTE: this will overwrite the std::string's null terminator, which is permitted in C++17 and later
                 mz_zip_reader_get_filename(archive, fileIndex, result.data(), nameLen);
 
-                return std::move(result);
+                return result;
             }
         };
 

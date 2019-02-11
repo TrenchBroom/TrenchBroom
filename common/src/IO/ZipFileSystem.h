@@ -36,7 +36,7 @@ namespace TrenchBroom {
             class ZipCompressedFile : public File {
             private:
                 std::shared_ptr<MinizArchive> m_archive;
-                size_t m_fileIndex;
+                unsigned int m_fileIndex;
             public:
                 ZipCompressedFile(std::shared_ptr<MinizArchive> archive, size_t fileIndex);
             private:
