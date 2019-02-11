@@ -62,7 +62,7 @@ namespace TrenchBroom {
                 }
 
                 std::string result;
-                result.resize(nameLen - 1);
+                result.resize(static_cast<size_t>(nameLen - 1));
 
                 // NOTE: this will overwrite the std::string's null terminator, which is permitted in C++17 and later
                 mz_zip_reader_get_filename(&archive, fileIndex, result.data(), nameLen);
@@ -85,15 +85,15 @@ namespace TrenchBroom {
                 throw FileSystemException("mz_zip_reader_file_stat failed for " + path.asString());
             }
 
-            const auto uncompressedSize = stat.m_uncomp_size;
-            auto data = std::make_unique<char[]>(uncompressedSize);
+            const mz_uint64 uncompressedSize = stat.m_uncomp_size;
+            auto data = std::make_unique<char[]>(static_cast<size_t>(uncompressedSize));
             auto* begin = data.get();
 
             if (!mz_zip_reader_extract_to_mem(&m_archive->archive, m_fileIndex, begin, uncompressedSize, 0)) {
                 throw FileSystemException("mz_zip_reader_extract_to_mem failed for " + path.asString());
             }
 
-            return std::make_shared<MappedFileBuffer>(path, std::move(data), uncompressedSize);
+            return std::make_shared<MappedFileBuffer>(path, std::move(data), static_cast<size_t>(uncompressedSize));
         }
 
         // ZipFileSystem
