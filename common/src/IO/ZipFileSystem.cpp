@@ -56,7 +56,7 @@ namespace TrenchBroom {
              */
             std::string filename(const mz_uint fileIndex) {
                 // nameLen includes space for the null-terminator byte
-                const size_t nameLen = mz_zip_reader_get_filename(&archive, fileIndex, nullptr, 0);
+                const mz_uint nameLen = mz_zip_reader_get_filename(&archive, fileIndex, nullptr, 0);
                 if (nameLen == 0) {
                     return "";
                 }
