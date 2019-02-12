@@ -57,6 +57,7 @@ namespace TrenchBroom {
         class PickResult;
         class PointFile;
         class PortalFile;
+        class TagManager;
     }
     
     namespace View {
@@ -81,6 +82,7 @@ namespace TrenchBroom {
             IO::Path m_pointFilePath;
             IO::Path m_portalFilePath;
             Model::EditorContext* m_editorContext;
+            std::unique_ptr<Model::TagManager> m_tagManager;
             
             Assets::EntityDefinitionManager* m_entityDefinitionManager;
             Assets::EntityModelManager* m_entityModelManager;
@@ -154,7 +156,7 @@ namespace TrenchBroom {
         protected:
             MapDocument();
         public:
-            virtual ~MapDocument() override;
+            ~MapDocument() override;
         public: // accessors and such
             Logger& logger();
 
@@ -290,7 +292,7 @@ namespace TrenchBroom {
             void closeGroup();
         public: // modifying transient node attributes, declared in MapFacade interface
             void isolate(const Model::NodeList& nodes);
-            void hide(const Model::NodeList nodes) override; // Don't take the nodes by reference!
+            void hide(Model::NodeList nodes) override; // Don't take the nodes by reference!
             void hideSelection();
             void show(const Model::NodeList& nodes) override;
             void showAll();
@@ -307,13 +309,13 @@ namespace TrenchBroom {
             bool scaleObjects(const vm::vec3& center, const vm::vec3& scaleFactors) override;
             bool shearObjects(const vm::bbox3& box, const vm::vec3& sideToShear, const vm::vec3& delta) override;
             bool flipObjects(const vm::vec3& center, vm::axis::type axis) override;
-        public:
+        public: // CSG operations, declared in MapFacade interface
             bool createBrush(const std::vector<vm::vec3>& points);
             bool csgConvexMerge();
             bool csgSubtract();
             bool csgIntersect();
             bool csgHollow();
-        public:
+        public: // Clipping operations, declared in MapFacade interface
             bool clipBrushes(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3);
         public: // modifying entity attributes, declared in MapFacade interface
             bool setAttribute(const Model::AttributeName& name, const Model::AttributeValue& value) override;
@@ -451,6 +453,9 @@ namespace TrenchBroom {
             void setIssueHidden(Model::Issue* issue, bool hidden);
         private:
             virtual void doSetIssueHidden(Model::Issue* issue, bool hidden) = 0;
+        private: // tag management
+            void updateNodeTags(const Model::NodeList& nodes);
+            void updateFaceTags(const Model::BrushFaceList& faces);
         public: // document path
             bool persistent() const;
             String filename() const;
@@ -476,9 +481,9 @@ namespace TrenchBroom {
             MapDocument* m_document;
             bool m_cancelled;
         public:
-            Transaction(MapDocumentWPtr document, const String& name = "");
-            Transaction(MapDocumentSPtr document, const String& name = "");
-            Transaction(MapDocument* document, const String& name = "");
+            explicit Transaction(MapDocumentWPtr document, const String& name = "");
+            explicit Transaction(MapDocumentSPtr document, const String& name = "");
+            explicit Transaction(MapDocument* document, const String& name = "");
             ~Transaction();
             
             void rollback();

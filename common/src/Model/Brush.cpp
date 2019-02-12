@@ -21,6 +21,7 @@
 
 #include "CollectionUtils.h"
 #include "Macros.h"
+#include "Model/TagMatcher.h"
 #include "Model/BrushContentTypeBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
@@ -545,11 +546,10 @@ namespace TrenchBroom {
             }
 
             try {
-                auto* testBrush = new Brush(worldBounds, testFaces);
-                const auto inWorldBounds = worldBounds.contains(testBrush->bounds());
-                const auto closed = testBrush->closed();
-                const auto allFaces = testBrush->faceCount() == testFaces.size();
-                delete testBrush;
+                const auto testBrush = Brush(worldBounds, testFaces);
+                const auto inWorldBounds = worldBounds.contains(testBrush.bounds());
+                const auto closed = testBrush.closed();
+                const auto allFaces = testBrush.faceCount() == testFaces.size();
 
                 return inWorldBounds && closed && allFaces;
             } catch (const GeometryException&) {
@@ -1451,7 +1451,7 @@ namespace TrenchBroom {
             return hit.distance;
         }
 
-		Brush::BrushFaceHit::BrushFaceHit() : face(nullptr), distance(vm::nan<FloatType>()) {}
+        Brush::BrushFaceHit::BrushFaceHit() : face(nullptr), distance(vm::nan<FloatType>()) {}
 
         Brush::BrushFaceHit::BrushFaceHit(BrushFace* i_face, const FloatType i_distance) : face(i_face), distance(i_distance) {}
 
@@ -1571,6 +1571,10 @@ namespace TrenchBroom {
 
         Renderer::BrushRendererBrushCache& Brush::brushRendererBrushCache() const {
             return m_brushRendererBrushCache;
+        }
+
+        bool Brush::doEvaluateTagMatcher(const TagMatcher& matcher) const {
+            return matcher.matches(*this);
         }
     }
 }

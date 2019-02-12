@@ -21,6 +21,7 @@
 
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
+#include "Model/TagMatcher.h"
 #include "Model/Brush.h"
 #include "Model/BrushFaceSnapshot.h"
 #include "Model/PlanePointFinder.h"
@@ -261,12 +262,7 @@ namespace TrenchBroom {
             const float oldRotation = m_attribs.rotation();
             m_attribs = attribs;
             m_texCoordSystem->setRotation(m_boundary.normal, oldRotation, m_attribs.rotation());
-
-            if (m_brush != nullptr) {
-                m_brush->faceDidChange();
-            }
-            
-            invalidateVertexCache();
+            updateBrush();
         }
 
         void BrushFace::resetTexCoordSystemCache() {
@@ -356,60 +352,42 @@ namespace TrenchBroom {
         void BrushFace::setTexture(Assets::Texture* texture) {
             if (texture != m_attribs.texture()) {
                 m_attribs.setTexture(texture);
-                if (m_brush != nullptr) {
-                    m_brush->faceDidChange();
-                }
-                invalidateVertexCache();
+                updateBrush();
             }
         }
 
         void BrushFace::unsetTexture() {
             if (m_attribs.texture() != nullptr) {
                 m_attribs.unsetTexture();
-                if (m_brush != nullptr) {
-                    m_brush->faceDidChange();
-                }
-                invalidateVertexCache();
+                updateBrush();
             }
         }
 
         void BrushFace::setXOffset(const float i_xOffset) {
             if (i_xOffset != xOffset()) {
                 m_attribs.setXOffset(i_xOffset);
-                if (m_brush != nullptr) {
-                    m_brush->faceDidChange();
-                }
-                invalidateVertexCache();
+                updateBrush();
             }
         }
 
         void BrushFace::setYOffset(const float i_yOffset) {
             if (i_yOffset != yOffset()) {
                 m_attribs.setYOffset(i_yOffset);
-                if (m_brush != nullptr) {
-                    m_brush->faceDidChange();
-                }
-                invalidateVertexCache();
+                updateBrush();
             }
         }
 
         void BrushFace::setXScale(const float i_xScale) {
             if (i_xScale != xScale()) {
                 m_attribs.setXScale(i_xScale);
-                if (m_brush != nullptr) {
-                    m_brush->faceDidChange();
-                }
-                invalidateVertexCache();
+                updateBrush();
             }
         }
 
         void BrushFace::setYScale(const float i_yScale) {
             if (i_yScale != yScale()) {
                 m_attribs.setYScale(i_yScale);
-                if (m_brush != nullptr) {
-                    m_brush->faceDidChange();
-                }
-                invalidateVertexCache();
+                updateBrush();
             }
         }
 
@@ -418,37 +396,28 @@ namespace TrenchBroom {
                 const float oldRotation = m_attribs.rotation();
                 m_attribs.setRotation(rotation);
                 m_texCoordSystem->setRotation(m_boundary.normal, oldRotation, rotation);
-                if (m_brush != nullptr) {
-                    m_brush->faceDidChange();
-                }
-                invalidateVertexCache();
+                updateBrush();
             }
         }
 
         void BrushFace::setSurfaceContents(const int surfaceContents) {
             if (surfaceContents != m_attribs.surfaceContents()) {
                 m_attribs.setSurfaceContents(surfaceContents);
-                if (m_brush != nullptr) {
-                    m_brush->faceDidChange();
-                }
+                updateBrush();
             }
         }
 
         void BrushFace::setSurfaceFlags(const int surfaceFlags) {
             if (surfaceFlags != m_attribs.surfaceFlags()) {
                 m_attribs.setSurfaceFlags(surfaceFlags);
-                if (m_brush != nullptr) {
-                    m_brush->faceDidChange();
-                }
+                updateBrush();
             }
         }
 
         void BrushFace::setSurfaceValue(const float surfaceValue) {
             if (surfaceValue != m_attribs.surfaceValue()) {
                 m_attribs.setSurfaceValue(surfaceValue);
-                if (m_brush != nullptr) {
-                    m_brush->faceDidChange();
-                }
+                updateBrush();
             }
         }
 
@@ -653,15 +622,17 @@ namespace TrenchBroom {
         void BrushFace::select() {
             assert(!m_selected);
             m_selected = true;
-            if (m_brush != nullptr)
+            if (m_brush != nullptr) {
                 m_brush->childWasSelected();
+            }
         }
 
         void BrushFace::deselect() {
             assert(m_selected);
             m_selected = false;
-            if (m_brush != nullptr)
+            if (m_brush != nullptr) {
                 m_brush->childWasDeselected();
+            }
         }
 
         vm::vec2f BrushFace::textureCoords(const vm::vec3& point) const {
@@ -711,6 +682,13 @@ namespace TrenchBroom {
             }
         }
 
+        void BrushFace::updateBrush() {
+            if (m_brush != nullptr) {
+                m_brush->faceDidChange();
+                m_brush->invalidateVertexCache();
+            }
+        }
+
         void BrushFace::invalidateVertexCache() {
             if (m_brush != nullptr) {
                 m_brush->invalidateVertexCache();
@@ -723,6 +701,10 @@ namespace TrenchBroom {
 
         bool BrushFace::isMarked() const {
             return m_markedToRenderFace;
+        }
+
+        bool BrushFace::doEvaluateTagMatcher(const TagMatcher& matcher) {
+            return matcher.matches(*this);
         }
     }
 }

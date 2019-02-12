@@ -19,6 +19,7 @@
 
 #include "Entity.h"
 
+#include "Model/TagMatcher.h"
 #include "Model/BoundsContainsNodeVisitor.h"
 #include "Model/BoundsIntersectsNodeVisitor.h"
 #include "Model/Brush.h"
@@ -380,6 +381,10 @@ namespace TrenchBroom {
                 m_bounds = m_bounds.translate(origin());
             }
             m_boundsValid = true;
+        }
+
+        bool Entity::doEvaluateTagMatcher(const TagMatcher& matcher) {
+            return matcher.matches(*this);
         }
     }
 }

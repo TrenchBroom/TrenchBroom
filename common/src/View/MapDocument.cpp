@@ -76,6 +76,7 @@
 #include "Model/PointEntityWithBrushesIssueGenerator.h"
 #include "Model/PointFile.h"
 #include "Model/PortalFile.h"
+#include "Model/TagManager.h"
 #include "Model/World.h"
 #include "View/AddBrushVerticesCommand.h"
 #include "View/AddRemoveNodesCommand.h"
@@ -130,6 +131,7 @@ namespace TrenchBroom {
         m_pointFile(nullptr),
         m_portalFile(nullptr),
         m_editorContext(new Model::EditorContext()),
+        m_tagManager(std::make_unique<Model::TagManager>()),
         m_entityDefinitionManager(new Assets::EntityDefinitionManager()),
         m_entityModelManager(
             new Assets::EntityModelManager(pref(Preferences::TextureMagFilter), pref(Preferences::TextureMinFilter), logger())),
@@ -1802,7 +1804,19 @@ namespace TrenchBroom {
             m_world->registerIssueGenerator(new Model::AttributeValueWithDoubleQuotationMarksIssueGenerator());
             m_world->registerIssueGenerator(new Model::InvalidTextureScaleIssueGenerator());
         }
-        
+
+        void MapDocument::updateNodeTags(const Model::NodeList& nodes) {
+            for (auto* node : nodes) {
+                m_tagManager->updateTags(*node);
+            }
+        }
+
+        void MapDocument::updateFaceTags(const Model::BrushFaceList& faces) {
+            for (auto* face : faces) {
+                m_tagManager->updateTags(*face);
+            }
+        }
+
         bool MapDocument::persistent() const {
             return m_path.isAbsolute() && IO::Disk::fileExists(IO::Disk::fixPath(m_path));
         }
@@ -1846,6 +1860,10 @@ namespace TrenchBroom {
             m_mapViewConfig->mapViewConfigDidChangeNotifier.addObserver(mapViewConfigDidChangeNotifier);
             commandDoneNotifier.addObserver(this, &MapDocument::commandDone);
             commandUndoneNotifier.addObserver(this, &MapDocument::commandUndone);
+
+            // tag management
+            nodesDidChangeNotifier.addObserver(this, &MapDocument::updateNodeTags);
+            brushFacesDidChangeNotifier.addObserver(this, &MapDocument::updateFaceTags);
         }
         
         void MapDocument::unbindObservers() {
@@ -1855,6 +1873,10 @@ namespace TrenchBroom {
             m_mapViewConfig->mapViewConfigDidChangeNotifier.removeObserver(mapViewConfigDidChangeNotifier);
             commandDoneNotifier.removeObserver(this, &MapDocument::commandDone);
             commandUndoneNotifier.removeObserver(this, &MapDocument::commandUndone);
+
+            // tag management
+            nodesDidChangeNotifier.removeObserver(this, &MapDocument::updateNodeTags);
+            brushFacesDidChangeNotifier.removeObserver(this, &MapDocument::updateFaceTags);
         }
         
         void MapDocument::preferenceDidChange(const IO::Path& path) {

@@ -20,6 +20,7 @@
 #include "World.h"
 
 #include "Model/AssortNodesVisitor.h"
+#include "Model/TagMatcher.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/CollectNodesWithDescendantSelectionCountVisitor.h"
@@ -380,6 +381,10 @@ namespace TrenchBroom {
         
         BrushFace* World::doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const {
             return m_factory.createFace(point1, point2, point3, attribs, texAxisX, texAxisY);
+        }
+
+        bool World::doEvaluateTagMatcher(const TagMatcher& matcher) {
+            return matcher.matches(*this);
         }
     }
 }

@@ -79,6 +79,8 @@ namespace TrenchBroom {
         Taggable::Taggable() :
         m_tagMask(0) {}
 
+        Taggable::~Taggable() = default;
+
         bool Taggable::hasTag(const Tag& tag) const {
             return (m_tagMask & tag.type()) != 0;
         }
@@ -105,6 +107,52 @@ namespace TrenchBroom {
                 assert(!hasTag(tag));
 
                 return true;
+            }
+        }
+
+        bool Taggable::evaluateTagMatcher(const TagMatcher& matcher) const {
+            return doEvaluateTagMatcher(matcher);
+        }
+
+        TagMatcher::~TagMatcher() = default;
+
+        bool TagMatcher::matches(const Taggable& taggable) const {
+            return taggable.evaluateTagMatcher(*this);
+        }
+
+        bool TagMatcher::matches(const BrushFace& face) const {
+            return false;
+        }
+
+        bool TagMatcher::matches(const World& world) const {
+            return false;
+        }
+
+        bool TagMatcher::matches(const Layer& layer) const {
+            return false;
+        }
+
+        bool TagMatcher::matches(const Group& group) const {
+            return false;
+        }
+
+        bool TagMatcher::matches(const Entity& entity) const {
+            return false;
+        }
+
+        bool TagMatcher::matches(const Brush& brush) const {
+            return false;
+        }
+
+        SmartTag::SmartTag(String name, std::set<TagAttribute> attributes, std::unique_ptr<TagMatcher> matcher) :
+        Tag(name, attributes),
+        m_matcher(std::move(matcher)) {}
+
+        void SmartTag::update(Taggable& taggable) const {
+            if (m_matcher->matches(taggable)) {
+                taggable.addTag(*this);
+            } else {
+                taggable.removeTag(*this);
             }
         }
     }

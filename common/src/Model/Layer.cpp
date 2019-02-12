@@ -19,6 +19,7 @@
 
 #include "Layer.h"
 
+#include "Model/TagMatcher.h"
 #include "Model/Brush.h"
 #include "Model/ComputeNodeBoundsVisitor.h"
 #include "Model/Group.h"
@@ -121,6 +122,10 @@ namespace TrenchBroom {
             iterate(visitor);
             m_bounds = visitor.bounds();
             m_boundsValid = true;
+        }
+
+        bool Layer::doEvaluateTagMatcher(const TagMatcher& matcher) {
+            return matcher.matches(*this);
         }
     }
 }

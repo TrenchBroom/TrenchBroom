@@ -59,9 +59,10 @@ namespace TrenchBroom {
         private:
             void invalidateBounds();
             void validateBounds() const;
+        private: // implement Taggable interface
+            bool doEvaluateTagMatcher(const TagMatcher& matcher) const override;
         private:
-            Layer(const Layer&);
-            Layer& operator=(const Layer&);
+            deleteCopyAndMove(Layer)
         };
     }
 }

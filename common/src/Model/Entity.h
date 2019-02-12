@@ -109,9 +109,10 @@ namespace TrenchBroom {
         private:
             void invalidateBounds();
             void validateBounds() const;
+        private: // implement Taggable interface
+            bool doEvaluateTagMatcher(const TagMatcher& matcher) const override;
         private:
-            Entity(const Entity&);
-            Entity& operator=(const Entity&);
+            deleteCopyAndMove(Entity)
         };
     }
 }
