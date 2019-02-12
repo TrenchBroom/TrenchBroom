@@ -26,7 +26,7 @@
 #include "Assets/ModelDefinition.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
-//#include "View/ChoosePathTypeDialog.h"
+#include "View/ChoosePathTypeDialog.h"
 #include "View/MapDocument.h"
 
 #include <QWidget>
@@ -57,9 +57,7 @@ namespace TrenchBroom {
             }
         }
 
-        // FIXME:
-#if 0
-        size_t loadDroppedFiles(MapDocumentWPtr document, QWidget* parent, const wxArrayString& wxPaths) {
+        size_t loadDroppedFiles(MapDocumentWPtr document, QWidget* parent, const QStringList& wxPaths) {
             size_t count = 0;
             count += loadTextureCollections(document, parent, wxPaths);
             if (loadEntityDefinitionFile(document, parent, wxPaths) < wxPaths.size())
@@ -68,12 +66,12 @@ namespace TrenchBroom {
         }
 
         bool loadTextureCollection(MapDocumentWPtr document, QWidget* parent, const QString& wxPath) {
-            wxArrayString wxPaths;
-            wxPaths.Add(wxPath);
+            QStringList wxPaths;
+            wxPaths.append(wxPath);
             return loadTextureCollections(document, parent, wxPaths) == 1;
         }
         
-        size_t loadTextureCollections(MapDocumentWPtr i_document, QWidget* parent, const wxArrayString& wxPaths) {
+        size_t loadTextureCollections(MapDocumentWPtr i_document, QWidget* parent, const QStringList& wxPaths) {
             if (wxPaths.empty())
                 return 0;
             
@@ -89,19 +87,16 @@ namespace TrenchBroom {
 
             for (size_t i = 0; i < wxPaths.size(); ++i) {
                 const QString& wxPath = wxPaths[i];
-                const IO::Path absPath(wxPath.ToStdString());
+                const IO::Path absPath(wxPath.toStdString());
                 if (game->isTextureCollection(absPath)) {
-                    assert(0); // FIXME:
-#if 0
-                    ChoosePathTypeDialog pathDialog(wxGetTopLevelParent(parent), absPath, docPath, gamePath);
-                    const int result = pathDialog.ShowModal();
-                    if (result == wxID_CANCEL) {
+                    ChoosePathTypeDialog pathDialog(parent->window(), absPath, docPath, gamePath);
+                    const int result = pathDialog.exec();
+                    if (result == QDialog::Rejected) {
                         return 0;
-                    } else if (result == wxID_OK) {
+                    } else if (result == QDialog::Accepted) {
                         collections.push_back(pathDialog.path());
                         ++count;
                     }
-#endif
                 }
             }
 
@@ -111,12 +106,12 @@ namespace TrenchBroom {
         }
 
         bool loadEntityDefinitionFile(MapDocumentWPtr document, QWidget* parent, const QString& wxPath) {
-            wxArrayString wxPaths;
-            wxPaths.Add(wxPath);
+            QStringList wxPaths;
+            wxPaths.append(wxPath);
             return loadEntityDefinitionFile(document, parent, wxPaths) == 0;
         }
 
-        size_t loadEntityDefinitionFile(MapDocumentWPtr i_document, QWidget* parent, const wxArrayString& wxPaths) {
+        size_t loadEntityDefinitionFile(MapDocumentWPtr i_document, QWidget* parent, const QStringList& wxPaths) {
             if (wxPaths.empty())
                 return 0;
             
@@ -129,18 +124,14 @@ namespace TrenchBroom {
             try {
                 for (size_t i = 0; i < wxPaths.size(); ++i) {
                     const QString& wxPath = wxPaths[i];
-                    const IO::Path absPath(wxPath.ToStdString());
+                    const IO::Path absPath(wxPath.toStdString());
                     if (game->isEntityDefinitionFile(absPath)) {
-                        // FIXME:
-                        assert(0);
-#if 0
-                        ChoosePathTypeDialog pathDialog(wxGetTopLevelParent(parent), absPath, docPath, gamePath);
-                        if (pathDialog.ShowModal() == wxID_OK) {
+                        ChoosePathTypeDialog pathDialog(parent->window(), absPath, docPath, gamePath);
+                        if (pathDialog.exec() == QDialog::Accepted) {
                             const Assets::EntityDefinitionFileSpec spec = Assets::EntityDefinitionFileSpec::external(pathDialog.path());
                             document->setEntityDefinitionFile(spec);
                             return i;
                         }
-#endif
                     }
                 }
             } catch (...) {
@@ -149,7 +140,6 @@ namespace TrenchBroom {
             
             return wxPaths.size();
         }
-#endif
 
         String queryGroupName(QWidget* parent) {
             while (true) {

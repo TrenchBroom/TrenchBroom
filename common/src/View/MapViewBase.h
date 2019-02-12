@@ -26,7 +26,6 @@
 #include "Renderer/RenderContext.h"
 #include "View/ActionContext.h"
 #include "View/CameraLinkHelper.h"
-#include "View/GLAttribs.h"
 #include "View/InputState.h"
 #include "View/MapView.h"
 #include "View/RenderView.h"

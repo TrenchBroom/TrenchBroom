@@ -25,7 +25,6 @@
 #include "Renderer/FontDescriptor.h"
 #include "Preferences.h"
 #include "View/CellLayout.h"
-#include "View/GLAttribs.h"
 #include "View/RenderView.h"
 
 #include <QScrollBar>

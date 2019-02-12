@@ -21,7 +21,6 @@
 #define TrenchBroom_EntityBrowser
 
 #include "StringUtils.h"
-#include "View/GLAttribs.h"
 #include "View/ViewTypes.h"
 
 #include <QWidget>

@@ -331,7 +331,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/EntityAttributeGridTable.cpp
 	${COMMON_SOURCE_DIR}/View/EntityBrowser.cpp
 	${COMMON_SOURCE_DIR}/View/EntityBrowserView.cpp
-#	${COMMON_SOURCE_DIR}/View/EntityDefinitionFileChooser.cpp
+	${COMMON_SOURCE_DIR}/View/EntityDefinitionFileChooser.cpp
 	${COMMON_SOURCE_DIR}/View/EntityDefinitionFileCommand.cpp
 	${COMMON_SOURCE_DIR}/View/EntityInspector.cpp
 #	${COMMON_SOURCE_DIR}/View/ExecutableEvent.cpp
@@ -448,7 +448,7 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/SmartSpawnflagsEditor.cpp
 	${COMMON_SOURCE_DIR}/View/SnapBrushVerticesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/SnapshotCommand.cpp
-#	${COMMON_SOURCE_DIR}/View/SpinControl.cpp
+	${COMMON_SOURCE_DIR}/View/SpinControl.cpp
 	${COMMON_SOURCE_DIR}/View/SwitchableMapViewContainer.cpp
 	${COMMON_SOURCE_DIR}/View/TabBar.cpp
 	${COMMON_SOURCE_DIR}/View/TabBook.cpp

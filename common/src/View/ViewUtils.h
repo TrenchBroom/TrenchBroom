@@ -24,6 +24,8 @@
 #include "StringUtils.h"
 
 class QWidget;
+class QString;
+class QStringList;
 
 namespace TrenchBroom {
     class Logger;
@@ -38,16 +40,13 @@ namespace TrenchBroom {
         Assets::EntityModel* safeGetModel(Assets::EntityModelManager& manager, const Assets::ModelSpecification& spec, Logger& logger);
         void combineFlags(const size_t numFlags, const int newFlagValue, int& setFlags, int& mixedFlags);
 
-        // FIXME:
-#if 0
-        size_t loadDroppedFiles(MapDocumentWPtr document, QWidget* parent, const wxArrayString& wxPaths);
+        size_t loadDroppedFiles(MapDocumentWPtr document, QWidget* parent, const QStringList& wxPaths);
         
         bool loadTextureCollection(MapDocumentWPtr document, QWidget* parent, const QString& wxPath);
-        size_t loadTextureCollections(MapDocumentWPtr document, QWidget* parent, const wxArrayString& wxPaths);
+        size_t loadTextureCollections(MapDocumentWPtr document, QWidget* parent, const QStringList& wxPaths);
         
         bool loadEntityDefinitionFile(MapDocumentWPtr document, QWidget* parent, const QString& wxPath);
-        size_t loadEntityDefinitionFile(MapDocumentWPtr document, QWidget* parent, const wxArrayString& wxPaths);
-#endif
+        size_t loadEntityDefinitionFile(MapDocumentWPtr document, QWidget* parent, const QStringList& wxPaths);
 
         String queryGroupName(QWidget* parent);
     }

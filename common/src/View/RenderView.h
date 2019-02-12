@@ -24,7 +24,6 @@
 #include "Color.h"
 #include "Renderer/Vbo.h"
 #include "View/InputEvent.h"
-#include "View/GLAttribs.h"
 
 #include <GL/glew.h>
 #undef Bool

@@ -23,7 +23,7 @@
 #include "View/BorderLine.h"
 #include "View/CollapsibleTitledPanel.h"
 #include "View/EntityBrowser.h"
-//#include "View/EntityDefinitionFileChooser.h"
+#include "View/EntityDefinitionFileChooser.h"
 #include "View/EntityAttributeEditor.h"
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
@@ -78,7 +78,7 @@ namespace TrenchBroom {
         
         QWidget* EntityInspector::createEntityDefinitionFileChooser(QWidget* parent, MapDocumentWPtr document) {
             CollapsibleTitledPanel* panel = new CollapsibleTitledPanel(parent, tr("Entity Definitions"), false);
-            m_entityDefinitionFileChooser = new QWidget();// new EntityDefinitionFileChooser(panel->getPanel(), document);
+            m_entityDefinitionFileChooser = new EntityDefinitionFileChooser(nullptr, document);
 
             auto* sizer = new QVBoxLayout();
             sizer->addWidget(m_entityDefinitionFileChooser, 1);

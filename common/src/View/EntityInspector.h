@@ -33,8 +33,8 @@ namespace TrenchBroom {
         class EntityInspector : public TabBookPage {
         private:
             EntityAttributeEditor* m_attributeEditor;
-            QWidget* m_entityBrowser;
-            QWidget* m_entityDefinitionFileChooser;
+            EntityBrowser* m_entityBrowser;
+            EntityDefinitionFileChooser* m_entityDefinitionFileChooser;
         public:
             EntityInspector(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
         private:

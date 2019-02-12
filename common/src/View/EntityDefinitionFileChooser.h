@@ -22,10 +22,10 @@
 
 #include "View/ViewTypes.h"
 
-#include <wx/panel.h>
+#include <QWidget>
 
-class wxButton;
-class wxListBox;
+class QPushButton;
+class QListWidget;
 class QLabel;
 
 namespace TrenchBroom {
@@ -33,19 +33,18 @@ namespace TrenchBroom {
         class EntityDefinitionFileChooser : public QWidget {
         private:
             MapDocumentWPtr m_document;
-            
-            wxListBox* m_builtin;
+
+            QListWidget* m_builtin;
             QLabel* m_external;
-            wxButton* m_chooseExternal;
-            wxButton* m_reloadExternal;
+            QPushButton* m_chooseExternal;
+            QPushButton* m_reloadExternal;
         public:
             EntityDefinitionFileChooser(QWidget* parent, MapDocumentWPtr document);
-            ~EntityDefinitionFileChooser();
+            ~EntityDefinitionFileChooser() override;
             
-            void OnBuiltinSelectionChanged(wxCommandEvent& event);
-            void OnChooseExternalClicked(wxCommandEvent& event);
-            void OnReloadExternalClicked(wxCommandEvent& event);
-            void OnUpdateReloadExternal(wxUpdateUIEvent& event);
+            void OnBuiltinSelectionChanged(int currentRow);
+            void OnChooseExternalClicked();
+            void OnReloadExternalClicked();
         private:
             void createGui();
             void bindEvents();
