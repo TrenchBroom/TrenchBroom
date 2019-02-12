@@ -52,7 +52,7 @@ namespace TrenchBroom {
         }
         
         void LaunchGameEngineDialog::createGui() {
-            setWindowIcon(this);
+            setWindowIconTB(this);
 
             MapDocumentSPtr document = lock(m_document);
             const String& gameName = document->game()->gameName();

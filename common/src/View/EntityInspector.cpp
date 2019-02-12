@@ -21,11 +21,11 @@
 
 #include "StringUtils.h"
 #include "View/BorderLine.h"
-//#include "View/CollapsibleTitledPanel.h"
+#include "View/CollapsibleTitledPanel.h"
 #include "View/EntityBrowser.h"
 //#include "View/EntityDefinitionFileChooser.h"
 #include "View/EntityAttributeEditor.h"
-//#include "View/TitledPanel.h"
+#include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
 #include "View/MapDocument.h"
 
@@ -48,7 +48,7 @@ namespace TrenchBroom {
             splitter->addWidget(createEntityBrowser(splitter, document, contextManager));
 
             m_attributeEditor->setMinimumSize(100, 150);
-            //m_entityBrowser->setMinimumSize(100, 150);
+            m_entityBrowser->setMinimumSize(100, 150);
             
             auto* outerSizer = new QVBoxLayout();
             outerSizer->addWidget(splitter, 1);
@@ -66,32 +66,25 @@ namespace TrenchBroom {
         }
         
         QWidget* EntityInspector::createEntityBrowser(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) {
-#if 0
-            TitledPanel* panel = new TitledPanel(parent, "Entity Browser");
-            m_entityBrowser = new EntityBrowser(panel->getPanel(), document, contextManager);
+            auto* panel = new TitledPanel(parent, tr("Entity Browser"));
+            m_entityBrowser = new EntityBrowser(nullptr, document, contextManager);
             
             auto* sizer = new QVBoxLayout();
-            sizer->addWidget(m_entityBrowser, 1, wxEXPAND);
-            panel->getPanel()->SetSizer(sizer);
+            sizer->addWidget(m_entityBrowser, 1);
+            panel->getPanel()->setLayout(sizer);
             
             return panel;
-#endif
-            m_entityBrowser = new EntityBrowser(nullptr, document, contextManager);
-            return m_entityBrowser;
         }
         
         QWidget* EntityInspector::createEntityDefinitionFileChooser(QWidget* parent, MapDocumentWPtr document) {
-#if 0
-            CollapsibleTitledPanel* panel = new CollapsibleTitledPanel(parent, "Entity Definitions", false);
-            m_entityDefinitionFileChooser = new EntityDefinitionFileChooser(panel->getPanel(), document);
+            CollapsibleTitledPanel* panel = new CollapsibleTitledPanel(parent, tr("Entity Definitions"), false);
+            m_entityDefinitionFileChooser = new QWidget();// new EntityDefinitionFileChooser(panel->getPanel(), document);
 
             auto* sizer = new QVBoxLayout();
-            sizer->addWidget(m_entityDefinitionFileChooser, 1, wxEXPAND);
-            panel->getPanel()->SetSizer(sizer);
+            sizer->addWidget(m_entityDefinitionFileChooser, 1);
+            panel->getPanel()->setLayout(sizer);
 
             return panel;
-#endif
-            return new QWidget();
         }
     }
 }

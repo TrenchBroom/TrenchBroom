@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_TitleBar
 #define TrenchBroom_TitleBar
 
-#include <wx/window.h>
+#include <QWidget>
 
 class QLabel;
 
@@ -31,8 +31,6 @@ namespace TrenchBroom {
             QLabel* m_titleText;
         public:
             TitleBar(QWidget* parent, const QString& title, int hMargin = 0, int vMargin = 0, bool boldTitle = true);
-            
-            bool AcceptsFocus() const override;
         };
     }
 }

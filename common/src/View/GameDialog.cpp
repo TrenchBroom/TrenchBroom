@@ -126,7 +126,7 @@ namespace TrenchBroom {
         }
         
         void GameDialog::createGui(const QString& title, const QString& infoText) {
-            setWindowIcon(this);
+            setWindowIconTB(this);
 
             auto* infoPanel = createInfoPanel(this, title, infoText);
             auto* selectionPanel = createSelectionPanel(this);

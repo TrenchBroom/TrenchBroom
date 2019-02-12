@@ -23,7 +23,7 @@
 #include "View/TitleBar.h"
 #include "View/ViewConstants.h"
 
-#include <wx/sizer.h>
+#include <QVBoxLayout>
 
 namespace TrenchBroom {
     namespace View {
@@ -36,11 +36,11 @@ namespace TrenchBroom {
             m_panel = new QWidget(this);
 
             auto* sizer = new QVBoxLayout();
-            sizer->addWidget(new TitleBar(this, title, hMargin, vMargin, boldTitle), wxSizerFlags().Expand());
+            sizer->addWidget(new TitleBar(nullptr, title, hMargin, vMargin, boldTitle), 0);
             if (showDivider)
-                sizer->addWidget(new BorderLine(this, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
-            sizer->addWidget(m_panel, wxSizerFlags().Expand().Proportion(1));
-            SetSizer(sizer);
+                sizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Horizontal), 0);
+            sizer->addWidget(m_panel, 1);
+            setLayout(sizer);
         }
 
         QWidget* TitledPanel::getPanel() const {

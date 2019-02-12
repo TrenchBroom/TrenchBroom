@@ -144,7 +144,7 @@ namespace TrenchBroom {
         }
 
         void PreferenceDialog::createGui() {
-            setWindowIcon(this);
+            setWindowIconTB(this);
 
             PreferenceManager& prefs = PreferenceManager::instance();
 

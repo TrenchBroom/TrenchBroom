@@ -1108,7 +1108,7 @@ namespace TrenchBroom {
         }
 
         void MapFrame::createGui() {
-            TrenchBroom::View::setWindowIcon(this);
+            setWindowIconTB(this);
             setWindowTitle("TrenchBroom");
 
             // FIXME: handle sash gravity, persistence

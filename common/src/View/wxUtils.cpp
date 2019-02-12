@@ -163,7 +163,7 @@ namespace TrenchBroom {
 #endif
 #endif
 
-        void setWindowIcon(QWidget* window) {
+        void setWindowIconTB(QWidget* window) {
             ensure(window != nullptr, "window is null");
             window->setWindowIcon(IO::loadIconResourceQt(IO::Path("Resources/WindowIcon")));
         }

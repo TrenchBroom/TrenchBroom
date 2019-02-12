@@ -19,33 +19,30 @@
 
 #include "TitleBar.h"
 
-#include <wx/settings.h>
-#include <wx/sizer.h>
 #include <QLabel>
+#include <QHBoxLayout>
 
 #include "View/ViewConstants.h"
 
 namespace TrenchBroom {
     namespace View {
         TitleBar::TitleBar(QWidget* parent, const QString& title, const int hMargin, const int vMargin, const bool boldTitle) :
-        QWidget(parent, wxID_ANY),
-        m_titleText(new QLabel(this, wxID_ANY, title)) {
-            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_FRAMEBK));
-            
-            if (boldTitle)
-                m_titleText->SetFont(m_titleText->GetFont().Bold());
+        QWidget(parent),
+        m_titleText(new QLabel(title)) {
+            if (boldTitle) {
+                QFont boldFont = m_titleText->font();
+                boldFont.setBold(true);
+
+                m_titleText->setFont(boldFont);
+            }
             
             auto* sizer = new QHBoxLayout();
             sizer->addSpacing(hMargin);
-            sizer->addWidget(m_titleText, 0, wxTOP | wxBOTTOM, vMargin);
-            sizer->AddStretchSpacer();
+            sizer->addWidget(m_titleText, 0);
+            sizer->addStretch(1);
             sizer->addSpacing(hMargin);
 
-            SetSizer(sizer);
-        }
-
-        bool TitleBar::AcceptsFocus() const {
-            return false;
+            setLayout(sizer);
         }
     }
 }

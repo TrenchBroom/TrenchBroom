@@ -47,7 +47,7 @@ namespace TrenchBroom {
         }
 
         void GameEngineDialog::createGui() {
-            setWindowIcon(this);
+            setWindowIconTB(this);
 
             CurrentGameIndicator* gameIndicator = new CurrentGameIndicator(this, m_gameName);
             

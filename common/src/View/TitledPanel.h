@@ -20,11 +20,12 @@
 #ifndef TrenchBroom_TitledPanel
 #define TrenchBroom_TitledPanel
 
-#include <wx/panel.h>
+#include <QWidget>
 
 namespace TrenchBroom {
     namespace View {
         class TitledPanel : public QWidget {
+            Q_OBJECT
         private:
             QWidget* m_panel;
         public:

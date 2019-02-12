@@ -276,9 +276,6 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/AppInfoPanel.cpp
 #	${COMMON_SOURCE_DIR}/View/AutoCompleteTextControl.cpp
 	${COMMON_SOURCE_DIR}/View/Autosaver.cpp
-#	${COMMON_SOURCE_DIR}/View/BitmapButton.cpp
-#	${COMMON_SOURCE_DIR}/View/BitmapStaticButton.cpp
-#	${COMMON_SOURCE_DIR}/View/BitmapToggleButton.cpp
 	${COMMON_SOURCE_DIR}/View/BorderLine.cpp
 	${COMMON_SOURCE_DIR}/View/BorderPanel.cpp
 	${COMMON_SOURCE_DIR}/View/CachingLogger.cpp
@@ -288,10 +285,10 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/CameraTool3D.cpp
 	${COMMON_SOURCE_DIR}/View/ChangeBrushFaceAttributesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/ChangeEntityAttributesCommand.cpp
-#	${COMMON_SOURCE_DIR}/View/ChoosePathTypeDialog.cpp
+	${COMMON_SOURCE_DIR}/View/ChoosePathTypeDialog.cpp
 	${COMMON_SOURCE_DIR}/View/ClipToolController.cpp
 	${COMMON_SOURCE_DIR}/View/ClipTool.cpp
-#	${COMMON_SOURCE_DIR}/View/CollapsibleTitledPanel.cpp
+	${COMMON_SOURCE_DIR}/View/CollapsibleTitledPanel.cpp
 #	${COMMON_SOURCE_DIR}/View/ColorTable.cpp
 #	${COMMON_SOURCE_DIR}/View/ColorTableSelectedCommand.cpp
 	${COMMON_SOURCE_DIR}/View/Command.cpp
@@ -461,8 +458,8 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/TextureBrowserView.cpp
 #	${COMMON_SOURCE_DIR}/View/TextureCollectionEditor.cpp
 	${COMMON_SOURCE_DIR}/View/ThreePaneMapView.cpp
-#	${COMMON_SOURCE_DIR}/View/TitleBar.cpp
-#	${COMMON_SOURCE_DIR}/View/TitledPanel.cpp
+	${COMMON_SOURCE_DIR}/View/TitleBar.cpp
+	${COMMON_SOURCE_DIR}/View/TitledPanel.cpp
 	${COMMON_SOURCE_DIR}/View/ToolBoxConnector.cpp
 	${COMMON_SOURCE_DIR}/View/ToolBox.cpp
 #	${COMMON_SOURCE_DIR}/View/ToolBoxDropTarget.cpp
@@ -832,9 +829,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/AppInfoPanel.h
 #	${COMMON_SOURCE_DIR}/View/AutoCompleteTextControl.h
 	${COMMON_SOURCE_DIR}/View/Autosaver.h
-	${COMMON_SOURCE_DIR}/View/BitmapButton.h
-	${COMMON_SOURCE_DIR}/View/BitmapStaticButton.h
-	${COMMON_SOURCE_DIR}/View/BitmapToggleButton.h
 	${COMMON_SOURCE_DIR}/View/BorderLine.h
 	${COMMON_SOURCE_DIR}/View/BorderPanel.h
 	${COMMON_SOURCE_DIR}/View/CachingLogger.h
@@ -849,7 +843,7 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/ChoosePathTypeDialog.h
 	${COMMON_SOURCE_DIR}/View/ClipToolController.h
 	${COMMON_SOURCE_DIR}/View/ClipTool.h
-#	${COMMON_SOURCE_DIR}/View/CollapsibleTitledPanel.h
+	${COMMON_SOURCE_DIR}/View/CollapsibleTitledPanel.h
 	${COMMON_SOURCE_DIR}/View/ColorTable.h
 	${COMMON_SOURCE_DIR}/View/ColorTableSelectedCommand.h
 	${COMMON_SOURCE_DIR}/View/Command.h

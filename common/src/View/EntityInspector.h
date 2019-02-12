@@ -34,7 +34,7 @@ namespace TrenchBroom {
         private:
             EntityAttributeEditor* m_attributeEditor;
             QWidget* m_entityBrowser;
-            EntityDefinitionFileChooser* m_entityDefinitionFileChooser;
+            QWidget* m_entityDefinitionFileChooser;
         public:
             EntityInspector(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
         private:

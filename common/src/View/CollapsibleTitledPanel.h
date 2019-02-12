@@ -22,28 +22,30 @@
 
 #include "View/TitleBar.h"
 
-#include <wx/panel.h>
+#include <QWidget>
 
 class QLabel;
-
-wxDECLARE_EVENT(TITLE_BAR_CLICK, wxCommandEvent);
 
 namespace TrenchBroom {
     namespace View {
         class BorderLine;
         
         class CollapsibleTitleBar : public TitleBar {
+            Q_OBJECT
         private:
             QLabel* m_stateText;
         public:
             CollapsibleTitleBar(QWidget* parent, const QString& title, const QString& stateText);
             
             void setStateText(const QString& stateText);
-        private:
-            void OnClick(wxMouseEvent& event);
+        signals:
+            void titleBarClicked();
+        protected:
+            void mousePressEvent(QMouseEvent* event) override;
         };
         
         class CollapsibleTitledPanel : public QWidget {
+            Q_OBJECT
         private:
             CollapsibleTitleBar* m_titleBar;
             BorderLine* m_divider;
@@ -58,10 +60,8 @@ namespace TrenchBroom {
             void collapse();
             bool expanded() const;
             void setExpanded(bool expanded);
-            
-            void OnTitleBarClick(wxCommandEvent& event);
         private:
-            void update();
+            void updateExpanded();
         };
     }
 }

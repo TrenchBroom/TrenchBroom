@@ -23,127 +23,94 @@
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
-#include <wx/gbsizer.h>
-#include <wx/panel.h>
-#include <wx/radiobut.h>
+#include <QRadioButton>
 #include <QLabel>
+#include <QGridLayout>
+#include <QDialogButtonBox>
 
 namespace TrenchBroom {
     namespace View {
-        wxIMPLEMENT_DYNAMIC_CLASS(ChoosePathTypeDialog, wxDialog)
-        
         ChoosePathTypeDialog::ChoosePathTypeDialog() :
-        wxDialog(nullptr, wxID_ANY, "Path Type"),
+        QDialog(nullptr),
         m_absPath(""),
         m_docRelativePath(""),
         m_gameRelativePath(""),
         m_appRelativePath("") {
-            Create();
+            createGui();
         }
-
         
         ChoosePathTypeDialog::ChoosePathTypeDialog(QWidget* parent, const IO::Path& absPath, const IO::Path& docPath, const IO::Path& gamePath) :
-        wxDialog(parent, wxID_ANY, "Path Type"),
+        QDialog(parent),
         m_absPath(absPath),
         m_docRelativePath(makeRelativePath(absPath, docPath.deleteLastComponent())),
         m_gameRelativePath(makeRelativePath(absPath, gamePath)),
         m_appRelativePath(makeRelativePath(absPath, IO::SystemPaths::appDirectory())) {
-            Create();
+            createGui();
         }
         
-        bool ChoosePathTypeDialog::Create() {
-            setWindowIcon(this);
+        void ChoosePathTypeDialog::createGui() {
+            setWindowTitle(tr("Path Type"));
+            setWindowIconTB(this);
 
-            QWidget* panel = new QWidget(this);
+            QLabel* infoText = new QLabel(tr("Paths can be stored either as absolute paths or as relative paths. Please choose how you want to store this path."));
+            infoText->setMaximumWidth(370);
+            infoText->setWordWrap(true);
+
+            m_absRadio = new QRadioButton(tr("Absolute"));
+            QFont boldFont = m_absRadio->font();
+            boldFont.setBold(true);
+            m_absRadio->setFont(boldFont);
+            m_absRadio->setChecked(true);
+            QLabel* absolutePathText = new QLabel(m_absPath.asQString());
             
-            QLabel* infoText = new QLabel(panel, wxID_ANY, "Paths can be stored either as absolute paths or as relative paths. Please choose how you want to store this path.");
-            infoText->Wrap(370);
-            
-            m_absRadio = new wxRadioButton(panel, wxID_ANY, "Absolute");
-            m_absRadio->SetFont(m_absRadio->GetFont().MakeBold());
-            m_absRadio->SetValue(true);
-            QLabel* absolutePathText = new QLabel(panel, wxID_ANY, m_absPath.asString(), wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
-            
-            m_docRelativeRadio = new wxRadioButton(panel, wxID_ANY, "Relative to map file");
-            m_docRelativeRadio->SetFont(m_docRelativeRadio->GetFont().MakeBold());
+            m_docRelativeRadio = new QRadioButton(tr("Relative to map file"));
+            m_docRelativeRadio->setFont(boldFont);
             if (m_docRelativePath.isEmpty())
-                m_docRelativeRadio->Enable(false);
-            QLabel* mapRelativePathText = new QLabel(panel, wxID_ANY, m_docRelativePath.isEmpty() ? "Could not build a path." : m_docRelativePath.asString(), wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
+                m_docRelativeRadio->setEnabled(false);
+            QLabel* mapRelativePathText = new QLabel(m_docRelativePath.isEmpty() ? tr("Could not build a path.") : m_docRelativePath.asQString());
             
-            m_appRelativeRadio = new wxRadioButton(panel, wxID_ANY, "Relative to application executable");
-            m_appRelativeRadio->SetFont(m_appRelativeRadio->GetFont().MakeBold());
+            m_appRelativeRadio = new QRadioButton(tr("Relative to application executable"));
+            m_appRelativeRadio->setFont(boldFont);
             if (m_appRelativePath.isEmpty())
-                m_appRelativeRadio->Enable(false);
-            QLabel* appRelativePathText = new QLabel(panel, wxID_ANY, m_appRelativePath.isEmpty() ? "Could not build a path." : m_appRelativePath.asString(), wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
+                m_appRelativeRadio->setEnabled(false);
+            QLabel* appRelativePathText = new QLabel(m_appRelativePath.isEmpty() ? tr("Could not build a path.") : m_appRelativePath.asQString());
             
-            m_gameRelativeRadio = new wxRadioButton(panel, wxID_ANY, "Relative to game directory");
+            m_gameRelativeRadio = new QRadioButton(tr("Relative to game directory"));
             if (m_gameRelativePath.isEmpty())
-                m_gameRelativeRadio->Enable(false);
-            m_gameRelativeRadio->SetFont(m_gameRelativeRadio->GetFont().MakeBold());
-            QLabel* gameRelativePathText = new QLabel(panel, wxID_ANY, m_gameRelativePath.isEmpty() ? "Could not build a path." : m_gameRelativePath.asString(), wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
+                m_gameRelativeRadio->setEnabled(false);
+            m_gameRelativeRadio->setFont(boldFont);
+            QLabel* gameRelativePathText = new QLabel(m_gameRelativePath.isEmpty() ? tr("Could not build a path.") : m_gameRelativePath.asQString());
+
+            auto* innerSizer = new QVBoxLayout();
             
-#if defined __APPLE__
-            absolutePathText->SetFont(*wxSMALL_FONT);
-            mapRelativePathText->SetFont(*wxSMALL_FONT);
-            appRelativePathText->SetFont(*wxSMALL_FONT);
-            gameRelativePathText->SetFont(*wxSMALL_FONT);
-#endif
+            innerSizer->addWidget(infoText);
+
+            innerSizer->addWidget(m_absRadio);
+            innerSizer->addWidget(absolutePathText);
+
+            innerSizer->addWidget(m_docRelativeRadio);
+            innerSizer->addWidget(mapRelativePathText);
+
+            innerSizer->addWidget(m_appRelativeRadio);
+            innerSizer->addWidget(appRelativePathText);
+
+            innerSizer->addWidget(m_gameRelativeRadio);
+            innerSizer->addWidget(gameRelativePathText);
+
+            auto* okCancelButtons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+            innerSizer->addWidget(okCancelButtons);
             
-            wxGridBagSizer* innerSizer = new wxGridBagSizer();
-            
-            innerSizer->Add(infoText, wxGBPosition(0, 0), wxGBSpan(1, 2));
-            innerSizer->Add(1, 2 * LayoutConstants::WideVMargin, wxGBPosition(1,0), wxGBSpan(1,2));
-            
-            innerSizer->Add(m_absRadio, wxGBPosition(2, 0), wxGBSpan(1, 2));
-            innerSizer->Add(18, 1, wxGBPosition(3, 0), wxGBSpan(1, 1));
-            innerSizer->Add(absolutePathText, wxGBPosition(3, 1), wxGBSpan(1, 1));
-            innerSizer->Add(1, LayoutConstants::WideVMargin, wxGBPosition(4,0), wxGBSpan(1,2));
-            
-            innerSizer->Add(m_docRelativeRadio, wxGBPosition(5, 0), wxGBSpan(1, 2));
-            innerSizer->Add(18, 1, wxGBPosition(6, 0), wxGBSpan(1, 1));
-            innerSizer->Add(mapRelativePathText, wxGBPosition(6, 1), wxGBSpan(1, 1));
-            innerSizer->Add(1, LayoutConstants::WideVMargin, wxGBPosition(7,0), wxGBSpan(1,2));
-            
-            innerSizer->Add(m_appRelativeRadio, wxGBPosition(8, 0), wxGBSpan(1, 2));
-            innerSizer->Add(18, 1, wxGBPosition(9, 0), wxGBSpan(1, 1));
-            innerSizer->Add(appRelativePathText, wxGBPosition(9, 1), wxGBSpan(1, 1));
-            innerSizer->Add(1, LayoutConstants::WideVMargin, wxGBPosition(10,0), wxGBSpan(1,2));
-            
-            innerSizer->Add(m_gameRelativeRadio, wxGBPosition(11, 0), wxGBSpan(1, 2));
-            innerSizer->Add(18, 1, wxGBPosition(12, 0), wxGBSpan(1, 1));
-            innerSizer->Add(gameRelativePathText, wxGBPosition(12, 1), wxGBSpan(1, 1));
-            
-            auto* panelSizer = new QVBoxLayout();
-            panelSizer->Add(innerSizer, 1, wxEXPAND | wxALL, LayoutConstants::DialogOuterMargin);
-            panel->SetSizerAndFit(panelSizer);
-            
-            wxSizer* buttonSizer = CreateStdDialogButtonSizer(wxOK | wxCANCEL);
-            auto* outerSizer = new QVBoxLayout();
-            outerSizer->Add(panel, 1, wxEXPAND);
-            outerSizer->Add(wrapDialogButtonSizer(buttonSizer, this), 0, wxEXPAND);
-            
-            SetSizerAndFit(outerSizer);
-            CentreOnParent();
-            
-            Bind(wxEVT_CLOSE_WINDOW, &ChoosePathTypeDialog::OnClose, this);
-            
-            return true;
+            setLayout(innerSizer);
        }
 
         const IO::Path& ChoosePathTypeDialog::path() const {
-            if (m_docRelativeRadio->GetValue())
+            if (m_docRelativeRadio->isChecked())
                 return m_docRelativePath;
-            if (m_appRelativeRadio->GetValue())
+            if (m_appRelativeRadio->isChecked())
                 return m_appRelativePath;
-            if (m_gameRelativeRadio->GetValue())
+            if (m_gameRelativeRadio->isChecked())
                 return m_gameRelativePath;
             return m_absPath;
-        }
-
-        void ChoosePathTypeDialog::OnClose(wxCloseEvent& event) {
-            if (GetParent() != nullptr)
-                GetParent()->Raise();
-            event.Skip();
         }
 
         IO::Path ChoosePathTypeDialog::makeRelativePath(const IO::Path& absPath, const IO::Path& newRootPath) {
