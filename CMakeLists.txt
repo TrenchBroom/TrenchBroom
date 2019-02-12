@@ -130,6 +130,7 @@ INCLUDE(cmake/tinyxml2.cmake)
 INCLUDE(cmake/vecmath.cmake)
 INCLUDE(cmake/Common.cmake)
 INCLUDE(cmake/StackWalker.cmake)
+INCLUDE(cmake/miniz.cmake)
 
 INCLUDE(cmake/TrenchBroomApp.cmake)
 
