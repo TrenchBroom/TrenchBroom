@@ -38,6 +38,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/IO/DiskIO.cpp
 	${COMMON_SOURCE_DIR}/IO/DkmParser.cpp
 	${COMMON_SOURCE_DIR}/IO/DkPakFileSystem.cpp
+	${COMMON_SOURCE_DIR}/IO/EntParser.cpp
 	${COMMON_SOURCE_DIR}/IO/ELParser.cpp
 	${COMMON_SOURCE_DIR}/IO/EntityDefinitionClassInfo.cpp
 	${COMMON_SOURCE_DIR}/IO/EntityDefinitionLoader.cpp
@@ -546,6 +547,7 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/IO/DkmParser.h
 	${COMMON_SOURCE_DIR}/IO/DkPakFileSystem.h
 	${COMMON_SOURCE_DIR}/IO/ELParser.h
+	${COMMON_SOURCE_DIR}/IO/EntParser.h
 	${COMMON_SOURCE_DIR}/IO/EntityDefinitionClassInfo.h
 	${COMMON_SOURCE_DIR}/IO/EntityDefinitionLoader.h
 	${COMMON_SOURCE_DIR}/IO/EntityDefinitionParser.h
