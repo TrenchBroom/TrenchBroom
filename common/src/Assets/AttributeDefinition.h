@@ -33,6 +33,7 @@ namespace TrenchBroom {
                 Type_TargetSourceAttribute,
                 Type_TargetDestinationAttribute,
                 Type_StringAttribute,
+                Type_BooleanAttribute,
                 Type_IntegerAttribute,
                 Type_FloatAttribute,
                 Type_ChoiceAttribute,
@@ -45,7 +46,7 @@ namespace TrenchBroom {
             String m_longDescription;
             bool m_readOnly;
         public:
-            AttributeDefinition(const String& name, const Type type, const String& shortDescription, const String& longDescription, bool readOnly = false);
+            AttributeDefinition(const String& name, Type type, const String& shortDescription, const String& longDescription, bool readOnly);
             virtual ~AttributeDefinition();
             
             const String& name() const;
@@ -60,8 +61,11 @@ namespace TrenchBroom {
             bool equals(const AttributeDefinition* other) const;
             
             static String defaultValue(const AttributeDefinition& definition);
+
+            AttributeDefinition* clone(const String& name, const String& shortDescription, const String& longDescription, bool readOnly) const;
         private:
             virtual bool doEquals(const AttributeDefinition* other) const;
+            virtual AttributeDefinition* doClone(const String& name, const String& shortDescription, const String& longDescription, bool readOnly) const;
         };
         
         template <typename T>
@@ -80,11 +84,11 @@ namespace TrenchBroom {
                 return m_defaultValue;
             }
         protected:
-            AttributeDefinitionWithDefaultValue(const String& name, const Type type, const String& shortDescription, const String& longDescription, bool readOnly = false) :
+            AttributeDefinitionWithDefaultValue(const String& name, Type type, const String& shortDescription, const String& longDescription, bool readOnly) :
             AttributeDefinition(name, type, shortDescription, longDescription, readOnly),
             m_hasDefaultValue(false) {}
             
-            AttributeDefinitionWithDefaultValue(const String& name, const Type type, const String& shortDescription, const String& longDescription, const T& defaultValue, bool readOnly = false) :
+            AttributeDefinitionWithDefaultValue(const String& name, Type type, const String& shortDescription, const String& longDescription, const T& defaultValue, bool readOnly) :
             AttributeDefinition(name, type, shortDescription, longDescription, readOnly),
             m_hasDefaultValue(true),
             m_defaultValue(defaultValue) {}
@@ -92,20 +96,34 @@ namespace TrenchBroom {
         
         class StringAttributeDefinition : public AttributeDefinitionWithDefaultValue<String> {
         public:
-            StringAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const String& defaultValue, bool readOnly = false);
-            StringAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, bool readOnly = false);
+            StringAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const String& defaultValue, bool readOnly);
+            StringAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, bool readOnly);
+        private:
+            AttributeDefinition* doClone(const String& name, const String& shortDescription, const String& longDescription, bool readOnly) const override;
         };
-        
+
+        class BooleanAttributeDefinition : public AttributeDefinitionWithDefaultValue<bool> {
+        public:
+            BooleanAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, bool defaultValue, bool readOnly);
+            BooleanAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, bool readOnly);
+        private:
+            AttributeDefinition* doClone(const String& name, const String& shortDescription, const String& longDescription, bool readOnly) const override;
+        };
+
         class IntegerAttributeDefinition : public AttributeDefinitionWithDefaultValue<int> {
         public:
-            IntegerAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const int defaultValue, bool readOnly = false);
-            IntegerAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, bool readOnly = false);
+            IntegerAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, int defaultValue, bool readOnly);
+            IntegerAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, bool readOnly);
+        private:
+            AttributeDefinition* doClone(const String& name, const String& shortDescription, const String& longDescription, bool readOnly) const override;
         };
         
         class FloatAttributeDefinition : public AttributeDefinitionWithDefaultValue<float> {
         public:
-            FloatAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const float defaultValue, bool readOnly = false);
-            FloatAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, bool readOnly = false);
+            FloatAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, float defaultValue, bool readOnly);
+            FloatAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, bool readOnly);
+        private:
+            AttributeDefinition* doClone(const String& name, const String& shortDescription, const String& longDescription, bool readOnly) const override;
         };
         
         class ChoiceAttributeOption {
@@ -125,11 +143,12 @@ namespace TrenchBroom {
         private:
             ChoiceAttributeOption::List m_options;
         public:
-            ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::List& options, const size_t defaultValue, bool readOnly = false);
-            ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::List& options, bool readOnly = false);
+            ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::List& options, const size_t defaultValue, bool readOnly);
+            ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::List& options, bool readOnly);
             const ChoiceAttributeOption::List& options() const;
         private:
             bool doEquals(const AttributeDefinition* other) const override;
+            AttributeDefinition* doClone(const String& name, const String& shortDescription, const String& longDescription, bool readOnly) const override;
         };
         
         class FlagsAttributeOption {
@@ -141,7 +160,7 @@ namespace TrenchBroom {
             String m_longDescription;
             bool m_isDefault;
         public:
-            FlagsAttributeOption(const int value, const String& shortDescription, const String& longDescription, const bool isDefault);
+            FlagsAttributeOption(int value, const String& shortDescription, const String& longDescription, bool isDefault);
             bool operator==(const FlagsAttributeOption& other) const;
             int value() const;
             const String& shortDescription() const;
@@ -157,16 +176,19 @@ namespace TrenchBroom {
 
             int defaultValue() const;
             const FlagsAttributeOption::List& options() const;
-            const FlagsAttributeOption* option(const int value) const;
-            void addOption(const int value, const String& shortDescription, const String& longDescription, const bool isDefault);
+            const FlagsAttributeOption* option(int value) const;
+            void addOption(int value, const String& shortDescription, const String& longDescription, bool isDefault);
         private:
             bool doEquals(const AttributeDefinition* other) const override;
+            AttributeDefinition* doClone(const String& name, const String& shortDescription, const String& longDescription, bool readOnly) const override;
         };
         
         class UnknownAttributeDefinition : public StringAttributeDefinition {
         public:
-            UnknownAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const String& defaultValue, bool readOnly = false);
-            UnknownAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, bool readOnly = false);
+            UnknownAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const String& defaultValue, bool readOnly);
+            UnknownAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, bool readOnly);
+        private:
+            AttributeDefinition* doClone(const String& name, const String& shortDescription, const String& longDescription, bool readOnly) const override;
         };
     }
 }

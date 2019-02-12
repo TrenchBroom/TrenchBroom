@@ -1062,7 +1062,7 @@ SET(COMMON_HEADER
 # Unfortunately, Xcode still compiles OBJECT libraries as static libraries
 SET(TB_COMMON_LIBRARY_TYPE OBJECT)
 IF(CMAKE_GENERATOR STREQUAL "Xcode" AND CMAKE_BUILD_TYPE STREQUAL "Debug")
-	SET(TB_COMMON_LIBRARY_TYPE SHARED)
+    SET(TB_COMMON_LIBRARY_TYPE SHARED)
 ENDIF()
 MESSAGE(STATUS "Building common as ${TB_COMMON_LIBRARY_TYPE} library")
 
@@ -1072,11 +1072,11 @@ SET_XCODE_ATTRIBUTES(common)
 # Configure dependencies if building a shared library.
 get_target_property(common_TYPE common TYPE)
 IF(common_TYPE STREQUAL "SHARED_LIBRARY")
-	IF(COMPILER_IS_GNU AND TB_ENABLE_ASAN)
-		TARGET_LINK_LIBRARIES(common asan)
-	ENDIF()
+    IF(COMPILER_IS_GNU AND TB_ENABLE_ASAN)
+        TARGET_LINK_LIBRARIES(common asan)
+    ENDIF()
 
-	TARGET_LINK_LIBRARIES(common glew ${wxWidgets_LIBRARIES} ${FREETYPE_LIBRARIES} ${FREEIMAGE_LIBRARIES} vecmath)
+    TARGET_LINK_LIBRARIES(common glew ${wxWidgets_LIBRARIES} ${FREETYPE_LIBRARIES} ${FREEIMAGE_LIBRARIES} vecmath tinyxml2)
 ENDIF()
 TARGET_LINK_LIBRARIES(common Qt5::Widgets)
 
@@ -1095,5 +1095,5 @@ ENDIF()
 CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/cmake/GenerateVersion.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/GenerateVersion.cmake" @ONLY)
 ADD_TARGET_PROPERTY(common INCLUDE_DIRECTORIES ${CMAKE_CURRENT_BINARY_DIR})
 ADD_CUSTOM_TARGET(GenerateVersion
-		${CMAKE_COMMAND} -P "${CMAKE_CURRENT_BINARY_DIR}/GenerateVersion.cmake")
+        ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_BINARY_DIR}/GenerateVersion.cmake")
 ADD_DEPENDENCIES(common GenerateVersion)

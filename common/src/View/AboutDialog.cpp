@@ -78,6 +78,7 @@ namespace TrenchBroom {
                                              "FreeType (Font rendering library)\n"
                                              "FreeImage (Image loading & manipulation library)\n"
                                              "GLEW (OpenGL extension library)\n"
+                                             "tinyxml2 (XML parsing library)\n"
                                              "Google Test (C++ testing framework)\n"
                                              "Google Mock (C++ mocking framework)\n"
                                              "StackWalker (C++ stack trace analyzer)\n"
@@ -86,7 +87,7 @@ namespace TrenchBroom {
                                              "Source Sans Pro (Font)\n").replace("\n", "<br/>");
             
             AppInfoPanel* infoPanel = new AppInfoPanel(nullptr);
-            
+
             QLabel* creditsText = new QLabel();
             creditsText->setText(creditsString);
 

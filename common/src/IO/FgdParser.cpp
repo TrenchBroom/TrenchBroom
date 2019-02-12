@@ -19,16 +19,11 @@
 
 #include "FgdParser.h"
 
-#include "CollectionUtils.h"
-#include "Exceptions.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"
-#include "Assets/ModelDefinition.h"
 #include "IO/DiskFileSystem.h"
-#include "IO/DiskIO.h"
 #include "IO/ELParser.h"
 #include "IO/LegacyModelDefinitionParser.h"
-#include "IO/ParserStatus.h"
 
 namespace TrenchBroom {
     namespace IO {
