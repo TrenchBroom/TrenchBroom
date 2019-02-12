@@ -356,8 +356,6 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/GameSelectionCommand.cpp
 #	${COMMON_SOURCE_DIR}/View/GamesPreferencePane.cpp
 	${COMMON_SOURCE_DIR}/View/GetVersion.cpp
-#	${COMMON_SOURCE_DIR}/View/GLAttribs.cpp
-#	${COMMON_SOURCE_DIR}/View/GLContext.cpp
 	${COMMON_SOURCE_DIR}/View/GLContextManager.cpp
 	${COMMON_SOURCE_DIR}/View/Grid.cpp
 #	${COMMON_SOURCE_DIR}/View/ImageListBox.cpp
@@ -912,8 +910,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/GameSelectionCommand.h
 	${COMMON_SOURCE_DIR}/View/GamesPreferencePane.h
 	${COMMON_SOURCE_DIR}/View/GetVersion.h
-	${COMMON_SOURCE_DIR}/View/GLAttribs.h
-	${COMMON_SOURCE_DIR}/View/GLContext.h
 	${COMMON_SOURCE_DIR}/View/GLContextManager.h
 	${COMMON_SOURCE_DIR}/View/Grid.h
 	${COMMON_SOURCE_DIR}/View/ImageListBox.h
