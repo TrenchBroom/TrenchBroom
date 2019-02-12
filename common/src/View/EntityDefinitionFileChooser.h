@@ -23,6 +23,7 @@
 #include "View/ViewTypes.h"
 
 #include <QWidget>
+#include <QListWidget>
 
 class QPushButton;
 class QListWidget;
@@ -30,11 +31,24 @@ class QLabel;
 
 namespace TrenchBroom {
     namespace View {
+        class SingleSelectionListWidget : public QListWidget {
+            Q_OBJECT
+        private:
+            bool m_allowDeselectAll;
+        public:
+            explicit SingleSelectionListWidget(QWidget* parent = nullptr);
+            void setAllowDeselectAll(bool allow);
+            bool allowDeselectAll() const;
+        protected: // QAbstractItemView overrides
+            void selectionChanged(const QItemSelection& selected, const QItemSelection& deselected) override;
+            //QItemSelectionModel::SelectionFlags selectionCommand(const QModelIndex& index, const QEvent* event) const override;
+        };
+
         class EntityDefinitionFileChooser : public QWidget {
         private:
             MapDocumentWPtr m_document;
 
-            QListWidget* m_builtin;
+            SingleSelectionListWidget* m_builtin;
             QLabel* m_external;
             QPushButton* m_chooseExternal;
             QPushButton* m_reloadExternal;
@@ -42,7 +56,7 @@ namespace TrenchBroom {
             EntityDefinitionFileChooser(QWidget* parent, MapDocumentWPtr document);
             ~EntityDefinitionFileChooser() override;
             
-            void OnBuiltinSelectionChanged(int currentRow);
+            void OnBuiltinSelectionChanged();
             void OnChooseExternalClicked();
             void OnReloadExternalClicked();
         private:

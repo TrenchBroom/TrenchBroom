@@ -101,6 +101,9 @@ namespace TrenchBroom {
             innerSizer->addWidget(okCancelButtons);
             
             setLayout(innerSizer);
+
+            connect(okCancelButtons, &QDialogButtonBox::accepted, this, &QDialog::accept);
+            connect(okCancelButtons, &QDialogButtonBox::rejected, this, &QDialog::reject);
        }
 
         const IO::Path& ChoosePathTypeDialog::path() const {

@@ -37,11 +37,41 @@
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QFileDialog>
+#include <QDebug>
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace View {
+        // SingleSelectionListWidget
+
+        SingleSelectionListWidget::SingleSelectionListWidget(QWidget* parent) :
+        QListWidget(parent),
+        m_allowDeselectAll(true) {}
+
+        void SingleSelectionListWidget::selectionChanged(const QItemSelection& selected, const QItemSelection& deselected) {
+            QListWidget::selectionChanged(selected, deselected);
+
+            qDebug() << "selectionChanged " << selected.size() << " sel, " << deselected.size() << " desel\n";
+
+            if (!m_allowDeselectAll) {
+                if (selectedIndexes().isEmpty() && !deselected.isEmpty()) {
+                    // reselect the items that were just deselected
+                    selectionModel()->select(deselected, QItemSelectionModel::Select);
+                }
+            }
+        }
+
+        void SingleSelectionListWidget::setAllowDeselectAll(bool allow) {
+            m_allowDeselectAll = allow;
+        }
+
+        bool SingleSelectionListWidget::allowDeselectAll() const {
+            return m_allowDeselectAll;
+        }
+
+        // EntityDefinitionFileChooser
+
         EntityDefinitionFileChooser::EntityDefinitionFileChooser(QWidget* parent, MapDocumentWPtr document) :
         QWidget(parent),
         m_document(document) {
@@ -54,22 +84,23 @@ namespace TrenchBroom {
             unbindObservers();
         }
 
-        void EntityDefinitionFileChooser::OnBuiltinSelectionChanged(int const currentRow) {
-            // FIXME: causing recursion
-            return;
-            
-            if (currentRow == -1) {
-                // FIXME: avoid empty current row?
+        void EntityDefinitionFileChooser::OnBuiltinSelectionChanged() {
+            qDebug("OnBuiltinSelectionChanged");
+
+            if (m_builtin->selectedItems().isEmpty()) {
                 return;
             }
 
+            QListWidgetItem* item = m_builtin->selectedItems().first();
+            auto spec = item->data(Qt::UserRole).value<Assets::EntityDefinitionFileSpec>();
+
             MapDocumentSPtr document = lock(m_document);
+            if (document->entityDefinitionFile() == spec) {
+                qDebug("OnBuiltinSelectionChanged: already on correct file");
+                return;
+            }
 
-            Assets::EntityDefinitionFileSpec::List specs = document->allEntityDefinitionFiles();
-            VectorUtils::sort(specs);
-
-            const Assets::EntityDefinitionFileSpec& spec = specs.at(static_cast<size_t>(currentRow));
-            
+            qDebug() << "OnBuiltinSelectionChanged: setting to " << QString::fromStdString(spec.asString());
             document->setEntityDefinitionFile(spec);
         }
         
@@ -90,8 +121,9 @@ namespace TrenchBroom {
         void EntityDefinitionFileChooser::createGui() {
             TitledPanel* builtinContainer = new TitledPanel(nullptr, tr("Builtin"), false);
             //builtinContainer->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
-            m_builtin = new QListWidget(); //builtinContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxBORDER_NONE);
-            
+            m_builtin = new SingleSelectionListWidget(); //builtinContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxBORDER_NONE);
+            m_builtin->setAllowDeselectAll(false);
+
             auto* builtinSizer = new QVBoxLayout();
             builtinSizer->addWidget(m_builtin, 1);
             
@@ -125,7 +157,7 @@ namespace TrenchBroom {
         }
         
         void EntityDefinitionFileChooser::bindEvents() {
-            connect(m_builtin, &QListWidget::currentRowChanged, this, &EntityDefinitionFileChooser::OnBuiltinSelectionChanged);
+            connect(m_builtin, &QListWidget::itemSelectionChanged, this, &EntityDefinitionFileChooser::OnBuiltinSelectionChanged);
             connect(m_chooseExternal, &QAbstractButton::clicked, this, &EntityDefinitionFileChooser::OnChooseExternalClicked);
             connect(m_reloadExternal, &QAbstractButton::clicked, this, &EntityDefinitionFileChooser::OnReloadExternalClicked);
         }
@@ -159,22 +191,31 @@ namespace TrenchBroom {
         }
 
         void EntityDefinitionFileChooser::updateControls() {
+            m_builtin->setAllowDeselectAll(true);
             m_builtin->clear();
-            
+            m_builtin->setAllowDeselectAll(false);
+
             MapDocumentSPtr document = lock(m_document);
             Assets::EntityDefinitionFileSpec::List specs = document->allEntityDefinitionFiles();
             VectorUtils::sort(specs);
             
             for (const Assets::EntityDefinitionFileSpec& spec : specs) {
                 const IO::Path& path = spec.path();
-                m_builtin->addItem(path.lastComponent().asQString());
+
+                QListWidgetItem* item = new QListWidgetItem();
+                item->setData(Qt::DisplayRole, path.lastComponent().asQString());
+                item->setData(Qt::UserRole, QVariant::fromValue(spec));
+
+                m_builtin->addItem(item);
             }
             
             const Assets::EntityDefinitionFileSpec spec = document->entityDefinitionFile();
             if (spec.builtin()) {
                 const size_t index = VectorUtils::indexOf(specs, spec);
-                if (index < specs.size())
+                if (index < specs.size()) {
+                    // FIXME: Why would this not be the case?
                     m_builtin->setCurrentRow(static_cast<int>(index));
+                }
                 m_external->setText(tr("use builtin"));
 
                 QPalette lightText;
