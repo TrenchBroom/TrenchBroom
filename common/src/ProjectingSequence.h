@@ -24,8 +24,8 @@
 
 template <typename T, typename R>
 struct ProjectingSequenceProjector {
-    typedef R Type;
-    typedef const R ConstType;
+    using Type = R;
+    using ConstType = const R;
     static Type project(T& vertex);
 };
 

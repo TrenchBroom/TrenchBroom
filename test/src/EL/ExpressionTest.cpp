@@ -27,7 +27,7 @@
 
 namespace TrenchBroom {
     namespace EL {
-        typedef Value V;
+        using V = Value;
         
         void evaluateAndAssert(const String& expression, const Value& result, const EvaluationContext& context = EvaluationContext());
         

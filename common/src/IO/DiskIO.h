@@ -20,8 +20,6 @@
 #ifndef DiskIO_h
 #define DiskIO_h
 
-#include "Functor.h"
-
 #include "StringUtils.h"
 #include "IO/FileMatcher.h"
 #include "IO/MappedFile.h"

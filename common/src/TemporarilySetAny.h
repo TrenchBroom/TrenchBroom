@@ -65,7 +65,7 @@ namespace TrenchBroom {
     template <typename R>
     class TemporarilySetBoolFun {
     private:
-        typedef void (R::*F)(bool b);
+        using F = void (R::*)(bool);
         R* m_receiver;
         F m_function;
         bool m_setTo;

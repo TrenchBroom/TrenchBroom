@@ -29,8 +29,8 @@
 
 namespace TrenchBroom {
     namespace Model {
-        typedef StringMultiMapValueContainer<AttributableNode*> AttributableNodeIndexValueContainer;
-        typedef StringMap<AttributableNode*, AttributableNodeIndexValueContainer> AttributableNodeStringIndex;
+        using AttributableNodeIndexValueContainer = StringMultiMapValueContainer<AttributableNode*>;
+        using AttributableNodeStringIndex = StringMap<AttributableNode*, AttributableNodeIndexValueContainer>;
         
         class AttributableNodeIndexQuery {
         public:

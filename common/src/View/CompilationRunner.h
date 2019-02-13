@@ -42,7 +42,7 @@ namespace TrenchBroom {
             class CopyFilesRunner;
             class RunToolRunner;
             
-            typedef std::list<TaskRunner*> TaskRunnerList;
+            using TaskRunnerList = std::list<TaskRunner*>;
             
             CompilationContext* m_context;
             TaskRunnerList m_taskRunners;

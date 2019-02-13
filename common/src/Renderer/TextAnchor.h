@@ -28,7 +28,7 @@ namespace TrenchBroom {
         class Camera;
         
         namespace TextAlignment {
-            typedef unsigned int Type;
+            using Type = unsigned int;
             static const Type Top       = 1 << 0;
             static const Type Bottom    = 1 << 1;
             static const Type Left      = 1 << 2;

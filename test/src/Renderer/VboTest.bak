@@ -122,7 +122,7 @@ namespace TrenchBroom {
             using namespace testing;
             InSequence forceInSequenceMockCalls;
             
-            typedef std::vector<unsigned char> Buf;
+            using Buf = std::vector<unsigned char>;
             
             GLMock glMock;
             

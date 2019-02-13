@@ -31,7 +31,7 @@ namespace TrenchBroom {
     namespace Model {
         class BrushFaceReference {
         public:
-            typedef std::list<BrushFaceReference> List;
+            using List = std::list<BrushFaceReference>;
         private:
             vm::plane3 m_facePlane;
             Model::Brush* m_brush;

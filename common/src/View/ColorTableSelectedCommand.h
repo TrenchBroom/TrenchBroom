@@ -41,7 +41,7 @@ namespace TrenchBroom {
     }
 }
 
-typedef void (wxEvtHandler::*ColorTableSelectedCommandFunction)(TrenchBroom::View::ColorTableSelectedCommand &);
+using ColorTableSelectedCommandFunction = void(wxEvtHandler::*)(TrenchBroom::View::ColorTableSelectedCommand&);
 
 wxDECLARE_EVENT(COLOR_TABLE_SELECTED_EVENT, TrenchBroom::View::ColorTableSelectedCommand);
 #define ColorTableSelectedHandler(func) wxEVENT_HANDLER_CAST(ColorTableSelectedCommandFunction, func)

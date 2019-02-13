@@ -56,7 +56,7 @@ namespace TrenchBroom {
             struct DkmSkin {
                 char name[DkmLayout::SkinNameLength];
             };
-            typedef std::vector<DkmSkin> DkmSkinList;
+            using DkmSkinList = std::vector<DkmSkin>;
 
             struct DkmVertex1 {
                 unsigned char x, y, z;
@@ -75,7 +75,7 @@ namespace TrenchBroom {
                 unsigned char normalIndex;
             };
 
-            typedef std::vector<DkmVertex> DkmVertexList;
+            using DkmVertexList = std::vector<DkmVertex>;
             
             struct DkmFrame {
                 vm::vec3f scale;
@@ -87,13 +87,13 @@ namespace TrenchBroom {
                 vm::vec3f vertex(size_t index) const;
                 const vm::vec3f& normal(size_t index) const;
             };
-            typedef std::vector<DkmFrame> DkmFrameList;
+            using DkmFrameList = std::vector<DkmFrame>;
 
             struct DkmMeshVertex {
                 vm::vec2f texCoords;
                 size_t vertexIndex;
             };
-            typedef std::vector<DkmMeshVertex> DkmMeshVertexList;
+            using DkmMeshVertexList = std::vector<DkmMeshVertex>;
             
             struct DkmMesh {
                 enum Type {
@@ -107,7 +107,7 @@ namespace TrenchBroom {
                 
                 DkmMesh(int i_vertexCount);
             };
-            typedef std::vector<DkmMesh> DkmMeshList;
+            using DkmMeshList = std::vector<DkmMesh>;
             
             
             String m_name;

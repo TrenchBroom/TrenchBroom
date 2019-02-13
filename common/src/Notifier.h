@@ -42,7 +42,7 @@ namespace TrenchBroom {
             }
         };
 
-        typedef std::list<O*> List;
+        using List = std::list<O*>;
         
         List m_observers;
         List m_toAdd;
@@ -200,7 +200,7 @@ namespace TrenchBroom {
     
     class Notifier0 {
     private:
-        typedef Notifier0 N;
+        using N = Notifier0;
         
         class Observer {
         private:
@@ -234,8 +234,8 @@ namespace TrenchBroom {
         template <typename R>
         class CObserver : public Observer {
         private:
-            typedef void (R::*F)();
-            
+            using F = void(R::*)();
+
             R* m_receiver;
             F m_function;
         public:
@@ -309,7 +309,7 @@ namespace TrenchBroom {
     template <typename A1>
     class Notifier1 {
     private:
-        typedef Notifier1<A1> N;
+        using N = Notifier1<A1>;
         
         class Observer {
         private:
@@ -343,8 +343,8 @@ namespace TrenchBroom {
         template <typename R>
         class CObserver : public Observer {
         private:
-            typedef void (R::*F)(A1 a1);
-            
+            using F = void(R::*)(A1);
+
             R* m_receiver;
             F m_function;
         public:
@@ -465,7 +465,7 @@ namespace TrenchBroom {
     template <typename A1, typename A2>
     class Notifier2 {
     private:
-        typedef Notifier2<A1, A2> N;
+        using N = Notifier2<A1, A2>;
         
         class Observer {
         private:
@@ -499,8 +499,8 @@ namespace TrenchBroom {
         template <typename R>
         class CObserver : public Observer {
         private:
-            typedef void (R::*F)(A1 a1, A2 a2);
-            
+            using F = void(R::*)(A1, A2);
+
             R* m_receiver;
             F m_function;
         public:
@@ -595,7 +595,7 @@ namespace TrenchBroom {
     template <typename A1, typename A2, typename A3>
     class Notifier3 {
     private:
-        typedef Notifier3<A1, A2, A3> N;
+        using N = Notifier3<A1, A2, A3>;
         
         class Observer {
         private:
@@ -629,8 +629,8 @@ namespace TrenchBroom {
         template <typename R>
         class CObserver : public Observer {
         private:
-            typedef void (R::*F)(A1 a1, A2 a2, A3 a3);
-            
+            using F = void(R::*)(A1, A2, A3);
+
             R* m_receiver;
             F m_function;
         public:
@@ -727,7 +727,7 @@ namespace TrenchBroom {
     template <typename A1, typename A2, typename A3, typename A4>
     class Notifier4 {
     private:
-        typedef Notifier4<A1, A2, A3, A4> N;
+        using N = Notifier4<A1, A2, A3, A4>;
         
         class Observer {
         private:
@@ -761,8 +761,8 @@ namespace TrenchBroom {
         template <typename R>
         class CObserver : public Observer {
         private:
-            typedef void (R::*F)(A1 a1, A2 a2, A3 a3, A4 a4);
-            
+            using F = void(R::*)(A1, A2, A3, A4);
+
             R* m_receiver;
             F m_function;
         public:
@@ -861,7 +861,7 @@ namespace TrenchBroom {
     template <typename A1, typename A2, typename A3, typename A4, typename A5>
     class Notifier5 {
     private:
-        typedef Notifier5<A1, A2, A3, A4, A5> N;
+        using N = Notifier5<A1, A2, A3, A4, A5>;
         
         class Observer {
         private:
@@ -895,8 +895,8 @@ namespace TrenchBroom {
         template <typename R>
         class CObserver : public Observer {
         private:
-            typedef void (R::*F)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5);
-            
+            using F = void(R::*)(A1, A2, A3, A4, A5);
+
             R* m_receiver;
             F m_function;
         public:

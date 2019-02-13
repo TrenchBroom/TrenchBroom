@@ -33,7 +33,7 @@
 namespace TrenchBroom {
     namespace IO {
         class EntityDefinitionClassInfo;
-        typedef std::map<String, EntityDefinitionClassInfo> EntityDefinitionClassInfoMap;
+        using EntityDefinitionClassInfoMap = std::map<String, EntityDefinitionClassInfo>;
         
         class EntityDefinitionClassInfo {
         private:

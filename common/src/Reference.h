@@ -29,7 +29,7 @@ namespace TrenchBroom {
     namespace Reference {
         class Holder {
         public:
-            typedef std::shared_ptr<Holder> Ptr;
+            using Ptr = std::shared_ptr<Holder>;
             virtual ~Holder() {}
         };
 

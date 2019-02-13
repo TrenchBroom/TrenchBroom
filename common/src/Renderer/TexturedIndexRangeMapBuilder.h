@@ -37,11 +37,11 @@ namespace TrenchBroom {
         template <typename VertexSpec>
         class TexturedIndexRangeMapBuilder {
         public:
-            typedef typename VertexSpec::Vertex Vertex;
-            typedef typename Vertex::List VertexList;
-            typedef Assets::Texture Texture;
+            using Vertex = typename VertexSpec::Vertex;
+            using VertexList = typename Vertex::List;
+            using Texture = Assets::Texture;
         private:
-            typedef typename VertexListBuilder<VertexSpec>::IndexData IndexData;
+            using IndexData = typename VertexListBuilder<VertexSpec>::IndexData;
         private:
             VertexListBuilder<VertexSpec> m_vertexListBuilder;
             TexturedIndexRangeMap m_indexRange;

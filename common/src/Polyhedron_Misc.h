@@ -319,11 +319,11 @@ void Polyhedron<T,FP,VP>::setBounds(const vm::bbox<T,3>& bounds, Callback& callb
 template <typename T, typename FP, typename VP>
 class Polyhedron<T,FP,VP>::Copy {
 private:
-    typedef std::map<const Vertex*, Vertex*> VertexMap;
-    typedef typename VertexMap::value_type VertexMapEntry;
+    using VertexMap = std::map<const Vertex*, Vertex*>;
+    using VertexMapEntry = typename VertexMap::value_type;
     
-    typedef std::map<const HalfEdge*, HalfEdge*> HalfEdgeMap;
-    typedef typename HalfEdgeMap::value_type HalfEdgeMapEntry;
+    using HalfEdgeMap = std::map<const HalfEdge*, HalfEdge*>;
+    using HalfEdgeMapEntry = typename HalfEdgeMap::value_type;
     
     VertexMap m_vertexMap;
     HalfEdgeMap m_halfEdgeMap;

@@ -64,7 +64,7 @@ namespace TrenchBroom {
             void setGamePath(const IO::Path& gamePath, Logger& logger);
             void setAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger& logger);
 
-            typedef std::map<IO::Path, String> PathErrors;
+            using PathErrors = std::map<IO::Path, String>;
             PathErrors checkAdditionalSearchPaths(const IO::Path::List& searchPaths) const;
 
             CompilationConfig& compilationConfig();

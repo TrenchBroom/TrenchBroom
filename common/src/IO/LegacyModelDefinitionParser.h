@@ -34,7 +34,7 @@ namespace TrenchBroom {
         class ParserStatus;
         
         namespace MdlToken {
-            typedef size_t Type;
+            using Type = size_t;
             static const Type Integer       = 1 << 0;
             static const Type Equality      = 1 << 1;
             static const Type Word          = 1 << 2;
@@ -59,7 +59,7 @@ namespace TrenchBroom {
         
         class LegacyModelDefinitionParser : public Parser<MdlToken::Type> {
         private:
-            typedef LegacyModelDefinitionTokenizer::Token Token;
+            using Token = LegacyModelDefinitionTokenizer::Token;
             LegacyModelDefinitionTokenizer m_tokenizer;
         public:
             LegacyModelDefinitionParser(const char* begin, const char* end);

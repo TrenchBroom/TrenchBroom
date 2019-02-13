@@ -56,7 +56,7 @@ namespace TrenchBroom {
             Logger* m_logger;
             MapDocumentWPtr m_document;
             
-            typedef std::vector<MapViewBase*> MapViewList;
+            using MapViewList = std::vector<MapViewBase*>;
             MapViewList m_mapViews;
             MapViewBase* m_currentMapView;
         public:

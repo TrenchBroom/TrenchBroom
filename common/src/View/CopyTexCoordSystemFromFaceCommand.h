@@ -39,7 +39,7 @@ namespace TrenchBroom {
         class CopyTexCoordSystemFromFaceCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            typedef std::shared_ptr<CopyTexCoordSystemFromFaceCommand> Ptr;
+            using Ptr = std::shared_ptr<CopyTexCoordSystemFromFaceCommand>;
         private:
             
             Model::Snapshot* m_snapshot;

@@ -42,8 +42,8 @@ namespace TrenchBroom {
         private:
             Color m_color;
             
-            typedef VertexSpecs::P3C4::Vertex SpikeVertex;
-            typedef VertexSpecs::P3C4::Vertex PointVertex;
+            using SpikeVertex = VertexSpecs::P3C4::Vertex;
+            using PointVertex = VertexSpecs::P3C4::Vertex;
             
             SpikeVertex::List m_spikeVertices;
             PointVertex::List m_pointVertices;

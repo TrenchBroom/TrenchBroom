@@ -40,8 +40,8 @@ private:
     const Callback& m_callback;
     List m_fragments;
     
-    typedef std::list<vm::plane<T,3>> PlaneList;
-    typedef typename PlaneList::const_iterator PlaneIt;
+    using PlaneList = std::list<vm::plane<T,3>>;
+    using PlaneIt = typename PlaneList::const_iterator;
 public:
     Subtract(const Polyhedron& minuend, const Polyhedron& subtrahend, const Callback& callback) :
     m_minuend(minuend),

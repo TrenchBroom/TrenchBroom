@@ -30,16 +30,16 @@ namespace TrenchBroom {
         class Brush;
         class BrushFace;
         
-        typedef Polyhedron<FloatType, BrushFacePayload, BrushVertexPayload> BrushGeometry;
+        using BrushGeometry = Polyhedron<FloatType, BrushFacePayload, BrushVertexPayload>;
         
-        typedef BrushGeometry::Vertex BrushVertex;
-        typedef BrushGeometry::Edge BrushEdge;
-        typedef BrushGeometry::HalfEdge BrushHalfEdge;
-        typedef BrushGeometry::Face BrushFaceGeometry;
+        using BrushVertex = BrushGeometry::Vertex;
+        using BrushEdge = BrushGeometry::Edge;
+        using BrushHalfEdge = BrushGeometry::HalfEdge;
+        using BrushFaceGeometry = BrushGeometry::Face;
 
-        typedef BrushGeometry::VertexList BrushVertexList;
-        typedef BrushGeometry::EdgeList BrushEdgeList;
-        typedef BrushGeometry::HalfEdgeList BrushHalfEdgeList;
+        using BrushVertexList = BrushGeometry::VertexList;
+        using BrushEdgeList = BrushGeometry::EdgeList;
+        using BrushHalfEdgeList = BrushGeometry::HalfEdgeList;
     }
 }
 

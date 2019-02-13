@@ -52,7 +52,7 @@ namespace vm {
     };
 
     namespace axis {
-        typedef size_t type;
+        using type = size_t;
         static const type x = 0;
         static const type y = 1;
         static const type z = 2;

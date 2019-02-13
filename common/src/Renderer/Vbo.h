@@ -48,7 +48,7 @@ namespace TrenchBroom {
         
         class Vbo {
         public:
-            typedef std::shared_ptr<Vbo> Ptr;
+            using Ptr = std::shared_ptr<Vbo>;
         private:
             typedef enum {
                 State_Inactive = 0,
@@ -57,7 +57,7 @@ namespace TrenchBroom {
                 State_FullyMapped = 3
             } State;
         private:
-            typedef std::vector<VboBlock*> VboBlockList;
+            using VboBlockList = std::vector<VboBlock*>;
             static const float GrowthFactor;
             
             size_t m_totalCapacity;

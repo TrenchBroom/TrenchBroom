@@ -48,7 +48,7 @@ namespace TrenchBroom {
             class LockedBrushRendererFilter;
             class UnselectedBrushRendererFilter;
             
-            typedef std::map<Model::Layer*, ObjectRenderer*> RendererMap;
+            using RendererMap = std::map<Model::Layer*, ObjectRenderer*>;
             
             View::MapDocumentWPtr m_document;
 

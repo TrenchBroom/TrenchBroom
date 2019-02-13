@@ -38,9 +38,9 @@ namespace TrenchBroom {
          */
         class TexturedIndexArrayMapBuilder {
         public:
-            typedef Assets::Texture Texture;
-            typedef GLuint Index;
-            typedef std::vector<Index> IndexList;
+            using Texture = Assets::Texture;
+            using Index = GLuint;
+            using IndexList = std::vector<Index>;
         private:
             IndexList m_indices;
             TexturedIndexArrayMap m_ranges;

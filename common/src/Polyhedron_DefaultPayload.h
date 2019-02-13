@@ -21,7 +21,7 @@
 #define Polyhedron_DefaultPayload_h
 
 struct DefaultPolyhedronPayload {
-    typedef char Type;
+    using Type = char;
     static Type defaultValue() {
         return '0';
     }

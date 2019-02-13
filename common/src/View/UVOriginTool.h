@@ -47,7 +47,7 @@ namespace TrenchBroom {
             static const FloatType MaxPickDistance;
             static const float OriginHandleRadius;
             
-            typedef Renderer::VertexSpecs::P3C4::Vertex EdgeVertex;
+            using EdgeVertex = Renderer::VertexSpecs::P3C4::Vertex;
 
             UVViewHelper& m_helper;
             

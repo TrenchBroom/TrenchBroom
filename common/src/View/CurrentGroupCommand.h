@@ -31,7 +31,7 @@ namespace TrenchBroom {
         class CurrentGroupCommand : public UndoableCommand {
         public:
             static const CommandType Type;
-            typedef std::shared_ptr<CurrentGroupCommand> Ptr;
+            using Ptr = std::shared_ptr<CurrentGroupCommand>;
         private:
             Model::Group* m_group;
         public:

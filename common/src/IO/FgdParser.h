@@ -38,7 +38,7 @@
 namespace TrenchBroom {
     namespace IO {
         namespace FgdToken {
-            typedef unsigned int Type;
+            using Type = unsigned int;
             static const Type Integer           = 1 <<  0; // integer number
             static const Type Decimal           = 1 <<  1; // decimal number
             static const Type Word              = 1 <<  2; // letter or digits, no whitespace
@@ -65,7 +65,7 @@ namespace TrenchBroom {
 
         class FgdParser : public EntityDefinitionParser, public Parser<FgdToken::Type> {
         private:
-            typedef FgdTokenizer::Token Token;
+            using Token = FgdTokenizer::Token;
             
             template <typename T>
             struct DefaultValue {

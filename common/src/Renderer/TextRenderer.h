@@ -57,7 +57,7 @@ namespace TrenchBroom {
                 Entry(std::vector<vm::vec2f>& i_vertices, const vm::vec2f& i_size, const vm::vec3f& i_offset, const Color& i_textColor, const Color& i_backgroundColor);
             };
             
-            typedef std::vector<Entry> EntryList;
+            using EntryList = std::vector<Entry>;
             
             struct EntryCollection {
                 EntryList entries;
@@ -70,8 +70,8 @@ namespace TrenchBroom {
                 EntryCollection();
             };
             
-            typedef VertexSpecs::P3T2C4::Vertex TextVertex;
-            typedef VertexSpecs::P3C4::Vertex RectVertex;
+            using TextVertex = VertexSpecs::P3T2C4::Vertex;
+            using RectVertex = VertexSpecs::P3C4::Vertex;
             
             FontDescriptor m_fontDescriptor;
             float m_maxViewDistance;

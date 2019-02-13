@@ -33,7 +33,7 @@ namespace TrenchBroom {
         
         class MapFileSerializer : public NodeSerializer {
         private:
-            typedef std::vector<size_t> LineStack;
+            using LineStack = std::vector<size_t>;
             LineStack m_startLineStack;
             size_t m_line;
             FILE* m_stream;

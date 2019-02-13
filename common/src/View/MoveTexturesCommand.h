@@ -31,7 +31,7 @@ namespace TrenchBroom {
         class MoveTexturesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            typedef std::shared_ptr<MoveTexturesCommand> Ptr;
+            using Ptr = std::shared_ptr<MoveTexturesCommand>;
         private:
             vm::vec3f m_cameraUp;
             vm::vec3f m_cameraRight;
