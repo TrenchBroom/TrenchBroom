@@ -401,7 +401,7 @@ namespace TrenchBroom {
             sizer->addWidget(createBrushesPanel(this),           wxGBPosition(1,1), wxDefaultSpan);
             sizer->addWidget(createRendererPanel(this),          wxGBPosition(2,1), wxDefaultSpan);
 
-			SetSizerAndFit(sizer);
+			setLayout(sizer);
 			Layout();
 			GetParent()->GetParent()->Fit();
 
@@ -456,7 +456,7 @@ namespace TrenchBroom {
             sizer->addWidget(m_showPointEntitiesCheckBox);
             sizer->addWidget(m_showPointEntityModelsCheckBox);
 
-            panel->getPanel()->SetSizerAndFit(sizer);
+            panel->getPanel()->setLayout(sizer);
             return panel;
         }
 
@@ -500,7 +500,7 @@ namespace TrenchBroom {
             sizer->addWidget(msg, wxSizerFlags().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
             sizer->addSpacing(LayoutConstants::WideHMargin);
 
-            parent->SetSizerAndFit(sizer);
+            parent->setLayout(sizer);
         }
 
         void ViewEditor::createBrushContentTypeFilter(QWidget* parent, const Model::BrushContentType::List& contentTypes) {
@@ -519,7 +519,7 @@ namespace TrenchBroom {
                 sizer->addWidget(checkBox);
                 checkBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShowBrushContentTypeChanged, this);
             }
-            parent->SetSizerAndFit(sizer);
+            parent->setLayout(sizer);
         }
 
         QWidget* ViewEditor::createRendererPanel(QWidget* parent) {
@@ -549,7 +549,7 @@ namespace TrenchBroom {
             sizer->addWidget(m_showEdgesCheckBox);
             sizer->addWidget(m_entityLinkRadioGroup);
 
-            inner->SetSizerAndFit(sizer);
+            inner->setLayout(sizer);
             return panel;
         }
 
@@ -628,7 +628,7 @@ namespace TrenchBroom {
 
             auto* sizer = new QHBoxLayout();
             sizer->addWidget(m_button, wxSizerFlags().CenterVertical());
-            SetSizerAndFit(sizer);
+            setLayout(sizer);
         }
     }
 }

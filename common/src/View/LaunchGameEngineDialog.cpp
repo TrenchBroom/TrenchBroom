@@ -126,7 +126,7 @@ namespace TrenchBroom {
             outerSizer->Add(midPanel, wxSizerFlags().Expand().Proportion(1));
             outerSizer->Add(wrapDialogButtonSizer(buttonSizer, this), wxSizerFlags().Expand());
             
-            SetSizerAndFit(outerSizer);
+            setLayout(outerSizer);
 
             m_gameEngineList->Bind(wxEVT_LISTBOX, &LaunchGameEngineDialog::OnSelectGameEngineProfile, this);
             m_gameEngineList->Bind(wxEVT_LISTBOX_DCLICK, &LaunchGameEngineDialog::OnLaunch, this);

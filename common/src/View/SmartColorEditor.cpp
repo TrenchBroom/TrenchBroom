@@ -26,47 +26,42 @@
 #include "Model/World.h"
 #include "View/BorderLine.h"
 #include "View/ColorTable.h"
-#include "View/ColorTableSelectedCommand.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 
-#include <wx/clrpicker.h>
-#include <wx/panel.h>
-#include <wx/radiobut.h>
-#include <wx/sizer.h>
+#include <QRadioButton>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
 #include <QLabel>
-#include <wx/wupdlock.h>
+#include <QPushButton>
 
 #include <iomanip>
 
 namespace TrenchBroom {
     namespace View {
-        SmartColorEditor::SmartColorEditor(View::MapDocumentWPtr document) :
-        SmartAttributeEditor(document),
+        SmartColorEditor::SmartColorEditor(QObject* parent, View::MapDocumentWPtr document) :
+        SmartAttributeEditor(parent, document),
         m_panel(nullptr),
         m_floatRadio(nullptr),
         m_byteRadio(nullptr),
         m_colorPicker(nullptr),
         m_colorHistory(nullptr) {}
         
-        void SmartColorEditor::OnFloatRangeRadioButton(wxCommandEvent& event) {
-            if (m_panel->IsBeingDeleted()) return;
+        void SmartColorEditor::OnFloatRangeRadioButton() {
             document()->convertEntityColorRange(name(), Assets::ColorRange::Float);
         }
         
-        void SmartColorEditor::OnByteRangeRadioButton(wxCommandEvent& event) {
-            if (m_panel->IsBeingDeleted()) return;
+        void SmartColorEditor::OnByteRangeRadioButton() {
             document()->convertEntityColorRange(name(), Assets::ColorRange::Byte);
         }
         
-        void SmartColorEditor::OnColorPickerChanged(wxColourPickerEvent& event) {
-            if (m_panel->IsBeingDeleted()) return;
-            setColor(event.GetColour());
+        void SmartColorEditor::OnColorPickerChanged() {
+            // FIXME:
+            //setColor(event.GetColour());
         }
         
-        void SmartColorEditor::OnColorTableSelected(ColorTableSelectedCommand& event) {
-            if (m_panel->IsBeingDeleted()) return;
-            setColor(event.color());
+        void SmartColorEditor::OnColorTableSelected(QColor color) {
+            setColor(color);
         }
 
         QWidget* SmartColorEditor::doCreateVisual(QWidget* parent) {
@@ -77,36 +72,37 @@ namespace TrenchBroom {
             assert(m_colorHistory == nullptr);
             
             m_panel = new QWidget(parent);
-            auto* rangeTxt = new QLabel(m_panel, wxID_ANY, "Color range");
-            rangeTxt->SetFont(rangeTxt->GetFont().Bold());
-            m_floatRadio = new wxRadioButton(m_panel, wxID_ANY, "Float [0,1]", wxDefaultPosition, wxDefaultSize, wxRB_GROUP);
-            m_byteRadio = new wxRadioButton(m_panel, wxID_ANY, "Byte [0,255]");
-            m_colorPicker = new wxColourPickerCtrl(m_panel, wxID_ANY);
-            m_colorHistory = new ColorTable(m_panel, wxID_ANY, ColorHistoryCellSize);
+            auto* rangeTxt = new QLabel(tr("Color range"));
+            //rangeTxt->SetFont(rangeTxt->GetFont().Bold());
+
+            m_floatRadio = new QRadioButton(tr("Float [0,1]"));
+            m_byteRadio = new QRadioButton(tr("Byte [0,255]"));
+            m_colorPicker = new QPushButton("Pick");
+            m_colorHistory = new ColorTable(nullptr, ColorHistoryCellSize);
             
             auto* leftSizer = new QVBoxLayout();
-            leftSizer->addSpacing(LayoutConstants::WideVMargin);
-            leftSizer->Add(rangeTxt);
-            leftSizer->addSpacing(LayoutConstants::WideVMargin);
-            leftSizer->Add(m_floatRadio);
-            leftSizer->addSpacing(LayoutConstants::WideVMargin);
-            leftSizer->Add(m_byteRadio);
-            leftSizer->addSpacing(LayoutConstants::WideVMargin);
-            leftSizer->Add(m_colorPicker);
-            leftSizer->AddStretchSpacer();
+            //leftSizer->addSpacing(LayoutConstants::WideVMargin);
+            leftSizer->addWidget(rangeTxt);
+//            leftSizer->addSpacing(LayoutConstants::WideVMargin);
+            leftSizer->addWidget(m_floatRadio);
+//            leftSizer->addSpacing(LayoutConstants::WideVMargin);
+            leftSizer->addWidget(m_byteRadio);
+//            leftSizer->addSpacing(LayoutConstants::WideVMargin);
+            leftSizer->addWidget(m_colorPicker);
+            leftSizer->addStretch(1);
             
             auto* outerSizer = new QHBoxLayout();
             outerSizer->addSpacing(LayoutConstants::WideHMargin);
-            outerSizer->Add(leftSizer);
+            outerSizer->addLayout(leftSizer);
             outerSizer->addSpacing(LayoutConstants::WideHMargin);
-            outerSizer->Add(new BorderLine(m_panel, BorderLine::Direction_Vertical), 0, wxEXPAND);
-            outerSizer->Add(m_colorHistory, 1, wxEXPAND);
-            m_panel->SetSizer(outerSizer);
+            outerSizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Vertical), 0);
+            outerSizer->addWidget(m_colorHistory, 1);
+            m_panel->setLayout(outerSizer);
             
-            m_floatRadio->Bind(wxEVT_RADIOBUTTON, &SmartColorEditor::OnFloatRangeRadioButton, this);
-            m_byteRadio->Bind(wxEVT_RADIOBUTTON, &SmartColorEditor::OnByteRangeRadioButton, this);
-            m_colorPicker->Bind(wxEVT_COLOURPICKER_CHANGED, &SmartColorEditor::OnColorPickerChanged, this);
-            m_colorHistory->Bind(COLOR_TABLE_SELECTED_EVENT, &SmartColorEditor::OnColorTableSelected, this);
+            connect(m_floatRadio, &QAbstractButton::toggled, this, &SmartColorEditor::OnFloatRangeRadioButton);
+            connect(m_byteRadio, &QAbstractButton::toggled, this, &SmartColorEditor::OnByteRangeRadioButton);
+            //connect(m_colorPicker, this, &SmartColorEditor::OnColorPickerChanged);
+            connect(m_colorHistory, &ColorTable::colorTableSelected, this, &SmartColorEditor::OnColorTableSelected);
             
             return m_panel;
         }
@@ -118,7 +114,7 @@ namespace TrenchBroom {
             ensure(m_colorPicker != nullptr, "colorPicker is null");
             ensure(m_colorHistory != nullptr, "colorHistory is null");
             
-            m_panel->Destroy();
+            delete m_panel;
             m_panel = nullptr;
             m_floatRadio = nullptr;
             m_byteRadio = nullptr;
@@ -133,7 +129,6 @@ namespace TrenchBroom {
             ensure(m_colorPicker != nullptr, "colorPicker is null");
             ensure(m_colorHistory != nullptr, "colorHistory is null");
             
-            wxWindowUpdateLocker locker(m_panel);
             updateColorRange(attributables);
             updateColorHistory();
         }
@@ -141,25 +136,25 @@ namespace TrenchBroom {
         void SmartColorEditor::updateColorRange(const Model::AttributableNodeList& attributables) {
             const auto range = detectColorRange(name(), attributables);
             if (range == Assets::ColorRange::Float) {
-                m_floatRadio->SetValue(true);
-                m_byteRadio->SetValue(false);
+                m_floatRadio->setChecked(true);
+                m_byteRadio->setChecked(false);
             } else if (range == Assets::ColorRange::Byte) {
-                m_floatRadio->SetValue(false);
-                m_byteRadio->SetValue(true);
+                m_floatRadio->setChecked(false);
+                m_byteRadio->setChecked(true);
             } else {
-                m_floatRadio->SetValue(false);
-                m_byteRadio->SetValue(false);
+                m_floatRadio->setChecked(false);
+                m_byteRadio->setChecked(false);
             }
         }
         
         struct ColorCmp {
-            bool operator()(const wxColor& lhs, const wxColor& rhs) const {
-                const auto lr = lhs.Red() / 255.0f;
-                const auto lg = lhs.Green() / 255.0f;
-                const auto lb = lhs.Blue() / 255.0f;
-                const auto rr = rhs.Red() / 255.0f;
-                const auto rg = rhs.Green() / 255.0f;
-                const auto rb = rhs.Blue() / 255.0f;
+            bool operator()(const QColor& lhs, const QColor& rhs) const {
+                const auto lr = lhs.red() / 255.0f;
+                const auto lg = lhs.green() / 255.0f;
+                const auto lb = lhs.blue() / 255.0f;
+                const auto rr = rhs.red() / 255.0f;
+                const auto rg = rhs.green() / 255.0f;
+                const auto rb = rhs.blue() / 255.0f;
                 
                 float lh, ls, lbr, rh, rs, rbr;
                 Color::rgbToHSB(lr, lg, lb, lh, ls, lbr);
@@ -184,11 +179,11 @@ namespace TrenchBroom {
         class SmartColorEditor::CollectColorsVisitor : public Model::ConstNodeVisitor {
         private:
             const Model::AttributeName& m_name;
-            wxColorList m_colors;
+            std::vector<QColor> m_colors;
         public:
             CollectColorsVisitor(const Model::AttributeName& name) : m_name(name) {}
             
-            const wxColorList& colors() const { return m_colors; }
+            const std::vector<QColor>& colors() const { return m_colors; }
         private:
             void doVisit(const Model::World* world) override   { visitAttributableNode(world); }
             void doVisit(const Model::Layer* layer) override   {}
@@ -203,7 +198,7 @@ namespace TrenchBroom {
                     addColor(Model::parseEntityColor(value));
             }
 
-            void addColor(const wxColor& color) {
+            void addColor(const QColor& color) {
                 VectorUtils::setInsert(m_colors, color, ColorCmp());
             }
         };
@@ -220,12 +215,13 @@ namespace TrenchBroom {
             const auto& selectedColors = collectSelectedColors.colors();
             m_colorHistory->setSelection(selectedColors);
             
-            const auto& color = !selectedColors.empty() ? selectedColors.back() : *wxBLACK;
-            m_colorPicker->SetColour(color);
+            const auto& color = !selectedColors.empty() ? selectedColors.back() : QColor(Qt::black);
+            // FIXME:
+            //m_colorPicker->SetColour(color);
         }
         
-        void SmartColorEditor::setColor(const wxColor& color) const {
-            const auto colorRange = m_floatRadio->GetValue() ? Assets::ColorRange::Float : Assets::ColorRange::Byte;
+        void SmartColorEditor::setColor(const QColor& color) const {
+            const auto colorRange = m_floatRadio->isChecked() ? Assets::ColorRange::Float : Assets::ColorRange::Byte;
             const auto value = Model::entityColorAsString(color, colorRange);
             document()->setAttribute(name(), value);
         }

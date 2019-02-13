@@ -245,7 +245,7 @@ namespace TrenchBroom {
             sizer->AddGrowableCol(2);
             sizer->AddGrowableRow(1);
 
-            SetSizerAndFit(sizer);
+            setLayout(sizer);
 
             m_availableModList->Bind(wxEVT_LISTBOX_DCLICK, &ModEditor::OnAddModClicked, this);
             m_enabledModList->Bind(wxEVT_LISTBOX_DCLICK, &ModEditor::OnRemoveModClicked, this);
@@ -324,7 +324,7 @@ namespace TrenchBroom {
             auto document = lock(m_document);
             auto enabledMods = document->mods();
             
-            wxArrayString availableModItems;
+            QStringList availableModItems;
             for (size_t i = 0; i < m_availableMods.size(); ++i) {
                 const auto& mod = m_availableMods[i];
                 if (StringUtils::containsCaseInsensitive(mod, pattern) &&
@@ -333,7 +333,7 @@ namespace TrenchBroom {
                 }
             }
 
-            wxArrayString enabledModItems;
+            QStringList enabledModItems;
             for (size_t i = 0; i < enabledMods.size(); ++i) {
                 if (StringUtils::containsCaseInsensitive(enabledMods[i], pattern)) {
                     enabledModItems.Add(enabledMods[i]);

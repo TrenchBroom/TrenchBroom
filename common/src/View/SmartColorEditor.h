@@ -26,14 +26,11 @@
 #include "View/SmartAttributeEditor.h"
 #include "View/ViewTypes.h"
 
-#include <wx/colour.h>
+#include <QColor>
 
-class wxColourPickerCtrl;
-class wxColourPickerEvent;
-class wxCommandEvent;
 class QWidget;
-class wxRadioButton;
-class QWidget;
+class QPushButton;
+class QRadioButton;
 
 namespace TrenchBroom {
     namespace View {
@@ -41,22 +38,24 @@ namespace TrenchBroom {
         class ColorTableSelectedCommand;
         
         class SmartColorEditor : public SmartAttributeEditor {
+            Q_OBJECT
         private:
             static const size_t ColorHistoryCellSize = 15;
-            using wxColorList = std::vector<wxColour>;
+            using wxColorList = std::vector<QColor>;
             
             QWidget* m_panel;
-            wxRadioButton* m_floatRadio;
-            wxRadioButton* m_byteRadio;
-            wxColourPickerCtrl* m_colorPicker;
+            QRadioButton* m_floatRadio;
+            QRadioButton* m_byteRadio;
+            // FIXME: add a color picker button
+            QPushButton* m_colorPicker;
             ColorTable* m_colorHistory;
         public:
-            SmartColorEditor(View::MapDocumentWPtr document);
+            SmartColorEditor(QObject* parent, View::MapDocumentWPtr document);
             
-            void OnFloatRangeRadioButton(wxCommandEvent& event);
-            void OnByteRangeRadioButton(wxCommandEvent& event);
-            void OnColorPickerChanged(wxColourPickerEvent& event);
-            void OnColorTableSelected(ColorTableSelectedCommand& event);
+            void OnFloatRangeRadioButton();
+            void OnByteRangeRadioButton();
+            void OnColorPickerChanged();
+            void OnColorTableSelected(QColor color);
         private:
             QWidget* doCreateVisual(QWidget* parent) override;
             void doDestroyVisual() override;
@@ -67,7 +66,7 @@ namespace TrenchBroom {
             void updateColorRange(const Model::AttributableNodeList& attributables);
             void updateColorHistory();
 
-            void setColor(const wxColor& wxColor) const;
+            void setColor(const QColor& wxColor) const;
         };
     }
 }

@@ -28,7 +28,6 @@
 namespace TrenchBroom {
     namespace View {
         class EntityAttributeGrid;
-        class EntityAttributeSelectedCommand;
         class SmartAttributeEditorManager;
         
         class EntityAttributeEditor : public QWidget {

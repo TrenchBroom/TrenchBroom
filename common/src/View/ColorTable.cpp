@@ -19,83 +19,68 @@
 
 #include "ColorTable.h"
 
-#include "View/ColorTableSelectedCommand.h"
-
-#include <wx/dcclient.h>
-#include <wx/panel.h>
-#include <wx/settings.h>
-#include <wx/sizer.h>
+#include <QPainter>
+#include <QColor>
+#include <QMouseEvent>
 
 #include <algorithm>
 #include <cassert>
 
 namespace TrenchBroom {
     namespace View {
-        ColorTable::ColorTable(QWidget* parent, wxWindowID winId, int cellSize, const wxPoint& pos, const wxSize& size, long style) :
-        wxScrolledWindow(parent, winId, pos, size, (style & ~static_cast<long>(wxHSCROLL)) | static_cast<long>(wxVSCROLL)),
+        ColorTable::ColorTable(QWidget* parent, int cellSize) :
+        QWidget(parent),
         m_cellSize(cellSize),
         m_margin(2) {
             assert(m_cellSize > 0);
-            
-            Bind(wxEVT_SIZE, &ColorTable::OnSize, this);
-            Bind(wxEVT_PAINT, &ColorTable::OnPaint, this);
-            Bind(wxEVT_LEFT_UP, &ColorTable::OnMouseUp, this);
-            
-            SetScrollRate(0, m_cellSize + m_margin);
+
+            //SetScrollRate(0, m_cellSize + m_margin);
         }
 
         void ColorTable::setColors(const ColorList& colors) {
             m_colors = colors;
             m_selectedColors.clear();
-            updateVirtualSize();
+
+            // FIXME: Double check that this is working
+            updateGeometry();
         }
 
         void ColorTable::setSelection(const ColorList& colors) {
             m_selectedColors = colors;
-            Refresh();
+            update();
         }
 
-        void ColorTable::OnSize(wxSizeEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            updateVirtualSize();
-        }
-
-        void ColorTable::OnPaint(wxPaintEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            const wxSize virtualSize = GetVirtualSize();
-            const int cols = computeCols(virtualSize.x);
+        void ColorTable::paintEvent(QPaintEvent* event) {
+            const QSize virtualSize = size();
+            const int cols = computeCols(virtualSize.width());
             const int rows = computeRows(cols);
             
-            const wxPoint viewStart = GetViewStart();
-            int xRate, yRate;
-            GetScrollPixelsPerUnit(&xRate, &yRate);
+            const QPoint viewStart = QPoint(0, 0);
 
-            const int startX = -(viewStart.x * xRate) + m_margin;
+            const int startX = m_margin;
             int x = startX;
-            int y = -(viewStart.y * yRate) + m_margin;
-            
-            wxPaintDC dc(this);
-            dc.SetPen(*wxTRANSPARENT_PEN);
-            dc.SetBrush(wxBrush(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX)));
-            dc.DrawRectangle(0, 0, virtualSize.x, virtualSize.y);
+            int y = m_margin;
+
+            QPainter dc(this);
+//            dc.setPen(QColor(Qt::transparent));
+//            dc.setBrush(wxBrush(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX)));
+//            dc.drawRect(0, 0, virtualSize.x, virtualSize.y);
             
             auto it = std::begin(m_colors);
             for (int row = 0; row < rows; ++row) {
                 for (int col = 0; col < cols; ++col) {
                     if (it != std::end(m_colors)) {
-                        const wxColour& color = *it;
+                        const QColor& color = *it;
                         
                         if (std::find(std::begin(m_selectedColors), std::end(m_selectedColors), color) != std::end(m_selectedColors)) {
-                            dc.SetPen(*wxRED_PEN);
-                            dc.SetBrush(*wxRED_BRUSH);
-                            dc.DrawRectangle(x-1, y-1, m_cellSize+2, m_cellSize+2);
+                            dc.setPen(QColor(Qt::red));
+                            dc.setBrush(QColor(Qt::red));
+                            dc.drawRect(x-1, y-1, m_cellSize+2, m_cellSize+2);
                         }
 
-                        dc.SetPen(wxPen(color));
-                        dc.SetBrush(wxBrush(color));
-                        dc.DrawRectangle(x, y, m_cellSize, m_cellSize);
+                        dc.setPen(color);
+                        dc.setBrush(color);
+                        dc.drawRect(x, y, m_cellSize, m_cellSize);
 
                         ++it;
                     }
@@ -106,43 +91,31 @@ namespace TrenchBroom {
             }
         }
         
-        void ColorTable::OnMouseUp(wxMouseEvent& event) {
-            if (IsBeingDeleted()) return;
+        void ColorTable::mouseReleaseEvent(QMouseEvent* event) {
+            const QSize virtualSize = size();
+            const int cols = computeCols(virtualSize.width());
 
-            const wxSize virtualSize = GetVirtualSize();
-            const int cols = computeCols(virtualSize.x);
-
-            const wxPoint pos = CalcScrolledPosition(event.GetPosition());
-            const int col = (pos.x - m_margin) / (m_cellSize + m_margin);
-            const int row = (pos.y - m_margin) / (m_cellSize + m_margin);
+            const QPoint pos = event->pos();
+            const int col = (pos.x() - m_margin) / (m_cellSize + m_margin);
+            const int row = (pos.y() - m_margin) / (m_cellSize + m_margin);
             
             const size_t index = static_cast<size_t>(row * cols + col);
             if (index < m_colors.size()) {
-                const wxColor& color = m_colors[index];
+                const QColor& color = m_colors[index];
 
-                ColorTableSelectedCommand command;
-                command.setColor(color);
-                command.SetEventObject(this);
-                command.SetId(GetId());
-                ProcessEvent(command);
+                emit colorTableSelected(color);
             }
         }
 
-        void ColorTable::updateVirtualSize() {
-            int width = GetClientSize().x;
-            int cols = computeCols(width);
+        bool ColorTable::hasHeightForWidth() const {
+            return true;
+        }
+
+        int ColorTable::heightForWidth(int w) const {
+            int cols = computeCols(w);
             int rows = computeRows(cols);
             int height = computeHeight(rows);
-            SetVirtualSize(width, height);
-            
-            if (GetClientSize().x != width) {
-                width = GetClientSize().x;
-                cols = computeCols(width);
-                rows = computeRows(cols);
-                height = computeHeight(rows);
-                SetVirtualSize(width, height);
-                assert(width == GetClientSize().x);
-            }
+            return height;
         }
 
         int ColorTable::computeCols(const int width) const {

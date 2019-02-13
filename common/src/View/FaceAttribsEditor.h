@@ -107,8 +107,8 @@ namespace TrenchBroom {
             void showColorAttribEditor();
             void hideColorAttribEditor();
 
-            void getSurfaceFlags(wxArrayString& names, wxArrayString& descriptions) const;
-            void getContentFlags(wxArrayString& names, wxArrayString& descriptions) const;
+            void getSurfaceFlags(QStringList& names, QStringList& descriptions) const;
+            void getContentFlags(QStringList& names, QStringList& descriptions) const;
         };
     }
 }

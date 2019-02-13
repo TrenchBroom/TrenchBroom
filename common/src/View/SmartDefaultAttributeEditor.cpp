@@ -22,24 +22,23 @@
 #include "Assets/EntityDefinition.h"
 #include "Model/AttributableNode.h"
 
-#include <wx/sizer.h>
-#include <wx/textctrl.h>
-#include <wx/wupdlock.h>
+#include <QTextEdit>
 
 namespace TrenchBroom {
     namespace View {
-        SmartDefaultAttributeEditor::SmartDefaultAttributeEditor(View::MapDocumentWPtr document) :
-        SmartAttributeEditor(document),
+        SmartDefaultAttributeEditor::SmartDefaultAttributeEditor(QObject* parent, View::MapDocumentWPtr document) :
+        SmartAttributeEditor(parent, document),
         m_descriptionTxt(nullptr),
         m_currentDefinition(nullptr) {}
 
         QWidget* SmartDefaultAttributeEditor::doCreateVisual(QWidget* parent) {
-            m_descriptionTxt = new wxTextCtrl(parent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_READONLY | wxTE_BESTWRAP | wxBORDER_NONE);
+            m_descriptionTxt = new QTextEdit();
+            m_descriptionTxt->setReadOnly(true);
             return m_descriptionTxt;
         }
         
         void SmartDefaultAttributeEditor::doDestroyVisual() {
-            m_descriptionTxt->Destroy();
+            delete m_descriptionTxt;
             m_descriptionTxt = nullptr;
             m_currentDefinition = nullptr;
         }
@@ -49,10 +48,9 @@ namespace TrenchBroom {
             if (entityDefinition != m_currentDefinition) {
                 m_currentDefinition = entityDefinition;
                 
-                wxWindowUpdateLocker locker(m_descriptionTxt);
-                m_descriptionTxt->Clear();
+                m_descriptionTxt->clear();
                 if (m_currentDefinition != nullptr)
-                    m_descriptionTxt->AppendText(m_currentDefinition->description());
+                    m_descriptionTxt->append(QString::fromStdString(m_currentDefinition->description()));
             }
         }
     }

@@ -22,7 +22,7 @@
 
 #include "View/SmartAttributeEditor.h"
 
-class wxTextCtrl;
+class QTextEdit;
 
 namespace TrenchBroom {
     namespace Assets {
@@ -31,11 +31,12 @@ namespace TrenchBroom {
     
     namespace View {
         class SmartDefaultAttributeEditor : public SmartAttributeEditor {
+            Q_OBJECT
         private:
-            wxTextCtrl* m_descriptionTxt;
+            QTextEdit* m_descriptionTxt;
             const Assets::EntityDefinition* m_currentDefinition;
         public:
-            SmartDefaultAttributeEditor(View::MapDocumentWPtr document);
+            SmartDefaultAttributeEditor(QObject* parent, View::MapDocumentWPtr document);
         private:
             QWidget* doCreateVisual(QWidget* parent) override;
             void doDestroyVisual() override;

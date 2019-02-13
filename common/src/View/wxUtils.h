@@ -67,7 +67,7 @@ namespace TrenchBroom {
 #endif
         }
 
-        wxArrayString filterBySuffix(const wxArrayString& strings, const QString& suffix, bool caseSensitive = false);
+        QStringList filterBySuffix(const QStringList& strings, const QString& suffix, bool caseSensitive = false);
 
         QString wxToQString(const QString& string);
 #endif

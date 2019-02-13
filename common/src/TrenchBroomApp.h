@@ -89,7 +89,7 @@ namespace TrenchBroom {
             void OnUpdateUI(wxUpdateUIEvent& event);
 
             void MacNewFile() override;
-            void MacOpenFiles(const wxArrayString& filenames) override;
+            void MacOpenFiles(const QStringList& filenames) override;
 #else
             bool openFilesOrWelcomeFrame(const QStringList& fileNames);
 #endif

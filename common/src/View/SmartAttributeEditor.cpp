@@ -23,11 +23,10 @@
 #include "Model/Object.h"
 #include "View/MapDocument.h"
 
-#include <wx/window.h>
-
 namespace TrenchBroom {
     namespace View {
-        SmartAttributeEditor::SmartAttributeEditor(View::MapDocumentWPtr document) :
+        SmartAttributeEditor::SmartAttributeEditor(QObject* parent, View::MapDocumentWPtr document) :
+        QObject(parent),
         m_document(document),
         m_active(false) {}
         

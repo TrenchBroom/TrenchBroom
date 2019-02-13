@@ -29,7 +29,7 @@ namespace TrenchBroom {
         m_document(document),
         m_parent(parent) {}
 
-        bool MapFrameDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames) {
+        bool MapFrameDropTarget::OnDropFiles(wxCoord x, wxCoord y, const QStringList& filenames) {
             size_t count = 0;
             count += loadTextureCollections(m_document, m_parent, filenames);
             if (loadEntityDefinitionFile(m_document, m_parent, filenames) < filenames.size())

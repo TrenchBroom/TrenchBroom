@@ -23,13 +23,17 @@
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
 
-#include <wx/event.h>
+#include <QObject>
 
 class QWidget;
 
 namespace TrenchBroom {
     namespace View {
-        class SmartAttributeEditor : public wxEvtHandler {
+        /**
+         * Subclasses of this build the widgets for the SmartAttributeEditorManager
+         */
+        class SmartAttributeEditor : public QObject {
+            Q_OBJECT
         private:
             View::MapDocumentWPtr m_document;
             
@@ -37,7 +41,7 @@ namespace TrenchBroom {
             Model::AttributableNodeList m_attributables;
             bool m_active;
         public:
-            SmartAttributeEditor(View::MapDocumentWPtr document);
+            SmartAttributeEditor(QObject* parent, View::MapDocumentWPtr document);
             virtual ~SmartAttributeEditor();
             
             bool usesName(const Model::AttributeName& name) const;
@@ -51,6 +55,9 @@ namespace TrenchBroom {
             const Model::AttributableNodeList attributables() const;
             void addOrUpdateAttribute(const Model::AttributeValue& value);
         private:
+            /**
+             * Creates the smart editor's widget and sets its owner to `parent`.
+             */
             QWidget* createVisual(QWidget* parent);
             void destroyVisual();
             void updateVisual(const Model::AttributableNodeList& attributables);

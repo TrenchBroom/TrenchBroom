@@ -24,15 +24,12 @@
 #include "Model/AttributableNode.h"
 #include "Model/Entity.h"
 #include "Model/World.h"
-#include "View/FlagChangedCommand.h"
 #include "View/FlagsEditor.h"
 #include "View/MapDocument.h"
 #include "View/ViewUtils.h"
 
-#include <wx/settings.h>
-#include <wx/scrolwin.h>
-#include <wx/sizer.h>
-#include <wx/wupdlock.h>
+#include <QScrollArea>
+#include <QVBoxLayout>
 
 #include <cassert>
 
@@ -58,21 +55,18 @@ namespace TrenchBroom {
             void doVisit(Model::Brush* brush) override   {}
         };
         
-        SmartSpawnflagsEditor::SmartSpawnflagsEditor(View::MapDocumentWPtr document) :
-        SmartAttributeEditor(document),
+        SmartSpawnflagsEditor::SmartSpawnflagsEditor(QObject* parent, View::MapDocumentWPtr document) :
+        SmartAttributeEditor(parent, document),
         m_scrolledWindow(nullptr),
         m_flagsEditor(nullptr),
         m_ignoreUpdates(false) {}
 
-        void SmartSpawnflagsEditor::OnFlagChanged(FlagChangedCommand& event) {
-            if (m_scrolledWindow->IsBeingDeleted()) return;
-
+        void SmartSpawnflagsEditor::OnFlagChanged(size_t index, int setFlag, int mixedFlag) {
             const Model::AttributableNodeList& toUpdate = attributables();
             if (toUpdate.empty())
                 return;
 
-            const size_t index = event.index();
-            const bool set = event.flagSet();
+            const bool set = m_flagsEditor->isFlagSet(index);
             
             const TemporarilySetBool ignoreUpdates(m_ignoreUpdates);
             
@@ -84,23 +78,21 @@ namespace TrenchBroom {
         QWidget* SmartSpawnflagsEditor::doCreateVisual(QWidget* parent) {
             assert(m_scrolledWindow == nullptr);
             
-            m_scrolledWindow = new wxScrolledWindow(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, static_cast<long>(wxHSCROLL | wxVSCROLL | wxBORDER_NONE));
-            m_scrolledWindow->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
+            m_scrolledWindow = new QScrollArea(parent);
+            //m_scrolledWindow->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             
-            m_flagsEditor = new FlagsEditor(m_scrolledWindow, NumCols);
-            m_flagsEditor->Bind(FLAG_CHANGED_EVENT, &SmartSpawnflagsEditor::OnFlagChanged, this);
-            
-            wxBoxSizer* sizer = new QVBoxLayout();
-            sizer->addWidget(m_flagsEditor, 1, wxEXPAND);
-            m_scrolledWindow->SetSizerAndFit(sizer);
-            
+            m_flagsEditor = new FlagsEditor(nullptr, NumCols);
+            connect(m_flagsEditor, &FlagsEditor::flagChanged, this, &SmartSpawnflagsEditor::OnFlagChanged);
+
+            m_scrolledWindow->setWidget(m_flagsEditor);
+
             return m_scrolledWindow;
         }
         
         void SmartSpawnflagsEditor::doDestroyVisual() {
             ensure(m_scrolledWindow != nullptr, "scrolledWindow is null");
-            m_lastScrollPos = m_scrolledWindow->GetViewStart();
-            m_scrolledWindow->Destroy();
+            m_lastScrollPos = m_flagsEditor->pos();
+            delete m_scrolledWindow;
             m_scrolledWindow = nullptr;
             m_flagsEditor = nullptr;
         }
@@ -110,10 +102,8 @@ namespace TrenchBroom {
             if (m_ignoreUpdates)
                 return;
             
-            wxWindowUpdateLocker locker(m_scrolledWindow);
-
-            wxArrayString labels;
-            wxArrayString tooltips;
+            QStringList labels;
+            QStringList tooltips;
             getFlags(attributables, labels, tooltips);
             m_flagsEditor->setFlags(labels, tooltips);
             
@@ -121,27 +111,27 @@ namespace TrenchBroom {
             getFlagValues(attributables, set, mixed);
             m_flagsEditor->setFlagValue(set, mixed);
             
-            m_scrolledWindow->SetScrollRate(1, m_flagsEditor->lineHeight());
-            m_scrolledWindow->Layout();
-            m_scrolledWindow->FitInside();
-            m_scrolledWindow->Refresh();
+//            m_scrolledWindow->SetScrollRate(1, m_flagsEditor->lineHeight());
+//            m_scrolledWindow->Layout();
+//            m_scrolledWindow->FitInside();
+//            m_scrolledWindow->Refresh();
             resetScrollPos();
         }
         
         void SmartSpawnflagsEditor::resetScrollPos() {
             // TODO: the y position is not properly set (at least on OS X)
-            int xRate, yRate;
-            m_scrolledWindow->GetScrollPixelsPerUnit(&xRate, &yRate);
-            m_scrolledWindow->Scroll(m_lastScrollPos.x * xRate, m_lastScrollPos.y * yRate);
+//            int xRate, yRate;
+//            m_scrolledWindow->GetScrollPixelsPerUnit(&xRate, &yRate);
+//            m_scrolledWindow->Scroll(m_lastScrollPos.x * xRate, m_lastScrollPos.y * yRate);
         }
 
-        void SmartSpawnflagsEditor::getFlags(const Model::AttributableNodeList& attributables, wxArrayString& labels, wxArrayString& tooltips) const {
-            wxArrayString defaultLabels;
+        void SmartSpawnflagsEditor::getFlags(const Model::AttributableNodeList& attributables, QStringList& labels, QStringList& tooltips) const {
+            QStringList defaultLabels;
             
             // Initialize the labels and tooltips.
             for (size_t i = 0; i < NumFlags; ++i) {
                 QString defaultLabel;
-                defaultLabel << (1 << i);
+                defaultLabel = QString::number(1 << i);
 
                 defaultLabels.push_back(defaultLabel);
                 labels.push_back(defaultLabel);
@@ -156,8 +146,8 @@ namespace TrenchBroom {
 
                     const Assets::FlagsAttributeOption* flagDef = Assets::EntityDefinition::safeGetSpawnflagsAttributeOption(attributable->definition(), i);
                     if (flagDef != nullptr) {
-                        label = flagDef->shortDescription();
-                        tooltip = flagDef->longDescription();
+                        label = QString::fromStdString(flagDef->shortDescription());
+                        tooltip = QString::fromStdString(flagDef->longDescription());
                     }
                     
                     if (firstPass) {

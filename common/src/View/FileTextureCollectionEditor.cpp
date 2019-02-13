@@ -258,7 +258,7 @@ namespace TrenchBroom {
             sizer->addWidget(buttonSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
             sizer->SetItemMinSize(m_collections, 100, 70);
             
-            SetSizerAndFit(sizer);
+            setLayout(sizer);
         }
         
         void FileTextureCollectionEditor::bindObservers() {

@@ -29,15 +29,16 @@
 #include "View/SmartAttributeEditorMatcher.h"
 #include "View/SmartSpawnflagsEditor.h"
 
-#include <wx/panel.h>
-#include <wx/sizer.h>
+#include <QWidget>
+#include <QVBoxLayout>
 
 namespace TrenchBroom {
     namespace View {
         SmartAttributeEditorManager::SmartAttributeEditorManager(QWidget* parent, View::MapDocumentWPtr document) :
         QWidget(parent),
         m_document(document),
-        m_name("") {
+        m_name(""),
+        m_activeEditor(nullptr) {
             createEditors();
             activateEditor(defaultEditor(), "");
             bindObservers();
@@ -55,14 +56,15 @@ namespace TrenchBroom {
         }
 
         void SmartAttributeEditorManager::createEditors() {
+            // NOTE: the SmartAttributeEditor subclasses are created here with their parent set to `this`
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartAttributeEditorKeyMatcher("spawnflags")),
-                                                  EditorPtr(new SmartSpawnflagsEditor(m_document))));
+                                                  new SmartSpawnflagsEditor(this, m_document)));
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartAttributeEditorKeyMatcher({ "*_color", "*_color2", "*_colour" })),
-                                                  EditorPtr(new SmartColorEditor(m_document))));
+                                                  new SmartColorEditor(this, m_document)));
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartChoiceEditorMatcher()),
-                                                  EditorPtr(new SmartChoiceEditor(m_document))));
+                                                  new SmartChoiceEditor(this, m_document)));
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartAttributeEditorDefaultMatcher()),
-                                                  EditorPtr(new SmartDefaultAttributeEditor(m_document))));
+                                                  new SmartDefaultAttributeEditor(this, m_document)));
         }
         
         void SmartAttributeEditorManager::bindObservers() {
@@ -114,22 +116,21 @@ namespace TrenchBroom {
                 QWidget* window = m_activeEditor->activate(this, m_name);
                 
                 auto* sizer = new QVBoxLayout();
-                sizer->addWidget(window, 1, wxEXPAND);
-                SetSizer(sizer);
-                Layout();
+                sizer->addWidget(window, 1);
+                setLayout(sizer);
             }
         }
         
         void SmartAttributeEditorManager::deactivateEditor() {
-            if (m_activeEditor.get() != nullptr) {
+            if (m_activeEditor != nullptr) {
                 m_activeEditor->deactivate();
-                m_activeEditor = EditorPtr();
+                m_activeEditor = nullptr;
                 m_name = "";
             }
         }
 
         void SmartAttributeEditorManager::updateEditor() {
-            if (m_activeEditor.get() != nullptr) {
+            if (m_activeEditor != nullptr) {
                 MapDocumentSPtr document = lock(m_document);
                 m_activeEditor->update(document->allSelectedAttributableNodes());
             }

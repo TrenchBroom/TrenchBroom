@@ -550,7 +550,7 @@ namespace TrenchBroom {
             showWelcomeFrame();
         }
 
-        void TrenchBroomApp::MacOpenFiles(const wxArrayString& filenames) {
+        void TrenchBroomApp::MacOpenFiles(const QStringList& filenames) {
             for (const QString& filename : filenames)
                 openDocument(filename.ToStdString());
         }

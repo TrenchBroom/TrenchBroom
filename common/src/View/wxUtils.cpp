@@ -169,8 +169,8 @@ namespace TrenchBroom {
         }
 
 #if 0
-        wxArrayString filterBySuffix(const wxArrayString& strings, const QString& suffix, const bool caseSensitive) {
-            wxArrayString result;
+        QStringList filterBySuffix(const QStringList& strings, const QString& suffix, const bool caseSensitive) {
+            QStringList result;
             for (size_t i = 0; i < strings.size(); ++i) {
                 const QString& str = strings[i];
                 if (caseSensitive) {

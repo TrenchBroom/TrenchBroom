@@ -22,7 +22,7 @@
 #include "View/EntityAttributeGrid.h"
 #include "View/ViewConstants.h"
 #include "View/MapDocument.h"
-//#include "View/SmartAttributeEditorManager.h"
+#include "View/SmartAttributeEditorManager.h"
 
 #include <QSplitter>
 #include <QVBoxLayout>
@@ -55,13 +55,13 @@ namespace TrenchBroom {
             //splitter->SetName("EntityAttributeEditorSplitter");
             
             m_attributeGrid = new EntityAttributeGrid(nullptr, document);
-            m_smartEditorManager = (SmartAttributeEditorManager*) new QWidget(); // new SmartAttributeEditorManager(nullptr, document);
+            m_smartEditorManager = new SmartAttributeEditorManager(nullptr, document);
 
             splitter->addWidget(m_attributeGrid);
-            //splitter->addWidget(m_smartEditorManager);
+            splitter->addWidget(m_smartEditorManager);
 
             m_attributeGrid->setMinimumSize(100, 50);
-            //m_smartEditorManager->setMinimumSize(500, 100);
+            m_smartEditorManager->setMinimumSize(500, 100);
 
             auto* sizer = new QVBoxLayout();
             sizer->addWidget(splitter, 1);

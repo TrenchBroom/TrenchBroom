@@ -159,7 +159,7 @@ namespace TrenchBroom {
             sizer->AddGrowableCol(2);
             sizer->AddGrowableRow(1);
             
-            SetSizerAndFit(sizer);
+            setLayout(sizer);
             
             m_availableCollectionsList->Bind(wxEVT_LISTBOX_DCLICK, &DirectoryTextureCollectionEditor::OnAddTextureCollections, this);
             m_enabledCollectionsList->Bind(wxEVT_LISTBOX_DCLICK, &DirectoryTextureCollectionEditor::OnRemoveTextureCollections, this);
@@ -220,7 +220,7 @@ namespace TrenchBroom {
         }
 
         void DirectoryTextureCollectionEditor::updateListBox(wxListBox* box, const IO::Path::List& paths) {
-            wxArrayString values;
+            QStringList values;
             values.reserve(paths.size());
             
             for (const auto& path : paths) {

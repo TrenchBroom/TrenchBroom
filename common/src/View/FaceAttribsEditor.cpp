@@ -421,7 +421,7 @@ namespace TrenchBroom {
             
             if (hasSurfaceAttribs()) {
                 showSurfaceAttribEditors();
-                wxArrayString surfaceFlagLabels, surfaceFlagTooltips, contentFlagLabels, contentFlagTooltips;
+                QStringList surfaceFlagLabels, surfaceFlagTooltips, contentFlagLabels, contentFlagTooltips;
                 getSurfaceFlags(surfaceFlagLabels, surfaceFlagTooltips);
                 getContentFlags(contentFlagLabels, contentFlagTooltips);
                 m_surfaceFlagsEditor->setFlags(surfaceFlagLabels, surfaceFlagTooltips);
@@ -646,22 +646,22 @@ namespace TrenchBroom {
             GetParent()->Layout();
         }
 
-        void getFlags(const Model::GameConfig::FlagConfigList& flags, wxArrayString& names, wxArrayString& descriptions);
-        void getFlags(const Model::GameConfig::FlagConfigList& flags, wxArrayString& names, wxArrayString& descriptions) {
+        void getFlags(const Model::GameConfig::FlagConfigList& flags, QStringList& names, QStringList& descriptions);
+        void getFlags(const Model::GameConfig::FlagConfigList& flags, QStringList& names, QStringList& descriptions) {
             for (const auto& flag : flags) {
                 names.push_back(flag.name);
                 descriptions.push_back(flag.description);
             }
         }
         
-        void FaceAttribsEditor::getSurfaceFlags(wxArrayString& names, wxArrayString& descriptions) const {
+        void FaceAttribsEditor::getSurfaceFlags(QStringList& names, QStringList& descriptions) const {
             MapDocumentSPtr document = lock(m_document);
             const Model::GameSPtr game = document->game();
             const Model::GameConfig::FlagsConfig& surfaceFlags = game->surfaceFlags();
             getFlags(surfaceFlags.flags, names, descriptions);
         }
         
-        void FaceAttribsEditor::getContentFlags(wxArrayString& names, wxArrayString& descriptions) const {
+        void FaceAttribsEditor::getContentFlags(QStringList& names, QStringList& descriptions) const {
             MapDocumentSPtr document = lock(m_document);
             const Model::GameSPtr game = document->game();
             const Model::GameConfig::FlagsConfig& contentFlags = game->contentFlags();

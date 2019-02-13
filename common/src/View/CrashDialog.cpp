@@ -120,7 +120,7 @@ namespace TrenchBroom {
             outerSizer->Add(containerPanel, wxSizerFlags().Expand());
             outerSizer->Add(wrapDialogButtonSizer(buttonSizer, this), 0, wxEXPAND);
             
-            SetSizerAndFit(outerSizer);
+            setLayout(outerSizer);
         }
 
         void CrashDialog::OnReport(wxCommandEvent& event) {

@@ -222,7 +222,7 @@ namespace TrenchBroom {
                 wxTextCtrl *textCtrl = Text();
                 ensure(textCtrl != nullptr, "wxGridCellTextEditor::Create should have created control");
 
-                const wxArrayString completions = m_table->getCompletions(row, col);
+                const QStringList completions = m_table->getCompletions(row, col);
                 textCtrl->AutoComplete(completions);
 
                 textCtrl->Bind(wxEVT_CHAR_HOOK, &EntityAttributeCellEditor::OnCharHook, this);

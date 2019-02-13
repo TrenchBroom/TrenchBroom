@@ -876,7 +876,7 @@ namespace TrenchBroom {
             update();
         }
 
-        wxArrayString EntityAttributeGridTable::getCompletions(int row, int col) const {
+        QStringList EntityAttributeGridTable::getCompletions(int row, int col) const {
             const Model::AttributeName name = attributeName(row);
             MapDocumentSPtr document = lock(m_document);
             
@@ -893,7 +893,7 @@ namespace TrenchBroom {
                 }
             }
             
-            return wxArrayString();
+            return QStringList();
         }
         
         StringSet EntityAttributeGridTable::allSortedAttributeNames(MapDocumentSPtr document) {
@@ -932,8 +932,8 @@ namespace TrenchBroom {
             return valueset;
         }
         
-        wxArrayString EntityAttributeGridTable::arrayString(const StringSet& set) {
-            wxArrayString result;
+        QStringList EntityAttributeGridTable::arrayString(const StringSet& set) {
+            QStringList result;
             for (const String& string : set)
                 result.Add(QString(string));
             return result;

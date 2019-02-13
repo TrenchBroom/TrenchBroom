@@ -145,7 +145,7 @@ namespace TrenchBroom {
 #endif
 			outerSizer->Add(innerSizer, wxSizerFlags().Expand().Proportion(1));
             outerSizer->Add(wrapDialogButtonSizer(buttonSizer, this), wxSizerFlags().Expand());
-            SetSizerAndFit(outerSizer);
+            setLayout(outerSizer);
 
             FindWindow(wxID_OK)->Bind(wxEVT_UPDATE_UI, &GameDialog::OnUpdateOkButton, this);
             
@@ -177,7 +177,7 @@ namespace TrenchBroom {
             sizer->addSpacing(10);
             sizer->addWidget(m_openPreferencesButton, wxSizerFlags().CenterHorizontal().Border(wxLEFT | wxRIGHT, 20));
             sizer->addSpacing(20);
-            infoPanel->SetSizerAndFit(sizer);
+            infoPanel->setLayout(sizer);
             
             m_openPreferencesButton->Bind(wxEVT_BUTTON, &GameDialog::OnOpenPreferencesClicked, this);
 

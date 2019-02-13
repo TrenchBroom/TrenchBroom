@@ -25,14 +25,11 @@
 #include "View/SmartAttributeEditor.h"
 #include "View/ViewTypes.h"
 
-#include <wx/gdicmn.h>
+#include <QPoint>
 
-class wxCheckBox;
-class wxColor;
-class wxCommandEvent;
-class wxScrolledWindow;
 class QString;
 class QWidget;
+class QScrollArea;
 
 namespace TrenchBroom {
     namespace View {
@@ -40,27 +37,28 @@ namespace TrenchBroom {
         class FlagChangedCommand;
         
         class SmartSpawnflagsEditor : public SmartAttributeEditor {
+            Q_OBJECT
         private:
             static const size_t NumFlags = 24;
             static const size_t NumCols = 3;
             
             class UpdateSpawnflag;
             
-            wxScrolledWindow* m_scrolledWindow;
-            wxPoint m_lastScrollPos;
+            QScrollArea* m_scrolledWindow;
+            QPoint m_lastScrollPos;
             FlagsEditor* m_flagsEditor;
             bool m_ignoreUpdates;
         public:
-            SmartSpawnflagsEditor(View::MapDocumentWPtr document);
+            SmartSpawnflagsEditor(QObject* parent, View::MapDocumentWPtr document);
             
-            void OnFlagChanged(FlagChangedCommand& event);
+            void OnFlagChanged(size_t index, int setFlag, int mixedFlag);
         private:
             QWidget* doCreateVisual(QWidget* parent) override;
             void doDestroyVisual() override;
             void doUpdateVisual(const Model::AttributableNodeList& attributables) override;
             void resetScrollPos();
             
-            void getFlags(const Model::AttributableNodeList& attributables, wxArrayString& labels, wxArrayString& tooltips) const;
+            void getFlags(const Model::AttributableNodeList& attributables, QStringList& labels, QStringList& tooltips) const;
             void getFlagValues(const Model::AttributableNodeList& attributables, int& setFlags, int& mixedFlags) const;
             int getFlagValue(const Model::AttributableNode* attributable) const;
         };

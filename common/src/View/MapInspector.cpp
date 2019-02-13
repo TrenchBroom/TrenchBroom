@@ -65,7 +65,7 @@ namespace TrenchBroom {
 
             auto* sizer = new QVBoxLayout();
             sizer->addWidget(modEditor, 1, wxEXPAND);
-            titledPanel->getPanel()->SetSizerAndFit(sizer);
+            titledPanel->getPanel()->setLayout(sizer);
             
             return titledPanel;
         }

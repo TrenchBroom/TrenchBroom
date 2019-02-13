@@ -290,8 +290,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/ClipToolController.cpp
 	${COMMON_SOURCE_DIR}/View/ClipTool.cpp
 	${COMMON_SOURCE_DIR}/View/CollapsibleTitledPanel.cpp
-#	${COMMON_SOURCE_DIR}/View/ColorTable.cpp
-#	${COMMON_SOURCE_DIR}/View/ColorTableSelectedCommand.cpp
+	${COMMON_SOURCE_DIR}/View/ColorTable.cpp
 	${COMMON_SOURCE_DIR}/View/Command.cpp
 	${COMMON_SOURCE_DIR}/View/CommandProcessor.cpp
 #	${COMMON_SOURCE_DIR}/View/CompilationContext.cpp
@@ -436,14 +435,14 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/ShearObjectsToolController.cpp
 	${COMMON_SOURCE_DIR}/View/ShearObjectsTool.cpp
 	${COMMON_SOURCE_DIR}/View/ShearTexturesCommand.cpp
-#	${COMMON_SOURCE_DIR}/View/SmartAttributeEditor.cpp
-#	${COMMON_SOURCE_DIR}/View/SmartAttributeEditorManager.cpp
-#	${COMMON_SOURCE_DIR}/View/SmartAttributeEditorMatcher.cpp
-#	${COMMON_SOURCE_DIR}/View/SmartChoiceEditor.cpp
-#	${COMMON_SOURCE_DIR}/View/SmartChoiceEditorMatcher.cpp
-#	${COMMON_SOURCE_DIR}/View/SmartColorEditor.cpp
-#	${COMMON_SOURCE_DIR}/View/SmartDefaultAttributeEditor.cpp
-#	${COMMON_SOURCE_DIR}/View/SmartSpawnflagsEditor.cpp
+	${COMMON_SOURCE_DIR}/View/SmartAttributeEditor.cpp
+	${COMMON_SOURCE_DIR}/View/SmartAttributeEditorManager.cpp
+	${COMMON_SOURCE_DIR}/View/SmartAttributeEditorMatcher.cpp
+	${COMMON_SOURCE_DIR}/View/SmartChoiceEditor.cpp
+	${COMMON_SOURCE_DIR}/View/SmartChoiceEditorMatcher.cpp
+	${COMMON_SOURCE_DIR}/View/SmartColorEditor.cpp
+	${COMMON_SOURCE_DIR}/View/SmartDefaultAttributeEditor.cpp
+	${COMMON_SOURCE_DIR}/View/SmartSpawnflagsEditor.cpp
 	${COMMON_SOURCE_DIR}/View/SnapBrushVerticesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/SnapshotCommand.cpp
 	${COMMON_SOURCE_DIR}/View/SpinControl.cpp
@@ -842,7 +841,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/ClipTool.h
 	${COMMON_SOURCE_DIR}/View/CollapsibleTitledPanel.h
 	${COMMON_SOURCE_DIR}/View/ColorTable.h
-	${COMMON_SOURCE_DIR}/View/ColorTableSelectedCommand.h
 	${COMMON_SOURCE_DIR}/View/Command.h
 	${COMMON_SOURCE_DIR}/View/CommandProcessor.h
 #	${COMMON_SOURCE_DIR}/View/CompilationContext.h
@@ -990,14 +988,14 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/ShearObjectsToolController.h
 	${COMMON_SOURCE_DIR}/View/ShearObjectsTool.h
 	${COMMON_SOURCE_DIR}/View/ShearTexturesCommand.h
-#	${COMMON_SOURCE_DIR}/View/SmartAttributeEditor.h
-#	${COMMON_SOURCE_DIR}/View/SmartAttributeEditorManager.h
-#	${COMMON_SOURCE_DIR}/View/SmartAttributeEditorMatcher.h
-#	${COMMON_SOURCE_DIR}/View/SmartChoiceEditor.h
-#	${COMMON_SOURCE_DIR}/View/SmartChoiceEditorMatcher.h
-#	${COMMON_SOURCE_DIR}/View/SmartColorEditor.h
-#	${COMMON_SOURCE_DIR}/View/SmartDefaultAttributeEditor.h
-#	${COMMON_SOURCE_DIR}/View/SmartSpawnflagsEditor.h
+	${COMMON_SOURCE_DIR}/View/SmartAttributeEditor.h
+	${COMMON_SOURCE_DIR}/View/SmartAttributeEditorManager.h
+	${COMMON_SOURCE_DIR}/View/SmartAttributeEditorMatcher.h
+	${COMMON_SOURCE_DIR}/View/SmartChoiceEditor.h
+	${COMMON_SOURCE_DIR}/View/SmartChoiceEditorMatcher.h
+	${COMMON_SOURCE_DIR}/View/SmartColorEditor.h
+	${COMMON_SOURCE_DIR}/View/SmartDefaultAttributeEditor.h
+	${COMMON_SOURCE_DIR}/View/SmartSpawnflagsEditor.h
 	${COMMON_SOURCE_DIR}/View/SnapBrushVerticesCommand.h
 	${COMMON_SOURCE_DIR}/View/SnapshotCommand.h
 	${COMMON_SOURCE_DIR}/View/SpinControl.h

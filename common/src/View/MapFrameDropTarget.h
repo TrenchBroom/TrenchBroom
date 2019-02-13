@@ -32,7 +32,7 @@ namespace TrenchBroom {
             QWidget* m_parent;
         public:
             MapFrameDropTarget(MapDocumentWPtr document, QWidget* parent);
-            bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames) override;
+            bool OnDropFiles(wxCoord x, wxCoord y, const QStringList& filenames) override;
         };
     }
 }

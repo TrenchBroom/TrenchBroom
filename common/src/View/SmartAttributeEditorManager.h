@@ -26,9 +26,7 @@
 
 #include <vector>
 
-#include <wx/panel.h>
-
-class QWidget;
+#include <QWidget>
 
 namespace TrenchBroom {
     namespace View {
@@ -38,11 +36,11 @@ namespace TrenchBroom {
         
         class SmartAttributeEditorManager : public QWidget {
         private:
-            using EditorPtr = std::shared_ptr<SmartAttributeEditor>;
+            using EditorPtr = SmartAttributeEditor*;
             using MatcherPtr = std::shared_ptr<SmartAttributeEditorMatcher>;
             using MatcherEditorPair = std::pair<MatcherPtr, EditorPtr>;
             using EditorList = std::vector<MatcherEditorPair>;
-            
+
             View::MapDocumentWPtr m_document;
             
             EditorList m_editors;

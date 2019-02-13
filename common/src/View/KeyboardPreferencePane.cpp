@@ -45,7 +45,7 @@ namespace TrenchBroom {
             auto* outerSizer = new QVBoxLayout();
             outerSizer->Add(menuShortcutGrid, 1, wxEXPAND);
             outerSizer->SetItemMinSize(menuShortcutGrid, 900, 550);
-            SetSizerAndFit(outerSizer);
+            setLayout(outerSizer);
         }
         
         void KeyboardPreferencePane::OnGridSize(wxSizeEvent& event) {

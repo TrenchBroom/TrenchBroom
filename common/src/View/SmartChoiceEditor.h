@@ -24,8 +24,7 @@
 #include "View/SmartAttributeEditor.h"
 #include "View/ViewTypes.h"
 
-class wxComboBox;
-class wxCommandEvent;
+class QComboBox;
 class QWidget;
 class QLabel;
 class QWidget;
@@ -37,14 +36,15 @@ namespace TrenchBroom {
     
     namespace View {
         class SmartChoiceEditor : public SmartAttributeEditor {
+            Q_OBJECT
         private:
             QWidget* m_panel;
-            wxComboBox* m_comboBox;
+            QComboBox* m_comboBox;
         public:
-            SmartChoiceEditor(View::MapDocumentWPtr document);
+            SmartChoiceEditor(QObject* parent, View::MapDocumentWPtr document);
             
-            void OnComboBox(wxCommandEvent& event);
-            void OnTextEnter(wxCommandEvent& event);
+            void OnComboBox(int index);
+            void OnTextEnter(const QString &text);
         private:
             QWidget* doCreateVisual(QWidget* parent) override;
             void doDestroyVisual() override;
