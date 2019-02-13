@@ -21,6 +21,7 @@
 
 #include "Model/BrushContentTypeBuilder.h"
 #include "Model/GameFactory.h"
+#include "Model/World.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -65,37 +66,35 @@ namespace TrenchBroom {
             return doMaxPropertyLength();
         }
 
-        World* Game::newMap(const MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const {
+        std::unique_ptr<World> Game::newMap(const MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const {
             return doNewMap(format, worldBounds, logger);
         }
         
-        World* Game::loadMap(const MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger& logger) const {
+        std::unique_ptr<World> Game::loadMap(const MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger& logger) const {
             return doLoadMap(format, worldBounds, path, logger);
         }
 
-        void Game::writeMap(World* world, const IO::Path& path) const {
-            ensure(world != nullptr, "world is null");
+        void Game::writeMap(World& world, const IO::Path& path) const {
             doWriteMap(world, path);
         }
 
-        void Game::exportMap(World* world, const Model::ExportFormat format, const IO::Path& path) const {
-            ensure(world != nullptr, "world is null");
+        void Game::exportMap(World& world, const Model::ExportFormat format, const IO::Path& path) const {
             doExportMap(world, format, path);
         }
 
-        NodeList Game::parseNodes(const String& str, World* world, const vm::bbox3& worldBounds, Logger& logger) const {
+        NodeList Game::parseNodes(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const {
             return doParseNodes(str, world, worldBounds, logger);
         }
         
-        BrushFaceList Game::parseBrushFaces(const String& str, World* world, const vm::bbox3& worldBounds, Logger& logger) const {
+        BrushFaceList Game::parseBrushFaces(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const {
             return doParseBrushFaces(str, world, worldBounds, logger);
         }
 
-        void Game::writeNodesToStream(World* world, const Model::NodeList& nodes, std::ostream& stream) const {
+        void Game::writeNodesToStream(World& world, const Model::NodeList& nodes, std::ostream& stream) const {
             doWriteNodesToStream(world, nodes, stream);
         }
     
-        void Game::writeBrushFacesToStream(World* world, const Model::BrushFaceList& faces, std::ostream& stream) const {
+        void Game::writeBrushFacesToStream(World& world, const Model::BrushFaceList& faces, std::ostream& stream) const {
             doWriteBrushFacesToStream(world, faces, stream);
         }
     
@@ -103,7 +102,7 @@ namespace TrenchBroom {
             return doTexturePackageType();
         }
 
-        void Game::loadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const {
+        void Game::loadTextureCollections(AttributableNode& node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const {
             doLoadTextureCollections(node, documentPath, textureManager, logger);
         }
 
@@ -115,13 +114,11 @@ namespace TrenchBroom {
             return doFindTextureCollections();
         }
         
-        IO::Path::List Game::extractTextureCollections(const AttributableNode* node) const {
-            ensure(node != nullptr, "node is null");
+        IO::Path::List Game::extractTextureCollections(const AttributableNode& node) const {
             return doExtractTextureCollections(node);
         }
         
-        void Game::updateTextureCollections(AttributableNode* node, const IO::Path::List& paths) const {
-            ensure(node != nullptr, "node is null");
+        void Game::updateTextureCollections(AttributableNode& node, const IO::Path::List& paths) const {
             doUpdateTextureCollections(node, paths);
         }
 
@@ -137,8 +134,7 @@ namespace TrenchBroom {
             return doAllEntityDefinitionFiles();
         }
 
-        Assets::EntityDefinitionFileSpec Game::extractEntityDefinitionFile(const AttributableNode* node) const {
-            ensure(node != nullptr, "node is null");
+        Assets::EntityDefinitionFileSpec Game::extractEntityDefinitionFile(const AttributableNode& node) const {
             return doExtractEntityDefinitionFile(node);
         }
         
@@ -147,8 +143,9 @@ namespace TrenchBroom {
         }
         
         const BrushContentTypeBuilder* Game::brushContentTypeBuilder() const {
-            if (m_brushContentTypeBuilder == nullptr)
+            if (m_brushContentTypeBuilder == nullptr) {
                 m_brushContentTypeBuilder = new BrushContentTypeBuilder(brushContentTypes());
+            }
             return m_brushContentTypeBuilder;
         }
 
@@ -160,8 +157,7 @@ namespace TrenchBroom {
             return doAvailableMods();
         }
 
-        StringList Game::extractEnabledMods(const AttributableNode* node) const {
-            ensure(node != nullptr, "node is null");
+        StringList Game::extractEnabledMods(const AttributableNode& node) const {
             return doExtractEnabledMods(node);
         }
         

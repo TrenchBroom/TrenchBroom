@@ -38,7 +38,7 @@ namespace TrenchBroom {
             Model::World map(Model::MapFormat::Standard, nullptr, worldBounds);
 
             StringStream str;
-            NodeWriter writer(&map, str);
+            NodeWriter writer(map, str);
             writer.writeMap();
 
             const String result = str.str();
@@ -56,7 +56,7 @@ namespace TrenchBroom {
             map.addOrUpdateAttribute("message", "holy damn");
 
             StringStream str;
-            NodeWriter writer(&map, str);
+            NodeWriter writer(map, str);
             writer.writeMap();
 
             const String result = str.str();
@@ -84,7 +84,7 @@ namespace TrenchBroom {
             map.defaultLayer()->addChild(brush2);
 
             StringStream str;
-            NodeWriter writer(&map, str);
+            NodeWriter writer(map, str);
             writer.writeMap();
 
             const String result = str.str();
@@ -123,7 +123,7 @@ namespace TrenchBroom {
             map.defaultLayer()->addChild(brush);
 
             StringStream str;
-            NodeWriter writer(&map, str);
+            NodeWriter writer(map, str);
             writer.writeMap();
 
             const String result = str.str();
@@ -156,7 +156,7 @@ namespace TrenchBroom {
             layer->addChild(brush);
 
             StringStream str;
-            NodeWriter writer(&map, str);
+            NodeWriter writer(map, str);
             writer.writeMap();
 
             ASSERT_TRUE(StringUtils::caseSensitiveMatchesPattern(str.str(),
@@ -197,7 +197,7 @@ namespace TrenchBroom {
             group->addChild(brush);
 
             StringStream str;
-            NodeWriter writer(&map, str);
+            NodeWriter writer(map, str);
             writer.writeMap();
 
             ASSERT_TRUE(StringUtils::caseSensitiveMatchesPattern(str.str(),
@@ -241,7 +241,7 @@ namespace TrenchBroom {
             group->addChild(brush);
 
             StringStream str;
-            NodeWriter writer(&map, str);
+            NodeWriter writer(map, str);
             writer.writeMap();
 
             ASSERT_TRUE(StringUtils::caseSensitiveMatchesPattern(str.str(),
@@ -296,7 +296,7 @@ namespace TrenchBroom {
             inner->addChild(brush);
 
             StringStream str;
-            NodeWriter writer(&map, str);
+            NodeWriter writer(map, str);
             writer.writeMap();
 
             ASSERT_TRUE(StringUtils::caseSensitiveMatchesPattern(str.str(),
@@ -362,7 +362,7 @@ namespace TrenchBroom {
             nodes.push_back(worldBrush);
 
             StringStream str;
-            NodeWriter writer(&map, str);
+            NodeWriter writer(map, str);
             writer.writeNodes(nodes);
 
             ASSERT_TRUE(StringUtils::caseSensitiveMatchesPattern(str.str(),
@@ -406,7 +406,7 @@ namespace TrenchBroom {
             Model::Brush* brush = builder.createCube(64.0, "none");
 
             StringStream str;
-            NodeWriter writer(&map, str);
+            NodeWriter writer(map, str);
             writer.writeBrushFaces(brush->faces());
 
             const String result = str.str();
@@ -430,7 +430,7 @@ namespace TrenchBroom {
             map.addOrUpdateAttribute("message", "\"holy damn\", he said");
 
             StringStream str;
-            NodeWriter writer(&map, str);
+            NodeWriter writer(map, str);
             writer.writeMap();
 
             const String result = str.str();
@@ -449,7 +449,7 @@ namespace TrenchBroom {
             map.addOrUpdateAttribute("message", "\\\"holy damn\\\", he said");
 
             StringStream str;
-            NodeWriter writer(&map, str);
+            NodeWriter writer(map, str);
             writer.writeMap();
 
             const String result = str.str();
@@ -469,7 +469,7 @@ namespace TrenchBroom {
             map.addOrUpdateAttribute("message", "holy damn\\nhe said");
 
             StringStream str;
-            NodeWriter writer(&map, str);
+            NodeWriter writer(map, str);
             writer.writeMap();
 
             const String result = str.str();
@@ -491,7 +491,7 @@ namespace TrenchBroom {
             map.addOrUpdateAttribute("message3", "holy damn\\\\\\");
 
             StringStream str;
-            NodeWriter writer(&map, str);
+            NodeWriter writer(map, str);
             writer.writeMap();
 
             const String result = str.str();

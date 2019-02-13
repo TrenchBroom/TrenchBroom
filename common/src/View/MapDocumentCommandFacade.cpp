@@ -64,7 +64,7 @@ namespace TrenchBroom {
             Model::CollectRecursivelySelectedNodesVisitor descendants(false);
 
             for (Model::Node* initialNode : nodes) {
-                ensure(initialNode->isDescendantOf(m_world) || initialNode == m_world, "to select a node, it must be world or a descendant");
+                ensure(initialNode->isDescendantOf(m_world.get()) || initialNode == m_world.get(), "to select a node, it must be world or a descendant");
                 const auto nodesToSelect = initialNode->nodesRequiredForViewSelection();
                 for (Model::Node* node : nodesToSelect) {
                     if (!node->selected() /* && m_editorContext->selectable(node) remove check to allow issue objects to be selected */) {
@@ -125,8 +125,9 @@ namespace TrenchBroom {
             Model::CollectSelectableNodesVisitor visitor(*m_editorContext);
 
             Model::Node* target = currentGroup();
-            if (target == nullptr)
-                target = m_world;
+            if (target == nullptr) {
+                target = m_world.get();
+            }
 
             target->recurse(visitor);
             performSelect(visitor.nodes());
@@ -859,7 +860,7 @@ namespace TrenchBroom {
         }
 
         void MapDocumentCommandFacade::performSetEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec) {
-            const Model::NodeList nodes(1, m_world);
+            const Model::NodeList nodes(1, m_world.get());
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             Notifier0::NotifyAfter notifyEntityDefinitions(entityDefinitionsDidChangeNotifier);
             
@@ -870,18 +871,18 @@ namespace TrenchBroom {
         }
 
         void MapDocumentCommandFacade::performSetTextureCollections(const IO::Path::List& paths) {
-            const Model::NodeList nodes(1, m_world);
+            const Model::NodeList nodes(1, m_world.get());
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             Notifier0::NotifyBeforeAndAfter notifyTextureCollections(textureCollectionsWillChangeNotifier, textureCollectionsDidChangeNotifier);
             
-            m_game->updateTextureCollections(m_world, paths);
+            m_game->updateTextureCollections(*m_world, paths);
             unsetTextures();
             loadTextures();
             setTextures();
         }
 
         void MapDocumentCommandFacade::performSetMods(const StringList& mods) {
-            const Model::NodeList nodes(1, m_world);
+            const Model::NodeList nodes(1, m_world.get());
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             Notifier0::NotifyAfter notifyMods(modsDidChangeNotifier);
 
@@ -890,11 +891,12 @@ namespace TrenchBroom {
             unsetEntityDefinitions();
             clearEntityModels();
             
-            if (mods.empty())
+            if (mods.empty()) {
                 m_world->removeAttribute(Model::AttributeNames::Mods);
-            else
+            } else {
                 m_world->addOrUpdateAttribute(Model::AttributeNames::Mods, StringUtils::join(mods, ";"));
-            
+            }
+
             updateGameSearchPaths();
             setEntityDefinitions();
         }

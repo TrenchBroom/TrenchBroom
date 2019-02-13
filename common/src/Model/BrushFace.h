@@ -149,7 +149,7 @@ namespace TrenchBroom {
             const Color& color() const;
             void setColor(const Color& color);
 
-            void updateTexture(Assets::TextureManager* textureManager);
+            void updateTexture(Assets::TextureManager& textureManager);
             void setTexture(Assets::Texture* texture);
             void unsetTexture();
             

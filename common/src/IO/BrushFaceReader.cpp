@@ -29,15 +29,13 @@
 
 namespace TrenchBroom {
     namespace IO {
-        BrushFaceReader::BrushFaceReader(const String& str, Model::ModelFactory* factory) :
+        BrushFaceReader::BrushFaceReader(const String& str, Model::ModelFactory& factory) :
         MapReader(str),
-        m_factory(factory) {
-            ensure(m_factory != nullptr, "factory is null");
-        }
+        m_factory(factory) {}
         
         const Model::BrushFaceList& BrushFaceReader::read(const vm::bbox3& worldBounds, ParserStatus& status) {
             try {
-                readBrushFaces(m_factory->format(), worldBounds, status);
+                readBrushFaces(m_factory.format(), worldBounds, status);
                 return m_brushFaces;
             } catch (const ParserException&) {
                 VectorUtils::clearAndDelete(m_brushFaces);
@@ -45,8 +43,8 @@ namespace TrenchBroom {
             }
         }
         
-        Model::ModelFactory* BrushFaceReader::initialize(const Model::MapFormat format, const vm::bbox3& worldBounds) {
-            assert(format == m_factory->format());
+        Model::ModelFactory& BrushFaceReader::initialize(const Model::MapFormat format, const vm::bbox3& worldBounds) {
+            assert(format == m_factory.format());
             return m_factory;
         }
         

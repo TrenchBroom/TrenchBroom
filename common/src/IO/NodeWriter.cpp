@@ -33,7 +33,7 @@ namespace TrenchBroom {
     namespace IO {
         class NodeWriter::CollectEntityBrushesStrategy {
         public:
-            typedef Model::AssortNodesVisitorT<Model::SkipLayersStrategy, Model::CollectGroupsStrategy, Model::CollectEntitiesStrategy, CollectEntityBrushesStrategy> AssortNodesVisitor;
+            using AssortNodesVisitor = Model::AssortNodesVisitorT<Model::SkipLayersStrategy, Model::CollectGroupsStrategy, Model::CollectEntitiesStrategy, CollectEntityBrushesStrategy>;
         private:
             EntityBrushesMap m_entityBrushes;
             Model::BrushList m_worldBrushes;
@@ -98,15 +98,15 @@ namespace TrenchBroom {
             void doVisit(Model::Brush* brush) override   { stopRecursion();  }
         };
         
-        NodeWriter::NodeWriter(Model::World* world, FILE* stream) :
+        NodeWriter::NodeWriter(Model::World& world, FILE* stream) :
         m_world(world),
-        m_serializer(MapFileSerializer::create(m_world->format(), stream)) {}
+        m_serializer(MapFileSerializer::create(m_world.format(), stream)) {}
         
-        NodeWriter::NodeWriter(Model::World* world, std::ostream& stream) :
+        NodeWriter::NodeWriter(Model::World& world, std::ostream& stream) :
         m_world(world),
-        m_serializer(MapStreamSerializer::create(m_world->format(), stream)) {}
+        m_serializer(MapStreamSerializer::create(m_world.format(), stream)) {}
 
-        NodeWriter::NodeWriter(Model::World* world, NodeSerializer* serializer) :
+        NodeWriter::NodeWriter(Model::World& world, NodeSerializer* serializer) :
         m_world(world),
         m_serializer(serializer) {}
 
@@ -120,13 +120,13 @@ namespace TrenchBroom {
         void NodeWriter::writeDefaultLayer() {
             m_serializer->defaultLayer(m_world);
             
-            const Model::NodeList& children = m_world->defaultLayer()->children();
+            const Model::NodeList& children = m_world.defaultLayer()->children();
             WriteNode visitor(*m_serializer);
             Model::Node::accept(std::begin(children), std::end(children), visitor);
         }
         
         void NodeWriter::writeCustomLayers() {
-            const Model::LayerList customLayers = m_world->customLayers();
+            const Model::LayerList customLayers = m_world.customLayers();
             std::for_each(std::begin(customLayers), std::end(customLayers),
                           [this](Model::Layer* layer) { writeCustomLayer(layer); });
         }
@@ -161,8 +161,9 @@ namespace TrenchBroom {
         }
         
         void NodeWriter::writeWorldBrushes(const Model::BrushList& brushes) {
-            if (!brushes.empty())
-                m_serializer->entity(m_world, m_world->attributes(), Model::EntityAttribute::EmptyList, brushes);
+            if (!brushes.empty()) {
+                m_serializer->entity(&m_world, m_world.attributes(), Model::EntityAttribute::EmptyList, brushes);
+            }
         }
         
         void NodeWriter::writeEntityBrushes(const EntityBrushesMap& entityBrushes) {
