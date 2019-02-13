@@ -39,9 +39,9 @@ namespace TrenchBroom {
         
         class ActionManager {
         public:
-            typedef std::vector<KeyboardShortcutEntry*> ShortcutEntryList;
+            using ShortcutEntryList = std::vector<KeyboardShortcutEntry*>;
         private:
-            typedef std::vector<wxAcceleratorEntry> AcceleratorEntryList;
+            using AcceleratorEntryList = std::vector<wxAcceleratorEntry>;
 
             MenuBar* m_menuBar;
             ViewShortcut::List m_viewShortcuts;

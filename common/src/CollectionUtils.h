@@ -154,7 +154,7 @@ namespace CollectionUtils {
 
     template <typename I, typename Fac, typename Cmp>
     void equivalenceClasses(I rangeStart, I rangeEnd, const Fac& fac, const Cmp& cmp) {
-        typedef typename I::value_type E;
+        using E = typename I::value_type;
         
         std::list<I> workList;
         while (rangeStart != rangeEnd)
@@ -180,9 +180,9 @@ namespace CollectionUtils {
     
     template <typename I, typename Cmp>
     std::list<std::list<typename I::value_type>> equivalenceClasses(I rangeStart, I rangeEnd, const Cmp& cmp) {
-        typedef typename I::value_type E;
-        typedef std::list<E> Class;
-        typedef std::list<Class> Result;
+        using E = typename I::value_type;
+        using Class = std::list<E>;
+        using Result = std::list<Class>;
         
         Result result;
         equivalenceClasses(rangeStart, rangeEnd, [&result]() {
@@ -230,7 +230,7 @@ namespace ListUtils {
      */
     template <typename T>
     typename std::list<T>::iterator replace(std::list<T>& list, typename std::list<T>::iterator pos, std::list<T>& other) {
-        typedef typename std::list<T>::iterator::difference_type DiffType;
+        using DiffType = typename std::list<T>::iterator::difference_type;
         const DiffType count = DiffType(other.size());
         if (count == 0)
             return pos;
@@ -303,7 +303,7 @@ namespace VectorUtils {
 
     template <typename T, typename C>
     int compare(const std::vector<T>& lhs, const std::vector<T>& rhs, const C& cmp) {
-        typedef std::vector<T> Vec;
+        using Vec = std::vector<T>;
         typename Vec::const_iterator lIt = std::begin(lhs);
         typename Vec::const_iterator lEnd = std::end(lhs);
         typename Vec::const_iterator rIt = std::begin(rhs);
@@ -366,7 +366,7 @@ namespace VectorUtils {
 
     template <typename T>
     typename std::vector<T*>::const_iterator findOther(const std::vector<T*>& vec, const T* item) {
-        typedef typename std::vector<T*>::const_iterator Iter;
+        using Iter = typename std::vector<T*>::const_iterator;
         Iter cur = std::begin(vec);
         Iter end = std::end(vec);
         while (cur != end) {
@@ -436,7 +436,7 @@ namespace VectorUtils {
             return;
 
         // (offset > 0) is used to silence a compiler warning
-        typedef typename std::vector<T>::iterator::difference_type DiffType;
+        using DiffType = typename std::vector<T>::iterator::difference_type;
         const DiffType modOffset = static_cast<DiffType>(offset) % static_cast<DiffType>(vec.size());
         if (modOffset == 0)
             return;
@@ -449,7 +449,7 @@ namespace VectorUtils {
         if (vec.empty() || offset == 0)
             return;
 
-        typedef typename std::vector<T>::iterator::difference_type DiffType;
+        using DiffType = typename std::vector<T>::iterator::difference_type;
         const DiffType modOffset = static_cast<DiffType>(offset) % static_cast<DiffType>(vec.size());
         const DiffType size = static_cast<DiffType>(vec.size());
 		shiftLeft(vec, size - modOffset);
@@ -464,7 +464,7 @@ namespace VectorUtils {
     template <typename T>
     void swapPred(std::vector<T>& vec, const size_t i) {
         typename std::vector<T>::iterator it = std::begin(vec);
-        typedef typename std::vector<T>::iterator::difference_type DiffType;
+        using DiffType = typename std::vector<T>::iterator::difference_type;
         std::advance(it, static_cast<DiffType>(i));
         swapPred(vec, it);
     }
@@ -478,7 +478,7 @@ namespace VectorUtils {
     template <typename T>
     void swapSucc(std::vector<T>& vec, const size_t i) {
         typename std::vector<T>::iterator it = std::begin(vec);
-        typedef typename std::vector<T>::iterator::difference_type DiffType;
+        using DiffType = typename std::vector<T>::iterator::difference_type;
         std::advance(it, static_cast<DiffType>(i));
         swapSucc(vec, it);
     }
@@ -498,7 +498,7 @@ namespace VectorUtils {
     void erase(std::vector<T>& vec, const size_t index) {
         ensure(index < vec.size(), "index out of range");
         typename std::vector<T>::iterator it = std::begin(vec);
-        typedef typename std::vector<T>::iterator::difference_type DiffType;
+        using DiffType = typename std::vector<T>::iterator::difference_type;
         std::advance(it, static_cast<DiffType>(index));
         vec.erase(it);
     }
@@ -790,7 +790,7 @@ namespace VectorUtils {
 namespace SetUtils {
     template <typename S>
     bool subset(const S& lhs, const S& rhs) {
-        typedef typename S::key_compare C;
+        using C = typename S::key_compare;
         const C cmp = lhs.key_comp();
         return std::includes(std::begin(rhs), std::end(rhs),
                              std::begin(lhs), std::end(lhs), cmp);
@@ -926,7 +926,7 @@ namespace SetUtils {
     
     template <typename S>
     std::set<S> powerSet(const S& set) {
-        typedef std::set<S> PowerSet;
+        using PowerSet = std::set<S>;
         
         PowerSet result;
         result.insert(S());
@@ -956,8 +956,8 @@ namespace SetUtils {
     
     template <typename S>
     S findMaximalElements(const S& set) {
-        typedef typename S::value_type V;
-        typedef typename S::value_compare C;
+        using V = typename S::value_type;
+        using C = typename S::value_compare;
         const C& cmp = set.value_comp();
         
         S result;
@@ -1124,7 +1124,7 @@ namespace MapUtils {
 
     template <typename K, typename V, typename C, typename L>
     const V& find(const std::map<K, V, C>& map, const L& key, const V& defaultValue) {
-        typedef std::map<K, V, C> Map;
+        using Map = std::map<K, V, C>;
         typename Map::const_iterator it = map.find(key);
         if (it == std::end(map))
             return defaultValue;
@@ -1217,7 +1217,7 @@ namespace MapUtils {
 
     template <typename K, typename V, typename C>
     bool removeAndDelete(std::map<K, V*, C>& map, const K& key) {
-        typedef std::map<K, V*, C> Map;
+        using Map = std::map<K, V*, C>;
         typename Map::iterator it = map.find(key);
         if (it == std::end(map))
             return false;
@@ -1229,7 +1229,7 @@ namespace MapUtils {
 
     template <typename K, typename V, typename C>
     void merge(std::map<K, std::vector<V>, C>& map1, const std::map<K, std::vector<V>, C>& map2) {
-        typedef std::vector<V> Vector;
+        using Vector = std::vector<V>;
 
         for (const auto& entry : map2) {
             const K& key = entry.first;

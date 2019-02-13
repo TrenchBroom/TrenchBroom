@@ -56,7 +56,7 @@ namespace TrenchBroom {
             if (m_current == std::end(m_sizes))
                 return false;
             
-            typedef TextureToSize::key_compare Cmp;
+            using Cmp = TextureToSize::key_compare;
             const Cmp& cmp = m_sizes.key_comp();
             
             const Texture* currentTexture = m_current->first;
@@ -128,7 +128,7 @@ namespace TrenchBroom {
             if (m_current == m_ranges->end())
                 return false;
             
-            typedef TextureToIndexArrayMap::key_compare Cmp;
+            using Cmp = TextureToIndexArrayMap::key_compare;
             const Cmp& cmp = m_ranges->key_comp();
             
             const Texture* currentTexture = m_current->first;

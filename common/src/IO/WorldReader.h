@@ -22,6 +22,8 @@
 
 #include "IO/MapReader.h"
 
+#include <memory>
+
 namespace TrenchBroom {
     namespace Model {
         class BrushContentTypeBuilder;
@@ -33,14 +35,14 @@ namespace TrenchBroom {
         class WorldReader : public MapReader {
         private:
             const Model::BrushContentTypeBuilder* m_brushContentTypeBuilder;
-            Model::World* m_world;
+            std::unique_ptr<Model::World> m_world;
         public:
             WorldReader(const char* begin, const char* end, const Model::BrushContentTypeBuilder* brushContentTypeBuilder);
             WorldReader(const String& str, const Model::BrushContentTypeBuilder* brushContentTypeBuilder);
 
-            Model::World* read(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status);
+            std::unique_ptr<Model::World> read(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status);
         private: // implement MapReader interface
-            Model::ModelFactory* initialize(Model::MapFormat format, const vm::bbox3& worldBounds) override;
+            Model::ModelFactory& initialize(Model::MapFormat format, const vm::bbox3& worldBounds) override;
             Model::Node* onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) override;
             void onWorldspawnFilePosition(size_t lineNumber, size_t lineCount, ParserStatus& status) override;
             void onLayer(Model::Layer* layer, ParserStatus& status) override;

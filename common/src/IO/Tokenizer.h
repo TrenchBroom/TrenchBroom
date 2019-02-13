@@ -78,11 +78,11 @@ namespace TrenchBroom {
         template <typename TokenType>
         class Tokenizer {
         public:
-            typedef TokenTemplate<TokenType> Token;
+            using Token = TokenTemplate<TokenType>;
         private:
-            typedef std::stack<Token> TokenStack;
+            using TokenStack = std::stack<Token>;
 
-            typedef std::shared_ptr<TokenizerState> StatePtr;
+            using StatePtr = std::shared_ptr<TokenizerState>;
 
             class SaveState {
             private:

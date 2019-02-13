@@ -29,7 +29,7 @@ namespace TrenchBroom {
         class EntityDefinitionFileCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            typedef std::shared_ptr<EntityDefinitionFileCommand> Ptr;
+            using Ptr = std::shared_ptr<EntityDefinitionFileCommand>;
         private:
             Assets::EntityDefinitionFileSpec m_oldSpec;
             Assets::EntityDefinitionFileSpec m_newSpec;

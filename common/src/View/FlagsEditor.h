@@ -32,8 +32,8 @@ namespace TrenchBroom {
     namespace View {
         class FlagsEditor : public wxPanel {
         private:
-            typedef std::vector<wxCheckBox*> CheckBoxList;
-            typedef std::vector<int> ValueList;
+            using CheckBoxList = std::vector<wxCheckBox*>;
+            using ValueList = std::vector<int>;
 
             size_t m_numCols;
             CheckBoxList m_checkBoxes;

@@ -47,7 +47,7 @@ namespace TrenchBroom {
             T* m_task;
             TitledPanel* m_panel;
             
-            typedef std::list<AutoCompleteTextControl*> AutoCompleteTextControlList;
+            using AutoCompleteTextControlList = std::list<AutoCompleteTextControl*>;
             AutoCompleteTextControlList m_autoCompleteTextControls;
         protected:
             TaskEditor(wxWindow* parent, const wxSize& margins, const String& title, MapDocumentWPtr document, Model::CompilationProfile* profile, T* task) :

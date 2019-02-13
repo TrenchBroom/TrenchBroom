@@ -41,8 +41,7 @@ namespace TrenchBroom {
         };
     }
 }
-
-typedef void (wxEvtHandler::*RecentDocumentSelectedCommandFunction)(TrenchBroom::View::RecentDocumentSelectedCommand&);
+using RecentDocumentSelectedCommandFunction = void(wxEvtHandler::*)(TrenchBroom::View::RecentDocumentSelectedCommand&);
 
 wxDECLARE_EVENT(RECENT_DOCUMENT_SELECTED_EVENT, TrenchBroom::View::RecentDocumentSelectedCommand);
 #define RecentDocumentSelectedHandler(func) wxEVENT_HANDLER_CAST(RecentDocumentSelectedCommandFunction, func)

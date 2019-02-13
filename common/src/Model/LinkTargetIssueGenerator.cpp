@@ -57,7 +57,7 @@ namespace TrenchBroom {
 
         class LinkTargetIssueGenerator::LinkTargetIssueQuickFix : public IssueQuickFix {
         private:
-            typedef std::map<AttributeName, NodeList> AttributeNameMap;
+            using AttributeNameMap = std::map<AttributeName, NodeList>;
         public:
             LinkTargetIssueQuickFix() :
             IssueQuickFix(LinkTargetIssue::Type, "Delete property") {}

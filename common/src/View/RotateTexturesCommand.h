@@ -28,7 +28,7 @@ namespace TrenchBroom {
         class RotateTexturesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            typedef std::shared_ptr<RotateTexturesCommand> Ptr;
+            using Ptr = std::shared_ptr<RotateTexturesCommand>;
         private:
             float m_angle;
         public:

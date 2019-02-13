@@ -383,7 +383,7 @@ namespace TrenchBroom {
             return m_factory.createFace(point1, point2, point3, attribs, texAxisX, texAxisY);
         }
 
-        bool World::doEvaluateTagMatcher(const TagMatcher& matcher) {
+        bool World::doEvaluateTagMatcher(const TagMatcher& matcher) const {
             return matcher.matches(*this);
         }
     }

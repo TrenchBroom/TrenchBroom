@@ -21,6 +21,8 @@
 
 #include "Exceptions.h"
 #include "Model/BrushContentTypeEvaluator.h"
+#include "Model/Tag.h"
+#include "Model/TagMatcher.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -46,19 +48,30 @@ namespace TrenchBroom {
             unused(version);
             assert(version == 2.0);
 
-            const auto& name = root["name"].stringValue();
-            const auto icon = Path(root["icon"].stringValue());
-            const auto experimental = root["experimental"].booleanValue();
+            auto name = root["name"].stringValue();
+            auto icon = Path(root["icon"].stringValue());
+            auto experimental = root["experimental"].booleanValue();
 
-            const auto mapFormatConfigs = parseMapFormatConfigs(root["fileformats"]);
-            const auto fileSystemConfig = parseFileSystemConfig(root["filesystem"]);
-            const auto textureConfig = parseTextureConfig(root["textures"]);
-            const auto entityConfig = parseEntityConfig(root["entities"]);
-            const auto faceAttribsConfig = parseFaceAttribsConfig(root["faceattribs"]);
+            auto mapFormatConfigs = parseMapFormatConfigs(root["fileformats"]);
+            auto fileSystemConfig = parseFileSystemConfig(root["filesystem"]);
+            auto textureConfig = parseTextureConfig(root["textures"]);
+            auto entityConfig = parseEntityConfig(root["entities"]);
+            auto faceAttribsConfig = parseFaceAttribsConfig(root["faceattribs"]);
                   auto brushContentTypes = parseBrushContentTypes(root["brushtypes"], faceAttribsConfig);
-                  auto tags = parseTags(root["tags"]);
+                  auto tags = parseTags(root["tags"], faceAttribsConfig);
             
-            return GameConfig(name, m_path, icon, experimental, mapFormatConfigs, fileSystemConfig, textureConfig, entityConfig, faceAttribsConfig, std::move(brushContentTypes));
+            return GameConfig(
+                std::move(name),
+                m_path,
+                std::move(icon),
+                experimental,
+                std::move(mapFormatConfigs),
+                std::move(fileSystemConfig),
+                std::move(textureConfig),
+                std::move(entityConfig),
+                std::move(faceAttribsConfig),
+                std::move(brushContentTypes),
+                std::move(tags));
         }
 
         Model::GameConfig::MapFormatConfig::List GameConfigParser::parseMapFormatConfigs(const EL::Value& value) const {
@@ -285,7 +298,7 @@ namespace TrenchBroom {
             return contentTypes;
         }
 
-        std::vector<Model::SmartTag> GameConfigParser::parseTags(const EL::Value& value) const {
+        std::vector<Model::SmartTag> GameConfigParser::parseTags(const EL::Value& value, const Model::GameConfig::FaceAttribsConfig& faceAttribsConfig) const {
             std::vector<Model::SmartTag> result{};
             if (value.null()) {
                 return result;
@@ -298,7 +311,7 @@ namespace TrenchBroom {
                             "]");
 
             parseBrushTags(value["brush"], result);
-            parseFaceTags(value["face"], result);
+            parseFaceTags(value["face"], faceAttribsConfig, result);
             return result;
         }
 
@@ -307,12 +320,92 @@ namespace TrenchBroom {
                 return;
             }
 
+            for (size_t i = 0; i < value.length(); ++i) {
+                const auto& entry = value[i];
+
+                expectStructure(entry, "[ {'name': 'String', 'match': 'String'}, {'attribs': 'Array', 'pattern': 'String', 'flags': 'Array', 'ignore': 'Array' } ]");
+                auto name = entry["name"].stringValue();
+                auto match = entry["match"].stringValue();
+
+                if (match == "classname") {
+                    auto pattern = entry["pattern"].stringValue();
+                    auto attribs = parseTagAttributes(entry["attribs"]);
+                    auto matcher = std::make_unique<Model::EntityClassNameTagMatcher>(std::move(pattern));
+                    result.emplace_back(std::move(name), std::move(attribs), std::move(matcher));
+                } else {
+                    throw ParserException(entry.line(), entry.column(), "Unexpected smart tag match type '" + match + "'");
+                }
+            }
         }
 
-        void GameConfigParser::parseFaceTags(const EL::Value& value, std::vector<Model::SmartTag>& result) const {
+        void GameConfigParser::parseFaceTags(const EL::Value& value, const Model::GameConfig::FaceAttribsConfig& faceAttribsConfig, std::vector<Model::SmartTag>& result) const {
             if (value.null()) {
                 return;
             }
+
+            for (size_t i = 0; i < value.length(); ++i) {
+                const auto& entry = value[i];
+
+                expectStructure(entry, "[ {'name': 'String', 'match': 'String'}, {'attribs': 'Array', 'pattern': 'String', 'flags': 'Array', 'ignore': 'Array' } ]");
+                auto name = entry["name"].stringValue();
+                auto match = entry["match"].stringValue();
+
+                if (match == "texture") {
+                    expectMapEntry(entry, "pattern", EL::Type_String);
+                    auto pattern = entry["pattern"].stringValue();
+                    auto attribs = parseTagAttributes(entry["attribs"]);
+                    auto matcher = std::make_unique<Model::TextureNameTagMatcher>(std::move(pattern));
+                    result.emplace_back(std::move(name), std::move(attribs), std::move(matcher));
+                } else if (match == "surfaceparm") {
+                    expectMapEntry(entry, "pattern", EL::Type_String);
+                    auto pattern = entry["pattern"].stringValue();
+                    auto attribs = parseTagAttributes(entry["attribs"]);
+                    auto matcher = std::make_unique<Model::SurfaceParmTagMatcher>(std::move(pattern));
+                    result.emplace_back(std::move(name), std::move(attribs), std::move(matcher));
+                } else if (match == "contentflag") {
+                    expectMapEntry(entry, "flags", EL::Type_Array);
+                    const auto flagSet = entry["flags"].asStringSet();
+                    int flagValue = 0;
+
+                    for (const String &currentName : flagSet) {
+                        const int currentValue = faceAttribsConfig.contentFlags.flagValue(currentName);
+                        flagValue |= currentValue;
+                    }
+
+                    auto attribs = parseTagAttributes(entry["attribs"]);
+                    auto matcher = std::make_unique<Model::ContentFlagsTagMatcher>(flagValue);
+                    result.emplace_back(std::move(name), std::move(attribs), std::move(matcher));
+                } else if (match == "surfaceflags") {
+                    expectMapEntry(entry, "flags", EL::Type_Array);
+                    const auto flagSet = entry["flags"].asStringSet();
+                    int flagValue = 0;
+
+                    for (const String &currentName : flagSet) {
+                        const int currentValue = faceAttribsConfig.contentFlags.flagValue(currentName);
+                        flagValue |= currentValue;
+                    }
+
+                    auto attribs = parseTagAttributes(entry["attribs"]);
+                    auto matcher = std::make_unique<Model::SurfaceFlagsTagMatcher>(flagValue);
+                    result.emplace_back(std::move(name), std::move(attribs), std::move(matcher));
+                } else {
+                    throw ParserException(entry.line(), entry.column(), "Unexpected smart tag match type '" + match + "'");
+                }
+            }
+        }
+
+        std::set<Model::TagAttribute> GameConfigParser::parseTagAttributes(const EL::Value& value) const {
+            auto result = std::set<Model::TagAttribute>{};
+            if (value.null()) {
+                return result;
+            }
+
+            for (size_t i = 0; i < value.length(); ++i) {
+                const auto& entry = value[i];
+                result.emplace(entry.stringValue());
+            }
+
+            return result;
         }
     }
 }

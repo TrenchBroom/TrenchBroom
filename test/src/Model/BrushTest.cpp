@@ -378,7 +378,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             const NodeList nodes = reader.read(worldBounds, status);
             ASSERT_EQ(1u, nodes.size());
@@ -403,7 +403,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             const NodeList nodes = reader.read(worldBounds, status);
             ASSERT_EQ(1u, nodes.size());
@@ -505,7 +505,7 @@ namespace TrenchBroom {
             World world(MapFormat::Valve, nullptr, worldBounds);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             const NodeList nodes = reader.read(worldBounds, status);
             ASSERT_EQ(0u, nodes.size());
@@ -528,7 +528,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             const NodeList nodes = reader.read(worldBounds, status);
             ASSERT_TRUE(nodes.empty());
@@ -1706,7 +1706,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             const NodeList nodes = reader.read(worldBounds, status);
             assert(nodes.size() == 1);
@@ -2800,8 +2800,8 @@ namespace TrenchBroom {
             World world(MapFormat::Valve, nullptr, worldBounds);
 
             IO::TestParserStatus status;
-            Brush* minuend = static_cast<Brush*>(IO::NodeReader::read(minuendStr, &world, worldBounds, status).front());
-            Brush* subtrahend = static_cast<Brush*>(IO::NodeReader::read(subtrahendStr, &world, worldBounds, status).front());
+            Brush* minuend = static_cast<Brush*>(IO::NodeReader::read(minuendStr, world, worldBounds, status).front());
+            Brush* subtrahend = static_cast<Brush*>(IO::NodeReader::read(subtrahendStr, world, worldBounds, status).front());
 
             const BrushList result = minuend->subtract(world, worldBounds, "some_texture", subtrahend);
             ASSERT_FALSE(result.empty());
@@ -2842,8 +2842,8 @@ namespace TrenchBroom {
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             IO::TestParserStatus status;
-            Brush* minuend = static_cast<Brush*>(IO::NodeReader::read(minuendStr, &world, worldBounds, status).front());
-            Brush* subtrahend = static_cast<Brush*>(IO::NodeReader::read(subtrahendStr, &world, worldBounds, status).front());
+            Brush* minuend = static_cast<Brush*>(IO::NodeReader::read(minuendStr, world, worldBounds, status).front());
+            Brush* subtrahend = static_cast<Brush*>(IO::NodeReader::read(subtrahendStr, world, worldBounds, status).front());
 
             const BrushList result = minuend->subtract(world, worldBounds, "some_texture", subtrahend);
             ASSERT_EQ(8u, result.size());
@@ -2869,7 +2869,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             const NodeList nodes = reader.read(worldBounds, status);
             ASSERT_EQ(0, nodes.size());
@@ -2880,7 +2880,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             const NodeList nodes = reader.read(worldBounds, status);
             ASSERT_EQ(1, nodes.size());
@@ -2898,7 +2898,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             const NodeList nodes = reader.read(worldBounds, status);
             ASSERT_EQ(1, nodes.size());
@@ -3121,7 +3121,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             NodeList nodes = reader.read(worldBounds, status); // assertion failure
             VectorUtils::clearAndDelete(nodes);
@@ -3172,7 +3172,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             NodeList nodes = reader.read(worldBounds, status); // assertion failure
             VectorUtils::clearAndDelete(nodes);
@@ -3199,7 +3199,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             NodeList nodes = reader.read(worldBounds, status); // assertion failure
             VectorUtils::clearAndDelete(nodes);
@@ -3449,7 +3449,7 @@ namespace TrenchBroom {
             World world(MapFormat::Valve, nullptr, worldBounds);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             NodeList nodes = reader.read(worldBounds, status);
             ASSERT_EQ(1, nodes.size());
@@ -3485,7 +3485,7 @@ namespace TrenchBroom {
 )";
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             NodeList nodes = reader.read(worldBounds, status);
             ASSERT_EQ(1, nodes.size());
@@ -3637,7 +3637,7 @@ namespace TrenchBroom {
 )";
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             auto nodes = reader.read(worldBounds, status);
             ASSERT_EQ(1, nodes.size());
@@ -3737,7 +3737,7 @@ namespace TrenchBroom {
 )";
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             auto nodes = reader.read(worldBounds, status);
             ASSERT_EQ(1, nodes.size());
@@ -3837,7 +3837,7 @@ namespace TrenchBroom {
 )";
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             ASSERT_NO_THROW(reader.read(worldBounds, status));
         }
@@ -3860,7 +3860,7 @@ namespace TrenchBroom {
             )";
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             ASSERT_NO_THROW(reader.read(worldBounds, status));
         }

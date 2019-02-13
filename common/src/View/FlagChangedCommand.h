@@ -52,7 +52,7 @@ namespace TrenchBroom {
     }
 }
 
-typedef void (wxEvtHandler::*FlagChangedCommandFunction)(TrenchBroom::View::FlagChangedCommand &);
+using FlagChangedCommandFunction = void(wxEvtHandler::*)(TrenchBroom::View::FlagChangedCommand&);
 
 wxDECLARE_EVENT(FLAG_CHANGED_EVENT, TrenchBroom::View::FlagChangedCommand);
 #define FlagChangedHandler(func) wxEVENT_HANDLER_CAST(FlagChangedCommandFunction, func)

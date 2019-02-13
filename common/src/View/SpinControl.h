@@ -97,7 +97,7 @@ namespace TrenchBroom {
     }
 }
 
-typedef void (wxEvtHandler::*SpinControlEventFunction)(TrenchBroom::View::SpinControlEvent &);
+using SpinControlEventFunction = void(wxEvtHandler::*)(TrenchBroom::View::SpinControlEvent&);
 
 wxDECLARE_EVENT(SPIN_CONTROL_EVENT, TrenchBroom::View::SpinControlEvent);
 #define SpinControlEventHandler(func) wxEVENT_HANDLER_CAST(SpinControlEventFunction, func)

@@ -40,9 +40,9 @@ namespace TrenchBroom {
 
             class IndexedRenderableWrapper;
             
-            typedef std::list<Renderable*> RenderableList;
-            typedef std::list<DirectRenderable*> DirectRenderableList;
-            typedef std::list<IndexedRenderable*> IndexedRenderableList;
+            using RenderableList = std::list<Renderable*>;
+            using DirectRenderableList = std::list<DirectRenderable*>;
+            using IndexedRenderableList = std::list<IndexedRenderable*>;
             
             DirectRenderableList m_directRenderables;
             IndexedRenderableList m_indexedRenderables;

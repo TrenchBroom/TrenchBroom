@@ -270,7 +270,7 @@ namespace TrenchBroom {
             m_boundsValid = true;
         }
 
-        bool Group::doEvaluateTagMatcher(const TagMatcher& matcher) {
+        bool Group::doEvaluateTagMatcher(const TagMatcher& matcher) const {
             return matcher.matches(*this);
         }
     }

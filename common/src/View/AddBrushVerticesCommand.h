@@ -29,7 +29,7 @@ namespace TrenchBroom {
         class AddBrushVerticesCommand : public VertexCommand {
         public:
             static const CommandType Type;
-            typedef std::shared_ptr<AddBrushVerticesCommand> Ptr;
+            using Ptr = std::shared_ptr<AddBrushVerticesCommand>;
         private:
             Model::VertexToBrushesMap m_vertices;
         public:

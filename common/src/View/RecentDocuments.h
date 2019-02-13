@@ -36,8 +36,9 @@ namespace TrenchBroom {
         template <class EventHandler>
         class RecentDocuments {
         private:
-            typedef void (EventHandler::*Function)(wxCommandEvent&);
-            typedef std::vector<wxMenu*> MenuList;
+            using Function = void(EventHandler::*)(wxCommandEvent&);
+            using MenuList = std::vector<wxMenu*>;
+
             MenuList m_menus;
             EventHandler* m_handler;
             Function m_function;

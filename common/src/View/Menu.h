@@ -47,7 +47,7 @@ namespace TrenchBroom {
                 Type_Menu
             } Type;
             
-            typedef std::vector<MenuItem*> List;
+            using List = std::vector<MenuItem*>;
         private:
             Type m_type;
             MenuItemParent* m_parent;
@@ -172,7 +172,7 @@ namespace TrenchBroom {
         
         class MenuBar {
         private:
-            typedef std::vector<Menu*> MenuList;
+            using MenuList = std::vector<Menu*>;
             MenuList m_menus;
         public:
             MenuBar();

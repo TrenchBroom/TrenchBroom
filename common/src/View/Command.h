@@ -33,8 +33,8 @@ namespace TrenchBroom {
         
         class Command {
         public:
-            typedef size_t CommandType;
-            typedef std::shared_ptr<Command> Ptr;
+            using CommandType = size_t;
+            using Ptr = std::shared_ptr<Command>;
             
             typedef enum {
                 CommandState_Default,

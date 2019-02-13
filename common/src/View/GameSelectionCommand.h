@@ -43,7 +43,7 @@ namespace TrenchBroom {
     }
 }
 
-typedef void (wxEvtHandler::*GameSelectionCommandFunction)(TrenchBroom::View::GameSelectionCommand &);
+using GameSelectionCommandFunction = void(wxEvtHandler::*)(TrenchBroom::View::GameSelectionCommand&);
 
 wxDECLARE_EVENT(GAME_SELECTION_CHANGE_EVENT, TrenchBroom::View::GameSelectionCommand);
 #define GameSelectionChangeHandler(func) wxEVENT_HANDLER_CAST(GameSelectionCommandFunction, func)

@@ -127,21 +127,24 @@ namespace TrenchBroom {
         MapDocument::MapDocument() :
         m_worldBounds(DefaultWorldBounds),
         m_world(nullptr),
-        m_currentLayer(nullptr),
         m_pointFile(nullptr),
         m_portalFile(nullptr),
-        m_editorContext(new Model::EditorContext()),
+        m_entityDefinitionManager(std::make_unique<Assets::EntityDefinitionManager>()),
+        m_entityModelManager(std::make_unique<Assets::EntityModelManager>(
+            pref(Preferences::TextureMagFilter),
+            pref(Preferences::TextureMinFilter),
+            logger())),
+        m_textureManager(std::make_unique<Assets::TextureManager>(
+            pref(Preferences::TextureMagFilter),
+            pref(Preferences::TextureMinFilter), logger())),
         m_tagManager(std::make_unique<Model::TagManager>()),
-        m_entityDefinitionManager(new Assets::EntityDefinitionManager()),
-        m_entityModelManager(
-            new Assets::EntityModelManager(pref(Preferences::TextureMagFilter), pref(Preferences::TextureMinFilter), logger())),
-        m_textureManager(
-            new Assets::TextureManager(pref(Preferences::TextureMagFilter), pref(Preferences::TextureMinFilter), logger())),
-        m_mapViewConfig(new MapViewConfig(*m_editorContext)),
-        m_grid(new Grid(4)),
+        m_editorContext(std::make_unique<Model::EditorContext>()),
+        m_mapViewConfig(std::make_unique<MapViewConfig>(*m_editorContext)),
+        m_grid(std::make_unique<Grid>(4)),
         m_path(DefaultDocumentName),
         m_lastSaveModificationCount(0),
         m_modificationCount(0),
+        m_currentLayer(nullptr),
         m_currentTextureName(Model::BrushFace::NoTextureName),
         m_lastSelectionBounds(0.0, 32.0),
         m_selectionBoundsValid(true),
@@ -159,13 +162,6 @@ namespace TrenchBroom {
                 unloadPortalFile();
             }
             clearWorld();
-            
-            delete m_grid;
-            delete m_mapViewConfig;
-            delete m_textureManager;
-            delete m_entityModelManager;
-            delete m_entityDefinitionManager;
-            delete m_editorContext;
         }
         
         Logger& MapDocument::logger() {
@@ -181,7 +177,7 @@ namespace TrenchBroom {
         }
         
         Model::World* MapDocument::world() const {
-            return m_world;
+            return m_world.get();
         }
         
         bool MapDocument::isGamePathPreference(const IO::Path& path) const {
@@ -285,11 +281,11 @@ namespace TrenchBroom {
         void MapDocument::saveDocumentTo(const IO::Path& path) {
             ensure(m_game.get() != nullptr, "game is null");
             ensure(m_world != nullptr, "world is null");
-            m_game->writeMap(m_world, path);
+            m_game->writeMap(*m_world, path);
         }
         
         void MapDocument::exportDocumentAs(const Model::ExportFormat format, const IO::Path& path) {
-            m_game->exportMap(m_world, format, path);
+            m_game->exportMap(*m_world, format, path);
         }
 
         void MapDocument::doSaveDocument(const IO::Path& path) {
@@ -315,24 +311,24 @@ namespace TrenchBroom {
         
         String MapDocument::serializeSelectedNodes() {
             StringStream stream;
-            m_game->writeNodesToStream(m_world, m_selectedNodes.nodes(), stream);
+            m_game->writeNodesToStream(*m_world, m_selectedNodes.nodes(), stream);
             return stream.str();
         }
         
         String MapDocument::serializeSelectedBrushFaces() {
             StringStream stream;
-            m_game->writeBrushFacesToStream(m_world, m_selectedBrushFaces, stream);
+            m_game->writeBrushFacesToStream(*m_world, m_selectedBrushFaces, stream);
             return stream.str();
         }
         
         PasteType MapDocument::paste(const String& str) {
             try {
-                const Model::NodeList nodes = m_game->parseNodes(str, m_world, m_worldBounds, logger());
+                const Model::NodeList nodes = m_game->parseNodes(str, *m_world, m_worldBounds, logger());
                 if (!nodes.empty() && pasteNodes(nodes))
                     return PT_Node;
             } catch (const ParserException& e) {
                 try {
-                    const Model::BrushFaceList faces = m_game->parseBrushFaces(str, m_world, m_worldBounds, logger());
+                    const Model::BrushFaceList faces = m_game->parseBrushFaces(str, *m_world, m_worldBounds, logger());
                     if (!faces.empty() && pasteBrushFaces(faces))
                         return PT_BrushFace;
                 } catch (const ParserException&) {
@@ -343,7 +339,7 @@ namespace TrenchBroom {
         }
         
         bool MapDocument::pasteNodes(const Model::NodeList& nodes) {
-            Model::MergeNodesIntoWorldVisitor mergeNodes(m_world, currentParent());
+            Model::MergeNodesIntoWorldVisitor mergeNodes(m_world.get(), currentParent());
             Model::Node::accept(std::begin(nodes), std::end(nodes), mergeNodes);
             
             const Model::NodeList addedNodes = addNodes(mergeNodes.result());
@@ -465,7 +461,7 @@ namespace TrenchBroom {
         
         const Model::AttributableNodeList MapDocument::allSelectedAttributableNodes() const {
             if (!hasSelection())
-                return Model::AttributableNodeList(1, m_world);
+                return Model::AttributableNodeList(1, m_world.get());
             
             Model::CollectAttributableNodesVisitor visitor;
             Model::Node::accept(std::begin(m_selectedNodes), std::end(m_selectedNodes), visitor);
@@ -817,7 +813,7 @@ namespace TrenchBroom {
 
             // if all brushes belong to the same entity, and that entity is not worldspawn, copy its properties
             auto* entityTemplate = brushes.front()->entity();
-            if (entityTemplate != m_world) {
+            if (entityTemplate != m_world.get()) {
                 for (auto* brush : brushes) {
                     if (brush->entity() != entityTemplate) {
                         entityTemplate = nullptr;
@@ -897,7 +893,7 @@ namespace TrenchBroom {
         };
         
         Model::NodeList MapDocument::collectGroupableNodes(const Model::NodeList& selectedNodes) const {
-            typedef Model::CollectMatchingNodesVisitor<MatchGroupableNodes, Model::UniqueNodeCollectionStrategy, Model::StopRecursionIfMatched> CollectGroupableNodesVisitor;
+            using CollectGroupableNodesVisitor = Model::CollectMatchingNodesVisitor<MatchGroupableNodes, Model::UniqueNodeCollectionStrategy, Model::StopRecursionIfMatched>;
             
             CollectGroupableNodesVisitor collect(world());
             Model::Node::acceptAndEscalate(std::begin(selectedNodes), std::end(selectedNodes), collect);
@@ -934,7 +930,7 @@ namespace TrenchBroom {
             deselectAll();
             Model::Group* previousGroup = m_editorContext->currentGroup();
             if (previousGroup == nullptr)
-                lock(Model::NodeList(1, m_world));
+                lock(Model::NodeList(1, m_world.get()));
             else
                 resetLock(Model::NodeList(1, previousGroup));
             unlock(Model::NodeList(1, group));
@@ -950,10 +946,11 @@ namespace TrenchBroom {
             submitAndStore(CurrentGroupCommand::pop());
 
             Model::Group* currentGroup = m_editorContext->currentGroup();
-            if (currentGroup != nullptr)
+            if (currentGroup != nullptr) {
                 unlock(Model::NodeList(1, currentGroup));
-            else
-                unlock(Model::NodeList(1, m_world));
+            } else {
+                unlock(Model::NodeList(1, m_world.get()));
+            }
         }
         
         void MapDocument::isolate(const Model::NodeList& nodes) {
@@ -1044,7 +1041,7 @@ namespace TrenchBroom {
         }
         
         bool MapDocument::createBrush(const std::vector<vm::vec3>& points) {
-            Model::BrushBuilder builder(m_world, m_worldBounds);
+            Model::BrushBuilder builder(m_world.get(), m_worldBounds);
             Model::Brush* brush = builder.createBrush(points, currentTextureName());
             if (!brush->fullySpecified()) {
                 delete brush;
@@ -1083,7 +1080,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            const Model::BrushBuilder builder(m_world, m_worldBounds);
+            const Model::BrushBuilder builder(m_world.get(), m_worldBounds);
             auto* brush = builder.createBrush(polyhedron, currentTextureName());
             brush->cloneFaceAttributesFrom(selectedNodes().brushes());
             
@@ -1397,7 +1394,7 @@ namespace TrenchBroom {
         class ThrowExceptionCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            typedef std::shared_ptr<ThrowExceptionCommand> Ptr;
+            using Ptr = std::shared_ptr<ThrowExceptionCommand>;
         public:
             ThrowExceptionCommand() : DocumentCommand(Type, "Throw Exception") {}
 
@@ -1493,8 +1490,9 @@ namespace TrenchBroom {
         
         Model::NodeList MapDocument::findNodesContaining(const vm::vec3& point) const {
             Model::NodeList result;
-            if (m_world != nullptr)
+            if (m_world != nullptr) {
                 m_world->findNodesContaining(point, result);
+            }
             return result;
         }
 
@@ -1519,13 +1517,12 @@ namespace TrenchBroom {
         }
         
         void MapDocument::clearWorld() {
-            delete m_world;
-            m_world = nullptr;
+            m_world.release();
             m_currentLayer = nullptr;
         }
         
         Assets::EntityDefinitionFileSpec MapDocument::entityDefinitionFile() const {
-            return m_game->extractEntityDefinitionFile(m_world);
+            return m_game->extractEntityDefinitionFile(*m_world);
         }
         
         Assets::EntityDefinitionFileSpec::List MapDocument::allEntityDefinitionFiles() const {
@@ -1541,7 +1538,7 @@ namespace TrenchBroom {
         }
 
         IO::Path::List MapDocument::enabledTextureCollections() const {
-            return m_game->extractTextureCollections(m_world);
+            return m_game->extractTextureCollections(*m_world);
         }
         
         IO::Path::List MapDocument::availableTextureCollections() const {
@@ -1553,7 +1550,7 @@ namespace TrenchBroom {
         }
 
         void MapDocument::reloadTextureCollections() {
-            const Model::NodeList nodes(1, m_world);
+            const Model::NodeList nodes(1, m_world.get());
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             Notifier0::NotifyBeforeAndAfter notifyTextureCollections(textureCollectionsWillChangeNotifier, textureCollectionsDidChangeNotifier);
 
@@ -1620,7 +1617,7 @@ namespace TrenchBroom {
         void MapDocument::loadTextures() {
             try {
                 const IO::Path docDir = m_path.isEmpty() ? IO::Path() : m_path.deleteLastComponent();
-                m_game->loadTextureCollections(m_world, docDir, *m_textureManager, logger());
+                m_game->loadTextureCollections(*m_world, docDir, *m_textureManager, logger());
             } catch (const Exception& e) {
                 error(e.what());
             }
@@ -1691,9 +1688,9 @@ namespace TrenchBroom {
         
         class SetTextures : public Model::NodeVisitor {
         private:
-            Assets::TextureManager* m_manager;
+            Assets::TextureManager& m_manager;
         public:
-            SetTextures(Assets::TextureManager* manager) :
+            SetTextures(Assets::TextureManager& manager) :
             m_manager(manager) {}
         private:
             void doVisit(Model::World* world) override   {}
@@ -1708,18 +1705,18 @@ namespace TrenchBroom {
         };
         
         void MapDocument::setTextures() {
-            SetTextures visitor(m_textureManager);
+            SetTextures visitor(*m_textureManager);
             m_world->acceptAndRecurse(visitor);
         }
         
         void MapDocument::setTextures(const Model::NodeList& nodes) {
-            SetTextures visitor(m_textureManager);
+            SetTextures visitor(*m_textureManager);
             Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
         }
         
         void MapDocument::setTextures(const Model::BrushFaceList& faces) {
             for (Model::BrushFace* face : faces) {
-                face->updateTexture(m_textureManager);
+                face->updateTexture(*m_textureManager);
             }
         }
         
@@ -1748,13 +1745,15 @@ namespace TrenchBroom {
 
         IO::Path::List MapDocument::externalSearchPaths() const {
             IO::Path::List searchPaths;
-            if (!m_path.isEmpty() && m_path.isAbsolute())
+            if (!m_path.isEmpty() && m_path.isAbsolute()) {
                 searchPaths.push_back(m_path.deleteLastComponent());
-            
+            }
+
             const IO::Path gamePath = m_game->gamePath();
-            if (!gamePath.isEmpty())
+            if (!gamePath.isEmpty()) {
                 searchPaths.push_back(gamePath);
-            
+            }
+
             searchPaths.push_back(IO::SystemPaths::appDirectory());
             return searchPaths;
         }
@@ -1765,7 +1764,7 @@ namespace TrenchBroom {
         }
         
         StringList MapDocument::mods() const {
-            return m_game->extractEnabledMods(m_world);
+            return m_game->extractEnabledMods(*m_world);
         }
         
         void MapDocument::setMods(const StringList& mods) {

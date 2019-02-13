@@ -20,37 +20,40 @@
 #ifndef TRENCHBROOM_ZIPFILESYSTEM_H
 #define TRENCHBROOM_ZIPFILESYSTEM_H
 
-
 #include "StringUtils.h"
 #include "IO/ImageFileSystem.h"
 #include "IO/Path.h"
 
 #include <memory>
 
-class wxZipInputStream;
-class wxZipEntry;
+#include <miniz/miniz.h>
 
 namespace TrenchBroom {
     namespace IO {
         class ZipFileSystem : public ImageFileSystem {
         private:
+            mz_zip_archive m_archive;
+        private:
             class ZipCompressedFile : public File {
             private:
-                std::shared_ptr<wxZipInputStream> m_stream;
-                std::unique_ptr<wxZipEntry> m_entry;
+                ZipFileSystem* m_owner;
+                mz_uint m_fileIndex;
             public:
-                ZipCompressedFile(std::shared_ptr<wxZipInputStream> stream, std::unique_ptr<wxZipEntry> entry);
+                ZipCompressedFile(ZipFileSystem* owner, mz_uint fileIndex);
             private:
                 MappedFile::Ptr doOpen() const override;
             };
+            friend class ZipCompressedFile;
         public:
             ZipFileSystem(const Path& path, MappedFile::Ptr file);
             ZipFileSystem(std::shared_ptr<FileSystem> next, const Path& path, MappedFile::Ptr file);
+            ~ZipFileSystem() override;
         private:
             void doReadDirectory() override;
+        private:
+            std::string filename(mz_uint fileIndex);
         };
     }
 }
-
 
 #endif //TRENCHBROOM_ZIPFILESYSTEM_H

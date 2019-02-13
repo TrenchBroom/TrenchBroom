@@ -90,13 +90,11 @@ namespace TrenchBroom {
             IO::WorldReader reader(file->begin(), file->end(), nullptr);
 
             const vm::bbox3 worldBounds(8192);
-            auto* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
+            auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
 
             AABB tree;
             TreeBuilder builder(tree);
             world->acceptAndRecurse(builder);
-
-            delete world;
         }
     }
 }

@@ -31,9 +31,9 @@ namespace TrenchBroom {
     namespace Model {
         class Hit {
         public:
-            typedef std::list<Hit> List;
+            using List = std::list<Hit>;
             
-            typedef unsigned long HitType;
+            using HitType = unsigned long;
             static const HitType NoType;
             static const HitType AnyType;
             static HitType freeHitType();

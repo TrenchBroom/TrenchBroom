@@ -36,7 +36,7 @@
 namespace TrenchBroom {
     namespace IO {
         namespace DefToken {
-            typedef unsigned int Type;
+            using Type = unsigned int;
             static const Type Integer         = 1 <<  0; // integer number
             static const Type Decimal         = 1 <<  1; // decimal number
             static const Type QuotedString    = 1 <<  2; // string
@@ -66,7 +66,7 @@ namespace TrenchBroom {
         
         class DefParser : public EntityDefinitionParser, public Parser<DefToken::Type> {
         private:
-            typedef DefTokenizer::Token Token;
+            using Token = DefTokenizer::Token;
             
             Color m_defaultEntityColor;
             DefTokenizer m_tokenizer;

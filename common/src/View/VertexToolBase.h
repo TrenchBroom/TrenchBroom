@@ -103,7 +103,7 @@ namespace TrenchBroom {
         public:
             template <typename M, typename I>
             std::map<typename M::Handle, Model::BrushSet> buildBrushMap(const M& manager, I cur, I end) const {
-                typedef typename M::Handle H2;
+                using H2 = typename M::Handle;
                 std::map<H2, Model::BrushSet> result;
                 while (cur != end) {
                     const H2& handle = *cur++;
@@ -161,7 +161,7 @@ namespace TrenchBroom {
             }
             
             void select(const Lasso& lasso, const bool modifySelection) {
-                typedef std::vector<H> HandleList;
+                using HandleList = std::vector<H>;
                 
                 const HandleList allHandles = handleManager().allHandles();
                 HandleList selectedHandles;
@@ -186,7 +186,7 @@ namespace TrenchBroom {
                 return false;
             }
         public:
-            typedef VertexHandleManagerBaseT<H> HandleManager;
+            using HandleManager = VertexHandleManagerBaseT<H>;
             virtual HandleManager& handleManager() = 0;
             virtual const HandleManager& handleManager() const = 0;
         public: // performing moves

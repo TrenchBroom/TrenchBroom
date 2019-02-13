@@ -22,7 +22,6 @@
 
 #include "CollectionUtils.h"
 #include "Macros.h"
-#include "Functor.h"
 #include "StringUtils.h"
 #include "IO/DiskIO.h"
 #include "IO/MappedFile.h"

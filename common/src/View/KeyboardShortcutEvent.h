@@ -46,7 +46,7 @@ namespace TrenchBroom {
     }
 }
 
-typedef void (wxEvtHandler::*KeyboardShortcutEventFunction)(TrenchBroom::View::KeyboardShortcutEvent&);
+using KeyboardShortcutEventFunction = void(wxEvtHandler::*)(TrenchBroom::View::KeyboardShortcutEvent&);
 
 wxDECLARE_EVENT(KEYBOARD_SHORTCUT_EVENT, TrenchBroom::View::KeyboardShortcutEvent);
 #define KeyboardShortcutHandler(func) wxEVENT_HANDLER_CAST(KeyboardShortcutEventFunction, func)

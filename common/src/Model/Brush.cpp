@@ -141,10 +141,10 @@ namespace TrenchBroom {
 
         class Brush::MoveVerticesCallback : public BrushGeometry::Callback {
         private:
-            typedef std::map<vm::vec3, BrushFaceList> IncidenceMap;
+            using IncidenceMap = std::map<vm::vec3, BrushFaceList>;
             IncidenceMap m_incidences;
 
-            typedef std::set<BrushFaceGeometry*> BrushFaceGeometrySet;
+            using BrushFaceGeometrySet = std::set<BrushFaceGeometry*>;
 
             BrushFaceGeometrySet m_addedGeometries;
             BrushFaceList m_removedFaces;
@@ -232,7 +232,7 @@ namespace TrenchBroom {
                 ensure(false, "facesWillBeMerged called");
             }
         private:
-            typedef std::map<BrushFace*, size_t> SharedIncidentFaceCounts;
+            using SharedIncidentFaceCounts = std::map<BrushFace*, size_t>;
 
             BrushFace* findMatchingFace(BrushFaceGeometry* geometry) const {
                 const auto counts = findSharedIncidentFaces(geometry);

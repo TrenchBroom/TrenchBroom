@@ -37,9 +37,9 @@ namespace TrenchBroom {
             template <typename V>
             class IndexMap {
             public:
-                typedef std::vector<V> List;
+                using List = std::vector<V>;
             private:
-                typedef std::map<V, size_t> Map;
+                using Map = std::map<V, size_t>;
                 Map m_map;
                 List m_list;
             public:
@@ -64,8 +64,8 @@ namespace TrenchBroom {
                 IndexedVertex(size_t i_vertex, size_t i_texCoords, size_t i_normal);
             };
             
-            typedef std::vector<IndexedVertex> IndexedVertexList;
-            typedef std::list<IndexedVertexList> FaceList;
+            using IndexedVertexList = std::vector<IndexedVertex>;
+            using FaceList = std::list<IndexedVertexList>;
 
             struct Object {
                 size_t entityNo;
@@ -73,7 +73,7 @@ namespace TrenchBroom {
                 FaceList faces;
             };
             
-            typedef std::list<Object> ObjectList;
+            using ObjectList = std::list<Object>;
             
             FILE* m_stream;
 

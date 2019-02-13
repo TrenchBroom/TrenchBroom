@@ -63,8 +63,8 @@ namespace TrenchBroom {
 
             class Directory {
             private:
-                typedef std::map<Path, std::unique_ptr<Directory>, Path::Less<StringUtils::CaseInsensitiveStringLess>> DirMap;
-                typedef std::map<Path, std::unique_ptr<File>,      Path::Less<StringUtils::CaseInsensitiveStringLess>> FileMap;
+                using DirMap = std::map<Path, std::unique_ptr<Directory>, Path::Less<StringUtils::CaseInsensitiveStringLess>>;
+                using FileMap = std::map<Path, std::unique_ptr<File>,      Path::Less<StringUtils::CaseInsensitiveStringLess>>;
                 
                 Path m_path;
                 DirMap m_directories;

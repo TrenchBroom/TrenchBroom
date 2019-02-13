@@ -124,7 +124,7 @@ namespace TrenchBroom {
             m_boundsValid = true;
         }
 
-        bool Layer::doEvaluateTagMatcher(const TagMatcher& matcher) {
+        bool Layer::doEvaluateTagMatcher(const TagMatcher& matcher) const {
             return matcher.matches(*this);
         }
     }

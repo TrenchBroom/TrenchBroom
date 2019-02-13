@@ -35,7 +35,7 @@ namespace TrenchBroom {
         class TransformObjectsCommand : public SnapshotCommand {
         public:
             static const CommandType Type;
-            typedef std::shared_ptr<TransformObjectsCommand> Ptr;
+            using Ptr = std::shared_ptr<TransformObjectsCommand>;
         private:
             typedef enum {
                 Action_Translate,

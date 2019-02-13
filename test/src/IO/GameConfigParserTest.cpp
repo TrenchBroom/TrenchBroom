@@ -21,6 +21,9 @@
 
 #include "IO/DiskIO.h"
 #include "IO/GameConfigParser.h"
+#include "Model/Tag.h"
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
@@ -129,7 +132,9 @@ namespace TrenchBroom {
                                                                StringUtils::makeSet(2, "mdl", "bsp"),
                                                                Color(0.6f, 0.6f, 0.6f, 1.0f)),
                                       GameConfig::FaceAttribsConfig(),
-                                      BrushContentType::List());
+                                      {}, // brush content types
+                                      {} // smart tags
+            );
             
             ASSERT_EQ(expected.name(), actual.name());
             ASSERT_EQ(expected.path(), actual.path());
@@ -402,7 +407,9 @@ namespace TrenchBroom {
                                                                StringUtils::makeSet(1, "md2"),
                                                                Color(0.6f, 0.6f, 0.6f, 1.0f)),
                                       GameConfig::FaceAttribsConfig(surfaceFlags, contentFlags),
-                                      BrushContentType::List());
+                                      {}, // brush content types
+                                      {} // smart tags
+            );
             
             ASSERT_EQ(expected.name(), actual.name());
             ASSERT_EQ(expected.path(), actual.path());

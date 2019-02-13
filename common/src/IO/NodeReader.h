@@ -33,15 +33,15 @@ namespace TrenchBroom {
         
         class NodeReader : public MapReader {
         private:
-            Model::ModelFactory* m_factory;
+            Model::ModelFactory& m_factory;
             Model::NodeList m_nodes;
         public:
-            NodeReader(const String& str, Model::ModelFactory* factory);
+            NodeReader(const String& str, Model::ModelFactory& factory);
             
-            static Model::NodeList read(const String& str, Model::ModelFactory* factory, const vm::bbox3& worldBounds, ParserStatus& status);
+            static Model::NodeList read(const String& str, Model::ModelFactory& factory, const vm::bbox3& worldBounds, ParserStatus& status);
             const Model::NodeList& read(const vm::bbox3& worldBounds, ParserStatus& status);
         private: // implement MapReader interface
-            Model::ModelFactory* initialize(Model::MapFormat format, const vm::bbox3& worldBounds) override;
+            Model::ModelFactory& initialize(Model::MapFormat format, const vm::bbox3& worldBounds) override;
             Model::Node* onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) override;
             void onWorldspawnFilePosition(size_t lineNumber, size_t lineCount, ParserStatus& status) override;
             void onLayer(Model::Layer* layer, ParserStatus& status) override;

@@ -46,7 +46,7 @@ namespace TrenchBroom {
         
         class VariableTable : public VariableStore {
         private:
-            typedef std::map<String, Value> Table;
+            using Table = std::map<String, Value>;
             Table m_variables;
         public:
             VariableTable();

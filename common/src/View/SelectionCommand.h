@@ -31,7 +31,7 @@ namespace TrenchBroom {
         class SelectionCommand : public UndoableCommand {
         public:
             static const CommandType Type;
-            typedef std::shared_ptr<SelectionCommand> Ptr;
+            using Ptr = std::shared_ptr<SelectionCommand>;
         private:
             typedef enum {
                 Action_SelectNodes,

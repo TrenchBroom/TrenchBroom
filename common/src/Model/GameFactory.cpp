@@ -179,15 +179,16 @@ namespace TrenchBroom {
             // sneak in the brush content type for tutorial brushes
             const auto flag = 1 << config.brushContentTypes().size();
             config.addBrushContentType(Tutorial::createTutorialBrushContentType(flag));
+
+            const auto configName = config.name();
+            m_configs.emplace(std::make_pair(configName, std::move(config)));
+            m_names.push_back(configName);
             
-            m_configs.insert(std::make_pair(config.name(), config));
-            m_names.push_back(config.name());
+            const auto gamePathPrefPath = IO::Path("Games") + IO::Path(configName) + IO::Path("Path");
+            m_gamePaths.insert(std::make_pair(configName, Preference<IO::Path>(gamePathPrefPath, IO::Path())));
             
-            const auto gamePathPrefPath = IO::Path("Games") + IO::Path(config.name()) + IO::Path("Path");
-            m_gamePaths.insert(std::make_pair(config.name(), Preference<IO::Path>(gamePathPrefPath, IO::Path())));
-            
-            const auto defaultEnginePrefPath = IO::Path("Games") + IO::Path(config.name()) + IO::Path("Default Engine");
-            m_defaultEngines.insert(std::make_pair(config.name(), Preference<IO::Path>(defaultEnginePrefPath, IO::Path())));
+            const auto defaultEnginePrefPath = IO::Path("Games") + IO::Path(configName) + IO::Path("Default Engine");
+            m_defaultEngines.insert(std::make_pair(configName, Preference<IO::Path>(defaultEnginePrefPath, IO::Path())));
         }
 
         void GameFactory::loadCompilationConfig(GameConfig& gameConfig) {

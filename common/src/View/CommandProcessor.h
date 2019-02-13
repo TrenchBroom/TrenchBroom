@@ -35,7 +35,7 @@ namespace TrenchBroom {
     namespace View {
         class MapDocumentCommandFacade;
         
-        typedef std::vector<UndoableCommand::Ptr> CommandList;
+        using CommandList = std::vector<UndoableCommand::Ptr>;
         
         class CommandGroup : public UndoableCommand {
         public:
@@ -70,7 +70,7 @@ namespace TrenchBroom {
             
             MapDocumentCommandFacade* m_document;
             
-            typedef CommandList CommandStack;
+            using CommandStack = CommandList;
             CommandStack m_lastCommandStack;
             CommandStack m_nextCommandStack;
             CommandStack m_repeatableCommandStack;

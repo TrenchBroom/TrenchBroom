@@ -42,7 +42,7 @@ namespace TrenchBroom {
     }
 }
 
-typedef void (wxEvtHandler::*EntityAttributeSelectedCommandFunction)(TrenchBroom::View::EntityAttributeSelectedCommand &);
+using EntityAttributeSelectedCommandFunction = void(wxEvtHandler::*)(TrenchBroom::View::EntityAttributeSelectedCommand&);
 
 wxDECLARE_EVENT(ENTITY_ATTRIBUTE_SELECTED_EVENT, TrenchBroom::View::EntityAttributeSelectedCommand);
 #define EntityAttributeSelectedHandler(func) wxEVENT_HANDLER_CAST(EntityAttributeSelectedCommandFunction, func)

@@ -28,8 +28,8 @@ namespace TrenchBroom {
     namespace Model {
         class EntityAttributeSnapshot {
         public:
-            typedef std::list<EntityAttributeSnapshot> List;
-            typedef std::map<AttributableNode*, List> Map;
+            using List = std::list<EntityAttributeSnapshot>;
+            using Map = std::map<AttributableNode*, List>;
         private:
             AttributeName m_name;
             AttributeValue m_value;

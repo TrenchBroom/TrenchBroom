@@ -383,7 +383,7 @@ namespace TrenchBroom {
             m_boundsValid = true;
         }
 
-        bool Entity::doEvaluateTagMatcher(const TagMatcher& matcher) {
+        bool Entity::doEvaluateTagMatcher(const TagMatcher& matcher) const {
             return matcher.matches(*this);
         }
     }

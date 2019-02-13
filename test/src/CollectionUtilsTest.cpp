@@ -41,9 +41,9 @@ public:
 };
 
 TEST(CollectionUtilsTest, equivalenceClasses) {
-    typedef std::vector<int> In;
-    typedef std::list<int> Cls;
-    typedef std::list<Cls> Out;
+    using In = std::vector<int>;
+    using Cls = std::list<int>;
+    using Out = std::list<Cls>;
     
     const auto cmp = [](const int& lhs, const int& rhs) {
         if (lhs % 2 == 0)
@@ -61,14 +61,14 @@ TEST(CollectionUtilsTest, equivalenceClasses) {
 }
 
 TEST(CollectionUtilsTest, vecShiftLeftEmpty) {
-    typedef std::vector<size_t> Vec;
+    using Vec = std::vector<size_t>;
     Vec vec;
     VectorUtils::shiftLeft(vec, 0);
     VectorUtils::shiftLeft(vec, 1);
 }
 
 TEST(CollectionUtilsTest, vecShiftLeftBy2) {
-    typedef std::vector<size_t> Vec;
+    using Vec = std::vector<size_t>;
     Vec vec;
     
     vec.push_back('a');
@@ -94,7 +94,7 @@ TEST(CollectionUtilsTest, vecShiftLeftBy2) {
 }
 
 TEST(CollectionUtilsTest, vecShiftLeftBySize) {
-    typedef std::vector<size_t> Vec;
+    using Vec = std::vector<size_t>;
     Vec vec;
     
     vec.push_back('a');
@@ -111,7 +111,7 @@ TEST(CollectionUtilsTest, vecShiftLeftBySize) {
 }
 
 TEST(CollectionUtilsTest, vecShiftLeftByMoreThanSize) {
-    typedef std::vector<size_t> Vec;
+    using Vec = std::vector<size_t>;
     Vec vec;
     
     vec.push_back('a');
@@ -137,14 +137,14 @@ TEST(CollectionUtilsTest, vecShiftLeftByMoreThanSize) {
 }
 
 TEST(CollectionUtilsTest, vecShiftRightEmpty) {
-    typedef std::vector<size_t> Vec;
+    using Vec = std::vector<size_t>;
     Vec vec;
     VectorUtils::shiftRight(vec, 0);
     VectorUtils::shiftRight(vec, 1);
 }
 
 TEST(CollectionUtilsTest, vecShiftRightBy2) {
-    typedef std::vector<size_t> Vec;
+    using Vec = std::vector<size_t>;
     Vec vec;
     
     vec.push_back('a');
@@ -170,7 +170,7 @@ TEST(CollectionUtilsTest, vecShiftRightBy2) {
 }
 
 TEST(CollectionUtilsTest, vecShiftRightBySize) {
-    typedef std::vector<size_t> Vec;
+    using Vec = std::vector<size_t>;
     Vec vec;
     
     vec.push_back('a');
@@ -187,7 +187,7 @@ TEST(CollectionUtilsTest, vecShiftRightBySize) {
 }
 
 TEST(CollectionUtilsTest, vecShiftRightByMoreThanSize) {
-    typedef std::vector<size_t> Vec;
+    using Vec = std::vector<size_t>;
     Vec vec;
     
     vec.push_back('a');
@@ -213,7 +213,7 @@ TEST(CollectionUtilsTest, vecShiftRightByMoreThanSize) {
 }
 
 TEST(CollectionUtilsTest, vecEraseAndDelete1InRange) {
-    typedef std::vector<TestObject*> TestVec;
+    using TestVec = std::vector<TestObject*>;
 
     static const size_t count = 3;
     TestVec vec;
@@ -230,7 +230,7 @@ TEST(CollectionUtilsTest, vecEraseAndDelete1InRange) {
 }
 
 TEST(CollectionUtilsTest, vecEraseAndDelete2InRange) {
-    typedef std::vector<TestObject*> TestVec;
+    using TestVec = std::vector<TestObject*>;
     
     static const size_t count = 4;
     TestVec vec;
@@ -248,7 +248,7 @@ TEST(CollectionUtilsTest, vecEraseAndDelete2InRange) {
 }
 
 TEST(CollectionUtilsTest, vecEraseAndDeleteAllFrom) {
-    typedef std::vector<TestObject*> TestVec;
+    using TestVec = std::vector<TestObject*>;
     
     static const size_t count = 4;
     TestVec vec;
@@ -266,7 +266,7 @@ TEST(CollectionUtilsTest, vecEraseAndDeleteAllFrom) {
 }
 
 TEST(CollectionUtilsTest, vecClearAndDelete) {
-    typedef std::vector<TestObject*> TestVec;
+    using TestVec = std::vector<TestObject*>;
     
     static const size_t count = 4;
     TestVec vec;
@@ -281,7 +281,7 @@ TEST(CollectionUtilsTest, vecClearAndDelete) {
 }
 
 TEST(CollectionUtilsTest, vecRemove) {
-    typedef std::vector<TestObject*> TestVec;
+    using TestVec = std::vector<TestObject*>;
     
     static const size_t count = 4;
     TestVec vec;
@@ -296,7 +296,7 @@ TEST(CollectionUtilsTest, vecRemove) {
 }
 
 TEST(CollectionUtilsTest, vecRemoveAndDelete) {
-    typedef std::vector<TestObject*> TestVec;
+    using TestVec = std::vector<TestObject*>;
     
     static const size_t count = 4;
     TestVec vec;
@@ -311,7 +311,7 @@ TEST(CollectionUtilsTest, vecRemoveAndDelete) {
 }
 
 TEST(CollectionUtilsTest, vecContains) {
-    typedef std::vector<int> TestVec;
+    using TestVec = std::vector<int>;
     TestVec vec;
     
     vec.push_back(10);
@@ -329,7 +329,7 @@ TEST(CollectionUtilsTest, vecContains) {
 }
 
 TEST(CollectionUtilsTest, vecContainsPtr) {
-    typedef std::vector<int*> TestVec;
+    using TestVec = std::vector<int*>;
     TestVec vec;
     
     vec.push_back(new int(10));
@@ -583,7 +583,7 @@ TEST(CollectionUtilsTest, vecOrderedDifference) {
 }
 
 TEST(CollectionUtilsTest, mapFindOrInsert) {
-    typedef std::map<std::string, std::string> TestMap;
+    using TestMap = std::map<std::string, std::string>;
 
     TestMap testMap;
     TestMap::iterator it = MapUtils::findOrInsert(testMap, std::string("Key"));
@@ -602,7 +602,7 @@ TEST(CollectionUtilsTest, mapFindOrInsert) {
 }
 
 TEST(CollectionUtilsTest, mapInsertOrReplaceCopy) {
-    typedef std::map<std::string, std::string> TestMap;
+    using TestMap = std::map<std::string, std::string>;
 
     TestMap testMap;
     const std::string key("Key");
@@ -619,7 +619,7 @@ TEST(CollectionUtilsTest, mapInsertOrReplaceCopy) {
 }
 
 TEST(CollectionUtilsTest, mapInsertOrReplaceAndDelete) {
-    typedef std::map<std::string, TestObject*> TestMap;
+    using TestMap = std::map<std::string, TestObject*>;
     
     TestMap testMap;
     const std::string key("Key");
@@ -642,7 +642,7 @@ TEST(CollectionUtilsTest, mapInsertOrReplaceAndDelete) {
 }
 
 TEST(CollectionUtilsTest, mapClearAndDelete) {
-    typedef std::map<std::string, TestObject*> TestMap;
+    using TestMap = std::map<std::string, TestObject*>;
     
     TestMap testMap;
     bool deleted1 = false;
@@ -666,8 +666,8 @@ TEST(CollectionUtilsTest, setSubset) {
 }
 
 TEST(CollectionUtilsTest, setFindSupersets) {
-    typedef std::set<int> S;
-    typedef std::set<S> SS;
+    using S = std::set<int>;
+    using SS = std::set<S>;
     
     ASSERT_EQ(SS{}, SetUtils::findSupersets(SS{}));
     ASSERT_EQ(SS{S{1}}, SetUtils::findSupersets(SS{S{1}}));
@@ -695,8 +695,8 @@ TEST(CollectionUtilsTest, setIntersectionEmpty) {
 }
 
 TEST(CollectionUtilsTest, setPowerSet) {
-    typedef std::set<int> IntSet;
-    typedef std::set<IntSet> PSet;
+    using IntSet = std::set<int>;
+    using PSet = std::set<IntSet>;
 
     ASSERT_EQ(PSet{ IntSet{} }, SetUtils::powerSet(IntSet{}));
     ASSERT_EQ((PSet{

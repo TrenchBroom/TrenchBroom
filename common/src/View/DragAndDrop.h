@@ -25,7 +25,7 @@
 #include "MacDropSource.h"
 namespace TrenchBroom {
     namespace View {
-        typedef MacDropSource DropSource;
+        using DropSource = MacDropSource;
     }
 }
 #else
@@ -33,7 +33,7 @@ namespace TrenchBroom {
 #include "GenericDropSource.h"
 namespace TrenchBroom {
     namespace View {
-        typedef GenericDropSource DropSource;
+        using DropSource = GenericDropSource;
     }
 }
 /*
