@@ -68,7 +68,7 @@ namespace TrenchBroom {
                 }
             };
             
-            typedef std::map<String, ExtraAttribute> ExtraAttributes;
+            using ExtraAttributes = std::map<String, ExtraAttribute>;
         public:
             virtual ~MapParser();
         protected:

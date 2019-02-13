@@ -30,7 +30,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        typedef unsigned int ModifierKeyState;
+        using ModifierKeyState = unsigned int;
         namespace ModifierKeys {
             static const ModifierKeyState MKNone      = 0;
             static const ModifierKeyState MKShift     = 1 << 0;
@@ -45,7 +45,7 @@ namespace TrenchBroom {
             MK_DontCare
         } ModifierKeyPressed;
         
-        typedef unsigned int MouseButtonState;
+        using MouseButtonState = unsigned int;
         namespace MouseButtons {
             static const MouseButtonState MBNone      = 0;
             static const MouseButtonState MBLeft      = 1 << 0;

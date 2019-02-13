@@ -54,8 +54,8 @@ namespace TrenchBroom {
                 void add(const IndicesAndCounts& other, bool dynamicGrowth);
             };
             
-            typedef std::map<PrimType, IndicesAndCounts> PrimTypeToIndexData;
-            typedef std::shared_ptr<PrimTypeToIndexData> PrimTypeToIndexDataPtr;
+            using PrimTypeToIndexData = std::map<PrimType, IndicesAndCounts>;
+            using PrimTypeToIndexDataPtr = std::shared_ptr<PrimTypeToIndexData>;
         public:
             /**
              * This helper structure is used to initialize the internal data structures of an index range map to the
@@ -68,7 +68,7 @@ namespace TrenchBroom {
             private:
                 friend class IndexRangeMap;
                 
-                typedef std::map<PrimType, size_t> PrimTypeToSize;
+                using PrimTypeToSize = std::map<PrimType, size_t>;
                 PrimTypeToSize m_sizes;
             public:
                 void inc(PrimType primType, size_t count = 1);

@@ -41,10 +41,10 @@ namespace TrenchBroom {
         template <typename CellData, typename GroupData>
         class CellView : public RenderView {
         protected:
-            typedef CellLayout<CellData, GroupData> Layout;
-            typedef typename Layout::Group Group;
-            typedef typename Group::Row Row;
-            typedef typename Row::Cell Cell;
+            using Layout = CellLayout<CellData, GroupData>;
+            using Group = typename Layout::Group;
+            using Row = typename Group::Row;
+            using Cell = typename Row::Cell;
         private:
             Layout m_layout;
             Cell* m_selectedCell;

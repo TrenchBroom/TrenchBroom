@@ -29,7 +29,7 @@ namespace TrenchBroom {
         class SnapBrushVerticesCommand : public SnapshotCommand {
         public:
             static const CommandType Type;
-            typedef std::shared_ptr<SnapBrushVerticesCommand> Ptr;
+            using Ptr = std::shared_ptr<SnapBrushVerticesCommand>;
         private:
             FloatType m_snapTo;
         public:

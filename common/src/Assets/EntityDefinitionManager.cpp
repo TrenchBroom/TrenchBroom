@@ -82,7 +82,7 @@ namespace TrenchBroom {
         void EntityDefinitionManager::updateGroups() {
             clearGroups();
             
-            typedef std::map<String, EntityDefinitionList> GroupMap;
+            using GroupMap = std::map<String, EntityDefinitionList>;
             GroupMap groupMap;
             
             for (size_t i = 0; i < m_definitions.size(); ++i) {

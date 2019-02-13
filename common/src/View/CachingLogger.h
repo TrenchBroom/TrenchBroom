@@ -39,7 +39,7 @@ namespace TrenchBroom {
                 Message(const LogLevel i_level, const wxString& i_str);
             };
             
-            typedef std::vector<Message> MessageList;
+            using MessageList = std::vector<Message>;
             
             MessageList m_cachedMessages;
             Logger* m_logger;

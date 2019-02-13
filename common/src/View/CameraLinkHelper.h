@@ -30,7 +30,7 @@ namespace TrenchBroom {
     namespace View {
         class CameraLinkHelper {
         private:
-            typedef std::vector<Renderer::Camera*> CameraList;
+            using CameraList = std::vector<Renderer::Camera*>;
             CameraList m_cameras;
             bool m_ignoreNotifications;
         public:

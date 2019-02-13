@@ -49,7 +49,7 @@ namespace TrenchBroom {
         
         class TabBar : public ContainerBar {
         private:
-            typedef std::vector<TabBarButton*> ButtonList;
+            using ButtonList = std::vector<TabBarButton*>;
             
             TabBook* m_tabBook;
             wxSimplebook* m_barBook;

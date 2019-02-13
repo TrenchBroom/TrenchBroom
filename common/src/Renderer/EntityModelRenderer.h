@@ -46,7 +46,7 @@ namespace TrenchBroom {
         
         class EntityModelRenderer : public DirectRenderable {
         private:
-            typedef std::map<Model::Entity*, TexturedRenderer*> EntityMap;
+            using EntityMap = std::map<Model::Entity*, TexturedRenderer*>;
             
             Assets::EntityModelManager& m_entityModelManager;
             const Model::EditorContext& m_editorContext;

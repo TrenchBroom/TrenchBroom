@@ -33,7 +33,7 @@ namespace TrenchBroom {
         class ResizeBrushesCommand : public SnapshotCommand {
         public:
             static const CommandType Type;
-            typedef std::shared_ptr<ResizeBrushesCommand> Ptr;
+            using Ptr = std::shared_ptr<ResizeBrushesCommand>;
         private:
             std::vector<vm::polygon3> m_faces;
             std::vector<vm::polygon3> m_newFaces;

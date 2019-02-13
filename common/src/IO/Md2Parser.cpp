@@ -363,7 +363,7 @@ namespace TrenchBroom {
         }
 
         Assets::EntityModel::VertexList Md2Parser::getVertices(const Md2Frame& frame, const Md2MeshVertexList& meshVertices) const {
-            typedef Assets::EntityModel::Vertex Vertex;
+            using Vertex = Assets::EntityModel::Vertex;
 
             Vertex::List result(0);
             result.reserve(meshVertices.size());

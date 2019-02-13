@@ -36,7 +36,7 @@
 namespace TrenchBroom {
     namespace IO {
         namespace ELToken {
-            typedef uint64_t Type;
+            using Type = uint64_t;
             static const Type Name              = Type(1) <<  1;
             static const Type String                = Type(1) <<  2;
             static const Type Number                = Type(1) <<  3;
@@ -107,7 +107,7 @@ namespace TrenchBroom {
         protected:
             ELParser::Mode m_mode;
             ELTokenizer m_tokenizer;
-            typedef ELTokenizer::Token Token;
+            using Token = ELTokenizer::Token;
         public:
             ELParser(ELParser::Mode mode, const char* begin, const char* end);
             ELParser(ELParser::Mode mode, const String& str);

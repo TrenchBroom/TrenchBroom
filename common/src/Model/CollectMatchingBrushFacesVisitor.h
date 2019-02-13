@@ -50,7 +50,7 @@ namespace TrenchBroom {
             }
         };
         
-        typedef CollectMatchingBrushFacesVisitor<BrushFacePredicates::True> CollectBrushFacesVisitor;
+        using CollectBrushFacesVisitor = CollectMatchingBrushFacesVisitor<BrushFacePredicates::True>;
     }
 }
 

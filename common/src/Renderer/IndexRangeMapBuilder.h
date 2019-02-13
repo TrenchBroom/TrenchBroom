@@ -33,9 +33,9 @@ namespace TrenchBroom {
         template <typename VertexSpec>
         class IndexRangeMapBuilder {
         public:
-            typedef typename VertexSpec::Vertex Vertex;
-            typedef typename Vertex::List VertexList;
-            typedef typename VertexListBuilder<VertexSpec>::IndexData IndexData;
+            using Vertex = typename VertexSpec::Vertex;
+            using VertexList = typename Vertex::List;
+            using IndexData = typename VertexListBuilder<VertexSpec>::IndexData;
         private:
             VertexListBuilder<VertexSpec> m_vertexListBuilder;
             IndexRangeMap m_indexRange;

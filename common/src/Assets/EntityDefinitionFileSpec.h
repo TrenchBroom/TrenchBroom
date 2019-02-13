@@ -28,7 +28,7 @@ namespace TrenchBroom {
     namespace Assets {
         class EntityDefinitionFileSpec {
         public:
-            typedef std::vector<EntityDefinitionFileSpec> List;
+            using List = std::vector<EntityDefinitionFileSpec>;
         private:
             typedef enum {
                 Type_Builtin,

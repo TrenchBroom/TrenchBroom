@@ -31,12 +31,12 @@
 template <typename T, typename FP, typename VP>
 class Polyhedron<T,FP,VP>::Seam {
 public:
-    typedef std::list<Edge*> List;
+    using List = std::list<Edge*>;
 private:
     List m_edges;
 public:
-    typedef typename List::iterator iterator;
-    typedef typename List::const_iterator const_iterator;
+    using iterator = typename List::iterator;
+    using const_iterator = typename List::const_iterator;
 public:
     void push_back(Edge* edge) {
         ensure(edge != nullptr, "edge is null");

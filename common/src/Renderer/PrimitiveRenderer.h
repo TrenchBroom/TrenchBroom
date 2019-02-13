@@ -52,7 +52,7 @@ namespace TrenchBroom {
                 CP_ShowBackfaces
             } CullingPolicy;
         private:
-            typedef VertexSpecs::P3::Vertex Vertex;
+            using Vertex = VertexSpecs::P3::Vertex;
 
             class LineRenderAttributes {
             private:
@@ -66,10 +66,10 @@ namespace TrenchBroom {
                 void render(IndexRangeRenderer& renderer, ActiveShader& shader) const;
             };
             
-            typedef std::map<LineRenderAttributes, IndexRangeMapBuilder<Vertex::Spec> > LineMeshMap;
+            using LineMeshMap = std::map<LineRenderAttributes, IndexRangeMapBuilder<Vertex::Spec> >;
             LineMeshMap m_lineMeshes;
             
-            typedef std::map<LineRenderAttributes, IndexRangeRenderer> LineMeshRendererMap;
+            using LineMeshRendererMap = std::map<LineRenderAttributes, IndexRangeRenderer>;
             LineMeshRendererMap m_lineMeshRenderers;
             
             class TriangleRenderAttributes {
@@ -84,10 +84,10 @@ namespace TrenchBroom {
                 void render(IndexRangeRenderer& renderer, ActiveShader& shader) const;
             };
             
-            typedef std::map<TriangleRenderAttributes, IndexRangeMapBuilder<Vertex::Spec> > TriangleMeshMap;
+            using TriangleMeshMap = std::map<TriangleRenderAttributes, IndexRangeMapBuilder<Vertex::Spec> >;
             TriangleMeshMap m_triangleMeshes;
             
-            typedef std::map<TriangleRenderAttributes, IndexRangeRenderer> TriangleMeshRendererMap;
+            using TriangleMeshRendererMap = std::map<TriangleRenderAttributes, IndexRangeRenderer>;
             TriangleMeshRendererMap m_triangleMeshRenderers;
         public:
             void renderLine(const Color& color, float lineWidth, OcclusionPolicy occlusionPolicy, const vm::vec3f& start, const vm::vec3f& end);

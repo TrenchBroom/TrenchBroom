@@ -35,12 +35,12 @@ namespace TrenchBroom {
             class BrushSerializer;
         protected:
             static const int FloatPrecision = 17;
-            typedef unsigned int ObjectNo;
+            using ObjectNo = unsigned int;
         private:
             template <typename T>
             class IdManager {
             private:
-                typedef std::map<T, String> IdMap;
+                using IdMap = std::map<T, String>;
                 mutable IdMap m_ids;
             public:
                 const String& getId(const T& t) const {
@@ -62,8 +62,8 @@ namespace TrenchBroom {
                 }
             };
             
-            typedef IdManager<const Model::Layer*> LayerIds;
-            typedef IdManager<const Model::Group*> GroupIds;
+            using LayerIds = IdManager<const Model::Layer*>;
+            using GroupIds = IdManager<const Model::Group*>;
             
             LayerIds m_layerIds;
             GroupIds m_groupIds;
@@ -71,7 +71,7 @@ namespace TrenchBroom {
             ObjectNo m_entityNo;
             ObjectNo m_brushNo;
         public:
-            typedef std::unique_ptr<NodeSerializer> Ptr;
+            using Ptr = std::unique_ptr<NodeSerializer>;
             
             NodeSerializer();
             virtual ~NodeSerializer();

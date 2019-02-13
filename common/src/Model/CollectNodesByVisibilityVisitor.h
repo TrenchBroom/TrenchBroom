@@ -34,8 +34,8 @@ namespace TrenchBroom {
             CollectMatchingNodesVisitor<Op<M>, StandardNodeCollectionStrategy, NeverStopRecursion>(Op<M>(M(visibility))) {}
         };
         
-        typedef CollectNodesByVisibilityTemplate<NodePredicates::Id, MatchNodesByVisibility> CollectNodesWithVisibilityVisitor;
-        typedef CollectNodesByVisibilityTemplate<NodePredicates::Not, MatchNodesByVisibility> CollectNodesWithoutVisibilityVisitor;
+        using CollectNodesWithVisibilityVisitor = CollectNodesByVisibilityTemplate<NodePredicates::Id, MatchNodesByVisibility>;
+        using CollectNodesWithoutVisibilityVisitor = CollectNodesByVisibilityTemplate<NodePredicates::Not, MatchNodesByVisibility>;
     }
 }
 

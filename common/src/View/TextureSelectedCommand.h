@@ -44,7 +44,7 @@ namespace TrenchBroom {
     }
 }
 
-typedef void (wxEvtHandler::*TextureSelectedCommandFunction)(TrenchBroom::View::TextureSelectedCommand &);
+using TextureSelectedCommandFunction = void(wxEvtHandler::*)(TrenchBroom::View::TextureSelectedCommand&);
 
 wxDECLARE_EVENT(TEXTURE_SELECTED_EVENT, TrenchBroom::View::TextureSelectedCommand);
 #define TextureSelectedHandler(func) wxEVENT_HANDLER_CAST(TextureSelectedCommandFunction, func)

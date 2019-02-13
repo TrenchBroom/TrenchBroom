@@ -35,11 +35,11 @@ namespace TrenchBroom {
         
         class Animation {
         public:
-            typedef int Type;
+            using Type = int;
             static const Type NoType = -1;
             
-            typedef std::shared_ptr<Animation> Ptr;
-            typedef std::vector<Ptr> List;
+            using Ptr = std::shared_ptr<Animation>;
+            using List = std::vector<Ptr>;
             
             typedef enum {
                 Curve_Flat,
@@ -77,7 +77,7 @@ namespace TrenchBroom {
         
         class AnimationManager : public wxThread {
         private:
-            typedef std::map<Animation::Type, Animation::List> AnimationMap;
+            using AnimationMap = std::map<Animation::Type, Animation::List>;
             
             AnimationMap m_animations;
             wxLongLong m_lastTime;

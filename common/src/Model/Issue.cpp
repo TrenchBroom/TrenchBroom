@@ -64,7 +64,7 @@ namespace TrenchBroom {
             if (m_node->parent() == nullptr)
                 return false;
             
-            typedef CollectMatchingNodesVisitor<MatchSelectableIssueNodes, StandardNodeCollectionStrategy, StopRecursionIfMatched> CollectSelectableIssueNodesVisitor;
+            using CollectSelectableIssueNodesVisitor = CollectMatchingNodesVisitor<MatchSelectableIssueNodes, StandardNodeCollectionStrategy, StopRecursionIfMatched>;
             
             CollectSelectableIssueNodesVisitor collect;
             m_node->acceptAndRecurse(collect);

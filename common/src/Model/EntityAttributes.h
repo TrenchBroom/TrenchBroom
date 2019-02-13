@@ -77,8 +77,8 @@ namespace TrenchBroom {
         
         class EntityAttribute {
         public:
-            typedef std::map<AttributableNode*, EntityAttribute> Map;
-            typedef std::list<EntityAttribute> List;
+            using Map = std::map<AttributableNode*, EntityAttribute>;
+            using List = std::list<EntityAttribute>;
             static const List EmptyList;
         private:
             AttributeName m_name;
@@ -107,9 +107,9 @@ namespace TrenchBroom {
         private:
             EntityAttribute::List m_attributes;
             
-            typedef EntityAttribute::List::iterator IndexValue;
-            typedef StringMapValueContainer<IndexValue> IndexValueContainer;
-            typedef StringMap<IndexValue, IndexValueContainer> AttributeIndex;
+            using IndexValue = EntityAttribute::List::iterator;
+            using IndexValueContainer = StringMapValueContainer<IndexValue>;
+            using AttributeIndex = StringMap<IndexValue, IndexValueContainer>;
             AttributeIndex m_index;
         public:
             const EntityAttribute::List& attributes() const;

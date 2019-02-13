@@ -45,15 +45,15 @@ namespace TrenchBroom {
                 throw FileSystemException("mz_zip_reader_file_stat failed for " + path.asString());
             }
 
-            const mz_uint64 uncompressedSize = stat.m_uncomp_size;
-            auto data = std::make_unique<char[]>(static_cast<size_t>(uncompressedSize));
+            const size_t uncompressedSize = static_cast<size_t>(stat.m_uncomp_size);
+            auto data = std::make_unique<char[]>(uncompressedSize);
             auto* begin = data.get();
 
             if (!mz_zip_reader_extract_to_mem(&m_owner->m_archive, m_fileIndex, begin, uncompressedSize, 0)) {
                 throw FileSystemException("mz_zip_reader_extract_to_mem failed for " + path.asString());
             }
 
-            return std::make_shared<MappedFileBuffer>(path, std::move(data), static_cast<size_t>(uncompressedSize));
+            return std::make_shared<MappedFileBuffer>(path, std::move(data), uncompressedSize);
         }
 
         // ZipFileSystem

@@ -38,9 +38,9 @@ namespace TrenchBroom {
     namespace Assets {
         class TextureManager {
         private:
-            typedef std::map<IO::Path, TextureCollection*> TextureCollectionMap;
-            typedef std::pair<IO::Path, TextureCollection*> TextureCollectionMapEntry;
-            typedef std::map<String, Texture*> TextureMap;
+            using TextureCollectionMap = std::map<IO::Path, TextureCollection*>;
+            using TextureCollectionMapEntry = std::pair<IO::Path, TextureCollection*>;
+            using TextureMap = std::map<String, Texture*>;
             
             Logger& m_logger;
             

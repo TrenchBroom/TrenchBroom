@@ -39,7 +39,7 @@ namespace TrenchBroom {
             static const int HideIssuesCommandId = 2;
             static const int FixObjectsBaseId = 3;
             
-            typedef std::vector<size_t> IndexList;
+            using IndexList = std::vector<size_t>;
             
             MapDocumentWPtr m_document;
             Model::IssueList m_issues;

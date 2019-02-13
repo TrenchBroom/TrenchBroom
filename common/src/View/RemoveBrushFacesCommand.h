@@ -33,7 +33,7 @@ namespace TrenchBroom {
         class RemoveBrushFacesCommand : public RemoveBrushElementsCommand {
         public:
             static const CommandType Type;
-            typedef std::shared_ptr<RemoveBrushFacesCommand> Ptr;
+            using Ptr = std::shared_ptr<RemoveBrushFacesCommand>;
         private:
             std::vector<vm::polygon3> m_oldFacePositions;
         public:

@@ -128,7 +128,7 @@ namespace TrenchBroom {
         
         class ChoiceAttributeOption {
         public:
-            typedef std::vector<ChoiceAttributeOption> List;
+            using List = std::vector<ChoiceAttributeOption>;
         private:
             String m_value;
             String m_description;
@@ -153,7 +153,7 @@ namespace TrenchBroom {
         
         class FlagsAttributeOption {
         public:
-            typedef std::vector<FlagsAttributeOption> List;
+            using List = std::vector<FlagsAttributeOption>;
         private:
             int m_value;
             String m_shortDescription;

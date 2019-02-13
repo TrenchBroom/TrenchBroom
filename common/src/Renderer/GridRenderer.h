@@ -33,7 +33,7 @@ namespace TrenchBroom {
         
         class GridRenderer : public DirectRenderable {
         private:
-            typedef VertexSpecs::P3::Vertex Vertex;
+            using Vertex = VertexSpecs::P3::Vertex;
             VertexArray m_vertexArray;
         public:
             GridRenderer(const OrthographicCamera& camera, const vm::bbox3& worldBounds);

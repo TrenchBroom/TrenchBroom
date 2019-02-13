@@ -89,8 +89,8 @@ private:
         }
     };
     
-    typedef std::vector<Chunk*> ChunkList;
-    typedef std::stack<T*> Pool;
+    using ChunkList = std::vector<Chunk*>;
+    using Pool = std::stack<T*>;
     
     static Pool& pool() {
         static Pool p;

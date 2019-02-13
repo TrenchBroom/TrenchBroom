@@ -48,7 +48,7 @@ namespace TrenchBroom {
             Justify justify;
             Line(const String& i_string, Justify i_justify);
         };
-        typedef std::vector<Line> Lines;
+        using Lines = std::vector<Line>;
         
         Lines m_lines;
     public:

@@ -46,7 +46,7 @@ namespace TrenchBroom {
         template <class PickingPolicyType, class MousePolicyType>
         class MoveToolController : public ToolControllerBase<PickingPolicyType, KeyPolicy, MousePolicyType, RestrictedDragPolicy, RenderPolicy, NoDropPolicy> {
         protected:
-            typedef ToolControllerBase<PickingPolicyType, KeyPolicy, MousePolicyType, RestrictedDragPolicy, RenderPolicy, NoDropPolicy> Super;
+            using Super = ToolControllerBase<PickingPolicyType, KeyPolicy, MousePolicyType, RestrictedDragPolicy, RenderPolicy, NoDropPolicy>;
         private:
             typedef enum {
                 MT_Default,

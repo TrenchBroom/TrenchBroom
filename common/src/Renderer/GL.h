@@ -29,10 +29,10 @@
 #include <GL/glew.h>
 
 namespace TrenchBroom {
-    typedef GLenum PrimType;
+    using PrimType = GLenum;
     
-    typedef std::vector<GLint>   GLIndices;
-    typedef std::vector<GLsizei> GLCounts;
+    using GLIndices = std::vector<GLint>  ;
+    using GLCounts = std::vector<GLsizei>;
 
     void glCheckError(const String& msg);
     String glGetErrorMessage(GLenum code);
@@ -53,15 +53,15 @@ namespace TrenchBroom {
     #define glAssert(C) { (C); }
 #endif
 
-    template <GLenum T> struct GLType               { typedef GLvoid    Type; };
-    template <> struct GLType<GL_BYTE>              { typedef GLbyte    Type; };
-    template <> struct GLType<GL_UNSIGNED_BYTE>     { typedef GLubyte   Type; };
-    template <> struct GLType<GL_SHORT>             { typedef GLshort   Type; };
-    template <> struct GLType<GL_UNSIGNED_SHORT>    { typedef GLushort  Type; };
-    template <> struct GLType<GL_INT>               { typedef GLint     Type; };
-    template <> struct GLType<GL_UNSIGNED_INT>      { typedef GLuint    Type; };
-    template <> struct GLType<GL_FLOAT>             { typedef GLfloat   Type; };
-    template <> struct GLType<GL_DOUBLE>            { typedef GLdouble  Type; };
+    template <GLenum T> struct GLType               { using Type = GLvoid;   };
+    template <> struct GLType<GL_BYTE>              { using Type = GLbyte;   };
+    template <> struct GLType<GL_UNSIGNED_BYTE>     { using Type = GLubyte;  };
+    template <> struct GLType<GL_SHORT>             { using Type = GLshort;  };
+    template <> struct GLType<GL_UNSIGNED_SHORT>    { using Type = GLushort; };
+    template <> struct GLType<GL_INT>               { using Type = GLint;    };
+    template <> struct GLType<GL_UNSIGNED_INT>      { using Type = GLuint;   };
+    template <> struct GLType<GL_FLOAT>             { using Type = GLfloat;  };
+    template <> struct GLType<GL_DOUBLE>            { using Type = GLdouble; };
     
     template <typename T> struct GLEnum { static const GLenum Value = GL_INVALID_ENUM; };
     template <> struct GLEnum<GLbyte>   { static const GLenum Value = GL_BYTE; };

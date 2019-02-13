@@ -47,7 +47,7 @@ namespace TrenchBroom {
                 void setColours(wxWindow* window, const wxColour& foreground, const wxColour& background);
             };
         private:
-            typedef std::vector<Item*> ItemList;
+            using ItemList = std::vector<Item*>;
             wxSize m_itemMargin;
             bool m_restrictToClientWidth;
             wxString m_emptyText;

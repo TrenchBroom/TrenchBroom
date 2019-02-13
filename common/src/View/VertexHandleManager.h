@@ -94,8 +94,8 @@ namespace TrenchBroom {
         template <typename H>
         class VertexHandleManagerBaseT : public VertexHandleManagerBase {
         public:
-            typedef H Handle;
-            typedef std::vector<H> HandleList;
+            using Handle = H;
+            using HandleList = std::vector<H>;
         private:
         protected:
             /**
@@ -157,8 +157,8 @@ namespace TrenchBroom {
                 }
             };
             
-            typedef std::map<H, HandleInfo> HandleMap;
-            typedef typename HandleMap::value_type HandleEntry;
+            using HandleMap = std::map<H, HandleInfo>;
+            using HandleEntry = typename HandleMap::value_type;
 
             /**
              * Maps a handle position to its info.
@@ -561,7 +561,7 @@ namespace TrenchBroom {
         class EdgeHandleManager : public VertexHandleManagerBaseT<vm::segment3> {
         public:
             static const Model::Hit::HitType HandleHit;
-            typedef std::tuple<vm::segment3, vm::vec3> HitType;
+            using HitType = std::tuple<vm::segment3, vm::vec3>;
         public:
             using VertexHandleManagerBase::addHandles;
             using VertexHandleManagerBase::removeHandles;
@@ -606,7 +606,7 @@ namespace TrenchBroom {
         class FaceHandleManager : public VertexHandleManagerBaseT<vm::polygon3> {
         public:
             static const Model::Hit::HitType HandleHit;
-            typedef std::tuple<vm::polygon3, vm::vec3> HitType;
+            using HitType = std::tuple<vm::polygon3, vm::vec3>;
         public:
             using VertexHandleManagerBase::addHandles;
             using VertexHandleManagerBase::removeHandles;

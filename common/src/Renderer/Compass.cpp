@@ -119,7 +119,7 @@ namespace TrenchBroom {
                 headCap.normals[i] = vm::mat4x4f::rot_180_x * headCap.normals[i];
             }
             
-            typedef VertexSpecs::P3N::Vertex Vertex;
+            using Vertex = VertexSpecs::P3N::Vertex;
             Vertex::List shaftVertices    = Vertex::toList(std::begin(shaft.vertices), std::begin(shaft.normals), shaft.vertices.size());
             Vertex::List headVertices     = Vertex::toList(std::begin(head.vertices),  std::begin(head.normals),  head.vertices.size());
             Vertex::List shaftCapVertices = Vertex::toList(std::begin(shaftCap.vertices), std::begin(shaftCap.normals), shaftCap.vertices.size());
@@ -141,7 +141,7 @@ namespace TrenchBroom {
         }
         
         void Compass::makeBackground() {
-            typedef VertexSpecs::P2::Vertex Vertex;
+            using Vertex = VertexSpecs::P2::Vertex;
             std::vector<vm::vec2f> circ = circle2D((m_shaftLength + m_headLength) / 2.0f + 5.0f, 0.0f, vm::Cf::twoPi(), m_segments);
             Vertex::List verts = Vertex::toList(std::begin(circ), circ.size());
             

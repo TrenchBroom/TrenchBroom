@@ -43,9 +43,9 @@ namespace TrenchBroom {
             };
             
 #if defined __APPLE__
-            typedef std::set<int, MacModifierOrder> ModifierSet;
+            using ModifierSet = std::set<int, MacModifierOrder>;
 #else
-            typedef std::set<int, WinModifierOrder> ModifierSet;
+            using ModifierSet = std::set<int, WinModifierOrder>;
 #endif
         public:
             static const KeyboardShortcut Empty;

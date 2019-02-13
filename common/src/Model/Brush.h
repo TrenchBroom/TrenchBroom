@@ -69,13 +69,13 @@ namespace TrenchBroom {
             class HealEdgesCallback;
             class AddFacesToGeometry;
             class MoveVerticesCallback;
-            typedef MoveVerticesCallback RemoveVertexCallback;
+            using RemoveVertexCallback = MoveVerticesCallback;
             class QueryCallback;
 
             using VertexSet = std::set<vm::vec3>;
         public:
-            typedef ConstProjectingSequence<BrushVertexList, ProjectToVertex> VertexList;
-            typedef ConstProjectingSequence<BrushEdgeList, ProjectToEdge> EdgeList;
+            using VertexList = ConstProjectingSequence<BrushVertexList, ProjectToVertex>;
+            using EdgeList = ConstProjectingSequence<BrushEdgeList, ProjectToEdge>;
 
         private:
             BrushFaceList m_faces;

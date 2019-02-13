@@ -31,7 +31,7 @@ namespace TrenchBroom {
         class UpdateEntitySpawnflagCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            typedef std::shared_ptr<UpdateEntitySpawnflagCommand> Ptr;
+            using Ptr = std::shared_ptr<UpdateEntitySpawnflagCommand>;
         private:
             bool m_setFlag;
             Model::AttributeName m_attributeName;

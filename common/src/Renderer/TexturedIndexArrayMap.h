@@ -40,10 +40,10 @@ namespace TrenchBroom {
          */
         class TexturedIndexArrayMap {
         public:
-            typedef Assets::Texture Texture;
+            using Texture = Assets::Texture;
         private:
-            typedef std::map<const Texture*, IndexArrayMap> TextureToIndexArrayMap;
-            typedef std::shared_ptr<TextureToIndexArrayMap> TextureToIndexArrayMapPtr;
+            using TextureToIndexArrayMap = std::map<const Texture*, IndexArrayMap>;
+            using TextureToIndexArrayMapPtr = std::shared_ptr<TextureToIndexArrayMap>;
         public:
             /**
              * Helper class that allows to record sizing information to initialize a texture index array map to the
@@ -53,7 +53,7 @@ namespace TrenchBroom {
             private:
                 friend class TexturedIndexArrayMap;
                 
-                typedef std::map<const Texture*, IndexArrayMap::Size> TextureToSize;
+                using TextureToSize = std::map<const Texture*, IndexArrayMap::Size>;
                 TextureToSize m_sizes;
                 TextureToSize::iterator m_current;
                 size_t m_indexCount;

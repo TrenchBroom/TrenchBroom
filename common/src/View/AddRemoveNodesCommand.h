@@ -29,7 +29,7 @@ namespace TrenchBroom {
         class AddRemoveNodesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            typedef std::shared_ptr<AddRemoveNodesCommand> Ptr;
+            using Ptr = std::shared_ptr<AddRemoveNodesCommand>;
         private:
             typedef enum {
                 Action_Add,

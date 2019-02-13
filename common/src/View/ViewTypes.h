@@ -25,8 +25,8 @@
 namespace TrenchBroom {
     namespace View {
         class MapDocument;
-        typedef std::shared_ptr<MapDocument> MapDocumentSPtr;
-        typedef std::weak_ptr<MapDocument> MapDocumentWPtr;
+        using MapDocumentSPtr = std::shared_ptr<MapDocument>;
+        using MapDocumentWPtr = std::weak_ptr<MapDocument>;
         
         typedef enum {
             PT_Node,
