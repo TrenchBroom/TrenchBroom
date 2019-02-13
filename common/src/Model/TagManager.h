@@ -28,11 +28,27 @@ namespace TrenchBroom {
         class SmartTag;
         class Taggable;
 
+        /**
+         * Manages the tags used in a document and updates smart tags on taggable objects.
+         */
         class TagManager {
         private:
-            std::set<Tag> m_tags;
             std::set<SmartTag> m_smartTags;
         public:
+            /**
+             * Register the given smart tag with this tag manager.
+             *
+             * @param tag the smart tag to register
+             *
+             * @throws std::logic_error if the given smart tag is already registered
+             */
+            void registerSmartTag(SmartTag tag);
+
+            /**
+             * Update the smart tags of the given taggable object.
+             *
+             * @param taggable the object to update
+             */
             void updateTags(Taggable& taggable) const;
         };
     }

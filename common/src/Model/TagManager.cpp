@@ -21,8 +21,17 @@
 
 #include "Model/Tag.h"
 
+#include <stdexcept>
+
 namespace TrenchBroom {
     namespace Model {
+        void TagManager::registerSmartTag(SmartTag tag) {
+            const auto existed = !m_smartTags.insert(std::move(tag)).second;
+            if (!existed) {
+                throw std::logic_error("Smart tag already registered");
+            }
+        }
+
         void TagManager::updateTags(Taggable& taggable) const {
             for (const auto& tag : m_smartTags) {
                 tag.update(taggable);
