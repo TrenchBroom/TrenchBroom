@@ -74,20 +74,20 @@ namespace TrenchBroom {
         protected:
             vm::bbox3 m_worldBounds;
             Model::GameSPtr m_game;
-            Model::World* m_world;
-            Model::Layer* m_currentLayer;
+            std::unique_ptr<Model::World> m_world;
+
             std::unique_ptr<Model::PointFile> m_pointFile;
             std::unique_ptr<Model::PortalFile> m_portalFile;
             IO::Path m_pointFilePath;
             IO::Path m_portalFilePath;
-            Model::EditorContext* m_editorContext;
-            
-            Assets::EntityDefinitionManager* m_entityDefinitionManager;
-            Assets::EntityModelManager* m_entityModelManager;
-            Assets::TextureManager* m_textureManager;
-            
-            MapViewConfig* m_mapViewConfig;
-            Grid* m_grid;
+
+            std::unique_ptr<Assets::EntityDefinitionManager> m_entityDefinitionManager;
+            std::unique_ptr<Assets::EntityModelManager> m_entityModelManager;
+            std::unique_ptr<Assets::TextureManager> m_textureManager;
+
+            std::unique_ptr<Model::EditorContext> m_editorContext;
+            std::unique_ptr<MapViewConfig> m_mapViewConfig;
+            std::unique_ptr<Grid> m_grid;
             
             IO::Path m_path;
             size_t m_lastSaveModificationCount;
@@ -96,13 +96,15 @@ namespace TrenchBroom {
             Model::NodeCollection m_partiallySelectedNodes;
             Model::NodeCollection m_selectedNodes;
             Model::BrushFaceList m_selectedBrushFaces;
-            
+
+            Model::Layer* m_currentLayer;
             String m_currentTextureName;
             vm::bbox3 m_lastSelectionBounds;
             mutable vm::bbox3 m_selectionBounds;
             mutable bool m_selectionBoundsValid;
             
             ViewEffectsService* m_viewEffectsService;
+
         public: // notification
             Notifier1<Command::Ptr> commandDoNotifier;
             Notifier1<Command::Ptr> commandDoneNotifier;
@@ -154,7 +156,7 @@ namespace TrenchBroom {
         protected:
             MapDocument();
         public:
-            virtual ~MapDocument() override;
+            ~MapDocument() override;
         public: // accessors and such
             Logger& logger();
 

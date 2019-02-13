@@ -28,26 +28,24 @@
 
 namespace TrenchBroom {
     namespace IO {
-        NodeReader::NodeReader(const String& str, Model::ModelFactory* factory) :
+        NodeReader::NodeReader(const String& str, Model::ModelFactory& factory) :
         MapReader(str),
-        m_factory(factory) {
-            ensure(m_factory != nullptr, "factory is null");
-        }
+        m_factory(factory) {}
         
-        Model::NodeList NodeReader::read(const String& str, Model::ModelFactory* factory, const vm::bbox3& worldBounds, ParserStatus& status) {
+        Model::NodeList NodeReader::read(const String& str, Model::ModelFactory& factory, const vm::bbox3& worldBounds, ParserStatus& status) {
             NodeReader reader(str, factory);
             return reader.read(worldBounds, status);
         }
 
         const Model::NodeList& NodeReader::read(const vm::bbox3& worldBounds, ParserStatus& status) {
             try {
-                readEntities(m_factory->format(), worldBounds, status);
+                readEntities(m_factory.format(), worldBounds, status);
             } catch (const ParserException&) {
                 VectorUtils::clearAndDelete(m_nodes);
 
                 try {
                     reset();
-                    readBrushes(m_factory->format(), worldBounds, status);
+                    readBrushes(m_factory.format(), worldBounds, status);
                 } catch (const ParserException&) {
                     VectorUtils::clearAndDelete(m_nodes);
                     throw;
@@ -56,13 +54,13 @@ namespace TrenchBroom {
             return m_nodes;
         }
         
-        Model::ModelFactory* NodeReader::initialize(const Model::MapFormat format, const vm::bbox3& worldBounds) {
-            assert(format == m_factory->format());
+        Model::ModelFactory& NodeReader::initialize(const Model::MapFormat format, const vm::bbox3& worldBounds) {
+            assert(format == m_factory.format());
             return m_factory;
         }
         
         Model::Node* NodeReader::onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
-            Model::Entity* worldspawn = m_factory->createEntity();
+            Model::Entity* worldspawn = m_factory.createEntity();
             worldspawn->setAttributes(attributes);
             setExtraAttributes(worldspawn, extraAttributes);
             

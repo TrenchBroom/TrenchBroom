@@ -64,8 +64,8 @@ namespace TrenchBroom {
             doEndFile();
         }
 
-        void NodeSerializer::defaultLayer(Model::World* world) {
-            entity(world, world->attributes(), Model::EntityAttribute::EmptyList, world->defaultLayer());
+        void NodeSerializer::defaultLayer(Model::World& world) {
+            entity(&world, world.attributes(), Model::EntityAttribute::EmptyList, world.defaultLayer());
         }
 
         void NodeSerializer::customLayer(Model::Layer* layer) {

@@ -530,7 +530,7 @@ namespace TrenchBroom {
             World world(MapFormat::Valve, nullptr, worldBounds);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             NodeList nodes = reader.read(worldBounds, status);
             Brush* pyramidLight = static_cast<Brush*>(nodes.at(0)->children().at(0));
@@ -586,7 +586,7 @@ namespace TrenchBroom {
             World world(MapFormat::Valve, nullptr, worldBounds);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             NodeList nodes = reader.read(worldBounds, status);
             Brush* pyramidLight = static_cast<Brush*>(nodes.at(0)->children().at(0));
@@ -646,7 +646,7 @@ namespace TrenchBroom {
             World world(MapFormat::Valve, nullptr, worldBounds);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             NodeList nodes = reader.read(worldBounds, status);
             Brush* brush = static_cast<Brush*>(nodes.at(0)->children().at(0));
