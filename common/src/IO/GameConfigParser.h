@@ -27,8 +27,13 @@
 #include "Model/GameConfig.h"
 
 #include <iostream>
+#include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class SmartTag;
+    }
+
     namespace IO {
         class GameConfigParser : public ConfigParserBase {
         public:
@@ -46,8 +51,12 @@ namespace TrenchBroom {
             Model::GameConfig::FaceAttribsConfig parseFaceAttribsConfig(const EL::Value& value) const;
             Model::GameConfig::FlagConfigList parseFlagConfig(const EL::Value& value) const;
             Model::BrushContentType::List parseBrushContentTypes(const EL::Value& value, const Model::GameConfig::FaceAttribsConfig& faceAttribsConfig) const;
-            
+            std::vector<Model::SmartTag> parseTags(const EL::Value& value) const;
+
             deleteCopyAndMove(GameConfigParser)
+
+            void parseBrushTags(const EL::Value& value, std::vector<Model::SmartTag>& result) const;
+            void parseFaceTags(const EL::Value& value, std::vector<Model::SmartTag>& result) const;
         };
     }
 }

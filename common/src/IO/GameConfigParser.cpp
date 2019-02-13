@@ -39,7 +39,7 @@ namespace TrenchBroom {
             expectStructure(root,
                             "["
                             "{'version': 'Number', 'name': 'String', 'fileformats': 'Array', 'filesystem': 'Map', 'textures': 'Map', 'entities': 'Map'},"
-                            "{'icon': 'String', 'faceattribs': 'Map', 'brushtypes': 'Array', 'experimental': 'Boolean'}"
+                            "{'icon': 'String', 'experimental': 'Boolean', 'faceattribs': 'Map', 'brushtypes': 'Array', 'tags': 'Map'}"
                             "]");
 
             const auto version = root["version"].numberValue();
@@ -56,6 +56,7 @@ namespace TrenchBroom {
             const auto entityConfig = parseEntityConfig(root["entities"]);
             const auto faceAttribsConfig = parseFaceAttribsConfig(root["faceattribs"]);
                   auto brushContentTypes = parseBrushContentTypes(root["brushtypes"], faceAttribsConfig);
+                  auto tags = parseTags(root["tags"]);
             
             return GameConfig(name, m_path, icon, experimental, mapFormatConfigs, fileSystemConfig, textureConfig, entityConfig, faceAttribsConfig, std::move(brushContentTypes));
         }
@@ -282,6 +283,36 @@ namespace TrenchBroom {
                 }
             }
             return contentTypes;
+        }
+
+        std::vector<Model::SmartTag> GameConfigParser::parseTags(const EL::Value& value) const {
+            std::vector<Model::SmartTag> result{};
+            if (value.null()) {
+                return result;
+            }
+
+            expectStructure(value,
+                            "["
+                            "{},"
+                            "{'brush': 'Array', 'face': 'Array'}"
+                            "]");
+
+            parseBrushTags(value["brush"], result);
+            parseFaceTags(value["face"], result);
+            return result;
+        }
+
+        void GameConfigParser::parseBrushTags(const EL::Value& value, std::vector<Model::SmartTag>& result) const {
+            if (value.null()) {
+                return;
+            }
+
+        }
+
+        void GameConfigParser::parseFaceTags(const EL::Value& value, std::vector<Model::SmartTag>& result) const {
+            if (value.null()) {
+                return;
+            }
         }
     }
 }
