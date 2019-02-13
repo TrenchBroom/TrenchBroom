@@ -334,7 +334,6 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/EntityDefinitionFileChooser.cpp
 	${COMMON_SOURCE_DIR}/View/EntityDefinitionFileCommand.cpp
 	${COMMON_SOURCE_DIR}/View/EntityInspector.cpp
-#	${COMMON_SOURCE_DIR}/View/ExecutableEvent.cpp
 #	${COMMON_SOURCE_DIR}/View/FaceAttribsEditor.cpp
 #	${COMMON_SOURCE_DIR}/View/FaceInspector.cpp
 	${COMMON_SOURCE_DIR}/View/FaceToolController.cpp
@@ -370,7 +369,6 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/KeyboardShortcut.cpp
 #	${COMMON_SOURCE_DIR}/View/KeyboardShortcutEditor.cpp
 #	${COMMON_SOURCE_DIR}/View/KeyboardShortcutEntry.cpp
-#	${COMMON_SOURCE_DIR}/View/KeyboardShortcutEvent.cpp
 #	${COMMON_SOURCE_DIR}/View/KeyboardShortcutGridTable.cpp
 	${COMMON_SOURCE_DIR}/View/Lasso.cpp
 #	${COMMON_SOURCE_DIR}/View/LaunchGameEngineDialog.cpp
@@ -888,7 +886,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/EntityDefinitionFileChooser.h
 	${COMMON_SOURCE_DIR}/View/EntityDefinitionFileCommand.h
 	${COMMON_SOURCE_DIR}/View/EntityInspector.h
-	${COMMON_SOURCE_DIR}/View/ExecutableEvent.h
 	${COMMON_SOURCE_DIR}/View/FaceAttribsEditor.h
 	${COMMON_SOURCE_DIR}/View/FaceInspector.h
 	${COMMON_SOURCE_DIR}/View/FaceToolController.h
@@ -923,7 +920,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/KeyboardPreferencePane.h
 	${COMMON_SOURCE_DIR}/View/KeyboardShortcutEditor.h
 	${COMMON_SOURCE_DIR}/View/KeyboardShortcutEntry.h
-	${COMMON_SOURCE_DIR}/View/KeyboardShortcutEvent.h
 	${COMMON_SOURCE_DIR}/View/KeyboardShortcutGridTable.h
 	${COMMON_SOURCE_DIR}/View/KeyboardShortcut.h
 	${COMMON_SOURCE_DIR}/View/Lasso.h
