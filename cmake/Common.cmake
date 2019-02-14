@@ -530,7 +530,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/Exceptions.h
 	${COMMON_SOURCE_DIR}/FileLogger.h
 	${COMMON_SOURCE_DIR}/FreeType.h
-	${COMMON_SOURCE_DIR}/Functor.h
 	${COMMON_SOURCE_DIR}/IO/BrushFaceReader.h
 	${COMMON_SOURCE_DIR}/IO/Bsp29Parser.h
 	${COMMON_SOURCE_DIR}/IO/CharArrayReader.h
