@@ -82,7 +82,7 @@ namespace TrenchBroom {
             void beginFile();
             void endFile();
         public:
-            void defaultLayer(Model::World* world);
+            void defaultLayer(Model::World& world);
             void customLayer(Model::Layer* layer);
             void group(Model::Group* group, const Model::EntityAttribute::List& parentAttributes);
             

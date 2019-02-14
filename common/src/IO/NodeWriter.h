@@ -33,16 +33,16 @@ namespace TrenchBroom {
         
         class NodeWriter {
         private:
-            typedef std::map<Model::Entity*, Model::BrushList> EntityBrushesMap;
+            using EntityBrushesMap = std::map<Model::Entity*, Model::BrushList>;
             class CollectEntityBrushesStrategy;
             class WriteNode;
             
-            Model::World* m_world;
+            Model::World& m_world;
             NodeSerializer::Ptr m_serializer;
         public:
-            NodeWriter(Model::World* world, FILE* stream);
-            NodeWriter(Model::World* world, std::ostream& stream);
-            NodeWriter(Model::World* world, NodeSerializer* serializer);
+            NodeWriter(Model::World& world, FILE* stream);
+            NodeWriter(Model::World& world, std::ostream& stream);
+            NodeWriter(Model::World& world, NodeSerializer* serializer);
             
             void writeMap();
         private:

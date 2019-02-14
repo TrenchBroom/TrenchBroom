@@ -347,9 +347,8 @@ namespace TrenchBroom {
             m_attribs.setColor(color);
         }
 
-        void BrushFace::updateTexture(Assets::TextureManager* textureManager) {
-            ensure(textureManager != nullptr, "textureManager is null");
-            Assets::Texture* texture = textureManager->texture(textureName());
+        void BrushFace::updateTexture(Assets::TextureManager& textureManager) {
+            Assets::Texture* texture = textureManager.texture(textureName());
             setTexture(texture);
         }
 
