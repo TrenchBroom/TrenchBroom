@@ -48,7 +48,7 @@ namespace TrenchBroom {
             static const Model::Hit::HitType XHandleHit;
             static const Model::Hit::HitType YHandleHit;
         private:
-            typedef Renderer::VertexSpecs::P3::Vertex EdgeVertex;
+            using EdgeVertex = Renderer::VertexSpecs::P3::Vertex;
 
             MapDocumentWPtr m_document;
             UVViewHelper& m_helper;

@@ -36,7 +36,7 @@ namespace TrenchBroom {
         class ConvertEntityColorCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            typedef std::shared_ptr<ConvertEntityColorCommand> Ptr;
+            using Ptr = std::shared_ptr<ConvertEntityColorCommand>;
         private:
             Model::AttributeName m_attributeName;
             Assets::ColorRange::Type m_colorRange;

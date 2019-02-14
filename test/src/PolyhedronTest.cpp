@@ -31,15 +31,15 @@
 #include <iterator>
 #include <tuple>
 
-typedef Polyhedron<double, DefaultPolyhedronPayload, DefaultPolyhedronPayload> Polyhedron3d;
-typedef Polyhedron3d::Vertex PVertex;
-typedef Polyhedron3d::VertexList VertexList;
-typedef Polyhedron3d::Edge PEdge;
-typedef Polyhedron3d::HalfEdge PHalfEdge;
-typedef Polyhedron3d::Face PFace;
+using Polyhedron3d = Polyhedron<double, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
+using PVertex = Polyhedron3d::Vertex;
+using VertexList = Polyhedron3d::VertexList;
+using PEdge = Polyhedron3d::Edge;
+using PHalfEdge = Polyhedron3d::HalfEdge;
+using PFace = Polyhedron3d::Face;
 
-typedef std::pair<vm::vec3d, vm::vec3d> EdgeInfo;
-typedef std::vector<EdgeInfo> EdgeInfoList;
+using EdgeInfo = std::pair<vm::vec3d, vm::vec3d>;
+using EdgeInfoList = std::vector<EdgeInfo>;
 
 bool hasVertex(const Polyhedron3d& p, const vm::vec3d& point, double epsilon = 0.0);
 bool hasVertices(const Polyhedron3d& p, const std::vector<vm::vec3d>& points, double epsilon = 0.0);
@@ -1401,7 +1401,7 @@ TEST(PolyhedronTest, crashWhileAddingPoints5) {
 
 class ClipCallback : public Polyhedron3d::Callback {
 private:
-    typedef std::set<PFace*> FaceSet;
+    using FaceSet = std::set<PFace*>;
     FaceSet m_originals;
 public:
     void faceWillBeDeleted(PFace* face) override {

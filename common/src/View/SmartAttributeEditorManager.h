@@ -38,10 +38,10 @@ namespace TrenchBroom {
         
         class SmartAttributeEditorManager : public QWidget {
         private:
-            typedef std::shared_ptr<SmartAttributeEditor> EditorPtr;
-            typedef std::shared_ptr<SmartAttributeEditorMatcher> MatcherPtr;
-            typedef std::pair<MatcherPtr, EditorPtr> MatcherEditorPair;
-            typedef std::vector<MatcherEditorPair> EditorList;
+            using EditorPtr = std::shared_ptr<SmartAttributeEditor>;
+            using MatcherPtr = std::shared_ptr<SmartAttributeEditorMatcher>;
+            using MatcherEditorPair = std::pair<MatcherPtr, EditorPtr>;
+            using EditorList = std::vector<MatcherEditorPair>;
             
             View::MapDocumentWPtr m_document;
             

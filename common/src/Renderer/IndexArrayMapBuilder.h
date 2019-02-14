@@ -34,8 +34,8 @@ namespace TrenchBroom {
          */
         class IndexArrayMapBuilder {
         public:
-            typedef GLuint Index;
-            typedef std::vector<Index> IndexList;
+            using Index = GLuint;
+            using IndexList = std::vector<Index>;
         private:
             IndexList m_indices;
             IndexArrayMap m_ranges;

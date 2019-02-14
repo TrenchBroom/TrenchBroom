@@ -46,8 +46,8 @@ namespace TrenchBroom {
         
         class RenderService {
         private:
-            typedef PrimitiveRenderer::OcclusionPolicy OcclusionPolicy;
-            typedef PrimitiveRenderer::CullingPolicy CullingPolicy;
+            using OcclusionPolicy = PrimitiveRenderer::OcclusionPolicy;
+            using CullingPolicy = PrimitiveRenderer::CullingPolicy;
             class HeadsUpTextAnchor;
             
             RenderContext& m_renderContext;

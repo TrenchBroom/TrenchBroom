@@ -23,7 +23,7 @@
 #include "Relation.h"
 
 TEST(RelationTest, testInsertSingle) {
-    typedef relation<size_t, std::string> Relation;
+    using Relation = relation<size_t, std::string>;
     
     Relation r;
     ASSERT_TRUE(r.insert(1, "a"));
@@ -53,7 +53,7 @@ TEST(RelationTest, testInsertSingle) {
 }
 
 TEST(RelationTest, testInsertMultipleRight) {
-    typedef relation<size_t, std::string> Relation;
+    using Relation = relation<size_t, std::string>;
     
     Relation r;
     
@@ -102,7 +102,7 @@ TEST(RelationTest, testInsertMultipleRight) {
 }
 
 TEST(RelationTest, testInsertMultipleLeft) {
-    typedef relation<std::string, size_t> Relation;
+    using Relation = relation<std::string, size_t>;
     
     Relation r;
     
@@ -151,7 +151,7 @@ TEST(RelationTest, testInsertMultipleLeft) {
 }
 
 TEST(RelationTest, testEraseSingle) {
-    typedef relation<size_t, std::string> Relation;
+    using Relation = relation<size_t, std::string>;
     
     Relation r;
     r.insert(1, "a");
@@ -204,7 +204,7 @@ TEST(RelationTest, testEraseSingle) {
 }
 
 TEST(RelationTest, testIterator) {
-    typedef relation<size_t, std::string> Relation;
+    using Relation = relation<size_t, std::string>;
     
     Relation r;
     ASSERT_TRUE(std::begin(r) == std::end(r));

@@ -129,7 +129,7 @@ namespace TrenchBroom {
         private:
             class AttributeRow {
             public:
-                typedef std::vector<AttributeRow> List;
+                using List = std::vector<AttributeRow>;
             private:
                 String m_name;
                 String m_value;

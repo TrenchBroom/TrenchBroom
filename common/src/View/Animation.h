@@ -34,11 +34,11 @@ namespace TrenchBroom {
         
         class Animation {
         public:
-            typedef int Type;
+            using Type = int;
             static const Type NoType = -1;
             
-            typedef std::shared_ptr<Animation> Ptr;
-            typedef std::vector<Ptr> List;
+            using Ptr = std::shared_ptr<Animation>;
+            using List = std::vector<Ptr>;
             
             typedef enum {
                 Curve_Flat,
@@ -79,7 +79,7 @@ namespace TrenchBroom {
              */
             QElapsedTimer m_elapsedTimer;
             QTimer* m_timer;
-            typedef std::map<Animation::Type, Animation::List> AnimationMap;
+            using AnimationMap = std::map<Animation::Type, Animation::List>;
             
             AnimationMap m_animations;
         public:

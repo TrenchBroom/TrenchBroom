@@ -33,7 +33,7 @@ namespace TrenchBroom {
     namespace View {
         class RadioGroup : public wxControl, public wxItemContainerImmutable {
         private:
-            typedef std::vector<wxRadioButton*> ButtonList;
+            using ButtonList = std::vector<wxRadioButton*>;
             ButtonList m_buttons;
         public:
             RadioGroup();

@@ -31,7 +31,7 @@ namespace TrenchBroom {
     namespace IO {
         class Path {
         public:
-            typedef std::vector<Path> List;
+            using List = std::vector<Path>;
             static const List EmptyList;
             static char separator();
             

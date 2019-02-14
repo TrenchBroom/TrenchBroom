@@ -32,28 +32,28 @@ namespace TrenchBroom {
         class PaletteLoader;
         
         class Texture;
-        typedef std::vector<Texture*> TextureList;
+        using TextureList = std::vector<Texture*>;
         
         class TextureCollection;
-        typedef std::vector<TextureCollection*> TextureCollectionList;
+        using TextureCollectionList = std::vector<TextureCollection*>;
         
         class EntityDefinition;
         class PointEntityDefinition;
         class BrushEntityDefinition;
-        typedef std::vector<EntityDefinition*> EntityDefinitionList;
+        using EntityDefinitionList = std::vector<EntityDefinition*>;
         
         class EntityDefinitionFileSpec;
         
         class AttributeDefinition;
-        typedef std::shared_ptr<AttributeDefinition> AttributeDefinitionPtr;
-        typedef std::vector<AttributeDefinitionPtr> AttributeDefinitionList;
-        typedef std::map<String, AttributeDefinitionPtr> AttributeDefinitionMap;
+        using AttributeDefinitionPtr = std::shared_ptr<AttributeDefinition>;
+        using AttributeDefinitionList = std::vector<AttributeDefinitionPtr>;
+        using AttributeDefinitionMap = std::map<String, AttributeDefinitionPtr>;
         
         class ModelDefinition;
         
         class EntityModelManager;
         class EntityModel;
-        typedef std::vector<EntityModel*> EntityModelList;
+        using EntityModelList = std::vector<EntityModel*>;
     }
 }
 

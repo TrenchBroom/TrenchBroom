@@ -34,8 +34,8 @@ namespace TrenchBroom {
             CollectMatchingNodesVisitor<MatchSelectableNodes, C, S>(MatchSelectableNodes(editorContext)) {}
         };
         
-        typedef CollectSelectableNodesTemplate<StandardNodeCollectionStrategy, StopRecursionIfMatched> CollectSelectableNodesVisitor;
-        typedef CollectSelectableNodesTemplate<UniqueNodeCollectionStrategy, StopRecursionIfMatched> CollectSelectableUniqueNodesVisitor;
+        using CollectSelectableNodesVisitor = CollectSelectableNodesTemplate<StandardNodeCollectionStrategy, StopRecursionIfMatched>;
+        using CollectSelectableUniqueNodesVisitor = CollectSelectableNodesTemplate<UniqueNodeCollectionStrategy, StopRecursionIfMatched>;
     }
 }
 

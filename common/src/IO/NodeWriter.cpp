@@ -140,7 +140,7 @@ namespace TrenchBroom {
         }
 
         void NodeWriter::writeNodes(const Model::NodeList& nodes) {
-            typedef Model::AssortNodesVisitorT<Model::SkipLayersStrategy, Model::CollectGroupsStrategy, Model::CollectEntitiesStrategy, CollectEntityBrushesStrategy> CollectNodes;
+            using CollectNodes = Model::AssortNodesVisitorT<Model::SkipLayersStrategy, Model::CollectGroupsStrategy, Model::CollectEntitiesStrategy, CollectEntityBrushesStrategy>;
             
             m_serializer->beginFile();
             

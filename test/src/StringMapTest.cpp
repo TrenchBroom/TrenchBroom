@@ -25,7 +25,7 @@
 #include "StringUtils.h"
 
 namespace TrenchBroom {
-    typedef StringMap<String, StringMultiMapValueContainer<String> > TestMultiMap;
+    using TestMultiMap = StringMap<String, StringMultiMapValueContainer<String> >;
     
     TEST(StringMultiMapTest, insert) {
         TestMultiMap index;

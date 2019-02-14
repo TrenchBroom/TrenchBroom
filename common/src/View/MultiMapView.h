@@ -33,7 +33,7 @@ namespace TrenchBroom {
         
         class MultiMapView : public MapViewContainer {
         private:
-            typedef std::vector<MapView*> MapViewList;
+            using MapViewList = std::vector<MapView*>;
             MapViewList m_mapViews;
             MapView* m_maximizedView;
         protected:

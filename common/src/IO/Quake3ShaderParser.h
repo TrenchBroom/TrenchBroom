@@ -32,7 +32,7 @@ namespace TrenchBroom {
 
     namespace IO {
         namespace Quake3ShaderToken {
-            typedef unsigned int Type;
+            using Type = unsigned int;
             static const Type Number        = 1 << 1; // decimal number
             static const Type String        = 1 << 2; // string
             static const Type Variable      = 1 << 3; // variable starting with $

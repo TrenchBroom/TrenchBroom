@@ -32,8 +32,8 @@ namespace TrenchBroom {
         class FlagsEditor : public QWidget {
             Q_OBJECT
         private:
-            typedef std::vector<QCheckBox*> CheckBoxList;
-            typedef std::vector<int> ValueList;
+            using CheckBoxList = std::vector<QCheckBox*>;
+            using ValueList = std::vector<int>;
 
             size_t m_numCols;
             CheckBoxList m_checkBoxes;

@@ -41,7 +41,7 @@ namespace TrenchBroom {
         private:
             class BaseHolder {
             public:
-                typedef std::shared_ptr<BaseHolder> Ptr;
+                using Ptr = std::shared_ptr<BaseHolder>;
                 virtual ~BaseHolder() {}
                 
                 virtual size_t vertexCount() const = 0;
@@ -55,7 +55,7 @@ namespace TrenchBroom {
             template <typename VertexSpec>
             class Holder : public BaseHolder {
             private:
-                typedef typename VertexSpec::Vertex::List VertexList;
+                using VertexList = typename VertexSpec::Vertex::List;
             private:
                 VboBlock* m_block;
                 size_t m_vertexCount;
@@ -104,7 +104,7 @@ namespace TrenchBroom {
             template <typename VertexSpec>
             class CopyHolder : public Holder<VertexSpec> {
             public:
-                typedef typename VertexSpec::Vertex::List VertexList;
+                using VertexList = typename VertexSpec::Vertex::List;
             private:
                 VertexList m_vertices;
             public:
@@ -125,7 +125,7 @@ namespace TrenchBroom {
             template <typename VertexSpec>
             class SwapHolder : public Holder<VertexSpec> {
             public:
-                typedef typename VertexSpec::Vertex::List VertexList;
+                using VertexList = typename VertexSpec::Vertex::List;
             private:
                 VertexList m_vertices;
             public:
@@ -149,7 +149,7 @@ namespace TrenchBroom {
             template <typename VertexSpec>
             class RefHolder : public Holder<VertexSpec> {
             public:
-                typedef typename VertexSpec::Vertex::List VertexList;
+                using VertexList = typename VertexSpec::Vertex::List;
             private:
                 const VertexList& m_vertices;
             public:

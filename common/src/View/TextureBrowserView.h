@@ -40,7 +40,7 @@ namespace TrenchBroom {
     
     namespace View {
         class GLContextManager;
-        typedef String TextureGroupData;
+        using TextureGroupData = String;
         
         class TextureCellData {
         public:
@@ -57,8 +57,8 @@ namespace TrenchBroom {
                 SO_Usage
             } SortOrder;
         private:
-            typedef Renderer::VertexSpecs::P2T2C4::Vertex TextVertex;
-            typedef std::map<Renderer::FontDescriptor, TextVertex::List> StringMap;
+            using TextVertex = Renderer::VertexSpecs::P2T2C4::Vertex;
+            using StringMap = std::map<Renderer::FontDescriptor, TextVertex::List>;
 
             Assets::TextureManager& m_textureManager;
 

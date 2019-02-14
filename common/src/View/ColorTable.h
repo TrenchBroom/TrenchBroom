@@ -28,7 +28,7 @@ namespace TrenchBroom {
     namespace View {
         class ColorTable : public wxScrolledWindow {
         public:
-            typedef std::vector<wxColour> ColorList;
+            using ColorList = std::vector<wxColour>;
         private:
             int m_cellSize;
             int m_margin;

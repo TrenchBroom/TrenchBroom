@@ -342,7 +342,7 @@ namespace TrenchBroom {
         }
 
         void EntityBrowserView::renderGroupTitleBackgrounds(Layout& layout, const float y, const float height) {
-            typedef Renderer::VertexSpecs::P2::Vertex Vertex;
+            using Vertex = Renderer::VertexSpecs::P2::Vertex;
             Vertex::List vertices;
             
             for (size_t i = 0; i < layout.size(); ++i) {

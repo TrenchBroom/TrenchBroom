@@ -174,7 +174,7 @@ namespace TrenchBroom {
 
     class PreferenceBase {
     public:
-        typedef std::set<const PreferenceBase*> Set;
+        using Set = std::set<const PreferenceBase*>;
         PreferenceBase() {}
 
         PreferenceBase(const PreferenceBase& other) {}

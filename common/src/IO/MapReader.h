@@ -65,11 +65,11 @@ namespace TrenchBroom {
                 EntityType_Default
             } EntityType;
             
-            typedef std::map<Model::IdType, Model::Layer*> LayerMap;
-            typedef std::map<Model::IdType, Model::Group*> GroupMap;
+            using LayerMap = std::map<Model::IdType, Model::Layer*>;
+            using GroupMap = std::map<Model::IdType, Model::Group*>;
             
-            typedef std::pair<Model::Node*, ParentInfo> NodeParentPair;
-            typedef std::vector<NodeParentPair> NodeParentList;
+            using NodeParentPair = std::pair<Model::Node*, ParentInfo>;
+            using NodeParentList = std::vector<NodeParentPair>;
             
             vm::bbox3 m_worldBounds;
             Model::ModelFactory* m_factory;

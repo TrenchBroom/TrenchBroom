@@ -37,8 +37,8 @@ namespace TrenchBroom {
                 count(i_count) {}
             };
 
-            typedef typename VertexSpec::Vertex Vertex;
-            typedef typename Vertex::List VertexList;
+            using Vertex = typename VertexSpec::Vertex;
+            using VertexList = typename Vertex::List;
         private:
             VertexList m_vertices;
             bool m_dynamicGrowth;

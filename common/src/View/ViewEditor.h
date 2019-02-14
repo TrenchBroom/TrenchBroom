@@ -45,7 +45,7 @@ namespace TrenchBroom {
         
         class EntityDefinitionCheckBoxList : public QWidget {
         private:
-            typedef std::vector<wxCheckBox*> CheckBoxList;
+            using CheckBoxList = std::vector<wxCheckBox*>;
 
             Assets::EntityDefinitionManager& m_entityDefinitionManager;
             Model::EditorContext& m_editorContext;
@@ -68,7 +68,7 @@ namespace TrenchBroom {
         
         class ViewEditor : public QWidget {
         private:
-            typedef std::vector<wxCheckBox*> CheckBoxList;
+            using CheckBoxList = std::vector<wxCheckBox*>;
             
             MapDocumentWPtr m_document;
             

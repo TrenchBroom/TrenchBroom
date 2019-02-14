@@ -28,7 +28,7 @@ namespace TrenchBroom {
     namespace View {
         class ELAutoCompleteHelper : public AutoCompleteTextControl::Helper {
         private:
-            typedef std::shared_ptr<EL::VariableStore> VariableStorePtr;
+            using VariableStorePtr = std::shared_ptr<EL::VariableStore>;
             VariableStorePtr m_variables;
         public:
             ELAutoCompleteHelper(const EL::VariableStore& variables);

@@ -34,7 +34,7 @@ namespace TrenchBroom {
     }
 }
 
-typedef void (wxEvtHandler::*LayerCommandFunction)(TrenchBroom::View::LayerCommand &);
+using LayerCommandFunction = void(wxEvtHandler::*)(TrenchBroom::View::LayerCommand&);
 
 wxDECLARE_EVENT(LAYER_SELECTED_EVENT, TrenchBroom::View::LayerCommand);
 #define LayerSelectedHandler(func) wxEVENT_HANDLER_CAST(LayerCommandFunction, func)

@@ -30,7 +30,7 @@ namespace TrenchBroom {
     namespace Assets {
         class EntityDefinitionGroup {
         public:
-            typedef std::vector<EntityDefinitionGroup> List;
+            using List = std::vector<EntityDefinitionGroup>;
         private:
             String m_name;
             EntityDefinitionList m_definitions;

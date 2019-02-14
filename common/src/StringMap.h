@@ -33,8 +33,8 @@ namespace TrenchBroom {
     template <typename V>
     class StringMapValueContainer {
     public:
-        typedef std::vector<V> ValueContainer;
-        typedef std::vector<V> QueryResult;
+        using ValueContainer = std::vector<V>;
+        using QueryResult = std::vector<V>;
 
         static void insertValue(ValueContainer& values, const V& value) {
             values.push_back(value);
@@ -55,8 +55,8 @@ namespace TrenchBroom {
     template <typename V>
     class StringMultiMapValueContainer {
     public:
-        typedef std::map<V, size_t> ValueContainer;
-        typedef std::set<V> QueryResult;
+        using ValueContainer = std::map<V, size_t>;
+        using QueryResult = std::set<V>;
         
         static void insertValue(ValueContainer& values, const V& value) {
             typename ValueContainer::iterator it = MapUtils::findOrInsert(values, value, 0u);
@@ -82,12 +82,12 @@ namespace TrenchBroom {
     template <typename V, typename P>
     class StringMap {
     public:
-        typedef typename P::QueryResult QueryResult;
+        using QueryResult = typename P::QueryResult;
     private:
         class Node {
         private:
-            typedef std::set<Node> NodeSet;
-            typedef typename P::ValueContainer ValueContainer;
+            using NodeSet = std::set<Node>;
+            using ValueContainer = typename P::ValueContainer;
             
             // The key is declared mutable because we must change it in splitNode and mergeNode, but the resulting new key
             // will still compare equal to the old key.

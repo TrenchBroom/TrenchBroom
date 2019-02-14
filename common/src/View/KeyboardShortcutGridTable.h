@@ -34,7 +34,7 @@ namespace TrenchBroom {
         
         class KeyboardShortcutGridTable : public wxGridTableBase {
         private:
-            typedef std::vector<KeyboardShortcutEntry*> EntryList;
+            using EntryList = std::vector<KeyboardShortcutEntry*>;
             
             EntryList m_entries;
             KeyboardGridCellEditor* m_cellEditor;

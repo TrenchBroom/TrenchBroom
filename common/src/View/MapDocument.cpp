@@ -891,7 +891,7 @@ namespace TrenchBroom {
         };
         
         Model::NodeList MapDocument::collectGroupableNodes(const Model::NodeList& selectedNodes) const {
-            typedef Model::CollectMatchingNodesVisitor<MatchGroupableNodes, Model::UniqueNodeCollectionStrategy, Model::StopRecursionIfMatched> CollectGroupableNodesVisitor;
+            using CollectGroupableNodesVisitor = Model::CollectMatchingNodesVisitor<MatchGroupableNodes, Model::UniqueNodeCollectionStrategy, Model::StopRecursionIfMatched>;
             
             CollectGroupableNodesVisitor collect(world());
             Model::Node::acceptAndEscalate(std::begin(selectedNodes), std::end(selectedNodes), collect);
@@ -1392,7 +1392,7 @@ namespace TrenchBroom {
         class ThrowExceptionCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            typedef std::shared_ptr<ThrowExceptionCommand> Ptr;
+            using Ptr = std::shared_ptr<ThrowExceptionCommand>;
         public:
             ThrowExceptionCommand() : DocumentCommand(Type, "Throw Exception") {}
 

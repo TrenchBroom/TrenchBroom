@@ -55,8 +55,8 @@ namespace TrenchBroom {
             ToolController* m_savedDropReceiver;
             Tool* m_modalTool;
             
-            typedef std::vector<Tool*> ToolList;
-            typedef std::map<Tool*, ToolList> ToolMap;
+            using ToolList = std::vector<Tool*>;
+            using ToolMap = std::map<Tool*, ToolList>;
             ToolMap m_deactivateWhen;
             
             std::vector<QWidget*> m_focusGroup;

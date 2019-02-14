@@ -34,7 +34,7 @@ namespace TrenchBroom {
     namespace View {
         class MapFrame;
         
-        typedef std::list<MapFrame*> FrameList;
+        using FrameList = std::list<MapFrame*>;
         
         class FrameManager : public QObject {
             Q_OBJECT

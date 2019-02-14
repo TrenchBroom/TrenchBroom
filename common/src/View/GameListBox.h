@@ -37,7 +37,7 @@ namespace TrenchBroom {
                 QString subtitle;
             };
             
-            typedef std::vector<Info> InfoList;
+            using InfoList = std::vector<Info>;
             
             InfoList m_gameInfos;
         public:

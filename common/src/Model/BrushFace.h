@@ -63,7 +63,7 @@ namespace TrenchBroom {
              * |
              * 0-----------2
              */
-            typedef vm::vec3 Points[3];
+            using Points = vm::vec3[3]; // TODO: use std::array
         public:
             static const String NoTextureName;
         private:
@@ -75,8 +75,8 @@ namespace TrenchBroom {
                 static Type project(BrushHalfEdge* halfEdge);
             };
         public:
-            typedef ConstProjectingSequence<BrushHalfEdgeList, ProjectToVertex> VertexList;
-            typedef ConstProjectingSequence<BrushHalfEdgeList, ProjectToEdge> EdgeList;
+            using VertexList = ConstProjectingSequence<BrushHalfEdgeList, ProjectToVertex>;
+            using EdgeList = ConstProjectingSequence<BrushHalfEdgeList, ProjectToEdge>;
         private:
             Brush* m_brush;
             BrushFace::Points m_points;

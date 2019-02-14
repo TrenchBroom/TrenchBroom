@@ -47,7 +47,7 @@ namespace TrenchBroom {
             };
 
             struct PackageFormatConfig {
-                typedef std::vector<PackageFormatConfig> List;
+                using List = std::vector<PackageFormatConfig>;
                 
                 StringList extensions;
                 String format;
@@ -121,7 +121,7 @@ namespace TrenchBroom {
                 bool operator==(const FlagConfig& other) const;
             };
             
-            typedef std::vector<FlagConfig> FlagConfigList;
+            using FlagConfigList = std::vector<FlagConfig>;
             
             struct FlagsConfig {
                 FlagConfigList flags;

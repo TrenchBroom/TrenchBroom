@@ -294,7 +294,7 @@ namespace TrenchBroom {
                 }
             };
             
-            typedef std::map<SphereBuilder::MidPointIndex, size_t> MidPointCache;
+            using MidPointCache = std::map<SphereBuilder::MidPointIndex, size_t>;
             size_t midPoint(std::vector<vm::vec3f>& vertices, MidPointCache& cache, const size_t index1, const size_t index2);
             
             size_t midPoint(std::vector<vm::vec3f>& vertices, MidPointCache& cache, const size_t index1, const size_t index2) {
@@ -317,7 +317,7 @@ namespace TrenchBroom {
             assert(radius > 0.0f);
             assert(iterations > 0);
             
-            typedef std::vector<SphereBuilder::Triangle> TriangleList;
+            using TriangleList = std::vector<SphereBuilder::Triangle>;
             
             std::vector<vm::vec3f> vertices;
             TriangleList triangles;

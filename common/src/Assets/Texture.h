@@ -35,7 +35,7 @@ namespace TrenchBroom {
     namespace Assets {
         class TextureCollection;
         
-        typedef Buffer<unsigned char> TextureBuffer;
+        using TextureBuffer = Buffer<unsigned char>;
 
         enum class TextureType {
             Opaque,

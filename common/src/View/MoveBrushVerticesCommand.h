@@ -33,7 +33,7 @@ namespace TrenchBroom {
         class MoveBrushVerticesCommand : public VertexCommand {
         public:
             static const CommandType Type;
-            typedef std::shared_ptr<MoveBrushVerticesCommand> Ptr;
+            using Ptr = std::shared_ptr<MoveBrushVerticesCommand>;
         private:
             Model::BrushVerticesMap m_vertices;
             std::vector<vm::vec3> m_oldVertexPositions;

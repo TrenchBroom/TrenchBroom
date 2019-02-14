@@ -34,10 +34,10 @@ namespace TrenchBroom {
             CollectMatchingNodesVisitor<M, C, NeverStopRecursion>(M()) {}
         };
         
-        typedef CollectSelectedNodesTemplate<StandardNodeCollectionStrategy, MatchSelectedNodes<true> >  CollectSelectedNodesVisitor;
-        typedef CollectSelectedNodesTemplate<StandardNodeCollectionStrategy, MatchSelectedNodes<false> > CollectUnselectedNodesVisitor;
-        typedef CollectSelectedNodesTemplate<StandardNodeCollectionStrategy, MatchTransitivelySelectedNodes<true> >  CollectTransitivelySelectedNodesVisitor;
-        typedef CollectSelectedNodesTemplate<StandardNodeCollectionStrategy, MatchTransitivelySelectedNodes<false> > CollectTransitivelyUnselectedNodesVisitor;
+        using CollectSelectedNodesVisitor = CollectSelectedNodesTemplate<StandardNodeCollectionStrategy, MatchSelectedNodes<true> > ;
+        using CollectUnselectedNodesVisitor = CollectSelectedNodesTemplate<StandardNodeCollectionStrategy, MatchSelectedNodes<false> >;
+        using CollectTransitivelySelectedNodesVisitor = CollectSelectedNodesTemplate<StandardNodeCollectionStrategy, MatchTransitivelySelectedNodes<true> > ;
+        using CollectTransitivelyUnselectedNodesVisitor = CollectSelectedNodesTemplate<StandardNodeCollectionStrategy, MatchTransitivelySelectedNodes<false> >;
     }
 }
 
