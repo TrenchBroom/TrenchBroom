@@ -34,6 +34,10 @@ namespace TrenchBroom {
         TextureNameTagMatcher::TextureNameTagMatcher(String pattern) :
         m_pattern(std::move(pattern)) {}
 
+        std::unique_ptr<TagMatcher> TextureNameTagMatcher::clone() const {
+            return std::make_unique<TextureNameTagMatcher>(m_pattern);
+        }
+
         bool TextureNameTagMatcher::matches(const BrushFace& face) const {
             const auto& textureName = face.textureName();
             auto begin = std::begin(textureName);
@@ -49,6 +53,10 @@ namespace TrenchBroom {
         SurfaceParmTagMatcher::SurfaceParmTagMatcher(String parameter) :
         m_parameter(std::move(parameter)) {}
 
+        std::unique_ptr<TagMatcher> SurfaceParmTagMatcher::clone() const {
+            return std::make_unique<SurfaceParmTagMatcher>(m_parameter);
+        }
+
         bool SurfaceParmTagMatcher::matches(const BrushFace& face) const {
             const auto* texture = face.texture();
             if (texture != nullptr) {
@@ -63,12 +71,20 @@ namespace TrenchBroom {
         ContentFlagsTagMatcher::ContentFlagsTagMatcher(const int flags) :
         m_flags(flags) {}
 
+        std::unique_ptr<TagMatcher> ContentFlagsTagMatcher::clone() const {
+            return std::make_unique<ContentFlagsTagMatcher>(m_flags);
+        }
+
         bool ContentFlagsTagMatcher::matches(const BrushFace& face) const {
             return (face.surfaceContents() & m_flags) != 0;
         }
 
         SurfaceFlagsTagMatcher::SurfaceFlagsTagMatcher(const int flags) :
         m_flags(flags) {}
+
+        std::unique_ptr<TagMatcher> SurfaceFlagsTagMatcher::clone() const {
+            return std::make_unique<SurfaceFlagsTagMatcher>(m_flags);
+        }
 
         bool SurfaceFlagsTagMatcher::matches(const BrushFace& face) const {
             return (face.surfaceFlags() & m_flags) != 0;
@@ -77,6 +93,10 @@ namespace TrenchBroom {
         EntityClassNameTagMatcher::EntityClassNameTagMatcher(String pattern) :
         m_pattern(std::move(pattern)) {}
 
+
+        std::unique_ptr<TagMatcher> EntityClassNameTagMatcher::clone() const {
+            return std::make_unique<EntityClassNameTagMatcher>(m_pattern);
+        }
 
         bool EntityClassNameTagMatcher::matches(const Brush& brush) const {
             const auto* entity = brush.entity();

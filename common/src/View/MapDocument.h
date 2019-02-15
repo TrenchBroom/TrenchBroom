@@ -455,7 +455,13 @@ namespace TrenchBroom {
             void setIssueHidden(Model::Issue* issue, bool hidden);
         private:
             virtual void doSetIssueHidden(Model::Issue* issue, bool hidden) = 0;
-        private: // tag management
+        public: // tag management
+            void registerSmartTags(); // public for testing
+            const std::set<Model::SmartTag>& smartTags() const;
+            const Model::SmartTag& smartTag(const String& name) const;
+        private:
+            void initializeNodeTags(const Model::NodeList& nodes);
+            void clearNodeTags(const Model::NodeList& nodes);
             void updateNodeTags(const Model::NodeList& nodes);
             void updateFaceTags(const Model::BrushFaceList& faces);
         public: // document path

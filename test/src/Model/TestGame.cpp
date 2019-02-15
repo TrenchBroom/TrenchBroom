@@ -33,6 +33,10 @@ namespace TrenchBroom {
     namespace Model {
         TestGame::TestGame() {}
 
+        void TestGame::setSmartTags(std::vector<SmartTag> smartTags) {
+            m_smartTags = std::move(smartTags);
+        }
+
         const String& TestGame::doGameName() const {
             static const String name("Test");
             return name;
@@ -53,6 +57,10 @@ namespace TrenchBroom {
         
         size_t TestGame::doMaxPropertyLength() const {
             return 1024;
+        }
+
+        const std::vector<SmartTag>& TestGame::doSmartTags() const {
+            return m_smartTags;
         }
 
         std::unique_ptr<World> TestGame::doNewMap(const MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const {

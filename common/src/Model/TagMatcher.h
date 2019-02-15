@@ -39,7 +39,8 @@ namespace TrenchBroom {
         private:
             String m_pattern;
         public:
-            TextureNameTagMatcher(String pattern);
+            explicit TextureNameTagMatcher(String pattern);
+            std::unique_ptr<TagMatcher> clone() const override;
         private:
             bool matches(const BrushFace& face) const override;
         };
@@ -48,7 +49,8 @@ namespace TrenchBroom {
         private:
             String m_parameter;
         public:
-            SurfaceParmTagMatcher(String parameter);
+            explicit SurfaceParmTagMatcher(String parameter);
+            std::unique_ptr<TagMatcher> clone() const override;
         private:
             bool matches(const BrushFace& face) const override;
         };
@@ -57,7 +59,8 @@ namespace TrenchBroom {
         private:
             int m_flags;
         public:
-            ContentFlagsTagMatcher(int flags);
+            explicit ContentFlagsTagMatcher(int flags);
+            std::unique_ptr<TagMatcher> clone() const override;
         private:
             bool matches(const BrushFace& face) const override;
         };
@@ -66,7 +69,8 @@ namespace TrenchBroom {
         private:
             int m_flags;
         public:
-            SurfaceFlagsTagMatcher(int flags);
+            explicit SurfaceFlagsTagMatcher(int flags);
+            std::unique_ptr<TagMatcher> clone() const override;
         private:
             bool matches(const BrushFace& face) const override;
         };
@@ -75,7 +79,8 @@ namespace TrenchBroom {
         private:
             String m_pattern;
         public:
-            EntityClassNameTagMatcher(String pattern);
+            explicit EntityClassNameTagMatcher(String pattern);
+            std::unique_ptr<TagMatcher> clone() const override;
         private:
             bool matches(const Brush& brush) const override;
         };

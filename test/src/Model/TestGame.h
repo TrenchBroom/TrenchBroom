@@ -32,9 +32,15 @@ namespace TrenchBroom {
     }
     
     namespace Model {
+        class SmartTag;
+
         class TestGame : public Game {
+        private:
+            std::vector<SmartTag> m_smartTags;
         public:
             TestGame();
+        public:
+            void setSmartTags(std::vector<SmartTag> smartTags);
         private:
             const String& doGameName() const override;
             IO::Path doGamePath() const override;
@@ -44,7 +50,9 @@ namespace TrenchBroom {
 
             CompilationConfig& doCompilationConfig() override;
             size_t doMaxPropertyLength() const override;
-            
+
+            const std::vector<SmartTag>& doSmartTags() const override;
+
             std::unique_ptr<World> doNewMap(MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const override;
             std::unique_ptr<World> doLoadMap(MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger& logger) const override;
             void doWriteMap(World& world, const IO::Path& path) const override;

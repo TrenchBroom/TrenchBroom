@@ -25,11 +25,23 @@
 
 namespace TrenchBroom {
     namespace Model {
+        const std::set<SmartTag>& TagManager::smartTags() const {
+            return m_smartTags;
+        }
+
+        const SmartTag& TagManager::smartTag(const String& name) const {
+            return <#initializer#>;
+        }
+
         void TagManager::registerSmartTag(SmartTag tag) {
             const auto existed = !m_smartTags.insert(std::move(tag)).second;
             if (!existed) {
                 throw std::logic_error("Smart tag already registered");
             }
+        }
+
+        void TagManager::clearSmartTags() {
+            m_smartTags.clear();
         }
 
         void TagManager::updateTags(Taggable& taggable) const {

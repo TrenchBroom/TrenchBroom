@@ -19,6 +19,8 @@
 
 #include "Tag.h"
 
+#include "Model/TagManager.h"
+
 namespace TrenchBroom {
     namespace Model {
         TagAttribute::TagAttribute(String name) :
@@ -44,10 +46,13 @@ namespace TrenchBroom {
             return 1u << currentShift++;
         }
 
-        Tag::Tag(String name, std::set<TagAttribute> attributes) :
-        m_type(freeTagType()),
+        Tag::Tag(Tag::TagType type, String name, std::set<TagAttribute> attributes) :
+        m_type(type),
         m_name(std::move(name)),
         m_attributes(std::move(attributes)) {}
+
+        Tag::Tag(String name, std::set<TagAttribute> attributes) :
+        Tag(freeTagType(), name, attributes) {}
 
         Tag::TagType Tag::type() const {
             return m_type;
@@ -110,6 +115,20 @@ namespace TrenchBroom {
             }
         }
 
+        void Taggable::initializeTags(TagManager& tagManager) {
+            clearTags();
+            updateTags(tagManager);
+        }
+
+        void Taggable::updateTags(TagManager& tagManager) {
+            tagManager.updateTags(*this);
+        }
+
+        void Taggable::clearTags() {
+            m_tagMask = 0;
+            m_tags.clear();
+        }
+
         bool Taggable::evaluateTagMatcher(const TagMatcher& matcher) const {
             return doEvaluateTagMatcher(matcher);
         }
@@ -147,6 +166,22 @@ namespace TrenchBroom {
         SmartTag::SmartTag(String name, std::set<TagAttribute> attributes, std::unique_ptr<TagMatcher> matcher) :
         Tag(name, attributes),
         m_matcher(std::move(matcher)) {}
+
+        SmartTag::SmartTag(const SmartTag& other) :
+        Tag(other.m_type, other.m_name, other.m_attributes),
+        m_matcher(other.m_matcher->clone()) {}
+
+        SmartTag::SmartTag(SmartTag&& other) = default;
+
+        SmartTag& SmartTag::operator=(const SmartTag& other) {
+            m_type = other.m_type;
+            m_name = other.m_name;
+            m_attributes = other.m_attributes;
+            m_matcher = other.m_matcher->clone();
+            return *this;
+        }
+
+        SmartTag& SmartTag::operator=(SmartTag&& other) = default;
 
         void SmartTag::update(Taggable& taggable) const {
             if (m_matcher->matches(taggable)) {

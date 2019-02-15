@@ -61,13 +61,22 @@ namespace TrenchBroom {
         public:
             using TagType = unsigned long;
             static TagType freeTagType();
-        private:
+        protected:
             TagType m_type;
             String m_name;
             std::set<TagAttribute> m_attributes;
+
+            /**
+             * Creates a new tag with the given type, name and attributes. The tag's type will be set automatically.
+             *
+             * @param type the tag's type
+             * @param name the tag's name
+             * @param attributes the tag's attributes
+             */
+            Tag(TagType type, String name, std::set<TagAttribute> attributes);
         public:
             /**
-             * Creates a new tag with the given name and attributes.
+             * Creates a new tag with the given name and attributes. The tag's type will be set automatically.
              *
              * @param name the tag's name
              * @param attributes the tag's attributes
@@ -106,6 +115,7 @@ namespace TrenchBroom {
             friend bool operator<(const TagReference& lhs, const TagReference& rhs);
         };
 
+        class TagManager;
         class TagMatcher;
 
         /**
@@ -148,6 +158,25 @@ namespace TrenchBroom {
             bool removeTag(const Tag& tag);
 
             /**
+             * Clears the tags of this object and adds all matching smart tags registered with the given tag manager.
+             *
+             * @param tagManager the tag manager
+             */
+            virtual void initializeTags(TagManager& tagManager);
+
+            /**
+             * Updates the tags of this object using the given tag manager.
+             *
+             * @param tagManager the tag manager
+             */
+            virtual void updateTags(TagManager& tagManager);
+
+            /**
+             * Removes all tags from this object.
+             */
+            virtual void clearTags();
+
+            /**
              * Evaluates the given matcher against this taggable object. This method is used as part of a double dispatch
              * to retrieve the type information of this taggable object.
              *
@@ -180,6 +209,8 @@ namespace TrenchBroom {
              * @return true if this matcher matches the given taggable and false otherwise
              */
             bool matches(const Taggable& taggable) const;
+
+            virtual std::unique_ptr<TagMatcher> clone() const = 0;
         public:
             virtual bool matches(const BrushFace& face) const;
             virtual bool matches(const World& world) const;
@@ -204,6 +235,12 @@ namespace TrenchBroom {
              * @param matcher the matcher that decides whether to apply this tag to a given taggable
              */
             SmartTag(String name, std::set<TagAttribute> attributes, std::unique_ptr<TagMatcher> matcher);
+
+            SmartTag(const SmartTag& other);
+            SmartTag(SmartTag&& other);
+
+            SmartTag& operator=(const SmartTag& other);
+            SmartTag& operator=(SmartTag&& other);
 
             /**
              * Updates the given tag depending on whether or not the matcher matches against it.

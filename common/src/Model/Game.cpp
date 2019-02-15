@@ -66,6 +66,10 @@ namespace TrenchBroom {
             return doMaxPropertyLength();
         }
 
+        const std::vector<SmartTag>& Game::smartTags() const {
+            return doSmartTags();
+        }
+
         std::unique_ptr<World> Game::newMap(const MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const {
             return doNewMap(format, worldBounds, logger);
         }

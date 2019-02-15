@@ -345,6 +345,12 @@ namespace TrenchBroom {
             void invalidateVertexCache();
             Renderer::BrushRendererBrushCache& brushRendererBrushCache() const;
         private: // implement Taggable interface
+        public:
+            void initializeTags(TagManager& tagManager) override;
+
+            void clearTags() override;
+
+        private:
             bool doEvaluateTagMatcher(const TagMatcher& matcher) const override;
         private:
             deleteCopyAndMove(Brush)

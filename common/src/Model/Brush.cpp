@@ -1576,5 +1576,19 @@ namespace TrenchBroom {
         bool Brush::doEvaluateTagMatcher(const TagMatcher& matcher) const {
             return matcher.matches(*this);
         }
+
+        void Brush::initializeTags(TagManager& tagManager) {
+            Taggable::initializeTags(tagManager);
+            for (auto* face : m_faces) {
+                face->initializeTags(tagManager);
+            }
+        }
+
+        void Brush::clearTags() {
+            for (auto* face : m_faces) {
+                face->clearTags();
+            }
+            Taggable::clearTags();
+        }
     }
 }

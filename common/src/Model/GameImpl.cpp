@@ -109,6 +109,10 @@ namespace TrenchBroom {
             return m_config.maxPropertyLength();
         }
 
+        const std::vector<SmartTag>& GameImpl::doSmartTags() const {
+            return m_config.smartTags();
+        }
+
         std::unique_ptr<World> GameImpl::doNewMap(const MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const {
             const auto initialMapFilePath = m_config.findInitialMap(formatName(format));
             if (!initialMapFilePath.isEmpty() && IO::Disk::fileExists(initialMapFilePath)) {

@@ -20,6 +20,8 @@
 #ifndef TRENCHBROOM_TAGMANAGER_H
 #define TRENCHBROOM_TAGMANAGER_H
 
+#include "StringUtils.h"
+
 #include <set>
 
 namespace TrenchBroom {
@@ -36,6 +38,21 @@ namespace TrenchBroom {
             std::set<SmartTag> m_smartTags;
         public:
             /**
+             * Returns a set containing all smart tags registered with this manager.
+             */
+            const std::set<SmartTag>& smartTags() const;
+
+            /**
+             * Returns the smart tag with the given name.
+             *
+             * @param name the name of the smart tag with the given name
+             * @return the smart tag with the given name
+             *
+             * @throws std::logic_error if no tag with the given name is registered
+             */
+            const SmartTag& smartTag(const String& name) const;
+
+            /**
              * Register the given smart tag with this tag manager.
              *
              * @param tag the smart tag to register
@@ -43,6 +60,11 @@ namespace TrenchBroom {
              * @throws std::logic_error if the given smart tag is already registered
              */
             void registerSmartTag(SmartTag tag);
+
+            /**
+             * Clears all registered smart tags;
+             */
+            void clearSmartTags();
 
             /**
              * Update the smart tags of the given taggable object.

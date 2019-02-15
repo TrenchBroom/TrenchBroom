@@ -252,6 +252,7 @@ namespace TrenchBroom {
             
             loadAssets();
             registerIssueGenerators();
+            registerSmartTags();
             
             clearModificationCount();
             
@@ -266,7 +267,8 @@ namespace TrenchBroom {
             
             loadAssets();
             registerIssueGenerators();
-            
+            registerSmartTags();
+
             documentWasLoadedNotifier(this);
         }
         
@@ -1804,15 +1806,45 @@ namespace TrenchBroom {
             m_world->registerIssueGenerator(new Model::InvalidTextureScaleIssueGenerator());
         }
 
+        void MapDocument::registerSmartTags() {
+            ensure(m_game.get() != nullptr, "game is null");
+
+            m_tagManager->clearSmartTags();
+            for (const auto& tag : m_game->smartTags()) {
+                // we copy every tag into the tag manager intentionally
+                m_tagManager->registerSmartTag(tag);
+            }
+        }
+
+        const std::set<Model::SmartTag>& MapDocument::smartTags() const {
+            return m_tagManager->smartTags();
+        }
+
+        const Model::SmartTag& MapDocument::smartTag(const String& name) const {
+            return m_tagManager->smartTag(name);
+        }
+
+        void MapDocument::initializeNodeTags(const Model::NodeList& nodes) {
+            for (auto* node : nodes) {
+                node->initializeTags(*m_tagManager);
+            }
+        }
+
+        void MapDocument::clearNodeTags(const Model::NodeList& nodes) {
+            for (auto* node : nodes) {
+                node->clearTags();
+            }
+        }
+
         void MapDocument::updateNodeTags(const Model::NodeList& nodes) {
             for (auto* node : nodes) {
-                m_tagManager->updateTags(*node);
+                node->updateTags(*m_tagManager);
             }
         }
 
         void MapDocument::updateFaceTags(const Model::BrushFaceList& faces) {
             for (auto* face : faces) {
-                m_tagManager->updateTags(*face);
+                face->updateTags(*m_tagManager);
             }
         }
 
@@ -1861,6 +1893,8 @@ namespace TrenchBroom {
             commandUndoneNotifier.addObserver(this, &MapDocument::commandUndone);
 
             // tag management
+            nodesWereAddedNotifier.addObserver(this, &MapDocument::initializeNodeTags);
+            nodesWillBeRemovedNotifier.addObserver(this, &MapDocument::clearNodeTags);
             nodesDidChangeNotifier.addObserver(this, &MapDocument::updateNodeTags);
             brushFacesDidChangeNotifier.addObserver(this, &MapDocument::updateFaceTags);
         }
@@ -1874,6 +1908,8 @@ namespace TrenchBroom {
             commandUndoneNotifier.removeObserver(this, &MapDocument::commandUndone);
 
             // tag management
+            nodesWereAddedNotifier.removeObserver(this, &MapDocument::initializeNodeTags);
+            nodesWillBeRemovedNotifier.removeObserver(this, &MapDocument::clearNodeTags);
             nodesDidChangeNotifier.removeObserver(this, &MapDocument::updateNodeTags);
             brushFacesDidChangeNotifier.removeObserver(this, &MapDocument::updateFaceTags);
         }
