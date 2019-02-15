@@ -88,6 +88,8 @@ namespace TrenchBroom {
             void updateControls();
         public:
             Model::AttributeName selectedRowName() const;
+        signals:
+            void selectedRow();
         };
     }
 }

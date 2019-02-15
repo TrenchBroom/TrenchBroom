@@ -334,6 +334,10 @@ namespace TrenchBroom {
                 //m_table->setShowDefaultRows(state == Qt::Checked);
             });
 
+            connect(m_grid->selectionModel(), &QItemSelectionModel::currentChanged, this, [=](const QModelIndex& current, const QModelIndex& previous){
+                emit selectedRow();
+            });
+
             // Shortcuts
 
             auto* buttonSizer = new QHBoxLayout();
@@ -342,15 +346,12 @@ namespace TrenchBroom {
             buttonSizer->addSpacing(LayoutConstants::WideHMargin);
             buttonSizer->addWidget(m_showDefaultPropertiesCheckBox, 0, Qt::AlignVCenter);
             buttonSizer->addStretch(1);
-
-            auto* te = new QTextEdit();
             
             auto* sizer = new QVBoxLayout();
             sizer->setContentsMargins(0, 0, 0, 0);
             sizer->addWidget(m_grid, 1);
             sizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Horizontal), 0);
             sizer->addLayout(buttonSizer, 0);
-            sizer->addWidget(te);
             setLayout(sizer);
 
             printf("et: %d\n", m_grid->editTriggers());
@@ -465,15 +466,13 @@ namespace TrenchBroom {
         }
 
         Model::AttributeName EntityAttributeGrid::selectedRowName() const {
-            return "";
-            // FIXME:
-#if 0
-            wxArrayInt selectedRows = m_grid->GetSelectedRows();
-            if (selectedRows.empty())
+            QModelIndex current = m_grid->currentIndex();
+            const AttributeRow* rowModel = m_table->dataForModelIndex(current);
+            if (rowModel == nullptr) {
                 return "";
-            const int row = selectedRows.front();
-            return m_table->attributeName(row);
-#endif
+            }
+
+            return rowModel->name();
         }
     }
 }

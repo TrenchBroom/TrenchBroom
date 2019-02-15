@@ -39,7 +39,7 @@ namespace TrenchBroom {
         public:
             EntityAttributeEditor(QWidget* parent, MapDocumentWPtr document);
         private:
-            void OnIdle();
+            void OnCurrentRowChanged();
             void createGui(QWidget* parent, MapDocumentWPtr document);
         };
     }

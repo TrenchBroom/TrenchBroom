@@ -35,16 +35,13 @@ namespace TrenchBroom {
             createGui(this, document);
         }
 
-        // FIXME: Change this to a signal/slot connection to m_attributeGrid
-        void EntityAttributeEditor::OnIdle() {
-#if 0
+        void EntityAttributeEditor::OnCurrentRowChanged() {
             const String& attributeName = m_attributeGrid->selectedRowName();
             if (!attributeName.empty() && attributeName != m_lastSelectedAttributeName) {
                 MapDocumentSPtr document = lock(m_document);
                 m_smartEditorManager->switchEditor(attributeName, document->allSelectedAttributableNodes());
                 m_lastSelectedAttributeName = attributeName;
             }
-#endif
         }
         
         void EntityAttributeEditor::createGui(QWidget* parent, MapDocumentWPtr document) {
@@ -66,6 +63,8 @@ namespace TrenchBroom {
             auto* sizer = new QVBoxLayout();
             sizer->addWidget(splitter, 1);
             setLayout(sizer);
+
+            connect(m_attributeGrid, &EntityAttributeGrid::selectedRow, this, &EntityAttributeEditor::OnCurrentRowChanged);
 
             // FIXME:
             //wxPersistenceManager::Get().RegisterAndRestore(splitter);
