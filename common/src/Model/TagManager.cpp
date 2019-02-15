@@ -21,21 +21,54 @@
 
 #include "Model/Tag.h"
 
+#include <algorithm>
 #include <stdexcept>
 
 namespace TrenchBroom {
     namespace Model {
-        const std::set<SmartTag>& TagManager::smartTags() const {
+        class TagManager::TagCmp {
+        public:
+            bool operator()(const SmartTag& lhs, const SmartTag& rhs) const {
+                return lhs.name() < rhs.name();
+            }
+
+            bool operator()(const String& lhs, const SmartTag& rhs) const {
+                return lhs < rhs.name();
+            }
+
+            bool operator()(const SmartTag& lhs, const String& rhs) const {
+                return lhs.name() < rhs;
+            }
+
+            bool operator()(const String& lhs, const String& rhs) const {
+                return lhs < rhs;
+            }
+        };
+
+        const std::vector<SmartTag>& TagManager::smartTags() const {
             return m_smartTags;
         }
 
+        bool TagManager::isRegisteredSmartTag(const String& name) const {
+            const auto it = std::lower_bound(std::begin(m_smartTags), std::end(m_smartTags), name, TagCmp());
+            return it != std::end(m_smartTags) && !(it->name() < name || name < it->name());
+        }
+
         const SmartTag& TagManager::smartTag(const String& name) const {
-            return <#initializer#>;
+            const auto it = std::lower_bound(std::begin(m_smartTags), std::end(m_smartTags), name, TagCmp());
+            if (it == std::end(m_smartTags) || (it->name() < name || name < it->name())) {
+                throw std::logic_error("Smart tag not registered");
+            }
+            return *it;
         }
 
         void TagManager::registerSmartTag(SmartTag tag) {
-            const auto existed = !m_smartTags.insert(std::move(tag)).second;
-            if (!existed) {
+            const auto it = std::lower_bound(std::begin(m_smartTags), std::end(m_smartTags), tag, TagCmp());
+            if (it == std::end(m_smartTags)) {
+                m_smartTags.push_back(std::move(tag));
+            } else if (*it < tag || tag < *it) {
+                m_smartTags.insert(it, std::move(tag));
+            } else {
                 throw std::logic_error("Smart tag already registered");
             }
         }

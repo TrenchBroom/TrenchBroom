@@ -171,7 +171,7 @@ namespace TrenchBroom {
         Tag(other.m_type, other.m_name, other.m_attributes),
         m_matcher(other.m_matcher->clone()) {}
 
-        SmartTag::SmartTag(SmartTag&& other) = default;
+        SmartTag::SmartTag(SmartTag&& other) noexcept = default;
 
         SmartTag& SmartTag::operator=(const SmartTag& other) {
             m_type = other.m_type;
@@ -181,7 +181,7 @@ namespace TrenchBroom {
             return *this;
         }
 
-        SmartTag& SmartTag::operator=(SmartTag&& other) = default;
+        SmartTag& SmartTag::operator=(SmartTag&& other) noexcept = default;
 
         void SmartTag::update(Taggable& taggable) const {
             if (m_matcher->matches(taggable)) {

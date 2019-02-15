@@ -22,7 +22,7 @@
 
 #include "StringUtils.h"
 
-#include <set>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -35,12 +35,21 @@ namespace TrenchBroom {
          */
         class TagManager {
         private:
-            std::set<SmartTag> m_smartTags;
+            std::vector<SmartTag> m_smartTags;
+            class TagCmp;
         public:
             /**
-             * Returns a set containing all smart tags registered with this manager.
+             * Returns a vector containing all smart tags registered with this manager.
              */
-            const std::set<SmartTag>& smartTags() const;
+            const std::vector<SmartTag>& smartTags() const;
+
+            /**
+             * Indicates whether a smart tag with the given name is registered with this tag manager.
+             *
+             * @param name the tag name to check
+             * @return true if a tag with the given name is registered and false otherwise
+             */
+            bool isRegisteredSmartTag(const String& name) const;
 
             /**
              * Returns the smart tag with the given name.

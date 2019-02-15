@@ -27,6 +27,7 @@
 #include "Model/Layer.h"
 #include "Model/Tag.h"
 #include "Model/TagMatcher.h"
+#include "Model/TestGame.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
 
@@ -35,6 +36,15 @@
 
 namespace TrenchBroom {
     namespace View {
+        TEST_F(MapDocumentTest, testTagRegistration) {
+            game->setSmartTags({
+                Model::SmartTag("test", {}, std::make_unique<Model::EntityClassNameTagMatcher>("light"))
+            });
+            document->registerSmartTags();
+
+            ASSERT_TRUE(document->isRegisteredSmartTag("test"));
+        }
+
         TEST_F(MapDocumentTest, testInitializeBrushTags) {
             game->setSmartTags({
                 Model::SmartTag("test", {}, std::make_unique<Model::EntityClassNameTagMatcher>("light"))
@@ -48,7 +58,8 @@ namespace TrenchBroom {
             auto* brush = createBrush("some_texture");
             document->addNode(brush, entity);
 
-            brush->tags();
+            const auto& tag = document->smartTag("test");
+            ASSERT_TRUE(brush->hasTag(tag));
         }
     }
 }

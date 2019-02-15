@@ -1816,8 +1816,12 @@ namespace TrenchBroom {
             }
         }
 
-        const std::set<Model::SmartTag>& MapDocument::smartTags() const {
+        const std::vector<Model::SmartTag>& MapDocument::smartTags() const {
             return m_tagManager->smartTags();
+        }
+
+        bool MapDocument::isRegisteredSmartTag(const String& name) const {
+            return m_tagManager->isRegisteredSmartTag(name);
         }
 
         const Model::SmartTag& MapDocument::smartTag(const String& name) const {

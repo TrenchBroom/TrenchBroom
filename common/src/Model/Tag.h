@@ -237,10 +237,10 @@ namespace TrenchBroom {
             SmartTag(String name, std::set<TagAttribute> attributes, std::unique_ptr<TagMatcher> matcher);
 
             SmartTag(const SmartTag& other);
-            SmartTag(SmartTag&& other);
+            SmartTag(SmartTag&& other) noexcept;
 
             SmartTag& operator=(const SmartTag& other);
-            SmartTag& operator=(SmartTag&& other);
+            SmartTag& operator=(SmartTag&& other) noexcept;
 
             /**
              * Updates the given tag depending on whether or not the matcher matches against it.
