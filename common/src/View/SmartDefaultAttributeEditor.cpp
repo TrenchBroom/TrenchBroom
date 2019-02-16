@@ -23,24 +23,24 @@
 #include "Model/AttributableNode.h"
 
 #include <QTextEdit>
+#include <QVBoxLayout>
 
 namespace TrenchBroom {
     namespace View {
-        SmartDefaultAttributeEditor::SmartDefaultAttributeEditor(QObject* parent, View::MapDocumentWPtr document) :
+        SmartDefaultAttributeEditor::SmartDefaultAttributeEditor(QWidget* parent, View::MapDocumentWPtr document) :
         SmartAttributeEditor(parent, document),
         m_descriptionTxt(nullptr),
-        m_currentDefinition(nullptr) {}
+        m_currentDefinition(nullptr) {
+            createGui();
+        }
 
-        QWidget* SmartDefaultAttributeEditor::doCreateVisual(QWidget* parent) {
+        void SmartDefaultAttributeEditor::createGui() {
             m_descriptionTxt = new QTextEdit();
             m_descriptionTxt->setReadOnly(true);
-            return m_descriptionTxt;
-        }
-        
-        void SmartDefaultAttributeEditor::doDestroyVisual() {
-            delete m_descriptionTxt;
-            m_descriptionTxt = nullptr;
-            m_currentDefinition = nullptr;
+
+            auto* layout = new QVBoxLayout();
+            layout->addWidget(m_descriptionTxt, 1);
+            setLayout(layout);
         }
 
         void SmartDefaultAttributeEditor::doUpdateVisual(const Model::AttributableNodeList& attributables) {

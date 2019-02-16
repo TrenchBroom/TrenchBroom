@@ -26,15 +26,17 @@
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QComboBox>
+#include <QDebug>
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace View {
-        SmartChoiceEditor::SmartChoiceEditor(QObject* parent, View::MapDocumentWPtr document) :
+        SmartChoiceEditor::SmartChoiceEditor(QWidget* parent, View::MapDocumentWPtr document) :
         SmartAttributeEditor(parent, document),
-        m_panel(nullptr),
-        m_comboBox(nullptr) {}
+        m_comboBox(nullptr) {
+            createGui();
+        }
 
         void SmartChoiceEditor::OnComboBox(int index) {
             const String valueDescStr = m_comboBox->currentText().toStdString();
@@ -43,14 +45,14 @@ namespace TrenchBroom {
         }
         
         void SmartChoiceEditor::OnTextEnter(const QString &text) {
-            document()->setAttribute(name(), text.toStdString());
+            qDebug() << "OnTextEnter " << text;
+            // FIXME:
+            //document()->setAttribute(name(), text.toStdString());
         }
 
-        QWidget* SmartChoiceEditor::doCreateVisual(QWidget* parent) {
-            assert(m_panel == nullptr);
+        void SmartChoiceEditor::createGui() {
             assert(m_comboBox == nullptr);
             
-            m_panel = new QWidget(parent);
             QLabel* infoText = new QLabel(tr("Select a choice option:"));
 
             m_comboBox = new QComboBox();
@@ -65,21 +67,10 @@ namespace TrenchBroom {
             sizer->addWidget(m_comboBox, 0);
             sizer->addStretch(1);
             
-            m_panel->setLayout(sizer);
-            return m_panel;
+            setLayout(sizer);
         }
-        
-        void SmartChoiceEditor::doDestroyVisual() {
-            ensure(m_panel != nullptr, "panel is null");
-            ensure(m_comboBox != nullptr, "comboBox is null");
-            
-            delete m_panel;
-            m_panel = nullptr;
-            m_comboBox= nullptr;
-        }
-        
+
         void SmartChoiceEditor::doUpdateVisual(const Model::AttributableNodeList& attributables) {
-            ensure(m_panel != nullptr, "panel is null");
             ensure(m_comboBox != nullptr, "comboBox is null");
             
             m_comboBox->clear();

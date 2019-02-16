@@ -23,16 +23,11 @@
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
 
-#include <QObject>
-
-class QWidget;
+#include <QWidget>
 
 namespace TrenchBroom {
     namespace View {
-        /**
-         * Subclasses of this build the widgets for the SmartAttributeEditorManager
-         */
-        class SmartAttributeEditor : public QObject {
+        class SmartAttributeEditor : public QWidget {
             Q_OBJECT
         private:
             View::MapDocumentWPtr m_document;
@@ -41,12 +36,12 @@ namespace TrenchBroom {
             Model::AttributableNodeList m_attributables;
             bool m_active;
         public:
-            SmartAttributeEditor(QObject* parent, View::MapDocumentWPtr document);
+            SmartAttributeEditor(QWidget* parent, View::MapDocumentWPtr document);
             virtual ~SmartAttributeEditor();
             
             bool usesName(const Model::AttributeName& name) const;
             
-            QWidget* activate(QWidget* parent, const Model::AttributeName& name);
+            void activate(const Model::AttributeName& name);
             void update(const Model::AttributableNodeList& attributables);
             void deactivate();
         protected:
@@ -55,15 +50,6 @@ namespace TrenchBroom {
             const Model::AttributableNodeList attributables() const;
             void addOrUpdateAttribute(const Model::AttributeValue& value);
         private:
-            /**
-             * Creates the smart editor's widget and sets its owner to `parent`.
-             */
-            QWidget* createVisual(QWidget* parent);
-            void destroyVisual();
-            void updateVisual(const Model::AttributableNodeList& attributables);
-            
-            virtual QWidget* doCreateVisual(QWidget* parent) = 0;
-            virtual void doDestroyVisual() = 0;
             virtual void doUpdateVisual(const Model::AttributableNodeList& attributables) = 0;
         };
     }

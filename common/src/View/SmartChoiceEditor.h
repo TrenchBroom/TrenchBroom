@@ -38,16 +38,14 @@ namespace TrenchBroom {
         class SmartChoiceEditor : public SmartAttributeEditor {
             Q_OBJECT
         private:
-            QWidget* m_panel;
             QComboBox* m_comboBox;
         public:
-            SmartChoiceEditor(QObject* parent, View::MapDocumentWPtr document);
+            SmartChoiceEditor(QWidget* parent, View::MapDocumentWPtr document);
             
             void OnComboBox(int index);
             void OnTextEnter(const QString &text);
         private:
-            QWidget* doCreateVisual(QWidget* parent) override;
-            void doDestroyVisual() override;
+            void createGui();
             void doUpdateVisual(const Model::AttributableNodeList& attributables) override;
         };
     }

@@ -42,23 +42,21 @@ namespace TrenchBroom {
         private:
             static const size_t ColorHistoryCellSize = 15;
             using wxColorList = std::vector<QColor>;
-            
-            QWidget* m_panel;
+
             QRadioButton* m_floatRadio;
             QRadioButton* m_byteRadio;
             // FIXME: add a color picker button
             QPushButton* m_colorPicker;
             ColorTable* m_colorHistory;
         public:
-            SmartColorEditor(QObject* parent, View::MapDocumentWPtr document);
+            SmartColorEditor(QWidget* parent, View::MapDocumentWPtr document);
             
             void OnFloatRangeRadioButton();
             void OnByteRangeRadioButton();
             void OnColorPickerChanged();
             void OnColorTableSelected(QColor color);
         private:
-            QWidget* doCreateVisual(QWidget* parent) override;
-            void doDestroyVisual() override;
+            void createGui();
             void doUpdateVisual(const Model::AttributableNodeList& attributables) override;
 
             class CollectColorsVisitor;

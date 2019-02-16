@@ -31,6 +31,7 @@
 
 #include <QWidget>
 #include <QVBoxLayout>
+#include <QStackedLayout>
 
 namespace TrenchBroom {
     namespace View {
@@ -38,7 +39,7 @@ namespace TrenchBroom {
         QWidget(parent),
         m_document(document),
         m_name(""),
-        m_activeEditor(nullptr) {
+        m_stackedLayout(nullptr) {
             createEditors();
             activateEditor(defaultEditor(), "");
             bindObservers();
@@ -46,7 +47,6 @@ namespace TrenchBroom {
         
         SmartAttributeEditorManager::~SmartAttributeEditorManager() {
             unbindObservers();
-            deactivateEditor();
         }
 
         void SmartAttributeEditorManager::switchEditor(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) {
@@ -55,16 +55,27 @@ namespace TrenchBroom {
             updateEditor();
         }
 
+        SmartAttributeEditor* SmartAttributeEditorManager::activeEditor() const {
+            return static_cast<SmartAttributeEditor*>(m_stackedLayout->currentWidget());
+        }
+
         void SmartAttributeEditorManager::createEditors() {
-            // NOTE: the SmartAttributeEditor subclasses are created here with their parent set to `this`
+            assert(m_editors.empty());
+
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartAttributeEditorKeyMatcher("spawnflags")),
-                                                  new SmartSpawnflagsEditor(this, m_document)));
+                                                  new SmartSpawnflagsEditor(nullptr, m_document)));
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartAttributeEditorKeyMatcher({ "*_color", "*_color2", "*_colour" })),
-                                                  new SmartColorEditor(this, m_document)));
+                                                  new SmartColorEditor(nullptr, m_document)));
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartChoiceEditorMatcher()),
-                                                  new SmartChoiceEditor(this, m_document)));
+                                                  new SmartChoiceEditor(nullptr, m_document)));
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartAttributeEditorDefaultMatcher()),
-                                                  new SmartDefaultAttributeEditor(this, m_document)));
+                                                  new SmartDefaultAttributeEditor(nullptr, m_document)));
+
+            m_stackedLayout = new QStackedLayout();
+            for (auto& [matcherPtr, editor] : m_editors) {
+                m_stackedLayout->addWidget(editor);
+            }
+            setLayout(m_stackedLayout);
         }
         
         void SmartAttributeEditorManager::bindObservers() {
@@ -109,30 +120,27 @@ namespace TrenchBroom {
         }
         
         void SmartAttributeEditorManager::activateEditor(EditorPtr editor, const Model::AttributeName& name) {
-            if (m_activeEditor != editor || !m_activeEditor->usesName(name)) {
+            if (m_stackedLayout->currentWidget() != editor || !activeEditor()->usesName(name)) {
                 deactivateEditor();
-                m_activeEditor = editor;
+
                 m_name = name;
-                QWidget* window = m_activeEditor->activate(this, m_name);
-                
-                auto* sizer = new QVBoxLayout();
-                sizer->addWidget(window, 1);
-                setLayout(sizer);
+                m_stackedLayout->setCurrentWidget(editor);
+                editor->activate(m_name);
             }
         }
         
         void SmartAttributeEditorManager::deactivateEditor() {
-            if (m_activeEditor != nullptr) {
-                m_activeEditor->deactivate();
-                m_activeEditor = nullptr;
+            if (activeEditor() != nullptr) {
+                activeEditor()->deactivate();
+                m_stackedLayout->setCurrentIndex(-1);
                 m_name = "";
             }
         }
 
         void SmartAttributeEditorManager::updateEditor() {
-            if (m_activeEditor != nullptr) {
+            if (activeEditor() != nullptr) {
                 MapDocumentSPtr document = lock(m_document);
-                m_activeEditor->update(document->allSelectedAttributableNodes());
+                activeEditor()->update(document->allSelectedAttributableNodes());
             }
         }
     }

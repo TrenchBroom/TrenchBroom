@@ -39,13 +39,14 @@
 
 namespace TrenchBroom {
     namespace View {
-        SmartColorEditor::SmartColorEditor(QObject* parent, View::MapDocumentWPtr document) :
+        SmartColorEditor::SmartColorEditor(QWidget* parent, View::MapDocumentWPtr document) :
         SmartAttributeEditor(parent, document),
-        m_panel(nullptr),
         m_floatRadio(nullptr),
         m_byteRadio(nullptr),
         m_colorPicker(nullptr),
-        m_colorHistory(nullptr) {}
+        m_colorHistory(nullptr) {
+            createGui();
+        }
         
         void SmartColorEditor::OnFloatRangeRadioButton() {
             document()->convertEntityColorRange(name(), Assets::ColorRange::Float);
@@ -64,14 +65,12 @@ namespace TrenchBroom {
             setColor(color);
         }
 
-        QWidget* SmartColorEditor::doCreateVisual(QWidget* parent) {
-            assert(m_panel == nullptr);
+        void SmartColorEditor::createGui() {
             assert(m_floatRadio == nullptr);
             assert(m_byteRadio == nullptr);
             assert(m_colorPicker == nullptr);
             assert(m_colorHistory == nullptr);
             
-            m_panel = new QWidget(parent);
             auto* rangeTxt = new QLabel(tr("Color range"));
             //rangeTxt->SetFont(rangeTxt->GetFont().Bold());
 
@@ -97,33 +96,15 @@ namespace TrenchBroom {
             outerSizer->addSpacing(LayoutConstants::WideHMargin);
             outerSizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Vertical), 0);
             outerSizer->addWidget(m_colorHistory, 1);
-            m_panel->setLayout(outerSizer);
+            setLayout(outerSizer);
             
             connect(m_floatRadio, &QAbstractButton::toggled, this, &SmartColorEditor::OnFloatRangeRadioButton);
             connect(m_byteRadio, &QAbstractButton::toggled, this, &SmartColorEditor::OnByteRangeRadioButton);
             //connect(m_colorPicker, this, &SmartColorEditor::OnColorPickerChanged);
             connect(m_colorHistory, &ColorTable::colorTableSelected, this, &SmartColorEditor::OnColorTableSelected);
-            
-            return m_panel;
-        }
-        
-        void SmartColorEditor::doDestroyVisual() {
-            ensure(m_panel != nullptr, "panel is null");
-            ensure(m_floatRadio != nullptr, "floatRadio is null");
-            ensure(m_byteRadio != nullptr, "byteRadio is null");
-            ensure(m_colorPicker != nullptr, "colorPicker is null");
-            ensure(m_colorHistory != nullptr, "colorHistory is null");
-            
-            delete m_panel;
-            m_panel = nullptr;
-            m_floatRadio = nullptr;
-            m_byteRadio = nullptr;
-            m_colorPicker = nullptr;
-            m_colorHistory = nullptr;
         }
         
         void SmartColorEditor::doUpdateVisual(const Model::AttributableNodeList& attributables) {
-            ensure(m_panel != nullptr, "panel is null");
             ensure(m_floatRadio != nullptr, "floatRadio is null");
             ensure(m_byteRadio != nullptr, "byteRadio is null");
             ensure(m_colorPicker != nullptr, "colorPicker is null");

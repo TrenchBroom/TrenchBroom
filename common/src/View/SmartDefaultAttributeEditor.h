@@ -36,10 +36,9 @@ namespace TrenchBroom {
             QTextEdit* m_descriptionTxt;
             const Assets::EntityDefinition* m_currentDefinition;
         public:
-            SmartDefaultAttributeEditor(QObject* parent, View::MapDocumentWPtr document);
+            SmartDefaultAttributeEditor(QWidget* parent, View::MapDocumentWPtr document);
         private:
-            QWidget* doCreateVisual(QWidget* parent) override;
-            void doDestroyVisual() override;
+            void createGui();
             void doUpdateVisual(const Model::AttributableNodeList& attributables) override;
         };
     }

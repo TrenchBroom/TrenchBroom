@@ -28,6 +28,8 @@
 
 #include <QWidget>
 
+class QStackedLayout;
+
 namespace TrenchBroom {
     namespace View {
         class Selection;
@@ -45,13 +47,14 @@ namespace TrenchBroom {
             
             EditorList m_editors;
             Model::AttributeName m_name;
-            EditorPtr m_activeEditor;
+            QStackedLayout* m_stackedLayout;
         public:
             SmartAttributeEditorManager(QWidget* parent, View::MapDocumentWPtr document);
             ~SmartAttributeEditorManager();
             
             void switchEditor(const Model::AttributeName& name, const Model::AttributableNodeList& attributables);
         private:
+            SmartAttributeEditor* activeEditor() const;
             void createEditors();
 
             void bindObservers();

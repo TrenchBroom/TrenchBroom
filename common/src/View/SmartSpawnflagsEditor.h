@@ -49,12 +49,11 @@ namespace TrenchBroom {
             FlagsEditor* m_flagsEditor;
             bool m_ignoreUpdates;
         public:
-            SmartSpawnflagsEditor(QObject* parent, View::MapDocumentWPtr document);
+            SmartSpawnflagsEditor(QWidget* parent, View::MapDocumentWPtr document);
             
             void OnFlagChanged(size_t index, int setFlag, int mixedFlag);
         private:
-            QWidget* doCreateVisual(QWidget* parent) override;
-            void doDestroyVisual() override;
+            void createGui();
             void doUpdateVisual(const Model::AttributableNodeList& attributables) override;
             void resetScrollPos();
             

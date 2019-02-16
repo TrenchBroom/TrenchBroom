@@ -55,11 +55,13 @@ namespace TrenchBroom {
             void doVisit(Model::Brush* brush) override   {}
         };
         
-        SmartSpawnflagsEditor::SmartSpawnflagsEditor(QObject* parent, View::MapDocumentWPtr document) :
+        SmartSpawnflagsEditor::SmartSpawnflagsEditor(QWidget* parent, View::MapDocumentWPtr document) :
         SmartAttributeEditor(parent, document),
         m_scrolledWindow(nullptr),
         m_flagsEditor(nullptr),
-        m_ignoreUpdates(false) {}
+        m_ignoreUpdates(false) {
+            createGui();
+        }
 
         void SmartSpawnflagsEditor::OnFlagChanged(size_t index, int setFlag, int mixedFlag) {
             const Model::AttributableNodeList& toUpdate = attributables();
@@ -75,10 +77,10 @@ namespace TrenchBroom {
             Model::Node::accept(std::begin(toUpdate), std::end(toUpdate), visitor);
         }
         
-        QWidget* SmartSpawnflagsEditor::doCreateVisual(QWidget* parent) {
+        void SmartSpawnflagsEditor::createGui() {
             assert(m_scrolledWindow == nullptr);
             
-            m_scrolledWindow = new QScrollArea(parent);
+            m_scrolledWindow = new QScrollArea();
             //m_scrolledWindow->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             
             m_flagsEditor = new FlagsEditor(nullptr, NumCols);
@@ -86,15 +88,9 @@ namespace TrenchBroom {
 
             m_scrolledWindow->setWidget(m_flagsEditor);
 
-            return m_scrolledWindow;
-        }
-        
-        void SmartSpawnflagsEditor::doDestroyVisual() {
-            ensure(m_scrolledWindow != nullptr, "scrolledWindow is null");
-            m_lastScrollPos = m_flagsEditor->pos();
-            delete m_scrolledWindow;
-            m_scrolledWindow = nullptr;
-            m_flagsEditor = nullptr;
+            auto* layout = new QVBoxLayout();
+            layout->addWidget(m_scrolledWindow, 1);
+            setLayout(layout);
         }
 
         void SmartSpawnflagsEditor::doUpdateVisual(const Model::AttributableNodeList& attributables) {
