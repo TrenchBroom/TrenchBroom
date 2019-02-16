@@ -290,7 +290,8 @@ namespace TrenchBroom {
                 const vm::vec3& normal = incidentFace->boundary().normal;
                 result.push_back(firstAxis(normal));
             }
-            
+
+            VectorUtils::sortAndRemoveDuplicates(result);
             return result;
         }
         
