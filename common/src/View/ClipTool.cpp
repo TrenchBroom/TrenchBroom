@@ -209,7 +209,6 @@ namespace TrenchBroom {
                     VectorUtils::append(result, helpVectors);
                 }
                 
-                // VectorUtils::sortAndRemoveDuplicates(result);
                 return result;
             }
             
@@ -280,9 +279,7 @@ namespace TrenchBroom {
             bool doDragPoint(const vm::vec3& newPosition, const std::vector<vm::vec3>& helpVectors) override {
                 ensure(m_dragIndex < m_numPoints, "drag index out of range");
                 
-                if (m_numPoints == 2 && colinear(m_points[0].point, m_points[1].point, newPosition)) {
-                    return false;
-                } else if (m_numPoints == 3) {
+                if (m_numPoints == 3) {
                     size_t index0, index1;
                     switch (m_dragIndex) {
                         case 0:
