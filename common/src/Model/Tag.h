@@ -23,7 +23,6 @@
 #include "StringUtils.h"
 
 #include <set>
-#include <variant>
 
 namespace TrenchBroom {
     namespace Model {
