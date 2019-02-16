@@ -23,6 +23,8 @@
 #include "IO/Path.h"
 #include "IO/TestEnvironment.h"
 #include "Model/Brush.h"
+#include "Model/BrushFace.h"
+#include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/Entity.h"
 #include "Model/Layer.h"
 #include "Model/Tag.h"
@@ -42,7 +44,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(document->isRegisteredSmartTag("test"));
         }
 
-        TEST_F(MapDocumentTest, testInitializeBrushTags) {
+        TEST_F(MapDocumentTest, testTagInitializeBrushTags) {
             game->setSmartTags({
                 Model::SmartTag("test", {}, std::make_unique<Model::EntityClassNameTagMatcher>("light"))
             });
@@ -57,6 +59,113 @@ namespace TrenchBroom {
 
             const auto& tag = document->smartTag("test");
             ASSERT_TRUE(brush->hasTag(tag));
+        }
+
+        TEST_F(MapDocumentTest, testTagRemoveBrushTags) {
+            game->setSmartTags({
+                Model::SmartTag("test", {}, std::make_unique<Model::EntityClassNameTagMatcher>("light"))
+            });
+            document->registerSmartTags();
+
+            auto* entity = new Model::Entity();
+            entity->addOrUpdateAttribute("classname", "light");
+            document->addNode(entity, document->currentParent());
+
+            auto* brush = createBrush("some_texture");
+            document->addNode(brush, entity);
+
+            document->removeNode(brush);
+
+            const auto& tag = document->smartTag("test");
+            ASSERT_FALSE(brush->hasTag(tag));
+        }
+
+        TEST_F(MapDocumentTest, testTagUpdateBrushTags) {
+            game->setSmartTags({
+                Model::SmartTag("test", {}, std::make_unique<Model::EntityClassNameTagMatcher>("light"))
+            });
+            document->registerSmartTags();
+
+            auto* brush = createBrush("some_texture");
+            document->addNode(brush, document->currentParent());
+
+            auto* entity = new Model::Entity();
+            entity->addOrUpdateAttribute("classname", "light");
+            document->addNode(entity, document->currentParent());
+
+            const auto& tag = document->smartTag("test");
+            ASSERT_FALSE(brush->hasTag(tag));
+
+            document->reparentNodes(entity, Model::NodeList{brush});
+            ASSERT_TRUE(brush->hasTag(tag));
+        }
+
+        TEST_F(MapDocumentTest, testTagInitializeBrushFaceTags) {
+            game->setSmartTags({
+                Model::SmartTag("test", {}, std::make_unique<Model::TextureNameTagMatcher>("some_texture"))
+            });
+            document->registerSmartTags();
+
+            auto* brushWithTags = createBrush("some_texture");
+            document->addNode(brushWithTags, document->currentParent());
+
+            const auto& tag = document->smartTag("test");
+            for (const auto* face : brushWithTags->faces()) {
+                ASSERT_TRUE(face->hasTag(tag));
+            }
+
+            auto* brushWithoutTags = createBrush("asdf");
+            document->addNode(brushWithoutTags, document->currentParent());
+
+            for (const auto* face : brushWithoutTags->faces()) {
+                ASSERT_FALSE(face->hasTag(tag));
+            }
+        }
+
+        TEST_F(MapDocumentTest, testTagRemoveBrushFaceTags) {
+            game->setSmartTags({
+                Model::SmartTag("test", {}, std::make_unique<Model::TextureNameTagMatcher>("some_texture"))
+            });
+            document->registerSmartTags();
+
+            auto* brushWithTags = createBrush("some_texture");
+            document->addNode(brushWithTags, document->currentParent());
+            document->removeNode(brushWithTags);
+
+            const auto& tag = document->smartTag("test");
+            for (const auto* face : brushWithTags->faces()) {
+                ASSERT_FALSE(face->hasTag(tag));
+            }
+        }
+
+        TEST_F(MapDocumentTest, testTagUpdateBrushFaceTags) {
+            game->setSmartTags({
+                Model::SmartTag("test", {}, std::make_unique<Model::ContentFlagsTagMatcher>(1))
+            });
+            document->registerSmartTags();
+
+            auto* brush = createBrush("asdf");
+            document->addNode(brush, document->currentParent());
+
+            const auto& tag = document->smartTag("test");
+
+            auto* face = brush->faces().front();
+            ASSERT_FALSE(face->hasTag(tag));
+
+            Model::ChangeBrushFaceAttributesRequest request;
+            request.setContentFlag(0);
+
+            document->select(face);
+            document->setFaceAttributes(request);
+            document->deselectAll();
+
+            for (const auto* f : brush->faces()) {
+                if (f == face) {
+                    ASSERT_TRUE(f->hasTag(tag));
+                } else {
+                    ASSERT_FALSE(f->hasTag(tag));
+                }
+            }
         }
     }
 }

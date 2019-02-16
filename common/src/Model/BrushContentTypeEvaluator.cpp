@@ -56,11 +56,11 @@ namespace TrenchBroom {
             virtual bool doEvaluate(const BrushFace* brush) const = 0;
         };
         
-        class TextureNameTagMatcher : public BrushFaceEvaluator {
+        class TextureNameEvaluator : public BrushFaceEvaluator {
         private:
             String m_pattern;
         public:
-            explicit TextureNameTagMatcher(const String& pattern, const StringList& ignoreTexture) :
+            explicit TextureNameEvaluator(const String& pattern, const StringList& ignoreTexture) :
             BrushFaceEvaluator(ignoreTexture),
             m_pattern(pattern) {}
         private:
@@ -96,11 +96,11 @@ namespace TrenchBroom {
             }
         };
         
-        class ContentFlagsTagMatcher : public BrushFaceEvaluator {
+        class ContentFlagsMatcher : public BrushFaceEvaluator {
         private:
             int m_flags;
         public:
-            explicit ContentFlagsTagMatcher(const int flags, const StringList& ignoreTexture) :
+            explicit ContentFlagsMatcher(const int flags, const StringList& ignoreTexture) :
             BrushFaceEvaluator(ignoreTexture),
             m_flags(flags) {}
         private:
@@ -109,11 +109,11 @@ namespace TrenchBroom {
             }
         };
 
-        class SurfaceFlagsTagMatcher : public BrushFaceEvaluator {
+        class SurfaceFlagsMatcher : public BrushFaceEvaluator {
         private:
             int m_flags;
         public:
-            explicit SurfaceFlagsTagMatcher(const int flags, const StringList& ignoreTexture) :
+            explicit SurfaceFlagsMatcher(const int flags, const StringList& ignoreTexture) :
             BrushFaceEvaluator(ignoreTexture),
             m_flags(flags) {}
         private:
@@ -142,7 +142,7 @@ namespace TrenchBroom {
         BrushContentTypeEvaluator::~BrushContentTypeEvaluator() = default;
    
         std::unique_ptr<BrushContentTypeEvaluator> BrushContentTypeEvaluator::textureNameEvaluator(const String& pattern, const StringList& ignoreTexture) {
-            return std::make_unique<TextureNameTagMatcher>(pattern, ignoreTexture);
+            return std::make_unique<TextureNameEvaluator>(pattern, ignoreTexture);
         }
 
         std::unique_ptr<BrushContentTypeEvaluator> BrushContentTypeEvaluator::shaderSurfaceParmsEvaluator(const String& pattern, const StringList& ignoreTexture) {
@@ -150,11 +150,11 @@ namespace TrenchBroom {
         }
 
         std::unique_ptr<BrushContentTypeEvaluator> BrushContentTypeEvaluator::contentFlagsEvaluator(const int value, const StringList& ignoreTexture) {
-            return std::make_unique<ContentFlagsTagMatcher>(value, ignoreTexture);
+            return std::make_unique<ContentFlagsMatcher>(value, ignoreTexture);
         }
 
         std::unique_ptr<BrushContentTypeEvaluator> BrushContentTypeEvaluator::surfaceFlagsEvaluator(const int value, const StringList& ignoreTexture) {
-            return std::make_unique<SurfaceFlagsTagMatcher>(value, ignoreTexture);
+            return std::make_unique<SurfaceFlagsMatcher>(value, ignoreTexture);
         }
 
         std::unique_ptr<BrushContentTypeEvaluator> BrushContentTypeEvaluator::entityClassnameEvaluator(const String& pattern) {
