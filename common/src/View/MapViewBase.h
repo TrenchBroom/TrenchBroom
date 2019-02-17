@@ -193,6 +193,16 @@ namespace TrenchBroom {
             Model::Node* findNewParentEntityForBrushes(const Model::NodeList& nodes) const;
             
             bool canReparentNodes(const Model::NodeList& nodes, const Model::Node* newParent) const;
+            /**
+             * Reparents nodes, and deselects everything as a side effect.
+             *
+             * @param nodes the nodes to reparent
+             * @param newParent the new parent
+             * @param preserveEntities if true, if `nodes` contains brushes belonging to an entity, the whole
+             *                         entity and all brushes it contains are also reparented.
+             *                         if false, only the brushes listed in `nodes` are reparented, not any
+             *                         parent entities.
+             */
             void reparentNodes(const Model::NodeList& nodes, Model::Node* newParent, bool preserveEntities);
             Model::NodeList collectReparentableNodes(const Model::NodeList& nodes, const Model::Node* newParent) const;
             

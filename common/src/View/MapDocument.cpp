@@ -149,7 +149,7 @@ namespace TrenchBroom {
         m_lastSelectionBounds(0.0, 32.0),
         m_selectionBoundsValid(true),
         m_viewEffectsService(nullptr) {
-            bindObservers();
+                bindObservers();
         }
         
         MapDocument::~MapDocument() {

@@ -107,7 +107,6 @@ namespace TrenchBroom {
             mutable bool m_selectionBoundsValid;
             
             ViewEffectsService* m_viewEffectsService;
-
         public: // notification
             Notifier1<Command::Ptr> commandDoNotifier;
             Notifier1<Command::Ptr> commandDoneNotifier;
