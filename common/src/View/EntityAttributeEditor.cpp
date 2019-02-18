@@ -64,6 +64,7 @@ namespace TrenchBroom {
 
             m_attributeDocumentation->Clear();
             if (entityDefinition != nullptr) {
+                // attribute
                 if (const Assets::AttributeDefinition* attributeDefinition = entityDefinition->attributeDefinition(attributeName); attributeDefinition != nullptr) {
 
                     const long start = m_attributeDocumentation->GetLastPosition();
@@ -79,10 +80,13 @@ namespace TrenchBroom {
                         m_attributeDocumentation->AppendText("\n\n");
                         m_attributeDocumentation->AppendText(attributeDefinition->longDescription());
                     }
-
-                    // Scroll to the top
-                    m_attributeDocumentation->ShowPosition(0);
                 }
+
+                m_attributeDocumentation->AppendText("\n\n");
+                m_attributeDocumentation->AppendText(entityDefinition->description());
+
+                // Scroll to the top
+                m_attributeDocumentation->ShowPosition(0);
             }
         }
         

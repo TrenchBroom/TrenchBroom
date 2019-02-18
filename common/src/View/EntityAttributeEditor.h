@@ -28,6 +28,10 @@
 class wxTextCtrl;
 
 namespace TrenchBroom {
+    namespace Assets {
+        class EntityDefinition;
+    }
+
     namespace View {
         class EntityAttributeGrid;
         class EntityAttributeSelectedCommand;
@@ -40,6 +44,7 @@ namespace TrenchBroom {
             SmartAttributeEditorManager* m_smartEditorManager;
             wxTextCtrl* m_attributeDocumentation;
             String m_lastSelectedAttributeName;
+            const Assets::EntityDefinition* m_currentDefinition;
         public:
             EntityAttributeEditor(wxWindow* parent, MapDocumentWPtr document);
             

@@ -23,37 +23,34 @@
 #include "Model/AttributableNode.h"
 
 #include <wx/sizer.h>
-#include <wx/textctrl.h>
+#include <wx/panel.h>
 #include <wx/wupdlock.h>
 
 namespace TrenchBroom {
     namespace View {
         SmartDefaultAttributeEditor::SmartDefaultAttributeEditor(View::MapDocumentWPtr document) :
-        SmartAttributeEditor(document),
-        m_descriptionTxt(nullptr),
-        m_currentDefinition(nullptr) {}
+        SmartAttributeEditor(document) {}
 
         wxWindow* SmartDefaultAttributeEditor::doCreateVisual(wxWindow* parent) {
-            m_descriptionTxt = new wxTextCtrl(parent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_READONLY | wxTE_BESTWRAP | wxBORDER_NONE);
-            return m_descriptionTxt;
+            m_panel = new wxPanel(parent);
+            return m_panel;
         }
         
         void SmartDefaultAttributeEditor::doDestroyVisual() {
-            m_descriptionTxt->Destroy();
-            m_descriptionTxt = nullptr;
-            m_currentDefinition = nullptr;
+            m_panel->Destroy();
+            m_panel = nullptr;
         }
 
         void SmartDefaultAttributeEditor::doUpdateVisual(const Model::AttributableNodeList& attributables) {
-            const Assets::EntityDefinition* entityDefinition = Model::AttributableNode::selectEntityDefinition(attributables);
-            if (entityDefinition != m_currentDefinition) {
-                m_currentDefinition = entityDefinition;
-                
-                wxWindowUpdateLocker locker(m_descriptionTxt);
-                m_descriptionTxt->Clear();
-                if (m_currentDefinition != nullptr)
-                    m_descriptionTxt->AppendText(m_currentDefinition->description());
-            }
+//            const Assets::EntityDefinition* entityDefinition = Model::AttributableNode::selectEntityDefinition(attributables);
+//            if (entityDefinition != m_currentDefinition) {
+//                m_currentDefinition = entityDefinition;
+//
+//                wxWindowUpdateLocker locker(m_descriptionTxt);
+//                m_descriptionTxt->Clear();
+//                if (m_currentDefinition != nullptr)
+//                    m_descriptionTxt->AppendText(m_currentDefinition->description());
+//            }
         }
     }
 }
