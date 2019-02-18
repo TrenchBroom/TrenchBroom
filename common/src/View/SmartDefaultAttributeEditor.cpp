@@ -42,15 +42,6 @@ namespace TrenchBroom {
         }
 
         void SmartDefaultAttributeEditor::doUpdateVisual(const Model::AttributableNodeList& attributables) {
-//            const Assets::EntityDefinition* entityDefinition = Model::AttributableNode::selectEntityDefinition(attributables);
-//            if (entityDefinition != m_currentDefinition) {
-//                m_currentDefinition = entityDefinition;
-//
-//                wxWindowUpdateLocker locker(m_descriptionTxt);
-//                m_descriptionTxt->Clear();
-//                if (m_currentDefinition != nullptr)
-//                    m_descriptionTxt->AppendText(m_currentDefinition->description());
-//            }
         }
     }
 }

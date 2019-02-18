@@ -30,6 +30,9 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        /**
+         * Placeholder for when there is no smart editor. Just an empty wxPanel.
+         */
         class SmartDefaultAttributeEditor : public SmartAttributeEditor {
         private:
             wxPanel* m_panel;
