@@ -347,9 +347,15 @@ namespace TrenchBroom {
         private: // implement Taggable interface
         public:
             void initializeTags(TagManager& tagManager) override;
-
             void clearTags() override;
 
+            /**
+             * Indicates whether all of the faces of this brush have any of the given tags.
+             *
+             * @param tagMask the tags to check
+             * @return true whether all faces of this brush have any of the given tags
+             */
+            bool hasSharedFaceTag(Tag::TagType tagMask) const;
         private:
             bool doEvaluateTagMatcher(const TagMatcher& matcher) const override;
         private:

@@ -39,7 +39,7 @@ namespace TrenchBroom {
         void EditorContext::reset() {
             m_showPointEntities = true;
             m_showBrushes = true;
-            m_hiddenBrushContentTypes = 0;
+            m_hiddenTags = 0;
             m_hiddenEntityDefinitions.reset();
             m_entityLinkMode = EntityLinkMode_Direct;
             m_blockSelection = false;
@@ -67,18 +67,18 @@ namespace TrenchBroom {
                 editorContextDidChangeNotifier();
             }
         }
-        
-        Model::BrushContentType::FlagType EditorContext::hiddenBrushContentTypes() const {
-            return m_hiddenBrushContentTypes;
+
+        Model::Tag::TagType EditorContext::hiddenTags() const {
+            return m_hiddenTags;
         }
-        
-        void EditorContext::setHiddenBrushContentTypes(Model::BrushContentType::FlagType brushContentTypes) {
-            if (brushContentTypes != m_hiddenBrushContentTypes) {
-                m_hiddenBrushContentTypes = brushContentTypes;
+
+        void EditorContext::setHiddenTags(const Model::Tag::TagType hiddenTags) {
+            if (hiddenTags != m_hiddenTags) {
+                m_hiddenTags = hiddenTags;
                 editorContextDidChangeNotifier();
             }
         }
-        
+
         bool EditorContext::entityDefinitionHidden(const Model::AttributableNode* entity) const {
             return entity != nullptr && entityDefinitionHidden(entity->definition());
         }
@@ -211,7 +211,11 @@ namespace TrenchBroom {
                 return false;
             }
 
-            if (brush->hasContentType(m_hiddenBrushContentTypes)) {
+            if (brush->hasTag(m_hiddenTags)) {
+                return false;
+            }
+
+            if (brush->hasSharedFaceTag(m_hiddenTags)) {
                 return false;
             }
 
@@ -244,7 +248,7 @@ namespace TrenchBroom {
         private:
             const EditorContext& m_this;
         public:
-            NodePickable(const EditorContext& i_this) : m_this(i_this) {}
+            explicit NodePickable(const EditorContext& i_this) : m_this(i_this) {}
         private:
             void doVisit(const Model::World* world) override   { setResult(m_this.pickable(world)); }
             void doVisit(const Model::Layer* layer) override   { setResult(m_this.pickable(layer)); }
@@ -259,11 +263,11 @@ namespace TrenchBroom {
             return visitor.result();
         }
 
-        bool EditorContext::pickable(const Model::World* world) const {
+        bool EditorContext::pickable(const Model::World* /* world */) const {
             return false;
         }
 
-        bool EditorContext::pickable(const Model::Layer* layer) const {
+        bool EditorContext::pickable(const Model::Layer* /* layer */) const {
             return false;
         }
 
@@ -291,7 +295,7 @@ namespace TrenchBroom {
         private:
             const EditorContext& m_this;
         public:
-            NodeSelectable(const EditorContext& i_this) : m_this(i_this) {}
+            explicit NodeSelectable(const EditorContext& i_this) : m_this(i_this) {}
         private:
             void doVisit(const Model::World* world) override   { setResult(m_this.selectable(world)); }
             void doVisit(const Model::Layer* layer) override   { setResult(m_this.selectable(layer)); }

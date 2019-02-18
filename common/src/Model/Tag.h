@@ -141,6 +141,21 @@ namespace TrenchBroom {
             bool hasTag(const Tag& tag) const;
 
             /**
+             * Indicates whether this object has any of the tags encoded in the given bit mask.
+             *
+             * @param mask the mask to check
+             * @return true if this tag has any of the given tags
+             */
+            bool hasTag(Tag::TagType mask) const;
+
+            /**
+             * Returns a bit mask indicating which tags this object is tagged with.
+             *
+             * @return the tag mask
+             */
+            Tag::TagType tagMask() const;
+
+            /**
              * Adds the given tag to this object.
              *
              * @param tag the tag to add

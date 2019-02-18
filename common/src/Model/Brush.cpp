@@ -1590,5 +1590,15 @@ namespace TrenchBroom {
             }
             Taggable::clearTags();
         }
+
+        bool Brush::hasSharedFaceTag(const Tag::TagType tagMask) const {
+            // Possible optimization: Store the shared face tag mask in the brush and updated it when a face changes.
+
+            Tag::TagType sharedFaceTags = ~Tag::TagType(0); // set all bits to 1
+            for (const auto* face : m_faces) {
+                sharedFaceTags &= face->tagMask();
+            }
+            return (sharedFaceTags & tagMask) != 0;
+        }
     }
 }
