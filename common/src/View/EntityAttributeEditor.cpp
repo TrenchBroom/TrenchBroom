@@ -32,6 +32,7 @@
 #include <wx/persist.h>
 #include <wx/sizer.h>
 #include <wx/textctrl.h>
+#include <wx/log.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -54,6 +55,29 @@ namespace TrenchBroom {
 
                 updateAttributeDocumentation(attributeName);
 
+                // collapse the splitter if needed
+                if        (!m_documentationText->IsEmpty() && !m_smartEditorManager->isDefaultEditorActive()) {
+                    // show both
+                    m_documentationSplitter->restore();
+                    wxLogDebug("showing both");
+
+                } else if ( m_documentationText->IsEmpty() && !m_smartEditorManager->isDefaultEditorActive()) {
+                    // show only the smart editor
+                    m_documentationSplitter->maximize(m_smartEditorManager);
+                    wxLogDebug("showing only the smart editor");
+
+                } else if (!m_documentationText->IsEmpty() &&  m_smartEditorManager->isDefaultEditorActive()) {
+                    // show only the documentation panel
+                    m_documentationSplitter->maximize(m_documentationText);
+                    wxLogDebug("showing only the smart editor");
+
+                } else {
+                    // nothing to display
+                    m_documentationSplitter->maximize(m_documentationText);
+                    wxLogDebug("nothing to display");
+
+                }
+
                 m_lastSelectedAttributeName = attributeName;
             }
         }
@@ -62,31 +86,31 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             const Assets::EntityDefinition* entityDefinition = Model::AttributableNode::selectEntityDefinition(document->allSelectedAttributableNodes());
 
-            m_attributeDocumentation->Clear();
+            m_documentationText->Clear();
             if (entityDefinition != nullptr) {
                 // attribute
                 if (const Assets::AttributeDefinition* attributeDefinition = entityDefinition->attributeDefinition(attributeName); attributeDefinition != nullptr) {
 
-                    const long start = m_attributeDocumentation->GetLastPosition();
-                    m_attributeDocumentation->AppendText(attributeDefinition->shortDescription());
-                    const long end = m_attributeDocumentation->GetLastPosition();
+                    const long start = m_documentationText->GetLastPosition();
+                    m_documentationText->AppendText(attributeDefinition->shortDescription());
+                    const long end = m_documentationText->GetLastPosition();
 
                     // Make the shortDescription() bold
                     wxTextAttr boldAttr;
                     boldAttr.SetFontWeight(wxFONTWEIGHT_BOLD);
-                    m_attributeDocumentation->SetStyle(start, end, boldAttr);
+                    m_documentationText->SetStyle(start, end, boldAttr);
 
                     if (!attributeDefinition->longDescription().empty()) {
-                        m_attributeDocumentation->AppendText("\n\n");
-                        m_attributeDocumentation->AppendText(attributeDefinition->longDescription());
+                        m_documentationText->AppendText("\n\n");
+                        m_documentationText->AppendText(attributeDefinition->longDescription());
                     }
                 }
 
-                m_attributeDocumentation->AppendText("\n\n");
-                m_attributeDocumentation->AppendText(entityDefinition->description());
+                m_documentationText->AppendText("\n\n");
+                m_documentationText->AppendText(entityDefinition->description());
 
                 // Scroll to the top
-                m_attributeDocumentation->ShowPosition(0);
+                m_documentationText->ShowPosition(0);
             }
         }
         
@@ -97,18 +121,18 @@ namespace TrenchBroom {
             
             m_attributeGrid = new EntityAttributeGrid(splitter, document);
 
-            SplitterWindow2* docsSplitter = new SplitterWindow2(splitter);
-            docsSplitter->setSashGravity(1.0);
-            docsSplitter->SetName("AttributeDocumentationSplitter");
+            m_documentationSplitter = new SplitterWindow2(splitter);
+            m_documentationSplitter->setSashGravity(1.0);
+            m_documentationSplitter->SetName("AttributeDocumentationSplitter");
 
-            m_attributeDocumentation = new wxTextCtrl(docsSplitter, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_READONLY | wxTE_BESTWRAP | wxBORDER_NONE);
-            m_smartEditorManager = new SmartAttributeEditorManager(docsSplitter, document);
-            docsSplitter->splitHorizontally(m_attributeDocumentation,
-                                            m_smartEditorManager,
-                                            wxSize(100, 50), wxSize(100, 100));
+            m_documentationText = new wxTextCtrl(m_documentationSplitter, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_READONLY | wxTE_BESTWRAP | wxBORDER_NONE);
+            m_smartEditorManager = new SmartAttributeEditorManager(m_documentationSplitter, document);
+            m_documentationSplitter->splitHorizontally(m_smartEditorManager,
+                                                       m_documentationText,
+                                                       wxSize(100, 50), wxSize(100, 100));
 
             splitter->splitHorizontally(m_attributeGrid,
-                                        docsSplitter,
+                                        m_documentationSplitter,
                                         wxSize(100, 50), wxSize(100, 50));
 
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);

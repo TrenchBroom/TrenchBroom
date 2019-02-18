@@ -33,6 +33,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class SplitterWindow2;
         class EntityAttributeGrid;
         class EntityAttributeSelectedCommand;
         class SmartAttributeEditorManager;
@@ -42,7 +43,8 @@ namespace TrenchBroom {
             View::MapDocumentWPtr m_document;
             EntityAttributeGrid* m_attributeGrid;
             SmartAttributeEditorManager* m_smartEditorManager;
-            wxTextCtrl* m_attributeDocumentation;
+            SplitterWindow2* m_documentationSplitter;
+            wxTextCtrl* m_documentationText;
             String m_lastSelectedAttributeName;
             const Assets::EntityDefinition* m_currentDefinition;
         public:

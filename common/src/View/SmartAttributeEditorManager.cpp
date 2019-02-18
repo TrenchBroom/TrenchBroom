@@ -54,6 +54,10 @@ namespace TrenchBroom {
             updateEditor();
         }
 
+        bool SmartAttributeEditorManager::isDefaultEditorActive() const {
+            return m_activeEditor == defaultEditor();
+        }
+
         void SmartAttributeEditorManager::createEditors() {
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartAttributeEditorKeyMatcher("spawnflags")),
                                                   EditorPtr(new SmartSpawnflagsEditor(m_document))));
