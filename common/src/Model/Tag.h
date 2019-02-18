@@ -63,7 +63,7 @@ namespace TrenchBroom {
         protected:
             TagType m_type;
             String m_name;
-            std::set<TagAttribute> m_attributes;
+            // std::set<TagAttribute> m_attributes;
 
             /**
              * Creates a new tag with the given type, name and attributes. The tag's type will be set automatically.

@@ -49,7 +49,8 @@ namespace TrenchBroom {
         Tag::Tag(Tag::TagType type, String name, std::set<TagAttribute> attributes) :
         m_type(type),
         m_name(std::move(name)),
-        m_attributes(std::move(attributes)) {}
+        // m_attributes(std::move(attributes))
+        {}
 
         Tag::Tag(String name, std::set<TagAttribute> attributes) :
         Tag(freeTagType(), name, attributes) {}
