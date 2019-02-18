@@ -25,6 +25,8 @@
 
 #include <wx/panel.h>
 
+class wxTextCtrl;
+
 namespace TrenchBroom {
     namespace View {
         class EntityAttributeGrid;
@@ -36,12 +38,14 @@ namespace TrenchBroom {
             View::MapDocumentWPtr m_document;
             EntityAttributeGrid* m_attributeGrid;
             SmartAttributeEditorManager* m_smartEditorManager;
+            wxTextCtrl* m_attributeDocumentation;
             String m_lastSelectedAttributeName;
         public:
             EntityAttributeEditor(wxWindow* parent, MapDocumentWPtr document);
             
             void OnIdle(wxIdleEvent& event);
         private:
+            void updateAttributeDocumentation(const String& attributeName);
             void createGui(wxWindow* parent, MapDocumentWPtr document);
         };
     }

@@ -25,9 +25,13 @@
 #include "View/MapDocument.h"
 #include "View/SmartAttributeEditorManager.h"
 #include "View/SplitterWindow2.h"
+#include "Model/AttributableNode.h"
+#include "Assets/EntityDefinition.h"
+#include "Assets/AttributeDefinition.h"
 
 #include <wx/persist.h>
 #include <wx/sizer.h>
+#include <wx/textctrl.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -40,11 +44,45 @@ namespace TrenchBroom {
         void EntityAttributeEditor::OnIdle(wxIdleEvent& event) {
             if (IsBeingDeleted()) return;
 
+            // FIXME: This won't notice the case when the current row name stays the same, but you select a different
+            // entity with a different entity description
             const String& attributeName = m_attributeGrid->selectedRowName();
             if (!attributeName.empty() && attributeName != m_lastSelectedAttributeName) {
                 MapDocumentSPtr document = lock(m_document);
+
                 m_smartEditorManager->switchEditor(attributeName, document->allSelectedAttributableNodes());
+
+                updateAttributeDocumentation(attributeName);
+
                 m_lastSelectedAttributeName = attributeName;
+            }
+        }
+
+        void EntityAttributeEditor::updateAttributeDocumentation(const String& attributeName) {
+            MapDocumentSPtr document = lock(m_document);
+            const Assets::EntityDefinition* entityDefinition = Model::AttributableNode::selectEntityDefinition(document->allSelectedAttributableNodes());
+
+            m_attributeDocumentation->Clear();
+            if (entityDefinition != nullptr) {
+                if (const Assets::AttributeDefinition* attributeDefinition = entityDefinition->attributeDefinition(attributeName); attributeDefinition != nullptr) {
+
+                    const long start = m_attributeDocumentation->GetLastPosition();
+                    m_attributeDocumentation->AppendText(attributeDefinition->shortDescription());
+                    const long end = m_attributeDocumentation->GetLastPosition();
+
+                    // Make the shortDescription() bold
+                    wxTextAttr boldAttr;
+                    boldAttr.SetFontWeight(wxFONTWEIGHT_BOLD);
+                    m_attributeDocumentation->SetStyle(start, end, boldAttr);
+
+                    if (!attributeDefinition->longDescription().empty()) {
+                        m_attributeDocumentation->AppendText("\n\n");
+                        m_attributeDocumentation->AppendText(attributeDefinition->longDescription());
+                    }
+
+                    // Scroll to the top
+                    m_attributeDocumentation->ShowPosition(0);
+                }
             }
         }
         
@@ -54,13 +92,21 @@ namespace TrenchBroom {
             splitter->SetName("EntityAttributeEditorSplitter");
             
             m_attributeGrid = new EntityAttributeGrid(splitter, document);
-            m_smartEditorManager = new SmartAttributeEditorManager(splitter, document);
-            
+
+            SplitterWindow2* docsSplitter = new SplitterWindow2(splitter);
+            docsSplitter->setSashGravity(1.0);
+            docsSplitter->SetName("AttributeDocumentationSplitter");
+
+            m_attributeDocumentation = new wxTextCtrl(docsSplitter, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_READONLY | wxTE_BESTWRAP | wxBORDER_NONE);
+            m_smartEditorManager = new SmartAttributeEditorManager(docsSplitter, document);
+            docsSplitter->splitHorizontally(m_attributeDocumentation,
+                                            m_smartEditorManager,
+                                            wxSize(100, 50), wxSize(100, 100));
+
             splitter->splitHorizontally(m_attributeGrid,
-                                        m_smartEditorManager,
+                                        docsSplitter,
                                         wxSize(100, 50), wxSize(100, 50));
 
-            
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(splitter, 1, wxEXPAND);
             sizer->SetItemMinSize(m_smartEditorManager, 500, 100);
