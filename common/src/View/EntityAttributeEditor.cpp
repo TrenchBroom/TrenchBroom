@@ -38,51 +38,96 @@ namespace TrenchBroom {
     namespace View {
         EntityAttributeEditor::EntityAttributeEditor(wxWindow* parent, MapDocumentWPtr document) :
         wxPanel(parent),
-        m_document(document) {
+        m_document(document),
+        m_currentDefinition(nullptr) {
             createGui(this, document);
+            bindObservers();
+        }
+
+        EntityAttributeEditor::~EntityAttributeEditor() {
+            unbindObservers();
         }
 
         void EntityAttributeEditor::OnIdle(wxIdleEvent& event) {
             if (IsBeingDeleted()) return;
 
-            // FIXME: This won't notice the case when the current row name stays the same, but you select a different
-            // entity with a different entity description
-            const String& attributeName = m_attributeGrid->selectedRowName();
+            // Hacky way of listening for changes to the current row of the attribute grid
+            const String attributeName = m_attributeGrid->selectedRowName();
             if (!attributeName.empty() && attributeName != m_lastSelectedAttributeName) {
-                MapDocumentSPtr document = lock(m_document);
-
-                m_smartEditorManager->switchEditor(attributeName, document->allSelectedAttributableNodes());
-
-                updateAttributeDocumentation(attributeName);
-
-                // collapse the splitter if needed
-                if        (!m_documentationText->IsEmpty() && !m_smartEditorManager->isDefaultEditorActive()) {
-                    // show both
-                    m_documentationSplitter->restore();
-                    wxLogDebug("showing both");
-
-                } else if ( m_documentationText->IsEmpty() && !m_smartEditorManager->isDefaultEditorActive()) {
-                    // show only the smart editor
-                    m_documentationSplitter->maximize(m_smartEditorManager);
-                    wxLogDebug("showing only the smart editor");
-
-                } else if (!m_documentationText->IsEmpty() &&  m_smartEditorManager->isDefaultEditorActive()) {
-                    // show only the documentation panel
-                    m_documentationSplitter->maximize(m_documentationText);
-                    wxLogDebug("showing only the smart editor");
-
-                } else {
-                    // nothing to display
-                    m_documentationSplitter->maximize(m_documentationText);
-                    wxLogDebug("nothing to display");
-
-                }
-
                 m_lastSelectedAttributeName = attributeName;
+
+                wxLogDebug("updating because current name change");
+                updateDocumentationAndSmartEditor();
             }
         }
 
-        void EntityAttributeEditor::updateAttributeDocumentation(const String& attributeName) {
+        void EntityAttributeEditor::bindObservers() {
+            MapDocumentSPtr document = lock(m_document);
+            document->selectionDidChangeNotifier.addObserver(this, &EntityAttributeEditor::selectionDidChange);
+            document->nodesDidChangeNotifier.addObserver(this, &EntityAttributeEditor::nodesDidChange);
+        }
+
+        void EntityAttributeEditor::unbindObservers() {
+            if (!expired(m_document)) {
+                MapDocumentSPtr document = lock(m_document);
+                document->selectionDidChangeNotifier.removeObserver(this, &EntityAttributeEditor::selectionDidChange);
+                document->nodesDidChangeNotifier.removeObserver(this, &EntityAttributeEditor::nodesDidChange);
+            }
+        }
+
+        void EntityAttributeEditor::selectionDidChange(const Selection& selection) {
+            updateIfSelectedEntityDefinitionChanged();
+        }
+
+        void EntityAttributeEditor::nodesDidChange(const Model::NodeList& nodes) {
+            updateIfSelectedEntityDefinitionChanged();
+        }
+
+        void EntityAttributeEditor::updateIfSelectedEntityDefinitionChanged() {
+            MapDocumentSPtr document = lock(m_document);
+            const Assets::EntityDefinition* entityDefinition = Model::AttributableNode::selectEntityDefinition(document->allSelectedAttributableNodes());
+
+            if (entityDefinition != m_currentDefinition) {
+                m_currentDefinition = entityDefinition;
+
+                wxLogDebug("updating because current definition change");
+                updateDocumentationAndSmartEditor();
+            }
+        }
+
+        void EntityAttributeEditor::updateDocumentationAndSmartEditor() {
+            MapDocumentSPtr document = lock(m_document);
+            const Assets::EntityDefinition* entityDefinition = Model::AttributableNode::selectEntityDefinition(document->allSelectedAttributableNodes());
+            const String& attributeName = m_attributeGrid->selectedRowName();
+
+            m_smartEditorManager->switchEditor(attributeName, document->allSelectedAttributableNodes());
+
+            updateDocumentation(attributeName);
+
+            // collapse the splitter if needed
+            if        (!m_documentationText->IsEmpty() && !m_smartEditorManager->isDefaultEditorActive()) {
+                // show both
+                m_documentationSplitter->restore();
+                wxLogDebug("showing both");
+
+            } else if ( m_documentationText->IsEmpty() && !m_smartEditorManager->isDefaultEditorActive()) {
+                // show only the smart editor
+                m_documentationSplitter->maximize(m_smartEditorManager);
+                wxLogDebug("showing only the smart editor");
+
+            } else if (!m_documentationText->IsEmpty() &&  m_smartEditorManager->isDefaultEditorActive()) {
+                // show only the documentation panel
+                m_documentationSplitter->maximize(m_documentationText);
+                wxLogDebug("showing only the documentation text");
+
+            } else {
+                // nothing to display
+                m_documentationSplitter->maximize(m_documentationText);
+                wxLogDebug("nothing to display");
+            }
+        }
+
+        void EntityAttributeEditor::updateDocumentation(const String &attributeName) {
             MapDocumentSPtr document = lock(m_document);
             const Assets::EntityDefinition* entityDefinition = Model::AttributableNode::selectEntityDefinition(document->allSelectedAttributableNodes());
 
@@ -123,7 +168,7 @@ namespace TrenchBroom {
 
             m_documentationSplitter = new SplitterWindow2(splitter);
             m_documentationSplitter->setSashGravity(1.0);
-            m_documentationSplitter->SetName("AttributeDocumentationSplitter");
+            m_documentationSplitter->SetName("EntityDocumentationSplitter");
 
             m_documentationText = new wxTextCtrl(m_documentationSplitter, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_READONLY | wxTE_BESTWRAP | wxBORDER_NONE);
             m_smartEditorManager = new SmartAttributeEditorManager(m_documentationSplitter, document);

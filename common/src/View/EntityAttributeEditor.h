@@ -21,6 +21,7 @@
 #define TrenchBroom_EntityAttributeEditor
 
 #include "StringUtils.h"
+#include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
 
 #include <wx/panel.h>
@@ -33,11 +34,16 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class Selection;
         class SplitterWindow2;
         class EntityAttributeGrid;
         class EntityAttributeSelectedCommand;
         class SmartAttributeEditorManager;
-        
+
+        /**
+         * Panel containing the EntityAttributeGrid (the key/value editor table),
+         * smart editor, and documentation text view.
+         */
         class EntityAttributeEditor : public wxPanel {
         private:
             View::MapDocumentWPtr m_document;
@@ -49,10 +55,20 @@ namespace TrenchBroom {
             const Assets::EntityDefinition* m_currentDefinition;
         public:
             EntityAttributeEditor(wxWindow* parent, MapDocumentWPtr document);
-            
+            ~EntityAttributeEditor() override;
+
             void OnIdle(wxIdleEvent& event);
         private:
-            void updateAttributeDocumentation(const String& attributeName);
+            void bindObservers();
+            void unbindObservers();
+
+            void selectionDidChange(const Selection& selection);
+            void nodesDidChange(const Model::NodeList& nodes);
+
+            void updateIfSelectedEntityDefinitionChanged();
+            void updateDocumentationAndSmartEditor();
+
+            void updateDocumentation(const String &attributeName);
             void createGui(wxWindow* parent, MapDocumentWPtr document);
         };
     }
