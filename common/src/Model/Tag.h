@@ -22,7 +22,7 @@
 
 #include "StringUtils.h"
 
-#include <set>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -63,7 +63,7 @@ namespace TrenchBroom {
         protected:
             TagType m_type;
             String m_name;
-            // std::set<TagAttribute> m_attributes;
+            std::vector<TagAttribute> m_attributes;
 
             /**
              * Creates a new tag with the given type, name and attributes. The tag's type will be set automatically.
@@ -72,7 +72,7 @@ namespace TrenchBroom {
              * @param name the tag's name
              * @param attributes the tag's attributes
              */
-            Tag(TagType type, String name, std::set<TagAttribute> attributes);
+            Tag(TagType type, String name, std::vector<TagAttribute> attributes);
         public:
             /**
              * Creates a new tag with the given name and attributes. The tag's type will be set automatically.
@@ -80,7 +80,7 @@ namespace TrenchBroom {
              * @param name the tag's name
              * @param attributes the tag's attributes
              */
-            Tag(String name, std::set<TagAttribute> attributes);
+            Tag(String name, std::vector<TagAttribute> attributes);
 
             /**
              * Returns the type of this tag.
@@ -233,7 +233,7 @@ namespace TrenchBroom {
              * @param attributes the attributes of this tag
              * @param matcher the matcher that decides whether to apply this tag to a given taggable
              */
-            SmartTag(String name, std::set<TagAttribute> attributes, std::unique_ptr<TagMatcher> matcher);
+            SmartTag(String name, std::vector<TagAttribute> attributes, std::unique_ptr<TagMatcher> matcher);
 
             SmartTag(const SmartTag& other);
             SmartTag(SmartTag&& other) noexcept;

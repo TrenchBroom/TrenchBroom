@@ -27,7 +27,6 @@
 #include "Model/GameConfig.h"
 
 #include <iostream>
-#include <set>
 #include <vector>
 
 namespace TrenchBroom {
@@ -61,7 +60,7 @@ namespace TrenchBroom {
 
             void parseBrushTags(const EL::Value& value, std::vector<Model::SmartTag>& results) const;
             void parseFaceTags(const EL::Value& value, const Model::GameConfig::FaceAttribsConfig& faceAttribsConfig, std::vector<Model::SmartTag>& results) const;
-            std::set<Model::TagAttribute> parseTagAttributes(const EL::Value& values) const;
+            std::vector<Model::TagAttribute> parseTagAttributes(const EL::Value& values) const;
         };
     }
 }

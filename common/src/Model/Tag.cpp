@@ -46,13 +46,12 @@ namespace TrenchBroom {
             return 1u << currentShift++;
         }
 
-        Tag::Tag(Tag::TagType type, String name, std::set<TagAttribute> attributes) :
+        Tag::Tag(Tag::TagType type, String name, std::vector<TagAttribute> attributes) :
         m_type(type),
         m_name(std::move(name)),
-        // m_attributes(std::move(attributes))
-        {}
+        m_attributes(std::move(attributes)) {}
 
-        Tag::Tag(String name, std::set<TagAttribute> attributes) :
+        Tag::Tag(String name, std::vector<TagAttribute> attributes) :
         Tag(freeTagType(), name, attributes) {}
 
         Tag::TagType Tag::type() const {
@@ -164,7 +163,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        SmartTag::SmartTag(String name, std::set<TagAttribute> attributes, std::unique_ptr<TagMatcher> matcher) :
+        SmartTag::SmartTag(String name, std::vector<TagAttribute> attributes, std::unique_ptr<TagMatcher> matcher) :
         Tag(name, attributes),
         m_matcher(std::move(matcher)) {}
 

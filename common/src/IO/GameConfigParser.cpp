@@ -57,8 +57,8 @@ namespace TrenchBroom {
             auto textureConfig = parseTextureConfig(root["textures"]);
             auto entityConfig = parseEntityConfig(root["entities"]);
             auto faceAttribsConfig = parseFaceAttribsConfig(root["faceattribs"]);
-                  auto brushContentTypes = parseBrushContentTypes(root["brushtypes"], faceAttribsConfig);
-                  auto tags = parseTags(root["tags"], faceAttribsConfig);
+            auto brushContentTypes = parseBrushContentTypes(root["brushtypes"], faceAttribsConfig);
+            auto tags = parseTags(root["tags"], faceAttribsConfig);
             
             return GameConfig(
                 std::move(name),
@@ -394,15 +394,16 @@ namespace TrenchBroom {
             }
         }
 
-        std::set<Model::TagAttribute> GameConfigParser::parseTagAttributes(const EL::Value& value) const {
-            auto result = std::set<Model::TagAttribute>{};
+        std::vector<Model::TagAttribute> GameConfigParser::parseTagAttributes(const EL::Value& value) const {
+            auto result = std::vector<Model::TagAttribute>{};
             if (value.null()) {
                 return result;
             }
 
+            result.reserve(value.length());
             for (size_t i = 0; i < value.length(); ++i) {
                 const auto& entry = value[i];
-                result.emplace(entry.stringValue());
+                result.emplace_back(entry.stringValue());
             }
 
             return result;
