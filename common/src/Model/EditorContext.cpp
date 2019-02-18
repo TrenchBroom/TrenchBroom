@@ -227,10 +227,9 @@ namespace TrenchBroom {
         }
         
         bool EditorContext::visible(const Model::BrushFace* face) const {
-            return visible(face->brush());
+            return !face->hasTag(m_hiddenTags);
         }
 
-        
         bool EditorContext::anyChildVisible(const Model::Node* node) const {
             const auto& children = node->children();
             return std::any_of(std::begin(children), std::end(children), [this](const Node* child) { return visible(child); });
@@ -288,7 +287,7 @@ namespace TrenchBroom {
         }
         
         bool EditorContext::pickable(const Model::BrushFace* face) const {
-            return pickable(face->brush());
+            return face->brush()->selected() || visible(face);
         }
 
         class NodeSelectable : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {

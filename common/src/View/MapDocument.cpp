@@ -1828,6 +1828,30 @@ namespace TrenchBroom {
             return m_tagManager->smartTag(name);
         }
 
+        class MapDocument::InitializeNodeTagsVisitor : public Model::NodeVisitor {
+        private:
+            Model::TagManager& m_tagManager;
+        public:
+            InitializeNodeTagsVisitor(Model::TagManager& tagManager) :
+            m_tagManager(tagManager) {}
+        private:
+            void doVisit(Model::World* world)   override { initializeNodeTags(world); }
+            void doVisit(Model::Layer* layer)   override { initializeNodeTags(layer); }
+            void doVisit(Model::Group* group)   override { initializeNodeTags(group); }
+            void doVisit(Model::Entity* entity) override { initializeNodeTags(entity); }
+            void doVisit(Model::Brush* brush)   override { initializeNodeTags(brush); }
+
+            void initializeNodeTags(Model::Node* node) {
+                node->initializeTags(m_tagManager);
+            }
+        };
+
+        void MapDocument::initializeNodeTags(MapDocument* document) {
+            InitializeNodeTagsVisitor visitor(*m_tagManager);
+            auto* world = document->world();
+            world->acceptAndRecurse(visitor);
+        }
+
         void MapDocument::initializeNodeTags(const Model::NodeList& nodes) {
             for (auto* node : nodes) {
                 node->initializeTags(*m_tagManager);
@@ -1897,6 +1921,8 @@ namespace TrenchBroom {
             commandUndoneNotifier.addObserver(this, &MapDocument::commandUndone);
 
             // tag management
+            documentWasNewedNotifier.addObserver(this, &MapDocument::initializeNodeTags);
+            documentWasLoadedNotifier.addObserver(this, &MapDocument::initializeNodeTags);
             nodesWereAddedNotifier.addObserver(this, &MapDocument::initializeNodeTags);
             nodesWillBeRemovedNotifier.addObserver(this, &MapDocument::clearNodeTags);
             nodesDidChangeNotifier.addObserver(this, &MapDocument::updateNodeTags);
@@ -1912,6 +1938,8 @@ namespace TrenchBroom {
             commandUndoneNotifier.removeObserver(this, &MapDocument::commandUndone);
 
             // tag management
+            documentWasNewedNotifier.removeObserver(this, &MapDocument::initializeNodeTags);
+            documentWasLoadedNotifier.removeObserver(this, &MapDocument::initializeNodeTags);
             nodesWereAddedNotifier.removeObserver(this, &MapDocument::initializeNodeTags);
             nodesWillBeRemovedNotifier.removeObserver(this, &MapDocument::clearNodeTags);
             nodesDidChangeNotifier.removeObserver(this, &MapDocument::updateNodeTags);

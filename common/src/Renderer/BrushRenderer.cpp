@@ -117,7 +117,7 @@ namespace TrenchBroom {
         // BrushRenderer
 
         BrushRenderer::BrushRenderer(const bool transparent) :
-        m_filter(new NoFilter(transparent)),
+        m_filter(std::make_unique<NoFilter>(transparent)),
         m_showEdges(false),
         m_grayscale(false),
         m_tint(false),
@@ -127,11 +127,6 @@ namespace TrenchBroom {
             clear();
         }
         
-        BrushRenderer::~BrushRenderer() {
-            delete m_filter;
-            m_filter = nullptr;
-        }
-
         void BrushRenderer::addBrushes(const Model::BrushList& brushes) {
             for (auto* brush : brushes) {
                 addBrush(brush);

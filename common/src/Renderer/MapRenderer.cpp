@@ -104,7 +104,7 @@ namespace TrenchBroom {
                 }
 
                 for (Model::BrushFace* face : brush->faces()) {
-                    face->setMarked(!selected(face));
+                    face->setMarked(!selected(face) && visible(face));
                 }
                 return std::make_tuple(brush->transparent() ? RenderOpacity::Transparent : RenderOpacity::Opaque,
                                        renderFaces ? FaceRenderPolicy::RenderMarked : FaceRenderPolicy::RenderNone,

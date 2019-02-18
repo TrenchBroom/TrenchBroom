@@ -27,8 +27,9 @@
 #include "Model/Brush.h"
 #include "Renderer/AllocationTracker.h"
 
-#include <tuple>
 #include <map>
+#include <memory>
+#include <tuple>
 #include <unordered_map>
 
 namespace TrenchBroom {
@@ -92,9 +93,9 @@ namespace TrenchBroom {
             private:
                 const Model::EditorContext& m_context;
             public:
-                virtual ~DefaultFilter();
+                ~DefaultFilter() override;
             protected:
-                DefaultFilter(const Model::EditorContext& context);
+                explicit DefaultFilter(const Model::EditorContext& context);
                 DefaultFilter(const DefaultFilter& other);
                 
                 bool visible(const Model::Brush* brush) const;
@@ -116,7 +117,7 @@ namespace TrenchBroom {
             private:
                 bool m_transparent;
             public:
-                NoFilter(bool transparent);
+                explicit NoFilter(bool transparent);
 
                 RenderSettings markFaces(const Model::Brush* brush) const override;
             private:
@@ -126,7 +127,7 @@ namespace TrenchBroom {
         private:
             class FilterWrapper;
         private:
-            Filter* m_filter;
+            std::unique_ptr<Filter> m_filter;
 
             struct BrushInfo {
                 AllocationTracker::Block* vertexHolderKey;
@@ -170,7 +171,7 @@ namespace TrenchBroom {
         public:
             template <typename FilterT>
             explicit BrushRenderer(const FilterT& filter) :
-            m_filter(new FilterT(filter)),
+            m_filter(std::make_unique<FilterT>(filter)),
             m_showEdges(false),
             m_grayscale(false),
             m_tint(false),
@@ -181,8 +182,6 @@ namespace TrenchBroom {
             }
             
             explicit BrushRenderer(bool transparent);
-            
-            ~BrushRenderer();
 
             /**
              * New brushes are invalidated, brushes already in the BrushRenderer are not invalidated.
