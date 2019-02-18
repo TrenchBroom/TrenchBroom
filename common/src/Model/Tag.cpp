@@ -181,7 +181,7 @@ namespace TrenchBroom {
             return *this;
         }
 
-        SmartTag& SmartTag::operator=(SmartTag&& other) noexcept = default;
+        SmartTag& SmartTag::operator=(SmartTag&& other) = default;
 
         void SmartTag::update(Taggable& taggable) const {
             if (m_matcher->matches(taggable)) {

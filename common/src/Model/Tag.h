@@ -239,7 +239,7 @@ namespace TrenchBroom {
             SmartTag(SmartTag&& other) noexcept;
 
             SmartTag& operator=(const SmartTag& other);
-            SmartTag& operator=(SmartTag&& other) noexcept;
+            SmartTag& operator=(SmartTag&& other);
 
             /**
              * Updates the given tag depending on whether or not the matcher matches against it.
