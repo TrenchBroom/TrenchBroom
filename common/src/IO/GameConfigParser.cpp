@@ -307,11 +307,11 @@ namespace TrenchBroom {
             expectStructure(value,
                             "["
                             "{},"
-                            "{'brush': 'Array', 'face': 'Array'}"
+                            "{'brush': 'Array', 'brushface': 'Array'}"
                             "]");
 
             parseBrushTags(value["brush"], result);
-            parseFaceTags(value["face"], faceAttribsConfig, result);
+            parseFaceTags(value["brushface"], faceAttribsConfig, result);
             return result;
         }
 

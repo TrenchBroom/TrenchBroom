@@ -1978,7 +1978,7 @@ The game configuration is an [expression language](#expression_language) map wit
 		},
 		"textures": { // where to search for textures and how to read them, see below
 	        "package": { "type": "directory", "root": "textures" },
-	        "format": { "extensions": [ "wal" ], "format": "idwal" },
+	        "format": { "extensions": [ "wal" ], "format": "wal" },
 	        "palette": "pics/colormap.pcx",
 	        "attribute": "_tb_textures"
 		},
@@ -2086,7 +2086,7 @@ A directory based texture configuration looks as follows. It differs only in the
 
 	"textures": {
         "package": { "type": "directory", "root": "textures" },
-        "format": { "extensions": [ "wal" ], "format": "idwal" },
+        "format": { "extensions": [ "wal" ], "format": "wal" },
         "palette": "pics/colormap.pcx",
         "attribute": "_tb_textures"
 	},
@@ -2104,7 +2104,7 @@ Format       Description
 idmip        mip file, used by Quake and Hexen
 hlmip        mip file, used by Half Life
 dkmip        mip file, used by Daikatana
-idwal        wal file, used by Quake 2
+wal          wal file, used by Quake 2
 image        image file
 
 The `image` format can be used to load a wide array of image formats such as tga, pcx, jpeg, and so on. TrenchBroom uses the [FreeImage Library] to load these images and supports any file type supported by this library.
