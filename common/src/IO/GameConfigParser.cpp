@@ -375,7 +375,7 @@ namespace TrenchBroom {
                     auto attribs = parseTagAttributes(entry["attribs"]);
                     auto matcher = std::make_unique<Model::ContentFlagsTagMatcher>(flagValue);
                     result.emplace_back(std::move(name), std::move(attribs), std::move(matcher));
-                } else if (match == "surfaceflags") {
+                } else if (match == "surfaceflag") {
                     expectMapEntry(entry, "flags", EL::Type_Array);
                     const auto flagSet = entry["flags"].asStringSet();
                     int flagValue = 0;

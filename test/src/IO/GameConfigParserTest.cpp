@@ -369,11 +369,12 @@ namespace TrenchBroom {
     }
 }
 )%");
+
             GameConfigParser parser(config);
             
             using Model::GameConfig;
             const GameConfig actual = parser.parse();
-            
+
             using Model::BrushContentType;
             const GameConfig expected(
                 "Quake 2",
