@@ -38,24 +38,22 @@ namespace TrenchBroom {
             return lhs.m_name < rhs.m_name;
         }
 
-        Tag::TagType Tag::freeTagType() {
-            static const size_t Bits = (sizeof(TagType) * 8);
-            static size_t currentShift = 0;
-
-            ensure(currentShift <= Bits, "No more tag types");
-            return 1u << currentShift++;
-        }
-
         Tag::Tag(Tag::TagType type, String name, std::vector<TagAttribute> attributes) :
         m_type(type),
         m_name(std::move(name)),
         m_attributes(std::move(attributes)) {}
 
         Tag::Tag(String name, std::vector<TagAttribute> attributes) :
-        Tag(freeTagType(), name, attributes) {}
+        Tag(0, name, attributes) {}
 
         Tag::TagType Tag::type() const {
             return m_type;
+        }
+
+        void Tag::setType(const Tag::TagType type) {
+            ensure(type != 0, "tag type must not be 0");
+            ensure(m_type == 0, "tag type already set");
+            m_type = type;
         }
 
         const String& Tag::name() const {

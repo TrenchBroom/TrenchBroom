@@ -21,23 +21,26 @@
 #define TRENCHBROOM_TAGMANAGER_H
 
 #include "StringUtils.h"
+#include "Model/Tag.h"
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        class Tag;
-        class SmartTag;
-        class Taggable;
-
         /**
          * Manages the tags used in a document and updates smart tags on taggable objects.
          */
         class TagManager {
         private:
+            size_t m_currentTagTypeIndex;
             std::vector<SmartTag> m_smartTags;
             class TagCmp;
         public:
+            /**
+             * Creates a new instance.
+             */
+            TagManager();
+
             /**
              * Returns a vector containing all smart tags registered with this manager.
              */
@@ -81,6 +84,8 @@ namespace TrenchBroom {
              * @param taggable the object to update
              */
             void updateTags(Taggable& taggable) const;
+        private:
+            Tag::TagType freeTagType();
         };
     }
 }

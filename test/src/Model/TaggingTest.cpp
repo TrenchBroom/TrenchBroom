@@ -19,7 +19,8 @@
 
 #include <gtest/gtest.h>
 
-#include "Model/TagMatcher.h"
+#include "Model/Tag.h"
+#include "Model/TagManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/Layer.h"
@@ -40,6 +41,9 @@ namespace TrenchBroom {
             Tag tag1{"tag1", {}};
             Tag tag2{"tag2", {}};
 
+            tag1.setType(1);
+            tag2.setType(2);
+
             ASSERT_FALSE(brush->hasTag(tag1));
             ASSERT_FALSE(brush->hasTag(tag2));
 
@@ -55,7 +59,5 @@ namespace TrenchBroom {
             ASSERT_FALSE(brush->hasTag(tag1));
             ASSERT_FALSE(brush->hasTag(tag2));
         }
-
-
     }
 }

@@ -59,7 +59,6 @@ namespace TrenchBroom {
         class Tag {
         public:
             using TagType = unsigned long;
-            static TagType freeTagType();
         protected:
             TagType m_type;
             String m_name;
@@ -86,6 +85,13 @@ namespace TrenchBroom {
              * Returns the type of this tag.
              */
             TagType type() const;
+
+            /**
+             * Sets the tag type. Can be called only once.
+             *
+             * @param type the type
+             */
+            void setType(TagType type);
 
             /**
              * Returns the name of this tag.
