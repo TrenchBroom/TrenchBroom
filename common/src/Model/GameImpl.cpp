@@ -49,7 +49,6 @@
 #include "Model/EntityAttributes.h"
 #include "Model/GameConfig.h"
 #include "Model/Layer.h"
-#include "Model/Tutorial.h"
 #include "Model/World.h"
 
 #include "Exceptions.h"
@@ -118,7 +117,7 @@ namespace TrenchBroom {
             if (!initialMapFilePath.isEmpty() && IO::Disk::fileExists(initialMapFilePath)) {
                 return doLoadMap(format, worldBounds, initialMapFilePath, logger);
             } else {
-                auto world = std::make_unique<World>(format, brushContentTypeBuilder(), worldBounds);
+                auto world = std::make_unique<World>(format, worldBounds);
 
                 const Model::BrushBuilder builder(world.get(), worldBounds);
                 auto* brush = builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFace::NoTextureName);
@@ -135,7 +134,7 @@ namespace TrenchBroom {
         std::unique_ptr<World> GameImpl::doLoadMap(const MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger& logger) const {
             IO::SimpleParserStatus parserStatus(logger);
             const auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
-            IO::WorldReader reader(file->begin(), file->end(), brushContentTypeBuilder());
+            IO::WorldReader reader(file->begin(), file->end());
             return reader.read(format, worldBounds, parserStatus);
         }
 
@@ -284,25 +283,21 @@ namespace TrenchBroom {
             const auto extension = path.extension();
             const auto& defaultColor = m_config.entityConfig().defaultColor;
 
-            Assets::EntityDefinitionList definitions;
             if (StringUtils::caseInsensitiveEqual("fgd", extension)) {
                 const auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
                 IO::FgdParser parser(file->begin(), file->end(), defaultColor, file->path());
-                definitions = parser.parseDefinitions(status);
+                return parser.parseDefinitions(status);
             } else if (StringUtils::caseInsensitiveEqual("def", extension)) {
                 const auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
                 IO::DefParser parser(file->begin(), file->end(), defaultColor);
-                definitions = parser.parseDefinitions(status);
+                return parser.parseDefinitions(status);
             } else if (StringUtils::caseInsensitiveEqual("ent", extension)) {
                 const auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
                 IO::EntParser parser(file->begin(), file->end(), defaultColor);
-                definitions = parser.parseDefinitions(status);
+                return parser.parseDefinitions(status);
             } else {
                 throw GameException("Unknown entity definition format: '" + path.asString() + "'");
             }
-
-            definitions.push_back(Tutorial::createTutorialEntityDefinition());
-            return definitions;
         }
 
         Assets::EntityDefinitionFileSpec::List GameImpl::doAllEntityDefinitionFiles() const {
@@ -415,10 +410,6 @@ namespace TrenchBroom {
         Assets::Palette GameImpl::loadTexturePalette() const {
             const auto& path = m_config.textureConfig().palette;
             return Assets::Palette::loadFile(m_fs, path);
-        }
-
-        const BrushContentType::List& GameImpl::doBrushContentTypes() const {
-            return m_config.brushContentTypes();
         }
 
         StringList GameImpl::doAvailableMods() const {

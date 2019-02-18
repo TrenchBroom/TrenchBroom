@@ -45,7 +45,7 @@ namespace TrenchBroom {
                 m_worldBounds = vm::bbox3d(8192.0);
                 m_entity = new Entity();
                 m_entity->addOrUpdateAttribute(AttributeNames::Classname, TestClassname);
-                m_world = new World(MapFormat::Standard, nullptr, m_worldBounds);
+                m_world = new World(MapFormat::Standard, m_worldBounds);
             }
 
             void TearDown() override {

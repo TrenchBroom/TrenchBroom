@@ -32,7 +32,6 @@
 #include "Model/Layer.h"
 #include "Model/Node.h"
 #include "Model/NodeVisitor.h"
-#include "Model/Tutorial.h"
 #include "Model/World.h"
 #include "Renderer/BrushRenderer.h"
 #include "Renderer/Camera.h"

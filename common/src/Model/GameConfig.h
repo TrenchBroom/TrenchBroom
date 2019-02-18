@@ -23,7 +23,6 @@
 #include "Color.h"
 #include "StringUtils.h"
 #include "IO/Path.h"
-#include "Model/BrushContentType.h"
 #include "Model/CompilationConfig.h"
 #include "Model/GameEngineConfig.h"
 #include "Model/ModelTypes.h"
@@ -158,7 +157,6 @@ namespace TrenchBroom {
             TextureConfig m_textureConfig;
             EntityConfig m_entityConfig;
             FaceAttribsConfig m_faceAttribsConfig;
-            BrushContentType::List m_brushContentTypes;
             std::vector<SmartTag> m_smartTags;
             CompilationConfig m_compilationConfig;
             GameEngineConfig m_gameEngineConfig;
@@ -175,7 +173,6 @@ namespace TrenchBroom {
                 TextureConfig textureConfig,
                 EntityConfig entityConfig,
                 FaceAttribsConfig faceAttribsConfig,
-                BrushContentType::List brushContentTypes,
                 std::vector<SmartTag> smartTags);
             
             const String& name() const;
@@ -187,7 +184,6 @@ namespace TrenchBroom {
             const TextureConfig& textureConfig() const;
             const EntityConfig& entityConfig() const;
             const FaceAttribsConfig& faceAttribsConfig() const;
-            const BrushContentType::List& brushContentTypes() const;
             const std::vector<SmartTag>& smartTags() const;
 
             CompilationConfig& compilationConfig();
@@ -202,8 +198,6 @@ namespace TrenchBroom {
 
             IO::Path findInitialMap(const String& formatName) const;
             IO::Path findConfigFile(const IO::Path& filePath) const;
-            
-            void addBrushContentType(const BrushContentType& contentType);
         };
     }
 }

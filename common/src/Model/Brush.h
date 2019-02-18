@@ -24,7 +24,6 @@
 #include "Hit.h"
 #include "ProjectingSequence.h"
 #include "Polyhedron_Matcher.h"
-#include "Model/BrushContentType.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Node.h"
 #include "Model/Object.h"
@@ -46,7 +45,6 @@
 namespace TrenchBroom {
     namespace Model {
         struct BrushAlgorithmResult;
-        class BrushContentTypeBuilder;
         class ModelFactory;
         class PickResult;
         class BrushRendererBrushCache;
@@ -81,10 +79,7 @@ namespace TrenchBroom {
             BrushFaceList m_faces;
             BrushGeometry* m_geometry;
 
-            const BrushContentTypeBuilder* m_contentTypeBuilder;
-            mutable BrushContentType::FlagType m_contentType;
             mutable bool m_transparent;
-            mutable bool m_contentTypeValid;
             mutable Renderer::BrushRendererBrushCache m_brushRendererBrushCache;
         public:
             Brush(const vm::bbox3& worldBounds, const BrushFaceList& faces);
@@ -284,15 +279,6 @@ namespace TrenchBroom {
             bool checkGeometry() const;
         public:
             void findIntegerPlanePoints(const vm::bbox3& worldBounds);
-        public: // content type
-            bool transparent() const;
-            bool hasContentType(const BrushContentType& contentType) const;
-            bool hasContentType(BrushContentType::FlagType contentTypeMask) const;
-            void setContentTypeBuilder(const BrushContentTypeBuilder* contentTypeBuilder);
-        private:
-            BrushContentType::FlagType contentTypeFlags() const;
-            void invalidateContentType();
-            void validateContentType() const;
         private: // implement Node interface
             const String& doGetName() const override;
             const vm::bbox3& doGetBounds() const override;
@@ -305,8 +291,6 @@ namespace TrenchBroom {
             bool doRemoveIfEmpty() const override;
 
             bool doShouldAddToSpacialIndex() const override;
-
-            void doParentDidChange() override;
 
             bool doSelectable() const override;
 

@@ -43,7 +43,6 @@ namespace TrenchBroom {
     }
     
     namespace Model {
-        class BrushContentTypeBuilder;
         class SmartTag;
         
         class Game : public IO::EntityDefinitionLoader, public IO::EntityModelLoader {
@@ -52,12 +51,6 @@ namespace TrenchBroom {
                 File,
                 Directory
             };
-        private:
-            mutable BrushContentTypeBuilder* m_brushContentTypeBuilder;
-        protected:
-            Game();
-        public:
-            ~Game() override;
         public:
             const String& gameName() const;
             bool isGamePathPreference(const IO::Path& prefPath) const;
@@ -98,9 +91,6 @@ namespace TrenchBroom {
             Assets::EntityDefinitionFileSpec::List allEntityDefinitionFiles() const;
             Assets::EntityDefinitionFileSpec extractEntityDefinitionFile(const AttributableNode& node) const;
             IO::Path findEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const;
-        public: // brush content type
-            const BrushContentTypeBuilder* brushContentTypeBuilder() const;
-            const BrushContentType::List& brushContentTypes() const;
         public: // mods
             StringList availableMods() const;
             StringList extractEnabledMods(const AttributableNode& node) const;
@@ -142,8 +132,6 @@ namespace TrenchBroom {
             virtual Assets::EntityDefinitionFileSpec::List doAllEntityDefinitionFiles() const = 0;
             virtual Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(const AttributableNode& node) const = 0;
             virtual IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const = 0;
-            
-            virtual const BrushContentType::List& doBrushContentTypes() const = 0;
             
             virtual StringList doAvailableMods() const = 0;
             virtual StringList doExtractEnabledMods(const AttributableNode& node) const = 0;

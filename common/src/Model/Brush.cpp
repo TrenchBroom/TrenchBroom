@@ -22,7 +22,6 @@
 #include "CollectionUtils.h"
 #include "Macros.h"
 #include "Model/TagMatcher.h"
-#include "Model/BrushContentTypeBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/BrushSnapshot.h"
@@ -286,11 +285,7 @@ namespace TrenchBroom {
         };
 
         Brush::Brush(const vm::bbox3& worldBounds, const BrushFaceList& faces) :
-        m_geometry(nullptr),
-        m_contentTypeBuilder(nullptr),
-        m_contentType(0),
-        m_transparent(false),
-        m_contentTypeValid(true) {
+        m_geometry(nullptr) {
             addFaces(faces);
             try {
                 buildGeometry(worldBounds);
@@ -307,7 +302,6 @@ namespace TrenchBroom {
         void Brush::cleanup() {
             deleteGeometry();
             VectorUtils::clearAndDelete(m_faces);
-            m_contentTypeBuilder = nullptr;
         }
 
         Brush* Brush::clone(const vm::bbox3& worldBounds) const {
@@ -426,7 +420,6 @@ namespace TrenchBroom {
         }
 
         void Brush::faceDidChange() {
-            invalidateContentType();
             invalidateIssues();
         }
 
@@ -441,7 +434,6 @@ namespace TrenchBroom {
 
             m_faces.push_back(face);
             face->setBrush(this);
-            invalidateContentType();
             invalidateVertexCache();
             if (face->selected()) {
                 incChildSelectionCount(1);
@@ -476,7 +468,6 @@ namespace TrenchBroom {
             }
             face->setGeometry(nullptr);
             face->setBrush(nullptr);
-            invalidateContentType();
             invalidateVertexCache();
         }
 
@@ -1251,7 +1242,6 @@ namespace TrenchBroom {
                 }
             }
 
-            invalidateContentType();
             invalidateVertexCache();
         }
 
@@ -1330,47 +1320,6 @@ namespace TrenchBroom {
             rebuildGeometry(worldBounds);
         }
 
-        bool Brush::transparent() const {
-            if (!m_contentTypeValid) {
-                validateContentType();
-            }
-            return m_transparent;
-        }
-
-        bool Brush::hasContentType(const BrushContentType& contentType) const {
-            return hasContentType(contentType.flagValue());
-        }
-
-        bool Brush::hasContentType(const BrushContentType::FlagType contentTypeMask) const {
-            return (contentTypeFlags() & contentTypeMask) != 0;
-        }
-
-        void Brush::setContentTypeBuilder(const BrushContentTypeBuilder* contentTypeBuilder) {
-            m_contentTypeBuilder = contentTypeBuilder;
-            invalidateContentType();
-        }
-
-        BrushContentType::FlagType Brush::contentTypeFlags() const {
-            if (!m_contentTypeValid) {
-                validateContentType();
-            }
-            return m_contentType;
-        }
-
-        void Brush::invalidateContentType() {
-            m_contentTypeValid = false;
-        }
-
-        void Brush::validateContentType() const {
-            ensure(!m_contentTypeValid, "content type already valid");
-            if (m_contentTypeBuilder != nullptr) {
-                const auto result = m_contentTypeBuilder->buildContentType(this);
-                m_contentType = result.contentType;
-                m_transparent = result.transparent;
-                m_contentTypeValid = true;
-            }
-        }
-
         const String& Brush::doGetName() const {
             static const String name("brush");
             return name;
@@ -1390,7 +1339,6 @@ namespace TrenchBroom {
             }
 
             auto* brush = new Brush(worldBounds, faceClones);
-            brush->setContentTypeBuilder(m_contentTypeBuilder);
             cloneAttributes(brush);
             return brush;
         }
@@ -1409,10 +1357,6 @@ namespace TrenchBroom {
 
         bool Brush::doShouldAddToSpacialIndex() const {
             return true;
-        }
-
-        void Brush::doParentDidChange() {
-            invalidateContentType();
         }
 
         bool Brush::doSelectable() const {

@@ -93,8 +93,6 @@ namespace TrenchBroom {
             Assets::EntityModel* loadDkmModel(const String& name, const IO::MappedFile::Ptr& file, Logger& logger) const;
             Assets::Palette loadTexturePalette() const;
             
-            const BrushContentType::List& doBrushContentTypes() const override;
-
             StringList doAvailableMods() const override;
             StringList doExtractEnabledMods(const AttributableNode& node) const override;
             String doDefaultMod() const override;

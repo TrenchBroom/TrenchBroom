@@ -19,20 +19,11 @@
 
 #include "Game.h"
 
-#include "Model/BrushContentTypeBuilder.h"
 #include "Model/GameFactory.h"
 #include "Model/World.h"
 
 namespace TrenchBroom {
     namespace Model {
-        Game::Game() :
-        m_brushContentTypeBuilder(nullptr) {}
-        
-        Game::~Game() {
-            delete m_brushContentTypeBuilder;
-            m_brushContentTypeBuilder = nullptr;
-        }
-
         const String& Game::gameName() const {
             return doGameName();
         }
@@ -144,17 +135,6 @@ namespace TrenchBroom {
         
         IO::Path Game::findEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const {
             return doFindEntityDefinitionFile(spec, searchPaths);
-        }
-        
-        const BrushContentTypeBuilder* Game::brushContentTypeBuilder() const {
-            if (m_brushContentTypeBuilder == nullptr) {
-                m_brushContentTypeBuilder = new BrushContentTypeBuilder(brushContentTypes());
-            }
-            return m_brushContentTypeBuilder;
-        }
-
-        const BrushContentType::List& Game::brushContentTypes() const {
-            return doBrushContentTypes();
         }
 
         StringList Game::availableMods() const {

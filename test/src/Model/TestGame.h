@@ -76,8 +76,6 @@ namespace TrenchBroom {
             Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(const AttributableNode& node) const override;
             IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const override;
             
-            const BrushContentType::List& doBrushContentTypes() const override;
-            
             StringList doAvailableMods() const override;
             StringList doExtractEnabledMods(const AttributableNode& node) const override;
             String doDefaultMod() const override;

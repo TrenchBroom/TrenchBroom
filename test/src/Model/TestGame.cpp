@@ -64,11 +64,11 @@ namespace TrenchBroom {
         }
 
         std::unique_ptr<World> TestGame::doNewMap(const MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const {
-            return std::make_unique<World>(format, brushContentTypeBuilder(), worldBounds);
+            return std::make_unique<World>(format, worldBounds);
         }
 
         std::unique_ptr<World> TestGame::doLoadMap(const MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger& logger) const {
-            return std::make_unique<World>(format, brushContentTypeBuilder(), worldBounds);
+            return std::make_unique<World>(format, worldBounds);
         }
         
         void TestGame::doWriteMap(World& world, const IO::Path& path) const {
@@ -163,11 +163,6 @@ namespace TrenchBroom {
         
         IO::Path TestGame::doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const {
             return IO::Path();
-        }
-        
-        const BrushContentType::List& TestGame::doBrushContentTypes() const {
-            static const BrushContentType::List result;
-            return result;
         }
         
         StringList TestGame::doAvailableMods() const {

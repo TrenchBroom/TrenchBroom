@@ -23,7 +23,6 @@
 #include "Macros.h"
 #include "StringUtils.h"
 #include "IO/ConfigParserBase.h"
-#include "Model/BrushContentType.h"
 #include "Model/GameConfig.h"
 
 #include <iostream>
@@ -53,7 +52,6 @@ namespace TrenchBroom {
             Model::GameConfig::EntityConfig parseEntityConfig(const EL::Value& values) const;
             Model::GameConfig::FaceAttribsConfig parseFaceAttribsConfig(const EL::Value& values) const;
             Model::GameConfig::FlagConfigList parseFlagConfig(const EL::Value& values) const;
-            Model::BrushContentType::List parseBrushContentTypes(const EL::Value& value, const Model::GameConfig::FaceAttribsConfig& faceAttribsConfigs) const;
             std::vector<Model::SmartTag> parseTags(const EL::Value& value, const Model::GameConfig::FaceAttribsConfig& faceAttribsConfigs) const;
 
             deleteCopyAndMove(GameConfigParser)

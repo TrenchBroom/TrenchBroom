@@ -32,7 +32,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class BrushContentTypeBuilder;
         class PickResult;
         
         class World : public AttributableNode, public ModelFactory {
@@ -46,7 +45,7 @@ namespace TrenchBroom {
             NodeTree m_nodeTree;
             bool m_updateNodeTree;
         public:
-            World(MapFormat mapFormat, const BrushContentTypeBuilder* brushContentTypeBuilder, const vm::bbox3& worldBounds);
+            World(MapFormat mapFormat, const vm::bbox3& worldBounds);
         public: // layer management
             Layer* defaultLayer() const;
             LayerList allLayers() const;

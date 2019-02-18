@@ -123,7 +123,6 @@ namespace TrenchBroom {
             using Model::GameConfig;
             const GameConfig actual = parser.parse();
             
-            using Model::BrushContentType;
             const GameConfig expected("Quake",
             Path(),
             Path("Icon.png"),
@@ -143,7 +142,6 @@ namespace TrenchBroom {
                 { "mdl", "bsp" },
                 Color(0.6f, 0.6f, 0.6f, 1.0f)),
             GameConfig::FaceAttribsConfig(),
-            {}, // brush content types
             {
               Model::SmartTag("Trigger", { Model::TagAttribute("transparent") }, std::make_unique<Model::EntityClassNameTagMatcher>("trigger*")),
               Model::SmartTag("Clip", { Model::TagAttribute("transparent") }, std::make_unique<Model::TextureNameTagMatcher>("clip")),
@@ -163,7 +161,6 @@ namespace TrenchBroom {
             ASSERT_EQ(expected.entityConfig(), actual.entityConfig());
             ASSERT_EQ(expected.faceAttribsConfig(), actual.faceAttribsConfig());
             ASSERT_EQ(expected.smartTags(), actual.smartTags());
-            ASSERT_TRUE(actual.brushContentTypes().empty());
         }
 
         TEST(GameConfigParserTest, parseQuake2Config) {
@@ -375,7 +372,6 @@ namespace TrenchBroom {
             using Model::GameConfig;
             const GameConfig actual = parser.parse();
 
-            using Model::BrushContentType;
             const GameConfig expected(
                 "Quake 2",
                 Path(),
@@ -439,7 +435,6 @@ namespace TrenchBroom {
                         { "translucent", "Use for opaque water that does not block vis" },
                         { "ladder", "Brushes with this flag allow a player to move up and down a vertical surface" }
                     }),
-                {}, // brush content types
                 {
                     Model::SmartTag("Trigger", { Model::TagAttribute("transparent") }, std::make_unique<Model::EntityClassNameTagMatcher>("trigger*")),
                     Model::SmartTag("Clip", { Model::TagAttribute("transparent") }, std::make_unique<Model::TextureNameTagMatcher>("clip")),
@@ -460,7 +455,6 @@ namespace TrenchBroom {
             ASSERT_EQ(expected.entityConfig(), actual.entityConfig());
             ASSERT_EQ(expected.faceAttribsConfig(), actual.faceAttribsConfig());
             ASSERT_EQ(expected.smartTags(), actual.smartTags());
-            ASSERT_TRUE(actual.brushContentTypes().empty());
         }
     }
 }

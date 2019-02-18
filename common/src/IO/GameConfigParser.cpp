@@ -20,7 +20,6 @@
 #include "GameConfigParser.h"
 
 #include "Exceptions.h"
-#include "Model/BrushContentTypeEvaluator.h"
 #include "Model/Tag.h"
 #include "Model/TagMatcher.h"
 
@@ -46,7 +45,7 @@ namespace TrenchBroom {
 
             const auto version = root["version"].numberValue();
             unused(version);
-            assert(version == 2.0);
+            assert(version == 3.0);
 
             auto name = root["name"].stringValue();
             auto icon = Path(root["icon"].stringValue());
@@ -57,9 +56,8 @@ namespace TrenchBroom {
             auto textureConfig = parseTextureConfig(root["textures"]);
             auto entityConfig = parseEntityConfig(root["entities"]);
             auto faceAttribsConfig = parseFaceAttribsConfig(root["faceattribs"]);
-            auto brushContentTypes = parseBrushContentTypes(root["brushtypes"], faceAttribsConfig);
             auto tags = parseTags(root["tags"], faceAttribsConfig);
-            
+
             return GameConfig(
                 std::move(name),
                 m_path,
@@ -70,7 +68,6 @@ namespace TrenchBroom {
                 std::move(textureConfig),
                 std::move(entityConfig),
                 std::move(faceAttribsConfig),
-                std::move(brushContentTypes),
                 std::move(tags));
         }
 
@@ -231,71 +228,6 @@ namespace TrenchBroom {
             }
             
             return flags;
-        }
-
-        Model::BrushContentType::List GameConfigParser::parseBrushContentTypes(const EL::Value& value, const Model::GameConfig::FaceAttribsConfig& faceAttribsConfig) const {
-            using Model::GameConfig;
-            
-            if (value.null()) {
-                return Model::BrushContentType::List();
-            }
-
-            Model::BrushContentType::List contentTypes;
-            for (size_t i = 0; i < value.length(); ++i) {
-                const auto& entry = value[i];
-                
-                expectStructure(entry, "[ {'name': 'String', 'match': 'String'}, {'attribs': 'Array', 'pattern': 'String', 'flags': 'Array', 'ignore': 'Array' } ]");
-
-                const auto& name = entry["name"].stringValue();
-                const auto transparent = entry["attribs"].asStringSet().count("transparent") > 0;
-                const auto& match = entry["match"].stringValue();
-                const auto& ignoreTexture = entry["ignore"].asStringList();
-
-                const Model::BrushContentType::FlagType flag = 1 << i;
-                
-                if (match == "texture") {
-                    expectMapEntry(entry, "pattern", EL::Type_String);
-                    const auto& pattern = entry["pattern"].stringValue();
-                    auto evaluator = Model::BrushContentTypeEvaluator::textureNameEvaluator(pattern, ignoreTexture);
-                    contentTypes.push_back(Model::BrushContentType(name, transparent, flag, std::move(evaluator)));
-                } else if (match == "surfaceparm") {
-                    expectMapEntry(entry, "pattern", EL::Type_String);
-                    const auto& pattern = entry["pattern"].stringValue();
-                    auto evaluator = Model::BrushContentTypeEvaluator::shaderSurfaceParmsEvaluator(pattern, ignoreTexture);
-                    contentTypes.push_back(Model::BrushContentType(name, transparent, flag, std::move(evaluator)));
-                } else if (match == "contentflag") {
-                    expectMapEntry(entry, "flags", EL::Type_Array);
-                    const StringSet flagSet = entry["flags"].asStringSet();
-                    int flagValue = 0;
-
-                    for (const String &currentName : flagSet) {
-                        const int currentValue = faceAttribsConfig.contentFlags.flagValue(currentName);
-                        flagValue |= currentValue;
-                    }
-
-                    auto evaluator = Model::BrushContentTypeEvaluator::contentFlagsEvaluator(flagValue, ignoreTexture);
-                    contentTypes.push_back(Model::BrushContentType(name, transparent, flag, std::move(evaluator)));
-                } else if (match == "surfaceflag") {
-                    expectMapEntry(entry, "flags", EL::Type_Array);
-                    const StringSet flagSet = entry["flags"].asStringSet();
-                    int flagValue = 0;
-
-                    for (const String &currentName : flagSet) {
-                        const int currentValue = faceAttribsConfig.contentFlags.flagValue(currentName);
-                        flagValue |= currentValue;
-                    }
-
-                    auto evaluator = Model::BrushContentTypeEvaluator::surfaceFlagsEvaluator(flagValue, ignoreTexture);
-                    contentTypes.push_back(Model::BrushContentType(name, transparent, flag, std::move(evaluator)));
-                } else if (match == "classname") {
-                    const String& pattern = entry["pattern"].stringValue();
-                    auto evaluator = Model::BrushContentTypeEvaluator::entityClassnameEvaluator(pattern);
-                    contentTypes.push_back(Model::BrushContentType(name, transparent, flag, std::move(evaluator)));
-                } else {
-                    throw ParserException(entry.line(), entry.column(), "Unexpected brush content type '" + match + "'");
-                }
-            }
-            return contentTypes;
         }
 
         std::vector<Model::SmartTag> GameConfigParser::parseTags(const EL::Value& value, const Model::GameConfig::FaceAttribsConfig& faceAttribsConfig) const {

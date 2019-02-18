@@ -28,10 +28,9 @@
 
 namespace TrenchBroom {
     namespace Model {
-        World::World(MapFormat mapFormat, const BrushContentTypeBuilder* brushContentTypeBuilder, const vm::bbox3& worldBounds) :
-        m_factory(mapFormat, brushContentTypeBuilder),
+        World::World(MapFormat mapFormat, const vm::bbox3& worldBounds) :
+        m_factory(mapFormat),
         m_defaultLayer(nullptr),
-        // m_nodeTree(VecCodeComputer<vm::vec3>(worldBounds)),
         m_updateNodeTree(true) {
             addOrUpdateAttribute(AttributeNames::Classname, AttributeValues::WorldspawnClassname);
             createDefaultLayer(worldBounds);

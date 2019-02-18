@@ -184,7 +184,6 @@ namespace TrenchBroom {
                                TextureConfig textureConfig,
                                EntityConfig entityConfig,
                                FaceAttribsConfig faceAttribsConfig,
-                               BrushContentType::List brushContentTypes,
                                std::vector<SmartTag> smartTags) :
         m_name(std::move(name)),
         m_path(std::move(path)),
@@ -195,7 +194,6 @@ namespace TrenchBroom {
         m_textureConfig(std::move(textureConfig)),
         m_entityConfig(std::move(entityConfig)),
         m_faceAttribsConfig(std::move(faceAttribsConfig)),
-        m_brushContentTypes(std::move(brushContentTypes)),
         m_smartTags(std::move(smartTags)),
         m_maxPropertyLength(1023) {
             assert(!StringUtils::trim(m_name).empty());
@@ -236,10 +234,6 @@ namespace TrenchBroom {
 
         const GameConfig::FaceAttribsConfig& GameConfig::faceAttribsConfig() const {
             return m_faceAttribsConfig;
-        }
-
-        const BrushContentType::List& GameConfig::brushContentTypes() const {
-            return m_brushContentTypes;
         }
 
         const std::vector<SmartTag>& GameConfig::smartTags() const {
@@ -289,10 +283,6 @@ namespace TrenchBroom {
 
         IO::Path GameConfig::findConfigFile(const IO::Path& filePath) const {
             return path().deleteLastComponent() + filePath;
-        }
-
-        void GameConfig::addBrushContentType(const BrushContentType& contentType) {
-            m_brushContentTypes.push_back(contentType);
         }
     }
 }
