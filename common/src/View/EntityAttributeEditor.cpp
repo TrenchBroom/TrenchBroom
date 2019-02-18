@@ -132,31 +132,54 @@ namespace TrenchBroom {
             const Assets::EntityDefinition* entityDefinition = Model::AttributableNode::selectEntityDefinition(document->allSelectedAttributableNodes());
 
             m_documentationText->Clear();
+
+            wxTextAttr boldAttr;
+            boldAttr.SetFontWeight(wxFONTWEIGHT_BOLD);
+
             if (entityDefinition != nullptr) {
-                // attribute
+                // add attribute documentation, if available
                 if (const Assets::AttributeDefinition* attributeDefinition = entityDefinition->attributeDefinition(attributeName); attributeDefinition != nullptr) {
+                    const bool attributeHasDocs = !attributeDefinition->longDescription().empty()
+                                               || !attributeDefinition->shortDescription().empty();
 
-                    const long start = m_documentationText->GetLastPosition();
-                    m_documentationText->AppendText(attributeDefinition->shortDescription());
-                    const long end = m_documentationText->GetLastPosition();
+                    if (attributeHasDocs) {
+                        // "Attribute 'spawnflags'", in bold
+                        {
+                            const long start = m_documentationText->GetLastPosition();
+                            m_documentationText->AppendText("Attribute ");
+                            m_documentationText->AppendText(attributeDefinition->name());
+                            const long end = m_documentationText->GetLastPosition();
+                            m_documentationText->SetStyle(start, end, boldAttr);
+                        }
 
-                    // Make the shortDescription() bold
-                    wxTextAttr boldAttr;
-                    boldAttr.SetFontWeight(wxFONTWEIGHT_BOLD);
-                    m_documentationText->SetStyle(start, end, boldAttr);
-
-                    if (!attributeDefinition->longDescription().empty()) {
                         m_documentationText->AppendText("\n\n");
-                        m_documentationText->AppendText(attributeDefinition->longDescription());
+                        m_documentationText->AppendText(attributeDefinition->fullDescription());
                     }
                 }
 
-                m_documentationText->AppendText("\n\n");
-                m_documentationText->AppendText(entityDefinition->description());
+                // add class description, if available
+                if (!entityDefinition->description().empty()) {
+                    // add space after attribute text
+                    if (!m_documentationText->IsEmpty()) {
+                        m_documentationText->AppendText("\n\n");
+                    }
 
-                // Scroll to the top
-                m_documentationText->ShowPosition(0);
+                    // "Class func_door", in bold
+                    {
+                        const long start = m_documentationText->GetLastPosition();
+                        m_documentationText->AppendText("Class ");
+                        m_documentationText->AppendText(entityDefinition->name());
+                        const long end = m_documentationText->GetLastPosition();
+                        m_documentationText->SetStyle(start, end, boldAttr);
+                    }
+
+                    m_documentationText->AppendText("\n\n");
+                    m_documentationText->AppendText(entityDefinition->description());
+                }
             }
+
+            // Scroll to the top
+            m_documentationText->ShowPosition(0);
         }
         
         void EntityAttributeEditor::createGui(wxWindow* parent, MapDocumentWPtr document) {
