@@ -100,6 +100,53 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->hasTag(tag));
         }
 
+        TEST_F(MapDocumentTest, testTagUpdateBrushTagsAfterReparenting) {
+            game->setSmartTags({
+                Model::SmartTag("test", {}, std::make_unique<Model::EntityClassNameTagMatcher>("light"))
+            });
+            document->registerSmartTags();
+
+            auto* lightEntity = new Model::Entity();
+            lightEntity->addOrUpdateAttribute("classname", "light");
+            document->addNode(lightEntity, document->currentParent());
+
+            auto* otherEntity = new Model::Entity();
+            otherEntity->addOrUpdateAttribute("classname", "other");
+            document->addNode(otherEntity, document->currentParent());
+
+            auto* brush = createBrush("some_texture");
+            document->addNode(brush, otherEntity);
+
+            const auto& tag = document->smartTag("test");
+            ASSERT_FALSE(brush->hasTag(tag));
+
+            document->reparentNodes(lightEntity, Model::NodeList{brush});
+            ASSERT_TRUE(brush->hasTag(tag));
+        }
+
+        TEST_F(MapDocumentTest, testTagUpdateBrushTagsAfterChangingClassname) {
+            game->setSmartTags({
+                Model::SmartTag("test", {}, std::make_unique<Model::EntityClassNameTagMatcher>("light"))
+            });
+            document->registerSmartTags();
+
+            auto* lightEntity = new Model::Entity();
+            lightEntity->addOrUpdateAttribute("classname", "asdf");
+            document->addNode(lightEntity, document->currentParent());
+
+            auto* brush = createBrush("some_texture");
+            document->addNode(brush, lightEntity);
+
+            const auto& tag = document->smartTag("test");
+            ASSERT_FALSE(brush->hasTag(tag));
+
+            document->select(lightEntity);
+            document->setAttribute("classname", "light");
+            document->deselectAll();
+            
+            ASSERT_TRUE(brush->hasTag(tag));
+        }
+
         TEST_F(MapDocumentTest, testTagInitializeBrushFaceTags) {
             game->setSmartTags({
                 Model::SmartTag("test", {}, std::make_unique<Model::TextureNameTagMatcher>("some_texture"))

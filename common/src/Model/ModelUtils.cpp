@@ -18,6 +18,7 @@
  */
 
 #include "ModelUtils.h"
+#include "Model/CollectNodesVisitor.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -43,6 +44,14 @@ namespace TrenchBroom {
             return result;
         }
         
+        NodeList collectDescendants(const Model::NodeList& nodes) {
+            CollectNodesVisitor visitor;
+            for (const auto* node : nodes) {
+                node->recurse(visitor);
+            }
+            return visitor.nodes();
+        }
+
         ParentChildrenMap parentChildrenMap(const NodeList& nodes) {
             ParentChildrenMap result;
             
