@@ -48,19 +48,30 @@ namespace TrenchBroom {
         const String& AttributeDefinition::longDescription() const {
             return m_longDescription;
         }
-        
+
+        String AttributeDefinition::optionDescriptions() const {
+            return "";
+        }
+
         String AttributeDefinition::fullDescription() const {
-            StringStream result;
-            if (!m_shortDescription.empty() && !m_longDescription.empty()) {
-                result << m_shortDescription << std::endl << std::endl << m_longDescription;
-            } else if (!m_shortDescription.empty()) {
-                result << m_shortDescription;
-            } else if (!m_longDescription.empty()) {
-                result << m_longDescription;
-            } else {
-                result << "No description found";
+            String result = m_shortDescription;
+
+            if (!m_longDescription.empty()) {
+                if (!result.empty()) {
+                    result += "\n\n";
+                }
+                result += m_longDescription;
             }
-            return result.str();
+
+            const String optionsDescription_ = optionDescriptions();
+            if (!optionsDescription_.empty()) {
+                if (!result.empty()) {
+                    result += "\n\n";
+                }
+                result += optionsDescription_;
+            }
+
+            return result;
         }
 
         bool AttributeDefinition::readOnly() const {
@@ -229,6 +240,18 @@ namespace TrenchBroom {
             return m_options;
         }
 
+        String ChoiceAttributeDefinition::optionDescriptions() const {
+            StringStream stream;
+            for (auto& option : m_options) {
+                stream << option.value();
+                if (!option.description().empty()) {
+                    stream << " (" << option.description() << ")";
+                }
+                stream << "\n";
+            }
+            return stream.str();
+        }
+
         bool ChoiceAttributeDefinition::doEquals(const AttributeDefinition* other) const {
             return options() == static_cast<const ChoiceAttributeDefinition*>(other)->options();
         }
@@ -300,6 +323,18 @@ namespace TrenchBroom {
 
         void FlagsAttributeDefinition::addOption(const int value, const String& shortDescription, const String& longDescription, const bool isDefault) {
             m_options.push_back(FlagsAttributeOption(value, shortDescription, longDescription, isDefault));
+        }
+
+        String FlagsAttributeDefinition::optionDescriptions() const {
+            StringStream stream;
+            for (auto& option : m_options) {
+                stream << option.value() << " = " << option.shortDescription();
+                if (!option.longDescription().empty()) {
+                    stream << " (" << option.longDescription() << ")";
+                }
+                stream << "\n";
+            }
+            return stream.str();
         }
 
         bool FlagsAttributeDefinition::doEquals(const AttributeDefinition* other) const {

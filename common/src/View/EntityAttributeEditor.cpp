@@ -56,7 +56,6 @@ namespace TrenchBroom {
             if (!attributeName.empty() && attributeName != m_lastSelectedAttributeName) {
                 m_lastSelectedAttributeName = attributeName;
 
-                wxLogDebug("updating because current name change");
                 updateDocumentationAndSmartEditor();
             }
         }
@@ -90,14 +89,12 @@ namespace TrenchBroom {
             if (entityDefinition != m_currentDefinition) {
                 m_currentDefinition = entityDefinition;
 
-                wxLogDebug("updating because current definition change");
                 updateDocumentationAndSmartEditor();
             }
         }
 
         void EntityAttributeEditor::updateDocumentationAndSmartEditor() {
             MapDocumentSPtr document = lock(m_document);
-            const Assets::EntityDefinition* entityDefinition = Model::AttributableNode::selectEntityDefinition(document->allSelectedAttributableNodes());
             const String& attributeName = m_attributeGrid->selectedRowName();
 
             m_smartEditorManager->switchEditor(attributeName, document->allSelectedAttributableNodes());
@@ -108,22 +105,15 @@ namespace TrenchBroom {
             if        (!m_documentationText->IsEmpty() && !m_smartEditorManager->isDefaultEditorActive()) {
                 // show both
                 m_documentationSplitter->restore();
-                wxLogDebug("showing both");
-
             } else if ( m_documentationText->IsEmpty() && !m_smartEditorManager->isDefaultEditorActive()) {
                 // show only the smart editor
                 m_documentationSplitter->maximize(m_smartEditorManager);
-                wxLogDebug("showing only the smart editor");
-
             } else if (!m_documentationText->IsEmpty() &&  m_smartEditorManager->isDefaultEditorActive()) {
                 // show only the documentation panel
                 m_documentationSplitter->maximize(m_documentationText);
-                wxLogDebug("showing only the documentation text");
-
             } else {
                 // nothing to display
                 m_documentationSplitter->maximize(m_documentationText);
-                wxLogDebug("nothing to display");
             }
         }
 
@@ -139,10 +129,8 @@ namespace TrenchBroom {
             if (entityDefinition != nullptr) {
                 // add attribute documentation, if available
                 if (const Assets::AttributeDefinition* attributeDefinition = entityDefinition->attributeDefinition(attributeName); attributeDefinition != nullptr) {
-                    const bool attributeHasDocs = !attributeDefinition->longDescription().empty()
-                                               || !attributeDefinition->shortDescription().empty();
-
-                    if (attributeHasDocs) {
+                    const String fullDescription = attributeDefinition->fullDescription();
+                    if (!fullDescription.empty()) {
                         // "Attribute 'spawnflags'", in bold
                         {
                             const long start = m_documentationText->GetLastPosition();
@@ -153,7 +141,7 @@ namespace TrenchBroom {
                         }
 
                         m_documentationText->AppendText("\n\n");
-                        m_documentationText->AppendText(attributeDefinition->fullDescription());
+                        m_documentationText->AppendText(fullDescription);
                     }
                 }
 
