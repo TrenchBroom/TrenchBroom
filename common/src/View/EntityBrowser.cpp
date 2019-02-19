@@ -57,6 +57,8 @@ namespace TrenchBroom {
             m_scrollBar = new QScrollBar(Qt::Vertical);
             
             MapDocumentSPtr document = lock(m_document);
+            // FIXME: Ownership: EntityBrowserView should be made a child
+            // QObject of `this`, right?
             m_view = new EntityBrowserView(nullptr, m_scrollBar,
                                            contextManager,
                                            document->entityDefinitionManager(),
@@ -65,6 +67,8 @@ namespace TrenchBroom {
             m_windowContainer = QWidget::createWindowContainer(m_view);
             
             auto* browserPanelSizer = new QHBoxLayout();
+            browserPanelSizer->setContentsMargins(0, 0, 0, 0);
+            browserPanelSizer->setSpacing(0);
             browserPanelSizer->addWidget(m_windowContainer, 1);
             browserPanelSizer->addWidget(m_scrollBar, 0);
 
@@ -108,6 +112,8 @@ namespace TrenchBroom {
             controlSizer->addWidget(m_filterBox, 1);
             
             auto* outerSizer = new QVBoxLayout();
+            outerSizer->setContentsMargins(0, 0, 0, 0);
+            outerSizer->setSpacing(0);
             outerSizer->addWidget(browserPanel, 1);
             outerSizer->addLayout(controlSizer, 0);
 

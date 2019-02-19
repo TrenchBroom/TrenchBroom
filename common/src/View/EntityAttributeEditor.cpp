@@ -61,6 +61,7 @@ namespace TrenchBroom {
             m_smartEditorManager->setMinimumSize(500, 100);
 
             auto* sizer = new QVBoxLayout();
+            sizer->setContentsMargins(0, 0, 0, 0);
             sizer->addWidget(splitter, 1);
             setLayout(sizer);
 

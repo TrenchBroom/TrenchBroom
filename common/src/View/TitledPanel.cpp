@@ -36,6 +36,7 @@ namespace TrenchBroom {
             m_panel = new QWidget(this);
 
             auto* sizer = new QVBoxLayout();
+            sizer->setContentsMargins(0, 0, 0, 0);
             sizer->addWidget(new TitleBar(nullptr, title, hMargin, vMargin, boldTitle), 0);
             if (showDivider)
                 sizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Horizontal), 0);

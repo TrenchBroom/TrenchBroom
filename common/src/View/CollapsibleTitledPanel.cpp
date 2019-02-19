@@ -59,6 +59,8 @@ namespace TrenchBroom {
         m_panel(new QWidget()),
         m_expanded(initiallyExpanded) {
             auto* sizer = new QVBoxLayout();
+            sizer->setContentsMargins(0, 0, 0, 0);
+            sizer->setSpacing(0);
             sizer->addWidget(m_titleBar, 0);
             sizer->addWidget(m_divider, 0);
             sizer->addWidget(m_panel, 1);

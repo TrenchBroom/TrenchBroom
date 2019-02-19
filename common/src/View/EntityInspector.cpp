@@ -51,6 +51,8 @@ namespace TrenchBroom {
             m_entityBrowser->setMinimumSize(100, 150);
             
             auto* outerSizer = new QVBoxLayout();
+            outerSizer->setContentsMargins(0, 0, 0, 0);
+            outerSizer->setSpacing(0);
             outerSizer->addWidget(splitter, 1);
             outerSizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Horizontal), 0);
             outerSizer->addWidget(createEntityDefinitionFileChooser(this, document), 0);
@@ -70,6 +72,7 @@ namespace TrenchBroom {
             m_entityBrowser = new EntityBrowser(nullptr, document, contextManager);
             
             auto* sizer = new QVBoxLayout();
+            sizer->setContentsMargins(0, 0, 0, 0);
             sizer->addWidget(m_entityBrowser, 1);
             panel->getPanel()->setLayout(sizer);
             
@@ -81,6 +84,7 @@ namespace TrenchBroom {
             m_entityDefinitionFileChooser = new EntityDefinitionFileChooser(nullptr, document);
 
             auto* sizer = new QVBoxLayout();
+            sizer->setContentsMargins(0, 0, 0, 0);
             sizer->addWidget(m_entityDefinitionFileChooser, 1);
             panel->getPanel()->setLayout(sizer);
 

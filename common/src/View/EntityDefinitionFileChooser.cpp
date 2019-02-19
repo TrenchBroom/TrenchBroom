@@ -125,6 +125,7 @@ namespace TrenchBroom {
             m_builtin->setAllowDeselectAll(false);
 
             auto* builtinSizer = new QVBoxLayout();
+            builtinSizer->setContentsMargins(0, 0, 0, 0);
             builtinSizer->addWidget(m_builtin, 1);
             
             builtinContainer->getPanel()->setLayout(builtinSizer);
@@ -148,6 +149,8 @@ namespace TrenchBroom {
             externalContainer->getPanel()->setLayout(externalSizer);
             
             auto* sizer = new QVBoxLayout();
+            sizer->setContentsMargins(0, 0, 0, 0);
+            sizer->setSpacing(0);
             sizer->addWidget(builtinContainer, 1);
             sizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Horizontal), 0);
             sizer->addWidget(externalContainer, 0);
