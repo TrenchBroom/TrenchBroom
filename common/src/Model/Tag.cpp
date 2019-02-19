@@ -23,8 +23,13 @@
 
 namespace TrenchBroom {
     namespace Model {
-        TagAttribute::TagAttribute(String name) :
+        TagAttribute::TagAttribute(const AttributeType type, String name) :
+        m_type(type),
         m_name(std::move(name) ){}
+
+        TagAttribute::AttributeType TagAttribute::type() const {
+            return m_type;
+        }
 
         const String& TagAttribute::name() const {
             return m_name;
@@ -60,6 +65,10 @@ namespace TrenchBroom {
             return m_name;
         }
 
+        const std::vector<TagAttribute>& Tag::attributes() const {
+            return m_attributes;
+        }
+
         bool operator==(const Tag& lhs, const Tag& rhs) {
             return lhs.m_name == rhs.m_name;
         }
@@ -70,6 +79,10 @@ namespace TrenchBroom {
 
         TagReference::TagReference(const Tag& tag) :
         m_tag(tag) {}
+
+        const Tag& TagReference::tag() const {
+            return m_tag;
+        }
 
         bool operator==(const TagReference& lhs, const TagReference& rhs) {
             return lhs.m_tag == rhs.m_tag;
@@ -102,6 +115,8 @@ namespace TrenchBroom {
             } else {
                 m_tagMask |= tag.type();
                 m_tags.emplace(tag);
+
+                updateAttributeMask();
                 return true;
             }
         }
@@ -117,6 +132,8 @@ namespace TrenchBroom {
 
                 assert(!hasTag(tag));
 
+                updateAttributeMask();
+
                 return true;
             }
         }
@@ -128,15 +145,31 @@ namespace TrenchBroom {
 
         void Taggable::updateTags(TagManager& tagManager) {
             tagManager.updateTags(*this);
+            updateAttributeMask();
         }
 
         void Taggable::clearTags() {
             m_tagMask = 0;
             m_tags.clear();
+            updateAttributeMask();
+        }
+
+        bool Taggable::hasAttribute(const TagAttribute& attribute) const {
+            return (m_attributeMask & attribute.type()) != 0;
         }
 
         bool Taggable::evaluateTagMatcher(const TagMatcher& matcher) const {
             return doEvaluateTagMatcher(matcher);
+        }
+
+        void Taggable::updateAttributeMask() {
+            m_attributeMask = 0;
+            for (const auto& tagRef : m_tags) {
+                const auto& tag = tagRef.tag();
+                for (const auto& attribute : tag.attributes()) {
+                    m_attributeMask |= attribute.type();
+                }
+            }
         }
 
         TagMatcher::~TagMatcher() = default;

@@ -40,7 +40,7 @@ namespace TrenchBroom {
         class GameConfigParser : public ConfigParserBase {
         public:
             GameConfigParser(const char* begin, const char* end, const Path& path);
-            GameConfigParser(const String& str, const Path& path = Path(""));
+            explicit GameConfigParser(const String& str, const Path& path = Path(""));
             
             Model::GameConfig parse();
         private:
@@ -54,11 +54,11 @@ namespace TrenchBroom {
             Model::GameConfig::FlagConfigList parseFlagConfig(const EL::Value& values) const;
             std::vector<Model::SmartTag> parseTags(const EL::Value& value, const Model::GameConfig::FaceAttribsConfig& faceAttribsConfigs) const;
 
-            deleteCopyAndMove(GameConfigParser)
-
             void parseBrushTags(const EL::Value& value, std::vector<Model::SmartTag>& results) const;
             void parseFaceTags(const EL::Value& value, const Model::GameConfig::FaceAttribsConfig& faceAttribsConfig, std::vector<Model::SmartTag>& results) const;
             std::vector<Model::TagAttribute> parseTagAttributes(const EL::Value& values) const;
+
+            deleteCopyAndMove(GameConfigParser)
         };
     }
 }

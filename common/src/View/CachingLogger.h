@@ -36,7 +36,7 @@ namespace TrenchBroom {
                 LogLevel level;
                 wxString str;
                 
-                Message(const LogLevel i_level, const wxString& i_str);
+                Message(LogLevel i_level, const wxString& i_str);
             };
             
             using MessageList = std::vector<Message>;

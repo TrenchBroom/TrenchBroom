@@ -21,6 +21,7 @@
 
 #include "Exceptions.h"
 #include "Model/Tag.h"
+#include "Model/TagAttribute.h"
 #include "Model/TagMatcher.h"
 
 namespace TrenchBroom {
@@ -43,9 +44,11 @@ namespace TrenchBroom {
                             "{'icon': 'String', 'experimental': 'Boolean', 'faceattribs': 'Map', 'brushtypes': 'Array', 'tags': 'Map'}"
                             "]");
 
-            const auto version = root["version"].numberValue();
-            unused(version);
-            assert(version == 3.0);
+            const auto expectedVersion = 3.0;
+            const auto actualVersion = root["version"].numberValue();
+            if (actualVersion != expectedVersion) {
+                throw ParserException(root["version"].line(), root["version"].column()) << " Unsupported game configuration version " << actualVersion << ", expected " << expectedVersion;
+            }
 
             auto name = root["name"].stringValue();
             auto icon = Path(root["icon"].stringValue());
@@ -335,7 +338,13 @@ namespace TrenchBroom {
             result.reserve(value.length());
             for (size_t i = 0; i < value.length(); ++i) {
                 const auto& entry = value[i];
-                result.emplace_back(entry.stringValue());
+                const auto& name = entry.stringValue();
+
+                if (name == Model::TagAttributes::Transparency.name()) {
+                    result.push_back(Model::TagAttributes::Transparency);
+                } else {
+                    throw ParserException(entry.line(), entry.column(), "Unexpected tag attribute '" + name + "'");
+                }
             }
 
             return result;

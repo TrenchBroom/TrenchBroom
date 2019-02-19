@@ -31,15 +31,24 @@ namespace TrenchBroom {
          * be unique.
          */
         class TagAttribute {
+        public:
+            using AttributeType = unsigned long;
         private:
+            AttributeType m_type;
             String m_name;
         public:
             /**
-             * Creates a new tag attribute with the given name;
+             * Creates a new tag attribute with the given type and name.
              *
-             * @param name the tag name
+             * @param type the attribute type
+             * @param name the attribute name
              */
-            explicit TagAttribute(String name);
+            explicit TagAttribute(AttributeType type, String name);
+
+            /**
+             * Returns the type of this attribute.
+             */
+            AttributeType type() const;
 
             /**
              * Returns the name of this tag attribute.
@@ -98,6 +107,11 @@ namespace TrenchBroom {
              */
             const String& name() const;
 
+            /**
+             * Returns the attributes of this tag.
+             */
+            const std::vector<TagAttribute>& attributes() const;
+
             friend bool operator==(const Tag& lhs, const Tag& rhs);
             friend bool operator<(const Tag& lhs, const Tag& rhs);
         };
@@ -116,6 +130,11 @@ namespace TrenchBroom {
              */
             explicit TagReference(const Tag& tag);
 
+            /**
+             * Returns the referenced tag.
+             */
+            const Tag& tag() const;
+
             friend bool operator==(const TagReference& lhs, const TagReference& rhs);
             friend bool operator<(const TagReference& lhs, const TagReference& rhs);
         };
@@ -130,6 +149,7 @@ namespace TrenchBroom {
         private:
             Tag::TagType m_tagMask;
             std::set<TagReference> m_tags;
+            TagAttribute::AttributeType m_attributeMask;
         public:
             /**
              * Creates a new instance.
@@ -197,6 +217,14 @@ namespace TrenchBroom {
             virtual void clearTags();
 
             /**
+             * Indicates whether any of the tags associated with this object has the given tag attribute.
+             *
+             * @param attribute the attribute to check
+             * @return true if any tag of this object has the given attribute and false otherwise
+             */
+            bool hasAttribute(const TagAttribute& attribute) const;
+
+            /**
              * Evaluates the given matcher against this taggable object. This method is used as part of a double dispatch
              * to retrieve the type information of this taggable object.
              *
@@ -204,6 +232,8 @@ namespace TrenchBroom {
              * @return true if the given matcher matches this object and false otherwise
              */
             bool evaluateTagMatcher(const TagMatcher& matcher) const;
+        private:
+            void updateAttributeMask();
         private:
             virtual bool doEvaluateTagMatcher(const TagMatcher& matcher) const = 0;
         };

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_TAGMATCHERS_H
-#define TRENCHBROOM_TAGMATCHERS_H
+#ifndef TRENCHBROOM_TAGMATCHER_H
+#define TRENCHBROOM_TAGMATCHER_H
 
 #include "Model/Tag.h"
 
@@ -88,4 +88,4 @@ namespace TrenchBroom {
 }
 
 
-#endif //TRENCHBROOM_TAGMATCHERS_H
+#endif //TRENCHBROOM_TAGMATCHER_H

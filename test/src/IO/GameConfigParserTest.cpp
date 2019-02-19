@@ -58,7 +58,7 @@ namespace TrenchBroom {
         TEST(GameConfigParserTest, parseQuakeConfig) {
             const String config(R"(
 {
-    "version": 2,
+    "version": 3,
     "name": "Quake",
     "icon": "Icon.png",
     "fileformats": [
@@ -143,10 +143,10 @@ namespace TrenchBroom {
                 Color(0.6f, 0.6f, 0.6f, 1.0f)),
             GameConfig::FaceAttribsConfig(),
             {
-              Model::SmartTag("Trigger", { Model::TagAttribute("transparent") }, std::make_unique<Model::EntityClassNameTagMatcher>("trigger*")),
-              Model::SmartTag("Clip", { Model::TagAttribute("transparent") }, std::make_unique<Model::TextureNameTagMatcher>("clip")),
-              Model::SmartTag("Skip", { Model::TagAttribute("transparent") }, std::make_unique<Model::TextureNameTagMatcher>("skip")),
-              Model::SmartTag("Hint", { Model::TagAttribute("transparent") }, std::make_unique<Model::TextureNameTagMatcher>("hint*")),
+              Model::SmartTag("Trigger", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::EntityClassNameTagMatcher>("trigger*")),
+              Model::SmartTag("Clip", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::TextureNameTagMatcher>("clip")),
+              Model::SmartTag("Skip", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::TextureNameTagMatcher>("skip")),
+              Model::SmartTag("Hint", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::TextureNameTagMatcher>("hint*")),
               Model::SmartTag("Liquid", {}, std::make_unique<Model::TextureNameTagMatcher>("\\**")),
             } // smart tags
             );
@@ -166,7 +166,7 @@ namespace TrenchBroom {
         TEST(GameConfigParserTest, parseQuake2Config) {
             const String config(R"%(
 {
-    "version": 2,
+    "version": 3,
     "name": "Quake 2",
     "icon": "Icon.png",
     "fileformats": [ { "format": "Quake2" } ],
@@ -436,10 +436,10 @@ namespace TrenchBroom {
                         { "ladder", "Brushes with this flag allow a player to move up and down a vertical surface" }
                     }),
                 {
-                    Model::SmartTag("Trigger", { Model::TagAttribute("transparent") }, std::make_unique<Model::EntityClassNameTagMatcher>("trigger*")),
-                    Model::SmartTag("Clip", { Model::TagAttribute("transparent") }, std::make_unique<Model::TextureNameTagMatcher>("clip")),
-                    Model::SmartTag("Skip", { Model::TagAttribute("transparent") }, std::make_unique<Model::TextureNameTagMatcher>("skip")),
-                    Model::SmartTag("Hint", { Model::TagAttribute("transparent") }, std::make_unique<Model::TextureNameTagMatcher>("hint*")),
+                    Model::SmartTag("Trigger", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::EntityClassNameTagMatcher>("trigger*")),
+                    Model::SmartTag("Clip", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::TextureNameTagMatcher>("clip")),
+                    Model::SmartTag("Skip", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::TextureNameTagMatcher>("skip")),
+                    Model::SmartTag("Hint", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::TextureNameTagMatcher>("hint*")),
                     Model::SmartTag("Detail", {}, std::make_unique<Model::ContentFlagsTagMatcher>(1 << 27)),
                     Model::SmartTag("Liquid", {}, std::make_unique<Model::ContentFlagsTagMatcher>((1 << 3) | (1 << 4) | (1 << 5))),
                 } // smart tags

@@ -26,6 +26,7 @@
 #include "Model/BrushGeometry.h"
 #include "Model/EditorContext.h"
 #include "Model/NodeVisitor.h"
+#include "Model/TagAttribute.h"
 #include "Renderer/IndexArrayMapBuilder.h"
 #include "Renderer/BrushRendererArrays.h"
 #include "Renderer/RenderContext.h"
@@ -49,7 +50,7 @@ namespace TrenchBroom {
         BrushRenderer::Filter& BrushRenderer::Filter::operator=(const Filter& other) { return *this; }
 
         BrushRenderer::Filter::RenderSettings BrushRenderer::Filter::renderNothing() {
-            return std::make_tuple(RenderOpacity::Opaque, FaceRenderPolicy::RenderNone, EdgeRenderPolicy::RenderNone);
+            return std::make_tuple(FaceRenderPolicy::RenderNone, EdgeRenderPolicy::RenderNone);
         }
 
         // DefaultFilter
@@ -103,25 +104,23 @@ namespace TrenchBroom {
 
         // NoFilter
 
-        BrushRenderer::NoFilter::NoFilter(const bool transparent) : m_transparent(transparent) {}
-
         BrushRenderer::Filter::RenderSettings BrushRenderer::NoFilter::markFaces(const Model::Brush* brush) const {
             for (Model::BrushFace* face : brush->faces()) {
                 face->setMarked(true);
             }
-            return std::make_tuple(m_transparent ? RenderOpacity::Transparent : RenderOpacity::Opaque,
-                                   FaceRenderPolicy::RenderMarked,
+            return std::make_tuple(FaceRenderPolicy::RenderMarked,
                                    EdgeRenderPolicy::RenderAll);
         }
 
         // BrushRenderer
 
-        BrushRenderer::BrushRenderer(const bool transparent) :
-        m_filter(std::make_unique<NoFilter>(transparent)),
+        BrushRenderer::BrushRenderer() :
+        m_filter(std::make_unique<NoFilter>()),
         m_showEdges(false),
         m_grayscale(false),
         m_tint(false),
         m_showOccludedEdges(false),
+        m_transparent(false),
         m_transparencyAlpha(1.0f),
         m_showHiddenBrushes(false) {
             clear();
@@ -235,6 +234,10 @@ namespace TrenchBroom {
             m_occludedEdgeColor = occludedEdgeColor;
         }
         
+        void BrushRenderer::setTransparent(const bool transparent) {
+            m_transparent = transparent;
+        }
+
         void BrushRenderer::setTransparencyAlpha(const float transparencyAlpha) {
             m_transparencyAlpha = transparencyAlpha;
         }
@@ -314,8 +317,7 @@ namespace TrenchBroom {
         public:
             FilterWrapper(const Filter& filter, const bool showHiddenBrushes) :
             m_filter(filter),
-            m_showHiddenBrushes(showHiddenBrushes),
-            m_noFilter(false) {}
+            m_showHiddenBrushes(showHiddenBrushes) {}
 
             RenderSettings markFaces(const Model::Brush* brush) const override {
                 return resolve().markFaces(brush);
@@ -412,7 +414,7 @@ namespace TrenchBroom {
 
             // evaluate filter. only evaluate the filter once per brush.
             const auto settings = wrapper.markFaces(brush);
-            const auto [renderType, facePolicy, edgePolicy] = settings;
+            const auto [facePolicy, edgePolicy] = settings;
 
             if (facePolicy == Filter::FaceRenderPolicy::RenderNone &&
                 edgePolicy == Filter::EdgeRenderPolicy::RenderNone) {
@@ -455,65 +457,87 @@ namespace TrenchBroom {
             auto& facesSortedByTex = brushCache.cachedFacesSortedByTexture();
             const size_t facesSortedByTexSize = facesSortedByTex.size();
 
+            /*
             std::shared_ptr<TextureToBrushIndicesMap> faceVboPtr = \
                 (renderType == Filter::RenderOpacity::Opaque) ? m_opaqueFaces : m_transparentFaces;
+            */
 
             size_t nextI;
             for (size_t i = 0; i < facesSortedByTexSize; i = nextI) {
                 const Assets::Texture* texture = facesSortedByTex[i].texture;
 
-                size_t indexCount = 0;
+                size_t opaqueIndexCount = 0;
+                size_t transparentIndexCount = 0;
 
                 // find the i value for the next texture
-                for (nextI = i + 1; nextI < facesSortedByTexSize && facesSortedByTex[nextI].texture == texture; ++nextI) {
-                }
+                for (nextI = i + 1; nextI < facesSortedByTexSize && facesSortedByTex[nextI].texture == texture; ++nextI) {}
 
                 // process all faces with this texture (they'll be consecutive)
                 for (size_t j = i; j < nextI; ++j) {
                     const BrushRendererBrushCache::CachedFace& cache = facesSortedByTex[j];
                     if (cache.face->isMarked()) {
                         assert(cache.texture == texture);
-                        indexCount += triIndicesCountForPolygon(cache.vertexCount);
+                        if (m_transparent || cache.face->hasAttribute(Model::TagAttributes::Transparency)) {
+                            transparentIndexCount += triIndicesCountForPolygon(cache.vertexCount);
+                        } else {
+                            opaqueIndexCount += triIndicesCountForPolygon(cache.vertexCount);
+                        }
                     }
                 }
 
-                // there may be no marked faces with this texture
-                if (indexCount == 0) {
-                    continue;
-                }
+                if (transparentIndexCount > 0) {
+                    TextureToBrushIndicesMap& faceVboMap = *m_transparentFaces;
+                    auto& holderPtr = faceVboMap[texture];
+                    if (holderPtr == nullptr) {
+                        // inserts into map!
+                        holderPtr = std::make_shared<BrushIndexArray>();
+                    }
 
-                TextureToBrushIndicesMap& faceVboMap = *faceVboPtr;
-                std::shared_ptr<BrushIndexArray>& holderPtr = faceVboMap[texture];
-
-                if (holderPtr == nullptr) {
-                    // inserts into map!
-                    holderPtr = std::make_shared<BrushIndexArray>();
-                }
-
-                auto [key, dest] = holderPtr->getPointerToInsertElementsAt(indexCount);
-
-                // update info
-                if (renderType == Filter::RenderOpacity::Opaque) {
-                    info.opaqueFaceIndicesKeys.push_back({texture, key});
-                } else {
+                    auto [key, dest] = holderPtr->getPointerToInsertElementsAt(transparentIndexCount);
                     info.transparentFaceIndicesKeys.push_back({texture, key});
-                }
 
-                // process all faces with this texture (they'll be consecutive)
-                GLuint *currentDest = dest;
-                for (size_t j = i; j < nextI; ++j) {
-                    const BrushRendererBrushCache::CachedFace& cache = facesSortedByTex[j];
-                    if (cache.face->isMarked()) {
-                        addTriIndicesForPolygon(currentDest,
-                                                static_cast<GLuint>(brushVerticesStartIndex +
-                                                                    cache.indexOfFirstVertexRelativeToBrush),
-                                                cache.vertexCount);
+                    // process all faces with this texture (they'll be consecutive)
+                    GLuint *currentDest = dest;
+                    for (size_t j = i; j < nextI; ++j) {
+                        const BrushRendererBrushCache::CachedFace& cache = facesSortedByTex[j];
+                        if (cache.face->isMarked() && (m_transparent || cache.face->hasAttribute(Model::TagAttributes::Transparency))) {
+                            addTriIndicesForPolygon(currentDest,
+                                                    static_cast<GLuint>(brushVerticesStartIndex +
+                                                                        cache.indexOfFirstVertexRelativeToBrush),
+                                                    cache.vertexCount);
 
-                        currentDest += triIndicesCountForPolygon(cache.vertexCount);
+                            currentDest += triIndicesCountForPolygon(cache.vertexCount);
+                        }
                     }
+                    assert(currentDest == (dest + transparentIndexCount));
                 }
-                assert(indexCount > 0);
-                assert(currentDest == (dest + indexCount));
+
+                if (opaqueIndexCount > 0) {
+                    TextureToBrushIndicesMap& faceVboMap = *m_opaqueFaces;
+                    auto& holderPtr = faceVboMap[texture];
+                    if (holderPtr == nullptr) {
+                        // inserts into map!
+                        holderPtr = std::make_shared<BrushIndexArray>();
+                    }
+
+                    auto [key, dest] = holderPtr->getPointerToInsertElementsAt(opaqueIndexCount);
+                    info.opaqueFaceIndicesKeys.push_back({texture, key});
+
+                    // process all faces with this texture (they'll be consecutive)
+                    GLuint *currentDest = dest;
+                    for (size_t j = i; j < nextI; ++j) {
+                        const BrushRendererBrushCache::CachedFace& cache = facesSortedByTex[j];
+                        if (cache.face->isMarked() && !cache.face->hasAttribute(Model::TagAttributes::Transparency)) {
+                            addTriIndicesForPolygon(currentDest,
+                                                    static_cast<GLuint>(brushVerticesStartIndex +
+                                                                        cache.indexOfFirstVertexRelativeToBrush),
+                                                    cache.vertexCount);
+
+                            currentDest += triIndicesCountForPolygon(cache.vertexCount);
+                        }
+                    }
+                    assert(currentDest == (dest + opaqueIndexCount));
+                }
             }
         }
 

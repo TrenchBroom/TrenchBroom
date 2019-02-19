@@ -46,11 +46,6 @@ namespace TrenchBroom {
         public:
             class Filter {
             public:
-                enum class RenderOpacity {
-                    Opaque,
-                    Transparent
-                };
-
                 enum class FaceRenderPolicy {
                     RenderMarked,
                     RenderNone
@@ -63,7 +58,7 @@ namespace TrenchBroom {
                     RenderNone
                 };
 
-                using RenderSettings = std::tuple<RenderOpacity, FaceRenderPolicy, EdgeRenderPolicy>;
+                using RenderSettings = std::tuple<FaceRenderPolicy, EdgeRenderPolicy>;
 
                 Filter();
                 Filter(const Filter& other);
@@ -114,15 +109,11 @@ namespace TrenchBroom {
             };
             
             class NoFilter : public Filter {
-            private:
-                bool m_transparent;
             public:
-                explicit NoFilter(bool transparent);
-
+                using Filter::Filter;
                 RenderSettings markFaces(const Model::Brush* brush) const override;
             private:
-                NoFilter(const NoFilter& other);
-                NoFilter& operator=(const NoFilter& other);
+                deleteCopyAndMove(NoFilter)
             };
         private:
             class FilterWrapper;
@@ -165,6 +156,7 @@ namespace TrenchBroom {
             Color m_tintColor;
             bool m_showOccludedEdges;
             Color m_occludedEdgeColor;
+            bool m_transparent;
             float m_transparencyAlpha;
             
             bool m_showHiddenBrushes;
@@ -176,12 +168,13 @@ namespace TrenchBroom {
             m_grayscale(false),
             m_tint(false),
             m_showOccludedEdges(false),
+            m_transparent(false),
             m_transparencyAlpha(1.0f),
             m_showHiddenBrushes(false) {
                 clear();
             }
             
-            explicit BrushRenderer(bool transparent);
+            BrushRenderer();
 
             /**
              * New brushes are invalidated, brushes already in the BrushRenderer are not invalidated.
@@ -215,6 +208,7 @@ namespace TrenchBroom {
             void setTintColor(const Color& tintColor);
             void setShowOccludedEdges(bool showOccludedEdges);
             void setOccludedEdgeColor(const Color& occludedEdgeColor);
+            void setTransparent(bool transparent);
             void setTransparencyAlpha(float transparencyAlpha);
             void setShowHiddenBrushes(bool showHiddenBrushes);
         public: // rendering

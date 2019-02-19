@@ -489,8 +489,8 @@ namespace TrenchBroom {
         m_document(document),
         m_clipSide(ClipSide_Front),
         m_strategy(nullptr),
-        m_remainingBrushRenderer(new Renderer::BrushRenderer(false)),
-        m_clippedBrushRenderer(new Renderer::BrushRenderer(true)),
+        m_remainingBrushRenderer(new Renderer::BrushRenderer()),
+        m_clippedBrushRenderer(new Renderer::BrushRenderer()),
         m_ignoreNotifications(false),
         m_dragging(false) {}
         
@@ -548,6 +548,7 @@ namespace TrenchBroom {
             m_clippedBrushRenderer->setEdgeColor(Color(pref(Preferences::EdgeColor), 0.5f));
             m_clippedBrushRenderer->setShowEdges(true);
             m_clippedBrushRenderer->setTint(false);
+            m_clippedBrushRenderer->setTransparent(true);
             m_clippedBrushRenderer->setTransparencyAlpha(0.5f);
             m_clippedBrushRenderer->render(renderContext, renderBatch);
         }

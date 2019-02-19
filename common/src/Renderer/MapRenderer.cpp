@@ -32,6 +32,8 @@
 #include "Model/Layer.h"
 #include "Model/Node.h"
 #include "Model/NodeVisitor.h"
+#include "Model/Tag.h"
+#include "Model/TagAttribute.h"
 #include "Model/World.h"
 #include "Renderer/BrushRenderer.h"
 #include "Renderer/Camera.h"
@@ -62,7 +64,7 @@ namespace TrenchBroom {
                 for (Model::BrushFace* face : brush->faces()) {
                     face->setMarked(brushSelected || selected(face));
                 }
-                return std::make_tuple(RenderOpacity::Opaque, FaceRenderPolicy::RenderMarked, EdgeRenderPolicy::RenderIfEitherFaceMarked);
+                return std::make_tuple(FaceRenderPolicy::RenderMarked, EdgeRenderPolicy::RenderIfEitherFaceMarked);
             }
         };
         
@@ -77,11 +79,10 @@ namespace TrenchBroom {
                 }
 
                 for (Model::BrushFace* face : brush->faces()) {
-                    // collect all faces
                     face->setMarked(true);
                 }
-                return std::make_tuple(brush->transparent() ? RenderOpacity::Transparent : RenderOpacity::Opaque,
-                                       FaceRenderPolicy::RenderMarked,
+
+                return std::make_tuple(FaceRenderPolicy::RenderMarked,
                                        EdgeRenderPolicy::RenderAll);
             }
         };
@@ -105,8 +106,8 @@ namespace TrenchBroom {
                 for (Model::BrushFace* face : brush->faces()) {
                     face->setMarked(!selected(face) && visible(face));
                 }
-                return std::make_tuple(brush->transparent() ? RenderOpacity::Transparent : RenderOpacity::Opaque,
-                                       renderFaces ? FaceRenderPolicy::RenderMarked : FaceRenderPolicy::RenderNone,
+
+                return std::make_tuple(renderFaces ? FaceRenderPolicy::RenderMarked : FaceRenderPolicy::RenderNone,
                                        renderEdges ? EdgeRenderPolicy::RenderIfBothFacesMarked : EdgeRenderPolicy::RenderNone);
             }
         };
@@ -182,7 +183,6 @@ namespace TrenchBroom {
             renderSelectionTransparent(renderContext, renderBatch);
             
             renderEntityLinks(renderContext, renderBatch);
-            renderTutorialMessages(renderContext, renderBatch);
         }
         
         void MapRenderer::commitPendingChanges() {
@@ -239,55 +239,6 @@ namespace TrenchBroom {
         
         void MapRenderer::renderEntityLinks(RenderContext& renderContext, RenderBatch& renderBatch) {
             m_entityLinkRenderer->render(renderContext, renderBatch);
-        }
-        
-        class MapRenderer::MatchTutorialEntities {
-        private:
-            const Assets::EntityDefinition* m_definition;
-        public:
-            MatchTutorialEntities(const Assets::EntityDefinition* definition) :
-            m_definition(definition) {}
-            
-            bool operator()(const Model::Brush* brush) {
-                return brush->entity() != nullptr && brush->entity()->definition() == m_definition;
-            }
-            
-            bool operator()(const Model::Node* node) { return false; }
-        };
-        
-        class MapRenderer::FilterTutorialEntities : public Model::FilteringNodeCollectionStrategy<Model::UniqueNodeCollectionStrategy> {
-        private:
-            Model::Node* getNode(Model::Brush* brush) const override { return brush->entity();  }
-        };
-        
-        class MapRenderer::CollectTutorialEntitiesVisitor : public Model::CollectMatchingNodesVisitor<MatchTutorialEntities, FilterTutorialEntities> {
-        public:
-            CollectTutorialEntitiesVisitor(const Assets::EntityDefinition* definition) :
-            CollectMatchingNodesVisitor(MatchTutorialEntities(definition)) {}
-        };
-        
-        void MapRenderer::renderTutorialMessages(RenderContext& renderContext, RenderBatch& renderBatch) {
-            if (renderContext.render3D()) {
-                auto document = lock(m_document);
-                const auto* definition = document->entityDefinitionManager().definition(Model::Tutorial::Classname);
-                const auto nodes = document->findNodesContaining(vm::vec3(renderContext.camera().position()));
-                if (!nodes.empty()) {
-                    RenderService renderService(renderContext, renderBatch);
-                    renderService.setForegroundColor(pref(Preferences::TutorialOverlayTextColor));
-                    renderService.setBackgroundColor(pref(Preferences::TutorialOverlayBackgroundColor));
-                    
-                    CollectTutorialEntitiesVisitor collect(definition);
-                    Model::Node::accept(std::begin(nodes), std::end(nodes), collect);
-
-                    for (const auto* node : collect.nodes()) {
-                        const auto* entity = static_cast<const Model::Entity*>(node);
-                        const auto& message = entity->attribute(Model::Tutorial::Message);
-                        if (!message.empty()) {
-                            renderService.renderHeadsUp(message);
-                        }
-                    }
-                }
-            }
         }
 
         void MapRenderer::setupRenderers() {
