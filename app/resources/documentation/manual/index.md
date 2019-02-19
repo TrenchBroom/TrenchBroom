@@ -1958,7 +1958,7 @@ Game configuration files need to specify the following information.
 	* The builtin **entity definition files**
 	* The **default color** to use in the UI
 	* The supported **model formats**, e.g. mdl
-* **Brush content types** to specify different types of brushes in the editor such as clip brushes or trigger brushes (optional)
+* **Tags** to attach additional information to faces or brushes in the editor, e.g. whether a face is detail or hint. (optional)
 * **Face attributes** to specify which additional attributes to allow on brush faces (optional)
 
 The game configuration is an [expression language](#expression_language) map with a specific structure, which is explained using an example. 
@@ -1987,42 +1987,41 @@ The game configuration is an [expression language](#expression_language) map wit
 	    	"defaultcolor": "0.6 0.6 0.6 1.0",
 			"modelformats": [ "md2" ]
 	    },
-	    "brushtypes": [
-	        {
-	            "name": "Clip brushes",
-	            "attribs": [ "transparent" ],
-	            "match": "texture",
-	            "pattern": "clip"
-	        },
-	        {
-	            "name": "Skip brushes",
-	            "attribs": [ "transparent" ],
-	            "match": "texture",
-	            "pattern": "skip"
-	        },
-	        {
-	            "name": "Hint brushes",
-	            "attribs": [ "transparent" ],
-	            "match": "texture",
-	            "pattern": "hint*"
-	        },
-	        {
-	            "name": "Detail brushes",
-	            "match": "contentflag",
-	            "flags": [ "detail" ]
-	        },
-	        {
-	            "name": "Liquid brushes",
-	            "match": "contentflag",
-	            "flags": [ "lava", "slime", "water" ]
-	        },
-	        {
-	            "name": "Trigger brushes",
-	            "attribs": [ "transparent" ],
-	            "match": "classname",
-	            "pattern": "trigger*"
-	        }
-	    ],
+	    "tags": {
+	        "brush": [
+	            {
+	                "name": "Trigger",
+	                "attribs": [ "transparent" ],
+	                "match": "classname",
+	                "pattern": "trigger*"
+	            }
+	        ],
+	        "brushface": [
+	            {
+	                "name": "Clip",
+	                "attribs": [ "transparent" ],
+	                "match": "texture",
+	                "pattern": "clip"
+	            },
+	            {
+	                "name": "Skip",
+	                "attribs": [ "transparent" ],
+	                "match": "texture",
+	                "pattern": "skip"
+	            },
+	            {
+	                "name": "Hint",
+	                "attribs": [ "transparent" ],
+	                "match": "texture",
+	                "pattern": "hint*"
+	            },
+	            {
+	                "name": "Liquid",
+	                "match": "texture",
+	                "pattern": "\**"
+	            }
+	        ]
+	    }
     }
 
 
@@ -2031,12 +2030,14 @@ The game configuration is an [expression language](#expression_language) map wit
 
 The file format is specified by an array of maps under the key `fileformats`. The following formats are supported.
 
-Format       Description
-------       -----------
-Standard     Standard Quake map file
-Valve        Valve map file (like Standard, but with different texture info per face)
-Quake2       Quake 2 map file
-Hexen2       Hexen 2 map file (like Quake, but with an additional, but unused value per face)
+Format      	 Description
+------      	 -----------
+Standard     	Standard Quake map file
+Valve       	Valve map file (like Standard, but with different texture info per face)
+Quake2       	Quake 2 map file
+Quake3       	Quake 3 map file (with brush primitives)
+Quake3 (legacy) Quake 3 map file (without brush primitives)
+Hexen2       	Hexen 2 map file (like Quake, but with an additional, but unused value per face)
 
 Each entry of the array must have the following structure:
 
@@ -2134,29 +2135,41 @@ md2          Quake 2 model format
 bsp        	 Compiled brush model, used by Quake and Hexen 2
 dkm          Daikatana model format
 
-#### Brush Types
+#### Tags
 
-TrenchBroom recognizes certain tyes of brushes such as clip brushes or trigger brushes. But since the details can be game dependent, these brush types are defined in the game configuration. For this, the `brushtypes` key has a list of brush type configurations. Each configuration looks as follows.
+TrenchBroom can recognize certain special objects or special brush faces. An example would be clip faces or trigger brushes. But since the details can be game dependent, these special objects and faces are defined in the game configuration. For greater flexibility and future enhancements, a general tagging system is used to realize this functionality. Thereby, the game configuration defines smart tags which are applied automatically to brushes or brush faces depending on certain conditions.
+
+The tags are specified separately for brushes and faces under the corresponding keys:
+
+    "tags": {
+        "brush": [ ... ],
+        "brushface": [ ... ]
+    }
+
+Each of these keys has a list of tags. Each tag looks as follows.
 
     {
-        "name": "Clip brushes",
+        "name": "Clip",
         "attribs": [ "transparent" ],
         "match": "texture",
         "pattern": "clip"
     },
 
-The most important key is `match`, which specifies how TrenchBroom will recognize a brush of this type. This key can have the following values.
+The most important key is `match`, which specifies how TrenchBroom will determine whether or not to apply this tag. This key can have the following values.
 
 Match        Description
 -----        -----------
 texture      Match against a texture name, must match all brush faces
-contentflag  Match against face content flags, must match all brush faces (used by Quake 2)
+contentflag  Match against face content flags (used by Quake 2, Quake 3)
+surfaceflag  Match against face surface flags (used by Quake 2, Quake 3)
+surfaceparm  Match against shader surface parameters (used by Quake 3)
 classname    Match against a brush entity class name
 
 Depending on the value of the `match` key, additional keys may be required to configure the matcher.
 
 * For the `texture` matcher, the key `pattern` contains a pattern that is matched against the texture name. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
-* For the `contentflag` matcher, the key `flags` contains a list of content flag names to match against (see below for more info on content flags).
+* For the `contentflag` and `surfaceflag` matchers, the key `flags` contains a list of content or surface flag names to match against (see below for more info on content and surface flags).
+* For the `surfaceparm` matcher, the key `pattern` contains a pattern that is matched against the surface parameters. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
 * For the `classname` matcher, key `pattern` contains a pattern that is matched against the classname of the brush entity that contains the brush. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
 
 #### Face Attributes
