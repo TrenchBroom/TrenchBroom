@@ -53,7 +53,7 @@ namespace TrenchBroom {
 
             // make brushes, cycling through the textures for each face
             const vm::bbox3 worldBounds(4096.0);
-            Model::World world(Model::MapFormat::Standard, nullptr, worldBounds);
+            Model::World world(Model::MapFormat::Standard, worldBounds);
 
             Model::BrushBuilder builder(&world, worldBounds);
 
@@ -71,7 +71,7 @@ namespace TrenchBroom {
             // we're not benchmarking that, so we don't
             // want it mixed into the timing
 
-            BrushRenderer tempRenderer(false);
+            BrushRenderer tempRenderer;
             tempRenderer.addBrushes(result);
             tempRenderer.validate();
             tempRenderer.clear();
@@ -101,7 +101,7 @@ namespace TrenchBroom {
             std::vector<Model::Brush*> brushes = brushesTextures.first;
             std::vector<Assets::Texture*> textures = brushesTextures.second;
 
-            BrushRenderer r(false);
+            BrushRenderer r;
 
             timeLambda([&](){ r.addBrushes(brushes); }, "add " + std::to_string(brushes.size()) + " brushes to BrushRenderer");
             timeLambda([&](){
