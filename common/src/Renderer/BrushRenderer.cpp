@@ -457,11 +457,6 @@ namespace TrenchBroom {
             auto& facesSortedByTex = brushCache.cachedFacesSortedByTexture();
             const size_t facesSortedByTexSize = facesSortedByTex.size();
 
-            /*
-            std::shared_ptr<TextureToBrushIndicesMap> faceVboPtr = \
-                (renderType == Filter::RenderOpacity::Opaque) ? m_opaqueFaces : m_transparentFaces;
-            */
-
             size_t nextI;
             for (size_t i = 0; i < facesSortedByTexSize; i = nextI) {
                 const Assets::Texture* texture = facesSortedByTex[i].texture;
