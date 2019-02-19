@@ -129,19 +129,37 @@ namespace TrenchBroom {
             if (entityDefinition != nullptr) {
                 // add attribute documentation, if available
                 if (const Assets::AttributeDefinition* attributeDefinition = entityDefinition->attributeDefinition(attributeName); attributeDefinition != nullptr) {
-                    const String fullDescription = attributeDefinition->fullDescription();
-                    if (!fullDescription.empty()) {
-                        // "Attribute 'spawnflags'", in bold
+                    const String optionsDescription = attributeDefinition->optionDescriptions();
+
+                    const bool attributeHasDocs = !attributeDefinition->longDescription().empty()
+                                               || !attributeDefinition->shortDescription().empty()
+                                               || !optionsDescription.empty();
+
+                    if (attributeHasDocs) {
+                        // e.g. "Attribute "delay" (Attenuation formula)", in bold
                         {
                             const long start = m_documentationText->GetLastPosition();
-                            m_documentationText->AppendText("Attribute ");
+                            m_documentationText->AppendText("Attribute \"");
                             m_documentationText->AppendText(attributeDefinition->name());
+                            m_documentationText->AppendText("\"");
+                            if (!attributeDefinition->shortDescription().empty()) {
+                                m_documentationText->AppendText(" (");
+                                m_documentationText->AppendText(attributeDefinition->shortDescription());
+                                m_documentationText->AppendText(")");
+                            }
                             const long end = m_documentationText->GetLastPosition();
                             m_documentationText->SetStyle(start, end, boldAttr);
                         }
 
-                        m_documentationText->AppendText("\n\n");
-                        m_documentationText->AppendText(fullDescription);
+                        if (!attributeDefinition->longDescription().empty()) {
+                            m_documentationText->AppendText("\n\n");
+                            m_documentationText->AppendText(attributeDefinition->longDescription());
+                        }
+
+                        if (!optionsDescription.empty()) {
+                            m_documentationText->AppendText("\n\nOptions:\n");
+                            m_documentationText->AppendText(optionsDescription);
+                        }
                     }
                 }
 
@@ -152,11 +170,12 @@ namespace TrenchBroom {
                         m_documentationText->AppendText("\n\n");
                     }
 
-                    // "Class func_door", in bold
+                    // e.g. "Class "func_door"", in bold
                     {
                         const long start = m_documentationText->GetLastPosition();
-                        m_documentationText->AppendText("Class ");
+                        m_documentationText->AppendText("Class \"");
                         m_documentationText->AppendText(entityDefinition->name());
+                        m_documentationText->AppendText("\"");
                         const long end = m_documentationText->GetLastPosition();
                         m_documentationText->SetStyle(start, end, boldAttr);
                     }
