@@ -38,17 +38,17 @@ namespace TrenchBroom {
             const auto root = parseConfigFile().evaluate(EL::EvaluationContext());
             expectType(root, EL::Type_Map);
             
-            expectStructure(root,
-                            "["
-                            "{'version': 'Number', 'name': 'String', 'fileformats': 'Array', 'filesystem': 'Map', 'textures': 'Map', 'entities': 'Map'},"
-                            "{'icon': 'String', 'experimental': 'Boolean', 'faceattribs': 'Map', 'brushtypes': 'Array', 'tags': 'Map'}"
-                            "]");
-
             const auto expectedVersion = 3.0;
             const auto actualVersion = root["version"].numberValue();
             if (actualVersion != expectedVersion) {
                 throw ParserException(root["version"].line(), root["version"].column()) << " Unsupported game configuration version " << actualVersion << ", expected " << expectedVersion;
             }
+
+            expectStructure(root,
+                            "["
+                            "{'version': 'Number', 'name': 'String', 'fileformats': 'Array', 'filesystem': 'Map', 'textures': 'Map', 'entities': 'Map'},"
+                            "{'icon': 'String', 'experimental': 'Boolean', 'faceattribs': 'Map', 'tags': 'Map'}"
+                            "]");
 
             auto name = root["name"].stringValue();
             auto icon = Path(root["icon"].stringValue());
