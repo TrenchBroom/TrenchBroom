@@ -24,6 +24,8 @@
 #include "View/DocumentCommand.h"
 #include "View/VertexHandleManager.h"
 
+#include <memory>
+
 namespace TrenchBroom {
     namespace Model {
         class Snapshot;
@@ -35,11 +37,11 @@ namespace TrenchBroom {
         class VertexCommand : public DocumentCommand {
         private:
             Model::BrushList m_brushes;
-            Model::Snapshot* m_snapshot;
+            std::unique_ptr<Model::Snapshot> m_snapshot;
         protected:
             VertexCommand(CommandType type, const String& name, const Model::BrushList& brushes);
         public:
-            virtual ~VertexCommand() override;
+            ~VertexCommand() override;
         protected:
             template <typename H, typename C>
             static void extract(const std::map<H, Model::BrushSet, C>& handleToBrushes, Model::BrushList& brushes, std::map<Model::Brush*, std::vector<H>>& brushToHandles, std::vector<H>& handles) {
@@ -75,6 +77,8 @@ namespace TrenchBroom {
         private:
             void takeSnapshot();
             void deleteSnapshot();
+        protected:
+            bool canCollateWith(const VertexCommand& other) const;
         private:
             virtual bool doCanDoVertexOperation(const MapDocument* document) const = 0;
             virtual bool doVertexOperation(MapDocumentCommandFacade* document) = 0;
