@@ -125,6 +125,7 @@ namespace TrenchBroom {
             DefaultValue<String> parseDefaultStringValue(ParserStatus& status);
             DefaultValue<int> parseDefaultIntegerValue(ParserStatus& status);
             DefaultValue<float> parseDefaultFloatValue(ParserStatus& status);
+            DefaultValue<String> parseDefaultChoiceValue(ParserStatus& status);
             
             vm::vec3 parseVector(ParserStatus& status);
             vm::bbox3 parseSize(ParserStatus& status);
