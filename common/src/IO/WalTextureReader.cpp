@@ -64,6 +64,10 @@ namespace TrenchBroom {
             const size_t width = reader.readSize<uint32_t>();
             const size_t height = reader.readSize<uint32_t>();
 
+            if (!checkTextureDimensions(width, height)) {
+                return new Assets::Texture(textureName(path), 16, 16);
+            }
+
             if (!m_palette.initialized()) {
                 return new Assets::Texture(textureName(name, path), width, height);
             }
@@ -88,6 +92,10 @@ namespace TrenchBroom {
 
             const auto width = reader.readSize<uint32_t>();
             const auto height = reader.readSize<uint32_t>();
+
+            if (!checkTextureDimensions(width, height)) {
+                return new Assets::Texture(textureName(path), 16, 16);
+            }
 
             const auto mipLevels = readMipOffsets(MaxMipLevels, offsets, width, height, reader);
             Assets::setMipBufferSize(buffers, mipLevels, width, height, GL_RGBA);

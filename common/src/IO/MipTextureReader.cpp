@@ -30,6 +30,7 @@ namespace TrenchBroom {
     namespace IO {
         namespace MipLayout {
             static const size_t TextureNameLength = 16;
+            static const size_t MaxTextureSize = 65536;
         }
         
         MipTextureReader::MipTextureReader(const NameStrategy& nameStrategy) :
@@ -61,6 +62,11 @@ namespace TrenchBroom {
                 const auto name = reader.readString(MipLayout::TextureNameLength);
                 const auto width = reader.readSize<int32_t>();
                 const auto height = reader.readSize<int32_t>();
+
+                if (!checkTextureDimensions(width, height)) {
+                    return new Assets::Texture(textureName(path), 16, 16);
+                }
+
                 for (size_t i = 0; i < MipLevels; ++i) {
                     offset[i] = reader.readSize<int32_t>();
                 }

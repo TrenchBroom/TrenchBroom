@@ -93,6 +93,10 @@ namespace TrenchBroom {
             return m_nameStrategy->textureName(path.lastComponent().asString(), path);
         }
 
+        bool TextureReader::checkTextureDimensions(const size_t width, const size_t height) {
+            return width <= 8192 && height <= 8192;
+        }
+
         size_t TextureReader::mipSize(const size_t width, const size_t height, const size_t mipLevel) {
             const auto size = Assets::sizeAtMipLevel(width, height, mipLevel);
             return size.x() * size.y();
