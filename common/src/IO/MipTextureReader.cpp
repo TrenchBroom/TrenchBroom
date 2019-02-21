@@ -61,6 +61,11 @@ namespace TrenchBroom {
                 const auto name = reader.readString(MipLayout::TextureNameLength);
                 const auto width = reader.readSize<int32_t>();
                 const auto height = reader.readSize<int32_t>();
+
+                if (!checkTextureDimensions(width, height)) {
+                    return new Assets::Texture(textureName(path), 16, 16);
+                }
+
                 for (size_t i = 0; i < MipLevels; ++i) {
                     offset[i] = reader.readSize<int32_t>();
                 }
