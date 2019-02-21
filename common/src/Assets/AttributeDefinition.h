@@ -53,10 +53,8 @@ namespace TrenchBroom {
             Type type() const;
             const String& shortDescription() const;
             const String& longDescription() const;
-            String fullDescription() const;
+
             bool readOnly() const;
-            
-            static String safeFullDescription(const AttributeDefinition* definition);
             
             bool equals(const AttributeDefinition* other) const;
             

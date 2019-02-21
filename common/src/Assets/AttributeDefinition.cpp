@@ -48,27 +48,9 @@ namespace TrenchBroom {
         const String& AttributeDefinition::longDescription() const {
             return m_longDescription;
         }
-        
-        String AttributeDefinition::fullDescription() const {
-            StringStream result;
-            if (!m_shortDescription.empty() && !m_longDescription.empty()) {
-                result << m_shortDescription << std::endl << std::endl << m_longDescription;
-            } else if (!m_shortDescription.empty()) {
-                result << m_shortDescription;
-            } else if (!m_longDescription.empty()) {
-                result << m_longDescription;
-            } else {
-                result << "No description found";
-            }
-            return result.str();
-        }
 
         bool AttributeDefinition::readOnly() const {
             return m_readOnly;
-        }
-
-        String AttributeDefinition::safeFullDescription(const AttributeDefinition* definition) {
-            return definition == nullptr ? EmptyString : definition->fullDescription();
         }
 
         bool AttributeDefinition::equals(const AttributeDefinition* other) const {

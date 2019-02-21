@@ -22,7 +22,7 @@
 
 #include "View/SmartAttributeEditor.h"
 
-class wxTextCtrl;
+class wxPanel;
 
 namespace TrenchBroom {
     namespace Assets {
@@ -30,10 +30,12 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        /**
+         * Placeholder for when there is no smart editor. Just an empty wxPanel.
+         */
         class SmartDefaultAttributeEditor : public SmartAttributeEditor {
         private:
-            wxTextCtrl* m_descriptionTxt;
-            const Assets::EntityDefinition* m_currentDefinition;
+            wxPanel* m_panel;
         public:
             SmartDefaultAttributeEditor(View::MapDocumentWPtr document);
         private:
