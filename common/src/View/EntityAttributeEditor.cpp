@@ -118,13 +118,15 @@ namespace TrenchBroom {
         }
 
         wxString EntityAttributeEditor::optionDescriptions(const Assets::AttributeDefinition& definition) {
+            const auto bullet = wxString(" ") << wxUniChar(0x2022) << wxString(" ");
+
             switch (definition.type()) {
                 case Assets::AttributeDefinition::Type_ChoiceAttribute: {
                     const auto& choiceDef = dynamic_cast<const Assets::ChoiceAttributeDefinition&>(definition);
+
                     wxString stream;
                     for (auto& option : choiceDef.options()) {
-                        stream << option.value();
-                        stream << option.value();
+                        stream << bullet << option.value();
                         if (!option.description().empty()) {
                             stream << " (" << option.description() << ")";
                         }
@@ -136,7 +138,7 @@ namespace TrenchBroom {
                     const auto& flagsDef = dynamic_cast<const Assets::FlagsAttributeDefinition&>(definition);
                     wxString stream;
                     for (auto& option : flagsDef.options()) {
-                        stream << option.value() << " = " << option.shortDescription();
+                        stream << bullet << option.value() << " = " << option.shortDescription();
                         if (!option.longDescription().empty()) {
                             stream << " (" << option.longDescription() << ")";
                         }
@@ -180,18 +182,20 @@ namespace TrenchBroom {
                                 m_documentationText->AppendText(attributeDefinition->shortDescription());
                                 m_documentationText->AppendText(")");
                             }
+                            m_documentationText->AppendText("\n");
                             const long end = m_documentationText->GetLastPosition();
                             m_documentationText->SetStyle(start, end, boldAttr);
                         }
 
                         if (!attributeDefinition->longDescription().empty()) {
-                            m_documentationText->AppendText("\n\n");
+                            m_documentationText->AppendText("\n");
                             m_documentationText->AppendText(attributeDefinition->longDescription());
+                            m_documentationText->AppendText("\n");
                         }
 
                         if (!optionsDescription.empty()) {
-                            m_documentationText->AppendText("\n\nOptions:\n");
-                            m_documentationText->AppendText(optionsDescription);
+                            m_documentationText->AppendText("\nOptions:\n");
+                            m_documentationText->AppendText(optionsDescription); // ends with a newline
                         }
                     }
                 }
@@ -200,7 +204,7 @@ namespace TrenchBroom {
                 if (!entityDefinition->description().empty()) {
                     // add space after attribute text
                     if (!m_documentationText->IsEmpty()) {
-                        m_documentationText->AppendText("\n\n");
+                        m_documentationText->AppendText("\n");
                     }
 
                     // e.g. "Class "func_door"", in bold
@@ -208,13 +212,14 @@ namespace TrenchBroom {
                         const long start = m_documentationText->GetLastPosition();
                         m_documentationText->AppendText("Class \"");
                         m_documentationText->AppendText(entityDefinition->name());
-                        m_documentationText->AppendText("\"");
+                        m_documentationText->AppendText("\"\n");
                         const long end = m_documentationText->GetLastPosition();
                         m_documentationText->SetStyle(start, end, boldAttr);
                     }
 
-                    m_documentationText->AppendText("\n\n");
+                    m_documentationText->AppendText("\n");
                     m_documentationText->AppendText(entityDefinition->description());
+                    m_documentationText->AppendText("\n");
                 }
             }
 
