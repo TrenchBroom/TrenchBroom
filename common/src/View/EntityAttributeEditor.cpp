@@ -102,18 +102,50 @@ namespace TrenchBroom {
             updateDocumentation(attributeName);
 
             // collapse the splitter if needed
-            if        (!m_documentationText->IsEmpty() && !m_smartEditorManager->isDefaultEditorActive()) {
+            if (!m_documentationText->IsEmpty() && !m_smartEditorManager->isDefaultEditorActive()) {
                 // show both
                 m_documentationSplitter->restore();
-            } else if ( m_documentationText->IsEmpty() && !m_smartEditorManager->isDefaultEditorActive()) {
+            } else if (m_documentationText->IsEmpty() && !m_smartEditorManager->isDefaultEditorActive()) {
                 // show only the smart editor
                 m_documentationSplitter->maximize(m_smartEditorManager);
-            } else if (!m_documentationText->IsEmpty() &&  m_smartEditorManager->isDefaultEditorActive()) {
+            } else if (!m_documentationText->IsEmpty() && m_smartEditorManager->isDefaultEditorActive()) {
                 // show only the documentation panel
                 m_documentationSplitter->maximize(m_documentationText);
             } else {
                 // nothing to display
                 m_documentationSplitter->maximize(m_documentationText);
+            }
+        }
+
+        wxString EntityAttributeEditor::optionDescriptions(const Assets::AttributeDefinition& definition) {
+            switch (definition.type()) {
+                case Assets::AttributeDefinition::Type_ChoiceAttribute: {
+                    const auto& choiceDef = dynamic_cast<const Assets::ChoiceAttributeDefinition&>(definition);
+                    wxString stream;
+                    for (auto& option : choiceDef.options()) {
+                        stream << option.value();
+                        stream << option.value();
+                        if (!option.description().empty()) {
+                            stream << " (" << option.description() << ")";
+                        }
+                        stream << "\n";
+                    }
+                    return stream;
+                }
+                case Assets::AttributeDefinition::Type_FlagsAttribute: {
+                    const auto& flagsDef = dynamic_cast<const Assets::FlagsAttributeDefinition&>(definition);
+                    wxString stream;
+                    for (auto& option : flagsDef.options()) {
+                        stream << option.value() << " = " << option.shortDescription();
+                        if (!option.longDescription().empty()) {
+                            stream << " (" << option.longDescription() << ")";
+                        }
+                        stream << "\n";
+                    }
+                    return stream;
+                }
+                default:
+                    return wxString();
             }
         }
 
@@ -128,8 +160,9 @@ namespace TrenchBroom {
 
             if (entityDefinition != nullptr) {
                 // add attribute documentation, if available
-                if (const Assets::AttributeDefinition* attributeDefinition = entityDefinition->attributeDefinition(attributeName); attributeDefinition != nullptr) {
-                    const String optionsDescription = attributeDefinition->optionDescriptions();
+                const Assets::AttributeDefinition* attributeDefinition = entityDefinition->attributeDefinition(attributeName);
+                if (attributeDefinition != nullptr) {
+                    const wxString optionsDescription = optionDescriptions(*attributeDefinition);
 
                     const bool attributeHasDocs = !attributeDefinition->longDescription().empty()
                                                || !attributeDefinition->shortDescription().empty()

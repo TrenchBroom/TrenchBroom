@@ -53,18 +53,8 @@ namespace TrenchBroom {
             Type type() const;
             const String& shortDescription() const;
             const String& longDescription() const;
-            /**
-             * Returns a description of the options for ChoiceAttributeOption and FlagsAttributeDefinition,
-             * other subclasses return an empty string.
-             */
-            virtual String optionDescriptions() const;
-            /**
-             * Returns a concatenation of shortDescription(), longDescription(), and optionDescriptions()
-             */
-            String fullDescription() const;
+
             bool readOnly() const;
-            
-            static String safeFullDescription(const AttributeDefinition* definition);
             
             bool equals(const AttributeDefinition* other) const;
             
@@ -154,7 +144,6 @@ namespace TrenchBroom {
             ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::List& options, const size_t defaultValue, bool readOnly);
             ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::List& options, bool readOnly);
             const ChoiceAttributeOption::List& options() const;
-            String optionDescriptions() const override;
         private:
             bool doEquals(const AttributeDefinition* other) const override;
             AttributeDefinition* doClone(const String& name, const String& shortDescription, const String& longDescription, bool readOnly) const override;
@@ -187,7 +176,6 @@ namespace TrenchBroom {
             const FlagsAttributeOption::List& options() const;
             const FlagsAttributeOption* option(int value) const;
             void addOption(int value, const String& shortDescription, const String& longDescription, bool isDefault);
-            String optionDescriptions() const override;
         private:
             bool doEquals(const AttributeDefinition* other) const override;
             AttributeDefinition* doClone(const String& name, const String& shortDescription, const String& longDescription, bool readOnly) const override;

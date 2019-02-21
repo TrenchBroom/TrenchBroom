@@ -31,6 +31,7 @@ class wxTextCtrl;
 namespace TrenchBroom {
     namespace Assets {
         class EntityDefinition;
+        class AttributeDefinition;
     }
 
     namespace View {
@@ -67,6 +68,12 @@ namespace TrenchBroom {
 
             void updateIfSelectedEntityDefinitionChanged();
             void updateDocumentationAndSmartEditor();
+
+            /**
+             * Returns a description of the options for ChoiceAttributeOption and FlagsAttributeDefinition,
+             * other subclasses return an empty string.
+             */
+            static wxString optionDescriptions(const Assets::AttributeDefinition& definition);
 
             void updateDocumentation(const String &attributeName);
             void createGui(wxWindow* parent, MapDocumentWPtr document);

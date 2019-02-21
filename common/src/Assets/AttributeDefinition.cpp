@@ -49,37 +49,8 @@ namespace TrenchBroom {
             return m_longDescription;
         }
 
-        String AttributeDefinition::optionDescriptions() const {
-            return "";
-        }
-
-        String AttributeDefinition::fullDescription() const {
-            String result = m_shortDescription;
-
-            if (!m_longDescription.empty()) {
-                if (!result.empty()) {
-                    result += "\n\n";
-                }
-                result += m_longDescription;
-            }
-
-            const String optionsDescription_ = optionDescriptions();
-            if (!optionsDescription_.empty()) {
-                if (!result.empty()) {
-                    result += "\n\n";
-                }
-                result += optionsDescription_;
-            }
-
-            return result;
-        }
-
         bool AttributeDefinition::readOnly() const {
             return m_readOnly;
-        }
-
-        String AttributeDefinition::safeFullDescription(const AttributeDefinition* definition) {
-            return definition == nullptr ? EmptyString : definition->fullDescription();
         }
 
         bool AttributeDefinition::equals(const AttributeDefinition* other) const {
@@ -240,18 +211,6 @@ namespace TrenchBroom {
             return m_options;
         }
 
-        String ChoiceAttributeDefinition::optionDescriptions() const {
-            StringStream stream;
-            for (auto& option : m_options) {
-                stream << option.value();
-                if (!option.description().empty()) {
-                    stream << " (" << option.description() << ")";
-                }
-                stream << "\n";
-            }
-            return stream.str();
-        }
-
         bool ChoiceAttributeDefinition::doEquals(const AttributeDefinition* other) const {
             return options() == static_cast<const ChoiceAttributeDefinition*>(other)->options();
         }
@@ -323,18 +282,6 @@ namespace TrenchBroom {
 
         void FlagsAttributeDefinition::addOption(const int value, const String& shortDescription, const String& longDescription, const bool isDefault) {
             m_options.push_back(FlagsAttributeOption(value, shortDescription, longDescription, isDefault));
-        }
-
-        String FlagsAttributeDefinition::optionDescriptions() const {
-            StringStream stream;
-            for (auto& option : m_options) {
-                stream << option.value() << " = " << option.shortDescription();
-                if (!option.longDescription().empty()) {
-                    stream << " (" << option.longDescription() << ")";
-                }
-                stream << "\n";
-            }
-            return stream.str();
         }
 
         bool FlagsAttributeDefinition::doEquals(const AttributeDefinition* other) const {
