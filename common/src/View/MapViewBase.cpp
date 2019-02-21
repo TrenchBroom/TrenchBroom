@@ -1109,9 +1109,12 @@ namespace TrenchBroom {
             ensure(currentGroup != nullptr, "currentGroup is null");
             
             Transaction transaction(document, "Remove Objects from Group");
-            if (currentGroup->childCount() == nodes.size())
-                document->closeGroup();
             reparentNodes(nodes, document->currentLayer(), true);
+
+            while (document->currentGroup() != nullptr) {
+                document->closeGroup();
+            }
+            document->select(nodes);
         }
 
         Model::Node* MapViewBase::findNewGroupForObjects(const Model::NodeList& nodes) const {
@@ -1242,8 +1245,6 @@ namespace TrenchBroom {
             ensure(newParent != nullptr, "newParent is null");
 
             MapDocumentSPtr document = lock(m_document);
-            Model::PushSelection pushSelection(document);
-            
             Model::NodeList inputNodes;
             if (preserveEntities) {
                 inputNodes = collectEntitiesForBrushes(nodes, document->world());

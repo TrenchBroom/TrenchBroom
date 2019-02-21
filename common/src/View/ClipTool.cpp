@@ -209,7 +209,6 @@ namespace TrenchBroom {
                     VectorUtils::append(result, helpVectors);
                 }
                 
-                // VectorUtils::sortAndRemoveDuplicates(result);
                 return result;
             }
             
@@ -235,6 +234,12 @@ namespace TrenchBroom {
                 } else if (m_numPoints == 2 && colinear(m_points[0].point, m_points[1].point, point)) {
                     return false;
                 } else {
+                    // Don't allow to place a point onto another point!
+                    for (size_t i = 0; i < m_numPoints; ++i) {
+                        if (vm::isEqual(m_points[i].point, point, vm::C::almostZero())) {
+                            return false;
+                        }
+                    }
                     return true;
                 }
             }
@@ -279,10 +284,15 @@ namespace TrenchBroom {
 
             bool doDragPoint(const vm::vec3& newPosition, const std::vector<vm::vec3>& helpVectors) override {
                 ensure(m_dragIndex < m_numPoints, "drag index out of range");
-                
-                if (m_numPoints == 2 && colinear(m_points[0].point, m_points[1].point, newPosition)) {
-                    return false;
-                } else if (m_numPoints == 3) {
+
+                // Don't allow to drag a point onto another point!
+                for (size_t i = 0; i < m_numPoints; ++i) {
+                    if (m_dragIndex != i && vm::isEqual(m_points[i].point, newPosition, vm::C::almostZero())) {
+                        return false;
+                    }
+                }
+
+                if (m_numPoints == 3) {
                     size_t index0, index1;
                     switch (m_dragIndex) {
                         case 0:

@@ -496,20 +496,27 @@ namespace TrenchBroom {
         Assets::AttributeDefinitionPtr FgdParser::parseChoicesAttribute(ParserStatus& status, const String& name) {
             const auto readOnly = parseReadOnlyFlag(status);
             const auto shortDescription = parseAttributeDescription(status);
-            const auto defaultValue = parseDefaultIntegerValue(status);
+            const auto defaultStringValue = parseDefaultChoiceValue(status);
             const auto longDescription = parseAttributeDescription(status);
 
             expect(status, FgdToken::Equality, m_tokenizer.nextToken());
             expect(status, FgdToken::OBracket, m_tokenizer.nextToken());
 
+            auto defaultValue = DefaultValue<size_t>();
+
             auto token = expect(status, FgdToken::Integer | FgdToken::Decimal | FgdToken::String | FgdToken::CBracket, m_tokenizer.nextToken());
-            
+
             Assets::ChoiceAttributeOption::List options;
             while (token.type() != FgdToken::CBracket) {
                 const auto value = token.data();
                 expect(status, FgdToken::Colon, m_tokenizer.nextToken());
                 const auto caption = parseString(status);
-                options.push_back(Assets::ChoiceAttributeOption(value, caption));
+
+                if (!defaultValue.present && defaultStringValue.present && value == defaultStringValue.value) {
+                    defaultValue = DefaultValue<size_t>(options.size());
+                }
+
+                options.emplace_back(value, caption);
                 token = expect(status, FgdToken::Integer | FgdToken::Decimal | FgdToken::String | FgdToken::CBracket, m_tokenizer.nextToken());
             }
             
@@ -638,7 +645,26 @@ namespace TrenchBroom {
             }
             return DefaultValue<float>();
         }
-        
+
+        FgdParser::DefaultValue<String> FgdParser::parseDefaultChoiceValue(ParserStatus& status) {
+            auto token = m_tokenizer.peekToken();
+            if (token.type() == FgdToken::Colon) {
+                m_tokenizer.nextToken();
+                token = expect(status, FgdToken::String | FgdToken::Integer | FgdToken::Decimal | FgdToken::Colon, m_tokenizer.peekToken());
+                if (token.hasType(FgdToken::String)) {
+                    token = m_tokenizer.nextToken();
+                    return DefaultValue<String>(token.data());
+                } else if (token.hasType(FgdToken::Integer)) {
+                    token = m_tokenizer.nextToken();
+                    return DefaultValue<String>(token.data());
+                } else if (token.hasType(FgdToken::Decimal)) {
+                    token = m_tokenizer.nextToken();
+                    return DefaultValue<String>(token.data());
+                }
+            }
+            return DefaultValue<String>();
+        }
+
         vm::vec3 FgdParser::parseVector(ParserStatus& status) {
             vm::vec3 vec;
             for (size_t i = 0; i < 3; i++) {
