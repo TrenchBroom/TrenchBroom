@@ -146,8 +146,14 @@ namespace TrenchBroom {
                     }
                     return stream;
                 }
-                default:
+                case Assets::AttributeDefinition::Type_StringAttribute:
+                case Assets::AttributeDefinition::Type_BooleanAttribute:
+                case Assets::AttributeDefinition::Type_IntegerAttribute:
+                case Assets::AttributeDefinition::Type_FloatAttribute:
+                case Assets::AttributeDefinition::Type_TargetSourceAttribute:
+                case Assets::AttributeDefinition::Type_TargetDestinationAttribute:
                     return wxString();
+                switchDefault()
             }
         }
 
