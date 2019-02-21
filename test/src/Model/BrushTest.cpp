@@ -98,6 +98,9 @@ namespace TrenchBroom {
             Brush brush(worldBounds, faces);
             assert(brush.fullySpecified());
 
+            // sort the faces by the weight of their plane normals like QBSP does
+            Model::BrushFace::sortFaces(faces);
+
             const BrushFaceList& brushFaces = brush.faces();
             ASSERT_EQ(6u, brushFaces.size());
             for (size_t i = 0; i < faces.size(); i++)

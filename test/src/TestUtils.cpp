@@ -134,7 +134,7 @@ namespace TrenchBroom {
 
         void assertTexture(const String& expected, const Brush* brush, const vm::polygon3d& vertices) {
             assert(brush != nullptr);
-            BrushFace* face = brush->findFace(vertices);
+            BrushFace* face = brush->findFace(vertices, 0.0001);
             assert(face != nullptr);
             
             ASSERT_EQ(expected, face->textureName());
