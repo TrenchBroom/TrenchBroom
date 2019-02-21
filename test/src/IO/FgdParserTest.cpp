@@ -466,22 +466,35 @@ namespace TrenchBroom {
         }
 
         TEST(FgdParserTest, parseChoiceAttribute) {
-            const String file =
-            "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
-            "[\n"
-            "   worldtype(choices) : \"Ambience\" : : \"Long description 1\" =\n"
-            "   [\n"
-            "       0 : \"Medieval\"\n"
-            "       1 : \"Metal (runic)\"\n"
-            "       2 : \"Base\"\n"
-            "   ]\n"
-            "   worldtype2(choices) : \"Ambience with default\" : 1 : \"Long description 2\" =\n"
-            "   [\n"
-            "       0 : \"Medieval\"\n"
-            "       1 : \"Metal (runic)\"\n"
-            "   ]\n"
-            "]\n";
-            
+            const String file = R"%(
+            @PointClass = info_notnull : "Wildcard entity" // I love you\n
+[
+    worldtype(choices) : "Ambience" : : "Long description 1" =
+    [
+        0 : "Medieval"
+        1 : "Metal (runic)"
+        2 : "Base"
+    ]
+    worldtype2(choices) : "Ambience with default" : 1 : "Long description 2" =
+    [
+        0 : "Medieval"
+        1 : "Metal (runic)"
+    ]
+    puzzle_id(choices) : "Puzzle id" : "cskey" =
+    [
+        "keep3" : "Mill key"
+        "cskey" : "Castle key"
+        "scrol" : "Disrupt Magic Scroll"
+    ]
+    floaty(choices) : "Floaty" : 2.3 =
+    [
+        1.0 : "Something"
+        2.3 : "Something else"
+        0.1 : "Yet more"
+    ]
+]
+            )%";
+
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             FgdParser parser(file, defaultColor);
             
@@ -495,7 +508,7 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(String("Wildcard entity"), definition->description());
             
-            ASSERT_EQ(2u, definition->attributeDefinitions().size());
+            ASSERT_EQ(4u, definition->attributeDefinitions().size());
             
             const Assets::AttributeDefinition* attribute1 = definition->attributeDefinition("worldtype");
             ASSERT_TRUE(attribute1 != nullptr);
@@ -527,13 +540,47 @@ namespace TrenchBroom {
             ASSERT_TRUE(choiceAttribute2->hasDefaultValue());
             ASSERT_EQ(1u, choiceAttribute2->defaultValue());
             
-            const Assets::ChoiceAttributeOption::List& options2 = choiceAttribute1->options();
-            ASSERT_EQ(3u, options2.size());
+            const Assets::ChoiceAttributeOption::List& options2 = choiceAttribute2->options();
+            ASSERT_EQ(2u, options2.size());
             ASSERT_EQ(String("0"), options2[0].value());
             ASSERT_EQ(String("Medieval"), options2[0].description());
             ASSERT_EQ(String("1"), options2[1].value());
             ASSERT_EQ(String("Metal (runic)"), options2[1].description());
             
+            const Assets::AttributeDefinition* attribute3 = definition->attributeDefinition("puzzle_id");
+            const Assets::ChoiceAttributeDefinition* choiceAttribute3 = static_cast<const Assets::ChoiceAttributeDefinition*>(attribute3);
+            ASSERT_EQ(String("puzzle_id"), choiceAttribute3->name());
+            ASSERT_EQ(String("Puzzle id"), choiceAttribute3->shortDescription());
+            ASSERT_EQ(String(""), choiceAttribute3->longDescription());
+            ASSERT_TRUE(choiceAttribute3->hasDefaultValue());
+            ASSERT_EQ(1u, choiceAttribute3->defaultValue());
+
+            const Assets::ChoiceAttributeOption::List& options3 = choiceAttribute3->options();
+            ASSERT_EQ(3u, options3.size());
+            ASSERT_EQ(String("keep3"), options3[0].value());
+            ASSERT_EQ(String("Mill key"), options3[0].description());
+            ASSERT_EQ(String("cskey"), options3[1].value());
+            ASSERT_EQ(String("Castle key"), options3[1].description());
+            ASSERT_EQ(String("scrol"), options3[2].value());
+            ASSERT_EQ(String("Disrupt Magic Scroll"), options3[2].description());
+
+            const Assets::AttributeDefinition* attribute4 = definition->attributeDefinition("floaty");
+            const Assets::ChoiceAttributeDefinition* choiceAttribute4 = static_cast<const Assets::ChoiceAttributeDefinition*>(attribute4);
+            ASSERT_EQ(String("floaty"), choiceAttribute4->name());
+            ASSERT_EQ(String("Floaty"), choiceAttribute4->shortDescription());
+            ASSERT_EQ(String(""), choiceAttribute4->longDescription());
+            ASSERT_TRUE(choiceAttribute4->hasDefaultValue());
+            ASSERT_EQ(1u, choiceAttribute4->defaultValue());
+
+            const Assets::ChoiceAttributeOption::List& options4 = choiceAttribute4->options();
+            ASSERT_EQ(3u, options4.size());
+            ASSERT_EQ(String("1.0"), options4[0].value());
+            ASSERT_EQ(String("Something"), options4[0].description());
+            ASSERT_EQ(String("2.3"), options4[1].value());
+            ASSERT_EQ(String("Something else"), options4[1].description());
+            ASSERT_EQ(String("0.1"), options4[2].value());
+            ASSERT_EQ(String("Yet more"), options4[2].description());
+
             VectorUtils::clearAndDelete(definitions);
         }
 
