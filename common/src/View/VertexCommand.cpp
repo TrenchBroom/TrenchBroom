@@ -32,13 +32,9 @@ namespace TrenchBroom {
     namespace View {
         VertexCommand::VertexCommand(const CommandType type, const String& name, const Model::BrushList& brushes) :
         DocumentCommand(type, name),
-        m_brushes(brushes),
-        m_snapshot(nullptr) {}
+        m_brushes(brushes) {}
 
-        VertexCommand::~VertexCommand() {
-            if (m_snapshot != nullptr)
-                deleteSnapshot();
-        }
+        VertexCommand::~VertexCommand() = default;
         
         void VertexCommand::extractVertexMap(const Model::VertexToBrushesMap& vertices, Model::BrushList& brushes, Model::BrushVerticesMap& brushVertices, std::vector<vm::vec3>& vertexPositions) {
             extract(vertices, brushes, brushVertices, vertexPositions);
@@ -61,8 +57,9 @@ namespace TrenchBroom {
                     const vm::segment3 edgePosition(edge->firstVertex()->position(), edge->secondVertex()->position());
                     
                     const auto result = brushEdges.insert(std::make_pair(brush, std::vector<vm::segment3>()));
-                    if (result.second)
+                    if (result.second) {
                         brushes.push_back(brush);
+                    }
                     result.first->second.push_back(edgePosition);
                     edgePositions.push_back(edgePosition);
                 }
@@ -129,8 +126,9 @@ namespace TrenchBroom {
                 restoreAndTakeNewSnapshot(document);
                 return true;
             } else {
-                if (!doCanDoVertexOperation(document))
+                if (!doCanDoVertexOperation(document)) {
                     return false;
+                }
 
                 takeSnapshot();
                 return doVertexOperation(document);
@@ -145,18 +143,9 @@ namespace TrenchBroom {
         void VertexCommand::restoreAndTakeNewSnapshot(MapDocumentCommandFacade* document) {
             ensure(m_snapshot != nullptr, "snapshot is null");
 
-            Model::Snapshot *snapshot = nullptr;
-            try {
-                using std::swap;
-                swap(m_snapshot, snapshot);
-                takeSnapshot();
-
-                document->restoreSnapshot(snapshot);
-                delete snapshot;
-            } catch (...) {
-                delete snapshot;
-                throw;
-            }
+            auto snapshot = std::move(m_snapshot);
+            takeSnapshot();
+            document->restoreSnapshot(snapshot.get());
         }
 
         bool VertexCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
@@ -165,13 +154,16 @@ namespace TrenchBroom {
 
         void VertexCommand::takeSnapshot() {
             assert(m_snapshot == nullptr);
-            m_snapshot = new Model::Snapshot(std::begin(m_brushes), std::end(m_brushes));
+            m_snapshot = std::make_unique<Model::Snapshot>(std::begin(m_brushes), std::end(m_brushes));
         }
         
         void VertexCommand::deleteSnapshot() {
             ensure(m_snapshot != nullptr, "snapshot is null");
-            delete m_snapshot;
-            m_snapshot = nullptr;
+            m_snapshot.release();
+        }
+
+        bool VertexCommand::canCollateWith(const VertexCommand& other) const {
+            return VectorUtils::equals(m_brushes, other.m_brushes);
         }
 
         void VertexCommand::removeHandles(VertexHandleManagerBase& manager) {
