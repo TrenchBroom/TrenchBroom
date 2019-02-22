@@ -22,23 +22,20 @@
 
 #include "View/SmartAttributeEditor.h"
 
-class QTextEdit;
-
 namespace TrenchBroom {
     namespace Assets {
         class EntityDefinition;
     }
     
     namespace View {
+        /**
+         * Placeholder for when there is no smart editor. Just an empty QWidget.
+         */
         class SmartDefaultAttributeEditor : public SmartAttributeEditor {
             Q_OBJECT
-        private:
-            QTextEdit* m_descriptionTxt;
-            const Assets::EntityDefinition* m_currentDefinition;
         public:
             SmartDefaultAttributeEditor(QWidget* parent, View::MapDocumentWPtr document);
         private:
-            void createGui();
             void doUpdateVisual(const Model::AttributableNodeList& attributables) override;
         };
     }

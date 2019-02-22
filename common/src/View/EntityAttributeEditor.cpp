@@ -23,25 +23,198 @@
 #include "View/ViewConstants.h"
 #include "View/MapDocument.h"
 #include "View/SmartAttributeEditorManager.h"
+#include "Model/AttributableNode.h"
+#include "Assets/EntityDefinition.h"
+#include "Assets/AttributeDefinition.h"
 
 #include <QSplitter>
 #include <QVBoxLayout>
+#include <QChar>
+#include <QStringBuilder>
+#include <QTextStream>
+#include <QTextEdit>
 
 namespace TrenchBroom {
     namespace View {
         EntityAttributeEditor::EntityAttributeEditor(QWidget* parent, MapDocumentWPtr document) :
         QWidget(parent),
-        m_document(document) {
+        m_document(document),
+        m_currentDefinition(nullptr) {
             createGui(this, document);
+            bindObservers();
+        }
+
+        EntityAttributeEditor::~EntityAttributeEditor() {
+            unbindObservers();
         }
 
         void EntityAttributeEditor::OnCurrentRowChanged() {
-            const String& attributeName = m_attributeGrid->selectedRowName();
-            if (!attributeName.empty() && attributeName != m_lastSelectedAttributeName) {
+            updateDocumentationAndSmartEditor();
+        }
+
+        void EntityAttributeEditor::bindObservers() {
+            MapDocumentSPtr document = lock(m_document);
+            document->selectionDidChangeNotifier.addObserver(this, &EntityAttributeEditor::selectionDidChange);
+            document->nodesDidChangeNotifier.addObserver(this, &EntityAttributeEditor::nodesDidChange);
+        }
+
+        void EntityAttributeEditor::unbindObservers() {
+            if (!expired(m_document)) {
                 MapDocumentSPtr document = lock(m_document);
-                m_smartEditorManager->switchEditor(attributeName, document->allSelectedAttributableNodes());
-                m_lastSelectedAttributeName = attributeName;
+                document->selectionDidChangeNotifier.removeObserver(this, &EntityAttributeEditor::selectionDidChange);
+                document->nodesDidChangeNotifier.removeObserver(this, &EntityAttributeEditor::nodesDidChange);
             }
+        }
+
+        void EntityAttributeEditor::selectionDidChange(const Selection& selection) {
+            updateIfSelectedEntityDefinitionChanged();
+        }
+
+        void EntityAttributeEditor::nodesDidChange(const Model::NodeList& nodes) {
+            updateIfSelectedEntityDefinitionChanged();
+        }
+
+        void EntityAttributeEditor::updateIfSelectedEntityDefinitionChanged() {
+            MapDocumentSPtr document = lock(m_document);
+            const Assets::EntityDefinition* entityDefinition = Model::AttributableNode::selectEntityDefinition(document->allSelectedAttributableNodes());
+
+            if (entityDefinition != m_currentDefinition) {
+                m_currentDefinition = entityDefinition;
+
+                updateDocumentationAndSmartEditor();
+            }
+        }
+
+        void EntityAttributeEditor::updateDocumentationAndSmartEditor() {
+            MapDocumentSPtr document = lock(m_document);
+            const String& attributeName = m_attributeGrid->selectedRowName();
+
+            m_smartEditorManager->switchEditor(attributeName, document->allSelectedAttributableNodes());
+
+            updateDocumentation(attributeName);
+
+            // collapse the splitter if needed
+            m_documentationText->setHidden(m_documentationText->document()->isEmpty());
+            m_smartEditorManager->setHidden(m_smartEditorManager->isDefaultEditorActive());
+        }
+
+        QString EntityAttributeEditor::optionDescriptions(const Assets::AttributeDefinition& definition) {
+            const QString bullet = QString(" ") % QChar(0x2022) % QString(" ");
+
+            switch (definition.type()) {
+                case Assets::AttributeDefinition::Type_ChoiceAttribute: {
+                    const auto& choiceDef = dynamic_cast<const Assets::ChoiceAttributeDefinition&>(definition);
+
+                    QString result;
+                    QTextStream stream(&result);
+                    for (auto& option : choiceDef.options()) {
+                        stream << bullet << option.value().c_str();
+                        if (!option.description().empty()) {
+                            stream << " (" << option.description().c_str() << ")";
+                        }
+                        stream << "\n";
+                    }
+                    return result;
+                }
+                case Assets::AttributeDefinition::Type_FlagsAttribute: {
+                    const auto& flagsDef = dynamic_cast<const Assets::FlagsAttributeDefinition&>(definition);
+                    QString result;
+                    QTextStream stream(&result);
+
+                    for (auto& option : flagsDef.options()) {
+                        stream << bullet << option.value() << " = " << option.shortDescription().c_str();
+                        if (!option.longDescription().empty()) {
+                            stream << " (" << option.longDescription().c_str() << ")";
+                        }
+                        stream << "\n";
+                    }
+                    return result;
+                }
+                case Assets::AttributeDefinition::Type_StringAttribute:
+                case Assets::AttributeDefinition::Type_BooleanAttribute:
+                case Assets::AttributeDefinition::Type_IntegerAttribute:
+                case Assets::AttributeDefinition::Type_FloatAttribute:
+                case Assets::AttributeDefinition::Type_TargetSourceAttribute:
+                case Assets::AttributeDefinition::Type_TargetDestinationAttribute:
+                    return QString();
+                switchDefault()
+            }
+        }
+
+        void EntityAttributeEditor::updateDocumentation(const String &attributeName) {
+            MapDocumentSPtr document = lock(m_document);
+            const Assets::EntityDefinition* entityDefinition = Model::AttributableNode::selectEntityDefinition(document->allSelectedAttributableNodes());
+
+            m_documentationText->clear();
+
+            QTextCharFormat boldFormat;
+            boldFormat.setFontWeight(QFont::Bold);
+
+            QTextCharFormat normalFormat;
+
+            if (entityDefinition != nullptr) {
+                // add attribute documentation, if available
+                const Assets::AttributeDefinition* attributeDefinition = entityDefinition->attributeDefinition(attributeName);
+                if (attributeDefinition != nullptr) {
+                    const QString optionsDescription = optionDescriptions(*attributeDefinition);
+
+                    const bool attributeHasDocs = !attributeDefinition->longDescription().empty()
+                                               || !attributeDefinition->shortDescription().empty()
+                                               || !optionsDescription.isEmpty();
+
+                    if (attributeHasDocs) {
+                        // e.g. "Attribute "delay" (Attenuation formula)", in bold
+                        {
+                            m_documentationText->setCurrentCharFormat(boldFormat);
+                            m_documentationText->append("Attribute \"");
+                            m_documentationText->append(attributeDefinition->name().c_str());
+                            m_documentationText->append("\"");
+                            if (!attributeDefinition->shortDescription().empty()) {
+                                m_documentationText->append(" (");
+                                m_documentationText->append(attributeDefinition->shortDescription().c_str());
+                                m_documentationText->append(")");
+                            }
+                            m_documentationText->append("\n");
+                            m_documentationText->setCurrentCharFormat(normalFormat);
+                        }
+
+                        if (!attributeDefinition->longDescription().empty()) {
+                            m_documentationText->append("\n");
+                            m_documentationText->append(attributeDefinition->longDescription().c_str());
+                            m_documentationText->append("\n");
+                        }
+
+                        if (!optionsDescription.isEmpty()) {
+                            m_documentationText->append("\nOptions:\n");
+                            m_documentationText->append(optionsDescription); // ends with a newline
+                        }
+                    }
+                }
+
+                // add class description, if available
+                if (!entityDefinition->description().empty()) {
+                    // add space after attribute text
+                    if (!m_documentationText->document()->isEmpty()) {
+                        m_documentationText->append("\n");
+                    }
+
+                    // e.g. "Class "func_door"", in bold
+                    {
+                        m_documentationText->setCurrentCharFormat(boldFormat);
+                        m_documentationText->append("Class \"");
+                        m_documentationText->append(entityDefinition->name().c_str());
+                        m_documentationText->append("\"\n");
+                        m_documentationText->setCurrentCharFormat(normalFormat);
+                    }
+
+                    m_documentationText->append("\n");
+                    m_documentationText->append(entityDefinition->description().c_str());
+                    m_documentationText->append("\n");
+                }
+            }
+
+            // Scroll to the top
+            m_documentationText->moveCursor(QTextCursor::MoveOperation::Start);
         }
         
         void EntityAttributeEditor::createGui(QWidget* parent, MapDocumentWPtr document) {
@@ -53,12 +226,16 @@ namespace TrenchBroom {
             
             m_attributeGrid = new EntityAttributeGrid(nullptr, document);
             m_smartEditorManager = new SmartAttributeEditorManager(nullptr, document);
+            m_documentationText = new QTextEdit();
+            m_documentationText->setReadOnly(true);
 
             splitter->addWidget(m_attributeGrid);
             splitter->addWidget(m_smartEditorManager);
+            splitter->addWidget(m_documentationText);
 
             m_attributeGrid->setMinimumSize(100, 50);
-            m_smartEditorManager->setMinimumSize(500, 100);
+            m_smartEditorManager->setMinimumSize(100, 50);
+            m_documentationText->setMinimumSize(100, 50);
 
             auto* sizer = new QVBoxLayout();
             sizer->setContentsMargins(0, 0, 0, 0);

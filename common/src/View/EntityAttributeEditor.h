@@ -21,25 +21,58 @@
 #define TrenchBroom_EntityAttributeEditor
 
 #include "StringUtils.h"
+#include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
 
 #include <QWidget>
 
+class QTextEdit;
+class QSplitter;
+
 namespace TrenchBroom {
+    namespace Assets {
+        class EntityDefinition;
+        class AttributeDefinition;
+    }
+
     namespace View {
+        class Selection;
         class EntityAttributeGrid;
         class SmartAttributeEditorManager;
-        
+
+        /**
+         * Panel containing the EntityAttributeGrid (the key/value editor table),
+         * smart editor, and documentation text view.
+         */
         class EntityAttributeEditor : public QWidget {
         private:
             View::MapDocumentWPtr m_document;
             EntityAttributeGrid* m_attributeGrid;
             SmartAttributeEditorManager* m_smartEditorManager;
-            String m_lastSelectedAttributeName;
+            QTextEdit* m_documentationText;
+            const Assets::EntityDefinition* m_currentDefinition;
         public:
             EntityAttributeEditor(QWidget* parent, MapDocumentWPtr document);
+            ~EntityAttributeEditor() override;
         private:
             void OnCurrentRowChanged();
+
+            void bindObservers();
+            void unbindObservers();
+
+            void selectionDidChange(const Selection& selection);
+            void nodesDidChange(const Model::NodeList& nodes);
+
+            void updateIfSelectedEntityDefinitionChanged();
+            void updateDocumentationAndSmartEditor();
+
+            /**
+             * Returns a description of the options for ChoiceAttributeOption and FlagsAttributeDefinition,
+             * other subclasses return an empty string.
+             */
+            static QString optionDescriptions(const Assets::AttributeDefinition& definition);
+
+            void updateDocumentation(const String &attributeName);
             void createGui(QWidget* parent, MapDocumentWPtr document);
         };
     }

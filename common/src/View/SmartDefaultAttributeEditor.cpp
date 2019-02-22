@@ -22,36 +22,12 @@
 #include "Assets/EntityDefinition.h"
 #include "Model/AttributableNode.h"
 
-#include <QTextEdit>
-#include <QVBoxLayout>
-
 namespace TrenchBroom {
     namespace View {
         SmartDefaultAttributeEditor::SmartDefaultAttributeEditor(QWidget* parent, View::MapDocumentWPtr document) :
-        SmartAttributeEditor(parent, document),
-        m_descriptionTxt(nullptr),
-        m_currentDefinition(nullptr) {
-            createGui();
-        }
-
-        void SmartDefaultAttributeEditor::createGui() {
-            m_descriptionTxt = new QTextEdit();
-            m_descriptionTxt->setReadOnly(true);
-
-            auto* layout = new QVBoxLayout();
-            layout->addWidget(m_descriptionTxt, 1);
-            setLayout(layout);
-        }
+        SmartAttributeEditor(parent, document) {}
 
         void SmartDefaultAttributeEditor::doUpdateVisual(const Model::AttributableNodeList& attributables) {
-            const Assets::EntityDefinition* entityDefinition = Model::AttributableNode::selectEntityDefinition(attributables);
-            if (entityDefinition != m_currentDefinition) {
-                m_currentDefinition = entityDefinition;
-                
-                m_descriptionTxt->clear();
-                if (m_currentDefinition != nullptr)
-                    m_descriptionTxt->append(QString::fromStdString(m_currentDefinition->description()));
-            }
         }
     }
 }

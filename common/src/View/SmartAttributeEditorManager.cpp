@@ -56,7 +56,11 @@ namespace TrenchBroom {
         }
 
         SmartAttributeEditor* SmartAttributeEditorManager::activeEditor() const {
-            return static_cast<SmartAttributeEditor*>(m_stackedLayout->currentWidget());
+            return static_cast<SmartAttributeEditor *>(m_stackedLayout->currentWidget());
+        }
+
+        bool SmartAttributeEditorManager::isDefaultEditorActive() const {
+            return activeEditor() == defaultEditor();
         }
 
         void SmartAttributeEditorManager::createEditors() {

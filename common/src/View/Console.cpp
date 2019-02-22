@@ -36,7 +36,6 @@ namespace TrenchBroom {
             m_textView = new QTextEdit();
             m_textView->setReadOnly(true);
             m_textView->setWordWrapMode(QTextOption::NoWrap);
-            m_textView->setReadOnly(true);
 
             QVBoxLayout* sizer = new QVBoxLayout();
             sizer->setContentsMargins(0, 0, 0, 0);

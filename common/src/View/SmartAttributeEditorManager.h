@@ -53,6 +53,7 @@ namespace TrenchBroom {
             ~SmartAttributeEditorManager();
             
             void switchEditor(const Model::AttributeName& name, const Model::AttributableNodeList& attributables);
+            bool isDefaultEditorActive() const;
         private:
             SmartAttributeEditor* activeEditor() const;
             void createEditors();

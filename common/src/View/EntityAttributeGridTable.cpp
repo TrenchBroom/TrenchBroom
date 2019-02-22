@@ -101,7 +101,7 @@ namespace TrenchBroom {
                                     const bool nameMutable, const bool valueMutable, const bool isDefault) {
             auto it = rows->find(name);
             if (it == rows->end()) {
-                const String tooltip = Assets::AttributeDefinition::safeFullDescription(definition);
+                const String tooltip = definition != nullptr ? definition->shortDescription() : "";
 
                 (*rows)[name] = AttributeRow(name, value, nameMutable, valueMutable, tooltip, isDefault);
                 return;
@@ -575,7 +575,10 @@ namespace TrenchBroom {
             if (rowIt != std::end(m_rows)) {
                 rowIt->merge(value, nameMutable, valueMutable);
             } else {
-                const String tooltip = Assets::AttributeDefinition::safeFullDescription(definition);
+                String tooltip = definition != nullptr ? definition->shortDescription() : "";
+                if (tooltip.empty()) {
+                    tooltip = "No description found";
+                }
                 m_rows.push_back(AttributeRow(name, value, nameMutable, valueMutable, tooltip, isDefault, index));
             }
         }
