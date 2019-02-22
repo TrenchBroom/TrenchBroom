@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -93,21 +93,21 @@ R"(// entity 0
 "classname" "worldspawn"
 // brush 0
 {
-( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1 0 0 0 1 2 3
 ( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1 0 0 0 1 2 3
-( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1 0 0 0 1 2 3
 ( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1 0 0 0 1 2 3
-( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1 0 0 0 1 2 3
 ( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1 0 0 0 1 2 3
+( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1 0 0 0 1 2 3
+( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1 0 0 0 1 2 3
+( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1 0 0 0 1 2 3
 }
 // brush 1
 {
-( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
-( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1
-( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1
+( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1
+( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1
+( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1
 }
 }
 )";
@@ -136,12 +136,12 @@ R"(// entity 0
 "classname" "worldspawn"
 // brush 0
 {
-( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
-( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1
-( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1
+( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1
+( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1
+( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1
 }
 }
 )";
@@ -179,12 +179,12 @@ R"(// entity 0
 "_tb_id" "1"
 // brush 0
 {
-( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
-( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1
-( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1
+( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1
+( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1
+( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1
 }
 }
 )";
@@ -223,17 +223,16 @@ R"(// entity 0
 "_tb_id" "1"
 // brush 0
 {
-( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
-( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1
-( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1
+( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1
+( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1
+( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1
 }
 }
 )";
             const String actual = str.str();
-
             ASSERT_TRUE(StringUtils::caseSensitiveMatchesPattern(actual, expected));
         }
 
@@ -267,28 +266,27 @@ R"(// entity 0
 "classname" "func_group"
 "_tb_type" "_tb_layer"
 "_tb_name" "Custom Layer"
-"_tb_id" "2"
+"_tb_id" "*"
 }
 // entity 2
 {
 "classname" "func_group"
 "_tb_type" "_tb_group"
 "_tb_name" "Group"
-"_tb_id" "2"
-"_tb_layer" "2"
+"_tb_id" "*"
+"_tb_layer" "*"
 // brush 0
 {
-( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
-( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1
-( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1
+( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1
+( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1
+( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1
 }
 }
 )";
             const String actual = str.str();
-
             ASSERT_TRUE(StringUtils::caseSensitiveMatchesPattern(actual, expected));
         }
 
@@ -325,31 +323,31 @@ R"(// entity 0
 "classname" "func_group"
 "_tb_type" "_tb_layer"
 "_tb_name" "Custom Layer"
-"_tb_id" "3"
+"_tb_id" "*"
 }
 // entity 2
 {
 "classname" "func_group"
 "_tb_type" "_tb_group"
 "_tb_name" "Outer Group"
-"_tb_id" "3"
-"_tb_layer" "3"
+"_tb_id" "*"
+"_tb_layer" "*"
 }
 // entity 3
 {
 "classname" "func_group"
 "_tb_type" "_tb_group"
 "_tb_name" "Inner Group"
-"_tb_id" "4"
-"_tb_group" "3"
+"_tb_id" "*"
+"_tb_group" "*"
 // brush 0
 {
-( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
-( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1
-( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1
+( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1
+( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1
+( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1
 }
 }
 )";
@@ -390,12 +388,12 @@ R"(// entity 0
 "classname" "worldspawn"
 // brush 0
 {
-( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) some 0 0 0 1 1
 ( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) some 0 0 0 1 1
-( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) some 0 0 0 1 1
 ( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) some 0 0 0 1 1
-( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) some 0 0 0 1 1
 ( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) some 0 0 0 1 1
+( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) some 0 0 0 1 1
+( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) some 0 0 0 1 1
+( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) some 0 0 0 1 1
 }
 }
 // entity 1
@@ -403,15 +401,15 @@ R"(// entity 0
 "classname" "func_group"
 "_tb_type" "_tb_group"
 "_tb_name" "Inner Group"
-"_tb_id" "5"
+"_tb_id" "*"
 // brush 0
 {
-( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
-( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1
-( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1
+( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1
+( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1
+( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1
 }
 }
 )";
@@ -432,12 +430,12 @@ R"(// entity 0
             writer.writeBrushFaces(brush->faces());
 
             const String expected =
-R"(( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1
-( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
-( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1
+R"(( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1
-( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1
+( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1
+( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1
+( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1
 )";
 
             const String actual = str.str();
@@ -445,7 +443,6 @@ R"(( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1
 
             delete brush;
         }
-
 
         TEST(NodeWriterTest, writePropertiesWithQuotationMarks) {
             const vm::bbox3 worldBounds(8192.0);
