@@ -68,10 +68,10 @@ namespace TrenchBroom {
         void TagManager::registerSmartTag(SmartTag tag) {
             const auto it = std::lower_bound(std::begin(m_smartTags), std::end(m_smartTags), tag, TagCmp());
             if (it == std::end(m_smartTags)) {
-                tag.setType(freeTagType());
+                tag.setIndex(freeTagIndex());
                 m_smartTags.push_back(std::move(tag));
             } else if (*it < tag || tag < *it) {
-                tag.setType(freeTagType());
+                tag.setIndex(freeTagIndex());
                 m_smartTags.insert(it, std::move(tag));
             } else {
                 throw std::logic_error("Smart tag already registered");
@@ -88,11 +88,11 @@ namespace TrenchBroom {
             }
         }
 
-        Tag::TagType TagManager::freeTagType() {
+        size_t TagManager::freeTagIndex() {
             static const size_t Bits = (sizeof(Tag::TagType) * 8);
 
             ensure(m_currentTagTypeIndex <= Bits, "no more tag types");
-            return 1u << m_currentTagTypeIndex++;
+            return m_currentTagTypeIndex++;
         }
     }
 }

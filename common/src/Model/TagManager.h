@@ -85,7 +85,7 @@ namespace TrenchBroom {
              */
             void updateTags(Taggable& taggable) const;
         private:
-            Tag::TagType freeTagType();
+            size_t freeTagIndex();
         };
     }
 }

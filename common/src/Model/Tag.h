@@ -69,18 +69,18 @@ namespace TrenchBroom {
         public:
             using TagType = unsigned long;
         protected:
-            TagType m_type;
+            size_t m_index;
             String m_name;
             std::vector<TagAttribute> m_attributes;
 
             /**
-             * Creates a new tag with the given type, name and attributes. The tag's type will be set automatically.
+             * Creates a new tag with the given index, name and attributes.
              *
-             * @param type the tag's type
+             * @param index the tag's index
              * @param name the tag's name
              * @param attributes the tag's attributes
              */
-            Tag(TagType type, String name, std::vector<TagAttribute> attributes);
+            Tag(size_t index, String name, std::vector<TagAttribute> attributes);
         public:
             /**
              * Creates a new tag with the given name and attributes. The tag's type will be set automatically.
@@ -96,11 +96,16 @@ namespace TrenchBroom {
             TagType type() const;
 
             /**
-             * Sets the tag type. Can be called only once.
-             *
-             * @param type the type
+             * Returns the index of this tag.
              */
-            void setType(TagType type);
+            size_t index() const;
+
+            /**
+             * Sets the tag's index.
+             *
+             * @param index the index
+             */
+            void setIndex(size_t index);
 
             /**
              * Returns the name of this tag.

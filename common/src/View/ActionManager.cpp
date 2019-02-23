@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -20,6 +20,7 @@
 #include "ActionManager.h"
 
 #include "Preferences.h"
+#include "Model/Tag.h"
 #include "View/CommandIds.h"
 #include "View/Menu.h"
 #include "View/wxKeyStrings.h"
@@ -32,32 +33,75 @@ namespace TrenchBroom {
             static ActionManager instance;
             return instance;
         }
-        
-        ActionManager::~ActionManager() {
-            delete m_menuBar;
-        }
 
         wxMenu* ActionManager::findRecentDocumentsMenu(const wxMenuBar* menuBar) {
             const size_t fileMenuIndex = static_cast<size_t>(menuBar->FindMenu("File"));
             const wxMenu* fileMenu = menuBar->GetMenu(fileMenuIndex);
-            if (fileMenu == nullptr)
+            if (fileMenu == nullptr) {
                 return nullptr;
+            }
             const wxMenuItem* recentDocumentsItem = fileMenu->FindItem(CommandIds::Menu::FileOpenRecent);
-            if (recentDocumentsItem == nullptr)
+            if (recentDocumentsItem == nullptr) {
                 return nullptr;
+            }
             return recentDocumentsItem->GetSubMenu();
         }
-        
+
         const ActionMenuItem* ActionManager::findMenuItem(const int id) const {
             return m_menuBar->findActionMenuItem(id);
         }
-        
-        void ActionManager::getShortcutEntries(ShortcutEntryList& entries) {
+
+        void ActionManager::getShortcutEntries(const std::vector<Model::SmartTag>& tags, ShortcutEntryList& entries) {
             m_menuBar->getShortcutEntries(entries);
-            
-            for (ViewShortcut& shortcut : m_viewShortcuts)
-                entries.push_back(&shortcut);
+
+            for (auto& shortcut : m_viewShortcuts) {
+                entries.push_back(shortcut.shortcutEntry());
+            }
+
+            for (const auto& tag : tags) {
+                entries.push_back(std::make_unique<TagKeyboardShortcutEntry>(tag);)
+            }
         }
+
+        class ActionManager::TagKeyboardShortcutEntry : public KeyboardShortcutEntry {
+        private:
+            const Model::SmartTag& m_tag;
+            Preference<KeyboardShortcut> m_preference;
+        public:
+            TagKeyboardShortcutEntry(const Model::SmartTag& tag) :
+            m_tag(tag),
+            m_preference(IO::Path("View Filters/Tags") + IO::Path(m_tag.name()), KeyboardShortcut()) {}
+        private:
+            int doGetActionContext() const override {
+                return ActionContext_Any;
+            }
+
+            bool doGetModifiable() const override {
+                return true;
+            }
+
+            wxString doGetActionDescription() const override {
+                wxString result;
+                result << "Toggle " << m_tag.name() << " visibility";
+                return result;
+            }
+
+            wxString doGetJsonString() const override {
+                return "";
+            }
+
+            const Preference<KeyboardShortcut>& doGetPreference() const override {
+                return m_preference;
+            }
+
+            Preference<KeyboardShortcut>& doGetPreference() override {
+                return m_preference;
+            }
+
+            wxAcceleratorEntry doGetAcceleratorEntry(ActionView view) const override {
+                return shortcut().acceleratorEntry(CommandIds::Actions::LowestTagCommandId + static_cast<int>(m_tag.index()));
+            }
+        };
 
         String ActionManager::getJSTable() {
             StringStream str;
@@ -74,14 +118,14 @@ namespace TrenchBroom {
             wxKeyStringsLinux().appendJS("linux", str);
             str << std::endl;
         }
-        
+
         void ActionManager::getMenuJSTable(StringStream& str) {
             str << "var menu = {};" << std::endl;
-            
+
             ShortcutEntryList entries;
             m_menuBar->getShortcutEntries(entries);
-            
-            for (const KeyboardShortcutEntry* entry : entries) {
+
+            for (const auto& entry : entries) {
                 String preferencePath = entry->preferencePath().asString('/');
                 if (StringUtils::caseSensitiveSuffix(preferencePath, "...")) {
                     // Remove "..." suffix because pandoc will transform this into unicode ellipses.
@@ -96,13 +140,15 @@ namespace TrenchBroom {
         void printActionPreference(StringStream& str, const Preference<KeyboardShortcut>& pref) {
             str << "actions[\"" << pref.path().asString('/') << "\"] = " << pref.defaultValue().asJsonString() << ";" << std::endl;
         }
-        
+
         void ActionManager::getActionJSTable(StringStream& str) {
             str << "var actions = {};" << std::endl;
-            
-            for (ViewShortcut& entry : m_viewShortcuts)
-                str << "actions[\"" << entry.preferencePath().asString('/') << "\"] = " << entry.asJsonString() << ";" << std::endl;
-            
+
+            for (ViewShortcut& shortcut : m_viewShortcuts) {
+                const auto entry = shortcut.shortcutEntry();
+                str << "actions[\"" << entry->preferencePath().asString('/') << "\"] = " << entry->asJsonString() << ";" << std::endl;
+            }
+
             printActionPreference(str, Preferences::CameraFlyForward);
             printActionPreference(str, Preferences::CameraFlyBackward);
             printActionPreference(str, Preferences::CameraFlyLeft);
@@ -118,8 +164,8 @@ namespace TrenchBroom {
         bool ActionManager::isMenuShortcutPreference(const IO::Path& path) const {
             return !path.isEmpty() && path.firstComponent().asString() == "Menu";
         }
-        
-        wxAcceleratorTable ActionManager::createViewAcceleratorTable(const ActionContext context, const ActionView view) const {
+
+        wxAcceleratorTable ActionManager::createViewAcceleratorTable(const ActionContext context, const ActionView view, const std::vector<Model::SmartTag>& tags) const {
             AcceleratorEntryList tableEntries;
             addViewActions(context, view, tableEntries);
 #ifdef __WXGTK20__
@@ -127,23 +173,40 @@ namespace TrenchBroom {
             // But it's necessary to enable one key menu shortcuts to work on GTK.
             addMenuActions(context, view, tableEntries);
 #endif
+            addTagActions(tags, tableEntries);
             return wxAcceleratorTable(static_cast<int>(tableEntries.size()), &tableEntries.front());
         }
 
         void ActionManager::addViewActions(ActionContext context, ActionView view, AcceleratorEntryList& accelerators) const {
-            for (const ViewShortcut& shortcut : m_viewShortcuts) {
-                if (shortcut.appliesToContext(context))
-                    accelerators.push_back(shortcut.acceleratorEntry(view));
+            ShortcutEntryList entries;
+            m_menuBar->getShortcutEntries(entries);
+
+            for (const auto& entry : entries) {
+                if (entry->appliesToContext(context)) {
+                    accelerators.push_back(entry->acceleratorEntry(view));
+                }
             }
         }
-        
+
         void ActionManager::addMenuActions(ActionContext context, ActionView view, AcceleratorEntryList& accelerators) const {
-            ShortcutEntryList menuShortcuts;
-            m_menuBar->getShortcutEntries(menuShortcuts);
-            
-            for (const KeyboardShortcutEntry* entry : menuShortcuts) {
-                if (entry->appliesToContext(context))
+            ShortcutEntryList entries;
+            m_menuBar->getShortcutEntries(entries);
+
+            for (const auto& entry : entries) {
+                if (entry->appliesToContext(context)) {
                     accelerators.push_back(entry->acceleratorEntry(view));
+                }
+            }
+        }
+
+        void ActionManager::addTagActions(const std::vector<Model::SmartTag>& tags, ActionManager::AcceleratorEntryList& accelerators) const {
+            for (const auto& tag : tags) {
+                const auto prefPath = IO::Path("View Filters/Smart Tags") + IO::Path(tag.name());
+                Preference<KeyboardShortcut> preference(prefPath, KeyboardShortcut());
+
+                const auto& shortcut = pref(preference);
+                const auto actionId = CommandIds::Actions::LowestTagCommandId + static_cast<int>(tag.index());
+                accelerators.push_back(shortcut.acceleratorEntry(actionId));
             }
         }
 
@@ -161,8 +224,7 @@ namespace TrenchBroom {
         }
 
         void ActionManager::createMenuBar() {
-            assert(m_menuBar == nullptr);
-            m_menuBar = new MenuBar();
+            m_menuBar = std::make_unique<MenuBar>();
 
             Menu* fileMenu = m_menuBar->addMenu("File");
             fileMenu->addUnmodifiableActionItem(wxID_NEW, "New", KeyboardShortcut('N', WXK_CONTROL));
@@ -172,10 +234,10 @@ namespace TrenchBroom {
             fileMenu->addSeparator();
             fileMenu->addUnmodifiableActionItem(wxID_SAVE, "Save", KeyboardShortcut('S', WXK_CONTROL));
             fileMenu->addUnmodifiableActionItem(wxID_SAVEAS, "Save as...", KeyboardShortcut('S', WXK_SHIFT, WXK_CONTROL));
-            
+
             Menu* exportMenu = fileMenu->addMenu("Export");
             exportMenu->addModifiableActionItem(CommandIds::Menu::FileExportObj, "Wavefront OBJ...");
-            
+
             fileMenu->addSeparator();
             fileMenu->addModifiableActionItem(CommandIds::Menu::FileLoadPointFile, "Load Point File...");
             fileMenu->addModifiableActionItem(CommandIds::Menu::FileReloadPointFile, "Reload Point File");
@@ -189,7 +251,7 @@ namespace TrenchBroom {
             fileMenu->addModifiableActionItem(CommandIds::Menu::FileReloadEntityDefinitions, "Reload Entity Definitions", KeyboardShortcut(WXK_F6));
             fileMenu->addSeparator();
             fileMenu->addUnmodifiableActionItem(wxID_CLOSE, "Close", KeyboardShortcut('W', WXK_CONTROL));
-            
+
             Menu* editMenu = m_menuBar->addMenu("Edit");
             editMenu->addUnmodifiableActionItem(wxID_UNDO, "Undo", KeyboardShortcut('Z', WXK_CONTROL));
             editMenu->addUnmodifiableActionItem(wxID_REDO, "Redo", KeyboardShortcut('Z', WXK_CONTROL, WXK_SHIFT));
@@ -207,7 +269,7 @@ namespace TrenchBroom {
 #else
             editMenu->addModifiableActionItem(wxID_DELETE, "Delete", KeyboardShortcut(WXK_DELETE));
 #endif
-            
+
             editMenu->addSeparator();
             editMenu->addModifiableActionItem(CommandIds::Menu::EditSelectAll, "Select All", KeyboardShortcut('A', WXK_CONTROL));
             editMenu->addModifiableActionItem(CommandIds::Menu::EditSelectSiblings, "Select Siblings", KeyboardShortcut('B', WXK_CONTROL));
@@ -217,11 +279,11 @@ namespace TrenchBroom {
             editMenu->addModifiableActionItem(CommandIds::Menu::EditSelectByFilePosition, "Select by Line Number");
             editMenu->addModifiableActionItem(CommandIds::Menu::EditSelectNone, "Select None", KeyboardShortcut('A', WXK_CONTROL, WXK_SHIFT));
             editMenu->addSeparator();
-            
+
             editMenu->addModifiableActionItem(CommandIds::Menu::EditGroupSelection, "Group", KeyboardShortcut('G', WXK_CONTROL));
             editMenu->addModifiableActionItem(CommandIds::Menu::EditUngroupSelection, "Ungroup", KeyboardShortcut('G', WXK_CONTROL, WXK_SHIFT));
             editMenu->addSeparator();
-            
+
             Menu* toolMenu = editMenu->addMenu("Tools");
             toolMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleCreateComplexBrushTool, "Brush Tool", KeyboardShortcut('B'));
             toolMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleClipTool, "Clip Tool", KeyboardShortcut('C'));
@@ -231,7 +293,7 @@ namespace TrenchBroom {
             toolMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleVertexTool, "Vertex Tool", KeyboardShortcut('V'));
             toolMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleEdgeTool, "Edge Tool", KeyboardShortcut('E'));
             toolMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleFaceTool, "Face Tool", KeyboardShortcut('F'));
-            
+
             Menu* csgMenu = editMenu->addMenu("CSG");
             csgMenu->addModifiableActionItem(CommandIds::Menu::EditCsgConvexMerge, "Convex Merge", KeyboardShortcut('J', WXK_CONTROL));
             csgMenu->addModifiableActionItem(CommandIds::Menu::EditCsgSubtract, "Subtract", KeyboardShortcut('K', WXK_CONTROL));
@@ -245,7 +307,7 @@ namespace TrenchBroom {
             editMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleTextureLock, "Texture Lock");
             editMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleUVLock, "UV Lock", KeyboardShortcut('U'));
             editMenu->addModifiableActionItem(CommandIds::Menu::EditReplaceTexture, "Replace Texture...");
-            
+
             Menu* viewMenu = m_menuBar->addMenu("View");
             Menu* gridMenu = viewMenu->addMenu("Grid");
             gridMenu->addModifiableCheckItem(CommandIds::Menu::ViewToggleShowGrid, "Show Grid", KeyboardShortcut('0'));
@@ -265,7 +327,7 @@ namespace TrenchBroom {
             gridMenu->addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize64, "Set Grid Size 64", KeyboardShortcut('7'));
             gridMenu->addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize128, "Set Grid Size 128", KeyboardShortcut('8'));
             gridMenu->addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize256, "Set Grid Size 256", KeyboardShortcut('9'));
-            
+
             Menu* cameraMenu = viewMenu->addMenu("Camera");
             cameraMenu->addModifiableActionItem(CommandIds::Menu::ViewMoveCameraToNextPoint, "Move to Next Point", KeyboardShortcut('.'));
             cameraMenu->addModifiableActionItem(CommandIds::Menu::ViewMoveCameraToPreviousPoint, "Move to Previous Point", KeyboardShortcut(','));
@@ -287,7 +349,7 @@ namespace TrenchBroom {
             viewMenu->addModifiableCheckItem(CommandIds::Menu::ViewToggleInspector, "Toggle Inspector", KeyboardShortcut('5', WXK_CONTROL));
             viewMenu->addSeparator();
             viewMenu->addModifiableCheckItem(CommandIds::Menu::ViewToggleMaximizeCurrentView, "Maximize Current View", KeyboardShortcut(WXK_SPACE, WXK_CONTROL));
-            
+
             Menu* runMenu = m_menuBar->addMenu("Run");
             runMenu->addModifiableActionItem(CommandIds::Menu::RunCompile, "Compile...");
             runMenu->addModifiableActionItem(CommandIds::Menu::RunLaunch, "Launch...");
@@ -304,7 +366,7 @@ namespace TrenchBroom {
             debugMenu->addUnmodifiableActionItem(CommandIds::Menu::DebugCrashReportDialog, "Show Crash Report Dialog");
             debugMenu->addUnmodifiableActionItem(CommandIds::Menu::DebugSetWindowSize, "Set Window Size...");
 #endif
-            
+
             Menu* helpMenu = m_menuBar->addMenu("Help");
 #ifdef _WIN32
             helpMenu->addUnmodifiableActionItem(wxID_HELP, "TrenchBroom Manual", KeyboardShortcut(WXK_F1));
@@ -320,7 +382,7 @@ namespace TrenchBroom {
 #else
             viewMenu->addSeparator();
             viewMenu->addUnmodifiableActionItem(wxID_PREFERENCES, "Preferences...");
-            
+
             helpMenu->addSeparator();
             helpMenu->addUnmodifiableActionItem(wxID_ABOUT, "About TrenchBroom");
 #endif
@@ -330,7 +392,7 @@ namespace TrenchBroom {
             createViewShortcut(KeyboardShortcut(WXK_RETURN), ActionContext_CreateComplexBrushTool,
                                Action(View::CommandIds::Actions::Nothing, "", false),
                                Action(View::CommandIds::Actions::PerformCreateBrush, "Create brush", true));
-            
+
             createViewShortcut(KeyboardShortcut(WXK_RETURN, WXK_CONTROL), ActionContext_ClipTool,
                                Action(View::CommandIds::Actions::ToggleClipSide, "Toggle clip side", true));
             createViewShortcut(KeyboardShortcut(WXK_RETURN), ActionContext_ClipTool,
@@ -459,7 +521,7 @@ namespace TrenchBroom {
                                Action(View::CommandIds::Actions::RotateTexturesCCW, "Rotate textures counter-clockwise (fine)", true));
             createViewShortcut(KeyboardShortcut(WXK_PAGEDOWN, WXK_SHIFT), ActionContext_FaceSelection, Action(),
                                Action(View::CommandIds::Actions::RotateTexturesCCW, "Rotate textures counter-clockwise (coarse)", true));
-            
+
             createViewShortcut(KeyboardShortcut(WXK_SPACE), ActionContext_Any,
                                Action(View::CommandIds::Actions::CycleMapViews, "Cycle map view", true));
 
@@ -476,7 +538,7 @@ namespace TrenchBroom {
         void ActionManager::createViewShortcut(const KeyboardShortcut& shortcut, const int context, const Action& action2D, const Action& action3D) {
             m_viewShortcuts.push_back(ViewShortcut(shortcut, context, action2D, action3D));
         }
-        
+
         void ActionManager::createViewShortcut(const KeyboardShortcut& shortcut, const int context, const Action& action) {
             m_viewShortcuts.push_back(ViewShortcut(shortcut, context, action));
         }

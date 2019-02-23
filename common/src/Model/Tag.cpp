@@ -43,8 +43,8 @@ namespace TrenchBroom {
             return lhs.m_name < rhs.m_name;
         }
 
-        Tag::Tag(Tag::TagType type, String name, std::vector<TagAttribute> attributes) :
-        m_type(type),
+        Tag::Tag(const size_t index, String name, std::vector<TagAttribute> attributes) :
+        m_index(index),
         m_name(std::move(name)),
         m_attributes(std::move(attributes)) {}
 
@@ -52,13 +52,15 @@ namespace TrenchBroom {
         Tag(0, name, attributes) {}
 
         Tag::TagType Tag::type() const {
-            return m_type;
+            return TagType{1} << m_index;
         }
 
-        void Tag::setType(const Tag::TagType type) {
-            ensure(type != 0, "tag type must not be 0");
-            ensure(m_type == 0, "tag type already set");
-            m_type = type;
+        size_t Tag::index() const {
+            return m_index;
+        }
+
+        void Tag::setIndex(const size_t index) {
+            m_index = index;
         }
 
         const String& Tag::name() const {
@@ -207,13 +209,13 @@ namespace TrenchBroom {
         m_matcher(std::move(matcher)) {}
 
         SmartTag::SmartTag(const SmartTag& other) :
-        Tag(other.m_type, other.m_name, other.m_attributes),
+        Tag(other.m_index, other.m_name, other.m_attributes),
         m_matcher(other.m_matcher->clone()) {}
 
         SmartTag::SmartTag(SmartTag&& other) noexcept = default;
 
         SmartTag& SmartTag::operator=(const SmartTag& other) {
-            m_type = other.m_type;
+            m_index = other.m_index;
             m_name = other.m_name;
             m_attributes = other.m_attributes;
             m_matcher = other.m_matcher->clone();

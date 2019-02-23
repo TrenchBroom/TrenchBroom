@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -75,7 +75,7 @@ namespace TrenchBroom {
                 const int ViewToggleMaximizeCurrentView      = Lowest +  89;
                 const int ViewToggleInfoPanel                = Lowest +  90;
                 const int ViewToggleInspector                = Lowest +  91;
-                
+
                 const int FileOpenRecent                     = Lowest +  96;
                 const int FileExportObj                      = Lowest +  97;
                 const int EditPrintFilePositions             = Lowest + 101;
@@ -120,14 +120,14 @@ namespace TrenchBroom {
 
                 const int RunCompile                         = Lowest + 150;
                 const int RunLaunch                          = Lowest + 151;
-                
+
                 const int FileRecentDocuments                = Lowest + 190;
                 // This range is reserved
                 const int FileRecentDocumentsLast            = Lowest + 199;
 
                 const int Highest                            = Lowest + 200;
             }
-            
+
             namespace Actions {
                 const int Lowest                             = Menu::Highest + 1;
                 const int Nothing                            = wxID_NONE;
@@ -149,24 +149,24 @@ namespace TrenchBroom {
                 const int MoveObjectsLeft                    = Lowest +  23;
                 const int MoveObjectsUp                      = Lowest +  24;
                 const int MoveObjectsDown                    = Lowest +  25;
-                
+
                 const int RollObjectsCW                      = Lowest +  26;
                 const int RollObjectsCCW                     = Lowest +  27;
                 const int PitchObjectsCW                     = Lowest +  28;
                 const int PitchObjectsCCW                    = Lowest +  29;
                 const int YawObjectsCW                       = Lowest +  30;
                 const int YawObjectsCCW                      = Lowest +  31;
-                
+
                 const int FlipObjectsHorizontally            = Lowest +  32;
                 const int FlipObjectsVertically              = Lowest +  33;
-                
+
                 const int DuplicateObjectsForward            = Lowest +  34;
                 const int DuplicateObjectsRight              = Lowest +  35;
                 const int DuplicateObjectsBackward           = Lowest +  36;
                 const int DuplicateObjectsLeft               = Lowest +  37;
                 const int DuplicateObjectsUp                 = Lowest +  38;
                 const int DuplicateObjectsDown               = Lowest +  39;
-            
+
                 const int MoveTexturesUp                     = Lowest +  40;
                 const int MoveTexturesRight                  = Lowest +  41;
                 const int MoveTexturesDown                   = Lowest +  42;
@@ -175,7 +175,7 @@ namespace TrenchBroom {
                 const int RotateTexturesCCW                  = Lowest +  45;
 
                 const int Cancel                             = Lowest +  46;
-                
+
                 const int MoveRotationCenterForward          = Lowest +  47;
                 const int MoveRotationCenterBackward         = Lowest +  48;
                 const int MoveRotationCenterLeft             = Lowest +  49;
@@ -193,6 +193,8 @@ namespace TrenchBroom {
                  */
 
                 const int Highest                            = Lowest + 200;
+
+                const int LowestTagCommandId                 = Highest + 1;
             }
 
             namespace MapViewPopupMenu {

@@ -41,8 +41,8 @@ namespace TrenchBroom {
             Tag tag1{"tag1", {}};
             Tag tag2{"tag2", {}};
 
-            tag1.setType(1);
-            tag2.setType(2);
+            tag1.setIndex(0);
+            tag2.setIndex(1);
 
             ASSERT_FALSE(brush->hasTag(tag1));
             ASSERT_FALSE(brush->hasTag(tag2));

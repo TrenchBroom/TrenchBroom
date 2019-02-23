@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -41,13 +41,13 @@ namespace TrenchBroom {
         m_grid(nullptr),
         m_table(nullptr) {
             wxWindow* menuShortcutGrid = createMenuShortcutGrid();
-            
+
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(menuShortcutGrid, 1, wxEXPAND);
             outerSizer->SetItemMinSize(menuShortcutGrid, 900, 550);
             SetSizerAndFit(outerSizer);
         }
-        
+
         void KeyboardPreferencePane::OnGridSize(wxSizeEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -60,21 +60,21 @@ namespace TrenchBroom {
             m_grid->SetColSize(2, colSize);
             event.Skip();
         }
-        
+
         wxWindow* KeyboardPreferencePane::createMenuShortcutGrid() {
             wxPanel* container = new wxPanel(this);
 
             m_table = new KeyboardShortcutGridTable();
             m_grid = new wxGrid(container, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
             m_grid->Bind(wxEVT_SIZE, &KeyboardPreferencePane::OnGridSize, this);
-            
+
             m_grid->SetTable(m_table, true, wxGrid::wxGridSelectRows);
             m_grid->SetColLabelSize(18);
             m_grid->SetDefaultCellBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             m_grid->HideRowLabels();
             m_grid->SetCellHighlightPenWidth(0);
             m_grid->SetCellHighlightROPenWidth(0);
-            
+
             m_grid->DisableColResize(0);
             m_grid->DisableColResize(1);
             m_grid->DisableColResize(2);
@@ -83,14 +83,14 @@ namespace TrenchBroom {
             m_grid->DisableDragColSize();
             m_grid->DisableDragGridSize();
             m_grid->DisableDragRowSize();
-            
-            m_table->update();
-            
+
+            m_table->reload();
+
             wxStaticText* infoText = new wxStaticText(container, wxID_ANY, "Click twice on a key combination to edit the shortcut. Press delete or backspace to delete a shortcut.");
 #if defined __APPLE__
             infoText->SetFont(*wxSMALL_FONT);
 #endif
-            
+
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_grid, 1, wxEXPAND);
             sizer->Add(new BorderLine(container, BorderLine::Direction_Horizontal), 0, wxEXPAND);
@@ -101,11 +101,11 @@ namespace TrenchBroom {
 
             return container;
         }
-        
+
         bool KeyboardPreferencePane::doCanResetToDefaults() {
             return true;
         }
-        
+
         void KeyboardPreferencePane::doResetToDefaults() {
             ActionManager& actionManager = ActionManager::instance();
             actionManager.resetShortcutsToDefaults();
@@ -114,7 +114,7 @@ namespace TrenchBroom {
         void KeyboardPreferencePane::doUpdateControls() {
             m_table->update();
         }
-        
+
         bool KeyboardPreferencePane::doValidate() {
             m_grid->SaveEditControlValue();
             if (m_table->hasDuplicates()) {
