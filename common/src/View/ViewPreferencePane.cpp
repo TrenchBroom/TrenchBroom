@@ -46,13 +46,13 @@ namespace TrenchBroom {
             int minFilter;
             int magFilter;
             String name;
-            
+
             TextureMode(const int i_minFilter, const int i_magFilter, const String& i_name) :
             minFilter(i_minFilter),
             magFilter(i_magFilter),
             name(i_name) {}
         };
-        
+
         static const size_t NumTextureModes = 6;
         static const TextureMode TextureModes[] = {
             TextureMode(GL_NEAREST,                 GL_NEAREST, "Nearest"),
@@ -62,9 +62,9 @@ namespace TrenchBroom {
             TextureMode(GL_LINEAR_MIPMAP_NEAREST,   GL_LINEAR,  "Linear (mipmapped)"),
             TextureMode(GL_LINEAR_MIPMAP_LINEAR,    GL_LINEAR,  "Linear (mipmapped, interpolated")
         };
-        
+
         static const size_t NumFrameLayouts = 4;
-        
+
         ViewPreferencePane::ViewPreferencePane(wxWindow* parent) :
         PreferencePane(parent) {
             createGui();
@@ -77,7 +77,7 @@ namespace TrenchBroom {
 
             const auto selection = m_layoutChoice->GetSelection();
             assert(selection >= 0 && selection < static_cast<int>(NumFrameLayouts));
-            
+
             auto& prefs = PreferenceManager::instance();
             prefs.set(Preferences::MapViewLayout, selection);
         }
@@ -86,16 +86,16 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             const auto value = m_brightnessSlider->GetValue();
-            
+
             auto& prefs = PreferenceManager::instance();
             prefs.set(Preferences::Brightness, value / 40.0f);
         }
-        
+
         void ViewPreferencePane::OnGridAlphaChanged(wxScrollEvent& event) {
             if (IsBeingDeleted()) return;
 
             const auto value = m_gridAlphaSlider->GetValue();
-            
+
             auto& prefs = PreferenceManager::instance();
             const auto max = m_gridAlphaSlider->GetMax();
             const auto floatValue = float(value) / float(max);
@@ -113,9 +113,9 @@ namespace TrenchBroom {
 
         void ViewPreferencePane::OnShowAxesChanged(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            
+
             const auto value = event.IsChecked();
-            
+
             auto& prefs = PreferenceManager::instance();
             prefs.set(Preferences::ShowAxes, value);
         }
@@ -125,12 +125,12 @@ namespace TrenchBroom {
 
             const auto selection = m_textureModeChoice->GetSelection();
             assert(selection >= 0);
-            
+
             const auto index = static_cast<size_t>(selection);
             assert(index < NumTextureModes);
             const auto minFilter = TextureModes[index].minFilter;
             const auto magFilter = TextureModes[index].magFilter;
-            
+
             auto& prefs = PreferenceManager::instance();
             prefs.set(Preferences::TextureMinFilter, minFilter);
             prefs.set(Preferences::TextureMagFilter, magFilter);
@@ -138,27 +138,27 @@ namespace TrenchBroom {
 
         void ViewPreferencePane::OnBackgroundColorChanged(wxColourPickerEvent& event) {
             if (IsBeingDeleted()) return;
-            
+
             const auto value = Color(fromWxColor(event.GetColour()), 1.0f);
-            
+
             auto& prefs = PreferenceManager::instance();
             prefs.set(Preferences::BackgroundColor, value);
         }
-        
+
         void ViewPreferencePane::OnGridColorChanged(wxColourPickerEvent& event) {
             if (IsBeingDeleted()) return;
-            
+
             const auto value = Color(fromWxColor(event.GetColour()), 1.0f);
-            
+
             auto& prefs = PreferenceManager::instance();
             prefs.set(Preferences::GridColor2D, value);
         }
-        
+
         void ViewPreferencePane::OnEdgeColorChanged(wxColourPickerEvent& event) {
             if (IsBeingDeleted()) return;
-            
+
             const auto value = Color(fromWxColor(event.GetColour()), 1.0f);
-            
+
             auto& prefs = PreferenceManager::instance();
             prefs.set(Preferences::EdgeColor, value);
         }
@@ -206,31 +206,31 @@ namespace TrenchBroom {
 
         void ViewPreferencePane::createGui() {
             auto* viewPreferences = createViewPreferences();
-            
+
             auto* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->AddSpacer(LayoutConstants::NarrowVMargin);
             sizer->Add(viewPreferences, 1, wxEXPAND);
             sizer->AddSpacer(LayoutConstants::WideVMargin);
-            
+
             SetMinSize(sizer->GetMinSize());
             SetSizer(sizer);
         }
-        
+
         wxWindow* ViewPreferencePane::createViewPreferences() {
             auto* viewBox = new wxPanel(this);
-            
+
             auto* viewPrefsHeader = new wxStaticText(viewBox, wxID_ANY, "Map Views");
             viewPrefsHeader->SetFont(viewPrefsHeader->GetFont().Bold());
-            
+
             wxString layoutNames[NumFrameLayouts];
             layoutNames[0] = "One Pane";
             layoutNames[1] = "Two Panes";
             layoutNames[2] = "Three Panes";
             layoutNames[3] = "Four Panes";
-            
+
             auto* layoutLabel = new wxStaticText(viewBox, wxID_ANY, "Layout");
             m_layoutChoice = new wxChoice(viewBox, wxID_ANY, wxDefaultPosition, wxDefaultSize, NumFrameLayouts, layoutNames);
-            
+
             auto* brightnessLabel = new wxStaticText(viewBox, wxID_ANY, "Brightness");
             m_brightnessSlider = new wxSlider(viewBox, wxID_ANY, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM | wxSL_VALUE_LABEL);
             auto* gridLabel = new wxStaticText(viewBox, wxID_ANY, "Grid");
@@ -240,7 +240,7 @@ namespace TrenchBroom {
 
             auto* axesLabel = new wxStaticText(viewBox, wxID_ANY, "Coordinate System");
             m_showAxes = new wxCheckBox(viewBox, wxID_ANY, "Show Axes");
-            
+
             wxString textureModeNames[NumTextureModes];
             for (size_t i = 0; i < NumTextureModes; ++i) {
                 textureModeNames[i] = TextureModes[i].name;
@@ -248,22 +248,22 @@ namespace TrenchBroom {
             auto* textureModeLabel = new wxStaticText(viewBox, wxID_ANY, "Texture Mode");
             m_textureModeChoice = new wxChoice(viewBox, wxID_ANY, wxDefaultPosition, wxDefaultSize, NumTextureModes, textureModeNames);
 
-            
-            
+
+
             auto* colorPrefsHeader = new wxStaticText(viewBox, wxID_ANY, "Colors");
             colorPrefsHeader->SetFont(colorPrefsHeader->GetFont().Bold());
 
             auto* backgroundColorLabel = new wxStaticText(viewBox, wxID_ANY, "Background");
             m_backgroundColorPicker = new wxColourPickerCtrl(viewBox, wxID_ANY);
-            
+
             auto* gridColorLabel = new wxStaticText(viewBox, wxID_ANY, "Grid");
             m_gridColorPicker = new wxColourPickerCtrl(viewBox, wxID_ANY);
 
             auto* edgeColorLabel = new wxStaticText(viewBox, wxID_ANY, "Edges");
             m_edgeColorPicker = new wxColourPickerCtrl(viewBox, wxID_ANY);
 
-            
-            
+
+
             auto* textureBrowserPrefsHeader = new wxStaticText(viewBox, wxID_ANY, "Texture Browser");
             textureBrowserPrefsHeader->SetFont(textureBrowserPrefsHeader->GetFont().Bold());
 
@@ -273,7 +273,7 @@ namespace TrenchBroom {
             m_textureBrowserIconSizeChoice->SetToolTip("Sets the icon size in the texture browser.");
 
 
-            
+
             auto* fontPrefsHeader = new wxStaticText(viewBox, wxID_ANY, "Fonts");
             fontPrefsHeader->SetFont(fontPrefsHeader->GetFont().Bold());
 
@@ -288,7 +288,7 @@ namespace TrenchBroom {
             m_fontPrefsRendererFontSizeCombo->SetToolTip("Sets the font size for various labels in the 2D and 3D views.");
 
 
-            
+
             const auto HMargin           = LayoutConstants::WideHMargin;
             const auto LMargin           = LayoutConstants::WideVMargin;
             const auto HeaderFlags       = wxLEFT;
@@ -299,17 +299,17 @@ namespace TrenchBroom {
             const auto ColorPickerFlags  = wxRIGHT;
             const auto LineFlags         = wxEXPAND | wxTOP;
 
-           
+
             int r = 0;
-            
+
             auto* sizer = new wxGridBagSizer(LayoutConstants::NarrowVMargin, LayoutConstants::WideHMargin);
             sizer->Add(viewPrefsHeader,                     wxGBPosition( r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
             ++r;
-            
+
             sizer->Add(layoutLabel,                         wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
             sizer->Add(m_layoutChoice,                      wxGBPosition( r, 1), wxDefaultSpan, ChoiceFlags, HMargin);
             ++r;
-            
+
             sizer->Add(brightnessLabel,                     wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
             sizer->Add(m_brightnessSlider,                  wxGBPosition( r, 1), wxDefaultSpan, SliderFlags, HMargin);
             ++r;
@@ -331,39 +331,39 @@ namespace TrenchBroom {
             sizer->Add(axesLabel,                           wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
             sizer->Add(m_showAxes,                          wxGBPosition( r, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
             ++r;
-            
+
             sizer->Add(textureModeLabel,                    wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
             sizer->Add(m_textureModeChoice,                 wxGBPosition( r, 1), wxDefaultSpan, ChoiceFlags, HMargin);
             ++r;
-            
+
             sizer->Add(0, LayoutConstants::ChoiceSizeDelta, wxGBPosition( r, 0), wxGBSpan(1,2));
             ++r;
 
 
-            
+
             sizer->Add(new BorderLine(viewBox),             wxGBPosition( r, 0), wxGBSpan(1,2), LineFlags, LMargin);
             ++r;
-            
+
             sizer->Add(colorPrefsHeader,                    wxGBPosition( r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
             ++r;
-            
+
             sizer->Add(backgroundColorLabel,                wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
             sizer->Add(m_backgroundColorPicker,             wxGBPosition( r, 1), wxDefaultSpan, ColorPickerFlags, HMargin);
             ++r;
-            
+
             sizer->Add(gridColorLabel,                      wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
             sizer->Add(m_gridColorPicker,                   wxGBPosition( r, 1), wxDefaultSpan, ColorPickerFlags, HMargin);
             ++r;
-            
+
             sizer->Add(edgeColorLabel,                      wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
             sizer->Add(m_edgeColorPicker,                   wxGBPosition( r, 1), wxDefaultSpan, ColorPickerFlags, HMargin);
             ++r;
-            
 
-            
+
+
             sizer->Add(new BorderLine(viewBox),             wxGBPosition( r, 0), wxGBSpan(1,2), LineFlags, LMargin);
             ++r;
-            
+
             sizer->Add(textureBrowserPrefsHeader,           wxGBPosition( r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
             ++r;
 
@@ -372,7 +372,7 @@ namespace TrenchBroom {
             ++r;
 
 
-            
+
             sizer->Add(new BorderLine(viewBox),             wxGBPosition( r, 0), wxGBSpan(1,2), LineFlags, LMargin);
             ++r;
 
@@ -382,24 +382,24 @@ namespace TrenchBroom {
             sizer->Add(fontPrefsRendererFontSizeLabel,      wxGBPosition( r, 0), wxDefaultSpan, LabelFlags,  HMargin);
             sizer->Add(m_fontPrefsRendererFontSizeCombo,    wxGBPosition( r, 1), wxDefaultSpan, ChoiceFlags, HMargin);
             ++r;
- 
+
             sizer->Add(0, LayoutConstants::ChoiceSizeDelta, wxGBPosition( r, 0), wxGBSpan(1,2));
-            
+
             sizer->AddGrowableCol(1);
             sizer->SetMinSize(500, wxDefaultCoord);
             viewBox->SetSizer(sizer);
             return viewBox;
         }
-        
+
         void ViewPreferencePane::bindEvents() {
             m_layoutChoice->Bind(wxEVT_CHOICE, &ViewPreferencePane::OnLayoutChanged, this);
-            
+
             bindSliderEvents(m_brightnessSlider, &ViewPreferencePane::OnBrightnessChanged, this);
             bindSliderEvents(m_gridAlphaSlider, &ViewPreferencePane::OnGridAlphaChanged, this);
             bindSliderEvents(m_fovSlider, &ViewPreferencePane::OnFovChanged, this);
-            
+
             m_showAxes->Bind(wxEVT_CHECKBOX, &ViewPreferencePane::OnShowAxesChanged, this);
-            
+
             m_backgroundColorPicker->Bind(wxEVT_COLOURPICKER_CHANGED, &ViewPreferencePane::OnBackgroundColorChanged, this);
             m_gridColorPicker->Bind(wxEVT_COLOURPICKER_CHANGED, &ViewPreferencePane::OnGridColorChanged, this);
             m_edgeColorPicker->Bind(wxEVT_COLOURPICKER_CHANGED, &ViewPreferencePane::OnEdgeColorChanged, this);
@@ -414,7 +414,7 @@ namespace TrenchBroom {
         bool ViewPreferencePane::doCanResetToDefaults() {
             return true;
         }
-        
+
         void ViewPreferencePane::doResetToDefaults() {
             auto& prefs = PreferenceManager::instance();
             prefs.resetToDefault(Preferences::Brightness);
@@ -430,23 +430,23 @@ namespace TrenchBroom {
             prefs.resetToDefault(Preferences::RendererFontSize);
         }
 
-        void ViewPreferencePane::doUpdateControls() {
+        void ViewPreferencePane::doUpdateControls(MapDocumentWPtr document) {
             m_layoutChoice->SetSelection(pref(Preferences::MapViewLayout));
-            
+
             m_brightnessSlider->SetValue(int(pref(Preferences::Brightness) * 40.0f));
             m_gridAlphaSlider->SetValue(int(pref(Preferences::GridAlpha) * m_gridAlphaSlider->GetMax()));
             m_fovSlider->SetValue(int(pref(Preferences::CameraFov)));
-            
+
             const auto textureModeIndex = findTextureMode(pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
             assert(textureModeIndex < NumTextureModes);
             m_textureModeChoice->SetSelection(static_cast<int>(textureModeIndex));
-            
+
             m_showAxes->SetValue(pref(Preferences::ShowAxes));
 
             m_backgroundColorPicker->SetColour(toWxColor(pref(Preferences::BackgroundColor)));
             m_gridColorPicker->SetColour(toWxColor(pref(Preferences::GridColor2D)));
             m_edgeColorPicker->SetColour(toWxColor(pref(Preferences::EdgeColor)));
-            
+
             const auto textureBrowserIconSize = pref(Preferences::TextureBrowserIconSize);
             if (textureBrowserIconSize == 0.25f) {
                 m_textureBrowserIconSizeChoice->SetSelection(0);

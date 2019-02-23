@@ -21,6 +21,7 @@
 #define TrenchBroom_KeyboardShortcutGridTable
 
 #include "StringUtils.h"
+#include "View/ViewTypes.h"
 
 #include <wx/grid.h>
 
@@ -58,8 +59,7 @@ namespace TrenchBroom {
             wxGridCellAttr* GetAttr(int row, int col, wxGridCellAttr::wxAttrKind kind) override;
 
             bool hasDuplicates() const;
-            bool update();
-            void reload();
+            void update(MapDocumentWPtr document);
         private:
             void notifyRowsUpdated(size_t pos, size_t numRows = 1);
             void notifyRowsInserted(size_t pos = 0, size_t numRows = 1);

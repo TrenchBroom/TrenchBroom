@@ -59,18 +59,16 @@ namespace TrenchBroom {
             }
 
             for (const auto& tag : tags) {
-                entries.push_back(std::make_unique<TagKeyboardShortcutEntry>(tag);)
+                entries.emplace_back(std::make_unique<TagKeyboardShortcutEntry>(tag));
             }
         }
 
         class ActionManager::TagKeyboardShortcutEntry : public KeyboardShortcutEntry {
         private:
             const Model::SmartTag& m_tag;
-            Preference<KeyboardShortcut> m_preference;
         public:
-            TagKeyboardShortcutEntry(const Model::SmartTag& tag) :
-            m_tag(tag),
-            m_preference(IO::Path("View Filters/Tags") + IO::Path(m_tag.name()), KeyboardShortcut()) {}
+            explicit TagKeyboardShortcutEntry(const Model::SmartTag& tag) :
+            m_tag(tag) {}
         private:
             int doGetActionContext() const override {
                 return ActionContext_Any;
@@ -91,16 +89,21 @@ namespace TrenchBroom {
             }
 
             const Preference<KeyboardShortcut>& doGetPreference() const override {
-                return m_preference;
+                auto& prefs = PreferenceManager::instance();
+                return prefs.dynamicPreference(path(), KeyboardShortcut());
             }
 
             Preference<KeyboardShortcut>& doGetPreference() override {
-                return m_preference;
+                auto& prefs = PreferenceManager::instance();
+                return prefs.dynamicPreference(path(), KeyboardShortcut());
             }
 
             wxAcceleratorEntry doGetAcceleratorEntry(ActionView view) const override {
                 return shortcut().acceleratorEntry(CommandIds::Actions::LowestTagCommandId + static_cast<int>(m_tag.index()));
             }
+
+            IO::Path path() const {
+                return IO::Path("View Filters/Tags") + IO::Path(m_tag.name() );           }
         };
 
         String ActionManager::getJSTable() {

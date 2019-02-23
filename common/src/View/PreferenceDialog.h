@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_PreferenceDialog
 #define TrenchBroom_PreferenceDialog
 
+#include "View/ViewTypes.h"
+
 #include <wx/dialog.h>
 
 class wxPanel;
@@ -42,10 +44,11 @@ namespace TrenchBroom {
                 PrefPane_Last = 3
             } PrefPane;
 
+            MapDocumentSPtr m_document;
             wxToolBar* m_toolBar;
             wxSimplebook* m_book;
         public:
-            PreferenceDialog();
+            PreferenceDialog(MapDocumentSPtr document);
             bool Create();
         private:
             void OnToolClicked(wxCommandEvent& event);
@@ -70,8 +73,6 @@ namespace TrenchBroom {
             PrefPane currentPaneId() const;
 
             void updateAcceleratorTable(PrefPane pane);
-        public:
-            wxDECLARE_DYNAMIC_CLASS(PreferenceDialog);
         };
     }
 }

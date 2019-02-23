@@ -158,11 +158,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool KeyboardShortcutGridTable::update() {
-            return markConflicts(m_entries);
-        }
-
-        void KeyboardShortcutGridTable::reload() {
+        void KeyboardShortcutGridTable::update(MapDocumentWPtr document) {
             EntryList newEntries;
 
             ActionManager& actionManager = ActionManager::instance();
@@ -170,6 +166,7 @@ namespace TrenchBroom {
 
             size_t oldSize = m_entries.size();
             m_entries = std::move(newEntries);
+            markConflicts(m_entries);
 
             notifyRowsUpdated(0, oldSize);
             if (oldSize < m_entries.size()) {

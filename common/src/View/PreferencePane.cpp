@@ -30,13 +30,13 @@ namespace TrenchBroom {
             return doCanResetToDefaults();
         }
 
-        void PreferencePane::resetToDefaults() {
+        void PreferencePane::resetToDefaults(MapDocumentWPtr document) {
             doResetToDefaults();
-            updateControls();
+            updateControls(document);
         }
 
-        void PreferencePane::updateControls() {
-            doUpdateControls();
+        void PreferencePane::updateControls(MapDocumentWPtr document) {
+            doUpdateControls(document);
         }
 
         bool PreferencePane::validate() {

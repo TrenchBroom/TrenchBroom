@@ -111,8 +111,8 @@ namespace TrenchBroom {
             actionManager.resetShortcutsToDefaults();
         }
 
-        void KeyboardPreferencePane::doUpdateControls() {
-            m_table->update();
+        void KeyboardPreferencePane::doUpdateControls(MapDocumentWPtr document) {
+            m_table->update(document);
         }
 
         bool KeyboardPreferencePane::doValidate() {
