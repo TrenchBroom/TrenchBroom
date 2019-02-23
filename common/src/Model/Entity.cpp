@@ -1,25 +1,24 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "Entity.h"
 
-#include "Model/TagMatcher.h"
 #include "Model/BoundsContainsNodeVisitor.h"
 #include "Model/BoundsIntersectsNodeVisitor.h"
 #include "Model/Brush.h"
@@ -32,6 +31,7 @@
 #include "Model/IssueGenerator.h"
 #include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
+#include "Model/TagVisitor.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -60,7 +60,7 @@ namespace TrenchBroom {
         bool Entity::pointEntity() const {
             return !brushEntity();
         }
-        
+
         bool Entity::hasEntityDefinition() const {
             return m_definition != nullptr;
         }
@@ -72,11 +72,11 @@ namespace TrenchBroom {
         bool Entity::hasPointEntityDefinition() const {
             return hasEntityDefinition() && definition()->type() == Assets::EntityDefinition::Type_PointEntity;
         }
-        
+
         bool Entity::hasPointEntityModel() const {
             return hasPointEntityDefinition();
         }
-        
+
         const vm::vec3& Entity::origin() const {
             return m_cachedOrigin;
         }
@@ -110,7 +110,7 @@ namespace TrenchBroom {
         void Entity::setOrigin(const vm::vec3& origin) {
             addOrUpdateAttribute(AttributeNames::Origin, StringUtils::toString(round(origin)));
         }
-        
+
         void Entity::applyRotation(const vm::mat4x4& transformation) {
             EntityRotationPolicy::applyRotation(this, transformation);
         }
@@ -128,7 +128,7 @@ namespace TrenchBroom {
             }
             return m_bounds;
         }
-        
+
         Node* Entity::doClone(const vm::bbox3& worldBounds) const {
             auto* entity = new Entity();
             cloneAttributes(entity);
@@ -139,10 +139,10 @@ namespace TrenchBroom {
 
         NodeSnapshot* Entity::doTakeSnapshot() {
             const EntityAttribute origin(AttributeNames::Origin, attribute(AttributeNames::Origin), nullptr);
-            
+
             const AttributeName rotationName = EntityRotationPolicy::getAttribute(this);
             const EntityAttribute rotation(rotationName, attribute(rotationName), nullptr);
-            
+
             return new EntitySnapshot(this, origin, rotation);
         }
 
@@ -160,11 +160,11 @@ namespace TrenchBroom {
             child->accept(visitor);
             return visitor.result();
         }
-        
+
         bool Entity::doCanRemoveChild(const Node* child) const {
             return true;
         }
-        
+
         bool Entity::doRemoveIfEmpty() const {
             return true;
         }
@@ -176,7 +176,7 @@ namespace TrenchBroom {
         void Entity::doChildWasAdded(Node* node) {
             nodeBoundsDidChange(bounds());
         }
-        
+
         void Entity::doChildWasRemoved(Node* node) {
             nodeBoundsDidChange(bounds());
         }
@@ -184,7 +184,7 @@ namespace TrenchBroom {
         void Entity::doNodeBoundsDidChange(const vm::bbox3& oldBounds) {
             invalidateBounds();
         }
-        
+
         void Entity::doChildBoundsDidChange(Node* node, const vm::bbox3& oldBounds) {
             const vm::bbox3 myOldBounds = bounds();
             invalidateBounds();
@@ -209,7 +209,7 @@ namespace TrenchBroom {
                 }
             }
         }
-        
+
         void Entity::doFindNodesContaining(const vm::vec3& point, NodeList& result) {
             if (hasChildren()) {
                 for (Node* child : Node::children())
@@ -247,11 +247,11 @@ namespace TrenchBroom {
         void Entity::doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {
             generator->generate(this, issues);
         }
-        
+
         void Entity::doAccept(NodeVisitor& visitor) {
             visitor.visit(this);
         }
-        
+
         void Entity::doAccept(ConstNodeVisitor& visitor) const {
             visitor.visit(this);
         }
@@ -264,7 +264,7 @@ namespace TrenchBroom {
                 return NodeList{this};
             }
         }
-        
+
         void Entity::doAttributesDidChange(const vm::bbox3& oldBounds) {
             // update m_cachedOrigin and m_cachedRotation. Must be done first because nodeBoundsDidChange() might
             // call origin()
@@ -275,11 +275,11 @@ namespace TrenchBroom {
             // needs to be called again because the calculated rotation will be different after calling nodeBoundsDidChange()
             cacheAttributes();
         }
-        
+
         bool Entity::doIsAttributeNameMutable(const AttributeName& name) const {
             return true;
         }
-        
+
         bool Entity::doIsAttributeValueMutable(const AttributeName& name) const {
             return true;
         }
@@ -287,7 +287,7 @@ namespace TrenchBroom {
         vm::vec3 Entity::doGetLinkSourceAnchor() const {
             return bounds().center();
         }
-        
+
         vm::vec3 Entity::doGetLinkTargetAnchor() const {
             return bounds().center();
         }
@@ -303,7 +303,7 @@ namespace TrenchBroom {
             escalate(visitor);
             return visitor.hasResult() ? visitor.result() : nullptr;
         }
-        
+
         Group* Entity::doGetGroup() const {
             FindGroupVisitor visitor;
             escalate(visitor);
@@ -339,7 +339,7 @@ namespace TrenchBroom {
                 const auto offset = center - origin();
                 const auto transformedCenter = transformation * center;
                 setOrigin(transformedCenter - offset);
-                
+
                 // applying rotation has side effects (e.g. normalizing "angles")
                 // so only do it if there is actually some rotation.
                 const auto rotation = vm::stripTranslation(transformation);
@@ -348,14 +348,14 @@ namespace TrenchBroom {
                 }
             }
         }
-        
+
         bool Entity::doContains(const Node* node) const {
             BoundsContainsNodeVisitor contains(bounds());
             node->accept(contains);
             assert(contains.hasResult());
             return contains.result();
         }
-        
+
         bool Entity::doIntersects(const Node* node) const {
             BoundsIntersectsNodeVisitor intersects(bounds());
             node->accept(intersects);
@@ -366,7 +366,7 @@ namespace TrenchBroom {
         void Entity::invalidateBounds() {
             m_boundsValid = false;
         }
-        
+
         void Entity::validateBounds() const {
             const Assets::EntityDefinition* def = definition();
             if (hasChildren()) {
@@ -383,8 +383,12 @@ namespace TrenchBroom {
             m_boundsValid = true;
         }
 
-        bool Entity::doEvaluateTagMatcher(const TagMatcher& matcher) const {
-            return matcher.matches(*this);
+        void Entity::doAcceptTagVisitor(TagVisitor& visitor) {
+            visitor.visit(*this);
+        }
+
+        void Entity::doAcceptTagVisitor(ConstTagVisitor& visitor) const {
+            visitor.visit(*this);
         }
     }
 }

@@ -58,30 +58,41 @@ namespace TrenchBroom {
                 entries.push_back(shortcut.shortcutEntry());
             }
 
+            getTagShortcutEntries(tags, entries);
+        }
+
+        void ActionManager::getTagShortcutEntries(const std::vector<Model::SmartTag>& tags, ShortcutEntryList& entries) {
             for (const auto& tag : tags) {
-                entries.emplace_back(std::make_unique<TagKeyboardShortcutEntry>(tag));
+                entries.emplace_back(std::make_unique<ToggleTagVisibilityKeyboardShortcutEntry>(tag));
+                entries.emplace_back(std::make_unique<EnableDisableTagKeyboardShortcutEntry>(tag));
             }
         }
 
         class ActionManager::TagKeyboardShortcutEntry : public KeyboardShortcutEntry {
-        private:
+        protected:
             const Model::SmartTag& m_tag;
         public:
             explicit TagKeyboardShortcutEntry(const Model::SmartTag& tag) :
             m_tag(tag) {}
-        private:
-            int doGetActionContext() const override {
-                return ActionContext_Any;
+        public:
+            static int toggleVisibleActionId(const Model::SmartTag& tag) {
+                return CommandIds::Actions::LowestTagCommandId + 2 * static_cast<int>(tag.index()) + 0;
             }
 
+            static int enableDisableActionId(const Model::SmartTag& tag) {
+                return CommandIds::Actions::LowestTagCommandId + 2 * static_cast<int>(tag.index()) + 1;
+            }
+
+            static IO::Path toggleVisiblePrefPath(const Model::SmartTag& tag) {
+                return IO::Path("Filters/Tags") + IO::Path(tag.name()) + IO::Path("Toggle Visible");
+            }
+
+            static IO::Path enableDisablePrefPath(const Model::SmartTag& tag) {
+                return IO::Path("Filters/Tags") + IO::Path(tag.name()) + IO::Path("Toggle");
+            }
+        private:
             bool doGetModifiable() const override {
                 return true;
-            }
-
-            wxString doGetActionDescription() const override {
-                wxString result;
-                result << "Toggle " << m_tag.name() << " visibility";
-                return result;
             }
 
             wxString doGetJsonString() const override {
@@ -99,11 +110,64 @@ namespace TrenchBroom {
             }
 
             wxAcceleratorEntry doGetAcceleratorEntry(ActionView view) const override {
-                return shortcut().acceleratorEntry(CommandIds::Actions::LowestTagCommandId + static_cast<int>(m_tag.index()));
+                return shortcut().acceleratorEntry(actionId());
             }
 
-            IO::Path path() const {
-                return IO::Path("View Filters/Tags") + IO::Path(m_tag.name() );           }
+            virtual IO::Path path() const = 0;
+
+            virtual int actionId() const = 0;
+
+            deleteCopyAndMove(TagKeyboardShortcutEntry)
+        };
+
+        class ActionManager::ToggleTagVisibilityKeyboardShortcutEntry : public TagKeyboardShortcutEntry {
+        public:
+            using TagKeyboardShortcutEntry::TagKeyboardShortcutEntry;
+        private:
+            int doGetActionContext() const override {
+                return ActionContext_Any;
+            }
+
+            wxString doGetActionDescription() const override {
+                wxString result;
+                result << "Toggle " << m_tag.name() << " visible";
+                return result;
+            }
+
+            IO::Path path() const override {
+                return toggleVisiblePrefPath(m_tag);
+            }
+
+            int actionId() const override {
+                return toggleVisibleActionId(m_tag);
+            }
+
+            deleteCopyAndMove(ToggleTagVisibilityKeyboardShortcutEntry)
+        };
+
+        class ActionManager::EnableDisableTagKeyboardShortcutEntry : public TagKeyboardShortcutEntry {
+        public:
+            using TagKeyboardShortcutEntry::TagKeyboardShortcutEntry;
+        private:
+            int doGetActionContext() const override {
+                return ActionContext_NodeSelection;
+            }
+
+            wxString doGetActionDescription() const override {
+                wxString result;
+                result << "Toggle selection as " << m_tag.name();
+                return result;
+            }
+
+            IO::Path path() const override {
+                return enableDisablePrefPath(m_tag);
+            }
+
+            int actionId() const override {
+                return enableDisableActionId(m_tag);
+            }
+
+            deleteCopyAndMove(EnableDisableTagKeyboardShortcutEntry)
         };
 
         String ActionManager::getJSTable() {
@@ -204,20 +268,23 @@ namespace TrenchBroom {
 
         void ActionManager::addTagActions(const std::vector<Model::SmartTag>& tags, ActionManager::AcceleratorEntryList& accelerators) const {
             for (const auto& tag : tags) {
-                const auto prefPath = IO::Path("View Filters/Smart Tags") + IO::Path(tag.name());
-                Preference<KeyboardShortcut> preference(prefPath, KeyboardShortcut());
+                Preference<KeyboardShortcut> toggleVisiblePref(TagKeyboardShortcutEntry::toggleVisiblePrefPath(tag), KeyboardShortcut());
+                Preference<KeyboardShortcut> enableDisablePref(TagKeyboardShortcutEntry::enableDisablePrefPath(tag), KeyboardShortcut());
 
-                const auto& shortcut = pref(preference);
-                const auto actionId = CommandIds::Actions::LowestTagCommandId + static_cast<int>(tag.index());
-                accelerators.push_back(shortcut.acceleratorEntry(actionId));
+                const auto& toggleVisibleShortcut = pref( toggleVisiblePref);
+                const auto& enableDisableShortcut = pref( enableDisablePref);
+
+                accelerators.push_back(toggleVisibleShortcut.acceleratorEntry(TagKeyboardShortcutEntry::toggleVisibleActionId(tag)));
+                accelerators.push_back(enableDisableShortcut.acceleratorEntry(TagKeyboardShortcutEntry::enableDisableActionId(tag)));
             }
         }
 
         void ActionManager::resetShortcutsToDefaults() {
             m_menuBar->resetShortcuts();
 
-            for (ViewShortcut& shortcut : m_viewShortcuts)
+            for (ViewShortcut& shortcut : m_viewShortcuts) {
                 shortcut.resetShortcut();
+            }
         }
 
         ActionManager::ActionManager() :

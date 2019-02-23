@@ -56,16 +56,18 @@ namespace TrenchBroom {
 
         template <typename T>
         Preference<T>& dynamicPreference(const IO::Path& path, T&& defaultValue) {
-            const auto [found, pos] = MapUtils::findInsertPos(m_dynamicPreferences, path);
-            if (found) {
-                // this is potentially unsafe if T doesn't match the existing preference's type argument
-                return static_cast<Preference<T>&>(*(pos->second));
-            } else {
-                const auto it = m_dynamicPreferences.emplace_hint(
-                    std::prev(pos),
-                    std::make_pair(path, std::make_unique<Preference<T>>(path, defaultValue)));
-                return static_cast<Preference<T>&>(*it->second);
+            auto it = m_dynamicPreferences.find(path);
+            if (it == std::end(m_dynamicPreferences)) {
+                bool success = false;
+                std::tie(it, success) = m_dynamicPreferences.emplace(path, std::make_unique<Preference<T>>(path, std::forward<T>(defaultValue)));
+                assert(success); unused(success);
             }
+
+            const std::unique_ptr<PreferenceBase>& prefPtr = it->second;
+            PreferenceBase* prefBase = prefPtr.get();
+            Preference<T>* pref = dynamic_cast<Preference<T>*>(prefBase);
+            ensure(pref != nullptr, "Preference " + path.asString() + " must be of the expected type");
+            return *pref;
         }
 
         template <typename T>

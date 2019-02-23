@@ -40,7 +40,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        PreferenceDialog::PreferenceDialog(MapDocumentWPtr document) :
+        PreferenceDialog::PreferenceDialog(MapDocumentSPtr document) :
         m_document(document),
         m_toolBar(nullptr),
         m_book(nullptr) {
@@ -54,7 +54,7 @@ namespace TrenchBroom {
             createGui();
             bindEvents();
             switchToPane(PrefPane_First);
-            currentPane()->updateControls(m_document);
+            currentPane()->updateControls();
             SetClientSize(currentPane()->GetMinSize());
 
             return true;
@@ -120,7 +120,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             assert(currentPane()->canResetToDefaults());
-            currentPane()->resetToDefaults(m_document);
+            currentPane()->resetToDefaults();
         }
 
         void PreferenceDialog::OnUpdateReset(wxUpdateUIEvent& event) {
@@ -164,7 +164,7 @@ namespace TrenchBroom {
             m_book->AddPage(new GamesPreferencePane(m_book), "Games");
             m_book->AddPage(new ViewPreferencePane(m_book), "View");
             m_book->AddPage(new MousePreferencePane(m_book), "Mouse");
-            m_book->AddPage(new KeyboardPreferencePane(m_book), "Keyboard");
+            m_book->AddPage(new KeyboardPreferencePane(m_book, m_document.get()), "Keyboard");
 
             wxButton* resetButton = new wxButton(this, wxID_ANY, "Reset to defaults");
             resetButton->Bind(wxEVT_BUTTON, &PreferenceDialog::OnResetClicked, this);
@@ -220,7 +220,7 @@ namespace TrenchBroom {
 
             toggleTools(pane);
             m_book->SetSelection(static_cast<size_t>(pane));
-            currentPane()->updateControls(m_document);
+            currentPane()->updateControls();
 
             GetSizer()->SetItemMinSize(m_book, currentPane()->GetMinSize());
             Fit();
@@ -229,10 +229,11 @@ namespace TrenchBroom {
             updateAcceleratorTable(pane);
 #endif
 
-            if (pane == PrefPane_Keyboard)
-				SetEscapeId(wxID_NONE);
-			else
-				SetEscapeId(wxID_CANCEL);
+            if (pane == PrefPane_Keyboard) {
+                SetEscapeId(wxID_NONE);
+            } else {
+                SetEscapeId(wxID_ANY);
+            }
         }
 
         void PreferenceDialog::toggleTools(const PrefPane pane) {

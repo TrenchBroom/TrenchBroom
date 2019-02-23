@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_PreferencePane
 #define TrenchBroom_PreferencePane
 
-#include "View/ViewTypes.h"
-
 #include <wx/panel.h>
 #include <wx/slider.h>
 
@@ -33,8 +31,8 @@ namespace TrenchBroom {
             ~PreferencePane() override;
 
             bool canResetToDefaults();
-            void resetToDefaults(MapDocumentWPtr document);
-            void updateControls(MapDocumentWPtr document);
+            void resetToDefaults();
+            void updateControls();
             bool validate();
         protected:
             template <typename T>
@@ -53,7 +51,7 @@ namespace TrenchBroom {
         private:
             virtual bool doCanResetToDefaults() = 0;
             virtual void doResetToDefaults() = 0;
-            virtual void doUpdateControls(MapDocumentWPtr document) = 0;
+            virtual void doUpdateControls() = 0;
             virtual bool doValidate() = 0;
         };
     }

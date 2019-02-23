@@ -446,7 +446,7 @@ namespace TrenchBroom {
             prefs.resetToDefault(Preferences::CameraFlyMoveSpeed);
         }
 
-        void MousePreferencePane::doUpdateControls(MapDocumentWPtr document) {
+        void MousePreferencePane::doUpdateControls() {
             setSliderValue(m_lookSpeedSlider, pref(Preferences::CameraLookSpeed));
             m_invertLookHAxisCheckBox->SetValue(pref(Preferences::CameraLookInvertH));
             m_invertLookVAxisCheckBox->SetValue(pref(Preferences::CameraLookInvertV));
@@ -474,5 +474,5 @@ namespace TrenchBroom {
         bool MousePreferencePane::doValidate() {
             return true;
         }
-	}
+    }
 }

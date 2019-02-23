@@ -140,7 +140,7 @@ namespace TrenchBroom {
 
         void GamesPreferencePane::doResetToDefaults() {}
 
-        void GamesPreferencePane::doUpdateControls(MapDocumentWPtr document) {
+        void GamesPreferencePane::doUpdateControls() {
             if (m_gameListBox->GetSelection() == wxNOT_FOUND) {
                 m_book->SetSelection(0);
             } else {

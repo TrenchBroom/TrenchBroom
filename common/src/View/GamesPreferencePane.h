@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_GamesPreferencePane
 #define TrenchBroom_GamesPreferencePane
 
-#include <iostream>
-
 #include "View/PreferencePane.h"
 
 class wxSimplebook;
@@ -41,7 +39,7 @@ namespace TrenchBroom {
             wxTextCtrl* m_gamePathText;
             wxButton* m_chooseGamePathButton;
         public:
-            GamesPreferencePane(wxWindow* parent);
+            explicit GamesPreferencePane(wxWindow* parent);
         private:
             void OnGameSelectionChanged(GameSelectionCommand& event);
             void OnChooseGamePathClicked(wxCommandEvent& event);
@@ -53,7 +51,7 @@ namespace TrenchBroom {
 
             bool doCanResetToDefaults() override;
             void doResetToDefaults() override;
-            void doUpdateControls(MapDocumentWPtr document) override;
+            void doUpdateControls() override;
             bool doValidate() override;
         };
     }

@@ -25,6 +25,10 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace IO {
+        class Path;
+    }
+
     namespace Model {
         /**
          * This class represents an attribute of a tag. A tag can have multiple attributes, but the names must
@@ -90,6 +94,14 @@ namespace TrenchBroom {
              */
             Tag(String name, std::vector<TagAttribute> attributes);
 
+            virtual ~Tag();
+
+            Tag(const Tag& other);
+            Tag(Tag&& other) noexcept;
+
+            Tag& operator=(const Tag& other);
+            Tag& operator=(Tag&& other);
+
             /**
              * Returns the type of this tag.
              */
@@ -145,7 +157,8 @@ namespace TrenchBroom {
         };
 
         class TagManager;
-        class TagMatcher;
+        class TagVisitor;
+        class ConstTagVisitor;
 
         /**
          * Implementing this interface gives a class the ability to be tagged.
@@ -230,25 +243,35 @@ namespace TrenchBroom {
             bool hasAttribute(const TagAttribute& attribute) const;
 
             /**
-             * Evaluates the given matcher against this taggable object. This method is used as part of a double dispatch
-             * to retrieve the type information of this taggable object.
+             * Accepts the given tag visitor.
              *
-             * @param matcher the matcher to evaluate against this object
-             * @return true if the given matcher matches this object and false otherwise
+             * @param visitor the visitor to accept
              */
-            bool evaluateTagMatcher(const TagMatcher& matcher) const;
+            void accept(TagVisitor& visitor);
+
+            /**
+             * Accepts the given tag visitor.
+             *
+             * @param visitor the visitor to accept
+             */
+            void accept(ConstTagVisitor& visitor) const;
         private:
             void updateAttributeMask();
         private:
-            virtual bool doEvaluateTagMatcher(const TagMatcher& matcher) const = 0;
+            virtual void doAcceptTagVisitor(TagVisitor& visitor) = 0;
+            virtual void doAcceptTagVisitor(ConstTagVisitor& visitor) const = 0;
         };
 
-        class BrushFace;
-        class Brush;
-        class Entity;
-        class Group;
-        class Layer;
-        class World;
+        class MapFacade;
+
+        /**
+         * A mechanism to query user input when enabling or disabling a tag matcher.
+         */
+        class TagMatcherCallback {
+        public:
+            virtual ~TagMatcherCallback();
+            virtual size_t selectOption(const StringList& options) = 0;
+        };
 
         /**
          * Decides whether a taggable object should be tagged with a particular smart tag.
@@ -263,16 +286,44 @@ namespace TrenchBroom {
              * @param taggable the taggable to match against
              * @return true if this matcher matches the given taggable and false otherwise
              */
-            bool matches(const Taggable& taggable) const;
+            virtual bool matches(const Taggable& taggable) const = 0;
 
+            /**
+             * Modifies the current selection so that this tag matcher would match it.
+             *
+             * @param callback a callback mechanism to query  user input
+             * @param facade the map facade to issue commands with
+             */
+            virtual void enable(TagMatcherCallback& callback, MapFacade& facade) const;
+
+            /**
+             * Modifies the current selection so that this tag matcher would not match it.
+             *
+             * @param callback a callback mechanism to query  user input
+             * @param facade the map facade to issue commands with
+             */
+            virtual void disable(TagMatcherCallback& callback, MapFacade& facade) const;
+
+            /**
+             * Indicates whether this tag matcher can modify the current selection so that it would match it.
+             *
+             * @param facade the map facade to issue commands with
+             * @return true if this tag matcher can modify the current selection appropriately and false otherwise
+             */
+            virtual bool canEnable(MapFacade& facade) const;
+
+            /**
+             * Indicates whether this tag matcher can modify the current selection so that it would not match it.
+             *
+             * @param facade the map facade to issue commands with
+             * @return true if this tag matcher can modify the current selection appropriately and false otherwise
+             */
+            virtual bool canDisable(MapFacade& facade) const;
+
+            /**
+             * Returns a new copy of this tag matcher.
+             */
             virtual std::unique_ptr<TagMatcher> clone() const = 0;
-        public:
-            virtual bool matches(const BrushFace& face) const;
-            virtual bool matches(const World& world) const;
-            virtual bool matches(const Layer& layer) const;
-            virtual bool matches(const Group& group) const;
-            virtual bool matches(const Entity& entity) const;
-            virtual bool matches(const Brush& brush) const;
         };
 
         /**

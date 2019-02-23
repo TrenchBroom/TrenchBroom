@@ -430,7 +430,7 @@ namespace TrenchBroom {
             prefs.resetToDefault(Preferences::RendererFontSize);
         }
 
-        void ViewPreferencePane::doUpdateControls(MapDocumentWPtr document) {
+        void ViewPreferencePane::doUpdateControls() {
             m_layoutChoice->SetSelection(pref(Preferences::MapViewLayout));
 
             m_brightnessSlider->SetValue(int(pref(Preferences::Brightness) * 40.0f));
@@ -480,5 +480,5 @@ namespace TrenchBroom {
             }
             return NumTextureModes;
         }
-	}
+    }
 }

@@ -27,6 +27,7 @@
 namespace TrenchBroom {
     namespace View {
         class KeyboardShortcutGridTable;
+        class MapDocument;
 
         class KeyboardPreferencePane : public PreferencePane {
         private:
@@ -34,15 +35,15 @@ namespace TrenchBroom {
             KeyboardShortcutGridTable* m_table;
 
         public:
-            KeyboardPreferencePane(wxWindow* parent);
+            KeyboardPreferencePane(wxWindow* parent, const MapDocument* document);
         private:
             void OnGridSize(wxSizeEvent& event);
 
-            wxWindow* createMenuShortcutGrid();
+            wxWindow* createMenuShortcutGrid(const MapDocument* document);
 
             bool doCanResetToDefaults() override;
             void doResetToDefaults() override;
-            void doUpdateControls(MapDocumentWPtr document) override;
+            void doUpdateControls() override;
             bool doValidate() override;
         };
     }

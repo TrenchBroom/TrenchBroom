@@ -21,7 +21,6 @@
 
 #include "CollectionUtils.h"
 #include "Macros.h"
-#include "Model/TagMatcher.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/BrushSnapshot.h"
@@ -33,6 +32,7 @@
 #include "Model/IssueGenerator.h"
 #include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
+#include "Model/TagVisitor.h"
 #include "Model/World.h"
 
 #include <vecmath/vec.h>
@@ -1517,10 +1517,6 @@ namespace TrenchBroom {
             return m_brushRendererBrushCache;
         }
 
-        bool Brush::doEvaluateTagMatcher(const TagMatcher& matcher) const {
-            return matcher.matches(*this);
-        }
-
         void Brush::initializeTags(TagManager& tagManager) {
             Taggable::initializeTags(tagManager);
             for (auto* face : m_faces) {
@@ -1543,6 +1539,14 @@ namespace TrenchBroom {
                 sharedFaceTags &= face->tagMask();
             }
             return (sharedFaceTags & tagMask) != 0;
+        }
+
+        void Brush::doAcceptTagVisitor(TagVisitor& visitor) {
+            visitor.visit(*this);
+        }
+
+        void Brush::doAcceptTagVisitor(ConstTagVisitor& visitor) const {
+            visitor.visit(*this);
         }
     }
 }

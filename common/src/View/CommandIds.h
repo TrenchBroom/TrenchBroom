@@ -195,6 +195,7 @@ namespace TrenchBroom {
                 const int Highest                            = Lowest + 200;
 
                 const int LowestTagCommandId                 = Highest + 1;
+                const int HighestTagCommandId                = LowestTagCommandId + 100;
             }
 
             namespace MapViewPopupMenu {

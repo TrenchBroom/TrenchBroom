@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -43,15 +43,15 @@ namespace TrenchBroom {
     namespace Assets {
         class TextureManager;
     }
-    
+
     namespace Renderer {
         class IndexRangeMap;
     }
-    
+
     namespace Model {
         class Brush;
         class BrushFaceSnapshot;
-        
+
         class BrushFace : public Taggable {
         public:
             /*
@@ -71,7 +71,7 @@ namespace TrenchBroom {
             struct ProjectToVertex : public ProjectingSequenceProjector<BrushHalfEdge*, BrushVertex*> {
                 static Type project(BrushHalfEdge* halfEdge);
             };
-            
+
             struct ProjectToEdge : public ProjectingSequenceProjector<BrushHalfEdge*, BrushEdge*> {
                 static Type project(BrushHalfEdge* halfEdge);
             };
@@ -85,7 +85,7 @@ namespace TrenchBroom {
             size_t m_lineNumber;
             size_t m_lineCount;
             bool m_selected;
-            
+
             std::unique_ptr<TexCoordSystem> m_texCoordSystem;
             BrushFaceGeometry* m_geometry;
 
@@ -95,16 +95,16 @@ namespace TrenchBroom {
             BrushFaceAttributes m_attribs;
         public:
             BrushFace(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs, std::unique_ptr<TexCoordSystem> texCoordSystem);
-            
+
             static BrushFace* createParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const String& textureName = "");
             static BrushFace* createParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const String& textureName = "");
-            
+
             static void sortFaces(BrushFaceList& faces);
-            
+
             virtual ~BrushFace() override;
-            
+
             BrushFace* clone() const;
-            
+
             BrushFaceSnapshot* takeSnapshot();
             std::unique_ptr<TexCoordSystemSnapshot> takeTexCoordSystemSnapshot() const;
             void restoreTexCoordSystemSnapshot(const TexCoordSystemSnapshot& coordSystemSnapshot);
@@ -112,7 +112,7 @@ namespace TrenchBroom {
 
             Brush* brush() const;
             void setBrush(Brush* brush);
-            
+
             const BrushFace::Points& points() const;
             bool arePointsOnPlane(const vm::plane3& plane) const;
             const vm::plane3& boundary() const;
@@ -120,16 +120,16 @@ namespace TrenchBroom {
             vm::vec3 center() const;
             vm::vec3 boundsCenter() const;
             FloatType area(vm::axis::type axis) const;
-            
+
             const BrushFaceAttributes& attribs() const;
             void setAttribs(const BrushFaceAttributes& attribs);
 
             void resetTexCoordSystemCache();
-            
+
             const String& textureName() const;
             Assets::Texture* texture() const;
             vm::vec2f textureSize() const;
-            
+
             const vm::vec2f& offset() const;
             float xOffset() const;
             float yOffset() const;
@@ -153,7 +153,7 @@ namespace TrenchBroom {
             void updateTexture(Assets::TextureManager& textureManager);
             void setTexture(Assets::Texture* texture);
             void unsetTexture();
-            
+
             void setXOffset(float xOffset);
             void setYOffset(float yOffset);
             void setXScale(float xScale);
@@ -167,7 +167,7 @@ namespace TrenchBroom {
             vm::vec3 textureXAxis() const;
             vm::vec3 textureYAxis() const;
             void resetTextureAxes();
-            
+
             void moveTexture(const vm::vec3& up, const vm::vec3& right, const vm::vec2f& offset);
             void rotateTexture(float angle);
             void shearTexture(const vm::vec2f& factors);
@@ -178,27 +178,27 @@ namespace TrenchBroom {
             void updatePointsFromVertices();
             void snapPlanePointsToInteger();
             void findIntegerPlanePoints();
-            
+
             vm::mat4x4 projectToBoundaryMatrix() const;
             vm::mat4x4 toTexCoordSystemMatrix(const vm::vec2f& offset, const vm::vec2f& scale, bool project) const;
             vm::mat4x4 fromTexCoordSystemMatrix(const vm::vec2f& offset, const vm::vec2f& scale, bool project) const;
             float measureTextureAngle(const vm::vec2f& center, const vm::vec2f& point) const;
-            
+
             size_t vertexCount() const;
             EdgeList edges() const;
             VertexList vertices() const;
             std::vector<vm::vec3> vertexPositions() const;
-            
+
             bool hasVertices(const vm::polygon3& vertices, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             vm::polygon3 polygon() const;
         public:
             BrushFaceGeometry* geometry() const;
             void setGeometry(BrushFaceGeometry* geometry);
             void invalidate();
-            
+
             size_t lineNumber() const;
             void setFilePosition(size_t lineNumber, size_t lineCount);
-            
+
             bool selected() const;
             void select();
             void deselect();
@@ -206,7 +206,7 @@ namespace TrenchBroom {
             vm::vec2f textureCoords(const vm::vec3& point) const;
 
             FloatType intersectWithRay(const vm::ray3& ray) const;
-            
+
             void printPoints() const;
         private:
             void setPoints(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2);
@@ -226,7 +226,8 @@ namespace TrenchBroom {
             void setMarked(bool marked) const;
             bool isMarked() const;
         private: // implement Taggable interface
-            bool doEvaluateTagMatcher(const TagMatcher& matcher) const override;
+            void doAcceptTagVisitor(TagVisitor& visitor) override;
+            void doAcceptTagVisitor(ConstTagVisitor& visitor) const override;
         private:
             deleteCopyAndMove(BrushFace)
         };

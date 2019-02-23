@@ -46,7 +46,7 @@ namespace TrenchBroom {
             wxChoice* m_textureBrowserIconSizeChoice;
             wxComboBox* m_fontPrefsRendererFontSizeCombo;
         public:
-            ViewPreferencePane(wxWindow* parent);
+            explicit ViewPreferencePane(wxWindow* parent);
 
             void OnLayoutChanged(wxCommandEvent& event);
             void OnBrightnessChanged(wxScrollEvent& event);
@@ -67,7 +67,7 @@ namespace TrenchBroom {
 
             bool doCanResetToDefaults() override;
             void doResetToDefaults() override;
-            void doUpdateControls(MapDocumentWPtr document) override;
+            void doUpdateControls() override;
             bool doValidate() override;
 
             size_t findTextureMode(int minFilter, int magFilter) const;

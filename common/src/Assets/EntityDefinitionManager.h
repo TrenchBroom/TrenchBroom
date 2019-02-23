@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -34,7 +34,7 @@ namespace TrenchBroom {
         class ParserStatus;
         class Path;
     }
-    
+
     namespace Assets {
         class EntityDefinitionManager {
         private:
@@ -50,10 +50,11 @@ namespace TrenchBroom {
             void loadDefinitions(const IO::Path& path, const IO::EntityDefinitionLoader& loader, IO::ParserStatus& status);
             void setDefinitions(const EntityDefinitionList& newDefinitions);
             void clear();
-            
+
             EntityDefinition* definition(const Model::AttributableNode* attributable) const;
             EntityDefinition* definition(const Model::AttributeValue& classname) const;
-            EntityDefinitionList definitions(EntityDefinition::Type type, const EntityDefinition::SortOrder order = EntityDefinition::Name) const;
+            EntityDefinitionList definitions(const String& classnamePattern) const;
+            EntityDefinitionList definitions(EntityDefinition::Type type, EntityDefinition::SortOrder order = EntityDefinition::Name) const;
 
             const EntityDefinitionGroup::List& groups() const;
         private:

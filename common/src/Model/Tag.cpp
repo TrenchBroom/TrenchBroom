@@ -19,6 +19,7 @@
 
 #include "Tag.h"
 
+#include "IO/Path.h"
 #include "Model/TagManager.h"
 
 namespace TrenchBroom {
@@ -51,8 +52,16 @@ namespace TrenchBroom {
         Tag::Tag(String name, std::vector<TagAttribute> attributes) :
         Tag(0, name, attributes) {}
 
+        Tag::~Tag() = default;
+
+        Tag::Tag(const Tag& other) = default;
+        Tag::Tag(Tag&& other) noexcept = default;
+
+        Tag& Tag::operator=(const Tag& other) = default;
+        Tag& Tag::operator=(Tag&& other) = default;
+
         Tag::TagType Tag::type() const {
-            return TagType{1} << m_index;
+            return 1UL << m_index;
         }
 
         size_t Tag::index() const {
@@ -160,8 +169,12 @@ namespace TrenchBroom {
             return (m_attributeMask & attribute.type()) != 0;
         }
 
-        bool Taggable::evaluateTagMatcher(const TagMatcher& matcher) const {
-            return doEvaluateTagMatcher(matcher);
+        void Taggable::accept(TagVisitor& visitor) {
+            doAcceptTagVisitor(visitor);
+        }
+
+        void Taggable::accept(ConstTagVisitor& visitor) const {
+            doAcceptTagVisitor(visitor);
         }
 
         void Taggable::updateAttributeMask() {
@@ -174,33 +187,18 @@ namespace TrenchBroom {
             }
         }
 
+        TagMatcherCallback::~TagMatcherCallback() = default;
+
         TagMatcher::~TagMatcher() = default;
 
-        bool TagMatcher::matches(const Taggable& taggable) const {
-            return taggable.evaluateTagMatcher(*this);
-        }
+        void TagMatcher::enable(TagMatcherCallback& callback, MapFacade& facade) const {}
+        void TagMatcher::disable(TagMatcherCallback& callback, MapFacade& facade) const {}
 
-        bool TagMatcher::matches(const BrushFace& face) const {
+        bool TagMatcher::canEnable(MapFacade& facade) const {
             return false;
         }
 
-        bool TagMatcher::matches(const World& world) const {
-            return false;
-        }
-
-        bool TagMatcher::matches(const Layer& layer) const {
-            return false;
-        }
-
-        bool TagMatcher::matches(const Group& group) const {
-            return false;
-        }
-
-        bool TagMatcher::matches(const Entity& entity) const {
-            return false;
-        }
-
-        bool TagMatcher::matches(const Brush& brush) const {
+        bool TagMatcher::canDisable(MapFacade& facade) const {
             return false;
         }
 

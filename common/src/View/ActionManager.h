@@ -60,7 +60,11 @@ namespace TrenchBroom {
 
             void getShortcutEntries(const std::vector<Model::SmartTag>& tags, ShortcutEntryList& entries);
         private:
+            void getTagShortcutEntries(const std::vector<Model::SmartTag>& tags, ShortcutEntryList& entries);
+
             class TagKeyboardShortcutEntry;
+            class ToggleTagVisibilityKeyboardShortcutEntry;
+            class EnableDisableTagKeyboardShortcutEntry;
         public:
             String getJSTable();
         private:

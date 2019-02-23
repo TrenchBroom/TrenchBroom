@@ -57,7 +57,7 @@ namespace TrenchBroom {
             KeyboardShortcutEditor* m_downKeyEditor;
             wxSlider* m_flyMoveSpeedSlider;
         public:
-            MousePreferencePane(wxWindow* parent);
+            explicit MousePreferencePane(wxWindow* parent);
         private:
             void OnLookSpeedChanged(wxScrollEvent& event);
             void OnInvertLookHAxisChanged(wxCommandEvent& event);
@@ -93,7 +93,7 @@ namespace TrenchBroom {
 
             bool doCanResetToDefaults() override;
             void doResetToDefaults() override;
-            void doUpdateControls(MapDocumentWPtr document) override;
+            void doUpdateControls() override;
             bool doValidate() override;
         };
     }

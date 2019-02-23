@@ -21,26 +21,24 @@
 
 #include "Macros.h"
 #include "Preferences.h"
+#include "Model/Tag.h"
 #include "View/ActionManager.h"
 #include "View/BorderLine.h"
 #include "View/KeyboardShortcutGridTable.h"
+#include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 
 #include <wx/msgdlg.h>
 #include <wx/settings.h>
 #include <wx/sizer.h>
-#include <wx/statbox.h>
-#include <wx/stattext.h>
-
-#include <cassert>
 
 namespace TrenchBroom {
     namespace View {
-        KeyboardPreferencePane::KeyboardPreferencePane(wxWindow* parent) :
+        KeyboardPreferencePane::KeyboardPreferencePane(wxWindow* parent, const MapDocument* document) :
         PreferencePane(parent),
         m_grid(nullptr),
         m_table(nullptr) {
-            wxWindow* menuShortcutGrid = createMenuShortcutGrid();
+            wxWindow* menuShortcutGrid = createMenuShortcutGrid(document);
 
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(menuShortcutGrid, 1, wxEXPAND);
@@ -61,10 +59,18 @@ namespace TrenchBroom {
             event.Skip();
         }
 
-        wxWindow* KeyboardPreferencePane::createMenuShortcutGrid() {
+        wxWindow* KeyboardPreferencePane::createMenuShortcutGrid(const MapDocument* document) {
+            ActionManager::ShortcutEntryList entries;
+            ActionManager& actionManager = ActionManager::instance();
+            if (document != nullptr) {
+                actionManager.getShortcutEntries(document->smartTags(), entries);
+            } else {
+                actionManager.getShortcutEntries(std::vector<Model::SmartTag>{}, entries);
+            }
+
             wxPanel* container = new wxPanel(this);
 
-            m_table = new KeyboardShortcutGridTable();
+            m_table = new KeyboardShortcutGridTable(std::move(entries));
             m_grid = new wxGrid(container, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
             m_grid->Bind(wxEVT_SIZE, &KeyboardPreferencePane::OnGridSize, this);
 
@@ -83,8 +89,6 @@ namespace TrenchBroom {
             m_grid->DisableDragColSize();
             m_grid->DisableDragGridSize();
             m_grid->DisableDragRowSize();
-
-            m_table->reload();
 
             wxStaticText* infoText = new wxStaticText(container, wxID_ANY, "Click twice on a key combination to edit the shortcut. Press delete or backspace to delete a shortcut.");
 #if defined __APPLE__
@@ -111,8 +115,8 @@ namespace TrenchBroom {
             actionManager.resetShortcutsToDefaults();
         }
 
-        void KeyboardPreferencePane::doUpdateControls(MapDocumentWPtr document) {
-            m_table->update(document);
+        void KeyboardPreferencePane::doUpdateControls() {
+            m_table->update();
         }
 
         bool KeyboardPreferencePane::doValidate() {

@@ -48,7 +48,7 @@ namespace TrenchBroom {
             wxToolBar* m_toolBar;
             wxSimplebook* m_book;
         public:
-            PreferenceDialog(MapDocumentSPtr document);
+            explicit PreferenceDialog(MapDocumentSPtr document);
             bool Create();
         private:
             void OnToolClicked(wxCommandEvent& event);
