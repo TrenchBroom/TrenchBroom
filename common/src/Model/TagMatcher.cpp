@@ -21,8 +21,10 @@
 
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/Texture.h"
+#include "Assets/TextureManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
+#include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
 #include "Model/Layer.h"
@@ -32,6 +34,9 @@
 #include "Model/NodeVisitor.h"
 #include "Model/PushSelection.h"
 #include "Model/World.h"
+
+#include <algorithm>
+#include <iterator>
 
 namespace TrenchBroom {
     namespace Model {
@@ -69,23 +74,66 @@ namespace TrenchBroom {
 
         bool TextureNameTagMatcher::matches(const Taggable& taggable) const {
             BrushFaceMatchVisitor visitor([this](const BrushFace& face) {
-                const auto& textureName = face.textureName();
-                auto begin = std::begin(textureName);
-
-                const auto pos = textureName.find_last_of('/');
-                if (pos != String::npos) {
-                    std::advance(begin, long(pos)+1);
-                }
-
-                return StringUtils::matchesPattern(
-                    begin, std::end(textureName),
-                    std::begin(m_pattern),
-                    std::end(m_pattern),
-                    StringUtils::CharEqual<StringUtils::CaseInsensitiveCharCompare>());
+                return matchesTextureName(face.textureName());
             });
 
             taggable.accept(visitor);
             return visitor.matches();
+        }
+
+        void TextureNameTagMatcher::enable(TagMatcherCallback& callback, MapFacade& facade) const {
+            const auto& textureManager = facade.textureManager();
+            const auto& allTextures = textureManager.textures();
+            auto matchingTextures = Assets::TextureList{};
+
+            std::copy_if(std::begin(allTextures), std::end(allTextures), std::back_inserter(matchingTextures), [this](auto* texture) {
+                return matchesTextureName(texture->name());
+            });
+
+            std::sort(std::begin(matchingTextures), std::end(matchingTextures), [](const auto* lhs, const auto* rhs) {
+                return StringUtils::caseInsensitiveCompare(lhs->name(), rhs->name()) < 0;
+            });
+
+            Assets::Texture* texture = nullptr;
+            if (matchingTextures.empty()) {
+                return;
+            } else if (matchingTextures.size() == 1) {
+                texture = matchingTextures.front();
+            } else {
+                StringList options;
+                std::transform(std::begin(matchingTextures), std::end(matchingTextures), std::back_inserter(options),
+                               [](const auto* current) { return current->name(); });
+                const auto index = callback.selectOption(options);
+                if (index >= matchingTextures.size()) {
+                    return;
+                }
+                texture = matchingTextures[index];
+            }
+
+            assert(texture != nullptr);
+
+            ChangeBrushFaceAttributesRequest request;
+            request.setTexture(texture);
+            facade.setFaceAttributes(request);
+        }
+
+        bool TextureNameTagMatcher::canEnable() const {
+            return true;
+        }
+
+        bool TextureNameTagMatcher::matchesTextureName(const String& textureName) const {
+            auto begin = std::begin(textureName);
+
+            const auto pos = textureName.find_last_of('/');
+            if (pos != String::npos) {
+                std::advance(begin, long(pos)+1);
+            }
+
+            return StringUtils::matchesPattern(
+                begin, std::end(textureName),
+                std::begin(m_pattern),
+                std::end(m_pattern),
+                StringUtils::CharEqual<StringUtils::CaseInsensitiveCharCompare>());
         }
 
         SurfaceParmTagMatcher::SurfaceParmTagMatcher(String parameter) :
@@ -127,6 +175,26 @@ namespace TrenchBroom {
             return visitor.matches();
         }
 
+        void ContentFlagsTagMatcher::enable(TagMatcherCallback& callback, MapFacade& facade) const {
+            ChangeBrushFaceAttributesRequest request;
+            request.setContentFlags(m_flags);
+            facade.setFaceAttributes(request);
+        }
+
+        void ContentFlagsTagMatcher::disable(TagMatcherCallback& callback, MapFacade& facade) const {
+            ChangeBrushFaceAttributesRequest request;
+            request.unsetContentFlags(m_flags);
+            facade.setFaceAttributes(request);
+        }
+
+        bool ContentFlagsTagMatcher::canEnable() const {
+            return true;
+        }
+
+        bool ContentFlagsTagMatcher::canDisable() const {
+            return true;
+        }
+
         SurfaceFlagsTagMatcher::SurfaceFlagsTagMatcher(const int flags) :
         m_flags(flags) {}
 
@@ -141,6 +209,26 @@ namespace TrenchBroom {
 
             taggable.accept(visitor);
             return visitor.matches();
+        }
+
+        void SurfaceFlagsTagMatcher::enable(TagMatcherCallback& callback, MapFacade& facade) const {
+            ChangeBrushFaceAttributesRequest request;
+            request.setSurfaceFlags(m_flags);
+            facade.setFaceAttributes(request);
+        }
+
+        void SurfaceFlagsTagMatcher::disable(TagMatcherCallback& callback, MapFacade& facade) const {
+            ChangeBrushFaceAttributesRequest request;
+            request.unsetSurfaceFlags(m_flags);
+            facade.setFaceAttributes(request);
+        }
+
+        bool SurfaceFlagsTagMatcher::canEnable() const {
+            return true;
+        }
+
+        bool SurfaceFlagsTagMatcher::canDisable() const {
+            return true;
         }
 
         EntityClassNameTagMatcher::EntityClassNameTagMatcher(String pattern) :
@@ -158,7 +246,7 @@ namespace TrenchBroom {
                     return false;
                 }
 
-                return StringUtils::caseInsensitiveMatchesPattern(entity->classname(), m_pattern);
+                return matchesClassname(entity->classname());
             });
 
             taggable.accept(visitor);
@@ -166,32 +254,36 @@ namespace TrenchBroom {
         }
 
         void EntityClassNameTagMatcher::enable(TagMatcherCallback& callback, MapFacade& facade) const {
-            assert(canEnable());
-
             if (!facade.selectedNodes().hasOnlyBrushes()) {
                 return;
             }
 
             const auto& definitionManager = facade.entityDefinitionManager();
-            auto definitions = definitionManager.definitions(m_pattern);
-            std::sort(std::begin(definitions), std::end(definitions), [](const auto* lhs, const auto* rhs) {
+            const auto& allDefinitions = definitionManager.definitions();
+            auto matchingDefinitions = Assets::EntityDefinitionList{};
+
+            std::copy_if(std::begin(allDefinitions), std::end(allDefinitions), std::back_inserter(matchingDefinitions), [this](const auto* definition) {
+                return matchesClassname(definition->name());
+            });
+
+            std::sort(std::begin(matchingDefinitions), std::end(matchingDefinitions), [](const auto* lhs, const auto* rhs) {
                 return StringUtils::caseInsensitiveCompare(lhs->name(), rhs->name()) < 0;
             });
 
             const Assets::EntityDefinition* definition = nullptr;
-            if (definitions.empty()) {
+            if (matchingDefinitions.empty()) {
                 return;
-            } else if (definitions.size() == 1) {
-                definition = definitions.front();
+            } else if (matchingDefinitions.size() == 1) {
+                definition = matchingDefinitions.front();
             } else {
                 StringList options;
-                std::transform(std::begin(definitions), std::end(definitions), std::back_inserter(options),
+                std::transform(std::begin(matchingDefinitions), std::end(matchingDefinitions), std::back_inserter(options),
                     [](const auto* current) { return current->name(); });
                 const auto index = callback.selectOption(options);
-                if (index >= definitions.size()) {
+                if (index >= matchingDefinitions.size()) {
                     return;
                 }
-                definition = definitions[index];
+                definition = matchingDefinitions[index];
             }
 
             assert(definition != nullptr);
@@ -208,8 +300,6 @@ namespace TrenchBroom {
         }
 
         void EntityClassNameTagMatcher::disable(TagMatcherCallback& callback, MapFacade& facade) const {
-            assert(canDisable());
-
             // entities will be removed automatically when they become empty
 
             const auto& selectedBrushes = facade.selectedNodes().nodes();
@@ -231,6 +321,10 @@ namespace TrenchBroom {
 
         bool EntityClassNameTagMatcher::canDisable() const {
             return true;
+        }
+
+        bool EntityClassNameTagMatcher::matchesClassname(const String& classname) const {
+            return StringUtils::caseInsensitiveMatchesPattern(classname, m_pattern);
         }
     }
 }

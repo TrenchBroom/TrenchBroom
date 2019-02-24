@@ -25,9 +25,7 @@
 #include "Model/AttributableNode.h"
 #include "Model/EntityAttributes.h"
 
-#include <algorithm>
 #include <cassert>
-#include <iterator>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -68,16 +66,12 @@ namespace TrenchBroom {
             return it->second;
         }
 
-        EntityDefinitionList EntityDefinitionManager::definitions(const String& classnamePattern) const {
-            EntityDefinitionList result;
-            std::copy_if(std::begin(m_definitions), std::end(m_definitions), std::back_inserter(result), [&classnamePattern](EntityDefinition* definition) {
-                return StringUtils::caseInsensitiveMatchesPattern(definition->name(), classnamePattern);
-            });
-            return result;
-        }
-
         EntityDefinitionList EntityDefinitionManager::definitions(const EntityDefinition::Type type, const EntityDefinition::SortOrder order) const {
             return EntityDefinition::filterAndSort(m_definitions, type, order);
+        }
+
+        const EntityDefinitionList& EntityDefinitionManager::definitions() const {
+            return m_definitions;
         }
 
         const EntityDefinitionGroup::List& EntityDefinitionManager::groups() const {

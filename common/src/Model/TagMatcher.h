@@ -77,6 +77,10 @@ namespace TrenchBroom {
             std::unique_ptr<TagMatcher> clone() const override;
         public:
             bool matches(const Taggable& taggable) const override;
+            void enable(TagMatcherCallback& callback, MapFacade& facade) const override;
+            bool canEnable() const override;
+        private:
+            bool matchesTextureName(const String& textureName) const;
         };
 
         class SurfaceParmTagMatcher : public TagMatcher {
@@ -97,6 +101,10 @@ namespace TrenchBroom {
             std::unique_ptr<TagMatcher> clone() const override;
         private:
             bool matches(const Taggable& taggable) const override;
+            void enable(TagMatcherCallback& callback, MapFacade& facade) const override;
+            void disable(TagMatcherCallback& callback, MapFacade& facade) const override;
+            bool canEnable() const override;
+            bool canDisable() const override;
         };
 
         class SurfaceFlagsTagMatcher : public TagMatcher {
@@ -107,6 +115,10 @@ namespace TrenchBroom {
             std::unique_ptr<TagMatcher> clone() const override;
         private:
             bool matches(const Taggable& taggable) const override;
+            void enable(TagMatcherCallback& callback, MapFacade& facade) const override;
+            void disable(TagMatcherCallback& callback, MapFacade& facade) const override;
+            bool canEnable() const override;
+            bool canDisable() const override;
         };
 
         class EntityClassNameTagMatcher : public TagMatcher {
@@ -123,6 +135,8 @@ namespace TrenchBroom {
             void disable(TagMatcherCallback& callback, MapFacade& facade) const override;
             bool canEnable() const override;
             bool canDisable() const override;
+        private:
+            bool matchesClassname(const String& classname) const;
         };
     }
 }

@@ -53,8 +53,8 @@ namespace TrenchBroom {
 
             EntityDefinition* definition(const Model::AttributableNode* attributable) const;
             EntityDefinition* definition(const Model::AttributeValue& classname) const;
-            EntityDefinitionList definitions(const String& classnamePattern) const;
             EntityDefinitionList definitions(EntityDefinition::Type type, EntityDefinition::SortOrder order = EntityDefinition::Name) const;
+            const EntityDefinitionList& definitions() const;
 
             const EntityDefinitionGroup::List& groups() const;
         private:
