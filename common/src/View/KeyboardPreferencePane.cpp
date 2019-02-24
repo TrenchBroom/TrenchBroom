@@ -31,6 +31,7 @@
 #include <wx/msgdlg.h>
 #include <wx/settings.h>
 #include <wx/sizer.h>
+#include <wx/stattext.h>
 
 namespace TrenchBroom {
     namespace View {
