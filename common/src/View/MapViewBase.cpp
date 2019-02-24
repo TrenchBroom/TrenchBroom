@@ -264,6 +264,7 @@ namespace TrenchBroom {
             Bind(wxEVT_KILL_FOCUS, &MapViewBase::OnKillFocus, this);
 
             Bind(wxEVT_MENU, &MapViewBase::OnToggleTagVisible, this, CommandIds::Actions::LowestTagCommandId, CommandIds::Actions::HighestTagCommandId);
+            Bind(wxEVT_MENU, &MapViewBase::OnToggleTag,        this, CommandIds::Actions::LowestTagCommandId, CommandIds::Actions::HighestTagCommandId);
 
             Bind(wxEVT_MENU, &MapViewBase::OnToggleClipSide,               this, CommandIds::Actions::ToggleClipSide);
             Bind(wxEVT_MENU, &MapViewBase::OnPerformClip,                  this, CommandIds::Actions::PerformClip);
@@ -740,6 +741,10 @@ namespace TrenchBroom {
 
         void MapViewBase::OnToggleTagVisible(wxCommandEvent& event) {
             const auto commandId = event.GetId();
+            if (commandId % 2 != 0) {
+                return;
+            }
+
             const auto tagIndex = static_cast<size_t>((commandId - CommandIds::Actions::LowestTagCommandId - 0) / 2);
 
             auto document = lock(m_document);
@@ -747,6 +752,60 @@ namespace TrenchBroom {
             auto hiddenTags = editorContext.hiddenTags();
             hiddenTags ^= 1UL << tagIndex;
             editorContext.setHiddenTags(hiddenTags);
+        }
+
+        class MapViewBase::ToggleTagCallback : public Model::TagMatcherCallback, public wxEvtHandler {
+        private:
+            wxWindow* m_window;
+            size_t m_selectedOption;
+        public:
+            ToggleTagCallback(wxWindow* window) :
+            m_window(window),
+            m_selectedOption(0) {
+                assert(m_window != nullptr);
+            }
+
+            size_t selectOption(const StringList& options) {
+                wxMenu menu;
+                for (size_t i = 0; i < options.size(); ++i) {
+                    const auto& option = options[i];
+                    const auto commandId = CommandIds::ToggleTagPopupMenu::Lowest + static_cast<int>(i);
+                    menu.Append(commandId, option);
+                    menu.Bind(wxEVT_MENU, &ToggleTagCallback::OnMenuItem, this, commandId);
+                }
+
+
+                m_selectedOption = options.size();
+                m_window->PopupMenu(&menu);
+                m_selectedOption = std::min(m_selectedOption, options.size());
+                return m_selectedOption;
+            }
+
+            void OnMenuItem(wxCommandEvent& event) {
+                m_selectedOption = static_cast<size_t>(event.GetId() - CommandIds::ToggleTagPopupMenu::Lowest);
+            }
+        };
+
+        void MapViewBase::OnToggleTag(wxCommandEvent& event) {
+            const auto commandId = event.GetId();
+            if (commandId % 2 != 1) {
+                return;
+            }
+            
+            const auto tagIndex = static_cast<size_t>((commandId - CommandIds::Actions::LowestTagCommandId - 1) / 2);
+
+            auto document = lock(m_document);
+            if (document->isRegisteredSmartTag(tagIndex)) {
+                const auto& tag = document->smartTag(tagIndex);
+                ToggleTagCallback callback(this);
+
+                Transaction transaction(document);
+                if (tag.canDisable(*document)) {
+                    tag.disable(callback, *document);
+                } else {
+                    tag.enable(callback, *document);
+                }
+            }
         }
 
         void MapViewBase::OnSetFocus(wxFocusEvent& event) {

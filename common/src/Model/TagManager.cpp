@@ -65,6 +65,24 @@ namespace TrenchBroom {
             return *it;
         }
 
+        bool TagManager::isRegisteredSmartTag(const size_t index) const {
+            for (const auto& tag : m_smartTags) {
+                if (tag.index() == index) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        const SmartTag& TagManager::smartTag(const size_t index) const {
+            for (const auto& tag : m_smartTags) {
+                if (tag.index() == index) {
+                    return tag;
+                }
+            }
+            throw std::logic_error("Smart tag not registered");
+        }
+
         void TagManager::registerSmartTag(SmartTag tag) {
             const auto it = std::upper_bound(std::begin(m_smartTags), std::end(m_smartTags), tag, TagCmp());
             if (it == std::end(m_smartTags)) {

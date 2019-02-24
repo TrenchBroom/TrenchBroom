@@ -214,6 +214,10 @@ namespace TrenchBroom {
                 static const int MergeGroups                        = Lowest + 7;
                 static const int ShowPopupMenu                      = Lowest + 8;
             }
+
+            namespace ToggleTagPopupMenu {
+                static const int Lowest                             = wxID_HIGHEST + 3000;
+            }
         }
     }
 }

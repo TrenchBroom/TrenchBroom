@@ -196,8 +196,11 @@ namespace TrenchBroom {
 
             auto* entity = new Entity();
             entity->addOrUpdateAttribute(AttributeNames::Classname, definition->name());
+
+            facade.deselectAll();
             facade.addNode(entity, facade.currentParent());
             facade.reparentNodes(entity, brushes);
+            facade.select(Model::NodeList(std::begin(brushes), std::end(brushes)));
         }
 
         void EntityClassNameTagMatcher::disable(TagMatcherCallback& callback, MapFacade& facade) const {
@@ -206,22 +209,14 @@ namespace TrenchBroom {
             // entities will be removed automatically when they become empty
 
             const auto brushes = facade.selectedNodes().nodes();
+
+            facade.deselectAll();
             facade.reparentNodes(facade.currentParent(), brushes);
+            facade.select(Model::NodeList(std::begin(brushes), std::end(brushes)));
         }
 
         bool EntityClassNameTagMatcher::canEnable(MapFacade& facade) const {
-            if (!facade.selectedNodes().hasOnlyBrushes()) {
-                return false;
-            }
-
-            const auto& brushes = facade.selectedNodes().brushes();
-            for (const auto* brush : brushes) {
-                if (matches(*brush)) {
-                    return false;
-                }
-            }
-
-            return true;
+            return facade.selectedNodes().hasOnlyBrushes();
         }
 
         bool EntityClassNameTagMatcher::canDisable(MapFacade& facade) const {

@@ -229,5 +229,21 @@ namespace TrenchBroom {
                 taggable.removeTag(*this);
             }
         }
+
+        void SmartTag::enable(TagMatcherCallback& callback, MapFacade& facade) const {
+            m_matcher->enable(callback, facade);
+        }
+
+        void SmartTag::disable(TagMatcherCallback& callback, MapFacade& facade) const {
+            m_matcher->disable(callback, facade);
+        }
+
+        bool SmartTag::canEnable(MapFacade& facade) const {
+            return m_matcher->canEnable(facade);
+        }
+
+        bool SmartTag::canDisable(MapFacade& facade) const {
+            return m_matcher->canDisable(facade);
+        }
     }
 }

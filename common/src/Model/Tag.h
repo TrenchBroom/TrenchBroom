@@ -354,6 +354,38 @@ namespace TrenchBroom {
              * @param taggable the taggable to update
              */
             void update(Taggable& taggable) const;
+
+            /**
+             * Modifies the current selection so that this tag would match it.
+             *
+             * @param callback a callback mechanism to query  user input
+             * @param facade the map facade to issue commands with
+             */
+            void enable(TagMatcherCallback& callback, MapFacade& facade) const;
+
+            /**
+             * Modifies the current selection so that this tag would not match it.
+             *
+             * @param callback a callback mechanism to query  user input
+             * @param facade the map facade to issue commands with
+             */
+            void disable(TagMatcherCallback& callback, MapFacade& facade) const;
+
+            /**
+             * Indicates whether this tag can modify the current selection so that it would match it.
+             *
+             * @param facade the map facade to issue commands with
+             * @return true if this tag can modify the current selection appropriately and false otherwise
+             */
+            bool canEnable(MapFacade& facade) const;
+
+            /**
+             * Indicates whether this tag can modify the current selection so that it would not match it.
+             *
+             * @param facade the map facade to issue commands with
+             * @return true if this tag can modify the current selection appropriately and false otherwise
+             */
+            bool canDisable(MapFacade& facade) const;
         };
     }
 }

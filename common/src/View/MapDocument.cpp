@@ -1828,6 +1828,14 @@ namespace TrenchBroom {
             return m_tagManager->smartTag(name);
         }
 
+        bool MapDocument::isRegisteredSmartTag(const size_t index) const {
+            return m_tagManager->isRegisteredSmartTag(index);
+        }
+
+        const Model::SmartTag& MapDocument::smartTag(const size_t index) const {
+            return m_tagManager->smartTag(index);
+        }
+
         class MapDocument::InitializeNodeTagsVisitor : public Model::NodeVisitor {
         private:
             Model::TagManager& m_tagManager;

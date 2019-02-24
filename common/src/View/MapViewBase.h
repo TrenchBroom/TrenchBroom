@@ -213,8 +213,10 @@ namespace TrenchBroom {
             void createPointEntity(const Assets::PointEntityDefinition* definition);
             void createBrushEntity(const Assets::BrushEntityDefinition* definition);
             bool canCreateBrushEntity();
-        private: // tag visibility
+        private: // tags
             void OnToggleTagVisible(wxCommandEvent& event);
+            class ToggleTagCallback;
+            void OnToggleTag(wxCommandEvent& event);
         private: // other events
             void OnSetFocus(wxFocusEvent& event);
             void OnKillFocus(wxFocusEvent& event);
