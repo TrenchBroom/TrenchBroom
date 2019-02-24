@@ -53,7 +53,7 @@ namespace TrenchBroom {
             Type m_type;
             MenuItemParent* m_parent;
         public:
-            MenuItem(const Type type, MenuItemParent* parent);
+            MenuItem(Type type, MenuItemParent* parent);
             virtual ~MenuItem();
 
             Type type() const;
@@ -75,7 +75,7 @@ namespace TrenchBroom {
 
         class SeparatorItem : public MenuItem {
         public:
-            SeparatorItem(MenuItemParent* parent);
+            explicit SeparatorItem(MenuItemParent* parent);
         private:
             void doAppendToMenu(wxMenu* menu, bool withShortcuts) const override;
         };
@@ -83,7 +83,7 @@ namespace TrenchBroom {
         class LabeledMenuItem : public MenuItem {
         public:
             LabeledMenuItem(Type type, MenuItemParent* parent);
-            virtual ~LabeledMenuItem();
+            ~LabeledMenuItem() override;
         public:
             int id() const;
             const String& label() const;
@@ -159,8 +159,8 @@ namespace TrenchBroom {
         class Menu : public MenuItemParent {
         public:
             Menu(MenuItemParent* parent, int id, const String& label);
-            Menu(const String& label);
-            virtual ~Menu();
+            explicit Menu(const String& label);
+            ~Menu() override;
 
             MenuItem* addModifiableActionItem(int id, const String& label, const KeyboardShortcut& defaultShortcut = KeyboardShortcut::Empty);
             MenuItem* addUnmodifiableActionItem(int id, const String& label, const KeyboardShortcut& defaultShortcut = KeyboardShortcut::Empty);

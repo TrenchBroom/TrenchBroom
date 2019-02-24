@@ -194,11 +194,11 @@ namespace TrenchBroom {
         void TagMatcher::enable(TagMatcherCallback& callback, MapFacade& facade) const {}
         void TagMatcher::disable(TagMatcherCallback& callback, MapFacade& facade) const {}
 
-        bool TagMatcher::canEnable(MapFacade& facade) const {
+        bool TagMatcher::canEnable() const {
             return false;
         }
 
-        bool TagMatcher::canDisable(MapFacade& facade) const {
+        bool TagMatcher::canDisable() const {
             return false;
         }
 
@@ -238,12 +238,12 @@ namespace TrenchBroom {
             m_matcher->disable(callback, facade);
         }
 
-        bool SmartTag::canEnable(MapFacade& facade) const {
-            return m_matcher->canEnable(facade);
+        bool SmartTag::canEnable() const {
+            return m_matcher->canEnable();
         }
 
-        bool SmartTag::canDisable(MapFacade& facade) const {
-            return m_matcher->canDisable(facade);
+        bool SmartTag::canDisable() const {
+            return m_matcher->canDisable();
         }
     }
 }

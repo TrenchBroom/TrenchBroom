@@ -34,7 +34,7 @@ namespace TrenchBroom {
         m_type(type),
         m_parent(parent) {}
 
-        MenuItem::~MenuItem() {}
+        MenuItem::~MenuItem() = default;
 
         MenuItem::Type MenuItem::type() const {
             return m_type;

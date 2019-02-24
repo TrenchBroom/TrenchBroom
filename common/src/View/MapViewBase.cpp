@@ -263,8 +263,9 @@ namespace TrenchBroom {
             Bind(wxEVT_SET_FOCUS, &MapViewBase::OnSetFocus, this);
             Bind(wxEVT_KILL_FOCUS, &MapViewBase::OnKillFocus, this);
 
-            Bind(wxEVT_MENU, &MapViewBase::OnToggleTagVisible, this, CommandIds::Actions::LowestTagCommandId, CommandIds::Actions::HighestTagCommandId);
-            Bind(wxEVT_MENU, &MapViewBase::OnToggleTag,        this, CommandIds::Actions::LowestTagCommandId, CommandIds::Actions::HighestTagCommandId);
+            Bind(wxEVT_MENU, &MapViewBase::OnToggleTagVisible,  this, CommandIds::Actions::LowestTagCommandId, CommandIds::Actions::HighestTagCommandId);
+            Bind(wxEVT_MENU, &MapViewBase::OnEnableTag,         this, CommandIds::Actions::LowestTagCommandId, CommandIds::Actions::HighestTagCommandId);
+            Bind(wxEVT_MENU, &MapViewBase::OnDisableTag,        this, CommandIds::Actions::LowestTagCommandId, CommandIds::Actions::HighestTagCommandId);
 
             Bind(wxEVT_MENU, &MapViewBase::OnToggleClipSide,               this, CommandIds::Actions::ToggleClipSide);
             Bind(wxEVT_MENU, &MapViewBase::OnPerformClip,                  this, CommandIds::Actions::PerformClip);
@@ -741,7 +742,8 @@ namespace TrenchBroom {
 
         void MapViewBase::OnToggleTagVisible(wxCommandEvent& event) {
             const auto commandId = event.GetId();
-            if (commandId % 2 != 0) {
+            if (commandId % 3 != 0) {
+                event.Skip();
                 return;
             }
 
@@ -754,12 +756,12 @@ namespace TrenchBroom {
             editorContext.setHiddenTags(hiddenTags);
         }
 
-        class MapViewBase::ToggleTagCallback : public Model::TagMatcherCallback, public wxEvtHandler {
+        class MapViewBase::EnableDisableTagCallback : public Model::TagMatcherCallback, public wxEvtHandler {
         private:
             wxWindow* m_window;
             size_t m_selectedOption;
         public:
-            ToggleTagCallback(wxWindow* window) :
+            EnableDisableTagCallback(wxWindow* window) :
             m_window(window),
             m_selectedOption(0) {
                 assert(m_window != nullptr);
@@ -771,7 +773,7 @@ namespace TrenchBroom {
                     const auto& option = options[i];
                     const auto commandId = CommandIds::ToggleTagPopupMenu::Lowest + static_cast<int>(i);
                     menu.Append(commandId, option);
-                    menu.Bind(wxEVT_MENU, &ToggleTagCallback::OnMenuItem, this, commandId);
+                    menu.Bind(wxEVT_MENU, &EnableDisableTagCallback::OnMenuItem, this, commandId);
                 }
 
 
@@ -786,25 +788,45 @@ namespace TrenchBroom {
             }
         };
 
-        void MapViewBase::OnToggleTag(wxCommandEvent& event) {
+        void MapViewBase::OnEnableTag(wxCommandEvent& event) {
             const auto commandId = event.GetId();
-            if (commandId % 2 != 1) {
+            if (commandId % 3 != 1) {
+                event.Skip();
                 return;
             }
-            
-            const auto tagIndex = static_cast<size_t>((commandId - CommandIds::Actions::LowestTagCommandId - 1) / 2);
+
+            const auto tagIndex = static_cast<size_t>((commandId - CommandIds::Actions::LowestTagCommandId - 1) / 3);
 
             auto document = lock(m_document);
             if (document->isRegisteredSmartTag(tagIndex)) {
                 const auto& tag = document->smartTag(tagIndex);
-                ToggleTagCallback callback(this);
+                assert(tag.canEnable());
+
+                EnableDisableTagCallback callback(this);
 
                 Transaction transaction(document);
-                if (tag.canDisable(*document)) {
-                    tag.disable(callback, *document);
-                } else {
-                    tag.enable(callback, *document);
-                }
+                tag.enable(callback, *document);
+            }
+        }
+
+        void MapViewBase::OnDisableTag(wxCommandEvent& event) {
+            const auto commandId = event.GetId();
+            if (commandId % 3 != 2) {
+                event.Skip();
+                return;
+            }
+
+            const auto tagIndex = static_cast<size_t>((commandId - CommandIds::Actions::LowestTagCommandId - 2) / 3);
+
+            auto document = lock(m_document);
+            if (document->isRegisteredSmartTag(tagIndex)) {
+                const auto& tag = document->smartTag(tagIndex);
+                assert(tag.canDisable());
+
+                EnableDisableTagCallback callback(this);
+
+                Transaction transaction(document);
+                tag.disable(callback, *document);
             }
         }
 

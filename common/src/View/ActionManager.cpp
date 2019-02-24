@@ -64,7 +64,12 @@ namespace TrenchBroom {
         void ActionManager::getTagShortcutEntries(const std::vector<Model::SmartTag>& tags, ShortcutEntryList& entries) {
             for (const auto& tag : tags) {
                 entries.emplace_back(std::make_unique<ToggleTagVisibilityKeyboardShortcutEntry>(tag));
-                entries.emplace_back(std::make_unique<EnableDisableTagKeyboardShortcutEntry>(tag));
+                if (tag.canEnable()) {
+                    entries.emplace_back(std::make_unique<EnableTagKeyboardShortcutEntry>(tag));
+                }
+                if (tag.canDisable()) {
+                    entries.emplace_back(std::make_unique<DisableTagKeyboardShortcutEntry>(tag));
+                }
             }
         }
 
@@ -76,19 +81,27 @@ namespace TrenchBroom {
             m_tag(tag) {}
         public:
             static int toggleVisibleActionId(const Model::SmartTag& tag) {
-                return CommandIds::Actions::LowestTagCommandId + 2 * static_cast<int>(tag.index()) + 0;
+                return CommandIds::Actions::LowestTagCommandId + 3 * static_cast<int>(tag.index()) + 0;
             }
 
-            static int enableDisableActionId(const Model::SmartTag& tag) {
-                return CommandIds::Actions::LowestTagCommandId + 2 * static_cast<int>(tag.index()) + 1;
+            static int enableActionId(const Model::SmartTag& tag) {
+                return CommandIds::Actions::LowestTagCommandId + 3 * static_cast<int>(tag.index()) + 1;
+            }
+
+            static int disableActionId(const Model::SmartTag& tag) {
+                return CommandIds::Actions::LowestTagCommandId + 3 * static_cast<int>(tag.index()) + 2;
             }
 
             static IO::Path toggleVisiblePrefPath(const Model::SmartTag& tag) {
                 return IO::Path("Filters/Tags") + IO::Path(tag.name()) + IO::Path("Toggle Visible");
             }
 
-            static IO::Path enableDisablePrefPath(const Model::SmartTag& tag) {
-                return IO::Path("Filters/Tags") + IO::Path(tag.name()) + IO::Path("Toggle");
+            static IO::Path enablePrefPath(const Model::SmartTag& tag) {
+                return IO::Path("Filters/Tags") + IO::Path(tag.name()) + IO::Path("Enable");
+            }
+
+            static IO::Path disablePrefPath(const Model::SmartTag& tag) {
+                return IO::Path("Filters/Tags") + IO::Path(tag.name()) + IO::Path("Disable");
             }
         private:
             bool doGetModifiable() const override {
@@ -145,7 +158,7 @@ namespace TrenchBroom {
             deleteCopyAndMove(ToggleTagVisibilityKeyboardShortcutEntry)
         };
 
-        class ActionManager::EnableDisableTagKeyboardShortcutEntry : public TagKeyboardShortcutEntry {
+        class ActionManager::EnableTagKeyboardShortcutEntry : public TagKeyboardShortcutEntry {
         public:
             using TagKeyboardShortcutEntry::TagKeyboardShortcutEntry;
         private:
@@ -155,19 +168,44 @@ namespace TrenchBroom {
 
             wxString doGetActionDescription() const override {
                 wxString result;
-                result << "Toggle selection as " << m_tag.name();
+                result << "Turn selection into " << m_tag.name();
                 return result;
             }
 
             IO::Path path() const override {
-                return enableDisablePrefPath(m_tag);
+                return enablePrefPath(m_tag);
             }
 
             int actionId() const override {
-                return enableDisableActionId(m_tag);
+                return enableActionId(m_tag);
             }
 
-            deleteCopyAndMove(EnableDisableTagKeyboardShortcutEntry)
+            deleteCopyAndMove(EnableTagKeyboardShortcutEntry)
+        };
+
+        class ActionManager::DisableTagKeyboardShortcutEntry : public TagKeyboardShortcutEntry {
+        public:
+            using TagKeyboardShortcutEntry::TagKeyboardShortcutEntry;
+        private:
+            int doGetActionContext() const override {
+                return ActionContext_NodeSelection;
+            }
+
+            wxString doGetActionDescription() const override {
+                wxString result;
+                result << "Turn selection into non-" << m_tag.name();
+                return result;
+            }
+
+            IO::Path path() const override {
+                return disablePrefPath(m_tag);
+            }
+
+            int actionId() const override {
+                return disableActionId(m_tag);
+            }
+
+            deleteCopyAndMove(DisableTagKeyboardShortcutEntry)
         };
 
         String ActionManager::getJSTable() {
@@ -269,13 +307,20 @@ namespace TrenchBroom {
         void ActionManager::addTagActions(const std::vector<Model::SmartTag>& tags, ActionManager::AcceleratorEntryList& accelerators) const {
             for (const auto& tag : tags) {
                 Preference<KeyboardShortcut> toggleVisiblePref(TagKeyboardShortcutEntry::toggleVisiblePrefPath(tag), KeyboardShortcut());
-                Preference<KeyboardShortcut> enableDisablePref(TagKeyboardShortcutEntry::enableDisablePrefPath(tag), KeyboardShortcut());
-
-                const auto& toggleVisibleShortcut = pref( toggleVisiblePref);
-                const auto& enableDisableShortcut = pref( enableDisablePref);
-
+                const auto& toggleVisibleShortcut = pref(toggleVisiblePref);
                 accelerators.push_back(toggleVisibleShortcut.acceleratorEntry(TagKeyboardShortcutEntry::toggleVisibleActionId(tag)));
-                accelerators.push_back(enableDisableShortcut.acceleratorEntry(TagKeyboardShortcutEntry::enableDisableActionId(tag)));
+
+                if (tag.canEnable()) {
+                    Preference<KeyboardShortcut> enablePref(TagKeyboardShortcutEntry::enablePrefPath(tag), KeyboardShortcut());
+                    const auto& enableShortcut = pref(enablePref);
+                    accelerators.push_back(enableShortcut.acceleratorEntry(TagKeyboardShortcutEntry::enableActionId(tag)));
+                }
+
+                if (tag.canDisable()) {
+                    Preference<KeyboardShortcut> disablePref(TagKeyboardShortcutEntry::disablePrefPath(tag), KeyboardShortcut());
+                    const auto& disableShortcut = pref(disablePref);
+                    accelerators.push_back(disableShortcut.acceleratorEntry(TagKeyboardShortcutEntry::disableActionId(tag)));
+                }
             }
         }
 

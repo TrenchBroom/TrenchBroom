@@ -166,7 +166,11 @@ namespace TrenchBroom {
         }
 
         void EntityClassNameTagMatcher::enable(TagMatcherCallback& callback, MapFacade& facade) const {
-            assert(canEnable(facade));
+            assert(canEnable());
+
+            if (!facade.selectedNodes().hasOnlyBrushes()) {
+                return;
+            }
 
             const auto& definitionManager = facade.entityDefinitionManager();
             auto definitions = definitionManager.definitions(m_pattern);
@@ -192,45 +196,40 @@ namespace TrenchBroom {
 
             assert(definition != nullptr);
 
-            const auto brushes = facade.selectedNodes().nodes();
-
             auto* entity = new Entity();
             entity->addOrUpdateAttribute(AttributeNames::Classname, definition->name());
 
+            const auto brushes = facade.selectedNodes().nodes();
+
+            PushSelection pushSelection(facade);
             facade.deselectAll();
             facade.addNode(entity, facade.currentParent());
             facade.reparentNodes(entity, brushes);
-            facade.select(Model::NodeList(std::begin(brushes), std::end(brushes)));
         }
 
         void EntityClassNameTagMatcher::disable(TagMatcherCallback& callback, MapFacade& facade) const {
-            assert(canDisable(facade));
+            assert(canDisable());
 
             // entities will be removed automatically when they become empty
 
-            const auto brushes = facade.selectedNodes().nodes();
-
-            facade.deselectAll();
-            facade.reparentNodes(facade.currentParent(), brushes);
-            facade.select(Model::NodeList(std::begin(brushes), std::end(brushes)));
-        }
-
-        bool EntityClassNameTagMatcher::canEnable(MapFacade& facade) const {
-            return facade.selectedNodes().hasOnlyBrushes();
-        }
-
-        bool EntityClassNameTagMatcher::canDisable(MapFacade& facade) const {
-            if (!facade.selectedNodes().hasOnlyBrushes()) {
-                return false;
-            }
-
-            const auto& brushes = facade.selectedNodes().brushes();
-            for (const auto* brush : brushes) {
-                if (!matches(*brush)) {
-                    return false;
+            const auto& selectedBrushes = facade.selectedNodes().nodes();
+            auto detailBrushes = Model::NodeList{};
+            for (auto* brush : selectedBrushes) {
+                if (matches(*brush)) {
+                    detailBrushes.push_back(brush);
                 }
             }
 
+            facade.deselectAll();
+            facade.reparentNodes(facade.currentParent(), detailBrushes);
+            facade.select(Model::NodeList(std::begin(detailBrushes), std::end(detailBrushes)));
+        }
+
+        bool EntityClassNameTagMatcher::canEnable() const {
+            return true;
+        }
+
+        bool EntityClassNameTagMatcher::canDisable() const {
             return true;
         }
     }

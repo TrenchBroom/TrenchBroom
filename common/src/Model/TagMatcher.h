@@ -121,8 +121,8 @@ namespace TrenchBroom {
         public:
             void enable(TagMatcherCallback& callback, MapFacade& facade) const override;
             void disable(TagMatcherCallback& callback, MapFacade& facade) const override;
-            bool canEnable(MapFacade& facade) const override;
-            bool canDisable(MapFacade& facade) const override;
+            bool canEnable() const override;
+            bool canDisable() const override;
         };
     }
 }

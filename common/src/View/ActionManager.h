@@ -64,7 +64,8 @@ namespace TrenchBroom {
 
             class TagKeyboardShortcutEntry;
             class ToggleTagVisibilityKeyboardShortcutEntry;
-            class EnableDisableTagKeyboardShortcutEntry;
+            class EnableTagKeyboardShortcutEntry;
+            class DisableTagKeyboardShortcutEntry;
         public:
             String getJSTable();
         private:

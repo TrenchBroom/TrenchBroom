@@ -305,20 +305,18 @@ namespace TrenchBroom {
             virtual void disable(TagMatcherCallback& callback, MapFacade& facade) const;
 
             /**
-             * Indicates whether this tag matcher can modify the current selection so that it would match it.
+             * Indicates whether this tag matcher can modify the selection so that it would match it.
              *
-             * @param facade the map facade to issue commands with
-             * @return true if this tag matcher can modify the current selection appropriately and false otherwise
+             * @return true if this tag matcher can modify the selection appropriately and false otherwise
              */
-            virtual bool canEnable(MapFacade& facade) const;
+            virtual bool canEnable() const;
 
             /**
-             * Indicates whether this tag matcher can modify the current selection so that it would not match it.
+             * Indicates whether this tag matcher can modify the selection so that it would not match it.
              *
-             * @param facade the map facade to issue commands with
-             * @return true if this tag matcher can modify the current selection appropriately and false otherwise
+             * @return true if this tag matcher can modify the selection appropriately and false otherwise
              */
-            virtual bool canDisable(MapFacade& facade) const;
+            virtual bool canDisable() const;
 
             /**
              * Returns a new copy of this tag matcher.
@@ -372,20 +370,18 @@ namespace TrenchBroom {
             void disable(TagMatcherCallback& callback, MapFacade& facade) const;
 
             /**
-             * Indicates whether this tag can modify the current selection so that it would match it.
+             * Indicates whether this tag supports modifying the selection so that it would match it.
              *
-             * @param facade the map facade to issue commands with
-             * @return true if this tag can modify the current selection appropriately and false otherwise
+             * @return true if this tag can modify the selection appropriately and false otherwise
              */
-            bool canEnable(MapFacade& facade) const;
+            bool canEnable() const;
 
             /**
-             * Indicates whether this tag can modify the current selection so that it would not match it.
+             * Indicates whether this tag supports modifying the selection so that it would not match it.
              *
-             * @param facade the map facade to issue commands with
-             * @return true if this tag can modify the current selection appropriately and false otherwise
+             * @return true if this tag can modify the selection appropriately and false otherwise
              */
-            bool canDisable(MapFacade& facade) const;
+            bool canDisable() const;
         };
     }
 }
