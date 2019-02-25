@@ -68,6 +68,7 @@ typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::clip(const vm::pla
         updateBounds();
         
         assert(checkInvariant());
+
         return ClipResult(ClipResult::Type_ClipSuccess);
     } catch (const NoSeamException&) {
         /*

@@ -1144,14 +1144,15 @@ bool Polyhedron<T,FP,VP>::healEdges(Callback& callback, const T minLength) {
     while (examined < static_cast<long>(m_edges.size()) && polyhedron()) {
         const size_t oldSize = m_edges.size();
         
-        const T length2 = squaredLength(currentEdge->vector());
+        const T length2 = vm::squaredLength(currentEdge->vector());
         if (length2 < minLength2) {
             currentEdge = removeEdge(currentEdge, callback);
         } else {
             currentEdge = currentEdge->next();
         }
 
-        const long sizeDelta = static_cast<long>(oldSize - m_edges.size()) - 1;
+        const size_t newSize = m_edges.size();
+        const long sizeDelta = static_cast<long>(oldSize - newSize) - 1;
         examined -= sizeDelta;
     }
     
@@ -1215,7 +1216,7 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::removeEdge(Edge* edge, 
     auto* result = edge->next();
     m_edges.remove(edge);
     delete edge;
-    
+
     // Merge faces that may have become coplanar
     {
         auto* firstEdge = firstVertex->leaving();
@@ -1225,7 +1226,7 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::removeEdge(Edge* edge, 
             auto* currentFace = firstEdge->face();
             auto* neighbour = firstEdge->twin()->face();
             if (currentFace->coplanar(neighbour)) {
-                mergeNeighbours(currentEdge, callback);
+                result = mergeNeighbours(currentEdge, result, callback);
             }
             currentEdge = nextEdge;
         } while (currentEdge != firstEdge);
@@ -1237,32 +1238,54 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::removeEdge(Edge* edge, 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::removeDegenerateFace(Face* face, Callback& callback) {
     assert(face->vertexCount() == 2);
-    
+
+    // The boundary of the face to remove consists of two half edges:
     auto* halfEdge1 = face->boundary().front();
     auto* halfEdge2 = halfEdge1->next();
     assert(halfEdge2->next() == halfEdge1);
     assert(halfEdge1->previous() == halfEdge2);
-    
+
+    // The face has two vertices:
     auto* vertex1 = halfEdge1->origin();
     auto* vertex2 = halfEdge2->origin();
-    
+
+    // Make sure we don't delete the vertices' leaving edges:
     vertex1->setLeaving(halfEdge2->twin());
     vertex2->setLeaving(halfEdge1->twin());
-    
+
+    assert(vertex1->leaving() != halfEdge1);
+    assert(vertex1->leaving() != halfEdge2);
+    assert(vertex2->leaving() != halfEdge1);
+    assert(vertex2->leaving() != halfEdge2);
+
+    // These two edges will be merged into one:
     auto* edge1 = halfEdge1->edge();
     auto* edge2 = halfEdge2->edge();
-    
-    edge1->makeSecondEdge(halfEdge1);
-    edge2->makeFirstEdge(halfEdge2);
-    
-    auto* halfEdge3 = edge2->secondEdge();
-    halfEdge3->unsetEdge();
-    edge1->unsetSecondEdge();
-    edge1->setSecondEdge(halfEdge3);
-    
+
+    // The twins of the two half edges of the degenerate face will become twins now.
+    auto* halfEdge1Twin = halfEdge1->twin();
+    auto* halfEdge2Twin = halfEdge2->twin();
+
+    // We will keep edge1 and delete edge2.
+    // Make sure that halfEdge1's twin is the first edge of edge1:
+    edge1->makeFirstEdge(halfEdge1Twin);
+
+    // Now replace halfEdge2 by new halfEdge2Twin:
+    assert(halfEdge2Twin->edge() == edge2);
+    halfEdge2Twin->unsetEdge();
+    edge1->unsetSecondEdge(); // unsets halfEdge1, leaving halfEdge1Twin as the first half edge of edge1
+    edge1->setSecondEdge(halfEdge2Twin); // replace halfEdge1 with halfEdge2Twin
+
+    // Now edge1 should be correct:
+    assert(edge1->firstEdge() == halfEdge1Twin);
+    assert(edge1->secondEdge() == halfEdge2Twin);
+
+    // Delete the now obsolete edge.
+    // The constructor doesn't do anything, so no further cleanup is necessary.
     m_edges.remove(edge2);
     delete edge2;
-    
+
+    // Delete the degenerate face. This also deletes its boundary of halfEdge1 and halfEdge2.
     callback.faceWillBeDeleted(face);
     m_faces.remove(face);
     delete face;
@@ -1272,8 +1295,11 @@ void Polyhedron<T,FP,VP>::removeDegenerateFace(Face* face, Callback& callback) {
 // the face incident to the given face's twin. The face incident to the border is deleted
 // while the neighbour consumes the boundary of the incident face.
 // Also handles the case where the border is longer than just one edge.
+// The given valid edge is to remain valid, that is, if it is deleted, its successor is to be
+// returned. The returned edge will therefore be the given valid edge, or its first successor that
+// wasn't deleted by this function.
 template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::mergeNeighbours(HalfEdge* borderFirst, Callback& callback) {
+typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::mergeNeighbours(HalfEdge* borderFirst, Edge* validEdge, Callback& callback) {
     Face* face = borderFirst->face();
     Face* neighbour = borderFirst->twin()->face();
     
@@ -1309,7 +1335,11 @@ void Polyhedron<T,FP,VP>::mergeNeighbours(HalfEdge* borderFirst, Callback& callb
         HalfEdge* next = cur->next();
         HalfEdge* twin = cur->twin();
         Vertex* origin = cur->origin();
-        
+
+        if (edge == validEdge) {
+            validEdge = validEdge->next();
+        }
+
         m_edges.remove(edge);
         delete edge;
         
@@ -1328,6 +1358,8 @@ void Polyhedron<T,FP,VP>::mergeNeighbours(HalfEdge* borderFirst, Callback& callb
     callback.facesWillBeMerged(neighbour, face);
     m_faces.remove(face);
     delete face;
+
+    return validEdge;
 }
 
 template <typename T, typename FP, typename VP>

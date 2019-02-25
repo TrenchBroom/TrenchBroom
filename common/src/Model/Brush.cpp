@@ -68,13 +68,22 @@ namespace TrenchBroom {
             }
 
             void faceWasCreated(BrushFaceGeometry* face) override {
+                assert(m_addedFace != nullptr);
                 m_addedFace->setGeometry(face);
+                m_addedFace = nullptr;
+            }
+
+            void faceWasSplit(BrushFaceGeometry* original, BrushFaceGeometry* clone) override {
+                auto* brushFace = original->payload();
+                if (brushFace != nullptr) {
+                    auto* brushFaceClone = brushFace->clone();
+                    brushFaceClone->setGeometry(clone);
+                }
             }
 
             void faceWillBeDeleted(BrushFaceGeometry* face) override {
                 auto* brushFace = face->payload();
                 if (brushFace != nullptr) {
-                    ensure(!brushFace->selected(), "brush face is selected");
                     brushFace->setGeometry(nullptr);
                     delete brushFace;
                 }
@@ -85,22 +94,23 @@ namespace TrenchBroom {
         public:
             void facesWillBeMerged(BrushFaceGeometry* remainingGeometry, BrushFaceGeometry* geometryToDelete) override {
                 auto* remainingFace = remainingGeometry->payload();
-                ensure(remainingFace != nullptr, "remainingFace is null");
-                remainingFace->invalidate();
+                if (remainingFace != nullptr) {
+                    remainingFace->invalidate();
+                }
 
                 auto* faceToDelete = geometryToDelete->payload();
-                ensure(faceToDelete != nullptr, "faceToDelete is null");
-                ensure(!faceToDelete->selected(), "brush face is selected");
-                faceToDelete->setGeometry(nullptr);
-                delete faceToDelete;
+                if (faceToDelete != nullptr) {
+                    faceToDelete->setGeometry(nullptr);
+                    delete faceToDelete;
+                }
             }
 
             void faceWillBeDeleted(BrushFaceGeometry* face) override {
                 auto* brushFace = face->payload();
-                ensure(brushFace != nullptr, "brushFace is null");
-                ensure(!brushFace->selected(), "brush face is selected");
-                brushFace->setGeometry(nullptr);
-                delete brushFace;
+                if (brushFace != nullptr) {
+                    brushFace->setGeometry(nullptr);
+                    delete brushFace;
+                }
             }
         };
 
@@ -110,16 +120,18 @@ namespace TrenchBroom {
             bool m_brushEmpty;
             bool m_brushValid;
         public:
-            AddFacesToGeometry(BrushGeometry& geometry, const BrushFaceList& facesToAdd) :
+            AddFacesToGeometry(BrushGeometry& geometry, BrushFaceList facesToAdd) :
             m_geometry(geometry),
             m_brushEmpty(false),
             m_brushValid(true) {
-                for (auto it = std::begin(facesToAdd), end = std::end(facesToAdd); it != end && !m_brushEmpty && m_brushValid; ++it) {
+                // sort the faces by the weight of their plane normals like QBSP does
+                Model::BrushFace::sortFaces(facesToAdd);
+
+                for (auto it = std::begin(facesToAdd), end = std::end(facesToAdd); it != end && !m_brushEmpty; ++it) {
                     auto* brushFace = *it;
                     AddFaceToGeometryCallback addCallback(brushFace);
                     const auto result = m_geometry.clip(brushFace->boundary(), addCallback);
                     m_brushEmpty = result.empty();
-                    // m_brushValid = m_geometry.healEdges(healCallback);
                 }
                 if (!m_brushEmpty && m_brushValid) {
                     m_geometry.correctVertexPositions();
@@ -362,18 +374,18 @@ namespace TrenchBroom {
             return nullptr;
         }
 
-        BrushFace* Brush::findFace(const vm::polygon3& vertices) const {
+        BrushFace* Brush::findFace(const vm::polygon3& vertices, const FloatType epsilon) const {
             for (auto* face : m_faces) {
-                if (face->hasVertices(vertices)) {
+                if (face->hasVertices(vertices, epsilon)) {
                     return face;
                 }
             }
             return nullptr;
         }
 
-        BrushFace* Brush::findFace(const std::vector<vm::polygon3>& candidates) const {
+        BrushFace* Brush::findFace(const std::vector<vm::polygon3>& candidates, const FloatType epsilon) const {
             for (const auto& candidate : candidates) {
-                auto* face = findFace(candidate);
+                auto* face = findFace(candidate, epsilon);
                 if (face != nullptr) {
                     return face;
                 }
@@ -906,7 +918,9 @@ namespace TrenchBroom {
         }
 
         /*
-         The following table shows all cases to consider.
+         We determine whether a move is valid by considering the vertices being moved and the vertices
+         remaining at their positions as polyhedra. Depending on whether or not they really are polyhedra,
+         polygons, edges, points, or empty, we have to consider the following cases.
 
          REMAINING  || Empty   | Point  | Edge   | Polygon | Polyhedron
          ===========||=========|========|========|=========|============
@@ -1144,7 +1158,6 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(m_faces);
             updateFacesFromGeometry(worldBounds, newGeometry);
             rebuildGeometry(worldBounds);
-            assert(fullySpecified());
         }
 
         Brush::VertexSet Brush::createVertexSet(const std::vector<vm::vec3>& vertices) {
@@ -1233,6 +1246,7 @@ namespace TrenchBroom {
             for (const auto* faceG : brushGeometry.faces()) {
                 auto* face = faceG->payload();
                 if (face != nullptr) { // could happen if the brush isn't fully specified
+                    assert(face->geometry() == faceG);
                     if (face->brush() == nullptr) {
                         addFace(face);
                     } else {

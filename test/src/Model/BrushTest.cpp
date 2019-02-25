@@ -97,6 +97,9 @@ namespace TrenchBroom {
             Brush brush(worldBounds, faces);
             assert(brush.fullySpecified());
 
+            // sort the faces by the weight of their plane normals like QBSP does
+            Model::BrushFace::sortFaces(faces);
+
             const BrushFaceList& brushFaces = brush.faces();
             ASSERT_EQ(6u, brushFaces.size());
             for (size_t i = 0; i < faces.size(); i++)
@@ -416,6 +419,11 @@ namespace TrenchBroom {
              computed. We opt to just throw an exception that case and expect it to fail without crashing.
              */
 
+            /*
+             Update after fixing issue https://github.com/kduske/TrenchBroom/issues/2611
+             With the revised face sort order (sort by normal), this brush can now be built.
+             */
+
             const String data("{\n"
                               "( -24 1844 112.527 ) ( -24 1844 112 ) ( -24 1844.27 113.544 ) O_METAL1_19AD [ 0 -1 0 -0 ] [ 0 0 1 -0 ] 180 1 -1\n"
                               "( -20 1848.53 112.527 ) ( -20 1848.53 112 ) ( -20 1847.47 112.526 ) O_METAL1_19AD [ 0 -1 0 -0 ] [ 0 0 1 -0 ] 180 1 -1\n"
@@ -507,7 +515,7 @@ namespace TrenchBroom {
             IO::NodeReader reader(data, world);
 
             const NodeList nodes = reader.read(worldBounds, status);
-            ASSERT_EQ(0u, nodes.size());
+            ASSERT_EQ(1u, nodes.size());
         }
 
         TEST(BrushTest, buildBrushWithShortEdges) {

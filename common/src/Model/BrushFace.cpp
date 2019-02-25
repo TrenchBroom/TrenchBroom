@@ -63,39 +63,6 @@ namespace TrenchBroom {
             setPoints(point0, point1, point2);
         }
 
-        class FaceWeightOrder {
-        private:
-            bool m_deterministic;
-        public:
-            FaceWeightOrder(const bool deterministic) :
-            m_deterministic(deterministic) {}
-
-            bool operator()(const Model::BrushFace* lhs, const Model::BrushFace* rhs) const {
-                const auto& lhsBoundary = lhs->boundary();
-                const auto& rhsBoundary = rhs->boundary();
-                auto result = weight(lhsBoundary.normal) - weight(rhsBoundary.normal);
-                if (m_deterministic) {
-                    result += static_cast<int>(1000.0 * (lhsBoundary.distance - lhsBoundary.distance));
-                }
-
-                return result < 0;
-            }
-        private:
-            template <typename T>
-            int weight(const vm::vec<T,3>& vec) const {
-                return weight(vec[0]) * 100 + weight(vec[1]) * 10 + weight(vec[2]);
-            }
-
-            template <typename T>
-            int weight(T c) const {
-                if (std::abs(c - static_cast<T>(1.0)) < static_cast<T>(0.9))
-                    return 0;
-                if (std::abs(c + static_cast<T>(1.0)) < static_cast<T>(0.9))
-                    return 1;
-                return 2;
-            }
-        };
-
         BrushFace* BrushFace::createParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const String& textureName) {
             const BrushFaceAttributes attribs(textureName);
             return new BrushFace(point0, point1, point2, attribs, std::make_unique<ParaxialTexCoordSystem>(point0, point1, point2, attribs));
@@ -107,8 +74,24 @@ namespace TrenchBroom {
         }
         
         void BrushFace::sortFaces(BrushFaceList& faces) {
-            std::sort(std::begin(faces), std::end(faces), FaceWeightOrder(true));
-            std::sort(std::begin(faces), std::end(faces), FaceWeightOrder(false));
+            // Originally, the idea to sort faces came from TxQBSP, but the sorting used there was not entirely clear to me.
+            // But it is still desirable to have a deterministic order in which the faces are added to the brush, so I chose
+            // to just sort the faces by their normals.
+
+            std::sort(std::begin(faces), std::end(faces), [](const auto* lhs, const auto* rhs) {
+                const auto& lhsBoundary = lhs->boundary();
+                const auto& rhsBoundary = rhs->boundary();
+
+                const auto cmp = vm::compare(lhsBoundary.normal, rhsBoundary.normal);
+                if (cmp < 0) {
+                    return true;
+                } else if (cmp > 0) {
+                    return false;
+                } else {
+                    // normal vectors are identical -- this should never happen
+                    return lhsBoundary.distance < rhsBoundary.distance;
+                }
+            });
         }
 
         BrushFace::~BrushFace() {
