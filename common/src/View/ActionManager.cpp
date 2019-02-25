@@ -283,12 +283,9 @@ namespace TrenchBroom {
         }
 
         void ActionManager::addViewActions(ActionContext context, ActionView view, AcceleratorEntryList& accelerators) const {
-            ShortcutEntryList entries;
-            m_menuBar->getShortcutEntries(entries);
-
-            for (const auto& entry : entries) {
-                if (entry->appliesToContext(context)) {
-                    accelerators.push_back(entry->acceleratorEntry(view));
+            for (auto& shortcut : m_viewShortcuts) {
+                if (shortcut.appliesToContext(context)) {
+                    accelerators.push_back(shortcut.acceleratorEntry(view));
                 }
             }
         }

@@ -59,6 +59,9 @@ namespace TrenchBroom {
             ViewShortcut(const KeyboardShortcut& shortcut, int context, const Action& action2D, const Action& action3D);
             ViewShortcut(const KeyboardShortcut& shortcut, int context, const Action& action);
 
+            bool appliesToContext(int context) const;
+            wxAcceleratorEntry acceleratorEntry(ActionView view) const;
+
             void resetShortcut();
             std::unique_ptr<ViewKeyboardShortcutEntry> shortcutEntry();
         private:

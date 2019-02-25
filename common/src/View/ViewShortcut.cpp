@@ -71,6 +71,18 @@ namespace TrenchBroom {
             m_actions[ActionView_Map3D] = action;
         }
 
+        bool ViewShortcut::appliesToContext(const int context) const {
+            return (m_context & context) != 0;
+        }
+
+        wxAcceleratorEntry ViewShortcut::acceleratorEntry(const ActionView view) const {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            const auto& shortcut = prefs.get(m_preference);
+
+            const Action& action = m_actions[view];
+            return shortcut.acceleratorEntry(action.id());
+        }
+
         void ViewShortcut::resetShortcut() {
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.resetToDefault(m_preference);
