@@ -20,6 +20,7 @@
 #include "ActionManager.h"
 
 #include "Preferences.h"
+#include "Assets/EntityDefinition.h"
 #include "Model/Tag.h"
 #include "View/CommandIds.h"
 #include "View/Menu.h"
@@ -51,7 +52,7 @@ namespace TrenchBroom {
             return m_menuBar->findActionMenuItem(id);
         }
 
-        void ActionManager::getShortcutEntries(const std::list<Model::SmartTag>& tags, ShortcutEntryList& entries) {
+        void ActionManager::getShortcutEntries(const std::list<Model::SmartTag>& tags, const Assets::EntityDefinitionList& entityDefinitions, ShortcutEntryList& entries) {
             m_menuBar->getShortcutEntries(entries);
 
             for (auto& shortcut : m_viewShortcuts) {
@@ -59,6 +60,7 @@ namespace TrenchBroom {
             }
 
             getTagShortcutEntries(tags, entries);
+            getEntityDefinitionShortcutEntries(entityDefinitions, entries);
         }
 
         void ActionManager::getTagShortcutEntries(const std::list<Model::SmartTag>& tags, ShortcutEntryList& entries) {
@@ -86,15 +88,15 @@ namespace TrenchBroom {
             m_tag(tag) {}
         public:
             static int toggleVisibleActionId(const Model::SmartTag& tag) {
-                return CommandIds::Actions::LowestTagCommandId + 3 * static_cast<int>(tag.index()) + 0;
+                return CommandIds::Actions::LowestToggleTagCommandId + static_cast<int>(tag.index());
             }
 
             static int enableActionId(const Model::SmartTag& tag) {
-                return CommandIds::Actions::LowestTagCommandId + 3 * static_cast<int>(tag.index()) + 1;
+                return CommandIds::Actions::LowestEnableTagCommandId + static_cast<int>(tag.index());
             }
 
             static int disableActionId(const Model::SmartTag& tag) {
-                return CommandIds::Actions::LowestTagCommandId + 3 * static_cast<int>(tag.index()) + 2;
+                return CommandIds::Actions::LowestDisableTagCommandId + static_cast<int>(tag.index());
             }
 
             static IO::Path toggleVisiblePrefPath(const Model::SmartTag& tag) {
@@ -213,6 +215,80 @@ namespace TrenchBroom {
             deleteCopyAndMove(DisableTagKeyboardShortcutEntry)
         };
 
+        void ActionManager::getEntityDefinitionShortcutEntries(const Assets::EntityDefinitionList& entityDefinitions, ActionManager::ShortcutEntryList& entries) {
+            for (size_t i = 0; i < entityDefinitions.size(); ++i) {
+                const auto* definition = entityDefinitions[i];
+                entries.emplace_back(std::make_unique<ToggleEntityVisibilityKeyboardShortcutEntry>(definition->name(), i));
+            }
+        }
+
+        class ActionManager::EntityKeyboardShortcutEntry : public KeyboardShortcutEntry {
+        protected:
+            String m_classname;
+            size_t m_index;
+        public:
+            explicit EntityKeyboardShortcutEntry(String classname, size_t index) :
+            m_classname(std::move(classname)),
+            m_index(index) {}
+        public:
+            static int toggleVisibleActionId(const size_t index) {
+                return CommandIds::Actions::LowestToggleEntityDefinitionCommandId + static_cast<int>(index);
+            }
+
+            static IO::Path toggleVisiblePrefPath(const String& classname) {
+                return IO::Path("Filters/Entities") + IO::Path(classname) + IO::Path("Toggle Visible");
+            }
+        private:
+            bool doGetModifiable() const override {
+                return true;
+            }
+
+            wxString doGetJsonString() const override {
+                return "";
+            }
+
+            const Preference<KeyboardShortcut>& doGetPreference() const override {
+                auto& prefs = PreferenceManager::instance();
+                return prefs.dynamicPreference(path(), KeyboardShortcut());
+            }
+
+            Preference<KeyboardShortcut>& doGetPreference() override {
+                auto& prefs = PreferenceManager::instance();
+                return prefs.dynamicPreference(path(), KeyboardShortcut());
+            }
+
+            wxAcceleratorEntry doGetAcceleratorEntry(ActionView view) const override {
+                return shortcut().acceleratorEntry(actionId());
+            }
+
+            IO::Path path() const {
+                return toggleVisiblePrefPath(m_classname);
+            }
+
+            int actionId() const {
+                return toggleVisibleActionId(m_index);
+            }
+
+            deleteCopyAndMove(EntityKeyboardShortcutEntry)
+        };
+
+        class ActionManager::ToggleEntityVisibilityKeyboardShortcutEntry : public EntityKeyboardShortcutEntry {
+        public:
+            using EntityKeyboardShortcutEntry::EntityKeyboardShortcutEntry;
+        private:
+            int doGetActionContext() const override {
+                return ActionContext_Any;
+            }
+
+            wxString doGetActionDescription() const override {
+                wxString result;
+                result << "View Filter > Toggle " << m_classname << " entities visible";
+                return result;
+            }
+
+            deleteCopyAndMove(ToggleEntityVisibilityKeyboardShortcutEntry)
+        };
+
         String ActionManager::getJSTable() {
             StringStream str;
             getKeysJSTable(str);
@@ -275,7 +351,7 @@ namespace TrenchBroom {
             return !path.isEmpty() && path.firstComponent().asString() == "Menu";
         }
 
-        wxAcceleratorTable ActionManager::createViewAcceleratorTable(const ActionContext context, const ActionView view, const std::list<Model::SmartTag>& tags) const {
+        wxAcceleratorTable ActionManager::createViewAcceleratorTable(const ActionContext context, const ActionView view, const std::list<Model::SmartTag>& tags, const Assets::EntityDefinitionList& entityDefinitions) const {
             AcceleratorEntryList tableEntries;
             addViewActions(context, view, tableEntries);
 #ifdef __WXGTK20__
@@ -284,6 +360,7 @@ namespace TrenchBroom {
             addMenuActions(context, view, tableEntries);
 #endif
             addTagActions(tags, tableEntries);
+            addEntityDefinitionActions(entityDefinitions, tableEntries);
             return wxAcceleratorTable(static_cast<int>(tableEntries.size()), &tableEntries.front());
         }
 
@@ -323,6 +400,15 @@ namespace TrenchBroom {
                     const auto& disableShortcut = pref(disablePref);
                     accelerators.push_back(disableShortcut.acceleratorEntry(TagKeyboardShortcutEntry::disableActionId(tag)));
                 }
+            }
+        }
+
+        void ActionManager::addEntityDefinitionActions(const Assets::EntityDefinitionList& entityDefinitions, ActionManager::AcceleratorEntryList& accelerators) const {
+            for (size_t i = 0; i < entityDefinitions.size(); ++i) {
+                const auto* definition = entityDefinitions[i];
+                Preference<KeyboardShortcut> toggleVisiblePref(EntityKeyboardShortcutEntry::toggleVisiblePrefPath(definition->name()), KeyboardShortcut());
+                const auto& toggleVisibleShortcut = pref(toggleVisiblePref);
+                accelerators.push_back(toggleVisibleShortcut.acceleratorEntry(EntityKeyboardShortcutEntry::toggleVisibleActionId(i)));
             }
         }
 

@@ -35,11 +35,11 @@ namespace TrenchBroom {
             KeyboardShortcutGridTable* m_table;
 
         public:
-            KeyboardPreferencePane(wxWindow* parent, const MapDocument* document);
+            KeyboardPreferencePane(wxWindow* parent, MapDocument* document);
         private:
             void OnGridSize(wxSizeEvent& event);
 
-            wxWindow* createMenuShortcutGrid(const MapDocument* document);
+            wxWindow* createMenuShortcutGrid(MapDocument* document);
 
             bool doCanResetToDefaults() override;
             void doResetToDefaults() override;

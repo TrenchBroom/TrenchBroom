@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_ActionManager
 #define TrenchBroom_ActionManager
 
+#include "Assets/AssetTypes.h"
 #include "View/ActionContext.h"
 #include "View/ViewShortcut.h"
 
@@ -58,7 +59,7 @@ namespace TrenchBroom {
             static wxMenu* findRecentDocumentsMenu(const wxMenuBar* menuBar);
             const ActionMenuItem* findMenuItem(int id) const;
 
-            void getShortcutEntries(const std::list<Model::SmartTag>& tags, ShortcutEntryList& entries);
+            void getShortcutEntries(const std::list<Model::SmartTag>& tags, const Assets::EntityDefinitionList& entityDefinitions, ShortcutEntryList& entries);
         private:
             void getTagShortcutEntries(const std::list<Model::SmartTag>& tags, ShortcutEntryList& entries);
 
@@ -66,6 +67,11 @@ namespace TrenchBroom {
             class ToggleTagVisibilityKeyboardShortcutEntry;
             class EnableTagKeyboardShortcutEntry;
             class DisableTagKeyboardShortcutEntry;
+        private:
+            void getEntityDefinitionShortcutEntries(const Assets::EntityDefinitionList& entityDefinitions, ShortcutEntryList& entries);
+
+            class EntityKeyboardShortcutEntry;
+            class ToggleEntityVisibilityKeyboardShortcutEntry;
         public:
             String getJSTable();
         private:
@@ -76,11 +82,12 @@ namespace TrenchBroom {
             wxMenuBar* createMenuBar(bool withShortcuts) const;
             bool isMenuShortcutPreference(const IO::Path& path) const;
 
-            wxAcceleratorTable createViewAcceleratorTable(ActionContext context, ActionView view, const std::list<Model::SmartTag>& tags) const;
+            wxAcceleratorTable createViewAcceleratorTable(ActionContext context, ActionView view, const std::list<Model::SmartTag>& tags, const Assets::EntityDefinitionList& entityDefinitions) const;
         private:
             void addViewActions(ActionContext context, ActionView view, AcceleratorEntryList& accelerators) const;
             void addMenuActions(ActionContext context, ActionView view, AcceleratorEntryList& accelerators) const;
             void addTagActions(const std::list<Model::SmartTag>& tags, ActionManager::AcceleratorEntryList& accelerators) const;
+            void addEntityDefinitionActions(const Assets::EntityDefinitionList& entityDefinitions, ActionManager::AcceleratorEntryList& accelerators) const;
         public:
             void resetShortcutsToDefaults();
         private:

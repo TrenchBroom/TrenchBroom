@@ -20,6 +20,7 @@
 #include "MapView2D.h"
 #include "Logger.h"
 #include "Macros.h"
+#include "Assets/EntityDefinitionManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
@@ -315,8 +316,9 @@ namespace TrenchBroom {
         wxAcceleratorTable MapView2D::doCreateAccelerationTable(ActionContext context) const {
             auto document = lock(m_document);
             const auto& tags = document->smartTags();
+            const auto& entityDefinitions = document->entityDefinitionManager().definitions();
             auto& actionManager = ActionManager::instance();
-            return actionManager.createViewAcceleratorTable(context, ActionView_Map2D, tags);
+            return actionManager.createViewAcceleratorTable(context, ActionView_Map2D, tags, entityDefinitions);
         }
 
         bool MapView2D::doCancel() {

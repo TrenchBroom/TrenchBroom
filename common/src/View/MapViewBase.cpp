@@ -263,9 +263,12 @@ namespace TrenchBroom {
             Bind(wxEVT_SET_FOCUS, &MapViewBase::OnSetFocus,                       this);
             Bind(wxEVT_KILL_FOCUS, &MapViewBase::OnKillFocus,                     this);
 
-            Bind(wxEVT_MENU, &MapViewBase::OnToggleTagVisible,                    this, CommandIds::Actions::LowestTagCommandId, CommandIds::Actions::HighestTagCommandId);
-            Bind(wxEVT_MENU, &MapViewBase::OnEnableTag,                           this, CommandIds::Actions::LowestTagCommandId, CommandIds::Actions::HighestTagCommandId);
-            Bind(wxEVT_MENU, &MapViewBase::OnDisableTag,                          this, CommandIds::Actions::LowestTagCommandId, CommandIds::Actions::HighestTagCommandId);
+            Bind(wxEVT_MENU, &MapViewBase::OnToggleTagVisible,                    this, CommandIds::Actions::LowestToggleTagCommandId, CommandIds::Actions::HighestToggleTagCommandId);
+            Bind(wxEVT_MENU, &MapViewBase::OnEnableTag,                           this, CommandIds::Actions::LowestEnableTagCommandId, CommandIds::Actions::HighestEnableTagCommandId);
+            Bind(wxEVT_MENU, &MapViewBase::OnDisableTag,                          this, CommandIds::Actions::LowestDisableTagCommandId, CommandIds::Actions::HighestDisableTagCommandId);
+
+            Bind(wxEVT_MENU, &MapViewBase::OnToggleEntityDefinitionVisible,       this, CommandIds::Actions::LowestToggleEntityDefinitionCommandId, CommandIds::Actions::HighestToggleEntityDefinitionCommandId);
+            Bind(wxEVT_MENU, &MapViewBase::OnCreateEntity,                        this, CommandIds::Actions::LowestCreateEntityCommandId, CommandIds::Actions::HighestCreateEntityCommandId);
 
             Bind(wxEVT_MENU, &MapViewBase::OnToggleShowEntityClassnames,          this, CommandIds::Actions::ToggleShowEntityClassnames);
             Bind(wxEVT_MENU, &MapViewBase::OnToggleShowGroupBounds,               this, CommandIds::Actions::ToggleShowGroupBounds);
@@ -762,13 +765,7 @@ namespace TrenchBroom {
         void MapViewBase::OnToggleTagVisible(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            const auto commandId = event.GetId();
-            if (commandId % 3 != 0) {
-                event.Skip();
-                return;
-            }
-
-            const auto tagIndex = static_cast<size_t>((commandId - CommandIds::Actions::LowestTagCommandId - 0) / 2);
+            const auto tagIndex = static_cast<size_t>((event.GetId() - CommandIds::Actions::LowestToggleTagCommandId));
 
             auto document = lock(m_document);
             auto& editorContext = document->editorContext();
@@ -812,13 +809,7 @@ namespace TrenchBroom {
         void MapViewBase::OnEnableTag(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            const auto commandId = event.GetId();
-            if (commandId % 3 != 1) {
-                event.Skip();
-                return;
-            }
-
-            const auto tagIndex = static_cast<size_t>((commandId - CommandIds::Actions::LowestTagCommandId - 1) / 3);
+            const auto tagIndex = static_cast<size_t>((event.GetId() - CommandIds::Actions::LowestEnableTagCommandId));
 
             auto document = lock(m_document);
             if (document->isRegisteredSmartTag(tagIndex)) {
@@ -827,7 +818,7 @@ namespace TrenchBroom {
 
                 EnableDisableTagCallback callback(this);
 
-                Transaction transaction(document);
+                Transaction transaction(document, "Turn Selection into " + tag.name());
                 tag.enable(callback, *document);
             }
         }
@@ -835,13 +826,7 @@ namespace TrenchBroom {
         void MapViewBase::OnDisableTag(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            const auto commandId = event.GetId();
-            if (commandId % 3 != 2) {
-                event.Skip();
-                return;
-            }
-
-            const auto tagIndex = static_cast<size_t>((commandId - CommandIds::Actions::LowestTagCommandId - 2) / 3);
+            const auto tagIndex = static_cast<size_t>((event.GetId() - CommandIds::Actions::LowestDisableTagCommandId));
 
             auto document = lock(m_document);
             if (document->isRegisteredSmartTag(tagIndex)) {
@@ -850,9 +835,30 @@ namespace TrenchBroom {
 
                 EnableDisableTagCallback callback(this);
 
-                Transaction transaction(document);
+                Transaction transaction(document, "Turn Selection into non-" + tag.name());
                 tag.disable(callback, *document);
             }
+        }
+
+        void MapViewBase::OnToggleEntityDefinitionVisible(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            auto document = lock(m_document);
+            const auto& definitions = document->entityDefinitionManager().definitions();
+
+            const auto definitionIndex = static_cast<size_t>((event.GetId() - CommandIds::Actions::LowestToggleEntityDefinitionCommandId));
+            if (definitionIndex >= definitions.size()) {
+                return;
+            }
+
+            const auto* definition = definitions[definitionIndex];
+
+            Model::EditorContext& editorContext = document->editorContext();
+            editorContext.setEntityDefinitionHidden(definition, !editorContext.entityDefinitionHidden(definition));
+        }
+
+        void MapViewBase::OnCreateEntity(wxCommandEvent& event) {
+
         }
 
         void MapViewBase::OnToggleShowEntityClassnames(wxCommandEvent& event) {

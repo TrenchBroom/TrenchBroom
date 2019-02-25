@@ -21,6 +21,7 @@
 
 #include "Macros.h"
 #include "Preferences.h"
+#include "Assets/EntityDefinitionManager.h"
 #include "Model/Tag.h"
 #include "View/ActionManager.h"
 #include "View/BorderLine.h"
@@ -35,7 +36,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        KeyboardPreferencePane::KeyboardPreferencePane(wxWindow* parent, const MapDocument* document) :
+        KeyboardPreferencePane::KeyboardPreferencePane(wxWindow* parent, MapDocument* document) :
         PreferencePane(parent),
         m_grid(nullptr),
         m_table(nullptr) {
@@ -60,13 +61,14 @@ namespace TrenchBroom {
             event.Skip();
         }
 
-        wxWindow* KeyboardPreferencePane::createMenuShortcutGrid(const MapDocument* document) {
+        wxWindow* KeyboardPreferencePane::createMenuShortcutGrid(MapDocument* document) {
             ActionManager::ShortcutEntryList entries;
             ActionManager& actionManager = ActionManager::instance();
             if (document != nullptr) {
-                actionManager.getShortcutEntries(document->smartTags(), entries);
+                const auto& definitions = document->entityDefinitionManager().definitions();
+                actionManager.getShortcutEntries(document->smartTags(), definitions, entries);
             } else {
-                actionManager.getShortcutEntries(std::list<Model::SmartTag>{}, entries);
+                actionManager.getShortcutEntries(std::list<Model::SmartTag>{}, Assets::EntityDefinitionList{}, entries);
             }
 
             wxPanel* container = new wxPanel(this);
