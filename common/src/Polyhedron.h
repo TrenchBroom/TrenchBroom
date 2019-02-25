@@ -424,7 +424,7 @@ public: // Vertex correction and edge healing
 private:
     Edge* removeEdge(Edge* edge, Callback& callback);
     void removeDegenerateFace(Face* face, Callback& callback);
-    void mergeNeighbours(HalfEdge* borderFirst, Callback& callback);
+    Edge* mergeNeighbours(HalfEdge* borderFirst, Edge* validEdge, Callback& callback);
 public: // Convex hull; adding and removing points
     void addPoints(const std::vector<V>& points);
     void addPoints(const std::vector<V>& points, Callback& callback);
