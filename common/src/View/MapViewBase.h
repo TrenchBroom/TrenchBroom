@@ -219,6 +219,8 @@ namespace TrenchBroom {
             class EnableDisableTagCallback;
             void OnEnableTag(wxCommandEvent& event);
             void OnDisableTag(wxCommandEvent& event);
+        private: // make structural
+            void OnMakeStructural(wxCommandEvent& event);
         private: // entity definitions
             void OnToggleEntityDefinitionVisible(wxCommandEvent& event);
             void OnCreateEntity(wxCommandEvent& event);

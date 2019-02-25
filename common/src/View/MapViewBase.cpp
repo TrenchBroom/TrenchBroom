@@ -263,6 +263,8 @@ namespace TrenchBroom {
             Bind(wxEVT_SET_FOCUS, &MapViewBase::OnSetFocus,                       this);
             Bind(wxEVT_KILL_FOCUS, &MapViewBase::OnKillFocus,                     this);
 
+            Bind(wxEVT_MENU, &MapViewBase::OnMakeStructural,                      this, CommandIds::Actions::MakeStructural);
+
             Bind(wxEVT_MENU, &MapViewBase::OnToggleTagVisible,                    this, CommandIds::Actions::LowestToggleTagCommandId, CommandIds::Actions::HighestToggleTagCommandId);
             Bind(wxEVT_MENU, &MapViewBase::OnEnableTag,                           this, CommandIds::Actions::LowestEnableTagCommandId, CommandIds::Actions::HighestEnableTagCommandId);
             Bind(wxEVT_MENU, &MapViewBase::OnDisableTag,                          this, CommandIds::Actions::LowestDisableTagCommandId, CommandIds::Actions::HighestDisableTagCommandId);
@@ -816,9 +818,8 @@ namespace TrenchBroom {
                 const auto& tag = document->smartTag(tagIndex);
                 assert(tag.canEnable());
 
-                EnableDisableTagCallback callback(this);
-
                 Transaction transaction(document, "Turn Selection into " + tag.name());
+                EnableDisableTagCallback callback(this);
                 tag.enable(callback, *document);
             }
         }
@@ -833,10 +834,37 @@ namespace TrenchBroom {
                 const auto& tag = document->smartTag(tagIndex);
                 assert(tag.canDisable());
 
-                EnableDisableTagCallback callback(this);
-
                 Transaction transaction(document, "Turn Selection into non-" + tag.name());
+                EnableDisableTagCallback callback(this);
                 tag.disable(callback, *document);
+            }
+        }
+
+        void MapViewBase::OnMakeStructural(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            auto document = lock(m_document);
+            if (!document->selectedNodes().hasBrushes()) {
+                return;
+            }
+
+            Transaction transaction(document, "Make Structural");
+            Model::NodeList toReparent;
+            for (auto* brush : document->selectedNodes().brushes()) {
+                if (brush->entity()) {
+                    toReparent.push_back(brush);
+                }
+            }
+
+            reparentNodes(toReparent, document->currentParent(), false);
+
+            EnableDisableTagCallback callback(this);
+            for (auto* brush : document->selectedNodes().brushes()) {
+                for (const auto& tag : document->smartTags()) {
+                    if (brush->hasTag(tag)) {
+                        tag.disable(callback, *document);
+                    }
+                }
             }
         }
 
@@ -871,7 +899,7 @@ namespace TrenchBroom {
             const auto* definition = definitions[definitionIndex];
             if (definition->type() == Assets::EntityDefinition::Type_PointEntity) {
                 createPointEntity(static_cast<const Assets::PointEntityDefinition*>(definition));
-            } else if (document->selectedNodes().hasOnlyBrushes()) {
+            } else if (canCreateBrushEntity()) {
                 createBrushEntity(static_cast<const Assets::BrushEntityDefinition*>(definition));
             }
         }

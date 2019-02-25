@@ -174,7 +174,9 @@ namespace TrenchBroom {
                 const int MoveRotationCenterUp                       = MoveRotationCenterRight + 1;
                 const int MoveRotationCenterDown                     = MoveRotationCenterUp + 1;
 
-                const int CycleMapViews                              = MoveRotationCenterDown + 1;
+                const int MakeStructural                             = MoveRotationCenterDown + 1;
+
+                const int CycleMapViews                              = MakeStructural + 1;
 
                 const int ResetZoom                                  = CycleMapViews + 1;
 
@@ -214,8 +216,8 @@ namespace TrenchBroom {
                 const int LowestToggleEntityDefinitionCommandId      = HighestDisableTagCommandId + 1;
                 const int HighestToggleEntityDefinitionCommandId     = LowestToggleEntityDefinitionCommandId + MaxEntityDefinitionCommandIds;
 
-                const int LowestCreateEntityCommandId      = HighestToggleEntityDefinitionCommandId + 1;
-                const int HighestCreateEntityCommandId     = LowestCreateEntityCommandId + MaxEntityDefinitionCommandIds;
+                const int LowestCreateEntityCommandId                = HighestToggleEntityDefinitionCommandId + 1;
+                const int HighestCreateEntityCommandId               = LowestCreateEntityCommandId + MaxEntityDefinitionCommandIds;
 
                 const int Highest                                    = HighestCreateEntityCommandId;
             }

@@ -295,7 +295,7 @@ namespace TrenchBroom {
 
             wxString doGetActionDescription() const override {
                 wxString result;
-                result << "View Filter > Toggle " << m_classname << " entities visible";
+                result << "View Filter > Toggle " << m_classname << " visible";
                 return result;
             }
 
@@ -320,7 +320,7 @@ namespace TrenchBroom {
 
             wxString doGetActionDescription() const override {
                 wxString result;
-                result << "Create " << m_classname << " entity";
+                result << "Create " << m_classname;
                 return result;
             }
 
@@ -789,6 +789,9 @@ namespace TrenchBroom {
                                Action(View::CommandIds::Actions::Cancel, "Cancel", true));
             createViewShortcut(KeyboardShortcut(WXK_ESCAPE, WXK_CONTROL), ActionContext_Any,
                                Action(View::CommandIds::Actions::DeactivateTool, "Deactivate current tool", true));
+
+            createViewShortcut(KeyboardShortcut('S', WXK_ALT), ActionContext_NodeSelection,
+                               Action(View::CommandIds::Actions::MakeStructural, "Make structural", true));
 
             createViewShortcut(KeyboardShortcut(), ActionContext_Any,
                                Action(CommandIds::Actions::ToggleShowEntityClassnames, "View Filter > Toggle show entity classnames", true));

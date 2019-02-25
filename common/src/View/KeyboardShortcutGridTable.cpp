@@ -205,18 +205,16 @@ namespace TrenchBroom {
 
         bool KeyboardShortcutGridTable::markConflicts() {
             const auto cmp = [](const KeyboardShortcutEntry* lhs, const KeyboardShortcutEntry* rhs){
-                if (lhs->actionContext() < rhs->actionContext()) {
-                    return true;
-                } else if (lhs->actionContext() > rhs->actionContext()) {
-                    return false;
+                if ((lhs->actionContext() & rhs->actionContext()) == 0) {
+                    if (lhs->actionContext() < rhs->actionContext()) {
+                        return true;
+                    } else if (lhs->actionContext() > rhs->actionContext()) {
+                        return false;
+                    }
                 }
 
                 const auto& lhsShortcut = lhs->shortcut();
                 const auto& rhsShortcut = rhs->shortcut();
-                if (!lhsShortcut.hasKey() && !rhsShortcut.hasKey()) {
-                    return true;
-                }
-
                 return lhsShortcut < rhsShortcut;
             };
             std::set<KeyboardShortcutEntry*, decltype(cmp)> entrySet(cmp);
@@ -224,12 +222,14 @@ namespace TrenchBroom {
             bool hasConflicts = false;
             for (auto& entry : m_entries) {
                 entry->resetConflicts();
-                auto [it, noConflict] = entrySet.insert(entry.get());
-                if (!noConflict) {
-                    // found a duplicate, so there are conflicts
-                    (*it)->setHasConflicts();
-                    entry->setHasConflicts();
-                    hasConflicts = true;
+                if (entry->shortcut().hasKey()) {
+                    auto [it, noConflict] = entrySet.insert(entry.get());
+                    if (!noConflict) {
+                        // found a duplicate, so there are conflicts
+                        (*it)->setHasConflicts();
+                        entry->setHasConflicts();
+                        hasConflicts = true;
+                    }
                 }
             }
 

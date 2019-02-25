@@ -130,6 +130,10 @@ namespace TrenchBroom {
         }
 
         void PreferenceDialog::OnClose(wxCloseEvent& event) {
+            if (!currentPane()->validate()) {
+                event.Veto();
+            }
+
             wxConfigBase* conf = wxConfig::Get();
             if (conf != nullptr) {
                 conf->Flush();
