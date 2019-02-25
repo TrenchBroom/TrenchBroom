@@ -129,73 +129,91 @@ namespace TrenchBroom {
             }
 
             namespace Actions {
-                const int Lowest                             = Menu::Highest + 1;
-                const int Nothing                            = wxID_NONE;
-                const int PerformCreateBrush                 = Lowest +   2;
-                const int ToggleClipTool                     = Lowest +   3;
-                const int ToggleClipSide                     = Lowest +   4;
-                const int PerformClip                        = Lowest +   5;
+                const int Lowest                              = Menu::Highest + 1;
+                const int Nothing                             = wxID_NONE;
+                const int PerformCreateBrush                  = Lowest +   2;
+                const int ToggleClipTool                      = Lowest +   3;
+                const int ToggleClipSide                      = Lowest +   4;
+                const int PerformClip                         = Lowest +   5;
 
-                const int MoveVerticesForward                = Lowest +   8;
-                const int MoveVerticesBackward               = Lowest +   9;
-                const int MoveVerticesLeft                   = Lowest +  10;
-                const int MoveVerticesRight                  = Lowest +  11;
-                const int MoveVerticesUp                     = Lowest +  12;
-                const int MoveVerticesDown                   = Lowest +  13;
+                const int MoveVerticesForward                 = Lowest +   8;
+                const int MoveVerticesBackward                = Lowest +   9;
+                const int MoveVerticesLeft                    = Lowest +  10;
+                const int MoveVerticesRight                   = Lowest +  11;
+                const int MoveVerticesUp                      = Lowest +  12;
+                const int MoveVerticesDown                    = Lowest +  13;
 
-                const int MoveObjectsForward                 = Lowest +  20;
-                const int MoveObjectsRight                   = Lowest +  21;
-                const int MoveObjectsBackward                = Lowest +  22;
-                const int MoveObjectsLeft                    = Lowest +  23;
-                const int MoveObjectsUp                      = Lowest +  24;
-                const int MoveObjectsDown                    = Lowest +  25;
+                const int MoveObjectsForward                  = Lowest +  20;
+                const int MoveObjectsRight                    = Lowest +  21;
+                const int MoveObjectsBackward                 = Lowest +  22;
+                const int MoveObjectsLeft                     = Lowest +  23;
+                const int MoveObjectsUp                       = Lowest +  24;
+                const int MoveObjectsDown                     = Lowest +  25;
 
-                const int RollObjectsCW                      = Lowest +  26;
-                const int RollObjectsCCW                     = Lowest +  27;
-                const int PitchObjectsCW                     = Lowest +  28;
-                const int PitchObjectsCCW                    = Lowest +  29;
-                const int YawObjectsCW                       = Lowest +  30;
-                const int YawObjectsCCW                      = Lowest +  31;
+                const int RollObjectsCW                       = Lowest +  26;
+                const int RollObjectsCCW                      = Lowest +  27;
+                const int PitchObjectsCW                      = Lowest +  28;
+                const int PitchObjectsCCW                     = Lowest +  29;
+                const int YawObjectsCW                        = Lowest +  30;
+                const int YawObjectsCCW                       = Lowest +  31;
 
-                const int FlipObjectsHorizontally            = Lowest +  32;
-                const int FlipObjectsVertically              = Lowest +  33;
+                const int FlipObjectsHorizontally             = Lowest +  32;
+                const int FlipObjectsVertically               = Lowest +  33;
 
-                const int DuplicateObjectsForward            = Lowest +  34;
-                const int DuplicateObjectsRight              = Lowest +  35;
-                const int DuplicateObjectsBackward           = Lowest +  36;
-                const int DuplicateObjectsLeft               = Lowest +  37;
-                const int DuplicateObjectsUp                 = Lowest +  38;
-                const int DuplicateObjectsDown               = Lowest +  39;
+                const int DuplicateObjectsForward             = Lowest +  34;
+                const int DuplicateObjectsRight               = Lowest +  35;
+                const int DuplicateObjectsBackward            = Lowest +  36;
+                const int DuplicateObjectsLeft                = Lowest +  37;
+                const int DuplicateObjectsUp                  = Lowest +  38;
+                const int DuplicateObjectsDown                = Lowest +  39;
 
-                const int MoveTexturesUp                     = Lowest +  40;
-                const int MoveTexturesRight                  = Lowest +  41;
-                const int MoveTexturesDown                   = Lowest +  42;
-                const int MoveTexturesLeft                   = Lowest +  43;
-                const int RotateTexturesCW                   = Lowest +  44;
-                const int RotateTexturesCCW                  = Lowest +  45;
+                const int MoveTexturesUp                      = Lowest +  40;
+                const int MoveTexturesRight                   = Lowest +  41;
+                const int MoveTexturesDown                    = Lowest +  42;
+                const int MoveTexturesLeft                    = Lowest +  43;
+                const int RotateTexturesCW                    = Lowest +  44;
+                const int RotateTexturesCCW                   = Lowest +  45;
 
-                const int Cancel                             = Lowest +  46;
+                const int Cancel                              = Lowest +  46;
 
-                const int MoveRotationCenterForward          = Lowest +  47;
-                const int MoveRotationCenterBackward         = Lowest +  48;
-                const int MoveRotationCenterLeft             = Lowest +  49;
-                const int MoveRotationCenterRight            = Lowest +  50;
-                const int MoveRotationCenterUp               = Lowest +  51;
-                const int MoveRotationCenterDown             = Lowest +  52;
+                const int MoveRotationCenterForward           = Lowest +  47;
+                const int MoveRotationCenterBackward          = Lowest +  48;
+                const int MoveRotationCenterLeft              = Lowest +  49;
+                const int MoveRotationCenterRight             = Lowest +  50;
+                const int MoveRotationCenterUp                = Lowest +  51;
+                const int MoveRotationCenterDown              = Lowest +  52;
 
-                const int CycleMapViews                      = Lowest +  53;
+                const int CycleMapViews                       = Lowest +  53;
 
-                const int ResetZoom                          = Lowest +  54;
+                const int ResetZoom                           = Lowest +  54;
 
-                const int DeactivateTool                     = Lowest +  56;
+                const int DeactivateTool                      = Lowest +  56;
                 /*
-                const int CorrectVertices                    = Lowest +  82;
+                const int CorrectVertices                     = Lowest +  82;
                  */
 
-                const int Highest                            = Lowest + 200;
+                const int ToggleShowEntityClassnames          = Lowest + 57;
+                const int ToggleShowGroupBounds               = Lowest + 58;
+                const int ToggleShowBrushEntityBounds     = Lowest + 59;
+                const int ToggleShowPointEntityBounds         = Lowest + 60;
+                const int ToggleShowPointEntities             = Lowest + 61;
+                const int ToggleShowPointEntityModels         = Lowest + 62;
+                const int ToggleShowBrushes                   = Lowest + 63;
+                const int RenderModeShowTextures              = Lowest + 64;
+                const int RenderModeHideTextures              = Lowest + 65;
+                const int RenderModeHideFaces                 = Lowest + 66;
+                const int RenderModeShadeFaces                = Lowest + 67;
+                const int RenderModeUseFog                    = Lowest + 68;
+                const int RenderModeShowEdges                 = Lowest + 69;
+                const int RenderModeShowAllEntityLinks        = Lowest + 70;
+                const int RenderModeShowTransitiveEntityLinks = Lowest + 71;
+                const int RenderModeShowDirectEntityLinks     = Lowest + 72;
+                const int RenderModeHideEntityLinks           = Lowest + 73;
 
-                const int LowestTagCommandId                 = Highest + 1;
-                const int HighestTagCommandId                = LowestTagCommandId + 100;
+                const int Highest                             = Lowest + 200;
+
+                const int LowestTagCommandId                  = Highest + 1;
+                const int HighestTagCommandId                 = LowestTagCommandId + 100;
             }
 
             namespace MapViewPopupMenu {

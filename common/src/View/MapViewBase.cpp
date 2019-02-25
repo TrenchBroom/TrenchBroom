@@ -260,79 +260,98 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::bindEvents() {
-            Bind(wxEVT_SET_FOCUS, &MapViewBase::OnSetFocus, this);
-            Bind(wxEVT_KILL_FOCUS, &MapViewBase::OnKillFocus, this);
+            Bind(wxEVT_SET_FOCUS, &MapViewBase::OnSetFocus,                       this);
+            Bind(wxEVT_KILL_FOCUS, &MapViewBase::OnKillFocus,                     this);
 
-            Bind(wxEVT_MENU, &MapViewBase::OnToggleTagVisible,  this, CommandIds::Actions::LowestTagCommandId, CommandIds::Actions::HighestTagCommandId);
-            Bind(wxEVT_MENU, &MapViewBase::OnEnableTag,         this, CommandIds::Actions::LowestTagCommandId, CommandIds::Actions::HighestTagCommandId);
-            Bind(wxEVT_MENU, &MapViewBase::OnDisableTag,        this, CommandIds::Actions::LowestTagCommandId, CommandIds::Actions::HighestTagCommandId);
+            Bind(wxEVT_MENU, &MapViewBase::OnToggleTagVisible,                    this, CommandIds::Actions::LowestTagCommandId, CommandIds::Actions::HighestTagCommandId);
+            Bind(wxEVT_MENU, &MapViewBase::OnEnableTag,                           this, CommandIds::Actions::LowestTagCommandId, CommandIds::Actions::HighestTagCommandId);
+            Bind(wxEVT_MENU, &MapViewBase::OnDisableTag,                          this, CommandIds::Actions::LowestTagCommandId, CommandIds::Actions::HighestTagCommandId);
 
-            Bind(wxEVT_MENU, &MapViewBase::OnToggleClipSide,               this, CommandIds::Actions::ToggleClipSide);
-            Bind(wxEVT_MENU, &MapViewBase::OnPerformClip,                  this, CommandIds::Actions::PerformClip);
+            Bind(wxEVT_MENU, &MapViewBase::OnToggleShowEntityClassnames,          this, CommandIds::Actions::ToggleShowEntityClassnames);
+            Bind(wxEVT_MENU, &MapViewBase::OnToggleShowGroupBounds,               this, CommandIds::Actions::ToggleShowGroupBounds);
+            Bind(wxEVT_MENU, &MapViewBase::OnToggleShowBrushEntityBounds,         this, CommandIds::Actions::ToggleShowBrushEntityBounds);
+            Bind(wxEVT_MENU, &MapViewBase::OnToggleShowPointEntityBounds,         this, CommandIds::Actions::ToggleShowPointEntityBounds);
+            Bind(wxEVT_MENU, &MapViewBase::OnToggleShowPointEntities,             this, CommandIds::Actions::ToggleShowPointEntities);
+            Bind(wxEVT_MENU, &MapViewBase::OnToggleShowPointEntities,             this, CommandIds::Actions::ToggleShowPointEntities);
+            Bind(wxEVT_MENU, &MapViewBase::OnToggleShowPointEntityModels,         this, CommandIds::Actions::ToggleShowPointEntityModels);
+            Bind(wxEVT_MENU, &MapViewBase::OnToggleShowBrushes,                   this, CommandIds::Actions::ToggleShowBrushes);
+            Bind(wxEVT_MENU, &MapViewBase::OnRenderModeShowTextures,              this, CommandIds::Actions::RenderModeShowTextures);
+            Bind(wxEVT_MENU, &MapViewBase::OnRenderModeHideTextures,              this, CommandIds::Actions::RenderModeHideTextures);
+            Bind(wxEVT_MENU, &MapViewBase::OnRenderModeHideFaces,                 this, CommandIds::Actions::RenderModeHideFaces);
+            Bind(wxEVT_MENU, &MapViewBase::OnRenderModeShadeFaces,                this, CommandIds::Actions::RenderModeShadeFaces);
+            Bind(wxEVT_MENU, &MapViewBase::OnRenderModeUseFog,                    this, CommandIds::Actions::RenderModeUseFog);
+            Bind(wxEVT_MENU, &MapViewBase::OnRenderModeShowEdges,                 this, CommandIds::Actions::RenderModeShowEdges);
+            Bind(wxEVT_MENU, &MapViewBase::OnRenderModeShowAllEntityLinks,        this, CommandIds::Actions::RenderModeShowAllEntityLinks);
+            Bind(wxEVT_MENU, &MapViewBase::OnRenderModeShowTransitiveEntityLinks, this, CommandIds::Actions::RenderModeShowTransitiveEntityLinks);
+            Bind(wxEVT_MENU, &MapViewBase::OnRenderModeShowDirectEntityLinks,     this, CommandIds::Actions::RenderModeShowDirectEntityLinks);
+            Bind(wxEVT_MENU, &MapViewBase::OnRenderModeHideEntityLinks,           this, CommandIds::Actions::RenderModeHideEntityLinks);
 
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesForward,          this, CommandIds::Actions::MoveVerticesForward);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesBackward,         this, CommandIds::Actions::MoveVerticesBackward);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesLeft,             this, CommandIds::Actions::MoveVerticesLeft);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesRight,            this, CommandIds::Actions::MoveVerticesRight);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesUp,               this, CommandIds::Actions::MoveVerticesUp);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesDown,             this, CommandIds::Actions::MoveVerticesDown);
+            Bind(wxEVT_MENU, &MapViewBase::OnToggleClipSide,                      this, CommandIds::Actions::ToggleClipSide);
+            Bind(wxEVT_MENU, &MapViewBase::OnPerformClip,                         this, CommandIds::Actions::PerformClip);
 
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsForward,           this, CommandIds::Actions::MoveObjectsForward);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsBackward,          this, CommandIds::Actions::MoveObjectsBackward);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsLeft,              this, CommandIds::Actions::MoveObjectsLeft);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsRight,             this, CommandIds::Actions::MoveObjectsRight);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsUp,                this, CommandIds::Actions::MoveObjectsUp);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsDown,              this, CommandIds::Actions::MoveObjectsDown);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesForward,                 this, CommandIds::Actions::MoveVerticesForward);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesBackward,                this, CommandIds::Actions::MoveVerticesBackward);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesLeft,                    this, CommandIds::Actions::MoveVerticesLeft);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesRight,                   this, CommandIds::Actions::MoveVerticesRight);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesUp,                      this, CommandIds::Actions::MoveVerticesUp);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesDown,                    this, CommandIds::Actions::MoveVerticesDown);
 
-            Bind(wxEVT_MENU, &MapViewBase::OnDuplicateObjectsForward,      this, CommandIds::Actions::DuplicateObjectsForward);
-            Bind(wxEVT_MENU, &MapViewBase::OnDuplicateObjectsBackward,     this, CommandIds::Actions::DuplicateObjectsBackward);
-            Bind(wxEVT_MENU, &MapViewBase::OnDuplicateObjectsLeft,         this, CommandIds::Actions::DuplicateObjectsLeft);
-            Bind(wxEVT_MENU, &MapViewBase::OnDuplicateObjectsRight,        this, CommandIds::Actions::DuplicateObjectsRight);
-            Bind(wxEVT_MENU, &MapViewBase::OnDuplicateObjectsUp,           this, CommandIds::Actions::DuplicateObjectsUp);
-            Bind(wxEVT_MENU, &MapViewBase::OnDuplicateObjectsDown,         this, CommandIds::Actions::DuplicateObjectsDown);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsForward,                  this, CommandIds::Actions::MoveObjectsForward);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsBackward,                 this, CommandIds::Actions::MoveObjectsBackward);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsLeft,                     this, CommandIds::Actions::MoveObjectsLeft);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsRight,                    this, CommandIds::Actions::MoveObjectsRight);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsUp,                       this, CommandIds::Actions::MoveObjectsUp);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsDown,                     this, CommandIds::Actions::MoveObjectsDown);
 
-            Bind(wxEVT_MENU, &MapViewBase::OnRollObjectsCW,                this, CommandIds::Actions::RollObjectsCW);
-            Bind(wxEVT_MENU, &MapViewBase::OnRollObjectsCCW,               this, CommandIds::Actions::RollObjectsCCW);
-            Bind(wxEVT_MENU, &MapViewBase::OnPitchObjectsCW,               this, CommandIds::Actions::PitchObjectsCW);
-            Bind(wxEVT_MENU, &MapViewBase::OnPitchObjectsCCW,              this, CommandIds::Actions::PitchObjectsCCW);
-            Bind(wxEVT_MENU, &MapViewBase::OnYawObjectsCW,                 this, CommandIds::Actions::YawObjectsCW);
-            Bind(wxEVT_MENU, &MapViewBase::OnYawObjectsCCW,                this, CommandIds::Actions::YawObjectsCCW);
+            Bind(wxEVT_MENU, &MapViewBase::OnDuplicateObjectsForward,             this, CommandIds::Actions::DuplicateObjectsForward);
+            Bind(wxEVT_MENU, &MapViewBase::OnDuplicateObjectsBackward,            this, CommandIds::Actions::DuplicateObjectsBackward);
+            Bind(wxEVT_MENU, &MapViewBase::OnDuplicateObjectsLeft,                this, CommandIds::Actions::DuplicateObjectsLeft);
+            Bind(wxEVT_MENU, &MapViewBase::OnDuplicateObjectsRight,               this, CommandIds::Actions::DuplicateObjectsRight);
+            Bind(wxEVT_MENU, &MapViewBase::OnDuplicateObjectsUp,                  this, CommandIds::Actions::DuplicateObjectsUp);
+            Bind(wxEVT_MENU, &MapViewBase::OnDuplicateObjectsDown,                this, CommandIds::Actions::DuplicateObjectsDown);
 
-            Bind(wxEVT_MENU, &MapViewBase::OnFlipObjectsH,                 this, CommandIds::Actions::FlipObjectsHorizontally);
-            Bind(wxEVT_MENU, &MapViewBase::OnFlipObjectsV,                 this, CommandIds::Actions::FlipObjectsVertically);
+            Bind(wxEVT_MENU, &MapViewBase::OnRollObjectsCW,                       this, CommandIds::Actions::RollObjectsCW);
+            Bind(wxEVT_MENU, &MapViewBase::OnRollObjectsCCW,                      this, CommandIds::Actions::RollObjectsCCW);
+            Bind(wxEVT_MENU, &MapViewBase::OnPitchObjectsCW,                      this, CommandIds::Actions::PitchObjectsCW);
+            Bind(wxEVT_MENU, &MapViewBase::OnPitchObjectsCCW,                     this, CommandIds::Actions::PitchObjectsCCW);
+            Bind(wxEVT_MENU, &MapViewBase::OnYawObjectsCW,                        this, CommandIds::Actions::YawObjectsCW);
+            Bind(wxEVT_MENU, &MapViewBase::OnYawObjectsCCW,                       this, CommandIds::Actions::YawObjectsCCW);
 
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterForward,    this, CommandIds::Actions::MoveRotationCenterForward);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterBackward,   this, CommandIds::Actions::MoveRotationCenterBackward);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterLeft,       this, CommandIds::Actions::MoveRotationCenterLeft);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterRight,      this, CommandIds::Actions::MoveRotationCenterRight);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterUp,         this, CommandIds::Actions::MoveRotationCenterUp);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterDown,       this, CommandIds::Actions::MoveRotationCenterDown);
+            Bind(wxEVT_MENU, &MapViewBase::OnFlipObjectsH,                        this, CommandIds::Actions::FlipObjectsHorizontally);
+            Bind(wxEVT_MENU, &MapViewBase::OnFlipObjectsV,                        this, CommandIds::Actions::FlipObjectsVertically);
 
-            Bind(wxEVT_MENU, &MapViewBase::OnCancel,                       this, CommandIds::Actions::Cancel);
-            Bind(wxEVT_MENU, &MapViewBase::OnDeactivateTool,               this, CommandIds::Actions::DeactivateTool);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterForward,           this, CommandIds::Actions::MoveRotationCenterForward);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterBackward,          this, CommandIds::Actions::MoveRotationCenterBackward);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterLeft,              this, CommandIds::Actions::MoveRotationCenterLeft);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterRight,             this, CommandIds::Actions::MoveRotationCenterRight);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterUp,                this, CommandIds::Actions::MoveRotationCenterUp);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterDown,              this, CommandIds::Actions::MoveRotationCenterDown);
 
-            Bind(SHOW_POPUP_MENU_EVENT, &MapViewBase::OnShowPopupMenu,     this, CommandIds::MapViewPopupMenu::ShowPopupMenu);
-            Bind(wxEVT_MENU, &MapViewBase::OnGroupSelectedObjects,         this, CommandIds::MapViewPopupMenu::GroupObjects);
-            Bind(wxEVT_MENU, &MapViewBase::OnUngroupSelectedObjects,       this, CommandIds::MapViewPopupMenu::UngroupObjects);
-            Bind(wxEVT_MENU, &MapViewBase::OnRenameGroups,                 this, CommandIds::MapViewPopupMenu::RenameGroups);
-            Bind(wxEVT_MENU, &MapViewBase::OnAddObjectsToGroup,            this, CommandIds::MapViewPopupMenu::AddObjectsToGroup);
-            Bind(wxEVT_MENU, &MapViewBase::OnRemoveObjectsFromGroup,       this, CommandIds::MapViewPopupMenu::RemoveObjectsFromGroup);
-            Bind(wxEVT_MENU, &MapViewBase::OnMergeGroups,                  this, CommandIds::MapViewPopupMenu::MergeGroups);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveBrushesTo,                this, CommandIds::MapViewPopupMenu::MoveBrushesToEntity);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveBrushesTo,                this, CommandIds::MapViewPopupMenu::MoveBrushesToWorld);
-            Bind(wxEVT_MENU, &MapViewBase::OnCreatePointEntity,            this, CommandIds::MapViewPopupMenu::LowestPointEntityItem, CommandIds::MapViewPopupMenu::HighestPointEntityItem);
-            Bind(wxEVT_MENU, &MapViewBase::OnCreateBrushEntity,            this, CommandIds::MapViewPopupMenu::LowestBrushEntityItem, CommandIds::MapViewPopupMenu::HighestBrushEntityItem);
+            Bind(wxEVT_MENU, &MapViewBase::OnCancel,                              this, CommandIds::Actions::Cancel);
+            Bind(wxEVT_MENU, &MapViewBase::OnDeactivateTool,                      this, CommandIds::Actions::DeactivateTool);
 
-            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::GroupObjects);
-            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::UngroupObjects);
-            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::MergeGroups);
-            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::RenameGroups);
-            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::MoveBrushesToWorld);
-            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::LowestPointEntityItem, CommandIds::MapViewPopupMenu::HighestPointEntityItem);
-            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::LowestBrushEntityItem, CommandIds::MapViewPopupMenu::HighestBrushEntityItem);
+            Bind(SHOW_POPUP_MENU_EVENT, &MapViewBase::OnShowPopupMenu,            this, CommandIds::MapViewPopupMenu::ShowPopupMenu);
+            Bind(wxEVT_MENU, &MapViewBase::OnGroupSelectedObjects,                this, CommandIds::MapViewPopupMenu::GroupObjects);
+            Bind(wxEVT_MENU, &MapViewBase::OnUngroupSelectedObjects,              this, CommandIds::MapViewPopupMenu::UngroupObjects);
+            Bind(wxEVT_MENU, &MapViewBase::OnRenameGroups,                        this, CommandIds::MapViewPopupMenu::RenameGroups);
+            Bind(wxEVT_MENU, &MapViewBase::OnAddObjectsToGroup,                   this, CommandIds::MapViewPopupMenu::AddObjectsToGroup);
+            Bind(wxEVT_MENU, &MapViewBase::OnRemoveObjectsFromGroup,              this, CommandIds::MapViewPopupMenu::RemoveObjectsFromGroup);
+            Bind(wxEVT_MENU, &MapViewBase::OnMergeGroups,                         this, CommandIds::MapViewPopupMenu::MergeGroups);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveBrushesTo,                       this, CommandIds::MapViewPopupMenu::MoveBrushesToEntity);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveBrushesTo,                       this, CommandIds::MapViewPopupMenu::MoveBrushesToWorld);
+            Bind(wxEVT_MENU, &MapViewBase::OnCreatePointEntity,                   this, CommandIds::MapViewPopupMenu::LowestPointEntityItem, CommandIds::MapViewPopupMenu::HighestPointEntityItem);
+            Bind(wxEVT_MENU, &MapViewBase::OnCreateBrushEntity,                   this, CommandIds::MapViewPopupMenu::LowestBrushEntityItem, CommandIds::MapViewPopupMenu::HighestBrushEntityItem);
+
+            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,            this, CommandIds::MapViewPopupMenu::GroupObjects);
+            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,            this, CommandIds::MapViewPopupMenu::UngroupObjects);
+            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,            this, CommandIds::MapViewPopupMenu::MergeGroups);
+            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,            this, CommandIds::MapViewPopupMenu::RenameGroups);
+            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,            this, CommandIds::MapViewPopupMenu::MoveBrushesToWorld);
+            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,            this, CommandIds::MapViewPopupMenu::LowestPointEntityItem, CommandIds::MapViewPopupMenu::HighestPointEntityItem);
+            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,            this, CommandIds::MapViewPopupMenu::LowestBrushEntityItem, CommandIds::MapViewPopupMenu::HighestBrushEntityItem);
 
             wxFrame* frame = findFrame(this);
-            frame->Bind(wxEVT_ACTIVATE, &MapViewBase::OnActivateFrame, this);
+            frame->Bind(wxEVT_ACTIVATE, &MapViewBase::OnActivateFrame,            this);
         }
 
         void MapViewBase::OnMoveObjectsForward(wxCommandEvent& event) {
@@ -741,6 +760,8 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::OnToggleTagVisible(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const auto commandId = event.GetId();
             if (commandId % 3 != 0) {
                 event.Skip();
@@ -761,7 +782,7 @@ namespace TrenchBroom {
             wxWindow* m_window;
             size_t m_selectedOption;
         public:
-            EnableDisableTagCallback(wxWindow* window) :
+            explicit EnableDisableTagCallback(wxWindow* window) :
             m_window(window),
             m_selectedOption(0) {
                 assert(m_window != nullptr);
@@ -789,6 +810,8 @@ namespace TrenchBroom {
         };
 
         void MapViewBase::OnEnableTag(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const auto commandId = event.GetId();
             if (commandId % 3 != 1) {
                 event.Skip();
@@ -810,6 +833,8 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::OnDisableTag(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const auto commandId = event.GetId();
             if (commandId % 3 != 2) {
                 event.Skip();
@@ -828,6 +853,142 @@ namespace TrenchBroom {
                 Transaction transaction(document);
                 tag.disable(callback, *document);
             }
+        }
+
+        void MapViewBase::OnToggleShowEntityClassnames(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setShowEntityClassnames(!config.showEntityClassnames());
+        }
+
+        void MapViewBase::OnToggleShowGroupBounds(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setShowGroupBounds(!config.showGroupBounds());
+        }
+
+        void MapViewBase::OnToggleShowBrushEntityBounds(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setShowBrushEntityBounds(!config.showBrushEntityBounds());
+        }
+
+        void MapViewBase::OnToggleShowPointEntityBounds(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setShowPointEntityBounds(!config.showPointEntityBounds());
+        }
+
+        void MapViewBase::OnToggleShowPointEntities(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            Model::EditorContext& editorContext = document->editorContext();
+            editorContext.setShowPointEntities(!editorContext.showPointEntities());
+        }
+
+        void MapViewBase::OnToggleShowPointEntityModels(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setShowPointEntityModels(!config.showPointEntityModels());
+        }
+
+        void MapViewBase::OnToggleShowBrushes(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            Model::EditorContext& editorContext = document->editorContext();
+            editorContext.setShowBrushes(!editorContext.showBrushes());
+        }
+
+        void MapViewBase::OnRenderModeShowTextures(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setFaceRenderMode(MapViewConfig::FaceRenderMode_Textured);
+        }
+
+        void MapViewBase::OnRenderModeHideTextures(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setFaceRenderMode(MapViewConfig::FaceRenderMode_Flat);
+        }
+
+        void MapViewBase::OnRenderModeHideFaces(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setFaceRenderMode(MapViewConfig::FaceRenderMode_Skip);
+        }
+
+        void MapViewBase::OnRenderModeShadeFaces(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setShadeFaces(!config.shadeFaces());
+        }
+
+        void MapViewBase::OnRenderModeUseFog(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setShowFog(!config.showFog());
+        }
+
+        void MapViewBase::OnRenderModeShowEdges(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setShowEdges(!config.showEdges());
+        }
+
+        void MapViewBase::OnRenderModeShowAllEntityLinks(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            Model::EditorContext& editorContext = document->editorContext();
+            editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_All);
+        }
+
+        void MapViewBase::OnRenderModeShowTransitiveEntityLinks(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            Model::EditorContext& editorContext = document->editorContext();
+            editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_Transitive);
+        }
+
+        void MapViewBase::OnRenderModeShowDirectEntityLinks(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            Model::EditorContext& editorContext = document->editorContext();
+            editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_Direct);
+        }
+
+        void MapViewBase::OnRenderModeHideEntityLinks(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            Model::EditorContext& editorContext = document->editorContext();
+            editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_None);
         }
 
         void MapViewBase::OnSetFocus(wxFocusEvent& event) {

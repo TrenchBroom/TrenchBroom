@@ -219,6 +219,24 @@ namespace TrenchBroom {
             class EnableDisableTagCallback;
             void OnEnableTag(wxCommandEvent& event);
             void OnDisableTag(wxCommandEvent& event);
+        private: // view filters
+            void OnToggleShowEntityClassnames(wxCommandEvent& event);
+            void OnToggleShowGroupBounds(wxCommandEvent& event);
+            void OnToggleShowBrushEntityBounds(wxCommandEvent& event);
+            void OnToggleShowPointEntityBounds(wxCommandEvent& event);
+            void OnToggleShowPointEntities(wxCommandEvent& event);
+            void OnToggleShowPointEntityModels(wxCommandEvent& event);
+            void OnToggleShowBrushes(wxCommandEvent& event);
+            void OnRenderModeShowTextures(wxCommandEvent& event);
+            void OnRenderModeHideTextures(wxCommandEvent& event);
+            void OnRenderModeHideFaces(wxCommandEvent& event);
+            void OnRenderModeShadeFaces(wxCommandEvent& event);
+            void OnRenderModeUseFog(wxCommandEvent& event);
+            void OnRenderModeShowEdges(wxCommandEvent& event);
+            void OnRenderModeShowAllEntityLinks(wxCommandEvent& event);
+            void OnRenderModeShowTransitiveEntityLinks(wxCommandEvent& event);
+            void OnRenderModeShowDirectEntityLinks(wxCommandEvent& event);
+            void OnRenderModeHideEntityLinks(wxCommandEvent& event);
         private: // other events
             void OnSetFocus(wxFocusEvent& event);
             void OnKillFocus(wxFocusEvent& event);

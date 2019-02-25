@@ -62,11 +62,16 @@ namespace TrenchBroom {
         }
 
         void ActionManager::getTagShortcutEntries(const std::list<Model::SmartTag>& tags, ShortcutEntryList& entries) {
+            // We want the shortcuts for visibility, enabling, and disabling visually grouped in the preferences.
             for (const auto& tag : tags) {
                 entries.emplace_back(std::make_unique<ToggleTagVisibilityKeyboardShortcutEntry>(tag));
+            }
+            for (const auto& tag : tags) {
                 if (tag.canEnable()) {
                     entries.emplace_back(std::make_unique<EnableTagKeyboardShortcutEntry>(tag));
                 }
+            }
+            for (const auto& tag : tags) {
                 if (tag.canDisable()) {
                     entries.emplace_back(std::make_unique<DisableTagKeyboardShortcutEntry>(tag));
                 }
@@ -645,6 +650,41 @@ namespace TrenchBroom {
                                Action(View::CommandIds::Actions::Cancel, "Cancel", true));
             createViewShortcut(KeyboardShortcut(WXK_ESCAPE, WXK_CONTROL), ActionContext_Any,
                                Action(View::CommandIds::Actions::DeactivateTool, "Deactivate current tool", true));
+
+            createViewShortcut(KeyboardShortcut(), ActionContext_Any,
+                               Action(CommandIds::Actions::ToggleShowEntityClassnames, "View Filter > Toggle show entity classnames", true));
+            createViewShortcut(KeyboardShortcut(), ActionContext_Any,
+                               Action(CommandIds::Actions::ToggleShowGroupBounds, "View Filter > Toggle show group bounds", true));
+            createViewShortcut(KeyboardShortcut(), ActionContext_Any,
+                               Action(CommandIds::Actions::ToggleShowBrushEntityBounds, "View Filter > Toggle show brush entity bounds", true));
+            createViewShortcut(KeyboardShortcut(), ActionContext_Any,
+                               Action(CommandIds::Actions::ToggleShowPointEntityBounds, "View Filter > Toggle show point entity bounds", true));
+            createViewShortcut(KeyboardShortcut(), ActionContext_Any,
+                               Action(CommandIds::Actions::ToggleShowPointEntities, "View Filter > Toggle show point entities", true));
+            createViewShortcut(KeyboardShortcut(), ActionContext_Any,
+                               Action(CommandIds::Actions::ToggleShowPointEntityModels, "View Filter > Toggle show point entity models", true));
+            createViewShortcut(KeyboardShortcut(), ActionContext_Any,
+                               Action(CommandIds::Actions::ToggleShowBrushes, "View Filter > Toggle show brushes", true));
+            createViewShortcut(KeyboardShortcut(), ActionContext_Any,
+                               Action(CommandIds::Actions::RenderModeShowTextures, "View Filter > Show textures", true));
+            createViewShortcut(KeyboardShortcut(), ActionContext_Any,
+                               Action(CommandIds::Actions::RenderModeHideTextures, "View Filter > Hide textures", true));
+            createViewShortcut(KeyboardShortcut(), ActionContext_Any,
+                               Action(CommandIds::Actions::RenderModeHideFaces, "View Filter > Hide faces", true));
+            createViewShortcut(KeyboardShortcut(), ActionContext_Any,
+                               Action(CommandIds::Actions::RenderModeShadeFaces, "View Filter > Shade faces", true));
+            createViewShortcut(KeyboardShortcut(), ActionContext_Any,
+                               Action(CommandIds::Actions::RenderModeUseFog, "View Filter > Use fog", true));
+            createViewShortcut(KeyboardShortcut(), ActionContext_Any,
+                               Action(CommandIds::Actions::RenderModeShowEdges, "View Filter > Show edges", true));
+            createViewShortcut(KeyboardShortcut(), ActionContext_Any,
+                               Action(CommandIds::Actions::RenderModeShowAllEntityLinks, "View Filter > Show all entity links", true));
+            createViewShortcut(KeyboardShortcut(), ActionContext_Any,
+                               Action(CommandIds::Actions::RenderModeShowTransitiveEntityLinks, "View Filter > Show transitively selected entity links", true));
+            createViewShortcut(KeyboardShortcut(), ActionContext_Any,
+                               Action(CommandIds::Actions::RenderModeShowDirectEntityLinks, "View Filter > Show directly selected entity links", true));
+            createViewShortcut(KeyboardShortcut(), ActionContext_Any,
+                               Action(CommandIds::Actions::RenderModeHideEntityLinks, "View Filter > Hide entity links", true));
         }
 
         void ActionManager::createViewShortcut(const KeyboardShortcut& shortcut, const int context, const Action& action2D, const Action& action3D) {
