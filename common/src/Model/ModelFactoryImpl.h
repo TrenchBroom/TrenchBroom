@@ -28,16 +28,14 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class BrushContentTypeBuilder;
         class BrushFaceAttributes;
         
         class ModelFactoryImpl : public ModelFactory {
         private:
             MapFormat m_format;
-            const BrushContentTypeBuilder* m_brushContentTypeBuilder;
         public:
             ModelFactoryImpl();
-            ModelFactoryImpl(MapFormat format, const BrushContentTypeBuilder* brushContentTypeBuilder);
+            ModelFactoryImpl(MapFormat format);
         private: // implement ModelFactory interface
             MapFormat doGetFormat() const override;
             World* doCreateWorld(const vm::bbox3& worldBounds) const override;

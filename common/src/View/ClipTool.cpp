@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -41,17 +41,17 @@
 namespace TrenchBroom {
     namespace View {
         const Model::Hit::HitType ClipTool::PointHit = Model::Hit::freeHitType();
-        
+
         ClipTool::ClipStrategy::~ClipStrategy() {}
-        
+
         void ClipTool::ClipStrategy::pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
             doPick(pickRay, camera, pickResult);
         }
-        
+
         void ClipTool::ClipStrategy::render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Model::PickResult& pickResult) {
             doRender(renderContext, renderBatch, pickResult);
         }
-        
+
         void ClipTool::ClipStrategy::renderFeedback(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vm::vec3& point) const {
             doRenderFeedback(renderContext, renderBatch, point);
         }
@@ -63,7 +63,7 @@ namespace TrenchBroom {
         bool ClipTool::ClipStrategy::canClip() const {
             return doCanClip();
         }
-        
+
         bool ClipTool::ClipStrategy::hasPoints() const {
             return doHasPoints();
         }
@@ -71,12 +71,12 @@ namespace TrenchBroom {
         bool ClipTool::ClipStrategy::canAddPoint(const vm::vec3& point) const {
             return doCanAddPoint(point);
         }
-        
+
         void ClipTool::ClipStrategy::addPoint(const vm::vec3& point, const std::vector<vm::vec3>& helpVectors) {
             assert(canAddPoint(point));
             return doAddPoint(point, helpVectors);
         }
-        
+
         bool ClipTool::ClipStrategy::canRemoveLastPoint() const {
             return doCanRemoveLastPoint();
         }
@@ -84,7 +84,7 @@ namespace TrenchBroom {
         void ClipTool::ClipStrategy::removeLastPoint() {
             doRemoveLastPoint();
         }
-        
+
         bool ClipTool::ClipStrategy::canDragPoint(const Model::PickResult& pickResult, vm::vec3& initialPosition) const {
             return doCanDragPoint(pickResult, initialPosition);
         }
@@ -92,7 +92,7 @@ namespace TrenchBroom {
         void ClipTool::ClipStrategy::beginDragPoint(const Model::PickResult& pickResult) {
             doBeginDragPoint(pickResult);
         }
-        
+
         void ClipTool::ClipStrategy::beginDragLastPoint() {
             doBeginDragLastPoint();
         }
@@ -100,7 +100,7 @@ namespace TrenchBroom {
         bool ClipTool::ClipStrategy::dragPoint(const vm::vec3& newPosition, const std::vector<vm::vec3>& helpVectors) {
             return doDragPoint(newPosition, helpVectors);
         }
-        
+
         void ClipTool::ClipStrategy::endDragPoint() {
             doEndDragPoint();
         }
@@ -112,28 +112,28 @@ namespace TrenchBroom {
         bool ClipTool::ClipStrategy::setFace(const Model::BrushFace* face) {
             return doSetFace(face);
         }
-        
+
         void ClipTool::ClipStrategy::reset() {
             doReset();
         }
-        
+
         size_t ClipTool::ClipStrategy::getPoints(vm::vec3& point1, vm::vec3& point2, vm::vec3& point3) const {
             return doGetPoints(point1, point2, point3);
         }
-        
+
         class ClipTool::PointClipStrategy : public ClipTool::ClipStrategy {
         private:
             struct ClipPoint {
                 vm::vec3 point;
                 std::vector<vm::vec3> helpVectors;
-                
+
                 ClipPoint() {}
-                
+
                 ClipPoint(const vm::vec3& i_point, const std::vector<vm::vec3>& i_helpVectors) :
                 point(i_point),
                 helpVectors(i_helpVectors) {}
             };
-            
+
             ClipPoint m_points[3];
             size_t m_numPoints;
             size_t m_dragIndex;
@@ -153,12 +153,12 @@ namespace TrenchBroom {
                     }
                 }
             }
-            
+
             void doRender(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Model::PickResult& pickResult) override {
                 renderPoints(renderContext, renderBatch);
                 renderHighlight(renderContext, renderBatch, pickResult);
             }
-            
+
             void doRenderFeedback(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vm::vec3& point) const override {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setForegroundColor(pref(Preferences::ClipHandleColor));
@@ -174,7 +174,7 @@ namespace TrenchBroom {
             vm::vec3 computeHelpVector() const {
                 size_t counts[6];
                 counts[0] = counts[1] = counts[2] = counts[3] = counts[4] = counts[5] = 0;
-                
+
                 const auto helpVectors = combineHelpVectors();
                 for (size_t i = 0; i < helpVectors.size(); ++i) {
                     const auto axis = firstComponent(helpVectors[i]);
@@ -201,17 +201,17 @@ namespace TrenchBroom {
                     }
                 }
             }
-            
+
             std::vector<vm::vec3> combineHelpVectors() const {
                 std::vector<vm::vec3> result;
                 for (size_t i = 0; i < m_numPoints; ++i) {
                     const std::vector<vm::vec3>& helpVectors = m_points[i].helpVectors;
                     VectorUtils::append(result, helpVectors);
                 }
-                
+
                 return result;
             }
-            
+
             bool doCanClip() const override {
                 if (m_numPoints < 2) {
                     return false;
@@ -223,7 +223,7 @@ namespace TrenchBroom {
                 }
                 return true;
             }
-            
+
             bool doHasPoints() const override {
                 return m_numPoints > 0;
             }
@@ -243,12 +243,12 @@ namespace TrenchBroom {
                     return true;
                 }
             }
-            
+
             void doAddPoint(const vm::vec3& point, const std::vector<vm::vec3>& helpVectors) override {
                 m_points[m_numPoints] = ClipPoint(point, helpVectors);
                 ++m_numPoints;
             }
-            
+
             bool doCanRemoveLastPoint() const override {
                 return m_numPoints > 0;
             }
@@ -257,7 +257,7 @@ namespace TrenchBroom {
                 ensure(canRemoveLastPoint(), "can't remove last point");
                 --m_numPoints;
             }
-            
+
             bool doCanDragPoint(const Model::PickResult& pickResult, vm::vec3& initialPosition) const override {
                 const auto& hit = pickResult.query().type(PointHit).occluded().first();
                 if (!hit.isMatch()) {
@@ -268,14 +268,14 @@ namespace TrenchBroom {
                     return true;
                 }
             }
-            
+
             void doBeginDragPoint(const Model::PickResult& pickResult) override {
                 const auto& hit = pickResult.query().type(PointHit).occluded().first();
                 assert(hit.isMatch());
                 m_dragIndex = hit.target<size_t>();
                 m_originalPoint = m_points[m_dragIndex];
             }
-            
+
             void doBeginDragLastPoint() override {
                 ensure(m_numPoints > 0, "invalid numPoints");
                 m_dragIndex = m_numPoints - 1;
@@ -309,12 +309,12 @@ namespace TrenchBroom {
                             index1 = 1;
                             break;
                     }
-                    
+
                     if (colinear(m_points[index0].point, m_points[index1].point, newPosition)) {
                         return false;
                     }
                 }
-                
+
                 if (helpVectors.empty()) {
                     m_points[m_dragIndex] = ClipPoint(newPosition, m_points[m_dragIndex].helpVectors);
                 } else {
@@ -322,7 +322,7 @@ namespace TrenchBroom {
                 }
                 return true;
             }
-            
+
             void doEndDragPoint() override {
                 m_dragIndex = 4;
             }
@@ -336,11 +336,11 @@ namespace TrenchBroom {
             bool doSetFace(const Model::BrushFace* face) override {
                 return false;
             }
-            
+
             void doReset() override {
                 m_numPoints = 0;
             }
-            
+
             size_t doGetPoints(vm::vec3& point1, vm::vec3& point2, vm::vec3& point3) const override {
                 switch (m_numPoints) {
                     case 0:
@@ -369,7 +369,7 @@ namespace TrenchBroom {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setForegroundColor(pref(Preferences::ClipHandleColor));
                 renderService.setShowOccludedObjects();
-                
+
                 if (m_numPoints > 1) {
                     renderService.renderLine(vm::vec3f(m_points[0].point), vm::vec3f(m_points[1].point));
                     if (m_numPoints > 2) {
@@ -377,21 +377,21 @@ namespace TrenchBroom {
                         renderService.renderLine(vm::vec3f(m_points[2].point), vm::vec3f(m_points[0].point));
                     }
                 }
-                
+
                 renderService.setForegroundColor(pref(Preferences::ClipHandleColor));
                 renderService.setBackgroundColor(pref(Preferences::InfoOverlayBackgroundColor));
-                
+
                 for (size_t i = 0; i < m_numPoints; ++i) {
                     const auto& point = m_points[i].point;
                     renderService.renderHandle(vm::vec3f(point));
-                    
+
                     StringStream str;
                     str << (i+1) << ": " << point;
-                    
+
                     renderService.renderString(str.str(), vm::vec3f(point));
                 }
             }
-            
+
             void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Model::PickResult& pickResult) {
                 if (m_dragIndex < m_numPoints) {
                     renderHighlight(renderContext, renderBatch, m_dragIndex);
@@ -403,14 +403,14 @@ namespace TrenchBroom {
                     }
                 }
             }
-            
+
             void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const size_t index) {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
                 renderService.renderHandleHighlight(vm::vec3f(m_points[index].point));
             }
         };
-        
+
         class ClipTool::FaceClipStrategy : public ClipTool::ClipStrategy {
         private:
             const Model::BrushFace* m_face;
@@ -419,16 +419,16 @@ namespace TrenchBroom {
             m_face(nullptr) {}
         private:
             void doPick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const override {}
-            
+
             void doRender(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Model::PickResult& pickResult) override {
                 if (m_face != nullptr) {
                     Renderer::RenderService renderService(renderContext, renderBatch);
-                    
+
                     const auto vertices = m_face->vertices();
-                    
+
                     std::vector<vm::vec3f> positions;
                     positions.reserve(vertices.size());
-                    
+
                     for (const Model::BrushVertex* vertex : vertices) {
                         positions.push_back(vm::vec3f(vertex->position()));
                     }
@@ -440,11 +440,11 @@ namespace TrenchBroom {
                     renderService.renderFilledPolygon(positions);
                 }
             }
-            
+
             void doRenderFeedback(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vm::vec3& point) const override {}
 
             vm::vec3 doGetHelpVector() const { return vm::vec3::zero; }
-            
+
             bool doComputeThirdPoint(vm::vec3& point) const override { return false; }
 
             bool doCanClip() const override { return m_face != nullptr; }
@@ -453,24 +453,24 @@ namespace TrenchBroom {
             void doAddPoint(const vm::vec3& point, const std::vector<vm::vec3>& helpVectors) override {}
             bool doCanRemoveLastPoint() const override { return false; }
             void doRemoveLastPoint() override {}
-            
+
             bool doCanDragPoint(const Model::PickResult& pickResult, vm::vec3& initialPosition) const override { return false; }
             void doBeginDragPoint(const Model::PickResult& pickResult) override {}
             void doBeginDragLastPoint() override {}
             bool doDragPoint(const vm::vec3& newPosition, const std::vector<vm::vec3>& helpVectors) override { return false; }
             void doEndDragPoint() override {}
             void doCancelDragPoint() override {}
-            
+
             bool doSetFace(const Model::BrushFace* face) override {
                 ensure(face != nullptr, "face is null");
                 m_face = face;
                 return true;
             }
-            
+
             void doReset() override {
                 m_face = nullptr;
             }
-            
+
             size_t doGetPoints(vm::vec3& point1, vm::vec3& point2, vm::vec3& point3) const override {
                 if (m_face == nullptr) {
                     return 0;
@@ -483,17 +483,17 @@ namespace TrenchBroom {
                 return 3;
             }
         };
-        
+
         ClipTool::ClipTool(MapDocumentWPtr document) :
         Tool(false),
         m_document(document),
         m_clipSide(ClipSide_Front),
         m_strategy(nullptr),
-        m_remainingBrushRenderer(new Renderer::BrushRenderer(false)),
-        m_clippedBrushRenderer(new Renderer::BrushRenderer(true)),
+        m_remainingBrushRenderer(new Renderer::BrushRenderer()),
+        m_clippedBrushRenderer(new Renderer::BrushRenderer()),
         m_ignoreNotifications(false),
         m_dragging(false) {}
-        
+
         ClipTool::~ClipTool() {
             delete m_strategy;
             delete m_remainingBrushRenderer;
@@ -501,7 +501,7 @@ namespace TrenchBroom {
             MapUtils::clearAndDelete(m_frontBrushes);
             MapUtils::clearAndDelete(m_backBrushes);
         }
-        
+
         const Grid& ClipTool::grid() const {
             return lock(m_document)->grid();
         }
@@ -522,18 +522,18 @@ namespace TrenchBroom {
                 update();
             }
         }
-        
+
         void ClipTool::pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
             if (m_strategy != nullptr) {
                 m_strategy->pick(pickRay, camera, pickResult);
             }
         }
-        
+
         void ClipTool::render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Model::PickResult& pickResult) {
             renderBrushes(renderContext, renderBatch);
             renderStrategy(renderContext, renderBatch, pickResult);
         }
-        
+
         void ClipTool::renderBrushes(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             m_remainingBrushRenderer->setFaceColor(pref(Preferences::FaceColor));
             m_remainingBrushRenderer->setEdgeColor(pref(Preferences::SelectedEdgeColor));
@@ -543,21 +543,22 @@ namespace TrenchBroom {
             m_remainingBrushRenderer->setTint(true);
             m_remainingBrushRenderer->setTintColor(pref(Preferences::SelectedFaceColor));
             m_remainingBrushRenderer->render(renderContext, renderBatch);
-            
+
             m_clippedBrushRenderer->setFaceColor(pref(Preferences::FaceColor));
             m_clippedBrushRenderer->setEdgeColor(Color(pref(Preferences::EdgeColor), 0.5f));
             m_clippedBrushRenderer->setShowEdges(true);
             m_clippedBrushRenderer->setTint(false);
+            m_clippedBrushRenderer->setForceTransparent(true);
             m_clippedBrushRenderer->setTransparencyAlpha(0.5f);
             m_clippedBrushRenderer->render(renderContext, renderBatch);
         }
-        
+
         void ClipTool::renderStrategy(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Model::PickResult& pickResult) {
             if (m_strategy != nullptr) {
                 m_strategy->render(renderContext, renderBatch, pickResult);
             }
         }
-        
+
         void ClipTool::renderFeedback(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vm::vec3& point) const {
             if (m_strategy != nullptr) {
                 m_strategy->renderFeedback(renderContext, renderBatch, point);
@@ -593,7 +594,7 @@ namespace TrenchBroom {
                 update();
             }
         }
-        
+
         Model::ParentChildrenMap ClipTool::clipBrushes() {
             Model::ParentChildrenMap result;
             if (!m_frontBrushes.empty()) {
@@ -604,7 +605,7 @@ namespace TrenchBroom {
                     MapUtils::clearAndDelete(m_frontBrushes);
                 }
             }
-            
+
             if (!m_backBrushes.empty()) {
                 if (keepBackBrushes()) {
                     MapUtils::merge(result, m_backBrushes);
@@ -613,20 +614,20 @@ namespace TrenchBroom {
                     MapUtils::clearAndDelete(m_backBrushes);
                 }
             }
-            
+
             resetStrategy();
             return result;
         }
-        
+
         vm::vec3 ClipTool::defaultClipPointPos() const {
             auto document = lock(m_document);
             return document->selectionBounds().center();
         }
-        
+
         bool ClipTool::canAddPoint(const vm::vec3& point) const {
             return m_strategy == nullptr || m_strategy->canAddPoint(point);
         }
-        
+
         bool ClipTool::hasPoints() const {
             return m_strategy != nullptr && m_strategy->hasPoints();
         }
@@ -640,7 +641,7 @@ namespace TrenchBroom {
             m_strategy->addPoint(point, helpVectors);
             update();
         }
-        
+
         bool ClipTool::canRemoveLastPoint() const {
             return m_strategy != nullptr && m_strategy->canRemoveLastPoint();
         }
@@ -666,7 +667,7 @@ namespace TrenchBroom {
                 return true;
             }
         }
-        
+
         void ClipTool::beginDragLastPoint() {
             assert(!m_dragging);
             ensure(m_strategy != nullptr, "strategy is null");
@@ -684,7 +685,7 @@ namespace TrenchBroom {
                 return true;
             }
         }
-        
+
         void ClipTool::endDragPoint() {
             assert(m_dragging);
             ensure(m_strategy != nullptr, "strategy is null");
@@ -707,7 +708,7 @@ namespace TrenchBroom {
             m_strategy->setFace(face);
             update();
         }
-        
+
         bool ClipTool::reset() {
             if (m_strategy != nullptr) {
                 resetStrategy();
@@ -716,47 +717,47 @@ namespace TrenchBroom {
                 return false;
             }
         }
-        
+
         void ClipTool::resetStrategy() {
             delete m_strategy;
             m_strategy = nullptr;
             update();
         }
-        
+
         void ClipTool::update() {
             clearRenderers();
             clearBrushes();
-            
+
             updateBrushes();
             updateRenderers();
-            
+
             refreshViews();
         }
-        
+
         void ClipTool::clearBrushes() {
             MapUtils::clearAndDelete(m_frontBrushes);
             MapUtils::clearAndDelete(m_backBrushes);
         }
-        
+
         void ClipTool::updateBrushes() {
             MapDocumentSPtr document = lock(m_document);
             const auto& brushes = document->selectedNodes().brushes();
             const auto& worldBounds = document->worldBounds();
-            
+
             if (canClip()) {
                 vm::vec3 point1, point2, point3;
                 const auto numPoints = m_strategy->getPoints(point1, point2, point3);
                 unused(numPoints);
                 ensure(numPoints == 3, "invalid number of points");
-                
+
                 auto* world = document->world();
                 for (auto* brush : brushes) {
                     auto* parent = brush->parent();
-                    
+
                     auto* frontFace = world->createFace(point1, point2, point3, document->currentTextureName());
                     auto* backFace = world->createFace(point1, point3, point2, document->currentTextureName());
                     setFaceAttributes(brush->faces(), frontFace, backFace);
-                    
+
                     auto* frontBrush = brush->clone(worldBounds);
                     if (frontBrush->clip(worldBounds, frontFace)) {
                         m_frontBrushes[parent].push_back(frontBrush);
@@ -779,18 +780,18 @@ namespace TrenchBroom {
                 }
             }
         }
-        
+
         void ClipTool::setFaceAttributes(const Model::BrushFaceList& faces, Model::BrushFace* frontFace, Model::BrushFace* backFace) const {
             ensure(!faces.empty(), "no faces");
-            
+
             auto faceIt = std::begin(faces);
             const auto faceEnd = std::end(faces);
             const auto* bestFrontFace = *faceIt++;
             const auto* bestBackFace = bestFrontFace;
-            
+
             while (faceIt != faceEnd) {
                 const auto* face = *faceIt;
-                
+
                 const auto bestFrontDiff = bestFrontFace->boundary().normal - frontFace->boundary().normal;
                 const auto frontDiff = face->boundary().normal - frontFace->boundary().normal;
                 if (squaredLength(frontDiff) < squaredLength(bestFrontDiff)) {
@@ -805,18 +806,18 @@ namespace TrenchBroom {
 
                 ++faceIt;
             }
-            
+
             ensure(bestFrontFace != nullptr, "bestFrontFace is null");
             ensure(bestBackFace != nullptr, "bestBackFace is null");
             frontFace->setAttributes(bestFrontFace);
             backFace->setAttributes(bestBackFace);
         }
-        
+
         void ClipTool::clearRenderers() {
             m_remainingBrushRenderer->clear();
             m_clippedBrushRenderer->clear();
         }
-        
+
         void ClipTool::updateRenderers() {
             if (canClip()) {
                 if (keepFrontBrushes()) {
@@ -835,26 +836,26 @@ namespace TrenchBroom {
                 addBrushesToRenderer(m_backBrushes, m_remainingBrushRenderer);
             }
         }
-        
+
         void ClipTool::addBrushesToRenderer(const Model::ParentChildrenMap& map, Renderer::BrushRenderer* renderer) {
             Model::CollectBrushesVisitor collect;
-            
+
             for (const auto& entry : map) {
                 const auto& brushes = entry.second;
                 Model::Node::accept(std::begin(brushes), std::end(brushes), collect);
             }
-            
+
             renderer->addBrushes(collect.brushes());
         }
-        
+
         bool ClipTool::keepFrontBrushes() const {
             return m_clipSide != ClipSide_Back;
         }
-        
+
         bool ClipTool::keepBackBrushes() const {
             return m_clipSide != ClipSide_Front;
         }
-        
+
         bool ClipTool::doActivate() {
             auto document = lock(m_document);
             if (!document->selectedNodes().hasOnlyBrushes()) {
@@ -865,7 +866,7 @@ namespace TrenchBroom {
                 return true;
             }
         }
-        
+
         bool ClipTool::doDeactivate() {
             unbindObservers();
 
@@ -873,10 +874,10 @@ namespace TrenchBroom {
             m_strategy = nullptr;
             clearRenderers();
             clearBrushes();
-            
+
             return true;
         }
-        
+
         bool ClipTool::doRemove() {
             return removeLastPoint();
         }
@@ -888,7 +889,7 @@ namespace TrenchBroom {
             document->nodesDidChangeNotifier.addObserver(this, &ClipTool::nodesDidChange);
             document->brushFacesDidChangeNotifier.addObserver(this, &ClipTool::facesDidChange);
         }
-        
+
         void ClipTool::unbindObservers() {
             if (!expired(m_document)) {
                 MapDocumentSPtr document = lock(m_document);
@@ -898,19 +899,19 @@ namespace TrenchBroom {
                 document->brushFacesDidChangeNotifier.removeObserver(this, &ClipTool::facesDidChange);
             }
         }
-        
+
         void ClipTool::selectionDidChange(const Selection& selection) {
             if (!m_ignoreNotifications) {
                 update();
             }
         }
-        
+
         void ClipTool::nodesWillChange(const Model::NodeList& nodes) {
             if (!m_ignoreNotifications) {
                 update();
             }
         }
-        
+
         void ClipTool::nodesDidChange(const Model::NodeList& nodes) {
             if (!m_ignoreNotifications) {
                 update();

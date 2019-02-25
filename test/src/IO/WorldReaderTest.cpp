@@ -61,7 +61,7 @@ namespace TrenchBroom {
             vm::bbox3 worldBounds(8192);
 
             IO::TestParserStatus status;
-            WorldReader reader(data, nullptr);
+            WorldReader reader(data);
 
             auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
             ASSERT_TRUE(world != nullptr);
@@ -72,7 +72,7 @@ namespace TrenchBroom {
             vm::bbox3 worldBounds(8192);
 
             IO::TestParserStatus status;
-            WorldReader reader(data, nullptr);
+            WorldReader reader(data);
 
             auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
 
@@ -86,7 +86,7 @@ namespace TrenchBroom {
             vm::bbox3 worldBounds(8192);
 
             IO::TestParserStatus status;
-            WorldReader reader(data, nullptr);
+            WorldReader reader(data);
 
             auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
 
@@ -106,7 +106,7 @@ namespace TrenchBroom {
             vm::bbox3 worldBounds(8192);
 
             IO::TestParserStatus status;
-            WorldReader reader(data, nullptr);
+            WorldReader reader(data);
 
             auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
 
@@ -134,7 +134,7 @@ namespace TrenchBroom {
             vm::bbox3 worldBounds(8192);
 
             IO::TestParserStatus status;
-            WorldReader reader(data, nullptr);
+            WorldReader reader(data);
 
             auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
 
@@ -171,7 +171,7 @@ namespace TrenchBroom {
             vm::bbox3 worldBounds(8192);
 
             IO::TestParserStatus status;
-            WorldReader reader(data, nullptr);
+            WorldReader reader(data);
 
             auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
 
@@ -221,7 +221,7 @@ namespace TrenchBroom {
             vm::bbox3 worldBounds(8192);
 
             IO::TestParserStatus status;
-            WorldReader reader(data, nullptr);
+            WorldReader reader(data);
 
             auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
 
@@ -259,7 +259,7 @@ namespace TrenchBroom {
             vm::bbox3 worldBounds(8192);
 
             IO::TestParserStatus status;
-            WorldReader reader(data, nullptr);
+            WorldReader reader(data);
 
             auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
 
@@ -301,7 +301,7 @@ namespace TrenchBroom {
             vm::bbox3 worldBounds(8192);
 
             IO::TestParserStatus status;
-            WorldReader reader(data, nullptr);
+            WorldReader reader(data);
 
             auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
 
@@ -342,7 +342,7 @@ namespace TrenchBroom {
             vm::bbox3 worldBounds(8192);
 
             IO::TestParserStatus status;
-            WorldReader reader(data, nullptr);
+            WorldReader reader(data);
 
             auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
 
@@ -367,7 +367,7 @@ namespace TrenchBroom {
             vm::bbox3 worldBounds(8192);
 
             IO::TestParserStatus status;
-            WorldReader reader(data, nullptr);
+            WorldReader reader(data);
 
             auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
 
@@ -392,7 +392,7 @@ namespace TrenchBroom {
             vm::bbox3 worldBounds(8192);
 
             IO::TestParserStatus status;
-            WorldReader reader(data, nullptr);
+            WorldReader reader(data);
 
             auto world = reader.read(Model::MapFormat::Valve, worldBounds, status);
 
@@ -417,7 +417,7 @@ namespace TrenchBroom {
             vm::bbox3 worldBounds(8192);
 
             IO::TestParserStatus status;
-            WorldReader reader(data, nullptr);
+            WorldReader reader(data);
 
             auto world = reader.read(Model::MapFormat::Quake2, worldBounds, status);
 
@@ -442,7 +442,7 @@ namespace TrenchBroom {
             vm::bbox3 worldBounds(8192);
 
             IO::TestParserStatus status;
-            WorldReader reader(data, nullptr);
+            WorldReader reader(data);
 
             auto world = reader.read(Model::MapFormat::Daikatana, worldBounds, status);
 
@@ -491,7 +491,7 @@ namespace TrenchBroom {
             vm::bbox3 worldBounds(8192);
 
             IO::TestParserStatus status;
-            WorldReader reader(data, nullptr);
+            WorldReader reader(data);
 
             auto world = reader.read(Model::MapFormat::Daikatana, worldBounds, status);
 
@@ -516,7 +516,7 @@ namespace TrenchBroom {
             vm::bbox3 worldBounds(8192);
 
             IO::TestParserStatus status;
-            WorldReader reader(data, nullptr);
+            WorldReader reader(data);
 
             auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
 
@@ -563,7 +563,7 @@ namespace TrenchBroom {
             vm::bbox3 worldBounds(8192);
 
             IO::TestParserStatus status;
-            WorldReader reader(data, nullptr);
+            WorldReader reader(data);
 
             auto world = reader.read(Model::MapFormat::Quake2, worldBounds, status);
 
@@ -622,7 +622,7 @@ namespace TrenchBroom {
             vm::bbox3 worldBounds(8192);
 
             IO::TestParserStatus status;
-            WorldReader reader(data, nullptr);
+            WorldReader reader(data);
 
             auto world = reader.read(Model::MapFormat::Quake2, worldBounds, status);
 
@@ -697,7 +697,7 @@ namespace TrenchBroom {
             vm::bbox3 worldBounds(8192);
 
             IO::TestParserStatus status;
-            WorldReader reader(data, nullptr);
+            WorldReader reader(data);
 
             auto world = reader.read(Model::MapFormat::Quake2, worldBounds, status);
 
@@ -733,7 +733,7 @@ namespace TrenchBroom {
             vm::bbox3 worldBounds(8192);
 
             IO::TestParserStatus status;
-            WorldReader reader(data, nullptr);
+            WorldReader reader(data);
 
             auto world = reader.read(Model::MapFormat::Quake3, worldBounds, status);
 
@@ -769,7 +769,7 @@ brushDef
             vm::bbox3 worldBounds(8192);
 
             IO::TestParserStatus status;
-            WorldReader reader(data, nullptr);
+            WorldReader reader(data);
 
             auto world = reader.read(Model::MapFormat::Quake3, worldBounds, status);
 
@@ -797,7 +797,7 @@ common/caulk
             vm::bbox3 worldBounds(8192);
 
             IO::TestParserStatus status;
-            WorldReader reader(data, nullptr);
+            WorldReader reader(data);
 
             auto world = reader.read(Model::MapFormat::Quake3, worldBounds, status);
 
@@ -817,7 +817,7 @@ common/caulk
             vm::bbox3 worldBounds(8192);
 
             IO::TestParserStatus status;
-            WorldReader reader(data, nullptr);
+            WorldReader reader(data);
 
             ASSERT_NO_THROW(reader.read(Model::MapFormat::Quake2, worldBounds, status));
         }
@@ -831,7 +831,7 @@ common/caulk
             vm::bbox3 worldBounds(8192);
 
             IO::TestParserStatus status;
-            WorldReader reader(data, nullptr);
+            WorldReader reader(data);
 
             auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
 
@@ -852,7 +852,7 @@ common/caulk
             vm::bbox3 worldBounds(8192);
 
             IO::TestParserStatus status;
-            WorldReader reader(data, nullptr);
+            WorldReader reader(data);
 
             auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
 
@@ -873,7 +873,7 @@ common/caulk
             vm::bbox3 worldBounds(8192);
 
             IO::TestParserStatus status;
-            WorldReader reader(data, nullptr);
+            WorldReader reader(data);
 
             auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
 
@@ -895,7 +895,7 @@ common/caulk
             vm::bbox3 worldBounds(8192);
 
             IO::TestParserStatus status;
-            WorldReader reader(data, nullptr);
+            WorldReader reader(data);
 
             auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
 
@@ -917,7 +917,7 @@ common/caulk
             vm::bbox3 worldBounds(8192);
 
             IO::TestParserStatus status;
-            WorldReader reader(data, nullptr);
+            WorldReader reader(data);
 
             auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
 

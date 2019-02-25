@@ -27,7 +27,6 @@
 #include "IO/IOUtils.h"
 #include "IO/GameConfigParser.h"
 #include "IO/Path.h"
-#include "Model/BrushContentType.h"
 #include "Model/Entity.h"
 #include "Model/GameConfig.h"
 #include "Model/GameImpl.h"

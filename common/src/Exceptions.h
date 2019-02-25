@@ -31,7 +31,7 @@ public:
     Exception() noexcept {}
 
     explicit Exception(std::string str) noexcept :
-            m_msg(std::move(str)) {}
+    m_msg(std::move(str)) {}
     
     const char* what() const noexcept override {
         return m_msg.c_str();
@@ -44,7 +44,7 @@ public:
     ExceptionStream() noexcept {}
 
     explicit ExceptionStream(std::string str) noexcept :
-            Exception(std::move(str)) {}
+    Exception(std::move(str)) {}
 
     template <typename T>
     C& operator<< (T value) {
@@ -68,15 +68,19 @@ public:
 class ParserException : public ExceptionStream<ParserException> {
 public:
     using ExceptionStream::ExceptionStream;
-    ParserException(const size_t line, const size_t column, const std::string& str = "") noexcept : ExceptionStream() {
-        if (!str.empty())
-            *this << str << " ";
-        *this << "[line " << line << ", column " << column << "]";
+    ParserException(const size_t line, const size_t column, const std::string& str = "") noexcept :
+    ExceptionStream() {
+        *this << "At line " << line << ", column " << column << ":";
+        if (!str.empty()) {
+            *this << " " << str;
+        }
     }
+
     ParserException(const size_t line, const std::string& str = "") noexcept : ExceptionStream() {
-        if (!str.empty())
-            *this << str << " ";
-        *this << "[line " << line << "]";
+        *this << "At line " << line << ":";
+        if (!str.empty()) {
+            *this << " " << str;
+        }
     }
 };
 

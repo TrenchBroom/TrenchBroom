@@ -26,13 +26,11 @@
 
 namespace TrenchBroom {
     namespace IO {
-        WorldReader::WorldReader(const char* begin, const char* end, const Model::BrushContentTypeBuilder* brushContentTypeBuilder) :
-        MapReader(begin, end),
-        m_brushContentTypeBuilder(brushContentTypeBuilder) {}
+        WorldReader::WorldReader(const char* begin, const char* end) :
+        MapReader(begin, end) {}
         
-        WorldReader::WorldReader(const String& str, const Model::BrushContentTypeBuilder* brushContentTypeBuilder) :
-        MapReader(str),
-        m_brushContentTypeBuilder(brushContentTypeBuilder) {}
+        WorldReader::WorldReader(const String& str) :
+        MapReader(str) {}
         
         std::unique_ptr<Model::World> WorldReader::read(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status) {
             readEntities(format, worldBounds, status);
@@ -42,7 +40,7 @@ namespace TrenchBroom {
         }
 
         Model::ModelFactory& WorldReader::initialize(const Model::MapFormat format, const vm::bbox3& worldBounds) {
-            m_world = std::make_unique<Model::World>(format, m_brushContentTypeBuilder, worldBounds);
+            m_world = std::make_unique<Model::World>(format, worldBounds);
             m_world->disableNodeTreeUpdates();
             return *m_world;
         }

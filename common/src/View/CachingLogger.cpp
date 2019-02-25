@@ -31,8 +31,9 @@ namespace TrenchBroom {
         void CachingLogger::setParentLogger(Logger* logger) {
             m_logger = logger;
             if (m_logger != nullptr) {
-                for (const Message& message : m_cachedMessages)
+                for (const Message& message : m_cachedMessages) {
                     log(message.level, message.str);
+                }
                 m_cachedMessages.clear();
             }
         }
@@ -42,10 +43,11 @@ namespace TrenchBroom {
         }
         
         void CachingLogger::doLog(const LogLevel level, const wxString& message) {
-            if (m_logger == nullptr)
+            if (m_logger == nullptr) {
                 m_cachedMessages.push_back(Message(level, message));
-            else
+            } else {
                 m_logger->log(level, message);
+            }
         }
     }
 }

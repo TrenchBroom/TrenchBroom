@@ -20,6 +20,7 @@
 #include "World.h"
 
 #include "Model/AssortNodesVisitor.h"
+#include "Model/TagMatcher.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/CollectNodesWithDescendantSelectionCountVisitor.h"
@@ -27,10 +28,9 @@
 
 namespace TrenchBroom {
     namespace Model {
-        World::World(MapFormat mapFormat, const BrushContentTypeBuilder* brushContentTypeBuilder, const vm::bbox3& worldBounds) :
-        m_factory(mapFormat, brushContentTypeBuilder),
+        World::World(MapFormat mapFormat, const vm::bbox3& worldBounds) :
+        m_factory(mapFormat),
         m_defaultLayer(nullptr),
-        // m_nodeTree(VecCodeComputer<vm::vec3>(worldBounds)),
         m_updateNodeTree(true) {
             addOrUpdateAttribute(AttributeNames::Classname, AttributeValues::WorldspawnClassname);
             createDefaultLayer(worldBounds);
@@ -380,6 +380,10 @@ namespace TrenchBroom {
         
         BrushFace* World::doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const {
             return m_factory.createFace(point1, point2, point3, attribs, texAxisX, texAxisY);
+        }
+
+        bool World::doEvaluateTagMatcher(const TagMatcher& matcher) const {
+            return matcher.matches(*this);
         }
     }
 }

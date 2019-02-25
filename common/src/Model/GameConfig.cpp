@@ -175,26 +175,26 @@ namespace TrenchBroom {
         GameConfig::GameConfig() :
         m_maxPropertyLength(1023) {}
 
-        GameConfig::GameConfig(const String& name,
-                               const IO::Path& path,
-                               const IO::Path& icon,
+        GameConfig::GameConfig(String name,
+                               IO::Path path,
+                               IO::Path icon,
                                const bool experimental,
-                               const MapFormatConfig::List& fileFormats,
-                               const FileSystemConfig& fileSystemConfig,
-                               const TextureConfig& textureConfig,
-                               const EntityConfig& entityConfig,
-                               const FaceAttribsConfig& faceAttribsConfig,
-                               const BrushContentType::List& brushContentTypes) :
-        m_name(name),
-        m_path(path),
-        m_icon(icon),
+                               MapFormatConfig::List fileFormats,
+                               FileSystemConfig fileSystemConfig,
+                               TextureConfig textureConfig,
+                               EntityConfig entityConfig,
+                               FaceAttribsConfig faceAttribsConfig,
+                               std::vector<SmartTag> smartTags) :
+        m_name(std::move(name)),
+        m_path(std::move(path)),
+        m_icon(std::move(icon)),
         m_experimental(experimental),
-        m_fileFormats(fileFormats),
-        m_fileSystemConfig(fileSystemConfig),
-        m_textureConfig(textureConfig),
-        m_entityConfig(entityConfig),
-        m_faceAttribsConfig(faceAttribsConfig),
-        m_brushContentTypes(brushContentTypes),
+        m_fileFormats(std::move(fileFormats)),
+        m_fileSystemConfig(std::move(fileSystemConfig)),
+        m_textureConfig(std::move(textureConfig)),
+        m_entityConfig(std::move(entityConfig)),
+        m_faceAttribsConfig(std::move(faceAttribsConfig)),
+        m_smartTags(std::move(smartTags)),
         m_maxPropertyLength(1023) {
             assert(!StringUtils::trim(m_name).empty());
             assert(m_path.isEmpty() || m_path.isAbsolute());
@@ -236,8 +236,8 @@ namespace TrenchBroom {
             return m_faceAttribsConfig;
         }
 
-        const BrushContentType::List& GameConfig::brushContentTypes() const {
-            return m_brushContentTypes;
+        const std::vector<SmartTag>& GameConfig::smartTags() const {
+            return m_smartTags;
         }
 
         CompilationConfig& GameConfig::compilationConfig() {
@@ -283,10 +283,6 @@ namespace TrenchBroom {
 
         IO::Path GameConfig::findConfigFile(const IO::Path& filePath) const {
             return path().deleteLastComponent() + filePath;
-        }
-
-        void GameConfig::addBrushContentType(const BrushContentType& contentType) {
-            m_brushContentTypes.push_back(contentType);
         }
     }
 }
