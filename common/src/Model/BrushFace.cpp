@@ -21,6 +21,7 @@
 
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
+#include "Model/TagMatcher.h"
 #include "Model/Brush.h"
 #include "Model/BrushFaceSnapshot.h"
 #include "Model/PlanePointFinder.h"

@@ -19,6 +19,7 @@
 
 #include "Layer.h"
 
+#include "Model/TagMatcher.h"
 #include "Model/Brush.h"
 #include "Model/ComputeNodeBoundsVisitor.h"
 #include "Model/Group.h"

@@ -21,6 +21,7 @@
 
 #include "TrenchBroom.h"
 #include "Hit.h"
+#include "Model/TagMatcher.h"
 #include "Model/BoundsContainsNodeVisitor.h"
 #include "Model/BoundsIntersectsNodeVisitor.h"
 #include "Model/Brush.h"
