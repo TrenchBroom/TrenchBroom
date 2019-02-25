@@ -97,18 +97,28 @@ namespace TrenchBroom {
                 const bool brushEditable = editable(brush);
 
                 const bool renderFaces = (brushVisible && brushEditable);
-                const bool renderEdges = (brushVisible && !selected(brush));
+                      bool renderEdges = (brushVisible && !selected(brush));
 
-                if (!(renderFaces || renderEdges)) {
+                if (!renderFaces && !renderEdges) {
                     return renderNothing();
                 }
 
+                bool anyFaceVisible = false;
                 for (Model::BrushFace* face : brush->faces()) {
-                    face->setMarked(!selected(face) && visible(face));
+                    const bool faceVisible = !selected(face) && visible(face);
+                    face->setMarked(faceVisible);
+                    anyFaceVisible |= faceVisible;
                 }
 
+                if (!anyFaceVisible) {
+                    return renderNothing();
+                }
+
+                // Render all edges if only one face is visible.
+                renderEdges |= anyFaceVisible;
+
                 return std::make_tuple(renderFaces ? FaceRenderPolicy::RenderMarked : FaceRenderPolicy::RenderNone,
-                                       renderEdges ? EdgeRenderPolicy::RenderIfBothFacesMarked : EdgeRenderPolicy::RenderNone);
+                                       renderEdges ? EdgeRenderPolicy::RenderAll : EdgeRenderPolicy::RenderNone);
             }
         };
         
