@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -21,7 +21,7 @@
 
 #include "CollectionUtils.h"
 #include "Macros.h"
-#include "Model/BrushContentTypeBuilder.h"
+#include "Model/TagMatcher.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/BrushSnapshot.h"
@@ -285,11 +285,7 @@ namespace TrenchBroom {
         };
 
         Brush::Brush(const vm::bbox3& worldBounds, const BrushFaceList& faces) :
-        m_geometry(nullptr),
-        m_contentTypeBuilder(nullptr),
-        m_contentType(0),
-        m_transparent(false),
-        m_contentTypeValid(true) {
+        m_geometry(nullptr) {
             addFaces(faces);
             try {
                 buildGeometry(worldBounds);
@@ -306,7 +302,6 @@ namespace TrenchBroom {
         void Brush::cleanup() {
             deleteGeometry();
             VectorUtils::clearAndDelete(m_faces);
-            m_contentTypeBuilder = nullptr;
         }
 
         Brush* Brush::clone(const vm::bbox3& worldBounds) const {
@@ -425,7 +420,6 @@ namespace TrenchBroom {
         }
 
         void Brush::faceDidChange() {
-            invalidateContentType();
             invalidateIssues();
         }
 
@@ -440,7 +434,6 @@ namespace TrenchBroom {
 
             m_faces.push_back(face);
             face->setBrush(this);
-            invalidateContentType();
             invalidateVertexCache();
             if (face->selected()) {
                 incChildSelectionCount(1);
@@ -475,7 +468,6 @@ namespace TrenchBroom {
             }
             face->setGeometry(nullptr);
             face->setBrush(nullptr);
-            invalidateContentType();
             invalidateVertexCache();
         }
 
@@ -545,11 +537,10 @@ namespace TrenchBroom {
             }
 
             try {
-                auto* testBrush = new Brush(worldBounds, testFaces);
-                const auto inWorldBounds = worldBounds.contains(testBrush->bounds());
-                const auto closed = testBrush->closed();
-                const auto allFaces = testBrush->faceCount() == testFaces.size();
-                delete testBrush;
+                const auto testBrush = Brush(worldBounds, testFaces);
+                const auto inWorldBounds = worldBounds.contains(testBrush.bounds());
+                const auto closed = testBrush.closed();
+                const auto allFaces = testBrush.faceCount() == testFaces.size();
 
                 return inWorldBounds && closed && allFaces;
             } catch (const GeometryException&) {
@@ -564,24 +555,24 @@ namespace TrenchBroom {
             face->transform(vm::translationMatrix(delta), lockTexture);
             rebuildGeometry(worldBounds);
         }
-        
+
         bool Brush::canExpand(const vm::bbox3& worldBounds, const FloatType delta, const bool lockTexture) const {
             Brush *testBrush = clone(worldBounds);
             const bool didExpand = testBrush->expand(worldBounds, delta, lockTexture);
             delete testBrush;
-            
+
             return didExpand;
         }
-        
+
         bool Brush::expand(const vm::bbox3& worldBounds, const FloatType delta, const bool lockTexture) {
             const NotifyNodeChange nodeChange(this);
-            
+
             // move the faces
             for (BrushFace* face : m_faces) {
                 const vm::vec3 moveAmount = face->boundary().normal * delta;
                 face->transform(vm::translationMatrix(moveAmount), lockTexture);
             }
-            
+
             // rebuild geometry
             try {
                 rebuildGeometry(worldBounds);
@@ -916,7 +907,7 @@ namespace TrenchBroom {
 
         /*
          The following table shows all cases to consider.
-         
+
          REMAINING  || Empty   | Point  | Edge   | Polygon | Polyhedron
          ===========||=========|========|========|=========|============
          MOVING     ||         |        |        |         |
@@ -930,15 +921,15 @@ namespace TrenchBroom {
          Polygon    || n/a     | invert | invert | check   | check
          -----------||---------|--------|--------|---------|------------
          Polyhedron || ok      | invert | invert | invert  | check
-         
+
          n/a    - This case can never occur.
          ok     - This case is always allowed, unless the brush becomes invalid, i.e., not a polyhedron.
          no     - This case is always forbidden.
          invert - This case is handled by swapping the remaining and the moving fragments and inverting the delta. This takes us from a cell at (column, row) to the cell at (row, column).
          check  - Check whether any of the moved vertices would travel through the remaining fragment, or vice versa if inverted case. Also check whether the brush would become invalid, i.e., not a polyhedron.
-         
+
          If `allowVertexRemoval` is true, vertices can be moved inside a remaining polyhedron.
-         
+
          */
         Brush::CanMoveVerticesResult Brush::doCanMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, vm::vec3 delta, const bool allowVertexRemoval) const {
             // Should never occur, takes care of the first row.
@@ -1251,7 +1242,6 @@ namespace TrenchBroom {
                 }
             }
 
-            invalidateContentType();
             invalidateVertexCache();
         }
 
@@ -1330,47 +1320,6 @@ namespace TrenchBroom {
             rebuildGeometry(worldBounds);
         }
 
-        bool Brush::transparent() const {
-            if (!m_contentTypeValid) {
-                validateContentType();
-            }
-            return m_transparent;
-        }
-
-        bool Brush::hasContentType(const BrushContentType& contentType) const {
-            return hasContentType(contentType.flagValue());
-        }
-
-        bool Brush::hasContentType(const BrushContentType::FlagType contentTypeMask) const {
-            return (contentTypeFlags() & contentTypeMask) != 0;
-        }
-
-        void Brush::setContentTypeBuilder(const BrushContentTypeBuilder* contentTypeBuilder) {
-            m_contentTypeBuilder = contentTypeBuilder;
-            invalidateContentType();
-        }
-
-        BrushContentType::FlagType Brush::contentTypeFlags() const {
-            if (!m_contentTypeValid) {
-                validateContentType();
-            }
-            return m_contentType;
-        }
-
-        void Brush::invalidateContentType() {
-            m_contentTypeValid = false;
-        }
-
-        void Brush::validateContentType() const {
-            ensure(!m_contentTypeValid, "content type already valid");
-            if (m_contentTypeBuilder != nullptr) {
-                const auto result = m_contentTypeBuilder->buildContentType(this);
-                m_contentType = result.contentType;
-                m_transparent = result.transparent;
-                m_contentTypeValid = true;
-            }
-        }
-
         const String& Brush::doGetName() const {
             static const String name("brush");
             return name;
@@ -1390,7 +1339,6 @@ namespace TrenchBroom {
             }
 
             auto* brush = new Brush(worldBounds, faceClones);
-            brush->setContentTypeBuilder(m_contentTypeBuilder);
             cloneAttributes(brush);
             return brush;
         }
@@ -1409,10 +1357,6 @@ namespace TrenchBroom {
 
         bool Brush::doShouldAddToSpacialIndex() const {
             return true;
-        }
-
-        void Brush::doParentDidChange() {
-            invalidateContentType();
         }
 
         bool Brush::doSelectable() const {
@@ -1451,7 +1395,7 @@ namespace TrenchBroom {
             return hit.distance;
         }
 
-		Brush::BrushFaceHit::BrushFaceHit() : face(nullptr), distance(vm::nan<FloatType>()) {}
+        Brush::BrushFaceHit::BrushFaceHit() : face(nullptr), distance(vm::nan<FloatType>()) {}
 
         Brush::BrushFaceHit::BrushFaceHit(BrushFace* i_face, const FloatType i_distance) : face(i_face), distance(i_distance) {}
 
@@ -1571,6 +1515,34 @@ namespace TrenchBroom {
 
         Renderer::BrushRendererBrushCache& Brush::brushRendererBrushCache() const {
             return m_brushRendererBrushCache;
+        }
+
+        bool Brush::doEvaluateTagMatcher(const TagMatcher& matcher) const {
+            return matcher.matches(*this);
+        }
+
+        void Brush::initializeTags(TagManager& tagManager) {
+            Taggable::initializeTags(tagManager);
+            for (auto* face : m_faces) {
+                face->initializeTags(tagManager);
+            }
+        }
+
+        void Brush::clearTags() {
+            for (auto* face : m_faces) {
+                face->clearTags();
+            }
+            Taggable::clearTags();
+        }
+
+        bool Brush::allFacesHaveAnyTagInMask(Tag::TagType tagMask) const {
+            // Possible optimization: Store the shared face tag mask in the brush and updated it when a face changes.
+
+            Tag::TagType sharedFaceTags = ~Tag::TagType(0); // set all bits to 1
+            for (const auto* face : m_faces) {
+                sharedFaceTags &= face->tagMask();
+            }
+            return (sharedFaceTags & tagMask) != 0;
         }
     }
 }

@@ -24,6 +24,7 @@
 #include "Assets/EntityDefinitionManager.h"
 #include "Model/EditorContext.h"
 #include "Model/Game.h"
+#include "Model/Tag.h"
 #include "View/BorderLine.h"
 #include "View/BorderPanel.h"
 #include "View/MapDocument.h"
@@ -266,26 +267,23 @@ namespace TrenchBroom {
             editorContext.setShowBrushes(event.IsChecked());
         }
 
-        void ViewEditor::OnShowBrushContentTypeChanged(wxCommandEvent& event) {
+        void ViewEditor::OnShowTagChanged(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
             MapDocumentSPtr document = lock(m_document);
-            Model::GameSPtr game = document->game();
 
-            if (game.get() != nullptr) {
-                Model::BrushContentType::FlagType hiddenFlags = 0;
-                const Model::BrushContentType::List& contentTypes = game->brushContentTypes();
-
-                for (size_t i = 0; i < contentTypes.size(); ++i) {
-                    const Model::BrushContentType& contentType = contentTypes[i];
-                    wxCheckBox* checkBox = m_brushContentTypeCheckBoxes[i];
-                    if (!checkBox->GetValue())
-                        hiddenFlags |= contentType.flagValue();
+            Model::Tag::TagType hiddenTags = 0;
+            const auto& tags = document->smartTags();
+            for (size_t i = 0; i < tags.size(); ++i) {
+                const Model::Tag& tag = tags[i];
+                wxCheckBox* checkBox = m_tagCheckBoxes[i];
+                if (!checkBox->GetValue()) {
+                    hiddenTags |= tag.type();
                 }
-
-                Model::EditorContext& editorContext = document->editorContext();
-                editorContext.setHiddenBrushContentTypes(hiddenFlags);
             }
+
+            auto& editorContext = document->editorContext();
+            editorContext.setHiddenTags(hiddenTags);
         }
 
         void ViewEditor::OnFaceRenderModeChanged(wxCommandEvent& event) {
@@ -392,7 +390,7 @@ namespace TrenchBroom {
         }
 
         void ViewEditor::createGui() {
-			SetSizer(nullptr);
+            SetSizer(nullptr);
             DestroyChildren();
 
             wxGridBagSizer* sizer = new wxGridBagSizer(LayoutConstants::WideVMargin, LayoutConstants::WideHMargin);
@@ -401,9 +399,9 @@ namespace TrenchBroom {
             sizer->Add(createBrushesPanel(this),           wxGBPosition(1,1), wxDefaultSpan);
             sizer->Add(createRendererPanel(this),          wxGBPosition(2,1), wxDefaultSpan);
 
-			SetSizerAndFit(sizer);
-			Layout();
-			GetParent()->GetParent()->Fit();
+            SetSizerAndFit(sizer);
+            Layout();
+            GetParent()->GetParent()->Fit();
 
 #ifdef __WXGTK20__
             // For some reason, the popup window is too small on GTK, so we add a few pixels.
@@ -463,7 +461,7 @@ namespace TrenchBroom {
         wxWindow* ViewEditor::createBrushesPanel(wxWindow* parent) {
             TitledPanel* panel = new TitledPanel(parent, "Brushes", false);
             wxWindow* inner = panel->getPanel();
-            createBrushContentTypeFilter(inner);
+            createTagFilter(inner);
 
             m_showBrushesCheckBox = new wxCheckBox(panel->getPanel(), wxID_ANY, "Show brushes");
             m_showBrushesCheckBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShowBrushesChanged, this);
@@ -474,25 +472,20 @@ namespace TrenchBroom {
             return panel;
         }
 
-        void ViewEditor::createBrushContentTypeFilter(wxWindow* parent) {
-            m_brushContentTypeCheckBoxes.clear();
+        void ViewEditor::createTagFilter(wxWindow* parent) {
+            m_tagCheckBoxes.clear();
 
             MapDocumentSPtr document = lock(m_document);
-            Model::GameSPtr game = document->game();
-            if (game.get() == nullptr) {
-                createEmptyBrushContentTypeFilter(parent);
+            const auto& tags = document->smartTags();
+            if (tags.empty()) {
+                createEmptyTagFilter(parent);
             } else {
-                const Model::BrushContentType::List& contentTypes = game->brushContentTypes();
-                if (contentTypes.empty()) {
-                    createEmptyBrushContentTypeFilter(parent);
-                } else {
-                    createBrushContentTypeFilter(parent, contentTypes);
-                }
+                createTagFilter(parent, tags);
             }
         }
 
-        void ViewEditor::createEmptyBrushContentTypeFilter(wxWindow* parent) {
-            wxStaticText* msg = new wxStaticText(parent, wxID_ANY, "No brush content types found");
+        void ViewEditor::createEmptyTagFilter(wxWindow* parent) {
+            wxStaticText* msg = new wxStaticText(parent, wxID_ANY, "No tags found");
             msg->SetForegroundColour(*wxLIGHT_GREY);
 
             wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
@@ -503,21 +496,21 @@ namespace TrenchBroom {
             parent->SetSizerAndFit(sizer);
         }
 
-        void ViewEditor::createBrushContentTypeFilter(wxWindow* parent, const Model::BrushContentType::List& contentTypes) {
-            assert(!contentTypes.empty());
+        void ViewEditor::createTagFilter(wxWindow* parent, const std::vector<Model::SmartTag>& tags) {
+            assert(!tags.empty());
 
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            for (size_t i = 0; i < contentTypes.size(); ++i) {
-                const Model::BrushContentType& contentType = contentTypes[i];
+            for (size_t i = 0; i < tags.size(); ++i) {
+                const auto& tag = tags[i];
 
                 wxString label = "Show ";
-                label << StringUtils::toLower(contentType.name());
+                label << StringUtils::toLower(tag.name());
 
                 wxCheckBox* checkBox = new wxCheckBox(parent, wxID_ANY, label);
-                m_brushContentTypeCheckBoxes.push_back(checkBox);
+                m_tagCheckBoxes.push_back(checkBox);
 
                 sizer->Add(checkBox);
-                checkBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShowBrushContentTypeChanged, this);
+                checkBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShowTagChanged, this);
             }
             parent->SetSizerAndFit(sizer);
         }
@@ -583,16 +576,13 @@ namespace TrenchBroom {
             m_showBrushesCheckBox->SetValue(config.showBrushes());
 
             Model::EditorContext& editorContext = document->editorContext();
-            const Model::BrushContentType::FlagType hiddenFlags = editorContext.hiddenBrushContentTypes();
+            const Model::Tag::TagType hiddenTags = editorContext.hiddenTags();
 
-            Model::GameSPtr game = document->game();
-            if (game.get() != nullptr) {
-                const Model::BrushContentType::List& contentTypes = game->brushContentTypes();
-                for (size_t i = 0; i < contentTypes.size(); ++i) {
-                    const Model::BrushContentType& contentType = contentTypes[i];
-                    wxCheckBox* checkBox = m_brushContentTypeCheckBoxes[i];
-                    checkBox->SetValue((contentType.flagValue() & hiddenFlags) == 0);
-                }
+            const auto& tags = document->smartTags();
+            for (size_t i = 0; i < tags.size(); ++i) {
+                const Model::Tag& tag = tags[i];
+                wxCheckBox* checkBox = m_tagCheckBoxes[i];
+                checkBox->SetValue((tag.type() & hiddenTags) == 0);
             }
         }
 

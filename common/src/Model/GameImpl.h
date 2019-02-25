@@ -55,6 +55,8 @@ namespace TrenchBroom {
 
             size_t doMaxPropertyLength() const override;
 
+            const std::vector<SmartTag>& doSmartTags() const override;
+
             std::unique_ptr<World> doNewMap(MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const override;
             std::unique_ptr<World> doLoadMap(MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger& logger) const override;
             void doWriteMap(World& world, const IO::Path& path) const override;
@@ -91,8 +93,6 @@ namespace TrenchBroom {
             Assets::EntityModel* loadDkmModel(const String& name, const IO::MappedFile::Ptr& file, Logger& logger) const;
             Assets::Palette loadTexturePalette() const;
             
-            const BrushContentType::List& doBrushContentTypes() const override;
-
             StringList doAvailableMods() const override;
             StringList doExtractEnabledMods(const AttributableNode& node) const override;
             String doDefaultMod() const override;

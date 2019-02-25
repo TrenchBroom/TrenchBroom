@@ -33,7 +33,7 @@ namespace TrenchBroom {
             static size_t currentShift = 0;
 
             ensure(currentShift <= Bits, "No more hit types");
-            return 1 << currentShift++;
+            return 1u << currentShift++;
         }
         
         const Hit Hit::NoHit = Hit(NoType, 0.0, vm::vec3::zero, false);

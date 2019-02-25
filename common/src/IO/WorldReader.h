@@ -25,20 +25,14 @@
 #include <memory>
 
 namespace TrenchBroom {
-    namespace Model {
-        class BrushContentTypeBuilder;
-    }
-    
     namespace IO {
         class ParserStatus;
         
         class WorldReader : public MapReader {
-        private:
-            const Model::BrushContentTypeBuilder* m_brushContentTypeBuilder;
             std::unique_ptr<Model::World> m_world;
         public:
-            WorldReader(const char* begin, const char* end, const Model::BrushContentTypeBuilder* brushContentTypeBuilder);
-            WorldReader(const String& str, const Model::BrushContentTypeBuilder* brushContentTypeBuilder);
+            WorldReader(const char* begin, const char* end);
+            WorldReader(const String& str);
 
             std::unique_ptr<Model::World> read(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status);
         private: // implement MapReader interface

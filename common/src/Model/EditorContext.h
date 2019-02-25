@@ -21,7 +21,7 @@
 #define TrenchBroom_EditorContext
 
 #include "Notifier.h"
-#include "Model/BrushContentType.h"
+#include "Model/Tag.h"
 #include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
@@ -41,7 +41,7 @@ namespace TrenchBroom {
         private:
             bool m_showPointEntities;
             bool m_showBrushes;
-            Model::BrushContentType::FlagType m_hiddenBrushContentTypes;
+            Model::Tag::TagType m_hiddenTags;
             Bitset m_hiddenEntityDefinitions;
             EntityLinkMode m_entityLinkMode;
             
@@ -60,10 +60,10 @@ namespace TrenchBroom {
             
             bool showBrushes() const;
             void setShowBrushes(bool showBrushes);
-            
-            Model::BrushContentType::FlagType hiddenBrushContentTypes() const;
-            void setHiddenBrushContentTypes(Model::BrushContentType::FlagType brushContentTypes);
-            
+
+            Model::Tag::TagType hiddenTags() const;
+            void setHiddenTags(Model::Tag::TagType hiddenTags);
+
             bool entityDefinitionHidden(const Model::AttributableNode* entity) const;
             bool entityDefinitionHidden(const Assets::EntityDefinition* definition) const;
             void setEntityDefinitionHidden(const Assets::EntityDefinition* definition, bool hidden);
