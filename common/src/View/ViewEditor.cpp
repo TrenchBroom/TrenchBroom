@@ -467,7 +467,7 @@ namespace TrenchBroom {
             wxWindow* inner = panel->getPanel();
             createTagFilter(inner);
 
-            m_showBrushesCheckBox = new wxCheckBox(panel->getPanel(), wxID_ANY, "Show brushes");
+            m_showBrushesCheckBox = new wxCheckBox(inner, wxID_ANY, "Show brushes");
             m_showBrushesCheckBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShowBrushesChanged, this);
 
             ensure(inner->GetSizer() != nullptr, "inner sizer is null");
@@ -514,7 +514,7 @@ namespace TrenchBroom {
                 sizer->Add(checkBox);
                 checkBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShowTagChanged, this);
             }
-            parent->SetSizerAndFit(sizer);
+            parent->SetSizer(sizer);
         }
 
         wxWindow* ViewEditor::createRendererPanel(wxWindow* parent) {

@@ -148,7 +148,7 @@ namespace TrenchBroom {
 
             wxString doGetActionDescription() const override {
                 wxString result;
-                result << "Toggle " << m_tag.name() << " visible";
+                result << "View Filter > Toggle " << m_tag.name() << " visible";
                 return result;
             }
 
