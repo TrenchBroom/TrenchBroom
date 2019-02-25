@@ -68,10 +68,11 @@ namespace TrenchBroom {
             class EnableTagKeyboardShortcutEntry;
             class DisableTagKeyboardShortcutEntry;
         private:
-            void getEntityDefinitionShortcutEntries(const Assets::EntityDefinitionList& entityDefinitions, ShortcutEntryList& entries);
+            void getEntityDefinitionShortcutEntries(Assets::EntityDefinitionList entityDefinitions, ShortcutEntryList& entries);
 
             class EntityKeyboardShortcutEntry;
             class ToggleEntityVisibilityKeyboardShortcutEntry;
+            class CreateEntityKeyboardShortcutEntry;
         public:
             String getJSTable();
         private:

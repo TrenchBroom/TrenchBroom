@@ -49,25 +49,8 @@ namespace TrenchBroom {
             m_hasConflicts = false;
         }
 
-        bool KeyboardShortcutEntry::updateConflicts(const KeyboardShortcutEntry& entry) {
-            const bool conflicts = conflictsWith(entry);
-            m_hasConflicts |= conflicts;
-            return conflicts;
-        }
-
-        bool KeyboardShortcutEntry::conflictsWith(const KeyboardShortcutEntry& entry) const {
-            if (&entry == this) {
-                return false;
-            }
-
-            if ((actionContext() & entry.actionContext()) == 0) {
-                return false;
-            }
-
-            const KeyboardShortcut& mine = shortcut();
-            const KeyboardShortcut& theirs = entry.shortcut();
-
-            return mine.hasKey() && theirs.hasKey() && mine == theirs;
+        void KeyboardShortcutEntry::setHasConflicts() {
+            m_hasConflicts = true;
         }
 
         int KeyboardShortcutEntry::actionContext() const {

@@ -104,11 +104,11 @@ namespace TrenchBroom {
             }
 
             static IO::Path enablePrefPath(const Model::SmartTag& tag) {
-                return IO::Path("Filters/Tags") + IO::Path(tag.name()) + IO::Path("Enable");
+                return IO::Path("Tags") + IO::Path(tag.name()) + IO::Path("Enable");
             }
 
             static IO::Path disablePrefPath(const Model::SmartTag& tag) {
-                return IO::Path("Filters/Tags") + IO::Path(tag.name()) + IO::Path("Disable");
+                return IO::Path("Tags") + IO::Path(tag.name()) + IO::Path("Disable");
             }
         private:
             bool doGetModifiable() const override {
@@ -215,10 +215,19 @@ namespace TrenchBroom {
             deleteCopyAndMove(DisableTagKeyboardShortcutEntry)
         };
 
-        void ActionManager::getEntityDefinitionShortcutEntries(const Assets::EntityDefinitionList& entityDefinitions, ActionManager::ShortcutEntryList& entries) {
+        void ActionManager::getEntityDefinitionShortcutEntries(Assets::EntityDefinitionList entityDefinitions, ActionManager::ShortcutEntryList& entries) {
+            std::sort(std::begin(entityDefinitions), std::end(entityDefinitions), [](const auto* lhs, const auto* rhs) {
+                return StringUtils::caseInsensitiveCompare(lhs->name(), rhs->name()) < 0;
+            });
+
             for (size_t i = 0; i < entityDefinitions.size(); ++i) {
                 const auto* definition = entityDefinitions[i];
                 entries.emplace_back(std::make_unique<ToggleEntityVisibilityKeyboardShortcutEntry>(definition->name(), i));
+            }
+
+            for (size_t i = 0; i < entityDefinitions.size(); ++i) {
+                const auto* definition = entityDefinitions[i];
+                entries.emplace_back(std::make_unique<CreateEntityKeyboardShortcutEntry>(definition->name(), i));
             }
         }
 
@@ -227,7 +236,7 @@ namespace TrenchBroom {
             String m_classname;
             size_t m_index;
         public:
-            explicit EntityKeyboardShortcutEntry(String classname, size_t index) :
+            explicit EntityKeyboardShortcutEntry(String classname, const size_t index) :
             m_classname(std::move(classname)),
             m_index(index) {}
         public:
@@ -235,8 +244,16 @@ namespace TrenchBroom {
                 return CommandIds::Actions::LowestToggleEntityDefinitionCommandId + static_cast<int>(index);
             }
 
+            static int createActionId(const size_t index) {
+                return CommandIds::Actions::LowestCreateEntityCommandId + static_cast<int>(index);
+            }
+
             static IO::Path toggleVisiblePrefPath(const String& classname) {
                 return IO::Path("Filters/Entities") + IO::Path(classname) + IO::Path("Toggle Visible");
+            }
+
+            static IO::Path createPrefPath(const String& classname) {
+                return IO::Path("Entities") + IO::Path(classname) + IO::Path("Create");
             }
         private:
             bool doGetModifiable() const override {
@@ -261,13 +278,9 @@ namespace TrenchBroom {
                 return shortcut().acceleratorEntry(actionId());
             }
 
-            IO::Path path() const {
-                return toggleVisiblePrefPath(m_classname);
-            }
+            virtual IO::Path path() const = 0;
 
-            int actionId() const {
-                return toggleVisibleActionId(m_index);
-            }
+            virtual int actionId() const = 0;
 
             deleteCopyAndMove(EntityKeyboardShortcutEntry)
         };
@@ -286,7 +299,40 @@ namespace TrenchBroom {
                 return result;
             }
 
+            IO::Path path() const override {
+                return toggleVisiblePrefPath(m_classname);
+            }
+
+            int actionId() const override {
+                return toggleVisibleActionId(m_index);
+            }
+
             deleteCopyAndMove(ToggleEntityVisibilityKeyboardShortcutEntry)
+        };
+
+        class ActionManager::CreateEntityKeyboardShortcutEntry : public EntityKeyboardShortcutEntry {
+        public:
+            using EntityKeyboardShortcutEntry::EntityKeyboardShortcutEntry;
+        private:
+            int doGetActionContext() const override {
+                return ActionContext_Any;
+            }
+
+            wxString doGetActionDescription() const override {
+                wxString result;
+                result << "Create " << m_classname << " entity";
+                return result;
+            }
+
+            IO::Path path() const override {
+                return createPrefPath(m_classname);
+            }
+
+            int actionId() const override {
+                return createActionId(m_index);
+            }
+
+            deleteCopyAndMove(CreateEntityKeyboardShortcutEntry)
         };
 
         String ActionManager::getJSTable() {
@@ -406,9 +452,16 @@ namespace TrenchBroom {
         void ActionManager::addEntityDefinitionActions(const Assets::EntityDefinitionList& entityDefinitions, ActionManager::AcceleratorEntryList& accelerators) const {
             for (size_t i = 0; i < entityDefinitions.size(); ++i) {
                 const auto* definition = entityDefinitions[i];
-                Preference<KeyboardShortcut> toggleVisiblePref(EntityKeyboardShortcutEntry::toggleVisiblePrefPath(definition->name()), KeyboardShortcut());
-                const auto& toggleVisibleShortcut = pref(toggleVisiblePref);
-                accelerators.push_back(toggleVisibleShortcut.acceleratorEntry(EntityKeyboardShortcutEntry::toggleVisibleActionId(i)));
+                Preference<KeyboardShortcut> preference(EntityKeyboardShortcutEntry::toggleVisiblePrefPath(definition->name()), KeyboardShortcut());
+                const auto& shortcut = pref(preference);
+                accelerators.push_back(shortcut.acceleratorEntry(EntityKeyboardShortcutEntry::toggleVisibleActionId(i)));
+            }
+
+            for (size_t i = 0; i < entityDefinitions.size(); ++i) {
+                const auto* definition = entityDefinitions[i];
+                Preference<KeyboardShortcut> preference(EntityKeyboardShortcutEntry::createPrefPath(definition->name()), KeyboardShortcut());
+                const auto& shortcut = pref(preference);
+                accelerators.push_back(shortcut.acceleratorEntry(EntityKeyboardShortcutEntry::createActionId(i)));
             }
         }
 

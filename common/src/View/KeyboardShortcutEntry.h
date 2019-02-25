@@ -51,9 +51,7 @@ namespace TrenchBroom {
 
             bool hasConflicts() const;
             void resetConflicts();
-            bool updateConflicts(const KeyboardShortcutEntry& entry);
-        private:
-            bool conflictsWith(const KeyboardShortcutEntry& entry) const;
+            void setHasConflicts();
         public:
             int actionContext() const;
             bool appliesToContext(int context) const;

@@ -858,7 +858,22 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::OnCreateEntity(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
 
+            auto document = lock(m_document);
+            const auto& definitions = document->entityDefinitionManager().definitions();
+
+            const auto definitionIndex = static_cast<size_t>((event.GetId() - CommandIds::Actions::LowestCreateEntityCommandId));
+            if (definitionIndex >= definitions.size()) {
+                return;
+            }
+
+            const auto* definition = definitions[definitionIndex];
+            if (definition->type() == Assets::EntityDefinition::Type_PointEntity) {
+                createPointEntity(static_cast<const Assets::PointEntityDefinition*>(definition));
+            } else if (document->selectedNodes().hasOnlyBrushes()) {
+                createBrushEntity(static_cast<const Assets::BrushEntityDefinition*>(definition));
+            }
         }
 
         void MapViewBase::OnToggleShowEntityClassnames(wxCommandEvent& event) {

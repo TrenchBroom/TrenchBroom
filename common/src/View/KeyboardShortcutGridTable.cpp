@@ -24,6 +24,8 @@
 #include "View/KeyboardShortcutEntry.h"
 #include "View/Menu.h"
 
+#include <set>
+
 namespace TrenchBroom {
     namespace View {
         KeyboardShortcutGridTable::KeyboardShortcutGridTable(EntryList entries) :
@@ -202,21 +204,35 @@ namespace TrenchBroom {
         }
 
         bool KeyboardShortcutGridTable::markConflicts() {
-            for (auto& entry : m_entries) {
-                entry->resetConflicts();
-            }
+            const auto cmp = [](const KeyboardShortcutEntry* lhs, const KeyboardShortcutEntry* rhs){
+                if (lhs->actionContext() < rhs->actionContext()) {
+                    return true;
+                } else if (lhs->actionContext() > rhs->actionContext()) {
+                    return false;
+                }
+
+                const auto& lhsShortcut = lhs->shortcut();
+                const auto& rhsShortcut = rhs->shortcut();
+                if (!lhsShortcut.hasKey() && !rhsShortcut.hasKey()) {
+                    return true;
+                }
+
+                return lhsShortcut < rhsShortcut;
+            };
+            std::set<KeyboardShortcutEntry*, decltype(cmp)> entrySet(cmp);
 
             bool hasConflicts = false;
-            for (size_t i = 0; i < m_entries.size(); i++) {
-                auto& first = m_entries[i];
-                for (size_t j = i + 1; j < m_entries.size(); j++) {
-                    auto& second = m_entries[j];
-                    if (first->updateConflicts(*second)) {
-                        second->updateConflicts(*first);
-                        hasConflicts = true;
-                    }
+            for (auto& entry : m_entries) {
+                entry->resetConflicts();
+                auto [it, noConflict] = entrySet.insert(entry.get());
+                if (!noConflict) {
+                    // found a duplicate, so there are conflicts
+                    (*it)->setHasConflicts();
+                    entry->setHasConflicts();
+                    hasConflicts = true;
                 }
             }
+
             return hasConflicts;
         }
     }
