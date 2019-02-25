@@ -66,7 +66,7 @@ namespace TrenchBroom {
             if (document != nullptr) {
                 actionManager.getShortcutEntries(document->smartTags(), entries);
             } else {
-                actionManager.getShortcutEntries(std::vector<Model::SmartTag>{}, entries);
+                actionManager.getShortcutEntries(std::list<Model::SmartTag>{}, entries);
             }
 
             wxPanel* container = new wxPanel(this);

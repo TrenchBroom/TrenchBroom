@@ -23,8 +23,8 @@
 #include "View/ActionContext.h"
 #include "View/ViewShortcut.h"
 
+#include <list>
 #include <memory>
-#include <vector>
 
 class wxAcceleratorTable;
 class wxMenu;
@@ -58,9 +58,9 @@ namespace TrenchBroom {
             static wxMenu* findRecentDocumentsMenu(const wxMenuBar* menuBar);
             const ActionMenuItem* findMenuItem(int id) const;
 
-            void getShortcutEntries(const std::vector<Model::SmartTag>& tags, ShortcutEntryList& entries);
+            void getShortcutEntries(const std::list<Model::SmartTag>& tags, ShortcutEntryList& entries);
         private:
-            void getTagShortcutEntries(const std::vector<Model::SmartTag>& tags, ShortcutEntryList& entries);
+            void getTagShortcutEntries(const std::list<Model::SmartTag>& tags, ShortcutEntryList& entries);
 
             class TagKeyboardShortcutEntry;
             class ToggleTagVisibilityKeyboardShortcutEntry;
@@ -76,11 +76,11 @@ namespace TrenchBroom {
             wxMenuBar* createMenuBar(bool withShortcuts) const;
             bool isMenuShortcutPreference(const IO::Path& path) const;
 
-            wxAcceleratorTable createViewAcceleratorTable(ActionContext context, ActionView view, const std::vector<Model::SmartTag>& tags) const;
+            wxAcceleratorTable createViewAcceleratorTable(ActionContext context, ActionView view, const std::list<Model::SmartTag>& tags) const;
         private:
             void addViewActions(ActionContext context, ActionView view, AcceleratorEntryList& accelerators) const;
             void addMenuActions(ActionContext context, ActionView view, AcceleratorEntryList& accelerators) const;
-            void addTagActions(const std::vector<Model::SmartTag>& tags, ActionManager::AcceleratorEntryList& accelerators) const;
+            void addTagActions(const std::list<Model::SmartTag>& tags, ActionManager::AcceleratorEntryList& accelerators) const;
         public:
             void resetShortcutsToDefaults();
         private:

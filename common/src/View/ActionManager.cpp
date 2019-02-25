@@ -51,7 +51,7 @@ namespace TrenchBroom {
             return m_menuBar->findActionMenuItem(id);
         }
 
-        void ActionManager::getShortcutEntries(const std::vector<Model::SmartTag>& tags, ShortcutEntryList& entries) {
+        void ActionManager::getShortcutEntries(const std::list<Model::SmartTag>& tags, ShortcutEntryList& entries) {
             m_menuBar->getShortcutEntries(entries);
 
             for (auto& shortcut : m_viewShortcuts) {
@@ -61,7 +61,7 @@ namespace TrenchBroom {
             getTagShortcutEntries(tags, entries);
         }
 
-        void ActionManager::getTagShortcutEntries(const std::vector<Model::SmartTag>& tags, ShortcutEntryList& entries) {
+        void ActionManager::getTagShortcutEntries(const std::list<Model::SmartTag>& tags, ShortcutEntryList& entries) {
             for (const auto& tag : tags) {
                 entries.emplace_back(std::make_unique<ToggleTagVisibilityKeyboardShortcutEntry>(tag));
                 if (tag.canEnable()) {
@@ -270,7 +270,7 @@ namespace TrenchBroom {
             return !path.isEmpty() && path.firstComponent().asString() == "Menu";
         }
 
-        wxAcceleratorTable ActionManager::createViewAcceleratorTable(const ActionContext context, const ActionView view, const std::vector<Model::SmartTag>& tags) const {
+        wxAcceleratorTable ActionManager::createViewAcceleratorTable(const ActionContext context, const ActionView view, const std::list<Model::SmartTag>& tags) const {
             AcceleratorEntryList tableEntries;
             addViewActions(context, view, tableEntries);
 #ifdef __WXGTK20__
@@ -301,7 +301,7 @@ namespace TrenchBroom {
             }
         }
 
-        void ActionManager::addTagActions(const std::vector<Model::SmartTag>& tags, ActionManager::AcceleratorEntryList& accelerators) const {
+        void ActionManager::addTagActions(const std::list<Model::SmartTag>& tags, ActionManager::AcceleratorEntryList& accelerators) const {
             for (const auto& tag : tags) {
                 Preference<KeyboardShortcut> toggleVisiblePref(TagKeyboardShortcutEntry::toggleVisiblePrefPath(tag), KeyboardShortcut());
                 const auto& toggleVisibleShortcut = pref(toggleVisiblePref);

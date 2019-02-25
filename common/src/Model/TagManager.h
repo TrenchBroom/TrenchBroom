@@ -23,7 +23,7 @@
 #include "StringUtils.h"
 #include "Model/Tag.h"
 
-#include <vector>
+#include <list>
 
 namespace TrenchBroom {
     namespace Model {
@@ -33,7 +33,7 @@ namespace TrenchBroom {
         class TagManager {
         private:
             size_t m_currentTagTypeIndex;
-            std::vector<SmartTag> m_smartTags;
+            std::list<SmartTag> m_smartTags;
             class TagCmp;
         public:
             /**
@@ -44,7 +44,7 @@ namespace TrenchBroom {
             /**
              * Returns a vector containing all smart tags registered with this manager.
              */
-            const std::vector<SmartTag>& smartTags() const;
+            const std::list<SmartTag>& smartTags() const;
 
             /**
              * Indicates whether a smart tag with the given name is registered with this tag manager.

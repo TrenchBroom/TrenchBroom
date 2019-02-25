@@ -48,7 +48,7 @@ namespace TrenchBroom {
         TagManager::TagManager() :
         m_currentTagTypeIndex(0) {}
 
-        const std::vector<SmartTag>& TagManager::smartTags() const {
+        const std::list<SmartTag>& TagManager::smartTags() const {
             return m_smartTags;
         }
 

@@ -39,6 +39,7 @@
 #include <vecmath/bbox.h>
 #include <vecmath/util.h>
 
+#include <list>
 #include <memory>
 
 class Color;
@@ -457,7 +458,7 @@ namespace TrenchBroom {
             virtual void doSetIssueHidden(Model::Issue* issue, bool hidden) = 0;
         public: // tag management
             void registerSmartTags(); // public for testing
-            const std::vector<Model::SmartTag>& smartTags() const;
+            const std::list<Model::SmartTag>& smartTags() const;
             bool isRegisteredSmartTag(const String& name) const;
             const Model::SmartTag& smartTag(const String& name) const;
             bool isRegisteredSmartTag(size_t index) const;

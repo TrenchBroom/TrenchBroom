@@ -24,6 +24,7 @@
 
 #include <wx/panel.h>
 
+#include <list>
 #include <vector>
 
 class wxCheckBox;
@@ -125,7 +126,7 @@ namespace TrenchBroom {
             wxWindow* createBrushesPanel(wxWindow* parent);
             void createTagFilter(wxWindow* parent);
             void createEmptyTagFilter(wxWindow* parent);
-            void createTagFilter(wxWindow* parent, const std::vector<Model::SmartTag>& tags);
+            void createTagFilter(wxWindow* parent, const std::list<Model::SmartTag>& tags);
             
             wxWindow* createRendererPanel(wxWindow* parent);
             
