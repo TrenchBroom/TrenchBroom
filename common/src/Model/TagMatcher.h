@@ -42,7 +42,6 @@ namespace TrenchBroom {
             bool m_matches;
         public:
             MatchVisitor();
-            virtual ~MatchVisitor();
 
             bool matches() const;
         protected:
@@ -129,7 +128,6 @@ namespace TrenchBroom {
             std::unique_ptr<TagMatcher> clone() const override;
         private:
             bool matches(const Taggable& taggable) const override;
-
         public:
             void enable(TagMatcherCallback& callback, MapFacade& facade) const override;
             void disable(TagMatcherCallback& callback, MapFacade& facade) const override;

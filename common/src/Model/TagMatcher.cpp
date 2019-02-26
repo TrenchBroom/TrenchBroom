@@ -43,8 +43,6 @@ namespace TrenchBroom {
         MatchVisitor::MatchVisitor() :
         m_matches(false) {}
 
-        MatchVisitor::~MatchVisitor() = default;
-
         bool MatchVisitor::matches() const {
             return m_matches;
         }

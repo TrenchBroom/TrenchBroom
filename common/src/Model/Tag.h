@@ -347,6 +347,14 @@ namespace TrenchBroom {
             SmartTag& operator=(SmartTag&& other);
 
             /**
+             * Indicates whether this smart tag matches the given taggable.
+             *
+             * @param taggable the taggable to match
+             * @return true if this smart tag matches the given taggable and false otherwise
+             */
+            bool matches(const Taggable& taggable) const;
+
+            /**
              * Updates the given tag depending on whether or not the matcher matches against it.
              *
              * @param taggable the taggable to update

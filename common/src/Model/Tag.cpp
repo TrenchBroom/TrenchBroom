@@ -222,8 +222,12 @@ namespace TrenchBroom {
 
         SmartTag& SmartTag::operator=(SmartTag&& other) = default;
 
+        bool SmartTag::matches(const Taggable& taggable) const {
+            return m_matcher->matches(taggable) ;
+        }
+
         void SmartTag::update(Taggable& taggable) const {
-            if (m_matcher->matches(taggable)) {
+            if (matches(taggable)) {
                 taggable.addTag(*this);
             } else {
                 taggable.removeTag(*this);

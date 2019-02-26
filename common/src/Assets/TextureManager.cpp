@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -38,7 +38,7 @@ namespace TrenchBroom {
                 return left->name() < right->name();
             }
         };
-        
+
         class CompareByUsage {
         public:
             bool operator() (const Texture* left, const Texture* right) const {
@@ -49,22 +49,22 @@ namespace TrenchBroom {
                 }
             }
         };
-        
+
         TextureManager::TextureManager(int magFilter, int minFilter, Logger& logger) :
         m_logger(logger),
         m_minFilter(minFilter),
         m_magFilter(magFilter),
         m_resetTextureMode(false) {}
-        
+
         TextureManager::~TextureManager() {
             clear();
         }
-        
+
         void TextureManager::setTextureCollections(const IO::Path::List& paths, IO::TextureLoader& loader) {
             auto collections = collectionMap();
             m_collections.clear();
             clear();
-            
+
             for (const auto& path : paths) {
                 const auto it = collections.find(path);
                 if (it == std::end(collections) || !it->second->loaded()) {
@@ -86,9 +86,18 @@ namespace TrenchBroom {
                     collections.erase(it);
                 }
             }
-            
+
             updateTextures();
             VectorUtils::append(m_toRemove, collections);
+        }
+
+        void TextureManager::setTextureCollections(const TextureCollectionList& collections) {
+            clear();
+            for (auto* collection : collections) {
+                collection->usageCountDidChange.addObserver(usageCountDidChange);
+                addTextureCollection(collection);
+            }
+            updateTextures();
         }
 
         TextureManager::TextureCollectionMap TextureManager::collectionMap() const {
@@ -111,14 +120,14 @@ namespace TrenchBroom {
         void TextureManager::clear() {
             VectorUtils::clearAndDelete(m_collections);
             VectorUtils::clearAndDelete(m_toRemove);
-            
+
             m_toPrepare.clear();
             m_texturesByName.clear();
             m_textures.clear();
-            
+
             // Remove logging because it might fail when the document is already destroyed.
         }
-        
+
         void TextureManager::setTextureMode(const int minFilter, const int magFilter) {
             m_minFilter = minFilter;
             m_magFilter = magFilter;
@@ -130,7 +139,7 @@ namespace TrenchBroom {
             prepare();
             VectorUtils::clearAndDelete(m_toRemove);
         }
-        
+
         Texture* TextureManager::texture(const String& name) const {
             auto it = m_texturesByName.find(StringUtils::toLower(name));
             if (it == std::end(m_texturesByName)) {
@@ -139,15 +148,15 @@ namespace TrenchBroom {
                 return it->second;
             }
         }
-        
+
         const TextureList& TextureManager::textures() const {
             return m_textures;
         }
-        
+
         const TextureCollectionList& TextureManager::collections() const {
             return m_collections;
         }
-        
+
         const StringList TextureManager::collectionNames() const {
             StringList result;
             result.reserve(m_collections.size());
@@ -155,7 +164,7 @@ namespace TrenchBroom {
                            [](auto collection) { return collection->name(); });
             return result;
         }
-        
+
         void TextureManager::resetTextureMode() {
             if (m_resetTextureMode) {
                 std::for_each(std::begin(m_collections), std::end(m_collections),
@@ -163,22 +172,22 @@ namespace TrenchBroom {
                 m_resetTextureMode = false;
             }
         }
-        
+
         void TextureManager::prepare() {
             std::for_each(std::begin(m_toPrepare), std::end(m_toPrepare),
                           [this](auto collection) { collection->prepare(m_minFilter, m_magFilter); });
             m_toPrepare.clear();
         }
-        
+
         void TextureManager::updateTextures() {
             m_texturesByName.clear();
             m_textures.clear();
-            
+
             for (auto* collection : m_collections) {
                 for (auto* texture : collection->textures()) {
                     const auto key = StringUtils::toLower(texture->name());
                     texture->setOverridden(false);
-                    
+
                     auto mIt = m_texturesByName.find(key);
                     if (mIt != std::end(m_texturesByName)) {
                         mIt->second->setOverridden(true);
