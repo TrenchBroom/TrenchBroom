@@ -684,16 +684,16 @@ namespace VectorUtils {
     }
 
     template <typename T1, typename T2, typename Cmp = std::less<T1>>
-    bool setInsert(std::vector<T1>& vec, const T2& object, const Cmp& cmp = Cmp()) {
+    bool setInsert(std::vector<T1>& vec, T2&& object, const Cmp& cmp = Cmp()) {
         auto it = std::lower_bound(std::begin(vec), std::end(vec), object, cmp);
         if (it == std::end(vec)) {
-            vec.push_back(object);
+            vec.push_back(std::forward<T2>(object));
             return true;
         } else if (cmp(*it, object) || cmp(object, *it)) {
-            vec.insert(it, object);
+            vec.insert(it, std::forward<T2>(object));
             return true;
         } else {
-            *it = object;
+            *it = std::forward<T2>(object);
             return false;
         }
     }
@@ -701,7 +701,7 @@ namespace VectorUtils {
     template <typename T, typename I, typename Cmp = std::less<T>>
     void setInsert(std::vector<T>& vec, I cur, const I end, const Cmp& cmp = Cmp()) {
         while (cur != end) {
-            typename std::vector<T>::iterator it = std::lower_bound(std::begin(vec), std::end(vec), *cur, cmp);
+            auto it = std::lower_bound(std::begin(vec), std::end(vec), *cur, cmp);
             if (it == std::end(vec)) {
                 vec.push_back(*cur);
             } else if (cmp(*it, *cur) || cmp(*cur, *it)) {

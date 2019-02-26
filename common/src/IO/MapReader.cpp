@@ -224,9 +224,6 @@ namespace TrenchBroom {
 
         void MapReader::createBrush(const size_t startLine, const size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& status) {
             try {
-                // sort the faces by the weight of their plane normals like QBSP does
-                Model::BrushFace::sortFaces(m_faces);
-                
                 Model::Brush* brush = m_factory->createBrush(m_worldBounds, m_faces);
                 setFilePosition(brush, startLine, lineCount);
                 setExtraAttributes(brush, extraAttributes);

@@ -102,9 +102,10 @@ namespace TrenchBroom {
         private:
             void invalidateBounds();
             void validateBounds() const;
+        private: // implement Taggable interface
+            bool doEvaluateTagMatcher(const TagMatcher& matcher) const override;
         private:
-            Group(const Group&);
-            Group& operator=(const Group&);
+            deleteCopyAndMove(Group)
         };
     }
 }

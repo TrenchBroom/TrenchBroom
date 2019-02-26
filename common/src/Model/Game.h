@@ -33,6 +33,7 @@
 #include "Model/ModelTypes.h"
 
 #include <memory>
+#include <vector>
 
 namespace TrenchBroom {
     class Logger;
@@ -42,7 +43,7 @@ namespace TrenchBroom {
     }
     
     namespace Model {
-        class BrushContentTypeBuilder;
+        class SmartTag;
         
         class Game : public IO::EntityDefinitionLoader, public IO::EntityModelLoader {
         public:
@@ -50,12 +51,6 @@ namespace TrenchBroom {
                 File,
                 Directory
             };
-        private:
-            mutable BrushContentTypeBuilder* m_brushContentTypeBuilder;
-        protected:
-            Game();
-        public:
-            virtual ~Game();
         public:
             const String& gameName() const;
             bool isGamePathPreference(const IO::Path& prefPath) const;
@@ -70,6 +65,8 @@ namespace TrenchBroom {
             CompilationConfig& compilationConfig();
 
             size_t maxPropertyLength() const;
+
+            const std::vector<SmartTag>& smartTags() const;
         public: // loading and writing map files
             std::unique_ptr<World> newMap(MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const;
             std::unique_ptr<World> loadMap(MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger& logger) const;
@@ -94,9 +91,6 @@ namespace TrenchBroom {
             Assets::EntityDefinitionFileSpec::List allEntityDefinitionFiles() const;
             Assets::EntityDefinitionFileSpec extractEntityDefinitionFile(const AttributableNode& node) const;
             IO::Path findEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const;
-        public: // brush content type
-            const BrushContentTypeBuilder* brushContentTypeBuilder() const;
-            const BrushContentType::List& brushContentTypes() const;
         public: // mods
             StringList availableMods() const;
             StringList extractEnabledMods(const AttributableNode& node) const;
@@ -113,6 +107,8 @@ namespace TrenchBroom {
 
             virtual CompilationConfig& doCompilationConfig() = 0;
             virtual size_t doMaxPropertyLength() const = 0;
+
+            virtual const std::vector<SmartTag>& doSmartTags() const = 0;
 
             virtual std::unique_ptr<World> doNewMap(MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const = 0;
             virtual std::unique_ptr<World> doLoadMap(MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger& logger) const = 0;
@@ -136,8 +132,6 @@ namespace TrenchBroom {
             virtual Assets::EntityDefinitionFileSpec::List doAllEntityDefinitionFiles() const = 0;
             virtual Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(const AttributableNode& node) const = 0;
             virtual IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const = 0;
-            
-            virtual const BrushContentType::List& doBrushContentTypes() const = 0;
             
             virtual StringList doAvailableMods() const = 0;
             virtual StringList doExtractEnabledMods(const AttributableNode& node) const = 0;

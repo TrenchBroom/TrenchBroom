@@ -27,51 +27,61 @@
 namespace TrenchBroom {
     namespace Model {
         Node* hitToNode(const Hit& hit) {
-            if (hit.type() == Group::GroupHit)
+            if (hit.type() == Group::GroupHit) {
                 return hit.target<Node*>();
-            if (hit.type() == Entity::EntityHit)
+            } else if (hit.type() == Entity::EntityHit) {
                 return hit.target<Node*>();
-            if (hit.type() == Brush::BrushHit) {
+            } else if (hit.type() == Brush::BrushHit) {
                 BrushFace* face = hit.target<BrushFace*>();
                 return face->brush();
+            } else {
+                return nullptr;
             }
-            return nullptr;
         }
         
         Object* hitToObject(const Hit& hit) {
-            if (hit.type() == Group::GroupHit)
+            if (hit.type() == Group::GroupHit) {
                 return hit.target<Object*>();
-            if (hit.type() == Entity::EntityHit)
+            } else if (hit.type() == Entity::EntityHit) {
                 return hit.target<Object*>();
-            if (hit.type() == Brush::BrushHit) {
+            } else if (hit.type() == Brush::BrushHit) {
                 BrushFace* face = hit.target<BrushFace*>();
                 return face->brush();
+            } else {
+                return nullptr;
             }
-            return nullptr;
         }
         
         Group* hitToGroup(const Hit& hit) {
-            if (hit.type() == Group::GroupHit)
+            if (hit.type() == Group::GroupHit) {
                 return hit.target<Group*>();
-            return nullptr;
+            } else {
+                return nullptr;
+            }
         }
 
         Entity* hitToEntity(const Hit& hit) {
-            if (hit.type() == Entity::EntityHit)
+            if (hit.type() == Entity::EntityHit) {
                 return hit.target<Entity*>();
-            return nullptr;
+            } else {
+                return nullptr;
+            }
         }
         
         Brush* hitToBrush(const Hit& hit) {
-            if (hit.type() == Brush::BrushHit)
+            if (hit.type() == Brush::BrushHit) {
                 return hit.target<BrushFace*>()->brush();
-            return nullptr;
+            } else {
+                return nullptr;
+            }
         }
         
         BrushFace* hitToFace(const Hit& hit) {
-            if (hit.type() == Brush::BrushHit)
+            if (hit.type() == Brush::BrushHit) {
                 return hit.target<BrushFace*>();
-            return nullptr;
+            } else {
+                return nullptr;
+            }
         }
     }
 }

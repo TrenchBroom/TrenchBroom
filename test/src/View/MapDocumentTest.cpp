@@ -53,12 +53,13 @@ namespace TrenchBroom {
         m_brushEntityDef(nullptr) {}
 
         void MapDocumentTest::SetUp() {
+            game = std::make_shared<Model::TestGame>();
             document = MapDocumentCommandFacade::newMapDocument();
-            document->newDocument(m_mapFormat, vm::bbox3(8192.0), Model::GameSPtr(new Model::TestGame()));
+            document->newDocument(m_mapFormat, vm::bbox3(8192.0), game);
 
             // create two entity definitions
             m_pointEntityDef = new Assets::PointEntityDefinition("point_entity", Color(), vm::bbox3(16.0), "this is a point entity", Assets::AttributeDefinitionList(), Assets::ModelDefinition());
-            m_brushEntityDef = new Assets::BrushEntityDefinition("point_entity", Color(), "this is a point entity", Assets::AttributeDefinitionList());
+            m_brushEntityDef = new Assets::BrushEntityDefinition("brush_entity", Color(), "this is a point entity", Assets::AttributeDefinitionList());
 
             document->setEntityDefinitions(Assets::EntityDefinitionList { m_pointEntityDef, m_brushEntityDef });
         }

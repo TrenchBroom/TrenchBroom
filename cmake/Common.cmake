@@ -491,6 +491,9 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/IO/Quake3ShaderParser.cpp
 	${COMMON_SOURCE_DIR}/IO/Quake3ShaderTextureReader.cpp
 	${COMMON_SOURCE_DIR}/Model/GameFileSystem.cpp
+	${COMMON_SOURCE_DIR}/Model/Tag.cpp
+	${COMMON_SOURCE_DIR}/Model/TagManager.cpp
+	${COMMON_SOURCE_DIR}/Model/TagMatcher.cpp
 )
 
 SET(COMMON_HEADER
@@ -1048,6 +1051,10 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/IO/Quake3ShaderParser.h
 	${COMMON_SOURCE_DIR}/IO/Quake3ShaderTextureReader.h
 	${COMMON_SOURCE_DIR}/Model/GameFileSystem.h
+	${COMMON_SOURCE_DIR}/Model/Tag.h
+	${COMMON_SOURCE_DIR}/Model/TagAttribute.h
+	${COMMON_SOURCE_DIR}/Model/TagManager.h
+	${COMMON_SOURCE_DIR}/Model/TagMatcher.h
 )
 
 # Unfortunately, Xcode still compiles OBJECT libraries as static libraries

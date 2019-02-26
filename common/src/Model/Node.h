@@ -21,13 +21,14 @@
 #define TrenchBroom_Node
 
 #include "Model/ModelTypes.h"
+#include "Model/Tag.h"
 
 namespace TrenchBroom {
     namespace Model {
         class IssueGeneratorRegistry;
         class PickResult;
 
-        class Node {
+        class Node : public Taggable {
         private:
             Node* m_parent;
             NodeList m_children;
@@ -182,7 +183,7 @@ namespace TrenchBroom {
             private:
                 Node* m_node;
             public:
-                NotifyNodeChange(Node* node);
+                explicit NotifyNodeChange(Node* node);
                 ~NotifyNodeChange();
             };
 
@@ -190,14 +191,6 @@ namespace TrenchBroom {
             void nodeWillChange();
             void nodeDidChange();
 
-            class NotifyNodeBoundsChange {
-            private:
-                Node* m_node;
-                const vm::bbox3 m_oldBounds;
-            public:
-                NotifyNodeBoundsChange(Node* node);
-                ~NotifyNodeBoundsChange();
-            };
             void nodeBoundsDidChange(vm::bbox3 oldBounds);
         private:
             void childWillChange(Node* node);

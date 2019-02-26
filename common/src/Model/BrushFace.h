@@ -29,6 +29,7 @@
 #include "Model/BrushFaceAttributes.h"
 #include "Model/BrushGeometry.h"
 #include "Model/ModelTypes.h"
+#include "Model/Tag.h"
 #include "Model/TexCoordSystem.h"
 
 #include <vecmath/vec.h>
@@ -51,7 +52,7 @@ namespace TrenchBroom {
         class Brush;
         class BrushFaceSnapshot;
         
-        class BrushFace {
+        class BrushFace : public Taggable {
         public:
             /*
              * The order of points, when looking from outside the face:
@@ -100,7 +101,7 @@ namespace TrenchBroom {
             
             static void sortFaces(BrushFaceList& faces);
             
-            virtual ~BrushFace();
+            virtual ~BrushFace() override;
             
             BrushFace* clone() const;
             
@@ -211,6 +212,8 @@ namespace TrenchBroom {
             void setPoints(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2);
             void correctPoints();
 
+            void updateBrush();
+
             // renderer cache
             void invalidateVertexCache();
         public: // brush renderer
@@ -222,6 +225,8 @@ namespace TrenchBroom {
              */
             void setMarked(bool marked) const;
             bool isMarked() const;
+        private: // implement Taggable interface
+            bool doEvaluateTagMatcher(const TagMatcher& matcher) const override;
         private:
             deleteCopyAndMove(BrushFace)
         };

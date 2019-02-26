@@ -36,7 +36,7 @@ namespace TrenchBroom {
                 LogLevel level;
                 QString str;
                 
-                Message(const LogLevel i_level, const QString& i_str);
+                Message(LogLevel i_level, const QString& i_str);
             };
             
             using MessageList = std::vector<Message>;

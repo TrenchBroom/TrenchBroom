@@ -76,6 +76,7 @@
 #include "Model/PointEntityWithBrushesIssueGenerator.h"
 #include "Model/PointFile.h"
 #include "Model/PortalFile.h"
+#include "Model/TagManager.h"
 #include "Model/World.h"
 #include "View/AddBrushVerticesCommand.h"
 #include "View/AddRemoveNodesCommand.h"
@@ -136,6 +137,7 @@ namespace TrenchBroom {
         m_textureManager(std::make_unique<Assets::TextureManager>(
             pref(Preferences::TextureMagFilter),
             pref(Preferences::TextureMinFilter), logger())),
+        m_tagManager(std::make_unique<Model::TagManager>()),
         m_editorContext(std::make_unique<Model::EditorContext>()),
         m_mapViewConfig(std::make_unique<MapViewConfig>(*m_editorContext)),
         m_grid(std::make_unique<Grid>(4)),
@@ -250,6 +252,7 @@ namespace TrenchBroom {
             
             loadAssets();
             registerIssueGenerators();
+            registerSmartTags();
             
             clearModificationCount();
             
@@ -264,7 +267,8 @@ namespace TrenchBroom {
             
             loadAssets();
             registerIssueGenerators();
-            
+            registerSmartTags();
+
             documentWasLoadedNotifier(this);
         }
         
@@ -1801,7 +1805,77 @@ namespace TrenchBroom {
             m_world->registerIssueGenerator(new Model::AttributeValueWithDoubleQuotationMarksIssueGenerator());
             m_world->registerIssueGenerator(new Model::InvalidTextureScaleIssueGenerator());
         }
-        
+
+        void MapDocument::registerSmartTags() {
+            ensure(m_game.get() != nullptr, "game is null");
+
+            m_tagManager->clearSmartTags();
+            for (const auto& tag : m_game->smartTags()) {
+                // we copy every tag into the tag manager intentionally
+                m_tagManager->registerSmartTag(tag);
+            }
+        }
+
+        const std::vector<Model::SmartTag>& MapDocument::smartTags() const {
+            return m_tagManager->smartTags();
+        }
+
+        bool MapDocument::isRegisteredSmartTag(const String& name) const {
+            return m_tagManager->isRegisteredSmartTag(name);
+        }
+
+        const Model::SmartTag& MapDocument::smartTag(const String& name) const {
+            return m_tagManager->smartTag(name);
+        }
+
+        class MapDocument::InitializeNodeTagsVisitor : public Model::NodeVisitor {
+        private:
+            Model::TagManager& m_tagManager;
+        public:
+            InitializeNodeTagsVisitor(Model::TagManager& tagManager) :
+            m_tagManager(tagManager) {}
+        private:
+            void doVisit(Model::World* world)   override { initializeNodeTags(world); }
+            void doVisit(Model::Layer* layer)   override { initializeNodeTags(layer); }
+            void doVisit(Model::Group* group)   override { initializeNodeTags(group); }
+            void doVisit(Model::Entity* entity) override { initializeNodeTags(entity); }
+            void doVisit(Model::Brush* brush)   override { initializeNodeTags(brush); }
+
+            void initializeNodeTags(Model::Node* node) {
+                node->initializeTags(m_tagManager);
+            }
+        };
+
+        void MapDocument::initializeNodeTags(MapDocument* document) {
+            InitializeNodeTagsVisitor visitor(*m_tagManager);
+            auto* world = document->world();
+            world->acceptAndRecurse(visitor);
+        }
+
+        void MapDocument::initializeNodeTags(const Model::NodeList& nodes) {
+            for (auto* node : nodes) {
+                node->initializeTags(*m_tagManager);
+            }
+        }
+
+        void MapDocument::clearNodeTags(const Model::NodeList& nodes) {
+            for (auto* node : nodes) {
+                node->clearTags();
+            }
+        }
+
+        void MapDocument::updateNodeTags(const Model::NodeList& nodes) {
+            for (auto* node : nodes) {
+                node->updateTags(*m_tagManager);
+            }
+        }
+
+        void MapDocument::updateFaceTags(const Model::BrushFaceList& faces) {
+            for (auto* face : faces) {
+                face->updateTags(*m_tagManager);
+            }
+        }
+
         bool MapDocument::persistent() const {
             return m_path.isAbsolute() && IO::Disk::fileExists(IO::Disk::fixPath(m_path));
         }
@@ -1845,6 +1919,14 @@ namespace TrenchBroom {
             m_mapViewConfig->mapViewConfigDidChangeNotifier.addObserver(mapViewConfigDidChangeNotifier);
             commandDoneNotifier.addObserver(this, &MapDocument::commandDone);
             commandUndoneNotifier.addObserver(this, &MapDocument::commandUndone);
+
+            // tag management
+            documentWasNewedNotifier.addObserver(this, &MapDocument::initializeNodeTags);
+            documentWasLoadedNotifier.addObserver(this, &MapDocument::initializeNodeTags);
+            nodesWereAddedNotifier.addObserver(this, &MapDocument::initializeNodeTags);
+            nodesWillBeRemovedNotifier.addObserver(this, &MapDocument::clearNodeTags);
+            nodesDidChangeNotifier.addObserver(this, &MapDocument::updateNodeTags);
+            brushFacesDidChangeNotifier.addObserver(this, &MapDocument::updateFaceTags);
         }
         
         void MapDocument::unbindObservers() {
@@ -1854,6 +1936,14 @@ namespace TrenchBroom {
             m_mapViewConfig->mapViewConfigDidChangeNotifier.removeObserver(mapViewConfigDidChangeNotifier);
             commandDoneNotifier.removeObserver(this, &MapDocument::commandDone);
             commandUndoneNotifier.removeObserver(this, &MapDocument::commandUndone);
+
+            // tag management
+            documentWasNewedNotifier.removeObserver(this, &MapDocument::initializeNodeTags);
+            documentWasLoadedNotifier.removeObserver(this, &MapDocument::initializeNodeTags);
+            nodesWereAddedNotifier.removeObserver(this, &MapDocument::initializeNodeTags);
+            nodesWillBeRemovedNotifier.removeObserver(this, &MapDocument::clearNodeTags);
+            nodesDidChangeNotifier.removeObserver(this, &MapDocument::updateNodeTags);
+            brushFacesDidChangeNotifier.removeObserver(this, &MapDocument::updateFaceTags);
         }
         
         void MapDocument::preferenceDidChange(const IO::Path& path) {

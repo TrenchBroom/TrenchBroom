@@ -63,8 +63,9 @@ namespace TrenchBroom {
         }
 
         HitQuery& HitQuery::pickable() {
-            if (m_editorContext != nullptr)
+            if (m_editorContext != nullptr) {
                 m_include = new HitFilterChain(new ContextHitFilter(*m_editorContext), m_include);
+            }
             return *this;
         }
 

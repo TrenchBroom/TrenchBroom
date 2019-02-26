@@ -23,30 +23,41 @@
 #include "Macros.h"
 #include "StringUtils.h"
 #include "IO/ConfigParserBase.h"
-#include "Model/BrushContentType.h"
 #include "Model/GameConfig.h"
 
 #include <iostream>
+#include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class SmartTag;
+        class TagAttribute;
+    }
+
     namespace IO {
+        class ParserStatus;
+
         class GameConfigParser : public ConfigParserBase {
         public:
             GameConfigParser(const char* begin, const char* end, const Path& path);
-            GameConfigParser(const String& str, const Path& path = Path(""));
+            explicit GameConfigParser(const String& str, const Path& path = Path(""));
             
             Model::GameConfig parse();
         private:
-            Model::GameConfig::MapFormatConfig::List parseMapFormatConfigs(const EL::Value& value) const;
-            Model::GameConfig::FileSystemConfig parseFileSystemConfig(const EL::Value& value) const;
-            Model::GameConfig::PackageFormatConfig parsePackageFormatConfig(const EL::Value& value) const;
-            Model::GameConfig::TextureConfig parseTextureConfig(const EL::Value& value) const;
-            Model::GameConfig::TexturePackageConfig parseTexturePackageConfig(const EL::Value& value) const;
-            Model::GameConfig::EntityConfig parseEntityConfig(const EL::Value& value) const;
-            Model::GameConfig::FaceAttribsConfig parseFaceAttribsConfig(const EL::Value& value) const;
-            Model::GameConfig::FlagConfigList parseFlagConfig(const EL::Value& value) const;
-            Model::BrushContentType::List parseBrushContentTypes(const EL::Value& value, const Model::GameConfig::FaceAttribsConfig& faceAttribsConfig) const;
-            
+            Model::GameConfig::MapFormatConfig::List parseMapFormatConfigs(const EL::Value& values) const;
+            Model::GameConfig::FileSystemConfig parseFileSystemConfig(const EL::Value& values) const;
+            Model::GameConfig::PackageFormatConfig parsePackageFormatConfig(const EL::Value& values) const;
+            Model::GameConfig::TextureConfig parseTextureConfig(const EL::Value& values) const;
+            Model::GameConfig::TexturePackageConfig parseTexturePackageConfig(const EL::Value& values) const;
+            Model::GameConfig::EntityConfig parseEntityConfig(const EL::Value& values) const;
+            Model::GameConfig::FaceAttribsConfig parseFaceAttribsConfig(const EL::Value& values) const;
+            Model::GameConfig::FlagConfigList parseFlagConfig(const EL::Value& values) const;
+            std::vector<Model::SmartTag> parseTags(const EL::Value& value, const Model::GameConfig::FaceAttribsConfig& faceAttribsConfigs) const;
+
+            void parseBrushTags(const EL::Value& value, std::vector<Model::SmartTag>& results) const;
+            void parseFaceTags(const EL::Value& value, const Model::GameConfig::FaceAttribsConfig& faceAttribsConfig, std::vector<Model::SmartTag>& results) const;
+            std::vector<Model::TagAttribute> parseTagAttributes(const EL::Value& values) const;
+
             deleteCopyAndMove(GameConfigParser)
         };
     }

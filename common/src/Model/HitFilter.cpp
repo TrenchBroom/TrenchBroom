@@ -131,12 +131,15 @@ namespace TrenchBroom {
         }
         
         bool ContextHitFilter::doMatches(const Hit& hit) const {
-            if (hit.type() == Group::GroupHit)
+            if (hit.type() == Group::GroupHit) {
                 return m_context.pickable(hitToGroup(hit));
-            if (hit.type() == Entity::EntityHit)
+            }
+            if (hit.type() == Entity::EntityHit) {
                 return m_context.pickable(hitToEntity(hit));
-            if (hit.type() == Brush::BrushHit)
-                return m_context.pickable(hitToBrush(hit));
+            }
+            if (hit.type() == Brush::BrushHit) {
+                return m_context.pickable(hitToFace(hit));
+            }
             return false;
         }
     }

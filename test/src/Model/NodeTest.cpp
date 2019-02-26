@@ -102,6 +102,10 @@ namespace TrenchBroom {
             }
         
             void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) override {}
+
+            bool doEvaluateTagMatcher(const TagMatcher& matcher) const override {
+                return false;
+            }
         public:
             MOCK_CONST_METHOD1(mockDoCanAddChild, bool(const Node*));
             MOCK_CONST_METHOD1(mockDoCanRemoveChild, bool(const Node*));
@@ -168,13 +172,16 @@ namespace TrenchBroom {
             void doAccept(NodeVisitor& visitor) override {}
             void doAccept(ConstNodeVisitor& visitor) const override {}
             void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) override {}
+            bool doEvaluateTagMatcher(const TagMatcher& matcher) const override {
+                return false;
+            }
         };
         
         class DestroyableNode : public TestNode {
         private:
             bool& m_destroyed;
         public:
-            DestroyableNode(bool& destroyed) :
+            explicit DestroyableNode(bool& destroyed) :
             m_destroyed(destroyed) {}
             
             ~DestroyableNode() override {

@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_ViewEditor
 #define TrenchBroom_ViewEditor
 
-#include "Model/BrushContentType.h"
 #include "View/ViewTypes.h"
 
 #include <wx/panel.h>
@@ -37,6 +36,7 @@ namespace TrenchBroom {
     
     namespace Model {
         class EditorContext;
+        class SmartTag;
     }
     
     namespace View {
@@ -84,8 +84,8 @@ namespace TrenchBroom {
             EntityDefinitionCheckBoxList* m_entityDefinitionCheckBoxList;
             
             wxCheckBox* m_showBrushesCheckBox;
-            CheckBoxList m_brushContentTypeCheckBoxes;
-            
+            CheckBoxList m_tagCheckBoxes;
+
             RadioGroup* m_renderModeRadioGroup;
             wxCheckBox* m_shadeFacesCheckBox;
             wxCheckBox* m_showFogCheckBox;
@@ -93,9 +93,9 @@ namespace TrenchBroom {
             
             RadioGroup* m_entityLinkRadioGroup;
         public:
-            ViewEditor(QWidget* parent, MapDocumentWPtr document);
-            ~ViewEditor();
-            
+            ViewEditor(wxWindow* parent, MapDocumentWPtr document);
+            ~ViewEditor() override;
+
             void OnShowEntityClassnamesChanged(wxCommandEvent& event);
             void OnShowGroupBoundsChanged(wxCommandEvent& event);
             void OnShowBrushEntityBoundsChanged(wxCommandEvent& event);
@@ -103,7 +103,7 @@ namespace TrenchBroom {
             void OnShowPointEntitiesChanged(wxCommandEvent& event);
             void OnShowPointEntityModelsChanged(wxCommandEvent& event);
             void OnShowBrushesChanged(wxCommandEvent& event);
-            void OnShowBrushContentTypeChanged(wxCommandEvent& event);
+            void OnShowTagChanged(wxCommandEvent& event);
             void OnFaceRenderModeChanged(wxCommandEvent& event);
             void OnShadeFacesChanged(wxCommandEvent& event);
             void OnShowFogChanged(wxCommandEvent& event);
@@ -120,13 +120,13 @@ namespace TrenchBroom {
             
             void createGui();
             
-            QWidget* createEntityDefinitionsPanel(QWidget* parent);
-            QWidget* createEntitiesPanel(QWidget* parent);
-            QWidget* createBrushesPanel(QWidget* parent);
-            void createBrushContentTypeFilter(QWidget* parent);
-            void createEmptyBrushContentTypeFilter(QWidget* parent);
-            void createBrushContentTypeFilter(QWidget* parent, const Model::BrushContentType::List& contentTypes);
-            
+            wxWindow* createEntityDefinitionsPanel(wxWindow* parent);
+            wxWindow* createEntitiesPanel(wxWindow* parent);
+            wxWindow* createBrushesPanel(wxWindow* parent);
+            void createTagFilter(wxWindow* parent);
+            void createEmptyTagFilter(wxWindow* parent);
+            void createTagFilter(wxWindow* parent, const std::vector<Model::SmartTag>& tags);
+
             QWidget* createRendererPanel(QWidget* parent);
             
             void refreshGui();
