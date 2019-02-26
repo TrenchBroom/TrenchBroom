@@ -104,7 +104,8 @@ namespace TrenchBroom {
         }
 
         Taggable::Taggable() :
-        m_tagMask(0) {}
+        m_tagMask(0),
+        m_attributeMask(0) {}
 
         Taggable::~Taggable() = default;
 
@@ -144,7 +145,6 @@ namespace TrenchBroom {
                 assert(!hasTag(tag));
 
                 updateAttributeMask();
-
                 return true;
             }
         }
