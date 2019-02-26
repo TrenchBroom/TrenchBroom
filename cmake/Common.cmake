@@ -98,9 +98,6 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/Model/BoundsContainsNodeVisitor.cpp
 	${COMMON_SOURCE_DIR}/Model/BoundsIntersectsNodeVisitor.cpp
 	${COMMON_SOURCE_DIR}/Model/BrushBuilder.cpp
-	${COMMON_SOURCE_DIR}/Model/BrushContentTypeBuilder.cpp
-	${COMMON_SOURCE_DIR}/Model/BrushContentType.cpp
-	${COMMON_SOURCE_DIR}/Model/BrushContentTypeEvaluator.cpp
 	${COMMON_SOURCE_DIR}/Model/Brush.cpp
 	${COMMON_SOURCE_DIR}/Model/BrushFaceAttributes.cpp
 	${COMMON_SOURCE_DIR}/Model/BrushFace.cpp
@@ -192,7 +189,6 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/Model/TexCoordSystem.cpp
 	${COMMON_SOURCE_DIR}/Model/TransformEntityAttributesQuickFix.cpp
 	${COMMON_SOURCE_DIR}/Model/TransformObjectVisitor.cpp
-	${COMMON_SOURCE_DIR}/Model/Tutorial.cpp
 	${COMMON_SOURCE_DIR}/Model/WorldBoundsIssueGenerator.cpp
 	${COMMON_SOURCE_DIR}/Model/World.cpp
 	${COMMON_SOURCE_DIR}/Polyhedron_Instantiation.cpp
@@ -606,9 +602,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/Model/BoundsContainsNodeVisitor.h
 	${COMMON_SOURCE_DIR}/Model/BoundsIntersectsNodeVisitor.h
 	${COMMON_SOURCE_DIR}/Model/BrushBuilder.h
-	${COMMON_SOURCE_DIR}/Model/BrushContentTypeBuilder.h
-	${COMMON_SOURCE_DIR}/Model/BrushContentTypeEvaluator.h
-	${COMMON_SOURCE_DIR}/Model/BrushContentType.h
 	${COMMON_SOURCE_DIR}/Model/BrushFaceAttributes.h
 	${COMMON_SOURCE_DIR}/Model/BrushFace.h
 	${COMMON_SOURCE_DIR}/Model/BrushFacePredicates.h
@@ -714,7 +707,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/Model/TexCoordSystem.h
 	${COMMON_SOURCE_DIR}/Model/TransformEntityAttributesQuickFix.h
 	${COMMON_SOURCE_DIR}/Model/TransformObjectVisitor.h
-	${COMMON_SOURCE_DIR}/Model/Tutorial.h
 	${COMMON_SOURCE_DIR}/Model/WorldBoundsIssueGenerator.h
 	${COMMON_SOURCE_DIR}/Model/World.h
 	${COMMON_SOURCE_DIR}/NodeTree.h
