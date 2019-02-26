@@ -90,6 +90,9 @@ namespace TrenchBroom {
             virtual bool reparentNodes(const ParentChildrenMap& nodes) = 0;
             virtual bool deleteObjects() = 0;
             virtual bool duplicateObjects() = 0;
+        public: // entity management
+            virtual Model::Entity* createPointEntity(const Assets::PointEntityDefinition* definition, const vm::vec3& delta) = 0;
+            virtual Model::Entity* createBrushEntity(const Assets::BrushEntityDefinition* definition) = 0;
         public: // modifying transient node attributes
             virtual void hide(const NodeList nodes) = 0; // Don't take the nodes by reference!
             virtual void show(const NodeList& nodes) = 0;

@@ -279,8 +279,8 @@ namespace TrenchBroom {
             bool deleteObjects() override;
             bool duplicateObjects() override;
         public: // entity management
-            Model::Entity* createPointEntity(const Assets::PointEntityDefinition* definition, const vm::vec3& delta);
-            Model::Entity* createBrushEntity(const Assets::BrushEntityDefinition* definition);
+            Model::Entity* createPointEntity(const Assets::PointEntityDefinition* definition, const vm::vec3& delta) override;
+            Model::Entity* createBrushEntity(const Assets::BrushEntityDefinition* definition) override;
         public: // group management
             Model::Group* groupSelection(const String& name);
             void mergeSelectedGroupsWithGroup(Model::Group* group);

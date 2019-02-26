@@ -287,16 +287,7 @@ namespace TrenchBroom {
             }
 
             assert(definition != nullptr);
-
-            auto* entity = new Entity();
-            entity->addOrUpdateAttribute(AttributeNames::Classname, definition->name());
-
-            const auto brushes = facade.selectedNodes().nodes();
-
-            PushSelection pushSelection(facade);
-            facade.deselectAll();
-            facade.addNode(entity, facade.currentParent());
-            facade.reparentNodes(entity, brushes);
+            facade.createBrushEntity(static_cast<const Assets::BrushEntityDefinition*>(definition));
         }
 
         void EntityClassNameTagMatcher::disable(TagMatcherCallback& callback, MapFacade& facade) const {
