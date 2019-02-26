@@ -35,21 +35,33 @@
 
 namespace TrenchBroom {
     namespace View {
-        TEST_F(MapDocumentTest, testTagRegistration) {
-            game->setSmartTags({
-                Model::SmartTag("test", {}, std::make_unique<Model::EntityClassNameTagMatcher>("light"))
-            });
-            document->registerSmartTags();
+        class TagManagementTest : public MapDocumentTest {
+        protected:
+            void SetUp() override {
+                MapDocumentTest::SetUp();
 
-            ASSERT_TRUE(document->isRegisteredSmartTag("test"));
+                game->setSmartTags({
+                    Model::SmartTag("texture", {}, std::make_unique<Model::TextureNameTagMatcher>("some_texture")),
+                    Model::SmartTag("surfaceparm", {}, std::make_unique<Model::SurfaceParmTagMatcher>("some_parm")),
+                    Model::SmartTag("contentflags", {}, std::make_unique<Model::ContentFlagsTagMatcher>(1)),
+                    Model::SmartTag("surfaceflags", {}, std::make_unique<Model::SurfaceFlagsTagMatcher>(1)),
+                    Model::SmartTag("entity", {}, std::make_unique<Model::EntityClassNameTagMatcher>("light"))
+                });
+                document->registerSmartTags();
+            }
+        };
+
+        TEST_F(TagManagementTest, testTagRegistration) {
+            ASSERT_TRUE(document->isRegisteredSmartTag("texture"));
+            ASSERT_TRUE(document->isRegisteredSmartTag("surfaceparm"));
+            ASSERT_TRUE(document->isRegisteredSmartTag("contentflags"));
+            ASSERT_TRUE(document->isRegisteredSmartTag("surfaceflags"));
+            ASSERT_TRUE(document->isRegisteredSmartTag("entity"));
+            ASSERT_FALSE(document->isRegisteredSmartTag(""));
+            ASSERT_FALSE(document->isRegisteredSmartTag("asdf"));
         }
 
-        TEST_F(MapDocumentTest, testTagInitializeBrushTags) {
-            game->setSmartTags({
-                Model::SmartTag("test", {}, std::make_unique<Model::EntityClassNameTagMatcher>("light"))
-            });
-            document->registerSmartTags();
-
+        TEST_F(TagManagementTest, testTagInitializeBrushTags) {
             auto* entity = new Model::Entity();
             entity->addOrUpdateAttribute("classname", "light");
             document->addNode(entity, document->currentParent());
@@ -57,16 +69,11 @@ namespace TrenchBroom {
             auto* brush = createBrush("some_texture");
             document->addNode(brush, entity);
 
-            const auto& tag = document->smartTag("test");
+            const auto& tag = document->smartTag("entity");
             ASSERT_TRUE(brush->hasTag(tag));
         }
 
-        TEST_F(MapDocumentTest, testTagRemoveBrushTags) {
-            game->setSmartTags({
-                Model::SmartTag("test", {}, std::make_unique<Model::EntityClassNameTagMatcher>("light"))
-            });
-            document->registerSmartTags();
-
+        TEST_F(TagManagementTest, testTagRemoveBrushTags) {
             auto* entity = new Model::Entity();
             entity->addOrUpdateAttribute("classname", "light");
             document->addNode(entity, document->currentParent());
@@ -76,16 +83,11 @@ namespace TrenchBroom {
 
             document->removeNode(brush);
 
-            const auto& tag = document->smartTag("test");
+            const auto& tag = document->smartTag("entity");
             ASSERT_FALSE(brush->hasTag(tag));
         }
 
-        TEST_F(MapDocumentTest, testTagUpdateBrushTags) {
-            game->setSmartTags({
-                Model::SmartTag("test", {}, std::make_unique<Model::EntityClassNameTagMatcher>("light"))
-            });
-            document->registerSmartTags();
-
+        TEST_F(TagManagementTest, testTagUpdateBrushTags) {
             auto* brush = createBrush("some_texture");
             document->addNode(brush, document->currentParent());
 
@@ -93,19 +95,14 @@ namespace TrenchBroom {
             entity->addOrUpdateAttribute("classname", "light");
             document->addNode(entity, document->currentParent());
 
-            const auto& tag = document->smartTag("test");
+            const auto& tag = document->smartTag("entity");
             ASSERT_FALSE(brush->hasTag(tag));
 
             document->reparentNodes(entity, Model::NodeList{brush});
             ASSERT_TRUE(brush->hasTag(tag));
         }
 
-        TEST_F(MapDocumentTest, testTagUpdateBrushTagsAfterReparenting) {
-            game->setSmartTags({
-                Model::SmartTag("test", {}, std::make_unique<Model::EntityClassNameTagMatcher>("light"))
-            });
-            document->registerSmartTags();
-
+        TEST_F(TagManagementTest, testTagUpdateBrushTagsAfterReparenting) {
             auto* lightEntity = new Model::Entity();
             lightEntity->addOrUpdateAttribute("classname", "light");
             document->addNode(lightEntity, document->currentParent());
@@ -117,19 +114,14 @@ namespace TrenchBroom {
             auto* brush = createBrush("some_texture");
             document->addNode(brush, otherEntity);
 
-            const auto& tag = document->smartTag("test");
+            const auto& tag = document->smartTag("entity");
             ASSERT_FALSE(brush->hasTag(tag));
 
             document->reparentNodes(lightEntity, Model::NodeList{brush});
             ASSERT_TRUE(brush->hasTag(tag));
         }
 
-        TEST_F(MapDocumentTest, testTagUpdateBrushTagsAfterChangingClassname) {
-            game->setSmartTags({
-                Model::SmartTag("test", {}, std::make_unique<Model::EntityClassNameTagMatcher>("light"))
-            });
-            document->registerSmartTags();
-
+        TEST_F(TagManagementTest, testTagUpdateBrushTagsAfterChangingClassname) {
             auto* lightEntity = new Model::Entity();
             lightEntity->addOrUpdateAttribute("classname", "asdf");
             document->addNode(lightEntity, document->currentParent());
@@ -137,26 +129,21 @@ namespace TrenchBroom {
             auto* brush = createBrush("some_texture");
             document->addNode(brush, lightEntity);
 
-            const auto& tag = document->smartTag("test");
+            const auto& tag = document->smartTag("entity");
             ASSERT_FALSE(brush->hasTag(tag));
 
             document->select(lightEntity);
             document->setAttribute("classname", "light");
             document->deselectAll();
-            
+
             ASSERT_TRUE(brush->hasTag(tag));
         }
 
-        TEST_F(MapDocumentTest, testTagInitializeBrushFaceTags) {
-            game->setSmartTags({
-                Model::SmartTag("test", {}, std::make_unique<Model::TextureNameTagMatcher>("some_texture"))
-            });
-            document->registerSmartTags();
-
+        TEST_F(TagManagementTest, testTagInitializeBrushFaceTags) {
             auto* brushWithTags = createBrush("some_texture");
             document->addNode(brushWithTags, document->currentParent());
 
-            const auto& tag = document->smartTag("test");
+            const auto& tag = document->smartTag("texture");
             for (const auto* face : brushWithTags->faces()) {
                 ASSERT_TRUE(face->hasTag(tag));
             }
@@ -169,32 +156,22 @@ namespace TrenchBroom {
             }
         }
 
-        TEST_F(MapDocumentTest, testTagRemoveBrushFaceTags) {
-            game->setSmartTags({
-                Model::SmartTag("test", {}, std::make_unique<Model::TextureNameTagMatcher>("some_texture"))
-            });
-            document->registerSmartTags();
-
+        TEST_F(TagManagementTest, testTagRemoveBrushFaceTags) {
             auto* brushWithTags = createBrush("some_texture");
             document->addNode(brushWithTags, document->currentParent());
             document->removeNode(brushWithTags);
 
-            const auto& tag = document->smartTag("test");
+            const auto& tag = document->smartTag("texture");
             for (const auto* face : brushWithTags->faces()) {
                 ASSERT_FALSE(face->hasTag(tag));
             }
         }
 
-        TEST_F(MapDocumentTest, testTagUpdateBrushFaceTags) {
-            game->setSmartTags({
-                Model::SmartTag("test", {}, std::make_unique<Model::ContentFlagsTagMatcher>(1))
-            });
-            document->registerSmartTags();
-
+        TEST_F(TagManagementTest, testTagUpdateBrushFaceTags) {
             auto* brush = createBrush("asdf");
             document->addNode(brush, document->currentParent());
 
-            const auto& tag = document->smartTag("test");
+            const auto& tag = document->smartTag("contentflags");
 
             auto* face = brush->faces().front();
             ASSERT_FALSE(face->hasTag(tag));
