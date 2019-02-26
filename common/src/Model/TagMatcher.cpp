@@ -263,7 +263,7 @@ namespace TrenchBroom {
             auto matchingDefinitions = Assets::EntityDefinitionList{};
 
             std::copy_if(std::begin(allDefinitions), std::end(allDefinitions), std::back_inserter(matchingDefinitions), [this](const auto* definition) {
-                return matchesClassname(definition->name());
+                return definition->type() == Assets::EntityDefinition::Type_BrushEntity && matchesClassname(definition->name());
             });
 
             std::sort(std::begin(matchingDefinitions), std::end(matchingDefinitions), [](const auto* lhs, const auto* rhs) {

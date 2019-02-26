@@ -851,7 +851,7 @@ namespace TrenchBroom {
             Transaction transaction(document, "Make Structural");
             Model::NodeList toReparent;
             for (auto* brush : document->selectedNodes().brushes()) {
-                if (brush->entity()) {
+                if (brush->entity() != document->world()) {
                     toReparent.push_back(brush);
                 }
             }
