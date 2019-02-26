@@ -43,7 +43,7 @@ namespace TrenchBroom {
         }
         
         void CachingLogger::doLog(const LogLevel level, const QString& message) {
-            if (m_logger == nullptr)
+            if (m_logger == nullptr) {
                 m_cachedMessages.push_back(Message(level, message));
             } else {
                 m_logger->log(level, message);
