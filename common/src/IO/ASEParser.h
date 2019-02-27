@@ -27,6 +27,7 @@
 
 #include <vecmath/forward.h>
 
+#include <array>
 #include <vector>
 
 namespace TrenchBroom {
@@ -46,6 +47,7 @@ namespace TrenchBroom {
             static const Type Integer           = 1 <<  4; // integer number
             static const Type Decimal           = 1 <<  5; // decimal number
             static const Type Keyword           = 1 <<  6; // keyword: Filter etc.
+            static const Type ArgumentName      = 1 <<  7; // argument name: A:, B: etc.
             static const Type Eof               = 1 << 12; // end of file
         }
 
@@ -63,7 +65,16 @@ namespace TrenchBroom {
         private:
             using Token = AseTokenizer::Token;
 
+            struct MeshFaceVertex {
+                size_t vertexIndex;
+                size_t uvIndex;
+            };
+
+            using MeshFace = std::array<MeshFaceVertex, 3>;
             AseTokenizer m_tokenizer;
+        public:
+            ASEParser(const char* begin, const char* end);
+            explicit ASEParser(const String& str);
         private:
             Assets::EntityModel* doParseModel(Logger& logger) override;
 
@@ -84,20 +95,30 @@ namespace TrenchBroom {
             void parseGeomObjectMesh(Logger& logger);
             void parseGeomObjectMeshNumVertex(Logger& logger, std::vector<vm::vec3f>& vertices);
             void parseGeomObjectMeshVertexList(Logger& logger, std::vector<vm::vec3f>& vertices);
-            void parseGeomObjectMeshNumFaces(Logger& logger);
-            void parseGeomObjectMeshFaceList(Logger& logger);
-            void parseGeomObjectMeshNumTVertex(Logger& logger);
-            void parseGeomObjectMeshTVertexList(Logger& logger);
-            void parseGeomObjectMeshNumTVFaces(Logger& logger);
-            void parseGeomObjectMeshTFaceList(Logger& logger);
+            void parseGeomObjectMeshVertex(Logger& logger, std::vector<vm::vec3f>& vertices);
+            void parseGeomObjectMeshNumFaces(Logger& logger, std::vector<MeshFace>& faces);
+            void parseGeomObjectMeshFaceList(Logger& logger, std::vector<MeshFace>& faces);
+            void parseGeomObjectMeshFace(Logger& logger, std::vector<MeshFace>& faces);
+            void parseGeomObjectMeshNumTVertex(Logger& logger, std::vector<vm::vec2f>& uv);
+            void parseGeomObjectMeshTVertexList(Logger& logger, std::vector<vm::vec2f>& uv);
+            void parseGeomObjectMeshTVertex(Logger& logger, std::vector<vm::vec2f>& uv);
+            void parseGeomObjectMeshNumTVFaces(Logger& logger, size_t expected);
+            void parseGeomObjectMeshTFaceList(Logger& logger, std::vector<MeshFace>& faces);
+            void parseGeomObjectMeshTFace(Logger& logger, std::vector<MeshFace>& faces);
 
             void parseBlock(const std::map<std::string, std::function<void(void)>>& handlers);
 
             void expectDirective(const String& name);
+            void skipDirective(const String& name);
             void skipDirective();
+
+            void expectArgumentName(const String& expected);
 
             void expectSizeArgument(size_t expected);
             size_t parseSizeArgument();
+            vm::vec3f parseVecArgument();
+        private:
+            TokenNameMap tokenNames() const override;
         };
     }
 }
