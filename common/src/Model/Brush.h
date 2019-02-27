@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -24,7 +24,6 @@
 #include "Hit.h"
 #include "ProjectingSequence.h"
 #include "Polyhedron_Matcher.h"
-#include "Model/BrushContentType.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Node.h"
 #include "Model/Object.h"
@@ -46,7 +45,6 @@
 namespace TrenchBroom {
     namespace Model {
         struct BrushAlgorithmResult;
-        class BrushContentTypeBuilder;
         class ModelFactory;
         class PickResult;
         class BrushRendererBrushCache;
@@ -69,22 +67,19 @@ namespace TrenchBroom {
             class HealEdgesCallback;
             class AddFacesToGeometry;
             class MoveVerticesCallback;
-            typedef MoveVerticesCallback RemoveVertexCallback;
+            using RemoveVertexCallback = MoveVerticesCallback;
             class QueryCallback;
 
             using VertexSet = std::set<vm::vec3>;
         public:
-            typedef ConstProjectingSequence<BrushVertexList, ProjectToVertex> VertexList;
-            typedef ConstProjectingSequence<BrushEdgeList, ProjectToEdge> EdgeList;
+            using VertexList = ConstProjectingSequence<BrushVertexList, ProjectToVertex>;
+            using EdgeList = ConstProjectingSequence<BrushEdgeList, ProjectToEdge>;
 
         private:
             BrushFaceList m_faces;
             BrushGeometry* m_geometry;
 
-            const BrushContentTypeBuilder* m_contentTypeBuilder;
-            mutable BrushContentType::FlagType m_contentType;
             mutable bool m_transparent;
-            mutable bool m_contentTypeValid;
             mutable Renderer::BrushRendererBrushCache m_brushRendererBrushCache;
         public:
             Brush(const vm::bbox3& worldBounds, const BrushFaceList& faces);
@@ -99,8 +94,8 @@ namespace TrenchBroom {
             BrushFace* findFace(const String& textureName) const;
             BrushFace* findFace(const vm::vec3& normal) const;
             BrushFace* findFace(const vm::plane3& boundary) const;
-            BrushFace* findFace(const vm::polygon3& vertices) const;
-            BrushFace* findFace(const std::vector<vm::polygon3>& candidates) const;
+            BrushFace* findFace(const vm::polygon3& vertices, FloatType epsilon = static_cast<FloatType>(0.0)) const;
+            BrushFace* findFace(const std::vector<vm::polygon3>& candidates, FloatType epsilon = static_cast<FloatType>(0.0)) const;
 
             size_t faceCount() const;
             const BrushFaceList& faces() const;
@@ -284,15 +279,6 @@ namespace TrenchBroom {
             bool checkGeometry() const;
         public:
             void findIntegerPlanePoints(const vm::bbox3& worldBounds);
-        public: // content type
-            bool transparent() const;
-            bool hasContentType(const BrushContentType& contentType) const;
-            bool hasContentType(BrushContentType::FlagType contentTypeMask) const;
-            void setContentTypeBuilder(const BrushContentTypeBuilder* contentTypeBuilder);
-        private:
-            BrushContentType::FlagType contentTypeFlags() const;
-            void invalidateContentType();
-            void validateContentType() const;
         private: // implement Node interface
             const String& doGetName() const override;
             const vm::bbox3& doGetBounds() const override;
@@ -305,8 +291,6 @@ namespace TrenchBroom {
             bool doRemoveIfEmpty() const override;
 
             bool doShouldAddToSpacialIndex() const override;
-
-            void doParentDidChange() override;
 
             bool doSelectable() const override;
 
@@ -344,6 +328,20 @@ namespace TrenchBroom {
              */
             void invalidateVertexCache();
             Renderer::BrushRendererBrushCache& brushRendererBrushCache() const;
+        private: // implement Taggable interface
+        public:
+            void initializeTags(TagManager& tagManager) override;
+            void clearTags() override;
+
+            /**
+             * Indicates whether all of the faces of this brush have any of the given tags.
+             *
+             * @param tagMask the tags to check
+             * @return true whether all faces of this brush have any of the given tags
+             */
+            bool allFacesHaveAnyTagInMask(Tag::TagType tagMask) const;
+        private:
+            bool doEvaluateTagMatcher(const TagMatcher& matcher) const override;
         private:
             deleteCopyAndMove(Brush)
         };

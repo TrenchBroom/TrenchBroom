@@ -33,6 +33,10 @@ namespace TrenchBroom {
     namespace Model {
         TestGame::TestGame() {}
 
+        void TestGame::setSmartTags(std::vector<SmartTag> smartTags) {
+            m_smartTags = std::move(smartTags);
+        }
+
         const String& TestGame::doGameName() const {
             static const String name("Test");
             return name;
@@ -54,17 +58,21 @@ namespace TrenchBroom {
         size_t TestGame::doMaxPropertyLength() const {
             return 1024;
         }
-        
-        World* TestGame::doNewMap(const MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const {
-            return new World(format, brushContentTypeBuilder(), worldBounds);
+
+        const std::vector<SmartTag>& TestGame::doSmartTags() const {
+            return m_smartTags;
+        }
+
+        std::unique_ptr<World> TestGame::doNewMap(const MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const {
+            return std::make_unique<World>(format, worldBounds);
+        }
+
+        std::unique_ptr<World> TestGame::doLoadMap(const MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger& logger) const {
+            return std::make_unique<World>(format, worldBounds);
         }
         
-        World* TestGame::doLoadMap(const MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger& logger) const {
-            return new World(format, brushContentTypeBuilder(), worldBounds);
-        }
-        
-        void TestGame::doWriteMap(World* world, const IO::Path& path) const {
-            const auto mapFormatName = formatName(world->format());
+        void TestGame::doWriteMap(World& world, const IO::Path& path) const {
+            const auto mapFormatName = formatName(world.format());
 
             IO::OpenFile open(path, true);
             IO::writeGameComment(open.file, gameName(), mapFormatName);
@@ -73,26 +81,26 @@ namespace TrenchBroom {
             writer.writeMap();
         }
 
-        void TestGame::doExportMap(World* world, Model::ExportFormat format, const IO::Path& path) const {}
+        void TestGame::doExportMap(World& world, Model::ExportFormat format, const IO::Path& path) const {}
         
-        NodeList TestGame::doParseNodes(const String& str, World* world, const vm::bbox3& worldBounds, Logger& logger) const {
+        NodeList TestGame::doParseNodes(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const {
             IO::TestParserStatus status;
             IO::NodeReader reader(str, world);
             return reader.read(worldBounds, status);
         }
         
-        BrushFaceList TestGame::doParseBrushFaces(const String& str, World* world, const vm::bbox3& worldBounds, Logger& logger) const {
+        BrushFaceList TestGame::doParseBrushFaces(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const {
             IO::TestParserStatus status;
             IO::BrushFaceReader reader(str, world);
             return reader.read(worldBounds, status);
         }
         
-        void TestGame::doWriteNodesToStream(World* world, const Model::NodeList& nodes, std::ostream& stream) const {
+        void TestGame::doWriteNodesToStream(World& world, const Model::NodeList& nodes, std::ostream& stream) const {
             IO::NodeWriter writer(world, stream);
             writer.writeNodes(nodes);
         }
         
-        void TestGame::doWriteBrushFacesToStream(World* world, const BrushFaceList& faces, std::ostream& stream) const {
+        void TestGame::doWriteBrushFacesToStream(World& world, const BrushFaceList& faces, std::ostream& stream) const {
             IO::NodeWriter writer(world, stream);
             writer.writeBrushFaces(faces);
         }
@@ -101,7 +109,7 @@ namespace TrenchBroom {
             return TexturePackageType::File;
         }
         
-        void TestGame::doLoadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const {
+        void TestGame::doLoadTextureCollections(AttributableNode& node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const {
             const IO::Path::List paths = extractTextureCollections(node);
             
             const IO::Path root = IO::Disk::getCurrentWorkingDir();
@@ -125,17 +133,18 @@ namespace TrenchBroom {
             return IO::Path::List();
         }
         
-        IO::Path::List TestGame::doExtractTextureCollections(const AttributableNode* node) const {
-            const AttributeValue& pathsValue = node->attribute("wad");
-            if (pathsValue.empty())
+        IO::Path::List TestGame::doExtractTextureCollections(const AttributableNode& node) const {
+            const AttributeValue& pathsValue = node.attribute("wad");
+            if (pathsValue.empty()) {
                 return IO::Path::List(0);
-            
+            }
+
             return IO::Path::asPaths(StringUtils::splitAndTrim(pathsValue, ';'));
         }
         
-        void TestGame::doUpdateTextureCollections(AttributableNode* node, const IO::Path::List& paths) const {
+        void TestGame::doUpdateTextureCollections(AttributableNode& node, const IO::Path::List& paths) const {
             const String value = StringUtils::join(IO::Path::asStrings(paths, '/'), ';');
-            node->addOrUpdateAttribute("wad", value);
+            node.addOrUpdateAttribute("wad", value);
         }
 
         void TestGame::doReloadShaders() {}
@@ -148,7 +157,7 @@ namespace TrenchBroom {
             return Assets::EntityDefinitionFileSpec::List();
         }
         
-        Assets::EntityDefinitionFileSpec TestGame::doExtractEntityDefinitionFile(const AttributableNode* node) const {
+        Assets::EntityDefinitionFileSpec TestGame::doExtractEntityDefinitionFile(const AttributableNode& node) const {
             return Assets::EntityDefinitionFileSpec();
         }
         
@@ -156,16 +165,11 @@ namespace TrenchBroom {
             return IO::Path();
         }
         
-        const BrushContentType::List& TestGame::doBrushContentTypes() const {
-            static const BrushContentType::List result;
-            return result;
-        }
-        
         StringList TestGame::doAvailableMods() const {
             return EmptyStringList;
         }
         
-        StringList TestGame::doExtractEnabledMods(const AttributableNode* node) const {
+        StringList TestGame::doExtractEnabledMods(const AttributableNode& node) const {
             return EmptyStringList;
         }
         

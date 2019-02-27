@@ -37,10 +37,10 @@ namespace TrenchBroom {
         
         class ShaderManager {
         private:
-            typedef std::map<String, Shader*> ShaderCache;
-            typedef std::pair<String, Shader*> ShaderCacheEntry;
-            typedef std::map<const ShaderConfig*, ShaderProgram*> ShaderProgramCache;
-            typedef std::pair<const ShaderConfig*, ShaderProgram*> ShaderProgramCacheEntry;
+            using ShaderCache = std::map<String, Shader*>;
+            using ShaderCacheEntry = std::pair<String, Shader*>;
+            using ShaderProgramCache = std::map<const ShaderConfig*, ShaderProgram*>;
+            using ShaderProgramCacheEntry = std::pair<const ShaderConfig*, ShaderProgram*>;
             
             ShaderCache m_shaders;
             ShaderProgramCache m_programs;

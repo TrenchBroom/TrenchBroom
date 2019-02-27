@@ -37,7 +37,7 @@ namespace TrenchBroom {
         
         class GLContext : public wxGLContext {
         public:
-            typedef std::shared_ptr<GLContext> Ptr;
+            using Ptr = std::shared_ptr<GLContext>;
         private:
             GLContextManager* m_contextManager;
         public:

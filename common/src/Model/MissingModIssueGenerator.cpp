@@ -95,21 +95,26 @@ namespace TrenchBroom {
         }
         
         void MissingModIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
-            if (node->classname() != AttributeValues::WorldspawnClassname)
+            assert(node != nullptr);
+
+            if (node->classname() != AttributeValues::WorldspawnClassname) {
                 return;
-            
-            if (expired(m_game))
+            }
+
+            if (expired(m_game)) {
                 return;
-            
+            }
+
             GameSPtr game = lock(m_game);
-            const StringList mods = game->extractEnabledMods(node);
+            const StringList mods = game->extractEnabledMods(*node);
             
-            if (mods == m_lastMods)
+            if (mods == m_lastMods) {
                 return;
-            
+            }
+
             const IO::Path::List additionalSearchPaths = IO::Path::asPaths(mods);
             const Game::PathErrors errors = game->checkAdditionalSearchPaths(additionalSearchPaths);
-            typedef Game::PathErrors::value_type PathError;
+            using PathError = Game::PathErrors::value_type;
             
             std::transform(std::begin(errors), std::end(errors), std::back_inserter(issues), [node](const PathError& error) {
                 const IO::Path& searchPath = error.first;

@@ -23,15 +23,17 @@
 #include "Color.h"
 #include "StringUtils.h"
 #include "IO/Path.h"
-#include "Model/BrushContentType.h"
 #include "Model/CompilationConfig.h"
 #include "Model/GameEngineConfig.h"
 #include "Model/ModelTypes.h"
+#include "Model/Tag.h"
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
+        class SmartTag;
+
         class GameConfig {
         public:
             struct MapFormatConfig {
@@ -47,7 +49,7 @@ namespace TrenchBroom {
             };
 
             struct PackageFormatConfig {
-                typedef std::vector<PackageFormatConfig> List;
+                using List = std::vector<PackageFormatConfig>;
                 
                 StringList extensions;
                 String format;
@@ -121,7 +123,7 @@ namespace TrenchBroom {
                 bool operator==(const FlagConfig& other) const;
             };
             
-            typedef std::vector<FlagConfig> FlagConfigList;
+            using FlagConfigList = std::vector<FlagConfig>;
             
             struct FlagsConfig {
                 FlagConfigList flags;
@@ -155,13 +157,23 @@ namespace TrenchBroom {
             TextureConfig m_textureConfig;
             EntityConfig m_entityConfig;
             FaceAttribsConfig m_faceAttribsConfig;
-            BrushContentType::List m_brushContentTypes;
+            std::vector<SmartTag> m_smartTags;
             CompilationConfig m_compilationConfig;
             GameEngineConfig m_gameEngineConfig;
             size_t m_maxPropertyLength;
         public:
             GameConfig();
-            GameConfig(const String& name, const IO::Path& path, const IO::Path& icon, bool experimental, const MapFormatConfig::List& fileFormats, const FileSystemConfig& fileSystemConfig, const TextureConfig& textureConfig, const EntityConfig& entityConfig, const FaceAttribsConfig& faceAttribsConfig, const BrushContentType::List& brushContentTypes);
+            GameConfig(
+                String name,
+                IO::Path path,
+                IO::Path icon,
+                bool experimental,
+                MapFormatConfig::List fileFormats,
+                FileSystemConfig fileSystemConfig,
+                TextureConfig textureConfig,
+                EntityConfig entityConfig,
+                FaceAttribsConfig faceAttribsConfig,
+                std::vector<SmartTag> smartTags);
             
             const String& name() const;
             const IO::Path& path() const;
@@ -172,8 +184,8 @@ namespace TrenchBroom {
             const TextureConfig& textureConfig() const;
             const EntityConfig& entityConfig() const;
             const FaceAttribsConfig& faceAttribsConfig() const;
-            const BrushContentType::List& brushContentTypes() const;
-            
+            const std::vector<SmartTag>& smartTags() const;
+
             CompilationConfig& compilationConfig();
             const CompilationConfig& compilationConfig() const;
             void setCompilationConfig(const CompilationConfig& compilationConfig);
@@ -186,8 +198,6 @@ namespace TrenchBroom {
 
             IO::Path findInitialMap(const String& formatName) const;
             IO::Path findConfigFile(const IO::Path& filePath) const;
-            
-            void addBrushContentType(const BrushContentType& contentType);
         };
     }
 }

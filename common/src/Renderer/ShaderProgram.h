@@ -33,7 +33,7 @@ namespace TrenchBroom {
         
         class ShaderProgram {
         private:
-            typedef std::map<String, GLint> UniformVariableCache;
+            using UniformVariableCache = std::map<String, GLint>;
             
             String m_name;
             GLuint m_programId;

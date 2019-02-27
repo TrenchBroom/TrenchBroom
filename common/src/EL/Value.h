@@ -187,10 +187,10 @@ namespace TrenchBroom {
         public:
             static const Value Null;
             static const Value Undefined;
-            typedef std::set<Value> Set;
+            using Set = std::set<Value>;
         private:
-            typedef std::vector<size_t> IndexList;
-            typedef std::shared_ptr<ValueHolder> ValuePtr;
+            using IndexList = std::vector<size_t>;
+            using ValuePtr = std::shared_ptr<ValueHolder>;
             ValuePtr m_value;
             size_t m_line;
             size_t m_column;
@@ -269,7 +269,7 @@ namespace TrenchBroom {
             
             template <typename T, typename C>
             MapType makeMap(const std::map<String, T, C>& value) {
-                typedef typename std::map<String, T, C>::value_type Entry;
+                using Entry = typename std::map<String, T, C>::value_type;
                 MapType result;
                 std::transform(std::begin(value), std::end(value), std::inserter(result, result.begin()),
                                [](const Entry& entry) { return std::make_pair(entry.first, EL::Value(entry.second)); });

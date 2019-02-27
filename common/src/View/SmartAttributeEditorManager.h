@@ -38,10 +38,10 @@ namespace TrenchBroom {
         
         class SmartAttributeEditorManager : public wxPanel {
         private:
-            typedef std::shared_ptr<SmartAttributeEditor> EditorPtr;
-            typedef std::shared_ptr<SmartAttributeEditorMatcher> MatcherPtr;
-            typedef std::pair<MatcherPtr, EditorPtr> MatcherEditorPair;
-            typedef std::vector<MatcherEditorPair> EditorList;
+            using EditorPtr = std::shared_ptr<SmartAttributeEditor>;
+            using MatcherPtr = std::shared_ptr<SmartAttributeEditorMatcher>;
+            using MatcherEditorPair = std::pair<MatcherPtr, EditorPtr>;
+            using EditorList = std::vector<MatcherEditorPair>;
             
             View::MapDocumentWPtr m_document;
             
@@ -53,6 +53,7 @@ namespace TrenchBroom {
             ~SmartAttributeEditorManager();
             
             void switchEditor(const Model::AttributeName& name, const Model::AttributableNodeList& attributables);
+            bool isDefaultEditorActive() const;
         private:
             void createEditors();
 

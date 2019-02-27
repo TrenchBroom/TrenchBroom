@@ -41,7 +41,7 @@ namespace TrenchBroom {
         private:
             class BaseHolder {
             public:
-                typedef std::shared_ptr<BaseHolder> Ptr;
+                using Ptr = std::shared_ptr<BaseHolder>;
                 virtual ~BaseHolder() {}
                 
                 virtual size_t indexCount() const = 0;
@@ -59,7 +59,7 @@ namespace TrenchBroom {
             template <typename Index>
             class Holder : public BaseHolder {
             protected:
-                typedef std::vector<Index> IndexList;
+                using IndexList = std::vector<Index>;
             private:
                 VboBlock* m_block;
                 size_t m_indexCount;
@@ -115,7 +115,7 @@ namespace TrenchBroom {
             template <typename Index>
             class CopyHolder : public Holder<Index> {
             public:
-                typedef typename Holder<Index>::IndexList IndexList;
+                using IndexList = typename Holder<Index>::IndexList;
             private:
                 IndexList m_indices;
             public:
@@ -136,7 +136,7 @@ namespace TrenchBroom {
             template <typename Index>
             class SwapHolder : public Holder<Index> {
             public:
-                typedef typename Holder<Index>::IndexList IndexList;
+                using IndexList = typename Holder<Index>::IndexList;
             private:
                 IndexList m_indices;
             public:
@@ -160,7 +160,7 @@ namespace TrenchBroom {
             template <typename Index>
             class RefHolder : public Holder<Index> {
             public:
-                typedef typename Holder<Index>::IndexList IndexList;
+                using IndexList = typename Holder<Index>::IndexList;
             private:
                 const IndexList& m_indices;
             public:

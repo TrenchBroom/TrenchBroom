@@ -67,8 +67,13 @@ namespace TrenchBroom {
         bool MoveBrushVerticesCommand::doCollateWith(UndoableCommand::Ptr command) {
             MoveBrushVerticesCommand* other = static_cast<MoveBrushVerticesCommand*>(command.get());
 
-            if (!VectorUtils::equals(m_newVertexPositions, other->m_oldVertexPositions))
+            if (!canCollateWith(*other)) {
                 return false;
+            }
+
+            if (!VectorUtils::equals(m_newVertexPositions, other->m_oldVertexPositions)) {
+                return false;
+            }
 
             m_newVertexPositions = other->m_newVertexPositions;
             m_delta = m_delta + other->m_delta;

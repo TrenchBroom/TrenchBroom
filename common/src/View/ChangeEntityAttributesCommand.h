@@ -32,7 +32,7 @@ namespace TrenchBroom {
         class ChangeEntityAttributesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            typedef std::shared_ptr<ChangeEntityAttributesCommand> Ptr;
+            using Ptr = std::shared_ptr<ChangeEntityAttributesCommand>;
         private:
             typedef enum {
                 Action_Set,

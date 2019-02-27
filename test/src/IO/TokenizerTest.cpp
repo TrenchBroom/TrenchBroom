@@ -25,7 +25,7 @@
 namespace TrenchBroom {
     namespace IO {
         namespace SimpleToken {
-            typedef unsigned int Type;
+            using Type = unsigned int;
             static const Type Integer       = 1 <<  0; // integer number
             static const Type Decimal       = 1 <<  1; // decimal number
             static const Type String        = 1 <<  2; // string
@@ -39,7 +39,7 @@ namespace TrenchBroom {
         
         class SimpleTokenizer : public Tokenizer<SimpleToken::Type> {
         public:
-            typedef Tokenizer<SimpleToken::Type>::Token Token;
+            using Token = Tokenizer<SimpleToken::Type>::Token;
         private:
             Token emitToken() override {
                 while (!eof()) {

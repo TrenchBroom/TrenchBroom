@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_ViewEditor
 #define TrenchBroom_ViewEditor
 
-#include "Model/BrushContentType.h"
 #include "View/ViewTypes.h"
 
 #include <wx/panel.h>
@@ -37,6 +36,7 @@ namespace TrenchBroom {
     
     namespace Model {
         class EditorContext;
+        class SmartTag;
     }
     
     namespace View {
@@ -45,7 +45,7 @@ namespace TrenchBroom {
         
         class EntityDefinitionCheckBoxList : public wxPanel {
         private:
-            typedef std::vector<wxCheckBox*> CheckBoxList;
+            using CheckBoxList = std::vector<wxCheckBox*>;
 
             Assets::EntityDefinitionManager& m_entityDefinitionManager;
             Model::EditorContext& m_editorContext;
@@ -68,7 +68,7 @@ namespace TrenchBroom {
         
         class ViewEditor : public wxPanel {
         private:
-            typedef std::vector<wxCheckBox*> CheckBoxList;
+            using CheckBoxList = std::vector<wxCheckBox*>;
             
             MapDocumentWPtr m_document;
             
@@ -84,8 +84,8 @@ namespace TrenchBroom {
             EntityDefinitionCheckBoxList* m_entityDefinitionCheckBoxList;
             
             wxCheckBox* m_showBrushesCheckBox;
-            CheckBoxList m_brushContentTypeCheckBoxes;
-            
+            CheckBoxList m_tagCheckBoxes;
+
             RadioGroup* m_renderModeRadioGroup;
             wxCheckBox* m_shadeFacesCheckBox;
             wxCheckBox* m_showFogCheckBox;
@@ -94,7 +94,7 @@ namespace TrenchBroom {
             RadioGroup* m_entityLinkRadioGroup;
         public:
             ViewEditor(wxWindow* parent, MapDocumentWPtr document);
-            ~ViewEditor();
+            ~ViewEditor() override;
             
             void OnShowEntityClassnamesChanged(wxCommandEvent& event);
             void OnShowGroupBoundsChanged(wxCommandEvent& event);
@@ -103,7 +103,7 @@ namespace TrenchBroom {
             void OnShowPointEntitiesChanged(wxCommandEvent& event);
             void OnShowPointEntityModelsChanged(wxCommandEvent& event);
             void OnShowBrushesChanged(wxCommandEvent& event);
-            void OnShowBrushContentTypeChanged(wxCommandEvent& event);
+            void OnShowTagChanged(wxCommandEvent& event);
             void OnFaceRenderModeChanged(wxCommandEvent& event);
             void OnShadeFacesChanged(wxCommandEvent& event);
             void OnShowFogChanged(wxCommandEvent& event);
@@ -123,9 +123,9 @@ namespace TrenchBroom {
             wxWindow* createEntityDefinitionsPanel(wxWindow* parent);
             wxWindow* createEntitiesPanel(wxWindow* parent);
             wxWindow* createBrushesPanel(wxWindow* parent);
-            void createBrushContentTypeFilter(wxWindow* parent);
-            void createEmptyBrushContentTypeFilter(wxWindow* parent);
-            void createBrushContentTypeFilter(wxWindow* parent, const Model::BrushContentType::List& contentTypes);
+            void createTagFilter(wxWindow* parent);
+            void createEmptyTagFilter(wxWindow* parent);
+            void createTagFilter(wxWindow* parent, const std::vector<Model::SmartTag>& tags);
             
             wxWindow* createRendererPanel(wxWindow* parent);
             

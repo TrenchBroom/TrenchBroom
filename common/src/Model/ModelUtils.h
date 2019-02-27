@@ -37,6 +37,7 @@ namespace TrenchBroom {
         }
 
         NodeList collectChildren(const ParentChildrenMap& nodes);
+        NodeList collectDescendants(const Model::NodeList& nodes);
         ParentChildrenMap parentChildrenMap(const NodeList& nodes);
     }
 }

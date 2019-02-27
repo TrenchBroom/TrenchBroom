@@ -28,7 +28,7 @@ TrenchBroom is a level editing program for brush-based game engines such as Quak
 	- Multiple texture collections
 * **Entity Editing**
 	- Entity browser with drag and drop support
-	- Support for FGD and DEF files for entity definitions
+	- Support for FGD, ENT and DEF files for entity definitions
 	- Mod support
 	- Entity link visualization
 	- Displays 3D models in the editor
@@ -272,9 +272,9 @@ Mods are stored in a worldspawn property called "_tb_mod".
 
 ### Loading Entity Definitions {#entity_definition_setup}
 
-![Entity definition editor](EntityDefinitionEditor.png) Entity definitions are text files containing information about [the meaning of entities and their properties](images/#entitiy_definitions). Depending on the game and mod you are mapping for, you might want to load different entity definitions into the editor. To load an entity definition file into TrenchBroom, switch to the entity inspector and unfold the entity definition browser at the bottom of the inspector. The entity definition browser is horizontally divided into two areas. The upper area contains a list of _builtin_ entity definition files. These are the entity definition files that came with TrenchBroom for the game you are currently working on. You can select one of these builtin files by clicking on it. TrenchBroom will load the file and update its resources accordingly. Alternatively, you may want to load an external entity definition file of your own. To do this, click the button labeled "Browse" in the lower area of the entity defiinition browser and choose the file you wish to load. Alternatively, you can just drag and drop an entity definition file onto TrenchBroom's Main Window from a file manager (such as Windows Explorer). Currently, TrenchBroom supports Radiant DEF files and [Valve FGD][FGD File Format] files. To reload the entity definitions (as well as the referenced models) from the currently loaded external file, you can click the button labeled "Reload" at the bottom or use #menu(Menu/File/Reload Entity Definitions). This may be useful if you're editing an entity definition file for a mod you're working on.
+![Entity definition editor](EntityDefinitionEditor.png) Entity definitions are text files containing information about [the meaning of entities and their properties](images/#entitiy_definitions). Depending on the game and mod you are mapping for, you might want to load different entity definitions into the editor. To load an entity definition file into TrenchBroom, switch to the entity inspector and unfold the entity definition browser at the bottom of the inspector. The entity definition browser is horizontally divided into two areas. The upper area contains a list of _builtin_ entity definition files. These are the entity definition files that came with TrenchBroom for the game you are currently working on. You can select one of these builtin files by clicking on it. TrenchBroom will load the file and update its resources accordingly. Alternatively, you may want to load an external entity definition file of your own. To do this, click the button labeled "Browse" in the lower area of the entity defiinition browser and choose the file you wish to load. Alternatively, you can just drag and drop an entity definition file onto TrenchBroom's Main Window from a file manager (such as Windows Explorer). Currently, TrenchBroom supports Radiant DEF files and ENT files as well as [Valve FGD][FGD File Format] files. To reload the entity definitions (as well as the referenced models) from the currently loaded external file, you can click the button labeled "Reload" at the bottom or use #menu(Menu/File/Reload Entity Definitions). This may be useful if you're editing an entity definition file for a mod you're working on.
 
-Note that FGD files contain much more information than DEF files and are generally preferrable. While TrenchBroom supports both file types, its support for FGD is better and more comprehensive. Unfortunately, DEF files are still relevant because Radiant style editors require them, so TrenchBroom allows you to use them, too.
+Note that FGD and ENT files contain much more information than DEF files and are generally preferrable. While TrenchBroom supports all of these file types, its support for FGD and for ENT is better and more comprehensive. Unfortunately, DEF files are still relevant because Radiant style editors require them, so TrenchBroom allows you to use them, too.
 
 The path of an external entity definition file is stored in a worldspawn property called "_tb_def".
 
@@ -1730,13 +1730,17 @@ You can use these backups to go back to previous versions of you map if problems
 
 ## Display Models for Entities
 
-TrenchBroom can show models for point entities in the 3D and 2D viewports. For this to work, the display models have to be set up in the [entity definition](#entity_definitions) file, and the game path has to be set up correctly in the [game configuration](#game_configuration). For most of the included FGD and DEF files, the models have already been set up for you, but if you wish to create an entity definition file for a mod that works well in TrenchBroom, you have to add these model definitions yourself. You will learn how to do this for FGD and DEF files in this section.
+TrenchBroom can show models for point entities in the 3D and 2D viewports. For this to work, the display models have to be set up in the [entity definition](#entity_definitions) file, and the game path has to be set up correctly in the [game configuration](#game_configuration). For most of the included entity definition files, the models have already been set up for you, but if you wish to create an entity definition file for a mod that works well in TrenchBroom, you have to add these model definitions yourself. You will learn how to do this for FGD and DEF files in this section.
 
 ### General Model Syntax
 
-The syntax for adding display models is identical in both FGD and DEF files, only the place where the model definitions have to be inserted into the entity definitions varies. We will first explain the general syntax here. Every model definition takes the following form:
+The syntax for adding display models is identical in all entity definition files, only the place where the model definitions have to be inserted into the entity definitions varies. We will first explain the general syntax here. Every model definition in a DEF or an FGD takes the following form:
 
-    model()
+    model(...)
+
+In ENT files, the model definitions are given as XML attribute values of the `<point />` element, e.g.
+
+    <point model="..." />
 
 Thereby, the ellipsis contains the actual information about the model to display. You can use TrenchBroom's [expression language](#expression_language) to define the actual models. Each entity definition should contain only one model definition, and the expression in the model definition should evaluate either to a value of type string or to a value of type map. If the expression evaluates to a map, it must have the following structure:
 
@@ -1864,7 +1868,7 @@ Then, if you create an entity with the appropriate classname and specifies three
 
 TrenchBroom will display the second frame of the `progs/armor.mdl` model using its third skin. If you change these values, the model will be updated in the 3D and 2D viewports accordingly.
 
-#### Differences Between DEF and FGD Files
+#### Differences Between DEF, FGD and ENT Files
 
 In both files, the model definitions are just specified alongside with other entity property definitions (note the semicolon after the model definition -- this is only necessary in DEF files). An example from a DEF file might look as follows.
 
@@ -1896,6 +1900,14 @@ An example from an FGD file might look as follows.
 	]
 
 To improve compatibility to other editors, the model definition can also be named *studio* or *studioprop* in FGD files.
+
+In an ENT file, the same model specification might look like this.
+
+    <point 
+    	name="ammo_bfg" color=".3 .3 1" 
+    	box="-16 -16 -16 16 16 16" 
+    	model="{{ perch == "1" -> "progs/gaunt.mdl", { "path": "progs/gaunt.mdl", "skin": 0, "frame": 24 } }}"
+	/>
 
 ## Point Files and Portal Files
 
@@ -1946,7 +1958,7 @@ Game configuration files need to specify the following information.
 	* The builtin **entity definition files**
 	* The **default color** to use in the UI
 	* The supported **model formats**, e.g. mdl
-* **Brush content types** to specify different types of brushes in the editor such as clip brushes or trigger brushes (optional)
+* **Tags** to attach additional information to faces or brushes in the editor, e.g. whether a face is detail or hint. (optional)
 * **Face attributes** to specify which additional attributes to allow on brush faces (optional)
 
 The game configuration is an [expression language](#expression_language) map with a specific structure, which is explained using an example. 
@@ -1966,7 +1978,7 @@ The game configuration is an [expression language](#expression_language) map wit
 		},
 		"textures": { // where to search for textures and how to read them, see below
 	        "package": { "type": "directory", "root": "textures" },
-	        "format": { "extensions": [ "wal" ], "format": "idwal" },
+	        "format": { "extensions": [ "wal" ], "format": "wal" },
 	        "palette": "pics/colormap.pcx",
 	        "attribute": "_tb_textures"
 		},
@@ -1975,42 +1987,41 @@ The game configuration is an [expression language](#expression_language) map wit
 	    	"defaultcolor": "0.6 0.6 0.6 1.0",
 			"modelformats": [ "md2" ]
 	    },
-	    "brushtypes": [
-	        {
-	            "name": "Clip brushes",
-	            "attribs": [ "transparent" ],
-	            "match": "texture",
-	            "pattern": "clip"
-	        },
-	        {
-	            "name": "Skip brushes",
-	            "attribs": [ "transparent" ],
-	            "match": "texture",
-	            "pattern": "skip"
-	        },
-	        {
-	            "name": "Hint brushes",
-	            "attribs": [ "transparent" ],
-	            "match": "texture",
-	            "pattern": "hint*"
-	        },
-	        {
-	            "name": "Detail brushes",
-	            "match": "contentflag",
-	            "flags": [ "detail" ]
-	        },
-	        {
-	            "name": "Liquid brushes",
-	            "match": "contentflag",
-	            "flags": [ "lava", "slime", "water" ]
-	        },
-	        {
-	            "name": "Trigger brushes",
-	            "attribs": [ "transparent" ],
-	            "match": "classname",
-	            "pattern": "trigger*"
-	        }
-	    ],
+	    "tags": {
+	        "brush": [
+	            {
+	                "name": "Trigger",
+	                "attribs": [ "transparent" ],
+	                "match": "classname",
+	                "pattern": "trigger*"
+	            }
+	        ],
+	        "brushface": [
+	            {
+	                "name": "Clip",
+	                "attribs": [ "transparent" ],
+	                "match": "texture",
+	                "pattern": "clip"
+	            },
+	            {
+	                "name": "Skip",
+	                "attribs": [ "transparent" ],
+	                "match": "texture",
+	                "pattern": "skip"
+	            },
+	            {
+	                "name": "Hint",
+	                "attribs": [ "transparent" ],
+	                "match": "texture",
+	                "pattern": "hint*"
+	            },
+	            {
+	                "name": "Liquid",
+	                "match": "texture",
+	                "pattern": "\**"
+	            }
+	        ]
+	    }
     }
 
 
@@ -2019,12 +2030,14 @@ The game configuration is an [expression language](#expression_language) map wit
 
 The file format is specified by an array of maps under the key `fileformats`. The following formats are supported.
 
-Format       Description
-------       -----------
-Standard     Standard Quake map file
-Valve        Valve map file (like Standard, but with different texture info per face)
-Quake2       Quake 2 map file
-Hexen2       Hexen 2 map file (like Quake, but with an additional, but unused value per face)
+Format      	 Description
+------      	 -----------
+Standard     	Standard Quake map file
+Valve       	Valve map file (like Standard, but with different texture info per face)
+Quake2       	Quake 2 map file
+Quake3       	Quake 3 map file (with brush primitives)
+Quake3 (legacy) Quake 3 map file (without brush primitives)
+Hexen2       	Hexen 2 map file (like Quake, but with an additional, but unused value per face)
 
 Each entry of the array must have the following structure:
 
@@ -2074,7 +2087,7 @@ A directory based texture configuration looks as follows. It differs only in the
 
 	"textures": {
         "package": { "type": "directory", "root": "textures" },
-        "format": { "extensions": [ "wal" ], "format": "idwal" },
+        "format": { "extensions": [ "wal" ], "format": "wal" },
         "palette": "pics/colormap.pcx",
         "attribute": "_tb_textures"
 	},
@@ -2092,7 +2105,7 @@ Format       Description
 idmip        mip file, used by Quake and Hexen
 hlmip        mip file, used by Half Life
 dkmip        mip file, used by Daikatana
-idwal        wal file, used by Quake 2
+wal          wal file, used by Quake 2
 image        image file
 
 The `image` format can be used to load a wide array of image formats such as tga, pcx, jpeg, and so on. TrenchBroom uses the [FreeImage Library] to load these images and supports any file type supported by this library.
@@ -2122,29 +2135,41 @@ md2          Quake 2 model format
 bsp        	 Compiled brush model, used by Quake and Hexen 2
 dkm          Daikatana model format
 
-#### Brush Types
+#### Tags
 
-TrenchBroom recognizes certain tyes of brushes such as clip brushes or trigger brushes. But since the details can be game dependent, these brush types are defined in the game configuration. For this, the `brushtypes` key has a list of brush type configurations. Each configuration looks as follows.
+TrenchBroom can recognize certain special objects or special brush faces. An example would be clip faces or trigger brushes. But since the details can be game dependent, these special objects and faces are defined in the game configuration. For greater flexibility and future enhancements, a general tagging system is used to realize this functionality. Thereby, the game configuration defines smart tags which are applied automatically to brushes or brush faces depending on certain conditions.
+
+The tags are specified separately for brushes and faces under the corresponding keys:
+
+    "tags": {
+        "brush": [ ... ],
+        "brushface": [ ... ]
+    }
+
+Each of these keys has a list of tags. Each tag looks as follows.
 
     {
-        "name": "Clip brushes",
+        "name": "Clip",
         "attribs": [ "transparent" ],
         "match": "texture",
         "pattern": "clip"
     },
 
-The most important key is `match`, which specifies how TrenchBroom will recognize a brush of this type. This key can have the following values.
+The most important key is `match`, which specifies how TrenchBroom will determine whether or not to apply this tag. This key can have the following values.
 
 Match        Description
 -----        -----------
 texture      Match against a texture name, must match all brush faces
-contentflag  Match against face content flags, must match all brush faces (used by Quake 2)
+contentflag  Match against face content flags (used by Quake 2, Quake 3)
+surfaceflag  Match against face surface flags (used by Quake 2, Quake 3)
+surfaceparm  Match against shader surface parameters (used by Quake 3)
 classname    Match against a brush entity class name
 
 Depending on the value of the `match` key, additional keys may be required to configure the matcher.
 
 * For the `texture` matcher, the key `pattern` contains a pattern that is matched against the texture name. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
-* For the `contentflag` matcher, the key `flags` contains a list of content flag names to match against (see below for more info on content flags).
+* For the `contentflag` and `surfaceflag` matchers, the key `flags` contains a list of content or surface flag names to match against (see below for more info on content and surface flags).
+* For the `surfaceparm` matcher, the key `pattern` contains a pattern that is matched against the surface parameters. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
 * For the `classname` matcher, key `pattern` contains a pattern that is matched against the classname of the brush entity that contains the brush. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
 
 #### Face Attributes

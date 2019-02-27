@@ -29,7 +29,7 @@ namespace TrenchBroom {
         class SetModsCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            typedef std::shared_ptr<SetModsCommand> Ptr;
+            using Ptr = std::shared_ptr<SetModsCommand>;
         private:
             StringList m_oldMods;
             StringList m_newMods;

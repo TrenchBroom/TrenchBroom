@@ -28,7 +28,7 @@ namespace TrenchBroom {
         class FindPlanePointsCommand : public SnapshotCommand {
         public:
             static const CommandType Type;
-            typedef std::shared_ptr<FindPlanePointsCommand> Ptr;
+            using Ptr = std::shared_ptr<FindPlanePointsCommand>;
         public:
             static Ptr findPlanePoints();
         private:

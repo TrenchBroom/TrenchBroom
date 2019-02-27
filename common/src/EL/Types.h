@@ -29,13 +29,13 @@ namespace TrenchBroom {
     namespace EL {
         class Value;
         
-        typedef bool BooleanType;
-        typedef String StringType;
-        typedef double NumberType;
-        typedef long IntegerType;
-        typedef std::vector<Value> ArrayType;
-        typedef std::map<String, Value> MapType;
-        typedef std::vector<long> RangeType;
+        using BooleanType = bool;
+        using StringType = String;
+        using NumberType = double;
+        using IntegerType = long;
+        using ArrayType = std::vector<Value>;
+        using MapType = std::map<String, Value>;
+        using RangeType = std::vector<long>;
         
         typedef enum {
             Type_Boolean,

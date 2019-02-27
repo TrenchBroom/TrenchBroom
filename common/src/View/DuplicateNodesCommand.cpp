@@ -42,7 +42,7 @@ namespace TrenchBroom {
 
         bool DuplicateNodesCommand::doPerformDo(MapDocumentCommandFacade* document) {
             if (m_firstExecution) {
-                typedef std::pair<bool, Model::NodeMap::iterator> NodeMapInsertPos;
+                using NodeMapInsertPos = std::pair<bool, Model::NodeMap::iterator>;
                 
                 Model::NodeMap newParentMap;
                 

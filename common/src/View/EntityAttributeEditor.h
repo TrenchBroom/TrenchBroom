@@ -21,27 +21,61 @@
 #define TrenchBroom_EntityAttributeEditor
 
 #include "StringUtils.h"
+#include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
 
 #include <wx/panel.h>
 
+class wxTextCtrl;
+
 namespace TrenchBroom {
+    namespace Assets {
+        class EntityDefinition;
+        class AttributeDefinition;
+    }
+
     namespace View {
+        class Selection;
+        class SplitterWindow2;
         class EntityAttributeGrid;
         class EntityAttributeSelectedCommand;
         class SmartAttributeEditorManager;
-        
+
+        /**
+         * Panel containing the EntityAttributeGrid (the key/value editor table),
+         * smart editor, and documentation text view.
+         */
         class EntityAttributeEditor : public wxPanel {
         private:
             View::MapDocumentWPtr m_document;
             EntityAttributeGrid* m_attributeGrid;
             SmartAttributeEditorManager* m_smartEditorManager;
+            SplitterWindow2* m_documentationSplitter;
+            wxTextCtrl* m_documentationText;
             String m_lastSelectedAttributeName;
+            const Assets::EntityDefinition* m_currentDefinition;
         public:
             EntityAttributeEditor(wxWindow* parent, MapDocumentWPtr document);
-            
+            ~EntityAttributeEditor() override;
+
             void OnIdle(wxIdleEvent& event);
         private:
+            void bindObservers();
+            void unbindObservers();
+
+            void selectionDidChange(const Selection& selection);
+            void nodesDidChange(const Model::NodeList& nodes);
+
+            void updateIfSelectedEntityDefinitionChanged();
+            void updateDocumentationAndSmartEditor();
+
+            /**
+             * Returns a description of the options for ChoiceAttributeOption and FlagsAttributeDefinition,
+             * other subclasses return an empty string.
+             */
+            static wxString optionDescriptions(const Assets::AttributeDefinition& definition);
+
+            void updateDocumentation(const String &attributeName);
             void createGui(wxWindow* parent, MapDocumentWPtr document);
         };
     }

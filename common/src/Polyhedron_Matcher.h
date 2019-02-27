@@ -62,7 +62,7 @@ private:
     using Face = typename P::Face;
     using VMap = std::map<V,V>;
     
-    typedef relation<Vertex*, Vertex*> VertexRelation;
+    using VertexRelation = relation<Vertex*, Vertex*>;
     
     const P& m_left;
     const P& m_right;
@@ -102,7 +102,7 @@ public:
         } while (currentRightFace != firstRightFace);
     }
     
-    typedef std::list<Face*> MatchingFaces;
+    using MatchingFaces = std::list<Face*>;
 private:
     /**
      * Find the best matching face from the left polyhedron for the given face of the right polyhedron. The best match

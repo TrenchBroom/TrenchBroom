@@ -71,26 +71,26 @@ private:
         const typename DoublyLinkedList<Face, GetFaceLink>::Link& operator()(const Face* face) const;
     };
 
-    typedef typename DoublyLinkedList<Vertex, GetVertexLink>::Link VertexLink;
-    typedef typename DoublyLinkedList<Edge, GetEdgeLink>::Link EdgeLink;
-    typedef typename DoublyLinkedList<HalfEdge, GetHalfEdgeLink>::Link HalfEdgeLink;
-    typedef typename DoublyLinkedList<Face, GetFaceLink>::Link FaceLink;
+    using VertexLink = typename DoublyLinkedList<Vertex, GetVertexLink>::Link;
+    using EdgeLink = typename DoublyLinkedList<Edge, GetEdgeLink>::Link;
+    using HalfEdgeLink = typename DoublyLinkedList<HalfEdge, GetHalfEdgeLink>::Link;
+    using FaceLink = typename DoublyLinkedList<Face, GetFaceLink>::Link;
 public:
-    typedef DoublyLinkedList<Vertex, GetVertexLink> VertexList;
-    typedef DoublyLinkedList<Edge, GetEdgeLink> EdgeList;
-    typedef DoublyLinkedList<HalfEdge, GetHalfEdgeLink> HalfEdgeList;
-    typedef DoublyLinkedList<Face, GetFaceLink> FaceList;
+    using VertexList = DoublyLinkedList<Vertex, GetVertexLink>;
+    using EdgeList = DoublyLinkedList<Edge, GetEdgeLink>;
+    using HalfEdgeList = DoublyLinkedList<HalfEdge, GetHalfEdgeLink>;
+    using FaceList = DoublyLinkedList<Face, GetFaceLink>;
 
     class VertexDistanceCmp;
-    typedef std::set<Vertex*, VertexDistanceCmp> ClosestVertexSet;
+    using ClosestVertexSet = std::set<Vertex*, VertexDistanceCmp>;
 private:
-    typedef std::set<Vertex*> VertexSet;
-    typedef std::set<Face*> FaceSet;
+    using VertexSet = std::set<Vertex*>;
+    using FaceSet = std::set<Face*>;
 public:
     class Vertex : public Allocator<Vertex> {
     public:
-        typedef std::set<Vertex*> Set;
-        typedef std::vector<Vertex*> List;
+        using Set = std::set<Vertex*>;
+        using List = std::vector<Vertex*>;
     private:
         friend class Polyhedron<T,FP,VP>;
     private:
@@ -124,7 +124,7 @@ public:
 
     class Edge : public Allocator<Edge> {
     public:
-        typedef std::vector<Edge*> List;
+        using List = std::vector<Edge*>;
     private:
         friend class Polyhedron<T,FP,VP>;
 
@@ -215,7 +215,7 @@ public:
 
     class Face : public Allocator<Face> {
     public:
-        typedef std::set<Face*> Set;
+        using Set = std::set<Face*>;
     private:
         friend class Polyhedron<T,FP,VP>;
 
@@ -424,7 +424,7 @@ public: // Vertex correction and edge healing
 private:
     Edge* removeEdge(Edge* edge, Callback& callback);
     void removeDegenerateFace(Face* face, Callback& callback);
-    void mergeNeighbours(HalfEdge* borderFirst, Callback& callback);
+    Edge* mergeNeighbours(HalfEdge* borderFirst, Edge* validEdge, Callback& callback);
 public: // Convex hull; adding and removing points
     void addPoints(const std::vector<V>& points);
     void addPoints(const std::vector<V>& points, Callback& callback);
@@ -516,7 +516,7 @@ private:
     void intersectWithPlane(HalfEdge* remainingFirst, HalfEdge* deletedFirst, Callback& callback);
     HalfEdge* findNextIntersectingEdge(HalfEdge* searchFrom, const vm::plane<T,3>& plane) const;
 public: // Subtraction
-    typedef std::list<Polyhedron> SubtractResult;
+    using SubtractResult = std::list<Polyhedron>;
 
     SubtractResult subtract(const Polyhedron& subtrahend) const;
     SubtractResult subtract(const Polyhedron& subtrahend, const Callback& callback) const;

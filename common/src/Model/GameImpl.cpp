@@ -26,6 +26,7 @@
 #include "IO/DefParser.h"
 #include "IO/DkmParser.h"
 #include "IO/DiskFileSystem.h"
+#include "IO/EntParser.h"
 #include "IO/FgdParser.h"
 #include "IO/FileMatcher.h"
 #include "IO/FileSystem.h"
@@ -48,7 +49,6 @@
 #include "Model/EntityAttributes.h"
 #include "Model/GameConfig.h"
 #include "Model/Layer.h"
-#include "Model/Tutorial.h"
 #include "Model/World.h"
 
 #include "Exceptions.h"
@@ -108,14 +108,18 @@ namespace TrenchBroom {
             return m_config.maxPropertyLength();
         }
 
-        World* GameImpl::doNewMap(const MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const {
+        const std::vector<SmartTag>& GameImpl::doSmartTags() const {
+            return m_config.smartTags();
+        }
+
+        std::unique_ptr<World> GameImpl::doNewMap(const MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const {
             const auto initialMapFilePath = m_config.findInitialMap(formatName(format));
             if (!initialMapFilePath.isEmpty() && IO::Disk::fileExists(initialMapFilePath)) {
                 return doLoadMap(format, worldBounds, initialMapFilePath, logger);
             } else {
-                auto* world = new World(format, brushContentTypeBuilder(), worldBounds);
+                auto world = std::make_unique<World>(format, worldBounds);
 
-                const Model::BrushBuilder builder(world, worldBounds);
+                const Model::BrushBuilder builder(world.get(), worldBounds);
                 auto* brush = builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFace::NoTextureName);
                 world->defaultLayer()->addChild(brush);
 
@@ -127,15 +131,15 @@ namespace TrenchBroom {
             }
         }
 
-        World* GameImpl::doLoadMap(const MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger& logger) const {
+        std::unique_ptr<World> GameImpl::doLoadMap(const MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger& logger) const {
             IO::SimpleParserStatus parserStatus(logger);
             const auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
-            IO::WorldReader reader(file->begin(), file->end(), brushContentTypeBuilder());
+            IO::WorldReader reader(file->begin(), file->end());
             return reader.read(format, worldBounds, parserStatus);
         }
 
-        void GameImpl::doWriteMap(World* world, const IO::Path& path) const {
-            const auto mapFormatName = formatName(world->format());
+        void GameImpl::doWriteMap(World& world, const IO::Path& path) const {
+            const auto mapFormatName = formatName(world.format());
 
             IO::OpenFile open(path, true);
             IO::writeGameComment(open.file, gameName(), mapFormatName);
@@ -144,7 +148,7 @@ namespace TrenchBroom {
             writer.writeMap();
         }
 
-        void GameImpl::doExportMap(World* world, const Model::ExportFormat format, const IO::Path& path) const {
+        void GameImpl::doExportMap(World& world, const Model::ExportFormat format, const IO::Path& path) const {
             IO::OpenFile open(path, true);
 
             switch (format) {
@@ -154,24 +158,24 @@ namespace TrenchBroom {
             }
         }
 
-        NodeList GameImpl::doParseNodes(const String& str, World* world, const vm::bbox3& worldBounds, Logger& logger) const {
+        NodeList GameImpl::doParseNodes(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const {
             IO::SimpleParserStatus parserStatus(logger);
             IO::NodeReader reader(str, world);
             return reader.read(worldBounds, parserStatus);
         }
 
-        BrushFaceList GameImpl::doParseBrushFaces(const String& str, World* world, const vm::bbox3& worldBounds, Logger& logger) const {
+        BrushFaceList GameImpl::doParseBrushFaces(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const {
             IO::SimpleParserStatus parserStatus(logger);
             IO::BrushFaceReader reader(str, world);
             return reader.read(worldBounds, parserStatus);
         }
 
-        void GameImpl::doWriteNodesToStream(World* world, const Model::NodeList& nodes, std::ostream& stream) const {
+        void GameImpl::doWriteNodesToStream(World& world, const Model::NodeList& nodes, std::ostream& stream) const {
             IO::NodeWriter writer(world, stream);
             writer.writeNodes(nodes);
         }
 
-        void GameImpl::doWriteBrushFacesToStream(World* world, const BrushFaceList& faces, std::ostream& stream) const {
+        void GameImpl::doWriteBrushFacesToStream(World& world, const BrushFaceList& faces, std::ostream& stream) const {
             IO::NodeWriter writer(world, stream);
             writer.writeBrushFaces(faces);
         }
@@ -189,7 +193,7 @@ namespace TrenchBroom {
             }
         }
 
-        void GameImpl::doLoadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const {
+        void GameImpl::doLoadTextureCollections(AttributableNode& node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const {
             const auto paths = extractTextureCollections(node);
 
             const auto fileSearchPaths = textureCollectionSearchPaths(documentPath);
@@ -236,13 +240,13 @@ namespace TrenchBroom {
             }
         }
 
-        IO::Path::List GameImpl::doExtractTextureCollections(const AttributableNode* node) const {
+        IO::Path::List GameImpl::doExtractTextureCollections(const AttributableNode& node) const {
             const auto& property = m_config.textureConfig().attribute;
             if (property.empty()) {
                 return IO::Path::List(0);
             }
 
-            const auto& pathsValue = node->attribute(property);
+            const auto& pathsValue = node.attribute(property);
             if (pathsValue.empty()) {
                 return IO::Path::List(0);
             }
@@ -250,14 +254,14 @@ namespace TrenchBroom {
             return IO::Path::asPaths(StringUtils::splitAndTrim(pathsValue, ';'));
         }
 
-        void GameImpl::doUpdateTextureCollections(AttributableNode* node, const IO::Path::List& paths) const {
+        void GameImpl::doUpdateTextureCollections(AttributableNode& node, const IO::Path::List& paths) const {
             const auto& attribute = m_config.textureConfig().attribute;
             if (attribute.empty()) {
                 return;
             }
 
             const auto value = StringUtils::join(IO::Path::asStrings(paths, '/'), ';');
-            node->addOrUpdateAttribute(attribute, value);
+            node.addOrUpdateAttribute(attribute, value);
         }
 
         void GameImpl::doReloadShaders() {
@@ -279,21 +283,21 @@ namespace TrenchBroom {
             const auto extension = path.extension();
             const auto& defaultColor = m_config.entityConfig().defaultColor;
 
-            Assets::EntityDefinitionList definitions;
             if (StringUtils::caseInsensitiveEqual("fgd", extension)) {
                 const auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
                 IO::FgdParser parser(file->begin(), file->end(), defaultColor, file->path());
-                definitions = parser.parseDefinitions(status);
+                return parser.parseDefinitions(status);
             } else if (StringUtils::caseInsensitiveEqual("def", extension)) {
                 const auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
                 IO::DefParser parser(file->begin(), file->end(), defaultColor);
-                definitions = parser.parseDefinitions(status);
+                return parser.parseDefinitions(status);
+            } else if (StringUtils::caseInsensitiveEqual("ent", extension)) {
+                const auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
+                IO::EntParser parser(file->begin(), file->end(), defaultColor);
+                return parser.parseDefinitions(status);
             } else {
                 throw GameException("Unknown entity definition format: '" + path.asString() + "'");
             }
-
-            definitions.push_back(Tutorial::createTutorialEntityDefinition());
-            return definitions;
         }
 
         Assets::EntityDefinitionFileSpec::List GameImpl::doAllEntityDefinitionFiles() const {
@@ -308,8 +312,8 @@ namespace TrenchBroom {
             return result;
         }
 
-        Assets::EntityDefinitionFileSpec GameImpl::doExtractEntityDefinitionFile(const AttributableNode* node) const {
-            const auto& defValue = node->attribute(AttributeNames::EntityDefinitions);
+        Assets::EntityDefinitionFileSpec GameImpl::doExtractEntityDefinitionFile(const AttributableNode& node) const {
+            const auto& defValue = node.attribute(AttributeNames::EntityDefinitions);
             if (defValue.empty()) {
                 return defaultEntityDefinitionFile();
             }
@@ -408,10 +412,6 @@ namespace TrenchBroom {
             return Assets::Palette::loadFile(m_fs, path);
         }
 
-        const BrushContentType::List& GameImpl::doBrushContentTypes() const {
-            return m_config.brushContentTypes();
-        }
-
         StringList GameImpl::doAvailableMods() const {
             StringList result;
             if (m_gamePath.isEmpty() || !IO::Disk::directoryExists(m_gamePath)) {
@@ -430,9 +430,9 @@ namespace TrenchBroom {
             return result;
         }
 
-        StringList GameImpl::doExtractEnabledMods(const AttributableNode* node) const {
+        StringList GameImpl::doExtractEnabledMods(const AttributableNode& node) const {
             StringList result;
-            const auto& modStr = node->attribute(AttributeNames::Mods);
+            const auto& modStr = node.attribute(AttributeNames::Mods);
             if (modStr.empty()) {
                 return result;
             }
@@ -452,27 +452,24 @@ namespace TrenchBroom {
             return m_config.faceAttribsConfig().contentFlags;
         }
 
-        void GameImpl::writeLongAttribute(AttributableNode* node, const AttributeName& baseName, const AttributeValue& value, const size_t maxLength) const {
-
-            node->removeNumberedAttribute(baseName);
+        void GameImpl::writeLongAttribute(AttributableNode& node, const AttributeName& baseName, const AttributeValue& value, const size_t maxLength) const {
+            node.removeNumberedAttribute(baseName);
 
             StringStream nameStr;
             for (size_t i = 0; i <= value.size() / maxLength; ++i) {
                 nameStr.str("");
                 nameStr << baseName << i+1;
-                node->addOrUpdateAttribute(nameStr.str(), value.substr(i * maxLength, maxLength));
+                node.addOrUpdateAttribute(nameStr.str(), value.substr(i * maxLength, maxLength));
             }
         }
 
-        String GameImpl::readLongAttribute(const AttributableNode* node, const AttributeName& baseName) const {
-            ensure(node != nullptr, "node is null");
-
+        String GameImpl::readLongAttribute(const AttributableNode& node, const AttributeName& baseName) const {
             size_t index = 1;
             StringStream nameStr;
             StringStream valueStr;
             nameStr << baseName << index;
-            while (node->hasAttribute(nameStr.str())) {
-                valueStr << node->attribute(nameStr.str());
+            while (node.hasAttribute(nameStr.str())) {
+                valueStr << node.attribute(nameStr.str());
                 nameStr.str("");
                 nameStr << baseName << ++index;
             }

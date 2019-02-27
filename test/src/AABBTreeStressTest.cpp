@@ -87,16 +87,14 @@ namespace TrenchBroom {
             const auto file = IO::Disk::openFile(mapPath);
 
             IO::TestParserStatus status;
-            IO::WorldReader reader(file->begin(), file->end(), nullptr);
+            IO::WorldReader reader(file->begin(), file->end());
 
             const vm::bbox3 worldBounds(8192);
-            auto* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
+            auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
 
             AABB tree;
             TreeBuilder builder(tree);
             world->acceptAndRecurse(builder);
-
-            delete world;
         }
     }
 }

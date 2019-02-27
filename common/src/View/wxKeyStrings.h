@@ -44,8 +44,8 @@ namespace TrenchBroom {
             wxKeyStringsMac();
         };
         
-        typedef wxKeyStrings wxKeyStringsWindows;
-        typedef wxKeyStrings wxKeyStringsLinux;
+        using wxKeyStringsWindows = wxKeyStrings;
+        using wxKeyStringsLinux = wxKeyStrings;
     }
 }
 

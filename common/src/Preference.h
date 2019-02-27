@@ -300,7 +300,7 @@ namespace TrenchBroom {
 
     class ValueHolderBase {
     public:
-        typedef std::unique_ptr<ValueHolderBase> UPtr;
+        using UPtr = std::unique_ptr<ValueHolderBase>;
     };
     
     template <typename T>
@@ -318,7 +318,7 @@ namespace TrenchBroom {
     
     class PreferenceBase {
     public:
-        typedef std::set<const PreferenceBase*> Set;
+        using Set = std::set<const PreferenceBase*>;
         PreferenceBase() {}
 
         PreferenceBase(const PreferenceBase& other) {}

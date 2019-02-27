@@ -59,8 +59,8 @@ namespace TrenchBroom {
         template <typename A1>
         class Vertex1 {
         public:
-            typedef VertexSpec1<A1> Spec;
-            typedef std::vector<Vertex1<A1> > List;
+            using Spec = VertexSpec1<A1>;
+            using List = std::vector<Vertex1<A1> >;
             
             typename A1::ElementType v1;
             
@@ -94,8 +94,8 @@ namespace TrenchBroom {
         template <typename A1, typename A2>
         class Vertex2 {
         public:
-            typedef VertexSpec2<A1, A2> Spec;
-            typedef std::vector<Vertex2<A1, A2> > List;
+            using Spec = VertexSpec2<A1, A2>;
+            using List = std::vector<Vertex2<A1, A2> >;
             
             typename A1::ElementType v1;
             typename A2::ElementType v2;
@@ -136,8 +136,8 @@ namespace TrenchBroom {
         template <typename A1, typename A2, typename A3>
         class Vertex3 {
         public:
-            typedef VertexSpec3<A1, A2, A3> Spec;
-            typedef std::vector<Vertex3<A1, A2, A3> > List;
+            using Spec = VertexSpec3<A1, A2, A3>;
+            using List = std::vector<Vertex3<A1, A2, A3> >;
             
             typename A1::ElementType v1;
             typename A2::ElementType v2;
@@ -185,8 +185,8 @@ namespace TrenchBroom {
         template <typename A1, typename A2, typename A3, typename A4>
         class Vertex4 {
         public:
-            typedef VertexSpec4<A1, A2, A3, A4> Spec;
-            typedef std::vector<Vertex4<A1, A2, A3, A4> > List;
+            using Spec = VertexSpec4<A1, A2, A3, A4>;
+            using List = std::vector<Vertex4<A1, A2, A3, A4> >;
             
             typename A1::ElementType v1;
             typename A2::ElementType v2;
@@ -241,8 +241,8 @@ namespace TrenchBroom {
         template <typename A1, typename A2, typename A3, typename A4, typename A5>
         class Vertex5 {
         public:
-            typedef VertexSpec5<A1, A2, A3, A4, A5> Spec;
-            typedef std::vector<Vertex5<A1, A2, A3, A4, A5> > List;
+            using Spec = VertexSpec5<A1, A2, A3, A4, A5>;
+            using List = std::vector<Vertex5<A1, A2, A3, A4, A5> >;
 
             typename A1::ElementType v1;
             typename A2::ElementType v2;

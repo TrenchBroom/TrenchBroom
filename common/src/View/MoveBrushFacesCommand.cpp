@@ -65,8 +65,13 @@ namespace TrenchBroom {
         bool MoveBrushFacesCommand::doCollateWith(UndoableCommand::Ptr command) {
             MoveBrushFacesCommand* other = static_cast<MoveBrushFacesCommand*>(command.get());
 
-            if (!VectorUtils::equals(m_newFacePositions, other->m_oldFacePositions))
+            if (!canCollateWith(*other)) {
                 return false;
+            }
+
+            if (!VectorUtils::equals(m_newFacePositions, other->m_oldFacePositions)) {
+                return false;
+            }
 
             m_newFacePositions = other->m_newFacePositions;
             m_delta = m_delta + other->m_delta;

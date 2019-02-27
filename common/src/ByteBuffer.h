@@ -29,11 +29,11 @@
 template <typename T>
 class Buffer {
 private:
-    typedef std::vector<T> InternalBuffer;
-    typedef std::shared_ptr<InternalBuffer> InternalBufferPtr;
+    using InternalBuffer = std::vector<T>;
+    using InternalBufferPtr = std::shared_ptr<InternalBuffer>;
     InternalBufferPtr m_buffer;
 public:
-    typedef std::vector<Buffer<T> > List;
+    using List = std::vector<Buffer<T> >;
     
     Buffer(const size_t size = 0) :
     m_buffer(new InternalBuffer()) {

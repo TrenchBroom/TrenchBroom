@@ -34,7 +34,7 @@ namespace TrenchBroom {
         
         class Expression {
         private:
-            typedef std::shared_ptr<ExpressionBase> ExpressionPtr;
+            using ExpressionPtr = std::shared_ptr<ExpressionBase>;
             ExpressionPtr m_expression;
         public:
             Expression(ExpressionBase* expression);
@@ -53,9 +53,9 @@ namespace TrenchBroom {
         
         class ExpressionBase {
         public:
-            typedef std::unique_ptr<ExpressionBase> Ptr;
-            typedef std::list<ExpressionBase*> List;
-            typedef std::map<String, ExpressionBase*> Map;
+            using Ptr = std::unique_ptr<ExpressionBase>;
+            using List = std::list<ExpressionBase*>;
+            using Map = std::map<String, ExpressionBase*>;
             
             friend class Expression;
         protected:

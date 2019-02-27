@@ -64,8 +64,13 @@ namespace TrenchBroom {
         bool MoveBrushEdgesCommand::doCollateWith(UndoableCommand::Ptr command) {
             MoveBrushEdgesCommand* other = static_cast<MoveBrushEdgesCommand*>(command.get());
 
-            if (!VectorUtils::equals(m_newEdgePositions, other->m_oldEdgePositions))
+            if (!canCollateWith(*other)) {
                 return false;
+            }
+
+            if (!VectorUtils::equals(m_newEdgePositions, other->m_oldEdgePositions)) {
+                return false;
+            }
 
             m_newEdgePositions = other->m_newEdgePositions;
             m_delta = m_delta + other->m_delta;

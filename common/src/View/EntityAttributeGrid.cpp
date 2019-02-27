@@ -504,11 +504,10 @@ namespace TrenchBroom {
         }
         
         Model::AttributeName EntityAttributeGrid::selectedRowName() const {
-            wxArrayInt selectedRows = m_grid->GetSelectedRows();
-            if (selectedRows.empty())
-                return "";
-            const int row = selectedRows.front();
-            return m_table->attributeName(row);
+            const int cursorRow = m_grid->GetGridCursorRow();
+
+            // attributeName() returns "" for an out of bounds row
+            return m_table->attributeName(cursorRow);
         }
     }
 }

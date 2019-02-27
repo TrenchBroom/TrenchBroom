@@ -32,7 +32,7 @@ namespace TrenchBroom {
     namespace Assets {
         class TextureCollection {
         private:
-            typedef std::vector<GLuint> TextureIdList;
+            using TextureIdList = std::vector<GLuint>;
             
             bool m_loaded;
             IO::Path m_path;

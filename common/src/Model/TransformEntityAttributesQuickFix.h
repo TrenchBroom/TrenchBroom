@@ -33,8 +33,8 @@ namespace TrenchBroom {
         
         class TransformEntityAttributesQuickFix : public IssueQuickFix {
         public:
-            typedef std::function<AttributeName(const AttributeName&)> NameTransform;
-            typedef std::function<AttributeValue(const AttributeValue&)> ValueTransform;
+            using NameTransform = std::function<AttributeName(const AttributeName&)>;
+            using ValueTransform = std::function<AttributeValue(const AttributeValue&)>;
         private:
             NameTransform m_nameTransform;
             ValueTransform m_valueTransform;

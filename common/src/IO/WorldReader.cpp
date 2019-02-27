@@ -26,33 +26,28 @@
 
 namespace TrenchBroom {
     namespace IO {
-        WorldReader::WorldReader(const char* begin, const char* end, const Model::BrushContentTypeBuilder* brushContentTypeBuilder) :
-        MapReader(begin, end),
-        m_brushContentTypeBuilder(brushContentTypeBuilder),
-        m_world(nullptr) {}
+        WorldReader::WorldReader(const char* begin, const char* end) :
+        MapReader(begin, end) {}
         
-        WorldReader::WorldReader(const String& str, const Model::BrushContentTypeBuilder* brushContentTypeBuilder) :
-        MapReader(str),
-        m_brushContentTypeBuilder(brushContentTypeBuilder),
-        m_world(nullptr) {}
+        WorldReader::WorldReader(const String& str) :
+        MapReader(str) {}
         
-        Model::World* WorldReader::read(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status) {
+        std::unique_ptr<Model::World> WorldReader::read(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status) {
             readEntities(format, worldBounds, status);
             m_world->rebuildNodeTree();
             m_world->enableNodeTreeUpdates();
-            return m_world;
+            return std::move(m_world);
         }
 
-        Model::ModelFactory* WorldReader::initialize(const Model::MapFormat format, const vm::bbox3& worldBounds) {
-            assert(m_world == nullptr);
-            m_world = new Model::World(format, m_brushContentTypeBuilder, worldBounds);
+        Model::ModelFactory& WorldReader::initialize(const Model::MapFormat format, const vm::bbox3& worldBounds) {
+            m_world = std::make_unique<Model::World>(format, worldBounds);
             m_world->disableNodeTreeUpdates();
-            return m_world;
+            return *m_world;
         }
         
         Model::Node* WorldReader::onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
             m_world->setAttributes(attributes);
-            setExtraAttributes(m_world, extraAttributes);
+            setExtraAttributes(m_world.get(), extraAttributes);
             return m_world->defaultLayer();
         }
 
@@ -65,10 +60,11 @@ namespace TrenchBroom {
         }
         
         void WorldReader::onNode(Model::Node* parent, Model::Node* node, ParserStatus& status) {
-            if (parent != nullptr)
+            if (parent != nullptr) {
                 parent->addChild(node);
-            else
+            } else {
                 m_world->defaultLayer()->addChild(node);
+            }
         }
         
         void WorldReader::onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node, ParserStatus& status) {
@@ -85,10 +81,11 @@ namespace TrenchBroom {
         }
         
         void WorldReader::onBrush(Model::Node* parent, Model::Brush* brush, ParserStatus& status) {
-            if (parent != nullptr)
+            if (parent != nullptr) {
                 parent->addChild(brush);
-            else
+            } else {
                 m_world->defaultLayer()->addChild(brush);
+            }
         }
     }
 }

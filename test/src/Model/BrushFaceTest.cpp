@@ -435,7 +435,7 @@ namespace TrenchBroom {
         TEST(BrushFaceTest, testTextureLock_Paraxial) {
             const vm::bbox3 worldBounds(8192.0);
             Assets::Texture texture("testTexture", 64, 64);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
             
             BrushBuilder builder(&world, worldBounds);
             const Brush* cube = builder.createCube(128.0, "");
@@ -456,7 +456,7 @@ namespace TrenchBroom {
         TEST(BrushFaceTest, testTextureLock_Parallel) {
             const vm::bbox3 worldBounds(8192.0);
             Assets::Texture texture("testTexture", 64, 64);
-            World world(MapFormat::Valve, nullptr, worldBounds);
+            World world(MapFormat::Valve, worldBounds);
             
             BrushBuilder builder(&world, worldBounds);
             const Brush* cube = builder.createCube(128.0, "");
@@ -477,7 +477,7 @@ namespace TrenchBroom {
         TEST(BrushFaceTest, testBrushFaceSnapshot) {
             const vm::bbox3 worldBounds(8192.0);
             Assets::Texture texture("testTexture", 64, 64);
-            World world(MapFormat::Valve, nullptr, worldBounds);
+            World world(MapFormat::Valve, worldBounds);
             
             BrushBuilder builder(&world, worldBounds);
             Brush* cube = builder.createCube(128.0, "");
@@ -527,10 +527,10 @@ namespace TrenchBroom {
                                       "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Valve, nullptr, worldBounds);
+            World world(MapFormat::Valve, worldBounds);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             NodeList nodes = reader.read(worldBounds, status);
             Brush* pyramidLight = static_cast<Brush*>(nodes.at(0)->children().at(0));
@@ -583,10 +583,10 @@ namespace TrenchBroom {
                                       "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Valve, nullptr, worldBounds);
+            World world(MapFormat::Valve, worldBounds);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             NodeList nodes = reader.read(worldBounds, status);
             Brush* pyramidLight = static_cast<Brush*>(nodes.at(0)->children().at(0));
@@ -643,10 +643,10 @@ namespace TrenchBroom {
 )");
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Valve, nullptr, worldBounds);
+            World world(MapFormat::Valve, worldBounds);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             NodeList nodes = reader.read(worldBounds, status);
             Brush* brush = static_cast<Brush*>(nodes.at(0)->children().at(0));

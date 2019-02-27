@@ -38,7 +38,7 @@ namespace TrenchBroom {
     namespace Assets {
         class EntityDefinitionManager {
         private:
-            typedef std::map<String, EntityDefinition*> Cache;
+            using Cache = std::map<String, EntityDefinition*>;
             EntityDefinitionList m_definitions;
             EntityDefinitionGroup::List m_groups;
             Cache m_cache;

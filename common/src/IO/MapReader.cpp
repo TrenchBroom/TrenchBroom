@@ -88,8 +88,7 @@ namespace TrenchBroom {
         }
 
         void MapReader::onFormatSet(const Model::MapFormat format) {
-            m_factory = initialize(format, m_worldBounds);
-            ensure(m_factory != nullptr, "factory is null");
+            m_factory = &initialize(format, m_worldBounds);
         }
         
         void MapReader::onBeginEntity(const size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
@@ -225,9 +224,6 @@ namespace TrenchBroom {
 
         void MapReader::createBrush(const size_t startLine, const size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& status) {
             try {
-                // sort the faces by the weight of their plane normals like QBSP does
-                Model::BrushFace::sortFaces(m_faces);
-                
                 Model::Brush* brush = m_factory->createBrush(m_worldBounds, m_faces);
                 setFilePosition(brush, startLine, lineCount);
                 setExtraAttributes(brush, extraAttributes);

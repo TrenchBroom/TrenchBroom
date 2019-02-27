@@ -197,12 +197,12 @@ namespace TrenchBroom {
         };
         
         namespace AttributeSpecs {
-            typedef AttributeSpec<AttributeType_Position, GL_FLOAT, 2> P2;
-            typedef AttributeSpec<AttributeType_Position, GL_FLOAT, 3> P3;
-            typedef AttributeSpec<AttributeType_Normal, GL_FLOAT, 3> N;
-            typedef AttributeSpec<AttributeType_TexCoord0, GL_FLOAT, 2> T02;
-            typedef AttributeSpec<AttributeType_TexCoord1, GL_FLOAT, 2> T12;
-            typedef AttributeSpec<AttributeType_Color, GL_FLOAT, 4> C4;
+            using P2 = AttributeSpec<AttributeType_Position, GL_FLOAT, 2>;
+            using P3 = AttributeSpec<AttributeType_Position, GL_FLOAT, 3>;
+            using N = AttributeSpec<AttributeType_Normal, GL_FLOAT, 3>;
+            using T02 = AttributeSpec<AttributeType_TexCoord0, GL_FLOAT, 2>;
+            using T12 = AttributeSpec<AttributeType_TexCoord1, GL_FLOAT, 2>;
+            using C4 = AttributeSpec<AttributeType_Color, GL_FLOAT, 4>;
         }
     }
 }

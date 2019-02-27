@@ -429,7 +429,7 @@ namespace TrenchBroom {
         }
 
         Assets::EntityModel::VertexList DkmParser::getVertices(const DkmFrame& frame, const DkmMeshVertexList& meshVertices) const {
-            typedef Assets::EntityModel::Vertex Vertex;
+            using Vertex = Assets::EntityModel::Vertex;
 
             Vertex::List result(0);
             result.reserve(meshVertices.size());

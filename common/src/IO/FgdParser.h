@@ -38,7 +38,7 @@
 namespace TrenchBroom {
     namespace IO {
         namespace FgdToken {
-            typedef unsigned int Type;
+            using Type = unsigned int;
             static const Type Integer           = 1 <<  0; // integer number
             static const Type Decimal           = 1 <<  1; // decimal number
             static const Type Word              = 1 <<  2; // letter or digits, no whitespace
@@ -125,6 +125,7 @@ namespace TrenchBroom {
             DefaultValue<String> parseDefaultStringValue(ParserStatus& status);
             DefaultValue<int> parseDefaultIntegerValue(ParserStatus& status);
             DefaultValue<float> parseDefaultFloatValue(ParserStatus& status);
+            DefaultValue<String> parseDefaultChoiceValue(ParserStatus& status);
             
             vm::vec3 parseVector(ParserStatus& status);
             vm::bbox3 parseSize(ParserStatus& status);

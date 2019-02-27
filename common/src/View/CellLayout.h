@@ -195,8 +195,8 @@ namespace TrenchBroom {
         template <typename CellType>
         class LayoutRow {
         public:
-            typedef LayoutCell<CellType> Cell;
-            typedef std::vector<Cell> CellList;
+            using Cell = LayoutCell<CellType>;
+            using CellList = std::vector<Cell>;
         private:
             float m_cellMargin;
             float m_titleMargin;
@@ -309,8 +309,8 @@ namespace TrenchBroom {
         template <typename CellType, typename GroupType>
         class LayoutGroup {
         public:
-            typedef LayoutRow<CellType> Row;
-            typedef std::vector<Row> RowList;
+            using Row = LayoutRow<CellType>;
+            using RowList = std::vector<Row>;
         private:
             GroupType m_item;
             float m_cellMargin;
@@ -477,8 +477,8 @@ namespace TrenchBroom {
         template <typename CellType, typename GroupType>
         class CellLayout {
         public:
-            typedef LayoutGroup<CellType, GroupType> Group;
-            typedef std::vector<Group> GroupList;
+            using Group = LayoutGroup<CellType, GroupType>;
+            using GroupList = std::vector<Group>;
         private:
             float m_width;
             float m_cellMargin;

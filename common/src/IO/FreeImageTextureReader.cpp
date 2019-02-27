@@ -76,6 +76,12 @@ namespace TrenchBroom {
 
             const auto imageWidth      = static_cast<size_t>(FreeImage_GetWidth(image));
             const auto imageHeight     = static_cast<size_t>(FreeImage_GetHeight(image));
+
+            if (!checkTextureDimensions(imageWidth, imageHeight)) {
+                FreeImage_CloseMemory(imageMemory);
+                return new Assets::Texture(textureName(imageName, path), 64, 64);
+            }
+
             const auto imageColourType = FreeImage_GetColorType(image);
 
             // This is supposed to indicate whether any pixels are transparent (alpha < 100%)

@@ -31,12 +31,12 @@
 template <typename T, typename FP, typename VP>
 class Polyhedron<T,FP,VP>::Seam {
 public:
-    typedef std::list<Edge*> List;
+    using List = std::list<Edge*>;
 private:
     List m_edges;
 public:
-    typedef typename List::iterator iterator;
-    typedef typename List::const_iterator const_iterator;
+    using iterator = typename List::iterator;
+    using const_iterator = typename List::const_iterator;
 public:
     void push_back(Edge* edge) {
         ensure(edge != nullptr, "edge is null");
@@ -356,10 +356,11 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addNonColinearThirdPo
 // Adds the given point to a polyhedron that is either a polygon or a polyhedron.
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPoint(const V& position, Callback& callback) {
-    if (faceCount() == 1)
+    if (faceCount() == 1) {
         return addFurtherPointToPolygon(position, callback);
-    else
+    } else {
         return addFurtherPointToPolyhedron(position, callback);
+    }
 }
 
 //Adds the given point to a polygon. The result is either a differen polygon if the
@@ -544,9 +545,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToPolyhedron(
     assert(seam.size() >= 3);
     assert(!seam.hasMultipleLoops());
 
-    Vertex* newVertex = weave(seam, position, callback);
-    assert(polyhedron());
-    return newVertex;
+    return weave(seam, position, callback);
 }
 
 template <typename T, typename FP, typename VP>
@@ -577,9 +576,9 @@ void Polyhedron<T,FP,VP>::split(const Seam& seam, Callback& callback) {
     if (seam.hasMultipleLoops()) {
         seam.print();
     }
-    assert(!seam.hasMultipleLoops());
 #endif
-    
+    assert(!seam.hasMultipleLoops());
+
     // First, unset the second half edge of every seam edge.
     // Thereby remember the second half edge of the first seam edge.
     // Note that all seam edges are oriented such that their second half edge belongs
@@ -720,17 +719,53 @@ template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weave(Seam seam, const V& position, Callback& callback) {
     assert(seam.size() >= 3);
     assert(!seam.hasMultipleLoops());
-    assertResult(seam.shift(ShiftSeamForWeaving(position)));
-    
+    if (!seam.shift(ShiftSeamForWeaving(position))) {
+        return nullptr;
+    }
+
+    if (polygon()) {
+        // When adding a vertex to a large polygon, it can happen that the vertex is so close to the
+        // polygon's plane that most woven faces are considered coplanar and less then three faces
+        // would be created. In this case, we reject and return null.
+        size_t faceCount = 0;
+        auto it = std::begin(seam);
+        while (it != std::end(seam)) {
+            auto* edge = *it++;
+
+            auto* v1 = edge->secondVertex();
+            auto* v2 = edge->firstVertex();
+
+            if (it != std::end(seam)) {
+                const auto [valid, plane] = fromPoints(position, v2->position(), v1->position());
+                assert(valid); unused(valid);
+
+                auto* next = *it;
+
+                // TODO use same coplanarity check as in Face::coplanar(const Face*) const ?
+                while (it != std::end(seam) && plane.pointStatus(next->firstVertex()->position()) == vm::point_status::inside) {
+                    if (++it != std::end(seam)) {
+                        next = *it;
+                    }
+                }
+            }
+
+            ++faceCount;
+        }
+
+        if (faceCount < 3) {
+            return nullptr;
+        }
+    }
+
     auto* top = new Vertex(position);
-    
+
     HalfEdge* first = nullptr;
     HalfEdge* last = nullptr;
-    
-    typename Seam::const_iterator it = std::begin(seam);
+
+    auto it = std::begin(seam);
     while (it != std::end(seam)) {
         auto* edge = *it++;
-        
+
         assert(!edge->fullySpecified());
         auto* v1 = edge->secondVertex();
         auto* v2 = edge->firstVertex();
@@ -739,13 +774,13 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weave(Seam seam, cons
         auto* h2 = new HalfEdge(v1);
         auto* h3 = new HalfEdge(v2);
         auto* h = h3;
-        
+
         HalfEdgeList boundary;
         boundary.append(h1, 1);
         boundary.append(h2, 1);
         boundary.append(h3, 1);
         edge->setSecondEdge(h2);
-        
+
         if (it != std::end(seam)) {
             const auto [valid, plane] = fromPoints(top->position(), v2->position(), v1->position());
             assert(valid); unused(valid);
@@ -765,16 +800,18 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weave(Seam seam, cons
                 }
             }
         }
-        
+
         Face* newFace = new Face(boundary);
         callback.faceWasCreated(newFace);
         m_faces.append(newFace, 1);
         
-        if (last != nullptr)
+        if (last != nullptr) {
             m_edges.append(new Edge(h1, last), 1);
+        }
         
-        if (first == nullptr)
+        if (first == nullptr) {
             first = h1;
+        }
         last = h;
     }
 

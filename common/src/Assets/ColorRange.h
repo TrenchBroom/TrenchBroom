@@ -25,7 +25,7 @@
 namespace TrenchBroom {
     namespace Assets {
         namespace ColorRange {
-            typedef int Type;
+            using Type = int;
             static const Type Unset = 0;
             static const Type Float = 1;
             static const Type Byte  = 2;

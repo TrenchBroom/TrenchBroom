@@ -56,7 +56,7 @@ namespace TrenchBroom {
         }
 
         void GLAttribs::initialize() {
-            typedef std::vector<Config> List;
+            using List = std::vector<Config>;
             List configs;
             configs.push_back(Config(32, true, 4));
             configs.push_back(Config(24, true, 4));

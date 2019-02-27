@@ -29,7 +29,7 @@ namespace TrenchBroom {
         public:
             class Executable {
             public:
-                typedef std::shared_ptr<Executable> Ptr;
+                using Ptr = std::shared_ptr<Executable>;
             public:
                 virtual ~Executable();
                 void operator()();
@@ -51,7 +51,7 @@ namespace TrenchBroom {
     }
 }
 
-typedef void (wxEvtHandler::*ExecutableEventFunction)(TrenchBroom::View::ExecutableEvent &);
+using ExecutableEventFunction = void(wxEvtHandler::*)(TrenchBroom::View::ExecutableEvent&);
 
 wxDECLARE_EVENT(EXECUTABLE_EVENT, TrenchBroom::View::ExecutableEvent);
 #define ExecutableEventHandler(func) wxEVENT_HANDLER_CAST(ExecutableEventFunction, func)

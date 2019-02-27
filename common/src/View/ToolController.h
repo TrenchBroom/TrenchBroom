@@ -83,7 +83,7 @@ namespace TrenchBroom {
             virtual void doMouseScroll(const InputState& inputState);
         };
         
-        typedef MousePolicy NoMousePolicy;
+        using NoMousePolicy = MousePolicy;
         
         class MouseDragPolicy {
         public:
@@ -182,7 +182,7 @@ namespace TrenchBroom {
         
         class MultiDragSnapper : public DragSnapper {
         private:
-            typedef std::list<std::unique_ptr<DragSnapper>> List;
+            using List = std::list<std::unique_ptr<DragSnapper>>;
             List m_delegates;
         public:
             template <typename... T>
@@ -337,7 +337,7 @@ namespace TrenchBroom {
             virtual void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         };
         
-        typedef RenderPolicy NoRenderPolicy;
+        using NoRenderPolicy = RenderPolicy;
         
         class DropPolicy {
         public:

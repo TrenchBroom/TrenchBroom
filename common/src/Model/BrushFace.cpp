@@ -21,6 +21,7 @@
 
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
+#include "Model/TagMatcher.h"
 #include "Model/Brush.h"
 #include "Model/BrushFaceSnapshot.h"
 #include "Model/PlanePointFinder.h"
@@ -62,39 +63,6 @@ namespace TrenchBroom {
             setPoints(point0, point1, point2);
         }
 
-        class FaceWeightOrder {
-        private:
-            bool m_deterministic;
-        public:
-            FaceWeightOrder(const bool deterministic) :
-            m_deterministic(deterministic) {}
-
-            bool operator()(const Model::BrushFace* lhs, const Model::BrushFace* rhs) const {
-                const auto& lhsBoundary = lhs->boundary();
-                const auto& rhsBoundary = rhs->boundary();
-                auto result = weight(lhsBoundary.normal) - weight(rhsBoundary.normal);
-                if (m_deterministic) {
-                    result += static_cast<int>(1000.0 * (lhsBoundary.distance - lhsBoundary.distance));
-                }
-
-                return result < 0;
-            }
-        private:
-            template <typename T>
-            int weight(const vm::vec<T,3>& vec) const {
-                return weight(vec[0]) * 100 + weight(vec[1]) * 10 + weight(vec[2]);
-            }
-
-            template <typename T>
-            int weight(T c) const {
-                if (std::abs(c - static_cast<T>(1.0)) < static_cast<T>(0.9))
-                    return 0;
-                if (std::abs(c + static_cast<T>(1.0)) < static_cast<T>(0.9))
-                    return 1;
-                return 2;
-            }
-        };
-
         BrushFace* BrushFace::createParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const String& textureName) {
             const BrushFaceAttributes attribs(textureName);
             return new BrushFace(point0, point1, point2, attribs, std::make_unique<ParaxialTexCoordSystem>(point0, point1, point2, attribs));
@@ -106,8 +74,24 @@ namespace TrenchBroom {
         }
         
         void BrushFace::sortFaces(BrushFaceList& faces) {
-            std::sort(std::begin(faces), std::end(faces), FaceWeightOrder(true));
-            std::sort(std::begin(faces), std::end(faces), FaceWeightOrder(false));
+            // Originally, the idea to sort faces came from TxQBSP, but the sorting used there was not entirely clear to me.
+            // But it is still desirable to have a deterministic order in which the faces are added to the brush, so I chose
+            // to just sort the faces by their normals.
+
+            std::sort(std::begin(faces), std::end(faces), [](const auto* lhs, const auto* rhs) {
+                const auto& lhsBoundary = lhs->boundary();
+                const auto& rhsBoundary = rhs->boundary();
+
+                const auto cmp = vm::compare(lhsBoundary.normal, rhsBoundary.normal);
+                if (cmp < 0) {
+                    return true;
+                } else if (cmp > 0) {
+                    return false;
+                } else {
+                    // normal vectors are identical -- this should never happen
+                    return lhsBoundary.distance < rhsBoundary.distance;
+                }
+            });
         }
 
         BrushFace::~BrushFace() {
@@ -261,12 +245,7 @@ namespace TrenchBroom {
             const float oldRotation = m_attribs.rotation();
             m_attribs = attribs;
             m_texCoordSystem->setRotation(m_boundary.normal, oldRotation, m_attribs.rotation());
-
-            if (m_brush != nullptr) {
-                m_brush->faceDidChange();
-            }
-            
-            invalidateVertexCache();
+            updateBrush();
         }
 
         void BrushFace::resetTexCoordSystemCache() {
@@ -347,69 +326,50 @@ namespace TrenchBroom {
             m_attribs.setColor(color);
         }
 
-        void BrushFace::updateTexture(Assets::TextureManager* textureManager) {
-            ensure(textureManager != nullptr, "textureManager is null");
-            Assets::Texture* texture = textureManager->texture(textureName());
+        void BrushFace::updateTexture(Assets::TextureManager& textureManager) {
+            Assets::Texture* texture = textureManager.texture(textureName());
             setTexture(texture);
         }
 
         void BrushFace::setTexture(Assets::Texture* texture) {
             if (texture != m_attribs.texture()) {
                 m_attribs.setTexture(texture);
-                if (m_brush != nullptr) {
-                    m_brush->faceDidChange();
-                }
-                invalidateVertexCache();
+                updateBrush();
             }
         }
 
         void BrushFace::unsetTexture() {
             if (m_attribs.texture() != nullptr) {
                 m_attribs.unsetTexture();
-                if (m_brush != nullptr) {
-                    m_brush->faceDidChange();
-                }
-                invalidateVertexCache();
+                updateBrush();
             }
         }
 
         void BrushFace::setXOffset(const float i_xOffset) {
             if (i_xOffset != xOffset()) {
                 m_attribs.setXOffset(i_xOffset);
-                if (m_brush != nullptr) {
-                    m_brush->faceDidChange();
-                }
-                invalidateVertexCache();
+                updateBrush();
             }
         }
 
         void BrushFace::setYOffset(const float i_yOffset) {
             if (i_yOffset != yOffset()) {
                 m_attribs.setYOffset(i_yOffset);
-                if (m_brush != nullptr) {
-                    m_brush->faceDidChange();
-                }
-                invalidateVertexCache();
+                updateBrush();
             }
         }
 
         void BrushFace::setXScale(const float i_xScale) {
             if (i_xScale != xScale()) {
                 m_attribs.setXScale(i_xScale);
-                if (m_brush != nullptr) {
-                    m_brush->faceDidChange();
-                }
-                invalidateVertexCache();
+                updateBrush();
             }
         }
 
         void BrushFace::setYScale(const float i_yScale) {
             if (i_yScale != yScale()) {
                 m_attribs.setYScale(i_yScale);
-                if (m_brush != nullptr) {
-                    m_brush->faceDidChange();
-                }
-                invalidateVertexCache();
+                updateBrush();
             }
         }
 
@@ -418,37 +378,28 @@ namespace TrenchBroom {
                 const float oldRotation = m_attribs.rotation();
                 m_attribs.setRotation(rotation);
                 m_texCoordSystem->setRotation(m_boundary.normal, oldRotation, rotation);
-                if (m_brush != nullptr) {
-                    m_brush->faceDidChange();
-                }
-                invalidateVertexCache();
+                updateBrush();
             }
         }
 
         void BrushFace::setSurfaceContents(const int surfaceContents) {
             if (surfaceContents != m_attribs.surfaceContents()) {
                 m_attribs.setSurfaceContents(surfaceContents);
-                if (m_brush != nullptr) {
-                    m_brush->faceDidChange();
-                }
+                updateBrush();
             }
         }
 
         void BrushFace::setSurfaceFlags(const int surfaceFlags) {
             if (surfaceFlags != m_attribs.surfaceFlags()) {
                 m_attribs.setSurfaceFlags(surfaceFlags);
-                if (m_brush != nullptr) {
-                    m_brush->faceDidChange();
-                }
+                updateBrush();
             }
         }
 
         void BrushFace::setSurfaceValue(const float surfaceValue) {
             if (surfaceValue != m_attribs.surfaceValue()) {
                 m_attribs.setSurfaceValue(surfaceValue);
-                if (m_brush != nullptr) {
-                    m_brush->faceDidChange();
-                }
+                updateBrush();
             }
         }
 
@@ -653,15 +604,17 @@ namespace TrenchBroom {
         void BrushFace::select() {
             assert(!m_selected);
             m_selected = true;
-            if (m_brush != nullptr)
+            if (m_brush != nullptr) {
                 m_brush->childWasSelected();
+            }
         }
 
         void BrushFace::deselect() {
             assert(m_selected);
             m_selected = false;
-            if (m_brush != nullptr)
+            if (m_brush != nullptr) {
                 m_brush->childWasDeselected();
+            }
         }
 
         vm::vec2f BrushFace::textureCoords(const vm::vec3& point) const {
@@ -711,6 +664,13 @@ namespace TrenchBroom {
             }
         }
 
+        void BrushFace::updateBrush() {
+            if (m_brush != nullptr) {
+                m_brush->faceDidChange();
+                m_brush->invalidateVertexCache();
+            }
+        }
+
         void BrushFace::invalidateVertexCache() {
             if (m_brush != nullptr) {
                 m_brush->invalidateVertexCache();
@@ -723,6 +683,10 @@ namespace TrenchBroom {
 
         bool BrushFace::isMarked() const {
             return m_markedToRenderFace;
+        }
+
+        bool BrushFace::doEvaluateTagMatcher(const TagMatcher& matcher) const {
+            return matcher.matches(*this);
         }
     }
 }
