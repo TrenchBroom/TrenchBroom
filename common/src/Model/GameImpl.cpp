@@ -21,6 +21,7 @@
 
 #include "Macros.h"
 #include "Assets/Palette.h"
+#include "IO/AseParser.h"
 #include "IO/BrushFaceReader.h"
 #include "IO/Bsp29Parser.h"
 #include "IO/DefParser.h"
@@ -347,13 +348,13 @@ namespace TrenchBroom {
             }
         }
 
-        Assets::EntityModel* GameImpl::doLoadEntityModel(const IO::Path& path, Logger& logger) const {
+        Assets::EntityModel* GameImpl::doLoadEntityModel(const IO::Path& filePath, Logger& logger) const {
             try {
-                const auto file = m_fs.openFile(path);
+                const auto file = m_fs.openFile(filePath);
                 ensure(file.get() != nullptr, "file is null");
 
-                const auto modelName = path.lastComponent().asString();
-                const auto extension = StringUtils::toLower(path.extension());
+                const auto modelName = filePath.lastComponent().asString();
+                const auto extension = StringUtils::toLower(filePath.extension());
                 const auto supported = m_config.entityConfig().modelFormats;
 
                 if (extension == "mdl" && supported.count("mdl") > 0) {
@@ -366,13 +367,15 @@ namespace TrenchBroom {
                     return loadBspModel(modelName, file, logger);
                 } else if (extension == "dkm" && supported.count("dkm") > 0) {
                     return loadDkmModel(modelName, file, logger);
+                } else if (extension == "ase" && supported.count("ase") > 0) {
+                    return loadAseModel(modelName, file, logger);
                 } else {
-                    throw GameException("Unsupported model format '" + path.asString() + "'");
+                    throw GameException("Unsupported model format '" + filePath.asString() + "'");
                 }
             } catch (FileSystemException& e) {
-                throw GameException("Could not load model " + path.asString() + ": " + String(e.what()));
+                throw GameException("Could not load model " + filePath.asString() + ": " + String(e.what()));
             } catch (AssetException& e) {
-                throw GameException("Could not load model " + path.asString() + ": " + String(e.what()));
+                throw GameException("Could not load model " + filePath.asString() + ": " + String(e.what()));
             }
         }
 
@@ -404,6 +407,11 @@ namespace TrenchBroom {
 
         Assets::EntityModel* GameImpl::loadDkmModel(const String& name, const IO::MappedFile::Ptr& file, Logger& logger) const {
             IO::DkmParser parser(name, file->begin(), file->end(), m_fs);
+            return parser.parseModel(logger);
+        }
+
+        Assets::EntityModel* GameImpl::loadAseModel(const String& name, const IO::MappedFile::Ptr& file, Logger& logger) const {
+            IO::AseParser parser(name, file->begin(), file->end(), m_fs);
             return parser.parseModel(logger);
         }
 

@@ -49,7 +49,7 @@ namespace TrenchBroom {
         }
         
         void EntityModelRenderer::addEntity(Model::Entity* entity) {
-            const auto& modelSpec = entity->modelSpecification();
+            const auto modelSpec = entity->modelSpecification();
             auto* renderer = m_entityModelManager.renderer(modelSpec);
             if (renderer != nullptr)
                 m_entities.insert(std::make_pair(entity, renderer));

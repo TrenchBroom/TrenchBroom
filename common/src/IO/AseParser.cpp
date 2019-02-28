@@ -17,9 +17,15 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ASEParser.h"
+#include "AseParser.h"
 
+#include "Assets/EntityModel.h"
+#include "Assets/Texture.h"
+#include "IO/FileSystem.h"
 #include "IO/Path.h"
+#include "IO/Quake3ShaderTextureReader.h"
+#include "Renderer/TexturedIndexRangeMap.h"
+#include "Renderer/TexturedIndexRangeMapBuilder.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -95,138 +101,152 @@ namespace TrenchBroom {
             return Token(AseToken::Eof, nullptr, nullptr, length(), line(), column());
         }
 
-        ASEParser::ASEParser(const char* begin, const char* end) :
-        m_tokenizer(begin, end) {}
+        AseParser::AseParser(const String& name, const char* begin, const char* end, const FileSystem& fs) :
+        m_name(name),
+        m_tokenizer(begin, end),
+        m_fs(fs) {}
 
-        ASEParser::ASEParser(const String& str) :
-        m_tokenizer(str) {}
-
-        Assets::EntityModel* ASEParser::doParseModel(Logger& logger) {
-            parseAseFile(logger);
-            return nullptr;
+        Assets::EntityModel* AseParser::doParseModel(Logger& logger) {
+            Scene scene;
+            parseAseFile(logger, scene);
+            return buildModel(logger, scene);
         }
 
-        void ASEParser::parseAseFile(Logger& logger) {
+        void AseParser::parseAseFile(Logger& logger, Scene& scene) {
             expectDirective("3DSMAX_ASCIIEXPORT");
             expect(AseToken::Integer, m_tokenizer.nextToken());
 
             skipDirective("COMMENT");
 
             parseScene(logger);
-            parseMaterialList(logger);
-            parseGeomObject(logger);
+            parseMaterialList(logger, scene.materialPaths);
+
+            while (!m_tokenizer.peekToken().hasType(AseToken::Eof)) {
+                GeomObject geomObject;
+                parseGeomObject(logger, geomObject, scene.materialPaths);
+                scene.geomObjects.emplace_back(std::move(geomObject));
+            }
         }
 
-        void ASEParser::parseScene(Logger& logger) {
+        void AseParser::parseScene(Logger& logger) {
             expectDirective("SCENE");
             parseBlock({});
         }
 
-        void ASEParser::parseMaterialList(Logger& logger) {
+        void AseParser::parseMaterialList(Logger& logger, Path::List& paths) {
             expectDirective("MATERIAL_LIST");
+
             parseBlock({
-                { "MATERIAL_COUNT", std::bind(&ASEParser::parseMaterialListMaterialCount, this, std::ref(logger)) },
-                { "MATERIAL", std::bind(&ASEParser::parseMaterialListMaterial, this, std::ref(logger)) }
+                { "MATERIAL_COUNT", std::bind(&AseParser::parseMaterialListMaterialCount, this, std::ref(logger), std::ref(paths)) },
+                { "MATERIAL", std::bind(&AseParser::parseMaterialListMaterial, this, std::ref(logger), std::ref(paths)) }
             });
         }
 
-        void ASEParser::parseMaterialListMaterialCount(Logger& logger) {
+        void AseParser::parseMaterialListMaterialCount(Logger& logger, Path::List& paths) {
             expectDirective("MATERIAL_COUNT");
             parseSizeArgument();
         }
 
-        void ASEParser::parseMaterialListMaterial(Logger& logger) {
+        void AseParser::parseMaterialListMaterial(Logger& logger, Path::List& paths) {
             expectDirective("MATERIAL");
-            parseSizeArgument();
+            const auto count = parseSizeArgument();
+            paths.reserve(count);
 
             parseBlock({
-                { "MAP_DIFFUSE", std::bind(&ASEParser::parseMaterialListMaterialMapDiffuse, this, std::ref(logger)) }
+                { "MAP_DIFFUSE", std::bind(&AseParser::parseMaterialListMaterialMapDiffuse, this, std::ref(logger), std::ref(paths)) }
             });
         }
 
-        void ASEParser::parseMaterialListMaterialMapDiffuse(Logger& logger) {
+        void AseParser::parseMaterialListMaterialMapDiffuse(Logger& logger, Path::List& paths) {
             expectDirective("MAP_DIFFUSE");
 
             parseBlock({
-                { "BITMAP", std::bind(&ASEParser::parseMaterialListMaterialMapDiffuseBitmap, this, std::ref(logger)) }
+                { "BITMAP", std::bind(&AseParser::parseMaterialListMaterialMapDiffuseBitmap, this, std::ref(logger), std::ref(paths)) }
             });
         }
 
-        void ASEParser::parseMaterialListMaterialMapDiffuseBitmap(Logger& logger) {
+        void AseParser::parseMaterialListMaterialMapDiffuseBitmap(Logger& logger, Path::List& paths) {
             expectDirective("BITMAP");
             const auto token = expect(AseToken::String, m_tokenizer.nextToken());
-            const auto path = Path(token.data());
+            paths.emplace_back(Path(token.data()));
         }
 
-        void ASEParser::parseGeomObject(Logger& logger) {
+        void AseParser::parseGeomObject(Logger& logger, GeomObject& geomObject, const Path::List& materialPaths) {
             expectDirective("GEOMOBJECT");
 
             parseBlock({
-                { "NODE_NAME", std::bind(&ASEParser::parseGeomObjectNodeName, this, std::ref(logger)) },
-                { "MESH", std::bind(&ASEParser::parseGeomObjectMesh, this, std::ref(logger)) },
+                { "NODE_NAME", std::bind(&AseParser::parseGeomObjectNodeName, this, std::ref(logger), std::ref(geomObject)) },
+                { "MATERIAL_REF", std::bind(&AseParser::parseGeomObjectMaterialRef, this, std::ref(logger), std::ref(geomObject), materialPaths.size()) },
+                { "MESH", std::bind(&AseParser::parseGeomObjectMesh, this, std::ref(logger), std::ref(geomObject.mesh)) }
             });
         }
 
-        void ASEParser::parseGeomObjectNodeName(Logger& logger) {
+        void AseParser::parseGeomObjectNodeName(Logger& logger, GeomObject& geomObject) {
             expectDirective("NODE_NAME");
             const auto token = expect(AseToken::String, m_tokenizer.nextToken());
-            const auto name = token.data();
+            geomObject.name = token.data();
         }
 
-        void ASEParser::parseGeomObjectMesh(Logger& logger) {
+        void AseParser::parseGeomObjectMaterialRef(Logger& logger, GeomObject& geomObject, const size_t materialCount) {
+            expectDirective("MATERIAL_REF");
+            const auto token = m_tokenizer.peekToken();
+            const size_t materialIndex = parseSizeArgument();
+            if (materialIndex >= materialCount) {
+                logger.warn() << "Line " << token.line() << ": Material index " << materialIndex << " is out of bounds, assuming " << materialCount - 1;
+
+            }
+            geomObject.materialIndex = std::min(materialIndex, materialCount - 1);
+        }
+
+        void AseParser::parseGeomObjectMesh(Logger& logger, Mesh& mesh) {
             expectDirective("MESH");
 
-            std::vector<vm::vec3f> vertices;
-            std::vector<MeshFace> faces;
-            std::vector<vm::vec2f> uv;
-
             parseBlock({
-                { "MESH_NUMVERTEX", std::bind(&ASEParser::parseGeomObjectMeshNumVertex, this, std::ref(logger), std::ref(vertices)) },
-                { "MESH_VERTEX_LIST", std::bind(&ASEParser::parseGeomObjectMeshVertexList, this, std::ref(logger), std::ref(vertices)) },
-                { "MESH_NUMFACES", std::bind(&ASEParser::parseGeomObjectMeshNumFaces, this, std::ref(logger), std::ref(faces)) },
-                { "MESH_FACE_LIST", std::bind(&ASEParser::parseGeomObjectMeshFaceList, this, std::ref(logger), std::ref(faces)) },
-                { "MESH_NUMTVERTEX", std::bind(&ASEParser::parseGeomObjectMeshNumTVertex, this, std::ref(logger), std::ref(uv)) },
-                { "MESH_TVERTLIST", std::bind(&ASEParser::parseGeomObjectMeshTVertexList, this, std::ref(logger), std::ref(uv)) },
-                { "MESH_NUMTVFACES", std::bind(&ASEParser::parseGeomObjectMeshNumTVFaces, this, std::ref(logger), faces.size()) },
-                { "MESH_TFACELIST", std::bind(&ASEParser::parseGeomObjectMeshTFaceList, this, std::ref(logger), std::ref(faces)) },
+                { "MESH_NUMVERTEX", std::bind(&AseParser::parseGeomObjectMeshNumVertex, this, std::ref(logger), std::ref(mesh.vertices)) },
+                { "MESH_VERTEX_LIST", std::bind(&AseParser::parseGeomObjectMeshVertexList, this, std::ref(logger), std::ref(mesh.vertices)) },
+                { "MESH_NUMFACES", std::bind(&AseParser::parseGeomObjectMeshNumFaces, this, std::ref(logger), std::ref(mesh.faces)) },
+                { "MESH_FACE_LIST", std::bind(&AseParser::parseGeomObjectMeshFaceList, this, std::ref(logger), std::ref(mesh.faces)) },
+                { "MESH_NUMTVERTEX", std::bind(&AseParser::parseGeomObjectMeshNumTVertex, this, std::ref(logger), std::ref(mesh.uv)) },
+                { "MESH_TVERTLIST", std::bind(&AseParser::parseGeomObjectMeshTVertexList, this, std::ref(logger), std::ref(mesh.uv)) },
+                { "MESH_TFACELIST", std::bind(&AseParser::parseGeomObjectMeshTFaceList, this, std::ref(logger), std::ref(mesh.faces)) },
             });
         }
 
-        void ASEParser::parseGeomObjectMeshNumVertex(Logger& logger, std::vector<vm::vec3f>& vertices) {
+        void AseParser::parseGeomObjectMeshNumVertex(Logger& logger, std::vector<vm::vec3f>& vertices) {
             expectDirective("MESH_NUMVERTEX");
             const auto vertexCount = parseSizeArgument();
             vertices.reserve(vertexCount);
         }
 
-        void ASEParser::parseGeomObjectMeshVertexList(Logger& logger, std::vector<vm::vec3f>& vertices) {
+        void AseParser::parseGeomObjectMeshVertexList(Logger& logger, std::vector<vm::vec3f>& vertices) {
             expectDirective("MESH_VERTEX_LIST");
 
             parseBlock({
-                { "MESH_VERTEX", std::bind(&ASEParser::parseGeomObjectMeshVertex, this, std::ref(logger), std::ref(vertices)) },
+                { "MESH_VERTEX", std::bind(&AseParser::parseGeomObjectMeshVertex, this, std::ref(logger), std::ref(vertices)) },
             });
         }
 
-        void ASEParser::parseGeomObjectMeshVertex(Logger& logger, std::vector<vm::vec3f>& vertices) {
+        void AseParser::parseGeomObjectMeshVertex(Logger& logger, std::vector<vm::vec3f>& vertices) {
             expectDirective("MESH_VERTEX");
             expectSizeArgument(vertices.size());
             vertices.emplace_back(parseVecArgument());
         }
 
-        void ASEParser::parseGeomObjectMeshNumFaces(Logger& logger, std::vector<MeshFace>& faces) {
+        void AseParser::parseGeomObjectMeshNumFaces(Logger& logger, std::vector<MeshFace>& faces) {
             expectDirective("MESH_NUMFACES");
             const auto faceCount = parseSizeArgument();
             faces.reserve(faceCount);
         }
 
-        void ASEParser::parseGeomObjectMeshFaceList(Logger& logger, std::vector<MeshFace>& faces) {
+        void AseParser::parseGeomObjectMeshFaceList(Logger& logger, std::vector<MeshFace>& faces) {
             expectDirective("MESH_FACE_LIST");
 
             parseBlock({
-                { "MESH_FACE", std::bind(&ASEParser::parseGeomObjectMeshFace, this, std::ref(logger), std::ref(faces)) },
+                { "MESH_FACE", std::bind(&AseParser::parseGeomObjectMeshFace, this, std::ref(logger), std::ref(faces)) },
             });
         }
 
-        void ASEParser::parseGeomObjectMeshFace(Logger& logger, std::vector<MeshFace>& faces) {
+        void AseParser::parseGeomObjectMeshFace(Logger& logger, std::vector<MeshFace>& faces) {
             expectDirective("MESH_FACE");
             expectSizeArgument(faces.size());
 
@@ -261,44 +281,35 @@ namespace TrenchBroom {
             });
         }
 
-        void ASEParser::parseGeomObjectMeshNumTVertex(Logger& logger, std::vector<vm::vec2f>& uv) {
+        void AseParser::parseGeomObjectMeshNumTVertex(Logger& logger, std::vector<vm::vec2f>& uv) {
             expectDirective("MESH_NUMTVERTEX");
             const auto uvCount = parseSizeArgument();
             uv.reserve(uvCount);
         }
 
-        void ASEParser::parseGeomObjectMeshTVertexList(Logger& logger, std::vector<vm::vec2f>& uv) {
-            expectDirective("MESH_TVERTEXLIST");
+        void AseParser::parseGeomObjectMeshTVertexList(Logger& logger, std::vector<vm::vec2f>& uv) {
+            expectDirective("MESH_TVERTLIST");
 
             parseBlock({
-                { "MESH_TVERT", std::bind(&ASEParser::parseGeomObjectMeshTVertex, this, std::ref(logger), std::ref(uv)) },
+                { "MESH_TVERT", std::bind(&AseParser::parseGeomObjectMeshTVertex, this, std::ref(logger), std::ref(uv)) },
             });
         }
 
-        void ASEParser::parseGeomObjectMeshTVertex(Logger& logger, std::vector<vm::vec2f>& uv) {
-            expectDirective("MESH_VERTEX");
+        void AseParser::parseGeomObjectMeshTVertex(Logger& logger, std::vector<vm::vec2f>& uv) {
+            expectDirective("MESH_TVERT");
             expectSizeArgument(uv.size());
             uv.emplace_back(parseVecArgument());
         }
 
-        void ASEParser::parseGeomObjectMeshNumTVFaces(Logger& logger, const size_t expected) {
-            expectDirective("MESH_NUMTVFACES");
-            const auto token = m_tokenizer.peekToken();
-            const auto count = parseSizeArgument();
-            if (count != expected) {
-                logger.warn() << "Mismatching number of TVFACES at line " << token.line() << ": expected " << expected << ", but got " << count;
-            }
-        }
-
-        void ASEParser::parseGeomObjectMeshTFaceList(Logger& logger, std::vector<MeshFace>& faces) {
+        void AseParser::parseGeomObjectMeshTFaceList(Logger& logger, std::vector<MeshFace>& faces) {
             expectDirective("MESH_TFACELIST");
 
             parseBlock({
-                { "MESH_TFACE", std::bind(&ASEParser::parseGeomObjectMeshTFace, this, std::ref(logger), std::ref(faces)) },
+                { "MESH_TFACE", std::bind(&AseParser::parseGeomObjectMeshTFace, this, std::ref(logger), std::ref(faces)) },
             });
         }
 
-        void ASEParser::parseGeomObjectMeshTFace(Logger& logger, std::vector<MeshFace>& faces) {
+        void AseParser::parseGeomObjectMeshTFace(Logger& logger, std::vector<MeshFace>& faces) {
             expectDirective("MESH_TFACE");
             const auto token = m_tokenizer.peekToken();
             const auto index = parseSizeArgument();
@@ -311,7 +322,7 @@ namespace TrenchBroom {
             }
         }
 
-        void ASEParser::parseBlock(const std::map<std::string, std::function<void(void)>>& handlers) {
+        void AseParser::parseBlock(const std::map<std::string, std::function<void(void)>>& handlers) {
             expect(AseToken::OBrace, m_tokenizer.nextToken());
             auto token = m_tokenizer.peekToken();
             while (token.hasType(AseToken::Directive)) {
@@ -327,12 +338,12 @@ namespace TrenchBroom {
             expect(AseToken::CBrace, m_tokenizer.nextToken());
         }
 
-        void ASEParser::expectDirective(const String& name) {
+        void AseParser::expectDirective(const String& name) {
             auto token = expect(AseToken::Directive, m_tokenizer.nextToken());
             expect(name, token);
         }
 
-        void ASEParser::skipDirective(const String& name) {
+        void AseParser::skipDirective(const String& name) {
             auto token = expect(AseToken::Directive, m_tokenizer.peekToken());
             if (token.data() == name) {
                 m_tokenizer.nextToken();
@@ -353,7 +364,7 @@ namespace TrenchBroom {
             }
         }
 
-        void ASEParser::skipDirective() {
+        void AseParser::skipDirective() {
             expect(AseToken::Directive, m_tokenizer.nextToken());
 
             // skip arguments
@@ -371,7 +382,7 @@ namespace TrenchBroom {
             }
         }
 
-        void ASEParser::expectArgumentName(const String& expected) {
+        void AseParser::expectArgumentName(const String& expected) {
             const auto token = expect(AseToken::ArgumentName, m_tokenizer.nextToken());
             const auto& actual = token.data();
             if (actual != expected) {
@@ -379,7 +390,7 @@ namespace TrenchBroom {
             }
         }
 
-        void ASEParser::expectSizeArgument(const size_t expected) {
+        void AseParser::expectSizeArgument(const size_t expected) {
             const auto token = m_tokenizer.peekToken();
             const auto actual = parseSizeArgument();
             if (actual != expected) {
@@ -387,7 +398,7 @@ namespace TrenchBroom {
             }
         }
 
-        size_t ASEParser::parseSizeArgument() {
+        size_t AseParser::parseSizeArgument() {
             const auto token = expect(AseToken::Integer, m_tokenizer.nextToken());
             auto i = token.toInteger<int>();
             if (i < 0) {
@@ -397,7 +408,7 @@ namespace TrenchBroom {
             }
         }
 
-        vm::vec3f ASEParser::parseVecArgument() {
+        vm::vec3f AseParser::parseVecArgument() {
             return {
                 expect(AseToken::Decimal, m_tokenizer.nextToken()).toFloat<float>(),
                 expect(AseToken::Decimal, m_tokenizer.nextToken()).toFloat<float>(),
@@ -405,7 +416,7 @@ namespace TrenchBroom {
             };
         }
 
-        ASEParser::TokenNameMap ASEParser::tokenNames() const {
+        AseParser::TokenNameMap AseParser::tokenNames() const {
             TokenNameMap result;
             result[AseToken::Directive]    = "directive";
             result[AseToken::OBrace]       = "'{'";
@@ -417,6 +428,94 @@ namespace TrenchBroom {
             result[AseToken::ArgumentName] = "argument name";
             result[AseToken::Eof]          = "end of file";
             return result;
+        }
+
+        Assets::EntityModel* AseParser::buildModel(Logger& logger, const Scene& scene) const {
+            using Vertex = Assets::EntityModel::Vertex;
+
+            auto model = std::make_unique<Assets::EntityModel>(m_name);
+            auto& surface = model->addSurface(m_name);
+
+            Assets::TextureList textures;
+            textures.resize(scene.materialPaths.size());
+
+            // Load the textures
+            for (size_t i = 0; i < scene.materialPaths.size(); ++i) {
+                auto path = scene.materialPaths[i];
+                try {
+                    auto texture = loadTexture(logger, path);
+                    textures[i] = texture.get();
+                    if (texture != nullptr) {
+                        surface.addSkin(texture.release());
+                    }
+                } catch (const std::exception& e) {
+                    logger.error() << "Failed to load texture '" << path << "': " << e.what();
+                    textures[i] = nullptr;
+                }
+            }
+
+            // Count vertices and build bounds
+            auto bounds = vm::bbox3f::builder();
+            size_t totalVertexCount = 0;
+            Renderer::TexturedIndexRangeMap::Size size;
+            for (const auto& geomObject : scene.geomObjects) {
+                const auto& mesh = geomObject.mesh;
+                bounds.add(std::begin(mesh.vertices), std::end(mesh.vertices));
+
+                const auto textureIndex = geomObject.materialIndex;
+                auto* texture = textures[textureIndex];
+
+                const auto vertexCount = mesh.faces.size() * 3;
+                size.inc(texture, GL_TRIANGLES, vertexCount);
+                totalVertexCount += vertexCount;
+            }
+
+            model->addFrame(m_name, bounds.bounds());
+
+            // Collect vertex data
+            Renderer::TexturedIndexRangeMapBuilder<Vertex::Spec> builder(totalVertexCount, size);
+            for (const auto& geomObject : scene.geomObjects) {
+                const auto& mesh = geomObject.mesh;
+
+                const auto textureIndex = geomObject.materialIndex;
+                auto* texture = textures[textureIndex];
+
+                for (const auto& face : mesh.faces) {
+                    builder.addTriangle(
+                        texture,
+                        Vertex(mesh.vertices[face[0].vertexIndex], mesh.uv[face[0].uvIndex]),
+                        Vertex(mesh.vertices[face[1].vertexIndex], mesh.uv[face[1].uvIndex]),
+                        Vertex(mesh.vertices[face[2].vertexIndex], mesh.uv[face[2].uvIndex]));
+                }
+
+                surface.addTexturedMesh(builder.vertices(), builder.indices());
+            }
+
+            return model.release();
+        }
+
+        std::unique_ptr<Assets::Texture> AseParser::loadTexture(Logger& logger, const Path& path) const {
+            const auto actualPath = fixTexturePath(logger, path);
+            if (!actualPath.isEmpty()) {
+                logger.debug() << "Loading texture from '" << actualPath << "'";
+                const auto file = m_fs.openFile(actualPath);
+
+                Quake3ShaderTextureReader reader(TextureReader::PathSuffixNameStrategy(2, true), m_fs);
+                return std::unique_ptr<Assets::Texture>(reader.readTexture(file));
+            } else {
+                return nullptr;
+            }
+        }
+
+        Path AseParser::fixTexturePath(Logger& logger, Path path) const {
+            if (!path.isAbsolute()) {
+                // usually the paths appear to be relative to the map file, but this will just yield a valid path if we kick off the ".." parts
+                while (!path.isEmpty() && path.firstComponent() == Path("..")) {
+                    path = path.deleteFirstComponent();
+                }
+            }
+            // we want to load shaders instead of the BITMAP file itself
+            return path.deleteExtension();
         }
     }
 }

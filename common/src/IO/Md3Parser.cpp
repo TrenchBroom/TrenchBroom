@@ -219,7 +219,6 @@ namespace TrenchBroom {
         void Md3Parser::loadSurfaceSkins(Assets::EntityModel::Surface& surface, const std::vector<Path>& shaders, Logger& logger) {
             TextureReader::PathSuffixNameStrategy nameStrategy(2, true);
             Quake3ShaderTextureReader shaderReader(nameStrategy, m_fs);
-            FreeImageTextureReader imageReader(nameStrategy);
 
             for (const auto& shader : shaders) {
                 if (shader.isEmpty()) {

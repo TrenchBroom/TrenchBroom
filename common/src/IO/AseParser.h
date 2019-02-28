@@ -22,6 +22,7 @@
 
 #include "IO/EntityModelParser.h"
 #include "IO/Parser.h"
+#include "IO/Path.h"
 #include "IO/Token.h"
 #include "IO/Tokenizer.h"
 
@@ -35,6 +36,7 @@ namespace TrenchBroom {
 
     namespace Assets {
         class EntityModel;
+        class Texture;
     }
 
     namespace IO {
@@ -51,6 +53,8 @@ namespace TrenchBroom {
             static const Type Eof               = 1 << 12; // end of file
         }
 
+        class FileSystem;
+
         class AseTokenizer : public Tokenizer<AseToken::Type> {
         private:
             static const String WordDelims;
@@ -61,7 +65,7 @@ namespace TrenchBroom {
             Token emitToken() override;
         };
 
-        class ASEParser : public EntityModelParser, private Parser<AseToken::Type> {
+        class AseParser : public EntityModelParser, private Parser<AseToken::Type> {
         private:
             using Token = AseTokenizer::Token;
 
@@ -71,28 +75,56 @@ namespace TrenchBroom {
             };
 
             using MeshFace = std::array<MeshFaceVertex, 3>;
+
+            struct Mesh {
+                std::vector<vm::vec3f> vertices;
+                std::vector<vm::vec2f> uv;
+                std::vector<MeshFace> faces;
+            };
+
+            struct GeomObject {
+                String name;
+                Mesh mesh;
+                size_t materialIndex;
+            };
+
+            struct Scene {
+                std::vector<Path> materialPaths;
+                std::vector<GeomObject> geomObjects;
+            };
+
+            String m_name;
             AseTokenizer m_tokenizer;
+            const FileSystem& m_fs;
         public:
-            ASEParser(const char* begin, const char* end);
-            explicit ASEParser(const String& str);
+            /**
+             * Creates a new parser for ASE models.
+             *
+             * @param name the name of the model
+             * @param begin the start of the text to parse
+             * @param end the end of the text to parse
+             * @param fs the file system used to load texture files
+             */
+            AseParser(const String& name, const char* begin, const char* end, const FileSystem& fs);
         private:
             Assets::EntityModel* doParseModel(Logger& logger) override;
-
-            void parseAseFile(Logger& logger);
+        private: // parsing
+            void parseAseFile(Logger& logger, Scene& scene);
 
             // SCENE
             void parseScene(Logger& logger);
 
             // MATERIALS
-            void parseMaterialList(Logger& logger);
-            void parseMaterialListMaterialCount(Logger& logger);
-            void parseMaterialListMaterial(Logger& logger);
-            void parseMaterialListMaterialMapDiffuse(Logger& logger);
-            void parseMaterialListMaterialMapDiffuseBitmap(Logger& logger);
+            void parseMaterialList(Logger& logger, Path::List& paths);
+            void parseMaterialListMaterialCount(Logger& logger, Path::List& paths);
+            void parseMaterialListMaterial(Logger& logger, Path::List& paths);
+            void parseMaterialListMaterialMapDiffuse(Logger& logger, Path::List& paths);
+            void parseMaterialListMaterialMapDiffuseBitmap(Logger& logger, Path::List& paths);
 
-            void parseGeomObject(Logger& logger);
-            void parseGeomObjectNodeName(Logger& logger);
-            void parseGeomObjectMesh(Logger& logger);
+            void parseGeomObject(Logger& logger, GeomObject& geomObject, const Path::List& materialPaths);
+            void parseGeomObjectNodeName(Logger& logger, GeomObject& geomObject);
+            void parseGeomObjectMaterialRef(Logger& logger, GeomObject& geomObject, size_t materialCount);
+            void parseGeomObjectMesh(Logger& logger, Mesh& mesh);
             void parseGeomObjectMeshNumVertex(Logger& logger, std::vector<vm::vec3f>& vertices);
             void parseGeomObjectMeshVertexList(Logger& logger, std::vector<vm::vec3f>& vertices);
             void parseGeomObjectMeshVertex(Logger& logger, std::vector<vm::vec3f>& vertices);
@@ -102,7 +134,6 @@ namespace TrenchBroom {
             void parseGeomObjectMeshNumTVertex(Logger& logger, std::vector<vm::vec2f>& uv);
             void parseGeomObjectMeshTVertexList(Logger& logger, std::vector<vm::vec2f>& uv);
             void parseGeomObjectMeshTVertex(Logger& logger, std::vector<vm::vec2f>& uv);
-            void parseGeomObjectMeshNumTVFaces(Logger& logger, size_t expected);
             void parseGeomObjectMeshTFaceList(Logger& logger, std::vector<MeshFace>& faces);
             void parseGeomObjectMeshTFace(Logger& logger, std::vector<MeshFace>& faces);
 
@@ -117,8 +148,12 @@ namespace TrenchBroom {
             void expectSizeArgument(size_t expected);
             size_t parseSizeArgument();
             vm::vec3f parseVecArgument();
-        private:
+
             TokenNameMap tokenNames() const override;
+        private: // model construction
+            Assets::EntityModel* buildModel(Logger& logger, const Scene& scene) const;
+            std::unique_ptr<Assets::Texture> loadTexture(Logger& logger, const Path& path) const;
+            Path fixTexturePath(Logger& logger, Path path) const;
         };
     }
 }

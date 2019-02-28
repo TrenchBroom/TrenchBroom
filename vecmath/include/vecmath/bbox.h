@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -40,6 +40,47 @@ namespace vm {
      */
     template <typename T, size_t S>
     class bbox {
+    public:
+        /**
+         * Helper to build a bounding box from points.
+         */
+        class builder {
+        private:
+            bool m_initialized;
+            bbox m_bounds;
+        public:
+            /**
+             * Creates a new unitialized instance.
+             */
+            builder() :
+            m_initialized(false) {}
+
+            /**
+             * Returns the bounds. If the no point has been added, an empty bbox at the origin is returned.
+             */
+            const bbox& bounds() const {
+                return m_bounds;
+            }
+
+            template <typename I>
+            void add(I cur, I end) {
+                while (cur != end) {
+                    add(*cur);
+                    ++cur;
+                }
+            }
+
+            /**
+             * Adds the given point.
+             */
+            void add(const vec<T,S>& point) {
+                if (m_initialized) {
+                    m_bounds.min = m_bounds.max = point;
+                } else {
+                    m_bounds = merge(m_bounds, point);
+                }
+            }
+        };
     public:
         vec<T,S> min;
         vec<T,S> max;
