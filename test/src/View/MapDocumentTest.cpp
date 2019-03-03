@@ -276,7 +276,7 @@ namespace TrenchBroom {
 
             document->addNode(brush1, document->currentParent());
             document->select(Model::NodeList{ brush1 });
-            Model::Group* group = document->groupSelection("my group");
+            [[maybe_unused]] Model::Group* group = document->groupSelection("my group");
 
             // attempting an invalid scale has no effect
             ASSERT_FALSE(document->scaleObjects(initialBBox, invalidBBox));
