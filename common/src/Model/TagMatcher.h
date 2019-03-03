@@ -130,8 +130,12 @@ namespace TrenchBroom {
         class EntityClassNameTagMatcher : public TagMatcher {
         private:
             String m_pattern;
+            /**
+             * The texture to set when this tag is enabled.
+             */
+            String m_texture;
         public:
-            explicit EntityClassNameTagMatcher(String pattern);
+            EntityClassNameTagMatcher(String pattern, String texture);
             std::unique_ptr<TagMatcher> clone() const override;
         private:
             bool matches(const Taggable& taggable) const override;

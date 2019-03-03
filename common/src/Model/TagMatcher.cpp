@@ -249,12 +249,13 @@ namespace TrenchBroom {
             return std::make_unique<SurfaceFlagsTagMatcher>(m_flags);
         }
 
-        EntityClassNameTagMatcher::EntityClassNameTagMatcher(String pattern) :
-        m_pattern(std::move(pattern)) {}
+        EntityClassNameTagMatcher::EntityClassNameTagMatcher(String pattern, String texture) :
+        m_pattern(std::move(pattern)),
+        m_texture(std::move(texture)) {}
 
 
         std::unique_ptr<TagMatcher> EntityClassNameTagMatcher::clone() const {
-            return std::make_unique<EntityClassNameTagMatcher>(m_pattern);
+            return std::make_unique<EntityClassNameTagMatcher>(m_pattern, m_texture);
         }
 
         bool EntityClassNameTagMatcher::matches(const Taggable& taggable) const {
@@ -306,6 +307,17 @@ namespace TrenchBroom {
 
             assert(definition != nullptr);
             facade.createBrushEntity(static_cast<const Assets::BrushEntityDefinition*>(definition));
+
+            if (!m_texture.empty()) {
+                const auto& textureManager = facade.textureManager();
+                auto* texture = textureManager.texture(m_texture);
+                if (texture != nullptr) {
+                    ChangeBrushFaceAttributesRequest request;
+                    request.setTexture(texture);
+                    facade.setFaceAttributes(request);
+                }
+            }
+
         }
 
         void EntityClassNameTagMatcher::disable(TagMatcherCallback& callback, MapFacade& facade) const {
