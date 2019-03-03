@@ -21,6 +21,7 @@
 
 #include "Preferences.h"
 #include "Assets/EntityDefinition.h"
+#include "Model/EntityAttributes.h"
 #include "Model/Tag.h"
 #include "View/CommandIds.h"
 #include "View/Menu.h"
@@ -222,12 +223,14 @@ namespace TrenchBroom {
 
             for (size_t i = 0; i < entityDefinitions.size(); ++i) {
                 const auto* definition = entityDefinitions[i];
-                entries.emplace_back(std::make_unique<ToggleEntityVisibilityKeyboardShortcutEntry>(definition->name(), i));
+                    entries.emplace_back(std::make_unique<ToggleEntityVisibilityKeyboardShortcutEntry>(definition->name(), i));
             }
 
             for (size_t i = 0; i < entityDefinitions.size(); ++i) {
                 const auto* definition = entityDefinitions[i];
-                entries.emplace_back(std::make_unique<CreateEntityKeyboardShortcutEntry>(definition->name(), i));
+                if (definition->name() != Model::AttributeValues::WorldspawnClassname) {
+                    entries.emplace_back(std::make_unique<CreateEntityKeyboardShortcutEntry>(definition->name(), i));
+                }
             }
         }
 
@@ -459,9 +462,11 @@ namespace TrenchBroom {
 
             for (size_t i = 0; i < entityDefinitions.size(); ++i) {
                 const auto* definition = entityDefinitions[i];
-                Preference<KeyboardShortcut> preference(EntityKeyboardShortcutEntry::createPrefPath(definition->name()), KeyboardShortcut());
-                const auto& shortcut = pref(preference);
-                accelerators.push_back(shortcut.acceleratorEntry(EntityKeyboardShortcutEntry::createActionId(i)));
+                if (definition->name() != Model::AttributeValues::WorldspawnClassname) {
+                    Preference<KeyboardShortcut> preference(EntityKeyboardShortcutEntry::createPrefPath(definition->name()), KeyboardShortcut());
+                    const auto& shortcut = pref(preference);
+                    accelerators.push_back(shortcut.acceleratorEntry(EntityKeyboardShortcutEntry::createActionId(i)));
+                }
             }
         }
 
