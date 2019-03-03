@@ -54,6 +54,20 @@ namespace TrenchBroom {
 
             static GameFactory& instance();
 
+            /**
+             * Initializes the game factory, must be called once when the application starts. Initialization comprises
+             * building a file system to find the builtin and user-provided game configurations and loading them.
+             *
+             * If the file system cannot be built, a FileSystemException is thrown. Since this is a fatal error, the
+             * caller should inform the user of the error and terminate the application.
+             *
+             * If a game configuration cannot be loaded due to parsing errors, the errors are collected in a string list,
+             * but loading game configurations continues. The string list is then thrown and should be caught by the
+             * caller to inform the user of any errors.
+             *
+             * @throw FileSystemException if the file system cannot be built.
+             * @throw StringList if loading game configurations fails
+             */
             void initialize();
 
             const StringList& gameList() const;
