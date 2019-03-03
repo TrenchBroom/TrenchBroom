@@ -154,6 +154,46 @@ namespace vm {
     }
 
     /**
+     * Returns the minimum of the given values, but checks if any of the given values is NaN, in which case it is not
+     * considered in the result.
+     *
+     * @tparam T the argument type
+     * @param lhs the first value
+     * @param rhs the second value
+     * @return the minimum of the given values, or NaN if both given values are NaN
+     */
+    template <typename T>
+    constexpr T safeMin(const T lhs, const T rhs) {
+        if (nan(lhs)) {
+            return rhs;
+        } else if (nan(rhs)) {
+            return lhs;
+        } else {
+            return min(lhs, rhs);
+        }
+    }
+
+    /**
+     * Returns the maximum of the given values, but checks if any of the given values is NaN, in which case it is not
+     * considered in the result.
+     *
+     * @tparam T the argument type
+     * @param lhs the first value
+     * @param rhs the second value
+     * @return the maximum of the given values, or NaN if both given values are NaN
+     */
+    template <typename T>
+    constexpr T safeMax(const T lhs, const T rhs) {
+        if (nan(lhs)) {
+            return rhs;
+        } else if (nan(rhs)) {
+            return lhs;
+        } else {
+            return max(lhs, rhs);
+        }
+    }
+
+    /**
      * Returns the absolute difference of the given values.
      *
      * @tparam T the argument type

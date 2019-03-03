@@ -62,8 +62,8 @@ private:
         const LeafVisitor m_leafVisitor;
     public:
         LambdaVisitor(const InnerNodeVisitor& innerNodeVisitor, const LeafVisitor& leafVisitor) :
-                m_innerNodeVisitor(innerNodeVisitor),
-                m_leafVisitor(leafVisitor) {}
+        m_innerNodeVisitor(innerNodeVisitor),
+        m_leafVisitor(leafVisitor) {}
 
         bool visit(const InnerNode* innerNode) override { return m_innerNodeVisitor(innerNode); }
         void visit(const LeafNode* leaf)           override { m_leafVisitor(leaf); }
@@ -524,7 +524,7 @@ public:
             m_root = nullptr;
         }
     }
-    
+
     bool empty() const override {
         return m_root == nullptr;
     }

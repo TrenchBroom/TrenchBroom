@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -23,6 +23,9 @@
 
 #include <vecmath/forward.h>
 #include <vecmath/bbox.h>
+#include <vecmath/intersection.h>
+
+#include <limits>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -41,7 +44,7 @@ namespace TrenchBroom {
         EntityModel::Mesh::Mesh(const EntityModel::VertexList& vertices) :
         m_vertices(std::move(vertices)) {}
 
-        EntityModel::Mesh::~Mesh() {}
+        EntityModel::Mesh::~Mesh() = default;
 
         std::unique_ptr<Renderer::TexturedIndexRangeRenderer> EntityModel::Mesh::buildRenderer(Assets::Texture* skin) {
             const auto vertexArray = Renderer::VertexArray::ref(m_vertices);
@@ -51,6 +54,21 @@ namespace TrenchBroom {
         EntityModel::IndexedMesh::IndexedMesh(const EntityModel::VertexList& vertices, const EntityModel::Indices& indices) :
         Mesh(vertices),
         m_indices(indices) {}
+
+        FloatType EntityModel::IndexedMesh::doIntersect(const vm::ray3& ray, const Renderer::VertexArray& vertices) const {
+            auto closestDistance = vm::nan<FloatType>();
+            m_indices.forEachPrimitive([&](const PrimType primType, const size_t index, const size_t count) {
+                switch (primType) {
+                    case GL_TRIANGLES: {
+                        assert(count % 3 == 0);
+                        for (size_t i = 0; i < count; i += 3) {
+                            closestDistance = vm::safeMin(closestDistance, vm::intersect(ray, vertices[index + 0], vertices[index + 0], m_vertices[index + 0]))
+                        }
+                    }
+
+                }
+            });
+        }
 
         std::unique_ptr<Renderer::TexturedIndexRangeRenderer> EntityModel::IndexedMesh::doBuildRenderer(Assets::Texture* skin, const Renderer::VertexArray& vertices) {
             const Renderer::TexturedIndexRangeMap texturedIndices(skin, m_indices);
@@ -71,6 +89,11 @@ namespace TrenchBroom {
 
         const String& EntityModel::Surface::name() const {
             return m_name;
+        }
+
+        FloatType EntityModel::Surface::intersect(const vm::ray3& ray, const size_t frameIndex) const {
+            assert(frameIndex < m_meshes.size());
+            return m_meshes[frameIndex]->intersect(ray);
         }
 
         void EntityModel::Surface::prepare(const int minFilter, const int magFilter) {
@@ -134,11 +157,23 @@ namespace TrenchBroom {
             }
         }
 
-        vm::bbox3f EntityModel::bounds(const size_t /* skinIndex */, const size_t frameIndex) const {
+        vm::bbox3f EntityModel::bounds(const size_t frameIndex) const {
             if (frameIndex >= m_frames.size()) {
                 return vm::bbox3f(8.0f);
             } else {
                 return m_frames[frameIndex]->bounds();
+            }
+        }
+
+        FloatType EntityModel::intersect(const vm::ray3& ray, const size_t frameIndex) const {
+            if (frameIndex >= m_frames.size()) {
+                return vm::nan<FloatType>();
+            } else {
+                auto closestDistance = vm::nan<FloatType>();
+                for (const auto& surface : m_surfaces) {
+                    closestDistance = vm::safeMin(closestDistance, surface->intersect(ray, frameIndex));
+                }
+                return closestDistance;
             }
         }
 

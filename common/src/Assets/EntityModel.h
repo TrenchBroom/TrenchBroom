@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_EntityModel
 #define TrenchBroom_EntityModel
 
+#include "TrenchBroom.h"
 #include "Assets/TextureCollection.h"
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/TexturedIndexRangeMap.h"
@@ -34,13 +35,13 @@ namespace TrenchBroom {
         class TexturedIndexRangeRenderer;
         class TexturedRenderer;
     }
-    
+
     namespace Assets {
 
         /**
-         Manages all data necessary to render an entity model. Each model can have multiple frames, and
-         multiple surfaces. Each surface represents an independent mesh of primitives such as triangles, and
-         the corresponding textures. Every surface has a separate mesh for each frame of the model.
+         * Manages all data necessary to render an entity model. Each model can have multiple frames, and
+         * multiple surfaces. Each surface represents an independent mesh of primitives such as triangles, and
+         * the corresponding textures. Every surface has a separate mesh for each frame of the model.
          */
         class EntityModel {
         public:
@@ -50,7 +51,7 @@ namespace TrenchBroom {
             using TexturedIndices = Renderer::TexturedIndexRangeMap;
         public:
             /**
-             One frame of the model.
+             * One frame of the model.
              */
             class Frame {
             private:
@@ -58,94 +59,111 @@ namespace TrenchBroom {
                 vm::bbox3f m_bounds;
             public:
                 /**
-                 Creates a new frame with the given name and bounds.
-
-                 @param name the frame name
-                 @param bounds the bounding box of the frame
+                 * Creates a new frame with the given name and bounds.
+                 *
+                 * @param name the frame name
+                 * @param bounds the bounding box of the frame
                  */
                 Frame(const String& name, const vm::bbox3f& bounds);
 
                 /**
-                 Returns this frame's name.
-
-                 @return the name
+                 * Returns this frame's name.
+                 *
+                 * @return the name
                  */
                 const String& name() const;
 
 
                 /**
-                 Returns this frame's bounding box.
-
-                 @return the bounding box
+                 * Returns this frame's bounding box.
+                 *
+                 * @return the bounding box
                  */
                 const vm::bbox3f& bounds() const;
             };
 
             /**
-             The mesh associated with a frame and a surface.
+             * The mesh associated with a frame and a surface.
              */
             class Mesh {
             private:
                 VertexList m_vertices;
             protected:
                 /**
-                 Creates a new frame mesh that uses the given vertices.
-
-                 @param vertices the vertices
+                 * Creates a new frame mesh that uses the given vertices.
+                 *
+                 * @param vertices the vertices
                  */
-                Mesh(const VertexList& vertices);
+                explicit Mesh(const VertexList& vertices);
             public:
                 virtual ~Mesh();
 
                 /**
-                 Returns a renderer that renders this mesh with the given texture.
+                 * Intersects this mesh with the given ray and returns the point of intersection.
+                 *
+                 * @param ray the ray to intersect
+                 * @return the distance to the point of intersection or NaN if the given ray does not intersect this mesh
+                 */
+                FloatType intersect(const vm::ray3& ray) const;
 
-                 @param skin the texture to use when rendering the mesh
-                 @return the renderer
+                /**
+                 * Returns a renderer that renders this mesh with the given texture.
+                 *
+                 * @param skin the texture to use when rendering the mesh
+                 * @return the renderer
                  */
                 std::unique_ptr<Renderer::TexturedIndexRangeRenderer> buildRenderer(Assets::Texture* skin);
             private:
+                /**
+                 * Intersects this mesh with the given ray and returns the point of intersection.
+                 *
+                 * @param ray the ray to intersect
+                 * @param vertices the vertices
+                 * @return the distance to the point of intersection or NaN if the given ray does not intersect this mesh
+                 */
+                virtual FloatType doIntersect(const vm::ray3& ray, const Renderer::VertexArray& vertices) const = 0;
 
                 /**
-                 Creates and returns the actual mesh renderer
-
-                 @param skin the skin to use when rendering the mesh
-                 @param vertices the vertices associated with this mesh
-                 @return the renderer
+                 * Creates and returns the actual mesh renderer
+                 *
+                 * @param skin the skin to use when rendering the mesh
+                 * @param vertices the vertices associated with this mesh
+                 * @return the renderer
                  */
                 virtual std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(Assets::Texture* skin, const Renderer::VertexArray& vertices) = 0;
             };
 
             /**
-             A model frame mesh for indexed rendering. Stores vertices and vertex indices.
+             * A model frame mesh for indexed rendering. Stores vertices and vertex indices.
              */
             class IndexedMesh : public Mesh {
             private:
                 Indices m_indices;
             public:
                 /**
-                 Creates a new frame mesh with the given vertices and indices.
-
-                 @param vertices the vertices
-                 @param indices the indices
+                 * Creates a new frame mesh with the given vertices and indices.
+                 *
+                 * @param vertices the vertices
+                 * @param indices the indices
                  */
                 IndexedMesh(const VertexList& vertices, const Indices& indices);
             private:
+                FloatType doIntersect(const vm::ray3& ray, const Renderer::VertexArray& vertices) const override;
                 std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(Assets::Texture* skin, const Renderer::VertexArray& vertices) override;
             };
 
             /**
-             A model frame mesh for per texture indexed rendering. Stores vertices and per texture indices.
+             * A model frame mesh for per texture indexed rendering. Stores vertices and per texture indices.
              */
             class TexturedMesh : public Mesh {
             private:
                 TexturedIndices m_indices;
             public:
                 /**
-                 Creates a new frame mesh with the given vertices and per texture indices.
-
-                 @param vertices the vertices
-                 @param indices the per texture indices
+                 * Creates a new frame mesh with the given vertices and per texture indices.
+                 *
+                 * @param vertices the vertices
+                 * @param indices the per texture indices
                  */
                 TexturedMesh(const VertexList& vertices, const TexturedIndices& indices);
             private:
@@ -153,11 +171,11 @@ namespace TrenchBroom {
             };
 
             /**
-             A model surface represents an individual part of a model. MDL and MD2 models use only one surface, while
-             more complex model formats such as MD3 contain multiple surfaces with one skin per surface.
-
-             Each surface contains per frame meshes. The number of per frame meshes should match the number of frames
-             in the model.
+             * A model surface represents an individual part of a model. MDL and MD2 models use only one surface, while
+             * more complex model formats such as MD3 contain multiple surfaces with one skin per surface.
+             *
+             * Each surface contains per frame meshes. The number of per frame meshes should match the number of frames
+             * in the model.
              */
             class Surface {
             private:
@@ -166,78 +184,88 @@ namespace TrenchBroom {
                 std::unique_ptr<TextureCollection> m_skins;
             public:
                 /**
-                 Creates a new surface with the given name.
-
-                 @param name the surface's name
+                 * Creates a new surface with the given name.
+                 *
+                 * @param name the surface's name
                  */
-                Surface(const String& name);
+                explicit Surface(const String& name);
 
 
                 /**
-                 Returns the name of this surface.
-
-                 @return the name of this surface
+                 * Returns the name of this surface.
+                 *
+                 * @return the name of this surface
                  */
                 const String& name() const;
 
                 /**
-                 Prepares the skin textures of this surface for rendering.
+                 * Intersects the mesh with the given frame index with the given ray and returns the point of intersection.
+                 *
+                 * @param ray the ray to intersect
+                 * @param frameIndex the index of the mesh to intersect
+                 * @return the distance to the point of intersection or NaN if the given ray does not intersect the mesh
+                 * with the given index
+                 */
+                FloatType intersect(const vm::ray3& ray, size_t frameIndex) const;
 
-                 @param minFilter the minification filter (GL_TEXTURE_MIN_FILTER)
-                 @param magFilter the magnification filter (GL_TEXTURE_MIN_FILTER)
+                /**
+                 * Prepares the skin textures of this surface for rendering.
+                 *
+                 * @param minFilter the minification filter (GL_TEXTURE_MIN_FILTER)
+                 * @param magFilter the magnification filter (GL_TEXTURE_MIN_FILTER)
                  */
                 void prepare(int minFilter, int magFilter);
 
                 /**
-                 Sets the minification and magnification filters for the skin textures of this surface.
-
-                 @param minFilter the minification filter (GL_TEXTURE_MIN_FILTER)
-                 @param magFilter the magnification filter (GL_TEXTURE_MIN_FILTER)
+                 * Sets the minification and magnification filters for the skin textures of this surface.
+                 *
+                 * @param minFilter the minification filter (GL_TEXTURE_MIN_FILTER)
+                 * @param magFilter the magnification filter (GL_TEXTURE_MIN_FILTER)
                  */
                 void setTextureMode(int minFilter, int magFilter);
 
                 /**
-                 Adds a new mesh to this surface.
-
-                 @param vertices the mesh vertices
-                 @param indices the vertex indices
+                 * Adds a new mesh to this surface.
+                 *
+                 * @param vertices the mesh vertices
+                 * @param indices the vertex indices
                  */
                 void addIndexedMesh(const VertexList& vertices, const Indices& indices);
 
                 /**
-                 Adds a new multitextured mesh to this surface.
-
-                 @param vertices the mesh vertices
-                 @param indices the per texture vertex indices
+                 * Adds a new multitextured mesh to this surface.
+                 *
+                 * @param vertices the mesh vertices
+                 * @param indices the per texture vertex indices
                  */
                 void addTexturedMesh(const VertexList& vertices, const TexturedIndices& indices);
 
                 /**
-                 Adds the given texture as a skin to this surface.
-
-                 @param skin the skin to add
+                 * Adds the given texture as a skin to this surface.
+                 *
+                 *@param skin the skin to add
                  */
                 void addSkin(Assets::Texture* skin);
 
                 /**
-                 Returns the number of frame meshes in this surface, should match the model's frame count.
-
-                 @return the number of frame meshes
+                 * Returns the number of frame meshes in this surface, should match the model's frame count.
+                 *
+                 * @return the number of frame meshes
                  */
                 size_t frameCount() const;
 
                 /**
-                 Returns the number of skins of this surface.
-
-                 @return the number of skins
+                 * Returns the number of skins of this surface.
+                 *
+                 * @return the number of skins
                  */
                 size_t skinCount() const;
 
                 /**
-                 Returns the skin with the given name.
-
-                 @param name the name of the skin to find
-                 @return the skin with the given name, or null if no such skin was found
+                 * Returns the skin with the given name.
+                 *
+                 * @param name the name of the skin to find
+                 * @return the skin with the given name, or null if no such skin was found
                  */
                 const Assets::Texture* skin(const String& name) const;
 
@@ -250,111 +278,120 @@ namespace TrenchBroom {
             std::vector<std::unique_ptr<Surface>> m_surfaces;
         public:
             /**
-             Creates a new entity model with the given name.
+             * Creates a new entity model with the given name.
 
-             @param name the name of the model
+             * @param name the name of the model
              */
             explicit EntityModel(const String& name);
 
             /**
-             Creates a renderer to render the given frame of the model using the skin with the given index.
-
-             @param skinIndex the index of the skin to use
-             @param frameIndex the index of the frame to render
-             @return the renderer
+             * Creates a renderer to render the given frame of the model using the skin with the given index.
+             *
+             * @param skinIndex the index of the skin to use
+             * @param frameIndex the index of the frame to render
+             * @return the renderer
              */
             Renderer::TexturedRenderer* buildRenderer(size_t skinIndex, size_t frameIndex) const;
 
             /**
-             Returns the bounds of the given frame of this model.
-
-             @param skinIndex the skin, unused
-             @param frameIndex the index of the frame
-             @return the bounds of the frame
+             * Returns the bounds of the given frame of this model.
+             *
+             * @param frameIndex the index of the frame
+             * @return the bounds of the frame
              */
-            vm::bbox3f bounds(size_t skinIndex, size_t frameIndex) const;
+            vm::bbox3f bounds(size_t frameIndex) const;
 
             /**
-             Indicates whether or not this model has been prepared for rendering.
+             * Intersects the frame with the given index with the given ray and returns the point of intersection.
+             *
+             * @param ray the ray to intersect
+             * @param frameIndex the index of the frame to intersect
+             * @return the distance to the point of intersection or NaN if the given ray does not intersect the frame
+             * with the given index or if the given frame index is out of bounds
+             */
+            FloatType intersect(const vm::ray3& ray, size_t frameIndex) const;
 
-             @return true if this model has been prepared and false otherwise
+            /**
+             * Indicates whether or not this model has been prepared for rendering.
+             *
+             * @return true if this model has been prepared and false otherwise
              */
             bool prepared() const;
 
             /**
-             Prepares this model for rendering by uploading its skin textures.
-
-             @param minFilter the minification filter (GL_TEXTURE_MIN_FILTER)
-             @param magFilter the magnification filter (GL_TEXTURE_MIN_FILTER)
+             * Prepares this model for rendering by uploading its skin textures.
+             *
+             * @param minFilter the minification filter (GL_TEXTURE_MIN_FILTER)
+             * @param magFilter the magnification filter (GL_TEXTURE_MIN_FILTER)
              */
             void prepare(int minFilter, int magFilter);
 
             /**
-             Sets the minification and magnification filters for the skin textures of this model.
-
-             @param minFilter the minification filter (GL_TEXTURE_MIN_FILTER)
-             @param magFilter the magnification filter (GL_TEXTURE_MIN_FILTER)
+             * Sets the minification and magnification filters for the skin textures of this model.
+             *
+             * @param minFilter the minification filter (GL_TEXTURE_MIN_FILTER)
+             * @param magFilter the magnification filter (GL_TEXTURE_MIN_FILTER)
              */
             void setTextureMode(int minFilter, int magFilter);
 
             /**
-             Adds a frame with the given name and bounds.
-
-             @param name the frame name
-             @param bounds the frame bounds
-             @return the newly added frame
+             * Adds a frame with the given name and bounds.
+             *
+             * @param name the frame name
+             * @param bounds the frame bounds
+             * @return the newly added frame
              */
             Frame& addFrame(const String& name, const vm::bbox3f& bounds);
 
             /**
-             Adds a surface with the given name.
-
-             @param name the surface name
-             @return the newly added surface
+             * Adds a surface with the given name.
+             *
+             * @param name the surface name
+             * @return the newly added surface
              */
             Surface& addSurface(const String& name);
 
             /**
-             Returns the number of frames of this model.
-
-             @return the number of frames
+             * Returns the number of frames of this model.
+             *
+             * @return the number of frames
              */
             size_t frameCount() const;
 
             /**
-             Returns the number of surfaces of this model.
-
-             @return the number of surfaces
+             * Returns the number of surfaces of this model.
+             *
+             * @return the number of surfaces
              */
             size_t surfaceCount() const;
 
             /**
-             Returns all frames of this model.
-
-             @return the frames
+             * Returns all frames of this model.
+             *
+             * @return the frames
              */
             std::vector<const Frame*> frames() const;
 
             /**
-             Returns all surfaces of this model.
-
-             @return the surfaces
+             * Returns all surfaces of this model.
+             *
+             * @return the surfaces
              */
             std::vector<const Surface*> surfaces() const;
 
             /**
-             Returns the frame with the given name.
-
-             @param name the name of the frame to find
-             @return the frame with the given name or null if no such frame was found
+             * Returns the frame with the given name.
+             *
+             * @param name the name of the frame to find
+             * @return the frame with the given name or null if no such frame was found
              */
             const Frame* frame(const String& name) const;
 
             /**
-             Returns the surface with the given name.
-
-             @param name the name of the surface to find
-             @return the surface with the given name or null if no such surface was found
+             * Returns the surface with the given name.
+             *
+             * @param name the name of the surface to find
+             * @return the surface with the given name or null if no such surface was found
              */
             const Surface* surface(const String& name) const;
         };
