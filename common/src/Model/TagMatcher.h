@@ -30,6 +30,8 @@
 namespace TrenchBroom {
     namespace Model {
         class BrushFace;
+        class ChangeBrushFaceAttributesRequest;
+        class Game;
         class Node;
         class World;
         class Layer;
@@ -92,12 +94,19 @@ namespace TrenchBroom {
             bool matches(const Taggable& taggable) const override;
         };
 
-        class ContentFlagsTagMatcher : public TagMatcher {
-        private:
+        class FlagsTagMatcher : public TagMatcher {
+        protected:
+            using GetFlags = std::function<int(const BrushFace&)>;
+            using SetFlags = std::function<void(ChangeBrushFaceAttributesRequest&, int)>;
+            using GetFlagNames = std::function<StringList(const Game& game, int)>;
+        protected:
             int m_flags;
-        public:
-            explicit ContentFlagsTagMatcher(int flags);
-            std::unique_ptr<TagMatcher> clone() const override;
+            GetFlags m_getFlags;
+            SetFlags m_setFlags;
+            SetFlags m_unsetFlags;
+            GetFlagNames m_getFlagNames;
+        protected:
+            FlagsTagMatcher(int flags, GetFlags getFlags, SetFlags setFlags, SetFlags unsetFlags, GetFlagNames getFlagNames);
         private:
             bool matches(const Taggable& taggable) const override;
             void enable(TagMatcherCallback& callback, MapFacade& facade) const override;
@@ -106,18 +115,16 @@ namespace TrenchBroom {
             bool canDisable() const override;
         };
 
-        class SurfaceFlagsTagMatcher : public TagMatcher {
-        private:
-            int m_flags;
+        class ContentFlagsTagMatcher : public FlagsTagMatcher {
+        public:
+            explicit ContentFlagsTagMatcher(int flags);
+            std::unique_ptr<TagMatcher> clone() const override;
+        };
+
+        class SurfaceFlagsTagMatcher : public FlagsTagMatcher {
         public:
             explicit SurfaceFlagsTagMatcher(int flags);
             std::unique_ptr<TagMatcher> clone() const override;
-        private:
-            bool matches(const Taggable& taggable) const override;
-            void enable(TagMatcherCallback& callback, MapFacade& facade) const override;
-            void disable(TagMatcherCallback& callback, MapFacade& facade) const override;
-            bool canEnable() const override;
-            bool canDisable() const override;
         };
 
         class EntityClassNameTagMatcher : public TagMatcher {

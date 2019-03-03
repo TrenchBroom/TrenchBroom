@@ -26,17 +26,13 @@
 #include "Model/BrushFace.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/Entity.h"
+#include "Model/Game.h"
 #include "Model/Group.h"
 #include "Model/Layer.h"
 #include "Model/MapFacade.h"
-#include "Model/Node.h"
 #include "Model/NodeCollection.h"
-#include "Model/NodeVisitor.h"
 #include "Model/PushSelection.h"
 #include "Model/World.h"
-
-#include <algorithm>
-#include <iterator>
 
 namespace TrenchBroom {
     namespace Model {
@@ -157,76 +153,100 @@ namespace TrenchBroom {
             return visitor.matches();
         }
 
-        ContentFlagsTagMatcher::ContentFlagsTagMatcher(const int flags) :
-        m_flags(flags) {}
+        FlagsTagMatcher::FlagsTagMatcher(const int flags, GetFlags getFlags, SetFlags setFlags, SetFlags unsetFlags, GetFlagNames getFlagNames) :
+        m_flags(flags),
+        m_getFlags(std::move(getFlags)),
+        m_setFlags(std::move(setFlags)),
+        m_unsetFlags(std::move(unsetFlags)),
+        m_getFlagNames(std::move(getFlagNames)) {}
+
+        bool FlagsTagMatcher::matches(const Taggable& taggable) const {
+            BrushFaceMatchVisitor visitor([this](const BrushFace& face) {
+                return (m_getFlags(face) & m_flags) != 0;
+            });
+
+            taggable.accept(visitor);
+            return visitor.matches();
+        }
+
+        void FlagsTagMatcher::enable(TagMatcherCallback& callback, MapFacade& facade) const {
+            constexpr auto bits = sizeof(decltype(m_flags)) * 8;
+
+            std::vector<size_t> flagIndices;
+            for (size_t i = 0; i < bits; ++i) {
+                if ((m_flags & (1 << i)) != 0) {
+                    flagIndices.push_back(i);
+                }
+            }
+
+            int flagToSet = 0;
+            if (flagIndices.empty()) {
+                return;
+            } else if (flagIndices.size() == 1) {
+                flagToSet = m_flags;
+            } else {
+                const auto options = m_getFlagNames(*facade.game(), m_flags);
+                const auto selectedOptionIndex = callback.selectOption(options);
+                if (selectedOptionIndex == options.size()) {
+                    return;
+                }
+
+                // convert the option index into the index of the flag to set
+                size_t currentIndex = 0;
+                for (size_t i = 0; i < bits; ++i) {
+                    if ((m_flags & (1 << i)) != 0) {
+                        // only consider flags which are set to 1
+                        if (currentIndex == selectedOptionIndex) {
+                            // we found the flag that corresponds to the selected option
+                            flagToSet = (1 << i);
+                            break;
+                        }
+                        ++currentIndex;
+                    }
+                }
+            }
+
+            ChangeBrushFaceAttributesRequest request;
+            m_setFlags(request, flagToSet);
+            facade.setFaceAttributes(request);
+        }
+
+        void FlagsTagMatcher::disable(TagMatcherCallback& callback, MapFacade& facade) const {
+            ChangeBrushFaceAttributesRequest request;
+            m_unsetFlags(request, m_flags);
+            facade.setFaceAttributes(request);
+        }
+
+        bool FlagsTagMatcher::canEnable() const {
+            return true;
+        }
+
+        bool FlagsTagMatcher::canDisable() const {
+            return true;
+        }
+
+        ContentFlagsTagMatcher::ContentFlagsTagMatcher(const int i_flags) :
+        FlagsTagMatcher(i_flags,
+            [](const BrushFace& face) { return face.surfaceContents(); },
+            [](ChangeBrushFaceAttributesRequest& request, const int flags) { request.setContentFlags(flags); },
+            [](ChangeBrushFaceAttributesRequest& request, const int flags) { request.unsetContentFlags(flags); },
+            [](const Game& game, const int flags) { return game.contentFlags().flagNames(flags); }
+        ) {}
 
         std::unique_ptr<TagMatcher> ContentFlagsTagMatcher::clone() const {
             return std::make_unique<ContentFlagsTagMatcher>(m_flags);
         }
 
-        bool ContentFlagsTagMatcher::matches(const Taggable& taggable) const {
-            BrushFaceMatchVisitor visitor([this](const BrushFace& face) {
-                return (face.surfaceContents() & m_flags) != 0;
-            });
-
-            taggable.accept(visitor);
-            return visitor.matches();
-        }
-
-        void ContentFlagsTagMatcher::enable(TagMatcherCallback& callback, MapFacade& facade) const {
-            ChangeBrushFaceAttributesRequest request;
-            request.setContentFlags(m_flags);
-            facade.setFaceAttributes(request);
-        }
-
-        void ContentFlagsTagMatcher::disable(TagMatcherCallback& callback, MapFacade& facade) const {
-            ChangeBrushFaceAttributesRequest request;
-            request.unsetContentFlags(m_flags);
-            facade.setFaceAttributes(request);
-        }
-
-        bool ContentFlagsTagMatcher::canEnable() const {
-            return true;
-        }
-
-        bool ContentFlagsTagMatcher::canDisable() const {
-            return true;
-        }
-
-        SurfaceFlagsTagMatcher::SurfaceFlagsTagMatcher(const int flags) :
-        m_flags(flags) {}
+        SurfaceFlagsTagMatcher::SurfaceFlagsTagMatcher(const int i_flags) :
+        FlagsTagMatcher(i_flags,
+            [](const BrushFace& face) { return face.surfaceFlags(); },
+            [](ChangeBrushFaceAttributesRequest& request, const int flags) { request.setSurfaceFlags(flags); },
+            [](ChangeBrushFaceAttributesRequest& request, const int flags) { request.unsetSurfaceFlags(flags); },
+            [](const Game& game, const int flags) { return game.surfaceFlags().flagNames(flags); }
+        ) {}
 
         std::unique_ptr<TagMatcher> SurfaceFlagsTagMatcher::clone() const {
             return std::make_unique<SurfaceFlagsTagMatcher>(m_flags);
-        }
-
-        bool SurfaceFlagsTagMatcher::matches(const Taggable& taggable) const {
-            BrushFaceMatchVisitor visitor([this](const BrushFace& face) {
-                return (face.surfaceFlags() & m_flags) != 0;
-            });
-
-            taggable.accept(visitor);
-            return visitor.matches();
-        }
-
-        void SurfaceFlagsTagMatcher::enable(TagMatcherCallback& callback, MapFacade& facade) const {
-            ChangeBrushFaceAttributesRequest request;
-            request.setSurfaceFlags(m_flags);
-            facade.setFaceAttributes(request);
-        }
-
-        void SurfaceFlagsTagMatcher::disable(TagMatcherCallback& callback, MapFacade& facade) const {
-            ChangeBrushFaceAttributesRequest request;
-            request.unsetSurfaceFlags(m_flags);
-            facade.setFaceAttributes(request);
-        }
-
-        bool SurfaceFlagsTagMatcher::canEnable() const {
-            return true;
-        }
-
-        bool SurfaceFlagsTagMatcher::canDisable() const {
-            return true;
         }
 
         EntityClassNameTagMatcher::EntityClassNameTagMatcher(String pattern) :

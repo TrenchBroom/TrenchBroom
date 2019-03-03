@@ -163,7 +163,7 @@ namespace TrenchBroom {
         public: // accessors and such
             Logger& logger();
 
-            Model::GameSPtr game() const;
+            Model::GameSPtr game() const override;
             const vm::bbox3& worldBounds() const;
             Model::World* world() const;
 

@@ -42,6 +42,8 @@ namespace TrenchBroom {
         public:
             virtual ~MapFacade();
         public: // getters
+            virtual Model::GameSPtr game() const = 0;
+
             virtual Layer* currentLayer() const = 0;
             virtual Group* currentGroup() const = 0;
             virtual Node* currentParent() const = 0;
