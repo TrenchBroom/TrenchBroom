@@ -266,6 +266,26 @@ namespace TrenchBroom {
             ASSERT_EQ(vm::plane3(200.0, vm::vec3::pos_z), brush1->findFace(vm::vec3::pos_z)->boundary());
         }
 
+        TEST_F(MapDocumentTest, scaleObjectsInGroup) {
+            const vm::bbox3 initialBBox(vm::vec3(-100, -100, -100), vm::vec3(100, 100, 100));
+            const vm::bbox3 doubleBBox(2.0 * initialBBox.min, 2.0 * initialBBox.max);
+            const vm::bbox3 invalidBBox(vm::vec3(0, -100, -100), vm::vec3(0, 100, 100));
+
+            Model::BrushBuilder builder(document->world(), document->worldBounds());
+            Model::Brush *brush1 = builder.createCuboid(initialBBox, "texture");
+
+            document->addNode(brush1, document->currentParent());
+            document->select(Model::NodeList{ brush1 });
+            Model::Group* group = document->groupSelection("my group");
+
+            // attempting an invalid scale has no effect
+            ASSERT_FALSE(document->scaleObjects(initialBBox, invalidBBox));
+            ASSERT_EQ(vm::vec3(200, 200, 200), brush1->bounds().size());
+
+            ASSERT_TRUE(document->scaleObjects(initialBBox, doubleBBox));
+            ASSERT_EQ(vm::vec3(400, 400, 400), brush1->bounds().size());
+        }
+
         TEST_F(MapDocumentTest, scaleObjectsWithCenter) {
             const vm::bbox3 initialBBox(vm::vec3(0,0,0), vm::vec3(100,100,400));
             const vm::bbox3 expectedBBox(vm::vec3(-50,0,0), vm::vec3(150,100,400));
