@@ -465,6 +465,7 @@ namespace TrenchBroom {
             const Model::SmartTag& smartTag(size_t index) const;
         private:
             class InitializeNodeTagsVisitor;
+            class ClearNodeTagsVisitor;
             void initializeNodeTags(MapDocument* document);
             void initializeNodeTags(const Model::NodeList& nodes);
             void clearNodeTags(const Model::NodeList& nodes);
