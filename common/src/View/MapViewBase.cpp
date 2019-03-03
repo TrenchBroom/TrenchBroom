@@ -856,15 +856,23 @@ namespace TrenchBroom {
                 }
             }
 
-            reparentNodes(toReparent, document->currentParent(), false);
+            if (!toReparent.empty()) {
+                reparentNodes(toReparent, document->currentParent(), false);
+            }
 
+            bool anyTagDisabled = false;
             EnableDisableTagCallback callback(this);
             for (auto* brush : document->selectedNodes().brushes()) {
                 for (const auto& tag : document->smartTags()) {
                     if (brush->hasTag(tag)) {
+                        anyTagDisabled = true;
                         tag.disable(callback, *document);
                     }
                 }
+            }
+
+            if (!anyTagDisabled && toReparent.empty()) {
+                transaction.cancel();
             }
         }
 

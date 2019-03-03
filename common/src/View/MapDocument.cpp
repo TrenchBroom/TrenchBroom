@@ -1457,18 +1457,22 @@ namespace TrenchBroom {
         }
         
         void MapDocument::beginTransaction(const String& name) {
+            debug("Starting transaction '" + name + "'");
             doBeginTransaction(name);
         }
         
         void MapDocument::rollbackTransaction() {
+            debug("Rolling back transaction");
             doRollbackTransaction();
         }
         
         void MapDocument::commitTransaction() {
+            debug("Committing transaction");
             doEndTransaction();
         }
         
         void MapDocument::cancelTransaction() {
+            debug("Cancelling transaction");
             doRollbackTransaction();
             doEndTransaction();
         }
