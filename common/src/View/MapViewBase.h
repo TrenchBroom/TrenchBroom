@@ -289,7 +289,7 @@ namespace TrenchBroom {
             void updateUngroupObjectsMenuItem(wxUpdateUIEvent& event) const;
             void updateMergeGroupsMenuItem(wxUpdateUIEvent& event) const;
             void updateRenameGroupsMenuItem(wxUpdateUIEvent& event) const;
-            void updateMoveBrushesToWorldMenuItem(wxUpdateUIEvent& event) const;
+            void updateMakeStructuralMenuItem(wxUpdateUIEvent& event) const;
         private: // subclassing interface
             virtual vm::vec3 doGetMoveDirection(vm::direction direction) const = 0;
             virtual vm::vec3 doComputePointEntityPosition(const vm::bbox3& bounds) const = 0;

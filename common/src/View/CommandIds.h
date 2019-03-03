@@ -234,8 +234,8 @@ namespace TrenchBroom {
                 static const int AddObjectsToGroup                   = HighestBrushEntityItem + 1;
                 static const int RemoveObjectsFromGroup              = AddObjectsToGroup + 1;
                 static const int MoveBrushesToEntity                 = RemoveObjectsFromGroup + 1;
-                static const int MoveBrushesToWorld                  = MoveBrushesToEntity + 1;
-                static const int GroupObjects                        = MoveBrushesToWorld + 1;
+                static const int MakeStructural                      = MoveBrushesToEntity + 1;
+                static const int GroupObjects                        = MakeStructural + 1;
                 static const int UngroupObjects                      = GroupObjects + 1;
                 static const int RenameGroups                        = UngroupObjects + 1;
                 static const int MergeGroups                         = RenameGroups + 1;

@@ -343,7 +343,7 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapViewBase::OnRemoveObjectsFromGroup,              this, CommandIds::MapViewPopupMenu::RemoveObjectsFromGroup);
             Bind(wxEVT_MENU, &MapViewBase::OnMergeGroups,                         this, CommandIds::MapViewPopupMenu::MergeGroups);
             Bind(wxEVT_MENU, &MapViewBase::OnMoveBrushesTo,                       this, CommandIds::MapViewPopupMenu::MoveBrushesToEntity);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveBrushesTo,                       this, CommandIds::MapViewPopupMenu::MoveBrushesToWorld);
+            Bind(wxEVT_MENU, &MapViewBase::OnMakeStructural,                      this, CommandIds::MapViewPopupMenu::MakeStructural);
             Bind(wxEVT_MENU, &MapViewBase::OnCreatePointEntity,                   this, CommandIds::MapViewPopupMenu::LowestPointEntityItem, CommandIds::MapViewPopupMenu::HighestPointEntityItem);
             Bind(wxEVT_MENU, &MapViewBase::OnCreateBrushEntity,                   this, CommandIds::MapViewPopupMenu::LowestBrushEntityItem, CommandIds::MapViewPopupMenu::HighestBrushEntityItem);
 
@@ -351,7 +351,7 @@ namespace TrenchBroom {
             Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,            this, CommandIds::MapViewPopupMenu::UngroupObjects);
             Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,            this, CommandIds::MapViewPopupMenu::MergeGroups);
             Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,            this, CommandIds::MapViewPopupMenu::RenameGroups);
-            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,            this, CommandIds::MapViewPopupMenu::MoveBrushesToWorld);
+            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,            this, CommandIds::MapViewPopupMenu::MakeStructural);
             Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,            this, CommandIds::MapViewPopupMenu::LowestPointEntityItem, CommandIds::MapViewPopupMenu::HighestPointEntityItem);
             Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,            this, CommandIds::MapViewPopupMenu::LowestBrushEntityItem, CommandIds::MapViewPopupMenu::HighestBrushEntityItem);
 
@@ -863,10 +863,12 @@ namespace TrenchBroom {
             bool anyTagDisabled = false;
             EnableDisableTagCallback callback(this);
             for (auto* brush : document->selectedNodes().brushes()) {
-                for (const auto& tag : document->smartTags()) {
-                    if (brush->hasTag(tag)) {
-                        anyTagDisabled = true;
-                        tag.disable(callback, *document);
+                if (brush->hasAnyTag()) {
+                    for (const auto& tag : document->smartTags()) {
+                        if (brush->hasTag(tag)) {
+                            anyTagDisabled = true;
+                            tag.disable(callback, *document);
+                        }
                     }
                 }
             }
@@ -1350,16 +1352,17 @@ namespace TrenchBroom {
             }
             menu.AppendSeparator();
 
-            menu.AppendSubMenu(makeEntityGroupsMenu(Assets::EntityDefinition::Type_PointEntity, CommandIds::MapViewPopupMenu::LowestPointEntityItem), "Create Point Entity");
-            menu.AppendSubMenu(makeEntityGroupsMenu(Assets::EntityDefinition::Type_BrushEntity, CommandIds::MapViewPopupMenu::LowestBrushEntityItem), "Create Brush Entity");
-
             if (document->selectedNodes().hasOnlyBrushes()) {
-                if (!isEntity(newBrushParent)) {
-                    menu.Append(CommandIds::MapViewPopupMenu::MoveBrushesToWorld, "Move Brushes to World");
-                } else {
+                menu.Append(CommandIds::MapViewPopupMenu::MakeStructural, "Make Structural");
+                if (isEntity(newBrushParent)) {
                     menu.Append(CommandIds::MapViewPopupMenu::MoveBrushesToEntity, "Move Brushes to Entity " + newBrushParent->name());
                 }
             }
+
+            menu.AppendSeparator();
+
+            menu.AppendSubMenu(makeEntityGroupsMenu(Assets::EntityDefinition::Type_PointEntity, CommandIds::MapViewPopupMenu::LowestPointEntityItem), "Create Point Entity");
+            menu.AppendSubMenu(makeEntityGroupsMenu(Assets::EntityDefinition::Type_BrushEntity, CommandIds::MapViewPopupMenu::LowestBrushEntityItem), "Create Brush Entity");
 
             menu.UpdateUI(this);
             PopupMenu(&menu);
@@ -1504,19 +1507,22 @@ namespace TrenchBroom {
                 newParent = brush->entity();
             }
 
-            if (newParent != nullptr && newParent != document->world() && canReparentNodes(nodes, newParent))
+            if (newParent != nullptr && newParent != document->world() && canReparentNodes(nodes, newParent)) {
                 return newParent;
+            }
 
             if (!nodes.empty()) {
                 Model::Node* lastNode = nodes.back();
 
                 Model::Group* group = Model::findGroup(lastNode);
-                if (group != nullptr)
+                if (group != nullptr) {
                     return group;
+                }
 
                 Model::Layer* layer = Model::findLayer(lastNode);
-                if (layer != nullptr)
+                if (layer != nullptr) {
                     return layer;
+                }
             }
 
             return document->currentLayer();
@@ -1572,6 +1578,7 @@ namespace TrenchBroom {
             const Transaction transaction(document, name.str());
             document->deselectAll();
             document->reparentNodes(newParent, reparentableNodes);
+            document->select(reparentableNodes);
         }
 
         Model::NodeList MapViewBase::collectReparentableNodes(const Model::NodeList& nodes, const Model::Node* newParent) const {
@@ -1596,8 +1603,8 @@ namespace TrenchBroom {
                 case CommandIds::MapViewPopupMenu::RenameGroups:
                     updateRenameGroupsMenuItem(event);
                     break;
-                case CommandIds::MapViewPopupMenu::MoveBrushesToWorld:
-                    updateMoveBrushesToWorldMenuItem(event);
+                case CommandIds::MapViewPopupMenu::MakeStructural:
+                    updateMakeStructuralMenuItem(event);
                     break;
                 default:
                     if (event.GetId() >= CommandIds::MapViewPopupMenu::LowestBrushEntityItem &&
@@ -1631,12 +1638,18 @@ namespace TrenchBroom {
             event.Enable(document->selectedNodes().hasOnlyGroups());
         }
 
-        void MapViewBase::updateMoveBrushesToWorldMenuItem(wxUpdateUIEvent& event) const {
+        void MapViewBase::updateMakeStructuralMenuItem(wxUpdateUIEvent& event) const {
             MapDocumentSPtr document = lock(m_document);
-            const Model::NodeList& nodes = document->selectedNodes().nodes();
-            Model::Node* newBrushParent = findNewParentEntityForBrushes(nodes);
-            event.Enable(!isEntity(newBrushParent)
-                         && !collectReparentableNodes(nodes, newBrushParent).empty());
+            if (document->selectedNodes().hasOnlyBrushes()) {
+                const Model::BrushList& brushes = document->selectedNodes().brushes();
+                for (const auto* brush : brushes) {
+                    if (brush->hasAnyTag() || brush->entity() != document->world()) {
+                        event.Enable(true);
+                        return;
+                    }
+                }
+            }
+            event.Enable(false);
         }
 
         void MapViewBase::doPreRender() {}

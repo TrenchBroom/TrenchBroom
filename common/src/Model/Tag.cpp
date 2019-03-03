@@ -109,6 +109,10 @@ namespace TrenchBroom {
 
         Taggable::~Taggable() = default;
 
+        bool Taggable::hasAnyTag() const {
+            return m_tagMask != 0;
+        }
+
         bool Taggable::hasTag(const Tag& tag) const {
             return hasTag(tag.type());
         }

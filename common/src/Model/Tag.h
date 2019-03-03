@@ -177,6 +177,13 @@ namespace TrenchBroom {
             virtual ~Taggable();
 
             /**
+             * Indicates whether this object has any tag.
+             *
+             * @return true if this object has any tag and false otherwise
+             */
+            bool hasAnyTag() const;
+
+            /**
              * Indicates whether this object has the given tag.
              *
              * @param tag the tag to check
