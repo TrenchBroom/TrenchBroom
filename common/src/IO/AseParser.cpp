@@ -298,7 +298,8 @@ namespace TrenchBroom {
         void AseParser::parseGeomObjectMeshTVertex(Logger& logger, std::vector<vm::vec2f>& uv) {
             expectDirective("MESH_TVERT");
             expectSizeArgument(uv.size());
-            uv.emplace_back(parseVecArgument());
+            const auto tmp = parseVecArgument();
+            uv.emplace_back(tmp.x(), 1.0f - tmp.y());
         }
 
         void AseParser::parseGeomObjectMeshTFaceList(Logger& logger, std::vector<MeshFace>& faces) {
@@ -483,13 +484,13 @@ namespace TrenchBroom {
                 for (const auto& face : mesh.faces) {
                     builder.addTriangle(
                         texture,
-                        Vertex(mesh.vertices[face[0].vertexIndex], mesh.uv[face[0].uvIndex]),
+                        Vertex(mesh.vertices[face[2].vertexIndex], mesh.uv[face[2].uvIndex]),
                         Vertex(mesh.vertices[face[1].vertexIndex], mesh.uv[face[1].uvIndex]),
-                        Vertex(mesh.vertices[face[2].vertexIndex], mesh.uv[face[2].uvIndex]));
+                        Vertex(mesh.vertices[face[0].vertexIndex], mesh.uv[face[0].uvIndex]));
                 }
 
-                surface.addTexturedMesh(builder.vertices(), builder.indices());
             }
+            surface.addTexturedMesh(builder.vertices(), builder.indices());
 
             return model.release();
         }
@@ -498,7 +499,7 @@ namespace TrenchBroom {
             const auto actualPath = fixTexturePath(logger, path);
             if (!actualPath.isEmpty()) {
                 logger.debug() << "Loading texture from '" << actualPath << "'";
-                const auto file = m_fs.openFile(actualPath);
+                const auto file = m_fs.fileExists(actualPath.deleteExtension()) ? m_fs.openFile(actualPath.deleteExtension()) : m_fs.openFile(actualPath);
 
                 Quake3ShaderTextureReader reader(TextureReader::PathSuffixNameStrategy(2, true), m_fs);
                 return std::unique_ptr<Assets::Texture>(reader.readTexture(file));
@@ -514,8 +515,7 @@ namespace TrenchBroom {
                     path = path.deleteFirstComponent();
                 }
             }
-            // we want to load shaders instead of the BITMAP file itself
-            return path.deleteExtension();
+            return path;
         }
     }
 }
