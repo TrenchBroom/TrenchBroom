@@ -34,6 +34,14 @@
 #include <list>
 #include <memory>
 
+/**
+ * An axis aligned bounding box tree that allows for quick ray intersection queries.
+ *
+ * @tparam T the floating point type
+ * @tparam S the number of dimensions for vector types
+ * @tparam U the node data to store in the leafs
+ * @tparam Cmp the comparator used to compare nodes
+ */
 template <typename T, size_t S, typename U, typename Cmp = std::less<U>>
 class AABBTree : public NodeTree<T,S,U,Cmp> {
 public:
@@ -129,7 +137,7 @@ private:
          * @param data the data to be inserted
          * @return the new root
          */
-        virtual Node* insert(const Box& bounds, const U& data) = 0;
+        virtual Node* insert(const Box& bounds, U data) = 0;
 
         /**
          * Removes the node with the given parameters from the subtree of which this node is the root. Returns the new
@@ -230,11 +238,11 @@ private:
             return result;
         }
 
-        Node* insert(const Box& bounds, const U& data) override {
+        Node* insert(const Box& bounds, U data) override {
             // Select the subtree which is increased the least by inserting a node with the given bounds.
             // Then insert the node into that subtree and update our reference to it.
             auto*& subtree = selectLeastIncreaser(m_left, m_right, bounds);
-            subtree = subtree->insert(bounds, data);
+            subtree = subtree->insert(bounds, std::move(data));
 
             // Update our data.
             updateBounds();
@@ -369,7 +377,7 @@ private:
     private:
         U m_data;
     public:
-        LeafNode(const Box& bounds, const U& data) : Node(bounds), m_data(data) {}
+        LeafNode(const Box& bounds, U data) : Node(bounds), m_data(std::move(data)) {}
 
         /**
          * Returns the data associated with this node.
@@ -412,8 +420,8 @@ private:
          * @param data the data to insert
          * @return the newly created inner node which should replace this leaf in the parent
          */
-        Node* insert(const Box& bounds, const U& data) override {
-            return new InnerNode(this, new LeafNode(bounds, data));
+        Node* insert(const Box& bounds, U data) override {
+            return new InnerNode(this, new LeafNode(bounds, std::move(data)));
         }
 
         /**
@@ -472,13 +480,13 @@ public:
         return (!empty() && m_root->find(bounds, data) != nullptr);
     }
 
-    void insert(const Box& bounds, const U& data) override {
+    void insert(const Box& bounds, U data) override {
         check(bounds, data);
 
         if (empty()) {
-            m_root = new LeafNode(bounds, data);
+            m_root = new LeafNode(bounds, std::move(data));
         } else {
-            m_root = m_root->insert(bounds, data);
+            m_root = m_root->insert(bounds, std::move(data));
         }
     }
 
@@ -498,7 +506,7 @@ public:
         return false;
     }
 
-    void update(const Box& oldBounds, const Box& newBounds, const U& data) override {
+    void update(const Box& oldBounds, const Box& newBounds, U data) override {
         check(oldBounds, data);
         check(newBounds, data);
 
@@ -507,7 +515,7 @@ public:
             ex << "AABB node not found with oldBounds [ ( " << oldBounds.min << " ) ( " << oldBounds.max << " ) ]: " << data;
             throw ex;
         }
-        insert(newBounds, data);
+        insert(newBounds, std::move(data));
     }
 private:
     void check(const Box& bounds, const U& data) const {

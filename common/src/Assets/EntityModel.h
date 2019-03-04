@@ -21,6 +21,7 @@
 #define TrenchBroom_EntityModel
 
 #include "TrenchBroom.h"
+#include "AABBTree.h"
 #include "Assets/TextureCollection.h"
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/TexturedIndexRangeMap.h"
@@ -86,7 +87,8 @@ namespace TrenchBroom {
              * The mesh associated with a frame and a surface.
              */
             class Mesh {
-            private:
+            protected:
+                using SpacialTree = AABBTree<float, 3, std::vector<size_t>>;
                 VertexList m_vertices;
             protected:
                 /**
@@ -121,7 +123,7 @@ namespace TrenchBroom {
                  * @param vertices the vertices
                  * @return the distance to the point of intersection or NaN if the given ray does not intersect this mesh
                  */
-                virtual FloatType doIntersect(const vm::ray3& ray, const Renderer::VertexArray& vertices) const = 0;
+                virtual FloatType doIntersect(const vm::ray3& ray, const VertexList& vertices) const = 0;
 
                 /**
                  * Creates and returns the actual mesh renderer
@@ -138,6 +140,7 @@ namespace TrenchBroom {
              */
             class IndexedMesh : public Mesh {
             private:
+                SpacialTree m_spacialTree;
                 Indices m_indices;
             public:
                 /**
@@ -148,7 +151,7 @@ namespace TrenchBroom {
                  */
                 IndexedMesh(const VertexList& vertices, const Indices& indices);
             private:
-                FloatType doIntersect(const vm::ray3& ray, const Renderer::VertexArray& vertices) const override;
+                FloatType doIntersect(const vm::ray3& ray, const VertexList& vertices) const override;
                 std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(Assets::Texture* skin, const Renderer::VertexArray& vertices) override;
             };
 
@@ -157,6 +160,7 @@ namespace TrenchBroom {
              */
             class TexturedMesh : public Mesh {
             private:
+                SpacialTree m_spacialTree;
                 TexturedIndices m_indices;
             public:
                 /**
@@ -167,6 +171,7 @@ namespace TrenchBroom {
                  */
                 TexturedMesh(const VertexList& vertices, const TexturedIndices& indices);
             private:
+                FloatType doIntersect(const vm::ray3& ray, const VertexList& vertices) const override;
                 std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(Assets::Texture* skin, const Renderer::VertexArray& vertices) override;
             };
 

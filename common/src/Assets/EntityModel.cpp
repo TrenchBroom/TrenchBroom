@@ -46,6 +46,10 @@ namespace TrenchBroom {
 
         EntityModel::Mesh::~Mesh() = default;
 
+        FloatType EntityModel::Mesh::intersect(const vm::ray3& ray) const {
+            return doIntersect(ray, m_vertices);
+        }
+
         std::unique_ptr<Renderer::TexturedIndexRangeRenderer> EntityModel::Mesh::buildRenderer(Assets::Texture* skin) {
             const auto vertexArray = Renderer::VertexArray::ref(m_vertices);
             return doBuildRenderer(skin, vertexArray);
@@ -53,21 +57,45 @@ namespace TrenchBroom {
 
         EntityModel::IndexedMesh::IndexedMesh(const EntityModel::VertexList& vertices, const EntityModel::Indices& indices) :
         Mesh(vertices),
-        m_indices(indices) {}
-
-        FloatType EntityModel::IndexedMesh::doIntersect(const vm::ray3& ray, const Renderer::VertexArray& vertices) const {
-            auto closestDistance = vm::nan<FloatType>();
-            m_indices.forEachPrimitive([&](const PrimType primType, const size_t index, const size_t count) {
+        m_indices(indices) {
+            // Populate the AABB tree used for picking the primitives
+            m_indices.forEachPrimitive([&vertices, this](PrimType primType, size_t index, size_t count) {
                 switch (primType) {
+                    case GL_POINTS:
+                    case GL_LINES:
+                    case GL_LINE_STRIP:
+                    case GL_LINE_LOOP:
+                        break;
                     case GL_TRIANGLES: {
-                        assert(count % 3 == 0);
-                        for (size_t i = 0; i < count; i += 3) {
-                            closestDistance = vm::safeMin(closestDistance, vm::intersect(ray, vertices[index + 0], vertices[index + 0], m_vertices[index + 0]))
+                        assert(count == 3);
+                        vm::bbox3f::builder bounds;
+                        for (size_t i = 0; i < count; ++i) {
+                            bounds.add(vertices[index + i].v1);
                         }
+                        m_spacialTree.insert(bounds.bounds(), { index + 0, index + 1, index + 2 });
                     }
-
+                    case GL_QUADS: {
+                        assert(count == 4);
+                        vm::bbox3f::builder bounds;
+                        for (size_t i = 0; i < cizbt; ++i) {
+                            bounds.add(vertices[index + i].v1);
+                        }
+                        m_spacialTree.insert(bounds.bounds(), { index + 0, index + 1, index + 2, index + 3 });
+                    }
+                    case GL_TRIANGLE_FAN:
+                        vm::bbox3f::builder bounds;
+                        for (size_t i = 0; i < 4; ++i) {
+                            bounds.add(vertices[index + i].v1);
+                        }
+                        m_spacialTree.insert(bounds.bounds(), { index + 0, index + 1, index + 2, index + 3 });
+                    case GL_TRIANGLE_STRIP:
+                    case GL_QUAD_STRIP:
+                    case GL_POLYGON:
                 }
             });
+        }
+
+        FloatType EntityModel::IndexedMesh::doIntersect(const vm::ray3& ray, const VertexList& vertices) const {
         }
 
         std::unique_ptr<Renderer::TexturedIndexRangeRenderer> EntityModel::IndexedMesh::doBuildRenderer(Assets::Texture* skin, const Renderer::VertexArray& vertices) {
