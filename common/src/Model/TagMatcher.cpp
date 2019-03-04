@@ -94,9 +94,7 @@ namespace TrenchBroom {
             } else if (matchingTextures.size() == 1) {
                 texture = matchingTextures.front();
             } else {
-                StringList options;
-                std::transform(std::begin(matchingTextures), std::end(matchingTextures), std::back_inserter(options),
-                               [](const auto* current) { return current->name(); });
+                const auto options = VectorUtils::map(matchingTextures, [](const auto* current) { return current->name(); });
                 const auto index = callback.selectOption(options);
                 if (index >= matchingTextures.size()) {
                     return;
@@ -295,9 +293,7 @@ namespace TrenchBroom {
             } else if (matchingDefinitions.size() == 1) {
                 definition = matchingDefinitions.front();
             } else {
-                StringList options;
-                std::transform(std::begin(matchingDefinitions), std::end(matchingDefinitions), std::back_inserter(options),
-                    [](const auto* current) { return current->name(); });
+                const auto options = VectorUtils::map(matchingDefinitions, [](const auto* current) { return current->name(); });
                 const auto index = callback.selectOption(options);
                 if (index >= matchingDefinitions.size()) {
                     return;
