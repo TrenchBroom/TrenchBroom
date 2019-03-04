@@ -212,7 +212,7 @@ namespace TrenchBroom {
             } catch (const Exception& e) {
                 if (frame != nullptr)
                     frame->Close();
-                ::wxMessageBox(e.what(), "TrenchBroom", wxOK, nullptr);
+                ::wxMessageBox(e.what(), "TrenchBroom");
                 return false;
             }
         }
@@ -243,7 +243,7 @@ namespace TrenchBroom {
                 m_recentDocuments->removePath(IO::Path(path));
                 if (frame != nullptr)
                     frame->Close();
-                ::wxMessageBox(e.what(), "TrenchBroom", wxOK, nullptr);
+                ::wxMessageBox(e.what(), "TrenchBroom");
                 return false;
             } catch (const RecoverableException& e) {
                 if (frame != nullptr)
@@ -253,12 +253,12 @@ namespace TrenchBroom {
             } catch (const Exception& e) {
                 if (frame != nullptr)
                     frame->Close();
-                ::wxMessageBox(e.what(), "TrenchBroom", wxOK, nullptr);
+                ::wxMessageBox(e.what(), "TrenchBroom");
                 return false;
             } catch (...) {
                 if (frame != nullptr)
                     frame->Close();
-                ::wxMessageBox(pathStr + " could not be opened.", "TrenchBroom", wxOK, nullptr);
+                ::wxMessageBox(pathStr + " could not be opened.", "TrenchBroom");
                 return false;
             }
         }
@@ -278,7 +278,7 @@ namespace TrenchBroom {
                     return false;
                 }
             } else {
-                ::wxMessageBox(e.what(), "TrenchBroom", wxOK, nullptr);
+                ::wxMessageBox(e.what(), "TrenchBroom");
                 return false;
             }
         }
@@ -320,7 +320,28 @@ namespace TrenchBroom {
             SetVendorDisplayName("Kristian Duske");
             SetVendorName("Kristian Duske");
 
-            return true;
+            try {
+                auto& gameFactory = Model::GameFactory::instance();
+                gameFactory.initialize();
+                return true;
+            } catch (const std::exception& e) {
+                wxLogError(e.what());
+                return false;
+            } catch (const StringList& errors) {
+                StringStream str;
+                if (errors.size() == 1) {
+                    str << "An error occurred while loading the game configuration files:\n\n";
+                    str << StringUtils::join(errors, "\n\n");
+                    str << "\n\nThis file has been ignored.";
+                } else {
+                    str << "Multiple errors occurred while loading the game configuration files:\n\n";
+                    str << StringUtils::join(errors, "\n\n");
+                    str << "\n\nThese files have been ignored.";
+                }
+
+                ::wxMessageBox(str.str(), "TrenchBroom");
+                return true;
+            }
         }
 
         static String makeCrashReport(const String &stacktrace, const String &reason) {
