@@ -1555,6 +1555,26 @@ namespace TrenchBroom {
             return (sharedFaceTags & tagMask) != 0;
         }
 
+        bool Brush::anyFaceHasAnyTag() const {
+            for (const auto* face : m_faces) {
+                if (face->hasAnyTag()) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        bool Brush::anyFacesHaveAnyTagInMask(Tag::TagType tagMask) const {
+            // Possible optimization: Store the shared face tag mask in the brush and updated it when a face changes.
+
+            for (const auto* face : m_faces) {
+                if (face->hasTag(tagMask)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         void Brush::doAcceptTagVisitor(TagVisitor& visitor) {
             visitor.visit(*this);
         }

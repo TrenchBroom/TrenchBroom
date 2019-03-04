@@ -863,12 +863,10 @@ namespace TrenchBroom {
             bool anyTagDisabled = false;
             EnableDisableTagCallback callback(this);
             for (auto* brush : document->selectedNodes().brushes()) {
-                if (brush->hasAnyTag()) {
-                    for (const auto& tag : document->smartTags()) {
-                        if (brush->hasTag(tag)) {
-                            anyTagDisabled = true;
-                            tag.disable(callback, *document);
-                        }
+                for (const auto& tag : document->smartTags()) {
+                    if (brush->hasTag(tag) || brush->anyFacesHaveAnyTagInMask(tag.type())) {
+                        anyTagDisabled = true;
+                        tag.disable(callback, *document);
                     }
                 }
             }
@@ -1643,7 +1641,7 @@ namespace TrenchBroom {
             if (document->selectedNodes().hasOnlyBrushes()) {
                 const Model::BrushList& brushes = document->selectedNodes().brushes();
                 for (const auto* brush : brushes) {
-                    if (brush->hasAnyTag() || brush->entity() != document->world()) {
+                    if (brush->hasAnyTag() || brush->entity() != document->world() || brush->anyFaceHasAnyTag()) {
                         event.Enable(true);
                         return;
                     }

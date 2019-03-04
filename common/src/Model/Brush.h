@@ -340,6 +340,21 @@ namespace TrenchBroom {
              * @return true whether all faces of this brush have any of the given tags
              */
             bool allFacesHaveAnyTagInMask(Tag::TagType tagMask) const;
+
+            /**
+             * Indicates whether any of the faces of this brush have any tags.
+             *
+             * @return true whether any faces of this brush have any tags
+             */
+            bool anyFaceHasAnyTag() const;
+
+            /**
+             * Indicates whether any of the faces of this brush have any of the given tags.
+             *
+             * @param tagMask the tags to check
+             * @return true whether any faces of this brush have any of the given tags
+             */
+            bool anyFacesHaveAnyTagInMask(Tag::TagType tagMask) const;
         private:
             void doAcceptTagVisitor(TagVisitor& visitor) override;
             void doAcceptTagVisitor(ConstTagVisitor& visitor) const override;
