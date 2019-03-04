@@ -40,6 +40,7 @@
 #include "Model/Snapshot.h"
 #include "Model/TransformObjectVisitor.h"
 #include "Model/World.h"
+#include "Model/NodeVisitor.h"
 #include "View/Selection.h"
 
 namespace TrenchBroom {
@@ -445,12 +446,33 @@ namespace TrenchBroom {
             groupWasClosedNotifier(previousGroup);
         }
 
+        class CanTransformVisitor : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
+        private:
+            vm::mat4x4 m_transform;
+            vm::bbox3 m_worldBounds;
+        public:
+            CanTransformVisitor(const vm::mat4x4& transform, const vm::bbox3& worldBounds) :
+                m_transform(transform),
+                m_worldBounds(worldBounds) {}
+        private:
+            void doVisit(const Model::World* world) override { setResult(true); }
+            void doVisit(const Model::Layer* layer) override { setResult(true); }
+            void doVisit(const Model::Group* group) override { setResult(true); }
+            void doVisit(const Model::Entity* entity) override { setResult(true); }
+            void doVisit(const Model::Brush* brush) override { setResult(brush->canTransform(m_transform, m_worldBounds)); }
+            bool doCombineResults(bool oldResult, bool newResult) const override {
+                return newResult && oldResult;
+            }
+        };
+
         bool MapDocumentCommandFacade::performTransform(const vm::mat4x4 &transform, const bool lockTextures) {
           // Test whether all brushes can be transformed; abort if any fail.
-          for (const auto& brush : m_selectedNodes.brushes()) {
-              if (!brush->canTransform(transform, m_worldBounds)) {
-                  return false;
-              }
+          CanTransformVisitor canTransform(transform, m_worldBounds);
+          for (const auto* node : m_selectedNodes.nodes()) {
+              node->acceptAndRecurse(canTransform);
+          }
+          if (canTransform.hasResult() && !canTransform.result()) {
+              return false;
           }
 
           const Model::NodeList &nodes = m_selectedNodes.nodes();
