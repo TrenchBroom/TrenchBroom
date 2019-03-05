@@ -20,6 +20,9 @@
 #ifndef TrenchBroom_CollectionUtils_h
 #define TrenchBroom_CollectionUtils_h
 
+#include "Macros.h"
+#include "Ensure.h"
+
 #include <algorithm>
 #include <array>
 #include <cstdarg>
@@ -27,12 +30,26 @@
 #include <limits>
 #include <list>
 #include <map>
+#include <memory>
 #include <set>
+#include <ostream>
 #include <vector>
-#include "SharedPointer.h"
-#include "Macros.h"
 
 // TODO: Clean up, split up, and reduce the number of system headers.
+
+template <typename T, size_t S>
+std::ostream& operator<<(std::ostream& str, const std::array<T,S>& a) {
+    str << "[";
+    for (size_t i = 0; i < a.size(); ++i) {
+        str << a[i];
+        if (i < a.size() - 1) {
+            str << ", ";
+        }
+    }
+    str << "]";
+    return str;
+}
+
 namespace Utils {
     template <typename T>
     struct Deleter {
@@ -106,7 +123,7 @@ namespace CollectionUtils {
             ++cur;
         }
     }
-    
+
     template <typename C, typename P>
     void eraseIf(C& col, const P& pred) {
         auto cur = std::begin(col);
@@ -124,11 +141,11 @@ namespace CollectionUtils {
         while (it != std::end(col)) {
             const auto& cand = *it;
             bool erased = false;
-            
+
             auto ne = std::next(it);
             while (!erased && ne != std::end(col)) {
                 const auto& cur = *ne;
-                
+
                 if (cmp(cand, cur)) {
                     it = col.erase(it);
                     erased = true;
@@ -138,14 +155,14 @@ namespace CollectionUtils {
                     ++ne;
                 }
             }
-            
+
             if (!erased)
                 ++it;
         }
-        
+
         return col;
     }
-    
+
     template <typename Col, typename Cmp>
     Col findMaximalElements(const Col& col, const Cmp& cmp = Cmp()) {
         Col result(col);
@@ -155,16 +172,16 @@ namespace CollectionUtils {
     template <typename I, typename Fac, typename Cmp>
     void equivalenceClasses(I rangeStart, I rangeEnd, const Fac& fac, const Cmp& cmp) {
         using E = typename I::value_type;
-        
+
         std::list<I> workList;
         while (rangeStart != rangeEnd)
             workList.push_back(rangeStart++);
-        
+
         while (!workList.empty()) {
             const E& root = *workList.front(); workList.pop_front();
             auto cls = fac();
             cls = root;
-            
+
             auto cur = std::begin(workList);
             while (cur != std::end(workList)) {
                 const E& cand = **cur;
@@ -177,22 +194,22 @@ namespace CollectionUtils {
             }
         }
     }
-    
+
     template <typename I, typename Cmp>
     std::list<std::list<typename I::value_type>> equivalenceClasses(I rangeStart, I rangeEnd, const Cmp& cmp) {
         using E = typename I::value_type;
         using Class = std::list<E>;
         using Result = std::list<Class>;
-        
+
         Result result;
         equivalenceClasses(rangeStart, rangeEnd, [&result]() {
             result.emplace_back();
             return std::back_inserter(result.back());
         }, cmp);
-        
+
         return result;
     }
-    
+
     template <typename C, typename Cmp>
     std::list<std::list<typename C::value_type>> equivalenceClasses(C collection, const Cmp& cmp) {
         return equivalenceClasses(std::begin(collection), std::end(collection), cmp);
@@ -224,7 +241,7 @@ namespace ListUtils {
     /**
      Removes the element at `pos` in `list`, and replaces it with the contents of list `other`.
      The list `other` is cleared as a side effect.
-     
+
      Does nothing if `other` is empty.
      Returns an iterator to the start of the newly inserted elements.
      */
@@ -783,7 +800,8 @@ namespace VectorUtils {
         for (const auto& elem : vec) {
             result.push_back(lambda(elem));
         }
-        return std::move(result);
+
+        return result;
     }
 }
 
@@ -795,7 +813,7 @@ namespace SetUtils {
         return std::includes(std::begin(rhs), std::end(rhs),
                              std::begin(lhs), std::end(lhs), cmp);
     }
-    
+
     struct SubsetCmp {
         template <typename S>
         bool operator()(const S& lhs, const S& rhs) const {
@@ -855,7 +873,7 @@ namespace SetUtils {
     void merge(std::set<T, C>& lhs, const std::set<T, C>& rhs) {
         lhs.insert(std::begin(rhs), std::end(rhs));
     }
-    
+
     template <typename T, typename C>
     void merge(const std::set<T, C>& lhs, const std::set<T, C>& rhs, std::set<T, C>& result) {
         result.insert(std::begin(lhs), std::end(lhs));
@@ -889,9 +907,9 @@ namespace SetUtils {
         auto lhsEnd = std::end(lhs);
         auto rhsIt = std::begin(rhs);
         auto rhsEnd = std::end(rhs);
-        
+
         const C cmp = lhs.key_comp();
-        
+
         while (lhsIt != lhsEnd && rhsIt != rhsEnd) {
             const T& l = *lhsIt;
             const T& r = *rhsIt;
@@ -905,7 +923,7 @@ namespace SetUtils {
         }
         return true;
     }
-    
+
     template <typename T, typename C>
     std::set<T, C> intersection(const std::set<T, C>& lhs, const std::set<T, C>& rhs) {
         std::set<T, C> result(lhs.key_comp());
@@ -923,14 +941,14 @@ namespace SetUtils {
     void deleteAll(const std::set<T*, C>& set) {
         std::for_each(std::begin(set), std::end(set), Utils::Deleter<T>());
     }
-    
+
     template <typename S>
     std::set<S> powerSet(const S& set) {
         using PowerSet = std::set<S>;
-        
+
         PowerSet result;
         result.insert(S());
-        
+
         for (const auto& elem : set) {
             PowerSet intermediate;
 
@@ -938,13 +956,13 @@ namespace SetUtils {
                 subset.insert(elem);
                 intermediate.insert(subset);
             }
-            
+
             result.insert(std::begin(intermediate), std::end(intermediate));
         }
-        
+
         return result;
     }
-    
+
     template <typename S>
     typename S::value_type popFront(S& set) {
         assert(!set.empty());
@@ -953,13 +971,13 @@ namespace SetUtils {
         set.erase(it);
         return value;
     }
-    
+
     template <typename S>
     S findMaximalElements(const S& set) {
         using V = typename S::value_type;
         using C = typename S::value_compare;
         const C& cmp = set.value_comp();
-        
+
         S result;
         for (auto it = std::begin(set), end = std::end(set); it != end; ++it) {
             const V& cand = *it;
@@ -972,17 +990,17 @@ namespace SetUtils {
     template <typename S>
     S& retainMaximalElements(S& set) {
         S temp = findMaximalElements(set);
-        
+
         using std::swap;
         swap(set, temp);
         return set;
     }
-    
+
     template <typename S>
     S& retainSupersets(S& set) {
         return CollectionUtils::retainMaximalElements(set, SubsetCmp());
     }
-    
+
     template <typename S>
     S findSupersets(const S& set) {
         return CollectionUtils::findMaximalElements(set, SubsetCmp());
@@ -1021,7 +1039,7 @@ namespace MapUtils {
             result.insert(entry.first);
         return result;
     }
-    
+
     template <typename K, typename V, typename C_K, typename C_V>
     std::set<V, C_V> valueSet(const std::map<K, V, C_K>& map) {
         std::set<V, C_V> result;
@@ -1034,12 +1052,12 @@ namespace MapUtils {
     std::set<V, std::less<V> > valueSet(const std::map<K, V, C>& map) {
         return valueSet<K, V, C, std::less<V> >(map);
     }
-    
+
     template <typename K, typename V, typename C>
     std::vector<K> keyList(const std::map<K,V,C>& map) {
         std::vector<K> result;
         result.reserve(map.size());
-        
+
         for (const auto& entry : map)
             result.push_back(entry.first);
         return result;
@@ -1135,9 +1153,9 @@ namespace MapUtils {
     std::pair<bool, typename std::map<K, V, C>::iterator> findInsertPos(std::map<K, V, C>& map, const K& key) {
         if (map.empty())
             return std::make_pair(false, std::end(map));
-        
+
         const auto compare = map.key_comp();
-        
+
          // Note that C++11 expects upper bound instead of lower bound as the insertion hint!
         const auto ub = map.upper_bound(key);
         if (ub == std::begin(map) || compare(std::prev(ub)->first, key)) {
@@ -1145,7 +1163,7 @@ namespace MapUtils {
             assert(map.count(key) == 0);
             return std::make_pair(false, ub);
         }
-        
+
         assert(map.count(key) == 1);
         return std::make_pair(true, ub);
     }
@@ -1155,7 +1173,7 @@ namespace MapUtils {
         const auto insertPos = findInsertPos(map, key);
         if (!insertPos.first)
             return map.insert(insertPos.second, std::make_pair(key, V(value)));
-        
+
         // As of C++11, the insert pos points to the upper bound of the key, so we need to rewind
         assert(insertPos.second != std::begin(map));
         return std::prev(insertPos.second);
@@ -1170,7 +1188,7 @@ namespace MapUtils {
             assert(map.count(key) == 1);
             return true;
         }
-        
+
         return false;
     }
 
@@ -1246,14 +1264,14 @@ namespace MapUtils {
         result.insert(std::begin(map2), std::end(map2));
         result.insert(std::begin(map1), std::end(map1));
     }
-    
+
     template <typename K, typename V, typename C>
     std::map<K,V,C> concatenate(const std::map<K,V,C>& map1, const std::map<K,V,C>& map2) {
         std::map<K,V,C> result;
         concatenate(map1, map2, result);
         return result;
     }
-    
+
     template <typename K, typename V, typename C>
     void clearAndDelete(std::map<K, V*, C>& map) {
         Deleter<K,V> deleter; // need separate instance because for_each only allows modification of the items if the function is not const

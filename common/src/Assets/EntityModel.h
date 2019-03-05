@@ -29,6 +29,7 @@
 #include <vecmath/forward.h>
 #include <vecmath/bbox.h>
 
+#include <array>
 #include <memory>
 
 namespace TrenchBroom {
@@ -87,8 +88,9 @@ namespace TrenchBroom {
              * The mesh associated with a frame and a surface.
              */
             class Mesh {
-            protected:
-                using SpacialTree = AABBTree<float, 3, std::vector<size_t>>;
+            private:
+                using SpacialTree = AABBTree<float, 3, std::array<size_t, 3>>;
+                SpacialTree m_spacialTree;
                 VertexList m_vertices;
             protected:
                 /**
@@ -106,7 +108,7 @@ namespace TrenchBroom {
                  * @param ray the ray to intersect
                  * @return the distance to the point of intersection or NaN if the given ray does not intersect this mesh
                  */
-                FloatType intersect(const vm::ray3& ray) const;
+                float intersect(const vm::ray3f& ray) const;
 
                 /**
                  * Returns a renderer that renders this mesh with the given texture.
@@ -115,16 +117,16 @@ namespace TrenchBroom {
                  * @return the renderer
                  */
                 std::unique_ptr<Renderer::TexturedIndexRangeRenderer> buildRenderer(Assets::Texture* skin);
-            private:
+            protected:
                 /**
-                 * Intersects this mesh with the given ray and returns the point of intersection.
+                 * Adds the given primitve to the spacial tree.
                  *
-                 * @param ray the ray to intersect
-                 * @param vertices the vertices
-                 * @return the distance to the point of intersection or NaN if the given ray does not intersect this mesh
+                 * @param primType the type of the primitive to add
+                 * @param index the start index
+                 * @param count the number of vertices of the primitive
                  */
-                virtual FloatType doIntersect(const vm::ray3& ray, const VertexList& vertices) const = 0;
-
+                void addToSpacialTree(PrimType primType, size_t index, size_t count);
+            private:
                 /**
                  * Creates and returns the actual mesh renderer
                  *
@@ -140,7 +142,6 @@ namespace TrenchBroom {
              */
             class IndexedMesh : public Mesh {
             private:
-                SpacialTree m_spacialTree;
                 Indices m_indices;
             public:
                 /**
@@ -151,7 +152,6 @@ namespace TrenchBroom {
                  */
                 IndexedMesh(const VertexList& vertices, const Indices& indices);
             private:
-                FloatType doIntersect(const vm::ray3& ray, const VertexList& vertices) const override;
                 std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(Assets::Texture* skin, const Renderer::VertexArray& vertices) override;
             };
 
@@ -160,7 +160,6 @@ namespace TrenchBroom {
              */
             class TexturedMesh : public Mesh {
             private:
-                SpacialTree m_spacialTree;
                 TexturedIndices m_indices;
             public:
                 /**
@@ -171,7 +170,6 @@ namespace TrenchBroom {
                  */
                 TexturedMesh(const VertexList& vertices, const TexturedIndices& indices);
             private:
-                FloatType doIntersect(const vm::ray3& ray, const VertexList& vertices) const override;
                 std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(Assets::Texture* skin, const Renderer::VertexArray& vertices) override;
             };
 
@@ -211,7 +209,7 @@ namespace TrenchBroom {
                  * @return the distance to the point of intersection or NaN if the given ray does not intersect the mesh
                  * with the given index
                  */
-                FloatType intersect(const vm::ray3& ray, size_t frameIndex) const;
+                float intersect(const vm::ray3f& ray, size_t frameIndex) const;
 
                 /**
                  * Prepares the skin textures of this surface for rendering.
@@ -314,7 +312,7 @@ namespace TrenchBroom {
              * @return the distance to the point of intersection or NaN if the given ray does not intersect the frame
              * with the given index or if the given frame index is out of bounds
              */
-            FloatType intersect(const vm::ray3& ray, size_t frameIndex) const;
+            float intersect(const vm::ray3f& ray, size_t frameIndex) const;
 
             /**
              * Indicates whether or not this model has been prepared for rendering.

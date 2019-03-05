@@ -36,7 +36,7 @@ namespace TrenchBroom {
 
             const auto aseFile = fs->openFile(Path("models/mapobjects/wedges/wedge_45.ase"));
             const auto basePath = Path("maps");
-            AseParser parser(aseFile->begin(), aseFile->end(), *fs, basePath, Path());
+            AseParser parser("wedge", aseFile->begin(), aseFile->end(), *fs);
 
             const auto* model = parser.parseModel(logger);
             ASSERT_NE(nullptr, model);

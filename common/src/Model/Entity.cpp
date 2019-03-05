@@ -87,6 +87,10 @@ namespace TrenchBroom {
             return m_cachedRotation;
         }
 
+        const vm::mat4x4 Entity::modelTransformation() const {
+            return vm::translationMatrix(origin()) * rotation();
+        }
+
         FloatType Entity::area(vm::axis::type axis) const {
             const vm::vec3 size = bounds().size();
             switch (axis) {
@@ -222,12 +226,19 @@ namespace TrenchBroom {
 
                 // only if the bbox hit test failed do we hit test the model
                 if (m_model != nullptr) {
-                    const Assets::ModelSpecification spec = modelSpecification();
-                    const FloatType distance = m_model->intersect(ray, spec.frameIndex);
-                    if (!vm::isnan(distance)) {
-                        const vm::vec3 hitPoint = ray.pointAtDistance(distance);
-                        pickResult.addHit(Hit(EntityHit, distance, hitPoint, this));
-                        return;
+                    // we transform the ray into the model's space
+                    const auto transform = modelTransformation();
+                    const auto [invertible, inverse] = vm::invert(transform);
+                    if (invertible) {
+                        const auto transformedRay = ray.transform(inverse);
+                        const auto distance = m_model->intersect(vm::ray3f(transformedRay), modelSpecification().frameIndex);
+                        if (!vm::isnan(distance)) {
+                            // transform back to world space
+                            const auto transformedHitPoint = vm::vec3(transformedRay.pointAtDistance(distance));
+                            const auto hitPoint = transform * transformedHitPoint;
+                            pickResult.addHit(Hit(EntityHit, distance, hitPoint, this));
+                            return;
+                        }
                     }
                 }
             }

@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -47,19 +47,19 @@ namespace TrenchBroom {
         EntityModelRenderer::~EntityModelRenderer() {
             clear();
         }
-        
+
         void EntityModelRenderer::addEntity(Model::Entity* entity) {
             const auto modelSpec = entity->modelSpecification();
             auto* renderer = m_entityModelManager.renderer(modelSpec);
             if (renderer != nullptr)
                 m_entities.insert(std::make_pair(entity, renderer));
         }
-        
+
         void EntityModelRenderer::updateEntity(Model::Entity* entity) {
             const auto& modelSpec = entity->modelSpecification();
             auto* renderer = m_entityModelManager.renderer(modelSpec);
             EntityMap::iterator it = m_entities.find(entity);
-            
+
             if (renderer == nullptr && it == std::end(m_entities)) {
                 return;
             }
@@ -82,23 +82,23 @@ namespace TrenchBroom {
         bool EntityModelRenderer::applyTinting() const {
             return m_applyTinting;
         }
-        
+
         void EntityModelRenderer::setApplyTinting(const bool applyTinting) {
             m_applyTinting = applyTinting;
         }
-        
+
         const Color& EntityModelRenderer::tintColor() const {
             return m_tintColor;
         }
-        
+
         void EntityModelRenderer::setTintColor(const Color& tintColor) {
             m_tintColor = tintColor;
         }
-        
+
         bool EntityModelRenderer::showHiddenEntities() const {
             return m_showHiddenEntities;
         }
-        
+
         void EntityModelRenderer::setShowHiddenEntities(const bool showHiddenEntities) {
             m_showHiddenEntities = showHiddenEntities;
         }
@@ -110,33 +110,31 @@ namespace TrenchBroom {
         void EntityModelRenderer::doPrepareVertices(Vbo& vertexVbo) {
             m_entityModelManager.prepare(vertexVbo);
         }
-        
+
         void EntityModelRenderer::doRender(RenderContext& renderContext) {
             auto& prefs = PreferenceManager::instance();
-            
+
             ActiveShader shader(renderContext.shaderManager(), Shaders::EntityModelShader);
             shader.set("Brightness", prefs.get(Preferences::Brightness));
             shader.set("ApplyTinting", m_applyTinting);
             shader.set("TintColor", m_tintColor);
             shader.set("GrayScale", false);
             shader.set("Texture", 0);
-            
+
             glAssert(glEnable(GL_TEXTURE_2D));
             glAssert(glActiveTexture(GL_TEXTURE0));
-            
+
             for (const auto& entry : m_entities) {
                 auto* entity = entry.first;
                 if (!m_showHiddenEntities && !m_editorContext.visible(entity)) {
                     continue;
                 }
-                
+
                 auto* renderer = entry.second;
-                
-                const vm::mat4x4f translation(vm::translationMatrix(entity->origin()));
-                const vm::mat4x4f rotation(entity->rotation());
-                const vm::mat4x4f matrix = translation * rotation;
-                MultiplyModelMatrix multMatrix(renderContext.transformation(), matrix);
-                
+
+                const auto transformation = entity->modelTransformation();
+                MultiplyModelMatrix multMatrix(renderContext.transformation(), vm::mat4x4f(transformation));
+
                 renderer->render();
             }
         }

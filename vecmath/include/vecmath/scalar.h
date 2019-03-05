@@ -164,9 +164,9 @@ namespace vm {
      */
     template <typename T>
     constexpr T safeMin(const T lhs, const T rhs) {
-        if (nan(lhs)) {
+        if (isnan(lhs)) {
             return rhs;
-        } else if (nan(rhs)) {
+        } else if (isnan(rhs)) {
             return lhs;
         } else {
             return min(lhs, rhs);
@@ -184,9 +184,9 @@ namespace vm {
      */
     template <typename T>
     constexpr T safeMax(const T lhs, const T rhs) {
-        if (nan(lhs)) {
+        if (isnan(lhs)) {
             return rhs;
-        } else if (nan(rhs)) {
+        } else if (isnan(rhs)) {
             return lhs;
         } else {
             return max(lhs, rhs);

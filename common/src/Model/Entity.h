@@ -62,6 +62,7 @@ namespace TrenchBroom {
 
             const vm::vec3& origin() const;
             const vm::mat4x4& rotation() const;
+            const vm::mat4x4 modelTransformation() const;
             FloatType area(vm::axis::type axis) const;
         private:
             void cacheAttributes();
