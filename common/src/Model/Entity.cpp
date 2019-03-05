@@ -33,6 +33,7 @@
 #include "Model/IssueGenerator.h"
 #include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
+#include "Model/TagVisitor.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -417,8 +418,12 @@ namespace TrenchBroom {
             m_boundsValid = true;
         }
 
-        bool Entity::doEvaluateTagMatcher(const TagMatcher& matcher) const {
-            return matcher.matches(*this);
+        void Entity::doAcceptTagVisitor(TagVisitor& visitor) {
+            visitor.visit(*this);
+        }
+
+        void Entity::doAcceptTagVisitor(ConstTagVisitor& visitor) const {
+            visitor.visit(*this);
         }
     }
 }

@@ -39,6 +39,7 @@
 #include <vecmath/bbox.h>
 #include <vecmath/util.h>
 
+#include <list>
 #include <memory>
 
 class Color;
@@ -162,23 +163,23 @@ namespace TrenchBroom {
         public: // accessors and such
             Logger& logger();
 
-            Model::GameSPtr game() const;
+            Model::GameSPtr game() const override;
             const vm::bbox3& worldBounds() const;
             Model::World* world() const;
 
             bool isGamePathPreference(const IO::Path& path) const;
 
-            Model::Layer* currentLayer() const;
+            Model::Layer* currentLayer() const override;
             void setCurrentLayer(Model::Layer* currentLayer);
 
-            Model::Group* currentGroup() const;
-            Model::Node* currentParent() const;
+            Model::Group* currentGroup() const override;
+            Model::Node* currentParent() const override;
 
             Model::EditorContext& editorContext() const;
 
-            Assets::EntityDefinitionManager& entityDefinitionManager();
-            Assets::EntityModelManager& entityModelManager();
-            Assets::TextureManager& textureManager();
+            Assets::EntityDefinitionManager& entityDefinitionManager() override;
+            Assets::EntityModelManager& entityModelManager() override;
+            Assets::TextureManager& textureManager() override;
 
             MapViewConfig& mapViewConfig() const;
             Grid& grid() const;
@@ -278,8 +279,8 @@ namespace TrenchBroom {
             bool deleteObjects() override;
             bool duplicateObjects() override;
         public: // entity management
-            Model::Entity* createPointEntity(const Assets::PointEntityDefinition* definition, const vm::vec3& delta);
-            Model::Entity* createBrushEntity(const Assets::BrushEntityDefinition* definition);
+            Model::Entity* createPointEntity(const Assets::PointEntityDefinition* definition, const vm::vec3& delta) override;
+            Model::Entity* createBrushEntity(const Assets::BrushEntityDefinition* definition) override;
         public: // group management
             Model::Group* groupSelection(const String& name);
             void mergeSelectedGroupsWithGroup(Model::Group* group);
@@ -467,11 +468,14 @@ namespace TrenchBroom {
             virtual void doSetIssueHidden(Model::Issue* issue, bool hidden) = 0;
         public: // tag management
             void registerSmartTags(); // public for testing
-            const std::vector<Model::SmartTag>& smartTags() const;
+            const std::list<Model::SmartTag>& smartTags() const;
             bool isRegisteredSmartTag(const String& name) const;
             const Model::SmartTag& smartTag(const String& name) const;
+            bool isRegisteredSmartTag(size_t index) const;
+            const Model::SmartTag& smartTag(size_t index) const;
         private:
             class InitializeNodeTagsVisitor;
+            class ClearNodeTagsVisitor;
             void initializeNodeTags(MapDocument* document);
             void initializeNodeTags(const Model::NodeList& nodes);
             void clearNodeTags(const Model::NodeList& nodes);

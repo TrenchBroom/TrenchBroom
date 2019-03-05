@@ -48,7 +48,7 @@ namespace TrenchBroom {
         TagManager::TagManager() :
         m_currentTagTypeIndex(0) {}
 
-        const std::vector<SmartTag>& TagManager::smartTags() const {
+        const std::list<SmartTag>& TagManager::smartTags() const {
             return m_smartTags;
         }
 
@@ -65,14 +65,32 @@ namespace TrenchBroom {
             return *it;
         }
 
+        bool TagManager::isRegisteredSmartTag(const size_t index) const {
+            for (const auto& tag : m_smartTags) {
+                if (tag.index() == index) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        const SmartTag& TagManager::smartTag(const size_t index) const {
+            for (const auto& tag : m_smartTags) {
+                if (tag.index() == index) {
+                    return tag;
+                }
+            }
+            throw std::logic_error("Smart tag not registered");
+        }
+
         void TagManager::registerSmartTag(SmartTag tag) {
-            const auto it = std::lower_bound(std::begin(m_smartTags), std::end(m_smartTags), tag, TagCmp());
+            const auto it = std::upper_bound(std::begin(m_smartTags), std::end(m_smartTags), tag, TagCmp());
             if (it == std::end(m_smartTags)) {
-                tag.setType(freeTagType());
-                m_smartTags.push_back(std::move(tag));
+                tag.setIndex(freeTagIndex());
+                m_smartTags.emplace_back(std::move(tag));
             } else if (*it < tag || tag < *it) {
-                tag.setType(freeTagType());
-                m_smartTags.insert(it, std::move(tag));
+                tag.setIndex(freeTagIndex());
+                m_smartTags.emplace(it, std::move(tag));
             } else {
                 throw std::logic_error("Smart tag already registered");
             }
@@ -88,11 +106,11 @@ namespace TrenchBroom {
             }
         }
 
-        Tag::TagType TagManager::freeTagType() {
+        size_t TagManager::freeTagIndex() {
             static const size_t Bits = (sizeof(Tag::TagType) * 8);
 
             ensure(m_currentTagTypeIndex <= Bits, "no more tag types");
-            return 1u << m_currentTagTypeIndex++;
+            return m_currentTagTypeIndex++;
         }
     }
 }

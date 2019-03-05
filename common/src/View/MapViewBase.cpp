@@ -77,19 +77,19 @@ wxDEFINE_EVENT(SHOW_POPUP_MENU_EVENT, wxCommandEvent);
 namespace TrenchBroom {
     namespace View {
         static wxString GLVendor, GLRenderer, GLVersion;
-        
+
         const wxString &MapViewBase::glRendererString() {
             return GLRenderer;
         }
-        
+
         const wxString &MapViewBase::glVendorString() {
             return GLVendor;
         }
-        
+
         const wxString &MapViewBase::glVersionString() {
             return GLVersion;
         }
-        
+
         const wxLongLong MapViewBase::DefaultCameraAnimationDuration = 250;
 
         MapViewBase::MapViewBase(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager) :
@@ -111,7 +111,7 @@ namespace TrenchBroom {
         void MapViewBase::setCompass(Renderer::Compass* compass) {
             m_compass = compass;
         }
-        
+
         MapViewBase::~MapViewBase() {
             m_toolBox.removeWindow(this);
             unbindObservers();
@@ -134,10 +134,10 @@ namespace TrenchBroom {
             document->modsDidChangeNotifier.addObserver(this, &MapViewBase::modsDidChange);
             document->editorContextDidChangeNotifier.addObserver(this, &MapViewBase::editorContextDidChange);
             document->mapViewConfigDidChangeNotifier.addObserver(this, &MapViewBase::mapViewConfigDidChange);
-			document->documentWasNewedNotifier.addObserver(this, &MapViewBase::documentDidChange);
-			document->documentWasClearedNotifier.addObserver(this, &MapViewBase::documentDidChange);
-			document->documentWasLoadedNotifier.addObserver(this, &MapViewBase::documentDidChange);
-			document->pointFileWasLoadedNotifier.addObserver(this, &MapViewBase::pointFileDidChange);
+            document->documentWasNewedNotifier.addObserver(this, &MapViewBase::documentDidChange);
+            document->documentWasClearedNotifier.addObserver(this, &MapViewBase::documentDidChange);
+            document->documentWasLoadedNotifier.addObserver(this, &MapViewBase::documentDidChange);
+            document->pointFileWasLoadedNotifier.addObserver(this, &MapViewBase::pointFileDidChange);
             document->pointFileWasUnloadedNotifier.addObserver(this, &MapViewBase::pointFileDidChange);
             document->portalFileWasLoadedNotifier.addObserver(this, &MapViewBase::portalFileDidChange);
             document->portalFileWasUnloadedNotifier.addObserver(this, &MapViewBase::portalFileDidChange);
@@ -168,9 +168,9 @@ namespace TrenchBroom {
                 document->modsDidChangeNotifier.removeObserver(this, &MapViewBase::modsDidChange);
                 document->editorContextDidChangeNotifier.removeObserver(this, &MapViewBase::editorContextDidChange);
                 document->mapViewConfigDidChangeNotifier.removeObserver(this, &MapViewBase::mapViewConfigDidChange);
-				document->documentWasNewedNotifier.removeObserver(this, &MapViewBase::documentDidChange);
-				document->documentWasClearedNotifier.removeObserver(this, &MapViewBase::documentDidChange);
-				document->documentWasLoadedNotifier.removeObserver(this, &MapViewBase::documentDidChange);
+                document->documentWasNewedNotifier.removeObserver(this, &MapViewBase::documentDidChange);
+                document->documentWasClearedNotifier.removeObserver(this, &MapViewBase::documentDidChange);
+                document->documentWasLoadedNotifier.removeObserver(this, &MapViewBase::documentDidChange);
                 document->pointFileWasLoadedNotifier.removeObserver(this, &MapViewBase::pointFileDidChange);
                 document->pointFileWasUnloadedNotifier.removeObserver(this, &MapViewBase::pointFileDidChange);
                 document->portalFileWasLoadedNotifier.removeObserver(this, &MapViewBase::portalFileDidChange);
@@ -207,7 +207,7 @@ namespace TrenchBroom {
             updatePickResult();
             Refresh();
         }
-        
+
         void MapViewBase::selectionDidChange(const Selection& selection) {
             updateAcceleratorTable(HasFocus());
         }
@@ -260,75 +260,103 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::bindEvents() {
-            Bind(wxEVT_SET_FOCUS, &MapViewBase::OnSetFocus, this);
-            Bind(wxEVT_KILL_FOCUS, &MapViewBase::OnKillFocus, this);
+            Bind(wxEVT_SET_FOCUS, &MapViewBase::OnSetFocus,                       this);
+            Bind(wxEVT_KILL_FOCUS, &MapViewBase::OnKillFocus,                     this);
 
-            Bind(wxEVT_MENU, &MapViewBase::OnToggleClipSide,               this, CommandIds::Actions::ToggleClipSide);
-            Bind(wxEVT_MENU, &MapViewBase::OnPerformClip,                  this, CommandIds::Actions::PerformClip);
+            Bind(wxEVT_MENU, &MapViewBase::OnMakeStructural,                      this, CommandIds::Actions::MakeStructural);
 
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesForward,          this, CommandIds::Actions::MoveVerticesForward);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesBackward,         this, CommandIds::Actions::MoveVerticesBackward);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesLeft,             this, CommandIds::Actions::MoveVerticesLeft);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesRight,            this, CommandIds::Actions::MoveVerticesRight);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesUp,               this, CommandIds::Actions::MoveVerticesUp);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesDown,             this, CommandIds::Actions::MoveVerticesDown);
-            
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsForward,           this, CommandIds::Actions::MoveObjectsForward);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsBackward,          this, CommandIds::Actions::MoveObjectsBackward);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsLeft,              this, CommandIds::Actions::MoveObjectsLeft);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsRight,             this, CommandIds::Actions::MoveObjectsRight);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsUp,                this, CommandIds::Actions::MoveObjectsUp);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsDown,              this, CommandIds::Actions::MoveObjectsDown);
+            Bind(wxEVT_MENU, &MapViewBase::OnToggleTagVisible,                    this, CommandIds::Actions::LowestToggleTagCommandId, CommandIds::Actions::HighestToggleTagCommandId);
+            Bind(wxEVT_MENU, &MapViewBase::OnEnableTag,                           this, CommandIds::Actions::LowestEnableTagCommandId, CommandIds::Actions::HighestEnableTagCommandId);
+            Bind(wxEVT_MENU, &MapViewBase::OnDisableTag,                          this, CommandIds::Actions::LowestDisableTagCommandId, CommandIds::Actions::HighestDisableTagCommandId);
 
-            Bind(wxEVT_MENU, &MapViewBase::OnDuplicateObjectsForward,      this, CommandIds::Actions::DuplicateObjectsForward);
-            Bind(wxEVT_MENU, &MapViewBase::OnDuplicateObjectsBackward,     this, CommandIds::Actions::DuplicateObjectsBackward);
-            Bind(wxEVT_MENU, &MapViewBase::OnDuplicateObjectsLeft,         this, CommandIds::Actions::DuplicateObjectsLeft);
-            Bind(wxEVT_MENU, &MapViewBase::OnDuplicateObjectsRight,        this, CommandIds::Actions::DuplicateObjectsRight);
-            Bind(wxEVT_MENU, &MapViewBase::OnDuplicateObjectsUp,           this, CommandIds::Actions::DuplicateObjectsUp);
-            Bind(wxEVT_MENU, &MapViewBase::OnDuplicateObjectsDown,         this, CommandIds::Actions::DuplicateObjectsDown);
+            Bind(wxEVT_MENU, &MapViewBase::OnToggleEntityDefinitionVisible,       this, CommandIds::Actions::LowestToggleEntityDefinitionCommandId, CommandIds::Actions::HighestToggleEntityDefinitionCommandId);
+            Bind(wxEVT_MENU, &MapViewBase::OnCreateEntity,                        this, CommandIds::Actions::LowestCreateEntityCommandId, CommandIds::Actions::HighestCreateEntityCommandId);
 
-            Bind(wxEVT_MENU, &MapViewBase::OnRollObjectsCW,                this, CommandIds::Actions::RollObjectsCW);
-            Bind(wxEVT_MENU, &MapViewBase::OnRollObjectsCCW,               this, CommandIds::Actions::RollObjectsCCW);
-            Bind(wxEVT_MENU, &MapViewBase::OnPitchObjectsCW,               this, CommandIds::Actions::PitchObjectsCW);
-            Bind(wxEVT_MENU, &MapViewBase::OnPitchObjectsCCW,              this, CommandIds::Actions::PitchObjectsCCW);
-            Bind(wxEVT_MENU, &MapViewBase::OnYawObjectsCW,                 this, CommandIds::Actions::YawObjectsCW);
-            Bind(wxEVT_MENU, &MapViewBase::OnYawObjectsCCW,                this, CommandIds::Actions::YawObjectsCCW);
+            Bind(wxEVT_MENU, &MapViewBase::OnToggleShowEntityClassnames,          this, CommandIds::Actions::ToggleShowEntityClassnames);
+            Bind(wxEVT_MENU, &MapViewBase::OnToggleShowGroupBounds,               this, CommandIds::Actions::ToggleShowGroupBounds);
+            Bind(wxEVT_MENU, &MapViewBase::OnToggleShowBrushEntityBounds,         this, CommandIds::Actions::ToggleShowBrushEntityBounds);
+            Bind(wxEVT_MENU, &MapViewBase::OnToggleShowPointEntityBounds,         this, CommandIds::Actions::ToggleShowPointEntityBounds);
+            Bind(wxEVT_MENU, &MapViewBase::OnToggleShowPointEntities,             this, CommandIds::Actions::ToggleShowPointEntities);
+            Bind(wxEVT_MENU, &MapViewBase::OnToggleShowPointEntities,             this, CommandIds::Actions::ToggleShowPointEntities);
+            Bind(wxEVT_MENU, &MapViewBase::OnToggleShowPointEntityModels,         this, CommandIds::Actions::ToggleShowPointEntityModels);
+            Bind(wxEVT_MENU, &MapViewBase::OnToggleShowBrushes,                   this, CommandIds::Actions::ToggleShowBrushes);
+            Bind(wxEVT_MENU, &MapViewBase::OnRenderModeShowTextures,              this, CommandIds::Actions::RenderModeShowTextures);
+            Bind(wxEVT_MENU, &MapViewBase::OnRenderModeHideTextures,              this, CommandIds::Actions::RenderModeHideTextures);
+            Bind(wxEVT_MENU, &MapViewBase::OnRenderModeHideFaces,                 this, CommandIds::Actions::RenderModeHideFaces);
+            Bind(wxEVT_MENU, &MapViewBase::OnRenderModeShadeFaces,                this, CommandIds::Actions::RenderModeShadeFaces);
+            Bind(wxEVT_MENU, &MapViewBase::OnRenderModeUseFog,                    this, CommandIds::Actions::RenderModeUseFog);
+            Bind(wxEVT_MENU, &MapViewBase::OnRenderModeShowEdges,                 this, CommandIds::Actions::RenderModeShowEdges);
+            Bind(wxEVT_MENU, &MapViewBase::OnRenderModeShowAllEntityLinks,        this, CommandIds::Actions::RenderModeShowAllEntityLinks);
+            Bind(wxEVT_MENU, &MapViewBase::OnRenderModeShowTransitiveEntityLinks, this, CommandIds::Actions::RenderModeShowTransitiveEntityLinks);
+            Bind(wxEVT_MENU, &MapViewBase::OnRenderModeShowDirectEntityLinks,     this, CommandIds::Actions::RenderModeShowDirectEntityLinks);
+            Bind(wxEVT_MENU, &MapViewBase::OnRenderModeHideEntityLinks,           this, CommandIds::Actions::RenderModeHideEntityLinks);
 
-            Bind(wxEVT_MENU, &MapViewBase::OnFlipObjectsH,                 this, CommandIds::Actions::FlipObjectsHorizontally);
-            Bind(wxEVT_MENU, &MapViewBase::OnFlipObjectsV,                 this, CommandIds::Actions::FlipObjectsVertically);
+            Bind(wxEVT_MENU, &MapViewBase::OnToggleClipSide,                      this, CommandIds::Actions::ToggleClipSide);
+            Bind(wxEVT_MENU, &MapViewBase::OnPerformClip,                         this, CommandIds::Actions::PerformClip);
 
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterForward,    this, CommandIds::Actions::MoveRotationCenterForward);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterBackward,   this, CommandIds::Actions::MoveRotationCenterBackward);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterLeft,       this, CommandIds::Actions::MoveRotationCenterLeft);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterRight,      this, CommandIds::Actions::MoveRotationCenterRight);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterUp,         this, CommandIds::Actions::MoveRotationCenterUp);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterDown,       this, CommandIds::Actions::MoveRotationCenterDown);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesForward,                 this, CommandIds::Actions::MoveVerticesForward);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesBackward,                this, CommandIds::Actions::MoveVerticesBackward);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesLeft,                    this, CommandIds::Actions::MoveVerticesLeft);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesRight,                   this, CommandIds::Actions::MoveVerticesRight);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesUp,                      this, CommandIds::Actions::MoveVerticesUp);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesDown,                    this, CommandIds::Actions::MoveVerticesDown);
 
-            Bind(wxEVT_MENU, &MapViewBase::OnCancel,                       this, CommandIds::Actions::Cancel);
-            Bind(wxEVT_MENU, &MapViewBase::OnDeactivateTool,               this, CommandIds::Actions::DeactivateTool);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsForward,                  this, CommandIds::Actions::MoveObjectsForward);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsBackward,                 this, CommandIds::Actions::MoveObjectsBackward);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsLeft,                     this, CommandIds::Actions::MoveObjectsLeft);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsRight,                    this, CommandIds::Actions::MoveObjectsRight);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsUp,                       this, CommandIds::Actions::MoveObjectsUp);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsDown,                     this, CommandIds::Actions::MoveObjectsDown);
 
-            Bind(SHOW_POPUP_MENU_EVENT, &MapViewBase::OnShowPopupMenu,     this, CommandIds::MapViewPopupMenu::ShowPopupMenu);
-            Bind(wxEVT_MENU, &MapViewBase::OnGroupSelectedObjects,         this, CommandIds::MapViewPopupMenu::GroupObjects);
-            Bind(wxEVT_MENU, &MapViewBase::OnUngroupSelectedObjects,       this, CommandIds::MapViewPopupMenu::UngroupObjects);
-            Bind(wxEVT_MENU, &MapViewBase::OnRenameGroups,                 this, CommandIds::MapViewPopupMenu::RenameGroups);
-            Bind(wxEVT_MENU, &MapViewBase::OnAddObjectsToGroup,            this, CommandIds::MapViewPopupMenu::AddObjectsToGroup);
-            Bind(wxEVT_MENU, &MapViewBase::OnRemoveObjectsFromGroup,       this, CommandIds::MapViewPopupMenu::RemoveObjectsFromGroup);
-            Bind(wxEVT_MENU, &MapViewBase::OnMergeGroups,                  this, CommandIds::MapViewPopupMenu::MergeGroups);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveBrushesTo,                this, CommandIds::MapViewPopupMenu::MoveBrushesToEntity);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveBrushesTo,                this, CommandIds::MapViewPopupMenu::MoveBrushesToWorld);
-            Bind(wxEVT_MENU, &MapViewBase::OnCreatePointEntity,            this, CommandIds::MapViewPopupMenu::LowestPointEntityItem, CommandIds::MapViewPopupMenu::HighestPointEntityItem);
-            Bind(wxEVT_MENU, &MapViewBase::OnCreateBrushEntity,            this, CommandIds::MapViewPopupMenu::LowestBrushEntityItem, CommandIds::MapViewPopupMenu::HighestBrushEntityItem);
-            
-            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::GroupObjects);
-            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::UngroupObjects);
-            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::MergeGroups);
-            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::RenameGroups);
-            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::MoveBrushesToWorld);
-            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::LowestPointEntityItem, CommandIds::MapViewPopupMenu::HighestPointEntityItem);
-            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::LowestBrushEntityItem, CommandIds::MapViewPopupMenu::HighestBrushEntityItem);
+            Bind(wxEVT_MENU, &MapViewBase::OnDuplicateObjectsForward,             this, CommandIds::Actions::DuplicateObjectsForward);
+            Bind(wxEVT_MENU, &MapViewBase::OnDuplicateObjectsBackward,            this, CommandIds::Actions::DuplicateObjectsBackward);
+            Bind(wxEVT_MENU, &MapViewBase::OnDuplicateObjectsLeft,                this, CommandIds::Actions::DuplicateObjectsLeft);
+            Bind(wxEVT_MENU, &MapViewBase::OnDuplicateObjectsRight,               this, CommandIds::Actions::DuplicateObjectsRight);
+            Bind(wxEVT_MENU, &MapViewBase::OnDuplicateObjectsUp,                  this, CommandIds::Actions::DuplicateObjectsUp);
+            Bind(wxEVT_MENU, &MapViewBase::OnDuplicateObjectsDown,                this, CommandIds::Actions::DuplicateObjectsDown);
+
+            Bind(wxEVT_MENU, &MapViewBase::OnRollObjectsCW,                       this, CommandIds::Actions::RollObjectsCW);
+            Bind(wxEVT_MENU, &MapViewBase::OnRollObjectsCCW,                      this, CommandIds::Actions::RollObjectsCCW);
+            Bind(wxEVT_MENU, &MapViewBase::OnPitchObjectsCW,                      this, CommandIds::Actions::PitchObjectsCW);
+            Bind(wxEVT_MENU, &MapViewBase::OnPitchObjectsCCW,                     this, CommandIds::Actions::PitchObjectsCCW);
+            Bind(wxEVT_MENU, &MapViewBase::OnYawObjectsCW,                        this, CommandIds::Actions::YawObjectsCW);
+            Bind(wxEVT_MENU, &MapViewBase::OnYawObjectsCCW,                       this, CommandIds::Actions::YawObjectsCCW);
+
+            Bind(wxEVT_MENU, &MapViewBase::OnFlipObjectsH,                        this, CommandIds::Actions::FlipObjectsHorizontally);
+            Bind(wxEVT_MENU, &MapViewBase::OnFlipObjectsV,                        this, CommandIds::Actions::FlipObjectsVertically);
+
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterForward,           this, CommandIds::Actions::MoveRotationCenterForward);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterBackward,          this, CommandIds::Actions::MoveRotationCenterBackward);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterLeft,              this, CommandIds::Actions::MoveRotationCenterLeft);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterRight,             this, CommandIds::Actions::MoveRotationCenterRight);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterUp,                this, CommandIds::Actions::MoveRotationCenterUp);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterDown,              this, CommandIds::Actions::MoveRotationCenterDown);
+
+            Bind(wxEVT_MENU, &MapViewBase::OnCancel,                              this, CommandIds::Actions::Cancel);
+            Bind(wxEVT_MENU, &MapViewBase::OnDeactivateTool,                      this, CommandIds::Actions::DeactivateTool);
+
+            Bind(SHOW_POPUP_MENU_EVENT, &MapViewBase::OnShowPopupMenu,            this, CommandIds::MapViewPopupMenu::ShowPopupMenu);
+            Bind(wxEVT_MENU, &MapViewBase::OnGroupSelectedObjects,                this, CommandIds::MapViewPopupMenu::GroupObjects);
+            Bind(wxEVT_MENU, &MapViewBase::OnUngroupSelectedObjects,              this, CommandIds::MapViewPopupMenu::UngroupObjects);
+            Bind(wxEVT_MENU, &MapViewBase::OnRenameGroups,                        this, CommandIds::MapViewPopupMenu::RenameGroups);
+            Bind(wxEVT_MENU, &MapViewBase::OnAddObjectsToGroup,                   this, CommandIds::MapViewPopupMenu::AddObjectsToGroup);
+            Bind(wxEVT_MENU, &MapViewBase::OnRemoveObjectsFromGroup,              this, CommandIds::MapViewPopupMenu::RemoveObjectsFromGroup);
+            Bind(wxEVT_MENU, &MapViewBase::OnMergeGroups,                         this, CommandIds::MapViewPopupMenu::MergeGroups);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveBrushesTo,                       this, CommandIds::MapViewPopupMenu::MoveBrushesToEntity);
+            Bind(wxEVT_MENU, &MapViewBase::OnMakeStructural,                      this, CommandIds::MapViewPopupMenu::MakeStructural);
+            Bind(wxEVT_MENU, &MapViewBase::OnCreatePointEntity,                   this, CommandIds::MapViewPopupMenu::LowestPointEntityItem, CommandIds::MapViewPopupMenu::HighestPointEntityItem);
+            Bind(wxEVT_MENU, &MapViewBase::OnCreateBrushEntity,                   this, CommandIds::MapViewPopupMenu::LowestBrushEntityItem, CommandIds::MapViewPopupMenu::HighestBrushEntityItem);
+
+            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,            this, CommandIds::MapViewPopupMenu::GroupObjects);
+            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,            this, CommandIds::MapViewPopupMenu::UngroupObjects);
+            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,            this, CommandIds::MapViewPopupMenu::MergeGroups);
+            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,            this, CommandIds::MapViewPopupMenu::RenameGroups);
+            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,            this, CommandIds::MapViewPopupMenu::MakeStructural);
+            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,            this, CommandIds::MapViewPopupMenu::LowestPointEntityItem, CommandIds::MapViewPopupMenu::HighestPointEntityItem);
+            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,            this, CommandIds::MapViewPopupMenu::LowestBrushEntityItem, CommandIds::MapViewPopupMenu::HighestBrushEntityItem);
 
             wxFrame* frame = findFrame(this);
-            frame->Bind(wxEVT_ACTIVATE, &MapViewBase::OnActivateFrame, this);
+            frame->Bind(wxEVT_ACTIVATE, &MapViewBase::OnActivateFrame,            this);
         }
 
         void MapViewBase::OnMoveObjectsForward(wxCommandEvent& event) {
@@ -518,10 +546,10 @@ namespace TrenchBroom {
 
             m_toolBox.toggleRotateObjectsTool();
         }
-        
+
         void MapViewBase::OnToggleScaleObjectsTool(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            
+
             m_toolBox.toggleScaleObjectsTool();
         }
 
@@ -592,31 +620,31 @@ namespace TrenchBroom {
 
             moveVertices(vm::direction::forward);
         }
-        
+
         void MapViewBase::OnMoveVerticesBackward(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
             moveVertices(vm::direction::backward);
         }
-        
+
         void MapViewBase::OnMoveVerticesLeft(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
             moveVertices(vm::direction::left);
         }
-        
+
         void MapViewBase::OnMoveVerticesRight(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
             moveVertices(vm::direction::right);
         }
-        
+
         void MapViewBase::OnMoveVerticesUp(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
             moveVertices(vm::direction::up);
         }
-        
+
         void MapViewBase::OnMoveVerticesDown(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -637,7 +665,7 @@ namespace TrenchBroom {
                 return;
             if (ToolBoxConnector::cancel())
                 return;
-            
+
             MapDocumentSPtr document = lock(m_document);
             if (document->hasSelection()) {
                 document->deselectAll();
@@ -653,7 +681,7 @@ namespace TrenchBroom {
         void MapViewBase::OnDeactivateTool(wxCommandEvent& event) {
             m_toolBox.deactivateAllTools();
         }
-        
+
         void MapViewBase::OnGroupSelectedObjects(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -664,7 +692,7 @@ namespace TrenchBroom {
                     document->groupSelection(name);
             }
         }
-        
+
         void MapViewBase::OnUngroupSelectedObjects(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -682,7 +710,7 @@ namespace TrenchBroom {
             if (!name.empty())
                 document->renameGroups(name);
         }
-        
+
         void MapViewBase::OnCreatePointEntity(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -693,7 +721,7 @@ namespace TrenchBroom {
             assert(definition->type() == Assets::EntityDefinition::Type_PointEntity);
             createPointEntity(static_cast<const Assets::PointEntityDefinition*>(definition));
         }
-        
+
         void MapViewBase::OnCreateBrushEntity(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -704,7 +732,7 @@ namespace TrenchBroom {
             assert(definition->type() == Assets::EntityDefinition::Type_BrushEntity);
             createBrushEntity(static_cast<const Assets::BrushEntityDefinition*>(definition));
         }
-        
+
         Assets::EntityDefinition* MapViewBase::findEntityDefinition(const Assets::EntityDefinition::Type type, const size_t index) const {
             size_t count = 0;
             for (const Assets::EntityDefinitionGroup& group : lock(m_document)->entityDefinitionManager().groups()) {
@@ -715,25 +743,309 @@ namespace TrenchBroom {
             }
             return nullptr;
         }
-        
+
         void MapViewBase::createPointEntity(const Assets::PointEntityDefinition* definition) {
             ensure(definition != nullptr, "definition is null");
-            
+
             auto document = lock(m_document);
             const auto delta = doComputePointEntityPosition(definition->bounds());
             document->createPointEntity(definition, delta);
         }
-        
+
         void MapViewBase::createBrushEntity(const Assets::BrushEntityDefinition* definition) {
             ensure(definition != nullptr, "definition is null");
-            
+
             auto document = lock(m_document);
             document->createBrushEntity(definition);
         }
-        
+
         bool MapViewBase::canCreateBrushEntity() {
             auto document = lock(m_document);
             return document->selectedNodes().hasOnlyBrushes();
+        }
+
+        void MapViewBase::OnToggleTagVisible(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            const auto tagIndex = static_cast<size_t>((event.GetId() - CommandIds::Actions::LowestToggleTagCommandId));
+
+            auto document = lock(m_document);
+            auto& editorContext = document->editorContext();
+            auto hiddenTags = editorContext.hiddenTags();
+            hiddenTags ^= 1UL << tagIndex;
+            editorContext.setHiddenTags(hiddenTags);
+        }
+
+        class MapViewBase::EnableDisableTagCallback : public Model::TagMatcherCallback, public wxEvtHandler {
+        private:
+            wxWindow* m_window;
+            size_t m_selectedOption;
+        public:
+            explicit EnableDisableTagCallback(wxWindow* window) :
+            m_window(window),
+            m_selectedOption(0) {
+                assert(m_window != nullptr);
+            }
+
+            size_t selectOption(const StringList& options) {
+                wxMenu menu;
+                for (size_t i = 0; i < options.size(); ++i) {
+                    const auto& option = options[i];
+                    const auto commandId = CommandIds::ToggleTagPopupMenu::Lowest + static_cast<int>(i);
+                    menu.Append(commandId, option);
+                    menu.Bind(wxEVT_MENU, &EnableDisableTagCallback::OnMenuItem, this, commandId);
+                }
+
+
+                m_selectedOption = options.size();
+                m_window->PopupMenu(&menu);
+                m_selectedOption = std::min(m_selectedOption, options.size());
+                return m_selectedOption;
+            }
+
+            void OnMenuItem(wxCommandEvent& event) {
+                m_selectedOption = static_cast<size_t>(event.GetId() - CommandIds::ToggleTagPopupMenu::Lowest);
+            }
+        };
+
+        void MapViewBase::OnEnableTag(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            const auto tagIndex = static_cast<size_t>((event.GetId() - CommandIds::Actions::LowestEnableTagCommandId));
+
+            auto document = lock(m_document);
+            if (document->isRegisteredSmartTag(tagIndex)) {
+                const auto& tag = document->smartTag(tagIndex);
+                assert(tag.canEnable());
+
+                Transaction transaction(document, "Turn Selection into " + tag.name());
+                EnableDisableTagCallback callback(this);
+                tag.enable(callback, *document);
+            }
+        }
+
+        void MapViewBase::OnDisableTag(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            const auto tagIndex = static_cast<size_t>((event.GetId() - CommandIds::Actions::LowestDisableTagCommandId));
+
+            auto document = lock(m_document);
+            if (document->isRegisteredSmartTag(tagIndex)) {
+                const auto& tag = document->smartTag(tagIndex);
+                assert(tag.canDisable());
+
+                Transaction transaction(document, "Turn Selection into non-" + tag.name());
+                EnableDisableTagCallback callback(this);
+                tag.disable(callback, *document);
+            }
+        }
+
+        void MapViewBase::OnMakeStructural(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            auto document = lock(m_document);
+            if (!document->selectedNodes().hasBrushes()) {
+                return;
+            }
+
+            Transaction transaction(document, "Make Structural");
+            Model::NodeList toReparent;
+            for (auto* brush : document->selectedNodes().brushes()) {
+                if (brush->entity() != document->world()) {
+                    toReparent.push_back(brush);
+                }
+            }
+
+            if (!toReparent.empty()) {
+                reparentNodes(toReparent, document->currentParent(), false);
+            }
+
+            bool anyTagDisabled = false;
+            EnableDisableTagCallback callback(this);
+            for (auto* brush : document->selectedNodes().brushes()) {
+                for (const auto& tag : document->smartTags()) {
+                    if (brush->hasTag(tag) || brush->anyFacesHaveAnyTagInMask(tag.type())) {
+                        anyTagDisabled = true;
+                        tag.disable(callback, *document);
+                    }
+                }
+            }
+
+            if (!anyTagDisabled && toReparent.empty()) {
+                transaction.cancel();
+            }
+        }
+
+        void MapViewBase::OnToggleEntityDefinitionVisible(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            auto document = lock(m_document);
+            const auto& definitions = document->entityDefinitionManager().definitions();
+
+            const auto definitionIndex = static_cast<size_t>((event.GetId() - CommandIds::Actions::LowestToggleEntityDefinitionCommandId));
+            if (definitionIndex >= definitions.size()) {
+                return;
+            }
+
+            const auto* definition = definitions[definitionIndex];
+
+            Model::EditorContext& editorContext = document->editorContext();
+            editorContext.setEntityDefinitionHidden(definition, !editorContext.entityDefinitionHidden(definition));
+        }
+
+        void MapViewBase::OnCreateEntity(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            auto document = lock(m_document);
+            const auto& definitions = document->entityDefinitionManager().definitions();
+
+            const auto definitionIndex = static_cast<size_t>((event.GetId() - CommandIds::Actions::LowestCreateEntityCommandId));
+            if (definitionIndex >= definitions.size()) {
+                return;
+            }
+
+            const auto* definition = definitions[definitionIndex];
+            if (definition->type() == Assets::EntityDefinition::Type_PointEntity) {
+                createPointEntity(static_cast<const Assets::PointEntityDefinition*>(definition));
+            } else if (canCreateBrushEntity()) {
+                createBrushEntity(static_cast<const Assets::BrushEntityDefinition*>(definition));
+            }
+        }
+
+        void MapViewBase::OnToggleShowEntityClassnames(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setShowEntityClassnames(!config.showEntityClassnames());
+        }
+
+        void MapViewBase::OnToggleShowGroupBounds(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setShowGroupBounds(!config.showGroupBounds());
+        }
+
+        void MapViewBase::OnToggleShowBrushEntityBounds(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setShowBrushEntityBounds(!config.showBrushEntityBounds());
+        }
+
+        void MapViewBase::OnToggleShowPointEntityBounds(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setShowPointEntityBounds(!config.showPointEntityBounds());
+        }
+
+        void MapViewBase::OnToggleShowPointEntities(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            Model::EditorContext& editorContext = document->editorContext();
+            editorContext.setShowPointEntities(!editorContext.showPointEntities());
+        }
+
+        void MapViewBase::OnToggleShowPointEntityModels(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setShowPointEntityModels(!config.showPointEntityModels());
+        }
+
+        void MapViewBase::OnToggleShowBrushes(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            Model::EditorContext& editorContext = document->editorContext();
+            editorContext.setShowBrushes(!editorContext.showBrushes());
+        }
+
+        void MapViewBase::OnRenderModeShowTextures(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setFaceRenderMode(MapViewConfig::FaceRenderMode_Textured);
+        }
+
+        void MapViewBase::OnRenderModeHideTextures(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setFaceRenderMode(MapViewConfig::FaceRenderMode_Flat);
+        }
+
+        void MapViewBase::OnRenderModeHideFaces(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setFaceRenderMode(MapViewConfig::FaceRenderMode_Skip);
+        }
+
+        void MapViewBase::OnRenderModeShadeFaces(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setShadeFaces(!config.shadeFaces());
+        }
+
+        void MapViewBase::OnRenderModeUseFog(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setShowFog(!config.showFog());
+        }
+
+        void MapViewBase::OnRenderModeShowEdges(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setShowEdges(!config.showEdges());
+        }
+
+        void MapViewBase::OnRenderModeShowAllEntityLinks(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            Model::EditorContext& editorContext = document->editorContext();
+            editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_All);
+        }
+
+        void MapViewBase::OnRenderModeShowTransitiveEntityLinks(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            Model::EditorContext& editorContext = document->editorContext();
+            editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_Transitive);
+        }
+
+        void MapViewBase::OnRenderModeShowDirectEntityLinks(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            Model::EditorContext& editorContext = document->editorContext();
+            editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_Direct);
+        }
+
+        void MapViewBase::OnRenderModeHideEntityLinks(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            Model::EditorContext& editorContext = document->editorContext();
+            editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_None);
         }
 
         void MapViewBase::OnSetFocus(wxFocusEvent& event) {
@@ -807,11 +1119,11 @@ namespace TrenchBroom {
         bool MapViewBase::doGetIsCurrent() const {
             return HasFocus();
         }
-        
+
         void MapViewBase::doSetToolBoxDropTarget() {
             SetDropTarget(new ToolBoxDropTarget(this, this));
         }
-        
+
         void MapViewBase::doClearDropTarget() {
             SetDropTarget(nullptr);
         }
@@ -832,10 +1144,10 @@ namespace TrenchBroom {
             // (see: https://github.com/kduske/TrenchBroom/issues/1495 )
             Grid halfGrid(document->grid().size());
             halfGrid.decSize();
-            
+
             const auto center = halfGrid.referencePoint(document->selectionBounds());
             const auto axis = firstComponent(moveDirection(direction));
-            
+
             document->flipObjects(center, axis);
         }
 
@@ -902,7 +1214,7 @@ namespace TrenchBroom {
             renderPointFile(renderContext, renderBatch);
             renderPortalFile(renderContext, renderBatch);
             renderCompass(renderBatch);
-            
+
             renderBatch.render(renderContext);
         }
 
@@ -920,7 +1232,7 @@ namespace TrenchBroom {
             if (pref(Preferences::ShowAxes)) {
                 MapDocumentSPtr document = lock(m_document);
                 const vm::bbox3& worldBounds = document->worldBounds();
-                
+
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.renderCoordinateSystem(vm::bbox3f(worldBounds));
             }
@@ -974,7 +1286,7 @@ namespace TrenchBroom {
             if (m_compass != nullptr)
                 m_compass->render(renderBatch);
         }
-        
+
         void MapViewBase::processEvent(const KeyEvent& event) {
             ToolBoxConnector::processEvent(event);
         }
@@ -996,12 +1308,12 @@ namespace TrenchBroom {
                 void doVisit(const Model::Entity* entity) override { setResult(true); }
                 void doVisit(const Model::Brush* brush) override   { setResult(false); }
             };
-            
+
             IsEntity visitor;
             node->accept(visitor);
             return visitor.result();
         }
-        
+
         void MapViewBase::doShowPopupMenu() {
             // We process input events during paint event processing, but we cannot show a popup menu
             // during paint processing, so we enqueue an event for later.
@@ -1038,16 +1350,17 @@ namespace TrenchBroom {
             }
             menu.AppendSeparator();
 
-            menu.AppendSubMenu(makeEntityGroupsMenu(Assets::EntityDefinition::Type_PointEntity, CommandIds::MapViewPopupMenu::LowestPointEntityItem), "Create Point Entity");
-            menu.AppendSubMenu(makeEntityGroupsMenu(Assets::EntityDefinition::Type_BrushEntity, CommandIds::MapViewPopupMenu::LowestBrushEntityItem), "Create Brush Entity");
-
             if (document->selectedNodes().hasOnlyBrushes()) {
-                if (!isEntity(newBrushParent)) {
-                    menu.Append(CommandIds::MapViewPopupMenu::MoveBrushesToWorld, "Move Brushes to World");
-                } else {
+                menu.Append(CommandIds::MapViewPopupMenu::MakeStructural, "Make Structural");
+                if (isEntity(newBrushParent)) {
                     menu.Append(CommandIds::MapViewPopupMenu::MoveBrushesToEntity, "Move Brushes to Entity " + newBrushParent->name());
                 }
             }
+
+            menu.AppendSeparator();
+
+            menu.AppendSubMenu(makeEntityGroupsMenu(Assets::EntityDefinition::Type_PointEntity, CommandIds::MapViewPopupMenu::LowestPointEntityItem), "Create Point Entity");
+            menu.AppendSubMenu(makeEntityGroupsMenu(Assets::EntityDefinition::Type_BrushEntity, CommandIds::MapViewPopupMenu::LowestBrushEntityItem), "Create Brush Entity");
 
             menu.UpdateUI(this);
             PopupMenu(&menu);
@@ -1062,7 +1375,7 @@ namespace TrenchBroom {
 
         wxMenu* MapViewBase::makeEntityGroupsMenu(const Assets::EntityDefinition::Type type, int id) {
             wxMenu* menu = new wxMenu();
-            
+
             MapDocumentSPtr document = lock(m_document);
             for (const Assets::EntityDefinitionGroup& group : document->entityDefinitionManager().groups()) {
                 const Assets::EntityDefinitionList definitions = group.definitions(type, Assets::EntityDefinition::Name);
@@ -1076,14 +1389,14 @@ namespace TrenchBroom {
                     const String groupName = group.displayName();
                     wxMenu* groupMenu = new wxMenu();
                     groupMenu->SetEventHandler(this);
-                    
+
                     for (Assets::EntityDefinition* definition : filteredDefinitions)
                         groupMenu->Append(id++, definition->shortName());
-                    
+
                     menu->AppendSubMenu(groupMenu, groupName);
                 }
             }
-            
+
             return menu;
         }
 
@@ -1092,19 +1405,19 @@ namespace TrenchBroom {
             const Model::NodeList nodes = document->selectedNodes().nodes();
             Model::Node* newGroup = findNewGroupForObjects(nodes);
             ensure(newGroup != nullptr, "newGroup is null");
-            
+
             Transaction transaction(document, "Add Objects to Group");
             reparentNodes(nodes, newGroup, true);
             document->deselectAll();
             document->select(newGroup);
         }
-        
+
         void MapViewBase::OnRemoveObjectsFromGroup(wxCommandEvent& event) {
             MapDocumentSPtr document = lock(m_document);
             const Model::NodeList nodes = document->selectedNodes().nodes();
             Model::Node* currentGroup = document->editorContext().currentGroup();
             ensure(currentGroup != nullptr, "currentGroup is null");
-            
+
             Transaction transaction(document, "Remove Objects from Group");
             reparentNodes(nodes, document->currentLayer(), true);
 
@@ -1116,22 +1429,22 @@ namespace TrenchBroom {
 
         Model::Node* MapViewBase::findNewGroupForObjects(const Model::NodeList& nodes) const {
             Model::Node* newGroup = nullptr;
-            
+
             MapDocumentSPtr document = lock(m_document);
             const Model::Hit& hit = pickResult().query().pickable().type(Model::Group::GroupHit).first();
             if (hit.isMatch())
                 newGroup = Model::hitToNode(hit);
-            
+
             if (newGroup != nullptr && canReparentNodes(nodes, newGroup))
                 return newGroup;
             return nullptr;
         }
-        
+
         void MapViewBase::OnMergeGroups(wxCommandEvent& event) {
             auto document = lock(m_document);
             auto* newGroup = findGroupToMergeGroupsInto(document->selectedNodes());
             ensure(newGroup != nullptr, "newGroup is null");
-            
+
             Transaction transaction(document, "Merge Groups");
             document->mergeSelectedGroupsWithGroup(newGroup);
         }
@@ -1142,7 +1455,7 @@ namespace TrenchBroom {
             }
 
             Model::Group* mergeTarget = nullptr;
-            
+
             auto document = lock(m_document);
             const Model::Hit& hit = pickResult().query().pickable().type(Model::Group::GroupHit).first();
             if (hit.isMatch()) {
@@ -1150,26 +1463,26 @@ namespace TrenchBroom {
             } else {
                 return nullptr;
             }
-            
+
             const auto& nodes = selectedNodes.nodes();
             const bool canReparentAll = std::all_of(nodes.begin(), nodes.end(), [&](const auto* node){
                 return node == mergeTarget || this->canReparentNode(node, mergeTarget);
             });
-            
+
             if (canReparentAll) {
                 return mergeTarget;
             } else {
                 return nullptr;
             }
         }
-        
+
         bool MapViewBase::canReparentNode(const Model::Node* node, const Model::Node* newParent) const {
             return newParent != node && newParent != node->parent() && !newParent->isDescendantOf(node);
         }
-        
+
         void MapViewBase::OnMoveBrushesTo(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            
+
             MapDocumentSPtr document = lock(m_document);
             const Model::NodeList nodes = document->selectedNodes().nodes();
             Model::Node* newParent = findNewParentEntityForBrushes(nodes);
@@ -1181,32 +1494,35 @@ namespace TrenchBroom {
             document->deselectAll();
             document->select(nodes);
         }
-        
+
         Model::Node* MapViewBase::findNewParentEntityForBrushes(const Model::NodeList& nodes) const {
             Model::Node* newParent = nullptr;
-            
+
             MapDocumentSPtr document = lock(m_document);
             const Model::Hit& hit = pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().first();
             if (hit.isMatch()) {
                 const Model::Brush* brush = Model::hitToBrush(hit);
                 newParent = brush->entity();
             }
-            
-            if (newParent != nullptr && newParent != document->world() && canReparentNodes(nodes, newParent))
+
+            if (newParent != nullptr && newParent != document->world() && canReparentNodes(nodes, newParent)) {
                 return newParent;
-            
+            }
+
             if (!nodes.empty()) {
                 Model::Node* lastNode = nodes.back();
-                
+
                 Model::Group* group = Model::findGroup(lastNode);
-                if (group != nullptr)
+                if (group != nullptr) {
                     return group;
-                
+                }
+
                 Model::Layer* layer = Model::findLayer(lastNode);
-                if (layer != nullptr)
+                if (layer != nullptr) {
                     return layer;
+                }
             }
-            
+
             return document->currentLayer();
         }
 
@@ -1218,7 +1534,7 @@ namespace TrenchBroom {
             }
             return false;
         }
-        
+
         class BrushesToEntities {
         private:
             const Model::World* m_world;
@@ -1231,10 +1547,10 @@ namespace TrenchBroom {
             bool operator()(const Model::Entity* entity) const { return true; }
             bool operator()(const Model::Brush* brush) const   { return brush->entity() == m_world; }
         };
-        
+
         static Model::NodeList collectEntitiesForBrushes(const Model::NodeList& selectedNodes, const Model::World *world) {
             using BrushesToEntitiesVisitor = Model::CollectMatchingNodesVisitor<BrushesToEntities, Model::UniqueNodeCollectionStrategy, Model::StopRecursionIfMatched>;
-            
+
             BrushesToEntitiesVisitor collect(world);
             Model::Node::acceptAndEscalate(std::begin(selectedNodes), std::end(selectedNodes), collect);
             return collect.nodes();
@@ -1250,16 +1566,17 @@ namespace TrenchBroom {
             } else {
                 inputNodes = nodes;
             }
-            
+
             const Model::NodeList reparentableNodes = collectReparentableNodes(inputNodes, newParent);
             assert(!reparentableNodes.empty());
-            
+
             StringStream name;
             name << "Move " << (reparentableNodes.size() == 1 ? "Object" : "Objects") << " to " << newParent->name();
-            
+
             const Transaction transaction(document, name.str());
             document->deselectAll();
             document->reparentNodes(newParent, reparentableNodes);
+            document->select(reparentableNodes);
         }
 
         Model::NodeList MapViewBase::collectReparentableNodes(const Model::NodeList& nodes, const Model::Node* newParent) const {
@@ -1284,8 +1601,8 @@ namespace TrenchBroom {
                 case CommandIds::MapViewPopupMenu::RenameGroups:
                     updateRenameGroupsMenuItem(event);
                     break;
-                case CommandIds::MapViewPopupMenu::MoveBrushesToWorld:
-                    updateMoveBrushesToWorldMenuItem(event);
+                case CommandIds::MapViewPopupMenu::MakeStructural:
+                    updateMakeStructuralMenuItem(event);
                     break;
                 default:
                     if (event.GetId() >= CommandIds::MapViewPopupMenu::LowestBrushEntityItem &&
@@ -1302,29 +1619,35 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             event.Enable(!document->selectedNodes().empty());
         }
-    
+
         void MapViewBase::updateUngroupObjectsMenuItem(wxUpdateUIEvent& event) const {
             MapDocumentSPtr document = lock(m_document);
             event.Enable(document->selectedNodes().hasOnlyGroups());
         }
-        
+
         void MapViewBase::updateMergeGroupsMenuItem(wxUpdateUIEvent& event) const {
             MapDocumentSPtr document = lock(m_document);
             Model::Node* mergeGroup = findGroupToMergeGroupsInto(document->selectedNodes());
             event.Enable(mergeGroup != nullptr);
         }
-        
+
         void MapViewBase::updateRenameGroupsMenuItem(wxUpdateUIEvent& event) const {
             MapDocumentSPtr document = lock(m_document);
             event.Enable(document->selectedNodes().hasOnlyGroups());
         }
 
-        void MapViewBase::updateMoveBrushesToWorldMenuItem(wxUpdateUIEvent& event) const {
+        void MapViewBase::updateMakeStructuralMenuItem(wxUpdateUIEvent& event) const {
             MapDocumentSPtr document = lock(m_document);
-            const Model::NodeList& nodes = document->selectedNodes().nodes();
-            Model::Node* newBrushParent = findNewParentEntityForBrushes(nodes);
-            event.Enable(!isEntity(newBrushParent)
-                         && !collectReparentableNodes(nodes, newBrushParent).empty());
+            if (document->selectedNodes().hasOnlyBrushes()) {
+                const Model::BrushList& brushes = document->selectedNodes().brushes();
+                for (const auto* brush : brushes) {
+                    if (brush->hasAnyTag() || brush->entity() != document->world() || brush->anyFaceHasAnyTag()) {
+                        event.Enable(true);
+                        return;
+                    }
+                }
+            }
+            event.Enable(false);
         }
 
         void MapViewBase::doPreRender() {}

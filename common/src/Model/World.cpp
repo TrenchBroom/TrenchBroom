@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -20,11 +20,11 @@
 #include "World.h"
 
 #include "Model/AssortNodesVisitor.h"
-#include "Model/TagMatcher.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/CollectNodesWithDescendantSelectionCountVisitor.h"
 #include "Model/IssueGenerator.h"
+#include "Model/TagVisitor.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -46,7 +46,7 @@ namespace TrenchBroom {
             iterate(visitor);
             return visitor.layers();
         }
-        
+
         LayerList World::customLayers() const {
             const NodeList& children = Node::children();
             CollectLayersVisitor visitor;
@@ -58,7 +58,7 @@ namespace TrenchBroom {
             m_defaultLayer = createLayer("Default Layer", worldBounds);
             addChild(m_defaultLayer);
         }
-        
+
         const AttributableNodeIndex& World::attributableNodeIndex() const {
             return m_attributableIndex;
         }
@@ -94,7 +94,7 @@ namespace TrenchBroom {
             void doVisit(Entity* entity) override { m_nodeTree.insert(entity->bounds(), entity); }
             void doVisit(Brush* brush) override   { m_nodeTree.insert(brush->bounds(), brush); }
         };
-        
+
         class World::RemoveNodeFromNodeTree : public NodeVisitor {
         private:
             NodeTree& m_nodeTree;
@@ -107,7 +107,7 @@ namespace TrenchBroom {
             void doVisit(Group* group) override   { doRemove(group, group->bounds()); }
             void doVisit(Entity* entity) override { doRemove(entity, entity->bounds()); }
             void doVisit(Brush* brush) override   { doRemove(brush, brush->bounds()); }
-            
+
             void doRemove(Node* node, const vm::bbox3& bounds) {
                 if (!m_nodeTree.remove(bounds, node)) {
                     NodeTreeException ex;
@@ -116,7 +116,7 @@ namespace TrenchBroom {
                 }
             }
         };
-        
+
         class World::UpdateNodeInNodeTree : public NodeVisitor {
         private:
             NodeTree& m_nodeTree;
@@ -132,7 +132,7 @@ namespace TrenchBroom {
             void doVisit(Entity* entity) override { m_nodeTree.update(m_oldBounds, entity->bounds(), entity); }
             void doVisit(Brush* brush) override   { m_nodeTree.update(m_oldBounds, brush->bounds(), brush); }
         };
-        
+
         class World::MatchTreeNodes {
         public:
             bool operator()(const Model::Node* node) const   { return node->shouldAddToSpacialIndex(); }
@@ -141,14 +141,14 @@ namespace TrenchBroom {
         void World::disableNodeTreeUpdates() {
             m_updateNodeTree = false;
         }
-        
+
         void World::enableNodeTreeUpdates() {
             m_updateNodeTree = true;
         }
-        
+
         void World::rebuildNodeTree() {
             using CollectTreeNodes = CollectMatchingNodesVisitor<MatchTreeNodes>;
-            
+
             CollectTreeNodes collect;
             acceptAndRecurse(collect);
 
@@ -162,10 +162,10 @@ namespace TrenchBroom {
             void doVisit(Group* group) override   { invalidateIssues(group);  }
             void doVisit(Entity* entity) override { invalidateIssues(entity); }
             void doVisit(Brush* brush) override   { invalidateIssues(brush);  }
-            
+
             void invalidateIssues(Node* node) { node->invalidateIssues(); }
         };
-        
+
         void World::invalidateAllIssues() {
             InvalidateAllIssuesVisitor visitor;
             acceptAndRecurse(visitor);
@@ -186,19 +186,19 @@ namespace TrenchBroom {
         Node* World::doCloneRecursively(const vm::bbox3& worldBounds) const {
             const NodeList& myChildren = children();
             assert(myChildren[0] == m_defaultLayer);
-            
+
             World* world = m_factory.createWorld(worldBounds);
             cloneAttributes(world);
 
             world->defaultLayer()->addChildren(cloneRecursively(worldBounds, m_defaultLayer->children()));
-            
+
             if (myChildren.size() > 1) {
                 NodeList childClones;
                 childClones.reserve(myChildren.size() - 1);
                 cloneRecursively(worldBounds, std::begin(myChildren) + 1, std::end(myChildren), std::back_inserter(childClones));
                 world->addChildren(childClones);
             }
-            
+
             return world;
         }
 
@@ -210,13 +210,13 @@ namespace TrenchBroom {
             void doVisit(const Entity* entity) override { setResult(false); }
             void doVisit(const Brush* brush) override   { setResult(false); }
         };
-        
+
         bool World::doCanAddChild(const Node* child) const {
             CanAddChildToWorld visitor;
             child->accept(visitor);
             return visitor.result();
         }
-        
+
         class CanRemoveChildFromWorld : public ConstNodeVisitor, public NodeQuery<bool> {
         private:
             const World* m_this;
@@ -230,7 +230,7 @@ namespace TrenchBroom {
             void doVisit(const Entity* entity) override { setResult(false); }
             void doVisit(const Brush* brush) override   { setResult(false); }
         };
-        
+
         bool World::doCanRemoveChild(const Node* child) const {
             CanRemoveChildFromWorld visitor(this);
             child->accept(visitor);
@@ -275,7 +275,7 @@ namespace TrenchBroom {
                 node->pick(ray, pickResult);
             }
         }
-        
+
         void World::doFindNodesContaining(const vm::vec3& point, NodeList& result) {
             for (auto* node : m_nodeTree.findContainers(point)) {
                 node->findNodesContaining(point, result);
@@ -293,23 +293,23 @@ namespace TrenchBroom {
         void World::doAccept(NodeVisitor& visitor) {
             visitor.visit(this);
         }
-        
+
         void World::doAccept(ConstNodeVisitor& visitor) const {
             visitor.visit(this);
         }
-        
+
         void World::doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeList& result) const {
             VectorUtils::append(result, m_attributableIndex.findAttributableNodes(AttributableNodeIndexQuery::exact(name), value));
         }
-        
+
         void World::doFindAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableNodeList& result) const {
             VectorUtils::append(result, m_attributableIndex.findAttributableNodes(AttributableNodeIndexQuery::numbered(prefix), value));
         }
-        
+
         void World::doAddToIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) {
             m_attributableIndex.addAttribute(attributable, name, value);
         }
-        
+
         void World::doRemoveFromIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) {
             m_attributableIndex.removeAttribute(attributable, name, value);
         }
@@ -329,7 +329,7 @@ namespace TrenchBroom {
                 return false;
             return true;
         }
-        
+
         bool World::doIsAttributeValueMutable(const AttributeName& name) const {
             if (name == AttributeNames::Mods)
                 return false;
@@ -345,7 +345,7 @@ namespace TrenchBroom {
         vm::vec3 World::doGetLinkSourceAnchor() const {
             return vm::vec3::zero;
         }
-        
+
         vm::vec3 World::doGetLinkTargetAnchor() const {
             return vm::vec3::zero;
         }
@@ -357,33 +357,37 @@ namespace TrenchBroom {
         World* World::doCreateWorld(const vm::bbox3& worldBounds) const {
             return m_factory.createWorld(worldBounds);
         }
-        
+
         Layer* World::doCreateLayer(const String& name, const vm::bbox3& worldBounds) const {
             return m_factory.createLayer(name, worldBounds);
         }
-        
+
         Group* World::doCreateGroup(const String& name) const {
             return m_factory.createGroup(name);
         }
-        
+
         Entity* World::doCreateEntity() const {
             return m_factory.createEntity();
         }
-        
+
         Brush* World::doCreateBrush(const vm::bbox3& worldBounds, const BrushFaceList& faces) const {
             return m_factory.createBrush(worldBounds, faces);
         }
-        
+
         BrushFace* World::doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const {
             return m_factory.createFace(point1, point2, point3, attribs);
         }
-        
+
         BrushFace* World::doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const {
             return m_factory.createFace(point1, point2, point3, attribs, texAxisX, texAxisY);
         }
 
-        bool World::doEvaluateTagMatcher(const TagMatcher& matcher) const {
-            return matcher.matches(*this);
+        void World::doAcceptTagVisitor(TagVisitor& visitor) {
+            visitor.visit(*this);
+        }
+
+        void World::doAcceptTagVisitor(ConstTagVisitor& visitor) const {
+            visitor.visit(*this);
         }
     }
 }

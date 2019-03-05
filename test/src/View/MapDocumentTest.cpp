@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -59,7 +59,7 @@ namespace TrenchBroom {
 
             // create two entity definitions
             m_pointEntityDef = new Assets::PointEntityDefinition("point_entity", Color(), vm::bbox3(16.0), "this is a point entity", Assets::AttributeDefinitionList(), Assets::ModelDefinition());
-            m_brushEntityDef = new Assets::BrushEntityDefinition("brush_entity", Color(), "this is a point entity", Assets::AttributeDefinitionList());
+            m_brushEntityDef = new Assets::BrushEntityDefinition("brush_entity", Color(), "this is a brush entity", Assets::AttributeDefinitionList());
 
             document->setEntityDefinitions(Assets::EntityDefinitionList { m_pointEntityDef, m_brushEntityDef });
         }
@@ -264,6 +264,26 @@ namespace TrenchBroom {
             ASSERT_TRUE(document->scaleObjects(initialBBox, doubleBBox));
             ASSERT_EQ(vm::vec3(400,400,400), brush1->bounds().size());
             ASSERT_EQ(vm::plane3(200.0, vm::vec3::pos_z), brush1->findFace(vm::vec3::pos_z)->boundary());
+        }
+
+        TEST_F(MapDocumentTest, scaleObjectsInGroup) {
+            const vm::bbox3 initialBBox(vm::vec3(-100, -100, -100), vm::vec3(100, 100, 100));
+            const vm::bbox3 doubleBBox(2.0 * initialBBox.min, 2.0 * initialBBox.max);
+            const vm::bbox3 invalidBBox(vm::vec3(0, -100, -100), vm::vec3(0, 100, 100));
+
+            Model::BrushBuilder builder(document->world(), document->worldBounds());
+            Model::Brush *brush1 = builder.createCuboid(initialBBox, "texture");
+
+            document->addNode(brush1, document->currentParent());
+            document->select(Model::NodeList{ brush1 });
+            [[maybe_unused]] Model::Group* group = document->groupSelection("my group");
+
+            // attempting an invalid scale has no effect
+            ASSERT_FALSE(document->scaleObjects(initialBBox, invalidBBox));
+            ASSERT_EQ(vm::vec3(200, 200, 200), brush1->bounds().size());
+
+            ASSERT_TRUE(document->scaleObjects(initialBBox, doubleBBox));
+            ASSERT_EQ(vm::vec3(400, 400, 400), brush1->bounds().size());
         }
 
         TEST_F(MapDocumentTest, scaleObjectsWithCenter) {

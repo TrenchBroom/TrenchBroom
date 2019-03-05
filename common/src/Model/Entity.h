@@ -119,7 +119,8 @@ namespace TrenchBroom {
             void invalidateBounds();
             void validateBounds() const;
         private: // implement Taggable interface
-            bool doEvaluateTagMatcher(const TagMatcher& matcher) const override;
+            void doAcceptTagVisitor(TagVisitor& visitor) override;
+            void doAcceptTagVisitor(ConstTagVisitor& visitor) const override;
         private:
             deleteCopyAndMove(Entity)
         };

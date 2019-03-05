@@ -1457,18 +1457,22 @@ namespace TrenchBroom {
         }
 
         void MapDocument::beginTransaction(const String& name) {
+            debug("Starting transaction '" + name + "'");
             doBeginTransaction(name);
         }
 
         void MapDocument::rollbackTransaction() {
+            debug("Rolling back transaction");
             doRollbackTransaction();
         }
 
         void MapDocument::commitTransaction() {
+            debug("Committing transaction");
             doEndTransaction();
         }
 
         void MapDocument::cancelTransaction() {
+            debug("Cancelling transaction");
             doRollbackTransaction();
             doEndTransaction();
         }
@@ -1867,7 +1871,7 @@ namespace TrenchBroom {
             }
         }
 
-        const std::vector<Model::SmartTag>& MapDocument::smartTags() const {
+        const std::list<Model::SmartTag>& MapDocument::smartTags() const {
             return m_tagManager->smartTags();
         }
 
@@ -1879,12 +1883,33 @@ namespace TrenchBroom {
             return m_tagManager->smartTag(name);
         }
 
+        bool MapDocument::isRegisteredSmartTag(const size_t index) const {
+            return m_tagManager->isRegisteredSmartTag(index);
+        }
+
+        const Model::SmartTag& MapDocument::smartTag(const size_t index) const {
+            return m_tagManager->smartTag(index);
+        }
+
+        class MapDocument::ClearNodeTagsVisitor : public Model::NodeVisitor {
+        private:
+            void doVisit(Model::World* world)   override { initializeNodeTags(world); }
+            void doVisit(Model::Layer* layer)   override { initializeNodeTags(layer); }
+            void doVisit(Model::Group* group)   override { initializeNodeTags(group); }
+            void doVisit(Model::Entity* entity) override { initializeNodeTags(entity); }
+            void doVisit(Model::Brush* brush)   override { initializeNodeTags(brush); }
+
+            void initializeNodeTags(Model::Node* node) {
+                node->clearTags();
+            }
+        };
+
         class MapDocument::InitializeNodeTagsVisitor : public Model::NodeVisitor {
         private:
             Model::TagManager& m_tagManager;
         public:
             InitializeNodeTagsVisitor(Model::TagManager& tagManager) :
-            m_tagManager(tagManager) {}
+                m_tagManager(tagManager) {}
         private:
             void doVisit(Model::World* world)   override { initializeNodeTags(world); }
             void doVisit(Model::Layer* layer)   override { initializeNodeTags(layer); }
@@ -1904,15 +1929,13 @@ namespace TrenchBroom {
         }
 
         void MapDocument::initializeNodeTags(const Model::NodeList& nodes) {
-            for (auto* node : nodes) {
-                node->initializeTags(*m_tagManager);
-            }
+            InitializeNodeTagsVisitor visitor(*m_tagManager);
+            Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
         }
 
         void MapDocument::clearNodeTags(const Model::NodeList& nodes) {
-            for (auto* node : nodes) {
-                node->clearTags();
-            }
+            ClearNodeTagsVisitor visitor;
+            Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
         }
 
         void MapDocument::updateNodeTags(const Model::NodeList& nodes) {
