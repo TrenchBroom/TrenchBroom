@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -204,7 +204,7 @@ namespace TrenchBroom {
         };
 
         static const int MF_HOLEY = (1 << 14);
-        
+
         MdlParser::MdlParser(const String& name, const char* begin, const char* end, const Assets::Palette& palette) :
         m_name(name),
         m_begin(begin),
@@ -229,7 +229,7 @@ namespace TrenchBroom {
 
             const auto scale = readVec3f(cursor);
             const auto origin = readVec3f(cursor);
-            
+
             cursor = m_begin + MdlLayout::HeaderNumSkins;
             const auto skinCount = readSize<int32_t>(cursor);
             const auto skinWidth = readSize<int32_t>(cursor);
@@ -339,7 +339,7 @@ namespace TrenchBroom {
             name[MdlLayout::SimpleFrameLength] = 0;
             cursor += MdlLayout::SimpleFrameName;
             readBytes(cursor, name, MdlLayout::SimpleFrameLength);
-            
+
             PackedFrameVertexList packedVertices(skinVertices.size());
             for (size_t i = 0; i < skinVertices.size(); ++i) {
                 for (size_t j = 0; j < 4; ++j) {
@@ -384,8 +384,8 @@ namespace TrenchBroom {
             Renderer::IndexRangeMapBuilder<Assets::EntityModel::Vertex::Spec> builder(frameTriangles.size() * 3, size);
             builder.addTriangles(frameTriangles);
 
-            model.addFrame(String(name), bounds);
-            surface.addIndexedMesh(builder.vertices(), builder.indices());
+            auto& frame = model.addFrame(String(name), bounds);
+            surface.addIndexedMesh(frame, builder.vertices(), builder.indices());
         }
 
         vm::vec3f MdlParser::unpackFrameVertex(const PackedFrameVertex& vertex, const vm::vec3f& origin, const vm::vec3f& scale) const {

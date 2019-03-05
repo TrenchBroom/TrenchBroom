@@ -64,7 +64,7 @@ namespace TrenchBroom {
             std::vector<Assets::EntityModel::Vertex> buildVertices(const std::vector<vm::vec3f>& positions, const std::vector<vm::vec2f>& texCoords, size_t frameCount, size_t vertexCount);
 
             void loadSurfaceSkins(Assets::EntityModel::Surface& surface, const std::vector<Path>& shaders, Logger& logger);
-            void buildSurfaceFrames(Assets::EntityModel::Surface& surface, const std::vector<Md3Triangle>& triangles, const std::vector<Assets::EntityModel::Vertex>& vertices, size_t sufaceIndex, size_t frameCount, size_t vertexCountPerFrame);
+            void buildSurfaceFrames(Assets::EntityModel::Surface& surface, const std::vector<Assets::EntityModel::Frame*> frames, const std::vector<Md3Triangle>& triangles, const std::vector<Assets::EntityModel::Vertex>& vertices, size_t sufaceIndex, size_t vertexCountPerFrame);
         };
     }
 }

@@ -80,6 +80,14 @@ namespace TrenchBroom {
             return hasPointEntityDefinition();
         }
 
+        vm::bbox3 Entity::totalBounds() const {
+            if (m_model == nullptr) {
+                return bounds();
+            } else {
+                return vm::merge(bounds(), modelBounds());
+            }
+        }
+
         const vm::vec3& Entity::origin() const {
             return m_cachedOrigin;
         }
@@ -127,6 +135,15 @@ namespace TrenchBroom {
                 return Assets::ModelSpecification();
             Assets::PointEntityDefinition* pointDefinition = static_cast<Assets::PointEntityDefinition*>(m_definition);
             return pointDefinition->model(m_attributes);
+        }
+
+        vm::bbox3 Entity::modelBounds() const {
+            if (m_model != nullptr) {
+                const size_t frameIndex = modelSpecification().frameIndex;
+                return vm::bbox3(m_model->bounds(frameIndex));
+            } else {
+                return vm::bbox3();
+            }
         }
 
         Assets::EntityModel* Entity::model() const {

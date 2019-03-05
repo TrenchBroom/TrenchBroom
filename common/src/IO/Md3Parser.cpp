@@ -114,6 +114,7 @@ namespace TrenchBroom {
          */
 
         void Md3Parser::parseSurfaces(CharArrayReader reader, const size_t surfaceCount, Assets::EntityModel& model, Logger& logger) {
+            const auto frames = model.frames();
             auto surfaceReader = reader;
             for (size_t i = 0; i < surfaceCount; ++i) {
                 const auto ident = surfaceReader.readInt<int32_t>();
@@ -146,7 +147,7 @@ namespace TrenchBroom {
 
                 auto& surface = model.addSurface(surfaceName);
                 loadSurfaceSkins(surface, shaders, logger);
-                buildSurfaceFrames(surface, triangles, vertices, i, frameCount, vertexCount);
+                buildSurfaceFrames(surface, frames, triangles, vertices, i, vertexCount);
 
                 surfaceReader = surfaceReader.subReaderFromBegin(endOffset);
             }
@@ -230,11 +231,11 @@ namespace TrenchBroom {
             }
         }
 
-        void Md3Parser::buildSurfaceFrames(Assets::EntityModel::Surface& surface, const std::vector<Md3Parser::Md3Triangle>& triangles, const std::vector<Assets::EntityModel::Vertex>& vertices, const size_t sufaceIndex, const size_t frameCount, const size_t vertexCountPerFrame) {
+        void Md3Parser::buildSurfaceFrames(Assets::EntityModel::Surface& surface, const std::vector<Assets::EntityModel::Frame*> frames, const std::vector<Md3Parser::Md3Triangle>& triangles, const std::vector<Assets::EntityModel::Vertex>& vertices, const size_t sufaceIndex, const size_t vertexCountPerFrame) {
             using Vertex = Assets::EntityModel::Vertex;
 
             const auto rangeMap = Renderer::IndexRangeMap(GL_TRIANGLES, 0, 3 * triangles.size());
-            for (size_t i = 0; i < frameCount; ++i) {
+            for (size_t i = 0; i < frames.size(); ++i) {
                 const auto frameOffset = i * vertexCountPerFrame;
 
                 std::vector<Vertex> frameVertices;
@@ -256,7 +257,8 @@ namespace TrenchBroom {
                     frameVertices.push_back(v3);
                 }
 
-                surface.addIndexedMesh(frameVertices, rangeMap);
+                auto* frame = frames[i];
+                surface.addIndexedMesh(*frame, frameVertices, rangeMap);
             }
         }
     }

@@ -315,8 +315,8 @@ private:
          */
         template <typename TT>
         static TT*& selectLeastIncreaser(TT*& node1, TT*& node2, const Box& bounds) {
-            const auto new1 = merge(node1->bounds(), bounds);
-            const auto new2 = merge(node2->bounds(), bounds);
+            const auto new1 = vm::merge(node1->bounds(), bounds);
+            const auto new2 = vm::merge(node2->bounds(), bounds);
             const auto vol1 = node1->bounds().volume();
             const auto vol2 = node2->bounds().volume();
             const auto diff1 = new1.volume() - vol1;

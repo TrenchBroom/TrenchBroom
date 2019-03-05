@@ -471,7 +471,7 @@ namespace TrenchBroom {
                 totalVertexCount += vertexCount;
             }
 
-            model->addFrame(m_name, bounds.bounds());
+            auto& frame = model->addFrame(m_name, bounds.bounds());
 
             // Collect vertex data
             Renderer::TexturedIndexRangeMapBuilder<Vertex::Spec> builder(totalVertexCount, size);
@@ -490,7 +490,7 @@ namespace TrenchBroom {
                 }
 
             }
-            surface.addTexturedMesh(builder.vertices(), builder.indices());
+            surface.addTexturedMesh(frame, builder.vertices(), builder.indices());
 
             return model.release();
         }

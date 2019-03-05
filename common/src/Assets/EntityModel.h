@@ -57,16 +57,29 @@ namespace TrenchBroom {
              */
             class Frame {
             private:
+                size_t m_index;
                 String m_name;
                 vm::bbox3f m_bounds;
+
+                using Triangle = std::array<vm::vec3f, 3>;
+                using SpacialTree = AABBTree<float, 3, Triangle>;
+                SpacialTree m_spacialTree;
             public:
                 /**
                  * Creates a new frame with the given name and bounds.
                  *
+                 * @param index the index of this frame
                  * @param name the frame name
                  * @param bounds the bounding box of the frame
                  */
-                Frame(const String& name, const vm::bbox3f& bounds);
+                Frame(size_t index, const String& name, const vm::bbox3f& bounds);
+
+                /**
+                 * Returns the index of this frame.
+                 *
+                 * @return the index
+                 */
+                size_t index() const;
 
                 /**
                  * Returns this frame's name.
@@ -82,6 +95,24 @@ namespace TrenchBroom {
                  * @return the bounding box
                  */
                 const vm::bbox3f& bounds() const;
+
+                /**
+                 * Intersects this frame with the given ray and returns the point of intersection.
+                 *
+                 * @param ray the ray to intersect
+                 * @return the distance to the point of intersection or NaN if the given ray does not intersect this frame
+                 */
+                float intersect(const vm::ray3f& ray) const;
+
+                /**
+                 * Adds the given primitives to the spacial tree for this frame.
+                 *
+                 * @param vertices the vertices
+                 * @param primType the primitive type
+                 * @param index the index of the first primitive's first vertex in the given vertex array
+                 * @param count the number of vertices that make up the primitive(s)
+                 */
+                void addToSpacialTree(const VertexList& vertices, PrimType primType, size_t index, size_t count);
             };
 
             /**
@@ -89,8 +120,6 @@ namespace TrenchBroom {
              */
             class Mesh {
             private:
-                using SpacialTree = AABBTree<float, 3, std::array<size_t, 3>>;
-                SpacialTree m_spacialTree;
                 VertexList m_vertices;
             protected:
                 /**
@@ -103,29 +132,12 @@ namespace TrenchBroom {
                 virtual ~Mesh();
 
                 /**
-                 * Intersects this mesh with the given ray and returns the point of intersection.
-                 *
-                 * @param ray the ray to intersect
-                 * @return the distance to the point of intersection or NaN if the given ray does not intersect this mesh
-                 */
-                float intersect(const vm::ray3f& ray) const;
-
-                /**
                  * Returns a renderer that renders this mesh with the given texture.
                  *
                  * @param skin the texture to use when rendering the mesh
                  * @return the renderer
                  */
                 std::unique_ptr<Renderer::TexturedIndexRangeRenderer> buildRenderer(Assets::Texture* skin);
-            protected:
-                /**
-                 * Adds the given primitve to the spacial tree.
-                 *
-                 * @param primType the type of the primitive to add
-                 * @param index the start index
-                 * @param count the number of vertices of the primitive
-                 */
-                void addToSpacialTree(PrimType primType, size_t index, size_t count);
             private:
                 /**
                  * Creates and returns the actual mesh renderer
@@ -147,10 +159,11 @@ namespace TrenchBroom {
                 /**
                  * Creates a new frame mesh with the given vertices and indices.
                  *
+                 * @param frame the frame to which this mesh belongs
                  * @param vertices the vertices
                  * @param indices the indices
                  */
-                IndexedMesh(const VertexList& vertices, const Indices& indices);
+                IndexedMesh(Frame& frame, const VertexList& vertices, const Indices& indices);
             private:
                 std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(Assets::Texture* skin, const Renderer::VertexArray& vertices) override;
             };
@@ -165,10 +178,11 @@ namespace TrenchBroom {
                 /**
                  * Creates a new frame mesh with the given vertices and per texture indices.
                  *
+                 * @param frame the frame to which this mesh belongs
                  * @param vertices the vertices
                  * @param indices the per texture indices
                  */
-                TexturedMesh(const VertexList& vertices, const TexturedIndices& indices);
+                TexturedMesh(Frame& frame, const VertexList& vertices, const TexturedIndices& indices);
             private:
                 std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(Assets::Texture* skin, const Renderer::VertexArray& vertices) override;
             };
@@ -202,16 +216,6 @@ namespace TrenchBroom {
                 const String& name() const;
 
                 /**
-                 * Intersects the mesh with the given frame index with the given ray and returns the point of intersection.
-                 *
-                 * @param ray the ray to intersect
-                 * @param frameIndex the index of the mesh to intersect
-                 * @return the distance to the point of intersection or NaN if the given ray does not intersect the mesh
-                 * with the given index
-                 */
-                float intersect(const vm::ray3f& ray, size_t frameIndex) const;
-
-                /**
                  * Prepares the skin textures of this surface for rendering.
                  *
                  * @param minFilter the minification filter (GL_TEXTURE_MIN_FILTER)
@@ -230,18 +234,20 @@ namespace TrenchBroom {
                 /**
                  * Adds a new mesh to this surface.
                  *
+                 * @param frame the frame which the mesh belongs to
                  * @param vertices the mesh vertices
                  * @param indices the vertex indices
                  */
-                void addIndexedMesh(const VertexList& vertices, const Indices& indices);
+                void addIndexedMesh(Frame& frame, const VertexList& vertices, const Indices& indices);
 
                 /**
                  * Adds a new multitextured mesh to this surface.
                  *
+                 * @param frame the frame which the mesh belongs to
                  * @param vertices the mesh vertices
                  * @param indices the per texture vertex indices
                  */
-                void addTexturedMesh(const VertexList& vertices, const TexturedIndices& indices);
+                void addTexturedMesh(Frame& frame, const VertexList& vertices, const TexturedIndices& indices);
 
                 /**
                  * Adds the given texture as a skin to this surface.
@@ -374,6 +380,13 @@ namespace TrenchBroom {
              * @return the frames
              */
             std::vector<const Frame*> frames() const;
+
+            /**
+             * Returns all frames of this model.
+             *
+             * @return the frames
+             */
+            std::vector<Frame*> frames();
 
             /**
              * Returns all surfaces of this model.

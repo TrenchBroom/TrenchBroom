@@ -60,6 +60,7 @@ namespace TrenchBroom {
             bool hasPointEntityDefinition() const;
             bool hasPointEntityModel() const;
 
+            vm::bbox3 totalBounds() const;
             const vm::vec3& origin() const;
             const vm::mat4x4& rotation() const;
             const vm::mat4x4 modelTransformation() const;
@@ -70,6 +71,7 @@ namespace TrenchBroom {
             void applyRotation(const vm::mat4x4& transformation);
         public: // entity model
             Assets::ModelSpecification modelSpecification() const;
+            vm::bbox3 modelBounds() const;
             Assets::EntityModel* model() const;
             void setModel(Assets::EntityModel* model);
         private: // implement Node interface

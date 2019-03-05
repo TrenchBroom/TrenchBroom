@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -33,23 +33,23 @@ namespace TrenchBroom {
         m_minFilter(minFilter),
         m_magFilter(magFilter),
         m_resetTextureMode(false) {}
-        
+
         EntityModelManager::~EntityModelManager() {
             clear();
         }
-        
+
         void EntityModelManager::clear() {
             MapUtils::clearAndDelete(m_renderers);
             MapUtils::clearAndDelete(m_models);
             m_rendererMismatches.clear();
             m_modelMismatches.clear();
-            
+
             m_unpreparedModels.clear();
             m_unpreparedRenderers.clear();
-            
+
             // Remove logging because it might fail when the document is already destroyed.
         }
-        
+
         void EntityModelManager::setTextureMode(const int minFilter, const int magFilter) {
             m_minFilter = minFilter;
             m_magFilter = magFilter;
@@ -80,7 +80,7 @@ namespace TrenchBroom {
                 ensure(model != nullptr, "model is null");
                 m_models[path] = model;
                 m_unpreparedModels.push_back(model);
-                
+
                 m_logger.debug() << "Loaded entity model " << path;
 
                 return model;
@@ -89,7 +89,7 @@ namespace TrenchBroom {
                 throw;
             }
         }
-        
+
         EntityModel* EntityModelManager::safeGetModel(const IO::Path& path) const {
             try {
                 return model(path);
@@ -97,7 +97,7 @@ namespace TrenchBroom {
                 return nullptr;
             }
         }
-        
+
         Renderer::TexturedRenderer* EntityModelManager::renderer(const Assets::ModelSpecification& spec) const {
             auto* entityModel = safeGetModel(spec.path);
 
@@ -125,11 +125,11 @@ namespace TrenchBroom {
             }
             return renderer;
         }
-        
+
         bool EntityModelManager::hasModel(const Model::Entity* entity) const {
             return hasModel(entity->modelSpecification());
         }
-        
+
         bool EntityModelManager::hasModel(const Assets::ModelSpecification& spec) const {
             return renderer(spec) != nullptr;
         }
@@ -154,14 +154,14 @@ namespace TrenchBroom {
                 m_resetTextureMode = false;
             }
         }
-        
+
         void EntityModelManager::prepareModels() {
             for (auto* model : m_unpreparedModels) {
                 model->prepare(m_minFilter, m_magFilter);
             }
             m_unpreparedModels.clear();
         }
-        
+
         void EntityModelManager::prepareRenderers(Renderer::Vbo& vbo) {
             for (auto* renderer : m_unpreparedRenderers) {
                 renderer->prepare(vbo);

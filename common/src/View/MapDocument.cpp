@@ -1786,7 +1786,6 @@ namespace TrenchBroom {
         void MapDocument::setEntityModels(const Model::NodeList& nodes) {
             SetEntityModels visitor(*m_entityModelManager);
             Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
-            m_world->acceptAndRecurse(visitor);
         }
 
         void MapDocument::unsetEntityModels() {
@@ -1797,7 +1796,6 @@ namespace TrenchBroom {
         void MapDocument::unsetEntityModels(const Model::NodeList& nodes) {
             UnsetEntityModels visitor;
             Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
-            m_world->acceptAndRecurse(visitor);
         }
 
         IO::Path::List MapDocument::externalSearchPaths() const {
