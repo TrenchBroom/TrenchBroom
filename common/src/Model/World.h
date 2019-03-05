@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -33,7 +33,7 @@
 namespace TrenchBroom {
     namespace Model {
         class PickResult;
-        
+
         class World : public AttributableNode, public ModelFactory {
         private:
             ModelFactoryImpl m_factory;
@@ -112,7 +112,8 @@ namespace TrenchBroom {
             BrushFace* doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const override;
             BrushFace* doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const override;
         private: // implement Taggable interface
-            bool doEvaluateTagMatcher(const TagMatcher& matcher) const override;
+            void doAcceptTagVisitor(TagVisitor& visitor) override;
+            void doAcceptTagVisitor(ConstTagVisitor& visitor) const override;
         private:
             deleteCopyAndMove(World)
         };

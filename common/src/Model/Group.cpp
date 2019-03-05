@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -36,6 +36,7 @@
 #include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
 #include "Model/TransformObjectVisitor.h"
+#include "Model/TagVisitor.h"
 
 #include <vecmath/ray.h>
 #include <vecmath/intersection.h>
@@ -48,21 +49,21 @@ namespace TrenchBroom {
         m_name(name),
         m_editState(Edit_Closed),
         m_boundsValid(false) {}
-        
+
         void Group::setName(const String& name) {
             m_name = name;
         }
-        
+
         bool Group::opened() const {
             return m_editState == Edit_Open;
         }
-        
+
         void Group::open() {
             assert(m_editState == Edit_Closed);
             setEditState(Edit_Open);
             openAncestors();
         }
-        
+
         void Group::close() {
             assert(m_editState == Edit_Open);
             setEditState(Edit_Closed);
@@ -85,12 +86,12 @@ namespace TrenchBroom {
             void doVisit(Entity* entity) override {}
             void doVisit(Brush* brush) override   {}
         };
-        
+
         void Group::openAncestors() {
             SetEditStateVisitor visitor(Edit_DescendantOpen);
             escalate(visitor);
         }
-        
+
         void Group::closeAncestors() {
             SetEditStateVisitor visitor(Edit_Closed);
             escalate(visitor);
@@ -110,7 +111,7 @@ namespace TrenchBroom {
             }
             return m_bounds;
         }
-        
+
         Node* Group::doClone(const vm::bbox3& worldBounds) const {
             Group* group = new Group(m_name);
             cloneAttributes(group);
@@ -120,7 +121,7 @@ namespace TrenchBroom {
         NodeSnapshot* Group::doTakeSnapshot() {
             return new GroupSnapshot(this);
         }
-        
+
         class CanAddChildToGroup : public ConstNodeVisitor, public NodeQuery<bool> {
         private:
             void doVisit(const World* world) override   { setResult(false); }
@@ -129,13 +130,13 @@ namespace TrenchBroom {
             void doVisit(const Entity* entity) override { setResult(true); }
             void doVisit(const Brush* brush) override   { setResult(true); }
         };
-        
+
         bool Group::doCanAddChild(const Node* child) const {
             CanAddChildToGroup visitor;
             child->accept(visitor);
             return visitor.result();
         }
-        
+
         bool Group::doCanRemoveChild(const Node* child) const {
             return true;
         }
@@ -151,7 +152,7 @@ namespace TrenchBroom {
         void Group::doChildWasAdded(Node* node) {
             nodeBoundsDidChange(bounds());
         }
-        
+
         void Group::doChildWasRemoved(Node* node) {
             nodeBoundsDidChange(bounds());
         }
@@ -184,7 +185,7 @@ namespace TrenchBroom {
                 }
             }
         }
-        
+
         void Group::doFindNodesContaining(const vm::vec3& point, NodeList& result) {
             if (bounds().contains(point)) {
                 result.push_back(this);
@@ -209,7 +210,7 @@ namespace TrenchBroom {
                 return visitor.result();
             }
         }
-        
+
         void Group::doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {
             generator->generate(this, issues);
         }
@@ -233,7 +234,7 @@ namespace TrenchBroom {
             escalate(visitor);
             return visitor.hasResult() ? visitor.result() : nullptr;
         }
-        
+
         Group* Group::doGetGroup() const {
             FindGroupVisitor visitor;
             escalate(visitor);
@@ -244,14 +245,14 @@ namespace TrenchBroom {
             TransformObjectVisitor visitor(transformation, lockTextures, worldBounds);
             iterate(visitor);
         }
-        
+
         bool Group::doContains(const Node* node) const {
             BoundsContainsNodeVisitor contains(bounds());
             node->accept(contains);
             assert(contains.hasResult());
             return contains.result();
         }
-        
+
         bool Group::doIntersects(const Node* node) const {
             BoundsIntersectsNodeVisitor intersects(bounds());
             node->accept(intersects);
@@ -262,7 +263,7 @@ namespace TrenchBroom {
         void Group::invalidateBounds() {
             m_boundsValid = false;
         }
-        
+
         void Group::validateBounds() const {
             ComputeNodeBoundsVisitor visitor(vm::bbox3(0.0));
             iterate(visitor);
@@ -270,8 +271,12 @@ namespace TrenchBroom {
             m_boundsValid = true;
         }
 
-        bool Group::doEvaluateTagMatcher(const TagMatcher& matcher) const {
-            return matcher.matches(*this);
+        void Group::doAcceptTagVisitor(TagVisitor& visitor) {
+            visitor.visit(*this);
+        }
+
+        void Group::doAcceptTagVisitor(ConstTagVisitor& visitor) const {
+            visitor.visit(*this);
         }
     }
 }

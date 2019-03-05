@@ -27,6 +27,7 @@
 #include "Model/PlanePointFinder.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
+#include "Model/TagVisitor.h"
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/TexturedIndexArrayMapBuilder.h"
 
@@ -50,7 +51,7 @@ namespace TrenchBroom {
         BrushFace::ProjectToEdge::Type BrushFace::ProjectToEdge::project(BrushHalfEdge* halfEdge) {
             return halfEdge->edge();
         }
-        
+
         BrushFace::BrushFace(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs, std::unique_ptr<TexCoordSystem> texCoordSystem) :
         m_brush(nullptr),
         m_lineNumber(0),
@@ -67,12 +68,12 @@ namespace TrenchBroom {
             const BrushFaceAttributes attribs(textureName);
             return new BrushFace(point0, point1, point2, attribs, std::make_unique<ParaxialTexCoordSystem>(point0, point1, point2, attribs));
         }
-        
+
         BrushFace* BrushFace::createParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const String& textureName) {
             const BrushFaceAttributes attribs(textureName);
             return new BrushFace(point0, point1, point2, attribs, std::make_unique<ParallelTexCoordSystem>(point0, point1, point2, attribs));
         }
-        
+
         void BrushFace::sortFaces(BrushFaceList& faces) {
             // Originally, the idea to sort faces came from TxQBSP, but the sorting used there was not entirely clear to me.
             // But it is still desirable to have a deterministic order in which the faces are added to the brush, so I chose
@@ -118,11 +119,11 @@ namespace TrenchBroom {
         BrushFaceSnapshot* BrushFace::takeSnapshot() {
             return new BrushFaceSnapshot(this, *m_texCoordSystem);
         }
-        
+
         std::unique_ptr<TexCoordSystemSnapshot> BrushFace::takeTexCoordSystemSnapshot() const {
             return m_texCoordSystem->takeSnapshot();
         }
-        
+
         void BrushFace::restoreTexCoordSystemSnapshot(const TexCoordSystemSnapshot& coordSystemSnapshot) {
             coordSystemSnapshot.restore(*m_texCoordSystem);
             invalidateVertexCache();
@@ -132,14 +133,14 @@ namespace TrenchBroom {
             // Get a line, and a reference point, that are on both the source face's plane and our plane
             const auto seam = vm::intersect(sourceFacePlane, m_boundary);
             const auto refPoint = seam.projectPoint(center());
-            
+
             coordSystemSnapshot.restore(*m_texCoordSystem);
-            
+
             // Get the texcoords at the refPoint using the source face's attribs and tex coord system
             const auto desriedCoords = m_texCoordSystem->getTexCoords(refPoint, attribs) * attribs.textureSize();
-            
+
             m_texCoordSystem->updateNormal(sourceFacePlane.normal, m_boundary.normal, m_attribs, wrapStyle);
-            
+
             // Adjust the offset on this face so that the texture coordinates at the refPoint stay the same
             if (!isZero(seam.direction, vm::C::almostZero())) {
                 const auto currentCoords = m_texCoordSystem->getTexCoords(refPoint, m_attribs) * m_attribs.textureSize();
@@ -149,7 +150,7 @@ namespace TrenchBroom {
 
             invalidateVertexCache();
         }
-        
+
         Brush* BrushFace::brush() const {
             return m_brush;
         }
@@ -193,7 +194,7 @@ namespace TrenchBroom {
 
             const auto* first = m_geometry->boundary().front();
             const auto* current = first;
-            
+
             vm::bbox3 bounds;
             bounds.min = bounds.max = toPlane * current->origin()->position();
 
@@ -455,13 +456,13 @@ namespace TrenchBroom {
             for (size_t i = 0; i < 3; ++i) {
                 m_points[i] = transform * m_points[i];
             }
-            
+
             if (dot(cross(m_points[2] - m_points[0], m_points[1] - m_points[0]), m_boundary.normal) < 0.0) {
                 swap(m_points[1], m_points[2]);
             }
 
             setPoints(m_points[0], m_points[1], m_points[2]);
-            
+
             m_texCoordSystem->transform(oldBoundary, m_boundary, transform, m_attribs, lockTexture, invariant);
         }
 
@@ -487,12 +488,12 @@ namespace TrenchBroom {
             const auto seam = vm::intersect(oldPlane, m_boundary);
             if (!isZero(seam.direction, vm::C::almostZero())) {
                 const auto refPoint = seam.projectPoint(center());
-                
+
                 // Get the texcoords at the refPoint using the old face's attribs and tex coord system
                 const auto desriedCoords = m_texCoordSystem->getTexCoords(refPoint, m_attribs) * m_attribs.textureSize();
-                
+
                 m_texCoordSystem->updateNormal(oldPlane.normal, m_boundary.normal, m_attribs, WrapStyle::Projection);
-                
+
                 // Adjust the offset on this face so that the texture coordinates at the refPoint stay the same
                 const auto currentCoords = m_texCoordSystem->getTexCoords(refPoint, m_attribs) * m_attribs.textureSize();
                 const auto offsetChange = desriedCoords - currentCoords;
@@ -685,8 +686,12 @@ namespace TrenchBroom {
             return m_markedToRenderFace;
         }
 
-        bool BrushFace::doEvaluateTagMatcher(const TagMatcher& matcher) const {
-            return matcher.matches(*this);
+        void BrushFace::doAcceptTagVisitor(TagVisitor& visitor) {
+            visitor.visit(*this);
+        }
+
+        void BrushFace::doAcceptTagVisitor(ConstTagVisitor& visitor) const {
+            visitor.visit(*this);
         }
     }
 }

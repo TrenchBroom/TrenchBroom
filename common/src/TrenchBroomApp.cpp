@@ -283,8 +283,21 @@ namespace TrenchBroom {
             }
         }
 
+        // returns the topmost MapDocument as a shared pointer, or the empty shared pointer
+        static MapDocumentSPtr topDocument() {
+            FrameManager *fm = TrenchBroomApp::instance().frameManager();
+            if (fm == nullptr)
+                return MapDocumentSPtr();
+
+            MapFrame *frame = fm->topFrame();
+            if (frame == nullptr)
+                return MapDocumentSPtr();
+
+            return frame->document();
+        }
+
         void TrenchBroomApp::openPreferences() {
-            PreferenceDialog dialog;
+            PreferenceDialog dialog(topDocument());
             dialog.ShowModal();
         }
 
@@ -344,19 +357,6 @@ namespace TrenchBroom {
             ss << "Stack trace:" << std::endl;
             ss << stacktrace << std::endl;
             return ss.str();
-        }
-
-        // returns the topmost MapDocument as a shared pointer, or the empty shared pointer
-        static MapDocumentSPtr topDocument() {
-            FrameManager *fm = TrenchBroomApp::instance().frameManager();
-            if (fm == nullptr)
-                return MapDocumentSPtr();
-
-            MapFrame *frame = fm->topFrame();
-            if (frame == nullptr)
-                return MapDocumentSPtr();
-
-            return frame->document();
         }
 
         // returns the empty path for unsaved maps, or if we can't determine the current map

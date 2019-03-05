@@ -143,7 +143,7 @@ namespace TrenchBroom {
                 Color(0.6f, 0.6f, 0.6f, 1.0f)),
             GameConfig::FaceAttribsConfig(),
             {
-              Model::SmartTag("Trigger", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::EntityClassNameTagMatcher>("trigger*")),
+              Model::SmartTag("Trigger", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::EntityClassNameTagMatcher>("trigger*", "")),
               Model::SmartTag("Clip", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::TextureNameTagMatcher>("clip")),
               Model::SmartTag("Skip", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::TextureNameTagMatcher>("skip")),
               Model::SmartTag("Hint", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::TextureNameTagMatcher>("hint*")),
@@ -191,7 +191,8 @@ namespace TrenchBroom {
                 "name": "Trigger",
                 "attribs": [ "transparent" ],
                 "match": "classname",
-                "pattern": "trigger*"
+                "pattern": "trigger*",
+                "texture": "trigger"
             }
         ],
         "brushface": [
@@ -436,7 +437,7 @@ namespace TrenchBroom {
                         { "ladder", "Brushes with this flag allow a player to move up and down a vertical surface" }
                     }),
                 {
-                    Model::SmartTag("Trigger", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::EntityClassNameTagMatcher>("trigger*")),
+                    Model::SmartTag("Trigger", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::EntityClassNameTagMatcher>("trigger*", "trigger")),
                     Model::SmartTag("Clip", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::TextureNameTagMatcher>("clip")),
                     Model::SmartTag("Skip", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::TextureNameTagMatcher>("skip")),
                     Model::SmartTag("Hint", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::TextureNameTagMatcher>("hint*")),

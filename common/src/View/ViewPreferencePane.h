@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -46,7 +46,7 @@ namespace TrenchBroom {
             wxChoice* m_textureBrowserIconSizeChoice;
             wxComboBox* m_fontPrefsRendererFontSizeCombo;
         public:
-            ViewPreferencePane(wxWindow* parent);
+            explicit ViewPreferencePane(wxWindow* parent);
 
             void OnLayoutChanged(wxCommandEvent& event);
             void OnBrightnessChanged(wxScrollEvent& event);
@@ -64,12 +64,12 @@ namespace TrenchBroom {
             wxWindow* createViewPreferences();
 
             void bindEvents();
-            
+
             bool doCanResetToDefaults() override;
             void doResetToDefaults() override;
             void doUpdateControls() override;
             bool doValidate() override;
-            
+
             size_t findTextureMode(int minFilter, int magFilter) const;
         };
     }

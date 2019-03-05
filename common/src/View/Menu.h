@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -26,8 +26,9 @@
 #include "View/Action.h"
 #include "View/KeyboardShortcutEntry.h"
 
-#include <vector>
 #include <map>
+#include <memory>
+#include <vector>
 
 class wxMenu;
 class wxMenuBar;
@@ -37,7 +38,7 @@ namespace TrenchBroom {
         class ActionMenuItem;
         class KeyboardShortcut;
         class MenuItemParent;
-        
+
         class MenuItem {
         public:
             typedef enum {
@@ -46,23 +47,23 @@ namespace TrenchBroom {
                 Type_Check,
                 Type_Menu
             } Type;
-            
+
             using List = std::vector<MenuItem*>;
         private:
             Type m_type;
             MenuItemParent* m_parent;
         public:
-            MenuItem(const Type type, MenuItemParent* parent);
+            MenuItem(Type type, MenuItemParent* parent);
             virtual ~MenuItem();
-            
+
             Type type() const;
             const MenuItemParent* parent() const;
-            
+
             void appendToMenu(wxMenu* menu, bool withShortcuts) const;
             void appendToMenu(wxMenuBar* menu, bool withShortcuts) const;
             const ActionMenuItem* findActionMenuItem(int id) const;
             void getShortcutEntries(KeyboardShortcutEntry::List& entries);
-            
+
             void resetShortcuts();
         private:
             virtual void doAppendToMenu(wxMenu* menu, bool withShortcuts) const = 0;
@@ -74,15 +75,15 @@ namespace TrenchBroom {
 
         class SeparatorItem : public MenuItem {
         public:
-            SeparatorItem(MenuItemParent* parent);
+            explicit SeparatorItem(MenuItemParent* parent);
         private:
             void doAppendToMenu(wxMenu* menu, bool withShortcuts) const override;
         };
-        
+
         class LabeledMenuItem : public MenuItem {
         public:
             LabeledMenuItem(Type type, MenuItemParent* parent);
-            virtual ~LabeledMenuItem();
+            ~LabeledMenuItem() override;
         public:
             int id() const;
             const String& label() const;
@@ -90,14 +91,29 @@ namespace TrenchBroom {
             virtual int doGetId() const = 0;
             virtual const String& doGetLabel() const = 0;
         };
-        
-        class ActionMenuItem : public LabeledMenuItem, public KeyboardShortcutEntry {
+
+        class ActionMenuItem : public LabeledMenuItem {
+        public:
+            class ActionKeyboardShortcutEntry : public KeyboardShortcutEntry {
+            private:
+                ActionMenuItem& m_menuItem;
+            public:
+                explicit ActionKeyboardShortcutEntry(ActionMenuItem& menuItem);
+            private: // implement KeyboardShortcutEntry interface
+                int doGetActionContext() const override;
+                bool doGetModifiable() const override;
+                wxString doGetActionDescription() const override;
+                wxString doGetJsonString() const override;
+                const Preference<KeyboardShortcut>& doGetPreference() const override;
+                Preference<KeyboardShortcut>& doGetPreference() override;
+                wxAcceleratorEntry doGetAcceleratorEntry(ActionView view) const override;
+            };
         private:
             mutable Action m_action;
             mutable Preference<KeyboardShortcut> m_preference;
         public:
             ActionMenuItem(Type type, MenuItemParent* parent, int id, const String& label, const KeyboardShortcut& defaultShortcut, bool modifiable);
-            virtual ~ActionMenuItem() override;
+            ~ActionMenuItem() override;
 
             wxString menuString(const wxString& suffix, bool withShortcuts) const;
         private:
@@ -107,23 +123,13 @@ namespace TrenchBroom {
             const ActionMenuItem* doFindActionMenuItem(int id) const override;
             void doGetShortcutEntries(KeyboardShortcutEntry::List& entries) override;
             void doResetShortcuts() override;
-            
+
             int doGetId() const override;
             const String& doGetLabel() const override;
-        private: // implement KeyboardShortcutEntry interface
-            int doGetActionContext() const override;
-            bool doGetModifiable() const override;
-            wxString doGetActionDescription() const override;
-            wxString doGetJsonString() const override;
-            const Preference<KeyboardShortcut>& doGetPreference() const override;
-            const KeyboardShortcut& doGetShortcut() const override;
-            const KeyboardShortcut& doGetDefaultShortcut() const override;
-            void doUpdateShortcut(const KeyboardShortcut& shortcut) override;
-            wxAcceleratorEntry doGetAcceleratorEntry(ActionView view) const override;
         };
-        
+
         class Menu;
-        
+
         class MenuItemParent : public LabeledMenuItem {
         private:
             int m_id;
@@ -132,7 +138,7 @@ namespace TrenchBroom {
         protected:
             MenuItemParent(Type type, MenuItemParent* parent, int id, const String& label);
         public:
-            virtual ~MenuItemParent() override;
+            ~MenuItemParent() override;
 
             void addItem(MenuItem* item);
             const List& items() const;
@@ -145,20 +151,20 @@ namespace TrenchBroom {
             const ActionMenuItem* doFindActionMenuItem(int id) const override;
             void doGetShortcutEntries(KeyboardShortcutEntry::List& entries) override;
             void doResetShortcuts() override;
-            
+
             int doGetId() const override;
             const String& doGetLabel() const override;
         };
-        
+
         class Menu : public MenuItemParent {
         public:
             Menu(MenuItemParent* parent, int id, const String& label);
-            Menu(const String& label);
-            virtual ~Menu();
+            explicit Menu(const String& label);
+            ~Menu() override;
 
             MenuItem* addModifiableActionItem(int id, const String& label, const KeyboardShortcut& defaultShortcut = KeyboardShortcut::Empty);
             MenuItem* addUnmodifiableActionItem(int id, const String& label, const KeyboardShortcut& defaultShortcut = KeyboardShortcut::Empty);
-            
+
             MenuItem* addModifiableCheckItem(int id, const String& label, const KeyboardShortcut& defaultShortcut = KeyboardShortcut::Empty);
             MenuItem* addUnmodifiableCheckItem(int id, const String& label, const KeyboardShortcut& defaultShortcut = KeyboardShortcut::Empty);
 
@@ -169,7 +175,7 @@ namespace TrenchBroom {
             MenuItem* addActionItem(int id, const String& label, const KeyboardShortcut& defaultShortcut, bool modifiable);
             MenuItem* addCheckItem(int id, const String& label, const KeyboardShortcut& defaultShortcut, bool modifiable);
         };
-        
+
         class MenuBar {
         private:
             using MenuList = std::vector<Menu*>;
@@ -177,7 +183,7 @@ namespace TrenchBroom {
         public:
             MenuBar();
             ~MenuBar();
-            
+
             const ActionMenuItem* findActionMenuItem(int id) const;
             void resetShortcuts();
 
