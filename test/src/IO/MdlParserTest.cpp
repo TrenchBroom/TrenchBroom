@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -34,9 +34,9 @@ namespace TrenchBroom {
             NullLogger logger;
 
             DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
-            const Assets::Palette palette = Assets::Palette::loadFile(fs, Path("data/palette.lmp"));
+            const Assets::Palette palette = Assets::Palette::loadFile(fs, Path("data/test/palette.lmp"));
 
-            const auto mdlPath = IO::Disk::getCurrentWorkingDir() + IO::Path("data/IO/Mdl/armor.mdl");
+            const auto mdlPath = IO::Disk::getCurrentWorkingDir() + IO::Path("data/test/IO/Mdl/armor.mdl");
             const MappedFile::Ptr mdlFile = Disk::openFile(mdlPath);
             ASSERT_NE(nullptr, mdlFile);
 
@@ -58,9 +58,9 @@ namespace TrenchBroom {
             NullLogger logger;
 
             DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
-            const Assets::Palette palette = Assets::Palette::loadFile(fs, Path("data/palette.lmp"));
+            const Assets::Palette palette = Assets::Palette::loadFile(fs, Path("data/test/palette.lmp"));
 
-            const auto mdlPath = IO::Disk::getCurrentWorkingDir() + IO::Path("data/IO/Mdl/invalid.mdl");
+            const auto mdlPath = IO::Disk::getCurrentWorkingDir() + IO::Path("data/test/IO/Mdl/invalid.mdl");
             const MappedFile::Ptr mdlFile = Disk::openFile(mdlPath);
             ASSERT_NE(nullptr, mdlFile);
 

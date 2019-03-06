@@ -31,7 +31,7 @@ namespace TrenchBroom {
         TEST(AseParserTest, loadWithoutException) {
             NullLogger logger;
             auto searchPaths = Path::List { Path("models") };
-            std::shared_ptr<FileSystem> fs = std::make_shared<DiskFileSystem>(IO::Disk::getCurrentWorkingDir() + Path("data/IO/Ase/wedge_with_shader"));
+            std::shared_ptr<FileSystem> fs = std::make_shared<DiskFileSystem>(IO::Disk::getCurrentWorkingDir() + Path("data/test/IO/Ase/wedge_with_shader"));
             fs = std::make_shared<Quake3ShaderFileSystem>(fs, searchPaths, logger);
 
             const auto aseFile = fs->openFile(Path("models/mapobjects/wedges/wedge_45.ase"));

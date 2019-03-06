@@ -501,7 +501,7 @@ waterBubble
             // The file contains a carriage return without a consecutive line feed, which tripped the parser.
 
             const auto workDir = Disk::getCurrentWorkingDir();
-            auto fs = DiskFileSystem(workDir + Path("data/IO/Shader/parser"));
+            auto fs = DiskFileSystem(workDir + Path("data/test/IO/Shader/parser"));
             auto testFile = fs.openFile(Path("am_cf_models.shader"));
 
             Quake3ShaderParser parser(testFile->begin(), testFile->end());

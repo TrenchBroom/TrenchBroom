@@ -51,7 +51,7 @@ namespace TrenchBroom {
                 auto configParser = IO::GameConfigParser(configStr, configPath);
                 auto config = configParser.parse();
 
-                const auto gamePath = IO::Disk::getCurrentWorkingDir() + IO::Path("data/Model/Game/CorruptPak");
+                const auto gamePath = IO::Disk::getCurrentWorkingDir() + IO::Path("data/test/Model/Game/CorruptPak");
                 auto logger = NullLogger();
                 ASSERT_NO_THROW(GameImpl(config, gamePath, logger)) << "Should not throw when loading corrupted package file for game " << game;
             }
@@ -63,7 +63,7 @@ namespace TrenchBroom {
             auto configParser = IO::GameConfigParser(configStr, configPath);
             auto config = configParser.parse();
 
-            const auto gamePath = IO::Disk::getCurrentWorkingDir() + IO::Path("data/Model/Game/Quake3");
+            const auto gamePath = IO::Disk::getCurrentWorkingDir() + IO::Path("data/test/Model/Game/Quake3");
             auto logger = NullLogger();
             auto game = GameImpl(config, gamePath, logger);
 

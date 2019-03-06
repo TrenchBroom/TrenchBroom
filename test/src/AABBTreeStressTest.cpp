@@ -20,7 +20,6 @@
 #include <gtest/gtest.h>
 
 #include "AABBTree.h"
-#include <vecmath/bbox.h>
 #include "IO/DiskIO.h"
 #include "IO/Path.h"
 #include "IO/TestParserStatus.h"
@@ -30,6 +29,8 @@
 #include "Model/Entity.h"
 #include "Model/NodeVisitor.h"
 #include "Model/World.h"
+
+#include <vecmath/bbox.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -83,7 +84,7 @@ namespace TrenchBroom {
         };
 
         TEST(AABBTreeStressTest, parseMapTest) {
-            const auto mapPath = IO::Disk::getCurrentWorkingDir() + IO::Path("data/IO/Map/rtz_q1.map");
+            const auto mapPath = IO::Disk::getCurrentWorkingDir() + IO::Path("data/test/IO/Map/rtz_q1.map");
             const auto file = IO::Disk::openFile(mapPath);
 
             IO::TestParserStatus status;

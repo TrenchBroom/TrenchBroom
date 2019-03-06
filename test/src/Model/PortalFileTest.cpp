@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -31,7 +31,7 @@
 namespace TrenchBroom {
     namespace Model {
         TEST(PortalFileTest, parseInvalidPRT1) {
-            const auto path = IO::Path("data/Model/PortalFile/portaltest_prt1_invalid.prt");
+            const auto path = IO::Path("data/test/Model/PortalFile/portaltest_prt1_invalid.prt");
 
             EXPECT_ANY_THROW(const Model::PortalFile p = Model::PortalFile(path));
         }
@@ -45,19 +45,19 @@ namespace TrenchBroom {
         };
 
         TEST(PortalFileTest, parsePRT1) {
-            const auto path = IO::Path("data/Model/PortalFile/portaltest_prt1.prt");
+            const auto path = IO::Path("data/test/Model/PortalFile/portaltest_prt1.prt");
             const Model::PortalFile portalFile(path);
             ASSERT_EQ(ExpectedPortals, portalFile.portals());
         }
 
         TEST(PortalFileTest, parsePRT1AM) {
-            const auto path = IO::Path("data/Model/PortalFile/portaltest_prt1am.prt");
+            const auto path = IO::Path("data/test/Model/PortalFile/portaltest_prt1am.prt");
             const Model::PortalFile portalFile(path);
             ASSERT_EQ(ExpectedPortals, portalFile.portals());
         }
 
         TEST(PortalFileTest, parsePRT2) {
-            const auto path = IO::Path("data/Model/PortalFile/portaltest_prt2.prt");
+            const auto path = IO::Path("data/test/Model/PortalFile/portaltest_prt2.prt");
             const Model::PortalFile portalFile(path);
             ASSERT_EQ(ExpectedPortals, portalFile.portals());
         }

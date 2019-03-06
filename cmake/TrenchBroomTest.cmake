@@ -68,14 +68,19 @@ IF(WIN32)
     )
 ENDIF()
 
-# Clear all test fixtures
+# Clear all fixtures
 ADD_CUSTOM_COMMAND(TARGET TrenchBroom-Test POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E remove_directory "${RESOURCE_DEST_DIR}/data"
 )
 
 # Copy test fixtures
 ADD_CUSTOM_COMMAND(TARGET TrenchBroom-Test POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/test/data" "${RESOURCE_DEST_DIR}/data"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/test/data" "${RESOURCE_DEST_DIR}/data/test/"
+)
+
+# Copy benchmark fixtures
+ADD_CUSTOM_COMMAND(TARGET TrenchBroom-Benchmark POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/benchmark/data" "${BENCHMARK_RESOURCE_DEST_DIR}/data/benchmark"
 )
 
 ADD_CUSTOM_COMMAND(TARGET TrenchBroom-Test POST_BUILD
