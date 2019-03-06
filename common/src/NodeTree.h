@@ -81,7 +81,7 @@ public:
      * @param bounds the bounds to insert
      * @param data the data to insert
      */
-    virtual void insert(const Box& bounds, U data) = 0;
+    virtual void insert(const Box& bounds, const U& data) = 0;
 
     /**
      * Removes the node with the given bounds and data into this tree.
@@ -101,7 +101,7 @@ public:
      *
      * @throws NodeTreeException if no node with the given bounds and data can be found in this tree
      */
-    virtual void update(const Box& oldBounds, const Box& newBounds, U data) = 0;
+    virtual void update(const Box& oldBounds, const Box& newBounds, const U& data) = 0;
 
     /**
      * Clears this node tree.

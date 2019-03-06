@@ -137,7 +137,7 @@ private:
          * @param data the data to be inserted
          * @return the new root
          */
-        virtual Node* insert(const Box& bounds, U data) = 0;
+        virtual Node* insert(const Box& bounds, const U& data) = 0;
 
         /**
          * Removes the node with the given parameters from the subtree of which this node is the root. Returns the new
@@ -238,11 +238,11 @@ private:
             return result;
         }
 
-        Node* insert(const Box& bounds, U data) override {
+        Node* insert(const Box& bounds, const U& data) override {
             // Select the subtree which is increased the least by inserting a node with the given bounds.
             // Then insert the node into that subtree and update our reference to it.
             auto*& subtree = selectLeastIncreaser(m_left, m_right, bounds);
-            subtree = subtree->insert(bounds, std::move(data));
+            subtree = subtree->insert(bounds, data);
 
             // Update our data.
             updateBounds();
@@ -315,28 +315,40 @@ private:
          */
         template <typename TT>
         static TT*& selectLeastIncreaser(TT*& node1, TT*& node2, const Box& bounds) {
-            const auto new1 = vm::merge(node1->bounds(), bounds);
-            const auto new2 = vm::merge(node2->bounds(), bounds);
-            const auto vol1 = node1->bounds().volume();
-            const auto vol2 = node2->bounds().volume();
-            const auto diff1 = new1.volume() - vol1;
-            const auto diff2 = new2.volume() - vol2;
+            const auto node1Contains = node1->bounds().contains(bounds);
+            const auto node2Contains = node2->bounds().contains(bounds);
 
-            if (diff1 < diff2) {
+            if (node1Contains && !node2Contains) {
                 return node1;
-            } else if (diff2 < diff1) {
+            } else if (!node1Contains && node2Contains) {
                 return node2;
-            } else if (node1->height() < node2->height()) {
+            } else if (!node1Contains && !node2Contains) {
+                const auto new1 = vm::merge(node1->bounds(), bounds);
+                const auto new2 = vm::merge(node2->bounds(), bounds);
+                const auto vol1 = node1->bounds().volume();
+                const auto vol2 = node2->bounds().volume();
+                const auto diff1 = new1.volume() - vol1;
+                const auto diff2 = new2.volume() - vol2;
+
+                if (diff1 < diff2) {
+                    return node1;
+                } else if (diff2 < diff1) {
+                    return node2;
+                }
+            }
+
+            static auto choice = 0u;
+
+            if (node1->height() < node2->height()) {
                 return node1;
             } else if (node2->height() < node1->height()) {
                 return node2;
-            } else if (vol1 < vol2) {
-                return node1;
-            } else if (vol2 < vol1) {
-                return node2;
             } else {
-                // I give up!
-                return node1;
+                if (choice++ % 2 == 0) {
+                    return node1;
+                } else {
+                    return node2;
+                }
             }
         }
 
@@ -377,7 +389,7 @@ private:
     private:
         U m_data;
     public:
-        LeafNode(const Box& bounds, U data) : Node(bounds), m_data(std::move(data)) {}
+        LeafNode(const Box& bounds, const U& data) : Node(bounds), m_data(data) {}
 
         /**
          * Returns the data associated with this node.
@@ -420,8 +432,8 @@ private:
          * @param data the data to insert
          * @return the newly created inner node which should replace this leaf in the parent
          */
-        Node* insert(const Box& bounds, U data) override {
-            return new InnerNode(this, new LeafNode(bounds, std::move(data)));
+        Node* insert(const Box& bounds, const U& data) override {
+            return new InnerNode(this, new LeafNode(bounds, data));
         }
 
         /**
@@ -480,13 +492,13 @@ public:
         return (!empty() && m_root->find(bounds, data) != nullptr);
     }
 
-    void insert(const Box& bounds, U data) override {
+    void insert(const Box& bounds, const U& data) override {
         check(bounds, data);
 
         if (empty()) {
-            m_root = new LeafNode(bounds, std::move(data));
+            m_root = new LeafNode(bounds, data);
         } else {
-            m_root = m_root->insert(bounds, std::move(data));
+            m_root = m_root->insert(bounds, data);
         }
     }
 
@@ -506,7 +518,7 @@ public:
         return false;
     }
 
-    void update(const Box& oldBounds, const Box& newBounds, U data) override {
+    void update(const Box& oldBounds, const Box& newBounds, const U& data) override {
         check(oldBounds, data);
         check(newBounds, data);
 
@@ -515,7 +527,7 @@ public:
             ex << "AABB node not found with oldBounds [ ( " << oldBounds.min << " ) ( " << oldBounds.max << " ) ]: " << data;
             throw ex;
         }
-        insert(newBounds, std::move(data));
+        insert(newBounds, data);
     }
 private:
     void check(const Box& bounds, const U& data) const {
@@ -555,7 +567,7 @@ public:
     List findIntersectors(const vm::ray<T,S>& ray) const override {
         List result;
         findIntersectors(ray, std::back_inserter(result));
-        return std::move(result);
+        return result;
     }
 
     /**
@@ -588,7 +600,7 @@ public:
      List findContainers(const vm::vec<T,S>& point) const override {
          List result;
          findContainers(point, std::back_inserter(result));
-         return std::move(result);
+         return result;
      }
 
     /**
