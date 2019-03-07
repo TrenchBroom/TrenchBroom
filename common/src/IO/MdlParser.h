@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -21,7 +21,6 @@
 #define TrenchBroom_MdlParser
 
 #include "StringUtils.h"
-#include "ByteBuffer.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/EntityModel.h"
 #include "IO/EntityModelParser.h"
@@ -35,28 +34,30 @@ namespace TrenchBroom {
     namespace Assets {
         class Palette;
     }
-    
+
     namespace IO {
+        class CharArrayReader;
+
         class MdlParser : public EntityModelParser {
         private:
             static const vm::vec3f Normals[162];
-            
+
             struct MdlSkinVertex {
                 bool onseam;
                 int s;
                 int t;
             };
-            
+
             struct MdlSkinTriangle {
                 bool front;
                 size_t vertices[3];
             };
-            
+
             using MdlSkinVertexList = std::vector<MdlSkinVertex>;
             using MdlSkinTriangleList = std::vector<MdlSkinTriangle>;
             using PackedFrameVertex = vm::vec<unsigned char, 4>;
             using PackedFrameVertexList = std::vector<PackedFrameVertex>;
-            
+
             String m_name;
             const char* m_begin;
             const char* m_end;
@@ -66,11 +67,11 @@ namespace TrenchBroom {
         private:
             Assets::EntityModel* doParseModel(Logger& logger) override;
 
-            void parseSkins(const char*& cursor, Assets::EntityModel::Surface& surface, size_t count, size_t width, size_t height, int flags);
-            MdlSkinVertexList parseSkinVertices(const char*& cursor, size_t count);
-            MdlSkinTriangleList parseSkinTriangles(const char*& cursor, size_t count);
-            void parseFrames(const char*& cursor, Assets::EntityModel& model, Assets::EntityModel::Surface& surface, size_t count, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, size_t skinWidth, size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale);
-            void parseFrame(const char*& cursor, Assets::EntityModel& model, Assets::EntityModel::Surface& surface, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, size_t skinWidth, size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale);
+            void parseSkins(CharArrayReader& reader, Assets::EntityModel::Surface& surface, size_t count, size_t width, size_t height, int flags);
+            MdlSkinVertexList parseSkinVertices(CharArrayReader& reader, size_t count);
+            MdlSkinTriangleList parseSkinTriangles(CharArrayReader& reader, size_t count);
+            void parseFrames(CharArrayReader& reader, Assets::EntityModel& model, Assets::EntityModel::Surface& surface, size_t count, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, size_t skinWidth, size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale);
+            void parseFrame(CharArrayReader reader, Assets::EntityModel& model, Assets::EntityModel::Surface& surface, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, size_t skinWidth, size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale);
             vm::vec3f unpackFrameVertex(const PackedFrameVertex& vertex, const vm::vec3f& origin, const vm::vec3f& scale) const;
         };
     }
