@@ -37,6 +37,7 @@ namespace TrenchBroom {
     }
 
     namespace IO {
+        class CharArrayReader;
         class FileSystem;
         class Path;
         
@@ -53,22 +54,7 @@ namespace TrenchBroom {
         private:
             static const vm::vec3f Normals[162];
 
-            struct DkmSkin {
-                char name[DkmLayout::SkinNameLength];
-            };
-            using DkmSkinList = std::vector<DkmSkin>;
-
-            struct DkmVertex1 {
-                unsigned char x, y, z;
-                unsigned char normalIndex;
-            };
-
-#pragma pack(push, 1)
-            struct DkmVertex2 {
-                uint32_t xyz;
-                unsigned char normalIndex;
-            };
-#pragma pack(pop)
+            using DkmSkinList = StringList;
 
             struct DkmVertex {
                 unsigned int x, y, z;
@@ -80,7 +66,7 @@ namespace TrenchBroom {
             struct DkmFrame {
                 vm::vec3f scale;
                 vm::vec3f offset;
-                char name[DkmLayout::FrameNameLength];
+                String name;
                 DkmVertexList vertices;
                 
                 DkmFrame(size_t vertexCount);
@@ -112,19 +98,19 @@ namespace TrenchBroom {
             
             String m_name;
             const char* m_begin;
-            /* const char* m_end; */
+            const char* m_end;
             const FileSystem& m_fs;
         public:
             DkmParser(const String& name, const char* begin, const char* end, const FileSystem& fs);
         private:
             Assets::EntityModel* doParseModel(Logger& logger) override;
-            DkmSkinList parseSkins(const char* begin, size_t skinCount);
-            DkmFrameList parseFrames(const char* begin, size_t frameCount, size_t frameVertexCount, int version);
-            DkmMeshList parseMeshes(const char* begin, size_t commandCount);
+            DkmSkinList parseSkins(CharArrayReader reader, size_t skinCount);
+            DkmFrameList parseFrames(CharArrayReader reader, size_t frameSize, size_t frameCount, size_t frameVertexCount, int version);
+            DkmMeshList parseMeshes(CharArrayReader reader, size_t commandCount);
 
             Assets::EntityModel* buildModel(const DkmSkinList& skins, const DkmFrameList& frames, const DkmMeshList& meshes);
             void loadSkins(Assets::EntityModel::Surface& surface, const DkmSkinList& skins);
-            const IO::Path findSkin(const DkmSkin& skin) const;
+            const IO::Path findSkin(const String& skin) const;
             void buildFrames(Assets::EntityModel& model, Assets::EntityModel::Surface& surface, const DkmFrameList& frames, const DkmMeshList& meshes);
 
             Assets::EntityModel::VertexList getVertices(const DkmFrame& frame, const DkmMeshVertexList& meshVertices) const;
