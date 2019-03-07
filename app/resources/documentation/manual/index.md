@@ -16,13 +16,14 @@ TrenchBroom is a level editing program for brush-based game engines such as Quak
 	- Issue browser with automatic quick fixes
 	- Run external compilers and launch game engines
 	- Point file support
+	- Portal file support
 	- Automatic backups
 	- Free and cross platform
 * **Brush Editing**
 	- Robust vertex editing with edge and face splitting and manipulating multiple vertices together
 	- Clipping tool with two and three points
 	- Scale and shear tools
-	- CSG operations: merge, subtract, intersect, hollow
+	- CSG operations: merge, subtract, hollow
 	- UV view for easy texture manipulations
 	- Precise texture lock for all brush editing operations
 	- Multiple texture collections
@@ -31,7 +32,7 @@ TrenchBroom is a level editing program for brush-based game engines such as Quak
 	- Support for FGD, ENT and DEF files for entity definitions
 	- Mod support
 	- Entity link visualization
-	- Displays 3D models in the editor
+	- Displays 3D models in the editor (supports mdl, md2, md3, bsp, dkm)
 	- Smart entity property editors
 
 ## About This Document
@@ -138,7 +139,7 @@ The sizes of the editing area, the inspector and the info bar can be changed by 
 
 The editing area is divided in two sections: The context sensitive info bar at the top and the viewports below. The info bar contains different controls depending on which tool is currently activated. You can switch between tools such as the rotate tool and the vertex tool using the toolbar buttons, the menu or with the respective keyboard shortcuts. The context sensitive controls allow you to perform certain actions that are relevant to the current tool such as setting the rotation center when in the rotate tool or moving objects by a given delta when in the default move tool. Additonally, there is a button labeled "View" on the right of the info bar. Clicking on this button unfolds a dropdown containing controls to [filter out](#filtering_rendering_options) certain objects in the viewports or to change how the viewport [renders its contents](#filtering_rendering_options).
 
-![The info bar with view dropdown (Windows 7)](images/ViewDropdown.png)
+![The info bar with view dropdown (Windows 10)](images/ViewDropdown.png)
 
 There are two types of viewports: 3D viewports and 2D viewports. TrenchBroom gives you some control over the layout of the viewports: You can have one, two, three, or four viewports. See section [View Layout and Rendering](#view_layout_and_rendering) to find out how to change the layout of the viewports. If you have fewer than four viewports, then one of the viewports can be cycled by hitting #action(Controls/Map view/Cycle map view). Which of the viewports can be cycled and the order of cycling the viewports is given in the following table:
 
@@ -406,11 +407,11 @@ It is not possible to modify or remove points after they have been placed, excep
 
 ### Creating Entities {#creating_entities}
 
-There are two types of entities: point entities and brush entities, and it depends on the type how an entity is created. In the following sections, we present two ways of creating point entities and one way to create brush entities.
+There are two types of entities: point entities and brush entities, and it depends on the type how an entity is created. In the following sections, we present three ways of creating point entities and two ways to create brush entities.
 
 #### Point Entities
 
-There are two ways of creating new point entities. Firstly, you can drop new entities in the 3D and 2D viewports by using the context menu. To open the context menu, right click into the viewport. To create a point entity such as a pickup weapon or a monster, open the "Create Point Entity" sub menu and select the correct entity definition from the sub menus.
+There are three ways of creating new point entities. Firstly, you can drop new entities in the 3D and 2D viewports by using the context menu. To open the context menu, right click into the viewport. To create a point entity such as a pickup weapon or a monster, open the "Create Point Entity" sub menu and select the correct entity definition from the sub menus.
 
 ![Dropping an entity with the context menu (Mac OS X)](images/CreateEntityContextMenu.png)
 
@@ -422,9 +423,13 @@ The leftmost dropdown list allows you to change the sort order. Entities can be 
 
 To create a new entity, simply drag it out of the browser and onto the 3D or a 2D viewport. If you drag it onto the 3D viewport, the entity will be positioned on the brush under the mouse, with its bounding box snapped to the grid. If you drag the entity onto a 2D viewport, its position is determined by the far end of the most recently selected object.
 
+Finally, you can create specific entities by assigning a keyboard shorcut in the [preferences](##keyboard_shortcuts). This is useful for entities that are used very often such as lights. The entity will be created under the mouse cursor; its position will be computed in the same way as if the context menu was used.
+
 #### Brush Entities
 
-![Moving brushes to brush entities](images/MoveBrushesToEntity.png) Creating brush entities is also done using the context menu. Select a couple of brushes and right click on them, then select the desired brush entity from the menu. To move brushes from one brush entity to another, select the brushes you wish to move and right click on a brush belonging to the brush entity to which you want to move the brushes, and select "Move brushes to ENTITY", where "ENTITY" is the name of the target brush entity, for example "func_button" in the picture on the left. If the brush entity containing the brushes to be moved becomes empty, it will be automatically deleted. To move brushes from a brush entity back into the world, select the brushes and right click on a world brush or on the void and select "Move brushes to World".
+![Moving brushes to brush entities](images/MoveBrushesToEntity.png) Creating brush entities is also done using the context menu. Select a couple of brushes and right click on them, then select the desired brush entity from the menu. To move brushes from one brush entity to another, select the brushes you wish to move and right click on a brush belonging to the brush entity to which you want to move the brushes, and select "Move brushes to Entity ENTITY", where "ENTITY" is the name of the target brush entity, for example "func_door" in the picture on the left. If the brush entity containing the brushes to be moved becomes empty, it will be automatically deleted. To move brushes from a brush entity back into the world, select the brushes, right click and select "Make Structural".
+
+Additionally, you can also assign a keyboard shorcut to create a specific brush entity in the [preferences](##keyboard_shortcuts).
 
 Often, it is much quicker to create new objects by duplicating existing ones. Objects can be duplicated using dedicated functions in TrenchBroom, or just by copying and pasting them.
 
@@ -789,6 +794,32 @@ In each of the CSG operations, new brushes are created, and TrenchBroom has to a
 
 In the example above, a brush is subtracted from another brush to form an archway. The subtrahend has a blue brick texture and the minuend has a dark metal texture. After the subtraction, those faces of the result that line up with the faces of the subtrahend have also been assigned the blue brick texture, while those faces that line up with the faces of the minuend brush have been assigned the dark metal texture. Some of the faces of the result brushes are invisible because they are shared by other brushes - these faces have been assigned the current texture because no face of the subtrahend or the minuend lines up with them.
 
+## Special Brush and Face Types {#special_brush_face_types}
+
+Most Quake based games have certain special types of brushes and faces. An example for a special brush type is a *trigger brush* that activates some game logic. A special face type may be a face textured with a special _clip_ texture that is invisible, but blocks the player from passing it. In Quake 3, _caulk_ faces are often used to tell the bsp compiler to skip certain faces because they are invisible.
+
+TrenchBroom is aware of these special brush and face types as long as they are configured in the [game configuration file](#game_configuration_files) for a game. Special brush or face types can be detected by TrenchBroom in the following ways:
+
+* **Brush Types**
+	- **Entity Classname Pattern** If a brush is contained in an entity whose classname matches a certain pattern, it will receive the special brush type (example: trigger brushes).
+* **Face Types**
+	- **Texture Name Pattern** If a brush face has a texture whose name matches a certain pattern, it will receive the special face type (example: clip textures).
+	- **Content Flags** If a brush has one of several content flags, it will receive the special face type.
+	- **Surface Flags** If a brush has one of several surface flags, it will receive the special face type.
+	- **Surface Parm** If a brush has a specific surface parameter, it will receive the special face type.
+
+TrenchBroom allows you to filter for special brush and face types in the [filtering and rendering options](#filtering_rendering_options). Furthermore, you can assign a keyboard shortcut to set or unset a special brush type (if supported). The following special brush and face types can be set / unset in this way:
+
+* **Brush Types**
+	- **Entity Classname Pattern** Can be set and unset. Setting a brush type wraps the selected brushes in a newly created entity with a classname that matches the pattern. If more than one classnames in the currently loaded entity definitions matches the pattern, a dropdown menu is shown to allow you to choose one of the options. Unsetting a brush type simply moves the selected brushes into the world.
+* **Face Types**
+	- **Texture Name Pattern** Can be set only. Setting a face type sets a texture whose name matches the pattern on the selected faces. If more than one texture in the currently loaded texture collections matches the pattern, a dropdown menu is shown to allow you to choose one of the options.
+	- **Content Flags** Can be set and unset. Setting a face type sets one of the configured content flags on the selected faces. If more than one content flag was configured, a dropdown menu is shown to allow you to choose one of the options. Unsetting clears all of the configured content flags.
+	- **Surface Flags** Can be set and unset. Setting a face type sets one of the configured surface flags on the selected faces. If more than one surface flag was configured, a dropdown menu is shown to allow you to choose one of the options. Unsetting clears all of the configured surface flags.
+	- **Surface Parm** Can neither be set nor unset.
+
+Finally, every special brush or face type that supports unsetting can be cleared using the *Make Structural* command #action(Controls/Map view/Make structural).
+
 ## Working with Textures {#working_with_textures}
 
 There are two aspects to working with textures in a level editor. [Texture management](#texture_management) and texture application. This section deals with the latter, so you will learn different ways to apply textures to brush faces and to manipulate their alignment to the faces. But before we dive into that, we have to cover three general topics: First, we present the texture browser, then we explain how TrenchBroom assigns textures to newly created brush faces, and finally we discuss different texture projection modes in TrenchBroom.
@@ -957,9 +988,17 @@ If you are working on large maps, it can become cumbersome to manage the objects
 
 To filter out certain types of objects, you can open the view dropdown window by clicking on the "View" button at the right of the info bar above the editing area.
 
-![The info bar with view dropdown (Windows 7)](images/ViewDropdown.png)
+![The info bar with view dropdown (Windows 10)](images/ViewDropdown.png)
 
-In the left of the view dropdown, there is a list of checkboxes that allows you to hide all entities that share the same entity definition (i.e., the same classname). Uncheck an entity definition (or a group thereof) to hide the respective entities. For quickly hiding and showing all entities, you can click on the two buttons below the list. The right half of the view dropdown contains some options for the renderer, most of which are self explanatory.
+In the left of the view dropdown, there is a list of checkboxes that allows you to hide all entities that share the same entity definition (i.e., the same classname). Uncheck an entity definition (or a group thereof) to hide the respective entities. For quickly hiding and showing all entities, you can click on the two buttons below the list. 
+
+The right half of the view dropdown has several options, partitioned into three groups.
+
+* **Entities** - here you can configure how entities are rendered in the editor.
+* **Brushes** - allows you to toggle on or off certain special brush or face types. These types are game specific and are read from the [game configuration file](#game_configuration_files).
+* **Renderer** - various options on how other objects are rendered.
+
+Note that it is possible to add keyboard shortcuts to toggle every option in the view dropdown in the [preferences](#keyboard_shortcuts).
 
 ## Hiding and Isolation
 
@@ -1046,11 +1085,21 @@ Mouse Pan 	Sensitivity and axis inversion for mouse panning (middle click and dr
 Mouse Move 	Sensitivity and settings for moving the camera with the mouse. If you use a tablet, the setting "Alt+MMB drag to move camera" might make navigation easier for you.
 Move Keys 	Keyboard shortcuts for moving around in the map, with a separate slider to control the speed.
 
-## Keyboard Shortcuts
+## Keyboard Shortcuts {#keyboard_shortcuts}
 
 ![Keyboard Configuration Dialog (Linux XFCE)](images/KeyboardPreferences.png)
 
 In this preference pane, you can change the keybaord shortcuts used in TrenchBroom. The table lists all available shortcuts, their context, and the description. To change a keyboard shortcut, click twice (do not double click) on the shortcut in the first column of the table and enter the new shortcut. The context determines when this shortcut is available, for example, the PgDn key triggers different actions depending on whether the rotate tool is active or not. Finally, the desription column explains what a shortcut does in a particular context. Sometimes a shortcut triggers different actions depending on whether the viewport in which it was used is a 3D or a 2D viewport. For example, the PgDn key can move objects backward (away from the camera) in a 2D viewport or down along the Z axis in the 3D viewport. These different actions are listed together in the description column, but they are separated with a semicolon.
+
+If you open the preference dialog when a map is currently opened, the list of shortcuts will contain additional entries depending on the loaded entity configuration file and the game configuration file. For each entity and special brush or face types, the following keyboard shortcuts are available.
+
+* **Entity**
+	- `View Filter > Toggle CLASSNAME visible` to toggle entities with this classname visible and invisible ([more info](filtering_rendering_options))
+	- `Create CLASSNAME` to create entities with this classname ([more info](#creating_entities))
+* **Brush / Face Type**
+	- `View Filter > Toggle TYPE visible` to toggle brushes or faces with this type visible and invisible ([more info](filtering_rendering_options))
+	- `Turn selection into TYPE` to set this type to the selected brushes or faces
+	- `Turn selection into non-TYPE` to unset this type from the selected brushes or faces
 
 Note that if you assign a keyboard shortcut to different actions in the same context, the shortcut creates a conflict and you cannot exit the preference pane or close the dialog until you resolve the conflict. Conflicting shortcuts are highlighted in red.
 
@@ -1151,7 +1200,7 @@ Once the compilation is done, you can launch a game engine and check out your ma
 
 ## Launching Game Engines {#launching_game_engines}
 
-Before you can launch a game engine in TrenchBroom, you have to make your engine(s) known to TrenchBroom. You can do this by bringing up the game engine profile dialog either from the launch dialog (see below) or from the [game configuration]({#game_configuration).
+Before you can launch a game engine in TrenchBroom, you have to make your engine(s) known to TrenchBroom. You can do this by bringing up the game engine profile dialog either from the launch dialog (see below) or from the [game configuration](#game_configuration).
 
 There are two ways to launch a game engine from within TrenchBroom. Either click the 'Launch' button in the compilation dialog or choose #menu(Menu/Run/Launch). This brings up the launch dialog shown in the following screenshot.
 
@@ -1622,7 +1671,7 @@ The case operator allows for conditional evaluation of expressions. This is usal
 
      Case = SimpleTerm "->" Expression
 
-In a case expression, the part before the `->` operator is called the *premise* and the part after it is called the *conclusion*. The case operator is evaluated as follows:
+In a case expression, the part before the `->` operator is called the _premise_ and the part after it is called the _conclusion_. The case operator is evaluated as follows:
 
 - If the premise evaluates to a value `r` that is convertible to `boolean`:
     - If `r` converts to `true`: 
@@ -1899,7 +1948,7 @@ An example from an FGD file might look as follows.
 	    ]
 	]
 
-To improve compatibility to other editors, the model definition can also be named *studio* or *studioprop* in FGD files.
+To improve compatibility to other editors, the model definition can also be named _studio_ or _studioprop_ in FGD files.
 
 In an ENT file, the same model specification might look like this.
 
@@ -1915,7 +1964,7 @@ TrenchBroom can load point files (PTS) generated by QBSP, which help locate leak
 
 Portal files (PRT), also generated by QBSP, let you visualize the portals between BSP leafs. They can be loaded with #menu(Menu/File/Load Portal File) and are rendered as translucent red polygons.
 
-## Game Configuration Files
+## Game Configuration Files {#game_configuration_files}
 
 TrenchBroom uses game configuration files to provide support for different games. Some game configuration files come with the editor. They are installed at `<ResourcePath>/games`, where the value of `<ResourcePath>` depends on the platform according to the following table.
 
@@ -2024,7 +2073,30 @@ The game configuration is an [expression language](#expression_language) map wit
 	    }
     }
 
+#### Versions
 
+The game configuration files are versioned. Whenever a breaking change to the game configuration format is introduced, the version number will increase and TrenchBroom will reject the old format with an error message. The following sections will explain how to migrate a game configuration file for each version change.
+
+**Migrating to Version 3** 
+
+Version 3 deprecates the `brushtypes` key in favor of the `tags` key, but the contents are very similar. The value of the `brushtypes` key is an array of type matchers. The following brush type matchers are supported in version 2:
+
+Match        Description
+-----        -----------
+texture      Match against a texture name, must match all brush faces
+contentflag  Match against face content flags (used by Quake 2, Quake 3)
+surfaceflag  Match against face surface flags (used by Quake 2, Quake 3)
+surfaceparm  Match against shader surface parameters (used by Quake 3)
+classname    Match against a brush entity class name
+
+In version 3, the `tags` key is a map with two possible keys: `brush` and `brushface`. For both keys, the value is again an array of type matchers. The `brush` key supports the `classname` matcher and the `brushface` key supports the `texture`, `contentflag`, `surfaceflag` and `surfaceparm` matchers. To migrate the `brushtypes` key to the `tags` key, you create the basic structure as follows:
+
+    "tags": {
+        "brush": [ ... ],
+        "brushface": [ ... ]
+    }
+
+Then you need to copy your `classname` matchers into the array value of the `brush` key and all other matchers into the array of the `brushface` key. Finally, you can delete your `brushtypes` key. See the [tags](#game_configuration_files_tags) section for more information.
 
 #### File Formats
 
@@ -2032,12 +2104,12 @@ The file format is specified by an array of maps under the key `fileformats`. Th
 
 Format      	 Description
 ------      	 -----------
-Standard     	Standard Quake map file
-Valve       	Valve map file (like Standard, but with different texture info per face)
-Quake2       	Quake 2 map file
-Quake3       	Quake 3 map file (with brush primitives)
-Quake3 (legacy) Quake 3 map file (without brush primitives)
-Hexen2       	Hexen 2 map file (like Quake, but with an additional, but unused value per face)
+Standard     	 Standard Quake map file
+Valve       	 Valve map file (like Standard, but with different texture info per face)
+Quake2       	 Quake 2 map file
+Quake3       	 Quake 3 map file (with brush primitives)
+Quake3 (legacy)  Quake 3 map file (without brush primitives)
+Hexen2       	 Hexen 2 map file (like Quake, but with an additional, but unused value per face)
 
 Each entry of the array must have the following structure:
 
@@ -2132,12 +2204,13 @@ Format       Description
 ------       -----------
 mdl          Quake model format
 md2          Quake 2 model format
+md3          Quake 3 model format
 bsp        	 Compiled brush model, used by Quake and Hexen 2
 dkm          Daikatana model format
 
-#### Tags
+#### Tags {#game_configuration_files_tags}
 
-TrenchBroom can recognize certain special objects or special brush faces. An example would be clip faces or trigger brushes. But since the details can be game dependent, these special objects and faces are defined in the game configuration. For greater flexibility and future enhancements, a general tagging system is used to realize this functionality. Thereby, the game configuration defines smart tags which are applied automatically to brushes or brush faces depending on certain conditions.
+TrenchBroom can recognize certain special brush or face types. An example would be clip faces or trigger brushes. But since the details can be game dependent, these special types are defined in the game configuration. For greater flexibility and future enhancements, a general tagging system is used to realize this functionality. Thereby, the game configuration defines smart tags which are applied automatically to brushes or brush faces depending on certain conditions.
 
 The tags are specified separately for brushes and faces under the corresponding keys:
 
@@ -2171,6 +2244,7 @@ Depending on the value of the `match` key, additional keys may be required to co
 * For the `contentflag` and `surfaceflag` matchers, the key `flags` contains a list of content or surface flag names to match against (see below for more info on content and surface flags).
 * For the `surfaceparm` matcher, the key `pattern` contains a pattern that is matched against the surface parameters. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
 * For the `classname` matcher, key `pattern` contains a pattern that is matched against the classname of the brush entity that contains the brush. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
+	- Additionally, the `classname` matcher can contain an optional `texture` key - when this type is set by the user, then the selected brushes will receive the texture with the name given as the value of this key (e.g. `"texture": "trigger"` will assign the `trigger` texture).
 
 #### Face Attributes
 
