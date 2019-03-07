@@ -352,7 +352,7 @@ namespace TrenchBroom {
                 positions[i] = unpackFrameVertex(packedVertices[i], origin, scale);
             }
 
-            vm::bbox3f bounds;
+            vm::bbox3f::builder bounds;
 
             VertexList frameTriangles;
             frameTriangles.reserve(skinTriangles.size());
@@ -368,13 +368,8 @@ namespace TrenchBroom {
                     }
 
                     const auto& position = positions[vertexIndex];
-                    if (i == 0 && j == 0) {
-                        bounds.min = bounds.max = position;
-                    } else {
-                        bounds = vm::merge(bounds, position);
-                    }
-
-                    frameTriangles.push_back(Vertex(position, texCoords));
+                    bounds.add(position);
+                    frameTriangles.emplace_back(position, texCoords);
                 }
             }
 
@@ -384,14 +379,14 @@ namespace TrenchBroom {
             Renderer::IndexRangeMapBuilder<Assets::EntityModel::Vertex::Spec> builder(frameTriangles.size() * 3, size);
             builder.addTriangles(frameTriangles);
 
-            auto& frame = model.addFrame(String(name), bounds);
+            auto& frame = model.addFrame(String(name), bounds.bounds());
             surface.addIndexedMesh(frame, builder.vertices(), builder.indices());
         }
 
         vm::vec3f MdlParser::unpackFrameVertex(const PackedFrameVertex& vertex, const vm::vec3f& origin, const vm::vec3f& scale) const {
             vm::vec3f result;
             for (size_t i = 0; i < 3; ++i) {
-                result[i] = origin[i] + scale[i]*static_cast<float>(vertex[i]);
+                result[i] = origin[i] + scale[i] * static_cast<float>(vertex[i]);
             }
             return result;
         }

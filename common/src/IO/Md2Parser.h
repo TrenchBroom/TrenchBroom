@@ -36,6 +36,7 @@ namespace TrenchBroom {
     }
     
     namespace IO {
+        class CharArrayReader;
         class FileSystem;
         class Path;
         
@@ -51,10 +52,7 @@ namespace TrenchBroom {
         private:
             static const vm::vec3f Normals[162];
 
-            struct Md2Skin {
-                char name[Md2Layout::SkinNameLength];
-            };
-            using Md2SkinList = std::vector<Md2Skin>;
+            using Md2SkinList = StringList;
             
             struct Md2Vertex {
                 unsigned char x, y, z;
@@ -65,7 +63,7 @@ namespace TrenchBroom {
             struct Md2Frame {
                 vm::vec3f scale;
                 vm::vec3f offset;
-                char name[Md2Layout::FrameNameLength];
+                String name;
                 Md2VertexList vertices;
                 
                 Md2Frame(size_t vertexCount);
@@ -97,16 +95,16 @@ namespace TrenchBroom {
             
             String m_name;
             const char* m_begin;
-            /* const char* m_end; */
+            const char* m_end;
             const Assets::Palette& m_palette;
             const FileSystem& m_fs;
         public:
             Md2Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette, const FileSystem& fs);
         private:
             Assets::EntityModel* doParseModel(Logger& logger) override;
-            Md2SkinList parseSkins(const char* begin, size_t skinCount);
-            Md2FrameList parseFrames(const char* begin, size_t frameCount, size_t frameVertexCount);
-            Md2MeshList parseMeshes(const char* begin, size_t commandCount);
+            Md2SkinList parseSkins(CharArrayReader reader, size_t skinCount);
+            Md2FrameList parseFrames(CharArrayReader reader, size_t frameCount, size_t frameVertexCount);
+            Md2MeshList parseMeshes(CharArrayReader reader, size_t commandCount);
 
             Assets::EntityModel* buildModel(const Md2SkinList& skins, const Md2FrameList& frames, const Md2MeshList& meshes);
             void loadSkins(Assets::EntityModel::Surface& surface, const Md2SkinList& skins);
