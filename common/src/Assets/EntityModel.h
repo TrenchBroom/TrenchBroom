@@ -39,6 +39,60 @@ namespace TrenchBroom {
     }
 
     namespace Assets {
+        /**
+         * One frame of the model. Since frames are loaded on demand, each frame has two possible states: loaded
+         * and unloaded. These states are modeled as subclasses of this class.
+         */
+        class EntityModelFrame {
+        private:
+            size_t m_index;
+        public:
+            /**
+             * Creates a new frame with the given index.
+             *
+             * @param index the index of this frame
+             */
+            explicit EntityModelFrame(size_t index);
+
+            virtual ~EntityModelFrame();
+
+            /**
+             * Indicates whether this frame is already loaded.
+             *
+             * @return true if this frame is loaded and false otherwise
+             */
+            virtual bool loaded() const = 0;
+
+            /**
+             * Returns the index of this frame.
+             *
+             * @return the index
+             */
+            size_t index() const;
+
+            /**
+             * Returns this frame's name.
+             *
+             * @return the name
+             */
+            virtual const String& name() const = 0;
+
+
+            /**
+             * Returns this frame's bounding box.
+             *
+             * @return the bounding box
+             */
+            virtual const vm::bbox3f& bounds() const = 0;
+
+            /**
+             * Intersects this frame with the given ray and returns the point of intersection.
+             *
+             * @param ray the ray to intersect
+             * @return the distance to the point of intersection or NaN if the given ray does not intersect this frame
+             */
+            virtual float intersect(const vm::ray3f& ray) const = 0;
+        };
 
         /**
          * Manages all data necessary to render an entity model. Each model can have multiple frames, and
@@ -52,62 +106,7 @@ namespace TrenchBroom {
             using Indices = Renderer::IndexRangeMap;
             using TexturedIndices = Renderer::TexturedIndexRangeMap;
         public:
-            /**
-             * One frame of the model. Since frames are loaded on demand, each frame has two possible states: loaded
-             * and unloaded. These states are modeled as subclasses of this class.
-             */
-            class Frame {
-            private:
-                size_t m_index;
-            public:
-                /**
-                 * Creates a new frame with the given index.
-                 *
-                 * @param index the index of this frame
-                 */
-                explicit Frame(size_t index);
-
-                virtual ~Frame();
-
-                /**
-                 * Indicates whether this frame is already loaded.
-                 *
-                 * @return true if this frame is loaded and false otherwise
-                 */
-                virtual bool loaded() const = 0;
-
-                /**
-                 * Returns the index of this frame.
-                 *
-                 * @return the index
-                 */
-                size_t index() const;
-
-                /**
-                 * Returns this frame's name.
-                 *
-                 * @return the name
-                 */
-                virtual const String& name() const = 0;
-
-
-                /**
-                 * Returns this frame's bounding box.
-                 *
-                 * @return the bounding box
-                 */
-                virtual const vm::bbox3f& bounds() const = 0;
-
-                /**
-                 * Intersects this frame with the given ray and returns the point of intersection.
-                 *
-                 * @param ray the ray to intersect
-                 * @return the distance to the point of intersection or NaN if the given ray does not intersect this frame
-                 */
-                virtual float intersect(const vm::ray3f& ray) const = 0;
-            };
-
-            class LoadedFrame : public Frame {
+            class LoadedFrame : public EntityModelFrame {
             private:
                 String m_name;
                 vm::bbox3f m_bounds;
@@ -141,7 +140,7 @@ namespace TrenchBroom {
                 void addToSpacialTree(const VertexList& vertices, PrimType primType, size_t index, size_t count);
             };
 
-            class UnloadedFrame : public Frame {
+            class UnloadedFrame : public EntityModelFrame {
             public:
                 /**
                  * Creates a new frame with the given index.
@@ -317,14 +316,22 @@ namespace TrenchBroom {
                  * @param name the name of the skin to find
                  * @return the skin with the given name, or null if no such skin was found
                  */
-                const Assets::Texture* skin(const String& name) const;
+                Assets::Texture* skin(const String& name) const;
+
+                /**
+                 * Returns the skin with the given index.
+                 *
+                 * @param index the index of the skin to find
+                 * @return the skin with the given index, or null if the index is out of bounds
+                 */
+                Assets::Texture* skin(size_t index) const;
 
                 std::unique_ptr<Renderer::TexturedIndexRangeRenderer> buildRenderer(size_t skinIndex, size_t frameIndex);
             };
         private:
             String m_name;
             bool m_prepared;
-            std::vector<std::unique_ptr<Frame>> m_frames;
+            std::vector<std::unique_ptr<EntityModelFrame>> m_frames;
             std::vector<std::unique_ptr<Surface>> m_surfaces;
         public:
             /**
@@ -350,16 +357,6 @@ namespace TrenchBroom {
              * @return the bounds of the frame
              */
             vm::bbox3f bounds(size_t frameIndex) const;
-
-            /**
-             * Intersects the frame with the given index with the given ray and returns the point of intersection.
-             *
-             * @param ray the ray to intersect
-             * @param frameIndex the index of the frame to intersect
-             * @return the distance to the point of intersection or NaN if the given ray does not intersect the frame
-             * with the given index or if the given frame index is out of bounds
-             */
-            float intersect(const vm::ray3f& ray, size_t frameIndex) const;
 
             /**
              * Indicates whether or not this model has been prepared for rendering.
@@ -430,14 +427,14 @@ namespace TrenchBroom {
              *
              * @return the frames
              */
-            std::vector<const Frame*> frames() const;
+            std::vector<const EntityModelFrame*> frames() const;
 
             /**
              * Returns all frames of this model.
              *
              * @return the frames
              */
-            std::vector<Frame*> frames();
+            std::vector<EntityModelFrame*> frames();
 
             /**
              * Returns all surfaces of this model.
@@ -452,7 +449,15 @@ namespace TrenchBroom {
              * @param name the name of the frame to find
              * @return the frame with the given name or null if no such frame was found
              */
-            const Frame* frame(const String& name) const;
+            const EntityModelFrame* frame(const String& name) const;
+
+            /**
+             * Returns the frame with the given index.
+             *
+             * @param index the index of the frame
+             * @return the frame with the given index or null if the index is out of bounds
+             */
+            const EntityModelFrame* frame(size_t index) const;
 
             /**
              * Returns the surface with the given index.

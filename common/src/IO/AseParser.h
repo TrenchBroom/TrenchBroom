@@ -107,7 +107,7 @@ namespace TrenchBroom {
              */
             AseParser(const String& name, const char* begin, const char* end, const FileSystem& fs);
         private:
-            Assets::EntityModel* doParseModel(Logger& logger) override;
+            Assets::EntityModel* doInitializeModel(Logger& logger) override;
         private: // parsing
             void parseAseFile(Logger& logger, Scene& scene);
 

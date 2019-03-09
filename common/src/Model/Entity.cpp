@@ -52,7 +52,7 @@ namespace TrenchBroom {
         AttributableNode(),
         Object(),
         m_boundsValid(false),
-        m_model(nullptr) {
+        m_modelFrame(nullptr) {
             cacheAttributes();
         }
 
@@ -81,7 +81,7 @@ namespace TrenchBroom {
         }
 
         vm::bbox3 Entity::totalBounds() const {
-            if (m_model == nullptr) {
+            if (m_modelFrame == nullptr) {
                 return bounds();
             } else {
                 return vm::merge(bounds(), modelBounds());
@@ -138,20 +138,19 @@ namespace TrenchBroom {
         }
 
         vm::bbox3 Entity::modelBounds() const {
-            if (m_model != nullptr) {
-                const size_t frameIndex = modelSpecification().frameIndex;
-                return vm::bbox3(m_model->bounds(frameIndex));
+            if (m_modelFrame != nullptr) {
+                return vm::bbox3(m_modelFrame->bounds());
             } else {
                 return vm::bbox3();
             }
         }
 
-        Assets::EntityModel* Entity::model() const {
-            return m_model;
+        const Assets::EntityModelFrame* Entity::modelFrame() const {
+            return m_modelFrame;
         }
 
-        void Entity::setModel(Assets::EntityModel* model) {
-            m_model = model;
+        void Entity::setModelFrame(const Assets::EntityModelFrame* modelFrame) {
+            m_modelFrame = modelFrame;
         }
 
         const vm::bbox3& Entity::doGetBounds() const {
@@ -166,7 +165,7 @@ namespace TrenchBroom {
             cloneAttributes(entity);
             entity->setDefinition(definition());
             entity->setAttributes(attributes());
-            entity->setModel(m_model);
+            entity->setModelFrame(m_modelFrame);
             return entity;
         }
 
@@ -243,13 +242,13 @@ namespace TrenchBroom {
                 }
 
                 // only if the bbox hit test failed do we hit test the model
-                if (m_model != nullptr) {
+                if (m_modelFrame != nullptr) {
                     // we transform the ray into the model's space
                     const auto transform = modelTransformation();
                     const auto [invertible, inverse] = vm::invert(transform);
                     if (invertible) {
                         const auto transformedRay = ray.transform(inverse);
-                        const auto distance = m_model->intersect(vm::ray3f(transformedRay), modelSpecification().frameIndex);
+                        const auto distance = m_modelFrame->intersect(vm::ray3f(transformedRay));
                         if (!vm::isnan(distance)) {
                             // transform back to world space
                             const auto transformedHitPoint = vm::vec3(transformedRay.pointAtDistance(distance));

@@ -84,14 +84,10 @@ namespace TrenchBroom {
             Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(const AttributableNode& node) const override;
             Assets::EntityDefinitionFileSpec defaultEntityDefinitionFile() const;
             IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const override;
-            Assets::EntityModel* doLoadEntityModel(const IO::Path& filePath, Logger& logger) const override;
 
-            Assets::EntityModel* loadBspModel(const String& name, const IO::MappedFile::Ptr& file, Logger& logger) const;
-            Assets::EntityModel* loadMdlModel(const String& name, const IO::MappedFile::Ptr& file, Logger& logger) const;
-            Assets::EntityModel* loadMd2Model(const String& name, const IO::MappedFile::Ptr& file, Logger& logger) const;
-            Assets::EntityModel* loadMd3Model(const String& name, const IO::MappedFile::Ptr& file, Logger& logger) const;
-            Assets::EntityModel* loadDkmModel(const String& name, const IO::MappedFile::Ptr& file, Logger& logger) const;
-            Assets::EntityModel* loadAseModel(const String& name, const IO::MappedFile::Ptr& file, Logger& logger) const;
+            Assets::EntityModel* doInitializeModel(const IO::Path& path, Logger& logger) const override;
+            void doLoadFrame(const IO::Path& path, size_t frameIndex, Assets::EntityModel& model, Logger& logger) const override;
+
             Assets::Palette loadTexturePalette() const;
 
             StringList doAvailableMods() const override;

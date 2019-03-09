@@ -18,13 +18,19 @@
  */
 
 #include "IO/EntityModelLoader.h"
+#include "EntityModelLoader.h"
+
 
 namespace TrenchBroom {
     namespace IO {
         EntityModelLoader::~EntityModelLoader() = default;
 
-        Assets::EntityModel* EntityModelLoader::loadEntityModel(const IO::Path& path, Logger& logger) const {
-            return doLoadEntityModel(path, logger);
+        Assets::EntityModel* EntityModelLoader::initializeModel(const IO::Path& path, Logger& logger) const {
+            return doInitializeModel(path, logger);
+        }
+
+        void EntityModelLoader::loadFrame(const IO::Path& path, const size_t frameIndex, Assets::EntityModel& model, Logger& logger) const {
+            return doLoadFrame(path, frameIndex, model, logger);
         }
     }
 }

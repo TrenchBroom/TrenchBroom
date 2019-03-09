@@ -33,7 +33,7 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        class EntityModel;
+        class EntityModelFrame;
     }
 
     namespace Model {
@@ -49,7 +49,7 @@ namespace TrenchBroom {
             mutable vm::vec3 m_cachedOrigin;
             mutable vm::mat4x4 m_cachedRotation;
 
-            Assets::EntityModel* m_model;
+            const Assets::EntityModelFrame* m_modelFrame;
         public:
             Entity();
 
@@ -72,8 +72,8 @@ namespace TrenchBroom {
         public: // entity model
             Assets::ModelSpecification modelSpecification() const;
             vm::bbox3 modelBounds() const;
-            Assets::EntityModel* model() const;
-            void setModel(Assets::EntityModel* model);
+            const Assets::EntityModelFrame* modelFrame() const;
+            void setModelFrame(const Assets::EntityModelFrame* modelFrame);
         private: // implement Node interface
             const vm::bbox3& doGetBounds() const override;
 

@@ -51,11 +51,12 @@ namespace TrenchBroom {
         public:
             Md3Parser(const String& name, const char* begin, const char* end, const FileSystem& fs);
         private:
-            Assets::EntityModel* doParseModel(Logger& logger) override;
+            Assets::EntityModel* doInitializeModel(Logger& logger) override;
+            void doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;
 
-            void initializeSurfaces(CharArrayReader surfaceReader, size_t surfaceCount, Assets::EntityModel& model, Logger& logger);
-            Assets::EntityModel::LoadedFrame& loadFrame(CharArrayReader frameReader, size_t frameIndex, Assets::EntityModel& model);
-            void loadFrameSurfaces(CharArrayReader surfaceReader, Assets::EntityModel::LoadedFrame& frame, Assets::EntityModel& model);
+            void parseSurfaces(CharArrayReader surfaceReader, size_t surfaceCount, Assets::EntityModel& model, Logger& logger);
+            Assets::EntityModel::LoadedFrame& parseFrame(CharArrayReader frameReader, size_t frameIndex, Assets::EntityModel& model);
+            void parseFrameSurfaces(CharArrayReader surfaceReader, Assets::EntityModel::LoadedFrame& frame, Assets::EntityModel& model);
 
             std::vector<Md3Triangle> parseTriangles(CharArrayReader reader, size_t triangleCount);
             std::vector<Path> parseShaders(CharArrayReader reader, size_t shaderCount);

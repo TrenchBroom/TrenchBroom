@@ -1756,15 +1756,15 @@ namespace TrenchBroom {
         private:
             Assets::EntityModelManager& m_manager;
         public:
-            SetEntityModels(Assets::EntityModelManager& manager) :
+            explicit SetEntityModels(Assets::EntityModelManager& manager) :
             m_manager(manager) {}
         private:
             void doVisit(Model::World* world) override   {}
             void doVisit(Model::Layer* layer) override   {}
             void doVisit(Model::Group* group) override   {}
             void doVisit(Model::Entity* entity) override {
-                Assets::EntityModel* model = m_manager.safeGetModel(entity->modelSpecification().path);
-                entity->setModel(model);
+                const auto* frame = m_manager.frame(entity->modelSpecification());
+                entity->setModelFrame(frame);
             }
             void doVisit(Model::Brush* brush) override   {}
         };
@@ -1774,7 +1774,7 @@ namespace TrenchBroom {
             void doVisit(Model::World* world) override   {}
             void doVisit(Model::Layer* layer) override   {}
             void doVisit(Model::Group* group) override   {}
-            void doVisit(Model::Entity* entity) override { entity->setModel(nullptr); }
+            void doVisit(Model::Entity* entity) override { entity->setModelFrame(nullptr); }
             void doVisit(Model::Brush* brush) override   {}
         };
 

@@ -29,17 +29,17 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        EntityModel::Frame::Frame(const size_t index) :
+        EntityModelFrame::EntityModelFrame(const size_t index) :
         m_index(index) {}
 
-        EntityModel::Frame::~Frame() = default;
+        EntityModelFrame::~EntityModelFrame() = default;
 
-        size_t EntityModel::Frame::index() const {
+        size_t EntityModelFrame::index() const {
             return m_index;
         }
 
         EntityModel::LoadedFrame::LoadedFrame(const size_t index, const String& name, const vm::bbox3f& bounds) :
-        Frame(index),
+        EntityModelFrame(index),
         m_name(name),
         m_bounds(bounds) {}
 
@@ -126,7 +126,7 @@ namespace TrenchBroom {
         }
 
         EntityModel::UnloadedFrame::UnloadedFrame(size_t index) :
-        Frame(index) {}
+        EntityModelFrame(index) {}
 
         bool EntityModel::UnloadedFrame::loaded() const {
             return false;
@@ -219,8 +219,17 @@ namespace TrenchBroom {
             return m_skins->textureCount();
         }
 
-        const Assets::Texture* EntityModel::Surface::skin(const String& name) const {
+        Assets::Texture* EntityModel::Surface::skin(const String& name) const {
             return m_skins->textureByName(name);
+        }
+
+        Assets::Texture* EntityModel::Surface::skin(const size_t index) const {
+            if (index >= skinCount()) {
+                return nullptr;
+            } else {
+                const auto& textures = m_skins->textures();
+                return textures[index];
+            }
         }
 
         std::unique_ptr<Renderer::TexturedIndexRangeRenderer> EntityModel::Surface::buildRenderer(size_t skinIndex, size_t frameIndex) {
@@ -257,14 +266,6 @@ namespace TrenchBroom {
                 return vm::bbox3f(8.0f);
             } else {
                 return m_frames[frameIndex]->bounds();
-            }
-        }
-
-        float EntityModel::intersect(const vm::ray3f& ray, const size_t frameIndex) const {
-            if (frameIndex >= m_frames.size()) {
-                return vm::nan<float>();
-            } else {
-                return m_frames[frameIndex]->intersect(ray);
             }
         }
 
@@ -319,8 +320,8 @@ namespace TrenchBroom {
             return m_surfaces.size();
         }
 
-        std::vector<const EntityModel::Frame*> EntityModel::frames() const {
-            std::vector<const Frame*> result;
+        std::vector<const EntityModelFrame*> EntityModel::frames() const {
+            std::vector<const EntityModelFrame*> result;
             result.reserve(frameCount());
             for (const auto& frame : m_frames) {
                 result.push_back(frame.get());
@@ -328,8 +329,8 @@ namespace TrenchBroom {
             return result;
         }
 
-        std::vector<EntityModel::Frame*> EntityModel::frames() {
-            std::vector<Frame*> result;
+        std::vector<EntityModelFrame*> EntityModel::frames() {
+            std::vector<EntityModelFrame*> result;
             result.reserve(frameCount());
             for (const auto& frame : m_frames) {
                 result.push_back(frame.get());
@@ -346,13 +347,21 @@ namespace TrenchBroom {
             return result;
         }
 
-        const EntityModel::Frame* EntityModel::frame(const String& name) const {
+        const EntityModelFrame* EntityModel::frame(const String& name) const {
             for (const auto& frame : m_frames) {
                 if (frame->name() == name) {
                     return frame.get();
                 }
             }
             return nullptr;
+        }
+
+        const EntityModelFrame* EntityModel::frame(const size_t index) const {
+            if (index >= frameCount()) {
+                return nullptr;
+            } else {
+                return m_frames[index].get();
+            }
         }
 
         EntityModel::Surface& EntityModel::surface(const size_t index) {

@@ -42,6 +42,7 @@ namespace TrenchBroom {
 
     namespace Assets {
         class EntityModel;
+        class EntityModelFrame;
 
         class EntityModelManager {
         private:
@@ -75,14 +76,15 @@ namespace TrenchBroom {
 
             void setTextureMode(int minFilter, int magFilter);
             void setLoader(const IO::EntityModelLoader* loader);
-
-            EntityModel* model(const IO::Path& path) const;
-            EntityModel* safeGetModel(const IO::Path& path) const;
             Renderer::TexturedRenderer* renderer(const Assets::ModelSpecification& spec) const;
+
+            const EntityModelFrame* frame(const Assets::ModelSpecification& spec) const;
 
             bool hasModel(const Model::Entity* entity) const;
             bool hasModel(const Assets::ModelSpecification& spec) const;
         private:
+            EntityModel* model(const IO::Path& path) const;
+            EntityModel* safeGetModel(const IO::Path& path) const;
             EntityModel* loadModel(const IO::Path& path) const;
         public:
             void prepare(Renderer::Vbo& vbo);

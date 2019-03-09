@@ -214,7 +214,42 @@ namespace TrenchBroom {
             unused(m_end);
         }
 
-        Assets::EntityModel* MdlParser::doParseModel(Logger& logger) {
+        Assets::EntityModel* MdlParser::doInitializeModel(Logger& logger) {
+            CharArrayReader reader(m_begin, m_end);
+
+            const auto ident = reader.readInt<int32_t>();
+            const auto version = reader.readInt<int32_t>();
+
+            if (ident != MdlLayout::Ident) {
+                throw AssetException() << "Unknown MDL model ident: " << ident;
+            }
+            if (version != MdlLayout::Version6) {
+                throw AssetException() << "Unknown MDL model version: " << version;
+            }
+
+            /* const auto scale = */ reader.readVec<float, 3>();
+            /* const auto origin = */ reader.readVec<float, 3>();
+
+            reader.seekFromBegin(MdlLayout::HeaderNumSkins);
+            const auto skinCount = reader.readSize<int32_t>();
+            const auto skinWidth = reader.readSize<int32_t>();
+            const auto skinHeight = reader.readSize<int32_t>();
+            /* const auto skinVertexCount = */ reader.readSize<int32_t>();
+            /* const auto skinTriangleCount = */ reader.readSize<int32_t>();
+            const auto frameCount = reader.readSize<int32_t>();
+            /* const auto syncType = */ reader.readSize<int32_t>();
+            const auto flags = reader.readInt<int32_t>();
+
+            auto model = std::make_unique<Assets::EntityModel>(m_name);
+            model->addFrames(frameCount);
+            auto& surface = model->addSurface(m_name);
+
+            reader.seekFromBegin(MdlLayout::Skins);
+            parseSkins(reader, surface, skinCount, skinWidth, skinHeight, flags);
+
+            return model.release();        }
+
+        void MdlParser::doLoadFrame(const size_t frameIndex, Assets::EntityModel& model, Logger& logger) {
             CharArrayReader reader(m_begin, m_end);
 
             const auto ident = reader.readInt<int32_t>();
@@ -234,25 +269,21 @@ namespace TrenchBroom {
             const auto skinCount = reader.readSize<int32_t>();
             const auto skinWidth = reader.readSize<int32_t>();
             const auto skinHeight = reader.readSize<int32_t>();
-            const auto skinVertexCount = reader.readSize<int32_t>();
-            const auto skinTriangleCount = reader.readSize<int32_t>();
-            const auto frameCount = reader.readSize<int32_t>();
+            const auto vertexCount = reader.readSize<int32_t>();
+            const auto triangleCount = reader.readSize<int32_t>();
+            /* const auto frameCount = */ reader.readSize<int32_t>();
             /* const auto syncType = */ reader.readSize<int32_t>();
             const auto flags = reader.readInt<int32_t>();
 
-            auto model = std::make_unique<Assets::EntityModel>(m_name);
-            model->addFrames(frameCount);
-            auto& surface = model->addSurface(m_name);
-
             reader.seekFromBegin(MdlLayout::Skins);
-            parseSkins(reader, surface, skinCount, skinWidth, skinHeight, flags);
+            skipSkins(reader, skinCount, skinWidth, skinHeight, flags);
 
-            const auto skinVertices = parseSkinVertices(reader, skinVertexCount);
-            const auto skinTriangles = parseSkinTriangles(reader, skinTriangleCount);
+            const auto vertices = parseVertices(reader, vertexCount);
+            const auto triangles = parseTriangles(reader, triangleCount);
 
-            parseFrames(reader, *model, surface, frameCount, skinTriangles, skinVertices, skinWidth, skinHeight, origin, scale);
-
-            return model.release();
+            auto& surface = model.surface(0);
+            skipFrames(reader, frameIndex, vertexCount);
+            parseFrame(reader, model, frameIndex, surface, triangles, vertices, skinWidth, skinHeight, origin, scale);
         }
 
         void MdlParser::parseSkins(CharArrayReader& reader, Assets::EntityModel::Surface& surface, const size_t count, const size_t width, const size_t height, const int flags) {
@@ -292,7 +323,23 @@ namespace TrenchBroom {
             }
         }
 
-        MdlParser::MdlSkinVertexList MdlParser::parseSkinVertices(CharArrayReader& reader, const size_t count) {
+        void MdlParser::skipSkins(CharArrayReader& reader, const size_t count, const size_t width, const size_t height, const int flags) {
+            const auto size = width * height;
+
+            for (size_t i = 0; i < count; ++i) {
+                const auto skinGroup = reader.readSize<int32_t>();
+                if (skinGroup == 0) {
+                    Buffer<unsigned char> rgbaImage(size * 4);
+                    reader.seekForward(size);
+                } else {
+                    const auto pictureCount = reader.readSize<int32_t>();
+                    reader.seekForward(pictureCount * 4); // skip the picture times
+                    reader.seekForward(pictureCount * size);  // skip all pictures
+                }
+            }
+        }
+
+        MdlParser::MdlSkinVertexList MdlParser::parseVertices(CharArrayReader& reader, size_t count) {
             MdlSkinVertexList vertices(count);
             for (size_t i = 0; i < count; ++i) {
                 vertices[i].onseam = reader.readBool<int32_t>();
@@ -302,7 +349,7 @@ namespace TrenchBroom {
             return vertices;
         }
 
-        MdlParser::MdlSkinTriangleList MdlParser::parseSkinTriangles(CharArrayReader& reader, const size_t count) {
+        MdlParser::MdlSkinTriangleList MdlParser::parseTriangles(CharArrayReader& reader, size_t count) {
             MdlSkinTriangleList triangles(count);
             for (size_t i = 0; i < count; ++i) {
                 triangles[i].front = reader.readBool<int32_t>();
@@ -313,55 +360,68 @@ namespace TrenchBroom {
             return triangles;
         }
 
-        void MdlParser::parseFrames(CharArrayReader& reader, Assets::EntityModel& model, Assets::EntityModel::Surface& surface, const size_t count, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, const size_t skinWidth, const size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale) {
-            const auto frameLength = MdlLayout::SimpleFrameName + MdlLayout::SimpleFrameLength + skinVertices.size() * 4;
+        void MdlParser::skipFrames(CharArrayReader& reader, const size_t count, size_t vertexCount) {
+            const auto frameLength = MdlLayout::SimpleFrameName + MdlLayout::SimpleFrameLength + vertexCount * 4;
 
             for (size_t i = 0; i < count; ++i) {
                 const auto type = reader.readInt<int32_t>();
                 if (type == 0) { // single frame
-                    parseFrame(reader.subReaderFromCurrent(0, frameLength), model, i, surface, skinTriangles, skinVertices, skinWidth, skinHeight, origin, scale);
                     reader.seekForward(frameLength);
                 } else { // frame group, but we only read the first frame
                     const auto groupFrameCount = reader.readSize<int32_t>();
                     reader.seekBackward(sizeof(int32_t));
 
                     const auto frameTimeLength = MdlLayout::MultiFrameTimes + groupFrameCount * sizeof(float);
-                    parseFrame(reader.subReaderFromCurrent(frameTimeLength, frameLength), model, i, surface, skinTriangles, skinVertices, skinWidth, skinHeight, origin, scale);
 
-                    // forward to after the last group frame as if we had read them all
+                    // forward to after the last group frame as if we had read them
                     reader.seekForward(frameTimeLength + groupFrameCount * frameLength);
                 }
             }
         }
 
-        void MdlParser::parseFrame(CharArrayReader reader, Assets::EntityModel& model, size_t frameIndex, Assets::EntityModel::Surface& surface, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, const size_t skinWidth, const size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale) {
+        void MdlParser::parseFrame(CharArrayReader reader, Assets::EntityModel& model, size_t frameIndex, Assets::EntityModel::Surface& surface, const MdlSkinTriangleList& triangles, const MdlSkinVertexList& vertices, size_t skinWidth, size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale) {
+            const auto frameLength = MdlLayout::SimpleFrameName + MdlLayout::SimpleFrameLength + vertices.size() * 4;
+
+            const auto type = reader.readInt<int32_t>();
+            if (type == 0) { // single frame
+                doParseFrame(reader.subReaderFromCurrent(0, frameLength), model, frameIndex, surface, triangles, vertices, skinWidth, skinHeight, origin, scale);
+            } else { // frame group, but we only read the first frame
+                const auto groupFrameCount = reader.readSize<int32_t>();
+                reader.seekBackward(sizeof(int32_t));
+
+                const auto frameTimeLength = MdlLayout::MultiFrameTimes + groupFrameCount * sizeof(float);
+                doParseFrame(reader.subReaderFromCurrent(frameTimeLength, frameLength), model, frameIndex, surface, triangles, vertices, skinWidth, skinHeight, origin, scale);
+            }
+        }
+
+        void MdlParser::doParseFrame(CharArrayReader reader, Assets::EntityModel& model, size_t frameIndex, Assets::EntityModel::Surface& surface, const MdlSkinTriangleList& triangles, const MdlSkinVertexList& vertices, const size_t skinWidth, const size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale) {
             using Vertex = Assets::EntityModel::Vertex;
             using VertexList = Vertex::List;
 
             reader.seekForward(MdlLayout::SimpleFrameName);
             const auto name = reader.readString(MdlLayout::SimpleFrameLength);
 
-            PackedFrameVertexList packedVertices(skinVertices.size());
-            for (size_t i = 0; i < skinVertices.size(); ++i) {
+            PackedFrameVertexList packedVertices(vertices.size());
+            for (size_t i = 0; i < vertices.size(); ++i) {
                 for (size_t j = 0; j < 4; ++j) {
                     packedVertices[i][j] = reader.readUnsignedChar<char>();
                 }
             }
 
-            std::vector<vm::vec3f> positions(skinVertices.size());
-            for (size_t i = 0; i < skinVertices.size(); ++i) {
+            std::vector<vm::vec3f> positions(vertices.size());
+            for (size_t i = 0; i < vertices.size(); ++i) {
                 positions[i] = unpackFrameVertex(packedVertices[i], origin, scale);
             }
 
             vm::bbox3f::builder bounds;
 
             VertexList frameTriangles;
-            frameTriangles.reserve(skinTriangles.size());
-            for (size_t i = 0; i < skinTriangles.size(); ++i) {
-                const auto& triangle = skinTriangles[i];
+            frameTriangles.reserve(triangles.size());
+            for (size_t i = 0; i < triangles.size(); ++i) {
+                const auto& triangle = triangles[i];
                 for (size_t j = 0; j < 3; ++j) {
                     const auto vertexIndex = triangle.vertices[j];
-                    const auto& skinVertex = skinVertices[vertexIndex];
+                    const auto& skinVertex = vertices[vertexIndex];
 
                     auto texCoords = vm::vec2f(float(skinVertex.s) / float(skinWidth), float(skinVertex.t) / float(skinHeight));
                     if (skinVertex.onseam && !triangle.front) {

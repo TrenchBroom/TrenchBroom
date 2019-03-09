@@ -54,7 +54,7 @@ namespace TrenchBroom {
             unused(m_end);
         }
 
-        Assets::EntityModel* Md3Parser::doParseModel(Logger& logger) {
+        Assets::EntityModel* Md3Parser::doInitializeModel(Logger& logger) {
             CharArrayReader reader(m_begin, m_end);
 
             const auto ident = reader.readInt<int32_t>();
@@ -76,24 +76,48 @@ namespace TrenchBroom {
             const auto surfaceCount = reader.readSize<int32_t>();
             /* const auto skinCount = */ reader.readSize<int32_t>();
 
-            const auto frameOffset = reader.readSize<int32_t>();
+            /* const auto frameOffset = */ reader.readSize<int32_t>();
             /* const auto tagOffset = */ reader.readSize<int32_t>();
             const auto surfaceOffset = reader.readSize<int32_t>();
 
             auto model = std::make_unique<Assets::EntityModel>(m_name);
             model->addFrames(frameCount);
-
-            initializeSurfaces(reader.subReaderFromBegin(surfaceOffset), surfaceCount, *model, logger);
-
-            for (size_t i = 0; i < frameCount; ++i) {
-                auto& frame = loadFrame(reader.subReaderFromBegin(frameOffset), i, *model);
-                loadFrameSurfaces(reader.subReaderFromBegin(surfaceOffset), frame, *model);
-            }
+            parseSurfaces(reader.subReaderFromBegin(surfaceOffset), surfaceCount, *model, logger);
 
             return model.release();
         }
 
-        void Md3Parser::initializeSurfaces(CharArrayReader surfaceReader, const size_t surfaceCount, Assets::EntityModel& model, Logger& logger) {
+        void Md3Parser::doLoadFrame(const size_t frameIndex, Assets::EntityModel& model, Logger& logger) {
+            CharArrayReader reader(m_begin, m_end);
+
+            const auto ident = reader.readInt<int32_t>();
+            const auto version = reader.readInt<int32_t>();
+
+            if (ident != Md3Layout::Ident) {
+                throw AssetException() << "Unknown MD3 model ident: " << ident;
+            }
+
+            if (version != Md3Layout::Version) {
+                throw AssetException() << "Unknown MD3 model version: " << version;
+            }
+
+            const auto name = reader.readString(Md3Layout::ModelNameLength);
+            /* const auto flags = */ reader.readInt<int32_t>();
+
+            /* const auto frameCount = */ reader.readSize<int32_t>();
+            /* const auto tagCount = */ reader.readSize<int32_t>();
+            /* const auto surfaceCount = */ reader.readSize<int32_t>();
+            /* const auto skinCount = */ reader.readSize<int32_t>();
+
+            const auto frameOffset = reader.readSize<int32_t>();
+            /* const auto tagOffset = */ reader.readSize<int32_t>();
+            const auto surfaceOffset = reader.readSize<int32_t>();
+
+            auto& frame = parseFrame(reader.subReaderFromBegin(frameOffset + frameIndex * Md3Layout::FrameLength, Md3Layout::FrameLength), frameIndex, model);
+            parseFrameSurfaces(reader.subReaderFromBegin(surfaceOffset), frame, model);
+        }
+
+        void Md3Parser::parseSurfaces(CharArrayReader surfaceReader, const size_t surfaceCount, Assets::EntityModel& model, Logger& logger) {
             auto currentSurfaceReader = surfaceReader;
             for (size_t i = 0; i < surfaceCount; ++i) {
                 const auto ident = currentSurfaceReader.readInt<int32_t>();
@@ -124,9 +148,7 @@ namespace TrenchBroom {
             }
         }
 
-        Assets::EntityModel::LoadedFrame& Md3Parser::loadFrame(CharArrayReader frameReader, const size_t frameIndex, Assets::EntityModel& model) {
-            frameReader.seekFromBegin(frameIndex * Md3Layout::FrameLength);
-
+        Assets::EntityModel::LoadedFrame& Md3Parser::parseFrame(CharArrayReader frameReader, const size_t frameIndex, Assets::EntityModel& model) {
             const auto minBounds = frameReader.readVec<float, 3>();
             const auto maxBounds = frameReader.readVec<float, 3>();
             /* const auto localOrigin = */ frameReader.readVec<float, 3>();
@@ -136,7 +158,7 @@ namespace TrenchBroom {
             return model.loadFrame(frameIndex, frameName, vm::bbox3f(minBounds, maxBounds));
         }
 
-        void Md3Parser::loadFrameSurfaces(CharArrayReader surfaceReader, Assets::EntityModel::LoadedFrame& frame, Assets::EntityModel& model) {
+        void Md3Parser::parseFrameSurfaces(CharArrayReader surfaceReader, Assets::EntityModel::LoadedFrame& frame, Assets::EntityModel& model) {
             auto currentSurfaceReader = surfaceReader;
             for (size_t i = 0; i < model.surfaceCount(); ++i) {
                 const auto ident = currentSurfaceReader.readInt<int32_t>();

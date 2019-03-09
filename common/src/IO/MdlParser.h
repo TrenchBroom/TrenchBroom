@@ -65,13 +65,18 @@ namespace TrenchBroom {
         public:
             MdlParser(const String& name, const char* begin, const char* end, const Assets::Palette& palette);
         private:
-            Assets::EntityModel* doParseModel(Logger& logger) override;
+            Assets::EntityModel* doInitializeModel(Logger& logger) override;
+            void doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;
 
             void parseSkins(CharArrayReader& reader, Assets::EntityModel::Surface& surface, size_t count, size_t width, size_t height, int flags);
-            MdlSkinVertexList parseSkinVertices(CharArrayReader& reader, size_t count);
-            MdlSkinTriangleList parseSkinTriangles(CharArrayReader& reader, size_t count);
-            void parseFrames(CharArrayReader& reader, Assets::EntityModel& model, Assets::EntityModel::Surface& surface, size_t count, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, size_t skinWidth, size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale);
-            void parseFrame(CharArrayReader reader, Assets::EntityModel& model, size_t frameIndex, Assets::EntityModel::Surface& surface, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, size_t skinWidth, size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale);
+            void skipSkins(CharArrayReader& reader, size_t count, size_t width, size_t height, int flags);
+
+            MdlSkinVertexList parseVertices(CharArrayReader& reader, size_t count);
+            MdlSkinTriangleList parseTriangles(CharArrayReader& reader, size_t count);
+
+            void skipFrames(CharArrayReader& reader, size_t count, size_t vertexCount);
+            void parseFrame(CharArrayReader reader, Assets::EntityModel& model, size_t frameIndex, Assets::EntityModel::Surface& surface, const MdlSkinTriangleList& triangles, const MdlSkinVertexList& vertices, size_t skinWidth, size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale);
+            void doParseFrame(CharArrayReader reader, Assets::EntityModel& model, size_t frameIndex, Assets::EntityModel::Surface& surface, const MdlSkinTriangleList& triangles, const MdlSkinVertexList& vertices, size_t skinWidth, size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale);
             vm::vec3f unpackFrameVertex(const PackedFrameVertex& vertex, const vm::vec3f& origin, const vm::vec3f& scale) const;
         };
     }

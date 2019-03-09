@@ -189,12 +189,12 @@ namespace TrenchBroom {
                 const auto actualSize = fontManager().font(actualFont).measure(definition->name());
 
                 const auto spec = definition->defaultModel();
-                const auto* model = safeGetModel(m_entityModelManager, spec, m_logger);
+                const auto* frame = m_entityModelManager.frame(spec);
                 Renderer::TexturedRenderer* modelRenderer = nullptr;
 
                 vm::bbox3f rotatedBounds;
-                if (model != nullptr) {
-                    const auto bounds = model->bounds(spec.frameIndex);
+                if (frame != nullptr) {
+                    const auto bounds = frame->bounds();
                     const auto center = bounds.center();
                     const auto transform = translationMatrix(center) * rotationMatrix(m_rotation) * translationMatrix(-center);
                     rotatedBounds = bounds.transform(transform);

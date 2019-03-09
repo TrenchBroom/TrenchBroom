@@ -24,15 +24,15 @@ namespace TrenchBroom {
         EntityModelParser::~EntityModelParser() = default;
 
         Assets::EntityModel* EntityModelParser::initializeModel(Logger& logger) {
-            return parseModel(logger);
+            return doInitializeModel(logger);
         }
 
-        bool EntityModelParser::loadFrame(Assets::EntityModel& model, const size_t frameIndex, Logger& logger) {
-            return false;
+        void EntityModelParser::loadFrame(const size_t frameIndex, Assets::EntityModel& model, Logger& logger) {
+            return doLoadFrame(frameIndex, model, logger);
         }
 
-        Assets::EntityModel* EntityModelParser::parseModel(Logger& logger) {
-            return doParseModel(logger);
+        void EntityModelParser::doLoadFrame(const size_t frameIndex, Assets::EntityModel& model, Logger& logger) {
+
         }
     }
 }

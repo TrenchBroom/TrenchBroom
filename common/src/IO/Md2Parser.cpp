@@ -230,7 +230,7 @@ namespace TrenchBroom {
         m_fs(fs) {}
 
         // http://tfc.duke.free.fr/old/models/md2.htm
-        Assets::EntityModel* Md2Parser::doParseModel(Logger& logger) {
+        Assets::EntityModel* Md2Parser::doInitializeModel(Logger& logger) {
             CharArrayReader reader(m_begin, m_end);
             const int ident = reader.readInt<int32_t>();
             const int version = reader.readInt<int32_t>();
@@ -247,23 +247,60 @@ namespace TrenchBroom {
             /*const size_t frameSize =*/ reader.readSize<int32_t>();
 
             const size_t skinCount = reader.readSize<int32_t>();
-            const size_t frameVertexCount = reader.readSize<int32_t>();
+            /* const size_t frameVertexCount = */ reader.readSize<int32_t>();
             /* const size_t texCoordCount =*/ reader.readSize<int32_t>();
             /* const size_t triangleCount =*/ reader.readSize<int32_t>();
-            const size_t commandCount = reader.readSize<int32_t>();
-            const size_t frameCount = reader.readSize<int32_t>();
+            /* const size_t commandCount = */ reader.readSize<int32_t>();
 
+            const size_t frameCount = reader.readSize<int32_t>();
             const size_t skinOffset = reader.readSize<int32_t>();
-            /* const size_t texCoordOffset =*/ reader.readSize<int32_t>();
-            /* const size_t triangleOffset =*/ reader.readSize<int32_t>();
-            const size_t frameOffset = reader.readSize<int32_t>();
-            const size_t commandOffset = reader.readSize<int32_t>();
 
             const Md2SkinList skins = parseSkins(reader.subReaderFromBegin(skinOffset), skinCount);
-            const Md2FrameList frames = parseFrames(reader.subReaderFromBegin(frameOffset), frameCount, frameVertexCount);
-            const Md2MeshList meshes = parseMeshes(reader.subReaderFromBegin(commandOffset, commandCount * 4), commandCount);
 
-            return buildModel(skins, frames, meshes);
+            auto model = std::make_unique<Assets::EntityModel>(m_name);
+            model->addFrames(frameCount);
+
+            auto& surface = model->addSurface(m_name);
+            loadSkins(surface, skins);
+
+            return model.release();
+        }
+
+        void Md2Parser::doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) {
+            CharArrayReader reader(m_begin, m_end);
+            const auto ident = reader.readInt<int32_t>();
+            const auto version = reader.readInt<int32_t>();
+
+            if (ident != Md2Layout::Ident) {
+                throw AssetException() << "Unknown MD2 model ident: " << ident;
+            }
+            if (version != Md2Layout::Version) {
+                throw AssetException() << "Unknown MD2 model version: " << version;
+            }
+
+            /*const auto skinWidth =*/ reader.readSize<int32_t>();
+            /*const auto skinHeight =*/ reader.readSize<int32_t>();
+            /*const auto frameSize =*/ reader.readSize<int32_t>();
+
+            /* const auto skinCount = */ reader.readSize<int32_t>();
+            const auto vertexCount = reader.readSize<int32_t>();
+            /* const auto texCoordCount =*/ reader.readSize<int32_t>();
+            /* const auto triangleCount =*/ reader.readSize<int32_t>();
+            const auto commandCount = reader.readSize<int32_t>();
+            /* const auto frameCount = */ reader.readSize<int32_t>();
+
+            /* const auto skinOffset = */ reader.readSize<int32_t>();
+            /* const auto texCoordOffset =*/ reader.readSize<int32_t>();
+            /* const auto triangleOffset =*/ reader.readSize<int32_t>();
+            const auto frameOffset = reader.readSize<int32_t>();
+            const auto commandOffset = reader.readSize<int32_t>();
+
+            const auto frameSize = 6 * sizeof(float) + Md2Layout::FrameNameLength + vertexCount * 4;
+            const auto frame = parseFrame(reader.subReaderFromBegin(frameOffset + frameIndex * frameSize, frameSize), frameIndex, vertexCount);
+            const auto meshes = parseMeshes(reader.subReaderFromBegin(commandOffset, commandCount * 4), commandCount);
+
+            auto& surface = model.surface(0);
+            buildFrame(model, surface, frameIndex, frame, meshes);
         }
 
         Md2Parser::Md2SkinList Md2Parser::parseSkins(CharArrayReader reader, const size_t skinCount) {
@@ -275,23 +312,20 @@ namespace TrenchBroom {
             return skins;
         }
 
-        Md2Parser::Md2FrameList Md2Parser::parseFrames(CharArrayReader reader, const size_t frameCount, const size_t frameVertexCount) {
-            Md2FrameList frames(frameCount, Md2Frame(frameVertexCount));
+        Md2Parser::Md2Frame Md2Parser::parseFrame(CharArrayReader reader, const size_t frameIndex, const size_t vertexCount) {
+            auto frame = Md2Frame(vertexCount);
+            frame.scale = reader.readVec<float,3>();
+            frame.offset = reader.readVec<float,3>();
+            frame.name = reader.readString(Md2Layout::FrameNameLength);
 
-            for (size_t i = 0; i < frameCount; ++i) {
-                frames[i].scale = reader.readVec<float,3>();
-                frames[i].offset = reader.readVec<float,3>();
-                frames[i].name = reader.readString(Md2Layout::FrameNameLength);
-
-                for (size_t j = 0; j < frameVertexCount; ++j) {
-                    frames[i].vertices[j].x = reader.readUnsignedChar<char>();
-                    frames[i].vertices[j].y = reader.readUnsignedChar<char>();
-                    frames[i].vertices[j].z = reader.readUnsignedChar<char>();
-                    frames[i].vertices[j].normalIndex = reader.readUnsignedChar<char>();
-                }
+            for (size_t i = 0; i < vertexCount; ++i) {
+                frame.vertices[i].x = reader.readUnsignedChar<char>();
+                frame.vertices[i].y = reader.readUnsignedChar<char>();
+                frame.vertices[i].z = reader.readUnsignedChar<char>();
+                frame.vertices[i].normalIndex = reader.readUnsignedChar<char>();
             }
 
-            return frames;
+            return frame;
         }
 
         Md2Parser::Md2MeshList Md2Parser::parseMeshes(CharArrayReader reader, const size_t commandCount) {
@@ -310,59 +344,44 @@ namespace TrenchBroom {
             return meshes;
         }
 
-        Assets::EntityModel* Md2Parser::buildModel(const Md2SkinList& skins, const Md2FrameList& frames, const Md2MeshList& meshes) {
-            auto model = std::make_unique<Assets::EntityModel>(m_name);
-            model->addFrames(frames.size());
-            auto& surface = model->addSurface(m_name);
-
-            loadSkins(surface, skins);
-            buildFrames(*model, surface, frames, meshes);
-
-            return model.release();
-        }
-
         void Md2Parser::loadSkins(Assets::EntityModel::Surface& surface, const Md2SkinList& skins) {
             for (const auto& skin : skins) {
                 surface.addSkin(loadSkin(m_fs.openFile(Path(skin)), m_palette));
             }
         }
 
-        void Md2Parser::buildFrames(Assets::EntityModel& model, Assets::EntityModel::Surface& surface, const Md2Parser::Md2FrameList& frames, const Md2Parser::Md2MeshList& meshes) {
-            for (size_t i = 0; i < frames.size(); ++i) {
-                const auto& frame = frames[i];
-
-                size_t vertexCount = 0;
-                Renderer::IndexRangeMap::Size size;
-                for (const auto& md2Mesh : meshes) {
-                    vertexCount += md2Mesh.vertices.size();
-                    if (md2Mesh.type == Md2Mesh::Fan) {
-                        size.inc(GL_TRIANGLE_FAN);
-                    } else {
-                        size.inc(GL_TRIANGLE_STRIP);
-                    }
+        void Md2Parser::buildFrame(Assets::EntityModel& model, Assets::EntityModel::Surface& surface, const size_t frameIndex, const Md2Frame& frame, const Md2MeshList& meshes) {
+            size_t vertexCount = 0;
+            Renderer::IndexRangeMap::Size size;
+            for (const auto& md2Mesh : meshes) {
+                vertexCount += md2Mesh.vertices.size();
+                if (md2Mesh.type == Md2Mesh::Fan) {
+                    size.inc(GL_TRIANGLE_FAN);
+                } else {
+                    size.inc(GL_TRIANGLE_STRIP);
                 }
-
-                vm::bbox3f::builder bounds;
-
-                Renderer::IndexRangeMapBuilder<Assets::EntityModel::Vertex::Spec> builder(vertexCount, size);
-                for (const auto& md2Mesh : meshes) {
-                    if (!md2Mesh.vertices.empty()) {
-                        vertexCount += md2Mesh.vertices.size();
-                        const auto vertices = getVertices(frame, md2Mesh.vertices);
-
-                        bounds.add(std::begin(vertices), std::end(vertices), Renderer::GetVertexComponent1());
-
-                        if (md2Mesh.type == Md2Mesh::Fan) {
-                            builder.addTriangleFan(vertices);
-                        } else {
-                            builder.addTriangleStrip(vertices);
-                        }
-                    }
-                }
-
-                auto& modelFrame = model.loadFrame(i, frame.name, bounds.bounds());
-                surface.addIndexedMesh(modelFrame, builder.vertices(), builder.indices());
             }
+
+            vm::bbox3f::builder bounds;
+
+            Renderer::IndexRangeMapBuilder<Assets::EntityModel::Vertex::Spec> builder(vertexCount, size);
+            for (const auto& md2Mesh : meshes) {
+                if (!md2Mesh.vertices.empty()) {
+                    vertexCount += md2Mesh.vertices.size();
+                    const auto vertices = getVertices(frame, md2Mesh.vertices);
+
+                    bounds.add(std::begin(vertices), std::end(vertices), Renderer::GetVertexComponent1());
+
+                    if (md2Mesh.type == Md2Mesh::Fan) {
+                        builder.addTriangleFan(vertices);
+                    } else {
+                        builder.addTriangleStrip(vertices);
+                    }
+                }
+            }
+
+            auto& modelFrame = model.loadFrame(frameIndex, frame.name, bounds.bounds());
+            surface.addIndexedMesh(modelFrame, builder.vertices(), builder.indices());
         }
 
         Assets::EntityModel::VertexList Md2Parser::getVertices(const Md2Frame& frame, const Md2MeshVertexList& meshVertices) const {

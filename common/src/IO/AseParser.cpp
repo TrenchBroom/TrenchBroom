@@ -106,7 +106,7 @@ namespace TrenchBroom {
         m_tokenizer(begin, end),
         m_fs(fs) {}
 
-        Assets::EntityModel* AseParser::doParseModel(Logger& logger) {
+        Assets::EntityModel* AseParser::doInitializeModel(Logger& logger) {
             Scene scene;
             parseAseFile(logger, scene);
             return buildModel(logger, scene);

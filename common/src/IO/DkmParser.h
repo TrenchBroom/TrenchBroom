@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -40,7 +40,7 @@ namespace TrenchBroom {
         class CharArrayReader;
         class FileSystem;
         class Path;
-        
+
         namespace DkmLayout {
             static const int Ident = (('D'<<24) + ('M'<<16) + ('K'<<8) + 'D');
             static const int Version1 = 1;
@@ -62,40 +62,39 @@ namespace TrenchBroom {
             };
 
             using DkmVertexList = std::vector<DkmVertex>;
-            
+
             struct DkmFrame {
                 vm::vec3f scale;
                 vm::vec3f offset;
                 String name;
                 DkmVertexList vertices;
-                
-                DkmFrame(size_t vertexCount);
+
+                explicit DkmFrame(size_t vertexCount);
                 vm::vec3f vertex(size_t index) const;
                 const vm::vec3f& normal(size_t index) const;
             };
-            using DkmFrameList = std::vector<DkmFrame>;
 
             struct DkmMeshVertex {
                 vm::vec2f texCoords;
                 size_t vertexIndex;
             };
             using DkmMeshVertexList = std::vector<DkmMeshVertex>;
-            
+
             struct DkmMesh {
                 enum Type {
                     Fan,
                     Strip
                 };
-                
+
                 Type type;
                 size_t vertexCount;
                 DkmMeshVertexList vertices;
-                
-                DkmMesh(int i_vertexCount);
+
+                explicit DkmMesh(int i_vertexCount);
             };
             using DkmMeshList = std::vector<DkmMesh>;
-            
-            
+
+
             String m_name;
             const char* m_begin;
             const char* m_end;
@@ -103,16 +102,17 @@ namespace TrenchBroom {
         public:
             DkmParser(const String& name, const char* begin, const char* end, const FileSystem& fs);
         private:
-            Assets::EntityModel* doParseModel(Logger& logger) override;
+            Assets::EntityModel* doInitializeModel(Logger& logger) override;
+            void doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;
+
             DkmSkinList parseSkins(CharArrayReader reader, size_t skinCount);
-            DkmFrameList parseFrames(CharArrayReader reader, size_t frameSize, size_t frameCount, size_t frameVertexCount, int version);
+            DkmFrame parseFrame(CharArrayReader reader, size_t frameIndex, size_t vertexCount, int version);
             DkmMeshList parseMeshes(CharArrayReader reader, size_t commandCount);
 
-            Assets::EntityModel* buildModel(const DkmSkinList& skins, const DkmFrameList& frames, const DkmMeshList& meshes);
             void loadSkins(Assets::EntityModel::Surface& surface, const DkmSkinList& skins);
             const IO::Path findSkin(const String& skin) const;
-            void buildFrames(Assets::EntityModel& model, Assets::EntityModel::Surface& surface, const DkmFrameList& frames, const DkmMeshList& meshes);
 
+            void buildFrame(Assets::EntityModel& model, Assets::EntityModel::Surface& surface, size_t frameIndex, const DkmFrame& frame, const DkmMeshList& meshes);
             Assets::EntityModel::VertexList getVertices(const DkmFrame& frame, const DkmMeshVertexList& meshVertices) const;
         };
     }

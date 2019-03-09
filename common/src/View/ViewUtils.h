@@ -37,7 +37,6 @@ namespace TrenchBroom {
     }
 
     namespace View {
-        Assets::EntityModel* safeGetModel(Assets::EntityModelManager& manager, const Assets::ModelSpecification& spec, Logger& logger);
         void combineFlags(size_t numFlags, int newFlagValue, int& setFlags, int& mixedFlags);
 
         size_t loadDroppedFiles(MapDocumentWPtr document, wxWindow* parent, const wxArrayString& wxPaths);

@@ -33,12 +33,12 @@ namespace TrenchBroom {
         class EntityModelParser {
         public:
             virtual ~EntityModelParser();
-            Assets::EntityModel* parseModel(Logger& logger);
 
             Assets::EntityModel* initializeModel(Logger& logger);
-            bool loadFrame(Assets::EntityModel& model, size_t frameIndex, Logger& logger);
+            void loadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger);
         private:
-            virtual Assets::EntityModel* doParseModel(Logger& logger) = 0;
+            virtual Assets::EntityModel* doInitializeModel(Logger& logger) = 0;
+            virtual void doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger);
         };
     }
 }

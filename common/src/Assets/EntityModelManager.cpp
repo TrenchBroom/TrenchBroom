@@ -61,6 +61,57 @@ namespace TrenchBroom {
             m_loader = loader;
         }
 
+        Renderer::TexturedRenderer* EntityModelManager::renderer(const Assets::ModelSpecification& spec) const {
+            auto* entityModel = safeGetModel(spec.path);
+
+            if (entityModel == nullptr) {
+                return nullptr;
+            }
+
+            auto it = m_renderers.find(spec);
+            if (it != std::end(m_renderers)) {
+                return it->second;
+            }
+
+            if (m_rendererMismatches.count(spec) > 0) {
+                return nullptr;
+            }
+
+            auto* renderer = entityModel->buildRenderer(spec.skinIndex, spec.frameIndex);
+            if (renderer == nullptr) {
+                m_rendererMismatches.insert(spec);
+                m_logger.error() << "Failed to construct entity model renderer for " << spec << ", check the skin and frame indices";
+            } else {
+                m_renderers[spec] = renderer;
+                m_unpreparedRenderers.push_back(renderer);
+                m_logger.debug() << "Constructed entity model renderer for " << spec;
+            }
+            return renderer;
+        }
+
+        const EntityModelFrame* EntityModelManager::frame(const Assets::ModelSpecification& spec) const {
+            auto* model = this->safeGetModel(spec.path);
+            if (model == nullptr) {
+                return nullptr;
+            } else if (spec.frameIndex >= model->frameCount()) {
+                return nullptr;
+            } else {
+                if (!model->frame(spec.frameIndex)->loaded()) {
+                    ensure(m_loader != nullptr, "loader is null");
+                    m_loader->loadFrame(spec.path, spec.frameIndex, *model, m_logger);
+                }
+                return model->frame(spec.frameIndex);
+            }
+        }
+
+        bool EntityModelManager::hasModel(const Model::Entity* entity) const {
+            return hasModel(entity->modelSpecification());
+        }
+
+        bool EntityModelManager::hasModel(const Assets::ModelSpecification& spec) const {
+            return renderer(spec) != nullptr;
+        }
+
         EntityModel* EntityModelManager::model(const IO::Path& path) const {
             if (path.isEmpty()) {
                 return nullptr;
@@ -98,45 +149,9 @@ namespace TrenchBroom {
             }
         }
 
-        Renderer::TexturedRenderer* EntityModelManager::renderer(const Assets::ModelSpecification& spec) const {
-            auto* entityModel = safeGetModel(spec.path);
-
-            if (entityModel == nullptr) {
-                return nullptr;
-            }
-
-            auto it = m_renderers.find(spec);
-            if (it != std::end(m_renderers)) {
-                return it->second;
-            }
-
-            if (m_rendererMismatches.count(spec) > 0) {
-                return nullptr;
-            }
-
-            auto* renderer = entityModel->buildRenderer(spec.skinIndex, spec.frameIndex);
-            if (renderer == nullptr) {
-                m_rendererMismatches.insert(spec);
-                m_logger.error() << "Failed to construct entity model renderer for " << spec << ", check the skin and frame indices";
-            } else {
-                m_renderers[spec] = renderer;
-                m_unpreparedRenderers.push_back(renderer);
-                m_logger.debug() << "Constructed entity model renderer for " << spec;
-            }
-            return renderer;
-        }
-
-        bool EntityModelManager::hasModel(const Model::Entity* entity) const {
-            return hasModel(entity->modelSpecification());
-        }
-
-        bool EntityModelManager::hasModel(const Assets::ModelSpecification& spec) const {
-            return renderer(spec) != nullptr;
-        }
-
         EntityModel* EntityModelManager::loadModel(const IO::Path& path) const {
             ensure(m_loader != nullptr, "loader is null");
-            return m_loader->loadEntityModel(path, m_logger);
+            return m_loader->initializeModel(path, m_logger);
         }
 
         void EntityModelManager::prepare(Renderer::Vbo& vbo) {

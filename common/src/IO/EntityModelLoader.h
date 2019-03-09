@@ -31,9 +31,11 @@ namespace TrenchBroom {
         class EntityModelLoader {
         public:
             virtual ~EntityModelLoader();
-            Assets::EntityModel* loadEntityModel(const IO::Path& path, Logger& logger) const;
+            Assets::EntityModel* initializeModel(const IO::Path& path, Logger& logger) const;
+            void loadFrame(const IO::Path& path, size_t frameIndex, Assets::EntityModel& model, Logger& logger) const;
         private:
-            virtual Assets::EntityModel* doLoadEntityModel(const IO::Path& path, Logger& logger) const = 0;
+            virtual Assets::EntityModel* doInitializeModel(const IO::Path& path, Logger& logger) const = 0;
+            virtual void doLoadFrame(const IO::Path& path, size_t frameIndex, Assets::EntityModel& model, Logger& logger) const = 0;
         };
     }
 }
