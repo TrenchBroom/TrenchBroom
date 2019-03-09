@@ -312,6 +312,7 @@ namespace TrenchBroom {
 
         Assets::EntityModel* Md2Parser::buildModel(const Md2SkinList& skins, const Md2FrameList& frames, const Md2MeshList& meshes) {
             auto model = std::make_unique<Assets::EntityModel>(m_name);
+            model->addFrames(frames.size());
             auto& surface = model->addSurface(m_name);
 
             loadSkins(surface, skins);
@@ -327,19 +328,21 @@ namespace TrenchBroom {
         }
 
         void Md2Parser::buildFrames(Assets::EntityModel& model, Assets::EntityModel::Surface& surface, const Md2Parser::Md2FrameList& frames, const Md2Parser::Md2MeshList& meshes) {
-            for (const auto& frame: frames) {
+            for (size_t i = 0; i < frames.size(); ++i) {
+                const auto& frame = frames[i];
+
                 size_t vertexCount = 0;
                 Renderer::IndexRangeMap::Size size;
                 for (const auto& md2Mesh : meshes) {
                     vertexCount += md2Mesh.vertices.size();
-                    if (md2Mesh.type == Md2Mesh::Fan)
+                    if (md2Mesh.type == Md2Mesh::Fan) {
                         size.inc(GL_TRIANGLE_FAN);
-                    else
+                    } else {
                         size.inc(GL_TRIANGLE_STRIP);
+                    }
                 }
 
-                bool boundsInitialized = false;
-                vm::bbox3f bounds;
+                vm::bbox3f::builder bounds;
 
                 Renderer::IndexRangeMapBuilder<Assets::EntityModel::Vertex::Spec> builder(vertexCount, size);
                 for (const auto& md2Mesh : meshes) {
@@ -347,12 +350,7 @@ namespace TrenchBroom {
                         vertexCount += md2Mesh.vertices.size();
                         const auto vertices = getVertices(frame, md2Mesh.vertices);
 
-                        if (!boundsInitialized) {
-                            bounds = vm::bbox3f::mergeAll(std::begin(vertices), std::end(vertices), Renderer::GetVertexComponent1());
-                            boundsInitialized = true;
-                        } else {
-                            bounds = vm::merge(bounds, vm::bbox3f::mergeAll(std::begin(vertices), std::end(vertices), Renderer::GetVertexComponent1()));
-                        }
+                        bounds.add(std::begin(vertices), std::end(vertices), Renderer::GetVertexComponent1());
 
                         if (md2Mesh.type == Md2Mesh::Fan) {
                             builder.addTriangleFan(vertices);
@@ -362,7 +360,7 @@ namespace TrenchBroom {
                     }
                 }
 
-                auto& modelFrame = model.addFrame(frame.name, bounds);
+                auto& modelFrame = model.loadFrame(i, frame.name, bounds.bounds());
                 surface.addIndexedMesh(modelFrame, builder.vertices(), builder.indices());
             }
         }

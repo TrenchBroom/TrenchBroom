@@ -23,6 +23,14 @@ namespace TrenchBroom {
     namespace IO {
         EntityModelParser::~EntityModelParser() = default;
 
+        Assets::EntityModel* EntityModelParser::initializeModel(Logger& logger) {
+            return parseModel(logger);
+        }
+
+        bool EntityModelParser::loadFrame(Assets::EntityModel& model, const size_t frameIndex, Logger& logger) {
+            return false;
+        }
+
         Assets::EntityModel* EntityModelParser::parseModel(Logger& logger) {
             return doParseModel(logger);
         }

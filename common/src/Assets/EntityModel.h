@@ -53,26 +53,28 @@ namespace TrenchBroom {
             using TexturedIndices = Renderer::TexturedIndexRangeMap;
         public:
             /**
-             * One frame of the model.
+             * One frame of the model. Since frames are loaded on demand, each frame has two possible states: loaded
+             * and unloaded. These states are modeled as subclasses of this class.
              */
             class Frame {
             private:
                 size_t m_index;
-                String m_name;
-                vm::bbox3f m_bounds;
-
-                using Triangle = std::array<vm::vec3f, 3>;
-                using SpacialTree = AABBTree<float, 3, Triangle>;
-                SpacialTree m_spacialTree;
             public:
                 /**
-                 * Creates a new frame with the given name and bounds.
+                 * Creates a new frame with the given index.
                  *
                  * @param index the index of this frame
-                 * @param name the frame name
-                 * @param bounds the bounding box of the frame
                  */
-                Frame(size_t index, const String& name, const vm::bbox3f& bounds);
+                explicit Frame(size_t index);
+
+                virtual ~Frame();
+
+                /**
+                 * Indicates whether this frame is already loaded.
+                 *
+                 * @return true if this frame is loaded and false otherwise
+                 */
+                virtual bool loaded() const = 0;
 
                 /**
                  * Returns the index of this frame.
@@ -86,7 +88,7 @@ namespace TrenchBroom {
                  *
                  * @return the name
                  */
-                const String& name() const;
+                virtual const String& name() const = 0;
 
 
                 /**
@@ -94,7 +96,7 @@ namespace TrenchBroom {
                  *
                  * @return the bounding box
                  */
-                const vm::bbox3f& bounds() const;
+                virtual const vm::bbox3f& bounds() const = 0;
 
                 /**
                  * Intersects this frame with the given ray and returns the point of intersection.
@@ -102,7 +104,31 @@ namespace TrenchBroom {
                  * @param ray the ray to intersect
                  * @return the distance to the point of intersection or NaN if the given ray does not intersect this frame
                  */
-                float intersect(const vm::ray3f& ray) const;
+                virtual float intersect(const vm::ray3f& ray) const = 0;
+            };
+
+            class LoadedFrame : public Frame {
+            private:
+                String m_name;
+                vm::bbox3f m_bounds;
+
+                using Triangle = std::array<vm::vec3f, 3>;
+                using SpacialTree = AABBTree<float, 3, Triangle>;
+                SpacialTree m_spacialTree;
+            public:
+                /**
+                 * Creates a new frame with the given index, name and bounds.
+                 *
+                 * @param index the index of this frame
+                 * @param name the frame name
+                 * @param bounds the bounding box of the frame
+                 */
+                LoadedFrame(size_t index, const String& name, const vm::bbox3f& bounds);
+
+                bool loaded() const override;
+                const String& name() const override;
+                const vm::bbox3f& bounds() const override;
+                float intersect(const vm::ray3f& ray) const override;
 
                 /**
                  * Adds the given primitives to the spacial tree for this frame.
@@ -113,6 +139,21 @@ namespace TrenchBroom {
                  * @param count the number of vertices that make up the primitive(s)
                  */
                 void addToSpacialTree(const VertexList& vertices, PrimType primType, size_t index, size_t count);
+            };
+
+            class UnloadedFrame : public Frame {
+            public:
+                /**
+                 * Creates a new frame with the given index.
+                 *
+                 * @param index the index of this frame
+                 */
+                explicit UnloadedFrame(size_t index);
+
+                bool loaded() const override;
+                const String& name() const override;
+                const vm::bbox3f& bounds() const override;
+                float intersect(const vm::ray3f& ray) const override;
             };
 
             /**
@@ -163,7 +204,7 @@ namespace TrenchBroom {
                  * @param vertices the vertices
                  * @param indices the indices
                  */
-                IndexedMesh(Frame& frame, const VertexList& vertices, const Indices& indices);
+                IndexedMesh(LoadedFrame& frame, const VertexList& vertices, const Indices& indices);
             private:
                 std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(Assets::Texture* skin, const Renderer::VertexArray& vertices) override;
             };
@@ -182,7 +223,7 @@ namespace TrenchBroom {
                  * @param vertices the vertices
                  * @param indices the per texture indices
                  */
-                TexturedMesh(Frame& frame, const VertexList& vertices, const TexturedIndices& indices);
+                TexturedMesh(LoadedFrame& frame, const VertexList& vertices, const TexturedIndices& indices);
             private:
                 std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(Assets::Texture* skin, const Renderer::VertexArray& vertices) override;
             };
@@ -238,7 +279,7 @@ namespace TrenchBroom {
                  * @param vertices the mesh vertices
                  * @param indices the vertex indices
                  */
-                void addIndexedMesh(Frame& frame, const VertexList& vertices, const Indices& indices);
+                void addIndexedMesh(LoadedFrame& frame, const VertexList& vertices, const Indices& indices);
 
                 /**
                  * Adds a new multitextured mesh to this surface.
@@ -247,7 +288,7 @@ namespace TrenchBroom {
                  * @param vertices the mesh vertices
                  * @param indices the per texture vertex indices
                  */
-                void addTexturedMesh(Frame& frame, const VertexList& vertices, const TexturedIndices& indices);
+                void addTexturedMesh(LoadedFrame& frame, const VertexList& vertices, const TexturedIndices& indices);
 
                 /**
                  * Adds the given texture as a skin to this surface.
@@ -344,13 +385,23 @@ namespace TrenchBroom {
             void setTextureMode(int minFilter, int magFilter);
 
             /**
+             * Adds the given number of frames to this model.
+             *
+             * @param frameCount the number of frames to add
+             */
+            void addFrames(size_t frameCount = 1);
+
+            /**
              * Adds a frame with the given name and bounds.
              *
+             * @param frameIndex the frame's index
              * @param name the frame name
              * @param bounds the frame bounds
              * @return the newly added frame
+             *
+             * @throws AssetException if the given frame index is out of bounds
              */
-            Frame& addFrame(const String& name, const vm::bbox3f& bounds);
+            LoadedFrame& loadFrame(size_t frameIndex, const String& name, const vm::bbox3f& bounds);
 
             /**
              * Adds a surface with the given name.
@@ -402,6 +453,15 @@ namespace TrenchBroom {
              * @return the frame with the given name or null if no such frame was found
              */
             const Frame* frame(const String& name) const;
+
+            /**
+             * Returns the surface with the given index.
+             *
+             * @param index the index of the surface to return
+             * @return the surface with the given index
+             * @throw std::out_of_range if the given index is out of bounds
+             */
+            Surface& surface(size_t index);
 
             /**
              * Returns the surface with the given name.

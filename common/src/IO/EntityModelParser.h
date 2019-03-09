@@ -34,6 +34,9 @@ namespace TrenchBroom {
         public:
             virtual ~EntityModelParser();
             Assets::EntityModel* parseModel(Logger& logger);
+
+            Assets::EntityModel* initializeModel(Logger& logger);
+            bool loadFrame(Assets::EntityModel& model, size_t frameIndex, Logger& logger);
         private:
             virtual Assets::EntityModel* doParseModel(Logger& logger) = 0;
         };

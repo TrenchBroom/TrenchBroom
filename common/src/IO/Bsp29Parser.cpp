@@ -198,6 +198,7 @@ namespace TrenchBroom {
             using VertexList = Vertex::List;
 
             auto model = std::make_unique<Assets::EntityModel>(m_name);
+            model->addFrames(modelCount);
             auto& surface = model->addSurface(m_name);
 
             for (auto* skin : skins) {
@@ -222,7 +223,7 @@ namespace TrenchBroom {
                     }
                 }
 
-                vm::bbox3f bounds;
+                vm::bbox3f::builder bounds;
 
                 Renderer::TexturedIndexRangeMapBuilder<Vertex::Spec> builder(totalVertexCount, size);
                 for (size_t j = 0; j < modelFaceCount; ++j) {
@@ -246,11 +247,7 @@ namespace TrenchBroom {
                             const auto& position = vertices[vertexIndex];
                             const auto texCoords = textureCoords(position, textureInfo, skin);
 
-                            if (i == 0 && j == 0) {
-                                bounds.min = bounds.max = position;
-                            } else {
-                                bounds = vm::merge(bounds, position);
-                            }
+                            bounds.add(position);
 
                             faceVertices.push_back(Vertex(position, texCoords));
                         }
@@ -261,8 +258,8 @@ namespace TrenchBroom {
 
                 StringStream frameName;
                 frameName << m_name << "_" << i;
-                auto& frame = model->addFrame(frameName.str(), bounds);
 
+                auto& frame = model->loadFrame(i, frameName.str(), bounds.bounds());
                 surface.addTexturedMesh(frame, builder.vertices(), builder.indices());
             }
 

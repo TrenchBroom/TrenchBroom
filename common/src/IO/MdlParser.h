@@ -71,7 +71,7 @@ namespace TrenchBroom {
             MdlSkinVertexList parseSkinVertices(CharArrayReader& reader, size_t count);
             MdlSkinTriangleList parseSkinTriangles(CharArrayReader& reader, size_t count);
             void parseFrames(CharArrayReader& reader, Assets::EntityModel& model, Assets::EntityModel::Surface& surface, size_t count, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, size_t skinWidth, size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale);
-            void parseFrame(CharArrayReader reader, Assets::EntityModel& model, Assets::EntityModel::Surface& surface, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, size_t skinWidth, size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale);
+            void parseFrame(CharArrayReader reader, Assets::EntityModel& model, size_t frameIndex, Assets::EntityModel::Surface& surface, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, size_t skinWidth, size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale);
             vm::vec3f unpackFrameVertex(const PackedFrameVertex& vertex, const vm::vec3f& origin, const vm::vec3f& scale) const;
         };
     }

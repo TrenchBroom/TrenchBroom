@@ -241,6 +241,7 @@ namespace TrenchBroom {
             const auto flags = reader.readInt<int32_t>();
 
             auto model = std::make_unique<Assets::EntityModel>(m_name);
+            model->addFrames(frameCount);
             auto& surface = model->addSurface(m_name);
 
             reader.seekFromBegin(MdlLayout::Skins);
@@ -318,14 +319,14 @@ namespace TrenchBroom {
             for (size_t i = 0; i < count; ++i) {
                 const auto type = reader.readInt<int32_t>();
                 if (type == 0) { // single frame
-                    parseFrame(reader.subReaderFromCurrent(0, frameLength), model, surface, skinTriangles, skinVertices, skinWidth, skinHeight, origin, scale);
+                    parseFrame(reader.subReaderFromCurrent(0, frameLength), model, i, surface, skinTriangles, skinVertices, skinWidth, skinHeight, origin, scale);
                     reader.seekForward(frameLength);
                 } else { // frame group, but we only read the first frame
                     const auto groupFrameCount = reader.readSize<int32_t>();
                     reader.seekBackward(sizeof(int32_t));
 
                     const auto frameTimeLength = MdlLayout::MultiFrameTimes + groupFrameCount * sizeof(float);
-                    parseFrame(reader.subReaderFromCurrent(frameTimeLength, frameLength), model, surface, skinTriangles, skinVertices, skinWidth, skinHeight, origin, scale);
+                    parseFrame(reader.subReaderFromCurrent(frameTimeLength, frameLength), model, i, surface, skinTriangles, skinVertices, skinWidth, skinHeight, origin, scale);
 
                     // forward to after the last group frame as if we had read them all
                     reader.seekForward(frameTimeLength + groupFrameCount * frameLength);
@@ -333,7 +334,7 @@ namespace TrenchBroom {
             }
         }
 
-        void MdlParser::parseFrame(CharArrayReader reader, Assets::EntityModel& model, Assets::EntityModel::Surface& surface, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, const size_t skinWidth, const size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale) {
+        void MdlParser::parseFrame(CharArrayReader reader, Assets::EntityModel& model, size_t frameIndex, Assets::EntityModel::Surface& surface, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, const size_t skinWidth, const size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale) {
             using Vertex = Assets::EntityModel::Vertex;
             using VertexList = Vertex::List;
 
@@ -379,7 +380,7 @@ namespace TrenchBroom {
             Renderer::IndexRangeMapBuilder<Assets::EntityModel::Vertex::Spec> builder(frameTriangles.size() * 3, size);
             builder.addTriangles(frameTriangles);
 
-            auto& frame = model.addFrame(String(name), bounds.bounds());
+            auto& frame = model.loadFrame(frameIndex, name, bounds.bounds());
             surface.addIndexedMesh(frame, builder.vertices(), builder.indices());
         }
 

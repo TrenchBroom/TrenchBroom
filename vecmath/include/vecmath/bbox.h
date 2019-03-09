@@ -62,10 +62,10 @@ namespace vm {
                 return m_bounds;
             }
 
-            template <typename I>
-            void add(I cur, I end) {
+            template <typename I, typename G = vm::identity>
+            void add(I cur, I end, G get = G()) {
                 while (cur != end) {
-                    add(*cur);
+                    add(get(*cur));
                     ++cur;
                 }
             }

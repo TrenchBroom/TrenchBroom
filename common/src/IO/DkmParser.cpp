@@ -344,6 +344,7 @@ namespace TrenchBroom {
 
         Assets::EntityModel* DkmParser::buildModel(const DkmSkinList& skins, const DkmFrameList& frames, const DkmMeshList& meshes) {
             auto model = std::make_unique<Assets::EntityModel>(m_name);
+            model->addFrames(frames.size());
             auto& surface = model->addSurface(m_name);
 
             loadSkins(surface, skins);
@@ -390,7 +391,9 @@ namespace TrenchBroom {
         }
 
         void DkmParser::buildFrames(Assets::EntityModel& model, Assets::EntityModel::Surface& surface, const DkmParser::DkmFrameList& frames, const DkmParser::DkmMeshList& meshes) {
-            for (const auto& frame: frames) {
+            for (size_t i = 0; i < frames.size(); ++i) {
+                const auto& frame = frames[i];
+
                 size_t vertexCount = 0;
                 Renderer::IndexRangeMap::Size size;
                 for (const auto& md2Mesh : meshes) {
@@ -422,7 +425,7 @@ namespace TrenchBroom {
                     }
                 }
 
-                auto& modelFrame = model.addFrame(frame.name, bounds.bounds());
+                auto& modelFrame = model.loadFrame(i, frame.name, bounds.bounds());
                 surface.addIndexedMesh(modelFrame, builder.vertices(), builder.indices());
             }
         }

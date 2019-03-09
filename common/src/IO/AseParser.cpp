@@ -435,6 +435,7 @@ namespace TrenchBroom {
             using Vertex = Assets::EntityModel::Vertex;
 
             auto model = std::make_unique<Assets::EntityModel>(m_name);
+            model->addFrames(1);
             auto& surface = model->addSurface(m_name);
 
             Assets::TextureList textures;
@@ -471,7 +472,7 @@ namespace TrenchBroom {
                 totalVertexCount += vertexCount;
             }
 
-            auto& frame = model->addFrame(m_name, bounds.bounds());
+            auto& frame = model->loadFrame(0, m_name, bounds.bounds());
 
             // Collect vertex data
             Renderer::TexturedIndexRangeMapBuilder<Vertex::Spec> builder(totalVertexCount, size);
