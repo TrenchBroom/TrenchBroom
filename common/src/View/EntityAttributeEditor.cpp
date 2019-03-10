@@ -248,18 +248,19 @@ namespace TrenchBroom {
             m_smartEditorManager = new SmartAttributeEditorManager(m_documentationSplitter, document);
             m_documentationSplitter->splitHorizontally(m_smartEditorManager,
                                                        m_documentationText,
-                                                       wxSize(100, 50), wxSize(100, 100));
+                                                       wxSize(100, 50), wxSize(100, 50));
 
             splitter->splitHorizontally(m_attributeGrid,
                                         m_documentationSplitter,
-                                        wxSize(100, 50), wxSize(100, 50));
+                                        wxSize(100, 50), wxSize(100, 100));
 
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(splitter, 1, wxEXPAND);
-            sizer->SetItemMinSize(m_smartEditorManager, 500, 100);
+            sizer->SetItemMinSize(m_smartEditorManager, 500, 50);
             SetSizer(sizer);
             
             wxPersistenceManager::Get().RegisterAndRestore(splitter);
+            wxPersistenceManager::Get().RegisterAndRestore(m_documentationSplitter);
             
             Bind(wxEVT_IDLE, &EntityAttributeEditor::OnIdle, this);
         }
