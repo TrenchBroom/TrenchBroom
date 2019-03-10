@@ -21,6 +21,7 @@
 
 #include "Logger.h"
 #include "StringUtils.h"
+#include "Assets/EntityModel.h"
 #include "IO/AseParser.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/Quake3ShaderFileSystem.h"
@@ -38,8 +39,11 @@ namespace TrenchBroom {
             const auto basePath = Path("maps");
             AseParser parser("wedge", aseFile->begin(), aseFile->end(), *fs);
 
-            const auto* model = parser.parseModel(logger);
+            auto* model = parser.initializeModel(logger);
             ASSERT_NE(nullptr, model);
+
+            parser.loadFrame(0, *model, logger);
+            ASSERT_TRUE(model->frame(0)->loaded());
         }
     }
 }

@@ -49,11 +49,13 @@ namespace TrenchBroom {
             ASSERT_NE(nullptr, md3File);
 
             auto parser = Md3Parser("bfg", md3File->begin(), md3File->end(), *fs);
-            auto model = std::unique_ptr<Assets::EntityModel>(parser.parseModel(logger));
+            auto model = std::unique_ptr<Assets::EntityModel>(parser.initializeModel(logger));
             ASSERT_NE(nullptr, model);
 
             ASSERT_EQ(1u, model->frameCount());
             ASSERT_EQ(2u, model->surfaceCount());
+
+            parser.loadFrame(0, *model, logger);
 
             const auto* frame = model->frame("MilkShape 3D");
             ASSERT_NE(nullptr, frame);

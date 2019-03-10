@@ -191,8 +191,10 @@ namespace TrenchBroom {
             return Assets::EntityDefinitionList();
         }
 
-        Assets::EntityModel* TestGame::doLoadEntityModel(const IO::Path& path, Logger& logger) const {
+        Assets::EntityModel* TestGame::doInitializeModel(const IO::Path& path, Logger& logger) const {
             return nullptr;
         }
+
+        void TestGame::doLoadFrame(const IO::Path& path, size_t frameIndex, Assets::EntityModel& model, Logger& logger) const {}
     }
 }

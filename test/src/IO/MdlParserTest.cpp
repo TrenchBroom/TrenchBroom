@@ -41,7 +41,7 @@ namespace TrenchBroom {
             ASSERT_NE(nullptr, mdlFile);
 
             auto parser = MdlParser("armor", mdlFile->begin(), mdlFile->end(), palette);
-            auto* model = parser.parseModel(logger);
+            auto* model = parser.initializeModel(logger);
             EXPECT_NE(nullptr, model);
             EXPECT_EQ(1u, model->surfaceCount());
             EXPECT_EQ(1u, model->frameCount());
@@ -65,7 +65,7 @@ namespace TrenchBroom {
             ASSERT_NE(nullptr, mdlFile);
 
             auto parser = MdlParser("armor", mdlFile->begin(), mdlFile->end(), palette);
-            EXPECT_THROW(parser.parseModel(logger), AssetException);
+            EXPECT_THROW(parser.initializeModel(logger), AssetException);
         }
     }
 }

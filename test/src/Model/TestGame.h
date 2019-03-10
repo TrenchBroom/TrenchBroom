@@ -84,7 +84,8 @@ namespace TrenchBroom {
             const GameConfig::FlagsConfig& doContentFlags() const override;
 
             Assets::EntityDefinitionList doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const override;
-            Assets::EntityModel* doLoadEntityModel(const IO::Path& path, Logger& logger) const override;
+            Assets::EntityModel* doInitializeModel(const IO::Path& path, Logger& logger) const override;
+            void doLoadFrame(const IO::Path& path, size_t frameIndex, Assets::EntityModel& model, Logger& logger) const override;
         };
     }
 }
