@@ -274,11 +274,11 @@ namespace TrenchBroom {
             expectDirective("MESH_MTLID");
             parseSizeArgument();
 
-            faces.emplace_back(MeshFace {
+            faces.emplace_back(MeshFace {{
                 MeshFaceVertex{ vertexIndexA, 0 },
                 MeshFaceVertex{ vertexIndexB, 0 },
                 MeshFaceVertex{ vertexIndexC, 0 }
-            });
+            }});
         }
 
         void AseParser::parseGeomObjectMeshNumTVertex(Logger& logger, std::vector<vm::vec2f>& uv) {
