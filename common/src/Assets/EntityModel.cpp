@@ -88,11 +88,12 @@ namespace TrenchBroom {
                         bounds.add(p3);
                         m_spacialTree.insert(bounds.bounds(), {{ p1, p2, p3 }});
                     }
+                    break;
                 }
                 case GL_POLYGON:
-                case GL_TRIANGLE_FAN:
+                case GL_TRIANGLE_FAN: {
                     assert(count > 2);
-                    for (size_t i = 1; i < count-1; ++i) {
+                    for (size_t i = 1; i < count - 1; ++i) {
                         vm::bbox3f::builder bounds;
                         const auto& p1 = vertices[index + 0].v1;
                         const auto& p2 = vertices[index + i].v1;
@@ -100,8 +101,10 @@ namespace TrenchBroom {
                         bounds.add(p1);
                         bounds.add(p2);
                         bounds.add(p2);
-                        m_spacialTree.insert(bounds.bounds(), {{ p1, p2, p3 }});
+                        m_spacialTree.insert(bounds.bounds(), { { p1, p2, p3 } });
                     }
+                    break;
+                }
                 case GL_QUADS:
                 case GL_QUAD_STRIP:
                 case GL_TRIANGLE_STRIP: {
@@ -120,6 +123,7 @@ namespace TrenchBroom {
                             m_spacialTree.insert(bounds.bounds(), {{ p1, p3, p2 }});
                         }
                     }
+                    break;
                 }
                 switchDefault();
             }
