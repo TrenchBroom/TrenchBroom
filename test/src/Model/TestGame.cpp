@@ -191,7 +191,7 @@ namespace TrenchBroom {
             return Assets::EntityDefinitionList();
         }
 
-        Assets::EntityModel* TestGame::doInitializeModel(const IO::Path& path, Logger& logger) const {
+        std::unique_ptr<Assets::EntityModel> TestGame::doInitializeModel(const IO::Path& path, Logger& logger) const {
             return nullptr;
         }
 

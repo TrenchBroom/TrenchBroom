@@ -20,6 +20,7 @@
 #include "EntityModelManager.h"
 
 #include "Logger.h"
+#include "Macros.h"
 #include "Assets/EntityModel.h"
 #include "IO/EntityModelLoader.h"
 #include "Model/Entity.h"
@@ -39,8 +40,8 @@ namespace TrenchBroom {
         }
 
         void EntityModelManager::clear() {
-            MapUtils::clearAndDelete(m_renderers);
-            MapUtils::clearAndDelete(m_models);
+            m_renderers.clear();
+            m_models.clear();
             m_rendererMismatches.clear();
             m_modelMismatches.clear();
 
@@ -70,23 +71,27 @@ namespace TrenchBroom {
 
             auto it = m_renderers.find(spec);
             if (it != std::end(m_renderers)) {
-                return it->second;
+                return it->second.get();
             }
 
             if (m_rendererMismatches.count(spec) > 0) {
                 return nullptr;
             }
 
-            auto* renderer = entityModel->buildRenderer(spec.skinIndex, spec.frameIndex);
-            if (renderer == nullptr) {
+            auto renderer = entityModel->buildRenderer(spec.skinIndex, spec.frameIndex);
+            if (renderer != nullptr) {
+                const auto [pos, success] = m_renderers.insert({ spec, std::move(renderer) });
+                assert(success); unused(success);
+
+                auto* result = pos->second.get();
+                m_unpreparedRenderers.push_back(result);
+                m_logger.debug() << "Constructed entity model renderer for " << spec;
+                return result;
+            } else {
                 m_rendererMismatches.insert(spec);
                 m_logger.error() << "Failed to construct entity model renderer for " << spec << ", check the skin and frame indices";
-            } else {
-                m_renderers[spec] = renderer;
-                m_unpreparedRenderers.push_back(renderer);
-                m_logger.debug() << "Constructed entity model renderer for " << spec;
+                return nullptr;
             }
-            return renderer;
         }
 
         const EntityModelFrame* EntityModelManager::frame(const Assets::ModelSpecification& spec) const {
@@ -119,7 +124,7 @@ namespace TrenchBroom {
 
             auto it = m_models.find(path);
             if (it != std::end(m_models)) {
-                return it->second;
+                return it->second.get();
             }
 
             if (m_modelMismatches.count(path) > 0) {
@@ -127,9 +132,10 @@ namespace TrenchBroom {
             }
 
             try {
-                auto* model = loadModel(path);
-                ensure(model != nullptr, "model is null");
-                m_models[path] = model;
+                const auto [pos, success] = m_models.insert({ path, loadModel(path) });
+                assert(success); unused(success);
+
+                auto* model = pos->second.get();
                 m_unpreparedModels.push_back(model);
 
                 m_logger.debug() << "Loaded entity model " << path;
@@ -149,7 +155,7 @@ namespace TrenchBroom {
             }
         }
 
-        EntityModel* EntityModelManager::loadModel(const IO::Path& path) const {
+        std::unique_ptr<EntityModel> EntityModelManager::loadModel(const IO::Path& path) const {
             ensure(m_loader != nullptr, "loader is null");
             return m_loader->initializeModel(path, m_logger);
         }
@@ -163,7 +169,7 @@ namespace TrenchBroom {
         void EntityModelManager::resetTextureMode() {
             if (m_resetTextureMode) {
                 for (const auto& entry : m_models) {
-                    auto* model = entry.second;
+                    auto& model = entry.second;
                     model->setTextureMode(m_minFilter, m_magFilter);
                 }
                 m_resetTextureMode = false;

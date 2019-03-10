@@ -107,7 +107,7 @@ namespace TrenchBroom {
              */
             AseParser(const String& name, const char* begin, const char* end, const FileSystem& fs);
         private:
-            Assets::EntityModel* doInitializeModel(Logger& logger) override;
+            std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
         private: // parsing
             void parseAseFile(Logger& logger, Scene& scene);
 
@@ -151,7 +151,7 @@ namespace TrenchBroom {
 
             TokenNameMap tokenNames() const override;
         private: // model construction
-            Assets::EntityModel* buildModel(Logger& logger, const Scene& scene) const;
+            std::unique_ptr<Assets::EntityModel> buildModel(Logger& logger, const Scene& scene) const;
             std::unique_ptr<Assets::Texture> loadTexture(Logger& logger, const Path& path) const;
             Path fixTexturePath(Logger& logger, Path path) const;
         };

@@ -25,6 +25,7 @@
 #include "Model/ModelTypes.h"
 
 #include <map>
+#include <memory>
 #include <set>
 #include <vector>
 
@@ -46,11 +47,11 @@ namespace TrenchBroom {
 
         class EntityModelManager {
         private:
-            using ModelCache = std::map<IO::Path, EntityModel*>;
+            using ModelCache = std::map<IO::Path, std::unique_ptr<EntityModel>>;
             using ModelMismatches = std::set<IO::Path>;
             using ModelList = std::vector<EntityModel*>;
 
-            using RendererCache = std::map<Assets::ModelSpecification, Renderer::TexturedRenderer*>;
+            using RendererCache = std::map<Assets::ModelSpecification, std::unique_ptr<Renderer::TexturedRenderer>>;
             using RendererMismatches = std::set<Assets::ModelSpecification>;
             using RendererList = std::vector<Renderer::TexturedRenderer*>;
 
@@ -85,7 +86,7 @@ namespace TrenchBroom {
         private:
             EntityModel* model(const IO::Path& path) const;
             EntityModel* safeGetModel(const IO::Path& path) const;
-            EntityModel* loadModel(const IO::Path& path) const;
+            std::unique_ptr<EntityModel> loadModel(const IO::Path& path) const;
         public:
             void prepare(Renderer::Vbo& vbo);
         private:

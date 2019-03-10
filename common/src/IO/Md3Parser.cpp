@@ -54,7 +54,7 @@ namespace TrenchBroom {
             unused(m_end);
         }
 
-        Assets::EntityModel* Md3Parser::doInitializeModel(Logger& logger) {
+        std::unique_ptr<Assets::EntityModel> Md3Parser::doInitializeModel(Logger& logger) {
             CharArrayReader reader(m_begin, m_end);
 
             const auto ident = reader.readInt<int32_t>();
@@ -84,7 +84,7 @@ namespace TrenchBroom {
             model->addFrames(frameCount);
             parseSurfaces(reader.subReaderFromBegin(surfaceOffset), surfaceCount, *model, logger);
 
-            return model.release();
+            return model;
         }
 
         void Md3Parser::doLoadFrame(const size_t frameIndex, Assets::EntityModel& model, Logger& logger) {

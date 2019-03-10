@@ -246,7 +246,7 @@ namespace TrenchBroom {
         m_name(name),
         m_prepared(false) {}
 
-        Renderer::TexturedRenderer* EntityModel::buildRenderer(const size_t skinIndex, const size_t frameIndex) const {
+        std::unique_ptr<Renderer::TexturedRenderer> EntityModel::buildRenderer(const size_t skinIndex, const size_t frameIndex) const {
             std::vector<std::unique_ptr<Renderer::TexturedIndexRangeRenderer>> renderers;
             for (const auto& surface : m_surfaces) {
                 auto renderer = surface->buildRenderer(skinIndex, frameIndex);
@@ -257,7 +257,7 @@ namespace TrenchBroom {
             if (renderers.empty()) {
                 return nullptr;
             } else {
-                return new Renderer::MultiTexturedIndexRangeRenderer(std::move(renderers));
+                return std::make_unique<Renderer::MultiTexturedIndexRangeRenderer>(std::move(renderers));
             }
         }
 

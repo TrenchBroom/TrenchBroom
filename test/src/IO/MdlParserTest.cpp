@@ -41,7 +41,9 @@ namespace TrenchBroom {
             ASSERT_NE(nullptr, mdlFile);
 
             auto parser = MdlParser("armor", mdlFile->begin(), mdlFile->end(), palette);
-            auto* model = parser.initializeModel(logger);
+            auto model = parser.initializeModel(logger);
+            parser.loadFrame(0, *model, logger);
+
             EXPECT_NE(nullptr, model);
             EXPECT_EQ(1u, model->surfaceCount());
             EXPECT_EQ(1u, model->frameCount());
@@ -50,8 +52,6 @@ namespace TrenchBroom {
             const auto& surface = *surfaces.front();
             EXPECT_EQ(3u, surface.skinCount());
             EXPECT_EQ(1u, surface.frameCount());
-
-            delete model;
         }
 
         TEST(MdlParserTest, loadInvalidMdl) {

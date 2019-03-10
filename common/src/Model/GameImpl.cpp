@@ -348,7 +348,7 @@ namespace TrenchBroom {
             }
         }
 
-        Assets::EntityModel* GameImpl::doInitializeModel(const IO::Path& path, Logger& logger) const {
+        std::unique_ptr<Assets::EntityModel> GameImpl::doInitializeModel(const IO::Path& path, Logger& logger) const {
             try {
                 const auto file = m_fs.openFile(path);
                 ensure(file != nullptr, "file is null");

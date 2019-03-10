@@ -106,7 +106,7 @@ namespace TrenchBroom {
         m_tokenizer(begin, end),
         m_fs(fs) {}
 
-        Assets::EntityModel* AseParser::doInitializeModel(Logger& logger) {
+        std::unique_ptr<Assets::EntityModel> AseParser::doInitializeModel(Logger& logger) {
             Scene scene;
             parseAseFile(logger, scene);
             return buildModel(logger, scene);
@@ -431,7 +431,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        Assets::EntityModel* AseParser::buildModel(Logger& logger, const Scene& scene) const {
+        std::unique_ptr<Assets::EntityModel> AseParser::buildModel(Logger& logger, const Scene& scene) const {
             using Vertex = Assets::EntityModel::Vertex;
 
             auto model = std::make_unique<Assets::EntityModel>(m_name);
@@ -493,7 +493,7 @@ namespace TrenchBroom {
             }
             surface.addTexturedMesh(frame, builder.vertices(), builder.indices());
 
-            return model.release();
+            return model;
         }
 
         std::unique_ptr<Assets::Texture> AseParser::loadTexture(Logger& logger, const Path& path) const {

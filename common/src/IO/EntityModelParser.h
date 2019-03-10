@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_EntityModelParser
 #define TrenchBroom_EntityModelParser
 
-#include <iostream>
+#include <memory>
 
 namespace TrenchBroom {
     class Logger;
@@ -34,10 +34,10 @@ namespace TrenchBroom {
         public:
             virtual ~EntityModelParser();
 
-            Assets::EntityModel* initializeModel(Logger& logger);
+            std::unique_ptr<Assets::EntityModel> initializeModel(Logger& logger);
             void loadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger);
         private:
-            virtual Assets::EntityModel* doInitializeModel(Logger& logger) = 0;
+            virtual std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) = 0;
             virtual void doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger);
         };
     }

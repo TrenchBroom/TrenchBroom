@@ -17,15 +17,15 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IO/EntityModelLoader.h"
 #include "EntityModelLoader.h"
 
+#include "Assets/EntityModel.h"
 
 namespace TrenchBroom {
     namespace IO {
         EntityModelLoader::~EntityModelLoader() = default;
 
-        Assets::EntityModel* EntityModelLoader::initializeModel(const IO::Path& path, Logger& logger) const {
+        std::unique_ptr<Assets::EntityModel> EntityModelLoader::initializeModel(const IO::Path& path, Logger& logger) const {
             return doInitializeModel(path, logger);
         }
 

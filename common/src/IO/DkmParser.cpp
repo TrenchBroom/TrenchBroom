@@ -233,7 +233,7 @@ namespace TrenchBroom {
         m_fs(fs) {}
 
         // http://tfc.duke.free.fr/old/models/md2.htm
-        Assets::EntityModel* DkmParser::doInitializeModel(Logger& logger) {
+        std::unique_ptr<Assets::EntityModel> DkmParser::doInitializeModel(Logger& logger) {
             CharArrayReader reader(m_begin, m_end);
             const int ident = reader.readInt<int32_t>();
             const int version = reader.readInt<int32_t>();
@@ -267,7 +267,7 @@ namespace TrenchBroom {
             auto& surface = model->addSurface(m_name);
             loadSkins(surface, skins);
 
-            return model.release();
+            return model;
         }
 
         void DkmParser::doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) {

@@ -348,7 +348,7 @@ namespace TrenchBroom {
              * @param frameIndex the index of the frame to render
              * @return the renderer
              */
-            Renderer::TexturedRenderer* buildRenderer(size_t skinIndex, size_t frameIndex) const;
+            std::unique_ptr<Renderer::TexturedRenderer> buildRenderer(size_t skinIndex, size_t frameIndex) const;
 
             /**
              * Returns the bounds of the given frame of this model.

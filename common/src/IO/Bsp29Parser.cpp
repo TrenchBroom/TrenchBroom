@@ -67,7 +67,7 @@ namespace TrenchBroom {
         m_end(end),
         m_palette(palette) {}
 
-        Assets::EntityModel* Bsp29Parser::doInitializeModel(Logger& logger) {
+        std::unique_ptr<Assets::EntityModel> Bsp29Parser::doInitializeModel(Logger& logger) {
             CharArrayReader reader(m_begin, m_end);
             const auto version = reader.readInt<int32_t>();
             if (version != 29) {
@@ -92,7 +92,7 @@ namespace TrenchBroom {
                 surface.addSkin(texture);
             }
 
-            return model.release();
+            return model;
         }
 
         void Bsp29Parser::doLoadFrame(const size_t frameIndex, Assets::EntityModel& model, Logger& logger) {

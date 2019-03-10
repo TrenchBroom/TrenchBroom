@@ -51,7 +51,7 @@ namespace TrenchBroom {
         public:
             Md3Parser(const String& name, const char* begin, const char* end, const FileSystem& fs);
         private:
-            Assets::EntityModel* doInitializeModel(Logger& logger) override;
+            std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
             void doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;
 
             void parseSurfaces(CharArrayReader surfaceReader, size_t surfaceCount, Assets::EntityModel& model, Logger& logger);

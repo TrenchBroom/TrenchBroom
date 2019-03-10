@@ -39,7 +39,7 @@ namespace TrenchBroom {
             const auto basePath = Path("maps");
             AseParser parser("wedge", aseFile->begin(), aseFile->end(), *fs);
 
-            auto* model = parser.initializeModel(logger);
+            auto model = parser.initializeModel(logger);
             ASSERT_NE(nullptr, model);
 
             parser.loadFrame(0, *model, logger);

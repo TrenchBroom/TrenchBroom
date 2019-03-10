@@ -85,7 +85,7 @@ namespace TrenchBroom {
             Assets::EntityDefinitionFileSpec defaultEntityDefinitionFile() const;
             IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const override;
 
-            Assets::EntityModel* doInitializeModel(const IO::Path& path, Logger& logger) const override;
+            std::unique_ptr<Assets::EntityModel> doInitializeModel(const IO::Path& path, Logger& logger) const override;
             void doLoadFrame(const IO::Path& path, size_t frameIndex, Assets::EntityModel& model, Logger& logger) const override;
 
             Assets::Palette loadTexturePalette() const;

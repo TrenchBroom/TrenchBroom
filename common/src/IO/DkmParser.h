@@ -102,7 +102,7 @@ namespace TrenchBroom {
         public:
             DkmParser(const String& name, const char* begin, const char* end, const FileSystem& fs);
         private:
-            Assets::EntityModel* doInitializeModel(Logger& logger) override;
+            std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
             void doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;
 
             DkmSkinList parseSkins(CharArrayReader reader, size_t skinCount);

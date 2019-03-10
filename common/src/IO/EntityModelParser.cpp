@@ -19,11 +19,13 @@
 
 #include "EntityModelParser.h"
 
+#include "Assets/EntityModel.h"
+
 namespace TrenchBroom {
     namespace IO {
         EntityModelParser::~EntityModelParser() = default;
 
-        Assets::EntityModel* EntityModelParser::initializeModel(Logger& logger) {
+        std::unique_ptr<Assets::EntityModel> EntityModelParser::initializeModel(Logger& logger) {
             return doInitializeModel(logger);
         }
 
