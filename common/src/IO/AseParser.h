@@ -29,6 +29,7 @@
 #include <vecmath/forward.h>
 
 #include <array>
+#include <functional>
 #include <vector>
 
 namespace TrenchBroom {

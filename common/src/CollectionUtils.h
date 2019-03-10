@@ -25,6 +25,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cassert>
 #include <cstdarg>
 #include <iterator>
 #include <limits>

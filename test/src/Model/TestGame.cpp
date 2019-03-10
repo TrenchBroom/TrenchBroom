@@ -19,6 +19,7 @@
 
 #include "TestGame.h"
 
+#include "Assets/EntityModel.h"
 #include "IO/BrushFaceReader.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/IOUtils.h"

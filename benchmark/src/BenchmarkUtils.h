@@ -20,6 +20,9 @@
 #ifndef TRENCHBROOM_BENCHMARKUTILS_H
 #define TRENCHBROOM_BENCHMARKUTILS_H
 
+#include <chrono>
+#include <string>
+
 #ifdef __GNUC__
 #define TB_NOINLINE __attribute__((noinline))
 #else
