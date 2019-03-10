@@ -139,7 +139,7 @@ namespace TrenchBroom {
 
         vm::bbox3 Entity::modelBounds() const {
             if (m_modelFrame != nullptr) {
-                return vm::bbox3(m_modelFrame->bounds());
+                return vm::bbox3(m_modelFrame->bounds()).translate(origin());
             } else {
                 return vm::bbox3();
             }
@@ -150,7 +150,9 @@ namespace TrenchBroom {
         }
 
         void Entity::setModelFrame(const Assets::EntityModelFrame* modelFrame) {
+            const auto oldBounds = totalBounds();
             m_modelFrame = modelFrame;
+            nodeBoundsDidChange(oldBounds);
         }
 
         const vm::bbox3& Entity::doGetBounds() const {
