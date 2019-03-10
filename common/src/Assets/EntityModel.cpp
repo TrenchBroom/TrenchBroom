@@ -86,7 +86,7 @@ namespace TrenchBroom {
                         bounds.add(p1);
                         bounds.add(p2);
                         bounds.add(p3);
-                        m_spacialTree.insert(bounds.bounds(), { p1, p2, p3 });
+                        m_spacialTree.insert(bounds.bounds(), {{ p1, p2, p3 }});
                     }
                 }
                 case GL_POLYGON:
@@ -100,7 +100,7 @@ namespace TrenchBroom {
                         bounds.add(p1);
                         bounds.add(p2);
                         bounds.add(p2);
-                        m_spacialTree.insert(bounds.bounds(), { p1, p2, p3 });
+                        m_spacialTree.insert(bounds.bounds(), {{ p1, p2, p3 }});
                     }
                 case GL_QUADS:
                 case GL_QUAD_STRIP:
@@ -115,9 +115,9 @@ namespace TrenchBroom {
                         bounds.add(p2);
                         bounds.add(p2);
                         if (i % 2 == 0) {
-                            m_spacialTree.insert(bounds.bounds(), { p1, p2, p3 });
+                            m_spacialTree.insert(bounds.bounds(), {{ p1, p2, p3 }});
                         } else {
-                            m_spacialTree.insert(bounds.bounds(), { p1, p3, p2 });
+                            m_spacialTree.insert(bounds.bounds(), {{ p1, p3, p2 }});
                         }
                     }
                 }
