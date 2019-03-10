@@ -30,20 +30,17 @@ class Exception : public std::exception {
 protected:
     std::string m_msg;
 public:
-    Exception() noexcept = default;
+    Exception() noexcept;
+    explicit Exception(std::string str) noexcept;
 
-    explicit Exception(std::string str) noexcept :
-    m_msg(std::move(str)) {}
-
-    const char* what() const noexcept override {
-        return m_msg.c_str();
-    }
+    const char* what() const noexcept override;
 };
 
 template <class C>
 class ExceptionStream : public Exception {
 public:
-    ExceptionStream() noexcept = default;
+    ExceptionStream() noexcept :
+    Exception() {}
 
     explicit ExceptionStream(std::string str) noexcept :
     Exception(std::move(str)) {}

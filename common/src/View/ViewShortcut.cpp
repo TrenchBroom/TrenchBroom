@@ -71,6 +71,12 @@ namespace TrenchBroom {
             m_actions[ActionView_Map3D] = action;
         }
 
+        bool ViewShortcut::hasShortcut() const {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            const auto& shortcut = prefs.get(m_preference);
+            return shortcut.hasKey();
+        }
+
         bool ViewShortcut::appliesToContext(const int context) const {
             return (m_context & context) != 0;
         }
