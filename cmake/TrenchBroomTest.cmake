@@ -52,43 +52,49 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
     TARGET_LINK_LIBRARIES(TrenchBroom-Benchmark ${OPENGL_LIBRARIES})
 ENDIF()
 
-SET(RESOURCE_DEST_DIR "$<TARGET_FILE_DIR:TrenchBroom-Test>")
+SET(TEST_RESOURCE_DEST_DIR "$<TARGET_FILE_DIR:TrenchBroom-Test>")
 SET(BENCHMARK_RESOURCE_DEST_DIR "$<TARGET_FILE_DIR:TrenchBroom-Benchmark>")
 
 IF(WIN32)
-    SET(RESOURCE_DEST_DIR "${RESOURCE_DEST_DIR}/..")
+    SET(TEST_RESOURCE_DEST_DIR "${TEST_RESOURCE_DEST_DIR}/..")
     SET(BENCHMARK_RESOURCE_DEST_DIR "${BENCHMARK_RESOURCE_DEST_DIR}/..")
 
     # Copy some Windows-specific resources
     ADD_CUSTOM_COMMAND(TARGET TrenchBroom-Test POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory "${LIB_BIN_DIR}/win32" "${RESOURCE_DEST_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${LIB_BIN_DIR}/win32" "${TEST_RESOURCE_DEST_DIR}"
     )
     ADD_CUSTOM_COMMAND(TARGET TrenchBroom-Benchmark POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${LIB_BIN_DIR}/win32" "${BENCHMARK_RESOURCE_DEST_DIR}"
     )
 ENDIF()
 
+SET(TEST_FIXTURE_DEST_DIR "${TEST_RESOURCE_DEST_DIR}/fixture/test")
+SET(BENCHMARK_FIXTURE_DEST_DIR "${BENCHMARK_RESOURCE_DEST_DIR}/fixture/benchmark")
+
 # Clear all fixtures
 ADD_CUSTOM_COMMAND(TARGET TrenchBroom-Test POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "${RESOURCE_DEST_DIR}/data"
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "${TEST_FIXTURE_DEST_DIR}"
+)
+ADD_CUSTOM_COMMAND(TARGET TrenchBroom-Benchmark POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "${BENCHMARK_FIXTURE_DEST_DIR}"
 )
 
 # Copy test fixtures
 ADD_CUSTOM_COMMAND(TARGET TrenchBroom-Test POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/test/data" "${RESOURCE_DEST_DIR}/data/test/"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/test/fixture" "${TEST_FIXTURE_DEST_DIR}"
+)
+
+ADD_CUSTOM_COMMAND(TARGET TrenchBroom-Test POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_DIR}/resources/games" "${TEST_FIXTURE_DEST_DIR}/games"
+)
+
+ADD_CUSTOM_COMMAND(TARGET TrenchBroom-Test POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_DIR}/resources/games-testing" "${TEST_FIXTURE_DEST_DIR}/games"
 )
 
 # Copy benchmark fixtures
 ADD_CUSTOM_COMMAND(TARGET TrenchBroom-Benchmark POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/benchmark/data" "${BENCHMARK_RESOURCE_DEST_DIR}/data/benchmark"
-)
-
-ADD_CUSTOM_COMMAND(TARGET TrenchBroom-Test POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_DIR}/resources/games" "${RESOURCE_DEST_DIR}/data/games"
-)
-
-ADD_CUSTOM_COMMAND(TARGET TrenchBroom-Test POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_DIR}/resources/games-testing" "${RESOURCE_DEST_DIR}/data/games"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/benchmark/fixture" "${BENCHMARK_FIXTURE_DEST_DIR}"
 )
 
 SET_XCODE_ATTRIBUTES(TrenchBroom-Test)

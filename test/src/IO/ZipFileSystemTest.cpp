@@ -30,7 +30,7 @@
 namespace TrenchBroom {
     namespace IO {
         TEST(ZipFileSystemTest, directoryExists) {
-            const Path zipPath = Disk::getCurrentWorkingDir() + Path("data/test/IO/Zip/zip_test.zip");
+            const Path zipPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Zip/zip_test.zip");
             const MappedFile::Ptr zipFile = Disk::openFile(zipPath);
             assert(zipFile != nullptr);
 
@@ -44,7 +44,7 @@ namespace TrenchBroom {
         }
 
         TEST(ZipFileSystemTest, fileExists) {
-            const Path zipPath = Disk::getCurrentWorkingDir() + Path("data/test/IO/Zip/zip_test.zip");
+            const Path zipPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Zip/zip_test.zip");
             const MappedFile::Ptr zipFile = Disk::openFile(zipPath);
             assert(zipFile != nullptr);
 
@@ -57,7 +57,7 @@ namespace TrenchBroom {
         }
 
         TEST(ZipFileSystemTest, findItems) {
-            const Path zipPath = Disk::getCurrentWorkingDir() + Path("data/test/IO/Zip/zip_test.zip");
+            const Path zipPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Zip/zip_test.zip");
             const MappedFile::Ptr zipFile = Disk::openFile(zipPath);
             assert(zipFile != nullptr);
 
@@ -88,7 +88,7 @@ namespace TrenchBroom {
         }
 
         TEST(ZipFileSystemTest, findItemsRecursively) {
-            const Path zipPath = Disk::getCurrentWorkingDir() + Path("data/test/IO/Zip/zip_test.zip");
+            const Path zipPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Zip/zip_test.zip");
             const MappedFile::Ptr zipFile = Disk::openFile(zipPath);
             assert(zipFile != nullptr);
 
@@ -138,7 +138,7 @@ namespace TrenchBroom {
         }
 
         TEST(ZipFileSystemTest, openFile) {
-            const Path zipPath = Disk::getCurrentWorkingDir() + Path("data/test/IO/Zip/zip_test.zip");
+            const Path zipPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Zip/zip_test.zip");
             const MappedFile::Ptr zipFile = Disk::openFile(zipPath);
             assert(zipFile != nullptr);
 

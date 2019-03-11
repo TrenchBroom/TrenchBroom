@@ -38,7 +38,7 @@ namespace TrenchBroom {
         class SnapshotTest : public MapDocumentTest {};
 
         TEST_F(SnapshotTest, setTexturesAfterRestore) {
-            document->setEnabledTextureCollections(IO::Path::List{ IO::Path("data/test/IO/Wad/cr8_czg.wad") });
+            document->setEnabledTextureCollections(IO::Path::List{ IO::Path("fixture/test/IO/Wad/cr8_czg.wad") });
 
             Model::Brush* brush = createBrush("coffin1");
             document->addNode(brush, document->currentParent());

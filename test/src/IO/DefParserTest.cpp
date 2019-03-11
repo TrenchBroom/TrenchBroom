@@ -34,7 +34,7 @@
 namespace TrenchBroom {
     namespace IO {
         TEST(DefParserTest, parseIncludedDefFiles) {
-            const Path basePath = Disk::getCurrentWorkingDir() + Path("data/games");
+            const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/games/");
             const Path::List cfgFiles = Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("def"));
 
             for (const Path& path : cfgFiles) {
@@ -50,7 +50,7 @@ namespace TrenchBroom {
         }
 
         TEST(DefParserTest, parseExtraDefFiles) {
-            const Path basePath = Disk::getCurrentWorkingDir() + Path("data/test/IO/Def");
+            const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Def");
             const Path::List cfgFiles = Disk::findItems(basePath, [] (const Path& path, bool directory) {
                 return !directory && StringUtils::caseInsensitiveEqual(path.extension(), "def");
             });

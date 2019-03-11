@@ -26,7 +26,7 @@
 namespace TrenchBroom {
     namespace IO {
         TEST(WadFileSystemTest, loadEntries) {
-            const Path wadPath = Disk::getCurrentWorkingDir() + Path("data/test/IO/Wad/cr8_czg.wad");
+            const Path wadPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Wad/cr8_czg.wad");
             WadFileSystem fs(wadPath);
             const IO::Path::List files = fs.findItems(IO::Path(""));
 

@@ -61,7 +61,7 @@ namespace TrenchBroom {
 
     TEST(AABBTreeBenchmark, benchBuildTree) {
 
-        const auto mapPath = IO::Disk::getCurrentWorkingDir() + IO::Path("data/benchmark/AABBTree/ne_ruins.map");
+        const auto mapPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/benchmark/AABBTree/ne_ruins.map");
         const auto file = IO::Disk::openFile(mapPath);
 
         IO::TestParserStatus status;

@@ -31,7 +31,7 @@ namespace TrenchBroom {
             TextureReader::TextureNameStrategy nameStrategy;
             FreeImageTextureReader textureLoader(nameStrategy);
 
-            const auto imagePath = Disk::getCurrentWorkingDir() + Path("data/test/IO/Image/");
+            const auto imagePath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Image/");
             DiskFileSystem diskFS(imagePath);
 
             return std::unique_ptr<const Assets::Texture>{ textureLoader.readTexture(diskFS.openFile(Path(name))) };

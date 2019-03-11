@@ -42,12 +42,12 @@ namespace TrenchBroom {
 
         TEST(IdMipTextureReaderTest, testLoadWad) {
             DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
-            const Assets::Palette palette = Assets::Palette::loadFile(fs, Path("data/test/palette.lmp"));
+            const Assets::Palette palette = Assets::Palette::loadFile(fs, Path("fixture/test/palette.lmp"));
 
             TextureReader::TextureNameStrategy nameStrategy;
             IdMipTextureReader textureLoader(nameStrategy, palette);
 
-            const Path wadPath = Disk::getCurrentWorkingDir() + Path("data/test/IO/Wad/cr8_czg.wad");
+            const Path wadPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Wad/cr8_czg.wad");
             WadFileSystem wadFS(wadPath);
 
             assertTexture("cr8_czg_1",          64,  64, wadFS, textureLoader);

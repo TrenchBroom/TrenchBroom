@@ -30,7 +30,7 @@
 namespace TrenchBroom {
     namespace IO {
         TEST(IdPakFileSystemTest, directoryExists) {
-            const Path pakPath = Disk::getCurrentWorkingDir() + Path("data/test/IO/Pak/pak3.pak");
+            const Path pakPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/pak3.pak");
             const MappedFile::Ptr pakFile = Disk::openFile(pakPath);
             assert(pakFile != nullptr);
 
@@ -44,7 +44,7 @@ namespace TrenchBroom {
         }
 
         TEST(IdPakFileSystemTest, fileExists) {
-            const Path pakPath = Disk::getCurrentWorkingDir() + Path("data/test/IO/Pak/pak3.pak");
+            const Path pakPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/pak3.pak");
             const MappedFile::Ptr pakFile = Disk::openFile(pakPath);
             assert(pakFile != nullptr);
 
@@ -57,7 +57,7 @@ namespace TrenchBroom {
         }
 
         TEST(IdPakFileSystemTest, findItems) {
-            const Path pakPath = Disk::getCurrentWorkingDir() + Path("data/test/IO/Pak/pak1.pak");
+            const Path pakPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/pak1.pak");
             const MappedFile::Ptr pakFile = Disk::openFile(pakPath);
             assert(pakFile != nullptr);
 
@@ -88,7 +88,7 @@ namespace TrenchBroom {
         }
 
         TEST(IdPakFileSystemTest, findItemsRecursively) {
-            const Path pakPath = Disk::getCurrentWorkingDir() + Path("data/test/IO/Pak/pak1.pak");
+            const Path pakPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/pak1.pak");
             const MappedFile::Ptr pakFile = Disk::openFile(pakPath);
             assert(pakFile != nullptr);
 
@@ -138,7 +138,7 @@ namespace TrenchBroom {
         }
 
         TEST(IdPakFileSystemTest, openFile) {
-            const Path pakPath = Disk::getCurrentWorkingDir() + Path("data/test/IO/Pak/pak1.pak");
+            const Path pakPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/pak1.pak");
             const MappedFile::Ptr pakFile = Disk::openFile(pakPath);
             assert(pakFile != nullptr);
 

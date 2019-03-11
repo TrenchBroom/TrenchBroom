@@ -34,9 +34,9 @@ namespace TrenchBroom {
             NullLogger logger;
 
             DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
-            const Assets::Palette palette = Assets::Palette::loadFile(fs, Path("data/test/palette.lmp"));
+            const Assets::Palette palette = Assets::Palette::loadFile(fs, Path("fixture/test/palette.lmp"));
 
-            const auto mdlPath = IO::Disk::getCurrentWorkingDir() + IO::Path("data/test/IO/Mdl/armor.mdl");
+            const auto mdlPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/IO/Mdl/armor.mdl");
             const MappedFile::Ptr mdlFile = Disk::openFile(mdlPath);
             ASSERT_NE(nullptr, mdlFile);
 
@@ -58,9 +58,9 @@ namespace TrenchBroom {
             NullLogger logger;
 
             DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
-            const Assets::Palette palette = Assets::Palette::loadFile(fs, Path("data/test/palette.lmp"));
+            const Assets::Palette palette = Assets::Palette::loadFile(fs, Path("fixture/test/palette.lmp"));
 
-            const auto mdlPath = IO::Disk::getCurrentWorkingDir() + IO::Path("data/test/IO/Mdl/invalid.mdl");
+            const auto mdlPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/IO/Mdl/invalid.mdl");
             const MappedFile::Ptr mdlFile = Disk::openFile(mdlPath);
             ASSERT_NE(nullptr, mdlFile);
 

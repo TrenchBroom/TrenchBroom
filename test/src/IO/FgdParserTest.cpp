@@ -35,7 +35,7 @@
 namespace TrenchBroom {
     namespace IO {
         TEST(FgdParserTest, parseIncludedFgdFiles) {
-            const Path basePath = Disk::getCurrentWorkingDir() + Path("data/games");
+            const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/games/");
             const Path::List cfgFiles = Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("fgd"));
 
             for (const Path& path : cfgFiles) {
@@ -739,7 +739,7 @@ decor_goddess_statue : "Goddess Statue" [])";
         }
 
         TEST(FgdParserTest, parseInclude) {
-            const Path path = Disk::getCurrentWorkingDir() + Path("data/test/IO/Fgd/parseInclude/host.fgd");
+            const Path path = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Fgd/parseInclude/host.fgd");
             MappedFile::Ptr file = Disk::openFile(path);
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             FgdParser parser(file->begin(), file->end(), defaultColor, file->path());
@@ -754,7 +754,7 @@ decor_goddess_statue : "Goddess Statue" [])";
         }
 
         TEST(FgdParserTest, parseNestedInclude) {
-            const Path path = Disk::getCurrentWorkingDir() + Path("data/test/IO/Fgd/parseNestedInclude/host.fgd");
+            const Path path = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Fgd/parseNestedInclude/host.fgd");
             MappedFile::Ptr file = Disk::openFile(path);
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             FgdParser parser(file->begin(), file->end(), defaultColor, file->path());
@@ -770,7 +770,7 @@ decor_goddess_statue : "Goddess Statue" [])";
         }
 
         TEST(FgdParserTest, parseRecursiveInclude) {
-            const Path path = Disk::getCurrentWorkingDir() + Path("data/test/IO/Fgd/parseRecursiveInclude/host.fgd");
+            const Path path = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Fgd/parseRecursiveInclude/host.fgd");
             MappedFile::Ptr file = Disk::openFile(path);
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             FgdParser parser(file->begin(), file->end(), defaultColor, file->path());

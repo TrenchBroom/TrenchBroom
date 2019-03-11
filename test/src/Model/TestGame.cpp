@@ -119,7 +119,7 @@ namespace TrenchBroom {
 
             const GameConfig::TextureConfig textureConfig(GameConfig::TexturePackageConfig(GameConfig::PackageFormatConfig("wad", "idmip")),
                                                           GameConfig::PackageFormatConfig("D", "idmip"),
-                                                          IO::Path("data/test/palette.lmp"),
+                                                          IO::Path("fixture/test/palette.lmp"),
                                                           "wad");
 
             IO::TextureLoader textureLoader(fileSystem, fileSearchPaths, textureConfig, logger);
