@@ -410,7 +410,17 @@ namespace TrenchBroom {
 #endif
             addTagActions(tags, tableEntries);
             addEntityDefinitionActions(entityDefinitions, tableEntries);
-            return wxAcceleratorTable(static_cast<int>(tableEntries.size()), &tableEntries.front());
+
+            // Filter out wxAcceleratorEntry's with keycode 0 (fixes #2636)
+            AcceleratorEntryList nonZeroTableEntries;
+            nonZeroTableEntries.reserve(tableEntries.size());
+            for (const auto& entry : tableEntries) {
+                if (entry.GetKeyCode() != 0) {
+                    nonZeroTableEntries.push_back(entry);
+                }
+            }
+
+            return wxAcceleratorTable(static_cast<int>(nonZeroTableEntries.size()), &nonZeroTableEntries.front());
         }
 
         void ActionManager::addViewActions(ActionContext context, ActionView view, AcceleratorEntryList& accelerators) const {
