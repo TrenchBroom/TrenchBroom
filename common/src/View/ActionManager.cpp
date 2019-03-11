@@ -425,7 +425,7 @@ namespace TrenchBroom {
 
         void ActionManager::addViewActions(ActionContext context, ActionView view, AcceleratorEntryList& accelerators) const {
             for (auto& shortcut : m_viewShortcuts) {
-                if (shortcut.appliesToContext(context) && shortcut.hasShortcut()) {
+                if (shortcut.appliesToContext(context)) {
                     accelerators.push_back(shortcut.acceleratorEntry(view));
                 }
             }
@@ -446,24 +446,18 @@ namespace TrenchBroom {
             for (const auto& tag : tags) {
                 Preference<KeyboardShortcut> toggleVisiblePref(TagKeyboardShortcutEntry::toggleVisiblePrefPath(tag), KeyboardShortcut());
                 const auto& toggleVisibleShortcut = pref(toggleVisiblePref);
-                if (toggleVisibleShortcut.hasKey()) {
-                    accelerators.push_back(toggleVisibleShortcut.acceleratorEntry(TagKeyboardShortcutEntry::toggleVisibleActionId(tag)));
-                }
+                accelerators.push_back(toggleVisibleShortcut.acceleratorEntry(TagKeyboardShortcutEntry::toggleVisibleActionId(tag)));
 
                 if (tag.canEnable()) {
                     Preference<KeyboardShortcut> enablePref(TagKeyboardShortcutEntry::enablePrefPath(tag), KeyboardShortcut());
                     const auto& enableShortcut = pref(enablePref);
-                    if (enableShortcut.hasKey()) {
-                        accelerators.push_back(enableShortcut.acceleratorEntry(TagKeyboardShortcutEntry::enableActionId(tag)));
-                    }
+                    accelerators.push_back(enableShortcut.acceleratorEntry(TagKeyboardShortcutEntry::enableActionId(tag)));
                 }
 
                 if (tag.canDisable()) {
                     Preference<KeyboardShortcut> disablePref(TagKeyboardShortcutEntry::disablePrefPath(tag), KeyboardShortcut());
                     const auto& disableShortcut = pref(disablePref);
-                    if (disableShortcut.hasKey()) {
-                        accelerators.push_back(disableShortcut.acceleratorEntry(TagKeyboardShortcutEntry::disableActionId(tag)));
-                    }
+                    accelerators.push_back(disableShortcut.acceleratorEntry(TagKeyboardShortcutEntry::disableActionId(tag)));
                 }
             }
         }
@@ -473,9 +467,7 @@ namespace TrenchBroom {
                 const auto* definition = entityDefinitions[i];
                 Preference<KeyboardShortcut> preference(EntityKeyboardShortcutEntry::toggleVisiblePrefPath(definition->name()), KeyboardShortcut());
                 const auto& shortcut = pref(preference);
-                if (shortcut.hasKey()) {
-                    accelerators.push_back(shortcut.acceleratorEntry(EntityKeyboardShortcutEntry::toggleVisibleActionId(i)));
-                }
+                accelerators.push_back(shortcut.acceleratorEntry(EntityKeyboardShortcutEntry::toggleVisibleActionId(i)));
             }
 
             for (size_t i = 0; i < entityDefinitions.size(); ++i) {
@@ -483,9 +475,7 @@ namespace TrenchBroom {
                 if (definition->name() != Model::AttributeValues::WorldspawnClassname) {
                     Preference<KeyboardShortcut> preference(EntityKeyboardShortcutEntry::createPrefPath(definition->name()), KeyboardShortcut());
                     const auto& shortcut = pref(preference);
-                    if (shortcut.hasKey()) {
-                        accelerators.push_back(shortcut.acceleratorEntry(EntityKeyboardShortcutEntry::createActionId(i)));
-                    }
+                    accelerators.push_back(shortcut.acceleratorEntry(EntityKeyboardShortcutEntry::createActionId(i)));
                 }
             }
         }
