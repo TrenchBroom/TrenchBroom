@@ -38,7 +38,7 @@ namespace TrenchBroom {
             
             m_tabBook = new TabBook(this);
 
-            m_mapInspector = (MapInspector*) new TabBookPage(nullptr); // FIXME: MapInspector(m_tabBook, document, contextManager);
+            m_mapInspector = new MapInspector(m_tabBook, document, contextManager);
             m_entityInspector = new EntityInspector(m_tabBook, document, contextManager);
             m_faceInspector = (FaceInspector*) new TabBookPage(nullptr); // FIXME: new FaceInspector(m_tabBook, document, contextManager);
             

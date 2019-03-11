@@ -26,45 +26,42 @@
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
 
-#include <wx/notebook.h>
-#include <wx/settings.h>
-#include <wx/sizer.h>
+#include <QVBoxLayout>
 
 namespace TrenchBroom {
     namespace View {
         MapInspector::MapInspector(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
         TabBookPage(parent) {
-#if defined __APPLE__
-            SetWindowVariant(wxWINDOW_VARIANT_SMALL);
-#endif
             createGui(document, contextManager);
         }
 
         void MapInspector::createGui(MapDocumentWPtr document, GLContextManager& contextManager) {
             auto* sizer = new QVBoxLayout();
-            sizer->addWidget(createLayerEditor(this, document), 1, wxEXPAND);
-            sizer->addWidget(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
-            sizer->addWidget(createModEditor(this, document), 0, wxEXPAND);
-            SetSizer(sizer);
+            sizer->addWidget(createLayerEditor(this, document), 1);
+            sizer->addWidget(new BorderLine(this, BorderLine::Direction_Horizontal), 0);
+            sizer->addWidget(createModEditor(this, document), 0);
+            setLayout(sizer);
         }
 
         QWidget* MapInspector::createLayerEditor(QWidget* parent, MapDocumentWPtr document) {
-            TitledPanel* titledPanel = new TitledPanel(parent, "Layers");
-            LayerEditor* layerEditor = new LayerEditor(titledPanel->getPanel(), document);
-            
-            auto* sizer = new QVBoxLayout();
-            sizer->addWidget(layerEditor, 1, wxEXPAND);
-            titledPanel->getPanel()->SetSizer(sizer);
-            
-            return titledPanel;
+            return new QWidget();
+
+//            TitledPanel* titledPanel = new TitledPanel(parent, tr("Layers"));
+//            LayerEditor* layerEditor = new LayerEditor(titledPanel->getPanel(), document);
+//
+//            auto* sizer = new QVBoxLayout();
+//            sizer->addWidget(layerEditor, 1);
+//            titledPanel->getPanel()->setLayout(sizer);
+//
+//            return titledPanel;
         }
 
         QWidget* MapInspector::createModEditor(QWidget* parent, MapDocumentWPtr document) {
-            CollapsibleTitledPanel* titledPanel = new CollapsibleTitledPanel(parent, "Mods", false);
+            CollapsibleTitledPanel* titledPanel = new CollapsibleTitledPanel(parent, tr("Mods"), false);
             ModEditor* modEditor = new ModEditor(titledPanel->getPanel(), document);
 
             auto* sizer = new QVBoxLayout();
-            sizer->addWidget(modEditor, 1, wxEXPAND);
+            sizer->addWidget(modEditor, 1);
             titledPanel->getPanel()->setLayout(sizer);
             
             return titledPanel;

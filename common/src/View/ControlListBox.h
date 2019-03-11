@@ -20,46 +20,30 @@
 #ifndef ControlListBox_h
 #define ControlListBox_h
 
-#include <wx/event.h>
-#include <wx/scrolwin.h>
+#include <QWidget>
 
 #include <vector>
 
-wxDECLARE_EVENT(wxEVT_LISTBOX_RCLICK, wxCommandEvent);
-
 class QLabel;
-class QWidget;
+class QListWidget;
 
 namespace TrenchBroom {
     namespace View {
-        class ControlListBox : public wxScrolledWindow {
+        class ControlListBox : public QWidget {
+            Q_OBJECT
         protected:
             class Item : public QWidget {
             public:
                 Item(QWidget* parent);
                 virtual ~Item() override;
-                
-                bool AcceptsFocus() const override;
-                
+
                 virtual void setSelectionColours(const wxColour& foreground, const wxColour& background);
                 virtual void setDefaultColours(const wxColour& foreground, const wxColour& background);
             protected:
                 void setColours(QWidget* window, const wxColour& foreground, const wxColour& background);
             };
         private:
-            using ItemList = std::vector<Item*>;
-            wxSize m_itemMargin;
-            bool m_restrictToClientWidth;
-            QString m_emptyText;
-            QLabel* m_emptyTextLabel;
-            bool m_showLastDivider;
-            bool m_valid;
-            size_t m_newItemCount;
-        protected:
-            ItemList m_items;
-            size_t m_selectionIndex;
-        private:
-            class Sizer;
+            QListWidget* m_list;
         public:
             ControlListBox(QWidget* parent, bool restrictToClientWidth, const QString& emptyText = "");
 
@@ -76,23 +60,7 @@ namespace TrenchBroom {
             void SetShowLastDivider(bool showLastDivider);
             
             void SetEmptyText(const QString& emptyText);
-        private:
-            void invalidate();
-            void validate();
-            void refresh(size_t itemCount);
-            void bindEvents(QWidget* window, size_t itemIndex);
-            
-            void OnIdle(wxIdleEvent& event);
-            void OnSize(wxSizeEvent& event);
-            void OnFocusChild(wxFocusEvent& event);
-            void OnLeftClickChild(wxMouseEvent& event);
-            void OnRightClickChild(wxMouseEvent& event);
-            void OnDoubleClickChild(wxMouseEvent& event);
-            void OnLeftClickVoid(wxMouseEvent& event);
-            void sendEvent(wxMouseEvent& event);
-            
-            void setSelection(const wxEvent& event);
-            void setSelection(size_t index);
+
         private:
             virtual Item* createItem(QWidget* parent, const wxSize& margins, size_t index) = 0;
         };

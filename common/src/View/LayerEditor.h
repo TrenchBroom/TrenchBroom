@@ -24,7 +24,7 @@
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
 
-#include <wx/panel.h>
+#include <QWidget>
 
 namespace TrenchBroom {
     namespace View {
@@ -32,6 +32,7 @@ namespace TrenchBroom {
         class LayerListBox;
         
         class LayerEditor : public QWidget {
+            Q_OBJECT
         private:
             static const int MoveSelectionToLayerCommandId = 1;
             static const int SelectAllInLayerCommandId = 2;
@@ -48,28 +49,28 @@ namespace TrenchBroom {
             void OnLayerRightClick(LayerCommand& event);
 
             class CollectMoveableNodes;
-            void OnMoveSelectionToLayer(wxCommandEvent& event);
-            void OnUpdateMoveSelectionToLayerUI(wxUpdateUIEvent& event);
+            void OnMoveSelectionToLayer();
+            bool canMoveSelectionToLayer() const;
             
-            void OnToggleLayerVisibleFromMenu(wxCommandEvent& event);
+            void OnToggleLayerVisibleFromMenu();
             void OnToggleLayerVisibleFromList(LayerCommand& event);
-            void OnUpdateToggleLayerVisibleUI(wxUpdateUIEvent& event);
+            bool canToggleLayerVisible() const;
             void toggleLayerVisible(Model::Layer* layer);
             
-            void OnToggleLayerLockedFromMenu(wxCommandEvent& event);
+            void OnToggleLayerLockedFromMenu();
             void OnToggleLayerLockedFromList(LayerCommand& event);
-            void OnUpdateToggleLayerLockedUI(wxUpdateUIEvent& event);
+            bool canToggleLayerLocked() const;
             void toggleLayerLocked(Model::Layer* layer);
 
-            void OnSelectAllInLayer(wxCommandEvent& event);
+            void OnSelectAllInLayer();
             
-            void OnAddLayer(wxCommandEvent& event);
+            void OnAddLayer();
             String queryLayerName();
             
-            void OnRemoveLayer(wxCommandEvent& event);
-            void OnUpdateRemoveLayerUI(wxUpdateUIEvent& event);
+            void OnRemoveLayer();
+            bool canRemoveLayer() const;
 
-            void OnShowAllLayers(wxCommandEvent& event);
+            void OnShowAllLayers();
         private:
             Model::Layer* findVisibleAndUnlockedLayer(const Model::Layer* except) const;
             void moveSelectedNodesToLayer(MapDocumentSPtr document, Model::Layer* layer);

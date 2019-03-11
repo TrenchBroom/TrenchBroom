@@ -32,6 +32,7 @@
 
 class QWidget;
 class QAbstractButton;
+class QLineEdit;
 
 namespace TrenchBroom {
     namespace View {
@@ -75,6 +76,8 @@ namespace TrenchBroom {
         Color fromQColor(const QColor& color);
         void setWindowIconTB(QWidget* window);
         void setDebugBackgroundColor(QWidget* widget, const QColor& color);
+
+        QLineEdit* createSearchBox();
     }
 }
 

@@ -373,7 +373,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/MapDocument.cpp
 	${COMMON_SOURCE_DIR}/View/MapFrame.cpp
 #	${COMMON_SOURCE_DIR}/View/MapFrameDropTarget.cpp
-#	${COMMON_SOURCE_DIR}/View/MapInspector.cpp
+	${COMMON_SOURCE_DIR}/View/MapInspector.cpp
 	${COMMON_SOURCE_DIR}/View/MapView2D.cpp
 	${COMMON_SOURCE_DIR}/View/MapView3D.cpp
 #	${COMMON_SOURCE_DIR}/View/MapViewBar.cpp
@@ -382,7 +382,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/MapViewContainer.cpp
 	${COMMON_SOURCE_DIR}/View/MapView.cpp
 	${COMMON_SOURCE_DIR}/View/MapViewToolBox.cpp
-#	${COMMON_SOURCE_DIR}/View/ModEditor.cpp
+	${COMMON_SOURCE_DIR}/View/ModEditor.cpp
 #	${COMMON_SOURCE_DIR}/View/MousePreferencePane.cpp
 	${COMMON_SOURCE_DIR}/View/MoveBrushEdgesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/MoveBrushFacesCommand.cpp
@@ -488,6 +488,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/IO/Quake3ShaderTextureReader.cpp
 	${COMMON_SOURCE_DIR}/Model/GameFileSystem.cpp
 	${COMMON_SOURCE_DIR}/Model/Tag.cpp
+	${COMMON_SOURCE_DIR}/Model/TagAttribute.cpp
 	${COMMON_SOURCE_DIR}/Model/TagManager.cpp
 	${COMMON_SOURCE_DIR}/Model/TagMatcher.cpp
 )
@@ -849,7 +850,7 @@ SET(COMMON_HEADER
 #	${COMMON_SOURCE_DIR}/View/CompilationVariables.h
 	${COMMON_SOURCE_DIR}/View/Console.h
 	${COMMON_SOURCE_DIR}/View/ContainerBar.h
-	${COMMON_SOURCE_DIR}/View/ControlListBox.h
+#	${COMMON_SOURCE_DIR}/View/ControlListBox.h
 	${COMMON_SOURCE_DIR}/View/ConvertEntityColorCommand.h
 	${COMMON_SOURCE_DIR}/View/CopyTexCoordSystemFromFaceCommand.h
 	${COMMON_SOURCE_DIR}/View/CrashDialog.h
@@ -879,7 +880,7 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/EntityDefinitionFileCommand.h
 	${COMMON_SOURCE_DIR}/View/EntityInspector.h
 	${COMMON_SOURCE_DIR}/View/FaceAttribsEditor.h
-	${COMMON_SOURCE_DIR}/View/FaceInspector.h
+#	${COMMON_SOURCE_DIR}/View/FaceInspector.h
 	${COMMON_SOURCE_DIR}/View/FaceToolController.h
 	${COMMON_SOURCE_DIR}/View/FaceTool.h
 	${COMMON_SOURCE_DIR}/View/FileTextureCollectionEditor.h

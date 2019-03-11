@@ -32,6 +32,9 @@
 #include <QSettings>
 #include <QThread>
 #include <QKeySequence>
+#include <QDir>
+#include <QStringBuilder>
+#include <QDebug>
 
 namespace TrenchBroom {
     template <typename T>
@@ -219,11 +222,26 @@ namespace TrenchBroom {
         bool initialized() const {
             return m_initialized;
         }
+
+        static QSettings getSettings() {
+            QString path = QDir::homePath() % QString::fromLocal8Bit("/.TrenchBroom/.preferences");
+            return QSettings(path, QSettings::IniFormat);
+        }
         
         void load() const override {
             ensure(qApp->thread() == QThread::currentThread(), "PreferenceManager can only be used on the main thread");
 
-            QSettings settings;
+            QSettings settings = getSettings();
+
+            static bool tested = false;
+            if (!tested) {
+                tested = true;
+
+                for (auto s : settings.allKeys()) {
+                    std::cout << s.toStdString() << " is " << settings.value(s).toString().toStdString() << "\n";
+                }
+
+            }
 
             using std::swap;
             T temp;
@@ -238,7 +256,7 @@ namespace TrenchBroom {
             ensure(qApp->thread() == QThread::currentThread(), "PreferenceManager can only be used on the main thread");
 
             if (m_modified) {
-                QSettings settings;
+                QSettings settings = getSettings();
 
                 m_serializer.write(&settings, m_path.asQString('/'), m_value);
                 m_modified = false;

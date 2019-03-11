@@ -23,7 +23,6 @@
 #include "View/TabBook.h"
 #include "View/ViewTypes.h"
 
-class wxCollapsiblePaneEvent;
 class QWidget;
 
 namespace TrenchBroom {
@@ -37,6 +36,7 @@ namespace TrenchBroom {
         class ModEditor;
         
         class MapInspector : public TabBookPage {
+            Q_OBJECT
         public:
             MapInspector(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
         private:

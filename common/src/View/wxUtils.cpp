@@ -28,6 +28,7 @@
 #include "View/ViewConstants.h"
 
 #include <QPushButton>
+#include <QLineEdit>
 
 #include <list>
 #include <cstdlib>
@@ -196,6 +197,16 @@ namespace TrenchBroom {
 
             widget->setAutoFillBackground(true);
             widget->setPalette(p);
+        }
+
+        QLineEdit* createSearchBox() {
+            auto* widget = new QLineEdit();
+            widget->setClearButtonEnabled(true);
+            widget->setPlaceholderText(QLineEdit::tr("Search..."));
+
+            QIcon icon = loadIconResourceQt(IO::Path("")); // FIXME:!
+            widget->addAction(icon, QLineEdit::LeadingPosition);
+            return widget;
         }
     }
 }

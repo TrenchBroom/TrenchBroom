@@ -23,12 +23,12 @@
 #include "StringUtils.h"
 #include "View/ViewTypes.h"
 
-#include <wx/panel.h>
+#include <QWidget>
 
-class wxBitmapButton;
-class wxListBox;
-class wxSearchCtrl;
+class QLineEdit;
+class QListWidget;
 class QWidget;
+class QAbstractButton;
 
 namespace TrenchBroom {
     namespace IO {
@@ -41,32 +41,35 @@ namespace TrenchBroom {
     
     namespace View {
         class ModEditor : public QWidget {
+            Q_OBJECT
         private:
             MapDocumentWPtr m_document;
-            
-            wxListBox* m_availableModList;
-            wxListBox* m_enabledModList;
-            wxSearchCtrl* m_filterBox;
+
+            QListWidget* m_availableModList;
+            QListWidget* m_enabledModList;
+            QLineEdit* m_filterBox;
+            QAbstractButton* m_addModsButton;
+            QAbstractButton* m_removeModsButton;
+            QAbstractButton* m_moveModUpButton;
+            QAbstractButton* m_moveModDownButton;
             
             StringList m_availableMods;
-            bool m_ignoreNotifier;
         public:
             ModEditor(QWidget* parent, MapDocumentWPtr document);
             ~ModEditor() override;
 
-            bool ShouldInheritColours() const override;
-
-            void OnAddModClicked(wxCommandEvent& event);
-            void OnRemoveModClicked(wxCommandEvent& event);
-            void OnMoveModUpClicked(wxCommandEvent& event);
-            void OnMoveModDownClicked(wxCommandEvent& event);
-            void OnUpdateAddButtonUI(wxUpdateUIEvent& event);
-            void OnUpdateRemoveButtonUI(wxUpdateUIEvent& event);
-            void OnUpdateMoveUpButtonUI(wxUpdateUIEvent& event);
-            void OnUpdateMoveDownButtonUI(wxUpdateUIEvent& event);
-            void OnFilterBoxChanged(wxCommandEvent& event);
+            void OnAddModClicked();
+            void OnRemoveModClicked();
+            void OnMoveModUpClicked();
+            void OnMoveModDownClicked();
+            bool canEnableAddButton() const;
+            bool canEnableRemoveButton() const;
+            bool canEnableMoveUpButton() const;
+            bool canEnableMoveDownButton() const;
+            void OnFilterBoxChanged();
         private:
             void createGui();
+            void updateButtons();
 
             void bindObservers();
             void unbindObservers();
