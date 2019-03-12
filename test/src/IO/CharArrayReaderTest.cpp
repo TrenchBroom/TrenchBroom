@@ -19,13 +19,13 @@
 
 #include <gtest/gtest.h>
 
-#include "IO/CharArrayReader.h"
+#include "IO/DelegatingReader.h"
 
 namespace TrenchBroom {
     namespace IO {
         TEST(CharArrayReaderTest, createEmpty) {
             const char foo = 'x';
-            CharArrayReader r(&foo, &foo);
+            DelegatingReader r(&foo, &foo);
 
             EXPECT_EQ(0U, r.size());
             EXPECT_EQ(0U, r.currentOffset());
@@ -36,12 +36,12 @@ namespace TrenchBroom {
             EXPECT_FALSE(r.canRead(1U));
             EXPECT_TRUE(r.canRead(0U));
             EXPECT_TRUE(r.eof());
-            EXPECT_THROW(r.readChar<char>(), CharArrayReaderException);
+            EXPECT_THROW(r.readChar<char>(), ReaderException);
         }
 
         TEST(CharArrayReaderTest, createSingleChar) {
             const char* foo = "x";
-            CharArrayReader r(foo, foo + 1);
+            DelegatingReader r(foo, foo + 1);
 
             EXPECT_EQ(1U, r.size());
             EXPECT_EQ(0U, r.currentOffset());
@@ -59,12 +59,12 @@ namespace TrenchBroom {
             EXPECT_FALSE(r.canRead(1U));
             EXPECT_TRUE(r.canRead(0U));
             EXPECT_TRUE(r.eof());
-            EXPECT_THROW(r.readChar<char>(), CharArrayReaderException);
+            EXPECT_THROW(r.readChar<char>(), ReaderException);
         }
 
         TEST(CharArrayReaderTest, testSeekFromBegin) {
             const char* foo = "xy";
-            CharArrayReader r(foo, foo + 2);
+            DelegatingReader r(foo, foo + 2);
 
             EXPECT_EQ(2U, r.size());
             EXPECT_EQ(0U, r.currentOffset());
@@ -78,13 +78,13 @@ namespace TrenchBroom {
             r.seekFromBegin(2U);
             EXPECT_EQ(2U, r.currentOffset());
 
-            EXPECT_THROW(r.seekFromBegin(3U), CharArrayReaderException);
+            EXPECT_THROW(r.seekFromBegin(3U), ReaderException);
             EXPECT_EQ(2U, r.currentOffset());
         }
 
         TEST(CharArrayReaderTest, testSeekFromEnd) {
             const char* foo = "xy";
-            CharArrayReader r(foo, foo + 2);
+            DelegatingReader r(foo, foo + 2);
 
             EXPECT_EQ(2U, r.size());
             EXPECT_EQ(0U, r.currentOffset());
@@ -98,13 +98,13 @@ namespace TrenchBroom {
             r.seekFromEnd(2U);
             EXPECT_EQ(0U, r.currentOffset());
 
-            EXPECT_THROW(r.seekFromEnd(3U), CharArrayReaderException);
+            EXPECT_THROW(r.seekFromEnd(3U), ReaderException);
             EXPECT_EQ(0U, r.currentOffset());
         }
 
         TEST(CharArrayReaderTest, testSeekFromCurrent) {
             const char* foo = "xy";
-            CharArrayReader r(foo, foo + 2);
+            DelegatingReader r(foo, foo + 2);
 
             EXPECT_EQ(2U, r.size());
             EXPECT_EQ(0U, r.currentOffset());
@@ -115,7 +115,7 @@ namespace TrenchBroom {
             r.seekForward(1U);
             EXPECT_EQ(2U, r.currentOffset());
 
-            EXPECT_THROW(r.seekForward(1U), CharArrayReaderException);
+            EXPECT_THROW(r.seekForward(1U), ReaderException);
             EXPECT_EQ(2U, r.currentOffset());
         }
     }

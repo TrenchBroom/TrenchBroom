@@ -20,7 +20,7 @@
 #include "ZipFileSystem.h"
 
 #include "CollectionUtils.h"
-#include "IO/CharArrayReader.h"
+#include "IO/File.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/IOUtils.h"
 
@@ -37,7 +37,7 @@ namespace TrenchBroom {
         m_owner(owner),
         m_fileIndex(fileIndex) {}
 
-        MappedFile::Ptr ZipFileSystem::ZipCompressedFile::doOpen() const {
+        std::shared_ptr<File> ZipFileSystem::ZipCompressedFile::doOpen() const {
             const auto path = Path(m_owner->filename(m_fileIndex));
 
             mz_zip_archive_file_stat stat;
@@ -45,7 +45,7 @@ namespace TrenchBroom {
                 throw FileSystemException("mz_zip_reader_file_stat failed for " + path.asString());
             }
 
-            const size_t uncompressedSize = static_cast<size_t>(stat.m_uncomp_size);
+            const auto uncompressedSize = static_cast<size_t>(stat.m_uncomp_size);
             auto data = std::make_unique<char[]>(uncompressedSize);
             auto* begin = data.get();
 
@@ -53,16 +53,16 @@ namespace TrenchBroom {
                 throw FileSystemException("mz_zip_reader_extract_to_mem failed for " + path.asString());
             }
 
-            return std::make_shared<MappedFileBuffer>(path, std::move(data), uncompressedSize);
+            return std::make_shared<BufferFile>(path, std::move(data), uncompressedSize);
         }
 
         // ZipFileSystem
 
-        ZipFileSystem::ZipFileSystem(const Path& path, MappedFile::Ptr file) :
-        ZipFileSystem(nullptr, path, std::move(file)) {}
+        ZipFileSystem::ZipFileSystem(const Path& path) :
+        ZipFileSystem(nullptr, path) {}
 
-        ZipFileSystem::ZipFileSystem(std::shared_ptr<FileSystem> next, const Path& path, MappedFile::Ptr file) :
-        ImageFileSystem(std::move(next), path, std::move(file)) {
+        ZipFileSystem::ZipFileSystem(std::shared_ptr<FileSystem> next, const Path& path) :
+        ImageFileSystem(std::move(next), path) {
             initialize();
         }
 
@@ -73,7 +73,7 @@ namespace TrenchBroom {
         void ZipFileSystem::doReadDirectory() {
             mz_zip_zero_struct(&m_archive);
 
-            if (mz_zip_reader_init_mem(&m_archive, m_file->begin(), m_file->size(), 0) != MZ_TRUE) {
+            if (mz_zip_reader_init_cfile(&m_archive, m_file->file(), m_file->size(), 0) != MZ_TRUE) {
                 throw FileSystemException("Error calling mz_zip_reader_init_mem");
             }
 

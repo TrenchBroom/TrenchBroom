@@ -31,8 +31,8 @@ namespace TrenchBroom {
         TextureReader(nameStrategy),
         m_fs(fs) {}
 
-        Assets::Texture* Quake3ShaderTextureReader::doReadTexture(MappedFile::Ptr file) const {
-            const auto* shaderFile = dynamic_cast<ObjectFile<Assets::Quake3Shader>*>(file.get());
+        Assets::Texture* Quake3ShaderTextureReader::doReadTexture(std::shared_ptr<File> file) const {
+            const auto* shaderFile = dynamic_cast<ObjectFile2<Assets::Quake3Shader>*>(file.get());
             if (shaderFile == nullptr) {
                 return nullptr;
             }

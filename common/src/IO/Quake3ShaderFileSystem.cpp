@@ -21,6 +21,7 @@
 
 #include "CollectionUtils.h"
 #include "Assets/Quake3Shader.h"
+#include "IO/File.h"
 #include "IO/Quake3ShaderParser.h"
 #include "IO/SimpleParserStatus.h"
 
@@ -94,7 +95,7 @@ namespace TrenchBroom {
                         auto& shader = *shaderIt;
 
                         auto shaderFile = std::make_shared<ObjectFile<Assets::Quake3Shader>>(shader, shaderPath);
-                        m_root.addFile(shaderPath, std::make_unique<SimpleFile>(std::move(shaderFile)));
+                        m_root.addFile(shaderPath, shaderFile);
 
                         // Remove the shader so that we don't revisit it when linking standalone shaders.
                         shaders.erase(shaderIt);
@@ -106,8 +107,8 @@ namespace TrenchBroom {
 
                         // m_logger.debug() << "Generating shader " << shaderPath << " -> " << shader.qerImagePath();
 
-                        auto shaderFile = std::make_shared<ObjectFile<Assets::Quake3Shader>>(std::move(shader), shaderPath);
-                        m_root.addFile(shaderPath, std::make_unique<SimpleFile>(std::move(shaderFile)));
+                        auto shaderFile = std::make_shared<ObjectFile2<Assets::Quake3Shader>>(std::move(shader), shaderPath);
+                        m_root.addFile(shaderPath, std::make_unique<SimpleFileEntry>(std::move(shaderFile)));
                     }
                 }
             }
@@ -117,8 +118,8 @@ namespace TrenchBroom {
             m_logger.debug() << "Linking standalone shaders...";
             for (auto& shader : shaders) {
                 const auto& shaderPath = shader.shaderPath;
-                auto shaderFile = std::make_shared<ObjectFile<Assets::Quake3Shader>>(shader, shaderPath);
-                m_root.addFile(shaderPath, std::make_unique<SimpleFile>(std::move(shaderFile)));
+                auto shaderFile = std::make_shared<ObjectFile2<Assets::Quake3Shader>>(shader, shaderPath);
+                m_root.addFile(shaderPath, std::make_unique<SimpleFileEntry>(std::move(shaderFile)));
             }
         }
     }

@@ -19,7 +19,7 @@
 
 #include "WadFileSystem.h"
 
-#include "IO/CharArrayReader.h"
+#include "IO/DelegatingReader.h"
 #include "IO/DiskIO.h"
 
 namespace TrenchBroom {
@@ -60,7 +60,7 @@ namespace TrenchBroom {
         }
 
         void WadFileSystem::doReadDirectory() {
-            CharArrayReader reader(m_file->begin(), m_file->end());
+            DelegatingReader reader(m_file->begin(), m_file->end());
             if (m_file->size() < WadLayout::MinFileSize) {
                 throw FileSystemException("File does not contain a directory.");
             }

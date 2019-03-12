@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_DiskFileSystem
 #define TrenchBroom_DiskFileSystem
 
-#include "IO/MappedFile.h"
 #include "IO/FileSystem.h"
 #include "IO/Path.h"
 
@@ -28,6 +27,8 @@
 
 namespace TrenchBroom {
     namespace IO {
+        class File;
+
         class DiskFileSystem : public FileSystem {
         protected:
             Path m_root;
@@ -44,7 +45,7 @@ namespace TrenchBroom {
             bool doFileExists(const Path& path) const override;
             
             Path::List doGetDirectoryContents(const Path& path) const override;
-            const MappedFile::Ptr doOpenFile(const Path& path) const override;
+            std::shared_ptr<File> doOpenFile(const Path& path) const override;
         };
         
 #ifdef _MSC_VER

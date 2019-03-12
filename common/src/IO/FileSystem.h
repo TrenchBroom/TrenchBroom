@@ -24,7 +24,6 @@
 #include "Macros.h"
 #include "StringUtils.h"
 #include "IO/DiskIO.h"
-#include "IO/MappedFile.h"
 #include "IO/Path.h"
 
 #include <iostream>
@@ -32,6 +31,7 @@
 
 namespace TrenchBroom {
     namespace IO {
+        class File;
         class Path;
         
         class FileSystem {
@@ -113,14 +113,14 @@ namespace TrenchBroom {
             Path::List findItemsRecursively(const Path& directoryPath) const;
             
             Path::List getDirectoryContents(const Path& directoryPath) const;
-            MappedFile::Ptr openFile(const Path& path) const;
+            std::shared_ptr<File> openFile(const Path& path) const;
         private: // private API to be used for chaining, avoids multiple checks of parameters
             bool _canMakeAbsolute(const Path& path) const;
             Path _makeAbsolute(const Path& path) const;
             bool _directoryExists(const Path& path) const;
             bool _fileExists(const Path& path) const;
             Path::List _getDirectoryContents(const Path& directoryPath) const;
-            MappedFile::Ptr _openFile(const Path& path) const;
+            std::shared_ptr<File> _openFile(const Path& path) const;
 
             /**
              * Finds all items matching the given matcher at the given search path, optionally recursively. This method
@@ -207,7 +207,7 @@ namespace TrenchBroom {
             
             virtual Path::List doGetDirectoryContents(const Path& path) const = 0;
 
-            virtual const MappedFile::Ptr doOpenFile(const Path& path) const = 0;
+            virtual std::shared_ptr<File> doOpenFile(const Path& path) const = 0;
         };
         
         class WritableFileSystem {

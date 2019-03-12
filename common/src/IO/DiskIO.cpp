@@ -19,10 +19,13 @@
 
 #include "DiskIO.h"
 
+#include "IO/File.h"
+
 #include <wx/dir.h>
 #include <wx/filefn.h>
 #include <wx/filename.h>
 
+#include <cstdio>
 #include <fstream>
 
 namespace TrenchBroom {
@@ -131,12 +134,18 @@ namespace TrenchBroom {
                 return result;
             }
             
-            MappedFile::Ptr openFile(const Path& path) {
+            std::shared_ptr<File> openFile(const Path& path) {
                 const Path fixedPath = fixPath(path);
                 if (!fileExists(fixedPath)) {
                     throw FileNotFoundException("File not found: '" + fixedPath.asString() + "'");
                 }
 
+                auto* file = std::fopen(fixedPath.asString().c_str(), "r");
+                if (file == nullptr) {
+                    throw FileSystemException("Cannot open file file: '" + fixedPath.asString() + "'");
+                }
+
+                return std::make_shared<CFile>(fixedPath, file);
                 return openMappedFile(fixedPath, std::ios::in);
             }
             

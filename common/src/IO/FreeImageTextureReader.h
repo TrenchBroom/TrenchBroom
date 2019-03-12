@@ -21,18 +21,19 @@
 #ifndef FREEIMAGETEXTUREREADER_H
 #define FREEIMAGETEXTUREREADER_H
 
-#include "IO/MappedFile.h"
 #include "IO/TextureReader.h"
+
+#include <memory>
 
 namespace TrenchBroom {
     namespace IO {
-        class Path;
+        class File;
 
         class FreeImageTextureReader : public TextureReader {
         public:
             FreeImageTextureReader(const NameStrategy& nameStrategy);
         private:
-            Assets::Texture* doReadTexture(MappedFile::Ptr file) const override;
+            Assets::Texture* doReadTexture(std::shared_ptr<File> file) const override;
         };
     }
 }

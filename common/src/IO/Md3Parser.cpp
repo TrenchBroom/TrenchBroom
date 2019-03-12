@@ -20,7 +20,7 @@
 #include "Md3Parser.h"
 
 #include "Logger.h"
-#include "IO/CharArrayReader.h"
+#include "IO/Reader.h"
 #include "IO/FileSystem.h"
 #include "IO/FreeImageTextureReader.h"
 #include "IO/Quake3ShaderTextureReader.h"
@@ -55,7 +55,7 @@ namespace TrenchBroom {
         }
 
         Assets::EntityModel* Md3Parser::doParseModel(Logger& logger) {
-            CharArrayReader reader(m_begin, m_end);
+            auto reader = Reader::from(m_begin, m_end);
 
             const auto ident = reader.readInt<int32_t>();
             const auto version = reader.readInt<int32_t>();
@@ -89,7 +89,7 @@ namespace TrenchBroom {
             return model.release();
         }
 
-        void Md3Parser::parseFrames(CharArrayReader reader, const size_t frameCount, Assets::EntityModel& model) {
+        void Md3Parser::parseFrames(Reader reader, const size_t frameCount, Assets::EntityModel& model) {
             for (size_t i = 0; i < frameCount; ++i) {
                 const auto minBounds = reader.readVec<float, 3>();
                 const auto maxBounds = reader.readVec<float, 3>();
@@ -102,7 +102,7 @@ namespace TrenchBroom {
         }
 
         /*
-        void Md3Parser::parseTags(CharArrayReader reader, const size_t tagCount) {
+        void Md3Parser::parseTags(Reader reader, const size_t tagCount) {
             for (size_t i = 0; i < tagCount; ++i) {
                 const auto tagName = reader.readString(Md3Layout::TagNameLength);
                 const auto tagOrigin = reader.readVec<float, 3>();
@@ -113,46 +113,45 @@ namespace TrenchBroom {
         }
          */
 
-        void Md3Parser::parseSurfaces(CharArrayReader reader, const size_t surfaceCount, Assets::EntityModel& model, Logger& logger) {
-            auto surfaceReader = reader;
+        void Md3Parser::parseSurfaces(Reader reader, const size_t surfaceCount, Assets::EntityModel& model, Logger& logger) {
             for (size_t i = 0; i < surfaceCount; ++i) {
-                const auto ident = surfaceReader.readInt<int32_t>();
+                const auto ident = reader.readInt<int32_t>();
 
                 if (ident != Md3Layout::Ident) {
                     throw AssetException() << "Unknown MD3 model surface ident: " << ident;
                 }
 
-                const auto surfaceName = surfaceReader.readString(Md3Layout::SurfaceNameLength);
+                const auto surfaceName = reader.readString(Md3Layout::SurfaceNameLength);
 
-                /* const auto flags = */ surfaceReader.readInt<int32_t>();
-                const auto frameCount = surfaceReader.readSize<int32_t>();
-                const auto shaderCount = surfaceReader.readSize<int32_t>();
-                const auto vertexCount = surfaceReader.readSize<int32_t>(); // the number of vertices per frame!
-                const auto triangleCount = surfaceReader.readSize<int32_t>();
+                /* const auto flags = */ reader.readInt<int32_t>();
+                const auto frameCount = reader.readSize<int32_t>();
+                const auto shaderCount = reader.readSize<int32_t>();
+                const auto vertexCount = reader.readSize<int32_t>(); // the number of vertices per frame!
+                const auto triangleCount = reader.readSize<int32_t>();
                 const auto totalVertexCount = vertexCount * frameCount;
 
-                const auto triangleOffset = surfaceReader.readSize<int32_t>();
-                const auto shaderOffset = surfaceReader.readSize<int32_t>();
-                const auto texCoordOffset = surfaceReader.readSize<int32_t>();
-                const auto vertexOffset = surfaceReader.readSize<int32_t>(); // all vertices for all frames are stored there!
-                const auto endOffset = surfaceReader.readSize<int32_t>();
+                const auto triangleOffset = reader.readSize<int32_t>();
+                const auto shaderOffset = reader.readSize<int32_t>();
+                const auto texCoordOffset = reader.readSize<int32_t>();
+                const auto vertexOffset = reader.readSize<int32_t>(); // all vertices for all frames are stored there!
+                const auto endOffset = reader.readSize<int32_t>();
 
-                const auto vertexPositions = parseVertexPositions(surfaceReader.subReaderFromBegin(vertexOffset, totalVertexCount * Md3Layout::VertexLength), frameCount, vertexCount);
-                const auto texCoords = parseTexCoords(surfaceReader.subReaderFromBegin(texCoordOffset, vertexCount * Md3Layout::TexCoordLength), vertexCount);
+                const auto vertexPositions = parseVertexPositions(reader.subReaderFromBegin(vertexOffset, totalVertexCount * Md3Layout::VertexLength), frameCount, vertexCount);
+                const auto texCoords = parseTexCoords(reader.subReaderFromBegin(texCoordOffset, vertexCount * Md3Layout::TexCoordLength), vertexCount);
                 const auto vertices = buildVertices(vertexPositions, texCoords, frameCount, vertexCount);
 
-                const auto triangles = parseTriangles(surfaceReader.subReaderFromBegin(triangleOffset, triangleCount * Md3Layout::TriangleLength), triangleCount);
-                const auto shaders = parseShaders(surfaceReader.subReaderFromBegin(shaderOffset, shaderCount * Md3Layout::ShaderLength), shaderCount);
+                const auto triangles = parseTriangles(reader.subReaderFromBegin(triangleOffset, triangleCount * Md3Layout::TriangleLength), triangleCount);
+                const auto shaders = parseShaders(reader.subReaderFromBegin(shaderOffset, shaderCount * Md3Layout::ShaderLength), shaderCount);
 
                 auto& surface = model.addSurface(surfaceName);
                 loadSurfaceSkins(surface, shaders, logger);
                 buildSurfaceFrames(surface, triangles, vertices, i, frameCount, vertexCount);
 
-                surfaceReader = surfaceReader.subReaderFromBegin(endOffset);
+                reader = reader.subReaderFromBegin(endOffset);
             }
         }
 
-        std::vector<Md3Parser::Md3Triangle> Md3Parser::parseTriangles(CharArrayReader reader, const size_t triangleCount) {
+        std::vector<Md3Parser::Md3Triangle> Md3Parser::parseTriangles(Reader reader, const size_t triangleCount) {
             std::vector<Md3Triangle> result;
             result.reserve(triangleCount);
             for (size_t i = 0; i < triangleCount; ++i) {
@@ -164,7 +163,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        std::vector<Path> Md3Parser::parseShaders(CharArrayReader reader, const size_t shaderCount) {
+        std::vector<Path> Md3Parser::parseShaders(Reader reader, const size_t shaderCount) {
             std::vector<Path> result;
             result.reserve(shaderCount);
             for (size_t i = 0; i < shaderCount; ++i) {
@@ -175,7 +174,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        std::vector<vm::vec3f> Md3Parser::parseVertexPositions(CharArrayReader reader, const size_t frameCount, const size_t vertexCount) {
+        std::vector<vm::vec3f> Md3Parser::parseVertexPositions(Reader reader, const size_t frameCount, const size_t vertexCount) {
             std::vector<vm::vec3f> result;
             result.reserve(vertexCount);
             for (size_t i = 0; i < frameCount * vertexCount; ++i) {
@@ -188,7 +187,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        std::vector<vm::vec2f> Md3Parser::parseTexCoords(CharArrayReader reader, const size_t vertexCount) {
+        std::vector<vm::vec2f> Md3Parser::parseTexCoords(Reader reader, const size_t vertexCount) {
             std::vector<vm::vec2f> result;
             result.reserve(vertexCount);
             for (size_t i = 0; i < vertexCount; ++i) {

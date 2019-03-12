@@ -1,0 +1,255 @@
+/*
+ Copyright (C) 2010-2017 Kristian Duske
+
+ This file is part of TrenchBroom.
+
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "Reader.h"
+
+#include "IO/IOUtils.h"
+
+#include <cassert>
+#include <cstring>
+#include <functional>
+
+namespace TrenchBroom {
+    namespace IO {
+        Reader::Source::~Source() = default;
+
+        size_t Reader::Source::size() const {
+            return doGetSize();
+        }
+
+        size_t Reader::Source::position() const {
+            return doGetPosition();
+        }
+
+        bool Reader::Source::canRead(const size_t readSize) const {
+            return position() + readSize <= size();
+        }
+
+        void Reader::Source::read(char* val, const size_t size) {
+            ensurePosition(position() + size);
+            doRead(val, size);
+        }
+
+        void Reader::Source::seek(const size_t position) {
+            ensurePosition(position);
+            doSeek(position);
+        }
+
+        void Reader::Source::ensurePosition(const size_t position) const {
+            if (position >= size()) {
+                throw ReaderException() << "Position is out of bounds";
+            }
+        }
+
+        std::unique_ptr<Reader::Source> Reader::Source::subSource(size_t position, size_t length) const {
+            ensurePosition(position + length);
+            return doGetSubSource(position, length);
+        }
+
+        std::tuple<const char*, const char*, std::unique_ptr<char[]>> Reader::Source::buffer() const {
+            return doBuffer();
+        }
+
+        Reader::FileSource::FileSource(std::FILE* file, const size_t offset, const size_t length) :
+        m_file(file),
+        m_offset(offset),
+        m_length(length),
+        m_position(m_offset) {}
+
+
+        size_t Reader::FileSource::doGetSize() const {
+            return m_length;
+        }
+
+        size_t Reader::FileSource::doGetPosition() const {
+            return m_position;
+        }
+
+        void Reader::FileSource::doRead(char* val, const size_t size) {
+            // We might consider removing this check under the assumption that the file position is set in the constructor
+            // of this reader and that no other reader will access the file while this reader is in use. This may be a
+            // reasonable assumption, since we usually read files one by one.
+
+            const auto pos = std::ftell(m_file);
+            if (pos < 0) {
+                throw ReaderException("ftell failed");
+            }
+            if (static_cast<size_t>(pos) != m_offset + m_position) {
+                if (std::fseek(m_file, static_cast<long>(m_offset + m_position), SEEK_SET) != 0) {
+                    throw ReaderException("fseek failed");
+                }
+            }
+            if (std::fread(val, 1, size, m_file) != size) {
+                throw ReaderException("fread failed");
+            }
+            m_position += size;
+        }
+
+        void Reader::FileSource::doSeek(const size_t position) {
+            m_position = position;
+        }
+
+        std::unique_ptr<Reader::Source> Reader::FileSource::doGetSubSource(const size_t position, const size_t length) const {
+            return std::make_unique<FileSource>(m_file, m_offset + position, length);
+        }
+
+        std::tuple<const char*, const char*, std::unique_ptr<char[]>> Reader::FileSource::doBuffer() const {
+            auto buffer = std::make_unique<char[]>(m_length);
+            if (std::fread(buffer.get(), 1, m_length, m_file) != m_length) {
+                throw ReaderException("fread failed");
+            }
+
+            if (std::fseek(m_file, static_cast<long>(m_offset + m_position), SEEK_SET) != 0) {
+                throw ReaderException("fseek failed");
+            }
+
+            const char* begin = buffer.get();
+            const char* end = begin + m_length;
+            return std::make_tuple(begin, end, std::move(buffer));
+        }
+
+        Reader::BufferSource::BufferSource(const char* begin, const char* end) :
+        m_begin(begin),
+        m_end(end),
+        m_current(begin) {
+            if (m_begin > m_end) {
+                throw ReaderException("Invalid buffer");
+            }
+        }
+
+        const char* Reader::BufferSource::begin() const {
+            return m_begin;
+        }
+
+        const char* Reader::BufferSource::end() const {
+            return m_end;
+        }
+
+        size_t Reader::BufferSource::doGetSize() const {
+            return static_cast<size_t>(m_end - m_begin);
+        }
+
+        size_t Reader::BufferSource::doGetPosition() const {
+            return static_cast<size_t>(m_current - m_begin);
+        }
+
+        void Reader::BufferSource::doRead(char* val, const size_t size) {
+            std::memcpy(val, m_current, size);
+            m_current += size;
+        }
+
+        void Reader::BufferSource::doSeek(const size_t position) {
+            m_current = m_begin + position;
+        }
+
+        std::unique_ptr<Reader::Source> Reader::BufferSource::doGetSubSource(const size_t position, const size_t length) const {
+            return std::make_unique<BufferSource>(m_begin + position, m_begin + position + length);
+        }
+
+        std::tuple<const char*, const char*, std::unique_ptr<char[]>> Reader::BufferSource::doBuffer() const {
+            return std::make_tuple(m_begin, m_end, nullptr);
+        }
+
+        Reader::Reader(std::unique_ptr<Source> source) :
+        m_source(std::move(source)) {}
+
+        Reader::~Reader() = default;
+
+        Reader Reader::from(std::FILE* file) {
+            return Reader(std::make_unique<FileSource>(file, 0, fileSize(file)));
+        }
+
+        Reader Reader::from(const char* begin, const char* end) {
+            return Reader(std::make_unique<BufferSource>(begin, end));
+        }
+
+        size_t Reader::size() const {
+            return m_source->size();
+        }
+
+        size_t Reader::position() const {
+            return m_source->position();
+        }
+
+        bool Reader::eof() const {
+            return position() == size();
+        }
+
+        void Reader::seekFromBegin(const size_t position) {
+            m_source->seek(position);
+        }
+
+        void Reader::seekFromEnd(const size_t offset) {
+            seekFromBegin(size() - offset);
+        }
+
+        void Reader::seekForward(const size_t offset) {
+            seekFromBegin(position() + offset);
+        }
+
+        Reader Reader::subReaderFromBegin(const size_t position, const size_t length) const {
+            return Reader(m_source->subSource(position, length));
+        }
+
+        Reader Reader::subReaderFromBegin(const size_t position) const {
+            return subReaderFromBegin(position, size() - position);
+        }
+
+        BufferedReader Reader::buffer() const {
+            auto [begin, end, buffer] = m_source->buffer();
+            return BufferedReader(begin, end, std::move(buffer));
+        }
+
+        bool Reader::canRead(const size_t readSize) const {
+            return m_source->canRead(readSize);
+        }
+
+        void Reader::read(unsigned char* val, const size_t size) {
+            read(reinterpret_cast<char*>(val), size);
+        }
+
+        void Reader::read(char* val, const size_t size) {
+            m_source->read(val, size);
+        }
+
+        String Reader::readString(const size_t size) {
+            std::vector<char> buffer;
+            buffer.resize(size + 1);
+            buffer[size] = 0;
+            read(buffer.data(), size);
+            return String(buffer.data());
+        }
+
+        BufferedReader::BufferedReader(const char* begin, const char* end, std::unique_ptr<char[]> buffer) :
+        Reader(std::make_unique<BufferSource>(begin, end)),
+        m_buffer(std::move(buffer)) {}
+
+        const char* BufferedReader::begin() const {
+            // This cast is safe since this reader can only host a buffer source!
+            const auto* bufferSource = static_cast<const BufferSource*>(m_source.get());
+            return bufferSource->begin();
+        }
+
+        const char* BufferedReader::end() const {
+            // This cast is safe since this reader can only host a buffer source!
+            const auto* bufferSource = static_cast<const BufferSource*>(m_source.get());
+            return bufferSource->end();
+        }
+    }
+}
