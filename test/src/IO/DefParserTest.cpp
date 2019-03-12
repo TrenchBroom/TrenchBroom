@@ -27,6 +27,7 @@
 #include "Model/ModelTypes.h"
 #include "IO/DefParser.h"
 #include "IO/DiskIO.h"
+#include "IO/File.h"
 #include "IO/Path.h"
 #include "IO/TestParserStatus.h"
 #include "TestUtils.h"
@@ -38,9 +39,10 @@ namespace TrenchBroom {
             const Path::List cfgFiles = Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("def"));
 
             for (const Path& path : cfgFiles) {
-                MappedFile::Ptr file = Disk::openFile(path);
+                auto file = Disk::openFile(path);
+                auto reader = file->reader().buffer();
                 const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-                DefParser parser(file->begin(), file->end(), defaultColor);
+                DefParser parser(std::begin(reader), std::end(reader), defaultColor);
 
                 TestParserStatus status;
                 ASSERT_NO_THROW(parser.parseDefinitions(status)) << "Parsing DEF file " << path.asString() << " failed";
@@ -56,9 +58,10 @@ namespace TrenchBroom {
             });
 
             for (const Path& path : cfgFiles) {
-                MappedFile::Ptr file = Disk::openFile(path);
+                auto file = Disk::openFile(path);
+                auto reader = file->reader().buffer();
                 const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-                DefParser parser(file->begin(), file->end(), defaultColor);
+                DefParser parser(std::begin(reader), std::end(reader), defaultColor);
 
                 TestParserStatus status;
                 ASSERT_NO_THROW(parser.parseDefinitions(status));

@@ -22,8 +22,9 @@
 #include "Logger.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
-#include "IO/MappedFile.h"
+#include "IO/File.h"
 #include "IO/MdlParser.h"
+#include "IO/Reader.h"
 #include "Model/Entity.h"
 #include "Assets/EntityModel.h"
 #include "Assets/Palette.h"
@@ -37,10 +38,11 @@ namespace TrenchBroom {
             const Assets::Palette palette = Assets::Palette::loadFile(fs, Path("fixture/test/palette.lmp"));
 
             const auto mdlPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/IO/Mdl/armor.mdl");
-            const MappedFile::Ptr mdlFile = Disk::openFile(mdlPath);
+            const auto mdlFile = Disk::openFile(mdlPath);
             ASSERT_NE(nullptr, mdlFile);
 
-            auto parser = MdlParser("armor", mdlFile->begin(), mdlFile->end(), palette);
+            auto reader = mdlFile->reader().buffer();
+            auto parser = MdlParser("armor", std::begin(reader), std::end(reader), palette);
             auto model = parser.initializeModel(logger);
             parser.loadFrame(0, *model, logger);
 
@@ -61,10 +63,11 @@ namespace TrenchBroom {
             const Assets::Palette palette = Assets::Palette::loadFile(fs, Path("fixture/test/palette.lmp"));
 
             const auto mdlPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/IO/Mdl/invalid.mdl");
-            const MappedFile::Ptr mdlFile = Disk::openFile(mdlPath);
+            const auto mdlFile = Disk::openFile(mdlPath);
             ASSERT_NE(nullptr, mdlFile);
 
-            auto parser = MdlParser("armor", mdlFile->begin(), mdlFile->end(), palette);
+            auto reader = mdlFile->reader().buffer();
+            auto parser = MdlParser("armor", std::begin(reader), std::end(reader), palette);
             EXPECT_THROW(parser.initializeModel(logger), AssetException);
         }
     }

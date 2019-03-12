@@ -25,10 +25,11 @@
 #include "Assets/EntityModel.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
-#include "IO/MappedFile.h"
+#include "IO/File.h"
 #include "IO/Md3Parser.h"
 #include "IO/Path.h"
 #include "IO/Quake3ShaderFileSystem.h"
+#include "IO/Reader.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/bbox.h>
@@ -48,7 +49,8 @@ namespace TrenchBroom {
             const auto md3File = fs->openFile(md3Path);
             ASSERT_NE(nullptr, md3File);
 
-            auto parser = Md3Parser("bfg", md3File->begin(), md3File->end(), *fs);
+            auto reader = md3File->reader().buffer();
+            auto parser = Md3Parser("bfg", std::begin(reader), std::end(reader), *fs);
             auto model = std::unique_ptr<Assets::EntityModel>(parser.initializeModel(logger));
             ASSERT_NE(nullptr, model);
 
