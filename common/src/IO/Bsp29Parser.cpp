@@ -22,6 +22,7 @@
 #include <Assets/EntityModel.h>
 #include "Assets/Texture.h"
 #include "Assets/Palette.h"
+#include "IO/File.h"
 #include "IO/Reader.h"
 #include "IO/IdMipTextureReader.h"
 #include "Renderer/TexturedIndexRangeMap.h"
@@ -158,11 +159,11 @@ namespace TrenchBroom {
                     continue;
                 }
 
-                auto subReader = reader.subReaderFromBegin(static_cast<size_t>(textureOffset));
+                auto subReader = reader.subReaderFromBegin(static_cast<size_t>(textureOffset)).buffer();
 
                 // We can't easily tell where the texture ends without duplicating all of the parsing code (including HlMip) here.
                 // Just prevent the texture reader from reading past the end of the .bsp file.
-                auto fileView = std::make_shared<MappedFileBufferView>(Path(), subReader.begin(), subReader.end());
+                auto fileView = std::make_shared<NonOwningBufferFile>(Path(), subReader.begin(), subReader.end());
                 result[i] = textureReader.readTexture(fileView);
             }
 

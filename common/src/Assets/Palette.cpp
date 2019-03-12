@@ -104,9 +104,10 @@ namespace TrenchBroom {
             return Palette(size, std::move(data));
         }
 
-        Palette Palette::fromRaw(const size_t size, const unsigned char* data) {
+        Palette Palette::fromRaw(IO::Reader& reader) {
+            const auto size = reader.size();
             auto copy = std::make_unique<unsigned char[]>(size);
-            std::memcpy(copy.get(), data, size);
+            reader.read(copy.get(), size);
             return Palette(size, std::move(copy));
         }
 

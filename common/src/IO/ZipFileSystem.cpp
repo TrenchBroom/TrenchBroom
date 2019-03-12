@@ -53,7 +53,7 @@ namespace TrenchBroom {
                 throw FileSystemException("mz_zip_reader_extract_to_mem failed for " + path.asString());
             }
 
-            return std::make_shared<BufferFile>(path, std::move(data), uncompressedSize);
+            return std::make_shared<OwningBufferFile>(path, std::move(data), uncompressedSize);
         }
 
         // ZipFileSystem
@@ -74,7 +74,7 @@ namespace TrenchBroom {
             mz_zip_zero_struct(&m_archive);
 
             if (mz_zip_reader_init_cfile(&m_archive, m_file->file(), m_file->size(), 0) != MZ_TRUE) {
-                throw FileSystemException("Error calling mz_zip_reader_init_mem");
+                throw FileSystemException("Error calling mz_zip_reader_init_cfile");
             }
 
             const mz_uint numFiles = mz_zip_reader_get_num_files(&m_archive);

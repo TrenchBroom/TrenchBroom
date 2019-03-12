@@ -52,7 +52,7 @@ namespace TrenchBroom {
         }
 
         void Reader::Source::ensurePosition(const size_t position) const {
-            if (position >= size()) {
+            if (position > size()) {
                 throw ReaderException() << "Position is out of bounds";
             }
         }
@@ -70,7 +70,10 @@ namespace TrenchBroom {
         m_file(file),
         m_offset(offset),
         m_length(length),
-        m_position(m_offset) {}
+        m_position(m_offset) {
+            assert(m_file != nullptr);
+            std::rewind(m_file);
+        }
 
 
         size_t Reader::FileSource::doGetSize() const {
@@ -88,15 +91,15 @@ namespace TrenchBroom {
 
             const auto pos = std::ftell(m_file);
             if (pos < 0) {
-                throw ReaderException("ftell failed");
+                throwError("ftell failed");
             }
             if (static_cast<size_t>(pos) != m_offset + m_position) {
                 if (std::fseek(m_file, static_cast<long>(m_offset + m_position), SEEK_SET) != 0) {
-                    throw ReaderException("fseek failed");
+                    throwError("fseek failed");
                 }
             }
             if (std::fread(val, 1, size, m_file) != size) {
-                throw ReaderException("fread failed");
+                throwError("fread failed");
             }
             m_position += size;
         }
@@ -110,18 +113,29 @@ namespace TrenchBroom {
         }
 
         std::tuple<const char*, const char*, std::unique_ptr<char[]>> Reader::FileSource::doBuffer() const {
+            std::fseek(m_file, static_cast<long>(m_offset), SEEK_SET);
+
             auto buffer = std::make_unique<char[]>(m_length);
-            if (std::fread(buffer.get(), 1, m_length, m_file) != m_length) {
-                throw ReaderException("fread failed");
+            const auto read = std::fread(buffer.get(), 1, m_length, m_file);
+            if (read != m_length) {
+                throwError("fread failed");
             }
 
             if (std::fseek(m_file, static_cast<long>(m_offset + m_position), SEEK_SET) != 0) {
-                throw ReaderException("fseek failed");
+                throwError("fseek failed");
             }
 
             const char* begin = buffer.get();
             const char* end = begin + m_length;
             return std::make_tuple(begin, end, std::move(buffer));
+        }
+
+        void Reader::FileSource::throwError(const String& msg) const {
+            if (std::feof(m_file)) {
+                throw ReaderException() << msg << ": unexpected end of file";
+            } else {
+                throw ReaderException() << msg << ": " << std::strerror(errno);
+            }
         }
 
         Reader::BufferSource::BufferSource(const char* begin, const char* end) :
@@ -203,12 +217,27 @@ namespace TrenchBroom {
             seekFromBegin(position() + offset);
         }
 
+        void Reader::seekBackward(const size_t offset) {
+            if (offset > position()) {
+                throw ReaderException() << "Position is out of bounds";
+            }
+            seekFromBegin(position() - offset);
+        }
+
         Reader Reader::subReaderFromBegin(const size_t position, const size_t length) const {
             return Reader(m_source->subSource(position, length));
         }
 
         Reader Reader::subReaderFromBegin(const size_t position) const {
             return subReaderFromBegin(position, size() - position);
+        }
+
+        Reader Reader::subReaderFromCurrent(const size_t offset, const size_t length) const {
+            return subReaderFromBegin(position() + offset, length);
+        }
+
+        Reader Reader::subReaderFromCurrent(const size_t length) const {
+            return subReaderFromCurrent(0, length);
         }
 
         BufferedReader Reader::buffer() const {

@@ -21,7 +21,6 @@
 #define TextureCollectionLoader_h
 
 #include "StringUtils.h"
-#include "IO/MappedFile.h"
 #include "IO/Path.h"
 
 #include <memory>
@@ -37,10 +36,13 @@ namespace TrenchBroom {
         
     }
     namespace IO {
+        class File;
         class FileSystem;
         class TextureReader;
 
         class TextureCollectionLoader {
+        protected:
+            using FileList = std::vector<std::shared_ptr<File>>;
         protected:
             Logger& m_logger;
         protected:
@@ -50,7 +52,7 @@ namespace TrenchBroom {
         public:
             std::unique_ptr<Assets::TextureCollection> loadTextureCollection(const Path& path, const StringList& textureExtensions, const TextureReader& textureReader);
         private:
-            virtual MappedFile::List doFindTextures(const Path& path, const StringList& extensions) = 0;
+            virtual FileList doFindTextures(const Path& path, const StringList& extensions) = 0;
         };
         
         class FileTextureCollectionLoader : public TextureCollectionLoader {
@@ -59,7 +61,7 @@ namespace TrenchBroom {
         public:
             FileTextureCollectionLoader(Logger& logger, const Path::List& searchPaths);
         private:
-            MappedFile::List doFindTextures(const Path& path, const StringList& extensions) override;
+            FileList doFindTextures(const Path& path, const StringList& extensions) override;
         };
         
         class DirectoryTextureCollectionLoader : public TextureCollectionLoader {
@@ -68,7 +70,7 @@ namespace TrenchBroom {
         public:
             DirectoryTextureCollectionLoader(Logger& logger, const FileSystem& gameFS);
         private:
-            MappedFile::List doFindTextures(const Path& path, const StringList& extensions) override;
+            FileList doFindTextures(const Path& path, const StringList& extensions) override;
         };
     }
 }

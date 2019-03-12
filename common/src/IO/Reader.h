@@ -156,6 +156,8 @@ namespace TrenchBroom {
                 void doSeek(size_t position) override;
                 std::unique_ptr<Source> doGetSubSource(size_t position, size_t length) const override;
                 std::tuple<const char*, const char*, std::unique_ptr<char[]>> doBuffer() const override;
+            private:
+                void throwError(const String& msg) const;
             };
         protected:
             /**
@@ -259,11 +261,18 @@ namespace TrenchBroom {
             void seekFromEnd(size_t offset);
 
             /**
-             * Seeks to the given position relative to the current position of the reader source.
+             * Forward seeks to the given position relative to the current position of the reader source.
              *
              * @throw ReaderException if the given position is out of bounds
              */
             void seekForward(size_t offset);
+
+            /**
+             * Backward seeks to the given position relative to the current position of the reader source.
+             *
+             * @throw ReaderException if the given position is out of bounds
+             */
+            void seekBackward(size_t offset);
 
             /**
              * Returns a reader for the given sub region of this reader's source.
@@ -286,6 +295,29 @@ namespace TrenchBroom {
              * @throw ReaderException if the given sub region is out of bounds
              */
             Reader subReaderFromBegin(size_t position) const;
+
+            /**
+             * Returns a reader for a sub region of this reader's source that starts at the current position and that
+             * has the given length
+             *
+             * @param length the length of the sub region
+             * @return the reader for the given sub region
+             *
+             * @throw ReaderException if the given sub region is out of bounds
+             */
+            Reader subReaderFromCurrent(size_t length) const;
+
+            /**
+             * Returns a reader for a sub region of this reader's source that starts at the given offset to the current
+             * position and that has the given length
+             *
+             * @param offset the offset of the sub region, relative to the current position
+             * @param length the length of the sub region
+             * @return the reader for the given sub region
+             *
+             * @throw ReaderException if the given sub region is out of bounds
+             */
+            Reader subReaderFromCurrent(size_t offset, size_t length) const;
 
             /**
              * Buffers the contents of this reader's source if necessary and returns a buffered reader that manages

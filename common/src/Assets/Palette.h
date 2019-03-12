@@ -126,7 +126,7 @@ namespace TrenchBroom {
             static Palette loadLmp(IO::Reader& reader);
             static Palette loadPcx(IO::Reader& reader);
             static Palette loadBmp(IO::Reader& reader);
-            static Palette fromRaw(size_t size, const unsigned char* data);
+            static Palette fromRaw(IO::Reader& reader);
 
             bool initialized() const;
 

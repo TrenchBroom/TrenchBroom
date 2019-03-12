@@ -21,7 +21,7 @@
 
 #include "Assets/Texture.h"
 #include "Assets/Palette.h"
-#include "IO/CharArrayReader.h"
+#include "IO/Reader.h"
 #include "Renderer/IndexRangeMapBuilder.h"
 
 namespace TrenchBroom {
@@ -215,7 +215,7 @@ namespace TrenchBroom {
         }
 
         std::unique_ptr<Assets::EntityModel> MdlParser::doInitializeModel(Logger& logger) {
-            CharArrayReader reader(m_begin, m_end);
+            auto reader = Reader::from(m_begin, m_end);
 
             const auto ident = reader.readInt<int32_t>();
             const auto version = reader.readInt<int32_t>();
@@ -251,7 +251,7 @@ namespace TrenchBroom {
         }
 
         void MdlParser::doLoadFrame(const size_t frameIndex, Assets::EntityModel& model, Logger& logger) {
-            CharArrayReader reader(m_begin, m_end);
+            auto reader = Reader::from(m_begin, m_end);
 
             const auto ident = reader.readInt<int32_t>();
             const auto version = reader.readInt<int32_t>();
@@ -287,7 +287,7 @@ namespace TrenchBroom {
             parseFrame(reader, model, frameIndex, surface, triangles, vertices, skinWidth, skinHeight, origin, scale);
         }
 
-        void MdlParser::parseSkins(CharArrayReader& reader, Assets::EntityModel::Surface& surface, const size_t count, const size_t width, const size_t height, const int flags) {
+        void MdlParser::parseSkins(Reader& reader, Assets::EntityModel::Surface& surface, const size_t count, const size_t width, const size_t height, const int flags) {
             const auto size = width * height;
             const auto transparency = (flags & MF_HOLEY)
                     ? Assets::PaletteTransparency::Index255Transparent
@@ -302,8 +302,7 @@ namespace TrenchBroom {
                 const auto skinGroup = reader.readSize<int32_t>();
                 if (skinGroup == 0) {
                     Buffer<unsigned char> rgbaImage(size * 4);
-                    m_palette.indexedToRgba(reader.cur(), size, rgbaImage, transparency, avgColor);
-                    reader.seekForward(size);
+                    m_palette.indexedToRgba(reader, size, rgbaImage, transparency, avgColor);
 
                     textureName << m_name << "_" << i;
 
@@ -314,8 +313,8 @@ namespace TrenchBroom {
                     Buffer<unsigned char> rgbaImage(size * 4);
                     reader.seekForward(pictureCount * 4); // skip the picture times
 
-                    m_palette.indexedToRgba(reader.cur(), size, rgbaImage, transparency, avgColor);
-                    reader.seekForward(pictureCount * size);  // skip all pictures
+                    m_palette.indexedToRgba(reader, size, rgbaImage, transparency, avgColor);
+                    reader.seekForward((pictureCount - 1) * size);  // skip all remaining pictures
 
                     textureName << m_name << "_" << i;
 
@@ -324,7 +323,7 @@ namespace TrenchBroom {
             }
         }
 
-        void MdlParser::skipSkins(CharArrayReader& reader, const size_t count, const size_t width, const size_t height, const int flags) {
+        void MdlParser::skipSkins(Reader& reader, const size_t count, const size_t width, const size_t height, const int flags) {
             const auto size = width * height;
 
             for (size_t i = 0; i < count; ++i) {
@@ -340,7 +339,7 @@ namespace TrenchBroom {
             }
         }
 
-        MdlParser::MdlSkinVertexList MdlParser::parseVertices(CharArrayReader& reader, size_t count) {
+        MdlParser::MdlSkinVertexList MdlParser::parseVertices(Reader& reader, size_t count) {
             MdlSkinVertexList vertices(count);
             for (size_t i = 0; i < count; ++i) {
                 vertices[i].onseam = reader.readBool<int32_t>();
@@ -350,7 +349,7 @@ namespace TrenchBroom {
             return vertices;
         }
 
-        MdlParser::MdlSkinTriangleList MdlParser::parseTriangles(CharArrayReader& reader, size_t count) {
+        MdlParser::MdlSkinTriangleList MdlParser::parseTriangles(Reader& reader, size_t count) {
             MdlSkinTriangleList triangles(count);
             for (size_t i = 0; i < count; ++i) {
                 triangles[i].front = reader.readBool<int32_t>();
@@ -361,7 +360,7 @@ namespace TrenchBroom {
             return triangles;
         }
 
-        void MdlParser::skipFrames(CharArrayReader& reader, const size_t count, size_t vertexCount) {
+        void MdlParser::skipFrames(Reader& reader, const size_t count, size_t vertexCount) {
             const auto frameLength = MdlLayout::SimpleFrameName + MdlLayout::SimpleFrameLength + vertexCount * 4;
 
             for (size_t i = 0; i < count; ++i) {
@@ -380,12 +379,12 @@ namespace TrenchBroom {
             }
         }
 
-        void MdlParser::parseFrame(CharArrayReader reader, Assets::EntityModel& model, size_t frameIndex, Assets::EntityModel::Surface& surface, const MdlSkinTriangleList& triangles, const MdlSkinVertexList& vertices, size_t skinWidth, size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale) {
+        void MdlParser::parseFrame(Reader& reader, Assets::EntityModel& model, size_t frameIndex, Assets::EntityModel::Surface& surface, const MdlSkinTriangleList& triangles, const MdlSkinVertexList& vertices, size_t skinWidth, size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale) {
             const auto frameLength = MdlLayout::SimpleFrameName + MdlLayout::SimpleFrameLength + vertices.size() * 4;
 
             const auto type = reader.readInt<int32_t>();
             if (type == 0) { // single frame
-                doParseFrame(reader.subReaderFromCurrent(0, frameLength), model, frameIndex, surface, triangles, vertices, skinWidth, skinHeight, origin, scale);
+                doParseFrame(reader.subReaderFromCurrent(frameLength), model, frameIndex, surface, triangles, vertices, skinWidth, skinHeight, origin, scale);
             } else { // frame group, but we only read the first frame
                 const auto groupFrameCount = reader.readSize<int32_t>();
                 reader.seekBackward(sizeof(int32_t));
@@ -395,7 +394,7 @@ namespace TrenchBroom {
             }
         }
 
-        void MdlParser::doParseFrame(CharArrayReader reader, Assets::EntityModel& model, size_t frameIndex, Assets::EntityModel::Surface& surface, const MdlSkinTriangleList& triangles, const MdlSkinVertexList& vertices, const size_t skinWidth, const size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale) {
+        void MdlParser::doParseFrame(Reader reader, Assets::EntityModel& model, size_t frameIndex, Assets::EntityModel::Surface& surface, const MdlSkinTriangleList& triangles, const MdlSkinVertexList& vertices, const size_t skinWidth, const size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale) {
             using Vertex = Assets::EntityModel::Vertex;
             using VertexList = Vertex::List;
 

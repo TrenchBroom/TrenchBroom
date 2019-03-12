@@ -48,7 +48,7 @@ namespace TrenchBroom {
 
         std::shared_ptr<File> ImageFileSystemBase::CompressedFileEntry::doOpen() const {
             auto data = decompress(m_file, m_uncompressedSize);
-            return std::make_shared<BufferFile>(m_file->path(), std::move(data), m_uncompressedSize);
+            return std::make_shared<OwningBufferFile>(m_file->path(), std::move(data), m_uncompressedSize);
         }
 
         ImageFileSystemBase::Directory::Directory(const Path& path) :
@@ -201,6 +201,8 @@ namespace TrenchBroom {
 
         ImageFileSystem::ImageFileSystem(std::shared_ptr<FileSystem> next, const Path& path) :
         ImageFileSystemBase(std::move(next), path),
-        m_file(std::make_shared<CFile>(path)) {}
+        m_file(std::make_shared<CFile>(path)) {
+            ensure(m_path.isAbsolute(), "path must be absolute");
+        }
     }
 }

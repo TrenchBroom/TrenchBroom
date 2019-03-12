@@ -22,10 +22,9 @@
 #include "Exceptions.h"
 #include "Assets/Texture.h"
 #include "Assets/Palette.h"
-#include "IO/CharArrayReader.h"
+#include "IO/Reader.h"
 #include "IO/FileSystem.h"
 #include "IO/ImageLoader.h"
-#include "IO/MappedFile.h"
 #include "IO/Path.h"
 #include "IO/SkinLoader.h"
 #include "Renderer/IndexRangeMap.h"
@@ -231,7 +230,7 @@ namespace TrenchBroom {
 
         // http://tfc.duke.free.fr/old/models/md2.htm
         std::unique_ptr<Assets::EntityModel> Md2Parser::doInitializeModel(Logger& logger) {
-            CharArrayReader reader(m_begin, m_end);
+            auto reader = Reader::from(m_begin, m_end);
             const int ident = reader.readInt<int32_t>();
             const int version = reader.readInt<int32_t>();
 
@@ -267,7 +266,7 @@ namespace TrenchBroom {
         }
 
         void Md2Parser::doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) {
-            CharArrayReader reader(m_begin, m_end);
+            auto reader = Reader::from(m_begin, m_end);
             const auto ident = reader.readInt<int32_t>();
             const auto version = reader.readInt<int32_t>();
 
@@ -303,7 +302,7 @@ namespace TrenchBroom {
             buildFrame(model, surface, frameIndex, frame, meshes);
         }
 
-        Md2Parser::Md2SkinList Md2Parser::parseSkins(CharArrayReader reader, const size_t skinCount) {
+        Md2Parser::Md2SkinList Md2Parser::parseSkins(Reader reader, const size_t skinCount) {
             Md2SkinList skins;
             skins.reserve(skinCount);
             for (size_t i = 0; i < skinCount; ++i) {
@@ -312,7 +311,7 @@ namespace TrenchBroom {
             return skins;
         }
 
-        Md2Parser::Md2Frame Md2Parser::parseFrame(CharArrayReader reader, const size_t frameIndex, const size_t vertexCount) {
+        Md2Parser::Md2Frame Md2Parser::parseFrame(Reader reader, const size_t frameIndex, const size_t vertexCount) {
             auto frame = Md2Frame(vertexCount);
             frame.scale = reader.readVec<float,3>();
             frame.offset = reader.readVec<float,3>();
@@ -328,7 +327,7 @@ namespace TrenchBroom {
             return frame;
         }
 
-        Md2Parser::Md2MeshList Md2Parser::parseMeshes(CharArrayReader reader, const size_t commandCount) {
+        Md2Parser::Md2MeshList Md2Parser::parseMeshes(Reader reader, const size_t commandCount) {
             Md2MeshList meshes;
 
             while (!reader.eof()) {

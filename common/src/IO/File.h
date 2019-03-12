@@ -43,12 +43,23 @@ namespace TrenchBroom {
             virtual size_t size() const = 0;
         };
 
-        class BufferFile : public File {
+        class OwningBufferFile : public File {
         private:
             std::unique_ptr<char[]> m_buffer;
             size_t m_size;
         public:
-            BufferFile(const Path& path, std::unique_ptr<char[]> buffer, size_t size);
+            OwningBufferFile(const Path& path, std::unique_ptr<char[]> buffer, size_t size);
+
+            Reader reader() const override;
+            size_t size() const override;
+        };
+
+        class NonOwningBufferFile : public File {
+        private:
+            const char* m_begin;
+            const char* m_end;
+        public:
+            NonOwningBufferFile(const Path& path, const char* begin, const char* end);
 
             Reader reader() const override;
             size_t size() const override;
@@ -96,7 +107,8 @@ namespace TrenchBroom {
             }
 
             Reader reader() const override {
-                return Reader::from(&m_object, &m_object + size());
+                const auto addr = reinterpret_cast<const char*>(&m_object);
+                return Reader::from(addr, addr + size());
             }
 
             size_t size() const override {

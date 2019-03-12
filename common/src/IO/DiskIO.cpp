@@ -140,13 +140,7 @@ namespace TrenchBroom {
                     throw FileNotFoundException("File not found: '" + fixedPath.asString() + "'");
                 }
 
-                auto* file = std::fopen(fixedPath.asString().c_str(), "r");
-                if (file == nullptr) {
-                    throw FileSystemException("Cannot open file file: '" + fixedPath.asString() + "'");
-                }
-
-                return std::make_shared<CFile>(fixedPath, file);
-                return openMappedFile(fixedPath, std::ios::in);
+                return std::make_shared<CFile>(fixedPath);
             }
             
             Path getCurrentWorkingDir() {

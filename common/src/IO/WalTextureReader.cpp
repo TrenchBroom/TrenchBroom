@@ -99,9 +99,9 @@ namespace TrenchBroom {
             Assets::setMipBufferSize(buffers, mipLevels, width, height, GL_RGBA);
 
             reader.seekForward(32 + 2 * sizeof(uint32_t)); // animation name, flags, contents
-            assert(reader.canRead(3 * 256));
 
-            const auto embeddedPalette = Assets::Palette::fromRaw(3 * 256, reader.cur<unsigned char>());
+            auto paletteReader = reader.subReaderFromCurrent(3 * 256);
+            const auto embeddedPalette = Assets::Palette::fromRaw(paletteReader);
             const auto hasTransparency = readMips(embeddedPalette, mipLevels, offsets, width, height, reader, buffers, averageColor, Assets::PaletteTransparency::Index255Transparent);
             return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers, GL_RGBA, hasTransparency ? Assets::TextureType::Masked : Assets::TextureType::Opaque);
         }
@@ -132,7 +132,6 @@ namespace TrenchBroom {
                 const auto curWidth = width / (1 << i);
                 const auto curHeight = height / (1 << i);
                 const auto size = curWidth * curHeight;
-                const auto* data = reader.cur<char>();
 
                 // FIXME: Confirm this is actually happening because of bad data and not a bug.
                 // FIXME: Corrupt or missing mips should be deleted, rather than uploaded with garbage.
@@ -141,7 +140,7 @@ namespace TrenchBroom {
                     return false;
                 }
 
-                hasTransparency |= (palette.indexedToRgba(data, size, buffers[i], transparency, tempColor) && i == 0);
+                hasTransparency |= (palette.indexedToRgba(reader, size, buffers[i], transparency, tempColor) && i == 0);
                 if (i == 0) {
                     averageColor = tempColor;
                 }

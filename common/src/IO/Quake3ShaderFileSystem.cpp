@@ -53,8 +53,9 @@ namespace TrenchBroom {
                     // m_logger.debug() << "Loading shader " << path.asString();
 
                     const auto file = next().openFile(path);
+                    auto bufferedReader = file->reader().buffer();
 
-                    Quake3ShaderParser parser(file->begin(), file->end());
+                    Quake3ShaderParser parser(std::begin(bufferedReader), std::end(bufferedReader));
                     SimpleParserStatus status(m_logger, file->path().asString());
                     VectorUtils::append(result, parser.parse(status));
                 }
@@ -94,7 +95,7 @@ namespace TrenchBroom {
                         // Found a matching shader.
                         auto& shader = *shaderIt;
 
-                        auto shaderFile = std::make_shared<ObjectFile<Assets::Quake3Shader>>(shader, shaderPath);
+                        auto shaderFile = std::make_shared<ObjectFile<Assets::Quake3Shader>>(shaderPath, shader);
                         m_root.addFile(shaderPath, shaderFile);
 
                         // Remove the shader so that we don't revisit it when linking standalone shaders.
@@ -107,8 +108,8 @@ namespace TrenchBroom {
 
                         // m_logger.debug() << "Generating shader " << shaderPath << " -> " << shader.qerImagePath();
 
-                        auto shaderFile = std::make_shared<ObjectFile2<Assets::Quake3Shader>>(std::move(shader), shaderPath);
-                        m_root.addFile(shaderPath, std::make_unique<SimpleFileEntry>(std::move(shaderFile)));
+                        auto shaderFile = std::make_shared<ObjectFile<Assets::Quake3Shader>>(shaderPath, std::move(shader));
+                        m_root.addFile(shaderPath, std::move(shaderFile));
                     }
                 }
             }
@@ -118,8 +119,8 @@ namespace TrenchBroom {
             m_logger.debug() << "Linking standalone shaders...";
             for (auto& shader : shaders) {
                 const auto& shaderPath = shader.shaderPath;
-                auto shaderFile = std::make_shared<ObjectFile2<Assets::Quake3Shader>>(shader, shaderPath);
-                m_root.addFile(shaderPath, std::make_unique<SimpleFileEntry>(std::move(shaderFile)));
+                auto shaderFile = std::make_shared<ObjectFile<Assets::Quake3Shader>>(shaderPath, shader);
+                m_root.addFile(shaderPath, std::move(shaderFile));
             }
         }
     }

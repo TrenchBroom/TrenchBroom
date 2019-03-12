@@ -22,12 +22,14 @@
 
 #include "IO/FileSystem.h"
 
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
     class Logger;
 
     namespace IO {
+        class File;
         class FileSystem;
         class Path;
         class Quake3ShaderFileSystem;
@@ -53,7 +55,7 @@ namespace TrenchBroom {
             bool doDirectoryExists(const IO::Path& path) const override;
             bool doFileExists(const IO::Path& path) const override;
             IO::Path::List doGetDirectoryContents(const IO::Path& path) const override;
-            const IO::MappedFile::Ptr doOpenFile(const IO::Path& path) const override;
+            std::shared_ptr<IO::File> doOpenFile(const IO::Path& path) const override;
         };
     }
 }

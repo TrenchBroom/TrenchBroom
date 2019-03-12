@@ -75,7 +75,7 @@ namespace TrenchBroom {
                 throw FileSystemException("ftell failed");
             }
 
-            if (std::fseek(file, pos, SEEK_END) != 0) {
+            if (std::fseek(file, pos, SEEK_SET) != 0) {
                 throw FileSystemException("fseek failed");
             }
 

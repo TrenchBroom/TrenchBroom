@@ -32,17 +32,34 @@ namespace TrenchBroom {
             return m_path;
         }
 
-        BufferFile::BufferFile(const Path& path, std::unique_ptr<char[]> buffer, const size_t size) :
+        OwningBufferFile::OwningBufferFile(const Path& path, std::unique_ptr<char[]> buffer, const size_t size) :
         File(path),
         m_buffer(std::move(buffer)),
         m_size(size) {}
 
-        Reader BufferFile::reader() const {
+        Reader OwningBufferFile::reader() const {
             return Reader::from(m_buffer.get(), m_buffer.get() + m_size);
         }
 
-        size_t BufferFile::size() const {
-            return 0;
+        size_t OwningBufferFile::size() const {
+            return m_size;
+        }
+
+        NonOwningBufferFile::NonOwningBufferFile(const Path& path, const char* begin, const char* end) :
+        File(path),
+        m_begin(begin),
+        m_end(end) {
+            if (m_end < m_begin) {
+                throw FileSystemException() << "Invalid buffer";
+            }
+        }
+
+        Reader NonOwningBufferFile::reader() const {
+            return Reader::from(m_begin, m_end);
+        }
+
+        size_t NonOwningBufferFile::size() const {
+            return static_cast<size_t>(m_end - m_begin);
         }
 
         CFile::CFile(const Path& path) :
@@ -65,7 +82,7 @@ namespace TrenchBroom {
         }
 
         size_t CFile::size() const {
-            return 0;
+            return m_size;
         }
 
         std::FILE* CFile::file() const {

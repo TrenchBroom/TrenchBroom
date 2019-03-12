@@ -21,6 +21,7 @@
 
 #include "Assets/Quake3Shader.h"
 #include "Assets/Texture.h"
+#include "IO/File.h"
 #include "IO/FileSystem.h"
 #include "IO/FreeImageTextureReader.h"
 #include "Renderer/GL.h"
@@ -32,7 +33,7 @@ namespace TrenchBroom {
         m_fs(fs) {}
 
         Assets::Texture* Quake3ShaderTextureReader::doReadTexture(std::shared_ptr<File> file) const {
-            const auto* shaderFile = dynamic_cast<ObjectFile2<Assets::Quake3Shader>*>(file.get());
+            const auto* shaderFile = dynamic_cast<ObjectFile<Assets::Quake3Shader>*>(file.get());
             if (shaderFile == nullptr) {
                 return nullptr;
             }
