@@ -63,6 +63,7 @@ namespace TrenchBroom {
             bool recoverFromException(const RecoverableException& e, const std::function<bool()>& op);
             void openPreferences();
             void openAbout();
+            bool initializeGameFactory();
 
 #if 0
             bool OnExceptionInMainLoop() override;

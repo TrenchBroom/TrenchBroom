@@ -30,6 +30,7 @@
 #include <QFile>
 #include <QStandardPaths>
 #include <QSysInfo>
+#include <QtDebug>
 
 #include "Macros.h"
 #include "RecoverableExceptions.h"
@@ -88,6 +89,11 @@ namespace TrenchBroom {
 
             setApplicationName("TrenchBroom");
             setOrganizationName("Kristian Duske");
+
+            if (!initializeGameFactory()) {
+                QCoreApplication::exit(1);
+                return;
+            }
 
             // these must be initialized here and not earlier
             m_frameManager = new FrameManager(useSDI());
@@ -211,8 +217,8 @@ namespace TrenchBroom {
                 return recoverFromException(e, [this](){ return this->newDocument(); });
             } catch (const Exception& e) {
                 if (frame != nullptr)
-                    frame->close();
-                ::wxMessageBox(e.what(), "TrenchBroom", wxOK, nullptr);
+                    frame->Close();
+                ::wxMessageBox(e.what(), "TrenchBroom");
                 return false;
             }
 #endif
@@ -298,7 +304,32 @@ namespace TrenchBroom {
         void TrenchBroomApp::openAbout() {
             AboutDialog::showAboutDialog();
         }
-        
+
+        bool TrenchBroomApp::initializeGameFactory() {
+            try {
+                auto& gameFactory = Model::GameFactory::instance();
+                gameFactory.initialize();
+                return true;
+            } catch (const std::exception& e) {
+                qCritical() << e.what();
+                return false;
+            } catch (const StringList& errors) {
+                StringStream str;
+                if (errors.size() == 1) {
+                    str << "An error occurred while loading the game configuration files:\n\n";
+                    str << StringUtils::join(errors, "\n\n");
+                    str << "\n\nThis file has been ignored.";
+                } else {
+                    str << "Multiple errors occurred while loading the game configuration files:\n\n";
+                    str << StringUtils::join(errors, "\n\n");
+                    str << "\n\nThese files have been ignored.";
+                }
+
+                QMessageBox::critical(nullptr, "TrenchBroom", QString::fromStdString(str.str()), QMessageBox::Ok);
+                return true;
+            }
+        }
+
         static String makeCrashReport(const String &stacktrace, const String &reason) {
             StringStream ss;
             ss << "OS:\t" << QSysInfo::prettyProductName().toStdString() << std::endl;

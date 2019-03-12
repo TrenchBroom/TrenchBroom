@@ -53,6 +53,11 @@ namespace TrenchBroom {
             return instance;
         }
 
+        void GameFactory::initialize() {
+            initializeFileSystem();
+            loadGameConfigs();
+        }
+
         const StringList& GameFactory::gameList() const {
             return m_names;
         }
@@ -136,10 +141,7 @@ namespace TrenchBroom {
             }
         }
 
-        GameFactory::GameFactory() {
-            initializeFileSystem();
-            loadGameConfigs();
-        }
+        GameFactory::GameFactory() = default;
 
         void GameFactory::initializeFileSystem() {
             const IO::Path resourceGameDir = IO::SystemPaths::findResourceDirectory(IO::Path("games"));
@@ -156,25 +158,40 @@ namespace TrenchBroom {
         }
 
         void GameFactory::loadGameConfigs() {
+            StringList errors;
+
             const auto configFiles = m_configFS->findItemsRecursively(IO::Path(""), IO::FileNameMatcher("GameConfig.cfg"));
             for (const auto& configFilePath : configFiles) {
+                try {
                 loadGameConfig(configFilePath);
+                } catch (const std::exception& e) {
+                    StringStream str;
+                    str << "Could not load game configuration file " << configFilePath << ": " << e.what();
+                    errors.push_back(str.str());
+                }
             }
 
             StringUtils::sortCaseSensitive(m_names);
+
+            if (!errors.empty()) {
+                throw errors;
+            }
         }
 
         void GameFactory::loadGameConfig(const IO::Path& path) {
-            GameConfig config;
             try {
+                doLoadGameConfig(path);
+            } catch (const RecoverableException& e) {
+                e.recover();
+                doLoadGameConfig(path);
+            }
+        }
+
+        void GameFactory::doLoadGameConfig(const IO::Path& path) {
                 const auto configFile = m_configFS->openFile(path);
                 const auto absolutePath = m_configFS->makeAbsolute(path);
                 IO::GameConfigParser parser(configFile->begin(), configFile->end(), absolutePath);
-                config = parser.parse();
-            } catch (const Exception& e) {
-                throw GameException(
-                    "Could not load game configuration '" + path.asString() + "': " + String(e.what()));
-            }
+            GameConfig config = parser.parse();
 
             loadCompilationConfig(config);
             loadGameEngineConfig(config);
