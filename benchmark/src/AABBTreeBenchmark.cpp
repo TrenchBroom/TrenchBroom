@@ -23,7 +23,9 @@
 
 #include "AABBTree.h"
 #include "IO/DiskIO.h"
+#include "IO/File.h"
 #include "IO/Path.h"
+#include "IO/Reader.h"
 #include "IO/TestParserStatus.h"
 #include "IO/WorldReader.h"
 #include "Model/Brush.h"
@@ -63,12 +65,13 @@ namespace TrenchBroom {
 
         const auto mapPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/benchmark/AABBTree/ne_ruins.map");
         const auto file = IO::Disk::openFile(mapPath);
+        auto fileReader = file->reader().buffer();
 
         IO::TestParserStatus status;
-        IO::WorldReader reader(file->begin(), file->end());
+        IO::WorldReader worldReader(std::begin(fileReader), std::end(fileReader));
 
         const vm::bbox3 worldBounds(8192);
-        auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
+        auto world = worldReader.read(Model::MapFormat::Standard, worldBounds, status);
 
         std::vector<AABB> trees(100);
         timeLambda([&world, &trees]() {
