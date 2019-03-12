@@ -73,7 +73,9 @@ namespace TrenchBroom {
         public:
             Bsp29Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette);
         private:
-            Assets::EntityModel* doParseModel(Logger& logger) override;
+            std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
+            void doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;
+
             Assets::TextureList parseTextures(Reader reader);
             TextureInfoList parseTextureInfos(Reader reader, size_t textureInfoCount);
             std::vector<vm::vec3f> parseVertices(Reader reader, size_t vertexCount);
@@ -81,7 +83,7 @@ namespace TrenchBroom {
             FaceInfoList parseFaceInfos(Reader reader, size_t faceInfoCount);
             FaceEdgeIndexList parseFaceEdges(Reader reader, size_t faceEdgeCount);
 
-            Assets::EntityModel* parseModels(Reader reader, size_t modelCount, const Assets::TextureList& skins, const TextureInfoList& textureInfos, const std::vector<vm::vec3f>& vertices, const EdgeInfoList& edgeInfos, const FaceInfoList& faceInfos, const FaceEdgeIndexList& faceEdges);
+            void parseFrame(Reader reader, size_t frameIndex, Assets::EntityModel& model, const TextureInfoList& textureInfos, const std::vector<vm::vec3f>& vertices, const EdgeInfoList& edgeInfos, const FaceInfoList& faceInfos, const FaceEdgeIndexList& faceEdges);
             vm::vec2f textureCoords(const vm::vec3f& vertex, const TextureInfo& textureInfo, const Assets::Texture* texture) const;
         };
     }

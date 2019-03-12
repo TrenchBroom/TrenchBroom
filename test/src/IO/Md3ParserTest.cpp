@@ -41,7 +41,7 @@ namespace TrenchBroom {
         TEST(Md3ParserTest, loadValidMd3) {
             NullLogger logger;
             auto searchPaths = Path::List { Path("models") };
-            std::shared_ptr<FileSystem> fs = std::make_shared<DiskFileSystem>(IO::Disk::getCurrentWorkingDir() + Path("data/IO/Md3"));
+            std::shared_ptr<FileSystem> fs = std::make_shared<DiskFileSystem>(IO::Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Md3"));
                                         fs = std::make_shared<Quake3ShaderFileSystem>(fs, searchPaths, logger);
 
             const auto md3Path = IO::Path("models/weapons2/bfg/bfg.md3");
@@ -49,11 +49,13 @@ namespace TrenchBroom {
             ASSERT_NE(nullptr, md3File);
 
             auto parser = Md3Parser("bfg", md3File->begin(), md3File->end(), *fs);
-            auto model = std::unique_ptr<Assets::EntityModel>(parser.parseModel(logger));
+            auto model = std::unique_ptr<Assets::EntityModel>(parser.initializeModel(logger));
             ASSERT_NE(nullptr, model);
 
             ASSERT_EQ(1u, model->frameCount());
             ASSERT_EQ(2u, model->surfaceCount());
+
+            parser.loadFrame(0, *model, logger);
 
             const auto* frame = model->frame("MilkShape 3D");
             ASSERT_NE(nullptr, frame);

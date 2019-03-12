@@ -19,6 +19,7 @@
 
 #include "Entity.h"
 
+#include "Assets/EntityModel.h"
 #include "Model/TagMatcher.h"
 #include "Model/BoundsContainsNodeVisitor.h"
 #include "Model/BoundsIntersectsNodeVisitor.h"
@@ -50,7 +51,8 @@ namespace TrenchBroom {
         Entity::Entity() :
         AttributableNode(),
         Object(),
-        m_boundsValid(false) {
+        m_boundsValid(false),
+        m_modelFrame(nullptr) {
             cacheAttributes();
         }
 
@@ -78,12 +80,24 @@ namespace TrenchBroom {
             return hasPointEntityDefinition();
         }
 
+        vm::bbox3 Entity::totalBounds() const {
+            if (m_modelFrame == nullptr) {
+                return bounds();
+            } else {
+                return vm::merge(bounds(), modelBounds());
+            }
+        }
+
         const vm::vec3& Entity::origin() const {
             return m_cachedOrigin;
         }
 
         const vm::mat4x4& Entity::rotation() const {
             return m_cachedRotation;
+        }
+
+        const vm::mat4x4 Entity::modelTransformation() const {
+            return vm::translationMatrix(origin()) * rotation();
         }
 
         FloatType Entity::area(vm::axis::type axis) const {
@@ -123,6 +137,24 @@ namespace TrenchBroom {
             return pointDefinition->model(m_attributes);
         }
 
+        vm::bbox3 Entity::modelBounds() const {
+            if (m_modelFrame != nullptr) {
+                return vm::bbox3(m_modelFrame->bounds()).translate(origin());
+            } else {
+                return vm::bbox3();
+            }
+        }
+
+        const Assets::EntityModelFrame* Entity::modelFrame() const {
+            return m_modelFrame;
+        }
+
+        void Entity::setModelFrame(const Assets::EntityModelFrame* modelFrame) {
+            const auto oldBounds = totalBounds();
+            m_modelFrame = modelFrame;
+            nodeBoundsDidChange(oldBounds);
+        }
+
         const vm::bbox3& Entity::doGetBounds() const {
             if (!m_boundsValid) {
                 validateBounds();
@@ -135,6 +167,7 @@ namespace TrenchBroom {
             cloneAttributes(entity);
             entity->setDefinition(definition());
             entity->setAttributes(attributes());
+            entity->setModelFrame(m_modelFrame);
             return entity;
         }
 
@@ -206,6 +239,25 @@ namespace TrenchBroom {
                     if (!vm::isnan(distance)) {
                         const vm::vec3 hitPoint = ray.pointAtDistance(distance);
                         pickResult.addHit(Hit(EntityHit, distance, hitPoint, this));
+                        return;
+                    }
+                }
+
+                // only if the bbox hit test failed do we hit test the model
+                if (m_modelFrame != nullptr) {
+                    // we transform the ray into the model's space
+                    const auto transform = modelTransformation();
+                    const auto [invertible, inverse] = vm::invert(transform);
+                    if (invertible) {
+                        const auto transformedRay = ray.transform(inverse);
+                        const auto distance = m_modelFrame->intersect(vm::ray3f(transformedRay));
+                        if (!vm::isnan(distance)) {
+                            // transform back to world space
+                            const auto transformedHitPoint = vm::vec3(transformedRay.pointAtDistance(distance));
+                            const auto hitPoint = transform * transformedHitPoint;
+                            pickResult.addHit(Hit(EntityHit, distance, hitPoint, this));
+                            return;
+                        }
                     }
                 }
             }

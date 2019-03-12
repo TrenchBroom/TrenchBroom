@@ -271,6 +271,7 @@ namespace TrenchBroom {
             }
             
             setEntityDefinitions(addedNodes);
+            setEntityModels(addedNodes);
             setTextures(addedNodes);
             invalidateSelectionBounds();
 
@@ -287,6 +288,7 @@ namespace TrenchBroom {
             for (const auto& entry : nodes) {
                 Model::Node* parent = entry.first;
                 const Model::NodeList& children = entry.second;
+                unsetEntityModels(children);
                 unsetEntityDefinitions(children);
                 unsetTextures(children);
                 parent->removeChildren(std::begin(children), std::end(children));
@@ -510,6 +512,7 @@ namespace TrenchBroom {
             }
             
             setEntityDefinitions(nodes);
+            setEntityModels(nodes);
 
             return snapshot;
         }
@@ -533,6 +536,7 @@ namespace TrenchBroom {
             }
             
             setEntityDefinitions(nodes);
+            setEntityModels(nodes);
 
             return snapshot;
         }
@@ -568,7 +572,8 @@ namespace TrenchBroom {
             }
             
             setEntityDefinitions(nodes);
-            
+            setEntityModels(nodes);
+
             return snapshot;
         }
         
@@ -614,6 +619,7 @@ namespace TrenchBroom {
             }
 
             setEntityDefinitions(nodes);
+            setEntityModels(nodes);
 
             return snapshot;
         }
@@ -639,6 +645,7 @@ namespace TrenchBroom {
             }
 
             setEntityDefinitions(nodes);
+            setEntityModels(nodes);
         }
 
         std::vector<vm::polygon3> MapDocumentCommandFacade::performResizeBrushes(const std::vector<vm::polygon3>& polygons, const vm::vec3& delta) {
@@ -922,6 +929,7 @@ namespace TrenchBroom {
 
             const String newValue = StringUtils::join(mods, ";");
             
+            unsetEntityModels();
             unsetEntityDefinitions();
             clearEntityModels();
             
@@ -933,6 +941,7 @@ namespace TrenchBroom {
 
             updateGameSearchPaths();
             setEntityDefinitions();
+            setEntityModels();
         }
 
         void MapDocumentCommandFacade::doSetIssueHidden(Model::Issue* issue, const bool hidden) {

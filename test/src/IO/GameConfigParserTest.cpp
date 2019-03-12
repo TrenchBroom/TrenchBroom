@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -29,9 +29,9 @@
 namespace TrenchBroom {
     namespace IO {
         TEST(GameConfigParserTest, parseIncludedGameConfigs) {
-            const Path basePath = Disk::getCurrentWorkingDir() + Path("data/games");
+            const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/games/");
             const Path::List cfgFiles = Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("cfg"));
-            
+
             for (const Path& path : cfgFiles) {
                 MappedFile::Ptr file = Disk::openFile(path);
                 GameConfigParser parser(file->begin(), file->end(), path);
@@ -119,10 +119,10 @@ namespace TrenchBroom {
 )");
 
             GameConfigParser parser(config);
-            
+
             using Model::GameConfig;
             const GameConfig actual = parser.parse();
-            
+
             const GameConfig expected("Quake",
             Path(),
             Path("Icon.png"),
@@ -150,7 +150,7 @@ namespace TrenchBroom {
               Model::SmartTag("Liquid", {}, std::make_unique<Model::TextureNameTagMatcher>("\\**")),
             } // smart tags
             );
-            
+
             ASSERT_EQ(expected.name(), actual.name());
             ASSERT_EQ(expected.path(), actual.path());
             ASSERT_EQ(expected.icon(), actual.icon());
@@ -369,7 +369,7 @@ namespace TrenchBroom {
 )%");
 
             GameConfigParser parser(config);
-            
+
             using Model::GameConfig;
             const GameConfig actual = parser.parse();
 
@@ -445,7 +445,7 @@ namespace TrenchBroom {
                     Model::SmartTag("Liquid", {}, std::make_unique<Model::ContentFlagsTagMatcher>((1 << 3) | (1 << 4) | (1 << 5))),
                 } // smart tags
             );
-            
+
             ASSERT_EQ(expected.name(), actual.name());
             ASSERT_EQ(expected.path(), actual.path());
             ASSERT_EQ(expected.icon(), actual.icon());

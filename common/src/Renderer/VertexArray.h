@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -42,16 +42,16 @@ namespace TrenchBroom {
             class BaseHolder {
             public:
                 using Ptr = std::shared_ptr<BaseHolder>;
-                virtual ~BaseHolder() {}
-                
+                virtual ~BaseHolder();
+
                 virtual size_t vertexCount() const = 0;
                 virtual size_t sizeInBytes() const = 0;
-                
+
                 virtual void prepare(Vbo& vbo) = 0;
                 virtual void setup() = 0;
                 virtual void cleanup() = 0;
             };
-            
+
             template <typename VertexSpec>
             class Holder : public BaseHolder {
             private:
@@ -63,35 +63,35 @@ namespace TrenchBroom {
                 size_t vertexCount() const override {
                     return m_vertexCount;
                 }
-                
+
                 size_t sizeInBytes() const override {
                     return VertexSpec::Size * m_vertexCount;
                 }
-                
-                virtual void prepare(Vbo& vbo) override {
+
+                void prepare(Vbo& vbo) override {
                     if (m_vertexCount > 0 && m_block == nullptr) {
                         ActivateVbo activate(vbo);
                         m_block = vbo.allocateBlock(sizeInBytes());
-                        
+
                         MapVboBlock map(m_block);
                         m_block->writeBuffer(0, doGetVertices());
                     }
                 }
-                
-                virtual void setup() override {
+
+                void setup() override {
                     ensure(m_block != nullptr, "block is null");
                     VertexSpec::setup(m_block->offset());
                 }
-                
-                virtual void cleanup() override {
+
+                void cleanup() override {
                     VertexSpec::cleanup();
                 }
             protected:
-                Holder(const size_t vertexCount) :
+                explicit Holder(const size_t vertexCount) :
                 m_block(nullptr),
                 m_vertexCount(vertexCount) {}
-                
-                virtual ~Holder() override {
+
+                ~Holder() override {
                     if (m_block != nullptr) {
                         m_block->free();
                         m_block = nullptr;
@@ -100,7 +100,7 @@ namespace TrenchBroom {
             private:
                 virtual const VertexList& doGetVertices() const = 0;
             };
-            
+
             template <typename VertexSpec>
             class CopyHolder : public Holder<VertexSpec> {
             public:
@@ -108,10 +108,10 @@ namespace TrenchBroom {
             private:
                 VertexList m_vertices;
             public:
-                CopyHolder(const VertexList& vertices) :
+                explicit CopyHolder(const VertexList& vertices) :
                 Holder<VertexSpec>(vertices.size()),
                 m_vertices(vertices) {}
-                
+
                 void prepare(Vbo& vbo) override {
                     Holder<VertexSpec>::prepare(vbo);
                     VectorUtils::clearToZero(m_vertices);
@@ -121,7 +121,7 @@ namespace TrenchBroom {
                     return m_vertices;
                 }
             };
-            
+
             template <typename VertexSpec>
             class SwapHolder : public Holder<VertexSpec> {
             public:
@@ -129,13 +129,13 @@ namespace TrenchBroom {
             private:
                 VertexList m_vertices;
             public:
-                SwapHolder(VertexList& vertices) :
+                explicit SwapHolder(VertexList& vertices) :
                 Holder<VertexSpec>(vertices.size()),
                 m_vertices(0) {
                     using std::swap;
                     swap(m_vertices, vertices);
                 }
-                
+
                 void prepare(Vbo& vbo) override {
                     Holder<VertexSpec>::prepare(vbo);
                     VectorUtils::clearToZero(m_vertices);
@@ -145,7 +145,7 @@ namespace TrenchBroom {
                     return m_vertices;
                 }
             };
-            
+
             template <typename VertexSpec>
             class RefHolder : public Holder<VertexSpec> {
             public:
@@ -153,7 +153,7 @@ namespace TrenchBroom {
             private:
                 const VertexList& m_vertices;
             public:
-                RefHolder(const VertexList& vertices) :
+                explicit RefHolder(const VertexList& vertices) :
                 Holder<VertexSpec>(vertices.size()),
                 m_vertices(vertices) {}
             private:
