@@ -747,7 +747,7 @@ namespace TrenchBroom {
 
             for (Model::Brush* brush : brushes) {
                 if (brush->canSnapVertices(m_worldBounds, snapTo)) {
-                    brush->snapVertices(m_worldBounds, snapTo);
+                    brush->snapVertices(m_worldBounds, snapTo, pref(Preferences::UVLock));
                     succeededBrushCount += 1;
                 } else {
                     failedBrushCount += 1;

@@ -312,9 +312,6 @@ namespace TrenchBroom {
             wxStandardPaths::Get().DontIgnoreAppSubDir();
 #endif
 
-            if (!wxApp::OnInit())
-                return false;
-
             SetAppName("TrenchBroom");
             SetAppDisplayName("TrenchBroom");
             SetVendorDisplayName("Kristian Duske");
@@ -323,7 +320,6 @@ namespace TrenchBroom {
             try {
                 auto& gameFactory = Model::GameFactory::instance();
                 gameFactory.initialize();
-                return true;
             } catch (const std::exception& e) {
                 wxLogError(e.what());
                 return false;
@@ -340,8 +336,9 @@ namespace TrenchBroom {
                 }
 
                 ::wxMessageBox(str.str(), "TrenchBroom");
-                return true;
             }
+
+            return wxApp::OnInit();
         }
 
         static String makeCrashReport(const String &stacktrace, const String &reason) {
