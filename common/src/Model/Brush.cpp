@@ -798,7 +798,7 @@ namespace TrenchBroom {
             return newGeometry.polyhedron();
         }
 
-        void Brush::snapVertices(const vm::bbox3& worldBounds, const FloatType snapToF) {
+        void Brush::snapVertices(const vm::bbox3& worldBounds, const FloatType snapToF, const bool uvLock) {
             ensure(m_geometry != nullptr, "geometry is null");
 
             BrushGeometry newGeometry;
@@ -820,7 +820,7 @@ namespace TrenchBroom {
             }
 
             const PolyhedronMatcher<BrushGeometry> matcher(*m_geometry, newGeometry, vertexMapping);
-            doSetNewGeometry(worldBounds, matcher, newGeometry);
+            doSetNewGeometry(worldBounds, matcher, newGeometry, uvLock);
         }
 
         bool Brush::canMoveEdges(const vm::bbox3& worldBounds, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta) const {
