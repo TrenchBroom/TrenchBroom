@@ -49,10 +49,15 @@ namespace TrenchBroom {
             GLVertex<Attr, Attrs...>& operator=(const GLVertex<Attr, Attrs...>& other) = default;
             GLVertex<Attr, Attrs...>& operator=(GLVertex<Attr, Attrs...>&& other) noexcept = default;
 
-            template <typename ElementType, typename... ElementTypes>
-            explicit GLVertex(ElementType&& i_attr, ElementTypes&&... i_attrs) :
-            attr(std::forward<ElementType>(i_attr)),
-            rest(std::forward<ElementTypes>(i_attrs)...) {}
+            // explicitly declare the following two constructors instead of using type deduction with an rvalue reference
+            // to avoid any clashes with the copy / move constructors
+            explicit GLVertex(typename Attr::ElementType&& i_attr, typename Attrs::ElementType&&... i_attrs) :
+            attr(std::move(i_attr)),
+            rest(std::move(i_attrs)...) {}
+
+            explicit GLVertex(const typename Attr::ElementType& i_attr, const typename Attrs::ElementType&... i_attrs) :
+            attr(i_attr),
+            rest(i_attrs...) {}
 
             template <typename... I>
             static List toList(const size_t count, I... cur) {

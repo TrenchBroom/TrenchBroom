@@ -39,7 +39,7 @@ namespace TrenchBroom {
         }
 
         EntityModel::Mesh::Mesh(const EntityModel::VertexList& vertices) :
-        m_vertices(std::move(vertices)) {}
+        m_vertices(vertices) {}
 
         EntityModel::Mesh::~Mesh() {}
 
