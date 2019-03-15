@@ -123,18 +123,15 @@ namespace TrenchBroom {
             };
             
             template <typename VertexSpec>
-            class SwapHolder : public Holder<VertexSpec> {
+            class MoveHolder : public Holder<VertexSpec> {
             public:
                 using VertexList = typename VertexSpec::Vertex::List;
             private:
                 VertexList m_vertices;
             public:
-                SwapHolder(VertexList& vertices) :
+                MoveHolder(VertexList&& vertices) :
                 Holder<VertexSpec>(vertices.size()),
-                m_vertices(0) {
-                    using std::swap;
-                    swap(m_vertices, vertices);
-                }
+                m_vertices(std::move(vertices)) {}
                 
                 void prepare(Vbo& vbo) override {
                     Holder<VertexSpec>::prepare(vbo);
@@ -181,21 +178,19 @@ namespace TrenchBroom {
              */
             template <typename... Attrs>
             static VertexArray copy(const std::vector<Vertex<Attrs...>>& vertices) {
-                BaseHolder::Ptr holder(new CopyHolder<typename Vertex<Attrs...>::Spec>(vertices));
-                return VertexArray(holder);
+                return VertexArray(std::make_shared<CopyHolder<typename Vertex<Attrs...>::Spec>>(vertices));
             }
 
             /**
-             * Creates a new vertex array by swapping the contents of the given vertices. After this operation, the given
-             * vector of vertices is empty.
+             * Creates a new vertex array by moving the contents of the given vertices.
              *
              * @tparam Attrs the vertex attribute types
-             * @param vertices the vertices to swap
+             * @param vertices the vertices to move
              * @return the vertex array
              */
             template <typename... Attrs>
-            static VertexArray swap(std::vector<Vertex<Attrs...> >& vertices) {
-                BaseHolder::Ptr holder(new SwapHolder<typename Vertex<Attrs...>::Spec>(vertices));
+            static VertexArray move(std::vector<Vertex<Attrs...>>&& vertices) {
+                auto holder = std::make_shared<MoveHolder<typename Vertex<Attrs...>::Spec>>(std::move(vertices));
                 return VertexArray(holder);
             }
 
@@ -211,9 +206,8 @@ namespace TrenchBroom {
              * @return the vertex array
              */
             template <typename... Attrs>
-            static VertexArray ref(const std::vector<Vertex<Attrs...> >& vertices) {
-                BaseHolder::Ptr holder(new RefHolder<typename Vertex<Attrs...>::Spec>(vertices));
-                return VertexArray(holder);
+            static VertexArray ref(const std::vector<Vertex<Attrs...>>& vertices) {
+                return VertexArray(std::make_shared<RefHolder<typename Vertex<Attrs...>::Spec>>(vertices));
             }
 
             /**

@@ -289,7 +289,7 @@ namespace TrenchBroom {
                 }
             }
 
-            Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(vertices);
+            Renderer::VertexArray vertexArray = Renderer::VertexArray::move(std::move(vertices));
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::TextureBrowserBorderShader);
 
             Renderer::ActivateVbo activate(vertexVbo());
@@ -328,14 +328,12 @@ namespace TrenchBroom {
                                 const LayoutBounds& bounds = cell.itemBounds();
                                 const Assets::Texture* texture = cell.item().texture;
 
-                                auto vertices = TextureVertex::List({
+                                Renderer::VertexArray vertexArray = Renderer::VertexArray::move(TextureVertex::List({
                                     TextureVertex(vm::vec2f(bounds.left(),  height - (bounds.top() - y)),    vm::vec2f(0.0f, 0.0f)),
                                     TextureVertex(vm::vec2f(bounds.left(),  height - (bounds.bottom() - y)), vm::vec2f(0.0f, 1.0f)),
                                     TextureVertex(vm::vec2f(bounds.right(), height - (bounds.bottom() - y)), vm::vec2f(1.0f, 1.0f)),
                                     TextureVertex(vm::vec2f(bounds.right(), height - (bounds.top() - y)),    vm::vec2f(1.0f, 0.0f))
-                                });
-
-                                Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(vertices);
+                                }));
 
                                 shader.set("GrayScale", texture->overridden());
                                 texture->activate();
@@ -376,7 +374,7 @@ namespace TrenchBroom {
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
             shader.set("Color", pref(Preferences::BrowserGroupBackgroundColor));
 
-            Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(vertices);
+            Renderer::VertexArray vertexArray = Renderer::VertexArray::move(std::move(vertices));
 
             Renderer::ActivateVbo activate(vertexVbo());
             vertexArray.prepare(vertexVbo());

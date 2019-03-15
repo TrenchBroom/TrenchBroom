@@ -232,8 +232,15 @@ namespace TrenchBroom {
             const auto h = static_cast<float>(clientSize.y);
             const auto t = 1.0f;
             
+            glAssert(glViewport(0, 0, clientSize.x, clientSize.y));
+
+            const auto projection = vm::orthoMatrix(-1.0f, 1.0f, 0.0f, 0.0f, w, h);
+            Renderer::Transformation transformation(projection, vm::mat4x4f::identity);
+            
+            glAssert(glDisable(GL_DEPTH_TEST));
+
             using Vertex = Renderer::VertexSpecs::P3C4::Vertex;
-            auto vertices = Vertex::List {
+            auto array = Renderer::VertexArray::move(Vertex::List {
                 // top
                 Vertex(vm::vec3f(0.0f, 0.0f, 0.0f), outer),
                 Vertex(vm::vec3f(w, 0.0f, 0.0f), outer),
@@ -257,16 +264,7 @@ namespace TrenchBroom {
                 Vertex(vm::vec3f(0.0f, 0.0f, 0.0f), outer),
                 Vertex(vm::vec3f(t, t, 0.0f), inner),
                 Vertex(vm::vec3f(t, h-t, 0.0f), inner)
-            };
-
-            glAssert(glViewport(0, 0, clientSize.x, clientSize.y));
-
-            const auto projection = vm::orthoMatrix(-1.0f, 1.0f, 0.0f, 0.0f, w, h);
-            Renderer::Transformation transformation(projection, vm::mat4x4f::identity);
-            
-            glAssert(glDisable(GL_DEPTH_TEST));
-
-            auto array = Renderer::VertexArray::swap(vertices);
+            });
             
             Renderer::ActivateVbo activate(vertexVbo());
             array.prepare(vertexVbo());

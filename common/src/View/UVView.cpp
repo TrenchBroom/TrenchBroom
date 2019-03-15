@@ -201,12 +201,10 @@ namespace TrenchBroom {
             Renderer::VertexArray m_vertexArray;
         public:
             RenderTexture(const UVViewHelper& helper) :
-            m_helper(helper) {
-                Vertex::List vertices = getVertices();
-                m_vertexArray = Renderer::VertexArray::swap(vertices);
-            }
+            m_helper(helper),
+            m_vertexArray(Renderer::VertexArray::move(getVertices())) {}
         private:
-            Vertex::List getVertices() {
+            Vertex::List getVertices() const {
                 const auto* face = m_helper.face();
                 const auto normal = vm::vec3f(face->boundary().normal);
                 
@@ -290,7 +288,7 @@ namespace TrenchBroom {
             
             const Color edgeColor(1.0f, 1.0f, 1.0f, 1.0f); // TODO: make this a preference
             
-            Renderer::DirectEdgeRenderer edgeRenderer(Renderer::VertexArray::swap(edgeVertices), GL_LINE_LOOP);
+            Renderer::DirectEdgeRenderer edgeRenderer(Renderer::VertexArray::move(std::move(edgeVertices)), GL_LINE_LOOP);
             edgeRenderer.renderOnTop(renderBatch, edgeColor, 2.5f);
         }
 
@@ -307,14 +305,12 @@ namespace TrenchBroom {
             const auto length = 32.0f / m_helper.cameraZoom();
 
             using Vertex = Renderer::VertexSpecs::P3C4::Vertex;
-            auto vertices = Vertex::List({
+            Renderer::DirectEdgeRenderer edgeRenderer(Renderer::VertexArray::move(Vertex::List({
                 Vertex(center, pref(Preferences::XAxisColor)),
                 Vertex(center + length * xAxis, pref(Preferences::XAxisColor)),
                 Vertex(center, pref(Preferences::YAxisColor)),
                 Vertex(center + length * yAxis, pref(Preferences::YAxisColor)),
-            });
-
-            Renderer::DirectEdgeRenderer edgeRenderer(Renderer::VertexArray::swap(vertices), GL_LINES);
+            })), GL_LINES);
             edgeRenderer.renderOnTop(renderBatch, 2.0f);
         }
 

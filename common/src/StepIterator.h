@@ -32,15 +32,14 @@ public:
     using reference = typename I::reference;
 private:
     I m_delegate;
-    difference_type m_offset;
     difference_type m_stride;
     bool m_initialStep;
 public:
     StepIterator(I delegate, const difference_type offset = 0, const difference_type stride = 1) :
     m_delegate(delegate),
-    m_offset(offset),
-    m_stride(stride),
-    m_initialStep(true) {}
+    m_stride(stride) {
+        std::advance(m_delegate, offset);
+    }
 
     bool operator<(const StepIterator& other) const  { return m_delegate < other.m_delegate; }
     bool operator>(const StepIterator& other) const  { return m_delegate > other.m_delegate; }
@@ -64,12 +63,7 @@ public:
     pointer operator->() const { return *m_delegate; }
 private:
     void increment() {
-        if (m_initialStep) {
-            std::advance(m_delegate, m_offset);
-            m_initialStep = false;
-        } else {
-            std::advance(m_delegate, m_stride);
-        }
+        std::advance(m_delegate, m_stride);
     }
 };
 

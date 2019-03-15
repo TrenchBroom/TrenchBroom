@@ -122,12 +122,12 @@ namespace TrenchBroom {
             
             for (const auto* face : m_tool->dragFaces()) {
                 for (const auto* edge : face->edges()) {
-                    vertices.push_back(Vertex(vm::vec3f(edge->firstVertex()->position())));
-                    vertices.push_back(Vertex(vm::vec3f(edge->secondVertex()->position())));
+                    vertices.emplace_back(vm::vec3f(edge->firstVertex()->position()));
+                    vertices.emplace_back(vm::vec3f(edge->secondVertex()->position()));
                 }
             }
             
-            return Renderer::DirectEdgeRenderer(Renderer::VertexArray::swap(vertices), GL_LINES);
+            return Renderer::DirectEdgeRenderer(Renderer::VertexArray::move(std::move(vertices)), GL_LINES);
         }
         
         bool ResizeBrushesToolController::doCancel() {

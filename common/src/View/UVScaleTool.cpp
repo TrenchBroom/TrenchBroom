@@ -208,10 +208,9 @@ namespace TrenchBroom {
             // don't overdraw the origin handles
             const auto& pickResult = inputState.pickResult();
             if (!pickResult.query().type(UVOriginTool::XHandleHit | UVOriginTool::YHandleHit).occluded().first().isMatch()) {
-                auto vertices = getHandleVertices(pickResult);
                 const Color color(1.0f, 0.0f, 0.0f, 1.0f);
 
-                Renderer::DirectEdgeRenderer handleRenderer(Renderer::VertexArray::swap(vertices), GL_LINES);
+                Renderer::DirectEdgeRenderer handleRenderer(Renderer::VertexArray::move(getHandleVertices(pickResult)), GL_LINES);
                 handleRenderer.render(renderBatch, color, 0.5f);
             }
         }

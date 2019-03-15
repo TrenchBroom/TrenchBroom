@@ -184,7 +184,7 @@ namespace TrenchBroom {
                     }
                 }
                 
-                m_boundsRenderer = DirectEdgeRenderer(VertexArray::swap(vertices), GL_LINES);
+                m_boundsRenderer = DirectEdgeRenderer(VertexArray::move(std::move(vertices)), GL_LINES);
             } else {
                 VertexSpecs::P3C4::Vertex::List vertices;
                 vertices.reserve(24 * m_groups.size());
@@ -196,7 +196,7 @@ namespace TrenchBroom {
                     }
                 }
                 
-                m_boundsRenderer = DirectEdgeRenderer(VertexArray::swap(vertices), GL_LINES);
+                m_boundsRenderer = DirectEdgeRenderer(VertexArray::move(std::move(vertices)), GL_LINES);
             }
             
             m_boundsValid = true;

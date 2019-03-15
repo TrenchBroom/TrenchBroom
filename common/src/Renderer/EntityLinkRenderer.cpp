@@ -119,8 +119,8 @@ namespace TrenchBroom {
             ArrowVertex::List arrows;
             getArrows(arrows, links);
 
-            m_entityLinks = VertexArray::swap(links);
-            m_entityLinkArrows = VertexArray::swap(arrows);
+            m_entityLinks = VertexArray::move(std::move(links));
+            m_entityLinkArrows = VertexArray::move(std::move(arrows));
 
             m_valid = true;
         }

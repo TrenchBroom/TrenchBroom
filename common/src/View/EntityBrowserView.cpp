@@ -282,7 +282,7 @@ namespace TrenchBroom {
             }
 
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::VaryingPCShader);
-            Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(vertices);
+            Renderer::VertexArray vertexArray = Renderer::VertexArray::move(std::move(vertices));
 
             Renderer::ActivateVbo activate(vertexVbo());
             vertexArray.prepare(vertexVbo());
@@ -349,7 +349,7 @@ namespace TrenchBroom {
                 }
             }
 
-            Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(vertices);
+            Renderer::VertexArray vertexArray = Renderer::VertexArray::move(std::move(vertices));
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
             shader.set("Color", pref(Preferences::BrowserGroupBackgroundColor));
 

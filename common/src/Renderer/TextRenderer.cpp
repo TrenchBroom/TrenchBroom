@@ -158,11 +158,12 @@ namespace TrenchBroom {
             RectVertex::List rectVertices;
             rectVertices.reserve(collection.rectVertexCount);
             
-            for (const Entry& entry : collection.entries)
+            for (const Entry& entry : collection.entries) {
                 addEntry(entry, onTop, textVertices, rectVertices);
+            }
             
-            collection.textArray = VertexArray::swap(textVertices);
-            collection.rectArray = VertexArray::swap(rectVertices);
+            collection.textArray = VertexArray::move(std::move(textVertices));
+            collection.rectArray = VertexArray::move(std::move(rectVertices));
             
             collection.textArray.prepare(vbo);
             collection.rectArray.prepare(vbo);

@@ -94,8 +94,8 @@ namespace TrenchBroom {
         }
 
         void SpikeGuideRenderer::validate() {
-            m_pointArray = VertexArray::swap(m_pointVertices);
-            m_spikeArray = VertexArray::swap(m_spikeVertices);
+            m_pointArray = VertexArray::move(std::move(m_pointVertices));
+            m_spikeArray = VertexArray::move(std::move(m_spikeVertices));
             m_valid = true;
         }
     }

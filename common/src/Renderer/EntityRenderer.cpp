@@ -357,8 +357,8 @@ namespace TrenchBroom {
                     }
                 }
                 
-                m_pointEntityWireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::swap(pointEntityWireframeVertices), GL_LINES);
-                m_brushEntityWireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::swap(brushEntityWireframeVertices), GL_LINES);
+                m_pointEntityWireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::move(std::move(pointEntityWireframeVertices)), GL_LINES);
+                m_brushEntityWireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::move(std::move(brushEntityWireframeVertices)), GL_LINES);
             } else {
                 VertexSpecs::P3C4::Vertex::List pointEntityWireframeVertices;
                 VertexSpecs::P3C4::Vertex::List brushEntityWireframeVertices;
@@ -382,11 +382,11 @@ namespace TrenchBroom {
                     }
                 }
 
-                m_pointEntityWireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::swap(pointEntityWireframeVertices), GL_LINES);
-                m_brushEntityWireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::swap(brushEntityWireframeVertices), GL_LINES);
+                m_pointEntityWireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::move(std::move(pointEntityWireframeVertices)), GL_LINES);
+                m_brushEntityWireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::move(std::move(brushEntityWireframeVertices)), GL_LINES);
             }
             
-            m_solidBoundsRenderer = TriangleRenderer(VertexArray::swap(solidVertices), GL_QUADS);
+            m_solidBoundsRenderer = TriangleRenderer(VertexArray::move(std::move(solidVertices)), GL_QUADS);
             m_boundsValid = true;
         }
 

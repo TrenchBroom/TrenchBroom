@@ -82,8 +82,7 @@ namespace TrenchBroom {
             if (m_filled) {
                 positions.push_back(vm::vec2f::zero);
             }
-            auto vertices = Vertex::toList(positions.size(), std::begin(positions));
-            m_array = VertexArray::swap(vertices);
+            m_array = VertexArray::move(Vertex::toList(positions.size(), std::begin(positions)));
         }
         
         void Circle::init3D(const float radius, const size_t segments, const vm::axis::type axis, const float startAngle, const float angleLength) {
@@ -91,10 +90,9 @@ namespace TrenchBroom {
             
             auto positions = circle2D(radius, axis, startAngle, angleLength, segments);
             if (m_filled) {
-                positions.push_back(vm::vec3f::zero);
+                positions.emplace_back(vm::vec3f::zero);
             }
-            auto vertices = Vertex::toList(positions.size(), std::begin(positions));
-            m_array = VertexArray::swap(vertices);
+            m_array = VertexArray::move(Vertex::toList(positions.size(), std::begin(positions)));
         }
     }
 }
