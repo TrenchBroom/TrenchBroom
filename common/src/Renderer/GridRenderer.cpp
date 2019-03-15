@@ -47,21 +47,21 @@ namespace TrenchBroom {
                         Vertex(vm::vec3f(float(worldBounds.min.x()), p.y() - w, p.z() + h)),
                         Vertex(vm::vec3f(float(worldBounds.min.x()), p.y() + w, p.z() + h)),
                         Vertex(vm::vec3f(float(worldBounds.min.x()), p.y() + w, p.z() - h))
-                    });
+                        });
                 case vm::axis::y:
                     return Vertex::List({
                         Vertex(vm::vec3f(p.x() - w, float(worldBounds.max.y()), p.z() - h)),
                         Vertex(vm::vec3f(p.x() - w, float(worldBounds.max.y()), p.z() + h)),
                         Vertex(vm::vec3f(p.x() + w, float(worldBounds.max.y()), p.z() + h)),
                         Vertex(vm::vec3f(p.x() + w, float(worldBounds.max.y()), p.z() - h))
-                    });
+                        });
                 case vm::axis::z:
                     return Vertex::List({
                         Vertex(vm::vec3f(p.x() - w, p.y() - h, float(worldBounds.min.z()))),
                         Vertex(vm::vec3f(p.x() - w, p.y() + h, float(worldBounds.min.z()))),
                         Vertex(vm::vec3f(p.x() + w, p.y() + h, float(worldBounds.min.z()))),
                         Vertex(vm::vec3f(p.x() + w, p.y() - h, float(worldBounds.min.z())))
-                    });
+                        });
                 switchDefault();
             }
         }
