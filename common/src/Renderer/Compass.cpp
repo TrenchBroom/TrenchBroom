@@ -131,7 +131,7 @@ namespace TrenchBroom {
             indexArraySize.inc(GL_TRIANGLE_FAN, 2);
             indexArraySize.inc(GL_TRIANGLES, headVertices.size() / 3);
 
-            IndexRangeMapBuilder<Vertex::Spec> builder(vertexCount, indexArraySize);
+            IndexRangeMapBuilder<Vertex::Type> builder(vertexCount, indexArraySize);
             builder.addTriangleStrip(shaftVertices);
             builder.addTriangleFan(shaftCapVertices);
             builder.addTriangleFan(headCapVertices);
@@ -148,7 +148,7 @@ namespace TrenchBroom {
             IndexRangeMap::Size backgroundSize;
             backgroundSize.inc(GL_TRIANGLE_FAN);
 
-            IndexRangeMapBuilder<Vertex::Spec> backgroundBuilder(verts.size(), backgroundSize);
+            IndexRangeMapBuilder<Vertex::Type> backgroundBuilder(verts.size(), backgroundSize);
             backgroundBuilder.addTriangleFan(verts);
 
             m_backgroundRenderer = IndexRangeRenderer(backgroundBuilder);
@@ -156,7 +156,7 @@ namespace TrenchBroom {
             IndexRangeMap::Size outlineSize;
             outlineSize.inc(GL_LINE_LOOP);
 
-            IndexRangeMapBuilder<Vertex::Spec> outlineBuilder(verts.size(), outlineSize);
+            IndexRangeMapBuilder<Vertex::Type> outlineBuilder(verts.size(), outlineSize);
             outlineBuilder.addLineLoop(verts);
 
             m_backgroundOutlineRenderer = IndexRangeRenderer(outlineBuilder);

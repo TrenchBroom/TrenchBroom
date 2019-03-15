@@ -30,53 +30,126 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        template <typename... Attrs>
+        /**
+         * Defines the type of a vertex by the types of the vertex attributes. Enables to set up and clean up the
+         * corresponding vertex buffer pointers.
+         *
+         * @tparam AttrTypes the vertex attribute types
+         */
+        template <typename... AttrTypes>
         struct GLVertexType;
 
-        template <typename Attr, typename... Attrs>
-        struct GLVertexType<Attr, Attrs...> {
-            using Vertex = GLVertex<Attr, Attrs...>;
+        /**
+         * Template specialization of the GLVertexType template for the case of multiple vertex attributes. The first
+         * attribute is handled in this template, while the remaining attributes are delegated recursively.
+         *
+         * @tparam AttrType the type of the first vertex attribute
+         * @tparam AttrTypeRest the types of the remaining vertex attributes
+         */
+        template <typename AttrType, typename... AttrTypeRest>
+        struct GLVertexType<AttrType, AttrTypeRest...> {
+            using Vertex = GLVertex<AttrType, AttrTypeRest...>;
             static const size_t Size = sizeof(Vertex);
 
+            /**
+             * Sets up the vertex buffer pointers for the attribute types of this vertex type.
+             *
+             * @param baseOffset the base offset into the corresponding vertex buffer
+             */
             static void setup(const size_t baseOffset) {
                 doSetup(0, Size, baseOffset);
             }
 
+            /**
+             * Cleans up the vertex buffer pointers for the attributes of this vertex type.
+             */
             static void cleanup() {
                 doCleanup(0);
             }
 
+            /**
+             * Sets up the vertex buffer pointer for the first vertex attribute type and delegates the call for the
+             * remaining attribute types. Do not call this directly, use the setup method instead.
+             *
+             * @param index the index of the attribute to be set up here
+             * @param stride the stride of the vertex buffer pointer to be set up here
+             * @param offset the offset of the vertex buffer pointer to be set up here
+             */
             static void doSetup(const size_t index, const size_t stride, const size_t offset) {
-                Attr::setup(index, stride, offset);
-                GLVertexType<Attrs...>::doSetup(index + 1, stride, offset + Attr::Size);
+                AttrType::setup(index, stride, offset);
+                GLVertexType<AttrTypeRest...>::doSetup(index + 1, stride, offset + AttrType::Size);
             }
 
+            /**
+             * Cleans up the vertex buffer pointer for the first vertex attribute type and delegates the call for the
+             * remaining attribute types. Do not call this directly, use the cleanup method instead.
+             *
+             * Note that the pointers are cleaned up in reverse order (last attribute first).
+             *
+             * @param index the index of the attribute to be cleaned up here
+             */
             static void doCleanup(const size_t index) {
-                GLVertexType<Attrs...>::doCleanup(index + 1);
-                Attr::cleanup(index);
+                GLVertexType<AttrTypeRest...>::doCleanup(index + 1);
+                AttrType::cleanup(index);
             }
+
+            // Non-instantiable
+            GLVertexType() = delete;
+            deleteCopyAndMove(GLVertexType)
         };
 
-        template <typename Attr>
-        struct GLVertexType<Attr> {
-            using Vertex = GLVertex<Attr>;
+        /**
+         * Template specialization of the GLVertexType template for the case of a single vertex attributes. This is
+         * the base case for the recursive calls in the multi-attribute GLVertexType specialization above.
+         *
+         * @tparam AttrType the type of the vertex attribute
+         */
+        template <typename AttrType>
+        struct GLVertexType<AttrType> {
+            using Vertex = GLVertex<AttrType>;
             static const size_t Size = sizeof(Vertex);
 
+            /**
+             * Sets up the vertex buffer pointer for the attribute type of this vertex type.
+             *
+             * @param baseOffset the base offset into the corresponding vertex buffer
+             */
             static void setup(const size_t baseOffset) {
                 doSetup(0, Size, baseOffset);
             }
 
+            /**
+             * Cleans up the vertex buffer pointer for the attribute of this vertex type.
+             */
             static void cleanup() {
                 doCleanup(0);
             }
 
+            /**
+             * Sets up the vertex buffer pointer for the vertex attribute type. Do not call this directly, use the setup
+             * method instead.
+             *
+             * @param index the index of the attribute to be set up here
+             * @param stride the stride of the vertex buffer pointer to be set up here
+             * @param offset the offset of the vertex buffer pointer to be set up here
+             */
             static void doSetup(const size_t index, const size_t stride, const size_t offset) {
-                Attr::setup(index, stride, offset);
+                AttrType::setup(index, stride, offset);
             }
 
+            /**
+             * Cleans up the vertex buffer pointer for the vertex attribute type. Do not call this directly, use the
+             * cleanup method instead.
+             *
+             * @param index the index of the attribute to be cleaned up here
+             */
             static void doCleanup(const size_t index) {
-                Attr::cleanup(index);
+                AttrType::cleanup(index);
             }
+
+            // Non-instantiable
+            GLVertexType() = delete;
+            deleteCopyAndMove(GLVertexType)
         };
 
         namespace GLVertexTypes {

@@ -66,7 +66,7 @@ namespace TrenchBroom {
                 void render(IndexRangeRenderer& renderer, ActiveShader& shader) const;
             };
 
-            using LineMeshMap = std::map<LineRenderAttributes, IndexRangeMapBuilder<Vertex::Spec> >;
+            using LineMeshMap = std::map<LineRenderAttributes, IndexRangeMapBuilder<Vertex::Type> >;
             LineMeshMap m_lineMeshes;
 
             using LineMeshRendererMap = std::map<LineRenderAttributes, IndexRangeRenderer>;
@@ -84,7 +84,7 @@ namespace TrenchBroom {
                 void render(IndexRangeRenderer& renderer, ActiveShader& shader) const;
             };
 
-            using TriangleMeshMap = std::map<TriangleRenderAttributes, IndexRangeMapBuilder<Vertex::Spec> >;
+            using TriangleMeshMap = std::map<TriangleRenderAttributes, IndexRangeMapBuilder<Vertex::Type> >;
             TriangleMeshMap m_triangleMeshes;
 
             using TriangleMeshRendererMap = std::map<TriangleRenderAttributes, IndexRangeRenderer>;

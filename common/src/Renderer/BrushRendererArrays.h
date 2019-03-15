@@ -270,7 +270,7 @@ namespace TrenchBroom {
 
             bool setupVertices() override {
                 ensure(VboBlockHolder<V>::m_block != nullptr, "block is null");
-                V::Spec::setup(VboBlockHolder<V>::m_block->offset());
+                V::Type::setup(VboBlockHolder<V>::m_block->offset());
                 return true;
             }
 
@@ -279,7 +279,7 @@ namespace TrenchBroom {
             }
 
             void cleanupVertices() override {
-                V::Spec::cleanup();
+                V::Type::cleanup();
             }
 
             static std::shared_ptr<VertexHolder<V>> swap(std::vector<V>& elements) {

@@ -26,6 +26,9 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        /**
+         * The values of this enum define the possible types of OpenGL vertex attributes.
+         */
         enum class GLVertexAttributeTypeTag {
             User,
             Position,
@@ -37,23 +40,48 @@ namespace TrenchBroom {
             TexCoord3
         };
 
+        /**
+         * Base template to define a vertex attribute type. This should be unused; use to the partial specializations
+         * to define actual vertex attribute types.
+         *
+         * @tparam T the type of the vertex attribute
+         * @tparam D the vertex component type
+         * @tparam S the number of components
+         */
         template <GLVertexAttributeTypeTag T, GLenum D, size_t S>
         class GLVertexAttributeType {
         public:
-            using DataType = typename GLType<D>::Type;
-            using ElementType = vm::vec<DataType,S>;
-            static const size_t Size = sizeof(DataType) * S;
+            using ComponentType = typename GLType<D>::Type;
+            using ElementType = vm::vec<ComponentType,S>;
+            static const size_t Size = sizeof(ElementType);
 
+            /**
+             * Sets up a vertex buffer pointer for this attribute with the given index, stride, and offset.
+             *
+             * @param index the attribute's index (position in the vertices)
+             * @param stride the stride for the vertex buffer pointer
+             * @param offset the offset for the vertex buffer pointer
+             */
             static void setup(const size_t index, const size_t stride, const size_t offset) {}
             static void cleanup(const size_t index) {}
+
+            // Non-instantiable
+            GLVertexAttributeType() = delete;
+            deleteCopyAndMove(GLVertexAttributeType)
         };
 
+        /**
+         * Partial specialization for user defined vertex attribute types.
+         *
+         * @tparam D the vertex component type
+         * @tparam S the number of components
+         */
         template <GLenum D, size_t S>
         class GLVertexAttributeType<GLVertexAttributeTypeTag::User, D, S> {
         public:
-            using DataType = typename GLType<D>::Type;
-            using ElementType = vm::vec<DataType,S>;
-            static const size_t Size = sizeof(DataType) * S;
+            using ComponentType = typename GLType<D>::Type;
+            using ElementType = vm::vec<ComponentType,S>;
+            static const size_t Size = sizeof(ElementType);
 
             static void setup(const size_t index, const size_t stride, const size_t offset) {
                 glAssert(glEnableVertexAttribArray(static_cast<GLuint>(index)));
@@ -63,14 +91,24 @@ namespace TrenchBroom {
             static void cleanup(const size_t index) {
                 glAssert(glDisableVertexAttribArray(static_cast<GLuint>(index)));
             }
+
+            // Non-instantiable
+            GLVertexAttributeType() = delete;
+            deleteCopyAndMove(GLVertexAttributeType)
         };
 
+        /**
+         * Partial specialization for vertex position attribute types.
+         *
+         * @tparam D the vertex component type
+         * @tparam S the number of components
+         */
         template <GLenum D, size_t S>
         class GLVertexAttributeType<GLVertexAttributeTypeTag::Position, D, S> {
         public:
-            using DataType = typename GLType<D>::Type;
-            using ElementType = vm::vec<DataType,S>;
-            static const size_t Size = sizeof(DataType) * S;
+            using ComponentType = typename GLType<D>::Type;
+            using ElementType = vm::vec<ComponentType,S>;
+            static const size_t Size = sizeof(ElementType);
 
             static void setup(const size_t index, const size_t stride, const size_t offset) {
                 glAssert(glEnableClientState(GL_VERTEX_ARRAY));
@@ -80,14 +118,24 @@ namespace TrenchBroom {
             static void cleanup(const size_t index) {
                 glAssert(glDisableClientState(GL_VERTEX_ARRAY));
             }
+
+            // Non-instantiable
+            GLVertexAttributeType() = delete;
+            deleteCopyAndMove(GLVertexAttributeType)
         };
 
+        /**
+         * Partial specialization for vertex normal attribute types.
+         *
+         * @tparam D the vertex component type
+         * @tparam S the number of components
+         */
         template <GLenum D, const size_t S>
         class GLVertexAttributeType<GLVertexAttributeTypeTag::Normal, D, S> {
         public:
-            using DataType = typename GLType<D>::Type;
-            using ElementType = vm::vec<DataType,S>;
-            static const size_t Size = sizeof(DataType) * S;
+            using ComponentType = typename GLType<D>::Type;
+            using ElementType = vm::vec<ComponentType,S>;
+            static const size_t Size = sizeof(ElementType);
 
             static void setup(const size_t index, const size_t stride, const size_t offset) {
                 assert(S == 3);
@@ -98,14 +146,24 @@ namespace TrenchBroom {
             static void cleanup(const size_t index) {
                 glAssert(glDisableClientState(GL_NORMAL_ARRAY));
             }
+
+            // Non-instantiable
+            GLVertexAttributeType() = delete;
+            deleteCopyAndMove(GLVertexAttributeType)
         };
 
+        /**
+         * Partial specialization for vertex color attribute types.
+         *
+         * @tparam D the vertex component type
+         * @tparam S the number of components
+         */
         template <GLenum D, size_t S>
         class GLVertexAttributeType<GLVertexAttributeTypeTag::Color, D, S> {
         public:
-            using DataType = typename GLType<D>::Type;
-            using ElementType = vm::vec<DataType,S>;
-            static const size_t Size = sizeof(DataType) * S;
+            using ComponentType = typename GLType<D>::Type;
+            using ElementType = vm::vec<ComponentType,S>;
+            static const size_t Size = sizeof(ElementType);
 
             static void setup(const size_t index, const size_t stride, const size_t offset) {
                 glAssert(glEnableClientState(GL_COLOR_ARRAY));
@@ -115,14 +173,24 @@ namespace TrenchBroom {
             static void cleanup(const size_t index) {
                 glAssert(glDisableClientState(GL_COLOR_ARRAY));
             }
+
+            // Non-instantiable
+            GLVertexAttributeType() = delete;
+            deleteCopyAndMove(GLVertexAttributeType)
         };
 
+        /**
+         * Partial specialization for vertex texture coordinate (0) attribute types.
+         *
+         * @tparam D the vertex component type
+         * @tparam S the number of components
+         */
         template <GLenum D, size_t S>
         class GLVertexAttributeType<GLVertexAttributeTypeTag::TexCoord0, D, S> {
         public:
-            using DataType = typename GLType<D>::Type;
-            using ElementType = vm::vec<DataType,S>;
-            static const size_t Size = sizeof(DataType) * S;
+            using ComponentType = typename GLType<D>::Type;
+            using ElementType = vm::vec<ComponentType,S>;
+            static const size_t Size = sizeof(ElementType);
 
             static void setup(const size_t index, const size_t stride, const size_t offset) {
                 glAssert(glClientActiveTexture(GL_TEXTURE0));
@@ -134,14 +202,24 @@ namespace TrenchBroom {
                 glAssert(glClientActiveTexture(GL_TEXTURE0));
                 glAssert(glDisableClientState(GL_TEXTURE_COORD_ARRAY));
             }
+
+            // Non-instantiable
+            GLVertexAttributeType() = delete;
+            deleteCopyAndMove(GLVertexAttributeType)
         };
 
+        /**
+         * Partial specialization for vertex texture coordinate (1) attribute types.
+         *
+         * @tparam D the vertex component type
+         * @tparam S the number of components
+         */
         template <GLenum D, size_t S>
         class GLVertexAttributeType<GLVertexAttributeTypeTag::TexCoord1, D, S> {
         public:
-            using DataType = typename GLType<D>::Type;
-            using ElementType = vm::vec<DataType,S>;
-            static const size_t Size = sizeof(DataType) * S;
+            using ComponentType = typename GLType<D>::Type;
+            using ElementType = vm::vec<ComponentType,S>;
+            static const size_t Size = sizeof(ElementType);
 
             static void setup(const size_t index, const size_t stride, const size_t offset) {
                 glAssert(glClientActiveTexture(GL_TEXTURE1));
@@ -154,14 +232,24 @@ namespace TrenchBroom {
                 glAssert(glDisableClientState(GL_TEXTURE_COORD_ARRAY));
                 glAssert(glClientActiveTexture(GL_TEXTURE0));
             }
+
+            // Non-instantiable
+            GLVertexAttributeType() = delete;
+            deleteCopyAndMove(GLVertexAttributeType)
         };
 
+        /**
+         * Partial specialization for vertex texture coordinate (2) attribute types.
+         *
+         * @tparam D the vertex component type
+         * @tparam S the number of components
+         */
         template <GLenum D, size_t S>
         class GLVertexAttributeType<GLVertexAttributeTypeTag::TexCoord2, D, S> {
         public:
-            using DataType = typename GLType<D>::Type;
-            using ElementType = vm::vec<DataType,S>;
-            static const size_t Size = sizeof(DataType) * S;
+            using ComponentType = typename GLType<D>::Type;
+            using ElementType = vm::vec<ComponentType,S>;
+            static const size_t Size = sizeof(ElementType);
 
             static void setup(const size_t index, const size_t stride, const size_t offset) {
                 glAssert(glClientActiveTexture(GL_TEXTURE2));
@@ -174,14 +262,24 @@ namespace TrenchBroom {
                 glAssert(glDisableClientState(GL_TEXTURE_COORD_ARRAY));
                 glAssert(glClientActiveTexture(GL_TEXTURE0));
             }
+
+            // Non-instantiable
+            GLVertexAttributeType() = delete;
+            deleteCopyAndMove(GLVertexAttributeType)
         };
 
+        /**
+         * Partial specialization for vertex texture coordinate (3) attribute types.
+         *
+         * @tparam D the vertex component type
+         * @tparam S the number of components
+         */
         template <GLenum D, size_t S>
         class GLVertexAttributeType<GLVertexAttributeTypeTag::TexCoord3, D, S> {
         public:
-            using DataType = typename GLType<D>::Type;
-            using ElementType = vm::vec<DataType,S>;
-            static const size_t Size = sizeof(DataType) * S;
+            using ComponentType = typename GLType<D>::Type;
+            using ElementType = vm::vec<ComponentType,S>;
+            static const size_t Size = sizeof(ElementType);
 
             static void setup(const size_t index, const size_t stride, const size_t offset) {
                 glAssert(glClientActiveTexture(GL_TEXTURE3));
@@ -194,6 +292,10 @@ namespace TrenchBroom {
                 glAssert(glDisableClientState(GL_TEXTURE_COORD_ARRAY));
                 glAssert(glClientActiveTexture(GL_TEXTURE0));
             }
+
+            // Non-instantiable
+            GLVertexAttributeType() = delete;
+            deleteCopyAndMove(GLVertexAttributeType)
         };
 
         namespace GLVertexAttributeTypes {

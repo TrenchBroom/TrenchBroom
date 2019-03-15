@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -199,14 +199,14 @@ namespace TrenchBroom {
             vm::vec3f(-0.587785f, -0.425325f, -0.688191f),
             vm::vec3f(-0.688191f, -0.587785f, -0.425325f)
         };
-        
+
         DkmParser::DkmFrame::DkmFrame(const size_t vertexCount) :
         name(""),
         vertices(vertexCount) {}
 
         vm::vec3f DkmParser::DkmFrame::vertex(const size_t index) const {
             assert(index < vertices.size());
-            
+
             const DkmVertex& vertex = vertices[index];
             const vm::vec3f position(static_cast<float>(vertex.x),
                                  static_cast<float>(vertex.y),
@@ -216,7 +216,7 @@ namespace TrenchBroom {
 
         const vm::vec3f& DkmParser::DkmFrame::normal(const size_t index) const {
             assert(index < vertices.size());
-            
+
             const DkmVertex& vertex = vertices[index];
             return Normals[vertex.normalIndex];
         }
@@ -231,13 +231,13 @@ namespace TrenchBroom {
         m_begin(begin),
         /* m_end(end), */
         m_fs(fs) {}
-        
+
         // http://tfc.duke.free.fr/old/models/md2.htm
         Assets::EntityModel* DkmParser::doParseModel(Logger& logger) {
             const char* cursor = m_begin;
             const int ident = readInt<int32_t>(cursor);
             const int version = readInt<int32_t>(cursor);
-            
+
             if (ident != DkmLayout::Ident)
                 throw AssetException() << "Unknown DKM model ident: " << ident;
             if (version != DkmLayout::Version1 && version != DkmLayout::Version2)
@@ -246,7 +246,7 @@ namespace TrenchBroom {
             /* const vm::vec3f origin = */ readVec3f(cursor);
 
             /*const size_t frameSize =*/ readSize<int32_t>(cursor);
-            
+
             const size_t skinCount = readSize<int32_t>(cursor);
             const size_t frameVertexCount = readSize<int32_t>(cursor);
             /* const size_t texCoordCount =*/ readSize<int32_t>(cursor);
@@ -254,7 +254,7 @@ namespace TrenchBroom {
             const size_t commandCount = readSize<int32_t>(cursor);
             const size_t frameCount = readSize<int32_t>(cursor);
             /* const size_t surfaceCount =*/ readSize<int32_t>(cursor);
-            
+
             const size_t skinOffset = readSize<int32_t>(cursor);
             /* const size_t texCoordOffset =*/ readSize<int32_t>(cursor);
             /* const size_t triangleOffset =*/ readSize<int32_t>(cursor);
@@ -265,7 +265,7 @@ namespace TrenchBroom {
             const DkmSkinList skins = parseSkins(m_begin + skinOffset, skinCount);
             const DkmFrameList frames = parseFrames(m_begin + frameOffset, frameCount, frameVertexCount, version);
             const DkmMeshList meshes = parseMeshes(m_begin + commandOffset, commandCount);
-            
+
             return buildModel(skins, frames, meshes);
         }
 
@@ -312,19 +312,19 @@ namespace TrenchBroom {
                     }
                 }
             }
-            
+
             return frames;
         }
 
         DkmParser::DkmMeshList DkmParser::parseMeshes(const char* begin, const size_t commandCount) {
             DkmMeshList meshes;
-            
+
             const char* cursor = begin;
             auto vertexCount = readInt<int32_t>(cursor);
             while (vertexCount != 0) {
                 /* const int skinIndex    = */ readInt<int32_t>(cursor);
                 /* const int surfaceIndex = */ readInt<int32_t>(cursor);
-                
+
                 DkmMesh mesh(vertexCount);
                 for (size_t i = 0; i < mesh.vertexCount; ++i) {
                     mesh.vertices[i].vertexIndex = readSize<int32_t>(cursor); // index before texcoords in DKM
@@ -335,7 +335,7 @@ namespace TrenchBroom {
                 meshes.push_back(mesh);
                 vertexCount = readInt<int32_t>(cursor);
             }
-        
+
             return meshes;
         }
 
@@ -402,7 +402,7 @@ namespace TrenchBroom {
                 bool boundsInitialized = false;
                 vm::bbox3f bounds;
 
-                Renderer::IndexRangeMapBuilder<Assets::EntityModel::Vertex::Spec> builder(vertexCount, size);
+                Renderer::IndexRangeMapBuilder<Assets::EntityModel::Vertex::Type> builder(vertexCount, size);
                 for (const auto& md2Mesh : meshes) {
                     if (!md2Mesh.vertices.empty()) {
                         vertexCount += md2Mesh.vertices.size();
@@ -433,14 +433,14 @@ namespace TrenchBroom {
 
             Vertex::List result(0);
             result.reserve(meshVertices.size());
-            
+
             for (const DkmMeshVertex& md2MeshVertex : meshVertices) {
                 const auto position = frame.vertex(md2MeshVertex.vertexIndex);
                 const auto& texCoords = md2MeshVertex.texCoords;
-                
+
                 result.emplace_back(position, texCoords);
             }
-            
+
             return result;
         }
     }
