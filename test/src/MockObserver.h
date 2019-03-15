@@ -28,7 +28,7 @@
 namespace TrenchBroom {
     class MockObserver0 {
     public:
-        MockObserver0(Notifier0& notifier, const size_t times) {
+        MockObserver0(Notifier& notifier, const size_t times) {
             expect(times);
             notifier.addObserver(this, &MockObserver0::notify);
         }
@@ -44,17 +44,17 @@ namespace TrenchBroom {
     template <typename A1>
     class MockObserver1 {
     public:
-        MockObserver1(Notifier1<A1>& notifier) {
+        MockObserver1(Notifier<A1>& notifier) {
             notifier.addObserver(this, &MockObserver1<A1>::notify);
         }
         
-        MockObserver1(Notifier1<A1>& notifier, A1 arg) {
+        MockObserver1(Notifier<A1>& notifier, A1 arg) {
             expect(arg);
             notifier.addObserver(this, &MockObserver1<A1>::notify);
         }
 
         template <typename I>
-        MockObserver1(Notifier1<A1>& notifier, I it, I end) {
+        MockObserver1(Notifier<A1>& notifier, I it, I end) {
             expect(it, end);
             notifier.addObserver(this, &MockObserver1<A1>::notify);
         }

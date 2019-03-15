@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -27,8 +27,14 @@
 #include <algorithm>
 #include <cassert>
 #include <list>
+#include <memory>
 
 namespace TrenchBroom {
+    /**
+     * Encapsulates the internal state of a notifier. Handles adding and removing observers during notification.
+     *
+     * @tparam O the type of the observers registered with the notifier
+     */
     template <typename O>
     class NotifierState {
     private:
@@ -36,205 +42,147 @@ namespace TrenchBroom {
         private:
             const O* m_lhs;
         public:
-            CompareObservers(const O* lhs) : m_lhs(lhs) {}
-            bool operator()(const O* rhs) const {
+            explicit CompareObservers(const O* lhs) : m_lhs(lhs) {}
+
+            bool operator()(const std::unique_ptr<O>& rhs) const {
                 return (*m_lhs) == (*rhs);
             }
         };
 
-        using List = std::list<O*>;
-        
-        List m_observers;
-        List m_toAdd;
-        List m_toRemove;
-        
+        std::list<std::unique_ptr<O>> m_observers;
+        std::list<std::unique_ptr<O>> m_toAdd;
+        std::list<std::unique_ptr<O>> m_toRemove;
+
         bool m_notifying;
     public:
+        /**
+         * Creates a new notifier state.
+         */
         NotifierState() : m_notifying(false) {}
-        // FIXME: These match the auto-generated constructor and copy assignment operators, but do they make sense given the destructor? 
-        NotifierState(const NotifierState &other)
-        : m_observers(other.m_observers), m_toAdd(other.m_toAdd), m_toRemove(other.m_toRemove), m_notifying(other.m_notifying) {}
-        NotifierState& operator=(const NotifierState &other) {
-            m_observers = other.m_observers;
-            m_toAdd = other.m_toAdd;
-            m_toRemove = other.m_toRemove;
-            return *this;
-        }
-        ~NotifierState() {
-            ListUtils::clearAndDelete(m_observers);
-            ListUtils::clearAndDelete(m_toAdd);
-            ListUtils::clearAndDelete(m_toRemove);
-        }
-        
-        bool addObserver(O* observer) {
+
+        /**
+         * Adds the given observer to this notifier state. If the notifier is currently notifying, then the given
+         * observer will be added when notification is finished. A given observer can be added only once.
+         *
+         * @param observer the observer to add
+         * @return true if the given observer was successfully registered and false otherwise
+         */
+        bool addObserver(std::unique_ptr<O> observer) {
             if (!m_observers.empty()) {
-                typename List::iterator it = std::find_if(std::begin(m_observers), std::end(m_observers), CompareObservers(observer));
+                auto it = std::find_if(std::begin(m_observers), std::end(m_observers), CompareObservers(observer.get()));
                 if (it != std::end(m_observers)) {
-                    delete observer;
                     return false;
                 }
             }
 
-            if (m_notifying)
-                m_toAdd.push_back(observer);
-            else
-                m_observers.push_back(observer);
+            if (m_notifying) {
+                m_toAdd.push_back(std::move(observer));
+            } else {
+                m_observers.push_back(std::move(observer));
+            }
             return true;
         }
-        
-        bool removeObserver(O* observer) {
-            typename List::iterator it = std::find_if(std::begin(m_observers), std::end(m_observers), CompareObservers(observer));
+
+        /**
+         * Removes the given observer from this notifier state. If the notifier is currently, notifying, then the given
+         * observer will be removed when notification is finished.
+         *
+         * @param observer the observer to remove
+         * @return true if the given observer could be removed successfully and false otherwise
+         */
+        bool removeObserver(std::unique_ptr<O> observer) {
+            auto it = std::find_if(std::begin(m_observers), std::end(m_observers), CompareObservers(observer.get()));
             if (it == std::end(m_observers)) {
-                delete observer;
                 return false;
             } else {
                 (*it)->setSkip();
             }
-            
+
             if (m_notifying) {
-                m_toRemove.push_back(observer);
+                m_toRemove.push_back(std::move(observer));
             } else {
-                delete observer;
-                delete *it;
                 m_observers.erase(it);
             }
-            
+
             return true;
         }
-        
-        void notify() {
+
+        /**
+         * Notifies all registered observers and passes the given arguments.
+         *
+         * @tparam A the argument types
+         * @param a the arguments
+         */
+        template <typename... A>
+        void notify(A... a) {
             const TemporarilySetBool notifying(m_notifying);
-            
-            for (O* observer : m_observers) {
-                if (!observer->skip())
-                    (*observer)();
+
+            for (auto& observer : m_observers) {
+                if (!observer->skip()) {
+                    (*observer)(a...);
+                }
             }
-            
-            removePending();
-            addPending();
-        }
-        
-        template <typename A1>
-        void notify(A1 a1) {
-            const TemporarilySetBool notifying(m_notifying);
-            
-            
-            for (O* observer : m_observers) {
-                if (!observer->skip())
-                    (*observer)(a1);
-            }
-            
-            removePending();
-            addPending();
-        }
-        
-        template <typename A1, typename A2>
-        void notify(A1 a1, A2 a2) {
-            const TemporarilySetBool notifying(m_notifying);
-            
-            for (O* observer : m_observers) {
-                if (!observer->skip())
-                    (*observer)(a1, a2);
-            }
-            
-            removePending();
-            addPending();
-        }
-        
-        template <typename A1, typename A2, typename A3>
-        void notify(A1 a1, A2 a2, A3 a3) {
-            const TemporarilySetBool notifying(m_notifying);
-            
-            for (O* observer : m_observers) {
-                if (!observer->skip())
-                    (*observer)(a1, a2, a3);
-            }
-            
-            removePending();
-            addPending();
-        }
-        
-        template <typename A1, typename A2, typename A3, typename A4>
-        void notify(A1 a1, A2 a2, A3 a3, A4 a4) {
-            const TemporarilySetBool notifying(m_notifying);
-            
-            for (O* observer : m_observers) {
-                if (!observer->skip())
-                    (*observer)(a1, a2, a3, a4);
-            }
-            
-            removePending();
-            addPending();
-        }
-        
-        template <typename A1, typename A2, typename A3, typename A4, typename A5>
-        void notify(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) {
-            const TemporarilySetBool notifying(m_notifying);
-            
-            for (O* observer : m_observers) {
-                if (!observer->skip())
-                    (*observer)(a1, a2, a3, a4, a5);
-            }
-            
+
             removePending();
             addPending();
         }
     private:
         void addPending() {
-            m_observers.insert(std::end(m_observers), std::begin(m_toAdd), std::end(m_toAdd));
-            m_toAdd.clear();
+            m_observers.splice(std::end(m_observers), m_toAdd);
         }
-        
+
         void removePending() {
-            typename List::iterator it, end, elem;
-            for (it = std::begin(m_toRemove), end = std::end(m_toRemove); it != end; ++it) {
-                elem = std::find_if(std::begin(m_observers), std::end(m_observers), CompareObservers(*it));
-                assert(elem != std::end(m_observers));
-                delete *elem;
-                m_observers.erase(elem);
+            while (!m_toRemove.empty()) {
+                auto observer = std::move(m_toRemove.front()); m_toRemove.pop_front();
+                auto it = std::find_if(std::begin(m_observers), std::end(m_observers), CompareObservers(observer.get()));
+                assert(it != std::end(m_observers));
+                m_observers.erase(it);
             }
-
-            ListUtils::clearAndDelete(m_toRemove);
         }
     };
-    
-    class Notifier0 {
+
+    /**
+     * A notifier allows registering observers and notifying them. An observer is a member function whose signature
+     * matches the argument types given as parameters to this template.
+     *
+     * @tparam A the observer callback type parameter types
+     */
+    template <typename... A>
+    class Notifier {
     private:
-        using N = Notifier0;
-        
+        using N = Notifier<A...>;
+
         class Observer {
         private:
             bool m_skip;
         public:
-            Observer() : m_skip(false) {}
-            
+            Observer() :
+            m_skip(false) {}
+
+            virtual ~Observer()= default;
+
             bool skip() const {
                 return m_skip;
             }
-            
+
             void setSkip() {
                 m_skip = true;
             }
-            
-            virtual ~Observer() {}
-            
+
             virtual void* receiver() const = 0;
-            
-            virtual void operator()() = 0;
-            
+            virtual void operator()(A... a) = 0;
+
             bool operator==(const Observer& rhs) const {
-                if (receiver() != rhs.receiver())
-                    return false;
-                return compareFunctions(rhs);
+                return receiver() == rhs.receiver() && compareFunctions(rhs);
             }
         private:
             virtual bool compareFunctions(const Observer& rhs) const = 0;
         };
-        
+
         template <typename R>
         class CObserver : public Observer {
         private:
-            using F = void(R::*)();
+            using F = void(R::*)(A...);
 
             R* m_receiver;
             F m_function;
@@ -242,755 +190,145 @@ namespace TrenchBroom {
             CObserver(R* receiver, F function) :
             m_receiver(receiver),
             m_function(function) {}
-            
-            void operator()() override {
-                (m_receiver->*m_function)();
+
+            void operator()(A... a) override {
+                (m_receiver->*m_function)(a...);
             }
 
             void* receiver() const override {
                 return static_cast<void*>(m_receiver);
             }
-            
+
             F function() const {
                 return m_function;
             }
 
             bool compareFunctions(const Observer& rhs) const override {
-                const CObserver<R>& rhsR = static_cast<const CObserver<R>&>(rhs);
+                auto& rhsR = static_cast<const CObserver<R>&>(rhs);
                 return m_function == rhsR.function();
             }
         };
     private:
         NotifierState<Observer> m_state;
     public:
+        /**
+         * RAII style helper tht notifies the given notifier immediately, passing the given arguments. This class in and
+         * of itself is not very useful and was only added for reasons of symmetry.
+         */
+        class NotifyBefore {
+        public:
+            /**
+             * Creates a new instance and immediately notifies the given notifier with the given parameters
+             *
+             * @param before the notifier to notify
+             * @param a the arguments to pass to the notifier
+             */
+            explicit NotifyBefore(N& before, A... a) {
+                before(a...);
+            }
+        };
+
+        /**
+         * RAII style helper tht notifies the given notifier when it is destroyed, passing the given arguments.
+         */
         class NotifyAfter {
         private:
-            N& m_after;
+            std::function<void()> m_after;
         public:
-            NotifyAfter(N& after) : m_after(after) {}
-            virtual ~NotifyAfter() { m_after.notify(); }
-        };
-        
-        class NotifyBeforeAndAfter : public NotifyAfter {
-        public:
-            NotifyBeforeAndAfter(N& before, N& after) :
-            NotifyAfter(after) {
-                before();
+            /**
+             * Creates a new instance to notify the given notifier. The given arguments are passed to the notifier.
+             *
+             * @param after the notifier to notify
+             * @param a the arguments to pass to the notifier
+             */
+            explicit NotifyAfter(N& after, A... a) :
+            m_after([&]() { after(a...); }) {}
+
+            virtual ~NotifyAfter() {
+                m_after();
             }
         };
-        
+
+        /**
+         * RAII style helper tht notifies a given notifier immediately and another notifier when it is destroyed,
+         * passing the given arguments to either notifier.
+         */
+        class NotifyBeforeAndAfter : public NotifyBefore, public NotifyAfter {
+        public:
+            /**
+             * Creates a new instance that notifies the given notifiers.
+             *
+             * @param before the notifier to notify immediately
+             * @param after the notifier to notify later when this object is destroyed
+             * @param a the arguments to pass to either notifier
+             */
+            NotifyBeforeAndAfter(N& before, N& after, A... a) :
+            NotifyBefore(before, a...),
+            NotifyAfter(after, a...) {}
+        };
+
+        /**
+         * Adds the given observer to this notifier.
+         *
+         * @tparam R the receiver type
+         * @param receiver the receiver
+         * @param function the member of the receiver to notify
+         * @return true if the given observer was successfully added to this notifier and false otherwise
+         */
         template <typename R>
-        bool addObserver(R* receiver, void (R::*function)()) {
-            return m_state.addObserver(new CObserver<R>(receiver, function));
+        bool addObserver(R* receiver, void (R::*function)(A...)) {
+            return m_state.addObserver(std::make_unique<CObserver<R>>(receiver, function));
         }
-        
+
+        /**
+         * Removes the given observer from this notifier.
+         *
+         * @tparam R the receiver type
+         * @param receiver the receiver
+         * @param function the member of the receiver to notify
+         * @return true if the given observer was successfully removed from this notifier and false otherwise
+         */
         template <typename R>
-        bool removeObserver(R* receiver, void (R::*function)()) {
-            return m_state.removeObserver(new CObserver<R>(receiver, function));
-        }
-        
-        bool addObserver(Notifier0& notifier) {
-            return addObserver(&notifier, &Notifier0::operator());
-        }
-        
-        bool removeObserver(Notifier0& notifier) {
-            return removeObserver(&notifier, &Notifier0::operator());
-        }
-        
-        void notify() {
-            m_state.notify();
-        }
-        
-        void operator()() {
-            notify();
-        }
-    };
-    
-    template <typename A1>
-    class Notifier1 {
-    private:
-        using N = Notifier1<A1>;
-        
-        class Observer {
-        private:
-            bool m_skip;
-        public:
-            Observer() : m_skip(false) {}
-            
-            bool skip() const {
-                return m_skip;
-            }
-            
-            void setSkip() {
-                m_skip = true;
-            }
-
-            virtual ~Observer() {}
-            
-            virtual void* receiver() const = 0;
-            
-            virtual void operator()(A1 a1) = 0;
-
-            bool operator==(const Observer& rhs) const {
-                if (receiver() != rhs.receiver())
-                    return false;
-                return compareFunctions(rhs);
-            }
-        private:
-            virtual bool compareFunctions(const Observer& rhs) const = 0;
-        };
-        
-        template <typename R>
-        class CObserver : public Observer {
-        private:
-            using F = void(R::*)(A1);
-
-            R* m_receiver;
-            F m_function;
-        public:
-            CObserver(R* receiver, F function) :
-            m_receiver(receiver),
-            m_function(function) {}
-            
-            void operator()(A1 a1) override {
-                (m_receiver->*m_function)(a1);
-            }
-            
-            void* receiver() const override {
-                return static_cast<void*>(m_receiver);
-            }
-            
-            F function() const {
-                return m_function;
-            }
-            
-            bool compareFunctions(const Observer& rhs) const override {
-                const CObserver<R>& rhsR = static_cast<const CObserver<R>&>(rhs);
-                return m_function == rhsR.function();
-            }
-        };
-    private:
-        NotifierState<Observer> m_state;
-    public:
-        class NotifyAfter {
-        private:
-            N& m_after;
-            A1& m_a1;
-        public:
-            NotifyAfter(N& after, A1& a1) :
-            m_after(after),
-            m_a1(a1) {}
-            virtual ~NotifyAfter() { m_after.notify(m_a1); }
-        };
-        
-        class NotifyBeforeAndAfter : public NotifyAfter {
-        public:
-            NotifyBeforeAndAfter(N& before, N& after, A1& a1) :
-            NotifyAfter(after, a1) {
-                before(a1);
-            }
-        };
-
-        class NotifyBeforeSuccessFail {
-        private:
-            N& m_success;
-            N& m_fail;
-            A1& m_a1;
-            bool m_didSucceed;
-        public:
-            NotifyBeforeSuccessFail(N& before, N& success, N& fail, A1& a1) :
-            m_success(success),
-            m_fail(fail),
-            m_a1(a1),
-            m_didSucceed(false) {
-                before(a1);
-            }
-
-            virtual ~NotifyBeforeSuccessFail() {
-                if (m_didSucceed) {
-                    m_success(m_a1);
-                }  else {
-                    m_fail(m_a1);
-                }
-            }
-
-            void setDidSucceed(bool didSucceed) {
-                m_didSucceed = didSucceed;
-            }
-        };
-
-        template <typename R>
-        bool addObserver(R* receiver, void (R::*function)(A1)) {
-            return m_state.addObserver(new CObserver<R>(receiver, function));
-        }
-        
-        template <typename R>
-        bool removeObserver(R* receiver, void (R::*function)(A1)) {
-            return m_state.removeObserver(new CObserver<R>(receiver, function));
-        }
-        
-        bool addObserver(Notifier1& notifier) {
-            return addObserver(&notifier, &Notifier1::operator());
-        }
-        
-        bool removeObserver(Notifier1& notifier) {
-            return removeObserver(&notifier, &Notifier1::operator());
+        bool removeObserver(R* receiver, void (R::*function)(A...)) {
+            return m_state.removeObserver(std::make_unique<CObserver<R>>(receiver, function));
         }
 
-        void notify(A1 a1) {
-            m_state.notify(a1);
+        /**
+         * Adds the given notifier as an observer to this notifier.
+         *
+         * @param notifier the notifier to add
+         * @return true if the given notifier was successfully added to this notifier and false otherwise
+         */
+        bool addObserver(Notifier<A...>& notifier) {
+            return addObserver(&notifier, &Notifier<A...>::operator());
         }
 
-        void operator()(A1 a1) {
-            notify(a1);
-        }
-        
-        template <typename I>
-        void notify(I it, I end) {
-            while (it != end) {
-                notify(*it);
-                ++it;
-            }
-        }
-        
-        template <typename I>
-        void operator()(I it, I end) {
-            while (it != end) {
-                notify(*it);
-                ++it;
-            }
-        }
-    };
-    
-    template <typename A1, typename A2>
-    class Notifier2 {
-    private:
-        using N = Notifier2<A1, A2>;
-        
-        class Observer {
-        private:
-            bool m_skip;
-        public:
-            Observer() : m_skip(false) {}
-            
-            bool skip() const {
-                return m_skip;
-            }
-            
-            void setSkip() {
-                m_skip = true;
-            }
-            
-            virtual ~Observer() {}
-            
-            virtual void* receiver() const = 0;
-            
-            virtual void operator()(A1 a1, A2 a2) = 0;
-            
-            bool operator==(const Observer& rhs) const {
-                if (receiver() != rhs.receiver())
-                    return false;
-                return compareFunctions(rhs);
-            }
-        private:
-            virtual bool compareFunctions(const Observer& rhs) const = 0;
-        };
-        
-        template <typename R>
-        class CObserver : public Observer {
-        private:
-            using F = void(R::*)(A1, A2);
-
-            R* m_receiver;
-            F m_function;
-        public:
-            CObserver(R* receiver, F function) :
-            m_receiver(receiver),
-            m_function(function) {}
-            
-            void operator()(A1 a1, A2 a2) override {
-                (m_receiver->*m_function)(a1, a2);
-            }
-            
-            void* receiver() const override {
-                return static_cast<void*>(m_receiver);
-            }
-            
-            F function() const {
-                return m_function;
-            }
-            
-            bool compareFunctions(const Observer& rhs) const override {
-                const CObserver<R>& rhsR = static_cast<const CObserver<R>&>(rhs);
-                return m_function == rhsR.function();
-            }
-        };
-    private:
-        NotifierState<Observer> m_state;
-    public:
-        class NotifyAfter {
-        private:
-            N& m_after;
-            A1& m_a1;
-            A2& m_a2;
-        public:
-            NotifyAfter(N& after, A1& a1, A2& a2) :
-            m_after(after),
-            m_a1(a1),
-            m_a2(a2) {}
-            virtual ~NotifyAfter() { m_after.notify(m_a1, m_a2); }
-        };
-        
-        class NotifyBeforeAndAfter : public NotifyAfter {
-        public:
-            NotifyBeforeAndAfter(N& before, N& after, A1& a1, A2& a2) :
-            NotifyAfter(after, a1, a2) {
-                before(a1, a2);
-            }
-        };
-        
-        template <typename R>
-        bool addObserver(R* receiver, void (R::*function)(A1, A2)) {
-            return m_state.addObserver(new CObserver<R>(receiver, function));
-        }
-        
-        template <typename R>
-        bool removeObserver(R* receiver, void (R::*function)(A1, A2)) {
-            return m_state.removeObserver(new CObserver<R>(receiver, function));
-        }
-        
-        bool addObserver(Notifier2& notifier) {
-            return addObserver(&notifier, &Notifier2::operator());
-        }
-        
-        bool removeObserver(Notifier2& notifier) {
-            return removeObserver(&notifier, &Notifier2::operator());
+        /**
+         * Removes the given notifier as an observer from this notifier.
+         *
+         * @param notifier the notifier to remove
+         * @return true if the given notifier was successfully removed from this notifier and false otherwise
+         */
+        bool removeObserver(Notifier& notifier) {
+            return removeObserver(&notifier, &Notifier<A...>::operator());
         }
 
-        void notify(A1 a1, A2 a2) {
-            m_state.notify(a1, a2);
-        }
-        
-        void operator()(A1 a1, A2 a2) {
-            notify(a1, a2);
-        }
-        
-        template <typename I>
-        void notify(I it, I end, A2 a2) {
-            while (it != end) {
-                notify(*it, a2);
-                ++it;
-            }
-        }
-        
-        template <typename I>
-        void operator()(I it, I end, A2 a2) {
-            while (it != end) {
-                notify(*it, a2);
-                ++it;
-            }
-        }
-    };
-
-    template <typename A1, typename A2, typename A3>
-    class Notifier3 {
-    private:
-        using N = Notifier3<A1, A2, A3>;
-        
-        class Observer {
-        private:
-            bool m_skip;
-        public:
-            Observer() : m_skip(false) {}
-            
-            bool skip() const {
-                return m_skip;
-            }
-            
-            void setSkip() {
-                m_skip = true;
-            }
-            
-            virtual ~Observer() {}
-            
-            virtual void* receiver() const = 0;
-            
-            virtual void operator()(A1 a1, A2 a2, A3 a3) = 0;
-            
-            bool operator==(const Observer& rhs) const {
-                if (receiver() != rhs.receiver())
-                    return false;
-                return compareFunctions(rhs);
-            }
-        private:
-            virtual bool compareFunctions(const Observer& rhs) const = 0;
-        };
-        
-        template <typename R>
-        class CObserver : public Observer {
-        private:
-            using F = void(R::*)(A1, A2, A3);
-
-            R* m_receiver;
-            F m_function;
-        public:
-            CObserver(R* receiver, F function) :
-            m_receiver(receiver),
-            m_function(function) {}
-            
-            void operator()(A1 a1, A2 a2, A3 a3) {
-                (m_receiver->*m_function)(a1, a2, a3);
-            }
-            
-            void* receiver() const {
-                return static_cast<void*>(m_receiver);
-            }
-            
-            F function() const {
-                return m_function;
-            }
-            
-            bool compareFunctions(const Observer& rhs) const {
-                const CObserver<R>& rhsR = static_cast<const CObserver<R>&>(rhs);
-                return m_function == rhsR.function();
-            }
-        };
-    private:
-        NotifierState<Observer> m_state;
-    public:
-        class NotifyAfter {
-        private:
-            N& m_after;
-            A1& m_a1;
-            A2& m_a2;
-            A3& m_a3;
-        public:
-            NotifyAfter(N& after, A1& a1, A2& a2, A3& a3) :
-            m_after(after),
-            m_a1(a1),
-            m_a2(a2),
-            m_a3(a3) {}
-            virtual ~NotifyAfter() { m_after.notify(m_a1, m_a2, m_a3); }
-        };
-        
-        class NotifyBeforeAndAfter : public NotifyAfter {
-        public:
-            NotifyBeforeAndAfter(N& before, N& after, A1& a1, A2& a2, A3& a3) :
-            NotifyAfter(after, a1, a2, a3) {
-                before(a1, a2, a3);
-            }
-        };
-
-        template <typename R>
-        bool addObserver(R* receiver, void (R::*function)(A1, A2, A3)) {
-            return m_state.addObserver(new CObserver<R>(receiver, function));
-        }
-        
-        template <typename R>
-        bool removeObserver(R* receiver, void (R::*function)(A1, A2, A3)) {
-            return m_state.removeObserver(new CObserver<R>(receiver, function));
-        }
-        
-        bool addObserver(Notifier3& notifier) {
-            return addObserver(&notifier, &Notifier3::operator());
-        }
-        
-        bool removeObserver(Notifier3& notifier) {
-            return removeObserver(&notifier, &Notifier3::operator());
+        /**
+         * Notifies all observers of this notifier with the given arguments.
+         *
+         * @param a the arguments to pass to each notifier
+         */
+        void notify(A... a) {
+            m_state.notify(a...);
         }
 
-        void notify(A1 a1, A2 a2, A3 a3) {
-            m_state.notify(a1, a2, a3);
-        }
-        
-        void operator()(A1 a1, A2 a2, A3 a3) {
-            notify(a1, a2, a3);
-        }
-        
-        template <typename I>
-        void notify(I it, I end, A2 a2, A3 a3) {
-            while (it != end) {
-                notify(*it, a2, a3);
-                ++it;
-            }
-        }
-        
-        template <typename I>
-        void operator()(I it, I end, A2 a2, A3 a3) {
-            while (it != end) {
-                notify(*it, a2, a3);
-                ++it;
-            }
-        }
-    };
-    
-    template <typename A1, typename A2, typename A3, typename A4>
-    class Notifier4 {
-    private:
-        using N = Notifier4<A1, A2, A3, A4>;
-        
-        class Observer {
-        private:
-            bool m_skip;
-        public:
-            Observer() : m_skip(false) {}
-            
-            bool skip() const {
-                return m_skip;
-            }
-            
-            void setSkip() {
-                m_skip = true;
-            }
-            
-            virtual ~Observer() {}
-            
-            virtual void* receiver() const = 0;
-            
-            virtual void operator()(A1 a1, A2 a2, A3 a3, A4 a4) = 0;
-            
-            bool operator==(const Observer& rhs) const {
-                if (receiver() != rhs.receiver())
-                    return false;
-                return compareFunctions(rhs);
-            }
-        private:
-            virtual bool compareFunctions(const Observer& rhs) const = 0;
-        };
-        
-        template <typename R>
-        class CObserver : public Observer {
-        private:
-            using F = void(R::*)(A1, A2, A3, A4);
-
-            R* m_receiver;
-            F m_function;
-        public:
-            CObserver(R* receiver, F function) :
-            m_receiver(receiver),
-            m_function(function) {}
-            
-            void operator()(A1 a1, A2 a2, A3 a3, A4 a4) {
-                (m_receiver->*m_function)(a1, a2, a3, a4);
-            }
-            
-            void* receiver() const {
-                return static_cast<void*>(m_receiver);
-            }
-            
-            F function() const {
-                return m_function;
-            }
-            
-            bool compareFunctions(const Observer& rhs) const {
-                const CObserver<R>& rhsR = static_cast<const CObserver<R>&>(rhs);
-                return m_function == rhsR.function();
-            }
-        };
-    private:
-        NotifierState<Observer> m_state;
-    public:
-        class NotifyAfter {
-        private:
-            N& m_after;
-            A1& m_a1;
-            A2& m_a2;
-            A3& m_a3;
-            A4& m_a4;
-        public:
-            NotifyAfter(N& after, A1& a1, A2& a2, A3& a3, A4& a4) :
-            m_after(after),
-            m_a1(a1),
-            m_a2(a2),
-            m_a3(a3),
-            m_a4(a4) {}
-            virtual ~NotifyAfter() { m_after.notify(m_a1, m_a2, m_a3, m_a4); }
-        };
-        
-        class NotifyBeforeAndAfter : public NotifyAfter {
-        public:
-            NotifyBeforeAndAfter(N& before, N& after, A1& a1, A2& a2, A3& a3, A4& a4) :
-            NotifyAfter(after, a1, a2, a3, a4) {
-                before(a1, a2, a3, a4);
-            }
-        };
-
-        template <typename R>
-        bool addObserver(R* receiver, void (R::*function)(A1, A2, A3, A4)) {
-            return m_state.addObserver(new CObserver<R>(receiver, function));
-        }
-        
-        template <typename R>
-        bool removeObserver(R* receiver, void (R::*function)(A1, A2, A3, A4)) {
-            return m_state.removeObserver(new CObserver<R>(receiver, function));
-        }
-        
-        bool addObserver(Notifier4& notifier) {
-            return addObserver(&notifier, &Notifier4::operator());
-        }
-        
-        bool removeObserver(Notifier4& notifier) {
-            return removeObserver(&notifier, &Notifier4::operator());
-        }
-        
-        void notify(A1 a1, A2 a2, A3 a3, A4 a4) {
-            m_state.notify(a1, a2, a3, a4);
-        }
-        
-        void operator()(A1 a1, A2 a2, A3 a3, A4 a4) {
-            notify(a1, a2, a3, a4);
-        }
-        
-        template <typename I>
-        void notify(I it, I end, A2 a2, A3 a3, A4 a4) {
-            while (it != end) {
-                notify(*it, a2, a3, a4);
-                ++it;
-            }
-        }
-        
-        template <typename I>
-        void operator()(I it, I end, A2 a2, A3 a3, A4 a4) {
-            while (it != end) {
-                notify(*it, a2, a3, a4);
-                ++it;
-            }
-        }
-    };
-    
-    template <typename A1, typename A2, typename A3, typename A4, typename A5>
-    class Notifier5 {
-    private:
-        using N = Notifier5<A1, A2, A3, A4, A5>;
-        
-        class Observer {
-        private:
-            bool m_skip;
-        public:
-            Observer() : m_skip(false) {}
-            
-            bool skip() const {
-                return m_skip;
-            }
-            
-            void setSkip() {
-                m_skip = true;
-            }
-            
-            virtual ~Observer() {}
-            
-            virtual void* receiver() const = 0;
-            
-            virtual void operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) = 0;
-            
-            bool operator==(const Observer& rhs) const {
-                if (receiver() != rhs.receiver())
-                    return false;
-                return compareFunctions(rhs);
-            }
-        private:
-            virtual bool compareFunctions(const Observer& rhs) const = 0;
-        };
-        
-        template <typename R>
-        class CObserver : public Observer {
-        private:
-            using F = void(R::*)(A1, A2, A3, A4, A5);
-
-            R* m_receiver;
-            F m_function;
-        public:
-            CObserver(R* receiver, F function) :
-            m_receiver(receiver),
-            m_function(function) {}
-            
-            void operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) {
-                (m_receiver->*m_function)(a1, a2, a3, a4, a5);
-            }
-            
-            void* receiver() const {
-                return static_cast<void*>(m_receiver);
-            }
-            
-            F function() const {
-                return m_function;
-            }
-            
-            bool compareFunctions(const Observer& rhs) const {
-                const CObserver<R>& rhsR = static_cast<const CObserver<R>&>(rhs);
-                return m_function == rhsR.function();
-            }
-        };
-    private:
-        NotifierState<Observer> m_state;
-    public:
-        class NotifyAfter {
-        private:
-            N& m_after;
-            A1& m_a1;
-            A2& m_a2;
-            A3& m_a3;
-            A4& m_a4;
-            A5& m_a5;
-        public:
-            NotifyAfter(N& after, A1& a1, A2& a2, A3& a3, A4& a4, A5& a5) :
-            m_after(after),
-            m_a1(a1),
-            m_a2(a2),
-            m_a3(a3),
-            m_a4(a4),
-            m_a5(a5) {}
-            virtual ~NotifyAfter() { m_after.notify(m_a1, m_a2, m_a3, m_a4, m_a5); }
-        };
-        
-        class NotifyBeforeAndAfter : public NotifyAfter {
-        public:
-            NotifyBeforeAndAfter(N& before, N& after, A1& a1, A2& a2, A3& a3, A4& a4, A5& a5) :
-            NotifyAfter(after, a1, a2, a3, a4, a5) {
-                before(a1, a2, a3, a4, a5);
-            }
-        };
-        
-        template <typename R>
-        bool addObserver(R* receiver, void (R::*function)(A1, A2, A3, A4, A5)) {
-            return m_state.addObserver(new CObserver<R>(receiver, function));
-        }
-        
-        template <typename R>
-        bool removeObserver(R* receiver, void (R::*function)(A1, A2, A3, A4, A5)) {
-            return m_state.removeObserver(new CObserver<R>(receiver, function));
-        }
-        
-        bool addObserver(Notifier5& notifier) {
-            return addObserver(&notifier, &Notifier5::operator());
-        }
-        
-        bool removeObserver(Notifier5& notifier) {
-            return removeObserver(&notifier, &Notifier5::operator());
-        }
-        
-        void notify(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) {
-            m_state.notify(a1, a2, a3, a4, a5);
-        }
-        
-        void operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) {
-            notify(a1, a2, a3, a4, a5);
-        }
-        
-        template <typename I>
-        void notify(I it, I end, A2 a2, A3 a3, A4 a4, A5 a5) {
-            while (it != end) {
-                notify(*it, a2, a3, a4, a5);
-                ++it;
-            }
-        }
-        
-        template <typename I>
-        void operator()(I it, I end, A2 a2, A3 a3, A4 a4, A5 a5) {
-            while (it != end) {
-                notify(*it, a2, a3, a4, a5);
-                ++it;
-            }
+        /**
+         * Notifies all observers of this notifier with the given arguments.
+         *
+         * @param a the arguments to pass to each notifier
+         */
+        void operator()(A... a) {
+            notify(a...);
         }
     };
 }

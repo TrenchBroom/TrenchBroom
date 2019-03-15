@@ -32,10 +32,10 @@ namespace TrenchBroom {
         const Command::CommandType CommandGroup::Type = Command::freeType();
         
         CommandGroup::CommandGroup(const String& name, const CommandList& commands,
-                                   Notifier1<Command::Ptr>& commandDoNotifier,
-                                   Notifier1<Command::Ptr>& commandDoneNotifier,
-                                   Notifier1<UndoableCommand::Ptr>& commandUndoNotifier,
-                                   Notifier1<UndoableCommand::Ptr>& commandUndoneNotifier) :
+                                   Notifier<Command::Ptr>& commandDoNotifier,
+                                   Notifier<Command::Ptr>& commandDoneNotifier,
+                                   Notifier<UndoableCommand::Ptr>& commandUndoNotifier,
+                                   Notifier<UndoableCommand::Ptr>& commandUndoneNotifier) :
         UndoableCommand(Type, name),
         m_commands(commands),
         m_commandDoNotifier(commandDoNotifier),
@@ -268,25 +268,25 @@ namespace TrenchBroom {
         }
         
         bool CommandProcessor::doCommand(Command::Ptr command) {
-            Notifier1<Command::Ptr>::NotifyBeforeSuccessFail notifier(commandDoNotifier, commandDoneNotifier, commandDoFailedNotifier, command);
+            commandDoNotifier(command);
             if (command->performDo(m_document)) {
-                notifier.setDidSucceed(true);
-                // success notifier is called
+                commandDoneNotifier(command);
                 return true;
+            } else {
+                commandDoFailedNotifier(command);
+                return false;
             }
-            // failed notifier is called
-            return false;
         }
         
         bool CommandProcessor::undoCommand(UndoableCommand::Ptr command) {
-            Notifier1<UndoableCommand::Ptr>::NotifyBeforeSuccessFail notifier(commandUndoNotifier, commandUndoneNotifier, commandUndoFailedNotifier, command);
+            commandUndoNotifier(command);
             if (command->performUndo(m_document)) {
-                notifier.setDidSucceed(true);
-                // success notifier is called
+                commandUndoneNotifier(command);
                 return true;
+            } else {
+                commandUndoFailedNotifier(command);
+                return false;
             }
-            // failed notifier is called
-            return false;
         }
         
         bool CommandProcessor::storeCommand(UndoableCommand::Ptr command, const bool collate) {

@@ -44,7 +44,7 @@ namespace TrenchBroom {
             bool m_snap;
             bool m_visible;
         public:
-            Notifier0 gridDidChangeNotifier;
+            Notifier<> gridDidChangeNotifier;
         public:
             explicit Grid(const int size);
             

@@ -25,9 +25,9 @@
 namespace TrenchBroom {
     class Observed {
     public:
-        Notifier0 noArgNotifier;
-        Notifier1<const int&> oneArgNotifier;
-        Notifier2<const int&, const int&> twoArgNotifier;
+        Notifier<> noArgNotifier;
+        Notifier<const int&> oneArgNotifier;
+        Notifier<const int&, const int&> twoArgNotifier;
         
         void notify0() {
             noArgNotifier.notify();

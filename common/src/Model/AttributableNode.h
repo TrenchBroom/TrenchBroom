@@ -53,7 +53,7 @@ namespace TrenchBroom {
             Assets::EntityDefinition* definition() const;
             void setDefinition(Assets::EntityDefinition* definition);
         public: // notification
-            using AttributeNotifier = Notifier2<AttributableNode*, const AttributeName&>;
+            using AttributeNotifier = Notifier<AttributableNode*, const AttributeName&>;
             
             AttributeNotifier attributeWasAddedNotifier;
             AttributeNotifier attributeWillBeRemovedNotifier;
