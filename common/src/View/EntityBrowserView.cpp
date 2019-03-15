@@ -407,9 +407,9 @@ namespace TrenchBroom {
                         const auto quads = font.quads(title, false, offset);
                         const auto titleVertices = TextVertex::toList(
                             quads.size() / 2,
-                            StepIterator(std::begin(quads), 0, 2),
-                            StepIterator(std::begin(quads), 1, 2),
-                            StepIterator(std::begin(textColor), 0, 0));
+                            stepIterator(std::begin(quads), 0, 2),
+                            stepIterator(std::begin(quads), 1, 2),
+                            stepIterator(std::begin(textColor), 0, 0));
                         VectorUtils::append(stringVertices[defaultDescriptor], titleVertices);
                     }
 
@@ -425,9 +425,9 @@ namespace TrenchBroom {
                                 const auto quads = font.quads(cell.item().entityDefinition->name(), false, offset);
                                 const auto titleVertices = TextVertex::toList(
                                     quads.size() / 2,
-                                    StepIterator(std::begin(quads), 0, 2),
-                                    StepIterator(std::begin(quads), 1, 2),
-                                    StepIterator(std::begin(textColor), 0, 0));
+                                    stepIterator(std::begin(quads), 0, 2),
+                                    stepIterator(std::begin(quads), 1, 2),
+                                    stepIterator(std::begin(textColor), 0, 0));
                                 VectorUtils::append(stringVertices[cell.item().fontDescriptor], titleVertices);
                             }
                         }

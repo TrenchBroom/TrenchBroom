@@ -67,4 +67,9 @@ private:
     }
 };
 
+template <typename I>
+StepIterator<I> stepIterator(I delegate, const typename I::difference_type offset = 0, const typename I::difference_type stride = 1) {
+    return StepIterator<I>(delegate, offset, stride);
+}
+
 #endif //TRENCHBROOM_STEPITERATOR_H
