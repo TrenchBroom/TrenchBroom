@@ -30,8 +30,8 @@
 #include "IO/SkinLoader.h"
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/IndexRangeMapBuilder.h"
-#include "Renderer/Vertex.h"
-#include "Renderer/VertexSpec.h"
+#include "Renderer/GLVertex.h"
+#include "Renderer/GLVertexType.h"
 
 namespace TrenchBroom {
     namespace IO {

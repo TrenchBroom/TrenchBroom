@@ -30,7 +30,7 @@
 #include "Renderer/Renderable.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
-#include "Renderer/VertexSpec.h"
+#include "Renderer/GLVertexType.h"
 #include "View/MapDocument.h"
 #include "View/InputState.h"
 #include "View/UVViewHelper.h"

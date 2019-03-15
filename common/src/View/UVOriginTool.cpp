@@ -34,7 +34,7 @@
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Transformation.h"
-#include "Renderer/VertexSpec.h"
+#include "Renderer/GLVertexType.h"
 #include "View/InputState.h"
 #include "View/UVViewHelper.h"
 

@@ -265,7 +265,7 @@ namespace TrenchBroom {
         }
 
         void TextureBrowserView::renderBounds(Layout& layout, const float y, const float height) {
-            using BoundsVertex = Renderer::VertexSpecs::P2C4::Vertex;
+            using BoundsVertex = Renderer::GLVertexTypes::P2C4::Vertex;
             BoundsVertex::List vertices;
 
             for (size_t i = 0; i < layout.size(); ++i) {
@@ -306,7 +306,7 @@ namespace TrenchBroom {
         }
 
         void TextureBrowserView::renderTextures(Layout& layout, const float y, const float height) {
-            using TextureVertex = Renderer::VertexSpecs::P2T2::Vertex;
+            using TextureVertex = Renderer::GLVertexTypes::P2T2::Vertex;
 
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::TextureBrowserShader);
             shader.set("ApplyTinting", false);
@@ -357,7 +357,7 @@ namespace TrenchBroom {
         }
 
         void TextureBrowserView::renderGroupTitleBackgrounds(Layout& layout, const float y, const float height) {
-            using Vertex = Renderer::VertexSpecs::P2::Vertex;
+            using Vertex = Renderer::GLVertexTypes::P2::Vertex;
             Vertex::List vertices;
 
             for (size_t i = 0; i < layout.size(); ++i) {

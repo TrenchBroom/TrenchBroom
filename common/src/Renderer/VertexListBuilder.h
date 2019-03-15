@@ -21,7 +21,7 @@
 #define VertexListBuilder_h
 
 #include "Renderer/GL.h"
-#include "Renderer/Vertex.h"
+#include "Renderer/GLVertex.h"
 
 namespace TrenchBroom {
     namespace Renderer {

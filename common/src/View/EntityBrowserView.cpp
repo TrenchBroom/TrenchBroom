@@ -35,7 +35,7 @@
 #include "Renderer/TextureFont.h"
 #include "Renderer/Transformation.h"
 #include "Renderer/TexturedIndexRangeRenderer.h"
-#include "Renderer/Vertex.h"
+#include "Renderer/GLVertex.h"
 #include "Renderer/VertexArray.h"
 #include "View/MapFrame.h"
 #include "View/ViewUtils.h"
@@ -255,7 +255,7 @@ namespace TrenchBroom {
         };
 
         void EntityBrowserView::renderBounds(Layout& layout, const float y, const float height) {
-            using BoundsVertex = Renderer::VertexSpecs::P3C4::Vertex;
+            using BoundsVertex = Renderer::GLVertexTypes::P3C4::Vertex;
             BoundsVertex::List vertices;
 
             for (size_t i = 0; i < layout.size(); ++i) {
@@ -335,7 +335,7 @@ namespace TrenchBroom {
         }
 
         void EntityBrowserView::renderGroupTitleBackgrounds(Layout& layout, const float y, const float height) {
-            using Vertex = Renderer::VertexSpecs::P2::Vertex;
+            using Vertex = Renderer::GLVertexTypes::P2::Vertex;
             Vertex::List vertices;
 
             for (size_t i = 0; i < layout.size(); ++i) {

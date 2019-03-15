@@ -25,8 +25,8 @@
 #include "SharedPointer.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VboBlock.h"
-#include "Renderer/Vertex.h"
-#include "Renderer/VertexSpec.h"
+#include "Renderer/GLVertex.h"
+#include "Renderer/GLVertexType.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -177,8 +177,8 @@ namespace TrenchBroom {
              * @return the vertex array
              */
             template <typename... Attrs>
-            static VertexArray copy(const std::vector<Vertex<Attrs...>>& vertices) {
-                return VertexArray(std::make_shared<CopyHolder<typename Vertex<Attrs...>::Spec>>(vertices));
+            static VertexArray copy(const std::vector<GLVertex<Attrs...>>& vertices) {
+                return VertexArray(std::make_shared<CopyHolder<typename GLVertex<Attrs...>::Spec>>(vertices));
             }
 
             /**
@@ -189,8 +189,8 @@ namespace TrenchBroom {
              * @return the vertex array
              */
             template <typename... Attrs>
-            static VertexArray move(std::vector<Vertex<Attrs...>>&& vertices) {
-                auto holder = std::make_shared<MoveHolder<typename Vertex<Attrs...>::Spec>>(std::move(vertices));
+            static VertexArray move(std::vector<GLVertex<Attrs...>>&& vertices) {
+                auto holder = std::make_shared<MoveHolder<typename GLVertex<Attrs...>::Spec>>(std::move(vertices));
                 return VertexArray(holder);
             }
 
@@ -206,8 +206,8 @@ namespace TrenchBroom {
              * @return the vertex array
              */
             template <typename... Attrs>
-            static VertexArray ref(const std::vector<Vertex<Attrs...>>& vertices) {
-                return VertexArray(std::make_shared<RefHolder<typename Vertex<Attrs...>::Spec>>(vertices));
+            static VertexArray ref(const std::vector<GLVertex<Attrs...>>& vertices) {
+                return VertexArray(std::make_shared<RefHolder<typename GLVertex<Attrs...>::Spec>>(vertices));
             }
 
             /**

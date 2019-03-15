@@ -19,8 +19,8 @@
 
 #include <gtest/gtest.h>
 
-#include "Renderer/Vertex.h"
-#include "Renderer/VertexSpec.h"
+#include "Renderer/GLVertex.h"
+#include "Renderer/GLVertexType.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -36,7 +36,7 @@ namespace TrenchBroom {
         };
 
         TEST(VertexTest, memoryLayoutSingleVertex) {
-            using Vertex = VertexSpecs::P3T2C4::Vertex;
+            using Vertex = GLVertexTypes::P3T2C4::Vertex;
 
             const auto pos   = vm::vec3f(1.0f, 2.0f, 3.0f);
             const auto uv    = vm::vec2f(4.0f, 5.0f, 6.0f);
@@ -50,7 +50,7 @@ namespace TrenchBroom {
         }
 
         TEST(VertexTest, memoryLayoutVertexList) {
-            using Vertex = VertexSpecs::P3T2C4::Vertex;
+            using Vertex = GLVertexTypes::P3T2C4::Vertex;
 
             auto expected = std::vector<TestVertex>();
             auto actual   = Vertex::List();

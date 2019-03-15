@@ -26,23 +26,23 @@
 namespace TrenchBroom {
     namespace Renderer {
         template <typename... Attrs>
-        class VertexSpec;
+        struct GLVertexType;
 
         template <typename... Attrs>
-        struct Vertex;
+        struct GLVertex;
 
         template <typename Attr, typename... Attrs>
-        struct Vertex<Attr, Attrs...> {
-            using Spec = VertexSpec<Attr, Attrs...>;
-            using List = std::vector<Vertex<Attr, Attrs...>>;
+        struct GLVertex<Attr, Attrs...> {
+            using Spec = GLVertexType<Attr, Attrs...>;
+            using List = std::vector<GLVertex<Attr, Attrs...>>;
 
             typename Attr::ElementType attr;
-            Vertex<Attrs...> rest;
+            GLVertex<Attrs...> rest;
 
-            Vertex() = default;
+            GLVertex() = default;
 
             template <typename ElementType, typename... ElementTypes>
-            explicit Vertex(ElementType&& i_attr, ElementTypes&&... i_attrs) :
+            explicit GLVertex(ElementType&& i_attr, ElementTypes&&... i_attrs) :
             attr(std::forward<ElementType>(i_attr)),
             rest(std::forward<ElementTypes>(i_attrs)...) {}
 
@@ -59,16 +59,16 @@ namespace TrenchBroom {
         };
 
         template <typename Attr>
-        struct Vertex<Attr> {
-            using Spec = VertexSpec<Attr>;
-            using List = std::vector<Vertex<Attr>>;
+        struct GLVertex<Attr> {
+            using Spec = GLVertexType<Attr>;
+            using List = std::vector<GLVertex<Attr>>;
 
             typename Attr::ElementType attr;
 
-            Vertex() = default;
+            GLVertex() = default;
 
             template <typename ElementType>
-            explicit Vertex(ElementType&& i_attr) :
+            explicit GLVertex(ElementType&& i_attr) :
             attr(std::forward<ElementType>(i_attr)) {}
 
             template <typename I>
@@ -85,12 +85,12 @@ namespace TrenchBroom {
         template <size_t I>
         struct GetVertexComponent {
             template <typename... Attrs>
-            static const auto& get(const Vertex<Attrs...>& v) {
+            static const auto& get(const GLVertex<Attrs...>& v) {
                 return GetVertexComponent<I-1>::get(v.rest);
             }
 
             template <typename... Attrs>
-            const auto& operator()(const Vertex<Attrs...>& v) const {
+            const auto& operator()(const GLVertex<Attrs...>& v) const {
                 return GetVertexComponent<I-1>::get(v.rest);
             }
         };
@@ -98,12 +98,12 @@ namespace TrenchBroom {
         template <>
         struct GetVertexComponent<0> {
             template <typename... Attrs>
-            static const auto& get(const Vertex<Attrs...>& v) {
+            static const auto& get(const GLVertex<Attrs...>& v) {
                 return v.attr;
             }
 
             template <typename... Attrs>
-            const auto& operator()(const Vertex<Attrs...>& v) const {
+            const auto& operator()(const GLVertex<Attrs...>& v) const {
                 return v.attr;
             }
         };
@@ -116,7 +116,7 @@ namespace TrenchBroom {
          * @return a reference to the attribute value
          */
         template <size_t I, typename... Attrs>
-        const auto& getVertexComponent(const Vertex<Attrs...>& v) {
+        const auto& getVertexComponent(const GLVertex<Attrs...>& v) {
             return GetVertexComponent<I>::get(v);
         }
     }

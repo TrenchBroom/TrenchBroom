@@ -30,7 +30,7 @@
 #include "Renderer/RenderContext.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/VertexArray.h"
-#include "Renderer/VertexSpec.h"
+#include "Renderer/GLVertexType.h"
 #include "View/UVView.h"
 
 #include <vecmath/vec.h>

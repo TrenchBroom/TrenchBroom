@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -21,7 +21,7 @@
 #define TrenchBroom_EntityBrowserView
 
 #include "Assets/EntityDefinitionManager.h"
-#include "Renderer/VertexSpec.h"
+#include "Renderer/GLVertexType.h"
 #include "View/CellView.h"
 #include "View/ViewTypes.h"
 
@@ -36,18 +36,18 @@ namespace TrenchBroom {
         class EntityModelManager;
         class PointEntityDefinition;
     }
-    
+
     namespace Renderer {
         class FontDescriptor;
         class TexturedRenderer;
         class Transformation;
     }
-    
+
     namespace View {
         class GLContextManager;
-        
+
         using EntityGroupData = String;
-        
+
         class EntityCellData {
         private:
             using EntityRenderer = Renderer::TexturedRenderer;
@@ -56,22 +56,22 @@ namespace TrenchBroom {
             EntityRenderer* modelRenderer;
             Renderer::FontDescriptor fontDescriptor;
             vm::bbox3f bounds;
-            
+
             EntityCellData(const Assets::PointEntityDefinition* i_entityDefinition, EntityRenderer* i_modelRenderer, const Renderer::FontDescriptor& i_fontDescriptor, const vm::bbox3f& i_bounds);
         };
 
         class EntityBrowserView : public CellView<EntityCellData, EntityGroupData> {
         private:
             using EntityRenderer = Renderer::TexturedRenderer;
-            
-            using TextVertex = Renderer::VertexSpecs::P2T2C4::Vertex;
+
+            using TextVertex = Renderer::GLVertexTypes::P2T2C4::Vertex;
             using StringMap = std::map<Renderer::FontDescriptor, TextVertex::List>;
 
             Assets::EntityDefinitionManager& m_entityDefinitionManager;
             Assets::EntityModelManager& m_entityModelManager;
             Logger& m_logger;
             vm::quatf m_rotation;
-            
+
             bool m_group;
             bool m_hideUnused;
             Assets::EntityDefinition::SortOrder m_sortOrder;
@@ -91,7 +91,7 @@ namespace TrenchBroom {
             void setFilterText(const String& filterText);
         private:
             void usageCountDidChange();
-            
+
             void doInitLayout(Layout& layout) override;
             void doReloadLayout(Layout& layout) override;
 
@@ -101,23 +101,23 @@ namespace TrenchBroom {
             wxString dndData(const Layout::Group::Row::Cell& cell) override;
 
             void addEntityToLayout(Layout& layout, const Assets::PointEntityDefinition* definition, const Renderer::FontDescriptor& font);
-            
+
             void doClear() override;
             void doRender(Layout& layout, float y, float height) override;
             bool doShouldRenderFocusIndicator() const override;
 
             void renderBounds(Layout& layout, float y, float height);
-            
+
             class MeshFunc;
             void renderModels(Layout& layout, float y, float height, Renderer::Transformation& transformation);
-            
+
             void renderNames(Layout& layout, float y, float height, const vm::mat4x4f& projection);
             void renderGroupTitleBackgrounds(Layout& layout, float y, float height);
             void renderStrings(Layout& layout, float y, float height);
             StringMap collectStringVertices(Layout& layout, float y, float height);
-            
+
             vm::mat4x4f itemTransformation(const Layout::Group::Row::Cell& cell, float y, float height) const;
-            
+
             wxString tooltip(const Layout::Group::Row::Cell& cell) override;
         };
     }
