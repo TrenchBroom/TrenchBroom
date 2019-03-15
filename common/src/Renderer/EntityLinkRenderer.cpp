@@ -204,8 +204,8 @@ namespace TrenchBroom {
                 const auto& sourceColor = anySelected ? m_selectedColor : m_defaultColor;
                 const auto targetColor = anySelected ? m_selectedColor : m_defaultColor;
                 
-                m_links.push_back(Vertex(vm::vec3f(source->linkSourceAnchor()), sourceColor));
-                m_links.push_back(Vertex(vm::vec3f(target->linkTargetAnchor()), targetColor));
+                m_links.emplace_back(vm::vec3f(source->linkSourceAnchor()), sourceColor);
+                m_links.emplace_back(vm::vec3f(target->linkTargetAnchor()), targetColor);
             }
         };
         

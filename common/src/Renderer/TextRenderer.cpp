@@ -180,13 +180,13 @@ namespace TrenchBroom {
             for (size_t i = 0; i < stringVertices.size() / 2; ++i) {
                 const vm::vec2f& position2 = stringVertices[2 * i];
                 const vm::vec2f& texCoords = stringVertices[2 * i + 1];
-                textVertices.push_back(TextVertex(vm::vec3f(position2 + offset.xy(), -offset.z()), texCoords, textColor));
+                textVertices.emplace_back(vm::vec3f(position2 + offset.xy(), -offset.z()), texCoords, textColor);
             }
 
             const std::vector<vm::vec2f> rect = roundedRect2D(stringSize + 2.0f * m_inset, RectCornerRadius, RectCornerSegments);
             for (size_t i = 0; i < rect.size(); ++i) {
                 const vm::vec2f& vertex = rect[i];
-                rectVertices.push_back(RectVertex(vm::vec3f(vertex + offset.xy() + stringSize / 2.0f, -offset.z()), rectColor));
+                rectVertices.emplace_back(vm::vec3f(vertex + offset.xy() + stringSize / 2.0f, -offset.z()), rectColor);
             }
         }
 

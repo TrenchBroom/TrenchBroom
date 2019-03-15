@@ -247,12 +247,12 @@ namespace TrenchBroom {
             vm::vec3 x1, x2, y1, y2;
             m_helper.computeOriginHandleVertices(x1, x2, y1, y2);
 
-            EdgeVertex::List vertices(4);
-            vertices[0] = EdgeVertex(vm::vec3f(x1), xColor);
-            vertices[1] = EdgeVertex(vm::vec3f(x2), xColor);
-            vertices[2] = EdgeVertex(vm::vec3f(y1), yColor);
-            vertices[3] = EdgeVertex(vm::vec3f(y2), yColor);
-            return vertices;
+            return EdgeVertex::List({
+                EdgeVertex(vm::vec3f(x1), xColor),
+                EdgeVertex(vm::vec3f(x2), xColor),
+                EdgeVertex(vm::vec3f(y1), yColor),
+                EdgeVertex(vm::vec3f(y2), yColor)
+            });
         }
 
         class UVOriginTool::RenderOrigin : public Renderer::DirectRenderable {

@@ -210,9 +210,6 @@ namespace TrenchBroom {
                 const auto* face = m_helper.face();
                 const auto normal = vm::vec3f(face->boundary().normal);
                 
-                Vertex::List vertices;
-                vertices.reserve(4);
-                
                 const auto& camera = m_helper.camera();
                 const auto& v = camera.zoomedViewport();
                 const auto w2 = static_cast<float>(v.width) / 2.0f;
@@ -226,13 +223,13 @@ namespace TrenchBroom {
                 const auto pos2 = +w2 * r +h2 * u + p;
                 const auto pos3 = +w2 * r -h2 * u + p;
                 const auto pos4 = -w2 * r -h2 * u + p;
-                
-                vertices.push_back(Vertex(pos1, normal, face->textureCoords(vm::vec3(pos1))));
-                vertices.push_back(Vertex(pos2, normal, face->textureCoords(vm::vec3(pos2))));
-                vertices.push_back(Vertex(pos3, normal, face->textureCoords(vm::vec3(pos3))));
-                vertices.push_back(Vertex(pos4, normal, face->textureCoords(vm::vec3(pos4))));
-                
-                return vertices;
+
+                return Vertex::List({
+                    Vertex(pos1, normal, face->textureCoords(vm::vec3(pos1))),
+                    Vertex(pos2, normal, face->textureCoords(vm::vec3(pos2))),
+                    Vertex(pos3, normal, face->textureCoords(vm::vec3(pos3))),
+                    Vertex(pos4, normal, face->textureCoords(vm::vec3(pos4)))
+                });
             }
         private:
             void doPrepareVertices(Renderer::Vbo& vertexVbo) override {
@@ -307,17 +304,16 @@ namespace TrenchBroom {
             const auto yAxis  = vm::vec3f(face->textureYAxis() - dot(face->textureYAxis(), normal) * normal);
             const auto center = vm::vec3f(face->boundsCenter());
             
-            using Vertex = Renderer::VertexSpecs::P3C4::Vertex;
-            Vertex::List vertices;
-            vertices.reserve(4);
-            
             const auto length = 32.0f / m_helper.cameraZoom();
-            
-            vertices.push_back(Vertex(center, pref(Preferences::XAxisColor)));
-            vertices.push_back(Vertex(center + length * xAxis, pref(Preferences::XAxisColor)));
-            vertices.push_back(Vertex(center, pref(Preferences::YAxisColor)));
-            vertices.push_back(Vertex(center + length * yAxis, pref(Preferences::YAxisColor)));
-            
+
+            using Vertex = Renderer::VertexSpecs::P3C4::Vertex;
+            auto vertices = Vertex::List({
+                Vertex(center, pref(Preferences::XAxisColor)),
+                Vertex(center + length * xAxis, pref(Preferences::XAxisColor)),
+                Vertex(center, pref(Preferences::YAxisColor)),
+                Vertex(center + length * yAxis, pref(Preferences::YAxisColor)),
+            });
+
             Renderer::DirectEdgeRenderer edgeRenderer(Renderer::VertexArray::swap(vertices), GL_LINES);
             edgeRenderer.renderOnTop(renderBatch, 2.0f);
         }

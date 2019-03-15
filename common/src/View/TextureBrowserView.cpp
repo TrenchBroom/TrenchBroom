@@ -279,10 +279,10 @@ namespace TrenchBroom {
                                 const LayoutBounds& bounds = cell.itemBounds();
                                 const Assets::Texture* texture = cell.item().texture;
                                 const Color& color = textureColor(*texture);
-                                vertices.push_back(BoundsVertex(vm::vec2f(bounds.left() - 2.0f, height - (bounds.top() - 2.0f - y)), color));
-                                vertices.push_back(BoundsVertex(vm::vec2f(bounds.left() - 2.0f, height - (bounds.bottom() + 2.0f - y)), color));
-                                vertices.push_back(BoundsVertex(vm::vec2f(bounds.right() + 2.0f, height - (bounds.bottom() + 2.0f - y)), color));
-                                vertices.push_back(BoundsVertex(vm::vec2f(bounds.right() + 2.0f, height - (bounds.top() - 2.0f - y)), color));
+                                vertices.emplace_back(vm::vec2f(bounds.left() - 2.0f, height - (bounds.top() - 2.0f - y)), color);
+                                vertices.emplace_back(vm::vec2f(bounds.left() - 2.0f, height - (bounds.bottom() + 2.0f - y)), color);
+                                vertices.emplace_back(vm::vec2f(bounds.right() + 2.0f, height - (bounds.bottom() + 2.0f - y)), color);
+                                vertices.emplace_back(vm::vec2f(bounds.right() + 2.0f, height - (bounds.top() - 2.0f - y)), color);
                             }
                         }
                     }
@@ -307,7 +307,6 @@ namespace TrenchBroom {
 
         void TextureBrowserView::renderTextures(Layout& layout, const float y, const float height) {
             using TextureVertex = Renderer::VertexSpecs::P2T2::Vertex;
-            TextureVertex::List vertices(4);
 
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::TextureBrowserShader);
             shader.set("ApplyTinting", false);
@@ -329,12 +328,14 @@ namespace TrenchBroom {
                                 const LayoutBounds& bounds = cell.itemBounds();
                                 const Assets::Texture* texture = cell.item().texture;
 
-                                vertices[0] = TextureVertex(vm::vec2f(bounds.left(),  height - (bounds.top() - y)),    vm::vec2f(0.0f, 0.0f));
-                                vertices[1] = TextureVertex(vm::vec2f(bounds.left(),  height - (bounds.bottom() - y)), vm::vec2f(0.0f, 1.0f));
-                                vertices[2] = TextureVertex(vm::vec2f(bounds.right(), height - (bounds.bottom() - y)), vm::vec2f(1.0f, 1.0f));
-                                vertices[3] = TextureVertex(vm::vec2f(bounds.right(), height - (bounds.top() - y)),    vm::vec2f(1.0f, 0.0f));
+                                auto vertices = TextureVertex::List({
+                                    TextureVertex(vm::vec2f(bounds.left(),  height - (bounds.top() - y)),    vm::vec2f(0.0f, 0.0f)),
+                                    TextureVertex(vm::vec2f(bounds.left(),  height - (bounds.bottom() - y)), vm::vec2f(0.0f, 1.0f)),
+                                    TextureVertex(vm::vec2f(bounds.right(), height - (bounds.bottom() - y)), vm::vec2f(1.0f, 1.0f)),
+                                    TextureVertex(vm::vec2f(bounds.right(), height - (bounds.top() - y)),    vm::vec2f(1.0f, 0.0f))
+                                });
 
-                                Renderer::VertexArray vertexArray = Renderer::VertexArray::copy(vertices);
+                                Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(vertices);
 
                                 shader.set("GrayScale", texture->overridden());
                                 texture->activate();

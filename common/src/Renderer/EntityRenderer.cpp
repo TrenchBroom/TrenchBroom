@@ -293,10 +293,10 @@ namespace TrenchBroom {
             color(i_color) {}
             
             void operator()(const vm::vec3& v1, const vm::vec3& v2, const vm::vec3& v3, const vm::vec3& v4, const vm::vec3& n) {
-                vertices.push_back(VertexSpecs::P3NC4::Vertex(vm::vec3f(v1), vm::vec3f(n), color));
-                vertices.push_back(VertexSpecs::P3NC4::Vertex(vm::vec3f(v2), vm::vec3f(n), color));
-                vertices.push_back(VertexSpecs::P3NC4::Vertex(vm::vec3f(v3), vm::vec3f(n), color));
-                vertices.push_back(VertexSpecs::P3NC4::Vertex(vm::vec3f(v4), vm::vec3f(n), color));
+                vertices.emplace_back(vm::vec3f(v1), vm::vec3f(n), color);
+                vertices.emplace_back(vm::vec3f(v2), vm::vec3f(n), color);
+                vertices.emplace_back(vm::vec3f(v3), vm::vec3f(n), color);
+                vertices.emplace_back(vm::vec3f(v4), vm::vec3f(n), color);
             }
         };
 
@@ -309,8 +309,8 @@ namespace TrenchBroom {
             color(i_color) {}
             
             void operator()(const vm::vec3& v1, const vm::vec3& v2) {
-                vertices.push_back(VertexSpecs::P3C4::Vertex(vm::vec3f(v1), color));
-                vertices.push_back(VertexSpecs::P3C4::Vertex(vm::vec3f(v2), color));
+                vertices.emplace_back(vm::vec3f(v1), color);
+                vertices.emplace_back(vm::vec3f(v2), color);
             }
         };
         
@@ -321,8 +321,8 @@ namespace TrenchBroom {
             vertices(i_vertices) {}
             
             void operator()(const vm::vec3& v1, const vm::vec3& v2) {
-                vertices.push_back(VertexSpecs::P3::Vertex(vm::vec3f(v1)));
-                vertices.push_back(VertexSpecs::P3::Vertex(vm::vec3f(v2)));
+                vertices.emplace_back(vm::vec3f(v1));
+                vertices.emplace_back(vm::vec3f(v2));
             }
         };
         

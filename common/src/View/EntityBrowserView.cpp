@@ -249,8 +249,8 @@ namespace TrenchBroom {
             vertices(i_vertices) {}
 
             void operator()(const vm::vec3f& v1, const vm::vec3f& v2) {
-                vertices.push_back(Vertex(transformation * v1, color));
-                vertices.push_back(Vertex(transformation * v2, color));
+                vertices.emplace_back(transformation * v1, color);
+                vertices.emplace_back(transformation * v2, color);
             }
         };
 
