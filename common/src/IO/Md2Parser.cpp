@@ -343,10 +343,10 @@ namespace TrenchBroom {
                         const auto vertices = getVertices(frame, md2Mesh.vertices);
 
                         if (!boundsInitialized) {
-                            bounds = vm::bbox3f::mergeAll(std::begin(vertices), std::end(vertices), Renderer::GetVertexComponent1());
+                            bounds = vm::bbox3f::mergeAll(std::begin(vertices), std::end(vertices), Renderer::GetVertexComponent<0>());
                             boundsInitialized = true;
                         } else {
-                            bounds = vm::merge(bounds, vm::bbox3f::mergeAll(std::begin(vertices), std::end(vertices), Renderer::GetVertexComponent1()));
+                            bounds = vm::merge(bounds, vm::bbox3f::mergeAll(std::begin(vertices), std::end(vertices), Renderer::GetVertexComponent<0>()));
                         }
 
                         if (md2Mesh.type == Md2Mesh::Fan) {
@@ -372,7 +372,7 @@ namespace TrenchBroom {
                 const auto position = frame.vertex(md2MeshVertex.vertexIndex);
                 const auto& texCoords = md2MeshVertex.texCoords;
                 
-                result.push_back(Vertex(position, texCoords));
+                result.emplace_back(position, texCoords);
             }
             
             return result;

@@ -26,155 +26,73 @@
 
 #include <vector>
 
+#include <vecmath/forward.h>
+
 namespace TrenchBroom {
     namespace Renderer {
-        template <typename _A1>
-        class VertexSpec1 {
-        public:
-            using A1 = _A1;
-            using Vertex = Vertex1<_A1>;
-            static const size_t Size;
-        public:
-            static void setup(const size_t baseOffset) {
-                _A1::setup(0, Size, baseOffset);
-            }
-            
-            static void cleanup() {
-                _A1::cleanup(0);
-            }
-        private:
-            VertexSpec1();
-        };
-        
-        template <typename A1>
-        const size_t VertexSpec1<A1>::Size = sizeof(VertexSpec1<A1>::Vertex);
+        template <typename... Attrs>
+        class VertexSpec;
 
-        template <typename _A1, typename _A2>
-        class VertexSpec2 {
+        template <typename Attr, typename... Attrs>
+        class VertexSpec<Attr, Attrs...> {
         public:
-            using A1 = _A1;
-            using A2 = _A2;
-            using Vertex = Vertex2<_A1, _A2>;
-            static const size_t Size;
-        public:
-            static void setup(const size_t baseOffset) {
-                _A1::setup(0, Size, baseOffset);
-                _A2::setup(1, Size, baseOffset + _A1::Size);
-            }
-            
-            static void cleanup() {
-                _A2::cleanup(1);
-                _A1::cleanup(0);
-            }
-        private:
-            VertexSpec2();
-        };
-        
-        template <typename A1, typename A2>
-        const size_t VertexSpec2<A1, A2>::Size = sizeof(VertexSpec2<A1, A2>::Vertex);
+            using Vertex = Vertex<Attr, Attrs...>;
+            static const size_t Size = sizeof(Vertex);
 
-        template <typename _A1, typename _A2, typename _A3>
-        class VertexSpec3 {
-        public:
-            using A1 = _A1;
-            using A2 = _A2;
-            using A3 = _A3;
-            using Vertex = Vertex3<_A1, _A2, _A3>;
-            static const size_t Size;
-        public:
             static void setup(const size_t baseOffset) {
-                _A1::setup(0, Size, baseOffset);
-                _A2::setup(1, Size, baseOffset + _A1::Size);
-                _A3::setup(2, Size, baseOffset + _A1::Size + _A2::Size);
+                doSetup(0, Size, baseOffset);
             }
-            
-            static void cleanup() {
-                _A3::cleanup(2);
-                _A2::cleanup(1);
-                _A1::cleanup(0);
-            }
-        private:
-            VertexSpec3();
-        };
-        
-        template <typename A1, typename A2, typename A3>
-        const size_t VertexSpec3<A1, A2, A3>::Size = sizeof(VertexSpec3<A1, A2, A3>::Vertex);
 
-        template <typename _A1, typename _A2, typename _A3, typename _A4>
-        class VertexSpec4 {
-        public:
-            using A1 = _A1;
-            using A2 = _A2;
-            using A3 = _A3;
-            using A4 = _A4;
-            using Vertex = Vertex4<_A1, _A2, _A3, _A4>;
-            static const size_t Size;
-        public:
-            static void setup(const size_t baseOffset) {
-                _A1::setup(0, Size, baseOffset);
-                _A2::setup(1, Size, baseOffset + _A1::Size);
-                _A3::setup(2, Size, baseOffset + _A1::Size + _A2::Size);
-                _A4::setup(3, Size, baseOffset + _A1::Size + _A2::Size + _A3::Size);
-            }
-            
             static void cleanup() {
-                _A4::cleanup(3);
-                _A3::cleanup(2);
-                _A2::cleanup(1);
-                _A1::cleanup(0);
+                doCleanup(0);
             }
-        private:
-            VertexSpec4();
-        };
-        
-        template <typename A1, typename A2, typename A3, typename A4>
-        const size_t VertexSpec4<A1, A2, A3, A4>::Size = sizeof(VertexSpec4<A1, A2, A3, A4>::Vertex);
 
-        template <typename _A1, typename _A2, typename _A3, typename _A4, typename _A5>
-        class VertexSpec5 {
+            static void doSetup(const size_t index, const size_t stride, const size_t offset) {
+                Attr::setup(index, stride, offset);
+                VertexSpec<Attrs...>::doSetup(index + 1, stride, offset + Attr::Size);
+            }
+
+            static void doCleanup(const size_t index) {
+                VertexSpec<Attrs...>::doCleanup(index + 1);
+                Attr::cleanup(index);
+            }
+        };
+
+        template <typename Attr>
+        class VertexSpec<Attr> {
         public:
-            using A1 = _A1;
-            using A2 = _A2;
-            using A3 = _A3;
-            using A4 = _A4;
-            using A5 = _A5;
-            using Vertex = Vertex5<_A1, _A2, _A3, _A4, _A5>;
-            static const size_t Size;
-        public:
+            using Vertex = Vertex<Attr>;
+            static const size_t Size = sizeof(Vertex);
+
             static void setup(const size_t baseOffset) {
-                _A1::setup(0, Size, baseOffset);
-                _A2::setup(1, Size, baseOffset + _A1::Size);
-                _A3::setup(2, Size, baseOffset + _A1::Size + _A2::Size);
-                _A4::setup(3, Size, baseOffset + _A1::Size + _A2::Size + _A3::Size);
-                _A5::setup(4, Size, baseOffset + _A1::Size + _A2::Size + _A3::Size + _A4::Size);
+                doSetup(0, Size, baseOffset);
+            }
+
+            static void cleanup() {
+                doCleanup(0);
             }
             
-            static void cleanup() {
-                _A5::cleanup(4);
-                _A4::cleanup(3);
-                _A3::cleanup(2);
-                _A2::cleanup(1);
-                _A1::cleanup(0);
+            static void doSetup(const size_t index, const size_t stride, const size_t offset) {
+                Attr::setup(index, stride, offset);
             }
-        private:
-            VertexSpec5();
+
+            static void doCleanup(const size_t index) {
+                Attr::cleanup(index);
+            }
         };
-        
-        template <typename A1, typename A2, typename A3, typename A4, typename A5>
-        const size_t VertexSpec5<A1, A2, A3, A4, A5>::Size = sizeof(VertexSpec5<A1, A2, A3, A4, A5>::Vertex);
 
         namespace VertexSpecs {
-            using P2     = VertexSpec1<AttributeSpecs::P2>;
-            using P3     = VertexSpec1<AttributeSpecs::P3>;
-            using P2C4   = VertexSpec2<AttributeSpecs::P2, AttributeSpecs::C4>;
-            using P3C4   = VertexSpec2<AttributeSpecs::P3, AttributeSpecs::C4>;
-            using P2T2   = VertexSpec2<AttributeSpecs::P2, AttributeSpecs::T02>;
-            using P3T2   = VertexSpec2<AttributeSpecs::P3, AttributeSpecs::T02>;
-            using P2T2C4 = VertexSpec3<AttributeSpecs::P2, AttributeSpecs::T02, AttributeSpecs::C4>;
-            using P3T2C4 = VertexSpec3<AttributeSpecs::P3, AttributeSpecs::T02, AttributeSpecs::C4>;
-            using P3N    = VertexSpec2<AttributeSpecs::P3, AttributeSpecs::N>;
-            using P3NC4  = VertexSpec3<AttributeSpecs::P3, AttributeSpecs::N, AttributeSpecs::C4>;
-            using P3NT2  = VertexSpec3<AttributeSpecs::P3, AttributeSpecs::N, AttributeSpecs::T02>;
+            using P2     = VertexSpec<AttributeSpecs::P2>;
+            using P3     = VertexSpec<AttributeSpecs::P3>;
+            using P2C4   = VertexSpec<AttributeSpecs::P2, AttributeSpecs::C4>;
+            using P3C4   = VertexSpec<AttributeSpecs::P3, AttributeSpecs::C4>;
+            using P2T2   = VertexSpec<AttributeSpecs::P2, AttributeSpecs::T02>;
+            using P3T2   = VertexSpec<AttributeSpecs::P3, AttributeSpecs::T02>;
+            using P2T2C4 = VertexSpec<AttributeSpecs::P2, AttributeSpecs::T02, AttributeSpecs::C4>;
+            using P3T2C4 = VertexSpec<AttributeSpecs::P3, AttributeSpecs::T02, AttributeSpecs::C4>;
+            using P3N    = VertexSpec<AttributeSpecs::P3, AttributeSpecs::N>;
+            using P3NC4  = VertexSpec<AttributeSpecs::P3, AttributeSpecs::N, AttributeSpecs::C4>;
+            using P3NT2  = VertexSpec<AttributeSpecs::P3, AttributeSpecs::N, AttributeSpecs::T02>;
         }
     }
 }

@@ -44,11 +44,4 @@ bool expired(std::weak_ptr<T> ptr) {
     return ptr.expired();
 }
 
-template <typename T>
-struct ArrayDeleter {
-    void operator ()(T const* p) const {
-        delete[] p;
-    }
-};
-
 #endif

@@ -374,7 +374,7 @@ namespace TrenchBroom {
                         bounds = vm::merge(bounds, position);
                     }
 
-                    frameTriangles.push_back(Vertex(position, texCoords));
+                    frameTriangles.emplace_back(position, texCoords);
                 }
             }
 

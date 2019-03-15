@@ -45,7 +45,7 @@ namespace TrenchBroom {
             using T03 = AttributeSpec<AttributeType_TexCoord0, GL_FLOAT, 3>;
             using T13 = AttributeSpec<AttributeType_TexCoord1, GL_FLOAT, 3>;
 
-            using ArrowVertex = VertexSpec4<
+            using ArrowVertex = VertexSpec<
                     AttributeSpecs::P3,  // vertex of the arrow (exposed in shader as gl_Vertex)
                     AttributeSpecs::C4,  // arrow color (exposed in shader as gl_Color)
                     T03,                 // arrow position (exposed in shader as gl_MultiTexCoord0)

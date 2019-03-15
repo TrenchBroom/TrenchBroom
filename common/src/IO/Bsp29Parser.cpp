@@ -252,7 +252,7 @@ namespace TrenchBroom {
                                 bounds = vm::merge(bounds, position);
                             }
 
-                            faceVertices.push_back(Vertex(position, texCoords));
+                            faceVertices.emplace_back(position, texCoords);
                         }
 
                         builder.addPolygon(skin, faceVertices);

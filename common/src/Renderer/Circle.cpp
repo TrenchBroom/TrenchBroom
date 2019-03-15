@@ -82,7 +82,7 @@ namespace TrenchBroom {
             if (m_filled) {
                 positions.push_back(vm::vec2f::zero);
             }
-            auto vertices = Vertex::toList(std::begin(positions), positions.size());
+            auto vertices = Vertex::toList(positions.size(), std::begin(positions));
             m_array = VertexArray::swap(vertices);
         }
         
@@ -93,7 +93,7 @@ namespace TrenchBroom {
             if (m_filled) {
                 positions.push_back(vm::vec3f::zero);
             }
-            auto vertices = Vertex::toList(std::begin(positions), positions.size());
+            auto vertices = Vertex::toList(positions.size(), std::begin(positions));
             m_array = VertexArray::swap(vertices);
         }
     }

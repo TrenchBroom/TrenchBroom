@@ -118,27 +118,27 @@ namespace TrenchBroom {
         }
         
         void PerspectiveCamera::doRenderFrustum(RenderContext& renderContext, Vbo& vbo, const float size, const Color& color) const {
-            using Vertex = VertexSpecs::P3C4::Vertex;
-            Vertex::List triangleVertices(6);
-            Vertex::List lineVertices(8 * 2);
+            using V = VertexSpecs::P3C4::Vertex;
+            V::List triangleVertices(6);
+            V::List lineVertices(8 * 2);
             
             vm::vec3f verts[4];
             getFrustumVertices(size, verts);
             
-            triangleVertices[0] = Vertex(position(), Color(color, 0.7f));
+            triangleVertices[0] = V(position(), Color(color, 0.7f));
             for (size_t i = 0; i < 4; ++i) {
-                triangleVertices[i + 1] = Vertex(verts[i], Color(color, 0.2f));
+                triangleVertices[i + 1] = V(verts[i], Color(color, 0.2f));
             }
-            triangleVertices[5] = Vertex(verts[0], Color(color, 0.2f));
+            triangleVertices[5] = V(verts[0], Color(color, 0.2f));
             
             for (size_t i = 0; i < 4; ++i) {
-                lineVertices[2 * i + 0] = Vertex(position(), color);
-                lineVertices[2 * i + 1] = Vertex(verts[i], color);
+                lineVertices[2 * i + 0] = V(position(), color);
+                lineVertices[2 * i + 1] = V(verts[i], color);
             }
             
             for (size_t i = 0; i < 4; ++i) {
-                lineVertices[8 + 2 * i + 0] = Vertex(verts[i], color);
-                lineVertices[8 + 2 * i + 1] = Vertex(verts[vm::succ(i, 4)], color);
+                lineVertices[8 + 2 * i + 0] = V(verts[i], color);
+                lineVertices[8 + 2 * i + 1] = V(verts[vm::succ(i, 4)], color);
             }
             
             auto triangleArray = VertexArray::ref(triangleVertices);
