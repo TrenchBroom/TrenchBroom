@@ -367,7 +367,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        void MapDocument::loadPointFile(const IO::Path path) {
+        void MapDocument::loadPointFile(const IO::Path& path) {
             if (!Model::PointFile::canLoad(path)) {
                 return;
             }
@@ -405,7 +405,7 @@ namespace TrenchBroom {
             pointFileWasUnloadedNotifier();
         }
 
-        void MapDocument::loadPortalFile(const IO::Path path) {
+        void MapDocument::loadPortalFile(const IO::Path& path) {
             if (!Model::PortalFile::canLoad(path)) {
                 return;
             }
@@ -1563,6 +1563,7 @@ namespace TrenchBroom {
             info("Reloading texture collections");
             reloadTextures();
             setTextures();
+            initializeNodeTags(this);
         }
 
         void MapDocument::reloadEntityDefinitions() {
@@ -1906,8 +1907,8 @@ namespace TrenchBroom {
         private:
             Model::TagManager& m_tagManager;
         public:
-            InitializeNodeTagsVisitor(Model::TagManager& tagManager) :
-                m_tagManager(tagManager) {}
+            explicit InitializeNodeTagsVisitor(Model::TagManager& tagManager) :
+            m_tagManager(tagManager) {}
         private:
             void doVisit(Model::World* world)   override { initializeNodeTags(world); }
             void doVisit(Model::Layer* layer)   override { initializeNodeTags(layer); }
@@ -1946,6 +1947,26 @@ namespace TrenchBroom {
             for (auto* face : faces) {
                 face->updateTags(*m_tagManager);
             }
+        }
+
+
+        class MapDocument::InitializeFaceTagsVisitor : public Model::NodeVisitor {
+        private:
+            Model::TagManager& m_tagManager;
+        public:
+            explicit InitializeFaceTagsVisitor(Model::TagManager& tagManager) :
+                m_tagManager(tagManager) {}
+        private:
+            void doVisit(Model::World* world)   override {}
+            void doVisit(Model::Layer* layer)   override {}
+            void doVisit(Model::Group* group)   override {}
+            void doVisit(Model::Entity* entity) override {}
+            void doVisit(Model::Brush* brush)   override { brush->initializeTags(m_tagManager); }
+        };
+
+        void MapDocument::updateAllFaceTags() {
+            InitializeFaceTagsVisitor visitor(*m_tagManager);
+            m_world->acceptAndRecurse(visitor);
         }
 
         bool MapDocument::persistent() const {
@@ -1999,6 +2020,8 @@ namespace TrenchBroom {
             nodesWillBeRemovedNotifier.addObserver(this, &MapDocument::clearNodeTags);
             nodesDidChangeNotifier.addObserver(this, &MapDocument::updateNodeTags);
             brushFacesDidChangeNotifier.addObserver(this, &MapDocument::updateFaceTags);
+            modsDidChangeNotifier.addObserver(this, &MapDocument::updateAllFaceTags);
+            textureCollectionsDidChangeNotifier.addObserver(this, &MapDocument::updateAllFaceTags);
         }
 
         void MapDocument::unbindObservers() {
@@ -2016,6 +2039,8 @@ namespace TrenchBroom {
             nodesWillBeRemovedNotifier.removeObserver(this, &MapDocument::clearNodeTags);
             nodesDidChangeNotifier.removeObserver(this, &MapDocument::updateNodeTags);
             brushFacesDidChangeNotifier.removeObserver(this, &MapDocument::updateFaceTags);
+            modsDidChangeNotifier.removeObserver(this, &MapDocument::updateAllFaceTags);
+            textureCollectionsDidChangeNotifier.removeObserver(this, &MapDocument::updateAllFaceTags);
         }
 
         void MapDocument::preferenceDidChange(const IO::Path& path) {
