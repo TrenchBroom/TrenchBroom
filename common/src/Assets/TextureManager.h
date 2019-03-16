@@ -56,7 +56,7 @@ namespace TrenchBroom {
             int m_magFilter;
             bool m_resetTextureMode;
         public:
-            Notifier0 usageCountDidChange;
+            Notifier<> usageCountDidChange;
         public:
             TextureManager(int magFilter, int minFilter, Logger& logger);
             ~TextureManager();

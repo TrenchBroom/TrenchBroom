@@ -29,7 +29,7 @@ namespace TrenchBroom {
         private:
             CompilationProfile::List m_profiles;
         public:
-            mutable Notifier0 profilesDidChange;
+            mutable Notifier<> profilesDidChange;
         public:
             CompilationConfig();
             CompilationConfig(const CompilationProfile::List& profiles);

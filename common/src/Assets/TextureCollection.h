@@ -44,7 +44,7 @@ namespace TrenchBroom {
             
             friend class Texture;
         public:
-            Notifier0 usageCountDidChange;
+            Notifier<> usageCountDidChange;
         public:
             TextureCollection();
             explicit TextureCollection(const TextureList& textures);
