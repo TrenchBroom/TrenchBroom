@@ -140,7 +140,8 @@ namespace TrenchBroom {
                 GameConfig::TexturePackageConfig(GameConfig::PackageFormatConfig("wad", "wad2")),
                 GameConfig::PackageFormatConfig("D", "idmip"),
                 Path("gfx/palette.lmp"),
-                "wad"),
+                "wad",
+                Path()),
             GameConfig::EntityConfig(
                 { Path("Quake.fgd"), Path("Quoth2.fgd"), Path("Rubicon2.def"), Path("Teamfortress.fgd") },
                 { "mdl", "bsp" },
@@ -390,7 +391,8 @@ namespace TrenchBroom {
                     GameConfig::TexturePackageConfig(Path("textures")),
                     GameConfig::PackageFormatConfig("wal", "wal"),
                     Path("pics/colormap.pcx"),
-                    "_tb_textures"),
+                    "_tb_textures",
+                    Path()),
                 GameConfig::EntityConfig(
                     { Path("Quake2.fgd") },
                     { "md2" },

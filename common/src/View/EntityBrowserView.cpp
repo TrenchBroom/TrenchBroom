@@ -21,6 +21,7 @@
 
 #include "Preferences.h"
 #include "Logger.h"
+#include "StepIterator.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/EntityModel.h"
@@ -34,7 +35,7 @@
 #include "Renderer/TextureFont.h"
 #include "Renderer/Transformation.h"
 #include "Renderer/TexturedIndexRangeRenderer.h"
-#include "Renderer/Vertex.h"
+#include "Renderer/GLVertex.h"
 #include "Renderer/VertexArray.h"
 #include "View/MapFrame.h"
 #include "View/ViewUtils.h"
@@ -248,13 +249,13 @@ namespace TrenchBroom {
             vertices(i_vertices) {}
 
             void operator()(const vm::vec3f& v1, const vm::vec3f& v2) {
-                vertices.push_back(Vertex(transformation * v1, color));
-                vertices.push_back(Vertex(transformation * v2, color));
+                vertices.emplace_back(transformation * v1, color);
+                vertices.emplace_back(transformation * v2, color);
             }
         };
 
         void EntityBrowserView::renderBounds(Layout& layout, const float y, const float height) {
-            using BoundsVertex = Renderer::VertexSpecs::P3C4::Vertex;
+            using BoundsVertex = Renderer::GLVertexTypes::P3C4::Vertex;
             BoundsVertex::List vertices;
 
             for (size_t i = 0; i < layout.size(); ++i) {
@@ -281,7 +282,7 @@ namespace TrenchBroom {
             }
 
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::VaryingPCShader);
-            Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(vertices);
+            Renderer::VertexArray vertexArray = Renderer::VertexArray::move(std::move(vertices));
 
             Renderer::ActivateVbo activate(vertexVbo());
             vertexArray.prepare(vertexVbo());
@@ -334,7 +335,7 @@ namespace TrenchBroom {
         }
 
         void EntityBrowserView::renderGroupTitleBackgrounds(Layout& layout, const float y, const float height) {
-            using Vertex = Renderer::VertexSpecs::P2::Vertex;
+            using Vertex = Renderer::GLVertexTypes::P2::Vertex;
             Vertex::List vertices;
 
             for (size_t i = 0; i < layout.size(); ++i) {
@@ -348,7 +349,7 @@ namespace TrenchBroom {
                 }
             }
 
-            Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(vertices);
+            Renderer::VertexArray vertexArray = Renderer::VertexArray::move(std::move(vertices));
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
             shader.set("Color", pref(Preferences::BrowserGroupBackgroundColor));
 
@@ -404,7 +405,11 @@ namespace TrenchBroom {
 
                         auto& font = fontManager().font(defaultDescriptor);
                         const auto quads = font.quads(title, false, offset);
-                        const auto titleVertices = TextVertex::toList(std::begin(quads), std::begin(quads), std::begin(textColor), quads.size() / 2, 0, 2, 1, 2, 0, 0);
+                        const auto titleVertices = TextVertex::toList(
+                            quads.size() / 2,
+                            stepIterator(std::begin(quads), 0, 2),
+                            stepIterator(std::begin(quads), 1, 2),
+                            stepIterator(std::begin(textColor), 0, 0));
                         VectorUtils::append(stringVertices[defaultDescriptor], titleVertices);
                     }
 
@@ -418,7 +423,11 @@ namespace TrenchBroom {
 
                                 Renderer::TextureFont& font = fontManager().font(cell.item().fontDescriptor);
                                 const auto quads = font.quads(cell.item().entityDefinition->name(), false, offset);
-                                const auto titleVertices = TextVertex::toList(std::begin(quads), std::begin(quads), std::begin(textColor), quads.size() / 2, 0, 2, 1, 2, 0, 0);
+                                const auto titleVertices = TextVertex::toList(
+                                    quads.size() / 2,
+                                    stepIterator(std::begin(quads), 0, 2),
+                                    stepIterator(std::begin(quads), 1, 2),
+                                    stepIterator(std::begin(textColor), 0, 0));
                                 VectorUtils::append(stringVertices[cell.item().fontDescriptor], titleVertices);
                             }
                         }

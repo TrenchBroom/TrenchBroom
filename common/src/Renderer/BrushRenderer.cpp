@@ -32,7 +32,7 @@
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/TexturedIndexArrayMapBuilder.h"
-#include "Renderer/VertexSpec.h"
+#include "Renderer/GLVertexType.h"
 
 #include <algorithm>
 #include <cassert>

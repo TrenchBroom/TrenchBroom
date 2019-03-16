@@ -29,9 +29,10 @@
 
 namespace TrenchBroom {
     namespace IO {
-        Quake3ShaderFileSystem::Quake3ShaderFileSystem(std::shared_ptr<FileSystem> fs, Path::List searchPaths, Logger& logger) :
+        Quake3ShaderFileSystem::Quake3ShaderFileSystem(std::shared_ptr<FileSystem> fs, Path shaderSearchPath, Path::List textureSearchPaths, Logger& logger) :
         ImageFileSystemBase(std::move(fs), Path()),
-        m_searchPaths(std::move(searchPaths)),
+        m_shaderSearchPath(std::move(shaderSearchPath)),
+        m_textureSearchPaths(std::move(textureSearchPaths)),
         m_logger(logger) {
             initialize();
         }
@@ -46,12 +47,9 @@ namespace TrenchBroom {
         std::vector<Assets::Quake3Shader> Quake3ShaderFileSystem::loadShaders() const {
             auto result = std::vector<Assets::Quake3Shader>();
 
-            const auto scriptsPath = Path("scripts");
-            if (next().directoryExists(scriptsPath)) {
-                const auto paths = next().findItems(scriptsPath, FileExtensionMatcher("shader"));
+            if (next().directoryExists(m_shaderSearchPath)) {
+                const auto paths = next().findItems(m_shaderSearchPath, FileExtensionMatcher("shader"));
                 for (const auto& path : paths) {
-                    // m_logger.debug() << "Loading shader " << path.asString();
-
                     const auto file = next().openFile(path);
                     auto bufferedReader = file->reader().buffer();
 
@@ -69,7 +67,7 @@ namespace TrenchBroom {
             const auto extensions = StringList { "tga", "png", "jpg", "jpeg" };
 
             auto allImages = Path::List();
-            for (const auto& path : m_searchPaths) {
+            for (const auto& path : m_textureSearchPaths) {
                 if (next().directoryExists(path)) {
                     VectorUtils::append(allImages, next().findItemsRecursively(path, FileExtensionMatcher(extensions)));
                 }
@@ -105,8 +103,6 @@ namespace TrenchBroom {
                         auto shader = Assets::Quake3Shader();
                         shader.shaderPath = shaderPath;
                         shader.editorImage = texture;
-
-                        // m_logger.debug() << "Generating shader " << shaderPath << " -> " << shader.qerImagePath();
 
                         auto shaderFile = std::make_shared<ObjectFile<Assets::Quake3Shader>>(shaderPath, std::move(shader));
                         m_root.addFile(shaderPath, std::move(shaderFile));

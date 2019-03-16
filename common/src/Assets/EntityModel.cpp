@@ -80,9 +80,9 @@ namespace TrenchBroom {
                     assert(count % 3 == 0);
                     for (size_t i = 0; i < count; i += 3) {
                         vm::bbox3f::builder bounds;
-                        const auto& p1 = vertices[index + i + 0].v1;
-                        const auto& p2 = vertices[index + i + 1].v1;
-                        const auto& p3 = vertices[index + i + 2].v1;
+                        const auto& p1 = Renderer::getVertexComponent<0>(vertices[index + i + 0]);
+                        const auto& p2 = Renderer::getVertexComponent<0>(vertices[index + i + 1]);
+                        const auto& p3 = Renderer::getVertexComponent<0>(vertices[index + i + 2]);
                         bounds.add(p1);
                         bounds.add(p2);
                         bounds.add(p3);
@@ -95,9 +95,9 @@ namespace TrenchBroom {
                     assert(count > 2);
                     for (size_t i = 1; i < count - 1; ++i) {
                         vm::bbox3f::builder bounds;
-                        const auto& p1 = vertices[index + 0].v1;
-                        const auto& p2 = vertices[index + i].v1;
-                        const auto& p3 = vertices[index + i + 1].v1;
+                        const auto& p1 = Renderer::getVertexComponent<0>(vertices[index + 0]);
+                        const auto& p2 = Renderer::getVertexComponent<0>(vertices[index + i]);
+                        const auto& p3 = Renderer::getVertexComponent<0>(vertices[index + i + 1]);
                         bounds.add(p1);
                         bounds.add(p2);
                         bounds.add(p2);
@@ -111,9 +111,9 @@ namespace TrenchBroom {
                     assert(count > 2);
                     for (size_t i = 0; i < count-2; ++i) {
                         vm::bbox3f::builder bounds;
-                        const auto& p1 = vertices[index + i + 0].v1;
-                        const auto& p2 = vertices[index + i + 1].v1;
-                        const auto& p3 = vertices[index + i + 2].v1;
+                        const auto& p1 = Renderer::getVertexComponent<0>(vertices[index + i + 0]);
+                        const auto& p2 = Renderer::getVertexComponent<0>(vertices[index + i + 1]);
+                        const auto& p3 = Renderer::getVertexComponent<0>(vertices[index + i + 2]);
                         bounds.add(p1);
                         bounds.add(p2);
                         bounds.add(p2);
@@ -151,7 +151,7 @@ namespace TrenchBroom {
         }
 
         EntityModel::Mesh::Mesh(const EntityModel::VertexList& vertices) :
-        m_vertices(std::move(vertices)) {}
+        m_vertices(vertices) {}
 
         EntityModel::Mesh::~Mesh() = default;
 

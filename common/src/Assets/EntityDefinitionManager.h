@@ -43,7 +43,7 @@ namespace TrenchBroom {
             EntityDefinitionGroup::List m_groups;
             Cache m_cache;
         public:
-            Notifier0 usageCountDidChangeNotifier;
+            Notifier<> usageCountDidChangeNotifier;
         public:
             ~EntityDefinitionManager();
 

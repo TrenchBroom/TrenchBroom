@@ -50,7 +50,7 @@ namespace TrenchBroom {
             bool m_showFog;
             bool m_showEdges;
         public:
-            Notifier0 mapViewConfigDidChangeNotifier;
+            Notifier<> mapViewConfigDidChangeNotifier;
         public:
             MapViewConfig(const Model::EditorContext& editorContext);
             

@@ -46,7 +46,7 @@ namespace TrenchBroom {
             size_t m_maxSize;
             IO::Path::List m_recentDocuments;
         public:
-            Notifier0 didChangeNotifier;
+            Notifier<> didChangeNotifier;
         public:
             RecentDocuments(const int baseId, const size_t maxSize) :
             m_handler(nullptr),

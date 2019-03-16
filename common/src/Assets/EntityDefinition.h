@@ -56,7 +56,7 @@ namespace TrenchBroom {
             size_t m_usageCount;
             AttributeDefinitionList m_attributeDefinitions;
         public:
-            Notifier0 usageCountDidChangeNotifier;
+            Notifier<> usageCountDidChangeNotifier;
         public:
             virtual ~EntityDefinition();
             

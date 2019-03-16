@@ -37,8 +37,8 @@ namespace TrenchBroom {
             IO::Path m_path;
             String m_parameterSpec;
         public:
-            Notifier0 profileWillBeRemoved;
-            Notifier0 profileDidChange;
+            Notifier<> profileWillBeRemoved;
+            Notifier<> profileDidChange;
         public:
             GameEngineProfile(const String& name, const IO::Path& path, const String& parameterSpec);
             

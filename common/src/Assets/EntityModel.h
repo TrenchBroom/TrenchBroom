@@ -101,7 +101,7 @@ namespace TrenchBroom {
          */
         class EntityModel {
         public:
-            using Vertex = Renderer::VertexSpecs::P3T2::Vertex;
+            using Vertex = Renderer::GLVertexTypes::P3T2::Vertex;
             using VertexList = Vertex::List;
             using Indices = Renderer::IndexRangeMap;
             using TexturedIndices = Renderer::TexturedIndexRangeMap;

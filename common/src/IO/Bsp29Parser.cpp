@@ -245,7 +245,7 @@ namespace TrenchBroom {
 
             vm::bbox3f::builder bounds;
 
-            Renderer::TexturedIndexRangeMapBuilder<Vertex::Spec> builder(totalVertexCount, size);
+            Renderer::TexturedIndexRangeMapBuilder<Vertex::Type> builder(totalVertexCount, size);
             for (size_t i = 0; i < modelFaceCount; ++i) {
                 const auto& faceInfo = faceInfos[modelFaceIndex + i];
                 const auto& textureInfo = textureInfos[faceInfo.textureInfoIndex];

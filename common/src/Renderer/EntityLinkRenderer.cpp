@@ -119,8 +119,8 @@ namespace TrenchBroom {
             ArrowVertex::List arrows;
             getArrows(arrows, links);
 
-            m_entityLinks = VertexArray::swap(links);
-            m_entityLinkArrows = VertexArray::swap(arrows);
+            m_entityLinks = VertexArray::move(std::move(links));
+            m_entityLinkArrows = VertexArray::move(std::move(arrows));
 
             m_valid = true;
         }
@@ -131,24 +131,24 @@ namespace TrenchBroom {
                 const auto& startVertex = links[i];
                 const auto& endVertex = links[i + 1];
 
-                const auto lineVec = (endVertex.v1 - startVertex.v1);
+                const auto lineVec = (getVertexComponent<0>(endVertex) - getVertexComponent<0>(startVertex));
                 const auto lineLength = length(lineVec);
                 const auto lineDir = lineVec / lineLength;
-                const auto color = startVertex.v2;
+                const auto color = getVertexComponent<1>(startVertex);
 
                 if (lineLength < 512) {
-                    const auto arrowPosition = startVertex.v1 + (lineVec * 0.6f);
+                    const auto arrowPosition = getVertexComponent<0>(startVertex) + (lineVec * 0.6f);
                     addArrow(arrows, color, arrowPosition, lineDir);
                 } else if (lineLength < 1024) {
-                    const auto arrowPosition1 = startVertex.v1 + (lineVec * 0.2f);
-                    const auto arrowPosition2 = startVertex.v1 + (lineVec * 0.6f);
+                    const auto arrowPosition1 = getVertexComponent<0>(startVertex) + (lineVec * 0.2f);
+                    const auto arrowPosition2 = getVertexComponent<0>(startVertex) + (lineVec * 0.6f);
 
                     addArrow(arrows, color, arrowPosition1, lineDir);
                     addArrow(arrows, color, arrowPosition2, lineDir);
                 } else {
-                    const auto arrowPosition1 = startVertex.v1 + (lineVec * 0.1f);
-                    const auto arrowPosition2 = startVertex.v1 + (lineVec * 0.4f);
-                    const auto arrowPosition3 = startVertex.v1 + (lineVec * 0.7f);
+                    const auto arrowPosition1 = getVertexComponent<0>(startVertex) + (lineVec * 0.1f);
+                    const auto arrowPosition2 = getVertexComponent<0>(startVertex) + (lineVec * 0.4f);
+                    const auto arrowPosition3 = getVertexComponent<0>(startVertex) + (lineVec * 0.7f);
 
                     addArrow(arrows, color, arrowPosition1, lineDir);
                     addArrow(arrows, color, arrowPosition2, lineDir);
@@ -204,8 +204,8 @@ namespace TrenchBroom {
                 const auto& sourceColor = anySelected ? m_selectedColor : m_defaultColor;
                 const auto targetColor = anySelected ? m_selectedColor : m_defaultColor;
                 
-                m_links.push_back(Vertex(vm::vec3f(source->linkSourceAnchor()), sourceColor));
-                m_links.push_back(Vertex(vm::vec3f(target->linkTargetAnchor()), targetColor));
+                m_links.emplace_back(vm::vec3f(source->linkSourceAnchor()), sourceColor);
+                m_links.emplace_back(vm::vec3f(target->linkTargetAnchor()), targetColor);
             }
         };
         

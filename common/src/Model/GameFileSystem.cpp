@@ -124,11 +124,12 @@ namespace TrenchBroom {
             const auto& textureFormat = textureConfig.format.format;
             if (StringUtils::caseInsensitiveEqual(textureFormat, "q3shader")) {
                 logger.info() << "Adding shader file system";
-                auto searchPaths = IO::Path::List {
+                auto shaderSearchPath = textureConfig.shaderSearchPath;
+                auto textureSearchPaths = IO::Path::List {
                     textureConfig.package.rootDirectory,
                     IO::Path("models")
                 };
-                auto shaderFS = std::make_shared<IO::Quake3ShaderFileSystem>(m_next, std::move(searchPaths), logger);
+                auto shaderFS = std::make_shared<IO::Quake3ShaderFileSystem>(m_next, std::move(shaderSearchPath), std::move(textureSearchPaths), logger);
                 m_shaderFS = shaderFS.get();
                 m_next = std::move(shaderFS);
             }

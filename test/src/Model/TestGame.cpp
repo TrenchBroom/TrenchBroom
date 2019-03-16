@@ -30,9 +30,11 @@
 #include "Model/GameConfig.h"
 #include "Model/World.h"
 
+#include <memory>
+
 namespace TrenchBroom {
     namespace Model {
-        TestGame::TestGame() {}
+        TestGame::TestGame() = default;
 
         void TestGame::setSmartTags(std::vector<SmartTag> smartTags) {
             m_smartTags = std::move(smartTags);
@@ -119,8 +121,9 @@ namespace TrenchBroom {
 
             const GameConfig::TextureConfig textureConfig(GameConfig::TexturePackageConfig(GameConfig::PackageFormatConfig("wad", "idmip")),
                                                           GameConfig::PackageFormatConfig("D", "idmip"),
-                                                          IO::Path("fixture/test/palette.lmp"),
-                                                          "wad");
+                                                          IO::Path("data/palette.lmp"),
+                                                          "wad",
+                                                          IO::Path());
 
             IO::TextureLoader textureLoader(fileSystem, fileSearchPaths, textureConfig, logger);
             textureLoader.loadTextures(paths, textureManager);
@@ -192,10 +195,7 @@ namespace TrenchBroom {
             return Assets::EntityDefinitionList();
         }
 
-        std::unique_ptr<Assets::EntityModel> TestGame::doInitializeModel(const IO::Path& path, Logger& logger) const {
-            return nullptr;
-        }
-
+        std::unique_ptr<Assets::EntityModel> TestGame::doInitializeModel(const IO::Path& path, Logger& logger) const { return nullptr; }
         void TestGame::doLoadFrame(const IO::Path& path, size_t frameIndex, Assets::EntityModel& model, Logger& logger) const {}
     }
 }
