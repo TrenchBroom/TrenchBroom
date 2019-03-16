@@ -420,13 +420,12 @@ namespace vm {
          * @return the transformed bounding box
          */
         bbox<T,S> transform(const mat<T,S+1,S+1>& transform) const {
+            builder builder;
             const auto vertices = this->vertices();
-            const auto first = transform * vertices[0];
-            auto result = bbox<T,3>(first, first);
-            for (size_t i = 1; i < vertices.size(); ++i) {
-                result = merge(result, transform * vertices[i]);
+            for (const auto& vertex : vertices) {
+                builder.add(transform * vertex);
             }
-            return result;
+            return builder.bounds();
         }
 
         /**
