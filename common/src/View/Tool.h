@@ -36,9 +36,9 @@ namespace TrenchBroom {
             wxBookCtrlBase* m_book;
             size_t m_pageIndex;
         public:
-            Notifier1<Tool*> toolActivatedNotifier;
-            Notifier1<Tool*> toolDeactivatedNotifier;
-            Notifier1<Tool*> refreshViewsNotifier;
+            Notifier<Tool*> toolActivatedNotifier;
+            Notifier<Tool*> toolDeactivatedNotifier;
+            Notifier<Tool*> refreshViewsNotifier;
         protected:
             Tool(bool initiallyActive);
         public:

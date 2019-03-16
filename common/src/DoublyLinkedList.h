@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -85,11 +85,11 @@ private:
     private:
         size_t m_listVersion;
     protected:
-        iterator_delegate_base(ListType& list) :
+        explicit iterator_delegate_base(ListType& list) :
                 m_list(&list),
                 m_listVersion(m_list->m_version) {}
     public:
-        virtual ~iterator_delegate_base() {}
+        virtual ~iterator_delegate_base() = default;
     public:
         iterator_delegate_base* clone() const { return doClone(); }
 
@@ -152,7 +152,7 @@ private:
     private:
         using base = iterator_delegate_base<ListType, ItemType, LinkType>;
     public:
-        iterator_delegate_end(ListType& list) :
+        explicit iterator_delegate_end(ListType& list) :
                 base(list) {}
     private:
         base* doClone() const override {
@@ -185,7 +185,7 @@ public:
         using delegate = iterator_delegate_base<ListType, ItemType, LinkType>;
         delegate* m_delegate;
     public:
-        iterator_base(delegate* delegate = nullptr) : m_delegate(delegate) {}
+        explicit iterator_base(delegate* delegate = nullptr) : m_delegate(delegate) {}
         iterator_base(const iterator_base& other) : m_delegate(other.m_delegate->clone()) {}
         ~iterator_base() { delete m_delegate; }
 

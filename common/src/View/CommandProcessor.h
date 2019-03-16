@@ -43,16 +43,16 @@ namespace TrenchBroom {
         private:
             CommandList m_commands;
 
-            Notifier1<Command::Ptr>& m_commandDoNotifier;
-            Notifier1<Command::Ptr>& m_commandDoneNotifier;
-            Notifier1<UndoableCommand::Ptr>& m_commandUndoNotifier;
-            Notifier1<UndoableCommand::Ptr>& m_commandUndoneNotifier;
+            Notifier<Command::Ptr>& m_commandDoNotifier;
+            Notifier<Command::Ptr>& m_commandDoneNotifier;
+            Notifier<UndoableCommand::Ptr>& m_commandUndoNotifier;
+            Notifier<UndoableCommand::Ptr>& m_commandUndoneNotifier;
         public:
             CommandGroup(const String& name, const CommandList& commands,
-                         Notifier1<Command::Ptr>& commandDoNotifier,
-                         Notifier1<Command::Ptr>& commandDoneNotifier,
-                         Notifier1<UndoableCommand::Ptr>& commandUndoNotifier,
-                         Notifier1<UndoableCommand::Ptr>& commandUndoneNotifier);
+                         Notifier<Command::Ptr>& commandDoNotifier,
+                         Notifier<Command::Ptr>& commandDoneNotifier,
+                         Notifier<UndoableCommand::Ptr>& commandUndoNotifier,
+                         Notifier<UndoableCommand::Ptr>& commandUndoneNotifier);
         private:
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doPerformUndo(MapDocumentCommandFacade* document) override;
@@ -85,12 +85,12 @@ namespace TrenchBroom {
         public:
             CommandProcessor(MapDocumentCommandFacade* document);
             
-            Notifier1<Command::Ptr> commandDoNotifier;
-            Notifier1<Command::Ptr> commandDoneNotifier;
-            Notifier1<Command::Ptr> commandDoFailedNotifier;
-            Notifier1<UndoableCommand::Ptr> commandUndoNotifier;
-            Notifier1<UndoableCommand::Ptr> commandUndoneNotifier;
-            Notifier1<UndoableCommand::Ptr> commandUndoFailedNotifier;
+            Notifier<Command::Ptr> commandDoNotifier;
+            Notifier<Command::Ptr> commandDoneNotifier;
+            Notifier<Command::Ptr> commandDoFailedNotifier;
+            Notifier<UndoableCommand::Ptr> commandUndoNotifier;
+            Notifier<UndoableCommand::Ptr> commandUndoneNotifier;
+            Notifier<UndoableCommand::Ptr> commandUndoFailedNotifier;
             
             bool hasLastCommand() const;
             bool hasNextCommand() const;

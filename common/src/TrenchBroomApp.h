@@ -43,7 +43,7 @@ namespace TrenchBroom {
             RecentDocuments<TrenchBroomApp>* m_recentDocuments;
             wxLongLong m_lastActivation;
         public:
-            Notifier0 recentDocumentsDidChangeNotifier;
+            Notifier<> recentDocumentsDidChangeNotifier;
         public:
             static TrenchBroomApp& instance();
 

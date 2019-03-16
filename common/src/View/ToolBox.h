@@ -68,9 +68,9 @@ namespace TrenchBroom {
             
             bool m_enabled;
         public:
-            Notifier1<Tool*> toolActivatedNotifier;
-            Notifier1<Tool*> toolDeactivatedNotifier;
-            Notifier1<Tool*> refreshViewsNotifier;
+            Notifier<Tool*> toolActivatedNotifier;
+            Notifier<Tool*> toolDeactivatedNotifier;
+            Notifier<Tool*> refreshViewsNotifier;
         public:
             ToolBox();
         public: // focus window management

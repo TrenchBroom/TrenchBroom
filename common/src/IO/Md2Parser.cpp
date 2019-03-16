@@ -30,8 +30,8 @@
 #include "IO/SkinLoader.h"
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/IndexRangeMapBuilder.h"
-#include "Renderer/Vertex.h"
-#include "Renderer/VertexSpec.h"
+#include "Renderer/GLVertex.h"
+#include "Renderer/GLVertexType.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -364,13 +364,13 @@ namespace TrenchBroom {
 
             vm::bbox3f::builder bounds;
 
-            Renderer::IndexRangeMapBuilder<Assets::EntityModel::Vertex::Spec> builder(vertexCount, size);
+            Renderer::IndexRangeMapBuilder<Assets::EntityModel::Vertex::Type> builder(vertexCount, size);
             for (const auto& md2Mesh : meshes) {
                 if (!md2Mesh.vertices.empty()) {
                     vertexCount += md2Mesh.vertices.size();
                     const auto vertices = getVertices(frame, md2Mesh.vertices);
 
-                    bounds.add(std::begin(vertices), std::end(vertices), Renderer::GetVertexComponent1());
+                    bounds.add(std::begin(vertices), std::end(vertices), Renderer::GetVertexComponent<0>());
 
                     if (md2Mesh.type == Md2Mesh::Fan) {
                         builder.addTriangleFan(vertices);

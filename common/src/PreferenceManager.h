@@ -48,7 +48,7 @@ namespace TrenchBroom {
     public:
         static PreferenceManager& instance();
 
-        Notifier1<const IO::Path&> preferenceDidChangeNotifier;
+        Notifier<const IO::Path&> preferenceDidChangeNotifier;
 
         bool saveInstantly() const;
         PreferenceBase::Set saveChanges();

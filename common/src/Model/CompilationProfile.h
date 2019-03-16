@@ -32,8 +32,8 @@ namespace TrenchBroom {
         public:
             using List = std::vector<CompilationProfile*>;
             
-            Notifier0 profileWillBeRemoved;
-            Notifier0 profileDidChange;
+            Notifier<> profileWillBeRemoved;
+            Notifier<> profileDidChange;
         private:
             String m_name;
             String m_workDirSpec;

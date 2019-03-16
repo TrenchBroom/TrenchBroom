@@ -84,7 +84,7 @@ namespace TrenchBroom {
             } ProjectionType;
             mutable bool m_valid;
         public:
-            Notifier1<const Camera*> cameraDidChangeNotifier;
+            Notifier<const Camera*> cameraDidChangeNotifier;
 
             virtual ~Camera();
             

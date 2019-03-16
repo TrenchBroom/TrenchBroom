@@ -475,7 +475,7 @@ namespace TrenchBroom {
             auto& frame = model->loadFrame(0, m_name, bounds.bounds());
 
             // Collect vertex data
-            Renderer::TexturedIndexRangeMapBuilder<Vertex::Spec> builder(totalVertexCount, size);
+            Renderer::TexturedIndexRangeMapBuilder<Vertex::Type> builder(totalVertexCount, size);
             for (const auto& geomObject : scene.geomObjects) {
                 const auto& mesh = geomObject.mesh;
 

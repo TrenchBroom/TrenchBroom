@@ -438,7 +438,7 @@ namespace TrenchBroom {
             Renderer::IndexRangeMap::Size size;
             size.inc(GL_TRIANGLES, frameTriangles.size());
 
-            Renderer::IndexRangeMapBuilder<Assets::EntityModel::Vertex::Spec> builder(frameTriangles.size() * 3, size);
+            Renderer::IndexRangeMapBuilder<Assets::EntityModel::Vertex::Type> builder(frameTriangles.size() * 3, size);
             builder.addTriangles(frameTriangles);
 
             auto& frame = model.loadFrame(frameIndex, name, bounds.bounds());

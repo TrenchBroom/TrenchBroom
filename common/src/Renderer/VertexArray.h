@@ -25,8 +25,8 @@
 #include "SharedPointer.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VboBlock.h"
-#include "Renderer/Vertex.h"
-#include "Renderer/VertexSpec.h"
+#include "Renderer/GLVertex.h"
+#include "Renderer/GLVertexType.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -87,7 +87,7 @@ namespace TrenchBroom {
                     VertexSpec::cleanup();
                 }
             protected:
-                explicit Holder(const size_t vertexCount) :
+                Holder(const size_t vertexCount) :
                 m_block(nullptr),
                 m_vertexCount(vertexCount) {}
 
@@ -108,7 +108,7 @@ namespace TrenchBroom {
             private:
                 VertexList m_vertices;
             public:
-                explicit CopyHolder(const VertexList& vertices) :
+                CopyHolder(const VertexList& vertices) :
                 Holder<VertexSpec>(vertices.size()),
                 m_vertices(vertices) {}
 
@@ -123,18 +123,15 @@ namespace TrenchBroom {
             };
 
             template <typename VertexSpec>
-            class SwapHolder : public Holder<VertexSpec> {
+            class MoveHolder : public Holder<VertexSpec> {
             public:
                 using VertexList = typename VertexSpec::Vertex::List;
             private:
                 VertexList m_vertices;
             public:
-                explicit SwapHolder(VertexList& vertices) :
+                MoveHolder(VertexList&& vertices) :
                 Holder<VertexSpec>(vertices.size()),
-                m_vertices(0) {
-                    using std::swap;
-                    swap(m_vertices, vertices);
-                }
+                m_vertices(std::move(vertices)) {}
 
                 void prepare(Vbo& vbo) override {
                     Holder<VertexSpec>::prepare(vbo);
@@ -153,7 +150,7 @@ namespace TrenchBroom {
             private:
                 const VertexList& m_vertices;
             public:
-                explicit RefHolder(const VertexList& vertices) :
+                RefHolder(const VertexList& vertices) :
                 Holder<VertexSpec>(vertices.size()),
                 m_vertices(vertices) {}
             private:
@@ -175,27 +172,25 @@ namespace TrenchBroom {
              * Creates a new vertex array by copying the given vertices. After this operation, the given vector of
              * vertices is left unchanged.
              *
-             * @tparam A1 the vertex attribute type
+             * @tparam Attrs the vertex attribute types
              * @param vertices the vertices to copy
              * @return the vertex array
              */
-            template <typename A1>
-            static VertexArray copy(const std::vector<Vertex1<A1>>& vertices) {
-                BaseHolder::Ptr holder(new CopyHolder<typename Vertex1<A1>::Spec>(vertices));
-                return VertexArray(holder);
+            template <typename... Attrs>
+            static VertexArray copy(const std::vector<GLVertex<Attrs...>>& vertices) {
+                return VertexArray(std::make_shared<CopyHolder<typename GLVertex<Attrs...>::Type>>(vertices));
             }
 
             /**
-             * Creates a new vertex array by swapping the contents of the given vertices. After this operation, the given
-             * vector of vertices is empty.
+             * Creates a new vertex array by moving the contents of the given vertices.
              *
-             * @tparam A1 the vertex attribute type
-             * @param vertices the vertices to swap
+             * @tparam Attrs the vertex attribute types
+             * @param vertices the vertices to move
              * @return the vertex array
              */
-            template <typename A1>
-            static VertexArray swap(std::vector<Vertex1<A1> >& vertices) {
-                BaseHolder::Ptr holder(new SwapHolder<typename Vertex1<A1>::Spec>(vertices));
+            template <typename... Attrs>
+            static VertexArray move(std::vector<GLVertex<Attrs...>>&& vertices) {
+                auto holder = std::make_shared<MoveHolder<typename GLVertex<Attrs...>::Type>>(std::move(vertices));
                 return VertexArray(holder);
             }
 
@@ -206,224 +201,13 @@ namespace TrenchBroom {
              *
              * A caller must ensure that this vertex array does not outlive the given vector of vertices.
              *
-             * @tparam A1 the vertex attribute type
+             * @tparam Attrs the vertex attribute types
              * @param vertices the vertices to reference
              * @return the vertex array
              */
-            template <typename A1>
-            static VertexArray ref(const std::vector<Vertex1<A1> >& vertices) {
-                BaseHolder::Ptr holder(new RefHolder<typename Vertex1<A1>::Spec>(vertices));
-                return VertexArray(holder);
-            }
-
-            /**
-             * Creates a new vertex array by copying the given vertices. After this operation, the given vector of
-             * vertices is left unchanged.
-             *
-             * @tparam A1 the first vertex attribute type
-             * @tparam A2 the second vertex attribute type
-             * @param vertices the vertices to copy
-             * @return the vertex array
-             */
-            template <typename A1, typename A2>
-            static VertexArray copy(const std::vector<Vertex2<A1, A2> >& vertices) {
-                BaseHolder::Ptr holder(new CopyHolder<typename Vertex2<A1, A2>::Spec>(vertices));
-                return VertexArray(holder);
-            }
-
-            /**
-             * Creates a new vertex array by swapping the contents of the given vertices. After this operation, the given
-             * vector of vertices is empty.
-             *
-             * @tparam A1 the first vertex attribute type
-             * @tparam A2 the second vertex attribute type
-             * @param vertices the vertices to swap
-             * @return the vertex array
-             */
-            template <typename A1, typename A2>
-            static VertexArray swap(std::vector<Vertex2<A1, A2> >& vertices) {
-                BaseHolder::Ptr holder(new SwapHolder<typename Vertex2<A1, A2>::Spec>(vertices));
-                return VertexArray(holder);
-            }
-
-            /**
-             * Creates a new vertex array by referencing the contents of the given vertices. After this operation, the
-             * given vector of vertices is left unchanged. Since this vertex array will only store a reference to the
-             * given vector, changes to the given vector are reflected in this array.
-             *
-             * A caller must ensure that this vertex array does not outlive the given vector of vertices.
-             *
-             * @tparam A1 the first vertex attribute type
-             * @tparam A2 the second vertex attribute type
-             * @param vertices the vertices to reference
-             * @return the vertex array
-             */
-            template <typename A1, typename A2>
-            static VertexArray ref(const std::vector<Vertex2<A1, A2> >& vertices) {
-                BaseHolder::Ptr holder(new RefHolder<typename Vertex2<A1, A2>::Spec>(vertices));
-                return VertexArray(holder);
-            }
-
-            /**
-             * Creates a new vertex array by copying the given vertices. After this operation, the given vector of
-             * vertices is left unchanged.
-             *
-             * @tparam A1 the first vertex attribute type
-             * @tparam A2 the second vertex attribute type
-             * @tparam A3 the third vertex attribute type
-             * @param vertices the vertices to copy
-             * @return the vertex array
-             */
-            template <typename A1, typename A2, typename A3>
-            static VertexArray copy(const std::vector<Vertex3<A1, A2, A3> >& vertices) {
-                BaseHolder::Ptr holder(new CopyHolder<typename Vertex3<A1, A2, A3>::Spec>(vertices));
-                return VertexArray(holder);
-            }
-
-            /**
-             * Creates a new vertex array by swapping the contents of the given vertices. After this operation, the given
-             * vector of vertices is empty.
-             *
-             * @tparam A1 the first vertex attribute type
-             * @tparam A2 the second vertex attribute type
-             * @tparam A3 the third vertex attribute type
-             * @param vertices the vertices to swap
-             * @return the vertex array
-             */
-            template <typename A1, typename A2, typename A3>
-            static VertexArray swap(std::vector<Vertex3<A1, A2, A3> >& vertices) {
-                BaseHolder::Ptr holder(new SwapHolder<typename Vertex3<A1, A2, A3>::Spec>(vertices));
-                return VertexArray(holder);
-            }
-
-            /**
-             * Creates a new vertex array by referencing the contents of the given vertices. After this operation, the
-             * given vector of vertices is left unchanged. Since this vertex array will only store a reference to the
-             * given vector, changes to the given vector are reflected in this array.
-             *
-             * A caller must ensure that this vertex array does not outlive the given vector of vertices.
-             *
-             * @tparam A1 the first vertex attribute type
-             * @tparam A2 the second vertex attribute type
-             * @tparam A3 the third vertex attribute type
-             * @param vertices the vertices to reference
-             * @return the vertex array
-             */
-            template <typename A1, typename A2, typename A3>
-            static VertexArray ref(const std::vector<Vertex3<A1, A2, A3> >& vertices) {
-                BaseHolder::Ptr holder(new RefHolder<typename Vertex3<A1, A2, A3>::Spec>(vertices));
-                return VertexArray(holder);
-            }
-
-            /**
-             * Creates a new vertex array by copying the given vertices. After this operation, the given vector of
-             * vertices is left unchanged.
-             *
-             * @tparam A1 the first vertex attribute type
-             * @tparam A2 the second vertex attribute type
-             * @tparam A3 the third vertex attribute type
-             * @tparam A4 the fourth vertex attribute type
-             * @param vertices the vertices to copy
-             * @return the vertex array
-             */
-            template <typename A1, typename A2, typename A3, typename A4>
-            static VertexArray copy(const std::vector<Vertex4<A1, A2, A3, A4> >& vertices) {
-                BaseHolder::Ptr holder(new CopyHolder<typename Vertex4<A1, A2, A3, A4>::Spec>(vertices));
-                return VertexArray(holder);
-            }
-
-            /**
-             * Creates a new vertex array by swapping the contents of the given vertices. After this operation, the given
-             * vector of vertices is empty.
-             *
-             * @tparam A1 the first vertex attribute type
-             * @tparam A2 the second vertex attribute type
-             * @tparam A3 the third vertex attribute type
-             * @tparam A4 the fourth vertex attribute type
-             * @param vertices the vertices to swap
-             * @return the vertex array
-             */
-            template <typename A1, typename A2, typename A3, typename A4>
-            static VertexArray swap(std::vector<Vertex4<A1, A2, A3, A4> >& vertices) {
-                BaseHolder::Ptr holder(new SwapHolder<typename Vertex4<A1, A2, A3, A4>::Spec>(vertices));
-                return VertexArray(holder);
-            }
-
-            /**
-             * Creates a new vertex array by referencing the contents of the given vertices. After this operation, the
-             * given vector of vertices is left unchanged. Since this vertex array will only store a reference to the
-             * given vector, changes to the given vector are reflected in this array.
-             *
-             * A caller must ensure that this vertex array does not outlive the given vector of vertices.
-             *
-             * @tparam A1 the first vertex attribute type
-             * @tparam A2 the second vertex attribute type
-             * @tparam A3 the third vertex attribute type
-             * @tparam A4 the fourth vertex attribute type
-             * @param vertices the vertices to reference
-             * @return the vertex array
-             */
-            template <typename A1, typename A2, typename A3, typename A4>
-            static VertexArray ref(const std::vector<Vertex4<A1, A2, A3, A4> >& vertices) {
-                BaseHolder::Ptr holder(new RefHolder<typename Vertex4<A1, A2, A3, A4>::Spec>(vertices));
-                return VertexArray(holder);
-            }
-
-            /**
-             * Creates a new vertex array by copying the given vertices. After this operation, the given vector of
-             * vertices is left unchanged.
-             *
-             * @tparam A1 the first vertex attribute type
-             * @tparam A2 the second vertex attribute type
-             * @tparam A3 the third vertex attribute type
-             * @tparam A4 the fourth vertex attribute type
-             * @tparam A5 the fifth vertex attribute type
-             * @param vertices the vertices to copy
-             * @return the vertex array
-             */
-            template <typename A1, typename A2, typename A3, typename A4, typename A5>
-            static VertexArray copy(const std::vector<Vertex5<A1, A2, A3, A4, A5> >& vertices) {
-                BaseHolder::Ptr holder(new CopyHolder<typename Vertex5<A1, A2, A3, A4, A5>::Spec>(vertices));
-                return VertexArray(holder);
-            }
-
-            /**
-             * Creates a new vertex array by swapping the contents of the given vertices. After this operation, the given
-             * vector of vertices is empty.
-             *
-             * @tparam A1 the first vertex attribute type
-             * @tparam A2 the second vertex attribute type
-             * @tparam A3 the third vertex attribute type
-             * @tparam A4 the fourth vertex attribute type
-             * @tparam A5 the fifth vertex attribute type
-             * @param vertices the vertices to swap
-             * @return the vertex array
-             */
-            template <typename A1, typename A2, typename A3, typename A4, typename A5>
-            static VertexArray swap(std::vector<Vertex5<A1, A2, A3, A4, A5> >& vertices) {
-                BaseHolder::Ptr holder(new SwapHolder<typename Vertex5<A1, A2, A3, A4, A5>::Spec>(vertices));
-                return VertexArray(holder);
-            }
-
-            /**
-             * Creates a new vertex array by referencing the contents of the given vertices. After this operation, the
-             * given vector of vertices is left unchanged. Since this vertex array will only store a reference to the
-             * given vector, changes to the given vector are reflected in this array.
-             *
-             * A caller must ensure that this vertex array does not outlive the given vector of vertices.
-             *
-             * @tparam A1 the first vertex attribute type
-             * @tparam A2 the second vertex attribute type
-             * @tparam A3 the third vertex attribute type
-             * @tparam A4 the fourth vertex attribute type
-             * @tparam A5 the fifth vertex attribute type
-             * @param vertices the vertices to reference
-             * @return the vertex array
-             */
-            template <typename A1, typename A2, typename A3, typename A4, typename A5>
-            static VertexArray ref(const std::vector<Vertex5<A1, A2, A3, A4, A5> >& vertices) {
-                BaseHolder::Ptr holder(new RefHolder<typename Vertex5<A1, A2, A3, A4, A5>::Spec>(vertices));
-                return VertexArray(holder);
+            template <typename... Attrs>
+            static VertexArray ref(const std::vector<GLVertex<Attrs...>>& vertices) {
+                return VertexArray(std::make_shared<RefHolder<typename GLVertex<Attrs...>::Type>>(vertices));
             }
 
             /**
