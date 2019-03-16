@@ -24,8 +24,8 @@
 #include "Exceptions.h"
 #include "TemporarilySetAny.h"
 
-#include <algorithm>
 #include <cassert>
+#include <functional>
 #include <list>
 #include <memory>
 
