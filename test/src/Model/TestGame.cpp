@@ -19,6 +19,7 @@
 
 #include "TestGame.h"
 
+#include "Assets/EntityModel.h"
 #include "IO/BrushFaceReader.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/IOUtils.h"
@@ -29,9 +30,11 @@
 #include "Model/GameConfig.h"
 #include "Model/World.h"
 
+#include <memory>
+
 namespace TrenchBroom {
     namespace Model {
-        TestGame::TestGame() {}
+        TestGame::TestGame() = default;
 
         void TestGame::setSmartTags(std::vector<SmartTag> smartTags) {
             m_smartTags = std::move(smartTags);
