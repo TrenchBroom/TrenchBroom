@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_BrushRendererBrushCache
 #define TrenchBroom_BrushRendererBrushCache
 
-#include "Renderer/VertexSpec.h"
+#include "Renderer/GLVertexType.h"
 
 #include <vector>
 
@@ -37,7 +37,7 @@ namespace TrenchBroom {
     namespace Renderer {
         class BrushRendererBrushCache {
         public:
-            using VertexSpec = Renderer::VertexSpecs::P3NT2;
+            using VertexSpec = Renderer::GLVertexTypes::P3NT2;
             using Vertex = VertexSpec::Vertex;
 
             struct CachedFace {

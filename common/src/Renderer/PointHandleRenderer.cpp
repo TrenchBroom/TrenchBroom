@@ -27,7 +27,7 @@
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Vbo.h"
-#include "Renderer/VertexSpec.h"
+#include "Renderer/GLVertexType.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>

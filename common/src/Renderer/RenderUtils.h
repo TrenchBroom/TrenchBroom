@@ -21,8 +21,8 @@
 #define TrenchBroom_RenderUtils_h
 
 #include "Color.h"
-#include "Renderer/Vertex.h"
-#include "Renderer/VertexSpec.h"
+#include "Renderer/GLVertex.h"
+#include "Renderer/GLVertexType.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/util.h>

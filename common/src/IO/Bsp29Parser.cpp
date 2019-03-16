@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -44,29 +44,29 @@ namespace TrenchBroom {
             // static const size_t DirFaceEdgesSize      = 0x70;
             static const size_t DirModelAddress       = 0x74;
             // static const size_t DirModelSize          = 0x78;
-            
+
             // static const size_t TextureNameLength     = 0x10;
-            
+
             static const size_t FaceSize              = 0x14;
             static const size_t FaceEdgeIndex         = 0x4;
             static const size_t FaceRest              = 0x8;
-            
+
             static const size_t TexInfoSize           = 0x28;
             static const size_t TexInfoRest           = 0x4;
-            
+
             static const size_t FaceEdgeSize          = 0x4;
             static const size_t ModelSize             = 0x40;
             // static const size_t ModelOrigin           = 0x18;
             static const size_t ModelFaceIndex        = 0x38;
             // static const size_t ModelFaceCount        = 0x3c;
         }
-        
+
         Bsp29Parser::Bsp29Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette) :
         m_name(name),
         m_begin(begin),
         m_end(end),
         m_palette(palette) {}
-        
+
         Assets::EntityModel* Bsp29Parser::doParseModel(Logger& logger) {
             CharArrayReader reader(m_begin, m_end);
             const auto version = reader.readInt<int32_t>();
@@ -142,7 +142,7 @@ namespace TrenchBroom {
 
             return result;
         }
-        
+
         Bsp29Parser::TextureInfoList Bsp29Parser::parseTextureInfos(CharArrayReader reader, const size_t textureInfoCount) {
             TextureInfoList result(textureInfoCount);
             for (size_t i = 0; i < textureInfoCount; ++i) {
@@ -155,7 +155,7 @@ namespace TrenchBroom {
             }
             return result;
         }
-        
+
         std::vector<vm::vec3f> Bsp29Parser::parseVertices(CharArrayReader reader, const size_t vertexCount) {
             std::vector<vm::vec3f> result(vertexCount);
             for (size_t i = 0; i < vertexCount; ++i) {
@@ -163,7 +163,7 @@ namespace TrenchBroom {
             }
             return result;
         }
-        
+
         Bsp29Parser::EdgeInfoList Bsp29Parser::parseEdgeInfos(CharArrayReader reader, const size_t edgeInfoCount) {
             EdgeInfoList result(edgeInfoCount);
             for (size_t i = 0; i < edgeInfoCount; ++i) {
@@ -172,7 +172,7 @@ namespace TrenchBroom {
             }
             return result;
         }
-        
+
         Bsp29Parser::FaceInfoList Bsp29Parser::parseFaceInfos(CharArrayReader reader, const size_t faceInfoCount) {
             FaceInfoList result(faceInfoCount);
             for (size_t i = 0; i < faceInfoCount; ++i) {
@@ -184,7 +184,7 @@ namespace TrenchBroom {
             }
             return result;
         }
-        
+
         Bsp29Parser::FaceEdgeIndexList Bsp29Parser::parseFaceEdges(CharArrayReader reader, const size_t faceEdgeCount) {
             FaceEdgeIndexList result(faceEdgeCount);
             for (size_t i = 0; i < faceEdgeCount; ++i) {
@@ -224,7 +224,7 @@ namespace TrenchBroom {
 
                 vm::bbox3f bounds;
 
-                Renderer::TexturedIndexRangeMapBuilder<Vertex::Spec> builder(totalVertexCount, size);
+                Renderer::TexturedIndexRangeMapBuilder<Vertex::Type> builder(totalVertexCount, size);
                 for (size_t j = 0; j < modelFaceCount; ++j) {
                     const auto& faceInfo = faceInfos[modelFaceIndex + j];
                     const auto& textureInfo = textureInfos[faceInfo.textureInfoIndex];
@@ -252,7 +252,7 @@ namespace TrenchBroom {
                                 bounds = vm::merge(bounds, position);
                             }
 
-                            faceVertices.push_back(Vertex(position, texCoords));
+                            faceVertices.emplace_back(position, texCoords);
                         }
 
                         builder.addPolygon(skin, faceVertices);
@@ -268,7 +268,7 @@ namespace TrenchBroom {
 
             return model.release();
         }
-        
+
         vm::vec2f Bsp29Parser::textureCoords(const vm::vec3f& vertex, const TextureInfo& textureInfo, const Assets::Texture* texture) const {
             if (texture == nullptr) {
                 return vm::vec2f::zero;

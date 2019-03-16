@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -30,8 +30,8 @@
 #include "IO/SkinLoader.h"
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/IndexRangeMapBuilder.h"
-#include "Renderer/Vertex.h"
-#include "Renderer/VertexSpec.h"
+#include "Renderer/GLVertex.h"
+#include "Renderer/GLVertexType.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -199,7 +199,7 @@ namespace TrenchBroom {
             vm::vec3f(-0.587785f, -0.425325f, -0.688191f),
             vm::vec3f(-0.688191f, -0.587785f, -0.425325f)
         };
-        
+
         Md2Parser::Md2Frame::Md2Frame(const size_t vertexCount) :
         name(""),
         vertices(vertexCount) {}
@@ -228,29 +228,29 @@ namespace TrenchBroom {
         /* m_end(end), */
         m_palette(palette),
         m_fs(fs) {}
-        
+
         // http://tfc.duke.free.fr/old/models/md2.htm
         Assets::EntityModel* Md2Parser::doParseModel(Logger& logger) {
             const char* cursor = m_begin;
             const int ident = readInt<int32_t>(cursor);
             const int version = readInt<int32_t>(cursor);
-            
+
             if (ident != Md2Layout::Ident)
                 throw AssetException() << "Unknown MD2 model ident: " << ident;
             if (version != Md2Layout::Version)
                 throw AssetException() << "Unknown MD2 model version: " << version;
-            
+
             /*const size_t skinWidth =*/ readSize<int32_t>(cursor);
             /*const size_t skinHeight =*/ readSize<int32_t>(cursor);
             /*const size_t frameSize =*/ readSize<int32_t>(cursor);
-            
+
             const size_t skinCount = readSize<int32_t>(cursor);
             const size_t frameVertexCount = readSize<int32_t>(cursor);
             /* const size_t texCoordCount =*/ readSize<int32_t>(cursor);
             /* const size_t triangleCount =*/ readSize<int32_t>(cursor);
             const size_t commandCount = readSize<int32_t>(cursor);
             const size_t frameCount = readSize<int32_t>(cursor);
-            
+
             const size_t skinOffset = readSize<int32_t>(cursor);
             /* const size_t texCoordOffset =*/ readSize<int32_t>(cursor);
             /* const size_t triangleOffset =*/ readSize<int32_t>(cursor);
@@ -260,7 +260,7 @@ namespace TrenchBroom {
             const Md2SkinList skins = parseSkins(m_begin + skinOffset, skinCount);
             const Md2FrameList frames = parseFrames(m_begin + frameOffset, frameCount, frameVertexCount);
             const Md2MeshList meshes = parseMeshes(m_begin + commandOffset, commandCount);
-            
+
             return buildModel(skins, frames, meshes);
         }
 
@@ -280,13 +280,13 @@ namespace TrenchBroom {
                 readBytes(cursor, frames[i].name, Md2Layout::FrameNameLength);
                 readVector(cursor, frames[i].vertices);
             }
-            
+
             return frames;
         }
 
         Md2Parser::Md2MeshList Md2Parser::parseMeshes(const char* begin, const size_t commandCount) {
             Md2MeshList meshes;
-            
+
             const char* cursor = begin;
             const char* end = begin + commandCount * 4;
             while (cursor < end) {
@@ -300,7 +300,7 @@ namespace TrenchBroom {
                 meshes.push_back(mesh);
             }
             assert(cursor == end);
-            
+
             return meshes;
         }
 
@@ -336,17 +336,17 @@ namespace TrenchBroom {
                 bool boundsInitialized = false;
                 vm::bbox3f bounds;
 
-                Renderer::IndexRangeMapBuilder<Assets::EntityModel::Vertex::Spec> builder(vertexCount, size);
+                Renderer::IndexRangeMapBuilder<Assets::EntityModel::Vertex::Type> builder(vertexCount, size);
                 for (const auto& md2Mesh : meshes) {
                     if (!md2Mesh.vertices.empty()) {
                         vertexCount += md2Mesh.vertices.size();
                         const auto vertices = getVertices(frame, md2Mesh.vertices);
 
                         if (!boundsInitialized) {
-                            bounds = vm::bbox3f::mergeAll(std::begin(vertices), std::end(vertices), Renderer::GetVertexComponent1());
+                            bounds = vm::bbox3f::mergeAll(std::begin(vertices), std::end(vertices), Renderer::GetVertexComponent<0>());
                             boundsInitialized = true;
                         } else {
-                            bounds = vm::merge(bounds, vm::bbox3f::mergeAll(std::begin(vertices), std::end(vertices), Renderer::GetVertexComponent1()));
+                            bounds = vm::merge(bounds, vm::bbox3f::mergeAll(std::begin(vertices), std::end(vertices), Renderer::GetVertexComponent<0>()));
                         }
 
                         if (md2Mesh.type == Md2Mesh::Fan) {
@@ -367,14 +367,14 @@ namespace TrenchBroom {
 
             Vertex::List result(0);
             result.reserve(meshVertices.size());
-            
+
             for (const Md2MeshVertex& md2MeshVertex : meshVertices) {
                 const auto position = frame.vertex(md2MeshVertex.vertexIndex);
                 const auto& texCoords = md2MeshVertex.texCoords;
-                
-                result.push_back(Vertex(position, texCoords));
+
+                result.emplace_back(position, texCoords);
             }
-            
+
             return result;
         }
     }
