@@ -185,8 +185,9 @@ namespace TrenchBroom {
             return std::make_unique<Renderer::TexturedIndexRangeRenderer>(vertices, m_indices);
         }
 
-        EntityModel::Surface::Surface(const String& name) :
+        EntityModel::Surface::Surface(const String& name, const size_t frameCount) :
         m_name(name),
+        m_meshes(frameCount),
         m_skins(std::make_unique<Assets::TextureCollection>()) {}
 
         const String& EntityModel::Surface::name() const {
@@ -202,13 +203,13 @@ namespace TrenchBroom {
         }
 
         void EntityModel::Surface::addIndexedMesh(LoadedFrame& frame, const VertexList& vertices, const Indices& indices) {
-            assert(m_meshes.size() == frame.index());
-            m_meshes.emplace_back(std::make_unique<IndexedMesh>(frame, vertices, indices));
+            assert(frame.index() < frameCount());
+            m_meshes[frame.index()] = std::make_unique<IndexedMesh>(frame, vertices, indices);
         }
 
         void EntityModel::Surface::addTexturedMesh(LoadedFrame& frame, const VertexList& vertices, const TexturedIndices& indices) {
-            assert(m_meshes.size() == frame.index());
-            m_meshes.emplace_back(std::make_unique<TexturedMesh>(frame, vertices, indices));
+            assert(frame.index() < frameCount());
+            m_meshes[frame.index()] = std::make_unique<TexturedMesh>(frame, vertices, indices);
         }
 
         void EntityModel::Surface::addSkin(Assets::Texture* skin) {
@@ -237,7 +238,7 @@ namespace TrenchBroom {
         }
 
         std::unique_ptr<Renderer::TexturedIndexRangeRenderer> EntityModel::Surface::buildRenderer(size_t skinIndex, size_t frameIndex) {
-            if (skinIndex >= skinCount() || frameIndex >= frameCount()) {
+            if (skinIndex >= skinCount() || frameIndex >= frameCount() || m_meshes[frameIndex] == nullptr) {
                 return nullptr;
             } else {
                 const auto& textures = m_skins->textures();
@@ -312,7 +313,7 @@ namespace TrenchBroom {
         }
 
         EntityModel::Surface& EntityModel::addSurface(const String& name) {
-            m_surfaces.push_back(std::make_unique<Surface>(name));
+            m_surfaces.push_back(std::make_unique<Surface>(name, frameCount()));
             return *m_surfaces.back();
         }
 
