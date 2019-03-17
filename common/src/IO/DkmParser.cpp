@@ -25,6 +25,7 @@
 #include "IO/FileSystem.h"
 #include "IO/ImageLoader.h"
 #include "IO/Path.h"
+#include "IO/Reader.h"
 #include "IO/SkinLoader.h"
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/IndexRangeMapBuilder.h"
