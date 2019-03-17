@@ -1414,7 +1414,7 @@ MISC_* ENTITIES
 -->
 
 
-<point name="misc_model" color="1 .5 .25" box="-16 -16 -16 16 16 16">
+<point name="misc_model" color="1 .5 .25" box="-16 -16 -16 16 16 16" model="{ path : model }">
 Generic placeholder for inserting models to map. Model triangles are baked to BSP.
 MD3, ASE, 3DS, OBJ, FM, LWO, MD2, MDC, MS3D model formats are supported.
 -------- Q3MAP2 KEYS --------

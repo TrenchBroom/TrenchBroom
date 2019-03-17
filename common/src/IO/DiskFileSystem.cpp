@@ -26,9 +26,12 @@
 
 #include <cassert>
 #include <iostream>
+#include <memory>
 
 namespace TrenchBroom {
     namespace IO {
+        class File;
+
         DiskFileSystem::DiskFileSystem(const Path& root, const bool ensureExists) :
         DiskFileSystem(nullptr, root, ensureExists) {}
 
@@ -65,7 +68,7 @@ namespace TrenchBroom {
             return Disk::getDirectoryContents(doMakeAbsolute(path));
         }
         
-        const MappedFile::Ptr DiskFileSystem::doOpenFile(const Path& path) const {
+        std::shared_ptr<File> DiskFileSystem::doOpenFile(const Path& path) const {
             return Disk::openFile(doMakeAbsolute(path));
         }
 

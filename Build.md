@@ -92,7 +92,7 @@ Compiling and linking TrenchBroom requires a working OpenGL installation. [This 
   - Run 
 
     ```
-    ../configure --disable-shared --with-opengl --with-gtk=2 --prefix=$(pwd)/install
+    ../configure --disable-shared --with-opengl --with-gtk=2 --with-libpng=builtin --without-libtiff --with-libjpeg=builtin --prefix=$(pwd)/install
     ```
 
   - Run
@@ -106,7 +106,7 @@ Compiling and linking TrenchBroom requires a working OpenGL installation. [This 
   - Run 
 
     ```
-    ../configure --enable-debug --with-opengl --with-gtk=2 --prefix=$(pwd)/install
+    ../configure --enable-debug --with-opengl --with-gtk=2 --with-libpng=builtin --without-libtiff --with-libjpeg=builtin --prefix=$(pwd)/install
     ```
 
   - Run 
@@ -195,7 +195,7 @@ Compiling and linking TrenchBroom requires a working OpenGL installation. [This 
     - Run
 
       ```
-      ../configure --with-osx_cocoa --disable-shared --disable-mediactrl --with-opengl --with-macosx-version-min=10.9 --with-cxx=17 --prefix=$(pwd)/install
+      ../configure --with-osx_cocoa --disable-shared --disable-mediactrl --with-opengl --with-macosx-version-min=10.9 --with-cxx=17 --with-libpng=builtin --without-libtiff --with-libjpeg=builtin --prefix=$(pwd)/install
       ```
 
     - Run
@@ -209,7 +209,7 @@ Compiling and linking TrenchBroom requires a working OpenGL installation. [This 
     - Run 
 
       ```
-      ../configure --enable-debug --with-osx_cocoa --disable-mediactrl --with-opengl --with-macosx-version-min=10.9 --with-cxx=17 --prefix=$(pwd)/install
+      ../configure --enable-debug --with-osx_cocoa --disable-mediactrl --with-opengl --with-macosx-version-min=10.9 --with-cxx=17 --with-libpng=builtin --without-libtiff --with-libjpeg=builtin --prefix=$(pwd)/install
       ```
 
     - Run

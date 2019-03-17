@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -27,6 +27,7 @@
 #include "Model/ModelTypes.h"
 #include "IO/DefParser.h"
 #include "IO/DiskIO.h"
+#include "IO/File.h"
 #include "IO/Path.h"
 #include "IO/TestParserStatus.h"
 #include "TestUtils.h"
@@ -34,13 +35,14 @@
 namespace TrenchBroom {
     namespace IO {
         TEST(DefParserTest, parseIncludedDefFiles) {
-            const Path basePath = Disk::getCurrentWorkingDir() + Path("data/games");
+            const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/games/");
             const Path::List cfgFiles = Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("def"));
 
             for (const Path& path : cfgFiles) {
-                MappedFile::Ptr file = Disk::openFile(path);
+                auto file = Disk::openFile(path);
+                auto reader = file->reader().buffer();
                 const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-                DefParser parser(file->begin(), file->end(), defaultColor);
+                DefParser parser(std::begin(reader), std::end(reader), defaultColor);
 
                 TestParserStatus status;
                 ASSERT_NO_THROW(parser.parseDefinitions(status)) << "Parsing DEF file " << path.asString() << " failed";
@@ -50,15 +52,16 @@ namespace TrenchBroom {
         }
 
         TEST(DefParserTest, parseExtraDefFiles) {
-            const Path basePath = Disk::getCurrentWorkingDir() + Path("data/IO/Def");
+            const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Def");
             const Path::List cfgFiles = Disk::findItems(basePath, [] (const Path& path, bool directory) {
                 return !directory && StringUtils::caseInsensitiveEqual(path.extension(), "def");
             });
 
             for (const Path& path : cfgFiles) {
-                MappedFile::Ptr file = Disk::openFile(path);
+                auto file = Disk::openFile(path);
+                auto reader = file->reader().buffer();
                 const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-                DefParser parser(file->begin(), file->end(), defaultColor);
+                DefParser parser(std::begin(reader), std::end(reader), defaultColor);
 
                 TestParserStatus status;
                 ASSERT_NO_THROW(parser.parseDefinitions(status));
@@ -71,35 +74,35 @@ namespace TrenchBroom {
             const String file = "";
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             DefParser parser(file, defaultColor);
-            
+
             TestParserStatus status;
             Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
             ASSERT_TRUE(definitions.empty());
             VectorUtils::clearAndDelete(definitions);
         }
-        
+
         TEST(DefParserTest, parseWhitespaceFile) {
             const String file = "     \n  \t \n  ";
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             DefParser parser(file, defaultColor);
-            
+
             TestParserStatus status;
             Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
             ASSERT_TRUE(definitions.empty());
             VectorUtils::clearAndDelete(definitions);
         }
-        
+
         TEST(DefParserTest, parseCommentsFile) {
             const String file = "// asdfasdfasdf\n//kj3k4jkdjfkjdf\n";
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             DefParser parser(file, defaultColor);
-            
+
             TestParserStatus status;
             Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
             ASSERT_TRUE(definitions.empty());
             VectorUtils::clearAndDelete(definitions);
         }
-        
+
         TEST(DefParserTest, parseSolidClass) {
             const String file =
             "/*QUAKED worldspawn (0.0 0.0 0.0) ?\n"
@@ -116,14 +119,14 @@ namespace TrenchBroom {
             "Set sounds to the cd track to play. "
             "\"worldtype\"	type of world\n"
             "*/\n";
-            
+
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             DefParser parser(file, defaultColor);
-            
+
             TestParserStatus status;
             Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
-            
+
             Assets::EntityDefinition* definition = definitions[0];
             ASSERT_EQ(Assets::EntityDefinition::Type_BrushEntity, definition->type());
             ASSERT_EQ(String("worldspawn"), definition->name());
@@ -132,10 +135,10 @@ namespace TrenchBroom {
                              "Set message to the level name. "
                              "Set sounds to the cd track to play. "
                              "\"worldtype\"	type of world"), definition->description());
-            
+
             const Assets::AttributeDefinitionList& attributes = definition->attributeDefinitions();
             ASSERT_EQ(1u, attributes.size());
-            
+
             VectorUtils::clearAndDelete(definitions);
         }
 
@@ -144,34 +147,34 @@ namespace TrenchBroom {
             "/*QUAKED monster_zombie (1.0 0.0 0.0) (-16 -16 -24) (16 16 32) Crucified ambush\n"
             "If crucified, stick the bounding box 12 pixels back into a wall to look right.\n"
             "*/\n";
-            
+
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             DefParser parser(file, defaultColor);
-            
+
             TestParserStatus status;
             Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
-            
+
             Assets::EntityDefinition* definition = definitions[0];
             ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
             ASSERT_EQ(String("monster_zombie"), definition->name());
             ASSERT_VEC_EQ(Color(1.0f, 0.0f, 0.0f, 1.0f), definition->color());
             ASSERT_EQ(String("If crucified, stick the bounding box 12 pixels back into a wall to look right."), definition->description());
-            
+
             Assets::PointEntityDefinition* pointDefinition = static_cast<Assets::PointEntityDefinition*>(definition);
             ASSERT_VEC_EQ(vm::vec3(-16.0, -16.0, -24.0), pointDefinition->bounds().min);
             ASSERT_VEC_EQ(vm::vec3(16.0, 16.0, 32.0), pointDefinition->bounds().max);
-            
+
             const Assets::AttributeDefinitionList& attributes = definition->attributeDefinitions();
             ASSERT_EQ(1u, attributes.size()); // spawnflags
-            
+
             const Assets::AttributeDefinitionPtr attribute = attributes[0];
             ASSERT_EQ(Assets::AttributeDefinition::Type_FlagsAttribute, attribute->type());
-            
+
             const Assets::FlagsAttributeDefinition* spawnflags = definition->spawnflags();
             ASSERT_TRUE(spawnflags != nullptr);
             ASSERT_EQ(0, spawnflags->defaultValue());
-            
+
             const Assets::FlagsAttributeOption::List& options = spawnflags->options();
             ASSERT_EQ(2u, options.size());
             ASSERT_EQ(1, options[0].value());
@@ -181,8 +184,8 @@ namespace TrenchBroom {
             ASSERT_EQ(2, options[1].value());
             ASSERT_EQ(String("ambush"), options[1].shortDescription());
             ASSERT_FALSE(options[1].isDefault());
-            
-            
+
+
             VectorUtils::clearAndDelete(definitions);
         }
 
@@ -290,7 +293,7 @@ namespace TrenchBroom {
 
             VectorUtils::clearAndDelete(definitions);
         }
-        
+
         TEST(DefParserTest, parsePointClassWithBaseClasses) {
             const String file =
             "/*QUAKED _light_style\n"
@@ -322,21 +325,21 @@ namespace TrenchBroom {
             "If targeted, it will toggle between on or off.\n"
             "Default \"style\" is 0.\n"
             "*/\n";
-            
+
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             DefParser parser(file, defaultColor);
-            
+
             TestParserStatus status;
             Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
-            
+
             Assets::EntityDefinition* definition = definitions[0];
             ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
             ASSERT_EQ(String("light"), definition->name());
-            
+
             const Assets::AttributeDefinitionList& attributes = definition->attributeDefinitions();
             ASSERT_EQ(2u, attributes.size()); // spawn flags and style
-            
+
             Assets::AttributeDefinitionPtr spawnflags = attributes[0];
             ASSERT_EQ(Model::AttributeNames::Spawnflags, spawnflags->name());
             ASSERT_EQ(Assets::AttributeDefinition::Type_FlagsAttribute, spawnflags->type());
@@ -344,25 +347,25 @@ namespace TrenchBroom {
             Assets::AttributeDefinitionPtr style = attributes[1];
             ASSERT_EQ(String("style"), style->name());
             ASSERT_EQ(Assets::AttributeDefinition::Type_ChoiceAttribute, style->type());
-            
+
             const Assets::ChoiceAttributeDefinition* choice = static_cast<const Assets::ChoiceAttributeDefinition*>(definition->attributeDefinition("style"));
             ASSERT_EQ(12u, choice->options().size());
-            
+
             VectorUtils::clearAndDelete(definitions);
         }
-        
+
         static const String ModelDefinitionTemplate =
         "/*QUAKED monster_zombie (1.0 0.0 0.0) (-16 -16 -24) (16 16 32) Crucified ambush\n"
         "{\n"
         "model(${MODEL});\n"
         "}\n"
         "*/\n";
-        
+
         using Assets::assertModelDefinition;
-        
+
         TEST(DefParserTest, parseLegacyStaticModelDefinition) {
             static const String ModelDefinition = "\":maps/b_shell0.bsp\", \":maps/b_shell1.bsp\" spawnflags = 1";
-            
+
             assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp")),
                                              ModelDefinition,
                                              ModelDefinitionTemplate);
@@ -371,10 +374,10 @@ namespace TrenchBroom {
                                              ModelDefinitionTemplate,
                                              "{ 'spawnflags': 1 }");
         }
-        
+
         TEST(DefParserTest, parseLegacyDynamicModelDefinition) {
             static const String ModelDefinition = "pathKey = \"model\" skinKey = \"skin\" frameKey = \"frame\"";
-            
+
             assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp")),
                                              ModelDefinition,
                                              ModelDefinitionTemplate,
@@ -384,10 +387,10 @@ namespace TrenchBroom {
                                              ModelDefinitionTemplate,
                                              "{ 'model': 'maps/b_shell1.bsp', 'skin': 1, 'frame': 2 }");
         }
-        
+
         TEST(DefParserTest, parseELStaticModelDefinition) {
             static const String ModelDefinition = "{{ spawnflags == 1 -> 'maps/b_shell1.bsp', 'maps/b_shell0.bsp' }}";
-            
+
             assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp")),
                                              ModelDefinition,
                                              ModelDefinitionTemplate);
@@ -400,10 +403,10 @@ namespace TrenchBroom {
                                              ModelDefinitionTemplate,
                                              "{ 'spawnflags': 2 }");
         }
-        
+
         TEST(DefParserTest, parseELDynamicModelDefinition) {
             static const String ModelDefinition = "{ 'path': model, 'skin': skin, 'frame': frame }";
-            
+
             assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp")),
                                              ModelDefinition,
                                              ModelDefinitionTemplate,

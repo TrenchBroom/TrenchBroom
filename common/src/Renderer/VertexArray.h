@@ -42,7 +42,7 @@ namespace TrenchBroom {
             class BaseHolder {
             public:
                 using Ptr = std::shared_ptr<BaseHolder>;
-                virtual ~BaseHolder() {}
+                virtual ~BaseHolder();
 
                 virtual size_t vertexCount() const = 0;
                 virtual size_t sizeInBytes() const = 0;
@@ -68,7 +68,7 @@ namespace TrenchBroom {
                     return VertexSpec::Size * m_vertexCount;
                 }
 
-                virtual void prepare(Vbo& vbo) override {
+                void prepare(Vbo& vbo) override {
                     if (m_vertexCount > 0 && m_block == nullptr) {
                         ActivateVbo activate(vbo);
                         m_block = vbo.allocateBlock(sizeInBytes());
@@ -78,12 +78,12 @@ namespace TrenchBroom {
                     }
                 }
 
-                virtual void setup() override {
+                void setup() override {
                     ensure(m_block != nullptr, "block is null");
                     VertexSpec::setup(m_block->offset());
                 }
 
-                virtual void cleanup() override {
+                void cleanup() override {
                     VertexSpec::cleanup();
                 }
             protected:
@@ -91,7 +91,7 @@ namespace TrenchBroom {
                 m_block(nullptr),
                 m_vertexCount(vertexCount) {}
 
-                virtual ~Holder() override {
+                ~Holder() override {
                     if (m_block != nullptr) {
                         m_block->free();
                         m_block = nullptr;

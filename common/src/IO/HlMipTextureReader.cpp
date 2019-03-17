@@ -23,7 +23,7 @@
 #include "StringUtils.h"
 #include "Assets/Palette.h"
 #include "Assets/Texture.h"
-#include "IO/CharArrayReader.h"
+#include "IO/Reader.h"
 #include "IO/Path.h"
 
 #include <cstring>
@@ -33,7 +33,7 @@ namespace TrenchBroom {
         HlMipTextureReader::HlMipTextureReader(const NameStrategy& nameStrategy) :
         MipTextureReader(nameStrategy) {}
 
-        Assets::Palette HlMipTextureReader::doGetPalette(CharArrayReader& reader, const size_t offset[], const size_t width, const size_t height) const {
+        Assets::Palette HlMipTextureReader::doGetPalette(Reader& reader, const size_t offset[], const size_t width, const size_t height) const {
             const size_t start = offset[0] + (width * height * 85 >> 6) + 2;
             reader.seekFromBegin(start);
             

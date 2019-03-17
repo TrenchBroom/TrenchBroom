@@ -22,11 +22,14 @@
 
 #include "StringUtils.h"
 #include "IO/FileMatcher.h"
-#include "IO/MappedFile.h"
 #include "IO/Path.h"
+
+#include <memory>
 
 namespace TrenchBroom {
     namespace IO {
+        class File;
+
         namespace Disk {
             bool isCaseSensitive();
             
@@ -38,7 +41,7 @@ namespace TrenchBroom {
             String replaceForbiddenChars(const String& name);
             
             Path::List getDirectoryContents(const Path& path);
-            MappedFile::Ptr openFile(const Path& path);
+            std::shared_ptr<File> openFile(const Path& path);
             Path getCurrentWorkingDir();
             
             template <class M>

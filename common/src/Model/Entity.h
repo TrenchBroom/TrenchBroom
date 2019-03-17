@@ -32,6 +32,10 @@
 #include <vecmath/util.h>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class EntityModelFrame;
+    }
+
     namespace Model {
         class PickResult;
 
@@ -44,6 +48,8 @@ namespace TrenchBroom {
             mutable bool m_boundsValid;
             mutable vm::vec3 m_cachedOrigin;
             mutable vm::mat4x4 m_cachedRotation;
+
+            const Assets::EntityModelFrame* m_modelFrame;
         public:
             Entity();
 
@@ -54,8 +60,10 @@ namespace TrenchBroom {
             bool hasPointEntityDefinition() const;
             bool hasPointEntityModel() const;
 
+            vm::bbox3 totalBounds() const;
             const vm::vec3& origin() const;
             const vm::mat4x4& rotation() const;
+            const vm::mat4x4 modelTransformation() const;
             FloatType area(vm::axis::type axis) const;
         private:
             void cacheAttributes();
@@ -63,6 +71,9 @@ namespace TrenchBroom {
             void applyRotation(const vm::mat4x4& transformation);
         public: // entity model
             Assets::ModelSpecification modelSpecification() const;
+            vm::bbox3 modelBounds() const;
+            const Assets::EntityModelFrame* modelFrame() const;
+            void setModelFrame(const Assets::EntityModelFrame* modelFrame);
         private: // implement Node interface
             const vm::bbox3& doGetBounds() const override;
 

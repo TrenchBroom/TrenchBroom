@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -20,7 +20,8 @@
 #include "DkPakFileSystem.h"
 
 #include "CollectionUtils.h"
-#include "IO/CharArrayReader.h"
+#include "IO/File.h"
+#include "IO/Reader.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/IOUtils.h"
 
@@ -37,13 +38,13 @@ namespace TrenchBroom {
             static const String HeaderMagic       = "PACK";
         }
 
-        std::unique_ptr<char[]> DkPakFileSystem::DkCompressedFile::decompress(MappedFile::Ptr file, const size_t uncompressedSize) const {
-            CharArrayReader reader(file->begin(), file->end());
+        std::unique_ptr<char[]> DkPakFileSystem::DkCompressedFile::decompress(std::shared_ptr<File> file, const size_t uncompressedSize) const {
+            auto reader = file->reader().buffer();
 
             auto result = std::make_unique<char[]>(uncompressedSize);
             auto* begin = result.get();
             auto* curTarget = begin;
-            
+
             auto x = reader.readUnsignedChar<unsigned char>();
             while (!reader.eof() && x < 0xFF) {
                 if (x < 0x40) {
@@ -70,7 +71,7 @@ namespace TrenchBroom {
                     const auto len = static_cast<size_t>(x) - 190;
                     const auto offset = reader.readSize<unsigned char>();
                     auto* from = curTarget - (offset + 2);
-                    
+
                     assert(from >= begin);
                     assert(from <=  curTarget - len);
 
@@ -80,28 +81,28 @@ namespace TrenchBroom {
 
                 x = reader.readUnsignedChar<unsigned char>();
             }
-            
+
             return result;
         }
-        
-        DkPakFileSystem::DkPakFileSystem(const Path& path, MappedFile::Ptr file) :
-        DkPakFileSystem(nullptr, path, file) {}
 
-        DkPakFileSystem::DkPakFileSystem(std::shared_ptr<FileSystem> next, const Path& path, MappedFile::Ptr file) :
-        ImageFileSystem(std::move(next), path, file) {
+        DkPakFileSystem::DkPakFileSystem(const Path& path) :
+        DkPakFileSystem(nullptr, path) {}
+
+        DkPakFileSystem::DkPakFileSystem(std::shared_ptr<FileSystem> next, const Path& path) :
+        ImageFileSystem(std::move(next), path) {
             initialize();
         }
 
         void DkPakFileSystem::doReadDirectory() {
-            CharArrayReader reader(m_file->begin(), m_file->end());
+            auto reader = m_file->reader();
             reader.seekFromBegin(PakLayout::HeaderMagicLength);
 
             const auto directoryAddress = reader.readSize<int32_t>();
             const auto directorySize = reader.readSize<int32_t>();
             const auto entryCount = directorySize / PakLayout::EntryLength;
-            
+
             reader.seekFromBegin(directoryAddress);
-            
+
             for (size_t i = 0; i < entryCount; ++i) {
                 const auto entryName = reader.readString(PakLayout::EntryNameLength);
                 const auto entryAddress = reader.readSize<int32_t>();
@@ -110,15 +111,13 @@ namespace TrenchBroom {
                 const auto compressed = reader.readBool<int32_t>();
                 const auto entrySize = compressed ? compressedSize : uncompressedSize;
 
-                const auto* entryBegin = m_file->begin() + entryAddress;
-                const auto* entryEnd = entryBegin + entrySize;
-                const auto filePath = Path(StringUtils::toLower(entryName));
-                const auto entryFile = std::make_shared<MappedFileView>(m_file, filePath, entryBegin, entryEnd);
-                
+                const auto entryPath = Path(StringUtils::toLower(entryName));
+                auto entryFile = std::make_shared<FileView>(entryPath, m_file, entryAddress, entrySize);
+
                 if (compressed) {
-                    m_root.addFile(filePath, std::make_unique<DkCompressedFile>(entryFile, uncompressedSize));
+                    m_root.addFile(entryPath, std::make_unique<DkCompressedFile>(entryFile, uncompressedSize));
                 } else {
-                    m_root.addFile(filePath, std::make_unique<SimpleFile>(entryFile));
+                    m_root.addFile(entryPath, std::make_unique<SimpleFileEntry>(entryFile));
                 }
             }
         }

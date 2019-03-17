@@ -178,7 +178,7 @@ namespace TrenchBroom {
             Model::EditorContext& editorContext() const;
 
             Assets::EntityDefinitionManager& entityDefinitionManager() override;
-            Assets::EntityModelManager& entityModelManager();
+            Assets::EntityModelManager& entityModelManager() override;
             Assets::TextureManager& textureManager() override;
 
             MapViewConfig& mapViewConfig() const;
@@ -207,13 +207,13 @@ namespace TrenchBroom {
             bool pasteNodes(const Model::NodeList& nodes);
             bool pasteBrushFaces(const Model::BrushFaceList& faces);
         public: // point file management
-            void loadPointFile(const IO::Path path);
+            void loadPointFile(const IO::Path& path);
             bool isPointFileLoaded() const;
             bool canReloadPointFile() const;
             void reloadPointFile();
             void unloadPointFile();
         public: // portal file management
-            void loadPortalFile(const IO::Path path);
+            void loadPortalFile(const IO::Path& path);
             bool isPortalFileLoaded() const;
             bool canReloadPortalFile() const;
             void reloadPortalFile();
@@ -429,6 +429,16 @@ namespace TrenchBroom {
             void loadTextures();
             void unloadTextures();
 
+            class SetTextures;
+            class UnsetTextures;
+            void setTextures();
+            void setTextures(const Model::NodeList& nodes);
+            void setTextures(const Model::BrushFaceList& faces);
+            void unsetTextures();
+            void unsetTextures(const Model::NodeList& nodes);
+
+            class SetEntityDefinitions;
+            class UnsetEntityDefinitions;
             void setEntityDefinitions();
             void setEntityDefinitions(const Model::NodeList& nodes);
             void unsetEntityDefinitions();
@@ -437,12 +447,12 @@ namespace TrenchBroom {
 
             void clearEntityModels();
 
-            void setTextures();
-            void setTextures(const Model::NodeList& nodes);
-            void setTextures(const Model::BrushFaceList& faces);
-
-            void unsetTextures();
-            void unsetTextures(const Model::NodeList& nodes);
+            class SetEntityModels;
+            class UnsetEntityModels;
+            void setEntityModels();
+            void setEntityModels(const Model::NodeList& nodes);
+            void unsetEntityModels();
+            void unsetEntityModels(const Model::NodeList& nodes);
         protected: // search paths and mods
             IO::Path::List externalSearchPaths() const;
             void updateGameSearchPaths();
@@ -470,7 +480,10 @@ namespace TrenchBroom {
             void initializeNodeTags(const Model::NodeList& nodes);
             void clearNodeTags(const Model::NodeList& nodes);
             void updateNodeTags(const Model::NodeList& nodes);
+
+            class InitializeFaceTagsVisitor;
             void updateFaceTags(const Model::BrushFaceList& faces);
+            void updateAllFaceTags();
         public: // document path
             bool persistent() const;
             String filename() const;

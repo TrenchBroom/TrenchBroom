@@ -26,7 +26,9 @@
 #include "Assets/EntityDefinitionTestUtils.h"
 #include "IO/DiskIO.h"
 #include "IO/FgdParser.h"
+#include "IO/File.h"
 #include "IO/Path.h"
+#include "IO/Reader.h"
 #include "IO/TestParserStatus.h"
 #include "Model/ModelTypes.h"
 
@@ -35,13 +37,15 @@
 namespace TrenchBroom {
     namespace IO {
         TEST(FgdParserTest, parseIncludedFgdFiles) {
-            const Path basePath = Disk::getCurrentWorkingDir() + Path("data/games");
+            const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/games/");
             const Path::List cfgFiles = Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("fgd"));
 
             for (const Path& path : cfgFiles) {
-                MappedFile::Ptr file = Disk::openFile(path);
+                auto file = Disk::openFile(path);
+                auto reader = file->reader().buffer();
+
                 const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-                FgdParser parser(file->begin(), file->end(), defaultColor, path);
+                FgdParser parser(std::begin(reader), std::end(reader), defaultColor, path);
 
                 TestParserStatus status;
                 ASSERT_NO_THROW(parser.parseDefinitions(status)) << "Parsing FGD file " << path.asString() << " failed";
@@ -762,10 +766,12 @@ decor_goddess_statue : "Goddess Statue" [])";
         }
 
         TEST(FgdParserTest, parseInclude) {
-            const Path path = Disk::getCurrentWorkingDir() + Path("data/IO/Fgd/parseInclude/host.fgd");
-            MappedFile::Ptr file = Disk::openFile(path);
+            const Path path = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Fgd/parseInclude/host.fgd");
+            auto file = Disk::openFile(path);
+            auto reader = file->reader().buffer();
+
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-            FgdParser parser(file->begin(), file->end(), defaultColor, file->path());
+            FgdParser parser(std::begin(reader), std::end(reader), defaultColor, file->path());
 
             TestParserStatus status;
             auto defs = parser.parseDefinitions(status);
@@ -777,10 +783,12 @@ decor_goddess_statue : "Goddess Statue" [])";
         }
 
         TEST(FgdParserTest, parseNestedInclude) {
-            const Path path = Disk::getCurrentWorkingDir() + Path("data/IO/Fgd/parseNestedInclude/host.fgd");
-            MappedFile::Ptr file = Disk::openFile(path);
+            const Path path = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Fgd/parseNestedInclude/host.fgd");
+            auto file = Disk::openFile(path);
+            auto reader = file->reader().buffer();
+
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-            FgdParser parser(file->begin(), file->end(), defaultColor, file->path());
+            FgdParser parser(std::begin(reader), std::end(reader), defaultColor, file->path());
 
             TestParserStatus status;
             auto defs = parser.parseDefinitions(status);
@@ -793,10 +801,12 @@ decor_goddess_statue : "Goddess Statue" [])";
         }
 
         TEST(FgdParserTest, parseRecursiveInclude) {
-            const Path path = Disk::getCurrentWorkingDir() + Path("data/IO/Fgd/parseRecursiveInclude/host.fgd");
-            MappedFile::Ptr file = Disk::openFile(path);
+            const Path path = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Fgd/parseRecursiveInclude/host.fgd");
+            auto file = Disk::openFile(path);
+            auto reader = file->reader().buffer();
+
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-            FgdParser parser(file->begin(), file->end(), defaultColor, file->path());
+            FgdParser parser(std::begin(reader), std::end(reader), defaultColor, file->path());
 
             TestParserStatus status;
             auto defs = parser.parseDefinitions(status);

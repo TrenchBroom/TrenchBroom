@@ -22,12 +22,15 @@
 
 #include "IO/TextureReader.h"
 
+#include <memory>
+
 namespace TrenchBroom {
     namespace Assets {
         class Quake3Shader;
     }
 
     namespace IO {
+        class File;
         class FileSystem;
         class Path;
 
@@ -48,7 +51,7 @@ namespace TrenchBroom {
              */
             Quake3ShaderTextureReader(const NameStrategy& nameStrategy, const FileSystem& fs);
         private:
-            Assets::Texture* doReadTexture(MappedFile::Ptr file) const override;
+            Assets::Texture* doReadTexture(std::shared_ptr<File> file) const override;
             Assets::Texture* loadTextureImage(const Path& shaderPath, const Path& imagePath) const;
             Path findTexturePath(const Assets::Quake3Shader& shader) const;
             Path findTexture(const Path& texturePath) const;

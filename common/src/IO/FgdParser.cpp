@@ -21,6 +21,7 @@
 
 #include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"
+#include "IO/File.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/ELParser.h"
 #include "IO/LegacyModelDefinitionParser.h"
@@ -736,7 +737,8 @@ namespace TrenchBroom {
 
                 if (!isRecursiveInclude(filePath)) {
                     const PushIncludePath pushIncludePath(this, filePath);
-                    m_tokenizer.replaceState(file->begin(), file->end());
+                    auto reader = file->reader().buffer();
+                    m_tokenizer.replaceState(std::begin(reader), std::end(reader));
                     result = doParseDefinitions(status);
                 } else {
                     auto str = StringStream();

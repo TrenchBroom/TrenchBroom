@@ -20,8 +20,8 @@
 #include <gtest/gtest.h>
 
 #include "AABBTree.h"
-#include <vecmath/bbox.h>
 #include "IO/DiskIO.h"
+#include "IO/File.h"
 #include "IO/Path.h"
 #include "IO/TestParserStatus.h"
 #include "IO/WorldReader.h"
@@ -30,6 +30,8 @@
 #include "Model/Entity.h"
 #include "Model/NodeVisitor.h"
 #include "Model/World.h"
+
+#include <vecmath/bbox.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -83,14 +85,15 @@ namespace TrenchBroom {
         };
 
         TEST(AABBTreeStressTest, parseMapTest) {
-            const auto mapPath = IO::Disk::getCurrentWorkingDir() + IO::Path("data/IO/Map/rtz_q1.map");
+            const auto mapPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/IO/Map/rtz_q1.map");
             const auto file = IO::Disk::openFile(mapPath);
+            auto fileReader = file->reader().buffer();
 
             IO::TestParserStatus status;
-            IO::WorldReader reader(file->begin(), file->end());
+            IO::WorldReader worldReader(std::begin(fileReader), std::end(fileReader));
 
             const vm::bbox3 worldBounds(8192);
-            auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
+            auto world = worldReader.read(Model::MapFormat::Standard, worldBounds, status);
 
             AABB tree;
             TreeBuilder builder(tree);
