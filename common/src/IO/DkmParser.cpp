@@ -22,9 +22,9 @@
 #include "Exceptions.h"
 #include "Assets/Texture.h"
 #include "Assets/Palette.h"
+#include "IO/CharArrayReader.h"
 #include "IO/FileSystem.h"
 #include "IO/ImageLoader.h"
-#include "IO/IOUtils.h"
 #include "IO/MappedFile.h"
 #include "IO/Path.h"
 #include "IO/SkinLoader.h"
@@ -229,124 +229,151 @@ namespace TrenchBroom {
         DkmParser::DkmParser(const String& name, const char* begin, const char* end, const FileSystem& fs) :
         m_name(name),
         m_begin(begin),
-        /* m_end(end), */
+        m_end(end),
         m_fs(fs) {}
 
         // http://tfc.duke.free.fr/old/models/md2.htm
-        Assets::EntityModel* DkmParser::doParseModel(Logger& logger) {
-            const char* cursor = m_begin;
-            const int ident = readInt<int32_t>(cursor);
-            const int version = readInt<int32_t>(cursor);
+        std::unique_ptr<Assets::EntityModel> DkmParser::doInitializeModel(Logger& logger) {
+            CharArrayReader reader(m_begin, m_end);
+            const int ident = reader.readInt<int32_t>();
+            const int version = reader.readInt<int32_t>();
 
-            if (ident != DkmLayout::Ident)
+            if (ident != DkmLayout::Ident) {
                 throw AssetException() << "Unknown DKM model ident: " << ident;
-            if (version != DkmLayout::Version1 && version != DkmLayout::Version2)
+            }
+            if (version != DkmLayout::Version1 && version != DkmLayout::Version2) {
                 throw AssetException() << "Unknown DKM model version: " << version;
+            }
 
-            /* const vm::vec3f origin = */ readVec3f(cursor);
+            /* const auto origin = */ reader.readVec<float,3>();
 
-            /*const size_t frameSize =*/ readSize<int32_t>(cursor);
+            /* const auto frameSize = */ reader.readSize<int32_t>();
 
-            const size_t skinCount = readSize<int32_t>(cursor);
-            const size_t frameVertexCount = readSize<int32_t>(cursor);
-            /* const size_t texCoordCount =*/ readSize<int32_t>(cursor);
-            /* const size_t triangleCount =*/ readSize<int32_t>(cursor);
-            const size_t commandCount = readSize<int32_t>(cursor);
-            const size_t frameCount = readSize<int32_t>(cursor);
-            /* const size_t surfaceCount =*/ readSize<int32_t>(cursor);
+            const auto skinCount = reader.readSize<int32_t>();
+            /* const auto vertexCount = */ reader.readSize<int32_t>();
+            /* const auto texCoordCount =*/ reader.readSize<int32_t>();
+            /* const auto triangleCount =*/ reader.readSize<int32_t>();
+            /* const auto commandCount = */ reader.readSize<int32_t>();
+            const auto frameCount = reader.readSize<int32_t>();
+            /* const auto surfaceCount =*/ reader.readSize<int32_t>();
 
-            const size_t skinOffset = readSize<int32_t>(cursor);
-            /* const size_t texCoordOffset =*/ readSize<int32_t>(cursor);
-            /* const size_t triangleOffset =*/ readSize<int32_t>(cursor);
-            const size_t frameOffset = readSize<int32_t>(cursor);
-            const size_t commandOffset = readSize<int32_t>(cursor);
-            /* const size_t surfaceOffset =*/ readSize<int32_t>(cursor);
+            const auto skinOffset = reader.readSize<int32_t>();
 
-            const DkmSkinList skins = parseSkins(m_begin + skinOffset, skinCount);
-            const DkmFrameList frames = parseFrames(m_begin + frameOffset, frameCount, frameVertexCount, version);
-            const DkmMeshList meshes = parseMeshes(m_begin + commandOffset, commandCount);
+            const auto skins = parseSkins(reader.subReaderFromBegin(skinOffset), skinCount);
 
-            return buildModel(skins, frames, meshes);
+            auto model = std::make_unique<Assets::EntityModel>(m_name);
+            model->addFrames(frameCount);
+
+            auto& surface = model->addSurface(m_name);
+            loadSkins(surface, skins);
+
+            return model;
         }
 
-        DkmParser::DkmSkinList DkmParser::parseSkins(const char* begin, const size_t skinCount) {
-            DkmSkinList skins(skinCount);
-            readVector(begin, skins);
+        void DkmParser::doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) {
+            CharArrayReader reader(m_begin, m_end);
+            const int ident = reader.readInt<int32_t>();
+            const int version = reader.readInt<int32_t>();
+
+            if (ident != DkmLayout::Ident) {
+                throw AssetException() << "Unknown DKM model ident: " << ident;
+            }
+            if (version != DkmLayout::Version1 && version != DkmLayout::Version2) {
+                throw AssetException() << "Unknown DKM model version: " << version;
+            }
+
+            /* const auto origin = */ reader.readVec<float,3>();
+
+            const auto frameSize = reader.readSize<int32_t>();
+
+            /* const auto skinCount = */ reader.readSize<int32_t>();
+            const auto vertexCount = reader.readSize<int32_t>();
+            /* const auto texCoordCount =*/ reader.readSize<int32_t>();
+            /* const auto triangleCount =*/ reader.readSize<int32_t>();
+            const auto commandCount = reader.readSize<int32_t>();
+            /* const auto frameCount = */ reader.readSize<int32_t>();
+            /* const auto surfaceCount =*/ reader.readSize<int32_t>();
+
+            /* const auto skinOffset = */ reader.readSize<int32_t>();
+            /* const auto texCoordOffset =*/ reader.readSize<int32_t>();
+            /* const auto triangleOffset =*/ reader.readSize<int32_t>();
+            const auto frameOffset = reader.readSize<int32_t>();
+            const auto commandOffset = reader.readSize<int32_t>();
+            /* const auto surfaceOffset =*/ reader.readSize<int32_t>();
+
+            const auto frame = parseFrame(reader.subReaderFromBegin(frameOffset + frameIndex * frameSize, frameSize), frameIndex, vertexCount, version);
+            const auto meshes = parseMeshes(reader.subReaderFromBegin(commandOffset, commandCount * 4), commandCount);
+
+            auto& surface = model.surface(0);
+            buildFrame(model, surface, frameIndex, frame, meshes);
+        }
+
+        DkmParser::DkmSkinList DkmParser::parseSkins(CharArrayReader reader, const size_t skinCount) {
+            DkmSkinList skins;
+            skins.reserve(skinCount);
+            for (size_t i = 0; i < skinCount; ++i) {
+                skins.emplace_back(reader.readString(DkmLayout::SkinNameLength));
+            }
             return skins;
         }
 
-        DkmParser::DkmFrameList DkmParser::parseFrames(const char* begin, const size_t frameCount, const size_t frameVertexCount, const int version) {
+        DkmParser::DkmFrame DkmParser::parseFrame(CharArrayReader reader, const size_t frameIndex, const size_t vertexCount, const int version) {
             assert(version == 1 || version == 2);
-            DkmFrameList frames(frameCount, DkmFrame(frameVertexCount));
 
-            const char* cursor = begin;
-            for (size_t i = 0; i < frameCount; ++i) {
-                frames[i].scale = readVec3f(cursor);
-                frames[i].offset = readVec3f(cursor);
-                readBytes(cursor, frames[i].name, DkmLayout::FrameNameLength);
+            auto frame = DkmFrame(vertexCount);
 
-                if (version == 1) {
-                    std::vector<DkmVertex1> packedVertices(frameVertexCount);
-                    readVector(cursor, packedVertices);
+            frame.scale = reader.readVec<float,3>();
+            frame.offset = reader.readVec<float,3>();
+            frame.name = reader.readString(DkmLayout::FrameNameLength);
 
-                    for (size_t j = 0; j < frameVertexCount; ++j) {
-                        frames[i].vertices[j].x = packedVertices[j].x;
-                        frames[i].vertices[j].y = packedVertices[j].y;
-                        frames[i].vertices[j].z = packedVertices[j].z;
-                        frames[i].vertices[j].normalIndex = packedVertices[j].normalIndex;
-                    }
-                } else {
-                    std::vector<DkmVertex2> packedVertices(frameVertexCount);
-                    readVector(cursor, packedVertices);
+            assert(!vm::isNaN(frame.scale));
+            assert(!vm::isNaN(frame.offset));
 
-                    /* Version 2 vertices are packed into a 32bit integer
-                     * X occupies the first 11 bits
-                     * Y occupies the following 10 bits
-                     * Z occupies the following 11 bits
-                     */
-                    for (size_t j = 0; j < frameVertexCount; ++j) {
-                        frames[i].vertices[j].x = (packedVertices[j].xyz & 0xFFE00000) >> 21;
-                        frames[i].vertices[j].y = (packedVertices[j].xyz & 0x1FF800) >> 11;
-                        frames[i].vertices[j].z = (packedVertices[j].xyz & 0x7FF);
-                        frames[i].vertices[j].normalIndex = packedVertices[j].normalIndex;
-                    }
+            if (version == 1) {
+                for (size_t i = 0; i < vertexCount; ++i) {
+                    frame.vertices[i].x = reader.readUnsignedChar<char>();
+                    frame.vertices[i].y = reader.readUnsignedChar<char>();
+                    frame.vertices[i].z = reader.readUnsignedChar<char>();
+                    frame.vertices[i].normalIndex = reader.readUnsignedChar<char>();
+                }
+            } else {
+                /* Version 2 vertices are packed into a 32bit integer
+                 * X occupies the first 11 bits
+                 * Y occupies the following 10 bits
+                 * Z occupies the following 11 bits
+                 */
+                for (size_t i = 0; i < vertexCount; ++i) {
+                    const auto packedPosition = reader.read<uint32_t, uint32_t>();
+                    frame.vertices[i].x = (packedPosition & 0xFFE00000) >> 21;
+                    frame.vertices[i].y = (packedPosition & 0x1FF800) >> 11;
+                    frame.vertices[i].z = (packedPosition & 0x7FF);
+                    frame.vertices[i].normalIndex = reader.readUnsignedChar<char>();
                 }
             }
 
-            return frames;
+            return frame;
         }
 
-        DkmParser::DkmMeshList DkmParser::parseMeshes(const char* begin, const size_t commandCount) {
+        DkmParser::DkmMeshList DkmParser::parseMeshes(CharArrayReader reader, const size_t commandCount) {
             DkmMeshList meshes;
 
-            const char* cursor = begin;
-            auto vertexCount = readInt<int32_t>(cursor);
+            // vertex count is signed, where < 0 indicates a triangle fan and > 0 indicates a triangle strip
+            auto vertexCount = reader.readInt<int32_t>();
             while (vertexCount != 0) {
-                /* const int skinIndex    = */ readInt<int32_t>(cursor);
-                /* const int surfaceIndex = */ readInt<int32_t>(cursor);
+                /* const size_t skinIndex    = */ reader.readSize<int32_t>();
+                /* const size_t surfaceIndex = */ reader.readSize<int32_t>();
 
                 DkmMesh mesh(vertexCount);
                 for (size_t i = 0; i < mesh.vertexCount; ++i) {
-                    mesh.vertices[i].vertexIndex = readSize<int32_t>(cursor); // index before texcoords in DKM
-
-                    mesh.vertices[i].texCoords[0] = readFloat<float>(cursor);
-                    mesh.vertices[i].texCoords[1] = readFloat<float>(cursor);
+                    mesh.vertices[i].vertexIndex = reader.readSize<int32_t>(); // index before texcoords in DKM
+                    mesh.vertices[i].texCoords[0] = reader.readFloat<float>();
+                    mesh.vertices[i].texCoords[1] = reader.readFloat<float>();
                 }
                 meshes.push_back(mesh);
-                vertexCount = readInt<int32_t>(cursor);
+                vertexCount = reader.readInt<int32_t>();
             }
 
             return meshes;
-        }
-
-        Assets::EntityModel* DkmParser::buildModel(const DkmSkinList& skins, const DkmFrameList& frames, const DkmMeshList& meshes) {
-            auto model = std::make_unique<Assets::EntityModel>(m_name);
-            auto& surface = model->addSurface(m_name);
-
-            loadSkins(surface, skins);
-            buildFrames(*model, surface, frames, meshes);
-
-            return model.release();
         }
 
         void DkmParser::loadSkins(Assets::EntityModel::Surface& surface, const DkmParser::DkmSkinList& skins) {
@@ -361,8 +388,8 @@ namespace TrenchBroom {
          * not exist, and the correct skin file name will be "x/y.wal" instead. That's why we try to find
          * a matching file name by disregarding the extension.
          */
-        const IO::Path DkmParser::findSkin(const DkmSkin& skin) const {
-            const Path skinPath(String(skin.name));
+        const IO::Path DkmParser::findSkin(const String& skin) const {
+            const Path skinPath(skin);
             if (m_fs.fileExists(skinPath)) {
                 return skinPath;
             }
@@ -386,46 +413,38 @@ namespace TrenchBroom {
             }
         }
 
-        void DkmParser::buildFrames(Assets::EntityModel& model, Assets::EntityModel::Surface& surface, const DkmParser::DkmFrameList& frames, const DkmParser::DkmMeshList& meshes) {
-            for (const auto& frame: frames) {
-                size_t vertexCount = 0;
-                Renderer::IndexRangeMap::Size size;
-                for (const auto& md2Mesh : meshes) {
-                    vertexCount += md2Mesh.vertices.size();
-                    if (md2Mesh.type == DkmMesh::Fan) {
-                        size.inc(GL_TRIANGLE_FAN);
-                    } else {
-                        size.inc(GL_TRIANGLE_STRIP);
-                    }
+        void DkmParser::buildFrame(Assets::EntityModel& model, Assets::EntityModel::Surface& surface, const size_t frameIndex, const DkmFrame& frame, const DkmMeshList& meshes) {
+            size_t vertexCount = 0;
+            Renderer::IndexRangeMap::Size size;
+            for (const auto& md2Mesh : meshes) {
+                vertexCount += md2Mesh.vertices.size();
+                if (md2Mesh.type == DkmMesh::Fan) {
+                    size.inc(GL_TRIANGLE_FAN);
+                } else {
+                    size.inc(GL_TRIANGLE_STRIP);
                 }
-
-                bool boundsInitialized = false;
-                vm::bbox3f bounds;
-
-                Renderer::IndexRangeMapBuilder<Assets::EntityModel::Vertex::Type> builder(vertexCount, size);
-                for (const auto& md2Mesh : meshes) {
-                    if (!md2Mesh.vertices.empty()) {
-                        vertexCount += md2Mesh.vertices.size();
-                        const auto vertices = getVertices(frame, md2Mesh.vertices);
-
-                        if (!boundsInitialized) {
-                            bounds = vm::bbox3f::mergeAll(std::begin(vertices), std::end(vertices), Renderer::GetVertexComponent<0>());
-                            boundsInitialized = true;
-                        } else {
-                            bounds = vm::merge(bounds, vm::bbox3f::mergeAll(std::begin(vertices), std::end(vertices), Renderer::GetVertexComponent<0>()));
-                        }
-
-                        if (md2Mesh.type == DkmMesh::Fan) {
-                            builder.addTriangleFan(vertices);
-                        } else {
-                            builder.addTriangleStrip(vertices);
-                        }
-                    }
-                }
-
-                model.addFrame(frame.name, bounds);
-                surface.addIndexedMesh(builder.vertices(), builder.indices());
             }
+
+            vm::bbox3f::builder bounds;
+
+            Renderer::IndexRangeMapBuilder<Assets::EntityModel::Vertex::Type> builder(vertexCount, size);
+            for (const auto& md2Mesh : meshes) {
+                if (!md2Mesh.vertices.empty()) {
+                    vertexCount += md2Mesh.vertices.size();
+                    const auto vertices = getVertices(frame, md2Mesh.vertices);
+
+                    bounds.add(std::begin(vertices), std::end(vertices), Renderer::GetVertexComponent<0>());
+
+                    if (md2Mesh.type == DkmMesh::Fan) {
+                        builder.addTriangleFan(vertices);
+                    } else {
+                        builder.addTriangleStrip(vertices);
+                    }
+                }
+            }
+
+            auto& modelFrame = model.loadFrame(frameIndex, frame.name, bounds.bounds());
+            surface.addIndexedMesh(modelFrame, builder.vertices(), builder.indices());
         }
 
         Assets::EntityModel::VertexList DkmParser::getVertices(const DkmFrame& frame, const DkmMeshVertexList& meshVertices) const {

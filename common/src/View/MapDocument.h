@@ -178,7 +178,7 @@ namespace TrenchBroom {
             Model::EditorContext& editorContext() const;
 
             Assets::EntityDefinitionManager& entityDefinitionManager() override;
-            Assets::EntityModelManager& entityModelManager();
+            Assets::EntityModelManager& entityModelManager() override;
             Assets::TextureManager& textureManager() override;
 
             MapViewConfig& mapViewConfig() const;
@@ -429,6 +429,16 @@ namespace TrenchBroom {
             void loadTextures();
             void unloadTextures();
 
+            class SetTextures;
+            class UnsetTextures;
+            void setTextures();
+            void setTextures(const Model::NodeList& nodes);
+            void setTextures(const Model::BrushFaceList& faces);
+            void unsetTextures();
+            void unsetTextures(const Model::NodeList& nodes);
+
+            class SetEntityDefinitions;
+            class UnsetEntityDefinitions;
             void setEntityDefinitions();
             void setEntityDefinitions(const Model::NodeList& nodes);
             void unsetEntityDefinitions();
@@ -437,12 +447,12 @@ namespace TrenchBroom {
 
             void clearEntityModels();
 
-            void setTextures();
-            void setTextures(const Model::NodeList& nodes);
-            void setTextures(const Model::BrushFaceList& faces);
-
-            void unsetTextures();
-            void unsetTextures(const Model::NodeList& nodes);
+            class SetEntityModels;
+            class UnsetEntityModels;
+            void setEntityModels();
+            void setEntityModels(const Model::NodeList& nodes);
+            void unsetEntityModels();
+            void unsetEntityModels(const Model::NodeList& nodes);
         protected: // search paths and mods
             IO::Path::List externalSearchPaths() const;
             void updateGameSearchPaths();

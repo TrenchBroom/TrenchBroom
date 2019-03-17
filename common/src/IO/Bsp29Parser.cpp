@@ -67,7 +67,35 @@ namespace TrenchBroom {
         m_end(end),
         m_palette(palette) {}
 
-        Assets::EntityModel* Bsp29Parser::doParseModel(Logger& logger) {
+        std::unique_ptr<Assets::EntityModel> Bsp29Parser::doInitializeModel(Logger& logger) {
+            CharArrayReader reader(m_begin, m_end);
+            const auto version = reader.readInt<int32_t>();
+            if (version != 29) {
+                throw AssetException() << "Unsupported BSP model version: " << version;
+            }
+
+            reader.seekFromBegin(BspLayout::DirTexturesAddress);
+            const auto textureOffset = reader.readSize<int32_t>();
+
+            reader.seekFromBegin(BspLayout::DirModelAddress);
+            /* const auto modelsOffset = */ reader.readSize<int32_t>();
+            const auto modelsLength = reader.readSize<int32_t>();
+            const auto frameCount = modelsLength / BspLayout::ModelSize;
+
+            const auto textures = parseTextures(reader.subReaderFromBegin(textureOffset));
+
+            auto model = std::make_unique<Assets::EntityModel>(m_name);
+            model->addFrames(frameCount);
+
+            auto& surface = model->addSurface(m_name);
+            for (auto* texture : textures) {
+                surface.addSkin(texture);
+            }
+
+            return model;
+        }
+
+        void Bsp29Parser::doLoadFrame(const size_t frameIndex, Assets::EntityModel& model, Logger& logger) {
             CharArrayReader reader(m_begin, m_end);
             const auto version = reader.readInt<int32_t>();
             if (version != 29) {
@@ -105,8 +133,6 @@ namespace TrenchBroom {
 
             reader.seekFromBegin(BspLayout::DirModelAddress);
             const auto modelsOffset = reader.readSize<int32_t>();
-            const auto modelsLength = reader.readSize<int32_t>();
-            const auto modelCount = modelsLength / BspLayout::ModelSize;
 
             const auto textures = parseTextures(reader.subReaderFromBegin(textureOffset));
             const auto textureInfos = parseTextureInfos(reader.subReaderFromBegin(textureInfoOffset), textureInfoCount);
@@ -115,7 +141,7 @@ namespace TrenchBroom {
             const auto faceInfos = parseFaceInfos(reader.subReaderFromBegin(faceInfoOffset), faceInfoCount);
             const auto faceEdges = parseFaceEdges(reader.subReaderFromBegin(faceEdgesOffset), faceEdgesCount);
 
-            return parseModels(reader.subReaderFromBegin(modelsOffset), modelCount, textures, textureInfos, vertices, edgeInfos, faceInfos, faceEdges);
+            parseFrame(reader.subReaderFromBegin(modelsOffset + frameIndex * BspLayout::ModelSize, BspLayout::ModelSize), frameIndex, model, textureInfos, vertices, edgeInfos, faceInfos, faceEdges);
         }
 
         Assets::TextureList Bsp29Parser::parseTextures(CharArrayReader reader) {
@@ -193,80 +219,68 @@ namespace TrenchBroom {
             return result;
         }
 
-        Assets::EntityModel* Bsp29Parser::parseModels(CharArrayReader reader, const size_t modelCount, const Assets::TextureList& skins, const TextureInfoList& textureInfos, const std::vector<vm::vec3f>& vertices, const EdgeInfoList& edgeInfos, const FaceInfoList& faceInfos, const FaceEdgeIndexList& faceEdges) {
+        void Bsp29Parser::parseFrame(CharArrayReader reader, const size_t frameIndex, Assets::EntityModel& model, const TextureInfoList& textureInfos, const std::vector<vm::vec3f>& vertices, const EdgeInfoList& edgeInfos, const FaceInfoList& faceInfos, const FaceEdgeIndexList& faceEdges) {
             using Vertex = Assets::EntityModel::Vertex;
             using VertexList = Vertex::List;
 
-            auto model = std::make_unique<Assets::EntityModel>(m_name);
-            auto& surface = model->addSurface(m_name);
+            auto& surface = model.surface(0);
 
-            for (auto* skin : skins) {
-                surface.addSkin(skin);
+            reader.seekForward(BspLayout::ModelFaceIndex);
+            const auto modelFaceIndex = reader.readSize<int32_t>();
+            const auto modelFaceCount = reader.readSize<int32_t>();
+            size_t totalVertexCount = 0;
+            Renderer::TexturedIndexRangeMap::Size size;
+
+            for (size_t i = 0; i < modelFaceCount; ++i) {
+                const auto& faceInfo = faceInfos[modelFaceIndex + i];
+                const auto& textureInfo = textureInfos[faceInfo.textureInfoIndex];
+                auto* skin = surface.skin(textureInfo.textureIndex);
+                if (skin != nullptr) {
+                    const auto faceVertexCount = faceInfo.edgeCount;
+                    size.inc(skin, GL_POLYGON, faceVertexCount);
+                    totalVertexCount += faceVertexCount;
+                }
             }
 
-            for (size_t i = 0; i < modelCount; ++i) {
-                reader.seekForward(BspLayout::ModelFaceIndex);
-                const auto modelFaceIndex = reader.readSize<int32_t>();
-                const auto modelFaceCount = reader.readSize<int32_t>();
-                size_t totalVertexCount = 0;
-                Renderer::TexturedIndexRangeMap::Size size;
+            vm::bbox3f::builder bounds;
 
-                for (size_t j = 0; j < modelFaceCount; ++j) {
-                    const auto& faceInfo = faceInfos[modelFaceIndex + j];
-                    const auto& textureInfo = textureInfos[faceInfo.textureInfoIndex];
-                    auto* skin = skins[textureInfo.textureIndex];
-                    if (skin != nullptr) {
-                        const auto faceVertexCount = faceInfo.edgeCount;
-                        size.inc(skin, GL_POLYGON, faceVertexCount);
-                        totalVertexCount += faceVertexCount;
-                    }
-                }
+            Renderer::TexturedIndexRangeMapBuilder<Vertex::Type> builder(totalVertexCount, size);
+            for (size_t i = 0; i < modelFaceCount; ++i) {
+                const auto& faceInfo = faceInfos[modelFaceIndex + i];
+                const auto& textureInfo = textureInfos[faceInfo.textureInfoIndex];
+                auto* skin = surface.skin(textureInfo.textureIndex);
+                if (skin != nullptr) {
+                    const auto faceVertexCount = faceInfo.edgeCount;
 
-                vm::bbox3f bounds;
-
-                Renderer::TexturedIndexRangeMapBuilder<Vertex::Type> builder(totalVertexCount, size);
-                for (size_t j = 0; j < modelFaceCount; ++j) {
-                    const auto& faceInfo = faceInfos[modelFaceIndex + j];
-                    const auto& textureInfo = textureInfos[faceInfo.textureInfoIndex];
-                    auto* skin = skins[textureInfo.textureIndex];
-                    if (skin != nullptr) {
-                        const auto faceVertexCount = faceInfo.edgeCount;
-
-                        VertexList faceVertices;
-                        faceVertices.reserve(faceVertexCount);
-                        for (size_t k = 0; k < faceVertexCount; ++k) {
-                            const int faceEdgeIndex = faceEdges[faceInfo.edgeIndex + k];
-                            size_t vertexIndex;
-                            if (faceEdgeIndex < 0) {
-                                vertexIndex = edgeInfos[static_cast<size_t>(-faceEdgeIndex)].vertexIndex2;
-                            } else {
-                                vertexIndex = edgeInfos[static_cast<size_t>(faceEdgeIndex)].vertexIndex1;
-                            }
-
-                            const auto& position = vertices[vertexIndex];
-                            const auto texCoords = textureCoords(position, textureInfo, skin);
-
-                            if (i == 0 && j == 0) {
-                                bounds.min = bounds.max = position;
-                            } else {
-                                bounds = vm::merge(bounds, position);
-                            }
-
-                            faceVertices.emplace_back(position, texCoords);
+                    VertexList faceVertices;
+                    faceVertices.reserve(faceVertexCount);
+                    for (size_t k = 0; k < faceVertexCount; ++k) {
+                        const int faceEdgeIndex = faceEdges[faceInfo.edgeIndex + k];
+                        size_t vertexIndex;
+                        if (faceEdgeIndex < 0) {
+                            vertexIndex = edgeInfos[static_cast<size_t>(-faceEdgeIndex)].vertexIndex2;
+                        } else {
+                            vertexIndex = edgeInfos[static_cast<size_t>(faceEdgeIndex)].vertexIndex1;
                         }
 
-                        builder.addPolygon(skin, faceVertices);
+                        const auto& position = vertices[vertexIndex];
+                        const auto texCoords = textureCoords(position, textureInfo, skin);
+
+                        bounds.add(position);
+
+                        faceVertices.push_back(Vertex(position, texCoords));
                     }
+
+                    builder.addPolygon(skin, faceVertices);
                 }
-
-                StringStream frameName;
-                frameName << m_name << "_" << i;
-                model->addFrame(frameName.str(), bounds);
-
-                surface.addTexturedMesh(builder.vertices(), builder.indices());
             }
 
-            return model.release();
+            StringStream frameName;
+            frameName << m_name << "_" << frameIndex;
+
+            auto& frame = model.loadFrame(frameIndex, frameName.str(), bounds.bounds());
+            surface.addTexturedMesh(frame, builder.vertices(), builder.indices());
+
         }
 
         vm::vec2f Bsp29Parser::textureCoords(const vm::vec3f& vertex, const TextureInfo& textureInfo, const Assets::Texture* texture) const {

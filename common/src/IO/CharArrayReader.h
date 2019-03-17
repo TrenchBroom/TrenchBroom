@@ -52,9 +52,12 @@ namespace TrenchBroom {
             void seekFromBegin(size_t offset);
             void seekFromEnd(size_t offset);
             void seekForward(size_t offset);
+            void seekBackward(size_t offset);
 
             CharArrayReader subReaderFromBegin(size_t offset, size_t length) const;
             CharArrayReader subReaderFromBegin(size_t offset) const;
+            CharArrayReader subReaderFromCurrent(size_t offset, size_t length) const;
+            CharArrayReader subReaderFromCurrent(size_t offset) const;
 
             template <typename R=char>
             const R* begin() const {

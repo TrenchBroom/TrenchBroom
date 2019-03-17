@@ -21,6 +21,7 @@
 
 #include "Macros.h"
 #include "Assets/Palette.h"
+#include "IO/AseParser.h"
 #include "IO/BrushFaceReader.h"
 #include "IO/Bsp29Parser.h"
 #include "IO/DefParser.h"
@@ -347,25 +348,36 @@ namespace TrenchBroom {
             }
         }
 
-        Assets::EntityModel* GameImpl::doLoadEntityModel(const IO::Path& path, Logger& logger) const {
+        std::unique_ptr<Assets::EntityModel> GameImpl::doInitializeModel(const IO::Path& path, Logger& logger) const {
             try {
                 const auto file = m_fs.openFile(path);
-                ensure(file.get() != nullptr, "file is null");
+                ensure(file != nullptr, "file is null");
 
                 const auto modelName = path.lastComponent().asString();
                 const auto extension = StringUtils::toLower(path.extension());
                 const auto supported = m_config.entityConfig().modelFormats;
 
                 if (extension == "mdl" && supported.count("mdl") > 0) {
-                    return loadMdlModel(modelName, file, logger);
+                    const auto palette = loadTexturePalette();
+                    IO::MdlParser parser(modelName, file->begin(), file->end(), palette);
+                    return parser.initializeModel(logger);
                 } else if (extension == "md2" && supported.count("md2") > 0) {
-                    return loadMd2Model(modelName, file, logger);
+                    const auto palette = loadTexturePalette();
+                    IO::Md2Parser parser(modelName, file->begin(), file->end(), palette, m_fs);
+                    return parser.initializeModel(logger);
                 } else if (extension == "md3" && supported.count("md3") > 0) {
-                    return loadMd3Model(modelName, file, logger);
+                    IO::Md3Parser parser(modelName, file->begin(), file->end(), m_fs);
+                    return parser.initializeModel(logger);
                 } else if (extension == "bsp" && supported.count("bsp") > 0) {
-                    return loadBspModel(modelName, file, logger);
+                    const auto palette = loadTexturePalette();
+                    IO::Bsp29Parser parser(modelName, file->begin(), file->end(), palette);
+                    return parser.initializeModel(logger);
                 } else if (extension == "dkm" && supported.count("dkm") > 0) {
-                    return loadDkmModel(modelName, file, logger);
+                    IO::DkmParser parser(modelName, file->begin(), file->end(), m_fs);
+                    return parser.initializeModel(logger);
+                } else if (extension == "ase" && supported.count("ase") > 0) {
+                    IO::AseParser parser(modelName, file->begin(), file->end(), m_fs);
+                    return parser.initializeModel(logger);
                 } else {
                     throw GameException("Unsupported model format '" + path.asString() + "'");
                 }
@@ -376,35 +388,47 @@ namespace TrenchBroom {
             }
         }
 
-        Assets::EntityModel* GameImpl::loadBspModel(const String& name, const IO::MappedFile::Ptr& file, Logger& logger) const {
-            const auto palette = loadTexturePalette();
+        void GameImpl::doLoadFrame(const IO::Path& path, size_t frameIndex, Assets::EntityModel& model, Logger& logger) const {
+            try {
+                ensure(model.frame(frameIndex) != nullptr, "invalid frame index");
+                ensure(!model.frame(frameIndex)->loaded(), "frame already loaded");
 
-            IO::Bsp29Parser parser(name, file->begin(), file->end(), palette);
-            return parser.parseModel(logger);
-        }
+                const auto file = m_fs.openFile(path);
+                ensure(file != nullptr, "file is null");
 
-        Assets::EntityModel* GameImpl::loadMdlModel(const String& name, const IO::MappedFile::Ptr& file, Logger& logger) const {
-            const auto palette = loadTexturePalette();
+                const auto modelName = path.lastComponent().asString();
+                const auto extension = StringUtils::toLower(path.extension());
+                const auto supported = m_config.entityConfig().modelFormats;
 
-            IO::MdlParser parser(name, file->begin(), file->end(), palette);
-            return parser.parseModel(logger);
-        }
-
-        Assets::EntityModel* GameImpl::loadMd2Model(const String& name, const IO::MappedFile::Ptr& file, Logger& logger) const {
-            const auto palette = loadTexturePalette();
-
-            IO::Md2Parser parser(name, file->begin(), file->end(), palette, m_fs);
-            return parser.parseModel(logger);
-        }
-
-        Assets::EntityModel* GameImpl::loadMd3Model(const String& name, const IO::MappedFile::Ptr& file, Logger& logger) const {
-            IO::Md3Parser parser(name, file->begin(), file->end(), m_fs);
-            return parser.parseModel(logger);
-        }
-
-        Assets::EntityModel* GameImpl::loadDkmModel(const String& name, const IO::MappedFile::Ptr& file, Logger& logger) const {
-            IO::DkmParser parser(name, file->begin(), file->end(), m_fs);
-            return parser.parseModel(logger);
+                if (extension == "mdl" && supported.count("mdl") > 0) {
+                    const auto palette = loadTexturePalette();
+                    IO::MdlParser parser(modelName, file->begin(), file->end(), palette);
+                    parser.loadFrame(frameIndex, model, logger);
+                } else if (extension == "md2" && supported.count("md2") > 0) {
+                    const auto palette = loadTexturePalette();
+                    IO::Md2Parser parser(modelName, file->begin(), file->end(), palette, m_fs);
+                    parser.loadFrame(frameIndex, model, logger);
+                } else if (extension == "md3" && supported.count("md3") > 0) {
+                    IO::Md3Parser parser(modelName, file->begin(), file->end(), m_fs);
+                    parser.loadFrame(frameIndex, model, logger);
+                } else if (extension == "bsp" && supported.count("bsp") > 0) {
+                    const auto palette = loadTexturePalette();
+                    IO::Bsp29Parser parser(modelName, file->begin(), file->end(), palette);
+                    parser.loadFrame(frameIndex, model, logger);
+                } else if (extension == "dkm" && supported.count("dkm") > 0) {
+                    IO::DkmParser parser(modelName, file->begin(), file->end(), m_fs);
+                    parser.loadFrame(frameIndex, model, logger);
+                } else if (extension == "ase" && supported.count("ase") > 0) {
+                    IO::AseParser parser(modelName, file->begin(), file->end(), m_fs);
+                    parser.loadFrame(frameIndex, model, logger);
+                } else {
+                    throw GameException("Unsupported model format '" + path.asString() + "'");
+                }
+            } catch (FileSystemException& e) {
+                throw GameException("Could not load model " + path.asString() + ": " + String(e.what()));
+            } catch (AssetException& e) {
+                throw GameException("Could not load model " + path.asString() + ": " + String(e.what()));
+            }
         }
 
         Assets::Palette GameImpl::loadTexturePalette() const {

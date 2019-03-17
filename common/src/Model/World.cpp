@@ -85,13 +85,13 @@ namespace TrenchBroom {
         private:
             NodeTree& m_nodeTree;
         public:
-            AddNodeToNodeTree(NodeTree& nodeTree) :
+            explicit AddNodeToNodeTree(NodeTree& nodeTree) :
             m_nodeTree(nodeTree) {}
         private:
             void doVisit(World* world) override   {}
             void doVisit(Layer* layer) override   {}
             void doVisit(Group* group) override   { m_nodeTree.insert(group->bounds(), group); }
-            void doVisit(Entity* entity) override { m_nodeTree.insert(entity->bounds(), entity); }
+            void doVisit(Entity* entity) override { m_nodeTree.insert(entity->totalBounds(), entity); }
             void doVisit(Brush* brush) override   { m_nodeTree.insert(brush->bounds(), brush); }
         };
 
@@ -99,13 +99,13 @@ namespace TrenchBroom {
         private:
             NodeTree& m_nodeTree;
         public:
-            RemoveNodeFromNodeTree(NodeTree& nodeTree) :
+            explicit RemoveNodeFromNodeTree(NodeTree& nodeTree) :
             m_nodeTree(nodeTree) {}
         private:
             void doVisit(World* world) override   {}
             void doVisit(Layer* layer) override   {}
             void doVisit(Group* group) override   { doRemove(group, group->bounds()); }
-            void doVisit(Entity* entity) override { doRemove(entity, entity->bounds()); }
+            void doVisit(Entity* entity) override { doRemove(entity, entity->totalBounds()); }
             void doVisit(Brush* brush) override   { doRemove(brush, brush->bounds()); }
 
             void doRemove(Node* node, const vm::bbox3& bounds) {
@@ -129,7 +129,7 @@ namespace TrenchBroom {
             void doVisit(World* world) override   {}
             void doVisit(Layer* layer) override   {}
             void doVisit(Group* group) override   { m_nodeTree.update(m_oldBounds, group->bounds(), group); }
-            void doVisit(Entity* entity) override { m_nodeTree.update(m_oldBounds, entity->bounds(), entity); }
+            void doVisit(Entity* entity) override { m_nodeTree.update(m_oldBounds, entity->totalBounds(), entity); }
             void doVisit(Brush* brush) override   { m_nodeTree.update(m_oldBounds, brush->bounds(), brush); }
         };
 

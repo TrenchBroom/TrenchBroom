@@ -1607,6 +1607,7 @@ namespace TrenchBroom {
 
         void MapDocument::loadEntityModels() {
             m_entityModelManager->setLoader(m_game.get());
+            setEntityModels();
         }
 
         void MapDocument::unloadEntityModels() {
@@ -1634,70 +1635,12 @@ namespace TrenchBroom {
             m_textureManager->clear();
         }
 
-        class SetEntityDefinition : public Model::NodeVisitor {
-        private:
-            Assets::EntityDefinitionManager& m_manager;
-        public:
-            SetEntityDefinition(Assets::EntityDefinitionManager& manager) :
-            m_manager(manager) {}
-        private:
-            void doVisit(Model::World* world) override   { handle(world); }
-            void doVisit(Model::Layer* layer) override   {}
-            void doVisit(Model::Group* group) override   {}
-            void doVisit(Model::Entity* entity) override { handle(entity); }
-            void doVisit(Model::Brush* brush) override   {}
-            void handle(Model::AttributableNode* attributable) {
-                Assets::EntityDefinition* definition = m_manager.definition(attributable);
-                attributable->setDefinition(definition);
-            }
-        };
-
-        class UnsetEntityDefinition : public Model::NodeVisitor {
-        private:
-            void doVisit(Model::World* world) override   { world->setDefinition(nullptr); }
-            void doVisit(Model::Layer* layer) override   {}
-            void doVisit(Model::Group* group) override   {}
-            void doVisit(Model::Entity* entity) override { entity->setDefinition(nullptr); }
-            void doVisit(Model::Brush* brush) override   {}
-        };
-
-        void MapDocument::setEntityDefinitions() {
-            SetEntityDefinition visitor(*m_entityDefinitionManager);
-            m_world->acceptAndRecurse(visitor);
-        }
-
-        void MapDocument::setEntityDefinitions(const Model::NodeList& nodes) {
-            SetEntityDefinition visitor(*m_entityDefinitionManager);
-            Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
-        }
-
-        void MapDocument::unsetEntityDefinitions() {
-            UnsetEntityDefinition visitor;
-            m_world->acceptAndRecurse(visitor);
-        }
-
-        void MapDocument::unsetEntityDefinitions(const Model::NodeList& nodes) {
-            UnsetEntityDefinition visitor;
-            Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
-        }
-
-        void MapDocument::reloadEntityDefinitionsInternal() {
-            unloadEntityDefinitions();
-            clearEntityModels();
-            loadEntityDefinitions();
-            setEntityDefinitions();
-        }
-
-        void MapDocument::clearEntityModels() {
-            m_entityModelManager->clear();
-        }
-
-        class SetTextures : public Model::NodeVisitor {
+        class MapDocument::SetTextures : public Model::NodeVisitor {
         private:
             Assets::TextureManager& m_manager;
         public:
             SetTextures(Assets::TextureManager& manager) :
-            m_manager(manager) {}
+                m_manager(manager) {}
         private:
             void doVisit(Model::World* world) override   {}
             void doVisit(Model::Layer* layer) override   {}
@@ -1706,6 +1649,19 @@ namespace TrenchBroom {
             void doVisit(Model::Brush* brush) override   {
                 for (Model::BrushFace* face : brush->faces()) {
                     face->updateTexture(m_manager);
+                }
+            }
+        };
+
+        class MapDocument::UnsetTextures : public Model::NodeVisitor {
+        private:
+            void doVisit(Model::World* world) override   {}
+            void doVisit(Model::Layer* layer) override   {}
+            void doVisit(Model::Group* group) override   {}
+            void doVisit(Model::Entity* entity) override {}
+            void doVisit(Model::Brush* brush) override   {
+                for (Model::BrushFace* face : brush->faces()) {
+                    face->setTexture(nullptr);
                 }
             }
         };
@@ -1726,19 +1682,6 @@ namespace TrenchBroom {
             }
         }
 
-        class UnsetTextures : public Model::NodeVisitor {
-        private:
-            void doVisit(Model::World* world) override   {}
-            void doVisit(Model::Layer* layer) override   {}
-            void doVisit(Model::Group* group) override   {}
-            void doVisit(Model::Entity* entity) override {}
-            void doVisit(Model::Brush* brush) override   {
-                for (Model::BrushFace* face : brush->faces()) {
-                    face->setTexture(nullptr);
-                }
-            }
-        };
-
         void MapDocument::unsetTextures() {
             UnsetTextures visitor;
             m_world->acceptAndRecurse(visitor);
@@ -1746,6 +1689,112 @@ namespace TrenchBroom {
 
         void MapDocument::unsetTextures(const Model::NodeList& nodes) {
             UnsetTextures visitor;
+            Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
+        }
+
+        class MapDocument::SetEntityDefinitions : public Model::NodeVisitor {
+        private:
+            Assets::EntityDefinitionManager& m_manager;
+        public:
+            SetEntityDefinitions(Assets::EntityDefinitionManager& manager) :
+            m_manager(manager) {}
+        private:
+            void doVisit(Model::World* world) override   { handle(world); }
+            void doVisit(Model::Layer* layer) override   {}
+            void doVisit(Model::Group* group) override   {}
+            void doVisit(Model::Entity* entity) override { handle(entity); }
+            void doVisit(Model::Brush* brush) override   {}
+            void handle(Model::AttributableNode* attributable) {
+                Assets::EntityDefinition* definition = m_manager.definition(attributable);
+                attributable->setDefinition(definition);
+            }
+        };
+
+        class MapDocument::UnsetEntityDefinitions : public Model::NodeVisitor {
+        private:
+            void doVisit(Model::World* world) override   { world->setDefinition(nullptr); }
+            void doVisit(Model::Layer* layer) override   {}
+            void doVisit(Model::Group* group) override   {}
+            void doVisit(Model::Entity* entity) override { entity->setDefinition(nullptr); }
+            void doVisit(Model::Brush* brush) override   {}
+        };
+
+        void MapDocument::setEntityDefinitions() {
+            SetEntityDefinitions visitor(*m_entityDefinitionManager);
+            m_world->acceptAndRecurse(visitor);
+        }
+
+        void MapDocument::setEntityDefinitions(const Model::NodeList& nodes) {
+            SetEntityDefinitions visitor(*m_entityDefinitionManager);
+            Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
+        }
+
+        void MapDocument::unsetEntityDefinitions() {
+            UnsetEntityDefinitions visitor;
+            m_world->acceptAndRecurse(visitor);
+        }
+
+        void MapDocument::unsetEntityDefinitions(const Model::NodeList& nodes) {
+            UnsetEntityDefinitions visitor;
+            Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
+        }
+
+        void MapDocument::reloadEntityDefinitionsInternal() {
+            unloadEntityDefinitions();
+            clearEntityModels();
+            loadEntityDefinitions();
+            setEntityDefinitions();
+            setEntityModels();
+        }
+
+        void MapDocument::clearEntityModels() {
+            unsetEntityModels();
+            m_entityModelManager->clear();
+        }
+
+        class MapDocument::SetEntityModels : public Model::NodeVisitor {
+        private:
+            Assets::EntityModelManager& m_manager;
+        public:
+            explicit SetEntityModels(Assets::EntityModelManager& manager) :
+            m_manager(manager) {}
+        private:
+            void doVisit(Model::World* world) override   {}
+            void doVisit(Model::Layer* layer) override   {}
+            void doVisit(Model::Group* group) override   {}
+            void doVisit(Model::Entity* entity) override {
+                const auto* frame = m_manager.frame(entity->modelSpecification());
+                entity->setModelFrame(frame);
+            }
+            void doVisit(Model::Brush* brush) override   {}
+        };
+
+        class MapDocument::UnsetEntityModels : public Model::NodeVisitor {
+        private:
+            void doVisit(Model::World* world) override   {}
+            void doVisit(Model::Layer* layer) override   {}
+            void doVisit(Model::Group* group) override   {}
+            void doVisit(Model::Entity* entity) override { entity->setModelFrame(nullptr); }
+            void doVisit(Model::Brush* brush) override   {}
+        };
+
+        void MapDocument::setEntityModels() {
+            SetEntityModels visitor(*m_entityModelManager);
+            m_world->acceptAndRecurse(visitor);
+        }
+
+        void MapDocument::setEntityModels(const Model::NodeList& nodes) {
+            SetEntityModels visitor(*m_entityModelManager);
+            Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
+        }
+
+        void MapDocument::unsetEntityModels() {
+            UnsetEntityModels visitor;
+            m_world->acceptAndRecurse(visitor);
+        }
+
+        void MapDocument::unsetEntityModels(const Model::NodeList& nodes) {
+            UnsetEntityModels visitor;
             Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
         }
 

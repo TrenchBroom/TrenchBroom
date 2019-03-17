@@ -35,7 +35,7 @@ public:
     using DataType = U;
     using FloatType = T;
     static const size_t Components = S;
-    
+
     using GetBounds = std::function<Box(const U& data)>;
 public:
     virtual ~NodeTree() = default;

@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -30,49 +30,49 @@
 namespace TrenchBroom {
     namespace IO {
         TEST(IdPakFileSystemTest, directoryExists) {
-            const Path pakPath = Disk::getCurrentWorkingDir() + Path("data/IO/Pak/pak3.pak");
+            const Path pakPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/pak3.pak");
             const MappedFile::Ptr pakFile = Disk::openFile(pakPath);
             assert(pakFile != nullptr);
 
             const IdPakFileSystem fs(pakPath, pakFile);
             ASSERT_THROW(fs.directoryExists(Path("/asdf")), FileSystemException);
             ASSERT_THROW(fs.directoryExists(Path("/gfx")), FileSystemException);
-            
+
             ASSERT_TRUE(fs.directoryExists(Path("gfx")));
             ASSERT_TRUE(fs.directoryExists(Path("GFX")));
             ASSERT_FALSE(fs.directoryExists(Path("gfx/palette.lmp")));
         }
-        
+
         TEST(IdPakFileSystemTest, fileExists) {
-            const Path pakPath = Disk::getCurrentWorkingDir() + Path("data/IO/Pak/pak3.pak");
+            const Path pakPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/pak3.pak");
             const MappedFile::Ptr pakFile = Disk::openFile(pakPath);
             assert(pakFile != nullptr);
-            
+
             const IdPakFileSystem fs(pakPath, pakFile);
             ASSERT_THROW(fs.fileExists(Path("/asdf.blah")), FileSystemException);
             ASSERT_THROW(fs.fileExists(Path("/gfx/palette.lmp")), FileSystemException);
-            
+
             ASSERT_TRUE(fs.fileExists(Path("gfx/palette.lmp")));
             ASSERT_TRUE(fs.fileExists(Path("GFX/Palette.LMP")));
         }
-        
+
         TEST(IdPakFileSystemTest, findItems) {
-            const Path pakPath = Disk::getCurrentWorkingDir() + Path("data/IO/Pak/pak1.pak");
+            const Path pakPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/pak1.pak");
             const MappedFile::Ptr pakFile = Disk::openFile(pakPath);
             assert(pakFile != nullptr);
-            
+
             const IdPakFileSystem fs(pakPath, pakFile);
             ASSERT_THROW(fs.findItems(Path("/")), FileSystemException);
             ASSERT_THROW(fs.findItems(Path("/pics/")), FileSystemException);
             ASSERT_THROW(fs.findItems(Path("pics/tag1.pcx")), FileSystemException);
-            
+
             Path::List items = fs.findItems(Path(""));
             ASSERT_EQ(4u, items.size());
             ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("pics")) != std::end(items));
             ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures")) != std::end(items));
             ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("amnet.cfg")) != std::end(items));
             ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("bear.cfg")) != std::end(items));
-            
+
             items = fs.findItems(Path(""), FileExtensionMatcher("cfg"));
             ASSERT_EQ(2u, items.size());
             ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("amnet.cfg")) != std::end(items));
@@ -86,17 +86,17 @@ namespace TrenchBroom {
             ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("pics/tag1.pcx")) != std::end(items));
             ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("pics/tag2.pcx")) != std::end(items));
         }
-        
+
         TEST(IdPakFileSystemTest, findItemsRecursively) {
-            const Path pakPath = Disk::getCurrentWorkingDir() + Path("data/IO/Pak/pak1.pak");
+            const Path pakPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/pak1.pak");
             const MappedFile::Ptr pakFile = Disk::openFile(pakPath);
             assert(pakFile != nullptr);
-            
+
             const IdPakFileSystem fs(pakPath, pakFile);
             ASSERT_THROW(fs.findItemsRecursively(Path("/")), FileSystemException);
             ASSERT_THROW(fs.findItemsRecursively(Path("/pics/")), FileSystemException);
             ASSERT_THROW(fs.findItemsRecursively(Path("pics/tag1.pcx")), FileSystemException);
-            
+
             Path::List items = fs.findItemsRecursively(Path(""));
             ASSERT_EQ(16u, items.size());
             ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("pics")) != std::end(items));
@@ -115,7 +115,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures")) != std::end(items));
             ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("amnet.cfg")) != std::end(items));
             ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("bear.cfg")) != std::end(items));
-            
+
             items = fs.findItemsRecursively(Path(""), FileExtensionMatcher("wal"));
             ASSERT_EQ(7u, items.size());
             ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u1/box1_3.wal")) != std::end(items));
@@ -125,7 +125,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u2/basic1_7.wal")) != std::end(items));
             ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u3/stairs1_3.wal")) != std::end(items));
             ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u3/stflr1_5.wal")) != std::end(items));
-            
+
             items = fs.findItemsRecursively(Path("textures"), FileExtensionMatcher("WAL"));
             ASSERT_EQ(7u, items.size());
             ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u1/box1_3.wal")) != std::end(items));
@@ -136,17 +136,17 @@ namespace TrenchBroom {
             ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u3/stairs1_3.wal")) != std::end(items));
             ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u3/stflr1_5.wal")) != std::end(items));
         }
-        
+
         TEST(IdPakFileSystemTest, openFile) {
-            const Path pakPath = Disk::getCurrentWorkingDir() + Path("data/IO/Pak/pak1.pak");
+            const Path pakPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/pak1.pak");
             const MappedFile::Ptr pakFile = Disk::openFile(pakPath);
             assert(pakFile != nullptr);
-            
+
             const IdPakFileSystem fs(pakPath, pakFile);
             ASSERT_THROW(fs.openFile(Path("")), FileSystemException);
             ASSERT_THROW(fs.openFile(Path("/amnet.cfg")), FileSystemException);
             ASSERT_THROW(fs.openFile(Path("/textures")), FileSystemException);
-            
+
             ASSERT_TRUE(fs.openFile(Path("amnet.cfg")) != nullptr);
         }
     }

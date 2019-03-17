@@ -49,6 +49,7 @@ namespace TrenchBroom {
             virtual Node* currentParent() const = 0;
 
             virtual Assets::EntityDefinitionManager& entityDefinitionManager() = 0;
+            virtual Assets::EntityModelManager& entityModelManager() = 0;
             virtual Assets::TextureManager& textureManager() = 0;
         public: // selection
             virtual bool hasSelection() const = 0;

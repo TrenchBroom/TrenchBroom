@@ -34,6 +34,14 @@
 #include <list>
 #include <memory>
 
+/**
+ * An axis aligned bounding box tree that allows for quick ray intersection queries.
+ *
+ * @tparam T the floating point type
+ * @tparam S the number of dimensions for vector types
+ * @tparam U the node data to store in the leafs
+ * @tparam Cmp the comparator used to compare nodes
+ */
 template <typename T, size_t S, typename U, typename Cmp = std::less<U>>
 class AABBTree : public NodeTree<T,S,U,Cmp> {
 public:
@@ -62,8 +70,8 @@ private:
         const LeafVisitor m_leafVisitor;
     public:
         LambdaVisitor(const InnerNodeVisitor& innerNodeVisitor, const LeafVisitor& leafVisitor) :
-                m_innerNodeVisitor(innerNodeVisitor),
-                m_leafVisitor(leafVisitor) {}
+        m_innerNodeVisitor(innerNodeVisitor),
+        m_leafVisitor(leafVisitor) {}
 
         bool visit(const InnerNode* innerNode) override { return m_innerNodeVisitor(innerNode); }
         void visit(const LeafNode* leaf)           override { m_leafVisitor(leaf); }
@@ -307,28 +315,40 @@ private:
          */
         template <typename TT>
         static TT*& selectLeastIncreaser(TT*& node1, TT*& node2, const Box& bounds) {
-            const auto new1 = merge(node1->bounds(), bounds);
-            const auto new2 = merge(node2->bounds(), bounds);
-            const auto vol1 = node1->bounds().volume();
-            const auto vol2 = node2->bounds().volume();
-            const auto diff1 = new1.volume() - vol1;
-            const auto diff2 = new2.volume() - vol2;
+            const auto node1Contains = node1->bounds().contains(bounds);
+            const auto node2Contains = node2->bounds().contains(bounds);
 
-            if (diff1 < diff2) {
+            if (node1Contains && !node2Contains) {
                 return node1;
-            } else if (diff2 < diff1) {
+            } else if (!node1Contains && node2Contains) {
                 return node2;
-            } else if (node1->height() < node2->height()) {
+            } else if (!node1Contains && !node2Contains) {
+                const auto new1 = vm::merge(node1->bounds(), bounds);
+                const auto new2 = vm::merge(node2->bounds(), bounds);
+                const auto vol1 = node1->bounds().volume();
+                const auto vol2 = node2->bounds().volume();
+                const auto diff1 = new1.volume() - vol1;
+                const auto diff2 = new2.volume() - vol2;
+
+                if (diff1 < diff2) {
+                    return node1;
+                } else if (diff2 < diff1) {
+                    return node2;
+                }
+            }
+
+            static auto choice = 0u;
+
+            if (node1->height() < node2->height()) {
                 return node1;
             } else if (node2->height() < node1->height()) {
                 return node2;
-            } else if (vol1 < vol2) {
-                return node1;
-            } else if (vol2 < vol1) {
-                return node2;
             } else {
-                // I give up!
-                return node1;
+                if (choice++ % 2 == 0) {
+                    return node1;
+                } else {
+                    return node2;
+                }
             }
         }
 
@@ -524,7 +544,7 @@ public:
             m_root = nullptr;
         }
     }
-    
+
     bool empty() const override {
         return m_root == nullptr;
     }
@@ -547,7 +567,7 @@ public:
     List findIntersectors(const vm::ray<T,S>& ray) const override {
         List result;
         findIntersectors(ray, std::back_inserter(result));
-        return std::move(result);
+        return result;
     }
 
     /**
@@ -580,7 +600,7 @@ public:
      List findContainers(const vm::vec<T,S>& point) const override {
          List result;
          findContainers(point, std::back_inserter(result));
-         return std::move(result);
+         return result;
      }
 
     /**

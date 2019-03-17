@@ -58,9 +58,16 @@ namespace TrenchBroom {
 
         void CharArrayReader::seekForward(const size_t offset) {
             if (m_current + offset > m_end) {
-                throw CharArrayReaderException("can't seek " + std::to_string(offset) + " bytes from current offset " + std::to_string(currentOffset()) + " in buffer of size " + std::to_string(size()));
+                throw CharArrayReaderException("can't seek " + std::to_string(offset) + " bytes forward from current offset " + std::to_string(currentOffset()) + " in buffer of size " + std::to_string(size()));
             }
             m_current += offset;
+        }
+
+        void CharArrayReader::seekBackward(const size_t offset) {
+            if (m_current - offset < m_begin) {
+                throw CharArrayReaderException("can't seek " + std::to_string(offset) + " bytes backward from current offset " + std::to_string(currentOffset()) + " in buffer of size " + std::to_string(size()));
+            }
+            m_current -= offset;
         }
 
         CharArrayReader CharArrayReader::subReaderFromBegin(const size_t offset, const size_t length) const {
@@ -72,6 +79,18 @@ namespace TrenchBroom {
 
         CharArrayReader CharArrayReader::subReaderFromBegin(const size_t offset) const {
             return subReaderFromBegin(offset, size() - offset);
+        }
+
+        CharArrayReader CharArrayReader::subReaderFromCurrent(const size_t offset, const size_t length) const {
+            if (m_current + offset > m_end) {
+                throw CharArrayReaderException("sub reader " + std::to_string(offset) + "," + std::to_string(length) + " out of bounds");
+            }
+            return CharArrayReader(m_current + offset, m_current + offset + length);
+        }
+
+        CharArrayReader CharArrayReader::subReaderFromCurrent(const size_t offset) const {
+            const auto position = static_cast<size_t>(m_end - m_current);
+            return subReaderFromCurrent(offset, size() - offset - position);
         }
 
         void CharArrayReader::read(char* val, const size_t readSize) {

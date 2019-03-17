@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -24,6 +24,7 @@
 #include "Renderer/GL.h"
 #include "Renderer/VertexArray.h"
 
+#include <functional>
 #include <map>
 
 namespace TrenchBroom {
@@ -44,16 +45,16 @@ namespace TrenchBroom {
                  * The lengths of the ranges stored here.
                  */
                 GLCounts counts;
-                
+
                 IndicesAndCounts();
                 IndicesAndCounts(size_t index, size_t count);
-                
+
                 size_t size() const;
                 void reserve(size_t capacity);
                 void add(PrimType primType, size_t index, size_t count, bool dynamicGrowth);
                 void add(const IndicesAndCounts& other, bool dynamicGrowth);
             };
-            
+
             using PrimTypeToIndexData = std::map<PrimType, IndicesAndCounts>;
             using PrimTypeToIndexDataPtr = std::shared_ptr<PrimTypeToIndexData>;
         public:
@@ -67,7 +68,7 @@ namespace TrenchBroom {
             class Size {
             private:
                 friend class IndexRangeMap;
-                
+
                 using PrimTypeToSize = std::map<PrimType, size_t>;
                 PrimTypeToSize m_sizes;
             public:
@@ -140,6 +141,13 @@ namespace TrenchBroom {
              * @param vertexArray the vertex array to render with
              */
             void render(VertexArray& vertexArray) const;
+
+            /**
+             * Invokes the given function for each primitive stored in this map.
+             *
+             * @param func the function to invoke
+             */
+            void forEachPrimitive(std::function<void(PrimType, size_t index, size_t count)> func) const;
         private:
             IndicesAndCounts& find(PrimType primType);
         };
