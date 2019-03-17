@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -54,21 +54,21 @@ namespace TrenchBroom {
         m_scrollX(0.0f),
         m_scrollY(0.0f),
         m_anyToolDragging(false) {}
-        
+
         InputState::~InputState() {}
 
         ModifierKeyState InputState::modifierKeys() const {
             return m_modifierKeys;
         }
-        
+
         bool InputState::modifierKeysDown(const ModifierKeyState keys) const {
             return (modifierKeys() & keys) != 0;
         }
-        
+
         bool InputState::modifierKeysPressed(const ModifierKeyState keys) const {
             return modifierKeys() == keys;
         }
-        
+
         bool InputState::checkModifierKeys(const ModifierKeyState key1, const ModifierKeyState key2, const ModifierKeyState key3, const ModifierKeyState key4) const {
             assert(key1 != ModifierKeys::MKDontCare);
             if (modifierKeysPressed(key1))
@@ -81,7 +81,7 @@ namespace TrenchBroom {
                 return true;
             return false;
         }
-        
+
         bool InputState::checkModifierKeys(const ModifierKeyPressed ctrl, const ModifierKeyPressed alt, const ModifierKeyPressed shift) const {
             return (checkModifierKey(ctrl, ModifierKeys::MKCtrlCmd) &&
                     checkModifierKey(alt, ModifierKeys::MKAlt) &&
@@ -103,11 +103,11 @@ namespace TrenchBroom {
         MouseButtonState InputState::mouseButtons() const {
             return m_mouseButtons;
         }
-        
+
         bool InputState::mouseButtonsDown(const MouseButtonState buttons) const {
             return (mouseButtons() & buttons) != 0;
         }
-        
+
         bool InputState::mouseButtonsPressed(const MouseButtonState buttons) const {
             return mouseButtons() == buttons;
         }
@@ -115,23 +115,23 @@ namespace TrenchBroom {
         int InputState::mouseX() const {
             return m_mouseX;
         }
-        
+
         int InputState::mouseY() const {
             return m_mouseY;
         }
-        
+
         int InputState::mouseDX() const {
             return m_mouseDX;
         }
-        
+
         int InputState::mouseDY() const {
             return m_mouseDY;
         }
-        
+
         float InputState::scrollX() const {
             return m_scrollX;
         }
-        
+
         float InputState::scrollY() const {
             return m_scrollY;
         }
@@ -139,7 +139,7 @@ namespace TrenchBroom {
         void InputState::setModifierKeys(const ModifierKeyState keys) {
             m_modifierKeys = keys;
         }
-        
+
         void InputState::clearModifierKeys() {
             m_modifierKeys = ModifierKeys::MKNone;
         }
@@ -147,11 +147,11 @@ namespace TrenchBroom {
         void InputState::mouseDown(const MouseButtonState button) {
             m_mouseButtons |= button;
         }
-        
+
         void InputState::mouseUp(const MouseButtonState button) {
             m_mouseButtons &= ~button;
         }
-        
+
         void InputState::clearMouseButtons() {
             m_mouseButtons = MouseButtons::MBNone;
         }
@@ -162,16 +162,16 @@ namespace TrenchBroom {
             m_mouseDX = mouseDX;
             m_mouseDY = mouseDY;
         }
-        
+
         void InputState::scroll(const float scrollX, const float scrollY) {
             m_scrollX = scrollX;
             m_scrollY = scrollY;
         }
-        
+
         bool InputState::anyToolDragging() const {
             return m_anyToolDragging;
         }
-        
+
         void InputState::setAnyToolDragging(const bool anyToolDragging) {
             m_anyToolDragging = anyToolDragging;
         }
@@ -179,7 +179,7 @@ namespace TrenchBroom {
         const vm::ray3& InputState::pickRay() const {
             return m_pickRequest.pickRay();
         }
-        
+
         const vm::vec3 InputState::defaultPoint() const {
             return vm::vec3(camera().defaultPoint());
         }
@@ -191,7 +191,7 @@ namespace TrenchBroom {
         const Renderer::Camera& InputState::camera() const {
             return m_pickRequest.camera();
         }
-        
+
         void InputState::setPickRequest(const PickRequest& pickRequest) {
             m_pickRequest = pickRequest;
         }
@@ -199,7 +199,7 @@ namespace TrenchBroom {
         const Model::PickResult& InputState::pickResult() const {
             return m_pickResult;
         }
-        
+
         void InputState::setPickResult(Model::PickResult& pickResult) {
             using std::swap;
             swap(m_pickResult, pickResult);

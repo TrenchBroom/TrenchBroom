@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -35,7 +35,7 @@ namespace vm {
         ASSERT_EQ(0.0f, p.distance);
         ASSERT_EQ(vec3f::zero, p.normal);
     }
-    
+
     TEST(PlaneTest, constructWithDistanceAndNormal) {
         const float d = 123.0f;
         const vec3f n = normalize(vec3f(1.0f, 2.0f, 3.0f));
@@ -43,7 +43,7 @@ namespace vm {
         ASSERT_FLOAT_EQ(d, p.distance);
         ASSERT_VEC_EQ(n, p.normal);
     }
-    
+
     TEST(PlaneTest, constructWithAnchorAndNormal) {
         const vec3f a = vec3f(-2038.034f, 0.0023f, 32.0f);
         const vec3f n = normalize(vec3f(9.734f, -3.393f, 2.033f));
@@ -51,7 +51,7 @@ namespace vm {
         ASSERT_FLOAT_EQ(dot(a, n), p.distance);
         ASSERT_VEC_EQ(n, p.normal);
     }
-    
+
     TEST(PlaneTest, anchor) {
         const vec3f a = vec3f(-2038.034f, 0.0023f, 32.0f);
         const vec3f n = normalize(vec3f(9.734f, -3.393f, 2.033f));
@@ -196,105 +196,105 @@ namespace vm {
         plane3f plane;
         std::array<vec3f, 3> points;
         const float epsilon = constants<float>::pointStatusEpsilon();
-    
+
         points[0] = vec3f(0.0f, 0.0f, 0.0f);
         points[1] = vec3f(0.0f, 1.0f, 0.0f);
         points[2] = vec3f(1.0f, 0.0f, 0.0f);
-    
+
         std::tie(valid, plane) = fromPoints(std::begin(points), std::end(points));
         ASSERT_TRUE(valid);
         ASSERT_VEC_EQ(vec3f::pos_z, plane.normal);
         ASSERT_FLOAT_EQ(0.0f, plane.distance);
-    
+
         // right angle, short vectors
         points[0] = vec3f(0.0f, 0.0f, 0.0f);
         points[1] = vec3f(0.0f, epsilon, 0.0f);
         points[2] = vec3f(epsilon, 0.0f, 0.0f);
-    
+
         std::tie(valid, plane) = fromPoints(std::begin(points), std::end(points));
         ASSERT_TRUE(valid);
         ASSERT_VEC_EQ(vec3f::pos_z, plane.normal);
         ASSERT_FLOAT_EQ(0.0f, plane.distance);
-    
+
         // plane point vectors at a 45 degree angle, short vectors
         points[0] = vec3f(0.0f, 0.0f, 0.0f);
         points[1] = vec3f(epsilon, epsilon, 0.0f);
         points[2] = vec3f(epsilon, 0.0f, 0.0f);
-    
+
         std::tie(valid, plane) = fromPoints(std::begin(points), std::end(points));
         ASSERT_TRUE(valid);
         ASSERT_VEC_EQ(vec3f::pos_z, plane.normal);
         ASSERT_FLOAT_EQ(0.0f, plane.distance);
-        
+
         // horizontal plane at z=length units above the origin
         points[0] = vec3f(0.0f, 0.0f, epsilon);
         points[1] = vec3f(0.0f, epsilon, epsilon);
         points[2] = vec3f(epsilon, 0.0f, epsilon);
-    
+
         std::tie(valid, plane) = fromPoints(std::begin(points), std::end(points));
         ASSERT_TRUE(valid);
         ASSERT_VEC_EQ(vec3f::pos_z, plane.normal);
         ASSERT_FLOAT_EQ(epsilon, plane.distance);
-        
+
         // small angle (triangle 1000 units wide, length units tall)
         points[0] = vec3f(0.0f, 0.0f, 0.0f);
         points[1] = vec3f(1000.0f, epsilon, 0.0f);
         points[2] = vec3f(1000.0f, 0.0f, 0.0f);
-    
+
         std::tie(valid, plane) = fromPoints(std::begin(points), std::end(points));
         ASSERT_TRUE(valid);
         ASSERT_VEC_EQ(vec3f::pos_z, plane.normal);
         ASSERT_FLOAT_EQ(0.0f, plane.distance);
-        
+
         // small angle
         points[0] = vec3f(224.0f, -400.0f, 1648.0f);
         points[1] = vec3f(304.0f, -432.0f, 1248.0f + epsilon);
         points[2] = vec3f(304.0f, -432.0f, 1248.0f);
-    
+
         std::tie(valid, plane) = fromPoints(std::begin(points), std::end(points));
         ASSERT_TRUE(valid);
         ASSERT_FLOAT_EQ(1.0f, length(plane.normal));
-        
+
         // too-small angle (triangle 1000 units wide, length/100 units tall)
         points[0] = vec3f(0.0f, 0.0f, 0.0f);
         points[1] = vec3f(1000.0f, epsilon/100.0f, 0.0f);
         points[2] = vec3f(1000.0f, 0.0f, 0.0f);
-    
+
         std::tie(valid, plane) = fromPoints(std::begin(points), std::end(points));
         ASSERT_FALSE(valid);
-    
+
         // all zero
         points[0] = vec3f(0.0f, 0.0f, 0.0f);
         points[1] = vec3f(0.0f, 0.0f, 0.0f);
         points[2] = vec3f(0.0f, 0.0f, 0.0f);
-    
+
         std::tie(valid, plane) = fromPoints(std::begin(points), std::end(points));
         ASSERT_FALSE(valid);
-        
+
         // same direction, short vectors
         points[0] = vec3f(0.0f, 0.0f, 0.0f);
         points[1] = vec3f(2*epsilon, 0.0f, 0.0f);
         points[2] = vec3f(epsilon, 0.0f, 0.0f);
-    
+
         std::tie(valid, plane) = fromPoints(std::begin(points), std::end(points));
         ASSERT_FALSE(valid);
-        
+
         // opposite, short vectors
         points[0] = vec3f(0.0f, 0.0f, 0.0f);
         points[1] = vec3f(-epsilon, 0.0f, 0.0f);
         points[2] = vec3f(epsilon, 0.0f, 0.0f);
-    
+
         std::tie(valid, plane) = fromPoints(std::begin(points), std::end(points));
         ASSERT_FALSE(valid);
     }
-    
+
     TEST(PlaneTest, horizontalPlane) {
         const vec3f position(322.0f, -122.2392f, 34.0f);
         const plane3f p = horizontalPlane(position);
         ASSERT_TRUE(p.pointStatus(position) == point_status::inside);
         ASSERT_VEC_EQ(vec3f::pos_z, p.normal);
     }
-    
+
     TEST(PlaneTest, orthogonalPlane) {
         const vec3f position(322.0f, -122.2392f, 34.0f);
         const vec3f direction = normalize(vec3f(1.0f, 2.0f, -3.0f));
@@ -302,7 +302,7 @@ namespace vm {
         ASSERT_TRUE(p.pointStatus(position) == point_status::inside);
         ASSERT_VEC_EQ(direction, p.normal);
     }
-    
+
     TEST(PlaneTest, alignedOrthogonalPlane) {
         const vec3f position(322.0f, -122.2392f, 34.0f);
         const vec3f direction = normalize(vec3f(1.0f, 2.0f, -3.0f));

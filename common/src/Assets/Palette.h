@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -33,7 +33,7 @@ namespace TrenchBroom {
         class Path;
         class Reader;
     }
-    
+
     namespace Assets {
         enum class PaletteTransparency {
             Opaque, Index255Transparent
@@ -105,7 +105,7 @@ namespace TrenchBroom {
                                 break;
                         }
                     }
-                    
+
                     for (size_t i = 0; i < 3; ++i) {
                         averageColor[i] = static_cast<float>(avg[i] / pixelCount / 0xFF);
                     }
@@ -114,14 +114,14 @@ namespace TrenchBroom {
                     return hasTransparency;
                 }
             };
-            
+
             using DataPtr = std::shared_ptr<Data>;
             DataPtr m_data;
         public:
             Palette();
             Palette(size_t size, RawDataPtr&& data);
             Palette(size_t size, unsigned char* data);
-            
+
             static Palette loadFile(const IO::FileSystem& fs, const IO::Path& path);
             static Palette loadLmp(IO::Reader& reader);
             static Palette loadPcx(IO::Reader& reader);

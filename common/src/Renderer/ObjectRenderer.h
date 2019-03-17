@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -30,11 +30,11 @@ namespace TrenchBroom {
     namespace Assets {
         class EntityModelManager;
     }
-    
+
     namespace Renderer {
         class FontManager;
         class RenderBatch;
-        
+
         class ObjectRenderer {
         private:
             GroupRenderer m_groupRenderer;
@@ -57,28 +57,28 @@ namespace TrenchBroom {
             void setEntityOverlayTextColor(const Color& overlayTextColor);
             void setGroupOverlayTextColor(const Color& overlayTextColor);
             void setOverlayBackgroundColor(const Color& overlayBackgroundColor);
-            
+
             void setTint(bool tint);
             void setTintColor(const Color& tintColor);
-            
+
             void setShowOccludedObjects(bool showOccludedObjects);
             void setOccludedEdgeColor(const Color& occludedEdgeColor);
 
             void setTransparencyAlpha(float transparencyAlpha);
-            
+
             void setShowEntityAngles(bool showAngles);
             void setEntityAngleColor(const Color& color);
 
             void setOverrideGroupBoundsColor(bool overrideGroupBoundsColor);
             void setGroupBoundsColor(const Color& color);
-            
+
             void setOverrideEntityBoundsColor(bool overrideEntityBoundsColor);
             void setEntityBoundsColor(const Color& color);
 
             void setShowBrushEdges(bool showBrushEdges);
             void setBrushFaceColor(const Color& brushFaceColor);
             void setBrushEdgeColor(const Color& brushEdgeColor);
-            
+
             void setShowHiddenObjects(bool showHiddenObjects);
         public: // rendering
             void renderOpaque(RenderContext& renderContext, RenderBatch& renderBatch);

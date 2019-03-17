@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -33,7 +33,7 @@ namespace TrenchBroom {
     namespace Model {
         class BrushFaceAttributes;
         class ParallelTexCoordSystem;
-        
+
         class ParallelTexCoordSystemSnapshot : public TexCoordSystemSnapshot {
         private:
             vm::vec3 m_xAxis;
@@ -46,12 +46,12 @@ namespace TrenchBroom {
             void doRestore(ParallelTexCoordSystem& coordSystem) const override;
             void doRestore(ParaxialTexCoordSystem& coordSystem) const override;
         };
-        
+
         class ParallelTexCoordSystem : public TexCoordSystem {
         private:
             vm::vec3 m_xAxis;
             vm::vec3 m_yAxis;
-            
+
             friend class ParallelTexCoordSystemSnapshot;
         public:
             ParallelTexCoordSystem(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs);
@@ -60,7 +60,7 @@ namespace TrenchBroom {
             std::unique_ptr<TexCoordSystem> doClone() const override;
             std::unique_ptr<TexCoordSystemSnapshot> doTakeSnapshot() override;
             void doRestoreSnapshot(const TexCoordSystemSnapshot& snapshot) override;
-            
+
             vm::vec3 getXAxis() const override;
             vm::vec3 getYAxis() const override;
             vm::vec3 getZAxis() const override;
@@ -72,10 +72,10 @@ namespace TrenchBroom {
 
             bool isRotationInverted(const vm::vec3& normal) const override;
             vm::vec2f doGetTexCoords(const vm::vec3& point, const BrushFaceAttributes& attribs) const override;
-            
+
             void doSetRotation(const vm::vec3& normal, float oldAngle, float newAngle) override;
             void applyRotation(const vm::vec3& normal, FloatType angle);
-            
+
             void doTransform(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const vm::mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vm::vec3& invariant) override;
             float computeTextureAngle(const vm::plane3& oldBoundary, const vm::mat4x4& transformation) const;
 

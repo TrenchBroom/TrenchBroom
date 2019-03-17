@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -50,19 +50,19 @@ namespace TrenchBroom {
             setWindowIcon(this);
 
             CurrentGameIndicator* gameIndicator = new CurrentGameIndicator(this, m_gameName);
-            
+
             Model::GameFactory& gameFactory = Model::GameFactory::instance();
             Model::GameConfig& gameConfig = gameFactory.gameConfig(m_gameName);
             m_profileManager = new GameEngineProfileManager(this, gameConfig.gameEngineConfig());
-            
+
             wxButton* closeButton = new wxButton(this, wxID_CANCEL, "Close");
             closeButton->Bind(wxEVT_BUTTON, &GameEngineDialog::OnCloseButtonClicked, this);
             closeButton->Bind(wxEVT_UPDATE_UI, &GameEngineDialog::OnUpdateCloseButtonUI, this);
-            
+
             wxStdDialogButtonSizer* buttonSizer = new wxStdDialogButtonSizer();
             buttonSizer->SetCancelButton(closeButton);
             buttonSizer->Realize();
-            
+
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(gameIndicator, wxSizerFlags().Expand());
             outerSizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());

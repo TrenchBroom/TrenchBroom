@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -28,11 +28,11 @@ namespace TrenchBroom {
         ImageLoaderImpl::InitFreeImage::InitFreeImage() {
             FreeImage_Initialise(true);
         }
-        
+
         ImageLoaderImpl::InitFreeImage::~InitFreeImage() {
             FreeImage_DeInitialise();
         }
-        
+
         ImageLoaderImpl::ImageLoaderImpl(const ImageLoader::Format format, const Path& path) :
         m_stream(nullptr),
         m_bitmap(nullptr),
@@ -43,10 +43,10 @@ namespace TrenchBroom {
             const FREE_IMAGE_FORMAT fifFormat = translateFormat(format);
             if (fifFormat == FIF_UNKNOWN)
                 throw FileFormatException("Unknown image format");
-            
+
             m_bitmap = FreeImage_Load(fifFormat, path.asString().c_str());
         }
-        
+
         ImageLoaderImpl::ImageLoaderImpl(const ImageLoader::Format format, const char* begin, const char* end) :
         m_stream(nullptr),
         m_bitmap(nullptr),
@@ -57,14 +57,14 @@ namespace TrenchBroom {
             const FREE_IMAGE_FORMAT fifFormat = translateFormat(format);
             if (fifFormat == FIF_UNKNOWN)
                 throw FileFormatException("Unknown image format");
-            
+
             // this is supremely evil, but FreeImage guarantees that it will not modify wrapped memory
             BYTE* address = reinterpret_cast<BYTE*>(const_cast<char*>(begin));
             DWORD length = static_cast<DWORD>(end - begin);
             m_stream = FreeImage_OpenMemory(address, length);
             m_bitmap = FreeImage_LoadFromMemory(fifFormat, m_stream);
         }
-        
+
         ImageLoaderImpl::~ImageLoaderImpl() {
             if (m_bitmap != nullptr) {
                 FreeImage_Unload(m_bitmap);
@@ -79,39 +79,39 @@ namespace TrenchBroom {
         size_t ImageLoaderImpl::paletteSize() const {
             return static_cast<size_t>(FreeImage_GetColorsUsed(m_bitmap));
         }
-        
+
         size_t ImageLoaderImpl::bitsPerPixel() const {
             return static_cast<size_t>(FreeImage_GetBPP(m_bitmap));
         }
-        
+
         size_t ImageLoaderImpl::width() const {
             return static_cast<size_t>(FreeImage_GetWidth(m_bitmap));
         }
-        
+
         size_t ImageLoaderImpl::height() const {
             return static_cast<size_t>(FreeImage_GetHeight(m_bitmap));
         }
-        
+
         size_t ImageLoaderImpl::byteWidth() const {
             return static_cast<size_t>(FreeImage_GetLine(m_bitmap));
         }
-        
+
         size_t ImageLoaderImpl::scanWidth() const {
             return static_cast<size_t>(FreeImage_GetPitch(m_bitmap));
         }
-        
+
         bool ImageLoaderImpl::hasPalette() const {
             return FreeImage_GetPalette(m_bitmap) != nullptr;
         }
-        
+
         bool ImageLoaderImpl::hasIndices() const {
             return FreeImage_GetColorType(m_bitmap) == FIC_PALETTE;
         }
-        
+
         bool ImageLoaderImpl::hasPixels() const {
             return static_cast<bool>(FreeImage_HasPixels(m_bitmap) == TRUE);
         }
-        
+
         const Buffer<unsigned char>& ImageLoaderImpl::palette() const {
             assert(hasPalette());
             if (!m_paletteInitialized) {
@@ -123,14 +123,14 @@ namespace TrenchBroom {
                         m_palette[i * 3 + 1] = static_cast<unsigned char>(pal[i].rgbGreen);
                         m_palette[i * 3 + 2] = static_cast<unsigned char>(pal[i].rgbBlue);
                     }
-                    
+
                     m_paletteInitialized = true;
                 }
             }
-            
+
             return m_palette;
         }
-        
+
         const Buffer<unsigned char>& ImageLoaderImpl::indices() const {
             assert(hasIndices());
             if (!m_indicesInitialized) {
@@ -144,13 +144,13 @@ namespace TrenchBroom {
                         m_indices[(height() - y - 1) * width() + x] = static_cast<unsigned char>(index);
                     }
                 }
-                
+
                 m_indicesInitialized = true;
             }
-            
+
             return m_indices;
         }
-        
+
         const Buffer<unsigned char>& ImageLoaderImpl::pixels(const ImageLoader::PixelFormat format) const {
             assert(hasPixels());
             if (!m_pixelsInitialized) {
@@ -162,7 +162,7 @@ namespace TrenchBroom {
                     initializePixels(pSize);
                 m_pixelsInitialized = true;
             }
-            
+
             return m_pixels;
         }
 
@@ -174,7 +174,7 @@ namespace TrenchBroom {
             assert(pSize == 3);
             const RGBQUAD* pal = FreeImage_GetPalette(m_bitmap);
             ensure(pal != nullptr, "pal is null");
-            
+
             for (unsigned y = 0; y < height(); ++y) {
                 for (unsigned x = 0; x < width(); ++x) {
                     BYTE paletteIndex = 0;
@@ -191,7 +191,7 @@ namespace TrenchBroom {
                 }
             }
         }
-        
+
         void ImageLoaderImpl::initializePixels(const size_t pSize) const {
             for (unsigned y = 0; y < height(); ++y) {
                 for (unsigned x = 0; x < width(); ++x) {

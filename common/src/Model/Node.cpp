@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -40,12 +40,12 @@ namespace TrenchBroom {
         m_lineCount(0),
         m_issuesValid(false),
         m_hiddenIssues(0) {}
-        
+
         Node::~Node() {
             clearChildren();
             clearIssues();
         }
-        
+
         const String& Node::name() const {
             return doGetName();
         }
@@ -65,12 +65,12 @@ namespace TrenchBroom {
         NodeSnapshot* Node::takeSnapshot() {
             return doTakeSnapshot();
         }
-        
+
         void Node::cloneAttributes(Node* node) const {
             node->setVisibilityState(m_visibilityState);
             node->setLockState(m_lockState);
         }
-        
+
         NodeList Node::clone(const vm::bbox3& worldBounds, const NodeList& nodes) {
             NodeList clones;
             clones.reserve(nodes.size());
@@ -94,7 +94,7 @@ namespace TrenchBroom {
         Node* Node::parent() const {
             return m_parent;
         }
-        
+
         bool Node::isAncestorOf(const Node* node) const {
             return node->isDescendantOf(this);
         }
@@ -142,7 +142,7 @@ namespace TrenchBroom {
         size_t Node::descendantCount() const {
             return m_descendantCount;
         }
-        
+
         size_t Node::familySize() const {
             return m_descendantCount + 1;
         }
@@ -161,7 +161,7 @@ namespace TrenchBroom {
             incChildSelectionCount(child->selected() ? 1 : 0);
             incDescendantSelectionCount(child->descendantSelectionCount());
         }
-        
+
         void Node::removeChild(Node* child) {
             doRemoveChild(child);
             decDescendantCount(child->descendantCount() + 1);
@@ -205,7 +205,7 @@ namespace TrenchBroom {
             childWasRemoved(child);
             // nodeDidChange();
         }
-        
+
         void Node::clearChildren() {
             VectorUtils::clearAndDelete(m_children);
         }
@@ -219,17 +219,17 @@ namespace TrenchBroom {
             doChildWasAdded(node);
             descendantWasAdded(node, 1);
         }
-        
+
         void Node::childWillBeRemoved(Node* node) {
             doChildWillBeRemoved(node);
             descendantWillBeRemoved(node, 1);
         }
-        
+
         void Node::childWasRemoved(Node* node) {
             doChildWasRemoved(node);
             descendantWasRemoved(this, node, 1);
         }
-        
+
         void Node::descendantWillBeAdded(Node* newParent, Node* node, const size_t depth) {
             doDescendantWillBeAdded(newParent, node, depth);
             if (shouldPropagateDescendantEvents() && m_parent != nullptr)
@@ -242,7 +242,7 @@ namespace TrenchBroom {
                 m_parent->descendantWasAdded(node, depth + 1);
             invalidateIssues();
         }
-        
+
         void Node::descendantWillBeRemoved(Node* node, const size_t depth) {
             doDescendantWillBeRemoved(node, depth);
             if (shouldPropagateDescendantEvents() && m_parent != nullptr)
@@ -267,7 +267,7 @@ namespace TrenchBroom {
             if (m_parent != nullptr)
                 m_parent->incDescendantCount(delta);
         }
-        
+
         void Node::decDescendantCount(const size_t delta) {
             if (delta == 0)
                 return;
@@ -287,12 +287,12 @@ namespace TrenchBroom {
             m_parent = parent;
             parentDidChange();
         }
-        
+
         void Node::parentWillChange() {
             doParentWillChange();
             ancestorWillChange();
         }
-        
+
         void Node::parentDidChange() {
             doParentDidChange();
             ancestorDidChange();
@@ -309,7 +309,7 @@ namespace TrenchBroom {
             std::for_each(std::begin(m_children), std::end(m_children), [](Node* child) { child->ancestorDidChange(); });
             invalidateIssues();
         }
-        
+
         void Node::nodeWillChange() {
             if (m_parent != nullptr)
                 m_parent->childWillChange(this);
@@ -664,7 +664,7 @@ namespace TrenchBroom {
             if (m_parent != nullptr)
                 m_parent->findAttributableNodesWithAttribute(name, value, result);
         }
-        
+
         void Node::doFindAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableNodeList& result) const {
             if (m_parent != nullptr)
                 m_parent->findAttributableNodesWithNumberedAttribute(prefix, value, result);
@@ -674,7 +674,7 @@ namespace TrenchBroom {
             if (m_parent != nullptr)
                 m_parent->addToIndex(attributable, name, value);
         }
-        
+
         void Node::doRemoveFromIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) {
             if (m_parent != nullptr)
                 m_parent->removeFromIndex(attributable, name, value);

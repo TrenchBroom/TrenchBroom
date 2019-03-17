@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2018 Eric Wasylishen
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -34,7 +34,7 @@ namespace TrenchBroom {
             EXPECT_EQ((std::set<AllocationTracker::Range>{}), t.usedBlocks());
             EXPECT_FALSE(t.hasAllocations());
         }
-        
+
         TEST(AllocationTrackerTest, emptyConstructor) {
             AllocationTracker t;
             EXPECT_EQ(0, t.capacity());
@@ -54,7 +54,7 @@ namespace TrenchBroom {
             EXPECT_EQ((std::set<AllocationTracker::Range>{}), t.usedBlocks());
             EXPECT_FALSE(t.hasAllocations());
         }
-        
+
         TEST(AllocationTrackerTest, invalidAllocate) {
             AllocationTracker t(100);
 
@@ -64,7 +64,7 @@ namespace TrenchBroom {
             EXPECT_EQ((std::set<AllocationTracker::Range>{}), t.usedBlocks());
             EXPECT_FALSE(t.hasAllocations());
         }
-        
+
         TEST(AllocationTrackerTest, fiveAllocations) {
             AllocationTracker t(500);
 
@@ -106,10 +106,10 @@ namespace TrenchBroom {
             EXPECT_EQ(100, blocks[4]->size);
             EXPECT_EQ((std::set<AllocationTracker::Range>{{0, 100}, {100, 100}, {200, 100}, {300, 100}, {400, 100}}), t.usedBlocks());
             EXPECT_EQ((std::set<AllocationTracker::Range>{}), t.freeBlocks());
-            
+
             // further allocations throw
             EXPECT_EQ(nullptr, t.allocate(1));
-            
+
             // now start freeing
             t.free(blocks[1]);
             EXPECT_EQ((std::set<AllocationTracker::Range>{{0, 100}, {200, 100}, {300, 100}, {400, 100}}), t.usedBlocks());
@@ -125,7 +125,7 @@ namespace TrenchBroom {
             EXPECT_EQ((std::set<AllocationTracker::Range>{{0, 100}, {400, 100}}), t.usedBlocks());
             EXPECT_EQ((std::set<AllocationTracker::Range>{{100, 300}}), t.freeBlocks());
             EXPECT_EQ(300, t.largestPossibleAllocation());
-            
+
             // allocate the free block of 300 in the middle
             EXPECT_EQ(nullptr, t.allocate(301));
             AllocationTracker::Block* newBlock = t.allocate(300);
@@ -185,20 +185,20 @@ namespace TrenchBroom {
 
             EXPECT_EQ(200, t.largestPossibleAllocation());
         }
-        
+
         TEST(AllocationTrackerTest, expandEmpty) {
             AllocationTracker t;
-            
+
             t.expand(100);
             EXPECT_EQ(100, t.capacity());
             EXPECT_EQ(100, t.largestPossibleAllocation());
-            
+
             EXPECT_EQ((std::set<AllocationTracker::Range>{{0, 100}}), t.freeBlocks());
             EXPECT_EQ((std::set<AllocationTracker::Range>{}), t.usedBlocks());
 
             EXPECT_FALSE(t.hasAllocations());
         }
-        
+
         TEST(AllocationTrackerTest, expandWithFreeSpaceAtEnd) {
             AllocationTracker t(200);
 
@@ -208,15 +208,15 @@ namespace TrenchBroom {
             EXPECT_EQ(100, newBlock->size);
 
             EXPECT_EQ(100, t.largestPossibleAllocation());
-            
+
             t.expand(500);
             EXPECT_EQ(500, t.capacity());
             EXPECT_EQ(400, t.largestPossibleAllocation());
-            
+
             EXPECT_EQ((std::set<AllocationTracker::Range>{{100, 400}}), t.freeBlocks());
             EXPECT_EQ((std::set<AllocationTracker::Range>{{0, 100}}), t.usedBlocks());
         }
-        
+
         TEST(AllocationTrackerTest, expandWithUsedSpaceAtEnd) {
             AllocationTracker t(200);
 
@@ -227,14 +227,14 @@ namespace TrenchBroom {
                 EXPECT_EQ(0, t.largestPossibleAllocation());
                 EXPECT_EQ(nullptr, t.allocate(1));
             }
-            
+
             t.expand(500);
             EXPECT_EQ(500, t.capacity());
             EXPECT_EQ(300, t.largestPossibleAllocation());
 
             EXPECT_EQ((std::set<AllocationTracker::Range>{{200, 300}}), t.freeBlocks());
             EXPECT_EQ((std::set<AllocationTracker::Range>{{0, 200}}), t.usedBlocks());
-            
+
             EXPECT_EQ(nullptr, t.allocate(301));
 
             {

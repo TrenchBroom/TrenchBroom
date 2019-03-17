@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -33,14 +33,14 @@ namespace TrenchBroom {
     namespace Model {
         class PickResult;
     }
-    
+
     namespace Renderer {
         class Compass;
         class MapRenderer;
         class RenderBatch;
         class RenderContext;
     }
-    
+
     namespace View {
         class MapView2D : public MapViewBase {
         public:
@@ -71,10 +71,10 @@ namespace TrenchBroom {
             bool doCanSelectTall() override;
             void doSelectTall() override;
             void doFocusCameraOnSelection(bool animate) override;
-            
+
             void doMoveCameraToPosition(const vm::vec3& position, bool animate) override;
             void animateCamera(const vm::vec3f& position, const vm::vec3f& direction, const vm::vec3f& up, const wxLongLong duration = DefaultCameraAnimationDuration);
-            
+
             void doMoveCameraToCurrentTracePoint() override;
         private: // implement MapViewBase interface
             vm::vec3 doGetMoveDirection(vm::direction direction) const override;
@@ -83,7 +83,7 @@ namespace TrenchBroom {
             ActionContext doGetActionContext() const override;
             wxAcceleratorTable doCreateAccelerationTable(ActionContext context) const override;
             bool doCancel() override;
-            
+
             Renderer::RenderContext::RenderMode doGetRenderMode() override;
             Renderer::Camera& doGetCamera() override;
             void doRenderGrid(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;

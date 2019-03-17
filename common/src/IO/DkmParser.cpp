@@ -234,7 +234,7 @@ namespace TrenchBroom {
         // http://tfc.duke.free.fr/old/models/md2.htm
         std::unique_ptr<Assets::EntityModel> DkmParser::doInitializeModel(Logger& logger) {
             auto reader = Reader::from(m_begin, m_end);
-            
+
             const int ident = reader.readInt<int32_t>();
             const int version = reader.readInt<int32_t>();
 

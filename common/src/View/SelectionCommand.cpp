@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -36,31 +36,31 @@ namespace TrenchBroom {
         SelectionCommand::Ptr SelectionCommand::select(const Model::NodeList& nodes) {
             return Ptr(new SelectionCommand(Action_SelectNodes, nodes, Model::EmptyBrushFaceList));
         }
-        
+
         SelectionCommand::Ptr SelectionCommand::select(const Model::BrushFaceList& faces) {
             return Ptr(new SelectionCommand(Action_SelectFaces, Model::EmptyNodeList, faces));
         }
-        
+
         SelectionCommand::Ptr SelectionCommand::convertToFaces() {
             return Ptr(new SelectionCommand(Action_ConvertToFaces, Model::EmptyNodeList, Model::EmptyBrushFaceList));
         }
-        
+
         SelectionCommand::Ptr SelectionCommand::selectAllNodes() {
             return Ptr(new SelectionCommand(Action_SelectAllNodes, Model::EmptyNodeList, Model::EmptyBrushFaceList));
         }
-        
+
         SelectionCommand::Ptr SelectionCommand::selectAllFaces() {
             return Ptr(new SelectionCommand(Action_SelectAllFaces, Model::EmptyNodeList, Model::EmptyBrushFaceList));
         }
-        
+
         SelectionCommand::Ptr SelectionCommand::deselect(const Model::NodeList& nodes) {
             return Ptr(new SelectionCommand(Action_DeselectNodes, nodes, Model::EmptyBrushFaceList));
         }
-        
+
         SelectionCommand::Ptr SelectionCommand::deselect(const Model::BrushFaceList& faces) {
             return Ptr(new SelectionCommand(Action_DeselectFaces, Model::EmptyNodeList, faces));
         }
-        
+
         SelectionCommand::Ptr SelectionCommand::deselectAll() {
             return Ptr(new SelectionCommand(Action_DeselectAll, Model::EmptyNodeList, Model::EmptyBrushFaceList));
         }
@@ -71,14 +71,14 @@ namespace TrenchBroom {
                 result.push_back(Model::BrushFaceReference(face));
             return result;
         }
-        
+
         static Model::BrushFaceList resolveFaceRefs(const Model::BrushFaceReference::List& refs) {
             Model::BrushFaceList result;
             for (const Model::BrushFaceReference& ref : refs)
                 result.push_back(ref.resolve());
             return result;
         }
-        
+
         SelectionCommand::SelectionCommand(const Action action, const Model::NodeList& nodes, const Model::BrushFaceList& faces) :
         UndoableCommand(Type, makeName(action, nodes, faces)),
         m_action(action),
@@ -119,7 +119,7 @@ namespace TrenchBroom {
         bool SelectionCommand::doPerformDo(MapDocumentCommandFacade* document) {
             m_previouslySelectedNodes = document->selectedNodes().nodes();
             m_previouslySelectedFaceRefs = faceRefs(document->selectedBrushFaces());
-            
+
             switch (m_action) {
                 case Action_SelectNodes:
                     document->performSelect(m_nodes);
@@ -148,7 +148,7 @@ namespace TrenchBroom {
             }
             return true;
         }
-        
+
         bool SelectionCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             document->performDeselectAll();
             if (!m_previouslySelectedNodes.empty())
@@ -157,15 +157,15 @@ namespace TrenchBroom {
                 document->performSelect(resolveFaceRefs(m_previouslySelectedFaceRefs));
             return true;
         }
-        
+
         bool SelectionCommand::doIsRepeatDelimiter() const {
             return true;
         }
-        
+
         bool SelectionCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
             return false;
         }
-        
+
         bool SelectionCommand::doCollateWith(UndoableCommand::Ptr command) {
             return false;
         }

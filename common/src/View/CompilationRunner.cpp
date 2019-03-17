@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -54,11 +54,11 @@ namespace TrenchBroom {
             m_context(context) {}
         public:
             ~TaskRunner() override {}
-            
+
             void execute() {
                 doExecute();
             }
-            
+
             void terminate() {
                 doTerminate();
             }
@@ -66,15 +66,15 @@ namespace TrenchBroom {
             void notifyStart() {
                 QueueEvent(new wxNotifyEvent(wxEVT_TASK_START));
             }
-            
+
             void notifyError() {
                 QueueEvent(new wxNotifyEvent(wxEVT_TASK_ERROR));
             }
-            
+
             void notifyEnd() {
                 QueueEvent(new wxNotifyEvent(wxEVT_TASK_END));
             }
-            
+
             String interpolate(const String& spec) {
                 try {
                     return m_context.interpolate(spec);
@@ -90,7 +90,7 @@ namespace TrenchBroom {
             TaskRunner(const TaskRunner& other);
             TaskRunner& operator=(const TaskRunner& other);
         };
-        
+
         class CompilationRunner::ExportMapRunner : public TaskRunner {
         private:
             const Model::CompilationExportMap* m_task;
@@ -98,24 +98,24 @@ namespace TrenchBroom {
             ExportMapRunner(CompilationContext& context, const Model::CompilationExportMap* task) :
             TaskRunner(context),
             m_task(static_cast<const Model::CompilationExportMap*>(task->clone())) {}
-            
+
             ~ExportMapRunner() override {
                 delete m_task;
             }
         private:
             void doExecute() override {
                 notifyStart();
-                
+
                 try {
                     const IO::Path targetPath(interpolate(m_task->targetSpec()));
                     try {
                         m_context << "#### Exporting map file '" << targetPath.asString() << "'\n";
-                        
+
                         if (!m_context.test()) {
                             const IO::Path directoryPath = targetPath.deleteLastComponent();
                             if (!IO::Disk::directoryExists(directoryPath))
                                 IO::Disk::createDirectory(directoryPath);
-                            
+
                             const MapDocumentSPtr document = m_context.document();
                             document->saveDocumentTo(targetPath);
                         }
@@ -127,15 +127,15 @@ namespace TrenchBroom {
                 } catch (const Exception&) {
                     notifyError();
                 }
-                
+
             }
-            
+
             void doTerminate() override {}
         private:
             ExportMapRunner(const ExportMapRunner& other);
             ExportMapRunner& operator=(const ExportMapRunner& other);
         };
-        
+
         class CompilationRunner::CopyFilesRunner : public TaskRunner {
         private:
             const Model::CompilationCopyFiles* m_task;
@@ -143,21 +143,21 @@ namespace TrenchBroom {
             CopyFilesRunner(CompilationContext& context, const Model::CompilationCopyFiles* task) :
             TaskRunner(context),
             m_task(static_cast<const Model::CompilationCopyFiles*>(task->clone())) {}
-            
+
             ~CopyFilesRunner() override {
                 delete m_task;
             }
         private:
             void doExecute() override {
                 notifyStart();
-                
+
                 try {
                     const IO::Path sourcePath(interpolate(m_task->sourceSpec()));
                     const IO::Path targetPath(interpolate(m_task->targetSpec()));
-                    
+
                     const IO::Path sourceDirPath = sourcePath.deleteLastComponent();
                     const String sourcePattern = sourcePath.lastComponent().asString();
-                    
+
                     try {
                         m_context << "#### Copying '" << sourcePath.asString() << "' to '" << targetPath.asString() << "'\n";
                         if (!m_context.test())
@@ -171,13 +171,13 @@ namespace TrenchBroom {
                     notifyError();
                 }
             }
-            
+
             void doTerminate() override {}
         private:
             CopyFilesRunner(const CopyFilesRunner& other);
             CopyFilesRunner& operator=(const CopyFilesRunner& other);
         };
-        
+
         class CompilationRunner::RunToolRunner : public TaskRunner {
         private:
             const Model::CompilationRunTool* m_task;
@@ -192,7 +192,7 @@ namespace TrenchBroom {
             m_process(nullptr),
             m_timer(nullptr),
             m_terminated(false) {}
-            
+
             ~RunToolRunner() override {
                 assert(m_process == nullptr);
                 assert(m_timer == nullptr);
@@ -203,7 +203,7 @@ namespace TrenchBroom {
                 wxCriticalSectionLocker lockProcess(m_processSection);
                 start();
             }
-            
+
             void doTerminate() override {
                 wxCriticalSectionLocker lockProcess(m_processSection);
                 if (m_process != nullptr) {
@@ -222,11 +222,11 @@ namespace TrenchBroom {
                 if (m_process != nullptr)
                     readOutput();
             }
-            
+
             void OnEndProcessAsync(wxProcessEvent& event) {
                 QueueEvent(event.Clone());
             }
-            
+
             void OnEndProcessSync(wxProcessEvent& event) {
                 wxCriticalSectionLocker lockProcess(m_processSection);
                 if (m_process != nullptr) {
@@ -240,26 +240,26 @@ namespace TrenchBroom {
             void start() {
                 assert(m_process == nullptr);
                 assert(m_timer == nullptr);
-                
+
                 try {
                     const IO::Path toolPath(interpolate(m_task->toolSpec()));
                     const String parameters(interpolate(m_task->parameterSpec()));
                     const String cmd = toolPath.asString() + " " + parameters;
-                    
+
                     m_context << "#### Executing '" << cmd << "'\n";
-                    
+
                     if (!m_context.test()) {
                         m_process = new wxProcess(this);
                         m_process->Redirect();
                         m_process->Bind(wxEVT_END_PROCESS, &RunToolRunner::OnEndProcessAsync, this);
                         Bind(wxEVT_END_PROCESS, &RunToolRunner::OnEndProcessSync, this);
-                        
+
                         m_timer = new wxTimer();
                         m_timer->Bind(wxEVT_TIMER, &RunToolRunner::OnTimer, this);
-                        
+
                         wxExecuteEnv* env = new wxExecuteEnv();
                         env->cwd = m_context.variableValue(CompilationVariableNames::WORK_DIR_PATH);;
-                        
+
                         ::wxExecute(cmd, wxEXEC_ASYNC, m_process, env);
                         m_timer->Start(50);
                     } else {
@@ -269,7 +269,7 @@ namespace TrenchBroom {
                     notifyError();
                 }
             }
-            
+
             void end() {
                 ensure(m_process != nullptr, "process is null");
                 ensure(m_timer != nullptr, "timer is null");
@@ -277,7 +277,7 @@ namespace TrenchBroom {
                 delete m_timer;
                 m_timer = nullptr;
                 m_process = nullptr; // process will be deleted by the library
-                
+
                 notifyEnd();
             }
         private:
@@ -303,11 +303,11 @@ namespace TrenchBroom {
                         }
                     }
                 }
-                
+
                 if (!hasTrailingNewline)
                     m_context << '\n';
             }
-            
+
             bool readOutput() {
                 bool hasOutput = false;
                 if (m_process->IsInputAvailable()) {
@@ -326,7 +326,7 @@ namespace TrenchBroom {
                 }
                 return hasOutput;
             }
-            
+
             wxString readStream(wxInputStream* stream) {
                 ensure(stream != nullptr, "stream is null");
                 wxStringOutputStream out;
@@ -348,7 +348,7 @@ namespace TrenchBroom {
         m_context(context),
         m_taskRunners(createTaskRunners(*m_context, profile)),
         m_currentTask(std::end(m_taskRunners)) {}
-        
+
         CompilationRunner::~CompilationRunner() {
             ListUtils::clearAndDelete(m_taskRunners);
             delete m_context;
@@ -361,29 +361,29 @@ namespace TrenchBroom {
         public:
             CreateTaskRunnerVisitor(CompilationContext& context) :
             m_context(context) {}
-            
+
             const TaskRunnerList& runners() {
                 return m_runners;
             }
-            
+
             void visit(const Model::CompilationExportMap* task) override {
                 appendRunner(new ExportMapRunner(m_context, task));
             }
-            
+
             void visit(const Model::CompilationCopyFiles* task) override {
                 appendRunner(new CopyFilesRunner(m_context, task));
             }
-            
+
             void visit(const Model::CompilationRunTool* task) override {
                 appendRunner(new RunToolRunner(m_context, task));
             }
-            
+
         private:
             void appendRunner(TaskRunner* runner) {
                 m_runners.push_back(runner);
             }
         };
-        
+
         CompilationRunner::TaskRunnerList CompilationRunner::createTaskRunners(CompilationContext& context, const Model::CompilationProfile* profile) {
             CreateTaskRunnerVisitor visitor(context);
             profile->accept(visitor);
@@ -395,25 +395,25 @@ namespace TrenchBroom {
             m_currentTask = std::begin(m_taskRunners);
             bindEvents(*m_currentTask);
             (*m_currentTask)->execute();
-            
+
             wxNotifyEvent event(wxEVT_COMPILATION_START);
             ProcessEvent(event);
         }
-        
+
         void CompilationRunner::terminate() {
             assert(running());
             unbindEvents(*m_currentTask);
             (*m_currentTask)->terminate();
             m_currentTask = std::end(m_taskRunners);
-            
+
             wxNotifyEvent event(wxEVT_COMPILATION_END);
             ProcessEvent(event);
         }
-        
+
         bool CompilationRunner::running() const {
             return m_currentTask != std::end(m_taskRunners);
         }
-        
+
         void CompilationRunner::OnTaskError(wxEvent& event) {
             if (running()) {
                 unbindEvents(*m_currentTask);
@@ -441,7 +441,7 @@ namespace TrenchBroom {
             runner->Bind(wxEVT_TASK_ERROR, &CompilationRunner::OnTaskError, this);
             runner->Bind(wxEVT_TASK_END, &CompilationRunner::OnTaskEnd, this);
         }
-        
+
         void CompilationRunner::unbindEvents(TaskRunner* runner) {
             runner->Unbind(wxEVT_TASK_ERROR, &CompilationRunner::OnTaskError, this);
             runner->Unbind(wxEVT_TASK_END, &CompilationRunner::OnTaskEnd, this);

@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -40,14 +40,14 @@ namespace TrenchBroom {
         Tool(true),
         m_document(document),
         m_helper(helper) {}
-        
+
         Tool* UVOffsetTool::doGetTool() {
             return this;
         }
-        
+
         bool UVOffsetTool::doStartMouseDrag(const InputState& inputState) {
             assert(m_helper.valid());
-            
+
             if (!inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
                 !inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
                 return false;
@@ -59,7 +59,7 @@ namespace TrenchBroom {
             document->beginTransaction("Move Texture");
             return true;
         }
-        
+
         bool UVOffsetTool::doMouseDrag(const InputState& inputState) {
             assert(m_helper.valid());
 
@@ -69,7 +69,7 @@ namespace TrenchBroom {
 
             const auto* face = m_helper.face();
             const auto corrected = correct(face->offset() - snapped, 4, 0.0f);
-            
+
             if (corrected == face->offset()) {
                 return true;
             }
@@ -79,16 +79,16 @@ namespace TrenchBroom {
 
             auto document = lock(m_document);
             document->setFaceAttributes(request);
-            
+
             m_lastPoint = m_lastPoint + snapped;
             return true;
         }
-        
+
         void UVOffsetTool::doEndMouseDrag(const InputState& inputState) {
             auto document = lock(m_document);
             document->commitTransaction();
         }
-        
+
         void UVOffsetTool::doCancelMouseDrag() {
             auto document = lock(m_document);
             document->cancelTransaction();
@@ -99,7 +99,7 @@ namespace TrenchBroom {
             const auto& boundary = face->boundary();
             const auto distance = vm::intersect(ray, boundary);
             const auto hitPoint = ray.pointAtDistance(distance);
-            
+
             const auto transform = face->toTexCoordSystemMatrix(vm::vec2f::zero, face->scale(), true);
             return vm::vec2f(transform * hitPoint);
         }
@@ -107,23 +107,23 @@ namespace TrenchBroom {
         vm::vec2f UVOffsetTool::snapDelta(const vm::vec2f& delta) const {
             const auto* face = m_helper.face();
             ensure(face != nullptr, "face is null");
-            
+
             const auto* texture = face->texture();
             if (texture == nullptr) {
                 return round(delta);
             }
 
             const auto transform = face->toTexCoordSystemMatrix(face->offset() - delta, face->scale(), true);
-            
+
             auto distance = vm::vec2f::max;
             for (const Model::BrushVertex* vertex : face->vertices()) {
                 const auto temp = m_helper.computeDistanceFromTextureGrid(transform * vertex->position());
                 distance = absMin(distance, temp);
             }
-            
+
             return m_helper.snapDelta(delta, -distance);
         }
-        
+
         bool UVOffsetTool::doCancel() {
             return false;
         }

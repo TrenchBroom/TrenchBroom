@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -40,7 +40,7 @@ namespace TrenchBroom {
             ValueList m_values;
         public:
             FlagsEditor(wxWindow* parent, size_t numCols);
-            
+
             void setFlags(const wxArrayString& labels, const wxArrayString& tooltips = wxArrayString(0));
             void setFlags(const wxArrayInt& values, const wxArrayString& labels, const wxArrayString& tooltips = wxArrayString(0));
             void setFlagValue(int set, int mixed = 0);
@@ -51,9 +51,9 @@ namespace TrenchBroom {
             int getSetFlagValue() const;
             int getMixedFlagValue() const;
             wxString getFlagLabel(size_t index) const;
-            
+
             int lineHeight() const;
-            
+
             void OnCheckBoxClicked(wxCommandEvent& event);
         private:
             void setCheckBoxCount(size_t count);

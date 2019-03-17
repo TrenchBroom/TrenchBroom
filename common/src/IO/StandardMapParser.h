@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -49,7 +49,7 @@ namespace TrenchBroom {
             static const Type Eol           = 1 << 11; // end of line
             static const Type Number        = Integer | Decimal;
         }
-        
+
         class QuakeMapTokenizer : public Tokenizer<QuakeMapToken::Type> {
         private:
             static const String& NumberDelim();
@@ -57,7 +57,7 @@ namespace TrenchBroom {
         public:
             QuakeMapTokenizer(const char* begin, const char* end);
             QuakeMapTokenizer(const String& str);
-            
+
             void setSkipEol(bool skipEol);
         private:
             Token emitToken() override;
@@ -78,19 +78,19 @@ namespace TrenchBroom {
         public:
             StandardMapParser(const char* begin, const char* end);
             StandardMapParser(const String& str);
-            
+
             virtual ~StandardMapParser() override;
         protected:
             Model::MapFormat detectFormat();
-            
+
             void parseEntities(Model::MapFormat format, ParserStatus& status);
             void parseBrushes(Model::MapFormat format, ParserStatus& status);
             void parseBrushFaces(Model::MapFormat format, ParserStatus& status);
-            
+
             void reset();
         private:
             void setFormat(Model::MapFormat format);
-            
+
             void parseEntity(ParserStatus& status);
             void parseEntityAttribute(Model::EntityAttribute::List& attributes, AttributeNames& names, ParserStatus& status);
 

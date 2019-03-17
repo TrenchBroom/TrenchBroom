@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -31,14 +31,14 @@ namespace TrenchBroom {
         wxPanel(),
         m_borders(0),
         m_thickness(1) {}
-        
+
         BorderPanel::BorderPanel(wxWindow* parent, const int borders, const int thickness) :
         wxPanel(),
         m_borders(0),
         m_thickness(1) {
             Create(parent, borders, thickness);
         }
-        
+
         BorderPanel::~BorderPanel() {}
 
         void BorderPanel::Create(wxWindow* parent, int borders, int thickness) {
@@ -58,7 +58,7 @@ namespace TrenchBroom {
             dc.DrawRectangle(GetClientRect());
 
             dc.SetPen(wxPen(Colors::borderColor()));
-            
+
             wxRect rect = GetClientRect();
             if ((m_borders & wxLEFT) != 0)
                 dc.DrawLine(rect.GetLeft(), rect.GetTop(), rect.GetLeft(), rect.GetBottom());

@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -35,18 +35,18 @@ namespace TrenchBroom {
             NodeList m_nodes;
         public:
             virtual ~NodeCollectionStrategy();
-            
+
             virtual void addNode(Node* node) = 0;
             const NodeList& nodes() const;
         };
-        
+
         class StandardNodeCollectionStrategy : public NodeCollectionStrategy {
         public:
             virtual ~StandardNodeCollectionStrategy() override;
         public:
             void addNode(Node* node) override;
         };
-        
+
         class UniqueNodeCollectionStrategy : public NodeCollectionStrategy {
         private:
             NodeSet m_addedNodes;
@@ -62,11 +62,11 @@ namespace TrenchBroom {
             D m_delegate;
         public:
             virtual ~FilteringNodeCollectionStrategy() {}
-            
+
             const NodeList& nodes() const {
                 return m_delegate.nodes();
             }
-            
+
             template <typename T>
             void addNode(T* node) {
                 Node* actual = getNode(node);
@@ -80,7 +80,7 @@ namespace TrenchBroom {
             virtual Node* getNode(Entity* entity) const { return entity; }
             virtual Node* getNode(Brush* brush) const   { return brush;  }
         };
-        
+
         template <
             typename P,
             typename C = StandardNodeCollectionStrategy,
@@ -108,7 +108,7 @@ namespace TrenchBroom {
             }
             return result;
         }
-        
+
     }
 }
 

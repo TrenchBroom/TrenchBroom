@@ -72,17 +72,17 @@ namespace vm {
         const auto o = vec3d(1.0, 0.0, 0.0);
         const auto h = vec3d(0.5, 0.0, 0.0);
         const auto n = vec3d(0.5, 1.0, 0.0);
-    
+
         ASSERT_TRUE( segment3d(z, o).contains(z, Cd::almostZero()));
         ASSERT_TRUE( segment3d(z, o).contains(h, Cd::almostZero()));
         ASSERT_TRUE( segment3d(z, o).contains(o, Cd::almostZero()));
         ASSERT_FALSE(segment3d(z, o).contains(n, Cd::almostZero()));
     }
-    
+
     TEST(SegmentTest, contains2) {
         const auto z = vec3d(-64.0, -64.0, 0.0);
         const auto o = vec3d(  0.0, +64.0, 0.0);
-    
+
         ASSERT_TRUE( segment3d(z, o).contains(z, Cd::almostZero()));
         ASSERT_TRUE( segment3d(z, o).contains(o, Cd::almostZero()));
     }

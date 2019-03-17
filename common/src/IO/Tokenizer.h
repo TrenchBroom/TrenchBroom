@@ -47,34 +47,34 @@ namespace TrenchBroom {
             size_t length() const;
             const char* begin() const;
             const char* end() const;
-            
+
             const char* curPos() const;
             char curChar() const;
-            
+
             char lookAhead(const size_t offset = 1) const;
-            
+
             size_t line() const;
             size_t column() const;
-            
+
             bool escaped() const;
             String unescape(const String& str);
             void resetEscaped();
-            
+
             bool eof() const;
             bool eof(const char* ptr) const;
-            
+
             size_t offset(const char* ptr) const;
-            
+
             void advance(const size_t offset);
             void advance();
             void reset();
-            
+
             void errorIfEof() const;
-            
+
             TokenizerState snapshot() const;
             void restore(const TokenizerState& snapshot);
         };
-        
+
         template <typename TokenType>
         class Tokenizer {
         public:
@@ -92,7 +92,7 @@ namespace TrenchBroom {
                 SaveState(StatePtr state) :
                 m_state(state),
                 m_snapshot(m_state->snapshot()) {}
-                
+
                 ~SaveState() {
                     m_state->restore(m_snapshot);
                 }
@@ -116,10 +116,10 @@ namespace TrenchBroom {
             template <typename OtherType>
             Tokenizer(Tokenizer<OtherType>& nestedTokenizer) :
             m_state(nestedTokenizer.m_state) {}
-            
+
             Tokenizer(const Tokenizer& other) :
             m_state(other.m_state) {}
-            
+
             virtual ~Tokenizer() {}
 
             Token nextToken(const TokenType skipTokens = 0) {
@@ -168,7 +168,7 @@ namespace TrenchBroom {
             String unescapeString(const String& str) const {
                 return m_state->unescape(str);
             }
-            
+
             void reset() {
                 m_state->reset();
             }
@@ -205,7 +205,7 @@ namespace TrenchBroom {
             void replaceState(const char* begin, const char* end) {
                 m_state.reset(m_state->clone(begin, end));
             }
-            
+
             void restore(const TokenizerState& snapshot) {
                 m_state->restore(snapshot);
             }
@@ -284,7 +284,7 @@ namespace TrenchBroom {
                     advance();
                     readDigits();
                 }
-                
+
                 if (curChar() == '.') {
                     advance();
                     readDigits();
@@ -297,7 +297,7 @@ namespace TrenchBroom {
                         readDigits();
                     }
                 }
-                
+
                 if (eof() || isAnyOf(curChar(), delims)) {
                     return curPos();
                 }
@@ -305,7 +305,7 @@ namespace TrenchBroom {
                 *m_state = previousState;
                 return nullptr;
             }
-            
+
         private:
             void readDigits() {
                 while (!eof() && isDigit(curChar()))
@@ -397,7 +397,7 @@ namespace TrenchBroom {
                 advance(str.size());
                 return curPos();
             }
-            
+
             void errorIfEof() const {
                 m_state->errorIfEof();
             }

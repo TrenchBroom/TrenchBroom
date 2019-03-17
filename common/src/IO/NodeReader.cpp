@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -31,7 +31,7 @@ namespace TrenchBroom {
         NodeReader::NodeReader(const String& str, Model::ModelFactory& factory) :
         MapReader(str),
         m_factory(factory) {}
-        
+
         Model::NodeList NodeReader::read(const String& str, Model::ModelFactory& factory, const vm::bbox3& worldBounds, ParserStatus& status) {
             NodeReader reader(str, factory);
             return reader.read(worldBounds, status);
@@ -53,37 +53,37 @@ namespace TrenchBroom {
             }
             return m_nodes;
         }
-        
+
         Model::ModelFactory& NodeReader::initialize(const Model::MapFormat format, const vm::bbox3& worldBounds) {
             assert(format == m_factory.format());
             return m_factory;
         }
-        
+
         Model::Node* NodeReader::onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
             Model::Entity* worldspawn = m_factory.createEntity();
             worldspawn->setAttributes(attributes);
             setExtraAttributes(worldspawn, extraAttributes);
-            
+
             m_nodes.insert(std::begin(m_nodes), worldspawn);
             return worldspawn;
         }
-        
+
         void NodeReader::onWorldspawnFilePosition(const size_t lineNumber, const size_t lineCount, ParserStatus& status) {
             assert(!m_nodes.empty());
             m_nodes.front()->setFilePosition(lineNumber, lineCount);
         }
-        
+
         void NodeReader::onLayer(Model::Layer* layer, ParserStatus& status) {
             m_nodes.push_back(layer);
         }
-        
+
         void NodeReader::onNode(Model::Node* parent, Model::Node* node, ParserStatus& status) {
             if (parent != nullptr)
                 parent->addChild(node);
             else
                 m_nodes.push_back(node);
         }
-        
+
         void NodeReader::onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node, ParserStatus& status) {
             if (parentInfo.layer()) {
                 StringStream msg;
@@ -96,7 +96,7 @@ namespace TrenchBroom {
             }
             m_nodes.push_back(node);
         }
-        
+
         void NodeReader::onBrush(Model::Node* parent, Model::Brush* brush, ParserStatus& status) {
             if (parent != nullptr)
                 parent->addChild(brush);

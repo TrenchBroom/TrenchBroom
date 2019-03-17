@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -950,26 +950,26 @@ common/caulk
                               "\"angle\" \" -1 \""
                               "}");
             vm::bbox3 worldBounds(-8192, 8192);
-            
+
             using namespace testing;
             Model::MockGameSPtr game = Model::MockGame::newGame();
             EXPECT_CALL(*game, doBrushContentTypes()).WillOnce(ReturnRef(Model::BrushContentType::EmptyList));
-            
+
             StandardMapParser parser(data, game.get());
             Model::Map* map = parser.parseMap(worldBounds);
-            
+
             const Model::EntityList& entities = map->entities();
             ASSERT_EQ(2u, entities.size());
-            
+
             const Model::Entity* firstEntity = entities[0];
             ASSERT_EQ(0u, firstEntity->hiddenIssues());
-            
+
             const Model::BrushList& brushes = firstEntity->brushes();
             ASSERT_EQ(1u, brushes.size());
-            
+
             const Model::Brush* brush = brushes[0];
             ASSERT_EQ(2u, brush->hiddenIssues());
-            
+
             const Model::Entity* secondEntity = entities[1];
             ASSERT_EQ(3u, secondEntity->hiddenIssues());
         }

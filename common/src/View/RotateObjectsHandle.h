@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -32,10 +32,10 @@ namespace TrenchBroom {
         class RenderBatch;
         class RenderContext;
     }
-    
+
     namespace View {
         class InputState;
-        
+
         class RotateObjectsHandle {
         public:
             static const Model::Hit::HitType HandleHit;
@@ -52,13 +52,13 @@ namespace TrenchBroom {
         public:
             const vm::vec3& position() const;
             void setPosition(const vm::vec3& position);
-            
+
             Model::Hit pick2D(const vm::ray3& pickRay, const Renderer::Camera& camera) const;
             Model::Hit pick3D(const vm::ray3& pickRay, const Renderer::Camera& camera) const;
 
             vm::vec3 pointHandlePosition(HitArea area, const vm::vec3& cameraPos) const;
             FloatType handleRadius() const;
-            
+
             vm::vec3 rotationAxis(HitArea area) const;
             vm::vec3 pointHandleAxis(HitArea area, const vm::vec3& cameraPos) const;
         public:
@@ -70,7 +70,7 @@ namespace TrenchBroom {
         private:
             Model::Hit pickPointHandle(const vm::ray3& pickRay, const Renderer::Camera& camera, const vm::vec3& position, HitArea area) const;
             Model::Hit selectHit(const Model::Hit& closest, const Model::Hit& hit) const;
-            
+
             vm::vec3 getPointHandlePosition(const vm::vec3& axis) const;
             Color getAngleIndicatorColor(HitArea area) const;
         };

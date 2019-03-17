@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -88,13 +88,13 @@ namespace TrenchBroom {
                 ST_Relative,
                 ST_Absolute
             } SnapType;
-            
+
             SnapType m_lastSnapType;
             vm::vec3 m_handleOffset;
         private:
             void doModifierKeyChange(const InputState& inputState) override {
                 MoveToolController::doModifierKeyChange(inputState);
-                
+
                 if (Super::thisToolDragging()) {
                     const SnapType currentSnapType = snapType(inputState);
                     if (currentSnapType != m_lastSnapType) {
@@ -108,7 +108,7 @@ namespace TrenchBroom {
                 if (inputState.mouseButtonsPressed(MouseButtons::MBLeft) &&
                     inputState.modifierKeysPressed(ModifierKeys::MKAlt | ModifierKeys::MKShift) &&
                     m_tool->handleManager().selectedHandleCount() == 1) {
-                    
+
                     const Model::Hit hit = VertexToolController::findHandleHit(inputState, *this);
                     if (hit.hasType(VertexHandleManager::HandleHit)) {
                         const vm::vec3 sourcePos = m_tool->handleManager().selectedHandles().front();
@@ -118,10 +118,10 @@ namespace TrenchBroom {
                         return true;
                     }
                 }
-                
+
                 return false;
             }
-            
+
             MoveInfo doStartMove(const InputState& inputState) override {
                 const MoveInfo info = MovePartBase::doStartMove(inputState);
                 if (info.move) {
@@ -155,10 +155,10 @@ namespace TrenchBroom {
                         switchDefault();
                 }
             }
-            
+
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
                 MovePartBase::doRender(inputState, renderContext, renderBatch);
-                
+
                 if (!thisToolDragging()) {
                     const Model::Hit hit = findDraggableHandle(inputState);
                     if (hit.hasType(EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit)) {
@@ -186,7 +186,7 @@ namespace TrenchBroom {
                 return VertexToolController::findHandleHits(inputState, *this);
             }
         };
-        
+
         VertexToolController::VertexToolController(VertexTool* tool) :
         VertexToolControllerBase(tool) {
             addController(new MoveVertexPart(tool));

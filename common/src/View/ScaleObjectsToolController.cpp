@@ -1,19 +1,19 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
  Copyright (C) 2018 Eric Wasylishen
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -43,9 +43,9 @@ namespace TrenchBroom {
         {
             ensure(m_tool != nullptr, "tool is null");
         }
-        
+
         ScaleObjectsToolController::~ScaleObjectsToolController() = default;
-        
+
         Tool* ScaleObjectsToolController::doGetTool() {
             return m_tool;
         }
@@ -138,7 +138,7 @@ namespace TrenchBroom {
             // Mouse might be over a different handle now
             m_tool->refreshViews();
         }
-        
+
         void ScaleObjectsToolController::doMouseMove(const InputState& inputState) {
             if (handleInput(inputState) && !anyToolDragging(inputState)) {
                 m_tool->updatePickedHandle(inputState.pickResult());
@@ -204,7 +204,7 @@ namespace TrenchBroom {
         void ScaleObjectsToolController::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
             renderContext.setForceHideSelectionGuide();
         }
-        
+
         void ScaleObjectsToolController::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             const auto& camera = renderContext.camera();
 
@@ -268,7 +268,7 @@ namespace TrenchBroom {
                 renderService.setForegroundColor(pref(Preferences::ScaleOutlineColor));
                 renderService.renderPolygonOutline(m_tool->dragSide().vertices());
             }
-            
+
             if (m_tool->hasDragEdge()) {
                 const auto line = m_tool->dragEdge();
 
@@ -287,7 +287,7 @@ namespace TrenchBroom {
                     renderService.renderLine(line.start(), line.end());
                 }
             }
-            
+
             if (m_tool->hasDragCorner()) {
                 const auto corner = m_tool->dragCorner();
 
@@ -306,11 +306,11 @@ namespace TrenchBroom {
                 }
             }
         }
-        
+
         bool ScaleObjectsToolController::doCancel() {
             return false;
         }
-        
+
         bool ScaleObjectsToolController::handleInput(const InputState& inputState) const {
             return m_tool->applies();
         }
@@ -319,7 +319,7 @@ namespace TrenchBroom {
 
         ScaleObjectsToolController2D::ScaleObjectsToolController2D(ScaleObjectsTool* tool, MapDocumentWPtr document) :
         ScaleObjectsToolController(tool, document) {}
-        
+
         void ScaleObjectsToolController2D::doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera,
                                                   Model::PickResult &pickResult) {
             m_tool->pick2D(pickRay, camera, pickResult);
@@ -329,7 +329,7 @@ namespace TrenchBroom {
 
         ScaleObjectsToolController3D::ScaleObjectsToolController3D(ScaleObjectsTool* tool, MapDocumentWPtr document) :
         ScaleObjectsToolController(tool, document) {}
-        
+
         void ScaleObjectsToolController3D::doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera,
                                                   Model::PickResult &pickResult) {
             m_tool->pick3D(pickRay, camera, pickResult);

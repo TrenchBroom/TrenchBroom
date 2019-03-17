@@ -41,22 +41,22 @@ namespace TrenchBroom {
         protected:
             CommonVariables(MapDocumentSPtr document);
         };
-        
+
         class CommonCompilationVariables : public CommonVariables {
         protected:
             CommonCompilationVariables(MapDocumentSPtr document);
         };
-        
+
         class CompilationWorkDirVariables : public CommonCompilationVariables {
         public:
             CompilationWorkDirVariables(MapDocumentSPtr document);
         };
-        
+
         class CompilationVariables : public CommonCompilationVariables {
         public:
             CompilationVariables(MapDocumentSPtr document, const String& workDir);
         };
-        
+
         class LaunchGameEngineVariables : public CommonVariables {
         public:
             LaunchGameEngineVariables(MapDocumentSPtr document);

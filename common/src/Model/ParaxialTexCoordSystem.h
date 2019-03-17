@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -35,7 +35,7 @@ namespace TrenchBroom {
         class ParaxialTexCoordSystem : public TexCoordSystem {
         private:
             static const vm::vec3 BaseAxes[];
-            
+
             size_t m_index;
             vm::vec3 m_xAxis;
             vm::vec3 m_yAxis;
@@ -63,15 +63,15 @@ namespace TrenchBroom {
 
             bool isRotationInverted(const vm::vec3& normal) const override;
             vm::vec2f doGetTexCoords(const vm::vec3& point, const BrushFaceAttributes& attribs) const override;
-            
+
             void doSetRotation(const vm::vec3& normal, float oldAngle, float newAngle) override;
             void doTransform(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const vm::mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vm::vec3& invariant) override;
-            
+
             void doUpdateNormalWithProjection(const vm::vec3& oldNormal, const vm::vec3& newNormal, const BrushFaceAttributes& attribs) override;
             void doUpdateNormalWithRotation(const vm::vec3& oldNormal, const vm::vec3& newNormal, const BrushFaceAttributes& attribs) override;
 
             void doShearTexture(const vm::vec3& normal, const vm::vec2f& factors) override;
-            
+
             float doMeasureAngle(float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const override;
         private:
             void rotateAxes(vm::vec3& xAxis, vm::vec3& yAxis, FloatType angleInRadians, size_t planeNormIndex) const;

@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -44,7 +44,7 @@ namespace TrenchBroom {
                 AboutDialog::instance->Raise();
             }
         }
-        
+
         void AboutDialog::closeAboutDialog() {
             if (AboutDialog::instance != nullptr)
                 AboutDialog::instance->Close();
@@ -67,12 +67,12 @@ namespace TrenchBroom {
             createGui();
             CenterOnScreen();
         }
-        
+
         void AboutDialog::createGui() {
             setWindowIcon(this);
-            
+
             AppInfoPanel* infoPanel = new AppInfoPanel(this);
-            
+
             wxStaticText* creditsText = new wxStaticText(this, wxID_ANY, "");
             creditsText->SetLabelMarkup("github.com/kduske/TrenchBroom\n\n"
                                         "<b>Developers</b>\n"
@@ -113,13 +113,13 @@ namespace TrenchBroom {
             outerSizer->AddSpacer(50);
             outerSizer->Add(creditsText, 1, wxEXPAND | wxTOP | wxBOTTOM, 20);
             outerSizer->AddSpacer(50);
-            
+
             SetSizerAndFit(outerSizer);
 
             wxAcceleratorEntry entries[1];
             entries[0] = wxAcceleratorEntry(wxACCEL_NORMAL, WXK_ESCAPE, wxID_CANCEL);
             SetAcceleratorTable(wxAcceleratorTable(1, entries));
-            
+
             Bind(wxEVT_MENU, &AboutDialog::OnCancel, this, wxID_CANCEL);
             Bind(wxEVT_CLOSE_WINDOW, &AboutDialog::OnClose, this);
         }

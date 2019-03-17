@@ -60,7 +60,7 @@ namespace TrenchBroom {
 
         void Console::logToConsole(const LogLevel level, const wxString& message) {
             if (m_textView->IsBeingDeleted()) return;
-                
+
             wxWindowUpdateLocker locker(m_textView);
 
             const long start = m_textView->GetLastPosition();

@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -30,10 +30,10 @@ namespace TrenchBroom {
     namespace Renderer {
         class RenderContext;
     }
-    
+
     namespace View {
         class InputState;
-        
+
         class SelectionTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
         private:
             MapDocumentWPtr m_document;
@@ -41,18 +41,18 @@ namespace TrenchBroom {
             SelectionTool(MapDocumentWPtr document);
         private:
             Tool* doGetTool() override;
-            
+
             bool doMouseClick(const InputState& inputState) override;
             bool doMouseDoubleClick(const InputState& inputState) override;
-            
+
             bool handleClick(const InputState& inputState) const;
             bool isFaceClick(const InputState& inputState) const;
             bool isMultiClick(const InputState& inputState) const;
-            
+
             const Model::Hit& firstHit(const InputState& inputState, Model::Hit::HitType type) const;
 
             Model::NodeList collectSelectableChildren(const Model::EditorContext& editorContext, const Model::Node* node) const;
-            
+
             void doMouseScroll(const InputState& inputState) override;
             void adjustGrid(const InputState& inputState);
             void drillSelection(const InputState& inputState);
@@ -63,7 +63,7 @@ namespace TrenchBroom {
             void doCancelMouseDrag() override;
 
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
-            
+
             bool doCancel() override;
         };
     }

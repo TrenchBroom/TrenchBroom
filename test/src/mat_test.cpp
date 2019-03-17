@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -61,67 +61,67 @@ namespace vm {
         const vec4d& v = vec4d::pos_y;
         ASSERT_VEC_EQ(vec4d::neg_z, m * v);
     }
-    
+
     TEST(MatTest, rot90YCWMatrix) {
         const mat4x4d& m = mat4x4d::rot_90_y_cw;
         const vec4d& v = vec4d::pos_x;
         ASSERT_VEC_EQ(vec4d::pos_z, m * v);
     }
-    
+
     TEST(MatTest, rot90ZCWMatrix) {
         const mat4x4d& m = mat4x4d::rot_90_z_cw;
         const vec4d& v = vec4d::pos_y;
         ASSERT_VEC_EQ(vec4d::pos_x, m * v);
     }
-    
+
     TEST(MatTest, rot90XCCWMatrix) {
         const mat4x4d& m = mat4x4d::rot_90_x_ccw;
         const vec4d& v = vec4d::pos_y;
         ASSERT_VEC_EQ(vec4d::pos_z, m * v);
     }
-    
+
     TEST(MatTest, rot90YCCWMatrix) {
         const mat4x4d& m = mat4x4d::rot_90_y_ccw;
         const vec4d& v = vec4d::pos_x;
         ASSERT_VEC_EQ(vec4d::neg_z, m * v);
     }
-    
+
     TEST(MatTest, rot90ZCCWMatrix) {
         const mat4x4d& m = mat4x4d::rot_90_z_ccw;
         const vec4d& v = vec4d::pos_x;
         ASSERT_VEC_EQ(vec4d::pos_y, m * v);
     }
-    
+
     TEST(MatTest, rot180XMatrix) {
         const mat4x4d& m = mat4x4d::rot_180_x;
         const vec4d& v = vec4d::pos_y;
         ASSERT_VEC_EQ(vec4d::neg_y, m * v);
     }
-    
+
     TEST(MatTest, rot180YMatrix) {
         const mat4x4d& m = mat4x4d::rot_180_y;
         const vec4d& v = vec4d::pos_x;
         ASSERT_VEC_EQ(vec4d::neg_x, m * v);
     }
-    
+
     TEST(MatTest, rot180ZMatrix) {
         const mat4x4d& m = mat4x4d::rot_180_z;
         const vec4d& v = vec4d::pos_y;
         ASSERT_VEC_EQ(vec4d::neg_y, m * v);
     }
-    
+
     TEST(MatTest, mirXMatrix) {
         const mat4x4d& m = mat4x4d::mirror_x;
         const vec4d v(1.0, 1.0, 1.0, 0.0);
         ASSERT_VEC_EQ(vec4d(-1.0, 1.0, 1.0, 0.0), m * v);
     }
-    
+
     TEST(MatTest, mirYMatrix) {
         const mat4x4d& m = mat4x4d::mirror_y;
         const vec4d v(1.0, 1.0, 1.0, 0.0);
         ASSERT_VEC_EQ(vec4d(1.0, -1.0, 1.0, 0.0), m * v);
     }
-    
+
     TEST(MatTest, mirZMatrix) {
         const mat4x4d& m = mat4x4d::mirror_z;
         const vec4d v(1.0, 1.0, 1.0, 0.0);
@@ -189,7 +189,7 @@ namespace vm {
         ASSERT_DOUBLE_EQ(8.0, m[1][2]);
         ASSERT_DOUBLE_EQ(9.0, m[2][2]);
     }
-    
+
     TEST(MatTest, 4x4Constructor) {
         const mat4x4d m( 1.0,  2.0,  3.0,  4.0,
                          5.0,  6.0,  7.0,  8.0,
@@ -415,7 +415,7 @@ namespace vm {
                          9.0, 11.0, 11.0, 12.0,
                         13.0, 14.0, 15.0, 16.0);
         const mat4x4d o = m + n;
-    
+
         for (size_t c = 0; c < 4; ++c) {
             for (size_t r = 0; r < 4; ++r) {
                 ASSERT_DOUBLE_EQ(m[c][r] + n[c][r], o[c][r]);
@@ -433,14 +433,14 @@ namespace vm {
                          9.0, 11.0, 11.0, 12.0,
                         13.0, 14.0, 15.0, 16.0);
         const mat4x4d o = m - n;
-    
+
         for (size_t c = 0; c < 4; ++c) {
             for (size_t r = 0; r < 4; ++r) {
                 ASSERT_DOUBLE_EQ(m[c][r] - n[c][r], o[c][r]);
             }
         }
     }
-    
+
     TEST(MatTest, multiply) {
         const mat4x4d m( 1.0,  2.0,  3.0,  4.0,
                          5.0,  6.0,  7.0,  8.0,
@@ -457,49 +457,49 @@ namespace vm {
         const mat4x4d o = m * n;
         ASSERT_MAT_EQ(r, o);
     }
-    
+
     TEST(MatTest, scalarMultiply_right) {
         const mat4x4d m( 1.0,  2.0,  3.0,  4.0,
                          5.0,  6.0,  7.0,  8.0,
                          9.0, 10.0, 11.0, 12.0,
                         13.0, 14.0, 15.0, 16.0);
         const mat4x4d o = m * 3.0;
-    
+
         for (size_t c = 0; c < 4; ++c) {
             for (size_t r = 0; r < 4; ++r) {
                 ASSERT_DOUBLE_EQ(m[c][r] * 3.0, o[c][r]);
             }
         }
     }
-    
+
     TEST(MatTest, scalarMultiply_left) {
         const mat4x4d m( 1.0,  2.0,  3.0,  4.0,
                          5.0,  6.0,  7.0,  8.0,
                          9.0, 10.0, 11.0, 12.0,
                          13.0, 14.0, 15.0, 16.0);
         const mat4x4d o = 3.0 * m;
-    
+
         for (size_t c = 0; c < 4; ++c) {
             for (size_t r = 0; r < 4; ++r) {
                 ASSERT_DOUBLE_EQ(m[c][r] * 3.0, o[c][r]);
             }
         }
     }
-    
+
     TEST(MatTest, divide) {
         const mat4x4d m( 1.0,  2.0,  3.0,  4.0,
                          5.0,  6.0,  7.0,  8.0,
                          9.0, 10.0, 11.0, 12.0,
                         13.0, 14.0, 15.0, 16.0);
         const mat4x4d o = m / 3.0;
-    
+
         for (size_t c = 0; c < 4; ++c) {
             for (size_t r = 0; r < 4; ++r) {
                 ASSERT_DOUBLE_EQ(m[c][r] / 3.0, o[c][r]);
             }
         }
     }
-    
+
     TEST(MatTest, vectorMultiply_right) {
         const vec4d v(1.0, 2.0, 3.0, 1.0);
         ASSERT_VEC_EQ(v, mat4x4d::identity * v);
@@ -511,7 +511,7 @@ namespace vm {
         const vec4d r(18.0, 46.0, 74.0, 102.0);
         ASSERT_VEC_EQ(r, m * v);
     }
-    
+
     TEST(MatTest, vectorMultiply_left) {
         const vec4d v(1.0, 2.0, 3.0, 1.0);
         ASSERT_VEC_EQ(v, v * mat4x4d::identity);
@@ -523,7 +523,7 @@ namespace vm {
         const vec4d r(51.0, 58.0, 65.0, 72.0);
         ASSERT_VEC_EQ(r, v * m);
     }
-    
+
     TEST(MatTest, vectorMultiply_right_2) {
         const vec3d v(1.0, 2.0, 3.0);
         const mat4x4d m( 1.0,  2.0,  3.0,  4.0,
@@ -533,7 +533,7 @@ namespace vm {
         const vec4d r(18.0, 46.0, 74.0, 102.0);
         ASSERT_VEC_EQ(toCartesianCoords(r), m * v);
     }
-    
+
     TEST(MatTest, vectorMultiply_left_2) {
         const vec3d v(1.0, 2.0, 3.0);
         const mat4x4d m( 1.0,  2.0,  3.0,  4.0,
@@ -543,7 +543,7 @@ namespace vm {
         const vec4d r(51.0, 58.0, 65.0, 72.0);
         ASSERT_VEC_EQ(toCartesianCoords(r), v * m);
     }
-    
+
 
     TEST(MatTest, transpose) {
         mat<double, 4, 4> m;
@@ -552,16 +552,16 @@ namespace vm {
                 m[c][r] = static_cast<double>(c * 4 + r);
             }
         }
-    
+
         const auto t = transpose(m);
-    
+
         for (size_t c = 0; c < 4; ++c) {
             for (size_t r = 0; r < 4; ++r) {
                 ASSERT_DOUBLE_EQ(m[c][r], t[r][c]);
             }
         }
     }
-    
+
     TEST(MatTest, extractMinor) {
         const mat4x4d m( 1.0,  2.0,  3.0,  4.0,
                          5.0,  6.0,  7.0,  8.0,
@@ -584,7 +584,7 @@ namespace vm {
         ASSERT_MAT_EQ(m12, extractMinor(m, 1, 2));
         ASSERT_MAT_EQ(m21, extractMinor(m, 2, 1));
     }
-    
+
     TEST(MatTest, determinant) {
         const mat4x4d m1( 1.0,  2.0,  3.0,  4.0,
                           5.0,  6.0,  7.0,  8.0,
@@ -604,7 +604,7 @@ namespace vm {
         ASSERT_DOUBLE_EQ(15661.0, computeDeterminant(m2));
         ASSERT_DOUBLE_EQ(-418.0, computeDeterminant(m3));
     }
-    
+
     TEST(MatTest, computeAdjugate) {
         const mat4x4d m1( 1.0,  2.0,  3.0,  4.0,
                           5.0,  6.0,  7.0,  8.0,
@@ -630,27 +630,27 @@ namespace vm {
                          -56.0,  20.0, -14.0, -128.0,
                           65.0, -68.0, -36.0,   59.0,
                          -25.0,  -6.0,  46.0,  -87.0);
-    
+
         ASSERT_MAT_EQ(mat4x4d::identity, computeAdjugate(mat4x4d::identity));
         ASSERT_MAT_EQ(mat4x4d::zero, computeAdjugate(mat4x4d::zero));
         ASSERT_MAT_EQ(r1, computeAdjugate(m1));
         ASSERT_MAT_EQ(r2, computeAdjugate(m2));
         ASSERT_MAT_EQ(r3, computeAdjugate(m3));
     }
-    
+
     template <typename T, size_t S>
     void ASSERT_INVERTIBLE(const mat<T,S,S>& expected, const mat<T,S,S>& actual) {
         auto [invertible, inverse] = invert(actual);
         ASSERT_MAT_EQ(expected, inverse);
         ASSERT_TRUE(invertible);
     }
-    
+
     template <typename T, size_t S>
     void ASSERT_NOT_INVERTIBLE(const mat<T,S,S>& actual) {
         auto [invertible, inverse] = invert(actual);
         ASSERT_FALSE(invertible); unused(inverse);
     }
-    
+
     TEST(MatTest, invert) {
         const mat4x4d m1( 1.0,  2.0,  3.0,  4.0,
                           5.0,  6.0,  7.0,  8.0,
@@ -672,7 +672,7 @@ namespace vm {
                           0.030968648234468,   0.46203946108167, 0.015643956324628,  0.0098971968584382,
                          -0.01066343145393,   -0.04156822680544, 0.025541153183066, -0.08588212757806,
                          -0.038758699955303,  -0.2648617585084,  0.062895089713301,  0.10101526083903);
-    
+
         ASSERT_INVERTIBLE(mat4x4d::identity, mat4x4d::identity);
         ASSERT_INVERTIBLE(r2, m2);
         ASSERT_INVERTIBLE(m4, m3);
