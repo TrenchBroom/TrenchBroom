@@ -23,7 +23,9 @@
 #include "Assets/Quake3Shader.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
+#include "IO/File.h"
 #include "IO/Quake3ShaderParser.h"
+#include "IO/Reader.h"
 #include "IO/TestParserStatus.h"
 
 namespace TrenchBroom {
@@ -503,8 +505,9 @@ waterBubble
             const auto workDir = Disk::getCurrentWorkingDir();
             auto fs = DiskFileSystem(workDir + Path("fixture/test/IO/Shader/parser"));
             auto testFile = fs.openFile(Path("am_cf_models.shader"));
+            auto reader = testFile->reader().buffer();
 
-            Quake3ShaderParser parser(testFile->begin(), testFile->end());
+            Quake3ShaderParser parser(std::begin(reader), std::end(reader));
             TestParserStatus status;
             ASSERT_NO_THROW(parser.parse(status));
         }

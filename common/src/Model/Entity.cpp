@@ -139,7 +139,7 @@ namespace TrenchBroom {
 
         vm::bbox3 Entity::modelBounds() const {
             if (m_modelFrame != nullptr) {
-                return vm::bbox3(m_modelFrame->bounds()).translate(origin());
+                return vm::bbox3(m_modelFrame->bounds()).transform(modelTransformation());
             } else {
                 return vm::bbox3();
             }

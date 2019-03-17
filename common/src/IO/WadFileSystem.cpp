@@ -19,7 +19,8 @@
 
 #include "WadFileSystem.h"
 
-#include "IO/CharArrayReader.h"
+#include "IO/File.h"
+#include "IO/Reader.h"
 #include "IO/DiskIO.h"
 
 namespace TrenchBroom {
@@ -48,20 +49,16 @@ namespace TrenchBroom {
         }
 
         WadFileSystem::WadFileSystem(const Path& path) :
-        WadFileSystem(path, Disk::openFile(path)) {}
-        
-        WadFileSystem::WadFileSystem(const Path& path, MappedFile::Ptr file) :
-        WadFileSystem(nullptr, path, file) {
-        }
+        WadFileSystem(nullptr, path) {}
 
-        WadFileSystem::WadFileSystem(std::shared_ptr<FileSystem> next, const Path& path, MappedFile::Ptr file) :
-        ImageFileSystem(std::move(next), path, file) {
+        WadFileSystem::WadFileSystem(std::shared_ptr<FileSystem> next, const Path& path) :
+        ImageFileSystem(std::move(next), path) {
             initialize();
         }
 
         void WadFileSystem::doReadDirectory() {
-            CharArrayReader reader(m_file->begin(), m_file->end());
-            if (m_file->size() < WadLayout::MinFileSize) {
+            auto reader = m_file->reader();
+            if (reader.size() < WadLayout::MinFileSize) {
                 throw FileSystemException("File does not contain a directory.");
             }
 
@@ -74,7 +71,7 @@ namespace TrenchBroom {
             reader.seekFromBegin(WadLayout::NumEntriesAddress);
             const auto entryCount = reader.readSize<int32_t>();
 
-            if (m_file->size() < WadLayout::MinFileSize + entryCount * WadLayout::DirEntrySize) {
+            if (reader.size() < WadLayout::MinFileSize + entryCount * WadLayout::DirEntrySize) {
                 throw FileSystemException("File does not contain a directory");
             }
 
@@ -100,13 +97,9 @@ namespace TrenchBroom {
                 const auto entryType = reader.readChar<char>();
                 reader.seekForward(WadLayout::DirEntryNameOffset);
                 const auto entryName = reader.readString(WadLayout::DirEntryNameSize) + "." + entryType;
-                
-                const auto* entryBegin = m_file->begin() + entryAddress;
-                const auto* entryEnd = entryBegin + entrySize;
-                assert(entryEnd <= m_file->end());
-                
+
                 const auto path = IO::Path(entryName);
-                auto file = std::make_shared<MappedFileView>(m_file, path, entryBegin, entryEnd);
+                auto file = std::make_shared<FileView>(path, m_file, entryAddress, entrySize);
                 m_root.addFile(path, file);
             }
         }

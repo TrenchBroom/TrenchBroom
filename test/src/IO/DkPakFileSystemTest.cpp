@@ -22,7 +22,6 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/FileMatcher.h"
 #include "IO/DkPakFileSystem.h"
-#include "IO/MappedFile.h"
 
 #include <algorithm>
 #include <cassert>
@@ -31,10 +30,8 @@ namespace TrenchBroom {
     namespace IO {
         TEST(DkPakFileSystemTest, directoryExists) {
             const Path pakPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/dkpak_test.pak");
-            const MappedFile::Ptr pakFile = Disk::openFile(pakPath);
-            assert(pakFile != nullptr);
 
-            const DkPakFileSystem fs(pakPath, pakFile);
+            const DkPakFileSystem fs(pakPath);
             ASSERT_THROW(fs.directoryExists(Path("/asdf")), FileSystemException);
             ASSERT_THROW(fs.directoryExists(Path("/pics")), FileSystemException);
 
@@ -45,10 +42,8 @@ namespace TrenchBroom {
 
         TEST(DkPakFileSystemTest, fileExists) {
             const Path pakPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/dkpak_test.pak");
-            const MappedFile::Ptr pakFile = Disk::openFile(pakPath);
-            assert(pakFile != nullptr);
 
-            const DkPakFileSystem fs(pakPath, pakFile);
+            const DkPakFileSystem fs(pakPath);
             ASSERT_THROW(fs.fileExists(Path("/asdf.blah")), FileSystemException);
             ASSERT_THROW(fs.fileExists(Path("/pics/tag1.pcx")), FileSystemException);
 
@@ -58,10 +53,8 @@ namespace TrenchBroom {
 
         TEST(DkPakFileSystemTest, findItems) {
             const Path pakPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/dkpak_test.pak");
-            const MappedFile::Ptr pakFile = Disk::openFile(pakPath);
-            assert(pakFile != nullptr);
 
-            const DkPakFileSystem fs(pakPath, pakFile);
+            const DkPakFileSystem fs(pakPath);
             ASSERT_THROW(fs.findItems(Path("/")), FileSystemException);
             ASSERT_THROW(fs.findItems(Path("/pics/")), FileSystemException);
             ASSERT_THROW(fs.findItems(Path("pics/tag1.pcx")), FileSystemException);
@@ -89,10 +82,8 @@ namespace TrenchBroom {
 
         TEST(DkPakFileSystemTest, findItemsRecursively) {
             const Path pakPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/dkpak_test.pak");
-            const MappedFile::Ptr pakFile = Disk::openFile(pakPath);
-            assert(pakFile != nullptr);
 
-            const DkPakFileSystem fs(pakPath, pakFile);
+            const DkPakFileSystem fs(pakPath);
             ASSERT_THROW(fs.findItemsRecursively(Path("/")), FileSystemException);
             ASSERT_THROW(fs.findItemsRecursively(Path("/pics/")), FileSystemException);
             ASSERT_THROW(fs.findItemsRecursively(Path("pics/tag1.pcx")), FileSystemException);
@@ -139,10 +130,8 @@ namespace TrenchBroom {
 
         TEST(DkPakFileSystemTest, openFile) {
             const Path pakPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/dkpak_test.pak");
-            const MappedFile::Ptr pakFile = Disk::openFile(pakPath);
-            assert(pakFile != nullptr);
 
-            const DkPakFileSystem fs(pakPath, pakFile);
+            const DkPakFileSystem fs(pakPath);
             ASSERT_THROW(fs.openFile(Path("")), FileSystemException);
             ASSERT_THROW(fs.openFile(Path("/amnet.cfg")), FileSystemException);
             ASSERT_THROW(fs.openFile(Path("/textures")), FileSystemException);

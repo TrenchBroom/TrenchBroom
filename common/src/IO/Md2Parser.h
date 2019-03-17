@@ -36,7 +36,7 @@ namespace TrenchBroom {
     }
 
     namespace IO {
-        class CharArrayReader;
+        class Reader;
         class FileSystem;
         class Path;
 
@@ -103,9 +103,9 @@ namespace TrenchBroom {
             std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
             void doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;
 
-            Md2SkinList parseSkins(CharArrayReader reader, size_t skinCount);
-            Md2Frame parseFrame(CharArrayReader reader, size_t frameIndex, size_t vertexCount);
-            Md2MeshList parseMeshes(CharArrayReader reader, size_t commandCount);
+            Md2SkinList parseSkins(Reader reader, size_t skinCount);
+            Md2Frame parseFrame(Reader reader, size_t frameIndex, size_t vertexCount);
+            Md2MeshList parseMeshes(Reader reader, size_t commandCount);
 
             void loadSkins(Assets::EntityModel::Surface& surface, const Md2SkinList& skins);
 

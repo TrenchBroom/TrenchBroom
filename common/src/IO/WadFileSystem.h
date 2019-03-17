@@ -30,8 +30,7 @@ namespace TrenchBroom {
         class WadFileSystem : public ImageFileSystem {
         public:
             WadFileSystem(const Path& path);
-            WadFileSystem(const Path& path, MappedFile::Ptr file);
-            WadFileSystem(std::shared_ptr<FileSystem> next, const Path& path, MappedFile::Ptr file);
+            WadFileSystem(std::shared_ptr<FileSystem> next, const Path& path);
         private:
             void doReadDirectory() override;
         };

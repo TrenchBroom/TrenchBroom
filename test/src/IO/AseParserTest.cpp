@@ -24,7 +24,9 @@
 #include "Assets/EntityModel.h"
 #include "IO/AseParser.h"
 #include "IO/DiskFileSystem.h"
+#include "IO/File.h"
 #include "IO/Quake3ShaderFileSystem.h"
+#include "IO/Reader.h"
 #include "IO/TextureReader.h"
 
 namespace TrenchBroom {
@@ -38,7 +40,8 @@ namespace TrenchBroom {
 
             const auto aseFile = fs->openFile(Path("models/mapobjects/wedges/wedge_45.ase"));
             const auto basePath = Path("maps");
-            AseParser parser("wedge", aseFile->begin(), aseFile->end(), *fs);
+            auto reader = aseFile->reader().buffer();
+            AseParser parser("wedge", std::begin(reader), std::end(reader), *fs);
 
             auto model = parser.initializeModel(logger);
             ASSERT_NE(nullptr, model);

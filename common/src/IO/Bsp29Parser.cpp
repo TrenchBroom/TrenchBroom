@@ -22,7 +22,8 @@
 #include <Assets/EntityModel.h>
 #include "Assets/Texture.h"
 #include "Assets/Palette.h"
-#include "IO/CharArrayReader.h"
+#include "IO/File.h"
+#include "IO/Reader.h"
 #include "IO/IdMipTextureReader.h"
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/TexturedIndexRangeMapBuilder.h"
@@ -68,7 +69,7 @@ namespace TrenchBroom {
         m_palette(palette) {}
 
         std::unique_ptr<Assets::EntityModel> Bsp29Parser::doInitializeModel(Logger& logger) {
-            CharArrayReader reader(m_begin, m_end);
+            auto reader = Reader::from(m_begin, m_end);
             const auto version = reader.readInt<int32_t>();
             if (version != 29) {
                 throw AssetException() << "Unsupported BSP model version: " << version;
@@ -96,7 +97,7 @@ namespace TrenchBroom {
         }
 
         void Bsp29Parser::doLoadFrame(const size_t frameIndex, Assets::EntityModel& model, Logger& logger) {
-            CharArrayReader reader(m_begin, m_end);
+            auto reader = Reader::from(m_begin, m_end);
             const auto version = reader.readInt<int32_t>();
             if (version != 29) {
                 throw AssetException() << "Unsupported BSP model version: " << version;
@@ -144,7 +145,7 @@ namespace TrenchBroom {
             parseFrame(reader.subReaderFromBegin(modelsOffset + frameIndex * BspLayout::ModelSize, BspLayout::ModelSize), frameIndex, model, textureInfos, vertices, edgeInfos, faceInfos, faceEdges);
         }
 
-        Assets::TextureList Bsp29Parser::parseTextures(CharArrayReader reader) {
+        Assets::TextureList Bsp29Parser::parseTextures(Reader reader) {
             const TextureReader::TextureNameStrategy nameStrategy;
             IdMipTextureReader textureReader(nameStrategy, m_palette);
 
@@ -158,18 +159,18 @@ namespace TrenchBroom {
                     continue;
                 }
 
-                auto subReader = reader.subReaderFromBegin(static_cast<size_t>(textureOffset));
+                auto subReader = reader.subReaderFromBegin(static_cast<size_t>(textureOffset)).buffer();
 
                 // We can't easily tell where the texture ends without duplicating all of the parsing code (including HlMip) here.
                 // Just prevent the texture reader from reading past the end of the .bsp file.
-                auto fileView = std::make_shared<MappedFileBufferView>(Path(), subReader.begin(), subReader.end());
+                auto fileView = std::make_shared<NonOwningBufferFile>(Path(), subReader.begin(), subReader.end());
                 result[i] = textureReader.readTexture(fileView);
             }
 
             return result;
         }
 
-        Bsp29Parser::TextureInfoList Bsp29Parser::parseTextureInfos(CharArrayReader reader, const size_t textureInfoCount) {
+        Bsp29Parser::TextureInfoList Bsp29Parser::parseTextureInfos(Reader reader, const size_t textureInfoCount) {
             TextureInfoList result(textureInfoCount);
             for (size_t i = 0; i < textureInfoCount; ++i) {
                 result[i].sAxis = reader.readVec<float, 3>();
@@ -182,7 +183,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        std::vector<vm::vec3f> Bsp29Parser::parseVertices(CharArrayReader reader, const size_t vertexCount) {
+        std::vector<vm::vec3f> Bsp29Parser::parseVertices(Reader reader, const size_t vertexCount) {
             std::vector<vm::vec3f> result(vertexCount);
             for (size_t i = 0; i < vertexCount; ++i) {
                 result[i] = reader.readVec<float, 3>();
@@ -190,7 +191,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        Bsp29Parser::EdgeInfoList Bsp29Parser::parseEdgeInfos(CharArrayReader reader, const size_t edgeInfoCount) {
+        Bsp29Parser::EdgeInfoList Bsp29Parser::parseEdgeInfos(Reader reader, const size_t edgeInfoCount) {
             EdgeInfoList result(edgeInfoCount);
             for (size_t i = 0; i < edgeInfoCount; ++i) {
                 result[i].vertexIndex1 = reader.readSize<uint16_t>();
@@ -199,7 +200,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        Bsp29Parser::FaceInfoList Bsp29Parser::parseFaceInfos(CharArrayReader reader, const size_t faceInfoCount) {
+        Bsp29Parser::FaceInfoList Bsp29Parser::parseFaceInfos(Reader reader, const size_t faceInfoCount) {
             FaceInfoList result(faceInfoCount);
             for (size_t i = 0; i < faceInfoCount; ++i) {
                 reader.seekForward(BspLayout::FaceEdgeIndex);
@@ -211,7 +212,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        Bsp29Parser::FaceEdgeIndexList Bsp29Parser::parseFaceEdges(CharArrayReader reader, const size_t faceEdgeCount) {
+        Bsp29Parser::FaceEdgeIndexList Bsp29Parser::parseFaceEdges(Reader reader, const size_t faceEdgeCount) {
             FaceEdgeIndexList result(faceEdgeCount);
             for (size_t i = 0; i < faceEdgeCount; ++i) {
                 result[i] = reader.readInt<int32_t>();
@@ -219,7 +220,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        void Bsp29Parser::parseFrame(CharArrayReader reader, const size_t frameIndex, Assets::EntityModel& model, const TextureInfoList& textureInfos, const std::vector<vm::vec3f>& vertices, const EdgeInfoList& edgeInfos, const FaceInfoList& faceInfos, const FaceEdgeIndexList& faceEdges) {
+        void Bsp29Parser::parseFrame(Reader reader, const size_t frameIndex, Assets::EntityModel& model, const TextureInfoList& textureInfos, const std::vector<vm::vec3f>& vertices, const EdgeInfoList& edgeInfos, const FaceInfoList& faceInfos, const FaceEdgeIndexList& faceEdges) {
             using Vertex = Assets::EntityModel::Vertex;
             using VertexList = Vertex::List;
 

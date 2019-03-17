@@ -39,7 +39,7 @@ namespace TrenchBroom {
     }
 
     namespace IO {
-        class CharArrayReader;
+        class Reader;
 
         class Bsp29Parser : public EntityModelParser {
         private:
@@ -76,14 +76,14 @@ namespace TrenchBroom {
             std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
             void doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;
 
-            Assets::TextureList parseTextures(CharArrayReader reader);
-            TextureInfoList parseTextureInfos(CharArrayReader reader, size_t textureInfoCount);
-            std::vector<vm::vec3f> parseVertices(CharArrayReader reader, size_t vertexCount);
-            EdgeInfoList parseEdgeInfos(CharArrayReader reader, size_t edgeInfoCount);
-            FaceInfoList parseFaceInfos(CharArrayReader reader, size_t faceInfoCount);
-            FaceEdgeIndexList parseFaceEdges(CharArrayReader reader, size_t faceEdgeCount);
+            Assets::TextureList parseTextures(Reader reader);
+            TextureInfoList parseTextureInfos(Reader reader, size_t textureInfoCount);
+            std::vector<vm::vec3f> parseVertices(Reader reader, size_t vertexCount);
+            EdgeInfoList parseEdgeInfos(Reader reader, size_t edgeInfoCount);
+            FaceInfoList parseFaceInfos(Reader reader, size_t faceInfoCount);
+            FaceEdgeIndexList parseFaceEdges(Reader reader, size_t faceEdgeCount);
 
-            void parseFrame(CharArrayReader reader, size_t frameIndex, Assets::EntityModel& model, const TextureInfoList& textureInfos, const std::vector<vm::vec3f>& vertices, const EdgeInfoList& edgeInfos, const FaceInfoList& faceInfos, const FaceEdgeIndexList& faceEdges);
+            void parseFrame(Reader reader, size_t frameIndex, Assets::EntityModel& model, const TextureInfoList& textureInfos, const std::vector<vm::vec3f>& vertices, const EdgeInfoList& edgeInfos, const FaceInfoList& faceInfos, const FaceEdgeIndexList& faceEdges);
             vm::vec2f textureCoords(const vm::vec3f& vertex, const TextureInfo& textureInfo, const Assets::Texture* texture) const;
         };
     }

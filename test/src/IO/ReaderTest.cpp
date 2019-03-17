@@ -19,33 +19,31 @@
 
 #include <gtest/gtest.h>
 
-#include "IO/CharArrayReader.h"
+#include "IO/Reader.h"
 
 namespace TrenchBroom {
     namespace IO {
-        TEST(CharArrayReaderTest, createEmpty) {
+        TEST(ReaderTest, createEmpty) {
             const char foo = 'x';
-            CharArrayReader r(&foo, &foo);
+            auto r = Reader::from(&foo, &foo);
 
             EXPECT_EQ(0U, r.size());
-            EXPECT_EQ(0U, r.currentOffset());
+            EXPECT_EQ(0U, r.position());
             EXPECT_NO_THROW(r.seekFromBegin(0U));
             EXPECT_NO_THROW(r.seekFromEnd(0U));
             EXPECT_NO_THROW(r.seekForward(0U));
-            EXPECT_EQ(&foo, r.cur<char>());
             EXPECT_FALSE(r.canRead(1U));
             EXPECT_TRUE(r.canRead(0U));
             EXPECT_TRUE(r.eof());
-            EXPECT_THROW(r.readChar<char>(), CharArrayReaderException);
+            EXPECT_THROW(r.readChar<char>(), ReaderException);
         }
 
-        TEST(CharArrayReaderTest, createSingleChar) {
+        TEST(ReaderTest, createSingleChar) {
             const char* foo = "x";
-            CharArrayReader r(foo, foo + 1);
+            auto r = Reader::from(foo, foo + 1);
 
             EXPECT_EQ(1U, r.size());
-            EXPECT_EQ(0U, r.currentOffset());
-            EXPECT_EQ(foo, r.cur<char>());
+            EXPECT_EQ(0U, r.position());
             EXPECT_TRUE(r.canRead(0U));
             EXPECT_TRUE(r.canRead(1U));
             EXPECT_FALSE(r.canRead(2U));
@@ -54,69 +52,68 @@ namespace TrenchBroom {
             // read the char
             EXPECT_EQ('x', r.readChar<char>());
 
-            EXPECT_EQ(1U, r.currentOffset());
-            EXPECT_EQ(foo + 1, r.cur<char>());
+            EXPECT_EQ(1U, r.position());
             EXPECT_FALSE(r.canRead(1U));
             EXPECT_TRUE(r.canRead(0U));
             EXPECT_TRUE(r.eof());
-            EXPECT_THROW(r.readChar<char>(), CharArrayReaderException);
+            EXPECT_THROW(r.readChar<char>(), ReaderException);
         }
 
-        TEST(CharArrayReaderTest, testSeekFromBegin) {
+        TEST(ReaderTest, testSeekFromBegin) {
             const char* foo = "xy";
-            CharArrayReader r(foo, foo + 2);
+            auto r = Reader::from(foo, foo + 2);
 
             EXPECT_EQ(2U, r.size());
-            EXPECT_EQ(0U, r.currentOffset());
+            EXPECT_EQ(0U, r.position());
 
             r.seekFromBegin(0U);
-            EXPECT_EQ(0U, r.currentOffset());
+            EXPECT_EQ(0U, r.position());
 
             r.seekFromBegin(1U);
-            EXPECT_EQ(1U, r.currentOffset());
+            EXPECT_EQ(1U, r.position());
 
             r.seekFromBegin(2U);
-            EXPECT_EQ(2U, r.currentOffset());
+            EXPECT_EQ(2U, r.position());
 
-            EXPECT_THROW(r.seekFromBegin(3U), CharArrayReaderException);
-            EXPECT_EQ(2U, r.currentOffset());
+            EXPECT_THROW(r.seekFromBegin(3U), ReaderException);
+            EXPECT_EQ(2U, r.position());
         }
 
-        TEST(CharArrayReaderTest, testSeekFromEnd) {
+        TEST(ReaderTest, testSeekFromEnd) {
             const char* foo = "xy";
-            CharArrayReader r(foo, foo + 2);
+            auto r = Reader::from(foo, foo + 2);
 
             EXPECT_EQ(2U, r.size());
-            EXPECT_EQ(0U, r.currentOffset());
+            EXPECT_EQ(0U, r.position());
 
             r.seekFromEnd(0U);
-            EXPECT_EQ(2U, r.currentOffset());
+            EXPECT_EQ(2U, r.position());
 
             r.seekFromEnd(1U);
-            EXPECT_EQ(1U, r.currentOffset());
+            EXPECT_EQ(1U, r.position());
 
             r.seekFromEnd(2U);
-            EXPECT_EQ(0U, r.currentOffset());
+            EXPECT_EQ(0U, r.position());
 
-            EXPECT_THROW(r.seekFromEnd(3U), CharArrayReaderException);
-            EXPECT_EQ(0U, r.currentOffset());
+            EXPECT_THROW(r.seekFromEnd(3U), ReaderException);
+            EXPECT_EQ(0U, r.position());
         }
 
-        TEST(CharArrayReaderTest, testSeekFromCurrent) {
+        TEST(ReaderTest, testSeekForward) {
             const char* foo = "xy";
-            CharArrayReader r(foo, foo + 2);
+            auto r = Reader::from(foo, foo + 2);
 
             EXPECT_EQ(2U, r.size());
-            EXPECT_EQ(0U, r.currentOffset());
+            EXPECT_EQ(0U, r.position());
 
             r.seekForward(1U);
-            EXPECT_EQ(1U, r.currentOffset());
+            EXPECT_EQ(1U, r.position());
 
             r.seekForward(1U);
-            EXPECT_EQ(2U, r.currentOffset());
+            EXPECT_EQ(2U, r.position());
 
-            EXPECT_THROW(r.seekForward(1U), CharArrayReaderException);
-            EXPECT_EQ(2U, r.currentOffset());
+            EXPECT_THROW(r.seekForward(1U), ReaderException);
+            EXPECT_EQ(2U, r.position());
         }
     }
 }

@@ -244,8 +244,9 @@ namespace TrenchBroom {
                  * Creates a new surface with the given name.
                  *
                  * @param name the surface's name
+                 * @param frameCount the number of frames
                  */
-                explicit Surface(const String& name);
+                explicit Surface(const String& name, size_t frameCount);
 
 
                 /**

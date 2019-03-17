@@ -127,7 +127,7 @@ namespace TrenchBroom {
             }
         }
 
-        MappedFile::Ptr FileSystem::openFile(const Path& path) const {
+        std::shared_ptr<File> FileSystem::openFile(const Path& path) const {
             try {
                 if (path.isAbsolute()) {
                     throw FileSystemException("Path is absolute: '" + path.asString() + "'");
@@ -171,7 +171,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        MappedFile::Ptr FileSystem::_openFile(const Path& path) const {
+        std::shared_ptr<File> FileSystem::_openFile(const Path& path) const {
             if (doFileExists(path)) {
                 return doOpenFile(path);
             } else if (m_next) {

@@ -29,6 +29,7 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/EntParser.h"
 #include "IO/FgdParser.h"
+#include "IO/File.h"
 #include "IO/FileMatcher.h"
 #include "IO/FileSystem.h"
 #include "IO/IOUtils.h"
@@ -134,9 +135,10 @@ namespace TrenchBroom {
 
         std::unique_ptr<World> GameImpl::doLoadMap(const MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger& logger) const {
             IO::SimpleParserStatus parserStatus(logger);
-            const auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
-            IO::WorldReader reader(file->begin(), file->end());
-            return reader.read(format, worldBounds, parserStatus);
+            auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
+            auto fileReader = file->reader().buffer();
+            IO::WorldReader worldReader(std::begin(fileReader), std::end(fileReader));
+            return worldReader.read(format, worldBounds, parserStatus);
         }
 
         void GameImpl::doWriteMap(World& world, const IO::Path& path) const {
@@ -285,16 +287,19 @@ namespace TrenchBroom {
             const auto& defaultColor = m_config.entityConfig().defaultColor;
 
             if (StringUtils::caseInsensitiveEqual("fgd", extension)) {
-                const auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
-                IO::FgdParser parser(file->begin(), file->end(), defaultColor, file->path());
+                auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
+                auto reader = file->reader().buffer();
+                IO::FgdParser parser(std::begin(reader), std::end(reader), defaultColor, file->path());
                 return parser.parseDefinitions(status);
             } else if (StringUtils::caseInsensitiveEqual("def", extension)) {
-                const auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
-                IO::DefParser parser(file->begin(), file->end(), defaultColor);
+                auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
+                auto reader = file->reader().buffer();
+                IO::DefParser parser(std::begin(reader), std::end(reader), defaultColor);
                 return parser.parseDefinitions(status);
             } else if (StringUtils::caseInsensitiveEqual("ent", extension)) {
-                const auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
-                IO::EntParser parser(file->begin(), file->end(), defaultColor);
+                auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
+                auto reader = file->reader().buffer();
+                IO::EntParser parser(std::begin(reader), std::end(reader), defaultColor);
                 return parser.parseDefinitions(status);
             } else {
                 throw GameException("Unknown entity definition format: '" + path.asString() + "'");
@@ -350,7 +355,7 @@ namespace TrenchBroom {
 
         std::unique_ptr<Assets::EntityModel> GameImpl::doInitializeModel(const IO::Path& path, Logger& logger) const {
             try {
-                const auto file = m_fs.openFile(path);
+                auto file = m_fs.openFile(path);
                 ensure(file != nullptr, "file is null");
 
                 const auto modelName = path.lastComponent().asString();
@@ -359,24 +364,30 @@ namespace TrenchBroom {
 
                 if (extension == "mdl" && supported.count("mdl") > 0) {
                     const auto palette = loadTexturePalette();
-                    IO::MdlParser parser(modelName, file->begin(), file->end(), palette);
+                    auto reader = file->reader().buffer();
+                    IO::MdlParser parser(modelName, std::begin(reader), std::end(reader), palette);
                     return parser.initializeModel(logger);
                 } else if (extension == "md2" && supported.count("md2") > 0) {
                     const auto palette = loadTexturePalette();
-                    IO::Md2Parser parser(modelName, file->begin(), file->end(), palette, m_fs);
+                    auto reader = file->reader().buffer();
+                    IO::Md2Parser parser(modelName, std::begin(reader), std::end(reader), palette, m_fs);
                     return parser.initializeModel(logger);
                 } else if (extension == "md3" && supported.count("md3") > 0) {
-                    IO::Md3Parser parser(modelName, file->begin(), file->end(), m_fs);
+                    auto reader = file->reader().buffer();
+                    IO::Md3Parser parser(modelName, std::begin(reader), std::end(reader), m_fs);
                     return parser.initializeModel(logger);
                 } else if (extension == "bsp" && supported.count("bsp") > 0) {
                     const auto palette = loadTexturePalette();
-                    IO::Bsp29Parser parser(modelName, file->begin(), file->end(), palette);
+                    auto reader = file->reader().buffer();
+                    IO::Bsp29Parser parser(modelName, std::begin(reader), std::end(reader), palette);
                     return parser.initializeModel(logger);
                 } else if (extension == "dkm" && supported.count("dkm") > 0) {
-                    IO::DkmParser parser(modelName, file->begin(), file->end(), m_fs);
+                    auto reader = file->reader().buffer();
+                    IO::DkmParser parser(modelName, std::begin(reader), std::end(reader), m_fs);
                     return parser.initializeModel(logger);
                 } else if (extension == "ase" && supported.count("ase") > 0) {
-                    IO::AseParser parser(modelName, file->begin(), file->end(), m_fs);
+                    auto reader = file->reader().buffer();
+                    IO::AseParser parser(modelName, std::begin(reader), std::end(reader), m_fs);
                     return parser.initializeModel(logger);
                 } else {
                     throw GameException("Unsupported model format '" + path.asString() + "'");
@@ -402,24 +413,30 @@ namespace TrenchBroom {
 
                 if (extension == "mdl" && supported.count("mdl") > 0) {
                     const auto palette = loadTexturePalette();
-                    IO::MdlParser parser(modelName, file->begin(), file->end(), palette);
+                    auto reader = file->reader().buffer();
+                    IO::MdlParser parser(modelName, std::begin(reader), std::end(reader), palette);
                     parser.loadFrame(frameIndex, model, logger);
                 } else if (extension == "md2" && supported.count("md2") > 0) {
                     const auto palette = loadTexturePalette();
-                    IO::Md2Parser parser(modelName, file->begin(), file->end(), palette, m_fs);
+                    auto reader = file->reader().buffer();
+                    IO::Md2Parser parser(modelName, std::begin(reader), std::end(reader), palette, m_fs);
                     parser.loadFrame(frameIndex, model, logger);
                 } else if (extension == "md3" && supported.count("md3") > 0) {
-                    IO::Md3Parser parser(modelName, file->begin(), file->end(), m_fs);
+                    auto reader = file->reader().buffer();
+                    IO::Md3Parser parser(modelName, std::begin(reader), std::end(reader), m_fs);
                     parser.loadFrame(frameIndex, model, logger);
                 } else if (extension == "bsp" && supported.count("bsp") > 0) {
                     const auto palette = loadTexturePalette();
-                    IO::Bsp29Parser parser(modelName, file->begin(), file->end(), palette);
+                    auto reader = file->reader().buffer();
+                    IO::Bsp29Parser parser(modelName, std::begin(reader), std::end(reader), palette);
                     parser.loadFrame(frameIndex, model, logger);
                 } else if (extension == "dkm" && supported.count("dkm") > 0) {
-                    IO::DkmParser parser(modelName, file->begin(), file->end(), m_fs);
+                    auto reader = file->reader().buffer();
+                    IO::DkmParser parser(modelName, std::begin(reader), std::end(reader), m_fs);
                     parser.loadFrame(frameIndex, model, logger);
                 } else if (extension == "ase" && supported.count("ase") > 0) {
-                    IO::AseParser parser(modelName, file->begin(), file->end(), m_fs);
+                    auto reader = file->reader().buffer();
+                    IO::AseParser parser(modelName, std::begin(reader), std::end(reader), m_fs);
                     parser.loadFrame(frameIndex, model, logger);
                 } else {
                     throw GameException("Unsupported model format '" + path.asString() + "'");

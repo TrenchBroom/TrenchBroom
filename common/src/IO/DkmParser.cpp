@@ -22,11 +22,10 @@
 #include "Exceptions.h"
 #include "Assets/Texture.h"
 #include "Assets/Palette.h"
-#include "IO/CharArrayReader.h"
 #include "IO/FileSystem.h"
 #include "IO/ImageLoader.h"
-#include "IO/MappedFile.h"
 #include "IO/Path.h"
+#include "IO/Reader.h"
 #include "IO/SkinLoader.h"
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/IndexRangeMapBuilder.h"
@@ -234,7 +233,8 @@ namespace TrenchBroom {
 
         // http://tfc.duke.free.fr/old/models/md2.htm
         std::unique_ptr<Assets::EntityModel> DkmParser::doInitializeModel(Logger& logger) {
-            CharArrayReader reader(m_begin, m_end);
+            auto reader = Reader::from(m_begin, m_end);
+            
             const int ident = reader.readInt<int32_t>();
             const int version = reader.readInt<int32_t>();
 
@@ -271,7 +271,7 @@ namespace TrenchBroom {
         }
 
         void DkmParser::doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) {
-            CharArrayReader reader(m_begin, m_end);
+            auto reader = Reader::from(m_begin, m_end);
             const int ident = reader.readInt<int32_t>();
             const int version = reader.readInt<int32_t>();
 
@@ -308,7 +308,7 @@ namespace TrenchBroom {
             buildFrame(model, surface, frameIndex, frame, meshes);
         }
 
-        DkmParser::DkmSkinList DkmParser::parseSkins(CharArrayReader reader, const size_t skinCount) {
+        DkmParser::DkmSkinList DkmParser::parseSkins(Reader reader, const size_t skinCount) {
             DkmSkinList skins;
             skins.reserve(skinCount);
             for (size_t i = 0; i < skinCount; ++i) {
@@ -317,7 +317,7 @@ namespace TrenchBroom {
             return skins;
         }
 
-        DkmParser::DkmFrame DkmParser::parseFrame(CharArrayReader reader, const size_t frameIndex, const size_t vertexCount, const int version) {
+        DkmParser::DkmFrame DkmParser::parseFrame(Reader reader, const size_t frameIndex, const size_t vertexCount, const int version) {
             assert(version == 1 || version == 2);
 
             auto frame = DkmFrame(vertexCount);
@@ -354,7 +354,7 @@ namespace TrenchBroom {
             return frame;
         }
 
-        DkmParser::DkmMeshList DkmParser::parseMeshes(CharArrayReader reader, const size_t commandCount) {
+        DkmParser::DkmMeshList DkmParser::parseMeshes(Reader reader, const size_t commandCount) {
             DkmMeshList meshes;
 
             // vertex count is signed, where < 0 indicates a triangle fan and > 0 indicates a triangle strip

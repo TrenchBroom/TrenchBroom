@@ -22,7 +22,6 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/FileMatcher.h"
 #include "IO/ZipFileSystem.h"
-#include "IO/MappedFile.h"
 
 #include <algorithm>
 #include <cassert>
@@ -31,10 +30,8 @@ namespace TrenchBroom {
     namespace IO {
         TEST(ZipFileSystemTest, directoryExists) {
             const Path zipPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Zip/zip_test.zip");
-            const MappedFile::Ptr zipFile = Disk::openFile(zipPath);
-            assert(zipFile != nullptr);
 
-            const ZipFileSystem fs(zipPath, zipFile);
+            const ZipFileSystem fs(zipPath);
             ASSERT_THROW(fs.directoryExists(Path("/asdf")), FileSystemException);
             ASSERT_THROW(fs.directoryExists(Path("/pics")), FileSystemException);
 
@@ -45,10 +42,8 @@ namespace TrenchBroom {
 
         TEST(ZipFileSystemTest, fileExists) {
             const Path zipPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Zip/zip_test.zip");
-            const MappedFile::Ptr zipFile = Disk::openFile(zipPath);
-            assert(zipFile != nullptr);
 
-            const ZipFileSystem fs(zipPath, zipFile);
+            const ZipFileSystem fs(zipPath);
             ASSERT_THROW(fs.fileExists(Path("/asdf.blah")), FileSystemException);
             ASSERT_THROW(fs.fileExists(Path("/pics/tag1.pcx")), FileSystemException);
 
@@ -58,10 +53,8 @@ namespace TrenchBroom {
 
         TEST(ZipFileSystemTest, findItems) {
             const Path zipPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Zip/zip_test.zip");
-            const MappedFile::Ptr zipFile = Disk::openFile(zipPath);
-            assert(zipFile != nullptr);
 
-            const ZipFileSystem fs(zipPath, zipFile);
+            const ZipFileSystem fs(zipPath);
             ASSERT_THROW(fs.findItems(Path("/")), FileSystemException);
             ASSERT_THROW(fs.findItems(Path("/pics/")), FileSystemException);
             ASSERT_THROW(fs.findItems(Path("pics/tag1.pcx")), FileSystemException);
@@ -89,10 +82,8 @@ namespace TrenchBroom {
 
         TEST(ZipFileSystemTest, findItemsRecursively) {
             const Path zipPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Zip/zip_test.zip");
-            const MappedFile::Ptr zipFile = Disk::openFile(zipPath);
-            assert(zipFile != nullptr);
 
-            const ZipFileSystem fs(zipPath, zipFile);
+            const ZipFileSystem fs(zipPath);
             ASSERT_THROW(fs.findItemsRecursively(Path("/")), FileSystemException);
             ASSERT_THROW(fs.findItemsRecursively(Path("/pics/")), FileSystemException);
             ASSERT_THROW(fs.findItemsRecursively(Path("pics/tag1.pcx")), FileSystemException);
@@ -139,10 +130,8 @@ namespace TrenchBroom {
 
         TEST(ZipFileSystemTest, openFile) {
             const Path zipPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Zip/zip_test.zip");
-            const MappedFile::Ptr zipFile = Disk::openFile(zipPath);
-            assert(zipFile != nullptr);
 
-            const ZipFileSystem fs(zipPath, zipFile);
+            const ZipFileSystem fs(zipPath);
             ASSERT_THROW(fs.openFile(Path("")), FileSystemException);
             ASSERT_THROW(fs.openFile(Path("/amnet.cfg")), FileSystemException);
             ASSERT_THROW(fs.openFile(Path("/textures")), FileSystemException);

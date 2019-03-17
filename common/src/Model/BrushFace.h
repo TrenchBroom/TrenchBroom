@@ -21,7 +21,6 @@
 #define TrenchBroom_Face
 
 #include "TrenchBroom.h"
-#include "Allocator.h"
 #include "ProjectingSequence.h"
 #include "SharedPointer.h"
 #include "StringUtils.h"

@@ -20,7 +20,9 @@
 #include <gtest/gtest.h>
 
 #include "IO/DiskIO.h"
+#include "IO/File.h"
 #include "IO/GameConfigParser.h"
+#include "IO/Reader.h"
 #include "Model/Tag.h"
 #include "Model/TagMatcher.h"
 
@@ -33,8 +35,10 @@ namespace TrenchBroom {
             const Path::List cfgFiles = Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("cfg"));
 
             for (const Path& path : cfgFiles) {
-                MappedFile::Ptr file = Disk::openFile(path);
-                GameConfigParser parser(file->begin(), file->end(), path);
+                auto file = Disk::openFile(path);
+                auto reader = file->reader().buffer();
+
+                GameConfigParser parser(std::begin(reader), std::end(reader), path);
                 try {
                     parser.parse();
                 } catch (const std::exception& e) {
