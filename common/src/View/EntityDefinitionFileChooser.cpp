@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -50,7 +50,7 @@ namespace TrenchBroom {
             bindEvents();
             bindObservers();
         }
-        
+
         EntityDefinitionFileChooser::~EntityDefinitionFileChooser() {
             unbindObservers();
         }
@@ -64,14 +64,14 @@ namespace TrenchBroom {
 
             Assets::EntityDefinitionFileSpec::List specs = document->allEntityDefinitionFiles();
             VectorUtils::sort(specs);
-            
+
             const size_t index = static_cast<size_t>(m_builtin->GetSelection());
             ensure(index < specs.size(), "index out of range");
             const Assets::EntityDefinitionFileSpec& spec = specs[index];
-            
+
             document->setEntityDefinitionFile(spec);
         }
-        
+
         void EntityDefinitionFileChooser::OnChooseExternalClicked(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -81,7 +81,7 @@ namespace TrenchBroom {
                                                         wxFD_OPEN | wxFD_FILE_MUST_EXIST);
             if (pathWxStr.empty())
                 return;
-            
+
             loadEntityDefinitionFile(m_document, this, pathWxStr);
         }
 
@@ -92,7 +92,7 @@ namespace TrenchBroom {
             const Assets::EntityDefinitionFileSpec& spec = document->entityDefinitionFile();
             document->setEntityDefinitionFile(spec);
         }
-        
+
         void EntityDefinitionFileChooser::OnUpdateReloadExternal(wxUpdateUIEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -103,12 +103,12 @@ namespace TrenchBroom {
             TitledPanel* builtinContainer = new TitledPanel(this, "Builtin", false);
             builtinContainer->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             m_builtin = new wxListBox(builtinContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxBORDER_NONE);
-            
+
             wxSizer* builtinSizer = new wxBoxSizer(wxVERTICAL);
             builtinSizer->Add(m_builtin, 1, wxEXPAND);
-            
+
             builtinContainer->getPanel()->SetSizer(builtinSizer);
-            
+
             TitledPanel* externalContainer = new TitledPanel(this, "External", false);
             m_external = new wxStaticText(externalContainer->getPanel(), wxID_ANY, "use builtin", wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
             m_chooseExternal = new wxButton(externalContainer->getPanel(), wxID_ANY, "Browse...", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
@@ -124,18 +124,18 @@ namespace TrenchBroom {
             externalSizer->AddSpacer(LayoutConstants::NarrowHMargin);
             externalSizer->Add(m_reloadExternal, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             externalSizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            
+
             externalContainer->getPanel()->SetSizer(externalSizer);
-            
+
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(builtinContainer, 1, wxEXPAND);
             sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
             sizer->Add(externalContainer, 0, wxEXPAND);
             sizer->SetItemMinSize(m_builtin, 100, 70);
-            
+
             SetSizerAndFit(sizer);
         }
-        
+
         void EntityDefinitionFileChooser::bindEvents() {
             m_builtin->Bind(wxEVT_LISTBOX, &EntityDefinitionFileChooser::OnBuiltinSelectionChanged, this);
             m_chooseExternal->Bind(wxEVT_BUTTON, &EntityDefinitionFileChooser::OnChooseExternalClicked, this);
@@ -149,7 +149,7 @@ namespace TrenchBroom {
             document->documentWasLoadedNotifier.addObserver(this, &EntityDefinitionFileChooser::documentWasLoaded);
             document->entityDefinitionsDidChangeNotifier.addObserver(this, &EntityDefinitionFileChooser::entityDefinitionsDidChange);
         }
-        
+
         void EntityDefinitionFileChooser::unbindObservers() {
             if (!expired(m_document)) {
                 MapDocumentSPtr document = lock(m_document);
@@ -158,31 +158,31 @@ namespace TrenchBroom {
                 document->entityDefinitionsDidChangeNotifier.removeObserver(this, &EntityDefinitionFileChooser::entityDefinitionsDidChange);
             }
         }
-        
+
         void EntityDefinitionFileChooser::documentWasNewed(MapDocument* document) {
             updateControls();
         }
-        
+
         void EntityDefinitionFileChooser::documentWasLoaded(MapDocument* document) {
             updateControls();
         }
-        
+
         void EntityDefinitionFileChooser::entityDefinitionsDidChange() {
             updateControls();
         }
 
         void EntityDefinitionFileChooser::updateControls() {
             m_builtin->Clear();
-            
+
             MapDocumentSPtr document = lock(m_document);
             Assets::EntityDefinitionFileSpec::List specs = document->allEntityDefinitionFiles();
             VectorUtils::sort(specs);
-            
+
             for (const Assets::EntityDefinitionFileSpec& spec : specs) {
                 const IO::Path& path = spec.path();
                 m_builtin->Append(path.lastComponent().asString());
             }
-            
+
             const Assets::EntityDefinitionFileSpec spec = document->entityDefinitionFile();
             if (spec.builtin()) {
                 const size_t index = VectorUtils::indexOf(specs, spec);
@@ -190,7 +190,7 @@ namespace TrenchBroom {
                     m_builtin->SetSelection(static_cast<int>(index));
                 m_external->SetLabel("use builtin");
                 m_external->SetForegroundColour(Colors::disabledText());
-                
+
                 wxFont font = m_external->GetFont();
                 font.SetStyle(wxFONTSTYLE_ITALIC);
                 m_external->SetFont(font);

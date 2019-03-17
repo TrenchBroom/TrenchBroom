@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -34,21 +34,21 @@ namespace TrenchBroom {
         m_stateText(new wxStaticText(this, wxID_ANY, stateText)) {
             m_stateText->SetFont(m_titleText->GetFont());
             m_stateText->SetForegroundColour(*wxLIGHT_GREY);
-            
+
             GetSizer()->Add(m_stateText, 0, wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             GetSizer()->AddSpacer(LayoutConstants::NarrowHMargin);
             Layout();
-            
+
             Bind(wxEVT_LEFT_DOWN, &CollapsibleTitleBar::OnClick, this);
             m_titleText->Bind(wxEVT_LEFT_DOWN, &CollapsibleTitleBar::OnClick, this);
             m_stateText->Bind(wxEVT_LEFT_DOWN, &CollapsibleTitleBar::OnClick, this);
         }
-        
+
         void CollapsibleTitleBar::setStateText(const wxString& stateText) {
             m_stateText->SetLabel(stateText);
             Layout();
         }
-        
+
         void CollapsibleTitleBar::OnClick(wxMouseEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -68,12 +68,12 @@ namespace TrenchBroom {
             sizer->Add(m_divider, 0, wxEXPAND);
             sizer->Add(m_panel, 1, wxEXPAND);
             SetSizer(sizer);
-            
+
             m_titleBar->Bind(TITLE_BAR_CLICK, &CollapsibleTitledPanel::OnTitleBarClick, this);
-            
+
             update();
         }
-        
+
         wxWindow* CollapsibleTitledPanel::getPanel() const {
             return m_panel;
         }
@@ -81,23 +81,23 @@ namespace TrenchBroom {
         void CollapsibleTitledPanel::expand() {
             setExpanded(true);
         }
-        
+
         void CollapsibleTitledPanel::collapse() {
             setExpanded(false);
         }
-        
+
         bool CollapsibleTitledPanel::expanded() const {
             return m_expanded;
         }
-        
+
         void CollapsibleTitledPanel::setExpanded(const bool expanded) {
             if (expanded == m_expanded)
                 return;
-            
+
             m_expanded = expanded;
             update();
         }
-        
+
         void CollapsibleTitledPanel::OnTitleBarClick(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -120,7 +120,7 @@ namespace TrenchBroom {
                 window->Layout();
                 window = window->GetParent();
             }
-            
+
         }
     }
 }

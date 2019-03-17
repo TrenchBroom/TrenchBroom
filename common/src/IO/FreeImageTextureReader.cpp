@@ -41,7 +41,7 @@ namespace TrenchBroom {
          * so we can handle both possible orders and map them to the relevant GL_RGBA
          * or GL_BGRA constant.
          */
-        static constexpr GLenum freeImage32BPPFormatToGLFormat() {            
+        static constexpr GLenum freeImage32BPPFormatToGLFormat() {
             if (FI_RGBA_RED == 0
                 && FI_RGBA_GREEN == 1
                 && FI_RGBA_BLUE == 2
@@ -61,7 +61,7 @@ namespace TrenchBroom {
 
         Assets::Texture* FreeImageTextureReader::doReadTexture(std::shared_ptr<File> file) const {
             auto reader = file->reader().buffer();
-            
+
             const auto& path            = file->path();
             const auto* begin           = reader.begin();
             const auto* end             = reader.end();

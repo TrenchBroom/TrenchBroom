@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -33,7 +33,7 @@ namespace TrenchBroom {
     namespace IO {
         class File;
         class Path;
-        
+
         class FileSystem {
             deleteCopyAndMove(FileSystem)
         protected:
@@ -111,7 +111,7 @@ namespace TrenchBroom {
              * @return the paths to the items that matched the query
              */
             Path::List findItemsRecursively(const Path& directoryPath) const;
-            
+
             Path::List getDirectoryContents(const Path& directoryPath) const;
             std::shared_ptr<File> openFile(const Path& path) const;
         private: // private API to be used for chaining, avoids multiple checks of parameters
@@ -204,12 +204,12 @@ namespace TrenchBroom {
 
             virtual bool doDirectoryExists(const Path& path) const = 0;
             virtual bool doFileExists(const Path& path) const = 0;
-            
+
             virtual Path::List doGetDirectoryContents(const Path& path) const = 0;
 
             virtual std::shared_ptr<File> doOpenFile(const Path& path) const = 0;
         };
-        
+
         class WritableFileSystem {
             deleteCopyAndMove(WritableFileSystem)
         public:

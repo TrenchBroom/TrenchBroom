@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -33,11 +33,11 @@ namespace TrenchBroom {
         ToolControllerBase(),
         Tool(true),
         m_camera(camera) {}
-        
+
         Tool* CameraTool2D::doGetTool() {
             return this;
         }
-        
+
         void CameraTool2D::doMouseScroll(const InputState& inputState) {
             if (zoom(inputState)) {
                 if (inputState.scrollY() != 0.0f) {
@@ -48,7 +48,7 @@ namespace TrenchBroom {
                 }
             }
         }
-        
+
         bool CameraTool2D::doStartMouseDrag(const InputState& inputState) {
             if (pan(inputState)) {
                 m_lastMousePos = vm::vec2f(float(inputState.mouseX()), float(inputState.mouseY()));
@@ -59,7 +59,7 @@ namespace TrenchBroom {
             }
             return false;
         }
-        
+
         bool CameraTool2D::doMouseDrag(const InputState& inputState) {
             if (pan(inputState)) {
                 const auto currentMousePos = vm::vec2f(float(inputState.mouseX()), float(inputState.mouseY()));
@@ -77,21 +77,21 @@ namespace TrenchBroom {
             }
             return false;
         }
-        
+
         void CameraTool2D::doEndMouseDrag(const InputState& inputState) {}
-        
+
         void CameraTool2D::doCancelMouseDrag() {}
-        
+
         bool CameraTool2D::zoom(const InputState& inputState) const {
             return (inputState.mouseButtonsPressed(MouseButtons::MBNone) &&
                     inputState.modifierKeysPressed(ModifierKeys::MKNone));
         }
-        
+
         bool CameraTool2D::look(const InputState& inputState) const {
             return (inputState.mouseButtonsPressed(MouseButtons::MBRight) &&
                     inputState.modifierKeysPressed(ModifierKeys::MKNone));
         }
-        
+
         bool CameraTool2D::pan(const InputState& inputState) const {
             return (inputState.mouseButtonsPressed(MouseButtons::MBRight) ||
                     (inputState.mouseButtonsPressed(MouseButtons::MBMiddle) &&
@@ -106,14 +106,14 @@ namespace TrenchBroom {
 
         void CameraTool2D::zoom(const InputState& inputState, const vm::vec2f& mousePos, const float factor) {
             const auto oldWorldPos = m_camera.unproject(mousePos.x(), mousePos.y(), 0.0f);
-            
+
             m_camera.zoom(factor);
-            
+
             const auto newWorldPos = m_camera.unproject(mousePos.x(), mousePos.y(), 0.0f);
             const auto delta = newWorldPos - oldWorldPos;
             m_camera.moveBy(-delta);
         }
-        
+
         bool CameraTool2D::doCancel() {
             return false;
         }

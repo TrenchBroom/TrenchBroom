@@ -58,7 +58,7 @@ namespace TrenchBroom {
             Model::Layer* m_layer;
         public:
             LayerCommand(wxEventType commandType, int id = 0);
-            
+
             Model::Layer* layer() const;
             void setLayer(Model::Layer* layer);
 

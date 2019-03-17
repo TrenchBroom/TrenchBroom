@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -29,13 +29,13 @@
 namespace TrenchBroom {
     namespace EL {
         ValueHolder::~ValueHolder() {}
-        
+
         String ValueHolder::describe() const {
             StringStream str;
             appendToStream(str, false, "");
             return str.str();
         }
-        
+
         const BooleanType& ValueHolder::booleanValue() const { throw DereferenceError(describe(), type(), Type_Boolean); }
         const StringType&  ValueHolder::stringValue()  const { throw DereferenceError(describe(), type(), Type_String); }
         const NumberType&  ValueHolder::numberValue()  const { throw DereferenceError(describe(), type(), Type_Number); }
@@ -43,12 +43,12 @@ namespace TrenchBroom {
         const ArrayType&   ValueHolder::arrayValue()   const { throw DereferenceError(describe(), type(), Type_Array); }
         const MapType&     ValueHolder::mapValue()     const { throw DereferenceError(describe(), type(), Type_Map); }
         const RangeType&   ValueHolder::rangeValue()   const { throw DereferenceError(describe(), type(), Type_Range); }
-        
+
         BooleanValueHolder::BooleanValueHolder(const BooleanType& value) : m_value(value) {}
         ValueType BooleanValueHolder::type() const { return Type_Boolean; }
         const BooleanType& BooleanValueHolder::booleanValue() const { return m_value; }
         size_t BooleanValueHolder::length() const { return 1; }
-        
+
         bool BooleanValueHolder::convertibleTo(ValueType toType) const {
             switch (toType) {
                 case Type_Boolean:
@@ -62,7 +62,7 @@ namespace TrenchBroom {
                 case Type_Null:
                     break;
             }
-            
+
             return false;
         }
 
@@ -81,18 +81,18 @@ namespace TrenchBroom {
                 case Type_Null:
                     break;
             }
-            
+
             throw ConversionError(describe(), type(), toType);
         }
-        
+
         ValueHolder* BooleanValueHolder::clone() const { return new BooleanValueHolder(m_value); }
         void BooleanValueHolder::appendToStream(std::ostream& str, const bool multiline, const String& indent) const { str << (m_value ? "true" : "false"); }
-        
+
         StringHolder::~StringHolder() {}
         ValueType StringHolder::type() const { return Type_String; }
         const StringType& StringHolder::stringValue() const { return doGetValue(); }
         size_t StringHolder::length() const { return doGetValue().length(); }
-        
+
         bool StringHolder::convertibleTo(const ValueType toType) const {
             switch (toType) {
                 case Type_Boolean:
@@ -118,7 +118,7 @@ namespace TrenchBroom {
 
             return false;
         }
-        
+
         ValueHolder* StringHolder::convertTo(const ValueType toType) const {
             switch (toType) {
                 case Type_Boolean:
@@ -142,34 +142,34 @@ namespace TrenchBroom {
                 case Type_Undefined:
                     break;
             }
-            
+
             throw ConversionError(describe(), type(), toType);
         }
-        
+
         void StringHolder::appendToStream(std::ostream& str, const bool multiline, const String& indent) const {
             // Unescaping happens in IO::ELParser::parseLiteral
             str << "\"" << StringUtils::escape(doGetValue(), "\\\"") << "\"";
         }
 
-        
-        
+
+
         StringValueHolder::StringValueHolder(const StringType& value) : m_value(value) {}
         ValueHolder* StringValueHolder::clone() const { return new StringValueHolder(m_value); }
         const StringType& StringValueHolder::doGetValue() const { return m_value; }
 
-        
-        
+
+
         StringReferenceHolder::StringReferenceHolder(const StringType& value) : m_value(value) {}
         ValueHolder* StringReferenceHolder::clone() const { return new StringReferenceHolder(m_value); }
         const StringType& StringReferenceHolder::doGetValue() const { return m_value; }
-        
-        
-        
+
+
+
         NumberValueHolder::NumberValueHolder(const NumberType& value) : m_value(value) {}
         ValueType NumberValueHolder::type() const { return Type_Number; }
         const NumberType& NumberValueHolder::numberValue() const { return m_value; }
         size_t NumberValueHolder::length() const { return 1; }
-        
+
         bool NumberValueHolder::convertibleTo(const ValueType toType) const {
             switch (toType) {
                 case Type_Boolean:
@@ -186,7 +186,7 @@ namespace TrenchBroom {
 
             return false;
         }
-        
+
         ValueHolder* NumberValueHolder::convertTo(const ValueType toType) const {
             switch (toType) {
                 case Type_Boolean:
@@ -202,10 +202,10 @@ namespace TrenchBroom {
                 case Type_Undefined:
                     break;
             }
-            
+
             throw ConversionError(describe(), type(), toType);
         }
-        
+
         ValueHolder* NumberValueHolder::clone() const { return new NumberValueHolder(m_value); }
 
         void NumberValueHolder::appendToStream(std::ostream& str, const bool multiline, const String& indent) const {
@@ -218,14 +218,14 @@ namespace TrenchBroom {
             }
             str << m_value;
         }
-        
-        
-        
+
+
+
         ArrayValueHolder::ArrayValueHolder(const ArrayType& value) : m_value(value) {}
         ValueType ArrayValueHolder::type() const { return Type_Array; }
         const ArrayType& ArrayValueHolder::arrayValue() const { return m_value; }
         size_t ArrayValueHolder::length() const { return m_value.size(); }
-        
+
         bool ArrayValueHolder::convertibleTo(const ValueType toType) const {
             switch (toType) {
                 case Type_Array:
@@ -242,7 +242,7 @@ namespace TrenchBroom {
 
             return false;
         }
-        
+
         ValueHolder* ArrayValueHolder::convertTo(const ValueType toType) const {
             switch (toType) {
                 case Type_Array:
@@ -256,12 +256,12 @@ namespace TrenchBroom {
                 case Type_Undefined:
                     break;
             }
-            
+
             throw ConversionError(describe(), type(), toType);
         }
-        
+
         ValueHolder* ArrayValueHolder::clone() const { return new ArrayValueHolder(m_value); }
-        
+
         void ArrayValueHolder::appendToStream(std::ostream& str, const bool multiline, const String& indent) const {
             if (m_value.empty()) {
                 str << "[]";
@@ -290,13 +290,13 @@ namespace TrenchBroom {
                 str << "]";
             }
         }
-        
-        
+
+
         MapValueHolder::MapValueHolder(const MapType& value) : m_value(value) {}
         ValueType MapValueHolder::type() const { return Type_Map; }
         const MapType& MapValueHolder::mapValue() const { return m_value; }
         size_t MapValueHolder::length() const { return m_value.size(); }
-        
+
         bool MapValueHolder::convertibleTo(const ValueType toType) const {
             switch (toType) {
                 case Type_Map:
@@ -313,7 +313,7 @@ namespace TrenchBroom {
 
             return false;
         }
-        
+
         ValueHolder* MapValueHolder::convertTo(const ValueType toType) const {
             switch (toType) {
                 case Type_Map:
@@ -327,12 +327,12 @@ namespace TrenchBroom {
                 case Type_Undefined:
                     break;
             }
-            
+
             throw ConversionError(describe(), type(), toType);
         }
-        
+
         ValueHolder* MapValueHolder::clone() const { return new MapValueHolder(m_value); }
-        
+
         void MapValueHolder::appendToStream(std::ostream& str, const bool multiline, const String& indent) const {
             if (m_value.empty()) {
                 str << "{}";
@@ -363,13 +363,13 @@ namespace TrenchBroom {
                 str << "}";
             }
         }
-        
-        
+
+
         RangeValueHolder::RangeValueHolder(const RangeType& value) : m_value(value) {}
         ValueType RangeValueHolder::type() const { return Type_Range; }
         const RangeType& RangeValueHolder::rangeValue() const { return m_value; }
         size_t RangeValueHolder::length() const { return m_value.size(); }
-        
+
         bool RangeValueHolder::convertibleTo(const ValueType toType) const {
             switch (toType) {
                 case Type_Range:
@@ -386,7 +386,7 @@ namespace TrenchBroom {
 
             return false;
         }
-        
+
         ValueHolder* RangeValueHolder::convertTo(const ValueType toType) const {
             switch (toType) {
                 case Type_Range:
@@ -400,12 +400,12 @@ namespace TrenchBroom {
                 case Type_Undefined:
                     break;
             }
-            
+
             throw ConversionError(describe(), type(), toType);
         }
-        
+
         ValueHolder* RangeValueHolder::clone() const { return new RangeValueHolder(m_value); }
-        
+
         void RangeValueHolder::appendToStream(std::ostream& str, const bool multiline, const String& indent) const {
             str << "[";
             for (size_t i = 0; i < m_value.size(); ++i) {
@@ -415,8 +415,8 @@ namespace TrenchBroom {
             }
             str << "]";
         }
-        
-        
+
+
         ValueType NullValueHolder::type() const { return Type_Null; }
         size_t NullValueHolder::length() const { return 0; }
         const StringType& NullValueHolder::stringValue() const   { static const StringType result;         return result; }
@@ -424,7 +424,7 @@ namespace TrenchBroom {
         const NumberType& NullValueHolder::numberValue() const   { static const NumberType result(0.0);    return result; }
         const ArrayType& NullValueHolder::arrayValue() const     { static const ArrayType result(0);       return result; }
         const MapType& NullValueHolder::mapValue() const         { static const MapType result;            return result; }
-        
+
         bool NullValueHolder::convertibleTo(const ValueType toType) const {
             switch (toType) {
                 case Type_Boolean:
@@ -441,7 +441,7 @@ namespace TrenchBroom {
 
             return false;
         }
-        
+
         ValueHolder* NullValueHolder::convertTo(const ValueType toType) const {
             switch (toType) {
                 case Type_Boolean:
@@ -460,65 +460,65 @@ namespace TrenchBroom {
                 case Type_Undefined:
                     break;
             }
-            
+
             throw ConversionError(describe(), type(), toType);
         }
-        
+
         ValueHolder* NullValueHolder::clone() const { return new NullValueHolder(); }
         void NullValueHolder::appendToStream(std::ostream& str, const bool multiline, const String& indent) const { str << "null"; }
-        
-        
+
+
         ValueType UndefinedValueHolder::type() const { return Type_Undefined; }
         size_t UndefinedValueHolder::length() const { return 0; }
         bool UndefinedValueHolder::convertibleTo(const ValueType toType) const { return false; }
         ValueHolder* UndefinedValueHolder::convertTo(const ValueType toType) const { throw ConversionError(describe(), type(), toType); }
         ValueHolder* UndefinedValueHolder::clone() const { return new UndefinedValueHolder(); }
         void UndefinedValueHolder::appendToStream(std::ostream& str, const bool multiline, const String& indent) const { str << "undefined"; }
-        
-        
+
+
         const Value Value::Null = Value(new NullValueHolder(), 0, 0);
         const Value Value::Undefined = Value(new UndefinedValueHolder(), 0, 0);
-        
+
         Value::Value(ValueHolder* holder, const size_t line, const size_t column)      : m_value(holder), m_line(line), m_column(column) {}
-        
+
         Value::Value(const BooleanType& value, const size_t line, const size_t column) : m_value(new BooleanValueHolder(value)), m_line(line), m_column(column) {}
         Value::Value(const BooleanType& value)                                         : m_value(new BooleanValueHolder(value)), m_line(0), m_column(0) {}
-        
+
         Value::Value(const StringType& value, const size_t line, const size_t column)  : m_value(new StringValueHolder(value)), m_line(line), m_column(column) {}
         Value::Value(const StringType& value)                                          : m_value(new StringValueHolder(value)), m_line(0), m_column(0) {}
-        
+
         Value::Value(const char* value, const size_t line, const size_t column)        : m_value(new StringValueHolder(String(value))), m_line(line), m_column(column) {}
         Value::Value(const char* value)                                                : m_value(new StringValueHolder(String(value))), m_line(0), m_column(0) {}
-        
+
         Value::Value(const NumberType& value, const size_t line, const size_t column)  : m_value(new NumberValueHolder(value)), m_line(line), m_column(column) {}
         Value::Value(const NumberType& value)                                          : m_value(new NumberValueHolder(value)), m_line(0), m_column(0) {}
-        
+
         Value::Value(const int value, const size_t line, const size_t column)          : m_value(new NumberValueHolder(static_cast<NumberType>(value))), m_line(line), m_column(column) {}
         Value::Value(const int value)                                                  : m_value(new NumberValueHolder(static_cast<NumberType>(value))), m_line(0), m_column(0) {}
-        
+
         Value::Value(const long value, const size_t line, const size_t column)         : m_value(new NumberValueHolder(static_cast<NumberType>(value))), m_line(line), m_column(column) {}
         Value::Value(const long value)                                                 : m_value(new NumberValueHolder(static_cast<NumberType>(value))), m_line(0), m_column(0) {}
-        
+
         Value::Value(const size_t value, const size_t line, const size_t column)       : m_value(new NumberValueHolder(static_cast<NumberType>(value))), m_line(line), m_column(column) {}
         Value::Value(const size_t value)                                               : m_value(new NumberValueHolder(static_cast<NumberType>(value))), m_line(0), m_column(0) {}
-        
+
         Value::Value(const ArrayType& value, const size_t line, const size_t column)   : m_value(new ArrayValueHolder(value)), m_line(line), m_column(column) {}
         Value::Value(const ArrayType& value)                                           : m_value(new ArrayValueHolder(value)), m_line(0), m_column(0) {}
-        
+
         Value::Value(const MapType& value, const size_t line, const size_t column)     : m_value(new MapValueHolder(value)), m_line(line), m_column(column) {}
         Value::Value(const MapType& value)                                             : m_value(new MapValueHolder(value)), m_line(0), m_column(0) {}
-        
+
         Value::Value(const RangeType& value, const size_t line, const size_t column)   : m_value(new RangeValueHolder(value)), m_line(line), m_column(column) {}
         Value::Value(const RangeType& value)                                           : m_value(new RangeValueHolder(value)), m_line(0), m_column(0) {}
-        
+
         Value::Value(const Value& other, const size_t line, const size_t column)       : m_value(other.m_value), m_line(line), m_column(column) {}
-        
+
         Value::Value()                                                                 : m_value(new NullValueHolder()), m_line(0), m_column(0) {}
-        
+
         Value Value::ref(const StringType& value, const size_t line, const size_t column) {
             return Value(new StringReferenceHolder(value), line, column);
         }
-        
+
         Value Value::ref(const StringType& value) {
             return ref(value, 0, 0);
         }
@@ -526,36 +526,36 @@ namespace TrenchBroom {
         ValueType Value::type() const {
             return m_value->type();
         }
-        
+
         String Value::typeName() const {
             return EL::typeName(type());
         }
-        
+
         String Value::describe() const {
             return m_value->describe();
         }
-        
+
         size_t Value::line() const {
             return m_line;
         }
-        
+
         size_t Value::column() const {
             return m_column;
         }
-        
-        
+
+
         const StringType& Value::stringValue() const {
             return m_value->stringValue();
         }
-        
+
         const BooleanType& Value::booleanValue() const {
             return m_value->booleanValue();
         }
-        
+
         const NumberType& Value::numberValue() const {
             return m_value->numberValue();
         }
-        
+
         IntegerType Value::integerValue() const {
             return m_value->integerValue();
         }
@@ -563,19 +563,19 @@ namespace TrenchBroom {
         const ArrayType& Value::arrayValue() const {
             return m_value->arrayValue();
         }
-        
+
         const MapType& Value::mapValue() const {
             return m_value->mapValue();
         }
-        
+
         const RangeType& Value::rangeValue() const {
             return m_value->rangeValue();
         }
-        
+
         bool Value::null() const {
             return type() == Type_Null;
         }
-        
+
         bool Value::undefined() const {
             return type() == Type_Undefined;
         }
@@ -587,36 +587,36 @@ namespace TrenchBroom {
 
             std::transform(std::begin(array), std::end(array), std::back_inserter(result),
                            [](const Value& entry) { return entry.convertTo(Type_String).stringValue(); });
-            
+
             return result;
         }
-        
+
         const StringSet Value::asStringSet() const {
             const ArrayType& array = arrayValue();
             StringSet result;
-            
+
             std::transform(std::begin(array), std::end(array), std::inserter(result, result.begin()),
                            [](const Value& entry) { return entry.convertTo(Type_String).stringValue(); });
-            
+
             return result;
         }
-        
+
         size_t Value::length() const {
             return m_value->length();
         }
-        
+
         bool Value::convertibleTo(const ValueType toType) const {
             if (type() == toType)
                 return true;
             return m_value->convertibleTo(toType);
         }
-        
+
         Value Value::convertTo(const ValueType toType) const {
             if (type() == toType)
                 return *this;
             return Value(m_value->convertTo(toType), m_line, m_column);
         }
-        
+
         String Value::asString(const bool multiline) const {
             StringStream str;
             appendToStream(str, multiline);
@@ -626,12 +626,12 @@ namespace TrenchBroom {
         void Value::appendToStream(std::ostream& str, const bool multiline, const String& indent) const {
             m_value->appendToStream(str, multiline, indent);
         }
-        
+
         std::ostream& operator<<(std::ostream& stream, const Value& value) {
             value.appendToStream(stream);
             return stream;
         }
-        
+
         bool Value::contains(const Value& indexValue) const {
             switch (type()) {
                 case Type_String: {
@@ -723,7 +723,7 @@ namespace TrenchBroom {
             }
             return false;
         }
-        
+
         bool Value::contains(const size_t index) const {
             switch (type()) {
                 case Type_String:
@@ -739,17 +739,17 @@ namespace TrenchBroom {
             }
             return false;
         }
-        
+
         bool Value::contains(const String& key) const {
             const MapType& map = mapValue();
             const MapType::const_iterator it = map.find(key);
             return it != std::end(map);
         }
-        
+
         StringSet Value::keys() const {
             return MapUtils::keySet(mapValue());
         }
-        
+
         Value Value::operator[](const Value& indexValue) const {
             switch (type()) {
                 case Type_String:
@@ -854,10 +854,10 @@ namespace TrenchBroom {
                 case Type_Undefined:
                     break;
             }
-            
+
             throw IndexError(*this, indexValue);
         }
-        
+
         Value Value::operator[](const size_t index) const {
             switch (type()) {
                 case Type_String: {
@@ -881,19 +881,19 @@ namespace TrenchBroom {
                 case Type_Undefined:
                     break;
             }
-            
+
             throw IndexError(*this, index);
         }
-        
+
         Value Value::operator[](const int index) const {
             assert(index >= 0);
             return this->operator[](static_cast<size_t>(index));
         }
-        
+
         Value Value::operator[](const String& key) const {
             return this->operator[](key.c_str());
         }
-        
+
         Value Value::operator[](const char* key) const {
             switch (type()) {
                 case Type_Map: {
@@ -912,16 +912,16 @@ namespace TrenchBroom {
                 case Type_Undefined:
                     break;
             }
-            
+
             throw IndexError(*this, key);
         }
-        
+
         Value::IndexList Value::computeIndexArray(const Value& indexValue, const size_t indexableSize) const {
             IndexList result;
             computeIndexArray(indexValue, indexableSize, result);
             return result;
         }
-        
+
         void Value::computeIndexArray(const Value& indexValue, const size_t indexableSize, IndexList& result) const {
             switch (indexValue.type()) {
                 case Type_Array: {
@@ -948,11 +948,11 @@ namespace TrenchBroom {
                     break;
             }
         }
-        
+
         size_t Value::computeIndex(const Value& indexValue, const size_t indexableSize) const {
             return computeIndex(static_cast<long>(indexValue.convertTo(Type_Number).numberValue()), indexableSize);
         }
-        
+
         size_t Value::computeIndex(const long index, const size_t indexableSize) const {
             const long size  = static_cast<long>(indexableSize);
             if ((index >= 0 && index <   size) ||
@@ -960,7 +960,7 @@ namespace TrenchBroom {
                 return static_cast<size_t>((size + index % size) % size);
             return static_cast<size_t>(size);
         }
-        
+
         Value Value::operator+() const {
             switch (type()) {
                 case Type_Boolean:
@@ -976,7 +976,7 @@ namespace TrenchBroom {
             }
             throw EvaluationError("Cannot apply unary plus to value '" + describe() + "' of type '" + typeName());
         }
-        
+
         Value Value::operator-() const {
             switch (type()) {
                 case Type_Boolean:
@@ -992,7 +992,7 @@ namespace TrenchBroom {
             }
             throw EvaluationError("Cannot negate value '" + describe() + "' of type '" + typeName());
         }
-        
+
         Value operator+(const Value& lhs, const Value& rhs) {
             switch (lhs.type()) {
                 case Type_Boolean:
@@ -1057,10 +1057,10 @@ namespace TrenchBroom {
                 case Type_Undefined:
                     break;
             }
-            
+
             throw EvaluationError("Cannot add value '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + " to value '" + lhs.describe() + "' of type '" + typeName(lhs.type()) + "'");
         }
-        
+
         Value operator-(const Value& lhs, const Value& rhs) {
             switch (lhs.type()) {
                 case Type_Boolean:
@@ -1086,10 +1086,10 @@ namespace TrenchBroom {
                 case Type_Undefined:
                     break;
             }
-            
+
             throw EvaluationError("Cannot subtract value '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + " from value '" + lhs.describe() + "' of type '" + typeName(lhs.type()) + "'");
         }
-        
+
         Value operator*(const Value& lhs, const Value& rhs) {
             switch (lhs.type()) {
                 case Type_Boolean:
@@ -1115,10 +1115,10 @@ namespace TrenchBroom {
                 case Type_Undefined:
                     break;
             }
-            
+
             throw EvaluationError("Cannot subtract value '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + " from value '" + lhs.describe() + "' of type '" + typeName(lhs.type()) + "'");
         }
-        
+
         Value operator/(const Value& lhs, const Value& rhs) {
             switch (lhs.type()) {
                 case Type_Boolean:
@@ -1144,10 +1144,10 @@ namespace TrenchBroom {
                 case Type_Undefined:
                     break;
             }
-            
+
             throw EvaluationError("Cannot subtract value '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + " from value '" + lhs.describe() + "' of type '" + typeName(lhs.type()) + "'");
         }
-        
+
         Value operator%(const Value& lhs, const Value& rhs) {
             switch (lhs.type()) {
                 case Type_Boolean:
@@ -1173,10 +1173,10 @@ namespace TrenchBroom {
                 case Type_Undefined:
                     break;
             }
-            
+
             throw EvaluationError("Cannot compute moduls of value '" + lhs.describe() + "' of type '" + typeName(lhs.type()) + " and value '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + "'");
         }
-        
+
         Value::operator bool() const {
             switch (type()) {
                 case Type_Boolean:
@@ -1192,7 +1192,7 @@ namespace TrenchBroom {
             }
             throw ConversionError(describe(), type(), Type_Boolean);
         }
-        
+
         Value Value::operator!() const {
             switch (type()) {
                 case Type_Boolean:
@@ -1208,31 +1208,31 @@ namespace TrenchBroom {
             }
             throw ConversionError(describe(), type(), Type_Boolean);
         }
-        
+
         bool operator==(const Value& lhs, const Value& rhs) {
             return compare(lhs, rhs) == 0;
         }
-        
+
         bool operator!=(const Value& lhs, const Value& rhs) {
             return compare(lhs, rhs) != 0;
         }
-        
+
         bool operator<(const Value& lhs, const Value& rhs) {
             return compare(lhs, rhs) < 0;
         }
-        
+
         bool operator<=(const Value& lhs, const Value& rhs) {
             return compare(lhs, rhs) <= 0;
         }
-        
+
         bool operator>(const Value& lhs, const Value& rhs) {
             return compare(lhs, rhs) > 0;
         }
-        
+
         bool operator>=(const Value& lhs, const Value& rhs) {
             return compare(lhs, rhs) >= 0;
         }
-        
+
         int compare(const Value& lhs, const Value& rhs) {
             switch (lhs.type()) {
                 case Type_Boolean:
@@ -1339,7 +1339,7 @@ namespace TrenchBroom {
             }
             throw EvaluationError("Cannot compare value '" + lhs.describe() + "' of type '" + typeName(lhs.type()) + " to value '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + "'");
         }
-        
+
         int compareAsBooleans(const Value& lhs, const Value& rhs) {
             const bool lhsValue = lhs.convertTo(Type_Boolean).booleanValue();
             const bool rhsValue = rhs.convertTo(Type_Boolean).booleanValue();
@@ -1349,7 +1349,7 @@ namespace TrenchBroom {
                 return 1;
             return -1;
         }
-        
+
         int compareAsNumbers(const Value& lhs, const Value& rhs) {
             const NumberType diff = lhs.convertTo(Type_Number).numberValue() - rhs.convertTo(Type_Number).numberValue();
             if (diff < 0.0)
@@ -1374,7 +1374,7 @@ namespace TrenchBroom {
             }
             throw ConversionError(describe(), type(), Type_Boolean);
         }
-        
+
         Value operator&(const Value& lhs, const Value& rhs) {
             if (lhs.convertibleTo(Type_Number) && rhs.convertibleTo(Type_Number)) {
                 const IntegerType lhsInt = lhs.convertTo(Type_Number).integerValue();
@@ -1383,7 +1383,7 @@ namespace TrenchBroom {
             }
             throw EvaluationError("Cannot apply operator & to '" + lhs.describe() + "' of type '" + typeName(lhs.type()) + " and '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + "'");
         }
-        
+
         Value operator|(const Value& lhs, const Value& rhs) {
             if (lhs.convertibleTo(Type_Number) && rhs.convertibleTo(Type_Number)) {
                 const IntegerType lhsInt = lhs.convertTo(Type_Number).integerValue();
@@ -1392,7 +1392,7 @@ namespace TrenchBroom {
             }
             throw EvaluationError("Cannot apply operator | to '" + lhs.describe() + "' of type '" + typeName(lhs.type()) + " and '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + "'");
         }
-        
+
         Value operator^(const Value& lhs, const Value& rhs) {
             if (lhs.convertibleTo(Type_Number) && rhs.convertibleTo(Type_Number)) {
                 const IntegerType lhsInt = lhs.convertTo(Type_Number).integerValue();
@@ -1401,7 +1401,7 @@ namespace TrenchBroom {
             }
             throw EvaluationError("Cannot apply operator ^ to '" + lhs.describe() + "' of type '" + typeName(lhs.type()) + " and '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + "'");
         }
-        
+
         Value operator<<(const Value& lhs, const Value& rhs) {
             if (lhs.convertibleTo(Type_Number) && rhs.convertibleTo(Type_Number)) {
                 const IntegerType lhsInt = lhs.convertTo(Type_Number).integerValue();
@@ -1410,7 +1410,7 @@ namespace TrenchBroom {
             }
             throw EvaluationError("Cannot apply operator << to '" + lhs.describe() + "' of type '" + typeName(lhs.type()) + " and '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + "'");
         }
-        
+
         Value operator>>(const Value& lhs, const Value& rhs) {
             if (lhs.convertibleTo(Type_Number) && rhs.convertibleTo(Type_Number)) {
                 const IntegerType lhsInt = lhs.convertTo(Type_Number).integerValue();

@@ -1,19 +1,19 @@
 
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -78,17 +78,17 @@ void Color::rgbToHSB(const float r, const float g, const float b, float& h, floa
     assert(r >= 0.0f && r <= 1.0f);
     assert(g >= 0.0f && g <= 1.0f);
     assert(b >= 0.0f && b <= 1.0f);
-    
+
     const float max = std::max(std::max(r, g), b);
     const float min = std::min(std::min(r, g), b);
     const float dist = max - min;
-    
+
     br = max;
     if (br != 0.0f)
         s = dist / max;
     else
         s = 0.0f;
-    
+
     if (s == 0.0f) {
         h = 0.0f;
     } else {

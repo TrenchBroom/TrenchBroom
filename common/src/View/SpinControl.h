@@ -45,12 +45,12 @@ namespace TrenchBroom {
         private:
             wxDECLARE_DYNAMIC_CLASS(SpinControlEvent);
         };
-        
+
         class SpinControl : public wxPanel {
         protected:
             wxTextCtrl* m_text;
             wxSpinButton* m_spin;
-            
+
             double m_minValue;
             double m_maxValue;
             double m_regularIncrement;
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             wxString m_format;
         public:
             SpinControl(wxWindow *parent, wxWindowID id = wxID_ANY, const wxPoint &pos=wxDefaultPosition, const wxSize &size=wxDefaultSize, long style=0, const wxValidator &validator=wxDefaultValidator, const wxString &name=wxControlNameStr);
-            
+
             double GetValue() const;
             void SetValue(double doubleValue);
             void SetValue(const wxString& textValue);
@@ -74,14 +74,14 @@ namespace TrenchBroom {
             void SetFocus() override;
         private:
             wxSize DoGetBestSize() const override;
-            
+
             bool InRange(double value) const;
             double AdjustToRange(double value);
             bool DoSetValue(double value);
             wxString DoFormat(double value) const;
             bool DoSendEvent(bool spin, double value);
             bool SyncFromText();
-            
+
             void OnTextKeyDown(wxKeyEvent& event);
             void OnTextEnter(wxCommandEvent& event);
             void OnTextSetFocus(wxFocusEvent& event);
@@ -89,9 +89,9 @@ namespace TrenchBroom {
             void OnSpinButtonUp(wxSpinEvent& event);
             void OnSpinButtonDown(wxSpinEvent& event);
             void OnMouseWheel(wxMouseEvent& event);
-            
+
             void Spin(double multiplier, const wxKeyboardState& keyboardState);
-            
+
             void OnSetFocus(wxFocusEvent& event);
         };
     }

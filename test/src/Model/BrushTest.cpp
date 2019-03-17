@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -297,7 +297,7 @@ namespace TrenchBroom {
              See https://github.com/kduske/TrenchBroom/issues/1153
              The faces have been reordered according to Model::BrushFace::sortFaces and all non-interesting faces
              have been removed from the brush.
-             
+
              {
              ( 624 688 -456 ) ( 656 760 -480 ) ( 624 680 -480 ) face7 8 0 180 1 -1
              ( 536 792 -480 ) ( 536 792 -432 ) ( 488 720 -480 ) face12 48 0 180 1 -1
@@ -332,9 +332,9 @@ namespace TrenchBroom {
         TEST(BrushTest, constructBrushAfterRotateFail) {
             /*
              See https://github.com/kduske/TrenchBroom/issues/1173
-             
+
              This is the brush after rotation. Rebuilding the geometry should assert.
-             
+
              {
              (-729.68857812925364 -128 2061.2927432882448) (-910.70791411301013 128 2242.3120792720015) (-820.19824612113155 -128 1970.7830752963655) 0 0 0 5 5
              (-639.17891013737574 -640 1970.7830752963669) (-729.68857812925364 -128 2061.2927432882448) (-729.68857812925364 -640 1880.2734073044885) 0 0 0 5 5
@@ -389,7 +389,7 @@ namespace TrenchBroom {
         TEST(BrushTest, buildBrushFail2) {
             /*
              See https://github.com/kduske/TrenchBroom/issues/1185
-             
+
              The cause for the endless loop was, like above, the vertex correction in Polyhedron::Edge::split.
              */
 
@@ -2701,22 +2701,22 @@ namespace TrenchBroom {
             delete subtrahend;
             VectorUtils::deleteAll(result);
         }
-        
+
         TEST(BrushTest, subtractDisjoint) {
             const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, worldBounds);
-            
+
             const vm::bbox3 brush1Bounds(vm::vec3::fill(-8.0), vm::vec3::fill(+8.0));
             const vm::bbox3 brush2Bounds(vm::vec3(124.0, 124.0, -4.0), vm::vec3(132.0, 132.0, +4.0));
             ASSERT_FALSE(brush1Bounds.intersects(brush2Bounds));
-            
+
             BrushBuilder builder(&world, worldBounds);
             Brush* brush1 = builder.createCuboid(brush1Bounds, "texture");
             Brush* brush2 = builder.createCuboid(brush2Bounds, "texture");
-            
+
             BrushList result = brush1->subtract(world, worldBounds, "texture", brush2);
             ASSERT_EQ(1u, result.size());
-            
+
             Brush* subtraction = result.at(0);
             ASSERT_EQ(SetUtils::makeSet(brush1->vertexPositions()), SetUtils::makeSet(subtraction->vertexPositions()));
 
@@ -2726,22 +2726,22 @@ namespace TrenchBroom {
         TEST(BrushTest, subtractEnclosed) {
             const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, worldBounds);
-            
+
             const vm::bbox3 brush1Bounds(vm::vec3::fill(-8.0), vm::vec3::fill(+8.0));
             const vm::bbox3 brush2Bounds(vm::vec3::fill(-9.0), vm::vec3::fill(+9.0));
             ASSERT_TRUE(brush1Bounds.intersects(brush2Bounds));
-            
+
             BrushBuilder builder(&world, worldBounds);
             Brush* brush1 = builder.createCuboid(brush1Bounds, "texture");
             Brush* brush2 = builder.createCuboid(brush2Bounds, "texture");
-            
+
             BrushList result = brush1->subtract(world, worldBounds, "texture", brush2);
             ASSERT_EQ(0u, result.size());
-            
+
             VectorUtils::deleteAll(result);
         }
 
-        
+
         TEST(BrushTest, subtractTruncatedCones) {
             // https://github.com/kduske/TrenchBroom/issues/1469
 
@@ -3555,42 +3555,42 @@ namespace TrenchBroom {
 
             delete brush;
         }
-        
+
         TEST(BrushTest, expand) {
             const vm::bbox3 worldBounds(8192.0);
             World world(MapFormat::Standard, worldBounds);
             const BrushBuilder builder(&world, worldBounds);
-            
+
             Model::Brush *brush1 = builder.createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture");
             EXPECT_TRUE(brush1->canExpand(worldBounds, 6, true));
             EXPECT_TRUE(brush1->expand(worldBounds, 6, true));
-            
+
             const vm::bbox3 expandedBBox(vm::vec3(-70, -70, -70), vm::vec3(70, 70, 70));
-            
+
             EXPECT_EQ(expandedBBox, brush1->bounds());
             EXPECT_EQ(SetUtils::makeSet(expandedBBox.vertices()), SetUtils::makeSet(brush1->vertexPositions()));
         }
-        
+
         TEST(BrushTest, contract) {
             const vm::bbox3 worldBounds(8192.0);
             World world(MapFormat::Standard, worldBounds);
             const BrushBuilder builder(&world, worldBounds);
-            
+
             Model::Brush *brush1 = builder.createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture");
             EXPECT_TRUE(brush1->canExpand(worldBounds, -32, true));
             EXPECT_TRUE(brush1->expand(worldBounds, -32, true));
-            
+
             const vm::bbox3 expandedBBox(vm::vec3(-32, -32, -32), vm::vec3(32, 32, 32));
-            
+
             EXPECT_EQ(expandedBBox, brush1->bounds());
             EXPECT_EQ(SetUtils::makeSet(expandedBBox.vertices()), SetUtils::makeSet(brush1->vertexPositions()));
         }
-        
+
         TEST(BrushTest, contractToZero) {
             const vm::bbox3 worldBounds(8192.0);
             World world(MapFormat::Standard, worldBounds);
             const BrushBuilder builder(&world, worldBounds);
-            
+
             Model::Brush *brush1 = builder.createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture");
             EXPECT_FALSE(brush1->canExpand(worldBounds, -64, true));
             EXPECT_FALSE(brush1->expand(worldBounds, -64, true));

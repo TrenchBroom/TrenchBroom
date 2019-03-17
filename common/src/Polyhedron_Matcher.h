@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -61,9 +61,9 @@ private:
     using HalfEdge = typename P::HalfEdge;
     using Face = typename P::Face;
     using VMap = std::map<V,V>;
-    
+
     using VertexRelation = relation<Vertex*, Vertex*>;
-    
+
     const P& m_left;
     const P& m_right;
     const VertexRelation m_vertexRelation;
@@ -72,7 +72,7 @@ public:
     m_left(left),
     m_right(right),
     m_vertexRelation(buildVertexRelation(m_left, m_right)) {}
-    
+
     PolyhedronMatcher(const P& left, const P& right, const std::vector<V>& vertices, const V& delta) :
     m_left(left),
     m_right(right),
@@ -101,7 +101,7 @@ public:
             currentRightFace = currentRightFace->next();
         } while (currentRightFace != firstRightFace);
     }
-    
+
     using MatchingFaces = std::list<Face*>;
 private:
     /**
@@ -119,7 +119,7 @@ private:
 
         // Among all matching faces, select one such its normal is the most similar to the given face's normal.
         auto it = std::begin(matchingFaces);
-        
+
         auto* result = *it++;
         auto bestDot = dot(rightFace->normal(), result->normal());
 
@@ -133,7 +133,7 @@ private:
             }
             ++it;
         }
-        
+
         return result;
     }
 
@@ -147,7 +147,7 @@ private:
     MatchingFaces findMatchingLeftFaces(Face* rightFace) const {
         MatchingFaces result;
         size_t bestMatchScore = 0;
-        
+
         auto* firstLeftFace = m_left.faces().front();
         auto* currentLeftFace = firstLeftFace;
         do {
@@ -161,7 +161,7 @@ private:
             }
             currentLeftFace = currentLeftFace->next();
         } while (currentLeftFace != firstLeftFace);
-        
+
         return result;
     }
 public:
@@ -234,7 +234,7 @@ private:
      */
     static VertexRelation buildVertexRelation(const P& left, const P& right) {
         VertexRelation result;
-        
+
         auto* firstLeftVertex = left.vertices().front();
         auto* currentLeftVertex = firstLeftVertex;
         do {
@@ -299,14 +299,14 @@ private:
      */
     static VertexRelation buildVertexRelation(const P& left, const P& right, const VMap& vertexMap) {
         VertexRelation result;
-        
+
         for (const auto& entry : vertexMap) {
             const auto& leftPosition = entry.first;
             const auto& rightPosition = entry.second;
-            
+
             auto* leftVertex = left.findVertexByPosition(leftPosition);
             auto* rightVertex = right.findVertexByPosition(rightPosition);
-            
+
             assert(leftVertex != nullptr);
             assert(rightVertex != nullptr);
             result.insert(leftVertex, rightVertex);
@@ -364,7 +364,7 @@ private:
                 } while (currentEdge != firstEdge);
             }
         } while (result.size() > previousSize);
-        
+
         return result;
     }
 
@@ -401,7 +401,7 @@ private:
                 } while (currentEdge != firstEdge);
             }
         } while (result.size() > previousSize);
-        
+
         return result;
     }
 
@@ -415,7 +415,7 @@ private:
      */
     static VertexSet findAddedVertices(const P& right, const VertexRelation& vertexRelation) {
         VertexSet result;
-        
+
         const auto& rightVertices = right.vertices();
         auto* firstVertex = rightVertices.front();
         auto* currentVertex = firstVertex;
@@ -424,7 +424,7 @@ private:
                 result.insert(currentVertex);
             currentVertex = currentVertex->next();
         } while (currentVertex != firstVertex);
-        
+
         return result;
     }
 
@@ -438,7 +438,7 @@ private:
      */
     static VertexSet findRemovedVertices(const P& left, const VertexRelation& vertexRelation) {
         VertexSet result;
-        
+
         const auto& leftVertices = left.vertices();
         auto* firstVertex = leftVertices.front();
         auto* currentVertex = firstVertex;
@@ -447,7 +447,7 @@ private:
                 result.insert(currentVertex);
             currentVertex = currentVertex->next();
         } while (currentVertex != firstVertex);
-        
+
         return result;
     }
 };

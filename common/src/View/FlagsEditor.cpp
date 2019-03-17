@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -35,7 +35,7 @@ namespace TrenchBroom {
         m_numCols(numCols) {
             assert(m_numCols > 0);
         }
-        
+
         void FlagsEditor::setFlags(const wxArrayString& labels, const wxArrayString& tooltips) {
             wxArrayInt values(labels.size());
             for (size_t i = 0; i < labels.size(); ++i)
@@ -45,16 +45,16 @@ namespace TrenchBroom {
 
         void FlagsEditor::setFlags(const wxArrayInt& values, const wxArrayString& labels, const wxArrayString& tooltips) {
             wxWindowUpdateLocker locker(this);
-            
+
             const size_t count = values.size();
             setCheckBoxCount(count);
-            
+
             const size_t numRows = count / m_numCols;
 
             wxFlexGridSizer* sizer = new wxFlexGridSizer(static_cast<int>(numRows),
                                                          static_cast<int>(m_numCols),
                                                          0, LayoutConstants::WideHMargin);
-            
+
             SetSizer(nullptr); // delete the old sizer, otherwise we cannot add the checkboxes to the new sizer
             for (size_t row = 0; row < numRows; ++row) {
                 for (size_t col = 0; col < m_numCols; ++col) {
@@ -67,10 +67,10 @@ namespace TrenchBroom {
                     }
                 }
             }
-            
+
             SetSizerAndFit(sizer);
         }
-        
+
         void FlagsEditor::setFlagValue(const int on, const int mixed) {
             wxWindowUpdateLocker locker(this);
             for (size_t i = 0; i < m_checkBoxes.size(); ++i) {
@@ -86,7 +86,7 @@ namespace TrenchBroom {
                     checkBox->Set3StateValue(wxCHK_UNCHECKED);
             }
         }
-        
+
         size_t FlagsEditor::getNumFlags() const {
             return m_checkBoxes.size();
         }
@@ -95,7 +95,7 @@ namespace TrenchBroom {
             ensure(index < m_checkBoxes.size(), "index out of range");
             return m_checkBoxes[index]->Get3StateValue() == wxCHK_CHECKED;
         }
-        
+
         bool FlagsEditor::isFlagMixed(const size_t index) const {
             ensure(index < m_checkBoxes.size(), "index out of range");
             return m_checkBoxes[index]->Get3StateValue() == wxCHK_UNDETERMINED;
@@ -109,7 +109,7 @@ namespace TrenchBroom {
             }
             return value;
         }
-        
+
         int FlagsEditor::getMixedFlagValue() const {
             int value = 0;
             for (size_t i = 0; i < m_checkBoxes.size(); ++i) {
@@ -134,7 +134,7 @@ namespace TrenchBroom {
 
             const size_t index = getIndexFromEvent(event);
             ensure(index < m_checkBoxes.size(), "index out of range");
-            
+
             FlagChangedCommand command;
             command.setValues(index, getSetFlagValue(), getMixedFlagValue());
             command.SetEventObject(this);

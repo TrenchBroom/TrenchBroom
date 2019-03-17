@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -31,11 +31,11 @@
 namespace TrenchBroom {
     namespace Model {
         CompareHits::~CompareHits() {}
-        
+
         int CompareHits::compare(const Hit& lhs, const Hit& rhs) const {
             return doCompare(lhs, rhs);
         }
-        
+
         CombineCompareHits::CombineCompareHits(CompareHits* first, CompareHits* second) :
         m_first(first),
         m_second(second) {
@@ -47,7 +47,7 @@ namespace TrenchBroom {
             delete m_first;
             delete m_second;
         }
-        
+
         int CombineCompareHits::doCompare(const Hit& lhs, const Hit& rhs) const {
             const int firstResult = m_first->compare(lhs, rhs);
             if (firstResult == 0)
@@ -76,7 +76,7 @@ namespace TrenchBroom {
         }
 
         CompareHitsBySize::CompareHitsBySize(const vm::axis::type axis) : m_axis(axis) {}
-        
+
         int CompareHitsBySize::doCompare(const Hit& lhs, const Hit& rhs) const {
             const FloatType lhsSize = getSize(lhs);
             const FloatType rhsSize = getSize(rhs);
@@ -86,7 +86,7 @@ namespace TrenchBroom {
                 return 1;
             return m_compareByDistance.compare(lhs, rhs);
         }
-        
+
         FloatType CompareHitsBySize::getSize(const Hit& hit) const {
             const BrushFace* face = hitToFace(hit);
             if (face != nullptr)

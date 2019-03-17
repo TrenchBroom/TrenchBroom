@@ -49,7 +49,7 @@ namespace TrenchBroom {
                 bool validateSrcFactor() const;
                 bool validateDestFactor() const;
                 void reset();
-                
+
                 bool operator==(const BlendFunc& other) const;
             };
         public:

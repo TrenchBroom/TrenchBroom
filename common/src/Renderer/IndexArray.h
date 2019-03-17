@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -43,19 +43,19 @@ namespace TrenchBroom {
             public:
                 using Ptr = std::shared_ptr<BaseHolder>;
                 virtual ~BaseHolder() {}
-                
+
                 virtual size_t indexCount() const = 0;
                 virtual size_t sizeInBytes() const = 0;
-                
+
                 virtual void prepare(Vbo& vbo) = 0;
             public:
                 void render(PrimType primType, size_t offset, size_t count) const;
-                
+
                 virtual size_t indexOffset() const = 0;
             private:
                 virtual void doRender(PrimType primType, size_t offset, size_t count) const = 0;
             };
-            
+
             template <typename Index>
             class Holder : public BaseHolder {
             protected:
@@ -67,16 +67,16 @@ namespace TrenchBroom {
                 size_t indexCount() const override {
                     return m_indexCount;
                 }
-                
+
                 size_t sizeInBytes() const override {
                     return sizeof(Index) * m_indexCount;
                 }
-                
+
                 virtual void prepare(Vbo& vbo) override {
                     if (m_indexCount > 0 && m_block == nullptr) {
                         ActivateVbo activate(vbo);
                         m_block = vbo.allocateBlock(sizeInBytes());
-                        
+
                         MapVboBlock map(m_block);
                         m_block->writeBuffer(0, doGetIndices());
                     }
@@ -85,7 +85,7 @@ namespace TrenchBroom {
                 Holder(const size_t indexCount) :
                 m_block(nullptr),
                 m_indexCount(indexCount) {}
-                
+
                 virtual ~Holder() override {
                     if (m_block != nullptr) {
                         m_block->free();
@@ -98,7 +98,7 @@ namespace TrenchBroom {
                         return 0;
                     ensure(m_block != nullptr, "block is null");
                     return m_block->offset();
-                    
+
                 }
 
                 void doRender(PrimType primType, size_t offset, size_t count) const override {
@@ -111,7 +111,7 @@ namespace TrenchBroom {
             private:
                 virtual const IndexList& doGetIndices() const = 0;
             };
-            
+
             template <typename Index>
             class CopyHolder : public Holder<Index> {
             public:
@@ -122,7 +122,7 @@ namespace TrenchBroom {
                 CopyHolder(const IndexList& indices) :
                 Holder<Index>(indices.size()),
                 m_indices(indices) {}
-                
+
                 void prepare(Vbo& vbo) {
                     Holder<Index>::prepare(vbo);
                     VectorUtils::clearToZero(m_indices);
@@ -132,7 +132,7 @@ namespace TrenchBroom {
                     return m_indices;
                 }
             };
-            
+
             template <typename Index>
             class SwapHolder : public Holder<Index> {
             public:
@@ -146,7 +146,7 @@ namespace TrenchBroom {
                     using std::swap;
                     swap(m_indices, indices);
                 }
-                
+
                 void prepare(Vbo& vbo) override {
                     Holder<Index>::prepare(vbo);
                     VectorUtils::clearToZero(m_indices);
@@ -156,7 +156,7 @@ namespace TrenchBroom {
                     return m_indices;
                 }
             };
-            
+
             template <typename Index>
             class RefHolder : public Holder<Index> {
             public:

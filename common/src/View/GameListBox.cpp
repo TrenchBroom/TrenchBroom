@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -41,7 +41,7 @@ namespace TrenchBroom {
         String GameListBox::selectedGameName() const {
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();
             const StringList& gameList = gameFactory.gameList();
-            
+
             const int index = GetSelection();
             if (index < 0 || index >= static_cast<int>(gameList.size()))
                 return "";
@@ -54,7 +54,7 @@ namespace TrenchBroom {
 
             if (index < 0 || index >= static_cast<int>(gameList.size()))
                 return;
-            
+
             SetSelection(index);
         }
 
@@ -72,7 +72,7 @@ namespace TrenchBroom {
 
         void GameListBox::reloadGameInfos() {
             m_gameInfos.clear();
-            
+
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();
             for (const String& gameName : gameFactory.gameList()) {
                 const IO::Path gamePath = gameFactory.gamePath(gameName);
@@ -86,7 +86,7 @@ namespace TrenchBroom {
                 gameInfo.image = IO::loadImageResource(iconPath);
                 gameInfo.title = gameName + (experimental ? " (experimental)" : "");
                 gameInfo.subtitle = gamePath.isEmpty() ? String("Game not found") : gamePath.asString();
-                
+
                 m_gameInfos.push_back(gameInfo);
             }
 
@@ -99,12 +99,12 @@ namespace TrenchBroom {
             result = m_gameInfos[n].image;
             return true;
         }
-        
+
         wxString GameListBox::title(const size_t n) const {
             ensure(n < m_gameInfos.size(), "index out of range");
             return m_gameInfos[n].title;
         }
-        
+
         wxString GameListBox::subtitle(const size_t n) const {
             ensure(n < m_gameInfos.size(), "index out of range");
             return m_gameInfos[n].subtitle;

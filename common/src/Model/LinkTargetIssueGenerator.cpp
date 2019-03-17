@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -42,17 +42,17 @@ namespace TrenchBroom {
             LinkTargetIssue(AttributableNode* node, const AttributeName& name) :
             Issue(node),
             m_name(name) {}
-            
+
             IssueType doGetType() const override {
                 return Type;
             }
-            
+
             const String doGetDescription() const override {
                 const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
                 return attributableNode->classname() + " has missing target for key '" + m_name + "'";
             }
         };
-        
+
         const IssueType LinkTargetIssueGenerator::LinkTargetIssue::Type = Issue::freeType();
 
         class LinkTargetIssueGenerator::LinkTargetIssueQuickFix : public IssueQuickFix {
@@ -64,7 +64,7 @@ namespace TrenchBroom {
         private:
             void doApply(MapFacade* facade, const Issue* issue) const override {
                 const PushSelection push(facade);
-                
+
                 const LinkTargetIssue* targetIssue = static_cast<const LinkTargetIssue*>(issue);
                 const AttributeName& attributeName = targetIssue->m_name;
 
@@ -76,7 +76,7 @@ namespace TrenchBroom {
                 facade->removeAttribute(attributeName);
             }
         };
-        
+
         LinkTargetIssueGenerator::LinkTargetIssueGenerator() :
         IssueGenerator(LinkTargetIssue::Type, "Missing entity link source") {
             addQuickFix(new LinkTargetIssueQuickFix());

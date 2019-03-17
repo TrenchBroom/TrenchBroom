@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -42,7 +42,7 @@ namespace TrenchBroom {
         bool read(wxConfigBase* config, const IO::Path& path, T& result) const { return false; }
         bool write(wxConfigBase* config, const IO::Path& path, const T& value) const { return false; }
     };
-    
+
     template <>
     class PreferenceSerializer<bool> {
     public:
@@ -57,14 +57,14 @@ namespace TrenchBroom {
             }
             return false;
         }
-        
+
         bool write(wxConfigBase* config, const IO::Path& path, const bool& value) const {
             wxString str;
             str << (value ? 1 : 0);
             return config->Write(path.asString('/'), str);
         }
     };
-    
+
     template <>
     class PreferenceSerializer<int> {
     public:
@@ -79,14 +79,14 @@ namespace TrenchBroom {
             }
             return false;
         }
-        
+
         bool write(wxConfigBase* config, const IO::Path& path, const int& value) const {
             wxString str;
             str << value;
             return config->Write(path.asString('/'), str);
         }
     };
-    
+
     template <>
     class PreferenceSerializer<float> {
     public:
@@ -101,14 +101,14 @@ namespace TrenchBroom {
             }
             return false;
         }
-        
+
         bool write(wxConfigBase* config, const IO::Path& path, const float& value) const {
             wxString str;
             str << value;
             return config->Write(path.asString('/'), str);
         }
     };
-    
+
     template <>
     class PreferenceSerializer<double> {
     public:
@@ -123,14 +123,14 @@ namespace TrenchBroom {
             }
             return false;
         }
-        
+
         bool write(wxConfigBase* config, const IO::Path& path, const double& value) const {
             wxString str;
             str << value;
             return config->Write(path.asString('/'), str);
         }
     };
-    
+
     template <>
     class PreferenceSerializer<String> {
     public:
@@ -142,12 +142,12 @@ namespace TrenchBroom {
             }
             return false;
         }
-        
+
         bool write(wxConfigBase* config, const IO::Path& path, const String& value) const {
             return config->Write(path.asString('/'), wxString(value));
         }
     };
-    
+
     template <>
     class PreferenceSerializer<Color> {
     public:
@@ -159,12 +159,12 @@ namespace TrenchBroom {
             }
             return false;
         }
-        
+
         bool write(wxConfigBase* config, const IO::Path& path, const Color& value) const {
             return config->Write(path.asString('/'), wxString(StringUtils::toString(value)));
         }
     };
-    
+
     template<>
     class PreferenceSerializer<View::KeyboardShortcut> {
     public:
@@ -176,12 +176,12 @@ namespace TrenchBroom {
             }
             return false;
         }
-        
+
         bool write(wxConfigBase* config, const IO::Path& path, const View::KeyboardShortcut& value) const {
             return config->Write(path.asString('/'), wxString(value.asString()));
         }
     };
-    
+
     template<>
     class PreferenceSerializer<IO::Path> {
     public:
@@ -193,7 +193,7 @@ namespace TrenchBroom {
             }
             return false;
         }
-        
+
         bool write(wxConfigBase* config, const IO::Path& path, const IO::Path& value) const {
             return config->Write(path.asString('/'), wxString(value.asString()));
         }
@@ -208,7 +208,7 @@ namespace TrenchBroom {
             const wxString wxPath(path.asString('/'));
             if (!config->Exists(wxPath))
                 return false;
-            
+
             const wxString oldPath = config->GetPath();
             config->SetPath(wxPath);
 
@@ -225,9 +225,9 @@ namespace TrenchBroom {
                         temp.push_back(value);
                 } while (success && config->GetNextEntry(name, index));
             }
-            
+
             config->SetPath(oldPath);
-            
+
             using std::swap;
             if (success)
                 swap(result, temp);
@@ -244,12 +244,12 @@ namespace TrenchBroom {
                 name << i;
                 m_serializer.write(config, IO::Path(name.ToStdString()), values[i]);
             }
-            
+
             config->SetPath(oldPath);
             return true;
         }
     };
-    
+
     template<typename S>
     class PreferenceSerializer<std::map<String, S> > {
     private:
@@ -258,10 +258,10 @@ namespace TrenchBroom {
         bool read(wxConfigBase* config, const IO::Path& path, std::map<String, S>& result) const {
             const wxString oldPath = config->GetPath();
             config->SetPath(path.asString('/'));
-            
+
             bool success = true;
             std::map<String, S> temp;
-            
+
             wxString name;
             long index;
             if (config->GetFirstEntry(name, index)) {
@@ -273,26 +273,26 @@ namespace TrenchBroom {
                         temp[nameStr] = value;
                 } while (success && config->GetNextEntry(name, index));
             }
-            
+
             config->SetPath(oldPath);
-            
+
             using std::swap;
             if (success)
                 swap(result, temp);
             return success;
         }
-        
+
         bool write(wxConfigBase* config, const IO::Path& path, const std::map<String, S>& values) const {
             const wxString oldPath = config->GetPath();
             config->DeleteGroup(path.asString('/'));
             config->SetPath(path.asString('/'));
-            
+
             for (const auto& entry : values) {
                 const String& name = entry.first;
                 const S& value = entry.second;
                 m_serializer.write(config, IO::Path(name), value);
             }
-            
+
             config->SetPath(oldPath);
             return true;
         }
@@ -302,7 +302,7 @@ namespace TrenchBroom {
     public:
         using UPtr = std::unique_ptr<ValueHolderBase>;
     };
-    
+
     template <typename T>
     class ValueHolder : public ValueHolderBase {
     private:
@@ -310,12 +310,12 @@ namespace TrenchBroom {
     public:
         ValueHolder(T value) :
         m_value(value) {}
-        
+
         const T& value() const {
             return m_value;
         }
     };
-    
+
     class PreferenceBase {
     public:
         using Set = std::set<const PreferenceBase*>;
@@ -323,9 +323,9 @@ namespace TrenchBroom {
 
         PreferenceBase(const PreferenceBase& other) {}
         virtual ~PreferenceBase() {}
-        
+
         PreferenceBase& operator=(const PreferenceBase& other) { return *this; }
-        
+
         virtual void load(wxConfigBase* config) const = 0;
         virtual void save(wxConfigBase* config) = 0;
         virtual void resetToPrevious() = 0;
@@ -337,14 +337,14 @@ namespace TrenchBroom {
 
         virtual const IO::Path& path() const = 0;
     };
-    
-    
+
+
     template <typename T>
     class Preference : public PreferenceBase {
     protected:
         friend class PreferenceManager;
         template<typename> friend class SetTemporaryPreference;
-        
+
         PreferenceSerializer<T> m_serializer;
         IO::Path m_path;
         T m_defaultValue;
@@ -352,7 +352,7 @@ namespace TrenchBroom {
         mutable T m_previousValue;
         mutable bool m_initialized;
         bool m_modified;
-        
+
         void setValue(const T& value) {
             if (!m_modified) {
                 m_modified = true;
@@ -365,11 +365,11 @@ namespace TrenchBroom {
             const ValueHolder<T>* actualValueHolder = static_cast<const ValueHolder<T>*>(valueHolder);
             setValue(actualValueHolder->value());
         }
-        
+
         bool initialized() const {
             return m_initialized;
         }
-        
+
         void load(wxConfigBase* config) const override {
             ensure(wxThread::IsMain(), "wxConfig can only be used on the main thread");
 
@@ -381,7 +381,7 @@ namespace TrenchBroom {
             }
             m_initialized = true;
         }
-        
+
         void save(wxConfigBase* config) override {
             ensure(wxThread::IsMain(), "wxConfig can only be used on the main thread");
 
@@ -408,7 +408,7 @@ namespace TrenchBroom {
         m_modified(false) {
             m_modified = m_initialized;
         }
-        
+
         Preference(const Preference& other) :
         PreferenceBase(other),
         m_path(other.m_path),
@@ -417,7 +417,7 @@ namespace TrenchBroom {
         m_previousValue(other.m_previousValue),
         m_initialized(other.m_initialized),
         m_modified(other.m_modified) {}
-        
+
         Preference& operator=(Preference other) {
             using std::swap;
             swap(*this, other);
@@ -433,15 +433,15 @@ namespace TrenchBroom {
             swap(lhs.m_initialized, rhs.m_initialized);
             swap(lhs.m_modified, rhs.m_modified);
         }
-        
+
         const IO::Path& path() const override {
             return m_path;
         }
-        
+
         const T& defaultValue() const {
             return m_defaultValue;
         }
-        
+
         const T& value() const {
             return m_value;
         }

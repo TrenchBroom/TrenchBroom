@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -37,7 +37,7 @@ namespace TrenchBroom {
 #endif
             return sep;
         }
-        
+
         const String& Path::separators() {
             static const String sep("/\\");
             return sep;
@@ -76,7 +76,7 @@ namespace TrenchBroom {
             }
 
             const auto& rcomps = rhs.m_components;
-            
+
             size_t i = 0;
             const auto max = std::min(m_components.size(), rcomps.size());
             while (i < max) {
@@ -240,11 +240,11 @@ namespace TrenchBroom {
         Path Path::prefix(const size_t count) const {
             return subPath(0, count);
         }
-        
+
         Path Path::suffix(const size_t count) const {
             return subPath(m_components.size() - count, count);
         }
-        
+
         Path Path::subPath(const size_t index, const size_t count) const {
             if (index + count > m_components.size()) {
                 throw PathException("Sub path out of bounds");
@@ -274,7 +274,7 @@ namespace TrenchBroom {
                 return m_components.back();
             }
         }
-        
+
         String Path::basename() const {
             if (isEmpty()) {
                 throw PathException("Cannot get basename of empty path");
@@ -396,7 +396,7 @@ namespace TrenchBroom {
             return (!isEmpty() && !absolutePath.isEmpty() &&
                     isAbsolute() && absolutePath.isAbsolute()
 #ifdef _WIN32
-                    && 
+                    &&
                     !m_components.empty() && !absolutePath.m_components.empty()
                     &&
                     m_components[0] == absolutePath.m_components[0]
@@ -444,10 +444,10 @@ namespace TrenchBroom {
                 throw PathException("Cannot make relative path if reference path has different drive spec");
             }
 #endif
-            
+
             const auto myResolved = resolvePath(true, m_components);
             const auto theirResolved = resolvePath(true, absolutePath.m_components);
-            
+
             // cross off all common prefixes
             size_t p = 0;
             while (p < std::min(myResolved.size(), theirResolved.size())) {

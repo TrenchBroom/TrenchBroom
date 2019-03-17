@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -42,19 +42,19 @@ namespace TrenchBroom {
                     wxString description;
                     SingleResult(const wxString& i_value, const wxString& i_description);
                 };
-                
+
                 using List = std::vector<SingleResult>;
                 List m_results;
             public:
                 bool IsEmpty() const;
                 size_t Count() const;
-                
+
                 const wxString GetValue(size_t index) const;
                 const wxString GetDescription(size_t index) const;
-                
+
                 void Add(const wxString& value, const wxString& description);
             };
-            
+
             class Helper {
             public:
                 virtual ~Helper();
@@ -86,7 +86,7 @@ namespace TrenchBroom {
                 class AutoCompletionListItem;
                 Item* createItem(wxWindow* parent, const wxSize& margin, size_t index) override;
             };
-            
+
             class AutoCompletionPopup : public wxPopupWindow {
             private:
                 AutoCompleteTextControl* m_textControl;
@@ -94,14 +94,14 @@ namespace TrenchBroom {
             public:
                 AutoCompletionPopup(AutoCompleteTextControl* textControl);
                 ~AutoCompletionPopup();
-                
+
                 void SetResult(const CompletionResult& result);
             private:
                 void OnShowHide(wxShowEvent& event);
                 void OnTextCtrlKeyDown(wxKeyEvent& event);
                 void OnTextCtrlEnter(wxCommandEvent& event);
                 void OnTextCtrlMouseDown(wxMouseEvent& event);
-                
+
                 void SelectNextCompletion();
                 void SelectPreviousCompletion();
                 void DoAutoComplete();
@@ -114,23 +114,23 @@ namespace TrenchBroom {
             AutoCompleteTextControl();
             AutoCompleteTextControl(wxWindow* parent, wxWindowID id, const wxString& value = wxEmptyString, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0, const wxValidator& validator = wxDefaultValidator, const wxString& name = wxTextCtrlNameStr);
             ~AutoCompleteTextControl();
-            
+
             void Create(wxWindow* parent, wxWindowID id, const wxString& value = wxEmptyString, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0, const wxValidator& validator = wxDefaultValidator, const wxString& name = wxTextCtrlNameStr);
-            
+
             void SetHelper(Helper* helper);
         private:
             void OnChar(wxKeyEvent& event);
             void OnKeyDown(wxKeyEvent& event);
             void OnText(wxCommandEvent& event);
             void OnDelayedText(wxCommandEvent& event);
-            
+
             bool IsAutoCompleting() const;
             void StartAutoCompletion(size_t startIndex);
             void UpdateAutoCompletion();
             void EndAutoCompletion();
-            
+
             void PerformAutoComplete(const wxString& replacement);
-            
+
             void OnKillFocus(wxFocusEvent& event);
             void OnDelayedEventBinding(wxIdleEvent& event);
         public:

@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -155,7 +155,7 @@ namespace TrenchBroom {
                 face->yScale();
             }
         };
-        
+
         class Hexen2StreamSerializer : public QuakeStreamSerializer {
         public:
             Hexen2StreamSerializer(std::ostream& stream) :
@@ -168,7 +168,7 @@ namespace TrenchBroom {
                 stream << " 0\n"; // extra value written here
             }
         };
-        
+
         NodeSerializer::Ptr MapStreamSerializer::create(const Model::MapFormat format, std::ostream& stream) {
             switch (format) {
                 case Model::MapFormat::Standard:
@@ -194,7 +194,7 @@ namespace TrenchBroom {
         m_stream(stream) {}
 
         MapStreamSerializer::~MapStreamSerializer() {}
-        
+
         void MapStreamSerializer::doBeginFile() {}
         void MapStreamSerializer::doEndFile() {}
 
@@ -202,24 +202,24 @@ namespace TrenchBroom {
             m_stream << "// entity " << entityNo() << "\n";
             m_stream << "{\n";
         }
-        
+
         void MapStreamSerializer::doEndEntity(Model::Node* node) {
             m_stream << "}\n";
         }
-        
+
         void MapStreamSerializer::doEntityAttribute(const Model::EntityAttribute& attribute) {
             m_stream << "\"" << escapeEntityAttribute(attribute.name()) << "\" \"" << escapeEntityAttribute(attribute.value()) << "\"\n";
         }
-        
+
         void MapStreamSerializer::doBeginBrush(const Model::Brush* brush) {
             m_stream << "// brush " << brushNo() << "\n";
             m_stream << "{\n";
         }
-        
+
         void MapStreamSerializer::doEndBrush(Model::Brush* brush) {
             m_stream << "}\n";
         }
-        
+
         void MapStreamSerializer::doBrushFace(Model::BrushFace* face) {
             doWriteBrushFace(m_stream, face);
         }

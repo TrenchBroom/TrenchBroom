@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -45,7 +45,7 @@ namespace TrenchBroom {
             bindObservers();
             updateControls();
         }
-        
+
         FileTextureCollectionEditor::~FileTextureCollectionEditor() {
             unbindObservers();
         }
@@ -124,10 +124,10 @@ namespace TrenchBroom {
             const wxString pathWxStr = ::wxFileSelector("Load Texture Collection", wxEmptyString, wxEmptyString, wxEmptyString, "", wxFD_OPEN);
             if (pathWxStr.empty())
                 return;
-            
+
             loadTextureCollection(m_document, this, pathWxStr);
         }
-        
+
         void FileTextureCollectionEditor::OnRemoveTextureCollectionsClicked(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             if (!canRemoveTextureCollections()) {
@@ -141,7 +141,7 @@ namespace TrenchBroom {
 
             auto collections = document->enabledTextureCollections();
             decltype(collections) toRemove;
-            
+
             for (size_t i = 0; i < selections.size(); ++i) {
                 const auto index = static_cast<size_t>(selections[i]);
                 ensure(index < collections.size(), "index out of range");
@@ -151,7 +151,7 @@ namespace TrenchBroom {
             VectorUtils::eraseAll(collections, toRemove);
             document->setEnabledTextureCollections(collections);
         }
-        
+
         void FileTextureCollectionEditor::OnMoveTextureCollectionUpClicked(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             if (!canMoveTextureCollectionsUp()) {
@@ -164,14 +164,14 @@ namespace TrenchBroom {
 
             auto document = lock(m_document);
             auto collections = document->enabledTextureCollections();
-            
+
             const auto index = static_cast<size_t>(selections.front());
             VectorUtils::swapPred(collections, index);
-            
+
             document->setEnabledTextureCollections(collections);
             m_collections->SetSelection(static_cast<int>(index - 1));
         }
-        
+
         void FileTextureCollectionEditor::OnMoveTextureCollectionDownClicked(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             if (!canMoveTextureCollectionsDown()) {
@@ -184,10 +184,10 @@ namespace TrenchBroom {
 
             auto document = lock(m_document);
             auto collections = document->enabledTextureCollections();
-            
+
             const auto index = static_cast<size_t>(selections.front());
             VectorUtils::swapSucc(collections, index);
-            
+
             document->setEnabledTextureCollections(collections);
             m_collections->SetSelection(static_cast<int>(index + 1));
         }
@@ -204,13 +204,13 @@ namespace TrenchBroom {
 
             event.Enable(canRemoveTextureCollections());
         }
-        
+
         void FileTextureCollectionEditor::OnUpdateMoveUpButtonUI(wxUpdateUIEvent& event) {
             if (IsBeingDeleted()) return;
 
             event.Enable(canMoveTextureCollectionsUp());
         }
-        
+
         void FileTextureCollectionEditor::OnUpdateMoveDownButtonUI(wxUpdateUIEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -231,7 +231,7 @@ namespace TrenchBroom {
             auto* moveTextureCollectionUpButton = createBitmapButton(this, "Up.png", "Move the selected texture collection up");
             auto* moveTextureCollectionDownButton = createBitmapButton(this, "Down.png", "Move the selected texture collection down");
             auto* reloadTextureCollectionsButton = createBitmapButton(this, "Refresh.png", "Reload all texture collections");
-            
+
             addTextureCollectionsButton->Bind(wxEVT_BUTTON, &FileTextureCollectionEditor::OnAddTextureCollectionsClicked, this);
             removeTextureCollectionsButton->Bind(wxEVT_BUTTON, &FileTextureCollectionEditor::OnRemoveTextureCollectionsClicked, this);
             moveTextureCollectionUpButton->Bind(wxEVT_BUTTON, &FileTextureCollectionEditor::OnMoveTextureCollectionUpClicked, this);
@@ -251,38 +251,38 @@ namespace TrenchBroom {
             buttonSizer->AddSpacer(LayoutConstants::WideHMargin);
             buttonSizer->Add(reloadTextureCollectionsButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             buttonSizer->AddStretchSpacer();
-            
+
             auto* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_collections, 1, wxEXPAND);
             sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
             sizer->Add(buttonSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
             sizer->SetItemMinSize(m_collections, 100, 70);
-            
+
             SetSizerAndFit(sizer);
         }
-        
+
         void FileTextureCollectionEditor::bindObservers() {
             auto document = lock(m_document);
             document->textureCollectionsDidChangeNotifier.addObserver(this, &FileTextureCollectionEditor::textureCollectionsDidChange);
-            
+
             auto& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &FileTextureCollectionEditor::preferenceDidChange);
         }
-        
+
         void FileTextureCollectionEditor::unbindObservers() {
             if (!expired(m_document)) {
                 auto document = lock(m_document);
                 document->textureCollectionsDidChangeNotifier.removeObserver(this, &FileTextureCollectionEditor::textureCollectionsDidChange);
             }
-            
+
             auto& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &FileTextureCollectionEditor::preferenceDidChange);
         }
-        
+
         void FileTextureCollectionEditor::textureCollectionsDidChange() {
             updateControls();
         }
-        
+
         void FileTextureCollectionEditor::preferenceDidChange(const IO::Path& path) {
             auto document = lock(m_document);
             if (document->isGamePathPreference(path))
@@ -291,7 +291,7 @@ namespace TrenchBroom {
 
         void FileTextureCollectionEditor::updateControls() {
             m_collections->Clear();
-            
+
             auto document = lock(m_document);
             for (const auto& path : document->enabledTextureCollections())
                 m_collections->Append(path.asString());

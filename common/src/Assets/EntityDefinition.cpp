@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -28,11 +28,11 @@
 namespace TrenchBroom {
     namespace Assets {
         EntityDefinition::~EntityDefinition() {}
-        
+
         size_t EntityDefinition::index() const {
             return m_index;
         }
-        
+
         void EntityDefinition::setIndex(const size_t index) {
             m_index = index;
         }
@@ -40,44 +40,44 @@ namespace TrenchBroom {
         const String& EntityDefinition::name() const {
             return m_name;
         }
-        
+
         String EntityDefinition::shortName() const {
             const size_t index = m_name.find_first_of('_');
             if (index == String::npos)
                 return m_name;
             return m_name.substr(index+1);
         }
-        
+
         String EntityDefinition::groupName() const {
             const size_t index = m_name.find_first_of('_');
             if (index == String::npos)
                 return m_name;
             return m_name.substr(0, index);
         }
-        
+
         const Color& EntityDefinition::color() const {
             return m_color;
         }
-        
+
         const String& EntityDefinition::description() const {
             return m_description;
         }
-        
+
         size_t EntityDefinition::usageCount() const {
             return m_usageCount;
         }
-        
+
         void EntityDefinition::incUsageCount() {
             ++m_usageCount;
             usageCountDidChangeNotifier();
         }
-        
+
         void EntityDefinition::decUsageCount() {
             assert(m_usageCount > 0);
             --m_usageCount;
             usageCountDidChangeNotifier();
         }
-        
+
         struct FindSpawnflagsDefinition {
             bool operator()(const AttributeDefinitionPtr& attributeDefinition) const {
                 return (attributeDefinition->type() == AttributeDefinition::Type_FlagsAttribute &&
@@ -88,7 +88,7 @@ namespace TrenchBroom {
         const FlagsAttributeDefinition* EntityDefinition::spawnflags() const {
             return static_cast<FlagsAttributeDefinition*>(VectorUtils::findIf(m_attributeDefinitions, FindSpawnflagsDefinition()).get());
         }
-        
+
         const AttributeDefinitionList& EntityDefinition::attributeDefinitions() const {
             return m_attributeDefinitions;
         }
@@ -117,16 +117,16 @@ namespace TrenchBroom {
             const Assets::FlagsAttributeDefinition* flagDefinition = safeGetSpawnflagsAttributeDefinition(entityDefinition);
             if (flagDefinition == nullptr)
                 return nullptr;
-            
+
             const int flag = static_cast<int>(1 << flagIndex);
             return flagDefinition->option(flag);
         }
-        
+
         EntityDefinitionList EntityDefinition::filterAndSort(const EntityDefinitionList& definitions, const EntityDefinition::Type type, const SortOrder order) {
             EntityDefinitionList result;
-            
+
             std::copy_if(std::begin(definitions), std::end(definitions), std::back_inserter(result), [type] (EntityDefinition* definition) { return definition->type() == type; });
-            
+
             if (order == Usage)
                 std::sort(std::begin(result), std::end(result), [] (const EntityDefinition* lhs, const EntityDefinition* rhs) {
                     if (lhs->usageCount() == rhs->usageCount())
@@ -140,7 +140,7 @@ namespace TrenchBroom {
                         return lhs->usageCount() > rhs->usageCount();
                     return strCmp < 0;
                 });
-            
+
             return result;
         }
 
@@ -156,15 +156,15 @@ namespace TrenchBroom {
         EntityDefinition(name, color, description, attributeDefinitions),
         m_bounds(bounds),
         m_modelDefinition(modelDefinition) {}
-        
+
         EntityDefinition::Type PointEntityDefinition::type() const {
             return Type_PointEntity;
         }
-        
+
         const vm::bbox3& PointEntityDefinition::bounds() const {
             return m_bounds;
         }
-        
+
         ModelSpecification PointEntityDefinition::model(const Model::EntityAttributes& attributes) const {
             return m_modelDefinition.modelSpecification(attributes);
         }
@@ -179,7 +179,7 @@ namespace TrenchBroom {
 
         BrushEntityDefinition::BrushEntityDefinition(const String& name, const Color& color, const String& description, const AttributeDefinitionList& attributeDefinitions) :
         EntityDefinition(name, color, description, attributeDefinitions) {}
-        
+
         EntityDefinition::Type BrushEntityDefinition::type() const {
             return Type_BrushEntity;
         }

@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -37,7 +37,7 @@ namespace TrenchBroom {
         class RotateObjectsTool;
         class SpinControl;
         class SpinControlEvent;
-        
+
         class RotateObjectsToolPage : public wxPanel {
         private:
             MapDocumentWPtr m_document;
@@ -45,7 +45,7 @@ namespace TrenchBroom {
 
             wxComboBox* m_recentlyUsedCentersList;
             wxButton* m_resetCenterButton;
-            
+
             SpinControl* m_angle;
             wxChoice* m_axis;
             wxButton* m_rotateButton;
@@ -56,7 +56,7 @@ namespace TrenchBroom {
             void setCurrentCenter(const vm::vec3& center);
         private:
             void createGui();
-            
+
             void OnIdle(wxIdleEvent& event);
             void OnCenterChanged(wxCommandEvent& event);
             void OnResetCenter(wxCommandEvent& event);

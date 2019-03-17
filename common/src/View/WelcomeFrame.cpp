@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -47,25 +47,25 @@ namespace TrenchBroom {
             setWindowIcon(this);
 
             wxPanel* container = new wxPanel(this);
-            
+
             wxPanel* appPanel = createAppPanel(container);
             m_recentDocumentListBox = new RecentDocumentListBox(container);
             m_recentDocumentListBox->SetToolTip("Double click on a file to open it");
             m_recentDocumentListBox->SetMaxSize(wxSize(350, wxDefaultCoord));
-            
+
             wxBoxSizer* innerSizer = new wxBoxSizer(wxHORIZONTAL);
             innerSizer->Add(appPanel, wxSizerFlags().CenterVertical());
             innerSizer->Add(new BorderLine(container, BorderLine::Direction_Vertical), wxSizerFlags().Expand());
             innerSizer->Add(m_recentDocumentListBox, wxSizerFlags().Expand().Proportion(1));
             innerSizer->SetItemMinSize(m_recentDocumentListBox, wxSize(350, 400));
             container->SetSizer(innerSizer);
-            
+
             wxBoxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
 #if !defined __APPLE__
 			outerSizer->Add(new BorderLine(this), wxSizerFlags().Expand());
 #endif
 			outerSizer->Add(container, wxSizerFlags().Expand());
-            
+
             SetSizerAndFit(outerSizer);
         }
 
@@ -79,7 +79,7 @@ namespace TrenchBroom {
             else
                 Show();
         }
-        
+
         void WelcomeFrame::OnOpenOtherDocumentClicked(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -114,12 +114,12 @@ namespace TrenchBroom {
         wxPanel* WelcomeFrame::createAppPanel(wxWindow* parent) {
             wxPanel* appPanel = new wxPanel(parent);
             AppInfoPanel* infoPanel = new AppInfoPanel(appPanel);
-            
+
             m_createNewDocumentButton = new wxButton(appPanel, wxID_ANY, "New map...");
             m_createNewDocumentButton->SetToolTip("Create a new map document");
             m_openOtherDocumentButton = new wxButton(appPanel, wxID_ANY, "Browse...");
             m_openOtherDocumentButton->SetToolTip("Open an existing map document");
-            
+
             wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
             buttonSizer->Add(m_createNewDocumentButton, 1, wxEXPAND);
             buttonSizer->AddSpacer(LayoutConstants::WideHMargin);
@@ -130,7 +130,7 @@ namespace TrenchBroom {
             outerSizer->AddSpacer(20);
             outerSizer->Add(buttonSizer, wxSizerFlags().CenterHorizontal().Border(wxLEFT | wxRIGHT, 50));
             outerSizer->AddSpacer(20);
-            
+
             appPanel->SetSizer(outerSizer);
 
             return appPanel;

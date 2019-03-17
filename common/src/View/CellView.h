@@ -37,7 +37,7 @@
 namespace TrenchBroom {
     namespace View {
         class GLContextManager;
-        
+
         template <typename CellData, typename GroupData>
         class CellView : public RenderView {
         protected:
@@ -49,7 +49,7 @@ namespace TrenchBroom {
             Layout m_layout;
             Cell* m_selectedCell;
             bool m_layoutInitialized;
-            
+
             bool m_valid;
 
             wxScrollBar* m_scrollBar;
@@ -79,7 +79,7 @@ namespace TrenchBroom {
 
                 m_valid = true;
             }
-            
+
             void validate() {
                 if (!m_valid)
                     reloadLayout();
@@ -115,7 +115,7 @@ namespace TrenchBroom {
             void invalidate() {
                 m_valid = false;
             }
-            
+
             void clear() {
                 m_layout.clear();
                 doClear();
@@ -170,7 +170,7 @@ namespace TrenchBroom {
                 m_cellView(cellView) {
                     m_cellView.dndWillStart();
                 }
-                
+
                 ~DndHelper() {
                     m_cellView.dndDidEnd();
                 }
@@ -238,7 +238,7 @@ namespace TrenchBroom {
                          int xOffset = event.GetX() - static_cast<int>(cell->itemBounds().left());
                          int yOffset = event.GetY() - static_cast<int>(cell->itemBounds().top()) + top;
                          */
-                        
+
                         const DndHelper dndHelper(*this);
                         wxTextDataObject dropData(dndData(*cell));
                         DropSource dropSource(dropData, this);
@@ -246,7 +246,7 @@ namespace TrenchBroom {
                     }
                 }
             }
-            
+
             void scroll(const wxMouseEvent& event) {
                 if (m_scrollBar != nullptr) {
                     const wxPoint mousePosition = event.GetPosition();
@@ -256,7 +256,7 @@ namespace TrenchBroom {
                     Refresh();
                 }
             }
-            
+
             void updateTooltip(const wxMouseEvent& event) {
                 int top = m_scrollBar != nullptr ? m_scrollBar->GetThumbPosition() : 0;
                 float x = static_cast<float>(event.GetX());
@@ -276,10 +276,10 @@ namespace TrenchBroom {
 
                 const int top = m_scrollBar != nullptr ? m_scrollBar->GetThumbPosition() : 0;
                 const wxRect visibleRect = wxRect(wxPoint(0, top), GetClientSize());
-                
+
                 const float y = static_cast<float>(visibleRect.GetY());
                 const float height = static_cast<float>(visibleRect.GetHeight());
-                
+
                 const GLint viewLeft      = static_cast<GLint>(GetClientRect().GetLeft());
                 const GLint viewTop       = static_cast<GLint>(GetClientRect().GetBottom());
                 const GLint viewRight     = static_cast<GLint>(GetClientRect().GetRight());
@@ -289,7 +289,7 @@ namespace TrenchBroom {
                 setupGL();
                 doRender(m_layout, y, height);
             }
-            
+
             void setupGL() {
                 glAssert(glEnable(GL_MULTISAMPLE));
                 glAssert(glEnable(GL_BLEND));
@@ -299,13 +299,13 @@ namespace TrenchBroom {
                 glAssert(glDepthFunc(GL_LEQUAL));
                 glAssert(glShadeModel(GL_SMOOTH));
             }
-            
+
             virtual void doInitLayout(Layout& layout) = 0;
             virtual void doReloadLayout(Layout& layout) = 0;
             virtual void doClear() {}
             virtual void doRender(Layout& layout, float y, float height) = 0;
             virtual void doLeftClick(Layout& layout, float x, float y) {}
-            
+
             virtual bool dndEnabled() { return false; }
             virtual void dndWillStart() {}
             virtual void dndDidEnd() {}

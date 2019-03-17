@@ -1,19 +1,19 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
  Copyright (C) 2018 Eric Wasylishen
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -36,11 +36,11 @@ namespace TrenchBroom {
     namespace Model {
         class PickResult;
     }
-    
+
     namespace Renderer {
         class Camera;
     }
-    
+
     namespace View {
         /**
          * Identifies the side of a bbox using a normal. The normal will be one of +/- 1.0 along X, Y, or Z.
@@ -54,7 +54,7 @@ namespace TrenchBroom {
             bool operator<(const BBoxSide& other) const;
             bool operator==(const BBoxSide& other) const;
         };
-        
+
         /**
          * Identifies a bbox corner, using a point on a bbox whose corners are at +/- 1.0
          * (i.e. a 2x2x2 box centered at 0, 0, 0).
@@ -68,7 +68,7 @@ namespace TrenchBroom {
 
             bool operator==(const BBoxCorner& other) const;
         };
-        
+
         /**
          * Identifies a directed edge of a bbox, using points on a bbox whose corners are at +/- 1.0
          * (i.e. a 2x2x2 box centered at 0, 0, 0).
@@ -77,7 +77,7 @@ namespace TrenchBroom {
         public:
             vm::vec3 point0;
             vm::vec3 point1;
-            
+
             explicit BBoxEdge(const vm::vec3 &p0, const vm::vec3& p1);
 
             bool operator==(const BBoxEdge& other) const;
@@ -236,10 +236,10 @@ namespace TrenchBroom {
 
             bool hasDragSide() const;
             vm::polygon3f dragSide() const;
-            
+
             bool hasDragEdge() const;
             vm::segment3f dragEdge() const;
-            
+
             bool hasDragCorner() const;
             vm::vec3f dragCorner() const;
 

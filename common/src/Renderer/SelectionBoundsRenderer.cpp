@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -50,7 +50,7 @@ namespace TrenchBroom {
                 pos[m_axis] += half[m_axis];
                 return vm::vec3f(pos);
             }
-            
+
             TextAlignment::Type alignment() const override {
                 if (m_axis == vm::axis::x) {
                     return TextAlignment::Top;
@@ -60,7 +60,7 @@ namespace TrenchBroom {
                     return TextAlignment::Right;
                 }
             }
-            
+
             vm::vec2f extraOffsets(TextAlignment::Type alignment, const vm::vec2f& size) const override {
                 vm::vec2f result;
                 if (alignment & TextAlignment::Top) {
@@ -78,7 +78,7 @@ namespace TrenchBroom {
                 return result;
             }
         };
-        
+
         class SelectionBoundsRenderer::SizeTextAnchor3D : public TextAnchor3D {
         private:
             const vm::bbox3& m_bounds;
@@ -95,7 +95,7 @@ namespace TrenchBroom {
                 const auto camDir = m_camera.direction();
                 vm::vec3 pos;
                 const auto half = m_bounds.size() / 2.0;
-                
+
                 if (m_axis == vm::axis::z) {
                     if ((camPos[0] == vm::bbox3::Range::less && camPos[1] == vm::bbox3::Range::less) ||
                         (camPos[0] == vm::bbox3::Range::less && camPos[1] == vm::bbox3::Range::within)) {
@@ -118,7 +118,7 @@ namespace TrenchBroom {
                         pos[0] = camDir.x() <= 0.0f ? m_bounds.min.x() : m_bounds.max.x();
                         pos[1] = camDir.y() <= 0.0f ? m_bounds.min.y() : m_bounds.max.y();
                     }
-                    
+
                     pos[2] = m_bounds.min.z() + half.z();
                 } else {
                     if (m_axis == vm::axis::x) {
@@ -164,17 +164,17 @@ namespace TrenchBroom {
                             pos[0] = camPos[2] == vm::bbox3::Range::within ? m_bounds.max.x() : m_bounds.min.x();
                         }
                     }
-                    
+
                     if (camPos[2] == vm::bbox3::Range::less) {
                         pos[2] = m_bounds.min.z();
                     } else {
                         pos[2] = m_bounds.max.z();
                     }
                 }
-                
+
                 return vm::vec3f(pos);
             }
-            
+
             TextAlignment::Type alignment() const override {
                 if (m_axis == vm::axis::z) {
                     return TextAlignment::Right;
@@ -187,7 +187,7 @@ namespace TrenchBroom {
                     return TextAlignment::Bottom;
                 }
             }
-            
+
             vm::vec2f extraOffsets(TextAlignment::Type alignment, const vm::vec2f& size) const override {
                 vm::vec2f result;
                 if (alignment & TextAlignment::Top) {
@@ -205,7 +205,7 @@ namespace TrenchBroom {
                 return result;
             }
         };
-        
+
         class SelectionBoundsRenderer::MinMaxTextAnchor3D : public TextAnchor3D {
         private:
             const vm::bbox3& m_bounds;
@@ -224,7 +224,7 @@ namespace TrenchBroom {
                     return vm::vec3f(m_bounds.max);
                 }
             }
-            
+
             TextAlignment::Type alignment() const override {
                 const auto camPos = m_bounds.relativePosition(vm::vec3(m_camera.position()));
                 if (m_minMax == vm::bbox3::Corner::min) {
@@ -243,7 +243,7 @@ namespace TrenchBroom {
                     return TextAlignment::Bottom | TextAlignment::Right;
                 }
             }
-            
+
             vm::vec2f extraOffsets(TextAlignment::Type alignment, const vm::vec2f& size) const override {
                 vm::vec2f result;
                 if (alignment & TextAlignment::Top)
@@ -272,26 +272,26 @@ namespace TrenchBroom {
             renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
             renderService.renderBounds(vm::bbox3f(m_bounds));
         }
-        
+
         void SelectionBoundsRenderer::renderSize(RenderContext& renderContext, RenderBatch& renderBatch) {
             if (renderContext.render2D())
                 renderSize2D(renderContext, renderBatch);
             else
                 renderSize3D(renderContext, renderBatch);
         }
-        
+
         void SelectionBoundsRenderer::renderSize2D(RenderContext& renderContext, RenderBatch& renderBatch) {
             static const String labels[3] = { "X", "Y", "Z" };
             StringStream buffer;
-            
+
             RenderService renderService(renderContext, renderBatch);
             renderService.setForegroundColor(pref(Preferences::InfoOverlayTextColor));
             renderService.setBackgroundColor(pref(Preferences::WeakInfoOverlayBackgroundColor));
             renderService.setShowOccludedObjects();
-            
+
             const Camera& camera = renderContext.camera();
             const vm::vec3f& direction = camera.direction();
-            
+
             const vm::vec3 boundsSize = correct(m_bounds.size());
             for (size_t i = 0; i < 3; ++i) {
                 if (direction[i] == 0.0f) {
@@ -301,22 +301,22 @@ namespace TrenchBroom {
                 }
             }
         }
-        
+
         void SelectionBoundsRenderer::renderSize3D(RenderContext& renderContext, RenderBatch& renderBatch) {
             static const String labels[3] = { "X", "Y", "Z" };
             StringStream buffer;
-            
+
             RenderService renderService(renderContext, renderBatch);
             renderService.setForegroundColor(pref(Preferences::InfoOverlayTextColor));
             renderService.setBackgroundColor(pref(Preferences::WeakInfoOverlayBackgroundColor));
             renderService.setShowOccludedObjects();
-            
+
             const vm::vec3 boundsSize = correct(m_bounds.size());
             for (size_t i = 0; i < 3; ++i) {
                 buffer << labels[i] << ": " << boundsSize[i];
-                
+
                 renderService.renderString(buffer.str(), SizeTextAnchor3D(m_bounds, i, renderContext.camera()));
-                
+
                 buffer.str("");
             }
         }
@@ -332,7 +332,7 @@ namespace TrenchBroom {
             buffer << "Min: " << correct(m_bounds.min);
             renderService.renderString(buffer.str(), MinMaxTextAnchor3D(m_bounds, vm::bbox3::Corner::min, renderContext.camera()));
             buffer.str("");
-            
+
             buffer << "Max: " << correct(m_bounds.max);
             renderService.renderString(buffer.str(), MinMaxTextAnchor3D(m_bounds, vm::bbox3::Corner::max, renderContext.camera()));
         }

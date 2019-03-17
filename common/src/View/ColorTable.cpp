@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -36,11 +36,11 @@ namespace TrenchBroom {
         m_cellSize(cellSize),
         m_margin(2) {
             assert(m_cellSize > 0);
-            
+
             Bind(wxEVT_SIZE, &ColorTable::OnSize, this);
             Bind(wxEVT_PAINT, &ColorTable::OnPaint, this);
             Bind(wxEVT_LEFT_UP, &ColorTable::OnMouseUp, this);
-            
+
             SetScrollRate(0, m_cellSize + m_margin);
         }
 
@@ -67,7 +67,7 @@ namespace TrenchBroom {
             const wxSize virtualSize = GetVirtualSize();
             const int cols = computeCols(virtualSize.x);
             const int rows = computeRows(cols);
-            
+
             const wxPoint viewStart = GetViewStart();
             int xRate, yRate;
             GetScrollPixelsPerUnit(&xRate, &yRate);
@@ -75,18 +75,18 @@ namespace TrenchBroom {
             const int startX = -(viewStart.x * xRate) + m_margin;
             int x = startX;
             int y = -(viewStart.y * yRate) + m_margin;
-            
+
             wxPaintDC dc(this);
             dc.SetPen(*wxTRANSPARENT_PEN);
             dc.SetBrush(wxBrush(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX)));
             dc.DrawRectangle(0, 0, virtualSize.x, virtualSize.y);
-            
+
             auto it = std::begin(m_colors);
             for (int row = 0; row < rows; ++row) {
                 for (int col = 0; col < cols; ++col) {
                     if (it != std::end(m_colors)) {
                         const wxColour& color = *it;
-                        
+
                         if (std::find(std::begin(m_selectedColors), std::end(m_selectedColors), color) != std::end(m_selectedColors)) {
                             dc.SetPen(*wxRED_PEN);
                             dc.SetBrush(*wxRED_BRUSH);
@@ -105,7 +105,7 @@ namespace TrenchBroom {
                 x = startX;
             }
         }
-        
+
         void ColorTable::OnMouseUp(wxMouseEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -115,7 +115,7 @@ namespace TrenchBroom {
             const wxPoint pos = CalcScrolledPosition(event.GetPosition());
             const int col = (pos.x - m_margin) / (m_cellSize + m_margin);
             const int row = (pos.y - m_margin) / (m_cellSize + m_margin);
-            
+
             const size_t index = static_cast<size_t>(row * cols + col);
             if (index < m_colors.size()) {
                 const wxColor& color = m_colors[index];
@@ -134,7 +134,7 @@ namespace TrenchBroom {
             int rows = computeRows(cols);
             int height = computeHeight(rows);
             SetVirtualSize(width, height);
-            
+
             if (GetClientSize().x != width) {
                 width = GetClientSize().x;
                 cols = computeCols(width);

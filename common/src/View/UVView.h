@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -37,13 +37,13 @@ namespace TrenchBroom {
     namespace IO {
         class Path;
     }
-    
+
     namespace Renderer {
         class ActiveShader;
         class RenderBatch;
         class RenderContext;
     }
-    
+
     namespace View {
         class Selection;
         class UVRotateTool;
@@ -52,10 +52,10 @@ namespace TrenchBroom {
         class UVShearTool;
         class UVOffsetTool;
         class UVCameraTool;
-        
+
         /**
-         A view which allows the user to manipulate the texture projection interactively with the mouse. The user can 
-         change texture offsets, scaling factors and rotation. If supported by the map format, the user can manipulate 
+         A view which allows the user to manipulate the texture projection interactively with the mouse. The user can
+         change texture offsets, scaling factors and rotation. If supported by the map format, the user can manipulate
          the texture axes as well.
          */
         class UVView : public RenderView, public ToolBoxConnector {
@@ -63,7 +63,7 @@ namespace TrenchBroom {
             static const Model::Hit::HitType FaceHit;
         private:
             MapDocumentWPtr m_document;
-            
+
             Renderer::OrthographicCamera m_camera;
             UVViewHelper m_helper;
 
@@ -71,14 +71,14 @@ namespace TrenchBroom {
         public:
             UVView(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
             ~UVView() override;
-            
+
             void setSubDivisions(const vm::vec2i& subDivisions);
         private:
             void createTools();
-            
+
             void bindObservers();
             void unbindObservers();
-            
+
             void selectionDidChange(const Selection& selection);
             void documentWasCleared(MapDocument* document);
             void nodesDidChange(const Model::NodeList& nodes);
@@ -86,7 +86,7 @@ namespace TrenchBroom {
             void gridDidChange();
             void cameraDidChange(const Renderer::Camera* camera);
             void preferenceDidChange(const IO::Path& path);
-            
+
             void doUpdateViewport(int x, int y, int width, int height) override;
             void doRender() override;
             bool doShouldRenderFocusIndicator() const override;
@@ -95,7 +95,7 @@ namespace TrenchBroom {
 
             class RenderTexture;
             void renderTexture(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-            
+
             void renderFace(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderTextureAxes(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderToolBox(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);

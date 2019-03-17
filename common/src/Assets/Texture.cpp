@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -78,7 +78,7 @@ namespace TrenchBroom {
             assert(buffer.size() >= m_width * m_height * bytesPerPixelForFormat(format));
             m_buffers.push_back(buffer);
         }
-        
+
         Texture::Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer::List& buffers, const GLenum format, const TextureType type) :
         m_collection(nullptr),
         m_name(name),
@@ -104,7 +104,7 @@ namespace TrenchBroom {
                 assert(m_buffers[level].size() >= numBytes);
             }
         }
-        
+
         Texture::Texture(const String& name, const size_t width, const size_t height, const GLenum format, const TextureType type) :
         m_collection(nullptr),
         m_name(name),
@@ -137,15 +137,15 @@ namespace TrenchBroom {
         const String& Texture::name() const {
             return m_name;
         }
-        
+
         size_t Texture::width() const {
             return m_width;
         }
-        
+
         size_t Texture::height() const {
             return m_height;
         }
-        
+
         const Color& Texture::averageColor() const {
             return m_averageColor;
         }
@@ -179,14 +179,14 @@ namespace TrenchBroom {
         size_t Texture::usageCount() const {
             return m_usageCount;
         }
-        
+
         void Texture::incUsageCount() {
             ++m_usageCount;
             if (m_collection != nullptr) {
                 m_collection->incUsageCount();
             }
         }
-        
+
         void Texture::decUsageCount() {
             assert(m_usageCount > 0);
             --m_usageCount;
@@ -194,15 +194,15 @@ namespace TrenchBroom {
                 m_collection->decUsageCount();
             }
         }
-        
+
         bool Texture::overridden() const {
             return m_overridden;
         }
-        
+
         void Texture::setOverridden(const bool overridden) {
             m_overridden = overridden;
         }
-        
+
         bool Texture::isPrepared() const {
             return m_textureId != 0;
         }
@@ -254,7 +254,7 @@ namespace TrenchBroom {
                 m_textureId = textureId;
             }
         }
-        
+
         void Texture::setMode(const int minFilter, const int magFilter) {
             if (isPrepared()) {
                 activate();
@@ -295,7 +295,7 @@ namespace TrenchBroom {
                 }
             }
         }
-        
+
         void Texture::deactivate() const {
             if (isPrepared()) {
                 if (m_blendFunc.enable) {

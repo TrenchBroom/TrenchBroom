@@ -177,7 +177,7 @@ namespace TrenchBroom {
         void ControlListBox::SetEmptyText(const wxString& emptyText) {
             if (m_emptyText == emptyText)
                 return;
-            
+
             m_emptyText = emptyText;
             if (GetItemCount() == 0)
                 m_valid = false;
@@ -186,7 +186,7 @@ namespace TrenchBroom {
         void ControlListBox::invalidate() {
             m_valid = false;
         }
-        
+
         void ControlListBox::validate() {
             if (!m_valid) {
                 m_valid = true;
@@ -195,10 +195,10 @@ namespace TrenchBroom {
                 refresh(m_newItemCount);
                 setSelection(m_selectionIndex);
                 Refresh();
-                
+
             }
         }
-        
+
         void ControlListBox::refresh(const size_t itemCount) {
             wxSizer* listSizer = GetSizer();
             listSizer->Clear(true);
