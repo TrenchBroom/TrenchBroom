@@ -496,6 +496,12 @@ namespace TrenchBroom {
         2.3 : "Something else"
         0.1 : "Yet more"
     ]
+    negative(choices) : "Negative values" : -1 =
+    [
+        -2 : "Something"
+        -1 : "Something else"
+         1 : "Yet more"
+    ]
 ]
             )%";
 
@@ -512,7 +518,7 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(String("Wildcard entity"), definition->description());
 
-            ASSERT_EQ(4u, definition->attributeDefinitions().size());
+            ASSERT_EQ(5u, definition->attributeDefinitions().size());
 
             const Assets::AttributeDefinition* attribute1 = definition->attributeDefinition("worldtype");
             ASSERT_TRUE(attribute1 != nullptr);
@@ -542,7 +548,7 @@ namespace TrenchBroom {
             ASSERT_EQ(String("Ambience with default"), choiceAttribute2->shortDescription());
             ASSERT_EQ(String("Long description 2"), choiceAttribute2->longDescription());
             ASSERT_TRUE(choiceAttribute2->hasDefaultValue());
-            ASSERT_EQ(1u, choiceAttribute2->defaultValue());
+            ASSERT_EQ("1", choiceAttribute2->defaultValue());
 
             const Assets::ChoiceAttributeOption::List& options2 = choiceAttribute2->options();
             ASSERT_EQ(2u, options2.size());
@@ -557,7 +563,7 @@ namespace TrenchBroom {
             ASSERT_EQ(String("Puzzle id"), choiceAttribute3->shortDescription());
             ASSERT_EQ(String(""), choiceAttribute3->longDescription());
             ASSERT_TRUE(choiceAttribute3->hasDefaultValue());
-            ASSERT_EQ(1u, choiceAttribute3->defaultValue());
+            ASSERT_EQ("cskey", choiceAttribute3->defaultValue());
 
             const Assets::ChoiceAttributeOption::List& options3 = choiceAttribute3->options();
             ASSERT_EQ(3u, options3.size());
@@ -574,7 +580,7 @@ namespace TrenchBroom {
             ASSERT_EQ(String("Floaty"), choiceAttribute4->shortDescription());
             ASSERT_EQ(String(""), choiceAttribute4->longDescription());
             ASSERT_TRUE(choiceAttribute4->hasDefaultValue());
-            ASSERT_EQ(1u, choiceAttribute4->defaultValue());
+            ASSERT_EQ("2.3", choiceAttribute4->defaultValue());
 
             const Assets::ChoiceAttributeOption::List& options4 = choiceAttribute4->options();
             ASSERT_EQ(3u, options4.size());
@@ -584,6 +590,23 @@ namespace TrenchBroom {
             ASSERT_EQ(String("Something else"), options4[1].description());
             ASSERT_EQ(String("0.1"), options4[2].value());
             ASSERT_EQ(String("Yet more"), options4[2].description());
+
+            const Assets::AttributeDefinition* attribute5 = definition->attributeDefinition("negative");
+            const Assets::ChoiceAttributeDefinition* choiceAttribute5 = static_cast<const Assets::ChoiceAttributeDefinition*>(attribute5);
+            ASSERT_EQ(String("negative"), choiceAttribute5->name());
+            ASSERT_EQ(String("Negative values"), choiceAttribute5->shortDescription());
+            ASSERT_EQ(String(""), choiceAttribute5->longDescription());
+            ASSERT_TRUE(choiceAttribute5->hasDefaultValue());
+            ASSERT_EQ("-1", choiceAttribute5->defaultValue());
+
+            const Assets::ChoiceAttributeOption::List& options5 = choiceAttribute5->options();
+            ASSERT_EQ(3u, options5.size());
+            ASSERT_EQ(String("-2"), options5[0].value());
+            ASSERT_EQ(String("Something"), options5[0].description());
+            ASSERT_EQ(String("-1"), options5[1].value());
+            ASSERT_EQ(String("Something else"), options5[1].description());
+            ASSERT_EQ(String("1"), options5[2].value());
+            ASSERT_EQ(String("Yet more"), options5[2].description());
 
             VectorUtils::clearAndDelete(definitions);
         }
