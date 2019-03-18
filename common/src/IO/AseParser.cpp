@@ -480,7 +480,7 @@ namespace TrenchBroom {
                 const auto textureIndex = geomObject.materialIndex;
                 auto* texture = textureIndex < textures.size() ? textures[textureIndex] : nullptr;
                 if (texture == nullptr) {
-                    logger.error() << "Invalid texture index " << textureIndex;
+                    logger.warn() << "Invalid texture index " << textureIndex;
                 }
 
                 const auto vertexCount = mesh.faces.size() * 3;
