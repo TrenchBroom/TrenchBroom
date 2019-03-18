@@ -195,12 +195,10 @@ namespace TrenchBroom {
         void AseParser::parseGeomObjectMaterialRef(Logger& logger, GeomObject& geomObject, const size_t materialCount) {
             expectDirective("MATERIAL_REF");
             const auto token = m_tokenizer.peekToken();
-            const size_t materialIndex = parseSizeArgument();
-            if (materialIndex >= materialCount) {
-                logger.warn() << "Line " << token.line() << ": Material index " << materialIndex << " is out of bounds, assuming " << materialCount - 1;
-
+            geomObject.materialIndex = parseSizeArgument();
+            if (geomObject.materialIndex >= materialCount) {
+                logger.warn() << "Line " << token.line() << ": Material index " << geomObject.materialIndex << " is out of bounds (material count: " << materialCount << ")";
             }
-            geomObject.materialIndex = std::min(materialIndex, materialCount - 1);
         }
 
         void AseParser::parseGeomObjectMesh(Logger& logger, Mesh& mesh) {
@@ -476,11 +474,10 @@ namespace TrenchBroom {
                 bounds.add(std::begin(mesh.vertices), std::end(mesh.vertices));
 
                 const auto textureIndex = geomObject.materialIndex;
-                if (textureIndex >= textures.size()) {
-                    logger.error() << "Skipping geomobject with nvalid texture index " << textureIndex;
-                    continue;
+                auto* texture = textureIndex < textures.size() ? textures[textureIndex] : nullptr;
+                if (texture == nullptr) {
+                    logger.error() << "Invalid texture index " << textureIndex;
                 }
-                auto* texture = textures[textureIndex];
 
                 const auto vertexCount = mesh.faces.size() * 3;
                 size.inc(texture, GL_TRIANGLES, vertexCount);
@@ -495,11 +492,7 @@ namespace TrenchBroom {
                 const auto& mesh = geomObject.mesh;
 
                 const auto textureIndex = geomObject.materialIndex;
-                if (textureIndex >= textures.size()) {
-                    continue;
-                }
-                
-                auto* texture = textures[textureIndex];
+                auto* texture = textureIndex < textures.size() ? textures[textureIndex] : nullptr;
 
                 for (const auto& face : mesh.faces) {
                     builder.addTriangle(
