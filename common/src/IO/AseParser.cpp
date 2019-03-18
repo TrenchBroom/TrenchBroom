@@ -61,6 +61,10 @@ namespace TrenchBroom {
                     case '}':
                         advance();
                         return Token(AseToken::CBrace, c, c+1, offset(c), startLine, startColumn);
+                    case ':': {
+                        advance();
+                        return Token(AseToken::Colon, c, c+1, offset(c), startLine, startColumn);
+                    }
                     case '"': { // quoted string
                         advance();
                         c = curPos();
@@ -88,6 +92,7 @@ namespace TrenchBroom {
                         e = readUntil(WordDelims);
                         if (e != nullptr) {
                             if (*e == ':') {
+                                // we don't return the colon as a separate token in this case
                                 advance();
                                 return Token(AseToken::ArgumentName, c, e, offset(c), startLine, startColumn);
                             } else {
@@ -250,6 +255,9 @@ namespace TrenchBroom {
             expectDirective("MESH_FACE");
             expectSizeArgument(faces.size());
 
+            // the colon after the face index is sometimes missing
+            m_tokenizer.skipToken(AseToken::Colon);
+
             expectArgumentName("A");
             auto vertexIndexA = parseSizeArgument();
 
@@ -269,10 +277,12 @@ namespace TrenchBroom {
 
             // skip other
             expectDirective("MESH_SMOOTHING");
-            parseSizeArgument();
+
+            // this number is optional
+            m_tokenizer.skipToken(AseToken::Integer);
 
             expectDirective("MESH_MTLID");
-            parseSizeArgument();
+            expect(AseToken::Integer, m_tokenizer.nextToken());
 
             faces.emplace_back(MeshFace {{
                 MeshFaceVertex{ vertexIndexA, 0 },
@@ -427,6 +437,7 @@ namespace TrenchBroom {
             result[AseToken::Decimal]      = "decimal";
             result[AseToken::Keyword]      = "keyword";
             result[AseToken::ArgumentName] = "argument name";
+            result[AseToken::Colon]        = "':'";
             result[AseToken::Eof]          = "end of file";
             return result;
         }
@@ -465,6 +476,10 @@ namespace TrenchBroom {
                 bounds.add(std::begin(mesh.vertices), std::end(mesh.vertices));
 
                 const auto textureIndex = geomObject.materialIndex;
+                if (textureIndex >= textures.size()) {
+                    logger.error() << "Skipping geomobject with nvalid texture index " << textureIndex;
+                    continue;
+                }
                 auto* texture = textures[textureIndex];
 
                 const auto vertexCount = mesh.faces.size() * 3;
@@ -480,6 +495,10 @@ namespace TrenchBroom {
                 const auto& mesh = geomObject.mesh;
 
                 const auto textureIndex = geomObject.materialIndex;
+                if (textureIndex >= textures.size()) {
+                    continue;
+                }
+                
                 auto* texture = textures[textureIndex];
 
                 for (const auto& face : mesh.faces) {

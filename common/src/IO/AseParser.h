@@ -51,6 +51,7 @@ namespace TrenchBroom {
             static const Type Decimal           = 1 <<  5; // decimal number
             static const Type Keyword           = 1 <<  6; // keyword: Filter etc.
             static const Type ArgumentName      = 1 <<  7; // argument name: A:, B: etc.
+            static const Type Colon             = 1 <<  8; // colon: :
             static const Type Eof               = 1 << 12; // end of file
         }
 
