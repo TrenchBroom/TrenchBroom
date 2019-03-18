@@ -120,8 +120,8 @@ namespace TrenchBroom {
             void parseMaterialList(Logger& logger, Path::List& paths);
             void parseMaterialListMaterialCount(Logger& logger, Path::List& paths);
             void parseMaterialListMaterial(Logger& logger, Path::List& paths);
-            void parseMaterialListMaterialMapDiffuse(Logger& logger, Path::List& paths);
-            void parseMaterialListMaterialMapDiffuseBitmap(Logger& logger, Path::List& paths);
+            void parseMaterialListMaterialMapDiffuse(Logger& logger, Path& path);
+            void parseMaterialListMaterialMapDiffuseBitmap(Logger& logger, Path& path);
 
             void parseGeomObject(Logger& logger, GeomObject& geomObject, const Path::List& materialPaths);
             void parseGeomObjectNodeName(Logger& logger, GeomObject& geomObject);

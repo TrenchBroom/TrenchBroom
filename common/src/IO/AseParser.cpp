@@ -22,6 +22,7 @@
 #include "Assets/EntityModel.h"
 #include "Assets/Texture.h"
 #include "IO/FileSystem.h"
+#include "IO/FreeImageTextureReader.h"
 #include "IO/Path.h"
 #include "IO/Quake3ShaderTextureReader.h"
 #include "Renderer/TexturedIndexRangeMap.h"
@@ -149,31 +150,36 @@ namespace TrenchBroom {
 
         void AseParser::parseMaterialListMaterialCount(Logger& logger, Path::List& paths) {
             expectDirective("MATERIAL_COUNT");
-            parseSizeArgument();
+            paths.resize(parseSizeArgument());
         }
 
         void AseParser::parseMaterialListMaterial(Logger& logger, Path::List& paths) {
             expectDirective("MATERIAL");
-            const auto count = parseSizeArgument();
-            paths.reserve(count);
+            const auto index = parseSizeArgument();
+            if (index < paths.size()) {
+                auto& path = paths[index];
+                parseBlock({
+                    { "MAP_DIFFUSE", std::bind(&AseParser::parseMaterialListMaterialMapDiffuse, this, std::ref(logger), std::ref(path)) }
+                });
+            } else {
+                logger.warn() << "Material index " << index << " is out of bounds.";
+                parseBlock({});
+            }
 
-            parseBlock({
-                { "MAP_DIFFUSE", std::bind(&AseParser::parseMaterialListMaterialMapDiffuse, this, std::ref(logger), std::ref(paths)) }
-            });
         }
 
-        void AseParser::parseMaterialListMaterialMapDiffuse(Logger& logger, Path::List& paths) {
+        void AseParser::parseMaterialListMaterialMapDiffuse(Logger& logger, Path& path) {
             expectDirective("MAP_DIFFUSE");
 
             parseBlock({
-                { "BITMAP", std::bind(&AseParser::parseMaterialListMaterialMapDiffuseBitmap, this, std::ref(logger), std::ref(paths)) }
+                { "BITMAP", std::bind(&AseParser::parseMaterialListMaterialMapDiffuseBitmap, this, std::ref(logger), std::ref(path)) }
             });
         }
 
-        void AseParser::parseMaterialListMaterialMapDiffuseBitmap(Logger& logger, Path::List& paths) {
+        void AseParser::parseMaterialListMaterialMapDiffuseBitmap(Logger& logger, Path& path) {
             expectDirective("BITMAP");
             const auto token = expect(AseToken::String, m_tokenizer.nextToken());
-            paths.emplace_back(Path(token.data()));
+            path = Path(token.data());
         }
 
         void AseParser::parseGeomObject(Logger& logger, GeomObject& geomObject, const Path::List& materialPaths) {
@@ -456,9 +462,7 @@ namespace TrenchBroom {
                 try {
                     auto texture = loadTexture(logger, path);
                     textures[i] = texture.get();
-                    if (texture != nullptr) {
-                        surface.addSkin(texture.release());
-                    }
+                    surface.addSkin(texture.release());
                 } catch (const std::exception& e) {
                     logger.error() << "Failed to load texture '" << path << "': " << e.what();
                     textures[i] = nullptr;
@@ -517,7 +521,8 @@ namespace TrenchBroom {
                 Quake3ShaderTextureReader reader(TextureReader::PathSuffixNameStrategy(2, true), m_fs);
                 return std::unique_ptr<Assets::Texture>(reader.readTexture(file));
             } else {
-                return nullptr;
+                IO::FreeImageTextureReader imageReader(IO::TextureReader::StaticNameStrategy(""));
+                return std::unique_ptr<Assets::Texture>(imageReader.readTexture(m_fs.openFile(IO::Path("textures/__TB_empty.png"))));
             }
         }
 

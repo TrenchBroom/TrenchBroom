@@ -95,8 +95,8 @@ namespace TrenchBroom {
              * test/test -> test/editor_image.jpg
              * test/not_existing -> test/editor_image.jpg
              * test/editor_image
-             * test/not_existing2 -> __TB_empty.tga
-             * test/test2 -> __TB_empty.tga
+             * test/not_existing2 -> __TB_empty.png
+             * test/test2 -> __TB_empty.png
              */
 
             const auto* collection = textureManager.collections().front();
