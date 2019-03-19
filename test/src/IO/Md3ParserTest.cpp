@@ -43,7 +43,7 @@ namespace TrenchBroom {
             NullLogger logger;
             const auto shaderSearchPath = Path("scripts");
             const auto textureSearchPaths = Path::List { Path("models") };
-            std::shared_ptr<FileSystem> fs = std::make_shared<DiskFileSystem>(IO::Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Md3"));
+            std::shared_ptr<FileSystem> fs = std::make_shared<DiskFileSystem>(IO::Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Md3/bfg"));
                                         fs = std::make_shared<Quake3ShaderFileSystem>(fs, shaderSearchPath, textureSearchPaths, logger);
 
             const auto md3Path = IO::Path("models/weapons2/bfg/bfg.md3");
@@ -79,6 +79,33 @@ namespace TrenchBroom {
 
             const auto* skin2 = surface2->skin("bfg/LDAbfg_z");
             ASSERT_NE(nullptr, skin2);
+        }
+
+        TEST(Md3ParserTest, loadFailure_2659) {
+            // see https://github.com/kduske/TrenchBroom/issues/2659
+
+            NullLogger logger;
+            const auto shaderSearchPath = Path("scripts");
+            const auto textureSearchPaths = Path::List { Path("models") };
+            std::shared_ptr<FileSystem> fs = std::make_shared<DiskFileSystem>(IO::Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Md3/armor"));
+            fs = std::make_shared<Quake3ShaderFileSystem>(fs, shaderSearchPath, textureSearchPaths, logger);
+
+            const auto md3Path = IO::Path("models/armor_red.md3");
+            const auto md3File = fs->openFile(md3Path);
+            ASSERT_NE(nullptr, md3File);
+
+            auto reader = md3File->reader().buffer();
+            auto parser = Md3Parser("bfg", std::begin(reader), std::end(reader), *fs);
+            auto model = std::unique_ptr<Assets::EntityModel>(parser.initializeModel(logger));
+
+            ASSERT_NE(nullptr, model);
+
+            ASSERT_EQ(30u, model->frameCount());
+            ASSERT_EQ(2u, model->surfaceCount());
+
+            for (size_t i = 0; i < model->frameCount(); ++i) {
+                ASSERT_NO_THROW(parser.loadFrame(i, *model, logger));
+            }
         }
     }
 }
