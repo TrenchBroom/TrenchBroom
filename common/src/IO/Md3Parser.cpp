@@ -20,10 +20,10 @@
 #include "Md3Parser.h"
 
 #include "Logger.h"
-#include "IO/Reader.h"
 #include "IO/FileSystem.h"
 #include "IO/FreeImageTextureReader.h"
 #include "IO/Quake3ShaderTextureReader.h"
+#include "IO/Reader.h"
 #include "Renderer/IndexRangeMapBuilder.h"
 
 namespace TrenchBroom {
@@ -179,10 +179,10 @@ namespace TrenchBroom {
                 const auto endOffset = reader.readSize<int32_t>();
 
                 if (frameCount > 0) {
-                    const auto frameVertexOffset = vertexOffset + frame.index() * vertexCount * Md3Layout::VertexLength;
                     const auto frameVertexLength = vertexCount * Md3Layout::VertexLength;
+                    const auto frameVertexOffset = vertexOffset + frame.index() * frameVertexLength;
 
-                    const auto vertexPositions = parseVertexPositions(reader.subReaderFromBegin(frameVertexOffset, frameVertexLength), frameCount, vertexCount);
+                    const auto vertexPositions = parseVertexPositions(reader.subReaderFromBegin(frameVertexOffset, frameVertexLength), vertexCount);
                     const auto texCoords = parseTexCoords(reader.subReaderFromBegin(texCoordOffset, vertexCount * Md3Layout::TexCoordLength), vertexCount);
                     const auto vertices = buildVertices(vertexPositions, texCoords);
 
@@ -219,10 +219,10 @@ namespace TrenchBroom {
             return result;
         }
 
-        std::vector<vm::vec3f> Md3Parser::parseVertexPositions(Reader reader, const size_t frameCount, const size_t vertexCount) {
+        std::vector<vm::vec3f> Md3Parser::parseVertexPositions(Reader reader, const size_t vertexCount) {
             std::vector<vm::vec3f> result;
             result.reserve(vertexCount);
-            for (size_t i = 0; i < frameCount * vertexCount; ++i) {
+            for (size_t i = 0; i < vertexCount; ++i) {
                 const auto x = static_cast<float>(reader.readInt<int16_t>()) * Md3Layout::VertexScale;
                 const auto y = static_cast<float>(reader.readInt<int16_t>()) * Md3Layout::VertexScale;
                 const auto z = static_cast<float>(reader.readInt<int16_t>()) * Md3Layout::VertexScale;
@@ -259,15 +259,21 @@ namespace TrenchBroom {
         }
 
         void Md3Parser::loadSurfaceSkins(Assets::EntityModel::Surface& surface, const std::vector<Path>& shaders, Logger& logger) {
-            TextureReader::PathSuffixNameStrategy nameStrategy(2, true);
-            Quake3ShaderTextureReader shaderReader(nameStrategy, m_fs);
+            Quake3ShaderTextureReader shaderReader(TextureReader::PathSuffixNameStrategy(2, true), m_fs);
+            FreeImageTextureReader imageReader(TextureReader::StaticNameStrategy(""));
 
             for (const auto& shader : shaders) {
                 if (shader.isEmpty()) {
                     logger.warn() << "Empty shader path in surface " << surface.name();
                 } else {
-                    auto file = m_fs.openFile(shader.deleteExtension());
-                    surface.addSkin(shaderReader.readTexture(file));
+                    const auto shaderPath = shader.deleteExtension();
+                    if (m_fs.fileExists(shaderPath)) {
+                        auto file = m_fs.openFile(shader.deleteExtension());
+                        surface.addSkin(shaderReader.readTexture(file));
+                    } else {
+                        auto file = m_fs.openFile(Path("textures/__TB_empty.png"));
+                        surface.addSkin(imageReader.readTexture(file));
+                    }
                 }
             }
         }

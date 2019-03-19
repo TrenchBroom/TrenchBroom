@@ -60,7 +60,7 @@ namespace TrenchBroom {
 
             std::vector<Md3Triangle> parseTriangles(Reader reader, size_t triangleCount);
             std::vector<Path> parseShaders(Reader reader, size_t shaderCount);
-            std::vector<vm::vec3f> parseVertexPositions(Reader reader, size_t frameCount, size_t vertexCount);
+            std::vector<vm::vec3f> parseVertexPositions(Reader reader, size_t vertexCount);
             std::vector<vm::vec2f> parseTexCoords(Reader reader, size_t vertexCount);
             std::vector<Assets::EntityModel::Vertex> buildVertices(const std::vector<vm::vec3f>& positions, const std::vector<vm::vec2f>& texCoords);
 
