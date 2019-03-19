@@ -491,6 +491,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/Model/TagAttribute.cpp
 	${COMMON_SOURCE_DIR}/Model/TagManager.cpp
 	${COMMON_SOURCE_DIR}/Model/TagMatcher.cpp
+	${COMMON_SOURCE_DIR}/Model/TagVisitor.cpp
 )
 
 SET(COMMON_HEADER
@@ -1048,6 +1049,7 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/Model/TagAttribute.h
 	${COMMON_SOURCE_DIR}/Model/TagManager.h
 	${COMMON_SOURCE_DIR}/Model/TagMatcher.h
+	${COMMON_SOURCE_DIR}/Model/TagVisitor.h
 )
 
 # Unfortunately, Xcode still compiles OBJECT libraries as static libraries

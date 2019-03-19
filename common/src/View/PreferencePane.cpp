@@ -24,7 +24,7 @@ namespace TrenchBroom {
         PreferencePane::PreferencePane(QWidget* parent) :
         QWidget(parent, wxID_ANY) {}
         
-        PreferencePane::~PreferencePane() {}
+        PreferencePane::~PreferencePane() = default;
         
         bool PreferencePane::canResetToDefaults() {
             return doCanResetToDefaults();

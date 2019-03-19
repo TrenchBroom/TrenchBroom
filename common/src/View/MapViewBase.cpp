@@ -708,6 +708,253 @@ namespace TrenchBroom {
             return document->selectedNodes().hasOnlyBrushes();
         }
 
+        // FIXME: Port to Qt
+#if 0
+        void MapViewBase::OnToggleTagVisible() {
+            const auto tagIndex = static_cast<size_t>((event.GetId() - CommandIds::Actions::LowestToggleTagCommandId));
+
+            auto document = lock(m_document);
+            auto& editorContext = document->editorContext();
+            auto hiddenTags = editorContext.hiddenTags();
+            hiddenTags ^= 1UL << tagIndex;
+            editorContext.setHiddenTags(hiddenTags);
+        }
+
+        class MapViewBase::EnableDisableTagCallback : public Model::TagMatcherCallback, public wxEvtHandler {
+        private:
+            wxWindow* m_window;
+            size_t m_selectedOption;
+        public:
+            explicit EnableDisableTagCallback(wxWindow* window) :
+            m_window(window),
+            m_selectedOption(0) {
+                assert(m_window != nullptr);
+            }
+
+            size_t selectOption(const StringList& options) {
+                wxMenu menu;
+                for (size_t i = 0; i < options.size(); ++i) {
+                    const auto& option = options[i];
+                    const auto commandId = CommandIds::ToggleTagPopupMenu::Lowest + static_cast<int>(i);
+                    menu.Append(commandId, option);
+                    menu.Bind(wxEVT_MENU, &EnableDisableTagCallback::OnMenuItem, this, commandId);
+                }
+
+
+                m_selectedOption = options.size();
+                m_window->PopupMenu(&menu);
+                m_selectedOption = std::min(m_selectedOption, options.size());
+                return m_selectedOption;
+            }
+
+            void OnMenuItem() {
+                m_selectedOption = static_cast<size_t>(event.GetId() - CommandIds::ToggleTagPopupMenu::Lowest);
+            }
+        };
+
+        void MapViewBase::OnEnableTag() {
+            const auto tagIndex = static_cast<size_t>((event.GetId() - CommandIds::Actions::LowestEnableTagCommandId));
+
+            auto document = lock(m_document);
+            if (document->isRegisteredSmartTag(tagIndex)) {
+                const auto& tag = document->smartTag(tagIndex);
+                assert(tag.canEnable());
+
+                Transaction transaction(document, "Turn Selection into " + tag.name());
+                EnableDisableTagCallback callback(this);
+                tag.enable(callback, *document);
+            }
+        }
+
+        void MapViewBase::OnDisableTag() {
+            const auto tagIndex = static_cast<size_t>((event.GetId() - CommandIds::Actions::LowestDisableTagCommandId));
+
+            auto document = lock(m_document);
+            if (document->isRegisteredSmartTag(tagIndex)) {
+                const auto& tag = document->smartTag(tagIndex);
+                assert(tag.canDisable());
+
+                Transaction transaction(document, "Turn Selection into non-" + tag.name());
+                EnableDisableTagCallback callback(this);
+                tag.disable(callback, *document);
+            }
+        }
+#endif
+
+        void MapViewBase::OnMakeStructural() {
+            auto document = lock(m_document);
+            if (!document->selectedNodes().hasBrushes()) {
+                return;
+            }
+
+            Transaction transaction(document, "Make Structural");
+            Model::NodeList toReparent;
+            for (auto* brush : document->selectedNodes().brushes()) {
+                if (brush->entity() != document->world()) {
+                    toReparent.push_back(brush);
+                }
+            }
+
+            if (!toReparent.empty()) {
+                reparentNodes(toReparent, document->currentParent(), false);
+            }
+
+            // FIXME: Port
+#if 0
+            bool anyTagDisabled = false;
+            EnableDisableTagCallback callback(this);
+            for (auto* brush : document->selectedNodes().brushes()) {
+                for (const auto& tag : document->smartTags()) {
+                    if (brush->hasTag(tag) || brush->anyFacesHaveAnyTagInMask(tag.type())) {
+                        anyTagDisabled = true;
+                        tag.disable(callback, *document);
+                    }
+                }
+            }
+
+            if (!anyTagDisabled && toReparent.empty()) {
+                transaction.cancel();
+            }
+#endif
+        }
+
+        // FIXME: Port
+#if 0
+        void MapViewBase::OnToggleEntityDefinitionVisible() {
+            auto document = lock(m_document);
+            const auto& definitions = document->entityDefinitionManager().definitions();
+
+            const auto definitionIndex = static_cast<size_t>((event.GetId() - CommandIds::Actions::LowestToggleEntityDefinitionCommandId));
+            if (definitionIndex >= definitions.size()) {
+                return;
+            }
+
+            const auto* definition = definitions[definitionIndex];
+
+            Model::EditorContext& editorContext = document->editorContext();
+            editorContext.setEntityDefinitionHidden(definition, !editorContext.entityDefinitionHidden(definition));
+        }
+
+        void MapViewBase::OnCreateEntity() {
+            auto document = lock(m_document);
+            const auto& definitions = document->entityDefinitionManager().definitions();
+
+            const auto definitionIndex = static_cast<size_t>((event.GetId() - CommandIds::Actions::LowestCreateEntityCommandId));
+            if (definitionIndex >= definitions.size()) {
+                return;
+            }
+
+            const auto* definition = definitions[definitionIndex];
+            if (definition->type() == Assets::EntityDefinition::Type_PointEntity) {
+                createPointEntity(static_cast<const Assets::PointEntityDefinition*>(definition));
+            } else if (canCreateBrushEntity()) {
+                createBrushEntity(static_cast<const Assets::BrushEntityDefinition*>(definition));
+            }
+        }
+#endif
+
+        void MapViewBase::OnToggleShowEntityClassnames() {
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setShowEntityClassnames(!config.showEntityClassnames());
+        }
+
+        void MapViewBase::OnToggleShowGroupBounds() {
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setShowGroupBounds(!config.showGroupBounds());
+        }
+
+        void MapViewBase::OnToggleShowBrushEntityBounds() {
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setShowBrushEntityBounds(!config.showBrushEntityBounds());
+        }
+
+        void MapViewBase::OnToggleShowPointEntityBounds() {
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setShowPointEntityBounds(!config.showPointEntityBounds());
+        }
+
+        void MapViewBase::OnToggleShowPointEntities() {
+            MapDocumentSPtr document = lock(m_document);
+            Model::EditorContext& editorContext = document->editorContext();
+            editorContext.setShowPointEntities(!editorContext.showPointEntities());
+        }
+
+        void MapViewBase::OnToggleShowPointEntityModels() {
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setShowPointEntityModels(!config.showPointEntityModels());
+        }
+
+        void MapViewBase::OnToggleShowBrushes() {
+            MapDocumentSPtr document = lock(m_document);
+            Model::EditorContext& editorContext = document->editorContext();
+            editorContext.setShowBrushes(!editorContext.showBrushes());
+        }
+
+        void MapViewBase::OnRenderModeShowTextures() {
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setFaceRenderMode(MapViewConfig::FaceRenderMode_Textured);
+        }
+
+        void MapViewBase::OnRenderModeHideTextures() {
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setFaceRenderMode(MapViewConfig::FaceRenderMode_Flat);
+        }
+
+        void MapViewBase::OnRenderModeHideFaces() {
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setFaceRenderMode(MapViewConfig::FaceRenderMode_Skip);
+        }
+
+        void MapViewBase::OnRenderModeShadeFaces() {
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setShadeFaces(!config.shadeFaces());
+        }
+
+        void MapViewBase::OnRenderModeUseFog() {
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setShowFog(!config.showFog());
+        }
+
+        void MapViewBase::OnRenderModeShowEdges() {
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setShowEdges(!config.showEdges());
+        }
+
+        void MapViewBase::OnRenderModeShowAllEntityLinks() {
+            MapDocumentSPtr document = lock(m_document);
+            Model::EditorContext& editorContext = document->editorContext();
+            editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_All);
+        }
+
+        void MapViewBase::OnRenderModeShowTransitiveEntityLinks() {
+            MapDocumentSPtr document = lock(m_document);
+            Model::EditorContext& editorContext = document->editorContext();
+            editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_Transitive);
+        }
+
+        void MapViewBase::OnRenderModeShowDirectEntityLinks() {
+            MapDocumentSPtr document = lock(m_document);
+            Model::EditorContext& editorContext = document->editorContext();
+            editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_Direct);
+        }
+
+        void MapViewBase::OnRenderModeHideEntityLinks() {
+            MapDocumentSPtr document = lock(m_document);
+            Model::EditorContext& editorContext = document->editorContext();
+            editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_None);
+        }
+
         void MapViewBase::onActiveChanged() {
             qDebug("MapViewBase::onActiveChanged: is active: %d, is focus window: %d has focus %d",
                 (int)isActive(), (int)(QGuiApplication::focusWindow() == this), (int)HasFocus());
@@ -1009,18 +1256,20 @@ namespace TrenchBroom {
                 menu.addAction(tr("Remove Objects from Group %1").arg(QString::fromStdString(currentGroup->name())), this, &MapViewBase::OnRemoveObjectsFromGroup);
             }
             menu.addSeparator();
-            
-            menu.addMenu(makeEntityGroupsMenu(Assets::EntityDefinition::Type_PointEntity));
-            menu.addMenu(makeEntityGroupsMenu(Assets::EntityDefinition::Type_BrushEntity));
-            
+
             if (document->selectedNodes().hasOnlyBrushes()) {
-                if (!isEntity(newBrushParent)) {
-                    QAction* moveToWorldAction = menu.addAction(tr("Move Brushes to World"), this, &MapViewBase::OnMoveBrushesTo);
-                    moveToWorldAction->setEnabled(canMoveBrushesToWorld());
-                } else {
+                QAction* moveToWorldAction = menu.addAction(tr("Make Structural"), this, &MapViewBase::OnMakeStructural);
+                moveToWorldAction->setEnabled(canMakeStructural());
+                
+                if (isEntity(newBrushParent)) {
                     menu.addAction(tr("Move Brushes to Entity %1").arg(QString::fromStdString(newBrushParent->name())), this, &MapViewBase::OnMoveBrushesTo);
                 }
             }
+
+            menu.addSeparator();
+
+            menu.addMenu(makeEntityGroupsMenu(Assets::EntityDefinition::Type_PointEntity));
+            menu.addMenu(makeEntityGroupsMenu(Assets::EntityDefinition::Type_BrushEntity));
 
             menu.exec(QCursor::pos());
 
@@ -1193,19 +1442,22 @@ namespace TrenchBroom {
                 newParent = brush->entity();
             }
             
-            if (newParent != nullptr && newParent != document->world() && canReparentNodes(nodes, newParent))
+            if (newParent != nullptr && newParent != document->world() && canReparentNodes(nodes, newParent)) {
                 return newParent;
+            }
             
             if (!nodes.empty()) {
                 Model::Node* lastNode = nodes.back();
                 
                 Model::Group* group = Model::findGroup(lastNode);
-                if (group != nullptr)
+                if (group != nullptr) {
                     return group;
+                }
                 
                 Model::Layer* layer = Model::findLayer(lastNode);
-                if (layer != nullptr)
+                if (layer != nullptr) {
                     return layer;
+            }
             }
             
             return document->currentLayer();
@@ -1261,6 +1513,7 @@ namespace TrenchBroom {
             const Transaction transaction(document, name.str());
             document->deselectAll();
             document->reparentNodes(newParent, reparentableNodes);
+            document->select(reparentableNodes);
         }
 
         Model::NodeList MapViewBase::collectReparentableNodes(const Model::NodeList& nodes, const Model::Node* newParent) const {
@@ -1290,12 +1543,17 @@ namespace TrenchBroom {
             return document->selectedNodes().hasOnlyGroups();
         }
 
-        bool MapViewBase::canMoveBrushesToWorld() const {
+        bool MapViewBase::canMakeStructural() const {
             MapDocumentSPtr document = lock(m_document);
-            const Model::NodeList& nodes = document->selectedNodes().nodes();
-            Model::Node* newBrushParent = findNewParentEntityForBrushes(nodes);
-            return !isEntity(newBrushParent)
-                && !collectReparentableNodes(nodes, newBrushParent).empty();
+            if (document->selectedNodes().hasOnlyBrushes()) {
+                const Model::BrushList& brushes = document->selectedNodes().brushes();
+                for (const auto* brush : brushes) {
+                    if (brush->hasAnyTag() || brush->entity() != document->world() || brush->anyFaceHasAnyTag()) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         void MapViewBase::doPreRender() {}

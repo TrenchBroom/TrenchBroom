@@ -40,9 +40,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        wxIMPLEMENT_DYNAMIC_CLASS(PreferenceDialog, wxDialog)
-
-        PreferenceDialog::PreferenceDialog() :
+        PreferenceDialog::PreferenceDialog(MapDocumentSPtr document) :
+        m_document(document),
         m_toolBar(nullptr),
         m_book(nullptr) {
             Create();
@@ -64,7 +63,7 @@ namespace TrenchBroom {
         void PreferenceDialog::OnToolClicked(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            const PrefPane newPane = static_cast<PrefPane>(event.GetId());
+            const auto newPane = static_cast<PrefPane>(event.GetId());
             switchToPane(newPane);
         }
 
@@ -131,6 +130,10 @@ namespace TrenchBroom {
         }
 
         void PreferenceDialog::OnClose(wxCloseEvent& event) {
+            if (!currentPane()->validate()) {
+                event.Veto();
+            }
+
             wxConfigBase* conf = wxConfig::Get();
             if (conf != nullptr) {
                 conf->Flush();
@@ -165,7 +168,7 @@ namespace TrenchBroom {
             m_book->AddPage(new GamesPreferencePane(m_book), "Games");
             m_book->AddPage(new ViewPreferencePane(m_book), "View");
             m_book->AddPage(new MousePreferencePane(m_book), "Mouse");
-            m_book->AddPage(new KeyboardPreferencePane(m_book), "Keyboard");
+            m_book->AddPage(new KeyboardPreferencePane(m_book, m_document.get()), "Keyboard");
             
             wxButton* resetButton = new wxButton(this, wxID_ANY, "Reset to defaults");
             resetButton->Bind(wxEVT_BUTTON, &PreferenceDialog::OnResetClicked, this);
@@ -230,10 +233,11 @@ namespace TrenchBroom {
             updateAcceleratorTable(pane);
 #endif
             
-            if (pane == PrefPane_Keyboard)
+            if (pane == PrefPane_Keyboard) {
 				SetEscapeId(wxID_NONE);
-			else
-				SetEscapeId(wxID_CANCEL);
+            } else {
+                SetEscapeId(wxID_ANY);
+            }
         }
 
         void PreferenceDialog::toggleTools(const PrefPane pane) {

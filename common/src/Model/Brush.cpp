@@ -21,7 +21,6 @@
 
 #include "CollectionUtils.h"
 #include "Macros.h"
-#include "Model/TagMatcher.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/BrushSnapshot.h"
@@ -33,6 +32,7 @@
 #include "Model/IssueGenerator.h"
 #include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
+#include "Model/TagVisitor.h"
 #include "Model/World.h"
 
 #include <vecmath/vec.h>
@@ -1531,10 +1531,6 @@ namespace TrenchBroom {
             return m_brushRendererBrushCache;
         }
 
-        bool Brush::doEvaluateTagMatcher(const TagMatcher& matcher) const {
-            return matcher.matches(*this);
-        }
-
         void Brush::initializeTags(TagManager& tagManager) {
             Taggable::initializeTags(tagManager);
             for (auto* face : m_faces) {
@@ -1557,6 +1553,34 @@ namespace TrenchBroom {
                 sharedFaceTags &= face->tagMask();
             }
             return (sharedFaceTags & tagMask) != 0;
+        }
+
+        bool Brush::anyFaceHasAnyTag() const {
+            for (const auto* face : m_faces) {
+                if (face->hasAnyTag()) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        bool Brush::anyFacesHaveAnyTagInMask(Tag::TagType tagMask) const {
+            // Possible optimization: Store the shared face tag mask in the brush and updated it when a face changes.
+
+            for (const auto* face : m_faces) {
+                if (face->hasTag(tagMask)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        void Brush::doAcceptTagVisitor(TagVisitor& visitor) {
+            visitor.visit(*this);
+        }
+
+        void Brush::doAcceptTagVisitor(ConstTagVisitor& visitor) const {
+            visitor.visit(*this);
         }
     }
 }

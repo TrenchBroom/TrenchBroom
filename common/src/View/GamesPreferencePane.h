@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_GamesPreferencePane
 #define TrenchBroom_GamesPreferencePane
 
-#include <iostream>
-
 #include "View/PreferencePane.h"
 
 class wxSimplebook;
@@ -41,7 +39,7 @@ namespace TrenchBroom {
             wxTextCtrl* m_gamePathText;
             wxButton* m_chooseGamePathButton;
         public:
-            GamesPreferencePane(QWidget* parent);
+            explicit GamesPreferencePane(QWidget* parent);
         private:
             void OnGameSelectionChanged(GameSelectionCommand& event);
             void OnChooseGamePathClicked(wxCommandEvent& event);

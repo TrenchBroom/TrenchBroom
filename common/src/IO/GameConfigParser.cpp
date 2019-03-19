@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -28,16 +28,16 @@ namespace TrenchBroom {
     namespace IO {
         GameConfigParser::GameConfigParser(const char* begin, const char* end, const Path& path) :
         ConfigParserBase(begin, end, path) {}
-        
+
         GameConfigParser::GameConfigParser(const String& str, const Path& path) :
         ConfigParserBase(str, path) {}
-        
+
         Model::GameConfig GameConfigParser::parse() {
             using Model::GameConfig;
-          
+
             const auto root = parseConfigFile().evaluate(EL::EvaluationContext());
             expectType(root, EL::Type_Map);
-            
+
             const auto expectedVersion = 3.0;
             const auto actualVersion = root["version"].numberValue();
             if (actualVersion != expectedVersion) {
@@ -105,11 +105,11 @@ namespace TrenchBroom {
                             "{'searchpath': 'String', 'packageformat': 'Map'},"
                             "{}"
                             "]");
-            
+
 
             const String& searchPath = value["searchpath"].stringValue();
             const GameConfig::PackageFormatConfig packageFormatConfig = parsePackageFormatConfig(value["packageformat"]);
-            
+
             return GameConfig::FileSystemConfig(Path(searchPath), packageFormatConfig);
         }
 
@@ -140,7 +140,7 @@ namespace TrenchBroom {
 
         Model::GameConfig::TextureConfig GameConfigParser::parseTextureConfig(const EL::Value& value) const {
             using Model::GameConfig;
-            
+
             expectStructure(value,
                             "["
                             "{'package': 'Map', 'format': 'Map'},"
@@ -180,7 +180,7 @@ namespace TrenchBroom {
 
         Model::GameConfig::EntityConfig GameConfigParser::parseEntityConfig(const EL::Value& value) const {
             using Model::GameConfig;
-            
+
             expectStructure(value,
                             "["
                             "{'definitions': 'Array', 'modelformats': 'Array', 'defaultcolor': 'String'},"
@@ -190,16 +190,16 @@ namespace TrenchBroom {
             const Path::List defFilePaths = Path::asPaths(value["definitions"].asStringList());
             const StringSet modelFormats = value["modelformats"].asStringSet();
             const Color defaultColor = Color::parse(value["defaultcolor"].stringValue());
-            
+
             return GameConfig::EntityConfig(defFilePaths, modelFormats, defaultColor);
         }
 
         Model::GameConfig::FaceAttribsConfig GameConfigParser::parseFaceAttribsConfig(const EL::Value& value) const {
             using Model::GameConfig;
-            
+
             if (value.null())
                 return Model::GameConfig::FaceAttribsConfig();
-            
+
             expectStructure(value,
                             "["
                             "{'surfaceflags': 'Array', 'contentflags': 'Array'},"
@@ -208,28 +208,28 @@ namespace TrenchBroom {
 
             const GameConfig::FlagConfigList surfaceFlags = parseFlagConfig(value["surfaceflags"]);
             const GameConfig::FlagConfigList contentFlags = parseFlagConfig(value["contentflags"]);
-            
+
             return GameConfig::FaceAttribsConfig(surfaceFlags, contentFlags);
         }
-        
+
         Model::GameConfig::FlagConfigList GameConfigParser::parseFlagConfig(const EL::Value& value) const {
             using Model::GameConfig;
 
             if (value.null())
                 return GameConfig::FlagConfigList(0);
-            
+
             GameConfig::FlagConfigList flags;
             for (size_t i = 0; i < value.length(); ++i) {
                 const EL::Value& entry = value[i];
-                
+
                 expectStructure(entry, "[ {'name': 'String'}, {'description': 'String'} ]");
-                
+
                 const String& name = entry["name"].stringValue();
                 const String& description = entry["description"].stringValue();
-                
+
                 flags.push_back(GameConfig::FlagConfig(name, description));
             }
-            
+
             return flags;
         }
 
@@ -258,14 +258,15 @@ namespace TrenchBroom {
             for (size_t i = 0; i < value.length(); ++i) {
                 const auto& entry = value[i];
 
-                expectStructure(entry, "[ {'name': 'String', 'match': 'String'}, {'attribs': 'Array', 'pattern': 'String', 'flags': 'Array', 'ignore': 'Array' } ]");
+                expectStructure(entry, "[ {'name': 'String', 'match': 'String'}, {'attribs': 'Array', 'pattern': 'String', 'texture': 'String' } ]");
                 auto name = entry["name"].stringValue();
                 auto match = entry["match"].stringValue();
 
                 if (match == "classname") {
                     auto pattern = entry["pattern"].stringValue();
                     auto attribs = parseTagAttributes(entry["attribs"]);
-                    auto matcher = std::make_unique<Model::EntityClassNameTagMatcher>(std::move(pattern));
+                    auto texture = entry["texture"].stringValue();
+                    auto matcher = std::make_unique<Model::EntityClassNameTagMatcher>(std::move(pattern), std::move(texture));
                     result.emplace_back(std::move(name), std::move(attribs), std::move(matcher));
                 } else {
                     throw ParserException(entry.line(), entry.column(), "Unexpected smart tag match type '" + match + "'");
@@ -281,7 +282,7 @@ namespace TrenchBroom {
             for (size_t i = 0; i < value.length(); ++i) {
                 const auto& entry = value[i];
 
-                expectStructure(entry, "[ {'name': 'String', 'match': 'String'}, {'attribs': 'Array', 'pattern': 'String', 'flags': 'Array', 'ignore': 'Array' } ]");
+                expectStructure(entry, "[ {'name': 'String', 'match': 'String'}, {'attribs': 'Array', 'pattern': 'String', 'flags': 'Array' } ]");
                 auto name = entry["name"].stringValue();
                 auto match = entry["match"].stringValue();
 

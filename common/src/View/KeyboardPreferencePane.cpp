@@ -21,9 +21,12 @@
 
 #include "Macros.h"
 #include "Preferences.h"
+#include "Assets/EntityDefinitionManager.h"
+#include "Model/Tag.h"
 #include "View/ActionManager.h"
 #include "View/BorderLine.h"
 #include "View/KeyboardShortcutGridTable.h"
+#include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 
 #include <wx/msgdlg.h>
@@ -31,16 +34,15 @@
 #include <wx/sizer.h>
 #include <wx/statbox.h>
 #include <QLabel>
-
-#include <cassert>
+#include <wx/stattext.h>
 
 namespace TrenchBroom {
     namespace View {
-        KeyboardPreferencePane::KeyboardPreferencePane(QWidget* parent) :
+        KeyboardPreferencePane::KeyboardPreferencePane(wxWindow* parent, MapDocument* document) :
         PreferencePane(parent),
         m_grid(nullptr),
         m_table(nullptr) {
-            QWidget* menuShortcutGrid = createMenuShortcutGrid();
+            wxWindow* menuShortcutGrid = createMenuShortcutGrid(document);
             
             auto* outerSizer = new QVBoxLayout();
             outerSizer->Add(menuShortcutGrid, 1, wxEXPAND);
@@ -61,10 +63,19 @@ namespace TrenchBroom {
             event.Skip();
         }
         
-        QWidget* KeyboardPreferencePane::createMenuShortcutGrid() {
-            QWidget* container = new QWidget(this);
+       wxWindow* KeyboardPreferencePane::createMenuShortcutGrid(MapDocument* document) {
+            ActionManager::ShortcutEntryList entries;
+            ActionManager& actionManager = ActionManager::instance();
+            if (document != nullptr) {
+                const auto& definitions = document->entityDefinitionManager().definitions();
+                actionManager.getShortcutEntries(document->smartTags(), definitions, entries);
+            } else {
+                actionManager.getShortcutEntries(std::list<Model::SmartTag>{}, Assets::EntityDefinitionList{}, entries);
+            }
 
-            m_table = new KeyboardShortcutGridTable();
+            wxPanel* container = new wxPanel(this);
+
+            m_table = new KeyboardShortcutGridTable(std::move(entries));
             m_grid = new wxGrid(container, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
             m_grid->Bind(wxEVT_SIZE, &KeyboardPreferencePane::OnGridSize, this);
             
@@ -84,9 +95,7 @@ namespace TrenchBroom {
             m_grid->DisableDragGridSize();
             m_grid->DisableDragRowSize();
             
-            m_table->update();
-            
-            QLabel* infoText = new QLabel(container, wxID_ANY, "Click twice on a key combination to edit the shortcut. Press delete or backspace to delete a shortcut.");
+           wxStaticText* infoText = new wxStaticText(container, wxID_ANY, "Click twice on a key combination to edit the shortcut. Press delete or backspace to delete a shortcut.");
 #if defined __APPLE__
             infoText->SetFont(*wxSMALL_FONT);
 #endif

@@ -57,7 +57,7 @@ namespace TrenchBroom {
             KeyboardShortcutEditor* m_downKeyEditor;
             wxSlider* m_flyMoveSpeedSlider;
         public:
-            MousePreferencePane(QWidget* parent);
+            explicit MousePreferencePane(QWidget* parent);
         private:
             void OnLookSpeedChanged(wxScrollEvent& event);
             void OnInvertLookHAxisChanged(wxCommandEvent& event);

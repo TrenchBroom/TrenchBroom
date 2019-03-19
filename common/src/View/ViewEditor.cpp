@@ -274,12 +274,16 @@ namespace TrenchBroom {
 
             Model::Tag::TagType hiddenTags = 0;
             const auto& tags = document->smartTags();
-            for (size_t i = 0; i < tags.size(); ++i) {
-                const Model::Tag& tag = tags[i];
-                wxCheckBox* checkBox = m_tagCheckBoxes[i];
+
+            auto tagIt = std::begin(tags);
+            auto boxIt = std::begin(m_tagCheckBoxes);
+            while (tagIt != std::end(tags) && boxIt != std::end(m_tagCheckBoxes)) {
+                const auto& tag = *tagIt;
+                auto* checkBox = *boxIt;
                 if (!checkBox->GetValue()) {
                     hiddenTags |= tag.type();
                 }
+                ++tagIt; ++boxIt;
             }
 
             auto& editorContext = document->editorContext();
@@ -463,7 +467,7 @@ namespace TrenchBroom {
             wxWindow* inner = panel->getPanel();
             createTagFilter(inner);
 
-            m_showBrushesCheckBox = new wxCheckBox(panel->getPanel(), wxID_ANY, "Show brushes");
+            m_showBrushesCheckBox = new wxCheckBox(inner, wxID_ANY, "Show brushes");
             m_showBrushesCheckBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShowBrushesChanged, this);
 
             ensure(inner->GetSizer() != nullptr, "inner sizer is null");
@@ -496,13 +500,11 @@ namespace TrenchBroom {
             parent->setLayout(sizer);
         }
 
-        void ViewEditor::createTagFilter(wxWindow* parent, const std::vector<Model::SmartTag>& tags) {
+        void ViewEditor::createTagFilter(wxWindow* parent, const std::list<Model::SmartTag>& tags) {
             assert(!tags.empty());
 
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            for (size_t i = 0; i < tags.size(); ++i) {
-                const auto& tag = tags[i];
-
+            for (const auto& tag : tags) {
                 wxString label = "Show ";
                 label << StringUtils::toLower(tag.name());
 
@@ -579,10 +581,13 @@ namespace TrenchBroom {
             const Model::Tag::TagType hiddenTags = editorContext.hiddenTags();
 
             const auto& tags = document->smartTags();
-            for (size_t i = 0; i < tags.size(); ++i) {
-                const Model::Tag& tag = tags[i];
-                wxCheckBox* checkBox = m_tagCheckBoxes[i];
+            auto tagIt = std::begin(tags);
+            auto boxIt = std::begin(m_tagCheckBoxes);
+            while (tagIt != std::end(tags) && boxIt != std::end(m_tagCheckBoxes)) {
+                const Model::Tag& tag = *tagIt;;
+                wxCheckBox* checkBox = *boxIt;
                 checkBox->SetValue((tag.type() & hiddenTags) == 0);
+                ++tagIt; ++boxIt;
             }
         }
 

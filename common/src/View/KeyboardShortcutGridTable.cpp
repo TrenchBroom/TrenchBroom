@@ -24,9 +24,12 @@
 #include "View/KeyboardShortcutEntry.h"
 #include "View/Menu.h"
 
+#include <set>
+
 namespace TrenchBroom {
     namespace View {
-        KeyboardShortcutGridTable::KeyboardShortcutGridTable() :
+        KeyboardShortcutGridTable::KeyboardShortcutGridTable(EntryList entries) :
+        m_entries(std::move(entries)),
         m_cellEditor(new KeyboardGridCellEditor()) {
             m_cellEditor->IncRef();
         }
@@ -43,11 +46,11 @@ namespace TrenchBroom {
             return 3;
         }
         
-        QString KeyboardShortcutGridTable::GetValue(int row, int col) {
+        QString KeyboardShortcutGridTable::GetValue(const int row, const int col) {
             assert(row >= 0 && row < GetNumberRows());
             assert(col >= 0 && col < GetNumberCols());
             
-            size_t rowIndex = static_cast<size_t>(row);
+            const size_t rowIndex = static_cast<size_t>(row);
             
             switch (col) {
                 case 0:
@@ -64,7 +67,7 @@ namespace TrenchBroom {
             return "";
         }
         
-        void KeyboardShortcutGridTable::SetValue(int row, int col, const QString& value) {
+        void KeyboardShortcutGridTable::SetValue(const int row, const int col, const QString& value) {
             assert(row >= 0 && row < GetNumberRows());
             assert(col == 0);
             
@@ -76,32 +79,33 @@ namespace TrenchBroom {
             const size_t rowIndex = static_cast<size_t>(row);
             m_entries[rowIndex]->updateShortcut(KeyboardShortcut(key, modifier1, modifier2, modifier3));
             
-            if (markConflicts(m_entries))
+            if (markConflicts()) {
                 notifyRowsUpdated(m_entries.size());
-            else
+            } else {
                 notifyRowsUpdated(rowIndex, 1);
+        }
         }
         
         void KeyboardShortcutGridTable::Clear() {
             assert(false);
         }
         
-        bool KeyboardShortcutGridTable::InsertRows(size_t pos, size_t numRows) {
+        bool KeyboardShortcutGridTable::InsertRows(const size_t pos, const size_t numRows) {
             assert(false);
             return false;
         }
         
-        bool KeyboardShortcutGridTable::AppendRows(size_t numRows) {
+        bool KeyboardShortcutGridTable::AppendRows(const size_t numRows) {
             assert(false);
             return false;
         }
         
-        bool KeyboardShortcutGridTable::DeleteRows(size_t pos, size_t numRows) {
+        bool KeyboardShortcutGridTable::DeleteRows(const size_t pos, const size_t numRows) {
             assert(false);
             return false;
         }
         
-        QString KeyboardShortcutGridTable::GetColLabelValue(int col) {
+        QString KeyboardShortcutGridTable::GetColLabelValue(const int col) {
             assert(col >= 0 && col < GetNumberCols());
             switch (col) {
                 case 0:
@@ -118,18 +122,20 @@ namespace TrenchBroom {
             return "";
         }
         
-        wxGridCellAttr* KeyboardShortcutGridTable::GetAttr(int row, int col, wxGridCellAttr::wxAttrKind kind) {
+        wxGridCellAttr* KeyboardShortcutGridTable::GetAttr(const int row, const int col, const wxGridCellAttr::wxAttrKind kind) {
             wxGridCellAttr* attr = wxGridTableBase::GetAttr(row, col, kind);
             if (row >= 0 && row < GetNumberRows()) {
-                const KeyboardShortcutEntry* entry = m_entries[static_cast<size_t>(row)];
+                const auto& entry = m_entries[static_cast<size_t>(row)];
                 if (entry->hasConflicts()) {
-                    if (attr == nullptr)
+                    if (attr == nullptr) {
                         attr = new wxGridCellAttr();
+                    }
                     attr->SetTextColour(*wxRED);
                 }
                 if (col == 0) {
-                    if (attr == nullptr)
+                    if (attr == nullptr) {
                         attr = new wxGridCellAttr();
+                    }
                     if (entry->modifiable()) {
                         attr->SetEditor(m_cellEditor);
                         m_cellEditor->IncRef();
@@ -138,8 +144,9 @@ namespace TrenchBroom {
                         attr->SetTextColour(*wxLIGHT_GREY);
                     }
                 } else {
-                    if (attr == nullptr)
+                    if (attr == nullptr) {
                         attr = new wxGridCellAttr();
+                    }
                     attr->SetReadOnly(true);
                 }
             }
@@ -147,33 +154,21 @@ namespace TrenchBroom {
         }
         
         bool KeyboardShortcutGridTable::hasDuplicates() const {
-            for (size_t i = 0; i < m_entries.size(); i++)
-                if (m_entries[i]->hasConflicts())
+            for (const auto& entry : m_entries) {
+                if (entry->hasConflicts()) {
                     return true;
+                }
+            }
             return false;
         }
         
-        bool KeyboardShortcutGridTable::update() {
-            EntryList newEntries;
-            
-            ActionManager& actionManager = ActionManager::instance();
-            actionManager.getShortcutEntries(newEntries);
-            
-            const bool hasConflicts = markConflicts(newEntries);
-            
-            size_t oldSize = m_entries.size();
-            m_entries = newEntries;
-            
-            notifyRowsUpdated(0, oldSize);
-            if (oldSize < m_entries.size())
-                notifyRowsAppended(m_entries.size() - oldSize);
-            else if (oldSize > m_entries.size())
-                notifyRowsDeleted(oldSize, oldSize - m_entries.size());
-            
-            return hasConflicts;
+        void KeyboardShortcutGridTable::update() {
+            if (markConflicts()) {
+                notifyRowsUpdated(m_entries.size());
+            }
         }
         
-        void KeyboardShortcutGridTable::notifyRowsUpdated(size_t pos, size_t numRows) {
+        void KeyboardShortcutGridTable::notifyRowsUpdated(const size_t pos, const size_t numRows) {
             if (GetView() != nullptr) {
                 wxGridTableMessage message(this, wxGRIDTABLE_REQUEST_VIEW_GET_VALUES,
                                            static_cast<int>(pos),
@@ -182,7 +177,7 @@ namespace TrenchBroom {
             }
         }
         
-        void KeyboardShortcutGridTable::notifyRowsInserted(size_t pos, size_t numRows) {
+        void KeyboardShortcutGridTable::notifyRowsInserted(const size_t pos, const size_t numRows) {
             if (GetView() != nullptr) {
                 wxGridTableMessage message(this, wxGRIDTABLE_NOTIFY_ROWS_INSERTED,
                                            static_cast<int>(pos),
@@ -191,7 +186,7 @@ namespace TrenchBroom {
             }
         }
         
-        void KeyboardShortcutGridTable::notifyRowsAppended(size_t numRows) {
+        void KeyboardShortcutGridTable::notifyRowsAppended(const size_t numRows) {
             if (GetView() != nullptr) {
                 wxGridTableMessage message(this, wxGRIDTABLE_NOTIFY_ROWS_APPENDED,
                                            static_cast<int>(numRows));
@@ -208,21 +203,36 @@ namespace TrenchBroom {
             }
         }
         
-        bool KeyboardShortcutGridTable::markConflicts(EntryList& entries) {
-            for (size_t i = 0; i < entries.size(); i++)
-                entries[i]->resetConflicts();
+        bool KeyboardShortcutGridTable::markConflicts() {
+            const auto cmp = [](const KeyboardShortcutEntry* lhs, const KeyboardShortcutEntry* rhs){
+                if ((lhs->actionContext() & rhs->actionContext()) == 0) {
+                    if (lhs->actionContext() < rhs->actionContext()) {
+                        return true;
+                    } else if (lhs->actionContext() > rhs->actionContext()) {
+                        return false;
+                    }
+                }
+
+                const auto& lhsShortcut = lhs->shortcut();
+                const auto& rhsShortcut = rhs->shortcut();
+                return lhsShortcut < rhsShortcut;
+            };
+            std::set<KeyboardShortcutEntry*, decltype(cmp)> entrySet(cmp);
             
             bool hasConflicts = false;
-            for (size_t i = 0; i < entries.size(); i++) {
-                KeyboardShortcutEntry* first = entries[i];
-                for (size_t j = i + 1; j < entries.size(); j++) {
-                    KeyboardShortcutEntry* second = entries[j];
-                    if (first->updateConflicts(second)) {
-                        second->updateConflicts(first);
+            for (auto& entry : m_entries) {
+                entry->resetConflicts();
+                if (entry->shortcut().hasKey()) {
+                    auto [it, noConflict] = entrySet.insert(entry.get());
+                    if (!noConflict) {
+                        // found a duplicate, so there are conflicts
+                        (*it)->setHasConflicts();
+                        entry->setHasConflicts();
                         hasConflicts = true;
                     }
                 }
             }
+
             return hasConflicts;
         }
     }

@@ -19,6 +19,7 @@
 
 #include "KeyboardShortcutEntry.h"
 
+#include "PreferenceManager.h"
 #include "View/ActionContext.h"
 #include "View/KeyboardShortcut.h"
 
@@ -34,7 +35,7 @@ namespace TrenchBroom {
             return *this;
         }
 
-        KeyboardShortcutEntry::~KeyboardShortcutEntry() {}
+        KeyboardShortcutEntry::~KeyboardShortcutEntry() = default;
         
         bool KeyboardShortcutEntry::modifiable() const {
             return doGetModifiable();
@@ -48,23 +49,8 @@ namespace TrenchBroom {
             m_hasConflicts = false;
         }
 
-        bool KeyboardShortcutEntry::updateConflicts(const KeyboardShortcutEntry* entry) {
-            const bool conflicts = conflictsWith(entry);
-            m_hasConflicts |= conflicts;
-            return conflicts;
-        }
-        
-        bool KeyboardShortcutEntry::conflictsWith(const KeyboardShortcutEntry* entry) const {
-            if (entry == this)
-                return false;
-            
-            if ((actionContext() & entry->actionContext()) == 0)
-                return false;
-            
-            const KeyboardShortcut& mine = shortcut();
-            const KeyboardShortcut& theirs = entry->shortcut();
-            
-            return mine.hasKey() && theirs.hasKey() && mine == theirs;
+        void KeyboardShortcutEntry::setHasConflicts() {
+            m_hasConflicts = true;
         }
 
         int KeyboardShortcutEntry::actionContext() const {
@@ -96,11 +82,13 @@ namespace TrenchBroom {
         }
         
         const KeyboardShortcut& KeyboardShortcutEntry::shortcut() const {
-            return doGetShortcut();
+            PreferenceManager& prefs = PreferenceManager::instance();
+            return prefs.get(doGetPreference());
         }
 
         const KeyboardShortcut& KeyboardShortcutEntry::defaultShortcut() const {
-            return doGetDefaultShortcut();
+            PreferenceManager& prefs = PreferenceManager::instance();
+            return prefs.getDefault(doGetPreference());
         }
 
         bool KeyboardShortcutEntry::equals(const KeyboardShortcut& i_shortcut) const {
@@ -108,7 +96,9 @@ namespace TrenchBroom {
         }
         
         void KeyboardShortcutEntry::updateShortcut(const KeyboardShortcut& shortcut) {
-            doUpdateShortcut(shortcut);
+            assert(modifiable());
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.set(doGetPreference(), shortcut);
         }
 
         wxAcceleratorEntry KeyboardShortcutEntry::acceleratorEntry(const ActionView view) const {

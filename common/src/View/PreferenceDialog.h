@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_PreferenceDialog
 #define TrenchBroom_PreferenceDialog
 
+#include "View/ViewTypes.h"
+
 #include <wx/dialog.h>
 
 class QWidget;
@@ -42,10 +44,11 @@ namespace TrenchBroom {
                 PrefPane_Last = 3
             } PrefPane;
 
+            MapDocumentSPtr m_document;
             wxToolBar* m_toolBar;
             wxSimplebook* m_book;
         public:
-            PreferenceDialog();
+            explicit PreferenceDialog(MapDocumentSPtr document);
             bool Create();
         private:
             void OnToolClicked(wxCommandEvent& event);
@@ -63,15 +66,13 @@ namespace TrenchBroom {
             void createGui();
             void bindEvents();
             
-            void switchToPane(const PrefPane pane);
-            void toggleTools(const PrefPane pane);
+            void switchToPane(PrefPane pane);
+            void toggleTools(PrefPane pane);
 
             PreferencePane* currentPane() const;
             PrefPane currentPaneId() const;
 
-            void updateAcceleratorTable(const PrefPane pane);
-        public:
-            wxDECLARE_DYNAMIC_CLASS(PreferenceDialog);
+            void updateAcceleratorTable(PrefPane pane);
         };
     }
 }

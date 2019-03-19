@@ -97,7 +97,7 @@ namespace TrenchBroom {
             
             void setCompass(Renderer::Compass* compass);
         public:
-            virtual ~MapViewBase() override;
+            ~MapViewBase() override;
         private:
             void bindObservers();
             void unbindObservers();
@@ -230,6 +230,35 @@ namespace TrenchBroom {
             void createPointEntity(const Assets::PointEntityDefinition* definition);
             void createBrushEntity(const Assets::BrushEntityDefinition* definition);
             bool canCreateBrushEntity();
+        private: // tags
+            void OnToggleTagVisible();
+
+            class EnableDisableTagCallback;
+            void OnEnableTag();
+            void OnDisableTag();
+        private: // make structural
+            void OnMakeStructural();
+        private: // entity definitions
+            void OnToggleEntityDefinitionVisible();
+            void OnCreateEntity();
+        private: // view filters
+            void OnToggleShowEntityClassnames();
+            void OnToggleShowGroupBounds();
+            void OnToggleShowBrushEntityBounds();
+            void OnToggleShowPointEntityBounds();
+            void OnToggleShowPointEntities();
+            void OnToggleShowPointEntityModels();
+            void OnToggleShowBrushes();
+            void OnRenderModeShowTextures();
+            void OnRenderModeHideTextures();
+            void OnRenderModeHideFaces();
+            void OnRenderModeShadeFaces();
+            void OnRenderModeUseFog();
+            void OnRenderModeShowEdges();
+            void OnRenderModeShowAllEntityLinks();
+            void OnRenderModeShowTransitiveEntityLinks();
+            void OnRenderModeShowDirectEntityLinks();
+            void OnRenderModeHideEntityLinks();
         private: // other events
             void onActiveChanged();
         private:
@@ -274,7 +303,7 @@ namespace TrenchBroom {
             bool canUngroupObjects() const;
             bool canMergeGroups() const;
             bool canRenameGroups() const;
-            bool canMoveBrushesToWorld() const;
+            bool canMakeStructural() const;
         private: // subclassing interface
             virtual vm::vec3 doGetMoveDirection(vm::direction direction) const = 0;
             virtual vm::vec3 doComputePointEntityPosition(const vm::bbox3& bounds) const = 0;

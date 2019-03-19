@@ -27,18 +27,18 @@
 namespace TrenchBroom {
     namespace View {
         class KeyboardShortcutGridTable;
+        class MapDocument;
         
         class KeyboardPreferencePane : public PreferencePane {
         private:
             wxGrid* m_grid;
             KeyboardShortcutGridTable* m_table;
-            
         public:
-            KeyboardPreferencePane(QWidget* parent);
+            KeyboardPreferencePane(wxWindow* parent, MapDocument* document);
         private:
             void OnGridSize(wxSizeEvent& event);
-            
-            QWidget* createMenuShortcutGrid();
+
+            wxWindow* createMenuShortcutGrid(MapDocument* document);
             
             bool doCanResetToDefaults() override;
             void doResetToDefaults() override;

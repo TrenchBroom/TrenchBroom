@@ -23,6 +23,7 @@
 #include "Preference.h"
 #include "View/ActionContext.h"
 
+#include <memory>
 #include <vector>
 
 #include <wx/string.h>
@@ -36,7 +37,7 @@ namespace TrenchBroom {
         class KeyboardShortcut;
         class KeyboardShortcutEntry {
         public:
-            using List = std::vector<KeyboardShortcutEntry*>;
+            using List = std::vector<std::unique_ptr<KeyboardShortcutEntry>>;
         private:
             bool m_hasConflicts;
         protected:
@@ -50,9 +51,7 @@ namespace TrenchBroom {
             
             bool hasConflicts() const;
             void resetConflicts();
-            bool updateConflicts(const KeyboardShortcutEntry* entry);
-        private:
-            bool conflictsWith(const KeyboardShortcutEntry* entry) const;
+            void setHasConflicts();
         public:
             int actionContext() const;
             bool appliesToContext(int context) const;
@@ -76,9 +75,7 @@ namespace TrenchBroom {
             virtual QString doGetActionDescription() const = 0;
             virtual QString doGetJsonString() const = 0;
             virtual const Preference<KeyboardShortcut>& doGetPreference() const = 0;
-            virtual const KeyboardShortcut& doGetShortcut() const = 0;
-            virtual const KeyboardShortcut& doGetDefaultShortcut() const = 0;
-            virtual void doUpdateShortcut(const KeyboardShortcut& shortcut) = 0;
+            virtual Preference<KeyboardShortcut>& doGetPreference() = 0;
             virtual wxAcceleratorEntry doGetAcceleratorEntry(ActionView view) const = 0;
         };
     }

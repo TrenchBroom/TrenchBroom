@@ -456,6 +456,7 @@ namespace TrenchBroom {
 
             auto& facesSortedByTex = brushCache.cachedFacesSortedByTexture();
             const size_t facesSortedByTexSize = facesSortedByTex.size();
+            const auto forceTransparent = m_transparent || brush->hasAttribute(Model::TagAttributes::Transparency);
 
             size_t nextI;
             for (size_t i = 0; i < facesSortedByTexSize; i = nextI) {
@@ -472,7 +473,7 @@ namespace TrenchBroom {
                     const BrushRendererBrushCache::CachedFace& cache = facesSortedByTex[j];
                     if (cache.face->isMarked()) {
                         assert(cache.texture == texture);
-                        if (m_transparent || cache.face->hasAttribute(Model::TagAttributes::Transparency)) {
+                        if (forceTransparent || cache.face->hasAttribute(Model::TagAttributes::Transparency)) {
                             transparentIndexCount += triIndicesCountForPolygon(cache.vertexCount);
                         } else {
                             opaqueIndexCount += triIndicesCountForPolygon(cache.vertexCount);
@@ -495,7 +496,7 @@ namespace TrenchBroom {
                     GLuint *currentDest = dest;
                     for (size_t j = i; j < nextI; ++j) {
                         const BrushRendererBrushCache::CachedFace& cache = facesSortedByTex[j];
-                        if (cache.face->isMarked() && (m_transparent || cache.face->hasAttribute(Model::TagAttributes::Transparency))) {
+                        if (cache.face->isMarked() && (forceTransparent || cache.face->hasAttribute(Model::TagAttributes::Transparency))) {
                             addTriIndicesForPolygon(currentDest,
                                                     static_cast<GLuint>(brushVerticesStartIndex +
                                                                         cache.indexOfFirstVertexRelativeToBrush),
@@ -522,7 +523,7 @@ namespace TrenchBroom {
                     GLuint *currentDest = dest;
                     for (size_t j = i; j < nextI; ++j) {
                         const BrushRendererBrushCache::CachedFace& cache = facesSortedByTex[j];
-                        if (cache.face->isMarked() && !cache.face->hasAttribute(Model::TagAttributes::Transparency)) {
+                        if (cache.face->isMarked() && !(forceTransparent || cache.face->hasAttribute(Model::TagAttributes::Transparency))) {
                             addTriIndicesForPolygon(currentDest,
                                                     static_cast<GLuint>(brushVerticesStartIndex +
                                                                         cache.indexOfFirstVertexRelativeToBrush),

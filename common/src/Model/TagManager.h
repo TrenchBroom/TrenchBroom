@@ -23,7 +23,7 @@
 #include "StringUtils.h"
 #include "Model/Tag.h"
 
-#include <vector>
+#include <list>
 
 namespace TrenchBroom {
     namespace Model {
@@ -33,7 +33,7 @@ namespace TrenchBroom {
         class TagManager {
         private:
             size_t m_currentTagTypeIndex;
-            std::vector<SmartTag> m_smartTags;
+            std::list<SmartTag> m_smartTags;
             class TagCmp;
         public:
             /**
@@ -44,7 +44,7 @@ namespace TrenchBroom {
             /**
              * Returns a vector containing all smart tags registered with this manager.
              */
-            const std::vector<SmartTag>& smartTags() const;
+            const std::list<SmartTag>& smartTags() const;
 
             /**
              * Indicates whether a smart tag with the given name is registered with this tag manager.
@@ -63,6 +63,24 @@ namespace TrenchBroom {
              * @throws std::logic_error if no tag with the given name is registered
              */
             const SmartTag& smartTag(const String& name) const;
+
+            /**
+             * Indicates whether a smart tag with the given index is registered with this tag manager.
+             *
+             * @param index the tag index to check
+             * @return true if a tag with the given index is registered and false otherwise
+             */
+            bool isRegisteredSmartTag(size_t index) const;
+
+            /**
+             * Returns the smart tag with the given index.
+             *
+             * @param index the index of the smart tag with the given name
+             * @return the smart tag with the given index
+             *
+             * @throws std::logic_error if no tag with the given index is registered
+             */
+            const SmartTag& smartTag(size_t index) const;
 
             /**
              * Register the given smart tag with this tag manager.
@@ -85,7 +103,7 @@ namespace TrenchBroom {
              */
             void updateTags(Taggable& taggable) const;
         private:
-            Tag::TagType freeTagType();
+            size_t freeTagIndex();
         };
     }
 }

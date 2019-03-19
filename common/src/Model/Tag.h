@@ -25,6 +25,10 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace IO {
+        class Path;
+    }
+
     namespace Model {
         /**
          * This class represents an attribute of a tag. A tag can have multiple attributes, but the names must
@@ -69,18 +73,18 @@ namespace TrenchBroom {
         public:
             using TagType = unsigned long;
         protected:
-            TagType m_type;
+            size_t m_index;
             String m_name;
             std::vector<TagAttribute> m_attributes;
 
             /**
-             * Creates a new tag with the given type, name and attributes. The tag's type will be set automatically.
+             * Creates a new tag with the given index, name and attributes.
              *
-             * @param type the tag's type
+             * @param index the tag's index
              * @param name the tag's name
              * @param attributes the tag's attributes
              */
-            Tag(TagType type, String name, std::vector<TagAttribute> attributes);
+            Tag(size_t index, String name, std::vector<TagAttribute> attributes);
         public:
             /**
              * Creates a new tag with the given name and attributes. The tag's type will be set automatically.
@@ -90,17 +94,30 @@ namespace TrenchBroom {
              */
             Tag(String name, std::vector<TagAttribute> attributes);
 
+            virtual ~Tag();
+
+            Tag(const Tag& other);
+            Tag(Tag&& other) noexcept;
+
+            Tag& operator=(const Tag& other);
+            Tag& operator=(Tag&& other);
+
             /**
              * Returns the type of this tag.
              */
             TagType type() const;
 
             /**
-             * Sets the tag type. Can be called only once.
-             *
-             * @param type the type
+             * Returns the index of this tag.
              */
-            void setType(TagType type);
+            size_t index() const;
+
+            /**
+             * Sets the tag's index.
+             *
+             * @param index the index
+             */
+            void setIndex(size_t index);
 
             /**
              * Returns the name of this tag.
@@ -140,7 +157,8 @@ namespace TrenchBroom {
         };
 
         class TagManager;
-        class TagMatcher;
+        class TagVisitor;
+        class ConstTagVisitor;
 
         /**
          * Implementing this interface gives a class the ability to be tagged.
@@ -157,6 +175,13 @@ namespace TrenchBroom {
             Taggable();
 
             virtual ~Taggable();
+
+            /**
+             * Indicates whether this object has any tag.
+             *
+             * @return true if this object has any tag and false otherwise
+             */
+            bool hasAnyTag() const;
 
             /**
              * Indicates whether this object has the given tag.
@@ -225,25 +250,35 @@ namespace TrenchBroom {
             bool hasAttribute(const TagAttribute& attribute) const;
 
             /**
-             * Evaluates the given matcher against this taggable object. This method is used as part of a double dispatch
-             * to retrieve the type information of this taggable object.
+             * Accepts the given tag visitor.
              *
-             * @param matcher the matcher to evaluate against this object
-             * @return true if the given matcher matches this object and false otherwise
+             * @param visitor the visitor to accept
              */
-            bool evaluateTagMatcher(const TagMatcher& matcher) const;
+            void accept(TagVisitor& visitor);
+
+            /**
+             * Accepts the given tag visitor.
+             *
+             * @param visitor the visitor to accept
+             */
+            void accept(ConstTagVisitor& visitor) const;
         private:
             void updateAttributeMask();
         private:
-            virtual bool doEvaluateTagMatcher(const TagMatcher& matcher) const = 0;
+            virtual void doAcceptTagVisitor(TagVisitor& visitor) = 0;
+            virtual void doAcceptTagVisitor(ConstTagVisitor& visitor) const = 0;
         };
 
-        class BrushFace;
-        class Brush;
-        class Entity;
-        class Group;
-        class Layer;
-        class World;
+        class MapFacade;
+
+        /**
+         * A mechanism to query user input when enabling or disabling a tag matcher.
+         */
+        class TagMatcherCallback {
+        public:
+            virtual ~TagMatcherCallback();
+            virtual size_t selectOption(const StringList& options) = 0;
+        };
 
         /**
          * Decides whether a taggable object should be tagged with a particular smart tag.
@@ -258,16 +293,42 @@ namespace TrenchBroom {
              * @param taggable the taggable to match against
              * @return true if this matcher matches the given taggable and false otherwise
              */
-            bool matches(const Taggable& taggable) const;
+            virtual bool matches(const Taggable& taggable) const = 0;
 
+            /**
+             * Modifies the current selection so that this tag matcher would match it.
+             *
+             * @param callback a callback mechanism to query  user input
+             * @param facade the map facade to issue commands with
+             */
+            virtual void enable(TagMatcherCallback& callback, MapFacade& facade) const;
+
+            /**
+             * Modifies the current selection so that this tag matcher would not match it.
+             *
+             * @param callback a callback mechanism to query  user input
+             * @param facade the map facade to issue commands with
+             */
+            virtual void disable(TagMatcherCallback& callback, MapFacade& facade) const;
+
+            /**
+             * Indicates whether this tag matcher can modify the selection so that it would match it.
+             *
+             * @return true if this tag matcher can modify the selection appropriately and false otherwise
+             */
+            virtual bool canEnable() const;
+
+            /**
+             * Indicates whether this tag matcher can modify the selection so that it would not match it.
+             *
+             * @return true if this tag matcher can modify the selection appropriately and false otherwise
+             */
+            virtual bool canDisable() const;
+
+            /**
+             * Returns a new copy of this tag matcher.
+             */
             virtual std::unique_ptr<TagMatcher> clone() const = 0;
-        public:
-            virtual bool matches(const BrushFace& face) const;
-            virtual bool matches(const World& world) const;
-            virtual bool matches(const Layer& layer) const;
-            virtual bool matches(const Group& group) const;
-            virtual bool matches(const Entity& entity) const;
-            virtual bool matches(const Brush& brush) const;
         };
 
         /**
@@ -293,11 +354,49 @@ namespace TrenchBroom {
             SmartTag& operator=(SmartTag&& other);
 
             /**
+             * Indicates whether this smart tag matches the given taggable.
+             *
+             * @param taggable the taggable to match
+             * @return true if this smart tag matches the given taggable and false otherwise
+             */
+            bool matches(const Taggable& taggable) const;
+
+            /**
              * Updates the given tag depending on whether or not the matcher matches against it.
              *
              * @param taggable the taggable to update
              */
             void update(Taggable& taggable) const;
+
+            /**
+             * Modifies the current selection so that this tag would match it.
+             *
+             * @param callback a callback mechanism to query  user input
+             * @param facade the map facade to issue commands with
+             */
+            void enable(TagMatcherCallback& callback, MapFacade& facade) const;
+
+            /**
+             * Modifies the current selection so that this tag would not match it.
+             *
+             * @param callback a callback mechanism to query  user input
+             * @param facade the map facade to issue commands with
+             */
+            void disable(TagMatcherCallback& callback, MapFacade& facade) const;
+
+            /**
+             * Indicates whether this tag supports modifying the selection so that it would match it.
+             *
+             * @return true if this tag can modify the selection appropriately and false otherwise
+             */
+            bool canEnable() const;
+
+            /**
+             * Indicates whether this tag supports modifying the selection so that it would not match it.
+             *
+             * @return true if this tag can modify the selection appropriately and false otherwise
+             */
+            bool canDisable() const;
         };
     }
 }
