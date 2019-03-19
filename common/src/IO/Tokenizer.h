@@ -135,6 +135,12 @@ namespace TrenchBroom {
                 return nextToken(skipTokens);
             }
 
+            void skipToken(const TokenType skipTokens = ~0) {
+                if (peekToken().hasType(skipTokens)) {
+                    nextToken();
+                }
+            }
+
             void discardLine() {
                 discardUntil("\n");
                 discardWhile("\n");

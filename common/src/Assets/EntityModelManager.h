@@ -87,6 +87,7 @@ namespace TrenchBroom {
             EntityModel* model(const IO::Path& path) const;
             EntityModel* safeGetModel(const IO::Path& path) const;
             std::unique_ptr<EntityModel> loadModel(const IO::Path& path) const;
+            void loadFrame(const Assets::ModelSpecification& spec, Assets::EntityModel& model) const;
         public:
             void prepare(Renderer::Vbo& vbo);
         private:

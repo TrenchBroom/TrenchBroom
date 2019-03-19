@@ -96,7 +96,7 @@ namespace TrenchBroom {
                 }
             }
             if (texturePath.isEmpty()) {
-                texturePath = Path("textures/__TB_empty.tga");
+                texturePath = Path("textures/__TB_empty.png");
             }
             return texturePath;
         }

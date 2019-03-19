@@ -51,6 +51,7 @@ namespace TrenchBroom {
             static const Type Decimal           = 1 <<  5; // decimal number
             static const Type Keyword           = 1 <<  6; // keyword: Filter etc.
             static const Type ArgumentName      = 1 <<  7; // argument name: A:, B: etc.
+            static const Type Colon             = 1 <<  8; // colon: :
             static const Type Eof               = 1 << 12; // end of file
         }
 
@@ -119,8 +120,8 @@ namespace TrenchBroom {
             void parseMaterialList(Logger& logger, Path::List& paths);
             void parseMaterialListMaterialCount(Logger& logger, Path::List& paths);
             void parseMaterialListMaterial(Logger& logger, Path::List& paths);
-            void parseMaterialListMaterialMapDiffuse(Logger& logger, Path::List& paths);
-            void parseMaterialListMaterialMapDiffuseBitmap(Logger& logger, Path::List& paths);
+            void parseMaterialListMaterialMapDiffuse(Logger& logger, Path& path);
+            void parseMaterialListMaterialMapDiffuseBitmap(Logger& logger, Path& path);
 
             void parseGeomObject(Logger& logger, GeomObject& geomObject, const Path::List& materialPaths);
             void parseGeomObjectNodeName(Logger& logger, GeomObject& geomObject);

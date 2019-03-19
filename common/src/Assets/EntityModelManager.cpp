@@ -102,8 +102,7 @@ namespace TrenchBroom {
                 return nullptr;
             } else {
                 if (!model->frame(spec.frameIndex)->loaded()) {
-                    ensure(m_loader != nullptr, "loader is null");
-                    m_loader->loadFrame(spec.path, spec.frameIndex, *model, m_logger);
+                    loadFrame(spec, *model);
                 }
                 return model->frame(spec.frameIndex);
             }
@@ -141,7 +140,8 @@ namespace TrenchBroom {
                 m_logger.debug() << "Loaded entity model " << path;
 
                 return model;
-            } catch (const GameException&) {
+            } catch (const GameException& e) {
+                m_logger.error() << e.what();
                 m_modelMismatches.insert(path);
                 throw;
             }
@@ -158,6 +158,15 @@ namespace TrenchBroom {
         std::unique_ptr<EntityModel> EntityModelManager::loadModel(const IO::Path& path) const {
             ensure(m_loader != nullptr, "loader is null");
             return m_loader->initializeModel(path, m_logger);
+        }
+
+        void EntityModelManager::loadFrame(const Assets::ModelSpecification& spec, Assets::EntityModel& model) const {
+            try {
+                ensure(m_loader != nullptr, "loader is null");
+                m_loader->loadFrame(spec.path, spec.frameIndex, model, m_logger);
+            } catch (const Exception& e) {
+                m_logger.error() << e.what();
+            }
         }
 
         void EntityModelManager::prepare(Renderer::Vbo& vbo) {

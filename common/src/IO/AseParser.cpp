@@ -22,6 +22,7 @@
 #include "Assets/EntityModel.h"
 #include "Assets/Texture.h"
 #include "IO/FileSystem.h"
+#include "IO/FreeImageTextureReader.h"
 #include "IO/Path.h"
 #include "IO/Quake3ShaderTextureReader.h"
 #include "Renderer/TexturedIndexRangeMap.h"
@@ -61,6 +62,10 @@ namespace TrenchBroom {
                     case '}':
                         advance();
                         return Token(AseToken::CBrace, c, c+1, offset(c), startLine, startColumn);
+                    case ':': {
+                        advance();
+                        return Token(AseToken::Colon, c, c+1, offset(c), startLine, startColumn);
+                    }
                     case '"': { // quoted string
                         advance();
                         c = curPos();
@@ -88,6 +93,7 @@ namespace TrenchBroom {
                         e = readUntil(WordDelims);
                         if (e != nullptr) {
                             if (*e == ':') {
+                                // we don't return the colon as a separate token in this case
                                 advance();
                                 return Token(AseToken::ArgumentName, c, e, offset(c), startLine, startColumn);
                             } else {
@@ -144,31 +150,36 @@ namespace TrenchBroom {
 
         void AseParser::parseMaterialListMaterialCount(Logger& logger, Path::List& paths) {
             expectDirective("MATERIAL_COUNT");
-            parseSizeArgument();
+            paths.resize(parseSizeArgument());
         }
 
         void AseParser::parseMaterialListMaterial(Logger& logger, Path::List& paths) {
             expectDirective("MATERIAL");
-            const auto count = parseSizeArgument();
-            paths.reserve(count);
+            const auto index = parseSizeArgument();
+            if (index < paths.size()) {
+                auto& path = paths[index];
+                parseBlock({
+                    { "MAP_DIFFUSE", std::bind(&AseParser::parseMaterialListMaterialMapDiffuse, this, std::ref(logger), std::ref(path)) }
+                });
+            } else {
+                logger.warn() << "Material index " << index << " is out of bounds.";
+                parseBlock({});
+            }
 
-            parseBlock({
-                { "MAP_DIFFUSE", std::bind(&AseParser::parseMaterialListMaterialMapDiffuse, this, std::ref(logger), std::ref(paths)) }
-            });
         }
 
-        void AseParser::parseMaterialListMaterialMapDiffuse(Logger& logger, Path::List& paths) {
+        void AseParser::parseMaterialListMaterialMapDiffuse(Logger& logger, Path& path) {
             expectDirective("MAP_DIFFUSE");
 
             parseBlock({
-                { "BITMAP", std::bind(&AseParser::parseMaterialListMaterialMapDiffuseBitmap, this, std::ref(logger), std::ref(paths)) }
+                { "BITMAP", std::bind(&AseParser::parseMaterialListMaterialMapDiffuseBitmap, this, std::ref(logger), std::ref(path)) }
             });
         }
 
-        void AseParser::parseMaterialListMaterialMapDiffuseBitmap(Logger& logger, Path::List& paths) {
+        void AseParser::parseMaterialListMaterialMapDiffuseBitmap(Logger& logger, Path& path) {
             expectDirective("BITMAP");
             const auto token = expect(AseToken::String, m_tokenizer.nextToken());
-            paths.emplace_back(Path(token.data()));
+            path = Path(token.data());
         }
 
         void AseParser::parseGeomObject(Logger& logger, GeomObject& geomObject, const Path::List& materialPaths) {
@@ -190,12 +201,10 @@ namespace TrenchBroom {
         void AseParser::parseGeomObjectMaterialRef(Logger& logger, GeomObject& geomObject, const size_t materialCount) {
             expectDirective("MATERIAL_REF");
             const auto token = m_tokenizer.peekToken();
-            const size_t materialIndex = parseSizeArgument();
-            if (materialIndex >= materialCount) {
-                logger.warn() << "Line " << token.line() << ": Material index " << materialIndex << " is out of bounds, assuming " << materialCount - 1;
-
+            geomObject.materialIndex = parseSizeArgument();
+            if (geomObject.materialIndex >= materialCount) {
+                logger.warn() << "Line " << token.line() << ": Material index " << geomObject.materialIndex << " is out of bounds (material count: " << materialCount << ")";
             }
-            geomObject.materialIndex = std::min(materialIndex, materialCount - 1);
         }
 
         void AseParser::parseGeomObjectMesh(Logger& logger, Mesh& mesh) {
@@ -250,6 +259,9 @@ namespace TrenchBroom {
             expectDirective("MESH_FACE");
             expectSizeArgument(faces.size());
 
+            // the colon after the face index is sometimes missing
+            m_tokenizer.skipToken(AseToken::Colon);
+
             expectArgumentName("A");
             auto vertexIndexA = parseSizeArgument();
 
@@ -269,10 +281,12 @@ namespace TrenchBroom {
 
             // skip other
             expectDirective("MESH_SMOOTHING");
-            parseSizeArgument();
+
+            // this number is optional
+            m_tokenizer.skipToken(AseToken::Integer);
 
             expectDirective("MESH_MTLID");
-            parseSizeArgument();
+            expect(AseToken::Integer, m_tokenizer.nextToken());
 
             faces.emplace_back(MeshFace {{
                 MeshFaceVertex{ vertexIndexA, 0 },
@@ -427,6 +441,7 @@ namespace TrenchBroom {
             result[AseToken::Decimal]      = "decimal";
             result[AseToken::Keyword]      = "keyword";
             result[AseToken::ArgumentName] = "argument name";
+            result[AseToken::Colon]        = "':'";
             result[AseToken::Eof]          = "end of file";
             return result;
         }
@@ -447,9 +462,7 @@ namespace TrenchBroom {
                 try {
                     auto texture = loadTexture(logger, path);
                     textures[i] = texture.get();
-                    if (texture != nullptr) {
-                        surface.addSkin(texture.release());
-                    }
+                    surface.addSkin(texture.release());
                 } catch (const std::exception& e) {
                     logger.error() << "Failed to load texture '" << path << "': " << e.what();
                     textures[i] = nullptr;
@@ -465,7 +478,10 @@ namespace TrenchBroom {
                 bounds.add(std::begin(mesh.vertices), std::end(mesh.vertices));
 
                 const auto textureIndex = geomObject.materialIndex;
-                auto* texture = textures[textureIndex];
+                auto* texture = textureIndex < textures.size() ? textures[textureIndex] : nullptr;
+                if (texture == nullptr) {
+                    logger.warn() << "Invalid texture index " << textureIndex;
+                }
 
                 const auto vertexCount = mesh.faces.size() * 3;
                 size.inc(texture, GL_TRIANGLES, vertexCount);
@@ -480,7 +496,7 @@ namespace TrenchBroom {
                 const auto& mesh = geomObject.mesh;
 
                 const auto textureIndex = geomObject.materialIndex;
-                auto* texture = textures[textureIndex];
+                auto* texture = textureIndex < textures.size() ? textures[textureIndex] : nullptr;
 
                 for (const auto& face : mesh.faces) {
                     builder.addTriangle(
@@ -505,7 +521,8 @@ namespace TrenchBroom {
                 Quake3ShaderTextureReader reader(TextureReader::PathSuffixNameStrategy(2, true), m_fs);
                 return std::unique_ptr<Assets::Texture>(reader.readTexture(file));
             } else {
-                return nullptr;
+                IO::FreeImageTextureReader imageReader(IO::TextureReader::StaticNameStrategy(""));
+                return std::unique_ptr<Assets::Texture>(imageReader.readTexture(m_fs.openFile(IO::Path("textures/__TB_empty.png"))));
             }
         }
 

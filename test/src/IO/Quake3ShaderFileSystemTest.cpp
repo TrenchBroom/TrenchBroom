@@ -42,7 +42,7 @@ namespace TrenchBroom {
             const auto shaderSearchPath = Path("scripts");
             const auto textureSearchPaths = Path::List { texturePrefix };
 
-            // We need to add the fallback dir so that we can find "__TB_empty.tga" which is automatically linked when
+            // We need to add the fallback dir so that we can find "__TB_empty.png" which is automatically linked when
             // no editor image is available.
             std::shared_ptr<FileSystem> fs = std::make_shared<DiskFileSystem>(fallbackDir);
             fs = std::make_shared<DiskFileSystem>(fs, testDir);
