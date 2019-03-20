@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -50,7 +50,7 @@ typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::clip(const vm::pla
     const ClipResult vertexResult = checkIntersects(plane);
     if (!vertexResult.success())
         return vertexResult;
-    
+
     // The basic idea is now to split all faces which are intersected by the given plane so that the polyhedron
     // can be separated into two halves such that no face has vertices on opposite sides of the plane.
     // Sometimes building a seam fails due to floating point imprecisions. In that case, intersectWithPlane
@@ -62,11 +62,11 @@ typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::clip(const vm::pla
         // polyhedron that is above the plane. The remaining half is an open polyhedron (one face is missing) which
         // is below the plane.
         split(seam, callback);
-        
+
         // We seal the polyhedron by creating a new face.
         sealWithSinglePolygon(seam, callback);
         updateBounds();
-        
+
         assert(checkInvariant());
 
         return ClipResult(ClipResult::Type_ClipSuccess);
@@ -85,7 +85,7 @@ typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::clip(const vm::pla
             const T rhsDist = vm::abs(plane.pointDistance(rhs->position()));
             return lhsDist < rhsDist;
         });
-        
+
         assert(it != std::end(m_vertices));
         if (plane.pointStatus((*it)->position()) == vm::point_status::below) {
             // The furthest point is below the plane.
@@ -113,7 +113,7 @@ typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::clip(const Polyhed
             return result;
         current = current->next();
     } while (current != first);
-    
+
     return ClipResult(ClipResult::Type_ClipSuccess);
 }
 
@@ -141,7 +141,7 @@ typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::checkIntersects(co
         }
         currentVertex = currentVertex->next();
     } while (currentVertex != firstVertex);
-    
+
     assert(above + below + inside == m_vertices.size());
     if (below + inside == m_vertices.size())
         return ClipResult(ClipResult::Type_ClipUnchanged);
@@ -158,7 +158,7 @@ class Polyhedron<T,FP,VP>::NoSeamException : public ExceptionStream<GeometryExce
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Seam Polyhedron<T,FP,VP>::intersectWithPlane(const vm::plane<T,3>& plane, Callback& callback) {
     Seam seam;
-    
+
     // First, we find a half edge that is intersected by the given plane.
     HalfEdge* initialEdge = findInitialIntersectingEdge(plane);
     ensure(initialEdge != nullptr, "initialEdge is null");
@@ -166,7 +166,7 @@ typename Polyhedron<T,FP,VP>::Seam Polyhedron<T,FP,VP>::intersectWithPlane(const
     // Now we split the face to which this initial half edge belongs. The call returns the newly inserted edge
     // that connects the (possibly newly inserted) vertices which are now within the plane.
     HalfEdge* currentEdge = intersectWithPlane(initialEdge, plane, callback);
-    
+
     // The destination of that edge is the first vertex which we encountered (or inserted) which is inside the plane.
     // This is where our algorithm must stop. When we encounter that vertex again, we have completed the intersection
     // and the polyhedron can now be split in two by the given plane.
@@ -174,28 +174,28 @@ typename Polyhedron<T,FP,VP>::Seam Polyhedron<T,FP,VP>::intersectWithPlane(const
     do {
         // First we find the next face that is either split by the plane or which has an edge completely in the plane.
         currentEdge = findNextIntersectingEdge(currentEdge, plane);
-        
+
         // If no edge could be found, then we cannot build a seam because the plane is barely touching the polyhedron.
         if (currentEdge == nullptr)
             throw NoSeamException();
-        
+
         // Now we split that face. Again, the returned edge connects the two (possibly inserted) vertices of that
         // face which are now inside the plane.
         currentEdge = intersectWithPlane(currentEdge, plane, callback);
-        
+
         // Build a seam while intersecting the polyhedron by remembering the edges we just inserted. To ensure that
         // the seam edges are correctly oriented, we check that the current edge is the second edge, as the current
         // edge belongs to the faces that we are going to clip away.
         Edge* seamEdge = currentEdge->edge();
         seamEdge->makeSecondEdge(currentEdge);
-        
+
         if (!seam.empty() && seamEdge == seam.last())
             throw NoSeamException();
-        
+
         seam.push_back(seamEdge);
-        
+
     } while (currentEdge->destination() != stopVertex);
-    
+
     return seam;
 }
 
@@ -214,24 +214,24 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::findInitialIntersec
             // we return the twin, otherwise we return the half edge.
             HalfEdge* nextEdge = halfEdge->next();
             Vertex* nextVertex = nextEdge->destination();
-            
+
             const vm::point_status ss = plane.pointStatus(nextVertex->position());
             assert(ss != vm::point_status::inside);
-            
+
             if (ss == vm::point_status::below)
                 return halfEdge->twin();
-            
+
             return halfEdge;
         }
-        
+
         if ((os == vm::point_status::inside && ds == vm::point_status::above) ||
             (os == vm::point_status::below  && ds == vm::point_status::above))
             return halfEdge->twin();
-        
+
         if ((os == vm::point_status::above  && ds == vm::point_status::inside) ||
             (os == vm::point_status::above  && ds == vm::point_status::below))
             return halfEdge;
-        
+
         currentEdge = currentEdge->next();
     } while (currentEdge != firstEdge);
     return nullptr;
@@ -239,7 +239,7 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::findInitialIntersec
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::intersectWithPlane(HalfEdge* firstBoundaryEdge, const vm::plane<T,3>& plane, Callback& callback) {
-    
+
     // Starting at the given edge, we search the boundary of the incident face until we find an edge that is either split in two by the given plane
     // or where its origin is inside it. In the first case, we split the found edge by inserting a vertex at the position where
     // the plane intersects the edge. We remember the half edge starting at the newly inserted vertex as the seam origin or destination, depending
@@ -249,15 +249,15 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::intersectWithPlane(
     // vertices aren't already connected by an edge, we split the current face in two by inserting a new edge from the origin to the destination vertex.
     // Finally we must decide where to continue our search, that is, we find a face that is incident to the destination vertex such that it is split
     // by the given plane. We return the half edge of that face's boundary which starts in the destination vertex so that the search can continue there.
-    
+
     HalfEdge* seamOrigin = nullptr;
     HalfEdge* seamDestination = nullptr;
-    
+
     HalfEdge* currentBoundaryEdge = firstBoundaryEdge;
     do {
         const vm::point_status os = plane.pointStatus(currentBoundaryEdge->origin()->position());
         const vm::point_status ds = plane.pointStatus(currentBoundaryEdge->destination()->position());
-        
+
         if (os == vm::point_status::inside) {
             if (seamOrigin == nullptr)
                 seamOrigin = currentBoundaryEdge;
@@ -270,11 +270,11 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::intersectWithPlane(
             Edge* currentEdge = currentBoundaryEdge->edge();
             Edge* newEdge = currentEdge->split(plane);
             m_edges.append(newEdge, 1);
-            
+
             currentBoundaryEdge = currentBoundaryEdge->next();
             Vertex* newVertex = currentBoundaryEdge->origin();
             assert(plane.pointStatus(newVertex->position()) == vm::point_status::inside);
-            
+
             m_vertices.append(newVertex, 1);
             callback.vertexWasCreated(newVertex);
 
@@ -284,11 +284,11 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::intersectWithPlane(
         }
     } while (seamDestination == nullptr && currentBoundaryEdge != firstBoundaryEdge);
     ensure(seamOrigin != nullptr, "seamOrigin is null");
-    
+
     // The plane only touches one vertex of the face.
     if (seamDestination == nullptr)
         return seamOrigin->previous();
-    
+
     if (seamDestination->next() == seamOrigin) {
         std::swap(seamOrigin, seamDestination);
     } else if (seamOrigin->next() != seamDestination) {
@@ -311,23 +311,23 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::intersectWithPlane(
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::intersectWithPlane(HalfEdge* oldBoundaryFirst, HalfEdge* newBoundaryFirst, Callback& callback) {
     HalfEdge* newBoundaryLast = oldBoundaryFirst->previous();
-    
+
     HalfEdge* oldBoundarySplitter = new HalfEdge(newBoundaryFirst->origin());
     HalfEdge* newBoundarySplitter = new HalfEdge(oldBoundaryFirst->origin());
-    
+
     Face* oldFace = oldBoundaryFirst->face();
     oldFace->insertIntoBoundaryAfter(newBoundaryLast, newBoundarySplitter);
     const size_t newBoundaryCount = oldFace->replaceBoundary(newBoundaryFirst, newBoundarySplitter, oldBoundarySplitter);
-    
+
     HalfEdgeList newBoundary;
     newBoundary.append(newBoundaryFirst, newBoundaryCount);
 
     Face* newFace = new Face(newBoundary);
     Edge* newEdge = new Edge(oldBoundarySplitter, newBoundarySplitter);
-    
+
     m_edges.append(newEdge, 1);
     m_faces.append(newFace, 1);
-    
+
     callback.faceWasSplit(oldFace, newFace);
 }
 
@@ -340,22 +340,22 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::findNextIntersectin
     HalfEdge* stopEdge = searchFrom->twin();
     do {
         assert(currentEdge != stopEdge);
-        
+
         // Select two vertices that form a triangle (of an adjacent face) together with currentEdge's origin vertex.
         // If either of the two vertices is inside the plane or if they lie on different sides of it, then we have found
         // the next face to handle.
-        
+
         Vertex* cd = currentEdge->destination();
         Vertex* po = currentEdge->previous()->origin();
         const vm::point_status cds = plane.pointStatus(cd->position());
         const vm::point_status pos = plane.pointStatus(po->position());
-        
+
         if ((cds == vm::point_status::inside) ||
             (cds == vm::point_status::below && pos == vm::point_status::above) ||
             (cds == vm::point_status::above && pos == vm::point_status::below)) {
             return currentEdge;
         }
-        
+
         currentEdge = currentEdge->twin()->next();
     } while (currentEdge != stopEdge);
     return nullptr;

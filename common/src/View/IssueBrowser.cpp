@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -49,10 +49,10 @@ namespace TrenchBroom {
             sizer->setContentsMargins(0, 0, 0, 0);
             sizer->addWidget(m_view);
             setLayout(sizer);
-            
+
             bindObservers();
         }
-        
+
         IssueBrowser::~IssueBrowser() {
             unbindObservers();
         }
@@ -63,7 +63,7 @@ namespace TrenchBroom {
             auto* barPage = new QWidget(parent);
             m_showHiddenIssuesCheckBox = new QCheckBox("Show hidden issues");
             connect(m_showHiddenIssuesCheckBox, &QCheckBox::stateChanged, this, &IssueBrowser::OnShowHiddenIssuesChanged);
-            
+
             m_filterEditor = new FlagsPopupEditor(nullptr , 1, "Filter", false);
             connect(m_filterEditor, &FlagsPopupEditor::flagChanged, this, &IssueBrowser::OnFilterChanged);
 
@@ -72,7 +72,7 @@ namespace TrenchBroom {
             barPageSizer->addWidget(m_showHiddenIssuesCheckBox, 0, Qt::AlignVCenter);
             barPageSizer->addWidget(m_filterEditor, 0, Qt::AlignVCenter);
             barPage->setLayout(barPageSizer);
-            
+
             return barPage;
         }
 
@@ -94,7 +94,7 @@ namespace TrenchBroom {
             document->nodesDidChangeNotifier.addObserver(this, &IssueBrowser::nodesDidChange);
             document->brushFacesDidChangeNotifier.addObserver(this, &IssueBrowser::brushFacesDidChange);
         }
-        
+
         void IssueBrowser::unbindObservers() {
             if (!expired(m_document)) {
                 MapDocumentSPtr document = lock(m_document);
@@ -116,19 +116,19 @@ namespace TrenchBroom {
         void IssueBrowser::documentWasSaved(MapDocument* document) {
             m_view->update();
         }
-        
+
         void IssueBrowser::nodesWereAdded(const Model::NodeList& nodes) {
             m_view->reload();
         }
-        
+
         void IssueBrowser::nodesWereRemoved(const Model::NodeList& nodes) {
             m_view->reload();
         }
-        
+
         void IssueBrowser::nodesDidChange(const Model::NodeList& nodes) {
             m_view->reload();
         }
-        
+
         void IssueBrowser::brushFacesDidChange(const Model::BrushFaceList& faces) {
             m_view->reload();
         }
@@ -136,19 +136,19 @@ namespace TrenchBroom {
         void IssueBrowser::issueIgnoreChanged(Model::Issue* issue) {
             m_view->update();
         }
-        
+
         void IssueBrowser::updateFilterFlags() {
             MapDocumentSPtr document = lock(m_document);
             const Model::World* world = document->world();
             const Model::IssueGeneratorList& generators = world->registeredIssueGenerators();
-            
+
             QList<int> flags;
             QStringList labels;
-            
+
             for (const Model::IssueGenerator* generator : generators) {
                 const Model::IssueType flag = generator->type();
                 const String& description = generator->description();
-                
+
                 flags.push_back(flag);
                 labels.push_back(QString::fromStdString(description));
             }

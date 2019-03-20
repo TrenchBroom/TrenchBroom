@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -44,49 +44,49 @@ namespace TrenchBroom {
 
             m_profileList = new GameEngineProfileListBox(listPanel->getPanel(), m_config);
             m_profileEditor = new GameEngineProfileEditor(editorPanel->getPanel());
-            
+
             auto* addProfileButton = createBitmapButton(listPanel->getPanel(), "Add.png", "Add profile");
             auto* removeProfileButton = createBitmapButton(listPanel->getPanel(), "Remove.png", "Remove the selected profile");
-            
+
             addProfileButton->Bind(wxEVT_BUTTON, &GameEngineProfileManager::OnAddProfile, this);
             removeProfileButton->Bind(wxEVT_BUTTON, &GameEngineProfileManager::OnRemoveProfile, this);
             addProfileButton->Bind(wxEVT_UPDATE_UI, &GameEngineProfileManager::OnUpdateAddProfileButtonUI, this);
             removeProfileButton->Bind(wxEVT_UPDATE_UI, &GameEngineProfileManager::OnUpdateRemoveProfileButtonUI, this);
-            
+
             auto* buttonSizer = new QHBoxLayout();
             buttonSizer->Add(addProfileButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             buttonSizer->Add(removeProfileButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             buttonSizer->AddStretchSpacer();
-            
+
             auto* listSizer = new QVBoxLayout();
             listSizer->Add(m_profileList, 1, wxEXPAND);
             listSizer->Add(new BorderLine(listPanel->getPanel(), BorderLine::Direction_Horizontal), 0, wxEXPAND);
             listSizer->Add(buttonSizer);
             listPanel->getPanel()->SetSizer(listSizer);
-            
+
             auto* editorSizer = new QVBoxLayout();
             editorSizer->Add(m_profileEditor, 1, wxEXPAND);
             editorPanel->getPanel()->SetSizer(editorSizer);
-            
+
             auto* outerSizer = new QHBoxLayout();
             outerSizer->Add(listPanel, 0, wxEXPAND);
             outerSizer->Add(new BorderLine(this, BorderLine::Direction_Vertical), 0, wxEXPAND);
             outerSizer->Add(editorPanel, 1, wxEXPAND);
             outerSizer->SetItemMinSize(listPanel, wxSize(200, 200));
             SetSizer(outerSizer);
-            
+
             m_profileList->Bind(wxEVT_LISTBOX, &GameEngineProfileManager::OnProfileSelectionChanged, this);
         }
-        
+
         void GameEngineProfileManager::OnAddProfile(wxCommandEvent& event) {
             m_config.addProfile(new Model::GameEngineProfile("", IO::Path(), ""));
             m_profileList->SetSelection(static_cast<int>(m_config.profileCount() - 1));
         }
-        
+
         void GameEngineProfileManager::OnRemoveProfile(wxCommandEvent& event) {
             const int index = m_profileList->GetSelection();
             assert(index != wxNOT_FOUND);
-            
+
             if (m_config.profileCount() == 1) {
                 m_profileList->SetSelection(wxNOT_FOUND);
                 m_config.removeProfile(static_cast<size_t>(index));
@@ -99,15 +99,15 @@ namespace TrenchBroom {
                 m_profileList->SetSelection(0);
             }
         }
-        
+
         void GameEngineProfileManager::OnUpdateAddProfileButtonUI(wxUpdateUIEvent& event) {
             event.Enable(true);
         }
-        
+
         void GameEngineProfileManager::OnUpdateRemoveProfileButtonUI(wxUpdateUIEvent& event) {
             event.Enable(m_profileList->GetSelection() != wxNOT_FOUND);
         }
-        
+
         void GameEngineProfileManager::OnProfileSelectionChanged(wxCommandEvent& event) {
             const int selection = m_profileList->GetSelection();
             if (selection != wxNOT_FOUND) {

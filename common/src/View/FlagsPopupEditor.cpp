@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -38,28 +38,28 @@ namespace TrenchBroom {
 
                 // FIXME: ellipsize?
                 m_flagsTxt = new QLabel();
-                
+
                 auto* flagsPanelSizer = new QVBoxLayout();
                 flagsPanelSizer->addStretch();
                 flagsPanelSizer->addWidget(m_flagsTxt);
                 flagsPanelSizer->addStretch();
                 flagsPanel->setLayout(flagsPanelSizer);
             }
-            
+
             m_button = new PopupButton(this, buttonLabel);
             m_button->setToolTip("Click to edit flags");
-            
+
             auto* editorContainer = new QWidget();
             m_editor = new FlagsEditor(editorContainer, numCols);
-            
+
             auto* editorContainerSizer = new QVBoxLayout();
             editorContainerSizer->addWidget(m_editor);
             editorContainer->setLayout(editorContainerSizer);
-            
+
             auto* popupSizer = new QVBoxLayout();
             popupSizer->addWidget(editorContainer);
             m_button->GetPopupWindow()->setLayout(popupSizer);
-            
+
             auto* sizer = new QHBoxLayout();
             if (flagsPanel != nullptr) {
                 sizer->addWidget(flagsPanel);
@@ -67,7 +67,7 @@ namespace TrenchBroom {
             }
             sizer->addWidget(m_button, 0, Qt::AlignVCenter);
             setLayout(sizer);
-            
+
             connect(m_editor, &FlagsEditor::flagChanged, this, [this](size_t index, int setFlag, int mixedFlag){
                 updateFlagsText();
             });
@@ -79,7 +79,7 @@ namespace TrenchBroom {
             m_editor->setFlags(labels, tooltips);
             updateFlagsText();
         }
-        
+
         void FlagsPopupEditor::setFlags(const QList<int>& values, const QStringList& labels, const QStringList& tooltips) {
             m_editor->setFlags(values, labels, tooltips);
             updateFlagsText();
@@ -101,18 +101,18 @@ namespace TrenchBroom {
             return false;
         }
 #endif
-        
+
         void FlagsPopupEditor::updateFlagsText() {
             if (m_flagsTxt == nullptr)
                 return;
-            
+
             if (!isEnabled()) {
                 m_flagsTxt->setDisabled(true);
                 m_flagsTxt->setText("n/a");
                 m_flagsTxt->setToolTip("");
                 return;
             }
-            
+
             QString label;
             bool first = true;
             bool mixed = false;
@@ -127,7 +127,7 @@ namespace TrenchBroom {
                     first = false;
                 }
             }
-            
+
             m_flagsTxt->setText(label);
             if (!first)
                 m_flagsTxt->setToolTip(label);

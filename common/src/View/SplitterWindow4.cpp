@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -45,13 +45,13 @@ namespace TrenchBroom {
                 m_windows[i] = nullptr;
                 m_minSizes[i] = wxDefaultSize;
             }
-            
+
             for (size_t i = 0; i < 2; ++i) {
                 m_dragging[i] = false;
             }
 
             SetForegroundColour(Colors::borderColor());
-            
+
             Bind(wxEVT_PAINT, &SplitterWindow4::OnPaint, this);
             Bind(wxEVT_MOUSE_CAPTURE_LOST, &SplitterWindow4::OnMouseCaptureLost, this);
             Bind(wxEVT_SIZE, &SplitterWindow4::OnSize, this);
@@ -60,7 +60,7 @@ namespace TrenchBroom {
             Bind(wxEVT_LEFT_UP, &SplitterWindow4::OnMouseButton, this);
             bindMouseEvents(this);
         }
-        
+
         void SplitterWindow4::split(QWidget* topLeft, QWidget* topRight, QWidget* bottomRight, QWidget* bottomLeft,
                                     const wxSize& topLeftMin,
                                     const wxSize& topRightMin,
@@ -74,7 +74,7 @@ namespace TrenchBroom {
             assert(bottomRight->GetParent() == this);
             ensure(bottomLeft != nullptr, "bottomLeft is null");
             assert(bottomLeft->GetParent() == this);
-            
+
             m_windows[Window_TopLeft] = topLeft;
             m_windows[Window_TopRight] = topRight;
             m_windows[Window_BottomRight] = bottomRight;
@@ -83,17 +83,17 @@ namespace TrenchBroom {
             m_minSizes[Window_TopRight] = topRightMin;
             m_minSizes[Window_BottomRight] = bottomRightMin;
             m_minSizes[Window_BottomLeft] = bottomLeftMin;
-            
+
             for (size_t i = 0; i < NumWindows; ++i) {
                 setMinSize(m_windows[i], m_minSizes[i]);
                 bindMouseEvents(m_windows[i]);
             }
         }
-        
+
         void SplitterWindow4::setMinSize(QWidget* window, const wxSize& minSize) {
             assert(containsWindow(window));
             assert(minSize.x >= 0 && minSize.y >= 0);
-            
+
             for (size_t i = 0; i < NumWindows; ++i) {
                 if (m_windows[i] == window) {
                     m_minSizes[i] = minSize;
@@ -122,7 +122,7 @@ namespace TrenchBroom {
             m_maximizedWindow->Show();
             sizeWindows();
         }
-        
+
         void SplitterWindow4::restore() {
             if (m_maximizedWindow != nullptr) {
                 m_maximizedWindow = nullptr;
@@ -156,15 +156,15 @@ namespace TrenchBroom {
         int SplitterWindow4::leftColMinSize() const {
             return std::max(m_minSizes[Window_TopLeft].x, m_minSizes[Window_BottomLeft].x);
         }
-        
+
         int SplitterWindow4::rightColMinSize() const {
             return std::max(m_minSizes[Window_TopRight].x, m_minSizes[Window_BottomRight].x);
         }
-        
+
         int SplitterWindow4::topRowMinSize() const {
             return std::max(m_minSizes[Window_TopLeft].y, m_minSizes[Window_TopRight].y);
         }
-        
+
         int SplitterWindow4::bottomRowMinSize() const {
             return std::max(m_minSizes[Window_BottomLeft].y, m_minSizes[Window_BottomRight].y);
         }
@@ -195,14 +195,14 @@ namespace TrenchBroom {
             updateSashCursor();
             event.Skip();
         }
-        
+
         void SplitterWindow4::OnMouseLeave(wxMouseEvent& event) {
             if (IsBeingDeleted()) return;
 
             updateSashCursor();
             event.Skip();
         }
-        
+
         void SplitterWindow4::OnMouseButton(wxMouseEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -218,13 +218,13 @@ namespace TrenchBroom {
             Refresh();
             event.Skip();
         }
-        
+
         void SplitterWindow4::OnMouseMotion(wxMouseEvent& event) {
             if (IsBeingDeleted()) return;
 
             if (GetCapture() == this) {
                 assert(hasWindows());
-                
+
                 auto newPosition = currentSashPosition();
                 if (m_dragging[Dim_X]) {
                     newPosition.x = event.GetPosition().x;
@@ -239,7 +239,7 @@ namespace TrenchBroom {
             }
             event.Skip();
         }
-        
+
         void SplitterWindow4::OnMouseCaptureLost(wxMouseCaptureLostEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -257,7 +257,7 @@ namespace TrenchBroom {
 
             const auto origin = GetClientAreaOrigin();
             const auto size = GetClientSize();
-            
+
             dc.DrawRectangle(currentSashPosition().x, origin.y, sashSize(), size.y);
             dc.DrawRectangle(origin.x, currentSashPosition().y, size.x, sashSize());
             event.Skip();
@@ -268,12 +268,12 @@ namespace TrenchBroom {
 
             if (IsShownOnScreen()) {
                 Unbind(wxEVT_IDLE, &SplitterWindow4::OnIdle, this);
-                
+
                 // if the initial sash position could not be set until now, then it probably cannot be set at all
                 m_initialSplitRatios = wxRealPoint(-1.0, -1.0);
             }
         }
-        
+
         void SplitterWindow4::OnSize(wxSizeEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -299,8 +299,8 @@ namespace TrenchBroom {
                 wxSetCursor(wxCursor(wxCURSOR_ARROW));
             }
         }
-        
-        
+
+
         bool SplitterWindow4::sashHitTest(const wxPoint& point, const Dim dim) const {
             const auto v = get(point, dim);
             const auto s = get(currentSashPosition(), dim);
@@ -315,7 +315,7 @@ namespace TrenchBroom {
                 setSashPosition(sashPosition(m_currentSplitRatios, oldSize) + actualDiff);
             }
         }
-        
+
         bool SplitterWindow4::initSashPosition() {
             const wxSize clientSize = GetClientSize();
             if (hasWindows() && (m_currentSplitRatios.x == -1.0 || m_currentSplitRatios.y == -1.0) &&
@@ -325,7 +325,7 @@ namespace TrenchBroom {
             }
             return false;
         }
-        
+
         bool SplitterWindow4::setSashPosition(wxPoint newSashPosition) {
             if (m_initialSplitRatios.x != -1.0) {
                 newSashPosition.x = sashPosition(m_initialSplitRatios).x;
@@ -341,15 +341,15 @@ namespace TrenchBroom {
             newSashPosition.x = std::min(newSashPosition.x, GetClientSize().x - sashSize() - rightColMinSize());
             newSashPosition.y = std::max(newSashPosition.y, topRowMinSize());
             newSashPosition.y = std::min(newSashPosition.y, GetClientSize().y - sashSize() - bottomRowMinSize());
-            
+
             m_currentSplitRatios = splitRatios(newSashPosition);
-            
+
             return m_currentSplitRatios.x >= 0.0 && m_currentSplitRatios.y >= 0.0;
         }
-        
+
         void SplitterWindow4::sizeWindows() {
             initSashPosition();
-            
+
             if (hasWindows()) {
                 if (m_maximizedWindow != nullptr) {
                     m_maximizedWindow->SetSize(wxRect(GetClientAreaOrigin(), GetClientSize()));
@@ -365,7 +365,7 @@ namespace TrenchBroom {
                     const auto topRowH = sash.y;
                     const auto bottomRowY = topRowY + topRowH + sashSize();
                     const auto bottomRowH = size.y - bottomRowY;
-                    
+
                     m_windows[Window_TopLeft]->SetPosition(wxPoint(leftColX, topRowY));
                     m_windows[Window_TopLeft]->SetSize(wxSize(leftColW, topRowH));
                     m_windows[Window_TopRight]->SetPosition(wxPoint(rightColX, topRowY));
@@ -377,7 +377,7 @@ namespace TrenchBroom {
                 }
             }
         }
-        
+
         int SplitterWindow4::sashSize() const {
             return 2;
         }

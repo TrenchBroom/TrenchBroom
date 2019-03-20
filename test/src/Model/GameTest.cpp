@@ -46,24 +46,24 @@ namespace TrenchBroom {
             };
 
             for (const auto& game : games) {
-                const auto configPath = IO::Disk::getCurrentWorkingDir() + IO::Path("data/games") + game + IO::Path("GameConfig.cfg");
+                const auto configPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/games/") + game + IO::Path("GameConfig.cfg");
                 const auto configStr = IO::OpenStream(configPath, false).readAll();
                 auto configParser = IO::GameConfigParser(configStr, configPath);
                 auto config = configParser.parse();
 
-                const auto gamePath = IO::Disk::getCurrentWorkingDir() + IO::Path("data/Model/Game/CorruptPak");
+                const auto gamePath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/Model/Game/CorruptPak");
                 auto logger = NullLogger();
                 ASSERT_NO_THROW(GameImpl(config, gamePath, logger)) << "Should not throw when loading corrupted package file for game " << game;
             }
         }
 
         TEST(GameTest, loadQuake3Shaders) {
-            const auto configPath = IO::Disk::getCurrentWorkingDir() + IO::Path("data/games/Quake3/GameConfig.cfg");
+            const auto configPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/games//Quake3/GameConfig.cfg");
             const auto configStr = IO::OpenStream(configPath, false).readAll();
             auto configParser = IO::GameConfigParser(configStr, configPath);
             auto config = configParser.parse();
 
-            const auto gamePath = IO::Disk::getCurrentWorkingDir() + IO::Path("data/Model/Game/Quake3");
+            const auto gamePath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/Model/Game/Quake3");
             auto logger = NullLogger();
             auto game = GameImpl(config, gamePath, logger);
 
@@ -95,8 +95,8 @@ namespace TrenchBroom {
              * test/test -> test/editor_image.jpg
              * test/not_existing -> test/editor_image.jpg
              * test/editor_image
-             * test/not_existing2 -> __TB_empty.tga
-             * test/test2 -> __TB_empty.tga
+             * test/not_existing2 -> __TB_empty.png
+             * test/test2 -> __TB_empty.png
              */
 
             const auto* collection = textureManager.collections().front();

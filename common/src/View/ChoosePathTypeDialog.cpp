@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -38,7 +38,7 @@ namespace TrenchBroom {
         m_appRelativePath("") {
             createGui();
         }
-        
+
         ChoosePathTypeDialog::ChoosePathTypeDialog(QWidget* parent, const IO::Path& absPath, const IO::Path& docPath, const IO::Path& gamePath) :
         QDialog(parent),
         m_absPath(absPath),
@@ -47,7 +47,7 @@ namespace TrenchBroom {
         m_appRelativePath(makeRelativePath(absPath, IO::SystemPaths::appDirectory())) {
             createGui();
         }
-        
+
         void ChoosePathTypeDialog::createGui() {
             setWindowTitle(tr("Path Type"));
             setWindowIconTB(this);
@@ -62,19 +62,19 @@ namespace TrenchBroom {
             m_absRadio->setFont(boldFont);
             m_absRadio->setChecked(true);
             QLabel* absolutePathText = new QLabel(m_absPath.asQString());
-            
+
             m_docRelativeRadio = new QRadioButton(tr("Relative to map file"));
             m_docRelativeRadio->setFont(boldFont);
             if (m_docRelativePath.isEmpty())
                 m_docRelativeRadio->setEnabled(false);
             QLabel* mapRelativePathText = new QLabel(m_docRelativePath.isEmpty() ? tr("Could not build a path.") : m_docRelativePath.asQString());
-            
+
             m_appRelativeRadio = new QRadioButton(tr("Relative to application executable"));
             m_appRelativeRadio->setFont(boldFont);
             if (m_appRelativePath.isEmpty())
                 m_appRelativeRadio->setEnabled(false);
             QLabel* appRelativePathText = new QLabel(m_appRelativePath.isEmpty() ? tr("Could not build a path.") : m_appRelativePath.asQString());
-            
+
             m_gameRelativeRadio = new QRadioButton(tr("Relative to game directory"));
             if (m_gameRelativePath.isEmpty())
                 m_gameRelativeRadio->setEnabled(false);
@@ -82,7 +82,7 @@ namespace TrenchBroom {
             QLabel* gameRelativePathText = new QLabel(m_gameRelativePath.isEmpty() ? tr("Could not build a path.") : m_gameRelativePath.asQString());
 
             auto* innerSizer = new QVBoxLayout();
-            
+
             innerSizer->addWidget(infoText);
 
             innerSizer->addWidget(m_absRadio);
@@ -99,7 +99,7 @@ namespace TrenchBroom {
 
             auto* okCancelButtons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
             innerSizer->addWidget(okCancelButtons);
-            
+
             setLayout(innerSizer);
 
             connect(okCancelButtons, &QDialogButtonBox::accepted, this, &QDialog::accept);

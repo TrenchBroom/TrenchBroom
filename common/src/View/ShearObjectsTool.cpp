@@ -3,17 +3,17 @@
  Copyright (C) 2018 Eric Wasylishen
 
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -57,9 +57,9 @@ namespace TrenchBroom {
         m_resizing(false),
         m_constrainVertical(false),
         m_dragStartHit(Model::Hit::NoHit) {}
-        
+
         ShearObjectsTool::~ShearObjectsTool() = default;
-        
+
         bool ShearObjectsTool::applies() const {
             MapDocumentSPtr document = lock(m_document);
             return !document->selectedNodes().empty();
@@ -133,9 +133,9 @@ namespace TrenchBroom {
             auto document = lock(m_document);
             return document->selectionBounds();
         }
-        
+
         // used for rendering
-        
+
         bool ShearObjectsTool::hasDragPolygon() const {
             return dragPolygon().vertexCount() > 0;
         }
@@ -145,7 +145,7 @@ namespace TrenchBroom {
                 const auto side = m_dragStartHit.target<BBoxSide>();
                 return vm::polygon3f(polygonForBBoxSide(bounds(), side));
             }
-                                                            
+
             return vm::polygon3f();
         }
 
@@ -222,9 +222,9 @@ namespace TrenchBroom {
             if (m_dragStartHit.type() != ShearToolSideHit) {
                 return vm::mat4x4::identity;
             }
-            
+
             const BBoxSide side = m_dragStartHit.target<BBoxSide>();
-            
+
             return shearBBoxMatrix(m_bboxAtDragStart,
                                    side.normal,
                                    m_dragCumulativeDelta);
@@ -235,11 +235,11 @@ namespace TrenchBroom {
             if (m_dragStartHit.type() != ShearToolSideHit) {
                 return vm::polygon3f();
             }
-            
+
             const BBoxSide side = m_dragStartHit.target<BBoxSide>();
             // use the bboxAtDragStart() function so we get bounds() if we're not currently inside a drag.
             const vm::polygon3 polyAtDragStart = polygonForBBoxSide(bboxAtDragStart(), side);
-            
+
             const vm::polygon3 handle = polyAtDragStart.transform(bboxShearMatrix());
             return vm::polygon3f(handle);
         }

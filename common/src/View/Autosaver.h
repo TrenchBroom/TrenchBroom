@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -27,14 +27,14 @@
 
 namespace TrenchBroom {
     class Logger;
-    
+
     namespace IO {
         class WritableDiskFileSystem;
     }
-    
+
     namespace View {
         class Command;
-        
+
         class Autosaver {
         public:
             class BackupFileMatcher {
@@ -80,7 +80,7 @@ namespace TrenchBroom {
         public:
             explicit Autosaver(View::MapDocumentWPtr document, std::time_t saveInterval = 10 * 60, std::time_t idleInterval = 3, size_t maxBackups = 50);
             ~Autosaver();
-            
+
             void triggerAutosave(Logger& logger);
         private:
             void autosave(Logger& logger, View::MapDocumentSPtr document);

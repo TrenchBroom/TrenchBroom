@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -28,7 +28,7 @@ namespace TrenchBroom {
     namespace Renderer {
         class Camera;
     }
-    
+
     namespace View {
         using ModifierKeyState = unsigned int;
         namespace ModifierKeys {
@@ -38,13 +38,13 @@ namespace TrenchBroom {
             static const ModifierKeyState MKAlt       = 1 << 2;
             static const ModifierKeyState MKDontCare  = 1 << 3;
         }
-        
+
         typedef enum {
             MK_Yes,
             MK_No,
             MK_DontCare
         } ModifierKeyPressed;
-        
+
         using MouseButtonState = unsigned int;
         namespace MouseButtons {
             static const MouseButtonState MBNone      = 0;
@@ -52,9 +52,9 @@ namespace TrenchBroom {
             static const MouseButtonState MBRight     = 1 << 1;
             static const MouseButtonState MBMiddle    = 1 << 2;
         }
-        
+
         class Grid;
-        
+
         class InputState {
         private:
             ModifierKeyState m_modifierKeys;
@@ -73,14 +73,14 @@ namespace TrenchBroom {
             InputState();
             InputState(const int mouseX, const int mouseY);
             virtual ~InputState();
-            
+
             virtual ModifierKeyState modifierKeys() const;
             bool modifierKeysDown(ModifierKeyState keys) const;
             bool modifierKeysPressed(ModifierKeyState keys) const;
             bool checkModifierKeys(ModifierKeyState key1, ModifierKeyState key2 = ModifierKeys::MKDontCare, ModifierKeyState key3 = ModifierKeys::MKDontCare, ModifierKeyState key4 = ModifierKeys::MKDontCare) const;
             bool checkModifierKeys(ModifierKeyPressed ctrl, ModifierKeyPressed alt, ModifierKeyPressed shift) const;
             bool checkModifierKey(ModifierKeyPressed state, ModifierKeyState key) const;
-            
+
             MouseButtonState mouseButtons() const;
             bool mouseButtonsDown(MouseButtonState buttons) const;
             bool mouseButtonsPressed(const MouseButtonState buttons) const;
@@ -88,7 +88,7 @@ namespace TrenchBroom {
             int mouseY() const;
             int mouseDX() const;
             int mouseDY() const;
-            
+
             float scrollX() const;
             float scrollY() const;
 
@@ -102,7 +102,7 @@ namespace TrenchBroom {
 
             bool anyToolDragging() const;
             void setAnyToolDragging(bool anyToolDragging);
-            
+
             const vm::ray3& pickRay() const;
             const vm::vec3 defaultPoint() const;
             const vm::vec3 defaultPointUnderMouse() const;

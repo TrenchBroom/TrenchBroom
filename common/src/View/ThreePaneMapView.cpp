@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -59,11 +59,11 @@ namespace TrenchBroom {
             m_mapView3D = new MapView3D(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager);
             m_mapViewXY = new MapView2D(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XY);
             m_mapViewZZ = new CyclingMapView(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager, CyclingMapView::View_ZZ);
-            
+
             m_mapView3D->linkCamera(m_linkHelper);
             m_mapViewXY->linkCamera(m_linkHelper);
             m_mapViewZZ->linkCamera(m_linkHelper);
-            
+
             addMapView(m_mapView3D);
             addMapView(m_mapViewXY);
             addMapView(m_mapViewZZ);
@@ -112,7 +112,7 @@ namespace TrenchBroom {
                 m_mapView3D->widgetContainer()->hide();
             }
         }
-        
+
         void ThreePaneMapView::doRestoreViews() {
             for (int i=0; i<2; ++i) {
                 m_hSplitter->widget(i)->show();

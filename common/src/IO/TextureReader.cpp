@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -21,15 +21,16 @@
 
 #include "Assets/Texture.h"
 #include "IO/FileSystem.h"
+#include "IO/Reader.h"
 
 #include <algorithm>
 
 namespace TrenchBroom {
     namespace IO {
-        TextureReader::NameStrategy::NameStrategy() {}
+        TextureReader::NameStrategy::NameStrategy() = default;
 
-        TextureReader::NameStrategy::~NameStrategy() {}
-        
+        TextureReader::NameStrategy::~NameStrategy() = default;
+
         TextureReader::NameStrategy* TextureReader::NameStrategy::clone() const {
             return doClone();
         }
@@ -38,16 +39,16 @@ namespace TrenchBroom {
             return doGetTextureName(textureName, path);
         }
 
-        TextureReader::TextureNameStrategy::TextureNameStrategy() {}
+        TextureReader::TextureNameStrategy::TextureNameStrategy() = default;
 
         TextureReader::NameStrategy* TextureReader::TextureNameStrategy::doClone() const {
             return new TextureNameStrategy();
         }
-        
+
         String TextureReader::TextureNameStrategy::doGetTextureName(const String& textureName, const Path& path) const {
             return textureName;
         }
-        
+
         TextureReader::PathSuffixNameStrategy::PathSuffixNameStrategy(const size_t suffixLength, const bool deleteExtension) :
         m_suffixLength(suffixLength),
         m_deleteExtension(deleteExtension) {}
@@ -55,7 +56,7 @@ namespace TrenchBroom {
         TextureReader::NameStrategy* TextureReader::PathSuffixNameStrategy::doClone() const {
             return new PathSuffixNameStrategy(m_suffixLength, m_deleteExtension);
         }
-        
+
         String TextureReader::PathSuffixNameStrategy::doGetTextureName(const String& textureName, const Path& path) const {
             Path result = path.suffix(std::min(m_suffixLength, path.length()));
             if (m_deleteExtension)
@@ -80,8 +81,8 @@ namespace TrenchBroom {
         TextureReader::~TextureReader() {
             delete m_nameStrategy;
         }
-        
-        Assets::Texture* TextureReader::readTexture(MappedFile::Ptr file) const {
+
+        Assets::Texture* TextureReader::readTexture(std::shared_ptr<File> file) const {
             return doReadTexture(file);
         }
 

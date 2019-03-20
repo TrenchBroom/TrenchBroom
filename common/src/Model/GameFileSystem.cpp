@@ -99,18 +99,16 @@ namespace TrenchBroom {
                 VectorUtils::sort(packages, IO::Path::Less<StringUtils::CaseInsensitiveStringLess>());
 
                 for (const auto& packagePath : packages) {
-                    auto packageFile = diskFS.openFile(packagePath);
-
                     try {
                         if (StringUtils::caseInsensitiveEqual(packageFormat, "idpak")) {
                             logger.info() << "Adding file system package " << packagePath;
-                            m_next = std::make_shared<IO::IdPakFileSystem>(m_next, packagePath, packageFile);
+                            m_next = std::make_shared<IO::IdPakFileSystem>(m_next, diskFS.makeAbsolute(packagePath));
                         } else if (StringUtils::caseInsensitiveEqual(packageFormat, "dkpak")) {
                             logger.info() << "Adding file system package " << packagePath;
-                            m_next = std::make_shared<IO::DkPakFileSystem>(m_next, packagePath, packageFile);
+                            m_next = std::make_shared<IO::DkPakFileSystem>(m_next, diskFS.makeAbsolute(packagePath));
                         } else if (StringUtils::caseInsensitiveEqual(packageFormat, "zip")) {
                             logger.info() << "Adding file system package " << packagePath;
-                            m_next = std::make_shared<IO::ZipFileSystem>(m_next, packagePath, packageFile);
+                            m_next = std::make_shared<IO::ZipFileSystem>(m_next, diskFS.makeAbsolute(packagePath));
                         }
                     } catch (const std::exception& e) {
                         logger.error() << e.what();
@@ -126,11 +124,12 @@ namespace TrenchBroom {
             const auto& textureFormat = textureConfig.format.format;
             if (StringUtils::caseInsensitiveEqual(textureFormat, "q3shader")) {
                 logger.info() << "Adding shader file system";
-                auto searchPaths = IO::Path::List {
+                auto shaderSearchPath = textureConfig.shaderSearchPath;
+                auto textureSearchPaths = IO::Path::List {
                     textureConfig.package.rootDirectory,
                     IO::Path("models")
                 };
-                auto shaderFS = std::make_shared<IO::Quake3ShaderFileSystem>(m_next, std::move(searchPaths), logger);
+                auto shaderFS = std::make_shared<IO::Quake3ShaderFileSystem>(m_next, std::move(shaderSearchPath), std::move(textureSearchPaths), logger);
                 m_shaderFS = shaderFS.get();
                 m_next = std::move(shaderFS);
             }
@@ -148,7 +147,7 @@ namespace TrenchBroom {
             return TrenchBroom::IO::Path::List();
         }
 
-        const IO::MappedFile::Ptr GameFileSystem::doOpenFile(const IO::Path& path) const {
+        std::shared_ptr<IO::File> GameFileSystem::doOpenFile(const IO::Path& path) const {
             throw FileSystemException("File not found: '" + path.asString() + "'");
         }
     }

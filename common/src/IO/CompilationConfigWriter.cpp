@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -31,7 +31,7 @@ namespace TrenchBroom {
         m_stream(stream) {
             assert(!m_stream.bad());
         }
-        
+
         void CompilationConfigWriter::writeConfig() {
             EL::MapType map;
             map["version"] = EL::Value(1.0);
@@ -45,7 +45,7 @@ namespace TrenchBroom {
                 const Model::CompilationProfile* profile = config.profile(i);
                 array.push_back(writeProfile(profile));
             }
-            
+
             return EL::Value(array);
         }
 
@@ -69,7 +69,7 @@ namespace TrenchBroom {
                 map["target"] = EL::Value(task->targetSpec());
                 m_array.push_back(EL::Value(map));
             }
-            
+
             void visit(const Model::CompilationCopyFiles* task) override {
                 EL::MapType map;
                 map["type"] = EL::Value("copy");
@@ -77,7 +77,7 @@ namespace TrenchBroom {
                 map["target"] = EL::Value(task->targetSpec());
                 m_array.push_back(EL::Value(map));
             }
-            
+
             void visit(const Model::CompilationRunTool* task) override {
                 EL::MapType map;
                 map["type"] = EL::Value("tool");

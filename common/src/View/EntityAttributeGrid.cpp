@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -50,11 +50,11 @@ namespace TrenchBroom {
             updateShortcuts();
             bindObservers();
         }
-        
+
         EntityAttributeGrid::~EntityAttributeGrid() {
             unbindObservers();
         }
-        
+
         void EntityAttributeGrid::addAttribute() {
             qDebug("FIXME: addAttribute");
 //            m_grid->InsertRows(m_table->GetNumberAttributeRows());
@@ -71,7 +71,7 @@ namespace TrenchBroom {
 
             document->setAttribute("new attribute", "");
         }
-        
+
         void EntityAttributeGrid::removeSelectedAttributes() {
             qDebug("FIXME: removeSelectedAttributes");
 
@@ -108,7 +108,7 @@ namespace TrenchBroom {
 //                removeAttribute(key);
 //            }
         }
-        
+
         /**
          * Removes an attribute, and clear the current selection.
          *
@@ -139,7 +139,7 @@ namespace TrenchBroom {
             const auto rows = selectedRowsAndCursorRow();
             if (rows.empty())
                 return false;
-            
+
             for (const int row : rows) {
 //                if (!m_table->canRemove(row))
 //                    return false;
@@ -174,7 +174,7 @@ namespace TrenchBroom {
             int m_row, m_col;
             bool m_forceChange;
             String m_forceChangeAttribute;
-            
+
         public:
             EntityAttributeCellEditor(EntityAttributeGrid* grid, EntityAttributeGridTable* table)
             : m_grid(grid),
@@ -189,10 +189,10 @@ namespace TrenchBroom {
                 if (event.GetKeyCode() == WXK_TAB) {
                     // HACK: Consume tab key and use it for cell navigation.
                     // Otherwise, wxTextCtrl::AutoComplete uses it for cycling between completions (on Windows)
-                    
+
                     // First, close the cell editor
                     m_grid->gridWindow()->DisableCellEditControl();
-                    
+
                     // Closing the editor might reorder the cells (#2094), so m_row/m_col are no longer valid.
                     // Ask the wxGrid for the cursor row/column.
                     m_grid->tabNavigate(m_grid->gridWindow()->GetGridCursorRow(), m_grid->gridWindow()->GetGridCursorCol(), !event.ShiftDown());
@@ -203,7 +203,7 @@ namespace TrenchBroom {
 
                     const TemporarilySetBool forceChange{m_forceChange};
                     const TemporarilySetAny<String> forceChangeAttribute{m_forceChangeAttribute, m_table->attributeName(m_row)};
-                        
+
                     m_grid->gridWindow()->SaveEditControlValue();
                     m_grid->gridWindow()->HideCellEditControl();
                 } else {
@@ -218,7 +218,7 @@ namespace TrenchBroom {
 
                 m_row = row;
                 m_col = col;
-                
+
                 wxTextCtrl *textCtrl = Text();
                 ensure(textCtrl != nullptr, "wxGridCellTextEditor::Create should have created control");
 
@@ -227,19 +227,19 @@ namespace TrenchBroom {
 
                 textCtrl->Bind(wxEVT_CHAR_HOOK, &EntityAttributeCellEditor::OnCharHook, this);
             }
-            
+
             bool EndEdit(int row, int col, const wxGrid* grid, const QString& oldval, QString *newval) override {
                 assert(grid == m_grid->gridWindow());
-                
+
                 wxTextCtrl *textCtrl = Text();
                 ensure(textCtrl != nullptr, "wxGridCellTextEditor::Create should have created control");
-                
+
                 textCtrl->Unbind(wxEVT_CHAR_HOOK, &EntityAttributeCellEditor::OnCharHook, this);
-                
+
                 const bool superclassDidChange = wxGridCellTextEditor::EndEdit(row, col, grid, oldval, newval);
 
                 const String changedAttribute = m_table->attributeName(row);
-                
+
                 if (m_forceChange
                     && col == 1
                     && m_forceChangeAttribute == changedAttribute) {
@@ -248,7 +248,7 @@ namespace TrenchBroom {
                     return superclassDidChange;
                 }
             }
-            
+
             void ApplyEdit(int row, int col, wxGrid* grid) override {
                 if (col == 0) {
                     // Hack to preserve selection when renaming a key (#2094)
@@ -306,7 +306,7 @@ namespace TrenchBroom {
 
         void EntityAttributeGrid::createGui(MapDocumentWPtr document) {
             m_table = new EntityAttributeGridTable(document, this);
-            
+
             m_grid = new MyTable();
             m_grid->setModel(m_table);
             m_grid->verticalHeader()->setVisible(false);
@@ -346,7 +346,7 @@ namespace TrenchBroom {
             buttonSizer->addSpacing(LayoutConstants::WideHMargin);
             buttonSizer->addWidget(m_showDefaultPropertiesCheckBox, 0, Qt::AlignVCenter);
             buttonSizer->addStretch(1);
-            
+
             auto* sizer = new QVBoxLayout();
             sizer->setContentsMargins(0, 0, 0, 0);
             sizer->addWidget(m_grid, 1);
@@ -412,7 +412,7 @@ namespace TrenchBroom {
             document->selectionWillChangeNotifier.addObserver(this, &EntityAttributeGrid::selectionWillChange);
             document->selectionDidChangeNotifier.addObserver(this, &EntityAttributeGrid::selectionDidChange);
         }
-        
+
         void EntityAttributeGrid::unbindObservers() {
             if (!expired(m_document)) {
                 MapDocumentSPtr document = lock(m_document);
@@ -423,25 +423,25 @@ namespace TrenchBroom {
                 document->selectionDidChangeNotifier.removeObserver(this, &EntityAttributeGrid::selectionDidChange);
             }
         }
-        
+
         void EntityAttributeGrid::documentWasNewed(MapDocument* document) {
             updateControls();
         }
-        
+
         void EntityAttributeGrid::documentWasLoaded(MapDocument* document) {
             updateControls();
         }
-        
+
         void EntityAttributeGrid::nodesDidChange(const Model::NodeList& nodes) {
             updateControls();
         }
-        
+
         void EntityAttributeGrid::selectionWillChange() {
             // FIXME: Needed?
 //            m_grid->SaveEditControlValue();
 //            m_grid->HideCellEditControl();
         }
-        
+
         void EntityAttributeGrid::selectionDidChange(const Selection& selection) {
             const TemporarilySetBool ignoreSelection(m_ignoreSelection);
             updateControls();

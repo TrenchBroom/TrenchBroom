@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -191,10 +191,10 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::Edge::split(const vm::p
     // Do exactly what QBSP is doing:
     const T startDist = plane.pointDistance(firstVertex()->position());
     const T endDist = plane.pointDistance(secondVertex()->position());
-    
+
     assert(startDist != endDist);
     const T dot = startDist / (startDist - endDist);
-    
+
     const V& startPos = firstVertex()->position();
     const V& endPos = secondVertex()->position();
     V position;
@@ -206,7 +206,7 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::Edge::split(const vm::p
         else
             position[i] = startPos[i] + dot * (endPos[i] - startPos[i]);
     }
-    
+
     return insertVertex(position);
 }
 
@@ -217,14 +217,14 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::Edge::insertVertex(cons
     HalfEdge* oldFirstEdge = firstEdge();
     HalfEdge* newSecondEdge = new HalfEdge(newVertex);
     HalfEdge* oldSecondEdge = secondEdge();
-    
+
     firstFace()->insertIntoBoundaryAfter(oldFirstEdge, newFirstEdge);
     secondFace()->insertIntoBoundaryAfter(oldSecondEdge, newSecondEdge);
-    
+
     setFirstAsLeaving();
     unsetSecondEdge();
     setSecondEdge(newSecondEdge);
-    
+
     return new Edge(newFirstEdge, oldSecondEdge);
 }
 

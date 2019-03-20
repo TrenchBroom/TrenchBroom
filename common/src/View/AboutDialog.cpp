@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -38,7 +38,7 @@ namespace TrenchBroom {
                 AboutDialog::instance->raise();
             }
         }
-        
+
         void AboutDialog::closeAboutDialog() {
             if (AboutDialog::instance != nullptr)
                 AboutDialog::instance->close();
@@ -52,7 +52,7 @@ namespace TrenchBroom {
         QDialog() {
             createGui();
         }
-        
+
         void AboutDialog::createGui() {
             const QString creditsString = tr("github.com/kduske/TrenchBroom\n\n"
                                              "<b>Developers</b>\n"
@@ -86,7 +86,7 @@ namespace TrenchBroom {
                                              "CMake (Cross platform build manager)\n"
                                              "Pandoc (Universal document converter)\n"
                                              "Source Sans Pro (Font)\n").replace("\n", "<br/>");
-            
+
             AppInfoPanel* infoPanel = new AppInfoPanel(nullptr);
 
             QLabel* creditsText = new QLabel();

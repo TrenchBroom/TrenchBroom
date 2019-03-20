@@ -174,7 +174,7 @@ namespace TrenchBroom {
             m_textControl->Unbind(wxEVT_MIDDLE_DOWN, &AutoCompletionPopup::OnTextCtrlMouseDown, this);
             m_textControl->Unbind(wxEVT_RIGHT_DOWN, &AutoCompletionPopup::OnTextCtrlMouseDown, this);
         }
-        
+
         void AutoCompleteTextControl::AutoCompletionPopup::SetResult(const AutoCompleteTextControl::CompletionResult& result) {
             m_list->SetResult(result);
             if (m_list->GetItemCount() > 0)
@@ -211,7 +211,7 @@ namespace TrenchBroom {
             DoAutoComplete();
             m_textControl->EndAutoCompletion();
         }
-        
+
         void AutoCompleteTextControl::AutoCompletionPopup::OnTextCtrlMouseDown(wxMouseEvent& event) {
             m_textControl->EndAutoCompletion();
             event.Skip();
@@ -354,7 +354,7 @@ namespace TrenchBroom {
             const long to   = GetInsertionPoint();
             Replace(from, to, replacement);
         }
-        
+
         void AutoCompleteTextControl::OnKillFocus(wxFocusEvent& event) {
             if (IsAutoCompleting())
                 EndAutoCompletion();

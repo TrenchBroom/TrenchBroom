@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -34,7 +34,7 @@ namespace TrenchBroom {
         MapReader::ParentInfo MapReader::ParentInfo::layer(const Model::IdType layerId) {
             return ParentInfo(Type_Layer, layerId);
         }
-        
+
         MapReader::ParentInfo MapReader::ParentInfo::group(const Model::IdType groupId) {
             return ParentInfo(Type_Group, groupId);
         }
@@ -46,11 +46,11 @@ namespace TrenchBroom {
         bool MapReader::ParentInfo::layer() const {
             return m_type == Type_Layer;
         }
-        
+
         bool MapReader::ParentInfo::group() const {
             return m_type == Type_Group;
         }
-        
+
         Model::IdType MapReader::ParentInfo::id() const {
             return m_id;
         }
@@ -60,13 +60,13 @@ namespace TrenchBroom {
         m_factory(nullptr),
         m_brushParent(nullptr),
         m_currentNode(nullptr) {}
-        
+
         MapReader::MapReader(const String& str) :
         StandardMapParser(str),
         m_factory(nullptr),
         m_brushParent(nullptr),
         m_currentNode(nullptr) {}
-        
+
         MapReader::~MapReader() {
             VectorUtils::clearAndDelete(m_faces);
         }
@@ -76,12 +76,12 @@ namespace TrenchBroom {
             parseEntities(format, status);
             resolveNodes(status);
         }
-        
+
         void MapReader::readBrushes(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status) {
             m_worldBounds = worldBounds;
             parseBrushes(format, status);
         }
-        
+
         void MapReader::readBrushFaces(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status) {
             m_worldBounds = worldBounds;
             parseBrushFaces(format, status);
@@ -90,7 +90,7 @@ namespace TrenchBroom {
         void MapReader::onFormatSet(const Model::MapFormat format) {
             m_factory = &initialize(format, m_worldBounds);
         }
-        
+
         void MapReader::onBeginEntity(const size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
             const EntityType type = entityType(attributes);
             switch (type) {
@@ -108,7 +108,7 @@ namespace TrenchBroom {
                     break;
             }
         }
-        
+
         void MapReader::onEndEntity(const size_t startLine, const size_t lineCount, ParserStatus& status) {
             if (m_currentNode != nullptr)
                 setFilePosition(m_currentNode, startLine, lineCount);
@@ -117,15 +117,15 @@ namespace TrenchBroom {
             m_currentNode = nullptr;
             m_brushParent = nullptr;
         }
-        
+
         void MapReader::onBeginBrush(const size_t line, ParserStatus& status) {
             assert(m_faces.empty());
         }
-        
+
         void MapReader::onEndBrush(const size_t startLine, const size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& status) {
             createBrush(startLine, lineCount, extraAttributes, status);
         }
-        
+
         void MapReader::onBrushFace(const size_t line, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY, ParserStatus& status) {
             Model::BrushFace* face = m_factory->createFace(point1, point2, point3, attribs, texAxisX, texAxisY);
             face->setFilePosition(line, 1);
@@ -138,13 +138,13 @@ namespace TrenchBroom {
                 status.error(line, "Skipping layer entity: missing name");
                 return;
             }
-            
+
             const String& idStr = findAttribute(attributes, Model::AttributeNames::LayerId);
             if (StringUtils::isBlank(idStr)) {
                 status.error(line, "Skipping layer entity: missing id");
                 return;
             }
-            
+
             const long rawId = std::atol(idStr.c_str());
             if (rawId <= 0) {
                 StringStream msg;
@@ -152,7 +152,7 @@ namespace TrenchBroom {
                 status.error(line, msg.str());
                 return;
             }
-            
+
             const Model::IdType layerId = static_cast<Model::IdType>(rawId);
             if (m_layers.count(layerId) > 0) {
                 StringStream msg;
@@ -160,30 +160,30 @@ namespace TrenchBroom {
                 status.error(line, msg.str());
                 return;
             }
-            
+
             Model::Layer* layer = m_factory->createLayer(name, m_worldBounds);
             setExtraAttributes(layer, extraAttributes);
             m_layers.insert(std::make_pair(layerId, layer));
-            
+
             onLayer(layer, status);
-            
+
             m_currentNode = layer;
             m_brushParent = layer;
         }
-        
+
         void MapReader::createGroup(const size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
             const String& name = findAttribute(attributes, Model::AttributeNames::GroupName);
             if (StringUtils::isBlank(name)) {
                 status.error(line, "Skipping group entity: missing name");
                 return;
             }
-            
+
             const String& idStr = findAttribute(attributes, Model::AttributeNames::GroupId);
             if (StringUtils::isBlank(idStr)) {
                 status.error(line, "Skipping group entity: missing id");
                 return;
             }
-            
+
             const long rawId = std::atol(idStr.c_str());
             if (rawId <= 0) {
                 StringStream msg;
@@ -191,7 +191,7 @@ namespace TrenchBroom {
                 status.error(line, msg.str());
                 return;
             }
-            
+
             const Model::IdType groupId = static_cast<Model::IdType>(rawId);
             if (m_groups.count(groupId) > 0) {
                 StringStream msg;
@@ -199,13 +199,13 @@ namespace TrenchBroom {
                 status.error(line, msg.str());
                 return;
             }
-            
+
             Model::Group* group = m_factory->createGroup(name);
             setExtraAttributes(group, extraAttributes);
-            
+
             storeNode(group, attributes, status);
             m_groups.insert(std::make_pair(groupId, group));
-            
+
             m_currentNode = group;
             m_brushParent = group;
         }
@@ -217,7 +217,7 @@ namespace TrenchBroom {
 
             const ParentInfo::Type parentType = storeNode(entity, attributes, status);
             stripParentAttributes(entity, parentType);
-            
+
             m_currentNode = entity;
             m_brushParent = entity;
         }
@@ -227,7 +227,7 @@ namespace TrenchBroom {
                 Model::Brush* brush = m_factory->createBrush(m_worldBounds, m_faces);
                 setFilePosition(brush, startLine, lineCount);
                 setExtraAttributes(brush, extraAttributes);
-                
+
                 onBrush(m_brushParent, brush, status);
                 m_faces.clear();
             } catch (GeometryException& e) {
@@ -269,13 +269,13 @@ namespace TrenchBroom {
                             m_unresolvedNodes.push_back(std::make_pair(node, ParentInfo::group(groupId)));
                         return ParentInfo::Type_Group;
                     }
-                    
+
                     StringStream msg;
                     msg << "Entity has invalid parent id '" << groupIdStr << "'";
                     status.warn(node->lineNumber(), msg.str());
                 }
             }
-            
+
             onNode(nullptr, node, status);
             return ParentInfo::Type_None;
         }
@@ -298,7 +298,7 @@ namespace TrenchBroom {
             for (const auto& entry : m_unresolvedNodes) {
                 Model::Node* node = entry.first;
                 const ParentInfo& info = entry.second;
-                
+
                 Model::Node* parent = resolveParent(info);
                 if (parent == nullptr)
                     onUnresolvedNode(info, node, status);

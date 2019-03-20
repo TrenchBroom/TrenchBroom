@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -28,24 +28,24 @@ namespace TrenchBroom {
         m_value(value),
         m_line(line),
         m_column(column) {}
-        
+
         MapParser::ExtraAttribute::Type MapParser::ExtraAttribute::type() const {
             return m_type;
         }
-        
+
         const String& MapParser::ExtraAttribute::name() const {
             return m_name;
         }
-        
+
         const String& MapParser::ExtraAttribute::strValue() const {
             return m_value;
         }
-        
+
         void MapParser::ExtraAttribute::assertType(const Type expected) const {
             if (expected != m_type)
                 throw ParserException(m_line, m_column, "Invalid extra property type");
         }
-        
+
         MapParser::~MapParser() {}
 
         void MapParser::formatSet(const Model::MapFormat format) {
@@ -55,19 +55,19 @@ namespace TrenchBroom {
         void MapParser::beginEntity(const size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
             onBeginEntity(line, attributes, extraAttributes, status);
         }
-        
+
         void MapParser::endEntity(const size_t startLine, const size_t lineCount, ParserStatus& status) {
             onEndEntity(startLine, lineCount, status);
         }
-        
+
         void MapParser::beginBrush(const size_t line, ParserStatus& status) {
             onBeginBrush(line, status);
         }
-        
+
         void MapParser::endBrush(const size_t startLine, const size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& status) {
             onEndBrush(startLine, lineCount, extraAttributes, status);
         }
-        
+
         void MapParser::brushFace(const size_t line, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY, ParserStatus& status) {
             onBrushFace(line, point1, point2, point3, attribs, texAxisX, texAxisY, status);
         }

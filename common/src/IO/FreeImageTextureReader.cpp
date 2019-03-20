@@ -23,7 +23,8 @@
 #include "FreeImage.h"
 #include "StringUtils.h"
 #include "Assets/Texture.h"
-#include "IO/CharArrayReader.h"
+#include "IO/File.h"
+#include "IO/Reader.h"
 #include "IO/Path.h"
 
 #include <cstring>
@@ -40,7 +41,7 @@ namespace TrenchBroom {
          * so we can handle both possible orders and map them to the relevant GL_RGBA
          * or GL_BGRA constant.
          */
-        static constexpr GLenum freeImage32BPPFormatToGLFormat() {            
+        static constexpr GLenum freeImage32BPPFormatToGLFormat() {
             if (FI_RGBA_RED == 0
                 && FI_RGBA_GREEN == 1
                 && FI_RGBA_BLUE == 2
@@ -58,10 +59,12 @@ namespace TrenchBroom {
             }
         }
 
-        Assets::Texture* FreeImageTextureReader::doReadTexture(MappedFile::Ptr file) const {
-            const auto* begin           = file->begin();
-            const auto* end             = file->end();
-            const auto  path            = file->path();
+        Assets::Texture* FreeImageTextureReader::doReadTexture(std::shared_ptr<File> file) const {
+            auto reader = file->reader().buffer();
+
+            const auto& path            = file->path();
+            const auto* begin           = reader.begin();
+            const auto* end             = reader.end();
             const auto  imageSize       = static_cast<size_t>(end - begin);
                   auto* imageBegin      = reinterpret_cast<BYTE*>(const_cast<char*>(begin));
                   auto* imageMemory     = FreeImage_OpenMemory(imageBegin, static_cast<DWORD>(imageSize));

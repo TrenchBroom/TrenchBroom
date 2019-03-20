@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -43,7 +43,7 @@ namespace TrenchBroom {
         bool read(QSettings* config, const QString& path, T& result) const { return false; }
         void write(QSettings* config, const QString& path, const T& value) const {}
     };
-    
+
     template <>
     class PreferenceSerializer<bool> {
     public:
@@ -55,12 +55,12 @@ namespace TrenchBroom {
             result = value.toBool();
             return true;
         }
-        
+
         void write(QSettings* config, const QString& path, const bool& value) const {
             config->setValue(path, QVariant(value));
         }
     };
-    
+
     template <>
     class PreferenceSerializer<int> {
     public:
@@ -70,12 +70,12 @@ namespace TrenchBroom {
             result = value.toInt(&ok);
             return ok;
         }
-        
+
         void write(QSettings* config, const QString& path, const int& value) const {
             config->setValue(path, QVariant(value));
         }
     };
-    
+
     template <>
     class PreferenceSerializer<float> {
     public:
@@ -85,12 +85,12 @@ namespace TrenchBroom {
             result = value.toFloat(&ok);
             return ok;
         }
-        
+
         void write(QSettings* config, const QString& path, const float& value) const {
             config->setValue(path, QVariant(value));
         }
     };
-    
+
     template <>
     class PreferenceSerializer<double> {
     public:
@@ -100,12 +100,12 @@ namespace TrenchBroom {
             result = value.toDouble(&ok);
             return ok;
         }
-        
+
         void write(QSettings* config, const QString& path, const double& value) const {
             config->setValue(path, QVariant(value));
         }
     };
-    
+
     template <>
     class PreferenceSerializer<String> {
     public:
@@ -117,12 +117,12 @@ namespace TrenchBroom {
             result = value.toString().toStdString();
             return true;
         }
-        
+
         void write(QSettings* config, const QString& path, const String& value) const {
             config->setValue(path, QVariant(QString::fromStdString(value)));
         }
     };
-    
+
     template <>
     class PreferenceSerializer<Color> {
     public:
@@ -134,12 +134,12 @@ namespace TrenchBroom {
             result = Color::parse(value.toString().toStdString());
             return true;
         }
-        
+
         void write(QSettings* config, const QString& path, const Color& value) const {
             config->setValue(path, QVariant(QString::fromStdString(StringUtils::toString(value))));
         }
     };
-    
+
     template<>
     class PreferenceSerializer<QKeySequence> {
     public:
@@ -152,12 +152,12 @@ namespace TrenchBroom {
             result = QKeySequence::fromString(value.toString(), QKeySequence::PortableText);
             return true;
         }
-        
+
         void write(QSettings* config, const QString& path, const QKeySequence& value) const {
             config->setValue(path, QVariant(value.toString(QKeySequence::PortableText)));
         }
     };
-    
+
     template<>
     class PreferenceSerializer<IO::Path> {
     public:
@@ -169,7 +169,7 @@ namespace TrenchBroom {
             result = IO::Path(value.toString().toStdString());
             return true;
         }
-        
+
         void write(QSettings* config, const QString& path, const IO::Path& value) const {
             config->setValue(path, QVariant(QString::fromStdString(value.asString())));
         }
@@ -182,9 +182,9 @@ namespace TrenchBroom {
 
         PreferenceBase(const PreferenceBase& other) {}
         virtual ~PreferenceBase() {}
-        
+
         PreferenceBase& operator=(const PreferenceBase& other) { return *this; }
-        
+
         virtual void load() const = 0;
         virtual void save() = 0;
         virtual void resetToPrevious() = 0;
@@ -195,14 +195,14 @@ namespace TrenchBroom {
 
         virtual const IO::Path& path() const = 0;
     };
-    
-    
+
+
     template <typename T>
     class Preference : public PreferenceBase {
     protected:
         friend class PreferenceManager;
         template<typename> friend class SetTemporaryPreference;
-        
+
         PreferenceSerializer<T> m_serializer;
         IO::Path m_path;
         T m_defaultValue;
@@ -210,7 +210,7 @@ namespace TrenchBroom {
         mutable T m_previousValue;
         mutable bool m_initialized;
         bool m_modified;
-        
+
         void setValue(const T& value) {
             if (!m_modified) {
                 m_modified = true;
@@ -218,7 +218,7 @@ namespace TrenchBroom {
             }
             m_value = value;
         }
-        
+
         bool initialized() const {
             return m_initialized;
         }
@@ -227,7 +227,7 @@ namespace TrenchBroom {
             QString path = QDir::homePath() % QString::fromLocal8Bit("/.TrenchBroom/.preferences");
             return QSettings(path, QSettings::IniFormat);
         }
-        
+
         void load() const override {
             ensure(qApp->thread() == QThread::currentThread(), "PreferenceManager can only be used on the main thread");
 
@@ -251,7 +251,7 @@ namespace TrenchBroom {
             }
             m_initialized = true;
         }
-        
+
         void save() override {
             ensure(qApp->thread() == QThread::currentThread(), "PreferenceManager can only be used on the main thread");
 
@@ -280,7 +280,7 @@ namespace TrenchBroom {
         m_modified(false) {
             m_modified = m_initialized;
         }
-        
+
         Preference(const Preference& other) :
         PreferenceBase(other),
         m_path(other.m_path),
@@ -289,7 +289,7 @@ namespace TrenchBroom {
         m_previousValue(other.m_previousValue),
         m_initialized(other.m_initialized),
         m_modified(other.m_modified) {}
-        
+
         Preference& operator=(Preference other) {
             using std::swap;
             swap(*this, other);
@@ -305,15 +305,15 @@ namespace TrenchBroom {
             swap(lhs.m_initialized, rhs.m_initialized);
             swap(lhs.m_modified, rhs.m_modified);
         }
-        
+
         const IO::Path& path() const override {
             return m_path;
         }
-        
+
         const T& defaultValue() const {
             return m_defaultValue;
         }
-        
+
         const T& value() const {
             return m_value;
         }

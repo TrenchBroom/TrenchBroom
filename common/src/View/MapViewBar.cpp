@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -45,7 +45,7 @@ namespace TrenchBroom {
 #endif
             createGui(document);
         }
-        
+
         wxBookCtrlBase* MapViewBar::toolBook() {
             return m_toolBook;
         }
@@ -59,19 +59,19 @@ namespace TrenchBroom {
 #if 0
             m_toolBook = new wxSimplebook(this);
             m_viewEditor = new ViewPopupEditor(this, document);
-            
+
             auto* hSizer = new QHBoxLayout();
             hSizer->addSpacing(LayoutConstants::NarrowHMargin);
             hSizer->Add(m_toolBook, 1, wxEXPAND);
             hSizer->addSpacing(LayoutConstants::MediumHMargin);
             hSizer->Add(m_viewEditor, 0, wxALIGN_CENTRE_VERTICAL);
             hSizer->addSpacing(LayoutConstants::NarrowHMargin);
-            
+
             auto* vSizer = new QVBoxLayout();
             vSizer->addSpacing(LayoutConstants::NarrowVMargin);
             vSizer->Add(hSizer, 1, wxEXPAND);
             vSizer->addSpacing(LayoutConstants::NarrowVMargin);
-            
+
             SetSizer(vSizer);
 #endif
         }

@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -44,12 +44,13 @@ namespace TrenchBroom {
             Model::Tag::TagType m_hiddenTags;
             Bitset m_hiddenEntityDefinitions;
             EntityLinkMode m_entityLinkMode;
-            
+
             bool m_blockSelection;
-            
+
             Model::Group* m_currentGroup;
         public:
-            Notifier0 editorContextDidChangeNotifier;
+            Notifier<>
+            editorContextDidChangeNotifier;
         public:
             EditorContext();
 
@@ -57,7 +58,7 @@ namespace TrenchBroom {
 
             bool showPointEntities() const;
             void setShowPointEntities(bool showPointEntities);
-            
+
             bool showBrushes() const;
             void setShowBrushes(bool showBrushes);
 
@@ -67,10 +68,10 @@ namespace TrenchBroom {
             bool entityDefinitionHidden(const Model::AttributableNode* entity) const;
             bool entityDefinitionHidden(const Assets::EntityDefinition* definition) const;
             void setEntityDefinitionHidden(const Assets::EntityDefinition* definition, bool hidden);
-            
+
             EntityLinkMode entityLinkMode() const;
             void setEntityLinkMode(EntityLinkMode entityLinkMode);
-            
+
             bool blockSelection() const;
             void setBlockSelection(bool blockSelection);
         public:
@@ -102,7 +103,7 @@ namespace TrenchBroom {
             bool pickable(const Model::Entity* entity) const;
             bool pickable(const Model::Brush* brush) const;
             bool pickable(const Model::BrushFace* face) const;
-            
+
             bool selectable(const Model::Node* node) const;
             bool selectable(const Model::World* world) const;
             bool selectable(const Model::Layer* layer) const;
@@ -110,7 +111,7 @@ namespace TrenchBroom {
             bool selectable(const Model::Entity* entity) const;
             bool selectable(const Model::Brush* brush) const;
             bool selectable(const Model::BrushFace* face) const;
-            
+
             bool canChangeSelection() const;
             bool inOpenGroup(const Model::Object* object) const;
         private:

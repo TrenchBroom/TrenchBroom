@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -60,11 +60,11 @@ namespace TrenchBroom {
             layout->addWidget(m_tableView);
             setLayout(layout);
         }
-        
+
         int IssueBrowserView::hiddenGenerators() const {
             return m_hiddenGenerators;
         }
-        
+
         void IssueBrowserView::setHiddenGenerators(const int hiddenGenerators) {
             if (hiddenGenerators == m_hiddenGenerators)
                 return;
@@ -105,7 +105,7 @@ namespace TrenchBroom {
                         this->OnApplyQuickFix(quickFix);
                     });
                 }
-                
+
                 popupMenu->addSeparator();
                 popupMenu->addMenu(quickFixMenu);
             }
@@ -113,7 +113,7 @@ namespace TrenchBroom {
             // `pos` is in m_tableView->viewport() coordinates as per: http://doc.qt.io/qt-5/qwidget.html#customContextMenuRequested
             popupMenu->popup(m_tableView->viewport()->mapToGlobal(pos));
         }
-        
+
         void IssueBrowserView::OnItemSelectionChanged() {
             updateSelection();
         }
@@ -121,11 +121,11 @@ namespace TrenchBroom {
         void IssueBrowserView::OnShowIssues() {
             setIssueVisibility(true);
         }
-        
+
         void IssueBrowserView::OnHideIssues() {
             setIssueVisibility(false);
         }
-        
+
         class IssueBrowserView::IssueVisible {
             int m_hiddenTypes;
             bool m_showHiddenIssues;
@@ -133,12 +133,12 @@ namespace TrenchBroom {
             IssueVisible(const int hiddenTypes, const bool showHiddenIssues) :
             m_hiddenTypes(hiddenTypes),
             m_showHiddenIssues(showHiddenIssues) {}
-            
+
             bool operator()(const Model::Issue* issue) const {
                 return m_showHiddenIssues || (!issue->hidden() && (issue->type() & m_hiddenTypes) == 0);
             }
         };
-        
+
         class IssueBrowserView::IssueCmp {
         public:
             bool operator()(const Model::Issue* lhs, const Model::Issue* rhs) const {
@@ -159,7 +159,7 @@ namespace TrenchBroom {
                     break;
                 }
             }
-            
+
             document->deselectAll();
             document->select(nodes);
         }
@@ -188,7 +188,7 @@ namespace TrenchBroom {
             updateSelection();
             quickFix->apply(document.get(), issues);
         }
-        
+
         Model::IssueList IssueBrowserView::collectIssues(const QList<QModelIndex>& indices) const {
             Model::IssueList result;
             for (QModelIndex index : indices) {
@@ -204,7 +204,7 @@ namespace TrenchBroom {
             if (indices.empty()) {
                 return Model::IssueQuickFixList(0);
             }
-            
+
             Model::IssueType issueTypes = ~0;
             for (QModelIndex index : indices) {
                 if (!index.isValid()) {
@@ -213,12 +213,12 @@ namespace TrenchBroom {
                 const Model::Issue* issue = m_tableModel->issues().at(static_cast<size_t>(index.row()));
                 issueTypes &= issue->type();
             }
-            
+
             MapDocumentSPtr document = lock(m_document);
             const Model::World* world = document->world();
             return world->quickFixes(issueTypes);
         }
-        
+
         Model::IssueType IssueBrowserView::issueTypeMask() const {
             Model::IssueType result = ~static_cast<Model::IssueType>(0);
             for (Model::Issue* issue : collectIssues(getSelection())) {
@@ -252,11 +252,11 @@ namespace TrenchBroom {
 
             QMetaObject::invokeMethod(this, "validate", Qt::QueuedConnection);
         }
-        
+
         void IssueBrowserView::validate() {
             if (!m_valid) {
                 m_valid = true;
-                
+
                 updateIssues();
             }
         }

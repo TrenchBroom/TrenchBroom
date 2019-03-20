@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -54,7 +54,7 @@ namespace TrenchBroom {
             const QSize virtualSize = size();
             const int cols = computeCols(virtualSize.width());
             const int rows = computeRows(cols);
-            
+
             const QPoint viewStart = QPoint(0, 0);
 
             const int startX = m_margin;
@@ -65,13 +65,13 @@ namespace TrenchBroom {
 //            dc.setPen(QColor(Qt::transparent));
 //            dc.setBrush(wxBrush(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX)));
 //            dc.drawRect(0, 0, virtualSize.x, virtualSize.y);
-            
+
             auto it = std::begin(m_colors);
             for (int row = 0; row < rows; ++row) {
                 for (int col = 0; col < cols; ++col) {
                     if (it != std::end(m_colors)) {
                         const QColor& color = *it;
-                        
+
                         if (std::find(std::begin(m_selectedColors), std::end(m_selectedColors), color) != std::end(m_selectedColors)) {
                             dc.setPen(QColor(Qt::red));
                             dc.setBrush(QColor(Qt::red));
@@ -90,7 +90,7 @@ namespace TrenchBroom {
                 x = startX;
             }
         }
-        
+
         void ColorTable::mouseReleaseEvent(QMouseEvent* event) {
             const QSize virtualSize = size();
             const int cols = computeCols(virtualSize.width());
@@ -98,7 +98,7 @@ namespace TrenchBroom {
             const QPoint pos = event->pos();
             const int col = (pos.x() - m_margin) / (m_cellSize + m_margin);
             const int row = (pos.y() - m_margin) / (m_cellSize + m_margin);
-            
+
             const size_t index = static_cast<size_t>(row * cols + col);
             if (index < m_colors.size()) {
                 const QColor& color = m_colors[index];

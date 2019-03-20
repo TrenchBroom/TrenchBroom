@@ -1,24 +1,26 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef TrenchBroom_Exceptions_h
 #define TrenchBroom_Exceptions_h
+
+#include "CollectionUtils.h"
 
 #include <exception>
 #include <string>
@@ -28,20 +30,17 @@ class Exception : public std::exception {
 protected:
     std::string m_msg;
 public:
-    Exception() noexcept {}
+    Exception() noexcept;
+    explicit Exception(std::string str) noexcept;
 
-    explicit Exception(std::string str) noexcept :
-    m_msg(std::move(str)) {}
-    
-    const char* what() const noexcept override {
-        return m_msg.c_str();
-    }
+    const char* what() const noexcept override;
 };
 
 template <class C>
 class ExceptionStream : public Exception {
 public:
-    ExceptionStream() noexcept {}
+    ExceptionStream() noexcept :
+    Exception() {}
 
     explicit ExceptionStream(std::string str) noexcept :
     Exception(std::move(str)) {}
@@ -76,7 +75,7 @@ public:
         }
     }
 
-    ParserException(const size_t line, const std::string& str = "") noexcept : ExceptionStream() {
+    explicit ParserException(const size_t line, const std::string& str = "") noexcept : ExceptionStream() {
         *this << "At line " << line << ":";
         if (!str.empty()) {
             *this << " " << str;

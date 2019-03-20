@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -24,7 +24,7 @@
 #include "Preferences.h"
 #include "Renderer/Transformation.h"
 #include "Renderer/VertexArray.h"
-#include "Renderer/VertexSpec.h"
+#include "Renderer/GLVertexType.h"
 #include "View/GLContextManager.h"
 #include "View/InputEvent.h"
 #include "View/wxUtils.h"
@@ -80,7 +80,7 @@ namespace TrenchBroom {
 
             m_windowContainer = QWidget::createWindowContainer(this);
         }
-        
+
         RenderView::~RenderView() = default;
 
         void RenderView::keyPressEvent(QKeyEvent* event) {
@@ -165,11 +165,11 @@ namespace TrenchBroom {
         Renderer::Vbo& RenderView::indexVbo() {
             return m_glContext->indexVbo();
         }
-        
+
         Renderer::FontManager& RenderView::fontManager() {
             return m_glContext->fontManager();
         }
-        
+
         Renderer::ShaderManager& RenderView::shaderManager() {
             return m_glContext->shaderManager();
         }
@@ -178,7 +178,7 @@ namespace TrenchBroom {
             // FIXME: implement for Qt
             return -1;
         }
-        
+
         bool RenderView::multisample() const {
             // FIXME: implement for Qt
             return false;
@@ -199,11 +199,11 @@ namespace TrenchBroom {
             doRender();
             renderFocusIndicator();
         }
-        
+
         void RenderView::processInput() {
             m_eventRecorder.processEvents(*this);
         }
-        
+
         void RenderView::clearBackground() {
             PreferenceManager& prefs = PreferenceManager::instance();
             const Color& backgroundColor = prefs.get(Preferences::BackgroundColor);
@@ -215,7 +215,7 @@ namespace TrenchBroom {
         void RenderView::renderFocusIndicator() {
             if (!doShouldRenderFocusIndicator() || !HasFocus())
                 return;
-            
+
             const Color& outer = m_focusColor;
             const Color& inner = m_focusColor;
 
@@ -223,44 +223,41 @@ namespace TrenchBroom {
             const auto w = static_cast<float>(clientSize.width());
             const auto h = static_cast<float>(clientSize.height());
             const auto t = 1.0f;
-            
-            using Vertex = Renderer::VertexSpecs::P3C4::Vertex;
-            Vertex::List vertices(16);
-            
-            // top
-            vertices[ 0] = Vertex(vm::vec3f(0.0f, 0.0f, 0.0f), outer);
-            vertices[ 1] = Vertex(vm::vec3f(w, 0.0f, 0.0f), outer);
-            vertices[ 2] = Vertex(vm::vec3f(w-t, t, 0.0f), inner);
-            vertices[ 3] = Vertex(vm::vec3f(t, t, 0.0f), inner);
-            
-            // right
-            vertices[ 4] = Vertex(vm::vec3f(w, 0.0f, 0.0f), outer);
-            vertices[ 5] = Vertex(vm::vec3f(w, h, 0.0f), outer);
-            vertices[ 6] = Vertex(vm::vec3f(w-t, h-t, 0.0f), inner);
-            vertices[ 7] = Vertex(vm::vec3f(w-t, t, 0.0f), inner);
-            
-            // bottom
-            vertices[ 8] = Vertex(vm::vec3f(w, h, 0.0f), outer);
-            vertices[ 9] = Vertex(vm::vec3f(0.0f, h, 0.0f), outer);
-            vertices[10] = Vertex(vm::vec3f(t, h-t, 0.0f), inner);
-            vertices[11] = Vertex(vm::vec3f(w-t, h-t, 0.0f), inner);
-            
-            // left
-            vertices[12] = Vertex(vm::vec3f(0.0f, h, 0.0f), outer);
-            vertices[13] = Vertex(vm::vec3f(0.0f, 0.0f, 0.0f), outer);
-            vertices[14] = Vertex(vm::vec3f(t, t, 0.0f), inner);
-            vertices[15] = Vertex(vm::vec3f(t, h-t, 0.0f), inner);
-            
-            glAssert(glViewport(0, 0,
-                    static_cast<int>(clientSize.width() * devicePixelRatioF()),
-                    static_cast<int>(clientSize.height() * devicePixelRatioF())));
+
+            glAssert(glViewport(0, 0, w, h));
 
             const auto projection = vm::orthoMatrix(-1.0f, 1.0f, 0.0f, 0.0f, w, h);
             Renderer::Transformation transformation(projection, vm::mat4x4f::identity);
-            
+
             glAssert(glDisable(GL_DEPTH_TEST));
-            auto array = Renderer::VertexArray::swap(vertices);
-            
+
+            using Vertex = Renderer::GLVertexTypes::P3C4::Vertex;
+            auto array = Renderer::VertexArray::move(Vertex::List {
+            // top
+                Vertex(vm::vec3f(0.0f, 0.0f, 0.0f), outer),
+                Vertex(vm::vec3f(w, 0.0f, 0.0f), outer),
+                Vertex(vm::vec3f(w-t, t, 0.0f), inner),
+                Vertex(vm::vec3f(t, t, 0.0f), inner),
+
+            // right
+                Vertex(vm::vec3f(w, 0.0f, 0.0f), outer),
+                Vertex(vm::vec3f(w, h, 0.0f), outer),
+                Vertex(vm::vec3f(w-t, h-t, 0.0f), inner),
+                Vertex(vm::vec3f(w-t, t, 0.0f), inner),
+
+            // bottom
+                Vertex(vm::vec3f(w, h, 0.0f), outer),
+                Vertex(vm::vec3f(0.0f, h, 0.0f), outer),
+                Vertex(vm::vec3f(t, h-t, 0.0f), inner),
+                Vertex(vm::vec3f(w-t, h-t, 0.0f), inner),
+
+            // left
+                Vertex(vm::vec3f(0.0f, h, 0.0f), outer),
+                Vertex(vm::vec3f(0.0f, 0.0f, 0.0f), outer),
+                Vertex(vm::vec3f(t, t, 0.0f), inner),
+                Vertex(vm::vec3f(t, h-t, 0.0f), inner)
+            });
+
             Renderer::ActivateVbo activate(vertexVbo());
             array.prepare(vertexVbo());
             array.render(GL_QUADS);

@@ -109,53 +109,53 @@ namespace TrenchBroom {
 
             ViewEffectsService* m_viewEffectsService;
         public: // notification
-            Notifier1<Command::Ptr> commandDoNotifier;
-            Notifier1<Command::Ptr> commandDoneNotifier;
-            Notifier1<Command::Ptr> commandDoFailedNotifier;
-            Notifier1<UndoableCommand::Ptr> commandUndoNotifier;
-            Notifier1<UndoableCommand::Ptr> commandUndoneNotifier;
-            Notifier1<UndoableCommand::Ptr> commandUndoFailedNotifier;
+            Notifier<Command::Ptr> commandDoNotifier;
+            Notifier<Command::Ptr> commandDoneNotifier;
+            Notifier<Command::Ptr> commandDoFailedNotifier;
+            Notifier<UndoableCommand::Ptr> commandUndoNotifier;
+            Notifier<UndoableCommand::Ptr> commandUndoneNotifier;
+            Notifier<UndoableCommand::Ptr> commandUndoFailedNotifier;
 
-            Notifier1<MapDocument*> documentWillBeClearedNotifier;
-            Notifier1<MapDocument*> documentWasClearedNotifier;
-            Notifier1<MapDocument*> documentWasNewedNotifier;
-            Notifier1<MapDocument*> documentWasLoadedNotifier;
-            Notifier1<MapDocument*> documentWasSavedNotifier;
-            Notifier0 documentModificationStateDidChangeNotifier;
+            Notifier<MapDocument*> documentWillBeClearedNotifier;
+            Notifier<MapDocument*> documentWasClearedNotifier;
+            Notifier<MapDocument*> documentWasNewedNotifier;
+            Notifier<MapDocument*> documentWasLoadedNotifier;
+            Notifier<MapDocument*> documentWasSavedNotifier;
+            Notifier<> documentModificationStateDidChangeNotifier;
 
-            Notifier0 editorContextDidChangeNotifier;
-            Notifier0 mapViewConfigDidChangeNotifier;
-            Notifier1<const Model::Layer*> currentLayerDidChangeNotifier;
-            Notifier1<const String&> currentTextureNameDidChangeNotifier;
+            Notifier<> editorContextDidChangeNotifier;
+            Notifier<> mapViewConfigDidChangeNotifier;
+            Notifier<const Model::Layer*> currentLayerDidChangeNotifier;
+            Notifier<const String&> currentTextureNameDidChangeNotifier;
 
-            Notifier0 selectionWillChangeNotifier;
-            Notifier1<const Selection&> selectionDidChangeNotifier;
+            Notifier<> selectionWillChangeNotifier;
+            Notifier<const Selection&> selectionDidChangeNotifier;
 
-            Notifier1<const Model::NodeList&> nodesWereAddedNotifier;
-            Notifier1<const Model::NodeList&> nodesWillBeRemovedNotifier;
-            Notifier1<const Model::NodeList&> nodesWereRemovedNotifier;
-            Notifier1<const Model::NodeList&> nodesWillChangeNotifier;
-            Notifier1<const Model::NodeList&> nodesDidChangeNotifier;
+            Notifier<const Model::NodeList&> nodesWereAddedNotifier;
+            Notifier<const Model::NodeList&> nodesWillBeRemovedNotifier;
+            Notifier<const Model::NodeList&> nodesWereRemovedNotifier;
+            Notifier<const Model::NodeList&> nodesWillChangeNotifier;
+            Notifier<const Model::NodeList&> nodesDidChangeNotifier;
 
-            Notifier1<const Model::NodeList&> nodeVisibilityDidChangeNotifier;
-            Notifier1<const Model::NodeList&> nodeLockingDidChangeNotifier;
+            Notifier<const Model::NodeList&> nodeVisibilityDidChangeNotifier;
+            Notifier<const Model::NodeList&> nodeLockingDidChangeNotifier;
 
-            Notifier1<Model::Group*> groupWasOpenedNotifier;
-            Notifier1<Model::Group*> groupWasClosedNotifier;
+            Notifier<Model::Group*> groupWasOpenedNotifier;
+            Notifier<Model::Group*> groupWasClosedNotifier;
 
-            Notifier1<const Model::BrushFaceList&> brushFacesDidChangeNotifier;
+            Notifier<const Model::BrushFaceList&> brushFacesDidChangeNotifier;
 
-            Notifier0 textureCollectionsWillChangeNotifier;
-            Notifier0 textureCollectionsDidChangeNotifier;
+            Notifier<> textureCollectionsWillChangeNotifier;
+            Notifier<> textureCollectionsDidChangeNotifier;
 
-            Notifier0 entityDefinitionsDidChangeNotifier;
-            Notifier0 modsDidChangeNotifier;
+            Notifier<> entityDefinitionsDidChangeNotifier;
+            Notifier<> modsDidChangeNotifier;
 
-            Notifier0 pointFileWasLoadedNotifier;
-            Notifier0 pointFileWasUnloadedNotifier;
+            Notifier<> pointFileWasLoadedNotifier;
+            Notifier<> pointFileWasUnloadedNotifier;
 
-            Notifier0 portalFileWasLoadedNotifier;
-            Notifier0 portalFileWasUnloadedNotifier;
+            Notifier<> portalFileWasLoadedNotifier;
+            Notifier<> portalFileWasUnloadedNotifier;
         protected:
             MapDocument();
         public:
@@ -178,7 +178,7 @@ namespace TrenchBroom {
             Model::EditorContext& editorContext() const;
 
             Assets::EntityDefinitionManager& entityDefinitionManager() override;
-            Assets::EntityModelManager& entityModelManager();
+            Assets::EntityModelManager& entityModelManager() override;
             Assets::TextureManager& textureManager() override;
 
             MapViewConfig& mapViewConfig() const;
@@ -207,13 +207,13 @@ namespace TrenchBroom {
             bool pasteNodes(const Model::NodeList& nodes);
             bool pasteBrushFaces(const Model::BrushFaceList& faces);
         public: // point file management
-            void loadPointFile(const IO::Path path);
+            void loadPointFile(const IO::Path& path);
             bool isPointFileLoaded() const;
             bool canReloadPointFile() const;
             void reloadPointFile();
             void unloadPointFile();
         public: // portal file management
-            void loadPortalFile(const IO::Path path);
+            void loadPortalFile(const IO::Path& path);
             bool isPortalFileLoaded() const;
             bool canReloadPortalFile() const;
             void reloadPortalFile();
@@ -429,6 +429,16 @@ namespace TrenchBroom {
             void loadTextures();
             void unloadTextures();
 
+            class SetTextures;
+            class UnsetTextures;
+            void setTextures();
+            void setTextures(const Model::NodeList& nodes);
+            void setTextures(const Model::BrushFaceList& faces);
+            void unsetTextures();
+            void unsetTextures(const Model::NodeList& nodes);
+
+            class SetEntityDefinitions;
+            class UnsetEntityDefinitions;
             void setEntityDefinitions();
             void setEntityDefinitions(const Model::NodeList& nodes);
             void unsetEntityDefinitions();
@@ -437,12 +447,12 @@ namespace TrenchBroom {
 
             void clearEntityModels();
 
-            void setTextures();
-            void setTextures(const Model::NodeList& nodes);
-            void setTextures(const Model::BrushFaceList& faces);
-
-            void unsetTextures();
-            void unsetTextures(const Model::NodeList& nodes);
+            class SetEntityModels;
+            class UnsetEntityModels;
+            void setEntityModels();
+            void setEntityModels(const Model::NodeList& nodes);
+            void unsetEntityModels();
+            void unsetEntityModels(const Model::NodeList& nodes);
         protected: // search paths and mods
             IO::Path::List externalSearchPaths() const;
             void updateGameSearchPaths();
@@ -470,7 +480,10 @@ namespace TrenchBroom {
             void initializeNodeTags(const Model::NodeList& nodes);
             void clearNodeTags(const Model::NodeList& nodes);
             void updateNodeTags(const Model::NodeList& nodes);
+
+            class InitializeFaceTagsVisitor;
             void updateFaceTags(const Model::BrushFaceList& faces);
+            void updateAllFaceTags();
         public: // document path
             bool persistent() const;
             String filename() const;

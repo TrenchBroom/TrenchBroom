@@ -1,25 +1,26 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "WadFileSystem.h"
 
-#include "IO/CharArrayReader.h"
+#include "IO/File.h"
+#include "IO/Reader.h"
 #include "IO/DiskIO.h"
 
 namespace TrenchBroom {
@@ -48,20 +49,16 @@ namespace TrenchBroom {
         }
 
         WadFileSystem::WadFileSystem(const Path& path) :
-        WadFileSystem(path, Disk::openFile(path)) {}
-        
-        WadFileSystem::WadFileSystem(const Path& path, MappedFile::Ptr file) :
-        WadFileSystem(nullptr, path, file) {
-        }
+        WadFileSystem(nullptr, path) {}
 
-        WadFileSystem::WadFileSystem(std::shared_ptr<FileSystem> next, const Path& path, MappedFile::Ptr file) :
-        ImageFileSystem(std::move(next), path, file) {
+        WadFileSystem::WadFileSystem(std::shared_ptr<FileSystem> next, const Path& path) :
+        ImageFileSystem(std::move(next), path) {
             initialize();
         }
 
         void WadFileSystem::doReadDirectory() {
-            CharArrayReader reader(m_file->begin(), m_file->end());
-            if (m_file->size() < WadLayout::MinFileSize) {
+            auto reader = m_file->reader();
+            if (reader.size() < WadLayout::MinFileSize) {
                 throw FileSystemException("File does not contain a directory.");
             }
 
@@ -74,7 +71,7 @@ namespace TrenchBroom {
             reader.seekFromBegin(WadLayout::NumEntriesAddress);
             const auto entryCount = reader.readSize<int32_t>();
 
-            if (m_file->size() < WadLayout::MinFileSize + entryCount * WadLayout::DirEntrySize) {
+            if (reader.size() < WadLayout::MinFileSize + entryCount * WadLayout::DirEntrySize) {
                 throw FileSystemException("File does not contain a directory");
             }
 
@@ -84,7 +81,7 @@ namespace TrenchBroom {
             if (m_file->size() < directoryOffset + entryCount * WadLayout::DirEntrySize) {
                 throw FileSystemException("File directory is out of bounds.");
             }
-            
+
             reader.seekFromBegin(directoryOffset);
             for (size_t i = 0; i < entryCount; ++i) {
                 const auto entryAddress = reader.readSize<int32_t>();
@@ -100,13 +97,9 @@ namespace TrenchBroom {
                 const auto entryType = reader.readChar<char>();
                 reader.seekForward(WadLayout::DirEntryNameOffset);
                 const auto entryName = reader.readString(WadLayout::DirEntryNameSize) + "." + entryType;
-                
-                const auto* entryBegin = m_file->begin() + entryAddress;
-                const auto* entryEnd = entryBegin + entrySize;
-                assert(entryEnd <= m_file->end());
-                
+
                 const auto path = IO::Path(entryName);
-                auto file = std::make_shared<MappedFileView>(m_file, path, entryBegin, entryEnd);
+                auto file = std::make_shared<FileView>(path, m_file, entryAddress, entrySize);
                 m_root.addFile(path, file);
             }
         }

@@ -78,7 +78,7 @@ namespace TrenchBroom {
                 QWidget* hiddenText = new QLabel(this, wxID_ANY, "yGp"); // this is just for keeping the correct height of the name text
                 hiddenText->SetFont(GetFont().Bold());
                 hiddenText->Hide();
-                
+
                 QWidget* hiddenButton = createBitmapToggleButton(this, "Visible.png", "Invisible.png", "");
                 QWidget* lockButton = createBitmapToggleButton(this, "Unlocked.png", "Locked.png", "");
 
@@ -94,7 +94,7 @@ namespace TrenchBroom {
                 auto* itemPanelTopSizer = new QHBoxLayout();
                 itemPanelTopSizer->Add(m_nameText, 0, wxALIGN_BOTTOM);
                 itemPanelTopSizer->Add(hiddenText, 0, wxALIGN_BOTTOM | wxRESERVE_SPACE_EVEN_IF_HIDDEN);
-                
+
                 auto* itemPanelBottomSizer = new QHBoxLayout();
                 itemPanelBottomSizer->Add(hiddenButton, 0, wxALIGN_CENTRE_VERTICAL);
                 itemPanelBottomSizer->Add(lockButton, 0, wxALIGN_CENTRE_VERTICAL);
@@ -116,7 +116,7 @@ namespace TrenchBroom {
 
             void refresh() {
                 wxWindowUpdateLocker locker(this);
-                
+
                 m_nameText->SetLabel(m_layer->name());
                 if (lock(m_document)->currentLayer() == m_layer)
                     m_nameText->SetFont(GetFont().Bold());
@@ -127,7 +127,7 @@ namespace TrenchBroom {
                 info << m_layer->childCount() << " " << StringUtils::safePlural(m_layer->childCount(), "object", "objects");
                 m_infoText->SetLabel(info);
                 m_infoText->SetFont(GetFont());
-                
+
                 Layout();
             }
 
@@ -210,7 +210,7 @@ namespace TrenchBroom {
             command->setLayer(selectedLayer());
             QueueEvent(command);
         }
-        
+
         void LayerListBox::OnDoubleClick(wxCommandEvent& event) {
             LayerCommand* command = new LayerCommand(LAYER_SET_CURRENT_EVENT);
             command->SetId(GetId());
@@ -288,15 +288,15 @@ namespace TrenchBroom {
             Bind(wxEVT_LISTBOX_DCLICK, &LayerListBox::OnDoubleClick, this);
             Bind(wxEVT_LISTBOX_RCLICK, &LayerListBox::OnRightClick, this);
         }
-        
+
         ControlListBox::Item* LayerListBox::createItem(QWidget* parent, const wxSize& margins, const size_t index) {
             MapDocumentSPtr document = lock(m_document);
             const Model::World* world = document->world();
             ensure(world != nullptr, "world is null");
-            
+
             const Model::LayerList layers = world->allLayers();
             ensure(index < layers.size(), "index out of range");
-            
+
             return new LayerItem(parent, document, layers[index], margins);
         }
     }

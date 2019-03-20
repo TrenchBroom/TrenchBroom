@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -28,7 +28,7 @@ namespace TrenchBroom {
         TexturedIndexArrayMap::Size::Size() :
         m_current(std::end(m_sizes)),
         m_indexCount(0) {}
-        
+
         size_t TexturedIndexArrayMap::Size::indexCount() const {
             return m_indexCount;
         }
@@ -51,23 +51,23 @@ namespace TrenchBroom {
             }
             return m_current->second;
         }
-        
+
         bool TexturedIndexArrayMap::Size::isCurrent(const Texture* texture) const {
             if (m_current == std::end(m_sizes))
                 return false;
-            
+
             using Cmp = TextureToSize::key_compare;
             const Cmp& cmp = m_sizes.key_comp();
-            
+
             const Texture* currentTexture = m_current->first;
             if (cmp(texture, currentTexture) || cmp(currentTexture, texture))
                 return false;
             return true;
         }
-        
+
         void TexturedIndexArrayMap::Size::initialize(TextureToIndexArrayMap& ranges) const {
             size_t baseOffset = 0;
-            
+
             for (const auto& entry : m_sizes) {
                 const Texture* texture = entry.first;
                 const IndexArrayMap::Size& size = entry.second;
@@ -79,7 +79,7 @@ namespace TrenchBroom {
         TexturedIndexArrayMap::TexturedIndexArrayMap() :
         m_ranges(new TextureToIndexArrayMap()),
         m_current(m_ranges->end()) {}
-        
+
         TexturedIndexArrayMap::TexturedIndexArrayMap(const Size& size) :
         m_ranges(new TextureToIndexArrayMap()),
         m_current(m_ranges->end()) {
@@ -105,12 +105,12 @@ namespace TrenchBroom {
             DefaultTextureRenderFunc func;
             render(indexArray, func);
         }
-        
+
         void TexturedIndexArrayMap::render(IndexArray& indexArray, TextureRenderFunc& func) {
             for (const auto& entry : *m_ranges) {
                 const Texture* texture = entry.first;
                 const IndexArrayMap& indexRange = entry.second;
-                
+
                 func.before(texture);
                 indexRange.render(indexArray);
                 func.after(texture);
@@ -123,14 +123,14 @@ namespace TrenchBroom {
             assert(m_current != m_ranges->end());
             return m_current->second;
         }
-        
+
         bool TexturedIndexArrayMap::isCurrent(const Texture* texture) {
             if (m_current == m_ranges->end())
                 return false;
-            
+
             using Cmp = TextureToIndexArrayMap::key_compare;
             const Cmp& cmp = m_ranges->key_comp();
-            
+
             const Texture* currentTexture = m_current->first;
             if (cmp(texture, currentTexture) || cmp(currentTexture, texture))
                 return false;

@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -58,11 +58,11 @@ namespace TrenchBroom {
         m_document(document),
         m_helper(helper),
         m_initalAngle(0.0f) {}
-        
+
         Tool* UVRotateTool::doGetTool() {
             return this;
         }
-        
+
         void UVRotateTool::doPick(const InputState& inputState, Model::PickResult& pickResult) {
             if (!m_helper.valid())
                 return;
@@ -88,10 +88,10 @@ namespace TrenchBroom {
                 }
             }
         }
-        
+
         bool UVRotateTool::doStartMouseDrag(const InputState& inputState) {
             assert(m_helper.valid());
-            
+
             if (!inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
                 !inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
                 return false;
@@ -116,19 +116,19 @@ namespace TrenchBroom {
 
             auto document = lock(m_document);
             document->beginTransaction("Rotate Texture");
-            
+
             return true;
         }
-        
+
         bool UVRotateTool::doMouseDrag(const InputState& inputState) {
             assert(m_helper.valid());
-            
+
             auto* face = m_helper.face();
             const auto& boundary = face->boundary();
             const auto& pickRay = inputState.pickRay();
             const auto curPointDistance = vm::intersect(pickRay, boundary);
             const auto curPoint = pickRay.pointAtDistance(curPointDistance);
-            
+
             const auto toFaceOld = face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
             const auto toWorld = face->fromTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
 
@@ -140,36 +140,36 @@ namespace TrenchBroom {
 
             const auto oldCenterInFaceCoords = m_helper.originInFaceCoords();
             const auto oldCenterInWorldCoords = toWorld * vm::vec3(oldCenterInFaceCoords);
-            
+
             Model::ChangeBrushFaceAttributesRequest request;
             request.setRotation(snappedAngle);
 
             auto document = lock(m_document);
             document->setFaceAttributes(request);
-            
+
             // Correct the offsets.
             const auto toFaceNew = face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
             const auto newCenterInFaceCoords = vm::vec2f(toFaceNew * oldCenterInWorldCoords);
 
             const auto delta = (oldCenterInFaceCoords - newCenterInFaceCoords) / face->scale();
             const auto newOffset = correct(face->offset() + delta, 4, 0.0f);
-            
+
             request.clear();
             request.setOffset(newOffset);
             document->setFaceAttributes(request);
-            
+
             return true;
         }
-        
+
         float UVRotateTool::measureAngle(const vm::vec2f& point) const {
             const auto* face = m_helper.face();
             const auto origin = m_helper.originInFaceCoords();
             return vm::mod(face->measureTextureAngle(origin, point), 360.0f);
         }
-        
+
         float UVRotateTool::snapAngle(const float angle) const {
             const auto* face = m_helper.face();
-            
+
             const float angles[] = {
                 vm::mod(angle +   0.0f, 360.0f),
                 vm::mod(angle +  90.0f, 360.0f),
@@ -177,20 +177,20 @@ namespace TrenchBroom {
                 vm::mod(angle + 270.0f, 360.0f),
             };
             auto minDelta = std::numeric_limits<float>::max();
-            
+
             const auto toFace = face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
             for (const auto* edge : face->edges()) {
                 const auto startInFaceCoords = vm::vec2f(toFace * edge->firstVertex()->position());
                 const auto endInFaceCoords   = vm::vec2f(toFace * edge->secondVertex()->position());
                 const auto edgeAngle         = vm::mod(face->measureTextureAngle(startInFaceCoords, endInFaceCoords), 360.0f);
-                
+
                 for (size_t i = 0; i < 4; ++i) {
                     if (std::abs(angles[i] - edgeAngle) < std::abs(minDelta)) {
                         minDelta = angles[i] - edgeAngle;
                     }
                 }
             }
-            
+
             if (std::abs(minDelta) < 3.0f) {
                 return angle - minDelta;
             }
@@ -201,7 +201,7 @@ namespace TrenchBroom {
             auto document = lock(m_document);
             document->commitTransaction();
         }
-        
+
         void UVRotateTool::doCancelMouseDrag() {
             auto document = lock(m_document);
             document->cancelTransaction();
@@ -229,11 +229,11 @@ namespace TrenchBroom {
                 m_center.prepare(vertexVbo);
                 m_outer.prepare(vertexVbo);
             }
-            
+
             void doRender(Renderer::RenderContext& renderContext) override {
                 const auto* face = m_helper.face();
                 const auto fromFace = face->fromTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
-                
+
                 const auto& boundary = face->boundary();
                 const auto toPlane = planeProjectionMatrix(boundary.distance, boundary.normal);
                 const auto [invertible, fromPlane] = invert(toPlane);
@@ -257,7 +257,7 @@ namespace TrenchBroom {
                     }
                     m_outer.render();
                 }
-                
+
                 {
                     const auto translation = translationMatrix(vm::vec3(faceCenterPosition));
                     const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), vm::mat4x4f(translation));
@@ -266,7 +266,7 @@ namespace TrenchBroom {
                 }
             }
         };
-        
+
         void UVRotateTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             if (!m_helper.valid()) {
                 return;
@@ -280,10 +280,10 @@ namespace TrenchBroom {
             const auto& pickResult = inputState.pickResult();
             const auto& angleHandleHit = pickResult.query().type(AngleHandleHit).occluded().first();
             const auto highlight = angleHandleHit.isMatch() || thisToolDragging();
-            
+
             renderBatch.addOneShot(new Render(m_helper, CenterHandleRadius, RotateHandleRadius, highlight));
         }
-        
+
         bool UVRotateTool::doCancel() {
             return false;
         }

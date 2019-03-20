@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -25,7 +25,7 @@ namespace TrenchBroom {
         IndexRangeMap::IndicesAndCounts::IndicesAndCounts() :
         indices(0),
         counts(0) {}
-        
+
         IndexRangeMap::IndicesAndCounts::IndicesAndCounts(const size_t index, const size_t count) :
         indices(1, static_cast<GLint>(index)),
         counts(1,  static_cast<GLsizei>(count)) {}
@@ -33,7 +33,7 @@ namespace TrenchBroom {
         size_t IndexRangeMap::IndicesAndCounts::size() const {
             return indices.size();
         }
-        
+
         void IndexRangeMap::IndicesAndCounts::reserve(const size_t capacity) {
             indices.reserve(capacity);
             counts.reserve(capacity);
@@ -48,7 +48,7 @@ namespace TrenchBroom {
                     if (size() == 1) {
                         const auto myIndex = indices.front();
                         auto& myCount = counts.front();
-                        
+
                         if (index == static_cast<size_t>(myIndex) + static_cast<size_t>(myCount)) {
                             myCount += count;
                             break;
@@ -93,7 +93,7 @@ namespace TrenchBroom {
                 data[primType].reserve(size);
             }
         }
-        
+
         IndexRangeMap::IndexRangeMap() :
         m_data(new PrimTypeToIndexData()),
         m_dynamicGrowth(true) {}
@@ -142,6 +142,18 @@ namespace TrenchBroom {
                 const auto& indicesAndCounts = entry.second;
                 const auto primCount = static_cast<GLsizei>(indicesAndCounts.size());
                 vertexArray.render(primType, indicesAndCounts.indices, indicesAndCounts.counts, primCount);
+            }
+        }
+
+        void IndexRangeMap::forEachPrimitive(std::function<void(PrimType, size_t, size_t)> func) const {
+            for (const auto& entry : *m_data) {
+                const auto primType = entry.first;
+                const auto& indicesAndCounts = entry.second;
+                const auto primCount = indicesAndCounts.size();
+
+                for (size_t i = 0; i < primCount; ++i) {
+                    func(primType, static_cast<size_t>(indicesAndCounts.indices[i]), static_cast<size_t>(indicesAndCounts.counts[i]));
+                }
             }
         }
 

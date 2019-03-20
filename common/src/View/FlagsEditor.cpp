@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -34,7 +34,7 @@ namespace TrenchBroom {
         m_numCols(numCols) {
             assert(m_numCols > 0);
         }
-        
+
         void FlagsEditor::setFlags(const QStringList& labels, const QStringList& tooltips) {
             QList<int> values;
             values.reserve(labels.size());
@@ -86,7 +86,7 @@ namespace TrenchBroom {
                 }
             }
         }
-        
+
         void FlagsEditor::setFlagValue(const int on, const int mixed) {
             for (size_t i = 0; i < m_checkBoxes.size(); ++i) {
                 QCheckBox* checkBox = m_checkBoxes[i];
@@ -101,7 +101,7 @@ namespace TrenchBroom {
                     checkBox->setCheckState(Qt::Unchecked);
             }
         }
-        
+
         size_t FlagsEditor::getNumFlags() const {
             return m_checkBoxes.size();
         }
@@ -110,7 +110,7 @@ namespace TrenchBroom {
             ensure(index < m_checkBoxes.size(), "index out of range");
             return m_checkBoxes[index]->checkState() == Qt::Checked;
         }
-        
+
         bool FlagsEditor::isFlagMixed(const size_t index) const {
             ensure(index < m_checkBoxes.size(), "index out of range");
             return m_checkBoxes[index]->checkState() == Qt::PartiallyChecked;
@@ -124,7 +124,7 @@ namespace TrenchBroom {
             }
             return value;
         }
-        
+
         int FlagsEditor::getMixedFlagValue() const {
             int value = 0;
             for (size_t i = 0; i < m_checkBoxes.size(); ++i) {

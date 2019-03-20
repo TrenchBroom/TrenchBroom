@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -158,7 +158,7 @@ namespace TrenchBroom {
                 return 1;
             }
         };
-        
+
         class ValveFileSerializer : public QuakeFileSerializer {
         private:
             String ValveTextureInfoFormat;
@@ -218,13 +218,13 @@ namespace TrenchBroom {
                 switchDefault()
             }
         }
-        
+
         MapFileSerializer::MapFileSerializer(FILE* stream) :
         m_line(1),
         m_stream(stream) {
             ensure(m_stream != nullptr, "stream is null");
         }
-        
+
         void MapFileSerializer::doBeginFile() {}
         void MapFileSerializer::doEndFile() {}
 
@@ -235,20 +235,20 @@ namespace TrenchBroom {
             std::fprintf(m_stream, "{\n");
             ++m_line;
         }
-        
+
         void MapFileSerializer::doEndEntity(Model::Node* node) {
             std::fprintf(m_stream, "}\n");
             ++m_line;
             setFilePosition(node);
         }
-        
-        void MapFileSerializer::doEntityAttribute(const Model::EntityAttribute& attribute) { 
+
+        void MapFileSerializer::doEntityAttribute(const Model::EntityAttribute& attribute) {
             std::fprintf(m_stream, "\"%s\" \"%s\"\n",
                          escapeEntityAttribute( attribute.name()).c_str(),
                          escapeEntityAttribute(attribute.value()).c_str());
             ++m_line;
         }
-        
+
         void MapFileSerializer::doBeginBrush(const Model::Brush* brush) {
             std::fprintf(m_stream, "// brush %u\n", brushNo());
             ++m_line;
@@ -256,19 +256,19 @@ namespace TrenchBroom {
             std::fprintf(m_stream, "{\n");
             ++m_line;
         }
-        
+
         void MapFileSerializer::doEndBrush(Model::Brush* brush) {
             std::fprintf(m_stream, "}\n");
             ++m_line;
             setFilePosition(brush);
         }
-        
+
         void MapFileSerializer::doBrushFace(Model::BrushFace* face) {
             const size_t lines = doWriteBrushFace(m_stream, face);
             face->setFilePosition(m_line, lines);
             m_line += lines;
         }
-        
+
         void MapFileSerializer::setFilePosition(Model::Node* node) {
             const size_t start = startLine();
             node->setFilePosition(start, m_line - start);

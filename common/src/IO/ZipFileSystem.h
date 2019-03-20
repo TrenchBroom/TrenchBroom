@@ -34,19 +34,19 @@ namespace TrenchBroom {
         private:
             mz_zip_archive m_archive;
         private:
-            class ZipCompressedFile : public File {
+            class ZipCompressedFile : public FileEntry {
             private:
                 ZipFileSystem* m_owner;
                 mz_uint m_fileIndex;
             public:
                 ZipCompressedFile(ZipFileSystem* owner, mz_uint fileIndex);
             private:
-                MappedFile::Ptr doOpen() const override;
+                std::shared_ptr<File> doOpen() const override;
             };
             friend class ZipCompressedFile;
         public:
-            ZipFileSystem(const Path& path, MappedFile::Ptr file);
-            ZipFileSystem(std::shared_ptr<FileSystem> next, const Path& path, MappedFile::Ptr file);
+            explicit ZipFileSystem(const Path& path);
+            ZipFileSystem(std::shared_ptr<FileSystem> next, const Path& path);
             ~ZipFileSystem() override;
         private:
             void doReadDirectory() override;

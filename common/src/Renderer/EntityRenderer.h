@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -39,15 +39,15 @@ namespace TrenchBroom {
     namespace Assets {
         class EntityModelManager;
     }
-    
+
     namespace Model {
         class EditorContext;
     }
-    
+
     namespace Renderer {
         class RenderBatch;
         class RenderContext;
-        
+
         class EntityRenderer {
         private:
             class EntityClassnameAnchor;
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             TriangleRenderer m_solidBoundsRenderer;
             EntityModelRenderer m_modelRenderer;
             bool m_boundsValid;
-            
+
             bool m_showOverlays;
             Color m_overlayTextColor;
             Color m_overlayBackgroundColor;
@@ -83,24 +83,24 @@ namespace TrenchBroom {
             void invalidate();
             void clear();
             void reloadModels();
-            
+
             void setShowOverlays(bool showOverlays);
             void setOverlayTextColor(const Color& overlayTextColor);
             void setOverlayBackgroundColor(const Color& overlayBackgroundColor);
             void setShowOccludedOverlays(bool showOccludedOverlays);
-            
+
             void setTint(bool tint);
             void setTintColor(const Color& tintColor);
-            
+
             void setOverrideBoundsColor(bool overrideBoundsColor);
             void setBoundsColor(const Color& boundsColor);
-            
+
             void setShowOccludedBounds(bool showOccludedBounds);
             void setOccludedBoundsColor(const Color& occludedBoundsColor);
-            
+
             void setShowAngles(bool showAngles);
             void setAngleColor(const Color& angleColor);
-            
+
             void setShowHiddenEntities(bool showHiddenEntities);
         public: // rendering
             void render(RenderContext& renderContext, RenderBatch& renderBatch);
@@ -113,14 +113,14 @@ namespace TrenchBroom {
             void renderClassnames(RenderContext& renderContext, RenderBatch& renderBatch);
             void renderAngles(RenderContext& renderContext, RenderBatch& renderBatch);
             std::vector<vm::vec3f> arrowHead(float length, float width) const;
-            
+
             struct BuildColoredSolidBoundsVertices;
             struct BuildColoredWireframeBoundsVertices;
             struct BuildWireframeBoundsVertices;
 
             void invalidateBounds();
             void validateBounds();
-            
+
             AttrString entityString(const Model::Entity* entity) const;
             const Color& boundsColor(const Model::Entity* entity) const;
         };

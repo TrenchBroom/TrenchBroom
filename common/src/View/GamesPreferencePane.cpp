@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -52,7 +52,7 @@ namespace TrenchBroom {
             createGui();
             updateControls();
         }
-        
+
         void GamesPreferencePane::OnGameSelectionChanged(GameSelectionCommand& event) {
             if (IsBeingDeleted()) return;
 
@@ -84,17 +84,17 @@ namespace TrenchBroom {
         void GamesPreferencePane::createGui() {
             m_gameListBox = new GameListBox(this);
             m_gameListBox->selectGame(0);
-            
+
             m_book = new wxSimplebook(this);
             m_book->AddPage(createDefaultPage(m_book, "Select a game."), "Default");
             m_book->AddPage(createGamePreferencesPage(m_book), "Game");
             m_book->SetSelection(0);
-            
+
             auto* prefMarginSizer = new QVBoxLayout();
             prefMarginSizer->addSpacing(LayoutConstants::WideVMargin);
             prefMarginSizer->Add(m_book, wxSizerFlags().Expand());
             prefMarginSizer->addSpacing(LayoutConstants::WideVMargin);
-            
+
             auto* sizer = new QHBoxLayout();
             sizer->addWidget(m_gameListBox, wxSizerFlags().Expand());
             sizer->addWidget(new BorderLine(this, BorderLine::Direction_Vertical), wxSizerFlags().Expand());
@@ -102,11 +102,11 @@ namespace TrenchBroom {
             sizer->addWidget(prefMarginSizer, wxSizerFlags().Expand().Proportion(1));
             sizer->addSpacing(LayoutConstants::WideVMargin);
             sizer->SetItemMinSize(m_gameListBox, 200, 200);
-            
+
             SetSizer(sizer);
             SetMinSize(wxSize(600, 300));
         }
-        
+
         QWidget* GamesPreferencePane::createGamePreferencesPage(QWidget* parent) {
             auto* containerPanel = new QWidget(parent);
 
@@ -117,7 +117,7 @@ namespace TrenchBroom {
             m_chooseGamePathButton = new wxButton(containerPanel, wxID_ANY, "...", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
 
             auto* configureEnginesButton = new wxButton(containerPanel, wxID_ANY, "Configure engines...");
-            
+
             m_gameListBox->Bind(GAME_SELECTION_CHANGE_EVENT, &GamesPreferencePane::OnGameSelectionChanged, this);
 
             m_chooseGamePathButton->Bind(wxEVT_BUTTON, &GamesPreferencePane::OnChooseGamePathClicked, this);
@@ -129,7 +129,7 @@ namespace TrenchBroom {
             containerSizer->Add(m_chooseGamePathButton,				wxGBPosition(0,2), wxDefaultSpan, wxALIGN_CENTER_VERTICAL);
             containerSizer->Add(configureEnginesButton,				wxGBPosition(1,1), wxGBSpan(1,2));
             containerSizer->AddGrowableCol(1);
-            
+
             containerPanel->SetSizer(containerSizer);
             return containerPanel;
         }
@@ -152,7 +152,7 @@ namespace TrenchBroom {
                 m_gameListBox->reloadGameInfos();
             }
             Layout();
-                
+
         }
 
         bool GamesPreferencePane::doValidate() {

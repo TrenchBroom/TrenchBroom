@@ -21,6 +21,7 @@
 
 #include "Macros.h"
 #include "Assets/Palette.h"
+#include "IO/AseParser.h"
 #include "IO/BrushFaceReader.h"
 #include "IO/Bsp29Parser.h"
 #include "IO/DefParser.h"
@@ -28,6 +29,7 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/EntParser.h"
 #include "IO/FgdParser.h"
+#include "IO/File.h"
 #include "IO/FileMatcher.h"
 #include "IO/FileSystem.h"
 #include "IO/IOUtils.h"
@@ -133,9 +135,10 @@ namespace TrenchBroom {
 
         std::unique_ptr<World> GameImpl::doLoadMap(const MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger& logger) const {
             IO::SimpleParserStatus parserStatus(logger);
-            const auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
-            IO::WorldReader reader(file->begin(), file->end());
-            return reader.read(format, worldBounds, parserStatus);
+            auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
+            auto fileReader = file->reader().buffer();
+            IO::WorldReader worldReader(std::begin(fileReader), std::end(fileReader));
+            return worldReader.read(format, worldBounds, parserStatus);
         }
 
         void GameImpl::doWriteMap(World& world, const IO::Path& path) const {
@@ -284,16 +287,19 @@ namespace TrenchBroom {
             const auto& defaultColor = m_config.entityConfig().defaultColor;
 
             if (StringUtils::caseInsensitiveEqual("fgd", extension)) {
-                const auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
-                IO::FgdParser parser(file->begin(), file->end(), defaultColor, file->path());
+                auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
+                auto reader = file->reader().buffer();
+                IO::FgdParser parser(std::begin(reader), std::end(reader), defaultColor, file->path());
                 return parser.parseDefinitions(status);
             } else if (StringUtils::caseInsensitiveEqual("def", extension)) {
-                const auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
-                IO::DefParser parser(file->begin(), file->end(), defaultColor);
+                auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
+                auto reader = file->reader().buffer();
+                IO::DefParser parser(std::begin(reader), std::end(reader), defaultColor);
                 return parser.parseDefinitions(status);
             } else if (StringUtils::caseInsensitiveEqual("ent", extension)) {
-                const auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
-                IO::EntParser parser(file->begin(), file->end(), defaultColor);
+                auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
+                auto reader = file->reader().buffer();
+                IO::EntParser parser(std::begin(reader), std::end(reader), defaultColor);
                 return parser.parseDefinitions(status);
             } else {
                 throw GameException("Unknown entity definition format: '" + path.asString() + "'");
@@ -347,25 +353,93 @@ namespace TrenchBroom {
             }
         }
 
-        Assets::EntityModel* GameImpl::doLoadEntityModel(const IO::Path& path, Logger& logger) const {
+        std::unique_ptr<Assets::EntityModel> GameImpl::doInitializeModel(const IO::Path& path, Logger& logger) const {
             try {
-                const auto file = m_fs.openFile(path);
-                ensure(file.get() != nullptr, "file is null");
+                auto file = m_fs.openFile(path);
+                ensure(file != nullptr, "file is null");
 
                 const auto modelName = path.lastComponent().asString();
                 const auto extension = StringUtils::toLower(path.extension());
                 const auto supported = m_config.entityConfig().modelFormats;
 
                 if (extension == "mdl" && supported.count("mdl") > 0) {
-                    return loadMdlModel(modelName, file, logger);
+                    const auto palette = loadTexturePalette();
+                    auto reader = file->reader().buffer();
+                    IO::MdlParser parser(modelName, std::begin(reader), std::end(reader), palette);
+                    return parser.initializeModel(logger);
                 } else if (extension == "md2" && supported.count("md2") > 0) {
-                    return loadMd2Model(modelName, file, logger);
+                    const auto palette = loadTexturePalette();
+                    auto reader = file->reader().buffer();
+                    IO::Md2Parser parser(modelName, std::begin(reader), std::end(reader), palette, m_fs);
+                    return parser.initializeModel(logger);
                 } else if (extension == "md3" && supported.count("md3") > 0) {
-                    return loadMd3Model(modelName, file, logger);
+                    auto reader = file->reader().buffer();
+                    IO::Md3Parser parser(modelName, std::begin(reader), std::end(reader), m_fs);
+                    return parser.initializeModel(logger);
                 } else if (extension == "bsp" && supported.count("bsp") > 0) {
-                    return loadBspModel(modelName, file, logger);
+                    const auto palette = loadTexturePalette();
+                    auto reader = file->reader().buffer();
+                    IO::Bsp29Parser parser(modelName, std::begin(reader), std::end(reader), palette);
+                    return parser.initializeModel(logger);
                 } else if (extension == "dkm" && supported.count("dkm") > 0) {
-                    return loadDkmModel(modelName, file, logger);
+                    auto reader = file->reader().buffer();
+                    IO::DkmParser parser(modelName, std::begin(reader), std::end(reader), m_fs);
+                    return parser.initializeModel(logger);
+                } else if (extension == "ase" && supported.count("ase") > 0) {
+                    auto reader = file->reader().buffer();
+                    IO::AseParser parser(modelName, std::begin(reader), std::end(reader), m_fs);
+                    return parser.initializeModel(logger);
+                } else {
+                    throw GameException("Unsupported model format '" + path.asString() + "'");
+                }
+            } catch (const FileSystemException& e) {
+                throw GameException("Could not load model " + path.asString() + ": " + String(e.what()));
+            } catch (const AssetException& e) {
+                throw GameException("Could not load model " + path.asString() + ": " + String(e.what()));
+            } catch (const ParserException& e) {
+                throw GameException("Could not load model " + path.asString() + ": " + String(e.what()));
+            }
+        }
+
+        void GameImpl::doLoadFrame(const IO::Path& path, size_t frameIndex, Assets::EntityModel& model, Logger& logger) const {
+            try {
+                ensure(model.frame(frameIndex) != nullptr, "invalid frame index");
+                ensure(!model.frame(frameIndex)->loaded(), "frame already loaded");
+
+                const auto file = m_fs.openFile(path);
+                ensure(file != nullptr, "file is null");
+
+                const auto modelName = path.lastComponent().asString();
+                const auto extension = StringUtils::toLower(path.extension());
+                const auto supported = m_config.entityConfig().modelFormats;
+
+                if (extension == "mdl" && supported.count("mdl") > 0) {
+                    const auto palette = loadTexturePalette();
+                    auto reader = file->reader().buffer();
+                    IO::MdlParser parser(modelName, std::begin(reader), std::end(reader), palette);
+                    parser.loadFrame(frameIndex, model, logger);
+                } else if (extension == "md2" && supported.count("md2") > 0) {
+                    const auto palette = loadTexturePalette();
+                    auto reader = file->reader().buffer();
+                    IO::Md2Parser parser(modelName, std::begin(reader), std::end(reader), palette, m_fs);
+                    parser.loadFrame(frameIndex, model, logger);
+                } else if (extension == "md3" && supported.count("md3") > 0) {
+                    auto reader = file->reader().buffer();
+                    IO::Md3Parser parser(modelName, std::begin(reader), std::end(reader), m_fs);
+                    parser.loadFrame(frameIndex, model, logger);
+                } else if (extension == "bsp" && supported.count("bsp") > 0) {
+                    const auto palette = loadTexturePalette();
+                    auto reader = file->reader().buffer();
+                    IO::Bsp29Parser parser(modelName, std::begin(reader), std::end(reader), palette);
+                    parser.loadFrame(frameIndex, model, logger);
+                } else if (extension == "dkm" && supported.count("dkm") > 0) {
+                    auto reader = file->reader().buffer();
+                    IO::DkmParser parser(modelName, std::begin(reader), std::end(reader), m_fs);
+                    parser.loadFrame(frameIndex, model, logger);
+                } else if (extension == "ase" && supported.count("ase") > 0) {
+                    auto reader = file->reader().buffer();
+                    IO::AseParser parser(modelName, std::begin(reader), std::end(reader), m_fs);
+                    parser.loadFrame(frameIndex, model, logger);
                 } else {
                     throw GameException("Unsupported model format '" + path.asString() + "'");
                 }
@@ -374,37 +448,6 @@ namespace TrenchBroom {
             } catch (AssetException& e) {
                 throw GameException("Could not load model " + path.asString() + ": " + String(e.what()));
             }
-        }
-
-        Assets::EntityModel* GameImpl::loadBspModel(const String& name, const IO::MappedFile::Ptr& file, Logger& logger) const {
-            const auto palette = loadTexturePalette();
-
-            IO::Bsp29Parser parser(name, file->begin(), file->end(), palette);
-            return parser.parseModel(logger);
-        }
-
-        Assets::EntityModel* GameImpl::loadMdlModel(const String& name, const IO::MappedFile::Ptr& file, Logger& logger) const {
-            const auto palette = loadTexturePalette();
-
-            IO::MdlParser parser(name, file->begin(), file->end(), palette);
-            return parser.parseModel(logger);
-        }
-
-        Assets::EntityModel* GameImpl::loadMd2Model(const String& name, const IO::MappedFile::Ptr& file, Logger& logger) const {
-            const auto palette = loadTexturePalette();
-
-            IO::Md2Parser parser(name, file->begin(), file->end(), palette, m_fs);
-            return parser.parseModel(logger);
-        }
-
-        Assets::EntityModel* GameImpl::loadMd3Model(const String& name, const IO::MappedFile::Ptr& file, Logger& logger) const {
-            IO::Md3Parser parser(name, file->begin(), file->end(), m_fs);
-            return parser.parseModel(logger);
-        }
-
-        Assets::EntityModel* GameImpl::loadDkmModel(const String& name, const IO::MappedFile::Ptr& file, Logger& logger) const {
-            IO::DkmParser parser(name, file->begin(), file->end(), m_fs);
-            return parser.parseModel(logger);
         }
 
         Assets::Palette GameImpl::loadTexturePalette() const {

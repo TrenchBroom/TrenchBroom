@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -72,7 +72,7 @@ namespace TrenchBroom {
             }
             document->setMods(mods);
         }
-        
+
         void ModEditor::OnRemoveModClicked() {
             const QList<QListWidgetItem*> selections = m_enabledModList->selectedItems();
             if (selections.empty()) {
@@ -88,17 +88,17 @@ namespace TrenchBroom {
             }
             document->setMods(mods);
         }
-        
+
         void ModEditor::OnMoveModUpClicked() {
             const QList<QListWidgetItem*> selections = m_enabledModList->selectedItems();
             assert(selections.size() == 1);
-            
+
             auto document = lock(m_document);
             auto mods = document->mods();
 
             const int index = m_enabledModList->row(selections.first());
             ensure(index > 0 && index < mods.size(), "index out of range");
-            
+
             using std::swap;
             swap(mods[index - 1], mods[index]);
             document->setMods(mods);
@@ -106,17 +106,17 @@ namespace TrenchBroom {
             m_enabledModList->clearSelection();
             m_enabledModList->setItemSelected(m_enabledModList->item(index - 1), true);
         }
-        
+
         void ModEditor::OnMoveModDownClicked() {
             const QList<QListWidgetItem*> selections = m_enabledModList->selectedItems();
             assert(selections.size() == 1);
-            
+
             auto document = lock(m_document);
             auto mods = document->mods();
-            
+
             const int index = m_enabledModList->row(selections.first());
             ensure(index < mods.size() - 1, "index out of range");
-            
+
             using std::swap;
             swap(mods[index + 1], mods[index]);
             document->setMods(mods);
@@ -156,16 +156,16 @@ namespace TrenchBroom {
             auto* availableModContainerSizer = new QVBoxLayout();
             availableModContainerSizer->addWidget(m_availableModList, 1);// wxSizerFlags().Expand().Proportion(1));
             availableModContainer->getPanel()->setLayout(availableModContainerSizer);
-            
+
             m_filterBox = createSearchBox();
             m_filterBox->setToolTip(tr("Filter the list of available mods"));
 //            m_filterBox->setFont(m_availableModList->font());
-            
+
             auto* filterBoxSizer = new QVBoxLayout();
 //            filterBoxSizer->addSpacing(LayoutConstants::NarrowVMargin);
             filterBoxSizer->addWidget(m_filterBox, 1);
 //            filterBoxSizer->addSpacing(LayoutConstants::NarrowVMargin);
-            
+
             auto* enabledModContainer = new TitledPanel(nullptr, "Enabled", false);
 //            enabledModContainer->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             m_enabledModList = new QListWidget(); //enabledModContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxLB_MULTIPLE | wxBORDER_NONE);
@@ -179,7 +179,7 @@ namespace TrenchBroom {
             m_removeModsButton = createBitmapButton(this, "Remove.png", "Disable the selected mods");
             m_moveModUpButton = createBitmapButton(this, "Up.png", "Move the selected mod up");
             m_moveModDownButton = createBitmapButton(this, "Down.png", "Move the selected mod down");
-            
+
             auto* buttonSizer = new QHBoxLayout();
             buttonSizer->addWidget(m_addModsButton);//, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
             buttonSizer->addWidget(m_removeModsButton);//, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
@@ -187,7 +187,7 @@ namespace TrenchBroom {
             buttonSizer->addWidget(m_moveModUpButton);//, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
             buttonSizer->addWidget(m_moveModDownButton);//, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
             buttonSizer->addStretch(1);
-            
+
             auto* sizer = new QGridLayout();
             sizer->addWidget(availableModContainer,                                   0, 0);
             sizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Vertical),    0, 1, 3, 1);
@@ -228,11 +228,11 @@ namespace TrenchBroom {
             document->documentWasNewedNotifier.addObserver(this, &ModEditor::documentWasNewed);
             document->documentWasLoadedNotifier.addObserver(this, &ModEditor::documentWasLoaded);
             document->modsDidChangeNotifier.addObserver(this, &ModEditor::modsDidChange);
-            
+
             auto& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &ModEditor::preferenceDidChange);
         }
-        
+
         void ModEditor::unbindObservers() {
             if (!expired(m_document)) {
                 auto document = lock(m_document);
@@ -240,21 +240,21 @@ namespace TrenchBroom {
                 document->documentWasLoadedNotifier.removeObserver(this, &ModEditor::documentWasLoaded);
                 document->modsDidChangeNotifier.removeObserver(this, &ModEditor::modsDidChange);
             }
-            
+
             auto& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &ModEditor::preferenceDidChange);
         }
-        
+
         void ModEditor::documentWasNewed(MapDocument* document) {
             updateAvailableMods();
             updateMods();
         }
-        
+
         void ModEditor::documentWasLoaded(MapDocument* document) {
             updateAvailableMods();
             updateMods();
         }
-        
+
         void ModEditor::modsDidChange() {
             updateMods();
         }
@@ -284,10 +284,10 @@ namespace TrenchBroom {
             m_enabledModList->clear();
 
             const auto pattern = m_filterBox->text().toStdString();
-            
+
             auto document = lock(m_document);
             auto enabledMods = document->mods();
-            
+
             QStringList availableModItems;
             for (size_t i = 0; i < m_availableMods.size(); ++i) {
                 const auto& mod = m_availableMods[i];

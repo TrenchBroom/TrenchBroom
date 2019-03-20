@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -225,61 +225,61 @@ namespace TrenchBroom {
 
         void FaceAttribsEditor::createGui(GLContextManager& contextManager) {
             m_uvEditor = new UVEditor(this, m_document, contextManager);
-            
+
             QLabel* textureNameLabel = new QLabel(this, wxID_ANY, "Texture");
             textureNameLabel->SetFont(textureNameLabel->GetFont().Bold());
             m_textureName = new QLabel(this, wxID_ANY, "none");
-            
+
             QLabel* textureSizeLabel = new QLabel(this, wxID_ANY, "Size");
             textureSizeLabel->SetFont(textureSizeLabel->GetFont().Bold());
             m_textureSize = new QLabel(this, wxID_ANY, "");
-            
+
             const double max = std::numeric_limits<double>::max();
             const double min = -max;
-            
+
             QLabel* xOffsetLabel = new QLabel(this, wxID_ANY, "X Offset");
             xOffsetLabel->SetFont(xOffsetLabel->GetFont().Bold());
             m_xOffsetEditor = new SpinControl(this);
             m_xOffsetEditor->SetRange(min, max);
             m_xOffsetEditor->SetDigits(0, 6);
-            
+
             QLabel* yOffsetLabel = new QLabel(this, wxID_ANY, "Y Offset");
             yOffsetLabel->SetFont(yOffsetLabel->GetFont().Bold());
             m_yOffsetEditor = new SpinControl(this);
             m_yOffsetEditor->SetRange(min, max);
             m_yOffsetEditor->SetDigits(0, 6);
-            
+
             QLabel* xScaleLabel = new QLabel(this, wxID_ANY, "X Scale");
             xScaleLabel->SetFont(xScaleLabel->GetFont().Bold());
             m_xScaleEditor = new SpinControl(this);
             m_xScaleEditor->SetRange(min, max);
             m_xScaleEditor->SetIncrements(0.1, 0.25, 0.01);
             m_xScaleEditor->SetDigits(0, 6);
-            
+
             QLabel* yScaleLabel = new QLabel(this, wxID_ANY, "Y Scale");
             yScaleLabel->SetFont(yScaleLabel->GetFont().Bold());
             m_yScaleEditor = new SpinControl(this);
             m_yScaleEditor->SetRange(min, max);
             m_yScaleEditor->SetIncrements(0.1, 0.25, 0.01);
             m_yScaleEditor->SetDigits(0, 6);
-            
+
             QLabel* rotationLabel = new QLabel(this, wxID_ANY, "Angle");
             rotationLabel->SetFont(rotationLabel->GetFont().Bold());
             m_rotationEditor = new SpinControl(this);
             m_rotationEditor->SetRange(min, max);
             m_rotationEditor->SetDigits(0, 6);
-            
+
             m_surfaceValueLabel = new QLabel(this, wxID_ANY, "Value", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
             m_surfaceValueLabel->SetFont(m_surfaceValueLabel->GetFont().Bold());
             m_surfaceValueEditor = new SpinControl(this);
             m_surfaceValueEditor->SetRange(min, max);
             m_surfaceValueEditor->SetIncrements(1.0, 10.0, 100.0);
             m_surfaceValueEditor->SetDigits(0, 6);
-            
+
             m_surfaceFlagsLabel = new QLabel(this, wxID_ANY, "Surface", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
             m_surfaceFlagsLabel->SetFont(m_surfaceFlagsLabel->GetFont().Bold());
             m_surfaceFlagsEditor = new FlagsPopupEditor(this, 2);
-            
+
             m_contentFlagsLabel = new QLabel(this, wxID_ANY, "Content", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
             m_contentFlagsLabel->SetFont(m_contentFlagsLabel->GetFont().Bold());
             m_contentFlagsEditor = new FlagsPopupEditor(this, 2);
@@ -291,15 +291,15 @@ namespace TrenchBroom {
             const int LabelMargin  = LayoutConstants::NarrowHMargin;
             const int EditorMargin = LayoutConstants::WideHMargin;
             const int RowMargin    = LayoutConstants::NarrowVMargin;
-            
+
             const int LabelFlags   = wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxRIGHT;
             const int ValueFlags   = wxALIGN_CENTER_VERTICAL | wxRIGHT;
             const int Editor1Flags = wxEXPAND | wxRIGHT;
             const int Editor2Flags = wxEXPAND;
-            
+
             int r = 0;
             int c = 0;
-            
+
             m_faceAttribsSizer = new wxGridBagSizer(RowMargin);
             m_faceAttribsSizer->Add(textureNameLabel,     wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
             m_faceAttribsSizer->Add(m_textureName,        wxGBPosition(r,c++), wxDefaultSpan, ValueFlags,   EditorMargin);
@@ -312,23 +312,23 @@ namespace TrenchBroom {
             m_faceAttribsSizer->Add(yOffsetLabel,         wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
             m_faceAttribsSizer->Add(m_yOffsetEditor,      wxGBPosition(r,c++), wxDefaultSpan, Editor2Flags, EditorMargin);
             ++r; c = 0;
-            
+
             m_faceAttribsSizer->Add(xScaleLabel,          wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
             m_faceAttribsSizer->Add(m_xScaleEditor,       wxGBPosition(r,c++), wxDefaultSpan, Editor1Flags, EditorMargin);
             m_faceAttribsSizer->Add(yScaleLabel,          wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
             m_faceAttribsSizer->Add(m_yScaleEditor,       wxGBPosition(r,c++), wxDefaultSpan, Editor2Flags, EditorMargin);
             ++r; c = 0;
-            
+
             m_faceAttribsSizer->Add(rotationLabel,        wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
             m_faceAttribsSizer->Add(m_rotationEditor,     wxGBPosition(r,c++), wxDefaultSpan, Editor1Flags, EditorMargin);
             m_faceAttribsSizer->Add(m_surfaceValueLabel,  wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
             m_faceAttribsSizer->Add(m_surfaceValueEditor, wxGBPosition(r,c++), wxDefaultSpan, Editor2Flags, EditorMargin);
             ++r; c = 0;
-            
+
             m_faceAttribsSizer->Add(m_surfaceFlagsLabel,  wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
             m_faceAttribsSizer->Add(m_surfaceFlagsEditor, wxGBPosition(r,c++), wxGBSpan(1,3), Editor2Flags, EditorMargin);
             ++r; c = 0;
-            
+
             m_faceAttribsSizer->Add(m_contentFlagsLabel,  wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
             m_faceAttribsSizer->Add(m_contentFlagsEditor, wxGBPosition(r,c++), wxGBSpan(1,3), Editor2Flags, EditorMargin);
             ++r; c = 0;
@@ -346,17 +346,17 @@ namespace TrenchBroom {
             m_faceAttribsSizer->SetItemMinSize(m_yScaleEditor, 50, m_yScaleEditor->GetSize().y);
             m_faceAttribsSizer->SetItemMinSize(m_rotationEditor, 50, m_rotationEditor->GetSize().y);
             m_faceAttribsSizer->SetItemMinSize(m_surfaceValueEditor, 50, m_rotationEditor->GetSize().y);
-            
+
             auto* outerSizer = new QVBoxLayout();
             outerSizer->Add(m_uvEditor, 1, wxEXPAND);
             outerSizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
             outerSizer->addSpacing(LayoutConstants::WideVMargin);
             outerSizer->Add(m_faceAttribsSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::MediumHMargin);
             outerSizer->addSpacing(LayoutConstants::WideVMargin);
-            
+
             SetSizer(outerSizer);
         }
-        
+
         void FaceAttribsEditor::bindEvents() {
             m_xOffsetEditor->Bind(SPIN_CONTROL_EVENT, &FaceAttribsEditor::OnXOffsetChanged, this);
             m_yOffsetEditor->Bind(SPIN_CONTROL_EVENT, &FaceAttribsEditor::OnYOffsetChanged, this);
@@ -369,7 +369,7 @@ namespace TrenchBroom {
             m_colorEditor->Bind(wxEVT_TEXT, &FaceAttribsEditor::OnColorValueChanged, this);
             Bind(wxEVT_IDLE, &FaceAttribsEditor::OnIdle, this);
         }
-        
+
         void FaceAttribsEditor::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &FaceAttribsEditor::documentWasNewed);
@@ -378,7 +378,7 @@ namespace TrenchBroom {
             document->selectionDidChangeNotifier.addObserver(this, &FaceAttribsEditor::selectionDidChange);
             document->textureCollectionsDidChangeNotifier.addObserver(this, &FaceAttribsEditor::textureCollectionsDidChange);
         }
-        
+
         void FaceAttribsEditor::unbindObservers() {
             if (!expired(m_document)) {
                 MapDocumentSPtr document = lock(m_document);
@@ -389,36 +389,36 @@ namespace TrenchBroom {
                 document->textureCollectionsDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::textureCollectionsDidChange);
             }
         }
-        
+
         void FaceAttribsEditor::documentWasNewed(MapDocument* document) {
             m_faces = document->allSelectedBrushFaces();
             updateControls();
         }
-        
+
         void FaceAttribsEditor::documentWasLoaded(MapDocument* document) {
             m_faces = document->allSelectedBrushFaces();
             updateControls();
         }
-        
+
         void FaceAttribsEditor::brushFacesDidChange(const Model::BrushFaceList& faces) {
             MapDocumentSPtr document = lock(m_document);
             m_faces = document->allSelectedBrushFaces();
             updateControls();
         }
-        
+
         void FaceAttribsEditor::selectionDidChange(const Selection& selection) {
             MapDocumentSPtr document = lock(m_document);
             m_faces = document->allSelectedBrushFaces();
             updateControls();
         }
-        
+
         void FaceAttribsEditor::textureCollectionsDidChange() {
             updateControls();
         }
-        
+
         void FaceAttribsEditor::updateControls() {
             wxWindowUpdateLocker lock(this);
-            
+
             if (hasSurfaceAttribs()) {
                 showSurfaceAttribEditors();
                 QStringList surfaceFlagLabels, surfaceFlagTooltips, contentFlagLabels, contentFlagTooltips;
@@ -445,7 +445,7 @@ namespace TrenchBroom {
                 bool yScaleMulti = false;
                 bool surfaceValueMulti = false;
                 bool colorValueMulti = false;
-                
+
                 Assets::Texture* texture = m_faces[0]->texture();
                 const float xOffset = m_faces[0]->xOffset();
                 const float yOffset = m_faces[0]->yOffset();
@@ -460,7 +460,7 @@ namespace TrenchBroom {
                 bool hasColorValue = m_faces[0]->hasColor();
                 const Color colorValue = m_faces[0]->color();
 
-                
+
                 for (size_t i = 1; i < m_faces.size(); i++) {
                     Model::BrushFace* face = m_faces[i];
                     textureMulti            |= (texture         != face->texture());
@@ -476,7 +476,7 @@ namespace TrenchBroom {
                     combineFlags(sizeof(int)*8, face->surfaceFlags(), setSurfaceFlags, mixedSurfaceFlags);
                     combineFlags(sizeof(int)*8, face->surfaceContents(), setSurfaceContents, mixedSurfaceContents);
                 }
-                
+
                 m_xOffsetEditor->Enable();
                 m_yOffsetEditor->Enable();
                 m_rotationEditor->Enable();
@@ -486,7 +486,7 @@ namespace TrenchBroom {
                 m_surfaceFlagsEditor->Enable();
                 m_contentFlagsEditor->Enable();
                 m_colorEditor->Enable();
-                
+
                 if (textureMulti) {
                     m_textureName->SetLabel("multi");
                     m_textureName->SetForegroundColour(*wxLIGHT_GREY);
@@ -599,13 +599,13 @@ namespace TrenchBroom {
             }
         }
 
-        
+
         bool FaceAttribsEditor::hasSurfaceAttribs() const {
             MapDocumentSPtr document = lock(m_document);
             const Model::GameSPtr game = document->game();
             const Model::GameConfig::FlagsConfig& surfaceFlags = game->surfaceFlags();
             const Model::GameConfig::FlagsConfig& contentFlags = game->contentFlags();
-            
+
             return !surfaceFlags.flags.empty() && !contentFlags.flags.empty();
         }
 
@@ -618,7 +618,7 @@ namespace TrenchBroom {
             m_faceAttribsSizer->Show(m_contentFlagsEditor);
             GetParent()->Layout();
         }
-        
+
         void FaceAttribsEditor::hideSurfaceAttribEditors() {
             m_faceAttribsSizer->Hide(m_surfaceValueLabel);
             m_faceAttribsSizer->Hide(m_surfaceValueEditor);
@@ -653,14 +653,14 @@ namespace TrenchBroom {
                 descriptions.push_back(flag.description);
             }
         }
-        
+
         void FaceAttribsEditor::getSurfaceFlags(QStringList& names, QStringList& descriptions) const {
             MapDocumentSPtr document = lock(m_document);
             const Model::GameSPtr game = document->game();
             const Model::GameConfig::FlagsConfig& surfaceFlags = game->surfaceFlags();
             getFlags(surfaceFlags.flags, names, descriptions);
         }
-        
+
         void FaceAttribsEditor::getContentFlags(QStringList& names, QStringList& descriptions) const {
             MapDocumentSPtr document = lock(m_document);
             const Model::GameSPtr game = document->game();

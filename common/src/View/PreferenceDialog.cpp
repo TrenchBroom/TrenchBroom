@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -46,17 +46,17 @@ namespace TrenchBroom {
         m_book(nullptr) {
             Create();
         }
-        
+
         bool PreferenceDialog::Create() {
             if (!wxDialog::Create(nullptr, wxID_ANY, "Preferences"))
                 return false;
-            
+
             createGui();
             bindEvents();
             switchToPane(PrefPane_First);
             currentPane()->updateControls();
             SetClientSize(currentPane()->GetMinSize());
-            
+
             return true;
         }
 
@@ -106,7 +106,7 @@ namespace TrenchBroom {
                 event.Skip();
                 return;
             }
-            
+
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.discardChanges(); // does nothing if the preferences save changes instantly
             EndModal(wxID_OK);
@@ -122,7 +122,7 @@ namespace TrenchBroom {
             assert(currentPane()->canResetToDefaults());
             currentPane()->resetToDefaults();
         }
-        
+
         void PreferenceDialog::OnUpdateReset(wxUpdateUIEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -155,7 +155,7 @@ namespace TrenchBroom {
             const wxBitmap viewImage = IO::loadImageResource("ViewPreferences.png");
             const wxBitmap mouseImage = IO::loadImageResource("MousePreferences.png");
             const wxBitmap keyboardImage = IO::loadImageResource("KeyboardPreferences.png");
-            
+
             m_toolBar = new wxToolBar(this, wxID_ANY);
             m_toolBar->SetToolBitmapSize(wxSize(32, 32));
             m_toolBar->AddCheckTool(PrefPane_Games, "Games", gamesImage);
@@ -163,17 +163,17 @@ namespace TrenchBroom {
             m_toolBar->AddCheckTool(PrefPane_Mouse, "Mouse", mouseImage);
             m_toolBar->AddCheckTool(PrefPane_Keyboard, "Keyboard", keyboardImage);
             m_toolBar->Realize();
-            
+
             m_book = new wxSimplebook(this);
             m_book->AddPage(new GamesPreferencePane(m_book), "Games");
             m_book->AddPage(new ViewPreferencePane(m_book), "View");
             m_book->AddPage(new MousePreferencePane(m_book), "Mouse");
             m_book->AddPage(new KeyboardPreferencePane(m_book, m_document.get()), "Keyboard");
-            
+
             wxButton* resetButton = new wxButton(this, wxID_ANY, "Reset to defaults");
             resetButton->Bind(wxEVT_BUTTON, &PreferenceDialog::OnResetClicked, this);
             resetButton->Bind(wxEVT_UPDATE_UI, &PreferenceDialog::OnUpdateReset, this);
-            
+
             wxBoxSizer* sizer = new QVBoxLayout();
             sizer->addWidget(m_toolBar, 0, wxEXPAND);
 #if !defined __APPLE__
@@ -203,10 +203,10 @@ namespace TrenchBroom {
             }
 
             sizer->addWidget(wrapDialogButtonSizer(buttonSizer, this), wxSizerFlags().Expand());
-            
+
             SetSizer(sizer);
         }
-        
+
         void PreferenceDialog::bindEvents() {
             Bind(wxEVT_MENU, &PreferenceDialog::OnFileClose, this, wxID_CLOSE);
             Bind(wxEVT_BUTTON, &PreferenceDialog::OnOKClicked, this, wxID_OK);
@@ -221,18 +221,18 @@ namespace TrenchBroom {
                 toggleTools(currentPaneId());
                 return;
             }
-            
+
             toggleTools(pane);
             m_book->SetSelection(static_cast<size_t>(pane));
             currentPane()->updateControls();
-            
+
             GetSizer()->SetItemMinSize(m_book, currentPane()->GetMinSize());
             Fit();
 
 #ifdef __APPLE__
             updateAcceleratorTable(pane);
 #endif
-            
+
             if (pane == PrefPane_Keyboard) {
 				SetEscapeId(wxID_NONE);
             } else {
@@ -244,11 +244,11 @@ namespace TrenchBroom {
             for (int i = PrefPane_First; i <= PrefPane_Last; ++i)
                 m_toolBar->ToggleTool(i, pane == i);
         }
-        
+
         PreferencePane* PreferenceDialog::currentPane() const {
             return static_cast<PreferencePane*>(m_book->GetCurrentPage());
         }
-        
+
         PreferenceDialog::PrefPane PreferenceDialog::currentPaneId() const {
             return static_cast<PrefPane>(m_book->GetSelection());
         }

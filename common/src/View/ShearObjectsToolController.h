@@ -30,16 +30,16 @@ namespace TrenchBroom {
     namespace Model {
         class PickResult;
     }
-    
+
     namespace Renderer {
         class RenderBatch;
         class RenderContext;
     }
-    
+
     namespace View {
         class InputState;
         class ShearObjectsTool;
-        
+
         class ShearObjectsToolController : public ToolControllerBase<PickingPolicy, KeyPolicy, MousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy> {
         protected:
             ShearObjectsTool* m_tool;
@@ -54,7 +54,7 @@ namespace TrenchBroom {
 
             void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
             virtual void doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera, Model::PickResult &pickResult) = 0;
-            
+
             void doModifierKeyChange(const InputState& inputState) override;
             void doMouseMove(const InputState& inputState) override;
 
@@ -70,14 +70,14 @@ namespace TrenchBroom {
 
             bool doCancel() override;
         };
-        
+
         class ShearObjectsToolController2D : public ShearObjectsToolController {
         public:
             explicit ShearObjectsToolController2D(ShearObjectsTool* tool, MapDocumentWPtr document);
         private:
             void doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera, Model::PickResult &pickResult) override;
         };
-        
+
         class ShearObjectsToolController3D : public ShearObjectsToolController {
         public:
             explicit ShearObjectsToolController3D(ShearObjectsTool* tool, MapDocumentWPtr document);

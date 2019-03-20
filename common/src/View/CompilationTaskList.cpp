@@ -46,7 +46,7 @@ namespace TrenchBroom {
             Model::CompilationProfile* m_profile;
             T* m_task;
             TitledPanel* m_panel;
-            
+
             using AutoCompleteTextControlList = std::list<AutoCompleteTextControl*>;
             AutoCompleteTextControlList m_autoCompleteTextControls;
         protected:
@@ -102,7 +102,7 @@ namespace TrenchBroom {
             void updateAutoComplete(AutoCompleteTextControl* control) {
                 const String workDir = EL::interpolate(m_profile->workDirSpec(), CompilationWorkDirVariables(lock(m_document)));
                 const CompilationVariables variables(lock(m_document), workDir);
-                
+
                 control->SetHelper(new ELAutoCompleteHelper(variables));
             }
         private:
@@ -110,26 +110,26 @@ namespace TrenchBroom {
                 m_profile->profileWillBeRemoved.addObserver(this, &TaskEditor::profileWillBeRemoved);
                 m_profile->profileDidChange.addObserver(this, &TaskEditor::profileDidChange);
             }
-            
+
             void removeProfileObservers() {
                 if (m_profile != nullptr) {
                     m_profile->profileWillBeRemoved.removeObserver(this, &TaskEditor::profileWillBeRemoved);
                     m_profile->profileDidChange.removeObserver(this, &TaskEditor::profileDidChange);
                 }
             }
-            
+
             void addTaskObservers() {
                 m_task->taskWillBeRemoved.addObserver(this, &TaskEditor::taskWillBeRemoved);
                 m_task->taskDidChange.addObserver(this, &TaskEditor::taskDidChange);
             }
-            
+
             void removeTaskObservers() {
                 if (m_task != nullptr) {
                     m_task->taskWillBeRemoved.removeObserver(this, &TaskEditor::taskWillBeRemoved);
                     m_task->taskDidChange.removeObserver(this, &TaskEditor::taskDidChange);
                 }
             }
-            
+
             void taskWillBeRemoved() {
                 removeTaskObservers();
                 m_task = nullptr;
@@ -146,12 +146,12 @@ namespace TrenchBroom {
                 m_task = nullptr;
                 m_profile = nullptr;
             }
-            
+
             void profileDidChange() {
                 for (AutoCompleteTextControl* control : m_autoCompleteTextControls)
                     updateAutoComplete(control);
             }
-            
+
             virtual QWidget* createGui(QWidget* parent) = 0;
             virtual void refresh() = 0;
         };

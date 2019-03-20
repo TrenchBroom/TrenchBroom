@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -35,7 +35,7 @@ namespace TrenchBroom {
     namespace View {
         CompilationRun::CompilationRun() :
         m_currentRun(nullptr) {}
-        
+
         CompilationRun::~CompilationRun() {
             if (running())
                 m_currentRun->terminate();
@@ -46,11 +46,11 @@ namespace TrenchBroom {
             wxCriticalSectionLocker lock(m_currentRunSection);
             return doIsRunning();
         }
-        
+
         void CompilationRun::run(const Model::CompilationProfile* profile, MapDocumentSPtr document, wxTextCtrl* currentOutput) {
             run(profile, document, currentOutput, false);
         }
-        
+
         void CompilationRun::test(const Model::CompilationProfile* profile, MapDocumentSPtr document, wxTextCtrl* currentOutput) {
             run(profile, document, currentOutput, true);
         }
@@ -69,16 +69,16 @@ namespace TrenchBroom {
             ensure(profile != nullptr, "profile is null");
             ensure(document.get() != nullptr, "document is null");
             ensure(currentOutput != nullptr, "currentOutput is null");
-            
+
             wxCriticalSectionLocker lock(m_currentRunSection);
             assert(!doIsRunning());
             if (m_currentRun != nullptr) {
                 delete m_currentRun;
                 m_currentRun = nullptr;
             }
-            
+
             CompilationVariables variables(document, buildWorkDir(profile, document));
-            
+
             m_currentRun = new CompilationRunner(new CompilationContext(document, variables, TextCtrlOutputAdapter(currentOutput), test), profile);
             m_currentRun->Bind(wxEVT_COMPILATION_START, &CompilationRun::OnCompilationStart, this);
             m_currentRun->Bind(wxEVT_COMPILATION_END, &CompilationRun::OnCompilationStart, this);
@@ -92,7 +92,7 @@ namespace TrenchBroom {
         void CompilationRun::OnCompilationStart(wxEvent& event) {
             ProcessEvent(event);
         }
-        
+
         void CompilationRun::OnCompilationEnd(wxEvent& event) {
             cleanup();
             ProcessEvent(event);

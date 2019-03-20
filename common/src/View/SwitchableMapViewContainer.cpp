@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -57,16 +57,16 @@ namespace TrenchBroom {
             switchToMapView(static_cast<MapViewLayout>(pref(Preferences::MapViewLayout)));
             bindObservers();
         }
-        
+
         SwitchableMapViewContainer::~SwitchableMapViewContainer() {
             unbindObservers();
-            
+
             // we must destroy our children before we destroy our resources because they might still use them in their destructors
             delete m_mapView;
-            
+
             delete m_toolBox;
             m_toolBox = nullptr;
-            
+
             delete m_mapRenderer;
             m_mapRenderer = nullptr;
         }
@@ -113,7 +113,7 @@ namespace TrenchBroom {
             layout->setContentsMargins(0, 0, 0, 0);
             layout->addWidget(m_mapView, 0, 0, 1, 1);
             setLayout(layout);
-            
+
             m_mapView->setFocus();
         }
 
@@ -137,7 +137,7 @@ namespace TrenchBroom {
             assert(canToggleCreateComplexBrushTool());
             m_toolBox->toggleCreateComplexBrushTool();
         }
-        
+
         bool SwitchableMapViewContainer::clipToolActive() const {
             return m_toolBox->clipToolActive();
         }
@@ -150,7 +150,7 @@ namespace TrenchBroom {
             assert(canToggleClipTool());
             m_toolBox->toggleClipTool();
         }
-        
+
         ClipTool* SwitchableMapViewContainer::clipTool() {
             return m_toolBox->clipTool();
         }
@@ -167,7 +167,7 @@ namespace TrenchBroom {
             assert(canToggleRotateObjectsTool());
             m_toolBox->toggleRotateObjectsTool();
         }
-        
+
         bool SwitchableMapViewContainer::scaleObjectsToolActive() const {
             return m_toolBox->scaleObjectsToolActive();
         }
@@ -175,11 +175,11 @@ namespace TrenchBroom {
         bool SwitchableMapViewContainer::shearObjectsToolActive() const {
             return m_toolBox->shearObjectsToolActive();
         }
-        
+
         bool SwitchableMapViewContainer::canToggleScaleObjectsTool() const {
             return scaleObjectsToolActive() || lock(m_document)->hasSelectedNodes();
         }
-        
+
         void SwitchableMapViewContainer::toggleScaleObjectsTool() {
             assert(canToggleScaleObjectsTool());
             m_toolBox->toggleScaleObjectsTool();
@@ -193,11 +193,11 @@ namespace TrenchBroom {
             assert(canToggleShearObjectsTool());
             m_toolBox->toggleShearObjectsTool();
         }
-        
+
         bool SwitchableMapViewContainer::canToggleVertexTools() const {
             return vertexToolActive() || edgeToolActive() || faceToolActive() || lock(m_document)->selectedNodes().hasOnlyBrushes();
         }
-        
+
         bool SwitchableMapViewContainer::anyVertexToolActive() const {
             return vertexToolActive() || edgeToolActive() || faceToolActive();
         }
@@ -205,25 +205,25 @@ namespace TrenchBroom {
         bool SwitchableMapViewContainer::vertexToolActive() const {
             return m_toolBox->vertexToolActive();
         }
-        
+
         bool SwitchableMapViewContainer::edgeToolActive() const {
             return m_toolBox->edgeToolActive();
         }
-        
+
         bool SwitchableMapViewContainer::faceToolActive() const {
             return m_toolBox->faceToolActive();
         }
-        
+
         void SwitchableMapViewContainer::toggleVertexTool() {
             assert(canToggleVertexTools());
             m_toolBox->toggleVertexTool();
         }
-        
+
         void SwitchableMapViewContainer::toggleEdgeTool() {
             assert(canToggleVertexTools());
             m_toolBox->toggleEdgeTool();
         }
-        
+
         void SwitchableMapViewContainer::toggleFaceTool() {
             assert(canToggleVertexTools());
             m_toolBox->toggleFaceTool();
@@ -232,11 +232,11 @@ namespace TrenchBroom {
         VertexTool* SwitchableMapViewContainer::vertexTool() {
             return m_toolBox->vertexTool();
         }
-        
+
         EdgeTool* SwitchableMapViewContainer::edgeTool() {
             return m_toolBox->edgeTool();
         }
-        
+
         FaceTool* SwitchableMapViewContainer::faceTool() {
             return m_toolBox->faceTool();
         }
@@ -249,34 +249,34 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             if (!document->isPointFileLoaded())
                 return false;
-            
+
             Model::PointFile* pointFile = document->pointFile();
             return pointFile->hasNextPoint();
         }
-        
+
         bool SwitchableMapViewContainer::canMoveCameraToPreviousTracePoint() const {
             MapDocumentSPtr document = lock(m_document);
             if (!document->isPointFileLoaded())
                 return false;
-            
+
             Model::PointFile* pointFile = document->pointFile();
             return pointFile->hasPreviousPoint();
         }
-        
+
         void SwitchableMapViewContainer::moveCameraToNextTracePoint() {
             MapDocumentSPtr document = lock(m_document);
             assert(document->isPointFileLoaded());
-            
+
             m_mapView->moveCameraToCurrentTracePoint();
-            
+
             Model::PointFile* pointFile = document->pointFile();
             pointFile->advance();
         }
-        
+
         void SwitchableMapViewContainer::moveCameraToPreviousTracePoint() {
             MapDocumentSPtr document = lock(m_document);
             assert(document->isPointFileLoaded());
-            
+
             Model::PointFile* pointFile = document->pointFile();
             pointFile->retreat();
 
@@ -286,11 +286,11 @@ namespace TrenchBroom {
         bool SwitchableMapViewContainer::canMaximizeCurrentView() const {
             return m_mapView->canMaximizeCurrentView();
         }
-        
+
         bool SwitchableMapViewContainer::currentViewMaximized() const {
             return m_mapView->currentViewMaximized();
         }
-        
+
         void SwitchableMapViewContainer::toggleMaximizeCurrentView() {
             m_mapView->toggleMaximizeCurrentView();
         }
@@ -298,7 +298,7 @@ namespace TrenchBroom {
         void SwitchableMapViewContainer::bindObservers() {
             m_toolBox->refreshViewsNotifier.addObserver(this, &SwitchableMapViewContainer::refreshViews);
         }
-        
+
         void SwitchableMapViewContainer::unbindObservers() {
             m_toolBox->refreshViewsNotifier.removeObserver(this, &SwitchableMapViewContainer::refreshViews);
         }
@@ -310,19 +310,19 @@ namespace TrenchBroom {
         bool SwitchableMapViewContainer::doGetIsCurrent() const {
             return m_mapView->isCurrent();
         }
-        
+
         void SwitchableMapViewContainer::doSetToolBoxDropTarget() {
             m_mapView->setToolBoxDropTarget();
         }
-        
+
         void SwitchableMapViewContainer::doClearDropTarget() {
             m_mapView->clearDropTarget();
         }
-        
+
         bool SwitchableMapViewContainer::doCanSelectTall() {
             return m_mapView->canSelectTall();
         }
-        
+
         void SwitchableMapViewContainer::doSelectTall() {
             m_mapView->selectTall();
         }
@@ -330,23 +330,23 @@ namespace TrenchBroom {
         bool SwitchableMapViewContainer::doCanFlipObjects() const {
             return m_mapView->canFlipObjects();
         }
-        
+
         void SwitchableMapViewContainer::doFlipObjects(const vm::direction direction) {
             m_mapView->flipObjects(direction);
         }
-        
+
         vm::vec3 SwitchableMapViewContainer::doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const {
             return m_mapView->pasteObjectsDelta(bounds, referenceBounds);
         }
-        
+
         void SwitchableMapViewContainer::doFocusCameraOnSelection(const bool animate) {
             m_mapView->focusCameraOnSelection(animate);
         }
-        
+
         void SwitchableMapViewContainer::doMoveCameraToPosition(const vm::vec3& position, const bool animate) {
             m_mapView->moveCameraToPosition(position, animate);
         }
-        
+
         void SwitchableMapViewContainer::doMoveCameraToCurrentTracePoint() {
             m_mapView->moveCameraToCurrentTracePoint();
         }

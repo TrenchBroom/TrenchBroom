@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -79,7 +79,7 @@ template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::Vertex::incident(const Face* face) const {
     ensure(face != nullptr, "face is null");
     ensure(m_leaving != nullptr, "leaving is null");
-    
+
     HalfEdge* curEdge = m_leaving;
     do {
         if (curEdge->face() == face)
@@ -93,7 +93,7 @@ template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Vertex::findConnectingEdge(const Vertex* vertex) const {
     ensure(vertex != nullptr, "vertex is null");
     ensure(m_leaving != nullptr, "leaving is null");
-    
+
     HalfEdge* curEdge = m_leaving;
     do {
         if (vertex == curEdge->destination())
@@ -108,7 +108,7 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Vertex::findColinea
     ensure(arriving != nullptr, "arriving is null");
     ensure(m_leaving != nullptr, "leaving is null");
     assert(arriving->destination() == this);
-    
+
     HalfEdge* curEdge = m_leaving;
     do {
         if (arriving->colinear(curEdge))

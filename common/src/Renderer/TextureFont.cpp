@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -34,12 +34,12 @@ namespace TrenchBroom {
         m_lineHeight(lineHeight),
         m_firstChar(firstChar),
         m_charCount(charCount) {}
-        
+
         TextureFont::~TextureFont() {
             delete m_texture;
             m_texture = nullptr;
         }
-        
+
         class MeasureString : public AttrString::LineFunc {
         private:
             TextureFont& m_font;
@@ -47,7 +47,7 @@ namespace TrenchBroom {
         public:
             MeasureString(TextureFont& font) :
             m_font(font) {}
-            
+
             const vm::vec2f& size() const {
                 return m_size;
             }
@@ -55,22 +55,22 @@ namespace TrenchBroom {
             void justifyLeft(const String& str) override {
                 measure(str);
             }
-            
+
             void justifyRight(const String& str) override {
                 measure(str);
             }
-            
+
             void center(const String& str) override {
                 measure(str);
             }
-            
+
             void measure(const String& str) {
                 const auto size = m_font.measure(str);
                 m_size[0] = std::max(m_size[0], size[0]);
                 m_size[1] += size[1];
             }
         };
-        
+
         class MeasureLines : public AttrString::LineFunc {
         private:
             TextureFont& m_font;
@@ -78,7 +78,7 @@ namespace TrenchBroom {
         public:
             MeasureLines(TextureFont& font) :
             m_font(font) {}
-            
+
             const std::vector<vm::vec2f>& sizes() const {
                 return m_sizes;
             }
@@ -86,30 +86,30 @@ namespace TrenchBroom {
             void justifyLeft(const String& str) override {
                 measure(str);
             }
-            
+
             void justifyRight(const String& str) override {
                 measure(str);
             }
-            
+
             void center(const String& str) override {
                 measure(str);
             }
-            
+
             void measure(const String& str) {
                 m_sizes.push_back(m_font.measure(str));
             }
         };
-        
+
         class MakeQuads : public AttrString::LineFunc {
         private:
             TextureFont& m_font;
 
             bool m_clockwise;
             vm::vec2f m_offset;
-            
+
             const std::vector<vm::vec2f>& m_sizes;
             vm::vec2f m_maxSize;
-            
+
             size_t m_index;
             float m_y;
             std::vector<vm::vec2f> m_vertices;
@@ -127,7 +127,7 @@ namespace TrenchBroom {
                 }
                 m_y -= m_sizes.back().y();
             }
-            
+
             const std::vector<vm::vec2f>& vertices() const {
                 return m_vertices;
             }
@@ -135,31 +135,31 @@ namespace TrenchBroom {
             void justifyLeft(const String& str) override {
                 makeQuads(str, 0.0f);
             }
-            
+
             void justifyRight(const String& str) override {
                 const auto w = m_sizes[m_index].x();
                 makeQuads(str, m_maxSize.x() - w);
             }
-            
+
             void center(const String& str) override {
                 const auto w = m_sizes[m_index].x();
                 makeQuads(str, (m_maxSize.x() - w) / 2.0f);
             }
-            
+
             void makeQuads(const String& str, const float x) {
                 const auto offset = m_offset + vm::vec2f(x, m_y);
                 VectorUtils::append(m_vertices, m_font.quads(str, m_clockwise, offset));
-                
+
                 m_y -= m_sizes[m_index].y();
                 m_index++;
             }
         };
-        
+
         std::vector<vm::vec2f> TextureFont::quads(const AttrString& string, const bool clockwise, const vm::vec2f& offset) {
             MeasureLines measureLines(*this);
             string.lines(measureLines);
             const auto& sizes = measureLines.sizes();
-            
+
             MakeQuads makeQuads(*this, clockwise, offset, sizes);
             string.lines(makeQuads);
             return makeQuads.vertices();
@@ -174,7 +174,7 @@ namespace TrenchBroom {
         std::vector<vm::vec2f> TextureFont::quads(const String& string, const bool clockwise, const vm::vec2f& offset) {
             std::vector<vm::vec2f> result;
             result.reserve(string.length() * 4 * 2);
-            
+
             auto x = static_cast<int>(vm::round(offset.x()));
             auto y = static_cast<int>(vm::round(offset.y()));
             for (size_t i = 0; i < string.length(); i++) {
@@ -184,7 +184,7 @@ namespace TrenchBroom {
                     y += m_lineHeight;
                     continue;
                 }
-                
+
                 if (c < m_firstChar || c >= m_firstChar + m_charCount) {
                     c = ' '; // space
                 }

@@ -25,6 +25,7 @@
 #include "IO/CompilationConfigParser.h"
 #include "IO/CompilationConfigWriter.h"
 #include "IO/DiskFileSystem.h"
+#include "IO/File.h"
 #include "IO/FileMatcher.h"
 #include "IO/FileSystem.h"
 #include "IO/GameConfigParser.h"
@@ -190,7 +191,8 @@ namespace TrenchBroom {
         void GameFactory::doLoadGameConfig(const IO::Path& path) {
                 const auto configFile = m_configFS->openFile(path);
                 const auto absolutePath = m_configFS->makeAbsolute(path);
-                IO::GameConfigParser parser(configFile->begin(), configFile->end(), absolutePath);
+            auto reader = configFile->reader().buffer();
+            IO::GameConfigParser parser(std::begin(reader), std::end(reader), absolutePath);
             GameConfig config = parser.parse();
 
             loadCompilationConfig(config);
@@ -212,7 +214,8 @@ namespace TrenchBroom {
             try {
                 if (m_configFS->fileExists(path)) {
                     const auto profilesFile = m_configFS->openFile(path);
-                    IO::CompilationConfigParser parser(profilesFile->begin(), profilesFile->end(), m_configFS->makeAbsolute(path));
+                    auto reader = profilesFile->reader().buffer();
+                    IO::CompilationConfigParser parser(std::begin(reader), std::end(reader), m_configFS->makeAbsolute(path));
                     gameConfig.setCompilationConfig(parser.parse());
                 }
             } catch (const Exception& e) {
@@ -225,7 +228,8 @@ namespace TrenchBroom {
             try {
                 if (m_configFS->fileExists(path)) {
                     const auto profilesFile = m_configFS->openFile(path);
-                    IO::GameEngineConfigParser parser(profilesFile->begin(), profilesFile->end(), m_configFS->makeAbsolute(path));
+                    auto reader = profilesFile->reader().buffer();
+                    IO::GameEngineConfigParser parser(std::begin(reader), std::end(reader), m_configFS->makeAbsolute(path));
                     gameConfig.setGameEngineConfig(parser.parse());
                 }
             } catch (const Exception& e) {

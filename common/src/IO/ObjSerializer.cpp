@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -39,7 +39,7 @@ namespace TrenchBroom {
         }
 
         void ObjFileSerializer::doBeginFile() {}
-        
+
         void ObjFileSerializer::doEndFile() {
             writeVertices();
             std::fprintf(m_stream, "\n");
@@ -55,14 +55,14 @@ namespace TrenchBroom {
             for (const vm::vec3& elem : m_vertices.list())
                 std::fprintf(m_stream, "v %.17g %.17g %.17g\n", elem.x(), elem.z(), -elem.y()); // no idea why I have to switch Y and Z
         }
-        
+
         void ObjFileSerializer::writeTexCoords() {
             std::fprintf(m_stream, "# texture coordinates\n");
             for (const vm::vec2f& elem : m_texCoords.list()) {
                 std::fprintf(m_stream, "vt %.17g %.17g\n", elem.x(), elem.y());
             }
         }
-        
+
         void ObjFileSerializer::writeNormals() {
             std::fprintf(m_stream, "# face normals\n");
             for (const vm::vec3& elem : m_normals.list()) {
@@ -122,13 +122,13 @@ namespace TrenchBroom {
                 Model::BrushFace::VertexList::const_iterator it, end;
                 const vm::vec3& position = vertex->position();
                 const vm::vec2f texCoords = face->textureCoords(position);
-                
+
                 const size_t vertexIndex = m_vertices.index(position);
                 const size_t texCoordsIndex = m_texCoords.index(texCoords);
-                
+
                 indexedVertices.push_back(IndexedVertex(vertexIndex, texCoordsIndex, normalIndex));
             }
-            
+
             m_currentObject.faces.push_back(indexedVertices);
         }
     }

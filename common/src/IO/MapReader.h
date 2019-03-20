@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -31,10 +31,10 @@ namespace TrenchBroom {
     namespace Model {
         class ModelFactory;
     }
-    
+
     namespace IO {
         class ParserStatus;
-        
+
         class MapReader : public StandardMapParser {
         protected:
             class ParentInfo {
@@ -44,7 +44,7 @@ namespace TrenchBroom {
                     Type_Group,
                     Type_None
                 } Type;
-                
+
                 Type m_type;
                 Model::IdType m_id;
             public:
@@ -64,27 +64,27 @@ namespace TrenchBroom {
                 EntityType_Worldspawn,
                 EntityType_Default
             } EntityType;
-            
+
             using LayerMap = std::map<Model::IdType, Model::Layer*>;
             using GroupMap = std::map<Model::IdType, Model::Group*>;
-            
+
             using NodeParentPair = std::pair<Model::Node*, ParentInfo>;
             using NodeParentList = std::vector<NodeParentPair>;
-            
+
             vm::bbox3 m_worldBounds;
             Model::ModelFactory* m_factory;
-            
+
             Model::Node* m_brushParent;
             Model::Node* m_currentNode;
             Model::BrushFaceList m_faces;
-            
+
             LayerMap m_layers;
             GroupMap m_groups;
             NodeParentList m_unresolvedNodes;
         protected:
             MapReader(const char* begin, const char* end);
             explicit MapReader(const String& str);
-            
+
             void readEntities(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status);
             void readBrushes(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status);
             void readBrushFaces(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status);
@@ -105,12 +105,12 @@ namespace TrenchBroom {
 
             ParentInfo::Type storeNode(Model::Node* node, const Model::EntityAttribute::List& attributes, ParserStatus& status);
             void stripParentAttributes(Model::AttributableNode* attributable, ParentInfo::Type parentType);
-            
+
             void resolveNodes(ParserStatus& status);
             Model::Node* resolveParent(const ParentInfo& parentInfo) const;
-            
+
             EntityType entityType(const Model::EntityAttribute::List& attributes) const;
-            
+
             void setFilePosition(Model::Node* node, size_t startLine, size_t lineCount);
         protected:
             void setExtraAttributes(Model::Node* node, const ExtraAttributes& extraAttributes);

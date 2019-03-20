@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -88,7 +88,7 @@ namespace TrenchBroom {
             else
                 show();
         }
-        
+
         void WelcomeFrame::OnOpenOtherDocumentClicked() {
             const QString fileName = QFileDialog::getOpenFileName(nullptr, "Open Map", "", "Map files (*.map);;Any files (*.*)");
 
@@ -117,7 +117,7 @@ namespace TrenchBroom {
         QWidget* WelcomeFrame::createAppPanel() {
             QWidget* appPanel = new QWidget();
             AppInfoPanel* infoPanel = new AppInfoPanel(appPanel);
-            
+
             m_createNewDocumentButton = new QPushButton("New map...");
             m_createNewDocumentButton->setToolTip("Create a new map document");
             m_openOtherDocumentButton = new QPushButton("Browse...");
@@ -135,13 +135,13 @@ namespace TrenchBroom {
             outerSizer->addSpacing(20);
             outerSizer->addLayout(buttonSizer);
             outerSizer->addSpacing(20);
-            
+
             appPanel->setLayout(outerSizer);
 
             return appPanel;
         }
 
-        void WelcomeFrame::bindEvents() {            
+        void WelcomeFrame::bindEvents() {
             connect(m_createNewDocumentButton, &QPushButton::clicked, this, &WelcomeFrame::OnCreateNewDocumentClicked);
             connect(m_openOtherDocumentButton, &QPushButton::clicked, this, &WelcomeFrame::OnOpenOtherDocumentClicked);
 

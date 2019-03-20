@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -31,13 +31,13 @@ namespace TrenchBroom {
     namespace Assets {
         class Texture;
     }
-    
+
     namespace Model {
         class BrushFaceAttributes;
         class TexCoordSystem;
         class ParallelTexCoordSystem;
         class ParaxialTexCoordSystem;
-        
+
         class TexCoordSystemSnapshot {
         public:
             virtual ~TexCoordSystemSnapshot();
@@ -47,24 +47,24 @@ namespace TrenchBroom {
             virtual std::unique_ptr<TexCoordSystemSnapshot> doClone() const = 0;
             virtual void doRestore(ParallelTexCoordSystem& coordSystem) const = 0;
             virtual void doRestore(ParaxialTexCoordSystem& coordSystem) const = 0;
-            
+
             friend class ParallelTexCoordSystem;
             friend class ParaxialTexCoordSystem;
         };
-        
+
         enum class WrapStyle {
         	Projection,
             Rotation
         };
-        
+
         class TexCoordSystem {
         public:
             TexCoordSystem();
             virtual ~TexCoordSystem();
-            
+
             std::unique_ptr<TexCoordSystem> clone() const;
             std::unique_ptr<TexCoordSystemSnapshot> takeSnapshot();
-            
+
             vm::vec3 xAxis() const;
             vm::vec3 yAxis() const;
 
@@ -72,9 +72,9 @@ namespace TrenchBroom {
             void resetTextureAxes(const vm::vec3& normal);
             void resetTextureAxesToParaxial(const vm::vec3& normal, float angle);
             void resetTextureAxesToParallel(const vm::vec3& normal, float angle);
-            
+
             vm::vec2f getTexCoords(const vm::vec3& point, const BrushFaceAttributes& attribs) const;
-            
+
             void setRotation(const vm::vec3& normal, float oldAngle, float newAngle);
             void transform(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const vm::mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vm::vec3& invariant);
             void updateNormal(const vm::vec3& oldNormal, const vm::vec3& newNormal, const BrushFaceAttributes& attribs, const WrapStyle style);
@@ -91,7 +91,7 @@ namespace TrenchBroom {
             virtual std::unique_ptr<TexCoordSystemSnapshot> doTakeSnapshot() = 0;
             virtual void doRestoreSnapshot(const TexCoordSystemSnapshot& snapshot) = 0;
             friend class TexCoordSystemSnapshot;
-            
+
             virtual vm::vec3 getXAxis() const = 0;
             virtual vm::vec3 getYAxis() const = 0;
             virtual vm::vec3 getZAxis() const = 0;
@@ -103,14 +103,14 @@ namespace TrenchBroom {
 
             virtual bool isRotationInverted(const vm::vec3& normal) const = 0;
             virtual vm::vec2f doGetTexCoords(const vm::vec3& point, const BrushFaceAttributes& attribs) const = 0;
-            
+
             virtual void doSetRotation(const vm::vec3& normal, float oldAngle, float newAngle) = 0;
             virtual void doTransform(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const vm::mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vm::vec3& invariant) = 0;
             virtual void doUpdateNormalWithProjection(const vm::vec3& oldNormal, const vm::vec3& newNormal, const BrushFaceAttributes& attribs) = 0;
             virtual void doUpdateNormalWithRotation(const vm::vec3& oldNormal, const vm::vec3& newNormal, const BrushFaceAttributes& attribs) = 0;
 
             virtual void doShearTexture(const vm::vec3& normal, const vm::vec2f& factors) = 0;
-            
+
             virtual float doMeasureAngle(float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const = 0;
         protected:
             vm::vec2f computeTexCoords(const vm::vec3& point, const vm::vec2f& scale) const;
@@ -119,7 +119,7 @@ namespace TrenchBroom {
             T safeScale(const T value) const {
                 return vm::isEqual(value, T(0.0), vm::constants<T>::almostZero()) ? static_cast<T>(1.0) : value;
             }
-            
+
             template <typename T1, typename T2>
             vm::vec<T1,3> safeScaleAxis(const vm::vec<T1,3>& axis, const T2 factor) const {
                 return axis / safeScale(T1(factor));

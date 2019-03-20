@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -34,7 +34,7 @@
 namespace TrenchBroom {
     namespace Assets {
         class TextureCollection;
-        
+
         using TextureBuffer = Buffer<unsigned char>;
 
         enum class TextureType {
@@ -62,12 +62,12 @@ namespace TrenchBroom {
         vm::vec2s sizeAtMipLevel(size_t width, size_t height, size_t level);
         size_t bytesPerPixelForFormat(GLenum format);
         void setMipBufferSize(TextureBuffer::List& buffers, size_t mipLevels, size_t width, size_t height, GLenum format);
-        
+
         class Texture {
         private:
             TextureCollection* m_collection;
             String m_name;
-            
+
             size_t m_width;
             size_t m_height;
             Color m_averageColor;
@@ -98,7 +98,7 @@ namespace TrenchBroom {
             static TextureType selectTextureType(bool masked);
 
             const String& name() const;
-            
+
             size_t width() const;
             size_t height() const;
             const Color& averageColor() const;

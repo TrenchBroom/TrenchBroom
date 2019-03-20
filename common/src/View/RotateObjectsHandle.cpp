@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -65,11 +65,11 @@ namespace TrenchBroom {
         void RotateObjectsHandle::setPosition(const vm::vec3& position) {
             m_position = position;
         }
-        
+
         Model::Hit RotateObjectsHandle::pick2D(const vm::ray3& pickRay, const Renderer::Camera& camera) const {
             vm::vec3 xAxis, yAxis, zAxis;
             computeAxes(m_position, pickRay.origin, xAxis, yAxis, zAxis);
-            
+
             auto hit = pickPointHandle(pickRay, camera, m_position, HitArea_Center);
             switch (firstComponent(camera.direction())) {
                 case vm::axis::x:
@@ -85,11 +85,11 @@ namespace TrenchBroom {
             }
             return hit;
         }
-        
+
         Model::Hit RotateObjectsHandle::pick3D(const vm::ray3& pickRay, const Renderer::Camera& camera) const {
             vm::vec3 xAxis, yAxis, zAxis;
             computeAxes(m_position, pickRay.origin, xAxis, yAxis, zAxis);
-            
+
             Model::Hit hit = pickPointHandle(pickRay, camera, m_position, HitArea_Center);
             hit = selectHit(hit, pickPointHandle(pickRay, camera, getPointHandlePosition(xAxis), HitArea_XAxis));
             hit = selectHit(hit, pickPointHandle(pickRay, camera, getPointHandlePosition(yAxis), HitArea_YAxis));
@@ -113,7 +113,7 @@ namespace TrenchBroom {
                 switchDefault()
             }
         }
-        
+
         FloatType RotateObjectsHandle::handleRadius() const {
             return pref(Preferences::RotateHandleRadius);
         }
@@ -134,7 +134,7 @@ namespace TrenchBroom {
                 switchDefault()
             }
         }
-        
+
         vm::vec3 RotateObjectsHandle::rotationAxis(const HitArea area) const {
             switch (area) {
                 case HitArea_XAxis:
@@ -149,20 +149,20 @@ namespace TrenchBroom {
                 switchDefault()
             }
         }
-        
+
         void RotateObjectsHandle::renderHandle2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             const auto& camera = renderContext.camera();
             const auto radius = static_cast<float>(pref(Preferences::RotateHandleRadius));
-            
+
             Renderer::RenderService renderService(renderContext, renderBatch);
             renderService.setShowOccludedObjects();
-            
+
             renderService.setForegroundColor(pref(Preferences::axisColor(firstComponent(camera.direction()))));
             renderService.renderCircle(vm::vec3f(m_position), firstComponent(camera.direction()), 64, radius);
-            
+
             renderService.setForegroundColor(pref(Preferences::HandleColor));
             renderService.renderHandle(vm::vec3f(m_position));
-            
+
             const auto viewDirection = camera.direction();
             switch (firstComponent(viewDirection)) {
                 case vm::axis::x:
@@ -175,7 +175,7 @@ namespace TrenchBroom {
                switchDefault()
             };
         }
-        
+
         void RotateObjectsHandle::renderHandle3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             const auto radius = static_cast<float>(pref(Preferences::RotateHandleRadius));
 
@@ -184,9 +184,9 @@ namespace TrenchBroom {
 
             Renderer::RenderService renderService(renderContext, renderBatch);
             renderService.setShowOccludedObjects();
-            
+
             renderService.renderCoordinateSystem(vm::bbox3f(radius).translate(vm::vec3f(m_position)));
-            
+
             renderService.setForegroundColor(pref(Preferences::XAxisColor));
             renderService.renderCircle(vm::vec3f(m_position), vm::axis::x, 64, radius, zAxis, yAxis);
             renderService.setForegroundColor(pref(Preferences::YAxisColor));
@@ -278,18 +278,18 @@ namespace TrenchBroom {
 
         /*
         void RotateObjectsHandle::renderAngle(Renderer::RenderContext& renderContext, const HitArea handle, const FloatType angle) {
-            
+
             PreferenceManager& prefs = PreferenceManager::instance();
             const float handleRadius = static_cast<float>(prefs.get(Preferences::RotateHandleRadius));
             const Color& pointHandleColor = prefs.get(Preferences::RotateHandleColor);
-            
+
             const vm::vec3f rotationAxis(getRotationAxis(handle));
             const vm::vec3f startAxis(getPointHandleAxis(handle));
             const vm::vec3f endAxis(vm::quat3(rotationAxis, angle) * startAxis);
-            
+
             Renderer::SetVboState setVboState(m_vbo);
             setVboState.active();
-            
+
             glAssert(glDisable(GL_DEPTH_TEST));
             {
                 glAssert(glDisable(GL_CULL_FACE));
@@ -297,15 +297,15 @@ namespace TrenchBroom {
                 Renderer::MultiplyModelMatrix translation(renderContext.transformation(), translationMatrix(m_position));
                 Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
                 shader.set("Color", getAngleIndicatorColor(handle));
-                
+
                 Renderer::Circle circle(handleRadius, 24, true, rotationAxis.firstComponent(), startAxis, endAxis);
-                
+
                 setVboState.mapped();
                 circle.prepare(m_vbo);
-                
+
                 setVboState.active();
                 circle.render();
-                
+
                 glAssert(glPolygonMode(GL_FRONT, GL_FILL));
                 glAssert(glEnable(GL_CULL_FACE));
             }
@@ -317,14 +317,14 @@ namespace TrenchBroom {
             glAssert(glEnable(GL_DEPTH_TEST));
         }
         */
-        
+
         Model::Hit RotateObjectsHandle::pickPointHandle(const vm::ray3& pickRay, const Renderer::Camera& camera, const vm::vec3& position, const HitArea area) const {
             const FloatType distance = camera.pickPointHandle(pickRay, position, pref(Preferences::HandleRadius));
             if (vm::isnan(distance))
                 return Model::Hit::NoHit;
             return Model::Hit(HandleHit, distance, pickRay.pointAtDistance(distance), area);
         }
-        
+
         Model::Hit RotateObjectsHandle::selectHit(const Model::Hit& closest, const Model::Hit& hit) const {
             if (!closest.isMatch())
                 return hit;
@@ -334,12 +334,12 @@ namespace TrenchBroom {
             }
             return closest;
         }
-        
+
         vm::vec3 RotateObjectsHandle::getPointHandlePosition(const vm::vec3& axis) const {
             PreferenceManager& prefs = PreferenceManager::instance();
             return m_position + axis * FloatType(prefs.get(Preferences::RotateHandleRadius));
         }
-        
+
         Color RotateObjectsHandle::getAngleIndicatorColor(const HitArea area) const {
             PreferenceManager& prefs = PreferenceManager::instance();
             switch (area) {

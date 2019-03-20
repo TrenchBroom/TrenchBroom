@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -44,11 +44,11 @@ class QAction;
 
 namespace TrenchBroom {
     class Logger;
-    
+
     namespace IO {
         class Path;
     }
-    
+
     namespace Renderer {
         class Camera;
         class Compass;
@@ -58,7 +58,7 @@ namespace TrenchBroom {
         class RenderContext;
         class Vbo;
     }
-    
+
     namespace View {
         class ActionInfo;
         class AnimationManager;
@@ -69,7 +69,7 @@ namespace TrenchBroom {
         class MovementRestriction;
         class Selection;
         class Tool;
-        
+
         class MapViewBase : public RenderView, public MapView, public ToolBoxConnector, public CameraLinkableView {
             Q_OBJECT
         public:
@@ -78,11 +78,11 @@ namespace TrenchBroom {
             static const QString& glVersionString();
         protected:
             static const int DefaultCameraAnimationDuration;
-            
+
             Logger* m_logger;
             MapDocumentWPtr m_document;
             MapViewToolBox& m_toolBox;
-            
+
             AnimationManager* m_animationManager;
         private:
             Renderer::MapRenderer& m_renderer;
@@ -94,14 +94,14 @@ namespace TrenchBroom {
             std::vector<QShortcut*> m_3DOnlyShortcuts;
         protected:
             MapViewBase(QWidget* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager);
-            
+
             void setCompass(Renderer::Compass* compass);
         public:
             ~MapViewBase() override;
         private:
             void bindObservers();
             void unbindObservers();
-            
+
             void nodesDidChange(const Model::NodeList& nodes);
             void toolChanged(Tool* tool);
             void commandDone(Command::Ptr command);
@@ -126,31 +126,31 @@ namespace TrenchBroom {
             void updateBindings();
         private: // interaction events
             void bindEvents();
-            
+
             void OnMoveObjectsForward();
             void OnMoveObjectsBackward();
             void OnMoveObjectsLeft();
             void OnMoveObjectsRight();
             void OnMoveObjectsUp();
             void OnMoveObjectsDown();
-            
+
             void OnDuplicateObjectsForward();
             void OnDuplicateObjectsBackward();
             void OnDuplicateObjectsLeft();
             void OnDuplicateObjectsRight();
             void OnDuplicateObjectsUp();
             void OnDuplicateObjectsDown();
-            
+
             void OnRollObjectsCW();
             void OnRollObjectsCCW();
             void OnPitchObjectsCW();
             void OnPitchObjectsCCW();
             void OnYawObjectsCW();
             void OnYawObjectsCCW();
-            
+
             void OnFlipObjectsH();
             void OnFlipObjectsV();
-            
+
             void duplicateAndMoveObjects(vm::direction direction);
             void duplicateObjects();
             void moveObjects(vm::direction direction);
@@ -166,13 +166,13 @@ namespace TrenchBroom {
             void OnMoveRotationCenterUp();
             void OnMoveRotationCenterDown();
             void moveRotationCenter(vm::direction direction);
-            
+
             void OnToggleScaleObjectsTool();
             void OnToggleShearObjectsTool();
-            
+
             void OnToggleClipSide();
             void OnPerformClip();
-            
+
             void OnMoveVerticesForward();
             void OnMoveVerticesBackward();
             void OnMoveVerticesLeft();
@@ -180,10 +180,10 @@ namespace TrenchBroom {
             void OnMoveVerticesUp();
             void OnMoveVerticesDown();
             void moveVertices(vm::direction direction);
-            
+
             void OnCancel();
             bool cancel();
-            
+
             void OnDeactivateTool();
         private: // group management
             void OnGroupSelectedObjects();
@@ -193,7 +193,7 @@ namespace TrenchBroom {
             void OnAddObjectsToGroup();
             void OnRemoveObjectsFromGroup();
             Model::Node* findNewGroupForObjects(const Model::NodeList& nodes) const;
-            
+
             void OnMergeGroups();
             Model::Group* findGroupToMergeGroupsInto(const Model::NodeCollection& selectedNodes) const;
 
@@ -205,10 +205,10 @@ namespace TrenchBroom {
              * @return true if the given node can be reparented under the given new parent, and false otherwise
              */
             bool canReparentNode(const Model::Node* node, const Model::Node* newParent) const;
-            
+
             void OnMoveBrushesTo();
             Model::Node* findNewParentEntityForBrushes(const Model::NodeList& nodes) const;
-            
+
             bool canReparentNodes(const Model::NodeList& nodes, const Model::Node* newParent) const;
             /**
              * Reparents nodes, and deselects everything as a side effect.
@@ -222,10 +222,10 @@ namespace TrenchBroom {
              */
             void reparentNodes(const Model::NodeList& nodes, Model::Node* newParent, bool preserveEntities);
             Model::NodeList collectReparentableNodes(const Model::NodeList& nodes, const Model::Node* newParent) const;
-            
+
             void OnCreatePointEntity();
             void OnCreateBrushEntity();
-            
+
             Assets::EntityDefinition* findEntityDefinition(Assets::EntityDefinition::Type type, size_t index) const;
             void createPointEntity(const Assets::PointEntityDefinition* definition);
             void createBrushEntity(const Assets::BrushEntityDefinition* definition);
@@ -311,7 +311,7 @@ namespace TrenchBroom {
             virtual ActionContext doGetActionContext() const = 0;
             virtual ActionView doGetActionView() const = 0;
             virtual bool doCancel() = 0;
-            
+
             virtual Renderer::RenderContext::RenderMode doGetRenderMode() = 0;
             virtual Renderer::Camera& doGetCamera() = 0;
             virtual void doPreRender();
@@ -319,7 +319,7 @@ namespace TrenchBroom {
             virtual void doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
             virtual void doRenderTools(MapViewToolBox& toolBox, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
             virtual void doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-            
+
             virtual bool doBeforePopupMenu();
             virtual void doAfterPopupMenu();
         };

@@ -29,7 +29,6 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/FileLogger.cpp
 	${COMMON_SOURCE_DIR}/IO/BrushFaceReader.cpp
 	${COMMON_SOURCE_DIR}/IO/Bsp29Parser.cpp
-	${COMMON_SOURCE_DIR}/IO/CharArrayReader.cpp
 	${COMMON_SOURCE_DIR}/IO/CompilationConfigParser.cpp
 	${COMMON_SOURCE_DIR}/IO/CompilationConfigWriter.cpp
 	${COMMON_SOURCE_DIR}/IO/ConfigParserBase.cpp
@@ -62,7 +61,6 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/IO/LegacyModelDefinitionParser.cpp
 	${COMMON_SOURCE_DIR}/IO/MapFileSerializer.cpp
 	${COMMON_SOURCE_DIR}/IO/MapParser.cpp
-	${COMMON_SOURCE_DIR}/IO/MappedFile.cpp
 	${COMMON_SOURCE_DIR}/IO/MapReader.cpp
 	${COMMON_SOURCE_DIR}/IO/MapStreamSerializer.cpp
 	${COMMON_SOURCE_DIR}/IO/Md2Parser.cpp
@@ -492,6 +490,10 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/Model/TagManager.cpp
 	${COMMON_SOURCE_DIR}/Model/TagMatcher.cpp
 	${COMMON_SOURCE_DIR}/Model/TagVisitor.cpp
+	${COMMON_SOURCE_DIR}/Exceptions.cpp
+	${COMMON_SOURCE_DIR}/IO/AseParser.cpp
+	${COMMON_SOURCE_DIR}/IO/File.cpp
+	${COMMON_SOURCE_DIR}/IO/Reader.cpp
 )
 
 SET(COMMON_HEADER
@@ -532,7 +534,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/FreeType.h
 	${COMMON_SOURCE_DIR}/IO/BrushFaceReader.h
 	${COMMON_SOURCE_DIR}/IO/Bsp29Parser.h
-	${COMMON_SOURCE_DIR}/IO/CharArrayReader.h
 	${COMMON_SOURCE_DIR}/IO/CompilationConfigParser.h
 	${COMMON_SOURCE_DIR}/IO/CompilationConfigWriter.h
 	${COMMON_SOURCE_DIR}/IO/ConfigParserBase.h
@@ -565,7 +566,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/IO/LegacyModelDefinitionParser.h
 	${COMMON_SOURCE_DIR}/IO/MapFileSerializer.h
 	${COMMON_SOURCE_DIR}/IO/MapParser.h
-	${COMMON_SOURCE_DIR}/IO/MappedFile.h
 	${COMMON_SOURCE_DIR}/IO/MapReader.h
 	${COMMON_SOURCE_DIR}/IO/MapStreamSerializer.h
 	${COMMON_SOURCE_DIR}/IO/Md2Parser.h
@@ -736,7 +736,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/Reference.h
 	${COMMON_SOURCE_DIR}/Relation.h
 	${COMMON_SOURCE_DIR}/Renderer/AllocationTracker.h
-	${COMMON_SOURCE_DIR}/Renderer/AttributeSpec.h
 	${COMMON_SOURCE_DIR}/Renderer/BoundsGuideRenderer.h
 	${COMMON_SOURCE_DIR}/Renderer/BrushRendererArrays.h
 	${COMMON_SOURCE_DIR}/Renderer/BrushRendererBrushCache.h
@@ -802,9 +801,7 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/Renderer/VboBlock.h
 	${COMMON_SOURCE_DIR}/Renderer/Vbo.h
 	${COMMON_SOURCE_DIR}/Renderer/VertexArray.h
-	${COMMON_SOURCE_DIR}/Renderer/Vertex.h
 	${COMMON_SOURCE_DIR}/Renderer/VertexListBuilder.h
-	${COMMON_SOURCE_DIR}/Renderer/VertexSpec.h
 	${COMMON_SOURCE_DIR}/SharedPointer.h
 	${COMMON_SOURCE_DIR}/StringMap.h
 	${COMMON_SOURCE_DIR}/StringUtils.h
@@ -1050,6 +1047,13 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/Model/TagManager.h
 	${COMMON_SOURCE_DIR}/Model/TagMatcher.h
 	${COMMON_SOURCE_DIR}/Model/TagVisitor.h
+	${COMMON_SOURCE_DIR}/IO/AseParser.h
+	${COMMON_SOURCE_DIR}/IO/File.h
+	${COMMON_SOURCE_DIR}/IO/Reader.h
+	${COMMON_SOURCE_DIR}/Renderer/GLVertex.h
+	${COMMON_SOURCE_DIR}/Renderer/GLVertexAttributeType.h
+	${COMMON_SOURCE_DIR}/Renderer/GLVertexType.h
+	${COMMON_SOURCE_DIR}/StepIterator.h
 )
 
 # Unfortunately, Xcode still compiles OBJECT libraries as static libraries

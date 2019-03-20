@@ -176,7 +176,7 @@ namespace TrenchBroom {
 //            SendDestroyEvent();
 
             m_mapView->deactivateTool();
-            
+
             unbindObservers();
 
             delete m_autosaver;
@@ -186,7 +186,7 @@ namespace TrenchBroom {
             // need the context manager (and its embedded VBO) to clean up their resources.
 
             destroy(false, true); // Destroy the children first because they might still access document resources.
-            
+
             m_document->setViewEffectsService(nullptr);
             m_document.reset();
 
@@ -1198,14 +1198,14 @@ namespace TrenchBroom {
             m_statusBarLabel = new QLabel();
             statusBar()->addWidget(m_statusBarLabel);
         }
-        
+
         static Model::AttributableNode* commonEntityForBrushList(const Model::BrushList& list) {
             if (list.empty())
                 return nullptr;
-            
+
             Model::AttributableNode* firstEntity = list.front()->entity();
             bool multipleEntities = false;
-            
+
             for (const Model::Brush* brush : list) {
                 if (brush->entity() != firstEntity) {
                     multipleEntities = true;
@@ -1218,40 +1218,40 @@ namespace TrenchBroom {
                 return firstEntity;
             }
         }
-        
+
         static String commonClassnameForEntityList(const Model::EntityList& list) {
             if (list.empty())
                 return "";
-            
+
             const String firstClassname = list.front()->classname();
             bool multipleClassnames = false;
-            
+
             for (const Model::Entity* entity : list) {
                 if (entity->classname() != firstClassname) {
                     multipleClassnames = true;
                 }
             }
-            
+
             if (multipleClassnames) {
                 return "";
             } else {
                 return firstClassname;
             }
         }
-        
+
         static String numberWithSuffix(size_t count, const String &singular, const String &plural) {
             return std::to_string(count) + " " + StringUtils::safePlural(count, singular, plural);
         }
-        
+
         static QString describeSelection(const MapDocument* document) {
             const QString DblArrow = QString(" ") + QString(QChar(0x00BB)) + QString(" ");
             const QString Arrow = QString(" ") + QString(QChar(0x203A)) + QString(" ");
 
             QString result;
-            
+
             // current layer
             result += QString::fromStdString(document->currentLayer()->name()) + DblArrow;
-            
+
             // open groups
             std::list<Model::Group*> groups;
             for (Model::Group* group = document->currentGroup(); group != nullptr; group = group->group()) {
@@ -1260,16 +1260,16 @@ namespace TrenchBroom {
             for (Model::Group* group : groups) {
                 result += QString::fromStdString(group->name()) + Arrow;
             }
-            
+
             // build a vector of strings describing the things that are selected
             StringList tokens;
-            
+
             const auto &selectedNodes = document->selectedNodes();
-            
+
             // selected brushes
             if (!selectedNodes.brushes().empty()) {
                 Model::AttributableNode *commonEntity = commonEntityForBrushList(selectedNodes.brushes());
-                
+
                 // if all selected brushes are from the same entity, print the entity name
                 String token = numberWithSuffix(selectedNodes.brushes().size(), "brush", "brushes");
                 if (commonEntity) {
@@ -1289,7 +1289,7 @@ namespace TrenchBroom {
             // entities
             if (!selectedNodes.entities().empty()) {
                 String commonClassname = commonClassnameForEntityList(selectedNodes.entities());
-                
+
                 String token = numberWithSuffix(selectedNodes.entities().size(), "entity", "entities");
                 if (commonClassname != "") {
                     token += " (" + commonClassname + ")";
@@ -1298,31 +1298,31 @@ namespace TrenchBroom {
                 }
                 tokens.push_back(token);
             }
-            
+
             // groups
             if (!selectedNodes.groups().empty()) {
                 tokens.push_back(numberWithSuffix(selectedNodes.groups().size(), "group", "groups"));
             }
-            
+
             // layers
             if (!selectedNodes.layers().empty()) {
                 tokens.push_back(numberWithSuffix(selectedNodes.layers().size(), "layer", "layers"));
             }
-            
+
             if (tokens.empty()) {
                 tokens.push_back("nothing");
             }
-            
+
             // now, turn `tokens` into a comma-separated string
             result += QString::fromStdString(StringUtils::join(tokens, ", ", ", and ", " and ")) + " selected";
-            
+
             return result;
         }
-        
+
         void MapFrame::updateStatusBar() {
             m_statusBarLabel->setText(QString(describeSelection(m_document.get())));
         }
-        
+
         void MapFrame::bindObservers() {
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &MapFrame::preferenceDidChange);
@@ -1336,7 +1336,7 @@ namespace TrenchBroom {
             m_document->currentLayerDidChangeNotifier.addObserver(this, &MapFrame::currentLayerDidChange);
             m_document->groupWasOpenedNotifier.addObserver(this, &MapFrame::groupWasOpened);
             m_document->groupWasClosedNotifier.addObserver(this, &MapFrame::groupWasClosed);
-            
+
             Grid& grid = m_document->grid();
             grid.gridDidChangeNotifier.addObserver(this, &MapFrame::gridDidChange);
 
@@ -1357,7 +1357,7 @@ namespace TrenchBroom {
             m_document->currentLayerDidChangeNotifier.removeObserver(this, &MapFrame::currentLayerDidChange);
             m_document->groupWasOpenedNotifier.removeObserver(this, &MapFrame::groupWasOpened);
             m_document->groupWasClosedNotifier.removeObserver(this, &MapFrame::groupWasClosed);
-            
+
             Grid& grid = m_document->grid();
             grid.gridDidChangeNotifier.removeObserver(this, &MapFrame::gridDidChange);
 
@@ -1398,21 +1398,21 @@ namespace TrenchBroom {
             updateToolActions();
             updateOtherActions();
         }
-        
+
         void MapFrame::selectionDidChange(const Selection& selection) {
             updateStatusBar();
             updateToolActions();
             updateOtherActions();
         }
-        
+
         void MapFrame::currentLayerDidChange(const TrenchBroom::Model::Layer* layer) {
             updateStatusBar();
         }
-        
+
         void MapFrame::groupWasOpened(Model::Group* group) {
             updateStatusBar();
         }
-        
+
         void MapFrame::groupWasClosed(Model::Group* group) {
             updateStatusBar();
         }
@@ -1486,7 +1486,7 @@ namespace TrenchBroom {
             if (canUnloadPointFile())
                 m_document->unloadPointFile();
         }
-        
+
         void MapFrame::OnFileLoadPortalFile() {
             QString defaultDir;
             if (!m_document->path().isEmpty()) {
@@ -1733,19 +1733,19 @@ namespace TrenchBroom {
                 m_mapView->toggleShearObjectsTool();
             }
         }
-        
+
         void MapFrame::OnEditToggleVertexTool() {
             if (m_mapView->canToggleVertexTools()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_mapView->toggleVertexTool();
             }
         }
-        
+
         void MapFrame::OnEditToggleEdgeTool() {
             if (m_mapView->canToggleVertexTools()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_mapView->toggleEdgeTool();
             }
         }
-        
+
         void MapFrame::OnEditToggleFaceTool() {
             if (m_mapView->canToggleVertexTools()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_mapView->toggleFaceTool();
@@ -1799,7 +1799,7 @@ namespace TrenchBroom {
                 m_document->snapVertices(1u);
             }
         }
-        
+
         void MapFrame::OnEditSnapVerticesToGrid() {
             if (canSnapVertices()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->snapVertices(m_document->grid().actualSize());
@@ -1857,19 +1857,19 @@ namespace TrenchBroom {
                 m_mapView->moveCameraToPosition(position, true);
             }
         }
-        
+
         void MapFrame::OnViewHideSelectedObjects() {
             if (canHide()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->hideSelection();
             }
         }
-        
+
         void MapFrame::OnViewIsolateSelectedObjects() {
             if (canIsolate()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->isolate(m_document->selectedNodes().nodes());
             }
         }
-        
+
         void MapFrame::OnViewShowHiddenObjects() {
             m_document->showAll();
         }
@@ -1923,7 +1923,7 @@ namespace TrenchBroom {
 //            LaunchGameEngineDialog dialog(this, m_document);
 //            dialog.ShowModal();
         }
-        
+
         void MapFrame::OnDebugPrintVertices() {
             m_document->printVertices();
         }
@@ -1949,7 +1949,7 @@ namespace TrenchBroom {
                 m_document->createBrush(posList);
             }
         }
-        
+
         void MapFrame::OnDebugClipBrush() {
             bool ok = false;
             const QString str = QInputDialog::getText(this, "Clip Brush", "Enter face points ( x y z ) ( x y z ) ( x y z )", QLineEdit::Normal, "", &ok);
@@ -2298,11 +2298,11 @@ namespace TrenchBroom {
         void MapFrame::OnAutosaveTimer() {
             m_autosaver->triggerAutosave(logger());
         }
-        
+
         int MapFrame::indexForGridSize(const int gridSize) {
             return gridSize - Grid::MinSize;
         }
-        
+
         int MapFrame::gridSizeForIndex(const int index) {
             const int size = index + Grid::MinSize;
             assert(size <= Grid::MaxSize);

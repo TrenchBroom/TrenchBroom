@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -62,7 +62,7 @@ namespace vm {
         ASSERT_TRUE(vec3f::canParse(s));
         ASSERT_EQ(vec3f(1.0f, 3.0f, 3.5f), vec3f::parse(s));
     }
-    
+
     TEST(VecTest, parseShortString) {
         const String s("1.0 3");
         ASSERT_FALSE(vec3f::canParse(s));
@@ -123,64 +123,64 @@ namespace vm {
         ASSERT_EQ(vec3f(1, 2, 3), vec3f({ 1, 2, 3, 4 }));
         ASSERT_EQ(vec3f(1, 2, 0), vec3f({ 1, 2 }));
     }
-    
+
     TEST(VecTest, constructFrom2Floats) {
         ASSERT_EQ(vec3f(1.0f, 2.0f, 0.0f), vec3f(1.0f, 2.0f));
     }
-    
+
     TEST(VecTest, constructVec3fFrom4Floats) {
         ASSERT_EQ(vec3f(1.0f, 2.0f, 3.0f), vec3f(1.0f, 2.0f, 3.0f, 4.0f));
     }
-    
+
     TEST(VecTest, constructVec4fFrom3Floats) {
         ASSERT_EQ(vec4f(1.0f, 2.0f, 3.0f, 0.0f), vec4f(1.0f, 2.0f, 3.0f));
     }
-    
+
     TEST(VecTest, constructvec2fFromVec2f) {
         const vec2f v(2.0f, 3.0f);
         ASSERT_EQ(v, vec2f(v));
     }
-    
+
     TEST(VecTest, constructVec2fFromVec3f) {
         const vec3f v(3.0f, 5.0f, 78.0f);
         ASSERT_EQ(vec2f(v[0], v[1]), vec2f(v));
     }
-    
+
     TEST(VecTest, constructvec2fFromVec4f) {
         const vec4f v(3.0f, 5.0f, 2.0f, 7.0f);
         ASSERT_EQ(vec2f(v[0], v[1]), vec2f(v));
     }
-    
+
     TEST(VecTest, constructVec3fFromvec2f) {
         const vec2f v(2.0f, 3.0f);
         ASSERT_EQ(vec3f(v[0], v[1], 0.0f), vec3f(v));
     }
-    
+
     TEST(VecTest, constructVec4fFromvec2f) {
         const vec2f v(2.0f, 3.0f);
         ASSERT_EQ(vec4f(v[0], v[1], 0.0f, 0.0f), vec4f(v));
     }
-    
+
     TEST(VecTest, constructVec4fFromvec2fWithLast1) {
         const vec2f v(3.0f, 5.0f);
         ASSERT_EQ(vec4f(v[0], v[1], 0.0f, 2.0f), vec4f(v, 2.0f));
     }
-    
+
     TEST(VecTest, constructVec4fFromvec2fWithLast2) {
         const vec2f v(3.0f, 5.0f);
         ASSERT_EQ(vec4f(v[0], v[1], 3.0f, 2.0f), vec4f(v, 3.0f, 2.0f));
     }
-    
+
     TEST(VecTest, constructVec3fFromVec3fWithLast1) {
         const vec3f v(3.0f, 5.0f, 8.0f);
         ASSERT_EQ(vec3f(v[0], v[1], 2.0f), vec3f(v, 2.0f));
     }
-    
+
     TEST(VecTest, constructVec3fFromVec3fWithLast2) {
         const vec3f v(3.0f, 5.0f, 8.0f);
         ASSERT_EQ(vec3f(v[0], 2.0f, 4.0f), vec3f(v, 2.0f, 4.0f));
     }
-    
+
     TEST(VecTest, assignVec3fToVec3f) {
         const vec3f t(2.0f, 3.0f, 5.0f);
         vec3f v;
@@ -194,7 +194,7 @@ namespace vm {
         ASSERT_EQ(3.0f, v[2]);
         ASSERT_EQ(4.0f, v[3]);
     }
-    
+
     TEST(VecTest, accessors) {
         vec4f v(1.0f, 2.0f, 3.0f, 4.0f);
         ASSERT_EQ(v[0], v.x());

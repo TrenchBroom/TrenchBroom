@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -40,10 +40,10 @@ namespace TrenchBroom {
 
             const IO::Path::List& recentDocuments = app.recentDocuments();
             SetItemCount(recentDocuments.size());
-            
+
             Bind(wxEVT_LISTBOX_DCLICK, &RecentDocumentListBox::OnListBoxDoubleClick, this);
         }
-        
+
         RecentDocumentListBox::~RecentDocumentListBox() {
             TrenchBroomApp& app = View::TrenchBroomApp::instance();
             app.recentDocumentsDidChangeNotifier.removeObserver(this, &RecentDocumentListBox::recentDocumentsDidChange);
@@ -58,7 +58,7 @@ namespace TrenchBroom {
             const int index = GetSelection();
             if (index < 0 || index >= static_cast<int>(recentDocuments.size()))
                 return;
-            
+
             const IO::Path& documentPath = recentDocuments[static_cast<size_t>(index)];
             RecentDocumentSelectedCommand command;
             command.setDocumentPath(documentPath);
@@ -77,14 +77,14 @@ namespace TrenchBroom {
             result = m_documentIcon;
             return true;
         }
-        
+
         QString RecentDocumentListBox::title(const size_t n) const {
             const TrenchBroomApp& app = View::TrenchBroomApp::instance();
             const IO::Path::List& recentDocuments = app.recentDocuments();
             ensure(n < recentDocuments.size(), "index out of range");
             return recentDocuments[n].lastComponent().asString();
         }
-        
+
         QString RecentDocumentListBox::subtitle(const size_t n) const {
             const TrenchBroomApp& app = View::TrenchBroomApp::instance();
             const IO::Path::List& recentDocuments = app.recentDocuments();

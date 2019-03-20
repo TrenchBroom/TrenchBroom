@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -37,14 +37,14 @@
 
 namespace TrenchBroom {
     class Logger;
-    
+
     namespace Assets {
         class TextureManager;
     }
-    
+
     namespace Model {
         class SmartTag;
-        
+
         class Game : public IO::EntityDefinitionLoader, public IO::EntityModelLoader {
         public:
             enum class TexturePackageType {
@@ -54,7 +54,7 @@ namespace TrenchBroom {
         public:
             const String& gameName() const;
             bool isGamePathPreference(const IO::Path& prefPath) const;
-            
+
             IO::Path gamePath() const;
             void setGamePath(const IO::Path& gamePath, Logger& logger);
             void setAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger& logger);
@@ -127,12 +127,12 @@ namespace TrenchBroom {
             virtual IO::Path::List doExtractTextureCollections(const AttributableNode& node) const = 0;
             virtual void doUpdateTextureCollections(AttributableNode& node, const IO::Path::List& paths) const = 0;
             virtual void doReloadShaders() = 0;
-            
+
             virtual bool doIsEntityDefinitionFile(const IO::Path& path) const = 0;
             virtual Assets::EntityDefinitionFileSpec::List doAllEntityDefinitionFiles() const = 0;
             virtual Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(const AttributableNode& node) const = 0;
             virtual IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const = 0;
-            
+
             virtual StringList doAvailableMods() const = 0;
             virtual StringList doExtractEnabledMods(const AttributableNode& node) const = 0;
             virtual String doDefaultMod() const = 0;

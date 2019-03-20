@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -51,7 +51,7 @@ namespace TrenchBroom {
                 InheritAttributes();
                 createGui(margins, title, subtitle, nullptr);
             }
-            
+
             ImageListBoxItem(QWidget* parent, const wxSize& margins, const QString& title, const QString& subtitle, const wxBitmap& image)  :
             Item(parent),
             m_titleText(nullptr),
@@ -69,20 +69,20 @@ namespace TrenchBroom {
             void createGui(const wxSize& margins, const QString& title, const QString& subtitle, const wxBitmap* image) {
                 m_titleText = new QLabel(this, wxID_ANY, title, wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_END);
                 m_subtitleText = new QLabel(this, wxID_ANY, subtitle, wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_MIDDLE);
-                
+
                 m_titleText->SetFont(m_titleText->GetFont().Bold());
                 m_subtitleText->SetForegroundColour(makeLighter(m_subtitleText->GetForegroundColour()));
 #ifndef _WIN32
                 m_subtitleText->SetWindowVariant(wxWINDOW_VARIANT_SMALL);
 #endif
-                
+
                 auto* vSizer = new QVBoxLayout();
                 vSizer->Add(m_titleText, 0);
                 vSizer->Add(m_subtitleText, 0);
-                
+
                 auto* hSizer = new QHBoxLayout();
                 hSizer->addSpacing(margins.x);
-                
+
                 if (image != nullptr) {
                     m_imageBmp = new wxStaticBitmap(this, wxID_ANY, *image);
                     hSizer->Add(m_imageBmp, 0, wxALIGN_BOTTOM | wxTOP | wxBOTTOM, margins.y);
@@ -90,7 +90,7 @@ namespace TrenchBroom {
                 }
                 hSizer->Add(vSizer, 0, wxTOP | wxBOTTOM, margins.y);
                 hSizer->addSpacing(margins.x);
-                
+
                 SetSizer(hSizer);
             }
         };

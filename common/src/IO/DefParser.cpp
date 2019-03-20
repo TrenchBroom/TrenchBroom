@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -32,12 +32,12 @@ namespace TrenchBroom {
     namespace IO {
         DefTokenizer::DefTokenizer(const char* begin, const char* end) :
         Tokenizer(begin, end, "", 0) {}
-        
+
         DefTokenizer::DefTokenizer(const String& str) :
         Tokenizer(str, "", 0) {}
-        
+
         const String DefTokenizer::WordDelims = " \t\n\r()[]{};,=";
-        
+
         DefTokenizer::Token DefTokenizer::emitToken() {
             while (!eof()) {
                 const size_t startLine = line();
@@ -128,18 +128,18 @@ namespace TrenchBroom {
             }
             return Token(DefToken::Eof, nullptr, nullptr, length(), line(), column());
         }
-        
+
         DefParser::DefParser(const char* begin, const char* end, const Color& defaultEntityColor) :
         m_defaultEntityColor(defaultEntityColor),
         m_tokenizer(DefTokenizer(begin, end)) {}
-        
+
         DefParser::DefParser(const String& str, const Color& defaultEntityColor) :
         m_defaultEntityColor(defaultEntityColor),
         m_tokenizer(DefTokenizer(str)) {}
-        
+
         DefParser::TokenNameMap DefParser::tokenNames() const {
             using namespace DefToken;
-            
+
             TokenNameMap names;
             names[Integer]      = "integer";
             names[Decimal]      = "decimal";
@@ -176,28 +176,28 @@ namespace TrenchBroom {
                 throw;
             }
         }
-        
+
         Assets::EntityDefinition* DefParser::parseDefinition(ParserStatus& status) {
             Token token = m_tokenizer.nextToken();
             while (token.type() != DefToken::Eof && token.type() != DefToken::ODefinition)
                 token = m_tokenizer.nextToken();
             if (token.type() == DefToken::Eof)
                 return nullptr;
-            
+
             expect(status, DefToken::ODefinition, token);
-            
+
             StringList baseClasses;
             EntityDefinitionClassInfo classInfo;
-            
+
             token = m_tokenizer.nextToken();
             expect(status, DefToken::Word, token);
             classInfo.setName(token.data());
-            
+
             token = m_tokenizer.peekToken();
             expect(status, DefToken::OParenthesis | DefToken::Newline, token);
             if (token.type() == DefToken::OParenthesis) {
                 classInfo.setColor(parseColor(status));
-                
+
                 token = m_tokenizer.peekToken();
                 expect(status, DefToken::OParenthesis | DefToken::Word, token);
                 if (token.hasType(DefToken::OParenthesis)) {
@@ -205,37 +205,37 @@ namespace TrenchBroom {
                 } else if (token.data() == "?") {
                     m_tokenizer.nextToken();
                 }
-                
+
                 token = m_tokenizer.peekToken();
                 if (token.hasType(DefToken::Word | DefToken::Minus))
                     classInfo.addAttributeDefinition(parseSpawnflags(status));
             }
-            
+
             expect(status, DefToken::Newline, token = m_tokenizer.nextToken());
-            
+
             Assets::AttributeDefinitionMap attributes;
             StringList superClasses;
             parseAttributes(status, classInfo, superClasses);
-            
+
             classInfo.setDescription(StringUtils::trim(parseDescription()));
             expect(status, DefToken::CDefinition, token = m_tokenizer.nextToken());
-            
+
             if (classInfo.hasColor()) {
                 classInfo.resolveBaseClasses(m_baseClasses, superClasses);
                 if (classInfo.hasSize()) // point definition
                     return new Assets::PointEntityDefinition(classInfo.name(), classInfo.color(), classInfo.size(), classInfo.description(), classInfo.attributeList(), classInfo.modelDefinition());
                 return new Assets::BrushEntityDefinition(classInfo.name(), classInfo.hasColor() ? classInfo.color() : m_defaultEntityColor, classInfo.description(), classInfo.attributeList());
             }
-            
+
             // base definition
             m_baseClasses[classInfo.name()] = classInfo;
             return parseDefinition(status);
         }
-        
+
         Assets::AttributeDefinitionPtr DefParser::parseSpawnflags(ParserStatus& status) {
             Assets::FlagsAttributeDefinition* definition = new Assets::FlagsAttributeDefinition(Model::AttributeNames::Spawnflags);
             size_t numOptions = 0;
-            
+
             try {
                 Token token = m_tokenizer.peekToken();
                 while (token.hasType(DefToken::Word | DefToken::Minus)) {
@@ -249,10 +249,10 @@ namespace TrenchBroom {
                 delete definition;
                 throw;
             }
-            
+
             return Assets::AttributeDefinitionPtr(definition);
         }
-        
+
         void DefParser::parseAttributes(ParserStatus& status, EntityDefinitionClassInfo& classInfo, StringList& superClasses) {
             Token token = m_tokenizer.peekToken();
             if (token.type() == DefToken::OBrace) {
@@ -260,7 +260,7 @@ namespace TrenchBroom {
                 while (parseAttribute(status, classInfo, superClasses));
             }
         }
-        
+
         bool DefParser::parseAttribute(ParserStatus& status, EntityDefinitionClassInfo& classInfo, StringList& superClasses) {
             Token token;
             expect(status, DefToken::Word | DefToken::CBrace, token = nextTokenIgnoringNewlines());
@@ -278,11 +278,11 @@ namespace TrenchBroom {
             } else if (typeName == "model") {
                 classInfo.setModelDefinition(parseModel(status));
             }
-            
+
             expect(status, DefToken::Semicolon, token = nextTokenIgnoringNewlines());
             return true;
         }
-        
+
         void DefParser::parseDefaultAttribute(ParserStatus& status) {
             Token token;
             expect(status, DefToken::OParenthesis, token = nextTokenIgnoringNewlines());
@@ -300,7 +300,7 @@ namespace TrenchBroom {
             expect(status, DefToken::QuotedString, token = nextTokenIgnoringNewlines());
             const String basename = token.data();
             expect(status, DefToken::CParenthesis, token = nextTokenIgnoringNewlines());
-            
+
             return basename;
         }
 
@@ -308,7 +308,7 @@ namespace TrenchBroom {
             Token token;
             expect(status, DefToken::QuotedString, token = m_tokenizer.nextToken());
             const String attributeName = token.data();
-            
+
             Assets::ChoiceAttributeOption::List options;
             expect(status, DefToken::OParenthesis, token = nextTokenIgnoringNewlines());
             token = nextTokenIgnoringNewlines();
@@ -319,38 +319,38 @@ namespace TrenchBroom {
                 expect(status, DefToken::QuotedString, token = nextTokenIgnoringNewlines());
                 const String value = token.data();
                 options.push_back(Assets::ChoiceAttributeOption(name, value));
-                
+
                 expect(status, DefToken::CParenthesis, token = nextTokenIgnoringNewlines());
                 token = nextTokenIgnoringNewlines();
             }
-            
+
             expect(status, DefToken::CParenthesis, token);
-            
+
             return Assets::AttributeDefinitionPtr(new Assets::ChoiceAttributeDefinition(attributeName, "", "", options, false));
         }
 
         Assets::ModelDefinition DefParser::parseModel(ParserStatus& status) {
             expect(status, DefToken::OParenthesis, m_tokenizer.nextToken());
-            
+
             const auto snapshot = m_tokenizer.snapshot();
             const auto line = m_tokenizer.line();
             const auto column = m_tokenizer.column();
-            
+
             try {
                 ELParser parser(m_tokenizer);
                 auto expression = parser.parse();
                 expect(status, DefToken::CParenthesis, m_tokenizer.nextToken());
-                
+
                 expression.optimize();
                 return Assets::ModelDefinition(expression);
             } catch (const ParserException& e) {
                 try {
                     m_tokenizer.restore(snapshot);
-                    
+
                     LegacyModelDefinitionParser parser(m_tokenizer);
                     auto expression = parser.parse(status);
                     expect(status, DefToken::CParenthesis, m_tokenizer.nextToken());
-                    
+
                     expression.optimize();
                     status.warn(line, column, "Legacy model expressions are deprecated, replace with '" + expression.asString() + "'");
                     return Assets::ModelDefinition(expression);
@@ -367,7 +367,7 @@ namespace TrenchBroom {
                 return "";
             return m_tokenizer.readRemainder(DefToken::CDefinition);
         }
-        
+
         vm::vec3 DefParser::parseVector(ParserStatus& status) {
             Token token;
             vm::vec3 vec;
@@ -377,7 +377,7 @@ namespace TrenchBroom {
             }
             return vec;
         }
-        
+
         vm::bbox3 DefParser::parseBounds(ParserStatus& status) {
             vm::bbox3 bounds;
             Token token;
@@ -389,7 +389,7 @@ namespace TrenchBroom {
             expect(status, DefToken::CParenthesis, token = m_tokenizer.nextToken());
             return repair(bounds);
         }
-        
+
         Color DefParser::parseColor(ParserStatus& status) {
             Color color;
             Token token;
@@ -404,7 +404,7 @@ namespace TrenchBroom {
             color[3] = 1.0f;
             return color;
         }
-        
+
         DefParser::Token DefParser::nextTokenIgnoringNewlines() {
             Token token = m_tokenizer.nextToken();
             while (token.type() == DefToken::Newline)

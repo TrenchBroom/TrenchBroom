@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -60,7 +60,7 @@ namespace TrenchBroom {
             QLabel* m_surfaceValueLabel;
             SpinControl* m_surfaceValueEditor;
             wxGridBagSizer* m_faceAttribsSizer;
-            
+
             QLabel* m_surfaceFlagsLabel;
             FlagsPopupEditor* m_surfaceFlagsEditor;
             QLabel* m_contentFlagsLabel;
@@ -87,16 +87,16 @@ namespace TrenchBroom {
         private:
             void createGui(GLContextManager& contextManager);
             void bindEvents();
-            
+
             void bindObservers();
             void unbindObservers();
-            
+
             void documentWasNewed(MapDocument* document);
             void documentWasLoaded(MapDocument* document);
             void brushFacesDidChange(const Model::BrushFaceList& faces);
             void selectionDidChange(const Selection& selection);
             void textureCollectionsDidChange();
-            
+
             void updateControls();
 
             bool hasSurfaceAttribs() const;

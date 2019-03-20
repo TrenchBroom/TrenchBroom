@@ -277,7 +277,7 @@ namespace TrenchBroom {
 
             void OnEditPaste();
             void OnEditPasteAtOriginalPosition();
-            
+
             PasteType paste();
 
             void OnEditDelete();
@@ -331,7 +331,7 @@ namespace TrenchBroom {
             void OnViewHideSelectedObjects();
             void OnViewIsolateSelectedObjects();
             void OnViewShowHiddenObjects();
-            
+
             void OnViewSwitchToMapInspector();
             void OnViewSwitchToEntityInspector();
             void OnViewSwitchToFaceInspector();
@@ -356,7 +356,7 @@ namespace TrenchBroom {
             void OnDebugCrash();
             void OnDebugThrowExceptionDuringCommand();
             void OnDebugSetWindowSize();
-            
+
             void OnFlipObjectsHorizontally();
             void OnFlipObjectsVertically();
 

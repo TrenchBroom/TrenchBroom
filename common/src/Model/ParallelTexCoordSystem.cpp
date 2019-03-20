@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -35,24 +35,24 @@ namespace TrenchBroom {
         ParallelTexCoordSystemSnapshot::ParallelTexCoordSystemSnapshot(const vm::vec3& xAxis, const vm::vec3& yAxis) :
         m_xAxis(xAxis),
         m_yAxis(yAxis) {}
-        
+
         ParallelTexCoordSystemSnapshot::ParallelTexCoordSystemSnapshot(ParallelTexCoordSystem* coordSystem) :
         m_xAxis(coordSystem->xAxis()),
         m_yAxis(coordSystem->yAxis()) {}
-        
+
         std::unique_ptr<TexCoordSystemSnapshot> ParallelTexCoordSystemSnapshot::doClone() const {
             return std::make_unique<ParallelTexCoordSystemSnapshot>(m_xAxis, m_yAxis);
         }
-        
+
         void ParallelTexCoordSystemSnapshot::doRestore(ParallelTexCoordSystem& coordSystem) const {
             coordSystem.m_xAxis = m_xAxis;
             coordSystem.m_yAxis = m_yAxis;
         }
-        
+
         void ParallelTexCoordSystemSnapshot::doRestore(ParaxialTexCoordSystem& coordSystem) const {
             ensure(false, "wrong coord system type");
         }
-        
+
         ParallelTexCoordSystem::ParallelTexCoordSystem(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs) {
             const vm::vec3 normal = normalize(cross(point2 - point0, point1 - point0));
             computeInitialAxes(normal, m_xAxis, m_yAxis);
@@ -62,15 +62,15 @@ namespace TrenchBroom {
         ParallelTexCoordSystem::ParallelTexCoordSystem(const vm::vec3& xAxis, const vm::vec3& yAxis) :
         m_xAxis(xAxis),
         m_yAxis(yAxis) {}
-        
+
         std::unique_ptr<TexCoordSystem> ParallelTexCoordSystem::doClone() const {
             return std::make_unique<ParallelTexCoordSystem>(m_xAxis, m_yAxis);
         }
-        
+
         std::unique_ptr<TexCoordSystemSnapshot> ParallelTexCoordSystem::doTakeSnapshot() {
             return std::make_unique<ParallelTexCoordSystemSnapshot>(this);
         }
-        
+
         void ParallelTexCoordSystem::doRestoreSnapshot(const TexCoordSystemSnapshot& snapshot) {
             snapshot.doRestore(*this);
         }
@@ -78,11 +78,11 @@ namespace TrenchBroom {
         vm::vec3 ParallelTexCoordSystem::getXAxis() const {
             return m_xAxis;
         }
-        
+
         vm::vec3 ParallelTexCoordSystem::getYAxis() const {
             return m_yAxis;
         }
-        
+
         vm::vec3 ParallelTexCoordSystem::getZAxis() const {
             return normalize(cross(m_xAxis, m_yAxis));
         }
@@ -94,13 +94,13 @@ namespace TrenchBroom {
         void ParallelTexCoordSystem::doResetTextureAxes(const vm::vec3& normal) {
             computeInitialAxes(normal, m_xAxis, m_yAxis);
         }
-        
+
         void ParallelTexCoordSystem::doResetTextureAxesToParaxial(const vm::vec3& normal, float angle) {
             const size_t index = ParaxialTexCoordSystem::planeNormalIndex(normal);
             ParaxialTexCoordSystem::axes(index, m_xAxis, m_yAxis);
             applyRotation(normal, static_cast<FloatType>(angle));
         }
-        
+
         void ParallelTexCoordSystem::doResetTextureAxesToParallel(const vm::vec3& normal, float angle) {
             computeInitialAxes(normal, m_xAxis, m_yAxis);
             applyRotation(normal, static_cast<FloatType>(angle));
@@ -109,11 +109,11 @@ namespace TrenchBroom {
         bool ParallelTexCoordSystem::isRotationInverted(const vm::vec3& normal) const {
             return false;
         }
-        
+
         vm::vec2f ParallelTexCoordSystem::doGetTexCoords(const vm::vec3& point, const BrushFaceAttributes& attribs) const {
             return (computeTexCoords(point, attribs.scale()) + attribs.offset()) / attribs.textureSize();
         }
-        
+
         /**
          * Rotates from `oldAngle` to `newAngle`. Both of these are in CCW degrees about
          * the texture normal (`getZAxis()`). The provided `normal` is ignored.
@@ -122,11 +122,11 @@ namespace TrenchBroom {
             const float angleDelta = newAngle - oldAngle;
             if (angleDelta == 0.0f)
                 return;
-            
+
             const FloatType angle = static_cast<FloatType>(vm::toRadians(angleDelta));
             applyRotation(getZAxis(), angle);
         }
-        
+
         /**
          * Rotate CCW by `angle` radians about `normal`.
          */
@@ -147,9 +147,9 @@ namespace TrenchBroom {
                 doUpdateNormalWithProjection(oldBoundary.normal, newBoundary.normal, attribs);
                 return;
             }
-            
+
             const auto effectiveTransformation = transformation;
-            
+
             // determine the rotation by which the texture coordinate system will be rotated about its normal
             const auto angleDelta = computeTextureAngle(oldBoundary, effectiveTransformation);
             const auto newAngle = vm::correct(vm::normalizeDegrees(attribs.rotation() + angleDelta), 4);
@@ -159,10 +159,10 @@ namespace TrenchBroom {
             // calculate the current texture coordinates of the face's center
             const auto oldInvariantTechCoords = computeTexCoords(oldInvariant, attribs.scale()) + attribs.offset();
             assert(!isNaN(oldInvariantTechCoords));
-            
+
             // compute the new texture axes
             const auto worldToTexSpace = toMatrix(vm::vec2f(0, 0), vm::vec2f(1, 1));
-            
+
             // The formula for texturing is:
             //
             //     uv = worldToTexSpace * point
@@ -177,7 +177,7 @@ namespace TrenchBroom {
             const auto [invertible, inverseTransform] = invert(effectiveTransformation);
             assert(invertible); unused(invertible);
             const auto newWorldToTexSpace = worldToTexSpace * inverseTransform;
-            
+
             // extract the new m_xAxis and m_yAxis from newWorldToTexSpace.
             // note, the matrix is in column major format.
             for (size_t i=0; i<3; i++) {
@@ -186,7 +186,7 @@ namespace TrenchBroom {
             }
             assert(!isNaN(m_xAxis));
             assert(!isNaN(m_yAxis));
-            
+
             // determine the new texture coordinates of the transformed center of the face, sans offsets
             const auto newInvariant = effectiveTransformation * oldInvariant;
             const auto newInvariantTexCoords = computeTexCoords(newInvariant, attribs.scale());
@@ -216,11 +216,11 @@ namespace TrenchBroom {
             // Since this is the "projection" method (attempts to emulate ParaxialTexCoordSystem),
             // we want to modify (m_xAxis, m_yAxis) as little as possible
             // and only make 90 degree rotations if necessary.
-            
+
             // Method: build a cube where the front face is the old texture projection (m_xAxis, m_yAxis)
             // and the other 5 faces are 90 degree rotations from that.
             // Use the "face" whose texture normal (cross product of the x and y axis) is closest to newNormal (the new face normal).
-            
+
             std::vector<std::pair<vm::vec3, vm::vec3>> possibleTexAxes;
             possibleTexAxes.push_back({m_xAxis, m_yAxis}); // possibleTexAxes[0] = front
             possibleTexAxes.push_back({m_yAxis, m_xAxis}); // possibleTexAxes[1] = back
@@ -234,14 +234,14 @@ namespace TrenchBroom {
                 possibleTexAxes.push_back({rotation * m_xAxis, rotation * m_yAxis});
             }
             assert(possibleTexAxes.size() == 6);
-            
+
             std::vector<vm::vec3> possibleTexAxesNormals;
             for (const auto& axes : possibleTexAxes) {
                 const vm::vec3 texNormal = normalize(cross(axes.first, axes.second));
                 possibleTexAxesNormals.push_back(texNormal);
             }
             assert(possibleTexAxesNormals.size() == 6);
-            
+
             // Find the index in possibleTexAxesNormals of the normal closest to the newNormal (face normal)
             std::vector<FloatType> cosAngles;
             for (const auto& texNormal : possibleTexAxesNormals) {
@@ -249,11 +249,11 @@ namespace TrenchBroom {
                 cosAngles.push_back(cosAngle);
             }
             assert(cosAngles.size() == 6);
-            
+
             const ptrdiff_t index = std::distance(cosAngles.begin(), std::max_element(cosAngles.begin(), cosAngles.end()));
             assert(index >= 0);
             assert(index < 6);
-            
+
             // Skip 0 because it is "no change".
             // Skip 1 becaues it's a 180 degree flip, we prefer to just project the "front" texture axes.
             if (index >= 2) {
@@ -262,7 +262,7 @@ namespace TrenchBroom {
                 m_yAxis = axes.second;
             }
         }
-        
+
         void ParallelTexCoordSystem::doUpdateNormalWithRotation(const vm::vec3& oldNormal, const vm::vec3& newNormal, const BrushFaceAttributes& attribs) {
             vm::quat3 rotation;
             auto axis = vm::cross(oldNormal, newNormal);
@@ -273,7 +273,7 @@ namespace TrenchBroom {
             } else {
                 axis = vm::normalize(axis);
             }
-            
+
             const auto angle = vm::measureAngle(newNormal, oldNormal, axis);
             rotation = vm::quat3(axis, angle);
 
@@ -286,7 +286,7 @@ namespace TrenchBroom {
                                f[1],  1.0, 0.0, 0.0,
                                 0.0,  0.0, 1.0, 0.0,
                                 0.0,  0.0, 0.0, 1.0);
-            
+
             const auto toMatrix = vm::coordinateSystemMatrix(m_xAxis, m_yAxis, getZAxis(), vm::vec3::zero);
             const auto [invertible, fromMatrix] = vm::invert(toMatrix);
             assert(invertible); unused(invertible);
@@ -317,7 +317,7 @@ namespace TrenchBroom {
                     xAxis = vm::normalize(vm::cross(vm::vec3::pos_y, normal));
                     break;
             }
-            
+
             yAxis = vm::normalize(vm::cross(m_xAxis, normal));
         }
     }

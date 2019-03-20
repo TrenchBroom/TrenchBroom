@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -29,39 +29,39 @@ class wxPersistentObject;
 namespace TrenchBroom {
     namespace View {
         class PersistentSplitterWindow4;
-        
+
         class SplitterWindow4 : public QWidget {
         private:
             static const size_t NumWindows = 4;
             static const int HalfMinSashSize = 2;
-            
+
             typedef enum {
                 Window_TopLeft,
                 Window_TopRight,
                 Window_BottomRight,
                 Window_BottomLeft
             } Window;
-            
+
             typedef enum {
                 Dim_X,
                 Dim_Y
             } Dim;
-            
+
             QWidget* m_windows[NumWindows];
             QWidget* m_maximizedWindow;
             wxSize m_minSizes[NumWindows];
-            
+
             wxRealPoint m_gravity;
             wxRealPoint m_initialSplitRatios;
             wxRealPoint m_currentSplitRatios;
             bool m_dragging[2];
-            
+
             wxSize m_oldSize;
-            
+
             friend class PersistentSplitterWindow4;
         public:
             SplitterWindow4(QWidget* parent);
-            
+
             void split(QWidget* topLeft, QWidget* topRight, QWidget* bottomRight, QWidget* bottomLeft,
                        const wxSize& topLeftMin     = wxSize(0,0),
                        const wxSize& topRightMin    = wxSize(0,0),
@@ -78,23 +78,23 @@ namespace TrenchBroom {
             wxPoint sashPosition(const wxRealPoint& ratios) const;
             wxPoint sashPosition(const wxRealPoint& ratios, const wxSize& size) const;
             wxRealPoint splitRatios(const wxPoint& positions) const;
-            
+
             int leftColMinSize() const;
             int rightColMinSize() const;
             int topRowMinSize() const;
             int bottomRowMinSize() const;
-            
+
             bool hasWindows() const;
             bool containsWindow(QWidget* window) const;
         private:
             void bindMouseEvents(QWidget* window);
-            
+
             void OnMouseEnter(wxMouseEvent& event);
             void OnMouseLeave(wxMouseEvent& event);
             void OnMouseButton(wxMouseEvent& event);
             void OnMouseMotion(wxMouseEvent& event);
             void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
-            
+
             void OnPaint(wxPaintEvent& event);
             void OnIdle(wxIdleEvent& event);
             void OnSize(wxSizeEvent& event);
@@ -107,7 +107,7 @@ namespace TrenchBroom {
             bool setSashPosition(wxPoint newSashPosition);
             void sizeWindows();
             int sashSize() const;
-            
+
             template <typename T>
             int get(const T& t, const Dim dim) const {
                 switch (dim) {

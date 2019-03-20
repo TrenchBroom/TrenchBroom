@@ -163,7 +163,7 @@ namespace TrenchBroom {
 
             if (m_dropReceiver != nullptr)
                 dragLeave(chain, inputState);
-            
+
             deactivateAllTools();
             m_dropReceiver = chain->dragEnter(inputState, text);
             return m_dropReceiver != nullptr;
@@ -383,7 +383,7 @@ namespace TrenchBroom {
         void ToolBox::deactivateTool(Tool* tool) {
             if (dragging())
                 cancelMouseDrag();
-                
+
             ToolMap::iterator it = m_deactivateWhen.find(tool);
             if (it != std::end(m_deactivateWhen)) {
                 const ToolList& slaves = it->second;

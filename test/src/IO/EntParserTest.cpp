@@ -26,6 +26,7 @@
 #include "Assets/EntityDefinitionTestUtils.h"
 #include "IO/DiskIO.h"
 #include "IO/EntParser.h"
+#include "IO/File.h"
 #include "IO/Path.h"
 #include "IO/TestParserStatus.h"
 #include "Model/ModelTypes.h"
@@ -37,13 +38,15 @@ namespace TrenchBroom {
         void assertAttributeDefinition(const String& name, const Assets::AttributeDefinition::Type expectedType, const Assets::EntityDefinition* entityDefinition);
 
         TEST(EntParserTest, parseIncludedEntFiles) {
-            const Path basePath = Disk::getCurrentWorkingDir() + Path("data/games");
+            const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/games/");
             const Path::List cfgFiles = Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("ent"));
 
             for (const Path& path : cfgFiles) {
-                MappedFile::Ptr file = Disk::openFile(path);
+                auto file = Disk::openFile(path);
+                auto reader = file->reader().buffer();
+
                 const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-                EntParser parser(file->begin(), file->end(), defaultColor);
+                EntParser parser(std::begin(reader), std::end(reader), defaultColor);
 
                 TestParserStatus status;
                 ASSERT_NO_THROW(parser.parseDefinitions(status)) << "Parsing ENT file " << path.asString() << " failed";

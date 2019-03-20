@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -51,17 +51,17 @@ namespace TrenchBroom {
             SetSize(wxSize(800, 600));
             CentreOnParent();
         }
-        
+
         void CompilationDialog::createGui() {
             setWindowIconTB(this);
 
             MapDocumentSPtr document = m_mapFrame->document();
             Model::GameSPtr game = document->game();
             Model::CompilationConfig& compilationConfig = game->compilationConfig();
-            
+
             QWidget* outerPanel = new QWidget(this);
             SplitterWindow2* splitter = new SplitterWindow2(outerPanel);
-            
+
             m_profileManager = new CompilationProfileManager(splitter, document , compilationConfig);
 
             TitledPanel* outputPanel = new TitledPanel(splitter, "Output");
@@ -77,39 +77,39 @@ namespace TrenchBroom {
             auto* outerPanelSizer = new QVBoxLayout();
             outerPanelSizer->Add(splitter, 1, wxEXPAND);
             outerPanel->SetSizer(outerPanelSizer);
-            
+
             wxButton* launchButton = new wxButton(this, wxID_ANY, "Launch...");
             wxButton* compileButton = new wxButton(this, wxID_OK, "Compile");
             wxButton* closeButton = new wxButton(this, wxID_CANCEL, "Close");
-            
+
             launchButton->Bind(wxEVT_BUTTON, &CompilationDialog::OnLaunchClicked, this);
             launchButton->Bind(wxEVT_UPDATE_UI, &CompilationDialog::OnUpdateLaunchButtonUI, this);
             compileButton->Bind(wxEVT_BUTTON, &CompilationDialog::OnToggleCompileClicked, this);
             compileButton->Bind(wxEVT_UPDATE_UI, &CompilationDialog::OnUpdateCompileButtonUI, this);
 			closeButton->Bind(wxEVT_BUTTON, &CompilationDialog::OnCloseButtonClicked, this);
-            
+
             wxStdDialogButtonSizer* stdButtonSizer = new wxStdDialogButtonSizer();
             stdButtonSizer->SetAffirmativeButton(compileButton);
 			stdButtonSizer->SetCancelButton(closeButton);
             stdButtonSizer->Realize();
-            
+
             m_currentRunLabel = new QLabel(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT);
-            
+
             auto* currentRunLabelSizer = new QVBoxLayout();
             currentRunLabelSizer->AddStretchSpacer();
             currentRunLabelSizer->Add(m_currentRunLabel, wxSizerFlags().Expand());
             currentRunLabelSizer->AddStretchSpacer();
-            
+
             auto* buttonSizer = new QHBoxLayout();
             buttonSizer->Add(launchButton, wxSizerFlags().CenterVertical());
             buttonSizer->Add(currentRunLabelSizer, wxSizerFlags().Expand().Proportion(1).Border(wxLEFT | wxRIGHT, LayoutConstants::WideHMargin));
             buttonSizer->Add(stdButtonSizer);
-            
+
             auto* dialogSizer = new QVBoxLayout();
             dialogSizer->Add(outerPanel, wxSizerFlags().Expand().Proportion(1));
             dialogSizer->Add(wrapDialogButtonSizer(buttonSizer, this), wxSizerFlags().Expand());
             SetSizer(dialogSizer);
-            
+
             m_run.Bind(wxEVT_COMPILATION_END, &CompilationDialog::OnCompilationEnd, this);
             Bind(wxEVT_CLOSE_WINDOW, &CompilationDialog::OnClose, this);
         }
@@ -118,7 +118,7 @@ namespace TrenchBroom {
             LaunchGameEngineDialog dialog(this, m_mapFrame->document());
             dialog.ShowModal();
         }
-        
+
         void CompilationDialog::OnUpdateLaunchButtonUI(wxUpdateUIEvent& event) {
             event.Enable(!m_run.running());
         }
@@ -130,14 +130,14 @@ namespace TrenchBroom {
                 const Model::CompilationProfile* profile = m_profileManager->selectedProfile();
                 ensure(profile != nullptr, "profile is null");
                 ensure(profile->taskCount() > 0, "profile has no tasks");
-                
+
                 m_output->Clear();
-                
+
                 if (testRun())
                     m_run.test(profile, m_mapFrame->document(), m_output);
                 else
                     m_run.run(profile, m_mapFrame->document(), m_output);
-                
+
                 m_currentRunLabel->SetLabel("Running " + profile->name());
                 Layout();
             }
@@ -180,7 +180,7 @@ namespace TrenchBroom {
         void CompilationDialog::OnCompilationEnd(wxEvent& event) {
             m_currentRunLabel->SetLabel("");
         }
-        
+
         bool CompilationDialog::testRun() const {
             return wxGetKeyState(WXK_ALT);
         }

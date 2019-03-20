@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -67,7 +67,7 @@ namespace TrenchBroom {
             };
         public:
             virtual ~EdgeRenderer();
-            
+
             void render(RenderBatch& renderBatch, float width = 1.0f, float offset = 0.0f);
             void render(RenderBatch& renderBatch, const Color& color, float width = 1.0f, float offset = 0.0f);
             void render(RenderBatch& renderBatch, bool useColor, const Color& color, float width = 1.0f, float offset = 0.0f);
@@ -78,7 +78,7 @@ namespace TrenchBroom {
         private:
             virtual void doRender(RenderBatch& renderBatch, const Params& params) = 0;
         };
-        
+
         class DirectEdgeRenderer : public EdgeRenderer {
         private:
             class Render : public RenderBase, public DirectRenderable {
@@ -102,12 +102,12 @@ namespace TrenchBroom {
 
             DirectEdgeRenderer(const DirectEdgeRenderer& other);
             DirectEdgeRenderer& operator=(DirectEdgeRenderer other);
-            
+
             friend void swap(DirectEdgeRenderer& left, DirectEdgeRenderer& right);
         private:
             void doRender(RenderBatch& renderBatch, const EdgeRenderer::Params& params) override;
         };
-        
+
         class IndexedEdgeRenderer : public EdgeRenderer {
         private:
             class Render : public RenderBase, public IndexedRenderable {
@@ -130,7 +130,7 @@ namespace TrenchBroom {
 
             IndexedEdgeRenderer(const IndexedEdgeRenderer& other);
             IndexedEdgeRenderer& operator=(IndexedEdgeRenderer other);
-            
+
             friend void swap(IndexedEdgeRenderer& left, IndexedEdgeRenderer& right);
         private:
             void doRender(RenderBatch& renderBatch, const EdgeRenderer::Params& params) override;

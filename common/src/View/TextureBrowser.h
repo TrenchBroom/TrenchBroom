@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -36,16 +36,16 @@ namespace TrenchBroom {
     namespace Assets {
         class Texture;
     }
-    
+
     namespace IO {
         class Path;
     }
-    
+
     namespace View {
         class GLContextManager;
         class TextureBrowserView;
         class TextureSelectedCommand;
-        
+
         class TextureBrowser : public QWidget {
         private:
             MapDocumentWPtr m_document;
@@ -58,15 +58,15 @@ namespace TrenchBroom {
         public:
             TextureBrowser(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
             ~TextureBrowser();
-            
+
             Assets::Texture* selectedTexture() const;
             void setSelectedTexture(Assets::Texture* selectedTexture);
-            
+
             void setSortOrder(TextureBrowserView::SortOrder sortOrder);
             void setGroup(bool group);
             void setHideUnused(bool hideUnused);
             void setFilterText(const String& filterText);
-            
+
             void OnSortOrderChanged(wxCommandEvent& event);
             void OnGroupButtonToggled(wxCommandEvent& event);
             void OnUsedButtonToggled(wxCommandEvent& event);
@@ -75,10 +75,10 @@ namespace TrenchBroom {
         private:
             void createGui(GLContextManager& contextManager);
             void bindEvents();
-            
+
             void bindObservers();
             void unbindObservers();
-            
+
             void documentWasNewed(MapDocument* document);
             void documentWasLoaded(MapDocument* document);
             void nodesWereAdded(const Model::NodeList& nodes);

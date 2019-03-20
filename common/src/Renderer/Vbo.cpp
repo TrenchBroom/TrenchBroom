@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -39,7 +39,7 @@ namespace TrenchBroom {
             if (!m_wasActive)
                 m_vbo.activate();
         }
-        
+
         ActivateVbo::~ActivateVbo() {
             if (!m_wasActive)
                 m_vbo.deactivate();
@@ -60,22 +60,22 @@ namespace TrenchBroom {
             m_freeBlocks.push_back(m_firstBlock);
             assert(checkBlockChain());
         }
-        
+
         Vbo::~Vbo() {
             if (active())
                 deactivate();
             free();
-            
+
             auto* block = m_firstBlock;
             while (block != nullptr) {
                 auto* next = block->next();
                 delete block;
                 block = next;
             }
-            
+
             m_lastBlock = m_firstBlock = nullptr;
         }
-        
+
         VboBlock* Vbo::allocateBlock(const size_t capacity) {
             assert(checkBlockChain());
 
@@ -90,19 +90,19 @@ namespace TrenchBroom {
                 increaseCapacityToAccomodate(capacity);
                 it = findFreeBlock(capacity);
             }
-            
+
             assert(it != std::end(m_freeBlocks));
             auto* block = *it;
             ensure(block != nullptr, "block is null");
             removeFreeBlock(it);
-            
+
             if (block->capacity() > capacity) {
                 auto* remainder = block->split(capacity);
                 if (m_lastBlock == block)
                     m_lastBlock = remainder;
                 insertFreeBlock(remainder);
             }
-            
+
             assert(checkBlockChain());
             return block;
         }
@@ -110,10 +110,10 @@ namespace TrenchBroom {
         bool Vbo::active() const {
             return m_state > State_Inactive;
         }
-        
+
         void Vbo::activate() {
             assert(!active());
-            
+
             if (m_vboId == 0) {
                 glAssert(glGenBuffers(1, &m_vboId));
                 glAssert(glBindBuffer(m_type, m_vboId));
@@ -123,7 +123,7 @@ namespace TrenchBroom {
             }
             m_state = State_Active;
         }
-        
+
         void Vbo::deactivate() {
             assert(active());
             assert(!fullyMapped());
@@ -131,7 +131,7 @@ namespace TrenchBroom {
             glAssert(glBindBuffer(m_type, 0));
             m_state = State_Inactive;
         }
-        
+
         GLenum Vbo::type() const {
             return m_type;
         }
@@ -147,10 +147,10 @@ namespace TrenchBroom {
             ensure(block != nullptr, "block is null");
             assert(!block->isFree());
             assert(checkBlockChain());
-            
+
             auto* previous = block->previous();
             auto* next = block->next();
-            
+
             if (previous != nullptr && previous->isFree() &&
                 next != nullptr && next->isFree()) {
                 removeFreeBlock(previous);
@@ -186,11 +186,11 @@ namespace TrenchBroom {
             auto newMinCapacity = m_totalCapacity + capacity;
             if (m_lastBlock->isFree())
                 newMinCapacity -= m_lastBlock->capacity();
-            
+
             auto newCapacity = m_totalCapacity;
             while (newCapacity < newMinCapacity)
                 newCapacity = static_cast<size_t>(static_cast<float>(newCapacity) * GrowthFactor);
-            
+
             increaseCapacity(newCapacity - m_totalCapacity);
         }
 
@@ -203,7 +203,7 @@ namespace TrenchBroom {
 
             const auto begin = (m_firstBlock->isFree() ?  m_firstBlock->capacity() : 0);
             const auto end = m_totalCapacity - (m_lastBlock->isFree() ? m_lastBlock->capacity() : 0);
-            
+
             if (m_lastBlock->isFree()) {
                 removeFreeBlock(m_lastBlock);
                 m_lastBlock->setCapacity(m_lastBlock->capacity() + delta);
@@ -213,26 +213,26 @@ namespace TrenchBroom {
                 m_lastBlock = block;
                 insertFreeBlock(m_lastBlock);
             }
-            
+
             m_totalCapacity += delta;
             m_freeCapacity += delta;
             assert(checkBlockChain());
-            
+
             if (begin < end) {
                 auto* buffer = map();
-                
+
                 auto* temp = new unsigned char[end - begin];
                 memcpy(temp, buffer + begin, end - begin);
-                
+
                 unmap();
                 deactivate();
                 free();
                 activate();
                 buffer = map();
-                
+
                 memcpy(buffer + begin, temp, end - begin);
                 delete [] temp;
-                
+
                 unmap();
             } else {
                 deactivate();
@@ -279,14 +279,14 @@ namespace TrenchBroom {
         bool Vbo::partiallyMapped() const {
             return m_state == State_PartiallyMapped;
         }
-        
+
         void Vbo::mapPartially() {
             assert(active());
             assert(!partiallyMapped());
             assert(!fullyMapped());
             m_state = State_PartiallyMapped;
         }
-        
+
         void Vbo::unmapPartially() {
             assert(active());
             assert(partiallyMapped());
@@ -296,7 +296,7 @@ namespace TrenchBroom {
         bool Vbo::fullyMapped() const {
             return m_state == State_FullyMapped;
         }
-        
+
         unsigned char* Vbo::map() {
             assert(active());
             assert(!fullyMapped());
@@ -309,10 +309,10 @@ namespace TrenchBroom {
             auto* buffer = reinterpret_cast<unsigned char *>(glMapBuffer(m_type, GL_WRITE_ONLY));
             ensure(buffer != nullptr, "buffer is null");
             m_state = State_FullyMapped;
-            
+
             return buffer;
         }
-        
+
         void Vbo::unmap() {
             assert(fullyMapped());
             glAssert(glUnmapBuffer(m_type));
@@ -322,7 +322,7 @@ namespace TrenchBroom {
         bool Vbo::checkBlockChain() const {
             auto* block = m_firstBlock;
             ensure(block != nullptr, "block is null");
-            
+
             auto count = 0u;
             auto* next = block->next();
             while (next != nullptr) {
@@ -332,9 +332,9 @@ namespace TrenchBroom {
                 next = next->next();
                 ++count;
             }
-            
+
             assert(block == m_lastBlock);
-            
+
             auto* previous = block->previous();
             while (previous != nullptr) {
                 assert(previous->next() == block);
@@ -343,7 +343,7 @@ namespace TrenchBroom {
                 --count;
             }
             assert(count == 0);
-            
+
             return true;
         }
     }

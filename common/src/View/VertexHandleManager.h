@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -40,14 +40,14 @@ namespace TrenchBroom {
         class Brush;
         class PickResult;
     }
-    
+
     namespace Renderer {
         class Camera;
     }
-    
+
     namespace View {
         class Grid;
-        
+
         class VertexHandleManagerBase {
         public:
             virtual ~VertexHandleManagerBase();
@@ -105,7 +105,7 @@ namespace TrenchBroom {
             struct HandleInfo {
                 size_t count;
                 bool selected;
-                
+
                 HandleInfo() :
                 count(0),
                 selected(false) {}
@@ -156,7 +156,7 @@ namespace TrenchBroom {
                     --count;
                 }
             };
-            
+
             using HandleMap = std::map<H, HandleInfo>;
             using HandleEntry = typename HandleMap::value_type;
 
@@ -172,7 +172,7 @@ namespace TrenchBroom {
         public:
             VertexHandleManagerBaseT() :
             m_selectedHandleCount(0) {}
-            
+
             virtual ~VertexHandleManagerBaseT() {}
         public:
             /**
@@ -315,7 +315,7 @@ namespace TrenchBroom {
                 if (it != std::end(m_handles)) {
                     HandleInfo& info = it->second;
                     info.dec();
-                    
+
                     if (info.count == 0) {
                         deselect(info);
                         m_handles.erase(it);
@@ -424,14 +424,14 @@ namespace TrenchBroom {
                     ++m_selectedHandleCount;
                 }
             }
-            
+
             void deselect(HandleInfo& info) {
                 if (info.deselect()) {
                     assert(m_selectedHandleCount > 0);
                     --m_selectedHandleCount;
                 }
             }
-            
+
             void toggle(HandleInfo& info) {
                 if (info.toggle()) {
                     assert(selectedHandleCount() < totalHandleCount());
@@ -543,7 +543,7 @@ namespace TrenchBroom {
         public:
             void addHandles(const Model::Brush* brush) override;
             void removeHandles(const Model::Brush* brush) override;
-            
+
             Model::Hit::HitType hitType() const override;
         private:
             bool isIncident(const Handle& handle, const Model::Brush* brush) const override;
@@ -588,7 +588,7 @@ namespace TrenchBroom {
         public:
             void addHandles(const Model::Brush* brush) override;
             void removeHandles(const Model::Brush* brush) override;
-            
+
             Model::Hit::HitType hitType() const override;
         private:
             bool isIncident(const Handle& handle, const Model::Brush* brush) const override;

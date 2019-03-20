@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -41,11 +41,11 @@ namespace TrenchBroom {
             createGui(contextManager);
             bindObservers();
         }
-        
+
         EntityBrowser::~EntityBrowser() {
             unbindObservers();
         }
-        
+
         void EntityBrowser::reload() {
             if (m_view != nullptr) {
                 m_view->invalidate();
@@ -55,7 +55,7 @@ namespace TrenchBroom {
 
         void EntityBrowser::createGui(GLContextManager& contextManager) {
             m_scrollBar = new QScrollBar(Qt::Vertical);
-            
+
             MapDocumentSPtr document = lock(m_document);
             // FIXME: Ownership: EntityBrowserView should be made a child
             // QObject of `this`, right?
@@ -65,7 +65,7 @@ namespace TrenchBroom {
                                            document->entityModelManager(),
                                            *document);
             m_windowContainer = QWidget::createWindowContainer(m_view);
-            
+
             auto* browserPanelSizer = new QHBoxLayout();
             browserPanelSizer->setContentsMargins(0, 0, 0, 0);
             browserPanelSizer->setSpacing(0);
@@ -74,7 +74,7 @@ namespace TrenchBroom {
 
             QWidget* browserPanel = new QWidget(this);
             browserPanel->setLayout(browserPanelSizer);
-            
+
             m_sortOrderChoice = new QComboBox();
             m_sortOrderChoice->addItem(tr("Name"), QVariant(Assets::EntityDefinition::Name));
             m_sortOrderChoice->addItem(tr("Usage"), QVariant(Assets::EntityDefinition::Usage));
@@ -91,26 +91,26 @@ namespace TrenchBroom {
             connect(m_groupButton, &QAbstractButton::clicked, this, [=](){
                 m_view->setGroup(m_groupButton->isChecked());
             });
-            
+
             m_usedButton = new QPushButton(tr("Used"));
             m_usedButton->setToolTip(tr("Only show entity definitions currently in use"));
             m_usedButton->setCheckable(true);
             connect(m_usedButton, &QAbstractButton::clicked, this, [=](){
                 m_view->setHideUnused(m_usedButton->isChecked());
             });
-            
+
             m_filterBox = new QLineEdit();
             m_filterBox->setClearButtonEnabled(true);
             connect(m_filterBox, &QLineEdit::textEdited, this, [=](){
                 m_view->setFilterText(m_filterBox->text().toStdString());
             });
-            
+
             auto* controlSizer = new QHBoxLayout();
             controlSizer->addWidget(m_sortOrderChoice, 0);
             controlSizer->addWidget(m_groupButton, 0);
             controlSizer->addWidget(m_usedButton, 0);
             controlSizer->addWidget(m_filterBox, 1);
-            
+
             auto* outerSizer = new QVBoxLayout();
             outerSizer->setContentsMargins(0, 0, 0, 0);
             outerSizer->setSpacing(0);
@@ -119,18 +119,18 @@ namespace TrenchBroom {
 
             setLayout(outerSizer);
         }
-        
+
         void EntityBrowser::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &EntityBrowser::documentWasNewed);
             document->documentWasLoadedNotifier.addObserver(this, &EntityBrowser::documentWasLoaded);
             document->modsDidChangeNotifier.addObserver(this, &EntityBrowser::modsDidChange);
             document->entityDefinitionsDidChangeNotifier.addObserver(this, &EntityBrowser::entityDefinitionsDidChange);
-            
+
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &EntityBrowser::preferenceDidChange);
         }
-        
+
         void EntityBrowser::unbindObservers() {
             if (!expired(m_document)) {
             MapDocumentSPtr document = lock(m_document);
@@ -139,7 +139,7 @@ namespace TrenchBroom {
                 document->modsDidChangeNotifier.removeObserver(this, &EntityBrowser::modsDidChange);
                 document->entityDefinitionsDidChangeNotifier.removeObserver(this, &EntityBrowser::entityDefinitionsDidChange);
             }
-            
+
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &EntityBrowser::preferenceDidChange);
         }
@@ -147,7 +147,7 @@ namespace TrenchBroom {
         void EntityBrowser::documentWasNewed(MapDocument* document) {
             reload();
         }
-        
+
         void EntityBrowser::documentWasLoaded(MapDocument* document) {
             reload();
         }
@@ -155,7 +155,7 @@ namespace TrenchBroom {
         void EntityBrowser::modsDidChange() {
             reload();
         }
-        
+
         void EntityBrowser::entityDefinitionsDidChange() {
             reload();
         }

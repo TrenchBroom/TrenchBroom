@@ -21,7 +21,8 @@
 
 #include "Exceptions.h"
 #include "StringUtils.h"
-#include "IO/CharArrayReader.h"
+#include "IO/File.h"
+#include "IO/Reader.h"
 #include "IO/FileSystem.h"
 #include "IO/ImageLoader.h"
 
@@ -56,13 +57,14 @@ namespace TrenchBroom {
         Palette Palette::loadFile(const IO::FileSystem& fs, const IO::Path& path) {
             try {
                 auto file = fs.openFile(path);
+                auto reader = file->reader().buffer();
                 const auto extension = StringUtils::toLower(path.extension());
                 if (extension == "lmp") {
-                    return loadLmp(file);
+                    return loadLmp(reader);
                 } else if (extension == "pcx") {
-                    return loadPcx(file);
+                    return loadPcx(reader);
                 } else if (extension == "bmp") {
-                    return loadBmp(file);
+                    return loadBmp(reader);
                 } else {
                     throw AssetException("Could not load palette file '" + path.asString() + "': Unknown palette format");
                 }
@@ -70,30 +72,29 @@ namespace TrenchBroom {
                 throw AssetException("Could not load palette file '" + path.asString() + "': " + e.what());
             }
         }
-        
-        Palette Palette::loadLmp(IO::MappedFile::Ptr file) {
-            const auto size = file->size();
+
+        Palette Palette::loadLmp(IO::Reader& reader) {
+            const auto size = reader.size();
             auto data = std::make_unique<unsigned char[]>(size);
 
-            IO::CharArrayReader reader(std::begin(*file), std::end(*file));
             reader.read(data.get(), size);
-            
+
             return Palette(size, std::move(data));
         }
-        
-        Palette Palette::loadPcx(IO::MappedFile::Ptr file) {
+
+        Palette Palette::loadPcx(IO::Reader& reader) {
             const auto size = 768;
             auto data = std::make_unique<unsigned char[]>(size);
-            
-            IO::CharArrayReader reader(std::begin(*file), std::end(*file));
+
             reader.seekFromEnd(size);
             reader.read(data.get(), size);
-            
+
             return Palette(size, std::move(data));
         }
 
-        Palette Palette::loadBmp(IO::MappedFile::Ptr file) {
-            IO::ImageLoader imageLoader(IO::ImageLoader::BMP, std::begin(*file), std::end(*file));
+        Palette Palette::loadBmp(IO::Reader& reader) {
+            auto bufferedReader = reader.buffer();
+            IO::ImageLoader imageLoader(IO::ImageLoader::BMP, std::begin(bufferedReader), std::end(bufferedReader));
             const auto& pixels = imageLoader.hasPalette() ? imageLoader.palette() : imageLoader.pixels(IO::ImageLoader::RGB);
 
             const auto size = pixels.size();
@@ -103,9 +104,10 @@ namespace TrenchBroom {
             return Palette(size, std::move(data));
         }
 
-        Palette Palette::fromRaw(const size_t size, const unsigned char* data) {
+        Palette Palette::fromRaw(IO::Reader& reader) {
+            const auto size = reader.size();
             auto copy = std::make_unique<unsigned char[]>(size);
-            std::memcpy(copy.get(), data, size);
+            reader.read(copy.get(), size);
             return Palette(size, std::move(copy));
         }
 

@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -32,7 +32,7 @@ namespace TrenchBroom {
     namespace IO {
         class Path;
     }
-    
+
     namespace View {
         class KeyboardShortcut;
         class KeyboardShortcutEntry {
@@ -46,9 +46,9 @@ namespace TrenchBroom {
             KeyboardShortcutEntry& operator=(const KeyboardShortcutEntry& other);
         public:
             virtual ~KeyboardShortcutEntry();
-            
+
             bool modifiable() const;
-            
+
             bool hasConflicts() const;
             void resetConflicts();
             void setHasConflicts();
@@ -56,15 +56,15 @@ namespace TrenchBroom {
             int actionContext() const;
             bool appliesToContext(int context) const;
             QString actionContextDescription() const;
-            
+
             QString actionDescription() const;
             QString shortcutDescription() const;
             QString asJsonString() const;
-            
+
             const IO::Path& preferencePath() const;
             const KeyboardShortcut& shortcut() const;
             const KeyboardShortcut& defaultShortcut() const;
-            
+
             bool equals(const KeyboardShortcut& shortcut) const;
             void updateShortcut(const KeyboardShortcut& shortcut);
 

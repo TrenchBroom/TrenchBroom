@@ -45,7 +45,7 @@ namespace TrenchBroom {
             Layout m_layout;
             Cell* m_selectedCell;
             bool m_layoutInitialized;
-            
+
             bool m_valid;
 
             QScrollBar* m_scrollBar;
@@ -77,7 +77,7 @@ namespace TrenchBroom {
 
                 m_valid = true;
             }
-            
+
             void validate() {
                 if (!m_valid)
                     reloadLayout();
@@ -97,7 +97,7 @@ namespace TrenchBroom {
             void invalidate() {
                 m_valid = false;
             }
-            
+
             void clear() {
                 m_layout.clear();
                 doClear();
@@ -149,7 +149,7 @@ namespace TrenchBroom {
                 m_cellView(cellView) {
                     m_cellView.dndWillStart();
                 }
-                
+
                 ~DndHelper() {
                     m_cellView.dndDidEnd();
                 }
@@ -218,7 +218,7 @@ namespace TrenchBroom {
                          int xOffset = event.GetX() - static_cast<int>(cell->itemBounds().left());
                          int yOffset = event.GetY() - static_cast<int>(cell->itemBounds().top()) + top;
                          */
-                        
+
                         const DndHelper dndHelper(*this);
                         wxTextDataObject dropData(dndData(*cell));
                         DropSource dropSource(dropData, this);
@@ -227,7 +227,7 @@ namespace TrenchBroom {
                 }
 #endif
             }
-            
+
             void scroll(const QMouseEvent* event) {
                 if (m_scrollBar != nullptr) {
                     const QPoint mousePosition = event->pos();
@@ -237,7 +237,7 @@ namespace TrenchBroom {
                     requestUpdate();
                 }
             }
-            
+
             void updateTooltip(const QMouseEvent* event) {
 #if 0 // FIXME: TOOLTIPS
                 int top = m_scrollBar != nullptr ? m_scrollBar->GetThumbPosition() : 0;
@@ -260,10 +260,10 @@ namespace TrenchBroom {
                 // FIXME: check DPI awareness
                 const int top = m_scrollBar != nullptr ? m_scrollBar->value() : 0;
                 const QRect visibleRect = QRect(QPoint(0, top), size());
-                
+
                 const float y = static_cast<float>(visibleRect.y());
                 const float h = static_cast<float>(visibleRect.height());
-                
+
                 const GLint viewLeft      = 0; //static_cast<GLint>(GetClientRect().GetLeft());
                 const GLint viewTop       = 0; //static_cast<GLint>(GetClientRect().GetBottom());
                 const GLint viewRight     = width(); //static_cast<GLint>(GetClientRect().GetRight());
@@ -273,7 +273,7 @@ namespace TrenchBroom {
                 setupGL();
                 doRender(m_layout, y, h);
             }
-            
+
             void setupGL() {
                 glAssert(glEnable(GL_MULTISAMPLE));
                 glAssert(glEnable(GL_BLEND));
@@ -283,13 +283,13 @@ namespace TrenchBroom {
                 glAssert(glDepthFunc(GL_LEQUAL));
                 glAssert(glShadeModel(GL_SMOOTH));
             }
-            
+
             virtual void doInitLayout(Layout& layout) = 0;
             virtual void doReloadLayout(Layout& layout) = 0;
             virtual void doClear() {}
             virtual void doRender(Layout& layout, float y, float height) = 0;
             virtual void doLeftClick(Layout& layout, float x, float y) {}
-            
+
             virtual bool dndEnabled() { return false; }
             virtual void dndWillStart() {}
             virtual void dndDidEnd() {}

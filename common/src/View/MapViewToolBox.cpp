@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -41,11 +41,11 @@ namespace TrenchBroom {
             createTools(document, bookCtrl);
             bindObservers();
         }
-        
+
         MapViewToolBox::~MapViewToolBox() {
             unbindObservers();
         }
-        
+
         ClipTool* MapViewToolBox::clipTool() const {
             return m_clipTool.get();
         }
@@ -53,7 +53,7 @@ namespace TrenchBroom {
         CreateComplexBrushTool* MapViewToolBox::createComplexBrushTool() const {
             return m_createComplexBrushTool.get();
         }
-        
+
         CreateEntityTool* MapViewToolBox::createEntityTool() const {
             return m_createEntityTool.get();
         }
@@ -65,15 +65,15 @@ namespace TrenchBroom {
         MoveObjectsTool* MapViewToolBox::moveObjectsTool() const {
             return m_moveObjectsTool.get();
         }
-        
+
         ResizeBrushesTool* MapViewToolBox::resizeBrushesTool() const {
             return m_resizeBrushesTool.get();
         }
-        
+
         RotateObjectsTool* MapViewToolBox::rotateObjectsTool() const {
             return m_rotateObjectsTool.get();
         }
-        
+
         ScaleObjectsTool* MapViewToolBox::scaleObjectsTool() const {
             return m_scaleObjectsTool.get();
         }
@@ -81,15 +81,15 @@ namespace TrenchBroom {
         ShearObjectsTool* MapViewToolBox::shearObjectsTool() const {
             return m_shearObjectsTool.get();
         }
-        
+
         VertexTool* MapViewToolBox::vertexTool() const {
             return m_vertexTool.get();
         }
-        
+
         EdgeTool* MapViewToolBox::edgeTool() const {
             return m_edgeTool.get();
         }
-        
+
         FaceTool* MapViewToolBox::faceTool() const {
             return m_faceTool.get();
         }
@@ -97,7 +97,7 @@ namespace TrenchBroom {
         void MapViewToolBox::toggleCreateComplexBrushTool() {
             toggleTool(createComplexBrushTool());
         }
-        
+
         bool MapViewToolBox::createComplexBrushToolActive() const {
             return toolActive(createComplexBrushTool());
         }
@@ -109,21 +109,21 @@ namespace TrenchBroom {
         void MapViewToolBox::toggleClipTool() {
             toggleTool(clipTool());
         }
-        
+
         bool MapViewToolBox::clipToolActive() const {
             return toolActive(clipTool());
         }
-        
+
         void MapViewToolBox::toggleClipSide() {
             assert(clipToolActive());
             m_clipTool->toggleSide();
         }
-            
+
         void MapViewToolBox::performClip() {
             assert(clipToolActive());
             m_clipTool->performClip();
         }
-        
+
         void MapViewToolBox::removeLastClipPoint() {
             assert(clipToolActive());
             m_clipTool->removeLastPoint();
@@ -132,7 +132,7 @@ namespace TrenchBroom {
         void MapViewToolBox::toggleRotateObjectsTool() {
             toggleTool(rotateObjectsTool());
         }
-        
+
         bool MapViewToolBox::rotateObjectsToolActive() const {
             return toolActive(rotateObjectsTool());
         }
@@ -141,7 +141,7 @@ namespace TrenchBroom {
             assert(rotateObjectsToolActive());
             return m_rotateObjectsTool->angle();
         }
-        
+
         vm::vec3 MapViewToolBox::rotateToolCenter() const {
             assert(rotateObjectsToolActive());
             return m_rotateObjectsTool->rotationCenter();
@@ -156,7 +156,7 @@ namespace TrenchBroom {
         void MapViewToolBox::toggleScaleObjectsTool() {
             toggleTool(scaleObjectsTool());
         }
-        
+
         bool MapViewToolBox::scaleObjectsToolActive() const {
             return toolActive(scaleObjectsTool());
         }
@@ -168,7 +168,7 @@ namespace TrenchBroom {
         bool MapViewToolBox::shearObjectsToolActive() const {
             return toolActive(shearObjectsTool());
         }
-        
+
         bool MapViewToolBox::anyVertexToolActive() const {
             return vertexToolActive() || edgeToolActive() || faceToolActive();
         }
@@ -176,23 +176,23 @@ namespace TrenchBroom {
         void MapViewToolBox::toggleVertexTool() {
             toggleTool(vertexTool());
         }
-        
+
         bool MapViewToolBox::vertexToolActive() const {
             return toolActive(vertexTool());
         }
-        
+
         void MapViewToolBox::toggleEdgeTool() {
             toggleTool(edgeTool());
         }
-        
+
         bool MapViewToolBox::edgeToolActive() const {
             return toolActive(edgeTool());
         }
-        
+
         void MapViewToolBox::toggleFaceTool() {
             toggleTool(faceTool());
         }
-        
+
         bool MapViewToolBox::faceToolActive() const {
             return toolActive(faceTool());
         }
@@ -220,7 +220,7 @@ namespace TrenchBroom {
             m_vertexTool.reset(new VertexTool(document));
             m_edgeTool.reset(new EdgeTool(document));
             m_faceTool.reset(new FaceTool(document));
-            
+
             deactivateWhen(createComplexBrushTool(), moveObjectsTool());
             deactivateWhen(createComplexBrushTool(), resizeBrushesTool());
             deactivateWhen(createComplexBrushTool(), createSimpleBrushTool());
@@ -245,7 +245,7 @@ namespace TrenchBroom {
             deactivateWhen(clipTool(), moveObjectsTool());
             deactivateWhen(clipTool(), resizeBrushesTool());
             deactivateWhen(clipTool(), createSimpleBrushTool());
-            
+
             registerTool(moveObjectsTool(), bookCtrl);
             registerTool(rotateObjectsTool(), bookCtrl);
             registerTool(scaleObjectsTool(), bookCtrl);
@@ -259,7 +259,7 @@ namespace TrenchBroom {
             registerTool(createEntityTool(), bookCtrl);
             registerTool(createSimpleBrushTool(), bookCtrl);
         }
-        
+
         void MapViewToolBox::registerTool(Tool* tool, wxBookCtrlBase* bookCtrl) {
             tool->createPage(bookCtrl);
             addTool(tool);
@@ -268,28 +268,28 @@ namespace TrenchBroom {
         void MapViewToolBox::bindObservers() {
             toolActivatedNotifier.addObserver(this, &MapViewToolBox::toolActivated);
             toolDeactivatedNotifier.addObserver(this, &MapViewToolBox::toolDeactivated);
-            
+
             MapDocumentSPtr document = lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &MapViewToolBox::documentWasNewedOrLoaded);
             document->documentWasLoadedNotifier.addObserver(this, &MapViewToolBox::documentWasNewedOrLoaded);
         }
-        
+
         void MapViewToolBox::unbindObservers() {
             toolActivatedNotifier.removeObserver(this, &MapViewToolBox::toolActivated);
             toolDeactivatedNotifier.removeObserver(this, &MapViewToolBox::toolDeactivated);
-            
+
             if (!expired(m_document)) {
                 MapDocumentSPtr document = lock(m_document);
                 document->documentWasNewedNotifier.addObserver(this, &MapViewToolBox::documentWasNewedOrLoaded);
                 document->documentWasLoadedNotifier.addObserver(this, &MapViewToolBox::documentWasNewedOrLoaded);
             }
         }
-        
+
         void MapViewToolBox::toolActivated(Tool* tool) {
             updateEditorContext();
             tool->showPage();
         }
-        
+
         void MapViewToolBox::toolDeactivated(Tool* tool) {
             updateEditorContext();
             m_moveObjectsTool->showPage();

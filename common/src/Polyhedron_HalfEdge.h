@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -145,11 +145,11 @@ bool Polyhedron<T,FP,VP>::HalfEdge::colinear(const HalfEdge* other) const {
     ensure(other != nullptr, "other is null");
     assert(other != this);
     assert(destination() == other->origin());
-    
+
     const auto& p0 = origin()->position();
     const auto& p1 = destination()->position();
     const auto& p2 = other->destination()->position();
-    
+
     return vm::colinear(p0, p1, p2) && vm::dot(vector(), other->vector()) > 0.0;
 }
 

@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -23,23 +23,23 @@
 #include "TrenchBroom.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
-#include "Renderer/VertexSpec.h"
+#include "Renderer/GLVertexType.h"
 
 namespace TrenchBroom {
     namespace Renderer {
         class OrthographicCamera;
         class RenderContext;
         class Vbo;
-        
+
         class GridRenderer : public DirectRenderable {
         private:
-            using Vertex = VertexSpecs::P3::Vertex;
+            using Vertex = GLVertexTypes::P3::Vertex;
             VertexArray m_vertexArray;
         public:
             GridRenderer(const OrthographicCamera& camera, const vm::bbox3& worldBounds);
         private:
             static Vertex::List vertices(const OrthographicCamera& camera, const vm::bbox3& worldBounds);
-            
+
             void doPrepareVertices(Vbo& vertexVbo) override;
             void doRender(RenderContext& renderContext) override;
         };

@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -47,14 +47,14 @@ namespace TrenchBroom {
             m_name(name),
             m_flagIndex(flagIndex),
             m_setFlag(setFlag) {}
-            
+
             void doVisit(Model::World* world) override   { m_document->updateSpawnflag(m_name, m_flagIndex, m_setFlag); }
             void doVisit(Model::Layer* layer) override   {}
             void doVisit(Model::Group* group) override   {}
             void doVisit(Model::Entity* entity) override { m_document->updateSpawnflag(m_name, m_flagIndex, m_setFlag); }
             void doVisit(Model::Brush* brush) override   {}
         };
-        
+
         SmartSpawnflagsEditor::SmartSpawnflagsEditor(QWidget* parent, View::MapDocumentWPtr document) :
         SmartAttributeEditor(parent, document),
         m_scrolledWindow(nullptr),
@@ -69,20 +69,20 @@ namespace TrenchBroom {
                 return;
 
             const bool set = m_flagsEditor->isFlagSet(index);
-            
+
             const TemporarilySetBool ignoreUpdates(m_ignoreUpdates);
-            
+
             const Transaction transaction(document(), "Set Spawnflags");
             UpdateSpawnflag visitor(document(), name(), index, set);
             Model::Node::accept(std::begin(toUpdate), std::end(toUpdate), visitor);
         }
-        
+
         void SmartSpawnflagsEditor::createGui() {
             assert(m_scrolledWindow == nullptr);
-            
+
             m_scrolledWindow = new QScrollArea();
             //m_scrolledWindow->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
-            
+
             m_flagsEditor = new FlagsEditor(nullptr, NumCols);
             connect(m_flagsEditor, &FlagsEditor::flagChanged, this, &SmartSpawnflagsEditor::OnFlagChanged);
 
@@ -97,23 +97,23 @@ namespace TrenchBroom {
             assert(!attributables.empty());
             if (m_ignoreUpdates)
                 return;
-            
+
             QStringList labels;
             QStringList tooltips;
             getFlags(attributables, labels, tooltips);
             m_flagsEditor->setFlags(labels, tooltips);
-            
+
             int set, mixed;
             getFlagValues(attributables, set, mixed);
             m_flagsEditor->setFlagValue(set, mixed);
-            
+
 //            m_scrolledWindow->SetScrollRate(1, m_flagsEditor->lineHeight());
 //            m_scrolledWindow->Layout();
 //            m_scrolledWindow->FitInside();
 //            m_scrolledWindow->Refresh();
             resetScrollPos();
         }
-        
+
         void SmartSpawnflagsEditor::resetScrollPos() {
             // TODO: the y position is not properly set (at least on OS X)
 //            int xRate, yRate;
@@ -123,7 +123,7 @@ namespace TrenchBroom {
 
         void SmartSpawnflagsEditor::getFlags(const Model::AttributableNodeList& attributables, QStringList& labels, QStringList& tooltips) const {
             QStringList defaultLabels;
-            
+
             // Initialize the labels and tooltips.
             for (size_t i = 0; i < NumFlags; ++i) {
                 QString defaultLabel;
@@ -145,7 +145,7 @@ namespace TrenchBroom {
                         label = QString::fromStdString(flagDef->shortDescription());
                         tooltip = QString::fromStdString(flagDef->longDescription());
                     }
-                    
+
                     if (firstPass) {
                         labels[i] = label;
                         tooltips[i] = tooltip;
@@ -166,12 +166,12 @@ namespace TrenchBroom {
                 mixedFlags = 0;
                 return;
             }
-            
+
             Model::AttributableNodeList::const_iterator it = std::begin(attributables);
             Model::AttributableNodeList::const_iterator end = std::end(attributables);
             setFlags = getFlagValue(*it);
             mixedFlags = 0;
-            
+
             while (++it != end)
                 combineFlags(NumFlags, getFlagValue(*it), setFlags, mixedFlags);
         }

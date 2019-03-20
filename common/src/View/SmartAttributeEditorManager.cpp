@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -44,7 +44,7 @@ namespace TrenchBroom {
             activateEditor(defaultEditor(), "");
             bindObservers();
         }
-        
+
         SmartAttributeEditorManager::~SmartAttributeEditorManager() {
             unbindObservers();
         }
@@ -81,13 +81,13 @@ namespace TrenchBroom {
             }
             setLayout(m_stackedLayout);
         }
-        
+
         void SmartAttributeEditorManager::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
             document->selectionDidChangeNotifier.addObserver(this, &SmartAttributeEditorManager::selectionDidChange);
             document->nodesDidChangeNotifier.addObserver(this, &SmartAttributeEditorManager::nodesDidChange);
         }
-        
+
         void SmartAttributeEditorManager::unbindObservers() {
             if (!expired(m_document)) {
                 MapDocumentSPtr document = lock(m_document);
@@ -100,29 +100,29 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             switchEditor(m_name, document->allSelectedAttributableNodes());
         }
-        
+
         void SmartAttributeEditorManager::nodesDidChange(const Model::NodeList& nodes) {
             MapDocumentSPtr document = lock(m_document);
             switchEditor(m_name, document->allSelectedAttributableNodes());
         }
-        
+
         SmartAttributeEditorManager::EditorPtr SmartAttributeEditorManager::selectEditor(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) const {
             for (const auto& entry : m_editors) {
                 const MatcherPtr matcher = entry.first;
                 if (matcher->matches(name, attributables))
                     return entry.second;
             }
-            
+
             // should never happen
             assert(false);
             return defaultEditor();
         }
-    
+
 
         SmartAttributeEditorManager::EditorPtr SmartAttributeEditorManager::defaultEditor() const {
             return m_editors.back().second;
         }
-        
+
         void SmartAttributeEditorManager::activateEditor(EditorPtr editor, const Model::AttributeName& name) {
             if (m_stackedLayout->currentWidget() != editor || !activeEditor()->usesName(name)) {
                 deactivateEditor();
@@ -132,7 +132,7 @@ namespace TrenchBroom {
                 editor->activate(m_name);
             }
         }
-        
+
         void SmartAttributeEditorManager::deactivateEditor() {
             if (activeEditor() != nullptr) {
                 activeEditor()->deactivate();
