@@ -23,10 +23,12 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "constants.h"
 
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <cmath>
 #include <cstddef>
 #include <limits>
+#include <tuple>
 #include <type_traits>
 
 namespace vm {
@@ -49,7 +51,7 @@ namespace vm {
      */
     template <typename T>
     constexpr bool isnan(const T f) {
-        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
+        static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
 #ifdef _MSC_VER
         return _isnan(f) != 0;
 #else
@@ -66,7 +68,7 @@ namespace vm {
      */
     template <typename T>
     constexpr bool isInf(const T f) {
-        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
+        static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
         return (f ==  std::numeric_limits<T>::infinity() ||
                 f == -std::numeric_limits<T>::infinity());
     }
@@ -79,7 +81,7 @@ namespace vm {
      */
     template <typename T>
     constexpr T nan() {
-        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
+        static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
         return std::numeric_limits<T>::quiet_NaN();
     }
 
@@ -274,7 +276,7 @@ namespace vm {
      */
     template <typename T>
     constexpr T smoothstep(const T e0, const T e1, const T v) {
-        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
+        static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
         const auto t = clamp((v - e0) / (e1 - e0), T(0), T(1));
         return t * t * (T(3) - T(2) * t);
     }
@@ -289,7 +291,7 @@ namespace vm {
      */
     template <typename T>
     constexpr T mod(const T x, const T y) {
-        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
+        static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
         return std::fmod(x, y);
     }
 
@@ -302,7 +304,7 @@ namespace vm {
      */
     template <typename T>
     constexpr T floor(const T v) {
-        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
+        static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
         return std::floor(v);
     }
 
@@ -315,7 +317,7 @@ namespace vm {
      */
     template <typename T>
     constexpr T ceil(const T v) {
-        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
+        static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
         return std::ceil(v);
     }
 
@@ -370,7 +372,7 @@ namespace vm {
      */
     template <typename T>
     constexpr T round(const T v) {
-        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
+        static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
         return v > 0.0 ? floor(v + static_cast<T>(0.5)) : ceil(v - static_cast<T>(0.5));
     }
 
@@ -385,7 +387,7 @@ namespace vm {
      */
     template <typename T>
     constexpr T roundUp(const T v) {
-        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
+        static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
         return v < 0.0 ? floor(v) : ceil(v);
     }
 
@@ -400,7 +402,7 @@ namespace vm {
      */
     template <typename T>
     constexpr T roundDown(const T v) {
-        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
+        static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
         // this is equivalent to calling trunc
         // we keep this function for consistency because there is no equivalent function to roundUp
         return v > 0.0 ? floor(v) : ceil(v);
@@ -416,7 +418,7 @@ namespace vm {
      */
     template <typename T>
     constexpr T snap(const T v, const T grid) {
-        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
+        static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
         assert(grid != 0.0);
         return grid * round(v / grid);
     }
@@ -431,7 +433,7 @@ namespace vm {
      */
     template <typename T>
     constexpr T snapUp(const T v, const T grid) {
-        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
+        static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
         assert(grid > 0.0);
         return grid * roundUp(v / grid);
     }
@@ -446,7 +448,7 @@ namespace vm {
      */
     template <typename T>
     constexpr T snapDown(const T v, const T grid) {
-        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
+        static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
         assert(grid > 0.0);
         return grid * roundDown(v / grid);
     }
@@ -463,7 +465,7 @@ namespace vm {
      */
     template <typename T>
     constexpr T correct(const T v, const size_t decimals = 0, const T epsilon = constants<T>::correctEpsilon()) {
-        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
+        static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
         const T m = static_cast<T>(1 << decimals);
         const T r = round(v * m);
         if (abs(v - r) < epsilon) {
@@ -497,7 +499,7 @@ namespace vm {
      */
     template <typename T>
     constexpr bool isZero(const T v, const T epsilon) {
-        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
+        static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
         return abs(v) <= epsilon;
     }
 
@@ -529,7 +531,7 @@ namespace vm {
      */
     template <typename T>
     constexpr T toRadians(const T d) {
-        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
+        static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
         return d * constants<T>::piOverStraightAngle();
     }
 
@@ -542,7 +544,7 @@ namespace vm {
      */
     template <typename T>
     constexpr T toDegrees(const T r) {
-        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
+        static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
         return r * constants<T>::straightAngleOverPi();
     }
 
@@ -555,7 +557,7 @@ namespace vm {
      */
     template <typename T>
     constexpr T normalizeRadians(T angle) {
-        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
+        static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
         constexpr T z = static_cast<T>(0.0);
         constexpr T o = constants<T>::twoPi();
         while (angle < z) {
@@ -573,7 +575,7 @@ namespace vm {
      */
     template <typename T>
     constexpr T normalizeDegrees(T angle) {
-        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
+        static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
         constexpr T z = static_cast<T>(0.0);
         constexpr T o = static_cast<T>(360.0);
         while (angle < z) {
@@ -633,6 +635,237 @@ namespace vm {
 #else
         return std::nextafter(value, std::numeric_limits<T>::infinity());
 #endif
+    }
+
+    /**
+     * Solves a quadratic polynomial with the given coefficients and returns up to two solutions.
+     *
+     * The polynomial is of the form a*x^2 + b*x + c = 0.
+     *
+     * The first element of the returned tuple indicates the number of solutions (0, 1 or 2) and the second element
+     * contains an array with the solutions.
+     *
+     * @tparam T the type of the coefficients
+     * @param a the coefficient of the quadratic term
+     * @param b the coefficient of the linear term
+     * @param c the constant term
+     * @param epsilon the epsilon value for floating point comparison
+     * @return a tuple of the number of solutions and the solutions
+     */
+    template <typename T>
+    constexpr std::tuple<size_t, std::array<T,2>> solveQuadratic(const T a, const T b, const T c, const T epsilon) {
+        static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
+
+        // adapted from https://github.com/erich666/GraphicsGems/blob/master/gems/Roots3And4.c
+
+        // normal form: x^2 + px + q = 0
+        const auto p = b / (T(2.0) * a);  // actually p/2
+        const auto q = c / a;
+        const auto D = p * p - q;
+
+        if (isZero(D, epsilon)) {
+            return std::make_tuple(1, std::array<T,2>({
+                -p,
+                nan<T>()
+            }));
+        } else if (D < T(0.0)) {
+            return std::make_tuple(0, std::array<T,2>({
+                nan<T>(),
+                nan<T>()
+            }));
+        } else {
+            const auto D2 = std::sqrt(D);
+            return std::make_tuple(2, std::array<T,2>({
+                 D2 - p,
+                -D2 - p
+            }));
+        }
+    }
+
+    /**
+     * Solves a cubic polynomial with the given coefficients and returns up to three solutions.
+     *
+     * The polynomial is of the form a*x^3 + b*x^2 + c*x + d = 0.
+     *
+     * The first element of the returned tuple indicates the number of solutions (0, 1, 2 or 3), and the second element
+     * contains an array with the solutions.
+     *
+     * @tparam T the type of the coefficients
+     * @param a the coefficient of the cubic term
+     * @param b the coefficient of the quadratic term
+     * @param c the coefficient of the linear term
+     * @param d the constant term
+     * @param epsilon the epsilon value for floating point comparison
+     * @return a tuple of the number of solutions and the solutions
+     */
+    template <typename T>
+    constexpr std::tuple<size_t, std::array<T,3>> solveCubic(const T a, const T b, const T c, const T d, const T epsilon) {
+        static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
+
+        // adapted from https://github.com/erich666/GraphicsGems/blob/master/gems/Roots3And4.c
+
+        // normal form: x^3 + A*x^2 + B*x + C = 0
+        const auto A = b / a;
+        const auto B = c / a;
+        const auto C = d / a;
+
+        // substitute x = y - A/3 to eliminate quadratic term: x^3 + px + q = 0
+        const auto p = T(1.0 / 3.0) * (                           - T(1.0 / 3.0) * A * A + B);
+        const auto q = T(1.0 / 2.0) * ( T(2.0 / 27.0) * A * A * A - T(1.0 / 3.0) * A * B + C);
+
+        // use Cardano's formula
+        const auto p3 = p * p * p;
+        const auto D  = q * q + p3;
+
+        size_t num = 0;
+        auto solutions = std::array<T, 3>();
+        if (isZero(D, epsilon)) {
+            if (isZero(q, epsilon)) {
+                // one triple solution
+                num = 1;
+                solutions = {
+                    T(0.0),
+                    nan<T>(),
+                    nan<T>()
+                };
+            } else {
+                // one single and one double solution
+                const auto u = std::cbrt(-q);
+                num = 2;
+                solutions = {
+                     u * T(2.0),
+                    -u,
+                    nan<T>()
+                };
+            }
+        } else if (D < T(0.0)) {
+            // casus irreducibilis: three real solutions
+            const auto phi = T(1.0 / 3.0) * std::acos(-q / std::sqrt(-p3));
+            const auto t   = T(2.0) * std::sqrt(-p);
+            num = 3;
+            solutions = {
+                 t * std::cos(phi),
+                -t * std::cos(phi + constants<T>::pi() / T(3.0)),
+                -t * std::cos(phi - constants<T>::pi() / T(3.0))
+            };
+        } else {
+            // one real solution
+            const auto D2 =  std::sqrt(D);
+            const auto u  =  std::cbrt(D2 - q);
+            const auto v  = -std::cbrt(D2 + q);
+            num = 1;
+            solutions = {
+                u + v,
+                nan<T>(),
+                nan<T>()
+            };
+        }
+
+        // resubstitute
+        const auto sub = T(1.0 / 3.0) * A;
+        for (size_t i = 0; i < num; ++i) {
+            solutions[i] -= sub;
+        }
+
+        return std::make_tuple(num, solutions);
+    }
+
+
+    /**
+     * Solves a quartic polynomial with the given coefficients and returns up to four solutions.
+     *
+     * The polynomial is of the form a*x^4 + b*x^3 + c*x^2 + d*x + e = 0.
+     *
+     * The first element of the returned tuple indicates the number of solutions (0, 1, 2, 3 or 4)and the second element
+     * contains an array with the solutions.
+     *
+     * @tparam T the type of the coefficients
+     * @param a the coefficient of the quartic term
+     * @param b the coefficient of the cubic term
+     * @param c the coefficient of the quadratic term
+     * @param d the coefficient of the linear term
+     * @param e the constant term
+     * @param epsilon the epsilon value for floating point comparison
+     * @return a tuple of the number of solutions and the solutions
+     */
+    template <typename T>
+    constexpr std::tuple<size_t, std::array<T,4>> solveQuartic(const T a, const T b, const T c, const T d, const T e, const T epsilon) {
+        static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
+
+        // adapted from https://github.com/erich666/GraphicsGems/blob/master/gems/Roots3And4.c
+
+        // normal form: x^4 + A*x^3 + B*x^1 + C*x + D = 0
+        const auto A = b / a;
+        const auto B = c / a;
+        const auto C = d / a;
+        const auto D = e / a;
+
+        // substitute x = y - A/4 to eliminate cubic term: x^4 + px^2 + qx + r = 0
+        const auto p =                                                             - T(3.0 / 8.0) * A * A + B;
+        const auto q =                                   T(1.0 /  8.0) * A * A * A - T(1.0 / 2.0) * A * B + C;
+        const auto r = -T(3.0 / 256.0) * A * A * A * A + T(1.0 / 16.0) * A * A * B - T(1.0 / 4.0) * A * C + D;
+
+        size_t num = 0;
+        auto solutions = std::array<T,4>();
+        if (isZero(r, epsilon)) {
+            // no absolute term: y(y^3 + py + q) = 0
+            const auto [num3, solutions3] = solveCubic(T(1.0), T(0.0), p, q, epsilon);
+            for (size_t i = 0; i < num3; ++i) {
+                solutions[i] = solutions3[i];
+            }
+            num = num3 + 1;
+            solutions[num - 1] = T(0.0);
+        } else {
+            // solve the resolvent cubic ...
+            const auto [num3, solutions3] = solveCubic(
+                 T(1.0),
+                -T(1.0 / 2.0) * p,
+                -r,
+                 T(1.0 / 2.0) * r * p - T(1.0 / 8.0) * q * q,
+                epsilon);
+
+            // ... and take the one real solution ...
+            const auto z = solutions3[0];
+
+            // ... to build two quadratic equations
+            auto u =      z * z - r;
+            auto v = T(2.0) * z - p;
+
+            if (isZero(u, epsilon)) {
+                u = T(0.0);
+            } else if (u > T(0.0)) {
+                u = std::sqrt(u);
+            } else {
+                return std::make_tuple(0, std::array<T,4>({ nan<T>(), nan<T>(), nan<T>(), nan<T>() }));
+            }
+
+            if (isZero(v, epsilon)) {
+                v = T(0.0);
+            } else if (v > T(0.0)) {
+                v = std::sqrt(v);
+            } else {
+                return std::make_tuple(0, std::array<T,4>({ nan<T>(), nan<T>(), nan<T>(), nan<T>() }));
+            }
+
+            const auto [num2_1, solutions2_1] = solveQuadratic(T(1.0), q < T(0.0) ? -v :  v, z - u, epsilon);
+            const auto [num2_2, solutions2_2] = solveQuadratic(T(1.0), q < T(0.0) ?  v : -v, z + u, epsilon);
+
+            num = num2_1 + num2_2;
+            for (size_t i = 0; i < num2_1; ++i) {
+                solutions[i] = solutions2_1[i];
+            }
+            for (size_t i = 0; i < num2_2; ++i) {
+                solutions[i + num2_1] = solutions2_2[i];
+            }
+        }
+
+        // resubstitute
+        const auto sub = T(1.0 / 4.0) * A;
+        for (size_t i = 0; i < num; ++i) {
+            solutions[i] -= sub;
+        }
+
+        return std::make_tuple(num, solutions);
     }
 }
 
