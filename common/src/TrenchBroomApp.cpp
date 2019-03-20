@@ -322,7 +322,6 @@ namespace TrenchBroom {
             try {
                 auto& gameFactory = Model::GameFactory::instance();
                 gameFactory.initialize();
-                return true;
             } catch (const std::exception& e) {
                 qCritical() << e.what();
                 return false;
@@ -339,8 +338,8 @@ namespace TrenchBroom {
                 }
 
                 QMessageBox::critical(nullptr, "TrenchBroom", QString::fromStdString(str.str()), QMessageBox::Ok);
-                return true;
             }
+            return true;
         }
 
         static String makeCrashReport(const String &stacktrace, const String &reason) {
