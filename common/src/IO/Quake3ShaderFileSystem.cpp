@@ -53,9 +53,13 @@ namespace TrenchBroom {
                     const auto file = next().openFile(path);
                     auto bufferedReader = file->reader().buffer();
 
-                    Quake3ShaderParser parser(std::begin(bufferedReader), std::end(bufferedReader));
-                    SimpleParserStatus status(m_logger, file->path().asString());
-                    VectorUtils::append(result, parser.parse(status));
+                    try {
+                        Quake3ShaderParser parser(std::begin(bufferedReader), std::end(bufferedReader));
+                        SimpleParserStatus status(m_logger, file->path().asString());
+                        VectorUtils::append(result, parser.parse(status));
+                    } catch (const ParserException& e) {
+                        m_logger.warn() << "Skipping malformed shader file " << path << ": " << e.what();
+                    }
                 }
             }
 
