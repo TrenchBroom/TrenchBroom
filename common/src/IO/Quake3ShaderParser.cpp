@@ -146,7 +146,13 @@ namespace TrenchBroom {
 
         void Quake3ShaderParser::parseTexture(ParserStatus& status, Assets::Quake3Shader& shader) {
             const auto token = expect(Quake3ShaderToken::String, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
-            shader.shaderPath = Path(token.data());
+            const auto pathStr = token.data();
+            if (!pathStr.empty() && pathStr[0] == '/') {
+                // 2633: Q3 accepts absolute shader paths, so we just strip the leading slash
+                shader.shaderPath = Path(pathStr.substr(1));
+            } else {
+                shader.shaderPath = Path(token.data());
+            }
         }
 
         void Quake3ShaderParser::parseBodyEntry(ParserStatus& status, Assets::Quake3Shader& shader) {
