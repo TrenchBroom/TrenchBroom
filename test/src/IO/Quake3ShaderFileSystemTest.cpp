@@ -36,7 +36,35 @@ namespace TrenchBroom {
             NullLogger logger;
 
             const auto workDir = IO::Disk::getCurrentWorkingDir();
-            const auto testDir = workDir + Path("fixture/test/IO/Shader/fs");
+            const auto testDir = workDir + Path("fixture/test/IO/Shader/fs/linking");
+            const auto fallbackDir = testDir + Path("fallback");
+            const auto texturePrefix = Path("textures");
+            const auto shaderSearchPath = Path("scripts");
+            const auto textureSearchPaths = Path::List { texturePrefix };
+
+            // We need to add the fallback dir so that we can find "__TB_empty.png" which is automatically linked when
+            // no editor image is available.
+            std::shared_ptr<FileSystem> fs = std::make_shared<DiskFileSystem>(fallbackDir);
+            fs = std::make_shared<DiskFileSystem>(fs, testDir);
+            fs = std::make_shared<Quake3ShaderFileSystem>(fs, shaderSearchPath, textureSearchPaths, logger);
+
+            const auto items = fs->findItems(texturePrefix + Path("test"), FileExtensionMatcher(""));
+            ASSERT_EQ(5u, items.size());
+
+            assertShader(items, texturePrefix + Path("test/editor_image"));
+            assertShader(items, texturePrefix + Path("test/test"));
+            assertShader(items, texturePrefix + Path("test/test2"));
+            assertShader(items, texturePrefix + Path("test/not_existing"));
+            assertShader(items, texturePrefix + Path("test/not_existing2"));
+        }
+
+        TEST(Quake3ShaderFileSystemTest, testSkipMalformedFiles) {
+            NullLogger logger;
+
+            // There is one malformed shader script, this should be skipped.
+
+            const auto workDir = IO::Disk::getCurrentWorkingDir();
+            const auto testDir = workDir + Path("fixture/test/IO/Shader/fs/failing");
             const auto fallbackDir = testDir + Path("fallback");
             const auto texturePrefix = Path("textures");
             const auto shaderSearchPath = Path("scripts");
