@@ -57,7 +57,7 @@ namespace TrenchBroom {
 
             bool doCancel() override;
         private:
-            void updateBounds(const vm::vec3& point, vm::vec3 cameraPosition);
+            void updateBounds(const vm::vec3& point, const vm::vec3& cameraPosition);
         };
     }
 }

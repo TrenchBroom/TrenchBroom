@@ -186,7 +186,6 @@ namespace TrenchBroom {
 
             expect(status, DefToken::ODefinition, token);
 
-            StringList baseClasses;
             EntityDefinitionClassInfo classInfo;
 
             token = m_tokenizer.nextToken();
@@ -213,7 +212,6 @@ namespace TrenchBroom {
 
             expect(status, DefToken::Newline, token = m_tokenizer.nextToken());
 
-            Assets::AttributeDefinitionMap attributes;
             StringList superClasses;
             parseAttributes(status, classInfo, superClasses);
 
@@ -287,10 +285,10 @@ namespace TrenchBroom {
             Token token;
             expect(status, DefToken::OParenthesis, token = nextTokenIgnoringNewlines());
             expect(status, DefToken::QuotedString, token = nextTokenIgnoringNewlines());
-            const String attributeName = token.data();
+            // const String attributeName = token.data();
             expect(status, DefToken::Comma, token = nextTokenIgnoringNewlines());
             expect(status, DefToken::QuotedString, token = nextTokenIgnoringNewlines());
-            const String attributeValue = token.data();
+            // const String attributeValue = token.data();
             expect(status, DefToken::CParenthesis, token = nextTokenIgnoringNewlines());
         }
 

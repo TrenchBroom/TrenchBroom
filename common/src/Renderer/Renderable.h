@@ -20,7 +20,9 @@
 #ifndef TrenchBroom_Renderable
 #define TrenchBroom_Renderable
 
-#include <stdio.h>
+#include "Macros.h"
+
+#include <cstdio>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -29,24 +31,36 @@ namespace TrenchBroom {
 
         class Renderable {
         public:
-            virtual ~Renderable();
+            Renderable() = default;
+            virtual ~Renderable() = default;
+
             void render(RenderContext& renderContext);
         private:
             virtual void doRender(RenderContext& renderContext) = 0;
+
+            defineCopyAndMove(Renderable)
         };
 
         class DirectRenderable : public Renderable {
         public:
-            virtual ~DirectRenderable();
+            DirectRenderable() = default;
+            virtual ~DirectRenderable() = default;
+
             void prepareVertices(Vbo& vertexVbo);
         private:
             virtual void doPrepareVertices(Vbo& vertexVbo) = 0;
+
+            defineCopyAndMove(DirectRenderable)
         };
 
         class IndexedRenderable : public Renderable {
         public:
+            IndexedRenderable() = default;
             ~IndexedRenderable() override;
+
             virtual void prepareVerticesAndIndices(Vbo& vertexVbo, Vbo& indexVbo) = 0;
+
+            defineCopyAndMove(IndexedRenderable)
         };
     }
 }

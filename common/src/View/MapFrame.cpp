@@ -88,12 +88,15 @@ namespace TrenchBroom {
         m_frameManager(nullptr),
         m_autosaver(nullptr),
         m_autosaveTimer(nullptr),
+        m_hSplitter(nullptr),
+        m_vSplitter(nullptr),
         m_contextManager(nullptr),
         m_mapView(nullptr),
         m_console(nullptr),
         m_inspector(nullptr),
         m_lastFocus(nullptr),
         m_gridChoice(nullptr),
+        m_statusBar(nullptr),
         m_compilationDialog(nullptr),
         m_updateLocker(nullptr) {}
 
@@ -102,12 +105,15 @@ namespace TrenchBroom {
         m_frameManager(nullptr),
         m_autosaver(nullptr),
         m_autosaveTimer(nullptr),
+        m_hSplitter(nullptr),
+        m_vSplitter(nullptr),
         m_contextManager(nullptr),
         m_mapView(nullptr),
         m_console(nullptr),
         m_inspector(nullptr),
         m_lastFocus(nullptr),
         m_gridChoice(nullptr),
+        m_statusBar(nullptr),
         m_compilationDialog(nullptr),
         m_updateLocker(nullptr) {
             Create(frameManager, document);
@@ -296,7 +302,6 @@ namespace TrenchBroom {
             const IO::Path& originalPath = m_document->path();
             const IO::Path directory = originalPath.deleteLastComponent();
             const IO::Path filename = originalPath.lastComponent().replaceExtension("obj");
-            wxString wildcard;
 
             wxFileDialog saveDialog(this, "Export Wavefront OBJ file", directory.asString(), filename.asString(), "Wavefront OBJ files (*.obj)|*.obj", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
             if (saveDialog.ShowModal() == wxID_CANCEL)
@@ -1568,7 +1573,8 @@ namespace TrenchBroom {
         void MapFrame::OnUpdateUI(wxUpdateUIEvent& event) {
             if (IsBeingDeleted()) return;
 
-            const ActionManager& actionManager = ActionManager::instance();
+            const auto& actionManager = ActionManager::instance();
+            const auto& grid = m_document->grid();
 
             switch (event.GetId()) {
                 case wxID_OPEN:
@@ -1738,11 +1744,11 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::Menu::ViewToggleShowGrid:
                     event.Enable(true);
-                    event.Check(m_document->grid().visible());
+                    event.Check(grid.visible());
                     break;
                 case CommandIds::Menu::ViewToggleSnapToGrid:
                     event.Enable(true);
-                    event.Check(m_document->grid().snap());
+                    event.Check(grid.snap());
                     break;
                 case CommandIds::Menu::ViewIncGridSize:
                     event.Enable(canIncGridSize());
@@ -1752,51 +1758,51 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::Menu::ViewSetGridSize0Point125:
                     event.Enable(true);
-                    event.Check(m_document->grid().size() == -3);
+                    event.Check(grid.size() == -3);
                     break;
                 case CommandIds::Menu::ViewSetGridSize0Point25:
                     event.Enable(true);
-                    event.Check(m_document->grid().size() == -2);
+                    event.Check(grid.size() == -2);
                     break;
                 case CommandIds::Menu::ViewSetGridSize0Point5:
                     event.Enable(true);
-                    event.Check(m_document->grid().size() == -1);
+                    event.Check(grid.size() == -1);
                     break;
                 case CommandIds::Menu::ViewSetGridSize1:
                     event.Enable(true);
-                    event.Check(m_document->grid().size() == 0);
+                    event.Check(grid.size() == 0);
                     break;
                 case CommandIds::Menu::ViewSetGridSize2:
                     event.Enable(true);
-                    event.Check(m_document->grid().size() == 1);
+                    event.Check(grid.size() == 1);
                     break;
                 case CommandIds::Menu::ViewSetGridSize4:
                     event.Enable(true);
-                    event.Check(m_document->grid().size() == 2);
+                    event.Check(grid.size() == 2);
                     break;
                 case CommandIds::Menu::ViewSetGridSize8:
                     event.Enable(true);
-                    event.Check(m_document->grid().size() == 3);
+                    event.Check(grid.size() == 3);
                     break;
                 case CommandIds::Menu::ViewSetGridSize16:
                     event.Enable(true);
-                    event.Check(m_document->grid().size() == 4);
+                    event.Check(grid.size() == 4);
                     break;
                 case CommandIds::Menu::ViewSetGridSize32:
                     event.Enable(true);
-                    event.Check(m_document->grid().size() == 5);
+                    event.Check(grid.size() == 5);
                     break;
                 case CommandIds::Menu::ViewSetGridSize64:
                     event.Enable(true);
-                    event.Check(m_document->grid().size() == 6);
+                    event.Check(grid.size() == 6);
                     break;
                 case CommandIds::Menu::ViewSetGridSize128:
                     event.Enable(true);
-                    event.Check(m_document->grid().size() == 7);
+                    event.Check(grid.size() == 7);
                     break;
                 case CommandIds::Menu::ViewSetGridSize256:
                     event.Enable(true);
-                    event.Check(m_document->grid().size() == 8);
+                    event.Check(grid.size() == 8);
                     break;
                 case CommandIds::Menu::ViewMoveCameraToNextPoint:
                     event.Enable(canMoveCameraToNextPoint());

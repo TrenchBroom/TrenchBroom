@@ -51,11 +51,11 @@ namespace StringUtils {
         if (str.length() == 0)
             return str;
 
-        size_t first = str.find_first_not_of(chars.c_str());
+        size_t first = str.find_first_not_of(chars);
         if (first == String::npos)
             return "";
 
-        size_t last = str.find_last_not_of(chars.c_str());
+        size_t last = str.find_last_not_of(chars);
         if (first > last)
             return "";
 

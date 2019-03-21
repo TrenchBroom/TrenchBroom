@@ -519,7 +519,11 @@ namespace TrenchBroom {
             sortModifierKeys(m_modifier1, m_modifier2, m_modifier3);
         }
 
-        KeyboardShortcut::KeyboardShortcut(const wxString& string) {
+        KeyboardShortcut::KeyboardShortcut(const wxString& string) :
+        m_key(WXK_NONE),
+        m_modifier1(WXK_NONE),
+        m_modifier2(WXK_NONE),
+        m_modifier3(WXK_NONE) {
             wxStringInputStream stringStream(string);
             wxTextInputStream stream(stringStream, ':');
 

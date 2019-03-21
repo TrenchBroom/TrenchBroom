@@ -34,7 +34,7 @@ namespace TrenchBroom {
             return type++;
         }
 
-        Animation::Animation(const Type type, const Curve curve, const wxLongLong duration) :
+        Animation::Animation(const Type type, const Curve curve, const wxLongLong& duration) :
         m_type(type),
         m_curve(nullptr),
         m_duration(duration),
@@ -60,7 +60,7 @@ namespace TrenchBroom {
             return m_type;
         }
 
-        bool Animation::step(const wxLongLong delta) {
+        bool Animation::step(const wxLongLong& delta) {
             m_elapsed = std::min(m_elapsed + delta, m_duration);
             m_progress = m_elapsed.ToDouble() / m_duration.ToDouble();
             return m_elapsed >= m_duration;

@@ -62,7 +62,7 @@ namespace TrenchBroom {
 
         AutoCompleteTextControl::Helper::~Helper() {}
 
-        size_t AutoCompleteTextControl::Helper::ShouldStartCompletionAfterInput(const wxString& str, const wxUniChar c, const size_t insertPos) const {
+        size_t AutoCompleteTextControl::Helper::ShouldStartCompletionAfterInput(const wxString& str, const wxUniChar& c, const size_t insertPos) const {
             wxASSERT(insertPos <= str.Length());
             return DoShouldStartCompletionAfterInput(str, c, insertPos);
         }
@@ -77,7 +77,7 @@ namespace TrenchBroom {
             return DoGetCompletions(str, startIndex, count);
         }
 
-        size_t AutoCompleteTextControl::DefaultHelper::DoShouldStartCompletionAfterInput(const wxString& str, const wxUniChar c, const size_t insertPos) const {
+        size_t AutoCompleteTextControl::DefaultHelper::DoShouldStartCompletionAfterInput(const wxString& str, const wxUniChar& c, const size_t insertPos) const {
             return str.Length();
         }
 
@@ -240,12 +240,14 @@ namespace TrenchBroom {
         AutoCompleteTextControl::AutoCompleteTextControl() :
         wxTextCtrl(),
         m_helper(nullptr),
-        m_autoCompletionPopup(nullptr) {}
+        m_autoCompletionPopup(nullptr),
+        m_currentStartIndex(0) {}
 
         AutoCompleteTextControl::AutoCompleteTextControl(wxWindow* parent, wxWindowID id, const wxString& value, const wxPoint& pos, const wxSize& size, long style, const wxValidator& validator, const wxString& name) :
         wxTextCtrl(),
         m_helper(nullptr),
-        m_autoCompletionPopup(nullptr) {
+        m_autoCompletionPopup(nullptr),
+        m_currentStartIndex(0) {
             Create(parent, id, value, pos, size, style, validator, name);
         }
 

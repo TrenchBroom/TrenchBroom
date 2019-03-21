@@ -27,6 +27,8 @@ namespace TrenchBroom {
         ToolBoxConnector::ToolBoxConnector() :
         m_toolBox(nullptr),
         m_toolChain(new ToolChain()),
+        m_lastMouseX(0),
+        m_lastMouseY(0),
         m_ignoreNextDrag(false) {}
 
         ToolBoxConnector::~ToolBoxConnector() {

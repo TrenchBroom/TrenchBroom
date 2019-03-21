@@ -269,7 +269,7 @@ namespace TrenchBroom {
             newY = invPitch * invYaw * transformation * rotation * vm::vec3::pos_y;
             newZ = invPitch * invYaw * transformation * rotation * vm::vec3::pos_z;
 
-            if (std::abs(newY.x()) < std::abs(newY.x())) {
+            if (std::abs(newY.x()) < std::abs(newZ.x())) {
                 newY = normalize(vm::vec3(0.0, newY.y(), newY.z()));
                 roll = measureAngle(newY, vm::vec3::pos_y, vm::vec3::pos_x);
             } else {

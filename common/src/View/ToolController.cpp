@@ -118,7 +118,10 @@ namespace TrenchBroom {
         m_occludedTypeSet(false),
         m_minDistanceSet(false),
         m_pickable(false),
-        m_selected(false) {}
+        m_selected(false),
+        m_hitTypeValue(Model::Hit::NoType),
+        m_occludedTypeValue(Model::Hit::NoType),
+        m_minDistanceValue(FloatType(0)) {}
 
         SurfaceDragHelper::~SurfaceDragHelper() = default;
 
@@ -272,7 +275,9 @@ namespace TrenchBroom {
         }
 
         RestrictedDragPolicy::DragInfo::DragInfo() :
-        restricter(nullptr) {}
+        restricter(nullptr),
+        snapper(nullptr),
+        computeInitialHandlePosition(false) {}
 
         RestrictedDragPolicy::DragInfo::DragInfo(DragRestricter* i_restricter, DragSnapper* i_snapper) :
         restricter(i_restricter),

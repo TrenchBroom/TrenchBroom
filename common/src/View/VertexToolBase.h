@@ -437,7 +437,7 @@ namespace TrenchBroom {
                 }
             }
 
-            bool isVertexCommand(const Command::Ptr command) const {
+            bool isVertexCommand(const Command::Ptr& command) const {
                 return command->isType(
                         AddBrushVerticesCommand::Type,
                         RemoveBrushVerticesCommand::Type,

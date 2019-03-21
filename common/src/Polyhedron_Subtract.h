@@ -106,7 +106,7 @@ private:
         auto it = std::begin(planes);
         it = sortPlanes(it, std::end(planes), VList({ V::pos_x, V::pos_y, V::pos_z }));
         it = sortPlanes(it, std::end(planes), VList({ V::pos_y, V::pos_x, V::pos_z }));
-        it = sortPlanes(it, std::end(planes), VList({ V::pos_z, V::pos_x, V::pos_y }));
+             sortPlanes(it, std::end(planes), VList({ V::pos_z, V::pos_x, V::pos_y }));
 
         return planes;
     }

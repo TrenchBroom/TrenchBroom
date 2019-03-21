@@ -527,7 +527,6 @@ namespace TrenchBroom {
             Notifier<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             Notifier<const Model::NodeList&>::NotifyBeforeAndAfter notifyDescendants(nodesWillChangeNotifier, nodesDidChangeNotifier, descendants);
 
-            static const Model::AttributeValue DefaultValue = "";
             Model::EntityAttributeSnapshot::Map snapshot;
 
             for (Model::AttributableNode* node : attributableNodes) {
@@ -927,8 +926,6 @@ namespace TrenchBroom {
             Notifier<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             Notifier<>::NotifyAfter notifyMods(modsDidChangeNotifier);
 
-            const String newValue = StringUtils::join(mods, ";");
-
             unsetEntityModels();
             unsetEntityDefinitions();
             clearEntityModels();
@@ -936,7 +933,8 @@ namespace TrenchBroom {
             if (mods.empty()) {
                 m_world->removeAttribute(Model::AttributeNames::Mods);
             } else {
-                m_world->addOrUpdateAttribute(Model::AttributeNames::Mods, StringUtils::join(mods, ";"));
+                const String newValue = StringUtils::join(mods, ";");
+                m_world->addOrUpdateAttribute(Model::AttributeNames::Mods, newValue);
             }
 
             updateGameSearchPaths();

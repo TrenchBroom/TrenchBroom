@@ -37,7 +37,7 @@ namespace TrenchBroom {
             Renderer::MapRenderer& m_renderer;
             wxWindow& m_view;
         public:
-            FlashSelectionAnimation(Renderer::MapRenderer& renderer, wxWindow& view, wxLongLong duration);
+            FlashSelectionAnimation(Renderer::MapRenderer& renderer, wxWindow& view, const wxLongLong& duration);
         private:
             void doUpdate(double progress) override;
         };
