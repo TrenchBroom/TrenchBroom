@@ -181,6 +181,18 @@ namespace vm {
         ASSERT_TRUE(isnan(intersect(ray, vec3f(3.0f, 2.0f, 2.0f), 1.0f)));
     }
 
+    TEST(IntersectionTest, intersectRayAndTorus) {
+        ASSERT_FLOAT_EQ(4.0f, intersect(ray3f(vec3f::zero, vec3f::pos_y), vec3f::zero, 5.0f, 1.0f));
+        ASSERT_FLOAT_EQ(4.0f, intersect(ray3f(vec3f::zero, vec3f::pos_x), vec3f::zero, 5.0f, 1.0f));
+
+        ASSERT_FLOAT_EQ(4.0f, intersect(ray3f(vec3f(0.0f, -10.0f, 0.0f), vec3f::pos_y), vec3f::zero, 5.0f, 1.0f));
+        ASSERT_FLOAT_EQ(4.0f, intersect(ray3f(vec3f(-10.0f, 0.0f, 0.0f), vec3f::pos_x), vec3f::zero, 5.0f, 1.0f));
+
+        ASSERT_FLOAT_EQ(4.0f, intersect(ray3f(vec3f(0.0f, -5.0f, 5.0f), vec3f::neg_z), vec3f::zero, 5.0f, 1.0f));
+
+        ASSERT_TRUE(isnan(intersect(ray3f(vec3f::zero, vec3f::pos_z), vec3f::zero, 5.0f, 1.0f)));
+    }
+
     TEST(IntersectionTest, intersectLineAndPlane) {
         const plane3f p(5.0f, vec3f::pos_z);
         const line3f l(vec3f(0, 0, 15), normalize(vec3f(1,0,-1)));

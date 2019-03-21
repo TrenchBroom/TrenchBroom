@@ -449,7 +449,35 @@ namespace vm {
      */
     template <typename T, size_t S>
     T intersect(const ray<T,S>& r, const vec<T,S>& position, const T majorRadius, const T minorRadius) {
+        // see https://marcin-chwedczuk.github.io/ray-tracing-torus
 
+        const auto dd = vm::dot(r.direction, r.direction);
+        const auto od = vm::dot(r.origin, r.direction);
+        const auto oo = vm::dot(r.origin, r.origin);
+        const auto MM = majorRadius * majorRadius;
+        const auto mm = minorRadius * minorRadius;
+        const auto dz = r.direction.z();
+        const auto oz = r.origin.z();
+        const auto omM = oo - mm - MM;
+
+        const auto a = dd * dd;
+        const auto b = T(4.0) * dd * od;
+        const auto c = T(2.0) * dd * omM + T(4.0) * (od * od + MM * dz * dz);
+        const auto d = T(4.0) * od * omM + T(8.0) * MM * oz * dz;
+        const auto e = omM * omM - T(4.0) * MM * (mm - oz * oz);
+
+        const auto [num, solutions] = vm::solveQuartic(a, b, c, d, e, vm::constants<T>::almostZero());
+        if (num == 0) {
+            return vm::nan<T>();
+        } else {
+            T closestDistance = std::numeric_limits<T>::max();
+            for (size_t i = 0; i < num; ++i) {
+                if (solutions[i] > T(0.0)) {
+                    closestDistance = vm::min(closestDistance, solutions[i]);
+                }
+            }
+            return closestDistance;
+        }
     }
 
     /**
