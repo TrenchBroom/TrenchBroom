@@ -434,6 +434,25 @@ namespace vm {
     }
 
     /**
+     * Computes the point of intersection between the given ray and a torus centered at the given position and with the
+     * given tube distance and radii. Note that the torus is assumed to be in the XY plane.
+     *
+     * The given major radius is expected to be larger than the given minor radius.
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param r the ray
+     * @param position the position of the torus (its center)
+     * @param majorRadius the major radius (the distance between the tube's center and the center of the torus)
+     * @param minorRadius the minor radius (the radius of the tube)
+     * @return the distance to the closest intersection point, or NaN if the given ray does not intersect the given torus
+     */
+    template <typename T, size_t S>
+    T intersect(const ray<T,S>& r, const vec<T,S>& position, const T majorRadius, const T minorRadius) {
+
+    }
+
+    /**
      * Computes the point of intersection between the given ray and the given bounding box, and returns the distance
      * on the given line from the line's anchor to that point.
      *
