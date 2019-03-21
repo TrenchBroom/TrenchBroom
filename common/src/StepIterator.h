@@ -31,45 +31,46 @@ public:
     using pointer = typename I::pointer;
     using reference = typename I::reference;
 private:
-    I m_delegate;
+    I m_cur;
+    I m_end;
     difference_type m_stride;
-    bool m_initialStep;
 public:
-    StepIterator(I delegate, const difference_type offset = 0, const difference_type stride = 1) :
-    m_delegate(delegate),
+    StepIterator(I cur, I end, const difference_type offset = 0, const difference_type stride = 1) :
+    m_cur(cur),
+    m_end(end),
     m_stride(stride) {
-        std::advance(m_delegate, offset);
+        increment(offset);
     }
 
-    bool operator<(const StepIterator& other) const  { return m_delegate < other.m_delegate; }
-    bool operator>(const StepIterator& other) const  { return m_delegate > other.m_delegate; }
-    bool operator==(const StepIterator& other) const { return m_delegate == other.m_delegate; }
-    bool operator!=(const StepIterator& other) const { return m_delegate != other.m_delegate; }
+    bool operator<(const StepIterator& other) const  { return m_cur < other.m_cur; }
+    bool operator>(const StepIterator& other) const  { return m_cur > other.m_cur; }
+    bool operator==(const StepIterator& other) const { return m_cur == other.m_cur; }
+    bool operator!=(const StepIterator& other) const { return m_cur != other.m_cur; }
 
     // prefix increment
     StepIterator& operator++() {
-        increment();
+        increment(m_stride);
         return *this;
     }
 
     // postfix increment
     StepIterator operator++(int) {
         auto result = StepIterator(*this);
-        increment();
+        increment(m_stride);
         return result;
     }
 
-    reference operator*() const { return *m_delegate; }
-    pointer operator->() const { return *m_delegate; }
+    reference operator*() const { return *m_cur; }
+    pointer operator->() const { return *m_cur; }
 private:
-    void increment() {
-        std::advance(m_delegate, m_stride);
+    void increment(const typename I::difference_type distance) {
+        std::advance(m_cur, std::min(distance, m_end - m_cur));
     }
 };
 
 template <typename I>
-StepIterator<I> stepIterator(I delegate, const typename I::difference_type offset = 0, const typename I::difference_type stride = 1) {
-    return StepIterator<I>(delegate, offset, stride);
+StepIterator<I> stepIterator(I cur, I end, const typename I::difference_type offset = 0, const typename I::difference_type stride = 1) {
+    return StepIterator<I>(cur, end, offset, stride);
 }
 
 #endif //TRENCHBROOM_STEPITERATOR_H
