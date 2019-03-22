@@ -344,7 +344,7 @@ namespace TrenchBroom {
                     advance();
                 }
                 errorIfEof();
-                const auto* end = curPos();
+                const auto end = curPos();
                 advance();
                 return end;
             }
