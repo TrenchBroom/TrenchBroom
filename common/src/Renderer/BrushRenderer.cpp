@@ -177,7 +177,8 @@ namespace TrenchBroom {
                     continue;
                 }
                 // if it's not in the invalid set, put it in
-                if (auto it = m_invalidBrushes.find(brush); it == m_invalidBrushes.end()) {
+                const auto it = m_invalidBrushes.find(brush);
+                if (it == m_invalidBrushes.end()) {
                     removeBrushFromVbo(brush);
                     m_invalidBrushes.insert(brush);
                 }
