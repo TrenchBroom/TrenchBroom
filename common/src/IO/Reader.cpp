@@ -53,7 +53,7 @@ namespace TrenchBroom {
 
         void Reader::Source::ensurePosition(const size_t position) const {
             if (position > size()) {
-                throw ReaderException() << "Position is out of bounds";
+                throw ReaderException() << "Position " << position << " is out of bounds for reader of size " << size();
             }
         }
 
@@ -219,7 +219,7 @@ namespace TrenchBroom {
 
         void Reader::seekBackward(const size_t offset) {
             if (offset > position()) {
-                throw ReaderException() << "Position is out of bounds";
+                throw ReaderException() << "Cannot seek beyond start of reader at position " << position() << " with offset " << offset;
             }
             seekFromBegin(position() - offset);
         }

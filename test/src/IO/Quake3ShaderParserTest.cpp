@@ -512,7 +512,35 @@ waterBubble
             ASSERT_NO_THROW(parser.parse(status));
         }
 
-        void assertShaders(const std::vector<Assets::Quake3Shader>& expected, const std::vector<Assets::Quake3Shader>& actual) {
+
+        TEST(Quake3ShaderParserTest, parseShaderAbsolutePath) {
+            // see https://github.com/kduske/TrenchBroom/issues/2633
+            // apparently, the Q3 engine can handle this
+
+            const String data(R"(
+/textures/eerie/ironcrosslt2_10000
+{
+    qer_editorimage textures/gothic_light/ironcrosslt2.tga
+    //base TGA (used because the shader is used with several
+    // different light values
+
+})");
+            const auto expected = std::vector<Assets::Quake3Shader>{
+                {
+                    IO::Path("textures/eerie/ironcrosslt2_10000"), // shaderPath
+                    IO::Path("textures/gothic_light/ironcrosslt2.tga"), // editorImage
+                    IO::Path(), // lightImage
+                    Assets::Quake3Shader::Culling::Front, // culling
+                    {}, // surfaceParms
+                    {} // stages
+                }
+            };
+            Quake3ShaderParser parser(data);
+            TestParserStatus status;
+            assertShaders(expected, parser.parse(status));
+        }
+
+            void assertShaders(const std::vector<Assets::Quake3Shader>& expected, const std::vector<Assets::Quake3Shader>& actual) {
             ASSERT_EQ(expected.size(), actual.size());
             for (const auto& expectedShader : expected) {
                 auto it = std::find(std::begin(actual), std::end(actual), expectedShader);
