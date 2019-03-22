@@ -127,7 +127,7 @@ namespace TrenchBroom {
             wxGridCellAttr* GetAttr(int row, int col, wxGridCellAttr::wxAttrKind kind) override;
 
             void update();
-            String tooltip(wxGridCellCoords cellCoords) const;
+            String tooltip(const wxGridCellCoords& cellCoords) const;
             Model::AttributeName attributeName(int row) const;
             int rowForName(const Model::AttributeName& name) const;
             bool canRemove(int row);

@@ -393,7 +393,6 @@ namespace TrenchBroom {
 
             const auto moveNodes = visitor.moveNodes();
             if (!moveNodes.empty()) {
-                const auto selectNodes = visitor.selectNodes();
                 document->deselectAll();
                 document->reparentNodes(layer, visitor.moveNodes());
                 if (!layer->hidden() && !layer->locked()) {

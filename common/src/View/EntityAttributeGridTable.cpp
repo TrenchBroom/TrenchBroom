@@ -322,19 +322,21 @@ namespace TrenchBroom {
 
         wxString EntityAttributeGridTable::GetValue(const int row, const int col) {
             // Fixes a problem when the user deselects everything while editing an entity property.
-            if (row < 0 || col < 0)
+            if (row < 0 || col < 0) {
                 return wxEmptyString;
+            }
 
-            ensure(row >= 0 && row < GetRowsCount(), "row index out of bounds");
-            ensure(col >= 0 && col < GetColsCount(), "column index out of bounds");
+            ensure(row < GetRowsCount(), "row index out of bounds");
+            ensure(col < GetColsCount(), "column index out of bounds");
 
             const size_t rowIndex = static_cast<size_t>(row);
-            if (col == 0)
+            if (col == 0) {
                 return m_rows.name(rowIndex);
-
-            if (m_rows.multi(rowIndex))
+            } else if (m_rows.multi(rowIndex)) {
                 return "multi";
-            return m_rows.value(rowIndex);
+            } else {
+                return m_rows.value(rowIndex);
+            }
         }
 
         void EntityAttributeGridTable::SetValue(const int row, const int col, const wxString& value) {
@@ -487,7 +489,7 @@ namespace TrenchBroom {
             notifyRowsUpdated(0, newRowCount);
         }
 
-        String EntityAttributeGridTable::tooltip(const wxGridCellCoords cellCoords) const {
+        String EntityAttributeGridTable::tooltip(const wxGridCellCoords& cellCoords) const {
             if (cellCoords.GetRow() < 0 || cellCoords.GetRow() >= GetRowsCount())
                 return "";
 

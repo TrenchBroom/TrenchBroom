@@ -104,7 +104,7 @@ namespace TrenchBroom {
             }
 
             reader.seekFromBegin(BspLayout::DirTexturesAddress);
-            const auto textureOffset = reader.readSize<int32_t>();
+            /* const auto textureOffset = */ reader.readSize<int32_t>();
             /* const auto textureLength = */ reader.readSize<int32_t>();
 
             reader.seekFromBegin(BspLayout::DirTexInfosAddress);
@@ -135,7 +135,6 @@ namespace TrenchBroom {
             reader.seekFromBegin(BspLayout::DirModelAddress);
             const auto modelsOffset = reader.readSize<int32_t>();
 
-            const auto textures = parseTextures(reader.subReaderFromBegin(textureOffset));
             const auto textureInfos = parseTextureInfos(reader.subReaderFromBegin(textureInfoOffset), textureInfoCount);
             const auto vertices = parseVertices(reader.subReaderFromBegin(vertexOffset), vertexCount);
             const auto edgeInfos = parseEdgeInfos(reader.subReaderFromBegin(edgeInfoOffset), edgeInfoCount);

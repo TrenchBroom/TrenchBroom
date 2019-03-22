@@ -359,7 +359,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool CommandProcessor::collatable(const bool collate, const wxLongLong timestamp) const {
+        bool CommandProcessor::collatable(const bool collate, const wxLongLong& timestamp) const {
             return collate && !m_lastCommandStack.empty() && timestamp - m_lastCommandTimestamp <= CollationInterval;
         }
 

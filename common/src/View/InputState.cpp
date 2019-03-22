@@ -77,7 +77,7 @@ namespace TrenchBroom {
                 return true;
             if (key3 != ModifierKeys::MKDontCare && modifierKeysPressed(key3))
                 return true;
-            if (key3 != ModifierKeys::MKDontCare && modifierKeysPressed(key3))
+            if (key4 != ModifierKeys::MKDontCare && modifierKeysPressed(key4))
                 return true;
             return false;
         }

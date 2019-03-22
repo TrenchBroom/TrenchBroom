@@ -94,7 +94,8 @@ namespace TrenchBroom {
         }
 
         ClipToolController::AddClipPointPart::AddClipPointPart(Callback* callback) :
-        PartBase(callback) {}
+        PartBase(callback),
+        m_secondPointSet(false) {}
 
         Tool* ClipToolController::AddClipPointPart::doGetTool() {
             return m_callback->tool();

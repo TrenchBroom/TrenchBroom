@@ -718,7 +718,6 @@ namespace TrenchBroom {
         }
 
         void MapDocument::closeRemovedGroups(const Model::ParentChildrenMap& toRemove) {
-            Model::ParentChildrenMap::const_iterator mIt, mEnd;
             for (const auto& entry : toRemove) {
                 const Model::NodeList& nodes = entry.second;
                 for (const Model::Node* node : nodes) {
@@ -1523,7 +1522,7 @@ namespace TrenchBroom {
         }
 
         void MapDocument::clearWorld() {
-            m_world.release();
+            m_world.reset();
             m_currentLayer = nullptr;
         }
 

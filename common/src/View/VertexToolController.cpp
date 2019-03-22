@@ -80,17 +80,18 @@ namespace TrenchBroom {
         };
 
         class VertexToolController::MoveVertexPart : public MovePartBase {
-        public:
-            MoveVertexPart(VertexTool* tool) :
-            MovePartBase(tool, VertexHandleManager::HandleHit) {}
         private:
-            typedef enum {
-                ST_Relative,
-                ST_Absolute
-            } SnapType;
+            enum class SnapType {
+                Relative,
+                Absolute
+            };
 
             SnapType m_lastSnapType;
             vm::vec3 m_handleOffset;
+        public:
+            MoveVertexPart(VertexTool* tool) :
+            MovePartBase(tool, VertexHandleManager::HandleHit),
+            m_lastSnapType(SnapType::Relative) {}
         private:
             void doModifierKeyChange(const InputState& inputState) override {
                 MoveToolController::doModifierKeyChange(inputState);
@@ -148,11 +149,11 @@ namespace TrenchBroom {
 
             DragSnapper* doCreateDragSnapper(const InputState& inputState) const override {
                 switch (snapType(inputState)) {
-                    case ST_Absolute:
+                    case SnapType::Absolute:
                         return new AbsoluteDragSnapper(m_tool->grid(), m_handleOffset);
-                    case ST_Relative:
+                    case SnapType::Relative:
                         return new DeltaDragSnapper(m_tool->grid());
-                        switchDefault();
+                    switchDefault();
                 }
             }
 
@@ -173,9 +174,11 @@ namespace TrenchBroom {
             }
         private:
             SnapType snapType(const InputState& inputState) const {
-                if (inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd))
-                    return ST_Absolute;
-                return ST_Relative;
+                if (inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd)) {
+                    return SnapType::Absolute;
+                } else {
+                    return SnapType::Relative;
+                }
             }
         private:
             const Model::Hit doFindDraggableHandle(const InputState& inputState) const override {

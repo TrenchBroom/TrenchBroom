@@ -31,7 +31,7 @@ namespace TrenchBroom {
             return progress;
         }
 
-        EaseInEaseOutAnimationCurve::EaseInEaseOutAnimationCurve(const wxLongLong duration) {
+        EaseInEaseOutAnimationCurve::EaseInEaseOutAnimationCurve(const wxLongLong& duration) {
             if (duration < 100 + 100)
                 m_threshold = 0.5;
             else

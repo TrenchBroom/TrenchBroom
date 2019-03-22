@@ -15,5 +15,9 @@ Thumbs.db
 /vs2015
 /vs2017
 /.idea
+/coverity
 
 app/resources/documentation/help/index.html
+
+app/resources/games-testing/Wrath
+app/resources/games-testing/SteelStorm

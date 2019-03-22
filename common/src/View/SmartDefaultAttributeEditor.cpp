@@ -29,7 +29,8 @@
 namespace TrenchBroom {
     namespace View {
         SmartDefaultAttributeEditor::SmartDefaultAttributeEditor(View::MapDocumentWPtr document) :
-        SmartAttributeEditor(document) {}
+        SmartAttributeEditor(document),
+        m_panel(nullptr) {}
 
         wxWindow* SmartDefaultAttributeEditor::doCreateVisual(wxWindow* parent) {
             m_panel = new wxPanel(parent);
