@@ -50,7 +50,7 @@ namespace TrenchBroom {
         m_attributes(std::move(attributes)) {}
 
         Tag::Tag(String name, std::vector<TagAttribute> attributes) :
-        Tag(0, name, attributes) {}
+        Tag(0, std::move(name), attributes) {}
 
         Tag::~Tag() = default;
 
@@ -207,7 +207,7 @@ namespace TrenchBroom {
         }
 
         SmartTag::SmartTag(String name, std::vector<TagAttribute> attributes, std::unique_ptr<TagMatcher> matcher) :
-        Tag(name, attributes),
+        Tag(std::move(name), attributes),
         m_matcher(std::move(matcher)) {}
 
         SmartTag::SmartTag(const SmartTag& other) :
