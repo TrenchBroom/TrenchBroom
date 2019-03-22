@@ -202,8 +202,10 @@ public:
         }
 
         iterator_base& operator=(const iterator_base& other) {
-            delete m_delegate;
-            m_delegate = other.m_delegate->clone();
+            if (this != &other) {
+                delete m_delegate;
+                m_delegate = other.m_delegate->clone();
+            }
             return *this;
         }
 
