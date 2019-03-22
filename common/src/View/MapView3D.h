@@ -101,7 +101,7 @@ namespace TrenchBroom {
             vm::vec3 focusCameraOnObjectsPosition(const Model::NodeList& nodes);
 
             void doMoveCameraToPosition(const vm::vec3& position, bool animate) override;
-            void animateCamera(const vm::vec3f& position, const vm::vec3f& direction, const vm::vec3f& up, const wxLongLong duration = DefaultCameraAnimationDuration);
+            void animateCamera(const vm::vec3f& position, const vm::vec3f& direction, const vm::vec3f& up, const wxLongLong& duration = DefaultCameraAnimationDuration);
 
             void doMoveCameraToCurrentTracePoint() override;
         private: // implement MapViewBase interface

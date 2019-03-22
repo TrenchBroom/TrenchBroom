@@ -39,7 +39,6 @@ namespace TrenchBroom {
                 ensure(file.get() != nullptr, "file is null");
 
                 const Path path = file->path();
-                const String textureName = path.lastComponent().asString();
                 const String extension = StringUtils::toLower(path.extension());
 
                 if (extension == "wal") {

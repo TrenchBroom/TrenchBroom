@@ -30,7 +30,7 @@ namespace TrenchBroom {
     namespace View {
         const Animation::Type FlashSelectionAnimation::AnimationType = Animation::freeType();
 
-        FlashSelectionAnimation::FlashSelectionAnimation(Renderer::MapRenderer& renderer, wxWindow& view, const wxLongLong duration) :
+        FlashSelectionAnimation::FlashSelectionAnimation(Renderer::MapRenderer& renderer, wxWindow& view, const wxLongLong& duration) :
         Animation(AnimationType, Curve_EaseInEaseOut, duration),
         m_renderer(renderer),
         m_view(view) {}

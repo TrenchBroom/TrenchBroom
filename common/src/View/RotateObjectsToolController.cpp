@@ -52,7 +52,9 @@ namespace TrenchBroom {
             FloatType m_angle;
         protected:
             explicit RotateObjectsBase(RotateObjectsTool* tool) :
-            m_tool(tool) {
+            m_tool(tool),
+            m_area(RotateObjectsHandle::HitArea_None),
+            m_angle(FloatType(0.0)) {
                 ensure(m_tool != nullptr, "tool is null");
             }
         private:

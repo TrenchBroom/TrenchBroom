@@ -259,7 +259,7 @@ namespace TrenchBroom {
         vm::bbox3 moveBBoxSide(const vm::bbox3 &in,
                            const BBoxSide &side,
                            const vm::vec3 &delta,
-                           ProportionalAxes proportional,
+                           const ProportionalAxes& proportional,
                            AnchorPos anchorType) {
             auto sideLengthDelta = dot(side.normal, delta);
 
@@ -442,7 +442,7 @@ namespace TrenchBroom {
         vm::bbox3 moveBBoxForHit(const vm::bbox3& bboxAtDragStart,
                              const Model::Hit& dragStartHit,
                              const vm::vec3& delta,
-                             const ProportionalAxes proportional,
+                             const ProportionalAxes& proportional,
                              const AnchorPos anchor) {
             if (dragStartHit.type() == ScaleObjectsTool::ScaleToolSideHit) {
                 const auto endSide = dragStartHit.target<BBoxSide>();
@@ -641,7 +641,7 @@ namespace TrenchBroom {
         /**
          * For dragging a corner retursn the 3 sides that touch that corner
          */
-        static std::vector<BBoxSide> sidesForCornerSelection(const BBoxCorner corner) {
+        static std::vector<BBoxSide> sidesForCornerSelection(const BBoxCorner& corner) {
             std::vector<BBoxSide> result;
             for (size_t i = 0; i < 3; ++i) {
                 vm::vec3 sideNormal = vm::vec3::zero;
@@ -656,7 +656,7 @@ namespace TrenchBroom {
         /**
          * For dragging an edge, returns the 2 bbox sides that contain that edge
          */
-        static std::vector<BBoxSide> sidesForEdgeSelection(const BBoxEdge edge) {
+        static std::vector<BBoxSide> sidesForEdgeSelection(const BBoxEdge& edge) {
             std::vector<BBoxSide> result;
 
             const vm::bbox3 box{{-1, -1, -1}, {1, 1, 1}};
@@ -679,8 +679,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        static std::vector<vm::polygon3f> polysForSides(const vm::bbox3& box,
-                                                    const std::vector<BBoxSide>& sides) {
+        static std::vector<vm::polygon3f> polysForSides(const vm::bbox3& box, const std::vector<BBoxSide>& sides) {
             std::vector<vm::polygon3f> result;
             for (const auto& side : sides) {
                 result.push_back(vm::polygon3f(polygonForBBoxSide(box, side)));
@@ -866,11 +865,11 @@ namespace TrenchBroom {
             return m_anchorPos;
         }
 
-        void ScaleObjectsTool::setProportionalAxes(ProportionalAxes proportionalAxes) {
+        void ScaleObjectsTool::setProportionalAxes(const ProportionalAxes& proportionalAxes) {
             m_proportionalAxes = proportionalAxes;
         }
 
-        ProportionalAxes ScaleObjectsTool::proportionalAxes() const {
+        const ProportionalAxes& ScaleObjectsTool::proportionalAxes() const {
             return m_proportionalAxes;
         }
 

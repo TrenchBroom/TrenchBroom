@@ -59,6 +59,7 @@ namespace TrenchBroom {
         m_selected(false),
         m_texCoordSystem(std::move(texCoordSystem)),
         m_geometry(nullptr),
+        m_markedToRenderFace(false),
         m_attribs(attribs) {
             ensure(m_texCoordSystem != nullptr, "texCoordSystem is null");
             setPoints(point0, point1, point2);

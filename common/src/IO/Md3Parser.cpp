@@ -68,7 +68,7 @@ namespace TrenchBroom {
                 throw AssetException() << "Unknown MD3 model version: " << version;
             }
 
-            const auto name = reader.readString(Md3Layout::ModelNameLength);
+            /* const auto name = */ reader.readString(Md3Layout::ModelNameLength);
             /* const auto flags = */ reader.readInt<int32_t>();
 
             const auto frameCount = reader.readSize<int32_t>();
@@ -101,7 +101,7 @@ namespace TrenchBroom {
                 throw AssetException() << "Unknown MD3 model version: " << version;
             }
 
-            const auto name = reader.readString(Md3Layout::ModelNameLength);
+            /* const auto name = */ reader.readString(Md3Layout::ModelNameLength);
             /* const auto flags = */ reader.readInt<int32_t>();
 
             /* const auto frameCount = */ reader.readSize<int32_t>();

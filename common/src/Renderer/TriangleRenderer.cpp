@@ -43,25 +43,6 @@ namespace TrenchBroom {
         m_useColor(false),
         m_applyTinting(false) {}
 
-        TriangleRenderer::TriangleRenderer(const TriangleRenderer& other) :
-        m_vertexArray(other.m_vertexArray),
-        m_color(other.m_color),
-        m_useColor(other.m_useColor) {}
-
-        TriangleRenderer& TriangleRenderer::operator=(TriangleRenderer other) {
-            using std::swap;
-            swap(*this, other);
-            return *this;
-        }
-
-        void swap(TriangleRenderer& left, TriangleRenderer& right) {
-            using std::swap;
-            swap(left.m_vertexArray, right.m_vertexArray);
-            swap(left.m_indexArray, right.m_indexArray);
-            swap(left.m_color, right.m_color);
-            swap(left.m_useColor, right.m_useColor);
-        }
-
         void TriangleRenderer::setUseColor(const bool useColor) {
             m_useColor = useColor;
         }

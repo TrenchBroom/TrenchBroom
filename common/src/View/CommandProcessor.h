@@ -124,7 +124,7 @@ namespace TrenchBroom {
             UndoableCommand::Ptr createCommandGroup(const String& name, const CommandList& commands);
 
             bool pushLastCommand(UndoableCommand::Ptr command, bool collate);
-            bool collatable(bool collate, wxLongLong timestamp) const;
+            bool collatable(bool collate, const wxLongLong& timestamp) const;
 
             void pushNextCommand(UndoableCommand::Ptr command);
             void pushRepeatableCommand(UndoableCommand::Ptr command);

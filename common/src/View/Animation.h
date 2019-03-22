@@ -56,11 +56,11 @@ namespace TrenchBroom {
         public:
             static Type freeType();
 
-            Animation(Type type, Curve curve, wxLongLong duration);
+            Animation(Type type, Curve curve, const wxLongLong& duration);
             virtual ~Animation();
 
             Type type() const;
-            bool step(wxLongLong delta);
+            bool step(const wxLongLong& delta);
             void update();
         private:
             virtual void doUpdate(double progress) = 0;

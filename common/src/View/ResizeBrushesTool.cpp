@@ -399,7 +399,7 @@ namespace TrenchBroom {
                 auto* newDragFace = findMatchingFace(newBrush, dragFace);
 
                 newBrushes.push_back(newBrush);
-                newDragHandles.push_back(std::make_tuple(newDragFace->brush(), newDragFace->boundary().normal));
+                newDragHandles.emplace_back(newDragFace->brush(), newDragFace->boundary().normal);
 
                 if (!newBrush->canMoveBoundary(worldBounds, newDragFace, delta)) {
                     // There is a brush for which the move is not applicable. Abort.
@@ -425,7 +425,7 @@ namespace TrenchBroom {
             document->deselectAll();
             const auto addedNodes = document->addNodes(newNodes);
             document->select(addedNodes);
-            m_dragHandles = newDragHandles;
+            m_dragHandles = std::move(newDragHandles);
 
             return true;
         }

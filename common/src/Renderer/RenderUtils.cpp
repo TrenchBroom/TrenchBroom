@@ -380,7 +380,7 @@ namespace TrenchBroom {
                     newTriangles.push_back(SphereBuilder::Triangle(triangle[2], index3, index2));
                     newTriangles.push_back(SphereBuilder::Triangle(index1, index2, index3));
                 }
-                triangles = newTriangles;
+                triangles = std::move(newTriangles);
             }
 
             std::vector<vm::vec3f> allVertices;

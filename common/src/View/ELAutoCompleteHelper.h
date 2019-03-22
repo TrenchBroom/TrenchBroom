@@ -33,7 +33,7 @@ namespace TrenchBroom {
         public:
             ELAutoCompleteHelper(const EL::VariableStore& variables);
         private:
-            size_t DoShouldStartCompletionAfterInput(const wxString& str, wxUniChar c, size_t insertPos) const override;
+            size_t DoShouldStartCompletionAfterInput(const wxString& str, const wxUniChar& c, size_t insertPos) const override;
             size_t DoShouldStartCompletionAfterRequest(const wxString& str, size_t insertPos) const override;
             AutoCompleteTextControl::CompletionResult DoGetCompletions(const wxString& str, size_t startIndex, size_t count) const override;
 

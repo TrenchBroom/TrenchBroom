@@ -614,7 +614,7 @@ namespace TrenchBroom {
             return m_geometry->findVertexByPosition(position, nullptr, epsilon) != nullptr;
         }
 
-        bool Brush::hasVertices(const std::vector<vm::vec3> positions, const FloatType epsilon) const {
+        bool Brush::hasVertices(const std::vector<vm::vec3>& positions, const FloatType epsilon) const {
             ensure(m_geometry != nullptr, "geometry is null");
             for (const auto& position : positions) {
                 if (!m_geometry->hasVertex(position, epsilon)) {
