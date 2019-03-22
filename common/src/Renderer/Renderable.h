@@ -44,7 +44,7 @@ namespace TrenchBroom {
         class DirectRenderable : public Renderable {
         public:
             DirectRenderable() = default;
-            virtual ~DirectRenderable() = default;
+            ~DirectRenderable() = default;
 
             void prepareVertices(Vbo& vertexVbo);
         private:

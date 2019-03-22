@@ -15,6 +15,7 @@ Thumbs.db
 /vs2015
 /vs2017
 /.idea
+/coverity
 
 app/resources/documentation/help/index.html
 
