@@ -35,7 +35,7 @@ namespace TrenchBroom {
     namespace View {
         bool KeyboardShortcut::MacModifierOrder::operator()(const int lhs, const int rhs) const {
             if (lhs == WXK_NONE)
-                return lhs != WXK_NONE;
+                return rhs != WXK_NONE;
             if (lhs == WXK_ALT)
                 return rhs != WXK_ALT;
             if (lhs == WXK_SHIFT)
@@ -48,7 +48,7 @@ namespace TrenchBroom {
 
         bool KeyboardShortcut::WinModifierOrder::operator()(const int lhs, const int rhs) const {
             if (lhs == WXK_NONE)
-                return lhs != WXK_NONE;
+                return rhs != WXK_NONE;
             if (lhs == WXK_CONTROL)
                 return rhs != WXK_CONTROL;
             if (lhs == WXK_ALT)
