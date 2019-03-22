@@ -34,6 +34,7 @@
 #include <vecmath/forward.h>
 
 #include <list>
+#include <optional>
 
 namespace TrenchBroom {
     namespace IO {
@@ -66,15 +67,6 @@ namespace TrenchBroom {
         class FgdParser : public EntityDefinitionParser, public Parser<FgdToken::Type> {
         private:
             using Token = FgdTokenizer::Token;
-
-            template <typename T>
-            struct DefaultValue {
-                bool present;
-                T value;
-
-                DefaultValue() : present(false) {}
-                explicit DefaultValue(const T& i_value) : present(true), value(i_value) {}
-            };
 
             Color m_defaultEntityColor;
 
@@ -122,10 +114,10 @@ namespace TrenchBroom {
 
             bool parseReadOnlyFlag(ParserStatus& status);
             String parseAttributeDescription(ParserStatus& status);
-            DefaultValue<String> parseDefaultStringValue(ParserStatus& status);
-            DefaultValue<int> parseDefaultIntegerValue(ParserStatus& status);
-            DefaultValue<float> parseDefaultFloatValue(ParserStatus& status);
-            DefaultValue<String> parseDefaultChoiceValue(ParserStatus& status);
+            std::optional<String> parseDefaultStringValue(ParserStatus& status);
+            std::optional<int> parseDefaultIntegerValue(ParserStatus& status);
+            std::optional<float> parseDefaultFloatValue(ParserStatus& status);
+            std::optional<String> parseDefaultChoiceValue(ParserStatus& status);
 
             vm::vec3 parseVector(ParserStatus& status);
             vm::bbox3 parseSize(ParserStatus& status);
