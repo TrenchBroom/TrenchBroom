@@ -139,7 +139,8 @@ namespace TrenchBroom {
 
             // update toAdd and toRemove using the input list
             for (const auto* brush : brushes) {
-                if (auto it = toRemove.find(brush); it != toRemove.end()) {
+                const auto it = toRemove.find(brush);
+                if (it != toRemove.end()) {
                     toRemove.erase(it);
                 } else {
                     toAdd.insert(brush);

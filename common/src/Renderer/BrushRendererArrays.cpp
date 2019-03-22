@@ -102,7 +102,8 @@ namespace TrenchBroom {
         }
 
         std::pair<AllocationTracker::Block*, GLuint*> BrushIndexArray::getPointerToInsertElementsAt(const size_t elementCount) {
-            if (auto block = m_allocationTracker.allocate(elementCount); block != nullptr) {
+            auto block = m_allocationTracker.allocate(elementCount);
+            if (block != nullptr) {
                 GLuint* dest = m_indexHolder.getPointerToWriteElementsTo(block->pos, elementCount);
                 return {block, dest};
             }
@@ -114,8 +115,9 @@ namespace TrenchBroom {
             m_indexHolder.resize(newSize);
 
             // insert again
-            auto block = m_allocationTracker.allocate(elementCount);
+            block = m_allocationTracker.allocate(elementCount);
             assert(block != nullptr);
+            
             GLuint* dest = m_indexHolder.getPointerToWriteElementsTo(block->pos, elementCount);
             return {block, dest};
         }
