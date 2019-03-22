@@ -42,10 +42,21 @@ public:
         increment(offset);
     }
 
-    bool operator<(const StepIterator& other) const  { return m_cur < other.m_cur; }
-    bool operator>(const StepIterator& other) const  { return m_cur > other.m_cur; }
-    bool operator==(const StepIterator& other) const { return m_cur == other.m_cur; }
-    bool operator!=(const StepIterator& other) const { return m_cur != other.m_cur; }
+    friend bool operator<(const StepIterator& lhs, const StepIterator& rhs) { return lhs.m_cur < rhs.m_cur; }
+    friend bool operator<(const StepIterator& lhs, const I& rhs)            { return lhs.m_cur < rhs;       }
+    friend bool operator<(const I& lhs, const StepIterator& rhs)            { return lhs       < rhs.m_cur; }
+
+    friend bool operator>(const StepIterator& lhs, const StepIterator& rhs) { return lhs.m_cur > rhs.m_cur; }
+    friend bool operator>(const StepIterator& lhs, const I& rhs)            { return lhs.m_cur > rhs;       }
+    friend bool operator>(const I& lhs, const StepIterator& rhs)            { return lhs       > rhs.m_cur; }
+
+    friend bool operator==(const StepIterator& lhs, const StepIterator& rhs) { return lhs.m_cur == rhs.m_cur; }
+    friend bool operator==(const StepIterator& lhs, const I& rhs)            { return lhs.m_cur == rhs;       }
+    friend bool operator==(const I& lhs, const StepIterator& rhs)            { return lhs       == rhs.m_cur; }
+
+    friend bool operator!=(const StepIterator& lhs, const StepIterator& rhs) { return lhs.m_cur != rhs.m_cur; }
+    friend bool operator!=(const StepIterator& lhs, const I& rhs)            { return lhs.m_cur != rhs;       }
+    friend bool operator!=(const I& lhs, const StepIterator& rhs)            { return lhs       != rhs.m_cur; }
 
     // prefix increment
     StepIterator& operator++() {
