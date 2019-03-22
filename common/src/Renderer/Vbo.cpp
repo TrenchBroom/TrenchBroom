@@ -66,9 +66,9 @@ namespace TrenchBroom {
                 deactivate();
             free();
 
-            auto* block = m_firstBlock;
+            auto block = m_firstBlock;
             while (block != nullptr) {
-                auto* next = block->next();
+                auto next = block->next();
                 delete block;
                 block = next;
             }
@@ -92,12 +92,12 @@ namespace TrenchBroom {
             }
 
             assert(it != std::end(m_freeBlocks));
-            auto* block = *it;
+            auto block = *it;
             ensure(block != nullptr, "block is null");
             removeFreeBlock(it);
 
             if (block->capacity() > capacity) {
-                auto* remainder = block->split(capacity);
+                auto remainder = block->split(capacity);
                 if (m_lastBlock == block)
                     m_lastBlock = remainder;
                 insertFreeBlock(remainder);
@@ -148,8 +148,8 @@ namespace TrenchBroom {
             assert(!block->isFree());
             assert(checkBlockChain());
 
-            auto* previous = block->previous();
-            auto* next = block->next();
+            auto previous = block->previous();
+            auto next = block->next();
 
             if (previous != nullptr && previous->isFree() &&
                 next != nullptr && next->isFree()) {
@@ -209,7 +209,7 @@ namespace TrenchBroom {
                 m_lastBlock->setCapacity(m_lastBlock->capacity() + delta);
                 insertFreeBlock(m_lastBlock);
             } else {
-                auto* block = m_lastBlock->createSuccessor(delta);
+                auto block = m_lastBlock->createSuccessor(delta);
                 m_lastBlock = block;
                 insertFreeBlock(m_lastBlock);
             }
@@ -219,9 +219,9 @@ namespace TrenchBroom {
             assert(checkBlockChain());
 
             if (begin < end) {
-                auto* buffer = map();
+                auto buffer = map();
 
-                auto* temp = new unsigned char[end - begin];
+                auto temp = new unsigned char[end - begin];
                 memcpy(temp, buffer + begin, end - begin);
 
                 unmap();
@@ -270,7 +270,7 @@ namespace TrenchBroom {
         }
 
         void Vbo::removeFreeBlock(const VboBlockList::iterator it) {
-            auto* block = *it;
+            auto block = *it;
             m_freeBlocks.erase(it);
             block->setFree(false);
             m_freeCapacity -= block->capacity();
@@ -306,7 +306,7 @@ namespace TrenchBroom {
             // fixes a crash on Mac OS X where a buffer could not be mapped after another windows was closed
             glAssert(glFinishObjectAPPLE(GL_BUFFER_OBJECT_APPLE, static_cast<GLint>(m_vboId)));
 #endif
-            auto* buffer = reinterpret_cast<unsigned char *>(glMapBuffer(m_type, GL_WRITE_ONLY));
+            auto buffer = reinterpret_cast<unsigned char *>(glMapBuffer(m_type, GL_WRITE_ONLY));
             ensure(buffer != nullptr, "buffer is null");
             m_state = State_FullyMapped;
 
@@ -320,11 +320,11 @@ namespace TrenchBroom {
         }
 
         bool Vbo::checkBlockChain() const {
-            auto* block = m_firstBlock;
+            auto block = m_firstBlock;
             ensure(block != nullptr, "block is null");
 
             auto count = 0u;
-            auto* next = block->next();
+            auto next = block->next();
             while (next != nullptr) {
                 assert(next->previous() == block);
                 assert(!block->isFree() || !next->isFree());
@@ -335,7 +335,7 @@ namespace TrenchBroom {
 
             assert(block == m_lastBlock);
 
-            auto* previous = block->previous();
+            auto previous = block->previous();
             while (previous != nullptr) {
                 assert(previous->next() == block);
                 block = previous;
