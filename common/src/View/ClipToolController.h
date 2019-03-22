@@ -83,6 +83,8 @@ namespace TrenchBroom {
                 AddClipPointPart(Callback* callback);
             private:
                 Tool* doGetTool() override;
+                const Tool* doGetTool() const override;
+
                 bool doMouseClick(const InputState& inputState) override;
                 bool doMouseDoubleClick(const InputState& inputState) override;
                 DragInfo doStartDrag(const InputState& inputState) override;
@@ -98,6 +100,7 @@ namespace TrenchBroom {
                 MoveClipPointPart(Callback* callback);
             private:
                 Tool* doGetTool() override;
+                const Tool* doGetTool() const override;
                 DragInfo doStartDrag(const InputState& inputState) override;
                 DragResult doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override;
                 void doEndDrag(const InputState& inputState) override;
@@ -111,6 +114,7 @@ namespace TrenchBroom {
             virtual ~ClipToolController() override;
         private:
             Tool* doGetTool() override;
+            const Tool* doGetTool() const override;
 
             void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
 

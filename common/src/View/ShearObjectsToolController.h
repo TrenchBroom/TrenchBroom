@@ -51,6 +51,7 @@ namespace TrenchBroom {
             ~ShearObjectsToolController() override;
         private:
             Tool* doGetTool() override;
+            const Tool* doGetTool() const override;
 
             void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
             virtual void doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera, Model::PickResult &pickResult) = 0;

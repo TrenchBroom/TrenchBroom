@@ -38,6 +38,7 @@ namespace TrenchBroom {
             UVOffsetTool(MapDocumentWPtr document, const UVViewHelper& helper);
         private:
             Tool* doGetTool() override;
+            const Tool* doGetTool() const override;
 
             bool doStartMouseDrag(const InputState& inputState) override;
             bool doMouseDrag(const InputState& inputState) override;

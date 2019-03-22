@@ -101,6 +101,10 @@ namespace TrenchBroom {
             return m_callback->tool();
         }
 
+        const Tool* ClipToolController::AddClipPointPart::doGetTool() const {
+            return m_callback->tool();
+        }
+
         bool ClipToolController::AddClipPointPart::doMouseClick(const InputState& inputState) {
             if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft) ||
                 !inputState.modifierKeysPressed(ModifierKeys::MKNone))
@@ -175,6 +179,10 @@ namespace TrenchBroom {
             return m_callback->tool();
         }
 
+        const Tool* ClipToolController::MoveClipPointPart::doGetTool() const {
+            return m_callback->tool();
+        }
+
         RestrictedDragPolicy::DragInfo ClipToolController::MoveClipPointPart::doStartDrag(const InputState& inputState) {
             if (inputState.mouseButtons() != MouseButtons::MBLeft ||
                 inputState.modifierKeys() != ModifierKeys::MKNone)
@@ -213,6 +221,10 @@ namespace TrenchBroom {
         ClipToolController::~ClipToolController() {}
 
         Tool* ClipToolController::doGetTool() {
+            return m_tool;
+        }
+
+        const Tool* ClipToolController::doGetTool() const {
             return m_tool;
         }
 

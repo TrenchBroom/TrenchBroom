@@ -54,6 +54,7 @@ namespace TrenchBroom {
             UVRotateTool(MapDocumentWPtr document, UVViewHelper& helper);
         private:
             Tool* doGetTool() override;
+            const Tool* doGetTool() const override;
 
             void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
 

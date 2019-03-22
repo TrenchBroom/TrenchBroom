@@ -37,6 +37,7 @@ namespace TrenchBroom {
             UVCameraTool(Renderer::OrthographicCamera& camera);
         private:
             Tool* doGetTool() override;
+            const Tool* doGetTool() const override;
 
             void doMouseScroll(const InputState& inputState) override;
             bool doStartMouseDrag(const InputState& inputState) override;

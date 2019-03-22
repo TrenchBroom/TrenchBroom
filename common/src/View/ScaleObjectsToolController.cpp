@@ -39,14 +39,17 @@ namespace TrenchBroom {
     namespace View {
         ScaleObjectsToolController::ScaleObjectsToolController(ScaleObjectsTool* tool, MapDocumentWPtr document) :
         m_tool(tool),
-        m_document(document)
-        {
+        m_document(document) {
             ensure(m_tool != nullptr, "tool is null");
         }
 
         ScaleObjectsToolController::~ScaleObjectsToolController() = default;
 
         Tool* ScaleObjectsToolController::doGetTool() {
+            return m_tool;
+        }
+
+        const Tool* ScaleObjectsToolController::doGetTool() const {
             return m_tool;
         }
 

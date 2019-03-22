@@ -49,6 +49,10 @@ namespace TrenchBroom {
             return m_tool;
         }
 
+        const Tool* ShearObjectsToolController::doGetTool() const {
+            return m_tool;
+        }
+
         void ShearObjectsToolController::doPick(const InputState& inputState, Model::PickResult& pickResult) {
             if (m_tool->applies()) {
                 // forward to either ShearObjectsTool::pick2D or ShearObjectsTool::pick3D

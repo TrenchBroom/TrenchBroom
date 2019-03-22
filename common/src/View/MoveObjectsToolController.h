@@ -34,6 +34,7 @@ namespace TrenchBroom {
             virtual ~MoveObjectsToolController() override;
         private:
             Tool* doGetTool() override;
+            const Tool* doGetTool() const override;
 
             MoveInfo doStartMove(const InputState& inputState) override;
             DragResult doMove(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override;

@@ -55,6 +55,10 @@ namespace TrenchBroom {
             return m_tool;
         }
 
+        const Tool* CreateSimpleBrushToolController3D::doGetTool() const {
+            return m_tool;
+        }
+
         void CreateSimpleBrushToolController3D::doModifierKeyChange(const InputState& inputState) {
             if (thisToolDragging()) {
                 if (inputState.modifierKeys() == ModifierKeys::MKAlt) {
