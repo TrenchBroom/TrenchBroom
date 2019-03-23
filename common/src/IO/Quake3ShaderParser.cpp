@@ -179,7 +179,7 @@ namespace TrenchBroom {
                     shader.culling = Assets::Quake3Shader::Culling::None;
                 }
             } else {
-                while (!m_tokenizer.nextToken().hasType(Quake3ShaderToken::Eol));
+                skipRemainderOfEntry();
             }
         }
 
@@ -231,7 +231,18 @@ namespace TrenchBroom {
                     }
                 }
             } else {
-                while (!m_tokenizer.nextToken().hasType(Quake3ShaderToken::Eol));
+                skipRemainderOfEntry();
+            }
+        }
+
+        void Quake3ShaderParser::skipRemainderOfEntry() {
+            auto token = m_tokenizer.peekToken();
+            while (!token.hasType(Quake3ShaderToken::Eol | Quake3ShaderToken::CBrace)) {
+                m_tokenizer.nextToken();
+                token = m_tokenizer.peekToken();
+            }
+            if (token.hasType(Quake3ShaderToken::Eol)) {
+                m_tokenizer.skipToken();
             }
         }
 

@@ -170,7 +170,6 @@ namespace TrenchBroom {
                     return;
             }
 
-            ensure(task != nullptr, "task is null");
             const int index = m_taskList->GetSelection();
             if (index == wxNOT_FOUND) {
                 m_profile->addTask(task);

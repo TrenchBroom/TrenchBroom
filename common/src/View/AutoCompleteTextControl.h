@@ -59,20 +59,20 @@ namespace TrenchBroom {
             public:
                 virtual ~Helper();
 
-                size_t ShouldStartCompletionAfterInput(const QString& str, wxUniChar c, size_t insertPos) const;
-                size_t ShouldStartCompletionAfterRequest(const QString& str, size_t insertPos) const;
-                CompletionResult GetCompletions(const QString& str, size_t startIndex, size_t count) const;
+                size_t ShouldStartCompletionAfterInput(const wxString& str, const wxUniChar& c, size_t insertPos) const;
+                size_t ShouldStartCompletionAfterRequest(const wxString& str, size_t insertPos) const;
+                CompletionResult GetCompletions(const wxString& str, size_t startIndex, size_t count) const;
             private:
-                virtual size_t DoShouldStartCompletionAfterInput(const QString& str, wxUniChar c, size_t insertPos) const = 0;
-                virtual size_t DoShouldStartCompletionAfterRequest(const QString& str, size_t insertPos) const = 0;
-                virtual CompletionResult DoGetCompletions(const QString& str, size_t startIndex, size_t count) const = 0;
+                virtual size_t DoShouldStartCompletionAfterInput(const wxString& str, const wxUniChar& c, size_t insertPos) const = 0;
+                virtual size_t DoShouldStartCompletionAfterRequest(const wxString& str, size_t insertPos) const = 0;
+                virtual CompletionResult DoGetCompletions(const wxString& str, size_t startIndex, size_t count) const = 0;
             };
         private:
             class DefaultHelper : public Helper {
             private:
-                size_t DoShouldStartCompletionAfterInput(const QString& str, wxUniChar c, size_t insertPos) const override;
-                size_t DoShouldStartCompletionAfterRequest(const QString& str, size_t insertPos) const override;
-                CompletionResult DoGetCompletions(const QString& str, size_t startIndex, size_t count) const override;
+                size_t DoShouldStartCompletionAfterInput(const wxString& str, const wxUniChar& c, size_t insertPos) const override;
+                size_t DoShouldStartCompletionAfterRequest(const wxString& str, size_t insertPos) const override;
+                CompletionResult DoGetCompletions(const wxString& str, size_t startIndex, size_t count) const override;
             };
         private:
             class AutoCompletionList : public ControlListBox {

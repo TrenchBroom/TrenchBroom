@@ -135,7 +135,7 @@ namespace TrenchBroom {
         vm::bbox3 moveBBoxSide(const vm::bbox3 &in,
                            const BBoxSide &side,
                            const vm::vec3 &delta,
-                           ProportionalAxes proportional,
+                           const ProportionalAxes& proportional,
                            AnchorPos anchor);
 
         /**
@@ -183,7 +183,7 @@ namespace TrenchBroom {
         vm::bbox3 moveBBoxForHit(const vm::bbox3& bboxAtDragStart,
                              const Model::Hit& dragStartHit,
                              const vm::vec3& delta,
-                             ProportionalAxes proportional,
+                             const ProportionalAxes& proportional,
                              AnchorPos anchor);
 
         struct BackSide {
@@ -261,8 +261,8 @@ namespace TrenchBroom {
             void setAnchorPos(AnchorPos pos);
             AnchorPos anchorPos() const;
 
-            void setProportionalAxes(ProportionalAxes proportionalAxes);
-            ProportionalAxes proportionalAxes() const;
+            void setProportionalAxes(const ProportionalAxes& proportionalAxes);
+            const ProportionalAxes& proportionalAxes() const;
 
         public:
             void startScaleWithHit(const Model::Hit& hit);

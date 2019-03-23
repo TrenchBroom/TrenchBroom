@@ -153,7 +153,7 @@ namespace TrenchBroom {
                     } else {
                         if (labels[i] != label) {
                             labels[i] = defaultLabels[i];
-                            tooltips[i] = "";
+                            tooltips[i].clear();
                         }
                     }
                 }

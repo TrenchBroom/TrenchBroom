@@ -75,7 +75,6 @@ namespace TrenchBroom {
         void DirectoryTextureCollectionEditor::OnRemoveTextureCollections(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            const auto availableCollections = availableTextureCollections();
             auto enabledCollections = enabledTextureCollections();
 
             wxArrayInt selections;

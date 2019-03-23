@@ -91,7 +91,10 @@ namespace TrenchBroom {
 
         InputEventRecorder::InputEventRecorder() :
         m_dragging(false),
-        m_anyMouseButtonDown(false) {}
+        m_anyMouseButtonDown(false),
+        m_lastClickX(0),
+        m_lastClickY(0),
+        m_lastClickTime(std::chrono::high_resolution_clock::now()) {}
 
 
         void InputEventRecorder::recordEvent(const QKeyEvent* wxEvent) {

@@ -73,7 +73,6 @@ namespace TrenchBroom {
         void ObjFileSerializer::writeObjects() {
             std::fprintf(m_stream, "# objects\n");
             for (const Object& object : m_objects) {
-                ObjectList::const_iterator fIt, fEnd;
                 std::fprintf(m_stream, "o entity%lu_brush%lu\n",
                              static_cast<unsigned long>(object.entityNo),
                              static_cast<unsigned long>(object.brushNo));

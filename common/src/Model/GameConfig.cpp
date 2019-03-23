@@ -175,6 +175,7 @@ namespace TrenchBroom {
         }
 
         GameConfig::GameConfig() :
+        m_experimental(false),
         m_maxPropertyLength(1023) {}
 
         GameConfig::GameConfig(String name,

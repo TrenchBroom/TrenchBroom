@@ -122,7 +122,7 @@ namespace TrenchBroom {
 
             virtual ~Tokenizer() {}
 
-            Token nextToken(const TokenType skipTokens = 0) {
+            Token nextToken(const TokenType skipTokens = 0u) {
                 auto token = emitToken();
                 while (token.hasType(skipTokens)) {
                     token = emitToken();
@@ -130,12 +130,12 @@ namespace TrenchBroom {
                 return token;
             }
 
-            Token peekToken(const TokenType skipTokens = 0) {
+            Token peekToken(const TokenType skipTokens = 0u) {
                 SaveState oldState(m_state);
                 return nextToken(skipTokens);
             }
 
-            void skipToken(const TokenType skipTokens = ~0) {
+            void skipToken(const TokenType skipTokens = ~0u) {
                 if (peekToken().hasType(skipTokens)) {
                     nextToken();
                 }

@@ -23,13 +23,9 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        Renderable::~Renderable() {}
-
         void Renderable::render(RenderContext& renderContext) {
             doRender(renderContext);
         }
-
-        DirectRenderable::~DirectRenderable() {}
 
         void DirectRenderable::prepareVertices(Vbo& vertexVbo) {
             doPrepareVertices(vertexVbo);

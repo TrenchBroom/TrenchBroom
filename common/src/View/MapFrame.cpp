@@ -91,28 +91,28 @@ namespace TrenchBroom {
         m_frameManager(nullptr),
         m_autosaver(nullptr),
         m_autosaveTimer(nullptr),
+        m_hSplitter(nullptr),
+        m_vSplitter(nullptr),
         m_contextManager(nullptr),
         m_mapView(nullptr),
         m_infoPanel(nullptr),
         m_console(nullptr),
         m_inspector(nullptr),
-        m_gridChoice(nullptr)
-//        m_compilationDialog(nullptr),
-        {}
+        m_gridChoice(nullptr) {}
 
         MapFrame::MapFrame(FrameManager* frameManager, MapDocumentSPtr document) :
         QMainWindow(),
         m_frameManager(frameManager),
         m_autosaver(nullptr),
         m_autosaveTimer(nullptr),
+        m_hSplitter(nullptr),
+        m_vSplitter(nullptr),
         m_contextManager(nullptr),
         m_mapView(nullptr),
         m_infoPanel(nullptr),
         m_console(nullptr),
         m_inspector(nullptr),
-        m_gridChoice(nullptr)
-//        m_compilationDialog(nullptr),
-        {
+        m_gridChoice(nullptr) {
             Create(frameManager, document);
         }
 
@@ -2032,7 +2032,8 @@ namespace TrenchBroom {
         void MapFrame::OnUpdateUI(wxUpdateUIEvent& event) {
 		    // FIXME: implement
 
-            const ActionManager& actionManager = ActionManager::instance();
+            const auto& actionManager = ActionManager::instance();
+            const auto& grid = m_document->grid();
 
             switch (event.GetId()) {
 
@@ -2064,6 +2065,236 @@ namespace TrenchBroom {
                     break;
                 }
 
+                case CommandIds::Menu::EditRepeat:
+                case CommandIds::Menu::EditClearRepeat:
+                    event.Enable(true);
+                    break;
+                case wxID_CUT:
+                    event.Enable(canCut());
+                    break;
+                case wxID_COPY:
+                    event.Enable(canCopy());
+                    break;
+                case wxID_PASTE:
+                case CommandIds::Menu::EditPasteAtOriginalPosition:
+                    event.Enable(canPaste());
+                    break;
+                case wxID_DUPLICATE:
+                    event.Enable(canDuplicate());
+                    break;
+                case wxID_DELETE:
+                    event.Enable(canDelete());
+                    break;
+                case CommandIds::Menu::EditSelectAll:
+                    event.Enable(canSelect());
+                    break;
+                case CommandIds::Menu::EditSelectSiblings:
+                    event.Enable(canSelectSiblings());
+                    break;
+                case CommandIds::Menu::EditSelectTouching:
+                case CommandIds::Menu::EditSelectInside:
+                    event.Enable(canSelectByBrush());
+                    break;
+                case CommandIds::Menu::EditSelectTall:
+                    event.Enable(canSelectTall());
+                    break;
+                case CommandIds::Menu::EditSelectByFilePosition:
+                    event.Enable(canSelect());
+                    break;
+                case CommandIds::Menu::EditSelectNone:
+                    event.Enable(canDeselect());
+                    break;
+                case CommandIds::Menu::EditGroupSelection:
+                    event.Enable(canGroup());
+                    break;
+                case CommandIds::Menu::EditUngroupSelection:
+                    event.Enable(canUngroup());
+                    break;
+                case CommandIds::Menu::EditDeactivateTool:
+                    event.Check(!m_mapView->anyToolActive());
+                    event.Enable(true);
+                    break;
+                case CommandIds::Menu::EditToggleCreateComplexBrushTool:
+                    event.Check(m_mapView->createComplexBrushToolActive());
+                    event.Enable(m_mapView->canToggleCreateComplexBrushTool());
+                    break;
+                case CommandIds::Menu::EditToggleClipTool:
+                    event.Check(m_mapView->clipToolActive());
+                    event.Enable(m_mapView->canToggleClipTool());
+                    break;
+                case CommandIds::Menu::EditToggleRotateObjectsTool:
+                    event.Check(m_mapView->rotateObjectsToolActive());
+                    event.Enable(m_mapView->canToggleRotateObjectsTool());
+                    break;
+                case CommandIds::Menu::EditToggleScaleObjectsTool:
+                    event.Check(m_mapView->scaleObjectsToolActive());
+                    event.Enable(m_mapView->canToggleScaleObjectsTool());
+                    break;
+                case CommandIds::Menu::EditToggleShearObjectsTool:
+                    event.Check(m_mapView->shearObjectsToolActive());
+                    event.Enable(m_mapView->canToggleShearObjectsTool());
+                    break;
+                case CommandIds::Menu::EditToggleVertexTool:
+                    event.Check(m_mapView->vertexToolActive());
+                    event.Enable(m_mapView->canToggleVertexTools());
+                    break;
+                case CommandIds::Menu::EditToggleEdgeTool:
+                    event.Check(m_mapView->edgeToolActive());
+                    event.Enable(m_mapView->canToggleVertexTools());
+                    break;
+                case CommandIds::Menu::EditToggleFaceTool:
+                    event.Check(m_mapView->faceToolActive());
+                    event.Enable(m_mapView->canToggleVertexTools());
+                    break;
+                case CommandIds::Menu::EditCsgConvexMerge:
+                    event.Enable(canDoCsgConvexMerge());
+                    break;
+                case CommandIds::Menu::EditCsgSubtract:
+                    event.Enable(canDoCsgSubtract());
+                    break;
+                case CommandIds::Menu::EditCsgIntersect:
+                    event.Enable(canDoCsgIntersect());
+                    break;
+                case CommandIds::Menu::EditCsgHollow:
+                    event.Enable(canDoCsgHollow());
+                    break;
+                case CommandIds::Menu::EditSnapVerticesToInteger:
+                case CommandIds::Menu::EditSnapVerticesToGrid:
+                    event.Enable(canSnapVertices());
+                    break;
+                case CommandIds::Menu::EditReplaceTexture:
+                    event.Enable(true);
+                    break;
+                case CommandIds::Menu::EditToggleTextureLock:
+                    event.Enable(true);
+                    event.Check(pref(Preferences::TextureLock));
+                    break;
+                case CommandIds::Menu::EditToggleUVLock:
+                    event.Enable(true);
+                    event.Check(pref(Preferences::UVLock));
+                    break;
+                case CommandIds::Menu::ViewToggleShowGrid:
+                    event.Enable(true);
+                    event.Check(grid.visible());
+                    break;
+                case CommandIds::Menu::ViewToggleSnapToGrid:
+                    event.Enable(true);
+                    event.Check(grid.snap());
+                    break;
+                case CommandIds::Menu::ViewIncGridSize:
+                    event.Enable(canIncGridSize());
+                    break;
+                case CommandIds::Menu::ViewDecGridSize:
+                    event.Enable(canDecGridSize());
+                    break;
+                case CommandIds::Menu::ViewSetGridSize0Point125:
+                    event.Enable(true);
+                    event.Check(grid.size() == -3);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize0Point25:
+                    event.Enable(true);
+                    event.Check(grid.size() == -2);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize0Point5:
+                    event.Enable(true);
+                    event.Check(grid.size() == -1);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize1:
+                    event.Enable(true);
+                    event.Check(grid.size() == 0);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize2:
+                    event.Enable(true);
+                    event.Check(grid.size() == 1);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize4:
+                    event.Enable(true);
+                    event.Check(grid.size() == 2);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize8:
+                    event.Enable(true);
+                    event.Check(grid.size() == 3);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize16:
+                    event.Enable(true);
+                    event.Check(grid.size() == 4);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize32:
+                    event.Enable(true);
+                    event.Check(grid.size() == 5);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize64:
+                    event.Enable(true);
+                    event.Check(grid.size() == 6);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize128:
+                    event.Enable(true);
+                    event.Check(grid.size() == 7);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize256:
+                    event.Enable(true);
+                    event.Check(grid.size() == 8);
+                    break;
+                case CommandIds::Menu::ViewMoveCameraToNextPoint:
+                    event.Enable(canMoveCameraToNextPoint());
+                    break;
+                case CommandIds::Menu::ViewMoveCameraToPreviousPoint:
+                    event.Enable(canMoveCameraToPreviousPoint());
+                    break;
+                case CommandIds::Menu::ViewFocusCameraOnSelection:
+                    event.Enable(canFocusCamera());
+                    break;
+                case CommandIds::Menu::ViewMoveCameraToPosition:
+                    event.Enable(true);
+                    break;
+                case CommandIds::Menu::ViewHideSelection:
+                    event.Enable(canHide());
+                    break;
+                case CommandIds::Menu::ViewIsolateSelection:
+                    event.Enable(canIsolate());
+                    break;
+                case CommandIds::Menu::ViewUnhideAll:
+                    event.Enable(true);
+                    break;
+                case CommandIds::Menu::ViewSwitchToMapInspector:
+                case CommandIds::Menu::ViewSwitchToEntityInspector:
+                case CommandIds::Menu::ViewSwitchToFaceInspector:
+                    event.Enable(true);
+                    break;
+                case CommandIds::Menu::ViewToggleMaximizeCurrentView:
+                    event.Enable(m_mapView->canMaximizeCurrentView());
+                    event.Check(m_mapView->currentViewMaximized());
+                    break;
+                case CommandIds::Menu::ViewToggleInfoPanel:
+                    event.Enable(true);
+                    event.Check(!m_vSplitter->isMaximized(m_mapView));
+                    break;
+                case CommandIds::Menu::ViewToggleInspector:
+                    event.Enable(true);
+                    event.Check(!m_hSplitter->isMaximized(m_vSplitter));
+                    break;
+                case CommandIds::Menu::RunCompile:
+                    event.Enable(canCompile());
+                    break;
+                case CommandIds::Menu::RunLaunch:
+                    event.Enable(canLaunch());
+                    break;
+                case CommandIds::Menu::DebugPrintVertices:
+                case CommandIds::Menu::DebugCreateBrush:
+                case CommandIds::Menu::DebugCreateCube:
+                case CommandIds::Menu::DebugCopyJSShortcuts:
+                case CommandIds::Menu::DebugCrash:
+                case CommandIds::Menu::DebugThrowExceptionDuringCommand:
+                case CommandIds::Menu::DebugSetWindowSize:
+                    event.Enable(true);
+                    break;
+                case CommandIds::Menu::DebugClipWithFace:
+                    event.Enable(m_document->selectedNodes().hasOnlyBrushes());
+                    break;
+                case CommandIds::Actions::FlipObjectsHorizontally:
+                case CommandIds::Actions::FlipObjectsVertically:
+                    event.Enable(m_mapView->canFlipObjects());
+                    break;
                 default:
                     event.Enable(event.GetId() >= CommandIds::Menu::FileRecentDocuments && event.GetId() < CommandIds::Menu::FileRecentDocuments + 10);
                     break;

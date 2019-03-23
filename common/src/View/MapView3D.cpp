@@ -438,7 +438,7 @@ namespace TrenchBroom {
                 }
             }
 
-            void addPoint(const vm::vec3f point, const vm::plane3f& plane) {
+            void addPoint(const vm::vec3f& point, const vm::plane3f& plane) {
                 const auto ray = vm::ray3f(m_cameraPosition, -m_cameraDirection);
                 const auto newPlane = vm::plane3f(point + 64.0f * plane.normal, plane.normal);
                 const auto dist = intersect(ray, newPlane);;

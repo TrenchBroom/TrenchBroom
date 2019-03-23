@@ -45,10 +45,9 @@ namespace TrenchBroom {
             TriangleRenderer();
             TriangleRenderer(const VertexArray& vertexArray, const IndexRangeMap& indexArray);
             TriangleRenderer(const VertexArray& vertexArray, PrimType primType);
-            TriangleRenderer(const TriangleRenderer& other);
-            TriangleRenderer& operator=(TriangleRenderer other);
-
-            friend void swap(TriangleRenderer& left, TriangleRenderer& right);
+            
+            TriangleRenderer(const TriangleRenderer& other) = default;
+            TriangleRenderer& operator=(const TriangleRenderer& other) = default;
 
             void setUseColor(bool useColor);
             void setColor(const Color& color);

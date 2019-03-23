@@ -108,7 +108,7 @@ namespace TrenchBroom {
                     const wxUniChar n = i < str.Len() - 1 ? str[i+1] : wxUniChar(0);
                     if (c == '\r' && n == '\n') {
                         continue;
-                    } if (c == '\r') {
+                    } else if (c == '\r') {
                         const long from = static_cast<long>(m_lastNewLine);
                         const long to   = m_textCtrl->GetLastPosition();
                         m_textCtrl->Remove(from, to);

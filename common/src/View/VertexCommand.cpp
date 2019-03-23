@@ -159,7 +159,7 @@ namespace TrenchBroom {
 
         void VertexCommand::deleteSnapshot() {
             ensure(m_snapshot != nullptr, "snapshot is null");
-            m_snapshot.release();
+            m_snapshot.reset();
         }
 
         bool VertexCommand::canCollateWith(const VertexCommand& other) const {
