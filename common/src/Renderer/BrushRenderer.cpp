@@ -139,7 +139,8 @@ namespace TrenchBroom {
 
             // update toAdd and toRemove using the input list
             for (const auto* brush : brushes) {
-                if (auto it = toRemove.find(brush); it != toRemove.end()) {
+                const auto it = toRemove.find(brush);
+                if (it != toRemove.end()) {
                     toRemove.erase(it);
                 } else {
                     toAdd.insert(brush);
@@ -176,7 +177,8 @@ namespace TrenchBroom {
                     continue;
                 }
                 // if it's not in the invalid set, put it in
-                if (auto it = m_invalidBrushes.find(brush); it == m_invalidBrushes.end()) {
+                const auto it = m_invalidBrushes.find(brush);
+                if (it == m_invalidBrushes.end()) {
                     removeBrushFromVbo(brush);
                     m_invalidBrushes.insert(brush);
                 }

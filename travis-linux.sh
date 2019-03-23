@@ -4,7 +4,7 @@ set -o verbose
 
 sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
 sudo apt-get -qq update
-sudo apt-get -y install libgtk2.0-dev freeglut3 freeglut3-dev libglew-dev mesa-common-dev build-essential libglm-dev libxxf86vm-dev libfreeimage-dev pandoc cmake p7zip-full ninja-build xvfb rpm
+sudo apt-get -y install libgtk2.0-dev freeglut3 freeglut3-dev libglew-dev mesa-common-dev build-essential libglm-dev libxxf86vm-dev libfreeimage-dev pandoc cmake p7zip-full ninja-build xvfb rpm cppcheck
 
 if [[ $TB_GCC8 == "true" ]] ; then
     export CC=gcc-8
@@ -45,6 +45,8 @@ fi
 mkdir build
 cd build
 cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-Werror -DwxWidgets_PREFIX=$WX_CACHE_FULLPATH || exit 1
+# disable cppcheck on linux because the binary is outdated and detects to many false positives
+# cmake --build . --target cppcheck || exit 1
 cmake --build . --config Release || exit 1
 cpack || exit 1
 

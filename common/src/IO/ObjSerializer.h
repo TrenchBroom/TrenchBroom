@@ -84,7 +84,7 @@ namespace TrenchBroom {
             Object m_currentObject;
             ObjectList m_objects;
         public:
-            ObjFileSerializer(FILE* stream);
+            explicit ObjFileSerializer(FILE* stream);
         private:
             void doBeginFile() override;
             void doEndFile() override;

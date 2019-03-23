@@ -41,6 +41,7 @@ namespace TrenchBroom {
             SelectionTool(MapDocumentWPtr document);
         private:
             Tool* doGetTool() override;
+            const Tool* doGetTool() const override;
 
             bool doMouseClick(const InputState& inputState) override;
             bool doMouseDoubleClick(const InputState& inputState) override;

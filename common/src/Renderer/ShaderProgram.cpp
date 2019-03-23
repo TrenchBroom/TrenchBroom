@@ -30,11 +30,11 @@ namespace TrenchBroom {
     namespace Renderer {
         ShaderProgram::ShaderProgram(const String& name) :
         m_name(name),
-        m_programId(0),
+        m_programId(glCreateProgram()),
         m_needsLinking(true) {
-            glAssert(m_programId = glCreateProgram());
-            if (m_programId == 0)
+            if (m_programId == 0) {
                 throw RenderException("Cannot create shader program " + m_name);
+            }
         }
 
         ShaderProgram::~ShaderProgram() {

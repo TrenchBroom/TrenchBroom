@@ -466,7 +466,8 @@ namespace TrenchBroom {
 
         ToolController::~ToolController() = default;
         Tool* ToolController::tool() { return doGetTool(); }
-        bool ToolController::toolActive() { return tool()->active(); }
+        const Tool* ToolController::tool() const { return doGetTool(); }
+        bool ToolController::toolActive() const { return tool()->active(); }
         void ToolController::refreshViews() { tool()->refreshViews(); }
 
         ToolControllerGroup::ToolControllerGroup() :

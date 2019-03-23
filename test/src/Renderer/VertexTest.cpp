@@ -39,7 +39,7 @@ namespace TrenchBroom {
             using Vertex = GLVertexTypes::P3T2C4::Vertex;
 
             const auto pos   = vm::vec3f(1.0f, 2.0f, 3.0f);
-            const auto uv    = vm::vec2f(4.0f, 5.0f, 6.0f);
+            const auto uv    = vm::vec2f(4.0f, 5.0f);
             const auto color = vm::vec4f(7.0f, 8.0f, 9.0f, 10.0f);
 
             const auto expected = TestVertex{ pos, uv, color };
@@ -58,7 +58,7 @@ namespace TrenchBroom {
             for (size_t i = 0; i < 3; ++i) {
                 const auto f     = static_cast<float>(i);
                 const auto pos   = f * vm::vec3f(1.0f, 2.0f, 3.0f);
-                const auto uv    = f * vm::vec2f(4.0f, 5.0f, 6.0f);
+                const auto uv    = f * vm::vec2f(4.0f, 5.0f);
                 const auto color = f * vm::vec4f(7.0f, 8.0f, 9.0f, 10.0f);
 
                 expected.emplace_back(TestVertex{ pos, uv, color });

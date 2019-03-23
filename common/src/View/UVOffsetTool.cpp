@@ -45,6 +45,10 @@ namespace TrenchBroom {
             return this;
         }
 
+        const Tool* UVOffsetTool::doGetTool() const {
+            return this;
+        }
+
         bool UVOffsetTool::doStartMouseDrag(const InputState& inputState) {
             assert(m_helper.valid());
 

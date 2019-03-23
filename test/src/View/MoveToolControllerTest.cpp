@@ -56,6 +56,7 @@ namespace TrenchBroom {
                 mockDoCancelMove();
             }
             Tool* doGetTool() override { return &m_tool; }
+            const Tool* doGetTool() const override { return &m_tool; }
             bool doCancel() override { return false; }
         public:
             MOCK_METHOD1(mockDoStartMove, MoveInfo(const InputState&));

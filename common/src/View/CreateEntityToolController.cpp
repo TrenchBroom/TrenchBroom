@@ -37,6 +37,10 @@ namespace TrenchBroom {
             return m_tool;
         }
 
+        const Tool* CreateEntityToolController::doGetTool() const {
+            return m_tool;
+        }
+
         bool CreateEntityToolController::doDragEnter(const InputState& inputState, const String& payload) {
             const StringList parts = StringUtils::split(payload, ':');
             if (parts.size() != 2)
