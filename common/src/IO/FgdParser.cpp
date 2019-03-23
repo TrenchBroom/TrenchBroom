@@ -461,11 +461,7 @@ namespace TrenchBroom {
             const auto defaultValue = parseDefaultStringValue(status);
             const auto longDescription = parseAttributeDescription(status);
 
-            if (defaultValue.present) {
-                return Assets::AttributeDefinitionPtr(new Assets::StringAttributeDefinition(name, shortDescription, longDescription, defaultValue.value, readOnly));
-            } else {
-                return Assets::AttributeDefinitionPtr(new Assets::StringAttributeDefinition(name, shortDescription, longDescription, readOnly));
-            }
+            return std::make_shared<Assets::StringAttributeDefinition>(name, shortDescription, longDescription, readOnly, defaultValue);
         }
 
         Assets::AttributeDefinitionPtr FgdParser::parseIntegerAttribute(ParserStatus& status, const String& name) {
@@ -474,11 +470,7 @@ namespace TrenchBroom {
             const auto defaultValue = parseDefaultIntegerValue(status);
             const auto longDescription = parseAttributeDescription(status);
 
-            if (defaultValue.present) {
-                return Assets::AttributeDefinitionPtr(new Assets::IntegerAttributeDefinition(name, shortDescription, longDescription, defaultValue.value, readOnly));
-            } else {
-                return Assets::AttributeDefinitionPtr(new Assets::IntegerAttributeDefinition(name, shortDescription, longDescription, readOnly));
-            }
+            return std::make_shared<Assets::IntegerAttributeDefinition>(name, shortDescription, longDescription, readOnly, defaultValue);
         }
 
         Assets::AttributeDefinitionPtr FgdParser::parseFloatAttribute(ParserStatus& status, const String& name) {
@@ -487,11 +479,7 @@ namespace TrenchBroom {
             const auto defaultValue = parseDefaultFloatValue(status);
             const auto longDescription = parseAttributeDescription(status);
 
-            if (defaultValue.present) {
-                return Assets::AttributeDefinitionPtr(new Assets::FloatAttributeDefinition(name, shortDescription, longDescription, defaultValue.value, readOnly));
-            } else {
-                return Assets::AttributeDefinitionPtr(new Assets::FloatAttributeDefinition(name, shortDescription, longDescription, readOnly));
-            }
+            return std::make_shared<Assets::FloatAttributeDefinition>(name, shortDescription, longDescription, readOnly, defaultValue);
         }
 
         Assets::AttributeDefinitionPtr FgdParser::parseChoicesAttribute(ParserStatus& status, const String& name) {
@@ -515,11 +503,7 @@ namespace TrenchBroom {
                 token = expect(status, FgdToken::Integer | FgdToken::Decimal | FgdToken::String | FgdToken::CBracket, m_tokenizer.nextToken());
             }
 
-            if (defaultValue.present) {
-                return Assets::AttributeDefinitionPtr(new Assets::ChoiceAttributeDefinition(name, shortDescription, longDescription, options, defaultValue.value, readOnly));
-            } else {
-                return Assets::AttributeDefinitionPtr(new Assets::ChoiceAttributeDefinition(name, shortDescription, longDescription, options, readOnly));
-            }
+            return std::make_shared<Assets::ChoiceAttributeDefinition>(name, shortDescription, longDescription, options, readOnly, defaultValue);
         }
 
         Assets::AttributeDefinitionPtr FgdParser::parseFlagsAttribute(ParserStatus& status, const String& name) {
@@ -530,7 +514,7 @@ namespace TrenchBroom {
 
             auto token = expect(status, FgdToken::Integer | FgdToken::CBracket, m_tokenizer.nextToken());
 
-            auto* definition = new Assets::FlagsAttributeDefinition(name);
+            auto definition = std::make_shared<Assets::FlagsAttributeDefinition>(name);
 
             while (token.type() != FgdToken::CBracket) {
                 const auto value = token.toInteger<int>();
@@ -555,8 +539,7 @@ namespace TrenchBroom {
 
                 definition->addOption(value, shortDescription, longDescription, defaultValue);
             }
-
-            return Assets::AttributeDefinitionPtr(definition);
+            return definition;
         }
 
         Assets::AttributeDefinitionPtr FgdParser::parseUnknownAttribute(ParserStatus& status, const String& name) {
@@ -565,11 +548,7 @@ namespace TrenchBroom {
             const auto defaultValue = parseDefaultStringValue(status);
             const auto longDescription = parseAttributeDescription(status);
 
-            if (defaultValue.present) {
-                return Assets::AttributeDefinitionPtr(new Assets::UnknownAttributeDefinition(name, shortDescription, longDescription, defaultValue.value, readOnly));
-            } else {
-                return Assets::AttributeDefinitionPtr(new Assets::UnknownAttributeDefinition(name, shortDescription, longDescription, readOnly));
-            }
+            return std::make_shared<Assets::UnknownAttributeDefinition>(name, shortDescription, longDescription, readOnly, defaultValue);
         }
 
         bool FgdParser::parseReadOnlyFlag(ParserStatus& status) {
@@ -594,37 +573,37 @@ namespace TrenchBroom {
             return EmptyString;
         }
 
-        FgdParser::DefaultValue<String> FgdParser::parseDefaultStringValue(ParserStatus& status) {
+        std::optional<String> FgdParser::parseDefaultStringValue(ParserStatus& status) {
             auto token = m_tokenizer.peekToken();
             if (token.type() == FgdToken::Colon) {
                 m_tokenizer.nextToken();
                 token = expect(status, FgdToken::String | FgdToken::Colon, m_tokenizer.peekToken());
                 if (token.type() == FgdToken::String) {
                     token = m_tokenizer.nextToken();
-                    return DefaultValue<String>(token.data());
+                    return token.data();
                 }
             }
-            return DefaultValue<String>();
+            return std::nullopt;
         }
 
-        FgdParser::DefaultValue<int> FgdParser::parseDefaultIntegerValue(ParserStatus& status) {
+        std::optional<int> FgdParser::parseDefaultIntegerValue(ParserStatus& status) {
             auto token = m_tokenizer.peekToken();
             if (token.type() == FgdToken::Colon) {
                 m_tokenizer.nextToken();
                 token = expect(status, FgdToken::Integer | FgdToken::Decimal | FgdToken::Colon, m_tokenizer.peekToken());
                 if (token.type() == FgdToken::Integer) {
                     token = m_tokenizer.nextToken();
-                    return DefaultValue<int>(token.toInteger<int>());
+                    return token.toInteger<int>();
                 } else if (token.type() == FgdToken::Decimal) { // be graceful for DaZ
                     token = m_tokenizer.nextToken();
                     status.warn(token.line(), token.column(), "Found float default value for integer property");
-                    return DefaultValue<int>(static_cast<int>(token.toFloat<float>()));
+                    return static_cast<int>(token.toFloat<float>());
                 }
             }
-            return DefaultValue<int>();
+            return std::nullopt;
         }
 
-        FgdParser::DefaultValue<float> FgdParser::parseDefaultFloatValue(ParserStatus& status) {
+        std::optional<float> FgdParser::parseDefaultFloatValue(ParserStatus& status) {
             auto token = m_tokenizer.peekToken();
             if (token.type() == FgdToken::Colon) {
                 m_tokenizer.nextToken();
@@ -635,29 +614,23 @@ namespace TrenchBroom {
                     if (token.type() != FgdToken::String) {
                         status.warn(token.line(), token.column(), "Unquoted float default value " + token.data());
                     }
-                    return DefaultValue<float>(token.toFloat<float>());
+                    return token.toFloat<float>();
                 }
             }
-            return DefaultValue<float>();
+            return std::nullopt;
         }
 
-        FgdParser::DefaultValue<String> FgdParser::parseDefaultChoiceValue(ParserStatus& status) {
+        std::optional<String> FgdParser::parseDefaultChoiceValue(ParserStatus& status) {
             auto token = m_tokenizer.peekToken();
             if (token.type() == FgdToken::Colon) {
                 m_tokenizer.nextToken();
                 token = expect(status, FgdToken::String | FgdToken::Integer | FgdToken::Decimal | FgdToken::Colon, m_tokenizer.peekToken());
-                if (token.hasType(FgdToken::String)) {
+                if (token.hasType(FgdToken::String | FgdToken::Integer | FgdToken::Decimal)) {
                     token = m_tokenizer.nextToken();
-                    return DefaultValue<String>(token.data());
-                } else if (token.hasType(FgdToken::Integer)) {
-                    token = m_tokenizer.nextToken();
-                    return DefaultValue<String>(token.data());
-                } else if (token.hasType(FgdToken::Decimal)) {
-                    token = m_tokenizer.nextToken();
-                    return DefaultValue<String>(token.data());
+                    return token.data();
                 }
             }
-            return DefaultValue<String>();
+            return std::nullopt;
         }
 
         vm::vec3 FgdParser::parseVector(ParserStatus& status) {

@@ -63,6 +63,10 @@ namespace TrenchBroom {
             return this;
         }
 
+        const Tool* UVRotateTool::doGetTool() const {
+            return this;
+        }
+
         void UVRotateTool::doPick(const InputState& inputState, Model::PickResult& pickResult) {
             if (!m_helper.valid())
                 return;

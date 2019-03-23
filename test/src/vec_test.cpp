@@ -128,10 +128,6 @@ namespace vm {
         ASSERT_EQ(vec3f(1.0f, 2.0f, 0.0f), vec3f(1.0f, 2.0f));
     }
 
-    TEST(VecTest, constructVec3fFrom4Floats) {
-        ASSERT_EQ(vec3f(1.0f, 2.0f, 3.0f), vec3f(1.0f, 2.0f, 3.0f, 4.0f));
-    }
-
     TEST(VecTest, constructVec4fFrom3Floats) {
         ASSERT_EQ(vec4f(1.0f, 2.0f, 3.0f, 0.0f), vec4f(1.0f, 2.0f, 3.0f));
     }

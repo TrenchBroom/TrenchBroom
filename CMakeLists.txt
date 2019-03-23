@@ -127,6 +127,7 @@ INCLUDE(cmake/vecmath.cmake)
 INCLUDE(cmake/Common.cmake)
 INCLUDE(cmake/StackWalker.cmake)
 INCLUDE(cmake/miniz.cmake)
+INCLUDE(cmake/CppCheck.cmake)
 
 INCLUDE(cmake/TrenchBroomApp.cmake)
 INCLUDE(cmake/TrenchBroomTest.cmake)

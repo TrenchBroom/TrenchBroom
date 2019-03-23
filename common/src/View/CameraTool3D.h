@@ -44,6 +44,7 @@ namespace TrenchBroom {
             void fly(int dx, int dy, bool forward, bool backward, bool left, bool right, unsigned int time);
         private:
             Tool* doGetTool() override;
+            const Tool* doGetTool() const override;
 
             void doMouseScroll(const InputState& inputState) override;
             bool doStartMouseDrag(const InputState& inputState) override;

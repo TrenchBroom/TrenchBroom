@@ -34,7 +34,8 @@ namespace TrenchBroom {
         normal(i_normal) {}
 
         ObjFileSerializer::ObjFileSerializer(FILE* stream) :
-        m_stream(stream) {
+        m_stream(stream),
+        m_currentObject({ 0, 0, {} }) {
             ensure(m_stream != nullptr, "stream is null");
         }
 

@@ -44,6 +44,7 @@ namespace TrenchBroom {
             CreateSimpleBrushToolController3D(CreateSimpleBrushTool* tool, MapDocumentWPtr document);
         private:
             Tool* doGetTool() override;
+            const Tool* doGetTool() const override;
 
             void doModifierKeyChange(const InputState& inputState) override;
 

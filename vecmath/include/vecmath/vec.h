@@ -26,6 +26,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include <cassert>
 #include <cstddef>
 #include <ostream>
+#include <type_traits>
 
 namespace vm {
     template <typename T, size_t S>
@@ -105,7 +106,7 @@ namespace vm {
 
         /**
          * Returns whether parse() can parse S components from the given string
-         * 
+         *
          * @param str the string to parse
          * @return whether S components can be parsed
          */
@@ -225,17 +226,15 @@ namespace vm {
          *
          * @tparam U1 the type of the first given value
          * @tparam U2 the type of the second given value
+         * @tparam SS the number of components of this vector (only used for std::enable_if)
          * @param i_x the value of the first component
          * @param i_y the value of the second component
          */
-        template <typename U1, typename U2>
-        vec(U1 i_x, U2 i_y) {
-            if (S > 0) {
-                v[0] = static_cast<T>(i_x);
-                if (S > 1) {
-                    v[1] = static_cast<T>(i_y);
-                }
-            }
+        template <typename U1, typename U2, size_t SS = S>
+        vec(U1 i_x, U2 i_y, typename std::enable_if<SS >= 2>::type* = 0) {
+            static_assert(S >= 2, "vector must have at least two components");
+            v[0] = static_cast<T>(i_x);
+            v[1] = static_cast<T>(i_y);
             for (size_t i = 2; i < S; ++i) {
                 v[i] = static_cast<T>(0.0);
             }
@@ -250,21 +249,17 @@ namespace vm {
          * @tparam U1 the type of the first given value
          * @tparam U2 the type of the second given value
          * @tparam U3 the type of the third given value
+         * @tparam SS the number of components of this vector (only used for std::enable_if)
          * @param i_x the value of the first component
          * @param i_y the value of the second component
          * @param i_z the value of the third component
          */
-        template <typename U1, typename U2, typename U3>
-        vec(U1 i_x, U2 i_y, U3 i_z) {
-            if (S > 0) {
-                v[0] = static_cast<T>(i_x);
-                if (S > 1) {
-                    v[1] = static_cast<T>(i_y);
-                    if (S > 2) {
-                        v[2] = static_cast<T>(i_z);
-                    }
-                }
-            }
+        template <typename U1, typename U2, typename U3, size_t SS = S>
+        vec(U1 i_x, U2 i_y, U3 i_z, typename std::enable_if<SS >= 3>::type* = 0) {
+            static_assert(S >= 3, "vector must have at least three components");
+            v[0] = static_cast<T>(i_x);
+            v[1] = static_cast<T>(i_y);
+            v[2] = static_cast<T>(i_z);
             for (size_t i = 3; i < S; ++i) {
                 v[i] = static_cast<T>(0.0);
             }
@@ -280,25 +275,19 @@ namespace vm {
          * @tparam U2 the type of the second given value
          * @tparam U3 the type of the third given value
          * @tparam U4 the type of the fourth given value
+         * @tparam SS the number of components of this vector (only used for std::enable_if)
          * @param i_x the value of the first component
          * @param i_y the value of the second component
          * @param i_z the value of the third component
          * @param i_w the value of the fourth component
          */
-        template <typename U1, typename U2, typename U3, typename U4>
-        vec(U1 i_x, U2 i_y, U3 i_z, U4 i_w) {
-            if (S > 0) {
-                v[0] = static_cast<T>(i_x);
-                if (S > 1) {
-                    v[1] = static_cast<T>(i_y);
-                    if (S > 2) {
-                        v[2] = static_cast<T>(i_z);
-                        if (S > 3) {
-                            v[3] = static_cast<T>(i_w);
-                        }
-                    }
-                }
-            }
+        template <typename U1, typename U2, typename U3, typename U4, size_t SS = S>
+        vec(U1 i_x, U2 i_y, U3 i_z, U4 i_w, typename std::enable_if<SS >= 4>::type* = 0) {
+            static_assert(S >= 4, "vector must have at least four components");
+            v[0] = static_cast<T>(i_x);
+            v[1] = static_cast<T>(i_y);
+            v[2] = static_cast<T>(i_z);
+            v[3] = static_cast<T>(i_w);
             for (size_t i = 4; i < S; ++i) {
                 v[i] = static_cast<T>(0.0);
             }
@@ -377,7 +366,8 @@ namespace vm {
          *
          * @return the value of the first component
          */
-        T x() const {
+        template <size_t SS = S>
+        T x(typename std::enable_if<SS >= 1>::type* = 0) const {
             static_assert(S > 0);
             return v[0];
         }
@@ -387,7 +377,8 @@ namespace vm {
          *
          * @return the value of the component component
          */
-        T y() const {
+        template <size_t SS = S>
+        T y(typename std::enable_if<SS >= 2>::type* = 0) const {
             static_assert(S > 1);
             return v[1];
         }
@@ -397,7 +388,8 @@ namespace vm {
          *
          * @return the value of the third component
          */
-        T z() const {
+        template <size_t SS = S>
+        T z (typename std::enable_if<SS >= 3>::type* = 0) const {
             static_assert(S > 2);
             return v[2];
         }
@@ -407,7 +399,8 @@ namespace vm {
          *
          * @return the value of the fourth component
          */
-        T w() const {
+        template <size_t SS = S>
+        T w(typename std::enable_if<SS >= 4>::type* = 0) const {
             static_assert(S > 3);
             return v[3];
         }

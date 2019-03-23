@@ -36,6 +36,10 @@ namespace TrenchBroom {
             return this;
         }
 
+        const Tool* SetBrushFaceAttributesTool::doGetTool() const {
+            return this;
+        }
+
         bool SetBrushFaceAttributesTool::doMouseClick(const InputState& inputState) {
             return performCopy(inputState, false);
         }

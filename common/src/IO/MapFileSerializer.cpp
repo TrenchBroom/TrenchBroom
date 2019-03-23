@@ -33,7 +33,11 @@ namespace TrenchBroom {
             String TextureInfoFormat;
         public:
             QuakeFileSerializer(FILE* stream) :
-            MapFileSerializer(stream) {
+            MapFileSerializer(stream),
+            FacePointFormat(getFacePointFormat()),
+            TextureInfoFormat(" %s %.6g %.6g %.6g %.6g %.6g") {}
+        private:
+            static String getFacePointFormat() {
                 StringStream str;
                 str <<
                 "( %." << FloatPrecision << "g " <<
@@ -45,9 +49,7 @@ namespace TrenchBroom {
                 "( %." << FloatPrecision << "g " <<
                 "%." << FloatPrecision << "g " <<
                 "%." << FloatPrecision << "g )";
-
-                FacePointFormat = str.str();
-                TextureInfoFormat = " %s %.6g %.6g %.6g %.6g %.6g";
+                return str.str();
             }
         private:
             size_t doWriteBrushFace(FILE* stream, Model::BrushFace* face) override {
@@ -89,9 +91,8 @@ namespace TrenchBroom {
             String SurfaceAttributesFormat;
         public:
             Quake2FileSerializer(FILE* stream) :
-            QuakeFileSerializer(stream) {
-                SurfaceAttributesFormat = " %d %d %.6g";
-            }
+            QuakeFileSerializer(stream),
+            SurfaceAttributesFormat(" %d %d %.6g") {}
         private:
             size_t doWriteBrushFace(FILE* stream, Model::BrushFace* face) override {
                 writeFacePoints(stream, face);
@@ -119,9 +120,8 @@ namespace TrenchBroom {
             String SurfaceColorFormat;
         public:
             DaikatanaFileSerializer(FILE* stream) :
-            Quake2FileSerializer(stream) {
-                SurfaceColorFormat = " %d %d %d";
-            }
+            Quake2FileSerializer(stream),
+            SurfaceColorFormat(" %d %d %d") {}
         private:
             size_t doWriteBrushFace(FILE* stream, Model::BrushFace* face) override {
                 writeFacePoints(stream, face);
