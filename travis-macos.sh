@@ -3,7 +3,7 @@
 set -o verbose
 
 brew update
-brew install cmake p7zip pandoc cppcheck
+brew install cmake p7zip pandoc
 
 # Patch and build wxWidgets
 
