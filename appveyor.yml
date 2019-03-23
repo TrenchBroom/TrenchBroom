@@ -2,6 +2,7 @@ image: Visual Studio 2017
 version: 2.0.0-appveyor-{build}
 install:
 - cinst pandoc
+- cinst cppcheck
 clone_depth: 50
 build_script:
 - cmd: call appveyor.bat

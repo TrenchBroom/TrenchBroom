@@ -323,8 +323,8 @@ namespace TrenchBroom {
                 if (newCorner[i] == anchor[i]) {
                     return vm::bbox3();
                 }
-                const auto oldPositive = oldCorner[i] > anchor[i];
-                const auto newPositive = newCorner[i] > anchor[i];
+                const bool oldPositive = oldCorner[i] > anchor[i];
+                const bool newPositive = newCorner[i] > anchor[i];
                 if (oldPositive != newPositive) {
                     return vm::bbox3();
                 }
@@ -342,7 +342,7 @@ namespace TrenchBroom {
         vm::bbox3 moveBBoxEdge(const vm::bbox3& in,
                            const BBoxEdge& edge,
                            const vm::vec3& delta,
-                           const ProportionalAxes proportional,
+                           const ProportionalAxes& proportional,
                            const AnchorPos anchorType) {
 
             const auto opposite = oppositeEdge(edge);

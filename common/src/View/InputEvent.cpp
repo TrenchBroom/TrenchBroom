@@ -115,39 +115,48 @@ namespace TrenchBroom {
                 m_lastClickY = posY;
                 m_lastClickTime = std::chrono::high_resolution_clock::now();
                 m_anyMouseButtonDown = true;
+                m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::Down, button, wheelAxis, posX, posY, scrollDistance));
             } else if (type == MouseEvent::Type::Up) {
                 if (m_dragging) {
                     const auto now = std::chrono::high_resolution_clock::now();
                     const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - m_lastClickTime);
                     const auto minDuration = std::chrono::milliseconds(100);
                     if (duration < minDuration) {
-                        // Ignore accidental drags.
+                        // This was an accidental drag.
                         m_queue.enqueueEvent(std::make_unique<CancelEvent>());
                         m_dragging = false;
+
+                        // Synthesize a click event if the drag distance was not exceeded.
+                        if (!isDrag(posX, posY)) {
+                            m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::Click, button, wheelAxis, m_lastClickX, m_lastClickY, scrollDistance));
+                        }
                     } else {
                         m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::DragEnd, button, wheelAxis, posX, posY, scrollDistance));
                         m_dragging = false;
                     }
                 } else {
-                    if (std::abs(posX - m_lastClickX) <= 1 && std::abs(posY - m_lastClickY) <= 1) {
-                        // Ignore accidental clicks.
-                        m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::Click, button, wheelAxis, posX, posY, scrollDistance));
+                    // Synthesize a click event if the drag distance was not exceeded.
+                    if (!isDrag(posX, posY)) {
+                        m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::Click, button, wheelAxis, m_lastClickX, m_lastClickY, scrollDistance));
                     }
                 }
                 m_anyMouseButtonDown = false;
+                m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::Up, button, wheelAxis, posX, posY, scrollDistance));
             } else if (type == MouseEvent::Type::Motion) {
                 if (!m_dragging && m_anyMouseButtonDown) {
-                    if (std::abs(posX - m_lastClickX) > 0 || std::abs(posY - m_lastClickY)) {
+                    if (isDrag(posX, posY)) {
                         m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::DragStart, button, wheelAxis, m_lastClickX, m_lastClickY, scrollDistance));
                         m_dragging = true;
                     }
                 }
                 if (m_dragging) {
-                    type = MouseEvent::Type::Drag;
+                    m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::Drag, button, wheelAxis, posX, posY, scrollDistance));
+                } else {
+                    m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::Motion, button, wheelAxis, posX, posY, scrollDistance));
                 }
+            } else {
+                m_queue.enqueueEvent(std::make_unique<MouseEvent>(type, button, wheelAxis, posX, posY, scrollDistance));
             }
-
-            m_queue.enqueueEvent(std::make_unique<MouseEvent>(type, button, wheelAxis, posX, posY, scrollDistance));
         }
 
         void InputEventRecorder::recordEvent(const QWheelEvent* wxEvent) {
@@ -170,6 +179,11 @@ namespace TrenchBroom {
 
         void InputEventRecorder::processEvents(InputEventProcessor& processor) {
             m_queue.processEvents(processor);
+        }
+
+        bool InputEventRecorder::isDrag(int posX, int posY) const {
+            static const auto MinDragDistance = 2;
+            return std::abs(posX - m_lastClickX) > MinDragDistance || std::abs(posY - m_lastClickY) > MinDragDistance;
         }
 
         KeyEvent::Type InputEventRecorder::getEventType(const QKeyEvent* wxEvent) {

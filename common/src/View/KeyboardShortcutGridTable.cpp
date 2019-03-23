@@ -46,9 +46,11 @@ namespace TrenchBroom {
             return 3;
         }
 
-        QString KeyboardShortcutGridTable::GetValue(const int row, const int col) {
-            assert(row >= 0 && row < GetNumberRows());
-            assert(col >= 0 && col < GetNumberCols());
+        wxString KeyboardShortcutGridTable::GetValue(const int row, const int col) {
+            if (row < 0 || row >= GetNumberRows() ||
+                col < 0 || row >= GetNumberCols()) {
+                return "";
+            }
 
             const size_t rowIndex = static_cast<size_t>(row);
 
@@ -67,9 +69,10 @@ namespace TrenchBroom {
             return "";
         }
 
-        void KeyboardShortcutGridTable::SetValue(const int row, const int col, const QString& value) {
-            assert(row >= 0 && row < GetNumberRows());
-            assert(col == 0);
+        void KeyboardShortcutGridTable::SetValue(const int row, const int col, const wxString& value) {
+            if (row < 0 || row >= GetNumberRows() || col != 0) {
+                return;
+            }
 
             int key, modifier1, modifier2, modifier3;
             const bool success = KeyboardShortcut::parseShortcut(value, key, modifier1, modifier2, modifier3);
@@ -105,8 +108,10 @@ namespace TrenchBroom {
             return false;
         }
 
-        QString KeyboardShortcutGridTable::GetColLabelValue(const int col) {
-            assert(col >= 0 && col < GetNumberCols());
+        wxString KeyboardShortcutGridTable::GetColLabelValue(const int col) {
+            if (col < 0 || col >= GetNumberCols()) {
+                return "";
+            }
             switch (col) {
                 case 0:
                     return "Shortcut";

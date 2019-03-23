@@ -44,7 +44,7 @@ namespace TrenchBroom {
         class DirectRenderable : public Renderable {
         public:
             DirectRenderable() = default;
-            ~DirectRenderable() = default;
+            ~DirectRenderable() override = default;
 
             void prepareVertices(Vbo& vertexVbo);
         private:
@@ -56,7 +56,7 @@ namespace TrenchBroom {
         class IndexedRenderable : public Renderable {
         public:
             IndexedRenderable() = default;
-            ~IndexedRenderable() override;
+            ~IndexedRenderable() override = default;
 
             virtual void prepareVerticesAndIndices(Vbo& vertexVbo, Vbo& indexVbo) = 0;
 

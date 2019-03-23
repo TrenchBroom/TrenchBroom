@@ -85,7 +85,8 @@ namespace TrenchBroom {
                 }
             }
 
-            if (auto err = mz_zip_get_last_error(&m_archive); err != MZ_ZIP_NO_ERROR) {
+            const auto err = mz_zip_get_last_error(&m_archive);
+            if (err != MZ_ZIP_NO_ERROR) {
                 throw FileSystemException(String("Error while reading compressed file: ") + mz_zip_get_error_string(err));
             }
         }

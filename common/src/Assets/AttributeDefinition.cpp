@@ -127,60 +127,32 @@ namespace TrenchBroom {
             return new AttributeDefinition(name, type(), shortDescription, longDescription, readOnly);
         }
 
-        StringAttributeDefinition::StringAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const String& defaultValue, const bool readOnly) :
-        AttributeDefinitionWithDefaultValue(name, Type_StringAttribute, shortDescription, longDescription, defaultValue, readOnly) {}
-
-        StringAttributeDefinition::StringAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const bool readOnly) :
-        AttributeDefinitionWithDefaultValue(name, Type_StringAttribute, shortDescription, longDescription, readOnly) {}
+        StringAttributeDefinition::StringAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const bool readOnly, std::optional<String> defaultValue) :
+        AttributeDefinitionWithDefaultValue(name, Type_StringAttribute, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
 
         AttributeDefinition* StringAttributeDefinition::doClone(const String& name, const String& shortDescription, const String& longDescription, bool readOnly) const {
-            if (hasDefaultValue()) {
-                return new StringAttributeDefinition(name, shortDescription, longDescription, defaultValue(), readOnly);
-            } else {
-                return new StringAttributeDefinition(name, shortDescription, longDescription, readOnly);
-            }
+            return new StringAttributeDefinition(name, shortDescription, longDescription, readOnly, m_defaultValue);
         }
 
-        BooleanAttributeDefinition::BooleanAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const bool defaultValue, const bool readOnly) :
-        AttributeDefinitionWithDefaultValue(name, Type_BooleanAttribute, shortDescription, longDescription, defaultValue, readOnly) {}
-
-        BooleanAttributeDefinition::BooleanAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const bool readOnly) :
-        AttributeDefinitionWithDefaultValue(name, Type_BooleanAttribute, shortDescription, longDescription, readOnly) {}
+        BooleanAttributeDefinition::BooleanAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const bool readOnly, std::optional<bool> defaultValue) :
+        AttributeDefinitionWithDefaultValue(name, Type_BooleanAttribute, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
 
         AttributeDefinition* BooleanAttributeDefinition::doClone(const String& name, const String& shortDescription, const String& longDescription, bool readOnly) const {
-            if (hasDefaultValue()) {
-                return new BooleanAttributeDefinition(name, shortDescription, longDescription, defaultValue(), readOnly);
-            } else {
-                return new BooleanAttributeDefinition(name, shortDescription, longDescription, readOnly);
-            }
+            return new BooleanAttributeDefinition(name, shortDescription, longDescription, readOnly, m_defaultValue);
         }
 
-        IntegerAttributeDefinition::IntegerAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const int defaultValue, const bool readOnly) :
-        AttributeDefinitionWithDefaultValue(name, Type_IntegerAttribute, shortDescription, longDescription, defaultValue, readOnly) {}
-
-        IntegerAttributeDefinition::IntegerAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const bool readOnly) :
-        AttributeDefinitionWithDefaultValue(name, Type_IntegerAttribute, shortDescription, longDescription, readOnly) {}
+        IntegerAttributeDefinition::IntegerAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const bool readOnly, std::optional<int> defaultValue) :
+        AttributeDefinitionWithDefaultValue(name, Type_IntegerAttribute, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
 
         AttributeDefinition* IntegerAttributeDefinition::doClone(const String& name, const String& shortDescription, const String& longDescription, bool readOnly) const {
-            if (hasDefaultValue()) {
-                return new IntegerAttributeDefinition(name, shortDescription, longDescription, defaultValue(), readOnly);
-            } else {
-                return new IntegerAttributeDefinition(name, shortDescription, longDescription, readOnly);
-            }
+            return new IntegerAttributeDefinition(name, shortDescription, longDescription, readOnly, m_defaultValue);
         }
 
-        FloatAttributeDefinition::FloatAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const float defaultValue, const bool readOnly) :
-        AttributeDefinitionWithDefaultValue(name, Type_FloatAttribute, shortDescription, longDescription, defaultValue, readOnly) {}
-
-        FloatAttributeDefinition::FloatAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const bool readOnly) :
-        AttributeDefinitionWithDefaultValue(name, Type_FloatAttribute, shortDescription, longDescription, readOnly) {}
+        FloatAttributeDefinition::FloatAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const bool readOnly, std::optional<float> defaultValue) :
+        AttributeDefinitionWithDefaultValue(name, Type_FloatAttribute, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
 
         AttributeDefinition* FloatAttributeDefinition::doClone(const String& name, const String& shortDescription, const String& longDescription, bool readOnly) const {
-            if (hasDefaultValue()) {
-                return new FloatAttributeDefinition(name, shortDescription, longDescription, defaultValue(), readOnly);
-            } else {
-                return new FloatAttributeDefinition(name, shortDescription, longDescription, readOnly);
-            }
+            return new FloatAttributeDefinition(name, shortDescription, longDescription, readOnly, m_defaultValue);
         }
 
         ChoiceAttributeOption::ChoiceAttributeOption(const String& value, const String& description) :
@@ -199,12 +171,8 @@ namespace TrenchBroom {
             return m_description;
         }
 
-        ChoiceAttributeDefinition::ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::List& options, const String& defaultValue, const bool readOnly) :
-        AttributeDefinitionWithDefaultValue(name, Type_ChoiceAttribute, shortDescription, longDescription, defaultValue, readOnly),
-        m_options(options) {}
-
-        ChoiceAttributeDefinition::ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::List& options, const bool readOnly) :
-        AttributeDefinitionWithDefaultValue(name, Type_ChoiceAttribute, shortDescription, longDescription, readOnly),
+        ChoiceAttributeDefinition::ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::List& options, const bool readOnly, std::optional<String> defaultValue) :
+        AttributeDefinitionWithDefaultValue(name, Type_ChoiceAttribute, shortDescription, longDescription, readOnly, std::move(defaultValue)),
         m_options(options) {}
 
         const ChoiceAttributeOption::List& ChoiceAttributeDefinition::options() const {
@@ -216,11 +184,7 @@ namespace TrenchBroom {
         }
 
         AttributeDefinition* ChoiceAttributeDefinition::doClone(const String& name, const String& shortDescription, const String& longDescription, bool readOnly) const {
-            if (hasDefaultValue()) {
-                return new ChoiceAttributeDefinition(name, shortDescription, longDescription, options(), defaultValue(), readOnly);
-            } else {
-                return new ChoiceAttributeDefinition(name, shortDescription, longDescription, options(), readOnly);
-            }
+            return new ChoiceAttributeDefinition(name, shortDescription, longDescription, options(), readOnly, m_defaultValue);
         }
 
         FlagsAttributeOption::FlagsAttributeOption(const int value, const String& shortDescription, const String& longDescription, const bool isDefault) :
@@ -296,19 +260,12 @@ namespace TrenchBroom {
             return result.release();
         }
 
-        UnknownAttributeDefinition::UnknownAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const String& defaultValue, const bool readOnly) :
-        StringAttributeDefinition(name, shortDescription, longDescription, defaultValue, readOnly) {}
-
-        UnknownAttributeDefinition::UnknownAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const bool readOnly) :
-        StringAttributeDefinition(name, shortDescription, longDescription, readOnly) {}
+        UnknownAttributeDefinition::UnknownAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const bool readOnly, std::optional<String> defaultValue) :
+        StringAttributeDefinition(name, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
 
 
         AttributeDefinition* UnknownAttributeDefinition::doClone(const String& name, const String& shortDescription, const String& longDescription, bool readOnly) const {
-            if (hasDefaultValue()) {
-                return new UnknownAttributeDefinition(name, shortDescription, longDescription, defaultValue(), readOnly);
-            } else {
-                return new UnknownAttributeDefinition(name, shortDescription, longDescription, readOnly);
-            }
+            return new UnknownAttributeDefinition(name, shortDescription, longDescription, readOnly, m_defaultValue);
         }
     }
 }

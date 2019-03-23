@@ -163,7 +163,7 @@ namespace TrenchBroom {
         vm::bbox3 moveBBoxEdge(const vm::bbox3& in,
                            const BBoxEdge& edge,
                            const vm::vec3& delta,
-                           ProportionalAxes proportional,
+                           const ProportionalAxes& proportional,
                            AnchorPos anchor);
 
         /**

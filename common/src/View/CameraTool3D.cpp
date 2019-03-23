@@ -77,6 +77,10 @@ namespace TrenchBroom {
             return this;
         }
 
+        const Tool* CameraTool3D::doGetTool() const {
+            return this;
+        }
+
         void CameraTool3D::doMouseScroll(const InputState& inputState) {
             const auto factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
             const auto zoom = inputState.modifierKeysPressed(ModifierKeys::MKShift);

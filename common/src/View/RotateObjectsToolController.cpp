@@ -62,6 +62,10 @@ namespace TrenchBroom {
                 return m_tool;
             }
 
+            const Tool* doGetTool() const override {
+                return m_tool;
+            }
+
             bool doMouseClick(const InputState& inputState) override {
                 if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
                     return false;
@@ -209,6 +213,10 @@ namespace TrenchBroom {
                 return m_tool;
             }
 
+            const Tool* doGetTool() const override {
+                return m_tool;
+            }
+
             MoveInfo doStartMove(const InputState& inputState) override {
                 if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft) ||
                     !inputState.checkModifierKeys(ModifierKeyPressed::MK_No, ModifierKeyPressed::MK_DontCare, ModifierKeyPressed::MK_No))
@@ -259,6 +267,10 @@ namespace TrenchBroom {
         RotateObjectsToolController::~RotateObjectsToolController() = default;
 
         Tool* RotateObjectsToolController::doGetTool() {
+            return m_tool;
+        }
+
+        const Tool* RotateObjectsToolController::doGetTool() const {
             return m_tool;
         }
 

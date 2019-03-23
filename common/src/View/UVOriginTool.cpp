@@ -61,6 +61,10 @@ namespace TrenchBroom {
             return this;
         }
 
+        const Tool* UVOriginTool::doGetTool() const {
+            return this;
+        }
+
         void UVOriginTool::doPick(const InputState& inputState, Model::PickResult& pickResult) {
             if (m_helper.valid()) {
                 vm::line3 xHandle, yHandle;

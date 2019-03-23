@@ -37,6 +37,7 @@ namespace TrenchBroom {
             virtual ~CreateEntityToolController() override;
         private:
             Tool* doGetTool() override;
+            const Tool* doGetTool() const override;
 
             bool doDragEnter(const InputState& inputState, const String& payload) override;
             bool doDragMove(const InputState& inputState) override;

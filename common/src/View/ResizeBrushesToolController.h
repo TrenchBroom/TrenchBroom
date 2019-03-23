@@ -53,6 +53,7 @@ namespace TrenchBroom {
             virtual ~ResizeBrushesToolController() override;
         private:
             Tool* doGetTool() override;
+            const Tool* doGetTool() const override;
 
             void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
 

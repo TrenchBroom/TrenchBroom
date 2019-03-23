@@ -320,7 +320,6 @@ namespace TrenchBroom {
             if (m_toolBox->dragging()) {
                 m_toolBox->cancelMouseDrag();
                 m_inputState.setAnyToolDragging(false);
-                m_inputState.clearMouseButtons();
                 return true;
             } else {
                 return false;

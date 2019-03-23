@@ -364,7 +364,8 @@ namespace TrenchBroom {
             virtual ~ToolController();
 
             Tool* tool();
-            bool toolActive();
+            const Tool* tool() const;
+            bool toolActive() const;
 
             virtual void pick(const InputState& inputState, Model::PickResult& pickResult) = 0;
 
@@ -397,6 +398,7 @@ namespace TrenchBroom {
             void refreshViews();
         private:
             virtual Tool* doGetTool() = 0;
+            virtual const Tool* doGetTool() const = 0;
         };
 
         template <class PickingPolicyType, class KeyPolicyType, class MousePolicyType, class MouseDragPolicyType, class RenderPolicyType, class DropPolicyType>

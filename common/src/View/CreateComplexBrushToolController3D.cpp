@@ -68,6 +68,7 @@ namespace TrenchBroom {
             Part(tool) {}
         private:
             Tool* doGetTool() override { return m_tool; }
+            const Tool* doGetTool() const override { return m_tool; }
 
             DragInfo doStartDrag(const InputState& inputState) override {
                 if (inputState.modifierKeysDown(ModifierKeys::MKShift))
@@ -141,6 +142,7 @@ namespace TrenchBroom {
             Part(tool) {}
         private:
             Tool* doGetTool() override { return m_tool; }
+            const Tool* doGetTool() const override { return m_tool; }
 
             DragInfo doStartDrag(const InputState& inputState) override {
                 if (!inputState.modifierKeysDown(ModifierKeys::MKShift))
@@ -204,6 +206,10 @@ namespace TrenchBroom {
         }
 
         Tool* CreateComplexBrushToolController3D::doGetTool() {
+            return m_tool;
+        }
+
+        const Tool* CreateComplexBrushToolController3D::doGetTool() const {
             return m_tool;
         }
 

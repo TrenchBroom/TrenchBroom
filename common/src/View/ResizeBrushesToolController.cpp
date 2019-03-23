@@ -48,6 +48,10 @@ namespace TrenchBroom {
             return m_tool;
         }
 
+        const Tool* ResizeBrushesToolController::doGetTool() const {
+            return m_tool;
+        }
+
         void ResizeBrushesToolController::doPick(const InputState& inputState, Model::PickResult& pickResult) {
             if (handleInput(inputState)) {
                 const Model::Hit hit = doPick(inputState.pickRay(), pickResult);

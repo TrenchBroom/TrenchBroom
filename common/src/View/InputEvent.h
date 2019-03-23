@@ -307,6 +307,15 @@ namespace TrenchBroom {
             void processEvents(InputEventProcessor& processor);
         private:
             /**
+             * Determines if the given mouse position should start a drag when compared to the last click position.
+             *
+             * @param posX the X position
+             * @param posY the Y position
+             * @return true if the given position should start a drag and false otherwise
+             */
+            bool isDrag(int posX, int posY) const;
+
+            /**
              * Decodes the event type of the given key event.
              *
              * @param wxEvent the event to decode

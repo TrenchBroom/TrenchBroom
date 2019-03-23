@@ -51,7 +51,7 @@ namespace TrenchBroom {
             const char* curPos() const;
             char curChar() const;
 
-            char lookAhead(const size_t offset = 1) const;
+            char lookAhead(size_t offset = 1) const;
 
             size_t line() const;
             size_t column() const;
@@ -65,7 +65,7 @@ namespace TrenchBroom {
 
             size_t offset(const char* ptr) const;
 
-            void advance(const size_t offset);
+            void advance(size_t offset);
             void advance();
             void reset();
 
@@ -89,7 +89,7 @@ namespace TrenchBroom {
                 StatePtr m_state;
                 TokenizerState m_snapshot;
             public:
-                SaveState(StatePtr state) :
+                explicit SaveState(StatePtr state) :
                 m_state(state),
                 m_snapshot(m_state->snapshot()) {}
 
@@ -114,13 +114,13 @@ namespace TrenchBroom {
             m_state(std::make_shared<TokenizerState>(str.c_str(), str.c_str() + str.size(), escapableChars, escapeChar)) {}
 
             template <typename OtherType>
-            Tokenizer(Tokenizer<OtherType>& nestedTokenizer) :
+            explicit Tokenizer(Tokenizer<OtherType>& nestedTokenizer) :
             m_state(nestedTokenizer.m_state) {}
 
             Tokenizer(const Tokenizer& other) :
             m_state(other.m_state) {}
 
-            virtual ~Tokenizer() {}
+            virtual ~Tokenizer() = default;
 
             Token nextToken(const TokenType skipTokens = 0u) {
                 auto token = emitToken();
@@ -152,8 +152,8 @@ namespace TrenchBroom {
                 }
 
                 Token token = peekToken();
-                const auto* startPos = std::begin(token);
-                const auto* endPos = startPos;
+                const char* startPos = std::begin(token);
+                const char* endPos = startPos;
                 do {
                     token = nextToken();
                     endPos = std::end(token);
@@ -166,8 +166,8 @@ namespace TrenchBroom {
                 while (isWhitespace(curChar())) {
                     advance();
                 }
-                const auto* startPos = curPos();
-                const auto* endPos = (curChar() == '"' ? readQuotedString() : readUntil(delims));
+                const char* startPos = curPos();
+                const char* endPos = (curChar() == '"' ? readQuotedString() : readUntil(delims));
                 return String(startPos, static_cast<size_t>(endPos - startPos));
             }
 
@@ -314,8 +314,9 @@ namespace TrenchBroom {
 
         private:
             void readDigits() {
-                while (!eof() && isDigit(curChar()))
+                while (!eof() && isDigit(curChar())) {
                     advance();
+                }
             }
         protected:
             const char* readUntil(const String& delims) {
@@ -344,7 +345,7 @@ namespace TrenchBroom {
                     advance();
                 }
                 errorIfEof();
-                const auto* end = curPos();
+                const char* end = curPos();
                 advance();
                 return end;
             }
@@ -393,7 +394,7 @@ namespace TrenchBroom {
 
             const char* discard(const String& str) {
                 for (size_t i = 0; i < str.size(); ++i) {
-                    const auto c = lookAhead(i);
+                    const char c = lookAhead(i);
                     if (c == 0 || c != str[i]) {
                         return nullptr;
                     }
@@ -409,8 +410,8 @@ namespace TrenchBroom {
             }
         protected:
             bool isAnyOf(const char c, const String& allow) const {
-                for (size_t i = 0; i < allow.size(); i++) {
-                    if (c == allow[i]) {
+                for (const auto& a : allow) {
+                    if (c == a) {
                         return true;
                     }
                 }

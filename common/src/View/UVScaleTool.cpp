@@ -57,6 +57,10 @@ namespace TrenchBroom {
             return this;
         }
 
+        const Tool* UVScaleTool::doGetTool() const {
+            return this;
+        }
+
         void UVScaleTool::doPick(const InputState& inputState, Model::PickResult& pickResult) {
             static const Model::Hit::HitType HitTypes[] = { XHandleHit, YHandleHit };
             if (m_helper.valid()) {
