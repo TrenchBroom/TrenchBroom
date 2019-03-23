@@ -43,6 +43,10 @@ namespace TrenchBroom {
             return m_tool;
         }
 
+        const Tool* CreateSimpleBrushToolController2D::doGetTool() const {
+            return m_tool;
+        }
+
         RestrictedDragPolicy::DragInfo CreateSimpleBrushToolController2D::doStartDrag(const InputState& inputState) {
             if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
                 return DragInfo();

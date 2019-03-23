@@ -112,6 +112,10 @@ namespace TrenchBroom {
                     return m_tool;
                 }
 
+                const Tool* doGetTool() const override {
+                    return m_tool;
+                }
+
                 void doPick(const InputState& inputState, Model::PickResult& pickResult) override {
                     m_tool->pick(inputState.pickRay(), inputState.camera(), pickResult);
                 }
@@ -246,6 +250,10 @@ namespace TrenchBroom {
                     return m_tool;
                 }
 
+                const Tool* doGetTool() const override {
+                    return m_tool;
+                }
+
                 bool doCancel() override {
                     return m_tool->deselectAll();
                 }
@@ -319,6 +327,10 @@ namespace TrenchBroom {
             virtual ~VertexToolControllerBase() override {}
         private:
             Tool* doGetTool() override {
+                return m_tool;
+            }
+
+            const Tool* doGetTool() const override {
                 return m_tool;
             }
         };

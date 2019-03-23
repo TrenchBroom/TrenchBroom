@@ -38,9 +38,10 @@ namespace TrenchBroom {
             Renderer::OrthographicCamera& m_camera;
             vm::vec2f m_lastMousePos;
         public:
-            CameraTool2D(Renderer::OrthographicCamera& camera);
+            explicit CameraTool2D(Renderer::OrthographicCamera& camera);
         private:
             Tool* doGetTool() override;
+            const Tool* doGetTool() const override;
 
             void doMouseScroll(const InputState& inputState) override;
             bool doStartMouseDrag(const InputState& inputState) override;

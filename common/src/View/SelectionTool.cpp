@@ -49,6 +49,10 @@ namespace TrenchBroom {
             return this;
         }
 
+        const Tool* SelectionTool::doGetTool() const {
+            return this;
+        }
+
         bool SelectionTool::doMouseClick(const InputState& inputState) {
             if (!handleClick(inputState)) {
                 return false;

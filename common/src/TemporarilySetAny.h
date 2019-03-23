@@ -29,7 +29,6 @@ namespace TrenchBroom {
     private:
         T& m_value;
         T m_oldValue;
-        T m_newValue;
     public:
         TemporarilySetAny(T& value, T newValue) :
         m_value(value),

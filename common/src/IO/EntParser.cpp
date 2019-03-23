@@ -147,12 +147,12 @@ namespace TrenchBroom {
             if (flagElement != nullptr) {
                 auto result = std::make_shared<Assets::FlagsAttributeDefinition>(Model::AttributeNames::Spawnflags);
                 do {
-                    const auto [success, bit] = parseSize(*flagElement, "bit", status);
-                    if (!success) {
+                    const auto bit = parseSize(*flagElement, "bit", status);
+                    if (!bit.has_value()) {
                         const auto strValue = parseString(*flagElement, "bit", status);
                         warn(*flagElement, "Invalid value '" + strValue + "' for bit attribute", status);
                     } else {
-                        const auto value = 1 << bit;
+                        const auto value = 1 << *bit;
                         const auto shortDesc = parseString(element, "key", status);
                         const auto longDesc = parseString(element, "name", status);
                         result->addOption(value, shortDesc, longDesc, false);
@@ -209,24 +209,16 @@ namespace TrenchBroom {
 
         void EntParser::parseUnknownAttribute(const tinyxml2::XMLElement& element, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
             auto factory = [this, &element, &status](const String& name, const String& shortDesc, const String& longDesc) {
-                if (hasAttribute(element, "value")) {
-                    const auto value = parseString(element, "value", status);
-                    return std::make_shared<Assets::UnknownAttributeDefinition>(name, shortDesc, longDesc, value, false);
-                } else {
-                    return std::make_shared<Assets::UnknownAttributeDefinition>(name, shortDesc, longDesc, false);
-                }
+                auto defaultValue = hasAttribute(element, "value") ? std::make_optional(parseString(element, "value", status)) : std::nullopt;
+                return std::make_shared<Assets::UnknownAttributeDefinition>(name, shortDesc, longDesc, false, std::move(defaultValue));
             };
             parseAttributeDefinition(element, factory, attributeDefinitions, status);
         }
 
         void EntParser::parseStringAttribute(const tinyxml2::XMLElement& element, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
             auto factory = [this, &element, &status](const String& name, const String& shortDesc, const String& longDesc) {
-                if (hasAttribute(element, "value")) {
-                    const auto value = parseString(element, "value", status);
-                    return std::make_shared<Assets::StringAttributeDefinition>(name, shortDesc, longDesc, value, false);
-                } else {
-                    return std::make_shared<Assets::StringAttributeDefinition>(name, shortDesc, longDesc, false);
-                }
+                auto defaultValue = hasAttribute(element, "value") ? std::make_optional(parseString(element, "value", status)) : std::nullopt;
+                return std::make_shared<Assets::StringAttributeDefinition>(name, shortDesc, longDesc, false, std::move(defaultValue));
             };
             parseAttributeDefinition(element, factory, attributeDefinitions, status);
         }
@@ -234,13 +226,13 @@ namespace TrenchBroom {
         void EntParser::parseBooleanAttribute(const tinyxml2::XMLElement& element, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
             auto factory = [this, &element, &status](const String& name, const String& shortDesc, const String& longDesc) -> Assets::AttributeDefinitionPtr {
                 if (hasAttribute(element, "value")) {
-                    const auto [success, value] = parseInteger(element, "value", status);
-                    if (success) {
-                        return std::make_shared<Assets::BooleanAttributeDefinition>(name, shortDesc, longDesc, value != 0, false);
+                    const auto boolDefaultValue = parseInteger(element, "value", status);
+                    if (boolDefaultValue.has_value()) {
+                        return std::make_shared<Assets::BooleanAttributeDefinition>(name, shortDesc, longDesc, false, *boolDefaultValue != 0);
                     } else {
-                        const auto strValue = parseString(element, "value", status);
-                        warn(element, "Invalid default value '" + strValue + "' for boolean attribute definition", status);
-                        return std::make_shared<Assets::UnknownAttributeDefinition>(name, shortDesc, longDesc, strValue, false);
+                        auto strDefaultValue = parseString(element, "value", status);
+                        warn(element, "Invalid default value '" + strDefaultValue + "' for boolean attribute definition", status);
+                        return std::make_shared<Assets::UnknownAttributeDefinition>(name, shortDesc, longDesc, false, std::move(strDefaultValue));
                     }
                 } else {
                     return std::make_shared<Assets::BooleanAttributeDefinition>(name, shortDesc, longDesc, false);
@@ -252,13 +244,13 @@ namespace TrenchBroom {
         void EntParser::parseIntegerAttribute(const tinyxml2::XMLElement& element, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
             auto factory = [this, &element, &status](const String& name, const String& shortDesc, const String& longDesc) -> Assets::AttributeDefinitionPtr {
                 if (hasAttribute(element, "value")) {
-                    const auto [success, value] = parseInteger(element, "value", status);
-                    if (success) {
-                        return std::make_shared<Assets::IntegerAttributeDefinition>(name, shortDesc, longDesc, value, false);
+                    auto intDefaultValue = parseInteger(element, "value", status);
+                    if (intDefaultValue.has_value()) {
+                        return std::make_shared<Assets::IntegerAttributeDefinition>(name, shortDesc, longDesc, false, std::move(intDefaultValue));
                     } else {
-                        const auto strValue = parseString(element, "value", status);
-                        warn(element, "Invalid default value '" + strValue + "' for integer attribute definition", status);
-                        return std::make_shared<Assets::UnknownAttributeDefinition>(name, shortDesc, longDesc, strValue, false);
+                        auto strDefaultValue = parseString(element, "value", status);
+                        warn(element, "Invalid default value '" + strDefaultValue + "' for integer attribute definition", status);
+                        return std::make_shared<Assets::UnknownAttributeDefinition>(name, shortDesc, longDesc, false, std::move(strDefaultValue));
                     }
                 } else {
                     return std::make_shared<Assets::IntegerAttributeDefinition>(name, shortDesc, longDesc, false);
@@ -270,13 +262,13 @@ namespace TrenchBroom {
         void EntParser::parseRealAttribute(const tinyxml2::XMLElement& element, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
             auto factory = [this, &element, &status](const String& name, const String& shortDesc, const String& longDesc) -> Assets::AttributeDefinitionPtr {
                 if (hasAttribute(element, "value")) {
-                    const auto [success, value] = parseFloat(element, "value", status);
-                    if (success) {
-                        return std::make_shared<Assets::FloatAttributeDefinition>(name, shortDesc, longDesc, value, false);
+                    auto floatDefaultValue = parseFloat(element, "value", status);
+                    if (floatDefaultValue.has_value()) {
+                        return std::make_shared<Assets::FloatAttributeDefinition>(name, shortDesc, longDesc, false, std::move(floatDefaultValue));
                     } else {
-                        const auto strValue = parseString(element, "value", status);
-                        warn(element, "Invalid default value '" + strValue + "' for float attribute definition", status);
-                        return std::make_shared<Assets::UnknownAttributeDefinition>(name, shortDesc, longDesc, strValue, false);
+                        auto strDefaultValue = parseString(element, "value", status);
+                        warn(element, "Invalid default value '" + strDefaultValue + "' for float attribute definition", status);
+                        return std::make_shared<Assets::UnknownAttributeDefinition>(name, shortDesc, longDesc, false, std::move(strDefaultValue));
                     }
                 } else {
                     return std::make_shared<Assets::FloatAttributeDefinition>(name, shortDesc, longDesc, false);
@@ -358,46 +350,40 @@ namespace TrenchBroom {
             return Color::parse(parseString(element, attributeName, status));
         }
 
-        std::tuple<bool, int> EntParser::parseInteger(const tinyxml2::XMLElement& element, const String& attributeName, ParserStatus& status) {
+        std::optional<int> EntParser::parseInteger(const tinyxml2::XMLElement& element, const String& attributeName, ParserStatus& status) {
             const auto* strValue = element.Attribute(attributeName.c_str());
-            if (strValue == nullptr) {
-                return std::make_tuple(false, 0);
-            } else {
+            if (strValue != nullptr) {
                 char* end;
                 const auto intValue = std::strtol(strValue, &end, 10);
-                if (*end != '\0' || errno == ERANGE) {
-                    return std::make_tuple(false, 0);
+                if (*end == '\0' && errno != ERANGE) {
+                    return intValue;
                 }
-                return std::make_tuple(true, intValue);
             }
+            return std::nullopt;
         }
 
-        std::tuple<bool, float> EntParser::parseFloat(const tinyxml2::XMLElement& element, const String& attributeName, ParserStatus& status) {
+        std::optional<float> EntParser::parseFloat(const tinyxml2::XMLElement& element, const String& attributeName, ParserStatus& status) {
             const auto* strValue = element.Attribute(attributeName.c_str());
-            if (strValue == nullptr) {
-                return std::make_tuple(false, 0.0f);
-            } else {
+            if (strValue != nullptr) {
                 char* end;
                 const auto floatValue = std::strtof(strValue, &end);
-                if (*end != '\0' || errno == ERANGE) {
-                    return std::make_tuple(false, 0.0f);
+                if (*end == '\0' && errno != ERANGE) {
+                    return floatValue;
                 }
-                return std::make_tuple(true, floatValue);
             }
+            return std::nullopt;
         }
 
-        std::tuple<bool, size_t> EntParser::parseSize(const tinyxml2::XMLElement& element, const String& attributeName, ParserStatus& status) {
+        std::optional<size_t> EntParser::parseSize(const tinyxml2::XMLElement& element, const String& attributeName, ParserStatus& status) {
             const auto* strValue = element.Attribute(attributeName.c_str());
-            if (strValue == nullptr) {
-                return std::make_tuple(false, 0);
-            } else {
+            if (strValue != nullptr) {
                 char* end;
                 const auto intValue = std::strtoul(strValue, &end, 10);
-                if (*end != '\0' || errno == ERANGE) {
-                    return std::make_tuple(false, 0);
+                if (*end == '\0' && errno != ERANGE) {
+                    return static_cast<size_t>(intValue);
                 }
-                return std::make_tuple(true, static_cast<size_t>(intValue));
             }
+            return std::nullopt;
         }
 
         String EntParser::parseString(const tinyxml2::XMLElement& element, const String& attributeName, ParserStatus& status) {

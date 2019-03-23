@@ -34,28 +34,22 @@
 namespace TrenchBroom {
     namespace View {
         bool KeyboardShortcut::MacModifierOrder::operator()(const int lhs, const int rhs) const {
-            if (lhs == WXK_NONE)
-                return lhs != WXK_NONE;
             if (lhs == WXK_ALT)
                 return rhs != WXK_ALT;
             if (lhs == WXK_SHIFT)
                 return rhs != WXK_ALT && rhs != WXK_SHIFT;
             if (lhs == WXK_CONTROL)
                 return rhs == WXK_NONE;
-            assert(false);
             return false;
         }
 
         bool KeyboardShortcut::WinModifierOrder::operator()(const int lhs, const int rhs) const {
-            if (lhs == WXK_NONE)
-                return lhs != WXK_NONE;
             if (lhs == WXK_CONTROL)
                 return rhs != WXK_CONTROL;
             if (lhs == WXK_ALT)
                 return rhs != WXK_CONTROL && rhs != WXK_ALT;
             if (lhs == WXK_SHIFT)
                 return rhs == WXK_NONE;
-            assert(false);
             return false;
         }
 

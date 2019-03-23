@@ -38,6 +38,7 @@ namespace TrenchBroom {
             CreateSimpleBrushToolController2D(CreateSimpleBrushTool* tool, MapDocumentWPtr document);
         private:
             Tool* doGetTool() override;
+            const Tool* doGetTool() const override;
 
             DragInfo doStartDrag(const InputState& inputState) override;
             DragResult doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override;

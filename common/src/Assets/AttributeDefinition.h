@@ -23,6 +23,7 @@
 #include "StringUtils.h"
 #include "Exceptions.h"
 
+#include <optional>
 #include <vector>
 
 namespace TrenchBroom {
@@ -68,58 +69,50 @@ namespace TrenchBroom {
 
         template <typename T>
         class AttributeDefinitionWithDefaultValue : public AttributeDefinition {
-        private:
-            bool m_hasDefaultValue;
-            T m_defaultValue;
+        protected:
+            std::optional<T> m_defaultValue;
         public:
             bool hasDefaultValue() const {
-                return m_hasDefaultValue;
+                return m_defaultValue.has_value();
             }
 
             const T& defaultValue() const {
-                if (!hasDefaultValue())
+                if (!hasDefaultValue()) {
                     throw EntityAttributeException(name() + " has no default value");
-                return m_defaultValue;
+                } else {
+                    return *m_defaultValue;
+                }
             }
         protected:
-            AttributeDefinitionWithDefaultValue(const String& name, Type type, const String& shortDescription, const String& longDescription, bool readOnly) :
+            AttributeDefinitionWithDefaultValue(const String& name, Type type, const String& shortDescription, const String& longDescription, bool readOnly, std::optional<T> defaultValue = std::nullopt) :
             AttributeDefinition(name, type, shortDescription, longDescription, readOnly),
-            m_hasDefaultValue(false) {}
-
-            AttributeDefinitionWithDefaultValue(const String& name, Type type, const String& shortDescription, const String& longDescription, const T& defaultValue, bool readOnly) :
-            AttributeDefinition(name, type, shortDescription, longDescription, readOnly),
-            m_hasDefaultValue(true),
-            m_defaultValue(defaultValue) {}
+            m_defaultValue(std::move(defaultValue)) {}
         };
 
         class StringAttributeDefinition : public AttributeDefinitionWithDefaultValue<String> {
         public:
-            StringAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const String& defaultValue, bool readOnly);
-            StringAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, bool readOnly);
+            StringAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, bool readOnly, std::optional<String> defaultValue = std::nullopt);
         private:
             AttributeDefinition* doClone(const String& name, const String& shortDescription, const String& longDescription, bool readOnly) const override;
         };
 
         class BooleanAttributeDefinition : public AttributeDefinitionWithDefaultValue<bool> {
         public:
-            BooleanAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, bool defaultValue, bool readOnly);
-            BooleanAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, bool readOnly);
+            BooleanAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, bool readOnly, std::optional<bool> defaultValue = std::nullopt);
         private:
             AttributeDefinition* doClone(const String& name, const String& shortDescription, const String& longDescription, bool readOnly) const override;
         };
 
         class IntegerAttributeDefinition : public AttributeDefinitionWithDefaultValue<int> {
         public:
-            IntegerAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, int defaultValue, bool readOnly);
-            IntegerAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, bool readOnly);
+            IntegerAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, bool readOnly, std::optional<int> defaultValue = std::nullopt);
         private:
             AttributeDefinition* doClone(const String& name, const String& shortDescription, const String& longDescription, bool readOnly) const override;
         };
 
         class FloatAttributeDefinition : public AttributeDefinitionWithDefaultValue<float> {
         public:
-            FloatAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, float defaultValue, bool readOnly);
-            FloatAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, bool readOnly);
+            FloatAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, bool readOnly, std::optional<float> defaultValue = std::nullopt);
         private:
             AttributeDefinition* doClone(const String& name, const String& shortDescription, const String& longDescription, bool readOnly) const override;
         };
@@ -141,8 +134,7 @@ namespace TrenchBroom {
         private:
             ChoiceAttributeOption::List m_options;
         public:
-            ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::List& options, const String& defaultValue, bool readOnly);
-            ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::List& options, bool readOnly);
+            ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::List& options, bool readOnly, std::optional<String> defaultValue = std::nullopt);
             const ChoiceAttributeOption::List& options() const;
         private:
             bool doEquals(const AttributeDefinition* other) const override;
@@ -183,8 +175,7 @@ namespace TrenchBroom {
 
         class UnknownAttributeDefinition : public StringAttributeDefinition {
         public:
-            UnknownAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const String& defaultValue, bool readOnly);
-            UnknownAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, bool readOnly);
+            UnknownAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, bool readOnly, std::optional<String> defaultValue = std::nullopt);
         private:
             AttributeDefinition* doClone(const String& name, const String& shortDescription, const String& longDescription, bool readOnly) const override;
         };

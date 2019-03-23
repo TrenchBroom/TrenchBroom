@@ -21,8 +21,8 @@
 
 Exception::Exception() noexcept {}
 
-Exception::Exception(std::string str) noexcept :
-m_msg(std::move(str)) {}
+Exception::Exception(const std::string& str) noexcept :
+m_msg(str) {}
 
 const char* Exception::what() const noexcept {
     return m_msg.c_str();

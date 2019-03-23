@@ -1,0 +1,10 @@
+// suppress vm::vec(...) constructor warnings for the constructors directly accepting values for the vector components
+// these constructors are disabled for invalid use cases (e.g. vm::vec3f(1, 2, 3, 4)) using SFINAE, but cppcheck considers them anyway
+arrayIndexOutOfBounds:*/vec.h:262
+arrayIndexOutOfBounds:*/vec.h:289
+arrayIndexOutOfBounds:*/vec.h:290
+
+// supress vm::vec::x() vm::vec::y() vm::vec::z() vm::vec::w() errors accessing nonexisting values
+// these functions are disabled for invalid use cases (e.g. vm::vec2f().z()) using SFINAE, but cppcheck considers them anyway
+arrayIndexOutOfBounds:*/vec.h:394
+arrayIndexOutOfBounds:*/vec.h:405

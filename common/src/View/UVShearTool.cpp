@@ -44,6 +44,10 @@ namespace TrenchBroom {
             return this;
         }
 
+        const Tool* UVShearTool::doGetTool() const {
+            return this;
+        }
+
         void UVShearTool::doPick(const InputState& inputState, Model::PickResult& pickResult) {
             static const Model::Hit::HitType HitTypes[] = { XHandleHit, YHandleHit };
             if (m_helper.valid())

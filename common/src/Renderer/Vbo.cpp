@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <memory>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -62,13 +63,14 @@ namespace TrenchBroom {
         }
 
         Vbo::~Vbo() {
-            if (active())
+            if (active()) {
                 deactivate();
+            }
             free();
 
-            auto* block = m_firstBlock;
+            VboBlock* block = m_firstBlock;
             while (block != nullptr) {
-                auto* next = block->next();
+                VboBlock* next = block->next();
                 delete block;
                 block = next;
             }
@@ -92,14 +94,16 @@ namespace TrenchBroom {
             }
 
             assert(it != std::end(m_freeBlocks));
-            auto* block = *it;
+            VboBlock* block = *it;
+
             ensure(block != nullptr, "block is null");
             removeFreeBlock(it);
 
             if (block->capacity() > capacity) {
-                auto* remainder = block->split(capacity);
-                if (m_lastBlock == block)
+                VboBlock* remainder = block->split(capacity);
+                if (m_lastBlock == block) {
                     m_lastBlock = remainder;
+                }
                 insertFreeBlock(remainder);
             }
 
@@ -148,8 +152,8 @@ namespace TrenchBroom {
             assert(!block->isFree());
             assert(checkBlockChain());
 
-            auto* previous = block->previous();
-            auto* next = block->next();
+            VboBlock* previous = block->previous();
+            VboBlock* next = block->next();
 
             if (previous != nullptr && previous->isFree() &&
                 next != nullptr && next->isFree()) {
@@ -157,23 +161,26 @@ namespace TrenchBroom {
                 removeFreeBlock(next);
                 previous->mergeWithSuccessor();
                 previous->mergeWithSuccessor();
-                if (m_lastBlock == next)
+                if (m_lastBlock == next) {
                     m_lastBlock = previous;
+                }
                 delete block;
                 delete next;
                 insertFreeBlock(previous);
             } else if (previous != nullptr && previous->isFree()) {
                 removeFreeBlock(previous);
                 previous->mergeWithSuccessor();
-                if (m_lastBlock == block)
+                if (m_lastBlock == block) {
                     m_lastBlock = previous;
+                }
                 delete block;
                 insertFreeBlock(previous);
             } else if (next != nullptr && next->isFree()) {
                 removeFreeBlock(next);
                 block->mergeWithSuccessor();
-                if (m_lastBlock == next)
+                if (m_lastBlock == next) {
                     m_lastBlock = block;
+                }
                 delete next;
                 insertFreeBlock(block);
             } else {
@@ -184,12 +191,14 @@ namespace TrenchBroom {
 
         void Vbo::increaseCapacityToAccomodate(const size_t capacity) {
             auto newMinCapacity = m_totalCapacity + capacity;
-            if (m_lastBlock->isFree())
+            if (m_lastBlock->isFree()) {
                 newMinCapacity -= m_lastBlock->capacity();
+            }
 
             auto newCapacity = m_totalCapacity;
-            while (newCapacity < newMinCapacity)
+            while (newCapacity < newMinCapacity) {
                 newCapacity = static_cast<size_t>(static_cast<float>(newCapacity) * GrowthFactor);
+            }
 
             increaseCapacity(newCapacity - m_totalCapacity);
         }
@@ -209,7 +218,7 @@ namespace TrenchBroom {
                 m_lastBlock->setCapacity(m_lastBlock->capacity() + delta);
                 insertFreeBlock(m_lastBlock);
             } else {
-                auto* block = m_lastBlock->createSuccessor(delta);
+                auto block = m_lastBlock->createSuccessor(delta);
                 m_lastBlock = block;
                 insertFreeBlock(m_lastBlock);
             }
@@ -219,10 +228,10 @@ namespace TrenchBroom {
             assert(checkBlockChain());
 
             if (begin < end) {
-                auto* buffer = map();
+                unsigned char* buffer = map();
 
-                auto* temp = new unsigned char[end - begin];
-                memcpy(temp, buffer + begin, end - begin);
+                auto temp = std::make_unique<unsigned char[]>(end - begin);
+                memcpy(temp.get(), buffer + begin, end - begin);
 
                 unmap();
                 deactivate();
@@ -230,8 +239,7 @@ namespace TrenchBroom {
                 activate();
                 buffer = map();
 
-                memcpy(buffer + begin, temp, end - begin);
-                delete [] temp;
+                memcpy(buffer + begin, temp.get(), end - begin);
 
                 unmap();
             } else {
@@ -248,10 +256,11 @@ namespace TrenchBroom {
 
         void Vbo::insertFreeBlock(VboBlock* block) {
             auto it = std::lower_bound(std::begin(m_freeBlocks), std::end(m_freeBlocks), block, CompareVboBlocksByCapacity());
-            if (it == std::end(m_freeBlocks))
+            if (it == std::end(m_freeBlocks)) {
                 m_freeBlocks.push_back(block);
-            else
+            } else {
                 m_freeBlocks.insert(it, block);
+            }
             block->setFree(true);
             m_freeCapacity += block->capacity();
         }
@@ -261,8 +270,9 @@ namespace TrenchBroom {
             assert(it != std::end(m_freeBlocks));
             if (*it != block) {
                 const auto end = std::upper_bound(std::begin(m_freeBlocks), std::end(m_freeBlocks), block, CompareVboBlocksByCapacity());
-                while (it != end && *it != block)
+                while (it != end && *it != block) {
                     ++it;
+                }
                 assert(it != end);
             }
             assert(*it == block);
@@ -270,7 +280,7 @@ namespace TrenchBroom {
         }
 
         void Vbo::removeFreeBlock(const VboBlockList::iterator it) {
-            auto* block = *it;
+            VboBlock* block = *it;
             m_freeBlocks.erase(it);
             block->setFree(false);
             m_freeCapacity -= block->capacity();
@@ -306,7 +316,7 @@ namespace TrenchBroom {
             // fixes a crash on Mac OS X where a buffer could not be mapped after another windows was closed
             glAssert(glFinishObjectAPPLE(GL_BUFFER_OBJECT_APPLE, static_cast<GLint>(m_vboId)));
 #endif
-            auto* buffer = reinterpret_cast<unsigned char *>(glMapBuffer(m_type, GL_WRITE_ONLY));
+            unsigned char* buffer = reinterpret_cast<unsigned char *>(glMapBuffer(m_type, GL_WRITE_ONLY));
             ensure(buffer != nullptr, "buffer is null");
             m_state = State_FullyMapped;
 
@@ -320,11 +330,11 @@ namespace TrenchBroom {
         }
 
         bool Vbo::checkBlockChain() const {
-            auto* block = m_firstBlock;
+            VboBlock* block = m_firstBlock;
             ensure(block != nullptr, "block is null");
 
             auto count = 0u;
-            auto* next = block->next();
+            VboBlock* next = block->next();
             while (next != nullptr) {
                 assert(next->previous() == block);
                 assert(!block->isFree() || !next->isFree());
@@ -335,7 +345,7 @@ namespace TrenchBroom {
 
             assert(block == m_lastBlock);
 
-            auto* previous = block->previous();
+            VboBlock* previous = block->previous();
             while (previous != nullptr) {
                 assert(previous->next() == block);
                 block = previous;

@@ -44,6 +44,10 @@ namespace TrenchBroom {
             return m_tool;
         }
 
+        const Tool* MoveObjectsToolController::doGetTool() const {
+            return m_tool;
+        }
+
         MoveObjectsToolController::MoveInfo MoveObjectsToolController::doStartMove(const InputState& inputState) {
             if (!inputState.modifierKeysPressed(ModifierKeys::MKNone) &&
                 !inputState.modifierKeysPressed(ModifierKeys::MKAlt) &&
