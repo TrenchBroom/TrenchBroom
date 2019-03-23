@@ -30,7 +30,5 @@ namespace TrenchBroom {
         void DirectRenderable::prepareVertices(Vbo& vertexVbo) {
             doPrepareVertices(vertexVbo);
         }
-
-        IndexedRenderable::~IndexedRenderable() {}
     }
 }

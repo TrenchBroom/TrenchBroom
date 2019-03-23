@@ -4,10 +4,18 @@ LIST(APPEND CPPCHECK_ARGS
     --suppressions-list=${CMAKE_SOURCE_DIR}/cppcheck.suppr
     --std=c++11
     --language=c++
+    --xml
     --error-exitcode=1
     -DMAIN=main
     -I ${VECMATH_INCLUDE_DIR}
     ${COMMON_SOURCE_DIR}
+    2> ./err.xml
+)
+
+LIST(APPEND CPPCHECK_HTMLREPORT_ARGS
+    --file err.xml 
+    --report-dir=cppcheck_report 
+    --source-dir=${CMAKE_SOURCE_DIR}
 )
 
 FIND_PROGRAM(CPPCHECK_EXE cppcheck)
@@ -25,4 +33,13 @@ ELSE()
         COMMAND ${CPPCHECK_EXE} ${CPPCHECK_ARGS}
         COMMENT "running cppcheck"
     )
+
+    FIND_PROGRAM(CPPCHECK_HTMLREPORT_EXE cppcheck-htmlreport)
+    IF (NOT CPPCHECK_HTMLREPORT_EXE STREQUAL "CPPCHECK_HTMLREPORT_EXE-NOTFOUND")
+        ADD_CUSTOM_TARGET(
+            cppcheck-report
+            COMMAND ${CPPCHECK_HTMLREPORT_EXE} ${CPPCHECK_HTMLREPORT_ARGS}
+            COMMENT "running cppcheck-htmlreport"
+        )
+    ENDIF()
 ENDIF()
