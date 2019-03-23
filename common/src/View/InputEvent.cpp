@@ -125,15 +125,17 @@ namespace TrenchBroom {
                         m_queue.enqueueEvent(std::make_unique<CancelEvent>());
                         m_dragging = false;
 
-                        // Synthesize a click event.
-                        m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::Click, button, wheelAxis, m_lastClickX, m_lastClickY, scrollDistance));
+                        // Synthesize a click event if the drag distance was not exceeded.
+                        if (!isDrag(posX, posY)) {
+                            m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::Click, button, wheelAxis, m_lastClickX, m_lastClickY, scrollDistance));
+                        }
                     } else {
                         m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::DragEnd, button, wheelAxis, posX, posY, scrollDistance));
                         m_dragging = false;
                     }
                 } else {
-                    if (std::abs(posX - m_lastClickX) <= 1 && std::abs(posY - m_lastClickY) <= 1) {
-                        // Synthesize a click event.
+                    // Synthesize a click event if the drag distance was not exceeded.
+                    if (!isDrag(posX, posY)) {
                         m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::Click, button, wheelAxis, m_lastClickX, m_lastClickY, scrollDistance));
                     }
                 }
@@ -141,7 +143,7 @@ namespace TrenchBroom {
                 m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::Up, button, wheelAxis, posX, posY, scrollDistance));
             } else if (type == MouseEvent::Type::Motion) {
                 if (!m_dragging && m_anyMouseButtonDown) {
-                    if (std::abs(posX - m_lastClickX) > 0 || std::abs(posY - m_lastClickY) > 0) {
+                    if (isDrag(posX, posY)) {
                         m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::DragStart, button, wheelAxis, m_lastClickX, m_lastClickY, scrollDistance));
                         m_dragging = true;
                     }
@@ -163,6 +165,11 @@ namespace TrenchBroom {
 
         void InputEventRecorder::processEvents(InputEventProcessor& processor) {
             m_queue.processEvents(processor);
+        }
+
+        bool InputEventRecorder::isDrag(int posX, int posY) const {
+            static const auto MinDragDistance = 2;
+            return std::abs(posX - m_lastClickX) > MinDragDistance || std::abs(posY - m_lastClickY) > MinDragDistance;
         }
 
         KeyEvent::Type InputEventRecorder::getEventType(const wxKeyEvent& wxEvent) {
