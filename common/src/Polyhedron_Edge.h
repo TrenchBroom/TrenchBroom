@@ -188,25 +188,16 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::Edge::previous() const 
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::Edge::split(const vm::plane<T,3>& plane) {
-    // Do exactly what QBSP is doing:
-    const T startDist = plane.pointDistance(firstVertex()->position());
-    const T endDist = plane.pointDistance(secondVertex()->position());
+    const V& startPos = firstVertex()->position();
+    const V& endPos = secondVertex()->position();
+
+    const T startDist = plane.pointDistance(startPos);
+    const T endDist = plane.pointDistance(endPos);
 
     assert(startDist != endDist);
     const T dot = startDist / (startDist - endDist);
 
-    const V& startPos = firstVertex()->position();
-    const V& endPos = secondVertex()->position();
-    V position;
-    for (size_t i = 0; i < 3; ++i) {
-        if (plane.normal[i] == 1.0)
-            position[i] = plane.distance;
-        else if (plane.normal[i] == -1.0)
-            position[i] = -plane.distance;
-        else
-            position[i] = startPos[i] + dot * (endPos[i] - startPos[i]);
-    }
-
+    const V position = startPos + dot * (endPos - startPos);
     return insertVertex(position);
 }
 
