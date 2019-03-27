@@ -46,7 +46,7 @@ namespace TrenchBroom {
             auto model = parser.initializeModel(logger);
             ASSERT_NE(nullptr, model);
 
-            parser.loadFrame(0, *model, logger);
+            ASSERT_NO_THROW(parser.loadFrame(0, *model, logger));
             ASSERT_TRUE(model->frame(0)->loaded());
         }
 
@@ -65,7 +65,26 @@ namespace TrenchBroom {
             auto model = parser.initializeModel(logger);
             ASSERT_NE(nullptr, model);
 
-            parser.loadFrame(0, *model, logger);
+            ASSERT_NO_THROW(parser.loadFrame(0, *model, logger));
+            ASSERT_TRUE(model->frame(0)->loaded());
+        }
+
+        TEST(AseParserTest, parseFailure_2679) {
+            NullLogger logger;
+            const auto shaderSearchPath = Path("scripts");
+            const auto textureSearchPaths = Path::List { Path("models") };
+            std::shared_ptr<FileSystem> fs = std::make_shared<DiskFileSystem>(IO::Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Ase/no_scene_directive"));
+            fs = std::make_shared<Quake3ShaderFileSystem>(fs, shaderSearchPath, textureSearchPaths, logger);
+
+            const auto aseFile = fs->openFile(Path("wedge_45.ase"));
+            const auto basePath = Path();
+            auto reader = aseFile->reader().buffer();
+            AseParser parser("wedge", std::begin(reader), std::end(reader), *fs);
+
+            auto model = parser.initializeModel(logger);
+            ASSERT_NE(nullptr, model);
+
+            ASSERT_NO_THROW(parser.loadFrame(0, *model, logger));
             ASSERT_TRUE(model->frame(0)->loaded());
         }
     }
