@@ -77,7 +77,10 @@ namespace TrenchBroom {
 
             const wxString pathWxStr = ::wxFileSelector("Load Entity Definition File",
                                                         wxEmptyString, wxEmptyString, wxEmptyString,
-                                                        "Worldcraft / Hammer files (*.fgd)|*.fgd|QuakeC files (*.def)|*.def",
+                                                        "All supported entity definition files (*.fgd, *.def, *.ent)|*.fgd;*.def;*.ent|"
+                                                        "Worldcraft / Hammer files (*.fgd)|*.fgd|"
+                                                        "QuakeC files (*.def)|*.def|"
+                                                        "Radiant XML files (*.ent)|*.ent",
                                                         wxFD_OPEN | wxFD_FILE_MUST_EXIST);
             if (pathWxStr.empty())
                 return;
