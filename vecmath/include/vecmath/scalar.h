@@ -824,6 +824,10 @@ namespace vm {
                  T(1.0 / 2.0) * r * p - T(1.0 / 8.0) * q * q,
                 epsilon);
 
+            // Just to silence a compiler warning about num3 being unused, since we cannot use [[maybe_unused]] with
+            // structured bindings. Hopefully the optimizer will just remove this.
+            num = num + num3 - num3;
+
             // ... and take the one real solution ...
             const auto z = solutions3[0];
 
