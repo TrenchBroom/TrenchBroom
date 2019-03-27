@@ -63,9 +63,14 @@ namespace TrenchBroom {
 
             template <typename T>
             T snapAngle(const T a) const {
+                return snapAngle(a, angle());
+            }
+
+            template <typename T>
+            T snapAngle(const T a, const T snapAngle) const {
                 if (!snap())
                     return a;
-                return angle() * vm::round(a / angle());
+                return snapAngle * vm::round(a / snapAngle);
             }
         public: // Snap scalars.
             template <typename T>

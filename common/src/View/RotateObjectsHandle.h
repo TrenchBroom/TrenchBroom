@@ -22,8 +22,8 @@
 
 #include "TrenchBroom.h"
 #include "Color.h"
+#include "Macros.h"
 #include "Model/Hit.h"
-#include "Renderer/PointHandleRenderer.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -40,39 +40,80 @@ namespace TrenchBroom {
         public:
             static const Model::Hit::HitType HandleHit;
 
-            typedef enum {
-                HitArea_None    = 0,
-                HitArea_Center  = 1,
-                HitArea_XAxis   = 2,
-                HitArea_YAxis   = 4,
-                HitArea_ZAxis   = 8
-            } HitArea;
+            enum class HitArea {
+                HitArea_None = 0,
+                HitArea_Center = 1,
+                HitArea_XAxis = 2,
+                HitArea_YAxis = 4,
+                HitArea_ZAxis = 8
+            };
+        private:
+            class Handle {
+            protected:
+                const vm::vec3& m_position;
+            public:
+                explicit Handle(const vm::vec3& position);
+                virtual ~Handle();
+
+                virtual Model::Hit pick(const vm::ray3& pickRay, const Renderer::Camera& camera) const = 0;
+                virtual void renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const = 0;
+                virtual void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, HitArea area) const = 0;
+
+                FloatType scalingFactor(const Renderer::Camera& camera) const;
+                static FloatType majorRadius();
+                static FloatType minorRadius();
+            protected:
+                Model::Hit pickCenterHandle(const vm::ray3& pickRay, const Renderer::Camera& camera) const;
+                virtual Model::Hit pickRotateHandle(const vm::ray3& pickRay, const Renderer::Camera& camera, HitArea area) const;
+
+                vm::mat4x4 handleTransform(const Renderer::Camera& camera, HitArea area) const;
+            };
+
+            class Handle2D : public Handle {
+            public:
+                using Handle::Handle;
+
+                Model::Hit pick(const vm::ray3& pickRay, const Renderer::Camera& camera) const override;
+                void renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const override;
+                void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, HitArea area) const override;
+
+                deleteCopyAndMove(Handle2D)
+            };
+
+            class Handle3D : public Handle {
+            public:
+                using Handle::Handle;
+
+                Model::Hit pick(const vm::ray3& pickRay, const Renderer::Camera& camera) const override;
+                void renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const override;
+                void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, HitArea area) const override;
+            protected:
+                Model::Hit pickRotateHandle(const vm::ray3& pickRay, const Renderer::Camera& camera, HitArea area) const override;
+
+                deleteCopyAndMove(Handle3D)
+            };
         private:
             vm::vec3 m_position;
+            Handle2D m_handle2D;
+            Handle3D m_handle3D;
         public:
+            RotateObjectsHandle();
+
             const vm::vec3& position() const;
             void setPosition(const vm::vec3& position);
 
             Model::Hit pick2D(const vm::ray3& pickRay, const Renderer::Camera& camera) const;
             Model::Hit pick3D(const vm::ray3& pickRay, const Renderer::Camera& camera) const;
 
-            vm::vec3 pointHandlePosition(HitArea area, const vm::vec3& cameraPos) const;
-            FloatType handleRadius() const;
+            FloatType majorHandleRadius(const Renderer::Camera& camera) const;
+            FloatType minorHandleRadius(const Renderer::Camera& camera) const;
 
             vm::vec3 rotationAxis(HitArea area) const;
-            vm::vec3 pointHandleAxis(HitArea area, const vm::vec3& cameraPos) const;
         public:
-//            void renderAngle(Renderer::RenderContext& renderContext, const HitArea handle, const FloatType angle);
             void renderHandle2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderHandle3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderHighlight2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, HitArea area);
             void renderHighlight3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, HitArea area);
-        private:
-            Model::Hit pickPointHandle(const vm::ray3& pickRay, const Renderer::Camera& camera, const vm::vec3& position, HitArea area) const;
-            Model::Hit selectHit(const Model::Hit& closest, const Model::Hit& hit) const;
-
-            vm::vec3 getPointHandlePosition(const vm::vec3& axis) const;
-            Color getAngleIndicatorColor(HitArea area) const;
         };
     }
 }

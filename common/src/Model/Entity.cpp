@@ -252,10 +252,9 @@ namespace TrenchBroom {
                         const auto transformedRay = ray.transform(inverse);
                         const auto distance = m_modelFrame->intersect(vm::ray3f(transformedRay));
                         if (!vm::isnan(distance)) {
-                            // transform back to world space
-                            const auto transformedHitPoint = vm::vec3(transformedRay.pointAtDistance(distance));
-                            const auto hitPoint = transform * transformedHitPoint;
-                            pickResult.addHit(Hit(EntityHit, distance, hitPoint, this));
+                            // since there will only be rotation / translation, we can just use the distance and
+                            // compute the hit point directly, no need to transform the point back int world space
+                            pickResult.addHit(Hit(EntityHit, distance, ray.pointAtDistance(distance), this));
                             return;
                         }
                     }
