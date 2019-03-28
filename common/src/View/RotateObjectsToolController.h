@@ -42,9 +42,9 @@ namespace TrenchBroom {
         protected:
             RotateObjectsTool* m_tool;
         protected:
-            RotateObjectsToolController(RotateObjectsTool* tool);
+            explicit RotateObjectsToolController(RotateObjectsTool* tool);
         public:
-            virtual ~RotateObjectsToolController() override;
+            ~RotateObjectsToolController() override;
         private:
             Tool* doGetTool() override;
             const Tool* doGetTool() const override;
@@ -65,7 +65,7 @@ namespace TrenchBroom {
             class MoveCenterPart;
             class RotateObjectsPart;
         public:
-            RotateObjectsToolController2D(RotateObjectsTool* tool);
+            explicit RotateObjectsToolController2D(RotateObjectsTool* tool);
         private:
             Model::Hit doPick(const InputState& inputState) override;
             void doRenderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
@@ -76,7 +76,7 @@ namespace TrenchBroom {
             class MoveCenterPart;
             class RotateObjectsPart;
         public:
-            RotateObjectsToolController3D(RotateObjectsTool* tool);
+            explicit RotateObjectsToolController3D(RotateObjectsTool* tool);
         private:
             Model::Hit doPick(const InputState& inputState) override;
             void doRenderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
