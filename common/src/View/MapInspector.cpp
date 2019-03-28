@@ -44,16 +44,14 @@ namespace TrenchBroom {
         }
 
         QWidget* MapInspector::createLayerEditor(QWidget* parent, MapDocumentWPtr document) {
-            return new QWidget();
+            TitledPanel* titledPanel = new TitledPanel(parent, tr("Layers"));
+            LayerEditor* layerEditor = new LayerEditor(titledPanel->getPanel(), document);
 
-//            TitledPanel* titledPanel = new TitledPanel(parent, tr("Layers"));
-//            LayerEditor* layerEditor = new LayerEditor(titledPanel->getPanel(), document);
-//
-//            auto* sizer = new QVBoxLayout();
-//            sizer->addWidget(layerEditor, 1);
-//            titledPanel->getPanel()->setLayout(sizer);
-//
-//            return titledPanel;
+            auto* sizer = new QVBoxLayout();
+            sizer->addWidget(layerEditor, 1);
+            titledPanel->getPanel()->setLayout(sizer);
+
+            return titledPanel;
         }
 
         QWidget* MapInspector::createModEditor(QWidget* parent, MapDocumentWPtr document) {

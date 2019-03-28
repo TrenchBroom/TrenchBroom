@@ -365,8 +365,8 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/KeyboardShortcutGridTable.cpp
 	${COMMON_SOURCE_DIR}/View/Lasso.cpp
 #	${COMMON_SOURCE_DIR}/View/LaunchGameEngineDialog.cpp
-#	${COMMON_SOURCE_DIR}/View/LayerEditor.cpp
-#	${COMMON_SOURCE_DIR}/View/LayerListBox.cpp
+	${COMMON_SOURCE_DIR}/View/LayerEditor.cpp
+	${COMMON_SOURCE_DIR}/View/LayerListBox.cpp
 	${COMMON_SOURCE_DIR}/View/MapDocumentCommandFacade.cpp
 	${COMMON_SOURCE_DIR}/View/MapDocument.cpp
 	${COMMON_SOURCE_DIR}/View/MapFrame.cpp

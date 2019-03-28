@@ -26,39 +26,38 @@
 
 #include <QWidget>
 
+class QAbstractButton;
+
 namespace TrenchBroom {
     namespace View {
-        class LayerCommand;
         class LayerListBox;
 
         class LayerEditor : public QWidget {
             Q_OBJECT
         private:
-            static const int MoveSelectionToLayerCommandId = 1;
-            static const int SelectAllInLayerCommandId = 2;
-            static const int ToggleLayerVisibleCommandId = 3;
-            static const int ToggleLayerLockedCommandId = 4;
-            static const int RemoveLayerCommandId = 5;
-
             MapDocumentWPtr m_document;
             LayerListBox* m_layerList;
+
+            QAbstractButton* m_addLayerButton;
+            QAbstractButton* m_removeLayerButton;
+            QAbstractButton* m_showAllLayersButton;
         public:
             LayerEditor(QWidget* parent, MapDocumentWPtr document);
         private:
-            void OnSetCurrentLayer(LayerCommand& event);
-            void OnLayerRightClick(LayerCommand& event);
+            void OnSetCurrentLayer(Model::Layer* layer);
+            void OnLayerRightClick(Model::Layer* layer);
 
             class CollectMoveableNodes;
             void OnMoveSelectionToLayer();
             bool canMoveSelectionToLayer() const;
 
             void OnToggleLayerVisibleFromMenu();
-            void OnToggleLayerVisibleFromList(LayerCommand& event);
+            void OnToggleLayerVisibleFromList(Model::Layer* layer);
             bool canToggleLayerVisible() const;
             void toggleLayerVisible(Model::Layer* layer);
 
             void OnToggleLayerLockedFromMenu();
-            void OnToggleLayerLockedFromList(LayerCommand& event);
+            void OnToggleLayerLockedFromList(Model::Layer* layer);
             bool canToggleLayerLocked() const;
             void toggleLayerLocked(Model::Layer* layer);
 
@@ -75,6 +74,7 @@ namespace TrenchBroom {
             Model::Layer* findVisibleAndUnlockedLayer(const Model::Layer* except) const;
             void moveSelectedNodesToLayer(MapDocumentSPtr document, Model::Layer* layer);
             void createGui();
+            void updateButtons();
         };
     }
 }

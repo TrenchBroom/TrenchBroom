@@ -21,55 +21,21 @@
 #define TrenchBroom_LayerListBox
 
 #include "Model/ModelTypes.h"
-#include "View/ControlListBox.h"
 #include "View/ViewTypes.h"
+
+#include <QWidget>
 
 #include <vector>
 
-class wxScrolledWindow;
+class QListWidget;
 
 namespace TrenchBroom {
     namespace View {
-        class LayerCommand;
-    }
-}
-
-using LayerCommandFunction = void(wxEvtHandler::*)(TrenchBroom::View::LayerCommand&);
-
-wxDECLARE_EVENT(LAYER_SELECTED_EVENT, TrenchBroom::View::LayerCommand);
-#define LayerSelectedHandler(func) wxEVENT_HANDLER_CAST(LayerCommandFunction, func)
-
-wxDECLARE_EVENT(LAYER_SET_CURRENT_EVENT, TrenchBroom::View::LayerCommand);
-#define LayerSetCurrentHandler(func) wxEVENT_HANDLER_CAST(LayerCommandFunction, func)
-
-wxDECLARE_EVENT(LAYER_RIGHT_CLICK_EVENT, TrenchBroom::View::LayerCommand);
-#define LayerRightClickHandler(func) wxEVENT_HANDLER_CAST(LayerCommandFunction, func)
-
-wxDECLARE_EVENT(LAYER_TOGGLE_VISIBLE_EVENT, TrenchBroom::View::LayerCommand);
-#define LayerToggleVisibleHandler(func) wxEVENT_HANDLER_CAST(LayerCommandFunction, func)
-
-wxDECLARE_EVENT(LAYER_TOGGLE_LOCKED_EVENT, TrenchBroom::View::LayerCommand);
-#define LayerToggleLockedHandler(func) wxEVENT_HANDLER_CAST(LayerCommandFunction, func)
-
-namespace TrenchBroom {
-    namespace View {
-        class LayerCommand : public wxCommandEvent {
-        protected:
-            Model::Layer* m_layer;
-        public:
-            LayerCommand(wxEventType commandType, int id = 0);
-
-            Model::Layer* layer() const;
-            void setLayer(Model::Layer* layer);
-
-            virtual wxEvent* Clone() const override;
-        };
-
-        class LayerListBox : public ControlListBox {
+        class LayerListBox : public QWidget {
+            Q_OBJECT
         private:
-            class LayerItem;
-
             MapDocumentWPtr m_document;
+            QListWidget* m_listWidget;
         public:
             LayerListBox(QWidget* parent, MapDocumentWPtr document);
             ~LayerListBox() override;
@@ -77,9 +43,15 @@ namespace TrenchBroom {
             Model::Layer* selectedLayer() const;
             void setSelectedLayer(Model::Layer* layer);
 
-            void OnSelectionChanged(wxCommandEvent& event);
-            void OnDoubleClick(wxCommandEvent& event);
-            void OnRightClick(wxCommandEvent& event);
+            void OnSelectionChanged();
+            void OnDoubleClick();
+            void OnRightClick();
+        signals:
+            void LAYER_SELECTED_EVENT(Model::Layer* layer);
+            void LAYER_SET_CURRENT_EVENT(Model::Layer* layer);
+            void LAYER_RIGHT_CLICK_EVENT(Model::Layer* layer);
+            void LAYER_TOGGLE_VISIBLE_EVENT(Model::Layer* layer);
+            void LAYER_TOGGLE_LOCKED_EVENT(Model::Layer* layer);
         private:
             void bindObservers();
             void unbindObservers();
@@ -88,9 +60,10 @@ namespace TrenchBroom {
             void nodesDidChange(const Model::NodeList& nodes);
             void currentLayerDidChange(const Model::Layer* layer);
 
+            void rebuildList();
             void bindEvents();
-        private:
-            Item* createItem(QWidget* parent, const wxSize& margins, size_t index) override;
+//        private:
+//            Item* createItem(QWidget* parent, const wxSize& margins, size_t index) override;
         };
     }
 }
