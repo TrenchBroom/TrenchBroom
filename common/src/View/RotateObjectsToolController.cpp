@@ -108,7 +108,7 @@ namespace TrenchBroom {
                 const auto handleArea = hit.target<RotateObjectsHandle::HitArea>();
                 const auto rotationCenter = m_tool->rotationCenter();
                 const auto rotationAxis = m_tool->rotationAxis(handleArea);
-                const auto startPointDistance = vm::intersect(inputState.pickRay(), vm::plane3(rotationCenter, rotationAxis));
+                const auto startPointDistance = vm::intersectRayAndPlane(inputState.pickRay(), vm::plane3(rotationCenter, rotationAxis));
                 if (vm::isnan(startPointDistance)) {
                     return DragInfo();
                 }

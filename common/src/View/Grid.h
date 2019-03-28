@@ -287,7 +287,7 @@ namespace TrenchBroom {
                 auto ps = snap(p, plane);
                 auto err = squaredLength(p - ps);
 
-                if (!vm::contains(ps, plane.normal, std::begin(polygon), std::end(polygon))) {
+                if (!vm::polygonContainsPoint(ps, plane.normal, std::begin(polygon), std::end(polygon))) {
                     ps = vm::vec<T,3>::NaN;
                     err = std::numeric_limits<T>::max();
                 }

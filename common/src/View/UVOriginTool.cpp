@@ -163,7 +163,7 @@ namespace TrenchBroom {
         vm::vec2f UVOriginTool::computeHitPoint(const vm::ray3& ray) const {
             const auto* face = m_helper.face();
             const auto& boundary = face->boundary();
-            const auto distance = vm::intersect(ray, boundary);
+            const auto distance = vm::intersectRayAndPlane(ray, boundary);
             const auto hitPoint = ray.pointAtDistance(distance);
 
             const auto transform = face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);

@@ -100,7 +100,7 @@ namespace TrenchBroom {
 
             if (invertible) {
                 const auto transformedRay = pickRay.transform(inverse);
-                const auto transformedDistance = vm::intersect(transformedRay, m_position, majorRadius(), minorRadius());
+                const auto transformedDistance = vm::intersectRayAndTorus(transformedRay, m_position, majorRadius(), minorRadius());
                 if (!vm::isnan(transformedDistance)) {
                     const auto transformedHitPoint = transformedRay.pointAtDistance(transformedDistance);
                     const auto hitPoint = transform * transformedHitPoint;

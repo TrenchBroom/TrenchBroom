@@ -198,7 +198,7 @@ namespace TrenchBroom {
 
         FloatType Group::doIntersectWithRay(const vm::ray3& ray) const {
             const auto& myBounds = bounds();
-            if (!myBounds.contains(ray.origin) && vm::isnan(vm::intersect(ray, myBounds))) {
+            if (!myBounds.contains(ray.origin) && vm::isnan(vm::intersectRayAndBBox(ray, myBounds))) {
                 return vm::nan<FloatType>();
             }
 

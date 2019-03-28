@@ -101,9 +101,9 @@ namespace TrenchBroom {
                 planeAnchor[i] = ray.direction[i] > 0.0 ? snapUp(ray.origin[i], true) + skip * actualSize() : snapDown(ray.origin[i], true) - skip * actualSize();
             }
 
-            const auto distX = vm::intersect(ray, vm::plane3(planeAnchor, vm::vec3::pos_x));
-            const auto distY = vm::intersect(ray, vm::plane3(planeAnchor, vm::vec3::pos_y));
-            const auto distZ = vm::intersect(ray, vm::plane3(planeAnchor, vm::vec3::pos_z));
+            const auto distX = vm::intersectRayAndPlane(ray, vm::plane3(planeAnchor, vm::vec3::pos_x));
+            const auto distY = vm::intersectRayAndPlane(ray, vm::plane3(planeAnchor, vm::vec3::pos_y));
+            const auto distZ = vm::intersectRayAndPlane(ray, vm::plane3(planeAnchor, vm::vec3::pos_z));
 
             auto dist = distX;
             if (!vm::isnan(distY) && (vm::isnan(dist) || std::abs(distY) < std::abs(dist))) {
@@ -130,7 +130,7 @@ namespace TrenchBroom {
         vm::vec3 Grid::moveDeltaForBounds(const vm::plane3& dragPlane, const vm::bbox3& bounds, const vm::bbox3& worldBounds, const vm::ray3& ray, const vm::vec3& position) const {
 
             // First, compute the snapped position under the mouse:
-            const auto dist = vm::intersect(ray, dragPlane);
+            const auto dist = vm::intersectRayAndPlane(ray, dragPlane);
             const auto hitPoint = ray.pointAtDistance(dist);
             const auto newPos = snapTowards(hitPoint, dragPlane, -ray.direction);
             const auto offset = newPos - hitPoint;

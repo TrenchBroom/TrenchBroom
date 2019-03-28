@@ -133,7 +133,7 @@ namespace TrenchBroom {
             if (texture != nullptr) {
 
                 const auto& boundary = m_face->boundary();
-                const auto distance = vm::intersect(ray, boundary);
+                const auto distance = vm::intersectRayAndPlane(ray, boundary);
                 const auto hitPointInWorldCoords = ray.pointAtDistance(distance);
                 const auto hitPointInTexCoords = m_face->toTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true) * hitPointInWorldCoords;
 

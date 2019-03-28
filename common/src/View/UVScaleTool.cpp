@@ -77,7 +77,7 @@ namespace TrenchBroom {
         vm::vec2f UVScaleTool::getHitPoint(const vm::ray3& pickRay) const {
             const auto* face = m_helper.face();
             const auto& boundary = face->boundary();
-            const auto facePointDist = vm::intersect(pickRay, boundary);
+            const auto facePointDist = vm::intersectRayAndPlane(pickRay, boundary);
             const auto facePoint = pickRay.pointAtDistance(facePointDist);
 
             const auto toTex = face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);

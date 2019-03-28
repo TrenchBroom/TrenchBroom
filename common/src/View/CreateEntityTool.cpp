@@ -98,7 +98,7 @@ namespace TrenchBroom {
             const auto anchor = dot(toMin, pickRay.direction) > dot(toMax, pickRay.direction) ? m_referenceBounds.min : m_referenceBounds.max;
             const auto dragPlane = vm::plane3(anchor, -pickRay.direction);
 
-            const auto distance = intersect(pickRay, dragPlane);
+            const auto distance = vm::intersectRayAndPlane(pickRay, dragPlane);
             if (vm::isnan(distance)) {
                 return;
             }
