@@ -451,13 +451,17 @@ namespace vm {
     T intersectRayAndTorus(const ray<T,S>& r, const vec<T,S>& position, const T majorRadius, const T minorRadius) {
         // see https://marcin-chwedczuk.github.io/ray-tracing-torus
 
+        // translate the ray origin and act as if the torus is centered around the origin
+        // since the distance from the ray origin to the point of intersection is invariant under translation, we will
+        // not have to transform the result in any way
+        const auto origin  = r.origin - position;
         const auto dd = vm::dot(r.direction, r.direction);
-        const auto od = vm::dot(r.origin, r.direction);
-        const auto oo = vm::dot(r.origin, r.origin);
+        const auto od = vm::dot(origin, r.direction);
+        const auto oo = vm::dot(origin, origin);
         const auto MM = majorRadius * majorRadius;
         const auto mm = minorRadius * minorRadius;
         const auto dz = r.direction.z();
-        const auto oz = r.origin.z();
+        const auto oz = origin.z();
         const auto omM = oo - mm - MM;
 
         const auto a = dd * dd;
