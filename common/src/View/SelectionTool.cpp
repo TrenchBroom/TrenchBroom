@@ -154,6 +154,8 @@ namespace TrenchBroom {
                         if (editorContext.selectable(group)) {
                             document->openGroup(group);
                         }
+                    } else if (document->currentGroup() != nullptr) {
+                        document->closeGroup();
                     } else {
                         const auto* node = Model::hitToNode(hit);
                         if (editorContext.selectable(node)) {
