@@ -61,7 +61,7 @@ namespace TrenchBroom {
 
             bool isMatch() const;
             HitType type() const;
-            bool hasType(const HitType typeMask) const;
+            bool hasType(HitType typeMask) const;
             FloatType distance() const;
             const vm::vec3& hitPoint() const;
             FloatType error() const;
@@ -78,6 +78,13 @@ namespace TrenchBroom {
                 return target.get();
             }
         };
+
+        Hit selectClosest(const Hit& first, const Hit& second);
+
+        template <typename... Hits>
+        Hit selectClosest(const Hit& first, const Hits&... rest) {
+            return selectClosest(first, selectClosest(rest...));
+        }
     }
 }
 

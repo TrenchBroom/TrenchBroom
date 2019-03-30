@@ -278,7 +278,7 @@ namespace TrenchBroom {
 
                 const auto& pickRay = inputState.pickRay();
                 const auto defaultPos = m_tool->defaultClipPointPos();
-                const auto distance = vm::intersect(pickRay, vm::plane3(defaultPos, viewDir));
+                const auto distance = vm::intersectRayAndPlane(pickRay, vm::plane3(defaultPos, viewDir));
                 if (vm::isnan(distance)) {
                     return false;
                 } else {

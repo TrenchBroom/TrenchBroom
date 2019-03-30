@@ -350,7 +350,7 @@ namespace TrenchBroom {
 
         FloatType Camera::pickPointHandle(const vm::ray3& pickRay, const vm::vec3& handlePosition, const FloatType handleRadius) const {
             const auto scaling = static_cast<FloatType>(perspectiveScalingFactor(vm::vec3f(handlePosition)));
-            return intersect(pickRay, handlePosition, 2.0 * handleRadius * scaling);
+            return vm::intersectRayAndSphere(pickRay, handlePosition, FloatType(2.0) * handleRadius * scaling);
         }
 
         FloatType Camera::pickLineSegmentHandle(const vm::ray3& pickRay, const vm::segment3& handlePosition, const FloatType handleRadius) const {

@@ -47,7 +47,7 @@ namespace vm {
      * @return true if the given point is contained in the given polygon, and false otherwise
      */
     template <typename T, typename I, typename G = identity>
-    bool contains(const vec<T,3>& p, const axis::type axis, I cur, I end, const G& get = G()) {
+    bool polygonContainsPoint(const vec<T, 3>& p, const axis::type axis, I cur, I end, const G& get = G()) {
         const auto o = swizzle(p, axis);
 
         const auto fv = swizzle(get(*cur++), axis) - o; // The first vertex.
@@ -90,8 +90,8 @@ namespace vm {
      * @return true if the given point is contained in the given polygon, and false otherwise
      */
     template <typename T, typename I, typename G = identity>
-    bool contains(const vec<T,3>& p, const vec<T,3>& n, I cur, I end, const G& get = G()) {
-        return contains(p, firstComponent(n), cur, end, get);
+    bool polygonContainsPoint(const vec<T, 3>& p, const vec<T, 3>& n, I cur, I end, const G& get = G()) {
+        return polygonContainsPoint(p, firstComponent(n), cur, end, get);
     }
 
     /**
@@ -109,7 +109,7 @@ namespace vm {
      * @return true if the given point is contained in the given polygon, and false otherwise
      */
     template <typename T, typename I, typename G = identity>
-    bool contains(const vec<T,3>& p, I cur, I end, const G& get = G()) {
+    bool polygonContainsPoint(const vec<T, 3>& p, I cur, I end, const G& get = G()) {
         I temp = cur;
 
         assert(temp != end); const vec<T,3> p1 = get(*temp++);
@@ -121,7 +121,7 @@ namespace vm {
         std::tie(result, normal) = planeNormal(p1, p2, p3);
         assert(result);
 
-        return contains(p, firstComponent(normal), cur, end, get);
+        return polygonContainsPoint(p, firstComponent(normal), cur, end, get);
     }
 
     /**
@@ -135,7 +135,7 @@ namespace vm {
      * @return the distance to the intersection point, or NaN if the ray does not intersect the plane
      */
     template <typename T, size_t S>
-    T intersect(const ray<T,S>& r, const plane<T,S>& p) {
+    T intersectRayAndPlane(const ray<T,S>& r, const plane<T,S>& p) {
         const auto d = dot(r.direction, p.normal);
         if (isZero(d, constants<T>::almostZero())) {
             return nan<T>();
@@ -160,7 +160,7 @@ namespace vm {
      * @return the distance to the point of intersection or NaN if the given ray does not intersect the given triangle
      */
     template <typename T>
-    T intersect(const ray<T,3>& r, const vec<T,3>& p1, const vec<T,3>& p2, const vec<T, 3>& p3) {
+    T intersectRayAndTriangle(const ray<T,3>& r, const vec<T,3>& p1, const vec<T,3>& p2, const vec<T, 3>& p3) {
         // see http://www.cs.virginia.edu/~gfx/Courses/2003/ImageSynthesis/papers/Acceleration/Fast%20MinimumStorage%20RayTriangle%20Intersection.pdf
 
         const auto& o  = r.origin;
@@ -278,14 +278,14 @@ namespace vm {
      * intersect the polygon
      */
     template <typename T, typename I, typename G = identity>
-    T intersect(const ray<T,3>& r, const plane<T,3>& p, I cur, I end, const G& get = G()) {
-        const auto distance = intersect(r, p);
+    T intersectRayAndPolygon(const ray<T,3>& r, const plane<T,3>& p, I cur, I end, const G& get = G()) {
+        const auto distance = intersectRayAndPlane(r, p);
         if (isnan(distance)) {
             return distance;
         }
 
         const auto point = r.pointAtDistance(distance);
-        if (contains(point, p.normal, cur, end, get)) {
+        if (polygonContainsPoint(point, p.normal, cur, end, get)) {
             return distance;
         }
         return nan<T>();
@@ -305,12 +305,12 @@ namespace vm {
      * intersect the polygon
      */
     template <typename T, typename I, typename G = identity>
-    T intersect(const ray<T,3>& r, I cur, I end, const G& get = G()) {
+    T intersectRayAndPolygon(const ray<T,3>& r, I cur, I end, const G& get = G()) {
         const auto [valid, plane] = fromPoints(cur, end, get);
         if (!valid) {
             return nan<T>();
         } else {
-            return intersect(r, plane, cur, end, get);
+            return intersectRayAndPolygon(r, plane, cur, end, get);
         }
     }
 
@@ -325,7 +325,7 @@ namespace vm {
      * @return the distance to the closest intersection point, or NaN if the ray does not intersect the bounding box
      */
     template <typename T, size_t S>
-    T intersect(const ray<T,S>& r, const bbox<T,S>& b) {
+    T intersectRayAndBBox(const ray<T,S>& r, const bbox<T,S>& b) {
         // Compute candidate planes
         std::array<T, S> origins;
         std::array<bool, S> inside;
@@ -409,7 +409,7 @@ namespace vm {
      * @return the distance to the closest intersection point, or NaN if the given ray does not intersect the given sphere
      */
     template <typename T, size_t S>
-    T intersect(const ray<T,S>& r, const vec<T,S>& position, const T radius) {
+    T intersectRayAndSphere(const ray<T,S>& r, const vec<T,S>& position, const T radius) {
         const auto diff = r.origin - position;
 
         const auto p = static_cast<T>(2.0) * dot(diff, r.direction);
@@ -434,6 +434,57 @@ namespace vm {
     }
 
     /**
+     * Computes the point of intersection between the given ray and a torus centered at the given position and with the
+     * given tube distance and radii. Note that the torus is assumed to be in the XY plane.
+     *
+     * The given major radius is expected to be larger than the given minor radius.
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param r the ray
+     * @param position the position of the torus (its center)
+     * @param majorRadius the major radius (the distance between the tube's center and the center of the torus)
+     * @param minorRadius the minor radius (the radius of the tube)
+     * @return the distance to the closest intersection point, or NaN if the given ray does not intersect the given torus
+     */
+    template <typename T, size_t S>
+    T intersectRayAndTorus(const ray<T,S>& r, const vec<T,S>& position, const T majorRadius, const T minorRadius) {
+        // see https://marcin-chwedczuk.github.io/ray-tracing-torus
+
+        // translate the ray origin and act as if the torus is centered around the origin
+        // since the distance from the ray origin to the point of intersection is invariant under translation, we will
+        // not have to transform the result in any way
+        const auto origin  = r.origin - position;
+        const auto dd = vm::dot(r.direction, r.direction);
+        const auto od = vm::dot(origin, r.direction);
+        const auto oo = vm::dot(origin, origin);
+        const auto MM = majorRadius * majorRadius;
+        const auto mm = minorRadius * minorRadius;
+        const auto dz = r.direction.z();
+        const auto oz = origin.z();
+        const auto omM = oo - mm - MM;
+
+        const auto a = dd * dd;
+        const auto b = T(4.0) * dd * od;
+        const auto c = T(2.0) * dd * omM + T(4.0) * (od * od + MM * dz * dz);
+        const auto d = T(4.0) * od * omM + T(8.0) * MM * oz * dz;
+        const auto e = omM * omM - T(4.0) * MM * (mm - oz * oz);
+
+        const auto [num, solutions] = vm::solveQuartic(a, b, c, d, e, vm::constants<T>::almostZero());
+        if (num == 0) {
+            return vm::nan<T>();
+        } else {
+            T closestDistance = std::numeric_limits<T>::max();
+            for (size_t i = 0; i < num; ++i) {
+                if (solutions[i] > T(0.0)) {
+                    closestDistance = vm::min(closestDistance, solutions[i]);
+                }
+            }
+            return closestDistance;
+        }
+    }
+
+    /**
      * Computes the point of intersection between the given ray and the given bounding box, and returns the distance
      * on the given line from the line's anchor to that point.
      *
@@ -444,7 +495,7 @@ namespace vm {
      * @return the distance to the intersection point, or NaN if the line does not intersect the plane
      */
     template <typename T, size_t S>
-    T intersect(const line<T,S>& l, const plane<T,3>& p) {
+    T intersectLineAndPlane(const line<T,S>& l, const plane<T,3>& p) {
         const auto f = dot(l.direction, p.normal);
         if (isZero(f, constants<T>::almostZero())) {
             return nan<T>();
@@ -463,7 +514,7 @@ namespace vm {
      * @return the line of intersection, or an uninitialized plane (with normal 0) if the planes are parallel
      */
     template <typename T, size_t S>
-    line<T,S> intersect(const plane<T,S>& p1, const plane<T,S>& p2) {
+    line<T,S> intersectPlaneAndPlane(const plane<T,S>& p1, const plane<T,S>& p2) {
         const auto lineDirection = normalize(cross(p1.normal, p2.normal));
 
         if (isNaN(lineDirection)) {
@@ -479,7 +530,7 @@ namespace vm {
         // intersects the other plane.
 
         const auto lineToP2 = line<T,S>(p1.anchor(), normalize(p1.projectVector(p2.normal)));
-        const auto dist = intersect(lineToP2, p2);
+        const auto dist = intersectLineAndPlane(lineToP2, p2);
         const auto point = lineToP2.pointAtDistance(dist);
 
         if (isNaN(point)) {

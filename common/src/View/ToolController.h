@@ -243,12 +243,13 @@ namespace TrenchBroom {
         class CircleDragSnapper : public DragSnapper {
         private:
             const Grid& m_grid;
+            const FloatType m_snapAngle;
             const vm::vec3 m_start;
             const vm::vec3 m_center;
             const vm::vec3 m_normal;
             const FloatType m_radius;
         public:
-            CircleDragSnapper(const Grid& grid, const vm::vec3& start, const vm::vec3& center, const vm::vec3& normal, FloatType radius);
+            CircleDragSnapper(const Grid& grid, FloatType snapAngle, const vm::vec3& start, const vm::vec3& center, const vm::vec3& normal, FloatType radius);
         private:
             bool doSnap(const InputState& inputState, const vm::vec3& initialPoint, const vm::vec3& lastPoint, vm::vec3& curPoint) const override;
         };

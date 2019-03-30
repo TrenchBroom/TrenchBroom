@@ -527,7 +527,7 @@ typename Polyhedron<T,FP,VP>::Face::RayIntersection Polyhedron<T,FP,VP>::Face::i
         return RayIntersection::None();
     }
 
-    const auto distance = vm::intersect(ray, plane, std::begin(m_boundary), std::end(m_boundary), GetVertexPosition());
+    const auto distance = vm::intersectRayAndPolygon(ray, plane, std::begin(m_boundary), std::end(m_boundary), GetVertexPosition());
     if (vm::isnan(distance)) {
         return RayIntersection::None();
     } else if (cos < 0.0) {

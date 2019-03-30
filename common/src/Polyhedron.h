@@ -99,7 +99,7 @@ public:
         HalfEdge* m_leaving;
         typename VP::Type m_payload;
     private:
-        Vertex(const V& position);
+        explicit Vertex(const V& position);
     public:
         typename VP::Type payload() const;
         void setPayload(typename VP::Type payload);

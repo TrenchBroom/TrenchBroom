@@ -109,9 +109,9 @@ namespace vm {
 
     TEST(IntersectionTest, intersectRayAndPlane) {
         const ray3f ray(vec3f::zero, vec3f::pos_z);
-        ASSERT_TRUE(isnan(intersect(ray, plane3f(vec3f(0.0f, 0.0f, -1.0f), vec3f::pos_z))));
-        ASSERT_FLOAT_EQ(0.0f, intersect(ray, plane3f(vec3f(0.0f, 0.0f,  0.0f), vec3f::pos_z)));
-        ASSERT_FLOAT_EQ(1.0f, intersect(ray, plane3f(vec3f(0.0f, 0.0f,  1.0f), vec3f::pos_z)));
+        ASSERT_TRUE(isnan(intersectRayAndPlane(ray, plane3f(vec3f(0.0f, 0.0f, -1.0f), vec3f::pos_z))));
+        ASSERT_FLOAT_EQ(0.0f, intersectRayAndPlane(ray, plane3f(vec3f(0.0f, 0.0f,  0.0f), vec3f::pos_z)));
+        ASSERT_FLOAT_EQ(1.0f, intersectRayAndPlane(ray, plane3f(vec3f(0.0f, 0.0f,  1.0f), vec3f::pos_z)));
     }
 
     TEST(IntersectionTest, intersectRayAndTriangle) {
@@ -119,50 +119,50 @@ namespace vm {
         const vec3d p1(4.0, 7.0, 2.0);
         const vec3d p2(3.0, 2.0, 2.0);
 
-        ASSERT_TRUE(isnan(intersect(ray3d(vec3d::zero, vec3d::pos_x), p0, p1, p2)));
-        ASSERT_TRUE(isnan(intersect(ray3d(vec3d::zero, vec3d::pos_y), p0, p1, p2)));
-        ASSERT_TRUE(isnan(intersect(ray3d(vec3d::zero, vec3d::pos_z), p0, p1, p2)));
-        ASSERT_TRUE(isnan(intersect(ray3d(vec3d(0.0, 0.0, 2.0), vec3d::pos_y), p0, p1, p2)));
-        ASSERT_DOUBLE_EQ(2.0, intersect(ray3d(vec3d(3.0, 5.0, 0.0), vec3d::pos_z), p0, p1, p2));
-        ASSERT_DOUBLE_EQ(2.0, intersect(ray3d(vec3d(2.0, 5.0, 0.0), vec3d::pos_z), p0, p1, p2));
-        ASSERT_DOUBLE_EQ(2.0, intersect(ray3d(vec3d(4.0, 7.0, 0.0), vec3d::pos_z), p0, p1, p2));
-        ASSERT_DOUBLE_EQ(2.0, intersect(ray3d(vec3d(3.0, 2.0, 0.0), vec3d::pos_z), p0, p1, p2));
+        ASSERT_TRUE(isnan(intersectRayAndTriangle(ray3d(vec3d::zero, vec3d::pos_x), p0, p1, p2)));
+        ASSERT_TRUE(isnan(intersectRayAndTriangle(ray3d(vec3d::zero, vec3d::pos_y), p0, p1, p2)));
+        ASSERT_TRUE(isnan(intersectRayAndTriangle(ray3d(vec3d::zero, vec3d::pos_z), p0, p1, p2)));
+        ASSERT_TRUE(isnan(intersectRayAndTriangle(ray3d(vec3d(0.0, 0.0, 2.0), vec3d::pos_y), p0, p1, p2)));
+        ASSERT_DOUBLE_EQ(2.0, intersectRayAndTriangle(ray3d(vec3d(3.0, 5.0, 0.0), vec3d::pos_z), p0, p1, p2));
+        ASSERT_DOUBLE_EQ(2.0, intersectRayAndTriangle(ray3d(vec3d(2.0, 5.0, 0.0), vec3d::pos_z), p0, p1, p2));
+        ASSERT_DOUBLE_EQ(2.0, intersectRayAndTriangle(ray3d(vec3d(4.0, 7.0, 0.0), vec3d::pos_z), p0, p1, p2));
+        ASSERT_DOUBLE_EQ(2.0, intersectRayAndTriangle(ray3d(vec3d(3.0, 2.0, 0.0), vec3d::pos_z), p0, p1, p2));
     }
 
     TEST(IntersectionTest, intersectRayAndSquare) {
         const auto poly = square() + vec3d(0, 0, 1);
 
-        ASSERT_TRUE(isnan(intersect(ray3d(vec3d::zero, vec3d::neg_z), std::begin(poly), std::end(poly))));
-        ASSERT_TRUE(isnan(intersect(ray3d(vec3d(2, 2, 0), vec3d::pos_z), std::begin(poly), std::end(poly))));
-        ASSERT_TRUE(isnan(intersect(ray3d(vec3d(-2, 0, 1), vec3d::pos_x), std::begin(poly), std::end(poly))));
-        ASSERT_TRUE(isnan(intersect(ray3d(vec3d(-2, 0, 0), vec3d::pos_x), std::begin(poly), std::end(poly))));
+        ASSERT_TRUE(isnan(intersectRayAndPolygon(ray3d(vec3d::zero, vec3d::neg_z), std::begin(poly), std::end(poly))));
+        ASSERT_TRUE(isnan(intersectRayAndPolygon(ray3d(vec3d(2, 2, 0), vec3d::pos_z), std::begin(poly), std::end(poly))));
+        ASSERT_TRUE(isnan(intersectRayAndPolygon(ray3d(vec3d(-2, 0, 1), vec3d::pos_x), std::begin(poly), std::end(poly))));
+        ASSERT_TRUE(isnan(intersectRayAndPolygon(ray3d(vec3d(-2, 0, 0), vec3d::pos_x), std::begin(poly), std::end(poly))));
 
-        ASSERT_DOUBLE_EQ(+1.0, intersect(ray3d(vec3d( 0,  0, 0), vec3d::pos_z), std::begin(poly), std::end(poly)));
-        ASSERT_DOUBLE_EQ(+1.0, intersect(ray3d(vec3d( 0,  0, 2), vec3d::neg_z), std::begin(poly), std::end(poly)));
-        ASSERT_DOUBLE_EQ(+1.0, intersect(ray3d(vec3d(+1, +1, 0), vec3d::pos_z), std::begin(poly), std::end(poly)));
-        ASSERT_DOUBLE_EQ(+1.0, intersect(ray3d(vec3d(+1, -1, 0), vec3d::pos_z), std::begin(poly), std::end(poly)));
-        ASSERT_DOUBLE_EQ(+1.0, intersect(ray3d(vec3d(-1, +1, 0), vec3d::pos_z), std::begin(poly), std::end(poly)));
-        ASSERT_DOUBLE_EQ(+1.0, intersect(ray3d(vec3d(-1, -1, 0), vec3d::pos_z), std::begin(poly), std::end(poly)));
-        ASSERT_DOUBLE_EQ(+1.0, intersect(ray3d(vec3d( 0, +1, 0), vec3d::pos_z), std::begin(poly), std::end(poly)));
-        ASSERT_DOUBLE_EQ(+1.0, intersect(ray3d(vec3d( 0, -1, 0), vec3d::pos_z), std::begin(poly), std::end(poly)));
-        ASSERT_DOUBLE_EQ(+1.0, intersect(ray3d(vec3d(+1,  0, 0), vec3d::pos_z), std::begin(poly), std::end(poly)));
-        ASSERT_DOUBLE_EQ(+1.0, intersect(ray3d(vec3d(-1,  0, 0), vec3d::pos_z), std::begin(poly), std::end(poly)));
+        ASSERT_DOUBLE_EQ(+1.0, intersectRayAndPolygon(ray3d(vec3d( 0,  0, 0), vec3d::pos_z), std::begin(poly), std::end(poly)));
+        ASSERT_DOUBLE_EQ(+1.0, intersectRayAndPolygon(ray3d(vec3d( 0,  0, 2), vec3d::neg_z), std::begin(poly), std::end(poly)));
+        ASSERT_DOUBLE_EQ(+1.0, intersectRayAndPolygon(ray3d(vec3d(+1, +1, 0), vec3d::pos_z), std::begin(poly), std::end(poly)));
+        ASSERT_DOUBLE_EQ(+1.0, intersectRayAndPolygon(ray3d(vec3d(+1, -1, 0), vec3d::pos_z), std::begin(poly), std::end(poly)));
+        ASSERT_DOUBLE_EQ(+1.0, intersectRayAndPolygon(ray3d(vec3d(-1, +1, 0), vec3d::pos_z), std::begin(poly), std::end(poly)));
+        ASSERT_DOUBLE_EQ(+1.0, intersectRayAndPolygon(ray3d(vec3d(-1, -1, 0), vec3d::pos_z), std::begin(poly), std::end(poly)));
+        ASSERT_DOUBLE_EQ(+1.0, intersectRayAndPolygon(ray3d(vec3d( 0, +1, 0), vec3d::pos_z), std::begin(poly), std::end(poly)));
+        ASSERT_DOUBLE_EQ(+1.0, intersectRayAndPolygon(ray3d(vec3d( 0, -1, 0), vec3d::pos_z), std::begin(poly), std::end(poly)));
+        ASSERT_DOUBLE_EQ(+1.0, intersectRayAndPolygon(ray3d(vec3d(+1,  0, 0), vec3d::pos_z), std::begin(poly), std::end(poly)));
+        ASSERT_DOUBLE_EQ(+1.0, intersectRayAndPolygon(ray3d(vec3d(-1,  0, 0), vec3d::pos_z), std::begin(poly), std::end(poly)));
     }
 
     TEST(IntersectionTest, intersectRayAndBBox) {
         const bbox3f bounds(vec3f(-12.0f, -3.0f,  4.0f), vec3f(  8.0f,  9.0f,  8.0f));
 
-        float distance = intersect(ray3f(vec3f::zero, vec3f::neg_z), bounds);
+        float distance = intersectRayAndBBox(ray3f(vec3f::zero, vec3f::neg_z), bounds);
         ASSERT_TRUE(isnan(distance));
 
-        distance = intersect(ray3f(vec3f::zero, vec3f::pos_z), bounds);
+        distance = intersectRayAndBBox(ray3f(vec3f::zero, vec3f::pos_z), bounds);
         ASSERT_FALSE(isnan(distance));
         ASSERT_FLOAT_EQ(4.0f, distance);
 
         const vec3f origin = vec3f(-10.0f, -7.0f, 14.0f);
         const vec3f diff = vec3f(-2.0f, 3.0f, 8.0f) - origin;
         const vec3f dir = normalize(diff);
-        distance = intersect(ray3f(origin, dir), bounds);
+        distance = intersectRayAndBBox(ray3f(origin, dir), bounds);
         ASSERT_FALSE(isnan(distance));
         ASSERT_FLOAT_EQ(length(diff), distance);
 
@@ -172,20 +172,34 @@ namespace vm {
         const ray3f ray(vec3f::zero, vec3f::pos_z);
 
         // ray originates inside sphere and hits at north pole
-        ASSERT_FLOAT_EQ(2.0f, intersect(ray, vec3f::zero, 2.0f));
+        ASSERT_FLOAT_EQ(2.0f, intersectRayAndSphere(ray, vec3f::zero, 2.0f));
 
         // ray originates outside sphere and hits at south pole
-        ASSERT_FLOAT_EQ(3.0f, intersect(ray, vec3f(0.0f, 0.0f, 5.0f), 2.0f));
+        ASSERT_FLOAT_EQ(3.0f, intersectRayAndSphere(ray, vec3f(0.0f, 0.0f, 5.0f), 2.0f));
 
         // miss
-        ASSERT_TRUE(isnan(intersect(ray, vec3f(3.0f, 2.0f, 2.0f), 1.0f)));
+        ASSERT_TRUE(isnan(intersectRayAndSphere(ray, vec3f(3.0f, 2.0f, 2.0f), 1.0f)));
+    }
+
+    TEST(IntersectionTest, intersectRayAndTorus) {
+        ASSERT_FLOAT_EQ(4.0f, intersectRayAndTorus(ray3f(vec3f::zero, vec3f::pos_y), vec3f::zero, 5.0f, 1.0f));
+        ASSERT_FLOAT_EQ(4.0f, intersectRayAndTorus(ray3f(vec3f::zero, vec3f::pos_x), vec3f::zero, 5.0f, 1.0f));
+
+        ASSERT_FLOAT_EQ(4.0f, intersectRayAndTorus(ray3f(vec3f(0.0f, -10.0f, 0.0f), vec3f::pos_y), vec3f::zero, 5.0f, 1.0f));
+        ASSERT_FLOAT_EQ(4.0f, intersectRayAndTorus(ray3f(vec3f(-10.0f, 0.0f, 0.0f), vec3f::pos_x), vec3f::zero, 5.0f, 1.0f));
+
+        ASSERT_FLOAT_EQ(4.0f, intersectRayAndTorus(ray3f(vec3f(0.0f, -5.0f, 5.0f), vec3f::neg_z), vec3f::zero, 5.0f, 1.0f));
+
+        ASSERT_FLOAT_EQ(4.0f, intersectRayAndTorus(ray3f(vec3f(5.0f, -5.0f, 5.0f), vec3f::neg_z), vec3f(5.0f, 0.0f, 0.0f), 5.0f, 1.0f));
+
+        ASSERT_TRUE(isnan(intersectRayAndTorus(ray3f(vec3f::zero, vec3f::pos_z), vec3f::zero, 5.0f, 1.0f)));
     }
 
     TEST(IntersectionTest, intersectLineAndPlane) {
         const plane3f p(5.0f, vec3f::pos_z);
         const line3f l(vec3f(0, 0, 15), normalize(vec3f(1,0,-1)));
 
-        const vec3f intersection = l.pointAtDistance(intersect(l, p));
+        const vec3f intersection = l.pointAtDistance(intersectLineAndPlane(l, p));
         ASSERT_FLOAT_EQ(10, intersection.x());
         ASSERT_FLOAT_EQ(0, intersection.y());
         ASSERT_FLOAT_EQ(5, intersection.z());
@@ -194,7 +208,7 @@ namespace vm {
     TEST(IntersectionTest, intersectPlaneAndPlane) {
         const plane3f p1(10.0f, vec3f::pos_z);
         const plane3f p2(20.0f, vec3f::pos_x);
-        const line3f line = intersect(p1, p2);;
+        const line3f line = intersectPlaneAndPlane(p1, p2);;
 
         ASSERT_TRUE(lineOnPlane(p1, line));
         ASSERT_TRUE(lineOnPlane(p2, line));
@@ -203,7 +217,7 @@ namespace vm {
     TEST(IntersectionTest, intersectPlaneAndPlane_parallel) {
         const plane3f p1(10.0f, vec3f::pos_z);
         const plane3f p2(11.0f, vec3f::pos_z);
-        const line3f line = intersect(p1, p2);;
+        const line3f line = intersectPlaneAndPlane(p1, p2);;
 
         ASSERT_EQ(vec3f::zero, line.direction);
         ASSERT_EQ(vec3f::zero, line.point);
@@ -214,7 +228,7 @@ namespace vm {
         const vec3f anchor(100,100,100);
         const plane3f p1(anchor, vec3f::pos_x);
         const plane3f p2(anchor, quatf(vec3f::neg_y, toRadians(0.5f)) * vec3f::pos_x); // p1 rotated by 0.5 degrees
-        const line3f line = intersect(p1, p2);;
+        const line3f line = intersectPlaneAndPlane(p1, p2);;
 
         ASSERT_TRUE(lineOnPlane(p1, line));
         ASSERT_TRUE(lineOnPlane(p2, line));
@@ -224,14 +238,14 @@ namespace vm {
         const vec3f anchor(100,100,100);
         const plane3f p1(anchor, vec3f::pos_x);
         const plane3f p2(anchor, quatf(vec3f::neg_y, toRadians(0.0001f)) * vec3f::pos_x); // p1 rotated by 0.0001 degrees
-        const line3f line = intersect(p1, p2);;
+        const line3f line = intersectPlaneAndPlane(p1, p2);;
 
         ASSERT_EQ(vec3f::zero, line.direction);
         ASSERT_EQ(vec3f::zero, line.point);
     }
 
     bool containsPoint(const std::vector<vec3d>& vertices, const vec3d& point) {
-        return contains(point, std::begin(vertices), std::end(vertices));
+        return polygonContainsPoint(point, std::begin(vertices), std::end(vertices));
     }
 
     std::vector<vec3d> square() {

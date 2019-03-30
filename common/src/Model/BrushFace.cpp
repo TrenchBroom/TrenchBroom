@@ -132,7 +132,7 @@ namespace TrenchBroom {
 
         void BrushFace::copyTexCoordSystemFromFace(const TexCoordSystemSnapshot& coordSystemSnapshot, const BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const WrapStyle wrapStyle) {
             // Get a line, and a reference point, that are on both the source face's plane and our plane
-            const auto seam = vm::intersect(sourceFacePlane, m_boundary);
+            const auto seam = vm::intersectPlaneAndPlane(sourceFacePlane, m_boundary);
             const auto refPoint = seam.projectPoint(center());
 
             coordSystemSnapshot.restore(*m_texCoordSystem);
@@ -486,7 +486,7 @@ namespace TrenchBroom {
 
             // Get a line, and a reference point, that are on both the old plane
             // (before moving the face) and after moving the face.
-            const auto seam = vm::intersect(oldPlane, m_boundary);
+            const auto seam = vm::intersectPlaneAndPlane(oldPlane, m_boundary);
             if (!isZero(seam.direction, vm::C::almostZero())) {
                 const auto refPoint = seam.projectPoint(center());
 
@@ -630,7 +630,7 @@ namespace TrenchBroom {
             if (cos >= FloatType(0.0)) {
                 return vm::nan<FloatType>();
             } else {
-                return vm::intersect(ray, m_boundary, m_geometry->boundary().begin(), m_geometry->boundary().end(), BrushGeometry::GetVertexPosition());
+                return vm::intersectRayAndPolygon(ray, m_boundary, m_geometry->boundary().begin(), m_geometry->boundary().end(), BrushGeometry::GetVertexPosition());
             }
         }
 

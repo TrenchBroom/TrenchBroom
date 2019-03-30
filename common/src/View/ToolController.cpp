@@ -71,7 +71,7 @@ namespace TrenchBroom {
         m_plane(plane) {}
 
         bool PlaneDragRestricter::doComputeHitPoint(const InputState& inputState, vm::vec3& point) const {
-            const auto distance = vm::intersect(inputState.pickRay(), m_plane);
+            const auto distance = vm::intersectRayAndPlane(inputState.pickRay(), m_plane);
             if (vm::isnan(distance)) {
                 return false;
             } else {
@@ -102,7 +102,7 @@ namespace TrenchBroom {
 
         bool CircleDragRestricter::doComputeHitPoint(const InputState& inputState, vm::vec3& point) const {
             const auto plane = vm::plane3(m_center, m_normal);
-            const auto distance = vm::intersect(inputState.pickRay(), plane);
+            const auto distance = vm::intersectRayAndPlane(inputState.pickRay(), plane);
             if (vm::isnan(distance)) {
                 return false;
             } else {
@@ -235,8 +235,9 @@ namespace TrenchBroom {
             return true;
         }
 
-        CircleDragSnapper::CircleDragSnapper(const Grid& grid, const vm::vec3& start, const vm::vec3& center, const vm::vec3& normal, const FloatType radius) :
+        CircleDragSnapper::CircleDragSnapper(const Grid& grid, const FloatType snapAngle, const vm::vec3& start, const vm::vec3& center, const vm::vec3& normal, const FloatType radius) :
         m_grid(grid),
+        m_snapAngle(snapAngle),
         m_start(start),
         m_center(center),
         m_normal(normal),
@@ -253,7 +254,7 @@ namespace TrenchBroom {
             const vm::vec3 ref = normalize(m_start - m_center);
             const vm::vec3 vec = normalize(curPoint - m_center);
             const FloatType angle = measureAngle(vec, ref, m_normal);
-            const FloatType snapped = m_grid.snapAngle(angle);
+            const FloatType snapped = m_grid.snapAngle(angle, vm::abs(m_snapAngle));
             const FloatType canonical = snapped - vm::snapDown(snapped, vm::C::twoPi());
             const vm::quat3 rotation(m_normal, canonical);
             const vm::vec3 rot = rotation * ref;
