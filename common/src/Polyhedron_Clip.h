@@ -259,10 +259,11 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::intersectWithPlane(
         const vm::point_status ds = plane.pointStatus(currentBoundaryEdge->destination()->position());
 
         if (os == vm::point_status::inside) {
-            if (seamOrigin == nullptr)
+            if (seamOrigin == nullptr) {
                 seamOrigin = currentBoundaryEdge;
-            else
+            } else {
                 seamDestination = currentBoundaryEdge;
+            }
             currentBoundaryEdge = currentBoundaryEdge->next();
         } else if ((os == vm::point_status::below && ds == vm::point_status::above) ||
                    (os == vm::point_status::above && ds == vm::point_status::below)) {
@@ -286,8 +287,9 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::intersectWithPlane(
     ensure(seamOrigin != nullptr, "seamOrigin is null");
 
     // The plane only touches one vertex of the face.
-    if (seamDestination == nullptr)
+    if (seamDestination == nullptr) {
         return seamOrigin->previous();
+    }
 
     if (seamDestination->next() == seamOrigin) {
         std::swap(seamOrigin, seamDestination);
