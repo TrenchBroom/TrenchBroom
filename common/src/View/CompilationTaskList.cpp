@@ -68,13 +68,13 @@ namespace TrenchBroom {
 
                 auto* editorSizer = new QVBoxLayout();
                 editorSizer->addSpacing(m_margins.y);
-                editorSizer->Add(editor, wxSizerFlags().Expand().Border(wxLEFT | wxRIGHT, m_margins.x));
+                editorSizer->addWidget(editor, wxSizerFlags().Expand().Border(wxLEFT | wxRIGHT, m_margins.x));
                 editorSizer->addSpacing(m_margins.y);
-                m_panel->getPanel()->SetSizer(editorSizer);
+                m_panel->getPanel()->setLayout(editorSizer);
 
                 auto* panelSizer = new QVBoxLayout();
-                panelSizer->Add(m_panel, wxSizerFlags().Expand());
-                SetSizer(panelSizer);
+                panelSizer->addWidget(m_panel, wxSizerFlags().Expand());
+                setLayout(panelSizer);
 
                 refresh();
                 addProfileObservers();
@@ -172,8 +172,8 @@ namespace TrenchBroom {
                 m_targetEditor->Bind(wxEVT_TEXT, &ExportMapTaskEditor::OnTargetSpecChanged, this);
                 enableAutoComplete(m_targetEditor);
 
-                const int LabelFlags   = wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxRIGHT;
-                const int EditorFlags  = wxALIGN_CENTER_VERTICAL | wxEXPAND;
+                const int LabelFlags   = wxALIGN_RIGHT | Qt::AlignVCenter | wxRIGHT;
+                const int EditorFlags  = Qt::AlignVCenter | wxEXPAND;
                 const int LabelMargin  = LayoutConstants::NarrowHMargin;
 
                 wxGridBagSizer* sizer = new wxGridBagSizer(LayoutConstants::NarrowVMargin);
@@ -181,11 +181,11 @@ namespace TrenchBroom {
                 sizer->addWidget(m_targetEditor,  wxGBPosition(0, 1), wxDefaultSpan, EditorFlags);
 
                 sizer->AddGrowableCol(1);
-                container->SetSizer(sizer);
+                container->setLayout(sizer);
                 return container;
             }
 
-            void OnTargetSpecChanged(wxCommandEvent& event) {
+            void OnTargetSpecChanged() {
                 m_task->setTargetSpec(m_targetEditor->GetValue().ToStdString());
             }
 
@@ -219,8 +219,8 @@ namespace TrenchBroom {
                 m_targetEditor->Bind(wxEVT_TEXT, &CopyFilesTaskEditor::OnTargetSpecChanged, this);
                 enableAutoComplete(m_targetEditor);
 
-                const int LabelFlags   = wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxRIGHT;
-                const int EditorFlags  = wxALIGN_CENTER_VERTICAL | wxEXPAND;
+                const int LabelFlags   = wxALIGN_RIGHT | Qt::AlignVCenter | wxRIGHT;
+                const int EditorFlags  = Qt::AlignVCenter | wxEXPAND;
                 const int LabelMargin  = LayoutConstants::NarrowHMargin;
 
                 wxGridBagSizer* sizer = new wxGridBagSizer(LayoutConstants::NarrowVMargin);
@@ -230,15 +230,15 @@ namespace TrenchBroom {
                 sizer->addWidget(m_targetEditor,  wxGBPosition(1, 1), wxDefaultSpan, EditorFlags);
 
                 sizer->AddGrowableCol(1);
-                container->SetSizer(sizer);
+                container->setLayout(sizer);
                 return container;
             }
 
-            void OnSourceSpecChanged(wxCommandEvent& event) {
+            void OnSourceSpecChanged() {
                 m_task->setSourceSpec(m_sourceEditor->GetValue().ToStdString());
             }
 
-            void OnTargetSpecChanged(wxCommandEvent& event) {
+            void OnTargetSpecChanged() {
                 m_task->setTargetSpec(m_targetEditor->GetValue().ToStdString());
             }
 
@@ -279,8 +279,8 @@ namespace TrenchBroom {
                 m_parametersEditor->Bind(wxEVT_TEXT, &RunToolTaskEditor::OnParameterSpecChanged, this);
                 enableAutoComplete(m_parametersEditor);
 
-                const int LabelFlags   = wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxRIGHT;
-                const int EditorFlags  = wxALIGN_CENTER_VERTICAL | wxEXPAND;
+                const int LabelFlags   = wxALIGN_RIGHT | Qt::AlignVCenter | wxRIGHT;
+                const int EditorFlags  = Qt::AlignVCenter | wxEXPAND;
                 const int LabelMargin  = LayoutConstants::NarrowHMargin;
 
                 wxGridBagSizer* sizer = new wxGridBagSizer(LayoutConstants::NarrowVMargin);
@@ -292,21 +292,21 @@ namespace TrenchBroom {
 
                 sizer->AddGrowableCol(1);
 
-                container->SetSizer(sizer);
+                container->setLayout(sizer);
                 return container;
             }
 
-            void OnBrowseTool(wxCommandEvent& event) {
+            void OnBrowseTool() {
                 wxFileDialog browseDialog(this, "Select Tool", wxEmptyString, wxEmptyString, wxFileSelectorDefaultWildcardStr, wxFD_OPEN | wxFD_FILE_MUST_EXIST);
                 if (browseDialog.ShowModal() == wxID_OK)
                     m_task->setToolSpec(browseDialog.GetPath().ToStdString());
             }
 
-            void OnToolSpecChanged(wxCommandEvent& event) {
+            void OnToolSpecChanged() {
                 m_task->setToolSpec(m_toolEditor->GetValue().ToStdString());
             }
 
-            void OnParameterSpecChanged(wxCommandEvent& event) {
+            void OnParameterSpecChanged() {
                 m_task->setParameterSpec(m_parametersEditor->GetValue().ToStdString());
             }
 

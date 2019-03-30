@@ -44,9 +44,9 @@ namespace TrenchBroom {
         private:
             QWidget* createEditorPage(QWidget* parent);
 
-            void OnNameChanged(wxCommandEvent& event);
-            void OnPathChanged(wxCommandEvent& event);
-            void OnChangePathClicked(wxCommandEvent& event);
+            void OnNameChanged();
+            void OnPathChanged();
+            void OnChangePathClicked();
             void OnUpdatePathTextUI(wxIdleEvent& event);
 
             void updatePath(const QString& str);

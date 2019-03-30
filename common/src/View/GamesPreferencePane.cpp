@@ -54,13 +54,13 @@ namespace TrenchBroom {
         }
 
         void GamesPreferencePane::OnGameSelectionChanged(GameSelectionCommand& event) {
-            if (IsBeingDeleted()) return;
+
 
             updateControls();
         }
 
-        void GamesPreferencePane::OnChooseGamePathClicked(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void GamesPreferencePane::OnChooseGamePathClicked() {
+
 
             const QString pathStr = ::wxDirSelector("Choose game directory", wxEmptyString, wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
             if (!pathStr.empty())
@@ -75,7 +75,7 @@ namespace TrenchBroom {
                 updateControls();
         }
 
-        void GamesPreferencePane::OnConfigureenginesClicked(wxCommandEvent& event) {
+        void GamesPreferencePane::OnConfigureenginesClicked() {
             const auto gameName = m_gameListBox->selectedGameName();
             GameEngineDialog dialog(this, gameName);
             dialog.ShowModal();
@@ -92,18 +92,18 @@ namespace TrenchBroom {
 
             auto* prefMarginSizer = new QVBoxLayout();
             prefMarginSizer->addSpacing(LayoutConstants::WideVMargin);
-            prefMarginSizer->Add(m_book, wxSizerFlags().Expand());
+            prefMarginSizer->addWidget(m_book, wxSizerFlags().Expand());
             prefMarginSizer->addSpacing(LayoutConstants::WideVMargin);
 
             auto* sizer = new QHBoxLayout();
             sizer->addWidget(m_gameListBox, wxSizerFlags().Expand());
-            sizer->addWidget(new BorderLine(this, BorderLine::Direction_Vertical), wxSizerFlags().Expand());
+            sizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Vertical), wxSizerFlags().Expand());
             sizer->addSpacing(LayoutConstants::WideVMargin);
             sizer->addWidget(prefMarginSizer, wxSizerFlags().Expand().Proportion(1));
             sizer->addSpacing(LayoutConstants::WideVMargin);
             sizer->SetItemMinSize(m_gameListBox, 200, 200);
 
-            SetSizer(sizer);
+            setLayout(sizer);
             SetMinSize(wxSize(600, 300));
         }
 
@@ -124,13 +124,13 @@ namespace TrenchBroom {
             configureEnginesButton->Bind(wxEVT_BUTTON, &GamesPreferencePane::OnConfigureenginesClicked, this);
 
             auto* containerSizer = new wxGridBagSizer(LayoutConstants::WideVMargin, LayoutConstants::WideHMargin);
-            containerSizer->Add(gamePathLabel,						wxGBPosition(0,0), wxDefaultSpan, wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT);
-            containerSizer->Add(m_gamePathText,						wxGBPosition(0,1), wxDefaultSpan, wxALIGN_CENTER_VERTICAL | wxEXPAND);
-            containerSizer->Add(m_chooseGamePathButton,				wxGBPosition(0,2), wxDefaultSpan, wxALIGN_CENTER_VERTICAL);
-            containerSizer->Add(configureEnginesButton,				wxGBPosition(1,1), wxGBSpan(1,2));
+            containerSizer->addWidget(gamePathLabel,						wxGBPosition(0,0), wxDefaultSpan, Qt::AlignVCenter | wxALIGN_RIGHT);
+            containerSizer->addWidget(m_gamePathText,						wxGBPosition(0,1), wxDefaultSpan, Qt::AlignVCenter | wxEXPAND);
+            containerSizer->addWidget(m_chooseGamePathButton,				wxGBPosition(0,2), wxDefaultSpan, Qt::AlignVCenter);
+            containerSizer->addWidget(configureEnginesButton,				wxGBPosition(1,1), wxGBSpan(1,2));
             containerSizer->AddGrowableCol(1);
 
-            containerPanel->SetSizer(containerSizer);
+            containerPanel->setLayout(containerSizer);
             return containerPanel;
         }
 

@@ -87,25 +87,25 @@ namespace TrenchBroom {
 
             auto* midLeftSizer = new QVBoxLayout();
             midLeftSizer->addSpacing(20);
-            midLeftSizer->Add(header, wxSizerFlags().Expand());
+            midLeftSizer->addWidget(header, wxSizerFlags().Expand());
             midLeftSizer->addSpacing(20);
-            midLeftSizer->Add(message, wxSizerFlags().Expand());
+            midLeftSizer->addWidget(message, wxSizerFlags().Expand());
             midLeftSizer->addSpacing(10);
-            midLeftSizer->Add(openPreferencesButton, wxSizerFlags().CenterHorizontal());
-            midLeftSizer->AddStretchSpacer();
-            midLeftSizer->Add(parameterLabel);
+            midLeftSizer->addWidget(openPreferencesButton, wxSizerFlags().CenterHorizontal());
+            midLeftSizer->addStretch(1);
+            midLeftSizer->addWidget(parameterLabel);
             midLeftSizer->addSpacing(LayoutConstants::NarrowVMargin);
-            midLeftSizer->Add(m_parameterText, wxSizerFlags().Expand());
+            midLeftSizer->addWidget(m_parameterText, wxSizerFlags().Expand());
             midLeftSizer->addSpacing(20);
 
             auto* midSizer = new QHBoxLayout();
             midSizer->addSpacing(20);
-            midSizer->Add(midLeftSizer, wxSizerFlags().Expand().Proportion(1));
+            midSizer->addWidget(midLeftSizer, wxSizerFlags().Expand().Proportion(1));
             midSizer->addSpacing(20);
-            midSizer->Add(new BorderLine(midPanel, BorderLine::Direction_Vertical), wxSizerFlags().Expand());
-            midSizer->Add(m_gameEngineList, wxSizerFlags().Expand());
+            midSizer->addWidget(new BorderLine(midPanel, BorderLine::Direction_Vertical), wxSizerFlags().Expand());
+            midSizer->addWidget(m_gameEngineList, wxSizerFlags().Expand());
             midSizer->SetItemMinSize(m_gameEngineList, wxSize(250, 280));
-            midPanel->SetSizer(midSizer);
+            midPanel->setLayout(midSizer);
 
             wxButton* closeButton = new wxButton(this, wxID_CANCEL, "Cancel");
             closeButton->Bind(wxEVT_BUTTON, &LaunchGameEngineDialog::OnCloseButton, this);
@@ -121,10 +121,10 @@ namespace TrenchBroom {
             buttonSizer->Realize();
 
             auto* outerSizer = new QVBoxLayout();
-            outerSizer->Add(gameIndicator, wxSizerFlags().Expand());
-            outerSizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
-            outerSizer->Add(midPanel, wxSizerFlags().Expand().Proportion(1));
-            outerSizer->Add(wrapDialogButtonSizer(buttonSizer, this), wxSizerFlags().Expand());
+            outerSizer->addWidget(gameIndicator, wxSizerFlags().Expand());
+            outerSizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
+            outerSizer->addWidget(midPanel, wxSizerFlags().Expand().Proportion(1));
+            outerSizer->addWidget(wrapDialogButtonSizer(buttonSizer, this), wxSizerFlags().Expand());
 
             setLayout(outerSizer);
 
@@ -140,7 +140,7 @@ namespace TrenchBroom {
             return LaunchGameEngineVariables(lock(m_document));
         }
 
-        void LaunchGameEngineDialog::OnSelectGameEngineProfile(wxCommandEvent& event) {
+        void LaunchGameEngineDialog::OnSelectGameEngineProfile() {
             m_lastProfile = m_gameEngineList->selectedProfile();
             if (m_lastProfile != nullptr) {
                 m_parameterText->ChangeValue(m_lastProfile->parameterSpec());
@@ -149,18 +149,18 @@ namespace TrenchBroom {
             }
         }
 
-        void LaunchGameEngineDialog::OnUpdateParameterTextUI(wxUpdateUIEvent& event) {
+        void LaunchGameEngineDialog::OnUpdateParameterTextUI() {
             event.Enable(m_gameEngineList->GetSelection() != wxNOT_FOUND);
         }
 
-        void LaunchGameEngineDialog::OnParameterTextChanged(wxCommandEvent& event) {
+        void LaunchGameEngineDialog::OnParameterTextChanged() {
             Model::GameEngineProfile* profile = m_gameEngineList->selectedProfile();
             if (profile != nullptr)
                 profile->setParameterSpec(m_parameterText->GetValue().ToStdString());
         }
 
-        void LaunchGameEngineDialog::OnEditGameEnginesButton(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void LaunchGameEngineDialog::OnEditGameEnginesButton() {
+
 
             const bool wasEmpty = m_gameEngineList->GetItemCount() == 0;
 
@@ -171,15 +171,15 @@ namespace TrenchBroom {
                 m_gameEngineList->SetSelection(0);
         }
 
-        void LaunchGameEngineDialog::OnCloseButton(wxCommandEvent& event) {
+        void LaunchGameEngineDialog::OnCloseButton() {
             EndModal(wxCANCEL);
         }
 
-        void LaunchGameEngineDialog::OnUpdateCloseButtonUI(wxUpdateUIEvent& event) {
+        void LaunchGameEngineDialog::OnUpdateCloseButtonUI() {
             event.Enable(true);
         }
 
-        void LaunchGameEngineDialog::OnLaunch(wxCommandEvent& event) {
+        void LaunchGameEngineDialog::OnLaunch() {
             try {
                 const Model::GameEngineProfile* profile = m_gameEngineList->selectedProfile();
                 ensure(profile != nullptr, "profile is null");
@@ -210,7 +210,7 @@ namespace TrenchBroom {
             }
         }
 
-        void LaunchGameEngineDialog::OnUpdateLaunchButtonUI(wxUpdateUIEvent& event) {
+        void LaunchGameEngineDialog::OnUpdateLaunchButtonUI() {
             event.Enable(m_gameEngineList->GetSelection() != wxNOT_FOUND);
         }
 

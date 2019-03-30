@@ -99,7 +99,7 @@ namespace TrenchBroom {
             private:
                 void OnShowHide(wxShowEvent& event);
                 void OnTextCtrlKeyDown(wxKeyEvent& event);
-                void OnTextCtrlEnter(wxCommandEvent& event);
+                void OnTextCtrlEnter();
                 void OnTextCtrlMouseDown(wxMouseEvent& event);
 
                 void SelectNextCompletion();
@@ -121,8 +121,8 @@ namespace TrenchBroom {
         private:
             void OnChar(wxKeyEvent& event);
             void OnKeyDown(wxKeyEvent& event);
-            void OnText(wxCommandEvent& event);
-            void OnDelayedText(wxCommandEvent& event);
+            void OnText();
+            void OnDelayedText();
 
             bool IsAutoCompleting() const;
             void StartAutoCompletion(size_t startIndex);

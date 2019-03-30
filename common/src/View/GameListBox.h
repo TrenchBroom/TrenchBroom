@@ -46,8 +46,8 @@ namespace TrenchBroom {
             String selectedGameName() const;
             void selectGame(int index);
 
-            void OnListBoxChange(wxCommandEvent& event);
-            void OnListBoxDoubleClick(wxCommandEvent& event);
+            void OnListBoxChange();
+            void OnListBoxDoubleClick();
             void reloadGameInfos();
         private:
             bool image(size_t n, wxBitmap& result) const override;

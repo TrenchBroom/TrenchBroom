@@ -36,7 +36,7 @@ namespace TrenchBroom {
         }
 
         void MoveObjectsToolPage::createGui() {
-            QLabel* text = new QLabel(this, wxID_ANY, "Move objects by");
+            QLabel* text = new QLabel("Move objects by");
             m_offset = new wxTextCtrl(this, wxID_ANY, "0.0 0.0 0.0", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
             m_button = new wxButton(this, wxID_ANY, "Apply", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
 
@@ -45,24 +45,24 @@ namespace TrenchBroom {
             m_offset->Bind(wxEVT_TEXT_ENTER, &MoveObjectsToolPage::OnApply, this);
 
             wxBoxSizer* sizer = new QHBoxLayout();
-            sizer->addWidget(text, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->addWidget(text, 0, Qt::AlignVCenter);
             sizer->addSpacing(LayoutConstants::NarrowHMargin);
-            sizer->addWidget(m_offset, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->addWidget(m_offset, 0, Qt::AlignVCenter);
             sizer->addSpacing(LayoutConstants::NarrowHMargin);
-            sizer->addWidget(m_button, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->addWidget(m_button, 0, Qt::AlignVCenter);
 
-            SetSizer(sizer);
+            setLayout(sizer);
         }
 
-        void MoveObjectsToolPage::OnUpdateButton(wxUpdateUIEvent& event) {
-            if (IsBeingDeleted()) return;
+        void MoveObjectsToolPage::OnUpdateButton() {
+
 
             MapDocumentSPtr document = lock(m_document);
             event.Enable(document->hasSelectedNodes());
         }
 
-        void MoveObjectsToolPage::OnApply(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void MoveObjectsToolPage::OnApply() {
+
 
             const vm::vec3 delta = vm::vec3::parse(m_offset->GetValue().ToStdString());
 

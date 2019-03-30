@@ -50,18 +50,18 @@ namespace TrenchBroom {
         private:
             QWidget* createEditorPage(QWidget* parent);
 
-            void OnNameChanged(wxCommandEvent& event);
-            void OnWorkDirChanged(wxCommandEvent& event);
+            void OnNameChanged();
+            void OnWorkDirChanged();
 
-            void OnAddTask(wxCommandEvent& event);
-            void OnRemoveTask(wxCommandEvent& event);
-            void OnMoveTaskUp(wxCommandEvent& event);
-            void OnMoveTaskDown(wxCommandEvent& event);
+            void OnAddTask();
+            void OnRemoveTask();
+            void OnMoveTaskUp();
+            void OnMoveTaskDown();
 
-            void OnUpdateAddTaskButtonUI(wxUpdateUIEvent& event);
-            void OnUpdateRemoveTaskButtonUI(wxUpdateUIEvent& event);
-            void OnUpdateMoveTaskUpButtonUI(wxUpdateUIEvent& event);
-            void OnUpdateMoveTaskDownButtonUI(wxUpdateUIEvent& event);
+            void OnUpdateAddTaskButtonUI();
+            void OnUpdateRemoveTaskButtonUI();
+            void OnUpdateMoveTaskUpButtonUI();
+            void OnUpdateMoveTaskDownButtonUI();
         public:
             void setProfile(Model::CompilationProfile* profile);
         private:

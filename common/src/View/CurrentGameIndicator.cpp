@@ -51,7 +51,7 @@ namespace TrenchBroom {
             sizer->addWidget(gameIconImg, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::WideVMargin));
             sizer->addSpacing(LayoutConstants::NarrowHMargin);
             sizer->addWidget(gameNameText, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::WideVMargin));
-            SetSizer(sizer);
+            setLayout(sizer);
         }
     }
 }

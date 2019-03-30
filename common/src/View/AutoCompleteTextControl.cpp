@@ -124,13 +124,13 @@ namespace TrenchBroom {
 #endif
 
                 auto* vSizer = new QVBoxLayout();
-                vSizer->Add(m_valueText);
-                vSizer->Add(m_descriptionText);
+                vSizer->addWidget(m_valueText);
+                vSizer->addWidget(m_descriptionText);
 
                 auto* hSizer = new QHBoxLayout();
-                hSizer->Add(vSizer, wxSizerFlags().Border(wxTOP | wxBOTTOM, margins.y).Border(wxLEFT | wxRIGHT, margins.x));
+                hSizer->addWidget(vSizer, wxSizerFlags().Border(wxTOP | wxBOTTOM, margins.y).Border(wxLEFT | wxRIGHT, margins.x));
 
-                SetSizer(hSizer);
+                setLayout(hSizer);
             }
 
             void setDefaultColours(const wxColour& foreground, const wxColour& background) override {
@@ -151,12 +151,12 @@ namespace TrenchBroom {
 
             m_list = new AutoCompletionList(panel);
             auto* panelSizer = new QVBoxLayout();
-            panelSizer->Add(m_list, wxSizerFlags().Expand().Proportion(1).Border(wxALL, 1));
-            panel->SetSizer(panelSizer);
+            panelSizer->addWidget(m_list, wxSizerFlags().Expand().Proportion(1).Border(wxALL, 1));
+            panel->setLayout(panelSizer);
 
             auto* windowSizer = new QVBoxLayout();
-            windowSizer->Add(panel, wxSizerFlags().Expand().Proportion(1));
-            SetSizer(windowSizer);
+            windowSizer->addWidget(panel, wxSizerFlags().Expand().Proportion(1));
+            setLayout(windowSizer);
 
             SetSize(m_list->GetVirtualSize() + wxSize(2, 2));
 
@@ -207,7 +207,7 @@ namespace TrenchBroom {
             }
         }
 
-        void AutoCompleteTextControl::AutoCompletionPopup::OnTextCtrlEnter(wxCommandEvent& event) {
+        void AutoCompleteTextControl::AutoCompletionPopup::OnTextCtrlEnter() {
             DoAutoComplete();
             m_textControl->EndAutoCompletion();
         }
@@ -301,7 +301,7 @@ namespace TrenchBroom {
             }
         }
 
-        void AutoCompleteTextControl::OnText(wxCommandEvent& event) {
+        void AutoCompleteTextControl::OnText() {
             // On GTK2, the insertion point is not yet updated when this event is fired.
             // That's why we postpone processing by re-queuing a delayed text event until
             // the insertion point is hopefully updated.
@@ -309,7 +309,7 @@ namespace TrenchBroom {
             event.Skip();
         }
 
-        void AutoCompleteTextControl::OnDelayedText(wxCommandEvent& event) {
+        void AutoCompleteTextControl::OnDelayedText() {
             if (IsAutoCompleting()) {
                 const size_t index = static_cast<size_t>(GetInsertionPoint());
                 if (index <= m_currentStartIndex)

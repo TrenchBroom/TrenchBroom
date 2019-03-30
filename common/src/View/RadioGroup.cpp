@@ -53,7 +53,7 @@ namespace TrenchBroom {
                     m_buttons.back()->Bind(wxEVT_RADIOBUTTON, &RadioGroup::OnRadioButton, this);
                     sizer->addWidget(m_buttons.back());
                 }
-                SetSizer(sizer);
+                setLayout(sizer);
             }
 
             return true;
@@ -103,7 +103,7 @@ namespace TrenchBroom {
             return GetString(static_cast<unsigned int>(index));
         }
 
-        void RadioGroup::OnRadioButton(wxCommandEvent& event) {
+        void RadioGroup::OnRadioButton() {
             wxCommandEvent newEvent(wxEVT_RADIOGROUP, GetId());
             newEvent.SetInt(GetSelection());
             ProcessEvent(newEvent);

@@ -190,21 +190,21 @@ namespace TrenchBroom {
         }
 
         void SplitterWindow4::OnMouseEnter(wxMouseEvent& event) {
-            if (IsBeingDeleted()) return;
+
 
             updateSashCursor();
             event.Skip();
         }
 
         void SplitterWindow4::OnMouseLeave(wxMouseEvent& event) {
-            if (IsBeingDeleted()) return;
+
 
             updateSashCursor();
             event.Skip();
         }
 
         void SplitterWindow4::OnMouseButton(wxMouseEvent& event) {
-            if (IsBeingDeleted()) return;
+
 
             if (event.LeftDown()) {
                 CaptureMouse();
@@ -220,7 +220,7 @@ namespace TrenchBroom {
         }
 
         void SplitterWindow4::OnMouseMotion(wxMouseEvent& event) {
-            if (IsBeingDeleted()) return;
+
 
             if (GetCapture() == this) {
                 assert(hasWindows());
@@ -241,7 +241,7 @@ namespace TrenchBroom {
         }
 
         void SplitterWindow4::OnMouseCaptureLost(wxMouseCaptureLostEvent& event) {
-            if (IsBeingDeleted()) return;
+
 
             m_dragging[Dim_X] = m_dragging[Dim_Y] = false;
             updateSashCursor();
@@ -249,7 +249,7 @@ namespace TrenchBroom {
         }
 
         void SplitterWindow4::OnPaint(wxPaintEvent& event) {
-            if (IsBeingDeleted()) return;
+
 
             wxPaintDC dc(this);
             dc.SetPen(wxPen(GetForegroundColour()));
@@ -264,7 +264,7 @@ namespace TrenchBroom {
         }
 
         void SplitterWindow4::OnIdle(wxIdleEvent& event) {
-            if (IsBeingDeleted()) return;
+
 
             if (IsShownOnScreen()) {
                 Unbind(wxEVT_IDLE, &SplitterWindow4::OnIdle, this);
@@ -275,7 +275,7 @@ namespace TrenchBroom {
         }
 
         void SplitterWindow4::OnSize(wxSizeEvent& event) {
-            if (IsBeingDeleted()) return;
+
 
             updateSashPosition(m_oldSize, event.GetSize());
             sizeWindows();

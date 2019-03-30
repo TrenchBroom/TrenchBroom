@@ -141,9 +141,9 @@ namespace TrenchBroom {
             //externalSizer->addSpacing(LayoutConstants::NarrowHMargin);
             externalSizer->addWidget(m_external, 1);//, wxEXPAND | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             //externalSizer->addSpacing(LayoutConstants::NarrowHMargin);
-            externalSizer->addWidget(m_chooseExternal, 0);//, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            externalSizer->addWidget(m_chooseExternal, 0);//, Qt::AlignVCenter | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             //externalSizer->addSpacing(LayoutConstants::NarrowHMargin);
-            externalSizer->addWidget(m_reloadExternal, 0);//, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            externalSizer->addWidget(m_reloadExternal, 0);//, Qt::AlignVCenter | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             //externalSizer->addSpacing(LayoutConstants::NarrowHMargin);
 
             externalContainer->getPanel()->setLayout(externalSizer);

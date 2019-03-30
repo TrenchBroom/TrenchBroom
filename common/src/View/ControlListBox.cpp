@@ -90,7 +90,7 @@ namespace TrenchBroom {
         m_valid(true),
         m_newItemCount(0),
         m_selectionIndex(0) {
-            SetSizer(new Sizer(wxVERTICAL, m_restrictToClientWidth));
+            setLayout(new Sizer(wxVERTICAL, m_restrictToClientWidth));
             SetScrollRate(5, 5);
             SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT));
@@ -211,9 +211,9 @@ namespace TrenchBroom {
                 for (size_t i = 0; i < itemCount; ++i) {
                     Item* item = createItem(this, m_itemMargin, i);
 
-                    listSizer->Add(item, wxSizerFlags().Expand());
+                    listSizer->addWidget(item, wxSizerFlags().Expand());
                     if (i < itemCount - 1 || m_showLastDivider)
-                        listSizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
+                        listSizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
 
                     bindEvents(item, i);
                     m_items.push_back(item);
@@ -226,14 +226,14 @@ namespace TrenchBroom {
                     m_emptyTextLabel->Wrap(GetClientSize().x - LayoutConstants::WideVMargin * 2);
 
                 auto* justifySizer = new QHBoxLayout();
-                justifySizer->AddStretchSpacer();
+                justifySizer->addStretch(1);
                 justifySizer->addSpacing(LayoutConstants::WideHMargin);
-                justifySizer->Add(m_emptyTextLabel);
+                justifySizer->addWidget(m_emptyTextLabel);
                 justifySizer->addSpacing(LayoutConstants::WideHMargin);
-                justifySizer->AddStretchSpacer();
+                justifySizer->addStretch(1);
 
-                listSizer->Add(justifySizer, wxSizerFlags().Border(wxTOP | wxBOTTOM, LayoutConstants::WideVMargin).Expand());
-                listSizer->AddStretchSpacer();
+                listSizer->addWidget(justifySizer, wxSizerFlags().Border(wxTOP | wxBOTTOM, LayoutConstants::WideVMargin).Expand());
+                listSizer->addStretch(1);
             }
             if (m_restrictToClientWidth)
                 FitInside();

@@ -48,17 +48,17 @@ namespace TrenchBroom {
         public:
             explicit ViewPreferencePane(wxWindow* parent);
 
-            void OnLayoutChanged(wxCommandEvent& event);
+            void OnLayoutChanged();
             void OnBrightnessChanged(wxScrollEvent& event);
             void OnGridAlphaChanged(wxScrollEvent& event);
             void OnFovChanged(wxScrollEvent& event);
-            void OnShowAxesChanged(wxCommandEvent& event);
-            void OnTextureModeChanged(wxCommandEvent& event);
+            void OnShowAxesChanged();
+            void OnTextureModeChanged();
             void OnBackgroundColorChanged(wxColourPickerEvent& event);
             void OnGridColorChanged(wxColourPickerEvent& event);
             void OnEdgeColorChanged(wxColourPickerEvent& event);
-            void OnTextureBrowserIconSizeChanged(wxCommandEvent& event);
-            void OnFontPrefsRendererFontSizeChanged(wxCommandEvent& event);
+            void OnTextureBrowserIconSizeChanged();
+            void OnFontPrefsRendererFontSizeChanged();
        private:
             void createGui();
             QWidget* createViewPreferences();

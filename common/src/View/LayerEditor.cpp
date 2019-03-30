@@ -378,12 +378,12 @@ namespace TrenchBroom {
             auto* buttonSizer = new QHBoxLayout();
             buttonSizer->addWidget(m_addLayerButton);
             buttonSizer->addWidget(m_removeLayerButton);
-            buttonSizer->addWidget(m_showAllLayersButton); //, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->addWidget(m_showAllLayersButton); //, 0, Qt::AlignVCenter | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             buttonSizer->addStretch(1);
 
             auto* sizer = new QVBoxLayout();
             sizer->addWidget(m_layerList, 1);
-            sizer->addWidget(new BorderLine(this, BorderLine::Direction_Horizontal), 0);
+            sizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Horizontal), 0);
             sizer->addLayout(buttonSizer, 0);
             setLayout(sizer);
         }

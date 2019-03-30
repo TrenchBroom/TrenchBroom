@@ -63,8 +63,8 @@ namespace TrenchBroom {
             m_pathText(nullptr) {
                 ensure(m_profile != nullptr, "profile is null");
 
-                m_nameText = new QLabel(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_END);
-                m_pathText = new QLabel(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_MIDDLE);
+                m_nameText = new QLabel("", wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_END);
+                m_pathText = new QLabel("", wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_MIDDLE);
 
                 m_nameText->SetFont(m_nameText->GetFont().Bold());
                 m_pathText->SetForegroundColour(makeLighter(m_pathText->GetForegroundColour()));
@@ -73,15 +73,15 @@ namespace TrenchBroom {
 #endif
 
                 auto* vSizer = new QVBoxLayout();
-                vSizer->Add(m_nameText, wxSizerFlags().Expand());
-                vSizer->Add(m_pathText, wxSizerFlags().Expand());
+                vSizer->addWidget(m_nameText, wxSizerFlags().Expand());
+                vSizer->addWidget(m_pathText, wxSizerFlags().Expand());
 
                 auto* hSizer = new QHBoxLayout();
                 hSizer->addSpacing(margins.x);
-                hSizer->Add(vSizer, wxSizerFlags().Expand().Proportion(1).Border(wxTOP | wxBOTTOM, margins.y));
+                hSizer->addWidget(vSizer, wxSizerFlags().Expand().Proportion(1).Border(wxTOP | wxBOTTOM, margins.y));
                 hSizer->addSpacing(margins.x);
 
-                SetSizer(hSizer);
+                setLayout(hSizer);
 
                 refresh();
                 addObservers();

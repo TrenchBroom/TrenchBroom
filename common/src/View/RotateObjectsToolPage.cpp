@@ -69,15 +69,15 @@ namespace TrenchBroom {
         void RotateObjectsToolPage::createGui() {
             // FIXME:
 #if 0
-            auto* centerText = new QLabel(this, wxID_ANY, "Center");
+            auto* centerText = new QLabel("Center");
             m_recentlyUsedCentersList = new wxComboBox(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxTE_PROCESS_ENTER);
 
             m_resetCenterButton = new wxButton(this, wxID_ANY, "Reset", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
-            m_resetCenterButton->SetToolTip("Reset the position of the rotate handle to the center of the current selection.");
+            m_resetCenterButton->setToolTip("Reset the position of the rotate handle to the center of the current selection.");
 
-            auto* text1 = new QLabel(this, wxID_ANY, "Rotate objects");
-            auto* text2 = new QLabel(this, wxID_ANY, "degs about");
-            auto* text3 = new QLabel(this, wxID_ANY, "axis");
+            auto* text1 = new QLabel("Rotate objects");
+            auto* text2 = new QLabel("degs about");
+            auto* text3 = new QLabel("axis");
             m_angle = new SpinControl(this);
             m_angle->SetRange(-360.0, 360.0);
             m_angle->SetValue(vm::toDegrees(m_tool->angle()));
@@ -97,72 +97,72 @@ namespace TrenchBroom {
             m_rotateButton->Bind(wxEVT_UPDATE_UI, &RotateObjectsToolPage::OnUpdateRotateButton, this);
             m_rotateButton->Bind(wxEVT_BUTTON, &RotateObjectsToolPage::OnRotate, this);
 
-            auto* separator = new BorderLine(this, BorderLine::Direction_Vertical);
+            auto* separator = new BorderLine(nullptr, BorderLine::Direction_Vertical);
             separator->SetForegroundColour(Colors::separatorColor());
 
             auto* sizer = new QHBoxLayout();
-            sizer->addWidget(centerText, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->addWidget(centerText, 0, Qt::AlignVCenter);
             sizer->addSpacing(LayoutConstants::NarrowHMargin);
-            sizer->addWidget(m_recentlyUsedCentersList, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->addWidget(m_recentlyUsedCentersList, 0, Qt::AlignVCenter);
             sizer->addSpacing(LayoutConstants::NarrowHMargin);
-            sizer->addWidget(m_resetCenterButton, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->addWidget(m_resetCenterButton, 0, Qt::AlignVCenter);
             sizer->addSpacing(LayoutConstants::MediumHMargin);
             sizer->addWidget(separator, 0, wxEXPAND | wxTOP | wxBOTTOM, 2);
             sizer->addSpacing(LayoutConstants::NarrowHMargin);
-            sizer->addWidget(text1, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->addWidget(text1, 0, Qt::AlignVCenter);
             sizer->addSpacing(LayoutConstants::NarrowHMargin);
-            sizer->addWidget(m_angle, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->addWidget(m_angle, 0, Qt::AlignVCenter);
             sizer->addSpacing(LayoutConstants::NarrowHMargin);
-            sizer->addWidget(text2, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->addWidget(text2, 0, Qt::AlignVCenter);
             sizer->addSpacing(LayoutConstants::NarrowHMargin);
             sizer->addWidget(m_axis, 0, wxTOP, LayoutConstants::ChoiceTopMargin);
             sizer->addSpacing(LayoutConstants::NarrowHMargin);
-            sizer->addWidget(text3, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->addWidget(text3, 0, Qt::AlignVCenter);
             sizer->addSpacing(LayoutConstants::NarrowHMargin);
-            sizer->addWidget(m_rotateButton, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->addWidget(m_rotateButton, 0, Qt::AlignVCenter);
             sizer->SetItemMinSize(m_angle, 80, wxDefaultCoord);
 
-            SetSizer(sizer);
+            setLayout(sizer);
 #endif
         }
 
         void RotateObjectsToolPage::OnIdle(wxIdleEvent& event) {
-            if (IsBeingDeleted()) return;
+
 
             const auto& grid = lock(m_document)->grid();
             m_angle->SetIncrements(vm::toDegrees(grid.angle()), 90.0, 1.0);
         }
 
-        void RotateObjectsToolPage::OnCenterChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void RotateObjectsToolPage::OnCenterChanged() {
+
 
             const auto center = vm::vec3::parse(m_recentlyUsedCentersList->GetValue().ToStdString());
             m_tool->setRotationCenter(center);
         }
 
-        void RotateObjectsToolPage::OnResetCenter(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void RotateObjectsToolPage::OnResetCenter() {
+
 
             m_tool->resetRotationCenter();
         }
 
-        void RotateObjectsToolPage::OnAngleChanged(SpinControlEvent& event) {
-            if (IsBeingDeleted()) return;
+        void RotateObjectsToolPage::OnAngleChanged(double value) {
+
 
             const auto newAngleDegs = vm::correct(event.IsSpin() ? m_angle->GetValue() + event.GetValue() : event.GetValue());
             m_angle->SetValue(newAngleDegs);
             m_tool->setAngle(vm::toRadians(newAngleDegs));
         }
 
-        void RotateObjectsToolPage::OnUpdateRotateButton(wxUpdateUIEvent& event) {
-            if (IsBeingDeleted()) return;
+        void RotateObjectsToolPage::OnUpdateRotateButton() {
+
 
             auto document = lock(m_document);
             event.Enable(document->hasSelectedNodes());
         }
 
-        void RotateObjectsToolPage::OnRotate(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void RotateObjectsToolPage::OnRotate() {
+
 
             const auto center = m_tool->rotationCenter();
             const auto axis = getAxis();

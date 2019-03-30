@@ -60,19 +60,19 @@ namespace TrenchBroom {
             explicit MousePreferencePane(QWidget* parent);
         private:
             void OnLookSpeedChanged(wxScrollEvent& event);
-            void OnInvertLookHAxisChanged(wxCommandEvent& event);
-            void OnInvertLookVAxisChanged(wxCommandEvent& event);
+            void OnInvertLookHAxisChanged();
+            void OnInvertLookVAxisChanged();
 
             void OnPanSpeedChanged(wxScrollEvent& event);
-            void OnInvertPanHAxisChanged(wxCommandEvent& event);
-            void OnInvertPanVAxisChanged(wxCommandEvent& event);
+            void OnInvertPanHAxisChanged();
+            void OnInvertPanVAxisChanged();
 
             void OnMoveSpeedChanged(wxScrollEvent& event);
 
-            void OnInvertMouseWheelChanged(wxCommandEvent& event);
-            void OnEnableAltMoveChanged(wxCommandEvent& event);
-            void OnInvertAltMoveAxisChanged(wxCommandEvent& event);
-            void OnMoveCameraInCursorDirChanged(wxCommandEvent& event);
+            void OnInvertMouseWheelChanged();
+            void OnEnableAltMoveChanged();
+            void OnInvertAltMoveAxisChanged();
+            void OnMoveCameraInCursorDirChanged();
 
             void OnForwardKeyChanged(KeyboardShortcutEvent& event);
             void OnBackwardKeyChanged(KeyboardShortcutEvent& event);

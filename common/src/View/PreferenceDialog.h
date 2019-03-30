@@ -51,15 +51,15 @@ namespace TrenchBroom {
             explicit PreferenceDialog(MapDocumentSPtr document);
             bool Create();
         private:
-            void OnToolClicked(wxCommandEvent& event);
-            void OnOKClicked(wxCommandEvent& event);
-            void OnApplyClicked(wxCommandEvent& event);
-            void OnCancelClicked(wxCommandEvent& event);
-            void OnFileClose(wxCommandEvent& event);
-            void OnUpdateFileClose(wxUpdateUIEvent& event);
+            void OnToolClicked();
+            void OnOKClicked();
+            void OnApplyClicked();
+            void OnCancelClicked();
+            void OnFileClose();
+            void OnUpdateFileClose();
 
-            void OnResetClicked(wxCommandEvent& event);
-            void OnUpdateReset(wxUpdateUIEvent& event);
+            void OnResetClicked();
+            void OnUpdateReset();
 
             void OnClose(wxCloseEvent& event);
         private:

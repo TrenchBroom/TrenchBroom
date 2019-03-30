@@ -54,8 +54,8 @@ namespace TrenchBroom {
             m_book->SetSelection(0);
 
             auto* bookSizer = new QVBoxLayout();
-            bookSizer->Add(m_book, wxSizerFlags().Expand().Proportion(1));
-            SetSizer(bookSizer);
+            bookSizer->addWidget(m_book, wxSizerFlags().Expand().Proportion(1));
+            setLayout(bookSizer);
         }
 
         CompilationProfileEditor::~CompilationProfileEditor() {
@@ -84,23 +84,23 @@ namespace TrenchBroom {
             m_nameTxt->Bind(wxEVT_TEXT, &CompilationProfileEditor::OnNameChanged, this);
             m_workDirTxt->Bind(wxEVT_TEXT, &CompilationProfileEditor::OnWorkDirChanged, this);
 
-            const int LabelFlags   = wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxRIGHT;
-            const int EditorFlags  = wxALIGN_CENTER_VERTICAL | wxEXPAND;
+            const int LabelFlags   = wxALIGN_RIGHT | Qt::AlignVCenter | wxRIGHT;
+            const int EditorFlags  = Qt::AlignVCenter | wxEXPAND;
             const int LabelMargin  = LayoutConstants::NarrowHMargin;
 
             wxGridBagSizer* upperInnerSizer = new wxGridBagSizer(LayoutConstants::NarrowVMargin);
-            upperInnerSizer->Add(nameLabel,      wxGBPosition(0, 0), wxDefaultSpan, LabelFlags, LabelMargin);
-            upperInnerSizer->Add(m_nameTxt,      wxGBPosition(0, 1), wxDefaultSpan, EditorFlags);
-            upperInnerSizer->Add(workDirLabel,   wxGBPosition(1, 0), wxDefaultSpan, LabelFlags, LabelMargin);
-            upperInnerSizer->Add(m_workDirTxt,   wxGBPosition(1, 1), wxDefaultSpan, EditorFlags);
+            upperInnerSizer->addWidget(nameLabel,      wxGBPosition(0, 0), wxDefaultSpan, LabelFlags, LabelMargin);
+            upperInnerSizer->addWidget(m_nameTxt,      wxGBPosition(0, 1), wxDefaultSpan, EditorFlags);
+            upperInnerSizer->addWidget(workDirLabel,   wxGBPosition(1, 0), wxDefaultSpan, LabelFlags, LabelMargin);
+            upperInnerSizer->addWidget(m_workDirTxt,   wxGBPosition(1, 1), wxDefaultSpan, EditorFlags);
             upperInnerSizer->AddGrowableCol(1);
 
             auto* upperOuterSizer = new QVBoxLayout();
             upperOuterSizer->addSpacing(LayoutConstants::WideVMargin);
-            upperOuterSizer->Add(upperInnerSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::MediumHMargin);
+            upperOuterSizer->addWidget(upperInnerSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::MediumHMargin);
             upperOuterSizer->addSpacing(LayoutConstants::WideVMargin);
 
-            upperPanel->SetSizer(upperOuterSizer);
+            upperPanel->setLayout(upperOuterSizer);
 
             m_taskList = new CompilationTaskList(containerPanel, m_document);
 
@@ -120,12 +120,12 @@ namespace TrenchBroom {
 
             auto* buttonSizer = new QHBoxLayout();
             const wxSizerFlags buttonFlags = wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            buttonSizer->Add(addTaskButton, buttonFlags);
-            buttonSizer->Add(removeTaskButton, buttonFlags);
+            buttonSizer->addWidget(addTaskButton, buttonFlags);
+            buttonSizer->addWidget(removeTaskButton, buttonFlags);
             buttonSizer->addSpacing(LayoutConstants::WideHMargin);
-            buttonSizer->Add(moveTaskUpButton, buttonFlags);
-            buttonSizer->Add(moveTaskDownButton, buttonFlags);
-            buttonSizer->AddStretchSpacer();
+            buttonSizer->addWidget(moveTaskUpButton, buttonFlags);
+            buttonSizer->addWidget(moveTaskDownButton, buttonFlags);
+            buttonSizer->addStretch(1);
 
             auto* sizer = new QVBoxLayout();
             sizer->addWidget(upperPanel, wxSizerFlags().Expand());
@@ -134,21 +134,21 @@ namespace TrenchBroom {
             sizer->addWidget(new BorderLine(containerPanel, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
             sizer->addWidget(buttonSizer, wxSizerFlags().Expand());
 
-            containerPanel->SetSizer(sizer);
+            containerPanel->setLayout(sizer);
             return containerPanel;
         }
 
-        void CompilationProfileEditor::OnNameChanged(wxCommandEvent& event) {
+        void CompilationProfileEditor::OnNameChanged() {
             ensure(m_profile != nullptr, "profile is null");
             m_profile->setName(m_nameTxt->GetValue().ToStdString());
         }
 
-        void CompilationProfileEditor::OnWorkDirChanged(wxCommandEvent& event) {
+        void CompilationProfileEditor::OnWorkDirChanged() {
             ensure(m_profile != nullptr, "profile is null");
             m_profile->setWorkDirSpec(m_workDirTxt->GetValue().ToStdString());
         }
 
-        void CompilationProfileEditor::OnAddTask(wxCommandEvent& event) {
+        void CompilationProfileEditor::OnAddTask() {
             wxMenu menu;
             menu.Append(1, "Export Map");
             menu.Append(2, "Copy Files");
@@ -180,7 +180,7 @@ namespace TrenchBroom {
             }
         }
 
-        void CompilationProfileEditor::OnRemoveTask(wxCommandEvent& event) {
+        void CompilationProfileEditor::OnRemoveTask() {
             const int index = m_taskList->GetSelection();
             assert(index != wxNOT_FOUND);
 
@@ -198,33 +198,33 @@ namespace TrenchBroom {
         }
 
 
-        void CompilationProfileEditor::OnMoveTaskUp(wxCommandEvent& event) {
+        void CompilationProfileEditor::OnMoveTaskUp() {
             const int index = m_taskList->GetSelection();
             assert(index != wxNOT_FOUND);
             m_profile->moveTaskUp(static_cast<size_t>(index));
             m_taskList->SetSelection(index - 1);
         }
 
-        void CompilationProfileEditor::OnMoveTaskDown(wxCommandEvent& event) {
+        void CompilationProfileEditor::OnMoveTaskDown() {
             const int index = m_taskList->GetSelection();
             assert(index != wxNOT_FOUND);
             m_profile->moveTaskDown(static_cast<size_t>(index));
             m_taskList->SetSelection(index + 1);
         }
 
-        void CompilationProfileEditor::OnUpdateAddTaskButtonUI(wxUpdateUIEvent& event) {
+        void CompilationProfileEditor::OnUpdateAddTaskButtonUI() {
             event.Enable(m_profile != nullptr);
         }
 
-        void CompilationProfileEditor::OnUpdateRemoveTaskButtonUI(wxUpdateUIEvent& event) {
+        void CompilationProfileEditor::OnUpdateRemoveTaskButtonUI() {
             event.Enable(m_profile != nullptr && m_taskList->GetSelection() != wxNOT_FOUND);
         }
 
-        void CompilationProfileEditor::OnUpdateMoveTaskUpButtonUI(wxUpdateUIEvent& event) {
+        void CompilationProfileEditor::OnUpdateMoveTaskUpButtonUI() {
             event.Enable(m_profile != nullptr && m_taskList->GetSelection() != wxNOT_FOUND && m_taskList->GetSelection() > 0);
         }
 
-        void CompilationProfileEditor::OnUpdateMoveTaskDownButtonUI(wxUpdateUIEvent& event) {
+        void CompilationProfileEditor::OnUpdateMoveTaskDownButtonUI() {
             event.Enable(m_profile != nullptr && m_taskList->GetSelection() != wxNOT_FOUND && static_cast<size_t>(m_taskList->GetSelection()) < m_profile->taskCount() - 1);
         }
 

@@ -71,12 +71,12 @@ namespace TrenchBroom {
             splitter->splitHorizontally(m_profileManager, outputPanel, wxSize(100, 100), wxSize(100, 100));
 
             auto* outputSizer = new QVBoxLayout();
-            outputSizer->Add(m_output, 1, wxEXPAND);
-            outputPanel->getPanel()->SetSizer(outputSizer);
+            outputSizer->addWidget(m_output, 1, wxEXPAND);
+            outputPanel->getPanel()->setLayout(outputSizer);
 
             auto* outerPanelSizer = new QVBoxLayout();
-            outerPanelSizer->Add(splitter, 1, wxEXPAND);
-            outerPanel->SetSizer(outerPanelSizer);
+            outerPanelSizer->addWidget(splitter, 1, wxEXPAND);
+            outerPanel->setLayout(outerPanelSizer);
 
             wxButton* launchButton = new wxButton(this, wxID_ANY, "Launch...");
             wxButton* compileButton = new wxButton(this, wxID_OK, "Compile");
@@ -93,37 +93,37 @@ namespace TrenchBroom {
 			stdButtonSizer->SetCancelButton(closeButton);
             stdButtonSizer->Realize();
 
-            m_currentRunLabel = new QLabel(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT);
+            m_currentRunLabel = new QLabel("", wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT);
 
             auto* currentRunLabelSizer = new QVBoxLayout();
-            currentRunLabelSizer->AddStretchSpacer();
-            currentRunLabelSizer->Add(m_currentRunLabel, wxSizerFlags().Expand());
-            currentRunLabelSizer->AddStretchSpacer();
+            currentRunLabelSizer->addStretch(1);
+            currentRunLabelSizer->addWidget(m_currentRunLabel, wxSizerFlags().Expand());
+            currentRunLabelSizer->addStretch(1);
 
             auto* buttonSizer = new QHBoxLayout();
-            buttonSizer->Add(launchButton, wxSizerFlags().CenterVertical());
-            buttonSizer->Add(currentRunLabelSizer, wxSizerFlags().Expand().Proportion(1).Border(wxLEFT | wxRIGHT, LayoutConstants::WideHMargin));
-            buttonSizer->Add(stdButtonSizer);
+            buttonSizer->addWidget(launchButton, wxSizerFlags().CenterVertical());
+            buttonSizer->addWidget(currentRunLabelSizer, wxSizerFlags().Expand().Proportion(1).Border(wxLEFT | wxRIGHT, LayoutConstants::WideHMargin));
+            buttonSizer->addWidget(stdButtonSizer);
 
             auto* dialogSizer = new QVBoxLayout();
-            dialogSizer->Add(outerPanel, wxSizerFlags().Expand().Proportion(1));
-            dialogSizer->Add(wrapDialogButtonSizer(buttonSizer, this), wxSizerFlags().Expand());
-            SetSizer(dialogSizer);
+            dialogSizer->addWidget(outerPanel, wxSizerFlags().Expand().Proportion(1));
+            dialogSizer->addWidget(wrapDialogButtonSizer(buttonSizer, this), wxSizerFlags().Expand());
+            setLayout(dialogSizer);
 
             m_run.Bind(wxEVT_COMPILATION_END, &CompilationDialog::OnCompilationEnd, this);
             Bind(wxEVT_CLOSE_WINDOW, &CompilationDialog::OnClose, this);
         }
 
-        void CompilationDialog::OnLaunchClicked(wxCommandEvent& event) {
+        void CompilationDialog::OnLaunchClicked() {
             LaunchGameEngineDialog dialog(this, m_mapFrame->document());
             dialog.ShowModal();
         }
 
-        void CompilationDialog::OnUpdateLaunchButtonUI(wxUpdateUIEvent& event) {
+        void CompilationDialog::OnUpdateLaunchButtonUI() {
             event.Enable(!m_run.running());
         }
 
-        void CompilationDialog::OnToggleCompileClicked(wxCommandEvent& event) {
+        void CompilationDialog::OnToggleCompileClicked() {
             if (m_run.running()) {
                 m_run.terminate();
             } else {
@@ -143,7 +143,7 @@ namespace TrenchBroom {
             }
         }
 
-        void CompilationDialog::OnUpdateCompileButtonUI(wxUpdateUIEvent& event) {
+        void CompilationDialog::OnUpdateCompileButtonUI() {
             if (m_run.running()) {
                 event.SetText("Stop");
                 event.Enable(true);
@@ -157,7 +157,7 @@ namespace TrenchBroom {
             }
         }
 
-		void CompilationDialog::OnCloseButtonClicked(wxCommandEvent& event) {
+		void CompilationDialog::OnCloseButtonClicked() {
 			Close();
 		}
 

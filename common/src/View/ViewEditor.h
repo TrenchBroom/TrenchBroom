@@ -58,10 +58,10 @@ namespace TrenchBroom {
 
             void refresh();
 
-            void OnGroupCheckBoxChanged(wxCommandEvent& event);
-            void OnDefCheckBoxChanged(wxCommandEvent& event);
-            void OnShowAllClicked(wxCommandEvent& event);
-            void OnHideAllClicked(wxCommandEvent& event);
+            void OnGroupCheckBoxChanged();
+            void OnDefCheckBoxChanged();
+            void OnShowAllClicked();
+            void OnHideAllClicked();
         private:
             void hideAll(bool hidden);
             void createGui();
@@ -97,19 +97,19 @@ namespace TrenchBroom {
             ViewEditor(wxWindow* parent, MapDocumentWPtr document);
             ~ViewEditor() override;
 
-            void OnShowEntityClassnamesChanged(wxCommandEvent& event);
-            void OnShowGroupBoundsChanged(wxCommandEvent& event);
-            void OnShowBrushEntityBoundsChanged(wxCommandEvent& event);
-            void OnShowPointEntityBoundsChanged(wxCommandEvent& event);
-            void OnShowPointEntitiesChanged(wxCommandEvent& event);
-            void OnShowPointEntityModelsChanged(wxCommandEvent& event);
-            void OnShowBrushesChanged(wxCommandEvent& event);
-            void OnShowTagChanged(wxCommandEvent& event);
-            void OnFaceRenderModeChanged(wxCommandEvent& event);
-            void OnShadeFacesChanged(wxCommandEvent& event);
-            void OnShowFogChanged(wxCommandEvent& event);
-            void OnShowEdgesChanged(wxCommandEvent& event);
-            void OnEntityLinkModeChanged(wxCommandEvent& event);
+            void OnShowEntityClassnamesChanged();
+            void OnShowGroupBoundsChanged();
+            void OnShowBrushEntityBoundsChanged();
+            void OnShowPointEntityBoundsChanged();
+            void OnShowPointEntitiesChanged();
+            void OnShowPointEntityModelsChanged();
+            void OnShowBrushesChanged();
+            void OnShowTagChanged();
+            void OnFaceRenderModeChanged();
+            void OnShadeFacesChanged();
+            void OnShowFogChanged();
+            void OnShowEdgesChanged();
+            void OnEntityLinkModeChanged();
         private:
             void bindObservers();
             void unbindObservers();

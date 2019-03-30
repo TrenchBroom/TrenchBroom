@@ -39,11 +39,11 @@ namespace TrenchBroom {
         public:
             ReplaceTextureDialog(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
 
-            void OnReplace(wxCommandEvent& event);
+            void OnReplace();
         private:
             Model::BrushFaceList getApplicableFaces() const;
         public:
-            void OnUpdateReplaceButton(wxUpdateUIEvent& event);
+            void OnUpdateReplaceButton();
         private:
             void createGui(GLContextManager& contextManager);
         };

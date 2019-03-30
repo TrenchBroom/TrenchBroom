@@ -47,8 +47,8 @@ namespace TrenchBroom {
             createGui(contextManager);
         }
 
-        void ReplaceTextureDialog::OnReplace(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void ReplaceTextureDialog::OnReplace() {
+
 
             const Assets::Texture* subject = m_subjectBrowser->selectedTexture();
             ensure(subject != nullptr, "subject is null");
@@ -90,8 +90,8 @@ namespace TrenchBroom {
             return result;
         }
 
-        void ReplaceTextureDialog::OnUpdateReplaceButton(wxUpdateUIEvent& event) {
-            if (IsBeingDeleted()) return;
+        void ReplaceTextureDialog::OnUpdateReplaceButton() {
+
 
             const Assets::Texture* subject = m_subjectBrowser->selectedTexture();
             const Assets::Texture* replacement = m_replacementBrowser->selectedTexture();
@@ -106,26 +106,26 @@ namespace TrenchBroom {
             m_subjectBrowser->setHideUnused(true);
 
             auto* subjectPanelSizer = new QVBoxLayout();
-            subjectPanelSizer->Add(m_subjectBrowser, 1, wxEXPAND);
-            subjectPanel->getPanel()->SetSizer(subjectPanelSizer);
+            subjectPanelSizer->addWidget(m_subjectBrowser, 1, wxEXPAND);
+            subjectPanel->getPanel()->setLayout(subjectPanelSizer);
 
             TitledPanel* replacementPanel = new TitledPanel(this, "Replace with");
             m_replacementBrowser = new TextureBrowser(replacementPanel->getPanel(), m_document, contextManager);
             m_replacementBrowser->setSelectedTexture(nullptr); // Override the current texture.
 
             auto* replacementPanelSizer = new QVBoxLayout();
-            replacementPanelSizer->Add(m_replacementBrowser, 1, wxEXPAND);
-            replacementPanel->getPanel()->SetSizer(replacementPanelSizer);
+            replacementPanelSizer->addWidget(m_replacementBrowser, 1, wxEXPAND);
+            replacementPanel->getPanel()->setLayout(replacementPanelSizer);
 
             auto* upperSizer = new QHBoxLayout();
-            upperSizer->Add(subjectPanel, 1, wxEXPAND);
-            upperSizer->Add(new BorderLine(this, BorderLine::Direction_Vertical), 0, wxEXPAND);
-            upperSizer->Add(replacementPanel, 1, wxEXPAND);
+            upperSizer->addWidget(subjectPanel, 1, wxEXPAND);
+            upperSizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Vertical), 0, wxEXPAND);
+            upperSizer->addWidget(replacementPanel, 1, wxEXPAND);
 
             wxButton* replaceButton = new wxButton(this, wxID_OK, "Replace");
-            replaceButton->SetToolTip("Perform replacement on all selected faces");
+            replaceButton->setToolTip("Perform replacement on all selected faces");
             wxButton* closeButton = new wxButton(this, wxID_CANCEL, "Close");
-            closeButton->SetToolTip("Close this window");
+            closeButton->setToolTip("Close this window");
 
             replaceButton->Bind(wxEVT_BUTTON, &ReplaceTextureDialog::OnReplace, this);
             replaceButton->Bind(wxEVT_UPDATE_UI, &ReplaceTextureDialog::OnUpdateReplaceButton, this);
@@ -136,9 +136,9 @@ namespace TrenchBroom {
             buttonSizer->Realize();
 
             auto* outerSizer = new QVBoxLayout();
-            outerSizer->Add(upperSizer, 1, wxEXPAND);
-            outerSizer->Add(wrapDialogButtonSizer(buttonSizer, this), 0, wxEXPAND);
-            SetSizer(outerSizer);
+            outerSizer->addWidget(upperSizer, 1, wxEXPAND);
+            outerSizer->addWidget(wrapDialogButtonSizer(buttonSizer, this), 0, wxEXPAND);
+            setLayout(outerSizer);
 
             SetMinSize(wxSize(650, 450));
             SetSize(wxSize(650, 450));

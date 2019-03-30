@@ -45,11 +45,11 @@ namespace TrenchBroom {
                 InheritAttributes();
 
                 m_nameText = new QLabel(this, wxID_ANY, m_layer->name());
-                m_infoText = new QLabel(this, wxID_ANY, "");
+                m_infoText = new QLabel("");
                 m_infoText->SetForegroundColour(makeLighter(m_infoText->GetForegroundColour()));
                 refresh();
 
-                QWidget* hiddenText = new QLabel(this, wxID_ANY, "yGp"); // this is just for keeping the correct height of the name text
+                QWidget* hiddenText = new QLabel("yGp"); // this is just for keeping the correct height of the name text
                 hiddenText->SetFont(GetFont().Bold());
                 hiddenText->Hide();
 
@@ -66,22 +66,22 @@ namespace TrenchBroom {
                 lockButton->Bind(wxEVT_UPDATE_UI, &LayerItem::OnUpdateLockButton, this);
 
                 auto* itemPanelTopSizer = new QHBoxLayout();
-                itemPanelTopSizer->Add(m_nameText, 0, wxALIGN_BOTTOM);
-                itemPanelTopSizer->Add(hiddenText, 0, wxALIGN_BOTTOM | wxRESERVE_SPACE_EVEN_IF_HIDDEN);
+                itemPanelTopSizer->addWidget(m_nameText, 0, wxALIGN_BOTTOM);
+                itemPanelTopSizer->addWidget(hiddenText, 0, wxALIGN_BOTTOM | wxRESERVE_SPACE_EVEN_IF_HIDDEN);
 
                 auto* itemPanelBottomSizer = new QHBoxLayout();
-                itemPanelBottomSizer->Add(hiddenButton, 0, wxALIGN_CENTRE_VERTICAL);
-                itemPanelBottomSizer->Add(lockButton, 0, wxALIGN_CENTRE_VERTICAL);
-                itemPanelBottomSizer->Add(m_infoText, 0, wxALIGN_CENTRE_VERTICAL);
-                itemPanelBottomSizer->AddStretchSpacer();
+                itemPanelBottomSizer->addWidget(hiddenButton, 0, wxALIGN_CENTRE_VERTICAL);
+                itemPanelBottomSizer->addWidget(lockButton, 0, wxALIGN_CENTRE_VERTICAL);
+                itemPanelBottomSizer->addWidget(m_infoText, 0, wxALIGN_CENTRE_VERTICAL);
+                itemPanelBottomSizer->addStretch(1);
                 itemPanelBottomSizer->addSpacing(LayoutConstants::NarrowHMargin);
 
                 auto* itemPanelSizer = new QVBoxLayout();
                 itemPanelSizer->addSpacing(LayoutConstants::NarrowVMargin);
-                itemPanelSizer->Add(itemPanelTopSizer,    0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
-                itemPanelSizer->Add(itemPanelBottomSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
+                itemPanelSizer->addWidget(itemPanelTopSizer,    0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
+                itemPanelSizer->addWidget(itemPanelBottomSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
                 itemPanelSizer->addSpacing(LayoutConstants::NarrowVMargin);
-                SetSizer(itemPanelSizer);
+                setLayout(itemPanelSizer);
             }
 
             Model::Layer* layer() const {
@@ -103,7 +103,7 @@ namespace TrenchBroom {
                 Layout();
             }
 
-            void OnToggleVisible(wxCommandEvent& event) {
+            void OnToggleVisible() {
                 LayerCommand* command = new LayerCommand(LAYER_TOGGLE_VISIBLE_EVENT);
                 command->SetId(GetId());
                 command->SetEventObject(this);
@@ -111,14 +111,14 @@ namespace TrenchBroom {
                 QueueEvent(command);
             }
 
-            void OnUpdateVisibleButton(wxUpdateUIEvent& event) {
+            void OnUpdateVisibleButton() {
                 event.Check(m_layer->hidden());
 
                 MapDocumentSPtr document = lock(m_document);
                 event.Enable(m_layer->hidden() || m_layer != document->currentLayer());
             }
 
-            void OnToggleLocked(wxCommandEvent& event) {
+            void OnToggleLocked() {
                 LayerCommand* command = new LayerCommand(LAYER_TOGGLE_LOCKED_EVENT);
                 command->SetId(GetId());
                 command->SetEventObject(this);
@@ -126,7 +126,7 @@ namespace TrenchBroom {
                 QueueEvent(command);
             }
 
-            void OnUpdateLockButton(wxUpdateUIEvent& event) {
+            void OnUpdateLockButton() {
                 event.Check(m_layer->locked());
 
                 MapDocumentSPtr document = lock(m_document);
@@ -176,7 +176,7 @@ namespace TrenchBroom {
 //            Refresh();
         }
 
-//        void LayerListBox::OnSelectionChanged(wxCommandEvent& event) {
+//        void LayerListBox::OnSelectionChanged() {
 //            LayerCommand* command = new LayerCommand(LAYER_SELECTED_EVENT);
 //            command->SetId(GetId());
 //            command->SetEventObject(this);
@@ -184,7 +184,7 @@ namespace TrenchBroom {
 //            QueueEvent(command);
 //        }
 //
-//        void LayerListBox::OnDoubleClick(wxCommandEvent& event) {
+//        void LayerListBox::OnDoubleClick() {
 //            LayerCommand* command = new LayerCommand(LAYER_SET_CURRENT_EVENT);
 //            command->SetId(GetId());
 //            command->SetEventObject(this);
@@ -192,7 +192,7 @@ namespace TrenchBroom {
 //            QueueEvent(command);
 //        }
 //
-//        void LayerListBox::OnRightClick(wxCommandEvent& event) {
+//        void LayerListBox::OnRightClick() {
 //            Model::Layer* layer = selectedLayer();
 //            if (layer != nullptr) {
 //                LayerCommand* command = new LayerCommand(LAYER_RIGHT_CLICK_EVENT);

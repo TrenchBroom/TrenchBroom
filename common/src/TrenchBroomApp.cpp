@@ -547,12 +547,12 @@ namespace TrenchBroom {
 
 // FIXME: add apple only for Qt
 #if 0
-        void TrenchBroomApp::OnFileExit(wxCommandEvent& event) {
+        void TrenchBroomApp::OnFileExit() {
             if (m_frameManager->closeAllFrames())
                 ExitMainLoop();
         }
 
-        void TrenchBroomApp::OnUpdateUI(wxUpdateUIEvent& event) {
+        void TrenchBroomApp::OnUpdateUI() {
             switch (event.GetId()) {
                 case wxID_PREFERENCES:
                 case wxID_ABOUT:

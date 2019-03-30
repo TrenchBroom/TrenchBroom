@@ -58,14 +58,14 @@ namespace TrenchBroom {
             SetSelection(index);
         }
 
-        void GameListBox::OnListBoxChange(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void GameListBox::OnListBoxChange() {
+
 
             submitChangeEvent(GAME_SELECTION_CHANGE_EVENT);
         }
 
-        void GameListBox::OnListBoxDoubleClick(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void GameListBox::OnListBoxDoubleClick() {
+
 
             submitChangeEvent(GAME_SELECTION_DBLCLICK_EVENT);
         }

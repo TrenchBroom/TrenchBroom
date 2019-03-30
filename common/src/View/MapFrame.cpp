@@ -2029,7 +2029,7 @@ namespace TrenchBroom {
         }
 
 #if 0
-        void MapFrame::OnUpdateUI(wxUpdateUIEvent& event) {
+        void MapFrame::OnUpdateUI() {
 		    // FIXME: implement
 
             const auto& actionManager = ActionManager::instance();

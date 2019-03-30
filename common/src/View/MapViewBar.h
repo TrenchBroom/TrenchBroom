@@ -41,7 +41,7 @@ namespace TrenchBroom {
 
             wxBookCtrlBase* toolBook();
 
-            void OnSearchPatternChanged(wxCommandEvent& event);
+            void OnSearchPatternChanged();
         private:
             void createGui(MapDocumentWPtr document);
         };

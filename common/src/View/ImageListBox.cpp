@@ -77,21 +77,21 @@ namespace TrenchBroom {
 #endif
 
                 auto* vSizer = new QVBoxLayout();
-                vSizer->Add(m_titleText, 0);
-                vSizer->Add(m_subtitleText, 0);
+                vSizer->addWidget(m_titleText, 0);
+                vSizer->addWidget(m_subtitleText, 0);
 
                 auto* hSizer = new QHBoxLayout();
                 hSizer->addSpacing(margins.x);
 
                 if (image != nullptr) {
                     m_imageBmp = new wxStaticBitmap(this, wxID_ANY, *image);
-                    hSizer->Add(m_imageBmp, 0, wxALIGN_BOTTOM | wxTOP | wxBOTTOM, margins.y);
+                    hSizer->addWidget(m_imageBmp, 0, wxALIGN_BOTTOM | wxTOP | wxBOTTOM, margins.y);
                     hSizer->addSpacing(4);
                 }
-                hSizer->Add(vSizer, 0, wxTOP | wxBOTTOM, margins.y);
+                hSizer->addWidget(vSizer, 0, wxTOP | wxBOTTOM, margins.y);
                 hSizer->addSpacing(margins.x);
 
-                SetSizer(hSizer);
+                setLayout(hSizer);
             }
         };
 

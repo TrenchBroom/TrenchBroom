@@ -54,10 +54,10 @@ namespace TrenchBroom {
         private:
             void OnGameSelectionChanged(GameSelectionCommand& command);
             void OnGameSelected(GameSelectionCommand& command);
-            void OnUpdateMapFormatChoice(wxUpdateUIEvent& event);
+            void OnUpdateMapFormatChoice();
 
-            void OnOpenPreferencesClicked(wxCommandEvent& event);
-            void OnUpdateOkButton(wxUpdateUIEvent& event);
+            void OnOpenPreferencesClicked();
+            void OnUpdateOkButton();
 
             void OnClose(wxCloseEvent& event);
         protected:

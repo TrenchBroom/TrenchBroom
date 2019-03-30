@@ -57,26 +57,26 @@ namespace TrenchBroom {
             removeProfileButton->Bind(wxEVT_UPDATE_UI, &CompilationProfileManager::OnUpdateRemoveProfileButtonUI, this);
 
             auto* buttonSizer = new QHBoxLayout();
-            buttonSizer->Add(addProfileButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            buttonSizer->Add(removeProfileButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            buttonSizer->AddStretchSpacer();
+            buttonSizer->addWidget(addProfileButton, 0, Qt::AlignVCenter | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->addWidget(removeProfileButton, 0, Qt::AlignVCenter | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->addStretch(1);
 
             auto* listSizer = new QVBoxLayout();
-            listSizer->Add(m_profileList, 1, wxEXPAND);
-            listSizer->Add(new BorderLine(listPanel->getPanel(), BorderLine::Direction_Horizontal), 0, wxEXPAND);
-            listSizer->Add(buttonSizer);
-            listPanel->getPanel()->SetSizer(listSizer);
+            listSizer->addWidget(m_profileList, 1, wxEXPAND);
+            listSizer->addWidget(new BorderLine(listPanel->getPanel(), BorderLine::Direction_Horizontal), 0, wxEXPAND);
+            listSizer->addWidget(buttonSizer);
+            listPanel->getPanel()->setLayout(listSizer);
 
             auto* editorSizer = new QVBoxLayout();
-            editorSizer->Add(m_profileEditor, 1, wxEXPAND);
-            editorPanel->getPanel()->SetSizer(editorSizer);
+            editorSizer->addWidget(m_profileEditor, 1, wxEXPAND);
+            editorPanel->getPanel()->setLayout(editorSizer);
 
             auto* outerSizer = new QHBoxLayout();
-            outerSizer->Add(listPanel, 0, wxEXPAND);
-            outerSizer->Add(new BorderLine(this, BorderLine::Direction_Vertical), 0, wxEXPAND);
-            outerSizer->Add(editorPanel, 1, wxEXPAND);
+            outerSizer->addWidget(listPanel, 0, wxEXPAND);
+            outerSizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Vertical), 0, wxEXPAND);
+            outerSizer->addWidget(editorPanel, 1, wxEXPAND);
             outerSizer->SetItemMinSize(listPanel, wxSize(200, 200));
-            SetSizer(outerSizer);
+            setLayout(outerSizer);
 
             m_profileList->Bind(wxEVT_LISTBOX, &CompilationProfileManager::OnProfileSelectionChanged, this);
         }
@@ -88,12 +88,12 @@ namespace TrenchBroom {
             return m_config.profile(static_cast<size_t>(index));
         }
 
-        void CompilationProfileManager::OnAddProfile(wxCommandEvent& event) {
+        void CompilationProfileManager::OnAddProfile() {
             m_config.addProfile(new Model::CompilationProfile("unnamed", "${MAP_DIR_PATH}"));
             m_profileList->SetSelection(static_cast<int>(m_config.profileCount() - 1));
         }
 
-        void CompilationProfileManager::OnRemoveProfile(wxCommandEvent& event) {
+        void CompilationProfileManager::OnRemoveProfile() {
             const int index = m_profileList->GetSelection();
             assert(index != wxNOT_FOUND);
 
@@ -110,15 +110,15 @@ namespace TrenchBroom {
             }
         }
 
-        void CompilationProfileManager::OnUpdateAddProfileButtonUI(wxUpdateUIEvent& event) {
+        void CompilationProfileManager::OnUpdateAddProfileButtonUI() {
             event.Enable(true);
         }
 
-        void CompilationProfileManager::OnUpdateRemoveProfileButtonUI(wxUpdateUIEvent& event) {
+        void CompilationProfileManager::OnUpdateRemoveProfileButtonUI() {
             event.Enable(m_profileList->GetSelection() != wxNOT_FOUND);
         }
 
-        void CompilationProfileManager::OnProfileSelectionChanged(wxCommandEvent& event) {
+        void CompilationProfileManager::OnProfileSelectionChanged() {
             const int selection = m_profileList->GetSelection();
             if (selection != wxNOT_FOUND) {
                 Model::CompilationProfile* profile = m_config.profile(static_cast<size_t>(selection));

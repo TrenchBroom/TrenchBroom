@@ -86,8 +86,8 @@ namespace TrenchBroom {
 
 // FIXME: add apple only for Qt
 #if 0
-            void OnFileExit(wxCommandEvent& event);
-            void OnUpdateUI(wxUpdateUIEvent& event);
+            void OnFileExit();
+            void OnUpdateUI();
 
             void MacNewFile() override;
             void MacOpenFiles(const QStringList& filenames) override;

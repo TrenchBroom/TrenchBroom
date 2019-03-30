@@ -56,7 +56,7 @@ namespace TrenchBroom {
         void ScaleObjectsToolPage::createGui() {
             MapDocumentSPtr document = lock(m_document);
 
-            QLabel* text = new QLabel(this, wxID_ANY, "Scale objects");
+            QLabel* text = new QLabel("Scale objects");
 
             m_book = new wxSimplebook(this);
             m_sizeTextBox = new wxTextCtrl(m_book, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
@@ -69,7 +69,7 @@ namespace TrenchBroom {
 
             const QString choices[] = { "to size", "by factors" };
             m_scaleFactorsOrSize = new wxChoice(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 2, choices);
-            m_scaleFactorsOrSize->Bind(wxEVT_CHOICE, [&](wxCommandEvent& event){
+            m_scaleFactorsOrSize->Bind(wxEVT_CHOICE, [&](){
                     const auto selection = m_scaleFactorsOrSize->GetSelection();
                     if (selection != wxNOT_FOUND) {
                         m_book->SetSelection(static_cast<size_t>(selection));
@@ -83,23 +83,23 @@ namespace TrenchBroom {
             m_button->Bind(wxEVT_BUTTON, &ScaleObjectsToolPage::OnApply, this);
 
             wxBoxSizer* sizer = new QHBoxLayout();
-            sizer->addWidget(text, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->addWidget(text, 0, Qt::AlignVCenter);
             sizer->addSpacing(LayoutConstants::NarrowHMargin);
-            sizer->addWidget(m_scaleFactorsOrSize, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->addWidget(m_scaleFactorsOrSize, 0, Qt::AlignVCenter);
             sizer->addSpacing(LayoutConstants::NarrowHMargin);
-            sizer->addWidget(m_book, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->addWidget(m_book, 0, Qt::AlignVCenter);
             sizer->addSpacing(LayoutConstants::NarrowHMargin);
-            sizer->addWidget(m_button, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->addWidget(m_button, 0, Qt::AlignVCenter);
 
-            SetSizer(sizer);
+            setLayout(sizer);
         }
 
         bool ScaleObjectsToolPage::canScale() const {
             return lock(m_document)->hasSelectedNodes();
         }
 
-        void ScaleObjectsToolPage::OnUpdateButton(wxUpdateUIEvent& event) {
-            if (IsBeingDeleted()) return;
+        void ScaleObjectsToolPage::OnUpdateButton() {
+
 
             event.Enable(canScale());
         }
@@ -117,8 +117,8 @@ namespace TrenchBroom {
             }
         }
 
-        void ScaleObjectsToolPage::OnApply(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void ScaleObjectsToolPage::OnApply() {
+
 
             if (!canScale()) {
                 return;

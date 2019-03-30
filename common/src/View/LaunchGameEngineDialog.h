@@ -47,18 +47,18 @@ namespace TrenchBroom {
             void createGui();
             LaunchGameEngineVariables variables() const;
 
-            void OnSelectGameEngineProfile(wxCommandEvent& event);
+            void OnSelectGameEngineProfile();
 
-            void OnUpdateParameterTextUI(wxUpdateUIEvent& event);
-            void OnParameterTextChanged(wxCommandEvent& event);
+            void OnUpdateParameterTextUI();
+            void OnParameterTextChanged();
 
-            void OnEditGameEnginesButton(wxCommandEvent& event);
+            void OnEditGameEnginesButton();
 
-            void OnCloseButton(wxCommandEvent& event);
-            void OnUpdateCloseButtonUI(wxUpdateUIEvent& event);
+            void OnCloseButton();
+            void OnUpdateCloseButtonUI();
 
-            void OnLaunch(wxCommandEvent& event);
-            void OnUpdateLaunchButtonUI(wxUpdateUIEvent& event);
+            void OnLaunch();
+            void OnUpdateLaunchButtonUI();
 
             void OnClose(wxCloseEvent& event);
         };

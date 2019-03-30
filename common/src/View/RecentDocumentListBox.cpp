@@ -49,8 +49,8 @@ namespace TrenchBroom {
             app.recentDocumentsDidChangeNotifier.removeObserver(this, &RecentDocumentListBox::recentDocumentsDidChange);
         }
 
-        void RecentDocumentListBox::OnListBoxDoubleClick(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void RecentDocumentListBox::OnListBoxDoubleClick() {
+
 
             TrenchBroomApp& app = View::TrenchBroomApp::instance();
             const IO::Path::List& recentDocuments = app.recentDocuments();

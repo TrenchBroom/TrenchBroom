@@ -58,11 +58,11 @@ namespace TrenchBroom {
             void createGui();
 
             void OnIdle(wxIdleEvent& event);
-            void OnCenterChanged(wxCommandEvent& event);
-            void OnResetCenter(wxCommandEvent& event);
-            void OnAngleChanged(SpinControlEvent& event);
-            void OnUpdateRotateButton(wxUpdateUIEvent& event);
-            void OnRotate(wxCommandEvent& event);
+            void OnCenterChanged();
+            void OnResetCenter();
+            void OnAngleChanged(double value);
+            void OnUpdateRotateButton();
+            void OnRotate();
             vm::vec3 getAxis() const;
         };
     }

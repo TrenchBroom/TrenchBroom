@@ -42,9 +42,9 @@ namespace TrenchBroom {
             explicit GamesPreferencePane(QWidget* parent);
         private:
             void OnGameSelectionChanged(GameSelectionCommand& event);
-            void OnChooseGamePathClicked(wxCommandEvent& event);
+            void OnChooseGamePathClicked();
             void updateGamePath(const QString& str);
-            void OnConfigureenginesClicked(wxCommandEvent& event);
+            void OnConfigureenginesClicked();
         private:
             void createGui();
             QWidget* createGamePreferencesPage(QWidget* parent);

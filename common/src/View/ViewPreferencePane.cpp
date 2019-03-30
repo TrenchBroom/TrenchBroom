@@ -72,8 +72,8 @@ namespace TrenchBroom {
         }
 
 
-        void ViewPreferencePane::OnLayoutChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void ViewPreferencePane::OnLayoutChanged() {
+
 
             const auto selection = m_layoutChoice->GetSelection();
             assert(selection >= 0 && selection < static_cast<int>(NumFrameLayouts));
@@ -83,7 +83,7 @@ namespace TrenchBroom {
         }
 
         void ViewPreferencePane::OnBrightnessChanged(wxScrollEvent& event) {
-            if (IsBeingDeleted()) return;
+
 
             const auto value = m_brightnessSlider->GetValue();
 
@@ -92,7 +92,7 @@ namespace TrenchBroom {
         }
 
         void ViewPreferencePane::OnGridAlphaChanged(wxScrollEvent& event) {
-            if (IsBeingDeleted()) return;
+
 
             const auto value = m_gridAlphaSlider->GetValue();
 
@@ -103,7 +103,7 @@ namespace TrenchBroom {
         }
 
         void ViewPreferencePane::OnFovChanged(wxScrollEvent& event) {
-            if (IsBeingDeleted()) return;
+
 
             const auto value = m_fovSlider->GetValue();
 
@@ -111,8 +111,8 @@ namespace TrenchBroom {
             prefs.set(Preferences::CameraFov, float(value));
         }
 
-        void ViewPreferencePane::OnShowAxesChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void ViewPreferencePane::OnShowAxesChanged() {
+
 
             const auto value = event.IsChecked();
 
@@ -120,8 +120,8 @@ namespace TrenchBroom {
             prefs.set(Preferences::ShowAxes, value);
         }
 
-        void ViewPreferencePane::OnTextureModeChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void ViewPreferencePane::OnTextureModeChanged() {
+
 
             const auto selection = m_textureModeChoice->GetSelection();
             assert(selection >= 0);
@@ -137,7 +137,7 @@ namespace TrenchBroom {
         }
 
         void ViewPreferencePane::OnBackgroundColorChanged(wxColourPickerEvent& event) {
-            if (IsBeingDeleted()) return;
+
 
             const auto value = Color(fromWxColor(event.GetColour()), 1.0f);
 
@@ -146,7 +146,7 @@ namespace TrenchBroom {
         }
 
         void ViewPreferencePane::OnGridColorChanged(wxColourPickerEvent& event) {
-            if (IsBeingDeleted()) return;
+
 
             const auto value = Color(fromWxColor(event.GetColour()), 1.0f);
 
@@ -155,7 +155,7 @@ namespace TrenchBroom {
         }
 
         void ViewPreferencePane::OnEdgeColorChanged(wxColourPickerEvent& event) {
-            if (IsBeingDeleted()) return;
+
 
             const auto value = Color(fromWxColor(event.GetColour()), 1.0f);
 
@@ -163,8 +163,8 @@ namespace TrenchBroom {
             prefs.set(Preferences::EdgeColor, value);
         }
 
-        void ViewPreferencePane::OnTextureBrowserIconSizeChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void ViewPreferencePane::OnTextureBrowserIconSizeChanged() {
+
 
             auto& prefs = PreferenceManager::instance();
 
@@ -194,7 +194,7 @@ namespace TrenchBroom {
             }
         }
 
-        void ViewPreferencePane::OnFontPrefsRendererFontSizeChanged(wxCommandEvent& event) {
+        void ViewPreferencePane::OnFontPrefsRendererFontSizeChanged() {
             if(IsBeingDeleted()) {
                 return;
             }
@@ -213,7 +213,7 @@ namespace TrenchBroom {
             sizer->addSpacing(LayoutConstants::WideVMargin);
 
             SetMinSize(sizer->GetMinSize());
-            SetSizer(sizer);
+            setLayout(sizer);
         }
 
         QWidget* ViewPreferencePane::createViewPreferences() {
@@ -270,7 +270,7 @@ namespace TrenchBroom {
             auto* textureBrowserIconSizeLabel = new QLabel(viewBox, wxID_ANY, "Icon Size");
             QString iconSizes[7] = {"25%", "50%", "100%", "150%", "200%", "250%", "300%"};
             m_textureBrowserIconSizeChoice = new wxChoice(viewBox, wxID_ANY, wxDefaultPosition, wxDefaultSize, 7, iconSizes);
-            m_textureBrowserIconSizeChoice->SetToolTip("Sets the icon size in the texture browser.");
+            m_textureBrowserIconSizeChoice->setToolTip("Sets the icon size in the texture browser.");
 
 
 
@@ -285,14 +285,14 @@ namespace TrenchBroom {
             m_fontPrefsRendererFontSizeCombo = new wxComboBox(viewBox, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,
                                                               static_cast<int>(rendererFontSizes.size()), rendererFontSizes.data(),
                                                               0, ValidIntP);
-            m_fontPrefsRendererFontSizeCombo->SetToolTip("Sets the font size for various labels in the 2D and 3D views.");
+            m_fontPrefsRendererFontSizeCombo->setToolTip("Sets the font size for various labels in the 2D and 3D views.");
 
 
 
             const auto HMargin           = LayoutConstants::WideHMargin;
             const auto LMargin           = LayoutConstants::WideVMargin;
             const auto HeaderFlags       = wxLEFT;
-            const auto LabelFlags        = wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxLEFT;
+            const auto LabelFlags        = wxALIGN_RIGHT | Qt::AlignVCenter | wxLEFT;
             const auto SliderFlags       = wxEXPAND | wxRIGHT;
             const auto ChoiceFlags       = wxRIGHT;
             const auto CheckBoxFlags     = wxLEFT;
@@ -387,7 +387,7 @@ namespace TrenchBroom {
 
             sizer->AddGrowableCol(1);
             sizer->SetMinSize(500, wxDefaultCoord);
-            viewBox->SetSizer(sizer);
+            viewBox->setLayout(sizer);
             return viewBox;
         }
 

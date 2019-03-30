@@ -40,8 +40,8 @@ namespace TrenchBroom {
         private:
             void createGui();
 
-            void OnUpdateCloseButtonUI(wxUpdateUIEvent& event);
-            void OnCloseButtonClicked(wxCommandEvent& event);
+            void OnUpdateCloseButtonUI();
+            void OnCloseButtonClicked();
             void OnClose(wxCloseEvent& event);
         };
     }

@@ -53,8 +53,8 @@ namespace TrenchBroom {
         private:
             void createGui();
 
-            void OnUpdateButton(wxUpdateUIEvent& event);
-            void OnApply(wxCommandEvent& event);
+            void OnUpdateButton();
+            void OnApply();
 
             bool canScale() const;
             vm::vec3 getScaleFactors() const;

@@ -50,12 +50,12 @@ namespace TrenchBroom {
             resetModifiers();
 
             auto* panelSizer = new QVBoxLayout();
-            panelSizer->Add(m_shortcutLabel, 0, wxEXPAND);
-            m_panel->SetSizer(panelSizer);
+            panelSizer->addWidget(m_shortcutLabel, 0, wxEXPAND);
+            m_panel->setLayout(panelSizer);
 
             auto* sizer = new QVBoxLayout();
             sizer->addWidget(m_panel, 1, wxEXPAND);
-            SetSizer(sizer);
+            setLayout(sizer);
 
             Bind(wxEVT_PAINT, &KeyboardShortcutEditor::OnPaint, this);
             Bind(wxEVT_SET_FOCUS, &KeyboardShortcutEditor::OnSetFocus, this);
@@ -106,7 +106,7 @@ namespace TrenchBroom {
         }
 
         void KeyboardShortcutEditor::OnPaint(wxPaintEvent& event) {
-            if (IsBeingDeleted()) return;
+
 
             /*
             if (HasFocus()) {
@@ -119,7 +119,7 @@ namespace TrenchBroom {
         }
 
         void KeyboardShortcutEditor::OnSetFocus(wxFocusEvent& event) {
-            if (IsBeingDeleted()) return;
+
 
             m_panel->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
             m_shortcutLabel->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHTTEXT));
@@ -128,7 +128,7 @@ namespace TrenchBroom {
         }
 
         void KeyboardShortcutEditor::OnKillFocus(wxFocusEvent& event) {
-            if (IsBeingDeleted()) return;
+
 
             m_panel->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             m_shortcutLabel->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT));
@@ -137,7 +137,7 @@ namespace TrenchBroom {
         }
 
         void KeyboardShortcutEditor::OnKeyDown(wxKeyEvent& event) {
-            if (IsBeingDeleted()) return;
+
 
             auto wasReset = false;
             const auto oldKey = m_key;
@@ -183,7 +183,7 @@ namespace TrenchBroom {
         }
 
         void KeyboardShortcutEditor::OnKeyUp(wxKeyEvent& event) {
-            if (IsBeingDeleted()) return;
+
 
             const auto key = event.GetKeyCode();
             switch (key) {
@@ -204,7 +204,7 @@ namespace TrenchBroom {
         }
 
         void KeyboardShortcutEditor::OnMouseDown(wxMouseEvent& event) {
-            if (IsBeingDeleted()) return;
+
 
             SetFocus();
         }

@@ -35,7 +35,7 @@ namespace TrenchBroom {
             RecentDocumentListBox(QWidget* parent);
             ~RecentDocumentListBox() override;
 
-            void OnListBoxDoubleClick(wxCommandEvent& event);
+            void OnListBoxDoubleClick();
         private:
             void recentDocumentsDidChange();
 

@@ -53,9 +53,9 @@ namespace TrenchBroom {
 
             auto* headerPanelSizer = new QVBoxLayout();
             headerPanelSizer->addSpacing(LayoutConstants::DialogOuterMargin);
-            headerPanelSizer->Add(header, wxSizerFlags().Border(wxLEFT | wxRIGHT, LayoutConstants::DialogOuterMargin));
+            headerPanelSizer->addWidget(header, wxSizerFlags().Border(wxLEFT | wxRIGHT, LayoutConstants::DialogOuterMargin));
             headerPanelSizer->addSpacing(LayoutConstants::DialogOuterMargin);
-            headerPanel->SetSizer(headerPanelSizer);
+            headerPanel->setLayout(headerPanelSizer);
 
             QLabel* text1 = new QLabel(reportPanel, wxID_ANY,
                                                    "TrenchBroom has crashed, but was able to save a crash report,\n"
@@ -83,47 +83,47 @@ namespace TrenchBroom {
             QLabel* buildText = new QLabel(reportPanel, wxID_ANY,  "");// FIXME: getBuildIdStr());
 
             wxGridBagSizer* reportPanelSizer = new wxGridBagSizer(LayoutConstants::NarrowVMargin, LayoutConstants::WideHMargin);
-            reportPanelSizer->Add(text1,           wxGBPosition(0, 0), wxGBSpan(1, 2));
-            reportPanelSizer->Add(1, 20,           wxGBPosition(1, 0), wxGBSpan(1, 2));
-            reportPanelSizer->Add(reportLabel,     wxGBPosition(2, 0), wxGBSpan(1, 1), wxALIGN_CENTER_VERTICAL);
-            reportPanelSizer->Add(reportPathText,  wxGBPosition(2, 1), wxGBSpan(1, 1), wxALIGN_CENTER_VERTICAL);
-            reportPanelSizer->Add(mapLabel,        wxGBPosition(3, 0), wxGBSpan(1, 1), wxALIGN_CENTER_VERTICAL);
-            reportPanelSizer->Add(mapPathText,     wxGBPosition(3, 1), wxGBSpan(1, 1), wxALIGN_CENTER_VERTICAL);
-            reportPanelSizer->Add(logLabel,        wxGBPosition(4, 0), wxGBSpan(1, 1), wxALIGN_CENTER_VERTICAL);
-            reportPanelSizer->Add(logPathText,     wxGBPosition(4, 1), wxGBSpan(1, 1), wxALIGN_CENTER_VERTICAL);
-            reportPanelSizer->Add(1, 20,           wxGBPosition(5, 0), wxGBSpan(1, 2));
-            reportPanelSizer->Add(versionLabel,    wxGBPosition(6, 0), wxGBSpan(1, 1), wxALIGN_CENTER_VERTICAL);
-            reportPanelSizer->Add(versionText,     wxGBPosition(6, 1), wxGBSpan(1, 1), wxALIGN_CENTER_VERTICAL);
-            reportPanelSizer->Add(buildLabel,      wxGBPosition(7, 0), wxGBSpan(1, 1), wxALIGN_CENTER_VERTICAL);
-            reportPanelSizer->Add(buildText,       wxGBPosition(7, 1), wxGBSpan(1, 1), wxALIGN_CENTER_VERTICAL);
+            reportPanelSizer->addWidget(text1,           wxGBPosition(0, 0), wxGBSpan(1, 2));
+            reportPanelSizer->addWidget(1, 20,           wxGBPosition(1, 0), wxGBSpan(1, 2));
+            reportPanelSizer->addWidget(reportLabel,     wxGBPosition(2, 0), wxGBSpan(1, 1), Qt::AlignVCenter);
+            reportPanelSizer->addWidget(reportPathText,  wxGBPosition(2, 1), wxGBSpan(1, 1), Qt::AlignVCenter);
+            reportPanelSizer->addWidget(mapLabel,        wxGBPosition(3, 0), wxGBSpan(1, 1), Qt::AlignVCenter);
+            reportPanelSizer->addWidget(mapPathText,     wxGBPosition(3, 1), wxGBSpan(1, 1), Qt::AlignVCenter);
+            reportPanelSizer->addWidget(logLabel,        wxGBPosition(4, 0), wxGBSpan(1, 1), Qt::AlignVCenter);
+            reportPanelSizer->addWidget(logPathText,     wxGBPosition(4, 1), wxGBSpan(1, 1), Qt::AlignVCenter);
+            reportPanelSizer->addWidget(1, 20,           wxGBPosition(5, 0), wxGBSpan(1, 2));
+            reportPanelSizer->addWidget(versionLabel,    wxGBPosition(6, 0), wxGBSpan(1, 1), Qt::AlignVCenter);
+            reportPanelSizer->addWidget(versionText,     wxGBPosition(6, 1), wxGBSpan(1, 1), Qt::AlignVCenter);
+            reportPanelSizer->addWidget(buildLabel,      wxGBPosition(7, 0), wxGBSpan(1, 1), Qt::AlignVCenter);
+            reportPanelSizer->addWidget(buildText,       wxGBPosition(7, 1), wxGBSpan(1, 1), Qt::AlignVCenter);
 
             auto* reportPanelOuterSizer = new QVBoxLayout();
-            reportPanelOuterSizer->Add(new BorderLine(reportPanel), wxSizerFlags().Expand());
-            reportPanelOuterSizer->Add(reportPanelSizer, wxSizerFlags().Border(wxLEFT | wxRIGHT, LayoutConstants::DialogOuterMargin));
+            reportPanelOuterSizer->addWidget(new BorderLine(reportPanel), wxSizerFlags().Expand());
+            reportPanelOuterSizer->addWidget(reportPanelSizer, wxSizerFlags().Border(wxLEFT | wxRIGHT, LayoutConstants::DialogOuterMargin));
             reportPanelOuterSizer->addSpacing(LayoutConstants::DialogOuterMargin);
-            reportPanel->SetSizer(reportPanelOuterSizer);
+            reportPanel->setLayout(reportPanelOuterSizer);
 
             auto* containerPanelSizer = new QVBoxLayout();
-            containerPanelSizer->Add(headerPanel, wxSizerFlags().Expand());
-            containerPanelSizer->Add(reportPanel, wxSizerFlags().Expand());
-            containerPanel->SetSizer(containerPanelSizer);
+            containerPanelSizer->addWidget(headerPanel, wxSizerFlags().Expand());
+            containerPanelSizer->addWidget(reportPanel, wxSizerFlags().Expand());
+            containerPanel->setLayout(containerPanelSizer);
 
             wxButton* reportButton = new wxButton(this, wxID_APPLY, "Report");
             reportButton->Bind(wxEVT_BUTTON, &CrashDialog::OnReport, this);
 
             auto* buttonSizer = new QHBoxLayout();
-            buttonSizer->AddStretchSpacer();
-            buttonSizer->Add(reportButton, wxSizerFlags().CenterVertical().Border(wxLEFT | wxRIGHT, LayoutConstants::DialogOuterMargin));
-            buttonSizer->Add(CreateButtonSizer(wxCLOSE));
+            buttonSizer->addStretch(1);
+            buttonSizer->addWidget(reportButton, wxSizerFlags().CenterVertical().Border(wxLEFT | wxRIGHT, LayoutConstants::DialogOuterMargin));
+            buttonSizer->addWidget(CreateButtonSizer(wxCLOSE));
 
             auto* outerSizer = new QVBoxLayout();
-            outerSizer->Add(containerPanel, wxSizerFlags().Expand());
-            outerSizer->Add(wrapDialogButtonSizer(buttonSizer, this), 0, wxEXPAND);
+            outerSizer->addWidget(containerPanel, wxSizerFlags().Expand());
+            outerSizer->addWidget(wrapDialogButtonSizer(buttonSizer, this), 0, wxEXPAND);
 
             setLayout(outerSizer);
         }
 
-        void CrashDialog::OnReport(wxCommandEvent& event) {
+        void CrashDialog::OnReport() {
             wxLaunchDefaultBrowser("https://github.com/kduske/TrenchBroom/issues/new");
         }
     }

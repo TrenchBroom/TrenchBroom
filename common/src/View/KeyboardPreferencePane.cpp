@@ -45,13 +45,13 @@ namespace TrenchBroom {
             wxWindow* menuShortcutGrid = createMenuShortcutGrid(document);
 
             auto* outerSizer = new QVBoxLayout();
-            outerSizer->Add(menuShortcutGrid, 1, wxEXPAND);
+            outerSizer->addWidget(menuShortcutGrid, 1, wxEXPAND);
             outerSizer->SetItemMinSize(menuShortcutGrid, 900, 550);
             setLayout(outerSizer);
         }
 
         void KeyboardPreferencePane::OnGridSize(wxSizeEvent& event) {
-            if (IsBeingDeleted()) return;
+
 
             int width = m_grid->GetClientSize().x;
             m_grid->AutoSizeColumn(0);
@@ -106,7 +106,7 @@ namespace TrenchBroom {
             sizer->addSpacing(LayoutConstants::WideVMargin);
             sizer->addWidget(infoText, 0, wxALIGN_CENTER);
             sizer->addSpacing(LayoutConstants::NarrowVMargin);
-            container->SetSizer(sizer);
+            container->setLayout(sizer);
 
             return container;
         }

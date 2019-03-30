@@ -39,12 +39,12 @@ namespace TrenchBroom {
         public:
             GameEngineProfileManager(QWidget* parent, Model::GameEngineConfig& config);
         private:
-            void OnAddProfile(wxCommandEvent& event);
-            void OnRemoveProfile(wxCommandEvent& event);
-            void OnUpdateAddProfileButtonUI(wxUpdateUIEvent& event);
-            void OnUpdateRemoveProfileButtonUI(wxUpdateUIEvent& event);
+            void OnAddProfile();
+            void OnRemoveProfile();
+            void OnUpdateAddProfileButtonUI();
+            void OnUpdateRemoveProfileButtonUI();
 
-            void OnProfileSelectionChanged(wxCommandEvent& event);
+            void OnProfileSelectionChanged();
         };
     }
 }

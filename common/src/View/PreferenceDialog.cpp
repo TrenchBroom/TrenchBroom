@@ -60,15 +60,15 @@ namespace TrenchBroom {
             return true;
         }
 
-        void PreferenceDialog::OnToolClicked(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void PreferenceDialog::OnToolClicked() {
+
 
             const auto newPane = static_cast<PrefPane>(event.GetId());
             switchToPane(newPane);
         }
 
-        void PreferenceDialog::OnOKClicked(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void PreferenceDialog::OnOKClicked() {
+
 
             if (!currentPane()->validate())
                 return;
@@ -79,8 +79,8 @@ namespace TrenchBroom {
             EndModal(wxID_OK);
         }
 
-        void PreferenceDialog::OnApplyClicked(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void PreferenceDialog::OnApplyClicked() {
+
 
             if (!currentPane()->validate())
                 return;
@@ -90,8 +90,8 @@ namespace TrenchBroom {
                 prefs.saveChanges();
         }
 
-        void PreferenceDialog::OnCancelClicked(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void PreferenceDialog::OnCancelClicked() {
+
 
             PreferenceManager& prefs = PreferenceManager::instance();
             if (!prefs.saveInstantly())
@@ -99,8 +99,8 @@ namespace TrenchBroom {
             EndModal(wxID_CANCEL);
         }
 
-        void PreferenceDialog::OnFileClose(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void PreferenceDialog::OnFileClose() {
+
 
             if (!currentPane()->validate()) {
                 event.Skip();
@@ -112,19 +112,19 @@ namespace TrenchBroom {
             EndModal(wxID_OK);
         }
 
-        void PreferenceDialog::OnUpdateFileClose(wxUpdateUIEvent& event) {
+        void PreferenceDialog::OnUpdateFileClose() {
             event.Enable(true);
         }
 
-        void PreferenceDialog::OnResetClicked(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void PreferenceDialog::OnResetClicked() {
+
 
             assert(currentPane()->canResetToDefaults());
             currentPane()->resetToDefaults();
         }
 
-        void PreferenceDialog::OnUpdateReset(wxUpdateUIEvent& event) {
-            if (IsBeingDeleted()) return;
+        void PreferenceDialog::OnUpdateReset() {
+
 
             event.Enable(currentPane()->canResetToDefaults());
         }
@@ -177,7 +177,7 @@ namespace TrenchBroom {
             wxBoxSizer* sizer = new QVBoxLayout();
             sizer->addWidget(m_toolBar, 0, wxEXPAND);
 #if !defined __APPLE__
-            QWidget* line = new BorderLine(this, BorderLine::Direction_Horizontal);
+            QWidget* line = new BorderLine(nullptr, BorderLine::Direction_Horizontal);
             sizer->addWidget(line, wxSizerFlags().Expand());
             sizer->SetItemMinSize(line, wxSize(wxDefaultCoord, 1));
 #endif
@@ -185,9 +185,9 @@ namespace TrenchBroom {
 
             auto* buttonSizer = new QHBoxLayout();
             if (!prefs.saveInstantly()) {
-                buttonSizer->Add(resetButton, wxSizerFlags().CenterVertical());
-                buttonSizer->AddStretchSpacer();
-                buttonSizer->Add(CreateButtonSizer(wxOK | wxAPPLY | wxCANCEL));
+                buttonSizer->addWidget(resetButton, wxSizerFlags().CenterVertical());
+                buttonSizer->addStretch(1);
+                buttonSizer->addWidget(CreateButtonSizer(wxOK | wxAPPLY | wxCANCEL));
             } else {
                 wxButton* closeButton = new wxButton(this, wxID_CANCEL, "Close");
                 closeButton->Bind(wxEVT_BUTTON, &PreferenceDialog::OnFileClose, this);
@@ -197,14 +197,14 @@ namespace TrenchBroom {
                 stdButtonSizer->SetCancelButton(closeButton);
                 stdButtonSizer->Realize();
 
-                buttonSizer->Add(resetButton, wxSizerFlags().CenterVertical());
-                buttonSizer->AddStretchSpacer();
-                buttonSizer->Add(stdButtonSizer, wxSizerFlags().CenterVertical());
+                buttonSizer->addWidget(resetButton, wxSizerFlags().CenterVertical());
+                buttonSizer->addStretch(1);
+                buttonSizer->addWidget(stdButtonSizer, wxSizerFlags().CenterVertical());
             }
 
             sizer->addWidget(wrapDialogButtonSizer(buttonSizer, this), wxSizerFlags().Expand());
 
-            SetSizer(sizer);
+            setLayout(sizer);
         }
 
         void PreferenceDialog::bindEvents() {

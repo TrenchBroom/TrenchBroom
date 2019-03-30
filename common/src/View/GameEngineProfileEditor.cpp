@@ -50,8 +50,8 @@ namespace TrenchBroom {
             m_book->SetSelection(0);
 
             auto* bookSizer = new QVBoxLayout();
-            bookSizer->Add(m_book, wxSizerFlags().Expand().Proportion(1));
-            SetSizer(bookSizer);
+            bookSizer->addWidget(m_book, wxSizerFlags().Expand().Proportion(1));
+            setLayout(bookSizer);
         }
 
         GameEngineProfileEditor::~GameEngineProfileEditor() {
@@ -79,41 +79,41 @@ namespace TrenchBroom {
             choosePathButton->Bind(wxEVT_BUTTON, &GameEngineProfileEditor::OnChangePathClicked, this);
             Bind(wxEVT_IDLE, &GameEngineProfileEditor::OnUpdatePathTextUI, this);
 
-            const auto LabelFlags   = wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT;
-            const auto EditorFlags  = wxALIGN_CENTER_VERTICAL | wxEXPAND;
+            const auto LabelFlags   = Qt::AlignVCenter | wxALIGN_RIGHT;
+            const auto EditorFlags  = Qt::AlignVCenter | wxEXPAND;
 
             auto* containerInnerSizer = new wxGridBagSizer(LayoutConstants::NarrowVMargin, LayoutConstants::NarrowHMargin);
-            containerInnerSizer->Add(nameLabel,         wxGBPosition(0,0), wxDefaultSpan, LabelFlags);
-            containerInnerSizer->Add(m_nameText,        wxGBPosition(0,1), wxGBSpan(1,2), EditorFlags);
-            containerInnerSizer->Add(pathLabel,         wxGBPosition(1,0), wxDefaultSpan, LabelFlags);
-            containerInnerSizer->Add(m_pathText,        wxGBPosition(1,1), wxDefaultSpan, EditorFlags);
-            containerInnerSizer->Add(choosePathButton,  wxGBPosition(1,2), wxDefaultSpan, wxALIGN_CENTER_VERTICAL);
+            containerInnerSizer->addWidget(nameLabel,         wxGBPosition(0,0), wxDefaultSpan, LabelFlags);
+            containerInnerSizer->addWidget(m_nameText,        wxGBPosition(0,1), wxGBSpan(1,2), EditorFlags);
+            containerInnerSizer->addWidget(pathLabel,         wxGBPosition(1,0), wxDefaultSpan, LabelFlags);
+            containerInnerSizer->addWidget(m_pathText,        wxGBPosition(1,1), wxDefaultSpan, EditorFlags);
+            containerInnerSizer->addWidget(choosePathButton,  wxGBPosition(1,2), wxDefaultSpan, Qt::AlignVCenter);
             containerInnerSizer->AddGrowableCol(1);
 
             auto* containerOuterSizer = new QVBoxLayout();
             containerOuterSizer->addSpacing(LayoutConstants::WideVMargin);
-            containerOuterSizer->Add(containerInnerSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::MediumHMargin);
+            containerOuterSizer->addWidget(containerInnerSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::MediumHMargin);
             containerOuterSizer->addSpacing(LayoutConstants::WideVMargin);
 
-            containerPanel->SetSizer(containerOuterSizer);
+            containerPanel->setLayout(containerOuterSizer);
             return containerPanel;
         }
 
-        void GameEngineProfileEditor::OnNameChanged(wxCommandEvent& event) {
+        void GameEngineProfileEditor::OnNameChanged() {
             ensure(m_profile != nullptr, "profile is null");
 
             const TemporarilySetBool ignore(m_ignoreNotifications);
             m_profile->setName(m_nameText->GetValue().ToStdString());
         }
 
-        void GameEngineProfileEditor::OnPathChanged(wxCommandEvent& event) {
+        void GameEngineProfileEditor::OnPathChanged() {
             ensure(m_profile != nullptr, "profile is null");
 
             const TemporarilySetBool ignore(m_ignoreNotifications);
             updatePath(m_pathText->GetValue());
         }
 
-        void GameEngineProfileEditor::OnChangePathClicked(wxCommandEvent& event) {
+        void GameEngineProfileEditor::OnChangePathClicked() {
             const auto pathStr = ::wxFileSelector("Choose engine", wxEmptyString, wxEmptyString, wxEmptyString, wxFileSelectorDefaultWildcardStr, wxFD_OPEN | wxFD_FILE_MUST_EXIST);
             if (!pathStr.empty()) {
                 updatePath(pathStr);

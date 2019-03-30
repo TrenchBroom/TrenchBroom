@@ -81,8 +81,8 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityDefinitionCheckBoxList::OnGroupCheckBoxChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void EntityDefinitionCheckBoxList::OnGroupCheckBoxChanged() {
+
 
             const wxVariant* variant = static_cast<wxVariant*>(event.GetEventUserData());
             const size_t groupIndex = static_cast<size_t>(variant->GetLong());
@@ -100,8 +100,8 @@ namespace TrenchBroom {
             refresh();
         }
 
-        void EntityDefinitionCheckBoxList::OnDefCheckBoxChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void EntityDefinitionCheckBoxList::OnDefCheckBoxChanged() {
+
 
             const wxVariant* variant = static_cast<wxVariant*>(event.GetEventUserData());
             const Assets::EntityDefinition* definition = reinterpret_cast<const Assets::EntityDefinition*>(variant->GetVoidPtr());
@@ -109,14 +109,14 @@ namespace TrenchBroom {
             refresh();
         }
 
-        void EntityDefinitionCheckBoxList::OnShowAllClicked(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void EntityDefinitionCheckBoxList::OnShowAllClicked() {
+
 
             hideAll(false);
         }
 
-        void EntityDefinitionCheckBoxList::OnHideAllClicked(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void EntityDefinitionCheckBoxList::OnHideAllClicked() {
+
 
             hideAll(true);
         }
@@ -153,7 +153,7 @@ namespace TrenchBroom {
                 groupCB->Bind(wxEVT_CHECKBOX, &EntityDefinitionCheckBoxList::OnGroupCheckBoxChanged, this, wxID_ANY, wxID_ANY, new wxVariant(static_cast<long>(i)));
                 m_groupCheckBoxes.push_back(groupCB);
 
-                scrollWindowSizer->Add(groupCB, 0, wxLEFT, 1);
+                scrollWindowSizer->addWidget(groupCB, 0, wxLEFT, 1);
                 checkBoxHeight = groupCB->GetSize().y;
 
                 Assets::EntityDefinitionList::const_iterator defIt, defEnd;
@@ -165,17 +165,17 @@ namespace TrenchBroom {
                     defCB->Bind(wxEVT_CHECKBOX, &EntityDefinitionCheckBoxList::OnDefCheckBoxChanged, this, wxID_ANY, wxID_ANY, new wxVariant(reinterpret_cast<void*>(definition)));
 
                     m_defCheckBoxes.push_back(defCB);
-                    scrollWindowSizer->Add(defCB, wxSizerFlags().Border(wxLEFT, 11));
+                    scrollWindowSizer->addWidget(defCB, wxSizerFlags().Border(wxLEFT, 11));
                 }
             }
 
             scrollWindowSizer->addSpacing(1);
-            scrollWindow->SetSizer(scrollWindowSizer);
+            scrollWindow->setLayout(scrollWindowSizer);
             scrollWindow->SetScrollRate(1, checkBoxHeight);
 
             auto* borderSizer = new QVBoxLayout();
-            borderSizer->Add(scrollWindow, wxSizerFlags().Border(wxALL, 1).Expand().Proportion(1));
-            border->SetSizer(borderSizer);
+            borderSizer->addWidget(scrollWindow, wxSizerFlags().Border(wxALL, 1).Expand().Proportion(1));
+            border->setLayout(borderSizer);
 
             wxButton* showAllButton = new wxButton(this, wxID_ANY, "Show all", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
             showAllButton->SetFont(showAllButton->GetFont().Bold());
@@ -186,19 +186,19 @@ namespace TrenchBroom {
             hideAllButton->Bind(wxEVT_BUTTON, &EntityDefinitionCheckBoxList::OnHideAllClicked, this);
 
             auto* buttonSizer = new QHBoxLayout();
-            buttonSizer->AddStretchSpacer();
+            buttonSizer->addStretch(1);
             buttonSizer->addSpacing(LayoutConstants::NarrowHMargin);
-            buttonSizer->Add(showAllButton);
+            buttonSizer->addWidget(showAllButton);
             buttonSizer->addSpacing(LayoutConstants::NarrowHMargin);
-            buttonSizer->Add(hideAllButton);
+            buttonSizer->addWidget(hideAllButton);
             buttonSizer->addSpacing(LayoutConstants::NarrowHMargin);
-            buttonSizer->AddStretchSpacer();
+            buttonSizer->addStretch(1);
 
             auto* outerSizer = new QVBoxLayout();
-            outerSizer->Add(border, wxSizerFlags().Expand().Proportion(1));
-            outerSizer->Add(buttonSizer, wxSizerFlags().Border(wxTOP | wxBOTTOM, 1).Expand());
+            outerSizer->addWidget(border, wxSizerFlags().Expand().Proportion(1));
+            outerSizer->addWidget(buttonSizer, wxSizerFlags().Border(wxTOP | wxBOTTOM, 1).Expand());
 
-            SetSizer(outerSizer);
+            setLayout(outerSizer);
         }
 
         ViewEditor::ViewEditor(QWidget* parent, MapDocumentWPtr document) :
@@ -211,64 +211,64 @@ namespace TrenchBroom {
             unbindObservers();
         }
 
-        void ViewEditor::OnShowEntityClassnamesChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void ViewEditor::OnShowEntityClassnamesChanged() {
+
 
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowEntityClassnames(event.IsChecked());
         }
 
-        void ViewEditor::OnShowGroupBoundsChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void ViewEditor::OnShowGroupBoundsChanged() {
+
 
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowGroupBounds(event.IsChecked());
         }
 
-        void ViewEditor::OnShowBrushEntityBoundsChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void ViewEditor::OnShowBrushEntityBoundsChanged() {
+
 
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowBrushEntityBounds(event.IsChecked());
         }
 
-        void ViewEditor::OnShowPointEntityBoundsChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void ViewEditor::OnShowPointEntityBoundsChanged() {
+
 
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowPointEntityBounds(event.IsChecked());
         }
 
-        void ViewEditor::OnShowPointEntitiesChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void ViewEditor::OnShowPointEntitiesChanged() {
+
 
             MapDocumentSPtr document = lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
             editorContext.setShowPointEntities(event.IsChecked());
         }
 
-        void ViewEditor::OnShowPointEntityModelsChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void ViewEditor::OnShowPointEntityModelsChanged() {
+
 
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowPointEntityModels(event.IsChecked());
         }
 
-        void ViewEditor::OnShowBrushesChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void ViewEditor::OnShowBrushesChanged() {
+
 
             MapDocumentSPtr document = lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
             editorContext.setShowBrushes(event.IsChecked());
         }
 
-        void ViewEditor::OnShowTagChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void ViewEditor::OnShowTagChanged() {
+
 
             MapDocumentSPtr document = lock(m_document);
 
@@ -290,8 +290,8 @@ namespace TrenchBroom {
             editorContext.setHiddenTags(hiddenTags);
         }
 
-        void ViewEditor::OnFaceRenderModeChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void ViewEditor::OnFaceRenderModeChanged() {
+
 
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
@@ -309,32 +309,32 @@ namespace TrenchBroom {
             }
         }
 
-        void ViewEditor::OnShadeFacesChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void ViewEditor::OnShadeFacesChanged() {
+
 
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShadeFaces(event.IsChecked());
         }
 
-        void ViewEditor::OnShowFogChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void ViewEditor::OnShowFogChanged() {
+
 
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowFog(event.IsChecked());
         }
 
-        void ViewEditor::OnShowEdgesChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void ViewEditor::OnShowEdgesChanged() {
+
 
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowEdges(event.IsChecked());
         }
 
-        void ViewEditor::OnEntityLinkModeChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void ViewEditor::OnEntityLinkModeChanged() {
+
 
             MapDocumentSPtr document = lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
@@ -394,7 +394,7 @@ namespace TrenchBroom {
         }
 
         void ViewEditor::createGui() {
-            SetSizer(nullptr);
+            setLayout(nullptr);
             DestroyChildren();
 
             wxGridBagSizer* sizer = new wxGridBagSizer(LayoutConstants::WideVMargin, LayoutConstants::WideHMargin);
@@ -425,9 +425,9 @@ namespace TrenchBroom {
             m_entityDefinitionCheckBoxList = new EntityDefinitionCheckBoxList(panel->getPanel(), entityDefinitionManager, editorContext);
 
             auto* panelSizer = new QVBoxLayout();
-            panelSizer->Add(m_entityDefinitionCheckBoxList, wxSizerFlags().Expand().Proportion(1));
+            panelSizer->addWidget(m_entityDefinitionCheckBoxList, wxSizerFlags().Expand().Proportion(1));
             panelSizer->SetItemMinSize(m_entityDefinitionCheckBoxList, 250, wxDefaultCoord);
-            panel->getPanel()->SetSizer(panelSizer);
+            panel->getPanel()->setLayout(panelSizer);
 
             return panel;
         }
@@ -511,7 +511,7 @@ namespace TrenchBroom {
                 wxCheckBox* checkBox = new wxCheckBox(parent, wxID_ANY, label);
                 m_tagCheckBoxes.push_back(checkBox);
 
-                sizer->Add(checkBox);
+                Sizer->addWidget(checkBox);
                 checkBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShowTagChanged, this);
             }
             parent->setLayout(sizer);
@@ -608,18 +608,18 @@ namespace TrenchBroom {
         m_button(nullptr),
         m_editor(nullptr) {
             m_button = new PopupButton(this, "View");
-            m_button->SetToolTip("Click to edit view settings");
+            m_button->setToolTip("Click to edit view settings");
 
             BorderPanel* editorContainer = new BorderPanel(m_button->GetPopupWindow(), wxALL);
             m_editor = new ViewEditor(editorContainer, document);
 
             auto* containerSizer = new QVBoxLayout();
-            containerSizer->Add(m_editor, wxSizerFlags().Border(wxALL, LayoutConstants::DialogOuterMargin));
-            editorContainer->SetSizer(containerSizer);
+            containerSizer->addWidget(m_editor, wxSizerFlags().Border(wxALL, LayoutConstants::DialogOuterMargin));
+            editorContainer->setLayout(containerSizer);
 
             auto* popupSizer = new QVBoxLayout();
-            popupSizer->Add(editorContainer, wxSizerFlags());
-            m_button->GetPopupWindow()->SetSizer(popupSizer);
+            popupSizer->addWidget(editorContainer, wxSizerFlags());
+            m_button->GetPopupWindow()->setLayout(popupSizer);
 
             auto* sizer = new QHBoxLayout();
             sizer->addWidget(m_button, wxSizerFlags().CenterVertical());

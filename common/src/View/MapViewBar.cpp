@@ -50,8 +50,8 @@ namespace TrenchBroom {
             return m_toolBook;
         }
 
-        void MapViewBar::OnSearchPatternChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void MapViewBar::OnSearchPatternChanged() {
+
         }
 
         void MapViewBar::createGui(MapDocumentWPtr document) {
@@ -62,17 +62,17 @@ namespace TrenchBroom {
 
             auto* hSizer = new QHBoxLayout();
             hSizer->addSpacing(LayoutConstants::NarrowHMargin);
-            hSizer->Add(m_toolBook, 1, wxEXPAND);
+            hSizer->addWidget(m_toolBook, 1, wxEXPAND);
             hSizer->addSpacing(LayoutConstants::MediumHMargin);
-            hSizer->Add(m_viewEditor, 0, wxALIGN_CENTRE_VERTICAL);
+            hSizer->addWidget(m_viewEditor, 0, wxALIGN_CENTRE_VERTICAL);
             hSizer->addSpacing(LayoutConstants::NarrowHMargin);
 
             auto* vSizer = new QVBoxLayout();
             vSizer->addSpacing(LayoutConstants::NarrowVMargin);
-            vSizer->Add(hSizer, 1, wxEXPAND);
+            vSizer->addWidget(hSizer, 1, wxEXPAND);
             vSizer->addSpacing(LayoutConstants::NarrowVMargin);
 
-            SetSizer(vSizer);
+            setLayout(vSizer);
 #endif
         }
     }

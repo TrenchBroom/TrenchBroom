@@ -64,20 +64,20 @@ namespace TrenchBroom {
             buttonSizer->Realize();
 
             auto* outerSizer = new QVBoxLayout();
-            outerSizer->Add(gameIndicator, wxSizerFlags().Expand());
-            outerSizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
-            outerSizer->Add(m_profileManager, wxSizerFlags().Expand().Proportion(1));
-            outerSizer->Add(wrapDialogButtonSizer(buttonSizer, this), wxSizerFlags().Expand());
-            SetSizer(outerSizer);
+            outerSizer->addWidget(gameIndicator, wxSizerFlags().Expand());
+            outerSizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
+            outerSizer->addWidget(m_profileManager, wxSizerFlags().Expand().Proportion(1));
+            outerSizer->addWidget(wrapDialogButtonSizer(buttonSizer, this), wxSizerFlags().Expand());
+            setLayout(outerSizer);
 
             Bind(wxEVT_CLOSE_WINDOW, &GameEngineDialog::OnClose, this);
         }
 
-        void GameEngineDialog::OnUpdateCloseButtonUI(wxUpdateUIEvent& event) {
+        void GameEngineDialog::OnUpdateCloseButtonUI() {
             event.Enable(true);
         }
 
-        void GameEngineDialog::OnCloseButtonClicked(wxCommandEvent& event) {
+        void GameEngineDialog::OnCloseButtonClicked() {
             EndModal(wxID_OK);
         }
 

@@ -76,32 +76,32 @@ namespace TrenchBroom {
         }
 
         void GameDialog::OnGameSelectionChanged(GameSelectionCommand& command) {
-            if (IsBeingDeleted()) return;
+
 
             gameSelectionChanged(command.gameName());
         }
 
         void GameDialog::OnGameSelected(GameSelectionCommand& command) {
-            if (IsBeingDeleted()) return;
+
 
             gameSelected(command.gameName());
         }
 
-        void GameDialog::OnUpdateMapFormatChoice(wxUpdateUIEvent& event) {
-            if (IsBeingDeleted()) return;
+        void GameDialog::OnUpdateMapFormatChoice() {
+
 
             event.Enable(m_mapFormatChoice->GetCount() > 1);
         }
 
-        void GameDialog::OnOpenPreferencesClicked(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void GameDialog::OnOpenPreferencesClicked() {
+
 
             auto& app = TrenchBroomApp::instance();
             app.openPreferences();
         }
 
-        void GameDialog::OnUpdateOkButton(wxUpdateUIEvent& event) {
-            if (IsBeingDeleted()) return;
+        void GameDialog::OnUpdateOkButton() {
+
 
             event.Enable(isOkEnabled());
         }
@@ -132,19 +132,19 @@ namespace TrenchBroom {
             auto* selectionPanel = createSelectionPanel(this);
 
             auto* innerSizer = new QHBoxLayout();
-            innerSizer->Add(infoPanel, wxSizerFlags().Expand());
-            innerSizer->Add(new BorderLine(this, BorderLine::Direction_Vertical), wxSizerFlags().Expand());
-            innerSizer->Add(selectionPanel, wxSizerFlags().Expand().Proportion(1));
+            innerSizer->addWidget(infoPanel, wxSizerFlags().Expand());
+            innerSizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Vertical), wxSizerFlags().Expand());
+            innerSizer->addWidget(selectionPanel, wxSizerFlags().Expand().Proportion(1));
             innerSizer->SetItemMinSize(selectionPanel, 300, wxDefaultSize.y);
 
             auto* buttonSizer = CreateStdDialogButtonSizer(wxOK | wxCANCEL);
 
             auto* outerSizer = new QVBoxLayout();
 #if !defined __APPLE__
-			outerSizer->Add(new BorderLine(this), wxSizerFlags().Expand());
+			outerSizer->addWidget(new BorderLine(nullptr), wxSizerFlags().Expand());
 #endif
-			outerSizer->Add(innerSizer, wxSizerFlags().Expand().Proportion(1));
-            outerSizer->Add(wrapDialogButtonSizer(buttonSizer, this), wxSizerFlags().Expand());
+			outerSizer->addWidget(innerSizer, wxSizerFlags().Expand().Proportion(1));
+            outerSizer->addWidget(wrapDialogButtonSizer(buttonSizer, this), wxSizerFlags().Expand());
             setLayout(outerSizer);
 
             FindWindow(wxID_OK)->Bind(wxEVT_UPDATE_UI, &GameDialog::OnUpdateOkButton, this);
@@ -165,7 +165,7 @@ namespace TrenchBroom {
             setupMsg->Wrap(250);
 
             m_openPreferencesButton = new wxButton(infoPanel, wxID_ANY, "Open preferences...");
-            m_openPreferencesButton->SetToolTip("Open the preferences dialog to manage game paths,");
+            m_openPreferencesButton->setToolTip("Open the preferences dialog to manage game paths,");
 
             auto* sizer = new QVBoxLayout();
             sizer->addSpacing(20);
@@ -188,7 +188,7 @@ namespace TrenchBroom {
             auto* panel = new QWidget(parent);
 
             m_gameListBox = new GameListBox(panel);
-            m_gameListBox->SetToolTip("Double click on a game to select it");
+            m_gameListBox->setToolTip("Double click on a game to select it");
             m_gameListBox->Bind(GAME_SELECTION_CHANGE_EVENT, &GameDialog::OnGameSelectionChanged, this);
             m_gameListBox->Bind(GAME_SELECTION_DBLCLICK_EVENT, &GameDialog::OnGameSelected, this);
 
@@ -200,19 +200,19 @@ namespace TrenchBroom {
 
             auto* mapFormatSizer = new QHBoxLayout();
             mapFormatSizer->addSpacing(LayoutConstants::WideHMargin);
-            mapFormatSizer->Add(header, wxSizerFlags().CenterVertical());
+            mapFormatSizer->addWidget(header, wxSizerFlags().CenterVertical());
             mapFormatSizer->addSpacing(LayoutConstants::WideHMargin);
             mapFormatSizer->addSpacing(LayoutConstants::ChoiceLeftMargin);
-            mapFormatSizer->Add(m_mapFormatChoice, wxSizerFlags().Border(wxTOP, LayoutConstants::ChoiceTopMargin));
+            mapFormatSizer->addWidget(m_mapFormatChoice, wxSizerFlags().Border(wxTOP, LayoutConstants::ChoiceTopMargin));
             mapFormatSizer->addSpacing(LayoutConstants::WideHMargin);
 
             auto* outerSizer = new QVBoxLayout();
-            outerSizer->Add(m_gameListBox, wxSizerFlags().Expand().Proportion(1));
-            outerSizer->Add(new BorderLine(panel, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
+            outerSizer->addWidget(m_gameListBox, wxSizerFlags().Expand().Proportion(1));
+            outerSizer->addWidget(new BorderLine(panel, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
             outerSizer->addSpacing(LayoutConstants::WideVMargin);
-            outerSizer->Add(mapFormatSizer);
+            outerSizer->addWidget(mapFormatSizer);
             outerSizer->addSpacing(LayoutConstants::WideVMargin);
-            panel->SetSizer(outerSizer);
+            panel->setLayout(outerSizer);
 
             return panel;
         }

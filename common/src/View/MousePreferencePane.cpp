@@ -44,7 +44,7 @@ namespace TrenchBroom {
         }
 
         void MousePreferencePane::OnLookSpeedChanged(wxScrollEvent& event) {
-            if (IsBeingDeleted()) return;
+
 
             const float value = getSliderValue(m_lookSpeedSlider);
 
@@ -52,8 +52,8 @@ namespace TrenchBroom {
             prefs.set(Preferences::CameraLookSpeed, value);
         }
 
-        void MousePreferencePane::OnInvertLookHAxisChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void MousePreferencePane::OnInvertLookHAxisChanged() {
+
 
             const bool value = event.GetInt() != 0;
 
@@ -61,8 +61,8 @@ namespace TrenchBroom {
             prefs.set(Preferences::CameraLookInvertH, value);
         }
 
-        void MousePreferencePane::OnInvertLookVAxisChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void MousePreferencePane::OnInvertLookVAxisChanged() {
+
 
             const bool value = event.GetInt() != 0;
 
@@ -71,7 +71,7 @@ namespace TrenchBroom {
         }
 
         void MousePreferencePane::OnPanSpeedChanged(wxScrollEvent& event) {
-            if (IsBeingDeleted()) return;
+
 
             const float value = getSliderValue(m_panSpeedSlider);
 
@@ -79,8 +79,8 @@ namespace TrenchBroom {
             prefs.set(Preferences::CameraPanSpeed, value);
         }
 
-        void MousePreferencePane::OnInvertPanHAxisChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void MousePreferencePane::OnInvertPanHAxisChanged() {
+
 
             const bool value = event.GetInt() != 0;
 
@@ -88,8 +88,8 @@ namespace TrenchBroom {
             prefs.set(Preferences::CameraPanInvertH, value);
         }
 
-        void MousePreferencePane::OnInvertPanVAxisChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void MousePreferencePane::OnInvertPanVAxisChanged() {
+
 
             const bool value = event.GetInt() != 0;
 
@@ -98,7 +98,7 @@ namespace TrenchBroom {
         }
 
         void MousePreferencePane::OnMoveSpeedChanged(wxScrollEvent& event) {
-            if (IsBeingDeleted()) return;
+
 
             const float value = getSliderValue(m_moveSpeedSlider);
 
@@ -106,8 +106,8 @@ namespace TrenchBroom {
             prefs.set(Preferences::CameraMoveSpeed, value);
         }
 
-        void MousePreferencePane::OnInvertMouseWheelChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void MousePreferencePane::OnInvertMouseWheelChanged() {
+
 
             const bool value = event.GetInt() != 0;
 
@@ -115,8 +115,8 @@ namespace TrenchBroom {
             prefs.set(Preferences::CameraMouseWheelInvert, value);
         }
 
-        void MousePreferencePane::OnEnableAltMoveChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void MousePreferencePane::OnEnableAltMoveChanged() {
+
 
             const bool value = event.GetInt() != 0;
 
@@ -124,8 +124,8 @@ namespace TrenchBroom {
             prefs.set(Preferences::CameraEnableAltMove, value);
         }
 
-        void MousePreferencePane::OnInvertAltMoveAxisChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void MousePreferencePane::OnInvertAltMoveAxisChanged() {
+
 
             const bool value = event.GetInt() != 0;
 
@@ -133,8 +133,8 @@ namespace TrenchBroom {
             prefs.set(Preferences::CameraAltMoveInvert, value);
         }
 
-        void MousePreferencePane::OnMoveCameraInCursorDirChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void MousePreferencePane::OnMoveCameraInCursorDirChanged() {
+
 
             const bool value = event.GetInt() != 0;
 
@@ -143,7 +143,7 @@ namespace TrenchBroom {
         }
 
         void MousePreferencePane::OnForwardKeyChanged(KeyboardShortcutEvent& event) {
-            if (IsBeingDeleted()) return;
+
 
             const KeyboardShortcut shortcut(event.key(), event.modifier1(), event.modifier2(), event.modifier3());
             if (!setShortcut(shortcut, Preferences::CameraFlyForward))
@@ -151,7 +151,7 @@ namespace TrenchBroom {
         }
 
         void MousePreferencePane::OnBackwardKeyChanged(KeyboardShortcutEvent& event) {
-            if (IsBeingDeleted()) return;
+
 
             const KeyboardShortcut shortcut(event.key(), event.modifier1(), event.modifier2(), event.modifier3());
             if (!setShortcut(shortcut, Preferences::CameraFlyBackward))
@@ -159,7 +159,7 @@ namespace TrenchBroom {
         }
 
         void MousePreferencePane::OnLeftKeyChanged(KeyboardShortcutEvent& event) {
-            if (IsBeingDeleted()) return;
+
 
             const KeyboardShortcut shortcut(event.key(), event.modifier1(), event.modifier2(), event.modifier3());
             if (!setShortcut(shortcut, Preferences::CameraFlyLeft))
@@ -167,7 +167,7 @@ namespace TrenchBroom {
         }
 
         void MousePreferencePane::OnRightKeyChanged(KeyboardShortcutEvent& event) {
-            if (IsBeingDeleted()) return;
+
 
             const KeyboardShortcut shortcut(event.key(), event.modifier1(), event.modifier2(), event.modifier3());
             if (!setShortcut(shortcut, Preferences::CameraFlyRight))
@@ -175,7 +175,7 @@ namespace TrenchBroom {
         }
 
         void MousePreferencePane::OnUpKeyChanged(KeyboardShortcutEvent& event) {
-            if (IsBeingDeleted()) return;
+
 
             const KeyboardShortcut shortcut(event.key(), event.modifier1(), event.modifier2(), event.modifier3());
             if (!setShortcut(shortcut, Preferences::CameraFlyUp))
@@ -183,7 +183,7 @@ namespace TrenchBroom {
         }
 
         void MousePreferencePane::OnDownKeyChanged(KeyboardShortcutEvent& event) {
-            if (IsBeingDeleted()) return;
+
 
             const KeyboardShortcut shortcut(event.key(), event.modifier1(), event.modifier2(), event.modifier3());
             if (!setShortcut(shortcut, Preferences::CameraFlyDown))
@@ -216,7 +216,7 @@ namespace TrenchBroom {
         }
 
         void MousePreferencePane::OnFlyMoveSpeedChanged(wxScrollEvent& event) {
-            if (IsBeingDeleted()) return;
+
 
             const float value = getSliderValue(m_flyMoveSpeedSlider);
 
@@ -233,7 +233,7 @@ namespace TrenchBroom {
             sizer->addSpacing(LayoutConstants::WideVMargin);
 
             SetMinSize(sizer->GetMinSize());
-            SetSizer(sizer);
+            setLayout(sizer);
         }
 
         QWidget* MousePreferencePane::createCameraPreferences() {
@@ -291,7 +291,7 @@ namespace TrenchBroom {
             const int HMargin           = LayoutConstants::WideHMargin;
             const int LMargin           = LayoutConstants::WideVMargin;
             const int HeaderFlags       = wxLEFT;
-            const int LabelFlags        = wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxLEFT;
+            const int LabelFlags        = wxALIGN_RIGHT | Qt::AlignVCenter | wxLEFT;
             const int SliderFlags       = wxEXPAND | wxRIGHT;
             const int CheckBoxFlags     = wxRIGHT;
             const int KeyEditorFlags    = wxRIGHT;
@@ -389,7 +389,7 @@ namespace TrenchBroom {
 
             sizer->AddGrowableCol(1);
             sizer->SetMinSize(500, wxDefaultCoord);
-            box->SetSizer(sizer);
+            box->setLayout(sizer);
             return box;
         }
 

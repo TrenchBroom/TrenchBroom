@@ -50,7 +50,7 @@ namespace TrenchBroom {
             int GetSelection() const override;
             QString GetStringSelection() const override;
         private:
-            void OnRadioButton(wxCommandEvent& event);
+            void OnRadioButton();
         private:
             wxDECLARE_DYNAMIC_CLASS(RadioGroup);
         };
