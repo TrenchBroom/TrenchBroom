@@ -188,25 +188,30 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::Edge::previous() const 
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::Edge::split(const vm::plane<T,3>& plane) {
-    // Do exactly what QBSP is doing:
-    const T startDist = plane.pointDistance(firstVertex()->position());
-    const T endDist = plane.pointDistance(secondVertex()->position());
-
-    assert(startDist != endDist);
-    const T dot = startDist / (startDist - endDist);
-
+    // Assumes that the start and the end vertex of this edge are on opposite sides of
+    // the given plane (precondition).
+    // The caller must ensure this.
+    
     const V& startPos = firstVertex()->position();
     const V& endPos = secondVertex()->position();
-    V position;
-    for (size_t i = 0; i < 3; ++i) {
-        if (plane.normal[i] == 1.0)
-            position[i] = plane.distance;
-        else if (plane.normal[i] == -1.0)
-            position[i] = -plane.distance;
-        else
-            position[i] = startPos[i] + dot * (endPos[i] - startPos[i]);
-    }
 
+    const T startDist = plane.pointDistance(startPos);
+    const T endDist = plane.pointDistance(endPos);
+
+    // Check what's implied by the precondition:
+    assert(vm::abs(startDist) > vm::constants<T>::pointStatusEpsilon());
+    assert(vm::abs(endDist)   > vm::constants<T>::pointStatusEpsilon());
+    assert(vm::sign(startDist) != vm::sign(endDist));
+    assert(startDist != endDist); // implied by the above
+    
+    const T dot = startDist / (startDist - endDist);
+    
+    // 1. startDist and endDist have opposite signs, therefore dot cannot be negative
+    // 2. |startDist - endDist| > 0 (due to precondition), therefore dot > 0
+    // 3. |x-y| > x if x and y have different signs, therefore x / (x-y) < 1
+    assert(dot > T(0.0) && dot < T(1.0));
+    
+    const V position = startPos + dot * (endPos - startPos);
     return insertVertex(position);
 }
 
