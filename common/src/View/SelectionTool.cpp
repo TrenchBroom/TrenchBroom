@@ -147,14 +147,16 @@ namespace TrenchBroom {
                     }
                 }
             } else {
+                const auto inGroup = document->currentGroup() != nullptr;
                 const auto& hit = firstHit(inputState, Model::Group::GroupHit | Model::Brush::BrushHit | Model::Entity::EntityHit);
                 if (hit.isMatch()) {
-                    if (hit.type() == Model::Group::GroupHit) {
+                    const auto hitInGroup = inGroup && hit.isMatch() && Model::hitToNode(hit)->isDescendantOf(document->currentGroup());
+                    if ((!inGroup || hitInGroup) && hit.type() == Model::Group::GroupHit) {
                         auto* group = Model::hitToGroup(hit);
                         if (editorContext.selectable(group)) {
                             document->openGroup(group);
                         }
-                    } else if (document->currentGroup() != nullptr) {
+                    } else if (inGroup) {
                         document->closeGroup();
                     } else {
                         const auto* node = Model::hitToNode(hit);
@@ -173,7 +175,7 @@ namespace TrenchBroom {
                             }
                         }
                     }
-                } else if (document->currentGroup() != nullptr) {
+                } else if (inGroup) {
                     document->closeGroup();
                 }
             }
