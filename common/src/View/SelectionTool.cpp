@@ -151,29 +151,31 @@ namespace TrenchBroom {
                 const auto& hit = firstHit(inputState, Model::Group::GroupHit | Model::Brush::BrushHit | Model::Entity::EntityHit);
                 if (hit.isMatch()) {
                     const auto hitInGroup = inGroup && hit.isMatch() && Model::hitToNode(hit)->isDescendantOf(document->currentGroup());
-                    if ((!inGroup || hitInGroup) && hit.type() == Model::Group::GroupHit) {
-                        auto* group = Model::hitToGroup(hit);
-                        if (editorContext.selectable(group)) {
-                            document->openGroup(group);
+                    if (!inGroup || hitInGroup) {
+                        if (hit.type() == Model::Group::GroupHit) {
+                            auto* group = Model::hitToGroup(hit);
+                            if (editorContext.selectable(group)) {
+                                document->openGroup(group);
+                            }
+                        } else {
+                            const auto* node = Model::hitToNode(hit);
+                            if (editorContext.selectable(node)) {
+                                const auto* container = node->parent();
+                                const auto siblings = collectSelectableChildren(editorContext, container);
+                                if (isMultiClick(inputState)) {
+                                    if (document->hasSelectedBrushFaces()) {
+                                        document->deselectAll();
+                                    }
+                                    document->select(siblings);
+                                } else {
+                                    Transaction transaction(document, "Select Brushes");
+                                    document->deselectAll();
+                                    document->select(siblings);
+                                }
+                            }
                         }
                     } else if (inGroup) {
                         document->closeGroup();
-                    } else {
-                        const auto* node = Model::hitToNode(hit);
-                        if (editorContext.selectable(node)) {
-                            const auto* container = node->parent();
-                            const auto siblings = collectSelectableChildren(editorContext, container);
-                            if (isMultiClick(inputState)) {
-                                if (document->hasSelectedBrushFaces()) {
-                                    document->deselectAll();
-                                }
-                                document->select(siblings);
-                            } else {
-                                Transaction transaction(document, "Select Brushes");
-                                document->deselectAll();
-                                document->select(siblings);
-                            }
-                        }
                     }
                 } else if (inGroup) {
                     document->closeGroup();
