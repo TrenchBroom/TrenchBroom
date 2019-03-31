@@ -22,41 +22,55 @@
 
 #include "View/ViewTypes.h"
 
-#include <wx/panel.h>
+#include <QWidget>
 
-class wxButton;
-class wxSpinCtrl;
-class wxSpinEvent;
+class QSpinBox;
 class QWidget;
+class QAbstractButton;
 
 namespace TrenchBroom {
     namespace View {
+        class Selection;
         class GLContextManager;
         class UVView;
 
         class UVEditor : public QWidget {
+            Q_OBJECT
         private:
             MapDocumentWPtr m_document;
 
             UVView* m_uvView;
-            wxSpinCtrl* m_xSubDivisionEditor;
-            wxSpinCtrl* m_ySubDivisionEditor;
+            QWidget* m_windowContainer;
+            QSpinBox* m_xSubDivisionEditor;
+            QSpinBox* m_ySubDivisionEditor;
+
+            QAbstractButton* m_resetTextureButton;
+            QAbstractButton* m_flipTextureHButton;
+            QAbstractButton* m_flipTextureVButton;
+            QAbstractButton* m_rotateTextureCCWButton;
+            QAbstractButton* m_rotateTextureCWButton;
         public:
             UVEditor(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
+            ~UVEditor() override;
 
             bool cancelMouseDrag();
         private:
-            void OnResetTexture(wxCommandEvent& event);
-            void OnFlipTextureH(wxCommandEvent& event);
-            void OnFlipTextureV(wxCommandEvent& event);
-            void OnRotateTextureCCW(wxCommandEvent& event);
-            void OnRotateTextureCW(wxCommandEvent& event);
+            void OnResetTexture();
+            void OnFlipTextureH();
+            void OnFlipTextureV();
+            void OnRotateTextureCCW();
+            void OnRotateTextureCW();
 
-            void OnUpdateButtonUI(wxUpdateUIEvent& event);
+            void updateButtons();
 
-            void OnSubDivisionChanged(wxSpinEvent& event);
+            void OnSubDivisionChanged();
         private:
             void createGui(GLContextManager& contextManager);
+
+            void selectionDidChange(const Selection& selection);
+
+            void bindObservers();
+            void unbindObservers();
         };
     }
 }

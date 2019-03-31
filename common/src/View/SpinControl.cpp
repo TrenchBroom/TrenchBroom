@@ -24,6 +24,9 @@
 
 namespace TrenchBroom {
     namespace View {
+        SpinControl::SpinControl(QWidget* parent) : QDoubleSpinBox(parent) {}
+        SpinControl::SpinControl() : SpinControl(nullptr) {}
+
         void SpinControl::stepBy(const int steps) {
             int sign = (steps > 0) ? 1 : -1;
 
@@ -39,6 +42,18 @@ namespace TrenchBroom {
             qDebug("requested %d, doing %d", steps, newsteps);
 
             QDoubleSpinBox::stepBy(newsteps);
+        }
+
+        void SpinControl::SetRange(double min, double max) {
+            setRange(min, max);
+        }
+
+        void SpinControl::SetIncrements(double regularIncrement, double shiftIncrement, double ctrlIncrement) {
+            // FIXME:
+        }
+
+        void SpinControl::SetDigits(unsigned int minDigits, unsigned int maxDigits) {
+            // FIXME:
         }
     }
 }

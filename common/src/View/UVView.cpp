@@ -35,7 +35,6 @@
 #include "Renderer/Vbo.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/GLVertexType.h"
-#include "View/GLAttribs.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/UVCameraTool.h"
@@ -54,8 +53,8 @@ namespace TrenchBroom {
     namespace View {
         const Model::Hit::HitType UVView::FaceHit = Model::Hit::freeHitType();
 
-        UVView::UVView(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
-        RenderView(parent, contextManager, GLAttribs::attribs()),
+        UVView::UVView(MapDocumentWPtr document, GLContextManager& contextManager) :
+        RenderView(contextManager),
         m_document(document),
         m_helper(m_camera) {
             setToolBox(m_toolBox);

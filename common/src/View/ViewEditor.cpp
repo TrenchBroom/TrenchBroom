@@ -182,8 +182,8 @@ namespace TrenchBroom {
             wxButton* hideAllButton = new wxButton(this, wxID_ANY, "Hide all", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
             hideAllButton->SetFont(hideAllButton->GetFont().Bold());
 
-            showAllButton->Bind(wxEVT_BUTTON, &EntityDefinitionCheckBoxList::OnShowAllClicked, this);
-            hideAllButton->Bind(wxEVT_BUTTON, &EntityDefinitionCheckBoxList::OnHideAllClicked, this);
+            showAllButton->Bind(&QAbstractButton::clicked, &EntityDefinitionCheckBoxList::OnShowAllClicked, this);
+            hideAllButton->Bind(&QAbstractButton::clicked, &EntityDefinitionCheckBoxList::OnHideAllClicked, this);
 
             auto* buttonSizer = new QHBoxLayout();
             buttonSizer->addStretch(1);

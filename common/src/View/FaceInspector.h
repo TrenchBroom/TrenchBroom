@@ -26,6 +26,10 @@
 class QWidget;
 
 namespace TrenchBroom {
+    namespace Assets {
+        class Texture;
+    }
+
     namespace Model {
         class BrushFace;
         class Object;
@@ -40,6 +44,7 @@ namespace TrenchBroom {
         class TextureSelectedCommand;
 
         class FaceInspector : public TabBookPage {
+            Q_OBJECT
         private:
             MapDocumentWPtr m_document;
 
@@ -50,7 +55,7 @@ namespace TrenchBroom {
 
             bool cancelMouseDrag();
         private:
-            void OnTextureSelected(TextureSelectedCommand& event);
+            void OnTextureSelected(Assets::Texture* texture);
         private:
             void createGui(MapDocumentWPtr document, GLContextManager& contextManager);
             QWidget* createFaceAttribsEditor(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);

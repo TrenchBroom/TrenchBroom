@@ -63,6 +63,10 @@ namespace TrenchBroom {
             return result;
         }
 #endif
+        void setHint(QLineEdit* ctrl, const char* hint) {
+            ctrl->setPlaceholderText(hint);
+        }
+
         Color fromQColor(const QColor& color) {
             return Color(static_cast<float>(color.redF()),
                          static_cast<float>(color.greenF()),

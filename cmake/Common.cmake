@@ -313,7 +313,7 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/CurrentGameIndicator.cpp
 	${COMMON_SOURCE_DIR}/View/CurrentGroupCommand.cpp
 	${COMMON_SOURCE_DIR}/View/CyclingMapView.cpp
-#	${COMMON_SOURCE_DIR}/View/DirectoryTextureCollectionEditor.cpp
+	${COMMON_SOURCE_DIR}/View/DirectoryTextureCollectionEditor.cpp
 	${COMMON_SOURCE_DIR}/View/DocumentCommand.cpp
 	${COMMON_SOURCE_DIR}/View/DuplicateNodesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/EdgeToolController.cpp
@@ -327,11 +327,11 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/EntityDefinitionFileChooser.cpp
 	${COMMON_SOURCE_DIR}/View/EntityDefinitionFileCommand.cpp
 	${COMMON_SOURCE_DIR}/View/EntityInspector.cpp
-#	${COMMON_SOURCE_DIR}/View/FaceAttribsEditor.cpp
-#	${COMMON_SOURCE_DIR}/View/FaceInspector.cpp
+	${COMMON_SOURCE_DIR}/View/FaceAttribsEditor.cpp
+	${COMMON_SOURCE_DIR}/View/FaceInspector.cpp
 	${COMMON_SOURCE_DIR}/View/FaceToolController.cpp
 	${COMMON_SOURCE_DIR}/View/FaceTool.cpp
-#	${COMMON_SOURCE_DIR}/View/FileTextureCollectionEditor.cpp
+	${COMMON_SOURCE_DIR}/View/FileTextureCollectionEditor.cpp
 	${COMMON_SOURCE_DIR}/View/FindPlanePointsCommand.cpp
 	${COMMON_SOURCE_DIR}/View/FlagsEditor.cpp
 	${COMMON_SOURCE_DIR}/View/FlagsPopupEditor.cpp
@@ -444,9 +444,9 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/TabBar.cpp
 	${COMMON_SOURCE_DIR}/View/TabBook.cpp
 #	${COMMON_SOURCE_DIR}/View/TextCtrlOutputAdapter.cpp
-#	${COMMON_SOURCE_DIR}/View/TextureBrowser.cpp
+	${COMMON_SOURCE_DIR}/View/TextureBrowser.cpp
 	${COMMON_SOURCE_DIR}/View/TextureBrowserView.cpp
-#	${COMMON_SOURCE_DIR}/View/TextureCollectionEditor.cpp
+	${COMMON_SOURCE_DIR}/View/TextureCollectionEditor.cpp
 	${COMMON_SOURCE_DIR}/View/ThreePaneMapView.cpp
 	${COMMON_SOURCE_DIR}/View/TitleBar.cpp
 	${COMMON_SOURCE_DIR}/View/TitledPanel.cpp
@@ -460,15 +460,15 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/TwoPaneMapView.cpp
 	${COMMON_SOURCE_DIR}/View/UndoableCommand.cpp
 	${COMMON_SOURCE_DIR}/View/UpdateEntitySpawnflagCommand.cpp
-#	${COMMON_SOURCE_DIR}/View/UVCameraTool.cpp
-#	${COMMON_SOURCE_DIR}/View/UVEditor.cpp
-#	${COMMON_SOURCE_DIR}/View/UVOffsetTool.cpp
-#	${COMMON_SOURCE_DIR}/View/UVOriginTool.cpp
-#	${COMMON_SOURCE_DIR}/View/UVRotateTool.cpp
-#	${COMMON_SOURCE_DIR}/View/UVScaleTool.cpp
-#	${COMMON_SOURCE_DIR}/View/UVShearTool.cpp
-#	${COMMON_SOURCE_DIR}/View/UVView.cpp
-#	${COMMON_SOURCE_DIR}/View/UVViewHelper.cpp
+	${COMMON_SOURCE_DIR}/View/UVCameraTool.cpp
+	${COMMON_SOURCE_DIR}/View/UVEditor.cpp
+	${COMMON_SOURCE_DIR}/View/UVOffsetTool.cpp
+	${COMMON_SOURCE_DIR}/View/UVOriginTool.cpp
+	${COMMON_SOURCE_DIR}/View/UVRotateTool.cpp
+	${COMMON_SOURCE_DIR}/View/UVScaleTool.cpp
+	${COMMON_SOURCE_DIR}/View/UVShearTool.cpp
+	${COMMON_SOURCE_DIR}/View/UVView.cpp
+	${COMMON_SOURCE_DIR}/View/UVViewHelper.cpp
 	${COMMON_SOURCE_DIR}/View/VertexCommand.cpp
 	${COMMON_SOURCE_DIR}/View/VertexHandleManager.cpp
 	${COMMON_SOURCE_DIR}/View/VertexToolController.cpp
@@ -878,7 +878,7 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/EntityDefinitionFileCommand.h
 	${COMMON_SOURCE_DIR}/View/EntityInspector.h
 	${COMMON_SOURCE_DIR}/View/FaceAttribsEditor.h
-#	${COMMON_SOURCE_DIR}/View/FaceInspector.h
+	${COMMON_SOURCE_DIR}/View/FaceInspector.h
 	${COMMON_SOURCE_DIR}/View/FaceToolController.h
 	${COMMON_SOURCE_DIR}/View/FaceTool.h
 	${COMMON_SOURCE_DIR}/View/FileTextureCollectionEditor.h

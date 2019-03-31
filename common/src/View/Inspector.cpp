@@ -40,7 +40,7 @@ namespace TrenchBroom {
 
             m_mapInspector = new MapInspector(m_tabBook, document, contextManager);
             m_entityInspector = new EntityInspector(m_tabBook, document, contextManager);
-            m_faceInspector = (FaceInspector*) new TabBookPage(nullptr); // FIXME: new FaceInspector(m_tabBook, document, contextManager);
+            m_faceInspector = new FaceInspector(m_tabBook, document, contextManager);
 
             m_tabBook->addPage(m_mapInspector, "Map");
             m_tabBook->addPage(m_entityInspector, "Entity");
@@ -66,7 +66,7 @@ namespace TrenchBroom {
         }
 
         void Inspector::OnTopWidgetSize() {
-//            if (IsBeingDeleted()) return;
+//
 //            m_tabBook->setTabBarHeight(event.GetSize().y);
 //            event.Skip();
         }

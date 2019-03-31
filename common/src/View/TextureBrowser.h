@@ -25,12 +25,12 @@
 #include "View/TextureBrowserView.h"
 #include "View/ViewTypes.h"
 
-#include <wx/panel.h>
+#include <QWidget>
 
-class wxChoice;
-class wxToggleButton;
-class wxSearchCtrl;
-class wxScrollBar;
+class QPushButton;
+class QComboBox;
+class QLineEdit;
+class QScrollBar;
 
 namespace TrenchBroom {
     namespace Assets {
@@ -47,14 +47,16 @@ namespace TrenchBroom {
         class TextureSelectedCommand;
 
         class TextureBrowser : public QWidget {
+            Q_OBJECT
         private:
             MapDocumentWPtr m_document;
-            wxChoice* m_sortOrderChoice;
-            wxToggleButton* m_groupButton;
-            wxToggleButton* m_usedButton;
-            wxSearchCtrl* m_filterBox;
-            wxScrollBar* m_scrollBar;
+            QComboBox* m_sortOrderChoice;
+            QPushButton* m_groupButton;
+            QPushButton* m_usedButton;
+            QLineEdit* m_filterBox;
+            QScrollBar* m_scrollBar;
             TextureBrowserView* m_view;
+            QWidget* m_windowContainer;
         public:
             TextureBrowser(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
             ~TextureBrowser();
@@ -67,11 +69,13 @@ namespace TrenchBroom {
             void setHideUnused(bool hideUnused);
             void setFilterText(const String& filterText);
 
-            void OnSortOrderChanged(wxCommandEvent& event);
-            void OnGroupButtonToggled(wxCommandEvent& event);
-            void OnUsedButtonToggled(wxCommandEvent& event);
-            void OnFilterPatternChanged(wxCommandEvent& event);
-            void OnTextureSelected(TextureSelectedCommand& event);
+            void OnSortOrderChanged();
+            void OnGroupButtonToggled();
+            void OnUsedButtonToggled();
+            void OnFilterPatternChanged();
+            void OnTextureSelected(Assets::Texture* texture);
+        signals:
+            void textureSelected(Assets::Texture* texture);
         private:
             void createGui(GLContextManager& contextManager);
             void bindEvents();

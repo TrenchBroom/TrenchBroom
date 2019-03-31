@@ -53,6 +53,7 @@ namespace TrenchBroom {
         };
 
         class TextureBrowserView : public CellView/*<TextureCellData, TextureGroupData>*/ {
+            Q_OBJECT
         public:
             typedef enum {
                 SO_Name,
@@ -119,6 +120,8 @@ namespace TrenchBroom {
             QString tooltip(const Cell& cell) override;
 
             const TextureCellData& cellData(const Cell& cell) const;
+        signals:
+            void textureSelected(Assets::Texture* texture);
         };
     }
 }

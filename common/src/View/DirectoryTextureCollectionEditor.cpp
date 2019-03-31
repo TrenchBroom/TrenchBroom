@@ -27,12 +27,10 @@
 #include "View/ViewUtils.h"
 #include "View/wxUtils.h"
 
-#include <wx/bmpbuttn.h>
-#include <wx/gbsizer.h>
-#include <wx/listbox.h>
-#include <wx/settings.h>
-#include <wx/sizer.h>
+#include <QListWidget>
 #include <QLabel>
+#include <QVBoxLayout>
+#include <QAbstractButton>
 
 #include <cassert>
 
@@ -52,17 +50,12 @@ namespace TrenchBroom {
 			unbindObservers();
 		}
 
-		void DirectoryTextureCollectionEditor::OnAddTextureCollections(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+		void DirectoryTextureCollectionEditor::OnAddTextureCollections() {
             const auto availableCollections = availableTextureCollections();
             auto enabledCollections = enabledTextureCollections();
 
-            wxArrayInt selections;
-            m_availableCollectionsList->GetSelections(selections);
-
-            for (size_t i = 0; i < selections.size(); ++i) {
-                const auto index = static_cast<size_t>(selections[i]);
+            for (QListWidgetItem* selectedItem : m_availableCollectionsList->selectedItems()) {
+                const auto index = static_cast<size_t>(m_availableCollectionsList->row(selectedItem));
                 enabledCollections.push_back(availableCollections[index]);
             }
 
@@ -72,13 +65,13 @@ namespace TrenchBroom {
             document->setEnabledTextureCollections(enabledCollections);
         }
 
-        void DirectoryTextureCollectionEditor::OnRemoveTextureCollections(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void DirectoryTextureCollectionEditor::OnRemoveTextureCollections() {
             auto enabledCollections = enabledTextureCollections();
 
-            wxArrayInt selections;
-            m_enabledCollectionsList->GetSelections(selections);
+            std::vector<int> selections;
+            for (QListWidgetItem* selectedItem : m_enabledCollectionsList->selectedItems()) {
+                selections.push_back(m_enabledCollectionsList->row(selectedItem));
+            }
 
             // erase back to front
             for (auto sIt = std::rbegin(selections), sEnd = std::rend(selections); sIt != sEnd; ++sIt) {
@@ -90,84 +83,85 @@ namespace TrenchBroom {
             document->setEnabledTextureCollections(enabledCollections);
         }
 
-        void DirectoryTextureCollectionEditor::OnReloadTextureCollections(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void DirectoryTextureCollectionEditor::OnReloadTextureCollections() {
             auto document = lock(m_document);
             document->reloadTextureCollections();
         }
 
-        void DirectoryTextureCollectionEditor::OnUpdateAddTextureCollections(wxUpdateUIEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            wxArrayInt selections;
-            event.Enable(m_availableCollectionsList->GetSelections(selections) > 0);
+        bool DirectoryTextureCollectionEditor::canAddTextureCollections() const {
+            return !m_availableCollectionsList->selectedItems().empty();
         }
 
-        void DirectoryTextureCollectionEditor::OnUpdateRemoveTextureCollections(wxUpdateUIEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            wxArrayInt selections;
-            event.Enable(m_enabledCollectionsList->GetSelections(selections) > 0);
+        bool DirectoryTextureCollectionEditor::canRemoveTextureCollections() const {
+            return !m_enabledCollectionsList->selectedItems().empty();
         }
 
-        void DirectoryTextureCollectionEditor::OnUpdateReloadTextureCollections(wxUpdateUIEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            event.Enable(!m_enabledCollectionsList->IsEmpty());
+        bool DirectoryTextureCollectionEditor::canReloadTextureCollections() const {
+            return m_enabledCollectionsList->count() != 0;
         }
 
+        /**
+         * See ModEditor::createGui
+         */
         void DirectoryTextureCollectionEditor::createGui() {
             auto* availableCollectionsContainer = new TitledPanel(this, "Available", false);
-            availableCollectionsContainer->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
 
-            m_availableCollectionsList = new wxListBox(availableCollectionsContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxLB_MULTIPLE | wxBORDER_NONE);
+            m_availableCollectionsList = new QListWidget();
+            m_availableCollectionsList->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
             auto* availableModContainerSizer = new QVBoxLayout();
-            availableModContainerSizer->Add(m_availableCollectionsList, wxSizerFlags().Expand().Proportion(1));
-            availableCollectionsContainer->getPanel()->SetSizer(availableModContainerSizer);
+            availableModContainerSizer->addWidget(m_availableCollectionsList);//, wxSizerFlags().Expand().Proportion(1));
+            availableCollectionsContainer->getPanel()->setLayout(availableModContainerSizer);
 
             auto* enabledCollectionsContainer = new TitledPanel(this, "Enabled", false);
-            enabledCollectionsContainer->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
-            m_enabledCollectionsList = new wxListBox(enabledCollectionsContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxLB_MULTIPLE | wxBORDER_NONE);
+//            enabledCollectionsContainer->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
+            m_enabledCollectionsList = new QListWidget();
+            m_enabledCollectionsList->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
             auto* enabledCollectionsContainerSizer = new QVBoxLayout();
-            enabledCollectionsContainerSizer->Add(m_enabledCollectionsList, wxSizerFlags().Expand().Proportion(1));
-            enabledCollectionsContainer->getPanel()->SetSizer(enabledCollectionsContainerSizer);
+            enabledCollectionsContainerSizer->addWidget(m_enabledCollectionsList, 1);// wxSizerFlags().Expand().Proportion(1));
+            enabledCollectionsContainer->getPanel()->setLayout(enabledCollectionsContainerSizer);
 
-            auto* addCollectionsButton = createBitmapButton(this, "Add.png", "Enable the selected texture collections");
-            auto* removeCollectionsButton = createBitmapButton(this, "Remove.png", "Disable the selected texture collections");
-            auto* reloadCollectionsButton = createBitmapButton(this, "Refresh.png", "Reload all enabled texture collections");
+            m_addCollectionsButton = createBitmapButton(this, "Add.png", tr("Enable the selected texture collections"));
+            m_removeCollectionsButton = createBitmapButton(this, "Remove.png", tr("Disable the selected texture collections"));
+            m_reloadCollectionsButton = createBitmapButton(this, "Refresh.png", tr("Reload all enabled texture collections"));
 
             auto* buttonSizer = new QHBoxLayout();
-            buttonSizer->Add(addCollectionsButton, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
-            buttonSizer->Add(removeCollectionsButton, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
+            buttonSizer->addWidget(m_addCollectionsButton); //, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
+            buttonSizer->addWidget(m_removeCollectionsButton); //, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
             buttonSizer->addSpacing(LayoutConstants::WideHMargin);
-            buttonSizer->Add(reloadCollectionsButton, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
-            buttonSizer->AddStretchSpacer();
+            buttonSizer->addWidget(m_reloadCollectionsButton); //, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
+            buttonSizer->addStretch(1);
 
-            auto* sizer = new wxGridBagSizer(0, 0);
-            sizer->addWidget(availableCollectionsContainer,                           wxGBPosition(0, 0), wxDefaultSpan, wxEXPAND);
-            sizer->addWidget(new BorderLine(this, BorderLine::Direction_Vertical),    wxGBPosition(0, 1), wxGBSpan(3, 1), wxEXPAND);
-            sizer->addWidget(enabledCollectionsContainer,                             wxGBPosition(0, 2), wxDefaultSpan, wxEXPAND);
-            sizer->addWidget(new BorderLine(this, BorderLine::Direction_Horizontal),  wxGBPosition(1, 0), wxGBSpan(1, 3), wxEXPAND);
-            sizer->addWidget(buttonSizer,                                             wxGBPosition(2, 2), wxDefaultSpan, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
-            sizer->SetItemMinSize(availableCollectionsContainer, 100, 100);
-            sizer->SetItemMinSize(enabledCollectionsContainer, 100, 100);
-            sizer->AddGrowableCol(0);
-            sizer->AddGrowableCol(2);
-            sizer->AddGrowableRow(1);
+            auto* sizer = new QGridLayout();
+            sizer->addWidget(availableCollectionsContainer,                              0, 0);
+            sizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Vertical),    0, 1, 3, 1);
+            sizer->addWidget(enabledCollectionsContainer,                                0, 2);
+            sizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Horizontal),  1, 0, 1, 3);
+            sizer->addLayout(buttonSizer,                                                2, 2);
+//            sizer->SetItemMinSize(availableCollectionsContainer, 100, 100);
+//            sizer->SetItemMinSize(enabledCollectionsContainer, 100, 100);
+//            sizer->AddGrowableCol(0);
+//            sizer->AddGrowableCol(2);
+//            sizer->AddGrowableRow(1);
 
             setLayout(sizer);
 
-            m_availableCollectionsList->Bind(wxEVT_LISTBOX_DCLICK, &DirectoryTextureCollectionEditor::OnAddTextureCollections, this);
-            m_enabledCollectionsList->Bind(wxEVT_LISTBOX_DCLICK, &DirectoryTextureCollectionEditor::OnRemoveTextureCollections, this);
-            addCollectionsButton->Bind(wxEVT_BUTTON, &DirectoryTextureCollectionEditor::OnAddTextureCollections, this);
-            removeCollectionsButton->Bind(wxEVT_BUTTON, &DirectoryTextureCollectionEditor::OnRemoveTextureCollections, this);
-            reloadCollectionsButton->Bind(wxEVT_BUTTON, &DirectoryTextureCollectionEditor::OnReloadTextureCollections, this);
-            addCollectionsButton->Bind(wxEVT_UPDATE_UI, &DirectoryTextureCollectionEditor::OnUpdateAddTextureCollections, this);
-            removeCollectionsButton->Bind(wxEVT_UPDATE_UI, &DirectoryTextureCollectionEditor::OnUpdateRemoveTextureCollections, this);
-            reloadCollectionsButton->Bind(wxEVT_UPDATE_UI, &DirectoryTextureCollectionEditor::OnUpdateReloadTextureCollections, this);
+            // Unnecessary, Qt can automatically drop unused args
+//            connect(m_availableCollectionsList, &QListWidget::itemDoubleClicked, this, [=](QListWidgetItem *item){
+//                OnAddTextureCollections();
+//            });
+            connect(m_availableCollectionsList, &QListWidget::itemDoubleClicked, this, &DirectoryTextureCollectionEditor::OnAddTextureCollections);
+            connect(m_enabledCollectionsList, &QListWidget::itemDoubleClicked, this, &DirectoryTextureCollectionEditor::OnRemoveTextureCollections);
+            connect(m_addCollectionsButton, &QAbstractButton::clicked, this, &DirectoryTextureCollectionEditor::OnAddTextureCollections);
+            connect(m_removeCollectionsButton, &QAbstractButton::clicked, this, &DirectoryTextureCollectionEditor::OnRemoveTextureCollections);
+            connect(m_reloadCollectionsButton, &QAbstractButton::clicked, this, &DirectoryTextureCollectionEditor::OnReloadTextureCollections);
+        }
+
+        void DirectoryTextureCollectionEditor::updateButtons() {
+            m_addCollectionsButton->setEnabled(canAddTextureCollections());
+            m_removeCollectionsButton->setEnabled(canRemoveTextureCollections());
+            m_reloadCollectionsButton->setEnabled(canReloadTextureCollections());
         }
 
         void DirectoryTextureCollectionEditor::bindObservers() {
@@ -218,15 +212,11 @@ namespace TrenchBroom {
             updateListBox(m_enabledCollectionsList, enabledTextureCollections());
         }
 
-        void DirectoryTextureCollectionEditor::updateListBox(wxListBox* box, const IO::Path::List& paths) {
-            QStringList values;
-            values.reserve(paths.size());
-
+        void DirectoryTextureCollectionEditor::updateListBox(QListWidget* box, const IO::Path::List& paths) {
+            box->clear();
             for (const auto& path : paths) {
-                values.push_back(path.asString());
+                box->addItem(path.asQString());
             }
-
-            box->Set(values);
         }
 
         IO::Path::List DirectoryTextureCollectionEditor::availableTextureCollections() const {

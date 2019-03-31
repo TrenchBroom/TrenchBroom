@@ -505,16 +505,12 @@ namespace TrenchBroom {
                 if (!cellData(*result).texture->overridden()) {
                     auto* texture = cellData(*result).texture;
 
-#if 0 // FIXME: TextureSelectedCommand
-                    TextureSelectedCommand command;
-                    command.SetEventObject(this);
-                    command.SetId(GetId());
-                    command.setTexture(texture);
-                    ProcessEvent(command);
+                    emit textureSelected(texture);
 
-                    if (command.IsAllowed())
-                        setSelectedTexture(texture);
-#endif
+                    // NOTE: wx had the ability for the textureSelected event to veto the selection, but it
+                    // wasn't used.
+                    setSelectedTexture(texture);
+
                     Refresh();
                 }
             }

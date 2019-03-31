@@ -24,7 +24,7 @@
 #include "View/FileTextureCollectionEditor.h"
 #include "View/MapDocument.h"
 
-#include <wx/sizer.h>
+#include <QVBoxLayout>
 
 namespace TrenchBroom {
     namespace View {
@@ -45,12 +45,12 @@ namespace TrenchBroom {
         }
 
         void TextureCollectionEditor::documentWasNewed(MapDocument* document) {
-            DestroyChildren();
+            delete layout();
             createGui();
         }
 
         void TextureCollectionEditor::documentWasLoaded(MapDocument* document) {
-            DestroyChildren();
+            delete layout();
             createGui();
         }
 
@@ -61,18 +61,17 @@ namespace TrenchBroom {
             const Model::Game::TexturePackageType type = document->game()->texturePackageType();
             switch (type) {
                 case Model::Game::TexturePackageType::File:
-                    collectionEditor = new FileTextureCollectionEditor(this, m_document);
+                    collectionEditor = new FileTextureCollectionEditor(nullptr, m_document);
                     break;
                 case Model::Game::TexturePackageType::Directory:
-                    collectionEditor = new DirectoryTextureCollectionEditor(this, m_document);
+                    collectionEditor = new DirectoryTextureCollectionEditor(nullptr, m_document);
                     break;
             }
 
             auto* sizer = new QVBoxLayout();
-            sizer->addWidget(collectionEditor, wxSizerFlags().Expand().Proportion(1));
+            sizer->addWidget(collectionEditor, 1);
 
-            SetSizer(sizer);
-            GetParent()->Layout();
+            setLayout(sizer);
         }
     }
 }
