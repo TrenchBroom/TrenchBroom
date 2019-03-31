@@ -134,6 +134,10 @@ namespace TrenchBroom {
             }
         }
 
+        TextureCollection* Texture::collection() const {
+            return m_collection;
+        }
+
         const String& Texture::name() const {
             return m_name;
         }

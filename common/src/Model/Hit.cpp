@@ -61,5 +61,19 @@ namespace TrenchBroom {
         FloatType Hit::error() const {
             return m_error;
         }
+
+        Hit selectClosest(const Hit& first, const Hit& second) {
+            if (!first.isMatch()) {
+                return second;
+            }
+            if (!second.isMatch()) {
+                return first;
+            }
+            if (first.distance() <= second.distance()) {
+                return first;
+            } else {
+                return second;
+            }
+        }
     }
 }

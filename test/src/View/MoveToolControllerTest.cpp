@@ -168,7 +168,7 @@ namespace TrenchBroom {
             const vm::ray3 initialPickRay(camera.pickRay(200, 200));
             inputState.setPickRequest(PickRequest(initialPickRay, camera));
 
-            const FloatType initialHitDistance = intersect(initialPickRay, vm::plane3(vm::vec3::zero, vm::vec3::pos_z));
+            const FloatType initialHitDistance = vm::intersectRayAndPlane(initialPickRay, vm::plane3(vm::vec3::zero, vm::vec3::pos_z));
             const vm::vec3 initialHitPoint = initialPickRay.pointAtDistance(initialHitDistance);
 
             EXPECT_CALL(controller, mockDoStartMove(Ref(inputState))).Times(1).WillOnce(Return(MockMoveToolController::MoveInfo(initialHitPoint)));

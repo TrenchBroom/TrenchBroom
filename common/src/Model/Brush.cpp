@@ -1414,7 +1414,7 @@ namespace TrenchBroom {
         Brush::BrushFaceHit::BrushFaceHit(BrushFace* i_face, const FloatType i_distance) : face(i_face), distance(i_distance) {}
 
         Brush::BrushFaceHit Brush::findFaceHit(const vm::ray3& ray) const {
-            if (vm::isnan(vm::intersect(ray, bounds()))) {
+            if (vm::isnan(vm::intersectRayAndBBox(ray, bounds()))) {
                 return BrushFaceHit();
             }
 

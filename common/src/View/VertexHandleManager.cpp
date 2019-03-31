@@ -127,7 +127,7 @@ namespace TrenchBroom {
                     continue;
                 }
 
-                const auto distance = vm::intersect(pickRay, plane, std::begin(position), std::end(position));
+                const auto distance = vm::intersectRayAndPolygon(pickRay, plane, std::begin(position), std::end(position));
                 if (!vm::isnan(distance)) {
                     const auto pointHandle = grid.snap(pickRay.pointAtDistance(distance), plane);
 

@@ -42,10 +42,6 @@ Q_DECLARE_METATYPE(std::shared_ptr<TrenchBroom::View::TextureCellData>)
 
 namespace TrenchBroom {
     namespace View {
-        TextureCellData::TextureCellData(Assets::Texture* i_texture, const Renderer::FontDescriptor& i_fontDescriptor) :
-        texture(i_texture),
-        fontDescriptor(i_fontDescriptor) {}
-
         TextureBrowserView::TextureBrowserView(QWidget* parent,
                                                QScrollBar* scrollBar,
                                                GLContextManager& contextManager,
@@ -117,8 +113,8 @@ namespace TrenchBroom {
 
             layout.setOuterMargin(5.0f);
             layout.setGroupMargin(5.0f);
-            layout.setRowMargin(5.0f);
-            layout.setCellMargin(5.0f);
+            layout.setRowMargin(15.0f);
+            layout.setCellMargin(10.0f);
             layout.setTitleMargin(2.0f);
             layout.setCellWidth(scaleFactor * 64.0f, scaleFactor * 64.0f);
             layout.setCellHeight(scaleFactor * 64.0f, scaleFactor * 128.0f);
@@ -145,18 +141,36 @@ namespace TrenchBroom {
 
         void TextureBrowserView::addTextureToLayout(Layout& layout, Assets::Texture* texture, const Renderer::FontDescriptor& font) {
             const float maxCellWidth = layout.maxCellWidth();
-            const Renderer::FontDescriptor actualFont = fontManager().selectFontSize(font, texture->name(), maxCellWidth, 5);
-            const vm::vec2f actualSize = fontManager().font(actualFont).measure(texture->name());
+
+            const auto& groupName   = texture->collection()->name();
+            const auto  textureName = IO::Path(texture->name()).lastComponent().asString();
+
+            const auto textureFont = fontManager().selectFontSize(font, textureName, maxCellWidth, 6);
+            const auto groupFont   = fontManager().selectFontSize(font, groupName, maxCellWidth, 6);
+
+            const auto defaultTextHeight = fontManager().font(font).measure(groupName + textureName).y();
+            const auto textureNameSize   = fontManager().font(textureFont).measure(textureName);
+            const auto groupNameSize     = fontManager().font(groupFont).measure(groupName);
+
+            const auto totalSize = vm::vec2f(vm::max(groupNameSize.x(), textureNameSize.x()), 2.0f * defaultTextHeight + 4.0f);
 
             const float scaleFactor = pref(Preferences::TextureBrowserIconSize);
             const size_t scaledTextureWidth = static_cast<size_t>(vm::round(scaleFactor * static_cast<float>(texture->width())));
             const size_t scaledTextureHeight = static_cast<size_t>(vm::round(scaleFactor * static_cast<float>(texture->height())));
 
-            layout.addItem(QVariant::fromValue(std::make_shared<TextureCellData>(texture, actualFont)),
-                           scaledTextureWidth,
-                           scaledTextureHeight,
-                           actualSize.x(),
-                           font.size() + 2.0f);
+            layout.addItem(QVariant::fromValue(std::make_shared<TextureCellData>{
+                texture,
+                textureName,
+                groupName,
+                vm::vec2f((maxCellWidth - textureNameSize.x()) / 2.0f, defaultTextHeight + 3.0f),
+                vm::vec2f((maxCellWidth - groupNameSize.x()) / 2.0f, 1.0f),
+                textureFont,
+                groupFont
+            }),
+            scaledTextureWidth,
+            scaledTextureHeight,
+            maxCellWidth,
+            totalSize.y());
         }
 
         struct TextureBrowserView::CompareByUsageCount {
@@ -192,7 +206,7 @@ namespace TrenchBroom {
         struct TextureBrowserView::MatchName {
             String pattern;
 
-            MatchName(const String& i_pattern) : pattern(i_pattern) {}
+            explicit MatchName(const String& i_pattern) : pattern(i_pattern) {}
 
             bool operator()(const Assets::Texture* texture) const {
                 return !StringUtils::containsCaseInsensitive(texture->name(), pattern);
@@ -417,6 +431,7 @@ namespace TrenchBroom {
                                                        static_cast<size_t>(pref(Preferences::BrowserFontSize)));
 
             const std::vector<Color> textColor{ pref(Preferences::BrowserTextColor) };
+            const std::vector<Color> subTextColor{ pref(Preferences::BrowserSubTextColor) };
 
             StringMap stringVertices;
             for (size_t i = 0; i < layout.size(); ++i) {
@@ -444,17 +459,35 @@ namespace TrenchBroom {
                             for (unsigned int k = 0; k < row.size(); k++) {
                                 const auto& cell = row[k];
                                 const auto titleBounds = cell.titleBounds();
-                                const auto offset = vm::vec2f(titleBounds.left(), height - (titleBounds.top() - y) - titleBounds.height());
+                                const auto& textureFont = fontManager().font(cellData(cell).mainTitleFont);
+                                const auto& groupFont   = fontManager().font(cellData(cell).subTitleFont);
 
-                                auto& font = fontManager().font(cellData(cell).fontDescriptor);
-                                const auto quads = font.quads(cellData(cell).texture->name(), false, offset);
-                                const auto titleVertices = TextVertex::toList(
-                                    quads.size() / 2,
-                                    stepIterator(std::begin(quads), std::end(quads), 0, 2),
-                                    stepIterator(std::begin(quads), std::end(quads), 1, 2),
+                                // y is relative to top, but OpenGL coords are relative to bottom, so invert
+                                const auto titleOffset = vm::vec2f(titleBounds.left(), y + height - titleBounds.bottom());
+
+                                const auto textureNameOffset = titleOffset + cellData(cell).mainTitleOffset;
+                                const auto groupNameOffset   = titleOffset + cellData(cell).subTitleOffset;
+
+                                const auto& textureName = cellData(cell).mainTitle;
+                                const auto& groupName   = cellData(cell).subTitle;
+
+                                const auto textureNameQuads = textureFont.quads(textureName, false, textureNameOffset);
+                                const auto groupNameQuads   = groupFont.quads(groupName, false, groupNameOffset);
+
+                                const auto textureNameVertices = TextVertex::toList(
+                                    textureNameQuads.size() / 2,
+                                    stepIterator(std::begin(textureNameQuads), std::end(textureNameQuads), 0, 2),
+                                    stepIterator(std::begin(textureNameQuads), std::end(textureNameQuads), 1, 2),
                                     stepIterator(std::begin(textColor), std::end(textColor), 0, 0));
-                                auto& vertices = stringVertices[cellData(cell).fontDescriptor];
-                                vertices.insert(std::end(vertices), std::begin(titleVertices), std::end(titleVertices));
+
+                                const auto groupNameVertices = TextVertex::toList(
+                                    groupNameQuads.size() / 2,
+                                    stepIterator(std::begin(groupNameQuads), std::end(groupNameQuads), 0, 2),
+                                    stepIterator(std::begin(groupNameQuads), std::end(groupNameQuads), 1, 2),
+                                    stepIterator(std::begin(subTextColor), std::end(subTextColor), 0, 0));
+
+                                VectorUtils::append(stringVertices[cellData(cell).mainTitleFont], textureNameVertices);
+                                VectorUtils::append(stringVertices[cellData(cell).subTitleFont], groupNameVertices);
                             }
                         }
                     }

@@ -135,8 +135,7 @@ namespace TrenchBroom {
         }
 
         void AseParser::parseScene(Logger& logger) {
-            expectDirective("SCENE");
-            parseBlock({});
+            skipDirective("SCENE");
         }
 
         void AseParser::parseMaterialList(Logger& logger, Path::List& paths) {

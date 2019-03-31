@@ -75,7 +75,7 @@ namespace TrenchBroom {
             const auto& boundary = face->boundary();
 
             const auto& pickRay = inputState.pickRay();
-            const auto distanceToFace = vm::intersect(pickRay, boundary);
+            const auto distanceToFace = vm::intersectRayAndPlane(pickRay, boundary);
             if (!vm::isnan(distanceToFace)) {
                 const auto hitPoint = pickRay.pointAtDistance(distanceToFace);
 
@@ -130,7 +130,7 @@ namespace TrenchBroom {
             auto* face = m_helper.face();
             const auto& boundary = face->boundary();
             const auto& pickRay = inputState.pickRay();
-            const auto curPointDistance = vm::intersect(pickRay, boundary);
+            const auto curPointDistance = vm::intersectRayAndPlane(pickRay, boundary);
             const auto curPoint = pickRay.pointAtDistance(curPointDistance);
 
             const auto toFaceOld = face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);

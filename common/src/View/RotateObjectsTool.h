@@ -59,7 +59,9 @@ namespace TrenchBroom {
             vm::vec3 rotationCenter() const;
             void setRotationCenter(const vm::vec3& position);
             void resetRotationCenter();
-            FloatType handleRadius() const;
+
+            FloatType majorHandleRadius(const Renderer::Camera& camera) const;
+            FloatType minorHandleRadius(const Renderer::Camera& camera) const;
 
             void beginRotation();
             void commitRotation();
@@ -72,7 +74,6 @@ namespace TrenchBroom {
             Model::Hit pick3D(const vm::ray3& pickRay, const Renderer::Camera& camera);
 
             vm::vec3 rotationAxis(RotateObjectsHandle::HitArea area) const;
-            vm::vec3 rotationAxisHandle(RotateObjectsHandle::HitArea area, const vm::vec3& cameraPos) const;
 
             void renderHandle2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderHandle3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);

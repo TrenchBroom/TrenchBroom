@@ -52,11 +52,11 @@ namespace TrenchBroom {
         void RotateObjectsTool::updateToolPageAxis(const RotateObjectsHandle::HitArea area) {
             // FIXME:
 #if 0
-            if (area == RotateObjectsHandle::HitArea_XAxis) {
+            if (area == RotateObjectsHandle::HitArea::HitArea_XAxis) {
                 m_toolPage->setAxis(vm::axis::x);
-            } else if (area == RotateObjectsHandle::HitArea_YAxis) {
+            } else if (area == RotateObjectsHandle::HitArea::HitArea_YAxis) {
                 m_toolPage->setAxis(vm::axis::y);
-            } else if (area == RotateObjectsHandle::HitArea_ZAxis) {
+            } else if (area == RotateObjectsHandle::HitArea::HitArea_ZAxis) {
                 m_toolPage->setAxis(vm::axis::z);
             }
 #endif
@@ -88,8 +88,12 @@ namespace TrenchBroom {
             setRotationCenter(position);
         }
 
-        FloatType RotateObjectsTool::handleRadius() const {
-            return m_handle.handleRadius();
+        FloatType RotateObjectsTool::majorHandleRadius(const Renderer::Camera& camera) const {
+            return m_handle.majorHandleRadius(camera);
+        }
+
+        FloatType RotateObjectsTool::minorHandleRadius(const Renderer::Camera& camera) const {
+            return m_handle.minorHandleRadius(camera);
         }
 
         void RotateObjectsTool::beginRotation() {
@@ -129,10 +133,6 @@ namespace TrenchBroom {
 
         vm::vec3 RotateObjectsTool::rotationAxis(const RotateObjectsHandle::HitArea area) const {
             return m_handle.rotationAxis(area);
-        }
-
-        vm::vec3 RotateObjectsTool::rotationAxisHandle(const RotateObjectsHandle::HitArea area, const vm::vec3& cameraPos) const {
-            return m_handle.pointHandlePosition(area, cameraPos);
         }
 
         void RotateObjectsTool::renderHandle2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {

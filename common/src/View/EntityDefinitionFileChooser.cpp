@@ -105,7 +105,11 @@ namespace TrenchBroom {
         }
 
         void EntityDefinitionFileChooser::OnChooseExternalClicked() {
-            const QString fileName = QFileDialog::getOpenFileName(nullptr, "Load Entity Definition File", "", "Worldcraft / Hammer files (*.fgd);;QuakeC files (*.def)");
+            const QString fileName = QFileDialog::getOpenFileName(nullptr, "Load Entity Definition File", "",
+                                                        "All supported entity definition files (*.fgd *.def *.ent);;"
+                                                        "Worldcraft / Hammer files (*.fgd);;"
+                                                        "QuakeC files (*.def);;"
+                                                        "Radiant XML files (*.ent)");
             if (fileName.isEmpty())
                 return;
 

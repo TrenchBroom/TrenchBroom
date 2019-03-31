@@ -235,7 +235,7 @@ namespace TrenchBroom {
             if (!hasChildren()) {
                 const vm::bbox3& myBounds = bounds();
                 if (!myBounds.contains(ray.origin)) {
-                    const FloatType distance = intersect(ray, myBounds);
+                    const FloatType distance = vm::intersectRayAndBBox(ray, myBounds);
                     if (!vm::isnan(distance)) {
                         const vm::vec3 hitPoint = ray.pointAtDistance(distance);
                         pickResult.addHit(Hit(EntityHit, distance, hitPoint, this));
@@ -276,7 +276,7 @@ namespace TrenchBroom {
         FloatType Entity::doIntersectWithRay(const vm::ray3& ray) const {
             if (hasChildren()) {
                 const vm::bbox3& myBounds = bounds();
-                if (!myBounds.contains(ray.origin) && vm::isnan(intersect(ray, myBounds))) {
+                if (!myBounds.contains(ray.origin) && vm::isnan(vm::intersectRayAndBBox(ray, myBounds))) {
                     return vm::nan<FloatType>();
                 }
 
@@ -290,7 +290,7 @@ namespace TrenchBroom {
             } else {
                 const auto& myBounds = bounds();
                 if (!myBounds.contains(ray.origin)) {
-                    return intersect(ray, myBounds);
+                    return vm::intersectRayAndBBox(ray, myBounds);
                 } else {
                     return vm::nan<FloatType>();
                 }

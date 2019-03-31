@@ -135,7 +135,7 @@ namespace TrenchBroom {
         vm::vec2f UVShearTool::getHit(const vm::ray3& pickRay) const {
             const auto* face = m_helper.face();
             const auto& boundary = face->boundary();
-            const auto hitPointDist = vm::intersect(pickRay, boundary);
+            const auto hitPointDist = vm::intersectRayAndPlane(pickRay, boundary);
             const auto hitPoint = pickRay.pointAtDistance(hitPointDist);
             const auto hitVec = hitPoint - m_helper.origin();
 

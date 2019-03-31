@@ -153,7 +153,8 @@ bool Polyhedron<T,FP,VP>::pointIntersectsPolygon(const Polyhedron& lhs, const Po
     const V rhsNormal = callback.getPlane(rhsFace).normal;
     const HalfEdgeList& rhsBoundary = rhsFace->boundary();
 
-    return vm::contains(lhsPos, rhsNormal, std::begin(rhsBoundary), std::end(rhsBoundary), GetVertexPosition());
+    return vm::polygonContainsPoint(lhsPos, rhsNormal, std::begin(rhsBoundary), std::end(rhsBoundary),
+                                    GetVertexPosition());
 }
 
 template <typename T, typename FP, typename VP>
@@ -350,8 +351,10 @@ bool Polyhedron<T,FP,VP>::faceIntersectsFace(const Face* lhsFace, const Face* rh
     auto* lhsVertex = lhsBoundary.front()->origin();
     auto* rhsVertex = rhsBoundary.front()->origin();
 
-    return (vm::contains(lhsVertex->position(), std::begin(rhsBoundary), std::end(rhsBoundary), GetVertexPosition()) ||
-            vm::contains(rhsVertex->position(), std::begin(lhsBoundary), std::end(lhsBoundary), GetVertexPosition()));
+    return (vm::polygonContainsPoint(lhsVertex->position(), std::begin(rhsBoundary), std::end(rhsBoundary),
+                                     GetVertexPosition()) ||
+        vm::polygonContainsPoint(rhsVertex->position(), std::begin(lhsBoundary), std::end(lhsBoundary),
+                                 GetVertexPosition()));
 }
 
 template <typename T, typename FP, typename VP>

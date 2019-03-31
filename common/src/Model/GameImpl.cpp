@@ -277,6 +277,8 @@ namespace TrenchBroom {
                 return true;
             } else if (StringUtils::caseInsensitiveEqual("def", extension)) {
                 return true;
+            } else if (StringUtils::caseInsensitiveEqual("ent", extension)) {
+                return true;
             } else {
                 return false;
             }
