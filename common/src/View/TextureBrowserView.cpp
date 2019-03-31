@@ -158,7 +158,7 @@ namespace TrenchBroom {
             const size_t scaledTextureWidth = static_cast<size_t>(vm::round(scaleFactor * static_cast<float>(texture->width())));
             const size_t scaledTextureHeight = static_cast<size_t>(vm::round(scaleFactor * static_cast<float>(texture->height())));
 
-            layout.addItem(QVariant::fromValue(std::make_shared<TextureCellData>{
+            auto data = std::shared_ptr<TextureCellData>(new TextureCellData{
                 texture,
                 textureName,
                 groupName,
@@ -166,7 +166,9 @@ namespace TrenchBroom {
                 vm::vec2f((maxCellWidth - groupNameSize.x()) / 2.0f, 1.0f),
                 textureFont,
                 groupFont
-            }),
+            });
+
+            layout.addItem(QVariant::fromValue(data),
             scaledTextureWidth,
             scaledTextureHeight,
             maxCellWidth,
