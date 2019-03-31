@@ -65,6 +65,14 @@ namespace TrenchBroom {
                 return m_y + m_height;
             }
 
+            vm::vec2f topLeft() const {
+                return vm::vec2f(left(), top());
+            }
+
+            vm::vec2f bottomLeft() const {
+                return vm::vec2f(left(), bottom());
+            }
+
             float midX() const {
                 return m_x + m_width / 2.0f;
             }

@@ -97,6 +97,8 @@ namespace TrenchBroom {
 
             static TextureType selectTextureType(bool masked);
 
+            TextureCollection* collection() const;
+
             const String& name() const;
 
             size_t width() const;
@@ -116,7 +118,7 @@ namespace TrenchBroom {
             void incUsageCount();
             void decUsageCount();
             bool overridden() const;
-            void setOverridden(const bool overridden);
+            void setOverridden(bool overridden);
 
             bool isPrepared() const;
             void prepare(GLuint textureId, int minFilter, int magFilter);

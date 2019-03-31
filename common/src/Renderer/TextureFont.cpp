@@ -42,10 +42,10 @@ namespace TrenchBroom {
 
         class MeasureString : public AttrString::LineFunc {
         private:
-            TextureFont& m_font;
+            const TextureFont& m_font;
             vm::vec2f m_size;
         public:
-            MeasureString(TextureFont& font) :
+            explicit MeasureString(const TextureFont& font) :
             m_font(font) {}
 
             const vm::vec2f& size() const {
@@ -73,10 +73,10 @@ namespace TrenchBroom {
 
         class MeasureLines : public AttrString::LineFunc {
         private:
-            TextureFont& m_font;
+            const TextureFont& m_font;
             std::vector<vm::vec2f> m_sizes;
         public:
-            MeasureLines(TextureFont& font) :
+            explicit MeasureLines(const TextureFont& font) :
             m_font(font) {}
 
             const std::vector<vm::vec2f>& sizes() const {
@@ -102,7 +102,7 @@ namespace TrenchBroom {
 
         class MakeQuads : public AttrString::LineFunc {
         private:
-            TextureFont& m_font;
+            const TextureFont& m_font;
 
             bool m_clockwise;
             vm::vec2f m_offset;
@@ -114,7 +114,7 @@ namespace TrenchBroom {
             float m_y;
             std::vector<vm::vec2f> m_vertices;
         public:
-            MakeQuads(TextureFont& font, const bool clockwise, const vm::vec2f& offset, const std::vector<vm::vec2f>& sizes) :
+            MakeQuads(const TextureFont& font, const bool clockwise, const vm::vec2f& offset, const std::vector<vm::vec2f>& sizes) :
             m_font(font),
             m_clockwise(clockwise),
             m_offset(offset),
@@ -155,7 +155,7 @@ namespace TrenchBroom {
             }
         };
 
-        std::vector<vm::vec2f> TextureFont::quads(const AttrString& string, const bool clockwise, const vm::vec2f& offset) {
+        std::vector<vm::vec2f> TextureFont::quads(const AttrString& string, const bool clockwise, const vm::vec2f& offset) const {
             MeasureLines measureLines(*this);
             string.lines(measureLines);
             const auto& sizes = measureLines.sizes();
@@ -165,13 +165,13 @@ namespace TrenchBroom {
             return makeQuads.vertices();
         }
 
-        vm::vec2f TextureFont::measure(const AttrString& string) {
+        vm::vec2f TextureFont::measure(const AttrString& string) const {
             MeasureString measureString(*this);
             string.lines(measureString);
             return measureString.size();
         }
 
-        std::vector<vm::vec2f> TextureFont::quads(const String& string, const bool clockwise, const vm::vec2f& offset) {
+        std::vector<vm::vec2f> TextureFont::quads(const String& string, const bool clockwise, const vm::vec2f& offset) const {
             std::vector<vm::vec2f> result;
             result.reserve(string.length() * 4 * 2);
 
@@ -199,7 +199,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        vm::vec2f TextureFont::measure(const String& string) {
+        vm::vec2f TextureFont::measure(const String& string) const {
             vm::vec2f result;
 
             int x = 0;

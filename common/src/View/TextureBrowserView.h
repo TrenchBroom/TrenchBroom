@@ -42,12 +42,14 @@ namespace TrenchBroom {
         class GLContextManager;
         using TextureGroupData = String;
 
-        class TextureCellData {
-        public:
+        struct TextureCellData {
             Assets::Texture* texture;
-            Renderer::FontDescriptor fontDescriptor;
-
-            TextureCellData(Assets::Texture* i_texture, const Renderer::FontDescriptor& i_fontDescriptor);
+            String mainTitle;
+            String subTitle;
+            vm::vec2f mainTitleOffset;
+            vm::vec2f subTitleOffset;
+            Renderer::FontDescriptor mainTitleFont;
+            Renderer::FontDescriptor subTitleFont;
         };
 
         class TextureBrowserView : public CellView<TextureCellData, TextureGroupData> {
