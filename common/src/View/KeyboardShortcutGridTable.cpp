@@ -48,7 +48,7 @@ namespace TrenchBroom {
 
         wxString KeyboardShortcutGridTable::GetValue(const int row, const int col) {
             if (row < 0 || row >= GetNumberRows() ||
-                col < 0 || row >= GetNumberCols()) {
+                col < 0 || col >= GetNumberCols()) {
                 return "";
             }
 
