@@ -48,8 +48,8 @@ namespace TrenchBroom {
             auto* addProfileButton = createBitmapButton(listPanel->getPanel(), "Add.png", "Add profile");
             auto* removeProfileButton = createBitmapButton(listPanel->getPanel(), "Remove.png", "Remove the selected profile");
 
-            addProfileButton->Bind(wxEVT_BUTTON, &GameEngineProfileManager::OnAddProfile, this);
-            removeProfileButton->Bind(wxEVT_BUTTON, &GameEngineProfileManager::OnRemoveProfile, this);
+            addProfileButton->Bind(&QAbstractButton::clicked, &GameEngineProfileManager::OnAddProfile, this);
+            removeProfileButton->Bind(&QAbstractButton::clicked, &GameEngineProfileManager::OnRemoveProfile, this);
             addProfileButton->Bind(wxEVT_UPDATE_UI, &GameEngineProfileManager::OnUpdateAddProfileButtonUI, this);
             removeProfileButton->Bind(wxEVT_UPDATE_UI, &GameEngineProfileManager::OnUpdateRemoveProfileButtonUI, this);
 

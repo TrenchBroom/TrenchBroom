@@ -92,10 +92,10 @@ namespace TrenchBroom {
             Bind(wxEVT_IDLE, &RotateObjectsToolPage::OnIdle, this);
             m_recentlyUsedCentersList->Bind(wxEVT_TEXT_ENTER, &RotateObjectsToolPage::OnCenterChanged, this);
             m_recentlyUsedCentersList->Bind(wxEVT_COMBOBOX, &RotateObjectsToolPage::OnCenterChanged, this);
-            m_resetCenterButton->Bind(wxEVT_BUTTON, &RotateObjectsToolPage::OnResetCenter, this);
+            m_resetCenterButton->Bind(&QAbstractButton::clicked, &RotateObjectsToolPage::OnResetCenter, this);
             m_angle->Bind(SPIN_CONTROL_EVENT, &RotateObjectsToolPage::OnAngleChanged, this);
             m_rotateButton->Bind(wxEVT_UPDATE_UI, &RotateObjectsToolPage::OnUpdateRotateButton, this);
-            m_rotateButton->Bind(wxEVT_BUTTON, &RotateObjectsToolPage::OnRotate, this);
+            m_rotateButton->Bind(&QAbstractButton::clicked, &RotateObjectsToolPage::OnRotate, this);
 
             auto* separator = new BorderLine(nullptr, BorderLine::Direction_Vertical);
             separator->SetForegroundColour(Colors::separatorColor());

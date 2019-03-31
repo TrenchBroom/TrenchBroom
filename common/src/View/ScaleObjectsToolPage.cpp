@@ -80,7 +80,7 @@ namespace TrenchBroom {
             m_button = new wxButton(this, wxID_ANY, "Apply", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
 
             m_button->Bind(wxEVT_UPDATE_UI, &ScaleObjectsToolPage::OnUpdateButton, this);
-            m_button->Bind(wxEVT_BUTTON, &ScaleObjectsToolPage::OnApply, this);
+            m_button->Bind(&QAbstractButton::clicked, &ScaleObjectsToolPage::OnApply, this);
 
             wxBoxSizer* sizer = new QHBoxLayout();
             sizer->addWidget(text, 0, Qt::AlignVCenter);

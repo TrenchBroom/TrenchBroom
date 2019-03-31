@@ -51,8 +51,8 @@ namespace TrenchBroom {
             QWidget* addProfileButton = createBitmapButton(listPanel->getPanel(), "Add.png", "Add profile");
             QWidget* removeProfileButton = createBitmapButton(listPanel->getPanel(), "Remove.png", "Remove the selected profile");
 
-            addProfileButton->Bind(wxEVT_BUTTON, &CompilationProfileManager::OnAddProfile, this);
-            removeProfileButton->Bind(wxEVT_BUTTON, &CompilationProfileManager::OnRemoveProfile, this);
+            addProfileButton->Bind(&QAbstractButton::clicked, &CompilationProfileManager::OnAddProfile, this);
+            removeProfileButton->Bind(&QAbstractButton::clicked, &CompilationProfileManager::OnRemoveProfile, this);
             addProfileButton->Bind(wxEVT_UPDATE_UI, &CompilationProfileManager::OnUpdateAddProfileButtonUI, this);
             removeProfileButton->Bind(wxEVT_UPDATE_UI, &CompilationProfileManager::OnUpdateRemoveProfileButtonUI, this);
 

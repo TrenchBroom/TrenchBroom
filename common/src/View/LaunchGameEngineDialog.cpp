@@ -73,7 +73,7 @@ namespace TrenchBroom {
             message->Wrap(350);
 
             wxButton* openPreferencesButton = new wxButton(midPanel, wxID_ANY, "Configure engines...");
-            openPreferencesButton->Bind(wxEVT_BUTTON, &LaunchGameEngineDialog::OnEditGameEnginesButton, this);
+            openPreferencesButton->Bind(&QAbstractButton::clicked, &LaunchGameEngineDialog::OnEditGameEnginesButton, this);
 
             QLabel* parameterLabel = new QLabel(midPanel, wxID_ANY, "Parameters");
             parameterLabel->SetFont(parameterLabel->GetFont().Bold());
@@ -108,11 +108,11 @@ namespace TrenchBroom {
             midPanel->setLayout(midSizer);
 
             wxButton* closeButton = new wxButton(this, wxID_CANCEL, "Cancel");
-            closeButton->Bind(wxEVT_BUTTON, &LaunchGameEngineDialog::OnCloseButton, this);
+            closeButton->Bind(&QAbstractButton::clicked, &LaunchGameEngineDialog::OnCloseButton, this);
             closeButton->Bind(wxEVT_UPDATE_UI, &LaunchGameEngineDialog::OnUpdateCloseButtonUI, this);
 
             wxButton* launchButton = new wxButton(this, wxID_OK, "Launch");
-            launchButton->Bind(wxEVT_BUTTON, &LaunchGameEngineDialog::OnLaunch, this);
+            launchButton->Bind(&QAbstractButton::clicked, &LaunchGameEngineDialog::OnLaunch, this);
             launchButton->Bind(wxEVT_UPDATE_UI, &LaunchGameEngineDialog::OnUpdateLaunchButtonUI, this);
 
             wxStdDialogButtonSizer* buttonSizer = new wxStdDialogButtonSizer();

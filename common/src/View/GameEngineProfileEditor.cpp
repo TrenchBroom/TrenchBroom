@@ -76,7 +76,7 @@ namespace TrenchBroom {
 
             m_nameText->Bind(wxEVT_TEXT, &GameEngineProfileEditor::OnNameChanged, this);
             m_pathText->Bind(wxEVT_TEXT_ENTER, &GameEngineProfileEditor::OnPathChanged, this);
-            choosePathButton->Bind(wxEVT_BUTTON, &GameEngineProfileEditor::OnChangePathClicked, this);
+            choosePathButton->Bind(&QAbstractButton::clicked, &GameEngineProfileEditor::OnChangePathClicked, this);
             Bind(wxEVT_IDLE, &GameEngineProfileEditor::OnUpdatePathTextUI, this);
 
             const auto LabelFlags   = Qt::AlignVCenter | wxALIGN_RIGHT;

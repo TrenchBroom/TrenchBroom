@@ -179,7 +179,7 @@ namespace TrenchBroom {
             sizer->addSpacing(20);
             infoPanel->setLayout(sizer);
 
-            m_openPreferencesButton->Bind(wxEVT_BUTTON, &GameDialog::OnOpenPreferencesClicked, this);
+            m_openPreferencesButton->Bind(&QAbstractButton::clicked, &GameDialog::OnOpenPreferencesClicked, this);
 
             return infoPanel;
         }

@@ -272,7 +272,7 @@ namespace TrenchBroom {
                 enableAutoComplete(m_toolEditor);
 
                 wxButton* browseToolButton = new wxButton(container, wxID_ANY, "...", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
-                browseToolButton->Bind(wxEVT_BUTTON, &RunToolTaskEditor::OnBrowseTool, this);
+                browseToolButton->Bind(&QAbstractButton::clicked, &RunToolTaskEditor::OnBrowseTool, this);
 
                 QLabel* parameterLabel = new QLabel(container, wxID_ANY, "Parameters");
                 m_parametersEditor = new AutoCompleteTextControl(container, wxID_ANY);

@@ -109,10 +109,10 @@ namespace TrenchBroom {
             QWidget* moveTaskUpButton = createBitmapButton(containerPanel, "Up.png", "Move the selected task up");
             QWidget* moveTaskDownButton = createBitmapButton(containerPanel, "Down.png", "Move the selected task down");
 
-            addTaskButton->Bind(wxEVT_BUTTON, &CompilationProfileEditor::OnAddTask, this);
-            removeTaskButton->Bind(wxEVT_BUTTON, &CompilationProfileEditor::OnRemoveTask, this);
-            moveTaskUpButton->Bind(wxEVT_BUTTON, &CompilationProfileEditor::OnMoveTaskUp, this);
-            moveTaskDownButton->Bind(wxEVT_BUTTON, &CompilationProfileEditor::OnMoveTaskDown, this);
+            addTaskButton->Bind(&QAbstractButton::clicked, &CompilationProfileEditor::OnAddTask, this);
+            removeTaskButton->Bind(&QAbstractButton::clicked, &CompilationProfileEditor::OnRemoveTask, this);
+            moveTaskUpButton->Bind(&QAbstractButton::clicked, &CompilationProfileEditor::OnMoveTaskUp, this);
+            moveTaskDownButton->Bind(&QAbstractButton::clicked, &CompilationProfileEditor::OnMoveTaskDown, this);
             addTaskButton->Bind(wxEVT_UPDATE_UI, &CompilationProfileEditor::OnUpdateAddTaskButtonUI, this);
             removeTaskButton->Bind(wxEVT_UPDATE_UI, &CompilationProfileEditor::OnUpdateRemoveTaskButtonUI, this);
             moveTaskUpButton->Bind(wxEVT_UPDATE_UI, &CompilationProfileEditor::OnUpdateMoveTaskUpButtonUI, this);

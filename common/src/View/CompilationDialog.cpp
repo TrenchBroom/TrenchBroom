@@ -82,11 +82,11 @@ namespace TrenchBroom {
             wxButton* compileButton = new wxButton(this, wxID_OK, "Compile");
             wxButton* closeButton = new wxButton(this, wxID_CANCEL, "Close");
 
-            launchButton->Bind(wxEVT_BUTTON, &CompilationDialog::OnLaunchClicked, this);
+            launchButton->Bind(&QAbstractButton::clicked, &CompilationDialog::OnLaunchClicked, this);
             launchButton->Bind(wxEVT_UPDATE_UI, &CompilationDialog::OnUpdateLaunchButtonUI, this);
-            compileButton->Bind(wxEVT_BUTTON, &CompilationDialog::OnToggleCompileClicked, this);
+            compileButton->Bind(&QAbstractButton::clicked, &CompilationDialog::OnToggleCompileClicked, this);
             compileButton->Bind(wxEVT_UPDATE_UI, &CompilationDialog::OnUpdateCompileButtonUI, this);
-			closeButton->Bind(wxEVT_BUTTON, &CompilationDialog::OnCloseButtonClicked, this);
+			closeButton->Bind(&QAbstractButton::clicked, &CompilationDialog::OnCloseButtonClicked, this);
 
             wxStdDialogButtonSizer* stdButtonSizer = new wxStdDialogButtonSizer();
             stdButtonSizer->SetAffirmativeButton(compileButton);

@@ -60,9 +60,9 @@ namespace TrenchBroom {
                 hiddenButton->Enable(m_layer->hidden() || m_layer != documentS->currentLayer());
                 lockButton->Enable(m_layer->locked() || m_layer != documentS->currentLayer());
 
-                hiddenButton->Bind(wxEVT_BUTTON, &LayerItem::OnToggleVisible, this);
+                hiddenButton->Bind(&QAbstractButton::clicked, &LayerItem::OnToggleVisible, this);
                 hiddenButton->Bind(wxEVT_UPDATE_UI, &LayerItem::OnUpdateVisibleButton, this);
-                lockButton->Bind(wxEVT_BUTTON, &LayerItem::OnToggleLocked, this);
+                lockButton->Bind(&QAbstractButton::clicked, &LayerItem::OnToggleLocked, this);
                 lockButton->Bind(wxEVT_UPDATE_UI, &LayerItem::OnUpdateLockButton, this);
 
                 auto* itemPanelTopSizer = new QHBoxLayout();

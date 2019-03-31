@@ -109,7 +109,7 @@ namespace TrenchBroom {
             containerPanel->setLayout(containerPanelSizer);
 
             wxButton* reportButton = new wxButton(this, wxID_APPLY, "Report");
-            reportButton->Bind(wxEVT_BUTTON, &CrashDialog::OnReport, this);
+            reportButton->Bind(&QAbstractButton::clicked, &CrashDialog::OnReport, this);
 
             auto* buttonSizer = new QHBoxLayout();
             buttonSizer->addStretch(1);

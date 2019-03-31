@@ -41,7 +41,7 @@ namespace TrenchBroom {
             m_button = new wxButton(this, wxID_ANY, "Apply", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
 
             m_button->Bind(wxEVT_UPDATE_UI, &MoveObjectsToolPage::OnUpdateButton, this);
-            m_button->Bind(wxEVT_BUTTON, &MoveObjectsToolPage::OnApply, this);
+            m_button->Bind(&QAbstractButton::clicked, &MoveObjectsToolPage::OnApply, this);
             m_offset->Bind(wxEVT_TEXT_ENTER, &MoveObjectsToolPage::OnApply, this);
 
             wxBoxSizer* sizer = new QHBoxLayout();

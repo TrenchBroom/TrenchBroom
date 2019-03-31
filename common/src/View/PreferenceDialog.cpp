@@ -171,7 +171,7 @@ namespace TrenchBroom {
             m_book->AddPage(new KeyboardPreferencePane(m_book, m_document.get()), "Keyboard");
 
             wxButton* resetButton = new wxButton(this, wxID_ANY, "Reset to defaults");
-            resetButton->Bind(wxEVT_BUTTON, &PreferenceDialog::OnResetClicked, this);
+            resetButton->Bind(&QAbstractButton::clicked, &PreferenceDialog::OnResetClicked, this);
             resetButton->Bind(wxEVT_UPDATE_UI, &PreferenceDialog::OnUpdateReset, this);
 
             wxBoxSizer* sizer = new QVBoxLayout();
@@ -190,7 +190,7 @@ namespace TrenchBroom {
                 buttonSizer->addWidget(CreateButtonSizer(wxOK | wxAPPLY | wxCANCEL));
             } else {
                 wxButton* closeButton = new wxButton(this, wxID_CANCEL, "Close");
-                closeButton->Bind(wxEVT_BUTTON, &PreferenceDialog::OnFileClose, this);
+                closeButton->Bind(&QAbstractButton::clicked, &PreferenceDialog::OnFileClose, this);
                 closeButton->Bind(wxEVT_UPDATE_UI, &PreferenceDialog::OnUpdateFileClose, this);
 
                 wxStdDialogButtonSizer* stdButtonSizer = new wxStdDialogButtonSizer();
@@ -209,9 +209,9 @@ namespace TrenchBroom {
 
         void PreferenceDialog::bindEvents() {
             Bind(wxEVT_MENU, &PreferenceDialog::OnFileClose, this, wxID_CLOSE);
-            Bind(wxEVT_BUTTON, &PreferenceDialog::OnOKClicked, this, wxID_OK);
-            Bind(wxEVT_BUTTON, &PreferenceDialog::OnApplyClicked, this, wxID_APPLY);
-            Bind(wxEVT_BUTTON, &PreferenceDialog::OnCancelClicked, this, wxID_CANCEL);
+            Bind(&QAbstractButton::clicked, &PreferenceDialog::OnOKClicked, this, wxID_OK);
+            Bind(&QAbstractButton::clicked, &PreferenceDialog::OnApplyClicked, this, wxID_APPLY);
+            Bind(&QAbstractButton::clicked, &PreferenceDialog::OnCancelClicked, this, wxID_CANCEL);
             Bind(wxEVT_TOOL, &PreferenceDialog::OnToolClicked, this, PrefPane_First, PrefPane_Last);
             Bind(wxEVT_CLOSE_WINDOW, &PreferenceDialog::OnClose, this);
         }

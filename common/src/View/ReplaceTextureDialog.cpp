@@ -127,7 +127,7 @@ namespace TrenchBroom {
             wxButton* closeButton = new wxButton(this, wxID_CANCEL, "Close");
             closeButton->setToolTip("Close this window");
 
-            replaceButton->Bind(wxEVT_BUTTON, &ReplaceTextureDialog::OnReplace, this);
+            replaceButton->Bind(&QAbstractButton::clicked, &ReplaceTextureDialog::OnReplace, this);
             replaceButton->Bind(wxEVT_UPDATE_UI, &ReplaceTextureDialog::OnUpdateReplaceButton, this);
 
             wxStdDialogButtonSizer* buttonSizer = new wxStdDialogButtonSizer();

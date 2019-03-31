@@ -120,8 +120,8 @@ namespace TrenchBroom {
 
             m_gameListBox->Bind(GAME_SELECTION_CHANGE_EVENT, &GamesPreferencePane::OnGameSelectionChanged, this);
 
-            m_chooseGamePathButton->Bind(wxEVT_BUTTON, &GamesPreferencePane::OnChooseGamePathClicked, this);
-            configureEnginesButton->Bind(wxEVT_BUTTON, &GamesPreferencePane::OnConfigureenginesClicked, this);
+            m_chooseGamePathButton->Bind(&QAbstractButton::clicked, &GamesPreferencePane::OnChooseGamePathClicked, this);
+            configureEnginesButton->Bind(&QAbstractButton::clicked, &GamesPreferencePane::OnConfigureenginesClicked, this);
 
             auto* containerSizer = new wxGridBagSizer(LayoutConstants::WideVMargin, LayoutConstants::WideHMargin);
             containerSizer->addWidget(gamePathLabel,						wxGBPosition(0,0), wxDefaultSpan, Qt::AlignVCenter | wxALIGN_RIGHT);

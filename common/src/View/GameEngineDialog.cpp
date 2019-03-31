@@ -56,7 +56,7 @@ namespace TrenchBroom {
             m_profileManager = new GameEngineProfileManager(this, gameConfig.gameEngineConfig());
 
             wxButton* closeButton = new wxButton(this, wxID_CANCEL, "Close");
-            closeButton->Bind(wxEVT_BUTTON, &GameEngineDialog::OnCloseButtonClicked, this);
+            closeButton->Bind(&QAbstractButton::clicked, &GameEngineDialog::OnCloseButtonClicked, this);
             closeButton->Bind(wxEVT_UPDATE_UI, &GameEngineDialog::OnUpdateCloseButtonUI, this);
 
             wxStdDialogButtonSizer* buttonSizer = new wxStdDialogButtonSizer();
