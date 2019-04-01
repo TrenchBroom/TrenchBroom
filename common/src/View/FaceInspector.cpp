@@ -53,7 +53,7 @@ namespace TrenchBroom {
         }
 
         void FaceInspector::createGui(MapDocumentWPtr document, GLContextManager& contextManager) {
-            QSplitter* splitter = new QSplitter(Qt::Vertical);
+            auto* splitter = new QSplitter(Qt::Vertical);
 //            splitter->setSashGravity(0.0);
 //            splitter->SetName("FaceInspectorSplitter");
 
@@ -64,6 +64,8 @@ namespace TrenchBroom {
             //wxSize(100, 200), wxSize(100, 200));
 
             auto* outerSizer = new QVBoxLayout();
+            outerSizer->setContentsMargins(0, 0, 0, 0);
+            outerSizer->setSpacing(0);
             outerSizer->addWidget(splitter, 1);
             outerSizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Horizontal));
             outerSizer->addWidget(createTextureCollectionEditor(this, document));
@@ -83,6 +85,8 @@ namespace TrenchBroom {
             m_textureBrowser = new TextureBrowser(panel->getPanel(), document, contextManager);
 
             auto* sizer = new QVBoxLayout();
+            sizer->setContentsMargins(0, 0, 0, 0);
+            sizer->setSpacing(0);
             sizer->addWidget(m_textureBrowser, 1);
             panel->getPanel()->setLayout(sizer);
 
@@ -94,6 +98,7 @@ namespace TrenchBroom {
             QWidget* collectionEditor = new TextureCollectionEditor(panel->getPanel(), document);
 
             auto* sizer = new QVBoxLayout();
+            sizer->setContentsMargins(0, 0, 0, 0);
             sizer->addWidget(collectionEditor, 1);
             panel->getPanel()->setLayout(sizer);
 

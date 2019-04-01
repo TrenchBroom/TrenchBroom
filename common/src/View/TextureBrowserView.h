@@ -27,6 +27,7 @@
 #include "Renderer/GLVertex.h"
 #include "Renderer/GLVertexType.h"
 #include "View/CellView.h"
+#include "View/ViewTypes.h"
 
 #include <map>
 
@@ -63,8 +64,7 @@ namespace TrenchBroom {
             using TextVertex = Renderer::GLVertexTypes::P2T2C4::Vertex;
             using StringMap = std::map<Renderer::FontDescriptor, TextVertex::List>;
 
-            Assets::TextureManager& m_textureManager;
-
+            MapDocumentWPtr m_document;
             bool m_group;
             bool m_hideUnused;
             SortOrder m_sortOrder;
@@ -75,7 +75,7 @@ namespace TrenchBroom {
             TextureBrowserView(QWidget* parent,
                                QScrollBar* scrollBar,
                                GLContextManager& contextManager,
-                               Assets::TextureManager& textureManager);
+                               MapDocumentWPtr document);
             ~TextureBrowserView() override;
 
             void setSortOrder(SortOrder sortOrder);

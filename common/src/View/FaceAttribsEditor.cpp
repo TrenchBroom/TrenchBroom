@@ -353,11 +353,12 @@ namespace TrenchBroom {
 //            m_faceAttribsSizer->SetItemMinSize(m_surfaceValueEditor, 50, m_rotationEditor->GetSize().y);
 
             auto* outerSizer = new QVBoxLayout();
+            outerSizer->setContentsMargins(0, 0, 0, 0);
             outerSizer->addWidget(m_uvEditor, 1);
             outerSizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Horizontal)); //, 0, wxEXPAND);
-            outerSizer->addSpacing(LayoutConstants::WideVMargin);
+//            outerSizer->addSpacing(LayoutConstants::WideVMargin);
             outerSizer->addLayout(m_faceAttribsSizer); //, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::MediumHMargin);
-            outerSizer->addSpacing(LayoutConstants::WideVMargin);
+//            outerSizer->addSpacing(LayoutConstants::WideVMargin);
 
             setLayout(outerSizer);
         }

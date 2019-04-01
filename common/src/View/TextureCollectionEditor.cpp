@@ -69,6 +69,7 @@ namespace TrenchBroom {
             }
 
             auto* sizer = new QVBoxLayout();
+            sizer->setContentsMargins(0, 0, 0, 0);
             sizer->addWidget(collectionEditor, 1);
 
             setLayout(sizer);

@@ -96,14 +96,16 @@ namespace TrenchBroom {
          * @param contextManager
          */
         void TextureBrowser::createGui(GLContextManager& contextManager) {
-            QWidget* browserPanel = new QWidget();
+            auto* browserPanel = new QWidget();
             m_scrollBar = new QScrollBar(Qt::Vertical);
 
             MapDocumentSPtr document = lock(m_document);
-            m_view = new TextureBrowserView(nullptr, m_scrollBar, contextManager, document->textureManager());
+            m_view = new TextureBrowserView(nullptr, m_scrollBar, contextManager, document);
             m_windowContainer = QWidget::createWindowContainer(m_view);
 
             auto* browserPanelSizer = new QHBoxLayout();
+            browserPanelSizer->setContentsMargins(0, 0, 0, 0);
+            browserPanelSizer->setSpacing(0);
             browserPanelSizer->addWidget(m_windowContainer, 1);
             browserPanelSizer->addWidget(m_scrollBar, 0);
             browserPanel->setLayout(browserPanelSizer);
@@ -139,20 +141,18 @@ namespace TrenchBroom {
             });
 
             auto* controlSizer = new QHBoxLayout();
-//            controlSizer->addSpacing(LayoutConstants::ChoiceLeftMargin);
+            controlSizer->setContentsMargins(0, 0, 0, 0);
+            controlSizer->setSpacing(0);
             controlSizer->addWidget(m_sortOrderChoice);
-//            controlSizer->addSpacing(LayoutConstants::NarrowHMargin);
             controlSizer->addWidget(m_groupButton);
-            controlSizer->addSpacing(LayoutConstants::NarrowHMargin);
             controlSizer->addWidget(m_usedButton);
-//            controlSizer->addSpacing(LayoutConstants::NarrowHMargin);
             controlSizer->addWidget(m_filterBox, 1);
 
             auto* outerSizer = new QVBoxLayout();
+            outerSizer->setContentsMargins(0, 0, 0, 0);
+            outerSizer->setSpacing(0);
             outerSizer->addWidget(browserPanel, 1);
-            outerSizer->addSpacing(LayoutConstants::NarrowVMargin);
             outerSizer->addLayout(controlSizer, 0);
-            outerSizer->addSpacing(LayoutConstants::NarrowVMargin);
 
             setLayout(outerSizer);
         }

@@ -34,6 +34,7 @@
 #include <QHBoxLayout>
 #include <QAbstractButton>
 #include <QFileDialog>
+#include <QSignalBlocker>
 
 namespace TrenchBroom {
     namespace View {
@@ -43,6 +44,7 @@ namespace TrenchBroom {
             createGui();
             bindObservers();
             updateControls();
+            updateButtons();
         }
 
         FileTextureCollectionEditor::~FileTextureCollectionEditor() {
@@ -214,6 +216,7 @@ namespace TrenchBroom {
             connect(m_collections, &QListWidget::itemSelectionChanged, this, &FileTextureCollectionEditor::updateButtons);
 
             auto* buttonSizer = new QHBoxLayout();
+            buttonSizer->setSpacing(0);
             buttonSizer->addWidget(m_addTextureCollectionsButton, 0, Qt::AlignVCenter);
             buttonSizer->addWidget(m_removeTextureCollectionsButton, 0, Qt::AlignVCenter);
             buttonSizer->addSpacing(LayoutConstants::WideHMargin);
@@ -224,14 +227,14 @@ namespace TrenchBroom {
             buttonSizer->addStretch(1);
 
             auto* sizer = new QVBoxLayout();
+            sizer->setContentsMargins(0, 0, 0, 0);
+            sizer->setSpacing(0);
             sizer->addWidget(m_collections, 1);
             sizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Horizontal), 0); //, wxEXPAND);
             sizer->addLayout(buttonSizer, 0); //, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
             //sizer->SetItemMinSize(m_collections, 100, 70);
 
             setLayout(sizer);
-
-            updateButtons();
         }
 
         void FileTextureCollectionEditor::updateButtons() {
@@ -273,12 +276,20 @@ namespace TrenchBroom {
          * Rebuilds the list widget
          */
         void FileTextureCollectionEditor::updateControls() {
+            // We need to block QListWidget::itemSelectionChanged from firing while clearing and rebuilding the list
+            // because it will cause debugUIConsistency() to fail, as the number of list items in the UI won't match
+            // the document's texture collections lists.
+            QSignalBlocker blocker(m_collections);
+
             m_collections->clear();
 
             auto document = lock(m_document);
             for (const auto& path : document->enabledTextureCollections()) {
                 m_collections->addItem(path.asQString());
             }
+
+            // Manually update the button states, since QSignalBlocker is blocking the automatic updates
+            updateButtons();
         }
     }
 }

@@ -154,10 +154,11 @@ namespace TrenchBroom {
 //            bottomSizer->SetItemMinSize(m_ySubDivisionEditor, 50, m_ySubDivisionEditor->GetSize().y);
 
             auto* outerSizer = new QVBoxLayout();
+            outerSizer->setContentsMargins(0, 0, 0, 0);
             outerSizer->addWidget(m_windowContainer, 1); //, wxEXPAND);
-            outerSizer->addSpacing(LayoutConstants::NarrowVMargin);
+//            outerSizer->addSpacing(LayoutConstants::NarrowVMargin);
             outerSizer->addLayout(bottomSizer); //, wxLEFT | wxRIGHT | wxEXPAND, LayoutConstants::MediumHMargin);
-            outerSizer->addSpacing(LayoutConstants::NarrowVMargin);
+//            outerSizer->addSpacing(LayoutConstants::NarrowVMargin);
 
             setLayout(outerSizer);
 
