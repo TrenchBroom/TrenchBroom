@@ -88,7 +88,10 @@ namespace TrenchBroom {
                 shader.set("Color", color);
 
                 for (const vm::vec3f& position : entry.second) {
-                    const vm::vec3f offset = camera.project(position) * vm::vec3f(1.0f, 1.0f, -1.0f);
+                    // nudge  towards camera by the handle radius, to prevent lines (brush edges, etc.) from clipping into the handle
+                    const vm::vec3f nudgeTowardsCamera = vm::normalize(camera.position() - position) * pref(Preferences::HandleRadius);
+
+                    const vm::vec3f offset = camera.project(position + nudgeTowardsCamera) * vm::vec3f(1.0f, 1.0f, -1.0f);
                     MultiplyModelMatrix translate(renderContext.transformation(), vm::translationMatrix(offset));
                     circle.render();
                 }
