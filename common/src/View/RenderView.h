@@ -65,7 +65,7 @@ namespace TrenchBroom {
         protected:
             RenderView(GLContextManager& contextManager);
         public:
-            virtual ~RenderView();
+            ~RenderView() override;
         protected: // QWindow overrides
             void keyPressEvent(QKeyEvent* event) override;
             void keyReleaseEvent(QKeyEvent* event) override;

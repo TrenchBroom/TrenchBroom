@@ -190,9 +190,9 @@ namespace TrenchBroom {
 
             auto* sizer = new QGridLayout();
             sizer->addWidget(availableModContainer,                                   0, 0);
-            sizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Vertical),    0, 1, 3, 1);
+            sizer->addWidget(new BorderLine(BorderLine::Direction_Vertical),    0, 1, 3, 1);
             sizer->addWidget(enabledModContainer,                                     0, 2);
-            sizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Horizontal),  1, 0, 1, 3);
+            sizer->addWidget(new BorderLine(BorderLine::Direction_Horizontal),  1, 0, 1, 3);
             sizer->addLayout(filterBoxSizer,                                          2, 0);
             sizer->addLayout(buttonSizer,                                             2, 2);
 //            sizer->SetItemMinSize(availableModContainer, 100, 100);

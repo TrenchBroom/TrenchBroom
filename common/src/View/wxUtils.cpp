@@ -27,8 +27,11 @@
 #include "View/MapFrame.h"
 #include "View/ViewConstants.h"
 
-#include <QPushButton>
+#include <QDir>
 #include <QLineEdit>
+#include <QPushButton>
+#include <QSettings>
+#include <QStringBuilder>
 
 #include <list>
 #include <cstdlib>
@@ -63,6 +66,11 @@ namespace TrenchBroom {
             return result;
         }
 #endif
+        QSettings getSettings() {
+            QString path = QDir::homePath() % QString::fromLocal8Bit("/.TrenchBroom/.preferences");
+            return QSettings(path, QSettings::IniFormat);
+        }
+
         Color fromQColor(const QColor& color) {
             return Color(static_cast<float>(color.redF()),
                          static_cast<float>(color.greenF()),

@@ -20,21 +20,21 @@
 #ifndef TrenchBroom_ImageListBox
 #define TrenchBroom_ImageListBox
 
-#include "ControlListBox.h"
+#include "View/ControlListBox.h"
 
-class QLabel;
-class wxStaticBitmap;
+class QPixmap;
 
 namespace TrenchBroom {
     namespace View {
         class ImageListBox : public ControlListBox {
+            Q_OBJECT
         public:
-            ImageListBox(QWidget* parent, const QString& emptyText);
+            explicit ImageListBox(const QString& emptyText, QWidget* parent = nullptr);
         private:
-            class ImageListBoxItem;
-            Item* createItem(QWidget* parent, const wxSize& margins, size_t index) override;
+            class ImageListBoxItemRenderer;
+            ItemRenderer* createItemRenderer(QWidget* parent, size_t index) override;
         private:
-            virtual bool image(size_t index, wxBitmap& result) const;
+            virtual QPixmap image(size_t index) const;
             virtual QString title(size_t index) const = 0;
             virtual QString subtitle(size_t index) const = 0;
         };

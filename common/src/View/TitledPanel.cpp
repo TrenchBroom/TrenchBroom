@@ -39,7 +39,7 @@ namespace TrenchBroom {
             sizer->setContentsMargins(0, 0, 0, 0);
             sizer->addWidget(new TitleBar(nullptr, title, hMargin, vMargin, boldTitle), 0);
             if (showDivider)
-                sizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Horizontal), 0);
+                sizer->addWidget(new BorderLine(BorderLine::Direction_Horizontal), 0);
             sizer->addWidget(m_panel, 1);
             setLayout(sizer);
         }

@@ -38,7 +38,7 @@ namespace TrenchBroom {
         void MapInspector::createGui(MapDocumentWPtr document, GLContextManager& contextManager) {
             auto* sizer = new QVBoxLayout();
             sizer->addWidget(createLayerEditor(this, document), 1);
-            sizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Horizontal), 0);
+            sizer->addWidget(new BorderLine(BorderLine::Direction_Horizontal), 0);
             sizer->addWidget(createModEditor(this, document), 0);
             setLayout(sizer);
         }

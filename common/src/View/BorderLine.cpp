@@ -21,28 +21,22 @@
 
 #include "View/ViewConstants.h"
 
-#include <QPainter>
+#include <iostream>
 
 namespace TrenchBroom {
     namespace View {
-        BorderLine::BorderLine(QWidget* parent, Direction direction, const int thickness) :
-        QWidget(parent),
-        m_direction(direction),
-        m_thickness(thickness) {
+        BorderLine::BorderLine(const Direction direction, const int thickness, QWidget* parent) :
+        QFrame(parent) {
+            setFrameShadow(QFrame::Plain);
+            setStyleSheet("color: " + Colors::borderColor().name() + ";");
+            setLineWidth(thickness);
             if (direction == Direction_Horizontal) {
+                setFrameShape(QFrame::HLine);
                 setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed));
             } else {
+                setFrameShape(QFrame::VLine);
                 setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Ignored));
             }
-        }
-
-        QSize BorderLine::sizeHint() const {
-            return QSize(m_thickness, m_thickness);
-        }
-
-        void BorderLine::paintEvent(QPaintEvent* event) {
-            QPainter painter(this);
-            painter.fillRect(this->rect(), Colors::borderColor());
         }
     }
 }

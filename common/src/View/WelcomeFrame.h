@@ -35,7 +35,7 @@ namespace TrenchBroom {
             Q_OBJECT
         private:
             // FIXME: add
-            //RecentDocumentListBox* m_recentDocumentListBox;
+            RecentDocumentListBox* m_recentDocumentListBox;
             QPushButton* m_createNewDocumentButton;
             QPushButton* m_openOtherDocumentButton;
         public:

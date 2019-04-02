@@ -22,8 +22,6 @@
 
 #include <QWidget>
 
-#include <vector>
-
 class QLabel;
 class QListWidget;
 
@@ -32,37 +30,34 @@ namespace TrenchBroom {
         class ControlListBox : public QWidget {
             Q_OBJECT
         protected:
-            class Item : public QWidget {
+            class ItemRenderer : public QWidget {
             public:
-                Item(QWidget* parent);
-                virtual ~Item() override;
+                explicit ItemRenderer(QWidget* parent = nullptr);
 
-                virtual void setSelectionColours(const wxColour& foreground, const wxColour& background);
-                virtual void setDefaultColours(const wxColour& foreground, const wxColour& background);
+                ~ItemRenderer() override;
+
+                virtual void setSelectionColors(const QColor& foreground, const QColor& background);
+                virtual void setDefaultColors(const QColor& foreground, const QColor& background);
             protected:
-                void setColours(QWidget* window, const wxColour& foreground, const wxColour& background);
+                void setColors(QWidget* window, const QColor& foreground, const QColor& background);
             };
         private:
-            QListWidget* m_list;
+            QListWidget* m_listWidget;
+            QWidget* m_emptyTextContainer;
+            QLabel* m_emptyTextLabel;
         public:
-            ControlListBox(QWidget* parent, bool restrictToClientWidth, const QString& emptyText = "");
+            explicit ControlListBox(const QString& emptyText, QWidget* parent = nullptr);
 
-            size_t GetItemCount() const;
-            int GetSelection() const;
+            void setEmptyText(const QString& emptyText);
 
-            void SetItemCount(size_t itemCount);
-            void SetSelection(int index);
-            void MakeVisible(size_t index);
-            void MakeVisible(const Item* item);
-            void MakeVisible(wxCoord y, wxCoord size);
-
-            void SetItemMargin(const wxSize& margin);
-            void SetShowLastDivider(bool showLastDivider);
-
-            void SetEmptyText(const QString& emptyText);
-
+            void refresh();
         private:
-            virtual Item* createItem(QWidget* parent, const wxSize& margins, size_t index) = 0;
+            void clear();
+
+            void addItemRenderer(ItemRenderer* renderer);
+        private:
+            virtual size_t itemCount() const = 0;
+            virtual ItemRenderer* createItemRenderer(QWidget* parent, size_t index) = 0;
         };
     }
 }

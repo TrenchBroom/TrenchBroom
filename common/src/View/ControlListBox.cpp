@@ -19,318 +19,87 @@
 
 #include "ControlListBox.h"
 
-#include "Macros.h"
-#include "View/BorderLine.h"
-#include "View/ViewConstants.h"
-
-#include <wx/listbox.h>
-#include <wx/settings.h>
-#include <wx/sizer.h>
 #include <QLabel>
-#include <wx/wupdlock.h>
-
-wxDEFINE_EVENT(wxEVT_LISTBOX_RCLICK, wxCommandEvent);
+#include <QListWidget>
+#include <QSizePolicy>
+#include <QVBoxLayout>
 
 namespace TrenchBroom {
     namespace View {
-        ControlListBox::Item::Item(QWidget* parent) :
-        QWidget(parent, wxID_ANY) {}
+        ControlListBox::ItemRenderer::ItemRenderer(QWidget* parent) :
+        QWidget(parent) {}
 
-        ControlListBox::Item::~Item() {}
+        ControlListBox::ItemRenderer::~ItemRenderer() = default;
 
-        bool ControlListBox::Item::AcceptsFocus() const {
-            return false;
+        void ControlListBox::ItemRenderer::setSelectionColors(const QColor& foreground, const QColor& background) {
+            setColors(this, foreground, background);
         }
 
-        void ControlListBox::Item::setSelectionColours(const wxColour& foreground, const wxColour& background) {
-            setColours(this, foreground, background);
+        void ControlListBox::ItemRenderer::setDefaultColors(const QColor& foreground, const QColor& background) {
+            setColors(this, foreground, background);
         }
 
-        void ControlListBox::Item::setDefaultColours(const wxColour& foreground, const wxColour& background) {
-            setColours(this, foreground, background);
+        void ControlListBox::ItemRenderer::setColors(QWidget* window, const QColor& foreground, const QColor& background) {
         }
 
-        void ControlListBox::Item::setColours(QWidget* window, const wxColour& foreground, const wxColour& background) {
-            if (!window->GetChildren().IsEmpty() || window->ShouldInheritColours()) {
-                if (window->GetForegroundColour() != foreground)
-                    window->SetForegroundColour(foreground);
-                if (window->GetBackgroundColour() != background)
-                    window->SetBackgroundColour(background);
-            }
+        ControlListBox::ControlListBox(const QString& emptyText, QWidget* parent) :
+        QWidget(parent),
+        m_listWidget(new QListWidget()),
+        m_emptyTextContainer(new QWidget()),
+        m_emptyTextLabel(new QLabel(emptyText)) {
+            m_listWidget->hide();
+            m_listWidget->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
-            for (QWidget* child : window->GetChildren())
-                setColours(child, foreground, background);
+            m_emptyTextLabel->setDisabled(true);
+            m_emptyTextLabel->setAlignment(Qt::AlignHCenter);
+            m_emptyTextLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+
+            auto* outerLayout = new QVBoxLayout();
+            outerLayout->setContentsMargins(QMargins());
+            setLayout(outerLayout);
+
+            outerLayout->addWidget(m_listWidget, 1);
+            outerLayout->addWidget(m_emptyTextContainer);
+
+            auto* emptyTextLayout = new QVBoxLayout();
+            m_emptyTextContainer->setLayout(emptyTextLayout);
+            emptyTextLayout->addWidget(m_emptyTextLabel);
         }
 
-        class ControlListBox::Sizer : public wxBoxSizer {
-        private:
-            const bool m_restrictToClientWidth;
-        public:
-            Sizer(const int orient, const bool restrictToClientWidth) :
-            wxBoxSizer(orient),
-            m_restrictToClientWidth(restrictToClientWidth){}
-
-            wxSize CalcMin() override {
-                const wxSize originalSize = wxBoxSizer::CalcMin();
-                if (!m_restrictToClientWidth)
-                    return originalSize;
-                const wxSize containerSize = GetContainingWindow()->GetClientSize();
-                const wxSize result(containerSize.x, originalSize.y);
-                return result;
-            }
-        };
-
-        ControlListBox::ControlListBox(QWidget* parent, const bool restrictToClientWidth, const QString& emptyText) :
-        wxScrolledWindow(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxVSCROLL),
-        m_itemMargin(LayoutConstants::MediumHMargin, LayoutConstants::WideVMargin),
-        m_restrictToClientWidth(restrictToClientWidth),
-        m_emptyText(emptyText),
-        m_emptyTextLabel(nullptr),
-        m_showLastDivider(true),
-        m_valid(true),
-        m_newItemCount(0),
-        m_selectionIndex(0) {
-            setLayout(new Sizer(wxVERTICAL, m_restrictToClientWidth));
-            SetScrollRate(5, 5);
-            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
-            SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT));
-            Bind(wxEVT_IDLE, &ControlListBox::OnIdle, this);
-            Bind(wxEVT_LEFT_DOWN, &ControlListBox::OnLeftClickVoid, this);
-            Bind(wxEVT_SIZE, &ControlListBox::OnSize, this);
+        void ControlListBox::setEmptyText(const QString& emptyText) {
+            m_emptyTextLabel->setText(emptyText);
         }
 
-        size_t ControlListBox::GetItemCount() const {
-            if (!m_valid)
-                return m_newItemCount;
-            return m_items.size();
-        }
+        void ControlListBox::refresh() {
+            setUpdatesEnabled(false);
 
-        int ControlListBox::GetSelection() const {
-            if (m_selectionIndex == GetItemCount())
-                return  wxNOT_FOUND;
-            return static_cast<int>(m_selectionIndex);
-        }
+            clear();
 
-        void ControlListBox::SetItemCount(const size_t itemCount) {
-            if (m_selectionIndex == GetItemCount())
-                m_selectionIndex = itemCount;
-            else
-                m_selectionIndex = wxMin(itemCount, m_selectionIndex);
-            m_newItemCount = itemCount;
-            m_valid = false;
-        }
-
-        void ControlListBox::SetSelection(const int index) {
-            wxWindowUpdateLocker lock(this);
-
-            if (index < 0 || static_cast<size_t>(index) > GetItemCount()) {
-                setSelection(GetItemCount());
-            } else {
-                setSelection(static_cast<size_t>(index));
-            }
-            Refresh();
-        }
-
-        void ControlListBox::MakeVisible(const size_t index) {
-            validate();
-            ensure(index < m_items.size(), "index out of range");
-            MakeVisible(m_items[index]);
-        }
-
-        void ControlListBox::MakeVisible(const Item* item) {
-            MakeVisible(item->GetPosition().y, item->GetSize().y);
-        }
-
-        void ControlListBox::MakeVisible(wxCoord y, const wxCoord size) {
-            wxWindowUpdateLocker lock(this);
-
-            y = CalcUnscrolledPosition(wxPoint(0, y)).y;
-            int xUnit, yUnit;
-            GetScrollPixelsPerUnit(&xUnit, &yUnit);
-            const wxCoord startY = GetViewStart().y * yUnit;
-            const wxCoord sizeY  = GetClientSize().y;
-
-            if (y >= startY && y + size <= sizeY)
-                return;
-
-            if (size >= sizeY || y < startY) {
-                Scroll(wxDefaultCoord, y / yUnit);
-            } else if (y + size > startY + sizeY) {
-                Scroll(wxDefaultCoord, (y + size - sizeY) / yUnit + 1);
-            }
-        }
-
-        void ControlListBox::SetItemMargin(const wxSize& margin) {
-            if (m_itemMargin == margin)
-                return;
-            m_itemMargin = margin;
-            m_valid = false;
-        }
-
-        void ControlListBox::SetShowLastDivider(const bool showLastDivider) {
-            if (m_showLastDivider == showLastDivider)
-                return;
-            m_showLastDivider = showLastDivider;
-            m_valid = false;
-        }
-
-        void ControlListBox::SetEmptyText(const QString& emptyText) {
-            if (m_emptyText == emptyText)
-                return;
-
-            m_emptyText = emptyText;
-            if (GetItemCount() == 0)
-                m_valid = false;
-        }
-
-        void ControlListBox::invalidate() {
-            m_valid = false;
-        }
-
-        void ControlListBox::validate() {
-            if (!m_valid) {
-                m_valid = true;
-
-                wxWindowUpdateLocker lock(this);
-                refresh(m_newItemCount);
-                setSelection(m_selectionIndex);
-                Refresh();
-
-            }
-        }
-
-        void ControlListBox::refresh(const size_t itemCount) {
-            wxSizer* listSizer = GetSizer();
-            listSizer->Clear(true);
-            m_emptyTextLabel = nullptr;
-
-            m_items.clear();
-            m_items.reserve(itemCount);
-
-            if (itemCount > 0) {
-                for (size_t i = 0; i < itemCount; ++i) {
-                    Item* item = createItem(this, m_itemMargin, i);
-
-                    listSizer->addWidget(item, wxSizerFlags().Expand());
-                    if (i < itemCount - 1 || m_showLastDivider)
-                        listSizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
-
-                    bindEvents(item, i);
-                    m_items.push_back(item);
+            const auto count = itemCount();
+            if (count > 0) {
+                for (size_t i = 0; i < count; ++i) {
+                    addItemRenderer(createItemRenderer(m_listWidget, i));
                 }
-            } else if (!m_emptyText.empty()) {
-                m_emptyTextLabel = new QLabel(this, wxID_ANY, m_emptyText, wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE_HORIZONTAL);
-                m_emptyTextLabel->SetFont(m_emptyTextLabel->GetFont().Bold());
-                m_emptyTextLabel->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
-                if (m_restrictToClientWidth)
-                    m_emptyTextLabel->Wrap(GetClientSize().x - LayoutConstants::WideVMargin * 2);
-
-                auto* justifySizer = new QHBoxLayout();
-                justifySizer->addStretch(1);
-                justifySizer->addSpacing(LayoutConstants::WideHMargin);
-                justifySizer->addWidget(m_emptyTextLabel);
-                justifySizer->addSpacing(LayoutConstants::WideHMargin);
-                justifySizer->addStretch(1);
-
-                listSizer->addWidget(justifySizer, wxSizerFlags().Border(wxTOP | wxBOTTOM, LayoutConstants::WideVMargin).Expand());
-                listSizer->addStretch(1);
-            }
-            if (m_restrictToClientWidth)
-                FitInside();
-            else
-                GetParent()->Fit();
-            InvalidateBestSize();
-        }
-
-        void ControlListBox::bindEvents(QWidget* window, const size_t itemIndex) {
-            if (window->IsFocusable()) {
-                window->Bind(wxEVT_SET_FOCUS, &ControlListBox::OnFocusChild, this, wxID_ANY, wxID_ANY, new wxVariant(long(itemIndex)));
+                m_listWidget->show();
+                m_emptyTextContainer->hide();
             } else {
-                window->Bind(wxEVT_LEFT_DOWN, &ControlListBox::OnLeftClickChild, this, wxID_ANY, wxID_ANY, new wxVariant(long(itemIndex)));
-                window->Bind(wxEVT_RIGHT_DOWN, &ControlListBox::OnRightClickChild, this, wxID_ANY, wxID_ANY, new wxVariant(long(itemIndex)));
-                window->Bind(wxEVT_LEFT_DCLICK, &ControlListBox::OnDoubleClickChild, this);
+                m_listWidget->hide();
+                m_emptyTextContainer->show();
             }
 
-            for (QWidget* child : window->GetChildren())
-                bindEvents(child, itemIndex);
+            setUpdatesEnabled(true);
         }
 
-        void ControlListBox::OnIdle(wxIdleEvent& event) {
-            validate();
+        void ControlListBox::clear() {
+            m_listWidget->clear();
         }
 
-        void ControlListBox::OnSize(wxSizeEvent& event) {
-            wxWindowUpdateLocker lock(this);
+        void ControlListBox::addItemRenderer(ItemRenderer* renderer) {
+            auto* widgetItem = new QListWidgetItem(m_listWidget);
+            m_listWidget->addItem(widgetItem);
 
-            if (m_emptyTextLabel != nullptr && m_restrictToClientWidth) {
-				m_emptyTextLabel->SetLabel(m_emptyText);
-                m_emptyTextLabel->Wrap(GetClientSize().x - LayoutConstants::WideVMargin * 2);
-			}
-            event.Skip();
-        }
-
-        void ControlListBox::OnFocusChild(wxFocusEvent& event) {
-            wxWindowUpdateLocker lock(this);
-            setSelection(event);
-
-            event.Skip();
-        }
-
-        void ControlListBox::OnLeftClickChild(wxMouseEvent& event) {
-            wxWindowUpdateLocker lock(this);
-            setSelection(event);
-        }
-
-        void ControlListBox::OnRightClickChild(wxMouseEvent& event) {
-            wxWindowUpdateLocker lock(this);
-            setSelection(event);
-
-            wxCommandEvent* command = new wxCommandEvent(wxEVT_LISTBOX_RCLICK, GetId());
-            command->SetInt(GetSelection());
-            command->SetEventObject(this);
-            QueueEvent(command);
-        }
-
-        void ControlListBox::OnDoubleClickChild(wxMouseEvent& event) {
-            wxCommandEvent* command = new wxCommandEvent(wxEVT_LISTBOX_DCLICK, GetId());
-            command->SetInt(GetSelection());
-            command->SetEventObject(this);
-            QueueEvent(command);
-        }
-
-        void ControlListBox::OnLeftClickVoid(wxMouseEvent& event) {
-            wxWindowUpdateLocker lock(this);
-            setSelection(GetItemCount());
-        }
-
-        void ControlListBox::setSelection(const wxEvent& event) {
-            const wxVariant* variant = static_cast<wxVariant*>(event.GetEventUserData());
-            const size_t itemIndex = static_cast<size_t>(variant->GetLong());
-            setSelection(itemIndex);
-        }
-
-        void ControlListBox::setSelection(const size_t index) {
-            validate();
-            ensure(index <= m_items.size(), "index out of range");
-            const bool changed = m_selectionIndex != index;
-            m_selectionIndex = index;
-
-            for (size_t i = 0; i < m_items.size(); ++i)
-                m_items[i]->setDefaultColours(GetForegroundColour(), GetBackgroundColour());
-
-            if (m_selectionIndex < m_items.size()) {
-                m_items[m_selectionIndex]->setSelectionColours(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXHIGHLIGHTTEXT), wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
-                MakeVisible(index);
-            }
-
-            Refresh();
-
-            if (changed) {
-                wxCommandEvent* command = new wxCommandEvent(wxEVT_LISTBOX, GetId());
-                command->SetInt(GetSelection());
-                command->SetEventObject(this);
-                QueueEvent(command);
-            }
+            widgetItem->setSizeHint(renderer->minimumSizeHint());
+            m_listWidget->setItemWidget(widgetItem, renderer);
         }
     }
 }

@@ -54,7 +54,7 @@ namespace TrenchBroom {
             outerSizer->setContentsMargins(0, 0, 0, 0);
             outerSizer->setSpacing(0);
             outerSizer->addWidget(splitter, 1);
-            outerSizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Horizontal), 0);
+            outerSizer->addWidget(new BorderLine(BorderLine::Direction_Horizontal), 0);
             outerSizer->addWidget(createEntityDefinitionFileChooser(this, document), 0);
             setLayout(outerSizer);
 

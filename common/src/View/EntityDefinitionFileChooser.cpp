@@ -156,7 +156,7 @@ namespace TrenchBroom {
             sizer->setContentsMargins(0, 0, 0, 0);
             sizer->setSpacing(0);
             sizer->addWidget(builtinContainer, 1);
-            sizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Horizontal), 0);
+            sizer->addWidget(new BorderLine(BorderLine::Direction_Horizontal), 0);
             sizer->addWidget(externalContainer, 0);
             m_builtin->setMinimumSize(100, 70);
 

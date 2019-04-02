@@ -20,26 +20,19 @@
 #ifndef TrenchBroom_BorderLine
 #define TrenchBroom_BorderLine
 
-#include <QWidget>
+#include <QFrame>
 
 namespace TrenchBroom {
     namespace View {
-        class BorderLine : public QWidget {
+        class BorderLine : public QFrame {
         Q_OBJECT
         public:
             typedef enum {
                 Direction_Horizontal,
                 Direction_Vertical
             } Direction;
-        private:
-            Direction m_direction;
-            int m_thickness;
         public:
-            BorderLine(QWidget* parent, Direction direction = Direction_Horizontal, int thickness = 1);
-
-            QSize sizeHint() const override;
-        protected:
-            void paintEvent(QPaintEvent *event) override;
+            explicit BorderLine(Direction direction = Direction_Horizontal, int thickness = 1, QWidget* parent = nullptr);
         };
     }
 }

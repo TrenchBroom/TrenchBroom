@@ -25,6 +25,7 @@
 #include "Macros.h"
 #include "StringUtils.h"
 #include "IO/Path.h"
+#include "View/wxUtils.h"
 
 #include <memory>
 
@@ -32,9 +33,8 @@
 #include <QSettings>
 #include <QThread>
 #include <QKeySequence>
-#include <QDir>
-#include <QStringBuilder>
 #include <QDebug>
+#include <QVariant>
 
 namespace TrenchBroom {
     template <typename T>
@@ -224,8 +224,7 @@ namespace TrenchBroom {
         }
 
         static QSettings getSettings() {
-            QString path = QDir::homePath() % QString::fromLocal8Bit("/.TrenchBroom/.preferences");
-            return QSettings(path, QSettings::IniFormat);
+            return View::getSettings();
         }
 
         void load() const override {

@@ -25,23 +25,24 @@
 #include "IO/ResourceUtils.h"
 #include "Model/GameConfig.h"
 #include "Model/GameFactory.h"
-#include "View/RecentDocumentSelectedCommand.h"
+// FIXME:
+// #include "View/RecentDocumentSelectedCommand.h"
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace View {
         RecentDocumentListBox::RecentDocumentListBox(QWidget* parent) :
-        ImageListBox(parent, "No Recent Documents"),
-        m_documentIcon(IO::loadImageResource("DocIcon.png")) {
-            assert(m_documentIcon.IsOk());
+        ImageListBox("No Recent Documents", parent),
+        m_documentIcon(IO::loadPixmapResource("DocIcon.png")) {
+            assert(!m_documentIcon.isNull());
             TrenchBroomApp& app = View::TrenchBroomApp::instance();
             app.recentDocumentsDidChangeNotifier.addObserver(this, &RecentDocumentListBox::recentDocumentsDidChange);
 
-            const IO::Path::List& recentDocuments = app.recentDocuments();
-            SetItemCount(recentDocuments.size());
+            refresh();
 
-            Bind(wxEVT_LISTBOX_DCLICK, &RecentDocumentListBox::OnListBoxDoubleClick, this);
+            // FIXME:
+            // Bind(wxEVT_LISTBOX_DCLICK, &RecentDocumentListBox::OnListBoxDoubleClick, this);
         }
 
         RecentDocumentListBox::~RecentDocumentListBox() {
@@ -50,7 +51,7 @@ namespace TrenchBroom {
         }
 
         void RecentDocumentListBox::OnListBoxDoubleClick() {
-
+            /* FIXME:
 
             TrenchBroomApp& app = View::TrenchBroomApp::instance();
             const IO::Path::List& recentDocuments = app.recentDocuments();
@@ -65,31 +66,35 @@ namespace TrenchBroom {
             command.SetEventObject(this);
             command.SetId(GetId());
             ProcessEvent(command);
+             */
         }
 
         void RecentDocumentListBox::recentDocumentsDidChange() {
-            TrenchBroomApp& app = View::TrenchBroomApp::instance();
-            const IO::Path::List& recentDocuments = app.recentDocuments();
-            SetItemCount(recentDocuments.size());
+            refresh();
         }
 
-        bool RecentDocumentListBox::image(size_t n, wxBitmap& result) const {
-            result = m_documentIcon;
-            return true;
-        }
-
-        QString RecentDocumentListBox::title(const size_t n) const {
+        size_t RecentDocumentListBox::itemCount() const {
             const TrenchBroomApp& app = View::TrenchBroomApp::instance();
             const IO::Path::List& recentDocuments = app.recentDocuments();
-            ensure(n < recentDocuments.size(), "index out of range");
-            return recentDocuments[n].lastComponent().asString();
+            return recentDocuments.size();
         }
 
-        QString RecentDocumentListBox::subtitle(const size_t n) const {
+        QPixmap RecentDocumentListBox::image(const size_t /* index */) const {
+            return m_documentIcon;
+        }
+
+        QString RecentDocumentListBox::title(const size_t index) const {
             const TrenchBroomApp& app = View::TrenchBroomApp::instance();
             const IO::Path::List& recentDocuments = app.recentDocuments();
-            ensure(n < recentDocuments.size(), "index out of range");
-            return recentDocuments[n].asString();
+            ensure(index < recentDocuments.size(), "index out of range");
+            return QString::fromStdString(recentDocuments[index].lastComponent().asString());
+        }
+
+        QString RecentDocumentListBox::subtitle(const size_t index) const {
+            const TrenchBroomApp& app = View::TrenchBroomApp::instance();
+            const IO::Path::List& recentDocuments = app.recentDocuments();
+            ensure(index < recentDocuments.size(), "index out of range");
+            return QString::fromStdString(recentDocuments[index].asString());
         }
     }
 }

@@ -50,6 +50,7 @@
 #include "View/WelcomeFrame.h"
 #include "View/GetVersion.h"
 #include "View/MapViewBase.h"
+#include "View/wxUtils.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -64,9 +65,8 @@ namespace TrenchBroom {
 
         TrenchBroomApp::TrenchBroomApp(int& argc, char** argv) :
         QApplication(argc, argv),
-        m_frameManager(nullptr)
-        //m_recentDocuments(nullptr)
-        {
+        m_frameManager(nullptr),
+        m_recentDocuments(nullptr) {
             // Set OpenGL defaults
             QSurfaceFormat format;
             format.setDepthBufferSize(24);
@@ -97,9 +97,11 @@ namespace TrenchBroom {
 
             // these must be initialized here and not earlier
             m_frameManager = new FrameManager(useSDI());
+
+            // FIXME: Set base id if needed
+            m_recentDocuments = new RecentDocuments(0, 10);
             // FIXME: recent docs
 #if 0
-            m_recentDocuments = new RecentDocuments<TrenchBroomApp>(CommandIds::Menu::FileRecentDocuments, 10);
             m_recentDocuments->setHandler(this, &TrenchBroomApp::OnFileOpenRecent);
 #endif
 
@@ -166,16 +168,20 @@ namespace TrenchBroom {
 #endif
         }
 
+        QSettings TrenchBroom::View::TrenchBroomApp::settings() {
+            return getSettings();
+        }
+
         FrameManager* TrenchBroomApp::frameManager() {
             return m_frameManager;
         }
 
-        // FIXME: recent
-#if 0
          const IO::Path::List& TrenchBroomApp::recentDocuments() const {
             return m_recentDocuments->recentDocuments();
         }
 
+        // FIXME: recent
+#if 0
         void TrenchBroomApp::addRecentDocumentMenu(wxMenu* menu) {
             m_recentDocuments->addMenu(menu);
         }
@@ -249,7 +255,7 @@ namespace TrenchBroom {
                 frame->openDocument(game, mapFormat, path);
                 return true;
             } catch (const FileNotFoundException& e) {
-                //m_recentDocuments->removePath(IO::Path(path));
+                m_recentDocuments->removePath(IO::Path(path));
                 if (frame != nullptr)
                     frame->close();
                 QMessageBox::critical(nullptr, "TrenchBroom", e.what(), QMessageBox::Ok);

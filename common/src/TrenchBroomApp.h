@@ -23,9 +23,11 @@
 #include "Notifier.h"
 #include "IO/Path.h"
 #include "View/FrameManager.h"
-//#include "View/RecentDocuments.h"
+#include "View/RecentDocuments.h"
 
 #include <QApplication>
+
+class QSettings;
 
 namespace TrenchBroom {
     class Logger;
@@ -37,8 +39,7 @@ namespace TrenchBroom {
         class TrenchBroomApp : public QApplication {
         private:
             FrameManager* m_frameManager;
-            // FIXME:
-            //RecentDocuments<TrenchBroomApp>* m_recentDocuments;
+            RecentDocuments* m_recentDocuments;
         public:
             Notifier<> recentDocumentsDidChangeNotifier;
         public:
@@ -48,11 +49,13 @@ namespace TrenchBroom {
             ~TrenchBroomApp() override;
 
         public:
+            QSettings settings();
+
             FrameManager* frameManager();
 
+            const IO::Path::List& recentDocuments() const;
             // FIXME: recent
 #if 0
-            const IO::Path::List& recentDocuments() const;
             void addRecentDocumentMenu(wxMenu* menu);
             void removeRecentDocumentMenu(wxMenu* menu);
             void updateRecentDocument(const IO::Path& path);

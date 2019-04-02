@@ -23,34 +23,38 @@
 #include "CollectionUtils.h"
 #include "Notifier.h"
 #include "IO/Path.h"
+#include "View/wxUtils.h"
 
 #include <vector>
 
-#include <wx/config.h>
-#include <wx/confbase.h>
-#include <wx/event.h>
-#include <wx/menu.h>
+#include <QSettings>
+#include <QVariant>
 
 namespace TrenchBroom {
     namespace View {
-        template <class EventHandler>
+        // FIXME: if template is no longer necessary, move implementation to cpp file
         class RecentDocuments {
         private:
+            /* FIXME:
             using Function = void(EventHandler::*)(wxCommandEvent&);
             using MenuList = std::vector<wxMenu*>;
 
             MenuList m_menus;
             EventHandler* m_handler;
             Function m_function;
+             */
+
             int m_baseId;
             size_t m_maxSize;
             IO::Path::List m_recentDocuments;
         public:
             Notifier<> didChangeNotifier;
         public:
+            // FIXME: Remove baseId?
             RecentDocuments(const int baseId, const size_t maxSize) :
-            m_handler(nullptr),
-            m_function(nullptr),
+            // FIXME:
+            // m_handler(nullptr),
+            // m_function(nullptr),
             m_baseId(baseId),
             m_maxSize(maxSize) {
                 assert(m_maxSize > 0);
@@ -61,6 +65,7 @@ namespace TrenchBroom {
                 return m_recentDocuments;
             }
 
+            /* FIXME:
             void addMenu(wxMenu* menu) {
                 ensure(menu != nullptr, "menu is null");
                 clearMenu(menu);
@@ -84,6 +89,7 @@ namespace TrenchBroom {
                 if (m_handler != nullptr && m_function != nullptr)
                     createBindings();
             }
+            */
 
             void updatePath(const IO::Path& path) {
                 insertPath(path);
@@ -109,51 +115,58 @@ namespace TrenchBroom {
         private:
             void loadFromConfig() {
                 m_recentDocuments.clear();
-                wxConfigBase* conf = wxConfig::Get();
+                const QSettings settings = getSettings();
                 for (size_t i = 0; i < m_maxSize; ++i) {
-                    const QString confName = QString("RecentDocuments/") << i;
-                    QString value;
-                    if (conf->Read(confName, &value))
-                        m_recentDocuments.push_back(IO::Path(value.ToStdString()));
-                    else
+                    const auto key = QString::fromStdString(std::string("RecentDocuments/") + std::to_string(i));
+                    const QVariant value = settings.value(key);
+                    if (value.isValid()) {
+                        m_recentDocuments.push_back(IO::Path(value.toString().toStdString()));
+                    } else {
                         break;
+                    }
                 }
             }
 
             void saveToConfig() {
-                wxConfigBase* conf = wxConfig::Get();
-                conf->DeleteGroup("RecentDocuments");
+                QSettings settings = getSettings();
+                settings.remove("RecentDocuments");
                 for (size_t i = 0; i < m_recentDocuments.size(); ++i) {
-                    const QString confName = QString("RecentDocuments/") << i;
-                    const QString value = m_recentDocuments[i].asString();
-                    conf->Write(confName, value);
+                    const QString key = QString::fromStdString(std::string("RecentDocuments/") + std::to_string(i));
+                    const QVariant value = QVariant(QString::fromStdString(m_recentDocuments[i].asString()));
+                    settings.setValue(key, value);
                 }
-                conf->Flush();
             }
 
             void updateBindings() {
+                /* FIXME:
                 if (m_handler != nullptr && m_function != nullptr) {
                     clearBindings();
                     createBindings();
                 }
+                 */
             }
 
             void createBindings() {
+                /* FIXME:
                 for (size_t i = 0; i < m_recentDocuments.size(); ++i) {
                     wxVariant* data = new wxVariant(QString(m_recentDocuments[i].asString()));
                     const int windowId = m_baseId + static_cast<int>(i);
                     m_handler->Bind(wxEVT_MENU, m_function, m_handler, windowId, windowId, data);
                 }
+                 */
             }
 
             void clearBindings() {
-                for (int i = 0; i < static_cast<int>(m_maxSize); ++i)
+                /* FIXME:
+                for (int i = 0; i < static_cast<int>(m_maxSize); ++i) {
                     m_handler->Unbind(wxEVT_MENU, m_function, m_handler, m_baseId + i);
+                }
+                 */
             }
 
             void insertPath(const IO::Path& path) {
                 const IO::Path canonPath = path.makeCanonical();
-                IO::Path::List::iterator it = std::find(std::begin(m_recentDocuments), std::end(m_recentDocuments), canonPath);
+                auto it = std::find(std::begin(m_recentDocuments), std::end(m_recentDocuments), canonPath);
                 if (it != std::end(m_recentDocuments))
                     m_recentDocuments.erase(it);
                 m_recentDocuments.insert(std::begin(m_recentDocuments), canonPath);
@@ -162,12 +175,15 @@ namespace TrenchBroom {
             }
 
             void updateMenus() {
+                /* FIXME:
                 for (wxMenu* menu : m_menus) {
                     clearMenu(menu);
                     createMenuItems(menu);
                 }
+                 */
             }
 
+            /* FIXME:
             void clearMenu(wxMenu* menu) {
                 while (menu->GetMenuItemCount() > 0) {
                     wxMenuItem* item = menu->FindItemByPosition(0);
@@ -182,6 +198,7 @@ namespace TrenchBroom {
                     menu->Append(windowId, path.lastComponent().asString());
                 }
             }
+             */
         };
     }
 }

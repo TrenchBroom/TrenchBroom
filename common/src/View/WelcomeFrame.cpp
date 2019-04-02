@@ -23,8 +23,8 @@
 #include "View/AppInfoPanel.h"
 #include "View/BorderLine.h"
 #include "View/ViewConstants.h"
+#include "View/RecentDocumentListBox.h"
 // FIXME:
-//#include "View/RecentDocumentListBox.h"
 //#include "View/RecentDocumentSelectedCommand.h"
 #include "View/wxUtils.h"
 
@@ -49,35 +49,33 @@ namespace TrenchBroom {
             setWindowIconTB(this);
             setWindowTitle("Welcome to TrenchBroom");
 
-
             // FIXME:
-//            m_recentDocumentListBox = new RecentDocumentListBox(container);
-//            m_recentDocumentListBox->setToolTip("Double click on a file to open it");
-//            m_recentDocumentListBox->setMaxSize(wxSize(350, wxDefaultCoord));
+            m_recentDocumentListBox = new RecentDocumentListBox();
+            m_recentDocumentListBox->setToolTip("Double click on a file to open it");
+            m_recentDocumentListBox->setMinimumWidth(400);
+            m_recentDocumentListBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
+            auto* outerLayout = new QVBoxLayout();
+            outerLayout->setContentsMargins(QMargins());
+            outerLayout->setSpacing(0);
 
-            QHBoxLayout* innerSizer = new QHBoxLayout();
-            innerSizer->addWidget(createAppPanel(), 1, Qt::AlignVCenter);
-            innerSizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Vertical), 0);
-            innerSizer->addWidget(new QPushButton("TODO: Recent list"), 1);
+            auto* innerLayout = new QHBoxLayout();
+            innerLayout->setContentsMargins(QMargins());
+            innerLayout->setSpacing(0);
 
-            QWidget* innerContent = new QWidget();
-            innerContent->setLayout(innerSizer);
-            innerSizer->setContentsMargins(0,0,0,0);
+            auto* container = new QWidget();
+            container->setLayout(outerLayout);
 
-//            // FIXME:
-//            //innerSizer->addWidget(m_recentDocumentListBox, wxSizerFlags().Expand().Proportion(1));
-//            //innerSizer->SetItemMinSize(m_recentDocumentListBox, wxSize(350, 400));
+            outerLayout->addWidget(new BorderLine());
+            outerLayout->addLayout(innerLayout);
 
+            auto* appPanel = createAppPanel();
 
-            QVBoxLayout* outerSizer = new QVBoxLayout();
-            outerSizer->setContentsMargins(0,0,0,0);
-            outerSizer->addWidget(new BorderLine(nullptr));
-            outerSizer->addWidget(innerContent);
+            innerLayout->addWidget(appPanel, 0, Qt::AlignTop);
+            innerLayout->addWidget(new BorderLine(BorderLine::Direction_Vertical), 0);
+            innerLayout->addWidget(m_recentDocumentListBox, 1);
 
-            QWidget* outerContainer = new QWidget();
-            outerContainer->setLayout(outerSizer);
-            setCentralWidget(outerContainer);
+            setCentralWidget(container);
         }
 
         void WelcomeFrame::OnCreateNewDocumentClicked() {

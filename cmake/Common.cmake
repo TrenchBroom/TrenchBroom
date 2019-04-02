@@ -297,6 +297,7 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/CompilationTaskList.cpp
 #	${COMMON_SOURCE_DIR}/View/CompilationVariables.cpp
 	${COMMON_SOURCE_DIR}/View/Console.cpp
+	${COMMON_SOURCE_DIR}/View/ControlListBox.cpp
 	${COMMON_SOURCE_DIR}/View/ContainerBar.cpp
 #	${COMMON_SOURCE_DIR}/View/ControlListBox.cpp
 	${COMMON_SOURCE_DIR}/View/ConvertEntityColorCommand.cpp
@@ -350,7 +351,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/GetVersion.cpp
 	${COMMON_SOURCE_DIR}/View/GLContextManager.cpp
 	${COMMON_SOURCE_DIR}/View/Grid.cpp
-#	${COMMON_SOURCE_DIR}/View/ImageListBox.cpp
+	${COMMON_SOURCE_DIR}/View/ImageListBox.cpp
 	${COMMON_SOURCE_DIR}/View/InfoPanel.cpp
 	${COMMON_SOURCE_DIR}/View/InputEvent.cpp
 	${COMMON_SOURCE_DIR}/View/InputState.cpp
@@ -397,7 +398,7 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/PreferenceDialog.cpp
 #	${COMMON_SOURCE_DIR}/View/PreferencePane.cpp
 #	${COMMON_SOURCE_DIR}/View/RadioGroup.cpp
-#	${COMMON_SOURCE_DIR}/View/RecentDocumentListBox.cpp
+	${COMMON_SOURCE_DIR}/View/RecentDocumentListBox.cpp
 #	${COMMON_SOURCE_DIR}/View/RecentDocumentSelectedCommand.cpp
 	${COMMON_SOURCE_DIR}/View/RemoveBrushEdgesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/RemoveBrushElementsCommand.cpp
@@ -848,7 +849,7 @@ SET(COMMON_HEADER
 #	${COMMON_SOURCE_DIR}/View/CompilationVariables.h
 	${COMMON_SOURCE_DIR}/View/Console.h
 	${COMMON_SOURCE_DIR}/View/ContainerBar.h
-#	${COMMON_SOURCE_DIR}/View/ControlListBox.h
+	${COMMON_SOURCE_DIR}/View/ControlListBox.h
 	${COMMON_SOURCE_DIR}/View/ConvertEntityColorCommand.h
 	${COMMON_SOURCE_DIR}/View/CopyTexCoordSystemFromFaceCommand.h
 	${COMMON_SOURCE_DIR}/View/CrashDialog.h

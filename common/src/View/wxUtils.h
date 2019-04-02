@@ -30,9 +30,10 @@
 
 #include <vector>
 
-class QWidget;
 class QAbstractButton;
 class QLineEdit;
+class QSettings;
+class QWidget;
 
 namespace TrenchBroom {
     namespace View {
@@ -73,6 +74,7 @@ namespace TrenchBroom {
         QString wxToQString(const QString& string);
 #endif
 
+        QSettings getSettings();
         Color fromQColor(const QColor& color);
         void setWindowIconTB(QWidget* window);
         void setDebugBackgroundColor(QWidget* widget, const QColor& color);
