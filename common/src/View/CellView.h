@@ -28,6 +28,9 @@
 #include "View/RenderView.h"
 
 #include <QScrollBar>
+#include <QToolTip>
+#include <QDrag>
+#include <QMimeData>
 
 #include <algorithm>
 
@@ -169,7 +172,7 @@ namespace TrenchBroom {
                 if (event->button() == Qt::LeftButton) {
                     int top = m_scrollBar != nullptr ? m_scrollBar->value() : 0;
                     float x = static_cast<float>(event->localPos().x());
-                    float y = static_cast<float>(event->localPos().y());
+                    float y = static_cast<float>(event->localPos().y() + top);
                     doLeftClick(m_layout, x, y);
                 }
             }
@@ -206,11 +209,10 @@ namespace TrenchBroom {
             }
 
             void startDrag(const QMouseEvent* event) {
-#if 0 // FIXME: DND
                 if (dndEnabled()) {
                     int top = m_scrollBar != nullptr ? m_scrollBar->value() : 0;
-                    float x = static_cast<float>(event.GetX());
-                    float y = static_cast<float>(event.GetY() + top);
+                    float x = static_cast<float>(event->localPos().x());
+                    float y = static_cast<float>(event->localPos().y() + top);
                     const Cell* cell = nullptr;
                     if (m_layout.cellAt(x, y, &cell)) {
                         /*
@@ -220,12 +222,17 @@ namespace TrenchBroom {
                          */
 
                         const DndHelper dndHelper(*this);
-                        wxTextDataObject dropData(dndData(*cell));
-                        DropSource dropSource(dropData, this);
-                        dropSource.DoDragDrop();
+                        const QString dropData = dndData(*cell);
+
+                        QMimeData* mimeData = new QMimeData();
+                        mimeData->setText(dropData);
+
+                        QDrag* drag = new QDrag(this);
+                        drag->setMimeData(mimeData);
+
+                        Qt::DropAction dropAction = drag->exec(Qt::CopyAction);
                     }
                 }
-#endif
             }
 
             void scroll(const QMouseEvent* event) {
@@ -239,17 +246,18 @@ namespace TrenchBroom {
             }
 
             void updateTooltip(const QMouseEvent* event) {
-#if 0 // FIXME: TOOLTIPS
-                int top = m_scrollBar != nullptr ? m_scrollBar->GetThumbPosition() : 0;
-                float x = static_cast<float>(event.GetX());
-                float y = static_cast<float>(event.GetY() + top);
+                // TODO: Need to implement our own tooltip timer. QEvent::ToolTip is not delivered to QWindow
+                int top = m_scrollBar != nullptr ? m_scrollBar->value() : 0;
+                float x = static_cast<float>(event->pos().x());
+                float y = static_cast<float>(event->pos().y() + top);
                 const LayoutCell* cell = nullptr;
-                if (m_layout.cellAt(x, y, &cell))
-                    SetToolTip(tooltip(*cell));
-                else
-                    SetToolTip("");
-#endif
+                if (m_layout.cellAt(x, y, &cell)) {
+                    QToolTip::showText(event->globalPos(), tooltip(*cell));
+                } else {
+                    QToolTip::hideText();
+                }
             }
+
         private:
             void doRender() override {
                 if (!m_valid)

@@ -452,7 +452,6 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/TitledPanel.cpp
 	${COMMON_SOURCE_DIR}/View/ToolBoxConnector.cpp
 	${COMMON_SOURCE_DIR}/View/ToolBox.cpp
-#	${COMMON_SOURCE_DIR}/View/ToolBoxDropTarget.cpp
 	${COMMON_SOURCE_DIR}/View/ToolChain.cpp
 	${COMMON_SOURCE_DIR}/View/ToolController.cpp
 	${COMMON_SOURCE_DIR}/View/Tool.cpp
@@ -1005,7 +1004,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/TitleBar.h
 	${COMMON_SOURCE_DIR}/View/TitledPanel.h
 	${COMMON_SOURCE_DIR}/View/ToolBoxConnector.h
-	${COMMON_SOURCE_DIR}/View/ToolBoxDropTarget.h
 	${COMMON_SOURCE_DIR}/View/ToolBox.h
 	${COMMON_SOURCE_DIR}/View/ToolChain.h
 	${COMMON_SOURCE_DIR}/View/ToolController.h

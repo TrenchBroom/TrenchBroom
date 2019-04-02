@@ -69,6 +69,7 @@
 #include <QShortcut>
 #include <QMenu>
 #include <QString>
+#include <QMimeData>
 
 #include <algorithm>
 #include <iterator>
@@ -1282,6 +1283,37 @@ namespace TrenchBroom {
 #endif
 
             doAfterPopupMenu();
+        }
+
+        /**
+         * Forward drag and drop events from QOpenGLWindow to ToolBoxConnector
+         */
+        bool MapViewBase::event(QEvent *ev) {
+            switch (ev->type()) {
+                case QEvent::DragEnter: {
+                    auto* dragEnterEvent = static_cast<QDragEnterEvent *>(ev);
+                    dragEnter(dragEnterEvent->pos().x(), dragEnterEvent->pos().y(), dragEnterEvent->mimeData()->text().toStdString());
+                    break;
+                }
+                case QEvent::DragLeave: {
+                    auto* dragLeaveEvent = static_cast<QDragLeaveEvent *>(ev);
+                    dragLeave();
+                    break;
+                }
+                case QEvent::DragMove: {
+                    auto* dragMoveEvent = static_cast<QDragMoveEvent *>(ev);
+                    dragMove(dragMoveEvent->pos().x(), dragMoveEvent->pos().y(), dragMoveEvent->mimeData()->text().toStdString());
+                    break;
+                }
+                case QEvent::Drop: {
+                    auto* dropEvent = static_cast<QDropEvent *>(ev);
+                    dragDrop(dropEvent->pos().x(), dropEvent->pos().y(), dropEvent->mimeData()->text().toStdString());
+                    break;
+                }
+                default:
+                    break;
+            }
+            return RenderView::event(ev);
         }
 
         QMenu* MapViewBase::makeEntityGroupsMenu(const Assets::EntityDefinition::Type type) {
