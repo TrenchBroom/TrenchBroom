@@ -367,7 +367,10 @@ namespace TrenchBroom {
             return result;
         }
 
-        void MapDocument::loadPointFile(const IO::Path& path) {
+        void MapDocument::loadPointFile(const IO::Path& pathRef) {
+            // Ensure we have a copy, in case a reference to m_pointFilePath was passed in
+            const IO::Path path = pathRef;
+
             if (!Model::PointFile::canLoad(path)) {
                 return;
             }
@@ -405,7 +408,10 @@ namespace TrenchBroom {
             pointFileWasUnloadedNotifier();
         }
 
-        void MapDocument::loadPortalFile(const IO::Path& path) {
+        void MapDocument::loadPortalFile(const IO::Path& pathRef) {
+            // Ensure we have a copy, in case a reference to m_portalFilePath was passed in
+            const IO::Path path = pathRef;
+
             if (!Model::PortalFile::canLoad(path)) {
                 return;
             }
