@@ -370,7 +370,6 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/MapDocumentCommandFacade.cpp
 	${COMMON_SOURCE_DIR}/View/MapDocument.cpp
 	${COMMON_SOURCE_DIR}/View/MapFrame.cpp
-#	${COMMON_SOURCE_DIR}/View/MapFrameDropTarget.cpp
 	${COMMON_SOURCE_DIR}/View/MapInspector.cpp
 	${COMMON_SOURCE_DIR}/View/MapView2D.cpp
 	${COMMON_SOURCE_DIR}/View/MapView3D.cpp
@@ -918,7 +917,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/LayerListBox.h
 	${COMMON_SOURCE_DIR}/View/MapDocumentCommandFacade.h
 	${COMMON_SOURCE_DIR}/View/MapDocument.h
-	${COMMON_SOURCE_DIR}/View/MapFrameDropTarget.h
 	${COMMON_SOURCE_DIR}/View/MapFrame.h
 	${COMMON_SOURCE_DIR}/View/MapInspector.h
 	${COMMON_SOURCE_DIR}/View/MapView2D.h

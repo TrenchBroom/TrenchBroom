@@ -37,6 +37,9 @@
 #include <QComboBox>
 #include <QSplitter>
 #include <QVBoxLayout>
+#include <QDropEvent>
+#include <QMimeData>
+#include <QUrl>
 
 #include "TrenchBroomApp.h"
 #include "Preferences.h"
@@ -152,6 +155,7 @@ namespace TrenchBroom {
             bindEvents();
 
             clearDropTarget();
+            setAcceptDrops(true);
         }
 
         MapFrame::~MapFrame() {
@@ -223,6 +227,26 @@ namespace TrenchBroom {
             m_mapView->clearDropTarget();
             // FIXME:
             //SetDropTarget(new MapFrameDropTarget(m_document, this));
+        }
+
+        void MapFrame::dragEnterEvent(QDragEnterEvent* event) {
+            // TODO: Also need this for MapViewBase, and the texture / entity browser too maybe.
+            // See if it can be factored out into an event filter object?
+            if (event->mimeData()->hasUrls()) {
+                event->acceptProposedAction();
+            }
+        }
+
+        void MapFrame::dropEvent(QDropEvent* event) {
+            const QMimeData* mimeData = event->mimeData();
+
+            for (const QUrl& url : mimeData->urls()) {
+               const QString qString = url.toLocalFile();
+
+               loadTextureCollection(m_document, this, qString);
+               loadEntityDefinitionFile(m_document, this, qString);
+            }
+            event->acceptProposedAction();
         }
 
         bool MapFrame::newDocument(Model::GameSPtr game, const Model::MapFormat mapFormat) {

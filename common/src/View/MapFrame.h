@@ -37,6 +37,7 @@ class QAction;
 class QActionGroup;
 class QComboBox;
 class QSplitter;
+class QDropEvent;
 
 namespace TrenchBroom {
     class Logger;
@@ -202,6 +203,9 @@ namespace TrenchBroom {
         public: // drop targets
             void setToolBoxDropTarget();
             void clearDropTarget();
+        protected:
+            void dragEnterEvent(QDragEnterEvent* event) override;
+            void dropEvent(QDropEvent* event) override;
         public: // document management
             bool newDocument(Model::GameSPtr game, Model::MapFormat mapFormat);
             bool openDocument(Model::GameSPtr game, Model::MapFormat mapFormat, const IO::Path& path);
