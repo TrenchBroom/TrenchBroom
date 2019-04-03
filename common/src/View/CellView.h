@@ -57,12 +57,12 @@ namespace TrenchBroom {
 
             void updateScrollBar() {
                 if (m_scrollBar != nullptr) {
-                    //int position = m_scrollBar->value(); // unused
-                    int thumbSize = size().height();
-                    int range = static_cast<int>(m_layout.height());
-                    m_scrollBar->setRange(0, range);
-                    //m_scrollBar->setValue(position); // no-op
+                    const int thumbSize = size().height();
+                    const int range = static_cast<int>(m_layout.height());
+                    m_scrollBar->setMinimum(0);
+                    m_scrollBar->setMaximum(range - thumbSize);
                     m_scrollBar->setPageStep(thumbSize);
+                    m_scrollBar->setSingleStep(static_cast<int>(m_layout.minCellHeight()));
                 }
             }
 
@@ -114,10 +114,15 @@ namespace TrenchBroom {
                 RenderView::resizeEvent(event);
             }
 
+        private:
             void onScrollBarValueChanged() {
                 requestUpdate();
             }
 
+            /**
+             * QAbstractSlider::actionTriggered listener. Overrides the default movement increments for the scrollbar up/down
+             * /page up/page down arrows.
+             */
             void onScrollBarActionTriggered(int action) {
                 const auto top = static_cast<float>(m_scrollBar->value());
                 const auto height = static_cast<float>(size().height());
@@ -132,18 +137,17 @@ namespace TrenchBroom {
                         m_scrollBar->setSliderPosition(static_cast<int>(m_layout.rowPosition(top, -1))); // line up
                         break;
                     case QAbstractSlider::SliderPageStepAdd:
-                        m_scrollBar->setSliderPosition(static_cast<int>(m_layout.rowPosition(top, 0))); // page down
+                        m_scrollBar->setSliderPosition(static_cast<int>(m_layout.rowPosition(top + height, 0))); // page down
                         break;
                     case QAbstractSlider::SliderPageStepSub:
-                        m_scrollBar->setSliderPosition(static_cast<int>(m_layout.rowPosition(std::max(0.0f, top - height), 0))); // page up
+                        m_scrollBar->setSliderPosition(static_cast<int>(m_layout.rowPosition(top - height, 0))); // page up
                         break;
                     default:
                         break;
                 }
-                requestUpdate();
             }
 
-
+        public:
             class DndHelper {
             private:
                 CellView& m_cellView;
