@@ -53,7 +53,7 @@ namespace TrenchBroom {
         private:
             void doPrepareVertices(Vbo& vertexVbo) override;
             void doRender(RenderContext& renderContext) override;
-            void renderHandles(RenderContext& renderContext, const HandleMap& map, Circle& circle);
+            void renderHandles(RenderContext& renderContext, const HandleMap& map, Circle& circle, float opacity);
 
             void clear();
         };
