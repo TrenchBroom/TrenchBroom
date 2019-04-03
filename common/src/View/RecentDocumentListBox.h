@@ -28,6 +28,10 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace IO {
+        class Path;
+    }
+
     namespace View {
         class RecentDocumentListBox : public ImageListBox {
             Q_OBJECT
@@ -37,7 +41,8 @@ namespace TrenchBroom {
             explicit RecentDocumentListBox(QWidget* parent = nullptr);
             ~RecentDocumentListBox() override;
 
-            void OnListBoxDoubleClick();
+        signals:
+            void recentDocumentSelected(const IO::Path& path);
         private:
             void recentDocumentsDidChange();
 
@@ -45,6 +50,8 @@ namespace TrenchBroom {
             QPixmap image(size_t index) const override;
             QString title(size_t index) const override;
             QString subtitle(size_t index) const override;
+
+            void onItemDoubleClick(size_t index) override;
         };
     }
 }

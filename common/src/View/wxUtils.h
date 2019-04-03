@@ -31,7 +31,10 @@
 #include <vector>
 
 class QAbstractButton;
+class QFont;
 class QLineEdit;
+class QMainWindow;
+class QPalette;
 class QSettings;
 class QWidget;
 
@@ -73,6 +76,15 @@ namespace TrenchBroom {
 
         QString wxToQString(const QString& string);
 #endif
+
+        void centerOnScreen(QMainWindow* window);
+
+        void makeDefault(QWidget* widget);
+        void makeEmphasized(QWidget* widget);
+        void makeInfo(QWidget* widget);
+        void makeHeader(QWidget* widget);
+
+        void makeSelected(QWidget* widget);
 
         QSettings getSettings();
         Color fromQColor(const QColor& color);

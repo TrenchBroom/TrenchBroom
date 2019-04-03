@@ -40,8 +40,7 @@ namespace TrenchBroom {
             //nullptr, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxCAPTION | wxCLOSE_BOX | wxCLIP_CHILDREN) {
             createGui();
             bindEvents();
-            // FIXME:
-            //Centre();
+            centerOnScreen(this);
         }
 
         void WelcomeFrame::createGui() {
@@ -54,6 +53,7 @@ namespace TrenchBroom {
             m_recentDocumentListBox->setToolTip("Double click on a file to open it");
             m_recentDocumentListBox->setMinimumWidth(400);
             m_recentDocumentListBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+            connect(m_recentDocumentListBox, &RecentDocumentListBox::recentDocumentSelected, this, &WelcomeFrame::onRecentDocumentSelected);
 
             auto* outerLayout = new QVBoxLayout();
             outerLayout->setContentsMargins(QMargins());
@@ -66,7 +66,7 @@ namespace TrenchBroom {
             auto* container = new QWidget();
             container->setLayout(outerLayout);
 
-            outerLayout->addWidget(new BorderLine());
+            // outerLayout->addWidget(new BorderLine());
             outerLayout->addLayout(innerLayout);
 
             auto* appPanel = createAppPanel();
@@ -76,40 +76,41 @@ namespace TrenchBroom {
             innerLayout->addWidget(m_recentDocumentListBox, 1);
 
             setCentralWidget(container);
+            setFixedSize(sizeHint());
         }
 
-        void WelcomeFrame::OnCreateNewDocumentClicked() {
+        void WelcomeFrame::onCreateNewDocumentClicked() {
             hide();
             TrenchBroomApp& app = TrenchBroomApp::instance();
-            if (app.newDocument())
+            if (app.newDocument()) {
                 close();
-            else
+            } else {
                 show();
+            }
         }
 
-        void WelcomeFrame::OnOpenOtherDocumentClicked() {
+        void WelcomeFrame::onOpenOtherDocumentClicked() {
             const QString fileName = QFileDialog::getOpenFileName(nullptr, "Open Map", "", "Map files (*.map);;Any files (*.*)");
 
             if (!fileName.isEmpty()) {
                 hide();
                 TrenchBroomApp& app = TrenchBroomApp::instance();
-                if (app.openDocument(fileName.toStdString()))
+                if (app.openDocument(fileName.toStdString())) {
                     close();
-                else
+                } else {
                     show();
+                }
             }
         }
 
-        void WelcomeFrame::OnRecentDocumentSelected(RecentDocumentSelectedCommand& event) {
-            // FIXME:
-#if 0
+        void WelcomeFrame::onRecentDocumentSelected(const IO::Path& path) {
             hide();
             TrenchBroomApp& app = TrenchBroomApp::instance();
-            if (app.openDocument(event.documentPath().asString()))
+            if (app.openDocument(path.asString())) {
                 close();
-            else
+            } else {
                 show();
-#endif
+            }
         }
 
         QWidget* WelcomeFrame::createAppPanel() {
@@ -140,8 +141,8 @@ namespace TrenchBroom {
         }
 
         void WelcomeFrame::bindEvents() {
-            connect(m_createNewDocumentButton, &QPushButton::clicked, this, &WelcomeFrame::OnCreateNewDocumentClicked);
-            connect(m_openOtherDocumentButton, &QPushButton::clicked, this, &WelcomeFrame::OnOpenOtherDocumentClicked);
+            connect(m_createNewDocumentButton, &QPushButton::clicked, this, &WelcomeFrame::onCreateNewDocumentClicked);
+            connect(m_openOtherDocumentButton, &QPushButton::clicked, this, &WelcomeFrame::onOpenOtherDocumentClicked);
 
             // FIXME: implement
 //            m_recentDocumentListBox->Bind(RECENT_DOCUMENT_SELECTED_EVENT, &WelcomeFrame::OnRecentDocumentSelected, this);

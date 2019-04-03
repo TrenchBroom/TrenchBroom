@@ -1100,11 +1100,9 @@ namespace TrenchBroom {
 #endif
 
         void MapFrame::updateRecentDocumentsMenu() {
-		    // FIXME: recents
-#if 0
-            if (m_document->path().isAbsolute())
+            if (m_document->path().isAbsolute()) {
                 View::TrenchBroomApp::instance().updateRecentDocument(m_document->path());
-#endif
+            }
         }
 
         void MapFrame::createGui() {
@@ -1168,6 +1166,8 @@ namespace TrenchBroom {
 
         void MapFrame::createToolBar() {
 		    QToolBar* toolBar = addToolBar("Toolbar");
+		    toolBar->setFloatable(false);
+		    toolBar->setMovable(false);
 		    toolBar->addAction(editDeactivateToolAction);
             toolBar->addAction(editToggleCreateComplexBrushToolAction);
             toolBar->addAction(editToggleClipToolAction);

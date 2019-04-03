@@ -29,7 +29,7 @@ namespace TrenchBroom {
         QFrame(parent) {
             setFrameShadow(QFrame::Plain);
             setStyleSheet("color: " + Colors::borderColor().name() + ";");
-            setLineWidth(thickness);
+            setLineWidth(thickness-1);
             if (direction == Direction_Horizontal) {
                 setFrameShape(QFrame::HLine);
                 setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed));

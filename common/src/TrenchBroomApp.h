@@ -58,8 +58,8 @@ namespace TrenchBroom {
 #if 0
             void addRecentDocumentMenu(wxMenu* menu);
             void removeRecentDocumentMenu(wxMenu* menu);
-            void updateRecentDocument(const IO::Path& path);
 #endif
+            void updateRecentDocument(const IO::Path& path);
 
             bool newDocument();
             bool openDocument(const String& pathStr);

@@ -21,7 +21,9 @@
 
 #include "IO/Path.h"
 #include "IO/ResourceUtils.h"
+#include "View/BorderLine.h"
 #include "View/GetVersion.h"
+#include "View/wxUtils.h"
 
 #include <QString>
 #include <QFont>
@@ -45,33 +47,17 @@ namespace TrenchBroom {
             QLabel* appIcon = new QLabel();
             appIcon->setPixmap(appIconImage);
 
-            QFont titleFont;
-            titleFont.setPointSize(20);
-            titleFont.setBold(true);
-
             QLabel* appName = new QLabel(tr("TrenchBroom"));
-            appName->setFont(titleFont);
+            makeHeader(appName);
 
-            QPalette lightText;
-            QColor lightColor = lightText.color(QPalette::Disabled, QPalette::WindowText);
-            lightText.setColor(QPalette::WindowText, lightColor);
-
-            QFrame* appLine = new QFrame();
-            appLine->setFrameShape(QFrame::HLine);
-            appLine->setLineWidth(2);
-            appLine->setPalette(lightText);
+            BorderLine* appLine = new BorderLine(BorderLine::Direction_Horizontal);
             QLabel* appClaim = new QLabel(tr("Level Editor"));
 
             ClickableLabel* version = new ClickableLabel(QString(tr("Version ")) % getBuildVersion());
             ClickableLabel* build = new ClickableLabel(QString(tr("Build ")) % getBuildIdStr());
 
-            QFont font;
-            font.setPointSize(8);
-            version->setFont(font);
-            build->setFont(font);
-
-            version->setPalette(lightText);
-            build->setPalette(lightText);
+            makeInfo(version);
+            makeInfo(build);
 
             version->setToolTip("Click to copy to clipboard");
             build->setToolTip("Click to copy to clipboard");

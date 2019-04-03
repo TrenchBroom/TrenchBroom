@@ -27,11 +27,18 @@
 #include "View/MapFrame.h"
 #include "View/ViewConstants.h"
 
+#include <QApplication>
+#include <QDesktopWidget>
 #include <QDir>
+#include <QFont>
 #include <QLineEdit>
+#include <QPalette>
 #include <QPushButton>
 #include <QSettings>
+#include <QStandardPaths>
+#include <QString>
 #include <QStringBuilder>
+#include <QStyle>
 
 #include <list>
 #include <cstdlib>
@@ -66,9 +73,75 @@ namespace TrenchBroom {
             return result;
         }
 #endif
+
+        void centerOnScreen(QMainWindow* window) {
+            window->setGeometry(
+                QStyle::alignedRect(
+                    Qt::LeftToRight,
+                    Qt::AlignCenter,
+                    window->size(),
+                    QApplication::desktop()->availableGeometry()
+                )
+            );
+        }
+
+        void makeDefault(QWidget* widget) {
+            widget->setFont(QFont());
+            widget->setPalette(QPalette());
+        }
+
+        void makeEmphasized(QWidget* widget) {
+            makeDefault(widget);
+
+            QFont font;
+            font.setBold(true);
+            widget->setFont(font);
+        }
+
+        void makeInfo(QWidget* widget) {
+            makeDefault(widget);
+
+            QFont font;
+            font.setPointSize(font.pointSize() - 2);
+            widget->setFont(font);
+
+            QPalette palette;
+            palette.setColor(QPalette::WindowText, palette.color(QPalette::Disabled, QPalette::WindowText));
+            palette.setColor(QPalette::Text, palette.color(QPalette::Disabled, QPalette::WindowText));
+            widget->setPalette(palette);
+        }
+
+        void makeHeader(QWidget* widget) {
+            makeDefault(widget);
+
+            QFont font;
+            font.setPointSize(2 * font.pointSize());
+            font.setBold(true);
+            widget->setFont(font);
+        }
+
+        void makeSelected(QWidget* widget) {
+            QPalette palette;
+            palette.setColor(QPalette::WindowText, palette.color(QPalette::Normal, QPalette::HighlightedText));
+            palette.setColor(QPalette::Text, palette.color(QPalette::Normal, QPalette::HighlightedText));
+            widget->setPalette(palette);
+        }
+
         QSettings getSettings() {
-            QString path = QDir::homePath() % QString::fromLocal8Bit("/.TrenchBroom/.preferences");
-            return QSettings(path, QSettings::IniFormat);
+#if defined __linux__ || defined __FreeBSD__
+            const QString path = QDir::homePath() % QString::fromLocal8Bit("/.TrenchBroom/.preferences");
+            return QSettings(path, QSettings::Format::IniFormat);
+#elif defined __APPLE__
+            const QString path = QStandardPaths::locate(QStandardPaths::ConfigLocation,
+                                                        QString::fromLocal8Bit("TrenchBroom Preferences"),
+                                                        QStandardPaths::LocateOption::LocateFile);
+            std::cout << path.toStdString() << std::endl;
+            return QSettings(path, QSettings::Format::IniFormat);
+#else
+            return QSettings();
+#endif
+
+
         }
 
         Color fromQColor(const QColor& color) {

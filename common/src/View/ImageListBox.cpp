@@ -25,64 +25,77 @@
 #include <QBoxLayout>
 #include <QImage>
 #include <QLabel>
+#include <QMouseEvent>
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace View {
+        ImageListBoxItemRenderer::ImageListBoxItemRenderer(size_t index, const QString& title, const QString& subtitle, const QPixmap& image, QWidget* parent)  :
+        ControlListBoxItemRenderer(parent),
+        m_index(index),
+        m_titleLabel(nullptr),
+        m_subtitleLabel(nullptr),
+        m_imageLabel(nullptr) {
+            createGui(title, subtitle, image);
+        }
+
+        void ImageListBoxItemRenderer::setSelected(const bool selected) {
+            if (selected) {
+                makeSelected(m_titleLabel);
+                makeSelected(m_subtitleLabel);
+            } else {
+                makeEmphasized(m_titleLabel);
+                makeInfo(m_subtitleLabel);
+            }
+        }
+
+        void ImageListBoxItemRenderer::createGui(const QString& title, const QString& subtitle, const QPixmap& image) {
+            m_titleLabel = new QLabel(title);
+            makeEmphasized(m_titleLabel);
+
+            m_subtitleLabel = new QLabel(subtitle);
+            makeInfo(m_subtitleLabel);
+
+            auto* imageAndTextLayout = new QHBoxLayout();
+            imageAndTextLayout->setContentsMargins(QMargins(2, 2, 2, 2));
+            imageAndTextLayout->setSpacing(2);
+            setLayout(imageAndTextLayout);
+
+            if (!image.isNull()) {
+                m_imageLabel = new QLabel(this);
+                m_imageLabel->setPixmap(image);
+                imageAndTextLayout->addWidget(m_imageLabel);
+            }
+
+            auto* textLayout = new QVBoxLayout();
+            textLayout->setContentsMargins(QMargins());
+            textLayout->setSpacing(0);
+            imageAndTextLayout->addLayout(textLayout, 1);
+
+            textLayout->addWidget(m_titleLabel);
+            textLayout->addWidget(m_subtitleLabel);
+        }
+
+        void ImageListBoxItemRenderer::mouseDoubleClickEvent(QMouseEvent* event) {
+            if (event->button() == Qt::LeftButton) {
+                emit doubleClick(m_index);
+            }
+        }
+
         ImageListBox::ImageListBox(const QString& emptyText, QWidget* parent) :
         ControlListBox(emptyText, parent) {}
 
-        class ImageListBox::ImageListBoxItemRenderer : public ItemRenderer {
-        private:
-            QLabel* m_titleLabel;
-            QLabel* m_subtitleLabel;
-            QLabel* m_imageLabel;
-        public:
-            ImageListBoxItemRenderer(const QString& title, const QString& subtitle, const QPixmap& image, QWidget* parent)  :
-            ItemRenderer(parent),
-            m_titleLabel(nullptr),
-            m_subtitleLabel(nullptr),
-            m_imageLabel(nullptr) {
-                createGui(title, subtitle, image);
-            }
-
-            void setDefaultColors(const QColor& foreground, const QColor& background) override {
-                /*
-                Item::setDefaultColours(foreground, background);
-                m_subtitleText->SetForegroundColour(makeLighter(m_subtitleText->GetForegroundColour()));
-                 */
-            }
-        private:
-            void createGui(const QString& title, const QString& subtitle, const QPixmap& image) {
-                m_titleLabel = new QLabel(title, this);
-                m_subtitleLabel = new QLabel(subtitle, this);
-
-                m_titleLabel->setStyleSheet("font-weight: bold;");
-
-                auto* vSizer = new QVBoxLayout();
-                vSizer->addWidget(m_titleLabel);
-                vSizer->addWidget(m_subtitleLabel);
-
-                auto* hSizer = new QHBoxLayout();
-
-                if (!image.isNull()) {
-                    m_imageLabel = new QLabel(this);
-                    m_imageLabel->setPixmap(image);
-                    hSizer->addWidget(m_imageLabel);
-                }
-                hSizer->addLayout(vSizer);
-
-                setLayout(hSizer);
-            }
-        };
-
-        ControlListBox::ItemRenderer* ImageListBox::createItemRenderer(QWidget* parent, const size_t index) {
-            return new ImageListBoxItemRenderer(title(index), subtitle(index), image(index), parent);
+        ControlListBoxItemRenderer* ImageListBox::createItemRenderer(QWidget* parent, const size_t index) {
+            auto* result = new ImageListBoxItemRenderer(index, title(index), subtitle(index), image(index), parent);
+            connect(result, &ImageListBoxItemRenderer::doubleClick, this, &ImageListBox::onItemDoubleClick);
+            return result;
         }
 
         QPixmap ImageListBox::image(const size_t index) const {
             return QPixmap();
         }
+
+        void ImageListBox::onItemDoubleClick(size_t index) {}
     }
 }

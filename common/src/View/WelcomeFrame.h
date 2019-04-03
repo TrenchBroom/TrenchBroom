@@ -27,9 +27,11 @@
 class QPushButton;
 
 namespace TrenchBroom {
+    namespace IO {
+        class Path;
+    }
     namespace View {
         class RecentDocumentListBox;
-        class RecentDocumentSelectedCommand;
 
         class WelcomeFrame : public QMainWindow {
             Q_OBJECT
@@ -41,9 +43,9 @@ namespace TrenchBroom {
         public:
             WelcomeFrame();
 
-            void OnCreateNewDocumentClicked();
-            void OnOpenOtherDocumentClicked();
-            void OnRecentDocumentSelected(RecentDocumentSelectedCommand& event);
+            void onCreateNewDocumentClicked();
+            void onOpenOtherDocumentClicked();
+            void onRecentDocumentSelected(const IO::Path& documentPath);
         private:
             void createGui();
             QWidget* createAppPanel();

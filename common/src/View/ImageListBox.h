@@ -26,17 +26,37 @@ class QPixmap;
 
 namespace TrenchBroom {
     namespace View {
+        class ImageListBoxItemRenderer : public ControlListBoxItemRenderer {
+            Q_OBJECT
+        private:
+            size_t m_index;
+            QLabel* m_titleLabel;
+            QLabel* m_subtitleLabel;
+            QLabel* m_imageLabel;
+        public:
+            ImageListBoxItemRenderer(size_t index, const QString& title, const QString& subtitle, const QPixmap& image, QWidget* parent) ;
+
+            void setSelected(const bool selected) override;
+        signals:
+            void doubleClick(size_t index);
+        private:
+            void createGui(const QString& title, const QString& subtitle, const QPixmap& image);
+        protected:
+            void mouseDoubleClickEvent(QMouseEvent* event) override;
+        };
+
         class ImageListBox : public ControlListBox {
             Q_OBJECT
         public:
             explicit ImageListBox(const QString& emptyText, QWidget* parent = nullptr);
         private:
-            class ImageListBoxItemRenderer;
-            ItemRenderer* createItemRenderer(QWidget* parent, size_t index) override;
+            ControlListBoxItemRenderer* createItemRenderer(QWidget* parent, size_t index) override;
         private:
             virtual QPixmap image(size_t index) const;
             virtual QString title(size_t index) const = 0;
             virtual QString subtitle(size_t index) const = 0;
+
+            virtual void onItemDoubleClick(size_t index);
         };
     }
 }

@@ -50,25 +50,6 @@ namespace TrenchBroom {
             app.recentDocumentsDidChangeNotifier.removeObserver(this, &RecentDocumentListBox::recentDocumentsDidChange);
         }
 
-        void RecentDocumentListBox::OnListBoxDoubleClick() {
-            /* FIXME:
-
-            TrenchBroomApp& app = View::TrenchBroomApp::instance();
-            const IO::Path::List& recentDocuments = app.recentDocuments();
-
-            const int index = GetSelection();
-            if (index < 0 || index >= static_cast<int>(recentDocuments.size()))
-                return;
-
-            const IO::Path& documentPath = recentDocuments[static_cast<size_t>(index)];
-            RecentDocumentSelectedCommand command;
-            command.setDocumentPath(documentPath);
-            command.SetEventObject(this);
-            command.SetId(GetId());
-            ProcessEvent(command);
-             */
-        }
-
         void RecentDocumentListBox::recentDocumentsDidChange() {
             refresh();
         }
@@ -84,17 +65,27 @@ namespace TrenchBroom {
         }
 
         QString RecentDocumentListBox::title(const size_t index) const {
-            const TrenchBroomApp& app = View::TrenchBroomApp::instance();
+            const auto& app = View::TrenchBroomApp::instance();
             const IO::Path::List& recentDocuments = app.recentDocuments();
             ensure(index < recentDocuments.size(), "index out of range");
             return QString::fromStdString(recentDocuments[index].lastComponent().asString());
         }
 
         QString RecentDocumentListBox::subtitle(const size_t index) const {
-            const TrenchBroomApp& app = View::TrenchBroomApp::instance();
+            const auto& app = View::TrenchBroomApp::instance();
             const IO::Path::List& recentDocuments = app.recentDocuments();
             ensure(index < recentDocuments.size(), "index out of range");
             return QString::fromStdString(recentDocuments[index].asString());
+        }
+
+        void RecentDocumentListBox::onItemDoubleClick(const size_t index) {
+            auto& app = View::TrenchBroomApp::instance();
+            const IO::Path::List& recentDocuments = app.recentDocuments();
+
+            if (index < recentDocuments.size()) {
+                const IO::Path& documentPath = recentDocuments[index];
+                emit recentDocumentSelected(documentPath);
+            }
         }
     }
 }

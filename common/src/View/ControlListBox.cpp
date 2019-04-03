@@ -24,31 +24,26 @@
 #include <QSizePolicy>
 #include <QVBoxLayout>
 
+#include <iostream>
+
 namespace TrenchBroom {
     namespace View {
-        ControlListBox::ItemRenderer::ItemRenderer(QWidget* parent) :
+        ControlListBoxItemRenderer::ControlListBoxItemRenderer(QWidget* parent) :
         QWidget(parent) {}
 
-        ControlListBox::ItemRenderer::~ItemRenderer() = default;
+        ControlListBoxItemRenderer::~ControlListBoxItemRenderer() = default;
 
-        void ControlListBox::ItemRenderer::setSelectionColors(const QColor& foreground, const QColor& background) {
-            setColors(this, foreground, background);
-        }
-
-        void ControlListBox::ItemRenderer::setDefaultColors(const QColor& foreground, const QColor& background) {
-            setColors(this, foreground, background);
-        }
-
-        void ControlListBox::ItemRenderer::setColors(QWidget* window, const QColor& foreground, const QColor& background) {
-        }
+        void ControlListBoxItemRenderer::setSelected(const bool selected) {}
 
         ControlListBox::ControlListBox(const QString& emptyText, QWidget* parent) :
         QWidget(parent),
         m_listWidget(new QListWidget()),
         m_emptyTextContainer(new QWidget()),
         m_emptyTextLabel(new QLabel(emptyText)) {
+            m_listWidget->setObjectName("controlListBox_listWidget");
             m_listWidget->hide();
             m_listWidget->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+            connect(m_listWidget, &QListWidget::currentItemChanged, this, &ControlListBox::currentItemChanged);
 
             m_emptyTextLabel->setDisabled(true);
             m_emptyTextLabel->setAlignment(Qt::AlignHCenter);
@@ -64,6 +59,8 @@ namespace TrenchBroom {
             auto* emptyTextLayout = new QVBoxLayout();
             m_emptyTextContainer->setLayout(emptyTextLayout);
             emptyTextLayout->addWidget(m_emptyTextLabel);
+
+            setStyleSheet("QListWidget#controlListBox_listWidget { border: none; }");
         }
 
         void ControlListBox::setEmptyText(const QString& emptyText) {
@@ -94,12 +91,23 @@ namespace TrenchBroom {
             m_listWidget->clear();
         }
 
-        void ControlListBox::addItemRenderer(ItemRenderer* renderer) {
+        void ControlListBox::addItemRenderer(ControlListBoxItemRenderer* renderer) {
             auto* widgetItem = new QListWidgetItem(m_listWidget);
             m_listWidget->addItem(widgetItem);
 
-            widgetItem->setSizeHint(renderer->minimumSizeHint());
             m_listWidget->setItemWidget(widgetItem, renderer);
+            widgetItem->setSizeHint(renderer->minimumSizeHint());
+        }
+
+        void ControlListBox::currentItemChanged(QListWidgetItem* current, QListWidgetItem* previous) {
+            if (previous != nullptr) {
+                auto* previousRenderer = static_cast<ControlListBoxItemRenderer*>(m_listWidget->itemWidget(previous));
+                previousRenderer->setSelected(false);
+            }
+            if (current != nullptr) {
+                auto* currentRenderer = static_cast<ControlListBoxItemRenderer*>(m_listWidget->itemWidget(current));
+                currentRenderer->setSelected(true);
+            }
         }
     }
 }

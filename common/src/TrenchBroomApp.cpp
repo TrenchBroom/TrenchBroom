@@ -73,6 +73,12 @@ namespace TrenchBroom {
             format.setSamples(4);
             QSurfaceFormat::setDefaultFormat(format);
 
+#if defined __APPLE__
+            // fix default palette higlight text color
+            QPalette palette;
+            palette.setColor(QPalette::HighlightedText, Qt::white);
+            setPalette(palette);
+#endif
 
 #if defined(_WIN32) && defined(_MSC_VER)
             // with MSVC, set our own handler for segfaults so we can access the context
@@ -89,6 +95,7 @@ namespace TrenchBroom {
 
             setApplicationName("TrenchBroom");
             setOrganizationName("Kristian Duske");
+            setOrganizationDomain("com.kristianduske");
 
             if (!initializeGameFactory()) {
                 QCoreApplication::exit(1);
@@ -189,11 +196,11 @@ namespace TrenchBroom {
         void TrenchBroomApp::removeRecentDocumentMenu(wxMenu* menu) {
             m_recentDocuments->removeMenu(menu);
         }
+#endif
 
         void TrenchBroomApp::updateRecentDocument(const IO::Path& path) {
             m_recentDocuments->updatePath(path);
         }
-#endif
 
         bool TrenchBroomApp::newDocument() {
             qDebug("FIXME: show newDocument frame");

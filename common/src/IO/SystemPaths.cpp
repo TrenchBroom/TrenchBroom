@@ -35,8 +35,7 @@ namespace TrenchBroom {
             }
 
             Path userDataDirectory() {
-                // FIXME: confirm against wx
-                return IO::Path(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation).toStdString());
+                return IO::Path(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation).toStdString());
             }
 
             Path logFilePath() {
@@ -50,8 +49,7 @@ namespace TrenchBroom {
                     return relativeToExecutable;
                 }
 
-                // FIXME: confirm against wx
-                return IO::Path(QStandardPaths::locate(QStandardPaths::AppLocalDataLocation,
+                return IO::Path(QStandardPaths::locate(QStandardPaths::AppDataLocation,
                                                        file.asQString(),
                                                        QStandardPaths::LocateOption::LocateFile).toStdString());
             }
@@ -64,7 +62,7 @@ namespace TrenchBroom {
                 }
 
                 // FIXME: confirm against wx
-                return IO::Path(QStandardPaths::locate(QStandardPaths::AppLocalDataLocation,
+                return IO::Path(QStandardPaths::locate(QStandardPaths::AppDataLocation,
                                                        directory.asQString(),
                                                        QStandardPaths::LocateOption::LocateDirectory).toStdString());
             }
