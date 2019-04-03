@@ -118,6 +118,7 @@
 
 #include <cassert>
 #include <numeric>
+#include <type_traits>
 
 namespace TrenchBroom {
     namespace View {
@@ -367,7 +368,10 @@ namespace TrenchBroom {
             return result;
         }
 
-        void MapDocument::loadPointFile(const IO::Path& path) {
+        void MapDocument::loadPointFile(const IO::Path path) {
+            static_assert(!std::is_reference<decltype(path)>::value,
+                          "path must be passed by value because reloadPointFile() passes m_pointFilePath");
+
             if (!Model::PointFile::canLoad(path)) {
                 return;
             }
@@ -377,9 +381,9 @@ namespace TrenchBroom {
             }
 
             m_pointFilePath = path;
-            m_pointFile = std::make_unique<Model::PointFile>(path);
+            m_pointFile = std::make_unique<Model::PointFile>(m_pointFilePath);
 
-            info("Loaded point file " + path.asString());
+            info("Loaded point file " + m_pointFilePath.asString());
             pointFileWasLoadedNotifier();
         }
 
@@ -405,7 +409,10 @@ namespace TrenchBroom {
             pointFileWasUnloadedNotifier();
         }
 
-        void MapDocument::loadPortalFile(const IO::Path& path) {
+        void MapDocument::loadPortalFile(const IO::Path path) {
+            static_assert(!std::is_reference<decltype(path)>::value,
+                          "path must be passed by value because reloadPortalFile() passes m_portalFilePath");
+
             if (!Model::PortalFile::canLoad(path)) {
                 return;
             }
@@ -418,11 +425,11 @@ namespace TrenchBroom {
                 m_portalFilePath = path;
                 m_portalFile = std::make_unique<Model::PortalFile>(path);
             } catch (const std::exception &exception) {
-                info("Couldn't load portal file " + path.asString() + ": " + exception.what());
+                info("Couldn't load portal file " + m_portalFilePath.asString() + ": " + exception.what());
             }
 
             if (isPortalFileLoaded()) {
-                info("Loaded portal file " + path.asString());
+                info("Loaded portal file " + m_portalFilePath.asString());
                 portalFileWasLoadedNotifier();
             }
         }
