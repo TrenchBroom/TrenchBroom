@@ -29,12 +29,12 @@
 #include "View/ViewUtils.h"
 #include "View/wxUtils.h"
 
-#include <wx/bmpbuttn.h>
-#include <wx/filedlg.h>
-#include <wx/listbox.h>
-#include <wx/panel.h>
-#include <wx/settings.h>
-#include <wx/sizer.h>
+#include <QListWidget>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QAbstractButton>
+#include <QFileDialog>
+#include <QSignalBlocker>
 
 namespace TrenchBroom {
     namespace View {
@@ -44,6 +44,7 @@ namespace TrenchBroom {
             createGui();
             bindObservers();
             updateControls();
+            updateButtons();
         }
 
         FileTextureCollectionEditor::~FileTextureCollectionEditor() {
@@ -54,10 +55,13 @@ namespace TrenchBroom {
             auto document = lock(m_document);
             auto collections = document->enabledTextureCollections();
 
-            assert(m_collections->GetCount() == collections.size());
+            assert(m_collections->count() == static_cast<int>(collections.size()));
 
-            wxArrayInt selectedIndices;
-            m_collections->GetSelections(selectedIndices);
+            std::vector<int> selectedIndices;
+            for (QListWidgetItem* item : m_collections->selectedItems()) {
+                selectedIndices.push_back(m_collections->row(item));
+            }
+
             for (size_t i = 0; i < selectedIndices.size(); ++i) {
                 assert(selectedIndices[i] >= 0);
                 assert(static_cast<size_t>(selectedIndices[i]) < collections.size());
@@ -68,8 +72,11 @@ namespace TrenchBroom {
         bool FileTextureCollectionEditor::canRemoveTextureCollections() const {
             assert(debugUIConsistency());
 
-            wxArrayInt selections;
-            m_collections->GetSelections(selections);
+            std::vector<int> selections;
+            for (QListWidgetItem* item : m_collections->selectedItems()) {
+                selections.push_back(m_collections->row(item));
+            }
+
             if (selections.empty()) {
                 return false;
             }
@@ -89,8 +96,7 @@ namespace TrenchBroom {
         bool FileTextureCollectionEditor::canMoveTextureCollectionsUp() const {
             assert(debugUIConsistency());
 
-            wxArrayInt selections;
-            m_collections->GetSelections(selections);
+            const QList<QListWidgetItem*> selections = m_collections->selectedItems();
             if (selections.size() != 1) {
                 return false;
             }
@@ -98,15 +104,14 @@ namespace TrenchBroom {
             auto document = lock(m_document);
             auto collections = document->enabledTextureCollections();
 
-            const auto index = static_cast<size_t>(selections.front());
+            const auto index = static_cast<size_t>(m_collections->currentRow());
             return index >= 1 && index < collections.size();
         }
 
         bool FileTextureCollectionEditor::canMoveTextureCollectionsDown() const {
             assert(debugUIConsistency());
 
-            wxArrayInt selections;
-            m_collections->GetSelections(selections);
+            const QList<QListWidgetItem*> selections = m_collections->selectedItems();
             if (selections.size() != 1) {
                 return false;
             }
@@ -114,36 +119,35 @@ namespace TrenchBroom {
             auto document = lock(m_document);
             auto collections = document->enabledTextureCollections();
 
-            const auto index = static_cast<size_t>(selections.front());
+            const auto index = static_cast<size_t>(m_collections->currentRow());
             return (index + 1) < collections.size();
         }
 
-        void FileTextureCollectionEditor::OnAddTextureCollectionsClicked(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            const QString pathWxStr = ::wxFileSelector("Load Texture Collection", wxEmptyString, wxEmptyString, wxEmptyString, "", wxFD_OPEN);
-            if (pathWxStr.empty())
-                return;
-
-            loadTextureCollection(m_document, this, pathWxStr);
+        bool FileTextureCollectionEditor::canReloadTextureCollections() const {
+            return m_collections->count() != 0;
         }
 
-        void FileTextureCollectionEditor::OnRemoveTextureCollectionsClicked(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-            if (!canRemoveTextureCollections()) {
+        void FileTextureCollectionEditor::OnAddTextureCollectionsClicked() {
+            const QString pathQStr = QFileDialog::getOpenFileName(nullptr, "Load Texture Collection", "", "");
+            if (pathQStr.isEmpty()) {
                 return;
             }
 
-            wxArrayInt selections;
-            m_collections->GetSelections(selections);
+            loadTextureCollection(m_document, this, pathQStr);
+        }
+
+        void FileTextureCollectionEditor::OnRemoveTextureCollectionsClicked() {
+            if (!canRemoveTextureCollections()) {
+                return;
+            }
 
             auto document = lock(m_document);
 
             auto collections = document->enabledTextureCollections();
             decltype(collections) toRemove;
 
-            for (size_t i = 0; i < selections.size(); ++i) {
-                const auto index = static_cast<size_t>(selections[i]);
+            for (QListWidgetItem* selectedItem : m_collections->selectedItems()) {
+                const auto index = static_cast<size_t>(m_collections->row(selectedItem));
                 ensure(index < collections.size(), "index out of range");
                 toRemove.push_back(collections[index]);
             }
@@ -152,113 +156,92 @@ namespace TrenchBroom {
             document->setEnabledTextureCollections(collections);
         }
 
-        void FileTextureCollectionEditor::OnMoveTextureCollectionUpClicked(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void FileTextureCollectionEditor::OnMoveTextureCollectionUpClicked() {
             if (!canMoveTextureCollectionsUp()) {
                 return;
             }
 
-            wxArrayInt selections;
-            m_collections->GetSelections(selections);
+            const QList<QListWidgetItem*> selections = m_collections->selectedItems();
             assert(selections.size() == 1);
 
             auto document = lock(m_document);
             auto collections = document->enabledTextureCollections();
 
-            const auto index = static_cast<size_t>(selections.front());
+            const auto index = static_cast<size_t>(m_collections->currentRow());
             VectorUtils::swapPred(collections, index);
 
             document->setEnabledTextureCollections(collections);
-            m_collections->SetSelection(static_cast<int>(index - 1));
+            m_collections->setCurrentRow(static_cast<int>(index - 1));
         }
 
-        void FileTextureCollectionEditor::OnMoveTextureCollectionDownClicked(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void FileTextureCollectionEditor::OnMoveTextureCollectionDownClicked() {
             if (!canMoveTextureCollectionsDown()) {
                 return;
             }
 
-            wxArrayInt selections;
-            m_collections->GetSelections(selections);
+            const QList<QListWidgetItem*> selections = m_collections->selectedItems();
             assert(selections.size() == 1);
 
             auto document = lock(m_document);
             auto collections = document->enabledTextureCollections();
 
-            const auto index = static_cast<size_t>(selections.front());
+            const auto index = static_cast<size_t>(m_collections->currentRow());
             VectorUtils::swapSucc(collections, index);
 
             document->setEnabledTextureCollections(collections);
-            m_collections->SetSelection(static_cast<int>(index + 1));
+            m_collections->setCurrentRow(static_cast<int>(index + 1));
         }
 
-        void FileTextureCollectionEditor::OnReloadTextureCollectionsClicked(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void FileTextureCollectionEditor::OnReloadTextureCollectionsClicked() {
             auto document = lock(m_document);
             document->reloadTextureCollections();
         }
 
-        void FileTextureCollectionEditor::OnUpdateRemoveButtonUI(wxUpdateUIEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            event.Enable(canRemoveTextureCollections());
-        }
-
-        void FileTextureCollectionEditor::OnUpdateMoveUpButtonUI(wxUpdateUIEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            event.Enable(canMoveTextureCollectionsUp());
-        }
-
-        void FileTextureCollectionEditor::OnUpdateMoveDownButtonUI(wxUpdateUIEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            event.Enable(canMoveTextureCollectionsDown());
-        }
-
-        void FileTextureCollectionEditor::OnUpdateReloadTextureCollectionsButtonUI(wxUpdateUIEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            event.Enable(!m_collections->IsEmpty());
-        }
-
         void FileTextureCollectionEditor::createGui() {
-            m_collections = new wxListBox(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxLB_MULTIPLE | wxBORDER_NONE);
+            m_collections = new QListWidget();
+            m_collections->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-            auto* addTextureCollectionsButton = createBitmapButton(this, "Add.png", "Add texture collections from the file system");
-            auto* removeTextureCollectionsButton = createBitmapButton(this, "Remove.png", "Remove the selected texture collections");
-            auto* moveTextureCollectionUpButton = createBitmapButton(this, "Up.png", "Move the selected texture collection up");
-            auto* moveTextureCollectionDownButton = createBitmapButton(this, "Down.png", "Move the selected texture collection down");
-            auto* reloadTextureCollectionsButton = createBitmapButton(this, "Refresh.png", "Reload all texture collections");
+            m_addTextureCollectionsButton = createBitmapButton(this, "Add.png", "Add texture collections from the file system");
+            m_removeTextureCollectionsButton = createBitmapButton(this, "Remove.png", "Remove the selected texture collections");
+            m_moveTextureCollectionUpButton = createBitmapButton(this, "Up.png", "Move the selected texture collection up");
+            m_moveTextureCollectionDownButton = createBitmapButton(this, "Down.png", "Move the selected texture collection down");
+            m_reloadTextureCollectionsButton = createBitmapButton(this, "Refresh.png", "Reload all texture collections");
 
-            addTextureCollectionsButton->Bind(wxEVT_BUTTON, &FileTextureCollectionEditor::OnAddTextureCollectionsClicked, this);
-            removeTextureCollectionsButton->Bind(wxEVT_BUTTON, &FileTextureCollectionEditor::OnRemoveTextureCollectionsClicked, this);
-            moveTextureCollectionUpButton->Bind(wxEVT_BUTTON, &FileTextureCollectionEditor::OnMoveTextureCollectionUpClicked, this);
-            moveTextureCollectionDownButton->Bind(wxEVT_BUTTON, &FileTextureCollectionEditor::OnMoveTextureCollectionDownClicked, this);
-            reloadTextureCollectionsButton->Bind(wxEVT_BUTTON, &FileTextureCollectionEditor::OnReloadTextureCollectionsClicked, this);
-            removeTextureCollectionsButton->Bind(wxEVT_UPDATE_UI, &FileTextureCollectionEditor::OnUpdateRemoveButtonUI, this);
-            moveTextureCollectionUpButton->Bind(wxEVT_UPDATE_UI, &FileTextureCollectionEditor::OnUpdateMoveUpButtonUI, this);
-            moveTextureCollectionDownButton->Bind(wxEVT_UPDATE_UI, &FileTextureCollectionEditor::OnUpdateMoveDownButtonUI, this);
-            reloadTextureCollectionsButton->Bind(wxEVT_UPDATE_UI, &FileTextureCollectionEditor::OnUpdateReloadTextureCollectionsButtonUI, this);
+            connect(m_addTextureCollectionsButton, &QAbstractButton::clicked, this, &FileTextureCollectionEditor::OnAddTextureCollectionsClicked);
+            connect(m_removeTextureCollectionsButton, &QAbstractButton::clicked, this, &FileTextureCollectionEditor::OnRemoveTextureCollectionsClicked);
+            connect(m_moveTextureCollectionUpButton, &QAbstractButton::clicked, this, &FileTextureCollectionEditor::OnMoveTextureCollectionUpClicked);
+            connect(m_moveTextureCollectionDownButton, &QAbstractButton::clicked, this, &FileTextureCollectionEditor::OnMoveTextureCollectionDownClicked);
+            connect(m_reloadTextureCollectionsButton, &QAbstractButton::clicked, this, &FileTextureCollectionEditor::OnReloadTextureCollectionsClicked);
+
+            connect(m_collections, &QListWidget::itemSelectionChanged, this, &FileTextureCollectionEditor::updateButtons);
 
             auto* buttonSizer = new QHBoxLayout();
-            buttonSizer->Add(addTextureCollectionsButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            buttonSizer->Add(removeTextureCollectionsButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->setSpacing(0);
+            buttonSizer->addWidget(m_addTextureCollectionsButton, 0, Qt::AlignVCenter);
+            buttonSizer->addWidget(m_removeTextureCollectionsButton, 0, Qt::AlignVCenter);
             buttonSizer->addSpacing(LayoutConstants::WideHMargin);
-            buttonSizer->Add(moveTextureCollectionUpButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            buttonSizer->Add(moveTextureCollectionDownButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->addWidget(m_moveTextureCollectionUpButton, 0, Qt::AlignVCenter);
+            buttonSizer->addWidget(m_moveTextureCollectionDownButton, 0, Qt::AlignVCenter);
             buttonSizer->addSpacing(LayoutConstants::WideHMargin);
-            buttonSizer->Add(reloadTextureCollectionsButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            buttonSizer->AddStretchSpacer();
+            buttonSizer->addWidget(m_reloadTextureCollectionsButton, 0, Qt::AlignVCenter);
+            buttonSizer->addStretch(1);
 
             auto* sizer = new QVBoxLayout();
-            sizer->addWidget(m_collections, 1, wxEXPAND);
-            sizer->addWidget(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
-            sizer->addWidget(buttonSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
-            sizer->SetItemMinSize(m_collections, 100, 70);
+            sizer->setContentsMargins(0, 0, 0, 0);
+            sizer->setSpacing(0);
+            sizer->addWidget(m_collections, 1);
+            sizer->addWidget(new BorderLine(BorderLine::Direction_Horizontal), 0); //, wxEXPAND);
+            sizer->addLayout(buttonSizer, 0); //, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
+            //sizer->SetItemMinSize(m_collections, 100, 70);
 
             setLayout(sizer);
+        }
+
+        void FileTextureCollectionEditor::updateButtons() {
+            m_removeTextureCollectionsButton->setEnabled(canRemoveTextureCollections());
+            m_moveTextureCollectionUpButton->setEnabled(canMoveTextureCollectionsUp());
+            m_moveTextureCollectionDownButton->setEnabled(canMoveTextureCollectionsDown());
+            m_reloadTextureCollectionsButton->setEnabled(canReloadTextureCollections());
         }
 
         void FileTextureCollectionEditor::bindObservers() {
@@ -289,12 +272,24 @@ namespace TrenchBroom {
                 updateControls();
         }
 
+        /**
+         * Rebuilds the list widget
+         */
         void FileTextureCollectionEditor::updateControls() {
-            m_collections->Clear();
+            // We need to block QListWidget::itemSelectionChanged from firing while clearing and rebuilding the list
+            // because it will cause debugUIConsistency() to fail, as the number of list items in the UI won't match
+            // the document's texture collections lists.
+            QSignalBlocker blocker(m_collections);
+
+            m_collections->clear();
 
             auto document = lock(m_document);
-            for (const auto& path : document->enabledTextureCollections())
-                m_collections->Append(path.asString());
+            for (const auto& path : document->enabledTextureCollections()) {
+                m_collections->addItem(path.asQString());
+            }
+
+            // Manually update the button states, since QSignalBlocker is blocking the automatic updates
+            updateButtons();
         }
     }
 }

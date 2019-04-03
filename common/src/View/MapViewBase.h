@@ -296,6 +296,8 @@ namespace TrenchBroom {
             void doShowPopupMenu() override;
         public slots:
             void OnShowPopupMenu();
+        public: // QWindow overrides
+            bool event(QEvent* event) override;
         private:
             QMenu* makeEntityGroupsMenu(Assets::EntityDefinition::Type type);
 

@@ -30,6 +30,7 @@
 #include "Renderer/ShaderManager.h"
 #include "Renderer/TextureFont.h"
 #include "Renderer/VertexArray.h"
+#include "View/MapDocument.h"
 
 #include <vecmath/vec.h>
 #include <vecmath/mat.h>
@@ -45,18 +46,22 @@ namespace TrenchBroom {
         TextureBrowserView::TextureBrowserView(QWidget* parent,
                                                QScrollBar* scrollBar,
                                                GLContextManager& contextManager,
-                                               Assets::TextureManager& textureManager) :
+                                               MapDocumentWPtr document) :
         CellView(contextManager, scrollBar),
-        m_textureManager(textureManager),
+        m_document(document),
         m_group(false),
         m_hideUnused(false),
         m_sortOrder(SO_Name),
         m_selectedTexture(nullptr) {
-            m_textureManager.usageCountDidChange.addObserver(this, &TextureBrowserView::usageCountDidChange);
+            MapDocumentSPtr doc = lock(m_document);
+            doc->textureManager().usageCountDidChange.addObserver(this, &TextureBrowserView::usageCountDidChange);
         }
 
         TextureBrowserView::~TextureBrowserView() {
-            m_textureManager.usageCountDidChange.removeObserver(this, &TextureBrowserView::usageCountDidChange);
+            if (!expired(m_document)) {
+                MapDocumentSPtr doc = lock(m_document);
+                doc->textureManager().usageCountDidChange.removeObserver(this, &TextureBrowserView::usageCountDidChange);
+            }
             clear();
         }
 
@@ -216,7 +221,8 @@ namespace TrenchBroom {
         };
 
         Assets::TextureCollectionList TextureBrowserView::getCollections() const {
-            Assets::TextureCollectionList collections = m_textureManager.collections();
+            MapDocumentSPtr doc = lock(m_document);
+            Assets::TextureCollectionList collections = doc->textureManager().collections();
             if (m_hideUnused)
                 VectorUtils::eraseIf(collections, MatchUsageCount());
             if (m_sortOrder == SO_Usage)
@@ -232,7 +238,8 @@ namespace TrenchBroom {
         }
 
         Assets::TextureList TextureBrowserView::getTextures() const {
-            Assets::TextureList textures = m_textureManager.textures();
+            MapDocumentSPtr doc = lock(m_document);
+            Assets::TextureList textures = doc->textureManager().textures();
             filterTextures(textures);
             sortTextures(textures);
             return textures;
@@ -259,7 +266,8 @@ namespace TrenchBroom {
         void TextureBrowserView::doClear() {}
 
         void TextureBrowserView::doRender(Layout& layout, const float y, const float height) {
-            m_textureManager.commitChanges();
+            MapDocumentSPtr doc = lock(m_document);
+            doc->textureManager().commitChanges();
 
             const float viewLeft      = static_cast<float>(0);
             const float viewTop       = static_cast<float>(size().height());
@@ -505,16 +513,12 @@ namespace TrenchBroom {
                 if (!cellData(*result).texture->overridden()) {
                     auto* texture = cellData(*result).texture;
 
-#if 0 // FIXME: TextureSelectedCommand
-                    TextureSelectedCommand command;
-                    command.SetEventObject(this);
-                    command.SetId(GetId());
-                    command.setTexture(texture);
-                    ProcessEvent(command);
+                    emit textureSelected(texture);
 
-                    if (command.IsAllowed())
-                        setSelectedTexture(texture);
-#endif
+                    // NOTE: wx had the ability for the textureSelected event to veto the selection, but it
+                    // wasn't used.
+                    setSelectedTexture(texture);
+
                     Refresh();
                 }
             }

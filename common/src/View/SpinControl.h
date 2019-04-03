@@ -27,9 +27,15 @@ namespace TrenchBroom {
         class SpinControl : public QDoubleSpinBox {
             Q_OBJECT
         public:
-            explicit SpinControl(QWidget* parent) : QDoubleSpinBox(parent) {}
+            explicit SpinControl(QWidget* parent);
+            SpinControl();
 
+        public: // QDoubleSpinBox overrides
             void stepBy(int steps) override;
+        public:
+            void SetRange(double min, double max);
+            void SetIncrements(double regularIncrement, double shiftIncrement, double ctrlIncrement);
+            void SetDigits(unsigned int minDigits, unsigned int maxDigits);
         };
     }
 }

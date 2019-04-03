@@ -58,8 +58,7 @@ namespace TrenchBroom {
         void PointHandleRenderer::doRender(RenderContext& renderContext) {
             const Camera& camera = renderContext.camera();
             const Camera::Viewport& viewport = camera.viewport();
-
-            const vm::mat4x4f projection = vm::orthoMatrix(-1.0f, 1.0f,
+            const vm::mat4x4f projection = vm::orthoMatrix(0.0f, 1.0f,
                                                            static_cast<float>(viewport.x),
                                                            static_cast<float>(viewport.height),
                                                            static_cast<float>(viewport.width),
@@ -67,24 +66,32 @@ namespace TrenchBroom {
             const vm::mat4x4f view = vm::viewMatrix(vm::vec3f::neg_z, vm::vec3f::pos_y);
             ReplaceTransformation ortho(renderContext.transformation(), projection, view);
 
+            // Un-occluded handles: use depth test, draw fully opaque
+            renderHandles(renderContext, m_pointHandles, m_handle, 1.0f);
+            renderHandles(renderContext, m_highlights, m_highlight, 1.0f);
+
+            // Occluded handles: don't use depth test, but draw translucent
             glAssert(glDisable(GL_DEPTH_TEST));
-            renderHandles(renderContext, m_pointHandles, m_handle);
-            renderHandles(renderContext, m_highlights, m_highlight);
+            renderHandles(renderContext, m_pointHandles, m_handle, 0.33f);
+            renderHandles(renderContext, m_highlights, m_highlight, 0.33f);
             glAssert(glEnable(GL_DEPTH_TEST));
 
             clear();
         }
 
-        void PointHandleRenderer::renderHandles(RenderContext& renderContext, const HandleMap& map, Circle& circle) {
+        void PointHandleRenderer::renderHandles(RenderContext& renderContext, const HandleMap& map, Circle& circle, const float opacity) {
             const Camera& camera = renderContext.camera();
             ActiveShader shader(renderContext.shaderManager(), Shaders::HandleShader);
 
             for (const auto& entry : map) {
-                const Color& color = entry.first;
+                const Color color = mixAlpha(entry.first, opacity);
                 shader.set("Color", color);
 
                 for (const vm::vec3f& position : entry.second) {
-                    const vm::vec3f offset = camera.project(position);
+                    // nudge  towards camera by the handle radius, to prevent lines (brush edges, etc.) from clipping into the handle
+                    const vm::vec3f nudgeTowardsCamera = vm::normalize(camera.position() - position) * pref(Preferences::HandleRadius);
+
+                    const vm::vec3f offset = camera.project(position + nudgeTowardsCamera) * vm::vec3f(1.0f, 1.0f, -1.0f);
                     MultiplyModelMatrix translate(renderContext.transformation(), vm::translationMatrix(offset));
                     circle.render();
                 }

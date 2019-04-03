@@ -74,6 +74,10 @@ namespace TrenchBroom {
         }
 #endif
 
+        void setHint(QLineEdit* ctrl, const char* hint) {
+            ctrl->setPlaceholderText(hint);
+        }
+
         void centerOnScreen(QMainWindow* window) {
             window->setGeometry(
                 QStyle::alignedRect(
@@ -140,8 +144,6 @@ namespace TrenchBroom {
 #else
             return QSettings();
 #endif
-
-
         }
 
         Color fromQColor(const QColor& color) {

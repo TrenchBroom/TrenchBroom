@@ -65,18 +65,12 @@ namespace TrenchBroom {
         wxSizer* wrapDialogButtonSizer(wxSizer* buttonSizer, QWidget* parent);
 
         void setWindowIcon(wxTopLevelWindow* window);
-        template <typename T>
-        void setHint(T* ctrl, const QString& hint) {
-#ifndef __WXGTK20__
-            ctrl->SetHint(hint);
-#endif
-        }
-
         QStringList filterBySuffix(const QStringList& strings, const QString& suffix, bool caseSensitive = false);
 
         QString wxToQString(const QString& string);
 #endif
 
+        void setHint(QLineEdit* ctrl, const char* hint);
         void centerOnScreen(QMainWindow* window);
 
         void makeDefault(QWidget* widget);

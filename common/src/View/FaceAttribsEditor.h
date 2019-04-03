@@ -23,28 +23,23 @@
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
 
-#include <wx/panel.h>
+#include <QWidget>
 
-class wxBitmap;
-class wxButton;
-class wxGridBagSizer;
-class wxSpinCtrl;
-class wxSpinEvent;
 class QLabel;
-class wxTextCtrl;
+class QLineEdit;
+class QGridLayout;
 
 namespace TrenchBroom {
     namespace View {
-        class ControllerFacade;
         class FlagChangedCommand;
         class FlagsPopupEditor;
         class GLContextManager;
         class Selection;
         class SpinControl;
-        class SpinControlEvent;
         class UVEditor;
 
         class FaceAttribsEditor : public QWidget {
+            Q_OBJECT
         private:
             MapDocumentWPtr m_document;
             Model::BrushFaceList m_faces;
@@ -59,7 +54,7 @@ namespace TrenchBroom {
             SpinControl* m_rotationEditor;
             QLabel* m_surfaceValueLabel;
             SpinControl* m_surfaceValueEditor;
-            wxGridBagSizer* m_faceAttribsSizer;
+            QGridLayout* m_faceAttribsSizer;
 
             QLabel* m_surfaceFlagsLabel;
             FlagsPopupEditor* m_surfaceFlagsEditor;
@@ -67,23 +62,23 @@ namespace TrenchBroom {
             FlagsPopupEditor* m_contentFlagsEditor;
 
             QLabel* m_colorLabel;
-            wxTextCtrl* m_colorEditor;
+            QLineEdit* m_colorEditor;
         public:
             FaceAttribsEditor(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
             ~FaceAttribsEditor();
 
             bool cancelMouseDrag();
         private:
-            void OnXOffsetChanged(SpinControlEvent& event);
-            void OnYOffsetChanged(SpinControlEvent& event);
-            void OnRotationChanged(SpinControlEvent& event);
-            void OnXScaleChanged(SpinControlEvent& event);
-            void OnYScaleChanged(SpinControlEvent& event);
-            void OnSurfaceFlagChanged(FlagChangedCommand& command);
-            void OnContentFlagChanged(FlagChangedCommand& command);
-            void OnSurfaceValueChanged(SpinControlEvent& event);
-            void OnColorValueChanged(wxCommandEvent& event);
-            void OnIdle(wxIdleEvent& event);
+            void OnXOffsetChanged(double value);
+            void OnYOffsetChanged(double value);
+            void OnRotationChanged(double value);
+            void OnXScaleChanged(double value);
+            void OnYScaleChanged(double value);
+            void OnSurfaceFlagChanged(size_t index, int setFlag, int mixedFlag);
+            void OnContentFlagChanged(size_t index, int setFlag, int mixedFlag);
+            void OnSurfaceValueChanged(double value);
+            void OnColorValueChanged(const QString& text);
+            void gridDidChange();
         private:
             void createGui(GLContextManager& contextManager);
             void bindEvents();

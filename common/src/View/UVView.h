@@ -59,6 +59,7 @@ namespace TrenchBroom {
          the texture axes as well.
          */
         class UVView : public RenderView, public ToolBoxConnector {
+            Q_OBJECT
         public:
             static const Model::Hit::HitType FaceHit;
         private:
@@ -69,7 +70,7 @@ namespace TrenchBroom {
 
             ToolBox m_toolBox;
         public:
-            UVView(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
+            UVView(MapDocumentWPtr document, GLContextManager& contextManager);
             ~UVView() override;
 
             void setSubDivisions(const vm::vec2i& subDivisions);

@@ -22,10 +22,10 @@
 
 #include "View/ViewTypes.h"
 
-#include <wx/panel.h>
+#include <QWidget>
 
-class wxBitmapButton;
-class wxListBox;
+class QListWidget;
+class QAbstractButton;
 
 namespace TrenchBroom {
     namespace IO {
@@ -34,31 +34,37 @@ namespace TrenchBroom {
 
     namespace View {
         class FileTextureCollectionEditor : public QWidget {
+            Q_OBJECT
         private:
             MapDocumentWPtr m_document;
 
-            wxListBox* m_collections;
+            QListWidget* m_collections;
+
+            QAbstractButton* m_addTextureCollectionsButton;
+            QAbstractButton* m_removeTextureCollectionsButton;
+            QAbstractButton* m_moveTextureCollectionUpButton;
+            QAbstractButton* m_moveTextureCollectionDownButton;
+            QAbstractButton* m_reloadTextureCollectionsButton;
         public:
             FileTextureCollectionEditor(QWidget* parent, MapDocumentWPtr document);
-            ~FileTextureCollectionEditor();
+            ~FileTextureCollectionEditor() override;
 
             bool debugUIConsistency() const;
             bool canRemoveTextureCollections() const;
             bool canMoveTextureCollectionsUp() const;
             bool canMoveTextureCollectionsDown() const;
+            bool canReloadTextureCollections() const;
 
-            void OnAddTextureCollectionsClicked(wxCommandEvent& event);
-            void OnRemoveTextureCollectionsClicked(wxCommandEvent& event);
-            void OnMoveTextureCollectionUpClicked(wxCommandEvent& event);
-            void OnMoveTextureCollectionDownClicked(wxCommandEvent& event);
-            void OnReloadTextureCollectionsClicked(wxCommandEvent& event);
-            void OnUpdateRemoveButtonUI(wxUpdateUIEvent& event);
-            void OnUpdateMoveUpButtonUI(wxUpdateUIEvent& event);
-            void OnUpdateMoveDownButtonUI(wxUpdateUIEvent& event);
-            void OnUpdateReloadTextureCollectionsButtonUI(wxUpdateUIEvent& event);
+            void OnAddTextureCollectionsClicked();
+            void OnRemoveTextureCollectionsClicked();
+            void OnMoveTextureCollectionUpClicked();
+            void OnMoveTextureCollectionDownClicked();
+            void OnReloadTextureCollectionsClicked();
         private:
             void createGui();
-
+        private slots:
+            void updateButtons();
+        private:
             void bindObservers();
             void unbindObservers();
 

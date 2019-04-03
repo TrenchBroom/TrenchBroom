@@ -30,7 +30,6 @@
 #include "Model/MapFormat.h"
 #include "Model/World.h"
 #include "View/BorderLine.h"
-#include "View/FlagChangedCommand.h"
 #include "View/FlagsPopupEditor.h"
 #include "View/Grid.h"
 #include "View/ViewConstants.h"
@@ -40,13 +39,10 @@
 #include "View/ViewUtils.h"
 #include "View/wxUtils.h"
 
-#include <wx/bitmap.h>
-#include <wx/button.h>
-#include <wx/gbsizer.h>
-#include <wx/sizer.h>
 #include <QLabel>
-#include <wx/textctrl.h>
-#include <wx/wupdlock.h>
+#include <QLineEdit>
+#include <QVBoxLayout>
+#include <QGridLayout>
 
 namespace TrenchBroom {
     namespace View {
@@ -81,140 +77,138 @@ namespace TrenchBroom {
             return m_uvEditor->cancelMouseDrag();
         }
 
-        void FaceAttribsEditor::OnXOffsetChanged(SpinControlEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void FaceAttribsEditor::OnXOffsetChanged(double value) {
             Model::ChangeBrushFaceAttributesRequest request;
-            if (event.IsSpin())
-                request.addXOffset(static_cast<float>(event.GetValue()));
-            else
-                request.setXOffset(static_cast<float>(event.GetValue()));
+            request.setXOffset(static_cast<float>(value));
 
             MapDocumentSPtr document = lock(m_document);
-            if (!document->setFaceAttributes(request) || event.IsSpin())
-                event.Veto();
+            if (!document->hasSelectedBrushFaces()) {
+                return;
+            }
+
+            if (!document->setFaceAttributes(request)) {
+                ; //event.Veto(); // FIXME: What to do?
+            }
         }
 
-        void FaceAttribsEditor::OnYOffsetChanged(SpinControlEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void FaceAttribsEditor::OnYOffsetChanged(double value) {
             Model::ChangeBrushFaceAttributesRequest request;
-            if (event.IsSpin())
-                request.addYOffset(static_cast<float>(event.GetValue()));
-            else
-                request.setYOffset(static_cast<float>(event.GetValue()));
+            request.setYOffset(static_cast<float>(value));
 
             MapDocumentSPtr document = lock(m_document);
-            if (!document->setFaceAttributes(request) || event.IsSpin())
-                event.Veto();
-        }
+            if (!document->hasSelectedBrushFaces()) {
+                return;
+            }
 
-        void FaceAttribsEditor::OnRotationChanged(SpinControlEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            Model::ChangeBrushFaceAttributesRequest request;
-            if (event.IsSpin())
-                request.addRotation(static_cast<float>(event.GetValue()));
-            else
-                request.setRotation(static_cast<float>(event.GetValue()));
-
-            MapDocumentSPtr document = lock(m_document);
-            if (!document->setFaceAttributes(request) || event.IsSpin())
-                event.Veto();
-        }
-
-        void FaceAttribsEditor::OnXScaleChanged(SpinControlEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            Model::ChangeBrushFaceAttributesRequest request;
-            if (event.IsSpin())
-                request.addXScale(static_cast<float>(event.GetValue()));
-            else
-                request.setXScale(static_cast<float>(event.GetValue()));
-
-            MapDocumentSPtr document = lock(m_document);
-            if (!document->setFaceAttributes(request) || event.IsSpin())
-                event.Veto();
-        }
-
-        void FaceAttribsEditor::OnYScaleChanged(SpinControlEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            Model::ChangeBrushFaceAttributesRequest request;
-            if (event.IsSpin())
-                request.addYScale(static_cast<float>(event.GetValue()));
-            else
-                request.setYScale(static_cast<float>(event.GetValue()));
-
-            MapDocumentSPtr document = lock(m_document);
-            if (!document->setFaceAttributes(request) || event.IsSpin())
-                event.Veto();
-        }
-
-        void FaceAttribsEditor::OnSurfaceFlagChanged(FlagChangedCommand& command) {
-            if (IsBeingDeleted()) return;
-
-            Model::ChangeBrushFaceAttributesRequest request;
-            if (command.flagSet())
-                request.setSurfaceFlag(command.index());
-            else
-                request.unsetSurfaceFlag(command.index());
-
-            MapDocumentSPtr document = lock(m_document);
             if (!document->setFaceAttributes(request))
-                command.Veto();
+                ; //event.Veto(); // FIXME: What to do?
         }
 
-        void FaceAttribsEditor::OnContentFlagChanged(FlagChangedCommand& command) {
-            if (IsBeingDeleted()) return;
-
+        void FaceAttribsEditor::OnRotationChanged(double value) {
             Model::ChangeBrushFaceAttributesRequest request;
-            if (command.flagSet())
-                request.setContentFlag(command.index());
-            else
-                request.unsetContentFlag(command.index());
+            request.setRotation(static_cast<float>(value));
 
             MapDocumentSPtr document = lock(m_document);
+            if (!document->hasSelectedBrushFaces()) {
+                return;
+            }
+
             if (!document->setFaceAttributes(request))
-                command.Veto();
+                ; //event.Veto(); // FIXME: What to do?
         }
 
-        void FaceAttribsEditor::OnSurfaceValueChanged(SpinControlEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void FaceAttribsEditor::OnXScaleChanged(double value) {
             Model::ChangeBrushFaceAttributesRequest request;
-            if (event.IsSpin())
-                request.addSurfaceValue(static_cast<float>(event.GetValue()));
-            else
-                request.setSurfaceValue(static_cast<float>(event.GetValue()));
+            request.setXScale(static_cast<float>(value));
 
             MapDocumentSPtr document = lock(m_document);
-            if (!document->setFaceAttributes(request) || event.IsSpin())
-                event.Veto();
+            if (!document->hasSelectedBrushFaces()) {
+                return;
+            }
+
+            if (!document->setFaceAttributes(request))
+                ; //event.Veto(); // FIXME: What to do?
         }
 
-        void FaceAttribsEditor::OnColorValueChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void FaceAttribsEditor::OnYScaleChanged(double value) {
+            Model::ChangeBrushFaceAttributesRequest request;
+            request.setYScale(static_cast<float>(value));
 
-            const String str = m_colorEditor->GetValue().ToStdString();
+            MapDocumentSPtr document = lock(m_document);
+            if (!document->hasSelectedBrushFaces()) {
+                return;
+            }
+
+            if (!document->setFaceAttributes(request))
+                ; //event.Veto(); // FIXME: What to do?
+        }
+
+        void FaceAttribsEditor::OnSurfaceFlagChanged(size_t index, int setFlag, int mixedFlag) {
+            Model::ChangeBrushFaceAttributesRequest request;
+            if (setFlag)
+                request.setSurfaceFlag(index);
+            else
+                request.unsetSurfaceFlag(index);
+
+            MapDocumentSPtr document = lock(m_document);
+            if (!document->hasSelectedBrushFaces()) {
+                return;
+            }
+
+            if (!document->setFaceAttributes(request))
+                ; //event.Veto(); // FIXME: What to do?
+        }
+
+        void FaceAttribsEditor::OnContentFlagChanged(size_t index, int setFlag, int mixedFlag) {
+            Model::ChangeBrushFaceAttributesRequest request;
+            if (setFlag)
+                request.setContentFlag(index);
+            else
+                request.unsetContentFlag(index);
+
+            MapDocumentSPtr document = lock(m_document);
+            if (!document->hasSelectedBrushFaces()) {
+                return;
+            }
+
+            if (!document->setFaceAttributes(request))
+                ; //event.Veto(); // FIXME: What to do?
+        }
+
+        void FaceAttribsEditor::OnSurfaceValueChanged(double value) {
+            Model::ChangeBrushFaceAttributesRequest request;
+            request.setSurfaceValue(static_cast<float>(value));
+
+            MapDocumentSPtr document = lock(m_document);
+            if (!document->hasSelectedBrushFaces()) {
+                return;
+            }
+
+            if (!document->setFaceAttributes(request))
+                ; //event.Veto(); // FIXME: What to do?
+        }
+
+        void FaceAttribsEditor::OnColorValueChanged(const QString& text) {
+            MapDocumentSPtr document = lock(m_document);
+            if (!document->hasSelectedBrushFaces()) {
+                return;
+            }
+
+            const String str = m_colorEditor->text().toStdString();
             if (!StringUtils::isBlank(str)) {
                 if (Color::canParse(str)) {
                     Model::ChangeBrushFaceAttributesRequest request;
                     request.setColor(Color::parse(str));
-                    MapDocumentSPtr document = lock(m_document);
                     document->setFaceAttributes(request);
                 }
             } else {
                 Model::ChangeBrushFaceAttributesRequest request;
                 request.setColor(Color());
-                MapDocumentSPtr document = lock(m_document);
                 document->setFaceAttributes(request);
             }
         }
 
-        void FaceAttribsEditor::OnIdle(wxIdleEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void FaceAttribsEditor::gridDidChange() {
             MapDocumentSPtr document = lock(m_document);
             Grid& grid = document->grid();
 
@@ -226,148 +220,159 @@ namespace TrenchBroom {
         void FaceAttribsEditor::createGui(GLContextManager& contextManager) {
             m_uvEditor = new UVEditor(this, m_document, contextManager);
 
-            QLabel* textureNameLabel = new QLabel(this, wxID_ANY, "Texture");
-            textureNameLabel->SetFont(textureNameLabel->GetFont().Bold());
-            m_textureName = new QLabel(this, wxID_ANY, "none");
+            QLabel* textureNameLabel = new QLabel("Texture");
+            // FIXME: fonts
+            //textureNameLabel->SetFont(textureNameLabel->GetFont().Bold());
+            m_textureName = new QLabel("none");
 
-            QLabel* textureSizeLabel = new QLabel(this, wxID_ANY, "Size");
-            textureSizeLabel->SetFont(textureSizeLabel->GetFont().Bold());
-            m_textureSize = new QLabel(this, wxID_ANY, "");
+            QLabel* textureSizeLabel = new QLabel("Size");
+            // FIXME: fonts
+//            textureSizeLabel->SetFont(textureSizeLabel->GetFont().Bold());
+            m_textureSize = new QLabel("");
 
             const double max = std::numeric_limits<double>::max();
             const double min = -max;
 
-            QLabel* xOffsetLabel = new QLabel(this, wxID_ANY, "X Offset");
-            xOffsetLabel->SetFont(xOffsetLabel->GetFont().Bold());
-            m_xOffsetEditor = new SpinControl(this);
+            QLabel* xOffsetLabel = new QLabel("X Offset");
+            // FIXME: fonts
+//            xOffsetLabel->SetFont(xOffsetLabel->GetFont().Bold());
+            m_xOffsetEditor = new SpinControl();
             m_xOffsetEditor->SetRange(min, max);
             m_xOffsetEditor->SetDigits(0, 6);
 
-            QLabel* yOffsetLabel = new QLabel(this, wxID_ANY, "Y Offset");
-            yOffsetLabel->SetFont(yOffsetLabel->GetFont().Bold());
-            m_yOffsetEditor = new SpinControl(this);
+            QLabel* yOffsetLabel = new QLabel("Y Offset");
+            // FIXME: fonts
+//            yOffsetLabel->SetFont(yOffsetLabel->GetFont().Bold());
+            m_yOffsetEditor = new SpinControl();
             m_yOffsetEditor->SetRange(min, max);
             m_yOffsetEditor->SetDigits(0, 6);
 
-            QLabel* xScaleLabel = new QLabel(this, wxID_ANY, "X Scale");
-            xScaleLabel->SetFont(xScaleLabel->GetFont().Bold());
-            m_xScaleEditor = new SpinControl(this);
+            QLabel* xScaleLabel = new QLabel("X Scale");
+            // FIXME: fonts
+//            xScaleLabel->SetFont(xScaleLabel->GetFont().Bold());
+            m_xScaleEditor = new SpinControl();
             m_xScaleEditor->SetRange(min, max);
             m_xScaleEditor->SetIncrements(0.1, 0.25, 0.01);
             m_xScaleEditor->SetDigits(0, 6);
 
-            QLabel* yScaleLabel = new QLabel(this, wxID_ANY, "Y Scale");
-            yScaleLabel->SetFont(yScaleLabel->GetFont().Bold());
-            m_yScaleEditor = new SpinControl(this);
+            QLabel* yScaleLabel = new QLabel("Y Scale");
+            // FIXME: fonts
+//            yScaleLabel->SetFont(yScaleLabel->GetFont().Bold());
+            m_yScaleEditor = new SpinControl();
             m_yScaleEditor->SetRange(min, max);
             m_yScaleEditor->SetIncrements(0.1, 0.25, 0.01);
             m_yScaleEditor->SetDigits(0, 6);
 
-            QLabel* rotationLabel = new QLabel(this, wxID_ANY, "Angle");
-            rotationLabel->SetFont(rotationLabel->GetFont().Bold());
-            m_rotationEditor = new SpinControl(this);
+            QLabel* rotationLabel = new QLabel("Angle");
+            // FIXME: fonts
+//            rotationLabel->SetFont(rotationLabel->GetFont().Bold());
+            m_rotationEditor = new SpinControl();
             m_rotationEditor->SetRange(min, max);
             m_rotationEditor->SetDigits(0, 6);
 
-            m_surfaceValueLabel = new QLabel(this, wxID_ANY, "Value", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
-            m_surfaceValueLabel->SetFont(m_surfaceValueLabel->GetFont().Bold());
-            m_surfaceValueEditor = new SpinControl(this);
+            m_surfaceValueLabel = new QLabel("Value");
+            // FIXME: fonts
+//            m_surfaceValueLabel->SetFont(m_surfaceValueLabel->GetFont().Bold());
+            m_surfaceValueEditor = new SpinControl();
             m_surfaceValueEditor->SetRange(min, max);
             m_surfaceValueEditor->SetIncrements(1.0, 10.0, 100.0);
             m_surfaceValueEditor->SetDigits(0, 6);
 
-            m_surfaceFlagsLabel = new QLabel(this, wxID_ANY, "Surface", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
-            m_surfaceFlagsLabel->SetFont(m_surfaceFlagsLabel->GetFont().Bold());
+            m_surfaceFlagsLabel = new QLabel("Surface");
+            // FIXME: fonts
+//            m_surfaceFlagsLabel->SetFont(m_surfaceFlagsLabel->GetFont().Bold());
             m_surfaceFlagsEditor = new FlagsPopupEditor(this, 2);
 
-            m_contentFlagsLabel = new QLabel(this, wxID_ANY, "Content", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
-            m_contentFlagsLabel->SetFont(m_contentFlagsLabel->GetFont().Bold());
+            m_contentFlagsLabel = new QLabel("Content");
+            // FIXME: fonts
+//            m_contentFlagsLabel->SetFont(m_contentFlagsLabel->GetFont().Bold());
             m_contentFlagsEditor = new FlagsPopupEditor(this, 2);
 
-            m_colorLabel = new QLabel(this, wxID_ANY, "Color", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
-            m_colorLabel->SetFont(m_colorLabel->GetFont().Bold());
-            m_colorEditor = new wxTextCtrl(this, wxID_ANY);
+            m_colorLabel = new QLabel("Color");
+            // FIXME: fonts
+//            m_colorLabel->SetFont(m_colorLabel->GetFont().Bold());
+            m_colorEditor = new QLineEdit();
 
-            const int LabelMargin  = LayoutConstants::NarrowHMargin;
-            const int EditorMargin = LayoutConstants::WideHMargin;
-            const int RowMargin    = LayoutConstants::NarrowVMargin;
+//            const int LabelMargin  = LayoutConstants::NarrowHMargin;
+//            const int EditorMargin = LayoutConstants::WideHMargin;
+//            const int RowMargin    = LayoutConstants::NarrowVMargin;
 
-            const int LabelFlags   = wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxRIGHT;
-            const int ValueFlags   = wxALIGN_CENTER_VERTICAL | wxRIGHT;
-            const int Editor1Flags = wxEXPAND | wxRIGHT;
-            const int Editor2Flags = wxEXPAND;
+            const Qt::Alignment LabelFlags   = Qt::AlignVCenter | Qt::AlignRight; // wxALIGN_RIGHT | Qt::AlignVCenter | wxRIGHT;
+            const Qt::Alignment ValueFlags   = Qt::AlignVCenter; //Qt::AlignVCenter | wxRIGHT;
+            const Qt::Alignment Editor1Flags = 0;
+            const Qt::Alignment Editor2Flags = 0;
 
             int r = 0;
             int c = 0;
 
-            m_faceAttribsSizer = new wxGridBagSizer(RowMargin);
-            m_faceAttribsSizer->Add(textureNameLabel,     wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
-            m_faceAttribsSizer->Add(m_textureName,        wxGBPosition(r,c++), wxDefaultSpan, ValueFlags,   EditorMargin);
-            m_faceAttribsSizer->Add(textureSizeLabel,     wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
-            m_faceAttribsSizer->Add(m_textureSize,        wxGBPosition(r,c++), wxDefaultSpan, ValueFlags,   EditorMargin);
+            m_faceAttribsSizer = new QGridLayout();
+            m_faceAttribsSizer->addWidget(textureNameLabel,     r,c++, LabelFlags);
+            m_faceAttribsSizer->addWidget(m_textureName,        r,c++, ValueFlags);
+            m_faceAttribsSizer->addWidget(textureSizeLabel,     r,c++, LabelFlags);
+            m_faceAttribsSizer->addWidget(m_textureSize,        r,c++, ValueFlags);
             ++r; c = 0;
 
-            m_faceAttribsSizer->Add(xOffsetLabel,         wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
-            m_faceAttribsSizer->Add(m_xOffsetEditor,      wxGBPosition(r,c++), wxDefaultSpan, Editor1Flags, EditorMargin);
-            m_faceAttribsSizer->Add(yOffsetLabel,         wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
-            m_faceAttribsSizer->Add(m_yOffsetEditor,      wxGBPosition(r,c++), wxDefaultSpan, Editor2Flags, EditorMargin);
+            m_faceAttribsSizer->addWidget(xOffsetLabel,         r,c++, LabelFlags);
+            m_faceAttribsSizer->addWidget(m_xOffsetEditor,      r,c++, Editor1Flags);
+            m_faceAttribsSizer->addWidget(yOffsetLabel,         r,c++, LabelFlags);
+            m_faceAttribsSizer->addWidget(m_yOffsetEditor,      r,c++, Editor2Flags);
             ++r; c = 0;
 
-            m_faceAttribsSizer->Add(xScaleLabel,          wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
-            m_faceAttribsSizer->Add(m_xScaleEditor,       wxGBPosition(r,c++), wxDefaultSpan, Editor1Flags, EditorMargin);
-            m_faceAttribsSizer->Add(yScaleLabel,          wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
-            m_faceAttribsSizer->Add(m_yScaleEditor,       wxGBPosition(r,c++), wxDefaultSpan, Editor2Flags, EditorMargin);
+            m_faceAttribsSizer->addWidget(xScaleLabel,          r,c++, LabelFlags);
+            m_faceAttribsSizer->addWidget(m_xScaleEditor,       r,c++, Editor1Flags);
+            m_faceAttribsSizer->addWidget(yScaleLabel,          r,c++, LabelFlags);
+            m_faceAttribsSizer->addWidget(m_yScaleEditor,       r,c++, Editor2Flags);
             ++r; c = 0;
 
-            m_faceAttribsSizer->Add(rotationLabel,        wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
-            m_faceAttribsSizer->Add(m_rotationEditor,     wxGBPosition(r,c++), wxDefaultSpan, Editor1Flags, EditorMargin);
-            m_faceAttribsSizer->Add(m_surfaceValueLabel,  wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
-            m_faceAttribsSizer->Add(m_surfaceValueEditor, wxGBPosition(r,c++), wxDefaultSpan, Editor2Flags, EditorMargin);
+            m_faceAttribsSizer->addWidget(rotationLabel,        r,c++, LabelFlags);
+            m_faceAttribsSizer->addWidget(m_rotationEditor,     r,c++, Editor1Flags);
+            m_faceAttribsSizer->addWidget(m_surfaceValueLabel,  r,c++, LabelFlags);
+            m_faceAttribsSizer->addWidget(m_surfaceValueEditor, r,c++, Editor2Flags);
             ++r; c = 0;
 
-            m_faceAttribsSizer->Add(m_surfaceFlagsLabel,  wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
-            m_faceAttribsSizer->Add(m_surfaceFlagsEditor, wxGBPosition(r,c++), wxGBSpan(1,3), Editor2Flags, EditorMargin);
+            m_faceAttribsSizer->addWidget(m_surfaceFlagsLabel,  r,c++, LabelFlags);
+            m_faceAttribsSizer->addWidget(m_surfaceFlagsEditor, r,c++, 1,3, Editor2Flags);
             ++r; c = 0;
 
-            m_faceAttribsSizer->Add(m_contentFlagsLabel,  wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
-            m_faceAttribsSizer->Add(m_contentFlagsEditor, wxGBPosition(r,c++), wxGBSpan(1,3), Editor2Flags, EditorMargin);
+            m_faceAttribsSizer->addWidget(m_contentFlagsLabel,  r,c++, LabelFlags);
+            m_faceAttribsSizer->addWidget(m_contentFlagsEditor, r,c++, 1,3, Editor2Flags);
             ++r; c = 0;
 
-            m_faceAttribsSizer->Add(m_colorLabel,         wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
-            m_faceAttribsSizer->Add(m_colorEditor,        wxGBPosition(r,c++), wxGBSpan(1,3), Editor2Flags, EditorMargin);
+            m_faceAttribsSizer->addWidget(m_colorLabel,         r,c++, LabelFlags);
+            m_faceAttribsSizer->addWidget(m_colorEditor,        r,c++, 1,3, Editor2Flags);
             ++r; c = 0;
 
-            m_faceAttribsSizer->AddGrowableCol(1);
-            m_faceAttribsSizer->AddGrowableCol(3);
-            m_faceAttribsSizer->SetItemMinSize(m_uvEditor, 100, 100);
-            m_faceAttribsSizer->SetItemMinSize(m_xOffsetEditor, 50, m_xOffsetEditor->GetSize().y);
-            m_faceAttribsSizer->SetItemMinSize(m_yOffsetEditor, 50, m_yOffsetEditor->GetSize().y);
-            m_faceAttribsSizer->SetItemMinSize(m_xScaleEditor, 50, m_xScaleEditor->GetSize().y);
-            m_faceAttribsSizer->SetItemMinSize(m_yScaleEditor, 50, m_yScaleEditor->GetSize().y);
-            m_faceAttribsSizer->SetItemMinSize(m_rotationEditor, 50, m_rotationEditor->GetSize().y);
-            m_faceAttribsSizer->SetItemMinSize(m_surfaceValueEditor, 50, m_rotationEditor->GetSize().y);
+//            m_faceAttribsSizer->AddGrowableCol(1);
+//            m_faceAttribsSizer->AddGrowableCol(3);
+//            m_faceAttribsSizer->SetItemMinSize(m_uvEditor, 100, 100);
+//            m_faceAttribsSizer->SetItemMinSize(m_xOffsetEditor, 50, m_xOffsetEditor->GetSize().y);
+//            m_faceAttribsSizer->SetItemMinSize(m_yOffsetEditor, 50, m_yOffsetEditor->GetSize().y);
+//            m_faceAttribsSizer->SetItemMinSize(m_xScaleEditor, 50, m_xScaleEditor->GetSize().y);
+//            m_faceAttribsSizer->SetItemMinSize(m_yScaleEditor, 50, m_yScaleEditor->GetSize().y);
+//            m_faceAttribsSizer->SetItemMinSize(m_rotationEditor, 50, m_rotationEditor->GetSize().y);
+//            m_faceAttribsSizer->SetItemMinSize(m_surfaceValueEditor, 50, m_rotationEditor->GetSize().y);
 
             auto* outerSizer = new QVBoxLayout();
-            outerSizer->Add(m_uvEditor, 1, wxEXPAND);
-            outerSizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
-            outerSizer->addSpacing(LayoutConstants::WideVMargin);
-            outerSizer->Add(m_faceAttribsSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::MediumHMargin);
-            outerSizer->addSpacing(LayoutConstants::WideVMargin);
+            outerSizer->setContentsMargins(0, 0, 0, 0);
+            outerSizer->addWidget(m_uvEditor, 1);
+            outerSizer->addWidget(new BorderLine(BorderLine::Direction_Horizontal)); //, 0, wxEXPAND);
+//            outerSizer->addSpacing(LayoutConstants::WideVMargin);
+            outerSizer->addLayout(m_faceAttribsSizer); //, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::MediumHMargin);
+//            outerSizer->addSpacing(LayoutConstants::WideVMargin);
 
-            SetSizer(outerSizer);
+            setLayout(outerSizer);
         }
 
         void FaceAttribsEditor::bindEvents() {
-            m_xOffsetEditor->Bind(SPIN_CONTROL_EVENT, &FaceAttribsEditor::OnXOffsetChanged, this);
-            m_yOffsetEditor->Bind(SPIN_CONTROL_EVENT, &FaceAttribsEditor::OnYOffsetChanged, this);
-            m_xScaleEditor->Bind(SPIN_CONTROL_EVENT, &FaceAttribsEditor::OnXScaleChanged, this);
-            m_yScaleEditor->Bind(SPIN_CONTROL_EVENT, &FaceAttribsEditor::OnYScaleChanged, this);
-            m_rotationEditor->Bind(SPIN_CONTROL_EVENT, &FaceAttribsEditor::OnRotationChanged, this);
-            m_surfaceValueEditor->Bind(SPIN_CONTROL_EVENT, &FaceAttribsEditor::OnSurfaceValueChanged, this);
-            m_surfaceFlagsEditor->Bind(FLAG_CHANGED_EVENT, &FaceAttribsEditor::OnSurfaceFlagChanged, this);
-            m_contentFlagsEditor->Bind(FLAG_CHANGED_EVENT, &FaceAttribsEditor::OnContentFlagChanged, this);
-            m_colorEditor->Bind(wxEVT_TEXT, &FaceAttribsEditor::OnColorValueChanged, this);
-            Bind(wxEVT_IDLE, &FaceAttribsEditor::OnIdle, this);
+            connect(m_xOffsetEditor, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &FaceAttribsEditor::OnXOffsetChanged);
+            connect(m_yOffsetEditor, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &FaceAttribsEditor::OnYOffsetChanged);
+            connect(m_xScaleEditor, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &FaceAttribsEditor::OnXScaleChanged);
+            connect(m_yScaleEditor, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &FaceAttribsEditor::OnYScaleChanged);
+            connect(m_rotationEditor, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &FaceAttribsEditor::OnRotationChanged);
+            connect(m_surfaceValueEditor, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &FaceAttribsEditor::OnSurfaceValueChanged);
+            connect(m_surfaceFlagsEditor, &FlagsPopupEditor::flagChanged, this, &FaceAttribsEditor::OnSurfaceFlagChanged);
+            connect(m_contentFlagsEditor, &FlagsPopupEditor::flagChanged, this, &FaceAttribsEditor::OnContentFlagChanged);
+            connect(m_colorEditor, &QLineEdit::textEdited, this, &FaceAttribsEditor::OnColorValueChanged);
         }
 
         void FaceAttribsEditor::bindObservers() {
@@ -377,6 +382,7 @@ namespace TrenchBroom {
             document->brushFacesDidChangeNotifier.addObserver(this, &FaceAttribsEditor::brushFacesDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &FaceAttribsEditor::selectionDidChange);
             document->textureCollectionsDidChangeNotifier.addObserver(this, &FaceAttribsEditor::textureCollectionsDidChange);
+            document->grid().gridDidChangeNotifier.addObserver(this, &FaceAttribsEditor::gridDidChange);
         }
 
         void FaceAttribsEditor::unbindObservers() {
@@ -387,6 +393,7 @@ namespace TrenchBroom {
                 document->brushFacesDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::brushFacesDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::selectionDidChange);
                 document->textureCollectionsDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::textureCollectionsDidChange);
+                document->grid().gridDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::gridDidChange);
             }
         }
 
@@ -416,9 +423,23 @@ namespace TrenchBroom {
             updateControls();
         }
 
-        void FaceAttribsEditor::updateControls() {
-            wxWindowUpdateLocker lock(this);
+        static void disableAndSetPlaceholder(QDoubleSpinBox* box, const QString& text) {
+            box->setSpecialValueText(text);
+            box->setValue(box->minimum());
+            box->setEnabled(false);
+        }
 
+        static void setValueOrMulti(QDoubleSpinBox* box, const bool multi, const double value) {
+            if (multi) {
+                box->setSpecialValueText("multi");
+                box->setValue(box->minimum());
+            } else {
+                box->setSpecialValueText("");
+                box->setValue(value);
+            }
+        }
+
+        void FaceAttribsEditor::updateControls() {
             if (hasSurfaceAttribs()) {
                 showSurfaceAttribEditors();
                 QStringList surfaceFlagLabels, surfaceFlagTooltips, contentFlagLabels, contentFlagTooltips;
@@ -477,125 +498,75 @@ namespace TrenchBroom {
                     combineFlags(sizeof(int)*8, face->surfaceContents(), setSurfaceContents, mixedSurfaceContents);
                 }
 
-                m_xOffsetEditor->Enable();
-                m_yOffsetEditor->Enable();
-                m_rotationEditor->Enable();
-                m_xScaleEditor->Enable();
-                m_yScaleEditor->Enable();
-                m_surfaceValueEditor->Enable();
-                m_surfaceFlagsEditor->Enable();
-                m_contentFlagsEditor->Enable();
-                m_colorEditor->Enable();
+                m_xOffsetEditor->setEnabled(true);
+                m_yOffsetEditor->setEnabled(true);
+                m_rotationEditor->setEnabled(true);
+                m_xScaleEditor->setEnabled(true);
+                m_yScaleEditor->setEnabled(true);
+                m_surfaceValueEditor->setEnabled(true);
+                m_surfaceFlagsEditor->setEnabled(true);
+                m_contentFlagsEditor->setEnabled(true);
+                m_colorEditor->setEnabled(true);
 
                 if (textureMulti) {
-                    m_textureName->SetLabel("multi");
-                    m_textureName->SetForegroundColour(*wxLIGHT_GREY);
-                    m_textureSize->SetLabel("multi");
-                    m_textureSize->SetForegroundColour(*wxLIGHT_GREY);
+                    m_textureName->setText("multi");
+                    m_textureName->setEnabled(false);
+                    m_textureSize->setText("multi");
+                    m_textureSize->setEnabled(false);
                 } else {
                     const String& textureName = m_faces[0]->textureName();
                     if (textureName == Model::BrushFace::NoTextureName) {
-                        m_textureName->SetLabel("none");
-                        m_textureName->SetForegroundColour(*wxLIGHT_GREY);
-                        m_textureSize->SetLabel("");
-                        m_textureSize->SetForegroundColour(*wxLIGHT_GREY);
+                        m_textureName->setText("none");
+                        m_textureName->setEnabled(false);
+                        m_textureSize->setText("");
+                        m_textureSize->setEnabled(false);
                     } else {
                         if (texture != nullptr) {
-                            QString sizeLabel;
-                            sizeLabel << texture->width() << "*" << texture->height();
-
-                            m_textureName->SetLabel(textureName);
-                            m_textureSize->SetLabel(sizeLabel);
-                            m_textureName->SetForegroundColour(GetForegroundColour());
-                            m_textureSize->SetForegroundColour(GetForegroundColour());
+                            m_textureName->setText(QString::fromStdString(textureName));
+                            m_textureSize->setText(QStringLiteral("%1 * %2").arg(texture->width()).arg(texture->height()));
+                            m_textureName->setEnabled(true);
+                            m_textureSize->setEnabled(true);
                         } else {
-                            m_textureName->SetLabel(textureName + " (not found)");
-                            m_textureName->SetForegroundColour(*wxLIGHT_GREY);
-                            m_textureSize->SetForegroundColour(*wxLIGHT_GREY);
+                            m_textureName->setText(QString::fromStdString(textureName) + " (not found)");
+                            m_textureName->setEnabled(false);
+                            m_textureSize->setEnabled(false);
                         }
                     }
                 }
-                if (xOffsetMulti) {
-                    setHint(m_xOffsetEditor, "multi");
-                    m_xOffsetEditor->SetValue("");
-                } else {
-                    setHint(m_xOffsetEditor, "");
-                    m_xOffsetEditor->SetValue(xOffset);
-                }
-                if (yOffsetMulti) {
-                    setHint(m_yOffsetEditor, "multi");
-                    m_yOffsetEditor->SetValue("");
-                } else {
-                    setHint(m_yOffsetEditor, "");
-                    m_yOffsetEditor->SetValue(yOffset);
-                }
-                if (rotationMulti) {
-                    setHint(m_rotationEditor, "multi");
-                    m_rotationEditor->SetValue("");
-                } else {
-                    setHint(m_rotationEditor, "");
-                    m_rotationEditor->SetValue(rotation);
-                }
-                if (xScaleMulti){
-                    setHint(m_xScaleEditor, "multi");
-                    m_xScaleEditor->SetValue("");
-                } else {
-                    setHint(m_xScaleEditor, "");
-                    m_xScaleEditor->SetValue(xScale);
-                }
-                if (yScaleMulti) {
-                    setHint(m_yScaleEditor, "multi");
-                    m_yScaleEditor->SetValue("");
-                } else {
-                    setHint(m_yScaleEditor, "");
-                    m_yScaleEditor->SetValue(yScale);
-                }
-                if (surfaceValueMulti) {
-                    setHint(m_surfaceValueEditor, "multi");
-                    m_surfaceValueEditor->SetValue("");
-                } else {
-                    setHint(m_surfaceValueEditor, "");
-                    m_surfaceValueEditor->SetValue(surfaceValue);
-                }
+                setValueOrMulti(m_xOffsetEditor, xOffsetMulti, xOffset);
+                setValueOrMulti(m_yOffsetEditor, yOffsetMulti, yOffset);
+                setValueOrMulti(m_rotationEditor, rotationMulti, rotation);
+                setValueOrMulti(m_xScaleEditor, xScaleMulti, xScale);
+                setValueOrMulti(m_yScaleEditor, yScaleMulti, yScale);
+                setValueOrMulti(m_surfaceValueEditor, surfaceValueMulti, surfaceValue);
                 if (hasColorValue) {
                     if (colorValueMulti) {
-                        setHint(m_colorEditor, "multi");
-                        m_colorEditor->ChangeValue("");
+                        m_colorEditor->setPlaceholderText("multi");
+                        m_colorEditor->setText("");
                     } else {
-                        setHint(m_colorEditor, "");
-                        m_colorEditor->ChangeValue(StringUtils::toString(colorValue));
+                        m_colorEditor->setPlaceholderText("");
+                        m_colorEditor->setText(QString::fromStdString(StringUtils::toString(colorValue)));
                     }
                 } else {
-                    setHint(m_colorEditor, "");
-                    m_colorEditor->ChangeValue("");
+                    m_colorEditor->setPlaceholderText("");
+                    m_colorEditor->setText("");
                 }
                 m_surfaceFlagsEditor->setFlagValue(setSurfaceFlags, mixedSurfaceFlags);
                 m_contentFlagsEditor->setFlagValue(setSurfaceContents, mixedSurfaceContents);
             } else {
-                m_xOffsetEditor->SetValue("");
-                setHint(m_xOffsetEditor, "n/a");
-                m_xOffsetEditor->Disable();
-                m_yOffsetEditor->SetValue("");
-                setHint(m_yOffsetEditor, "n/a");
-                m_yOffsetEditor->Disable();
-                m_xScaleEditor->SetValue("");
-                setHint(m_xScaleEditor, "n/a");
-                m_xScaleEditor->Disable();
-                m_yScaleEditor->SetValue("");
-                setHint(m_yScaleEditor, "n/a");
-                m_yScaleEditor->Disable();
-                m_rotationEditor->SetValue("");
-                setHint(m_rotationEditor, "n/a");
-                m_rotationEditor->Disable();
-                m_surfaceValueEditor->SetValue("");
-                setHint(m_surfaceValueEditor, "n/a");
-                m_surfaceValueEditor->Disable();
+                disableAndSetPlaceholder(m_xOffsetEditor, "n/a");
+                disableAndSetPlaceholder(m_yOffsetEditor, "n/a");
+                disableAndSetPlaceholder(m_xScaleEditor, "n/a");
+                disableAndSetPlaceholder(m_yScaleEditor, "n/a");
+                disableAndSetPlaceholder(m_rotationEditor, "n/a");
+                disableAndSetPlaceholder(m_surfaceValueEditor, "n/a");
+
                 // m_textureView->setTexture(nullptr);
-                m_surfaceFlagsEditor->Disable();
-                m_contentFlagsEditor->Disable();
-                m_colorEditor->ChangeValue("");
-                setHint(m_colorEditor, "n/a");
-                m_colorEditor->Disable();
+                m_surfaceFlagsEditor->setEnabled(false);
+                m_contentFlagsEditor->setEnabled(false);
+                m_colorEditor->setText("");
+                m_colorEditor->setPlaceholderText("n/a");
+                m_colorEditor->setEnabled(false);
             }
         }
 
@@ -610,23 +581,21 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::showSurfaceAttribEditors() {
-            m_faceAttribsSizer->Show(m_surfaceValueLabel);
-            m_faceAttribsSizer->Show(m_surfaceValueEditor);
-            m_faceAttribsSizer->Show(m_surfaceFlagsLabel);
-            m_faceAttribsSizer->Show(m_surfaceFlagsEditor);
-            m_faceAttribsSizer->Show(m_contentFlagsLabel);
-            m_faceAttribsSizer->Show(m_contentFlagsEditor);
-            GetParent()->Layout();
+            m_surfaceValueLabel->show();
+            m_surfaceValueEditor->show();
+            m_surfaceFlagsLabel->show();
+            m_surfaceFlagsEditor->show();
+            m_contentFlagsLabel->show();
+            m_contentFlagsEditor->show();
         }
 
         void FaceAttribsEditor::hideSurfaceAttribEditors() {
-            m_faceAttribsSizer->Hide(m_surfaceValueLabel);
-            m_faceAttribsSizer->Hide(m_surfaceValueEditor);
-            m_faceAttribsSizer->Hide(m_surfaceFlagsLabel);
-            m_faceAttribsSizer->Hide(m_surfaceFlagsEditor);
-            m_faceAttribsSizer->Hide(m_contentFlagsLabel);
-            m_faceAttribsSizer->Hide(m_contentFlagsEditor);
-            GetParent()->Layout();
+            m_surfaceValueLabel->hide();
+            m_surfaceValueEditor->hide();
+            m_surfaceFlagsLabel->hide();
+            m_surfaceFlagsEditor->hide();
+            m_contentFlagsLabel->hide();
+            m_contentFlagsEditor->hide();
         }
 
         bool FaceAttribsEditor::hasColorAttribs() const {
@@ -635,22 +604,20 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::showColorAttribEditor() {
-            m_faceAttribsSizer->Show(m_colorLabel);
-            m_faceAttribsSizer->Show(m_colorEditor);
-            GetParent()->Layout();
+            m_colorLabel->show();
+            m_colorEditor->show();
         }
 
         void FaceAttribsEditor::hideColorAttribEditor() {
-            m_faceAttribsSizer->Hide(m_colorLabel);
-            m_faceAttribsSizer->Hide(m_colorEditor);
-            GetParent()->Layout();
+            m_colorLabel->hide();
+            m_colorEditor->hide();
         }
 
         void getFlags(const Model::GameConfig::FlagConfigList& flags, QStringList& names, QStringList& descriptions);
         void getFlags(const Model::GameConfig::FlagConfigList& flags, QStringList& names, QStringList& descriptions) {
             for (const auto& flag : flags) {
-                names.push_back(flag.name);
-                descriptions.push_back(flag.description);
+                names.push_back(QString::fromStdString(flag.name));
+                descriptions.push_back(QString::fromStdString(flag.description));
             }
         }
 

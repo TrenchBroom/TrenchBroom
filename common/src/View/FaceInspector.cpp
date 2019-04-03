@@ -19,31 +19,26 @@
 
 #include "FaceInspector.h"
 
+#include "Assets/Texture.h"
 #include "Model/Entity.h"
 #include "Model/Object.h"
 #include "View/BorderLine.h"
 #include "View/CollapsibleTitledPanel.h"
 #include "View/FaceAttribsEditor.h"
 #include "View/MapDocument.h"
-#include "View/SplitterWindow2.h"
 #include "View/TextureBrowser.h"
 #include "View/TextureCollectionEditor.h"
-#include "View/TextureSelectedCommand.h"
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
 
-#include <wx/notebook.h>
-#include <wx/persist.h>
-#include <wx/sizer.h>
+#include <QSplitter>
+#include <QVBoxLayout>
 
 namespace TrenchBroom {
     namespace View {
         FaceInspector::FaceInspector(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
         TabBookPage(parent),
         m_document(document) {
-#if defined __APPLE__
-            SetWindowVariant(wxWINDOW_VARIANT_SMALL);
-#endif
             createGui(document, contextManager);
             bindEvents();
         }
@@ -52,29 +47,32 @@ namespace TrenchBroom {
             return m_faceAttribsEditor->cancelMouseDrag();
         }
 
-        void FaceInspector::OnTextureSelected(TextureSelectedCommand& event) {
-            if (IsBeingDeleted()) return;
-
+        void FaceInspector::OnTextureSelected(Assets::Texture* texture) {
             MapDocumentSPtr document = lock(m_document);
-            document->setTexture(event.texture());
+            document->setTexture(texture);
         }
 
         void FaceInspector::createGui(MapDocumentWPtr document, GLContextManager& contextManager) {
-            SplitterWindow2* splitter = new SplitterWindow2(this);
-            splitter->setSashGravity(0.0);
-            splitter->SetName("FaceInspectorSplitter");
+            auto* splitter = new QSplitter(Qt::Vertical);
+//            splitter->setSashGravity(0.0);
+//            splitter->SetName("FaceInspectorSplitter");
 
-            splitter->splitHorizontally(createFaceAttribsEditor(splitter, document, contextManager),
-                                        createTextureBrowser(splitter, document, contextManager),
-                                        wxSize(100, 200), wxSize(100, 200));
+            splitter->addWidget(createFaceAttribsEditor(splitter, document, contextManager));
+            splitter->addWidget(createTextureBrowser(splitter, document, contextManager));
+
+            // FIXME: size limit
+            //wxSize(100, 200), wxSize(100, 200));
 
             auto* outerSizer = new QVBoxLayout();
-            outerSizer->Add(splitter, 1, wxEXPAND);
-            outerSizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
-            outerSizer->Add(createTextureCollectionEditor(this, document), 0, wxEXPAND);
-            SetSizer(outerSizer);
+            outerSizer->setContentsMargins(0, 0, 0, 0);
+            outerSizer->setSpacing(0);
+            outerSizer->addWidget(splitter, 1);
+            outerSizer->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
+            outerSizer->addWidget(createTextureCollectionEditor(this, document));
+            setLayout(outerSizer);
 
-            wxPersistenceManager::Get().RegisterAndRestore(splitter);
+            // FIXME:
+            //wxPersistenceManager::Get().RegisterAndRestore(splitter);
         }
 
         QWidget* FaceInspector::createFaceAttribsEditor(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) {
@@ -87,8 +85,10 @@ namespace TrenchBroom {
             m_textureBrowser = new TextureBrowser(panel->getPanel(), document, contextManager);
 
             auto* sizer = new QVBoxLayout();
-            sizer->addWidget(m_textureBrowser, 1, wxEXPAND);
-            panel->getPanel()->SetSizer(sizer);
+            sizer->setContentsMargins(0, 0, 0, 0);
+            sizer->setSpacing(0);
+            sizer->addWidget(m_textureBrowser, 1);
+            panel->getPanel()->setLayout(sizer);
 
             return panel;
         }
@@ -98,14 +98,15 @@ namespace TrenchBroom {
             QWidget* collectionEditor = new TextureCollectionEditor(panel->getPanel(), document);
 
             auto* sizer = new QVBoxLayout();
-            sizer->addWidget(collectionEditor, 1, wxEXPAND);
-            panel->getPanel()->SetSizer(sizer);
+            sizer->setContentsMargins(0, 0, 0, 0);
+            sizer->addWidget(collectionEditor, 1);
+            panel->getPanel()->setLayout(sizer);
 
             return panel;
         }
 
         void FaceInspector::bindEvents() {
-            m_textureBrowser->Bind(TEXTURE_SELECTED_EVENT, &FaceInspector::OnTextureSelected, this);
+            connect(m_textureBrowser, &TextureBrowser::textureSelected, this, &FaceInspector::OnTextureSelected);
         }
     }
 }
