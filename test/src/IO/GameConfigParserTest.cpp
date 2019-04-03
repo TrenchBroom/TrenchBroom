@@ -228,6 +228,12 @@ namespace TrenchBroom {
                 "name": "Liquid",
                 "match": "contentflag",
                 "flags": [ "lava", "slime", "water" ]
+            },
+            {
+                "name": "trans",
+                "attribs": [ "transparent" ],
+                "match": "surfaceflag",
+                "flags": [ "trans33", "trans66" ]
             }
         ]
     },
@@ -449,6 +455,7 @@ namespace TrenchBroom {
                     Model::SmartTag("Hint", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::TextureNameTagMatcher>("hint*")),
                     Model::SmartTag("Detail", {}, std::make_unique<Model::ContentFlagsTagMatcher>(1 << 27)),
                     Model::SmartTag("Liquid", {}, std::make_unique<Model::ContentFlagsTagMatcher>((1 << 3) | (1 << 4) | (1 << 5))),
+                    Model::SmartTag("trans", {}, std::make_unique<Model::SurfaceFlagsTagMatcher>((1 << 4) | (1 << 5))),
                 } // smart tags
             );
 
