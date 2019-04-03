@@ -370,7 +370,7 @@ namespace TrenchBroom {
 
         void MapDocument::loadPointFile(const IO::Path path) {
             static_assert(!std::is_reference<decltype(path)>::value,
-                          "path must be passed by value because reloadPointFile() passes m_portalFilePath");
+                          "path must be passed by value because reloadPointFile() passes m_pointFilePath");
 
             if (!Model::PointFile::canLoad(path)) {
                 return;
