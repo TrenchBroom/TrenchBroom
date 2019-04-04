@@ -70,7 +70,7 @@ namespace TrenchBroom {
         m_file(file),
         m_offset(offset),
         m_length(length),
-        m_position(m_offset) {
+        m_position(0) {
             assert(m_file != nullptr);
             std::rewind(m_file);
         }
