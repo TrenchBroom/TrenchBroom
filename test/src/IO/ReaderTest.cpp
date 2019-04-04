@@ -27,8 +27,16 @@
 
 namespace TrenchBroom {
     namespace IO {
-        static const auto* buff = "abcdefghij";
-        static const auto  file = Disk::openFile(Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Reader/10byte"));
+        const char* buff() {
+            static const auto* result = "abcdefghij_";
+            return result;
+        }
+
+        std::shared_ptr<File> file() {
+            static auto result = Disk::openFile(Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Reader/10byte"));
+            return result;
+        }
+
 
         void createEmpty(Reader&& r) {
             EXPECT_EQ(0U, r.size());
@@ -43,7 +51,7 @@ namespace TrenchBroom {
         }
 
         TEST(BufferReaderTest, createEmpty) {
-            createEmpty(Reader::from(buff, buff));
+            createEmpty(Reader::from(buff(), buff()));
         }
 
         TEST(FileReaderTest, createEmpty) {
@@ -76,11 +84,11 @@ namespace TrenchBroom {
         }
 
         TEST(BufferReaderTest, createNonEmpty) {
-            createNonEmpty(Reader::from(buff, buff + 10));
+            createNonEmpty(Reader::from(buff(), buff() + 10));
         }
 
         TEST(FileReaderTest, createNonEmpty) {
-            createNonEmpty(file->reader());
+            createNonEmpty(file()->reader());
         }
 
         void seekFromBegin(Reader&& r) {
@@ -98,12 +106,12 @@ namespace TrenchBroom {
         }
 
         TEST(BufferReaderTest, testSeekFromBegin) {
-            seekFromBegin(Reader::from(buff, buff + 10));
+            seekFromBegin(Reader::from(buff(), buff() + 10));
 
         }
 
         TEST(FileReaderTest, testSeekFromBegin) {
-            seekFromBegin(file->reader());
+            seekFromBegin(file()->reader());
         }
 
         void seekFromEnd(Reader&& r) {
@@ -121,11 +129,11 @@ namespace TrenchBroom {
         }
 
         TEST(BufferReaderTest, testSeekFromEnd) {
-            seekFromEnd(Reader::from(buff, buff + 10));
+            seekFromEnd(Reader::from(buff(), buff() + 10));
         }
 
         TEST(FileReaderTest, testSeekFromEnd) {
-            seekFromEnd(file->reader());
+            seekFromEnd(file()->reader());
         }
 
         void seekForward(Reader&& r) {
@@ -140,11 +148,11 @@ namespace TrenchBroom {
         }
 
         TEST(BufferReaderTest, testSeekForward) {
-            seekForward(Reader::from(buff, buff + 10));
+            seekForward(Reader::from(buff(), buff() + 10));
         }
 
         TEST(FileReaderTest, testSeekForward) {
-            seekForward(file->reader());
+            seekForward(file()->reader());
         }
 
         void subReader(Reader&& r) {
@@ -167,11 +175,11 @@ namespace TrenchBroom {
         }
 
         TEST(BufferReaderTest, testSubReader) {
-            subReader(Reader::from(buff, buff + 10));
+            subReader(Reader::from(buff(), buff() + 10));
         }
 
         TEST(FileReaderTest, testSubReader) {
-            subReader(file->reader());
+            subReader(file()->reader());
         }
     }
 }
