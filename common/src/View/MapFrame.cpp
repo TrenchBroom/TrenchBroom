@@ -1173,7 +1173,7 @@ namespace TrenchBroom {
             frameSizer->setContentsMargins(0, 0, 0, 0);
             frameSizer->setSpacing(0); // no space between BorderLine and m_hSplitter
 #if !defined __APPLE__
-            frameSizer->addWidget(new BorderLine(nullptr));
+            frameSizer->addWidget(new BorderLine());
 #endif
             frameSizer->addWidget(m_hSplitter);
 
