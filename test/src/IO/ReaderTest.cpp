@@ -161,13 +161,13 @@ namespace TrenchBroom {
             EXPECT_EQ(3U, s.size());
             EXPECT_EQ(0U, s.position());
 
-            s.seekForward(1U);
+            ASSERT_EQ('f', s.readChar<char>());
             EXPECT_EQ(1U, s.position());
 
-            s.seekForward(1U);
+            ASSERT_EQ('g', s.readChar<char>());
             EXPECT_EQ(2U, s.position());
 
-            s.seekForward(1U);
+            ASSERT_EQ('h', s.readChar<char>());
             EXPECT_EQ(3U, s.position());
 
             EXPECT_THROW(s.seekForward(1U), ReaderException);
