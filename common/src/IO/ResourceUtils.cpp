@@ -42,6 +42,7 @@ namespace TrenchBroom {
             const QString imagePathString = imagePathToString(imagePath);
             return QIcon(imagePathString);
         }
+
         QIcon loadIconResourceOffOnQt(const IO::Path& offImagePath, const IO::Path& onImagePath) {
             const QString offImagePathString = imagePathToString(offImagePath);
             const QString onImagePathString = imagePathToString(onImagePath);

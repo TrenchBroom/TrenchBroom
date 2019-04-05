@@ -347,7 +347,7 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/GameEngineProfileManager.cpp
 #	${COMMON_SOURCE_DIR}/View/GameListBox.cpp
 #	${COMMON_SOURCE_DIR}/View/GameSelectionCommand.cpp
-#	${COMMON_SOURCE_DIR}/View/GamesPreferencePane.cpp
+	${COMMON_SOURCE_DIR}/View/GamesPreferencePane.cpp
 	${COMMON_SOURCE_DIR}/View/GetVersion.cpp
 	${COMMON_SOURCE_DIR}/View/GLContextManager.cpp
 	${COMMON_SOURCE_DIR}/View/Grid.cpp
@@ -394,8 +394,8 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/PickRequest.cpp
 	${COMMON_SOURCE_DIR}/View/PopupWindow.cpp
 	${COMMON_SOURCE_DIR}/View/PopupButton.cpp
-#	${COMMON_SOURCE_DIR}/View/PreferenceDialog.cpp
-#	${COMMON_SOURCE_DIR}/View/PreferencePane.cpp
+	${COMMON_SOURCE_DIR}/View/PreferenceDialog.cpp
+	${COMMON_SOURCE_DIR}/View/PreferencePane.cpp
 #	${COMMON_SOURCE_DIR}/View/RadioGroup.cpp
 	${COMMON_SOURCE_DIR}/View/RecentDocumentListBox.cpp
 #	${COMMON_SOURCE_DIR}/View/RecentDocumentSelectedCommand.cpp

@@ -22,18 +22,18 @@
 
 #include "View/ViewTypes.h"
 
-#include <wx/dialog.h>
+#include <QDialog>
 
+class QDialogButtonBox;
+class QStackedWidget;
+class QToolBar;
 class QWidget;
-class wxSimplebook;
-class wxToolBar;
-class wxToolBarToolBase;
 
 namespace TrenchBroom {
     namespace View {
         class PreferencePane;
 
-        class PreferenceDialog : public wxDialog {
+        class PreferenceDialog : public QDialog {
         private:
             typedef enum {
                 PrefPane_First = 0,
@@ -45,34 +45,19 @@ namespace TrenchBroom {
             } PrefPane;
 
             MapDocumentSPtr m_document;
-            wxToolBar* m_toolBar;
-            wxSimplebook* m_book;
+            QToolBar* m_toolBar;
+            QStackedWidget* m_stackedWidget;
+            QDialogButtonBox* m_buttonBox;
         public:
-            explicit PreferenceDialog(MapDocumentSPtr document);
-            bool Create();
+            explicit PreferenceDialog(MapDocumentSPtr document, QWidget* parent = nullptr);
         private:
-            void OnToolClicked();
-            void OnOKClicked();
-            void OnApplyClicked();
-            void OnCancelClicked();
-            void OnFileClose();
-            void OnUpdateFileClose();
-
-            void OnResetClicked();
-            void OnUpdateReset();
-
-            void OnClose(wxCloseEvent& event);
+            void accept() override;
+            void reject() override;
         private:
             void createGui();
-            void bindEvents();
-
             void switchToPane(PrefPane pane);
-            void toggleTools(PrefPane pane);
-
             PreferencePane* currentPane() const;
             PrefPane currentPaneId() const;
-
-            void updateAcceleratorTable(PrefPane pane);
         };
     }
 }

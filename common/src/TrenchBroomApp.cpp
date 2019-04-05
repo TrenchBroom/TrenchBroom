@@ -74,6 +74,7 @@ namespace TrenchBroom {
             QSurfaceFormat::setDefaultFormat(format);
 
 #if defined __APPLE__
+
             // fix default palette higlight text color
             QPalette palette;
             palette.setColor(QPalette::HighlightedText, Qt::white);
