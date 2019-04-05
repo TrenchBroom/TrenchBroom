@@ -27,18 +27,18 @@
 #include "View/CellLayout.h"
 #include "View/RenderView.h"
 
-#include <QScrollBar>
-#include <QToolTip>
-#include <QDrag>
-#include <QMimeData>
+#include <QPoint>
 
-#include <algorithm>
+class QScrollBar;
+class QDrag;
+class QMimeData;
 
 namespace TrenchBroom {
     namespace View {
         class GLContextManager;
 
         class CellView : public RenderView {
+            Q_OBJECT
         protected:
             using Layout = CellLayout;
             using Group = LayoutGroup;
@@ -72,7 +72,7 @@ namespace TrenchBroom {
             private:
                 CellView& m_cellView;
             public:
-                DndHelper(CellView& cellView);
+                explicit DndHelper(CellView& cellView);
                 ~DndHelper();
             };
 
