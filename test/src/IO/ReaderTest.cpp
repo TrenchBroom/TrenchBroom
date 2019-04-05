@@ -19,14 +19,26 @@
 
 #include <gtest/gtest.h>
 
+#include "IO/DiskIO.h"
+#include "IO/File.h"
 #include "IO/Reader.h"
+
+#include <memory>
 
 namespace TrenchBroom {
     namespace IO {
-        TEST(ReaderTest, createEmpty) {
-            const char foo = 'x';
-            auto r = Reader::from(&foo, &foo);
+        const char* buff() {
+            static const auto* result = "abcdefghij_";
+            return result;
+        }
 
+        std::shared_ptr<File> file() {
+            static auto result = Disk::openFile(Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Reader/10byte"));
+            return result;
+        }
+
+
+        void createEmpty(Reader&& r) {
             EXPECT_EQ(0U, r.size());
             EXPECT_EQ(0U, r.position());
             EXPECT_NO_THROW(r.seekFromBegin(0U));
@@ -38,34 +50,48 @@ namespace TrenchBroom {
             EXPECT_THROW(r.readChar<char>(), ReaderException);
         }
 
-        TEST(ReaderTest, createSingleChar) {
-            const char* foo = "x";
-            auto r = Reader::from(foo, foo + 1);
+        TEST(BufferReaderTest, createEmpty) {
+            createEmpty(Reader::from(buff(), buff()));
+        }
 
-            EXPECT_EQ(1U, r.size());
+        TEST(FileReaderTest, createEmpty) {
+            const auto emptyFile = Disk::openFile(Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Reader/empty"));
+            createEmpty(emptyFile->reader());
+        }
+
+        void createNonEmpty(Reader&& r) {
+            EXPECT_EQ(10U, r.size());
             EXPECT_EQ(0U, r.position());
             EXPECT_TRUE(r.canRead(0U));
-            EXPECT_TRUE(r.canRead(1U));
-            EXPECT_FALSE(r.canRead(2U));
+            EXPECT_TRUE(r.canRead(10U));
+            EXPECT_FALSE(r.canRead(11U));
             EXPECT_FALSE(r.eof());
 
-            // read the char
-            EXPECT_EQ('x', r.readChar<char>());
-
+            // read a char
+            EXPECT_EQ('a', r.readChar<char>());
             EXPECT_EQ(1U, r.position());
+            EXPECT_TRUE(r.canRead(1U));
+            EXPECT_TRUE(r.canRead(9U));
+            EXPECT_FALSE(r.canRead(10U));
+
+            // read remainder
+            EXPECT_EQ(String("bcdefghij"), r.readString(9));
+            EXPECT_EQ(10U, r.position());
             EXPECT_FALSE(r.canRead(1U));
             EXPECT_TRUE(r.canRead(0U));
             EXPECT_TRUE(r.eof());
             EXPECT_THROW(r.readChar<char>(), ReaderException);
         }
 
-        TEST(ReaderTest, testSeekFromBegin) {
-            const char* foo = "xy";
-            auto r = Reader::from(foo, foo + 2);
+        TEST(BufferReaderTest, createNonEmpty) {
+            createNonEmpty(Reader::from(buff(), buff() + 10));
+        }
 
-            EXPECT_EQ(2U, r.size());
-            EXPECT_EQ(0U, r.position());
+        TEST(FileReaderTest, createNonEmpty) {
+            createNonEmpty(file()->reader());
+        }
 
+        void seekFromBegin(Reader&& r) {
             r.seekFromBegin(0U);
             EXPECT_EQ(0U, r.position());
 
@@ -75,45 +101,85 @@ namespace TrenchBroom {
             r.seekFromBegin(2U);
             EXPECT_EQ(2U, r.position());
 
-            EXPECT_THROW(r.seekFromBegin(3U), ReaderException);
+            EXPECT_THROW(r.seekFromBegin(11U), ReaderException);
             EXPECT_EQ(2U, r.position());
         }
 
-        TEST(ReaderTest, testSeekFromEnd) {
-            const char* foo = "xy";
-            auto r = Reader::from(foo, foo + 2);
+        TEST(BufferReaderTest, testSeekFromBegin) {
+            seekFromBegin(Reader::from(buff(), buff() + 10));
 
-            EXPECT_EQ(2U, r.size());
-            EXPECT_EQ(0U, r.position());
+        }
 
+        TEST(FileReaderTest, testSeekFromBegin) {
+            seekFromBegin(file()->reader());
+        }
+
+        void seekFromEnd(Reader&& r) {
             r.seekFromEnd(0U);
-            EXPECT_EQ(2U, r.position());
+            EXPECT_EQ(10U, r.position());
 
             r.seekFromEnd(1U);
-            EXPECT_EQ(1U, r.position());
+            EXPECT_EQ(9U, r.position());
 
-            r.seekFromEnd(2U);
+            r.seekFromEnd(10U);
             EXPECT_EQ(0U, r.position());
 
-            EXPECT_THROW(r.seekFromEnd(3U), ReaderException);
+            EXPECT_THROW(r.seekFromEnd(11U), ReaderException);
             EXPECT_EQ(0U, r.position());
         }
 
-        TEST(ReaderTest, testSeekForward) {
-            const char* foo = "xy";
-            auto r = Reader::from(foo, foo + 2);
+        TEST(BufferReaderTest, testSeekFromEnd) {
+            seekFromEnd(Reader::from(buff(), buff() + 10));
+        }
 
-            EXPECT_EQ(2U, r.size());
-            EXPECT_EQ(0U, r.position());
+        TEST(FileReaderTest, testSeekFromEnd) {
+            seekFromEnd(file()->reader());
+        }
 
+        void seekForward(Reader&& r) {
             r.seekForward(1U);
             EXPECT_EQ(1U, r.position());
 
             r.seekForward(1U);
             EXPECT_EQ(2U, r.position());
 
-            EXPECT_THROW(r.seekForward(1U), ReaderException);
+            EXPECT_THROW(r.seekForward(9U), ReaderException);
             EXPECT_EQ(2U, r.position());
+        }
+
+        TEST(BufferReaderTest, testSeekForward) {
+            seekForward(Reader::from(buff(), buff() + 10));
+        }
+
+        TEST(FileReaderTest, testSeekForward) {
+            seekForward(file()->reader());
+        }
+
+        void subReader(Reader&& r) {
+            auto s = r.subReaderFromBegin(5, 3);
+
+            EXPECT_EQ(3U, s.size());
+            EXPECT_EQ(0U, s.position());
+
+            ASSERT_EQ('f', s.readChar<char>());
+            EXPECT_EQ(1U, s.position());
+
+            ASSERT_EQ('g', s.readChar<char>());
+            EXPECT_EQ(2U, s.position());
+
+            ASSERT_EQ('h', s.readChar<char>());
+            EXPECT_EQ(3U, s.position());
+
+            EXPECT_THROW(s.seekForward(1U), ReaderException);
+            EXPECT_EQ(3U, s.position());
+        }
+
+        TEST(BufferReaderTest, testSubReader) {
+            subReader(Reader::from(buff(), buff() + 10));
+        }
+
+        TEST(FileReaderTest, testSubReader) {
+            subReader(file()->reader());
         }
     }
 }
