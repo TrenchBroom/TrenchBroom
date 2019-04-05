@@ -301,27 +301,13 @@ namespace TrenchBroom {
                     result.emplace_back(std::move(name), std::move(attribs), std::move(matcher));
                 } else if (match == "contentflag") {
                     expectMapEntry(entry, "flags", EL::Type_Array);
-                    const auto flagSet = entry["flags"].asStringSet();
-                    int flagValue = 0;
-
-                    for (const String &currentName : flagSet) {
-                        const int currentValue = faceAttribsConfig.contentFlags.flagValue(currentName);
-                        flagValue |= currentValue;
-                    }
-
+                    const auto flagValue = parseFlagValue(entry["flags"], faceAttribsConfig.contentFlags);
                     auto attribs = parseTagAttributes(entry["attribs"]);
                     auto matcher = std::make_unique<Model::ContentFlagsTagMatcher>(flagValue);
                     result.emplace_back(std::move(name), std::move(attribs), std::move(matcher));
                 } else if (match == "surfaceflag") {
                     expectMapEntry(entry, "flags", EL::Type_Array);
-                    const auto flagSet = entry["flags"].asStringSet();
-                    int flagValue = 0;
-
-                    for (const String &currentName : flagSet) {
-                        const int currentValue = faceAttribsConfig.contentFlags.flagValue(currentName);
-                        flagValue |= currentValue;
-                    }
-
+                    const auto flagValue = parseFlagValue(entry["flags"], faceAttribsConfig.surfaceFlags);
                     auto attribs = parseTagAttributes(entry["attribs"]);
                     auto matcher = std::make_unique<Model::SurfaceFlagsTagMatcher>(flagValue);
                     result.emplace_back(std::move(name), std::move(attribs), std::move(matcher));
@@ -329,6 +315,16 @@ namespace TrenchBroom {
                     throw ParserException(entry.line(), entry.column(), "Unexpected smart tag match type '" + match + "'");
                 }
             }
+        }
+
+        int GameConfigParser::parseFlagValue(const EL::Value& value, const Model::GameConfig::FlagsConfig& flags) const {
+            const auto flagSet = value.asStringSet();
+            int flagValue = 0;
+            for (const String &currentName : flagSet) {
+                const auto currentValue = flags.flagValue(currentName);
+                flagValue |= currentValue;
+            }
+            return flagValue;
         }
 
         std::vector<Model::TagAttribute> GameConfigParser::parseTagAttributes(const EL::Value& value) const {
