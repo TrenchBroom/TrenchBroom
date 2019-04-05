@@ -1,0 +1,289 @@
+/*
+ Copyright (C) 2010-2017 Kristian Duske
+
+ This file is part of TrenchBroom.
+
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "CellView.h"
+
+#include "Renderer/RenderUtils.h"
+#include "Renderer/Transformation.h"
+#include "Renderer/FontDescriptor.h"
+#include "Preferences.h"
+#include "View/CellLayout.h"
+#include "View/RenderView.h"
+
+#include <QScrollBar>
+#include <QToolTip>
+#include <QDrag>
+#include <QMimeData>
+
+#include <algorithm>
+
+namespace TrenchBroom {
+    namespace View {
+        void CellView::updateScrollBar() {
+            if (m_scrollBar != nullptr) {
+                const int thumbSize = size().height();
+                const int range = static_cast<int>(m_layout.height());
+                m_scrollBar->setMinimum(0);
+                m_scrollBar->setMaximum(range - thumbSize);
+                m_scrollBar->setPageStep(thumbSize);
+                m_scrollBar->setSingleStep(static_cast<int>(m_layout.minCellHeight()));
+            }
+        }
+
+        void CellView::initLayout() {
+            doInitLayout(m_layout);
+            m_layoutInitialized = true;
+        }
+
+        void CellView::reloadLayout() {
+            initLayout(); // always initialize the layout when reloading
+
+            m_layout.clear();
+            doReloadLayout(m_layout);
+            updateScrollBar();
+
+            m_valid = true;
+        }
+
+        void CellView::validate() {
+            if (!m_valid)
+                reloadLayout();
+        }
+
+        CellView::CellView(GLContextManager& contextManager, QScrollBar* scrollBar) :
+        RenderView(contextManager),
+        m_layoutInitialized(false),
+        m_valid(false),
+        m_scrollBar(scrollBar) {
+            if (m_scrollBar != nullptr) {
+                connect(m_scrollBar, &QAbstractSlider::actionTriggered, this, &CellView::onScrollBarActionTriggered);
+                connect(m_scrollBar, &QAbstractSlider::valueChanged, this, &CellView::onScrollBarValueChanged);
+            }
+        }
+
+        void CellView::invalidate() {
+            m_valid = false;
+        }
+
+        void CellView::clear() {
+            m_layout.clear();
+            doClear();
+            m_valid = true;
+        }
+
+        void CellView::resizeEvent(QResizeEvent* event) {
+            m_layout.setWidth(static_cast<float>(size().width()));
+            updateScrollBar();
+
+            RenderView::resizeEvent(event);
+        }
+
+        void CellView::onScrollBarValueChanged() {
+            requestUpdate();
+        }
+
+        /**
+         * QAbstractSlider::actionTriggered listener. Overrides the default movement increments for the scrollbar up/down
+         * /page up/page down arrows.
+         */
+        void CellView::onScrollBarActionTriggered(int action) {
+            const auto top = static_cast<float>(m_scrollBar->value());
+            const auto height = static_cast<float>(size().height());
+
+            // NOTE: We call setSliderPosition(), not setValue()
+            // see: https://doc.qt.io/archives/qt-4.8/qabstractslider.html#actionTriggered
+            switch (action) {
+                case QAbstractSlider::SliderSingleStepAdd:
+                    m_scrollBar->setSliderPosition(static_cast<int>(m_layout.rowPosition(top, 1))); // line down
+                    break;
+                case QAbstractSlider::SliderSingleStepSub:
+                    m_scrollBar->setSliderPosition(static_cast<int>(m_layout.rowPosition(top, -1))); // line up
+                    break;
+                case QAbstractSlider::SliderPageStepAdd:
+                    m_scrollBar->setSliderPosition(static_cast<int>(m_layout.rowPosition(top + height, 0))); // page down
+                    break;
+                case QAbstractSlider::SliderPageStepSub:
+                    m_scrollBar->setSliderPosition(static_cast<int>(m_layout.rowPosition(top - height, 0))); // page up
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        // DndHelper
+
+        CellView::DndHelper::DndHelper(CellView& cellView) :
+        m_cellView(cellView) {
+            m_cellView.dndWillStart();
+        }
+
+        CellView::DndHelper::~DndHelper() {
+            m_cellView.dndDidEnd();
+        }
+
+        // CellView
+
+        void CellView::mousePressEvent(QMouseEvent* event) {
+            if (event->button() == Qt::LeftButton) {
+                m_potentialDrag = true;
+            } else if (event->button() == Qt::RightButton) {
+                if (event->modifiers() & Qt::AltModifier) {
+                    m_lastMousePos = event->pos();
+                }
+            }
+        }
+
+        void CellView::mouseReleaseEvent(QMouseEvent* event) {
+            if (event->button() == Qt::LeftButton) {
+                int top = m_scrollBar != nullptr ? m_scrollBar->value() : 0;
+                float x = static_cast<float>(event->localPos().x());
+                float y = static_cast<float>(event->localPos().y() + top);
+                doLeftClick(m_layout, x, y);
+            }
+        }
+
+        void CellView::mouseMoveEvent(QMouseEvent* event) {
+            if (event->buttons() & Qt::LeftButton) {
+                if (m_potentialDrag) {
+                    startDrag(event);
+                    m_potentialDrag = false;
+                }
+            } else if ((event->buttons() & Qt::RightButton) && (event->modifiers() & Qt::AltModifier)) {
+                scroll(event);
+            } else {
+                updateTooltip(event);
+            }
+
+            m_lastMousePos = event->pos();
+        }
+
+        void CellView::wheelEvent(QWheelEvent* event) {
+            if (m_scrollBar != nullptr) {
+                QPoint pixelDelta = event->pixelDelta();
+                if (pixelDelta.isNull()) {
+                    QPoint degreeDelta = event->angleDelta() / 8;
+                    pixelDelta = degreeDelta;
+                }
+
+                const int top = m_scrollBar->value();
+                const int height = static_cast<int>(m_layout.height());
+                const int newTop = std::min(std::max(0, top - pixelDelta.y()), height);
+                m_scrollBar->setValue(newTop);
+                requestUpdate();
+            }
+        }
+
+        void CellView::startDrag(const QMouseEvent* event) {
+            if (dndEnabled()) {
+                int top = m_scrollBar != nullptr ? m_scrollBar->value() : 0;
+                float x = static_cast<float>(event->localPos().x());
+                float y = static_cast<float>(event->localPos().y() + top);
+                const Cell* cell = nullptr;
+                if (m_layout.cellAt(x, y, &cell)) {
+                    /*
+                     wxImage* feedbackImage = dndImage(*cell);
+                     int xOffset = event.GetX() - static_cast<int>(cell->itemBounds().left());
+                     int yOffset = event.GetY() - static_cast<int>(cell->itemBounds().top()) + top;
+                     */
+
+                    const DndHelper dndHelper(*this);
+                    const QString dropData = dndData(*cell);
+
+                    QMimeData* mimeData = new QMimeData();
+                    mimeData->setText(dropData);
+
+                    QDrag* drag = new QDrag(this);
+                    drag->setMimeData(mimeData);
+
+                    Qt::DropAction dropAction = drag->exec(Qt::CopyAction);
+                }
+            }
+        }
+
+        void CellView::scroll(const QMouseEvent* event) {
+            if (m_scrollBar != nullptr) {
+                const QPoint mousePosition = event->pos();
+                const int delta = mousePosition.y() - m_lastMousePos.y();
+                const int newThumbPosition = m_scrollBar->value() - delta;
+                m_scrollBar->setValue(newThumbPosition);
+                requestUpdate();
+            }
+        }
+
+        void CellView::updateTooltip(const QMouseEvent* event) {
+            // TODO: Need to implement our own tooltip timer. QEvent::ToolTip is not delivered to QWindow
+            int top = m_scrollBar != nullptr ? m_scrollBar->value() : 0;
+            float x = static_cast<float>(event->pos().x());
+            float y = static_cast<float>(event->pos().y() + top);
+            const LayoutCell* cell = nullptr;
+            if (m_layout.cellAt(x, y, &cell)) {
+                QToolTip::showText(event->globalPos(), tooltip(*cell));
+            } else {
+                QToolTip::hideText();
+            }
+        }
+
+        void CellView::doRender() {
+            if (!m_valid)
+                validate();
+            if (!m_layoutInitialized)
+                initLayout();
+
+            // FIXME: check DPI awareness
+            const int top = m_scrollBar != nullptr ? m_scrollBar->value() : 0;
+            const QRect visibleRect = QRect(QPoint(0, top), size());
+
+            const float y = static_cast<float>(visibleRect.y());
+            const float h = static_cast<float>(visibleRect.height());
+
+            const GLint viewLeft      = 0; //static_cast<GLint>(GetClientRect().GetLeft());
+            const GLint viewTop       = 0; //static_cast<GLint>(GetClientRect().GetBottom());
+            const GLint viewRight     = width(); //static_cast<GLint>(GetClientRect().GetRight());
+            const GLint viewBottom    = height(); //static_cast<GLint>(GetClientRect().GetTop());
+            glViewport(viewLeft, viewBottom, viewRight - viewLeft, viewTop - viewBottom);
+
+            setupGL();
+            doRender(m_layout, y, h);
+        }
+
+        void CellView::setupGL() {
+            glAssert(glEnable(GL_MULTISAMPLE));
+            glAssert(glEnable(GL_BLEND));
+            glAssert(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+            glAssert(glEnable(GL_CULL_FACE));
+            glAssert(glEnable(GL_DEPTH_TEST));
+            glAssert(glDepthFunc(GL_LEQUAL));
+            glAssert(glShadeModel(GL_SMOOTH));
+        }
+
+        void CellView::doClear() {}
+        void CellView::doLeftClick(Layout& layout, float x, float y) {}
+
+        bool CellView::dndEnabled() { return false; }
+        void CellView::dndWillStart() {}
+        void CellView::dndDidEnd() {}
+        QPixmap CellView::dndImage(const Cell& cell) { assert(false); return QPixmap(); }
+        QString CellView::dndData(const Cell& cell) { assert(false); return ""; }
+        QString CellView::tooltip(const Cell& cell) { return ""; }
+
+        void CellView::processEvent(const KeyEvent& event) {}
+        void CellView::processEvent(const MouseEvent& event) {}
+        void CellView::processEvent(const CancelEvent& event) {}
+    }
+}

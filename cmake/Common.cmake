@@ -278,6 +278,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/CameraLinkHelper.cpp
 	${COMMON_SOURCE_DIR}/View/CameraTool2D.cpp
 	${COMMON_SOURCE_DIR}/View/CameraTool3D.cpp
+	${COMMON_SOURCE_DIR}/View/CellView.cpp
 	${COMMON_SOURCE_DIR}/View/ChangeBrushFaceAttributesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/ChangeEntityAttributesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/ChoosePathTypeDialog.cpp
