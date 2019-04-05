@@ -109,7 +109,7 @@ namespace TrenchBroom {
 
         void UVEditor::createGui(GLContextManager& contextManager) {
             m_uvView = new UVView(m_document, contextManager);
-            m_windowContainer = QWidget::createWindowContainer(m_uvView);
+            m_windowContainer = m_uvView->widgetContainer();
 
             m_resetTextureButton = createBitmapButton(this, "ResetTexture.png", tr("Reset texture alignment"));
             m_flipTextureHButton = createBitmapButton(this, "FlipTextureH.png", tr("Flip texture X axis"));

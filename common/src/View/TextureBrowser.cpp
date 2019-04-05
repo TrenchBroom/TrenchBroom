@@ -101,7 +101,7 @@ namespace TrenchBroom {
 
             MapDocumentSPtr document = lock(m_document);
             m_view = new TextureBrowserView(nullptr, m_scrollBar, contextManager, document);
-            m_windowContainer = QWidget::createWindowContainer(m_view);
+            m_windowContainer = m_view->widgetContainer();
 
             auto* browserPanelSizer = new QHBoxLayout();
             browserPanelSizer->setContentsMargins(0, 0, 0, 0);
