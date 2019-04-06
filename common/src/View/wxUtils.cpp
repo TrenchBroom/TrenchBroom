@@ -196,16 +196,19 @@ namespace TrenchBroom {
             return button;
         }
 
-#if 0
-        QWidget* createBitmapToggleButton(QWidget* parent, const String& upImage, const String& downImage, const String& tooltip) {
-            auto upBitmap = IO::loadImageResource(upImage);
-            auto downBitmap = IO::loadImageResource(downImage);
+        QAbstractButton* createBitmapToggleButton(QWidget* parent, const String& upImage, const String& downImage, const String& tooltip) {
+            QIcon icon = loadIconResourceOffOnQt(IO::Path(upImage), IO::Path(downImage));
 
-            auto* button = new BitmapToggleButton(parent, wxID_ANY, upBitmap, downBitmap);
-            button->setToolTip(tooltip);
+            auto* button = new QPushButton(parent);
+            button->setAutoDefault(false);
+            button->setToolTip(QString::fromStdString(tooltip));
+            button->setIcon(icon);
+            button->setFlat(true);
+
             return button;
         }
 
+#if 0
         QWidget* createDefaultPage(QWidget* parent, const QString& message) {
             QWidget* containerPanel = new QWidget(parent);
 

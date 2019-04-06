@@ -57,9 +57,8 @@ namespace TrenchBroom {
 #endif
 
         QAbstractButton* createBitmapButton(QWidget* parent, const String& image, const QString& tooltip);
+        QAbstractButton* createBitmapToggleButton(QWidget* parent, const String& upImage, const String& downImage, const String& tooltip);
 #if 0
-        QWidget* createBitmapToggleButton(QWidget* parent, const String& upImage, const String& downImage, const String& tooltip);
-
         QWidget* createDefaultPage(QWidget* parent, const QString& message);
 
         wxSizer* wrapDialogButtonSizer(wxSizer* buttonSizer, QWidget* parent);

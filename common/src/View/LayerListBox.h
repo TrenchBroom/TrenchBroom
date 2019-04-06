@@ -21,21 +21,46 @@
 #define TrenchBroom_LayerListBox
 
 #include "Model/ModelTypes.h"
+#include "View/ControlListBox.h"
 #include "View/ViewTypes.h"
-
-#include <QWidget>
 
 #include <vector>
 
+class QLabel;
+class QAbstractButton;
 class QListWidget;
 
 namespace TrenchBroom {
     namespace View {
+        class LayerListBoxLayerItem : public QWidget {
+            Q_OBJECT
+        private:
+            MapDocumentWPtr m_document;
+            Model::Layer* m_layer;
+            QLabel* m_nameText;
+            QLabel* m_infoText;
+            QAbstractButton* m_hiddenButton;
+            QAbstractButton* m_lockButton;
+
+        public:
+            LayerListBoxLayerItem(QWidget* parent, MapDocumentWPtr document, Model::Layer* layer);
+            Model::Layer* layer() const;
+            void refresh();
+
+            void OnToggleVisible();
+            void OnToggleLocked();
+            void updateButtons();
+
+        signals:
+            void LAYER_TOGGLE_VISIBLE_EVENT(Model::Layer* layer);
+            void LAYER_TOGGLE_LOCKED_EVENT(Model::Layer* layer);
+        };
+
         class LayerListBox : public QWidget {
             Q_OBJECT
         private:
             MapDocumentWPtr m_document;
-            QListWidget* m_listWidget;
+            QListWidget* m_list;
         public:
             LayerListBox(QWidget* parent, MapDocumentWPtr document);
             ~LayerListBox() override;
@@ -43,9 +68,6 @@ namespace TrenchBroom {
             Model::Layer* selectedLayer() const;
             void setSelectedLayer(Model::Layer* layer);
 
-            void OnSelectionChanged();
-            void OnDoubleClick();
-            void OnRightClick();
         signals:
             void LAYER_SELECTED_EVENT(Model::Layer* layer);
             void LAYER_SET_CURRENT_EVENT(Model::Layer* layer);
@@ -53,6 +75,7 @@ namespace TrenchBroom {
             void LAYER_TOGGLE_VISIBLE_EVENT(Model::Layer* layer);
             void LAYER_TOGGLE_LOCKED_EVENT(Model::Layer* layer);
         private:
+            void createGui();
             void bindObservers();
             void unbindObservers();
 
@@ -60,10 +83,10 @@ namespace TrenchBroom {
             void nodesDidChange(const Model::NodeList& nodes);
             void currentLayerDidChange(const Model::Layer* layer);
 
-            void rebuildList();
             void bindEvents();
-//        private:
-//            Item* createItem(QWidget* parent, const wxSize& margins, size_t index) override;
+            void refreshList();
+
+            Model::Layer* layerForItem(QListWidgetItem* item);
         };
     }
 }
