@@ -46,7 +46,7 @@
 //#include "View/GameDialog.h"
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
-//#include "View/PreferenceDialog.h"
+#include "View/PreferenceDialog.h"
 #include "View/WelcomeFrame.h"
 #include "View/GetVersion.h"
 #include "View/MapViewBase.h"
@@ -74,6 +74,7 @@ namespace TrenchBroom {
             QSurfaceFormat::setDefaultFormat(format);
 
 #if defined __APPLE__
+
             // fix default palette higlight text color
             QPalette palette;
             palette.setColor(QPalette::HighlightedText, Qt::white);
@@ -321,10 +322,8 @@ namespace TrenchBroom {
         }
 
         void TrenchBroomApp::openPreferences() {
-#if 0
             PreferenceDialog dialog(topDocument());
-            dialog.ShowModal();
-#endif
+            dialog.exec();
         }
 
         void TrenchBroomApp::openAbout() {

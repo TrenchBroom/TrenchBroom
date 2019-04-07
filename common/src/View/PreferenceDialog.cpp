@@ -25,110 +25,63 @@
 #include "IO/ResourceUtils.h"
 #include "View/BorderLine.h"
 #include "View/GamesPreferencePane.h"
+/* FIXME
 #include "View/KeyboardPreferencePane.h"
 #include "View/MousePreferencePane.h"
 #include "View/ViewPreferencePane.h"
+ */
 #include "View/ViewConstants.h"
 #include "View/PreferencePane.h"
 #include "View/wxUtils.h"
 
-#include <wx/button.h>
-#include <wx/panel.h>
-#include <wx/sizer.h>
-#include <wx/simplebook.h>
-#include <wx/toolbar.h>
+#include <QBoxLayout>
+#include <QDialogButtonBox>
+#include <QPushButton>
+#include <QStackedWidget>
+#include <QToolBar>
 
 namespace TrenchBroom {
     namespace View {
-        PreferenceDialog::PreferenceDialog(MapDocumentSPtr document) :
+        PreferenceDialog::PreferenceDialog(MapDocumentSPtr document, QWidget* parent) :
+        QDialog(parent),
         m_document(document),
         m_toolBar(nullptr),
-        m_book(nullptr) {
-            Create();
-        }
-
-        bool PreferenceDialog::Create() {
-            if (!wxDialog::Create(nullptr, wxID_ANY, "Preferences"))
-                return false;
-
+        m_stackedWidget(nullptr),
+        m_buttonBox(nullptr) {
+            setWindowTitle("Preferences");
+            setWindowIconTB(this);
             createGui();
-            bindEvents();
             switchToPane(PrefPane_First);
             currentPane()->updateControls();
-            SetClientSize(currentPane()->GetMinSize());
-
-            return true;
         }
 
-        void PreferenceDialog::OnToolClicked() {
-
-
-            const auto newPane = static_cast<PrefPane>(event.GetId());
-            switchToPane(newPane);
-        }
-
-        void PreferenceDialog::OnOKClicked() {
-
-
-            if (!currentPane()->validate())
-                return;
-
-            PreferenceManager& prefs = PreferenceManager::instance();
-            if (!prefs.saveInstantly())
-                prefs.saveChanges();
-            EndModal(wxID_OK);
-        }
-
-        void PreferenceDialog::OnApplyClicked() {
-
-
-            if (!currentPane()->validate())
-                return;
-
-            PreferenceManager& prefs = PreferenceManager::instance();
-            if (!prefs.saveInstantly())
-                prefs.saveChanges();
-        }
-
-        void PreferenceDialog::OnCancelClicked() {
-
-
-            PreferenceManager& prefs = PreferenceManager::instance();
-            if (!prefs.saveInstantly())
-                prefs.discardChanges();
-            EndModal(wxID_CANCEL);
-        }
-
-        void PreferenceDialog::OnFileClose() {
-
-
+        void PreferenceDialog::accept() {
             if (!currentPane()->validate()) {
-                event.Skip();
                 return;
             }
 
-            PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.discardChanges(); // does nothing if the preferences save changes instantly
-            EndModal(wxID_OK);
+            auto& prefs = PreferenceManager::instance();
+            if (!prefs.saveInstantly()) {
+                prefs.saveChanges();
+            }
+
+            QDialog::accept();
         }
 
-        void PreferenceDialog::OnUpdateFileClose() {
-            event.Enable(true);
+        void PreferenceDialog::reject() {
+            if (!currentPane()->validate()) {
+                return;
+            }
+
+            auto& prefs = PreferenceManager::instance();
+            if (!prefs.saveInstantly()) {
+                prefs.discardChanges();
+            }
+
+            QDialog::reject();
         }
 
-        void PreferenceDialog::OnResetClicked() {
-
-
-            assert(currentPane()->canResetToDefaults());
-            currentPane()->resetToDefaults();
-        }
-
-        void PreferenceDialog::OnUpdateReset() {
-
-
-            event.Enable(currentPane()->canResetToDefaults());
-        }
-
+        /* FIXME
         void PreferenceDialog::OnClose(wxCloseEvent& event) {
             if (!currentPane()->validate()) {
                 event.Veto();
@@ -145,87 +98,62 @@ namespace TrenchBroom {
 
             event.Skip();
         }
+         */
 
         void PreferenceDialog::createGui() {
-            setWindowIconTB(this);
+            const auto gamesImage    = IO::loadIconResourceQt(IO::Path("GeneralPreferences.png"));
+            const auto viewImage     = IO::loadIconResourceQt(IO::Path("ViewPreferences.png"));
+            const auto mouseImage    = IO::loadIconResourceQt(IO::Path("MousePreferences.png"));
+            const auto keyboardImage = IO::loadIconResourceQt(IO::Path("KeyboardPreferences.png"));
 
-            PreferenceManager& prefs = PreferenceManager::instance();
+            m_toolBar = new QToolBar();
+            m_toolBar->setFloatable(false);
+            m_toolBar->setMovable(false);
+            m_toolBar->addAction(gamesImage, "Games", [this](){ switchToPane(PrefPane_Games); });
+            m_toolBar->addAction(viewImage, "View", [this](){ switchToPane(PrefPane_View); });
+            m_toolBar->addAction(mouseImage, "Mouse", [this](){ switchToPane(PrefPane_Mouse); });
+            m_toolBar->addAction(keyboardImage, "Keyboard", [this](){ switchToPane(PrefPane_Keyboard); });
 
-            const wxBitmap gamesImage = IO::loadImageResource("GeneralPreferences.png");
-            const wxBitmap viewImage = IO::loadImageResource("ViewPreferences.png");
-            const wxBitmap mouseImage = IO::loadImageResource("MousePreferences.png");
-            const wxBitmap keyboardImage = IO::loadImageResource("KeyboardPreferences.png");
+            m_stackedWidget = new QStackedWidget();
+            m_stackedWidget->addWidget(new GamesPreferencePane());
 
-            m_toolBar = new wxToolBar(this, wxID_ANY);
-            m_toolBar->SetToolBitmapSize(wxSize(32, 32));
-            m_toolBar->AddCheckTool(PrefPane_Games, "Games", gamesImage);
-            m_toolBar->AddCheckTool(PrefPane_View, "View", viewImage);
-            m_toolBar->AddCheckTool(PrefPane_Mouse, "Mouse", mouseImage);
-            m_toolBar->AddCheckTool(PrefPane_Keyboard, "Keyboard", keyboardImage);
-            m_toolBar->Realize();
-
-            m_book = new wxSimplebook(this);
-            m_book->AddPage(new GamesPreferencePane(m_book), "Games");
-            m_book->AddPage(new ViewPreferencePane(m_book), "View");
-            m_book->AddPage(new MousePreferencePane(m_book), "Mouse");
-            m_book->AddPage(new KeyboardPreferencePane(m_book, m_document.get()), "Keyboard");
-
-            wxButton* resetButton = new wxButton(this, wxID_ANY, "Reset to defaults");
-            resetButton->Bind(&QAbstractButton::clicked, &PreferenceDialog::OnResetClicked, this);
-            resetButton->Bind(wxEVT_UPDATE_UI, &PreferenceDialog::OnUpdateReset, this);
-
-            wxBoxSizer* sizer = new QVBoxLayout();
-            sizer->addWidget(m_toolBar, 0, wxEXPAND);
+            m_buttonBox = new QDialogButtonBox(
+                QDialogButtonBox::Ok | QDialogButtonBox::Cancel | QDialogButtonBox::RestoreDefaults
 #if !defined __APPLE__
-            QWidget* line = new BorderLine(nullptr, BorderLine::Direction_Horizontal);
-            sizer->addWidget(line, wxSizerFlags().Expand());
-            sizer->SetItemMinSize(line, wxSize(wxDefaultCoord, 1));
+                | QDialogButtonBox::Apply
 #endif
-            sizer->addWidget(m_book, 1, wxEXPAND);
+                , this);
 
-            auto* buttonSizer = new QHBoxLayout();
-            if (!prefs.saveInstantly()) {
-                buttonSizer->addWidget(resetButton, wxSizerFlags().CenterVertical());
-                buttonSizer->addStretch(1);
-                buttonSizer->addWidget(CreateButtonSizer(wxOK | wxAPPLY | wxCANCEL));
-            } else {
-                wxButton* closeButton = new wxButton(this, wxID_CANCEL, "Close");
-                closeButton->Bind(&QAbstractButton::clicked, &PreferenceDialog::OnFileClose, this);
-                closeButton->Bind(wxEVT_UPDATE_UI, &PreferenceDialog::OnUpdateFileClose, this);
+            auto* resetButton = m_buttonBox->button(QDialogButtonBox::Reset);
+            connect(resetButton, &QPushButton::clicked, [this]() { currentPane()->resetToDefaults(); });
 
-                wxStdDialogButtonSizer* stdButtonSizer = new wxStdDialogButtonSizer();
-                stdButtonSizer->SetCancelButton(closeButton);
-                stdButtonSizer->Realize();
+            auto* layout = new QVBoxLayout();
+            layout->setContentsMargins(QMargins());
+            layout->setSpacing(0);
+            setLayout(layout);
 
-                buttonSizer->addWidget(resetButton, wxSizerFlags().CenterVertical());
-                buttonSizer->addStretch(1);
-                buttonSizer->addWidget(stdButtonSizer, wxSizerFlags().CenterVertical());
-            }
+            layout->setMenuBar(m_toolBar);
+            layout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
+            layout->addWidget(m_stackedWidget, 1);
+            layout->addLayout(wrapDialogButtonBox(m_buttonBox));
 
-            sizer->addWidget(wrapDialogButtonSizer(buttonSizer, this), wxSizerFlags().Expand());
-
-            setLayout(sizer);
-        }
-
-        void PreferenceDialog::bindEvents() {
-            Bind(wxEVT_MENU, &PreferenceDialog::OnFileClose, this, wxID_CLOSE);
-            Bind(&QAbstractButton::clicked, &PreferenceDialog::OnOKClicked, this, wxID_OK);
-            Bind(&QAbstractButton::clicked, &PreferenceDialog::OnApplyClicked, this, wxID_APPLY);
-            Bind(&QAbstractButton::clicked, &PreferenceDialog::OnCancelClicked, this, wxID_CANCEL);
-            Bind(wxEVT_TOOL, &PreferenceDialog::OnToolClicked, this, PrefPane_First, PrefPane_Last);
-            Bind(wxEVT_CLOSE_WINDOW, &PreferenceDialog::OnClose, this);
+            connect(m_buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+            connect(m_buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
         }
 
         void PreferenceDialog::switchToPane(const PrefPane pane) {
-            if (currentPane() != nullptr && !currentPane()->validate()) {
-                toggleTools(currentPaneId());
+            if (!currentPane()->validate()) {
                 return;
             }
 
-            toggleTools(pane);
-            m_book->SetSelection(static_cast<size_t>(pane));
+            m_stackedWidget->setCurrentIndex(pane);
             currentPane()->updateControls();
 
+            auto* resetButton = m_buttonBox->button(QDialogButtonBox::RestoreDefaults);
+            resetButton->setEnabled(currentPane()->canResetToDefaults());
+
+
+            /* FIXME
             GetSizer()->SetItemMinSize(m_book, currentPane()->GetMinSize());
             Fit();
 
@@ -234,38 +162,19 @@ namespace TrenchBroom {
 #endif
 
             if (pane == PrefPane_Keyboard) {
-				SetEscapeId(wxID_NONE);
+                SetEscapeId(wxID_NONE);
             } else {
                 SetEscapeId(wxID_ANY);
             }
-        }
-
-        void PreferenceDialog::toggleTools(const PrefPane pane) {
-            for (int i = PrefPane_First; i <= PrefPane_Last; ++i)
-                m_toolBar->ToggleTool(i, pane == i);
+             */
         }
 
         PreferencePane* PreferenceDialog::currentPane() const {
-            return static_cast<PreferencePane*>(m_book->GetCurrentPage());
+            return static_cast<PreferencePane*>(m_stackedWidget->currentWidget());
         }
 
         PreferenceDialog::PrefPane PreferenceDialog::currentPaneId() const {
-            return static_cast<PrefPane>(m_book->GetSelection());
-        }
-
-        void PreferenceDialog::updateAcceleratorTable(const PrefPane pane) {
-            // allow the dialog to be closed using CMD+W
-            // but only if the keyboard preference pane is not active
-            if (pane != PrefPane_Keyboard) {
-                wxAcceleratorEntry acceleratorEntries[2];
-                acceleratorEntries[0].Set(wxACCEL_CMD, static_cast<int>('W'), wxID_CLOSE);
-                acceleratorEntries[1].Set(wxACCEL_NORMAL, WXK_CANCEL, wxID_CANCEL);
-                wxAcceleratorTable accceleratorTable(2, acceleratorEntries);
-                SetAcceleratorTable(accceleratorTable);
-            } else {
-                wxAcceleratorTable accceleratorTable(0, nullptr);
-                SetAcceleratorTable(accceleratorTable);
-            }
+            return static_cast<PrefPane>(m_stackedWidget->currentIndex());
         }
     }
 }

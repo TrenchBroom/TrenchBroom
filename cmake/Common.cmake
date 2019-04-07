@@ -285,6 +285,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/ClipToolController.cpp
 	${COMMON_SOURCE_DIR}/View/ClipTool.cpp
 	${COMMON_SOURCE_DIR}/View/CollapsibleTitledPanel.cpp
+	${COMMON_SOURCE_DIR}/View/ColorButton.cpp
 	${COMMON_SOURCE_DIR}/View/ColorTable.cpp
 	${COMMON_SOURCE_DIR}/View/Command.cpp
 	${COMMON_SOURCE_DIR}/View/CommandProcessor.cpp
@@ -300,7 +301,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/Console.cpp
 	${COMMON_SOURCE_DIR}/View/ControlListBox.cpp
 	${COMMON_SOURCE_DIR}/View/ContainerBar.cpp
-#	${COMMON_SOURCE_DIR}/View/ControlListBox.cpp
+	${COMMON_SOURCE_DIR}/View/ControlListBox.cpp
 	${COMMON_SOURCE_DIR}/View/ConvertEntityColorCommand.cpp
 	${COMMON_SOURCE_DIR}/View/CopyTexCoordSystemFromFaceCommand.cpp
 #	${COMMON_SOURCE_DIR}/View/CrashDialog.cpp
@@ -312,7 +313,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/CreateSimpleBrushToolController2D.cpp
 	${COMMON_SOURCE_DIR}/View/CreateSimpleBrushToolController3D.cpp
 	${COMMON_SOURCE_DIR}/View/CreateSimpleBrushTool.cpp
-#	${COMMON_SOURCE_DIR}/View/CurrentGameIndicator.cpp
+	${COMMON_SOURCE_DIR}/View/CurrentGameIndicator.cpp
 	${COMMON_SOURCE_DIR}/View/CurrentGroupCommand.cpp
 	${COMMON_SOURCE_DIR}/View/CyclingMapView.cpp
 	${COMMON_SOURCE_DIR}/View/DirectoryTextureCollectionEditor.cpp
@@ -342,13 +343,12 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/FourPaneMapView.cpp
 	${COMMON_SOURCE_DIR}/View/FrameManager.cpp
 #	${COMMON_SOURCE_DIR}/View/GameDialog.cpp
-#	${COMMON_SOURCE_DIR}/View/GameEngineDialog.cpp
-#	${COMMON_SOURCE_DIR}/View/GameEngineProfileEditor.cpp
-#	${COMMON_SOURCE_DIR}/View/GameEngineProfileListBox.cpp
-#	${COMMON_SOURCE_DIR}/View/GameEngineProfileManager.cpp
-#	${COMMON_SOURCE_DIR}/View/GameListBox.cpp
-#	${COMMON_SOURCE_DIR}/View/GameSelectionCommand.cpp
-#	${COMMON_SOURCE_DIR}/View/GamesPreferencePane.cpp
+	${COMMON_SOURCE_DIR}/View/GameEngineDialog.cpp
+	${COMMON_SOURCE_DIR}/View/GameEngineProfileEditor.cpp
+	${COMMON_SOURCE_DIR}/View/GameEngineProfileListBox.cpp
+	${COMMON_SOURCE_DIR}/View/GameEngineProfileManager.cpp
+	${COMMON_SOURCE_DIR}/View/GameListBox.cpp
+	${COMMON_SOURCE_DIR}/View/GamesPreferencePane.cpp
 	${COMMON_SOURCE_DIR}/View/GetVersion.cpp
 	${COMMON_SOURCE_DIR}/View/GLContextManager.cpp
 	${COMMON_SOURCE_DIR}/View/Grid.cpp
@@ -395,8 +395,8 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/PickRequest.cpp
 	${COMMON_SOURCE_DIR}/View/PopupWindow.cpp
 	${COMMON_SOURCE_DIR}/View/PopupButton.cpp
-#	${COMMON_SOURCE_DIR}/View/PreferenceDialog.cpp
-#	${COMMON_SOURCE_DIR}/View/PreferencePane.cpp
+	${COMMON_SOURCE_DIR}/View/PreferenceDialog.cpp
+	${COMMON_SOURCE_DIR}/View/PreferencePane.cpp
 #	${COMMON_SOURCE_DIR}/View/RadioGroup.cpp
 	${COMMON_SOURCE_DIR}/View/RecentDocumentListBox.cpp
 #	${COMMON_SOURCE_DIR}/View/RecentDocumentSelectedCommand.cpp
@@ -476,7 +476,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/ViewConstants.cpp
 #	${COMMON_SOURCE_DIR}/View/ViewEditor.cpp
 	${COMMON_SOURCE_DIR}/View/ViewEffectsService.cpp
-#	${COMMON_SOURCE_DIR}/View/ViewPreferencePane.cpp
+	${COMMON_SOURCE_DIR}/View/ViewPreferencePane.cpp
 	${COMMON_SOURCE_DIR}/View/ViewUtils.cpp
 	${COMMON_SOURCE_DIR}/View/WelcomeFrame.cpp
 	${COMMON_SOURCE_DIR}/View/wxUtils.cpp
@@ -834,6 +834,7 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/ClipToolController.h
 	${COMMON_SOURCE_DIR}/View/ClipTool.h
 	${COMMON_SOURCE_DIR}/View/CollapsibleTitledPanel.h
+	${COMMON_SOURCE_DIR}/View/ColorButton.h
 	${COMMON_SOURCE_DIR}/View/ColorTable.h
 	${COMMON_SOURCE_DIR}/View/Command.h
 	${COMMON_SOURCE_DIR}/View/CommandProcessor.h
@@ -895,7 +896,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/GameEngineProfileListBox.h
 	${COMMON_SOURCE_DIR}/View/GameEngineProfileManager.h
 	${COMMON_SOURCE_DIR}/View/GameListBox.h
-	${COMMON_SOURCE_DIR}/View/GameSelectionCommand.h
 	${COMMON_SOURCE_DIR}/View/GamesPreferencePane.h
 	${COMMON_SOURCE_DIR}/View/GetVersion.h
 	${COMMON_SOURCE_DIR}/View/GLContextManager.h

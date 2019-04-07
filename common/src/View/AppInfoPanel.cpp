@@ -66,6 +66,7 @@ namespace TrenchBroom {
             connect(build, &ClickableLabel::clicked, this, &AppInfoPanel::OnClickVersionInfo);
 
             QVBoxLayout* sizer = new QVBoxLayout();
+            sizer->setContentsMargins(20, 20, 20, 20);
             sizer->setSpacing(2);
             sizer->addStretch();
             sizer->addWidget(appIcon, 0, Qt::AlignHCenter);

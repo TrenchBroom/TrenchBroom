@@ -201,11 +201,16 @@ namespace TrenchBroom {
             m_collections = new QListWidget();
             m_collections->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-            m_addTextureCollectionsButton = createBitmapButton(this, "Add.png", "Add texture collections from the file system");
-            m_removeTextureCollectionsButton = createBitmapButton(this, "Remove.png", "Remove the selected texture collections");
-            m_moveTextureCollectionUpButton = createBitmapButton(this, "Up.png", "Move the selected texture collection up");
-            m_moveTextureCollectionDownButton = createBitmapButton(this, "Down.png", "Move the selected texture collection down");
-            m_reloadTextureCollectionsButton = createBitmapButton(this, "Refresh.png", "Reload all texture collections");
+            m_addTextureCollectionsButton = createBitmapButton("Add.png",
+                                                               "Add texture collections from the file system", this);
+            m_removeTextureCollectionsButton = createBitmapButton("Remove.png",
+                                                                  "Remove the selected texture collections", this);
+            m_moveTextureCollectionUpButton = createBitmapButton("Up.png", "Move the selected texture collection up",
+                                                                 this);
+            m_moveTextureCollectionDownButton = createBitmapButton("Down.png",
+                                                                   "Move the selected texture collection down", this);
+            m_reloadTextureCollectionsButton = createBitmapButton("Refresh.png", "Reload all texture collections",
+                                                                  this);
 
             connect(m_addTextureCollectionsButton, &QAbstractButton::clicked, this, &FileTextureCollectionEditor::OnAddTextureCollectionsClicked);
             connect(m_removeTextureCollectionsButton, &QAbstractButton::clicked, this, &FileTextureCollectionEditor::OnRemoveTextureCollectionsClicked);

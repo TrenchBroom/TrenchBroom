@@ -19,30 +19,30 @@
 
 #include "TitleBar.h"
 
+#include "View/ViewConstants.h"
+#include "View/wxUtils.h"
+
 #include <QLabel>
 #include <QHBoxLayout>
 
-#include "View/ViewConstants.h"
 
 namespace TrenchBroom {
     namespace View {
-        TitleBar::TitleBar(QWidget* parent, const QString& title, const int hMargin, const int vMargin, const bool boldTitle) :
+        TitleBar::TitleBar(const QString& title, QWidget* parent, int hMargin, int vMargin, bool boldTitle) :
         QWidget(parent),
         m_titleText(new QLabel(title)) {
             if (boldTitle) {
-                QFont boldFont = m_titleText->font();
-                boldFont.setBold(true);
-
-                m_titleText->setFont(boldFont);
+                makeEmphasized(m_titleText);
             }
 
-            auto* sizer = new QHBoxLayout();
-            sizer->addSpacing(hMargin);
-            sizer->addWidget(m_titleText, 0);
-            sizer->addStretch(1);
-            sizer->addSpacing(hMargin);
+            auto* layout = new QHBoxLayout();
+            layout->setContentsMargins(QMargins());
+            layout->addSpacing(hMargin);
+            layout->addWidget(m_titleText, 0);
+            layout->addStretch(1);
+            layout->addSpacing(hMargin);
 
-            setLayout(sizer);
+            setLayout(layout);
         }
     }
 }

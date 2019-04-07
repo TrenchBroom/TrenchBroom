@@ -319,12 +319,12 @@ namespace TrenchBroom {
 
 //            m_grid->Bind(wxEVT_GRID_SELECT_CELL, &EntityAttributeGrid::OnAttributeGridSelectCell, this);
 
-            m_addAttributeButton = createBitmapButton(this, "Add.png", tr("Add a new property"));
+            m_addAttributeButton = createBitmapButton("Add.png", tr("Add a new property"), this);
             connect(m_addAttributeButton, &QAbstractButton::clicked, this, [=](bool checked){
                 addAttribute();
             });
 
-            m_removePropertiesButton = createBitmapButton(this, "Remove.png", tr("Remove the selected properties"));
+            m_removePropertiesButton = createBitmapButton("Remove.png", tr("Remove the selected properties"), this);
             connect(m_removePropertiesButton, &QAbstractButton::clicked, this, [=](bool checked){
                 removeSelectedAttributes();
             });

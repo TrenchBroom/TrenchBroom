@@ -20,11 +20,14 @@
 #ifndef GameEngineProfileManager_h
 #define GameEngineProfileManager_h
 
-#include <wx/panel.h>
+#include <QWidget>
+
+class QAbstractButton;
 
 namespace TrenchBroom {
     namespace Model {
         class GameEngineConfig;
+        class GameEngineProfile;
     }
 
     namespace View {
@@ -32,19 +35,19 @@ namespace TrenchBroom {
         class GameEngineProfileListBox;
 
         class GameEngineProfileManager : public QWidget {
+            Q_OBJECT
         private:
             Model::GameEngineConfig& m_config;
             GameEngineProfileListBox* m_profileList;
             GameEngineProfileEditor* m_profileEditor;
+            QAbstractButton* m_removeProfileButton;
         public:
-            GameEngineProfileManager(QWidget* parent, Model::GameEngineConfig& config);
-        private:
-            void OnAddProfile();
-            void OnRemoveProfile();
-            void OnUpdateAddProfileButtonUI();
-            void OnUpdateRemoveProfileButtonUI();
+            explicit GameEngineProfileManager(Model::GameEngineConfig& config, QWidget* parent = nullptr);
+        private slots:
+            void addProfile();
+            void removeProfile();
 
-            void OnProfileSelectionChanged();
+            void currentProfileChanged(Model::GameEngineProfile* profile);
         };
     }
 }

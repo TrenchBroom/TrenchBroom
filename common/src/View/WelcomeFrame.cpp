@@ -53,7 +53,7 @@ namespace TrenchBroom {
             m_recentDocumentListBox->setToolTip("Double click on a file to open it");
             m_recentDocumentListBox->setMinimumWidth(400);
             m_recentDocumentListBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-            connect(m_recentDocumentListBox, &RecentDocumentListBox::recentDocumentSelected, this, &WelcomeFrame::onRecentDocumentSelected);
+            connect(m_recentDocumentListBox, &RecentDocumentListBox::loadRecentDocument, this, &WelcomeFrame::onRecentDocumentSelected);
 
             auto* outerLayout = new QVBoxLayout();
             outerLayout->setContentsMargins(QMargins());
@@ -76,7 +76,7 @@ namespace TrenchBroom {
             innerLayout->addWidget(m_recentDocumentListBox, 1);
 
             setCentralWidget(container);
-            setFixedSize(sizeHint());
+            setFixedSize(800, 500);
         }
 
         void WelcomeFrame::onCreateNewDocumentClicked() {

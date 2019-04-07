@@ -39,10 +39,7 @@ namespace TrenchBroom {
             TrenchBroomApp& app = View::TrenchBroomApp::instance();
             app.recentDocumentsDidChangeNotifier.addObserver(this, &RecentDocumentListBox::recentDocumentsDidChange);
 
-            refresh();
-
-            // FIXME:
-            // Bind(wxEVT_LISTBOX_DCLICK, &RecentDocumentListBox::OnListBoxDoubleClick, this);
+            reload();
         }
 
         RecentDocumentListBox::~RecentDocumentListBox() {
@@ -51,7 +48,7 @@ namespace TrenchBroom {
         }
 
         void RecentDocumentListBox::recentDocumentsDidChange() {
-            refresh();
+            reload();
         }
 
         size_t RecentDocumentListBox::itemCount() const {
@@ -78,13 +75,13 @@ namespace TrenchBroom {
             return QString::fromStdString(recentDocuments[index].asString());
         }
 
-        void RecentDocumentListBox::onItemDoubleClick(const size_t index) {
+        void RecentDocumentListBox::doubleClicked(size_t index) {
             auto& app = View::TrenchBroomApp::instance();
             const IO::Path::List& recentDocuments = app.recentDocuments();
 
             if (index < recentDocuments.size()) {
                 const IO::Path& documentPath = recentDocuments[index];
-                emit recentDocumentSelected(documentPath);
+                emit loadRecentDocument(documentPath);
             }
         }
     }

@@ -23,35 +23,38 @@
 #include "Model/GameFactory.h"
 #include "View/ViewConstants.h"
 
-#include <wx/settings.h>
-#include <wx/sizer.h>
-#include <wx/statbmp.h>
+#include <QBoxLayout>
 #include <QLabel>
 
 namespace TrenchBroom {
     namespace View {
-        CurrentGameIndicator::CurrentGameIndicator(QWidget* parent, const String& gameName) :
+        CurrentGameIndicator::CurrentGameIndicator(const String& gameName, QWidget* parent) :
         QWidget(parent) {
-            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
+            // Use white background (or whatever color a text widget uses)
+            setBaseWindowColor(this);
 
-            Model::GameFactory& gameFactory = Model::GameFactory::instance();
+            auto& gameFactory = Model::GameFactory::instance();
 
-            const IO::Path gamePath = gameFactory.gamePath(gameName);
-            IO::Path iconPath = gameFactory.iconPath(gameName);
-            if (iconPath.isEmpty())
+            const auto gamePath = gameFactory.gamePath(gameName);
+            auto iconPath = gameFactory.iconPath(gameName);
+            if (iconPath.isEmpty()) {
                 iconPath = IO::Path("DefaultGameIcon.png");
+            }
 
-            const wxBitmap gameIcon = IO::loadImageResource(iconPath);
-            wxStaticBitmap* gameIconImg = new wxStaticBitmap(this, wxID_ANY, gameIcon);
-            QLabel* gameNameText = new QLabel(this, wxID_ANY, gameName);
-            gameNameText->SetFont(gameNameText->GetFont().Larger().Larger().Bold());
+            const auto gameIcon = IO::loadPixmapResource(iconPath);
+            auto* gameIconLabel = new QLabel();
+            gameIconLabel->setPixmap(gameIcon);
 
-            auto* sizer = new QHBoxLayout();
-            sizer->addSpacing(LayoutConstants::WideHMargin);
-            sizer->addWidget(gameIconImg, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::WideVMargin));
-            sizer->addSpacing(LayoutConstants::NarrowHMargin);
-            sizer->addWidget(gameNameText, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::WideVMargin));
-            setLayout(sizer);
+            auto* gameNameLabel = new QLabel(QString::fromStdString(gameName));
+            makeHeader(gameNameLabel);
+
+            auto* layout = new QHBoxLayout();
+            layout->setContentsMargins(QMargins());
+            layout->setSpacing(LayoutConstants::MediumHMargin);
+            setLayout(layout);
+
+            layout->addWidget(gameIconLabel, 0, Qt::AlignLeft | Qt::AlignVCenter);
+            layout->addWidget(gameNameLabel, 1, Qt::AlignLeft | Qt::AlignVCenter);
         }
     }
 }

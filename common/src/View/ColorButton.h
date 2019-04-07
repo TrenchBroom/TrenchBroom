@@ -17,22 +17,27 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_TitleBar
-#define TrenchBroom_TitleBar
+#ifndef TRENCHBROOM_COLORBUTTON_H
+#define TRENCHBROOM_COLORBUTTON_H
 
-#include <QWidget>
+#include <QPushButton>
 
-class QLabel;
+namespace TrenchBroom::View {
+    class ColorButton : public QPushButton {
+    private:
+        QColor m_color;
+    public:
+        explicit ColorButton(QWidget* parent = nullptr);
 
-namespace TrenchBroom {
-    namespace View {
-        class TitleBar : public QWidget {
-        protected:
-            QLabel* m_titleText;
-        public:
-            TitleBar(const QString& title, QWidget* parent = nullptr, int hMargin = 0, int vMargin = 0, bool boldTitle = true);
-        };
-    }
+        void setColor(const QColor& color);
+    protected:
+        void paintEvent(QPaintEvent* e) override;
+    signals:
+        void colorChanged(const QColor& color);
+    private slots:
+        void clicked();
+    };
 }
 
-#endif /* defined(TrenchBroom_TitleBar) */
+
+#endif //TRENCHBROOM_COLORBUTTON_H

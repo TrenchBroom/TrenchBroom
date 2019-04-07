@@ -22,33 +22,33 @@
 
 #include "View/PreferencePane.h"
 
-class wxSimplebook;
-class wxButton;
-class wxListBox;
-class wxTextCtrl;
+class QLineEdit;
+class QPushButton;
+class QStackedWidget;
 
 namespace TrenchBroom {
     namespace View {
         class GameListBox;
-        class GameSelectionCommand;
 
         class GamesPreferencePane : public PreferencePane {
+            Q_OBJECT
         private:
             GameListBox* m_gameListBox;
-            wxSimplebook* m_book;
-            wxTextCtrl* m_gamePathText;
-            wxButton* m_chooseGamePathButton;
+            QStackedWidget* m_stackedWidget;
+            QLineEdit* m_gamePathText;
+            QPushButton* m_chooseGamePathButton;
+            QString m_currentGame;
         public:
-            explicit GamesPreferencePane(QWidget* parent);
-        private:
-            void OnGameSelectionChanged(GameSelectionCommand& event);
-            void OnChooseGamePathClicked();
-            void updateGamePath(const QString& str);
-            void OnConfigureenginesClicked();
+            explicit GamesPreferencePane(QWidget* parent = nullptr);
         private:
             void createGui();
-            QWidget* createGamePreferencesPage(QWidget* parent);
-
+            QWidget* createGamePreferencesPage();
+        private:
+            void currentGameChanged(const QString& gameName);
+            void chooseGamePathClicked();
+            void updateGamePath(const QString& str);
+            void configureEnginesClicked();
+        private:
             bool doCanResetToDefaults() override;
             void doResetToDefaults() override;
             void doUpdateControls() override;
