@@ -154,6 +154,7 @@ namespace TrenchBroom {
             m_availableModList->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
             auto* availableModContainerSizer = new QVBoxLayout();
+            availableModContainerSizer->setContentsMargins(0, 0, 0, 0);
             availableModContainerSizer->addWidget(m_availableModList, 1);// wxSizerFlags().Expand().Proportion(1));
             availableModContainer->getPanel()->setLayout(availableModContainerSizer);
 
@@ -162,6 +163,7 @@ namespace TrenchBroom {
 //            m_filterBox->setFont(m_availableModList->font());
 
             auto* filterBoxSizer = new QVBoxLayout();
+            filterBoxSizer->setContentsMargins(0, 0, 0, 0);
 //            filterBoxSizer->addSpacing(LayoutConstants::NarrowVMargin);
             filterBoxSizer->addWidget(m_filterBox, 1);
 //            filterBoxSizer->addSpacing(LayoutConstants::NarrowVMargin);
@@ -172,6 +174,7 @@ namespace TrenchBroom {
             m_enabledModList->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
             auto* enabledModContainerSizer = new QVBoxLayout();
+            enabledModContainerSizer->setContentsMargins(0, 0, 0, 0);
             enabledModContainerSizer->addWidget(m_enabledModList, 1);//wxSizerFlags().Expand().Proportion(1));
             enabledModContainer->getPanel()->setLayout(enabledModContainerSizer);
 
@@ -189,12 +192,15 @@ namespace TrenchBroom {
             buttonSizer->addStretch(1);
 
             auto* sizer = new QGridLayout();
+            sizer->setContentsMargins(0, 0, 0, 0);
+            sizer->setSpacing(0);
             sizer->addWidget(availableModContainer,                                   0, 0);
             sizer->addWidget(new BorderLine(BorderLine::Direction_Vertical),    0, 1, 3, 1);
             sizer->addWidget(enabledModContainer,                                     0, 2);
             sizer->addWidget(new BorderLine(BorderLine::Direction_Horizontal),  1, 0, 1, 3);
             sizer->addLayout(filterBoxSizer,                                          2, 0);
             sizer->addLayout(buttonSizer,                                             2, 2);
+
 //            sizer->SetItemMinSize(availableModContainer, 100, 100);
 //            sizer->SetItemMinSize(enabledModContainer, 100, 100);
 //            sizer->AddGrowableCol(0);
