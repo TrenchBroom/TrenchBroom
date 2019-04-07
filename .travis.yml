@@ -2,12 +2,22 @@ language: cpp
 matrix:
   include:
     - os: linux
-      dist: trusty
-      sudo: required
+      dist: xenial
+      addons:
+        apt:
+          sources:
+            - sourceline: "ppa:ubuntu-toolchain-r/test"
+          packages:
+            - g++-7 qtbase5-dev libqt5opengl5-dev freeglut3-dev libglew-dev mesa-common-dev build-essential libglm-dev libxxf86vm-dev libfreeimage-dev pandoc cmake p7zip-full ninja-build xvfb rpm cppcheck
     - os: linux
-      dist: trusty
-      sudo: required
+      dist: xenial
       env: TB_GCC8=true
+      addons:
+        apt:
+          sources:
+            - sourceline: "ppa:ubuntu-toolchain-r/test"
+          packages:
+            - g++-8 qtbase5-dev libqt5opengl5-dev freeglut3-dev libglew-dev mesa-common-dev build-essential libglm-dev libxxf86vm-dev libfreeimage-dev pandoc cmake p7zip-full ninja-build xvfb rpm cppcheck
     - os: osx
       osx_image: xcode10
     - os: osx
