@@ -49,10 +49,12 @@ namespace TrenchBroom {
             makeHeader(gameNameLabel);
 
             auto* layout = new QHBoxLayout();
+            layout->setContentsMargins(QMargins());
+            layout->setSpacing(LayoutConstants::MediumHMargin);
             setLayout(layout);
 
-            layout->addWidget(gameIconLabel, Qt::AlignVCenter);
-            layout->addWidget(gameNameLabel, Qt::AlignVCenter);
+            layout->addWidget(gameIconLabel, 0, Qt::AlignLeft | Qt::AlignVCenter);
+            layout->addWidget(gameNameLabel, 1, Qt::AlignLeft | Qt::AlignVCenter);
         }
     }
 }

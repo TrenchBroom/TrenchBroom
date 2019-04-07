@@ -36,6 +36,7 @@ namespace TrenchBroom {
         public:
             ImageListBoxItemRenderer(size_t index, const QString& title, const QString& subtitle, const QPixmap& image, QWidget* parent) ;
 
+            void update(size_t index) override;
             void setSelected(bool selected) override;
         private:
             void createGui(const QString& title, const QString& subtitle, const QPixmap& image);
@@ -52,6 +53,8 @@ namespace TrenchBroom {
         private:
             ControlListBoxItemRenderer* createItemRenderer(QWidget* parent, size_t index) override;
         private:
+            friend class ImageListBoxItemRenderer;
+
             virtual QPixmap image(size_t index) const;
             virtual QString title(size_t index) const = 0;
             virtual QString subtitle(size_t index) const = 0;

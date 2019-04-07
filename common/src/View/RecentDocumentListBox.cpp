@@ -39,7 +39,7 @@ namespace TrenchBroom {
             TrenchBroomApp& app = View::TrenchBroomApp::instance();
             app.recentDocumentsDidChangeNotifier.addObserver(this, &RecentDocumentListBox::recentDocumentsDidChange);
 
-            refresh();
+            reload();
         }
 
         RecentDocumentListBox::~RecentDocumentListBox() {
@@ -48,7 +48,7 @@ namespace TrenchBroom {
         }
 
         void RecentDocumentListBox::recentDocumentsDidChange() {
-            refresh();
+            reload();
         }
 
         size_t RecentDocumentListBox::itemCount() const {

@@ -37,6 +37,7 @@ namespace TrenchBroom {
             QStackedWidget* m_stackedWidget;
             QLineEdit* m_gamePathText;
             QPushButton* m_chooseGamePathButton;
+            QString m_currentGame;
         public:
             explicit GamesPreferencePane(QWidget* parent = nullptr);
         private:

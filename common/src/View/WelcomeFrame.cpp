@@ -76,7 +76,7 @@ namespace TrenchBroom {
             innerLayout->addWidget(m_recentDocumentListBox, 1);
 
             setCentralWidget(container);
-            setFixedSize(sizeHint());
+            setFixedSize(800, 500);
         }
 
         void WelcomeFrame::onCreateNewDocumentClicked() {

@@ -49,19 +49,22 @@ namespace TrenchBroom {
             auto& gameConfig = gameFactory.gameConfig(m_gameName);
             m_profileManager = new GameEngineProfileManager(gameConfig.gameEngineConfig());
 
-
             auto* buttons = new QDialogButtonBox(QDialogButtonBox::Close);
 
             auto* layout = new QVBoxLayout();
+            layout->setContentsMargins(QMargins());
+            layout->setSpacing(0);
             setLayout(layout);
 
             layout->addWidget(gameIndicator);
             layout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
             layout->addWidget(m_profileManager, 1);
-            layout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
-            layout->addWidget(buttons);
+            layout->addLayout(wrapDialogButtonBox(buttons));
 
             setFixedSize(600, 400);
+
+            connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
+            connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::accept);
         }
     }
 }

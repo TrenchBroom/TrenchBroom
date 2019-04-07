@@ -49,12 +49,14 @@ namespace TrenchBroom {
         m_chooseGamePathButton(nullptr) {
             createGui();
             updateControls();
+            m_gameListBox->setFocus();
         }
 
         void GamesPreferencePane::createGui() {
             m_gameListBox = new GameListBox();
             m_gameListBox->selectGame(0);
-            m_gameListBox->setMinimumSize(200, 300);
+            m_gameListBox->setMaximumWidth(250);
+            m_gameListBox->setMinimumHeight(300);
 
             connect(m_gameListBox, &GameListBox::currentGameChanged, this, &GamesPreferencePane::currentGameChanged);
 
@@ -72,7 +74,7 @@ namespace TrenchBroom {
             layout->addSpacing(LayoutConstants::WideVMargin);
             layout->addWidget(m_stackedWidget, 1);
 
-            setMinimumSize(600, 300);
+            setMinimumSize(650, 400);
         }
 
         QWidget* GamesPreferencePane::createGamePreferencesPage() {
@@ -102,6 +104,10 @@ namespace TrenchBroom {
         }
 
         void GamesPreferencePane::currentGameChanged(const QString& gameName) {
+            if (gameName == m_currentGame) {
+                return;
+            }
+            m_currentGame = gameName;
             updateControls();
         }
 
@@ -139,10 +145,10 @@ namespace TrenchBroom {
             } else {
                 m_stackedWidget->setCurrentIndex(1);
                 const auto gameName = m_gameListBox->selectedGameName();
-                Model::GameFactory& gameFactory = Model::GameFactory::instance();
+                auto& gameFactory = Model::GameFactory::instance();
                 const auto gamePath = gameFactory.gamePath(gameName);
                 m_gamePathText->setText(QString::fromStdString(gamePath.asString()));
-                m_gameListBox->reloadGameInfos();
+                m_gameListBox->updateGameInfos();
             }
         }
 

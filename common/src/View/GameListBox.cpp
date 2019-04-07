@@ -53,24 +53,36 @@ namespace TrenchBroom {
         void GameListBox::reloadGameInfos() {
             m_gameInfos.clear();
 
-            const Model::GameFactory& gameFactory = Model::GameFactory::instance();
+            const auto& gameFactory = Model::GameFactory::instance();
             for (const String& gameName : gameFactory.gameList()) {
-                const auto gamePath = gameFactory.gamePath(gameName);
-                auto iconPath = gameFactory.iconPath(gameName);
-                if (iconPath.isEmpty()) {
-                    iconPath = IO::Path("DefaultGameIcon.png");
-                }
-                const auto experimental = gameFactory.gameConfig(gameName).experimental();
-
-                m_gameInfos.emplace_back(Info{
-                    gameName,
-                    IO::loadPixmapResource(iconPath),
-                    QString::fromStdString(gameName + (experimental ? " (experimental)" : "")),
-                    QString::fromStdString(gamePath.isEmpty() ? String("Game not found") : gamePath.asString())
-                });
+                m_gameInfos.push_back(makeGameInfo(gameName));
             }
 
-            refresh();
+            reload();
+        }
+
+        void GameListBox::updateGameInfos() {
+            for (auto& gameInfo : m_gameInfos) {
+                gameInfo = makeGameInfo(gameInfo.name);
+            }
+            updateItems();
+        }
+
+        GameListBox::Info GameListBox::makeGameInfo(const String& gameName) const {
+            const auto& gameFactory = Model::GameFactory::instance();
+            const auto gamePath = gameFactory.gamePath(gameName);
+            auto iconPath = gameFactory.iconPath(gameName);
+            if (iconPath.isEmpty()) {
+                iconPath = IO::Path("DefaultGameIcon.png");
+            }
+            const auto experimental = gameFactory.gameConfig(gameName).experimental();
+
+            return Info {
+                gameName,
+                IO::loadPixmapResource(iconPath),
+                QString::fromStdString(gameName + (experimental ? " (experimental)" : "")),
+                QString::fromStdString(gamePath.isEmpty() ? String("Game not found") : gamePath.asString())
+            };
         }
 
         size_t GameListBox::itemCount() const {

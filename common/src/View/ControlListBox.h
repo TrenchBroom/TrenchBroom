@@ -34,6 +34,7 @@ namespace TrenchBroom {
             explicit ControlListBoxItemRenderer(QWidget* parent = nullptr);
             ~ControlListBoxItemRenderer() override;
 
+            virtual void update(size_t index);
             virtual void setSelected(bool selected);
         };
 
@@ -51,10 +52,20 @@ namespace TrenchBroom {
             void setCurrentRow(int currentRow);
         protected:
             void setEmptyText(const QString& emptyText);
-            void refresh();
+
+            /**
+             * Reloads the contents of this list box. The list box will be cleared and its items will be recreated.
+             */
+            void reload();
+
+            /*
+             * Updates the information displayed by the items of this list box. Iterates over all items in this list box
+             * and updates the displayed information by creating new renderers.
+             */
+            void updateItems();
         private:
-            void clear();
             void addItemRenderer(ControlListBoxItemRenderer* renderer);
+            void setItemRenderer(QListWidgetItem* widgetItem, ControlListBoxItemRenderer* renderer);
         private:
             virtual size_t itemCount() const = 0;
             virtual ControlListBoxItemRenderer* createItemRenderer(QWidget* parent, size_t index) = 0;

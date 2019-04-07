@@ -47,6 +47,9 @@ namespace TrenchBroom {
             String selectedGameName() const;
             void selectGame(size_t index);
             void reloadGameInfos();
+            void updateGameInfos();
+        private:
+            Info makeGameInfo(const String& gameName) const;
         private:
             size_t itemCount() const override;
             QPixmap image(size_t index) const override;

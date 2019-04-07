@@ -113,8 +113,8 @@ namespace TrenchBroom {
             widget->setFont(font);
 
             QPalette palette;
-            palette.setColor(QPalette::WindowText, palette.color(QPalette::Disabled, QPalette::WindowText));
-            palette.setColor(QPalette::Text, palette.color(QPalette::Disabled, QPalette::WindowText));
+            palette.setColor(QPalette::Normal, QPalette::WindowText, palette.color(QPalette::Disabled, QPalette::WindowText));
+            palette.setColor(QPalette::Normal, QPalette::Text, palette.color(QPalette::Disabled, QPalette::WindowText));
             widget->setPalette(palette);
         }
 
@@ -129,15 +129,15 @@ namespace TrenchBroom {
 
         void makeError(QWidget* widget) {
             QPalette palette;
-            palette.setColor(QPalette::WindowText, Qt::red);
-            palette.setColor(QPalette::Text, Qt::red);
+            palette.setColor(QPalette::Normal, QPalette::WindowText, Qt::red);
+            palette.setColor(QPalette::Normal, QPalette::Text, Qt::red);
             widget->setPalette(palette);
         }
 
         void makeSelected(QWidget* widget) {
             QPalette palette;
-            palette.setColor(QPalette::WindowText, palette.color(QPalette::Normal, QPalette::HighlightedText));
-            palette.setColor(QPalette::Text, palette.color(QPalette::Normal, QPalette::HighlightedText));
+            palette.setColor(QPalette::Normal, QPalette::WindowText, palette.color(QPalette::Normal, QPalette::HighlightedText));
+            palette.setColor(QPalette::Normal, QPalette::Text, palette.color(QPalette::Normal, QPalette::HighlightedText));
             widget->setPalette(palette);
         }
 

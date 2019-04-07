@@ -41,6 +41,7 @@ namespace TrenchBroom {
             explicit GameEngineProfileItemRenderer(Model::GameEngineProfile* profile, QWidget* parent = nullptr);
             ~GameEngineProfileItemRenderer() override;
 
+            void update(size_t index) override;
             void setSelected(bool selected) override;
         private:
             void createGui();

@@ -45,8 +45,18 @@ namespace TrenchBroom {
             }
         }
 
-        void GameEngineProfileItemRenderer::setSelected(bool selected) {
-            ControlListBoxItemRenderer::setSelected(selected);
+        void GameEngineProfileItemRenderer::update(const size_t index) {
+            refresh();
+        }
+
+        void GameEngineProfileItemRenderer::setSelected(const bool selected) {
+            if (selected) {
+                makeSelected(m_nameLabel);
+                makeSelected(m_pathLabel);
+            } else {
+                makeEmphasized(m_nameLabel);
+                makeInfo(m_pathLabel);
+            }
         }
 
         void GameEngineProfileItemRenderer::createGui() {
@@ -102,7 +112,7 @@ namespace TrenchBroom {
         ControlListBox("Click the '+' button to create a game engine profile.", parent),
         m_config(config) {
             m_config.profilesDidChange.addObserver(this, &GameEngineProfileListBox::profilesDidChange);
-            refresh();
+            reload();
         }
 
         GameEngineProfileListBox::~GameEngineProfileListBox() {
@@ -118,7 +128,7 @@ namespace TrenchBroom {
         }
 
         void GameEngineProfileListBox::profilesDidChange() {
-            refresh();
+            reload();
         }
 
         size_t GameEngineProfileListBox::itemCount() const {

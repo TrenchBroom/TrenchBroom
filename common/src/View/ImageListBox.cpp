@@ -40,6 +40,20 @@ namespace TrenchBroom {
             createGui(title, subtitle, image);
         }
 
+        void ImageListBoxItemRenderer::update(size_t index) {
+            QObject* element = this->parent();
+            ImageListBox* listBox = nullptr;
+            do {
+                listBox = dynamic_cast<ImageListBox*>(element);
+                element = element->parent();
+            } while (listBox == nullptr && element != nullptr);
+            if (listBox != nullptr) {
+                m_titleLabel->setText(listBox->title(index));
+                m_subtitleLabel->setText(listBox->subtitle(index));
+                m_imageLabel->setPixmap(listBox->image(index));
+            }
+        }
+
         void ImageListBoxItemRenderer::setSelected(const bool selected) {
             if (selected) {
                 makeSelected(m_titleLabel);
@@ -62,11 +76,9 @@ namespace TrenchBroom {
             imageAndTextLayout->setSpacing(2);
             setLayout(imageAndTextLayout);
 
-            if (!image.isNull()) {
-                m_imageLabel = new QLabel(this);
-                m_imageLabel->setPixmap(image);
-                imageAndTextLayout->addWidget(m_imageLabel);
-            }
+            m_imageLabel = new QLabel(this);
+            imageAndTextLayout->addWidget(m_imageLabel);
+            m_imageLabel->setPixmap(image);
 
             auto* textLayout = new QVBoxLayout();
             textLayout->setContentsMargins(QMargins());
