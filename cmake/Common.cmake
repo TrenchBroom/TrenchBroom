@@ -284,6 +284,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/ClipToolController.cpp
 	${COMMON_SOURCE_DIR}/View/ClipTool.cpp
 	${COMMON_SOURCE_DIR}/View/CollapsibleTitledPanel.cpp
+	${COMMON_SOURCE_DIR}/View/ColorButton.cpp
 	${COMMON_SOURCE_DIR}/View/ColorTable.cpp
 	${COMMON_SOURCE_DIR}/View/Command.cpp
 	${COMMON_SOURCE_DIR}/View/CommandProcessor.cpp
@@ -299,7 +300,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/Console.cpp
 	${COMMON_SOURCE_DIR}/View/ControlListBox.cpp
 	${COMMON_SOURCE_DIR}/View/ContainerBar.cpp
-#	${COMMON_SOURCE_DIR}/View/ControlListBox.cpp
+	${COMMON_SOURCE_DIR}/View/ControlListBox.cpp
 	${COMMON_SOURCE_DIR}/View/ConvertEntityColorCommand.cpp
 	${COMMON_SOURCE_DIR}/View/CopyTexCoordSystemFromFaceCommand.cpp
 #	${COMMON_SOURCE_DIR}/View/CrashDialog.cpp
@@ -474,7 +475,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/ViewConstants.cpp
 #	${COMMON_SOURCE_DIR}/View/ViewEditor.cpp
 	${COMMON_SOURCE_DIR}/View/ViewEffectsService.cpp
-#	${COMMON_SOURCE_DIR}/View/ViewPreferencePane.cpp
+	${COMMON_SOURCE_DIR}/View/ViewPreferencePane.cpp
 	${COMMON_SOURCE_DIR}/View/ViewUtils.cpp
 	${COMMON_SOURCE_DIR}/View/WelcomeFrame.cpp
 	${COMMON_SOURCE_DIR}/View/wxUtils.cpp
@@ -832,6 +833,7 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/ClipToolController.h
 	${COMMON_SOURCE_DIR}/View/ClipTool.h
 	${COMMON_SOURCE_DIR}/View/CollapsibleTitledPanel.h
+	${COMMON_SOURCE_DIR}/View/ColorButton.h
 	${COMMON_SOURCE_DIR}/View/ColorTable.h
 	${COMMON_SOURCE_DIR}/View/Command.h
 	${COMMON_SOURCE_DIR}/View/CommandProcessor.h

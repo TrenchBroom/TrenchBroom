@@ -23,22 +23,21 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "View/BorderLine.h"
+#include "View/ColorButton.h"
 #include "View/TitleBar.h"
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
 #include "Renderer/GL.h"
 
-#include <wx/checkbox.h>
-#include <wx/choice.h>
-#include <wx/clrpicker.h>
-#include <wx/combobox.h>
-#include <wx/gbsizer.h>
-#include <wx/sizer.h>
-#include <wx/slider.h>
+#include <QBoxLayout>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QFormLayout>
 #include <QLabel>
-#include <wx/layout.h>
-#include <wx/valnum.h>
+#include <QSlider>
+
+#include <array>
 
 namespace TrenchBroom {
     namespace View {
@@ -53,8 +52,7 @@ namespace TrenchBroom {
             name(i_name) {}
         };
 
-        static const size_t NumTextureModes = 6;
-        static const TextureMode TextureModes[] = {
+        static const std::array<TextureMode, 6> TextureModes = {
             TextureMode(GL_NEAREST,                 GL_NEAREST, "Nearest"),
             TextureMode(GL_NEAREST_MIPMAP_NEAREST,  GL_NEAREST, "Nearest (mipmapped)"),
             TextureMode(GL_NEAREST_MIPMAP_LINEAR,   GL_NEAREST, "Nearest (mipmapped, interpolated)"),
@@ -71,63 +69,238 @@ namespace TrenchBroom {
             bindEvents();
         }
 
+        void ViewPreferencePane::createGui() {
+            auto* viewPreferences = createViewPreferences();
 
-        void ViewPreferencePane::OnLayoutChanged() {
+            auto* layout = new QVBoxLayout();
+            layout->setContentsMargins(QMargins());
+            layout->setSpacing(0);
+            setLayout(layout);
 
-
-            const auto selection = m_layoutChoice->GetSelection();
-            assert(selection >= 0 && selection < static_cast<int>(NumFrameLayouts));
-
-            auto& prefs = PreferenceManager::instance();
-            prefs.set(Preferences::MapViewLayout, selection);
+            layout->addSpacing(LayoutConstants::NarrowVMargin);
+            layout->addWidget(viewPreferences, 1);
+            layout->addSpacing(LayoutConstants::WideVMargin);
         }
 
-        void ViewPreferencePane::OnBrightnessChanged(wxScrollEvent& event) {
+        QWidget* ViewPreferencePane::createViewPreferences() {
+            auto* viewBox = new QWidget(this);
+
+            auto* viewPrefsHeader = new QLabel("Map Views");
+            makeEmphasized(viewPrefsHeader);
+
+            m_layoutCombo = new QComboBox();
+            m_layoutCombo->setToolTip("Sets the layout of the editing views.");
+            m_layoutCombo->addItem("One Pane");
+            m_layoutCombo->addItem("Two Panes");
+            m_layoutCombo->addItem("Three Panes");
+            m_layoutCombo->addItem("Four Panes");
+
+            m_brightnessSlider = createSlider(1, 100);
+            m_brightnessSlider->setToolTip("Sets the brightness for textures and model skins in the 3D editing view.");
+            m_gridAlphaSlider = createSlider(1, 100);
+            m_gridAlphaSlider->setToolTip("Sets the visibility of the grid lines in the 3D editing view.");
+            m_fovSlider = createSlider(50, 150);
+            m_fovSlider->setToolTip("Sets the field of vision in the 3D editing view.");
+
+            m_showAxes = new QCheckBox();
+            m_showAxes->setToolTip("Toggle showing the coordinate system axes in the 3D editing view.");
+
+            m_textureModeCombo = new QComboBox();
+            m_textureModeCombo->setToolTip("Sets the texture filtering mode in the editing views.");
+            for (const auto& textureMode : TextureModes) {
+                m_textureModeCombo->addItem(QString::fromStdString(textureMode.name));
+            }
+
+            m_backgroundColorButton = new ColorButton();
+            m_backgroundColorButton->setToolTip("Sets the background color of the editing views.")
+            m_gridColorButton = new ColorButton();
+            m_gridColorButton->setToolTip("Sets the color of the grid lines in the editing views.");
+            m_edgeColorButton = new ColorButton();
+            m_edgeColorButton->setToolTip("Sets the color of brush edges in the editing views.");
+
+            m_textureBrowserIconSizeCombo = new QComboBox();
+            m_textureBrowserIconSizeCombo->addItem("25%");
+            m_textureBrowserIconSizeCombo->addItem("50%");
+            m_textureBrowserIconSizeCombo->addItem("100%");
+            m_textureBrowserIconSizeCombo->addItem("150%");
+            m_textureBrowserIconSizeCombo->addItem("200%");
+            m_textureBrowserIconSizeCombo->addItem("250%");
+            m_textureBrowserIconSizeCombo->addItem("300%");
+            m_textureBrowserIconSizeCombo->setToolTip("Sets the icon size in the texture browser.");
+
+            m_rendererFontSizeCombo = new QComboBox();
+            m_rendererFontSizeCombo->setEditable(true);
+            m_rendererFontSizeCombo->setToolTip("Sets the font size for various labels in the editing views.");
+            m_rendererFontSizeCombo->addItem("8");
+            m_rendererFontSizeCombo->addItem("9");
+            m_rendererFontSizeCombo->addItem("10");
+            m_rendererFontSizeCombo->addItem("11");
+            m_rendererFontSizeCombo->addItem("12");
+            m_rendererFontSizeCombo->addItem("13");
+            m_rendererFontSizeCombo->addItem("14");
+            m_rendererFontSizeCombo->addItem("15");
+            m_rendererFontSizeCombo->addItem("16");
+            m_rendererFontSizeCombo->addItem("17");
+            m_rendererFontSizeCombo->addItem("18");
+            m_rendererFontSizeCombo->addItem("20");
+            m_rendererFontSizeCombo->addItem("22");
+            m_rendererFontSizeCombo->addItem("24");
+            m_rendererFontSizeCombo->addItem("26");
+            m_rendererFontSizeCombo->addItem("28");
+            m_rendererFontSizeCombo->addItem("32");
+            m_rendererFontSizeCombo->addItem("36");
+            m_rendererFontSizeCombo->addItem("40");
+            m_rendererFontSizeCombo->addItem("48");
+            m_rendererFontSizeCombo->addItem("56");
+            m_rendererFontSizeCombo->addItem("64");
+            m_rendererFontSizeCombo->addItem("72");
+            m_rendererFontSizeCombo->setValidator(new QIntValidator(1, 96));
+
+            auto* layout = new QFormLayout();
+            viewBox->setLayout(layout);
+
+            layout->addRow(new QLabel("Map Views"));
+            layout->addRow("Layout", m_layoutCombo);
+            layout->addRow("Brightness", m_brightnessSlider);
+            layout->addRow("Grid", m_gridAlphaSlider);
+            layout->addRow("FOV", m_fovSlider);
+            layout->addRow("Show axes", m_showAxes);
+            layout->addRow("Texture mode", m_textureModeCombo);
+
+            layout->addRow(new BorderLine(BorderLine::Direction_Horizontal));
+            layout->addRow(new QLabel("Colors"));
+            layout->addRow("Background", m_backgroundColorButton);
+            layout->addRow("Grid", m_gridColorButton);
+            layout->addRow("Edges", m_edgeColorButton);
+
+            layout->addRow(new BorderLine(BorderLine::Direction_Horizontal));
+            layout->addRow(new QLabel("Texture Browser"));
+            layout->addRow("Icon size", m_textureBrowserIconSizeCombo);
+
+            layout->addRow(new BorderLine(BorderLine::Direction_Horizontal));
+            layout->addRow(new QLabel("Fonts"));
+            layout->addRow("Renderer Font Size", m_rendererFontSizeCombo);
+
+            viewBox->setMinimumWidth(500);
+            return viewBox;
+        }
+
+        void ViewPreferencePane::bindEvents() {
+            connect(m_layoutCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ViewPreferencePane::layoutChanged);
+            connect(m_brightnessSlider, &QSlider::valueChanged, this, &ViewPreferencePane::brightnessChanged);
+            connect(m_gridAlphaSlider, &QSlider::valueChanged, this, &ViewPreferencePane::gridAlphaChanged);
+            connect(m_fovSlider, &QSlider::valueChanged, this, &ViewPreferencePane::fovChanged);
+            connect(m_showAxes, &QCheckBox::stateChanged, this, &ViewPreferencePane::showAxesChanged);
+            connect(m_backgroundColorButton, &ColorButton::colorChanged, this, &ViewPreferencePane::backgroundColorChanged);
+            connect(m_gridColorButton, &ColorButton::colorChanged, this, &ViewPreferencePane::gridColorChanged);
+            connect(m_edgeColorButton, &ColorButton::colorChanged, this, &ViewPreferencePane::edgeColorChanged);
+            connect(m_textureModeCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ViewPreferencePane::textureModeChanged);
+            connect(m_textureBrowserIconSizeCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ViewPreferencePane::textureBrowserIconSizeChanged);
+            connect(m_rendererFontSizeCombo, &QComboBox::currentTextChanged, this, &ViewPreferencePane::rendererFontSizeChanged);
+        }
+
+        bool ViewPreferencePane::doCanResetToDefaults() {
+            return true;
+        }
+
+        void ViewPreferencePane::doResetToDefaults() {
+            auto& prefs = PreferenceManager::instance();
+            prefs.resetToDefault(Preferences::Brightness);
+            prefs.resetToDefault(Preferences::GridAlpha);
+            prefs.resetToDefault(Preferences::CameraFov);
+            prefs.resetToDefault(Preferences::ShowAxes);
+            prefs.resetToDefault(Preferences::TextureMinFilter);
+            prefs.resetToDefault(Preferences::TextureMagFilter);
+            prefs.resetToDefault(Preferences::BackgroundColor);
+            prefs.resetToDefault(Preferences::GridColor2D);
+            prefs.resetToDefault(Preferences::EdgeColor);
+            prefs.resetToDefault(Preferences::TextureBrowserIconSize);
+            prefs.resetToDefault(Preferences::RendererFontSize);
+        }
+
+        void ViewPreferencePane::doUpdateControls() {
+            m_layoutCombo->setCurrentIndex(pref(Preferences::MapViewLayout));
+            m_brightnessSlider->setValue(int(pref(Preferences::Brightness) * 40.0f));
+            m_gridAlphaSlider->setValue(int(pref(Preferences::GridAlpha) * m_gridAlphaSlider->maximum()));
+            m_fovSlider->setValue(int(pref(Preferences::CameraFov)));
+
+            const auto textureModeIndex = findTextureMode(pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
+            m_textureModeCombo->setCurrentIndex(int(textureModeIndex));
+
+            m_showAxes->setChecked(pref(Preferences::ShowAxes));
+
+            m_backgroundColorButton->setColor(toQColor(pref(Preferences::BackgroundColor)));
+            m_gridColorButton->setColor(toQColor(pref(Preferences::GridColor2D)));
+            m_edgeColorButton->setColor(toQColor(pref(Preferences::EdgeColor)));
+
+            const auto textureBrowserIconSize = pref(Preferences::TextureBrowserIconSize);
+            if (textureBrowserIconSize == 0.25f) {
+                m_textureBrowserIconSizeCombo->setCurrentIndex(0);
+            } else if (textureBrowserIconSize == 0.5f) {
+                m_textureBrowserIconSizeCombo->setCurrentIndex(1);
+            } else if (textureBrowserIconSize == 1.5f) {
+                m_textureBrowserIconSizeCombo->setCurrentIndex(3);
+            } else if (textureBrowserIconSize == 2.0f) {
+                m_textureBrowserIconSizeCombo->setCurrentIndex(4);
+            } else if (textureBrowserIconSize == 2.5f) {
+                m_textureBrowserIconSizeCombo->setCurrentIndex(5);
+            } else if (textureBrowserIconSize == 3.0f) {
+                m_textureBrowserIconSizeCombo->setCurrentIndex(6);
+            } else {
+                m_textureBrowserIconSizeCombo->setCurrentIndex(2);
+            }
+
+            m_rendererFontSizeCombo->setCurrentText(QString::asprintf("%i", pref(Preferences::RendererFontSize)));
+        }
+
+        bool ViewPreferencePane::doValidate() {
+            return true;
+        }
+
+        size_t ViewPreferencePane::findTextureMode(const int minFilter, const int magFilter) const {
+            for (size_t i = 0; i < TextureModes.size(); ++i) {
+                if (TextureModes[i].minFilter == minFilter &&
+                    TextureModes[i].magFilter == magFilter) {
+                    return i;
+                }
+            }
+            return TextureModes.size();
+        }
 
 
-            const auto value = m_brightnessSlider->GetValue();
+        void ViewPreferencePane::layoutChanged(const int index) {
+            assert(index >= 0 && index < static_cast<int>(NumFrameLayouts));
 
+            auto& prefs = PreferenceManager::instance();
+            prefs.set(Preferences::MapViewLayout, index);
+        }
+
+        void ViewPreferencePane::brightnessChanged(const int value) {
             auto& prefs = PreferenceManager::instance();
             prefs.set(Preferences::Brightness, value / 40.0f);
         }
 
-        void ViewPreferencePane::OnGridAlphaChanged(wxScrollEvent& event) {
-
-
-            const auto value = m_gridAlphaSlider->GetValue();
-
+        void ViewPreferencePane::gridAlphaChanged(const int value) {
             auto& prefs = PreferenceManager::instance();
-            const auto max = m_gridAlphaSlider->GetMax();
+            const auto max = m_gridAlphaSlider->maximum();
             const auto floatValue = float(value) / float(max);
             prefs.set(Preferences::GridAlpha, floatValue);
         }
 
-        void ViewPreferencePane::OnFovChanged(wxScrollEvent& event) {
-
-
-            const auto value = m_fovSlider->GetValue();
-
+        void ViewPreferencePane::fovChanged(const int value) {
             auto& prefs = PreferenceManager::instance();
             prefs.set(Preferences::CameraFov, float(value));
         }
 
-        void ViewPreferencePane::OnShowAxesChanged() {
-
-
-            const auto value = event.IsChecked();
-
+        void ViewPreferencePane::showAxesChanged(const int state) {
+            const auto value = state == Qt::Checked;
             auto& prefs = PreferenceManager::instance();
             prefs.set(Preferences::ShowAxes, value);
         }
 
-        void ViewPreferencePane::OnTextureModeChanged() {
-
-
-            const auto selection = m_textureModeChoice->GetSelection();
-            assert(selection >= 0);
-
-            const auto index = static_cast<size_t>(selection);
-            assert(index < NumTextureModes);
+        void ViewPreferencePane::textureModeChanged(const int value) {
+            const auto index = static_cast<size_t>(value);
+            assert(index < TextureModes.size());
             const auto minFilter = TextureModes[index].minFilter;
             const auto magFilter = TextureModes[index].magFilter;
 
@@ -136,40 +309,28 @@ namespace TrenchBroom {
             prefs.set(Preferences::TextureMagFilter, magFilter);
         }
 
-        void ViewPreferencePane::OnBackgroundColorChanged(wxColourPickerEvent& event) {
-
-
-            const auto value = Color(fromWxColor(event.GetColour()), 1.0f);
-
+        void ViewPreferencePane::backgroundColorChanged(const QColor& color) {
+            const auto value = Color(fromQColor(color), 1.0f);
             auto& prefs = PreferenceManager::instance();
             prefs.set(Preferences::BackgroundColor, value);
         }
 
-        void ViewPreferencePane::OnGridColorChanged(wxColourPickerEvent& event) {
-
-
-            const auto value = Color(fromWxColor(event.GetColour()), 1.0f);
-
+        void ViewPreferencePane::gridColorChanged(const QColor& color) {
+            const auto value = Color(fromQColor(color), 1.0f);
             auto& prefs = PreferenceManager::instance();
             prefs.set(Preferences::GridColor2D, value);
         }
 
-        void ViewPreferencePane::OnEdgeColorChanged(wxColourPickerEvent& event) {
-
-
-            const auto value = Color(fromWxColor(event.GetColour()), 1.0f);
-
+        void ViewPreferencePane::edgeColorChanged(const QColor& color) {
+            const auto value = Color(fromQColor(color), 1.0f);
             auto& prefs = PreferenceManager::instance();
             prefs.set(Preferences::EdgeColor, value);
         }
 
-        void ViewPreferencePane::OnTextureBrowserIconSizeChanged() {
-
-
+        void ViewPreferencePane::textureBrowserIconSizeChanged(const int index) {
             auto& prefs = PreferenceManager::instance();
 
-            const auto selection = m_textureBrowserIconSizeChoice->GetSelection();
-            switch (selection) {
+            switch (index) {
                 case 0:
                     prefs.set(Preferences::TextureBrowserIconSize, 0.25f);
                     break;
@@ -194,291 +355,13 @@ namespace TrenchBroom {
             }
         }
 
-        void ViewPreferencePane::OnFontPrefsRendererFontSizeChanged() {
-            if(IsBeingDeleted()) {
-                return;
+        void ViewPreferencePane::rendererFontSizeChanged(const QString& str) {
+            bool ok;
+            const auto value = str.toInt(&ok);
+            if (ok) {
+                auto& prefs = PreferenceManager::instance();
+                prefs.set(Preferences::RendererFontSize, value);
             }
-
-            auto& prefs = PreferenceManager::instance();
-            auto str = m_fontPrefsRendererFontSizeCombo->GetValue();
-            prefs.set(Preferences::RendererFontSize, wxAtoi(str));
         }
-
-        void ViewPreferencePane::createGui() {
-            auto* viewPreferences = createViewPreferences();
-
-            auto* sizer = new QVBoxLayout();
-            sizer->addSpacing(LayoutConstants::NarrowVMargin);
-            sizer->addWidget(viewPreferences, 1, wxEXPAND);
-            sizer->addSpacing(LayoutConstants::WideVMargin);
-
-            SetMinSize(sizer->GetMinSize());
-            setLayout(sizer);
-        }
-
-        QWidget* ViewPreferencePane::createViewPreferences() {
-            auto* viewBox = new QWidget(this);
-
-            auto* viewPrefsHeader = new QLabel(viewBox, wxID_ANY, "Map Views");
-            viewPrefsHeader->SetFont(viewPrefsHeader->GetFont().Bold());
-
-            QString layoutNames[NumFrameLayouts];
-            layoutNames[0] = "One Pane";
-            layoutNames[1] = "Two Panes";
-            layoutNames[2] = "Three Panes";
-            layoutNames[3] = "Four Panes";
-
-            auto* layoutLabel = new QLabel(viewBox, wxID_ANY, "Layout");
-            m_layoutChoice = new wxChoice(viewBox, wxID_ANY, wxDefaultPosition, wxDefaultSize, NumFrameLayouts, layoutNames);
-
-            auto* brightnessLabel = new QLabel(viewBox, wxID_ANY, "Brightness");
-            m_brightnessSlider = new wxSlider(viewBox, wxID_ANY, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM | wxSL_VALUE_LABEL);
-            auto* gridLabel = new QLabel(viewBox, wxID_ANY, "Grid");
-            m_gridAlphaSlider = new wxSlider(viewBox, wxID_ANY, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM | wxSL_VALUE_LABEL);
-            auto* fovLabel = new QLabel(viewBox, wxID_ANY, "Field of Vision");
-            m_fovSlider = new wxSlider(viewBox, wxID_ANY, 90, 50, 150, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM | wxSL_VALUE_LABEL);
-
-            auto* axesLabel = new QLabel(viewBox, wxID_ANY, "Coordinate System");
-            m_showAxes = new wxCheckBox(viewBox, wxID_ANY, "Show Axes");
-
-            QString textureModeNames[NumTextureModes];
-            for (size_t i = 0; i < NumTextureModes; ++i) {
-                textureModeNames[i] = TextureModes[i].name;
-            }
-            auto* textureModeLabel = new QLabel(viewBox, wxID_ANY, "Texture Mode");
-            m_textureModeChoice = new wxChoice(viewBox, wxID_ANY, wxDefaultPosition, wxDefaultSize, NumTextureModes, textureModeNames);
-
-
-
-            auto* colorPrefsHeader = new QLabel(viewBox, wxID_ANY, "Colors");
-            colorPrefsHeader->SetFont(colorPrefsHeader->GetFont().Bold());
-
-            auto* backgroundColorLabel = new QLabel(viewBox, wxID_ANY, "Background");
-            m_backgroundColorPicker = new wxColourPickerCtrl(viewBox, wxID_ANY);
-
-            auto* gridColorLabel = new QLabel(viewBox, wxID_ANY, "Grid");
-            m_gridColorPicker = new wxColourPickerCtrl(viewBox, wxID_ANY);
-
-            auto* edgeColorLabel = new QLabel(viewBox, wxID_ANY, "Edges");
-            m_edgeColorPicker = new wxColourPickerCtrl(viewBox, wxID_ANY);
-
-
-
-            auto* textureBrowserPrefsHeader = new QLabel(viewBox, wxID_ANY, "Texture Browser");
-            textureBrowserPrefsHeader->SetFont(textureBrowserPrefsHeader->GetFont().Bold());
-
-            auto* textureBrowserIconSizeLabel = new QLabel(viewBox, wxID_ANY, "Icon Size");
-            QString iconSizes[7] = {"25%", "50%", "100%", "150%", "200%", "250%", "300%"};
-            m_textureBrowserIconSizeChoice = new wxChoice(viewBox, wxID_ANY, wxDefaultPosition, wxDefaultSize, 7, iconSizes);
-            m_textureBrowserIconSizeChoice->setToolTip("Sets the icon size in the texture browser.");
-
-
-
-            auto* fontPrefsHeader = new QLabel(viewBox, wxID_ANY, "Fonts");
-            fontPrefsHeader->SetFont(fontPrefsHeader->GetFont().Bold());
-
-            wxIntegerValidator<unsigned int> ValidIntP;
-            ValidIntP.SetRange(1, 96);
-            auto* fontPrefsRendererFontSizeLabel = new QLabel(viewBox, wxID_ANY, "Renderer Font Size");
-            std::vector<QString> rendererFontSizes {  "8",  "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "20", "22",
-                                                      "24", "26", "28", "32", "36", "40", "48", "56", "64", "72" };
-            m_fontPrefsRendererFontSizeCombo = new wxComboBox(viewBox, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,
-                                                              static_cast<int>(rendererFontSizes.size()), rendererFontSizes.data(),
-                                                              0, ValidIntP);
-            m_fontPrefsRendererFontSizeCombo->setToolTip("Sets the font size for various labels in the 2D and 3D views.");
-
-
-
-            const auto HMargin           = LayoutConstants::WideHMargin;
-            const auto LMargin           = LayoutConstants::WideVMargin;
-            const auto HeaderFlags       = wxLEFT;
-            const auto LabelFlags        = wxALIGN_RIGHT | Qt::AlignVCenter | wxLEFT;
-            const auto SliderFlags       = wxEXPAND | wxRIGHT;
-            const auto ChoiceFlags       = wxRIGHT;
-            const auto CheckBoxFlags     = wxLEFT;
-            const auto ColorPickerFlags  = wxRIGHT;
-            const auto LineFlags         = wxEXPAND | wxTOP;
-
-
-            int r = 0;
-
-            auto* sizer = new wxGridBagSizer(LayoutConstants::NarrowVMargin, LayoutConstants::WideHMargin);
-            sizer->addWidget(viewPrefsHeader,                     wxGBPosition( r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
-            ++r;
-
-            sizer->addWidget(layoutLabel,                         wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->addWidget(m_layoutChoice,                      wxGBPosition( r, 1), wxDefaultSpan, ChoiceFlags, HMargin);
-            ++r;
-
-            sizer->addWidget(brightnessLabel,                     wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->addWidget(m_brightnessSlider,                  wxGBPosition( r, 1), wxDefaultSpan, SliderFlags, HMargin);
-            ++r;
-            sizer->addWidget(0, LMargin,                          wxGBPosition( r, 0), wxGBSpan(1,2));
-            ++r;
-
-            sizer->addWidget(gridLabel,                           wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->addWidget(m_gridAlphaSlider,                   wxGBPosition( r, 1), wxDefaultSpan, SliderFlags, HMargin);
-            ++r;
-            sizer->addWidget(0, LMargin,                          wxGBPosition( r, 0), wxGBSpan(1,2));
-            ++r;
-
-            sizer->addWidget(fovLabel,                            wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->addWidget(m_fovSlider,                         wxGBPosition( r, 1), wxDefaultSpan, SliderFlags, HMargin);
-            ++r;
-            sizer->addWidget(0, LMargin,                          wxGBPosition( r, 0), wxGBSpan(1,2));
-            ++r;
-
-            sizer->addWidget(axesLabel,                           wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->addWidget(m_showAxes,                          wxGBPosition( r, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
-            ++r;
-
-            sizer->addWidget(textureModeLabel,                    wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->addWidget(m_textureModeChoice,                 wxGBPosition( r, 1), wxDefaultSpan, ChoiceFlags, HMargin);
-            ++r;
-
-            sizer->addWidget(0, LayoutConstants::ChoiceSizeDelta, wxGBPosition( r, 0), wxGBSpan(1,2));
-            ++r;
-
-
-
-            sizer->addWidget(new BorderLine(viewBox),             wxGBPosition( r, 0), wxGBSpan(1,2), LineFlags, LMargin);
-            ++r;
-
-            sizer->addWidget(colorPrefsHeader,                    wxGBPosition( r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
-            ++r;
-
-            sizer->addWidget(backgroundColorLabel,                wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->addWidget(m_backgroundColorPicker,             wxGBPosition( r, 1), wxDefaultSpan, ColorPickerFlags, HMargin);
-            ++r;
-
-            sizer->addWidget(gridColorLabel,                      wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->addWidget(m_gridColorPicker,                   wxGBPosition( r, 1), wxDefaultSpan, ColorPickerFlags, HMargin);
-            ++r;
-
-            sizer->addWidget(edgeColorLabel,                      wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->addWidget(m_edgeColorPicker,                   wxGBPosition( r, 1), wxDefaultSpan, ColorPickerFlags, HMargin);
-            ++r;
-
-
-
-            sizer->addWidget(new BorderLine(viewBox),             wxGBPosition( r, 0), wxGBSpan(1,2), LineFlags, LMargin);
-            ++r;
-
-            sizer->addWidget(textureBrowserPrefsHeader,           wxGBPosition( r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
-            ++r;
-
-            sizer->addWidget(textureBrowserIconSizeLabel,         wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->addWidget(m_textureBrowserIconSizeChoice,      wxGBPosition( r, 1), wxDefaultSpan, ChoiceFlags, HMargin);
-            ++r;
-
-
-
-            sizer->addWidget(new BorderLine(viewBox),             wxGBPosition( r, 0), wxGBSpan(1,2), LineFlags, LMargin);
-            ++r;
-
-            sizer->addWidget(fontPrefsHeader,                     wxGBPosition( r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
-            ++r;
-
-            sizer->addWidget(fontPrefsRendererFontSizeLabel,      wxGBPosition( r, 0), wxDefaultSpan, LabelFlags,  HMargin);
-            sizer->addWidget(m_fontPrefsRendererFontSizeCombo,    wxGBPosition( r, 1), wxDefaultSpan, ChoiceFlags, HMargin);
-            ++r;
-
-            sizer->addWidget(0, LayoutConstants::ChoiceSizeDelta, wxGBPosition( r, 0), wxGBSpan(1,2));
-
-            sizer->AddGrowableCol(1);
-            sizer->SetMinSize(500, wxDefaultCoord);
-            viewBox->setLayout(sizer);
-            return viewBox;
-        }
-
-        void ViewPreferencePane::bindEvents() {
-            m_layoutChoice->Bind(wxEVT_CHOICE, &ViewPreferencePane::OnLayoutChanged, this);
-
-            bindSliderEvents(m_brightnessSlider, &ViewPreferencePane::OnBrightnessChanged, this);
-            bindSliderEvents(m_gridAlphaSlider, &ViewPreferencePane::OnGridAlphaChanged, this);
-            bindSliderEvents(m_fovSlider, &ViewPreferencePane::OnFovChanged, this);
-
-            m_showAxes->Bind(wxEVT_CHECKBOX, &ViewPreferencePane::OnShowAxesChanged, this);
-
-            m_backgroundColorPicker->Bind(wxEVT_COLOURPICKER_CHANGED, &ViewPreferencePane::OnBackgroundColorChanged, this);
-            m_gridColorPicker->Bind(wxEVT_COLOURPICKER_CHANGED, &ViewPreferencePane::OnGridColorChanged, this);
-            m_edgeColorPicker->Bind(wxEVT_COLOURPICKER_CHANGED, &ViewPreferencePane::OnEdgeColorChanged, this);
-
-            m_textureModeChoice->Bind(wxEVT_CHOICE, &ViewPreferencePane::OnTextureModeChanged, this);
-            m_textureBrowserIconSizeChoice->Bind(wxEVT_CHOICE, &ViewPreferencePane::OnTextureBrowserIconSizeChanged, this);
-
-            m_fontPrefsRendererFontSizeCombo->Bind(wxEVT_COMBOBOX, &ViewPreferencePane::OnFontPrefsRendererFontSizeChanged, this);
-            m_fontPrefsRendererFontSizeCombo->Bind(wxEVT_TEXT, &ViewPreferencePane::OnFontPrefsRendererFontSizeChanged, this);
-        }
-
-        bool ViewPreferencePane::doCanResetToDefaults() {
-            return true;
-        }
-
-        void ViewPreferencePane::doResetToDefaults() {
-            auto& prefs = PreferenceManager::instance();
-            prefs.resetToDefault(Preferences::Brightness);
-            prefs.resetToDefault(Preferences::GridAlpha);
-            prefs.resetToDefault(Preferences::CameraFov);
-            prefs.resetToDefault(Preferences::ShowAxes);
-            prefs.resetToDefault(Preferences::TextureMinFilter);
-            prefs.resetToDefault(Preferences::TextureMagFilter);
-            prefs.resetToDefault(Preferences::BackgroundColor);
-            prefs.resetToDefault(Preferences::GridColor2D);
-            prefs.resetToDefault(Preferences::EdgeColor);
-            prefs.resetToDefault(Preferences::TextureBrowserIconSize);
-            prefs.resetToDefault(Preferences::RendererFontSize);
-        }
-
-        void ViewPreferencePane::doUpdateControls() {
-            m_layoutChoice->SetSelection(pref(Preferences::MapViewLayout));
-
-            m_brightnessSlider->SetValue(int(pref(Preferences::Brightness) * 40.0f));
-            m_gridAlphaSlider->SetValue(int(pref(Preferences::GridAlpha) * m_gridAlphaSlider->GetMax()));
-            m_fovSlider->SetValue(int(pref(Preferences::CameraFov)));
-
-            const auto textureModeIndex = findTextureMode(pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
-            assert(textureModeIndex < NumTextureModes);
-            m_textureModeChoice->SetSelection(static_cast<int>(textureModeIndex));
-
-            m_showAxes->SetValue(pref(Preferences::ShowAxes));
-
-            m_backgroundColorPicker->SetColour(toWxColor(pref(Preferences::BackgroundColor)));
-            m_gridColorPicker->SetColour(toWxColor(pref(Preferences::GridColor2D)));
-            m_edgeColorPicker->SetColour(toWxColor(pref(Preferences::EdgeColor)));
-
-            const auto textureBrowserIconSize = pref(Preferences::TextureBrowserIconSize);
-            if (textureBrowserIconSize == 0.25f) {
-                m_textureBrowserIconSizeChoice->SetSelection(0);
-            } else if (textureBrowserIconSize == 0.5f) {
-                m_textureBrowserIconSizeChoice->SetSelection(1);
-            } else if (textureBrowserIconSize == 1.5f) {
-                m_textureBrowserIconSizeChoice->SetSelection(3);
-            } else if (textureBrowserIconSize == 2.0f) {
-                m_textureBrowserIconSizeChoice->SetSelection(4);
-            } else if (textureBrowserIconSize == 2.5f) {
-                m_textureBrowserIconSizeChoice->SetSelection(5);
-            } else if (textureBrowserIconSize == 3.0f) {
-                m_textureBrowserIconSizeChoice->SetSelection(6);
-            } else {
-                m_textureBrowserIconSizeChoice->SetSelection(2);
-            }
-
-            m_fontPrefsRendererFontSizeCombo->SetValue(QString::Format(wxT("%i"), pref(Preferences::RendererFontSize)));
-        }
-
-        bool ViewPreferencePane::doValidate() {
-            return true;
-        }
-
-        size_t ViewPreferencePane::findTextureMode(const int minFilter, const int magFilter) const {
-            for (size_t i = 0; i < NumTextureModes; ++i) {
-                if (TextureModes[i].minFilter == minFilter &&
-                    TextureModes[i].magFilter == magFilter) {
-                    return i;
-                }
-            }
-            return NumTextureModes;
-        }
-	}
+    }
 }

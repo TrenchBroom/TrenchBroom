@@ -38,6 +38,7 @@ class QLineEdit;
 class QMainWindow;
 class QPalette;
 class QSettings;
+class QSlider;
 class QWidget;
 
 namespace TrenchBroom {
@@ -61,6 +62,8 @@ namespace TrenchBroom {
         QAbstractButton* createBitmapButton(const String& image, const QString& tooltip, QWidget* parent = nullptr);
 
         QWidget* createDefaultPage(const QString& message, QWidget* parent = nullptr);
+        QSlider* createSlider(const int min, const int max);
+
 #if 0
         QWidget* createBitmapToggleButton(QWidget* parent, const String& upImage, const String& downImage, const String& tooltip);
 #endif
@@ -86,6 +89,7 @@ namespace TrenchBroom {
 
         QSettings getSettings();
         Color fromQColor(const QColor& color);
+        QColor toQColor(const Color& color);
         void setWindowIconTB(QWidget* window);
         void setDebugBackgroundColor(QWidget* widget, const QColor& color);
 

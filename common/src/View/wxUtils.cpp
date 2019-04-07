@@ -38,6 +38,7 @@
 #include <QPalette>
 #include <QPushButton>
 #include <QSettings>
+#include <QSlider>
 #include <QStandardPaths>
 #include <QString>
 #include <QStringBuilder>
@@ -162,6 +163,10 @@ namespace TrenchBroom {
                          static_cast<float>(color.blueF()),
                          static_cast<float>(color.alphaF()));
         }
+
+        QColor toQColor(const Color& color) {
+            return QColor(int(color.r()), int(color.g()), int(color.b()), int(color.a()));
+        }
 #if 0
         wxColor toWxColor(const Color& color) {
             const unsigned char r = static_cast<unsigned char>(color.r() * 255.0f);
@@ -216,6 +221,15 @@ namespace TrenchBroom {
             layout->addWidget(messageLabel, Qt::AlignCenter);
 
             return container;
+        }
+
+        QSlider* createSlider(const int min, const int max) {
+            auto* slider = new QSlider();
+            slider->setMinimum(min);
+            slider->setMaximumWidth(max);
+            slider->setTickPosition(QSlider::TicksBelow);
+            slider->setTracking(true);
+            return slider;
         }
 
         QLayout* wrapDialogButtonBox(QDialogButtonBox* buttonBox) {
