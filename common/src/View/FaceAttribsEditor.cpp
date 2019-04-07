@@ -342,8 +342,9 @@ namespace TrenchBroom {
             m_faceAttribsSizer->addWidget(m_colorEditor,        r,c++, 1,3, Editor2Flags);
             ++r; c = 0;
 
-//            m_faceAttribsSizer->AddGrowableCol(1);
-//            m_faceAttribsSizer->AddGrowableCol(3);
+            m_faceAttribsSizer->setColumnStretch(1, 1);
+            m_faceAttribsSizer->setColumnStretch(3, 1);
+
 //            m_faceAttribsSizer->SetItemMinSize(m_uvEditor, 100, 100);
 //            m_faceAttribsSizer->SetItemMinSize(m_xOffsetEditor, 50, m_xOffsetEditor->GetSize().y);
 //            m_faceAttribsSizer->SetItemMinSize(m_yOffsetEditor, 50, m_yOffsetEditor->GetSize().y);
