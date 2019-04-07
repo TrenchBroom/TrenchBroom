@@ -45,17 +45,22 @@ namespace TrenchBroom {
             QLabel* m_emptyTextLabel;
         public:
             explicit ControlListBox(const QString& emptyText, QWidget* parent = nullptr);
+
+            int count() const;
+            int currentRow() const;
+            void setCurrentRow(int currentRow);
         protected:
             void setEmptyText(const QString& emptyText);
             void refresh();
         private:
             void clear();
             void addItemRenderer(ControlListBoxItemRenderer* renderer);
-
-            void currentItemChanged(QListWidgetItem* current, QListWidgetItem* previous);
         private:
             virtual size_t itemCount() const = 0;
             virtual ControlListBoxItemRenderer* createItemRenderer(QWidget* parent, size_t index) = 0;
+            virtual void currentRowChanged(int index);
+        private slots:
+            void currentItemChanged(QListWidgetItem* current, QListWidgetItem* previous);
         };
     }
 }

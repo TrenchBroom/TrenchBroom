@@ -46,7 +46,10 @@ namespace TrenchBroom {
         QDialog(parent),
         m_document(document),
         m_toolBar(nullptr),
-        m_stackedWidget(nullptr) {
+        m_stackedWidget(nullptr),
+        m_buttonBox(nullptr) {
+            setWindowTitle("Preferences");
+            setWindowIconTB(this);
             createGui();
             switchToPane(PrefPane_First);
             currentPane()->updateControls();
@@ -98,10 +101,6 @@ namespace TrenchBroom {
          */
 
         void PreferenceDialog::createGui() {
-            setWindowIconTB(this);
-
-            PreferenceManager& prefs = PreferenceManager::instance();
-
             const auto gamesImage    = IO::loadIconResourceQt(IO::Path("GeneralPreferences.png"));
             const auto viewImage     = IO::loadIconResourceQt(IO::Path("ViewPreferences.png"));
             const auto mouseImage    = IO::loadIconResourceQt(IO::Path("MousePreferences.png"));
@@ -116,6 +115,7 @@ namespace TrenchBroom {
             m_toolBar->addAction(keyboardImage, "Keyboard", [this](){ switchToPane(PrefPane_Keyboard); });
 
             m_stackedWidget = new QStackedWidget();
+            m_stackedWidget->addWidget(new GamesPreferencePane());
 
             m_buttonBox = new QDialogButtonBox(
                 QDialogButtonBox::Ok | QDialogButtonBox::Cancel | QDialogButtonBox::RestoreDefaults
@@ -128,11 +128,17 @@ namespace TrenchBroom {
             connect(resetButton, &QPushButton::clicked, [this]() { currentPane()->resetToDefaults(); });
 
             auto* layout = new QVBoxLayout();
+            layout->setContentsMargins(QMargins());
+            layout->setSpacing(0);
             setLayout(layout);
 
             layout->setMenuBar(m_toolBar);
+            layout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
             layout->addWidget(m_stackedWidget, 1);
-            layout->addWidget(m_buttonBox);
+            layout->addLayout(wrapDialogButtonBox(m_buttonBox));
+
+            connect(m_buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+            connect(m_buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
         }
 
         void PreferenceDialog::switchToPane(const PrefPane pane) {
@@ -143,7 +149,7 @@ namespace TrenchBroom {
             m_stackedWidget->setCurrentIndex(pane);
             currentPane()->updateControls();
 
-            auto* resetButton = m_buttonBox->button(QDialogButtonBox::Reset);
+            auto* resetButton = m_buttonBox->button(QDialogButtonBox::RestoreDefaults);
             resetButton->setEnabled(currentPane()->canResetToDefaults());
 
 

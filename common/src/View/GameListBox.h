@@ -23,16 +23,18 @@
 #include "StringUtils.h"
 #include "View/ImageListBox.h"
 
-#include <wx/bitmap.h>
+class QPixmap;
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace View {
         class GameListBox : public ImageListBox {
+            Q_OBJECT
         private:
             struct Info {
-                wxBitmap image;
+                String name;
+                QPixmap image;
                 QString title;
                 QString subtitle;
             };
@@ -41,20 +43,19 @@ namespace TrenchBroom {
 
             InfoList m_gameInfos;
         public:
-            GameListBox(QWidget* parent);
-
+            explicit GameListBox(QWidget* parent = nullptr);
             String selectedGameName() const;
-            void selectGame(int index);
-
-            void OnListBoxChange();
-            void OnListBoxDoubleClick();
+            void selectGame(size_t index);
             void reloadGameInfos();
         private:
-            bool image(size_t n, wxBitmap& result) const override;
-            QString title(size_t n) const override;
-            QString subtitle(size_t n) const override;
+            size_t itemCount() const override;
+            QPixmap image(size_t index) const override;
+            QString title(size_t index) const override;
+            QString subtitle(size_t index) const override;
 
-            void submitChangeEvent(wxEventType type);
+            void currentRowChanged(int index) override;
+        signals:
+            void currentGameChanged(const QString& gameName);
         };
     }
 }

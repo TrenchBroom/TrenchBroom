@@ -31,7 +31,9 @@
 #include <vector>
 
 class QAbstractButton;
+class QDialogButtonBox;
 class QFont;
+class QLayout;
 class QLineEdit;
 class QMainWindow;
 class QPalette;
@@ -56,14 +58,15 @@ namespace TrenchBroom {
         void deselectAllListrCtrlItems(wxListCtrl* listCtrl);
 #endif
 
-        QAbstractButton* createBitmapButton(QWidget* parent, const String& image, const QString& tooltip);
+        QAbstractButton* createBitmapButton(const String& image, const QString& tooltip, QWidget* parent = nullptr);
+
+        QWidget* createDefaultPage(const QString& message, QWidget* parent = nullptr);
 #if 0
         QWidget* createBitmapToggleButton(QWidget* parent, const String& upImage, const String& downImage, const String& tooltip);
+#endif
 
-        QWidget* createDefaultPage(QWidget* parent, const QString& message);
-
-        wxSizer* wrapDialogButtonSizer(wxSizer* buttonSizer, QWidget* parent);
-
+        QLayout* wrapDialogButtonBox(QDialogButtonBox* buttonBox);
+#if 0
         void setWindowIcon(wxTopLevelWindow* window);
         QStringList filterBySuffix(const QStringList& strings, const QString& suffix, bool caseSensitive = false);
 
@@ -77,6 +80,7 @@ namespace TrenchBroom {
         void makeEmphasized(QWidget* widget);
         void makeInfo(QWidget* widget);
         void makeHeader(QWidget* widget);
+        void makeError(QWidget* widget);
 
         void makeSelected(QWidget* widget);
 
@@ -84,6 +88,8 @@ namespace TrenchBroom {
         Color fromQColor(const QColor& color);
         void setWindowIconTB(QWidget* window);
         void setDebugBackgroundColor(QWidget* widget, const QColor& color);
+
+        void setBaseWindowColor(QWidget* widget);
 
         QLineEdit* createSearchBox();
     }

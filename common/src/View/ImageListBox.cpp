@@ -79,7 +79,7 @@ namespace TrenchBroom {
 
         void ImageListBoxItemRenderer::mouseDoubleClickEvent(QMouseEvent* event) {
             if (event->button() == Qt::LeftButton) {
-                emit doubleClick(m_index);
+                emit doubleClicked(m_index);
             }
         }
 
@@ -88,7 +88,7 @@ namespace TrenchBroom {
 
         ControlListBoxItemRenderer* ImageListBox::createItemRenderer(QWidget* parent, const size_t index) {
             auto* result = new ImageListBoxItemRenderer(index, title(index), subtitle(index), image(index), parent);
-            connect(result, &ImageListBoxItemRenderer::doubleClick, this, &ImageListBox::onItemDoubleClick);
+            connect(result, &ImageListBoxItemRenderer::doubleClicked, this, &ImageListBox::doubleClicked);
             return result;
         }
 
@@ -96,6 +96,6 @@ namespace TrenchBroom {
             return QPixmap();
         }
 
-        void ImageListBox::onItemDoubleClick(size_t index) {}
+        void ImageListBox::doubleClicked(size_t index) {}
     }
 }

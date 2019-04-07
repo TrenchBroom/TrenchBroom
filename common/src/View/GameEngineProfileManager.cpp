@@ -29,93 +29,72 @@
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
-#include <wx/settings.h>
-#include <wx/sizer.h>
+#include <QAbstractButton>
+#include <QBoxLayout>
 
 namespace TrenchBroom {
     namespace View {
-        GameEngineProfileManager::GameEngineProfileManager(QWidget* parent, Model::GameEngineConfig& config) :
+        GameEngineProfileManager::GameEngineProfileManager(Model::GameEngineConfig& config, QWidget* parent) :
         QWidget(parent),
         m_config(config),
         m_profileList(nullptr),
-        m_profileEditor(nullptr) {
+        m_profileEditor(nullptr),
+        m_removeProfileButton(nullptr) {
             auto* listPanel = new TitledPanel(this, "Profiles");
             auto* editorPanel = new TitledPanel(this, "Details");
 
-            m_profileList = new GameEngineProfileListBox(listPanel->getPanel(), m_config);
+            m_profileList = new GameEngineProfileListBox(m_config, listPanel->getPanel());
             m_profileEditor = new GameEngineProfileEditor(editorPanel->getPanel());
 
-            auto* addProfileButton = createBitmapButton(listPanel->getPanel(), "Add.png", "Add profile");
-            auto* removeProfileButton = createBitmapButton(listPanel->getPanel(), "Remove.png", "Remove the selected profile");
+            auto* addProfileButton = createBitmapButton("Add.png", "Add profile");
+            m_removeProfileButton = createBitmapButton("Remove.png", "Remove the selected profile");
 
-            addProfileButton->Bind(&QAbstractButton::clicked, &GameEngineProfileManager::OnAddProfile, this);
-            removeProfileButton->Bind(&QAbstractButton::clicked, &GameEngineProfileManager::OnRemoveProfile, this);
-            addProfileButton->Bind(wxEVT_UPDATE_UI, &GameEngineProfileManager::OnUpdateAddProfileButtonUI, this);
-            removeProfileButton->Bind(wxEVT_UPDATE_UI, &GameEngineProfileManager::OnUpdateRemoveProfileButtonUI, this);
+            auto* buttonLayout = new QHBoxLayout();
+            buttonLayout->addWidget(addProfileButton);
+            buttonLayout->addWidget(m_removeProfileButton);
+            buttonLayout->addStretch(1);
 
-            auto* buttonSizer = new QHBoxLayout();
-            buttonSizer->addWidget(addProfileButton, 0, Qt::AlignVCenter | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            buttonSizer->addWidget(removeProfileButton, 0, Qt::AlignVCenter | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            buttonSizer->addStretch(1);
+            auto* listLayout = new QVBoxLayout();
+            listPanel->getPanel()->setLayout(listLayout);
+            listLayout->addWidget(m_profileList, 1);
+            listLayout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
+            listLayout->addLayout(buttonLayout);
 
-            auto* listSizer = new QVBoxLayout();
-            listSizer->addWidget(m_profileList, 1, wxEXPAND);
-            listSizer->addWidget(new BorderLine(listPanel->getPanel(), BorderLine::Direction_Horizontal), 0, wxEXPAND);
-            listSizer->addWidget(buttonSizer);
-            listPanel->getPanel()->setLayout(listSizer);
+            auto* outerLayout = new QHBoxLayout();
+            setLayout(outerLayout);
+            outerLayout->addWidget(listPanel, 1);
+            outerLayout->addWidget(new BorderLine(BorderLine::Direction_Vertical));
+            outerLayout->addWidget(editorPanel, 1);
 
-            auto* editorSizer = new QVBoxLayout();
-            editorSizer->addWidget(m_profileEditor, 1, wxEXPAND);
-            editorPanel->getPanel()->setLayout(editorSizer);
-
-            auto* outerSizer = new QHBoxLayout();
-            outerSizer->addWidget(listPanel, 0, wxEXPAND);
-            outerSizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Vertical), 0, wxEXPAND);
-            outerSizer->addWidget(editorPanel, 1, wxEXPAND);
-            outerSizer->SetItemMinSize(listPanel, wxSize(200, 200));
-            setLayout(outerSizer);
-
-            m_profileList->Bind(wxEVT_LISTBOX, &GameEngineProfileManager::OnProfileSelectionChanged, this);
+            connect(addProfileButton, &QAbstractButton::clicked, this, &GameEngineProfileManager::addProfile);
+            connect(m_removeProfileButton, &QAbstractButton::clicked, this, &GameEngineProfileManager::removeProfile);
+            connect(m_profileList, &GameEngineProfileListBox::currentProfileChanged, this, &GameEngineProfileManager::currentProfileChanged);
         }
 
-        void GameEngineProfileManager::OnAddProfile() {
+        void GameEngineProfileManager::addProfile() {
             m_config.addProfile(new Model::GameEngineProfile("", IO::Path(), ""));
-            m_profileList->SetSelection(static_cast<int>(m_config.profileCount() - 1));
+            m_profileList->setCurrentRow(static_cast<int>(m_config.profileCount() - 1));
         }
 
-        void GameEngineProfileManager::OnRemoveProfile() {
-            const int index = m_profileList->GetSelection();
-            assert(index != wxNOT_FOUND);
+        void GameEngineProfileManager::removeProfile() {
+            const int index = m_profileList->currentRow();
 
             if (m_config.profileCount() == 1) {
-                m_profileList->SetSelection(wxNOT_FOUND);
+                m_profileList->setCurrentRow(-1);
                 m_config.removeProfile(static_cast<size_t>(index));
             } else if (index > 0) {
-                m_profileList->SetSelection(index - 1);
+                m_profileList->setCurrentRow(index - 1);
                 m_config.removeProfile(static_cast<size_t>(index));
             } else {
-                m_profileList->SetSelection(1);
+                m_profileList->setCurrentRow(1);
                 m_config.removeProfile(static_cast<size_t>(index));
-                m_profileList->SetSelection(0);
+                m_profileList->setCurrentRow(0);
             }
         }
 
-        void GameEngineProfileManager::OnUpdateAddProfileButtonUI() {
-            event.Enable(true);
-        }
-
-        void GameEngineProfileManager::OnUpdateRemoveProfileButtonUI() {
-            event.Enable(m_profileList->GetSelection() != wxNOT_FOUND);
-        }
-
-        void GameEngineProfileManager::OnProfileSelectionChanged() {
-            const int selection = m_profileList->GetSelection();
-            if (selection != wxNOT_FOUND) {
-                Model::GameEngineProfile* profile = m_config.profile(static_cast<size_t>(selection));
-                m_profileEditor->setProfile(profile);
-            } else {
-                m_profileEditor->setProfile(nullptr);
-            }
+        void GameEngineProfileManager::currentProfileChanged(Model::GameEngineProfile* profile) {
+            m_profileEditor->setProfile(profile);
+            m_removeProfileButton->setEnabled(profile != nullptr);
         }
     }
 }

@@ -34,6 +34,7 @@ namespace TrenchBroom {
         class PreferencePane;
 
         class PreferenceDialog : public QDialog {
+            Q_OBJECT
         private:
             typedef enum {
                 PrefPane_First = 0,

@@ -175,10 +175,10 @@ namespace TrenchBroom {
             enabledModContainerSizer->addWidget(m_enabledModList, 1);//wxSizerFlags().Expand().Proportion(1));
             enabledModContainer->getPanel()->setLayout(enabledModContainerSizer);
 
-            m_addModsButton = createBitmapButton(this, "Add.png", "Enable the selected mods");
-            m_removeModsButton = createBitmapButton(this, "Remove.png", "Disable the selected mods");
-            m_moveModUpButton = createBitmapButton(this, "Up.png", "Move the selected mod up");
-            m_moveModDownButton = createBitmapButton(this, "Down.png", "Move the selected mod down");
+            m_addModsButton = createBitmapButton("Add.png", "Enable the selected mods", this);
+            m_removeModsButton = createBitmapButton("Remove.png", "Disable the selected mods", this);
+            m_moveModUpButton = createBitmapButton("Up.png", "Move the selected mod up", this);
+            m_moveModDownButton = createBitmapButton("Down.png", "Move the selected mod down", this);
 
             auto* buttonSizer = new QHBoxLayout();
             buttonSizer->addWidget(m_addModsButton);//, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));

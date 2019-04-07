@@ -27,64 +27,41 @@
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
-#include <wx/button.h>
-#include <wx/settings.h>
-#include <wx/simplebook.h>
-#include <wx/sizer.h>
-#include <wx/statbmp.h>
+#include <QBoxLayout>
+#include <QDialogButtonBox>
 #include <QLabel>
-#include <wx/textctrl.h>
 
 namespace TrenchBroom {
     namespace View {
-        GameEngineDialog::GameEngineDialog(QWidget* parent, const String& gameName) :
-        wxDialog(parent, wxID_ANY, "Game Engines"),
+        GameEngineDialog::GameEngineDialog(const String& gameName, QWidget* parent) :
+        QDialog(parent),
         m_gameName(gameName),
         m_profileManager(nullptr) {
+            setWindowTitle("Game Engines");
+            setWindowIconTB(this);
             createGui();
-            SetSize(600, 400);
-            CentreOnParent();
         }
 
         void GameEngineDialog::createGui() {
-            setWindowIconTB(this);
+            auto* gameIndicator = new CurrentGameIndicator(m_gameName);
 
-            CurrentGameIndicator* gameIndicator = new CurrentGameIndicator(this, m_gameName);
+            auto& gameFactory = Model::GameFactory::instance();
+            auto& gameConfig = gameFactory.gameConfig(m_gameName);
+            m_profileManager = new GameEngineProfileManager(gameConfig.gameEngineConfig());
 
-            Model::GameFactory& gameFactory = Model::GameFactory::instance();
-            Model::GameConfig& gameConfig = gameFactory.gameConfig(m_gameName);
-            m_profileManager = new GameEngineProfileManager(this, gameConfig.gameEngineConfig());
 
-            wxButton* closeButton = new wxButton(this, wxID_CANCEL, "Close");
-            closeButton->Bind(&QAbstractButton::clicked, &GameEngineDialog::OnCloseButtonClicked, this);
-            closeButton->Bind(wxEVT_UPDATE_UI, &GameEngineDialog::OnUpdateCloseButtonUI, this);
+            auto* buttons = new QDialogButtonBox(QDialogButtonBox::Close);
 
-            wxStdDialogButtonSizer* buttonSizer = new wxStdDialogButtonSizer();
-            buttonSizer->SetCancelButton(closeButton);
-            buttonSizer->Realize();
+            auto* layout = new QVBoxLayout();
+            setLayout(layout);
 
-            auto* outerSizer = new QVBoxLayout();
-            outerSizer->addWidget(gameIndicator, wxSizerFlags().Expand());
-            outerSizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
-            outerSizer->addWidget(m_profileManager, wxSizerFlags().Expand().Proportion(1));
-            outerSizer->addWidget(wrapDialogButtonSizer(buttonSizer, this), wxSizerFlags().Expand());
-            setLayout(outerSizer);
+            layout->addWidget(gameIndicator);
+            layout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
+            layout->addWidget(m_profileManager, 1);
+            layout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
+            layout->addWidget(buttons);
 
-            Bind(wxEVT_CLOSE_WINDOW, &GameEngineDialog::OnClose, this);
-        }
-
-        void GameEngineDialog::OnUpdateCloseButtonUI() {
-            event.Enable(true);
-        }
-
-        void GameEngineDialog::OnCloseButtonClicked() {
-            EndModal(wxID_OK);
-        }
-
-        void GameEngineDialog::OnClose(wxCloseEvent& event) {
-            if (GetParent() != nullptr)
-                GetParent()->Raise();
-            event.Skip();
+            setFixedSize(600, 400);
         }
     }
 }

@@ -24,50 +24,30 @@
 #include "IO/ResourceUtils.h"
 #include "Model/GameConfig.h"
 #include "Model/GameFactory.h"
-#include "View/GameSelectionCommand.h"
 
 #include <cassert>
-#include <wx/log.h>
 
 namespace TrenchBroom {
     namespace View {
         GameListBox::GameListBox(QWidget* parent) :
-        ImageListBox(parent, "No Games Found") {
+        ImageListBox("No Games Found", parent) {
             reloadGameInfos();
-            Bind(wxEVT_LISTBOX, &GameListBox::OnListBoxChange, this);
-            Bind(wxEVT_LISTBOX_DCLICK, &GameListBox::OnListBoxDoubleClick, this);
         }
 
         String GameListBox::selectedGameName() const {
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();
             const StringList& gameList = gameFactory.gameList();
 
-            const int index = GetSelection();
-            if (index < 0 || index >= static_cast<int>(gameList.size()))
+            const auto index = currentRow();
+            if (index >= static_cast<int>(gameList.size())) {
                 return "";
-            return gameList[static_cast<size_t>(index)];
+            } else {
+                return gameList[index];
+            }
         }
 
-        void GameListBox::selectGame(const int index) {
-            const Model::GameFactory& gameFactory = Model::GameFactory::instance();
-            const StringList& gameList = gameFactory.gameList();
-
-            if (index < 0 || index >= static_cast<int>(gameList.size()))
-                return;
-
-            SetSelection(index);
-        }
-
-        void GameListBox::OnListBoxChange() {
-
-
-            submitChangeEvent(GAME_SELECTION_CHANGE_EVENT);
-        }
-
-        void GameListBox::OnListBoxDoubleClick() {
-
-
-            submitChangeEvent(GAME_SELECTION_DBLCLICK_EVENT);
+        void GameListBox::selectGame(const size_t index) {
+            setCurrentRow(index);
         }
 
         void GameListBox::reloadGameInfos() {
@@ -75,29 +55,31 @@ namespace TrenchBroom {
 
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();
             for (const String& gameName : gameFactory.gameList()) {
-                const IO::Path gamePath = gameFactory.gamePath(gameName);
-                IO::Path iconPath = gameFactory.iconPath(gameName);
+                const auto gamePath = gameFactory.gamePath(gameName);
+                auto iconPath = gameFactory.iconPath(gameName);
                 if (iconPath.isEmpty()) {
                     iconPath = IO::Path("DefaultGameIcon.png");
                 }
-                const bool experimental = gameFactory.gameConfig(gameName).experimental();
+                const auto experimental = gameFactory.gameConfig(gameName).experimental();
 
-                Info gameInfo;
-                gameInfo.image = IO::loadImageResource(iconPath);
-                gameInfo.title = gameName + (experimental ? " (experimental)" : "");
-                gameInfo.subtitle = gamePath.isEmpty() ? String("Game not found") : gamePath.asString();
-
-                m_gameInfos.push_back(gameInfo);
+                m_gameInfos.emplace_back(Info{
+                    gameName,
+                    IO::loadPixmapResource(iconPath),
+                    QString::fromStdString(gameName + (experimental ? " (experimental)" : "")),
+                    QString::fromStdString(gamePath.isEmpty() ? String("Game not found") : gamePath.asString())
+                });
             }
 
-            SetItemCount(m_gameInfos.size());
-            Refresh();
+            refresh();
         }
 
-        bool GameListBox::image(const size_t n, wxBitmap& result) const {
-            ensure(n < m_gameInfos.size(), "index out of range");
-            result = m_gameInfos[n].image;
-            return true;
+        size_t GameListBox::itemCount() const {
+            return m_gameInfos.size();
+        }
+
+        QPixmap GameListBox::image(size_t index) const {
+            ensure(index < m_gameInfos.size(), "index out of range");
+            return m_gameInfos[index].image;
         }
 
         QString GameListBox::title(const size_t n) const {
@@ -110,11 +92,10 @@ namespace TrenchBroom {
             return m_gameInfos[n].subtitle;
         }
 
-        void GameListBox::submitChangeEvent(const wxEventType type) {
-            GameSelectionCommand command(type, selectedGameName());
-            command.SetEventObject(this);
-            command.SetId(GetId());
-            ProcessEvent(command);
+        void GameListBox::currentRowChanged(const int index) {
+            if (index >= 0 && index < count()) {
+                emit currentGameChanged(QString::fromStdString(m_gameInfos[static_cast<size_t>(index)].name));
+            }
         }
     }
 }

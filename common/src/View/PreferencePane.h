@@ -20,34 +20,19 @@
 #ifndef TrenchBroom_PreferencePane
 #define TrenchBroom_PreferencePane
 
-#include <wx/panel.h>
-#include <wx/slider.h>
+#include <QWidget>
 
 namespace TrenchBroom {
     namespace View {
         class PreferencePane : public QWidget {
         public:
-            explicit PreferencePane(wxWindow* parent);
+            explicit PreferencePane(QWidget* parent = nullptr);
             ~PreferencePane() override;
 
             bool canResetToDefaults();
             void resetToDefaults();
             void updateControls();
             bool validate();
-        protected:
-            template <typename T>
-            void bindSliderEvents(wxSlider* slider, void (T::*function)(wxScrollEvent&), T* handler) {
-                slider->Bind(wxEVT_SCROLL_TOP, function, handler);
-                slider->Bind(wxEVT_SCROLL_BOTTOM, function, handler);
-                slider->Bind(wxEVT_SCROLL_LINEUP, function, handler);
-                slider->Bind(wxEVT_SCROLL_LINEDOWN, function, handler);
-                slider->Bind(wxEVT_SCROLL_PAGEUP, function, handler);
-                slider->Bind(wxEVT_SCROLL_PAGEDOWN, function, handler);
-                slider->Bind(wxEVT_SCROLL_THUMBTRACK, function, handler);
-            }
-
-            float getSliderValue(wxSlider* slider);
-            void setSliderValue(wxSlider* slider, float value);
         private:
             virtual bool doCanResetToDefaults() = 0;
             virtual void doResetToDefaults() = 0;

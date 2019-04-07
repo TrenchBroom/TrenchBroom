@@ -22,27 +22,23 @@
 
 #include "StringUtils.h"
 
-#include <wx/dialog.h>
+#include <QDialog>
 
-class wxSimplebook;
-class wxTextCtrl;
+class wxCloseEvent;
 
 namespace TrenchBroom {
     namespace View {
         class GameEngineProfileManager;
 
-        class GameEngineDialog : public wxDialog {
+        class GameEngineDialog : public QDialog {
+            Q_OBJECT
         private:
             const String m_gameName;
             GameEngineProfileManager* m_profileManager;
         public:
-            GameEngineDialog(QWidget* parent, const String& gameName);
+            explicit GameEngineDialog(const String& gameName, QWidget* parent = nullptr);
         private:
             void createGui();
-
-            void OnUpdateCloseButtonUI();
-            void OnCloseButtonClicked();
-            void OnClose(wxCloseEvent& event);
         };
     }
 }

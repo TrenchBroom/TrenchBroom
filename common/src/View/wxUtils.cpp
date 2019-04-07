@@ -28,9 +28,12 @@
 #include "View/ViewConstants.h"
 
 #include <QApplication>
+#include <QBoxLayout>
 #include <QDesktopWidget>
+#include <QDialogButtonBox>
 #include <QDir>
 #include <QFont>
+#include <QLabel>
 #include <QLineEdit>
 #include <QPalette>
 #include <QPushButton>
@@ -124,6 +127,13 @@ namespace TrenchBroom {
             widget->setFont(font);
         }
 
+        void makeError(QWidget* widget) {
+            QPalette palette;
+            palette.setColor(QPalette::WindowText, Qt::red);
+            palette.setColor(QPalette::Text, Qt::red);
+            widget->setPalette(palette);
+        }
+
         void makeSelected(QWidget* widget) {
             QPalette palette;
             palette.setColor(QPalette::WindowText, palette.color(QPalette::Normal, QPalette::HighlightedText));
@@ -182,7 +192,7 @@ namespace TrenchBroom {
         }
 #endif
 
-        QAbstractButton* createBitmapButton(QWidget* parent, const String& image, const QString& tooltip) {
+        QAbstractButton* createBitmapButton(const String& image, const QString& tooltip, QWidget* parent) {
             QIcon icon = loadIconResourceQt(IO::Path(image));
 
             // NOTE: according to http://doc.qt.io/qt-5/qpushbutton.html this would be more correctly
@@ -194,6 +204,37 @@ namespace TrenchBroom {
             button->setFlat(true);
 
             return button;
+        }
+
+        QWidget* createDefaultPage(const QString& message, QWidget* parent) {
+            auto* container = new QWidget(parent);
+            auto* layout = new QVBoxLayout();
+            container->setLayout(layout);
+
+            auto* messageLabel = new QLabel(message);
+            makeEmphasized(messageLabel);
+            layout->addWidget(messageLabel, Qt::AlignCenter);
+
+            return container;
+        }
+
+        QLayout* wrapDialogButtonBox(QDialogButtonBox* buttonBox) {
+            auto* innerLayout = new QHBoxLayout();
+            innerLayout->setContentsMargins(
+                LayoutConstants::DialogButtonLeftMargin,
+                LayoutConstants::DialogButtonTopMargin,
+                LayoutConstants::DialogButtonRightMargin,
+                LayoutConstants::DialogButtonBottomMargin);
+            innerLayout->setSpacing(0);
+            innerLayout->addWidget(buttonBox);
+
+            auto* outerLayout = new QVBoxLayout();
+            outerLayout->setContentsMargins(QMargins());
+            outerLayout->setSpacing(0);
+            outerLayout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
+            outerLayout->addLayout(innerLayout);
+
+            return outerLayout;
         }
 
 #if 0
@@ -280,6 +321,12 @@ namespace TrenchBroom {
 
             widget->setAutoFillBackground(true);
             widget->setPalette(p);
+        }
+
+        void setBaseWindowColor(QWidget* widget) {
+            auto palette = QPalette();
+            palette.setColor(QPalette::Window, palette.color(QPalette::Normal, QPalette::Base));
+            widget->setPalette(palette);
         }
 
         QLineEdit* createSearchBox() {

@@ -44,6 +44,7 @@ namespace TrenchBroom {
             m_listWidget->hide();
             m_listWidget->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
             connect(m_listWidget, &QListWidget::currentItemChanged, this, &ControlListBox::currentItemChanged);
+            connect(m_listWidget, &QListWidget::currentRowChanged, this, &ControlListBox::currentRowChanged);
 
             m_emptyTextLabel->setDisabled(true);
             m_emptyTextLabel->setAlignment(Qt::AlignHCenter);
@@ -61,6 +62,18 @@ namespace TrenchBroom {
             emptyTextLayout->addWidget(m_emptyTextLabel);
 
             setStyleSheet("QListWidget#controlListBox_listWidget { border: none; }");
+        }
+
+        int ControlListBox::count() const {
+            return m_listWidget->count();
+        }
+
+        int ControlListBox::currentRow() const {
+            return m_listWidget->currentRow();
+        }
+
+        void ControlListBox::setCurrentRow(const int currentRow) {
+            m_listWidget->setCurrentRow(currentRow);
         }
 
         void ControlListBox::setEmptyText(const QString& emptyText) {
@@ -98,6 +111,8 @@ namespace TrenchBroom {
             m_listWidget->setItemWidget(widgetItem, renderer);
             widgetItem->setSizeHint(renderer->minimumSizeHint());
         }
+
+        void ControlListBox::currentRowChanged(const int index) {}
 
         void ControlListBox::currentItemChanged(QListWidgetItem* current, QListWidgetItem* previous) {
             if (previous != nullptr) {

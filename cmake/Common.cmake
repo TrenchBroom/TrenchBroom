@@ -311,7 +311,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/CreateSimpleBrushToolController2D.cpp
 	${COMMON_SOURCE_DIR}/View/CreateSimpleBrushToolController3D.cpp
 	${COMMON_SOURCE_DIR}/View/CreateSimpleBrushTool.cpp
-#	${COMMON_SOURCE_DIR}/View/CurrentGameIndicator.cpp
+	${COMMON_SOURCE_DIR}/View/CurrentGameIndicator.cpp
 	${COMMON_SOURCE_DIR}/View/CurrentGroupCommand.cpp
 	${COMMON_SOURCE_DIR}/View/CyclingMapView.cpp
 	${COMMON_SOURCE_DIR}/View/DirectoryTextureCollectionEditor.cpp
@@ -341,12 +341,11 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/FourPaneMapView.cpp
 	${COMMON_SOURCE_DIR}/View/FrameManager.cpp
 #	${COMMON_SOURCE_DIR}/View/GameDialog.cpp
-#	${COMMON_SOURCE_DIR}/View/GameEngineDialog.cpp
-#	${COMMON_SOURCE_DIR}/View/GameEngineProfileEditor.cpp
-#	${COMMON_SOURCE_DIR}/View/GameEngineProfileListBox.cpp
-#	${COMMON_SOURCE_DIR}/View/GameEngineProfileManager.cpp
-#	${COMMON_SOURCE_DIR}/View/GameListBox.cpp
-#	${COMMON_SOURCE_DIR}/View/GameSelectionCommand.cpp
+	${COMMON_SOURCE_DIR}/View/GameEngineDialog.cpp
+	${COMMON_SOURCE_DIR}/View/GameEngineProfileEditor.cpp
+	${COMMON_SOURCE_DIR}/View/GameEngineProfileListBox.cpp
+	${COMMON_SOURCE_DIR}/View/GameEngineProfileManager.cpp
+	${COMMON_SOURCE_DIR}/View/GameListBox.cpp
 	${COMMON_SOURCE_DIR}/View/GamesPreferencePane.cpp
 	${COMMON_SOURCE_DIR}/View/GetVersion.cpp
 	${COMMON_SOURCE_DIR}/View/GLContextManager.cpp
@@ -894,7 +893,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/GameEngineProfileListBox.h
 	${COMMON_SOURCE_DIR}/View/GameEngineProfileManager.h
 	${COMMON_SOURCE_DIR}/View/GameListBox.h
-	${COMMON_SOURCE_DIR}/View/GameSelectionCommand.h
 	${COMMON_SOURCE_DIR}/View/GamesPreferencePane.h
 	${COMMON_SOURCE_DIR}/View/GetVersion.h
 	${COMMON_SOURCE_DIR}/View/GLContextManager.h

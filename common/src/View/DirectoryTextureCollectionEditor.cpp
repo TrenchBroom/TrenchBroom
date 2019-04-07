@@ -122,9 +122,11 @@ namespace TrenchBroom {
             enabledCollectionsContainerSizer->addWidget(m_enabledCollectionsList, 1);// wxSizerFlags().Expand().Proportion(1));
             enabledCollectionsContainer->getPanel()->setLayout(enabledCollectionsContainerSizer);
 
-            m_addCollectionsButton = createBitmapButton(this, "Add.png", tr("Enable the selected texture collections"));
-            m_removeCollectionsButton = createBitmapButton(this, "Remove.png", tr("Disable the selected texture collections"));
-            m_reloadCollectionsButton = createBitmapButton(this, "Refresh.png", tr("Reload all enabled texture collections"));
+            m_addCollectionsButton = createBitmapButton("Add.png", tr("Enable the selected texture collections"), this);
+            m_removeCollectionsButton = createBitmapButton("Remove.png", tr("Disable the selected texture collections"),
+                                                           this);
+            m_reloadCollectionsButton = createBitmapButton("Refresh.png", tr("Reload all enabled texture collections"),
+                                                           this);
 
             auto* buttonSizer = new QHBoxLayout();
             buttonSizer->addWidget(m_addCollectionsButton); //, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));

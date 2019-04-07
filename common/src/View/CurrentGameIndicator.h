@@ -22,13 +22,14 @@
 
 #include "StringUtils.h"
 
-#include <wx/panel.h>
+#include <QWidget>
 
 namespace TrenchBroom {
     namespace View {
         class CurrentGameIndicator : public QWidget {
+            Q_OBJECT
         public:
-            CurrentGameIndicator(QWidget* parent, const String& gameName);
+            explicit CurrentGameIndicator(const String& gameName, QWidget* parent = nullptr);
         };
     }
 }

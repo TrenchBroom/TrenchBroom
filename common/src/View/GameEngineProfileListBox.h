@@ -22,6 +22,8 @@
 
 #include "View/ControlListBox.h"
 
+class QLabel;
+
 namespace TrenchBroom {
     namespace Model {
         class GameEngineConfig;
@@ -29,19 +31,43 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class GameEngineProfileItemRenderer : public ControlListBoxItemRenderer {
+            Q_OBJECT
+        private:
+            Model::GameEngineProfile* m_profile;
+            QLabel* m_nameLabel;
+            QLabel* m_pathLabel;
+        public:
+            explicit GameEngineProfileItemRenderer(Model::GameEngineProfile* profile, QWidget* parent = nullptr);
+            ~GameEngineProfileItemRenderer() override;
+
+            void setSelected(bool selected) override;
+        private:
+            void createGui();
+            void refresh();
+            void addObservers();
+            void removeObservers();
+            void profileWillBeRemoved();
+            void profileDidChange();
+        };
+
         class GameEngineProfileListBox : public ControlListBox {
+            Q_OBJECT
         private:
             const Model::GameEngineConfig& m_config;
         public:
-            GameEngineProfileListBox(QWidget* parent, const Model::GameEngineConfig& config);
+            explicit GameEngineProfileListBox(const Model::GameEngineConfig& config, QWidget* parent = nullptr);
             ~GameEngineProfileListBox() override;
 
             Model::GameEngineProfile* selectedProfile() const;
         private:
             void profilesDidChange();
         private:
-            class ProfileItem;
-            Item* createItem(QWidget* parent, const wxSize& margins, size_t index) override;
+            size_t itemCount() const override;
+            ControlListBoxItemRenderer* createItemRenderer(QWidget* parent, size_t index) override;
+            void currentRowChanged(int index) override;
+        signals:
+            void currentProfileChanged(Model::GameEngineProfile* profile);
         };
     }
 }
