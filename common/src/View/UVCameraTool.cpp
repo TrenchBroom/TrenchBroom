@@ -43,11 +43,15 @@ namespace TrenchBroom {
         void UVCameraTool::doMouseScroll(const InputState& inputState) {
             const auto oldWorldPos = m_camera.unproject(float(inputState.mouseX()), float(inputState.mouseY()), 0.0f);
 
+            // NOTE: some events will have scrollY() == 0, and have horizontal scorlling. We only care about scrollY().
+
             if (inputState.scrollY() > 0) {
                 if (m_camera.zoom() < 10.0f) {
                     m_camera.zoom(1.1f);
                 }
-            } else {
+            }
+
+            if (inputState.scrollY() < 0) {
                 if (m_camera.zoom() > 0.1f) {
                     m_camera.zoom(1.0f / 1.1f);
                 }
