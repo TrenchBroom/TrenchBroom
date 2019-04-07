@@ -24,6 +24,7 @@
 
 namespace TrenchBroom::View {
     class ColorButton : public QPushButton {
+        Q_OBJECT
     private:
         QColor m_color;
     public:

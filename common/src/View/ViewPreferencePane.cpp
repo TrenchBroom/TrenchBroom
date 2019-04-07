@@ -112,7 +112,7 @@ namespace TrenchBroom {
             }
 
             m_backgroundColorButton = new ColorButton();
-            m_backgroundColorButton->setToolTip("Sets the background color of the editing views.")
+            m_backgroundColorButton->setToolTip("Sets the background color of the editing views.");
             m_gridColorButton = new ColorButton();
             m_gridColorButton->setToolTip("Sets the color of the grid lines in the editing views.");
             m_edgeColorButton = new ColorButton();
