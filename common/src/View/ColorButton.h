@@ -20,21 +20,24 @@
 #ifndef TRENCHBROOM_COLORBUTTON_H
 #define TRENCHBROOM_COLORBUTTON_H
 
-#include <QPushButton>
+#include <QWidget>
+
+class QPushButton;
+class QResizeEvent;
 
 namespace TrenchBroom::View {
-    class ColorButton : public QPushButton {
+    class ColorButton : public QWidget {
         Q_OBJECT
     private:
+        QWidget* m_colorIndicator;
+        QPushButton* m_button;
         QColor m_color;
     public:
         explicit ColorButton(QWidget* parent = nullptr);
-
-        void setColor(const QColor& color);
-    protected:
-        void paintEvent(QPaintEvent* e) override;
     signals:
         void colorChanged(const QColor& color);
+    public slots:
+        void setColor(const QColor& color);
     private slots:
         void clicked();
     };

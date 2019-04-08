@@ -340,6 +340,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/FlagsPopupEditor.cpp
 	${COMMON_SOURCE_DIR}/View/FlashSelectionAnimation.cpp
 	${COMMON_SOURCE_DIR}/View/FlyModeHelper.cpp
+	${COMMON_SOURCE_DIR}/View/FormWithSectionsLayout.cpp
 	${COMMON_SOURCE_DIR}/View/FourPaneMapView.cpp
 	${COMMON_SOURCE_DIR}/View/FrameManager.cpp
 #	${COMMON_SOURCE_DIR}/View/GameDialog.cpp
@@ -382,7 +383,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/MapView.cpp
 	${COMMON_SOURCE_DIR}/View/MapViewToolBox.cpp
 	${COMMON_SOURCE_DIR}/View/ModEditor.cpp
-#	${COMMON_SOURCE_DIR}/View/MousePreferencePane.cpp
+	${COMMON_SOURCE_DIR}/View/MousePreferencePane.cpp
 	${COMMON_SOURCE_DIR}/View/MoveBrushEdgesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/MoveBrushFacesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/MoveBrushVerticesCommand.cpp
@@ -888,6 +889,7 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/FlagsPopupEditor.h
 	${COMMON_SOURCE_DIR}/View/FlashSelectionAnimation.h
 	${COMMON_SOURCE_DIR}/View/FlyModeHelper.h
+	${COMMON_SOURCE_DIR}/View/FormWithSectionsLayout.h
 	${COMMON_SOURCE_DIR}/View/FourPaneMapView.h
 	${COMMON_SOURCE_DIR}/View/FrameManager.h
 	${COMMON_SOURCE_DIR}/View/GameDialog.h

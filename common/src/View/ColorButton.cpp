@@ -19,31 +19,43 @@
 
 #include "ColorButton.h"
 
+#include "View/ViewConstants.h"
+
+#include <QBoxLayout>
 #include <QColorDialog>
-#include <QStyle>
-#include <QStyleOptionButton>
-#include <QStylePainter>
+#include <QPushButton>
 
 namespace TrenchBroom::View {
     ColorButton::ColorButton(QWidget* parent) :
-    QPushButton(parent) {
-        connect(this, &QPushButton::clicked, this, &ColorButton::clicked);
+    QWidget(parent),
+    m_colorIndicator(nullptr),
+    m_button(nullptr) {
+        m_colorIndicator = new QWidget();
+        m_button = new QPushButton("...");
+
+        m_colorIndicator->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred));
+        m_colorIndicator->setMinimumSize(20, 15);
+
+        auto* layout = new QHBoxLayout();
+        layout->setContentsMargins(QMargins());
+        layout->setSpacing(LayoutConstants::MediumHMargin);
+        layout->addWidget(m_colorIndicator);
+        layout->addWidget(m_button);
+        layout->addStretch();
+        setLayout(layout);
+
+        connect(m_button, &QPushButton::clicked, this, &ColorButton::clicked);
     }
 
     void ColorButton::setColor(const QColor& color) {
         if (color != m_color) {
             m_color = color;
+
+            m_colorIndicator->setStyleSheet("QWidget { background-color: " + m_color.name() + "; border-radius: 3px; border: 1px solid " + Colors::borderColor().name() + ";}");
+
             update();
             emit colorChanged(m_color);
         }
-    }
-
-    void ColorButton::paintEvent(QPaintEvent* e) {
-        QStylePainter painter(this);
-        QStyleOptionButton option;
-        option.initFrom(this);
-
-        painter.drawControl(QStyle::CE_PushButtonBevel, option);
     }
 
     void ColorButton::clicked() {

@@ -59,6 +59,8 @@ namespace TrenchBroom {
             void switchToPane(PrefPane pane);
             PreferencePane* currentPane() const;
             PrefPane currentPaneId() const;
+        private slots:
+            void resetToDefaults();
         };
     }
 }

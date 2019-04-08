@@ -27,9 +27,9 @@
 #include "View/GamesPreferencePane.h"
 /* FIXME
 #include "View/KeyboardPreferencePane.h"
+*/
 #include "View/MousePreferencePane.h"
 #include "View/ViewPreferencePane.h"
- */
 #include "View/ViewConstants.h"
 #include "View/PreferencePane.h"
 #include "View/wxUtils.h"
@@ -116,16 +116,18 @@ namespace TrenchBroom {
 
             m_stackedWidget = new QStackedWidget();
             m_stackedWidget->addWidget(new GamesPreferencePane());
+            m_stackedWidget->addWidget(new ViewPreferencePane());
+            m_stackedWidget->addWidget(new MousePreferencePane());
 
             m_buttonBox = new QDialogButtonBox(
-                QDialogButtonBox::Ok | QDialogButtonBox::Cancel | QDialogButtonBox::RestoreDefaults
+                QDialogButtonBox::RestoreDefaults
 #if !defined __APPLE__
-                | QDialogButtonBox::Apply
+                | QDialogButtonBox::Ok | QDialogButtonBox::Apply | QDialogButtonBox::Cancel
 #endif
                 , this);
 
-            auto* resetButton = m_buttonBox->button(QDialogButtonBox::Reset);
-            connect(resetButton, &QPushButton::clicked, [this]() { currentPane()->resetToDefaults(); });
+            auto* resetButton = m_buttonBox->button(QDialogButtonBox::RestoreDefaults);
+            connect(resetButton, &QPushButton::clicked, this, &PreferenceDialog::resetToDefaults);
 
             auto* layout = new QVBoxLayout();
             layout->setContentsMargins(QMargins());
@@ -133,7 +135,9 @@ namespace TrenchBroom {
             setLayout(layout);
 
             layout->setMenuBar(m_toolBar);
+#if !defined __APPLE__
             layout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
+#endif
             layout->addWidget(m_stackedWidget, 1);
             layout->addLayout(wrapDialogButtonBox(m_buttonBox));
 
@@ -175,6 +179,10 @@ namespace TrenchBroom {
 
         PreferenceDialog::PrefPane PreferenceDialog::currentPaneId() const {
             return static_cast<PrefPane>(m_stackedWidget->currentIndex());
+        }
+
+        void PreferenceDialog::resetToDefaults() {
+            currentPane()->resetToDefaults();
         }
     }
 }

@@ -24,6 +24,7 @@
 #include "Preferences.h"
 #include "View/BorderLine.h"
 #include "View/ColorButton.h"
+#include "View/FormWithSectionsLayout.h"
 #include "View/TitleBar.h"
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
@@ -33,7 +34,6 @@
 #include <QBoxLayout>
 #include <QCheckBox>
 #include <QComboBox>
-#include <QFormLayout>
 #include <QLabel>
 #include <QSlider>
 
@@ -156,10 +156,14 @@ namespace TrenchBroom {
             m_rendererFontSizeCombo->addItem("72");
             m_rendererFontSizeCombo->setValidator(new QIntValidator(1, 96));
 
-            auto* layout = new QFormLayout();
+            auto* layout = new FormWithSectionsLayout();
+            layout->setContentsMargins(0, LayoutConstants::WideVMargin, 0, 0);
+            layout->setVerticalSpacing(2);
+            // override the default to make the sliders take up maximum width
+            layout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
             viewBox->setLayout(layout);
 
-            layout->addRow(new QLabel("Map Views"));
+            layout->addSection("Map Views");
             layout->addRow("Layout", m_layoutCombo);
             layout->addRow("Brightness", m_brightnessSlider);
             layout->addRow("Grid", m_gridAlphaSlider);
@@ -167,18 +171,15 @@ namespace TrenchBroom {
             layout->addRow("Show axes", m_showAxes);
             layout->addRow("Texture mode", m_textureModeCombo);
 
-            layout->addRow(new BorderLine(BorderLine::Direction_Horizontal));
-            layout->addRow(new QLabel("Colors"));
+            layout->addSection("Colors");
             layout->addRow("Background", m_backgroundColorButton);
             layout->addRow("Grid", m_gridColorButton);
             layout->addRow("Edges", m_edgeColorButton);
 
-            layout->addRow(new BorderLine(BorderLine::Direction_Horizontal));
-            layout->addRow(new QLabel("Texture Browser"));
+            layout->addSection("Texture Browser");
             layout->addRow("Icon size", m_textureBrowserIconSizeCombo);
 
-            layout->addRow(new BorderLine(BorderLine::Direction_Horizontal));
-            layout->addRow(new QLabel("Fonts"));
+            layout->addSection("Fonts");
             layout->addRow("Renderer Font Size", m_rendererFontSizeCombo);
 
             viewBox->setMinimumWidth(500);

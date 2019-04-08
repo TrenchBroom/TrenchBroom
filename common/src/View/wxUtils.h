@@ -63,7 +63,10 @@ namespace TrenchBroom {
         QAbstractButton* createBitmapToggleButton(QWidget* parent, const String& upImage, const String& downImage, const String& tooltip);
 
         QWidget* createDefaultPage(const QString& message, QWidget* parent = nullptr);
-        QSlider* createSlider(const int min, const int max);
+        QSlider* createSlider(int min, int max);
+
+        float getSliderRatio(const QSlider* slider);
+        void setSliderValue(QSlider* slider, float ratio);
 
         QLayout* wrapDialogButtonBox(QDialogButtonBox* buttonBox);
 #if 0
@@ -76,13 +79,13 @@ namespace TrenchBroom {
         void setHint(QLineEdit* ctrl, const char* hint);
         void centerOnScreen(QMainWindow* window);
 
-        void makeDefault(QWidget* widget);
-        void makeEmphasized(QWidget* widget);
-        void makeInfo(QWidget* widget);
-        void makeHeader(QWidget* widget);
-        void makeError(QWidget* widget);
+        QWidget* makeDefault(QWidget* widget);
+        QWidget* makeEmphasized(QWidget* widget);
+        QWidget* makeInfo(QWidget* widget);
+        QWidget* makeHeader(QWidget* widget);
+        QWidget* makeError(QWidget* widget);
 
-        void makeSelected(QWidget* widget);
+        QWidget* makeSelected(QWidget* widget);
 
         QSettings getSettings();
         Color fromQColor(const QColor& color);

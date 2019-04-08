@@ -50,10 +50,10 @@ namespace TrenchBroom {
             static const int ToggleButtonStyle                  = 0;
 #elif defined __APPLE__
             static const int DialogOuterMargin                  = 10;
-            static const int DialogButtonTopMargin              = 0;
-            static const int DialogButtonLeftMargin             = 12;
-            static const int DialogButtonRightMargin            = 0;
-            static const int DialogButtonBottomMargin           = 3;
+            static const int DialogButtonTopMargin              = 10;
+            static const int DialogButtonLeftMargin             = 10;
+            static const int DialogButtonRightMargin            = 10;
+            static const int DialogButtonBottomMargin           = 10;
             static const int WideHMargin                        = 8;
             static const int MediumHMargin                      = 4;
             static const int NarrowHMargin                      = 2;

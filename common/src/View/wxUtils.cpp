@@ -38,6 +38,7 @@
 #include <QPalette>
 #include <QPushButton>
 #include <QSettings>
+#include <QSizePolicy>
 #include <QSlider>
 #include <QStandardPaths>
 #include <QString>
@@ -93,20 +94,22 @@ namespace TrenchBroom {
             );
         }
 
-        void makeDefault(QWidget* widget) {
+        QWidget* makeDefault(QWidget* widget) {
             widget->setFont(QFont());
             widget->setPalette(QPalette());
+            return widget;
         }
 
-        void makeEmphasized(QWidget* widget) {
+        QWidget* makeEmphasized(QWidget* widget) {
             makeDefault(widget);
 
             QFont font;
             font.setBold(true);
             widget->setFont(font);
+            return widget;
         }
 
-        void makeInfo(QWidget* widget) {
+        QWidget* makeInfo(QWidget* widget) {
             makeDefault(widget);
 
             QFont font;
@@ -117,29 +120,33 @@ namespace TrenchBroom {
             palette.setColor(QPalette::Normal, QPalette::WindowText, palette.color(QPalette::Disabled, QPalette::WindowText));
             palette.setColor(QPalette::Normal, QPalette::Text, palette.color(QPalette::Disabled, QPalette::WindowText));
             widget->setPalette(palette);
+            return widget;
         }
 
-        void makeHeader(QWidget* widget) {
+        QWidget* makeHeader(QWidget* widget) {
             makeDefault(widget);
 
             QFont font;
             font.setPointSize(2 * font.pointSize());
             font.setBold(true);
             widget->setFont(font);
+            return widget;
         }
 
-        void makeError(QWidget* widget) {
+        QWidget* makeError(QWidget* widget) {
             QPalette palette;
             palette.setColor(QPalette::Normal, QPalette::WindowText, Qt::red);
             palette.setColor(QPalette::Normal, QPalette::Text, Qt::red);
             widget->setPalette(palette);
+            return widget;
         }
 
-        void makeSelected(QWidget* widget) {
+        QWidget* makeSelected(QWidget* widget) {
             QPalette palette;
             palette.setColor(QPalette::Normal, QPalette::WindowText, palette.color(QPalette::Normal, QPalette::HighlightedText));
             palette.setColor(QPalette::Normal, QPalette::Text, palette.color(QPalette::Normal, QPalette::HighlightedText));
             widget->setPalette(palette);
+            return widget;
         }
 
         QSettings getSettings() {
@@ -165,7 +172,7 @@ namespace TrenchBroom {
         }
 
         QColor toQColor(const Color& color) {
-            return QColor(int(color.r()), int(color.g()), int(color.b()), int(color.a()));
+            return QColor::fromRgb(int(color.r() * 255.0f), int(color.g() * 255.0f), int(color.b() * 255.0f), int(color.a() * 255.0f));
         }
 #if 0
         wxColor toWxColor(const Color& color) {
@@ -238,10 +245,20 @@ namespace TrenchBroom {
         QSlider* createSlider(const int min, const int max) {
             auto* slider = new QSlider();
             slider->setMinimum(min);
-            slider->setMaximumWidth(max);
+            slider->setMaximum(max);
             slider->setTickPosition(QSlider::TicksBelow);
             slider->setTracking(true);
+            slider->setOrientation(Qt::Horizontal);
             return slider;
+        }
+
+        float getSliderRatio(const QSlider* slider) {
+            return float(slider->value() - slider->minimum()) / float(slider->maximum() - slider->minimum());
+        }
+
+        void setSliderValue(QSlider* slider, const float ratio) {
+            const auto value = ratio * float(slider->maximum() - slider->minimum()) + float(slider->minimum());
+            slider->setValue(int(value));
         }
 
         QLayout* wrapDialogButtonBox(QDialogButtonBox* buttonBox) {
