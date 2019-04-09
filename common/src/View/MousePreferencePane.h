@@ -24,23 +24,23 @@
 #include "View/PreferencePane.h"
 
 class QCheckBox;
-class QSlider;
 
 namespace TrenchBroom {
     namespace View {
         class KeyboardShortcut;
         class KeyboardShortcutEditor;
         class KeyboardShortcutEvent;
+        class SliderWithLabel;
 
         class MousePreferencePane : public PreferencePane {
         private:
-            QSlider* m_lookSpeedSlider;
+            SliderWithLabel* m_lookSpeedSlider;
             QCheckBox* m_invertLookHAxisCheckBox;
             QCheckBox* m_invertLookVAxisCheckBox;
-            QSlider* m_panSpeedSlider;
+            SliderWithLabel* m_panSpeedSlider;
             QCheckBox* m_invertPanHAxisCheckBox;
             QCheckBox* m_invertPanVAxisCheckBox;
-            QSlider* m_moveSpeedSlider;
+            SliderWithLabel* m_moveSpeedSlider;
             QCheckBox* m_invertMouseWheelCheckBox;
             QCheckBox* m_enableAltMoveCheckBox;
             QCheckBox* m_invertAltMoveAxisCheckBox;
@@ -52,7 +52,7 @@ namespace TrenchBroom {
             KeyboardShortcutEditor* m_rightKeyEditor;
             KeyboardShortcutEditor* m_upKeyEditor;
             KeyboardShortcutEditor* m_downKeyEditor;
-            QSlider* m_flyMoveSpeedSlider;
+            SliderWithLabel* m_flyMoveSpeedSlider;
         public:
             explicit MousePreferencePane(QWidget* parent = nullptr);
 

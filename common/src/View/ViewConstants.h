@@ -37,7 +37,8 @@ namespace TrenchBroom {
             static const int WideHMargin                        = 8;
             static const int MediumHMargin                      = 6;
             static const int NarrowHMargin                      = 4;
-            static const int WideVMargin                        = 4;
+            static const int WideVMargin                        = 8;
+            static const int MediumVMargin                      = 4;
             static const int NarrowVMargin                      = 2;
             static const int StaticBoxSideMargin                = 15;
             static const int StaticBoxTopMargin                 = 20;
@@ -57,7 +58,8 @@ namespace TrenchBroom {
             static const int WideHMargin                        = 8;
             static const int MediumHMargin                      = 4;
             static const int NarrowHMargin                      = 2;
-            static const int WideVMargin                        = 4;
+            static const int WideVMargin                        = 8;
+            static const int MediumVMargin                      = 4;
             static const int NarrowVMargin                      = 2;
             static const int StaticBoxSideMargin                = 10;
             static const int StaticBoxTopMargin                 = 10;
@@ -77,7 +79,8 @@ namespace TrenchBroom {
             static const int WideHMargin                        = 8;
             static const int MediumHMargin                      = 4;
             static const int NarrowHMargin                      = 2;
-            static const int WideVMargin                        = 4;
+            static const int WideVMargin                        = 8;
+            static const int MediumVMargin                      = 4;
             static const int NarrowVMargin                      = 2;
             static const int StaticBoxSideMargin                = 15;
             static const int StaticBoxTopMargin                 = 10;

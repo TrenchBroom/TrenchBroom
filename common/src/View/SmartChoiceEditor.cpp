@@ -61,9 +61,9 @@ namespace TrenchBroom {
             connect(m_comboBox, &QComboBox::currentTextChanged, this, &SmartChoiceEditor::OnTextEnter);
 
             auto* sizer = new QVBoxLayout();
-            sizer->addSpacing(LayoutConstants::WideVMargin);
+            sizer->addSpacing(LayoutConstants::MediumVMargin);
             sizer->addWidget(infoText, 0);
-            sizer->addSpacing(LayoutConstants::WideVMargin);
+            sizer->addSpacing(LayoutConstants::MediumVMargin);
             sizer->addWidget(m_comboBox, 0);
             sizer->addStretch(1);
 

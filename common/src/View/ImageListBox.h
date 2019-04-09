@@ -22,16 +22,19 @@
 
 #include "View/ControlListBox.h"
 
+class QLabel;
 class QPixmap;
 
 namespace TrenchBroom {
     namespace View {
+        class ElidedLabel;
+
         class ImageListBoxItemRenderer : public ControlListBoxItemRenderer {
             Q_OBJECT
         private:
             size_t m_index;
-            QLabel* m_titleLabel;
-            QLabel* m_subtitleLabel;
+            ElidedLabel* m_titleLabel;
+            ElidedLabel* m_subtitleLabel;
             QLabel* m_imageLabel;
         public:
             ImageListBoxItemRenderer(size_t index, const QString& title, const QString& subtitle, const QPixmap& image, QWidget* parent) ;

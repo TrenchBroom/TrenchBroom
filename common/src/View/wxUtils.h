@@ -26,6 +26,9 @@
 #include "Color.h"
 #include "StringUtils.h"
 
+#include "View/ViewConstants.h"
+
+#include <QBoxLayout>
 #include <QColor>
 
 #include <vector>
@@ -66,9 +69,30 @@ namespace TrenchBroom {
         QSlider* createSlider(int min, int max);
 
         float getSliderRatio(const QSlider* slider);
-        void setSliderValue(QSlider* slider, float ratio);
+        void setSliderRatio(QSlider* slider, float ratio);
 
         QLayout* wrapDialogButtonBox(QDialogButtonBox* buttonBox);
+
+        template <typename Button>
+        void addToMiniToolBarLayout(QBoxLayout* layout, Button* button) {
+            layout->addWidget(button);
+        }
+
+        template <typename Button, typename... Rest>
+        void addToMiniToolBarLayout(QBoxLayout* layout, Button* first, Rest... buttons) {
+            layout->addWidget(first);
+            addToMiniToolBarLayout(layout, buttons...);
+        }
+
+        template <typename Button, typename... Rest>
+        QLayout* createMiniToolBarLayout(Button* first, Rest... buttons) {
+            auto* layout = new QHBoxLayout();
+            layout->setContentsMargins(LayoutConstants::NarrowHMargin, 0, LayoutConstants::NarrowHMargin, 0);
+            layout->setSpacing(LayoutConstants::NarrowHMargin);
+            addToMiniToolBarLayout(layout, first, buttons...);
+            layout->addStretch(1);
+            return layout;
+        }
 #if 0
         void setWindowIcon(wxTopLevelWindow* window);
         QStringList filterBySuffix(const QStringList& strings, const QString& suffix, bool caseSensitive = false);

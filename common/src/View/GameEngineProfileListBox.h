@@ -22,8 +22,6 @@
 
 #include "View/ControlListBox.h"
 
-class QLabel;
-
 namespace TrenchBroom {
     namespace Model {
         class GameEngineConfig;
@@ -31,12 +29,14 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class ElidedLabel;
+
         class GameEngineProfileItemRenderer : public ControlListBoxItemRenderer {
             Q_OBJECT
         private:
             Model::GameEngineProfile* m_profile;
-            QLabel* m_nameLabel;
-            QLabel* m_pathLabel;
+            ElidedLabel* m_nameLabel;
+            ElidedLabel* m_pathLabel;
         public:
             explicit GameEngineProfileItemRenderer(Model::GameEngineProfile* profile, QWidget* parent = nullptr);
             ~GameEngineProfileItemRenderer() override;
@@ -66,7 +66,7 @@ namespace TrenchBroom {
         private:
             size_t itemCount() const override;
             ControlListBoxItemRenderer* createItemRenderer(QWidget* parent, size_t index) override;
-            void currentRowChanged(int index) override;
+            void selectedRowChanged(int index) override;
         signals:
             void currentProfileChanged(Model::GameEngineProfile* profile);
         };

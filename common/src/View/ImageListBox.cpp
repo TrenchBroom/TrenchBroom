@@ -19,6 +19,7 @@
 
 #include "ImageListBox.h"
 
+#include "View/ElidedLabel.h"
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
@@ -65,15 +66,15 @@ namespace TrenchBroom {
         }
 
         void ImageListBoxItemRenderer::createGui(const QString& title, const QString& subtitle, const QPixmap& image) {
-            m_titleLabel = new QLabel(title);
+            m_titleLabel = new ElidedLabel(title, Qt::ElideRight);
             makeEmphasized(m_titleLabel);
 
-            m_subtitleLabel = new QLabel(subtitle);
+            m_subtitleLabel = new ElidedLabel(subtitle, Qt::ElideMiddle);
             makeInfo(m_subtitleLabel);
 
             auto* imageAndTextLayout = new QHBoxLayout();
-            imageAndTextLayout->setContentsMargins(QMargins(2, 2, 2, 2));
-            imageAndTextLayout->setSpacing(2);
+            imageAndTextLayout->setContentsMargins(QMargins());
+            imageAndTextLayout->setSpacing(LayoutConstants::NarrowHMargin);
             setLayout(imageAndTextLayout);
 
             m_imageLabel = new QLabel(this);

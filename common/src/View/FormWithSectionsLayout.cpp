@@ -30,7 +30,7 @@ namespace TrenchBroom::View {
     void FormWithSectionsLayout::addSection(const QString& title) {
         if (rowCount() > 0) {
             auto* lineLayout = new QVBoxLayout();
-            lineLayout->setContentsMargins(0, 2 * LayoutConstants::WideVMargin, 0, 0);
+            lineLayout->setContentsMargins(0, 2 * LayoutConstants::MediumVMargin, 0, 0);
             lineLayout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
             QFormLayout::addRow(lineLayout);
         }

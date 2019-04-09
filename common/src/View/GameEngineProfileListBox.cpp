@@ -21,10 +21,10 @@
 
 #include "Model/GameEngineConfig.h"
 #include "Model/GameEngineProfile.h"
+#include "View/ElidedLabel.h"
 #include "View/wxUtils.h"
 
 #include <QBoxLayout>
-#include <QLabel>
 
 namespace TrenchBroom {
     namespace View {
@@ -60,18 +60,18 @@ namespace TrenchBroom {
         }
 
         void GameEngineProfileItemRenderer::createGui() {
-            // FIXME: needs ellipses
-            m_nameLabel = new QLabel();
-            m_pathLabel = new QLabel();
+            m_nameLabel = new ElidedLabel("not set", Qt::ElideRight);
+            m_pathLabel = new ElidedLabel("not set", Qt::ElideMiddle);
 
             makeEmphasized(m_nameLabel);
             makeInfo(m_pathLabel);
 
             auto* layout = new QVBoxLayout();
-            setLayout(layout);
-
+            layout->setContentsMargins(QMargins());
+            layout->setSpacing(LayoutConstants::NarrowVMargin);
             layout->addWidget(m_nameLabel);
             layout->addWidget(m_pathLabel);
+            setLayout(layout);
         }
 
         void GameEngineProfileItemRenderer::refresh() {
@@ -140,7 +140,7 @@ namespace TrenchBroom {
             return new GameEngineProfileItemRenderer(profile, parent);
         }
 
-        void GameEngineProfileListBox::currentRowChanged(const int index) {
+        void GameEngineProfileListBox::selectedRowChanged(const int index) {
             if (index >= 0 && index < count()) {
                 emit currentProfileChanged(m_config.profile(static_cast<size_t>(index)));
             } else {

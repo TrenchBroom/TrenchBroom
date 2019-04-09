@@ -69,9 +69,9 @@ namespace TrenchBroom {
         private:
             virtual size_t itemCount() const = 0;
             virtual ControlListBoxItemRenderer* createItemRenderer(QWidget* parent, size_t index) = 0;
-            virtual void currentRowChanged(int index);
+            virtual void selectedRowChanged(int index);
         private slots:
-            void currentItemChanged(QListWidgetItem* current, QListWidgetItem* previous);
+            void itemSelectionChanged();
         };
     }
 }

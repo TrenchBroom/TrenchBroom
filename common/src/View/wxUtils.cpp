@@ -44,6 +44,7 @@
 #include <QString>
 #include <QStringBuilder>
 #include <QStyle>
+#include <QToolButton>
 
 #include <list>
 #include <cstdlib>
@@ -209,11 +210,13 @@ namespace TrenchBroom {
 
             // NOTE: according to http://doc.qt.io/qt-5/qpushbutton.html this would be more correctly
             // be a QToolButton, but the QToolButton doesn't have a flat style on macOS
-            auto* button = new QPushButton(parent);
-            button->setAutoDefault(false);
+            auto* button = new QToolButton(parent);
+            button->setMinimumSize(icon.availableSizes().front());
+            // button->setAutoDefault(false);
             button->setToolTip(tooltip);
             button->setIcon(icon);
-            button->setFlat(true);
+            // button->setFlat(true);
+            button->setStyleSheet("QToolButton { border: none; }");
 
             return button;
         }
@@ -237,7 +240,7 @@ namespace TrenchBroom {
 
             auto* messageLabel = new QLabel(message);
             makeEmphasized(messageLabel);
-            layout->addWidget(messageLabel, Qt::AlignCenter);
+            layout->addWidget(messageLabel, 0, Qt::AlignHCenter | Qt::AlignTop);
 
             return container;
         }
@@ -256,7 +259,7 @@ namespace TrenchBroom {
             return float(slider->value() - slider->minimum()) / float(slider->maximum() - slider->minimum());
         }
 
-        void setSliderValue(QSlider* slider, const float ratio) {
+        void setSliderRatio(QSlider* slider, float ratio) {
             const auto value = ratio * float(slider->maximum() - slider->minimum()) + float(slider->minimum());
             slider->setValue(int(value));
         }
@@ -296,9 +299,9 @@ namespace TrenchBroom {
             justifySizer->addStretch(1);
 
             auto* containerSizer = new QVBoxLayout();
-            containerSizer->addSpacing(LayoutConstants::WideVMargin);
+            containerSizer->addSpacing(LayoutConstants::MediumVMargin);
             containerSizer->addWidget(justifySizer, wxSizerFlags().Expand());
-            containerSizer->addSpacing(LayoutConstants::WideVMargin);
+            containerSizer->addSpacing(LayoutConstants::MediumVMargin);
             containerSizer->addStretch(1);
 
             containerPanel->setLayout(containerSizer);
@@ -360,6 +363,7 @@ namespace TrenchBroom {
         void setBaseWindowColor(QWidget* widget) {
             auto palette = QPalette();
             palette.setColor(QPalette::Window, palette.color(QPalette::Normal, QPalette::Base));
+            widget->setAutoFillBackground(true);
             widget->setPalette(palette);
         }
 

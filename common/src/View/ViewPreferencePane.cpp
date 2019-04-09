@@ -25,6 +25,7 @@
 #include "View/BorderLine.h"
 #include "View/ColorButton.h"
 #include "View/FormWithSectionsLayout.h"
+#include "View/SliderWithLabel.h"
 #include "View/TitleBar.h"
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
@@ -35,7 +36,6 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QLabel>
-#include <QSlider>
 
 #include <array>
 
@@ -79,7 +79,7 @@ namespace TrenchBroom {
 
             layout->addSpacing(LayoutConstants::NarrowVMargin);
             layout->addWidget(viewPreferences, 1);
-            layout->addSpacing(LayoutConstants::WideVMargin);
+            layout->addSpacing(LayoutConstants::MediumVMargin);
         }
 
         QWidget* ViewPreferencePane::createViewPreferences() {
@@ -95,11 +95,11 @@ namespace TrenchBroom {
             m_layoutCombo->addItem("Three Panes");
             m_layoutCombo->addItem("Four Panes");
 
-            m_brightnessSlider = createSlider(1, 100);
+            m_brightnessSlider = new SliderWithLabel(0, 100);
             m_brightnessSlider->setToolTip("Sets the brightness for textures and model skins in the 3D editing view.");
-            m_gridAlphaSlider = createSlider(1, 100);
+            m_gridAlphaSlider = new SliderWithLabel(0, 100);
             m_gridAlphaSlider->setToolTip("Sets the visibility of the grid lines in the 3D editing view.");
-            m_fovSlider = createSlider(50, 150);
+            m_fovSlider = new SliderWithLabel(50, 150);
             m_fovSlider->setToolTip("Sets the field of vision in the 3D editing view.");
 
             m_showAxes = new QCheckBox();
@@ -157,7 +157,7 @@ namespace TrenchBroom {
             m_rendererFontSizeCombo->setValidator(new QIntValidator(1, 96));
 
             auto* layout = new FormWithSectionsLayout();
-            layout->setContentsMargins(0, LayoutConstants::WideVMargin, 0, 0);
+            layout->setContentsMargins(0, LayoutConstants::MediumVMargin, 0, 0);
             layout->setVerticalSpacing(2);
             // override the default to make the sliders take up maximum width
             layout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
@@ -182,15 +182,15 @@ namespace TrenchBroom {
             layout->addSection("Fonts");
             layout->addRow("Renderer Font Size", m_rendererFontSizeCombo);
 
-            viewBox->setMinimumWidth(500);
+            viewBox->setMinimumWidth(400);
             return viewBox;
         }
 
         void ViewPreferencePane::bindEvents() {
             connect(m_layoutCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ViewPreferencePane::layoutChanged);
-            connect(m_brightnessSlider, &QSlider::valueChanged, this, &ViewPreferencePane::brightnessChanged);
-            connect(m_gridAlphaSlider, &QSlider::valueChanged, this, &ViewPreferencePane::gridAlphaChanged);
-            connect(m_fovSlider, &QSlider::valueChanged, this, &ViewPreferencePane::fovChanged);
+            connect(m_brightnessSlider, &SliderWithLabel::valueChanged, this, &ViewPreferencePane::brightnessChanged);
+            connect(m_gridAlphaSlider, &SliderWithLabel::valueChanged, this, &ViewPreferencePane::gridAlphaChanged);
+            connect(m_fovSlider, &SliderWithLabel::valueChanged, this, &ViewPreferencePane::fovChanged);
             connect(m_showAxes, &QCheckBox::stateChanged, this, &ViewPreferencePane::showAxesChanged);
             connect(m_backgroundColorButton, &ColorButton::colorChanged, this, &ViewPreferencePane::backgroundColorChanged);
             connect(m_gridColorButton, &ColorButton::colorChanged, this, &ViewPreferencePane::gridColorChanged);
@@ -222,7 +222,7 @@ namespace TrenchBroom {
         void ViewPreferencePane::doUpdateControls() {
             m_layoutCombo->setCurrentIndex(pref(Preferences::MapViewLayout));
             m_brightnessSlider->setValue(int(pref(Preferences::Brightness) * 40.0f));
-            m_gridAlphaSlider->setValue(int(pref(Preferences::GridAlpha) * m_gridAlphaSlider->maximum()));
+            m_gridAlphaSlider->setRatio(pref(Preferences::GridAlpha));
             m_fovSlider->setValue(int(pref(Preferences::CameraFov)));
 
             const auto textureModeIndex = findTextureMode(pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
@@ -282,10 +282,9 @@ namespace TrenchBroom {
         }
 
         void ViewPreferencePane::gridAlphaChanged(const int value) {
+            const auto ratio = m_gridAlphaSlider->ratio();
             auto& prefs = PreferenceManager::instance();
-            const auto max = m_gridAlphaSlider->maximum();
-            const auto floatValue = float(value) / float(max);
-            prefs.set(Preferences::GridAlpha, floatValue);
+            prefs.set(Preferences::GridAlpha, ratio);
         }
 
         void ViewPreferencePane::fovChanged(const int value) {

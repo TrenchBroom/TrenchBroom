@@ -25,11 +25,11 @@
 #include "View/BorderLine.h"
 #include "View/FormWithSectionsLayout.h"
 // #include "View/KeyboardShortcutEditor.h"
+#include "View/SliderWithLabel.h"
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
 #include <QCheckBox>
-#include <QSlider>
 
 #include <algorithm>
 
@@ -42,15 +42,15 @@ namespace TrenchBroom {
         }
 
         void MousePreferencePane::createGui() {
-            m_lookSpeedSlider = createSlider(1, 100);
+            m_lookSpeedSlider = new SliderWithLabel(1, 100);
             m_invertLookHAxisCheckBox = new QCheckBox("Invert X axis");
             m_invertLookVAxisCheckBox = new QCheckBox("Invert Y axis");
 
-            m_panSpeedSlider = createSlider(1, 100);
+            m_panSpeedSlider = new SliderWithLabel(1, 100);
             m_invertPanHAxisCheckBox = new QCheckBox("Invert X axis");
             m_invertPanVAxisCheckBox = new QCheckBox("Invert Y axis");
 
-            m_moveSpeedSlider = createSlider(1, 100);
+            m_moveSpeedSlider = new SliderWithLabel(1, 100);
             m_invertMouseWheelCheckBox = new QCheckBox("Invert mouse wheel");
             m_enableAltMoveCheckBox = new QCheckBox("Alt + middle mouse drag to move camera");
             m_invertAltMoveAxisCheckBox = new QCheckBox("Invert Z axis in Alt + middle mouse drag");
@@ -58,10 +58,10 @@ namespace TrenchBroom {
 
             // FIXME: keyboard shortcuts for WASD
 
-            m_flyMoveSpeedSlider = createSlider(256, 512);
+            m_flyMoveSpeedSlider = new SliderWithLabel(256, 512);
 
             auto* layout = new FormWithSectionsLayout();
-            layout->setContentsMargins(0, LayoutConstants::WideVMargin, 0, 0);
+            layout->setContentsMargins(0, LayoutConstants::MediumVMargin, 0, 0);
             layout->setVerticalSpacing(2);
             // override the default to make the sliders take up maximum width
             layout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
@@ -88,19 +88,19 @@ namespace TrenchBroom {
             // FIXME: add keyboard shortcuts
             layout->addRow("Speed", m_flyMoveSpeedSlider);
 
-            setMinimumWidth(500);
+            setMinimumWidth(400);
         }
 
         void MousePreferencePane::bindEvents() {
-            connect(m_lookSpeedSlider, &QSlider::valueChanged, this, &MousePreferencePane::lookSpeedChanged);
+            connect(m_lookSpeedSlider, &SliderWithLabel::valueChanged, this, &MousePreferencePane::lookSpeedChanged);
             connect(m_invertLookHAxisCheckBox, &QCheckBox::stateChanged, this, &MousePreferencePane::invertLookHAxisChanged);
             connect(m_invertLookVAxisCheckBox, &QCheckBox::stateChanged, this, &MousePreferencePane::invertLookVAxisChanged);
 
-            connect(m_panSpeedSlider, &QSlider::valueChanged, this, &MousePreferencePane::panSpeedChanged);
+            connect(m_panSpeedSlider, &SliderWithLabel::valueChanged, this, &MousePreferencePane::panSpeedChanged);
             connect(m_invertPanHAxisCheckBox, &QCheckBox::stateChanged, this, &MousePreferencePane::invertPanHAxisChanged);
             connect(m_invertPanVAxisCheckBox, &QCheckBox::stateChanged, this, &MousePreferencePane::invertPanVAxisChanged);
 
-            connect(m_moveSpeedSlider, &QSlider::valueChanged, this, &MousePreferencePane::moveSpeedChanged);
+            connect(m_moveSpeedSlider, &SliderWithLabel::valueChanged, this, &MousePreferencePane::moveSpeedChanged);
             connect(m_invertMouseWheelCheckBox, &QCheckBox::stateChanged, this, &MousePreferencePane::invertMouseWheelChanged);
             connect(m_enableAltMoveCheckBox, &QCheckBox::stateChanged, this, &MousePreferencePane::enableAltMoveChanged);
             connect(m_invertAltMoveAxisCheckBox, &QCheckBox::stateChanged, this, &MousePreferencePane::invertAltMoveAxisChanged);
@@ -116,7 +116,7 @@ namespace TrenchBroom {
             m_downKeyEditor->Bind(KEYBOARD_SHORTCUT_EVENT, &MousePreferencePane::OnDownKeyChanged, this);
             */
 
-            connect(m_flyMoveSpeedSlider, &QSlider::valueChanged, this, &MousePreferencePane::flyMoveSpeedChanged);
+            connect(m_flyMoveSpeedSlider, &SliderWithLabel::valueChanged, this, &MousePreferencePane::flyMoveSpeedChanged);
         }
 
         bool MousePreferencePane::doCanResetToDefaults() {
@@ -152,15 +152,15 @@ namespace TrenchBroom {
         }
 
         void MousePreferencePane::doUpdateControls() {
-            setSliderValue(m_lookSpeedSlider, pref(Preferences::CameraLookSpeed));
+            m_lookSpeedSlider->setRatio(pref(Preferences::CameraLookSpeed));
             m_invertLookHAxisCheckBox->setChecked(pref(Preferences::CameraLookInvertH));
             m_invertLookVAxisCheckBox->setChecked(pref(Preferences::CameraLookInvertV));
 
-            setSliderValue(m_panSpeedSlider, pref(Preferences::CameraPanSpeed));
+            m_panSpeedSlider->setRatio(pref(Preferences::CameraPanSpeed));
             m_invertPanHAxisCheckBox->setChecked(pref(Preferences::CameraPanInvertH));
             m_invertPanVAxisCheckBox->setChecked(pref(Preferences::CameraPanInvertV));
 
-            setSliderValue(m_moveSpeedSlider, pref(Preferences::CameraMoveSpeed));
+            m_moveSpeedSlider->setRatio(pref(Preferences::CameraMoveSpeed));
             m_invertMouseWheelCheckBox->setChecked(pref(Preferences::CameraMouseWheelInvert));
             m_enableAltMoveCheckBox->setChecked(pref(Preferences::CameraEnableAltMove));
             m_invertAltMoveAxisCheckBox->setChecked(pref(Preferences::CameraAltMoveInvert));
@@ -175,7 +175,7 @@ namespace TrenchBroom {
             m_downKeyEditor->SetShortcut(pref(Preferences::CameraFlyDown));
             */
 
-            setSliderValue(m_flyMoveSpeedSlider, pref(Preferences::CameraFlyMoveSpeed));
+            m_flyMoveSpeedSlider->setRatio(pref(Preferences::CameraFlyMoveSpeed));
         }
 
         bool MousePreferencePane::doValidate() {
@@ -183,7 +183,7 @@ namespace TrenchBroom {
         }
 
         void MousePreferencePane::lookSpeedChanged(const int value) {
-            const auto ratio = getSliderRatio(m_lookSpeedSlider);
+            const auto ratio = m_lookSpeedSlider->ratio();
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.set(Preferences::CameraLookSpeed, ratio);
         }
@@ -201,7 +201,7 @@ namespace TrenchBroom {
         }
 
         void MousePreferencePane::panSpeedChanged(const int value) {
-            const auto ratio = getSliderRatio(m_panSpeedSlider);
+            const auto ratio = m_panSpeedSlider->ratio();
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.set(Preferences::CameraPanSpeed, ratio);
         }
@@ -219,7 +219,7 @@ namespace TrenchBroom {
         }
 
         void MousePreferencePane::moveSpeedChanged(const int value) {
-            const auto ratio = getSliderRatio(m_moveSpeedSlider);
+            const auto ratio = m_moveSpeedSlider->ratio();
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.set(Preferences::CameraMoveSpeed, ratio);
         }
@@ -297,7 +297,7 @@ namespace TrenchBroom {
         */
 
         void MousePreferencePane::flyMoveSpeedChanged(const int value) {
-            const auto ratio = getSliderRatio(m_flyMoveSpeedSlider);
+            const auto ratio = m_flyMoveSpeedSlider->ratio();
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.set(Preferences::CameraFlyMoveSpeed, ratio);
         }

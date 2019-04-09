@@ -50,12 +50,7 @@ namespace TrenchBroom {
             m_removeProfileButton = createBitmapButton("Remove.png", "Remove the selected profile");
             m_removeProfileButton->setEnabled(false);
 
-            auto* buttonLayout = new QHBoxLayout();
-            buttonLayout->setContentsMargins(QMargins());
-            buttonLayout->setSpacing(0);
-            buttonLayout->addWidget(addProfileButton);
-            buttonLayout->addWidget(m_removeProfileButton);
-            buttonLayout->addStretch(1);
+            auto* buttonLayout = createMiniToolBarLayout(addProfileButton, m_removeProfileButton);
 
             auto* listLayout = new QVBoxLayout();
             listLayout->setContentsMargins(QMargins());
@@ -64,6 +59,12 @@ namespace TrenchBroom {
             listLayout->addWidget(m_profileList, 1);
             listLayout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
             listLayout->addLayout(buttonLayout);
+
+            auto* editorLayout = new QHBoxLayout();
+            editorLayout->setContentsMargins(QMargins());
+            editorLayout->setSpacing(0);
+            editorPanel->getPanel()->setLayout(editorLayout);
+            editorLayout->addWidget(m_profileEditor);
 
             auto* outerLayout = new QHBoxLayout();
             outerLayout->setContentsMargins(QMargins());
@@ -74,7 +75,6 @@ namespace TrenchBroom {
             outerLayout->addWidget(editorPanel, 1);
 
             listPanel->setMaximumWidth(250);
-            m_profileList->setFocus();
 
             connect(addProfileButton, &QAbstractButton::clicked, this, &GameEngineProfileManager::addProfile);
             connect(m_removeProfileButton, &QAbstractButton::clicked, this, &GameEngineProfileManager::removeProfile);

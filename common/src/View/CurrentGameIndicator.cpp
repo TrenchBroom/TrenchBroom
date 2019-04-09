@@ -49,7 +49,7 @@ namespace TrenchBroom {
             makeHeader(gameNameLabel);
 
             auto* layout = new QHBoxLayout();
-            layout->setContentsMargins(QMargins());
+            layout->setContentsMargins(LayoutConstants::WideHMargin, LayoutConstants::MediumVMargin, LayoutConstants::WideHMargin, LayoutConstants::MediumVMargin);
             layout->setSpacing(LayoutConstants::MediumHMargin);
             setLayout(layout);
 

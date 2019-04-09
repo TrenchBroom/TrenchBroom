@@ -24,19 +24,19 @@
 
 class QCheckBox;
 class QComboBox;
-class QSlider;
 
 namespace TrenchBroom {
     namespace View {
         class ColorButton;
+        class SliderWithLabel;
 
         class ViewPreferencePane : public PreferencePane {
             Q_OBJECT
         private:
             QComboBox* m_layoutCombo;
-            QSlider* m_brightnessSlider;
-            QSlider* m_gridAlphaSlider;
-            QSlider* m_fovSlider;
+            SliderWithLabel* m_brightnessSlider;
+            SliderWithLabel* m_gridAlphaSlider;
+            SliderWithLabel* m_fovSlider;
             QCheckBox* m_showAxes;
             QComboBox* m_textureModeCombo;
             ColorButton* m_backgroundColorButton;

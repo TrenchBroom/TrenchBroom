@@ -55,7 +55,7 @@ namespace TrenchBroom {
         void GamesPreferencePane::createGui() {
             m_gameListBox = new GameListBox();
             m_gameListBox->selectGame(0);
-            m_gameListBox->setMaximumWidth(250);
+            m_gameListBox->setMaximumWidth(220);
             m_gameListBox->setMinimumHeight(300);
 
             connect(m_gameListBox, &GameListBox::currentGameChanged, this, &GamesPreferencePane::currentGameChanged);
@@ -71,10 +71,10 @@ namespace TrenchBroom {
 
             layout->addWidget(m_gameListBox);
             layout->addWidget(new BorderLine(BorderLine::Direction_Vertical));
-            layout->addSpacing(LayoutConstants::WideVMargin);
-            layout->addWidget(m_stackedWidget, 1);
+            layout->addSpacing(LayoutConstants::MediumVMargin);
+            layout->addWidget(m_stackedWidget, 1, Qt::AlignTop);
 
-            setMinimumSize(650, 400);
+            setMinimumWidth(600);
         }
 
         QWidget* GamesPreferencePane::createGamePreferencesPage() {
@@ -91,14 +91,20 @@ namespace TrenchBroom {
             connect(configureEnginesButton, &QPushButton::clicked, this, &GamesPreferencePane::configureEnginesClicked);
 
             auto* gamePathLayout = new QHBoxLayout();
+            gamePathLayout->setContentsMargins(QMargins());
+            gamePathLayout->setSpacing(LayoutConstants::MediumHMargin);
             gamePathLayout->addWidget(m_gamePathText, 1);
             gamePathLayout->addWidget(m_chooseGamePathButton);
 
             auto* layout = new QFormLayout();
+            layout->setContentsMargins(LayoutConstants::MediumHMargin, LayoutConstants::MediumVMargin, LayoutConstants::MediumHMargin, LayoutConstants::MediumVMargin);
+            layout->setHorizontalSpacing(LayoutConstants::MediumHMargin);
+            layout->setVerticalSpacing(0);
+            layout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
             container->setLayout(layout);
 
             layout->addRow("Game Path", gamePathLayout);
-            layout->addRow("Engines", configureEnginesButton);
+            layout->addRow("", configureEnginesButton);
 
             return container;
         }

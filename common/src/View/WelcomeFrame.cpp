@@ -51,7 +51,7 @@ namespace TrenchBroom {
             // FIXME:
             m_recentDocumentListBox = new RecentDocumentListBox();
             m_recentDocumentListBox->setToolTip("Double click on a file to open it");
-            m_recentDocumentListBox->setMinimumWidth(400);
+            m_recentDocumentListBox->setFixedWidth(300);
             m_recentDocumentListBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
             connect(m_recentDocumentListBox, &RecentDocumentListBox::loadRecentDocument, this, &WelcomeFrame::onRecentDocumentSelected);
 
@@ -76,7 +76,7 @@ namespace TrenchBroom {
             innerLayout->addWidget(m_recentDocumentListBox, 1);
 
             setCentralWidget(container);
-            setFixedSize(800, 500);
+            setFixedSize(700, 450);
         }
 
         void WelcomeFrame::onCreateNewDocumentClicked() {

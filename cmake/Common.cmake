@@ -322,6 +322,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/EdgeToolController.cpp
 	${COMMON_SOURCE_DIR}/View/EdgeTool.cpp
 #	${COMMON_SOURCE_DIR}/View/ELAutoCompleteHelper.cpp
+	${COMMON_SOURCE_DIR}/View/ElidedLabel.cpp
 	${COMMON_SOURCE_DIR}/View/EntityAttributeEditor.cpp
 	${COMMON_SOURCE_DIR}/View/EntityAttributeGrid.cpp
 	${COMMON_SOURCE_DIR}/View/EntityAttributeGridTable.cpp
@@ -431,6 +432,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/ShearObjectsToolController.cpp
 	${COMMON_SOURCE_DIR}/View/ShearObjectsTool.cpp
 	${COMMON_SOURCE_DIR}/View/ShearTexturesCommand.cpp
+	${COMMON_SOURCE_DIR}/View/SliderWithLabel.cpp
 	${COMMON_SOURCE_DIR}/View/SmartAttributeEditor.cpp
 	${COMMON_SOURCE_DIR}/View/SmartAttributeEditorManager.cpp
 	${COMMON_SOURCE_DIR}/View/SmartAttributeEditorMatcher.cpp
@@ -871,6 +873,7 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/EdgeToolController.h
 	${COMMON_SOURCE_DIR}/View/EdgeTool.h
 	${COMMON_SOURCE_DIR}/View/ELAutoCompleteHelper.h
+	${COMMON_SOURCE_DIR}/View/ElidedLabel.h
 	${COMMON_SOURCE_DIR}/View/EntityAttributeEditor.h
 	${COMMON_SOURCE_DIR}/View/EntityAttributeGrid.h
 	${COMMON_SOURCE_DIR}/View/EntityAttributeGridTable.h
@@ -983,6 +986,7 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/ShearObjectsToolController.h
 	${COMMON_SOURCE_DIR}/View/ShearObjectsTool.h
 	${COMMON_SOURCE_DIR}/View/ShearTexturesCommand.h
+	${COMMON_SOURCE_DIR}/View/SliderWithLabel.h
 	${COMMON_SOURCE_DIR}/View/SmartAttributeEditor.h
 	${COMMON_SOURCE_DIR}/View/SmartAttributeEditorManager.h
 	${COMMON_SOURCE_DIR}/View/SmartAttributeEditorMatcher.h

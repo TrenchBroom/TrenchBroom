@@ -80,13 +80,13 @@ namespace TrenchBroom {
             m_colorHistory = new ColorTable(nullptr, ColorHistoryCellSize);
 
             auto* leftSizer = new QVBoxLayout();
-            //leftSizer->addSpacing(LayoutConstants::WideVMargin);
+            //leftSizer->addSpacing(LayoutConstants::MediumVMargin);
             leftSizer->addWidget(rangeTxt);
-//            leftSizer->addSpacing(LayoutConstants::WideVMargin);
+//            leftSizer->addSpacing(LayoutConstants::MediumVMargin);
             leftSizer->addWidget(m_floatRadio);
-//            leftSizer->addSpacing(LayoutConstants::WideVMargin);
+//            leftSizer->addSpacing(LayoutConstants::MediumVMargin);
             leftSizer->addWidget(m_byteRadio);
-//            leftSizer->addSpacing(LayoutConstants::WideVMargin);
+//            leftSizer->addSpacing(LayoutConstants::MediumVMargin);
             leftSizer->addWidget(m_colorPicker);
             leftSizer->addStretch(1);
 

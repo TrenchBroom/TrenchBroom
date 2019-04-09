@@ -42,12 +42,12 @@ namespace TrenchBroom {
             if (index >= static_cast<int>(gameList.size())) {
                 return "";
             } else {
-                return gameList[index];
+                return gameList[static_cast<size_t>(index)];
             }
         }
 
         void GameListBox::selectGame(const size_t index) {
-            setCurrentRow(index);
+            setCurrentRow(static_cast<int>(index));
         }
 
         void GameListBox::reloadGameInfos() {
@@ -104,7 +104,7 @@ namespace TrenchBroom {
             return m_gameInfos[n].subtitle;
         }
 
-        void GameListBox::currentRowChanged(const int index) {
+        void GameListBox::selectedRowChanged(const int index) {
             if (index >= 0 && index < count()) {
                 emit currentGameChanged(QString::fromStdString(m_gameInfos[static_cast<size_t>(index)].name));
             }

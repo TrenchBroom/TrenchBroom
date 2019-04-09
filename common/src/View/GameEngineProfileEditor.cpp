@@ -42,13 +42,12 @@ namespace TrenchBroom {
         m_nameEdit(nullptr),
         m_pathEdit(nullptr),
         m_ignoreNotifications(false) {
-            setBaseWindowColor(this);
-
             m_stackedWidget = new QStackedWidget();
             m_stackedWidget->addWidget(createDefaultPage("Select a game engine profile"));
             m_stackedWidget->addWidget(createEditorPage());
 
             auto* layout = new QVBoxLayout();
+            layout->setContentsMargins(QMargins());
             setLayout(layout);
             layout->addWidget(m_stackedWidget);
         }
@@ -62,6 +61,7 @@ namespace TrenchBroom {
 
         QWidget* GameEngineProfileEditor::createEditorPage() {
             auto* container = new QWidget();
+            setBaseWindowColor(container);
 
             m_nameEdit = new QLineEdit();
             setHint(m_nameEdit, "Choose a name");
@@ -80,6 +80,9 @@ namespace TrenchBroom {
             pathLayout->addWidget(button);
 
             auto* formLayout = new QFormLayout();
+            formLayout->setContentsMargins(LayoutConstants::WideHMargin, LayoutConstants::WideVMargin, LayoutConstants::WideHMargin, LayoutConstants::WideVMargin);
+            formLayout->setVerticalSpacing(LayoutConstants::NarrowVMargin);
+            formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
             container->setLayout(formLayout);
 
             formLayout->addRow("Name", m_nameEdit);

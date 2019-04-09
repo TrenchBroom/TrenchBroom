@@ -19,6 +19,8 @@
 
 #include "ControlListBox.h"
 
+#include "View/ViewConstants.h"
+
 #include <QLabel>
 #include <QListWidget>
 #include <QSizePolicy>
@@ -44,9 +46,10 @@ namespace TrenchBroom {
         m_emptyTextLabel(new QLabel(emptyText)) {
             m_listWidget->setObjectName("controlListBox_listWidget");
             m_listWidget->hide();
-            m_listWidget->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-            connect(m_listWidget, &QListWidget::currentItemChanged, this, &ControlListBox::currentItemChanged);
-            connect(m_listWidget, &QListWidget::currentRowChanged, this, &ControlListBox::currentRowChanged);
+            m_listWidget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
+            // m_listWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+            connect(m_listWidget, &QListWidget::itemSelectionChanged, this, &ControlListBox::itemSelectionChanged);
 
             m_emptyTextLabel->setWordWrap(true);
             m_emptyTextLabel->setDisabled(true);
@@ -114,6 +117,7 @@ namespace TrenchBroom {
         }
 
         void ControlListBox::addItemRenderer(ControlListBoxItemRenderer* renderer) {
+            renderer->setContentsMargins(LayoutConstants::MediumHMargin, LayoutConstants::NarrowVMargin, LayoutConstants::MediumHMargin, LayoutConstants::NarrowVMargin);
             auto* widgetItem = new QListWidgetItem(m_listWidget);
             m_listWidget->addItem(widgetItem);
             setItemRenderer(widgetItem, renderer);
@@ -128,16 +132,16 @@ namespace TrenchBroom {
             renderer->setSelected(m_listWidget->currentItem() == widgetItem);
         }
 
-        void ControlListBox::currentRowChanged(const int index) {}
+        void ControlListBox::selectedRowChanged(const int index) {}
 
-        void ControlListBox::currentItemChanged(QListWidgetItem* current, QListWidgetItem* previous) {
-            if (previous != nullptr) {
-                auto* previousRenderer = static_cast<ControlListBoxItemRenderer*>(m_listWidget->itemWidget(previous));
-                previousRenderer->setSelected(false);
-            }
-            if (current != nullptr) {
-                auto* currentRenderer = static_cast<ControlListBoxItemRenderer*>(m_listWidget->itemWidget(current));
-                currentRenderer->setSelected(true);
+        void ControlListBox::itemSelectionChanged() {
+            for (int row = 0; row < count(); ++row) {
+                auto* listItem = m_listWidget->item(row);
+                auto* renderer = static_cast<ControlListBoxItemRenderer*>(m_listWidget->itemWidget(listItem));
+                renderer->setSelected(listItem->isSelected());
+                if (listItem->isSelected()) {
+                    selectedRowChanged(row);
+                }
             }
         }
     }
