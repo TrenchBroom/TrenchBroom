@@ -45,6 +45,8 @@
 #include <QStringBuilder>
 #include <QStyle>
 #include <QToolButton>
+#include <QAbstractButton>
+#include <QButtonGroup>
 
 #include <list>
 #include <cstdlib>
@@ -375,6 +377,14 @@ namespace TrenchBroom {
             QIcon icon = loadIconResourceQt(IO::Path("")); // FIXME:!
             widget->addAction(icon, QLineEdit::LeadingPosition);
             return widget;
+        }
+
+        void checkButtonInGroup(QButtonGroup* group, const int id, const bool checked) {
+            QAbstractButton* button = group->button(id);
+            if (button == nullptr) {
+                return;
+            }
+            button->setChecked(checked);
         }
     }
 }

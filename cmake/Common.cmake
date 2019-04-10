@@ -399,7 +399,6 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/PopupButton.cpp
 	${COMMON_SOURCE_DIR}/View/PreferenceDialog.cpp
 	${COMMON_SOURCE_DIR}/View/PreferencePane.cpp
-#	${COMMON_SOURCE_DIR}/View/RadioGroup.cpp
 	${COMMON_SOURCE_DIR}/View/RecentDocumentListBox.cpp
 #	${COMMON_SOURCE_DIR}/View/RecentDocumentSelectedCommand.cpp
 	${COMMON_SOURCE_DIR}/View/RemoveBrushEdgesCommand.cpp
@@ -477,7 +476,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/VertexToolController.cpp
 	${COMMON_SOURCE_DIR}/View/VertexTool.cpp
 	${COMMON_SOURCE_DIR}/View/ViewConstants.cpp
-#	${COMMON_SOURCE_DIR}/View/ViewEditor.cpp
+	${COMMON_SOURCE_DIR}/View/ViewEditor.cpp
 	${COMMON_SOURCE_DIR}/View/ViewEffectsService.cpp
 	${COMMON_SOURCE_DIR}/View/ViewPreferencePane.cpp
 	${COMMON_SOURCE_DIR}/View/ViewUtils.cpp
@@ -952,7 +951,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/PopupWindow.h
 	${COMMON_SOURCE_DIR}/View/PreferenceDialog.h
 	${COMMON_SOURCE_DIR}/View/PreferencePane.h
-	${COMMON_SOURCE_DIR}/View/RadioGroup.h
 	${COMMON_SOURCE_DIR}/View/RecentDocumentListBox.h
 	${COMMON_SOURCE_DIR}/View/RecentDocumentSelectedCommand.h
 	${COMMON_SOURCE_DIR}/View/RecentDocuments.h
