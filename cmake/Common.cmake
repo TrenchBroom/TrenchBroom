@@ -361,12 +361,8 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/Inspector.cpp
 	${COMMON_SOURCE_DIR}/View/IssueBrowser.cpp
 	${COMMON_SOURCE_DIR}/View/IssueBrowserView.cpp
-#	${COMMON_SOURCE_DIR}/View/KeyboardGridCellEditor.cpp
 #	${COMMON_SOURCE_DIR}/View/KeyboardPreferencePane.cpp
 	${COMMON_SOURCE_DIR}/View/KeyboardShortcut.cpp
-#	${COMMON_SOURCE_DIR}/View/KeyboardShortcutEditor.cpp
-#	${COMMON_SOURCE_DIR}/View/KeyboardShortcutEntry.cpp
-#	${COMMON_SOURCE_DIR}/View/KeyboardShortcutGridTable.cpp
 	${COMMON_SOURCE_DIR}/View/Lasso.cpp
 #	${COMMON_SOURCE_DIR}/View/LaunchGameEngineDialog.cpp
 	${COMMON_SOURCE_DIR}/View/LayerEditor.cpp
@@ -432,6 +428,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/ShearObjectsToolController.cpp
 	${COMMON_SOURCE_DIR}/View/ShearObjectsTool.cpp
 	${COMMON_SOURCE_DIR}/View/ShearTexturesCommand.cpp
+	${COMMON_SOURCE_DIR}/View/SingleKeySequenceEdit.cpp
 	${COMMON_SOURCE_DIR}/View/SliderWithLabel.cpp
 	${COMMON_SOURCE_DIR}/View/SmartAttributeEditor.cpp
 	${COMMON_SOURCE_DIR}/View/SmartAttributeEditorManager.cpp
@@ -912,11 +909,7 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/Inspector.h
 	${COMMON_SOURCE_DIR}/View/IssueBrowser.h
 	${COMMON_SOURCE_DIR}/View/IssueBrowserView.h
-	${COMMON_SOURCE_DIR}/View/KeyboardGridCellEditor.h
 	${COMMON_SOURCE_DIR}/View/KeyboardPreferencePane.h
-	${COMMON_SOURCE_DIR}/View/KeyboardShortcutEditor.h
-	${COMMON_SOURCE_DIR}/View/KeyboardShortcutEntry.h
-	${COMMON_SOURCE_DIR}/View/KeyboardShortcutGridTable.h
 	${COMMON_SOURCE_DIR}/View/KeyboardShortcut.h
 	${COMMON_SOURCE_DIR}/View/Lasso.h
 	${COMMON_SOURCE_DIR}/View/LaunchGameEngineDialog.h
@@ -986,6 +979,7 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/ShearObjectsToolController.h
 	${COMMON_SOURCE_DIR}/View/ShearObjectsTool.h
 	${COMMON_SOURCE_DIR}/View/ShearTexturesCommand.h
+	${COMMON_SOURCE_DIR}/View/SingleKeySequenceEdit.h
 	${COMMON_SOURCE_DIR}/View/SliderWithLabel.h
 	${COMMON_SOURCE_DIR}/View/SmartAttributeEditor.h
 	${COMMON_SOURCE_DIR}/View/SmartAttributeEditorManager.h

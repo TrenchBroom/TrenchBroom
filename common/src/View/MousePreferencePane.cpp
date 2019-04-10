@@ -24,7 +24,7 @@
 #include "Preferences.h"
 #include "View/BorderLine.h"
 #include "View/FormWithSectionsLayout.h"
-// #include "View/KeyboardShortcutEditor.h"
+#include "View/SingleKeySequenceEdit.h"
 #include "View/SliderWithLabel.h"
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
@@ -36,7 +36,25 @@
 namespace TrenchBroom {
     namespace View {
         MousePreferencePane::MousePreferencePane(QWidget* parent) :
-        PreferencePane(parent) {
+        PreferencePane(parent),
+        m_lookSpeedSlider(nullptr),
+        m_invertLookHAxisCheckBox(nullptr),
+        m_invertLookVAxisCheckBox(nullptr),
+        m_panSpeedSlider(nullptr),
+        m_invertPanHAxisCheckBox(nullptr),
+        m_invertPanVAxisCheckBox(nullptr),
+        m_moveSpeedSlider(nullptr),
+        m_invertMouseWheelCheckBox(nullptr),
+        m_enableAltMoveCheckBox(nullptr),
+        m_invertAltMoveAxisCheckBox(nullptr),
+        m_moveInCursorDirCheckBox(nullptr),
+        m_forwardKeyEditor(nullptr),
+        m_backwardKeyEditor(nullptr),
+        m_leftKeyEditor(nullptr),
+        m_rightKeyEditor(nullptr),
+        m_upKeyEditor(nullptr),
+        m_downKeyEditor(nullptr),
+        m_flyMoveSpeedSlider(nullptr) {
             createGui();
             bindEvents();
         }
@@ -56,7 +74,18 @@ namespace TrenchBroom {
             m_invertAltMoveAxisCheckBox = new QCheckBox("Invert Z axis in Alt + middle mouse drag");
             m_moveInCursorDirCheckBox = new QCheckBox("Move camera towards cursor");
 
-            // FIXME: keyboard shortcuts for WASD
+            m_forwardKeyEditor = new SingleKeySequenceEdit();
+            m_forwardKeyEditor->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+            m_backwardKeyEditor = new SingleKeySequenceEdit();
+            m_backwardKeyEditor->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+            m_leftKeyEditor = new SingleKeySequenceEdit();
+            m_leftKeyEditor->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+            m_rightKeyEditor = new SingleKeySequenceEdit();
+            m_rightKeyEditor->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+            m_upKeyEditor = new SingleKeySequenceEdit();
+            m_upKeyEditor->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+            m_downKeyEditor = new SingleKeySequenceEdit();
+            m_downKeyEditor->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
 
             m_flyMoveSpeedSlider = new SliderWithLabel(256, 512);
 
@@ -85,7 +114,12 @@ namespace TrenchBroom {
             layout->addRow("", m_moveInCursorDirCheckBox);
 
             layout->addSection("Move Keys");
-            // FIXME: add keyboard shortcuts
+            layout->addRow("Forward", m_forwardKeyEditor);
+            layout->addRow("Backward", m_backwardKeyEditor);
+            layout->addRow("Left", m_leftKeyEditor);
+            layout->addRow("Right", m_rightKeyEditor);
+            layout->addRow("Up", m_upKeyEditor);
+            layout->addRow("Down", m_downKeyEditor);
             layout->addRow("Speed", m_flyMoveSpeedSlider);
 
             setMinimumWidth(400);
@@ -106,15 +140,12 @@ namespace TrenchBroom {
             connect(m_invertAltMoveAxisCheckBox, &QCheckBox::stateChanged, this, &MousePreferencePane::invertAltMoveAxisChanged);
             connect(m_moveInCursorDirCheckBox, &QCheckBox::stateChanged, this, &MousePreferencePane::moveInCursorDirChanged);
 
-            // FIXME: keyboard shortcuts
-            /*
-            m_forwardKeyEditor->Bind(KEYBOARD_SHORTCUT_EVENT, &MousePreferencePane::OnForwardKeyChanged, this);
-            m_backwardKeyEditor->Bind(KEYBOARD_SHORTCUT_EVENT, &MousePreferencePane::OnBackwardKeyChanged, this);
-            m_leftKeyEditor->Bind(KEYBOARD_SHORTCUT_EVENT, &MousePreferencePane::OnLeftKeyChanged, this);
-            m_rightKeyEditor->Bind(KEYBOARD_SHORTCUT_EVENT, &MousePreferencePane::OnRightKeyChanged, this);
-            m_upKeyEditor->Bind(KEYBOARD_SHORTCUT_EVENT, &MousePreferencePane::OnUpKeyChanged, this);
-            m_downKeyEditor->Bind(KEYBOARD_SHORTCUT_EVENT, &MousePreferencePane::OnDownKeyChanged, this);
-            */
+            connect(m_forwardKeyEditor, &QKeySequenceEdit::editingFinished, this, &MousePreferencePane::forwardKeyChanged);
+            connect(m_backwardKeyEditor, &QKeySequenceEdit::editingFinished, this, &MousePreferencePane::backwardKeyChanged);
+            connect(m_leftKeyEditor, &QKeySequenceEdit::editingFinished, this, &MousePreferencePane::leftKeyChanged);
+            connect(m_rightKeyEditor, &QKeySequenceEdit::editingFinished, this, &MousePreferencePane::rightKeyChanged);
+            connect(m_upKeyEditor, &QKeySequenceEdit::editingFinished, this, &MousePreferencePane::upKeyChanged);
+            connect(m_downKeyEditor, &QKeySequenceEdit::editingFinished, this, &MousePreferencePane::downKeyChanged);
 
             connect(m_flyMoveSpeedSlider, &SliderWithLabel::valueChanged, this, &MousePreferencePane::flyMoveSpeedChanged);
         }
@@ -166,14 +197,12 @@ namespace TrenchBroom {
             m_invertAltMoveAxisCheckBox->setChecked(pref(Preferences::CameraAltMoveInvert));
             m_moveInCursorDirCheckBox->setChecked(pref(Preferences::CameraMoveInCursorDir));
 
-            /* FIXME: keyboard shortcuts
-            m_forwardKeyEditor->SetShortcut(pref(Preferences::CameraFlyForward));
-            m_backwardKeyEditor->SetShortcut(pref(Preferences::CameraFlyBackward));
-            m_leftKeyEditor->SetShortcut(pref(Preferences::CameraFlyLeft));
-            m_rightKeyEditor->SetShortcut(pref(Preferences::CameraFlyRight));
-            m_upKeyEditor->SetShortcut(pref(Preferences::CameraFlyUp));
-            m_downKeyEditor->SetShortcut(pref(Preferences::CameraFlyDown));
-            */
+            m_forwardKeyEditor->setKeySequence(pref(Preferences::CameraFlyForward).keySequence());
+            m_backwardKeyEditor->setKeySequence(pref(Preferences::CameraFlyBackward).keySequence());
+            m_leftKeyEditor->setKeySequence(pref(Preferences::CameraFlyLeft).keySequence());
+            m_rightKeyEditor->setKeySequence(pref(Preferences::CameraFlyRight).keySequence());
+            m_upKeyEditor->setKeySequence(pref(Preferences::CameraFlyUp).keySequence());
+            m_downKeyEditor->setKeySequence(pref(Preferences::CameraFlyDown).keySequence());
 
             m_flyMoveSpeedSlider->setRatio(pref(Preferences::CameraFlyMoveSpeed));
         }
@@ -248,53 +277,29 @@ namespace TrenchBroom {
             prefs.set(Preferences::CameraMoveInCursorDir, value);
         }
 
-        /* FIXME: keyboard shortcuts
-        void MousePreferencePane::forwardKeyChanged(KeyboardShortcutEvent& event) {
-            const KeyboardShortcut shortcut(event.key(), event.modifier1(), event.modifier2(), event.modifier3());
-            if (!setShortcut(shortcut, Preferences::CameraFlyForward))
-                event.Veto();
+        void MousePreferencePane::forwardKeyChanged() {
+            setKeySequence(m_forwardKeyEditor, Preferences::CameraFlyForward);
         }
 
-        void MousePreferencePane::backwardKeyChanged(KeyboardShortcutEvent& event) {
-
-
-            const KeyboardShortcut shortcut(event.key(), event.modifier1(), event.modifier2(), event.modifier3());
-            if (!setShortcut(shortcut, Preferences::CameraFlyBackward))
-                event.Veto();
+        void MousePreferencePane::backwardKeyChanged() {
+            setKeySequence(m_backwardKeyEditor, Preferences::CameraFlyBackward);
         }
 
-        void MousePreferencePane::leftKeyChanged(KeyboardShortcutEvent& event) {
-
-
-            const KeyboardShortcut shortcut(event.key(), event.modifier1(), event.modifier2(), event.modifier3());
-            if (!setShortcut(shortcut, Preferences::CameraFlyLeft))
-                event.Veto();
+        void MousePreferencePane::leftKeyChanged() {
+            setKeySequence(m_leftKeyEditor, Preferences::CameraFlyLeft);
         }
 
-        void MousePreferencePane::rightKeyChanged(KeyboardShortcutEvent& event) {
-
-
-            const KeyboardShortcut shortcut(event.key(), event.modifier1(), event.modifier2(), event.modifier3());
-            if (!setShortcut(shortcut, Preferences::CameraFlyRight))
-                event.Veto();
+        void MousePreferencePane::rightKeyChanged() {
+            setKeySequence(m_rightKeyEditor, Preferences::CameraFlyRight);
         }
 
-        void MousePreferencePane::upKeyChanged(KeyboardShortcutEvent& event) {
-
-
-            const KeyboardShortcut shortcut(event.key(), event.modifier1(), event.modifier2(), event.modifier3());
-            if (!setShortcut(shortcut, Preferences::CameraFlyUp))
-                event.Veto();
+        void MousePreferencePane::upKeyChanged() {
+            setKeySequence(m_upKeyEditor, Preferences::CameraFlyUp);
         }
 
-        void MousePreferencePane::downKeyChanged(KeyboardShortcutEvent& event) {
-
-
-            const KeyboardShortcut shortcut(event.key(), event.modifier1(), event.modifier2(), event.modifier3());
-            if (!setShortcut(shortcut, Preferences::CameraFlyDown))
-                event.Veto();
+        void MousePreferencePane::downKeyChanged() {
+            setKeySequence(m_downKeyEditor, Preferences::CameraFlyDown);
         }
-        */
 
         void MousePreferencePane::flyMoveSpeedChanged(const int value) {
             const auto ratio = m_flyMoveSpeedSlider->ratio();
@@ -302,21 +307,17 @@ namespace TrenchBroom {
             prefs.set(Preferences::CameraFlyMoveSpeed, ratio);
         }
 
-        bool MousePreferencePane::setShortcut(const KeyboardShortcut& shortcut, Preference<KeyboardShortcut>& preference) {
-            /* FIXME: keybard shortcuts
-            if (!hasConflict(shortcut, preference)) {
-                PreferenceManager& prefs = PreferenceManager::instance();
-                prefs.set(preference, shortcut);
-                return true;
+        void MousePreferencePane::setKeySequence(QKeySequenceEdit* editor, Preference<KeyboardShortcut>& preference) {
+            const auto keySequence = editor->keySequence();
+            PreferenceManager& prefs = PreferenceManager::instance();
+            if (!hasConflict(keySequence, preference)) {
+                prefs.set(preference, KeyboardShortcut(keySequence));
             } else {
-                return false;
+                editor->setKeySequence(prefs.get(preference).keySequence());
             }
-             */
-            return true;
         }
 
-        bool MousePreferencePane::hasConflict(const KeyboardShortcut& shortcut, const Preference<KeyboardShortcut>& preference) const {
-            /* FIXME: keyboard shortcuts
+        bool MousePreferencePane::hasConflict(const QKeySequence& keySequence, const Preference<KeyboardShortcut>& preference) const {
             const auto prefs = std::vector<Preference<KeyboardShortcut>*>{
                 &Preferences::CameraFlyForward,
                 &Preferences::CameraFlyBackward,
@@ -326,11 +327,9 @@ namespace TrenchBroom {
                 &Preferences::CameraFlyDown
             };
 
-            return std::any_of(std::begin(prefs), std::end(prefs), [&shortcut, &preference](const auto* other){
-                return preference.path() != other->path() && pref(*other).hasKey() && pref(*other) == shortcut;
+            return std::any_of(std::begin(prefs), std::end(prefs), [&keySequence, &preference](const auto* other){
+                return preference.path() != other->path() && pref(*other).keySequence() == keySequence;
             });
-             */
-            return false;
         }
     }
 }

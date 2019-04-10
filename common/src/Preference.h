@@ -178,12 +178,13 @@ namespace TrenchBroom {
     class PreferenceBase {
     public:
         using Set = std::set<const PreferenceBase*>;
-        PreferenceBase() {}
+        PreferenceBase() = default;
+        virtual ~PreferenceBase() = default;
 
-        PreferenceBase(const PreferenceBase& other) {}
-        virtual ~PreferenceBase() {}
-
-        PreferenceBase& operator=(const PreferenceBase& other) { return *this; }
+        PreferenceBase(const PreferenceBase& other) = default;
+        PreferenceBase(PreferenceBase&& other) noexcept = default;
+        PreferenceBase& operator=(const PreferenceBase& other) = default;
+        PreferenceBase& operator=(PreferenceBase&& other) = default;
 
         virtual void load() const = 0;
         virtual void save() = 0;
@@ -280,30 +281,11 @@ namespace TrenchBroom {
             m_modified = m_initialized;
         }
 
-        Preference(const Preference& other) :
-        PreferenceBase(other),
-        m_path(other.m_path),
-        m_defaultValue(other.m_defaultValue),
-        m_value(other.m_value),
-        m_previousValue(other.m_previousValue),
-        m_initialized(other.m_initialized),
-        m_modified(other.m_modified) {}
+        Preference(const Preference& other) = default;
+        Preference(Preference&& other) noexcept = default;
 
-        Preference& operator=(Preference other) {
-            using std::swap;
-            swap(*this, other);
-            return *this;
-        }
-
-        friend void swap(Preference& lhs, Preference& rhs) {
-            using std::swap;
-            swap(lhs.m_path, rhs.m_path);
-            swap(lhs.m_defaultValue, rhs.m_defaultValue);
-            swap(lhs.m_value, rhs.m_value);
-            swap(lhs.m_previousValue, rhs.m_previousValue);
-            swap(lhs.m_initialized, rhs.m_initialized);
-            swap(lhs.m_modified, rhs.m_modified);
-        }
+        Preference& operator=(const Preference& other) = default;
+        Preference& operator=(Preference&& other) = default;
 
         const IO::Path& path() const override {
             return m_path;

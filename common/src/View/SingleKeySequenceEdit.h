@@ -17,33 +17,25 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_KeyboardShortcut
-#define TrenchBroom_KeyboardShortcut
+#ifndef TRENCHBROOM_SINGLEKEYSEQUENCEEDIT_H
+#define TRENCHBROOM_SINGLEKEYSEQUENCEEDIT_H
 
-#include <QKeySequence>
-
-class QKeyEvent;
+#include <QKeySequenceEdit>
 
 namespace TrenchBroom {
     namespace View {
-        class KeyboardShortcut {
+        class SingleKeySequenceEdit : public QKeySequenceEdit {
+            Q_OBJECT
         private:
-            int m_qtKey;
+            size_t m_count;
         public:
-            explicit KeyboardShortcut(int qtKey = 0);
-            explicit KeyboardShortcut(const QKeySequence& keySequence);
-
-            friend bool operator==(const KeyboardShortcut& lhs, const KeyboardShortcut& rhs);
-
-            QKeySequence keySequence() const;
-
-            bool matchesKeyDown(const QKeyEvent* event) const;
-            bool matchesKeyUp(const QKeyEvent* event) const;
+            explicit SingleKeySequenceEdit(QWidget* parent = nullptr);
+            void keyPressEvent(QKeyEvent* event) override;
+        private slots:
+            void resetCount();
         };
-
-        int wxModifierToQt(int wxMod);
-        int wxKeyToQt(int wxKey);
     }
 }
 
-#endif /* defined(TrenchBroom_KeyboardShortcut) */
+
+#endif //TRENCHBROOM_SINGLEKEYSEQUENCEEDIT_H

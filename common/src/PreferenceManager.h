@@ -115,8 +115,7 @@ namespace TrenchBroom {
         }
     private:
         PreferenceManager();
-        PreferenceManager(const PreferenceManager&);
-        PreferenceManager& operator=(const PreferenceManager&);
+        deleteCopyAndMove(PreferenceManager)
     };
 
     template <typename T>

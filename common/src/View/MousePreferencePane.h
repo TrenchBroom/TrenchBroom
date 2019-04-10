@@ -24,12 +24,12 @@
 #include "View/PreferencePane.h"
 
 class QCheckBox;
+class QKeySequence;
+class QKeySequenceEdit;
 
 namespace TrenchBroom {
     namespace View {
-        class KeyboardShortcut;
-        class KeyboardShortcutEditor;
-        class KeyboardShortcutEvent;
+        class SingleKeySequenceEdit;
         class SliderWithLabel;
 
         class MousePreferencePane : public PreferencePane {
@@ -46,12 +46,12 @@ namespace TrenchBroom {
             QCheckBox* m_invertAltMoveAxisCheckBox;
             QCheckBox* m_moveInCursorDirCheckBox;
 
-            KeyboardShortcutEditor* m_forwardKeyEditor;
-            KeyboardShortcutEditor* m_backwardKeyEditor;
-            KeyboardShortcutEditor* m_leftKeyEditor;
-            KeyboardShortcutEditor* m_rightKeyEditor;
-            KeyboardShortcutEditor* m_upKeyEditor;
-            KeyboardShortcutEditor* m_downKeyEditor;
+            QKeySequenceEdit* m_forwardKeyEditor;
+            QKeySequenceEdit* m_backwardKeyEditor;
+            QKeySequenceEdit* m_leftKeyEditor;
+            QKeySequenceEdit* m_rightKeyEditor;
+            QKeySequenceEdit* m_upKeyEditor;
+            QKeySequenceEdit* m_downKeyEditor;
             SliderWithLabel* m_flyMoveSpeedSlider;
         public:
             explicit MousePreferencePane(QWidget* parent = nullptr);
@@ -80,19 +80,17 @@ namespace TrenchBroom {
             void invertAltMoveAxisChanged(int state);
             void moveInCursorDirChanged(int state);
 
-            /* FIXME: keyboard shorcuts
-            void forwardKeyChanged(KeyboardShortcutEvent& event);
-            void backwardKeyChanged(KeyboardShortcutEvent& event);
-            void leftKeyChanged(KeyboardShortcutEvent& event);
-            void rightKeyChanged(KeyboardShortcutEvent& event);
-            void upKeyChanged(KeyboardShortcutEvent& event);
-            void downKeyChanged(KeyboardShortcutEvent& event);
-             */
+            void forwardKeyChanged();
+            void backwardKeyChanged();
+            void leftKeyChanged();
+            void rightKeyChanged();
+            void upKeyChanged();
+            void downKeyChanged();
 
             void flyMoveSpeedChanged(int value);
         private:
-            bool setShortcut(const KeyboardShortcut& shortcut, Preference<KeyboardShortcut>& preference);
-            bool hasConflict(const KeyboardShortcut& shortcut, const Preference<KeyboardShortcut>& preference) const;
+            void setKeySequence(QKeySequenceEdit* editor, Preference<KeyboardShortcut>& preference);
+            bool hasConflict(const QKeySequence& keySequence, const Preference<KeyboardShortcut>& preference) const;
         };
     }
 }

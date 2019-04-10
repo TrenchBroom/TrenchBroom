@@ -157,11 +157,11 @@ namespace TrenchBroom {
 
         Preference<bool> Link2DCameras(IO::Path("Controls/Camera/Link 2D cameras"), true);
 
-        Preference<View::KeyboardShortcut> CameraFlyForward(IO::Path("Controls/Camera/Move forward"), 'W');
-        Preference<View::KeyboardShortcut> CameraFlyBackward(IO::Path("Controls/Camera/Move backward"), 'S');
-        Preference<View::KeyboardShortcut> CameraFlyLeft(IO::Path("Controls/Camera/Move left"), 'A');
-        Preference<View::KeyboardShortcut> CameraFlyRight(IO::Path("Controls/Camera/Move right"), 'D');
-        Preference<View::KeyboardShortcut> CameraFlyUp(IO::Path("Controls/Camera/Move up"), 'Q');
-        Preference<View::KeyboardShortcut> CameraFlyDown(IO::Path("Controls/Camera/Move down"), 'X');
+        Preference<View::KeyboardShortcut> CameraFlyForward(IO::Path("Controls/Camera/Move forward"), View::KeyboardShortcut('W'));
+        Preference<View::KeyboardShortcut> CameraFlyBackward(IO::Path("Controls/Camera/Move backward"), View::KeyboardShortcut('S'));
+        Preference<View::KeyboardShortcut> CameraFlyLeft(IO::Path("Controls/Camera/Move left"), View::KeyboardShortcut('A'));
+        Preference<View::KeyboardShortcut> CameraFlyRight(IO::Path("Controls/Camera/Move right"), View::KeyboardShortcut('D'));
+        Preference<View::KeyboardShortcut> CameraFlyUp(IO::Path("Controls/Camera/Move up"), View::KeyboardShortcut('Q'));
+        Preference<View::KeyboardShortcut> CameraFlyDown(IO::Path("Controls/Camera/Move down"), View::KeyboardShortcut('X'));
     }
 }
