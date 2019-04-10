@@ -44,7 +44,9 @@ namespace TrenchBroom {
             static const Hit::HitType EntityHit;
             static const vm::bbox3 DefaultBounds;
         private:
-            mutable vm::bbox3 m_bounds;
+            mutable vm::bbox3 m_definitionBounds;
+            mutable vm::bbox3 m_modelBounds;
+            mutable vm::bbox3 m_totalBounds;
             mutable bool m_boundsValid;
             mutable vm::vec3 m_cachedOrigin;
             mutable vm::mat4x4 m_cachedRotation;
@@ -60,7 +62,8 @@ namespace TrenchBroom {
             bool hasPointEntityDefinition() const;
             bool hasPointEntityModel() const;
 
-            vm::bbox3 totalBounds() const;
+            vm::bbox3 definitionBounds() const;
+
             const vm::vec3& origin() const;
             const vm::mat4x4& rotation() const;
             const vm::mat4x4 modelTransformation() const;
