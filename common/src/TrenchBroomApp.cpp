@@ -88,17 +88,6 @@ namespace TrenchBroom {
             std::setlocale(LC_NUMERIC, "C");
         }
 
-        TrenchBroomApp::~TrenchBroomApp() {
-            wxImage::CleanUpHandlers();
-
-            delete m_frameManager;
-            m_frameManager = nullptr;
-
-            m_recentDocuments->didChangeNotifier.removeObserver(recentDocumentsDidChangeNotifier);
-            delete m_recentDocuments;
-            m_recentDocuments = nullptr;
-        }
-
         void TrenchBroomApp::detectAndSetupUbuntu() {
             // detect Ubuntu Linux and set the UBUNTU_MENUPROXY environment variable if necessary
 #ifdef __WXGTK20__
@@ -329,6 +318,19 @@ namespace TrenchBroom {
             }
 
             return wxApp::OnInit();
+        }
+
+        int TrenchBroomApp::OnExit() {
+            wxImage::CleanUpHandlers();
+
+            delete m_frameManager;
+            m_frameManager = nullptr;
+
+            m_recentDocuments->didChangeNotifier.removeObserver(recentDocumentsDidChangeNotifier);
+            delete m_recentDocuments;
+            m_recentDocuments = nullptr;
+
+            return wxApp::OnExit();
         }
 
         static String makeCrashReport(const String &stacktrace, const String &reason) {

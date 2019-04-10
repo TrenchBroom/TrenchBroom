@@ -48,7 +48,6 @@ namespace TrenchBroom {
             static TrenchBroomApp& instance();
 
             TrenchBroomApp();
-            ~TrenchBroomApp() override;
 
             void detectAndSetupUbuntu();
         protected:
@@ -68,6 +67,7 @@ namespace TrenchBroom {
             void openAbout();
 
             bool OnInit() override;
+            int OnExit() override;
 
             bool OnExceptionInMainLoop() override;
             void OnUnhandledException() override;

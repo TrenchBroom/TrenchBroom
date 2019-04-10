@@ -37,7 +37,6 @@ int main(int argc, char **argv) {
     wxRemove(configFilePath.GetPath());
     wxConfig::Set(new wxFileConfig(wxEmptyString, wxEmptyString, configFileName));
 
-    pApp->OnInit();
     TrenchBroom::View::setCrashReportGUIEnbled(false);
     ensure(wxEntryStart(argc, argv), "wxWidgets initialization failed");
 
