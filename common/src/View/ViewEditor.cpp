@@ -30,21 +30,25 @@
 #include "View/MapDocument.h"
 #include "View/MapViewConfig.h"
 #include "View/PopupButton.h"
-#include "View/RadioGroup.h"
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
-#include <wx/button.h>
-#include <wx/checkbox.h>
-#include <wx/gbsizer.h>
-#include <wx/scrolwin.h>
-#include <wx/settings.h>
-#include <wx/sizer.h>
+#include <QAbstractButton>
+#include <QCheckBox>
+#include <QGridLayout>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
 #include <QLabel>
+#include <QScrollArea>
+#include <QButtonGroup>
+#include <QRadioButton>
+#include <QPushButton>
 
 namespace TrenchBroom {
     namespace View {
+        // EntityDefinitionCheckBoxList
+
         EntityDefinitionCheckBoxList::EntityDefinitionCheckBoxList(QWidget* parent, Assets::EntityDefinitionManager& entityDefinitionManager, Model::EditorContext& editorContext) :
         QWidget(parent),
         m_entityDefinitionManager(entityDefinitionManager),
@@ -66,27 +70,22 @@ namespace TrenchBroom {
                     for (size_t j = 0; j < definitions.size(); ++j) {
                         const bool hidden = m_editorContext.entityDefinitionHidden(definitions[j]);
                         mixed |= (hidden != firstHidden);
-                        m_defCheckBoxes[defIndex++]->SetValue(!hidden);
+                        m_defCheckBoxes[defIndex++]->setChecked(!hidden);
                     }
 
                     if (mixed)
-                        m_groupCheckBoxes[i]->Set3StateValue(wxCHK_UNDETERMINED);
+                        m_groupCheckBoxes[i]->setCheckState(Qt::PartiallyChecked);
                     else
-                        m_groupCheckBoxes[i]->SetValue(!firstHidden);
-                    m_groupCheckBoxes[i]->Enable();
+                        m_groupCheckBoxes[i]->setChecked(!firstHidden);
+                    m_groupCheckBoxes[i]->setEnabled(true);
                 } else {
-                    m_groupCheckBoxes[i]->SetValue(true);
-                    m_groupCheckBoxes[i]->Disable();
+                    m_groupCheckBoxes[i]->setChecked(true);
+                    m_groupCheckBoxes[i]->setEnabled(false);
                 }
             }
         }
 
-        void EntityDefinitionCheckBoxList::OnGroupCheckBoxChanged() {
-
-
-            const wxVariant* variant = static_cast<wxVariant*>(event.GetEventUserData());
-            const size_t groupIndex = static_cast<size_t>(variant->GetLong());
-
+        void EntityDefinitionCheckBoxList::OnGroupCheckBoxChanged(const size_t groupIndex, const bool checked) {
             const Assets::EntityDefinitionGroup::List& groups = m_entityDefinitionManager.groups();
             ensure(groupIndex < m_entityDefinitionManager.groups().size(), "index out of range");
             const Assets::EntityDefinitionGroup& group = groups[groupIndex];
@@ -94,30 +93,22 @@ namespace TrenchBroom {
             const Assets::EntityDefinitionList& definitions = group.definitions();
             for (size_t i = 0; i < definitions.size(); ++i) {
                 const Assets::EntityDefinition* definition = definitions[i];
-                m_editorContext.setEntityDefinitionHidden(definition, !event.IsChecked());
+                m_editorContext.setEntityDefinitionHidden(definition, !checked);
             }
 
             refresh();
         }
 
-        void EntityDefinitionCheckBoxList::OnDefCheckBoxChanged() {
-
-
-            const wxVariant* variant = static_cast<wxVariant*>(event.GetEventUserData());
-            const Assets::EntityDefinition* definition = reinterpret_cast<const Assets::EntityDefinition*>(variant->GetVoidPtr());
-            m_editorContext.setEntityDefinitionHidden(definition, !event.IsChecked());
+        void EntityDefinitionCheckBoxList::OnDefCheckBoxChanged(const Assets::EntityDefinition* definition, const bool checked) {
+            m_editorContext.setEntityDefinitionHidden(definition, !checked);
             refresh();
         }
 
         void EntityDefinitionCheckBoxList::OnShowAllClicked() {
-
-
             hideAll(false);
         }
 
         void EntityDefinitionCheckBoxList::OnHideAllClicked() {
-
-
             hideAll(true);
         }
 
@@ -134,11 +125,7 @@ namespace TrenchBroom {
         }
 
         void EntityDefinitionCheckBoxList::createGui() {
-            BorderPanel* border = new BorderPanel(this);
-            border->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
-
-            wxScrolledWindow* scrollWindow = new wxScrolledWindow(border);
-            int checkBoxHeight = 1;
+            QScrollArea* scrollWindow = new QScrollArea();
 
             auto* scrollWindowSizer = new QVBoxLayout();
             scrollWindowSizer->addSpacing(1);
@@ -148,42 +135,49 @@ namespace TrenchBroom {
                 const Assets::EntityDefinitionList& definitions = group.definitions();
                 const String& groupName = group.displayName();
 
-                wxCheckBox* groupCB = new wxCheckBox(scrollWindow, wxID_ANY, groupName, wxDefaultPosition, wxDefaultSize, wxCHK_3STATE);
-                groupCB->SetFont(groupCB->GetFont().Bold());
-                groupCB->Bind(wxEVT_CHECKBOX, &EntityDefinitionCheckBoxList::OnGroupCheckBoxChanged, this, wxID_ANY, wxID_ANY, new wxVariant(static_cast<long>(i)));
+                // Checkbox for the prefix, e.g. "func"
+                auto* groupCB = new QCheckBox(QString::fromStdString(groupName));
+                makeEmphasized(groupCB);
+                connect(groupCB, &QAbstractButton::clicked, this, [this, i](bool checked){
+                    this->OnGroupCheckBoxChanged(i, checked);
+                });
                 m_groupCheckBoxes.push_back(groupCB);
 
-                scrollWindowSizer->addWidget(groupCB, 0, wxLEFT, 1);
-                checkBoxHeight = groupCB->GetSize().y;
+                scrollWindowSizer->addWidget(groupCB);
 
                 Assets::EntityDefinitionList::const_iterator defIt, defEnd;
                 for (defIt = std::begin(definitions), defEnd = std::end(definitions); defIt != defEnd; ++defIt) {
                     Assets::EntityDefinition* definition = *defIt;
                     const String defName = definition->name();
 
-                    wxCheckBox* defCB = new wxCheckBox(scrollWindow, wxID_ANY, defName);
-                    defCB->Bind(wxEVT_CHECKBOX, &EntityDefinitionCheckBoxList::OnDefCheckBoxChanged, this, wxID_ANY, wxID_ANY, new wxVariant(reinterpret_cast<void*>(definition)));
+                    auto* defCB = new QCheckBox(QString::fromStdString(defName));
+                    defCB->setStyleSheet("margin-left: 11px");
+
+                    connect(defCB, &QAbstractButton::clicked, this, [this, definition](bool checked){
+                        this->OnDefCheckBoxChanged(definition, checked);
+                    });
 
                     m_defCheckBoxes.push_back(defCB);
-                    scrollWindowSizer->addWidget(defCB, wxSizerFlags().Border(wxLEFT, 11));
+                    scrollWindowSizer->addWidget(defCB);
                 }
             }
 
             scrollWindowSizer->addSpacing(1);
-            scrollWindow->setLayout(scrollWindowSizer);
-            scrollWindow->SetScrollRate(1, checkBoxHeight);
 
-            auto* borderSizer = new QVBoxLayout();
-            borderSizer->addWidget(scrollWindow, wxSizerFlags().Border(wxALL, 1).Expand().Proportion(1));
-            border->setLayout(borderSizer);
+            QWidget* scrollCanvas = new QWidget();
+            scrollCanvas->setLayout(scrollWindowSizer);
+            scrollWindow->setWidget(scrollCanvas);
 
-            wxButton* showAllButton = new wxButton(this, wxID_ANY, "Show all", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
-            showAllButton->SetFont(showAllButton->GetFont().Bold());
-            wxButton* hideAllButton = new wxButton(this, wxID_ANY, "Hide all", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
-            hideAllButton->SetFont(hideAllButton->GetFont().Bold());
+            // FIXME:
+            //scrollWindow->SetScrollRate(1, checkBoxHeight);
 
-            showAllButton->Bind(&QAbstractButton::clicked, &EntityDefinitionCheckBoxList::OnShowAllClicked, this);
-            hideAllButton->Bind(&QAbstractButton::clicked, &EntityDefinitionCheckBoxList::OnHideAllClicked, this);
+            auto* showAllButton = new QPushButton(tr("Show all"));
+            makeEmphasized(showAllButton);
+            auto* hideAllButton = new QPushButton(tr("Hide all"));
+            makeEmphasized(hideAllButton);
+
+            connect(showAllButton, &QAbstractButton::clicked, this, &EntityDefinitionCheckBoxList::OnShowAllClicked);
+            connect(hideAllButton, &QAbstractButton::clicked, this, &EntityDefinitionCheckBoxList::OnHideAllClicked);
 
             auto* buttonSizer = new QHBoxLayout();
             buttonSizer->addStretch(1);
@@ -195,11 +189,12 @@ namespace TrenchBroom {
             buttonSizer->addStretch(1);
 
             auto* outerSizer = new QVBoxLayout();
-            outerSizer->addWidget(border, wxSizerFlags().Expand().Proportion(1));
-            outerSizer->addWidget(buttonSizer, wxSizerFlags().Border(wxTOP | wxBOTTOM, 1).Expand());
-
+            outerSizer->addWidget(scrollWindow, 1);
+            outerSizer->addLayout(buttonSizer);
             setLayout(outerSizer);
         }
+
+        // ViewEditor
 
         ViewEditor::ViewEditor(QWidget* parent, MapDocumentWPtr document) :
         QWidget(parent),
@@ -211,65 +206,49 @@ namespace TrenchBroom {
             unbindObservers();
         }
 
-        void ViewEditor::OnShowEntityClassnamesChanged() {
-
-
+        void ViewEditor::OnShowEntityClassnamesChanged(const bool checked) {
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
-            config.setShowEntityClassnames(event.IsChecked());
+            config.setShowEntityClassnames(checked);
         }
 
-        void ViewEditor::OnShowGroupBoundsChanged() {
-
-
+        void ViewEditor::OnShowGroupBoundsChanged(const bool checked) {
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
-            config.setShowGroupBounds(event.IsChecked());
+            config.setShowGroupBounds(checked);
         }
 
-        void ViewEditor::OnShowBrushEntityBoundsChanged() {
-
-
+        void ViewEditor::OnShowBrushEntityBoundsChanged(const bool checked) {
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
-            config.setShowBrushEntityBounds(event.IsChecked());
+            config.setShowBrushEntityBounds(checked);
         }
 
-        void ViewEditor::OnShowPointEntityBoundsChanged() {
-
-
+        void ViewEditor::OnShowPointEntityBoundsChanged(const bool checked) {
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
-            config.setShowPointEntityBounds(event.IsChecked());
+            config.setShowPointEntityBounds(checked);
         }
 
-        void ViewEditor::OnShowPointEntitiesChanged() {
-
-
+        void ViewEditor::OnShowPointEntitiesChanged(const bool checked) {
             MapDocumentSPtr document = lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
-            editorContext.setShowPointEntities(event.IsChecked());
+            editorContext.setShowPointEntities(checked);
         }
 
-        void ViewEditor::OnShowPointEntityModelsChanged() {
-
-
+        void ViewEditor::OnShowPointEntityModelsChanged(const bool checked) {
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
-            config.setShowPointEntityModels(event.IsChecked());
+            config.setShowPointEntityModels(checked);
         }
 
-        void ViewEditor::OnShowBrushesChanged() {
-
-
+        void ViewEditor::OnShowBrushesChanged(const bool checked) {
             MapDocumentSPtr document = lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
-            editorContext.setShowBrushes(event.IsChecked());
+            editorContext.setShowBrushes(checked);
         }
 
-        void ViewEditor::OnShowTagChanged() {
-
-
+        void ViewEditor::OnShowTagChanged(const bool checked) {
             MapDocumentSPtr document = lock(m_document);
 
             Model::Tag::TagType hiddenTags = 0;
@@ -279,8 +258,8 @@ namespace TrenchBroom {
             auto boxIt = std::begin(m_tagCheckBoxes);
             while (tagIt != std::end(tags) && boxIt != std::end(m_tagCheckBoxes)) {
                 const auto& tag = *tagIt;
-                auto* checkBox = *boxIt;
-                if (!checkBox->GetValue()) {
+                QCheckBox* checkBox = *boxIt;
+                if (!checkBox->isChecked()) {
                     hiddenTags |= tag.type();
                 }
                 ++tagIt; ++boxIt;
@@ -290,13 +269,11 @@ namespace TrenchBroom {
             editorContext.setHiddenTags(hiddenTags);
         }
 
-        void ViewEditor::OnFaceRenderModeChanged() {
-
-
+        void ViewEditor::OnFaceRenderModeChanged(const int id) {
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
 
-            switch (event.GetSelection()) {
+            switch (id) {
                 case 1:
                     config.setFaceRenderMode(MapViewConfig::FaceRenderMode_Flat);
                     break;
@@ -309,37 +286,29 @@ namespace TrenchBroom {
             }
         }
 
-        void ViewEditor::OnShadeFacesChanged() {
-
-
+        void ViewEditor::OnShadeFacesChanged(const bool checked) {
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
-            config.setShadeFaces(event.IsChecked());
+            config.setShadeFaces(checked);
         }
 
-        void ViewEditor::OnShowFogChanged() {
-
-
+        void ViewEditor::OnShowFogChanged(const bool checked) {
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
-            config.setShowFog(event.IsChecked());
+            config.setShowFog(checked);
         }
 
-        void ViewEditor::OnShowEdgesChanged() {
-
-
+        void ViewEditor::OnShowEdgesChanged(const bool checked) {
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
-            config.setShowEdges(event.IsChecked());
+            config.setShowEdges(checked);
         }
 
-        void ViewEditor::OnEntityLinkModeChanged() {
-
-
+        void ViewEditor::OnEntityLinkModeChanged(const int id) {
             MapDocumentSPtr document = lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
 
-            switch (event.GetSelection()) {
+            switch (id) {
                 case 0:
                     editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_All);
                     break;
@@ -395,24 +364,14 @@ namespace TrenchBroom {
 
         void ViewEditor::createGui() {
             setLayout(nullptr);
-            DestroyChildren();
 
-            wxGridBagSizer* sizer = new wxGridBagSizer(LayoutConstants::WideVMargin, LayoutConstants::WideHMargin);
-            sizer->addWidget(createEntityDefinitionsPanel(this), wxGBPosition(0,0), wxGBSpan(3,1), wxEXPAND);
-            sizer->addWidget(createEntitiesPanel(this),          wxGBPosition(0,1), wxDefaultSpan);
-            sizer->addWidget(createBrushesPanel(this),           wxGBPosition(1,1), wxDefaultSpan);
-            sizer->addWidget(createRendererPanel(this),          wxGBPosition(2,1), wxDefaultSpan);
+            auto* sizer = new QGridLayout();
+            sizer->addWidget(createEntityDefinitionsPanel(this), 0,0,3,1);
+            sizer->addWidget(createEntitiesPanel(this),          0,1);
+            sizer->addWidget(createBrushesPanel(this),           1,1);
+            sizer->addWidget(createRendererPanel(this),          2,1);
 
-            SetSizerAndFit(sizer);
-            Layout();
-            GetParent()->GetParent()->Fit();
-
-#ifdef __WXGTK20__
-            // For some reason, the popup window is too small on GTK, so we add a few pixels.
-            wxSize size = GetParent()->GetParent()->GetSize();
-            size.IncBy(0, 25);
-            GetParent()->GetParent()->SetSize(size);
-#endif
+            setLayout(sizer);
         }
 
         QWidget* ViewEditor::createEntityDefinitionsPanel(QWidget* parent) {
@@ -425,8 +384,8 @@ namespace TrenchBroom {
             m_entityDefinitionCheckBoxList = new EntityDefinitionCheckBoxList(panel->getPanel(), entityDefinitionManager, editorContext);
 
             auto* panelSizer = new QVBoxLayout();
-            panelSizer->addWidget(m_entityDefinitionCheckBoxList, wxSizerFlags().Expand().Proportion(1));
-            panelSizer->SetItemMinSize(m_entityDefinitionCheckBoxList, 250, wxDefaultCoord);
+            panelSizer->addWidget(m_entityDefinitionCheckBoxList, 1);
+            m_entityDefinitionCheckBoxList->setMinimumSize(250, -1);
             panel->getPanel()->setLayout(panelSizer);
 
             return panel;
@@ -435,20 +394,20 @@ namespace TrenchBroom {
         QWidget* ViewEditor::createEntitiesPanel(QWidget* parent) {
             TitledPanel* panel = new TitledPanel(parent, "Entities", false);
 
-            m_showEntityClassnamesCheckBox = new wxCheckBox(panel->getPanel(), wxID_ANY, "Show entity classnames");
-            m_showGroupBoundsCheckBox = new wxCheckBox(panel->getPanel(), wxID_ANY, "Show group bounds");
-            m_showBrushEntityBoundsCheckBox = new wxCheckBox(panel->getPanel(), wxID_ANY, "Show brush entity bounds");
-            m_showPointEntityBoundsCheckBox = new wxCheckBox(panel->getPanel(), wxID_ANY, "Show point entity bounds");
+            m_showEntityClassnamesCheckBox = new QCheckBox(tr("Show entity classnames"));
+            m_showGroupBoundsCheckBox = new QCheckBox(tr("Show group bounds"));
+            m_showBrushEntityBoundsCheckBox = new QCheckBox(tr("Show brush entity bounds"));
+            m_showPointEntityBoundsCheckBox = new QCheckBox(tr("Show point entity bounds"));
 
-            m_showPointEntitiesCheckBox = new wxCheckBox(panel->getPanel(), wxID_ANY, "Show point entities");
-            m_showPointEntityModelsCheckBox = new wxCheckBox(panel->getPanel(), wxID_ANY, "Show point entity models");
+            m_showPointEntitiesCheckBox = new QCheckBox(tr("Show point entities"));
+            m_showPointEntityModelsCheckBox = new QCheckBox(tr("Show point entity models"));
 
-            m_showEntityClassnamesCheckBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShowEntityClassnamesChanged, this);
-            m_showGroupBoundsCheckBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShowGroupBoundsChanged, this);
-            m_showBrushEntityBoundsCheckBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShowBrushEntityBoundsChanged, this);
-            m_showPointEntityBoundsCheckBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShowPointEntityBoundsChanged, this);
-            m_showPointEntitiesCheckBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShowPointEntitiesChanged, this);
-            m_showPointEntityModelsCheckBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShowPointEntityModelsChanged, this);
+            connect(m_showEntityClassnamesCheckBox, &QAbstractButton::clicked, this, &ViewEditor::OnShowEntityClassnamesChanged);
+            connect(m_showGroupBoundsCheckBox, &QAbstractButton::clicked, this, &ViewEditor::OnShowGroupBoundsChanged);
+            connect(m_showBrushEntityBoundsCheckBox, &QAbstractButton::clicked, this, &ViewEditor::OnShowBrushEntityBoundsChanged);
+            connect(m_showPointEntityBoundsCheckBox, &QAbstractButton::clicked, this, &ViewEditor::OnShowPointEntityBoundsChanged);
+            connect(m_showPointEntitiesCheckBox, &QAbstractButton::clicked, this, &ViewEditor::OnShowPointEntitiesChanged);
+            connect(m_showPointEntityModelsCheckBox, &QAbstractButton::clicked, this, &ViewEditor::OnShowPointEntityModelsChanged);
 
             auto* sizer = new QVBoxLayout();
             sizer->addWidget(m_showEntityClassnamesCheckBox);
@@ -464,19 +423,20 @@ namespace TrenchBroom {
 
         QWidget* ViewEditor::createBrushesPanel(QWidget* parent) {
             TitledPanel* panel = new TitledPanel(parent, "Brushes", false);
-            wxWindow* inner = panel->getPanel();
+            auto* inner = panel->getPanel();
             createTagFilter(inner);
 
-            m_showBrushesCheckBox = new wxCheckBox(inner, wxID_ANY, "Show brushes");
-            m_showBrushesCheckBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShowBrushesChanged, this);
+            m_showBrushesCheckBox = new QCheckBox(tr("Show brushes"));
+            connect(m_showBrushesCheckBox, &QAbstractButton::clicked, this, &ViewEditor::OnShowBrushesChanged);
 
-            ensure(inner->GetSizer() != nullptr, "inner sizer is null");
-            inner->GetSizer()->Prepend(m_showBrushesCheckBox);
+            auto* innerLayout = qobject_cast<QBoxLayout*>(inner->layout());
+            ensure(innerLayout != nullptr, "inner sizer is null");
+            innerLayout->insertWidget(0, m_showBrushesCheckBox);
 
             return panel;
         }
 
-        void ViewEditor::createTagFilter(wxWindow* parent) {
+        void ViewEditor::createTagFilter(QWidget* parent) {
             m_tagCheckBoxes.clear();
 
             MapDocumentSPtr document = lock(m_document);
@@ -488,31 +448,30 @@ namespace TrenchBroom {
             }
         }
 
-        void ViewEditor::createEmptyTagFilter(wxWindow* parent) {
-            wxStaticText* msg = new wxStaticText(parent, wxID_ANY, "No tags found");
-            msg->SetForegroundColour(*wxLIGHT_GREY);
+        void ViewEditor::createEmptyTagFilter(QWidget* parent) {
+            auto* msg = new QLabel(tr("No tags found"));
+            makeInfo(msg); // msg->SetForegroundColour(*wxLIGHT_GREY);
 
             auto* sizer = new QHBoxLayout();
             sizer->addSpacing(LayoutConstants::WideHMargin);
-            sizer->addWidget(msg, wxSizerFlags().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
+            sizer->addWidget(msg);
             sizer->addSpacing(LayoutConstants::WideHMargin);
 
             parent->setLayout(sizer);
         }
 
-        void ViewEditor::createTagFilter(wxWindow* parent, const std::list<Model::SmartTag>& tags) {
+        void ViewEditor::createTagFilter(QWidget* parent, const std::list<Model::SmartTag>& tags) {
             assert(!tags.empty());
 
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+            auto* sizer = new QVBoxLayout();
             for (const auto& tag : tags) {
-                wxString label = "Show ";
-                label << StringUtils::toLower(tag.name());
+                const QString label = QString::fromLatin1("Show %1").arg(QString::fromStdString(tag.name()).toLower());
 
-                wxCheckBox* checkBox = new wxCheckBox(parent, wxID_ANY, label);
+                auto* checkBox = new QCheckBox(label);
                 m_tagCheckBoxes.push_back(checkBox);
 
-                Sizer->addWidget(checkBox);
-                checkBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShowTagChanged, this);
+                sizer->addWidget(checkBox);
+                connect(checkBox, &QAbstractButton::clicked, this, &ViewEditor::OnShowTagChanged);
             }
             parent->setLayout(sizer);
         }
@@ -521,28 +480,45 @@ namespace TrenchBroom {
             TitledPanel* panel = new TitledPanel(parent, "Renderer", false);
             QWidget* inner = panel->getPanel();
 
-            static const QString FaceRenderModes[] = { "Show textures", "Hide textures", "Hide faces" };
-            m_renderModeRadioGroup = new RadioGroup(inner, wxID_ANY, wxDefaultPosition, wxDefaultSize, 3, FaceRenderModes);
+            const QList<QString> FaceRenderModes = { "Show textures", "Hide textures", "Hide faces" };
+            m_renderModeRadioGroup = new QButtonGroup(this);
+            for (int i = 0; i < FaceRenderModes.length(); ++i) {
+                const QString& label = FaceRenderModes.at(i);
 
-            m_shadeFacesCheckBox = new wxCheckBox(inner, wxID_ANY, "Shade faces");
-            m_showFogCheckBox = new wxCheckBox(inner, wxID_ANY, "Use fog");
-            m_showEdgesCheckBox = new wxCheckBox(inner, wxID_ANY, "Show edges");
+                auto* radio = new QRadioButton(label);
+                m_renderModeRadioGroup->addButton(radio, i);
+            }
 
-            static const QString EntityLinkModes[] = { "Show all entity links", "Show transitively selected entity links", "Show directly selected entity links", "Hide entity links" };
-            m_entityLinkRadioGroup = new RadioGroup(inner, wxID_ANY, wxDefaultPosition, wxDefaultSize, 4, EntityLinkModes);
+            m_shadeFacesCheckBox = new QCheckBox(tr("Shade faces"));
+            m_showFogCheckBox = new QCheckBox(tr("Use fog"));
+            m_showEdgesCheckBox = new QCheckBox(tr("Show edges"));
 
-            m_renderModeRadioGroup->Bind(wxEVT_RADIOGROUP, &ViewEditor::OnFaceRenderModeChanged, this);
-            m_shadeFacesCheckBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShadeFacesChanged, this);
-            m_showFogCheckBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShowFogChanged, this);
-            m_showEdgesCheckBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShowEdgesChanged, this);
-            m_entityLinkRadioGroup->Bind(wxEVT_RADIOGROUP, &ViewEditor::OnEntityLinkModeChanged, this);
+            const QList<QString> EntityLinkModes = { "Show all entity links", "Show transitively selected entity links", "Show directly selected entity links", "Hide entity links" };
+            m_entityLinkRadioGroup = new QButtonGroup(this);
+            for (int i = 0; i < EntityLinkModes.length(); ++i) {
+                const QString& label = EntityLinkModes.at(i);
+
+                auto* radio = new QRadioButton(label);
+                m_entityLinkRadioGroup->addButton(radio, i);
+            }
+
+            connect(m_shadeFacesCheckBox, &QAbstractButton::clicked, this, &ViewEditor::OnShadeFacesChanged);
+            connect(m_showFogCheckBox, &QAbstractButton::clicked, this, &ViewEditor::OnShowFogChanged);
+            connect(m_showEdgesCheckBox, &QAbstractButton::clicked, this, &ViewEditor::OnShowEdgesChanged);
+
+            connect(m_renderModeRadioGroup, static_cast<void(QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this, &ViewEditor::OnFaceRenderModeChanged);
+            connect(m_entityLinkRadioGroup, static_cast<void(QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this, &ViewEditor::OnEntityLinkModeChanged);
 
             auto* sizer = new QVBoxLayout();
-            sizer->addWidget(m_renderModeRadioGroup);
+            for (auto* button : m_renderModeRadioGroup->buttons()) {
+                sizer->addWidget(button);
+            }
             sizer->addWidget(m_shadeFacesCheckBox);
             sizer->addWidget(m_showFogCheckBox);
             sizer->addWidget(m_showEdgesCheckBox);
-            sizer->addWidget(m_entityLinkRadioGroup);
+            for (auto* button : m_entityLinkRadioGroup->buttons()) {
+                sizer->addWidget(button);
+            }
 
             inner->setLayout(sizer);
             return panel;
@@ -563,19 +539,19 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             const MapViewConfig& config = document->mapViewConfig();
 
-            m_showEntityClassnamesCheckBox->SetValue(config.showEntityClassnames());
-            m_showGroupBoundsCheckBox->SetValue(config.showGroupBounds());
-            m_showBrushEntityBoundsCheckBox->SetValue(config.showBrushEntityBounds());
-            m_showPointEntityBoundsCheckBox->SetValue(config.showPointEntityBounds());
-            m_showPointEntitiesCheckBox->SetValue(config.showPointEntities());
-            m_showPointEntityModelsCheckBox->SetValue(config.showPointEntityModels());
+            m_showEntityClassnamesCheckBox->setChecked(config.showEntityClassnames());
+            m_showGroupBoundsCheckBox->setChecked(config.showGroupBounds());
+            m_showBrushEntityBoundsCheckBox->setChecked(config.showBrushEntityBounds());
+            m_showPointEntityBoundsCheckBox->setChecked(config.showPointEntityBounds());
+            m_showPointEntitiesCheckBox->setChecked(config.showPointEntities());
+            m_showPointEntityModelsCheckBox->setChecked(config.showPointEntityModels());
         }
 
         void ViewEditor::refreshBrushesPanel() {
             MapDocumentSPtr document = lock(m_document);
 
             const MapViewConfig& config = document->mapViewConfig();
-            m_showBrushesCheckBox->SetValue(config.showBrushes());
+            m_showBrushesCheckBox->setChecked(config.showBrushes());
 
             Model::EditorContext& editorContext = document->editorContext();
             const Model::Tag::TagType hiddenTags = editorContext.hiddenTags();
@@ -585,8 +561,8 @@ namespace TrenchBroom {
             auto boxIt = std::begin(m_tagCheckBoxes);
             while (tagIt != std::end(tags) && boxIt != std::end(m_tagCheckBoxes)) {
                 const Model::Tag& tag = *tagIt;;
-                wxCheckBox* checkBox = *boxIt;
-                checkBox->SetValue((tag.type() & hiddenTags) == 0);
+                QCheckBox* checkBox = *boxIt;
+                checkBox->setChecked((tag.type() & hiddenTags) == 0);
                 ++tagIt; ++boxIt;
             }
         }
@@ -596,33 +572,33 @@ namespace TrenchBroom {
             const MapViewConfig& config = document->mapViewConfig();
             Model::EditorContext& editorContext = document->editorContext();
 
-            m_renderModeRadioGroup->SetSelection(config.faceRenderMode());
-            m_shadeFacesCheckBox->SetValue(config.shadeFaces());
-            m_showFogCheckBox->SetValue(config.showFog());
-            m_showEdgesCheckBox->SetValue(config.showEdges());
-            m_entityLinkRadioGroup->SetSelection(editorContext.entityLinkMode());
+            checkButtonInGroup(m_renderModeRadioGroup, static_cast<int>(config.faceRenderMode()), true);
+            m_shadeFacesCheckBox->setChecked(config.shadeFaces());
+            m_showFogCheckBox->setChecked(config.showFog());
+            m_showEdgesCheckBox->setChecked(config.showEdges());
+            checkButtonInGroup(m_entityLinkRadioGroup, static_cast<int>(editorContext.entityLinkMode()), true);
         }
 
         ViewPopupEditor::ViewPopupEditor(QWidget* parent, MapDocumentWPtr document) :
         QWidget(parent),
         m_button(nullptr),
         m_editor(nullptr) {
-            m_button = new PopupButton(this, "View");
-            m_button->setToolTip("Click to edit view settings");
+            m_button = new PopupButton(nullptr, tr("View"));
+            m_button->setToolTip(tr("Click to edit view settings"));
 
-            BorderPanel* editorContainer = new BorderPanel(m_button->GetPopupWindow(), wxALL);
+            auto* editorContainer = new BorderPanel(m_button->GetPopupWindow());
             m_editor = new ViewEditor(editorContainer, document);
 
             auto* containerSizer = new QVBoxLayout();
-            containerSizer->addWidget(m_editor, wxSizerFlags().Border(wxALL, LayoutConstants::DialogOuterMargin));
+            containerSizer->addWidget(m_editor);
             editorContainer->setLayout(containerSizer);
 
             auto* popupSizer = new QVBoxLayout();
-            popupSizer->addWidget(editorContainer, wxSizerFlags());
+            popupSizer->addWidget(editorContainer);
             m_button->GetPopupWindow()->setLayout(popupSizer);
 
             auto* sizer = new QHBoxLayout();
-            sizer->addWidget(m_button, wxSizerFlags().CenterVertical());
+            sizer->addWidget(m_button, Qt::AlignVCenter);
             setLayout(sizer);
         }
     }

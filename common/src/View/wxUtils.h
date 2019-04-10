@@ -43,6 +43,7 @@ class QPalette;
 class QSettings;
 class QSlider;
 class QWidget;
+class QButtonGroup;
 
 namespace TrenchBroom {
     namespace View {
@@ -120,6 +121,8 @@ namespace TrenchBroom {
         void setBaseWindowColor(QWidget* widget);
 
         QLineEdit* createSearchBox();
+
+        void checkButtonInGroup(QButtonGroup* group, int id, bool checked);
     }
 }
 
