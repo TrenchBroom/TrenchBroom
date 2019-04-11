@@ -811,9 +811,9 @@ namespace TrenchBroom {
             for (auto [action, menuInfo] : m_actionInfoList) {
                 qDebug("found path %s, binding: %s",
                        menuInfo->preferencePath.asString().c_str(),
-                       menuInfo->defaultKey.toString(QKeySequence::NativeText).toStdString().c_str());
+                       menuInfo->key().toString(QKeySequence::NativeText).toStdString().c_str());
 
-                action->setShortcut(menuInfo->defaultKey);
+                action->setShortcut(menuInfo->key());
             }
 		}
 

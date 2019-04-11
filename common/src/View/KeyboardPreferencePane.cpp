@@ -24,16 +24,15 @@
 #include "Assets/EntityDefinitionManager.h"
 #include "Model/Tag.h"
 #include "View/BorderLine.h"
+#include "View/KeyboardShortcutItemDelegate.h"
 #include "View/KeyboardShortcutModel.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 
 #include <QBoxLayout>
 #include <QHeaderView>
-#include <QItemEditorFactory>
-#include <QKeySequenceEdit>
 #include <QLabel>
-#include <QStyledItemDelegate>
+#include <QMessageBox>
 #include <QTableView>
 
 namespace TrenchBroom {
@@ -51,11 +50,7 @@ namespace TrenchBroom {
             m_table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeMode::ResizeToContents);
             m_table->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeMode::Stretch);
 
-            auto* itemDelegate = new QStyledItemDelegate();
-            auto* itemEditorFactory = new QItemEditorFactory();
-            itemEditorFactory->registerEditor(QVariant::KeySequence, new QStandardItemEditorCreator<QKeySequenceEdit>());
-            itemDelegate->setItemEditorFactory(itemEditorFactory);
-            m_table->setItemDelegate(itemDelegate);
+            m_table->setItemDelegate(new KeyboardShortcutItemDelegate());
 
             auto* infoLabel = new QLabel("Doubleclick on a key combination to edit the shortcut.");
             makeInfo(infoLabel);
@@ -86,14 +81,10 @@ namespace TrenchBroom {
         }
 
         bool KeyboardPreferencePane::doValidate() {
-            /* FIXME
-            m_grid->SaveEditControlValue();
-            if (m_table->hasDuplicates()) {
-                wxMessageBox("Please fix all conflicting shortcuts (highlighted in red).", "Error", wxOK | wxCENTRE, this);
+            if (m_model->hasConflicts()) {
+                QMessageBox::warning(this, "Conflicts", "Please fix all conflicting shortcuts (highlighted in red).");
                 return false;
             }
-            return true;
-             */
             return true;
         }
     }

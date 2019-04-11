@@ -83,7 +83,7 @@ namespace TrenchBroom {
 
         void CyclingMapView::updateShortcuts() {
             // FIXME: Get from prefs
-            m_cycleShortcut->setKey(ActionList::instance().controlsMapViewCycleMapViewInfo.defaultKey);
+            m_cycleShortcut->setKey(ActionList::instance().controlsMapViewCycleMapViewInfo.key());
         }
 
         void CyclingMapView::bindEvents() {

@@ -30,18 +30,25 @@
 #include <vector>
 
 namespace TrenchBroom {
+    template <typename T> class Preference;
+
     namespace IO {
         class Path;
     }
 
     namespace View {
+        class KeyboardShortcut;
+
         struct ActionInfo {
             QKeySequence defaultKey;
             bool modifiable;
             IO::Path preferencePath;
             int actionContext;
 
-            QVariant getQVariant() const;
+            QKeySequence key() const;
+            void setKey(const QKeySequence& keySequence);
+
+            Preference<KeyboardShortcut> preference() const;
         };
         const std::vector<ActionInfo>& getActionInfo();
 

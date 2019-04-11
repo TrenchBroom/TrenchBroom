@@ -357,7 +357,7 @@ namespace TrenchBroom {
 
             // refresh key bindings, start with all shortcuts enabled, if `this` has focus
             for (auto [shortcut, menuInfo] : m_actionInfoList) {
-                shortcut->setKey(menuInfo->defaultKey);
+                shortcut->setKey(menuInfo->key());
                 shortcut->setEnabled(HasFocus());
             }
 

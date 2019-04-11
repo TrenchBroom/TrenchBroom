@@ -112,7 +112,7 @@ namespace TrenchBroom {
 
         QWidget* makeSelected(QWidget* widget);
 
-        QSettings getSettings();
+        QSettings& getSettings();
         Color fromQColor(const QColor& color);
         QColor toQColor(const Color& color);
         void setWindowIconTB(QWidget* window);

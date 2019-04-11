@@ -178,7 +178,7 @@ namespace TrenchBroom {
 #endif
         }
 
-        QSettings TrenchBroom::View::TrenchBroomApp::settings() {
+        QSettings& TrenchBroom::View::TrenchBroomApp::settings() {
             return getSettings();
         }
 

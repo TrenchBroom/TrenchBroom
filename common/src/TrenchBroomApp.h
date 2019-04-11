@@ -49,7 +49,7 @@ namespace TrenchBroom {
             ~TrenchBroomApp() override;
 
         public:
-            QSettings settings();
+            QSettings& settings();
 
             FrameManager* frameManager();
 

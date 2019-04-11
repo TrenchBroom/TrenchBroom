@@ -19,18 +19,31 @@
 
 #include "ActionList.h"
 
+#include "Preference.h"
+#include "PreferenceManager.h"
 #include "View/ActionContext.h"
+#include "View/KeyboardShortcut.h"
 
 namespace TrenchBroom {
     namespace View {
-        QVariant ActionInfo::getQVariant() const {
-            return QVariant::fromValue(this);
+        QKeySequence ActionInfo::key() const {
+            return pref(preference()).keySequence();
+        }
+
+        void ActionInfo::setKey(const QKeySequence& keySequence) {
+            auto& prefs = PreferenceManager::instance();
+            auto pref = preference();
+            prefs.set(pref, KeyboardShortcut(keySequence));
+        }
+
+        Preference<KeyboardShortcut> ActionInfo::preference() const {
+            return Preference<KeyboardShortcut>(preferencePath, View::KeyboardShortcut(defaultKey));
         }
 
         ActionInfo ActionList::addShortcut(const IO::Path& path, QKeySequence keySequence, int actionContext, bool modifiable) {
             ActionInfo result;
             result.preferencePath = path;
-            result.defaultKey = keySequence;
+            result.defaultKey = std::move(keySequence);
             result.actionContext = actionContext;
             result.modifiable = modifiable;
             m_list.push_back(result);
@@ -40,7 +53,7 @@ namespace TrenchBroom {
         ActionInfo ActionList::addAction(const IO::Path& path, QKeySequence keySequence, bool modifiable) {
             ActionInfo result;
             result.preferencePath = path;
-            result.defaultKey = keySequence;
+            result.defaultKey = std::move(keySequence);
             result.actionContext = 0;
             result.modifiable = modifiable;
             m_list.push_back(result);

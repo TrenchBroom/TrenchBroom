@@ -152,16 +152,15 @@ namespace TrenchBroom {
             return widget;
         }
 
-        QSettings getSettings() {
+        QSettings& getSettings() {
+            static auto settings =
 #if defined __linux__ || defined __FreeBSD__
-            const QString path = QDir::homePath() % QString::fromLocal8Bit("/.TrenchBroom/.preferences");
-            return QSettings(path, QSettings::Format::IniFormat);
+                QSettings(QDir::homePath() % QString::fromLocal8Bit("/.TrenchBroom/.preferences"), QSettings::Format::IniFormat);
 #elif defined __APPLE__
-            const QString path = QStandardPaths::locate(QStandardPaths::ConfigLocation,
-                                                        QString::fromLocal8Bit("TrenchBroom Preferences"),
-                                                        QStandardPaths::LocateOption::LocateFile);
-            std::cout << path.toStdString() << std::endl;
-            return QSettings(path, QSettings::Format::IniFormat);
+                QSettings(QStandardPaths::locate(QStandardPaths::ConfigLocation,
+                                                 QString::fromLocal8Bit("TrenchBroom Preferences"),
+                                                 QStandardPaths::LocateOption::LocateFile), QSettings::Format::IniFormat);
+            return settings;
 #else
             return QSettings();
 #endif

@@ -115,7 +115,7 @@ namespace TrenchBroom {
         private:
             void loadFromConfig() {
                 m_recentDocuments.clear();
-                const QSettings settings = getSettings();
+                const QSettings& settings = getSettings();
                 for (size_t i = 0; i < m_maxSize; ++i) {
                     const auto key = QString::fromStdString(std::string("RecentDocuments/") + std::to_string(i));
                     const QVariant value = settings.value(key);
@@ -128,7 +128,7 @@ namespace TrenchBroom {
             }
 
             void saveToConfig() {
-                QSettings settings = getSettings();
+                QSettings& settings = getSettings();
                 settings.remove("RecentDocuments");
                 for (size_t i = 0; i < m_recentDocuments.size(); ++i) {
                     const QString key = QString::fromStdString(std::string("RecentDocuments/") + std::to_string(i));

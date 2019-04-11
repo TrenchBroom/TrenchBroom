@@ -30,7 +30,11 @@ namespace TrenchBroom {
 
         class KeyboardShortcutModel : public QAbstractTableModel {
             Q_OBJECT
+        private:
+            std::vector<int> m_conflicts;
         public:
+            KeyboardShortcutModel();
+
             int rowCount(const QModelIndex& parent) const override;
             int columnCount(const QModelIndex& parent) const override;
 
@@ -39,7 +43,11 @@ namespace TrenchBroom {
             bool setData(const QModelIndex& index, const QVariant& value, int role) override;
 
             Qt::ItemFlags flags(const QModelIndex& index) const override;
+
+            bool hasConflicts() const;
+            bool hasConflicts(const QModelIndex& index) const;
         private:
+            void updateConflicts();
             const ActionInfo& action(int index) const;
             const std::vector<ActionInfo>& actions() const;
             bool checkIndex(const QModelIndex& index) const;
