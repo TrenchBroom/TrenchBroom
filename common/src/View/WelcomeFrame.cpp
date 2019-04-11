@@ -55,16 +55,14 @@ namespace TrenchBroom {
             m_recentDocumentListBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
             connect(m_recentDocumentListBox, &RecentDocumentListBox::loadRecentDocument, this, &WelcomeFrame::onRecentDocumentSelected);
 
-            auto* outerLayout = new QVBoxLayout();
+            auto* container = new QWidget();
+            auto* outerLayout = new QVBoxLayout(container);
             outerLayout->setContentsMargins(QMargins());
             outerLayout->setSpacing(0);
 
             auto* innerLayout = new QHBoxLayout();
             innerLayout->setContentsMargins(QMargins());
             innerLayout->setSpacing(0);
-
-            auto* container = new QWidget();
-            container->setLayout(outerLayout);
 
             // outerLayout->addWidget(new BorderLine());
             outerLayout->addLayout(innerLayout);
@@ -114,28 +112,26 @@ namespace TrenchBroom {
         }
 
         QWidget* WelcomeFrame::createAppPanel() {
-            QWidget* appPanel = new QWidget();
-            AppInfoPanel* infoPanel = new AppInfoPanel(appPanel);
+            auto* appPanel = new QWidget();
+            auto* infoPanel = new AppInfoPanel(appPanel);
 
             m_createNewDocumentButton = new QPushButton("New map...");
             m_createNewDocumentButton->setToolTip("Create a new map document");
             m_openOtherDocumentButton = new QPushButton("Browse...");
             m_openOtherDocumentButton->setToolTip("Open an existing map document");
 
-            QHBoxLayout* buttonSizer = new QHBoxLayout();
+            auto* buttonSizer = new QHBoxLayout();
             buttonSizer->addStretch();
             buttonSizer->addWidget(m_createNewDocumentButton);
             buttonSizer->addSpacing(LayoutConstants::WideHMargin);
             buttonSizer->addWidget(m_openOtherDocumentButton);
             buttonSizer->addStretch();
 
-            QVBoxLayout* outerSizer = new QVBoxLayout();
+            auto* outerSizer = new QVBoxLayout(appPanel);
             outerSizer->addWidget(infoPanel, 0, Qt::AlignHCenter);
             outerSizer->addSpacing(20);
             outerSizer->addLayout(buttonSizer);
             outerSizer->addSpacing(20);
-
-            appPanel->setLayout(outerSizer);
 
             return appPanel;
         }

@@ -35,15 +35,14 @@ namespace TrenchBroom {
 
             m_panel = new QWidget(this);
 
-            auto* sizer = new QVBoxLayout();
-            sizer->setContentsMargins(0, 0, 0, 0);
-            sizer->setSpacing(0);
-            sizer->addWidget(new TitleBar(title, nullptr, hMargin, vMargin, boldTitle), 0);
+            auto* layout = new QVBoxLayout(this);
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(0);
+            layout->addWidget(new TitleBar(title, nullptr, hMargin, vMargin, boldTitle), 0);
             if (showDivider) {
-                sizer->addWidget(new BorderLine(BorderLine::Direction_Horizontal), 0);
+                layout->addWidget(new BorderLine(BorderLine::Direction_Horizontal), 0);
             }
-            sizer->addWidget(m_panel, 1);
-            setLayout(sizer);
+            layout->addWidget(m_panel, 1);
         }
 
         QWidget* TitledPanel::getPanel() const {

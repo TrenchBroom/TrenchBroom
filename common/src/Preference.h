@@ -25,6 +25,7 @@
 #include "Macros.h"
 #include "StringUtils.h"
 #include "IO/Path.h"
+#include "View/KeyboardShortcut.h"
 #include "View/wxUtils.h"
 
 #include <memory>
@@ -32,7 +33,6 @@
 #include <QApplication>
 #include <QSettings>
 #include <QThread>
-#include <QKeySequence>
 #include <QDebug>
 #include <QVariant>
 
@@ -141,20 +141,22 @@ namespace TrenchBroom {
     };
 
     template<>
-    class PreferenceSerializer<QKeySequence> {
+    class PreferenceSerializer<View::KeyboardShortcut> {
     public:
-        bool read(QSettings* config, const QString& path, QKeySequence& result) const {
+        bool read(QSettings* config, const QString& path, View::KeyboardShortcut& result) const {
             const QVariant value = config->value(path);
             if (!value.isValid()) {
                 return false;
             }
             // FIXME: Parse the old wxWidgets format too
-            result = QKeySequence::fromString(value.toString(), QKeySequence::PortableText);
+            const auto keySequence = QKeySequence::fromString(value.toString(), QKeySequence::PortableText);
+            result = View::KeyboardShortcut(keySequence);
             return true;
         }
 
-        void write(QSettings* config, const QString& path, const QKeySequence& value) const {
-            config->setValue(path, QVariant(value.toString(QKeySequence::PortableText)));
+        void write(QSettings* config, const QString& path, const View::KeyboardShortcut& value) const {
+            const auto keySequence = value.keySequence();
+            config->setValue(path, QVariant(keySequence.toString(QKeySequence::PortableText)));
         }
     };
 

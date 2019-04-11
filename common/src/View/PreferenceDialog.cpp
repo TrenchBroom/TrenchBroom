@@ -25,9 +25,7 @@
 #include "IO/ResourceUtils.h"
 #include "View/BorderLine.h"
 #include "View/GamesPreferencePane.h"
-/* FIXME
 #include "View/KeyboardPreferencePane.h"
-*/
 #include "View/MousePreferencePane.h"
 #include "View/ViewPreferencePane.h"
 #include "View/ViewConstants.h"
@@ -118,6 +116,7 @@ namespace TrenchBroom {
             m_stackedWidget->addWidget(new GamesPreferencePane());
             m_stackedWidget->addWidget(new ViewPreferencePane());
             m_stackedWidget->addWidget(new MousePreferencePane());
+            m_stackedWidget->addWidget(new KeyboardPreferencePane(m_document.get()));
 
             m_buttonBox = new QDialogButtonBox(
                 QDialogButtonBox::RestoreDefaults

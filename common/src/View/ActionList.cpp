@@ -205,6 +205,10 @@ namespace TrenchBroom {
             static ActionList singleton;
             return singleton;
         }
+
+        const std::vector<ActionInfo>& ActionList::actions() const {
+            return m_list;
+        }
     }
 }
 

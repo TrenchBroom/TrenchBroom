@@ -89,12 +89,11 @@ namespace TrenchBroom {
 
             m_flyMoveSpeedSlider = new SliderWithLabel(256, 512);
 
-            auto* layout = new FormWithSectionsLayout();
+            auto* layout = new FormWithSectionsLayout(this);
             layout->setContentsMargins(0, LayoutConstants::MediumVMargin, 0, 0);
             layout->setVerticalSpacing(2);
             // override the default to make the sliders take up maximum width
             layout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-            setLayout(layout);
 
             layout->addSection("Mouse Look");
             layout->addRow("Sensitivity", m_lookSpeedSlider);

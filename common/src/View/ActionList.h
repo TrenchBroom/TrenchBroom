@@ -48,12 +48,15 @@ namespace TrenchBroom {
         class ActionList {
         private:
             std::vector<ActionInfo> m_list;
+        private:
             ActionList();
 
             ActionInfo addShortcut(const IO::Path& path, QKeySequence keySequence, int actionContext, bool modifiable);
             ActionInfo addAction(const IO::Path& path, QKeySequence keySequence, bool modifiable);
         public:
             static const ActionList& instance();
+
+            const std::vector<ActionInfo>& actions() const;
 
             ActionInfo controlsMapViewCreatebrushInfo;
             ActionInfo controlsMapViewToggleClipSideInfo;

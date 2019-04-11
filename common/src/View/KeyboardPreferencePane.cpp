@@ -23,92 +23,51 @@
 #include "Preferences.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Model/Tag.h"
-#include "View/ActionManager.h"
 #include "View/BorderLine.h"
-#include "View/KeyboardShortcutGridTable.h"
+#include "View/KeyboardShortcutModel.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 
-#include <wx/msgdlg.h>
-#include <wx/settings.h>
-#include <wx/sizer.h>
-#include <wx/statbox.h>
+#include <QBoxLayout>
+#include <QHeaderView>
+#include <QItemEditorFactory>
+#include <QKeySequenceEdit>
 #include <QLabel>
-#include <wx/stattext.h>
+#include <QStyledItemDelegate>
+#include <QTableView>
 
 namespace TrenchBroom {
     namespace View {
-        KeyboardPreferencePane::KeyboardPreferencePane(wxWindow* parent, MapDocument* document) :
+        KeyboardPreferencePane::KeyboardPreferencePane(MapDocument* document, QWidget* parent) :
         PreferencePane(parent),
-        m_grid(nullptr),
-        m_table(nullptr) {
-            wxWindow* menuShortcutGrid = createMenuShortcutGrid(document);
+        m_table(nullptr),
+        m_model(nullptr) {
+            m_model = new KeyboardShortcutModel();
 
-            auto* outerSizer = new QVBoxLayout();
-            outerSizer->addWidget(menuShortcutGrid, 1, wxEXPAND);
-            outerSizer->SetItemMinSize(menuShortcutGrid, 900, 550);
-            setLayout(outerSizer);
-        }
+            m_table = new QTableView();
+            m_table->setModel(m_model);
+            m_table->setHorizontalHeader(new QHeaderView(Qt::Horizontal));
+            m_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeMode::ResizeToContents);
+            m_table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeMode::ResizeToContents);
+            m_table->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeMode::Stretch);
 
-        void KeyboardPreferencePane::OnGridSize(wxSizeEvent& event) {
+            auto* itemDelegate = new QStyledItemDelegate();
+            auto* itemEditorFactory = new QItemEditorFactory();
+            itemEditorFactory->registerEditor(QVariant::KeySequence, new QStandardItemEditorCreator<QKeySequenceEdit>());
+            itemDelegate->setItemEditorFactory(itemEditorFactory);
+            m_table->setItemDelegate(itemDelegate);
 
+            auto* infoLabel = new QLabel("Doubleclick on a key combination to edit the shortcut.");
+            makeInfo(infoLabel);
 
-            int width = m_grid->GetClientSize().x;
-            m_grid->AutoSizeColumn(0);
-            m_grid->AutoSizeColumn(1);
-            int colSize = width - m_grid->GetColSize(0) - m_grid->GetColSize(1);
-            if (colSize < -1 || colSize == 0)
-                colSize = -1;
-            m_grid->SetColSize(2, colSize);
-            event.Skip();
-        }
+            auto* layout = new QVBoxLayout(this);
+            layout->setContentsMargins(QMargins());
+            layout->setSpacing(LayoutConstants::WideVMargin);
+            layout->addWidget(m_table, 1);
+            layout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
+            layout->addWidget(infoLabel);
 
-       wxWindow* KeyboardPreferencePane::createMenuShortcutGrid(MapDocument* document) {
-            ActionManager::ShortcutEntryList entries;
-            ActionManager& actionManager = ActionManager::instance();
-            if (document != nullptr) {
-                const auto& definitions = document->entityDefinitionManager().definitions();
-                actionManager.getShortcutEntries(document->smartTags(), definitions, entries);
-            } else {
-                actionManager.getShortcutEntries(std::list<Model::SmartTag>{}, Assets::EntityDefinitionList{}, entries);
-            }
-
-            wxPanel* container = new wxPanel(this);
-
-            m_table = new KeyboardShortcutGridTable(std::move(entries));
-            m_grid = new wxGrid(container, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
-            m_grid->Bind(wxEVT_SIZE, &KeyboardPreferencePane::OnGridSize, this);
-
-            m_grid->SetTable(m_table, true, wxGrid::wxGridSelectRows);
-            m_grid->SetColLabelSize(18);
-            m_grid->SetDefaultCellBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
-            m_grid->HideRowLabels();
-            m_grid->SetCellHighlightPenWidth(0);
-            m_grid->SetCellHighlightROPenWidth(0);
-
-            m_grid->DisableColResize(0);
-            m_grid->DisableColResize(1);
-            m_grid->DisableColResize(2);
-            m_grid->DisableDragColMove();
-            m_grid->DisableDragCell();
-            m_grid->DisableDragColSize();
-            m_grid->DisableDragGridSize();
-            m_grid->DisableDragRowSize();
-
-           wxStaticText* infoText = new wxStaticText(container, wxID_ANY, "Click twice on a key combination to edit the shortcut. Press delete or backspace to delete a shortcut.");
-#if defined __APPLE__
-            infoText->SetFont(*wxSMALL_FONT);
-#endif
-
-            auto* sizer = new QVBoxLayout();
-            sizer->addWidget(m_grid, 1, wxEXPAND);
-            sizer->addWidget(new BorderLine(container, BorderLine::Direction_Horizontal), 0, wxEXPAND);
-            sizer->addSpacing(LayoutConstants::WideVMargin);
-            sizer->addWidget(infoText, 0, wxALIGN_CENTER);
-            sizer->addSpacing(LayoutConstants::NarrowVMargin);
-            container->setLayout(sizer);
-
-            return container;
+            setMinimumSize(900, 550);
         }
 
         bool KeyboardPreferencePane::doCanResetToDefaults() {
@@ -116,8 +75,10 @@ namespace TrenchBroom {
         }
 
         void KeyboardPreferencePane::doResetToDefaults() {
+            /* FIXME
             ActionManager& actionManager = ActionManager::instance();
             actionManager.resetShortcutsToDefaults();
+             */
         }
 
         void KeyboardPreferencePane::doUpdateControls() {
@@ -125,11 +86,14 @@ namespace TrenchBroom {
         }
 
         bool KeyboardPreferencePane::doValidate() {
+            /* FIXME
             m_grid->SaveEditControlValue();
             if (m_table->hasDuplicates()) {
                 wxMessageBox("Please fix all conflicting shortcuts (highlighted in red).", "Error", wxOK | wxCENTRE, this);
                 return false;
             }
+            return true;
+             */
             return true;
         }
     }

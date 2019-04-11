@@ -30,6 +30,7 @@ namespace TrenchBroom {
             size_t m_count;
         public:
             explicit SingleKeySequenceEdit(QWidget* parent = nullptr);
+        protected:
             void keyPressEvent(QKeyEvent* event) override;
         private slots:
             void resetCount();

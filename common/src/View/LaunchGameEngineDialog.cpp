@@ -85,27 +85,26 @@ namespace TrenchBroom {
 
             m_parameterText->SetHelper(new ELAutoCompleteHelper(variables()));
 
-            auto* midLeftSizer = new QVBoxLayout();
-            midLeftSizer->addSpacing(20);
-            midLeftSizer->addWidget(header, wxSizerFlags().Expand());
-            midLeftSizer->addSpacing(20);
-            midLeftSizer->addWidget(message, wxSizerFlags().Expand());
-            midLeftSizer->addSpacing(10);
-            midLeftSizer->addWidget(openPreferencesButton, wxSizerFlags().CenterHorizontal());
-            midLeftSizer->addStretch(1);
-            midLeftSizer->addWidget(parameterLabel);
-            midLeftSizer->addSpacing(LayoutConstants::NarrowVMargin);
-            midLeftSizer->addWidget(m_parameterText, wxSizerFlags().Expand());
-            midLeftSizer->addSpacing(20);
+            auto* midLeftLayout = new QVBoxLayout();
+            midLeftLayout->addSpacing(20);
+            midLeftLayout->addWidget(header, wxLayoutFlags().Expand());
+            midLeftLayout->addSpacing(20);
+            midLeftLayout->addWidget(message, wxLayoutFlags().Expand());
+            midLeftLayout->addSpacing(10);
+            midLeftLayout->addWidget(openPreferencesButton, wxLayoutFlags().CenterHorizontal());
+            midLeftLayout->addStretch(1);
+            midLeftLayout->addWidget(parameterLabel);
+            midLeftLayout->addSpacing(LayoutConstants::NarrowVMargin);
+            midLeftLayout->addWidget(m_parameterText, wxLayoutFlags().Expand());
+            midLeftLayout->addSpacing(20);
 
-            auto* midSizer = new QHBoxLayout();
-            midSizer->addSpacing(20);
-            midSizer->addWidget(midLeftSizer, wxSizerFlags().Expand().Proportion(1));
-            midSizer->addSpacing(20);
-            midSizer->addWidget(new BorderLine(midPanel, BorderLine::Direction_Vertical), wxSizerFlags().Expand());
-            midSizer->addWidget(m_gameEngineList, wxSizerFlags().Expand());
-            midSizer->SetItemMinSize(m_gameEngineList, wxSize(250, 280));
-            midPanel->setLayout(midSizer);
+            auto* midLayout = new QHBoxLayout(midPanel);
+            midLayout->addSpacing(20);
+            midLayout->addWidget(midLeftLayout, wxLayoutFlags().Expand().Proportion(1));
+            midLayout->addSpacing(20);
+            midLayout->addWidget(new BorderLine(midPanel, BorderLine::Direction_Vertical), wxLayoutFlags().Expand());
+            midLayout->addWidget(m_gameEngineList, wxLayoutFlags().Expand());
+            midLayout->SetItemMinSize(m_gameEngineList, wxSize(250, 280));
 
             wxButton* closeButton = new wxButton(this, wxID_CANCEL, "Cancel");
             closeButton->Bind(&QAbstractButton::clicked, &LaunchGameEngineDialog::OnCloseButton, this);
@@ -115,18 +114,16 @@ namespace TrenchBroom {
             launchButton->Bind(&QAbstractButton::clicked, &LaunchGameEngineDialog::OnLaunch, this);
             launchButton->Bind(wxEVT_UPDATE_UI, &LaunchGameEngineDialog::OnUpdateLaunchButtonUI, this);
 
-            wxStdDialogButtonSizer* buttonSizer = new wxStdDialogButtonSizer();
-            buttonSizer->SetCancelButton(closeButton);
-            buttonSizer->SetAffirmativeButton(launchButton);
-            buttonSizer->Realize();
+            wxStdDialogButtonLayout* buttonLayout = new wxStdDialogButtonLayout();
+            buttonLayout->SetCancelButton(closeButton);
+            buttonLayout->SetAffirmativeButton(launchButton);
+            buttonLayout->Realize();
 
-            auto* outerSizer = new QVBoxLayout();
-            outerSizer->addWidget(gameIndicator, wxSizerFlags().Expand());
-            outerSizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
-            outerSizer->addWidget(midPanel, wxSizerFlags().Expand().Proportion(1));
-            outerSizer->addWidget(wrapDialogButtonSizer(buttonSizer, this), wxSizerFlags().Expand());
-
-            setLayout(outerSizer);
+            auto* outerLayout = new QVBoxLayout(this);
+            outerLayout->addWidget(gameIndicator, wxLayoutFlags().Expand());
+            outerLayout->addWidget(new BorderLine(nullptr, BorderLine::Direction_Horizontal), wxLayoutFlags().Expand());
+            outerLayout->addWidget(midPanel, wxLayoutFlags().Expand().Proportion(1));
+            outerLayout->addWidget(wrapDialogButtonLayout(buttonLayout, this), wxLayoutFlags().Expand());
 
             m_gameEngineList->Bind(wxEVT_LISTBOX, &LaunchGameEngineDialog::OnSelectGameEngineProfile, this);
             m_gameEngineList->Bind(wxEVT_LISTBOX_DCLICK, &LaunchGameEngineDialog::OnLaunch, this);

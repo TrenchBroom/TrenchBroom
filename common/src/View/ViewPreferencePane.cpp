@@ -72,10 +72,9 @@ namespace TrenchBroom {
         void ViewPreferencePane::createGui() {
             auto* viewPreferences = createViewPreferences();
 
-            auto* layout = new QVBoxLayout();
+            auto* layout = new QVBoxLayout(this);
             layout->setContentsMargins(QMargins());
             layout->setSpacing(0);
-            setLayout(layout);
 
             layout->addSpacing(LayoutConstants::NarrowVMargin);
             layout->addWidget(viewPreferences, 1);
@@ -156,12 +155,11 @@ namespace TrenchBroom {
             m_rendererFontSizeCombo->addItem("72");
             m_rendererFontSizeCombo->setValidator(new QIntValidator(1, 96));
 
-            auto* layout = new FormWithSectionsLayout();
+            auto* layout = new FormWithSectionsLayout(viewBox);
             layout->setContentsMargins(0, LayoutConstants::MediumVMargin, 0, 0);
             layout->setVerticalSpacing(2);
             // override the default to make the sliders take up maximum width
             layout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-            viewBox->setLayout(layout);
 
             layout->addSection("Map Views");
             layout->addRow("Layout", m_layoutCombo);

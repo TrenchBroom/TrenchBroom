@@ -237,8 +237,7 @@ namespace TrenchBroom {
 
         QWidget* createDefaultPage(const QString& message, QWidget* parent) {
             auto* container = new QWidget(parent);
-            auto* layout = new QVBoxLayout();
-            container->setLayout(layout);
+            auto* layout = new QVBoxLayout(container);
 
             auto* messageLabel = new QLabel(message);
             makeEmphasized(messageLabel);

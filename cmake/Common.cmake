@@ -361,8 +361,9 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/Inspector.cpp
 	${COMMON_SOURCE_DIR}/View/IssueBrowser.cpp
 	${COMMON_SOURCE_DIR}/View/IssueBrowserView.cpp
-#	${COMMON_SOURCE_DIR}/View/KeyboardPreferencePane.cpp
+	${COMMON_SOURCE_DIR}/View/KeyboardPreferencePane.cpp
 	${COMMON_SOURCE_DIR}/View/KeyboardShortcut.cpp
+	${COMMON_SOURCE_DIR}/View/KeyboardShortcutModel.cpp
 	${COMMON_SOURCE_DIR}/View/Lasso.cpp
 #	${COMMON_SOURCE_DIR}/View/LaunchGameEngineDialog.cpp
 	${COMMON_SOURCE_DIR}/View/LayerEditor.cpp
@@ -910,6 +911,7 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/IssueBrowserView.h
 	${COMMON_SOURCE_DIR}/View/KeyboardPreferencePane.h
 	${COMMON_SOURCE_DIR}/View/KeyboardShortcut.h
+	${COMMON_SOURCE_DIR}/View/KeyboardShortcutModel.h
 	${COMMON_SOURCE_DIR}/View/Lasso.h
 	${COMMON_SOURCE_DIR}/View/LaunchGameEngineDialog.h
 	${COMMON_SOURCE_DIR}/View/LayerEditor.h
