@@ -33,6 +33,7 @@
 #include "View/UndoableCommand.h"
 #include "View/ViewTypes.h"
 
+#include <functional>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -49,6 +50,10 @@ namespace TrenchBroom {
         class Path;
     }
 
+    namespace Model {
+        class SmartTag;
+    }
+
     namespace Renderer {
         class Camera;
         class Compass;
@@ -60,7 +65,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
-        class ActionInfo;
+        struct ActionInfo;
         class AnimationManager;
         class Command;
         class FlyModeHelper;
@@ -120,6 +125,7 @@ namespace TrenchBroom {
         private: // shortcut setup
             using Callback = void (MapViewBase::*)();
             QShortcut* createAndRegisterShortcut(const ActionInfo& info, Callback callback);
+            QShortcut* createAndRegisterShortcut(const ActionInfo& info, const std::function<void()>& callback);
             void createAndRegister2D3DShortcut(const ActionInfo& info, Callback callback2D, Callback callback3D);
             void createActions();
             void registerBinding(QShortcut* action, const ActionInfo& info);
@@ -231,11 +237,11 @@ namespace TrenchBroom {
             void createBrushEntity(const Assets::BrushEntityDefinition* definition);
             bool canCreateBrushEntity();
         private: // tags
-            void OnToggleTagVisible();
+            void OnToggleTagVisible(const Model::SmartTag& tag);
 
             class EnableDisableTagCallback;
-            void OnEnableTag();
-            void OnDisableTag();
+            void OnEnableTag(const Model::SmartTag& tag);
+            void OnDisableTag(const Model::SmartTag& tag);
         private: // make structural
             void OnMakeStructural();
         private: // entity definitions

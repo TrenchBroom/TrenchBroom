@@ -20,20 +20,22 @@
 #ifndef TRENCHBROOM_KEYBOARDSHORTCUTMODEL_H
 #define TRENCHBROOM_KEYBOARDSHORTCUTMODEL_H
 
+#include "View/ActionList.h"
+#include "View/ViewTypes.h"
+
 #include <QAbstractTableModel>
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace View {
-        struct ActionInfo;
-
         class KeyboardShortcutModel : public QAbstractTableModel {
             Q_OBJECT
         private:
+            std::vector<ActionInfo> m_tagActions;
             std::vector<int> m_conflicts;
         public:
-            KeyboardShortcutModel();
+            explicit KeyboardShortcutModel(MapDocument* document);
 
             int rowCount(const QModelIndex& parent) const override;
             int columnCount(const QModelIndex& parent) const override;
@@ -48,8 +50,13 @@ namespace TrenchBroom {
             bool hasConflicts(const QModelIndex& index) const;
         private:
             void updateConflicts();
+
             const ActionInfo& action(int index) const;
-            const std::vector<ActionInfo>& actions() const;
+
+            int totalActionCount() const;
+            int builtinActionCount() const;
+            int tagActionCount() const;
+
             bool checkIndex(const QModelIndex& index) const;
         };
     }

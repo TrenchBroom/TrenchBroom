@@ -21,6 +21,7 @@
 
 #include "Preference.h"
 #include "PreferenceManager.h"
+#include "Model/Tag.h"
 #include "View/ActionContext.h"
 #include "View/KeyboardShortcut.h"
 
@@ -40,23 +41,24 @@ namespace TrenchBroom {
             return Preference<KeyboardShortcut>(preferencePath, View::KeyboardShortcut(defaultKey));
         }
 
-        ActionInfo ActionList::addShortcut(const IO::Path& path, QKeySequence keySequence, int actionContext, bool modifiable) {
+        ActionInfo ActionList::addShortcut(const IO::Path& path, QKeySequence&& keySequence, const int actionContext, const bool modifiable) {
+            const ActionInfo result = createAction(path, std::move(keySequence), actionContext, modifiable);
+            m_list.push_back(result);
+            return result;
+        }
+
+        ActionInfo ActionList::addAction(const IO::Path& path, QKeySequence&& keySequence, const bool modifiable) {
+            const ActionInfo result = createAction(path, std::move(keySequence), 0, modifiable);
+            m_list.push_back(result);
+            return result;
+        }
+
+        ActionInfo ActionList::createAction(const IO::Path& path, QKeySequence&& keySequence, const int actionContext, const bool modifiable) const {
             ActionInfo result;
             result.preferencePath = path;
             result.defaultKey = std::move(keySequence);
             result.actionContext = actionContext;
             result.modifiable = modifiable;
-            m_list.push_back(result);
-            return result;
-        }
-
-        ActionInfo ActionList::addAction(const IO::Path& path, QKeySequence keySequence, bool modifiable) {
-            ActionInfo result;
-            result.preferencePath = path;
-            result.defaultKey = std::move(keySequence);
-            result.actionContext = 0;
-            result.modifiable = modifiable;
-            m_list.push_back(result);
             return result;
         }
 
@@ -221,6 +223,38 @@ namespace TrenchBroom {
 
         const std::vector<ActionInfo>& ActionList::actions() const {
             return m_list;
+        }
+
+        const std::vector<ActionInfo> ActionList::tagActions(const std::list<Model::SmartTag>& tags) const {
+            std::vector<ActionInfo> result;
+            for (const auto& tag : tags) {
+                result.push_back(toggleTagAction(tag));
+            }
+
+            for (const auto& tag : tags) {
+                result.push_back(enableTagAction(tag));
+            }
+
+            for (const auto& tag : tags) {
+                result.push_back(disableTagAction(tag));
+            }
+
+            return result;
+        }
+
+        ActionInfo ActionList::toggleTagAction(const Model::SmartTag& tag) const {
+            const auto path = IO::Path("Filters/Tags") + IO::Path(tag.name()) + IO::Path("Toggle Visible");
+            return createAction(path, QKeySequence(), 0, true);
+        }
+
+        ActionInfo ActionList::enableTagAction(const Model::SmartTag& tag) const {
+            const auto path = IO::Path("Tags") + IO::Path(tag.name()) + IO::Path("Enable");
+            return createAction(path, QKeySequence(), 0, true);
+        }
+
+        ActionInfo ActionList::disableTagAction(const Model::SmartTag& tag) const {
+            const auto path = IO::Path("Tags") + IO::Path(tag.name()) + IO::Path("Disable");
+            return createAction(path, QKeySequence(), 0, true);
         }
     }
 }

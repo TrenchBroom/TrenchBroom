@@ -23,20 +23,23 @@
 #include "Preference.h"
 #include "PreferenceManager.h"
 #include "View/ActionContext.h"
-#include "View/ActionList.h"
 #include "View/KeyboardShortcut.h"
+#include "View/MapDocument.h"
 
 #include <functional>
 #include <set>
 
 namespace TrenchBroom {
     namespace View {
-        KeyboardShortcutModel::KeyboardShortcutModel() {
+        KeyboardShortcutModel::KeyboardShortcutModel(MapDocument* document) {
+            if (document != nullptr) {
+                m_tagActions = ActionList::instance().tagActions(document->smartTags());
+            }
             updateConflicts();
         }
 
         int KeyboardShortcutModel::rowCount(const QModelIndex& parent) const {
-            return static_cast<int>(actions().size());
+            return totalActionCount();
         }
 
         int KeyboardShortcutModel::columnCount(const QModelIndex& parent) const {
@@ -139,10 +142,10 @@ namespace TrenchBroom {
 
             m_conflicts.clear();
 
-            const auto& actions = this->actions();
-            for (int row = 0; row < static_cast<int>(actions.size()); ++row) {
-                const auto& action = actions[static_cast<size_t>(row)];
-                if (action.key().count() > 0) {
+            for (int row = 0; row < totalActionCount(); ++row) {
+                const auto& action = this->action(row);
+                const auto keySequence = action.key();
+                if (keySequence.count() > 0) {
                     auto [it, noConflict] = entrySet.insert(std::make_pair(std::cref(action), row));
                     if (!noConflict) {
                         // found a duplicate, so there are conflicts
@@ -160,15 +163,28 @@ namespace TrenchBroom {
         }
 
         const ActionInfo& KeyboardShortcutModel::action(const int index) const {
-            return actions().at(static_cast<size_t>(index));
+            const auto index_s = static_cast<size_t>(index);
+            if (index < builtinActionCount()) {
+                return ActionList::instance().actions().at(index_s);
+            } else {
+                return m_tagActions[index_s - static_cast<size_t>(builtinActionCount())];
+            }
         }
 
-        const std::vector<ActionInfo>& KeyboardShortcutModel::actions() const {
-            return ActionList::instance().actions();
+        int KeyboardShortcutModel::totalActionCount() const {
+            return builtinActionCount() + tagActionCount();
+        }
+
+        int KeyboardShortcutModel::builtinActionCount() const {
+            return static_cast<int>(ActionList::instance().actions().size());
+        }
+
+        int KeyboardShortcutModel::tagActionCount() const {
+            return static_cast<int>(m_tagActions.size());
         }
 
         bool KeyboardShortcutModel::checkIndex(const QModelIndex& index) const {
-            return index.isValid() && index.column() < 3 && index.row() < static_cast<int>(actions().size());
+            return index.isValid() && index.column() < 3 && index.row() < totalActionCount();
         }
     }
 }

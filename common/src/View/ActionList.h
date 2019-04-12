@@ -36,6 +36,10 @@ namespace TrenchBroom {
         class Path;
     }
 
+    namespace Model {
+        class SmartTag;
+    }
+
     namespace View {
         class KeyboardShortcut;
 
@@ -58,12 +62,17 @@ namespace TrenchBroom {
         private:
             ActionList();
 
-            ActionInfo addShortcut(const IO::Path& path, QKeySequence keySequence, int actionContext, bool modifiable);
-            ActionInfo addAction(const IO::Path& path, QKeySequence keySequence, bool modifiable);
+            ActionInfo addShortcut(const IO::Path& path, QKeySequence&& keySequence, int actionContext, bool modifiable);
+            ActionInfo addAction(const IO::Path& path, QKeySequence&& keySequence, bool modifiable);
+            ActionInfo createAction(const IO::Path& path, QKeySequence&& keySequence, int actionContext, bool modifiable) const;
         public:
             static const ActionList& instance();
 
             const std::vector<ActionInfo>& actions() const;
+            const std::vector<ActionInfo> tagActions(const std::list<Model::SmartTag>& tags) const;
+            ActionInfo toggleTagAction(const Model::SmartTag& tag) const;
+            ActionInfo enableTagAction(const Model::SmartTag& tag) const;
+            ActionInfo disableTagAction(const Model::SmartTag& tag) const;
 
             ActionInfo controlsMapViewCreatebrushInfo;
             ActionInfo controlsMapViewToggleClipSideInfo;

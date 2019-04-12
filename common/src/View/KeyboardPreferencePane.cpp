@@ -41,7 +41,7 @@ namespace TrenchBroom {
         PreferencePane(parent),
         m_table(nullptr),
         m_model(nullptr) {
-            m_model = new KeyboardShortcutModel();
+            m_model = new KeyboardShortcutModel(document);
 
             m_table = new QTableView();
             m_table->setModel(m_model);

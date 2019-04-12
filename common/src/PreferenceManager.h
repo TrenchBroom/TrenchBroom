@@ -41,11 +41,9 @@ namespace TrenchBroom {
     class PreferenceManager {
     private:
         using UnsavedPreferences = std::set<PreferenceBase*>;
-        using DynamicPreferences = std::map<IO::Path, std::unique_ptr<PreferenceBase>>;
 
         bool m_saveInstantly;
         UnsavedPreferences m_unsavedPreferences;
-        DynamicPreferences m_dynamicPreferences;
 
         void markAsUnsaved(PreferenceBase* preference);
     public:
@@ -56,22 +54,6 @@ namespace TrenchBroom {
         bool saveInstantly() const;
         PreferenceBase::Set saveChanges();
         PreferenceBase::Set discardChanges();
-
-        template <typename T>
-        Preference<T>& dynamicPreference(const IO::Path& path, T&& defaultValue) {
-            auto it = m_dynamicPreferences.find(path);
-            if (it == std::end(m_dynamicPreferences)) {
-                bool success = false;
-                std::tie(it, success) = m_dynamicPreferences.emplace(path, std::make_unique<Preference<T>>(path, std::forward<T>(defaultValue)));
-                assert(success); unused(success);
-            }
-
-            const std::unique_ptr<PreferenceBase>& prefPtr = it->second;
-            PreferenceBase* prefBase = prefPtr.get();
-            Preference<T>* pref = dynamic_cast<Preference<T>*>(prefBase);
-            ensure(pref != nullptr, "Preference " + path.asString() + " must be of the expected type");
-            return *pref;
-        }
 
         template <typename T>
         const T& get(const Preference<T>& preference) const {

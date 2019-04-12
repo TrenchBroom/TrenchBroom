@@ -142,10 +142,10 @@ namespace TrenchBroom {
             document->modsDidChangeNotifier.addObserver(this, &MapViewBase::modsDidChange);
             document->editorContextDidChangeNotifier.addObserver(this, &MapViewBase::editorContextDidChange);
             document->mapViewConfigDidChangeNotifier.addObserver(this, &MapViewBase::mapViewConfigDidChange);
-			document->documentWasNewedNotifier.addObserver(this, &MapViewBase::documentDidChange);
-			document->documentWasClearedNotifier.addObserver(this, &MapViewBase::documentDidChange);
-			document->documentWasLoadedNotifier.addObserver(this, &MapViewBase::documentDidChange);
-			document->pointFileWasLoadedNotifier.addObserver(this, &MapViewBase::pointFileDidChange);
+            document->documentWasNewedNotifier.addObserver(this, &MapViewBase::documentDidChange);
+            document->documentWasClearedNotifier.addObserver(this, &MapViewBase::documentDidChange);
+            document->documentWasLoadedNotifier.addObserver(this, &MapViewBase::documentDidChange);
+            document->pointFileWasLoadedNotifier.addObserver(this, &MapViewBase::pointFileDidChange);
             document->pointFileWasUnloadedNotifier.addObserver(this, &MapViewBase::pointFileDidChange);
             document->portalFileWasLoadedNotifier.addObserver(this, &MapViewBase::portalFileDidChange);
             document->portalFileWasUnloadedNotifier.addObserver(this, &MapViewBase::portalFileDidChange);
@@ -176,9 +176,9 @@ namespace TrenchBroom {
                 document->modsDidChangeNotifier.removeObserver(this, &MapViewBase::modsDidChange);
                 document->editorContextDidChangeNotifier.removeObserver(this, &MapViewBase::editorContextDidChange);
                 document->mapViewConfigDidChangeNotifier.removeObserver(this, &MapViewBase::mapViewConfigDidChange);
-				document->documentWasNewedNotifier.removeObserver(this, &MapViewBase::documentDidChange);
-				document->documentWasClearedNotifier.removeObserver(this, &MapViewBase::documentDidChange);
-				document->documentWasLoadedNotifier.removeObserver(this, &MapViewBase::documentDidChange);
+                document->documentWasNewedNotifier.removeObserver(this, &MapViewBase::documentDidChange);
+                document->documentWasClearedNotifier.removeObserver(this, &MapViewBase::documentDidChange);
+                document->documentWasLoadedNotifier.removeObserver(this, &MapViewBase::documentDidChange);
                 document->pointFileWasLoadedNotifier.removeObserver(this, &MapViewBase::pointFileDidChange);
                 document->pointFileWasUnloadedNotifier.removeObserver(this, &MapViewBase::pointFileDidChange);
                 document->portalFileWasLoadedNotifier.removeObserver(this, &MapViewBase::portalFileDidChange);
@@ -272,7 +272,12 @@ namespace TrenchBroom {
         }
 
         QShortcut* MapViewBase::createAndRegisterShortcut(const ActionInfo& info, Callback callback) {
-            QShortcut* shortcut = new QShortcut(this->widgetContainer());
+            return createAndRegisterShortcut(info, [this, callback]() { (this->*callback)(); });
+        }
+
+        QShortcut*
+        MapViewBase::createAndRegisterShortcut(const ActionInfo& info, const std::function<void()>& callback) {
+            auto* shortcut = new QShortcut(this->widgetContainer());
 
             // Ideally, we'd use Qt::WidgetWithChildrenShortcut so the shortcuts are automatically active based on whether
             // this map view has focus, but this doesn't work with QOpenGLWindow since it's a separate window, and the
@@ -345,6 +350,16 @@ namespace TrenchBroom {
             // current tool actions
             createAndRegisterShortcut(ActionList::instance().controlsMapViewCancelInfo, &MapViewBase::OnCancel);
             createAndRegisterShortcut(ActionList::instance().controlsMapViewDeactivatecurrenttoolInfo, &MapViewBase::OnDeactivateTool);
+
+            // FIXME: when this function is called, the tags are not yet loaded
+
+            // tags
+            const auto& smartTags = lock(m_document)->smartTags();
+            for (const auto& tag : smartTags) {
+                createAndRegisterShortcut(ActionList::instance().toggleTagAction(tag), [this, &tag]() { OnToggleTagVisible(tag); });
+                // createAndRegisterShortcut(ActionList::instance().enableTagAction(tag), [this, &tag]() { OnEnableTag(tag); });
+                // createAndRegisterShortcut(ActionList::instance().disableTagAction(tag), [this, &tag]() { OnDisableTag(tag); });
+            }
         }
 
         void MapViewBase::registerBinding(QShortcut* action, const ActionInfo& info) {
@@ -709,10 +724,8 @@ namespace TrenchBroom {
             return document->selectedNodes().hasOnlyBrushes();
         }
 
-        // FIXME: Port to Qt
-#if 0
-        void MapViewBase::OnToggleTagVisible() {
-            const auto tagIndex = static_cast<size_t>((event.GetId() - CommandIds::Actions::LowestToggleTagCommandId));
+        void MapViewBase::OnToggleTagVisible(const Model::SmartTag& tag) {
+            const auto tagIndex = tag.index();
 
             auto document = lock(m_document);
             auto& editorContext = document->editorContext();
@@ -721,6 +734,8 @@ namespace TrenchBroom {
             editorContext.setHiddenTags(hiddenTags);
         }
 
+        // FIXME: Port to Qt
+#if 0
         class MapViewBase::EnableDisableTagCallback : public Model::TagMatcherCallback, public wxEvtHandler {
         private:
             wxWindow* m_window;
