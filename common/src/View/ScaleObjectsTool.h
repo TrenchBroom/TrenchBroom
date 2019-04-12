@@ -25,8 +25,6 @@
 #include "MapDocument.h"
 #include "Model/Hit.h"
 #include "View/Tool.h"
-// FIXME: re-add
-//#include "View/ScaleObjectsToolPage.h"
 
 #include <vecmath/vec.h>
 #include <vecmath/bbox.h>
@@ -44,6 +42,8 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class ScaleObjectsToolPage;
+
         /**
          * Identifies the side of a bbox using a normal. The normal will be one of +/- 1.0 along X, Y, or Z.
          */
@@ -210,8 +210,7 @@ namespace TrenchBroom {
 
         private:
             MapDocumentWPtr m_document;
-            // FIXME: re-add
-            //ScaleObjectsToolPage* m_toolPage;
+            ScaleObjectsToolPage* m_toolPage;
             bool m_resizing;
             AnchorPos m_anchorPos;
             vm::bbox3 m_bboxAtDragStart;

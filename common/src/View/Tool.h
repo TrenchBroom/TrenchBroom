@@ -24,7 +24,7 @@
 #include "StringUtils.h"
 
 class QWidget;
-class wxBookCtrlBase;
+class QStackedLayout;
 
 namespace TrenchBroom {
     namespace View {
@@ -32,8 +32,8 @@ namespace TrenchBroom {
         private:
             bool m_active;
 
-            wxBookCtrlBase* m_book;
-            size_t m_pageIndex;
+            QStackedLayout* m_book;
+            int m_pageIndex;
         public:
             Notifier<Tool*> toolActivatedNotifier;
             Notifier<Tool*> toolDeactivatedNotifier;
@@ -49,7 +49,7 @@ namespace TrenchBroom {
 
             void refreshViews();
 
-            void createPage(wxBookCtrlBase* book);
+            void createPage(QStackedLayout* book);
             void showPage();
         private:
             virtual bool doActivate();

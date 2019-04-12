@@ -29,13 +29,14 @@
 
 #include <vecmath/vec.h>
 
-#include <wx/button.h>
-#include <wx/choice.h>
-#include <wx/simplebook.h>
-#include <wx/sizer.h>
+#include <QAbstractButton>
+#include <QHBoxLayout>
 #include <QLabel>
-#include <wx/combobox.h>
-#include <wx/simplebook.h>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QComboBox>
+#include <QList>
+#include <QStackedLayout>
 
 namespace TrenchBroom {
     namespace View {
@@ -43,83 +44,94 @@ namespace TrenchBroom {
         QWidget(parent),
         m_document(document) {
             createGui();
+            bindObservers();
         }
 
+        ScaleObjectsToolPage::~ScaleObjectsToolPage() {
+            unbindObservers();
+        }
+
+        void ScaleObjectsToolPage::bindObservers() {
+            auto document = lock(m_document);
+            document->selectionDidChangeNotifier.addObserver(this, &ScaleObjectsToolPage::selectionDidChange);
+        }
+
+        void ScaleObjectsToolPage::unbindObservers() {
+            if (!expired(m_document)) {
+                auto document = lock(m_document);
+                document->selectionDidChangeNotifier.removeObserver(this, &ScaleObjectsToolPage::selectionDidChange);
+            }
+        }
+        
         void ScaleObjectsToolPage::activate() {
             const auto document = lock(m_document);
             const auto suggestedSize = document->hasSelectedNodes() ? document->selectionBounds().size() : vm::vec3::zero;
 
-            m_sizeTextBox->SetValue(StringUtils::toString(suggestedSize));
-            m_factorsTextBox->SetValue("1.0 1.0 1.0");
+            m_sizeTextBox->setText(QString::fromStdString(StringUtils::toString(suggestedSize)));
+            m_factorsTextBox->setText("1.0 1.0 1.0");
         }
 
         void ScaleObjectsToolPage::createGui() {
             MapDocumentSPtr document = lock(m_document);
 
-            QLabel* text = new QLabel("Scale objects");
+            QLabel* text = new QLabel(tr("Scale objects"));
 
-            m_book = new wxSimplebook(this);
-            m_sizeTextBox = new wxTextCtrl(m_book, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
-            m_factorsTextBox = new wxTextCtrl(m_book, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
-            m_book->AddPage(m_sizeTextBox, "");
-            m_book->AddPage(m_factorsTextBox, "");
+            m_book = new QStackedLayout(this);
+            m_sizeTextBox = new QLineEdit();
+            m_factorsTextBox = new QLineEdit();
+            m_book->addWidget(m_sizeTextBox);
+            m_book->addWidget(m_factorsTextBox);
 
-            m_sizeTextBox->Bind(wxEVT_TEXT_ENTER, &ScaleObjectsToolPage::OnApply, this);
-            m_factorsTextBox->Bind(wxEVT_TEXT_ENTER, &ScaleObjectsToolPage::OnApply, this);
+            connect(m_sizeTextBox, &QLineEdit::returnPressed, this, &ScaleObjectsToolPage::OnApply);
+            connect(m_factorsTextBox, &QLineEdit::returnPressed, this, &ScaleObjectsToolPage::OnApply);
 
-            const QString choices[] = { "to size", "by factors" };
-            m_scaleFactorsOrSize = new wxChoice(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 2, choices);
-            m_scaleFactorsOrSize->Bind(wxEVT_CHOICE, [&](){
-                    const auto selection = m_scaleFactorsOrSize->GetSelection();
-                    if (selection != wxNOT_FOUND) {
-                        m_book->SetSelection(static_cast<size_t>(selection));
-                    }
-                });
-            m_scaleFactorsOrSize->SetSelection(0);
+            m_scaleFactorsOrSize = new QComboBox();
+            m_scaleFactorsOrSize->addItem(tr("to size"));
+            m_scaleFactorsOrSize->addItem(tr("by factors"));
 
-            m_button = new wxButton(this, wxID_ANY, "Apply", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+            m_scaleFactorsOrSize->setCurrentIndex(0);
+            connect(m_scaleFactorsOrSize, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated), m_book, &QStackedLayout::setCurrentIndex);
 
-            m_button->Bind(wxEVT_UPDATE_UI, &ScaleObjectsToolPage::OnUpdateButton, this);
-            m_button->Bind(&QAbstractButton::clicked, &ScaleObjectsToolPage::OnApply, this);
+            m_button = new QPushButton(tr("Apply"));
+            connect(m_button, &QAbstractButton::clicked, this, &ScaleObjectsToolPage::OnApply);
 
-            wxBoxSizer* sizer = new QHBoxLayout();
+            auto* sizer = new QHBoxLayout();
             sizer->addWidget(text, 0, Qt::AlignVCenter);
             sizer->addSpacing(LayoutConstants::NarrowHMargin);
             sizer->addWidget(m_scaleFactorsOrSize, 0, Qt::AlignVCenter);
             sizer->addSpacing(LayoutConstants::NarrowHMargin);
-            sizer->addWidget(m_book, 0, Qt::AlignVCenter);
+            sizer->addLayout(m_book, 0);
             sizer->addSpacing(LayoutConstants::NarrowHMargin);
             sizer->addWidget(m_button, 0, Qt::AlignVCenter);
 
             setLayout(sizer);
+
+            updateGui();
+        }
+
+        void ScaleObjectsToolPage::updateGui() {
+            MapDocumentSPtr document = lock(m_document);
+            m_button->setEnabled(canScale());
         }
 
         bool ScaleObjectsToolPage::canScale() const {
             return lock(m_document)->hasSelectedNodes();
         }
 
-        void ScaleObjectsToolPage::OnUpdateButton() {
-
-
-            event.Enable(canScale());
-        }
-
         vm::vec3 ScaleObjectsToolPage::getScaleFactors() const {
-            switch (m_scaleFactorsOrSize->GetSelection()) {
+            switch (m_scaleFactorsOrSize->currentIndex()) {
                 case 0: {
                     auto document = lock(m_document);
-                    const auto desiredSize = vm::vec3::parse(m_sizeTextBox->GetValue().ToStdString());
+                    const auto desiredSize = vm::vec3::parse(m_sizeTextBox->text().toStdString());
 
                     return desiredSize / document->selectionBounds().size();
                 }
                 default:
-                    return vm::vec3::parse(m_factorsTextBox->GetValue().ToStdString());
+                    return vm::vec3::parse(m_factorsTextBox->text().toStdString());
             }
         }
 
         void ScaleObjectsToolPage::OnApply() {
-
-
             if (!canScale()) {
                 return;
             }
@@ -129,6 +141,10 @@ namespace TrenchBroom {
             const auto scaleFactors = getScaleFactors();
 
             document->scaleObjects(box.center(), scaleFactors);
+        }
+
+        void ScaleObjectsToolPage::selectionDidChange(const Selection& selection) {
+            updateGui();
         }
     }
 }

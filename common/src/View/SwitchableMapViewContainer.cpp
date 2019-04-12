@@ -30,10 +30,10 @@
 #include "View/ThreePaneMapView.h"
 #include "View/FourPaneMapView.h"
 #include "View/GLContextManager.h"
-//#include "View/Inspector.h"
+#include "View/Inspector.h"
 #include "View/MapDocument.h"
 #include "View/MapViewContainer.h"
-//#include "View/MapViewBar.h"
+#include "View/MapViewBar.h"
 #include "View/MapViewToolBox.h"
 
 #include <vecmath/scalar.h>
@@ -47,11 +47,8 @@ namespace TrenchBroom {
         m_logger(logger),
         m_document(document),
         m_contextManager(contextManager),
-        // FIXME: Port MapViewBar
-//        m_mapViewBar(new MapViewBar(this, m_document)),
-//        m_toolBox(new MapViewToolBox(m_document, m_mapViewBar->toolBook())),
-        m_mapViewBar(nullptr),
-        m_toolBox(new MapViewToolBox(m_document, nullptr)),
+        m_mapViewBar(new MapViewBar(this, m_document)),
+        m_toolBox(new MapViewToolBox(m_document, m_mapViewBar->toolBook())),
         m_mapRenderer(new Renderer::MapRenderer(m_document)),
         m_mapView(nullptr) {
             switchToMapView(static_cast<MapViewLayout>(pref(Preferences::MapViewLayout)));
@@ -72,8 +69,7 @@ namespace TrenchBroom {
         }
 
         void SwitchableMapViewContainer::connectTopWidgets(Inspector* inspector) {
-            // FIXME: inspector
-            //inspector->connectTopWidgets(m_mapViewBar);
+            inspector->connectTopWidgets(m_mapViewBar);
         }
 
         bool SwitchableMapViewContainer::viewportHasFocus() const {
@@ -108,10 +104,12 @@ namespace TrenchBroom {
                 delete layout();
             }
 
-            // FIXME: add m_mapViewBar too. Use a vertical box layout.
-            auto* layout = new QGridLayout();
+            auto* layout = new QVBoxLayout();
             layout->setContentsMargins(0, 0, 0, 0);
-            layout->addWidget(m_mapView, 0, 0, 1, 1);
+            layout->setSpacing(0);
+
+            layout->addWidget(m_mapViewBar);
+            layout->addWidget(m_mapView, 1);
             setLayout(layout);
 
             m_mapView->setFocus();

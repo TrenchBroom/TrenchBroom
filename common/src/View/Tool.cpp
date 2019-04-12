@@ -22,6 +22,7 @@
 #include "IO/ResourceUtils.h"
 
 #include <QWidget>
+#include <QStackedLayout>
 
 #include <cassert>
 
@@ -60,22 +61,16 @@ namespace TrenchBroom {
             refreshViewsNotifier(this);
         }
 
-        void Tool::createPage(wxBookCtrlBase* book) {
-            // FIXME: tool gui
-#if 0
+        void Tool::createPage(QStackedLayout* book) {
             assert(m_book == nullptr);
 
             m_book = book;
-            m_pageIndex = m_book->GetPageCount();
-            m_book->AddPage(doCreatePage(m_book), "");
-#endif
+            m_pageIndex = m_book->count();
+            m_book->addWidget(doCreatePage(m_book->parentWidget()));
         }
 
         void Tool::showPage() {
-            // FIXME: tool gui
-#if 0
-            m_book->SetSelection(m_pageIndex);
-#endif
+            m_book->setCurrentIndex(m_pageIndex);
         }
 
         bool Tool::doActivate() {

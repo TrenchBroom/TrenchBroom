@@ -36,7 +36,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        MapViewToolBox::MapViewToolBox(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl) :
+        MapViewToolBox::MapViewToolBox(MapDocumentWPtr document, QStackedLayout* bookCtrl) :
         m_document(document) {
             createTools(document, bookCtrl);
             bindObservers();
@@ -207,7 +207,7 @@ namespace TrenchBroom {
                 faceTool()->moveSelection(delta);
         }
 
-        void MapViewToolBox::createTools(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl) {
+        void MapViewToolBox::createTools(MapDocumentWPtr document, QStackedLayout* bookCtrl) {
             m_clipTool.reset(new ClipTool(document));
             m_createComplexBrushTool.reset(new CreateComplexBrushTool(document));
             m_createEntityTool.reset(new CreateEntityTool(document));
@@ -260,7 +260,7 @@ namespace TrenchBroom {
             registerTool(createSimpleBrushTool(), bookCtrl);
         }
 
-        void MapViewToolBox::registerTool(Tool* tool, wxBookCtrlBase* bookCtrl) {
+        void MapViewToolBox::registerTool(Tool* tool, QStackedLayout* bookCtrl) {
             tool->createPage(bookCtrl);
             addTool(tool);
         }
