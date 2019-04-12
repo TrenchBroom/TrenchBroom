@@ -160,10 +160,10 @@ namespace TrenchBroom {
                 QSettings(QStandardPaths::locate(QStandardPaths::ConfigLocation,
                                                  QString::fromLocal8Bit("TrenchBroom Preferences"),
                                                  QStandardPaths::LocateOption::LocateFile), QSettings::Format::IniFormat);
-            return settings;
 #else
-            return QSettings();
+                QSettings();
 #endif
+            return settings;
         }
 
         Color fromQColor(const QColor& color) {
