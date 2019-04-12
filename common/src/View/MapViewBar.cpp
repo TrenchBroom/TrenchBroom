@@ -26,27 +26,22 @@
 #include "View/ViewEditor.h"
 #include "View/wxUtils.h"
 
-#include <wx/dcclient.h>
-#include <wx/simplebook.h>
-#include <wx/sizer.h>
-#include <wx/srchctrl.h>
-#include <wx/statbmp.h>
 #include <QLabel>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QStackedLayout>
 
 namespace TrenchBroom {
     namespace View {
         MapViewBar::MapViewBar(QWidget* parent, MapDocumentWPtr document) :
-        ContainerBar(parent, wxBOTTOM),
+        ContainerBar(parent, Sides::BottomSide),
         m_document(document),
         m_toolBook(nullptr),
         m_viewEditor(nullptr) {
-#if defined __APPLE__
-            SetWindowVariant(wxWINDOW_VARIANT_SMALL);
-#endif
             createGui(document);
         }
 
-        wxBookCtrlBase* MapViewBar::toolBook() {
+        QStackedLayout* MapViewBar::toolBook() {
             return m_toolBook;
         }
 
@@ -55,25 +50,22 @@ namespace TrenchBroom {
         }
 
         void MapViewBar::createGui(MapDocumentWPtr document) {
-            // FIXME:
-#if 0
-            m_toolBook = new wxSimplebook(this);
+            m_toolBook = new QStackedLayout();
             m_viewEditor = new ViewPopupEditor(this, document);
 
             auto* hSizer = new QHBoxLayout();
             hSizer->addSpacing(LayoutConstants::NarrowHMargin);
-            hSizer->addWidget(m_toolBook, 1, wxEXPAND);
+            hSizer->addLayout(m_toolBook, 1);
             hSizer->addSpacing(LayoutConstants::MediumHMargin);
-            hSizer->addWidget(m_viewEditor, 0, wxALIGN_CENTRE_VERTICAL);
+            hSizer->addWidget(m_viewEditor, 0, Qt::AlignVCenter);
             hSizer->addSpacing(LayoutConstants::NarrowHMargin);
 
             auto* vSizer = new QVBoxLayout();
             vSizer->addSpacing(LayoutConstants::NarrowVMargin);
-            vSizer->addWidget(hSizer, 1, wxEXPAND);
+            vSizer->addLayout(hSizer, 1);
             vSizer->addSpacing(LayoutConstants::NarrowVMargin);
 
             setLayout(vSizer);
-#endif
         }
     }
 }

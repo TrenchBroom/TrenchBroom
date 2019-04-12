@@ -31,8 +31,7 @@
 #include "View/Grid.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
-// FIXME:
-//#include "View/MoveObjectsToolPage.h"
+#include "View/MoveObjectsToolPage.h"
 
 #include <vecmath/bbox.h>
 
@@ -93,9 +92,7 @@ namespace TrenchBroom {
         }
 
         QWidget* MoveObjectsTool::doCreatePage(QWidget* parent) {
-            // FIXME:
-            //return new MoveObjectsToolPage(parent, m_document);
-            return nullptr;
+            return new MoveObjectsToolPage(parent, m_document);
         }
     }
 }

@@ -22,8 +22,7 @@
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/RotateObjectsHandle.h"
-// FIXME:
-//#include "View/RotateObjectsToolPage.h"
+#include "View/RotateObjectsToolPage.h"
 
 #include <vecmath/vec.h>
 #include <vecmath/vec.h>
@@ -50,8 +49,6 @@ namespace TrenchBroom {
         }
 
         void RotateObjectsTool::updateToolPageAxis(const RotateObjectsHandle::HitArea area) {
-            // FIXME:
-#if 0
             if (area == RotateObjectsHandle::HitArea::HitArea_XAxis) {
                 m_toolPage->setAxis(vm::axis::x);
             } else if (area == RotateObjectsHandle::HitArea::HitArea_YAxis) {
@@ -59,7 +56,6 @@ namespace TrenchBroom {
             } else if (area == RotateObjectsHandle::HitArea::HitArea_ZAxis) {
                 m_toolPage->setAxis(vm::axis::z);
             }
-#endif
         }
 
         double RotateObjectsTool::angle() const {
@@ -76,8 +72,7 @@ namespace TrenchBroom {
 
         void RotateObjectsTool::setRotationCenter(const vm::vec3& position) {
             m_handle.setPosition(position);
-            // FIXME:
-            //m_toolPage->setCurrentCenter(position);
+            m_toolPage->setCurrentCenter(position);
             refreshViews();
         }
 
@@ -153,18 +148,14 @@ namespace TrenchBroom {
         void RotateObjectsTool::updateRecentlyUsedCenters(const vm::vec3& center) {
             VectorUtils::erase(m_recentlyUsedCenters, center);
             m_recentlyUsedCenters.push_back(center);
-            // FIXME:
-            //m_toolPage->setRecentlyUsedCenters(m_recentlyUsedCenters);
+            m_toolPage->setRecentlyUsedCenters(m_recentlyUsedCenters);
         }
 
         QWidget* RotateObjectsTool::doCreatePage(QWidget* parent) {
             assert(m_toolPage == nullptr);
 
-            //FIXME:
-            //m_toolPage = new RotateObjectsToolPage(parent, m_document, this);
-            //return m_toolPage;
-
-            return nullptr;
+            m_toolPage = new RotateObjectsToolPage(parent, m_document, this);
+            return m_toolPage;
         }
     }
 }

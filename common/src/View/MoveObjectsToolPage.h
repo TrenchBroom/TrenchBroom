@@ -22,25 +22,33 @@
 
 #include "View/ViewTypes.h"
 
-#include <wx/panel.h>
+#include <QWidget>
 
-class wxButton;
-class wxTextCtrl;
+class QAbstractButton;
+class QLineEdit;
 
 namespace TrenchBroom {
     namespace View {
+        class Selection;
+
         class MoveObjectsToolPage : public QWidget {
+            Q_OBJECT
         private:
             MapDocumentWPtr m_document;
 
-            wxTextCtrl* m_offset;
-            wxButton* m_button;
+            QLineEdit* m_offset;
+            QAbstractButton* m_button;
         public:
             MoveObjectsToolPage(QWidget* parent, MapDocumentWPtr document);
+            ~MoveObjectsToolPage() override;
         private:
-            void createGui();
+            void bindObservers();
+            void unbindObservers();
 
-            void OnUpdateButton();
+            void createGui();
+            void updateGui();
+
+            void selectionDidChange(const Selection& selection);
             void OnApply();
         };
     }

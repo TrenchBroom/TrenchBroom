@@ -22,10 +22,11 @@
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 
-#include <wx/button.h>
-#include <wx/sizer.h>
+#include <QAbstractButton>
+#include <QHBoxLayout>
 #include <QLabel>
-#include <wx/textctrl.h>
+#include <QLineEdit>
+#include <QPushButton>
 
 namespace TrenchBroom {
     namespace View {
@@ -33,18 +34,34 @@ namespace TrenchBroom {
         QWidget(parent),
         m_document(document) {
             createGui();
+            bindObservers();
+        }
+
+        MoveObjectsToolPage::~MoveObjectsToolPage() {
+            unbindObservers();
+        }
+
+        void MoveObjectsToolPage::bindObservers() {
+            auto document = lock(m_document);
+            document->selectionDidChangeNotifier.addObserver(this, &MoveObjectsToolPage::selectionDidChange);
+        }
+
+        void MoveObjectsToolPage::unbindObservers() {
+            if (!expired(m_document)) {
+                auto document = lock(m_document);
+                document->selectionDidChangeNotifier.removeObserver(this, &MoveObjectsToolPage::selectionDidChange);
+            }
         }
 
         void MoveObjectsToolPage::createGui() {
-            QLabel* text = new QLabel("Move objects by");
-            m_offset = new wxTextCtrl(this, wxID_ANY, "0.0 0.0 0.0", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
-            m_button = new wxButton(this, wxID_ANY, "Apply", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+            QLabel* text = new QLabel(tr("Move objects by"));
+            m_offset = new QLineEdit("0.0 0.0 0.0");
+            m_button = new QPushButton(tr("Apply"));
 
-            m_button->Bind(wxEVT_UPDATE_UI, &MoveObjectsToolPage::OnUpdateButton, this);
-            m_button->Bind(&QAbstractButton::clicked, &MoveObjectsToolPage::OnApply, this);
-            m_offset->Bind(wxEVT_TEXT_ENTER, &MoveObjectsToolPage::OnApply, this);
+            connect(m_button, &QAbstractButton::clicked, this, &MoveObjectsToolPage::OnApply);
+            connect(m_offset, &QLineEdit::returnPressed, this, &MoveObjectsToolPage::OnApply);
 
-            wxBoxSizer* sizer = new QHBoxLayout();
+            auto* sizer = new QHBoxLayout();
             sizer->addWidget(text, 0, Qt::AlignVCenter);
             sizer->addSpacing(LayoutConstants::NarrowHMargin);
             sizer->addWidget(m_offset, 0, Qt::AlignVCenter);
@@ -52,19 +69,21 @@ namespace TrenchBroom {
             sizer->addWidget(m_button, 0, Qt::AlignVCenter);
 
             setLayout(sizer);
+
+            updateGui();
         }
 
-        void MoveObjectsToolPage::OnUpdateButton() {
-
-
+        void MoveObjectsToolPage::updateGui() {
             MapDocumentSPtr document = lock(m_document);
-            event.Enable(document->hasSelectedNodes());
+            m_button->setEnabled(document->hasSelectedNodes());
+        }
+
+        void MoveObjectsToolPage::selectionDidChange(const Selection& selection) {
+            updateGui();
         }
 
         void MoveObjectsToolPage::OnApply() {
-
-
-            const vm::vec3 delta = vm::vec3::parse(m_offset->GetValue().ToStdString());
+            const vm::vec3 delta = vm::vec3::parse(m_offset->text().toStdString());
 
             MapDocumentSPtr document = lock(m_document);
             document->translateObjects(delta);

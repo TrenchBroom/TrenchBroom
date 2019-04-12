@@ -26,7 +26,7 @@
 
 #include <memory>
 
-class wxBookCtrlBase;
+class QStackedLayout;
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -66,7 +66,7 @@ namespace TrenchBroom {
             std::unique_ptr<EdgeTool> m_edgeTool;
             std::unique_ptr<FaceTool> m_faceTool;
         public:
-            MapViewToolBox(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl);
+            MapViewToolBox(MapDocumentWPtr document, QStackedLayout* bookCtrl);
             ~MapViewToolBox();
         public: // tools
             ClipTool* clipTool() const;
@@ -117,9 +117,9 @@ namespace TrenchBroom {
 
             void moveVertices(const vm::vec3& delta);
         private: // Tool related methods
-            void createTools(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl);
+            void createTools(MapDocumentWPtr document, QStackedLayout* bookCtrl);
         private: // notification
-            void registerTool(Tool* tool, wxBookCtrlBase* bookCtrl);
+            void registerTool(Tool* tool, QStackedLayout* bookCtrl);
             void bindObservers();
             void unbindObservers();
             void toolActivated(Tool* tool);

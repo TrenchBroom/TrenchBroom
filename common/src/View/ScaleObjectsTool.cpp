@@ -28,6 +28,7 @@
 #include "Renderer/Camera.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
+#include "View/ScaleObjectsToolPage.h"
 
 #include <vecmath/vec.h>
 #include <vecmath/line.h>
@@ -467,8 +468,7 @@ namespace TrenchBroom {
         ScaleObjectsTool::ScaleObjectsTool(MapDocumentWPtr document) :
         Tool(false),
         m_document(document),
-        // FIXME:
-//        m_toolPage(nullptr),
+        m_toolPage(nullptr),
         m_resizing(false),
         m_anchorPos(AnchorPos::Opposite),
         m_bboxAtDragStart(),
@@ -479,8 +479,7 @@ namespace TrenchBroom {
         ScaleObjectsTool::~ScaleObjectsTool() = default;
 
         bool ScaleObjectsTool::doActivate() {
-            // FIXME:
-//            m_toolPage->activate();
+            m_toolPage->activate();
             return true;
         }
 
@@ -923,11 +922,9 @@ namespace TrenchBroom {
         }
 
         QWidget* ScaleObjectsTool::doCreatePage(QWidget* parent) {
-            //assert(m_toolPage == nullptr);
-            // FIXME:
-            //m_toolPage = new ScaleObjectsToolPage(parent, m_document);
-            //return m_toolPage;
-            return nullptr;
+            assert(m_toolPage == nullptr);
+            m_toolPage = new ScaleObjectsToolPage(parent, m_document);
+            return m_toolPage;
         }
     }
 }

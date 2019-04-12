@@ -375,7 +375,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/MapInspector.cpp
 	${COMMON_SOURCE_DIR}/View/MapView2D.cpp
 	${COMMON_SOURCE_DIR}/View/MapView3D.cpp
-#	${COMMON_SOURCE_DIR}/View/MapViewBar.cpp
+	${COMMON_SOURCE_DIR}/View/MapViewBar.cpp
 	${COMMON_SOURCE_DIR}/View/MapViewBase.cpp
 	${COMMON_SOURCE_DIR}/View/MapViewConfig.cpp
 	${COMMON_SOURCE_DIR}/View/MapViewContainer.cpp
@@ -388,7 +388,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/MoveBrushVerticesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/MoveObjectsToolController.cpp
 	${COMMON_SOURCE_DIR}/View/MoveObjectsTool.cpp
-#	${COMMON_SOURCE_DIR}/View/MoveObjectsToolPage.cpp
+	${COMMON_SOURCE_DIR}/View/MoveObjectsToolPage.cpp
 	${COMMON_SOURCE_DIR}/View/MoveTexturesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/MultiMapView.cpp
 	${COMMON_SOURCE_DIR}/View/OnePaneMapView.cpp
@@ -413,11 +413,11 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/RotateObjectsHandle.cpp
 	${COMMON_SOURCE_DIR}/View/RotateObjectsToolController.cpp
 	${COMMON_SOURCE_DIR}/View/RotateObjectsTool.cpp
-#	${COMMON_SOURCE_DIR}/View/RotateObjectsToolPage.cpp
+	${COMMON_SOURCE_DIR}/View/RotateObjectsToolPage.cpp
 	${COMMON_SOURCE_DIR}/View/RotateTexturesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/ScaleObjectsToolController.cpp
 	${COMMON_SOURCE_DIR}/View/ScaleObjectsTool.cpp
-#	${COMMON_SOURCE_DIR}/View/ScaleObjectsToolPage.cpp
+	${COMMON_SOURCE_DIR}/View/ScaleObjectsToolPage.cpp
 	${COMMON_SOURCE_DIR}/View/SelectionCommand.cpp
 	${COMMON_SOURCE_DIR}/View/Selection.cpp
 	${COMMON_SOURCE_DIR}/View/SelectionTool.cpp

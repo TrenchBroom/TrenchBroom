@@ -23,8 +23,7 @@
 #include "View/ContainerBar.h"
 #include "View/ViewTypes.h"
 
-class wxBookCtrlBase;
-class wxSearchCtrl;
+class QStackedLayout;
 class QLabel;
 
 namespace TrenchBroom {
@@ -34,12 +33,12 @@ namespace TrenchBroom {
         class MapViewBar : public ContainerBar {
         private:
             MapDocumentWPtr m_document;
-            wxBookCtrlBase* m_toolBook;
+            QStackedLayout* m_toolBook;
             ViewPopupEditor* m_viewEditor;
         public:
             MapViewBar(QWidget* parent, MapDocumentWPtr document);
 
-            wxBookCtrlBase* toolBook();
+            QStackedLayout* toolBook();
 
             void OnSearchPatternChanged();
         private:
