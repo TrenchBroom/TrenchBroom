@@ -26,6 +26,7 @@ namespace TrenchBroom {
         KeyboardShortcut::KeyboardShortcut(int qtKey) :
         m_qtKey(qtKey) {}
 
+        // FIXME: support multi-stroke shortcuts
         KeyboardShortcut::KeyboardShortcut(const QKeySequence& keySequence) :
         m_qtKey(keySequence[0]) {}
 
