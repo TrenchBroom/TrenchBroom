@@ -590,15 +590,19 @@ namespace TrenchBroom {
             m_editor = new ViewEditor(editorContainer, document);
 
             auto* containerSizer = new QVBoxLayout();
+            containerSizer->setContentsMargins(0, 0, 0, 0);
             containerSizer->addWidget(m_editor);
             editorContainer->setLayout(containerSizer);
 
             auto* popupSizer = new QVBoxLayout();
+            popupSizer->setContentsMargins(0, 0, 0, 0);
             popupSizer->addWidget(editorContainer);
             m_button->GetPopupWindow()->setLayout(popupSizer);
 
             auto* sizer = new QHBoxLayout();
+            sizer->setContentsMargins(0, 0, 0, 0);
             sizer->addWidget(m_button, Qt::AlignVCenter);
+
             setLayout(sizer);
         }
     }

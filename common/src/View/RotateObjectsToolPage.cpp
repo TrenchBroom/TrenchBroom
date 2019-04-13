@@ -44,11 +44,24 @@ namespace TrenchBroom {
         m_document(document),
         m_tool(tool) {
             createGui();
+            bindObservers();
             m_angle->setValue(vm::toDegrees(m_tool->angle()));
         }
 
         RotateObjectsToolPage::~RotateObjectsToolPage() {
+            unbindObservers();
+        }
 
+        void RotateObjectsToolPage::bindObservers() {
+            auto document = lock(m_document);
+            document->selectionDidChangeNotifier.addObserver(this, &RotateObjectsToolPage::selectionDidChange);
+        }
+
+        void RotateObjectsToolPage::unbindObservers() {
+            if (!expired(m_document)) {
+                auto document = lock(m_document);
+                document->selectionDidChangeNotifier.removeObserver(this, &RotateObjectsToolPage::selectionDidChange);
+            }
         }
 
         void RotateObjectsToolPage::setAxis(const vm::axis::type axis) {
@@ -74,6 +87,8 @@ namespace TrenchBroom {
         void RotateObjectsToolPage::createGui() {
             auto* centerText = new QLabel(tr("Center"));
             m_recentlyUsedCentersList = new QComboBox();
+            m_recentlyUsedCentersList->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+            m_recentlyUsedCentersList->setEditable(true);
 
             m_resetCenterButton = new QPushButton(tr("Reset"));
             m_resetCenterButton->setToolTip(tr("Reset the position of the rotate handle to the center of the current selection."));
@@ -84,8 +99,6 @@ namespace TrenchBroom {
             m_angle = new SpinControl(this);
             m_angle->setRange(-360.0, 360.0);
             m_angle->setValue(vm::toDegrees(m_tool->angle()));
-            // FIXME:
-            //m_angle->setDigits(0, 4);
 
             m_axis = new QComboBox();
             m_axis->addItem("X");
@@ -95,23 +108,24 @@ namespace TrenchBroom {
 
             m_rotateButton = new QPushButton(tr("Apply"));
 
-            connect(m_recentlyUsedCentersList, &QComboBox::currentTextChanged, this, &RotateObjectsToolPage::OnCenterChanged);
-            connect(m_recentlyUsedCentersList, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &RotateObjectsToolPage::OnCenterChanged);
+            connect(m_recentlyUsedCentersList, QOverload<const QString &>::of(&QComboBox::activated), this, &RotateObjectsToolPage::OnCenterChanged);
             connect(m_resetCenterButton, &QAbstractButton::clicked, this, &RotateObjectsToolPage::OnResetCenter);
             connect(m_angle, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &RotateObjectsToolPage::OnAngleChanged);
             connect(m_rotateButton, &QAbstractButton::clicked, this, &RotateObjectsToolPage::OnRotate);
 
             auto* separator = new BorderLine(BorderLine::Direction_Vertical);
-            //separator->SetForegroundColour(Colors::separatorColor());
 
             auto* sizer = new QHBoxLayout();
+            sizer->setContentsMargins(0, 0, 0, 0);
+            sizer->setSpacing(0);
+
             sizer->addWidget(centerText, 0, Qt::AlignVCenter);
             sizer->addSpacing(LayoutConstants::NarrowHMargin);
             sizer->addWidget(m_recentlyUsedCentersList, 0, Qt::AlignVCenter);
             sizer->addSpacing(LayoutConstants::NarrowHMargin);
             sizer->addWidget(m_resetCenterButton, 0, Qt::AlignVCenter);
             sizer->addSpacing(LayoutConstants::MediumHMargin);
-            sizer->addWidget(separator, 0); //, wxEXPAND | wxTOP | wxBOTTOM, 2);
+            sizer->addWidget(separator, 0);
             sizer->addSpacing(LayoutConstants::NarrowHMargin);
             sizer->addWidget(text1, 0, Qt::AlignVCenter);
             sizer->addSpacing(LayoutConstants::NarrowHMargin);
@@ -119,12 +133,12 @@ namespace TrenchBroom {
             sizer->addSpacing(LayoutConstants::NarrowHMargin);
             sizer->addWidget(text2, 0, Qt::AlignVCenter);
             sizer->addSpacing(LayoutConstants::NarrowHMargin);
-            sizer->addWidget(m_axis, 0); //, wxTOP, LayoutConstants::ChoiceTopMargin);
+            sizer->addWidget(m_axis, 0);
             sizer->addSpacing(LayoutConstants::NarrowHMargin);
             sizer->addWidget(text3, 0, Qt::AlignVCenter);
             sizer->addSpacing(LayoutConstants::NarrowHMargin);
             sizer->addWidget(m_rotateButton, 0, Qt::AlignVCenter);
-            //sizer->SetItemMinSize(m_angle, 80, wxDefaultCoord);
+            sizer->addStretch(1);
 
             setLayout(sizer);
 
@@ -172,6 +186,10 @@ namespace TrenchBroom {
                 default:
                     return vm::vec3::pos_z;
             }
+        }
+
+        void RotateObjectsToolPage::selectionDidChange(const Selection& selection) {
+            updateGui();
         }
     }
 }

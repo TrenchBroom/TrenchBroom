@@ -43,6 +43,7 @@ namespace TrenchBroom {
         class MapViewToolBox;
 
         class CyclingMapView : public MapViewContainer, public CameraLinkableView {
+            Q_OBJECT
         public:
             typedef enum {
                 View_3D  = 1,
@@ -89,7 +90,7 @@ namespace TrenchBroom {
             void doToggleMaximizeCurrentView() override;
 
             bool doCancelMouseDrag() override;
-
+            void doRefreshViews() override;
         private: // implement MapViewContainer interface
             MapView* doGetCurrentMapView() const override;
         private: // implement CameraLinkableView interface

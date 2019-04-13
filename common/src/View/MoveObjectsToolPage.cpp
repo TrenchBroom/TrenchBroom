@@ -35,6 +35,7 @@ namespace TrenchBroom {
         m_document(document) {
             createGui();
             bindObservers();
+            updateGui();
         }
 
         MoveObjectsToolPage::~MoveObjectsToolPage() {
@@ -62,15 +63,15 @@ namespace TrenchBroom {
             connect(m_offset, &QLineEdit::returnPressed, this, &MoveObjectsToolPage::OnApply);
 
             auto* sizer = new QHBoxLayout();
+            sizer->setContentsMargins(0, 0, 0, 0);
+            sizer->setSpacing(LayoutConstants::NarrowHMargin);
+
             sizer->addWidget(text, 0, Qt::AlignVCenter);
-            sizer->addSpacing(LayoutConstants::NarrowHMargin);
             sizer->addWidget(m_offset, 0, Qt::AlignVCenter);
-            sizer->addSpacing(LayoutConstants::NarrowHMargin);
             sizer->addWidget(m_button, 0, Qt::AlignVCenter);
+            sizer->addStretch(1);
 
             setLayout(sizer);
-
-            updateGui();
         }
 
         void MoveObjectsToolPage::updateGui() {

@@ -45,27 +45,18 @@ namespace TrenchBroom {
             return m_toolBook;
         }
 
-        void MapViewBar::OnSearchPatternChanged() {
-
-        }
-
         void MapViewBar::createGui(MapDocumentWPtr document) {
             m_toolBook = new QStackedLayout();
+            m_toolBook->setContentsMargins(0, 0, 0, 0);
+
             m_viewEditor = new ViewPopupEditor(this, document);
 
             auto* hSizer = new QHBoxLayout();
-            hSizer->addSpacing(LayoutConstants::NarrowHMargin);
+            hSizer->setContentsMargins(LayoutConstants::NarrowHMargin, LayoutConstants::NarrowVMargin, LayoutConstants::NarrowHMargin, LayoutConstants::NarrowVMargin);
             hSizer->addLayout(m_toolBook, 1);
-            hSizer->addSpacing(LayoutConstants::MediumHMargin);
             hSizer->addWidget(m_viewEditor, 0, Qt::AlignVCenter);
-            hSizer->addSpacing(LayoutConstants::NarrowHMargin);
 
-            auto* vSizer = new QVBoxLayout();
-            vSizer->addSpacing(LayoutConstants::NarrowVMargin);
-            vSizer->addLayout(hSizer, 1);
-            vSizer->addSpacing(LayoutConstants::NarrowVMargin);
-
-            setLayout(vSizer);
+            setLayout(hSizer);
         }
     }
 }

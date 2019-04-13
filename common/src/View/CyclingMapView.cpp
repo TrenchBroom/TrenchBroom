@@ -163,6 +163,12 @@ namespace TrenchBroom {
             return m_currentMapView;
         }
 
+        void CyclingMapView::doRefreshViews() {
+            for (MapView* mapView : m_mapViews) {
+                mapView->refreshViews();
+            }
+        }
+
         void CyclingMapView::doLinkCamera(CameraLinkHelper& helper) {
             for (size_t i = 0; i < m_mapViews.size(); ++i) {
                 m_mapViews[i]->linkCamera(helper);

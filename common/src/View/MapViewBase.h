@@ -278,6 +278,7 @@ namespace TrenchBroom {
             bool doCanFlipObjects() const override;
             void doFlipObjects(vm::direction direction) override;
             bool doCancelMouseDrag() override;
+            void doRefreshViews() override;
         protected: // RenderView overrides
             void initializeGL() override;
         private: // implement RenderView interface

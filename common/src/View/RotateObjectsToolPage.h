@@ -35,6 +35,7 @@ namespace TrenchBroom {
     namespace View {
         class RotateObjectsTool;
         class SpinControl;
+        class Selection;
 
         class RotateObjectsToolPage : public QWidget {
             Q_OBJECT
@@ -56,6 +57,9 @@ namespace TrenchBroom {
             void setRecentlyUsedCenters(const std::vector<vm::vec3>& centers);
             void setCurrentCenter(const vm::vec3& center);
         private:
+            void bindObservers();
+            void unbindObservers();
+
             void createGui();
             void updateGui();
 
@@ -64,6 +68,8 @@ namespace TrenchBroom {
             void OnAngleChanged(double value);
             void OnRotate();
             vm::vec3 getAxis() const;
+
+            void selectionDidChange(const Selection& selection);
         };
     }
 }

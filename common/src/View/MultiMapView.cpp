@@ -117,5 +117,11 @@ namespace TrenchBroom {
                 result |= mapView->cancelMouseDrag();
             return result;
         }
+
+        void MultiMapView::doRefreshViews() {
+            for (MapView* mapView : m_mapViews) {
+                mapView->refreshViews();
+            }
+        }
     }
 }

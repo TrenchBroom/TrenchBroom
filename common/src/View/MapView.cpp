@@ -75,5 +75,9 @@ namespace TrenchBroom {
         bool MapView::cancelMouseDrag() {
             return doCancelMouseDrag();
         }
+
+        void MapView::refreshViews() {
+            doRefreshViews();
+        }
     }
 }

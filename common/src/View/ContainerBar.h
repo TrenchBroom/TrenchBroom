@@ -25,6 +25,7 @@
 namespace TrenchBroom {
     namespace View {
         class ContainerBar : public BorderPanel {
+            Q_OBJECT
         public:
             explicit ContainerBar(QWidget* parent, Sides borders);
             virtual ~ContainerBar();

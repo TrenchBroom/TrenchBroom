@@ -31,7 +31,7 @@ namespace TrenchBroom {
 
         class MapView : public ViewEffectsService {
         public:
-            virtual ~MapView();
+            ~MapView() override;
 
             bool isCurrent() const;
             void setToolBoxDropTarget();
@@ -51,6 +51,11 @@ namespace TrenchBroom {
             void moveCameraToCurrentTracePoint();
 
             bool cancelMouseDrag();
+
+            /**
+             * Requests repaint of the managed map views. Note, this must be used instead of QWidget::update()
+             */
+            void refreshViews();
         private:
             virtual bool doGetIsCurrent() const = 0;
 
@@ -71,6 +76,8 @@ namespace TrenchBroom {
             virtual void doMoveCameraToCurrentTracePoint() = 0;
 
             virtual bool doCancelMouseDrag() = 0;
+
+            virtual void doRefreshViews() = 0;
         };
     }
 }

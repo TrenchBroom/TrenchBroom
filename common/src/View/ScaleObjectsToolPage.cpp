@@ -45,6 +45,7 @@ namespace TrenchBroom {
         m_document(document) {
             createGui();
             bindObservers();
+            updateGui();
         }
 
         ScaleObjectsToolPage::~ScaleObjectsToolPage() {
@@ -74,9 +75,9 @@ namespace TrenchBroom {
         void ScaleObjectsToolPage::createGui() {
             MapDocumentSPtr document = lock(m_document);
 
-            QLabel* text = new QLabel(tr("Scale objects"));
+            auto* text = new QLabel(tr("Scale objects"));
 
-            m_book = new QStackedLayout(this);
+            m_book = new QStackedLayout();
             m_sizeTextBox = new QLineEdit();
             m_factorsTextBox = new QLineEdit();
             m_book->addWidget(m_sizeTextBox);
@@ -96,17 +97,16 @@ namespace TrenchBroom {
             connect(m_button, &QAbstractButton::clicked, this, &ScaleObjectsToolPage::OnApply);
 
             auto* sizer = new QHBoxLayout();
+            sizer->setContentsMargins(0, 0, 0, 0);
+            sizer->setSpacing(LayoutConstants::NarrowHMargin);
+
             sizer->addWidget(text, 0, Qt::AlignVCenter);
-            sizer->addSpacing(LayoutConstants::NarrowHMargin);
             sizer->addWidget(m_scaleFactorsOrSize, 0, Qt::AlignVCenter);
-            sizer->addSpacing(LayoutConstants::NarrowHMargin);
             sizer->addLayout(m_book, 0);
-            sizer->addSpacing(LayoutConstants::NarrowHMargin);
             sizer->addWidget(m_button, 0, Qt::AlignVCenter);
+            sizer->addStretch(1);
 
             setLayout(sizer);
-
-            updateGui();
         }
 
         void ScaleObjectsToolPage::updateGui() {

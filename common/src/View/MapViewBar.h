@@ -31,6 +31,7 @@ namespace TrenchBroom {
         class ViewPopupEditor;
 
         class MapViewBar : public ContainerBar {
+            Q_OBJECT
         private:
             MapDocumentWPtr m_document;
             QStackedLayout* m_toolBook;
@@ -39,8 +40,6 @@ namespace TrenchBroom {
             MapViewBar(QWidget* parent, MapDocumentWPtr document);
 
             QStackedLayout* toolBook();
-
-            void OnSearchPatternChanged();
         private:
             void createGui(MapDocumentWPtr document);
         };

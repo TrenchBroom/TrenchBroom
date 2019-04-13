@@ -54,6 +54,7 @@ namespace TrenchBroom {
             void doMoveCameraToPosition(const vm::vec3& position, bool animate) override;
             void doMoveCameraToCurrentTracePoint() override;
             bool doCancelMouseDrag() override;
+            void doRefreshViews() override;
         private: // implement MapViewContainer interface
             bool doCanMaximizeCurrentView() const override;
             bool doCurrentViewMaximized() const override;

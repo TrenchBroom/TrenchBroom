@@ -29,9 +29,10 @@ namespace TrenchBroom {
         class MapViewBase;
 
         class MapViewContainer : public QWidget, public MapView {
+            Q_OBJECT
         public:
-            MapViewContainer(QWidget* parent);
-            virtual ~MapViewContainer() override;
+            explicit MapViewContainer(QWidget* parent);
+            ~MapViewContainer() override;
         public:
             bool canMaximizeCurrentView() const;
             bool currentViewMaximized() const;

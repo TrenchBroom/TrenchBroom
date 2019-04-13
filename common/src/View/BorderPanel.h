@@ -25,7 +25,7 @@
 namespace TrenchBroom {
     namespace View {
         class BorderPanel : public QWidget {
-        Q_OBJECT
+            Q_OBJECT
         public:
             enum Sides {
                 TopSide = 1,

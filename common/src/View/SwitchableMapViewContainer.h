@@ -53,6 +53,7 @@ namespace TrenchBroom {
         class FaceTool;
 
         class SwitchableMapViewContainer : public QWidget, public MapView {
+            Q_OBJECT
         private:
             Logger* m_logger;
             MapDocumentWPtr m_document;
@@ -135,6 +136,7 @@ namespace TrenchBroom {
             void doMoveCameraToPosition(const vm::vec3& position, bool animate) override;
             void doMoveCameraToCurrentTracePoint() override;
             bool doCancelMouseDrag() override;
+            void doRefreshViews() override;
         private: // implement ViewEffectsService interface
             void doFlashSelection() override;
         };

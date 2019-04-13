@@ -302,7 +302,9 @@ namespace TrenchBroom {
         }
 
         void SwitchableMapViewContainer::refreshViews(Tool* tool) {
-            m_mapView->update();
+            // NOTE: it doesn't work to call QWidget::update() here. The actual OpenGL view is a QWindow embedded in
+            // the widget hierarchy with QWidget::createWindowContainer(), and we need to call QWindow::requestUpdate().
+            m_mapView->refreshViews();
         }
 
         bool SwitchableMapViewContainer::doGetIsCurrent() const {
@@ -355,6 +357,10 @@ namespace TrenchBroom {
 
         bool SwitchableMapViewContainer::doCancelMouseDrag() {
             return m_mapView->cancelMouseDrag();
+        }
+
+        void SwitchableMapViewContainer::doRefreshViews() {
+            m_mapView->refreshViews();
         }
     }
 }

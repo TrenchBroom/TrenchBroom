@@ -1056,6 +1056,10 @@ namespace TrenchBroom {
             return ToolBoxConnector::cancelDrag();
         }
 
+        void MapViewBase::doRefreshViews() {
+            requestUpdate();
+        }
+
         void MapViewBase::initializeGL() {
             RenderView::initializeGL();
             GLVendor   = QString::fromUtf8(reinterpret_cast<const char*>(glGetString(GL_VENDOR)));
