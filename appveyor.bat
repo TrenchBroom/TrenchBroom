@@ -3,7 +3,7 @@ PATH=%PATH%;C:\Program Files (x86)\Pandoc;C:\Program Files\Cppcheck
 mkdir cmakebuild
 cd cmakebuild
 
-cmake .. -G"Visual Studio 15 2017" -T v141_xp -DCMAKE_BUILD_TYPE=Release -DTB_SKIP_TESTS=YES -DCMAKE_PREFIX_PATH="C:\Qt\5.12.1\msvc2017"
+cmake .. -G"Visual Studio 15 2017" -T v141_xp -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="C:\Qt\5.12.1\msvc2017"
 
 REM  -DCMAKE_CXX_FLAGS=/WX
 
