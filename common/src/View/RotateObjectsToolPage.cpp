@@ -87,7 +87,7 @@ namespace TrenchBroom {
         void RotateObjectsToolPage::createGui() {
             auto* centerText = new QLabel(tr("Center"));
             m_recentlyUsedCentersList = new QComboBox();
-            m_recentlyUsedCentersList->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+            m_recentlyUsedCentersList->setMinimumContentsLength(16);
             m_recentlyUsedCentersList->setEditable(true);
 
             m_resetCenterButton = new QPushButton(tr("Reset"));
