@@ -23,9 +23,6 @@ matrix:
     - os: osx
       osx_image: xcode10
       env: TB_DEBUG_BUILD=true
-cache:
-  directories:
-  - wx-install-cache
 script:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then ./travis-macos.sh; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./travis-linux.sh; fi

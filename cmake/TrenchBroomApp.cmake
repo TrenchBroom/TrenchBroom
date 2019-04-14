@@ -137,6 +137,21 @@ IF(APPLE)
 
     # Configure the XCode generator project
     SET_XCODE_ATTRIBUTES(TrenchBroom)
+
+    # If requested, run macdeployqt which copies the Qt frameworks into the TrenchBroom.app bundle
+    # and modifies the TrenchBroom executable to refer to these private copies of the framework instead
+    # of the ones in /usr/local. This is slow so only do it if requested.
+    IF(TB_RUN_MACDEPLOYQT)
+        MESSAGE(STATUS "macdeployqt requested")
+
+        # Get macdeployqt path (hack)
+        GET_TARGET_PROPERTY(TB_QMAKE_PATH Qt5::qmake IMPORTED_LOCATION)
+        STRING(REPLACE "qmake" "macdeployqt" TB_MACDEPLOYQT_PATH "${TB_QMAKE_PATH}")
+
+        ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
+            COMMAND "${TB_MACDEPLOYQT_PATH}" "$<TARGET_FILE_DIR:TrenchBroom>/../.."
+        )
+    ENDIF()
 ENDIF()
 
 # Copy some Windows-specific resources
