@@ -80,7 +80,7 @@ namespace TrenchBroom {
             return hasPointEntityDefinition() && m_modelFrame != nullptr;
         }
 
-        vm::bbox3 Entity::definitionBounds() const {
+        const vm::bbox3& Entity::definitionBounds() const {
             if (!m_boundsValid) {
                 validateBounds();
             }
@@ -138,7 +138,7 @@ namespace TrenchBroom {
             }
         }
 
-        vm::bbox3 Entity::modelBounds() const {
+        const vm::bbox3& Entity::modelBounds() const {
             if (!m_boundsValid) {
                 validateBounds();
             }
@@ -234,7 +234,7 @@ namespace TrenchBroom {
 
         void Entity::doPick(const vm::ray3& ray, PickResult& pickResult) const {
             if (!hasChildren()) {
-                const vm::bbox3& myBounds = bounds();
+                const vm::bbox3& myBounds = definitionBounds();
                 if (!myBounds.contains(ray.origin)) {
                     const FloatType distance = vm::intersectRayAndBBox(ray, myBounds);
                     if (!vm::isnan(distance)) {
