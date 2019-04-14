@@ -38,7 +38,7 @@ namespace TrenchBroom {
             void createDirectory(const Path& path);
             void createFile(const Path& path, const String& contents);
 
-            bool deleteDirectory(const Path& path);
+            bool deleteDirectoryAbsolute(const Path& absolutePath);
             bool deleteTestEnvironment();
 
             bool directoryExists(const Path& path) const;

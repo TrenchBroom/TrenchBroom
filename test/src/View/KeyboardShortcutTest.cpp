@@ -26,6 +26,7 @@
 
 namespace TrenchBroom {
     namespace View {
+        /*
         void assertSortModifierKeys(int key1, int key2, int key3, const int exp1, const int exp2, const int exp3);
         void assertSortModifierKeys(int key1, int key2, int key3, const int exp1, const int exp2, const int exp3) {
             KeyboardShortcut::sortModifierKeys(key1, key2, key3);
@@ -261,5 +262,6 @@ namespace TrenchBroom {
             ASSERT_WXSTR_EQ(QString("Ctrl+Alt"), shortcut.modifierMenuString());
 #endif
         }
+         */
     }
 }

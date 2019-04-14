@@ -28,7 +28,7 @@
 
 #include <algorithm>
 
-#include <wx/filefn.h>
+#include <QFileInfo>
 
 namespace TrenchBroom {
     namespace IO {
@@ -74,8 +74,8 @@ namespace TrenchBroom {
             ASSERT_THROW(Disk::fixPath(Path("/../../test")), FileSystemException);
 
             // on case sensitive file systems, this should also work
-            ASSERT_TRUE(::wxFileExists(Disk::fixPath(env.dir() + Path("TEST.txt")).asString()));
-            ASSERT_TRUE(::wxFileExists(Disk::fixPath(env.dir() + Path("anotHERDIR/./SUBdirTEST/../SubdirTesT/TesT2.MAP")).asString()));
+            ASSERT_TRUE(QFileInfo::exists(Disk::fixPath(env.dir() + Path("TEST.txt")).asQString()));
+            ASSERT_TRUE(QFileInfo::exists(Disk::fixPath(env.dir() + Path("anotHERDIR/./SUBdirTEST/../SubdirTesT/TesT2.MAP")).asQString()));
         }
 
         TEST(DiskTest, directoryExists) {

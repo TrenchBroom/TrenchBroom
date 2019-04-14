@@ -5,8 +5,7 @@ SET(APP_SOURCE_DIR "${APP_DIR}/src")
 
 # Collect the source files for compilation.
 FILE(GLOB_RECURSE APP_SOURCE
-    "${APP_SOURCE_DIR}/*.h"
-    "${APP_SOURCE_DIR}/*.cpp"
+    "${APP_SOURCE_DIR}/Main.cpp"
 )
 
 SET(APP_SOURCE ${APP_SOURCE} ${DOC_MANUAL_TARGET_FILES} ${DOC_MANUAL_IMAGES_TARGET_FILES})
@@ -102,7 +101,7 @@ IF(COMPILER_IS_GNU AND TB_ENABLE_ASAN)
     TARGET_LINK_LIBRARIES(TrenchBroom asan)
 ENDIF()
 
-TARGET_LINK_LIBRARIES(TrenchBroom glew ${wxWidgets_LIBRARIES} ${FREETYPE_LIBRARIES} ${FREEIMAGE_LIBRARIES} vecmath Qt5::Widgets tinyxml2 miniz)
+TARGET_LINK_LIBRARIES(TrenchBroom glew ${FREETYPE_LIBRARIES} ${FREEIMAGE_LIBRARIES} vecmath Qt5::Widgets tinyxml2 miniz)
 IF (COMPILER_IS_MSVC)
     TARGET_LINK_LIBRARIES(TrenchBroom stackwalker)
 ENDIF()
@@ -183,6 +182,7 @@ IF(COMPILER_IS_MSVC)
     SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES LINK_FLAGS_RELEASE "/DEBUG /PDBSTRIPPED:Release/TrenchBroom-stripped.pdb /PDBALTPATH:TrenchBroom-stripped.pdb")
 ENDIF()
 
+# Properly link to OpenGL libraries
 FIND_PACKAGE(OpenGL REQUIRED)
 TARGET_LINK_LIBRARIES(TrenchBroom OpenGL::GL)
 

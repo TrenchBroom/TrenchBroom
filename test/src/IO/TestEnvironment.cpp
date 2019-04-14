@@ -21,14 +21,15 @@
 
 #include "Macros.h"
 
-#include <wx/dir.h>
-#include <wx/file.h>
-#include <wx/filefn.h>
+#include <QDir>
+#include <QFileInfo>
+#include <QFile>
+#include <QTextStream>
 
 namespace TrenchBroom {
     namespace IO {
         TestEnvironment::TestEnvironment(const String& dir) :
-            m_dir(Path(::wxGetCwd().ToStdString()) + Path(dir)) {
+            m_dir(Path(QDir::current().path().toStdString()) + Path(dir)) {
             createTestEnvironment();
         }
 
@@ -47,49 +48,43 @@ namespace TrenchBroom {
         }
 
         void TestEnvironment::createDirectory(const Path& path) {
-            assertResult(::wxMkdir((m_dir + path).asString()));
+            auto dir = QDir(m_dir.asQString());
+            assertResult(dir.mkpath(path.asQString()));
         }
 
         void TestEnvironment::createFile(const Path& path, const String& contents) {
-            wxFile file;
-            assertResult(file.Create((m_dir + path).asString()));
-            assertResult(file.Write(QString(contents)));
+            auto file = QFile((m_dir + path).asQString());
+            assertResult(file.open(QIODevice::ReadWrite));
+
+            auto stream = QTextStream(&file);
+            stream << QString::fromStdString(contents);
+            stream.flush();
+            assert(stream.status() == QTextStream::Ok);
         }
 
-        bool TestEnvironment::deleteDirectory(const Path& path) {
-            if (!::wxDirExists(path.asString())) {
+        bool TestEnvironment::deleteDirectoryAbsolute(const Path& absolutePath) {
+            auto dir = QDir(absolutePath.asQString());
+            if (!dir.exists()) {
                 return true;
             }
 
-            { // put in a block so that dir gets closed before we call wxRmdir
-                wxDir dir(path.asString());
-                assert(dir.IsOpened());
-
-                QString filename;
-                if (dir.GetFirst(&filename)) {
-                    do {
-                        const Path subPath = path + Path(filename.ToStdString());
-                        if (::wxDirExists(subPath.asString())) {
-                            deleteDirectory(subPath);
-                        } else {
-                            ::wxRemoveFile(subPath.asString());
-                        }
-                    } while (dir.GetNext(&filename));
-                }
-            }
-            return ::wxRmdir(path.asString());
+            return dir.removeRecursively();
         }
 
         bool TestEnvironment::deleteTestEnvironment() {
-            return deleteDirectory(m_dir);
+            return deleteDirectoryAbsolute(m_dir);
         }
 
         bool TestEnvironment::directoryExists(const Path& path) const {
-            return ::wxDirExists((m_dir + path).asString());
+            auto file = QFileInfo((m_dir + path).asQString());
+
+            return file.exists() && file.isDir();
         }
 
         bool TestEnvironment::fileExists(const Path& path) const {
-            return ::wxFileExists((m_dir + path).asString());
+            auto file = QFileInfo((m_dir + path).asQString());
+
+            return file.exists() && file.isFile();
         }
 
         void TestEnvironment::doCreateTestEnvironment() {}

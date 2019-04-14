@@ -17,8 +17,33 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Main.h"
+#include "Model/GameFactory.h"
+#include "View/MapDocument.h"
+#include "View/MapDocumentCommandFacade.h"
+#include "View/MapFrame.h"
+#include "TrenchBroomApp.h"
 
-#if 0
-IMPLEMENT_APP(TrenchBroom::View::TrenchBroomApp)
-#endif
+#include <QApplication>
+#include <QSurfaceFormat>
+#include <QSettings>
+
+extern void qt_set_sequence_auto_mnemonic(bool b);
+
+int main(int argc, char *argv[])
+{
+    // Makes all QOpenGLWidget in the application share a single context
+    // (default behaviour would be for QOpenGLWidget's in a single top-level window to share a context.)
+    // see: http://doc.qt.io/qt-5/qopenglwidget.html#context-sharing
+    QApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
+    QSettings::setDefaultFormat(QSettings::IniFormat);
+
+    // We can't use auto mnemonics in TrenchBroom. e.g. by default with Qt, Alt+D opens the "Debug" menu,
+    // Alt+S activates the "Show default properties" checkbox in the entity inspector.
+    // Flying with Alt held down and pressing WASD is a fundamental behaviour in TB, so we can't have
+    // shortcuts randomly activating.
+    qt_set_sequence_auto_mnemonic(false);
+
+    TrenchBroom::View::TrenchBroomApp app(argc, argv);
+
+    app.exec();
+}

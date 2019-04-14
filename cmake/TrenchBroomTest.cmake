@@ -29,11 +29,19 @@ ENDIF()
 ADD_TARGET_PROPERTY(TrenchBroom-Test INCLUDE_DIRECTORIES "${TEST_SOURCE_DIR}")
 ADD_TARGET_PROPERTY(TrenchBroom-Benchmark INCLUDE_DIRECTORIES "${BENCHMARK_SOURCE_DIR}")
 
-TARGET_LINK_LIBRARIES(TrenchBroom-Test glew gtest gmock ${wxWidgets_LIBRARIES} ${FREETYPE_LIBRARIES} ${FREEIMAGE_LIBRARIES} vecmath tinyxml2 miniz)
-TARGET_LINK_LIBRARIES(TrenchBroom-Benchmark glew gtest gmock ${wxWidgets_LIBRARIES} ${FREETYPE_LIBRARIES} ${FREEIMAGE_LIBRARIES} vecmath tinyxml2 miniz)
+TARGET_LINK_LIBRARIES(TrenchBroom-Test glew ${FREETYPE_LIBRARIES} ${FREEIMAGE_LIBRARIES} vecmath Qt5::Widgets tinyxml2 miniz gtest gmock)
+TARGET_LINK_LIBRARIES(TrenchBroom-Benchmark glew ${FREETYPE_LIBRARIES} ${FREEIMAGE_LIBRARIES} vecmath Qt5::Widgets tinyxml2 miniz gtest gmock)
+
+# Work around for gtest bug, see: https://stackoverflow.com/questions/21116622/undefined-reference-to-pthread-key-create-linker-error
+find_package(Threads)
+target_link_libraries(TrenchBroom-Test ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(TrenchBroom-Benchmark ${CMAKE_THREAD_LIBS_INIT})
 
 SET_TARGET_PROPERTIES(TrenchBroom-Test PROPERTIES COMPILE_DEFINITIONS "GLEW_STATIC")
 SET_TARGET_PROPERTIES(TrenchBroom-Benchmark PROPERTIES COMPILE_DEFINITIONS "GLEW_STATIC")
+
+SET_TARGET_PROPERTIES(TrenchBroom-Test PROPERTIES AUTOMOC TRUE)
+SET_TARGET_PROPERTIES(TrenchBroom-Benchmark PROPERTIES AUTOMOC TRUE)
 
 IF (COMPILER_IS_MSVC)
     TARGET_LINK_LIBRARIES(TrenchBroom-Test stackwalker)
@@ -44,13 +52,10 @@ IF (COMPILER_IS_MSVC)
     SET_TARGET_PROPERTIES(TrenchBroom-Benchmark PROPERTIES LINK_FLAGS_RELEASE "/DEBUG /PDBSTRIPPED:Release/TrenchBroom-Benchmark-stripped.pdb /PDBALTPATH:TrenchBroom-Benchmark-stripped.pdb")
 ENDIF()
 
-# Properly link to OpenGL libraries on Unix-like systems
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
-    FIND_PACKAGE(OpenGL)
-    INCLUDE_DIRECTORIES(SYSTEM ${OPENGL_INCLUDE_DIR})
-    TARGET_LINK_LIBRARIES(TrenchBroom-Test ${OPENGL_LIBRARIES})
-    TARGET_LINK_LIBRARIES(TrenchBroom-Benchmark ${OPENGL_LIBRARIES})
-ENDIF()
+# Properly link to OpenGL libraries
+FIND_PACKAGE(OpenGL REQUIRED)
+TARGET_LINK_LIBRARIES(TrenchBroom-Test OpenGL::GL)
+TARGET_LINK_LIBRARIES(TrenchBroom-Benchmark OpenGL::GL)
 
 SET(TEST_RESOURCE_DEST_DIR "$<TARGET_FILE_DIR:TrenchBroom-Test>")
 SET(BENCHMARK_RESOURCE_DEST_DIR "$<TARGET_FILE_DIR:TrenchBroom-Benchmark>")

@@ -259,7 +259,6 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/StringUtils.cpp
 	${COMMON_SOURCE_DIR}/TemporarilySetAny.cpp
 	${COMMON_SOURCE_DIR}/TrenchBroomApp.cpp
-	${COMMON_SOURCE_DIR}/TrenchBroomAppQt.cpp
 	${COMMON_SOURCE_DIR}/TrenchBroomStackWalker.cpp
 	${COMMON_SOURCE_DIR}/View/AboutDialog.cpp
 	${COMMON_SOURCE_DIR}/View/ActionContext.cpp
@@ -1073,7 +1072,7 @@ IF(common_TYPE STREQUAL "SHARED_LIBRARY")
         TARGET_LINK_LIBRARIES(common asan)
     ENDIF()
 
-    TARGET_LINK_LIBRARIES(common glew ${wxWidgets_LIBRARIES} ${FREETYPE_LIBRARIES} ${FREEIMAGE_LIBRARIES} vecmath tinyxml2 miniz)
+    TARGET_LINK_LIBRARIES(common glew ${FREETYPE_LIBRARIES} ${FREEIMAGE_LIBRARIES} vecmath tinyxml2 miniz)
 ENDIF()
 TARGET_LINK_LIBRARIES(common Qt5::Widgets)
 

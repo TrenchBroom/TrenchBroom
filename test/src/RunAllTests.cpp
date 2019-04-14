@@ -21,30 +21,24 @@
 
 #include "TrenchBroomApp.h"
 
-#include <wx/config.h>
-#include <wx/fileconf.h>
 #include <clocale>
 
 int main(int argc, char **argv) {
 
-    wxApp* pApp = new TrenchBroom::View::TrenchBroomApp();
-    wxApp::SetInstance(pApp);
+    TrenchBroom::View::TrenchBroomApp app(argc, argv);
     TrenchBroom::View::setCrashReportGUIEnbled(false);
-    ensure(wxEntryStart(argc, argv), "wxWidgets initialization failed");
 
-    ensure(wxApp::GetInstance() == pApp, "invalid app instance");
+    ensure(qApp == &app, "invalid app instance");
 
     // use an empty file config so that we always use the default preferences
-    wxConfig::Set(new wxFileConfig("TrenchBroom-Test"));
+    // FIXME:
+//    wxConfig::Set(new wxFileConfig("TrenchBroom-Test"));
 
     ::testing::InitGoogleTest(&argc, argv);
 
     // set the locale to US so that we can parse floats attribute
     std::setlocale(LC_NUMERIC, "C");
     const int result = RUN_ALL_TESTS();
-
-    wxEntryCleanup();
-    delete wxConfig::Set(nullptr);
 
     return result;
 }
