@@ -2056,12 +2056,10 @@ namespace TrenchBroom {
                 m_game->setGamePath(newGamePath, logger());
 
                 clearEntityModels();
+                setEntityModels();
 
-                unsetTextures();
-                loadTextures();
+                reloadTextures();
                 setTextures();
-
-                //reloadIssues();
             } else if (path == Preferences::TextureMinFilter.path() ||
                        path == Preferences::TextureMagFilter.path()) {
                 m_entityModelManager->setTextureMode(pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));

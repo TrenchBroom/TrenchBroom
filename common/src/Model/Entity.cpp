@@ -77,15 +77,14 @@ namespace TrenchBroom {
         }
 
         bool Entity::hasPointEntityModel() const {
-            return hasPointEntityDefinition();
+            return hasPointEntityDefinition() && m_modelFrame != nullptr;
         }
 
-        vm::bbox3 Entity::totalBounds() const {
-            if (m_modelFrame == nullptr) {
-                return bounds();
-            } else {
-                return vm::merge(bounds(), modelBounds());
+        const vm::bbox3& Entity::definitionBounds() const {
+            if (!m_boundsValid) {
+                validateBounds();
             }
+            return m_definitionBounds;
         }
 
         const vm::vec3& Entity::origin() const {
@@ -131,18 +130,19 @@ namespace TrenchBroom {
         }
 
         Assets::ModelSpecification Entity::modelSpecification() const {
-            if (!hasPointEntityModel())
+            if (!hasPointEntityDefinition()) {
                 return Assets::ModelSpecification();
-            Assets::PointEntityDefinition* pointDefinition = static_cast<Assets::PointEntityDefinition*>(m_definition);
-            return pointDefinition->model(m_attributes);
+            } else {
+                auto* pointDefinition = static_cast<Assets::PointEntityDefinition*>(m_definition);
+                return pointDefinition->model(m_attributes);
+            }
         }
 
-        vm::bbox3 Entity::modelBounds() const {
-            if (m_modelFrame != nullptr) {
-                return vm::bbox3(m_modelFrame->bounds()).transform(modelTransformation());
-            } else {
-                return vm::bbox3();
+        const vm::bbox3& Entity::modelBounds() const {
+            if (!m_boundsValid) {
+                validateBounds();
             }
+            return m_modelBounds;
         }
 
         const Assets::EntityModelFrame* Entity::modelFrame() const {
@@ -150,16 +150,17 @@ namespace TrenchBroom {
         }
 
         void Entity::setModelFrame(const Assets::EntityModelFrame* modelFrame) {
-            const auto oldBounds = totalBounds();
+            const auto oldBounds = bounds();
             m_modelFrame = modelFrame;
             nodeBoundsDidChange(oldBounds);
+            cacheAttributes();
         }
 
         const vm::bbox3& Entity::doGetBounds() const {
             if (!m_boundsValid) {
                 validateBounds();
             }
-            return m_bounds;
+            return m_totalBounds;
         }
 
         Node* Entity::doClone(const vm::bbox3& worldBounds) const {
@@ -233,7 +234,7 @@ namespace TrenchBroom {
 
         void Entity::doPick(const vm::ray3& ray, PickResult& pickResult) const {
             if (!hasChildren()) {
-                const vm::bbox3& myBounds = bounds();
+                const vm::bbox3& myBounds = definitionBounds();
                 if (!myBounds.contains(ray.origin)) {
                     const FloatType distance = vm::intersectRayAndBBox(ray, myBounds);
                     if (!vm::isnan(distance)) {
@@ -421,17 +422,29 @@ namespace TrenchBroom {
         }
 
         void Entity::validateBounds() const {
-            const Assets::EntityDefinition* def = definition();
+            if (hasPointEntityDefinition()) {
+                const Assets::EntityDefinition* def = definition();
+                m_definitionBounds = static_cast<const Assets::PointEntityDefinition*>(def)->bounds();
+                m_definitionBounds = m_definitionBounds.translate(origin());
+            } else {
+                m_definitionBounds = DefaultBounds.translate(origin());
+            }
+            if (hasPointEntityModel()) {
+                m_modelBounds = vm::bbox3(m_modelFrame->bounds()).transform(modelTransformation());
+            } else {
+                m_modelBounds = DefaultBounds.transform(modelTransformation());
+            }
+
             if (hasChildren()) {
                 ComputeNodeBoundsVisitor visitor(DefaultBounds);
                 iterate(visitor);
-                m_bounds = visitor.bounds();
-            } else if (def != nullptr && def->type() == Assets::EntityDefinition::Type_PointEntity) {
-                m_bounds = static_cast<const Assets::PointEntityDefinition*>(def)->bounds();
-                m_bounds = m_bounds.translate(origin());
+                m_totalBounds = visitor.bounds();
             } else {
-                m_bounds = DefaultBounds;
-                m_bounds = m_bounds.translate(origin());
+                if (hasPointEntityModel()) {
+                    m_totalBounds = vm::merge(m_definitionBounds, m_modelBounds);
+                } else {
+                    m_totalBounds = m_definitionBounds;
+                }
             }
             m_boundsValid = true;
         }

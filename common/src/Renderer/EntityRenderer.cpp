@@ -317,7 +317,7 @@ namespace TrenchBroom {
         struct EntityRenderer::BuildWireframeBoundsVertices {
             GLVertexTypes::P3::Vertex::List& vertices;
 
-            BuildWireframeBoundsVertices(GLVertexTypes::P3::Vertex::List& i_vertices) :
+            explicit BuildWireframeBoundsVertices(GLVertexTypes::P3::Vertex::List& i_vertices) :
             vertices(i_vertices) {}
 
             void operator()(const vm::vec3& v1, const vm::vec3& v2) {
@@ -347,10 +347,13 @@ namespace TrenchBroom {
                 for (const Model::Entity* entity : m_entities) {
                     if (m_editorContext.visible(entity)) {
                         const bool pointEntity = !entity->hasChildren();
+                        if (pointEntity) {
+                            entity->definitionBounds().forEachEdge(pointEntityWireframeBoundsBuilder);
+                        } else {
+                            entity->bounds().forEachEdge(brushEntityWireframeBoundsBuilder);
+                        }
 
-                        entity->bounds().forEachEdge(pointEntity ? pointEntityWireframeBoundsBuilder : brushEntityWireframeBoundsBuilder);
-
-                        if (!entity->hasChildren() && !m_entityModelManager.hasModel(entity)) {
+                        if (pointEntity && !entity->hasPointEntityModel()) {
                             BuildColoredSolidBoundsVertices solidBoundsBuilder(solidVertices, boundsColor(entity));
                             entity->bounds().forEachFace(solidBoundsBuilder);
                         }
@@ -370,14 +373,18 @@ namespace TrenchBroom {
                     if (m_editorContext.visible(entity)) {
                         const bool pointEntity = !entity->hasChildren();
 
-                        if (!entity->hasChildren() && !m_entityModelManager.hasModel(entity)) {
+                        if (pointEntity && !entity->hasPointEntityModel()) {
                             BuildColoredSolidBoundsVertices solidBoundsBuilder(solidVertices, boundsColor(entity));
-                            entity->bounds().forEachFace(solidBoundsBuilder);
+                            entity->definitionBounds().forEachFace(solidBoundsBuilder);
                         } else {
                             BuildColoredWireframeBoundsVertices pointEntityWireframeBoundsBuilder(pointEntityWireframeVertices, boundsColor(entity));
                             BuildColoredWireframeBoundsVertices brushEntityWireframeBoundsBuilder(brushEntityWireframeVertices, boundsColor(entity));
 
-                            entity->bounds().forEachEdge(pointEntity ? pointEntityWireframeBoundsBuilder : brushEntityWireframeBoundsBuilder);
+                            if (pointEntity) {
+                                entity->definitionBounds().forEachEdge(pointEntityWireframeBoundsBuilder);
+                            } else {
+                                entity->bounds().forEachEdge(brushEntityWireframeBoundsBuilder);
+                            }
                         }
                     }
                 }

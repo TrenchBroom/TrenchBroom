@@ -31,8 +31,9 @@
 namespace TrenchBroom {
     FileLogger::FileLogger(const IO::Path& filePath) :
     m_file(nullptr) {
-        IO::Disk::ensureDirectoryExists(filePath.deleteLastComponent());
-        m_file = fopen(filePath.asString().c_str(), "w");
+        const auto fixedPath = IO::Disk::fixPath(filePath);
+        IO::Disk::ensureDirectoryExists(fixedPath.deleteLastComponent());
+        m_file = fopen(fixedPath.asString().c_str(), "w");
         ensure(m_file != nullptr, "log file could not be opened");
     }
 

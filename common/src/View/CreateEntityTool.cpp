@@ -106,7 +106,7 @@ namespace TrenchBroom {
             const auto hitPoint = pickRay.pointAtDistance(distance);
 
             const auto& grid = document->grid();
-            const auto delta = grid.moveDeltaForBounds(dragPlane, m_entity->bounds(), document->worldBounds(), pickRay, hitPoint);
+            const auto delta = grid.moveDeltaForBounds(dragPlane, m_entity->definitionBounds(), document->worldBounds(), pickRay, hitPoint);
 
             if (!isZero(delta, vm::C::almostZero())) {
                 document->translateObjects(delta);
@@ -124,10 +124,10 @@ namespace TrenchBroom {
             if (hit.isMatch()) {
                 const auto* face = Model::hitToFace(hit);
                 const auto dragPlane = alignedOrthogonalPlane(hit.hitPoint(), face->boundary().normal);
-                delta = grid.moveDeltaForBounds(dragPlane, m_entity->bounds(), document->worldBounds(), pickRay, hit.hitPoint());
+                delta = grid.moveDeltaForBounds(dragPlane, m_entity->definitionBounds(), document->worldBounds(), pickRay, hit.hitPoint());
             } else {
                 const auto newPosition = pickRay.pointAtDistance(Renderer::Camera::DefaultPointDistance);
-                const auto boundsCenter = m_entity->bounds().center();
+                const auto boundsCenter = m_entity->definitionBounds().center();
                 delta = grid.moveDeltaForPoint(boundsCenter, document->worldBounds(), newPosition - boundsCenter);
             }
 

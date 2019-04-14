@@ -257,4 +257,40 @@ namespace vm {
         ASSERT_FALSE(bounds1.intersects(bounds4));
         ASSERT_FALSE(bounds1.intersects(bounds5));
     }
+
+    TEST(bboxbuilder_test, empty) {
+        vm::bbox3f::builder builder;
+        ASSERT_EQ(vm::bbox3f(), builder.bounds());
+    }
+
+    TEST(bboxbuilder_test, onePoint) {
+        const auto point = vm::vec3f(10.0f, 20.0f, 30.0f);
+
+        vm::bbox3f::builder builder;
+        builder.add(point);
+
+        ASSERT_EQ(vm::bbox3f(point, point), builder.bounds());
+    }
+
+    TEST(bboxbuilder_test, twoPoints) {
+        const auto point1 = vm::vec3f(10.0f, 20.0f, 30.0f);
+        const auto point2 = vm::vec3f(100.0f, 200.0f, 300.0f);
+
+        vm::bbox3f::builder builder;
+        builder.add(point1);
+        builder.add(point2);
+
+        ASSERT_EQ(vm::bbox3f(point1, point2), builder.bounds());
+    }
+
+    TEST(bboxbuilder_test, twoPointsReverseOrder) {
+        const auto point1 = vm::vec3f(10.0f, 20.0f, 30.0f);
+        const auto point2 = vm::vec3f(100.0f, 200.0f, 300.0f);
+
+        vm::bbox3f::builder builder;
+        builder.add(point2);
+        builder.add(point1);
+
+        ASSERT_EQ(vm::bbox3f(point1, point2), builder.bounds());
+    }
 }
