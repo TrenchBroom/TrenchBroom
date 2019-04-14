@@ -21,8 +21,8 @@ echo "TB_ENABLE_ASAN: $TB_ENABLE_ASAN_VALUE"
 mkdir build
 cd build
 cmake .. -GXcode -DCMAKE_BUILD_TYPE="$BUILD_TYPE_VALUE" -DTB_ENABLE_ASAN="$TB_ENABLE_ASAN_VALUE" -DTB_RUN_MACDEPLOYQT=1 -DCMAKE_PREFIX_PATH="$(brew --prefix qt5)" || exit 1 # FIXME: Restore -DCMAKE_CXX_FLAGS="-Werror"
-#cmake --build . --target cppcheck || exit 1 # FIXME: Restore
-cmake --build . --target TrenchBroom --config "$BUILD_TYPE_VALUE" || exit 1 # FIXME: Remove --target
+cmake --build . --target cppcheck || exit 1
+cmake --build . --config "$BUILD_TYPE_VALUE" || exit 1
 cpack -C $BUILD_TYPE_VALUE || exit 1
 
 ./generate_checksum.sh

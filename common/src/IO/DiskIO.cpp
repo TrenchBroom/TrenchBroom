@@ -121,6 +121,10 @@ namespace TrenchBroom {
             Path::List getDirectoryContents(const Path& path) {
                 const Path fixedPath = fixPath(path);
                 QDir dir(fixedPath.asQString());
+                if (!dir.exists()) {
+                    throw FileSystemException("Cannot open directory: '" + fixedPath.asString() + "'");
+                }
+
                 dir.setFilter(QDir::NoDotAndDotDot | QDir::AllEntries);
 
                 Path::List result;

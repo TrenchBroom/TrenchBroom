@@ -23,13 +23,13 @@ IF ERRORLEVEL 1 GOTO ERROR
 
 call generate_checksum.bat
 
-REM Release\TrenchBroom-Test.exe
+Release\TrenchBroom-Test.exe
 
-REM IF ERRORLEVEL 1 GOTO ERROR
+IF ERRORLEVEL 1 GOTO ERROR
 
-REM Release\TrenchBroom-Benchmark.exe
+Release\TrenchBroom-Benchmark.exe
 
-REM IF ERRORLEVEL 1 GOTO ERROR
+IF ERRORLEVEL 1 GOTO ERROR
 
 GOTO END
 

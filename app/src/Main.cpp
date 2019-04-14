@@ -44,6 +44,6 @@ int main(int argc, char *argv[])
     qt_set_sequence_auto_mnemonic(false);
 
     TrenchBroom::View::TrenchBroomApp app(argc, argv);
-
+    app.parseCommandLineAndShowFrame();
     app.exec();
 }

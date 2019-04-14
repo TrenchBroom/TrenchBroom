@@ -48,8 +48,8 @@ namespace TrenchBroom {
         }
 
         void TestEnvironment::createDirectory(const Path& path) {
-            auto dir = QDir(m_dir.asQString());
-            assertResult(dir.mkpath(path.asQString()));
+            auto dir = QDir((m_dir + path).asQString());
+            assertResult(dir.mkpath("."));
         }
 
         void TestEnvironment::createFile(const Path& path, const String& contents) {

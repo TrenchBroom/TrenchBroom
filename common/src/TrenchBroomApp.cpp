@@ -159,7 +159,9 @@ namespace TrenchBroom {
             m_recentDocuments->didChangeNotifier.addObserver(recentDocumentsDidChangeNotifier);
 
 #endif
+        }
 
+        void TrenchBroomApp::parseCommandLineAndShowFrame() {
             // FIXME: Do this here, or after the exec() call?
             QCommandLineParser parser;
             parser.process(*this);
