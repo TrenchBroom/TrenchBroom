@@ -243,6 +243,11 @@ namespace TrenchBroom {
         }
 
         bool TrenchBroomApp::OnInit() {
+            SetAppName("TrenchBroom");
+            SetAppDisplayName("TrenchBroom");
+            SetVendorDisplayName("Kristian Duske");
+            SetVendorName("Kristian Duske");
+
 #if defined(_WIN32)
             // Make wxStandardPaths return the actual executable directory, without stripping off the "Debug" or "Release" directory
             // See: https://github.com/kduske/TrenchBroom/issues/1605
