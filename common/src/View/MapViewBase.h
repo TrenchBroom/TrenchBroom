@@ -94,7 +94,7 @@ namespace TrenchBroom {
             Renderer::Compass* m_compass;
             std::unique_ptr<Renderer::PrimitiveRenderer> m_portalFileRenderer;
         private: // shortcuts
-            std::vector<std::pair<QShortcut*, const ActionInfo*>> m_actionInfoList;
+            std::vector<std::pair<QShortcut*, ActionInfo>> m_actionInfoList;
             std::vector<QShortcut*> m_2DOnlyShortcuts;
             std::vector<QShortcut*> m_3DOnlyShortcuts;
         protected:

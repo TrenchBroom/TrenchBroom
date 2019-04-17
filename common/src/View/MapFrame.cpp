@@ -56,6 +56,7 @@
 #include "Model/NodeCollection.h"
 #include "Model/PointFile.h"
 #include "Model/World.h"
+#include "View/Actions.h"
 #include "View/Autosaver.h"
 #include "View/BorderLine.h"
 #include "View/CachingLogger.h"
@@ -269,8 +270,9 @@ namespace TrenchBroom {
                     m_document->saveDocument();
                     logger().info() << "Saved " << m_document->path();
                     return true;
+                } else {
+                    return saveDocumentAs();
                 }
-                return saveDocumentAs();
             } catch (const FileSystemException& e) {
                 QMessageBox::critical(this, "", e.what(), QMessageBox::Ok);
                 return false;
@@ -287,8 +289,9 @@ namespace TrenchBroom {
                 const IO::Path fileName = originalPath.lastComponent();
 
                 const QString newFileName = QFileDialog::getSaveFileName(this, "Save map file", QString::fromStdString(originalPath.asString()), "Map files (*.map)");
-                if (newFileName.isEmpty())
+                if (newFileName.isEmpty()) {
                     return false;
+                }
 
                 const IO::Path path(newFileName.toStdString());
                 m_document->saveDocumentAs(path);
@@ -349,7 +352,7 @@ namespace TrenchBroom {
         }
 
         void MapFrame::createActions() {
-		    // File
+            // File
 
             fileNewAction = new QAction("New", this);
             registerBinding(fileNewAction, ActionList::instance().menuFileNewInfo);
@@ -804,9 +807,9 @@ namespace TrenchBroom {
 
         void MapFrame::registerBinding(QAction *action, const ActionInfo &info) {
             m_actionInfoList.emplace_back(std::make_pair(action, &info));
-		}
+        }
 
-		void MapFrame::updateBindings() {
+        void MapFrame::updateBindings() {
             // set up bindings
             for (auto [action, menuInfo] : m_actionInfoList) {
                 qDebug("found path %s, binding: %s",
@@ -815,9 +818,53 @@ namespace TrenchBroom {
 
                 action->setShortcut(menuInfo->key());
             }
-		}
+        }
+
+        class MapFrame::MenuBuilder : public MenuVisitor {
+        private:
+            MapFrame* m_frame;
+            QMenuBar* m_menuBar;
+            QMenu* m_currentMenu;
+        public:
+            explicit MenuBuilder(MapFrame* frame) :
+            m_frame(frame),
+            m_menuBar(m_frame->menuBar()),
+            m_currentMenu(nullptr) {
+                assert(m_menuBar != nullptr);
+            }
+
+            void visit(const Menu& menu) override {
+                auto* parentMenu = m_currentMenu;
+                if (m_currentMenu == nullptr) {
+                    // top level menu
+                    m_currentMenu = m_menuBar->addMenu(QString::fromStdString(menu.name()));
+                } else {
+                    m_currentMenu = m_currentMenu->addMenu(QString::fromStdString(menu.name()));
+                }
+
+                menu.visitEntries(*this);
+                m_currentMenu = parentMenu;
+            }
+
+            void visit(const MenuSeparatorItem& item) override {
+                assert(m_currentMenu != nullptr);
+                m_currentMenu->addSeparator();
+            }
+
+            void visit(const MenuActionItem& item) override {
+                assert(m_currentMenu != nullptr);
+                auto& tAction = item.action();
+                auto* qAction = m_currentMenu->addAction(QString::fromStdString(tAction.name()));
+                connect(qAction, &QAction::triggered, [this, &tAction]() { m_frame->triggerAction(tAction); });
+            }
+        };
 
         void MapFrame::createMenus() {
+            MenuBuilder menuBuilder(this);
+            const auto& actionManager = ActionManager::instance();
+            actionManager.visitMainMenu(menuBuilder);
+
+            /*
             QMenu* fileMenu = menuBar()->addMenu("File");
             fileMenu->addAction(fileNewAction);// addUnmodifiableActionItem(wxID_NEW, "New", KeyboardShortcut('N', WXK_CONTROL));
             fileMenu->addSeparator();
@@ -962,6 +1009,7 @@ namespace TrenchBroom {
             helpMenu->addAction(helpManualAction); //(wxID_HELP, "TrenchBroom Manual");
             helpMenu->addSeparator();
             helpMenu->addAction(helpAboutAction); //(wxID_ABOUT, "About TrenchBroom");
+             */
         }
 
         void MapFrame::updateGridActions() {
@@ -1023,12 +1071,12 @@ namespace TrenchBroom {
 
             editToggleFaceToolAction->setEnabled(m_mapView->canToggleVertexTools());
             editToggleFaceToolAction->setChecked(m_mapView->faceToolActive());
-		}
+        }
 
-		void MapFrame::updateOtherActions() {
-		    // FIXME: MapDocument::persistent() does disk IO - don't do any IO in here
+        void MapFrame::updateOtherActions() {
+            // FIXME: MapDocument::persistent() does disk IO - don't do any IO in here
 
-		    fileReloadPointFileAction->setEnabled(canReloadPointFile());
+            fileReloadPointFileAction->setEnabled(canReloadPointFile());
             fileUnloadPointFileAction->setEnabled(canUnloadPointFile());
             fileReloadPortalFileAction->setEnabled(canReloadPortalFile());
             fileUnloadPortalFileAction->setEnabled(canUnloadPortalFile());
@@ -1091,11 +1139,11 @@ namespace TrenchBroom {
             helpAboutAction->setEnabled(true);
             flipObjectsHorizontallyAction->setEnabled(m_mapView->canFlipObjects());
             flipObjectsVerticallyAction->setEnabled(m_mapView->canFlipObjects());
-		}
+        }
 
-		void MapFrame::updateUndoRedoActions() {
+        void MapFrame::updateUndoRedoActions() {
             // FIXME:
-		}
+        }
 
         void MapFrame::updateClipboardActions() {
             const bool paste = canPaste();
@@ -1189,10 +1237,10 @@ namespace TrenchBroom {
         }
 
         void MapFrame::createToolBar() {
-		    QToolBar* toolBar = addToolBar("Toolbar");
-		    toolBar->setFloatable(false);
-		    toolBar->setMovable(false);
-		    toolBar->addAction(editDeactivateToolAction);
+            QToolBar* toolBar = addToolBar("Toolbar");
+            toolBar->setFloatable(false);
+            toolBar->setMovable(false);
+            toolBar->addAction(editDeactivateToolAction);
             toolBar->addAction(editToggleCreateComplexBrushToolAction);
             toolBar->addAction(editToggleClipToolAction);
             toolBar->addAction(editToggleVertexToolAction);
@@ -1414,9 +1462,9 @@ namespace TrenchBroom {
         }
 
         void MapFrame::toolActivated(Tool* tool) {
-		    updateToolActions();
-		    updateOtherActions();
-		}
+            updateToolActions();
+            updateOtherActions();
+        }
 
         void MapFrame::toolDeactivated(Tool* tool) {
             updateToolActions();
@@ -1462,7 +1510,7 @@ namespace TrenchBroom {
 
             Bind(wxEVT_CLOSE_WINDOW, &MapFrame::OnClose, this);
             connect(m_autosaveTimer, &QTimer::timeout, this, &MapFrame::OnAutosaveTimer);
-			Bind(wxEVT_CHILD_FOCUS, &MapFrame::OnChildFocus, this);
+            Bind(wxEVT_CHILD_FOCUS, &MapFrame::OnChildFocus, this);
 
 #if defined(_WIN32)
             Bind(wxEVT_ACTIVATE, &MapFrame::OnActivate, this);
@@ -1475,6 +1523,15 @@ namespace TrenchBroom {
             connect(m_gridChoice, QOverload<int>::of(&QComboBox::activated), this, &MapFrame::OnToolBarSetGridSize);
 
             connect(QApplication::clipboard(), &QClipboard::dataChanged, this, &MapFrame::updateClipboardActions);
+        }
+
+        void MapFrame::triggerAction(const Action& action) {
+            ActionExecutionContext context(this);
+            if (action.enabled(context)) {
+                action.execute(context);
+            } else {
+                qDebug() << "Triggered disabled action " << QString::fromStdString(action.name());
+            }
         }
 
         void MapFrame::OnFileSave() {
@@ -1716,7 +1773,7 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnEditReplaceTexture() {
-		    // FIXME:
+            // FIXME:
 #if 0
             ReplaceTextureDialog dialog(this, m_document, *m_contextManager);
             dialog.CenterOnParent();
@@ -1851,7 +1908,7 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnViewSetGridSize() {
-		    QAction* caller = dynamic_cast<QAction*>(sender());
+            QAction* caller = dynamic_cast<QAction*>(sender());
             m_document->grid().setSize(caller->data().toInt());
         }
 
@@ -2054,7 +2111,7 @@ namespace TrenchBroom {
 
 #if 0
         void MapFrame::OnUpdateUI() {
-		    // FIXME: implement
+            // FIXME: implement
 
             const auto& actionManager = ActionManager::instance();
             const auto& grid = m_document->grid();
@@ -2332,7 +2389,7 @@ namespace TrenchBroom {
 
         void MapFrame::onFocusChange(QWidget* old, QWidget* now) {
             updateOtherActions();
-		}
+        }
 
         bool MapFrame::canUnloadPointFile() const {
             return m_document->isPointFileLoaded();
@@ -2399,8 +2456,8 @@ namespace TrenchBroom {
 
 #if 0
         wxTextCtrl* MapFrame::findFocusedTextCtrl() const {
-		    return nullptr;
-		    // FIXME:
+            return nullptr;
+            // FIXME:
 //            return dynamic_cast<wxTextCtrl*>(FindFocus());
         }
 #endif
@@ -2535,7 +2592,7 @@ namespace TrenchBroom {
 
 #if 0
         void MapFrame::OnClose(wxCloseEvent& event) {
-		    // FIXME: implement
+            // FIXME: implement
 
             if (!IsBeingDeleted()) {
                 if (m_compilationDialog != nullptr && !m_compilationDialog->Close()) {

@@ -103,7 +103,6 @@ namespace TrenchBroom {
         m_portalFileRenderer(nullptr) {
             setToolBox(toolBox);
             toolBox.addWindow(this->widgetContainer());
-            createActions();
             bindEvents();
             bindObservers();
 
@@ -263,6 +262,8 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::documentDidChange(MapDocument* document) {
+            createActions();
+            updateBindings();
             updatePickResult();
             update();
         }
@@ -299,6 +300,10 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::createActions() {
+            m_actionInfoList.clear();
+            m_2DOnlyShortcuts.clear();
+            m_3DOnlyShortcuts.clear();
+
             // clip
             createAndRegisterShortcut(ActionList::instance().controlsMapViewToggleClipSideInfo, &MapViewBase::OnToggleClipSide);
             createAndRegisterShortcut(ActionList::instance().controlsMapViewPerformclipInfo, &MapViewBase::OnPerformClip);
@@ -363,7 +368,7 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::registerBinding(QShortcut* action, const ActionInfo& info) {
-            m_actionInfoList.emplace_back(std::make_pair(action, &info));
+            m_actionInfoList.emplace_back(std::make_pair(action, info));
         }
 
         void MapViewBase::updateBindings() {
@@ -372,7 +377,7 @@ namespace TrenchBroom {
 
             // refresh key bindings, start with all shortcuts enabled, if `this` has focus
             for (auto [shortcut, menuInfo] : m_actionInfoList) {
-                shortcut->setKey(menuInfo->key());
+                shortcut->setKey(menuInfo.key());
                 shortcut->setEnabled(HasFocus());
             }
 
@@ -391,7 +396,7 @@ namespace TrenchBroom {
             // Disable shortcuts that are in the wrong action context
             const auto ourActionContext = actionContext();
             for (auto [shortcut, menuInfo] : m_actionInfoList) {
-                const auto shortcutActionContext = menuInfo->actionContext;
+                const auto shortcutActionContext = menuInfo.actionContext;
                 if (0 == (ourActionContext & shortcutActionContext)) {
                     shortcut->setEnabled(false);
                 }

@@ -204,7 +204,6 @@ namespace TrenchBroom {
     class Preference : public PreferenceBase {
     protected:
         friend class PreferenceManager;
-        template<typename> friend class SetTemporaryPreference;
 
         PreferenceSerializer<T> m_serializer;
         IO::Path m_path;

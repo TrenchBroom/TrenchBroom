@@ -47,6 +47,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class Action;
         class Autosaver;
         class Console;
         class InfoPanel;
@@ -194,7 +195,7 @@ namespace TrenchBroom {
             MapFrame();
             MapFrame(FrameManager* frameManager, MapDocumentSPtr document);
             void Create(FrameManager* frameManager, MapDocumentSPtr document);
-            virtual ~MapFrame();
+            ~MapFrame() override;
 
             void positionOnScreen(QWidget* reference);
             MapDocumentSPtr document() const;
@@ -222,6 +223,8 @@ namespace TrenchBroom {
             void createActions();
             void registerBinding(QAction* action, const ActionInfo& info);
             void updateBindings();
+
+            class MenuBuilder;
             void createMenus();
             void updateGridActions();
             void updateToolActions();
@@ -256,7 +259,9 @@ namespace TrenchBroom {
             void groupWasClosed(Model::Group* group);
         private: // menu event handlers
             void bindEvents();
-
+        private slots:
+            void triggerAction(const Action& action);
+        public:
             void OnFileSave();
             void OnFileSaveAs();
             void OnFileExportObj();

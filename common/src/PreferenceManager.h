@@ -41,9 +41,11 @@ namespace TrenchBroom {
     class PreferenceManager {
     private:
         using UnsavedPreferences = std::set<PreferenceBase*>;
+        using DynamicPreferences = std::map<IO::Path, std::unique_ptr<PreferenceBase>>;
 
         bool m_saveInstantly;
         UnsavedPreferences m_unsavedPreferences;
+        DynamicPreferences m_dynamicPreferences;
 
         void markAsUnsaved(PreferenceBase* preference);
     public:
@@ -56,6 +58,22 @@ namespace TrenchBroom {
         PreferenceBase::Set discardChanges();
 
         template <typename T>
+        Preference<T>& dynamicPreference(const IO::Path& path, T&& defaultValue) {
+            auto it = m_dynamicPreferences.find(path);
+            if (it == std::end(m_dynamicPreferences)) {
+                bool success = false;
+                std::tie(it, success) = m_dynamicPreferences.emplace(path, std::make_unique<Preference<T>>(path, std::forward<T>(defaultValue)));
+                assert(success); unused(success);
+            }
+
+            const auto& prefPtr = it->second;
+            auto* prefBase = prefPtr.get();
+            auto* pref = dynamic_cast<Preference<T>*>(prefBase);
+            ensure(pref != nullptr, "Preference " + path.asString() + " must be of the expected type");
+            return *pref;
+        }
+
+        template <typename T>
         const T& get(const Preference<T>& preference) const {
             ensure(qApp->thread() == QThread::currentThread(), "PreferenceManager can only be used on the main thread");
 
@@ -65,11 +83,6 @@ namespace TrenchBroom {
             }
 
             return preference.value();
-        }
-
-        template <typename T>
-        const T& getDefault(const Preference<T>& preference) const {
-            return preference.defaultValue();
         }
 
         template <typename T>
@@ -105,23 +118,6 @@ namespace TrenchBroom {
         const PreferenceManager& prefs = PreferenceManager::instance();
         return prefs.get(preference);
     }
-
-    template <typename T>
-    class SetTemporaryPreference {
-    private:
-        Preference<T>& m_pref;
-        T m_oldValue;
-    public:
-        SetTemporaryPreference(Preference<T>& pref, const T& newValue) :
-        m_pref(pref),
-        m_oldValue(pref.value()) {
-            m_pref.setValue(newValue);
-        }
-
-        ~SetTemporaryPreference() {
-            m_pref.setValue(m_oldValue);
-        }
-    };
 }
 
 #endif /* defined(TrenchBroom_PreferenceManager) */
