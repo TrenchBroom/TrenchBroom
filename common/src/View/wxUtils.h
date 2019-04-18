@@ -47,10 +47,10 @@ class QButtonGroup;
 
 namespace TrenchBroom {
     namespace View {
-#if 0
         class MapFrame;
 
-        MapFrame* findMapFrame(QWidget* window);
+        MapFrame* findMapFrame(QWidget* widget);
+#if 0
         wxFrame* findFrame(QWidget* window);
 
         void fitAll(QWidget* window);

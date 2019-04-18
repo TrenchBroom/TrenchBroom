@@ -53,12 +53,12 @@
 
 namespace TrenchBroom {
     namespace View {
+        MapFrame* findMapFrame(QWidget* widget) {
+            return dynamic_cast<MapFrame*>(widget->window());
+        }
+
         // FIXME: Port this stuff as needed
 #if 0
-        MapFrame* findMapFrame(QWidget* window) {
-            // FIXME:
-            return nullptr;//wxDynamicCast(findFrame(window), MapFrame);
-        }
 
         wxFrame* findFrame(QWidget* window) {
             if (window == nullptr)

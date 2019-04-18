@@ -1527,12 +1527,8 @@ namespace TrenchBroom {
         }
 
         void MapFrame::triggerAction(const Action& action) {
-            ActionExecutionContext context(this);
-            if (action.enabled(context)) {
-                action.execute(context);
-            } else {
-                qDebug() << "Triggered disabled action " << QString::fromStdString(action.name());
-            }
+            ActionExecutionContext context(this, nullptr);
+            action.execute(context);
         }
 
         void MapFrame::OnFileSave() {

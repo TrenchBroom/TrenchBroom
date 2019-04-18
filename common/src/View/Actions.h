@@ -22,6 +22,7 @@
 
 #include "Preference.h"
 #include "StringUtils.h"
+#include "View/ActionContext.h"
 
 #include <functional>
 #include <memory>
@@ -37,15 +38,19 @@ namespace TrenchBroom {
         class KeyboardShortcut;
         class MapDocument;
         class MapFrame;
+        class MapViewBase;
 
         class ActionExecutionContext {
         private:
             MapFrame* m_frame;
+            MapViewBase* m_mapView;
         public:
-            explicit ActionExecutionContext(MapFrame* mapFrame);
+            ActionExecutionContext(MapFrame* mapFrame, MapViewBase* mapView);
 
             bool hasDocument() const;
+            bool hasActionContext(ActionContext actionContext) const;
             MapFrame* frame();
+            MapViewBase* view();
             MapDocument* document();
         };
 
@@ -56,18 +61,21 @@ namespace TrenchBroom {
             using CheckedFn = std::function<bool(ActionExecutionContext& context)>;
         private:
             String m_name;
+            ActionContext m_actionContext;
             Preference<KeyboardShortcut> m_preference;
             ExecuteFn m_execute;
             EnabledFn m_enabled;
             std::optional<CheckedFn> m_checked;
             std::optional<IO::Path> m_iconPath;
         public:
-            Action(const String& name, const KeyboardShortcut& defaultShortcut,
+            Action(const String& name, ActionContext actionContext, const KeyboardShortcut& defaultShortcut,
                 const ExecuteFn& execute, const EnabledFn& enabled, const IO::Path& iconPath);
-            Action(const String& name, const KeyboardShortcut& defaultShortcut,
+            Action(const String& name, ActionContext actionContext, const KeyboardShortcut& defaultShortcut,
                 const ExecuteFn& execute, const EnabledFn& enabled, const CheckedFn& checked, const IO::Path& iconPath);
 
             const String& name() const;
+
+            QKeySequence keySequence() const;
 
             void execute(ActionExecutionContext& context) const;
             bool enabled(ActionExecutionContext& context) const;
@@ -114,7 +122,7 @@ namespace TrenchBroom {
         private:
             const Action* m_action;
         public:
-            MenuActionItem(const Action* action);
+            explicit MenuActionItem(const Action* action);
 
             const String& name() const;
             const Action& action() const;
@@ -143,6 +151,8 @@ namespace TrenchBroom {
             deleteCopyAndMove(Menu)
         };
 
+        using ActionVisitor = std::function<void(const Action&)>;
+
         class ActionManager {
         private:
             /**
@@ -151,19 +161,20 @@ namespace TrenchBroom {
             std::vector<std::unique_ptr<const Action>> m_actions;
             std::vector<std::unique_ptr<const Menu>> m_mainMenu;
             std::vector<const Action*> m_toolBar;
-            std::vector<const Action*> m_shortcuts;
+            std::vector<const Action*> m_mapViewActions;
         private:
             ActionManager();
         public:
             static const ActionManager& instance();
 
             void visitMainMenu(MenuVisitor& visitor) const;
+            void visitMapViewActions(const ActionVisitor& visitor) const;
         private:
             void initialize();
-            const Action* createAction(const String& name, const QKeySequence& defaultShortcut,
+            const Action* createAction(const String& name, ActionContext actionContext, const QKeySequence& defaultShortcut,
                                        const Action::ExecuteFn& execute, const Action::EnabledFn& enabled,
                                        const IO::Path& iconPath = IO::Path());
-            const Action* createAction(const String& name, const QKeySequence& defaultShortcut,
+            const Action* createAction(const String& name, ActionContext actionContext, const QKeySequence& defaultShortcut,
                                        const Action::ExecuteFn& execute, const Action::EnabledFn& enabled,
                                        const Action::CheckedFn& checked, const IO::Path& iconPath = IO::Path());
 

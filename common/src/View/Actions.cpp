@@ -19,9 +19,12 @@
 
 #include "Actions.h"
 
+#include "Preference.h"
+#include "PreferenceManager.h"
 #include "TrenchBroomApp.h"
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
+#include "View/MapViewBase.h"
 
 #include <QKeySequence>
 #include <QMessageBox>
@@ -30,15 +33,26 @@
 
 namespace TrenchBroom {
     namespace View {
-        ActionExecutionContext::ActionExecutionContext(MapFrame* mapFrame) :
-        m_frame(mapFrame) {}
+        ActionExecutionContext::ActionExecutionContext(MapFrame* mapFrame, MapViewBase* mapView) :
+        m_frame(mapFrame),
+        m_mapView(mapView) {}
 
         bool ActionExecutionContext::hasDocument() const {
             return m_frame != nullptr;
         }
 
+        bool ActionExecutionContext::hasActionContext(const ActionContext actionContext) const {
+            return actionContext == ActionContext_Any || (hasDocument() && (m_mapView->actionContext() & actionContext) != 0);
+        }
+
         MapFrame* ActionExecutionContext::frame() {
+            assert(hasDocument());
             return m_frame;
+        }
+
+        MapViewBase* ActionExecutionContext::view() {
+            assert(hasDocument());
+            return m_mapView;
         }
 
         MapDocument* ActionExecutionContext::document() {
@@ -46,17 +60,20 @@ namespace TrenchBroom {
             return m_frame->document().get();
         }
 
-        Action::Action(const String& name, const KeyboardShortcut& defaultShortcut, const Action::ExecuteFn& execute,
-                       const Action::EnabledFn& enabled, const IO::Path& iconPath) :
+        Action::Action(const String& name, const ActionContext actionContext, const KeyboardShortcut& defaultShortcut,
+            const Action::ExecuteFn& execute, const Action::EnabledFn& enabled, const IO::Path& iconPath) :
         m_name(name),
+        m_actionContext(actionContext),
         m_preference(IO::Path("Actions") + IO::Path(m_name), defaultShortcut),
         m_execute(execute),
         m_enabled(enabled),
         m_iconPath(iconPath) {}
 
-        Action::Action(const String& name, const KeyboardShortcut& defaultShortcut, const Action::ExecuteFn& execute,
-                       const Action::EnabledFn& enabled, const Action::CheckedFn& checked, const IO::Path& iconPath) :
+        Action::Action(const String& name, const ActionContext actionContext, const KeyboardShortcut& defaultShortcut,
+            const Action::ExecuteFn& execute, const Action::EnabledFn& enabled, const Action::CheckedFn& checked,
+            const IO::Path& iconPath) :
         m_name(name),
+        m_actionContext(actionContext),
         m_preference(IO::Path("Actions") + IO::Path(m_name), defaultShortcut),
         m_execute(execute),
         m_enabled(enabled),
@@ -67,12 +84,18 @@ namespace TrenchBroom {
             return m_name;
         }
 
+        QKeySequence Action::keySequence() const {
+            return pref(m_preference).keySequence();
+        }
+
         void Action::execute(ActionExecutionContext& context) const {
-            m_execute(context);
+            if (enabled(context)) {
+                m_execute(context);
+            }
         }
 
         bool Action::enabled(ActionExecutionContext& context) const {
-            return m_enabled(context);
+            return context.hasActionContext(m_actionContext), m_enabled(context);
         }
 
         bool Action::checkable() const {
@@ -168,31 +191,43 @@ namespace TrenchBroom {
             }
         }
 
+        void ActionManager::visitMapViewActions(const ActionVisitor& visitor) const {
+            for (const auto* action : m_mapViewActions) {
+                visitor(*action);
+            }
+        }
+
         void ActionManager::initialize() {
-            const auto* newFile = createAction("New Document", QKeySequence(QKeySequence::New),
+            const auto* newFile = createAction("New Document", ActionContext_Any, QKeySequence(QKeySequence::New),
                 [](ActionExecutionContext& context) {
                     auto& app = TrenchBroomApp::instance();
                     app.OnFileNew();
                 },
                 [](ActionExecutionContext& context) { return true; });
-            const auto* openFile = createAction("Open Document...", QKeySequence(QKeySequence::Open),
+            const auto* openFile = createAction("Open Document...", ActionContext_Any, QKeySequence(QKeySequence::Open),
                 [](ActionExecutionContext& context) {
                     auto& app = TrenchBroomApp::instance();
                     app.OnFileOpen();
                 },
                 [](ActionExecutionContext& context) { return true; });
-            const auto* saveFile = createAction("Save Document", QKeySequence(QKeySequence::Save),
+            const auto* saveFile = createAction("Save Document", ActionContext_Any, QKeySequence(QKeySequence::Save),
                 [](ActionExecutionContext& context) {
-                    assert(context.hasDocument());
                     context.frame()->OnFileSave();
                 },
                 [](ActionExecutionContext& context) { return context.hasDocument(); });
-            const auto* saveFileAs = createAction("Save Document as...", QKeySequence(QKeySequence::SaveAs),
+            const auto* saveFileAs = createAction("Save Document as...", ActionContext_Any, QKeySequence(QKeySequence::SaveAs),
                 [](ActionExecutionContext& context) {
-                    assert(context.hasDocument());
                     context.frame()->OnFileSaveAs();
                 },
                 [](ActionExecutionContext& context) { return context.hasDocument(); });
+
+            const auto* moveObjectsForward = createAction("Move Objects Forward", ActionContext_NodeSelection, QKeySequence(Qt::Key_Up),
+                [](ActionExecutionContext& context) {
+                    context.view()->OnMoveObjectsForward();
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+
+            m_mapViewActions.push_back(moveObjectsForward);
 
             auto& fileMenu = createMainMenu("File");
             auto& editMenu = createMainMenu("Edit");
@@ -207,11 +242,12 @@ namespace TrenchBroom {
             fileMenu.addItem(saveFileAs);
         }
 
-        const Action* ActionManager::createAction(const String& name, const QKeySequence& defaultShortcut,
-                                                  const Action::ExecuteFn& execute, const Action::EnabledFn& enabled,
-                                                  const IO::Path& iconPath) {
+        const Action* ActionManager::createAction(const String& name, const ActionContext actionContext,
+            const QKeySequence& defaultShortcut, const Action::ExecuteFn& execute, const Action::EnabledFn& enabled,
+            const IO::Path& iconPath) {
             m_actions.emplace_back(std::make_unique<Action>(
                 name,
+                actionContext,
                 KeyboardShortcut(defaultShortcut),
                 execute,
                 enabled,
@@ -219,11 +255,12 @@ namespace TrenchBroom {
             return m_actions.back().get();
         }
 
-        const Action* ActionManager::createAction(const String& name, const QKeySequence& defaultShortcut,
-                                                  const Action::ExecuteFn& execute, const Action::EnabledFn& enabled,
-                                                  const Action::CheckedFn& checked, const IO::Path& iconPath) {
+        const Action* ActionManager::createAction(const String& name, const ActionContext actionContext,
+            const QKeySequence& defaultShortcut, const Action::ExecuteFn& execute, const Action::EnabledFn& enabled,
+            const Action::CheckedFn& checked, const IO::Path& iconPath) {
             m_actions.emplace_back(std::make_unique<Action>(
                 name,
+                actionContext,
                 KeyboardShortcut(defaultShortcut),
                 execute,
                 enabled,

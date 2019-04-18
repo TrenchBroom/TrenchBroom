@@ -65,6 +65,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class Action;
         struct ActionInfo;
         class AnimationManager;
         class Command;
@@ -94,9 +95,12 @@ namespace TrenchBroom {
             Renderer::Compass* m_compass;
             std::unique_ptr<Renderer::PrimitiveRenderer> m_portalFileRenderer;
         private: // shortcuts
+            std::vector<std::pair<QShortcut*, const Action*>> m_shortcuts;
+            /*
             std::vector<std::pair<QShortcut*, ActionInfo>> m_actionInfoList;
             std::vector<QShortcut*> m_2DOnlyShortcuts;
             std::vector<QShortcut*> m_3DOnlyShortcuts;
+             */
         protected:
             MapViewBase(QWidget* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager);
 
@@ -123,15 +127,19 @@ namespace TrenchBroom {
             void preferenceDidChange(const IO::Path& path);
             void documentDidChange(MapDocument* document);
         private: // shortcut setup
+            /*
             using Callback = void (MapViewBase::*)();
             QShortcut* createAndRegisterShortcut(const ActionInfo& info, Callback callback);
             QShortcut* createAndRegisterShortcut(const ActionInfo& info, const std::function<void()>& callback);
             void createAndRegister2D3DShortcut(const ActionInfo& info, Callback callback2D, Callback callback3D);
+             */
             void createActions();
-            void registerBinding(QShortcut* action, const ActionInfo& info);
+            // void registerBinding(QShortcut* action, const ActionInfo& info);
             void updateBindings();
         private: // interaction events
             void bindEvents();
+        public:
+            void triggerAction(const Action& action);
 
             void OnMoveObjectsForward();
             void OnMoveObjectsBackward();
@@ -163,7 +171,7 @@ namespace TrenchBroom {
             vm::vec3 moveDirection(vm::direction direction) const;
             void rotateObjects(vm::rotation_axis axis, bool clockwise);
             vm::vec3 rotationAxis(vm::rotation_axis axis, bool clockwise) const;
-        private: // tool mode events
+        public: // tool mode events
             void OnToggleRotateObjectsTool();
             void OnMoveRotationCenterForward();
             void OnMoveRotationCenterBackward();
@@ -191,11 +199,11 @@ namespace TrenchBroom {
             bool cancel();
 
             void OnDeactivateTool();
-        private: // group management
+        public: // group management
             void OnGroupSelectedObjects();
             void OnUngroupSelectedObjects();
             void OnRenameGroups();
-        private: // reparenting objects
+        public: // reparenting objects
             void OnAddObjectsToGroup();
             void OnRemoveObjectsFromGroup();
             Model::Node* findNewGroupForObjects(const Model::NodeList& nodes) const;
@@ -236,18 +244,18 @@ namespace TrenchBroom {
             void createPointEntity(const Assets::PointEntityDefinition* definition);
             void createBrushEntity(const Assets::BrushEntityDefinition* definition);
             bool canCreateBrushEntity();
-        private: // tags
+        public: // tags
             void OnToggleTagVisible(const Model::SmartTag& tag);
 
             class EnableDisableTagCallback;
             void OnEnableTag(const Model::SmartTag& tag);
             void OnDisableTag(const Model::SmartTag& tag);
-        private: // make structural
+        public: // make structural
             void OnMakeStructural();
-        private: // entity definitions
+        public: // entity definitions
             void OnToggleEntityDefinitionVisible();
             void OnCreateEntity();
-        private: // view filters
+        public: // view filters
             void OnToggleShowEntityClassnames();
             void OnToggleShowGroupBounds();
             void OnToggleShowBrushEntityBounds();
@@ -267,7 +275,7 @@ namespace TrenchBroom {
             void OnRenderModeHideEntityLinks();
         private: // other events
             void onActiveChanged();
-        private:
+        public:
             ActionContext actionContext() const;
         private: // implement ViewEffectsService interface
             void doFlashSelection() override;

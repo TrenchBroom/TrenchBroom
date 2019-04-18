@@ -50,6 +50,7 @@
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderService.h"
 #include "View/ActionList.h"
+#include "View/Actions.h"
 #include "View/Animation.h"
 #include "View/CameraAnimation.h"
 #include "View/FlashSelectionAnimation.h"
@@ -272,12 +273,12 @@ namespace TrenchBroom {
             connect(this, &QWindow::activeChanged, this, &MapViewBase::onActiveChanged);
         }
 
+        /*
         QShortcut* MapViewBase::createAndRegisterShortcut(const ActionInfo& info, Callback callback) {
             return createAndRegisterShortcut(info, [this, callback]() { (this->*callback)(); });
         }
 
-        QShortcut*
-        MapViewBase::createAndRegisterShortcut(const ActionInfo& info, const std::function<void()>& callback) {
+        QShortcut* MapViewBase::createAndRegisterShortcut(const ActionInfo& info, const std::function<void()>& callback) {
             auto* shortcut = new QShortcut(this->widgetContainer());
 
             // Ideally, we'd use Qt::WidgetWithChildrenShortcut so the shortcuts are automatically active based on whether
@@ -298,8 +299,17 @@ namespace TrenchBroom {
             QShortcut* shortcut3D = createAndRegisterShortcut(info, callback3D);
             m_3DOnlyShortcuts.push_back(shortcut3D);
         }
+         */
 
         void MapViewBase::createActions() {
+            const auto& actionManager = ActionManager::instance();
+            actionManager.visitMapViewActions([this](const Action& action) {
+                auto* shortcut = new QShortcut(widgetContainer());
+                m_shortcuts.emplace_back(shortcut, &action);
+                connect(shortcut, &QShortcut::activated, this, [this, &action]() { triggerAction(action); });
+            });
+
+            /*
             m_actionInfoList.clear();
             m_2DOnlyShortcuts.clear();
             m_3DOnlyShortcuts.clear();
@@ -365,16 +375,24 @@ namespace TrenchBroom {
                 // createAndRegisterShortcut(ActionList::instance().enableTagAction(tag), [this, &tag]() { OnEnableTag(tag); });
                 // createAndRegisterShortcut(ActionList::instance().disableTagAction(tag), [this, &tag]() { OnDisableTag(tag); });
             }
+             */
         }
 
+        /*
         void MapViewBase::registerBinding(QShortcut* action, const ActionInfo& info) {
             m_actionInfoList.emplace_back(std::make_pair(action, info));
         }
+         */
 
         void MapViewBase::updateBindings() {
             //return;
             qDebug("updating key binds");
 
+            for (auto [shortcut, action] : m_shortcuts) {
+                shortcut->setKey(action->keySequence());
+            }
+
+            /*
             // refresh key bindings, start with all shortcuts enabled, if `this` has focus
             for (auto [shortcut, menuInfo] : m_actionInfoList) {
                 shortcut->setKey(menuInfo.key());
@@ -406,6 +424,13 @@ namespace TrenchBroom {
 //                       menuInfo->preferencePath.asString().c_str(),
 //                       shortcut->isEnabled() ? "enabled" : "disabled");
             }
+             */
+        }
+
+        void MapViewBase::triggerAction(const Action& action) {
+            auto* mapFrame = findMapFrame(widgetContainer());
+            ActionExecutionContext context(mapFrame, this);
+            action.execute(context);
         }
 
         void MapViewBase::OnMoveObjectsForward() {
