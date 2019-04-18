@@ -65,19 +65,19 @@ namespace TrenchBroom {
             connect(version, &ClickableLabel::clicked, this, &AppInfoPanel::OnClickVersionInfo);
             connect(build, &ClickableLabel::clicked, this, &AppInfoPanel::OnClickVersionInfo);
 
-            QVBoxLayout* sizer = new QVBoxLayout();
-            sizer->setContentsMargins(20, 20, 20, 20);
-            sizer->setSpacing(2);
-            sizer->addStretch();
-            sizer->addWidget(appIcon, 0, Qt::AlignHCenter);
-            sizer->addWidget(appName, 0, Qt::AlignHCenter);
-            sizer->addWidget(appLine);
-            sizer->addWidget(appClaim, 0, Qt::AlignHCenter);
-            sizer->addWidget(version, 0, Qt::AlignHCenter);
-            sizer->addWidget(build, 0, Qt::AlignHCenter);
-            sizer->addStretch();
+            auto* layout = new QVBoxLayout();
+            layout->setContentsMargins(20, 20, 20, 20);
+            layout->setSpacing(2);
+            layout->addStretch();
+            layout->addWidget(appIcon, 0, Qt::AlignHCenter);
+            layout->addWidget(appName, 0, Qt::AlignHCenter);
+            layout->addWidget(appLine);
+            layout->addWidget(appClaim, 0, Qt::AlignHCenter);
+            layout->addWidget(version, 0, Qt::AlignHCenter);
+            layout->addWidget(build, 0, Qt::AlignHCenter);
+            layout->addStretch();
 
-            setLayout(sizer);
+            setLayout(layout);
         }
 
         void AppInfoPanel::OnClickVersionInfo() {

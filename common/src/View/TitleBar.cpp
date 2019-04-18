@@ -35,12 +35,13 @@ namespace TrenchBroom {
                 makeEmphasized(m_titleText);
             }
 
-            auto* layout = new QHBoxLayout(this);
+            auto* layout = new QHBoxLayout();
             layout->setContentsMargins(QMargins());
             layout->addSpacing(hMargin);
             layout->addWidget(m_titleText, 0);
             layout->addStretch(1);
             layout->addSpacing(hMargin);
+            setLayout(layout);
         }
     }
 }

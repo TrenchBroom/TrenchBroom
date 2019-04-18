@@ -36,12 +36,13 @@ namespace TrenchBroom::View {
         m_colorIndicator->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred));
         m_colorIndicator->setMinimumSize(20, 15);
 
-        auto* layout = new QHBoxLayout(this);
+        auto* layout = new QHBoxLayout();
         layout->setContentsMargins(QMargins());
         layout->setSpacing(LayoutConstants::MediumHMargin);
         layout->addWidget(m_colorIndicator);
         layout->addWidget(m_button);
         layout->addStretch();
+        setLayout(layout);
 
         connect(m_button, &QPushButton::clicked, this, &ColorButton::clicked);
     }

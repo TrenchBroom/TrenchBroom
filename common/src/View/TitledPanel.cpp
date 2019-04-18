@@ -33,9 +33,9 @@ namespace TrenchBroom {
             const int hMargin = showDivider ? LayoutConstants::NarrowHMargin : 0;
             const int vMargin = showDivider ? LayoutConstants::NarrowVMargin : 0;
 
-            m_panel = new QWidget(this);
+            m_panel = new QWidget();
 
-            auto* layout = new QVBoxLayout(this);
+            auto* layout = new QVBoxLayout();
             layout->setContentsMargins(0, 0, 0, 0);
             layout->setSpacing(0);
             layout->addWidget(new TitleBar(title, nullptr, hMargin, vMargin, boldTitle), 0);
@@ -43,6 +43,7 @@ namespace TrenchBroom {
                 layout->addWidget(new BorderLine(BorderLine::Direction_Horizontal), 0);
             }
             layout->addWidget(m_panel, 1);
+            setLayout(layout);
         }
 
         QWidget* TitledPanel::getPanel() const {

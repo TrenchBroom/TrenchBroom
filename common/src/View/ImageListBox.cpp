@@ -84,10 +84,10 @@ namespace TrenchBroom {
             auto* textLayout = new QVBoxLayout();
             textLayout->setContentsMargins(QMargins());
             textLayout->setSpacing(0);
-            imageAndTextLayout->addLayout(textLayout, 1);
-
             textLayout->addWidget(m_titleLabel);
             textLayout->addWidget(m_subtitleLabel);
+
+            imageAndTextLayout->addLayout(textLayout, 1);
         }
 
         void ImageListBoxItemRenderer::mouseDoubleClickEvent(QMouseEvent* event) {

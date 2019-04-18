@@ -55,12 +55,13 @@ namespace TrenchBroom {
             auto* infoLabel = new QLabel("Doubleclick on a key combination to edit the shortcut.");
             makeInfo(infoLabel);
 
-            auto* layout = new QVBoxLayout(this);
+            auto* layout = new QVBoxLayout();
             layout->setContentsMargins(QMargins());
             layout->setSpacing(LayoutConstants::WideVMargin);
             layout->addWidget(m_table, 1);
             layout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
             layout->addWidget(infoLabel);
+            setLayout(layout);
 
             setMinimumSize(900, 550);
         }

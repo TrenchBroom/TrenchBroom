@@ -89,7 +89,7 @@ namespace TrenchBroom {
 
             m_flyMoveSpeedSlider = new SliderWithLabel(256, 512);
 
-            auto* layout = new FormWithSectionsLayout(this);
+            auto* layout = new FormWithSectionsLayout();
             layout->setContentsMargins(0, LayoutConstants::MediumVMargin, 0, 0);
             layout->setVerticalSpacing(2);
             // override the default to make the sliders take up maximum width
@@ -121,6 +121,7 @@ namespace TrenchBroom {
             layout->addRow("Down", m_downKeyEditor);
             layout->addRow("Speed", m_flyMoveSpeedSlider);
 
+            setLayout(layout);
             setMinimumWidth(400);
         }
 

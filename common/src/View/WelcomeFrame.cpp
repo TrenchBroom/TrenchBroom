@@ -55,17 +55,9 @@ namespace TrenchBroom {
             m_recentDocumentListBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
             connect(m_recentDocumentListBox, &RecentDocumentListBox::loadRecentDocument, this, &WelcomeFrame::onRecentDocumentSelected);
 
-            auto* container = new QWidget();
-            auto* outerLayout = new QVBoxLayout(container);
-            outerLayout->setContentsMargins(QMargins());
-            outerLayout->setSpacing(0);
-
             auto* innerLayout = new QHBoxLayout();
             innerLayout->setContentsMargins(QMargins());
             innerLayout->setSpacing(0);
-
-            // outerLayout->addWidget(new BorderLine());
-            outerLayout->addLayout(innerLayout);
 
             auto* appPanel = createAppPanel();
 
@@ -73,8 +65,17 @@ namespace TrenchBroom {
             innerLayout->addWidget(new BorderLine(BorderLine::Direction_Vertical), 0);
             innerLayout->addWidget(m_recentDocumentListBox, 1);
 
+            auto* container = new QWidget();
+            auto* outerLayout = new QVBoxLayout();
+            outerLayout->setContentsMargins(QMargins());
+            outerLayout->setSpacing(0);
+
+            // outerLayout->addWidget(new BorderLine());
+            outerLayout->addLayout(innerLayout);
+            container->setLayout(outerLayout);
+
             setCentralWidget(container);
-            setFixedSize(700, 450);
+            setFixedSize(700, 500);
         }
 
         void WelcomeFrame::onCreateNewDocumentClicked() {
@@ -127,11 +128,12 @@ namespace TrenchBroom {
             buttonSizer->addWidget(m_openOtherDocumentButton);
             buttonSizer->addStretch();
 
-            auto* outerSizer = new QVBoxLayout(appPanel);
+            auto* outerSizer = new QVBoxLayout();
             outerSizer->addWidget(infoPanel, 0, Qt::AlignHCenter);
             outerSizer->addSpacing(20);
             outerSizer->addLayout(buttonSizer);
             outerSizer->addSpacing(20);
+            appPanel->setLayout(outerSizer);
 
             return appPanel;
         }
