@@ -855,7 +855,8 @@ namespace TrenchBroom {
                 assert(m_currentMenu != nullptr);
                 auto& tAction = item.action();
                 auto* qAction = m_currentMenu->addAction(QString::fromStdString(tAction.name()));
-                connect(qAction, &QAction::triggered, [this, &tAction]() { m_frame->triggerAction(tAction); });
+                auto* frame = m_frame;
+                connect(qAction, &QAction::triggered, m_frame, [frame, &tAction]() { frame->triggerAction(tAction); });
             }
         };
 

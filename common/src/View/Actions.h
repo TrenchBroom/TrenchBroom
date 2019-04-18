@@ -62,10 +62,10 @@ namespace TrenchBroom {
             std::optional<CheckedFn> m_checked;
             std::optional<IO::Path> m_iconPath;
         public:
-            Action(String&& name, KeyboardShortcut&& defaultShortcut,
-                ExecuteFn&& execute, EnabledFn&& enabled, IO::Path&& iconPath = IO::Path());
-            Action(String&& name, KeyboardShortcut&& defaultShortcut,
-                ExecuteFn&& execute, EnabledFn&& enabled, CheckedFn&& checked, IO::Path&& iconPath = IO::Path());
+            Action(const String& name, const KeyboardShortcut& defaultShortcut,
+                const ExecuteFn& execute, const EnabledFn& enabled, const IO::Path& iconPath);
+            Action(const String& name, const KeyboardShortcut& defaultShortcut,
+                const ExecuteFn& execute, const EnabledFn& enabled, const CheckedFn& checked, const IO::Path& iconPath);
 
             const String& name() const;
 
@@ -129,7 +129,7 @@ namespace TrenchBroom {
             String m_name;
             std::vector<std::unique_ptr<MenuEntry>> m_entries;
         public:
-            explicit Menu(String&& name);
+            explicit Menu(const String& name);
 
             const String& name() const;
 
@@ -160,12 +160,14 @@ namespace TrenchBroom {
             void visitMainMenu(MenuVisitor& visitor) const;
         private:
             void initialize();
-            const Action* createAction(String&& name, QKeySequence&& defaultShortcut,
-                                       Action::ExecuteFn&& execute, Action::EnabledFn&& enabled, IO::Path&& iconPath = IO::Path());
-            const Action* createAction(String&& name, QKeySequence&& defaultShortcut,
-                                       Action::ExecuteFn&& execute, Action::EnabledFn&& enabled, Action::CheckedFn&& checked, IO::Path&& iconPath = IO::Path());
+            const Action* createAction(const String& name, const QKeySequence& defaultShortcut,
+                                       const Action::ExecuteFn& execute, const Action::EnabledFn& enabled,
+                                       const IO::Path& iconPath = IO::Path());
+            const Action* createAction(const String& name, const QKeySequence& defaultShortcut,
+                                       const Action::ExecuteFn& execute, const Action::EnabledFn& enabled,
+                                       const Action::CheckedFn& checked, const IO::Path& iconPath = IO::Path());
 
-            Menu& createMainMenu(String&& name);
+            Menu& createMainMenu(const String& name);
 
             deleteCopyAndMove(ActionManager)
         };

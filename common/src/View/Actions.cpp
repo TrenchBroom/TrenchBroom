@@ -46,22 +46,22 @@ namespace TrenchBroom {
             return m_frame->document().get();
         }
 
-        Action::Action(String&& name, KeyboardShortcut&& defaultShortcut, Action::ExecuteFn&& execute,
-                       Action::EnabledFn&& enabled, IO::Path&& iconPath) :
-        m_name(std::move(name)),
-        m_preference(IO::Path("Actions") + IO::Path(m_name), std::move(defaultShortcut)),
-        m_execute(std::move(execute)),
-        m_enabled(std::move(enabled)),
-        m_iconPath(std::move(iconPath)) {}
+        Action::Action(const String& name, const KeyboardShortcut& defaultShortcut, const Action::ExecuteFn& execute,
+                       const Action::EnabledFn& enabled, const IO::Path& iconPath) :
+        m_name(name),
+        m_preference(IO::Path("Actions") + IO::Path(m_name), defaultShortcut),
+        m_execute(execute),
+        m_enabled(enabled),
+        m_iconPath(iconPath) {}
 
-        Action::Action(String&& name, KeyboardShortcut&& defaultShortcut, Action::ExecuteFn&& execute,
-                       Action::EnabledFn&& enabled, Action::CheckedFn&& checked, IO::Path&& iconPath) :
-        m_name(std::move(name)),
-        m_preference(IO::Path("Actions") + IO::Path(m_name), std::move(defaultShortcut)),
-        m_execute(std::move(execute)),
-        m_enabled(std::move(enabled)),
-        m_checked(std::move(checked)),
-        m_iconPath(std::move(iconPath)) {}
+        Action::Action(const String& name, const KeyboardShortcut& defaultShortcut, const Action::ExecuteFn& execute,
+                       const Action::EnabledFn& enabled, const Action::CheckedFn& checked, const IO::Path& iconPath) :
+        m_name(name),
+        m_preference(IO::Path("Actions") + IO::Path(m_name), defaultShortcut),
+        m_execute(execute),
+        m_enabled(enabled),
+        m_checked(checked),
+        m_iconPath(iconPath) {}
 
         const String& Action::name() const {
             return m_name;
@@ -120,15 +120,15 @@ namespace TrenchBroom {
             menuVisitor.visit(*this);
         }
 
-        Menu::Menu(String&& name) :
-        m_name(std::move(name)) {}
+        Menu::Menu(const String& name) :
+        m_name(name) {}
 
         const String& Menu::name() const {
             return m_name;
         }
 
         Menu& Menu::addMenu(String name) {
-            m_entries.emplace_back(std::make_unique<Menu>(std::move(name)));
+            m_entries.emplace_back(std::make_unique<Menu>(name));
             return *static_cast<Menu*>(m_entries.back().get());
         }
 
@@ -207,33 +207,33 @@ namespace TrenchBroom {
             fileMenu.addItem(saveFileAs);
         }
 
-        const Action* ActionManager::createAction(String&& name, QKeySequence&& defaultShortcut,
-                                                  Action::ExecuteFn&& execute, Action::EnabledFn&& enabled,
-                                                  IO::Path&& iconPath) {
+        const Action* ActionManager::createAction(const String& name, const QKeySequence& defaultShortcut,
+                                                  const Action::ExecuteFn& execute, const Action::EnabledFn& enabled,
+                                                  const IO::Path& iconPath) {
             m_actions.emplace_back(std::make_unique<Action>(
-                std::move(name),
+                name,
                 KeyboardShortcut(defaultShortcut),
-                std::move(execute),
-                std::move(enabled),
-                std::move(iconPath)));
+                execute,
+                enabled,
+                iconPath));
             return m_actions.back().get();
         }
 
-        const Action* ActionManager::createAction(String&& name, QKeySequence&& defaultShortcut,
-                                                  Action::ExecuteFn&& execute, Action::EnabledFn&& enabled,
-                                                  Action::CheckedFn&& checked, IO::Path&& iconPath) {
+        const Action* ActionManager::createAction(const String& name, const QKeySequence& defaultShortcut,
+                                                  const Action::ExecuteFn& execute, const Action::EnabledFn& enabled,
+                                                  const Action::CheckedFn& checked, const IO::Path& iconPath) {
             m_actions.emplace_back(std::make_unique<Action>(
-                std::move(name),
+                name,
                 KeyboardShortcut(defaultShortcut),
-                std::move(execute),
-                std::move(enabled),
-                std::move(checked),
-                std::move(iconPath)));
+                execute,
+                enabled,
+                checked,
+                iconPath));
             return m_actions.back().get();
         }
 
-        Menu& ActionManager::createMainMenu(String&& name) {
-            auto menu = std::make_unique<Menu>(std::move(name));
+        Menu& ActionManager::createMainMenu(const String& name) {
+            auto menu = std::make_unique<Menu>(name);
             auto* result = menu.get();
             m_mainMenu.emplace_back(std::move(menu));
             return *result;
