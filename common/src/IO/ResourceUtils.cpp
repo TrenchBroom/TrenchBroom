@@ -39,17 +39,20 @@ namespace TrenchBroom {
         }
 
         QIcon loadIconResourceQt(const IO::Path& imagePath) {
-            const QString imagePathString = imagePathToString(imagePath);
-            return QIcon(imagePathString);
-        }
-
-        QIcon loadIconResourceOffOnQt(const IO::Path& offImagePath, const IO::Path& onImagePath) {
-            const QString offImagePathString = imagePathToString(offImagePath);
-            const QString onImagePathString = imagePathToString(onImagePath);
-
             QIcon result;
-            result.addFile(offImagePathString, QSize(), QIcon::Normal, QIcon::Off);
-            result.addFile(onImagePathString, QSize(), QIcon::Normal, QIcon::On);
+            if (!imagePath.isEmpty()) {
+                const auto onPath = imagePathToString(imagePath.replaceBasename(imagePath.basename() + "_on"));
+                const auto offPath = imagePathToString(imagePath.replaceBasename(imagePath.basename() + "_off"));
+
+                if (!onPath.isEmpty() && !offPath.isEmpty()) {
+                    result.addFile(onPath, QSize(), QIcon::Normal, QIcon::On);
+                    result.addFile(offPath, QSize(), QIcon::Normal, QIcon::Off);
+                } else {
+                    const auto imagePathString = imagePathToString(imagePath);
+                    result.addFile(imagePathString, QSize(), QIcon::Normal);
+                }
+            }
+
             return result;
         }
     }

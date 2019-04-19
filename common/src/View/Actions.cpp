@@ -26,6 +26,8 @@
 #include "View/MapFrame.h"
 #include "View/MapViewBase.h"
 
+#include "vecmath/util.h"
+
 #include <QKeySequence>
 #include <QMessageBox>
 
@@ -118,17 +120,24 @@ namespace TrenchBroom {
 
         MenuVisitor::~MenuVisitor() = default;
 
-        MenuEntry::MenuEntry() = default;
+        MenuEntry::MenuEntry(const MenuEntryType entryType) :
+        m_entryType(entryType) {}
 
         MenuEntry::~MenuEntry() = default;
 
-        MenuSeparatorItem::MenuSeparatorItem() = default;
+        MenuEntryType MenuEntry::entryType() const {
+            return m_entryType;
+        }
+
+        MenuSeparatorItem::MenuSeparatorItem() :
+        MenuEntry(MenuEntryType::Menu_None) {}
 
         void MenuSeparatorItem::accept(MenuVisitor& menuVisitor) const {
             menuVisitor.visit(*this);
         }
 
-        MenuActionItem::MenuActionItem(const Action* action) :
+        MenuActionItem::MenuActionItem(const Action* action, const MenuEntryType entryType) :
+        MenuEntry(entryType),
         m_action(action) {}
 
         const String& MenuActionItem::name() const {
@@ -143,15 +152,16 @@ namespace TrenchBroom {
             menuVisitor.visit(*this);
         }
 
-        Menu::Menu(const String& name) :
+        Menu::Menu(const String& name, const MenuEntryType entryType) :
+        MenuEntry(entryType),
         m_name(name) {}
 
         const String& Menu::name() const {
             return m_name;
         }
 
-        Menu& Menu::addMenu(String name) {
-            m_entries.emplace_back(std::make_unique<Menu>(name));
+        Menu& Menu::addMenu(const String& name, const MenuEntryType entryType) {
+            m_entries.emplace_back(std::make_unique<Menu>(name, entryType));
             return *static_cast<Menu*>(m_entries.back().get());
         }
 
@@ -159,8 +169,8 @@ namespace TrenchBroom {
             m_entries.emplace_back(std::make_unique<MenuSeparatorItem>());
         }
 
-        MenuActionItem& Menu::addItem(const Action* action) {
-            m_entries.emplace_back(std::make_unique<MenuActionItem>(action));
+        MenuActionItem& Menu::addItem(const Action* action, const MenuEntryType entryType) {
+            m_entries.emplace_back(std::make_unique<MenuActionItem>(action, entryType));
             return *static_cast<MenuActionItem*>(m_entries.back().get());
         }
 
@@ -191,6 +201,12 @@ namespace TrenchBroom {
             }
         }
 
+        void ActionManager::visitToolBarActions(MenuVisitor& visitor) const {
+            if (m_toolBar != nullptr) {
+                m_toolBar->accept(visitor);
+            }
+        }
+
         void ActionManager::visitMapViewActions(const ActionVisitor& visitor) const {
             for (const auto* action : m_mapViewActions) {
                 visitor(*action);
@@ -201,33 +217,148 @@ namespace TrenchBroom {
             const auto* newFile = createAction("New Document", ActionContext_Any, QKeySequence(QKeySequence::New),
                 [](ActionExecutionContext& context) {
                     auto& app = TrenchBroomApp::instance();
-                    app.OnFileNew();
+                    app.newDocument();
                 },
                 [](ActionExecutionContext& context) { return true; });
             const auto* openFile = createAction("Open Document...", ActionContext_Any, QKeySequence(QKeySequence::Open),
                 [](ActionExecutionContext& context) {
                     auto& app = TrenchBroomApp::instance();
-                    app.OnFileOpen();
+                    app.openDocument();
                 },
                 [](ActionExecutionContext& context) { return true; });
+
             const auto* saveFile = createAction("Save Document", ActionContext_Any, QKeySequence(QKeySequence::Save),
                 [](ActionExecutionContext& context) {
-                    context.frame()->OnFileSave();
+                    context.frame()->saveDocument();
                 },
                 [](ActionExecutionContext& context) { return context.hasDocument(); });
             const auto* saveFileAs = createAction("Save Document as...", ActionContext_Any, QKeySequence(QKeySequence::SaveAs),
                 [](ActionExecutionContext& context) {
-                    context.frame()->OnFileSaveAs();
+                    context.frame()->saveDocumentAs();
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            const auto* exportWavefrontObj = createAction("Wavefront OBJ...", ActionContext_Any, QKeySequence(),
+                [](ActionExecutionContext& context) {
+                    context.frame()->exportDocumentAsObj();
                 },
                 [](ActionExecutionContext& context) { return context.hasDocument(); });
 
+            const auto* loadPointFile = createAction("Load Point File...", ActionContext_Any, QKeySequence(),
+                [](ActionExecutionContext& context) {
+                    context.frame()->loadPointFile();
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            const auto* reloadPointFile = createAction("Reload Point File", ActionContext_Any, QKeySequence(),
+                [](ActionExecutionContext& context) {
+                    context.frame()->reloadPointFile();
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument() && context.frame()->canReloadPointFile(); });
+            const auto* unloadPointFile = createAction("Unload Point File", ActionContext_Any, QKeySequence(),
+                [](ActionExecutionContext& context) {
+                    context.frame()->unloadPointFile();
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument() && context.frame()->canUnloadPointFile(); });
+            const auto* loadPortalFile = createAction("Load Portal File...", ActionContext_Any, QKeySequence(),
+                [](ActionExecutionContext& context) {
+                    context.frame()->loadPortalFile();
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            const auto* reloadPortalFile = createAction("Reload Portal File", ActionContext_Any, QKeySequence(),
+                [](ActionExecutionContext& context) {
+                    context.frame()->reloadPortalFile();
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument() && context.frame()->canReloadPortalFile(); });
+            const auto* unloadPortalFile = createAction("Unload Portal File", ActionContext_Any, QKeySequence(),
+                [](ActionExecutionContext& context) {
+                    context.frame()->unloadPortalFile();
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument() && context.frame()->canUnloadPortalFile(); });
+
+            const auto* reloadTextureCollections = createAction("Reload Texture Collections", ActionContext_Any, QKeySequence(Qt::Key_F5),
+                [](ActionExecutionContext& context) {
+                    context.frame()->reloadTextureCollections();
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            const auto* reloadEntityDefinitions = createAction("Reload Entity Definitions", ActionContext_Any, QKeySequence(Qt::Key_F6),
+                [](ActionExecutionContext& context) {
+                    context.frame()->reloadEntityDefinitions();
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+
+            const auto* closeDocument = createAction("Close Document", ActionContext_Any, QKeySequence(QKeySequence::Close),
+                [](ActionExecutionContext& context) {
+                    context.frame()->closeDocument();
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+
+            const auto* undo = createAction("Undo", ActionContext_Any, QKeySequence(QKeySequence::Undo),
+                [](ActionExecutionContext& context) {
+                    context.frame()->undo();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument() && context.frame()->canUndo();
+                });
+            const auto* redo = createAction("Redo", ActionContext_Any, QKeySequence(QKeySequence::Redo),
+                [](ActionExecutionContext& context) {
+                    context.frame()->redo();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument() && context.frame()->canRedo();
+                });
+
+            const auto* repeat = createAction("Repeat Last Commands", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::Key_R),
+                [](ActionExecutionContext& context) {
+                    context.frame()->repeatLastCommands();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument();
+                });
+            const auto* clearRepeat = createAction("Repeat Last Commands", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::Key_R),
+                [](ActionExecutionContext& context) {
+                    context.frame()->clearRepeatableCommands();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument() && context.frame()->hasRepeatableCommands();
+                });
+
+
             const auto* moveObjectsForward = createAction("Move Objects Forward", ActionContext_NodeSelection, QKeySequence(Qt::Key_Up),
                 [](ActionExecutionContext& context) {
-                    context.view()->OnMoveObjectsForward();
+                    context.view()->moveObjects(vm::direction::forward);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            const auto* moveObjectsBackward = createAction("Move Objects Backward", ActionContext_NodeSelection, QKeySequence(Qt::Key_Down),
+                [](ActionExecutionContext& context) {
+                    context.view()->moveObjects(vm::direction::backward);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            const auto* moveObjectsLeft = createAction("Move Objects Left", ActionContext_NodeSelection, QKeySequence(Qt::Key_Left),
+                [](ActionExecutionContext& context) {
+                     context.view()->moveObjects(vm::direction::left);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            const auto* moveObjectsRight = createAction("Move Objects Right", ActionContext_NodeSelection, QKeySequence(Qt::Key_Right),
+                [](ActionExecutionContext& context) {
+                     context.view()->moveObjects(vm::direction::right);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            const auto* moveObjectsUp = createAction("Move Objects Up", ActionContext_NodeSelection, QKeySequence(Qt::Key_PageUp),
+                [](ActionExecutionContext& context) {
+                     context.view()->moveObjects(vm::direction::up);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            const auto* moveObjectsDown = createAction("Move Objects Down", ActionContext_NodeSelection, QKeySequence(Qt::Key_PageDown),
+                [](ActionExecutionContext& context) {
+                     context.view()->moveObjects(vm::direction::down);
                 },
                 [](ActionExecutionContext& context) { return context.hasDocument(); });
 
             m_mapViewActions.push_back(moveObjectsForward);
+            m_mapViewActions.push_back(moveObjectsBackward);
+            m_mapViewActions.push_back(moveObjectsLeft);
+            m_mapViewActions.push_back(moveObjectsRight);
+            m_mapViewActions.push_back(moveObjectsUp);
+            m_mapViewActions.push_back(moveObjectsDown);
 
             auto& fileMenu = createMainMenu("File");
             auto& editMenu = createMainMenu("Edit");
@@ -237,9 +368,34 @@ namespace TrenchBroom {
             fileMenu.addItem(newFile);
             fileMenu.addSeparator();
             fileMenu.addItem(openFile);
+            fileMenu.addMenu("Open Recent", MenuEntryType::Menu_RecentDocuments);
             fileMenu.addSeparator();
             fileMenu.addItem(saveFile);
             fileMenu.addItem(saveFileAs);
+
+            auto& exportMenu = fileMenu.addMenu("Export");
+            exportMenu.addItem(exportWavefrontObj);
+
+            fileMenu.addSeparator();
+            fileMenu.addItem(loadPointFile);
+            fileMenu.addItem(reloadPointFile);
+            fileMenu.addItem(unloadPointFile);
+            fileMenu.addSeparator();
+            fileMenu.addItem(loadPortalFile);
+            fileMenu.addItem(reloadPortalFile);
+            fileMenu.addItem(unloadPortalFile);
+            fileMenu.addSeparator();
+            fileMenu.addItem(reloadTextureCollections);
+            fileMenu.addItem(reloadEntityDefinitions);
+            fileMenu.addSeparator();
+            fileMenu.addItem(closeDocument);
+
+            editMenu.addItem(undo, MenuEntryType::Menu_Undo);
+            editMenu.addItem(redo, MenuEntryType::Menu_Redo);
+            editMenu.addSeparator();
+            editMenu.addItem(repeat);
+            editMenu.addItem(clearRepeat);
+            editMenu.addSeparator();
         }
 
         const Action* ActionManager::createAction(const String& name, const ActionContext actionContext,

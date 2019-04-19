@@ -30,14 +30,13 @@
 
 #include <utility>
 
-class QTimer;
-class QLabel;
-class QMenuBar;
 class QAction;
-class QActionGroup;
 class QComboBox;
-class QSplitter;
 class QDropEvent;
+class QMenuBar;
+class QLabel;
+class QSplitter;
+class QTimer;
 
 namespace TrenchBroom {
     class Logger;
@@ -78,123 +77,21 @@ namespace TrenchBroom {
 
             QComboBox* m_gridChoice;
             QLabel* m_statusBarLabel;
-
+        private: // shortcuts
+            using ActionMap = std::vector<std::pair<QAction*, const Action*>>;
+            ActionMap m_actionMap;
+        private: // special menu entries
+            QMenu* m_recentDocumentsMenu;
+            QAction* m_undoAction;
+            QAction* m_redoAction;
+            QAction* m_pasteAction;
+            QAction* m_pasteAtOriginalPositionAction;
 #if 0
             wxDialog* m_compilationDialog;
 #endif
-        private: // actions
-            QAction* fileNewAction;
-            QAction* fileOpenAction;
-            QAction* fileSaveAction;
-            QAction* fileSaveAsAction;
-            QAction* fileExportObjAction;
-            QAction* fileLoadPointFileAction;
-            QAction* fileReloadPointFileAction;
-            QAction* fileUnloadPointFileAction;
-            QAction* fileLoadPortalFileAction;
-            QAction* fileReloadPortalFileAction;
-            QAction* fileUnloadPortalFileAction;
-            QAction* fileReloadTextureCollectionsAction;
-            QAction* fileReloadEntityDefinitionsAction;
-            QAction* fileCloseAction;
-
-            QAction* editUndoAction;
-            QAction* editRedoAction;
-            QAction* editRepeatAction;
-            QAction* editClearRepeatAction;
-            QAction* editCutAction;
-            QAction* editCopyAction;
-            QAction* editPasteAction;
-            QAction* editPasteAtOriginalPositionAction;
-            QAction* editDuplicateAction;
-            QAction* editDeleteAction;
-            QAction* editSelectAllAction;
-            QAction* editSelectSiblingsAction;
-            QAction* editSelectTouchingAction;
-            QAction* editSelectInsideAction;
-            QAction* editSelectTallAction;
-            QAction* editSelectByLineNumberAction;
-            QAction* editSelectNoneAction;
-            QAction* editGroupSelectedObjectsAction;
-            QAction* editUngroupSelectedObjectsAction;
-            QActionGroup* editToolActionGroup;
-            QAction* editDeactivateToolAction;
-            QAction* editToggleCreateComplexBrushToolAction;
-            QAction* editToggleClipToolAction;
-            QAction* editToggleRotateObjectsToolAction;
-            QAction* editToggleScaleObjectsToolAction;
-            QAction* editToggleShearObjectsToolAction;
-            QAction* editToggleVertexToolAction;
-            QAction* editToggleEdgeToolAction;
-            QAction* editToggleFaceToolAction;
-            QAction* editCsgConvexMergeAction;
-            QAction* editCsgSubtractAction;
-            QAction* editCsgIntersectAction;
-            QAction* editCsgHollowAction;
-            QAction* editReplaceTextureAction;
-            QAction* editToggleTextureLockAction;
-            QAction* editToggleUVLockAction;
-            QAction* editSnapVerticesToIntegerAction;
-            QAction* editSnapVerticesToGridAction;
-
-            QAction* viewToggleShowGridAction;
-            QAction* viewToggleSnapToGridAction;
-            QAction* viewIncGridSizeAction;
-            QAction* viewDecGridSizeAction;
-            QActionGroup* viewSetGridSizeActionGroup;
-            QAction* viewSetGridSize0Point125Action;
-            QAction* viewSetGridSize0Point25Action;
-            QAction* viewSetGridSize0Point5Action;
-            QAction* viewSetGridSize1Action;
-            QAction* viewSetGridSize2Action;
-            QAction* viewSetGridSize4Action;
-            QAction* viewSetGridSize8Action;
-            QAction* viewSetGridSize16Action;
-            QAction* viewSetGridSize32Action;
-            QAction* viewSetGridSize64Action;
-            QAction* viewSetGridSize128Action;
-            QAction* viewSetGridSize256Action;
-
-            QAction* viewMoveCameraToNextPointAction;
-            QAction* viewMoveCameraToPreviousPointAction;
-            QAction* viewFocusCameraOnSelectionAction;
-            QAction* viewMoveCameraToPositionAction;
-
-            QAction* viewIsolateSelectionAction;
-            QAction* viewHideSelectionAction;
-            QAction* viewUnhideAllAction;
-            QAction* viewSwitchToMapInspectorAction;
-            QAction* viewSwitchToEntityInspectorAction;
-            QAction* viewSwitchToFaceInspectorAction;
-            QAction* viewToggleInfoPanelAction;
-            QAction* viewToggleInspectorAction;
-            QAction* viewToggleMaximizeCurrentViewAction;
-            QAction* viewPreferencesAction;
-
-            QAction* runCompileAction;
-            QAction* runLaunchAction;
-
-            QAction* debugPrintVerticesAction;
-            QAction* debugCreateBrushAction;
-            QAction* debugCreateCubeAction;
-            QAction* debugClipWithFaceAction;
-            QAction* debugCopyJSShortcutsAction;
-            QAction* debugCrashAction;
-            QAction* debugThrowExceptionDuringCommandAction;
-            QAction* debugCrashReportDialogAction;
-            QAction* debugSetWindowSizeAction;
-
-            QAction* helpManualAction;
-            QAction* helpAboutAction;
-
-            QAction* flipObjectsHorizontallyAction;
-            QAction* flipObjectsVerticallyAction;
-
-            std::vector<std::pair<QAction*, const ActionInfo*>> m_actionInfoList;
         public:
             MapFrame();
             MapFrame(FrameManager* frameManager, MapDocumentSPtr document);
-            void Create(FrameManager* frameManager, MapDocumentSPtr document);
             ~MapFrame() override;
 
             void positionOnScreen(QWidget* reference);
@@ -207,35 +104,21 @@ namespace TrenchBroom {
         protected:
             void dragEnterEvent(QDragEnterEvent* event) override;
             void dropEvent(QDropEvent* event) override;
-        public: // document management
-            bool newDocument(Model::GameSPtr game, Model::MapFormat mapFormat);
-            bool openDocument(Model::GameSPtr game, Model::MapFormat mapFormat, const IO::Path& path);
-        private:
-            bool saveDocument();
-            bool saveDocumentAs();
-            bool exportDocumentAsObj();
-            bool exportDocument(Model::ExportFormat format, const IO::Path& path);
-
-            bool confirmOrDiscardChanges();
         private: // title bar contents
             void updateTitle();
         private: // menu bar
-            void createActions();
-            void registerBinding(QAction* action, const ActionInfo& info);
-            void updateBindings();
-
             class MenuBuilder;
             void createMenus();
-            void updateGridActions();
-            void updateToolActions();
-            void updateOtherActions();
+            void updateShortcuts();
+            void updateActionState();
             void updateUndoRedoActions();
-            void updateClipboardActions();
+            void updatePasteActions();
 
             void addRecentDocumentsMenu(QMenuBar* menuBar);
             void removeRecentDocumentsMenu(QMenuBar* menuBar);
             void updateRecentDocumentsMenu();
         private: // tool bar
+            class ToolBarBuilder;
             void createToolBar();
         private: // status bar
             void createStatusBar();
@@ -249,6 +132,10 @@ namespace TrenchBroom {
             void documentWasCleared(View::MapDocument* document);
             void documentDidChange(View::MapDocument* document);
             void documentModificationStateDidChange();
+
+            void transactionDone(const String&);
+            void transactionUndone(const String&);
+
             void preferenceDidChange(const IO::Path& path);
             void gridDidChange();
             void toolActivated(Tool* tool);
@@ -262,23 +149,39 @@ namespace TrenchBroom {
         private slots:
             void triggerAction(const Action& action);
         public:
-            void OnFileSave();
-            void OnFileSaveAs();
-            void OnFileExportObj();
-            void OnFileLoadPointFile();
-            void OnFileReloadPointFile();
-            void OnFileUnloadPointFile();
-            void OnFileLoadPortalFile();
-            void OnFileReloadPortalFile();
-            void OnFileUnloadPortalFile();
-            void OnFileReloadTextureCollections();
-            void OnFileReloadEntityDefinitions();
-            void OnFileClose();
+            bool newDocument(Model::GameSPtr game, Model::MapFormat mapFormat);
+            bool openDocument(Model::GameSPtr game, Model::MapFormat mapFormat, const IO::Path& path);
+            bool saveDocument();
+            bool saveDocumentAs();
+            bool exportDocumentAsObj();
+            bool exportDocument(Model::ExportFormat format, const IO::Path& path);
+        private:
+            bool confirmOrDiscardChanges();
+        public:
+            void loadPointFile();
+            void reloadPointFile();
+            void unloadPointFile();
+            bool canReloadPointFile() const;
+            bool canUnloadPortalFile() const;
 
-            void OnEditUndo();
-            void OnEditRedo();
-            void OnEditRepeat();
-            void OnEditClearRepeat();
+            void loadPortalFile();
+            void reloadPortalFile();
+            void unloadPortalFile();
+            bool canReloadPortalFile() const;
+            bool canUnloadPointFile() const;
+
+            void reloadTextureCollections();
+            void reloadEntityDefinitions();
+            void closeDocument();
+
+            void undo();
+            void redo();
+            bool canUndo() const;
+            bool canRedo() const;
+
+            void repeatLastCommands();
+            void clearRepeatableCommands();
+            bool hasRepeatableCommands() const;
 
             void OnEditCut();
             void OnEditCopy();
@@ -372,15 +275,7 @@ namespace TrenchBroom {
             void OnToolBarSetGridSize(int index);
             void onFocusChange(QWidget* old, QWidget* now);
         private:
-            bool canUnloadPointFile() const;
-            bool canReloadPointFile() const;
-            bool canUnloadPortalFile() const;
-            bool canReloadPortalFile() const;
 
-            bool canUndo() const;
-            void undo();
-            bool canRedo() const;
-            void redo();
             //wxTextCtrl* findFocusedTextCtrl() const;
 
             bool canCut() const;

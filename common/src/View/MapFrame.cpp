@@ -19,28 +19,6 @@
 
 #include "MapFrame.h"
 
-#include <QTimer>
-#include <QLabel>
-#include <QString>
-#include <QApplication>
-#include <QClipboard>
-#include <QInputDialog>
-#include <QMessageBox>
-#include <QFileDialog>
-#include <QStatusBar>
-#include <QAction>
-#include <QActionGroup>
-#include <QMenu>
-#include <QMenuBar>
-#include <QShortcut>
-#include <QToolBar>
-#include <QComboBox>
-#include <QSplitter>
-#include <QVBoxLayout>
-#include <QDropEvent>
-#include <QMimeData>
-#include <QUrl>
-
 #include "TrenchBroomApp.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
@@ -85,6 +63,28 @@
 
 #include <vecmath/util.h>
 
+#include <QTimer>
+#include <QLabel>
+#include <QString>
+#include <QApplication>
+#include <QClipboard>
+#include <QInputDialog>
+#include <QMessageBox>
+#include <QFileDialog>
+#include <QStatusBar>
+#include <QAction>
+#include <QActionGroup>
+#include <QMenu>
+#include <QMenuBar>
+#include <QShortcut>
+#include <QToolBar>
+#include <QComboBox>
+#include <QSplitter>
+#include <QVBoxLayout>
+#include <QDropEvent>
+#include <QMimeData>
+#include <QUrl>
+
 #include <cassert>
 #include <iterator>
 
@@ -102,7 +102,12 @@ namespace TrenchBroom {
         m_infoPanel(nullptr),
         m_console(nullptr),
         m_inspector(nullptr),
-        m_gridChoice(nullptr) {}
+        m_gridChoice(nullptr),
+        m_recentDocumentsMenu(nullptr),
+        m_undoAction(nullptr),
+        m_redoAction(nullptr),
+        m_pasteAction(nullptr),
+        m_pasteAtOriginalPositionAction(nullptr) {}
 
         MapFrame::MapFrame(FrameManager* frameManager, MapDocumentSPtr document) :
         QMainWindow(),
@@ -116,11 +121,12 @@ namespace TrenchBroom {
         m_infoPanel(nullptr),
         m_console(nullptr),
         m_inspector(nullptr),
-        m_gridChoice(nullptr) {
-            Create(frameManager, document);
-        }
-
-        void MapFrame::Create(FrameManager* frameManager, MapDocumentSPtr document) {
+        m_gridChoice(nullptr),
+        m_recentDocumentsMenu(nullptr),
+        m_undoAction(nullptr),
+        m_redoAction(nullptr),
+        m_pasteAction(nullptr),
+        m_pasteAtOriginalPosition(nullptr) {
             setAttribute(Qt::WA_DeleteOnClose);
 
             ensure(frameManager != nullptr, "frameManager is null");
@@ -133,18 +139,13 @@ namespace TrenchBroom {
             m_contextManager = new GLContextManager();
 
             createGui();
-            createActions();
-            createToolBar();
-
-            updateBindings();
-            updateGridActions();
-            updateToolActions();
-            updateOtherActions();
-            updateUndoRedoActions();
-            updateClipboardActions();
-
             createMenus();
+            createToolBar();
             createStatusBar();
+
+            updateShortcuts();
+            updateActionState();
+            updateUndoRedoActions();
 
             m_document->setParentLogger(m_console);
             m_document->setViewEffectsService(m_mapView);
@@ -250,586 +251,25 @@ namespace TrenchBroom {
             event->acceptProposedAction();
         }
 
-        bool MapFrame::newDocument(Model::GameSPtr game, const Model::MapFormat mapFormat) {
-            if (!confirmOrDiscardChanges())
-                return false;
-            m_document->newDocument(mapFormat, MapDocument::DefaultWorldBounds, game);
-            return true;
-        }
-
-        bool MapFrame::openDocument(Model::GameSPtr game, const Model::MapFormat mapFormat, const IO::Path& path) {
-            if (!confirmOrDiscardChanges())
-                return false;
-            m_document->loadDocument(mapFormat, MapDocument::DefaultWorldBounds, game, path);
-            return true;
-        }
-
-        bool MapFrame::saveDocument() {
-            try {
-                if (m_document->persistent()) {
-                    m_document->saveDocument();
-                    logger().info() << "Saved " << m_document->path();
-                    return true;
-                } else {
-                    return saveDocumentAs();
-                }
-            } catch (const FileSystemException& e) {
-                QMessageBox::critical(this, "", e.what(), QMessageBox::Ok);
-                return false;
-            } catch (...) {
-                QMessageBox::critical(this, "", QString::fromStdString("Unknown error while saving " + m_document->path().asString()), QMessageBox::Ok);
-                return false;
-            }
-        }
-
-        bool MapFrame::saveDocumentAs() {
-            try {
-                const IO::Path& originalPath = m_document->path();
-                const IO::Path directory = originalPath.deleteLastComponent();
-                const IO::Path fileName = originalPath.lastComponent();
-
-                const QString newFileName = QFileDialog::getSaveFileName(this, "Save map file", QString::fromStdString(originalPath.asString()), "Map files (*.map)");
-                if (newFileName.isEmpty()) {
-                    return false;
-                }
-
-                const IO::Path path(newFileName.toStdString());
-                m_document->saveDocumentAs(path);
-                logger().info() << "Saved " << m_document->path();
-                return true;
-            } catch (const FileSystemException& e) {
-                QMessageBox::critical(this, "", e.what(), QMessageBox::Ok);
-                return false;
-            } catch (...) {
-                QMessageBox::critical(this, "", QString::fromStdString("Unknown error while saving " + m_document->filename()), QMessageBox::Ok);
-                return false;
-            }
-        }
-
-        bool MapFrame::exportDocumentAsObj() {
-            const IO::Path& originalPath = m_document->path();
-            const IO::Path objPath = originalPath.replaceExtension("obj");
-
-            const QString newFileName = QFileDialog::getSaveFileName(this, "Export Wavefront OBJ file", QString::fromStdString(objPath.asString()), "Wavefront OBJ files (*.obj)");
-            if (newFileName.isEmpty())
-                return false;
-
-            return exportDocument(Model::WavefrontObj, IO::Path(newFileName.toStdString()));
-        }
-
-        bool MapFrame::exportDocument(const Model::ExportFormat format, const IO::Path& path) {
-            try {
-                m_document->exportDocumentAs(format, path);
-                logger().info() << "Exported " << path;
-                return true;
-            } catch (const FileSystemException& e) {
-                QMessageBox::critical(this, "", e.what(), QMessageBox::Ok);
-                return false;
-            } catch (...) {
-                QMessageBox::critical(this, "", QString::fromStdString("Unknown error while exporting " + path.asString()), QMessageBox::Ok);
-                return false;
-            }
-        }
-
-        bool MapFrame::confirmOrDiscardChanges() {
-            if (!m_document->modified())
-                return true;
-            const QMessageBox::StandardButton result = QMessageBox::question(this, "TrenchBroom", QString::fromStdString(m_document->filename() + " has been modified. Do you want to save the changes?"), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
-            switch (result) {
-                case QMessageBox::Yes:
-                    return saveDocument();
-                case QMessageBox::No:
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
         void MapFrame::updateTitle() {
             setWindowModified(m_document->modified());
             setWindowTitle(QString::fromStdString(m_document->filename()) + QString("[*] - TrenchBroom"));
             setWindowFilePath(QString::fromStdString(m_document->path().asString()));
         }
 
-        void MapFrame::createActions() {
-            // File
-
-            fileNewAction = new QAction("New", this);
-            registerBinding(fileNewAction, ActionList::instance().menuFileNewInfo);
-            connect(fileNewAction, &QAction::triggered, &TrenchBroomApp::instance(), &TrenchBroomApp::OnFileNew);
-
-            fileOpenAction = new QAction("Open", this);
-            registerBinding(fileOpenAction, ActionList::instance().menuFileOpenInfo);
-            connect(fileOpenAction, &QAction::triggered, &TrenchBroomApp::instance(), &TrenchBroomApp::OnFileOpen);
-
-            fileSaveAction = new QAction("Save", this);
-            registerBinding(fileSaveAction, ActionList::instance().menuFileSaveInfo);
-            connect(fileSaveAction, &QAction::triggered, this, &MapFrame::OnFileSave);
-
-            fileSaveAsAction = new QAction("Save as...", this);
-            registerBinding(fileSaveAsAction, ActionList::instance().menuFileSaveasInfo);
-            connect(fileSaveAsAction, &QAction::triggered, this, &MapFrame::OnFileSaveAs);
-
-            fileExportObjAction = new QAction("Wavefront OBJ...", this);
-            registerBinding(fileExportObjAction, ActionList::instance().menuFileExportWavefrontOBJInfo);
-            connect(fileExportObjAction, &QAction::triggered, this, &MapFrame::OnFileExportObj);
-
-            fileLoadPointFileAction = new QAction("Load Point File...", this);
-            registerBinding(fileLoadPointFileAction, ActionList::instance().menuFileLoadPointFileInfo);
-            connect(fileLoadPointFileAction, &QAction::triggered, this, &MapFrame::OnFileLoadPointFile);
-
-            fileReloadPointFileAction = new QAction("Reload Point File", this);
-            registerBinding(fileReloadPointFileAction, ActionList::instance().menuFileReloadPointFileInfo);
-            connect(fileReloadPointFileAction, &QAction::triggered, this, &MapFrame::OnFileReloadPointFile);
-
-            fileUnloadPointFileAction = new QAction("Unload Point File", this);
-            registerBinding(fileUnloadPointFileAction, ActionList::instance().menuFileUnloadPointFileInfo);
-            connect(fileUnloadPointFileAction, &QAction::triggered, this, &MapFrame::OnFileUnloadPointFile);
-
-            fileLoadPortalFileAction = new QAction("Load Portal File...", this);
-            registerBinding(fileLoadPortalFileAction, ActionList::instance().menuFileLoadPortalFileInfo);
-            connect(fileLoadPortalFileAction, &QAction::triggered, this, &MapFrame::OnFileLoadPortalFile);
-
-            fileReloadPortalFileAction = new QAction("Reload Portal File", this);
-            registerBinding(fileReloadPortalFileAction, ActionList::instance().menuFileReloadPortalFileInfo);
-            connect(fileReloadPortalFileAction, &QAction::triggered, this, &MapFrame::OnFileReloadPortalFile);
-
-            fileUnloadPortalFileAction = new QAction("Unload Portal File", this);
-            registerBinding(fileUnloadPortalFileAction, ActionList::instance().menuFileUnloadPortalFileInfo);
-            connect(fileUnloadPortalFileAction, &QAction::triggered, this, &MapFrame::OnFileUnloadPortalFile);
-
-            fileReloadTextureCollectionsAction = new QAction("Reload Texture Collections", this);
-            registerBinding(fileReloadTextureCollectionsAction,
-                            ActionList::instance().menuFileReloadTextureCollectionsInfo);
-            connect(fileReloadTextureCollectionsAction, &QAction::triggered, this, &MapFrame::OnFileReloadTextureCollections);
-
-            fileReloadEntityDefinitionsAction = new QAction("Reload Entity Definitions", this);
-            registerBinding(fileReloadEntityDefinitionsAction,
-                            ActionList::instance().menuFileReloadEntityDefinitionsInfo);
-            connect(fileReloadEntityDefinitionsAction, &QAction::triggered, this, &MapFrame::OnFileReloadEntityDefinitions);
-
-            fileCloseAction = new QAction("Close", this);
-            registerBinding(fileCloseAction, ActionList::instance().menuFileCloseInfo);
-            connect(fileCloseAction, &QAction::triggered, this, &MapFrame::OnFileClose);
-
-            // Edit
-
-            editUndoAction = new QAction("Undo", this);
-            registerBinding(editUndoAction, ActionList::instance().menuEditUndoInfo);
-            connect(editUndoAction, &QAction::triggered, this, &MapFrame::OnEditUndo); //, this, wxID_UNDO);
-
-            editRedoAction = new QAction("Redo", this);
-            registerBinding(editRedoAction, ActionList::instance().menuEditRedoInfo);
-            connect(editRedoAction, &QAction::triggered, this, &MapFrame::OnEditRedo); //, this, wxID_REDO);
-
-            editRepeatAction = new QAction("Repeat", this);
-            registerBinding(editRepeatAction, ActionList::instance().menuEditRepeatInfo);
-            connect(editRepeatAction, &QAction::triggered, this, &MapFrame::OnEditRepeat); //, this, CommandIds::Menu::EditRepeat);
-
-            editClearRepeatAction = new QAction("Clear Repeatable Commands", this);
-            registerBinding(editClearRepeatAction, ActionList::instance().menuEditClearRepeatableCommandsInfo);
-            connect(editClearRepeatAction, &QAction::triggered, this, &MapFrame::OnEditClearRepeat); //, this, CommandIds::Menu::EditClearRepeat);
-
-
-            editCutAction = new QAction("Cut", this);
-            registerBinding(editCutAction, ActionList::instance().menuEditCutInfo);
-            connect(editCutAction, &QAction::triggered, this, &MapFrame::OnEditCut); //, this, wxID_CUT);
-
-            editCopyAction = new QAction("Copy", this);
-            registerBinding(editCopyAction, ActionList::instance().menuEditCopyInfo);
-            connect(editCopyAction, &QAction::triggered, this, &MapFrame::OnEditCopy); //, this, wxID_COPY);
-
-            editPasteAction = new QAction("Paste", this);
-            registerBinding(editPasteAction, ActionList::instance().menuEditPasteInfo);
-            connect(editPasteAction, &QAction::triggered, this, &MapFrame::OnEditPaste);
-
-            editPasteAtOriginalPositionAction = new QAction("Paste at Original Position", this);
-            registerBinding(editPasteAtOriginalPositionAction,
-                            ActionList::instance().menuEditPasteatOriginalPositionInfo);
-            connect(editPasteAtOriginalPositionAction, &QAction::triggered, this, &MapFrame::OnEditPasteAtOriginalPosition);
-
-            editDuplicateAction = new QAction("Duplicate", this);
-            registerBinding(editDuplicateAction, ActionList::instance().menuEditDuplicateInfo);
-            editDuplicateAction->setIcon(IO::loadIconResourceQt(IO::Path("DuplicateObjects.png")));
-            connect(editDuplicateAction, &QAction::triggered, this, &MapFrame::OnEditDuplicate);
-
-            editDeleteAction = new QAction("Delete", this);
-            registerBinding(editDeleteAction, ActionList::instance().menuEditDeleteInfo);
-            connect(editDeleteAction, &QAction::triggered, this, &MapFrame::OnEditDelete);
-
-
-            editSelectAllAction = new QAction("Select All", this);
-            registerBinding(editSelectAllAction, ActionList::instance().menuEditSelectAllInfo);
-            connect(editSelectAllAction, &QAction::triggered, this, &MapFrame::OnEditSelectAll); //, this, CommandIds::Menu::EditSelectAll);
-
-            editSelectSiblingsAction = new QAction("Select Siblings", this);
-            registerBinding(editSelectSiblingsAction, ActionList::instance().menuEditSelectSiblingsInfo);
-            connect(editSelectSiblingsAction, &QAction::triggered, this, &MapFrame::OnEditSelectSiblings); //, this, CommandIds::Menu::EditSelectSiblings);
-
-            editSelectTouchingAction = new QAction("Select Touching", this);
-            registerBinding(editSelectTouchingAction, ActionList::instance().menuEditSelectTouchingInfo);
-            connect(editSelectTouchingAction, &QAction::triggered, this, &MapFrame::OnEditSelectTouching); //, this, CommandIds::Menu::EditSelectTouching);
-
-            editSelectInsideAction = new QAction("Select Inside", this);
-            registerBinding(editSelectInsideAction, ActionList::instance().menuEditSelectInsideInfo);
-            connect(editSelectInsideAction, &QAction::triggered, this, &MapFrame::OnEditSelectInside); //, this, CommandIds::Menu::EditSelectInside);
-
-            editSelectTallAction = new QAction("Select Tall", this);
-            registerBinding(editSelectTallAction, ActionList::instance().menuEditSelectTallInfo);
-            connect(editSelectTallAction, &QAction::triggered, this, &MapFrame::OnEditSelectTall); //, this, CommandIds::Menu::EditSelectTall);
-
-            editSelectByLineNumberAction = new QAction("Select by Line Number", this);
-            registerBinding(editSelectByLineNumberAction, ActionList::instance().menuEditSelectbyLineNumberInfo);
-            connect(editSelectByLineNumberAction, &QAction::triggered, this, &MapFrame::OnEditSelectByLineNumber); //, this, CommandIds::Menu::EditSelectByFilePosition);
-
-            editSelectNoneAction = new QAction("Select None", this);
-            registerBinding(editSelectNoneAction, ActionList::instance().menuEditSelectNoneInfo);
-            connect(editSelectNoneAction, &QAction::triggered, this, &MapFrame::OnEditSelectNone); //, this, CommandIds::Menu::EditSelectNone);
-
-
-            editGroupSelectedObjectsAction = new QAction("Group", this);
-            registerBinding(editGroupSelectedObjectsAction, ActionList::instance().menuEditGroupInfo);
-            connect(editGroupSelectedObjectsAction, &QAction::triggered, this, &MapFrame::OnEditGroupSelectedObjects); //, this, CommandIds::Menu::EditGroupSelection);
-
-            editUngroupSelectedObjectsAction = new QAction("Ungroup", this);
-            registerBinding(editUngroupSelectedObjectsAction, ActionList::instance().menuEditUngroupInfo);
-            connect(editUngroupSelectedObjectsAction, &QAction::triggered, this, &MapFrame::OnEditUngroupSelectedObjects); //, this, CommandIds::Menu::EditUngroupSelection);
-
-
-            editToolActionGroup = new QActionGroup(this);
-
-            editDeactivateToolAction = new QAction("Deactivate Tool", editToolActionGroup);
-            editDeactivateToolAction->setIcon(IO::loadIconResourceQt(IO::Path("NoTool.png")));
-            connect(editDeactivateToolAction, &QAction::triggered, this, &MapFrame::OnEditDeactivateTool); //, this, CommandIds::Menu::EditDeactivateTool);
-
-            editToggleCreateComplexBrushToolAction = new QAction("Brush Tool", editToolActionGroup);
-            editToggleCreateComplexBrushToolAction->setIcon(IO::loadIconResourceQt(IO::Path("BrushTool.png")));
-            editToggleCreateComplexBrushToolAction->setCheckable(true);
-            registerBinding(editToggleCreateComplexBrushToolAction, ActionList::instance().menuEditToolsBrushToolInfo);
-            connect(editToggleCreateComplexBrushToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleCreateComplexBrushTool); //, this, CommandIds::Menu::EditToggleCreateComplexBrushTool);
-
-            editToggleClipToolAction = new QAction("Clip Tool", editToolActionGroup);
-            editToggleClipToolAction->setIcon(IO::loadIconResourceQt(IO::Path("ClipTool.png")));
-            editToggleClipToolAction->setCheckable(true);
-            registerBinding(editToggleClipToolAction, ActionList::instance().menuEditToolsClipToolInfo);
-            connect(editToggleClipToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleClipTool); //, this, CommandIds::Menu::EditToggleClipTool);
-
-            editToggleRotateObjectsToolAction = new QAction("Rotate Tool", editToolActionGroup);
-            editToggleRotateObjectsToolAction->setIcon(IO::loadIconResourceQt(IO::Path("RotateTool.png")));
-            editToggleRotateObjectsToolAction->setCheckable(true);
-            registerBinding(editToggleRotateObjectsToolAction, ActionList::instance().menuEditToolsRotateToolInfo);
-            connect(editToggleRotateObjectsToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleRotateObjectsTool); //, this, CommandIds::Menu::EditToggleRotateObjectsTool);
-
-            editToggleScaleObjectsToolAction = new QAction("Scale Tool", editToolActionGroup);
-            editToggleScaleObjectsToolAction->setIcon(IO::loadIconResourceQt(IO::Path("ScaleTool.png")));
-            editToggleScaleObjectsToolAction->setCheckable(true);
-            registerBinding(editToggleScaleObjectsToolAction, ActionList::instance().menuEditToolsScaleToolInfo);
-            connect(editToggleScaleObjectsToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleScaleObjectsTool); //, this, CommandIds::Menu::EditToggleScaleObjectsTool);
-
-            editToggleShearObjectsToolAction = new QAction("Shear Tool", editToolActionGroup);
-            editToggleShearObjectsToolAction->setIcon(IO::loadIconResourceQt(IO::Path("ShearTool.png")));
-            editToggleShearObjectsToolAction->setCheckable(true);
-            registerBinding(editToggleShearObjectsToolAction, ActionList::instance().menuEditToolsShearToolInfo);
-            connect(editToggleShearObjectsToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleShearObjectsTool); //, this, CommandIds::Menu::EditToggleShearObjectsTool);
-
-            editToggleVertexToolAction = new QAction("Vertex Tool", editToolActionGroup);
-            editToggleVertexToolAction->setIcon(IO::loadIconResourceQt(IO::Path("VertexTool.png")));
-            editToggleVertexToolAction->setCheckable(true);
-            registerBinding(editToggleVertexToolAction, ActionList::instance().menuEditToolsVertexToolInfo);
-            connect(editToggleVertexToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleVertexTool); //, this, CommandIds::Menu::EditToggleVertexTool);
-
-            editToggleEdgeToolAction = new QAction("Edge Tool", editToolActionGroup);
-            editToggleEdgeToolAction->setIcon(IO::loadIconResourceQt(IO::Path("EdgeTool.png")));
-            editToggleEdgeToolAction->setCheckable(true);
-            registerBinding(editToggleEdgeToolAction, ActionList::instance().menuEditToolsEdgeToolInfo);
-            connect(editToggleEdgeToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleEdgeTool); //, this, CommandIds::Menu::EditToggleEdgeTool);
-
-            editToggleFaceToolAction = new QAction("Face Tool", editToolActionGroup);
-            editToggleFaceToolAction->setIcon(IO::loadIconResourceQt(IO::Path("FaceTool.png")));
-            editToggleFaceToolAction->setCheckable(true);
-            registerBinding(editToggleFaceToolAction, ActionList::instance().menuEditToolsFaceToolInfo);
-            connect(editToggleFaceToolAction, &QAction::triggered, this, &MapFrame::OnEditToggleFaceTool); //, this, CommandIds::Menu::EditToggleFaceTool);
-
-
-            editCsgConvexMergeAction = new QAction("Convex Merge", this);
-            registerBinding(editCsgConvexMergeAction, ActionList::instance().menuEditCSGConvexMergeInfo);
-            connect(editCsgConvexMergeAction, &QAction::triggered, this, &MapFrame::OnEditCsgConvexMerge); //, this, CommandIds::Menu::EditCsgConvexMerge);
-
-            editCsgSubtractAction = new QAction("Subtract", this);
-            registerBinding(editCsgSubtractAction, ActionList::instance().menuEditCSGSubtractInfo);
-            connect(editCsgSubtractAction, &QAction::triggered, this, &MapFrame::OnEditCsgSubtract); //, this, CommandIds::Menu::EditCsgSubtract);
-
-            editCsgIntersectAction = new QAction("Intersect", this);
-            registerBinding(editCsgIntersectAction, ActionList::instance().menuEditCSGIntersectInfo);
-            connect(editCsgIntersectAction, &QAction::triggered, this, &MapFrame::OnEditCsgIntersect); //, this, CommandIds::Menu::EditCsgIntersect);
-
-            editCsgHollowAction = new QAction("Hollow", this);
-            registerBinding(editCsgHollowAction, ActionList::instance().menuEditCSGHollowInfo);
-            connect(editCsgHollowAction, &QAction::triggered, this, &MapFrame::OnEditCsgHollow); //, this, CommandIds::Menu::EditCsgHollow);
-
-
-            editReplaceTextureAction = new QAction("Replace Texture...", this);
-            registerBinding(editReplaceTextureAction, ActionList::instance().menuEditReplaceTextureInfo);
-            connect(editReplaceTextureAction, &QAction::triggered, this, &MapFrame::OnEditReplaceTexture); //, this, CommandIds::Menu::EditReplaceTexture);
-
-            editToggleTextureLockAction = new QAction("Texture Lock", this);
-            registerBinding(editToggleTextureLockAction, ActionList::instance().menuEditTextureLockInfo);
-            editToggleTextureLockAction->setCheckable(true);
-            editToggleTextureLockAction->setIcon(IO::loadIconResourceOffOnQt(IO::Path("TextureLockOff.png"), IO::Path("TextureLockOn.png")));
-            connect(editToggleTextureLockAction, &QAction::triggered, this, &MapFrame::OnEditToggleTextureLock); //, this, CommandIds::Menu::EditToggleTextureLock);
-
-            editToggleUVLockAction = new QAction("UV Lock", this);
-            registerBinding(editToggleUVLockAction, ActionList::instance().menuEditUVLockInfo);
-            editToggleUVLockAction->setCheckable(true);
-            editToggleUVLockAction->setIcon(IO::loadIconResourceOffOnQt(IO::Path("UVLockOff.png"), IO::Path("UVLockOn.png")));
-            connect(editToggleUVLockAction, &QAction::triggered, this, &MapFrame::OnEditToggleUVLock); //, this, CommandIds::Menu::EditToggleUVLock);
-
-            editSnapVerticesToIntegerAction = new QAction("Snap Vertices to Integer", this);
-            registerBinding(editSnapVerticesToIntegerAction, ActionList::instance().menuEditSnapVerticestoIntegerInfo);
-            connect(editSnapVerticesToIntegerAction, &QAction::triggered, this, &MapFrame::OnEditSnapVerticesToInteger); //, this, CommandIds::Menu::EditSnapVerticesToInteger);
-
-            editSnapVerticesToGridAction = new QAction("Snap Vertices to Grid", this);
-            registerBinding(editSnapVerticesToGridAction, ActionList::instance().menuEditSnapVerticestoGridInfo);
-            connect(editSnapVerticesToGridAction, &QAction::triggered, this, &MapFrame::OnEditSnapVerticesToGrid); //, this, CommandIds::Menu::EditSnapVerticesToGrid);
-
-            // View
-
-            viewToggleShowGridAction = new QAction("Show Grid", this);
-            viewToggleShowGridAction->setCheckable(true);
-            registerBinding(viewToggleShowGridAction, ActionList::instance().menuViewGridShowGridInfo);
-            connect(viewToggleShowGridAction, &QAction::triggered, this, &MapFrame::OnViewToggleShowGrid);
-
-            viewToggleSnapToGridAction = new QAction("Snap to Grid", this);
-            viewToggleSnapToGridAction->setCheckable(true);
-            registerBinding(viewToggleSnapToGridAction, ActionList::instance().menuViewGridSnaptoGridInfo);
-            connect(viewToggleSnapToGridAction, &QAction::triggered, this, &MapFrame::OnViewToggleSnapToGrid);
-
-            viewIncGridSizeAction = new QAction("Increase Grid Size", this);
-            registerBinding(viewIncGridSizeAction, ActionList::instance().menuViewGridIncreaseGridSizeInfo);
-            connect(viewIncGridSizeAction, &QAction::triggered, this, &MapFrame::OnViewIncGridSize);
-
-            viewDecGridSizeAction = new QAction("Decrease Grid Size", this);
-            registerBinding(viewDecGridSizeAction, ActionList::instance().menuViewGridDecreaseGridSizeInfo);
-            connect(viewDecGridSizeAction, &QAction::triggered, this, &MapFrame::OnViewDecGridSize);
-
-            viewSetGridSizeActionGroup = new QActionGroup(this);
-
-            viewSetGridSize0Point125Action = new QAction("Set Grid Size 0.125", viewSetGridSizeActionGroup);
-            viewSetGridSize0Point125Action->setData(QVariant(-3));
-            viewSetGridSize0Point125Action->setCheckable(true);
-            registerBinding(viewSetGridSize0Point125Action, ActionList::instance().menuViewGridSetGridSize0125Info);
-            connect(viewSetGridSize0Point125Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
-
-            viewSetGridSize0Point25Action = new QAction("Set Grid Size 0.25", viewSetGridSizeActionGroup);
-            viewSetGridSize0Point25Action->setData(QVariant(-2));
-            viewSetGridSize0Point25Action->setCheckable(true);
-            registerBinding(viewSetGridSize0Point25Action, ActionList::instance().menuViewGridSetGridSize025Info);
-            connect(viewSetGridSize0Point25Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
-
-            viewSetGridSize0Point5Action = new QAction("Set Grid Size 0.5", viewSetGridSizeActionGroup);
-            viewSetGridSize0Point5Action->setData(QVariant(-1));
-            viewSetGridSize0Point5Action->setCheckable(true);
-            registerBinding(viewSetGridSize0Point5Action, ActionList::instance().menuViewGridSetGridSize05Info);
-            connect(viewSetGridSize0Point5Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
-
-            viewSetGridSize1Action = new QAction("Set Grid Size 1", viewSetGridSizeActionGroup);
-            viewSetGridSize1Action->setData(QVariant(0));
-            viewSetGridSize1Action->setCheckable(true);
-            registerBinding(viewSetGridSize1Action, ActionList::instance().menuViewGridSetGridSize1Info);
-            connect(viewSetGridSize1Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
-
-            viewSetGridSize2Action = new QAction("Set Grid Size 2", viewSetGridSizeActionGroup);
-            viewSetGridSize2Action->setData(QVariant(1));
-            viewSetGridSize2Action->setCheckable(true);
-            registerBinding(viewSetGridSize2Action, ActionList::instance().menuViewGridSetGridSize2Info);
-            connect(viewSetGridSize2Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
-
-            viewSetGridSize4Action = new QAction("Set Grid Size 4", viewSetGridSizeActionGroup);
-            viewSetGridSize4Action->setData(QVariant(2));
-            viewSetGridSize4Action->setCheckable(true);
-            registerBinding(viewSetGridSize4Action, ActionList::instance().menuViewGridSetGridSize4Info);
-            connect(viewSetGridSize4Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
-
-            viewSetGridSize8Action = new QAction("Set Grid Size 8", viewSetGridSizeActionGroup);
-            viewSetGridSize8Action->setData(QVariant(3));
-            viewSetGridSize8Action->setCheckable(true);
-            registerBinding(viewSetGridSize8Action, ActionList::instance().menuViewGridSetGridSize8Info);
-            connect(viewSetGridSize8Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
-
-            viewSetGridSize16Action = new QAction("Set Grid Size 16", viewSetGridSizeActionGroup);
-            viewSetGridSize16Action->setData(QVariant(4));
-            viewSetGridSize16Action->setCheckable(true);
-            registerBinding(viewSetGridSize16Action, ActionList::instance().menuViewGridSetGridSize16Info);
-            connect(viewSetGridSize16Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
-
-            viewSetGridSize32Action = new QAction("Set Grid Size 32", viewSetGridSizeActionGroup);
-            viewSetGridSize32Action->setData(QVariant(5));
-            viewSetGridSize32Action->setCheckable(true);
-            registerBinding(viewSetGridSize32Action, ActionList::instance().menuViewGridSetGridSize32Info);
-            connect(viewSetGridSize32Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
-
-            viewSetGridSize64Action = new QAction("Set Grid Size 64", viewSetGridSizeActionGroup);
-            viewSetGridSize64Action->setData(QVariant(6));
-            viewSetGridSize64Action->setCheckable(true);
-            registerBinding(viewSetGridSize64Action, ActionList::instance().menuViewGridSetGridSize64Info);
-            connect(viewSetGridSize64Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
-
-            viewSetGridSize128Action = new QAction("Set Grid Size 128", viewSetGridSizeActionGroup);
-            viewSetGridSize128Action->setData(QVariant(7));
-            viewSetGridSize128Action->setCheckable(true);
-            registerBinding(viewSetGridSize128Action, ActionList::instance().menuViewGridSetGridSize128Info);
-            connect(viewSetGridSize128Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
-
-            viewSetGridSize256Action = new QAction("Set Grid Size 256", viewSetGridSizeActionGroup);
-            viewSetGridSize256Action->setData(QVariant(8));
-            viewSetGridSize256Action->setCheckable(true);
-            registerBinding(viewSetGridSize256Action, ActionList::instance().menuViewGridSetGridSize256Info);
-            connect(viewSetGridSize256Action, &QAction::triggered, this, &MapFrame::OnViewSetGridSize);
-
-            viewMoveCameraToNextPointAction = new QAction("Move to Next Point", this);
-            registerBinding(viewMoveCameraToNextPointAction, ActionList::instance().menuViewCameraMovetoNextPointInfo);
-            connect(viewMoveCameraToNextPointAction, &QAction::triggered, this, &MapFrame::OnViewMoveCameraToNextPoint);
-
-            viewMoveCameraToPreviousPointAction = new QAction("Move to Previous Point", this);
-            registerBinding(viewMoveCameraToPreviousPointAction, ActionList::instance().menuViewCameraMovetoPreviousPointInfo);
-            connect(viewMoveCameraToPreviousPointAction, &QAction::triggered, this, &MapFrame::OnViewMoveCameraToPreviousPoint);
-
-            viewFocusCameraOnSelectionAction = new QAction("Focus on Selection", this);
-            registerBinding(viewFocusCameraOnSelectionAction, ActionList::instance().menuViewCameraFocusonSelectionInfo);
-            connect(viewFocusCameraOnSelectionAction, &QAction::triggered, this, &MapFrame::OnViewFocusCameraOnSelection);
-
-            viewMoveCameraToPositionAction = new QAction("Move Camera to...", this);
-            registerBinding(viewMoveCameraToPositionAction, ActionList::instance().menuViewCameraMoveCameratoInfo);
-            connect(viewMoveCameraToPositionAction, &QAction::triggered, this, &MapFrame::OnViewMoveCameraToPosition);
-
-            viewHideSelectionAction = new QAction("Hide", this);
-            registerBinding(viewHideSelectionAction, ActionList::instance().menuViewHideInfo);
-            connect(viewHideSelectionAction, &QAction::triggered, this, &MapFrame::OnViewHideSelectedObjects);
-
-            viewIsolateSelectionAction = new QAction("Isolate", this);
-            registerBinding(viewIsolateSelectionAction, ActionList::instance().menuViewIsolateInfo);
-            connect(viewIsolateSelectionAction, &QAction::triggered, this, &MapFrame::OnViewIsolateSelectedObjects);
-
-            viewUnhideAllAction = new QAction("Show All", this);
-            registerBinding(viewUnhideAllAction, ActionList::instance().menuViewShowAllInfo);
-            connect(viewUnhideAllAction, &QAction::triggered, this, &MapFrame::OnViewShowHiddenObjects);
-
-            viewSwitchToMapInspectorAction = new QAction("Switch to Map Inspector", this);
-            registerBinding(viewSwitchToMapInspectorAction, ActionList::instance().menuViewSwitchtoMapInspectorInfo);
-            connect(viewSwitchToMapInspectorAction, &QAction::triggered, this, &MapFrame::OnViewSwitchToMapInspector);
-
-            viewSwitchToEntityInspectorAction = new QAction("Switch to Entity Inspector", this);
-            registerBinding(viewSwitchToEntityInspectorAction, ActionList::instance().menuViewSwitchtoEntityInspectorInfo);
-            connect(viewSwitchToEntityInspectorAction, &QAction::triggered, this, &MapFrame::OnViewSwitchToEntityInspector);
-
-            viewSwitchToFaceInspectorAction = new QAction("Switch to Face Inspector", this);
-            registerBinding(viewSwitchToFaceInspectorAction, ActionList::instance().menuViewSwitchtoFaceInspectorInfo);
-            connect(viewSwitchToFaceInspectorAction, &QAction::triggered, this, &MapFrame::OnViewSwitchToFaceInspector);
-
-            viewToggleMaximizeCurrentViewAction = new QAction("Maximize Current View", this);
-            registerBinding(viewToggleMaximizeCurrentViewAction, ActionList::instance().menuViewMaximizeCurrentViewInfo);
-            connect(viewToggleMaximizeCurrentViewAction, &QAction::triggered, this, &MapFrame::OnViewToggleMaximizeCurrentView);
-
-            viewPreferencesAction = new QAction("Preferences...", this);
-            registerBinding(viewPreferencesAction, ActionList::instance().menuViewPreferencesInfo);
-            connect(viewPreferencesAction, &QAction::triggered, &TrenchBroomApp::instance(), &TrenchBroomApp::OnOpenPreferences);
-
-            viewToggleInfoPanelAction = new QAction("Toggle Info Panel", this);
-            registerBinding(viewToggleInfoPanelAction, ActionList::instance().menuViewToggleInfoPanelInfo);
-            viewToggleInfoPanelAction->setCheckable(true);
-            connect(viewToggleInfoPanelAction, &QAction::triggered, this, &MapFrame::OnViewToggleInfoPanel);
-
-            viewToggleInspectorAction = new QAction("Toggle Inspector", this);
-            registerBinding(viewToggleInspectorAction, ActionList::instance().menuViewToggleInspectorInfo);
-            viewToggleInspectorAction->setCheckable(true);
-            connect(viewToggleInspectorAction, &QAction::triggered, this, &MapFrame::OnViewToggleInspector);
-
-            runCompileAction = new QAction("Compile...", this);
-            registerBinding(runCompileAction, ActionList::instance().menuRunCompileInfo);
-            connect(runCompileAction, &QAction::triggered, this, &MapFrame::OnRunCompile);
-
-            runLaunchAction = new QAction("Launch...", this);
-            registerBinding(runLaunchAction, ActionList::instance().menuRunLaunchInfo);
-            connect(runLaunchAction, &QAction::triggered, this, &MapFrame::OnRunLaunch);
-
-            debugPrintVerticesAction = new QAction("Print Vertices", this);
-            registerBinding(debugPrintVerticesAction, ActionList::instance().menuDebugPrintVerticesInfo);
-            connect(debugPrintVerticesAction, &QAction::triggered, this, &MapFrame::OnDebugPrintVertices);
-
-            debugCreateBrushAction = new QAction("Create Brush...", this);
-            registerBinding(debugCreateBrushAction, ActionList::instance().menuDebugCreateBrushInfo);
-            connect(debugCreateBrushAction, &QAction::triggered, this, &MapFrame::OnDebugCreateBrush);
-
-            debugCreateCubeAction = new QAction("Create Cube...", this);
-            registerBinding(debugCreateCubeAction, ActionList::instance().menuDebugCreateCubeInfo);
-            connect(debugCreateCubeAction, &QAction::triggered, this, &MapFrame::OnDebugCreateCube);
-
-            debugClipWithFaceAction = new QAction("Clip Brush...", this);
-            registerBinding(debugClipWithFaceAction, ActionList::instance().menuDebugClipBrushInfo);
-            connect(debugClipWithFaceAction, &QAction::triggered, this, &MapFrame::OnDebugClipBrush);
-
-            debugCopyJSShortcutsAction = new QAction("Copy Javascript Shortcut Map", this);
-            registerBinding(debugCopyJSShortcutsAction, ActionList::instance().menuDebugCopyJavascriptShortcutMapInfo);
-            connect(debugCopyJSShortcutsAction, &QAction::triggered, this, &MapFrame::OnDebugCopyJSShortcutMap);
-
-            debugCrashAction = new QAction("Crash...", this);
-            registerBinding(debugCrashAction, ActionList::instance().menuDebugCrashInfo);
-            connect(debugCrashAction, &QAction::triggered, this, &MapFrame::OnDebugCrash);
-
-            debugThrowExceptionDuringCommandAction = new QAction("Throw Exception During Command", this);
-            registerBinding(debugThrowExceptionDuringCommandAction, ActionList::instance().menuDebugThrowExceptionDuringCommandInfo);
-            connect(debugThrowExceptionDuringCommandAction, &QAction::triggered, this, &MapFrame::OnDebugThrowExceptionDuringCommand);
-
-            debugCrashReportDialogAction = new QAction("Show Crash Report Dialog", this);
-            registerBinding(debugCrashReportDialogAction, ActionList::instance().menuDebugShowCrashReportDialogInfo);
-            connect(viewPreferencesAction, &QAction::triggered, &TrenchBroomApp::instance(), &TrenchBroomApp::OnDebugShowCrashReportDialog);
-
-            debugSetWindowSizeAction = new QAction("Set Window Size...", this);
-            registerBinding(debugSetWindowSizeAction, ActionList::instance().menuDebugSetWindowSizeInfo);
-            connect(debugSetWindowSizeAction, &QAction::triggered, this, &MapFrame::OnDebugSetWindowSize);
-
-            helpManualAction = new QAction("TrenchBroom Manual", this);
-            registerBinding(helpManualAction, ActionList::instance().menuHelpTrenchBroomManualInfo);
-            connect(helpManualAction, &QAction::triggered, &TrenchBroomApp::instance(), &TrenchBroomApp::OnHelpShowManual);
-
-            helpAboutAction = new QAction("About TrenchBroom", this);
-            registerBinding(helpAboutAction, ActionList::instance().menuHelpAboutTrenchBroomInfo);
-            connect(helpAboutAction, &QAction::triggered, &TrenchBroomApp::instance(), &TrenchBroomApp::OnOpenAbout);
-
-            flipObjectsHorizontallyAction = new QAction("Flip Horizontally", this);
-            flipObjectsHorizontallyAction->setIcon(IO::loadIconResourceQt(IO::Path("FlipHorizontally.png")));
-            connect(flipObjectsHorizontallyAction, &QAction::triggered, this, &MapFrame::OnFlipObjectsHorizontally);
-
-            flipObjectsVerticallyAction = new QAction("Flip Vertically", this);
-            flipObjectsVerticallyAction->setIcon(IO::loadIconResourceQt(IO::Path("FlipVertically.png")));
-            connect(flipObjectsVerticallyAction, &QAction::triggered, this, &MapFrame::OnFlipObjectsVertically);
-        }
-
-        void MapFrame::registerBinding(QAction *action, const ActionInfo &info) {
-            m_actionInfoList.emplace_back(std::make_pair(action, &info));
-        }
-
-        void MapFrame::updateBindings() {
-            // set up bindings
-            for (auto [action, menuInfo] : m_actionInfoList) {
-                qDebug("found path %s, binding: %s",
-                       menuInfo->preferencePath.asString().c_str(),
-                       menuInfo->key().toString(QKeySequence::NativeText).toStdString().c_str());
-
-                action->setShortcut(menuInfo->key());
-            }
-        }
-
         class MapFrame::MenuBuilder : public MenuVisitor {
         private:
             MapFrame* m_frame;
+            ActionMap& m_actionMap;
             QMenuBar* m_menuBar;
             QMenu* m_currentMenu;
         public:
-            explicit MenuBuilder(MapFrame* frame) :
+            explicit MenuBuilder(MapFrame* frame, ActionMap& actionMap) :
             m_frame(frame),
+            m_actionMap(actionMap),
             m_menuBar(m_frame->menuBar()),
             m_currentMenu(nullptr) {
+                assert(m_frame != nullptr);
                 assert(m_menuBar != nullptr);
             }
 
@@ -840,6 +280,10 @@ namespace TrenchBroom {
                     m_currentMenu = m_menuBar->addMenu(QString::fromStdString(menu.name()));
                 } else {
                     m_currentMenu = m_currentMenu->addMenu(QString::fromStdString(menu.name()));
+                }
+
+                if (menu.entryType() == MenuEntryType::Menu_RecentDocuments) {
+                    m_frame->m_recentDocumentsMenu = m_currentMenu;
                 }
 
                 menu.visitEntries(*this);
@@ -853,303 +297,87 @@ namespace TrenchBroom {
 
             void visit(const MenuActionItem& item) override {
                 assert(m_currentMenu != nullptr);
-                auto& tAction = item.action();
+                const auto& tAction = item.action();
                 auto* qAction = m_currentMenu->addAction(QString::fromStdString(tAction.name()));
+                qAction->setChecked(tAction.checkable());
+
                 auto* frame = m_frame;
                 connect(qAction, &QAction::triggered, m_frame, [frame, &tAction]() { frame->triggerAction(tAction); });
+                m_actionMap.emplace_back(qAction, &tAction);
+
+                if (item.entryType() == MenuEntryType::Menu_Undo) {
+                    m_frame->m_undoAction = qAction;
+                } else if (item.entryType() == MenuEntryType::Menu_Redo) {
+                    m_frame->m_redoAction = qAction;
+                } else if (item.entryType() == MenuEntryType::Menu_Paste) {
+                    m_frame->m_pasteAction = qAction;
+                } else if (item.entryType() == MenuEntryType::Menu_PasteAtOriginalPosition) {
+                    m_frame->m_pasteAtOriginalPositionAction = qAction;
+                }
             }
         };
 
         void MapFrame::createMenus() {
-            MenuBuilder menuBuilder(this);
+            MenuBuilder menuBuilder(this, m_actionMap);
             const auto& actionManager = ActionManager::instance();
             actionManager.visitMainMenu(menuBuilder);
-
-            /*
-            QMenu* fileMenu = menuBar()->addMenu("File");
-            fileMenu->addAction(fileNewAction);// addUnmodifiableActionItem(wxID_NEW, "New", KeyboardShortcut('N', WXK_CONTROL));
-            fileMenu->addSeparator();
-            fileMenu->addAction(fileOpenAction);// UnmodifiableActionItem(wxID_OPEN, "Open...", KeyboardShortcut('O', WXK_CONTROL));
-            QMenu* openRecentMenu = fileMenu->addMenu("Open Recent");
-            // FIXME: implement recents
-            fileMenu->addSeparator();
-            fileMenu->addAction(fileSaveAction);// addUnmodifiableActionItem(wxID_SAVE, "Save", KeyboardShortcut('S', WXK_CONTROL));
-            fileMenu->addAction(fileSaveAsAction); // addUnmodifiableActionItem(wxID_SAVEAS, "Save as...", KeyboardShortcut('S', WXK_SHIFT, WXK_CONTROL));
-
-            QMenu* exportMenu = fileMenu->addMenu("Export");
-            exportMenu->addAction(fileExportObjAction); // addModifiableActionItem(CommandIds::Menu::FileExportObj, "Wavefront OBJ...");
-
-            fileMenu->addSeparator();
-            fileMenu->addAction(fileLoadPointFileAction); //addModifiableActionItem(CommandIds::Menu::FileLoadPointFile, );
-            fileMenu->addAction(fileReloadPointFileAction); //addModifiableActionItem(CommandIds::Menu::FileReloadPointFile, "Reload Point File");
-            fileMenu->addAction(fileUnloadPointFileAction); //addModifiableActionItem(CommandIds::Menu::FileUnloadPointFile, "Unload Point File");
-            fileMenu->addSeparator();
-            fileMenu->addAction(fileLoadPortalFileAction); //addModifiableActionItem(CommandIds::Menu::FileLoadPortalFile, "Load Portal File...");
-            fileMenu->addAction(fileReloadPortalFileAction); //addModifiableActionItem(CommandIds::Menu::FileReloadPortalFile, "Reload Portal File");
-            fileMenu->addAction(fileUnloadPortalFileAction); //addModifiableActionItem(CommandIds::Menu::FileUnloadPortalFile, "Unload Portal File");
-            fileMenu->addSeparator();
-            fileMenu->addAction(fileReloadTextureCollectionsAction); //addModifiableActionItem(CommandIds::Menu::FileReloadTextureCollections, "Reload Texture Collections", KeyboardShortcut(WXK_F5));
-            fileMenu->addAction(fileReloadEntityDefinitionsAction); //addModifiableActionItem(CommandIds::Menu::FileReloadEntityDefinitions, "Reload Entity Definitions", KeyboardShortcut(WXK_F6));
-            fileMenu->addSeparator();
-            fileMenu->addAction(fileCloseAction);// UnmodifiableActionItem(wxID_CLOSE, "Close", KeyboardShortcut('W', WXK_CONTROL));
-
-            QMenu *editMenu = menuBar()->addMenu("Edit");
-            editMenu->addAction(editUndoAction); //addUnmodifiableActionItem(wxID_UNDO, "Undo", KeyboardShortcut('Z', WXK_CONTROL));
-            editMenu->addAction(editRedoAction); //addUnmodifiableActionItem(wxID_REDO, "Redo", KeyboardShortcut('Z', WXK_CONTROL, WXK_SHIFT));
-            editMenu->addSeparator();
-            editMenu->addAction(editRepeatAction); //addModifiableActionItem(CommandIds::Menu::EditRepeat, "Repeat", KeyboardShortcut('R', WXK_CONTROL));
-            editMenu->addAction(editClearRepeatAction); //addModifiableActionItem(CommandIds::Menu::EditClearRepeat, "Clear Repeatable Commands", KeyboardShortcut('R', WXK_CONTROL, WXK_SHIFT));
-            editMenu->addSeparator();
-            editMenu->addAction(editCutAction); //addUnmodifiableActionItem(wxID_CUT, "Cut", KeyboardShortcut('X', WXK_CONTROL));
-            editMenu->addAction(editCopyAction); //addUnmodifiableActionItem(wxID_COPY, "Copy", KeyboardShortcut('C', WXK_CONTROL));
-            editMenu->addAction(editPasteAction); //addUnmodifiableActionItem(wxID_PASTE, "Paste", KeyboardShortcut('V', WXK_CONTROL));
-            editMenu->addAction(editPasteAtOriginalPositionAction); //addModifiableActionItem(CommandIds::Menu::EditPasteAtOriginalPosition, "Paste at Original Position", KeyboardShortcut('V', WXK_CONTROL, WXK_ALT));
-            editMenu->addAction(editDuplicateAction); //addModifiableActionItem(wxID_DUPLICATE, "Duplicate", KeyboardShortcut('D', WXK_CONTROL));
-            editMenu->addAction(editDeleteAction); //addModifiableActionItem(wxID_DELETE, "Delete", KeyboardShortcut(WXK_DELETE));
-
-            editMenu->addSeparator();
-            editMenu->addAction(editSelectAllAction); //addModifiableActionItem(CommandIds::Menu::EditSelectAll, "Select All", KeyboardShortcut('A', WXK_CONTROL));
-            editMenu->addAction(editSelectSiblingsAction); //addModifiableActionItem(CommandIds::Menu::EditSelectSiblings, "Select Siblings", KeyboardShortcut('B', WXK_CONTROL));
-            editMenu->addAction(editSelectTouchingAction); //addModifiableActionItem(CommandIds::Menu::EditSelectTouching, "Select Touching", KeyboardShortcut('T', WXK_CONTROL));
-            editMenu->addAction(editSelectInsideAction); //addModifiableActionItem(CommandIds::Menu::EditSelectInside, "Select Inside", KeyboardShortcut('E', WXK_CONTROL));
-            editMenu->addAction(editSelectTallAction); //addModifiableActionItem(CommandIds::Menu::EditSelectTall, "Select Tall", KeyboardShortcut('E', WXK_CONTROL, WXK_SHIFT));
-            editMenu->addAction(editSelectByLineNumberAction); //addModifiableActionItem(CommandIds::Menu::EditSelectByFilePosition, "Select by Line Number");
-            editMenu->addAction(editSelectNoneAction); //addModifiableActionItem(CommandIds::Menu::EditSelectNone, "Select None", KeyboardShortcut('A', WXK_CONTROL, WXK_SHIFT));
-            editMenu->addSeparator();
-
-            editMenu->addAction(editGroupSelectedObjectsAction); //addModifiableActionItem(CommandIds::Menu::EditGroupSelection, "Group", KeyboardShortcut('G', WXK_CONTROL));
-            editMenu->addAction(editUngroupSelectedObjectsAction); //addModifiableActionItem(CommandIds::Menu::EditUngroupSelection, "Ungroup", KeyboardShortcut('G', WXK_CONTROL, WXK_SHIFT));
-            editMenu->addSeparator();
-
-            QMenu* toolMenu = editMenu->addMenu("Tools");
-            toolMenu->addAction(editToggleCreateComplexBrushToolAction); //addModifiableCheckItem(CommandIds::Menu::EditToggleCreateComplexBrushTool, "Brush Tool", KeyboardShortcut('B'));
-            toolMenu->addAction(editToggleClipToolAction); //addModifiableCheckItem(CommandIds::Menu::EditToggleClipTool, "Clip Tool", KeyboardShortcut('C'));
-            toolMenu->addAction(editToggleRotateObjectsToolAction); //addModifiableCheckItem(CommandIds::Menu::EditToggleRotateObjectsTool, "Rotate Tool", KeyboardShortcut('R'));
-            toolMenu->addAction(editToggleScaleObjectsToolAction); //addModifiableCheckItem(CommandIds::Menu::EditToggleScaleObjectsTool, "Scale Tool", KeyboardShortcut('T'));
-            toolMenu->addAction(editToggleShearObjectsToolAction); //addModifiableCheckItem(CommandIds::Menu::EditToggleShearObjectsTool, "Shear Tool", KeyboardShortcut('G'));
-            toolMenu->addAction(editToggleVertexToolAction); //addModifiableCheckItem(CommandIds::Menu::EditToggleVertexTool, "Vertex Tool", KeyboardShortcut('V'));
-            toolMenu->addAction(editToggleEdgeToolAction); //addModifiableCheckItem(CommandIds::Menu::EditToggleEdgeTool, "Edge Tool", KeyboardShortcut('E'));
-            toolMenu->addAction(editToggleFaceToolAction); //addModifiableCheckItem(CommandIds::Menu::EditToggleFaceTool, "Face Tool", KeyboardShortcut('F'));
-
-            QMenu* csgMenu = editMenu->addMenu("CSG");
-            csgMenu->addAction(editCsgConvexMergeAction); // addModifiableActionItem(CommandIds::Menu::EditCsgConvexMerge, "Convex Merge", KeyboardShortcut('J', WXK_CONTROL));
-            csgMenu->addAction(editCsgSubtractAction); // addModifiableActionItem(CommandIds::Menu::EditCsgSubtract, "Subtract", KeyboardShortcut('K', WXK_CONTROL));
-            csgMenu->addAction(editCsgHollowAction); // addModifiableActionItem(CommandIds::Menu::EditCsgHollow, "Hollow", KeyboardShortcut('K', WXK_CONTROL, WXK_ALT));
-            csgMenu->addAction(editCsgIntersectAction); // addModifiableActionItem(CommandIds::Menu::EditCsgIntersect, "Intersect", KeyboardShortcut('L', WXK_CONTROL));
-
-            editMenu->addSeparator();
-            editMenu->addAction(editSnapVerticesToIntegerAction); //addModifiableActionItem(CommandIds::Menu::EditSnapVerticesToInteger, "Snap Vertices to Integer", KeyboardShortcut('V', WXK_SHIFT, WXK_CONTROL));
-            editMenu->addAction(editSnapVerticesToGridAction); //addModifiableActionItem(CommandIds::Menu::EditSnapVerticesToGrid, "Snap Vertices to Grid", KeyboardShortcut('V', WXK_SHIFT, WXK_CONTROL, WXK_ALT));
-            editMenu->addSeparator();
-            editMenu->addAction(editToggleTextureLockAction); //addModifiableCheckItem(CommandIds::Menu::EditToggleTextureLock, "Texture Lock");
-            editMenu->addAction(editToggleUVLockAction); //addModifiableCheckItem(CommandIds::Menu::EditToggleUVLock, "UV Lock", KeyboardShortcut('U'));
-            editMenu->addAction(editReplaceTextureAction); //addModifiableActionItem(CommandIds::Menu::EditReplaceTexture, "Replace Texture...");
-
-            QMenu* viewMenu = menuBar()->addMenu("View");
-            QMenu* gridMenu = viewMenu->addMenu("Grid");
-            gridMenu->addAction(viewToggleShowGridAction); //, "Show Grid", KeyboardShortcut('0'));
-            gridMenu->addAction(viewToggleSnapToGridAction); //, "Snap to Grid", KeyboardShortcut('0', WXK_ALT));
-            gridMenu->addAction(viewIncGridSizeAction); //, "Increase Grid Size", KeyboardShortcut('+'));
-            gridMenu->addAction(viewDecGridSizeAction); //, "Decrease Grid Size", KeyboardShortcut('-'));
-            gridMenu->addSeparator();
-            gridMenu->addAction(viewSetGridSize0Point125Action); //, "Set Grid Size 0.125");
-            gridMenu->addAction(viewSetGridSize0Point25Action); //, "Set Grid Size 0.25");
-            gridMenu->addAction(viewSetGridSize0Point5Action); //, "Set Grid Size 0.5");
-            gridMenu->addAction(viewSetGridSize1Action); //, "Set Grid Size 1", KeyboardShortcut('1'));
-            gridMenu->addAction(viewSetGridSize2Action); //, "Set Grid Size 2", KeyboardShortcut('2'));
-            gridMenu->addAction(viewSetGridSize4Action); //, "Set Grid Size 4", KeyboardShortcut('3'));
-            gridMenu->addAction(viewSetGridSize8Action); //, "Set Grid Size 8", KeyboardShortcut('4'));
-            gridMenu->addAction(viewSetGridSize16Action); //, "Set Grid Size 16", KeyboardShortcut('5'));
-            gridMenu->addAction(viewSetGridSize32Action); //, "Set Grid Size 32", KeyboardShortcut('6'));
-            gridMenu->addAction(viewSetGridSize64Action); //, "Set Grid Size 64", KeyboardShortcut('7'));
-            gridMenu->addAction(viewSetGridSize128Action); //, "Set Grid Size 128", KeyboardShortcut('8'));
-            gridMenu->addAction(viewSetGridSize256Action); //, "Set Grid Size 256", KeyboardShortcut('9'));
-
-            QMenu* cameraMenu = viewMenu->addMenu("Camera");
-            cameraMenu->addAction(viewMoveCameraToNextPointAction); //addModifiableActionItem(CommandIds::Menu::ViewMoveCameraToNextPoint, "Move to Next Point", KeyboardShortcut('.'));
-            cameraMenu->addAction(viewMoveCameraToPreviousPointAction); //addModifiableActionItem(CommandIds::Menu::ViewMoveCameraToPreviousPoint, "Move to Previous Point", KeyboardShortcut(','));
-            cameraMenu->addAction(viewFocusCameraOnSelectionAction); //addModifiableActionItem(CommandIds::Menu::ViewFocusCameraOnSelection, "Focus on Selection", KeyboardShortcut('U', WXK_CONTROL));
-            cameraMenu->addAction(viewMoveCameraToPositionAction); //addModifiableActionItem(CommandIds::Menu::ViewMoveCameraToPosition, "Move Camera to...");
-            cameraMenu->addSeparator();
-
-            viewMenu->addSeparator();
-            viewMenu->addAction(viewIsolateSelectionAction); //addModifiableActionItem(CommandIds::Menu::ViewIsolateSelection, "Isolate", KeyboardShortcut('I', WXK_CONTROL));
-            viewMenu->addAction(viewHideSelectionAction); //addModifiableActionItem(CommandIds::Menu::ViewHideSelection, "Hide", KeyboardShortcut('I', WXK_CONTROL, WXK_ALT));
-            viewMenu->addAction(viewUnhideAllAction); //addModifiableActionItem(CommandIds::Menu::ViewUnhideAll, "Show All", KeyboardShortcut('I', WXK_CONTROL, WXK_SHIFT));
-
-            viewMenu->addSeparator();
-            viewMenu->addAction(viewSwitchToMapInspectorAction); //, "Switch to Map Inspector", KeyboardShortcut('1', WXK_CONTROL));
-            viewMenu->addAction(viewSwitchToEntityInspectorAction); //, "Switch to Entity Inspector", KeyboardShortcut('2', WXK_CONTROL));
-            viewMenu->addAction(viewSwitchToFaceInspectorAction); //, "Switch to Face Inspector", KeyboardShortcut('3', WXK_CONTROL));
-            viewMenu->addSeparator();
-            viewMenu->addAction(viewToggleInfoPanelAction); //, "Toggle Info Panel", KeyboardShortcut('4', WXK_CONTROL));
-            viewMenu->addAction(viewToggleInspectorAction); //, "Toggle Inspector", KeyboardShortcut('5', WXK_CONTROL));
-            viewMenu->addSeparator();
-            viewMenu->addAction(viewToggleMaximizeCurrentViewAction); //, "Maximize Current View", KeyboardShortcut(WXK_SPACE, WXK_CONTROL));
-            viewMenu->addSeparator();
-            viewMenu->addAction(viewPreferencesAction); // wxID_PREFERENCES, "Preferences...");
-
-            QMenu* runMenu = menuBar()->addMenu("Run");
-            runMenu->addAction(runCompileAction); //CommandIds::Menu::RunCompile, "Compile...");
-            runMenu->addAction(runLaunchAction); //CommandIds::Menu::RunLaunch, "Launch...");
-
-#ifndef NDEBUG
-            QMenu* debugMenu = menuBar()->addMenu("Debug");
-            debugMenu->addAction(debugPrintVerticesAction); //(CommandIds::Menu::DebugPrintVertices, "Print Vertices");
-            debugMenu->addAction(debugCreateBrushAction); //(CommandIds::Menu::DebugCreateBrush, "Create Brush...");
-            debugMenu->addAction(debugCreateCubeAction); //(CommandIds::Menu::DebugCreateCube, "Create Cube...");
-            debugMenu->addAction(debugClipWithFaceAction); //(CommandIds::Menu::DebugClipWithFace, "Clip Brush...");
-            debugMenu->addAction(debugCopyJSShortcutsAction); //(CommandIds::Menu::DebugCopyJSShortcuts, "Copy Javascript Shortcut Map");
-            debugMenu->addAction(debugCrashAction); //(CommandIds::Menu::DebugCrash, "Crash...");
-            debugMenu->addAction(debugThrowExceptionDuringCommandAction); //(CommandIds::Menu::DebugThrowExceptionDuringCommand, "Throw Exception During Command");
-            debugMenu->addAction(debugCrashReportDialogAction); //(CommandIds::Menu::DebugCrashReportDialog, "Show Crash Report Dialog");
-            debugMenu->addAction(debugSetWindowSizeAction); //(CommandIds::Menu::DebugSetWindowSize, "Set Window Size...");
-#endif
-
-            QMenu* helpMenu = menuBar()->addMenu("Help");
-            helpMenu->addAction(helpManualAction); //(wxID_HELP, "TrenchBroom Manual");
-            helpMenu->addSeparator();
-            helpMenu->addAction(helpAboutAction); //(wxID_ABOUT, "About TrenchBroom");
-             */
         }
 
-        void MapFrame::updateGridActions() {
-            viewToggleShowGridAction->setChecked(m_document->grid().visible());
-            viewToggleSnapToGridAction->setChecked(m_document->grid().snap());
-
-            QAction* actions[] = {
-                viewSetGridSize0Point125Action,
-                viewSetGridSize0Point25Action,
-                viewSetGridSize0Point5Action,
-                viewSetGridSize1Action,
-                viewSetGridSize2Action,
-                viewSetGridSize4Action,
-                viewSetGridSize8Action,
-                viewSetGridSize16Action,
-                viewSetGridSize32Action,
-                viewSetGridSize64Action,
-                viewSetGridSize128Action,
-                viewSetGridSize256Action
-            };
-            constexpr int numActions = static_cast<int>(sizeof(actions) / sizeof(actions[0]));
-            const int gridSizeIndex = indexForGridSize(m_document->grid().size());
-
-            for (int i = 0; i < numActions; ++i) {
-                actions[i]->setChecked(i == gridSizeIndex);
+        void MapFrame::updateShortcuts() {
+            for (auto [qAction, tAction] : m_actionMap) {
+                qAction->setShortcut(tAction->keySequence());
             }
-
-            viewIncGridSizeAction->setEnabled(canIncGridSize());
-            viewDecGridSizeAction->setEnabled(canDecGridSize());
-
-            // Update toolbar
-            m_gridChoice->setCurrentIndex(indexForGridSize(m_document->grid().size()));
         }
 
-        void MapFrame::updateToolActions() {
-            editDeactivateToolAction->setEnabled(true);
-            editDeactivateToolAction->setChecked(!m_mapView->anyToolActive());
-
-            editToggleCreateComplexBrushToolAction->setEnabled(m_mapView->canToggleCreateComplexBrushTool());
-            editToggleCreateComplexBrushToolAction->setChecked(m_mapView->createComplexBrushToolActive());
-
-            editToggleClipToolAction->setEnabled(m_mapView->canToggleClipTool());
-            editToggleClipToolAction->setChecked(m_mapView->clipToolActive());
-
-            editToggleRotateObjectsToolAction->setEnabled(m_mapView->canToggleRotateObjectsTool());
-            editToggleRotateObjectsToolAction->setChecked(m_mapView->rotateObjectsToolActive());
-
-            editToggleScaleObjectsToolAction->setEnabled(m_mapView->canToggleScaleObjectsTool());
-            editToggleScaleObjectsToolAction->setChecked(m_mapView->scaleObjectsToolActive());
-
-            editToggleShearObjectsToolAction->setEnabled(m_mapView->canToggleShearObjectsTool());
-            editToggleShearObjectsToolAction->setChecked(m_mapView->shearObjectsToolActive());
-
-            editToggleVertexToolAction->setEnabled(m_mapView->canToggleVertexTools());
-            editToggleVertexToolAction->setChecked(m_mapView->vertexToolActive());
-
-            editToggleEdgeToolAction->setEnabled(m_mapView->canToggleVertexTools());
-            editToggleEdgeToolAction->setChecked(m_mapView->edgeToolActive());
-
-            editToggleFaceToolAction->setEnabled(m_mapView->canToggleVertexTools());
-            editToggleFaceToolAction->setChecked(m_mapView->faceToolActive());
-        }
-
-        void MapFrame::updateOtherActions() {
-            // FIXME: MapDocument::persistent() does disk IO - don't do any IO in here
-
-            fileReloadPointFileAction->setEnabled(canReloadPointFile());
-            fileUnloadPointFileAction->setEnabled(canUnloadPointFile());
-            fileReloadPortalFileAction->setEnabled(canReloadPortalFile());
-            fileUnloadPortalFileAction->setEnabled(canUnloadPortalFile());
-
-            editCutAction->setEnabled(canCut());
-            editCopyAction->setEnabled(canCopy());
-            // For paste actions, see updateClipboardActions()
-            editDuplicateAction->setEnabled(canDuplicate());
-            editDeleteAction->setEnabled(canDelete());
-            editSelectAllAction->setEnabled(canSelect());
-            editSelectSiblingsAction->setEnabled(canSelectSiblings());
-            editSelectTouchingAction->setEnabled(canSelectByBrush());
-            editSelectInsideAction->setEnabled(canSelectByBrush());
-            editSelectTallAction->setEnabled(canSelectTall());
-            editSelectByLineNumberAction->setEnabled(canSelect());
-            editSelectNoneAction->setEnabled(canDeselect());
-            editGroupSelectedObjectsAction->setEnabled(canGroup());
-            editUngroupSelectedObjectsAction->setEnabled(canUngroup());
-            editCsgConvexMergeAction->setEnabled(canDoCsgConvexMerge());
-            editCsgSubtractAction->setEnabled(canDoCsgSubtract());
-            editCsgIntersectAction->setEnabled(canDoCsgIntersect());
-            editCsgHollowAction->setEnabled(canDoCsgHollow());
-            editReplaceTextureAction->setEnabled(true);
-            editToggleTextureLockAction->setEnabled(true);
-            editToggleTextureLockAction->setChecked(pref(Preferences::TextureLock));
-            editToggleUVLockAction->setEnabled(true);
-            editToggleUVLockAction->setChecked(pref(Preferences::UVLock));
-            editSnapVerticesToIntegerAction->setEnabled(canSnapVertices());
-            editSnapVerticesToGridAction->setEnabled(canSnapVertices());
-
-            viewMoveCameraToNextPointAction->setEnabled(canMoveCameraToNextPoint());
-            viewMoveCameraToPreviousPointAction->setEnabled(canMoveCameraToPreviousPoint());
-            viewFocusCameraOnSelectionAction->setEnabled(canFocusCamera());
-            viewMoveCameraToPositionAction->setEnabled(true);
-            viewIsolateSelectionAction->setEnabled(canIsolate());
-            viewHideSelectionAction->setEnabled(canHide());
-            viewUnhideAllAction->setEnabled(true);
-            viewSwitchToMapInspectorAction->setEnabled(true);
-            viewSwitchToEntityInspectorAction->setEnabled(true);
-            viewSwitchToFaceInspectorAction->setEnabled(true);
-            viewToggleInfoPanelAction->setEnabled(true);
-            viewToggleInfoPanelAction->setChecked(m_infoPanel->isVisible());
-            viewToggleInspectorAction->setEnabled(true);
-            viewToggleInspectorAction->setChecked(m_inspector->isVisible());
-            viewToggleMaximizeCurrentViewAction->setEnabled(m_mapView->canMaximizeCurrentView());
-            viewToggleMaximizeCurrentViewAction->setChecked(m_mapView->currentViewMaximized());
-            viewPreferencesAction->setEnabled(true);
-            runCompileAction->setEnabled(canCompile());
-            runLaunchAction->setEnabled(canLaunch());
-            debugPrintVerticesAction->setEnabled(true);
-            debugCreateBrushAction->setEnabled(true);
-            debugCreateCubeAction->setEnabled(true);
-            debugClipWithFaceAction->setEnabled(m_document->selectedNodes().hasOnlyBrushes());
-            debugCopyJSShortcutsAction->setEnabled(true);
-            debugCrashAction->setEnabled(true);
-            debugThrowExceptionDuringCommandAction->setEnabled(true);
-            debugCrashReportDialogAction->setEnabled(true);
-            debugSetWindowSizeAction->setEnabled(true);
-            helpManualAction->setEnabled(true);
-            helpAboutAction->setEnabled(true);
-            flipObjectsHorizontallyAction->setEnabled(m_mapView->canFlipObjects());
-            flipObjectsVerticallyAction->setEnabled(m_mapView->canFlipObjects());
+        void MapFrame::updateActionState() {
+            // FIXME: Do we need to do this more fine grained? Right now we just update all actions whenever anything
+            // changes.
+            ActionExecutionContext context(this, nullptr);
+            for (auto [qAction, tAction] : m_actionMap) {
+                if (qAction == m_undoAction || qAction == m_redoAction ||
+                    qAction == m_pasteAction || qAction == m_pasteAtOriginalPositionAction) {
+                    // These are handled specially for performance reasons.
+                    continue;
+                }
+                qAction->setEnabled(tAction->enabled(context));
+                if (qAction->isCheckable()) {
+                    qAction->setChecked(tAction->checked(context));
+                }
+            }
         }
 
         void MapFrame::updateUndoRedoActions() {
-            // FIXME:
+            const auto document = lock(m_document);
+            if (m_undoAction != nullptr) {
+                if (document->canUndoLastCommand()) {
+                    const auto text = "Undo " + document->lastCommandName();
+                    m_undoAction->setText(QString::fromStdString(text));
+                    m_undoAction->setEnabled(true);
+                } else {
+                    m_undoAction->setText("Undo");
+                    m_undoAction->setEnabled(false);
+                }
+            }
+            if (m_redoAction != nullptr) {
+                if (document->canRedoNextCommand()) {
+                    const auto text = "Redo " + document->nextCommandName();
+                    m_redoAction->setText(QString::fromStdString(text));
+                    m_redoAction->setEnabled(true);
+                } else {
+                    m_redoAction->setText("Redo");
+                    m_redoAction->setEnabled(false);
+                }
+            }
         }
 
-        void MapFrame::updateClipboardActions() {
-            const bool paste = canPaste();
-            editPasteAction->setEnabled(paste);
-            editPasteAtOriginalPositionAction->setEnabled(paste);
+        void MapFrame::updatePasteActions() {
+            const auto enable = canPaste();
+            if (m_pasteAction != nullptr) {
+                m_pasteAction->setEnabled(enable);
+            }
+            if (m_pasteAtOriginalPositionAction != nullptr) {
+                m_pasteAtOriginalPositionAction->setEnabled(enable);
+            }
         }
 
 #if 0
@@ -1237,33 +465,59 @@ namespace TrenchBroom {
             setCentralWidget(layoutWrapper);
         }
 
+        class MapFrame::ToolBarBuilder : public MenuVisitor {
+        private:
+            MapFrame* m_frame;
+            ActionMap& m_actionMap;
+            QToolBar* m_toolBar;
+        public:
+            explicit ToolBarBuilder(MapFrame* frame, ActionMap& actionMap, QToolBar* toolBar) :
+                m_frame(frame),
+                m_actionMap(actionMap),
+                m_toolBar(toolBar) {
+                assert(m_frame != nullptr);
+                assert(m_toolBar != nullptr);
+            }
+
+            void visit(const Menu& menu) override {
+                menu.visitEntries(*this);
+            }
+
+            void visit(const MenuSeparatorItem& item) override {
+                m_toolBar->addSeparator();
+            }
+
+            void visit(const MenuActionItem& item) override {
+                const auto& tAction = item.action();
+                auto* qAction = m_toolBar->addAction(QString::fromStdString(tAction.name()));
+                qAction->setChecked(tAction.checkable());
+                if (tAction.hasIcon()) {
+                    qAction->setIcon(IO::loadIconResourceQt(tAction.iconPath()));
+                }
+
+                auto* frame = m_frame;
+                connect(qAction, &QAction::triggered, m_frame, [frame, &tAction]() { frame->triggerAction(tAction); });
+                m_actionMap.emplace_back(qAction, &tAction);
+            }
+        };
+
         void MapFrame::createToolBar() {
             QToolBar* toolBar = addToolBar("Toolbar");
             toolBar->setFloatable(false);
             toolBar->setMovable(false);
-            toolBar->addAction(editDeactivateToolAction);
-            toolBar->addAction(editToggleCreateComplexBrushToolAction);
-            toolBar->addAction(editToggleClipToolAction);
-            toolBar->addAction(editToggleVertexToolAction);
-            toolBar->addAction(editToggleEdgeToolAction);
-            toolBar->addAction(editToggleFaceToolAction);
-            toolBar->addAction(editToggleRotateObjectsToolAction);
-            toolBar->addAction(editToggleScaleObjectsToolAction);
-            toolBar->addAction(editToggleShearObjectsToolAction);
-            toolBar->addSeparator();
-            toolBar->addAction(editDuplicateAction);
-            toolBar->addAction(flipObjectsHorizontallyAction);
-            toolBar->addAction(flipObjectsVerticallyAction);
-            toolBar->addSeparator();
-            toolBar->addAction(editToggleTextureLockAction);
-            toolBar->addAction(editToggleUVLockAction);
-            toolBar->addSeparator();
 
-            const QString gridSizes[12] = { "Grid 0.125", "Grid 0.25", "Grid 0.5", "Grid 1", "Grid 2", "Grid 4", "Grid 8", "Grid 16", "Grid 32", "Grid 64", "Grid 128", "Grid 256" };
+            ToolBarBuilder builder(this, m_actionMap, toolBar);
+            auto& actionManager = ActionManager::instance();
+            actionManager.visitToolBarActions(builder);
+
             m_gridChoice = new QComboBox();
-            for (int i = 0; i < 12; ++i) {
-                m_gridChoice->addItem(gridSizes[i], QVariant(gridSizeForIndex(i)));
+            for (int i = Grid::MinSize; i < Grid::MaxSize; ++i) {
+                const auto gridSize = Grid::actualSize(i);
+                const auto gridSizeStr = QString::number(gridSize, 'f', 3);
+                m_gridChoice->addItem(gridSizeStr, QVariant(i));
             }
+
+            toolBar->addSeparator();
             toolBar->addWidget(m_gridChoice);
         }
 
@@ -1405,6 +659,8 @@ namespace TrenchBroom {
             m_document->documentWasLoadedNotifier.addObserver(this, &MapFrame::documentDidChange);
             m_document->documentWasSavedNotifier.addObserver(this, &MapFrame::documentDidChange);
             m_document->documentModificationStateDidChangeNotifier.addObserver(this, &MapFrame::documentModificationStateDidChange);
+            m_document->transactionDoneNotifier.addObserver(this, &MapFrame::transactionDone);
+            m_document->transactionUndoneNotifier.addObserver(this, &MapFrame::transactionUndone);
             m_document->selectionDidChangeNotifier.addObserver(this, &MapFrame::selectionDidChange);
             m_document->currentLayerDidChangeNotifier.addObserver(this, &MapFrame::currentLayerDidChange);
             m_document->groupWasOpenedNotifier.addObserver(this, &MapFrame::groupWasOpened);
@@ -1426,6 +682,8 @@ namespace TrenchBroom {
             m_document->documentWasLoadedNotifier.removeObserver(this, &MapFrame::documentDidChange);
             m_document->documentWasSavedNotifier.removeObserver(this, &MapFrame::documentDidChange);
             m_document->documentModificationStateDidChangeNotifier.removeObserver(this, &MapFrame::documentModificationStateDidChange);
+            m_document->transactionDoneNotifier.removeObserver(this, &MapFrame::transactionDone);
+            m_document->transactionUndoneNotifier.removeObserver(this, &MapFrame::transactionUndone);
             m_document->selectionDidChangeNotifier.removeObserver(this, &MapFrame::selectionDidChange);
             m_document->currentLayerDidChangeNotifier.removeObserver(this, &MapFrame::currentLayerDidChange);
             m_document->groupWasOpenedNotifier.removeObserver(this, &MapFrame::groupWasOpened);
@@ -1440,15 +698,25 @@ namespace TrenchBroom {
 
         void MapFrame::documentWasCleared(View::MapDocument* document) {
             updateTitle();
+            updateActionState();
         }
 
         void MapFrame::documentDidChange(View::MapDocument* document) {
             updateTitle();
+            updateActionState();
             updateRecentDocumentsMenu();
         }
 
         void MapFrame::documentModificationStateDidChange() {
             updateTitle();
+        }
+
+        void MapFrame::transactionDone(const String& name) {
+            updateUndoRedoActions();
+        }
+
+        void MapFrame::transactionUndone(const String& name) {
+            updateUndoRedoActions();
         }
 
         void MapFrame::preferenceDidChange(const IO::Path& path) {
@@ -1458,24 +726,19 @@ namespace TrenchBroom {
         }
 
         void MapFrame::gridDidChange() {
-            const Grid& grid = m_document->grid();
-            updateGridActions();
+            updateActionState();
         }
 
         void MapFrame::toolActivated(Tool* tool) {
-            updateToolActions();
-            updateOtherActions();
+            updateActionState();
         }
 
         void MapFrame::toolDeactivated(Tool* tool) {
-            updateToolActions();
-            updateOtherActions();
+            updateActionState();
         }
 
         void MapFrame::selectionDidChange(const Selection& selection) {
             updateStatusBar();
-            updateToolActions();
-            updateOtherActions();
         }
 
         void MapFrame::currentLayerDidChange(const TrenchBroom::Model::Layer* layer) {
@@ -1523,7 +786,7 @@ namespace TrenchBroom {
             connect(qApp, &QApplication::focusChanged, this, &MapFrame::onFocusChange);
             connect(m_gridChoice, QOverload<int>::of(&QComboBox::activated), this, &MapFrame::OnToolBarSetGridSize);
 
-            connect(QApplication::clipboard(), &QClipboard::dataChanged, this, &MapFrame::updateClipboardActions);
+            connect(QApplication::clipboard(), &QClipboard::dataChanged, this, &MapFrame::updatePasteActions);
         }
 
         void MapFrame::triggerAction(const Action& action) {
@@ -1531,41 +794,137 @@ namespace TrenchBroom {
             action.execute(context);
         }
 
-        void MapFrame::OnFileSave() {
-            saveDocument();
+        bool MapFrame::newDocument(Model::GameSPtr game, const Model::MapFormat mapFormat) {
+            if (!confirmOrDiscardChanges()) {
+                return false;
+            }
+            m_document->newDocument(mapFormat, MapDocument::DefaultWorldBounds, game);
+            return true;
         }
 
-        void MapFrame::OnFileSaveAs() {
-            saveDocumentAs();
+        bool MapFrame::openDocument(Model::GameSPtr game, const Model::MapFormat mapFormat, const IO::Path& path) {
+            if (!confirmOrDiscardChanges()) {
+                return false;
+            }
+            m_document->loadDocument(mapFormat, MapDocument::DefaultWorldBounds, game, path);
+            return true;
         }
 
-        void MapFrame::OnFileExportObj() {
-            exportDocumentAsObj();
+        bool MapFrame::saveDocument() {
+            try {
+                if (m_document->persistent()) {
+                    m_document->saveDocument();
+                    logger().info() << "Saved " << m_document->path();
+                    return true;
+                } else {
+                    return saveDocumentAs();
+                }
+            } catch (const FileSystemException& e) {
+                QMessageBox::critical(this, "", e.what(), QMessageBox::Ok);
+                return false;
+            } catch (...) {
+                QMessageBox::critical(this, "", QString::fromStdString("Unknown error while saving " + m_document->path().asString()), QMessageBox::Ok);
+                return false;
+            }
         }
 
-        void MapFrame::OnFileLoadPointFile() {
+        bool MapFrame::saveDocumentAs() {
+            try {
+                const IO::Path& originalPath = m_document->path();
+                const IO::Path directory = originalPath.deleteLastComponent();
+                const IO::Path fileName = originalPath.lastComponent();
+
+                const QString newFileName = QFileDialog::getSaveFileName(this, "Save map file", QString::fromStdString(originalPath.asString()), "Map files (*.map)");
+                if (newFileName.isEmpty()) {
+                    return false;
+                }
+
+                const IO::Path path(newFileName.toStdString());
+                m_document->saveDocumentAs(path);
+                logger().info() << "Saved " << m_document->path();
+                return true;
+            } catch (const FileSystemException& e) {
+                QMessageBox::critical(this, "", e.what(), QMessageBox::Ok);
+                return false;
+            } catch (...) {
+                QMessageBox::critical(this, "", QString::fromStdString("Unknown error while saving " + m_document->filename()), QMessageBox::Ok);
+                return false;
+            }
+        }
+
+        bool MapFrame::exportDocumentAsObj() {
+            const IO::Path& originalPath = m_document->path();
+            const IO::Path objPath = originalPath.replaceExtension("obj");
+
+            const QString newFileName = QFileDialog::getSaveFileName(this, "Export Wavefront OBJ file", QString::fromStdString(objPath.asString()), "Wavefront OBJ files (*.obj)");
+            if (newFileName.isEmpty())
+                return false;
+
+            return exportDocument(Model::WavefrontObj, IO::Path(newFileName.toStdString()));
+        }
+
+        bool MapFrame::exportDocument(const Model::ExportFormat format, const IO::Path& path) {
+            try {
+                m_document->exportDocumentAs(format, path);
+                logger().info() << "Exported " << path;
+                return true;
+            } catch (const FileSystemException& e) {
+                QMessageBox::critical(this, "", e.what(), QMessageBox::Ok);
+                return false;
+            } catch (...) {
+                QMessageBox::critical(this, "", QString::fromStdString("Unknown error while exporting " + path.asString()), QMessageBox::Ok);
+                return false;
+            }
+        }
+
+        bool MapFrame::confirmOrDiscardChanges() {
+            if (!m_document->modified())
+                return true;
+            const QMessageBox::StandardButton result = QMessageBox::question(this, "TrenchBroom", QString::fromStdString(m_document->filename() + " has been modified. Do you want to save the changes?"), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+            switch (result) {
+                case QMessageBox::Yes:
+                    return saveDocument();
+                case QMessageBox::No:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        void MapFrame::loadPointFile() {
             QString defaultDir;
-            if (!m_document->path().isEmpty())
+            if (!m_document->path().isEmpty()) {
                 defaultDir = QString::fromStdString(m_document->path().deleteLastComponent().asString());
+            }
 
             const QString fileName = QFileDialog::getOpenFileName(this, "Load Point File", defaultDir, "Point files (*.pts);;Any files (*.*)");
 
-            if (!fileName.isEmpty())
+            if (!fileName.isEmpty()) {
                 m_document->loadPointFile(IO::Path(fileName.toStdString()));
+            }
         }
 
-        void MapFrame::OnFileReloadPointFile() {
+        void MapFrame::reloadPointFile() {
             if (canReloadPointFile()) {
                 m_document->reloadPointFile();
             }
         }
 
-        void MapFrame::OnFileUnloadPointFile() {
+        void MapFrame::unloadPointFile() {
             if (canUnloadPointFile())
                 m_document->unloadPointFile();
         }
 
-        void MapFrame::OnFileLoadPortalFile() {
+
+        bool MapFrame::canUnloadPointFile() const {
+            return m_document->isPointFileLoaded();
+        }
+
+        bool MapFrame::canReloadPointFile() const {
+            return m_document->canReloadPointFile();
+        }
+
+        void MapFrame::loadPortalFile() {
             QString defaultDir;
             if (!m_document->path().isEmpty()) {
                 defaultDir = QString::fromStdString(m_document->path().deleteLastComponent().asString());
@@ -1578,48 +937,105 @@ namespace TrenchBroom {
             }
         }
 
-        void MapFrame::OnFileReloadPortalFile() {
+        void MapFrame::reloadPortalFile() {
             if (canReloadPortalFile()) {
                 m_document->reloadPortalFile();
             }
         }
 
-        void MapFrame::OnFileUnloadPortalFile() {
+        void MapFrame::unloadPortalFile() {
             if (canUnloadPortalFile()) {
                 m_document->unloadPortalFile();
             }
         }
 
-        void MapFrame::OnFileReloadTextureCollections() {
+        bool MapFrame::canUnloadPortalFile() const {
+            return m_document->isPortalFileLoaded();
+        }
+
+        bool MapFrame::canReloadPortalFile() const {
+            return m_document->canReloadPortalFile();
+        }
+
+        void MapFrame::reloadTextureCollections() {
             m_document->reloadTextureCollections();
         }
 
-        void MapFrame::OnFileReloadEntityDefinitions() {
+        void MapFrame::reloadEntityDefinitions() {
             m_document->reloadEntityDefinitions();
         }
 
-        void MapFrame::OnFileClose() {
+        void MapFrame::closeDocument() {
             close();
         }
 
-        void MapFrame::OnEditUndo() {
-            if (canUndo()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
-                undo();
+        void MapFrame::undo() {
+            if (canUndo()) {
+                // FIXME:
+                auto textCtrl = nullptr;//findFocusedTextCtrl();
+                if (textCtrl != nullptr) {
+                    //textCtrl->Undo();
+                } else {
+                    // FIXME:
+                    if (!m_mapView->cancelMouseDrag() /* && !m_inspector->cancelMouseDrag()*/) {
+                        m_document->undoLastCommand();
+                    }
+                }
             }
         }
 
-        void MapFrame::OnEditRedo() {
-            if (canRedo()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
-                redo();
+        void MapFrame::redo() {
+            if (canRedo()) {
+                // FIXME:
+                auto textCtrl = nullptr; //findFocusedTextCtrl();
+                if (textCtrl != nullptr) {
+                    //textCtrl->Redo();
+                } else {
+                    m_document->redoNextCommand();
+                }
             }
         }
 
-        void MapFrame::OnEditRepeat() {
+        bool MapFrame::canUndo() const {
+            // FIXME:
+            auto textCtrl = nullptr;//findFocusedTextCtrl();
+            if (textCtrl != nullptr) {
+                return true; // textCtrl->CanUndo();
+            } else {
+                return m_document->canUndoLastCommand();
+            }
+        }
+
+        bool MapFrame::canRedo() const {
+            // FIXME:
+            auto textCtrl = nullptr; //findFocusedTextCtrl();
+            if (textCtrl != nullptr) {
+                return true; // textCtrl->CanRedo();
+            } else {
+                return m_document->canRedoNextCommand();
+            }
+        }
+
+#if 0
+        wxTextCtrl* MapFrame::findFocusedTextCtrl() const {
+            return nullptr;
+            // FIXME:
+//            return dynamic_cast<wxTextCtrl*>(FindFocus());
+        }
+#endif
+
+        void MapFrame::repeatLastCommands() {
             m_document->repeatLastCommands();
         }
 
-        void MapFrame::OnEditClearRepeat() {
-            m_document->clearRepeatableCommands();
+        void MapFrame::clearRepeatableCommands() {
+            if (hasRepeatableCommands()) {
+                m_document->clearRepeatableCommands();
+            }
+        }
+
+        bool MapFrame::hasRepeatableCommands() const {
+            return m_document->hasRepeatableCommands();
         }
 
         void MapFrame::OnEditCut() {
@@ -2385,79 +1801,9 @@ namespace TrenchBroom {
         }
 
         void MapFrame::onFocusChange(QWidget* old, QWidget* now) {
-            updateOtherActions();
+            updateActionState();
         }
 
-        bool MapFrame::canUnloadPointFile() const {
-            return m_document->isPointFileLoaded();
-        }
-
-        bool MapFrame::canReloadPointFile() const {
-            return m_document->canReloadPointFile();
-        }
-
-        bool MapFrame::canUnloadPortalFile() const {
-            return m_document->isPortalFileLoaded();
-        }
-
-        bool MapFrame::canReloadPortalFile() const {
-            return m_document->canReloadPortalFile();
-        }
-
-        bool MapFrame::canUndo() const {
-            // FIXME:
-            auto textCtrl = nullptr;//findFocusedTextCtrl();
-            if (textCtrl != nullptr) {
-                return true; // textCtrl->CanUndo();
-            } else {
-                return m_document->canUndoLastCommand();
-            }
-        }
-
-        void MapFrame::undo() {
-            assert(canUndo());
-
-            // FIXME:
-            auto textCtrl = nullptr;//findFocusedTextCtrl();
-            if (textCtrl != nullptr) {
-                //textCtrl->Undo();
-            } else {
-                // FIXME:
-                if (!m_mapView->cancelMouseDrag() /* && !m_inspector->cancelMouseDrag()*/) {
-                    m_document->undoLastCommand();
-                }
-            }
-        }
-
-        bool MapFrame::canRedo() const {
-            // FIXME:
-            auto textCtrl = nullptr; //findFocusedTextCtrl();
-            if (textCtrl != nullptr) {
-                return true; // textCtrl->CanRedo();
-            } else {
-                return m_document->canRedoNextCommand();
-            }
-        }
-
-        void MapFrame::redo() {
-            assert(canRedo());
-
-            // FIXME:
-            auto textCtrl = nullptr; //findFocusedTextCtrl();
-            if (textCtrl != nullptr) {
-                //textCtrl->Redo();
-            } else {
-                m_document->redoNextCommand();
-            }
-        }
-
-#if 0
-        wxTextCtrl* MapFrame::findFocusedTextCtrl() const {
-            return nullptr;
-            // FIXME:
-//            return dynamic_cast<wxTextCtrl*>(FindFocus());
-        }
-#endif
 
         bool MapFrame::canCut() const {
             return m_document->hasSelectedNodes() && !m_mapView->anyToolActive();
@@ -2471,10 +1817,11 @@ namespace TrenchBroom {
          * This is relatively expensive so only call it when the clipboard changes or e.g. the user tries to paste.
          */
         bool MapFrame::canPaste() const {
-            if (!m_mapView->isCurrent())
+            if (!m_mapView->isCurrent()) {
                 return false;
+            }
 
-            QClipboard *clipboard = QApplication::clipboard();
+            QClipboard* clipboard = QApplication::clipboard();
             return !clipboard->text().isEmpty();
         }
 

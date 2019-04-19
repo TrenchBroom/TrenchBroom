@@ -104,6 +104,8 @@ namespace TrenchBroom {
             Path addExtension(const String& extension) const;
             Path replaceExtension(const String& extension) const;
 
+            Path replaceBasename(const String& basename) const;
+
             bool isAbsolute() const;
             bool canMakeRelative(const Path& absolutePath) const;
             Path makeAbsolute(const Path& relativePath) const;

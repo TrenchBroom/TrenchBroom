@@ -196,6 +196,7 @@ namespace TrenchBroom {
                 if (undoCommand(command)) {
                     pushNextCommand(command);
                     popLastRepeatableCommand(command);
+                    transactionUndoneNotifier(command->name());
                     return true;
                 } else {
                     return false;
@@ -217,6 +218,10 @@ namespace TrenchBroom {
                     return false;
                 }
             }
+        }
+
+        bool CommandProcessor::hasRepeatableCommands() const {
+            return !m_repeatableCommandStack.empty();
         }
 
         bool CommandProcessor::repeatLastCommands() {
@@ -271,6 +276,9 @@ namespace TrenchBroom {
             commandDoNotifier(command);
             if (command->performDo(m_document)) {
                 commandDoneNotifier(command);
+                if (m_groupLevel == 0) {
+                    transactionDoneNotifier(command->name());
+                }
                 return true;
             } else {
                 commandDoFailedNotifier(command);
@@ -331,6 +339,7 @@ namespace TrenchBroom {
                 m_groupedCommands.clear();
                 pushLastCommand(group, false);
                 pushRepeatableCommand(group);
+                transactionDoneNotifier(m_groupName);
             }
             m_groupName = "";
         }

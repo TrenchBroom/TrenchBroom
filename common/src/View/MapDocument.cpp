@@ -1454,6 +1454,10 @@ namespace TrenchBroom {
             doRedoNextCommand();
         }
 
+        bool MapDocument::hasRepeatableCommands() const {
+            return doHasRepeatableCommands();
+        }
+
         bool MapDocument::repeatLastCommands() {
             return doRepeatLastCommands();
         }

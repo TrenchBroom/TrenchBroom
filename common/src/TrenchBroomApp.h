@@ -62,7 +62,6 @@ namespace TrenchBroom {
 #endif
             void updateRecentDocument(const IO::Path& path);
 
-            bool newDocument();
             bool openDocument(const String& pathStr);
             bool recoverFromException(const RecoverableException& e, const std::function<bool()>& op);
             void openPreferences();
@@ -77,9 +76,8 @@ namespace TrenchBroom {
         private:
             void handleException();
         public:
-
-            void OnFileNew();
-            void OnFileOpen();
+            bool newDocument();
+            void openDocument();
             void OnFileOpenRecent();
             void OnHelpShowManual();
             void OnOpenPreferences();

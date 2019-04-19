@@ -115,6 +115,8 @@ namespace TrenchBroom {
             Notifier<UndoableCommand::Ptr> commandUndoNotifier;
             Notifier<UndoableCommand::Ptr> commandUndoneNotifier;
             Notifier<UndoableCommand::Ptr> commandUndoFailedNotifier;
+            Notifier<const String&> transactionDoneNotifier;
+            Notifier<const String&> transactionUndoneNotifier;
 
             Notifier<MapDocument*> documentWillBeClearedNotifier;
             Notifier<MapDocument*> documentWasClearedNotifier;
@@ -366,6 +368,7 @@ namespace TrenchBroom {
             const String& nextCommandName() const;
             void undoLastCommand();
             void redoNextCommand();
+            bool hasRepeatableCommands() const;
             bool repeatLastCommands();
             void clearRepeatableCommands();
         public: // transactions
@@ -383,6 +386,7 @@ namespace TrenchBroom {
             virtual const String& doGetNextCommandName() const = 0;
             virtual void doUndoLastCommand() = 0;
             virtual void doRedoNextCommand() = 0;
+            virtual bool doHasRepeatableCommands() const = 0;
             virtual bool doRepeatLastCommands() = 0;
             virtual void doClearRepeatableCommands() = 0;
 

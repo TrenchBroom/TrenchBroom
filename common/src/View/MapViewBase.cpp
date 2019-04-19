@@ -202,7 +202,7 @@ namespace TrenchBroom {
 
         void MapViewBase::toolChanged(Tool* tool) {
             updatePickResult();
-            updateBindings();
+            updateShortcuts();
             update();
         }
 
@@ -217,7 +217,7 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::selectionDidChange(const Selection& selection) {
-            updateBindings();
+            updateShortcuts();
         }
 
         void MapViewBase::textureCollectionsDidChange() {
@@ -258,13 +258,13 @@ namespace TrenchBroom {
                 fontManager().clearCache();
             }
 
-            updateBindings();
+            updateShortcuts();
             update();
         }
 
         void MapViewBase::documentDidChange(MapDocument* document) {
             createActions();
-            updateBindings();
+            updateShortcuts();
             updatePickResult();
             update();
         }
@@ -384,77 +384,19 @@ namespace TrenchBroom {
         }
          */
 
-        void MapViewBase::updateBindings() {
+        void MapViewBase::updateShortcuts() {
             //return;
             qDebug("updating key binds");
 
             for (auto [shortcut, action] : m_shortcuts) {
                 shortcut->setKey(action->keySequence());
             }
-
-            /*
-            // refresh key bindings, start with all shortcuts enabled, if `this` has focus
-            for (auto [shortcut, menuInfo] : m_actionInfoList) {
-                shortcut->setKey(menuInfo.key());
-                shortcut->setEnabled(HasFocus());
-            }
-
-            // Disable shortcuts that are for the wrong action view (2D or 3D)
-            if (doGetActionView() != ActionView_Map2D) {
-                for (auto* shortcut : m_2DOnlyShortcuts) {
-                    shortcut->setEnabled(false);
-                }
-            }
-            if (doGetActionView() != ActionView_Map3D) {
-                for (auto* shortcut : m_3DOnlyShortcuts) {
-                    shortcut->setEnabled(false);
-                }
-            }
-
-            // Disable shortcuts that are in the wrong action context
-            const auto ourActionContext = actionContext();
-            for (auto [shortcut, menuInfo] : m_actionInfoList) {
-                const auto shortcutActionContext = menuInfo.actionContext;
-                if (0 == (ourActionContext & shortcutActionContext)) {
-                    shortcut->setEnabled(false);
-                }
-
-//                qDebug("Updated shortcut (%s, pref path: %s) to: %s",
-//                       shortcut->key().toString(QKeySequence::PortableText).toStdString().c_str(),
-//                       menuInfo->preferencePath.asString().c_str(),
-//                       shortcut->isEnabled() ? "enabled" : "disabled");
-            }
-             */
         }
 
         void MapViewBase::triggerAction(const Action& action) {
             auto* mapFrame = findMapFrame(widgetContainer());
             ActionExecutionContext context(mapFrame, this);
             action.execute(context);
-        }
-
-        void MapViewBase::OnMoveObjectsForward() {
-            moveObjects(vm::direction::forward);
-        }
-
-        void MapViewBase::OnMoveObjectsBackward() {
-            moveObjects(vm::direction::backward);
-        }
-
-        void MapViewBase::OnMoveObjectsLeft() {
-            moveObjects(vm::direction::left);
-        }
-
-        void MapViewBase::OnMoveObjectsRight() {
-            moveObjects(vm::direction::right);
-        }
-
-        void MapViewBase::OnMoveObjectsUp() {
-            moveObjects(vm::direction::up);
-        }
-
-        void MapViewBase::OnMoveObjectsDown() {
-            moveObjects(vm::direction::down);
         }
 
         void MapViewBase::OnDuplicateObjectsForward() {
@@ -529,9 +471,6 @@ namespace TrenchBroom {
 
         void MapViewBase::moveObjects(const vm::direction direction) {
             MapDocumentSPtr document = lock(m_document);
-            if (!document->hasSelectedNodes())
-                return;
-
             const Grid& grid = document->grid();
             const vm::vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
             document->translateObjects(delta);
@@ -1005,7 +944,7 @@ namespace TrenchBroom {
             qDebug("MapViewBase::onActiveChanged: is active: %d, is focus window: %d has focus %d",
                 (int)isActive(), (int)(QGuiApplication::focusWindow() == this), (int)HasFocus());
             requestUpdate(); // show/hide focus rectangle
-            updateBindings(); // enable/disable QShortcut's to reflect whether we have focus (needed because of QOpenGLWindow; see comment in createAndRegisterShortcut)
+            updateShortcuts(); // enable/disable QShortcut's to reflect whether we have focus (needed because of QOpenGLWindow; see comment in createAndRegisterShortcut)
 
             // FIXME: wx called these on focus in/out
             //updateModifierKeys();

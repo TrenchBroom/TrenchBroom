@@ -207,41 +207,6 @@ namespace TrenchBroom {
             m_recentDocuments->updatePath(path);
         }
 
-        bool TrenchBroomApp::newDocument() {
-            qDebug("FIXME: show newDocument frame");
-            return true;
-
-#if 0
-            MapFrame* frame = nullptr;
-
-            try {
-                String gameName;
-                Model::MapFormat mapFormat = Model::MapFormat::Unknown;
-                if (!GameDialog::showNewDocumentDialog(nullptr, gameName, mapFormat))
-                    return false;
-
-                frame = m_frameManager->newFrame();
-
-                Model::GameFactory &gameFactory = Model::GameFactory::instance();
-                Model::GameSPtr game = gameFactory.createGame(gameName, frame->logger());
-                ensure(game.get() != nullptr, "game is null");
-
-                frame->newDocument(game, mapFormat);
-                return true;
-            } catch (const RecoverableException& e) {
-                if (frame != nullptr)
-                    frame->close();
-
-                return recoverFromException(e, [this](){ return this->newDocument(); });
-            } catch (const Exception& e) {
-                if (frame != nullptr)
-                    frame->Close();
-                ::wxMessageBox(e.what(), "TrenchBroom");
-                return false;
-            }
-#endif
-        }
-
         bool TrenchBroomApp::openDocument(const String& pathStr) {
             MapFrame* frame = nullptr;
             const IO::Path path(pathStr);
@@ -510,15 +475,46 @@ namespace TrenchBroom {
             }
         }
 
-        void TrenchBroomApp::OnFileNew() {
-            newDocument();
+        bool TrenchBroomApp::newDocument() {
+            qDebug("FIXME: show newDocument frame");
+            return false;
+#if 0
+            MapFrame* frame = nullptr;
+
+            try {
+                String gameName;
+                Model::MapFormat mapFormat = Model::MapFormat::Unknown;
+                if (!GameDialog::showNewDocumentDialog(nullptr, gameName, mapFormat))
+                    return false;
+
+                frame = m_frameManager->newFrame();
+
+                Model::GameFactory &gameFactory = Model::GameFactory::instance();
+                Model::GameSPtr game = gameFactory.createGame(gameName, frame->logger());
+                ensure(game.get() != nullptr, "game is null");
+
+                frame->newDocument(game, mapFormat);
+                return true;
+            } catch (const RecoverableException& e) {
+                if (frame != nullptr)
+                    frame->close();
+
+                return recoverFromException(e, [this](){ return this->newDocument(); });
+            } catch (const Exception& e) {
+                if (frame != nullptr)
+                    frame->Close();
+                ::wxMessageBox(e.what(), "TrenchBroom");
+                return false;
+            }
+#endif
         }
 
-        void TrenchBroomApp::OnFileOpen() {
+        void TrenchBroomApp::openDocument() {
             const QString fileName = QFileDialog::getOpenFileName(nullptr, "Open Map", "", "Map files (*.map);;Any files (*.*)");
 
-            if (!fileName.isEmpty())
+            if (!fileName.isEmpty()) {
                 openDocument(fileName.toStdString());
+            }
         }
 
         void TrenchBroomApp::OnFileOpenRecent() {

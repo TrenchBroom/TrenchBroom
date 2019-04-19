@@ -101,11 +101,26 @@ namespace TrenchBroom {
             virtual void visit(const MenuActionItem& item) = 0;
         };
 
+        enum class MenuEntryType {
+            Menu_RecentDocuments,
+            Menu_Undo,
+            Menu_Redo,
+            Menu_Cut,
+            Menu_Copy,
+            Menu_Paste,
+            Menu_PasteAtOriginalPosition,
+            Menu_None
+        };
+
         class MenuEntry {
+        private:
+            MenuEntryType m_entryType;
         public:
-            MenuEntry();
+            explicit MenuEntry(MenuEntryType entryType);
             virtual ~MenuEntry();
             virtual void accept(MenuVisitor& visitor) const = 0;
+
+            MenuEntryType entryType() const;
 
             deleteCopyAndMove(MenuEntry)
         };
@@ -122,7 +137,7 @@ namespace TrenchBroom {
         private:
             const Action* m_action;
         public:
-            explicit MenuActionItem(const Action* action);
+            MenuActionItem(const Action* action, MenuEntryType entryType);
 
             const String& name() const;
             const Action& action() const;
@@ -137,13 +152,13 @@ namespace TrenchBroom {
             String m_name;
             std::vector<std::unique_ptr<MenuEntry>> m_entries;
         public:
-            explicit Menu(const String& name);
+            Menu(const String& name, MenuEntryType entryType);
 
             const String& name() const;
 
-            Menu& addMenu(String name);
+            Menu& addMenu(const String& name, MenuEntryType entryType = MenuEntryType::Menu_None);
             void addSeparator();
-            MenuActionItem& addItem(const Action* action);
+            MenuActionItem& addItem(const Action* action, MenuEntryType entryType = MenuEntryType::Menu_None);
 
             void accept(MenuVisitor& visitor) const override;
             void visitEntries(MenuVisitor& visitor) const;
@@ -159,8 +174,20 @@ namespace TrenchBroom {
              * All actions which are used either in a menu, a tool bar or as a shortcut.
              */
             std::vector<std::unique_ptr<const Action>> m_actions;
+
+            /**
+             * The main menu for the map editing window.
+             */
             std::vector<std::unique_ptr<const Menu>> m_mainMenu;
-            std::vector<const Action*> m_toolBar;
+
+            /**
+             * The toolbar for the map editing window. Stored as a menu to allow for separators.
+             */
+            std::unique_ptr<Menu> m_toolBar;
+
+            /**
+             * Actions which can be triggered by keyboard shortcuts in the map editing views.
+             */
             std::vector<const Action*> m_mapViewActions;
         private:
             ActionManager();
@@ -168,6 +195,7 @@ namespace TrenchBroom {
             static const ActionManager& instance();
 
             void visitMainMenu(MenuVisitor& visitor) const;
+            void visitToolBarActions(MenuVisitor& visitor) const;
             void visitMapViewActions(const ActionVisitor& visitor) const;
         private:
             void initialize();

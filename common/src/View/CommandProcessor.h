@@ -80,7 +80,7 @@ namespace TrenchBroom {
 
             struct SubmitAndStoreResult;
         public:
-            CommandProcessor(MapDocumentCommandFacade* document);
+            explicit CommandProcessor(MapDocumentCommandFacade* document);
 
             Notifier<Command::Ptr> commandDoNotifier;
             Notifier<Command::Ptr> commandDoneNotifier;
@@ -88,6 +88,15 @@ namespace TrenchBroom {
             Notifier<UndoableCommand::Ptr> commandUndoNotifier;
             Notifier<UndoableCommand::Ptr> commandUndoneNotifier;
             Notifier<UndoableCommand::Ptr> commandUndoFailedNotifier;
+
+            /**
+             * Fired when a transaction completes successfully.
+             */
+            Notifier<const String&> transactionDoneNotifier;
+            /**
+             * Fired when a transaction is undone successfully.
+             */
+            Notifier<const String&> transactionUndoneNotifier;
 
             bool hasLastCommand() const;
             bool hasNextCommand() const;
@@ -104,6 +113,7 @@ namespace TrenchBroom {
             bool undoLastCommand();
             bool redoNextCommand();
 
+            bool hasRepeatableCommands() const;
             bool repeatLastCommands();
             void clearRepeatableCommands();
 

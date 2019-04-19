@@ -394,6 +394,13 @@ namespace TrenchBroom {
             return deleteExtension().addExtension(extension);
         }
 
+        Path Path::replaceBasename(const String& basename) const {
+            if (isEmpty()) {
+                throw PathException("Cannot replace the base name of an empty path.");
+            }
+            return deleteLastComponent() + IO::Path(basename).addExtension(extension());
+        }
+
         bool Path::isAbsolute() const {
             return m_absolute;
         }

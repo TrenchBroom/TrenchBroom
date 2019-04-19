@@ -46,11 +46,11 @@ namespace TrenchBroom {
             // and instead just cuts off the label for long layer names.
             m_nameText->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
             m_infoText = new QLabel("");
-            m_infoText->setEnabled(false); // instead of makeLighter()
+            makeInfo(m_infoText);
             refresh();
 
-            m_hiddenButton = createBitmapToggleButton(this, "Visible.png", "Invisible.png", "");
-            m_lockButton = createBitmapToggleButton(this, "Unlocked.png", "Locked.png", "");
+            m_hiddenButton = createBitmapToggleButton(this, "Visible.png", "");
+            m_lockButton = createBitmapToggleButton(this, "Lock.png", "");
 
             MapDocumentSPtr documentS = lock(m_document);
             m_hiddenButton->setEnabled(m_layer->hidden() || m_layer != documentS->currentLayer());

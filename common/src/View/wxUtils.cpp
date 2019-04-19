@@ -222,8 +222,8 @@ namespace TrenchBroom {
             return button;
         }
 
-        QAbstractButton* createBitmapToggleButton(QWidget* parent, const String& upImage, const String& downImage, const String& tooltip) {
-            QIcon icon = loadIconResourceOffOnQt(IO::Path(upImage), IO::Path(downImage));
+        QAbstractButton* createBitmapToggleButton(QWidget* parent, const String& image, const String& tooltip) {
+            auto icon = loadIconResourceQt(IO::Path(image));
 
             auto* button = new QPushButton(parent);
             button->setAutoDefault(false);

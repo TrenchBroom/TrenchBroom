@@ -967,6 +967,8 @@ namespace TrenchBroom {
             m_commandProcessor.commandUndoNotifier.addObserver(commandUndoNotifier);
             m_commandProcessor.commandUndoneNotifier.addObserver(commandUndoneNotifier);
             m_commandProcessor.commandUndoFailedNotifier.addObserver(commandUndoFailedNotifier);
+            m_commandProcessor.transactionDoneNotifier.addObserver(transactionDoneNotifier);
+            m_commandProcessor.transactionUndoneNotifier.addObserver(transactionUndoneNotifier);
             documentWasNewedNotifier.addObserver(this, &MapDocumentCommandFacade::documentWasNewed);
             documentWasLoadedNotifier.addObserver(this, &MapDocumentCommandFacade::documentWasLoaded);
         }
@@ -1001,6 +1003,10 @@ namespace TrenchBroom {
 
         void MapDocumentCommandFacade::doRedoNextCommand() {
             m_commandProcessor.redoNextCommand();
+        }
+
+        bool MapDocumentCommandFacade::doHasRepeatableCommands() const {
+            return m_commandProcessor.hasRepeatableCommands();
         }
 
         bool MapDocumentCommandFacade::doRepeatLastCommands() {

@@ -129,6 +129,7 @@ namespace TrenchBroom {
             const String& doGetNextCommandName() const override;
             void doUndoLastCommand() override;
             void doRedoNextCommand() override;
+            bool doHasRepeatableCommands() const override;
             bool doRepeatLastCommands() override;
             void doClearRepeatableCommands() override;
 

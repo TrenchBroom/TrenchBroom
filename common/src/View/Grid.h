@@ -46,10 +46,12 @@ namespace TrenchBroom {
         public:
             Notifier<> gridDidChangeNotifier;
         public:
-            explicit Grid(const int size);
+            explicit Grid(int size);
+
+            static FloatType actualSize(int size);
 
             int size() const;
-            void setSize(const int size);
+            void setSize(int size);
             void incSize();
             void decSize();
             FloatType actualSize() const;

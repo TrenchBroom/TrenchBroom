@@ -40,6 +40,10 @@ namespace TrenchBroom {
         m_snap(true),
         m_visible(true) {}
 
+        FloatType Grid::actualSize(const int size) {
+            return std::exp2(size);
+        }
+
         int Grid::size() const {
             return m_size;
         }
@@ -67,9 +71,9 @@ namespace TrenchBroom {
 
         FloatType Grid::actualSize() const {
             if (snap()) {
-                return std::exp2(m_size);
+                return actualSize(m_size);
             }
-            return 1;
+            return FloatType(1);
         }
 
         FloatType Grid::angle() const {
