@@ -20,7 +20,6 @@
 #ifndef TRENCHBROOM_AABBTREE_H
 #define TRENCHBROOM_AABBTREE_H
 
-#include "NodeTree.h"
 #include "Exceptions.h"
 #include <vecmath/scalar.h>
 #include <vecmath/bbox.h>
@@ -40,12 +39,13 @@
  * @tparam U the node data to store in the leafs
  */
 template <typename T, size_t S, typename U>
-class AABBTree : public NodeTree<T,S,U> {
+class AABBTree {
 public:
-    using List = typename NodeTree<T,S,U>::List;
-    using Box = typename NodeTree<T,S,U>::Box;
-    using DataType = typename NodeTree<T,S,U>::DataType;
-    using FloatType = typename NodeTree<T,S,U>::FloatType;
+    using List = std::list<U>;
+    using Box = vm::bbox<T,S>;
+    using DataType = U;
+    using FloatType = T;
+    static constexpr size_t Components = S;
 private:
     class InnerNode;
     class LeafNode;
@@ -455,16 +455,44 @@ private:
 public:
     AABBTree() : m_root(nullptr) {}
 
-    ~AABBTree() override {
+    ~AABBTree() {
         clear();
     }
 
-    bool contains(const U& data) const override {
+    /**
+     * Indicates whether a node with the given data exists in this tree.
+     *
+     * @param data the data to find
+     * @return true if a node with the given data exists and false otherwise
+     */
+    bool contains(const U& data) const {
         auto it = m_leafForData.find(data);
         return it != m_leafForData.end();
     }
 
-    void insert(const Box& bounds, const U& data) override {
+    /**
+     * Clears this tree and rebuilds it by inserting given objects.
+     *
+     * @param objects the objects to insert, a list of DataType
+     * @param getBounds a function from DataType -> Box to compute the bounds of each object
+     */
+    template <typename DataList, typename GetBounds>
+    void clearAndBuild(const DataList& objects, GetBounds&& getBounds) {
+        clear();
+        for (const U& object : objects) {
+            insert(getBounds(object), object);
+        }
+    }
+
+    /**
+     * Insert a node with the given bounds and data into this tree.
+     *
+     * @param bounds the bounds to insert
+     * @param data the data to insert
+     *
+     * @throws NodeTreeException if a node with the given data already exists in this tree, or the bounds contains NaN
+     */
+    void insert(const Box& bounds, const U& data) {
         check(bounds, data);
 
         if (empty()) {
@@ -482,7 +510,13 @@ public:
         }
     }
 
-    bool remove(const U& data) override {
+    /**
+     * Removes the node with the given data from this tree.
+     *
+     * @param data the data to remove
+     * @return true if a node with the given data was removed, and false otherwise
+     */
+    bool remove(const U& data) {
         auto it = m_leafForData.find(data);
         if (it == m_leafForData.end()) {
             return false;
@@ -497,7 +531,15 @@ public:
         return true;
     }
 
-    void update(const Box& newBounds, const U& data) override {
+    /**
+     * Updates the node with the given data with the given new bounds.
+     *
+     * @param newBounds the new bounds of the node
+     * @param data the node data of the node to update
+     *
+     * @throws NodeTreeException if no node with the given data can be found in this tree
+     */
+    void update(const Box& newBounds, const U& data) {
         check(newBounds, data);
 
         if (!remove(data)) {
@@ -516,18 +558,31 @@ private:
         }
     }
 public:
-    void clear() override {
+    /**
+     * Clears this node tree.
+     */
+    void clear() {
         if (!empty()) {
             delete m_root;
             m_root = nullptr;
         }
     }
 
-    bool empty() const override {
+    /**
+     * Indicates whether this tree is empty.
+     *
+     * @return true if this tree is empty and false otherwise
+     */
+    bool empty() const {
         return m_root == nullptr;
     }
 
-    const Box& bounds() const override {
+    /**
+     * Returns the bounds of all nodes in this tree.
+     *
+     * @return the bounds of all nodes in this tree, or a bounding box made up of NaN values if this tree is empty
+     */
+    const Box& bounds() const {
         static const auto EmptyBox = Box(vm::vec<T,S>::NaN, vm::vec<T,S>::NaN);
 
         assert(!empty());
@@ -538,11 +593,22 @@ public:
         }
     }
 
-    size_t height() const override {
+    /**
+     * Returns the height of this tree.
+     *
+     * @return the height of this tree
+     */
+    size_t height() const {
         return empty() ? 0 : m_root->height();
     }
 
-    List findIntersectors(const vm::ray<T,S>& ray) const override {
+    /**
+     * Finds every data item in this tree whose bounding box intersects with the given ray and retuns a list of those items.
+     *
+     * @param ray the ray to test
+     * @return a list containing all found data items
+     */
+    List findIntersectors(const vm::ray<T,S>& ray) const {
         List result;
         findIntersectors(ray, std::back_inserter(result));
         return result;
@@ -575,7 +641,13 @@ public:
         }
     }
 
-     List findContainers(const vm::vec<T,S>& point) const override {
+    /**
+     * Finds every data item in this tree whose bounding box contains the given point and returns a list of those items.
+     *
+     * @param point the point to test
+     * @return a list containing all found data items
+     */
+     List findContainers(const vm::vec<T,S>& point) const {
          List result;
          findContainers(point, std::back_inserter(result));
          return result;
