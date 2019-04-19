@@ -33,7 +33,7 @@ namespace TrenchBroom {
             bool m_initialized;
         public:
             vm::bbox3 m_bounds;
-            ComputeNodeBoundsVisitor(const vm::bbox3& defaultBounds = vm::bbox3());
+            explicit ComputeNodeBoundsVisitor(const vm::bbox3& defaultBounds = vm::bbox3());
             const vm::bbox3& bounds() const;
         private:
             void doVisit(const World* world) override;

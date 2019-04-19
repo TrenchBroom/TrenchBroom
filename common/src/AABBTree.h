@@ -27,12 +27,9 @@
 #include <vecmath/ray.h>
 #include <vecmath/intersection.h>
 
-#include <algorithm>
 #include <cassert>
 #include <functional>
 #include <iostream>
-#include <list>
-#include <memory>
 
 /**
  * An axis aligned bounding box tree that allows for quick ray intersection queries.
