@@ -38,15 +38,14 @@
  * @tparam T the floating point type
  * @tparam S the number of dimensions for vector types
  * @tparam U the node data to store in the leafs
- * @tparam Cmp the comparator used to compare nodes
  */
-template <typename T, size_t S, typename U, typename Cmp = std::less<U>>
-class AABBTree : public NodeTree<T,S,U,Cmp> {
+template <typename T, size_t S, typename U>
+class AABBTree : public NodeTree<T,S,U> {
 public:
-    using List = typename NodeTree<T,S,U,Cmp>::List;
-    using Box = typename NodeTree<T,S,U,Cmp>::Box;
-    using DataType = typename NodeTree<T,S,U,Cmp>::DataType;
-    using FloatType = typename NodeTree<T,S,U,Cmp>::FloatType;
+    using List = typename NodeTree<T,S,U>::List;
+    using Box = typename NodeTree<T,S,U>::Box;
+    using DataType = typename NodeTree<T,S,U>::DataType;
+    using FloatType = typename NodeTree<T,S,U>::FloatType;
 private:
     class InnerNode;
     class LeafNode;
@@ -104,12 +103,11 @@ private:
         virtual size_t height() const = 0;
 
         /**
-         * Inserts a new node with the given parameters into the subtree of which this node is the root. Returns the new
-         * root of the subtree after insertion.
+         * Inserts a new node into the subtree rooted at `this`.
          *
          * @param bounds the bounds of the data to be inserted
          * @param data the data to be inserted
-         * @return the new root
+         * @return a pair containing the new subtree root (may be `this`, or a new node), and the newly inserted LeafNode
          */
         virtual std::pair<Node*, LeafNode*> insert(const Box& bounds, const U& data) = 0;
 
@@ -218,11 +216,11 @@ private:
 
             return updateAndReturnRoot();
         }
-    public: // node removal public
+    public: // Node removal public
         /**
          * One of our direct children is being deleted. `this` will turn into a LeafNode.
          *
-         * @param child
+         * @param child either m_left or m_right, which is being deleted
          * @return the new root of the tree
          */
         Node* handleChildDeletion(LeafNode* child) {
@@ -234,11 +232,13 @@ private:
                 replacementForThis = m_left;
             }
 
-            // don't delete our children
+            // Clear m_left/m_right so our destructor doesn't delete our children.
+            // The caller is going to delete one of them (`child`),
+            // and we will reuse the other one as the replacement for `this`.
             m_left = nullptr;
             m_right = nullptr;
 
-            // special case
+            // Special case when `this` is already the tree root
             if (this->m_parent == nullptr) {
                 Node* newTreeRoot = replacementForThis;
                 newTreeRoot->m_parent = nullptr;
@@ -266,24 +266,26 @@ private:
             // Then insert the node into that subtree and update our reference to it.
             auto*& subtree = selectLeastIncreaser(m_left, m_right, bounds);
 
-            std::pair<Node*, LeafNode*> subtreeInsertionResult = subtree->insert(bounds, data);
+            Node* newSubtree;
+            LeafNode* insertedLeafNode;
+            std::tie(newSubtree, insertedLeafNode) = subtree->insert(bounds, data);
 
-            // need to connect the parent pointer
-            subtreeInsertionResult.first->m_parent = this;
+            // Update the parent pointer
+            newSubtree->m_parent = this;
 
-            // subtree is either a reference to m_left or m_right
+            // Subtree is either a reference to m_left or m_right
             if (subtree == m_left) {
-                m_left = subtreeInsertionResult.first;
+                m_left = newSubtree;
             } else {
                 assert(subtree == m_right);
-                m_right = subtreeInsertionResult.first;
+                m_right = newSubtree;
             }
 
             // Update our data.
             updateBounds();
             updateHeight();
 
-            return std::make_pair(this, subtreeInsertionResult.second);
+            return std::make_pair(this, insertedLeafNode);
         }
 
     private:
@@ -421,7 +423,7 @@ private:
          *
          * @param bounds the bounds to insert
          * @param data the data to insert
-         * @return the newly created inner node which should replace this leaf in the parent
+         * @return a pair containing the new inner node that is the root of this subtree, and the newly inserted LeafNode
          */
         std::pair<Node*, LeafNode*> insert(const Box& bounds, const U& data) override {
             auto* newLeaf = new LeafNode(bounds, data);
@@ -465,20 +467,19 @@ public:
     void insert(const Box& bounds, const U& data) override {
         check(bounds, data);
 
-        // FIXME:
         if (empty()) {
             auto* newLeaf = new LeafNode(bounds, data);
 
             m_root = newLeaf;
             m_leafForData[data] = newLeaf;
         } else {
-            const std::pair<Node*, LeafNode*> newRootAndLeaf = m_root->insert(bounds, data);
+            Node* newSubtree;
+            LeafNode* insertedLeafNode;
+            std::tie(newSubtree, insertedLeafNode) = m_root->insert(bounds, data);
 
-            m_root = newRootAndLeaf.first;
-            m_leafForData[data] = newRootAndLeaf.second;
+            m_root = newSubtree;
+            m_leafForData[data] = insertedLeafNode;
         }
-
-        m_root->debugParentPointers(nullptr);
     }
 
     bool remove(const U& data) override {
@@ -493,9 +494,6 @@ public:
 
         m_root = leaf->deleteThis();
 
-        if (m_root != nullptr) {
-            m_root->debugParentPointers(nullptr);
-        }
         return true;
     }
 

@@ -26,7 +26,7 @@
 #include <functional>
 #include <list>
 
-template <typename T, size_t S, typename U, typename Cmp = std::less<U>>
+template <typename T, size_t S, typename U>
 class NodeTree {
 public:
     using List = std::list<U>;
@@ -41,7 +41,6 @@ public:
     /**
      * Indicates whether a node with the given data exists in this tree.
      *
-     * @param bounds the bounds to find
      * @param data the data to find
      * @return true if a node with the given data exists and false otherwise
      */
