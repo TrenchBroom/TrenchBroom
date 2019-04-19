@@ -74,8 +74,9 @@ namespace vm {
              * Adds the given point.
              */
             void add(const vec<T,S>& point) {
-                if (m_initialized) {
+                if (!m_initialized) {
                     m_bounds.min = m_bounds.max = point;
+                    m_initialized = true;
                 } else {
                     m_bounds = merge(m_bounds, point);
                 }
