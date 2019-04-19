@@ -30,6 +30,7 @@
 #include <vecmath/bbox.h>
 
 #include <array>
+#include <vector>
 #include <memory>
 
 namespace TrenchBroom {
@@ -111,8 +112,11 @@ namespace TrenchBroom {
                 String m_name;
                 vm::bbox3f m_bounds;
 
+                // For hit testing
                 using Triangle = std::array<vm::vec3f, 3>;
-                using SpacialTree = AABBTree<float, 3, Triangle>;
+                std::vector<Triangle> m_tris;
+                using TriNum = size_t;
+                using SpacialTree = AABBTree<float, 3, TriNum>;
                 SpacialTree m_spacialTree;
             public:
                 /**

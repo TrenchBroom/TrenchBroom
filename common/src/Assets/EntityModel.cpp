@@ -29,6 +29,8 @@
 
 namespace TrenchBroom {
     namespace Assets {
+        // EntityModelFrame
+
         EntityModelFrame::EntityModelFrame(const size_t index) :
         m_index(index) {}
 
@@ -37,6 +39,8 @@ namespace TrenchBroom {
         size_t EntityModelFrame::index() const {
             return m_index;
         }
+
+        // EntityModel::LoadedFrame
 
         EntityModel::LoadedFrame::LoadedFrame(const size_t index, const String& name, const vm::bbox3f& bounds) :
         EntityModelFrame(index),
@@ -59,10 +63,12 @@ namespace TrenchBroom {
             auto closestDistance = vm::nan<float>();
 
             const auto candidates = m_spacialTree.findIntersectors(ray);
-            for (const auto& triangle : candidates) {
-                const auto& p1 = triangle[0];
-                const auto& p2 = triangle[1];
-                const auto& p3 = triangle[2];
+            for (const TriNum triNum : candidates) {
+                const Triangle& triangle = m_tris.at(triNum);
+
+                const vm::vec3f& p1 = triangle[0];
+                const vm::vec3f& p2 = triangle[1];
+                const vm::vec3f& p3 = triangle[2];
                 closestDistance = vm::safeMin(closestDistance, vm::intersectRayAndTriangle(ray, p1, p2, p3));
             }
 
@@ -86,7 +92,10 @@ namespace TrenchBroom {
                         bounds.add(p1);
                         bounds.add(p2);
                         bounds.add(p3);
-                        m_spacialTree.insert(bounds.bounds(), {{ p1, p2, p3 }});
+
+                        const size_t triIndex = m_tris.size();
+                        m_tris.push_back({p1, p2, p3});
+                        m_spacialTree.insert(bounds.bounds(), triIndex);
                     }
                     break;
                 }
@@ -101,7 +110,10 @@ namespace TrenchBroom {
                         bounds.add(p1);
                         bounds.add(p2);
                         bounds.add(p2);
-                        m_spacialTree.insert(bounds.bounds(), { { p1, p2, p3 } });
+
+                        const size_t triIndex = m_tris.size();
+                        m_tris.push_back({p1, p2, p3});
+                        m_spacialTree.insert(bounds.bounds(), triIndex);
                     }
                     break;
                 }
@@ -117,17 +129,22 @@ namespace TrenchBroom {
                         bounds.add(p1);
                         bounds.add(p2);
                         bounds.add(p2);
+
+                        const size_t triIndex = m_tris.size();
                         if (i % 2 == 0) {
-                            m_spacialTree.insert(bounds.bounds(), {{ p1, p2, p3 }});
+                            m_tris.push_back({p1, p2, p3});
                         } else {
-                            m_spacialTree.insert(bounds.bounds(), {{ p1, p3, p2 }});
+                            m_tris.push_back({p1, p3, p2});
                         }
+                        m_spacialTree.insert(bounds.bounds(), triIndex);
                     }
                     break;
                 }
                 switchDefault();
             }
         }
+
+        // EntityModel::UnloadedFrame
 
         EntityModel::UnloadedFrame::UnloadedFrame(size_t index) :
         EntityModelFrame(index) {}
@@ -150,6 +167,8 @@ namespace TrenchBroom {
             return vm::nan<float>();
         }
 
+        // EntityModel::Mesh
+
         EntityModel::Mesh::Mesh(const EntityModel::VertexList& vertices) :
         m_vertices(vertices) {}
 
@@ -159,6 +178,8 @@ namespace TrenchBroom {
             const auto vertexArray = Renderer::VertexArray::ref(m_vertices);
             return doBuildRenderer(skin, vertexArray);
         }
+
+        // EntityModel::IndexedMesh
 
         EntityModel::IndexedMesh::IndexedMesh(LoadedFrame& frame, const EntityModel::VertexList& vertices, const EntityModel::Indices& indices) :
         Mesh(vertices),
@@ -173,6 +194,8 @@ namespace TrenchBroom {
             return std::make_unique<Renderer::TexturedIndexRangeRenderer>(vertices, texturedIndices);
         }
 
+        // EntityModel::TexturedMesh
+
         EntityModel::TexturedMesh::TexturedMesh(LoadedFrame& frame, const EntityModel::VertexList& vertices, const EntityModel::TexturedIndices& indices) :
         Mesh(vertices),
         m_indices(indices) {
@@ -184,6 +207,8 @@ namespace TrenchBroom {
         std::unique_ptr<Renderer::TexturedIndexRangeRenderer> EntityModel::TexturedMesh::doBuildRenderer(Assets::Texture* /* skin */, const Renderer::VertexArray& vertices) {
             return std::make_unique<Renderer::TexturedIndexRangeRenderer>(vertices, m_indices);
         }
+
+        // EntityModel::Surface
 
         EntityModel::Surface::Surface(const String& name, const size_t frameCount) :
         m_name(name),
@@ -246,6 +271,8 @@ namespace TrenchBroom {
                 return m_meshes[frameIndex]->buildRenderer(skin);
             }
         }
+
+        // EntityModel
 
         EntityModel::EntityModel(const String& name) :
         m_name(name),

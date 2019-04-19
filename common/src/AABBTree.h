@@ -30,6 +30,7 @@
 #include <cassert>
 #include <functional>
 #include <iostream>
+#include <unordered_map>
 
 /**
  * An axis aligned bounding box tree that allows for quick ray intersection queries.
@@ -75,10 +76,13 @@ private:
     };
 
     class Node {
-    private:
+    public:
         Box m_bounds;
+        InnerNode* m_parent;
     protected:
-        explicit Node(const Box& bounds) : m_bounds(bounds) {}
+        explicit Node(const Box& bounds) :
+        m_bounds(bounds),
+        m_parent(nullptr) {}
     public:
         virtual ~Node() = default;
 
@@ -92,39 +96,12 @@ private:
         }
 
         /**
-         * Checks whether the given bounds are equal to this node's bounds. The bounds are compared
-         * using the equality operator ==.
-         *
-         * @param bounds the bounds to check
-         * @return true if the given bounds are equal to this node's bounds
-         */
-        bool hasBounds(const Box& bounds) const {
-            return bounds == this->bounds();
-        }
-
-        /**
-         * Indicates whether this node is a leaf.
-         *
-         * @return true if this node is a leaf and false otherwise
-         */
-        virtual bool leaf() const = 0;
-
-        /**
          * Return the height of this node. A leaf always has a height of 1, and an inner node has a height equal to the
          * maximum of the heights of its children plus one.
          *
          * @return the height
          */
         virtual size_t height() const = 0;
-
-        /**
-         * Find a leaf containing the given bounds and data in this subtree.
-         *
-         * @param bounds the bounds to find
-         * @param data the data to find
-         * @return the leaf that contains the given bounds and data
-         */
-        virtual const LeafNode* find(const Box& bounds, const U& data) const = 0;
 
         /**
          * Inserts a new node with the given parameters into the subtree of which this node is the root. Returns the new
@@ -134,17 +111,7 @@ private:
          * @param data the data to be inserted
          * @return the new root
          */
-        virtual Node* insert(const Box& bounds, const U& data) = 0;
-
-        /**
-         * Removes the node with the given parameters from the subtree of which this node is the root. Returns the new
-         * root of the subtree after removal.
-         *
-         * @param bounds the bounds of the node to be removed
-         * @param data the data associated with the node to be removed
-         * @return a pair containing the new root and a boolean indicating whether or not a node was removed
-         */
-        virtual std::pair<Node*, bool> remove(const Box& bounds, const U& data) = 0;
+        virtual std::pair<Node*, LeafNode*> insert(const Box& bounds, const U& data) = 0;
 
         /**
          * Accepts the given visitor.
@@ -171,6 +138,8 @@ private:
          * @param level the level of indentation
          */
         virtual void appendTo(std::ostream& str, const std::string& indent, size_t level) const = 0;
+
+        virtual void debugParentPointers(const Node* expectedParent) const = 0;
     protected:
         /**
          * Updates the bounds of this node.
@@ -208,97 +177,115 @@ private:
         m_height(0) {
             assert(m_left != nullptr);
             assert(m_right != nullptr);
+
+            m_left->m_parent = this;
+            m_right->m_parent = this;
+
             updateHeight();
         }
 
+    private: // node removal private
+        /**
+         * Children (or grandchildren etc.) changed. Update the height and bounds
+         *
+         * @return the new root of the tree
+         */
+        Node* updateAndReturnRoot() {
+            updateHeight();
+            updateBounds();
+
+            if (this->m_parent == nullptr) {
+                return this;
+            }
+
+            return this->m_parent->updateAndReturnRoot();
+        }
+
+        /**
+         * One of our direct children is being swapped for a new node.
+         *
+         * @return the new root of the tree
+         */
+        Node* replaceChild(Node* child, Node* replacement) {
+            replacement->m_parent = this;
+
+            if (child == m_left) {
+                m_left = replacement;
+            } else {
+                assert(child == m_right);
+                m_right = replacement;
+            }
+
+            return updateAndReturnRoot();
+        }
+    public: // node removal public
+        /**
+         * One of our direct children is being deleted. `this` will turn into a LeafNode.
+         *
+         * @param child
+         * @return the new root of the tree
+         */
+        Node* handleChildDeletion(LeafNode* child) {
+            Node* replacementForThis;
+            if (child == m_left) {
+                replacementForThis = m_right;
+            } else {
+                assert(child == m_right);
+                replacementForThis = m_left;
+            }
+
+            // don't delete our children
+            m_left = nullptr;
+            m_right = nullptr;
+
+            // special case
+            if (this->m_parent == nullptr) {
+                Node* newTreeRoot = replacementForThis;
+                newTreeRoot->m_parent = nullptr;
+                delete this;
+                return newTreeRoot;
+            }
+
+            Node* newTreeRoot = this->m_parent->replaceChild(this, replacementForThis);
+            delete this;
+            return newTreeRoot;
+        }
+
+    public: // Node overrides
         ~InnerNode() override {
             delete m_left;
             delete m_right;
-        }
-
-        bool leaf() const override {
-            return false;
         }
 
         size_t height() const override {
             return m_height;
         }
 
-        const LeafNode* find(const Box& bounds, const U& data) const override {
-            const LeafNode* result = nullptr;
-            if (this->bounds().contains(bounds)) {
-                result = m_left->find(bounds, data);
-                if (result == nullptr) {
-                    result = m_right->find(bounds, data);
-                }
-            }
-            return result;
-        }
-
-        Node* insert(const Box& bounds, const U& data) override {
+        std::pair<Node*, LeafNode*> insert(const Box& bounds, const U& data) override {
             // Select the subtree which is increased the least by inserting a node with the given bounds.
             // Then insert the node into that subtree and update our reference to it.
             auto*& subtree = selectLeastIncreaser(m_left, m_right, bounds);
-            subtree = subtree->insert(bounds, data);
+
+            std::pair<Node*, LeafNode*> subtreeInsertionResult = subtree->insert(bounds, data);
+
+            // need to connect the parent pointer
+            subtreeInsertionResult.first->m_parent = this;
+
+            // subtree is either a reference to m_left or m_right
+            if (subtree == m_left) {
+                m_left = subtreeInsertionResult.first;
+            } else {
+                assert(subtree == m_right);
+                m_right = subtreeInsertionResult.first;
+            }
 
             // Update our data.
             updateBounds();
             updateHeight();
 
-            return this;
+            return std::make_pair(this, subtreeInsertionResult.second);
         }
 
-        std::pair<Node*, bool> remove(const Box& bounds, const U& data) override {
-            const auto& [node, result] = doRemove(bounds, data, m_left, m_right);
-            if (result) {
-                return std::make_pair(node, result);
-            } else {
-                return doRemove(bounds, data, m_right, m_left);
-            }
-        }
-    private:
-        /**
-         * Attempt to remove the node with the given bounds and data from the given child.
-         *
-         * @param bounds the bounds of the node to remove
-         * @param data the data of the node to remove
-         * @param child the child to remove the node from
-         * @param sibling the sibling of the given child in this inner node
-         * @return a pair of the node that should replace the given child in this inner node, or nullptr if the node to remove is
-         * not a descendant of the given child, and a boolean indicating the node to remove was found in the given subtree
-         */
-        std::pair<Node*, bool> doRemove(const Box& bounds, const U& data, Node*& child, Node*& sibling) {
-            if (child->bounds().contains(bounds)) {
-                auto [newChild, result] = child->remove(bounds, data);
-                if (result) {
-                    // the node to remove was found in the child's tree
-                    if (newChild == nullptr) {
-                        // child is a leaf, and it represents the node to remove; return sibling to the caller
-                        newChild = sibling;
-                        // prevent the sibling to get deleted when this node gets deleted by the parent
-                        sibling = nullptr;
-                        // child will be deleted when this node gets deleted by the caller
-                        return std::make_pair(newChild, true);
-                    } else {
-                        // child is an inner node
-                        if (newChild != child) {
-                            // the node to be removed was deleted from child's subtree, and we need to update our pointer
-                            // with the new root of that subtree
-                            delete child;
-                            child = newChild;
-                        }
-
-                        // Update our data.
-                        updateBounds();
-                        updateHeight();
-
-                        return std::make_pair(this, true);
-                    }
-                }
-            }
-            // the node to be removed was not found in the subtree
-            return std::make_pair(nullptr, false);
-        }
     private:
         /**
          * Selects one of the two given nodes such that it increases the given bounds the least.
@@ -376,6 +363,12 @@ private:
             m_left->appendTo(str, indent, level + 1);
             m_right->appendTo(str, indent, level + 1);
         }
+
+        virtual void debugParentPointers(const Node* expectedParent) const override {
+            assert(this->m_parent == expectedParent);
+            m_left->debugParentPointers(this);
+            m_left->debugParentPointers(this);
+        }
     };
 
     /**
@@ -387,6 +380,17 @@ private:
         U m_data;
     public:
         LeafNode(const Box& bounds, const U& data) : Node(bounds), m_data(data) {}
+
+        /**
+         * Deletes this. Returns the new root of the tree.
+         */
+        Node* deleteThis() {
+            Node* newRoot = (this->m_parent != nullptr)
+                    ? this->m_parent->handleChildDeletion(this)
+                    : nullptr;
+            delete this;
+            return newRoot;
+        }
 
         /**
          * Returns the data associated with this node.
@@ -406,21 +410,11 @@ private:
             return m_data;
         }
 
-        bool leaf() const override {
-            return true;
-        }
-
+    public: // Node overrides
         size_t height() const override {
             return 1;
         }
 
-        const LeafNode* find(const Box& bounds, const U& data) const override {
-            if (this->hasBounds(bounds) && hasData(data)) {
-                return this;
-            } else {
-                return nullptr;
-            }
-        }
         /**
          * Returns a new inner node that has this leaf as its left child and a new leaf representing the given bounds
          * and data as its right child.
@@ -429,37 +423,11 @@ private:
          * @param data the data to insert
          * @return the newly created inner node which should replace this leaf in the parent
          */
-        Node* insert(const Box& bounds, const U& data) override {
-            return new InnerNode(this, new LeafNode(bounds, data));
-        }
+        std::pair<Node*, LeafNode*> insert(const Box& bounds, const U& data) override {
+            auto* newLeaf = new LeafNode(bounds, data);
+            auto* newParent = new InnerNode(this, newLeaf);
 
-        /**
-         * Tests whether this node equals the given data. If this node is a match, then this method returns a pair
-         * of nullptr and true, otherwise it returns a pair this and false.
-         *
-         * @param bounds the bounds to remove
-         * @param data the data to remove
-         * @return a pair indicating whether this node was a match
-         */
-        std::pair<Node*, bool> remove(const Box& bounds, const U& data) override {
-            if (hasData(data)) {
-                return std::make_pair(nullptr, true);
-            } else {
-                return std::make_pair(this, false);
-            }
-        }
-
-        /**
-         * Checks whether the given data equals the data of this leaf. The given data is considered
-         * equal to this node's data if and only if !(data < m_data) && !(m_data < data) where < is
-         * implemented by the comparison operator Cmp.
-         *
-         * @param data the data to check
-         * @return true if the given data is equal to the data of this leaf
-         */
-        bool hasData(const U& data) const {
-            static const Cmp cmp;
-            return !cmp(data, m_data) && !cmp(m_data, data);
+            return std::make_pair(newParent, newLeaf);
         }
 
         void accept(Visitor& visitor) const override {
@@ -474,9 +442,14 @@ private:
             this->appendBounds(str);
             str << ": " << m_data << std::endl;
         }
+
+        virtual void debugParentPointers(const Node* expectedParent) const override {
+            assert(this->m_parent == expectedParent);
+        }
     };
 private:
     Node* m_root;
+    std::unordered_map<U, LeafNode*> m_leafForData;
 public:
     AABBTree() : m_root(nullptr) {}
 
@@ -484,44 +457,54 @@ public:
         clear();
     }
 
-    bool contains(const Box& bounds, const U& data) const override {
-        check(bounds, data);
-        return (!empty() && m_root->find(bounds, data) != nullptr);
+    bool contains(const U& data) const override {
+        auto it = m_leafForData.find(data);
+        return it != m_leafForData.end();
     }
 
     void insert(const Box& bounds, const U& data) override {
         check(bounds, data);
 
+        // FIXME:
         if (empty()) {
-            m_root = new LeafNode(bounds, data);
+            auto* newLeaf = new LeafNode(bounds, data);
+
+            m_root = newLeaf;
+            m_leafForData[data] = newLeaf;
         } else {
-            m_root = m_root->insert(bounds, data);
+            const std::pair<Node*, LeafNode*> newRootAndLeaf = m_root->insert(bounds, data);
+
+            m_root = newRootAndLeaf.first;
+            m_leafForData[data] = newRootAndLeaf.second;
         }
+
+        m_root->debugParentPointers(nullptr);
     }
 
-    bool remove(const Box& bounds, const U& data) override {
-        check(bounds, data);
-
-        if (!empty() && m_root->bounds().contains(bounds)) {
-            const auto& [newRoot, result] = m_root->remove(bounds, data);
-            if (result) {
-                if (newRoot != m_root) {
-                    delete m_root;
-                    m_root = newRoot;
-                }
-                return true;
-            }
+    bool remove(const U& data) override {
+        auto it = m_leafForData.find(data);
+        if (it == m_leafForData.end()) {
+            return false;
         }
-        return false;
+
+        LeafNode* leaf = it->second;
+        assert(leaf->data() == data);
+        m_leafForData.erase(it);
+
+        m_root = leaf->deleteThis();
+
+        if (m_root != nullptr) {
+            m_root->debugParentPointers(nullptr);
+        }
+        return true;
     }
 
-    void update(const Box& oldBounds, const Box& newBounds, const U& data) override {
-        check(oldBounds, data);
+    void update(const Box& newBounds, const U& data) override {
         check(newBounds, data);
 
-        if (!remove(oldBounds, data)) {
+        if (!remove(data)) {
             NodeTreeException ex;
-            ex << "AABB node not found with oldBounds [ ( " << oldBounds.min << " ) ( " << oldBounds.max << " ) ]: " << data;
+            ex << "AABB node not found: " << data;
             throw ex;
         }
         insert(newBounds, data);

@@ -109,7 +109,7 @@ namespace TrenchBroom {
             void doVisit(Brush* brush) override   { doRemove(brush, brush->bounds()); }
 
             void doRemove(Node* node, const vm::bbox3& bounds) {
-                if (!m_nodeTree.remove(bounds, node)) {
+                if (!m_nodeTree.remove(node)) {
                     NodeTreeException ex;
                     ex << "Node not found with bounds [ (" << bounds.min << ") (" << bounds.max << ") ]: " << node;
                     throw ex;
@@ -120,17 +120,15 @@ namespace TrenchBroom {
         class World::UpdateNodeInNodeTree : public NodeVisitor {
         private:
             NodeTree& m_nodeTree;
-            const vm::bbox3 m_oldBounds;
         public:
-            UpdateNodeInNodeTree(NodeTree& nodeTree, const vm::bbox3& oldBounds) :
-            m_nodeTree(nodeTree),
-            m_oldBounds(oldBounds) {}
+            explicit UpdateNodeInNodeTree(NodeTree& nodeTree) :
+            m_nodeTree(nodeTree) {}
         private:
             void doVisit(World* world) override   {}
             void doVisit(Layer* layer) override   {}
-            void doVisit(Group* group) override   { m_nodeTree.update(m_oldBounds, group->bounds(), group); }
-            void doVisit(Entity* entity) override { m_nodeTree.update(m_oldBounds, entity->bounds(), entity); }
-            void doVisit(Brush* brush) override   { m_nodeTree.update(m_oldBounds, brush->bounds(), brush); }
+            void doVisit(Group* group) override   { m_nodeTree.update(group->bounds(), group); }
+            void doVisit(Entity* entity) override { m_nodeTree.update(entity->bounds(), entity); }
+            void doVisit(Brush* brush) override   { m_nodeTree.update(brush->bounds(), brush); }
         };
 
         class World::MatchTreeNodes {
@@ -261,7 +259,7 @@ namespace TrenchBroom {
 
         void World::doDescendantBoundsDidChange(Node* node, const vm::bbox3& oldBounds, const size_t depth) {
             if (m_updateNodeTree && node->shouldAddToSpacialIndex()) {
-                UpdateNodeInNodeTree visitor(m_nodeTree, oldBounds);
+                UpdateNodeInNodeTree visitor(m_nodeTree);
                 node->accept(visitor);
             }
         }

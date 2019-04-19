@@ -35,42 +35,28 @@ public:
     using DataType = U;
     using FloatType = T;
     static const size_t Components = S;
-
-    using GetBounds = std::function<Box(const U& data)>;
 public:
     virtual ~NodeTree() = default;
 
     /**
-     * Indicates whether a node with the given bounds and data exists in this tree.
+     * Indicates whether a node with the given data exists in this tree.
      *
      * @param bounds the bounds to find
      * @param data the data to find
-     * @return true if a node with the given bounds and data exists and false otherwise
+     * @return true if a node with the given data exists and false otherwise
      */
-    virtual bool contains(const Box& bounds, const U& data) const = 0;
+    virtual bool contains(const U& data) const = 0;
 
     /**
      * Clears this tree and rebuilds it by inserting given objects.
      *
-     * @param objects the objects to insert
-     * @param getBounds a function to compute the bounds from each object
+     * @param objects the objects to insert, a list of DataType
+     * @param getBounds a function from DataType -> Box to compute the bounds of each object
      */
-    virtual void clearAndBuild(const List& objects, const GetBounds& getBounds) {
+    template <typename DataList, typename GetBounds>
+    void clearAndBuild(const DataList& objects, GetBounds&& getBounds) {
         clear();
-        for (const auto& object : objects) {
-            insert(getBounds(object), object);
-        }
-    }
-
-    /**
-     * Clears this tree and rebuilds it by inserting given objects.
-     *
-     * @param objects the objects to insert
-     * @param getBounds a function to compute the bounds from each object
-     */
-    virtual void clearAndBuild(const Array& objects, const GetBounds& getBounds) {
-        clear();
-        for (const auto& object : objects) {
+        for (const U& object : objects) {
             insert(getBounds(object), object);
         }
     }
@@ -80,28 +66,28 @@ public:
      *
      * @param bounds the bounds to insert
      * @param data the data to insert
+     *
+     * @throws NodeTreeException if a node with the given data already exists in this tree, or the bounds contains NaN
      */
     virtual void insert(const Box& bounds, const U& data) = 0;
 
     /**
-     * Removes the node with the given bounds and data into this tree.
+     * Removes the node with the given data from this tree.
      *
-     * @param bounds the bounds to remove
      * @param data the data to remove
-     * @return true if a node with the given bounds and data was removed, and false otherwise
+     * @return true if a node with the given data was removed, and false otherwise
      */
-    virtual bool remove(const Box& bounds, const U& data) = 0;
+    virtual bool remove(const U& data) = 0;
 
     /**
-     * Updates the node with the given bounds and data with the given new bounds.
+     * Updates the node with the given data with the given new bounds.
      *
-     * @param oldBounds the old bounds of the node to update
      * @param newBounds the new bounds of the node
-     * @param data the node data
+     * @param data the node data of the node to update
      *
-     * @throws NodeTreeException if no node with the given bounds and data can be found in this tree
+     * @throws NodeTreeException if no node with the given data can be found in this tree
      */
-    virtual void update(const Box& oldBounds, const Box& newBounds, const U& data) = 0;
+    virtual void update(const Box& newBounds, const U& data) = 0;
 
     /**
      * Clears this node tree.

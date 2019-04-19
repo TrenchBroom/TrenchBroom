@@ -71,10 +71,10 @@ namespace TrenchBroom {
                     m_bounds = node->bounds();
                 }
 
-                if (!m_tree.contains(node->bounds(), node)) {
+                if (!m_tree.contains(node)) {
                     cancel();
                     m_tree.print(std::cout);
-                    ASSERT_TRUE(m_tree.contains(node->bounds(), node)) << "Node " << node << " with bounds " << node->bounds() << " at line " << node->lineNumber() << " not found in tree after insertion";
+                    ASSERT_TRUE(m_tree.contains(node)) << "Node " << node << " with bounds " << node->bounds() << " at line " << node->lineNumber() << " not found in tree after insertion";
                 }
 
                 if (m_bounds != m_tree.bounds()) {
