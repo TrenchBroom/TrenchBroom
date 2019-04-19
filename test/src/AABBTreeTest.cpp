@@ -58,6 +58,19 @@ L [ ( 0 0 0 ) ( 2 1 1 ) ]: 1
     assertTreeContains(tree, bounds, 1u);
 }
 
+TEST(AABBTreeTest, insertDuplicateNode) {
+    const BOX bounds(VEC(0.0, 0.0, 0.0), VEC(2.0, 1.0, 1.0));
+
+    AABB tree;
+    tree.insert(bounds, 1u);
+
+    ASSERT_THROW(tree.insert(bounds, 1u), NodeTreeException);
+
+    ASSERT_FALSE(tree.empty());
+    ASSERT_EQ(bounds, tree.bounds());
+    assertTreeContains(tree, bounds, 1u);
+}
+
 TEST(AABBTreeTest, insertTwoNodes) {
     const BOX bounds1(VEC(0.0, 0.0, 0.0), VEC(2.0, 1.0, 1.0));
     const BOX bounds2(VEC(-1.0, -1.0, -1.0), VEC(1.0, 1.0, 1.0));

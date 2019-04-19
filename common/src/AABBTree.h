@@ -137,7 +137,7 @@ private:
          */
         virtual void appendTo(std::ostream& str, const std::string& indent, size_t level) const = 0;
 
-        virtual void debugParentPointers(const Node* expectedParent) const = 0;
+        virtual void checkParentPointers(const Node *expectedParent) const = 0;
     protected:
         /**
          * Updates the bounds of this node.
@@ -184,7 +184,8 @@ private:
 
     private: // node removal private
         /**
-         * Children (or grandchildren etc.) changed. Update the height and bounds
+         * Children (or grandchildren etc.) changed. Update the height and bounds.
+         * Recurses up the tree along the m_parent chain until it reaches the root.
          *
          * @return the new root of the tree
          */
@@ -366,10 +367,10 @@ private:
             m_right->appendTo(str, indent, level + 1);
         }
 
-        virtual void debugParentPointers(const Node* expectedParent) const override {
+        virtual void checkParentPointers(const Node *expectedParent) const override {
             assert(this->m_parent == expectedParent);
-            m_left->debugParentPointers(this);
-            m_left->debugParentPointers(this);
+            m_left->checkParentPointers(this);
+            m_left->checkParentPointers(this);
         }
     };
 
@@ -445,7 +446,7 @@ private:
             str << ": " << m_data << std::endl;
         }
 
-        virtual void debugParentPointers(const Node* expectedParent) const override {
+        virtual void checkParentPointers(const Node *expectedParent) const override {
             assert(this->m_parent == expectedParent);
         }
     };
@@ -495,17 +496,22 @@ public:
     void insert(const Box& bounds, const U& data) {
         check(bounds, data);
 
+        // Check that the data isn't already inserted
+        if (m_leafForData.find(data) != m_leafForData.end()) {
+            NodeTreeException ex;
+            ex << "data already in tree: " << data;
+            throw ex;
+        }
+
         if (empty()) {
-            auto* newLeaf = new LeafNode(bounds, data);
+            auto* insertedLeafNode = new LeafNode(bounds, data);
 
-            m_root = newLeaf;
-            m_leafForData[data] = newLeaf;
+            m_root = insertedLeafNode;
+            m_leafForData[data] = insertedLeafNode;
         } else {
-            Node* newSubtree;
             LeafNode* insertedLeafNode;
-            std::tie(newSubtree, insertedLeafNode) = m_root->insert(bounds, data);
+            std::tie(m_root, insertedLeafNode) = m_root->insert(bounds, data);
 
-            m_root = newSubtree;
             m_leafForData[data] = insertedLeafNode;
         }
     }
