@@ -137,7 +137,7 @@ private:
          */
         virtual void appendTo(std::ostream& str, const std::string& indent, size_t level) const = 0;
 
-        virtual void checkParentPointers(const Node *expectedParent) const = 0;
+        virtual void checkParentPointers(const Node* expectedParent) const = 0;
     protected:
         /**
          * Updates the bounds of this node.
@@ -367,7 +367,7 @@ private:
             m_right->appendTo(str, indent, level + 1);
         }
 
-        virtual void checkParentPointers(const Node *expectedParent) const override {
+        virtual void checkParentPointers(const Node* expectedParent) const override {
             assert(this->m_parent == expectedParent);
             m_left->checkParentPointers(this);
             m_left->checkParentPointers(this);
@@ -446,7 +446,7 @@ private:
             str << ": " << m_data << std::endl;
         }
 
-        virtual void checkParentPointers(const Node *expectedParent) const override {
+        virtual void checkParentPointers(const Node* expectedParent) const override {
             assert(this->m_parent == expectedParent);
         }
     };
