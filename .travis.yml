@@ -9,9 +9,9 @@ matrix:
       sudo: required
       env: TB_GCC8=true
     - os: osx
-      osx_image: xcode10
+      osx_image: xcode9.3
     - os: osx
-      osx_image: xcode10
+      osx_image: xcode9.3
       env: TB_DEBUG_BUILD=true
 cache:
   directories:
