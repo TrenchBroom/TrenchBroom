@@ -21,7 +21,6 @@
 #define TrenchBroom_EntityModel
 
 #include "TrenchBroom.h"
-#include "AABBTree.h"
 #include "Assets/TextureCollection.h"
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/TexturedIndexRangeMap.h"
@@ -32,6 +31,9 @@
 #include <array>
 #include <vector>
 #include <memory>
+
+template <typename T, size_t S, typename U>
+class AABBTree;
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -117,7 +119,7 @@ namespace TrenchBroom {
                 std::vector<Triangle> m_tris;
                 using TriNum = size_t;
                 using SpacialTree = AABBTree<float, 3, TriNum>;
-                SpacialTree m_spacialTree;
+                std::unique_ptr<SpacialTree> m_spacialTree;
             public:
                 /**
                  * Creates a new frame with the given index, name and bounds.

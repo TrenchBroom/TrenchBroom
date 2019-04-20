@@ -36,6 +36,8 @@
 #include "View/MapDocument.h"
 #include "View/Selection.h"
 
+#include <vecmath/ray.h>
+
 #include <algorithm>
 
 namespace TrenchBroom {

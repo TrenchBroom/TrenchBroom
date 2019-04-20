@@ -35,10 +35,12 @@
 #include "Model/TagVisitor.h"
 #include "Model/World.h"
 
+#include <vecmath/intersection.h>
 #include <vecmath/vec.h>
 #include <vecmath/vec_ext.h>
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
+#include <vecmath/ray.h>
 #include <vecmath/segment.h>
 #include <vecmath/polygon.h>
 #include <vecmath/util.h>

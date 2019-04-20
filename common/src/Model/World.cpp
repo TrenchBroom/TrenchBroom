@@ -19,6 +19,7 @@
 
 #include "World.h"
 
+#include "AABBTree.h"
 #include "Model/AssortNodesVisitor.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
@@ -31,10 +32,13 @@ namespace TrenchBroom {
         World::World(MapFormat mapFormat, const vm::bbox3& worldBounds) :
         m_factory(mapFormat),
         m_defaultLayer(nullptr),
+        m_nodeTree(std::make_unique<NodeTree>()),
         m_updateNodeTree(true) {
             addOrUpdateAttribute(AttributeNames::Classname, AttributeValues::WorldspawnClassname);
             createDefaultLayer(worldBounds);
         }
+
+        World::~World() = default;
 
         Layer* World::defaultLayer() const {
             ensure(m_defaultLayer != nullptr, "defaultLayer is null");
@@ -150,7 +154,7 @@ namespace TrenchBroom {
             CollectTreeNodes collect;
             acceptAndRecurse(collect);
 
-            m_nodeTree.clearAndBuild(collect.nodes(), [](const auto* node){ return node->bounds(); });
+            m_nodeTree->clearAndBuild(collect.nodes(), [](const auto* node){ return node->bounds(); });
         }
 
         class World::InvalidateAllIssuesVisitor : public NodeVisitor {
@@ -245,21 +249,21 @@ namespace TrenchBroom {
 
         void World::doDescendantWasAdded(Node* node, const size_t depth) {
             if (m_updateNodeTree && node->shouldAddToSpacialIndex()) {
-                AddNodeToNodeTree visitor(m_nodeTree);
+                AddNodeToNodeTree visitor(*m_nodeTree);
                 node->acceptAndRecurse(visitor);
             }
         }
 
         void World::doDescendantWillBeRemoved(Node* node, const size_t depth) {
             if (m_updateNodeTree && node->shouldAddToSpacialIndex()) {
-                RemoveNodeFromNodeTree visitor(m_nodeTree);
+                RemoveNodeFromNodeTree visitor(*m_nodeTree);
                 node->acceptAndRecurse(visitor);
             }
         }
 
         void World::doDescendantBoundsDidChange(Node* node, const vm::bbox3& oldBounds, const size_t depth) {
             if (m_updateNodeTree && node->shouldAddToSpacialIndex()) {
-                UpdateNodeInNodeTree visitor(m_nodeTree);
+                UpdateNodeInNodeTree visitor(*m_nodeTree);
                 node->accept(visitor);
             }
         }
@@ -269,13 +273,13 @@ namespace TrenchBroom {
         }
 
         void World::doPick(const vm::ray3& ray, PickResult& pickResult) const {
-            for (const auto* node : m_nodeTree.findIntersectors(ray)) {
+            for (const auto* node : m_nodeTree->findIntersectors(ray)) {
                 node->pick(ray, pickResult);
             }
         }
 
         void World::doFindNodesContaining(const vm::vec3& point, NodeList& result) {
-            for (auto* node : m_nodeTree.findContainers(point)) {
+            for (auto* node : m_nodeTree->findContainers(point)) {
                 node->findNodesContaining(point, result);
             }
         }

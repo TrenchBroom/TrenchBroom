@@ -19,6 +19,7 @@
 
 #include "EntityModel.h"
 
+#include "AABBTree.h"
 #include "Renderer/TexturedIndexRangeRenderer.h"
 
 #include <vecmath/forward.h>
@@ -45,7 +46,8 @@ namespace TrenchBroom {
         EntityModel::LoadedFrame::LoadedFrame(const size_t index, const String& name, const vm::bbox3f& bounds) :
         EntityModelFrame(index),
         m_name(name),
-        m_bounds(bounds) {}
+        m_bounds(bounds),
+        m_spacialTree(std::make_unique<SpacialTree>()) {}
 
         bool EntityModel::LoadedFrame::loaded() const {
             return true;
@@ -62,7 +64,7 @@ namespace TrenchBroom {
         float EntityModel::LoadedFrame::intersect(const vm::ray3f& ray) const {
             auto closestDistance = vm::nan<float>();
 
-            const auto candidates = m_spacialTree.findIntersectors(ray);
+            const auto candidates = m_spacialTree->findIntersectors(ray);
             for (const TriNum triNum : candidates) {
                 const Triangle& triangle = m_tris.at(triNum);
 
@@ -95,7 +97,7 @@ namespace TrenchBroom {
 
                         const size_t triIndex = m_tris.size();
                         m_tris.push_back({p1, p2, p3});
-                        m_spacialTree.insert(bounds.bounds(), triIndex);
+                        m_spacialTree->insert(bounds.bounds(), triIndex);
                     }
                     break;
                 }
@@ -113,7 +115,7 @@ namespace TrenchBroom {
 
                         const size_t triIndex = m_tris.size();
                         m_tris.push_back({p1, p2, p3});
-                        m_spacialTree.insert(bounds.bounds(), triIndex);
+                        m_spacialTree->insert(bounds.bounds(), triIndex);
                     }
                     break;
                 }
@@ -136,7 +138,7 @@ namespace TrenchBroom {
                         } else {
                             m_tris.push_back({p1, p3, p2});
                         }
-                        m_spacialTree.insert(bounds.bounds(), triIndex);
+                        m_spacialTree->insert(bounds.bounds(), triIndex);
                     }
                     break;
                 }
