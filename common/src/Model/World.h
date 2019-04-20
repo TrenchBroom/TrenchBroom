@@ -48,7 +48,7 @@ namespace TrenchBroom {
             bool m_updateNodeTree;
         public:
             World(MapFormat mapFormat, const vm::bbox3& worldBounds);
-            virtual ~World();
+            ~World() override;
         public: // layer management
             Layer* defaultLayer() const;
             LayerList allLayers() const;
