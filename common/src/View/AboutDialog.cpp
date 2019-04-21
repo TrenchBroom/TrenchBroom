@@ -100,6 +100,7 @@ namespace TrenchBroom {
                                         "GLEW (OpenGL extension library)\n"
                                         "tinyxml2 (XML parsing library)\n"
                                         "miniz (Archive library)\n"
+                                        "optional-lite (C++ library)\n"
                                         "Google Test (C++ testing framework)\n"
                                         "Google Mock (C++ mocking framework)\n"
                                         "StackWalker (C++ stack trace analyzer)\n"
