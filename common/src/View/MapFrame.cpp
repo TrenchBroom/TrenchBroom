@@ -103,6 +103,7 @@ namespace TrenchBroom {
         m_console(nullptr),
         m_inspector(nullptr),
         m_gridChoice(nullptr),
+        m_statusBarLabel(nullptr),
         m_recentDocumentsMenu(nullptr),
         m_undoAction(nullptr),
         m_redoAction(nullptr),
@@ -122,11 +123,12 @@ namespace TrenchBroom {
         m_console(nullptr),
         m_inspector(nullptr),
         m_gridChoice(nullptr),
+        m_statusBarLabel(nullptr),
         m_recentDocumentsMenu(nullptr),
         m_undoAction(nullptr),
         m_redoAction(nullptr),
         m_pasteAction(nullptr),
-        m_pasteAtOriginalPosition(nullptr) {
+        m_pasteAtOriginalPositionAction(nullptr) {
             setAttribute(Qt::WA_DeleteOnClose);
 
             ensure(frameManager != nullptr, "frameManager is null");
@@ -738,6 +740,7 @@ namespace TrenchBroom {
         }
 
         void MapFrame::selectionDidChange(const Selection& selection) {
+            updateActionState();
             updateStatusBar();
         }
 
@@ -1038,16 +1041,16 @@ namespace TrenchBroom {
             return m_document->hasRepeatableCommands();
         }
 
-        void MapFrame::OnEditCut() {
-            if (canCut()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+        void MapFrame::cutSelection() {
+            if (canCutSelection()) {
                 copyToClipboard();
                 Transaction transaction(m_document, "Cut");
                 m_document->deleteObjects();
             }
         }
 
-        void MapFrame::OnEditCopy() {
-            if (canCopy()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+        void MapFrame::copySelection() {
+            if (canCopySelection()) {
                 copyToClipboard();
             }
         }
@@ -1056,16 +1059,25 @@ namespace TrenchBroom {
             QClipboard *clipboard = QApplication::clipboard();
 
             String str;
-            if (m_document->hasSelectedNodes())
+            if (m_document->hasSelectedNodes()) {
                 str = m_document->serializeSelectedNodes();
-            else if (m_document->hasSelectedBrushFaces())
+            } else if (m_document->hasSelectedBrushFaces()) {
                 str = m_document->serializeSelectedBrushFaces();
+            }
 
             clipboard->setText(QString::fromStdString(str));
         }
 
-        void MapFrame::OnEditPaste() {
-            if (canPaste()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+        bool MapFrame::canCutSelection() const {
+            return m_document->hasSelectedNodes() && !m_mapView->anyToolActive();
+        }
+
+        bool MapFrame::canCopySelection() const {
+            return m_document->hasSelectedNodes() || m_document->hasSelectedBrushFaces();
+        }
+
+        void MapFrame::pasteAtCursorPosition() {
+            if (canPaste()) {
                 const vm::bbox3 referenceBounds = m_document->referenceBounds();
                 Transaction transaction(m_document);
                 if (paste() == PT_Node && m_document->hasSelectedNodes()) {
@@ -1076,27 +1088,48 @@ namespace TrenchBroom {
             }
         }
 
-        void MapFrame::OnEditPasteAtOriginalPosition() {
-            if (canPaste()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+        void MapFrame::pasteAtOriginalPosition() {
+            if (canPaste()) {
                 paste();
             }
         }
 
         PasteType MapFrame::paste() {
-            QClipboard *clipboard = QApplication::clipboard();
-            const QString qtext = clipboard->text();
+            auto *clipboard = QApplication::clipboard();
+            const auto qtext = clipboard->text();
 
             if (qtext.isEmpty()) {
                 logger().error("Clipboard is empty");
                 return PT_Failed;
             }
 
-            const String text = qtext.toStdString();
-            return m_document->paste(text);
+            return m_document->paste(qtext.toStdString());
         }
 
-        void MapFrame::OnEditDelete() {
-            if (canDelete()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+        /**
+         * This is relatively expensive so only call it when the clipboard changes or e.g. the user tries to paste.
+         */
+        bool MapFrame::canPaste() const {
+            if (!m_mapView->isCurrent()) {
+                return false;
+            }
+
+            auto* clipboard = QApplication::clipboard();
+            return !clipboard->text().isEmpty();
+        }
+
+        void MapFrame::duplicateSelection() {
+            if (canDuplicateSelectino()) {
+                m_document->duplicateObjects();
+            }
+        }
+
+        bool MapFrame::canDuplicateSelectino() const {
+            return m_document->hasSelectedNodes();
+        }
+
+        void MapFrame::deleteSelection() {
+            if (canDeleteSelection()) {
                 if (m_mapView->clipToolActive())
                     m_mapView->clipTool()->removeLastPoint();
                 else if (m_mapView->vertexToolActive())
@@ -1110,43 +1143,51 @@ namespace TrenchBroom {
             }
         }
 
-        void MapFrame::OnEditDuplicate() {
-            if (canDuplicate()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
-                m_document->duplicateObjects();
+        bool MapFrame::canDeleteSelection() const {
+            if (m_mapView->clipToolActive()) {
+                return m_mapView->clipTool()->canRemoveLastPoint();
+            } else if (m_mapView->vertexToolActive()) {
+                return m_mapView->vertexTool()->canRemoveSelection();
+            } else if (m_mapView->edgeToolActive()) {
+                return m_mapView->edgeTool()->canRemoveSelection();
+            } else if (m_mapView->faceToolActive()) {
+                return m_mapView->faceTool()->canRemoveSelection();
+            } else {
+                return canCutSelection();
             }
         }
 
-        void MapFrame::OnEditSelectAll() {
+        void MapFrame::selectAll() {
             if (canSelect()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->selectAllNodes();
             }
         }
 
-        void MapFrame::OnEditSelectSiblings() {
+        void MapFrame::selectSiblings() {
             if (canSelectSiblings()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->selectSiblings();
             }
         }
 
-        void MapFrame::OnEditSelectTouching() {
+        void MapFrame::selectTouching() {
             if (canSelectByBrush()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->selectTouching(true);
             }
         }
 
-        void MapFrame::OnEditSelectInside() {
+        void MapFrame::selectInside() {
             if (canSelectByBrush()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->selectInside(true);
             }
         }
 
-        void MapFrame::OnEditSelectTall() {
+        void MapFrame::selectTall() {
             if (canSelectTall()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_mapView->selectTall();
             }
         }
 
-        void MapFrame::OnEditSelectByLineNumber() {
+        void MapFrame::selectByLineNumber() {
             if (canSelect()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 const auto string = QInputDialog::getText(this, "Select by Line Numbers", "Enter a comma- or space separated list of line numbers.");
                 if (string.isEmpty())
@@ -1169,6 +1210,30 @@ namespace TrenchBroom {
             if (canDeselect()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->deselectAll();
             }
+        }
+
+        bool MapFrame::canSelect() const {
+            return canChangeSelection();
+        }
+
+        bool MapFrame::canSelectSiblings() const {
+            return canChangeSelection() && m_document->hasSelectedNodes();
+        }
+
+        bool MapFrame::canSelectByBrush() const {
+            return canChangeSelection() && m_document->selectedNodes().hasOnlyBrushes();
+        }
+
+        bool MapFrame::canSelectTall() const {
+            return canChangeSelection() && m_document->selectedNodes().hasOnlyBrushes() && m_mapView->canSelectTall();
+        }
+
+        bool MapFrame::canDeselect() const {
+            return canChangeSelection() && m_document->hasSelectedNodes();
+        }
+
+        bool MapFrame::canChangeSelection() const {
+            return m_document->editorContext().canChangeSelection();
         }
 
         void MapFrame::OnEditGroupSelectedObjects() {
@@ -1802,68 +1867,6 @@ namespace TrenchBroom {
 
         void MapFrame::onFocusChange(QWidget* old, QWidget* now) {
             updateActionState();
-        }
-
-
-        bool MapFrame::canCut() const {
-            return m_document->hasSelectedNodes() && !m_mapView->anyToolActive();
-        }
-
-        bool MapFrame::canCopy() const {
-            return m_document->hasSelectedNodes() || m_document->hasSelectedBrushFaces();
-        }
-
-        /**
-         * This is relatively expensive so only call it when the clipboard changes or e.g. the user tries to paste.
-         */
-        bool MapFrame::canPaste() const {
-            if (!m_mapView->isCurrent()) {
-                return false;
-            }
-
-            QClipboard* clipboard = QApplication::clipboard();
-            return !clipboard->text().isEmpty();
-        }
-
-        bool MapFrame::canDelete() const {
-            if (m_mapView->clipToolActive())
-                return m_mapView->clipTool()->canRemoveLastPoint();
-            else if (m_mapView->vertexToolActive())
-                return m_mapView->vertexTool()->canRemoveSelection();
-            else if (m_mapView->edgeToolActive())
-                return m_mapView->edgeTool()->canRemoveSelection();
-            else if (m_mapView->faceToolActive())
-                return m_mapView->faceTool()->canRemoveSelection();
-            else
-                return canCut();
-        }
-
-        bool MapFrame::canDuplicate() const {
-            return m_document->hasSelectedNodes();
-        }
-
-        bool MapFrame::canSelectSiblings() const {
-            return canChangeSelection() && m_document->hasSelectedNodes();
-        }
-
-        bool MapFrame::canSelectByBrush() const {
-            return canChangeSelection() && m_document->selectedNodes().hasOnlyBrushes();
-        }
-
-        bool MapFrame::canSelectTall() const {
-            return canChangeSelection() && m_document->selectedNodes().hasOnlyBrushes() && m_mapView->canSelectTall();
-        }
-
-        bool MapFrame::canSelect() const {
-            return canChangeSelection();
-        }
-
-        bool MapFrame::canDeselect() const {
-            return canChangeSelection() && m_document->hasSelectedNodes();
-        }
-
-        bool MapFrame::canChangeSelection() const {
-            return m_document->editorContext().canChangeSelection();
         }
 
         bool MapFrame::canGroup() const {

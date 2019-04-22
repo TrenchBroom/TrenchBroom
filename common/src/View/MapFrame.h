@@ -183,25 +183,37 @@ namespace TrenchBroom {
             void clearRepeatableCommands();
             bool hasRepeatableCommands() const;
 
-            void OnEditCut();
-            void OnEditCopy();
+            void cutSelection();
+            void copySelection();
             void copyToClipboard();
+            bool canCutSelection() const;
+            bool canCopySelection() const;
 
-            void OnEditPaste();
-            void OnEditPasteAtOriginalPosition();
-
+            void pasteAtCursorPosition();
+            void pasteAtOriginalPosition();
             PasteType paste();
+            bool canPaste() const;
 
-            void OnEditDelete();
-            void OnEditDuplicate();
+            void duplicateSelection();
+            bool canDuplicateSelectino() const;
 
-            void OnEditSelectAll();
-            void OnEditSelectSiblings();
-            void OnEditSelectTouching();
-            void OnEditSelectInside();
-            void OnEditSelectTall();
-            void OnEditSelectByLineNumber();
+            void deleteSelection();
+            bool canDeleteSelection() const;
+
+            void selectAll();
+            void selectSiblings();
+            void selectTouching();
+            void selectInside();
+            void selectTall();
+            void selectByLineNumber();
             void OnEditSelectNone();
+
+            bool canSelect() const;
+            bool canSelectSiblings() const;
+            bool canSelectByBrush() const;
+            bool canSelectTall() const;
+            bool canDeselect() const;
+            bool canChangeSelection() const;
 
             void OnEditGroupSelectedObjects();
             void OnEditUngroupSelectedObjects();
@@ -278,17 +290,6 @@ namespace TrenchBroom {
 
             //wxTextCtrl* findFocusedTextCtrl() const;
 
-            bool canCut() const;
-            bool canCopy() const;
-            bool canPaste() const;
-            bool canDelete() const;
-            bool canDuplicate() const;
-            bool canSelectSiblings() const;
-            bool canSelectByBrush() const;
-            bool canSelectTall() const;
-            bool canSelect() const;
-            bool canDeselect() const;
-            bool canChangeSelection() const;
             bool canGroup() const;
             bool canUngroup() const;
             bool canHide() const;

@@ -48,7 +48,7 @@ namespace TrenchBroom {
             ActionExecutionContext(MapFrame* mapFrame, MapViewBase* mapView);
 
             bool hasDocument() const;
-            bool hasActionContext(ActionContext actionContext) const;
+            bool hasActionContext(int actionContext) const;
             MapFrame* frame();
             MapViewBase* view();
             MapDocument* document();
@@ -61,16 +61,16 @@ namespace TrenchBroom {
             using CheckedFn = std::function<bool(ActionExecutionContext& context)>;
         private:
             String m_name;
-            ActionContext m_actionContext;
+            int m_actionContext;
             Preference<KeyboardShortcut> m_preference;
             ExecuteFn m_execute;
             EnabledFn m_enabled;
             std::optional<CheckedFn> m_checked;
             std::optional<IO::Path> m_iconPath;
         public:
-            Action(const String& name, ActionContext actionContext, const KeyboardShortcut& defaultShortcut,
+            Action(const String& name, int actionContext, const KeyboardShortcut& defaultShortcut,
                 const ExecuteFn& execute, const EnabledFn& enabled, const IO::Path& iconPath);
-            Action(const String& name, ActionContext actionContext, const KeyboardShortcut& defaultShortcut,
+            Action(const String& name, int actionContext, const KeyboardShortcut& defaultShortcut,
                 const ExecuteFn& execute, const EnabledFn& enabled, const CheckedFn& checked, const IO::Path& iconPath);
 
             const String& name() const;
@@ -199,10 +199,10 @@ namespace TrenchBroom {
             void visitMapViewActions(const ActionVisitor& visitor) const;
         private:
             void initialize();
-            const Action* createAction(const String& name, ActionContext actionContext, const QKeySequence& defaultShortcut,
+            const Action* createAction(const String& name, int actionContext, const QKeySequence& defaultShortcut,
                                        const Action::ExecuteFn& execute, const Action::EnabledFn& enabled,
                                        const IO::Path& iconPath = IO::Path());
-            const Action* createAction(const String& name, ActionContext actionContext, const QKeySequence& defaultShortcut,
+            const Action* createAction(const String& name, int actionContext, const QKeySequence& defaultShortcut,
                                        const Action::ExecuteFn& execute, const Action::EnabledFn& enabled,
                                        const Action::CheckedFn& checked, const IO::Path& iconPath = IO::Path());
 

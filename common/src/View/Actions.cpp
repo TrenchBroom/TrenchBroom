@@ -43,7 +43,7 @@ namespace TrenchBroom {
             return m_frame != nullptr;
         }
 
-        bool ActionExecutionContext::hasActionContext(const ActionContext actionContext) const {
+        bool ActionExecutionContext::hasActionContext(const int actionContext) const {
             return actionContext == ActionContext_Any || (hasDocument() && (m_mapView->actionContext() & actionContext) != 0);
         }
 
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             return m_frame->document().get();
         }
 
-        Action::Action(const String& name, const ActionContext actionContext, const KeyboardShortcut& defaultShortcut,
+        Action::Action(const String& name, const int actionContext, const KeyboardShortcut& defaultShortcut,
             const Action::ExecuteFn& execute, const Action::EnabledFn& enabled, const IO::Path& iconPath) :
         m_name(name),
         m_actionContext(actionContext),
@@ -71,7 +71,7 @@ namespace TrenchBroom {
         m_enabled(enabled),
         m_iconPath(iconPath) {}
 
-        Action::Action(const String& name, const ActionContext actionContext, const KeyboardShortcut& defaultShortcut,
+        Action::Action(const String& name, const int actionContext, const KeyboardShortcut& defaultShortcut,
             const Action::ExecuteFn& execute, const Action::EnabledFn& enabled, const Action::CheckedFn& checked,
             const IO::Path& iconPath) :
         m_name(name),
@@ -97,7 +97,7 @@ namespace TrenchBroom {
         }
 
         bool Action::enabled(ActionExecutionContext& context) const {
-            return context.hasActionContext(m_actionContext), m_enabled(context);
+            return context.hasActionContext(m_actionContext) && m_enabled(context);
         }
 
         bool Action::checkable() const {
@@ -106,7 +106,7 @@ namespace TrenchBroom {
 
         bool Action::checked(ActionExecutionContext& context) const {
             assert(checkable());
-            return (m_checked.value())(context);
+            return (m_checked.value_or([](auto& c) { return false; }))(context);
         }
 
         bool Action::hasIcon() const {
@@ -115,7 +115,7 @@ namespace TrenchBroom {
 
         const IO::Path& Action::iconPath() const {
             assert(hasIcon());
-            return m_iconPath.value();
+            return m_iconPath.value_or(IO::Path::EmptyPath);
         }
 
         MenuVisitor::~MenuVisitor() = default;
@@ -321,6 +321,104 @@ namespace TrenchBroom {
                     return context.hasDocument() && context.frame()->hasRepeatableCommands();
                 });
 
+            const auto* cut = createAction("Cut", ActionContext_Any, QKeySequence(QKeySequence::Cut),
+                [](ActionExecutionContext& context) {
+                    context.frame()->cutSelection();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument() && context.frame()->canCopySelection();
+                });
+            const auto* copy = createAction("Copy", ActionContext_Any, QKeySequence(QKeySequence::Copy),
+                [](ActionExecutionContext& context) {
+                    context.frame()->copySelection();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument() && context.frame()->canCopySelection();
+                });
+            const auto* paste = createAction("Paste", ActionContext_Any, QKeySequence(QKeySequence::Paste),
+                [](ActionExecutionContext& context) {
+                    context.frame()->pasteAtCursorPosition();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument() && context.frame()->canPaste();
+                });
+            const auto* pasteAtOriginalPosition = createAction("Paste at Original Position", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_V),
+                [](ActionExecutionContext& context) {
+                    context.frame()->pasteAtOriginalPosition();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument() && context.frame()->canPaste();
+                });
+            const auto* duplicate = createAction("Duplicate", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::Key_D),
+                [](ActionExecutionContext& context) {
+                    context.frame()->duplicateSelection();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument() && context.frame()->canDuplicateSelectino();
+                });
+            const auto* delete_ = createAction("Delete", ActionContext_Any, QKeySequence(
+#ifdef __APPLE__
+                Qt::Key_Backspace
+#else
+                QKeySequence::Delete
+#endif
+                ),
+                [](ActionExecutionContext& context) {
+                    context.frame()->deleteSelection();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument() && context.frame()->canDeleteSelection();
+                });
+
+            const auto* selectAll = createAction("Select All", ActionContext_Any, QKeySequence(QKeySequence::SelectAll),
+                [](ActionExecutionContext& context) {
+                    context.frame()->selectAll();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument() && context.frame()->canSelect();
+                });
+            const auto* selectSiblings = createAction("Select Siblings", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::Key_B),
+                [](ActionExecutionContext& context) {
+                    context.frame()->selectSiblings();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument() && context.frame()->canSelectSiblings();
+                });
+            const auto* selectTouching = createAction("Select Touching", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::Key_T),
+                [](ActionExecutionContext& context) {
+                    context.frame()->selectTouching();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument() && context.frame()->canSelectByBrush();
+                });
+            const auto* selectInside = createAction("Select Inside", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::Key_E),
+                [](ActionExecutionContext& context) {
+                    context.frame()->selectInside();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument() && context.frame()->canSelectByBrush();
+                });
+            const auto* selectTall = createAction("Select Tall", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_E),
+                [](ActionExecutionContext& context) {
+                    context.frame()->selectTall();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument() && context.frame()->canSelectTall();
+                });
+            const auto* selectByLineNo = createAction("Select by Line Number...", ActionContext_Any, QKeySequence(),
+                [](ActionExecutionContext& context) {
+                    context.frame()->selectByLineNumber();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument() && context.frame()->canSelect();
+                });
+            const auto* selectNone = createAction("Select None", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_A),
+                [](ActionExecutionContext& context) {
+                    context.frame()->OnEditSelectNone();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument() && context.frame()->canDeselect();
+                });
 
             const auto* moveObjectsForward = createAction("Move Objects Forward", ActionContext_NodeSelection, QKeySequence(Qt::Key_Up),
                 [](ActionExecutionContext& context) {
@@ -396,9 +494,24 @@ namespace TrenchBroom {
             editMenu.addItem(repeat);
             editMenu.addItem(clearRepeat);
             editMenu.addSeparator();
+            editMenu.addItem(cut, MenuEntryType::Menu_Cut);
+            editMenu.addItem(copy, MenuEntryType::Menu_Copy);
+            editMenu.addItem(paste, MenuEntryType::Menu_Paste);
+            editMenu.addItem(pasteAtOriginalPosition, MenuEntryType::Menu_PasteAtOriginalPosition);
+            editMenu.addItem(duplicate);
+            editMenu.addItem(delete_);
+            editMenu.addSeparator();
+            editMenu.addItem(selectAll);
+            editMenu.addItem(selectSiblings);
+            editMenu.addItem(selectTouching);
+            editMenu.addItem(selectInside);
+            editMenu.addItem(selectTall);
+            editMenu.addItem(selectByLineNo);
+            editMenu.addItem(selectNone);
+            editMenu.addSeparator();
         }
 
-        const Action* ActionManager::createAction(const String& name, const ActionContext actionContext,
+        const Action* ActionManager::createAction(const String& name, const int actionContext,
             const QKeySequence& defaultShortcut, const Action::ExecuteFn& execute, const Action::EnabledFn& enabled,
             const IO::Path& iconPath) {
             m_actions.emplace_back(std::make_unique<Action>(
@@ -411,7 +524,7 @@ namespace TrenchBroom {
             return m_actions.back().get();
         }
 
-        const Action* ActionManager::createAction(const String& name, const ActionContext actionContext,
+        const Action* ActionManager::createAction(const String& name, const int actionContext,
             const QKeySequence& defaultShortcut, const Action::ExecuteFn& execute, const Action::EnabledFn& enabled,
             const Action::CheckedFn& checked, const IO::Path& iconPath) {
             m_actions.emplace_back(std::make_unique<Action>(
@@ -426,7 +539,7 @@ namespace TrenchBroom {
         }
 
         Menu& ActionManager::createMainMenu(const String& name) {
-            auto menu = std::make_unique<Menu>(name);
+            auto menu = std::make_unique<Menu>(name, MenuEntryType::Menu_None);
             auto* result = menu.get();
             m_mainMenu.emplace_back(std::move(menu));
             return *result;

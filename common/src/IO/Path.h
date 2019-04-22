@@ -33,6 +33,7 @@ namespace TrenchBroom {
         public:
             using List = std::vector<Path>;
             static const List EmptyList;
+            static const Path EmptyPath;
             static char separator();
 
             struct ToString {
