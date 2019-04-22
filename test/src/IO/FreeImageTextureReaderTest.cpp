@@ -108,9 +108,9 @@ namespace TrenchBroom {
             const auto actualA = getComponentOfPixel(texturePtr, x, y, Component::A);
 
             // allow some error for lossy formats, e.g. JPG
-            EXPECT_TRUE(std::abs(r - actualR) < 3);
-            EXPECT_TRUE(std::abs(g - actualG) < 3);
-            EXPECT_TRUE(std::abs(b - actualB) < 3);
+            EXPECT_TRUE(std::abs(r - actualR) <= 5);
+            EXPECT_TRUE(std::abs(g - actualG) <= 5);
+            EXPECT_TRUE(std::abs(b - actualB) <= 5);
             EXPECT_EQ(a, actualA);
         }
 
