@@ -67,7 +67,7 @@ namespace TrenchBroom {
             R, G, B, A
         };
 
-        static uint8_t getComponentOfPixel(const Assets::Texture* texture, const int x, const int y, const Component component) {
+        static int getComponentOfPixel(const Assets::Texture* texture, const int x, const int y, const Component component) {
             const auto format = texture->format();
 
             ensure(GL_BGRA == format || GL_RGBA == format, "expected GL_BGRA or GL_RGBA");
@@ -96,12 +96,26 @@ namespace TrenchBroom {
 
             const uint8_t* mip0Data = mip0DataBuffer.ptr();
 
-            return mip0Data[(static_cast<int>(texture->width()) * 4 * y) + (x * 4) + componentIndex];
+            return static_cast<int>(mip0Data[(static_cast<int>(texture->width()) * 4 * y) + (x * 4) + componentIndex]);
+        }
+
+        static void checkColor(const Assets::Texture* texturePtr, const int x, const int y,
+            const int r, const int g, const int b, const int a) {
+
+            const auto actualR = getComponentOfPixel(texturePtr, x, y, Component::R);
+            const auto actualG = getComponentOfPixel(texturePtr, x, y, Component::G);
+            const auto actualB = getComponentOfPixel(texturePtr, x, y, Component::B);
+            const auto actualA = getComponentOfPixel(texturePtr, x, y, Component::A);
+
+            // allow some error for lossy formats, e.g. JPG
+            EXPECT_TRUE(std::abs(r - actualR) <= 5);
+            EXPECT_TRUE(std::abs(g - actualG) <= 5);
+            EXPECT_TRUE(std::abs(b - actualB) <= 5);
+            EXPECT_EQ(a, actualA);
         }
 
         // https://github.com/kduske/TrenchBroom/issues/2474
-        TEST(FreeImageTextureReaderTest, testPNGContents) {
-            const auto texture = loadTexture("pngContentsTest.png");
+        static void testImageContents(std::unique_ptr<const Assets::Texture> texture) {
             const auto w = 64;
             const auto h = 64;
 
@@ -117,25 +131,24 @@ namespace TrenchBroom {
                 for (int x = 0; x < w; ++x) {
                     if (x == 0 && y == 0) {
                         // top left pixel is red
-                        ASSERT_EQ(255 /* R */, getComponentOfPixel(texturePtr, x, y, Component::R));
-                        ASSERT_EQ(0   /* G */, getComponentOfPixel(texturePtr, x, y, Component::G));
-                        ASSERT_EQ(0   /* B */, getComponentOfPixel(texturePtr, x, y, Component::B));
-                        ASSERT_EQ(255 /* A */, getComponentOfPixel(texturePtr, x, y, Component::A));
+                        checkColor(texturePtr, x, y, 255, 0, 0, 255);
                     } else if (x == (w - 1) && y == (h - 1)) {
                         // bottom right pixel is green
-                        ASSERT_EQ(0   /* R */, getComponentOfPixel(texturePtr, x, y, Component::R));
-                        ASSERT_EQ(255 /* G */, getComponentOfPixel(texturePtr, x, y, Component::G));
-                        ASSERT_EQ(0   /* B */, getComponentOfPixel(texturePtr, x, y, Component::B));
-                        ASSERT_EQ(255 /* A */, getComponentOfPixel(texturePtr, x, y, Component::A));
+                        checkColor(texturePtr, x, y, 0, 255, 0, 255);
                     } else {
                         // others are 161, 161, 161
-                        ASSERT_EQ(161 /* R */, getComponentOfPixel(texturePtr, x, y, Component::R));
-                        ASSERT_EQ(161 /* G */, getComponentOfPixel(texturePtr, x, y, Component::G));
-                        ASSERT_EQ(161 /* B */, getComponentOfPixel(texturePtr, x, y, Component::B));
-                        ASSERT_EQ(255 /* A */, getComponentOfPixel(texturePtr, x, y, Component::A));
+                        checkColor(texturePtr, x, y, 161, 161, 161, 255);
                     }
                 }
             }
+        }
+
+        TEST(FreeImageTextureReaderTest, testPNGContents) {
+            testImageContents(loadTexture("pngContentsTest.png"));
+        }
+
+        TEST(FreeImageTextureReaderTest, testJPGContents) {
+            testImageContents(loadTexture("jpgContentsTest.jpg"));
         }
 
         TEST(FreeImageTextureReaderTest, alphaMaskTest) {

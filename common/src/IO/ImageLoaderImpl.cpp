@@ -25,12 +25,16 @@
 
 namespace TrenchBroom {
     namespace IO {
-        ImageLoaderImpl::InitFreeImage::InitFreeImage() {
+        InitFreeImage::InitFreeImage() {
             FreeImage_Initialise(true);
         }
 
-        ImageLoaderImpl::InitFreeImage::~InitFreeImage() {
+        InitFreeImage::~InitFreeImage() {
             FreeImage_DeInitialise();
+        }
+
+        void InitFreeImage::initialize() {
+            static InitFreeImage initFreeImage;
         }
 
         ImageLoaderImpl::ImageLoaderImpl(const ImageLoader::Format format, const Path& path) :
@@ -39,7 +43,7 @@ namespace TrenchBroom {
         m_paletteInitialized(false),
         m_indicesInitialized(false),
         m_pixelsInitialized(false) {
-            initialize();
+            InitFreeImage::initialize();
             const FREE_IMAGE_FORMAT fifFormat = translateFormat(format);
             if (fifFormat == FIF_UNKNOWN)
                 throw FileFormatException("Unknown image format");
@@ -53,7 +57,7 @@ namespace TrenchBroom {
         m_paletteInitialized(false),
         m_indicesInitialized(false),
         m_pixelsInitialized(false) {
-            initialize();
+            InitFreeImage::initialize();
             const FREE_IMAGE_FORMAT fifFormat = translateFormat(format);
             if (fifFormat == FIF_UNKNOWN)
                 throw FileFormatException("Unknown image format");
@@ -164,10 +168,6 @@ namespace TrenchBroom {
             }
 
             return m_pixels;
-        }
-
-        void ImageLoaderImpl::initialize() {
-            static InitFreeImage initFreeImage;
         }
 
         void ImageLoaderImpl::initializeIndexedPixels(const size_t pSize) const {

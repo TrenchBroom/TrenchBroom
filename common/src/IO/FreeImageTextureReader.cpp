@@ -26,6 +26,7 @@
 #include "IO/File.h"
 #include "IO/Reader.h"
 #include "IO/Path.h"
+#include "IO/ImageLoaderImpl.h"
 
 #include <cstring>
 
@@ -61,6 +62,8 @@ namespace TrenchBroom {
 
         Assets::Texture* FreeImageTextureReader::doReadTexture(std::shared_ptr<File> file) const {
             auto reader = file->reader().buffer();
+
+            InitFreeImage::initialize();
 
             const auto& path            = file->path();
             const auto* begin           = reader.begin();

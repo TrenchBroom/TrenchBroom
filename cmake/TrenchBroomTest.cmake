@@ -29,8 +29,8 @@ ENDIF()
 ADD_TARGET_PROPERTY(TrenchBroom-Test INCLUDE_DIRECTORIES "${TEST_SOURCE_DIR}")
 ADD_TARGET_PROPERTY(TrenchBroom-Benchmark INCLUDE_DIRECTORIES "${BENCHMARK_SOURCE_DIR}")
 
-TARGET_LINK_LIBRARIES(TrenchBroom-Test glew ${FREETYPE_LIBRARIES} ${FREEIMAGE_LIBRARIES} vecmath Qt5::Widgets tinyxml2 miniz gtest gmock)
-TARGET_LINK_LIBRARIES(TrenchBroom-Benchmark glew ${FREETYPE_LIBRARIES} ${FREEIMAGE_LIBRARIES} vecmath Qt5::Widgets tinyxml2 miniz gtest gmock)
+TARGET_LINK_LIBRARIES(TrenchBroom-Test glew ${FREEIMAGE_LIBRARIES} ${FREETYPE_LIBRARIES} vecmath Qt5::Widgets tinyxml2 miniz gtest gmock)
+TARGET_LINK_LIBRARIES(TrenchBroom-Benchmark glew ${FREEIMAGE_LIBRARIES} ${FREETYPE_LIBRARIES} vecmath Qt5::Widgets tinyxml2 miniz gtest gmock)
 
 # Work around for gtest bug, see: https://stackoverflow.com/questions/21116622/undefined-reference-to-pthread-key-create-linker-error
 find_package(Threads)
