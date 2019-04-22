@@ -36,6 +36,7 @@
 
 #include <vecmath/vec.h>
 #include <vecmath/polygon.h>
+#include <vecmath/ray.h>
 
 #include <algorithm>
 #include <iterator>

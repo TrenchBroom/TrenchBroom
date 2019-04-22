@@ -21,7 +21,6 @@
 #define TrenchBroom_World
 
 #include "TrenchBroom.h"
-#include "AABBTree.h"
 #include "Model/AttributableNode.h"
 #include "Model/AttributableNodeIndex.h"
 #include "Model/IssueGeneratorRegistry.h"
@@ -29,6 +28,9 @@
 #include "Model/ModelFactory.h"
 #include "Model/ModelFactoryImpl.h"
 #include "Model/Node.h"
+
+template <typename T, size_t S, typename U>
+class AABBTree;
 
 namespace TrenchBroom {
     namespace Model {
@@ -42,10 +44,11 @@ namespace TrenchBroom {
             IssueGeneratorRegistry m_issueGeneratorRegistry;
 
             using NodeTree = AABBTree<FloatType, 3, Node*>;
-            NodeTree m_nodeTree;
+            std::unique_ptr<NodeTree> m_nodeTree;
             bool m_updateNodeTree;
         public:
             World(MapFormat mapFormat, const vm::bbox3& worldBounds);
+            ~World() override;
         public: // layer management
             Layer* defaultLayer() const;
             LayerList allLayers() const;
