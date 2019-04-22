@@ -122,15 +122,17 @@ namespace TrenchBroom {
             return m_windowContainer;
         }
 
-        bool RenderView::HasFocus() const {
+        bool RenderView::hasFocus() const {
             return QGuiApplication::focusWindow() == this;
         }
 
         bool RenderView::IsBeingDeleted() const {
+            // FIXME: remove this
             return false;
         }
 
         void RenderView::Refresh() {
+            // FIXME: remove this
             // Schedules a repaint with Qt
             requestUpdate();
         }
@@ -213,7 +215,7 @@ namespace TrenchBroom {
         }
 
         void RenderView::renderFocusIndicator() {
-            if (!doShouldRenderFocusIndicator() || !HasFocus())
+            if (!doShouldRenderFocusIndicator() || !hasFocus())
                 return;
 
             const Color& outer = m_focusColor;

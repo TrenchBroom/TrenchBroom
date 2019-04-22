@@ -206,7 +206,7 @@ namespace TrenchBroom {
             void selectInside();
             void selectTall();
             void selectByLineNumber();
-            void OnEditSelectNone();
+            void selectNone();
 
             bool canSelect() const;
             bool canSelectSiblings() const;
@@ -215,42 +215,87 @@ namespace TrenchBroom {
             bool canDeselect() const;
             bool canChangeSelection() const;
 
-            void OnEditGroupSelectedObjects();
-            void OnEditUngroupSelectedObjects();
+            void groupSelectedObjects();
+            bool canGroup() const;
+
+            void ungroupSelectedObjects();
+            bool canUngroup() const;
 
             void OnEditDeactivateTool();
-            void OnEditToggleCreateComplexBrushTool();
-            void OnEditToggleClipTool();
-            void OnEditToggleRotateObjectsTool();
-            void OnEditToggleScaleObjectsTool();
-            void OnEditToggleShearObjectsTool();
-            void OnEditToggleVertexTool();
-            void OnEditToggleEdgeTool();
-            void OnEditToggleFaceTool();
+            void toggleCreateComplexBrushTool();
+            bool canToggleCreateComplexBrushTool() const;
+            bool createComplexBrushToolActive() const;
 
-            void OnEditCsgConvexMerge();
-            void OnEditCsgSubtract();
-            void OnEditCsgIntersect();
-            void OnEditCsgHollow();
+            void toggleClipTool();
+            bool canToggleClipTool() const;
+            bool clipToolActive() const;
 
-            void OnEditReplaceTexture();
+            void toggleRotateObjectsTool();
+            bool canToggleRotateObjectsTool() const;
+            bool rotateObjectsToolActive() const;
 
-            void OnEditToggleTextureLock();
-            void OnEditToggleUVLock();
+            void toggleScaleObjectsTool();
+            bool canToggleScaleObjectsTool() const;
+            bool scaleObjectsToolActive() const;
 
-            void OnEditSnapVerticesToInteger();
-            void OnEditSnapVerticesToGrid();
+            void toggleShearObjectsTool();
+            bool canToggleShearObjectsTool() const;
+            bool shearObjectsToolActive() const;
 
-            void OnViewToggleShowGrid();
-            void OnViewToggleSnapToGrid();
-            void OnViewIncGridSize();
-            void OnViewDecGridSize();
-            void OnViewSetGridSize();
+            void toggleVertexTool();
+            bool canToggleVertexTool() const;
+            bool vertexToolActive() const;
 
-            void OnViewMoveCameraToNextPoint();
-            void OnViewMoveCameraToPreviousPoint();
-            void OnViewFocusCameraOnSelection();
-            void OnViewMoveCameraToPosition();
+            void toggleEdgeTool();
+            bool canToggleEdgeTool() const;
+            bool edgeToolActive() const;
+
+            void toggleFaceTool();
+            bool canToggleFaceTool() const;
+            bool faceToolActive() const;
+
+            void csgConvexMerge();
+            bool canDoCsgConvexMerge() const;
+
+            void csgSubtract();
+            bool canDoCsgSubtract() const;
+
+            void csgHollow();
+            bool canDoCsgHollow() const;
+
+            void csgIntersect();
+            bool canDoCsgIntersect() const;
+
+            void snapVerticesToInteger();
+            void snapVerticesToGrid();
+            bool canSnapVertices() const;
+
+            void replaceTexture();
+
+            void toggleTextureLock();
+            void toggleUVLock();
+
+            void toggleShowGrid();
+            void toggleSnapToGrid();
+
+            void incGridSize();
+            bool canIncGridSize() const;
+
+            void decGridSize();
+            bool canDecGridSize() const;
+
+            void setGridSize(int size);
+
+            void moveCameraToNextPoint();
+            bool canMoveCameraToNextPoint() const;
+
+            void moveCameraToPreviousPoint();
+            bool canMoveCameraToPreviousPoint() const;
+
+            void focusCameraOnSelection();
+            bool canFocusCamera() const;
+
+            void moveCameraToPosition();
 
             void OnViewHideSelectedObjects();
             void OnViewIsolateSelectedObjects();
@@ -290,20 +335,8 @@ namespace TrenchBroom {
 
             //wxTextCtrl* findFocusedTextCtrl() const;
 
-            bool canGroup() const;
-            bool canUngroup() const;
             bool canHide() const;
             bool canIsolate() const;
-            bool canDoCsgConvexMerge() const;
-            bool canDoCsgSubtract() const;
-            bool canDoCsgIntersect() const;
-            bool canDoCsgHollow() const;
-            bool canSnapVertices() const;
-            bool canDecGridSize() const;
-            bool canIncGridSize() const;
-            bool canMoveCameraToNextPoint() const;
-            bool canMoveCameraToPreviousPoint() const;
-            bool canFocusCamera() const;
             bool canCompile() const;
             bool canLaunch() const;
         private: // other event handlers

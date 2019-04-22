@@ -202,22 +202,24 @@ namespace TrenchBroom {
 
         void MapViewBase::toolChanged(Tool* tool) {
             updatePickResult();
-            updateShortcuts();
+            updateActionStates();
             update();
         }
 
         void MapViewBase::commandDone(Command::Ptr command) {
+            updateActionStates();
             updatePickResult();
             update();
         }
 
         void MapViewBase::commandUndone(UndoableCommand::Ptr command) {
+            updateActionStates();
             updatePickResult();
             update();
         }
 
         void MapViewBase::selectionDidChange(const Selection& selection) {
-            updateShortcuts();
+            updateActionStates();
         }
 
         void MapViewBase::textureCollectionsDidChange() {
@@ -258,13 +260,13 @@ namespace TrenchBroom {
                 fontManager().clearCache();
             }
 
-            updateShortcuts();
+            updateActionBindings();
             update();
         }
 
         void MapViewBase::documentDidChange(MapDocument* document) {
             createActions();
-            updateShortcuts();
+            updateActionStates();
             updatePickResult();
             update();
         }
@@ -302,11 +304,13 @@ namespace TrenchBroom {
          */
 
         void MapViewBase::createActions() {
+            m_shortcuts.clear();
+
             const auto& actionManager = ActionManager::instance();
             actionManager.visitMapViewActions([this](const Action& action) {
-                auto* shortcut = new QShortcut(widgetContainer());
-                m_shortcuts.emplace_back(shortcut, &action);
-                connect(shortcut, &QShortcut::activated, this, [this, &action]() { triggerAction(action); });
+                auto shortcut = std::make_unique<QShortcut>(widgetContainer());
+                connect(shortcut.get(), &QShortcut::activated, this, [this, &action]() { triggerAction(action); });
+                m_shortcuts.emplace_back(std::move(shortcut), &action);
             });
 
             /*
@@ -384,12 +388,17 @@ namespace TrenchBroom {
         }
          */
 
-        void MapViewBase::updateShortcuts() {
-            //return;
-            qDebug("updating key binds");
 
-            for (auto [shortcut, action] : m_shortcuts) {
+        void MapViewBase::updateActionBindings() {
+            for (auto& [shortcut, action] : m_shortcuts) {
                 shortcut->setKey(action->keySequence());
+            }
+        }
+
+        void MapViewBase::updateActionStates() {
+            ActionExecutionContext context(findMapFrame(widgetContainer()), this);
+            for (auto& [shortcut, action] : m_shortcuts) {
+                shortcut->setEnabled(hasFocus() && action->enabled(context));
             }
         }
 
@@ -609,10 +618,6 @@ namespace TrenchBroom {
             } else if (document->currentGroup() != nullptr) {
                 document->closeGroup();
             }
-        }
-
-        bool MapViewBase::cancel() {
-            return doCancel();
         }
 
         void MapViewBase::OnDeactivateTool() {
@@ -942,9 +947,9 @@ namespace TrenchBroom {
 
         void MapViewBase::onActiveChanged() {
             qDebug("MapViewBase::onActiveChanged: is active: %d, is focus window: %d has focus %d",
-                (int)isActive(), (int)(QGuiApplication::focusWindow() == this), (int)HasFocus());
+                (int)isActive(), (int)(QGuiApplication::focusWindow() == this), (int) hasFocus());
             requestUpdate(); // show/hide focus rectangle
-            updateShortcuts(); // enable/disable QShortcut's to reflect whether we have focus (needed because of QOpenGLWindow; see comment in createAndRegisterShortcut)
+            updateActionStates();  // enable/disable QShortcut's to reflect whether we have focus (needed because of QOpenGLWindow; see comment in createAndRegisterShortcut)
 
             // FIXME: wx called these on focus in/out
             //updateModifierKeys();
@@ -985,7 +990,7 @@ namespace TrenchBroom {
         }
 
         bool MapViewBase::doGetIsCurrent() const {
-            return HasFocus();
+            return hasFocus();
         }
 
         void MapViewBase::doSetToolBoxDropTarget() {

@@ -301,7 +301,7 @@ namespace TrenchBroom {
                 assert(m_currentMenu != nullptr);
                 const auto& tAction = item.action();
                 auto* qAction = m_currentMenu->addAction(QString::fromStdString(tAction.name()));
-                qAction->setChecked(tAction.checkable());
+                qAction->setCheckable(tAction.checkable());
 
                 auto* frame = m_frame;
                 connect(qAction, &QAction::triggered, m_frame, [frame, &tAction]() { frame->triggerAction(tAction); });
@@ -1158,37 +1158,37 @@ namespace TrenchBroom {
         }
 
         void MapFrame::selectAll() {
-            if (canSelect()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+            if (canSelect()) {
                 m_document->selectAllNodes();
             }
         }
 
         void MapFrame::selectSiblings() {
-            if (canSelectSiblings()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+            if (canSelectSiblings()) {
                 m_document->selectSiblings();
             }
         }
 
         void MapFrame::selectTouching() {
-            if (canSelectByBrush()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+            if (canSelectByBrush()) {
                 m_document->selectTouching(true);
             }
         }
 
         void MapFrame::selectInside() {
-            if (canSelectByBrush()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+            if (canSelectByBrush()) {
                 m_document->selectInside(true);
             }
         }
 
         void MapFrame::selectTall() {
-            if (canSelectTall()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+            if (canSelectTall()) {
                 m_mapView->selectTall();
             }
         }
 
         void MapFrame::selectByLineNumber() {
-            if (canSelect()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+            if (canSelect()) {
                 const auto string = QInputDialog::getText(this, "Select by Line Numbers", "Enter a comma- or space separated list of line numbers.");
                 if (string.isEmpty())
                     return;
@@ -1206,8 +1206,8 @@ namespace TrenchBroom {
             }
         }
 
-        void MapFrame::OnEditSelectNone() {
-            if (canDeselect()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+        void MapFrame::selectNone() {
+            if (canDeselect()) {
                 m_document->deselectAll();
             }
         }
@@ -1236,21 +1236,29 @@ namespace TrenchBroom {
             return m_document->editorContext().canChangeSelection();
         }
 
-        void MapFrame::OnEditGroupSelectedObjects() {
-            if (canGroup()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+        void MapFrame::groupSelectedObjects() {
+            if (canGroup()) {
                 const String name = queryGroupName(this);
                 if (!name.empty())
                     m_document->groupSelection(name);
             }
         }
 
-        void MapFrame::OnEditUngroupSelectedObjects() {
-            if (canUngroup()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+        bool MapFrame::canGroup() const {
+            return m_document->hasSelectedNodes() && !m_mapView->anyToolActive();
+        }
+
+        void MapFrame::ungroupSelectedObjects() {
+            if (canUngroup()) {
                 m_document->ungroupSelection();
             }
         }
 
-        void MapFrame::OnEditReplaceTexture() {
+        bool MapFrame::canUngroup() const {
+            return m_document->selectedNodes().hasOnlyGroups() && !m_mapView->anyToolActive();
+        }
+
+        void MapFrame::replaceTexture() {
             // FIXME:
 #if 0
             ReplaceTextureDialog dialog(this, m_document, *m_contextManager);
@@ -1263,56 +1271,120 @@ namespace TrenchBroom {
             m_mapView->deactivateTool();
         }
 
-        void MapFrame::OnEditToggleCreateComplexBrushTool() {
-            if (m_mapView->canToggleCreateComplexBrushTool()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+        void MapFrame::toggleCreateComplexBrushTool() {
+            if (canToggleCreateComplexBrushTool()) {
                 m_mapView->toggleCreateComplexBrushTool();
             }
         }
 
-        void MapFrame::OnEditToggleClipTool() {
-            if (m_mapView->canToggleClipTool()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+        bool MapFrame::canToggleCreateComplexBrushTool() const {
+            return m_mapView->canToggleCreateComplexBrushTool();
+        }
+
+        bool MapFrame::createComplexBrushToolActive() const {
+            return m_mapView->createComplexBrushToolActive();
+        }
+
+        void MapFrame::toggleClipTool() {
+            if (canToggleClipTool()) {
                 m_mapView->toggleClipTool();
             }
         }
 
-        void MapFrame::OnEditToggleRotateObjectsTool() {
-            if (m_mapView->canToggleRotateObjectsTool()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+        bool MapFrame::canToggleClipTool() const {
+            return m_mapView->canToggleClipTool();
+        }
+
+        bool MapFrame::clipToolActive() const {
+            return m_mapView->clipToolActive();
+        }
+
+        void MapFrame::toggleRotateObjectsTool() {
+            if (canToggleRotateObjectsTool()) {
                 m_mapView->toggleRotateObjectsTool();
             }
         }
 
-        void MapFrame::OnEditToggleScaleObjectsTool() {
-            if (m_mapView->canToggleScaleObjectsTool()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+        bool MapFrame::canToggleRotateObjectsTool() const {
+            return m_mapView->canToggleRotateObjectsTool();
+        }
+
+        bool MapFrame::rotateObjectsToolActive() const {
+            return m_mapView->rotateObjectsToolActive();
+        }
+
+        void MapFrame::toggleScaleObjectsTool() {
+            if (canToggleScaleObjectsTool()) {
                 m_mapView->toggleScaleObjectsTool();
             }
         }
 
-        void MapFrame::OnEditToggleShearObjectsTool() {
-            if (m_mapView->canToggleShearObjectsTool()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+        bool MapFrame::canToggleScaleObjectsTool() const {
+            return m_mapView->canToggleScaleObjectsTool();
+        }
+
+        bool MapFrame::scaleObjectsToolActive() const {
+            return m_mapView->scaleObjectsToolActive();
+        }
+
+        void MapFrame::toggleShearObjectsTool() {
+            if (canToggleShearObjectsTool()) {
                 m_mapView->toggleShearObjectsTool();
             }
         }
 
-        void MapFrame::OnEditToggleVertexTool() {
-            if (m_mapView->canToggleVertexTools()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+        bool MapFrame::canToggleShearObjectsTool() const {
+            return m_mapView->canToggleShearObjectsTool();
+        }
+
+        bool MapFrame::shearObjectsToolActive() const {
+            return m_mapView->shearObjectsToolActive();
+        }
+
+        void MapFrame::toggleVertexTool() {
+            if (canToggleVertexTool()) {
                 m_mapView->toggleVertexTool();
             }
         }
 
-        void MapFrame::OnEditToggleEdgeTool() {
-            if (m_mapView->canToggleVertexTools()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+        bool MapFrame::canToggleVertexTool() const {
+            return m_mapView->canToggleVertexTools();
+        }
+
+        bool MapFrame::vertexToolActive() const {
+            return m_mapView->vertexToolActive();
+        }
+
+        void MapFrame::toggleEdgeTool() {
+            if (canToggleEdgeTool()) {
                 m_mapView->toggleEdgeTool();
             }
         }
 
-        void MapFrame::OnEditToggleFaceTool() {
-            if (m_mapView->canToggleVertexTools()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+        bool MapFrame::canToggleEdgeTool() const {
+            return m_mapView->canToggleVertexTools();
+        }
+
+        bool MapFrame::edgeToolActive() const {
+            return m_mapView->edgeToolActive();
+        }
+
+        void MapFrame::toggleFaceTool() {
+            if (canToggleFaceTool()) {
                 m_mapView->toggleFaceTool();
             }
         }
 
-        void MapFrame::OnEditCsgConvexMerge() {
-            if (canDoCsgConvexMerge()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+        bool MapFrame::canToggleFaceTool() const {
+            return m_mapView->canToggleVertexTools();
+        }
+
+        bool MapFrame::faceToolActive() const {
+            return m_mapView->faceToolActive();
+        }
+
+        void MapFrame::csgConvexMerge() {
+            if (canDoCsgConvexMerge()) {
                 if (m_mapView->vertexToolActive() && m_mapView->vertexTool()->canDoCsgConvexMerge()) {
                     m_mapView->vertexTool()->csgConvexMerge();
                 } else if (m_mapView->edgeToolActive() && m_mapView->edgeTool()->canDoCsgConvexMerge()) {
@@ -1325,90 +1397,133 @@ namespace TrenchBroom {
             }
         }
 
-        void MapFrame::OnEditCsgSubtract() {
-            if (canDoCsgSubtract()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+        bool MapFrame::canDoCsgConvexMerge() const {
+            return (m_document->hasSelectedBrushFaces() && m_document->selectedBrushFaces().size() > 1) ||
+                   (m_document->selectedNodes().hasOnlyBrushes() && m_document->selectedNodes().brushCount() > 1) ||
+                   (m_mapView->vertexToolActive() && m_mapView->vertexTool()->canDoCsgConvexMerge()) ||
+                   (m_mapView->edgeToolActive() && m_mapView->edgeTool()->canDoCsgConvexMerge()) ||
+                   (m_mapView->faceToolActive() && m_mapView->faceTool()->canDoCsgConvexMerge());
+        }
+
+        void MapFrame::csgSubtract() {
+            if (canDoCsgSubtract()) {
                 m_document->csgSubtract();
             }
         }
 
-        void MapFrame::OnEditCsgIntersect() {
-            if (canDoCsgIntersect()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
-                m_document->csgIntersect();
-            }
+        bool MapFrame::canDoCsgSubtract() const {
+            return m_document->selectedNodes().hasOnlyBrushes() && m_document->selectedNodes().brushCount() >= 1;
         }
 
-        void MapFrame::OnEditCsgHollow() {
-            if (canDoCsgHollow()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+        void MapFrame::csgHollow() {
+            if (canDoCsgHollow()) {
                 m_document->csgHollow();
             }
         }
 
-        void MapFrame::OnEditToggleTextureLock() {
-            PreferenceManager::instance().set(Preferences::TextureLock, !pref(Preferences::TextureLock));
-            PreferenceManager::instance().saveChanges();
+        bool MapFrame::canDoCsgHollow() const {
+            return m_document->selectedNodes().hasOnlyBrushes() && m_document->selectedNodes().brushCount() >= 1;
         }
 
-        void MapFrame::OnEditToggleUVLock() {
-            PreferenceManager::instance().set(Preferences::UVLock, !pref(Preferences::UVLock));
-            PreferenceManager::instance().saveChanges();
+        void MapFrame::csgIntersect() {
+            if (canDoCsgIntersect()) {
+                m_document->csgIntersect();
+            }
         }
 
-        void MapFrame::OnEditSnapVerticesToInteger() {
-            if (canSnapVertices()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+        bool MapFrame::canDoCsgIntersect() const {
+            return m_document->selectedNodes().hasOnlyBrushes() && m_document->selectedNodes().brushCount() > 1;
+        }
+
+        void MapFrame::snapVerticesToInteger() {
+            if (canSnapVertices()) {
                 m_document->snapVertices(1u);
             }
         }
 
-        void MapFrame::OnEditSnapVerticesToGrid() {
-            if (canSnapVertices()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+        void MapFrame::snapVerticesToGrid() {
+            if (canSnapVertices()) {
                 m_document->snapVertices(m_document->grid().actualSize());
             }
         }
 
-        void MapFrame::OnViewToggleShowGrid() {
+        bool MapFrame::canSnapVertices() const {
+            return m_document->selectedNodes().hasOnlyBrushes();
+        }
+
+        void MapFrame::toggleTextureLock() {
+            PreferenceManager::instance().set(Preferences::TextureLock, !pref(Preferences::TextureLock));
+            PreferenceManager::instance().saveChanges();
+        }
+
+        void MapFrame::toggleUVLock() {
+            PreferenceManager::instance().set(Preferences::UVLock, !pref(Preferences::UVLock));
+            PreferenceManager::instance().saveChanges();
+        }
+
+        void MapFrame::toggleShowGrid() {
             m_document->grid().toggleVisible();
         }
 
-        void MapFrame::OnViewToggleSnapToGrid() {
+        void MapFrame::toggleSnapToGrid() {
             m_document->grid().toggleSnap();
         }
 
-        void MapFrame::OnViewIncGridSize() {
-            if (canIncGridSize()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+        void MapFrame::incGridSize() {
+            if (canIncGridSize()) {
                 m_document->grid().incSize();
             }
         }
 
-        void MapFrame::OnViewDecGridSize() {
-            if (canDecGridSize()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+        bool MapFrame::canIncGridSize() const {
+            return m_document->grid().size() < Grid::MaxSize;
+        }
+
+        void MapFrame::decGridSize() {
+            if (canDecGridSize()) {
                 m_document->grid().decSize();
             }
         }
 
-        void MapFrame::OnViewSetGridSize() {
-            QAction* caller = dynamic_cast<QAction*>(sender());
-            m_document->grid().setSize(caller->data().toInt());
+        bool MapFrame::canDecGridSize() const {
+            return m_document->grid().size() > Grid::MinSize;
         }
 
-        void MapFrame::OnViewMoveCameraToNextPoint() {
-            if (canMoveCameraToNextPoint()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+        void MapFrame::setGridSize(const int size) {
+            m_document->grid().setSize(size);
+        }
+
+        void MapFrame::moveCameraToNextPoint() {
+            if (canMoveCameraToNextPoint()) {
                 m_mapView->moveCameraToNextTracePoint();
             }
         }
 
-        void MapFrame::OnViewMoveCameraToPreviousPoint() {
-            if (canMoveCameraToPreviousPoint()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+        bool MapFrame::canMoveCameraToNextPoint() const {
+            return m_mapView->canMoveCameraToNextTracePoint();
+        }
+
+        void MapFrame::moveCameraToPreviousPoint() {
+            if (canMoveCameraToPreviousPoint()) {
                 m_mapView->moveCameraToPreviousTracePoint();
             }
         }
 
-        void MapFrame::OnViewFocusCameraOnSelection() {
-            if (canFocusCamera()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+        bool MapFrame::canMoveCameraToPreviousPoint() const {
+            return m_mapView->canMoveCameraToPreviousTracePoint();
+        }
+
+        void MapFrame::focusCameraOnSelection() {
+            if (canFocusCamera()) {
                 m_mapView->focusCameraOnSelection(true);
             }
         }
 
-        void MapFrame::OnViewMoveCameraToPosition() {
+        bool MapFrame::canFocusCamera() const {
+            return m_document->hasSelectedNodes();
+        }
+
+        void MapFrame::moveCameraToPosition() {
             bool ok = false;
             const QString str = QInputDialog::getText(this, "Move Camera", "Enter a position (x y z) for the camera.", QLineEdit::Normal, "0.0 0.0 0.0", &ok);
             if (ok) {
@@ -1418,13 +1533,13 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnViewHideSelectedObjects() {
-            if (canHide()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+            if (canHide()) {
                 m_document->hideSelection();
             }
         }
 
         void MapFrame::OnViewIsolateSelectedObjects() {
-            if (canIsolate()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+            if (canIsolate()) {
                 m_document->isolate(m_document->selectedNodes().nodes());
             }
         }
@@ -1576,13 +1691,13 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnFlipObjectsHorizontally() {
-            if (m_mapView->canFlipObjects()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+            if (m_mapView->canFlipObjects()) {
                 m_mapView->flipObjects(vm::direction::left);
             }
         }
 
         void MapFrame::OnFlipObjectsVertically() {
-            if (m_mapView->canFlipObjects()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+            if (m_mapView->canFlipObjects()) {
                 m_mapView->flipObjects(vm::direction::up);
             }
         }
@@ -1869,63 +1984,11 @@ namespace TrenchBroom {
             updateActionState();
         }
 
-        bool MapFrame::canGroup() const {
-            return m_document->hasSelectedNodes() && !m_mapView->anyToolActive();
-        }
-
-        bool MapFrame::canUngroup() const {
-            return m_document->selectedNodes().hasOnlyGroups() && !m_mapView->anyToolActive();
-        }
-
         bool MapFrame::canHide() const {
             return m_document->hasSelectedNodes();
         }
 
         bool MapFrame::canIsolate() const {
-            return m_document->hasSelectedNodes();
-        }
-
-        bool MapFrame::canDoCsgConvexMerge() const {
-            return (m_document->hasSelectedBrushFaces() && m_document->selectedBrushFaces().size() > 1) ||
-                   (m_document->selectedNodes().hasOnlyBrushes() && m_document->selectedNodes().brushCount() > 1) ||
-                   (m_mapView->vertexToolActive() && m_mapView->vertexTool()->canDoCsgConvexMerge()) ||
-                   (m_mapView->edgeToolActive() && m_mapView->edgeTool()->canDoCsgConvexMerge()) ||
-                   (m_mapView->faceToolActive() && m_mapView->faceTool()->canDoCsgConvexMerge());
-        }
-
-        bool MapFrame::canDoCsgSubtract() const {
-            return m_document->selectedNodes().hasOnlyBrushes() && m_document->selectedNodes().brushCount() >= 1;
-        }
-
-        bool MapFrame::canDoCsgIntersect() const {
-            return m_document->selectedNodes().hasOnlyBrushes() && m_document->selectedNodes().brushCount() > 1;
-        }
-
-        bool MapFrame::canDoCsgHollow() const {
-            return m_document->selectedNodes().hasOnlyBrushes() && m_document->selectedNodes().brushCount() >= 1;
-        }
-
-        bool MapFrame::canSnapVertices() const {
-            return m_document->selectedNodes().hasOnlyBrushes();
-        }
-
-        bool MapFrame::canDecGridSize() const {
-            return m_document->grid().size() > Grid::MinSize;
-        }
-
-        bool MapFrame::canIncGridSize() const {
-            return m_document->grid().size() < Grid::MaxSize;
-        }
-
-        bool MapFrame::canMoveCameraToNextPoint() const {
-            return m_mapView->canMoveCameraToNextTracePoint();
-        }
-
-        bool MapFrame::canMoveCameraToPreviousPoint() const {
-            return m_mapView->canMoveCameraToPreviousTracePoint();
-        }
-
-        bool MapFrame::canFocusCamera() const {
             return m_document->hasSelectedNodes();
         }
 

@@ -95,7 +95,7 @@ namespace TrenchBroom {
             Renderer::Compass* m_compass;
             std::unique_ptr<Renderer::PrimitiveRenderer> m_portalFileRenderer;
         private: // shortcuts
-            std::vector<std::pair<QShortcut*, const Action*>> m_shortcuts;
+            std::vector<std::pair<std::unique_ptr<QShortcut>, const Action*>> m_shortcuts;
         protected:
             MapViewBase(QWidget* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager);
 
@@ -129,7 +129,8 @@ namespace TrenchBroom {
             void createAndRegister2D3DShortcut(const ActionInfo& info, Callback callback2D, Callback callback3D);
              */
             void createActions();
-            void updateShortcuts();
+            void updateActionBindings();
+            void updateActionStates();
         private: // interaction events
             void bindEvents();
         public:
@@ -183,7 +184,6 @@ namespace TrenchBroom {
             void moveVertices(vm::direction direction);
 
             void OnCancel();
-            bool cancel();
 
             void OnDeactivateTool();
         public: // group management

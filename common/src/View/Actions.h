@@ -65,8 +65,9 @@ namespace TrenchBroom {
             Preference<KeyboardShortcut> m_preference;
             ExecuteFn m_execute;
             EnabledFn m_enabled;
-            std::optional<CheckedFn> m_checked;
-            std::optional<IO::Path> m_iconPath;
+            bool m_checkable;
+            CheckedFn m_checked;
+            IO::Path m_iconPath;
         public:
             Action(const String& name, int actionContext, const KeyboardShortcut& defaultShortcut,
                 const ExecuteFn& execute, const EnabledFn& enabled, const IO::Path& iconPath);
