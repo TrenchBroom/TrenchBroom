@@ -34,7 +34,7 @@
 #include <vecmath/forward.h>
 
 #include <list>
-#include <optional>
+#include <optional-lite/optional.hpp>
 
 namespace TrenchBroom {
     namespace IO {
@@ -114,10 +114,10 @@ namespace TrenchBroom {
 
             bool parseReadOnlyFlag(ParserStatus& status);
             String parseAttributeDescription(ParserStatus& status);
-            std::optional<String> parseDefaultStringValue(ParserStatus& status);
-            std::optional<int> parseDefaultIntegerValue(ParserStatus& status);
-            std::optional<float> parseDefaultFloatValue(ParserStatus& status);
-            std::optional<String> parseDefaultChoiceValue(ParserStatus& status);
+            nonstd::optional<String> parseDefaultStringValue(ParserStatus& status);
+            nonstd::optional<int> parseDefaultIntegerValue(ParserStatus& status);
+            nonstd::optional<float> parseDefaultFloatValue(ParserStatus& status);
+            nonstd::optional<String> parseDefaultChoiceValue(ParserStatus& status);
 
             vm::vec3 parseVector(ParserStatus& status);
             vm::bbox3 parseSize(ParserStatus& status);

@@ -28,14 +28,17 @@ namespace TrenchBroom {
     namespace IO {
         class Path;
 
+        class InitFreeImage {
+        private:
+            InitFreeImage();
+            ~InitFreeImage();
+
+        public:
+            static void initialize();
+        };
+
         class ImageLoaderImpl {
         private:
-            class InitFreeImage {
-            public:
-                InitFreeImage();
-                ~InitFreeImage();
-            };
-
             FIMEMORY* m_stream;
             FIBITMAP* m_bitmap;
             mutable Buffer<unsigned char> m_palette;
@@ -64,7 +67,6 @@ namespace TrenchBroom {
             const Buffer<unsigned char>& indices() const;
             const Buffer<unsigned char>& pixels(const ImageLoader::PixelFormat format) const;
         private:
-            void initialize();
             void initializeIndexedPixels(const size_t pSize) const;
             void initializePixels(const size_t pSize) const;
             static FREE_IMAGE_FORMAT translateFormat(const ImageLoader::Format format);
