@@ -194,11 +194,6 @@ namespace TrenchBroom {
             }
         }
 
-        void MapView3D::OnPerformCreateBrush() {
-            if (m_toolBox.createComplexBrushToolActive())
-                m_toolBox.performCreateComplexBrush();
-        }
-
         void MapView3D::OnMoveTexturesUp() {
             moveTextures(vm::vec2f(0.0f, moveTextureDistance()));
         }

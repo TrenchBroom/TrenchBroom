@@ -29,6 +29,8 @@
 #include <optional>
 #include <vector>
 
+#include <QKeySequence>
+
 namespace TrenchBroom {
     namespace IO {
         class Path;
@@ -200,6 +202,14 @@ namespace TrenchBroom {
             void visitMapViewActions(const ActionVisitor& visitor) const;
         private:
             void initialize();
+            void createViewActions();
+            void createMenu();
+            void createFileMenu();
+
+            const Action* createMenuAction(const String& name, int key, const Action::ExecuteFn& execute, const Action::EnabledFn& enabled);
+            const Action* createMenuAction(const String& name, int key, const Action::ExecuteFn& execute, const Action::EnabledFn& enabled, const Action::CheckedFn& checked);
+            const Action* createMenuAction(const String& name, QKeySequence::StandardKey key, const Action::ExecuteFn& execute, const Action::EnabledFn& enabled);
+            const Action* createMenuAction(const String& name, QKeySequence::StandardKey key, const Action::ExecuteFn& execute, const Action::EnabledFn& enabled, const Action::CheckedFn& checked);
             const Action* createAction(const String& name, int actionContext, const QKeySequence& defaultShortcut,
                                        const Action::ExecuteFn& execute, const Action::EnabledFn& enabled,
                                        const IO::Path& iconPath = IO::Path());
@@ -210,6 +220,16 @@ namespace TrenchBroom {
             Menu& createMainMenu(const String& name);
 
             deleteCopyAndMove(ActionManager)
+
+            void createEditMenu();
+
+            void createViewMenu();
+
+            void createDebugMenu();
+
+            void createHelpMenu();
+
+            void createRunMenu();
         };
     }
 }

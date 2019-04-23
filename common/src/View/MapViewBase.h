@@ -160,6 +160,8 @@ namespace TrenchBroom {
             void rotateObjects(vm::rotation_axis axis, bool clockwise);
             vm::vec3 rotationAxis(vm::rotation_axis axis, bool clockwise) const;
         public: // tool mode events
+            void createComplexBrush();
+
             void OnToggleRotateObjectsTool();
             void OnMoveRotationCenterForward();
             void OnMoveRotationCenterBackward();
@@ -172,8 +174,8 @@ namespace TrenchBroom {
             void OnToggleScaleObjectsTool();
             void OnToggleShearObjectsTool();
 
-            void OnToggleClipSide();
-            void OnPerformClip();
+            void toggleClipSide();
+            void performClip();
 
             void OnMoveVerticesForward();
             void OnMoveVerticesBackward();

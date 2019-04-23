@@ -523,6 +523,12 @@ namespace TrenchBroom {
             return axis;
         }
 
+        void MapViewBase::createComplexBrush() {
+            if (m_toolBox.createComplexBrushToolActive()) {
+                m_toolBox.performCreateComplexBrush();
+            }
+        }
+
         void MapViewBase::OnToggleRotateObjectsTool() {
             m_toolBox.toggleRotateObjectsTool();
         }
@@ -567,11 +573,11 @@ namespace TrenchBroom {
             update();
         }
 
-        void MapViewBase::OnToggleClipSide() {
+        void MapViewBase::toggleClipSide() {
             m_toolBox.toggleClipSide();
         }
 
-        void MapViewBase::OnPerformClip() {
+        void MapViewBase::performClip() {
             m_toolBox.performClip();
         }
 

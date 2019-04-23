@@ -70,8 +70,6 @@ namespace TrenchBroom {
 
             void OnFrameSwapped();
 
-            void OnPerformCreateBrush();
-
             void OnMoveTexturesUp();
             void OnMoveTexturesDown();
             void OnMoveTexturesLeft();

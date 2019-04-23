@@ -219,155 +219,262 @@ namespace TrenchBroom {
         }
 
         void ActionManager::initialize() {
-            /* ========== File Menu ========== */
-            const auto* newFile = createAction("New Document", ActionContext_Any, QKeySequence(QKeySequence::New),
+            createViewActions();
+            createMenu();
+        }
+
+        void ActionManager::createViewActions() {
+            /* ========== Editing Actions ========== */
+            /* ========== Tool Specific Actions ========== */
+            m_mapViewActions.push_back(
+                createAction("Create Brush", ActionContext_CreateComplexBrushTool, QKeySequence(Qt::Key_Return),
+                    [](ActionExecutionContext& context) {
+                        context.view()->createComplexBrush();
+                    },
+                    [](ActionExecutionContext& context) {
+                        return context.hasDocument() && context.frame()->createComplexBrushToolActive();
+                    }));
+            m_mapViewActions.push_back(
+                createAction("Toggle Clip Side", ActionContext_ClipTool, QKeySequence(Qt::CTRL + Qt::Key_Return),
+                    [](ActionExecutionContext& context) {
+                        context.view()->toggleClipSide();
+                    },
+                    [](ActionExecutionContext& context) {
+                        return context.hasDocument() && context.frame()->clipToolActive();
+                    }));
+            m_mapViewActions.push_back(
+                createAction("Perform Clip", ActionContext_ClipTool, QKeySequence(Qt::Key_Return),
+                    [](ActionExecutionContext& context) {
+                        context.view()->performClip();
+                    },
+                    [](ActionExecutionContext& context) {
+                        return context.hasDocument() && context.frame()->clipToolActive();
+                    }));
+
+            /* ========== Moving Objects ========== */
+            m_mapViewActions.push_back(
+                createAction("Move Objects Forward", ActionContext_NodeSelection, QKeySequence(Qt::Key_Up),
+                    [](ActionExecutionContext& context) {
+                        context.view()->moveObjects(vm::direction::forward);
+                    },
+                    [](ActionExecutionContext& context) { return context.hasDocument(); }));
+            m_mapViewActions.push_back(
+                createAction("Move Objects Backward", ActionContext_NodeSelection, QKeySequence(Qt::Key_Down),
+                    [](ActionExecutionContext& context) {
+                        context.view()->moveObjects(vm::direction::backward);
+                    },
+                    [](ActionExecutionContext& context) { return context.hasDocument(); }));
+            m_mapViewActions.push_back(
+                createAction("Move Objects Left", ActionContext_NodeSelection, QKeySequence(Qt::Key_Left),
+                    [](ActionExecutionContext& context) {
+                        context.view()->moveObjects(vm::direction::left);
+                    },
+                    [](ActionExecutionContext& context) { return context.hasDocument(); }));
+            m_mapViewActions.push_back(
+                createAction("Move Objects Right", ActionContext_NodeSelection, QKeySequence(Qt::Key_Right),
+                    [](ActionExecutionContext& context) {
+                        context.view()->moveObjects(vm::direction::right);
+                    },
+                    [](ActionExecutionContext& context) { return context.hasDocument(); }));
+            m_mapViewActions.push_back(
+                createAction("Move Objects Up", ActionContext_NodeSelection, QKeySequence(Qt::Key_PageUp),
+                    [](ActionExecutionContext& context) {
+                        context.view()->moveObjects(vm::direction::up);
+                    },
+                    [](ActionExecutionContext& context) { return context.hasDocument(); }));
+            m_mapViewActions.push_back(
+                createAction("Move Objects Down", ActionContext_NodeSelection, QKeySequence(Qt::Key_PageDown),
+                    [](ActionExecutionContext& context) {
+                        context.view()->moveObjects(vm::direction::down);
+                    },
+                    [](ActionExecutionContext& context) { return context.hasDocument(); }));
+
+            /* ========== Cancel / Deactivate Tool ========== */
+            m_mapViewActions.push_back(createAction("Cancel", ActionContext_Any, QKeySequence(Qt::Key_Escape),
+                [](ActionExecutionContext& context) { context.view()->OnCancel(); },
+                [](ActionExecutionContext& context) { return context.hasDocument(); }));
+            m_mapViewActions.push_back(
+                createAction("Deactivate Current Tool", ActionContext_AnyTool, QKeySequence(Qt::CTRL + Qt::Key_Escape),
+                    [](ActionExecutionContext& context) { context.view()->OnDeactivateTool(); },
+                    [](ActionExecutionContext& context) { return context.hasDocument(); }));
+        }
+
+        void ActionManager::createMenu() {
+            createFileMenu();
+            createEditMenu();
+            createViewMenu();
+            createRunMenu();
+            createDebugMenu();
+            createHelpMenu();
+        }
+
+        void ActionManager::createFileMenu() {
+            auto& fileMenu = createMainMenu("File");
+            fileMenu.addItem(createMenuAction("New Document", QKeySequence::New,
                 [](ActionExecutionContext& context) {
                     auto& app = TrenchBroomApp::instance();
                     app.newDocument();
                 },
-                [](ActionExecutionContext& context) { return true; });
-            const auto* openFile = createAction("Open Document...", ActionContext_Any, QKeySequence(QKeySequence::Open),
+                [](ActionExecutionContext& context) { return true; }));
+            fileMenu.addSeparator();
+            fileMenu.addItem(createMenuAction("Open Document...", QKeySequence::Open,
                 [](ActionExecutionContext& context) {
                     auto& app = TrenchBroomApp::instance();
                     app.openDocument();
                 },
-                [](ActionExecutionContext& context) { return true; });
-
-            const auto* saveFile = createAction("Save Document", ActionContext_Any, QKeySequence(QKeySequence::Save),
+                [](ActionExecutionContext& context) { return true; }));
+            fileMenu.addMenu("Open Recent", MenuEntryType::Menu_RecentDocuments);
+            fileMenu.addSeparator();
+            fileMenu.addItem(createMenuAction("Save Document", QKeySequence::Save,
                 [](ActionExecutionContext& context) {
                     context.frame()->saveDocument();
                 },
-                [](ActionExecutionContext& context) { return context.hasDocument(); });
-            const auto* saveFileAs = createAction("Save Document as...", ActionContext_Any, QKeySequence(QKeySequence::SaveAs),
+                [](ActionExecutionContext& context) { return context.hasDocument(); }));
+            fileMenu.addItem(createMenuAction("Save Document as...", QKeySequence::SaveAs,
                 [](ActionExecutionContext& context) {
                     context.frame()->saveDocumentAs();
                 },
-                [](ActionExecutionContext& context) { return context.hasDocument(); });
-            const auto* exportWavefrontObj = createAction("Wavefront OBJ...", ActionContext_Any, QKeySequence(),
+                [](ActionExecutionContext& context) { return context.hasDocument(); }));
+
+            auto& exportMenu = fileMenu.addMenu("Export");
+            exportMenu.addItem(createMenuAction("Wavefront OBJ...", 0,
                 [](ActionExecutionContext& context) {
                     context.frame()->exportDocumentAsObj();
                 },
-                [](ActionExecutionContext& context) { return context.hasDocument(); });
+                [](ActionExecutionContext& context) { return context.hasDocument(); }));
 
-            const auto* loadPointFile = createAction("Load Point File...", ActionContext_Any, QKeySequence(),
+            /* ========== File Menu (Associated Resources) ========== */
+            fileMenu.addSeparator();
+            fileMenu.addItem(createMenuAction("Load Point File...", 0,
                 [](ActionExecutionContext& context) {
                     context.frame()->loadPointFile();
                 },
-                [](ActionExecutionContext& context) { return context.hasDocument(); });
-            const auto* reloadPointFile = createAction("Reload Point File", ActionContext_Any, QKeySequence(),
+                [](ActionExecutionContext& context) { return context.hasDocument(); }));
+            fileMenu.addItem(createMenuAction("Reload Point File", 0,
                 [](ActionExecutionContext& context) {
                     context.frame()->reloadPointFile();
                 },
-                [](ActionExecutionContext& context) { return context.hasDocument() && context.frame()->canReloadPointFile(); });
-            const auto* unloadPointFile = createAction("Unload Point File", ActionContext_Any, QKeySequence(),
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument() && context.frame()->canReloadPointFile();
+                }));
+            fileMenu.addItem(createMenuAction("Unload Point File", 0,
                 [](ActionExecutionContext& context) {
                     context.frame()->unloadPointFile();
                 },
-                [](ActionExecutionContext& context) { return context.hasDocument() && context.frame()->canUnloadPointFile(); });
-            const auto* loadPortalFile = createAction("Load Portal File...", ActionContext_Any, QKeySequence(),
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument() && context.frame()->canUnloadPointFile();
+                }));
+            fileMenu.addSeparator();
+            fileMenu.addItem(createMenuAction("Load Portal File...", 0,
                 [](ActionExecutionContext& context) {
                     context.frame()->loadPortalFile();
                 },
-                [](ActionExecutionContext& context) { return context.hasDocument(); });
-            const auto* reloadPortalFile = createAction("Reload Portal File", ActionContext_Any, QKeySequence(),
+                [](ActionExecutionContext& context) { return context.hasDocument(); }));
+            fileMenu.addItem(createMenuAction("Reload Portal File", 0,
                 [](ActionExecutionContext& context) {
                     context.frame()->reloadPortalFile();
                 },
-                [](ActionExecutionContext& context) { return context.hasDocument() && context.frame()->canReloadPortalFile(); });
-            const auto* unloadPortalFile = createAction("Unload Portal File", ActionContext_Any, QKeySequence(),
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument() && context.frame()->canReloadPortalFile();
+                }));
+            fileMenu.addItem(createMenuAction("Unload Portal File", 0,
                 [](ActionExecutionContext& context) {
                     context.frame()->unloadPortalFile();
                 },
-                [](ActionExecutionContext& context) { return context.hasDocument() && context.frame()->canUnloadPortalFile(); });
-
-            const auto* reloadTextureCollections = createAction("Reload Texture Collections", ActionContext_Any, QKeySequence(Qt::Key_F5),
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument() && context.frame()->canUnloadPortalFile();
+                }));
+            fileMenu.addSeparator();
+            fileMenu.addItem(createMenuAction("Reload Texture Collections", Qt::Key_F5,
                 [](ActionExecutionContext& context) {
                     context.frame()->reloadTextureCollections();
                 },
-                [](ActionExecutionContext& context) { return context.hasDocument(); });
-            const auto* reloadEntityDefinitions = createAction("Reload Entity Definitions", ActionContext_Any, QKeySequence(Qt::Key_F6),
+                [](ActionExecutionContext& context) { return context.hasDocument(); }));
+            fileMenu.addItem(createMenuAction("Reload Entity Definitions", Qt::Key_F6,
                 [](ActionExecutionContext& context) {
                     context.frame()->reloadEntityDefinitions();
                 },
-                [](ActionExecutionContext& context) { return context.hasDocument(); });
-
-            const auto* closeDocument = createAction("Close Document", ActionContext_Any, QKeySequence(QKeySequence::Close),
+                [](ActionExecutionContext& context) { return context.hasDocument(); }));
+            fileMenu.addSeparator();
+            fileMenu.addItem(createMenuAction("Close Document", QKeySequence::Close,
                 [](ActionExecutionContext& context) {
                     context.frame()->closeDocument();
                 },
-                [](ActionExecutionContext& context) { return context.hasDocument(); });
+                [](ActionExecutionContext& context) { return context.hasDocument(); }));
+        }
 
-            /* ========== Edit Menu ========== */
-            const auto* undo = createAction("Undo", ActionContext_Any, QKeySequence(QKeySequence::Undo),
+        void ActionManager::createEditMenu() {/* ========== Edit Menu ========== */
+            auto& editMenu = createMainMenu("Edit");
+            editMenu.addItem(createMenuAction("Undo", QKeySequence::Undo,
                 [](ActionExecutionContext& context) {
                     context.frame()->undo();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->canUndo();
-                });
-            const auto* redo = createAction("Redo", ActionContext_Any, QKeySequence(QKeySequence::Redo),
+                }), MenuEntryType::Menu_Undo);
+            editMenu.addItem(createMenuAction("Redo", QKeySequence::Redo,
                 [](ActionExecutionContext& context) {
                     context.frame()->redo();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->canRedo();
-                });
-
-            const auto* repeat = createAction("Repeat Last Commands", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::Key_R),
+                }), MenuEntryType::Menu_Redo);
+            editMenu.addSeparator();
+            editMenu.addItem(createMenuAction("Repeat Last Commands", Qt::CTRL + Qt::Key_R,
                 [](ActionExecutionContext& context) {
                     context.frame()->repeatLastCommands();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument();
-                });
-            const auto* clearRepeat = createAction("Repeat Last Commands", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::Key_R),
+                }));
+            editMenu.addItem(createMenuAction("Repeat Last Commands", Qt::CTRL + Qt::Key_R,
                 [](ActionExecutionContext& context) {
                     context.frame()->clearRepeatableCommands();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->hasRepeatableCommands();
-                });
-
-            const auto* cut = createAction("Cut", ActionContext_Any, QKeySequence(QKeySequence::Cut),
+                }));
+            editMenu.addSeparator();
+            editMenu.addItem(createMenuAction("Cut", QKeySequence::Cut,
                 [](ActionExecutionContext& context) {
                     context.frame()->cutSelection();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->canCopySelection();
-                });
-            const auto* copy = createAction("Copy", ActionContext_Any, QKeySequence(QKeySequence::Copy),
+                }), MenuEntryType::Menu_Cut);
+            editMenu.addItem(createMenuAction("Copy", QKeySequence::Copy,
                 [](ActionExecutionContext& context) {
                     context.frame()->copySelection();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->canCopySelection();
-                });
-            const auto* paste = createAction("Paste", ActionContext_Any, QKeySequence(QKeySequence::Paste),
+                }), MenuEntryType::Menu_Copy);
+            editMenu.addItem(createMenuAction("Paste", QKeySequence::Paste,
                 [](ActionExecutionContext& context) {
                     context.frame()->pasteAtCursorPosition();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->canPaste();
-                });
-            const auto* pasteAtOriginalPosition = createAction("Paste at Original Position", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_V),
+                }), MenuEntryType::Menu_Paste);
+            editMenu.addItem(createMenuAction("Paste at Original Position", Qt::CTRL + Qt::ALT + Qt::Key_V,
                 [](ActionExecutionContext& context) {
                     context.frame()->pasteAtOriginalPosition();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->canPaste();
-                });
-            const auto* duplicate = createAction("Duplicate", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::Key_D),
+                }), MenuEntryType::Menu_PasteAtOriginalPosition);
+            editMenu.addItem(createMenuAction("Duplicate", Qt::CTRL + Qt::Key_D,
                 [](ActionExecutionContext& context) {
                     context.frame()->duplicateSelection();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->canDuplicateSelectino();
-                });
-            const auto* delete_ = createAction("Delete", ActionContext_Any, QKeySequence(
+                }));
+            editMenu.addItem(createAction("Delete", ActionContext_Any, QKeySequence(
 #ifdef __APPLE__
                 Qt::Key_Backspace
 #else
-                QKeySequence::Delete
+                    QKeySequence::Delete
 #endif
                 ),
                 [](ActionExecutionContext& context) {
@@ -375,75 +482,79 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->canDeleteSelection();
-                });
-
-            const auto* selectAll = createAction("Select All", ActionContext_Any, QKeySequence(QKeySequence::SelectAll),
+                }));
+            editMenu.addSeparator();
+            editMenu.addItem(createMenuAction("Select All", QKeySequence::SelectAll,
                 [](ActionExecutionContext& context) {
                     context.frame()->selectAll();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->canSelect();
-                });
-            const auto* selectSiblings = createAction("Select Siblings", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::Key_B),
+                }));
+            editMenu.addItem(createMenuAction("Select Siblings", Qt::CTRL + Qt::Key_B,
                 [](ActionExecutionContext& context) {
                     context.frame()->selectSiblings();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->canSelectSiblings();
-                });
-            const auto* selectTouching = createAction("Select Touching", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::Key_T),
+                }));
+            editMenu.addItem(createMenuAction("Select Touching", Qt::CTRL + Qt::Key_T,
                 [](ActionExecutionContext& context) {
                     context.frame()->selectTouching();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->canSelectByBrush();
-                });
-            const auto* selectInside = createAction("Select Inside", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::Key_E),
+                }));
+            editMenu.addItem(createMenuAction("Select Inside", Qt::CTRL + Qt::Key_E,
                 [](ActionExecutionContext& context) {
                     context.frame()->selectInside();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->canSelectByBrush();
-                });
-            const auto* selectTall = createAction("Select Tall", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_E),
-                [](ActionExecutionContext& context) {
-                    context.frame()->selectTall();
-                },
-                [](ActionExecutionContext& context) {
-                    return context.hasDocument() && context.frame()->canSelectTall();
-                });
-            const auto* selectByLineNo = createAction("Select by Line Number...", ActionContext_Any, QKeySequence(),
+                }));
+            editMenu.addItem(
+                createAction("Select Tall", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_E),
+                    [](ActionExecutionContext& context) {
+                        context.frame()->selectTall();
+                    },
+                    [](ActionExecutionContext& context) {
+                        return context.hasDocument() && context.frame()->canSelectTall();
+                    }));
+            editMenu.addItem(createMenuAction("Select by Line Number...", 0,
                 [](ActionExecutionContext& context) {
                     context.frame()->selectByLineNumber();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->canSelect();
-                });
-            const auto* selectNone = createAction("Select None", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_A),
-                [](ActionExecutionContext& context) {
-                    context.frame()->selectNone();
-                },
-                [](ActionExecutionContext& context) {
-                    return context.hasDocument() && context.frame()->canDeselect();
-                });
-
-            const auto* groupSelection = createAction("Group Selected Objects", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::Key_G),
-                [](ActionExecutionContext& context) {
-                    context.frame()->groupSelectedObjects();
-                },
-                [](ActionExecutionContext& context) {
-                    return context.hasDocument() && context.frame()->canGroup();
-                });
-            const auto* ungroupSelection = createAction("Ungroup Selected Objects", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_G),
+                }));
+            editMenu.addItem(
+                createAction("Select None", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_A),
+                    [](ActionExecutionContext& context) {
+                        context.frame()->selectNone();
+                    },
+                    [](ActionExecutionContext& context) {
+                        return context.hasDocument() && context.frame()->canDeselect();
+                    }));
+            editMenu.addSeparator();
+            editMenu.addItem(
+                createAction("Group Selected Objects", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::Key_G),
+                    [](ActionExecutionContext& context) {
+                        context.frame()->groupSelectedObjects();
+                    },
+                    [](ActionExecutionContext& context) {
+                        return context.hasDocument() && context.frame()->canGroup();
+                    }));
+            editMenu.addItem(createMenuAction("Ungroup Selected Objects", Qt::CTRL + Qt::SHIFT + Qt::Key_G,
                 [](ActionExecutionContext& context) {
                     context.frame()->ungroupSelectedObjects();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->canUngroup();
-                });
+                }));
+            editMenu.addSeparator();
 
-            /* ========== Edit / Tools Menu ========== */
-            const auto* toggleBrushTool = createAction("Brush Tool", ActionContext_Any, QKeySequence(Qt::Key_B),
+            auto& toolMenu = editMenu.addMenu("Tools");
+            toolMenu.addItem(createMenuAction("Brush Tool", Qt::Key_B,
                 [](ActionExecutionContext& context) {
                     context.frame()->toggleCreateComplexBrushTool();
                 },
@@ -452,8 +563,8 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->createComplexBrushToolActive();
-                });
-            const auto* toggleClipTool = createAction("Clip Tool", ActionContext_Any, QKeySequence(Qt::Key_C),
+                }));
+            toolMenu.addItem(createMenuAction("Clip Tool", Qt::Key_C,
                 [](ActionExecutionContext& context) {
                     context.frame()->toggleClipTool();
                 },
@@ -462,8 +573,8 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->clipToolActive();
-                });
-            const auto* toggleRotateTool = createAction("Rotate Tool", ActionContext_Any, QKeySequence(Qt::Key_R),
+                }));
+            toolMenu.addItem(createMenuAction("Rotate Tool", Qt::Key_R,
                 [](ActionExecutionContext& context) {
                     context.frame()->toggleRotateObjectsTool();
                 },
@@ -472,8 +583,8 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->rotateObjectsToolActive();
-                });
-            const auto* toggleScaleTool = createAction("Scale Tool", ActionContext_Any, QKeySequence(Qt::Key_T),
+                }));
+            toolMenu.addItem(createMenuAction("Scale Tool", Qt::Key_T,
                 [](ActionExecutionContext& context) {
                     context.frame()->toggleScaleObjectsTool();
                 },
@@ -482,8 +593,8 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->scaleObjectsToolActive();
-                });
-            const auto* toggleShearTool = createAction("Shear Tool", ActionContext_Any, QKeySequence(Qt::Key_G),
+                }));
+            toolMenu.addItem(createMenuAction("Shear Tool", Qt::Key_G,
                 [](ActionExecutionContext& context) {
                     context.frame()->toggleShearObjectsTool();
                 },
@@ -492,8 +603,8 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->shearObjectsToolActive();
-                });
-            const auto* toggleVertexTool = createAction("Vertex Tool", ActionContext_Any, QKeySequence(Qt::Key_V),
+                }));
+            toolMenu.addItem(createMenuAction("Vertex Tool", Qt::Key_V,
                 [](ActionExecutionContext& context) {
                     context.frame()->toggleVertexTool();
                 },
@@ -502,8 +613,8 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->vertexToolActive();
-                });
-            const auto* toggleEdgeTool = createAction("Edge Tool", ActionContext_Any, QKeySequence(Qt::Key_E),
+                }));
+            toolMenu.addItem(createMenuAction("Edge Tool", Qt::Key_E,
                 [](ActionExecutionContext& context) {
                     context.frame()->toggleEdgeTool();
                 },
@@ -512,8 +623,8 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->edgeToolActive();
-                });
-            const auto* toggleFaceTool = createAction("Face Tool", ActionContext_Any, QKeySequence(Qt::Key_F),
+                }));
+            toolMenu.addItem(createMenuAction("Face Tool", Qt::Key_F,
                 [](ActionExecutionContext& context) {
                     context.frame()->toggleFaceTool();
                 },
@@ -522,55 +633,55 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->faceToolActive();
-                });
+                }));
 
-            /* ========== Edit / CSG Menu ========== */
-            const auto* csgConvexMerge = createAction("Convex Merge", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::Key_J),
+            auto& csgMenu = editMenu.addMenu("CSG");
+            csgMenu.addItem(createMenuAction("Convex Merge", Qt::CTRL + Qt::Key_J,
                 [](ActionExecutionContext& context) {
                     context.frame()->csgConvexMerge();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->canDoCsgConvexMerge();
-                });
-            const auto* csgSubtract = createAction("Subtract", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::Key_K),
+                }));
+            csgMenu.addItem(createMenuAction("Subtract", Qt::CTRL + Qt::Key_K,
                 [](ActionExecutionContext& context) {
                     context.frame()->csgSubtract();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->canDoCsgSubtract();
-                });
-            const auto* csgHollow = createAction("Hollow", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_K),
+                }));
+            csgMenu.addItem(createMenuAction("Hollow", Qt::CTRL + Qt::SHIFT + Qt::Key_K,
                 [](ActionExecutionContext& context) {
                     context.frame()->csgHollow();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->canDoCsgHollow();
-                });
-            const auto* csgIntersect = createAction("Intersect", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::Key_L),
+                }));
+            csgMenu.addItem(createMenuAction("Intersect", Qt::CTRL + Qt::Key_L,
                 [](ActionExecutionContext& context) {
                     context.frame()->csgIntersect();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->canDoCsgIntersect();
-                });
+                }));
 
-            /* ========== Edit Menu Continued ========== */
-            const auto* snapVerticesToInteger = createAction("Snap Vertices to Integer", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_V),
+            editMenu.addSeparator();
+            editMenu.addItem(createMenuAction("Snap Vertices to Integer", Qt::CTRL + Qt::SHIFT + Qt::Key_V,
                 [](ActionExecutionContext& context) {
                     context.frame()->snapVerticesToInteger();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->canSnapVertices();
-                });
-            const auto* snapVerticesToGrid = createAction("Snap Vertices to Grid", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::ALT + Qt::SHIFT + Qt::Key_V),
+                }));
+            editMenu.addItem(createMenuAction("Snap Vertices to Grid", Qt::CTRL + Qt::ALT + Qt::SHIFT + Qt::Key_V,
                 [](ActionExecutionContext& context) {
                     context.frame()->snapVerticesToGrid();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->canSnapVertices();
-                });
-
-            const auto* toggleTextureLock = createAction("Texture Lock", ActionContext_Any, QKeySequence(),
+                }));
+            editMenu.addSeparator();
+            editMenu.addItem(createMenuAction("Texture Lock", 0,
                 [](ActionExecutionContext& context) {
                     context.frame()->toggleTextureLock();
                 },
@@ -579,8 +690,8 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return pref(Preferences::TextureLock);
-                });
-            const auto* toggleUVLock = createAction("UV Lock", ActionContext_Any, QKeySequence(Qt::Key_U),
+                }));
+            editMenu.addItem(createMenuAction("UV Lock", Qt::Key_U,
                 [](ActionExecutionContext& context) {
                     context.frame()->toggleUVLock();
                 },
@@ -589,47 +700,50 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return pref(Preferences::UVLock);
-                });
-            const auto* replaceTexture = createAction("Replace Texture...", ActionContext_Any, QKeySequence(),
+                }));
+            editMenu.addSeparator();
+            editMenu.addItem(createMenuAction("Replace Texture...", 0,
                 [](ActionExecutionContext& context) {
                     context.frame()->replaceTexture();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument();
-                });
+                }));
+        }
 
-            /* ========== View Menu ========== */
-            /* ========== View / Grid Menu ========== */
-            const auto* toggleShowGrid = createAction("Show Grid", ActionContext_Any, QKeySequence(Qt::Key_0),
+        void ActionManager::createViewMenu() {
+            auto& viewMenu = createMainMenu("View");
+            auto& gridMenu = viewMenu.addMenu("Grid");
+            gridMenu.addItem(createMenuAction("Show Grid", Qt::Key_0,
                 [](ActionExecutionContext& context) {
                     context.frame()->toggleShowGrid();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument();
-                });
-            const auto* toggleSnapToGrid = createAction("Snap to Grid", ActionContext_Any, QKeySequence(Qt::ALT + Qt::Key_0),
+                }));
+            gridMenu.addItem(createMenuAction("Snap to Grid", Qt::ALT + Qt::Key_0,
                 [](ActionExecutionContext& context) {
                     context.frame()->toggleSnapToGrid();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument();
-                });
-            const auto* incGridSize = createAction("Increase Grid Size", ActionContext_Any, QKeySequence(Qt::Key_Plus),
+                }));
+            gridMenu.addItem(createMenuAction("Increase Grid Size", Qt::Key_Plus,
                 [](ActionExecutionContext& context) {
                     context.frame()->incGridSize();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->canIncGridSize();
-                });
-            const auto* decGridSize = createAction("Decrease Grid Size", ActionContext_Any, QKeySequence(Qt::Key_Minus),
+                }));
+            gridMenu.addItem(createMenuAction("Decrease Grid Size", Qt::Key_Minus,
                 [](ActionExecutionContext& context) {
                     context.frame()->decGridSize();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->canDecGridSize();
-                });
-
-            const auto* setGridSize0125 = createAction("Set Grid Size 0.125", ActionContext_Any, QKeySequence(),
+                }));
+            gridMenu.addSeparator();
+            gridMenu.addItem(createMenuAction("Set Grid Size 0.125", 0,
                 [](ActionExecutionContext& context) {
                     context.frame()->setGridSize(-3);
                 },
@@ -638,8 +752,8 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.document()->grid().size() == -3;
-                });
-            const auto* setGridSize025 = createAction("Set Grid Size 0.25", ActionContext_Any, QKeySequence(),
+                }));
+            gridMenu.addItem(createMenuAction("Set Grid Size 0.25", 0,
                 [](ActionExecutionContext& context) {
                     context.frame()->setGridSize(-2);
                 },
@@ -648,8 +762,8 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.document()->grid().size() == -2;
-                });
-            const auto* setGridSize05 = createAction("Set Grid Size 0.5", ActionContext_Any, QKeySequence(),
+                }));
+            gridMenu.addItem(createMenuAction("Set Grid Size 0.5", 0,
                 [](ActionExecutionContext& context) {
                     context.frame()->setGridSize(-1);
                 },
@@ -658,8 +772,8 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.document()->grid().size() == -1;
-                });
-            const auto* setGridSize1 = createAction("Set Grid Size 1", ActionContext_Any, QKeySequence(Qt::Key_1),
+                }));
+            gridMenu.addItem(createMenuAction("Set Grid Size 1", Qt::Key_1,
                 [](ActionExecutionContext& context) {
                     context.frame()->setGridSize(0);
                 },
@@ -668,8 +782,8 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.document()->grid().size() == 0;
-                });
-            const auto* setGridSize2 = createAction("Set Grid Size 2", ActionContext_Any, QKeySequence(Qt::Key_2),
+                }));
+            gridMenu.addItem(createMenuAction("Set Grid Size 2", Qt::Key_2,
                 [](ActionExecutionContext& context) {
                     context.frame()->setGridSize(1);
                 },
@@ -678,8 +792,8 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.document()->grid().size() == 1;
-                });
-            const auto* setGridSize4 = createAction("Set Grid Size 4", ActionContext_Any, QKeySequence(Qt::Key_3),
+                }));
+            gridMenu.addItem(createMenuAction("Set Grid Size 4", Qt::Key_3,
                 [](ActionExecutionContext& context) {
                     context.frame()->setGridSize(2);
                 },
@@ -688,8 +802,8 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.document()->grid().size() == 2;
-                });
-            const auto* setGridSize8 = createAction("Set Grid Size 8", ActionContext_Any, QKeySequence(Qt::Key_4),
+                }));
+            gridMenu.addItem(createMenuAction("Set Grid Size 8", Qt::Key_4,
                 [](ActionExecutionContext& context) {
                     context.frame()->setGridSize(3);
                 },
@@ -698,8 +812,8 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.document()->grid().size() == 3;
-                });
-            const auto* setGridSize16 = createAction("Set Grid Size 16", ActionContext_Any, QKeySequence(Qt::Key_5),
+                }));
+            gridMenu.addItem(createMenuAction("Set Grid Size 16", Qt::Key_5,
                 [](ActionExecutionContext& context) {
                     context.frame()->setGridSize(4);
                 },
@@ -708,8 +822,8 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.document()->grid().size() == 4;
-                });
-            const auto* setGridSize32 = createAction("Set Grid Size 32", ActionContext_Any, QKeySequence(Qt::Key_6),
+                }));
+            gridMenu.addItem(createMenuAction("Set Grid Size 32", Qt::Key_6,
                 [](ActionExecutionContext& context) {
                     context.frame()->setGridSize(5);
                 },
@@ -718,8 +832,8 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.document()->grid().size() == 5;
-                });
-            const auto* setGridSize64 = createAction("Set Grid Size 64", ActionContext_Any, QKeySequence(Qt::Key_7),
+                }));
+            gridMenu.addItem(createMenuAction("Set Grid Size 64", Qt::Key_7,
                 [](ActionExecutionContext& context) {
                     context.frame()->setGridSize(6);
                 },
@@ -728,8 +842,8 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.document()->grid().size() == 6;
-                });
-            const auto* setGridSize128 = createAction("Set Grid Size 128", ActionContext_Any, QKeySequence(Qt::Key_8),
+                }));
+            gridMenu.addItem(createMenuAction("Set Grid Size 128", Qt::Key_8,
                 [](ActionExecutionContext& context) {
                     context.frame()->setGridSize(7);
                 },
@@ -738,8 +852,8 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.document()->grid().size() == 7;
-                });
-            const auto* setGridSize256 = createAction("Set Grid Size 256", ActionContext_Any, QKeySequence(Qt::Key_9),
+                }));
+            gridMenu.addItem(createMenuAction("Set Grid Size 256", Qt::Key_9,
                 [](ActionExecutionContext& context) {
                     context.frame()->setGridSize(8);
                 },
@@ -748,82 +862,84 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.document()->grid().size() == 8;
-                });
+                }));
 
-            /* ========== View / Camera Menu ========== */
-            const auto* moveCameraToNextPoint = createAction("Move Camera to Next Point", ActionContext_Any, QKeySequence(Qt::Key_Period),
+            auto& cameraMenu = viewMenu.addMenu("Camera");
+            cameraMenu.addItem(createMenuAction("Move Camera to Next Point", Qt::Key_Period,
                 [](ActionExecutionContext& context) {
                     context.frame()->moveCameraToNextPoint();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->canMoveCameraToNextPoint();
-                });
-            const auto* moveCameraToPreviousPoint = createAction("Move Camera to Previous Point", ActionContext_Any, QKeySequence(Qt::Key_Comma),
+                }));
+            cameraMenu.addItem(createMenuAction("Move Camera to Previous Point", Qt::Key_Comma,
                 [](ActionExecutionContext& context) {
                     context.frame()->moveCameraToPreviousPoint();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->canMoveCameraToPreviousPoint();
-                });
-            const auto* focusCamera = createAction("Focus Camera on Selection", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::Key_U),
+                }));
+            cameraMenu.addItem(createMenuAction("Focus Camera on Selection", Qt::CTRL + Qt::Key_U,
                 [](ActionExecutionContext& context) {
                     context.frame()->focusCameraOnSelection();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->canFocusCamera();
-                });
-            const auto* moveCameraToPoint = createAction("Move Camera to...", ActionContext_Any, QKeySequence(),
+                }));
+            cameraMenu.addItem(createMenuAction("Move Camera to...", 0,
                 [](ActionExecutionContext& context) {
                     context.frame()->moveCameraToPosition();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument();
-                });
+                }));
 
-            /* ========== View Menu Continued ========== */
-            const auto* isolateSelection = createAction("Isolate Selection", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::Key_I),
+            viewMenu.addSeparator();
+            viewMenu.addItem(createMenuAction("Isolate Selection", Qt::CTRL + Qt::Key_I,
                 [](ActionExecutionContext& context) {
                     context.frame()->isolateSelection();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->canIsolateSelection();
-                });
-            const auto* hideSelection = createAction("Hide Selection", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_I),
+                }));
+            viewMenu.addItem(createMenuAction("Hide Selection", Qt::CTRL + Qt::ALT + Qt::Key_I,
                 [](ActionExecutionContext& context) {
                     context.frame()->hideSelection();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->canHideSelection();
-                });
-            const auto* showAll = createAction("Show All", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_I),
+                }));
+            viewMenu.addItem(createMenuAction("Show All", Qt::CTRL + Qt::SHIFT + Qt::Key_I,
                 [](ActionExecutionContext& context) {
                     context.frame()->showAll();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument();
-                });
-            const auto* showMapInspector = createAction("Show Map Inspector", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::Key_1),
+                }));
+            viewMenu.addSeparator();
+            viewMenu.addItem(createMenuAction("Show Map Inspector", Qt::CTRL + Qt::Key_1,
                 [](ActionExecutionContext& context) {
                     context.frame()->switchToInspectorPage(Inspector::InspectorPage_Map);
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument();
-                });
-            const auto* showEntityInspector = createAction("Show Entity Inspector", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::Key_2),
+                }));
+            viewMenu.addItem(createMenuAction("Show Entity Inspector", Qt::CTRL + Qt::Key_2,
                 [](ActionExecutionContext& context) {
                     context.frame()->switchToInspectorPage(Inspector::InspectorPage_Entity);
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument();
-                });
-            const auto* showFaceInspector = createAction("Show Face Inspector", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::Key_3),
+                }));
+            viewMenu.addItem(createMenuAction("Show Face Inspector", Qt::CTRL + Qt::Key_3,
                 [](ActionExecutionContext& context) {
                     context.frame()->switchToInspectorPage(Inspector::InspectorPage_Face);
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument();
-                });
-            const auto* toggleInfoPanel = createAction("Toggle Info Panel", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::Key_4),
+                }));
+            viewMenu.addSeparator();
+            viewMenu.addItem(createMenuAction("Toggle Info Panel", Qt::CTRL + Qt::Key_4,
                 [](ActionExecutionContext& context) {
                     context.frame()->toggleInfoPanel();
                 },
@@ -832,8 +948,8 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->infoPanelVisible();
-                });
-            const auto* toggleInspector = createAction("Toggle Inspector", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::Key_5),
+                }));
+            viewMenu.addItem(createMenuAction("Toggle Inspector", Qt::CTRL + Qt::Key_5,
                 [](ActionExecutionContext& context) {
                     context.frame()->toggleInspector();
                 },
@@ -842,8 +958,8 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->inspectorVisible();
-                });
-            const auto* toggleMaximizeCurrentView = createAction("Maximize Current View", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::Key_Space),
+                }));
+            viewMenu.addItem(createMenuAction("Maximize Current View", Qt::CTRL + Qt::Key_Space,
                 [](ActionExecutionContext& context) {
                     context.frame()->toggleMaximizeCurrentView();
                 },
@@ -852,304 +968,149 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->currentViewMaximized();
-                });
-
-            /* ========== Run Menu ========== */
-            const auto* showCompileDialog = createAction("Compile Map...", ActionContext_Any, QKeySequence(),
-                [](ActionExecutionContext& context) {
-                    context.frame()->showCompileDialog();
-                },
-                [](ActionExecutionContext& context) {
-                    return context.hasDocument();
-                });
-            const auto* showLaunchEngineDialog = createAction("Launch Engine...", ActionContext_Any, QKeySequence(),
-                [](ActionExecutionContext& context) {
-                    context.frame()->showLaunchEngineDialog();
-                },
-                [](ActionExecutionContext& context) {
-                    return context.hasDocument();
-                });
-
-#ifndef NDEBUG
-            /* ========== Debug Menu ========== */
-            const auto* debugPrintVertices = createAction("Print Vertices to Console", ActionContext_Any, QKeySequence(),
-                [](ActionExecutionContext& context) {
-                    context.frame()->debugPrintVertices();
-                },
-                [](ActionExecutionContext& context) {
-                    return context.hasDocument();
-                });
-            const auto* debugCreateBrush = createAction("Create Brush...", ActionContext_Any, QKeySequence(),
-                [](ActionExecutionContext& context) {
-                    context.frame()->debugCreateBrush();
-                },
-                [](ActionExecutionContext& context) {
-                    return context.hasDocument();
-                });
-            const auto* debugCreateCube = createAction("Create Cube...", ActionContext_Any, QKeySequence(),
-                [](ActionExecutionContext& context) {
-                    context.frame()->debugCreateCube();
-                },
-                [](ActionExecutionContext& context) {
-                    return context.hasDocument();
-                });
-            const auto* debugClipBrush = createAction("Clip Brush...", ActionContext_Any, QKeySequence(),
-                [](ActionExecutionContext& context) {
-                    context.frame()->debugClipBrush();
-                },
-                [](ActionExecutionContext& context) {
-                    return context.hasDocument();
-                });
-            const auto* debugCopyJSShortcutMap = createAction("Copy Javascript Shortcut Map", ActionContext_Any, QKeySequence(),
-                [](ActionExecutionContext& context) {
-                    context.frame()->debugCopyJSShortcutMap();
-                },
-                [](ActionExecutionContext& context) {
-                    return context.hasDocument();
-                });
-            const auto* debugCrash = createAction("Crash...", ActionContext_Any, QKeySequence(),
-                [](ActionExecutionContext& context) {
-                    context.frame()->debugCrash();
-                },
-                [](ActionExecutionContext& context) {
-                    return context.hasDocument();
-                });
-            const auto* debugThrowExceptionDuringCommand = createAction("Throw Exception During Command", ActionContext_Any, QKeySequence(),
-                [](ActionExecutionContext& context) {
-                    context.frame()->debugThrowExceptionDuringCommand();
-                },
-                [](ActionExecutionContext& context) {
-                    return context.hasDocument();
-                });
-            const auto* debugShowCrashReportDialog = createAction("Show Crash Report Dialog...", ActionContext_Any, QKeySequence(),
-                [](ActionExecutionContext& context) {
-                    auto& app = TrenchBroomApp::instance();
-                    app.debugShowCrashReportDialog();
-                },
-                [](ActionExecutionContext& context) {
-                    return true;
-                });
-            const auto* debugSetWindowSize = createAction("Set Window Size...", ActionContext_Any, QKeySequence(),
-                [](ActionExecutionContext& context) {
-                    context.frame()->debugSetWindowSize();
-                },
-                [](ActionExecutionContext& context) {
-                    return context.hasDocument();
-                });
-#endif
-
-            /* ========== Debug Menu ========== */
-            const auto* showManual = createAction("TrenchBroom Manual", ActionContext_Any, QKeySequence(QKeySequence::HelpContents),
-                [](ActionExecutionContext& context) {
-                    auto& app = TrenchBroomApp::instance();
-                    app.showManual();
-                },
-                [](ActionExecutionContext& context) {
-                    return true;
-                });
-            const auto* showAboutDialog = createAction("About TrenchBroom", ActionContext_Any, QKeySequence(),
-                [](ActionExecutionContext& context) {
-                    auto& app = TrenchBroomApp::instance();
-                    app.showAboutDialog();
-                },
-                [](ActionExecutionContext& context) {
-                    return true;
-                });
-            const auto* showPreferences = createAction("Preferences...", ActionContext_Any, QKeySequence(QKeySequence::Preferences),
+                }));
+            viewMenu.addSeparator();
+            viewMenu.addItem(createMenuAction("Preferences...", QKeySequence::Preferences,
                 [](ActionExecutionContext& context) {
                     auto& app = TrenchBroomApp::instance();
                     app.showPreferences();
                 },
                 [](ActionExecutionContext& context) {
                     return true;
-                });
+                }));
+        }
 
-            /* ========== Editing Actions ========== */
-            const auto* moveObjectsForward = createAction("Move Objects Forward", ActionContext_NodeSelection, QKeySequence(Qt::Key_Up),
+        void ActionManager::createRunMenu() {
+            auto& runMenu = createMainMenu("Run");
+            runMenu.addItem(createMenuAction("Compile Map...", 0,
                 [](ActionExecutionContext& context) {
-                    context.view()->moveObjects(vm::direction::forward);
+                    context.frame()->showCompileDialog();
                 },
-                [](ActionExecutionContext& context) { return context.hasDocument(); });
-            const auto* moveObjectsBackward = createAction("Move Objects Backward", ActionContext_NodeSelection, QKeySequence(Qt::Key_Down),
                 [](ActionExecutionContext& context) {
-                    context.view()->moveObjects(vm::direction::backward);
-                },
-                [](ActionExecutionContext& context) { return context.hasDocument(); });
-            const auto* moveObjectsLeft = createAction("Move Objects Left", ActionContext_NodeSelection, QKeySequence(Qt::Key_Left),
+                    return context.hasDocument();
+                }));
+            runMenu.addItem(createMenuAction("Launch Engine...", 0,
                 [](ActionExecutionContext& context) {
-                     context.view()->moveObjects(vm::direction::left);
+                    context.frame()->showLaunchEngineDialog();
                 },
-                [](ActionExecutionContext& context) { return context.hasDocument(); });
-            const auto* moveObjectsRight = createAction("Move Objects Right", ActionContext_NodeSelection, QKeySequence(Qt::Key_Right),
                 [](ActionExecutionContext& context) {
-                     context.view()->moveObjects(vm::direction::right);
-                },
-                [](ActionExecutionContext& context) { return context.hasDocument(); });
-            const auto* moveObjectsUp = createAction("Move Objects Up", ActionContext_NodeSelection, QKeySequence(Qt::Key_PageUp),
-                [](ActionExecutionContext& context) {
-                     context.view()->moveObjects(vm::direction::up);
-                },
-                [](ActionExecutionContext& context) { return context.hasDocument(); });
-            const auto* moveObjectsDown = createAction("Move Objects Down", ActionContext_NodeSelection, QKeySequence(Qt::Key_PageDown),
-                [](ActionExecutionContext& context) {
-                     context.view()->moveObjects(vm::direction::down);
-                },
-                [](ActionExecutionContext& context) { return context.hasDocument(); });
+                    return context.hasDocument();
+                }));
+        }
 
-            const auto* cancel = createAction("Cancel", ActionContext_Any, QKeySequence(Qt::Key_Escape),
-                [](ActionExecutionContext& context) { context.view()->OnCancel(); },
-                [](ActionExecutionContext& context) { return context.hasDocument(); });
-            const auto* deactivateCurrentTool = createAction("Deactivate Current Tool", ActionContext_AnyTool, QKeySequence(Qt::CTRL + Qt::Key_Escape),
-                [](ActionExecutionContext& context) { context.view()->OnDeactivateTool(); },
-                [](ActionExecutionContext& context) { return context.hasDocument(); });
-
-            m_mapViewActions.push_back(moveObjectsForward);
-            m_mapViewActions.push_back(moveObjectsBackward);
-            m_mapViewActions.push_back(moveObjectsLeft);
-            m_mapViewActions.push_back(moveObjectsRight);
-            m_mapViewActions.push_back(moveObjectsUp);
-            m_mapViewActions.push_back(moveObjectsDown);
-            m_mapViewActions.push_back(cancel);
-            m_mapViewActions.push_back(deactivateCurrentTool);
-
-            auto& fileMenu = createMainMenu("File");
-            fileMenu.addItem(newFile);
-            fileMenu.addSeparator();
-            fileMenu.addItem(openFile);
-            fileMenu.addMenu("Open Recent", MenuEntryType::Menu_RecentDocuments);
-            fileMenu.addSeparator();
-            fileMenu.addItem(saveFile);
-            fileMenu.addItem(saveFileAs);
-
-            auto& exportMenu = fileMenu.addMenu("Export");
-            exportMenu.addItem(exportWavefrontObj);
-
-            fileMenu.addSeparator();
-            fileMenu.addItem(loadPointFile);
-            fileMenu.addItem(reloadPointFile);
-            fileMenu.addItem(unloadPointFile);
-            fileMenu.addSeparator();
-            fileMenu.addItem(loadPortalFile);
-            fileMenu.addItem(reloadPortalFile);
-            fileMenu.addItem(unloadPortalFile);
-            fileMenu.addSeparator();
-            fileMenu.addItem(reloadTextureCollections);
-            fileMenu.addItem(reloadEntityDefinitions);
-            fileMenu.addSeparator();
-            fileMenu.addItem(closeDocument);
-
-            auto& editMenu = createMainMenu("Edit");
-            editMenu.addItem(undo, MenuEntryType::Menu_Undo);
-            editMenu.addItem(redo, MenuEntryType::Menu_Redo);
-            editMenu.addSeparator();
-            editMenu.addItem(repeat);
-            editMenu.addItem(clearRepeat);
-            editMenu.addSeparator();
-            editMenu.addItem(cut, MenuEntryType::Menu_Cut);
-            editMenu.addItem(copy, MenuEntryType::Menu_Copy);
-            editMenu.addItem(paste, MenuEntryType::Menu_Paste);
-            editMenu.addItem(pasteAtOriginalPosition, MenuEntryType::Menu_PasteAtOriginalPosition);
-            editMenu.addItem(duplicate);
-            editMenu.addItem(delete_);
-            editMenu.addSeparator();
-            editMenu.addItem(selectAll);
-            editMenu.addItem(selectSiblings);
-            editMenu.addItem(selectTouching);
-            editMenu.addItem(selectInside);
-            editMenu.addItem(selectTall);
-            editMenu.addItem(selectByLineNo);
-            editMenu.addItem(selectNone);
-            editMenu.addSeparator();
-            editMenu.addItem(groupSelection);
-            editMenu.addItem(ungroupSelection);
-            editMenu.addSeparator();
-
-            auto& toolMenu = editMenu.addMenu("Tools");
-            toolMenu.addItem(toggleBrushTool);
-            toolMenu.addItem(toggleClipTool);
-            toolMenu.addItem(toggleRotateTool);
-            toolMenu.addItem(toggleScaleTool);
-            toolMenu.addItem(toggleShearTool);
-            toolMenu.addItem(toggleVertexTool);
-            toolMenu.addItem(toggleEdgeTool);
-            toolMenu.addItem(toggleFaceTool);
-
-            auto& csgMenu = editMenu.addMenu("CSG");
-            csgMenu.addItem(csgConvexMerge);
-            csgMenu.addItem(csgSubtract);
-            csgMenu.addItem(csgHollow);
-            csgMenu.addItem(csgIntersect);
-
-            editMenu.addSeparator();
-            editMenu.addItem(snapVerticesToInteger);
-            editMenu.addItem(snapVerticesToGrid);
-            editMenu.addSeparator();
-            editMenu.addItem(toggleTextureLock);
-            editMenu.addItem(toggleUVLock);
-            editMenu.addSeparator();
-            editMenu.addItem(replaceTexture);
-
-            auto& viewMenu = createMainMenu("View");
-            auto& gridMenu = viewMenu.addMenu("Grid");
-            gridMenu.addItem(toggleShowGrid);
-            gridMenu.addItem(toggleSnapToGrid);
-            gridMenu.addItem(incGridSize);
-            gridMenu.addItem(decGridSize);
-            gridMenu.addSeparator();
-            gridMenu.addItem(setGridSize0125);
-            gridMenu.addItem(setGridSize025);
-            gridMenu.addItem(setGridSize05);
-            gridMenu.addItem(setGridSize1);
-            gridMenu.addItem(setGridSize2);
-            gridMenu.addItem(setGridSize4);
-            gridMenu.addItem(setGridSize8);
-            gridMenu.addItem(setGridSize16);
-            gridMenu.addItem(setGridSize32);
-            gridMenu.addItem(setGridSize64);
-            gridMenu.addItem(setGridSize128);
-            gridMenu.addItem(setGridSize256);
-
-            auto& cameraMenu = viewMenu.addMenu("Camera");
-            cameraMenu.addItem(moveCameraToNextPoint);
-            cameraMenu.addItem(moveCameraToPreviousPoint);
-            cameraMenu.addItem(focusCamera);
-            cameraMenu.addItem(moveCameraToPoint);
-
-            viewMenu.addSeparator();
-            viewMenu.addItem(isolateSelection);
-            viewMenu.addItem(hideSelection);
-            viewMenu.addItem(showAll);
-            viewMenu.addSeparator();
-            viewMenu.addItem(showMapInspector);
-            viewMenu.addItem(showEntityInspector);
-            viewMenu.addItem(showFaceInspector);
-            viewMenu.addSeparator();
-            viewMenu.addItem(toggleInfoPanel);
-            viewMenu.addItem(toggleInspector);
-            viewMenu.addItem(toggleMaximizeCurrentView);
-            viewMenu.addSeparator();
-            viewMenu.addItem(showPreferences);
-
-            auto& runMenu  = createMainMenu("Run");
-
-            runMenu.addItem(showCompileDialog);
-            runMenu.addItem(showLaunchEngineDialog);
-
+        void ActionManager::createDebugMenu() {
 #ifndef NDEBUG
             auto& debugMenu = createMainMenu("Debug");
-            debugMenu.addItem(debugPrintVertices);
-            debugMenu.addItem(debugCreateBrush);
-            debugMenu.addItem(debugCreateCube);
-            debugMenu.addItem(debugClipBrush);
-            debugMenu.addItem(debugPrintVertices);
-            debugMenu.addItem(debugCrash);
-            debugMenu.addItem(debugThrowExceptionDuringCommand);
-            debugMenu.addItem(debugShowCrashReportDialog);
-            debugMenu.addItem(debugSetWindowSize);
+            debugMenu.addItem(createMenuAction("Print Vertices to Console", 0,
+                [](ActionExecutionContext& context) {
+                    context.frame()->debugPrintVertices();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument();
+                }));
+            debugMenu.addItem(createMenuAction("Create Brush...", 0,
+                [](ActionExecutionContext& context) {
+                    context.frame()->debugCreateBrush();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument();
+                }));
+            debugMenu.addItem(createMenuAction("Create Cube...", 0,
+                [](ActionExecutionContext& context) {
+                    context.frame()->debugCreateCube();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument();
+                }));
+            debugMenu.addItem(createMenuAction("Clip Brush...", 0,
+                [](ActionExecutionContext& context) {
+                    context.frame()->debugClipBrush();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument();
+                }));
+            debugMenu.addItem(createMenuAction("Copy Javascript Shortcut Map", 0,
+                [](ActionExecutionContext& context) {
+                    context.frame()->debugCopyJSShortcutMap();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument();
+                }));
+            debugMenu.addItem(createMenuAction("Crash...", 0,
+                [](ActionExecutionContext& context) {
+                    context.frame()->debugCrash();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument();
+                }));
+            debugMenu.addItem(createMenuAction("Throw Exception During Command", 0,
+                [](ActionExecutionContext& context) {
+                    context.frame()->debugThrowExceptionDuringCommand();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument();
+                }));
+            debugMenu.addItem(createMenuAction("Show Crash Report Dialog...", 0,
+                [](ActionExecutionContext& context) {
+                    auto& app = TrenchBroomApp::instance();
+                    app.debugShowCrashReportDialog();
+                },
+                [](ActionExecutionContext& context) {
+                    return true;
+                }));
+            debugMenu.addItem(createMenuAction("Set Window Size...", 0,
+                [](ActionExecutionContext& context) {
+                    context.frame()->debugSetWindowSize();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument();
+                }));
 #endif
+        }
+
+        void ActionManager::createHelpMenu() {
             auto& helpMenu = createMainMenu("Help");
-            helpMenu.addItem(showManual);
-            helpMenu.addItem(showAboutDialog);
+            helpMenu.addItem(
+                createAction("TrenchBroom Manual", ActionContext_Any, QKeySequence(QKeySequence::HelpContents),
+                    [](ActionExecutionContext& context) {
+                        auto& app = TrenchBroomApp::instance();
+                        app.showManual();
+                    },
+                    [](ActionExecutionContext& context) {
+                        return true;
+                    }));
+            helpMenu.addItem(createMenuAction("About TrenchBroom", 0,
+                [](ActionExecutionContext& context) {
+                    auto& app = TrenchBroomApp::instance();
+                    app.showAboutDialog();
+                },
+                [](ActionExecutionContext& context) {
+                    return true;
+                }));
+        }
+
+        const Action* ActionManager::createMenuAction(const String& name, const int key, const Action::ExecuteFn& execute,
+                                                      const Action::EnabledFn& enabled) {
+            return createAction(name, ActionContext_Any, QKeySequence(key), execute, enabled);
+        }
+
+        const Action* ActionManager::createMenuAction(const String& name, int key, const Action::ExecuteFn& execute,
+                                                      const Action::EnabledFn& enabled,
+                                                      const Action::CheckedFn& checked) {
+            return createAction(name, ActionContext_Any, QKeySequence(key), execute, enabled, checked);
+        }
+
+        const Action* ActionManager::createMenuAction(const String& name, const QKeySequence::StandardKey key,
+                                                      const Action::ExecuteFn& execute,
+                                                      const Action::EnabledFn& enabled) {
+            return createAction(name, ActionContext_Any, QKeySequence(key), execute, enabled);
+        }
+
+        const Action* ActionManager::createMenuAction(const String& name, QKeySequence::StandardKey key,
+                                                      const Action::ExecuteFn& execute,
+                                                      const Action::EnabledFn& enabled,
+                                                      const Action::CheckedFn& checked) {
+            return createAction(name, ActionContext_Any, QKeySequence(key), execute, enabled, checked);
         }
 
         const Action* ActionManager::createAction(const String& name, const int actionContext,
