@@ -1532,32 +1532,28 @@ namespace TrenchBroom {
             }
         }
 
-        void MapFrame::OnViewHideSelectedObjects() {
-            if (canHide()) {
-                m_document->hideSelection();
-            }
-        }
-
-        void MapFrame::OnViewIsolateSelectedObjects() {
-            if (canIsolate()) {
+        void MapFrame::isolateSelection() {
+            if (canIsolateSelection()) {
                 m_document->isolate(m_document->selectedNodes().nodes());
             }
         }
 
-        void MapFrame::OnViewShowHiddenObjects() {
+        bool MapFrame::canIsolateSelection() const {
+            return m_document->hasSelectedNodes();
+        }
+
+        void MapFrame::hideSelection() {
+            if (canHideSelection()) {
+                m_document->hideSelection();
+            }
+        }
+
+        bool MapFrame::canHideSelection() const {
+            return m_document->hasSelectedNodes();
+        }
+
+        void MapFrame::showAll() {
             m_document->showAll();
-        }
-
-        void MapFrame::OnViewSwitchToMapInspector() {
-            switchToInspectorPage(Inspector::InspectorPage_Map);
-        }
-
-        void MapFrame::OnViewSwitchToEntityInspector() {
-            switchToInspectorPage(Inspector::InspectorPage_Entity);
-        }
-
-        void MapFrame::OnViewSwitchToFaceInspector() {
-            switchToInspectorPage(Inspector::InspectorPage_Face);
         }
 
         void MapFrame::switchToInspectorPage(const Inspector::InspectorPage page) {
@@ -1565,19 +1561,31 @@ namespace TrenchBroom {
             m_inspector->switchToPage(page);
         }
 
-        void MapFrame::OnViewToggleMaximizeCurrentView() {
-            m_mapView->toggleMaximizeCurrentView();
-        }
-
-        void MapFrame::OnViewToggleInfoPanel() {
+        void MapFrame::toggleInfoPanel() {
             m_infoPanel->setHidden(!m_infoPanel->isHidden());
         }
 
-        void MapFrame::OnViewToggleInspector() {
+        bool MapFrame::infoPanelVisible() const {
+            return m_infoPanel->isVisible();
+        }
+
+        void MapFrame::toggleInspector() {
             m_inspector->setHidden(!m_inspector->isHidden());
         }
 
-        void MapFrame::OnRunCompile() {
+        bool MapFrame::inspectorVisible() const {
+            return m_inspector->isVisible();
+        }
+
+        void MapFrame::toggleMaximizeCurrentView() {
+            m_mapView->toggleMaximizeCurrentView();
+        }
+
+        bool MapFrame::currentViewMaximized() {
+            return m_mapView->currentViewMaximized();
+        }
+
+        void MapFrame::showCompileDialog() {
             // FIXME:
 //            if (m_compilationDialog == nullptr) {
 //                m_compilationDialog = new CompilationDialog(this);
@@ -1592,7 +1600,7 @@ namespace TrenchBroom {
 //            m_compilationDialog = nullptr;
         }
 
-        void MapFrame::OnRunLaunch() {
+        void MapFrame::showLaunchEngineDialog() {
             // FIXME:
 //            LaunchGameEngineDialog dialog(this, m_document);
 //            dialog.ShowModal();
@@ -1982,14 +1990,6 @@ namespace TrenchBroom {
 
         void MapFrame::onFocusChange(QWidget* old, QWidget* now) {
             updateActionState();
-        }
-
-        bool MapFrame::canHide() const {
-            return m_document->hasSelectedNodes();
-        }
-
-        bool MapFrame::canIsolate() const {
-            return m_document->hasSelectedNodes();
         }
 
         bool MapFrame::canCompile() const {

@@ -297,25 +297,29 @@ namespace TrenchBroom {
 
             void moveCameraToPosition();
 
-            void OnViewHideSelectedObjects();
-            void OnViewIsolateSelectedObjects();
-            void OnViewShowHiddenObjects();
+            void isolateSelection();
+            bool canIsolateSelection() const;
 
-            void OnViewSwitchToMapInspector();
-            void OnViewSwitchToEntityInspector();
-            void OnViewSwitchToFaceInspector();
+            void hideSelection();
+            bool canHideSelection() const;
+
+            void showAll();
 
             void switchToInspectorPage(Inspector::InspectorPage page);
 
-            void OnViewToggleMaximizeCurrentView();
-            void OnViewToggleInfoPanel();
-            void OnViewToggleInspector();
+            void toggleInfoPanel();
+            bool infoPanelVisible() const;
 
-            void OnRunCompile();
-        public:
+            void toggleInspector();
+            bool inspectorVisible() const;
+
+            void toggleMaximizeCurrentView();
+            bool currentViewMaximized();
+
+            void showCompileDialog();
             void compilationDialogWillClose();
-        private:
-            void OnRunLaunch();
+
+            void showLaunchEngineDialog();
 
             void OnDebugPrintVertices();
             void OnDebugCreateBrush();
@@ -335,8 +339,6 @@ namespace TrenchBroom {
 
             //wxTextCtrl* findFocusedTextCtrl() const;
 
-            bool canHide() const;
-            bool canIsolate() const;
             bool canCompile() const;
             bool canLaunch() const;
         private: // other event handlers

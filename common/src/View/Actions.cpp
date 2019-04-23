@@ -24,6 +24,7 @@
 #include "Preferences.h"
 #include "TrenchBroomApp.h"
 #include "View/Grid.h"
+#include "View/Inspector.h"
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
 #include "View/MapViewBase.h"
@@ -780,6 +781,94 @@ namespace TrenchBroom {
                 });
 
             /* ========== View Menu Continued ========== */
+            const auto* isolateSelection = createAction("Isolate Selection", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::Key_I),
+                [](ActionExecutionContext& context) {
+                    context.frame()->isolateSelection();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument() && context.frame()->canIsolateSelection();
+                });
+            const auto* hideSelection = createAction("Hide Selection", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_I),
+                [](ActionExecutionContext& context) {
+                    context.frame()->hideSelection();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument() && context.frame()->canHideSelection();
+                });
+            const auto* showAll = createAction("Show All", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_I),
+                [](ActionExecutionContext& context) {
+                    context.frame()->showAll();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument();
+                });
+            const auto* showMapInspector = createAction("Show Map Inspector", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::Key_1),
+                [](ActionExecutionContext& context) {
+                    context.frame()->switchToInspectorPage(Inspector::InspectorPage_Map);
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument();
+                });
+            const auto* showEntityInspector = createAction("Show Entity Inspector", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::Key_2),
+                [](ActionExecutionContext& context) {
+                    context.frame()->switchToInspectorPage(Inspector::InspectorPage_Entity);
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument();
+                });
+            const auto* showFaceInspector = createAction("Show Face Inspector", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::Key_3),
+                [](ActionExecutionContext& context) {
+                    context.frame()->switchToInspectorPage(Inspector::InspectorPage_Face);
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument();
+                });
+            const auto* toggleInfoPanel = createAction("Toggle Info Panel", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::Key_4),
+                [](ActionExecutionContext& context) {
+                    context.frame()->toggleInfoPanel();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument() && context.frame()->infoPanelVisible();
+                });
+            const auto* toggleInspector = createAction("Toggle Inspector", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::Key_5),
+                [](ActionExecutionContext& context) {
+                    context.frame()->toggleInspector();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument() && context.frame()->inspectorVisible();
+                });
+            const auto* toggleMaximizeCurrentView = createAction("Maximize Current View", ActionContext_Any, QKeySequence(Qt::CTRL + Qt::Key_Space),
+                [](ActionExecutionContext& context) {
+                    context.frame()->toggleMaximizeCurrentView();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument() && context.frame()->currentViewMaximized();
+                });
+
+            /* ========== Run Menu ========== */
+            const auto* showCompileDialog = createAction("Compile Map...", ActionContext_Any, QKeySequence(),
+                [](ActionExecutionContext& context) {
+                    context.frame()->showCompileDialog();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument();
+                });
+            const auto* showLaunchEngineDialog = createAction("Launch Engine...", ActionContext_Any, QKeySequence(),
+                [](ActionExecutionContext& context) {
+                    context.frame()->showLaunchEngineDialog();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument();
+                });
 
             /* ========== Editing Actions ========== */
             const auto* moveObjectsForward = createAction("Move Objects Forward", ActionContext_NodeSelection, QKeySequence(Qt::Key_Up),
@@ -832,6 +921,7 @@ namespace TrenchBroom {
             auto& fileMenu = createMainMenu("File");
             auto& editMenu = createMainMenu("Edit");
             auto& viewMenu = createMainMenu("View");
+            auto& runMenu  = createMainMenu("Run");
             auto& helpMenu = createMainMenu("Help");
 
             fileMenu.addItem(newFile);
@@ -934,6 +1024,21 @@ namespace TrenchBroom {
             cameraMenu.addItem(focusCamera);
             cameraMenu.addItem(moveCameraToPoint);
 
+            viewMenu.addSeparator();
+            viewMenu.addItem(isolateSelection);
+            viewMenu.addItem(hideSelection);
+            viewMenu.addItem(showAll);
+            viewMenu.addSeparator();
+            viewMenu.addItem(showMapInspector);
+            viewMenu.addItem(showEntityInspector);
+            viewMenu.addItem(showFaceInspector);
+            viewMenu.addSeparator();
+            viewMenu.addItem(toggleInfoPanel);
+            viewMenu.addItem(toggleInspector);
+            viewMenu.addItem(toggleMaximizeCurrentView);
+
+            runMenu.addItem(showCompileDialog);
+            runMenu.addItem(showLaunchEngineDialog);
         }
 
         const Action* ActionManager::createAction(const String& name, const int actionContext,
