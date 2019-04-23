@@ -79,10 +79,10 @@ namespace TrenchBroom {
             bool newDocument();
             void openDocument();
             void OnFileOpenRecent();
-            void OnHelpShowManual();
-            void OnOpenPreferences();
-            void OnOpenAbout();
-            void OnDebugShowCrashReportDialog();
+            void showManual();
+            void showPreferences();
+            void showAboutDialog();
+            void debugShowCrashReportDialog();
 
 //            void OnExecutableEvent(ExecutableEvent& event);
 

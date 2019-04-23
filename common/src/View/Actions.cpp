@@ -870,6 +870,100 @@ namespace TrenchBroom {
                     return context.hasDocument();
                 });
 
+#ifndef NDEBUG
+            /* ========== Debug Menu ========== */
+            const auto* debugPrintVertices = createAction("Print Vertices to Console", ActionContext_Any, QKeySequence(),
+                [](ActionExecutionContext& context) {
+                    context.frame()->debugPrintVertices();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument();
+                });
+            const auto* debugCreateBrush = createAction("Create Brush...", ActionContext_Any, QKeySequence(),
+                [](ActionExecutionContext& context) {
+                    context.frame()->debugCreateBrush();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument();
+                });
+            const auto* debugCreateCube = createAction("Create Cube...", ActionContext_Any, QKeySequence(),
+                [](ActionExecutionContext& context) {
+                    context.frame()->debugCreateCube();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument();
+                });
+            const auto* debugClipBrush = createAction("Clip Brush...", ActionContext_Any, QKeySequence(),
+                [](ActionExecutionContext& context) {
+                    context.frame()->debugClipBrush();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument();
+                });
+            const auto* debugCopyJSShortcutMap = createAction("Copy Javascript Shortcut Map", ActionContext_Any, QKeySequence(),
+                [](ActionExecutionContext& context) {
+                    context.frame()->debugCopyJSShortcutMap();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument();
+                });
+            const auto* debugCrash = createAction("Crash...", ActionContext_Any, QKeySequence(),
+                [](ActionExecutionContext& context) {
+                    context.frame()->debugCrash();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument();
+                });
+            const auto* debugThrowExceptionDuringCommand = createAction("Throw Exception During Command", ActionContext_Any, QKeySequence(),
+                [](ActionExecutionContext& context) {
+                    context.frame()->debugThrowExceptionDuringCommand();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument();
+                });
+            const auto* debugShowCrashReportDialog = createAction("Show Crash Report Dialog...", ActionContext_Any, QKeySequence(),
+                [](ActionExecutionContext& context) {
+                    auto& app = TrenchBroomApp::instance();
+                    app.debugShowCrashReportDialog();
+                },
+                [](ActionExecutionContext& context) {
+                    return true;
+                });
+            const auto* debugSetWindowSize = createAction("Set Window Size...", ActionContext_Any, QKeySequence(),
+                [](ActionExecutionContext& context) {
+                    context.frame()->debugSetWindowSize();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument();
+                });
+#endif
+
+            /* ========== Debug Menu ========== */
+            const auto* showManual = createAction("TrenchBroom Manual", ActionContext_Any, QKeySequence(QKeySequence::HelpContents),
+                [](ActionExecutionContext& context) {
+                    auto& app = TrenchBroomApp::instance();
+                    app.showManual();
+                },
+                [](ActionExecutionContext& context) {
+                    return true;
+                });
+            const auto* showAboutDialog = createAction("About TrenchBroom", ActionContext_Any, QKeySequence(),
+                [](ActionExecutionContext& context) {
+                    auto& app = TrenchBroomApp::instance();
+                    app.showAboutDialog();
+                },
+                [](ActionExecutionContext& context) {
+                    return true;
+                });
+            const auto* showPreferences = createAction("Preferences...", ActionContext_Any, QKeySequence(QKeySequence::Preferences),
+                [](ActionExecutionContext& context) {
+                    auto& app = TrenchBroomApp::instance();
+                    app.showPreferences();
+                },
+                [](ActionExecutionContext& context) {
+                    return true;
+                });
+
             /* ========== Editing Actions ========== */
             const auto* moveObjectsForward = createAction("Move Objects Forward", ActionContext_NodeSelection, QKeySequence(Qt::Key_Up),
                 [](ActionExecutionContext& context) {
@@ -919,11 +1013,6 @@ namespace TrenchBroom {
             m_mapViewActions.push_back(deactivateCurrentTool);
 
             auto& fileMenu = createMainMenu("File");
-            auto& editMenu = createMainMenu("Edit");
-            auto& viewMenu = createMainMenu("View");
-            auto& runMenu  = createMainMenu("Run");
-            auto& helpMenu = createMainMenu("Help");
-
             fileMenu.addItem(newFile);
             fileMenu.addSeparator();
             fileMenu.addItem(openFile);
@@ -949,6 +1038,7 @@ namespace TrenchBroom {
             fileMenu.addSeparator();
             fileMenu.addItem(closeDocument);
 
+            auto& editMenu = createMainMenu("Edit");
             editMenu.addItem(undo, MenuEntryType::Menu_Undo);
             editMenu.addItem(redo, MenuEntryType::Menu_Redo);
             editMenu.addSeparator();
@@ -999,6 +1089,7 @@ namespace TrenchBroom {
             editMenu.addSeparator();
             editMenu.addItem(replaceTexture);
 
+            auto& viewMenu = createMainMenu("View");
             auto& gridMenu = viewMenu.addMenu("Grid");
             gridMenu.addItem(toggleShowGrid);
             gridMenu.addItem(toggleSnapToGrid);
@@ -1036,9 +1127,29 @@ namespace TrenchBroom {
             viewMenu.addItem(toggleInfoPanel);
             viewMenu.addItem(toggleInspector);
             viewMenu.addItem(toggleMaximizeCurrentView);
+            viewMenu.addSeparator();
+            viewMenu.addItem(showPreferences);
+
+            auto& runMenu  = createMainMenu("Run");
 
             runMenu.addItem(showCompileDialog);
             runMenu.addItem(showLaunchEngineDialog);
+
+#ifndef NDEBUG
+            auto& debugMenu = createMainMenu("Debug");
+            debugMenu.addItem(debugPrintVertices);
+            debugMenu.addItem(debugCreateBrush);
+            debugMenu.addItem(debugCreateCube);
+            debugMenu.addItem(debugClipBrush);
+            debugMenu.addItem(debugPrintVertices);
+            debugMenu.addItem(debugCrash);
+            debugMenu.addItem(debugThrowExceptionDuringCommand);
+            debugMenu.addItem(debugShowCrashReportDialog);
+            debugMenu.addItem(debugSetWindowSize);
+#endif
+            auto& helpMenu = createMainMenu("Help");
+            helpMenu.addItem(showManual);
+            helpMenu.addItem(showAboutDialog);
         }
 
         const Action* ActionManager::createAction(const String& name, const int actionContext,

@@ -522,22 +522,22 @@ namespace TrenchBroom {
             // openDocument("");
         }
 
-        void TrenchBroomApp::OnHelpShowManual() {
+        void TrenchBroomApp::showManual() {
             const IO::Path manualPath = IO::SystemPaths::findResourceFile(IO::Path("manual/index.html"));
             const String manualPathString = manualPath.asString();
             const QUrl manualPathUrl = QUrl::fromLocalFile(QString::fromStdString(manualPathString));
             QDesktopServices::openUrl(manualPathUrl);
         }
 
-        void TrenchBroomApp::OnOpenPreferences() {
+        void TrenchBroomApp::showPreferences() {
             openPreferences();
         }
 
-        void TrenchBroomApp::OnOpenAbout() {
+        void TrenchBroomApp::showAboutDialog() {
             openAbout();
         }
 
-        void TrenchBroomApp::OnDebugShowCrashReportDialog() {
+        void TrenchBroomApp::debugShowCrashReportDialog() {
             const IO::Path reportPath(IO::SystemPaths::userDataDirectory() + IO::Path("crashreport.txt"));
             const IO::Path mapPath(IO::SystemPaths::userDataDirectory() + IO::Path("crashreport.map"));
             const IO::Path logPath(IO::SystemPaths::userDataDirectory() + IO::Path("crashreport.log"));

@@ -321,14 +321,14 @@ namespace TrenchBroom {
 
             void showLaunchEngineDialog();
 
-            void OnDebugPrintVertices();
-            void OnDebugCreateBrush();
-            void OnDebugCreateCube();
-            void OnDebugClipBrush();
-            void OnDebugCopyJSShortcutMap();
-            void OnDebugCrash();
-            void OnDebugThrowExceptionDuringCommand();
-            void OnDebugSetWindowSize();
+            void debugPrintVertices();
+            void debugCreateBrush();
+            void debugCreateCube();
+            void debugClipBrush();
+            void debugCopyJSShortcutMap();
+            void debugCrash();
+            void debugThrowExceptionDuringCommand();
+            void debugSetWindowSize();
 
             void OnFlipObjectsHorizontally();
             void OnFlipObjectsVertically();

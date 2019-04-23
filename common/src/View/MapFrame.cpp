@@ -1606,11 +1606,11 @@ namespace TrenchBroom {
 //            dialog.ShowModal();
         }
 
-        void MapFrame::OnDebugPrintVertices() {
+        void MapFrame::debugPrintVertices() {
             m_document->printVertices();
         }
 
-        void MapFrame::OnDebugCreateBrush() {
+        void MapFrame::debugCreateBrush() {
             bool ok = false;
             const QString str = QInputDialog::getText(this, "Create Brush", "Enter a list of at least 4 points (x y z) (x y z) ...", QLineEdit::Normal, "", &ok);
             if (ok) {
@@ -1620,7 +1620,7 @@ namespace TrenchBroom {
             }
         }
 
-        void MapFrame::OnDebugCreateCube() {
+        void MapFrame::debugCreateCube() {
             bool ok = false;
             const QString str = QInputDialog::getText(this, "Create Cube", "Enter bounding box size", QLineEdit::Normal, "", &ok);
             if (ok) {
@@ -1632,7 +1632,7 @@ namespace TrenchBroom {
             }
         }
 
-        void MapFrame::OnDebugClipBrush() {
+        void MapFrame::debugClipBrush() {
             bool ok = false;
             const QString str = QInputDialog::getText(this, "Clip Brush", "Enter face points ( x y z ) ( x y z ) ( x y z )", QLineEdit::Normal, "", &ok);
             if (ok) {
@@ -1643,7 +1643,7 @@ namespace TrenchBroom {
             }
         }
 
-        void MapFrame::OnDebugCopyJSShortcutMap() {
+        void MapFrame::debugCopyJSShortcutMap() {
             QClipboard *clipboard = QApplication::clipboard();
 
             // FIXME: reimplement
@@ -1669,7 +1669,7 @@ namespace TrenchBroom {
             throw e;
         }
 
-        void MapFrame::OnDebugCrash() {
+        void MapFrame::debugCrash() {
             QStringList items;
             items << "Null pointer dereference" << "Unhandled exception";
 
@@ -1685,11 +1685,11 @@ namespace TrenchBroom {
             }
         }
 
-        void MapFrame::OnDebugThrowExceptionDuringCommand() {
+        void MapFrame::debugThrowExceptionDuringCommand() {
             m_document->throwExceptionDuringCommand();
         }
 
-        void MapFrame::OnDebugSetWindowSize() {
+        void MapFrame::debugSetWindowSize() {
             bool ok = false;
             const QString str = QInputDialog::getText(this, "Window Size", "Enter Size (W H)", QLineEdit::Normal, "1920 1080", &ok);
             if (ok) {
