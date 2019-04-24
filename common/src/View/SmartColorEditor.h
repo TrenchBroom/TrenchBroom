@@ -25,6 +25,7 @@
 #include "Model/ModelTypes.h"
 #include "View/SmartAttributeEditor.h"
 #include "View/ViewTypes.h"
+#include "View/ColorButton.h"
 
 #include <QColor>
 
@@ -45,15 +46,14 @@ namespace TrenchBroom {
 
             QRadioButton* m_floatRadio;
             QRadioButton* m_byteRadio;
-            // FIXME: add a color picker button
-            QPushButton* m_colorPicker;
+            ColorButton* m_colorPicker;
             ColorTable* m_colorHistory;
         public:
             SmartColorEditor(QWidget* parent, View::MapDocumentWPtr document);
 
             void OnFloatRangeRadioButton();
             void OnByteRangeRadioButton();
-            void OnColorPickerChanged();
+            void OnColorPickerChanged(const QColor& color);
             void OnColorTableSelected(QColor color);
         private:
             void createGui();
