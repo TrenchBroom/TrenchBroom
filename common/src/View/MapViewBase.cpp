@@ -309,7 +309,9 @@ namespace TrenchBroom {
             const auto& actionManager = ActionManager::instance();
             actionManager.visitMapViewActions([this](const Action& action) {
                 auto shortcut = std::make_unique<QShortcut>(widgetContainer());
+                shortcut->setKey(action.keySequence());
                 connect(shortcut.get(), &QShortcut::activated, this, [this, &action]() { triggerAction(action); });
+                connect(shortcut.get(), &QShortcut::activatedAmbiguously, this, [this, &action]() { triggerAmbiguousAction(action.name()); });
                 m_shortcuts.emplace_back(std::move(shortcut), &action);
             });
 
@@ -395,6 +397,7 @@ namespace TrenchBroom {
             }
         }
 
+
         void MapViewBase::updateActionStates() {
             ActionExecutionContext context(findMapFrame(widgetContainer()), this);
             for (auto& [shortcut, action] : m_shortcuts) {
@@ -403,79 +406,39 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::triggerAction(const Action& action) {
+            qDebug() << "Action triggered: " << QString::fromStdString(action.name());
             auto* mapFrame = findMapFrame(widgetContainer());
             ActionExecutionContext context(mapFrame, this);
             action.execute(context);
         }
 
-        void MapViewBase::OnDuplicateObjectsForward() {
-            duplicateAndMoveObjects(vm::direction::forward);
+        void MapViewBase::triggerAmbiguousAction(const String& name) {
+            qDebug() << "Ambiguous action triggered: " << QString::fromStdString(name);
         }
 
-        void MapViewBase::OnDuplicateObjectsBackward() {
-            duplicateAndMoveObjects(vm::direction::backward);
+        void MapViewBase::move(const vm::direction direction) {
+            if ((actionContext() & ActionContext::RotateTool) != 0) {
+                moveRotationCenter(direction);
+            } else if ((actionContext() & ActionContext::AnyVertexTool) != 0) {
+                moveVertices(direction);
+            } else if ((actionContext() & ActionContext::NodeSelection) != 0) {
+                moveObjects(direction);
+            }
         }
 
-        void MapViewBase::OnDuplicateObjectsLeft() {
-            duplicateAndMoveObjects(vm::direction::left);
-        }
-
-        void MapViewBase::OnDuplicateObjectsRight() {
-            duplicateAndMoveObjects(vm::direction::right);
-        }
-
-        void MapViewBase::OnDuplicateObjectsUp() {
-            duplicateAndMoveObjects(vm::direction::up);
-        }
-
-        void MapViewBase::OnDuplicateObjectsDown() {
-            duplicateAndMoveObjects(vm::direction::down);
-        }
-
-        void MapViewBase::OnRollObjectsCW() {
-            rotateObjects(vm::rotation_axis::roll, true);
-        }
-
-        void MapViewBase::OnRollObjectsCCW() {
-            rotateObjects(vm::rotation_axis::roll, false);
-        }
-
-        void MapViewBase::OnPitchObjectsCW() {
-            rotateObjects(vm::rotation_axis::pitch, true);
-        }
-
-        void MapViewBase::OnPitchObjectsCCW() {
-            rotateObjects(vm::rotation_axis::pitch, false);
-        }
-
-        void MapViewBase::OnYawObjectsCW() {
-            rotateObjects(vm::rotation_axis::yaw, true);
-        }
-
-        void MapViewBase::OnYawObjectsCCW() {
-            rotateObjects(vm::rotation_axis::yaw, false);
-        }
-
-        void MapViewBase::OnFlipObjectsH() {
-            flipObjects(vm::direction::left);
-        }
-
-        void MapViewBase::OnFlipObjectsV() {
-            flipObjects(vm::direction::up);
-        }
-
-        void MapViewBase::duplicateAndMoveObjects(const vm::direction direction) {
-            Transaction transaction(m_document);
-            duplicateObjects();
-            moveObjects(direction);
-        }
-
-        void MapViewBase::duplicateObjects() {
+        void MapViewBase::moveRotationCenter(const vm::direction direction) {
             MapDocumentSPtr document = lock(m_document);
-            if (!document->hasSelectedNodes())
-                return;
+            const Grid& grid = document->grid();
+            const vm::vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
+            m_toolBox.moveRotationCenter(delta);
+            update();
+        }
 
-            document->duplicateObjects();
+        void MapViewBase::moveVertices(const vm::direction direction) {
+            MapDocumentSPtr document = lock(m_document);
+            const Grid& grid = document->grid();
+            const vm::vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
+            m_toolBox.moveVertices(delta);
         }
 
         void MapViewBase::moveObjects(const vm::direction direction) {
@@ -487,6 +450,19 @@ namespace TrenchBroom {
 
         vm::vec3 MapViewBase::moveDirection(const vm::direction direction) const {
             return doGetMoveDirection(direction);
+        }
+
+        void MapViewBase::duplicateObjects() {
+            auto document = lock(m_document);
+            if (document->hasSelectedNodes()) {
+                document->duplicateObjects();
+            }
+        }
+
+        void MapViewBase::duplicateAndMoveObjects(const vm::direction direction) {
+            Transaction transaction(m_document);
+            duplicateObjects();
+            moveObjects(direction);
         }
 
         void MapViewBase::rotateObjects(const vm::rotation_axis axisSpec, const bool clockwise) {
@@ -523,54 +499,99 @@ namespace TrenchBroom {
             return axis;
         }
 
+        void MapViewBase::flipObjects(const vm::direction direction) {
+            if (canFlipObjects()) {
+                auto document = lock(m_document);
+
+                // If we snap the selection bounds' center to the grid size, then
+                // selections that are an odd number of grid units wide get translated.
+                // Instead, snap to 1/2 the grid size.
+                // (see: https://github.com/kduske/TrenchBroom/issues/1495 )
+                Grid halfGrid(document->grid().size());
+                halfGrid.decSize();
+
+                const auto center = halfGrid.referencePoint(document->selectionBounds());
+                const auto axis = firstComponent(moveDirection(direction));
+
+                document->flipObjects(center, axis);
+            }
+        }
+
+        bool MapViewBase::canFlipObjects() const {
+            MapDocumentSPtr document = lock(m_document);
+            return !m_toolBox.anyToolActive() && document->hasSelectedNodes();
+        }
+
+        void MapViewBase::moveTextures(const vm::direction direction) {
+            auto document = lock(m_document);
+            if (document->hasSelectedBrushFaces()) {
+                const auto offset = moveTextureOffset(direction);
+                document->moveTextures(doGetCamera().up(), doGetCamera().right(), offset);
+            }
+        }
+
+        vm::vec2f MapViewBase::moveTextureOffset(vm::direction direction) const {
+            switch (direction) {
+                case vm::direction::up:
+                    return vm::vec2f(0.0f, moveTextureDistance());
+                case vm::direction::down:
+                    return vm::vec2f(0.0f, -moveTextureDistance());
+                case vm::direction::left:
+                    return vm::vec2f(-moveTextureDistance(), 0.0f);
+                case vm::direction::right:
+                    return vm::vec2f(moveTextureDistance(), 0.0f);
+                default:
+                    return vm::vec2f();
+            }
+        }
+
+        float MapViewBase::moveTextureDistance() const {
+            const auto& grid = lock(m_document)->grid();
+            const auto gridSize = static_cast<float>(grid.actualSize());
+
+            const Qt::KeyboardModifiers modifiers = QApplication::keyboardModifiers();
+            switch (modifiers) {
+                case Qt::ControlModifier:
+                    return 1.0f;
+                case Qt::ShiftModifier:
+                    return 2.0f * gridSize;
+                default:
+                    return gridSize;
+            }
+        }
+
+        void MapViewBase::rotateTextures(const bool clockwise) {
+            auto document = lock(m_document);
+            if (document->hasSelectedBrushFaces()) {
+                const auto angle = rotateTextureAngle(clockwise);
+                document->rotateTextures(angle);
+            }
+        }
+
+        float MapViewBase::rotateTextureAngle(const bool clockwise) const {
+            const auto& grid = lock(m_document)->grid();
+            const auto gridAngle = static_cast<float>(vm::toDegrees(grid.angle()));
+            float angle;
+
+            const Qt::KeyboardModifiers modifiers = QApplication::keyboardModifiers();
+            switch (modifiers) {
+                case Qt::ControlModifier:
+                    angle = 1.0f;
+                    break;
+                case Qt::ShiftModifier:
+                    angle = 90.0f;
+                    break;
+                default:
+                    angle = gridAngle;
+                    break;
+            }
+            return clockwise ? angle : -angle;
+        }
+
         void MapViewBase::createComplexBrush() {
             if (m_toolBox.createComplexBrushToolActive()) {
                 m_toolBox.performCreateComplexBrush();
             }
-        }
-
-        void MapViewBase::OnToggleRotateObjectsTool() {
-            m_toolBox.toggleRotateObjectsTool();
-        }
-
-        void MapViewBase::OnToggleScaleObjectsTool() {
-            m_toolBox.toggleScaleObjectsTool();
-        }
-
-        void MapViewBase::OnToggleShearObjectsTool() {
-            m_toolBox.toggleShearObjectsTool();
-        }
-
-        void MapViewBase::OnMoveRotationCenterForward() {
-            moveRotationCenter(vm::direction::forward);
-        }
-
-        void MapViewBase::OnMoveRotationCenterBackward() {
-            moveRotationCenter(vm::direction::backward);
-        }
-
-        void MapViewBase::OnMoveRotationCenterLeft() {
-            moveRotationCenter(vm::direction::left);
-        }
-
-        void MapViewBase::OnMoveRotationCenterRight() {
-            moveRotationCenter(vm::direction::right);
-        }
-
-        void MapViewBase::OnMoveRotationCenterUp() {
-            moveRotationCenter(vm::direction::up);
-        }
-
-        void MapViewBase::OnMoveRotationCenterDown() {
-            moveRotationCenter(vm::direction::down);
-        }
-
-        void MapViewBase::moveRotationCenter(const vm::direction direction) {
-            MapDocumentSPtr document = lock(m_document);
-            const Grid& grid = document->grid();
-            const vm::vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
-            m_toolBox.moveRotationCenter(delta);
-            update();
         }
 
         void MapViewBase::toggleClipSide() {
@@ -581,42 +602,17 @@ namespace TrenchBroom {
             m_toolBox.performClip();
         }
 
-        void MapViewBase::OnMoveVerticesForward() {
-            moveVertices(vm::direction::forward);
+        void MapViewBase::resetCameraZoom() {
+            doGetCamera().setZoom(1.0f);
         }
 
-        void MapViewBase::OnMoveVerticesBackward() {
-            moveVertices(vm::direction::backward);
-        }
-
-        void MapViewBase::OnMoveVerticesLeft() {
-            moveVertices(vm::direction::left);
-        }
-
-        void MapViewBase::OnMoveVerticesRight() {
-            moveVertices(vm::direction::right);
-        }
-
-        void MapViewBase::OnMoveVerticesUp() {
-            moveVertices(vm::direction::up);
-        }
-
-        void MapViewBase::OnMoveVerticesDown() {
-            moveVertices(vm::direction::down);
-        }
-
-        void MapViewBase::moveVertices(const vm::direction direction) {
-            MapDocumentSPtr document = lock(m_document);
-            const Grid& grid = document->grid();
-            const vm::vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
-            m_toolBox.moveVertices(delta);
-        }
-
-        void MapViewBase::OnCancel() {
-            if (MapViewBase::cancel())
+        void MapViewBase::cancel() {
+            if (doCancel()) {
                 return;
-            if (ToolBoxConnector::cancel())
+            }
+            if (ToolBoxConnector::cancel()) {
                 return;
+            }
 
             MapDocumentSPtr document = lock(m_document);
             if (document->hasSelection()) {
@@ -626,7 +622,7 @@ namespace TrenchBroom {
             }
         }
 
-        void MapViewBase::OnDeactivateTool() {
+        void MapViewBase::deactivateTool() {
             m_toolBox.deactivateAllTools();
         }
 
@@ -777,7 +773,7 @@ namespace TrenchBroom {
         }
 #endif
 
-        void MapViewBase::OnMakeStructural() {
+        void MapViewBase::makeStructural() {
             auto document = lock(m_document);
             if (!document->selectedNodes().hasBrushes()) {
                 return;
@@ -849,103 +845,103 @@ namespace TrenchBroom {
         }
 #endif
 
-        void MapViewBase::OnToggleShowEntityClassnames() {
+        void MapViewBase::toggleShowEntityClassnames() {
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowEntityClassnames(!config.showEntityClassnames());
         }
 
-        void MapViewBase::OnToggleShowGroupBounds() {
+        void MapViewBase::toggleShowGroupBounds() {
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowGroupBounds(!config.showGroupBounds());
         }
 
-        void MapViewBase::OnToggleShowBrushEntityBounds() {
+        void MapViewBase::toggleShowBrushEntityBounds() {
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowBrushEntityBounds(!config.showBrushEntityBounds());
         }
 
-        void MapViewBase::OnToggleShowPointEntityBounds() {
+        void MapViewBase::toggleShowPointEntityBounds() {
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowPointEntityBounds(!config.showPointEntityBounds());
         }
 
-        void MapViewBase::OnToggleShowPointEntities() {
+        void MapViewBase::toggleShowPointEntities() {
             MapDocumentSPtr document = lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
             editorContext.setShowPointEntities(!editorContext.showPointEntities());
         }
 
-        void MapViewBase::OnToggleShowPointEntityModels() {
+        void MapViewBase::toggleShowPointEntityModels() {
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowPointEntityModels(!config.showPointEntityModels());
         }
 
-        void MapViewBase::OnToggleShowBrushes() {
+        void MapViewBase::toggleShowBrushes() {
             MapDocumentSPtr document = lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
             editorContext.setShowBrushes(!editorContext.showBrushes());
         }
 
-        void MapViewBase::OnRenderModeShowTextures() {
+        void MapViewBase::showTextures() {
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setFaceRenderMode(MapViewConfig::FaceRenderMode_Textured);
         }
 
-        void MapViewBase::OnRenderModeHideTextures() {
+        void MapViewBase::hideTextures() {
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setFaceRenderMode(MapViewConfig::FaceRenderMode_Flat);
         }
 
-        void MapViewBase::OnRenderModeHideFaces() {
+        void MapViewBase::hideFaces() {
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setFaceRenderMode(MapViewConfig::FaceRenderMode_Skip);
         }
 
-        void MapViewBase::OnRenderModeShadeFaces() {
+        void MapViewBase::toggleShadeFaces() {
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShadeFaces(!config.shadeFaces());
         }
 
-        void MapViewBase::OnRenderModeUseFog() {
+        void MapViewBase::toggleShowFog() {
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowFog(!config.showFog());
         }
 
-        void MapViewBase::OnRenderModeShowEdges() {
+        void MapViewBase::toggleShowEdges() {
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowEdges(!config.showEdges());
         }
 
-        void MapViewBase::OnRenderModeShowAllEntityLinks() {
+        void MapViewBase::showAllEntityLinks() {
             MapDocumentSPtr document = lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
             editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_All);
         }
 
-        void MapViewBase::OnRenderModeShowTransitiveEntityLinks() {
+        void MapViewBase::showTransitivelySelectedEntityLinks() {
             MapDocumentSPtr document = lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
             editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_Transitive);
         }
 
-        void MapViewBase::OnRenderModeShowDirectEntityLinks() {
+        void MapViewBase::showDirectlySelectedEntityLinks() {
             MapDocumentSPtr document = lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
             editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_Direct);
         }
 
-        void MapViewBase::OnRenderModeHideEntityLinks() {
+        void MapViewBase::hideAllEntityLinks() {
             MapDocumentSPtr document = lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
             editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_None);
@@ -964,30 +960,30 @@ namespace TrenchBroom {
             // updateLastActivation();
         }
 
-        ActionContext MapViewBase::actionContext() const {
-            const ActionContext derivedContext = doGetActionContext();
-            if (derivedContext != ActionContext_Default)
-                return derivedContext;
-
-            if (m_toolBox.createComplexBrushToolActive())
-                return ActionContext_CreateComplexBrushTool;
-            if (m_toolBox.clipToolActive())
-                return ActionContext_ClipTool;
-            if (m_toolBox.anyVertexToolActive())
-                return ActionContext_AnyVertexTool;
-            if (m_toolBox.rotateObjectsToolActive())
-                return ActionContext_RotateTool;
-            if (m_toolBox.scaleObjectsToolActive())
-                return ActionContext_ScaleTool;
-            if (m_toolBox.shearObjectsToolActive())
-                return ActionContext_ShearTool;
-
-            MapDocumentSPtr document = lock(m_document);
-            if (document->hasSelectedNodes())
-                return ActionContext_NodeSelection;
-            if (document->hasSelectedBrushFaces())
-                return ActionContext_FaceSelection;
-            return ActionContext_Default;
+        ActionContext::Type MapViewBase::actionContext() const {
+            const auto derivedContext = doGetActionContext();
+            if (m_toolBox.createComplexBrushToolActive()) {
+                return derivedContext | ActionContext::CreateComplexBrushTool;
+            } else if (m_toolBox.clipToolActive()) {
+                return derivedContext | ActionContext::ClipTool;
+            } else if (m_toolBox.anyVertexToolActive()) {
+                return derivedContext | ActionContext::AnyVertexTool;
+            } else if (m_toolBox.rotateObjectsToolActive()) {
+                return derivedContext | ActionContext::RotateTool;
+            } else if (m_toolBox.scaleObjectsToolActive()) {
+                return derivedContext | ActionContext::ScaleTool;
+            } else if (m_toolBox.shearObjectsToolActive()) {
+                return derivedContext | ActionContext::ShearTool;
+            } else {
+                auto document = lock(m_document);
+                if (document->hasSelectedNodes()) {
+                    return derivedContext | ActionContext::NodeSelection;
+                } else if (document->hasSelectedBrushFaces()) {
+                    return derivedContext | ActionContext::FaceSelection;
+                } else {
+                    return derivedContext;
+                }
+            }
         }
 
         void MapViewBase::doFlashSelection() {
@@ -1007,29 +1003,6 @@ namespace TrenchBroom {
         void MapViewBase::doClearDropTarget() {
             // FIXME: DND
             //SetDropTarget(nullptr);
-        }
-
-        bool MapViewBase::doCanFlipObjects() const {
-            MapDocumentSPtr document = lock(m_document);
-            return !m_toolBox.anyToolActive() && document->hasSelectedNodes();
-        }
-
-        void MapViewBase::doFlipObjects(const vm::direction direction) {
-            auto document = lock(m_document);
-            if (!document->hasSelectedNodes())
-                return;
-
-            // If we snap the selection bounds' center to the grid size, then
-            // selections that are an odd number of grid units wide get translated.
-            // Instead, snap to 1/2 the grid size.
-            // (see: https://github.com/kduske/TrenchBroom/issues/1495 )
-            Grid halfGrid(document->grid().size());
-            halfGrid.decSize();
-
-            const auto center = halfGrid.referencePoint(document->selectionBounds());
-            const auto axis = firstComponent(moveDirection(direction));
-
-            document->flipObjects(center, axis);
         }
 
         bool MapViewBase::doCancelMouseDrag() {
@@ -1258,7 +1231,7 @@ namespace TrenchBroom {
             menu.addSeparator();
 
             if (document->selectedNodes().hasOnlyBrushes()) {
-                QAction* moveToWorldAction = menu.addAction(tr("Make Structural"), this, &MapViewBase::OnMakeStructural);
+                QAction* moveToWorldAction = menu.addAction(tr("Make Structural"), this, &MapViewBase::makeStructural);
                 moveToWorldAction->setEnabled(canMakeStructural());
 
                 if (isEntity(newBrushParent)) {

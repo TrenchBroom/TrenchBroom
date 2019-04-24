@@ -28,10 +28,16 @@
 namespace TrenchBroom {
     namespace View {
         class CameraLinkHelper;
+        class MapViewContainer;
 
         class MapView : public ViewEffectsService {
+        private:
+            MapViewContainer* m_container;
         public:
+            MapView();
             ~MapView() override;
+
+            void setContainer(MapViewContainer* container);
 
             bool isCurrent() const;
             void setToolBoxDropTarget();
@@ -39,9 +45,6 @@ namespace TrenchBroom {
 
             bool canSelectTall();
             void selectTall();
-
-            bool canFlipObjects() const;
-            void flipObjects(vm::direction direction);
 
             vm::vec3 pasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const;
 
@@ -51,6 +54,8 @@ namespace TrenchBroom {
             void moveCameraToCurrentTracePoint();
 
             bool cancelMouseDrag();
+
+            void cycleMapView();
 
             /**
              * Requests repaint of the managed map views. Note, this must be used instead of QWidget::update()
@@ -65,9 +70,6 @@ namespace TrenchBroom {
             virtual bool doCanSelectTall() = 0;
             virtual void doSelectTall() = 0;
 
-            virtual bool doCanFlipObjects() const = 0;
-            virtual void doFlipObjects(vm::direction direction) = 0;
-
             virtual vm::vec3 doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const = 0;
 
             virtual void doFocusCameraOnSelection(bool animate) = 0;
@@ -76,6 +78,8 @@ namespace TrenchBroom {
             virtual void doMoveCameraToCurrentTracePoint() = 0;
 
             virtual bool doCancelMouseDrag() = 0;
+
+            virtual void doCycleMapView();
 
             virtual void doRefreshViews() = 0;
         };

@@ -122,12 +122,6 @@ namespace TrenchBroom {
             void preferenceDidChange(const IO::Path& path);
             void documentDidChange(MapDocument* document);
         private: // shortcut setup
-            /*
-            using Callback = void (MapViewBase::*)();
-            QShortcut* createAndRegisterShortcut(const ActionInfo& info, Callback callback);
-            QShortcut* createAndRegisterShortcut(const ActionInfo& info, const std::function<void()>& callback);
-            void createAndRegister2D3DShortcut(const ActionInfo& info, Callback callback2D, Callback callback3D);
-             */
             void createActions();
             void updateActionBindings();
             void updateActionStates();
@@ -135,59 +129,37 @@ namespace TrenchBroom {
             void bindEvents();
         public:
             void triggerAction(const Action& action);
-
-            void OnDuplicateObjectsForward();
-            void OnDuplicateObjectsBackward();
-            void OnDuplicateObjectsLeft();
-            void OnDuplicateObjectsRight();
-            void OnDuplicateObjectsUp();
-            void OnDuplicateObjectsDown();
-
-            void OnRollObjectsCW();
-            void OnRollObjectsCCW();
-            void OnPitchObjectsCW();
-            void OnPitchObjectsCCW();
-            void OnYawObjectsCW();
-            void OnYawObjectsCCW();
-
-            void OnFlipObjectsH();
-            void OnFlipObjectsV();
+            void triggerAmbiguousAction(const String& name);
+        public: // move, rotate, flip actions
+            void move(vm::direction direction);
+            void moveVertices(vm::direction direction);
+            void moveRotationCenter(vm::direction direction);
+            void moveObjects(vm::direction direction);
+            vm::vec3 moveDirection(vm::direction direction) const;
 
             void duplicateAndMoveObjects(vm::direction direction);
             void duplicateObjects();
-            void moveObjects(vm::direction direction);
-            vm::vec3 moveDirection(vm::direction direction) const;
+
             void rotateObjects(vm::rotation_axis axis, bool clockwise);
             vm::vec3 rotationAxis(vm::rotation_axis axis, bool clockwise) const;
-        public: // tool mode events
+
+            void flipObjects(vm::direction direction);
+            bool canFlipObjects() const;
+        public: // texture actions
+            void moveTextures(vm::direction direction);
+            vm::vec2f moveTextureOffset(vm::direction direction) const;
+            float moveTextureDistance() const;
+            void rotateTextures(bool clockwise);
+            float rotateTextureAngle(bool clockwise) const;
+        public: // tool mode actions
             void createComplexBrush();
-
-            void OnToggleRotateObjectsTool();
-            void OnMoveRotationCenterForward();
-            void OnMoveRotationCenterBackward();
-            void OnMoveRotationCenterLeft();
-            void OnMoveRotationCenterRight();
-            void OnMoveRotationCenterUp();
-            void OnMoveRotationCenterDown();
-            void moveRotationCenter(vm::direction direction);
-
-            void OnToggleScaleObjectsTool();
-            void OnToggleShearObjectsTool();
 
             void toggleClipSide();
             void performClip();
-
-            void OnMoveVerticesForward();
-            void OnMoveVerticesBackward();
-            void OnMoveVerticesLeft();
-            void OnMoveVerticesRight();
-            void OnMoveVerticesUp();
-            void OnMoveVerticesDown();
-            void moveVertices(vm::direction direction);
-
-            void OnCancel();
-
-            void OnDeactivateTool();
+        public: // misc actions
+            void resetCameraZoom();
+            void cancel();
+            void deactivateTool();
         public: // group management
             void OnGroupSelectedObjects();
             void OnUngroupSelectedObjects();
@@ -240,40 +212,38 @@ namespace TrenchBroom {
             void OnEnableTag(const Model::SmartTag& tag);
             void OnDisableTag(const Model::SmartTag& tag);
         public: // make structural
-            void OnMakeStructural();
+            void makeStructural();
         public: // entity definitions
             void OnToggleEntityDefinitionVisible();
             void OnCreateEntity();
         public: // view filters
-            void OnToggleShowEntityClassnames();
-            void OnToggleShowGroupBounds();
-            void OnToggleShowBrushEntityBounds();
-            void OnToggleShowPointEntityBounds();
-            void OnToggleShowPointEntities();
-            void OnToggleShowPointEntityModels();
-            void OnToggleShowBrushes();
-            void OnRenderModeShowTextures();
-            void OnRenderModeHideTextures();
-            void OnRenderModeHideFaces();
-            void OnRenderModeShadeFaces();
-            void OnRenderModeUseFog();
-            void OnRenderModeShowEdges();
-            void OnRenderModeShowAllEntityLinks();
-            void OnRenderModeShowTransitiveEntityLinks();
-            void OnRenderModeShowDirectEntityLinks();
-            void OnRenderModeHideEntityLinks();
+            void toggleShowEntityClassnames();
+            void toggleShowGroupBounds();
+            void toggleShowBrushEntityBounds();
+            void toggleShowPointEntityBounds();
+            void toggleShowPointEntities();
+            void toggleShowPointEntityModels();
+            void toggleShowBrushes();
+            void showTextures();
+            void hideTextures();
+            void hideFaces();
+            void toggleShadeFaces();
+            void toggleShowFog();
+            void toggleShowEdges();
+            void showAllEntityLinks();
+            void showTransitivelySelectedEntityLinks();
+            void showDirectlySelectedEntityLinks();
+            void hideAllEntityLinks();
         private: // other events
             void onActiveChanged();
         public:
-            ActionContext actionContext() const;
+            ActionContext::Type actionContext() const;
         private: // implement ViewEffectsService interface
             void doFlashSelection() override;
         private: // implement MapView interface
             bool doGetIsCurrent() const override;
             void doSetToolBoxDropTarget() override;
             void doClearDropTarget() override;
-            bool doCanFlipObjects() const override;
-            void doFlipObjects(vm::direction direction) override;
             bool doCancelMouseDrag() override;
             void doRefreshViews() override;
         protected: // RenderView overrides
@@ -314,7 +284,7 @@ namespace TrenchBroom {
             virtual vm::vec3 doGetMoveDirection(vm::direction direction) const = 0;
             virtual vm::vec3 doComputePointEntityPosition(const vm::bbox3& bounds) const = 0;
 
-            virtual ActionContext doGetActionContext() const = 0;
+            virtual ActionContext::Type doGetActionContext() const = 0;
             virtual ActionView doGetActionView() const = 0;
             virtual bool doCancel() = 0;
 

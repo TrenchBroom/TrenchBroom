@@ -75,7 +75,7 @@ namespace TrenchBroom {
             void mouseReleaseEvent(QMouseEvent* event) override;
             void wheelEvent(QWheelEvent* event) override;
         public:
-            QWidget* widgetContainer();
+            QWidget* widgetContainer() const;
         public: // wxWidgets compat
             bool hasFocus() const;
             bool IsBeingDeleted() const;

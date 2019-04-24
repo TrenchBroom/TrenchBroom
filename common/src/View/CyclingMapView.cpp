@@ -42,23 +42,20 @@ namespace TrenchBroom {
         m_currentMapView(nullptr),
         m_layout(nullptr) {
             createGui(toolBox, mapRenderer, contextManager, views);
-            createShortcuts();
-            updateShortcuts();
-            bindEvents();
         }
 
         void CyclingMapView::createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, const View views) {
             if (views & View_3D) {
-                m_mapViews.push_back(new MapView3D(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager));
+                addMapView(new MapView3D(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager));
             }
             if (views & View_XY) {
-                m_mapViews.push_back(new MapView2D(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XY));
+                addMapView(new MapView2D(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XY));
             }
             if (views & View_XZ) {
-                m_mapViews.push_back(new MapView2D(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XZ));
+                addMapView(new MapView2D(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XZ));
             }
             if (views & View_YZ) {
-                m_mapViews.push_back(new MapView2D(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_YZ));
+                addMapView(new MapView2D(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_YZ));
             }
 
             m_layout = new QStackedLayout();
@@ -75,36 +72,16 @@ namespace TrenchBroom {
             switchToMapView(m_mapViews[0]);
         }
 
-        void CyclingMapView::createShortcuts() {
-            m_cycleShortcut = new QShortcut(this);
-            m_cycleShortcut->setContext(Qt::WidgetWithChildrenShortcut); // Only in this widget
-            connect(m_cycleShortcut, &QShortcut::activated, this, &CyclingMapView::OnCycleMapView);
-        }
-
-        void CyclingMapView::updateShortcuts() {
-            // FIXME: Get from prefs
-            m_cycleShortcut->setKey(ActionList::instance().controlsMapViewCycleMapViewInfo.key());
-        }
-
-        void CyclingMapView::bindEvents() {
-        }
-
-        void CyclingMapView::OnCycleMapView() {
-            for (size_t i = 0; i < m_mapViews.size(); ++i) {
-                if (m_currentMapView == m_mapViews[i]) {
-                    switchToMapView(m_mapViews[vm::succ(i, m_mapViews.size())]);
-                    focusCameraOnSelection(false);
-                    break;
-                }
-            }
+        void CyclingMapView::addMapView(MapViewBase* mapView) {
+            m_mapViews.push_back(mapView);
+            mapView->setContainer(this);
         }
 
         void CyclingMapView::switchToMapView(MapViewBase* mapView) {
             m_currentMapView = mapView;
 
             m_layout->setCurrentWidget(m_currentMapView->widgetContainer());
-            // FIXME: Not sure if needed
-            //m_currentMapView->setFocus();
+            m_currentMapView->requestActivate();
         }
 
         void CyclingMapView::doFlashSelection() {
@@ -172,6 +149,16 @@ namespace TrenchBroom {
         void CyclingMapView::doLinkCamera(CameraLinkHelper& helper) {
             for (size_t i = 0; i < m_mapViews.size(); ++i) {
                 m_mapViews[i]->linkCamera(helper);
+            }
+        }
+
+        void CyclingMapView::doCycleMapView() {
+            for (size_t i = 0; i < m_mapViews.size(); ++i) {
+                if (m_currentMapView == m_mapViews[i]) {
+                    switchToMapView(m_mapViews[vm::succ(i, m_mapViews.size())]);
+                    focusCameraOnSelection(false);
+                    break;
+                }
             }
         }
 

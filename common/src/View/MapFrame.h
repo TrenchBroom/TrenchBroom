@@ -221,7 +221,6 @@ namespace TrenchBroom {
             void ungroupSelectedObjects();
             bool canUngroup() const;
 
-            void OnEditDeactivateTool();
             void toggleCreateComplexBrushTool();
             bool canToggleCreateComplexBrushTool() const;
             bool createComplexBrushToolActive() const;
@@ -241,6 +240,8 @@ namespace TrenchBroom {
             void toggleShearObjectsTool();
             bool canToggleShearObjectsTool() const;
             bool shearObjectsToolActive() const;
+
+            bool anyVertexToolActive() const;
 
             void toggleVertexTool();
             bool canToggleVertexTool() const;
@@ -329,9 +330,6 @@ namespace TrenchBroom {
             void debugCrash();
             void debugThrowExceptionDuringCommand();
             void debugSetWindowSize();
-
-            void OnFlipObjectsHorizontally();
-            void OnFlipObjectsVertically();
 
             void OnToolBarSetGridSize(int index);
             void onFocusChange(QWidget* old, QWidget* now);

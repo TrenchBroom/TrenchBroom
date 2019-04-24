@@ -194,81 +194,6 @@ namespace TrenchBroom {
             }
         }
 
-        void MapView3D::OnMoveTexturesUp() {
-            moveTextures(vm::vec2f(0.0f, moveTextureDistance()));
-        }
-
-        void MapView3D::OnMoveTexturesDown() {
-            moveTextures(vm::vec2f(0.0f, -moveTextureDistance()));
-        }
-
-        void MapView3D::OnMoveTexturesLeft() {
-            moveTextures(vm::vec2f(-moveTextureDistance(), 0.0f));
-        }
-
-        void MapView3D::OnMoveTexturesRight() {
-            moveTextures(vm::vec2f(moveTextureDistance(), 0.0f));
-        }
-
-        void MapView3D::OnRotateTexturesCW() {
-            rotateTextures(rotateTextureAngle(true));
-        }
-
-        void MapView3D::OnRotateTexturesCCW() {
-            rotateTextures(rotateTextureAngle(false));
-        }
-
-        void MapView3D::OnResetZoom() {
-            m_camera.setZoom(1.0f);
-        }
-
-        float MapView3D::moveTextureDistance() const {
-            const Grid& grid = lock(m_document)->grid();
-            const float gridSize = static_cast<float>(grid.actualSize());
-
-            const Qt::KeyboardModifiers modifiers = QApplication::keyboardModifiers();
-            switch (modifiers) {
-                case Qt::ControlModifier:
-                    return 1.0f;
-                case Qt::ShiftModifier:
-                    return 2.0f * gridSize;
-                default:
-                    return gridSize;
-            }
-        }
-
-        void MapView3D::moveTextures(const vm::vec2f& offset) {
-            MapDocumentSPtr document = lock(m_document);
-            if (document->hasSelectedBrushFaces())
-                document->moveTextures(m_camera.up(), m_camera.right(), offset);
-        }
-
-        float MapView3D::rotateTextureAngle(const bool clockwise) const {
-            const Grid& grid = lock(m_document)->grid();
-            const float gridAngle = static_cast<float>(vm::toDegrees(grid.angle()));
-            float angle = 0.0f;
-
-            const Qt::KeyboardModifiers modifiers = QApplication::keyboardModifiers();
-            switch (modifiers) {
-                case Qt::ControlModifier:
-                    angle = 1.0f;
-                    break;
-                case Qt::ShiftModifier:
-                    angle = 90.0f;
-                    break;
-                default:
-                    angle = gridAngle;
-                    break;
-            }
-            return clockwise ? angle : -angle;
-        }
-
-        void MapView3D::rotateTextures(const float angle) {
-            MapDocumentSPtr document = lock(m_document);
-            if (document->hasSelectedBrushFaces())
-                document->rotateTextures(angle);
-        }
-
         void MapView3D::focusOutEvent(QFocusEvent* event) {
             m_flyModeHelper->resetKeys();
 
@@ -542,8 +467,8 @@ namespace TrenchBroom {
             }
         }
 
-        ActionContext MapView3D::doGetActionContext() const {
-            return ActionContext_Default;
+        ActionContext::Type MapView3D::doGetActionContext() const {
+            return ActionContext::View3D;
         }
 
         ActionView MapView3D::doGetActionView() const {

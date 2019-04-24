@@ -118,7 +118,7 @@ namespace TrenchBroom {
             requestUpdate();
         }
 
-        QWidget* RenderView::widgetContainer() {
+        QWidget* RenderView::widgetContainer() const {
             return m_windowContainer;
         }
 

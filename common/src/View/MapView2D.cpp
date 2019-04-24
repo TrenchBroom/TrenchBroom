@@ -315,8 +315,8 @@ namespace TrenchBroom {
             }
         }
 
-        ActionContext MapView2D::doGetActionContext() const {
-            return ActionContext_Default;
+        ActionContext::Type MapView2D::doGetActionContext() const {
+            return ActionContext::View2D;
         }
 
         ActionView MapView2D::doGetActionView() const {

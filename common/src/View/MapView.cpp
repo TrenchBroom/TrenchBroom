@@ -20,12 +20,20 @@
 #include "MapView.h"
 
 #include "TrenchBroom.h"
+#include "View/MapViewContainer.h"
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace View {
-        MapView::~MapView() {}
+        MapView::MapView() :
+        m_container(nullptr) {}
+
+        MapView::~MapView() = default;
+
+        void MapView::setContainer(MapViewContainer* container) {
+            m_container = container;
+        }
 
         bool MapView::isCurrent() const {
             return doGetIsCurrent();
@@ -45,15 +53,6 @@ namespace TrenchBroom {
 
         void MapView::selectTall() {
             doSelectTall();
-        }
-
-        bool MapView::canFlipObjects() const {
-            return doCanFlipObjects();
-        }
-
-        void MapView::flipObjects(const vm::direction direction) {
-            assert(canFlipObjects());
-            doFlipObjects(direction);
         }
 
         vm::vec3 MapView::pasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const {
@@ -76,8 +75,18 @@ namespace TrenchBroom {
             return doCancelMouseDrag();
         }
 
+        void MapView::cycleMapView() {
+            doCycleMapView();
+        }
+
         void MapView::refreshViews() {
             doRefreshViews();
+        }
+
+        void MapView::doCycleMapView() {
+            if (m_container != nullptr) {
+                m_container->cycleMapView();
+            }
         }
     }
 }

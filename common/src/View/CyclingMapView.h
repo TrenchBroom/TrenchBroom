@@ -28,7 +28,6 @@
 #include <vector>
 
 class QStackedLayout;
-class QShortcut;
 
 namespace TrenchBroom {
     class Logger;
@@ -62,16 +61,11 @@ namespace TrenchBroom {
             MapViewList m_mapViews;
             MapViewBase* m_currentMapView;
             QStackedLayout* m_layout;
-            QShortcut* m_cycleShortcut;
         public:
             CyclingMapView(QWidget* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, View views);
         private:
             void createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, View views);
-            void createShortcuts();
-            void updateShortcuts();
-        private:
-            void bindEvents();
-            void OnCycleMapView();
+            void addMapView(MapViewBase* mapView);
         private:
             void switchToMapView(MapViewBase* mapView);
         private: // implement ViewEffectsService interface
@@ -90,6 +84,7 @@ namespace TrenchBroom {
             void doToggleMaximizeCurrentView() override;
 
             bool doCancelMouseDrag() override;
+            void doCycleMapView() override;
             void doRefreshViews() override;
         private: // implement MapViewContainer interface
             MapView* doGetCurrentMapView() const override;

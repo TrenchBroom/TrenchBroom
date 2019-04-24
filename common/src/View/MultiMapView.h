@@ -37,9 +37,9 @@ namespace TrenchBroom {
             MapViewList m_mapViews;
             MapView* m_maximizedView;
         protected:
-            MultiMapView(QWidget* parent);
+            explicit MultiMapView(QWidget* parent = nullptr);
         public:
-            virtual ~MultiMapView() override;
+            ~MultiMapView() override;
         protected:
             void addMapView(MapView* mapView);
         private: // implement ViewEffectsService interface

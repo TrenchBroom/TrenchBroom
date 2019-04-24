@@ -29,11 +29,12 @@ namespace TrenchBroom {
         MapViewContainer(parent),
         m_maximizedView(nullptr) {}
 
-        MultiMapView::~MultiMapView() {}
+        MultiMapView::~MultiMapView() = default;
 
         void MultiMapView::addMapView(MapView* mapView) {
             ensure(mapView != nullptr, "mapView is nullptr");
             m_mapViews.push_back(mapView);
+            mapView->setContainer(this);
         }
 
         void MultiMapView::doFlashSelection() {

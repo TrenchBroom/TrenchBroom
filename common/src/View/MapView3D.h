@@ -69,20 +69,6 @@ namespace TrenchBroom {
             void bindEvents();
 
             void OnFrameSwapped();
-
-            void OnMoveTexturesUp();
-            void OnMoveTexturesDown();
-            void OnMoveTexturesLeft();
-            void OnMoveTexturesRight();
-            void OnRotateTexturesCW();
-            void OnRotateTexturesCCW();
-
-            void OnResetZoom();
-
-            float moveTextureDistance() const;
-            void moveTextures(const vm::vec2f& offset);
-            float rotateTextureAngle(bool clockwise) const;
-            void rotateTextures(float angle);
         private: // other events
 
             void OnActivateFrame();
@@ -111,7 +97,7 @@ namespace TrenchBroom {
             vm::vec3 doGetMoveDirection(vm::direction direction) const override;
             vm::vec3 doComputePointEntityPosition(const vm::bbox3& bounds) const override;
 
-            ActionContext doGetActionContext() const override;
+            ActionContext::Type doGetActionContext() const override;
             ActionView doGetActionView() const override;
             bool doCancel() override;
 

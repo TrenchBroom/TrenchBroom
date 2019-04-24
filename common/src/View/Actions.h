@@ -44,13 +44,14 @@ namespace TrenchBroom {
 
         class ActionExecutionContext {
         private:
+            ActionContext::Type m_actionContext;
             MapFrame* m_frame;
             MapViewBase* m_mapView;
         public:
             ActionExecutionContext(MapFrame* mapFrame, MapViewBase* mapView);
 
             bool hasDocument() const;
-            bool hasActionContext(int actionContext) const;
+            bool hasActionContext(ActionContext::Type actionContext) const;
             MapFrame* frame();
             MapViewBase* view();
             MapDocument* document();
@@ -77,7 +78,7 @@ namespace TrenchBroom {
                 const ExecuteFn& execute, const EnabledFn& enabled, const CheckedFn& checked, const IO::Path& iconPath);
 
             const String& name() const;
-
+            ActionContext::Type actionContext() const;
             QKeySequence keySequence() const;
 
             void execute(ActionExecutionContext& context) const;

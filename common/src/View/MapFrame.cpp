@@ -1267,10 +1267,6 @@ namespace TrenchBroom {
 #endif
         }
 
-        void MapFrame::OnEditDeactivateTool() {
-            m_mapView->deactivateTool();
-        }
-
         void MapFrame::toggleCreateComplexBrushTool() {
             if (canToggleCreateComplexBrushTool()) {
                 m_mapView->toggleCreateComplexBrushTool();
@@ -1339,6 +1335,10 @@ namespace TrenchBroom {
 
         bool MapFrame::shearObjectsToolActive() const {
             return m_mapView->shearObjectsToolActive();
+        }
+
+        bool MapFrame::anyVertexToolActive() const {
+            return vertexToolActive() || edgeToolActive() || faceToolActive();
         }
 
         void MapFrame::toggleVertexTool() {
@@ -1695,18 +1695,6 @@ namespace TrenchBroom {
             if (ok) {
                 const auto size = vm::vec2i::parse(str.toStdString());
                 resize(size.x(), size.y());
-            }
-        }
-
-        void MapFrame::OnFlipObjectsHorizontally() {
-            if (m_mapView->canFlipObjects()) {
-                m_mapView->flipObjects(vm::direction::left);
-            }
-        }
-
-        void MapFrame::OnFlipObjectsVertically() {
-            if (m_mapView->canFlipObjects()) {
-                m_mapView->flipObjects(vm::direction::up);
             }
         }
 

@@ -21,33 +21,45 @@
 
 namespace TrenchBroom {
     namespace View {
-        String actionContextName(const int actionContext) {
-            if (actionContext == ActionContext_Any)
+        bool actionContextMatches(const ActionContext::Type lhs, const ActionContext::Type rhs, const ActionContext::Type mask) {
+            return (lhs & rhs & mask) != 0;
+        }
+
+        String actionContextName(const ActionContext::Type actionContext) {
+            if (actionContext == ActionContext::Any)
                 return "Any";
 
             StringList actionContexts;
-            if (actionContext & ActionContext_NodeSelection) {
+            if (actionContext & ActionContext::NodeSelection) {
                 actionContexts.push_back("Objects");
             }
-            if (actionContext & ActionContext_FaceSelection) {
+            if (actionContext & ActionContext::FaceSelection) {
                 actionContexts.push_back("Textures");
             }
 
-            if ((actionContext & ActionContext_AnyTool) == ActionContext_AnyTool) {
+            if ((actionContext & ActionContext::AnyTool) == ActionContext::AnyTool) {
                 actionContexts.push_back("Any Tool");
             } else {
-                if (actionContext & ActionContext_CreateComplexBrushTool) {
+                if (actionContext & ActionContext::CreateComplexBrushTool) {
                     actionContexts.push_back("Create Brush Tool");
                 }
-                if (actionContext & ActionContext_ClipTool) {
+                if (actionContext & ActionContext::ClipTool) {
                     actionContexts.push_back("Clip Tool");
                 }
-                if (actionContext & ActionContext_RotateTool) {
+                if (actionContext & ActionContext::RotateTool) {
                     actionContexts.push_back("Rotate Tool");
                 }
-                if (actionContext & ActionContext_AnyVertexTool) {
+                if (actionContext & ActionContext::AnyVertexTool) {
                     actionContexts.push_back("Any Vertex Tool");
                 }
+            }
+
+            if ((actionContext & ActionContext::AnyView) == ActionContext::AnyView) {
+                actionContexts.push_back("Any View");
+            } else if (actionContext & ActionContext::View3D) {
+                actionContexts.push_back("3D View");
+            } else if (actionContext & ActionContext::View2D) {
+                actionContexts.push_back("2D View");
             }
 
             return StringUtils::join(actionContexts, ", ");

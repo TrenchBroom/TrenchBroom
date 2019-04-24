@@ -327,14 +327,6 @@ namespace TrenchBroom {
             m_mapView->selectTall();
         }
 
-        bool SwitchableMapViewContainer::doCanFlipObjects() const {
-            return m_mapView->canFlipObjects();
-        }
-
-        void SwitchableMapViewContainer::doFlipObjects(const vm::direction direction) {
-            m_mapView->flipObjects(direction);
-        }
-
         vm::vec3 SwitchableMapViewContainer::doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const {
             return m_mapView->pasteObjectsDelta(bounds, referenceBounds);
         }
