@@ -42,6 +42,7 @@ namespace TrenchBroom {
             static const Type Any                       = AnySelection | AnyTool | AnyView;
         }
 
+        bool actionContextMatches(ActionContext::Type lhs, ActionContext::Type rhs);
         bool actionContextMatches(ActionContext::Type lhs, ActionContext::Type rhs, ActionContext::Type mask);
 
         String actionContextName(ActionContext::Type actionContext);

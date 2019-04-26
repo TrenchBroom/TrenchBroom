@@ -42,6 +42,8 @@
 
 #define assertResult(funexp) { const bool result = (funexp); unused(result); assert(result); }
 
+#define defineCopy(classname) public: classname(const classname& other) = default; classname& operator=(const classname& other) = default;
+#define defineMove(classname) public: classname(classname&& other) noexcept = default; classname& operator=(classname&& other) = default;
 #define defineCopyAndMove(classname) public: classname(const classname& other) = default; classname(classname&& other) noexcept = default; classname& operator=(const classname& other) = default; classname& operator=(classname&& other) = default;
 
 #define deleteCopy(classname) public: classname(const classname& other) = delete; classname& operator=(const classname& other) = delete;

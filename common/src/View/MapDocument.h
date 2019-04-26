@@ -39,8 +39,10 @@
 #include <vecmath/bbox.h>
 #include <vecmath/util.h>
 
+#include <functional>
 #include <list>
 #include <memory>
+#include <vector>
 
 class Color;
 namespace TrenchBroom {
@@ -63,6 +65,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class Action;
         class Command;
         class Grid;
         class MapViewConfig;
@@ -92,6 +95,10 @@ namespace TrenchBroom {
             std::unique_ptr<Model::EditorContext> m_editorContext;
             std::unique_ptr<MapViewConfig> m_mapViewConfig;
             std::unique_ptr<Grid> m_grid;
+
+            using ActionList = std::vector<Action>;
+            ActionList m_tagActions;
+            ActionList m_entityDefinitionActions;
 
             IO::Path m_path;
             size_t m_lastSaveModificationCount;
@@ -190,6 +197,14 @@ namespace TrenchBroom {
             Model::PortalFile* portalFile() const;
 
             void setViewEffectsService(ViewEffectsService* viewEffectsService);
+        public: // tag and entity definition actions
+            using ActionVisitor = std::function<void(const Action&)>;
+            void visitTagActions(const ActionVisitor& visitor) const;
+            void visitEntityDefinitionActions(const ActionVisitor& visitor) const;
+        private: // tag and entity definition actions
+            void createTagActions();
+            void createEntityDefinitionActions();
+            void visitActions(const ActionVisitor& visitor, const ActionList& actions) const;
         public: // new, load, save document
             void newDocument(Model::MapFormat mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game);
             void loadDocument(Model::MapFormat mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game, const IO::Path& path);

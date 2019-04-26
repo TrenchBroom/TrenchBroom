@@ -323,6 +323,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/EdgeTool.cpp
 #	${COMMON_SOURCE_DIR}/View/ELAutoCompleteHelper.cpp
 	${COMMON_SOURCE_DIR}/View/ElidedLabel.cpp
+	${COMMON_SOURCE_DIR}/View/EnableDisableTagCallback.cpp
 	${COMMON_SOURCE_DIR}/View/EntityAttributeEditor.cpp
 	${COMMON_SOURCE_DIR}/View/EntityAttributeGrid.cpp
 	${COMMON_SOURCE_DIR}/View/EntityAttributeGridTable.cpp
@@ -872,6 +873,7 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/EdgeTool.h
 	${COMMON_SOURCE_DIR}/View/ELAutoCompleteHelper.h
 	${COMMON_SOURCE_DIR}/View/ElidedLabel.h
+	${COMMON_SOURCE_DIR}/View/EnableDisableTagCallback.h
 	${COMMON_SOURCE_DIR}/View/EntityAttributeEditor.h
 	${COMMON_SOURCE_DIR}/View/EntityAttributeGrid.h
 	${COMMON_SOURCE_DIR}/View/EntityAttributeGridTable.h

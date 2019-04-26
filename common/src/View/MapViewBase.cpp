@@ -53,10 +53,12 @@
 #include "View/Actions.h"
 #include "View/Animation.h"
 #include "View/CameraAnimation.h"
+#include "View/EnableDisableTagCallback.h"
 #include "View/FlashSelectionAnimation.h"
 #include "View/FlyModeHelper.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
+#include "View/MapFrame.h"
 #include "View/MapViewConfig.h"
 #include "View/MapViewToolBox.h"
 // FIXME:
@@ -227,6 +229,8 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::entityDefinitionsDidChange() {
+            createActions();
+            updateActionStates();
             update();
         }
 
@@ -275,121 +279,25 @@ namespace TrenchBroom {
             connect(this, &QWindow::activeChanged, this, &MapViewBase::onActiveChanged);
         }
 
-        /*
-        QShortcut* MapViewBase::createAndRegisterShortcut(const ActionInfo& info, Callback callback) {
-            return createAndRegisterShortcut(info, [this, callback]() { (this->*callback)(); });
-        }
-
-        QShortcut* MapViewBase::createAndRegisterShortcut(const ActionInfo& info, const std::function<void()>& callback) {
-            auto* shortcut = new QShortcut(this->widgetContainer());
-
-            // Ideally, we'd use Qt::WidgetWithChildrenShortcut so the shortcuts are automatically active based on whether
-            // this map view has focus, but this doesn't work with QOpenGLWindow since it's a separate window, and the
-            // QOpenGLWindow being focused doesn't cause the widgetContainer() to be focused.
-            //
-            // Instead we need to manually disable/enable the shortcuts based on whether this map view has focus in `updateBindings()`.
-            shortcut->setContext(Qt::WindowShortcut);
-            registerBinding(shortcut, info);
-            connect(shortcut, &QShortcut::activated, this, callback);
-            return shortcut;
-        }
-
-        void MapViewBase::createAndRegister2D3DShortcut(const ActionInfo& info, Callback callback2D, Callback callback3D) {
-            QShortcut* shortcut2D = createAndRegisterShortcut(info, callback2D);
-            m_2DOnlyShortcuts.push_back(shortcut2D);
-
-            QShortcut* shortcut3D = createAndRegisterShortcut(info, callback3D);
-            m_3DOnlyShortcuts.push_back(shortcut3D);
-        }
-         */
-
         void MapViewBase::createActions() {
             m_shortcuts.clear();
 
-            const auto& actionManager = ActionManager::instance();
-            actionManager.visitMapViewActions([this](const Action& action) {
+            auto visitor = [this](const Action& action) {
+                const auto keySequence = action.keySequence();
                 auto shortcut = std::make_unique<QShortcut>(widgetContainer());
-                shortcut->setKey(action.keySequence());
+                shortcut->setKey(keySequence);
                 connect(shortcut.get(), &QShortcut::activated, this, [this, &action]() { triggerAction(action); });
                 connect(shortcut.get(), &QShortcut::activatedAmbiguously, this, [this, &action]() { triggerAmbiguousAction(action.name()); });
                 m_shortcuts.emplace_back(std::move(shortcut), &action);
-            });
+            };
 
-            /*
-            m_actionInfoList.clear();
-            m_2DOnlyShortcuts.clear();
-            m_3DOnlyShortcuts.clear();
+            auto& actionManager = ActionManager::instance();
+            actionManager.visitMapViewActions(visitor);
 
-            // clip
-            createAndRegisterShortcut(ActionList::instance().controlsMapViewToggleClipSideInfo, &MapViewBase::OnToggleClipSide);
-            createAndRegisterShortcut(ActionList::instance().controlsMapViewPerformclipInfo, &MapViewBase::OnPerformClip);
-
-            // vertex movement
-            createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveVerticesUpForwardInfo, &MapViewBase::OnMoveVerticesUp, &MapViewBase::OnMoveVerticesForward);
-            createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveVerticesDownBackwardInfo, &MapViewBase::OnMoveVerticesDown, &MapViewBase::OnMoveVerticesBackward);
-            createAndRegisterShortcut(ActionList::instance().controlsMapViewMoveVerticesLeftInfo, &MapViewBase::OnMoveVerticesLeft);
-            createAndRegisterShortcut(ActionList::instance().controlsMapViewMoveVerticesRightInfo, &MapViewBase::OnMoveVerticesRight);
-            createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveVerticesBackwardUpInfo, &MapViewBase::OnMoveVerticesBackward, &MapViewBase::OnMoveVerticesUp);
-            createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveVerticesForwardDownInfo, &MapViewBase::OnMoveVerticesForward, &MapViewBase::OnMoveVerticesDown);
-
-            // object movement
-            createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveObjectsUpForwardInfo, &MapViewBase::OnMoveObjectsUp, &MapViewBase::OnMoveObjectsForward);
-            createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveObjectsDownBackwardInfo, &MapViewBase::OnMoveObjectsDown, &MapViewBase::OnMoveObjectsBackward);
-            createAndRegisterShortcut(ActionList::instance().controlsMapViewMoveObjectsLeftInfo, &MapViewBase::OnMoveObjectsLeft);
-            createAndRegisterShortcut(ActionList::instance().controlsMapViewMoveObjectsRightInfo, &MapViewBase::OnMoveObjectsRight);
-            createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveObjectsBackwardUupInfo, &MapViewBase::OnMoveObjectsBackward, &MapViewBase::OnMoveObjectsUp);
-            createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveObjectsForwardDownInfo, &MapViewBase::OnMoveObjectsForward, &MapViewBase::OnMoveObjectsDown);
-
-            // object rotation
-            createAndRegisterShortcut(ActionList::instance().controlsMapViewRollObjectsClockwiseInfo, &MapViewBase::OnRollObjectsCW);
-            createAndRegisterShortcut(ActionList::instance().controlsMapViewRollObjectsCounterClockwiseInfo, &MapViewBase::OnRollObjectsCCW);
-            createAndRegisterShortcut(ActionList::instance().controlsMapViewYawObjectsClockwiseInfo, &MapViewBase::OnYawObjectsCW);
-            createAndRegisterShortcut(ActionList::instance().controlsMapViewYawObjectsCounterClockwiseInfo, &MapViewBase::OnYawObjectsCCW);
-            createAndRegisterShortcut(ActionList::instance().controlsMapViewPitchobjectsClockwiseInfo, &MapViewBase::OnPitchObjectsCW);
-            createAndRegisterShortcut(ActionList::instance().controlsMapViewPitchobjectsCounterClockwiseInfo, &MapViewBase::OnPitchObjectsCCW);
-
-            // flips
-            createAndRegisterShortcut(ActionList::instance().controlsMapViewFlipobjectsHorizontallyInfo, &MapViewBase::OnFlipObjectsH);
-            createAndRegisterShortcut(ActionList::instance().controlsMapViewFlipobjectsBerticallyInfo, &MapViewBase::OnFlipObjectsV);
-
-            // duplicate
-            createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewDuplicateAndMoveObjectsUpForwardInfo, &MapViewBase::OnDuplicateObjectsUp, &MapViewBase::OnDuplicateObjectsForward);
-            createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewDuplicateAndMoveObjectsDownBackwardInfo, &MapViewBase::OnDuplicateObjectsDown, &MapViewBase::OnDuplicateObjectsBackward);
-            createAndRegisterShortcut(ActionList::instance().controlsMapViewDuplicateAndMoveObjectsLeftInfo, &MapViewBase::OnDuplicateObjectsLeft);
-            createAndRegisterShortcut(ActionList::instance().controlsMapViewDuplicateAndMoveObjectsRightInfo, &MapViewBase::OnDuplicateObjectsRight);
-            createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewDuplicateAndMoveObjectsBackwardUpInfo, &MapViewBase::OnDuplicateObjectsBackward, &MapViewBase::OnDuplicateObjectsUp);
-            createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewDuplicateAndMoveObjectsForwardDownInfo, &MapViewBase::OnDuplicateObjectsForward, &MapViewBase::OnDuplicateObjectsDown);
-
-            // move rotation center
-            createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveRotationCenterUpForwardInfo, &MapViewBase::OnMoveRotationCenterUp, &MapViewBase::OnMoveRotationCenterForward);
-            createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveRotationCenterDownBackwardInfo, &MapViewBase::OnMoveRotationCenterDown, &MapViewBase::OnMoveRotationCenterBackward);
-            createAndRegisterShortcut(ActionList::instance().controlsMapViewMoveRotationCenterLeftInfo, &MapViewBase::OnMoveRotationCenterLeft); //,       this, CommandIds::Actions::MoveRotationCenterLeft);
-            createAndRegisterShortcut(ActionList::instance().controlsMapViewMoveRotationCenterRightInfo, &MapViewBase::OnMoveRotationCenterRight); //,      this, CommandIds::Actions::MoveRotationCenterRight);
-            createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveRotationCenterBackwardUpInfo, &MapViewBase::OnMoveRotationCenterBackward, &MapViewBase::OnMoveRotationCenterUp); //,         this, CommandIds::Actions::MoveRotationCenterUp);
-            createAndRegister2D3DShortcut(ActionList::instance().controlsMapViewMoveRotationCenterForwardDownInfo, &MapViewBase::OnMoveRotationCenterForward, &MapViewBase::OnMoveRotationCenterDown);
-
-            // current tool actions
-            createAndRegisterShortcut(ActionList::instance().controlsMapViewCancelInfo, &MapViewBase::OnCancel);
-            createAndRegisterShortcut(ActionList::instance().controlsMapViewDeactivatecurrenttoolInfo, &MapViewBase::OnDeactivateTool);
-
-            // FIXME: when this function is called, the tags are not yet loaded
-
-            // tags
-            const auto& smartTags = lock(m_document)->smartTags();
-            for (const auto& tag : smartTags) {
-                createAndRegisterShortcut(ActionList::instance().toggleTagAction(tag), [this, &tag]() { OnToggleTagVisible(tag); });
-                // createAndRegisterShortcut(ActionList::instance().enableTagAction(tag), [this, &tag]() { OnEnableTag(tag); });
-                // createAndRegisterShortcut(ActionList::instance().disableTagAction(tag), [this, &tag]() { OnDisableTag(tag); });
-            }
-             */
+            auto document = lock(m_document);
+            document->visitTagActions(visitor);
+            document->visitEntityDefinitionActions(visitor);
         }
-
-        /*
-        void MapViewBase::registerBinding(QShortcut* action, const ActionInfo& info) {
-            m_actionInfoList.emplace_back(std::make_pair(action, info));
-        }
-         */
-
 
         void MapViewBase::updateActionBindings() {
             for (auto& [shortcut, action] : m_shortcuts) {
@@ -626,29 +534,6 @@ namespace TrenchBroom {
             m_toolBox.deactivateAllTools();
         }
 
-        void MapViewBase::OnGroupSelectedObjects() {
-            MapDocumentSPtr document = lock(m_document);
-            if (document->hasSelectedNodes()) {
-                const String name = queryGroupName(this->widgetContainer());
-                if (!name.empty())
-                    document->groupSelection(name);
-            }
-        }
-
-        void MapViewBase::OnUngroupSelectedObjects() {
-            MapDocumentSPtr document = lock(m_document);
-            if (document->hasSelectedNodes() && document->selectedNodes().hasOnlyGroups())
-                document->ungroupSelection();
-        }
-
-        void MapViewBase::OnRenameGroups() {
-            MapDocumentSPtr document = lock(m_document);
-            assert(document->selectedNodes().hasOnlyGroups());
-            const String name = queryGroupName(this->widgetContainer());
-            if (!name.empty())
-                document->renameGroups(name);
-        }
-
         void MapViewBase::OnCreatePointEntity() {
             auto* action = qobject_cast<const QAction*>(sender());
             MapDocumentSPtr document = lock(m_document);
@@ -700,7 +585,7 @@ namespace TrenchBroom {
             return document->selectedNodes().hasOnlyBrushes();
         }
 
-        void MapViewBase::OnToggleTagVisible(const Model::SmartTag& tag) {
+        void MapViewBase::toggleTagVisible(const Model::SmartTag& tag) {
             const auto tagIndex = tag.index();
 
             auto document = lock(m_document);
@@ -710,68 +595,23 @@ namespace TrenchBroom {
             editorContext.setHiddenTags(hiddenTags);
         }
 
-        // FIXME: Port to Qt
-#if 0
-        class MapViewBase::EnableDisableTagCallback : public Model::TagMatcherCallback, public wxEvtHandler {
-        private:
-            wxWindow* m_window;
-            size_t m_selectedOption;
-        public:
-            explicit EnableDisableTagCallback(wxWindow* window) :
-            m_window(window),
-            m_selectedOption(0) {
-                assert(m_window != nullptr);
-            }
 
-            size_t selectOption(const StringList& options) {
-                wxMenu menu;
-                for (size_t i = 0; i < options.size(); ++i) {
-                    const auto& option = options[i];
-                    const auto commandId = CommandIds::ToggleTagPopupMenu::Lowest + static_cast<int>(i);
-                    menu.Append(commandId, option);
-                    menu.Bind(wxEVT_MENU, &EnableDisableTagCallback::OnMenuItem, this, commandId);
-                }
-
-
-                m_selectedOption = options.size();
-                m_window->PopupMenu(&menu);
-                m_selectedOption = std::min(m_selectedOption, options.size());
-                return m_selectedOption;
-            }
-
-            void OnMenuItem() {
-                m_selectedOption = static_cast<size_t>(event.GetId() - CommandIds::ToggleTagPopupMenu::Lowest);
-            }
-        };
-
-        void MapViewBase::OnEnableTag() {
-            const auto tagIndex = static_cast<size_t>((event.GetId() - CommandIds::Actions::LowestEnableTagCommandId));
-
+        void MapViewBase::enableTag(const Model::SmartTag& tag) {
+            assert(tag.canEnable());
             auto document = lock(m_document);
-            if (document->isRegisteredSmartTag(tagIndex)) {
-                const auto& tag = document->smartTag(tagIndex);
-                assert(tag.canEnable());
 
-                Transaction transaction(document, "Turn Selection into " + tag.name());
-                EnableDisableTagCallback callback(this);
-                tag.enable(callback, *document);
-            }
+            Transaction transaction(document, "Turn Selection into " + tag.name());
+            EnableDisableTagCallback callback;
+            tag.enable(callback, *document);
         }
 
-        void MapViewBase::OnDisableTag() {
-            const auto tagIndex = static_cast<size_t>((event.GetId() - CommandIds::Actions::LowestDisableTagCommandId));
-
+        void MapViewBase::disableTag(const Model::SmartTag& tag) {
+            assert(tag.canDisable());
             auto document = lock(m_document);
-            if (document->isRegisteredSmartTag(tagIndex)) {
-                const auto& tag = document->smartTag(tagIndex);
-                assert(tag.canDisable());
-
-                Transaction transaction(document, "Turn Selection into non-" + tag.name());
-                EnableDisableTagCallback callback(this);
-                tag.disable(callback, *document);
-            }
+            Transaction transaction(document, "Turn Selection into non-" + tag.name());
+            EnableDisableTagCallback callback;
+            tag.disable(callback, *document);
         }
-#endif
 
         void MapViewBase::makeStructural() {
             auto document = lock(m_document);
@@ -791,10 +631,8 @@ namespace TrenchBroom {
                 reparentNodes(toReparent, document->currentParent(), false);
             }
 
-            // FIXME: Port
-#if 0
             bool anyTagDisabled = false;
-            EnableDisableTagCallback callback(this);
+            EnableDisableTagCallback callback;
             for (auto* brush : document->selectedNodes().brushes()) {
                 for (const auto& tag : document->smartTags()) {
                     if (brush->hasTag(tag) || brush->anyFacesHaveAnyTagInMask(tag.type())) {
@@ -807,43 +645,23 @@ namespace TrenchBroom {
             if (!anyTagDisabled && toReparent.empty()) {
                 transaction.cancel();
             }
-#endif
         }
 
-        // FIXME: Port
-#if 0
-        void MapViewBase::OnToggleEntityDefinitionVisible() {
+        void MapViewBase::toggleEntityDefinitionVisible(const Assets::EntityDefinition* definition) {
             auto document = lock(m_document);
-            const auto& definitions = document->entityDefinitionManager().definitions();
-
-            const auto definitionIndex = static_cast<size_t>((event.GetId() - CommandIds::Actions::LowestToggleEntityDefinitionCommandId));
-            if (definitionIndex >= definitions.size()) {
-                return;
-            }
-
-            const auto* definition = definitions[definitionIndex];
 
             Model::EditorContext& editorContext = document->editorContext();
             editorContext.setEntityDefinitionHidden(definition, !editorContext.entityDefinitionHidden(definition));
         }
 
-        void MapViewBase::OnCreateEntity() {
+        void MapViewBase::createEntity(const Assets::EntityDefinition* definition) {
             auto document = lock(m_document);
-            const auto& definitions = document->entityDefinitionManager().definitions();
-
-            const auto definitionIndex = static_cast<size_t>((event.GetId() - CommandIds::Actions::LowestCreateEntityCommandId));
-            if (definitionIndex >= definitions.size()) {
-                return;
-            }
-
-            const auto* definition = definitions[definitionIndex];
             if (definition->type() == Assets::EntityDefinition::Type_PointEntity) {
                 createPointEntity(static_cast<const Assets::PointEntityDefinition*>(definition));
             } else if (canCreateBrushEntity()) {
                 createBrushEntity(static_cast<const Assets::BrushEntityDefinition*>(definition));
             }
         }
-#endif
 
         void MapViewBase::toggleShowEntityClassnames() {
             MapDocumentSPtr document = lock(m_document);
@@ -1194,8 +1012,9 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::OnShowPopupMenu() {
-            if (!doBeforePopupMenu())
+            if (!doBeforePopupMenu()) {
                 return;
+            }
 
             MapDocumentSPtr document = lock(m_document);
             const Model::NodeList& nodes = document->selectedNodes().nodes();
@@ -1204,12 +1023,14 @@ namespace TrenchBroom {
             Model::Node* newGroup = findNewGroupForObjects(nodes);
             Model::Node* mergeGroup = findGroupToMergeGroupsInto(document->selectedNodes());
 
-            QMenu menu;
-            QAction* groupAction = menu.addAction(tr("Group"), this, &MapViewBase::OnGroupSelectedObjects);
-            groupAction->setEnabled(canGroupObjects());
+            auto* mapFrame = findMapFrame(this->widgetContainer());
 
-            QAction* ungroupAction = menu.addAction(tr("Ungroup"), this, &MapViewBase::OnUngroupSelectedObjects);
-            ungroupAction->setEnabled(canUngroupObjects());
+            QMenu menu;
+            QAction* groupAction = menu.addAction(tr("Group"), mapFrame, &MapFrame::groupSelectedObjects);
+            groupAction->setEnabled(mapFrame->canGroupSelectedObjects());
+
+            QAction* ungroupAction = menu.addAction(tr("Ungroup"), mapFrame, &MapFrame::ungroupSelectedObjects);
+            ungroupAction->setEnabled(mapFrame->canUngroupSelectedObjects());
 
             QAction* mergeGroupAction = nullptr;
             if (mergeGroup != nullptr) {
@@ -1219,8 +1040,8 @@ namespace TrenchBroom {
             }
             mergeGroupAction->setEnabled(canMergeGroups());
 
-            QAction* renameAction = menu.addAction(tr("Rename"), this, &MapViewBase::OnRenameGroups);
-            renameAction->setEnabled(canRenameGroups());
+            QAction* renameAction = menu.addAction(tr("Rename"), mapFrame, &MapFrame::renameSelectedGroups);
+            renameAction->setEnabled(mapFrame->canRenameSelectedGroups());
 
             if (newGroup != nullptr && newGroup != currentGroup) {
                 menu.addAction(tr("Add Objects to Group %1").arg(QString::fromStdString(newGroup->name())), this, &MapViewBase::OnAddObjectsToGroup);
@@ -1526,25 +1347,10 @@ namespace TrenchBroom {
             return result;
         }
 
-        bool MapViewBase::canGroupObjects() const {
-            MapDocumentSPtr document = lock(m_document);
-            return !document->selectedNodes().empty();
-        }
-
-        bool MapViewBase::canUngroupObjects() const {
-            MapDocumentSPtr document = lock(m_document);
-            return document->selectedNodes().hasOnlyGroups();
-        }
-
         bool MapViewBase::canMergeGroups() const {
             MapDocumentSPtr document = lock(m_document);
             Model::Node* mergeGroup = findGroupToMergeGroupsInto(document->selectedNodes());
             return mergeGroup != nullptr;
-        }
-
-        bool MapViewBase::canRenameGroups() const {
-            MapDocumentSPtr document = lock(m_document);
-            return document->selectedNodes().hasOnlyGroups();
         }
 
         bool MapViewBase::canMakeStructural() const {

@@ -23,6 +23,7 @@
 #include "Preference.h"
 #include "PreferenceManager.h"
 #include "View/ActionContext.h"
+#include "View/Actions.h"
 #include "View/KeyboardShortcut.h"
 #include "View/MapDocument.h"
 
@@ -31,10 +32,12 @@
 
 namespace TrenchBroom {
     namespace View {
+        KeyboardShortcutModel::ActionInfo::ActionInfo(const IO::Path& i_path, const Action& i_action) :
+        path(i_path),
+        action(i_action) {}
+
         KeyboardShortcutModel::KeyboardShortcutModel(MapDocument* document) {
-            if (document != nullptr) {
-                m_tagActions = ActionList::instance().tagActions(document->smartTags());
-            }
+            initializeActions(document);
             updateConflicts();
         }
 
@@ -66,13 +69,13 @@ namespace TrenchBroom {
                 return QVariant();
             }
             if (role == Qt::DisplayRole || role == Qt::EditRole) {
-                const auto& action = this->action(index.row());
+                const auto& actionInfo = this->actionInfo(index.row());
                 if (index.column() == 0) {
-                    return action.key();
+                    return actionInfo.action.keySequence();
                 } else if (index.column() == 1) {
-                    return QString::fromStdString(actionContextName(action.actionContext));
+                    return QString::fromStdString(actionContextName(actionInfo.action.actionContext()));
                 } else {
-                    return QString::fromStdString(action.preferencePath.asString());
+                    return QString::fromStdString(actionInfo.path.asString(" > "));
                 }
             } else {
                 return QVariant();
@@ -85,12 +88,9 @@ namespace TrenchBroom {
             }
 
             // We take a copy here on purpose in order to set the key further below.
-            auto action = this->action(index.row());
-            if (!action.modifiable) {
-                return false;
-            }
+            auto& actionInfo = this->actionInfo(index.row());
+            actionInfo.action.setKeySequence(value.value<QKeySequence>());
 
-            action.setKey(value.value<QKeySequence>());
             updateConflicts();
 
             emit dataChanged(index, index, { Qt::DisplayRole, role });
@@ -101,7 +101,7 @@ namespace TrenchBroom {
             if (!checkIndex(index)) {
                 return Qt::ItemIsEnabled;
             }
-            if (index.column() == 0 && action(index.row()).modifiable) {
+            if (index.column() == 0) {
                 return Qt::ItemIsEnabled | Qt::ItemIsEditable;
             } else {
                 return Qt::ItemIsEnabled;
@@ -120,33 +120,89 @@ namespace TrenchBroom {
             return VectorUtils::setContains(m_conflicts, index.row());
         }
 
+        void KeyboardShortcutModel::initializeActions(MapDocument* document) {
+            initializeMenuActions();
+            initializeViewActions();
+            if (document != nullptr) {
+                initializeTagActions(document);
+                initializeEntityDefinitionActions(document);
+            }
+        }
+
+        class KeyboardShortcutModel::MenuActionVisitor : public MenuVisitor {
+        private:
+            std::vector<ActionInfo>& m_actions;
+            IO::Path m_currentPath;
+        public:
+            explicit MenuActionVisitor(std::vector<ActionInfo>& actions) :
+            m_actions(actions) {}
+
+            void visit(const Menu& menu) override {
+                m_currentPath = m_currentPath + IO::Path(menu.name());
+                menu.visitEntries(*this);
+                m_currentPath = m_currentPath.deleteLastComponent();
+            }
+
+            void visit(const MenuSeparatorItem& item) override {}
+
+            void visit(const MenuActionItem& item) override {
+                m_actions.emplace_back(m_currentPath + IO::Path(item.name()), item.action());
+            }
+
+        };
+
+        void KeyboardShortcutModel::initializeMenuActions() {
+            MenuActionVisitor visitor(m_actions);
+            const auto& actionManager = ActionManager::instance();
+            actionManager.visitMainMenu(visitor);
+        }
+
+        void KeyboardShortcutModel::initializeViewActions() {
+            const auto& actionManager = ActionManager::instance();
+            actionManager.visitMapViewActions([this](const Action& action) {
+                m_actions.emplace_back(IO::Path("Map View") + IO::Path(action.name()), action);
+            });
+        }
+
+        void KeyboardShortcutModel::initializeTagActions(MapDocument* document) {
+            assert(document != nullptr);
+            document->visitTagActions([this](const Action& action) {
+                m_actions.emplace_back(IO::Path("Tags") + IO::Path(action.name()), action);
+            });
+        }
+
+        void KeyboardShortcutModel::initializeEntityDefinitionActions(MapDocument* document) {
+            assert(document != nullptr);
+            document->visitEntityDefinitionActions([this](const Action& action) {
+                m_actions.emplace_back(IO::Path("Entity Definitions") + IO::Path(action.name()), action);
+            });
+        }
+
         void KeyboardShortcutModel::updateConflicts() {
             using ConflictEntry = std::pair<std::reference_wrapper<const ActionInfo>, int>;
             const auto cmp = [](const ConflictEntry& lhs, const ConflictEntry& rhs) {
 
-                const auto& lhsAction = lhs.first.get();
-                const auto& rhsAction = rhs.first.get();
-                if ((lhsAction.actionContext & rhsAction.actionContext) == 0) {
-                    if (lhsAction.actionContext < rhsAction.actionContext) {
-                        return true;
-                    } else if (lhsAction.actionContext > rhsAction.actionContext) {
-                        return false;
-                    }
+                const auto& lhsAction = lhs.first.get().action;
+                const auto& rhsAction = rhs.first.get().action;
+                if (actionContextMatches(lhsAction.actionContext(), rhsAction.actionContext())) {
+                    // if the two have the same sequence, they would be in conflict, so we compare the sequences
+                    const auto lhsKeySequence = lhsAction.keySequence();
+                    const auto rhsKeySequence = rhsAction.keySequence();
+                    return lhsKeySequence < rhsKeySequence;
+                } else {
+                    // otherwise, we just compare by the action context
+                    return lhsAction.actionContext() < rhsAction.actionContext();
                 }
-
-                const auto lhsKey = lhsAction.key();
-                const auto rhsKey = rhsAction.key();
-                return lhsKey < rhsKey;
             };
             std::set<ConflictEntry, decltype(cmp)> entrySet(cmp);
 
             m_conflicts.clear();
 
             for (int row = 0; row < totalActionCount(); ++row) {
-                const auto& action = this->action(row);
-                const auto keySequence = action.key();
+                const auto& actionInfo = this->actionInfo(row);
+                const auto keySequence = actionInfo.action.keySequence();
                 if (keySequence.count() > 0) {
-                    auto [it, noConflict] = entrySet.insert(std::make_pair(std::cref(action), row));
+                    auto [it, noConflict] = entrySet.insert(std::make_pair(std::cref(actionInfo), row));
                     if (!noConflict) {
                         // found a duplicate, so there are conflicts
                         const auto otherRow = it->second;
@@ -162,25 +218,13 @@ namespace TrenchBroom {
             }
         }
 
-        const ActionInfo& KeyboardShortcutModel::action(const int index) const {
-            const auto index_s = static_cast<size_t>(index);
-            if (index < builtinActionCount()) {
-                return ActionList::instance().actions().at(index_s);
-            } else {
-                return m_tagActions[index_s - static_cast<size_t>(builtinActionCount())];
-            }
+        const KeyboardShortcutModel::ActionInfo& KeyboardShortcutModel::actionInfo(const int index) const {
+            assert(index < totalActionCount());
+            return m_actions[static_cast<size_t>(index)];
         }
 
         int KeyboardShortcutModel::totalActionCount() const {
-            return builtinActionCount() + tagActionCount();
-        }
-
-        int KeyboardShortcutModel::builtinActionCount() const {
-            return static_cast<int>(ActionList::instance().actions().size());
-        }
-
-        int KeyboardShortcutModel::tagActionCount() const {
-            return static_cast<int>(m_tagActions.size());
+            return static_cast<int>(m_actions.size());
         }
 
         bool KeyboardShortcutModel::checkIndex(const QModelIndex& index) const {

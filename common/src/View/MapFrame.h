@@ -216,10 +216,13 @@ namespace TrenchBroom {
             bool canChangeSelection() const;
 
             void groupSelectedObjects();
-            bool canGroup() const;
+            bool canGroupSelectedObjects() const;
 
             void ungroupSelectedObjects();
-            bool canUngroup() const;
+            bool canUngroupSelectedObjects() const;
+
+            void renameSelectedGroups();
+            bool canRenameSelectedGroups() const;
 
             void toggleCreateComplexBrushTool();
             bool canToggleCreateComplexBrushTool() const;

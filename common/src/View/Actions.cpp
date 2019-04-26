@@ -23,6 +23,9 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "TrenchBroomApp.h"
+#include "Model/EditorContext.h"
+#include "Model/EntityAttributes.h"
+#include "Model/Tag.h"
 #include "View/Grid.h"
 #include "View/Inspector.h"
 #include "View/MapDocument.h"
@@ -53,9 +56,7 @@ namespace TrenchBroom {
             }
 
             if (hasDocument()) {
-                return actionContextMatches(m_actionContext, actionContext, ActionContext::AnyView) &&
-                      (actionContextMatches(m_actionContext, actionContext, ActionContext::AnyTool) ||
-                       actionContextMatches(m_actionContext, actionContext, ActionContext::AnySelection));
+                return actionContextMatches(m_actionContext, actionContext);
             }
             return false;
         }
@@ -75,22 +76,24 @@ namespace TrenchBroom {
             return m_frame->document().get();
         }
 
-        Action::Action(const String& name, const int actionContext, const KeyboardShortcut& defaultShortcut,
+        Action::Action(const String& name, const ActionContext::Type actionContext, const KeyboardShortcut& defaultShortcut,
             const Action::ExecuteFn& execute, const Action::EnabledFn& enabled, const IO::Path& iconPath) :
         m_name(name),
+        m_preferencePath(IO::Path("Action") + IO::Path(m_name)),
         m_actionContext(actionContext),
-        m_preference(IO::Path("Actions") + IO::Path(m_name), defaultShortcut),
+        m_defaultShortcut(defaultShortcut),
         m_execute(execute),
         m_enabled(enabled),
         m_checkable(false),
         m_iconPath(iconPath) {}
 
-        Action::Action(const String& name, const int actionContext, const KeyboardShortcut& defaultShortcut,
+        Action::Action(const String& name, const ActionContext::Type actionContext, const KeyboardShortcut& defaultShortcut,
             const Action::ExecuteFn& execute, const Action::EnabledFn& enabled, const Action::CheckedFn& checked,
             const IO::Path& iconPath) :
         m_name(name),
+        m_preferencePath(IO::Path("Action") + IO::Path(m_name)),
         m_actionContext(actionContext),
-        m_preference(IO::Path("Actions") + IO::Path(m_name), defaultShortcut),
+        m_defaultShortcut(defaultShortcut),
         m_execute(execute),
         m_enabled(enabled),
         m_checkable(true),
@@ -106,7 +109,15 @@ namespace TrenchBroom {
         }
 
         QKeySequence Action::keySequence() const {
-            return pref(m_preference).keySequence();
+            auto& prefs = PreferenceManager::instance();
+            const auto& pref = prefs.dynamicPreference(m_preferencePath, KeyboardShortcut(m_defaultShortcut));
+            return pref.value().keySequence();
+        }
+
+        void Action::setKeySequence(const QKeySequence& keySequence) const {
+            auto& prefs = PreferenceManager::instance();
+            auto& pref = prefs.dynamicPreference(m_preferencePath, KeyboardShortcut(m_defaultShortcut));
+            prefs.set(pref, KeyboardShortcut(keySequence));
         }
 
         void Action::execute(ActionExecutionContext& context) const {
@@ -212,6 +223,64 @@ namespace TrenchBroom {
         const ActionManager& ActionManager::instance() {
             static const auto instance = ActionManager();
             return instance;
+        }
+
+        std::vector<Action> ActionManager::createTagActions(const std::list<Model::SmartTag>& tags) const {
+            std::vector<Action> result;
+            result.reserve(3 * tags.size());
+
+            const auto actionContext = ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyTool;
+            for (const auto& tag : tags) {
+                result.emplace_back("Tags/Toggle/" + tag.name(), actionContext, KeyboardShortcut(),
+                    [&tag](ActionExecutionContext& context) {
+                        context.view()->toggleTagVisible(tag);
+                    },
+                    [](ActionExecutionContext& context) { return context.hasDocument(); },
+                    IO::Path());
+                if (tag.canEnable()) {
+                    result.emplace_back("Tags/Enable/" + tag.name(), actionContext, KeyboardShortcut(),
+                        [&tag](ActionExecutionContext& context) {
+                            context.view()->enableTag(tag);
+                        },
+                        [](ActionExecutionContext& context) { return context.hasDocument(); },
+                        IO::Path());
+                }
+                if (tag.canDisable()) {
+                    result.emplace_back("Tags/Disable/" + tag.name(), actionContext, KeyboardShortcut(),
+                        [&tag](ActionExecutionContext& context) {
+                            context.view()->disableTag(tag);
+                        },
+                        [](ActionExecutionContext& context) { return context.hasDocument(); },
+                        IO::Path());
+                }
+            }
+
+            return result;
+        }
+
+        std::vector<Action> ActionManager::createEntityDefinitionActions(const std::vector<Assets::EntityDefinition*>& entityDefinitions) const {
+            std::vector<Action> result;
+            result.reserve(2 * entityDefinitions.size());
+
+            const auto actionContext = ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyTool;
+            for (const auto* definition : entityDefinitions) {
+                result.emplace_back("Entity Definitions/Toggle/" + definition->name(), actionContext, KeyboardShortcut(),
+                    [definition](ActionExecutionContext& context) {
+                        context.view()->toggleEntityDefinitionVisible(definition);
+                    },
+                    [](ActionExecutionContext& context) { return context.hasDocument(); },
+                    IO::Path());
+                if (definition->name() != Model::AttributeValues::WorldspawnClassname) {
+                    result.emplace_back("Entity Definitions/Create/" + definition->name(), actionContext, KeyboardShortcut(),
+                        [definition](ActionExecutionContext& context) {
+                            context.view()->createEntity(definition);
+                        },
+                        [](ActionExecutionContext& context) { return context.hasDocument(); },
+                        IO::Path());
+                }
+            }
+
+            return result;
         }
 
         void ActionManager::visitMainMenu(MenuVisitor& visitor) const {
@@ -635,7 +704,7 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) {
                     return context.hasDocument();
                 }));
-            editMenu.addItem(createMenuAction("Repeat Last Commands", Qt::CTRL + Qt::Key_R,
+            editMenu.addItem(createMenuAction("Clear Repeatable Commands", Qt::CTRL + Qt::SHIFT + Qt::Key_R,
                 [](ActionExecutionContext& context) {
                     context.frame()->clearRepeatableCommands();
                 },
@@ -750,14 +819,14 @@ namespace TrenchBroom {
                         context.frame()->groupSelectedObjects();
                     },
                     [](ActionExecutionContext& context) {
-                        return context.hasDocument() && context.frame()->canGroup();
+                        return context.hasDocument() && context.frame()->canGroupSelectedObjects();
                     }));
             editMenu.addItem(createMenuAction("Ungroup Selected Objects", Qt::CTRL + Qt::SHIFT + Qt::Key_G,
                 [](ActionExecutionContext& context) {
                     context.frame()->ungroupSelectedObjects();
                 },
                 [](ActionExecutionContext& context) {
-                    return context.hasDocument() && context.frame()->canUngroup();
+                    return context.hasDocument() && context.frame()->canUngroupSelectedObjects();
                 }));
             editMenu.addSeparator();
 

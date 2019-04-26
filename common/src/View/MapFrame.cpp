@@ -1237,25 +1237,42 @@ namespace TrenchBroom {
         }
 
         void MapFrame::groupSelectedObjects() {
-            if (canGroup()) {
+            if (canGroupSelectedObjects()) {
                 const String name = queryGroupName(this);
-                if (!name.empty())
+                if (!name.empty()) {
                     m_document->groupSelection(name);
+                }
             }
         }
 
-        bool MapFrame::canGroup() const {
+        bool MapFrame::canGroupSelectedObjects() const {
             return m_document->hasSelectedNodes() && !m_mapView->anyToolActive();
         }
 
         void MapFrame::ungroupSelectedObjects() {
-            if (canUngroup()) {
+            if (canUngroupSelectedObjects()) {
                 m_document->ungroupSelection();
             }
         }
 
-        bool MapFrame::canUngroup() const {
+        bool MapFrame::canUngroupSelectedObjects() const {
             return m_document->selectedNodes().hasOnlyGroups() && !m_mapView->anyToolActive();
+        }
+
+        void MapFrame::renameSelectedGroups() {
+            if (canRenameSelectedGroups()) {
+                MapDocumentSPtr document = lock(m_document);
+                assert(document->selectedNodes().hasOnlyGroups());
+                const String name = queryGroupName(this);
+                if (!name.empty()) {
+                    document->renameGroups(name);
+                }
+            }
+        }
+
+        bool MapFrame::canRenameSelectedGroups() const {
+            MapDocumentSPtr document = lock(m_document);
+            return document->selectedNodes().hasOnlyGroups();
         }
 
         void MapFrame::replaceTexture() {

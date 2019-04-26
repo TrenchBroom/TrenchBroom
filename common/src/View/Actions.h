@@ -25,6 +25,7 @@
 #include "View/ActionContext.h"
 
 #include <functional>
+#include <list>
 #include <memory>
 #include <optional>
 #include <vector>
@@ -32,8 +33,16 @@
 #include <QKeySequence>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class EntityDefinition;
+    }
+
     namespace IO {
         class Path;
+    }
+
+    namespace Model {
+        class SmartTag;
     }
 
     namespace View {
@@ -64,22 +73,24 @@ namespace TrenchBroom {
             using CheckedFn = std::function<bool(ActionExecutionContext& context)>;
         private:
             String m_name;
-            int m_actionContext;
-            Preference<KeyboardShortcut> m_preference;
+            IO::Path m_preferencePath;
+            ActionContext::Type m_actionContext;
+            KeyboardShortcut m_defaultShortcut;
             ExecuteFn m_execute;
             EnabledFn m_enabled;
             bool m_checkable;
             CheckedFn m_checked;
             IO::Path m_iconPath;
         public:
-            Action(const String& name, int actionContext, const KeyboardShortcut& defaultShortcut,
+            Action(const String& name, ActionContext::Type actionContext, const KeyboardShortcut& defaultShortcut,
                 const ExecuteFn& execute, const EnabledFn& enabled, const IO::Path& iconPath);
-            Action(const String& name, int actionContext, const KeyboardShortcut& defaultShortcut,
+            Action(const String& name, ActionContext::Type actionContext, const KeyboardShortcut& defaultShortcut,
                 const ExecuteFn& execute, const EnabledFn& enabled, const CheckedFn& checked, const IO::Path& iconPath);
 
             const String& name() const;
             ActionContext::Type actionContext() const;
             QKeySequence keySequence() const;
+            void setKeySequence(const QKeySequence& keySequence) const;
 
             void execute(ActionExecutionContext& context) const;
             bool enabled(ActionExecutionContext& context) const;
@@ -89,7 +100,8 @@ namespace TrenchBroom {
             bool hasIcon() const;
             const IO::Path& iconPath() const;
 
-            deleteCopyAndMove(Action)
+            deleteCopy(Action)
+            defineMove(Action)
         };
 
         class Menu;
@@ -182,7 +194,7 @@ namespace TrenchBroom {
             /**
              * The main menu for the map editing window.
              */
-            std::vector<std::unique_ptr<const Menu>> m_mainMenu;
+            std::vector<std::unique_ptr<Menu>> m_mainMenu;
 
             /**
              * The toolbar for the map editing window. Stored as a menu to allow for separators.
@@ -197,6 +209,9 @@ namespace TrenchBroom {
             ActionManager();
         public:
             static const ActionManager& instance();
+
+            std::vector<Action> createTagActions(const std::list<Model::SmartTag>& tags) const;
+            std::vector<Action> createEntityDefinitionActions(const std::vector<Assets::EntityDefinition*>& entityDefinitions) const;
 
             void visitMainMenu(MenuVisitor& visitor) const;
             void visitToolBarActions(MenuVisitor& visitor) const;

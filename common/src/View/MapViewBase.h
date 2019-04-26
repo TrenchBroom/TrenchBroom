@@ -160,10 +160,6 @@ namespace TrenchBroom {
             void resetCameraZoom();
             void cancel();
             void deactivateTool();
-        public: // group management
-            void OnGroupSelectedObjects();
-            void OnUngroupSelectedObjects();
-            void OnRenameGroups();
         public: // reparenting objects
             void OnAddObjectsToGroup();
             void OnRemoveObjectsFromGroup();
@@ -206,16 +202,14 @@ namespace TrenchBroom {
             void createBrushEntity(const Assets::BrushEntityDefinition* definition);
             bool canCreateBrushEntity();
         public: // tags
-            void OnToggleTagVisible(const Model::SmartTag& tag);
-
-            class EnableDisableTagCallback;
-            void OnEnableTag(const Model::SmartTag& tag);
-            void OnDisableTag(const Model::SmartTag& tag);
+            void toggleTagVisible(const Model::SmartTag& tag);
+            void enableTag(const Model::SmartTag& tag);
+            void disableTag(const Model::SmartTag& tag);
         public: // make structural
             void makeStructural();
         public: // entity definitions
-            void OnToggleEntityDefinitionVisible();
-            void OnCreateEntity();
+            void toggleEntityDefinitionVisible(const Assets::EntityDefinition* definition);
+            void createEntity(const Assets::EntityDefinition* definition);
         public: // view filters
             void toggleShowEntityClassnames();
             void toggleShowGroupBounds();
@@ -275,10 +269,7 @@ namespace TrenchBroom {
         private:
             QMenu* makeEntityGroupsMenu(Assets::EntityDefinition::Type type);
 
-            bool canGroupObjects() const;
-            bool canUngroupObjects() const;
             bool canMergeGroups() const;
-            bool canRenameGroups() const;
             bool canMakeStructural() const;
         private: // subclassing interface
             virtual vm::vec3 doGetMoveDirection(vm::direction direction) const = 0;
