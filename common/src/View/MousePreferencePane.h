@@ -25,11 +25,10 @@
 
 class QCheckBox;
 class QKeySequence;
-class QKeySequenceEdit;
 
 namespace TrenchBroom {
     namespace View {
-        class SingleKeySequenceEdit;
+        class KeySequenceEdit;
         class SliderWithLabel;
 
         class MousePreferencePane : public PreferencePane {
@@ -46,12 +45,12 @@ namespace TrenchBroom {
             QCheckBox* m_invertAltMoveAxisCheckBox;
             QCheckBox* m_moveInCursorDirCheckBox;
 
-            QKeySequenceEdit* m_forwardKeyEditor;
-            QKeySequenceEdit* m_backwardKeyEditor;
-            QKeySequenceEdit* m_leftKeyEditor;
-            QKeySequenceEdit* m_rightKeyEditor;
-            QKeySequenceEdit* m_upKeyEditor;
-            QKeySequenceEdit* m_downKeyEditor;
+            KeySequenceEdit* m_forwardKeyEditor;
+            KeySequenceEdit* m_backwardKeyEditor;
+            KeySequenceEdit* m_leftKeyEditor;
+            KeySequenceEdit* m_rightKeyEditor;
+            KeySequenceEdit* m_upKeyEditor;
+            KeySequenceEdit* m_downKeyEditor;
             SliderWithLabel* m_flyMoveSpeedSlider;
         public:
             explicit MousePreferencePane(QWidget* parent = nullptr);
@@ -89,7 +88,7 @@ namespace TrenchBroom {
 
             void flyMoveSpeedChanged(int value);
         private:
-            void setKeySequence(QKeySequenceEdit* editor, Preference<KeyboardShortcut>& preference);
+            void setKeySequence(KeySequenceEdit* editor, Preference<KeyboardShortcut>& preference);
             bool hasConflict(const QKeySequence& keySequence, const Preference<KeyboardShortcut>& preference) const;
         };
     }

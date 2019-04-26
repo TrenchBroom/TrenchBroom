@@ -20,9 +20,9 @@
 #include "KeyboardShortcutItemDelegate.h"
 
 #include "View/KeyboardShortcutModel.h"
+#include "View/KeySequenceEdit.h"
 
 #include <QItemEditorFactory>
-#include <QKeySequenceEdit>
 
 namespace TrenchBroom {
     namespace View {
@@ -30,7 +30,7 @@ namespace TrenchBroom {
             // FIXME: there is currently no way to delete a shortcut; we need to add a clear button to the editor
             // which means writing our own editor class that uses QKeySequenceEdit internally
             auto* itemEditorFactory = new QItemEditorFactory();
-            itemEditorFactory->registerEditor(QVariant::KeySequence, new QStandardItemEditorCreator<QKeySequenceEdit>());
+            itemEditorFactory->registerEditor(QVariant::KeySequence, new QStandardItemEditorCreator<KeySequenceEdit>());
             setItemEditorFactory(itemEditorFactory);
         }
 

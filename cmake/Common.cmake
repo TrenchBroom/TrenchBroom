@@ -370,6 +370,8 @@ SET(COMMON_SOURCE
 #	${COMMON_SOURCE_DIR}/View/LaunchGameEngineDialog.cpp
 	${COMMON_SOURCE_DIR}/View/LayerEditor.cpp
 	${COMMON_SOURCE_DIR}/View/LayerListBox.cpp
+	${COMMON_SOURCE_DIR}/View/LimitedKeySequenceEdit.cpp
+	${COMMON_SOURCE_DIR}/View/KeySequenceEdit.cpp
 	${COMMON_SOURCE_DIR}/View/MapDocumentCommandFacade.cpp
 	${COMMON_SOURCE_DIR}/View/MapDocument.cpp
 	${COMMON_SOURCE_DIR}/View/MapFrame.cpp
@@ -429,7 +431,6 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/ShearObjectsToolController.cpp
 	${COMMON_SOURCE_DIR}/View/ShearObjectsTool.cpp
 	${COMMON_SOURCE_DIR}/View/ShearTexturesCommand.cpp
-	${COMMON_SOURCE_DIR}/View/SingleKeySequenceEdit.cpp
 	${COMMON_SOURCE_DIR}/View/SliderWithLabel.cpp
 	${COMMON_SOURCE_DIR}/View/SmartAttributeEditor.cpp
 	${COMMON_SOURCE_DIR}/View/SmartAttributeEditorManager.cpp
@@ -920,6 +921,8 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/LaunchGameEngineDialog.h
 	${COMMON_SOURCE_DIR}/View/LayerEditor.h
 	${COMMON_SOURCE_DIR}/View/LayerListBox.h
+	${COMMON_SOURCE_DIR}/View/LimitedKeySequenceEdit.h
+	${COMMON_SOURCE_DIR}/View/KeySequenceEdit.h
 	${COMMON_SOURCE_DIR}/View/MapDocumentCommandFacade.h
 	${COMMON_SOURCE_DIR}/View/MapDocument.h
 	${COMMON_SOURCE_DIR}/View/MapFrame.h
@@ -982,7 +985,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/ShearObjectsToolController.h
 	${COMMON_SOURCE_DIR}/View/ShearObjectsTool.h
 	${COMMON_SOURCE_DIR}/View/ShearTexturesCommand.h
-	${COMMON_SOURCE_DIR}/View/SingleKeySequenceEdit.h
 	${COMMON_SOURCE_DIR}/View/SliderWithLabel.h
 	${COMMON_SOURCE_DIR}/View/SmartAttributeEditor.h
 	${COMMON_SOURCE_DIR}/View/SmartAttributeEditorManager.h

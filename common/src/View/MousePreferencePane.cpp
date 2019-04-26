@@ -24,7 +24,7 @@
 #include "Preferences.h"
 #include "View/BorderLine.h"
 #include "View/FormWithSectionsLayout.h"
-#include "View/SingleKeySequenceEdit.h"
+#include "View/KeySequenceEdit.h"
 #include "View/SliderWithLabel.h"
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
@@ -74,17 +74,17 @@ namespace TrenchBroom {
             m_invertAltMoveAxisCheckBox = new QCheckBox("Invert Z axis in Alt + middle mouse drag");
             m_moveInCursorDirCheckBox = new QCheckBox("Move camera towards cursor");
 
-            m_forwardKeyEditor = new SingleKeySequenceEdit();
+            m_forwardKeyEditor = new KeySequenceEdit(1);
             m_forwardKeyEditor->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-            m_backwardKeyEditor = new SingleKeySequenceEdit();
+            m_backwardKeyEditor = new KeySequenceEdit(1);
             m_backwardKeyEditor->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-            m_leftKeyEditor = new SingleKeySequenceEdit();
+            m_leftKeyEditor = new KeySequenceEdit(1);
             m_leftKeyEditor->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-            m_rightKeyEditor = new SingleKeySequenceEdit();
+            m_rightKeyEditor = new KeySequenceEdit(1);
             m_rightKeyEditor->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-            m_upKeyEditor = new SingleKeySequenceEdit();
+            m_upKeyEditor = new KeySequenceEdit(1);
             m_upKeyEditor->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-            m_downKeyEditor = new SingleKeySequenceEdit();
+            m_downKeyEditor = new KeySequenceEdit(1);
             m_downKeyEditor->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
 
             m_flyMoveSpeedSlider = new SliderWithLabel(256, 512);
@@ -140,12 +140,12 @@ namespace TrenchBroom {
             connect(m_invertAltMoveAxisCheckBox, &QCheckBox::stateChanged, this, &MousePreferencePane::invertAltMoveAxisChanged);
             connect(m_moveInCursorDirCheckBox, &QCheckBox::stateChanged, this, &MousePreferencePane::moveInCursorDirChanged);
 
-            connect(m_forwardKeyEditor, &QKeySequenceEdit::editingFinished, this, &MousePreferencePane::forwardKeyChanged);
-            connect(m_backwardKeyEditor, &QKeySequenceEdit::editingFinished, this, &MousePreferencePane::backwardKeyChanged);
-            connect(m_leftKeyEditor, &QKeySequenceEdit::editingFinished, this, &MousePreferencePane::leftKeyChanged);
-            connect(m_rightKeyEditor, &QKeySequenceEdit::editingFinished, this, &MousePreferencePane::rightKeyChanged);
-            connect(m_upKeyEditor, &QKeySequenceEdit::editingFinished, this, &MousePreferencePane::upKeyChanged);
-            connect(m_downKeyEditor, &QKeySequenceEdit::editingFinished, this, &MousePreferencePane::downKeyChanged);
+            connect(m_forwardKeyEditor, &KeySequenceEdit::editingFinished, this, &MousePreferencePane::forwardKeyChanged);
+            connect(m_backwardKeyEditor, &KeySequenceEdit::editingFinished, this, &MousePreferencePane::backwardKeyChanged);
+            connect(m_leftKeyEditor, &KeySequenceEdit::editingFinished, this, &MousePreferencePane::leftKeyChanged);
+            connect(m_rightKeyEditor, &KeySequenceEdit::editingFinished, this, &MousePreferencePane::rightKeyChanged);
+            connect(m_upKeyEditor, &KeySequenceEdit::editingFinished, this, &MousePreferencePane::upKeyChanged);
+            connect(m_downKeyEditor, &KeySequenceEdit::editingFinished, this, &MousePreferencePane::downKeyChanged);
 
             connect(m_flyMoveSpeedSlider, &SliderWithLabel::valueChanged, this, &MousePreferencePane::flyMoveSpeedChanged);
         }
@@ -307,7 +307,7 @@ namespace TrenchBroom {
             prefs.set(Preferences::CameraFlyMoveSpeed, ratio);
         }
 
-        void MousePreferencePane::setKeySequence(QKeySequenceEdit* editor, Preference<KeyboardShortcut>& preference) {
+        void MousePreferencePane::setKeySequence(KeySequenceEdit* editor, Preference<KeyboardShortcut>& preference) {
             const auto keySequence = editor->keySequence();
             PreferenceManager& prefs = PreferenceManager::instance();
             if (!hasConflict(keySequence, preference)) {

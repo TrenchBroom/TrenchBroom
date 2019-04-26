@@ -207,8 +207,10 @@ namespace TrenchBroom {
 #endif
 
         QAbstractButton* createBitmapButton(const String& image, const QString& tooltip, QWidget* parent) {
-            QIcon icon = loadIconResourceQt(IO::Path(image));
+            return createBitmapButton(loadIconResourceQt(IO::Path(image)), tooltip, parent);
+        }
 
+        QAbstractButton* createBitmapButton(const QIcon& icon, const QString& tooltip, QWidget* parent) {
             // NOTE: according to http://doc.qt.io/qt-5/qpushbutton.html this would be more correctly
             // be a QToolButton, but the QToolButton doesn't have a flat style on macOS
             auto* button = new QToolButton(parent);

@@ -17,27 +17,30 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SingleKeySequenceEdit.h"
+#ifndef TRENCHBROOM_LIMITEDKEYSEQUENCEEDIT_H
+#define TRENCHBROOM_LIMITEDKEYSEQUENCEEDIT_H
 
-#include <QKeyEvent>
+#include <QKeySequenceEdit>
 
 namespace TrenchBroom {
     namespace View {
-        SingleKeySequenceEdit::SingleKeySequenceEdit(QWidget* parent) :
-        QKeySequenceEdit(parent),
-        m_count(0) {
-            connect(this, &QKeySequenceEdit::editingFinished, this, &SingleKeySequenceEdit::resetCount);
-        }
-
-        void SingleKeySequenceEdit::keyPressEvent(QKeyEvent* event) {
-            if (m_count == 0 && event->modifiers() == Qt::NoModifier) {
-                QKeySequenceEdit::keyPressEvent(event);
-                ++m_count;
-            }
-        }
-
-        void SingleKeySequenceEdit::resetCount() {
-            m_count = 0;
-        }
+        class LimitedKeySequenceEdit : public QKeySequenceEdit {
+            Q_OBJECT
+        public:
+            static const size_t MaxCount = 4;
+        private:
+            size_t m_maxCount;
+            size_t m_count;
+        public:
+            explicit LimitedKeySequenceEdit(QWidget* parent = nullptr);
+            explicit LimitedKeySequenceEdit(size_t maxCount, QWidget* parent = nullptr);
+        protected:
+            void keyPressEvent(QKeyEvent* event) override;
+        private slots:
+            void resetCount();
+        };
     }
 }
+
+
+#endif //TRENCHBROOM_LIMITEDKEYSEQUENCEEDIT_H
