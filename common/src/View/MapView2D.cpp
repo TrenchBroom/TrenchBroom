@@ -267,19 +267,21 @@ namespace TrenchBroom {
         }
 
         vm::vec3 MapView2D::doGetMoveDirection(const vm::direction direction) const {
+            // The mapping is a bit counter intuitive, but it makes sense considering that the cursor up key is usually
+            // bounds to the forward action (which makes sense in 3D), but should move objects "up" in 2D.
             switch (direction) {
                 case vm::direction::forward:
-                    return vm::vec3(firstAxis(m_camera.direction()));
+                    return vm::vec3(firstAxis(m_camera.up()));
                 case vm::direction::backward:
-                    return vm::vec3(-firstAxis(m_camera.direction()));
+                    return vm::vec3(-firstAxis(m_camera.up()));
                 case vm::direction::left:
                     return vm::vec3(-firstAxis(m_camera.right()));
                 case vm::direction::right:
                     return vm::vec3(firstAxis(m_camera.right()));
                 case vm::direction::up:
-                    return vm::vec3(firstAxis(m_camera.up()));
+                    return vm::vec3(-firstAxis(m_camera.direction()));
                 case vm::direction::down:
-                    return vm::vec3(-firstAxis(m_camera.up()));
+                    return vm::vec3(firstAxis(m_camera.direction()));
                 switchDefault()
             }
         }
