@@ -142,8 +142,6 @@ namespace TrenchBroom {
             return layers[index];
         }
 
-
-
         void LayerListBox::setSelectedLayer(Model::Layer* layer) {
             m_list->clearSelection();
 
@@ -228,12 +226,37 @@ namespace TrenchBroom {
         }
 
         void LayerListBox::refreshList() {
-            m_list->clear();
-
             MapDocumentSPtr document = lock(m_document);
             const Model::World* world = document->world();
 
-            for (Model::Layer* layer : world->allLayers()) {
+            const Model::LayerList worldLayers = world->allLayers();
+            const int worldLayersSize = static_cast<int>(worldLayers.size());
+
+            // Fast path: check if the widgets represent the same layers in the same order
+            if (worldLayersSize == m_list->count()) {
+                bool same = true;
+                for (int i = 0; i < worldLayersSize; ++i) {
+                    if (layerForItem(m_list->item(i)) != worldLayers.at(i)) {
+                        same = false;
+                        break;
+                    }
+                }
+
+                if (same) {
+                    // Same list of Layers. Just refresh the widgets
+                    for (int i = 0; i < m_list->count(); ++i) {
+                        // FIXME: factor out
+                        auto* layerItem = dynamic_cast<LayerListBoxLayerItem*>(m_list->itemWidget(m_list->item(i)));
+                        layerItem->refresh();
+                    }
+                    return;
+                }
+            }
+
+            // Slow path: rebuild the list including QWidgets from scratch.
+            m_list->clear();
+
+            for (Model::Layer* layer : worldLayers) {
                 auto* layerWidget = new LayerListBoxLayerItem(nullptr, document, layer);
                 auto* item = new QListWidgetItem();
 
