@@ -106,14 +106,10 @@ namespace TrenchBroom {
             }
 
             // these must be initialized here and not earlier
-            m_frameManager = new FrameManager(useSDI());
+            m_frameManager = std::make_unique<FrameManager>(useSDI());
 
-            // FIXME: Set base id if needed
-            m_recentDocuments = new RecentDocuments(0, 10);
-            // FIXME: recent docs
-#if 0
-            m_recentDocuments->setHandler(this, &TrenchBroomApp::OnFileOpenRecent);
-#endif
+            m_recentDocuments = std::make_unique<RecentDocuments>(10);
+            connect(m_recentDocuments.get(), &RecentDocuments::loadDocument, this, [this](const IO::Path& path) { openDocument(path); });
 
             // FIXME: add apple only for Qt
 #if 0
@@ -169,15 +165,7 @@ namespace TrenchBroom {
         }
 
         TrenchBroomApp::~TrenchBroomApp() {
-            delete m_frameManager;
-            m_frameManager = nullptr;
-
-// FIXME: recent
-#if 0
             m_recentDocuments->didChangeNotifier.removeObserver(recentDocumentsDidChangeNotifier);
-            delete m_recentDocuments;
-            m_recentDocuments = nullptr;
-#endif
         }
 
         QSettings& TrenchBroom::View::TrenchBroomApp::settings() {
@@ -185,31 +173,27 @@ namespace TrenchBroom {
         }
 
         FrameManager* TrenchBroomApp::frameManager() {
-            return m_frameManager;
+            return m_frameManager.get();
         }
 
          const IO::Path::List& TrenchBroomApp::recentDocuments() const {
             return m_recentDocuments->recentDocuments();
         }
 
-        // FIXME: recent
-#if 0
-        void TrenchBroomApp::addRecentDocumentMenu(wxMenu* menu) {
+        void TrenchBroomApp::addRecentDocumentMenu(QMenu* menu) {
             m_recentDocuments->addMenu(menu);
         }
 
-        void TrenchBroomApp::removeRecentDocumentMenu(wxMenu* menu) {
+        void TrenchBroomApp::removeRecentDocumentMenu(QMenu* menu) {
             m_recentDocuments->removeMenu(menu);
         }
-#endif
 
         void TrenchBroomApp::updateRecentDocument(const IO::Path& path) {
             m_recentDocuments->updatePath(path);
         }
 
-        bool TrenchBroomApp::openDocument(const String& pathStr) {
+        bool TrenchBroomApp::openDocument(const IO::Path& path) {
             MapFrame* frame = nullptr;
-            const IO::Path path(pathStr);
             try {
                 String gameName = "";
                 Model::MapFormat mapFormat = Model::MapFormat::Unknown;
@@ -241,7 +225,7 @@ namespace TrenchBroom {
                 if (frame != nullptr)
                     frame->close();
 
-                return recoverFromException(e, [this, &pathStr](){ return this->openDocument(pathStr); });
+                return recoverFromException(e, [this, &path](){ return this->openDocument(path); });
             } catch (const Exception& e) {
                 if (frame != nullptr)
                     frame->close();
@@ -250,7 +234,7 @@ namespace TrenchBroom {
             } catch (...) {
                 if (frame != nullptr)
                     frame->close();
-                QMessageBox::critical(nullptr, "TrenchBroom", QString::fromStdString(pathStr) + " could not be opened.", QMessageBox::Ok);
+                QMessageBox::critical(nullptr, "TrenchBroom", QString::fromStdString(path.asString()) + " could not be opened.", QMessageBox::Ok);
                 return false;
             }
         }
@@ -510,10 +494,11 @@ namespace TrenchBroom {
         }
 
         void TrenchBroomApp::openDocument() {
-            const QString fileName = QFileDialog::getOpenFileName(nullptr, "Open Map", "", "Map files (*.map);;Any files (*.*)");
+            const auto pathStr = QFileDialog::getOpenFileName(nullptr, "Open Map", "", "Map files (*.map);;Any files (*.*)");
+            const auto path = IO::Path(pathStr.toStdString());
 
-            if (!fileName.isEmpty()) {
-                openDocument(fileName.toStdString());
+            if (!path.isEmpty()) {
+                openDocument(path);
             }
         }
 
@@ -599,13 +584,16 @@ namespace TrenchBroom {
 #else
 
         bool TrenchBroomApp::openFilesOrWelcomeFrame(const QStringList& fileNames) {
-            if (fileNames.size() > 0) {
+            if (!fileNames.isEmpty()) {
                 if (useSDI()) {
-                    const auto param = fileNames.at(0).toStdString();
-                    openDocument(param);
+                    const auto path = IO::Path(fileNames.at(0).toStdString());
+                    if (!path.isEmpty()) {
+                        openDocument(path);
+                    }
                 } else {
-                    for (const auto& qString : fileNames) {
-                        openDocument(qString.toStdString());
+                    for (const auto& fileName : fileNames) {
+                        const auto path = IO::Path(fileName.toStdString());
+                        openDocument(path);
                     }
                 }
             } else {

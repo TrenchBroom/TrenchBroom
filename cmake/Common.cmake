@@ -401,6 +401,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/PreferenceDialog.cpp
 	${COMMON_SOURCE_DIR}/View/PreferencePane.cpp
 	${COMMON_SOURCE_DIR}/View/RecentDocumentListBox.cpp
+	${COMMON_SOURCE_DIR}/View/RecentDocuments.cpp
 	${COMMON_SOURCE_DIR}/View/RemoveBrushEdgesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/RemoveBrushElementsCommand.cpp
 	${COMMON_SOURCE_DIR}/View/RemoveBrushFacesCommand.cpp

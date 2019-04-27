@@ -186,6 +186,7 @@ namespace TrenchBroom {
             m_mapView->deactivateTool();
 
             unbindObservers();
+            removeRecentDocumentsMenu();
 
             delete m_autosaver;
             m_autosaver = nullptr;
@@ -323,6 +324,8 @@ namespace TrenchBroom {
             MenuBuilder menuBuilder(this, m_actionMap);
             const auto& actionManager = ActionManager::instance();
             actionManager.visitMainMenu(menuBuilder);
+
+            addRecentDocumentsMenu();
         }
 
         void MapFrame::updateShortcuts() {
@@ -382,25 +385,15 @@ namespace TrenchBroom {
             }
         }
 
-#if 0
-        void MapFrame::addRecentDocumentsMenu(wxMenuBar* menuBar) {
-            const ActionManager& actionManager = ActionManager::instance();
-            wxMenu* recentDocumentsMenu = actionManager.findRecentDocumentsMenu(menuBar);
-            ensure(recentDocumentsMenu != nullptr, "recentDocumentsMenu is null");
-
+        void MapFrame::addRecentDocumentsMenu() {
             TrenchBroomApp& app = TrenchBroomApp::instance();
-            app.addRecentDocumentMenu(recentDocumentsMenu);
+            app.addRecentDocumentMenu(m_recentDocumentsMenu);
         }
 
-        void MapFrame::removeRecentDocumentsMenu(wxMenuBar* menuBar) {
-            const ActionManager& actionManager = ActionManager::instance();
-            wxMenu* recentDocumentsMenu = actionManager.findRecentDocumentsMenu(menuBar);
-            ensure(recentDocumentsMenu != nullptr, "recentDocumentsMenu is null");
-
+        void MapFrame::removeRecentDocumentsMenu() {
             TrenchBroomApp& app = TrenchBroomApp::instance();
-            app.removeRecentDocumentMenu(recentDocumentsMenu);
+            app.removeRecentDocumentMenu(m_recentDocumentsMenu);
         }
-#endif
 
         void MapFrame::updateRecentDocumentsMenu() {
             if (m_document->path().isAbsolute()) {
@@ -761,33 +754,18 @@ namespace TrenchBroom {
             // FIXME:
 #if 0
 
-            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVE);
-            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVEAS);
-            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_CLOSE);
-            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_UNDO);
-            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_REDO);
-            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_CUT);
-            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_COPY);
-            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_PASTE);
-            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_DUPLICATE);
-            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, CommandIds::Menu::Lowest, CommandIds::Menu::Highest);
-
-            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, CommandIds::Actions::FlipObjectsHorizontally);
-            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, CommandIds::Actions::FlipObjectsVertically);
-
             Bind(wxEVT_CLOSE_WINDOW, &MapFrame::OnClose, this);
-            connect(m_autosaveTimer, &QTimer::timeout, this, &MapFrame::OnAutosaveTimer);
             Bind(wxEVT_CHILD_FOCUS, &MapFrame::OnChildFocus, this);
 
 #if defined(_WIN32)
             Bind(wxEVT_ACTIVATE, &MapFrame::OnActivate, this);
 #endif
 
-            m_gridChoice->Bind(wxEVT_CHOICE, &MapFrame::OnToolBarSetGridSize, this);
 #endif
+            connect(m_autosaveTimer, &QTimer::timeout, this, &MapFrame::triggerAutosave);
 
-            connect(qApp, &QApplication::focusChanged, this, &MapFrame::onFocusChange);
-            connect(m_gridChoice, QOverload<int>::of(&QComboBox::activated), this, &MapFrame::OnToolBarSetGridSize);
+            connect(qApp, &QApplication::focusChanged, this, &MapFrame::focusChange);
+            connect(m_gridChoice, QOverload<int>::of(&QComboBox::activated), this, [this](const int index) { setGridSize(index + Grid::MinSize); });
 
             connect(QApplication::clipboard(), &QClipboard::dataChanged, this, &MapFrame::updatePasteActions);
         }
@@ -974,58 +952,25 @@ namespace TrenchBroom {
 
         void MapFrame::undo() {
             if (canUndo()) {
-                // FIXME:
-                auto textCtrl = nullptr;//findFocusedTextCtrl();
-                if (textCtrl != nullptr) {
-                    //textCtrl->Undo();
-                } else {
-                    // FIXME:
-                    if (!m_mapView->cancelMouseDrag() /* && !m_inspector->cancelMouseDrag()*/) {
-                        m_document->undoLastCommand();
-                    }
+                if (!m_mapView->cancelMouseDrag() && !m_inspector->cancelMouseDrag()) {
+                    m_document->undoLastCommand();
                 }
             }
         }
 
         void MapFrame::redo() {
             if (canRedo()) {
-                // FIXME:
-                auto textCtrl = nullptr; //findFocusedTextCtrl();
-                if (textCtrl != nullptr) {
-                    //textCtrl->Redo();
-                } else {
-                    m_document->redoNextCommand();
-                }
+                m_document->redoNextCommand();
             }
         }
 
         bool MapFrame::canUndo() const {
-            // FIXME:
-            auto textCtrl = nullptr;//findFocusedTextCtrl();
-            if (textCtrl != nullptr) {
-                return true; // textCtrl->CanUndo();
-            } else {
-                return m_document->canUndoLastCommand();
-            }
+            return m_document->canUndoLastCommand();
         }
 
         bool MapFrame::canRedo() const {
-            // FIXME:
-            auto textCtrl = nullptr; //findFocusedTextCtrl();
-            if (textCtrl != nullptr) {
-                return true; // textCtrl->CanRedo();
-            } else {
-                return m_document->canRedoNextCommand();
-            }
+            return m_document->canRedoNextCommand();
         }
-
-#if 0
-        wxTextCtrl* MapFrame::findFocusedTextCtrl() const {
-            return nullptr;
-            // FIXME:
-//            return dynamic_cast<wxTextCtrl*>(FindFocus());
-        }
-#endif
 
         void MapFrame::repeatLastCommands() {
             m_document->repeatLastCommands();
@@ -1989,11 +1934,7 @@ namespace TrenchBroom {
         }
 #endif
 
-        void MapFrame::OnToolBarSetGridSize(const int index) {
-            m_document->grid().setSize(gridSizeForIndex(index));
-        }
-
-        void MapFrame::onFocusChange(QWidget* old, QWidget* now) {
+        void MapFrame::focusChange(QWidget* old, QWidget* now) {
             updateActionState();
         }
 
@@ -2022,19 +1963,8 @@ namespace TrenchBroom {
             }
         }
 #endif
-        void MapFrame::OnAutosaveTimer() {
+        void MapFrame::triggerAutosave() {
             m_autosaver->triggerAutosave(logger());
-        }
-
-        int MapFrame::indexForGridSize(const int gridSize) {
-            return gridSize - Grid::MinSize;
-        }
-
-        int MapFrame::gridSizeForIndex(const int index) {
-            const int size = index + Grid::MinSize;
-            assert(size <= Grid::MaxSize);
-            assert(size >= Grid::MinSize);
-            return size;
         }
     }
 }

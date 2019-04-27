@@ -25,8 +25,11 @@
 #include "View/FrameManager.h"
 #include "View/RecentDocuments.h"
 
+#include <memory>
+
 #include <QApplication>
 
+class QMenu;
 class QSettings;
 
 namespace TrenchBroom {
@@ -38,8 +41,8 @@ namespace TrenchBroom {
 
         class TrenchBroomApp : public QApplication {
         private:
-            FrameManager* m_frameManager;
-            RecentDocuments* m_recentDocuments;
+            std::unique_ptr<FrameManager> m_frameManager;
+            std::unique_ptr<RecentDocuments> m_recentDocuments;
         public:
             Notifier<> recentDocumentsDidChangeNotifier;
         public:
@@ -55,14 +58,11 @@ namespace TrenchBroom {
             FrameManager* frameManager();
 
             const IO::Path::List& recentDocuments() const;
-            // FIXME: recent
-#if 0
-            void addRecentDocumentMenu(wxMenu* menu);
-            void removeRecentDocumentMenu(wxMenu* menu);
-#endif
+            void addRecentDocumentMenu(QMenu* menu);
+            void removeRecentDocumentMenu(QMenu* menu);
             void updateRecentDocument(const IO::Path& path);
 
-            bool openDocument(const String& pathStr);
+            bool openDocument(const IO::Path& path);
             bool recoverFromException(const RecoverableException& e, const std::function<bool()>& op);
             void openPreferences();
             void openAbout();
@@ -101,7 +101,7 @@ namespace TrenchBroom {
             void showWelcomeFrame();
         };
 
-        void setCrashReportGUIEnbled(const bool guiEnabled);
+        void setCrashReportGUIEnbled(bool guiEnabled);
         void reportCrashAndExit(const String &stacktrace, const String &reason);
         bool isReportingCrash();
     }

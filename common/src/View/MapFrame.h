@@ -114,8 +114,8 @@ namespace TrenchBroom {
             void updateUndoRedoActions();
             void updatePasteActions();
 
-            void addRecentDocumentsMenu(QMenuBar* menuBar);
-            void removeRecentDocumentsMenu(QMenuBar* menuBar);
+            void addRecentDocumentsMenu();
+            void removeRecentDocumentsMenu();
             void updateRecentDocumentsMenu();
         private: // tool bar
             class ToolBarBuilder;
@@ -334,20 +334,13 @@ namespace TrenchBroom {
             void debugThrowExceptionDuringCommand();
             void debugSetWindowSize();
 
-            void OnToolBarSetGridSize(int index);
-            void onFocusChange(QWidget* old, QWidget* now);
+            void focusChange(QWidget* old, QWidget* now);
         private:
-
-            //wxTextCtrl* findFocusedTextCtrl() const;
-
             bool canCompile() const;
             bool canLaunch() const;
         private: // other event handlers
   //          void OnClose(wxCloseEvent& event);
-            void OnAutosaveTimer();
-        private: // grid helpers
-            static int indexForGridSize(const int gridSize);
-            static int gridSizeForIndex(const int index);
+            void triggerAutosave();
         };
     }
 }

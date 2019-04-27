@@ -89,12 +89,13 @@ namespace TrenchBroom {
         }
 
         void WelcomeFrame::onOpenOtherDocumentClicked() {
-            const QString fileName = QFileDialog::getOpenFileName(nullptr, "Open Map", "", "Map files (*.map);;Any files (*.*)");
+            const auto pathStr = QFileDialog::getOpenFileName(nullptr, "Open Map", "", "Map files (*.map);;Any files (*.*)");
+            const auto path = IO::Path(pathStr.toStdString());
 
-            if (!fileName.isEmpty()) {
+            if (!path.isEmpty()) {
                 hide();
                 TrenchBroomApp& app = TrenchBroomApp::instance();
-                if (app.openDocument(fileName.toStdString())) {
+                if (app.openDocument(path)) {
                     close();
                 } else {
                     show();
@@ -105,7 +106,7 @@ namespace TrenchBroom {
         void WelcomeFrame::onRecentDocumentSelected(const IO::Path& path) {
             hide();
             TrenchBroomApp& app = TrenchBroomApp::instance();
-            if (app.openDocument(path.asString())) {
+            if (app.openDocument(path)) {
                 close();
             } else {
                 show();
