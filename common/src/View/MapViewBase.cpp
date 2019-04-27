@@ -534,7 +534,7 @@ namespace TrenchBroom {
             m_toolBox.deactivateAllTools();
         }
 
-        void MapViewBase::OnCreatePointEntity() {
+        void MapViewBase::createPointEntity() {
             auto* action = qobject_cast<const QAction*>(sender());
             MapDocumentSPtr document = lock(m_document);
             const size_t index = action->data().toUInt();
@@ -544,7 +544,7 @@ namespace TrenchBroom {
             createPointEntity(static_cast<const Assets::PointEntityDefinition*>(definition));
         }
 
-        void MapViewBase::OnCreateBrushEntity() {
+        void MapViewBase::createBrushEntity() {
             auto* action = qobject_cast<const QAction*>(sender());
             MapDocumentSPtr document = lock(m_document);
             const size_t index = action->data().toUInt();
@@ -1034,9 +1034,10 @@ namespace TrenchBroom {
 
             QAction* mergeGroupAction = nullptr;
             if (mergeGroup != nullptr) {
-                mergeGroupAction = menu.addAction(tr("Merge Groups into %1").arg(QString::fromStdString(mergeGroup->name())), this, &MapViewBase::OnMergeGroups);
+                mergeGroupAction = menu.addAction(tr("Merge Groups into %1").arg(QString::fromStdString(mergeGroup->name())), this,
+                    &MapViewBase::mergeSelectedGroups);
             } else {
-                mergeGroupAction = menu.addAction(tr("Merge Groups"), this, &MapViewBase::OnMergeGroups);
+                mergeGroupAction = menu.addAction(tr("Merge Groups"), this, &MapViewBase::mergeSelectedGroups);
             }
             mergeGroupAction->setEnabled(canMergeGroups());
 
@@ -1044,10 +1045,12 @@ namespace TrenchBroom {
             renameAction->setEnabled(mapFrame->canRenameSelectedGroups());
 
             if (newGroup != nullptr && newGroup != currentGroup) {
-                menu.addAction(tr("Add Objects to Group %1").arg(QString::fromStdString(newGroup->name())), this, &MapViewBase::OnAddObjectsToGroup);
+                menu.addAction(tr("Add Objects to Group %1").arg(QString::fromStdString(newGroup->name())), this,
+                    &MapViewBase::addSelectedObjectsToGroup);
             }
             if (currentGroup != nullptr && !document->selectedNodes().empty()) {
-                menu.addAction(tr("Remove Objects from Group %1").arg(QString::fromStdString(currentGroup->name())), this, &MapViewBase::OnRemoveObjectsFromGroup);
+                menu.addAction(tr("Remove Objects from Group %1").arg(QString::fromStdString(currentGroup->name())), this,
+                    &MapViewBase::removeSelectedObjectsFromGroup);
             }
             menu.addSeparator();
 
@@ -1056,7 +1059,8 @@ namespace TrenchBroom {
                 moveToWorldAction->setEnabled(canMakeStructural());
 
                 if (isEntity(newBrushParent)) {
-                    menu.addAction(tr("Move Brushes to Entity %1").arg(QString::fromStdString(newBrushParent->name())), this, &MapViewBase::OnMoveBrushesTo);
+                    menu.addAction(tr("Move Brushes to Entity %1").arg(QString::fromStdString(newBrushParent->name())), this,
+                        &MapViewBase::moveSelectedBrushesToEntity);
                 }
             }
 
@@ -1143,11 +1147,11 @@ namespace TrenchBroom {
 
                         switch (type) {
                             case Assets::EntityDefinition::Type_PointEntity: {
-                                action = groupMenu->addAction(label, this, &MapViewBase::OnCreatePointEntity);
+                                action = groupMenu->addAction(label, this, &MapViewBase::createPointEntity);
                                 break;
                             }
                             case Assets::EntityDefinition::Type_BrushEntity: {
-                                action = groupMenu->addAction(label, this, &MapViewBase::OnCreateBrushEntity);
+                                action = groupMenu->addAction(label, this, &MapViewBase::createBrushEntity);
                                 action->setEnabled(enableMakeBrushEntity);
                                 break;
                             }
@@ -1164,7 +1168,7 @@ namespace TrenchBroom {
             return menu;
         }
 
-        void MapViewBase::OnAddObjectsToGroup() {
+        void MapViewBase::addSelectedObjectsToGroup() {
             MapDocumentSPtr document = lock(m_document);
             const Model::NodeList nodes = document->selectedNodes().nodes();
             Model::Node* newGroup = findNewGroupForObjects(nodes);
@@ -1176,7 +1180,7 @@ namespace TrenchBroom {
             document->select(newGroup);
         }
 
-        void MapViewBase::OnRemoveObjectsFromGroup() {
+        void MapViewBase::removeSelectedObjectsFromGroup() {
             MapDocumentSPtr document = lock(m_document);
             const Model::NodeList nodes = document->selectedNodes().nodes();
             Model::Node* currentGroup = document->editorContext().currentGroup();
@@ -1204,7 +1208,7 @@ namespace TrenchBroom {
             return nullptr;
         }
 
-        void MapViewBase::OnMergeGroups() {
+        void MapViewBase::mergeSelectedGroups() {
             auto document = lock(m_document);
             auto* newGroup = findGroupToMergeGroupsInto(document->selectedNodes());
             ensure(newGroup != nullptr, "newGroup is null");
@@ -1244,7 +1248,7 @@ namespace TrenchBroom {
             return newParent != node && newParent != node->parent() && !newParent->isDescendantOf(node);
         }
 
-        void MapViewBase::OnMoveBrushesTo() {
+        void MapViewBase::moveSelectedBrushesToEntity() {
             MapDocumentSPtr document = lock(m_document);
             const Model::NodeList nodes = document->selectedNodes().nodes();
             Model::Node* newParent = findNewParentEntityForBrushes(nodes);

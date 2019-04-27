@@ -161,11 +161,11 @@ namespace TrenchBroom {
             void cancel();
             void deactivateTool();
         public: // reparenting objects
-            void OnAddObjectsToGroup();
-            void OnRemoveObjectsFromGroup();
+            void addSelectedObjectsToGroup();
+            void removeSelectedObjectsFromGroup();
             Model::Node* findNewGroupForObjects(const Model::NodeList& nodes) const;
 
-            void OnMergeGroups();
+            void mergeSelectedGroups();
             Model::Group* findGroupToMergeGroupsInto(const Model::NodeCollection& selectedNodes) const;
 
             /**
@@ -177,7 +177,7 @@ namespace TrenchBroom {
              */
             bool canReparentNode(const Model::Node* node, const Model::Node* newParent) const;
 
-            void OnMoveBrushesTo();
+            void moveSelectedBrushesToEntity();
             Model::Node* findNewParentEntityForBrushes(const Model::NodeList& nodes) const;
 
             bool canReparentNodes(const Model::NodeList& nodes, const Model::Node* newParent) const;
@@ -194,8 +194,8 @@ namespace TrenchBroom {
             void reparentNodes(const Model::NodeList& nodes, Model::Node* newParent, bool preserveEntities);
             Model::NodeList collectReparentableNodes(const Model::NodeList& nodes, const Model::Node* newParent) const;
 
-            void OnCreatePointEntity();
-            void OnCreateBrushEntity();
+            void createPointEntity();
+            void createBrushEntity();
 
             Assets::EntityDefinition* findEntityDefinition(Assets::EntityDefinition::Type type, size_t index) const;
             void createPointEntity(const Assets::PointEntityDefinition* definition);
