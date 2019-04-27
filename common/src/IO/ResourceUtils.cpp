@@ -22,6 +22,11 @@
 #include "IO/Path.h"
 #include "IO/SystemPaths.h"
 
+#include <QApplication>
+#include <QThread>
+
+#include <map>
+
 namespace TrenchBroom {
     namespace IO {
         static QString imagePathToString(const IO::Path& imagePath) {
@@ -39,6 +44,22 @@ namespace TrenchBroom {
         }
 
         QIcon loadIconResourceQt(const IO::Path& imagePath) {
+            // Simple caching layer.
+            // Without it, the .png files would be read from disk and decoded each time this is called, which is slow.
+            // We never evict from the cache which is assumed to be OK because this is just used for icons
+            // and there's a relatively small set of them.
+
+            ensure(qApp->thread() == QThread::currentThread(), "loadIconResourceQt can only be used on the main thread");
+
+            static std::map<IO::Path, QIcon> cache;
+            {
+                auto it = cache.find(imagePath);
+                if (it != cache.end()) {
+                    return it->second;
+                }
+            }
+
+            // Cache miss, load the icon
             QIcon result;
             if (!imagePath.isEmpty()) {
                 const auto onPath = imagePathToString(imagePath.replaceBasename(imagePath.basename() + "_on"));
@@ -52,6 +73,8 @@ namespace TrenchBroom {
                     result.addFile(imagePathString, QSize(), QIcon::Normal);
                 }
             }
+
+            cache[imagePath] = result;
 
             return result;
         }
