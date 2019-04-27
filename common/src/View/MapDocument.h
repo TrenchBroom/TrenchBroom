@@ -96,7 +96,7 @@ namespace TrenchBroom {
             std::unique_ptr<MapViewConfig> m_mapViewConfig;
             std::unique_ptr<Grid> m_grid;
 
-            using ActionList = std::vector<Action>;
+            using ActionList = std::list<Action>;
             ActionList m_tagActions;
             ActionList m_entityDefinitionActions;
 

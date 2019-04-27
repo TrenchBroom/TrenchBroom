@@ -210,8 +210,8 @@ namespace TrenchBroom {
         public:
             static const ActionManager& instance();
 
-            std::vector<Action> createTagActions(const std::list<Model::SmartTag>& tags) const;
-            std::vector<Action> createEntityDefinitionActions(const std::vector<Assets::EntityDefinition*>& entityDefinitions) const;
+            std::list<Action> createTagActions(const std::list<Model::SmartTag>& tags) const;
+            std::list<Action> createEntityDefinitionActions(const std::vector<Assets::EntityDefinition*>& entityDefinitions) const;
 
             void visitMainMenu(MenuVisitor& visitor) const;
             void visitToolBarActions(MenuVisitor& visitor) const;

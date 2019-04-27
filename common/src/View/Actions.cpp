@@ -225,9 +225,8 @@ namespace TrenchBroom {
             return instance;
         }
 
-        std::vector<Action> ActionManager::createTagActions(const std::list<Model::SmartTag>& tags) const {
-            std::vector<Action> result;
-            result.reserve(3 * tags.size());
+        std::list<Action> ActionManager::createTagActions(const std::list<Model::SmartTag>& tags) const {
+            std::list<Action> result;
 
             const auto actionContext = ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyTool;
             for (const auto& tag : tags) {
@@ -258,9 +257,8 @@ namespace TrenchBroom {
             return result;
         }
 
-        std::vector<Action> ActionManager::createEntityDefinitionActions(const std::vector<Assets::EntityDefinition*>& entityDefinitions) const {
-            std::vector<Action> result;
-            result.reserve(2 * entityDefinitions.size());
+        std::list<Action> ActionManager::createEntityDefinitionActions(const std::vector<Assets::EntityDefinition*>& entityDefinitions) const {
+            std::list<Action> result;
 
             const auto actionContext = ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyTool;
             for (const auto* definition : entityDefinitions) {
