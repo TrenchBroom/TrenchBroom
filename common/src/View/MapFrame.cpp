@@ -39,7 +39,6 @@
 #include "View/BorderLine.h"
 #include "View/CachingLogger.h"
 #include "FileLogger.h"
-#include "View/ActionList.h"
 #include "View/ClipTool.h"
 // FIXME:
 //#include "View/CompilationDialog.h"

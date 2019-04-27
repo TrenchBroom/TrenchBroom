@@ -26,7 +26,6 @@
 #include "View/MapDocument.h"
 #include "View/MapView2D.h"
 #include "View/MapView3D.h"
-#include "View/ActionList.h"
 
 #include <vecmath/scalar.h>
 

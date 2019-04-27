@@ -49,7 +49,6 @@
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderService.h"
-#include "View/ActionList.h"
 #include "View/Actions.h"
 #include "View/Animation.h"
 #include "View/CameraAnimation.h"
@@ -1147,11 +1146,11 @@ namespace TrenchBroom {
 
                         switch (type) {
                             case Assets::EntityDefinition::Type_PointEntity: {
-                                action = groupMenu->addAction(label, this, &MapViewBase::createPointEntity);
+                                action = groupMenu->addAction(label, this, qOverload<>(&MapViewBase::createPointEntity));
                                 break;
                             }
                             case Assets::EntityDefinition::Type_BrushEntity: {
-                                action = groupMenu->addAction(label, this, &MapViewBase::createBrushEntity);
+                                action = groupMenu->addAction(label, this, qOverload<>(&MapViewBase::createBrushEntity));
                                 action->setEnabled(enableMakeBrushEntity);
                                 break;
                             }

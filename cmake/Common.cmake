@@ -262,7 +262,6 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/TrenchBroomStackWalker.cpp
 	${COMMON_SOURCE_DIR}/View/AboutDialog.cpp
 	${COMMON_SOURCE_DIR}/View/ActionContext.cpp
-	${COMMON_SOURCE_DIR}/View/ActionList.cpp
 	${COMMON_SOURCE_DIR}/View/Actions.cpp
 	${COMMON_SOURCE_DIR}/View/AddBrushVerticesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/AddRemoveNodesCommand.cpp
@@ -814,7 +813,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/TrenchBroomStackWalker.h
 	${COMMON_SOURCE_DIR}/View/AboutDialog.h
 	${COMMON_SOURCE_DIR}/View/ActionContext.h
-	${COMMON_SOURCE_DIR}/View/ActionList.h
 	${COMMON_SOURCE_DIR}/View/Actions.h
 	${COMMON_SOURCE_DIR}/View/AddBrushVerticesCommand.h
 	${COMMON_SOURCE_DIR}/View/AddRemoveNodesCommand.h
