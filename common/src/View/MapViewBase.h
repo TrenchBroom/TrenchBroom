@@ -66,7 +66,6 @@ namespace TrenchBroom {
 
     namespace View {
         class Action;
-        struct ActionInfo;
         class AnimationManager;
         class Command;
         class FlyModeHelper;

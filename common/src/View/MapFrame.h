@@ -55,7 +55,6 @@ namespace TrenchBroom {
         class Inspector;
         class SwitchableMapViewContainer;
         class Tool;
-        class ActionInfo;
 
         class MapFrame : public QMainWindow {
             Q_OBJECT
