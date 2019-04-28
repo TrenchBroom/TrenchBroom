@@ -24,6 +24,7 @@
 
 #include <QApplication>
 #include <QThread>
+#include <QDebug>
 
 #include <map>
 
@@ -70,6 +71,11 @@ namespace TrenchBroom {
                     result.addFile(offPath, QSize(), QIcon::Normal, QIcon::Off);
                 } else {
                     const auto imagePathString = imagePathToString(imagePath);
+
+                    if (imagePathString.isEmpty()) {
+                        qWarning() << "Couldn't find image for path: " << imagePath.asQString();
+                    }
+
                     result.addFile(imagePathString, QSize(), QIcon::Normal);
                 }
             }
