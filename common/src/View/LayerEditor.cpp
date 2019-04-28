@@ -324,7 +324,7 @@ namespace TrenchBroom {
 
         void LayerEditor::OnShowAllLayers() {
             auto document = lock(m_document);
-            const auto& layers = document->world()->allLayers();
+            const auto layers = document->world()->allLayers();
             document->resetVisibility(Model::NodeList(std::begin(layers), std::end(layers)));
         }
 
@@ -363,9 +363,9 @@ namespace TrenchBroom {
         void LayerEditor::createGui() {
             m_layerList = new LayerListBox(this, m_document);
             connect(m_layerList, &LayerListBox::LAYER_SET_CURRENT_EVENT, this, &LayerEditor::OnSetCurrentLayer);
-            connect(m_layerList, &LayerListBox::LAYER_RIGHT_CLICK_EVENT, this, &LayerEditor::OnLayerRightClick);
-            connect(m_layerList, &LayerListBox::LAYER_TOGGLE_VISIBLE_EVENT, this, &LayerEditor::OnToggleLayerVisibleFromList);
-            connect(m_layerList, &LayerListBox::LAYER_TOGGLE_LOCKED_EVENT, this, &LayerEditor::OnToggleLayerLockedFromList);
+            connect(m_layerList, &LayerListBox::layerRightClicked, this, &LayerEditor::OnLayerRightClick);
+            connect(m_layerList, &LayerListBox::layerVisibilityToggled, this, &LayerEditor::OnToggleLayerVisibleFromList);
+            connect(m_layerList, &LayerListBox::layerLockToggled, this, &LayerEditor::OnToggleLayerLockedFromList);
 
             m_addLayerButton = createBitmapButton("Add.png", "Add a new layer from the current selection", this);
             m_removeLayerButton = createBitmapButton("Remove.png",
@@ -384,6 +384,8 @@ namespace TrenchBroom {
             buttonSizer->addStretch(1);
 
             auto* sizer = new QVBoxLayout();
+            sizer->setContentsMargins(0, 0, 0, 0);
+            sizer->setSpacing(0);
             sizer->addWidget(m_layerList, 1);
             sizer->addWidget(new BorderLine(BorderLine::Direction_Horizontal), 0);
             sizer->addLayout(buttonSizer, 0);

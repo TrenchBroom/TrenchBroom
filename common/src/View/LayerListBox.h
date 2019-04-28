@@ -32,7 +32,7 @@ class QListWidget;
 
 namespace TrenchBroom {
     namespace View {
-        class LayerListBoxLayerItem : public QWidget {
+        class LayerListBoxWidget : public QWidget {
             Q_OBJECT
         private:
             MapDocumentWPtr m_document;
@@ -43,17 +43,21 @@ namespace TrenchBroom {
             QAbstractButton* m_lockButton;
 
         public:
-            LayerListBoxLayerItem(QWidget* parent, MapDocumentWPtr document, Model::Layer* layer);
+            LayerListBoxWidget(QWidget* parent, MapDocumentWPtr document, Model::Layer* layer);
             Model::Layer* layer() const;
             void refresh();
 
-            void OnToggleVisible();
-            void OnToggleLocked();
+            void onToggleVisible();
+            void onToggleLocked();
             void updateButtons();
 
+        private:
+            void mouseReleaseEvent(QMouseEvent* event) override;
+
         signals:
-            void LAYER_TOGGLE_VISIBLE_EVENT(Model::Layer* layer);
-            void LAYER_TOGGLE_LOCKED_EVENT(Model::Layer* layer);
+            void layerVisibilityToggled(Model::Layer* layer);
+            void layerLockToggled(Model::Layer* layer);
+            void layerRightClicked(Model::Layer* layer);
         };
 
         class LayerListBox : public QWidget {
@@ -61,6 +65,7 @@ namespace TrenchBroom {
         private:
             MapDocumentWPtr m_document;
             QListWidget* m_list;
+            Model::LayerList m_layersInUi;
         public:
             LayerListBox(QWidget* parent, MapDocumentWPtr document);
             ~LayerListBox() override;
@@ -71,9 +76,9 @@ namespace TrenchBroom {
         signals:
             void LAYER_SELECTED_EVENT(Model::Layer* layer);
             void LAYER_SET_CURRENT_EVENT(Model::Layer* layer);
-            void LAYER_RIGHT_CLICK_EVENT(Model::Layer* layer);
-            void LAYER_TOGGLE_VISIBLE_EVENT(Model::Layer* layer);
-            void LAYER_TOGGLE_LOCKED_EVENT(Model::Layer* layer);
+            void layerRightClicked(Model::Layer* layer);
+            void layerVisibilityToggled(Model::Layer* layer);
+            void layerLockToggled(Model::Layer* layer);
         private:
             void createGui();
             void bindObservers();
@@ -86,7 +91,9 @@ namespace TrenchBroom {
             void bindEvents();
             void refreshList();
 
+            LayerListBoxWidget* widgetAtRow(int row);
             Model::Layer* layerForItem(QListWidgetItem* item);
+            Model::Layer* layerForRow(int row);
         };
     }
 }
