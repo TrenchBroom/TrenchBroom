@@ -1184,8 +1184,10 @@ namespace TrenchBroom {
             brushes.reserve(result.size());
 
             for (const auto& geometry : result) {
-                auto* brush = createBrush(factory, worldBounds, defaultTextureName, geometry, subtrahends);
-                brushes.push_back(brush);
+                try {
+                    auto* brush = createBrush(factory, worldBounds, defaultTextureName, geometry, subtrahends);
+                    brushes.push_back(brush);
+                } catch (const GeometryException&) {}
             }
 
             return brushes;
