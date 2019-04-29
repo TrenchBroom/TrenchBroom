@@ -136,13 +136,22 @@ namespace TrenchBroom {
                 }
                 case Assets::AttributeDefinition::Type_FlagsAttribute: {
                     const auto& flagsDef = dynamic_cast<const Assets::FlagsAttributeDefinition&>(definition);
-                    wxString stream;
+
+                    // The options are not necessarily sorted by value, so we sort the descriptions here by inserting
+                    // into a map sorted by the flag value.
+                    std::map<int, wxString> flagDescriptors;
                     for (auto& option : flagsDef.options()) {
+                        auto& stream = flagDescriptors[option.value()];
                         stream << bullet << option.value() << " = " << option.shortDescription();
                         if (!option.longDescription().empty()) {
                             stream << " (" << option.longDescription() << ")";
                         }
-                        stream << "\n";
+                    }
+
+                    // Concatenate the flag descriptions and return.
+                    wxString stream;
+                    for (const auto& flagDescriptor : flagDescriptors) {
+                        stream << flagDescriptor.second << "\n";
                     }
                     return stream;
                 }
