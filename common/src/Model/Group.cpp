@@ -174,16 +174,6 @@ namespace TrenchBroom {
         }
 
         void Group::doPick(const vm::ray3& ray, PickResult& pickResult) const {
-            // A group can only be picked if and only if all of the following conditions are met
-            // * it is closed or has no open descendant
-            // * it is top level or has an open parent
-            if ((!opened() && !hasOpenedDescendant()) && groupOpened()) {
-                const auto distance = intersectWithRay(ray);
-                if (!vm::isnan(distance)) {
-                    const auto hitPoint = ray.pointAtDistance(distance);
-                    pickResult.addHit(Hit(GroupHit, distance, hitPoint, this));
-                }
-            }
         }
 
         void Group::doFindNodesContaining(const vm::vec3& point, NodeList& result) {

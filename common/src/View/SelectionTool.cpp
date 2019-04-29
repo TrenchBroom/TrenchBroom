@@ -53,6 +53,39 @@ namespace TrenchBroom {
             return this;
         }
 
+        static Model::Group* enclosingGroup(Model::Node* node) {
+            if (node->parent() == nullptr) {
+                return nullptr;
+            }
+
+            auto* parentAsGroup = dynamic_cast<Model::Group*>(node->parent());
+            if (parentAsGroup != nullptr) {
+                return parentAsGroup;
+            }
+
+            return enclosingGroup(node->parent());
+        }
+
+        static Model::Group* outermostClosedGroup(Model::Node* node) {
+            Model::Group* nextGroup = enclosingGroup(node);
+            if (nextGroup == nullptr) {
+                return nullptr;
+            }
+
+            if (nextGroup->opened()) {
+                return nullptr;
+            }
+
+            // nextGroup is a possible answer because it's enclosing node and it's closed.
+            // See if there is a parent of it that is a better answer, otherwise return nextGroup.
+            Model::Group* nextNextGroup = outermostClosedGroup(nextGroup);
+            if (nextNextGroup != nullptr) {
+                return nextNextGroup;
+            } else {
+                return nextGroup;
+            }
+        }
+
         bool SelectionTool::doMouseClick(const InputState& inputState) {
             if (!handleClick(inputState)) {
                 return false;
@@ -93,9 +126,16 @@ namespace TrenchBroom {
                     document->deselectAll();
                 }
             } else {
-                const auto& hit = firstHit(inputState, Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit);
+                const auto& hit = firstHit(inputState, Model::Entity::EntityHit | Model::Brush::BrushHit);
                 if (hit.isMatch()) {
                     auto* node = Model::hitToNode(hit);
+
+                    // If node is inside a closed group, the selection command shifts to the outermost closed group
+                    auto* proxyGroup = outermostClosedGroup(node);
+                    if (proxyGroup != nullptr) {
+                        node = proxyGroup;
+                    }
+
                     if (editorContext.selectable(node)) {
                         if (isMultiClick(inputState)) {
                             if (node->selected()) {
@@ -148,12 +188,13 @@ namespace TrenchBroom {
                 }
             } else {
                 const auto inGroup = document->currentGroup() != nullptr;
-                const auto& hit = firstHit(inputState, Model::Group::GroupHit | Model::Brush::BrushHit | Model::Entity::EntityHit);
+                const auto& hit = firstHit(inputState, Model::Brush::BrushHit | Model::Entity::EntityHit);
                 if (hit.isMatch()) {
                     const auto hitInGroup = inGroup && hit.isMatch() && Model::hitToNode(hit)->isDescendantOf(document->currentGroup());
                     if (!inGroup || hitInGroup) {
-                        if (hit.type() == Model::Group::GroupHit) {
-                            auto* group = Model::hitToGroup(hit);
+                        // if node is inside a group, proxy the selection to the parent group
+                        auto* group = outermostClosedGroup(Model::hitToNode(hit));
+                        if (group != nullptr) {
                             if (editorContext.selectable(group)) {
                                 document->openGroup(group);
                             }
