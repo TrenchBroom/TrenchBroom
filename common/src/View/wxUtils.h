@@ -65,7 +65,7 @@ namespace TrenchBroom {
 
         QAbstractButton* createBitmapButton(const String& image, const QString& tooltip, QWidget* parent = nullptr);
         QAbstractButton* createBitmapButton(const QIcon& icon, const QString& tooltip, QWidget* parent = nullptr);
-        QAbstractButton* createBitmapToggleButton(QWidget* parent, const String& image, const String& tooltip);
+        QAbstractButton* createBitmapToggleButton(const String& image, const QString& tooltip, QWidget* parent = nullptr);
 
         QWidget* createDefaultPage(const QString& message, QWidget* parent = nullptr);
         QSlider* createSlider(int min, int max);

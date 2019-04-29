@@ -47,10 +47,6 @@ namespace TrenchBroom {
             Model::Layer* layer() const;
             void refresh();
 
-            void onToggleVisible();
-            void onToggleLocked();
-            void updateButtons();
-
         private:
             void mouseReleaseEvent(QMouseEvent* event) override;
 
@@ -74,8 +70,8 @@ namespace TrenchBroom {
             void setSelectedLayer(Model::Layer* layer);
 
         signals:
-            void LAYER_SELECTED_EVENT(Model::Layer* layer);
-            void LAYER_SET_CURRENT_EVENT(Model::Layer* layer);
+            void layerSelected(Model::Layer* layer);
+            void layerSetCurrent(Model::Layer* layer);
             void layerRightClicked(Model::Layer* layer);
             void layerVisibilityToggled(Model::Layer* layer);
             void layerLockToggled(Model::Layer* layer);

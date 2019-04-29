@@ -362,7 +362,7 @@ namespace TrenchBroom {
 
         void LayerEditor::createGui() {
             m_layerList = new LayerListBox(this, m_document);
-            connect(m_layerList, &LayerListBox::LAYER_SET_CURRENT_EVENT, this, &LayerEditor::OnSetCurrentLayer);
+            connect(m_layerList, &LayerListBox::layerSetCurrent, this, &LayerEditor::OnSetCurrentLayer);
             connect(m_layerList, &LayerListBox::layerRightClicked, this, &LayerEditor::OnLayerRightClick);
             connect(m_layerList, &LayerListBox::layerVisibilityToggled, this, &LayerEditor::OnToggleLayerVisibleFromList);
             connect(m_layerList, &LayerListBox::layerLockToggled, this, &LayerEditor::OnToggleLayerLockedFromList);

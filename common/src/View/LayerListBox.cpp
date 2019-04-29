@@ -48,17 +48,17 @@ namespace TrenchBroom {
             m_nameText->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
             m_infoText = new QLabel("");
             makeInfo(m_infoText);
-            refresh();
 
-            m_hiddenButton = createBitmapToggleButton(this, "Visible.png", "");
-            m_lockButton = createBitmapToggleButton(this, "Lock.png", "");
+            m_hiddenButton = createBitmapToggleButton("Hidden.png", "");
+            m_lockButton = createBitmapToggleButton("Lock.png", "");
 
             MapDocumentSPtr documentS = lock(m_document);
-            m_hiddenButton->setEnabled(m_layer->hidden() || m_layer != documentS->currentLayer());
-            m_lockButton->setEnabled(m_layer->locked() || m_layer != documentS->currentLayer());
-
-            connect(m_hiddenButton, &QAbstractButton::toggled, this, &LayerListBoxWidget::onToggleVisible);
-            connect(m_lockButton, &QAbstractButton::toggled, this, &LayerListBoxWidget::onToggleLocked);
+            connect(m_hiddenButton, &QAbstractButton::clicked, this, [this](){
+                emit layerVisibilityToggled(m_layer);
+            });
+            connect(m_lockButton, &QAbstractButton::clicked, this, [this]() {
+                emit layerLockToggled(m_layer);
+            });
 
             auto* itemPanelBottomSizer = new QHBoxLayout();
             itemPanelBottomSizer->setContentsMargins(0, 0, 0, 0);
@@ -80,9 +80,7 @@ namespace TrenchBroom {
             itemPanelSizer->addSpacing(LayoutConstants::NarrowVMargin);
             setLayout(itemPanelSizer);
 
-            updateButtons();
-
-            // FIXME: Listen for layer lock/visible changes
+            refresh();
         }
 
         Model::Layer* LayerListBoxWidget::layer() const {
@@ -90,6 +88,7 @@ namespace TrenchBroom {
         }
 
         void LayerListBoxWidget::refresh() {
+            // Update labels
             m_nameText->setText(QString::fromStdString(m_layer->name()));
             if (lock(m_document)->currentLayer() == m_layer)
                 m_nameText->setStyleSheet("font-weight: bold");
@@ -98,17 +97,8 @@ namespace TrenchBroom {
 
             const QString info = tr("%1 %2").arg(m_layer->childCount()).arg(QString::fromStdString(StringUtils::safePlural(m_layer->childCount(), "object", "objects")));
             m_infoText->setText(info);
-        }
-
-        void LayerListBoxWidget::onToggleVisible() {
-            emit layerVisibilityToggled(m_layer);
-        }
-
-        void LayerListBoxWidget::onToggleLocked() {
-            emit layerLockToggled(m_layer);
-        }
-
-        void LayerListBoxWidget::updateButtons() {
+        
+            // Update buttons
             m_lockButton->setChecked(m_layer->locked());
             m_hiddenButton->setChecked(m_layer->hidden());
 
@@ -155,7 +145,7 @@ namespace TrenchBroom {
             const int count = m_list->count();
             for (int i = 0; i < count; ++i) {
                 QListWidgetItem* item = m_list->item(i);
-                LayerListBoxWidget* widget = dynamic_cast<LayerListBoxWidget*>(m_list->itemWidget(item));
+                LayerListBoxWidget* widget = widgetAtRow(i);
 
                 if (widget->layer() == layer) {
                     m_list->setItemSelected(item, true);
@@ -183,6 +173,7 @@ namespace TrenchBroom {
             document->nodesWereAddedNotifier.addObserver(this, &LayerListBox::nodesDidChange);
             document->nodesWereRemovedNotifier.addObserver(this, &LayerListBox::nodesDidChange);
             document->nodesDidChangeNotifier.addObserver(this, &LayerListBox::nodesDidChange);
+            document->nodeVisibilityDidChangeNotifier.addObserver(this, &LayerListBox::nodesDidChange);
         }
 
         void LayerListBox::unbindObservers() {
@@ -195,6 +186,7 @@ namespace TrenchBroom {
                 document->nodesWereAddedNotifier.removeObserver(this, &LayerListBox::nodesDidChange);
                 document->nodesWereRemovedNotifier.removeObserver(this, &LayerListBox::nodesDidChange);
                 document->nodesDidChangeNotifier.removeObserver(this, &LayerListBox::nodesDidChange);
+                document->nodeVisibilityDidChangeNotifier.removeObserver(this, &LayerListBox::nodesDidChange);
             }
         }
 
@@ -213,11 +205,11 @@ namespace TrenchBroom {
         void LayerListBox::bindEvents() {
             connect(m_list, &QListWidget::currentItemChanged, this, [this](QListWidgetItem* currentItem, QListWidgetItem* previousItem){
                 Model::Layer* layer = layerForItem(currentItem);
-                emit LAYER_SELECTED_EVENT(layer);
+                emit layerSelected(layer);
             });
             connect(m_list, &QListWidget::itemDoubleClicked, this, [this](QListWidgetItem* item){
                 Model::Layer* layer = layerForItem(item);
-                emit LAYER_SET_CURRENT_EVENT(layer);
+                emit layerSetCurrent(layer);
             });
         }
 
@@ -244,6 +236,8 @@ namespace TrenchBroom {
             for (Model::Layer* layer : worldLayers) {
                 auto* layerWidget = new LayerListBoxWidget(nullptr, document, layer);
                 connect(layerWidget, &LayerListBoxWidget::layerRightClicked, this, &LayerListBox::layerRightClicked);
+                connect(layerWidget, &LayerListBoxWidget::layerVisibilityToggled, this, &LayerListBox::layerVisibilityToggled);
+                connect(layerWidget, &LayerListBoxWidget::layerLockToggled, this, &LayerListBox::layerLockToggled);
 
                 auto* item = new QListWidgetItem();
 
