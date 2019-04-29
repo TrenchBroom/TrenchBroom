@@ -123,6 +123,7 @@ namespace TrenchBroom {
             }
 
             void OnSize(wxSizeEvent& event) {
+                validate();
                 m_layout.setWidth(static_cast<float>(GetClientSize().x));
                 updateScrollBar();
                 event.Skip();
@@ -134,6 +135,7 @@ namespace TrenchBroom {
             }
 
             void OnScrollBarLineUp(wxScrollEvent& event) {
+                validate();
                 const float top = static_cast<float>(m_scrollBar->GetThumbPosition());
                 m_scrollBar->SetThumbPosition(static_cast<int>(m_layout.rowPosition(top, -1)));
                 Refresh();
@@ -141,6 +143,7 @@ namespace TrenchBroom {
             }
 
             void OnScrollBarLineDown(wxScrollEvent& event) {
+                validate();
                 const float top = static_cast<float>(m_scrollBar->GetThumbPosition());
                 m_scrollBar->SetThumbPosition(static_cast<int>(m_layout.rowPosition(top, 1)));
                 Refresh();
@@ -148,6 +151,7 @@ namespace TrenchBroom {
             }
 
             void OnScrollBarPageUp(wxScrollEvent& event) {
+                validate();
                 const float top = static_cast<float>(m_scrollBar->GetThumbPosition());
                 const float height = static_cast<float>(GetClientSize().y);
                 m_scrollBar->SetThumbPosition(static_cast<int>(m_layout.rowPosition(std::max(0.0f, top - height), 0)));
@@ -156,6 +160,7 @@ namespace TrenchBroom {
             }
 
             void OnScrollBarPageDown(wxScrollEvent& event) {
+                validate();
                 const float top = static_cast<float>(m_scrollBar->GetThumbPosition());
                 m_scrollBar->SetThumbPosition(static_cast<int>(m_layout.rowPosition(top, 0)));
                 Refresh();
@@ -181,6 +186,7 @@ namespace TrenchBroom {
             }
 
             void OnMouseLeftUp(wxMouseEvent& event) {
+                validate();
                 int top = m_scrollBar != nullptr ? m_scrollBar->GetThumbPosition() : 0;
                 float x = static_cast<float>(event.GetX());
                 float y = static_cast<float>(event.GetY() + top);
@@ -202,6 +208,7 @@ namespace TrenchBroom {
             void OnMouseCaptureLost(wxMouseCaptureLostEvent& event) {}
 
             void OnMouseMove(wxMouseEvent& event) {
+                validate();
                 if (event.LeftIsDown()) {
                     if (m_potentialDrag) {
                         startDrag(event);
@@ -217,6 +224,7 @@ namespace TrenchBroom {
             }
 
             void OnMouseWheel(wxMouseEvent& event) {
+                validate();
                 if (m_scrollBar != nullptr) {
                     const int top = m_scrollBar->GetThumbPosition();
                     const int height = static_cast<int>(m_layout.height());
@@ -227,6 +235,7 @@ namespace TrenchBroom {
             }
 
             void startDrag(const wxMouseEvent& event) {
+                validate();
                 if (dndEnabled()) {
                     int top = m_scrollBar != nullptr ? m_scrollBar->GetThumbPosition() : 0;
                     float x = static_cast<float>(event.GetX());
@@ -248,6 +257,7 @@ namespace TrenchBroom {
             }
 
             void scroll(const wxMouseEvent& event) {
+                validate();
                 if (m_scrollBar != nullptr) {
                     const wxPoint mousePosition = event.GetPosition();
                     const wxCoord delta = mousePosition.y - m_lastMousePos.y;
@@ -258,6 +268,7 @@ namespace TrenchBroom {
             }
 
             void updateTooltip(const wxMouseEvent& event) {
+                validate();
                 int top = m_scrollBar != nullptr ? m_scrollBar->GetThumbPosition() : 0;
                 float x = static_cast<float>(event.GetX());
                 float y = static_cast<float>(event.GetY() + top);
@@ -269,8 +280,7 @@ namespace TrenchBroom {
             }
         private:
             void doRender() override {
-                if (!m_valid)
-                    validate();
+                validate();
                 if (!m_layoutInitialized)
                     initLayout();
 
