@@ -27,6 +27,7 @@
 #include "Model/Node.h"
 #include "Renderer/RenderContext.h"
 #include "View/MoveObjectsTool.h"
+#include "View/SelectionTool.h"
 
 #include <cassert>
 
@@ -56,14 +57,28 @@ namespace TrenchBroom {
                 return MoveInfo();
 
             const Model::PickResult& pickResult = inputState.pickResult();
-            const Model::Hit& hit = pickResult.query().pickable().type(Model::Entity::EntityHit | Model::Brush::BrushHit).selected().occluded().first();
-            if (!hit.isMatch())
+            auto hits = pickResult.query().pickable().type(Model::Entity::EntityHit | Model::Brush::BrushHit).all();
+
+            // We can't use Model::PickResult::selected() because it's not aware of groups
+            // (when trying to move a selected group, the unselected entities/brushes inside
+            // are what actually get picked, and the .selected() query would reject them.)
+            // TODO: Implement a .transitivelySelected() hit query, and restore the query above to:
+            // .query().pickable().type(Model::Entity::EntityHit | Model::Brush::BrushHit).transitivelySelected().occluded().first();
+            Model::Hit* foundHit = nullptr;
+            for (Model::Hit& hit : hits) {
+                Model::Node* node = outermostClosedGroupOrNode(Model::hitToNode(hit));
+                if (node->selected()) {
+                    foundHit = &hit;
+                }
+            }
+
+            if (foundHit == nullptr)
                 return MoveInfo();
 
             if (!m_tool->startMove(inputState))
                 return MoveInfo();
 
-            return MoveInfo(hit.hitPoint());
+            return MoveInfo(foundHit->hitPoint());
         }
 
         RestrictedDragPolicy::DragResult MoveObjectsToolController::doMove(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) {
