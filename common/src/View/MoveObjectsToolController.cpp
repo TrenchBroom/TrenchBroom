@@ -56,7 +56,7 @@ namespace TrenchBroom {
                 return MoveInfo();
 
             const Model::PickResult& pickResult = inputState.pickResult();
-            const Model::Hit& hit = pickResult.query().pickable().type(Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit).selected().occluded().first();
+            const Model::Hit& hit = pickResult.query().pickable().type(Model::Entity::EntityHit | Model::Brush::BrushHit).selected().occluded().first();
             if (!hit.isMatch())
                 return MoveInfo();
 

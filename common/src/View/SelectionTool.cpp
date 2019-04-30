@@ -38,6 +38,8 @@
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 
+#include <unordered_set>
+
 namespace TrenchBroom {
     namespace View {
         SelectionTool::SelectionTool(MapDocumentWPtr document) :
@@ -66,7 +68,7 @@ namespace TrenchBroom {
             return enclosingGroup(node->parent());
         }
 
-        static Model::Group* outermostClosedGroup(Model::Node* node) {
+        Model::Group* outermostClosedGroup(Model::Node* node) {
             Model::Group* nextGroup = enclosingGroup(node);
             if (nextGroup == nullptr) {
                 return nullptr;
@@ -84,6 +86,15 @@ namespace TrenchBroom {
             } else {
                 return nextGroup;
             }
+        }
+
+        Model::Node* outermostClosedGroupOrNode(Model::Node* node) {
+            Model::Group* group = outermostClosedGroup(node);
+            if (group != nullptr) {
+                return group;
+            }
+
+            return node;
         }
 
         bool SelectionTool::doMouseClick(const InputState& inputState) {
@@ -128,14 +139,7 @@ namespace TrenchBroom {
             } else {
                 const auto& hit = firstHit(inputState, Model::Entity::EntityHit | Model::Brush::BrushHit);
                 if (hit.isMatch()) {
-                    auto* node = Model::hitToNode(hit);
-
-                    // If node is inside a closed group, the selection command shifts to the outermost closed group
-                    auto* proxyGroup = outermostClosedGroup(node);
-                    if (proxyGroup != nullptr) {
-                        node = proxyGroup;
-                    }
-
+                    auto* node = outermostClosedGroupOrNode(Model::hitToNode(hit));
                     if (editorContext.selectable(node)) {
                         if (isMultiClick(inputState)) {
                             if (node->selected()) {
@@ -192,7 +196,7 @@ namespace TrenchBroom {
                 if (hit.isMatch()) {
                     const auto hitInGroup = inGroup && hit.isMatch() && Model::hitToNode(hit)->isDescendantOf(document->currentGroup());
                     if (!inGroup || hitInGroup) {
-                        // if node is inside a group, proxy the selection to the parent group
+                        // If the hit node is inside a closed group, treat it as a hit on the group insted
                         auto* group = outermostClosedGroup(Model::hitToNode(hit));
                         if (group != nullptr) {
                             if (editorContext.selectable(group)) {
@@ -275,7 +279,7 @@ namespace TrenchBroom {
         template <typename I>
         I findFirstSelected(I it, I end) {
             while (it != end) {
-                auto* node = Model::hitToNode(*it);
+                auto* node = *it;
                 if (node->selected()) {
                     break;
                 }
@@ -284,6 +288,11 @@ namespace TrenchBroom {
             return it;
         }
 
+        /**
+         * Returns a pair where:
+         *  - first is the first node in the given list that's currently selected
+         *  - second is the next selectable node in the list
+         */
         template <typename I>
         std::pair<Model::Node*, Model::Node*> findSelectionPair(I it, I end, const Model::EditorContext& editorContext) {
             static Model::Node* const NullNode = nullptr;
@@ -295,7 +304,7 @@ namespace TrenchBroom {
 
             auto next = std::next(first);
             while (next != end) {
-                auto* node = Model::hitToNode(*next);
+                auto* node = *next;
                 if (editorContext.selectable(node)) {
                     break;
                 }
@@ -303,20 +312,43 @@ namespace TrenchBroom {
             }
 
             if (next == end) {
-                return std::make_pair(Model::hitToNode(*first), NullNode);
+                return std::make_pair(*first, NullNode);
             } else {
-                return std::make_pair(Model::hitToNode(*first), Model::hitToNode(*next));
+                return std::make_pair(*first, *next);
             }
         }
 
+        static std::vector<Model::Node*> hitsToNodes(const Model::Hit::List& hits) {
+            std::vector<Model::Node*> hitNodes;
+            std::unordered_set<Model::Node*> duplicateCheck;
+
+            for (const auto& hit : hits) {
+                Model::Node* node = outermostClosedGroupOrNode(Model::hitToNode(hit));
+
+                if (duplicateCheck.find(node) != duplicateCheck.end()) {
+                    continue;
+                }
+
+                // Note that the order of the input hits are preserved, although duplicates later in the list are dropped
+                duplicateCheck.insert(node);
+                hitNodes.push_back(node);
+            }
+
+            return hitNodes;
+        }
+
         void SelectionTool::drillSelection(const InputState& inputState) {
-            const auto hits = inputState.pickResult().query().pickable().type(Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit).occluded().all();
+            const auto hits = inputState.pickResult().query().pickable().type(Model::Entity::EntityHit | Model::Brush::BrushHit).occluded().all();
+
+            // Hits may contain multiple brush/entity hits that are inside closed groups. These need to be converted
+            // to group hits using outermostClosedGroupOrNode() and multiple hits on the same Group need to be collapsed.
+            const std::vector<Model::Node*> hitNodes = hitsToNodes(hits);
 
             auto document = lock(m_document);
             const auto& editorContext = document->editorContext();
 
             const auto forward = (inputState.scrollY() > 0.0f) != (pref(Preferences::CameraMouseWheelInvert));
-            const auto nodePair = forward ? findSelectionPair(std::begin(hits), std::end(hits), editorContext) : findSelectionPair(hits.rbegin(), hits.rend(), editorContext);
+            const auto nodePair = forward ? findSelectionPair(std::begin(hitNodes), std::end(hitNodes), editorContext) : findSelectionPair(hitNodes.rbegin(), hitNodes.rend(), editorContext);
 
             auto* selectedNode = nodePair.first;
             auto* nextNode = nodePair.second;
@@ -355,12 +387,12 @@ namespace TrenchBroom {
                     return true;
                 }
             } else {
-                const auto& hit = firstHit(inputState, Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit);
+                const auto& hit = firstHit(inputState, Model::Entity::EntityHit | Model::Brush::BrushHit);
                 if (!hit.isMatch()) {
                     return false;
                 }
 
-                auto* node = Model::hitToNode(hit);
+                auto* node = outermostClosedGroupOrNode(Model::hitToNode(hit));
                 if (editorContext.selectable(node)) {
                     document->beginTransaction("Drag Select Objects");
                     if (document->hasSelection() && !document->hasSelectedNodes()) {
@@ -389,9 +421,9 @@ namespace TrenchBroom {
                 }
             } else {
                 assert(document->hasSelectedNodes());
-                const auto& hit = firstHit(inputState, Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit);
+                const auto& hit = firstHit(inputState, Model::Entity::EntityHit | Model::Brush::BrushHit);
                 if (hit.isMatch()) {
-                    auto* node = Model::hitToNode(hit);
+                    auto* node = outermostClosedGroupOrNode(Model::hitToNode(hit));
                     if (!node->selected() && editorContext.selectable(node)) {
                         document->select(node);
                     }
@@ -412,9 +444,13 @@ namespace TrenchBroom {
 
         void SelectionTool::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
             auto document = lock(m_document);
-            const auto& hit = firstHit(inputState, Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit);
-            if (hit.isMatch() && Model::hitToNode(hit)->selected()) {
-                renderContext.setShowSelectionGuide();
+            const auto& hit = firstHit(inputState, Model::Entity::EntityHit | Model::Brush::BrushHit);
+            if (hit.isMatch()) {
+                Model::Node* node = outermostClosedGroupOrNode(Model::hitToNode(hit));
+
+                if (node->selected()) {
+                    renderContext.setShowSelectionGuide();
+                }
             }
         }
 

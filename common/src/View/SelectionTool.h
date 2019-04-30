@@ -34,6 +34,13 @@ namespace TrenchBroom {
     namespace View {
         class InputState;
 
+        Model::Group* outermostClosedGroup(Model::Node* node);
+
+        /**
+         * Implements group picking logic
+         */
+        Model::Node* outermostClosedGroupOrNode(Model::Node* node);
+
         class SelectionTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
         private:
             MapDocumentWPtr m_document;

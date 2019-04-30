@@ -42,8 +42,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        const Hit::HitType Group::GroupHit = Hit::freeHitType();
-
         Group::Group(const String& name) :
         m_name(name),
         m_editState(Edit_Closed),

@@ -103,8 +103,6 @@ namespace TrenchBroom {
         }
 
         bool SelectionHitFilter::doMatches(const Hit& hit) const {
-            if (hit.type() == Group::GroupHit)
-                return hitToGroup(hit)->selected();
             if (hit.type() == Entity::EntityHit)
                 return hitToEntity(hit)->selected();
             if (hit.type() == Brush::BrushHit)
@@ -131,9 +129,6 @@ namespace TrenchBroom {
         }
 
         bool ContextHitFilter::doMatches(const Hit& hit) const {
-            if (hit.type() == Group::GroupHit) {
-                return m_context.pickable(hitToGroup(hit));
-            }
             if (hit.type() == Entity::EntityHit) {
                 return m_context.pickable(hitToEntity(hit));
             }

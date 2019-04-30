@@ -34,8 +34,6 @@ namespace TrenchBroom {
         class PickResult;
 
         class Group : public Node, public Object {
-        public:
-            static const Hit::HitType GroupHit;
         private:
             typedef enum {
                 Edit_Open,
