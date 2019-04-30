@@ -99,7 +99,6 @@ namespace TrenchBroom {
 
             void doPick(const vm::ray3& ray, PickResult& pickResult) const override;
             void doFindNodesContaining(const vm::vec3& point, NodeList& result) override;
-            FloatType doIntersectWithRay(const vm::ray3& ray) const override;
 
             void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) override;
             void doAccept(NodeVisitor& visitor) override;

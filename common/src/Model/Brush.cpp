@@ -1406,11 +1406,6 @@ namespace TrenchBroom {
             }
         }
 
-        FloatType Brush::doIntersectWithRay(const vm::ray3& ray) const {
-            const auto hit = findFaceHit(ray);
-            return hit.distance;
-        }
-
         Brush::BrushFaceHit::BrushFaceHit() : face(nullptr), distance(vm::nan<FloatType>()) {}
 
         Brush::BrushFaceHit::BrushFaceHit(BrushFace* i_face, const FloatType i_distance) : face(i_face), distance(i_distance) {}

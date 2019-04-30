@@ -557,10 +557,6 @@ namespace TrenchBroom {
             doFindNodesContaining(point, result);
         }
 
-        FloatType Node::intersectWithRay(const vm::ray3& ray) const {
-            return doIntersectWithRay(ray);
-        }
-
         size_t Node::lineNumber() const {
             return m_lineNumber;
         }

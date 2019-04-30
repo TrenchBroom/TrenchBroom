@@ -31,7 +31,6 @@
 #include "Model/FindGroupVisitor.h"
 #include "Model/FindLayerVisitor.h"
 #include "Model/GroupSnapshot.h"
-#include "Model/IntersectNodeWithRayVisitor.h"
 #include "Model/IssueGenerator.h"
 #include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
@@ -183,21 +182,6 @@ namespace TrenchBroom {
 
             for (auto* child : Node::children()) {
                 child->findNodesContaining(point, result);
-            }
-        }
-
-        FloatType Group::doIntersectWithRay(const vm::ray3& ray) const {
-            const auto& myBounds = bounds();
-            if (!myBounds.contains(ray.origin) && vm::isnan(vm::intersectRayAndBBox(ray, myBounds))) {
-                return vm::nan<FloatType>();
-            }
-
-            IntersectNodeWithRayVisitor visitor(ray);
-            iterate(visitor);
-            if (!visitor.hasResult()) {
-                return vm::nan<FloatType>();
-            } else {
-                return visitor.result();
             }
         }
 

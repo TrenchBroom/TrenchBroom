@@ -89,10 +89,6 @@ namespace TrenchBroom {
                 mockDoFindNodesContaining(point, result);
             }
 
-            FloatType doIntersectWithRay(const vm::ray3& ray) const override {
-                return mockDoIntersectWithRay(ray);
-            }
-
             void doAccept(NodeVisitor& visitor) override {
                 mockDoAccept(visitor);
             }

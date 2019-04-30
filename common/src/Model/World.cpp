@@ -284,10 +284,6 @@ namespace TrenchBroom {
             }
         }
 
-        FloatType World::doIntersectWithRay(const vm::ray3& ray) const {
-            return vm::nan<FloatType>();
-        }
-
         void World::doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {
             generator->generate(this, issues);
         }
