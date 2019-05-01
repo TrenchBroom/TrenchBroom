@@ -41,6 +41,8 @@ namespace TrenchBroom {
          */
         Model::Node* outermostClosedGroupOrNode(Model::Node* node);
 
+        std::vector<Model::Node*> hitsToNodesWithGroupPicking(const Model::Hit::List& hits);
+
         class SelectionTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
         private:
             MapDocumentWPtr m_document;

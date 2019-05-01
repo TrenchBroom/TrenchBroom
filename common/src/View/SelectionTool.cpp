@@ -74,7 +74,7 @@ namespace TrenchBroom {
                 return nullptr;
             }
 
-            if (nextGroup->opened()) {
+            if (nextGroup->opened() || nextGroup->hasOpenedDescendant()) {
                 return nullptr;
             }
 
@@ -318,7 +318,7 @@ namespace TrenchBroom {
             }
         }
 
-        static std::vector<Model::Node*> hitsToNodes(const Model::Hit::List& hits) {
+        std::vector<Model::Node*> hitsToNodesWithGroupPicking(const Model::Hit::List& hits) {
             std::vector<Model::Node*> hitNodes;
             std::unordered_set<Model::Node*> duplicateCheck;
 
@@ -342,7 +342,7 @@ namespace TrenchBroom {
 
             // Hits may contain multiple brush/entity hits that are inside closed groups. These need to be converted
             // to group hits using outermostClosedGroupOrNode() and multiple hits on the same Group need to be collapsed.
-            const std::vector<Model::Node*> hitNodes = hitsToNodes(hits);
+            const std::vector<Model::Node*> hitNodes = hitsToNodesWithGroupPicking(hits);
 
             auto document = lock(m_document);
             const auto& editorContext = document->editorContext();

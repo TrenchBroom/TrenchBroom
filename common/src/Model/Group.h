@@ -51,6 +51,7 @@ namespace TrenchBroom {
             void setName(const String& name);
 
             bool opened() const;
+            bool hasOpenedDescendant() const;
             void open();
             void close();
         private:
@@ -59,8 +60,6 @@ namespace TrenchBroom {
             class SetEditStateVisitor;
             void openAncestors();
             void closeAncestors();
-
-            bool hasOpenedDescendant() const;
         private: // implement methods inherited from Node
             const String& doGetName() const override;
             const vm::bbox3& doGetBounds() const override;
