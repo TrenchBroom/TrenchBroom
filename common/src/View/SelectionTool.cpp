@@ -318,8 +318,8 @@ namespace TrenchBroom {
             }
         }
 
-        std::vector<Model::Node*> hitsToNodesWithGroupPicking(const Model::Hit::List& hits) {
-            std::vector<Model::Node*> hitNodes;
+        Model::NodeList hitsToNodesWithGroupPicking(const Model::Hit::List& hits) {
+            Model::NodeList hitNodes;
             std::unordered_set<Model::Node*> duplicateCheck;
 
             for (const auto& hit : hits) {
