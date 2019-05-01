@@ -36,7 +36,7 @@ namespace TrenchBroom {
         MipTextureReader::MipTextureReader(const NameStrategy& nameStrategy) :
         TextureReader(nameStrategy) {}
 
-        MipTextureReader::~MipTextureReader() {}
+        MipTextureReader::~MipTextureReader() = default;
 
         size_t MipTextureReader::mipFileSize(const size_t width, const size_t height, const size_t mipLevels) {
             size_t result = 0;
@@ -54,22 +54,24 @@ namespace TrenchBroom {
             size_t offset[MipLevels];
 
             const auto path = file->path();
-
+            const auto basename = path.lastComponent().deleteExtension().asString();
+            const auto name = textureName(basename, path);
             try {
                 auto reader = file->reader().buffer();
-                const auto name = reader.readString(MipLayout::TextureNameLength);
+                reader.readString(MipLayout::TextureNameLength);
+
                 const auto width = reader.readSize<int32_t>();
                 const auto height = reader.readSize<int32_t>();
 
                 if (!checkTextureDimensions(width, height)) {
-                    return new Assets::Texture(textureName(path), 16, 16);
+                    return new Assets::Texture(name, 16, 16);
                 }
 
                 for (size_t i = 0; i < MipLevels; ++i) {
                     offset[i] = reader.readSize<int32_t>();
                 }
 
-                const auto transparent = (name.size() > 0 && name.at(0) == '{')
+                const auto transparent = (!name.empty() && name.at(0) == '{')
                                          ? Assets::PaletteTransparency::Index255Transparent
                                          : Assets::PaletteTransparency::Opaque;
 
@@ -77,7 +79,7 @@ namespace TrenchBroom {
                 auto palette = doGetPalette(reader, offset, width, height);
 
                 if (!palette.initialized()) {
-                    return new Assets::Texture(textureName(name, path), width, height);
+                    return new Assets::Texture(name, width, height);
                 }
 
                 for (size_t i = 0; i < MipLevels; ++i) {
@@ -94,9 +96,9 @@ namespace TrenchBroom {
                 const auto type = (transparent == Assets::PaletteTransparency::Index255Transparent)
                                   ? Assets::TextureType::Masked
                                   : Assets::TextureType::Opaque;
-                return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers, GL_RGBA, type);
+                return new Assets::Texture(name, width, height, averageColor, buffers, GL_RGBA, type);
             } catch (const ReaderException&) {
-                return new Assets::Texture(textureName(path), 16, 16);
+                return new Assets::Texture(name, 16, 16);
             }
         }
     }
