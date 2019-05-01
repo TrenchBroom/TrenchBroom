@@ -110,6 +110,20 @@ namespace TrenchBroom {
             return false;
         }
 
+        HitFilter* TransitivelySelectedHitFilter::doClone() const {
+            return new TransitivelySelectedHitFilter();
+        }
+
+        bool TransitivelySelectedHitFilter::doMatches(const Hit& hit) const {
+            if (hit.type() == Entity::EntityHit) {
+                return hitToEntity(hit)->transitivelySelected();
+            }
+            if (hit.type() == Brush::BrushHit) {
+                return hitToBrush(hit)->transitivelySelected() || hitToFace(hit)->selected();
+            }
+            return false;
+        }
+
         MinDistanceHitFilter::MinDistanceHitFilter(const FloatType minDistance) :
         m_minDistance(minDistance) {}
 

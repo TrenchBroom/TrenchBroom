@@ -57,28 +57,15 @@ namespace TrenchBroom {
                 return MoveInfo();
 
             const Model::PickResult& pickResult = inputState.pickResult();
-            auto hits = pickResult.query().pickable().type(Model::Entity::EntityHit | Model::Brush::BrushHit).all();
+            auto hit = pickResult.query().pickable().type(Model::Entity::EntityHit | Model::Brush::BrushHit).transitivelySelected().occluded().first();
 
-            // We can't use Model::PickResult::selected() because it's not aware of groups
-            // (when trying to move a selected group, the unselected entities/brushes inside
-            // are what actually get picked, and the .selected() query would reject them.)
-            // TODO: Implement a .transitivelySelected() hit query, and restore the query above to:
-            // .query().pickable().type(Model::Entity::EntityHit | Model::Brush::BrushHit).transitivelySelected().occluded().first();
-            Model::Hit* foundHit = nullptr;
-            for (Model::Hit& hit : hits) {
-                Model::Node* node = outermostClosedGroupOrNode(Model::hitToNode(hit));
-                if (node->selected()) {
-                    foundHit = &hit;
-                }
-            }
-
-            if (foundHit == nullptr)
+            if (!hit.isMatch())
                 return MoveInfo();
 
             if (!m_tool->startMove(inputState))
                 return MoveInfo();
 
-            return MoveInfo(foundHit->hitPoint());
+            return MoveInfo(hit.hitPoint());
         }
 
         RestrictedDragPolicy::DragResult MoveObjectsToolController::doMove(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) {
