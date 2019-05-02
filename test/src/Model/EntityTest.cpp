@@ -171,7 +171,7 @@ namespace TrenchBroom {
         }
 
         TEST_F(EntityTest, rotationMatrixToEulerAngles_flip) {
-            const auto roll = vm::toRadians(0.0);
+            const auto roll = vm::toRadians(10.0);
             const auto pitch = vm::toRadians(45.0);
             const auto yaw = vm::toRadians(0.0);
 
@@ -180,9 +180,7 @@ namespace TrenchBroom {
 
             const auto yawPitchRoll = EntityRotationPolicy::getYawPitchRoll(scaleMat, rotMat);
 
-            const auto expectedPitch = vm::toDegrees(std::atan(0.5));
-
-            EXPECT_DOUBLE_EQ(0.0, yawPitchRoll.z());
+            EXPECT_DOUBLE_EQ(-10.0, yawPitchRoll.z());
             EXPECT_DOUBLE_EQ(45.0, yawPitchRoll.y());
             EXPECT_DOUBLE_EQ(180.0, yawPitchRoll.x());
         }
