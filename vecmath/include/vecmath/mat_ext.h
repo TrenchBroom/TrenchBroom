@@ -229,6 +229,42 @@ namespace vm {
     }
 
     /**
+     * Converts the given rotation matrix to euler angles in radians.
+     * The euler angles use the same convention as rotationMatrix(): first roll, then pitch, then yaw.
+     *
+     * @tparam T the component type
+     * @param the rotation matrix (must contain only rotation)
+     * @return the roll, pitch, yaw in radians
+     */
+    template <typename T>
+    vec<T,3> rotationMatrixToEulerAngles(const mat<T,4,4>& rotMat) {
+        // From: http://www.gregslabaugh.net/publications/euler.pdf
+        // Their notation is row-major, and uses 1-based row/column indices, whereas TB is column-major and 0-based.
+        // They use phi=yaw, theta=pitch, psi=roll
+
+        T theta, psi, phi;
+
+        if (std::abs(rotMat[0][2]) != T(1.0)) {
+            theta = -std::asin(rotMat[0][2]);
+            const auto cosTheta = std::cos(theta);
+
+            psi = std::atan2(rotMat[1][2] / cosTheta, rotMat[2][2] / cosTheta);
+            phi = std::atan2(rotMat[0][1] / cosTheta, rotMat[0][0] / cosTheta);
+        } else {
+            phi = 0.0;
+            if (rotMat[0][2] == T(-1.0)) {
+                theta = vm::constants<T>::piOverTwo();
+                psi = std::atan2(rotMat[1][0], rotMat[2][0]);
+            } else {
+                theta = -vm::constants<T>::piOverTwo();
+                psi = std::atan2(-rotMat[1][0], -rotMat[2][0]);
+            }
+        }
+
+        return vec<T, 3>(psi, theta, phi);
+    }
+
+    /**
      * Returns a matrix that will rotate a point counter clockwise about the given axis by the given angle.
      *
      * @tparam T the component type

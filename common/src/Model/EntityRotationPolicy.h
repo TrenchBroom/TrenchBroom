@@ -49,6 +49,11 @@ namespace TrenchBroom {
             static RotationInfo rotationInfo(const Entity* entity);
             static void setAngle(Entity* entity, const AttributeName& attribute, const vm::vec3& direction);
             static FloatType getAngle(vm::vec3 direction);
+        public:
+            /**
+             * Given an arbitrary transform and a rotation matrix, applies the transformation to the
+             * rotation matrix and returns the result as euler angles in degrees.
+             */
             static vm::vec3 getYawPitchRoll(const vm::mat4x4& transformation, const vm::mat4x4& rotation);
         };
     }
