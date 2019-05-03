@@ -27,6 +27,7 @@
 #include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
+#include "Model/FindGroupVisitor.h"
 #include "Model/Group.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
@@ -55,21 +56,8 @@ namespace TrenchBroom {
             return this;
         }
 
-        static Model::Group* enclosingGroup(Model::Node* node) {
-            if (node->parent() == nullptr) {
-                return nullptr;
-            }
-
-            auto* parentAsGroup = dynamic_cast<Model::Group*>(node->parent());
-            if (parentAsGroup != nullptr) {
-                return parentAsGroup;
-            }
-
-            return enclosingGroup(node->parent());
-        }
-
         Model::Group* outermostClosedGroup(Model::Node* node) {
-            Model::Group* nextGroup = enclosingGroup(node);
+            Model::Group* nextGroup = findGroup(node);
             if (nextGroup == nullptr) {
                 return nullptr;
             }
