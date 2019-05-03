@@ -119,6 +119,25 @@ namespace vm {
         ASSERT_MAT_EQ(mat4x4d::rot_90_z_ccw, rotationMatrix(0.0, 0.0, toRadians(90.0)));
     }
 
+    TEST(MatTest, rotationMatrixToEulerAngles_90DegreeRotations) {
+        ASSERT_VEC_EQ(vec3d(toRadians(90.0), 0.0, 0.0), rotationMatrixToEulerAngles(mat4x4d::rot_90_x_ccw));
+        ASSERT_VEC_EQ(vec3d(0.0, toRadians(90.0), 0.0), rotationMatrixToEulerAngles(mat4x4d::rot_90_y_ccw));
+        ASSERT_VEC_EQ(vec3d(0.0, 0.0, toRadians(90.0)), rotationMatrixToEulerAngles(mat4x4d::rot_90_z_ccw));
+    }
+
+    TEST(MatTest, rotationMatrixToEulerAngles) {
+        const auto roll = toRadians(12.0);
+        const auto pitch = toRadians(13.0);
+        const auto yaw = toRadians(14.0);
+
+        const auto rotMat = rotationMatrix(roll, pitch, yaw);
+        const auto rollPitchYaw = rotationMatrixToEulerAngles(rotMat);
+
+        EXPECT_DOUBLE_EQ(roll, rollPitchYaw.x());
+        EXPECT_DOUBLE_EQ(pitch, rollPitchYaw.y());
+        EXPECT_DOUBLE_EQ(yaw, rollPitchYaw.z());
+    }
+
     TEST(MatTest, rotationMatrixWithAngleAndAxis) {
         ASSERT_MAT_EQ(mat4x4d::rot_90_x_ccw, rotationMatrix(vec3d::pos_x, toRadians(90.0)));
         ASSERT_MAT_EQ(mat4x4d::rot_90_y_ccw, rotationMatrix(vec3d::pos_y, toRadians(90.0)));

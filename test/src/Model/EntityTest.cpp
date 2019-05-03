@@ -122,5 +122,67 @@ namespace TrenchBroom {
             m_entity->transform(vm::translationMatrix(vm::vec3d(100.0, 0.0, 0.0)), true, m_worldBounds);
             EXPECT_EQ(rotMat, m_entity->rotation());
         }
+
+        TEST_F(EntityTest, rotationMatrixToEulerAngles) {
+            const auto roll  = vm::toRadians(12.0);
+            const auto pitch = vm::toRadians(13.0);
+            const auto yaw   = vm::toRadians(14.0);
+
+            const auto rotMat = vm::rotationMatrix(roll, pitch, yaw);
+
+            const auto yawPitchRoll = EntityRotationPolicy::getYawPitchRoll(vm::mat4x4::identity, rotMat);
+
+            EXPECT_DOUBLE_EQ(12.0, yawPitchRoll.z());
+            EXPECT_DOUBLE_EQ(13.0, yawPitchRoll.y());
+            EXPECT_DOUBLE_EQ(14.0, yawPitchRoll.x());
+        }
+
+        TEST_F(EntityTest, rotationMatrixToEulerAngles_uniformScale) {
+            const auto roll = vm::toRadians(12.0);
+            const auto pitch = vm::toRadians(13.0);
+            const auto yaw = vm::toRadians(14.0);
+
+            const auto scaleMat = vm::scalingMatrix(vm::vec3(2.0, 2.0, 2.0));
+            const auto rotMat = vm::rotationMatrix(roll, pitch, yaw);
+
+            const auto yawPitchRoll = EntityRotationPolicy::getYawPitchRoll(scaleMat, rotMat);
+
+            // The uniform scale has no effect
+            EXPECT_DOUBLE_EQ(12.0, yawPitchRoll.z());
+            EXPECT_DOUBLE_EQ(13.0, yawPitchRoll.y());
+            EXPECT_DOUBLE_EQ(14.0, yawPitchRoll.x());
+        }
+
+        TEST_F(EntityTest, rotationMatrixToEulerAngles_nonUniformScale) {
+            const auto roll = vm::toRadians(0.0);
+            const auto pitch = vm::toRadians(45.0);
+            const auto yaw = vm::toRadians(0.0);
+
+            const auto scaleMat = vm::scalingMatrix(vm::vec3(2.0, 1.0, 1.0));
+            const auto rotMat = vm::rotationMatrix(roll, pitch, yaw);
+
+            const auto yawPitchRoll = EntityRotationPolicy::getYawPitchRoll(scaleMat, rotMat);
+
+            const auto expectedPitch = vm::toDegrees(std::atan(0.5)); // ~= 26.57 degrees
+
+            EXPECT_DOUBLE_EQ(0.0, yawPitchRoll.z());
+            EXPECT_DOUBLE_EQ(expectedPitch, yawPitchRoll.y());
+            EXPECT_DOUBLE_EQ(0.0, yawPitchRoll.x());
+        }
+
+        TEST_F(EntityTest, rotationMatrixToEulerAngles_flip) {
+            const auto roll = vm::toRadians(10.0);
+            const auto pitch = vm::toRadians(45.0);
+            const auto yaw = vm::toRadians(0.0);
+
+            const auto scaleMat = vm::scalingMatrix(vm::vec3(-1.0, 1.0, 1.0));
+            const auto rotMat = vm::rotationMatrix(roll, pitch, yaw);
+
+            const auto yawPitchRoll = EntityRotationPolicy::getYawPitchRoll(scaleMat, rotMat);
+
+            EXPECT_DOUBLE_EQ(-10.0, yawPitchRoll.z());
+            EXPECT_DOUBLE_EQ(45.0, yawPitchRoll.y());
+            EXPECT_DOUBLE_EQ(180.0, yawPitchRoll.x());
+        }
     }
 }
