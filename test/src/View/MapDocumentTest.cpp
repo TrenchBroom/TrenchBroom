@@ -39,6 +39,7 @@
 
 #include <vecmath/bbox.h>
 #include <vecmath/scalar.h>
+#include <vecmath/ray.h>
 
 namespace TrenchBroom {
     namespace View {

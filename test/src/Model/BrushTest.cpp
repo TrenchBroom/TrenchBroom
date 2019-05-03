@@ -22,7 +22,9 @@
 #include "TestUtils.h"
 
 #include "Assets/Texture.h"
+#include "IO/DiskIO.h"
 #include "IO/NodeReader.h"
+#include "IO/Path.h"
 #include "IO/TestParserStatus.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
@@ -36,10 +38,13 @@
 
 #include <vecmath/vec.h>
 #include <vecmath/polygon.h>
+#include <vecmath/ray.h>
 
 #include <algorithm>
+#include <fstream>
 #include <iterator>
 #include <memory>
+#include <sstream>
 
 namespace TrenchBroom {
     namespace Model {
@@ -2815,6 +2820,38 @@ namespace TrenchBroom {
 
             delete minuend;
             delete subtrahend;
+            VectorUtils::deleteAll(result);
+        }
+
+        TEST(BrushTest, subtractDome) {
+            // see https://github.com/kduske/TrenchBroom/issues/2707
+
+            const String minuendStr(R"({
+                ( -1598.09391534391647838 -277.57717407067275417 -20 ) ( -1598.09391534391647838 54.02274375211438695 -20 ) ( -1598.09391534391647838 -277.57717407067275417 -12 ) 128_gold_2 -14.94120025634765625 -108 -0 0.72087001800537109 1
+                ( -1178.96031746031826515 -277.57717407067275417 -20 ) ( -1598.09391534391647838 -277.57717407067275417 -20 ) ( -1178.96031746031826515 -277.57717407067275417 -12 ) 128_gold_2 28.92790031433105469 -108 -0 0.8250659704208374 1
+                ( -1178.96031746031826515 54.02274375211438695 -20 ) ( -1598.09391534391647838 54.02274375211438695 -20 ) ( -1178.96031746031826515 -277.57717407067275417 -20 ) 128_gold_2 -28.98690032958984375 -4.01778984069824219 -0 0.77968800067901611 0.65970498323440552
+                ( -1178.96031746031826515 -277.57717407067275417 -12 ) ( -1598.09391534391647838 -277.57717407067275417 -12 ) ( -1178.96031746031826515 54.02274375211438695 -12 ) 128_gold_2 -28.98690032958984375 -4.01778984069824219 -0 0.77968800067901611 0.65970498323440552
+                ( -1598.09391534391647838 54.02274375211438695 -20 ) ( -1178.96031746031826515 54.02274375211438695 -20 ) ( -1598.09391534391647838 54.02274375211438695 -12 ) 128_gold_2 28.92790031433105469 -108 -0 0.8250659704208374 1
+                ( -1178 54.02274375211438695 -20 ) ( -1178 -277.57717407067275417 -20 ) ( -1178 54.02274375211438695 -12 ) 128_gold_2 -14.94120025634765625 -108 -0 0.72087001800537109 1
+            })");
+
+
+            const auto subtrahendPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/Model/Brush/subtrahend.map");
+            std::ifstream stream(subtrahendPath.asString());
+            std::stringstream subtrahendStr;
+            subtrahendStr << stream.rdbuf();
+
+            const vm::bbox3 worldBounds(8192.0);
+            World world(MapFormat::Standard, worldBounds);
+
+            IO::TestParserStatus status;
+            const auto* minuend = static_cast<Brush*>(IO::NodeReader::read(minuendStr, world, worldBounds, status).front());
+            const auto subtrahend = VectorUtils::cast<Brush*>(IO::NodeReader::read(subtrahendStr.str(), world, worldBounds, status));
+
+            const auto result = minuend->subtract(world, worldBounds, "some_texture", subtrahend);
+
+            delete minuend;
+            VectorUtils::deleteAll(subtrahend);
             VectorUtils::deleteAll(result);
         }
 

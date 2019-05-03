@@ -207,31 +207,44 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::findInitialIntersec
         HalfEdge* halfEdge = currentEdge->firstEdge();
         const vm::point_status os = plane.pointStatus(halfEdge->origin()->position());
         const vm::point_status ds = plane.pointStatus(halfEdge->destination()->position());
+
+
+        if ((os == vm::point_status::inside && ds == vm::point_status::above) ||
+            (os == vm::point_status::below  && ds == vm::point_status::above)) {
+            return halfEdge->twin();
+        }
+        if ((os == vm::point_status::above  && ds == vm::point_status::inside) ||
+            (os == vm::point_status::above  && ds == vm::point_status::below)) {
+            return halfEdge;
+        }
+        
         if (os == vm::point_status::inside && ds == vm::point_status::inside) {
             // If both ends of the edge are inside the plane, we must ensure that we return the correct
             // half edge, which is either the current one or its twin. Since the returned half edge is supposed
-            // to be clipped away, we must examine the destination of its successor. If that is below the plane,
+            // to be clipped away, we must examine the destination of its successor(s). If that is below the plane,
             // we return the twin, otherwise we return the half edge.
             HalfEdge* nextEdge = halfEdge->next();
-            Vertex* nextVertex = nextEdge->destination();
-
-            const vm::point_status ss = plane.pointStatus(nextVertex->position());
-            assert(ss != vm::point_status::inside);
-
-            if (ss == vm::point_status::below)
+            vm::point_status ss = plane.pointStatus(nextEdge->destination()->position());
+            
+            while (ss == vm::point_status::inside && nextEdge != halfEdge) {
+                // Due to floating point imprecision, we might run into the case where the successor's destination is
+                // still considered "inside" the plane. In this case, we consider the successor's successor and so on
+                // until we find an edge whose destination is not inside the plane.
+                nextEdge = nextEdge->next();
+                ss = plane.pointStatus(nextEdge->destination()->position());
+            }
+            
+            if (ss == vm::point_status::inside) {
+                // We couldn't find a successor whose destination is inside the plane, so we must give up.
+                return nullptr;
+            }
+            
+            if (ss == vm::point_status::below) {
                 return halfEdge->twin();
-
-            return halfEdge;
+            } else {
+                return halfEdge;
+            }
         }
-
-        if ((os == vm::point_status::inside && ds == vm::point_status::above) ||
-            (os == vm::point_status::below  && ds == vm::point_status::above))
-            return halfEdge->twin();
-
-        if ((os == vm::point_status::above  && ds == vm::point_status::inside) ||
-            (os == vm::point_status::above  && ds == vm::point_status::below))
-            return halfEdge;
-
         currentEdge = currentEdge->next();
     } while (currentEdge != firstEdge);
     return nullptr;

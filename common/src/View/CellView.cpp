@@ -88,6 +88,7 @@ namespace TrenchBroom {
         }
 
         void CellView::resizeEvent(QResizeEvent* event) {
+            validate();
             m_layout.setWidth(static_cast<float>(size().width()));
             updateScrollBar();
 
@@ -103,6 +104,7 @@ namespace TrenchBroom {
          * /page up/page down arrows.
          */
         void CellView::onScrollBarActionTriggered(int action) {
+            validate();
             const auto top = static_cast<float>(m_scrollBar->value());
             const auto height = static_cast<float>(size().height());
 
@@ -140,6 +142,7 @@ namespace TrenchBroom {
         // CellView
 
         void CellView::mousePressEvent(QMouseEvent* event) {
+            validate();
             if (event->button() == Qt::LeftButton) {
                 m_potentialDrag = true;
             } else if (event->button() == Qt::RightButton) {
@@ -150,6 +153,7 @@ namespace TrenchBroom {
         }
 
         void CellView::mouseReleaseEvent(QMouseEvent* event) {
+            validate();
             if (event->button() == Qt::LeftButton) {
                 int top = m_scrollBar != nullptr ? m_scrollBar->value() : 0;
                 float x = static_cast<float>(event->localPos().x());
@@ -159,6 +163,7 @@ namespace TrenchBroom {
         }
 
         void CellView::mouseMoveEvent(QMouseEvent* event) {
+            validate();
             if (event->buttons() & Qt::LeftButton) {
                 if (m_potentialDrag) {
                     startDrag(event);
@@ -174,6 +179,7 @@ namespace TrenchBroom {
         }
 
         void CellView::wheelEvent(QWheelEvent* event) {
+            validate();
             if (m_scrollBar != nullptr) {
                 QPoint pixelDelta = event->pixelDelta();
                 if (pixelDelta.isNull()) {
@@ -190,6 +196,7 @@ namespace TrenchBroom {
         }
 
         void CellView::startDrag(const QMouseEvent* event) {
+            validate();
             if (dndEnabled()) {
                 int top = m_scrollBar != nullptr ? m_scrollBar->value() : 0;
                 float x = static_cast<float>(event->localPos().x());
@@ -217,6 +224,7 @@ namespace TrenchBroom {
         }
 
         void CellView::scroll(const QMouseEvent* event) {
+            validate();
             if (m_scrollBar != nullptr) {
                 const QPoint mousePosition = event->pos();
                 const int delta = mousePosition.y() - m_lastMousePos.y();
@@ -227,6 +235,7 @@ namespace TrenchBroom {
         }
 
         void CellView::updateTooltip(const QMouseEvent* event) {
+            validate();
             // TODO: Need to implement our own tooltip timer. QEvent::ToolTip is not delivered to QWindow
             int top = m_scrollBar != nullptr ? m_scrollBar->value() : 0;
             float x = static_cast<float>(event->pos().x());
@@ -240,8 +249,7 @@ namespace TrenchBroom {
         }
 
         void CellView::doRender() {
-            if (!m_valid)
-                validate();
+            validate();
             if (!m_layoutInitialized)
                 initLayout();
 

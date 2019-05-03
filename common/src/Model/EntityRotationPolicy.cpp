@@ -237,47 +237,21 @@ namespace TrenchBroom {
         }
 
         vm::vec3 EntityRotationPolicy::getYawPitchRoll(const vm::mat4x4& transformation, const vm::mat4x4& rotation) {
-            FloatType yaw = 0.0, pitch = 0.0, roll = 0.0;
-            vm::vec3 newX, newY, newZ;
+            const auto M = stripTranslation(transformation) * stripTranslation(rotation);
 
-            newX = transformation * rotation * vm::vec3::pos_x;
-            newY = transformation * rotation * vm::vec3::pos_y;
+            const auto newPosX = vm::normalize(M * vm::vec3::pos_x);
+            const auto newPosY = vm::normalize(vm::cross(M * vm::vec3::pos_z, newPosX));
+            const auto newPosZ = vm::normalize(vm::cross(newPosX, newPosY));
 
-            if (std::abs(newX.z()) < std::abs(newY.z())) {
-                newX = normalize(vm::vec3(newX.x(), newX.y(), 0.0));
-                yaw = measureAngle(newX, vm::vec3::pos_x, vm::vec3::pos_z); // CCW yaw angle in radians
-            } else {
-                newY = normalize(vm::vec3(newY.x(), newY.y(), 0.0));
-                yaw = measureAngle(newY, vm::vec3::pos_y, vm::vec3::pos_z);
-            }
+            // Build a new rotation matrix from the three transformed unit vectors
+            vm::mat4x4d rotMat;
+            rotMat[0] = vm::vec4d(newPosX, 0.0);
+            rotMat[1] = vm::vec4d(newPosY, 0.0);
+            rotMat[2] = vm::vec4d(newPosZ, 0.0);
 
-            // Now we know the yaw rotation angle. We have to correct for it to get the pitch angle.
-            const auto invYaw = vm::rotationMatrix(vm::vec3::pos_z, -yaw);
-            newX = invYaw * transformation * rotation * vm::vec3::pos_x;
-            newZ = invYaw * transformation * rotation * vm::vec3::pos_z;
+            const auto rollPitchYaw = vm::rotationMatrixToEulerAngles(rotMat);
 
-            if (std::abs(newX.y()) < std::abs(newZ.y())) {
-                newX = normalize(vm::vec3(newX.x(), 0.0, newX.z()));
-                pitch = measureAngle(newX, vm::vec3::pos_x, vm::vec3::pos_y);
-            } else {
-                newZ = normalize(vm::vec3(newZ.x(), 0.0, newZ.z()));
-                pitch = measureAngle(newZ, vm::vec3::pos_z, vm::vec3::pos_y);
-            }
-
-            // Now we know the pitch rotation angle. We have to correct for it to get the roll angle.
-            const auto invPitch = vm::rotationMatrix(vm::vec3::pos_y, -pitch);
-            newY = invPitch * invYaw * transformation * rotation * vm::vec3::pos_y;
-            newZ = invPitch * invYaw * transformation * rotation * vm::vec3::pos_z;
-
-            if (std::abs(newY.x()) < std::abs(newZ.x())) {
-                newY = normalize(vm::vec3(0.0, newY.y(), newY.z()));
-                roll = measureAngle(newY, vm::vec3::pos_y, vm::vec3::pos_x);
-            } else {
-                newZ = normalize(vm::vec3(0.0, newZ.y(), newZ.z()));
-                roll = measureAngle(newZ, vm::vec3::pos_z, vm::vec3::pos_x);
-            }
-
-            return vm::vec3(vm::toDegrees(yaw), vm::toDegrees(pitch), vm::toDegrees(roll));
+            return vm::vec3(vm::toDegrees(rollPitchYaw[2]), vm::toDegrees(rollPitchYaw[1]), vm::toDegrees(rollPitchYaw[0]));
         }
     }
 }

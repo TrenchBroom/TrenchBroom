@@ -713,7 +713,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/Model/TransformObjectVisitor.h
 	${COMMON_SOURCE_DIR}/Model/WorldBoundsIssueGenerator.h
 	${COMMON_SOURCE_DIR}/Model/World.h
-	${COMMON_SOURCE_DIR}/NodeTree.h
 	${COMMON_SOURCE_DIR}/Notifier.h
 	${COMMON_SOURCE_DIR}/Polyhedron_BrushGeometryPayload.h
 	${COMMON_SOURCE_DIR}/Polyhedron_Clip.h

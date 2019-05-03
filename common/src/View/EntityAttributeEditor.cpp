@@ -118,15 +118,25 @@ namespace TrenchBroom {
                 }
                 case Assets::AttributeDefinition::Type_FlagsAttribute: {
                     const auto& flagsDef = dynamic_cast<const Assets::FlagsAttributeDefinition&>(definition);
-                    QString result;
-                    QTextStream stream(&result);
 
+                    // The options are not necessarily sorted by value, so we sort the descriptions here by inserting
+                    // into a map sorted by the flag value.
+                    std::map<int, QString> flagDescriptors;
                     for (auto& option : flagsDef.options()) {
+                        QString line;
+                        QTextStream stream(&line);                       
                         stream << bullet << option.value() << " = " << option.shortDescription().c_str();
                         if (!option.longDescription().empty()) {
                             stream << " (" << option.longDescription().c_str() << ")";
                         }
-                        stream << "\n";
+                        flagDescriptors[option.value()] = line;
+                    }
+
+                    // Concatenate the flag descriptions and return.
+                    QString result;
+                    QTextStream stream(&result);
+                    for (const auto& flagDescriptor : flagDescriptors) {
+                        stream << flagDescriptor.second << "\n";
                     }
                     return result;
                 }
