@@ -233,7 +233,7 @@ namespace vm {
      * The euler angles use the same convention as rotationMatrix(): first roll, then pitch, then yaw.
      *
      * @tparam T the component type
-     * @param the rotation matrix (must contain only rotation)
+     * @param rotMat the rotation matrix (must contain only rotation)
      * @return the roll, pitch, yaw in radians
      */
     template <typename T>
