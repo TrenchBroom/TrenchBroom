@@ -56,26 +56,6 @@ namespace TrenchBroom {
             return this;
         }
 
-        Model::Group* outermostClosedGroup(Model::Node* node) {
-            Model::Group* nextGroup = findGroup(node);
-            if (nextGroup == nullptr) {
-                return nullptr;
-            }
-
-            if (nextGroup->opened() || nextGroup->hasOpenedDescendant()) {
-                return nullptr;
-            }
-
-            // nextGroup is a possible answer because it's enclosing node and it's closed.
-            // See if there is a parent of it that is a better answer, otherwise return nextGroup.
-            Model::Group* nextNextGroup = outermostClosedGroup(nextGroup);
-            if (nextNextGroup != nullptr) {
-                return nextNextGroup;
-            } else {
-                return nextGroup;
-            }
-        }
-
         Model::Node* outermostClosedGroupOrNode(Model::Node* node) {
             Model::Group* group = outermostClosedGroup(node);
             if (group != nullptr) {

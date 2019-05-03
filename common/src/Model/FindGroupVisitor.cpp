@@ -20,9 +20,12 @@
 #include "FindGroupVisitor.h"
 
 #include "Model/Node.h"
+#include "Model/Group.h"
 
 namespace TrenchBroom {
     namespace Model {
+        // FindGroupVisitor
+
         void FindGroupVisitor::doVisit(World* world) {}
         void FindGroupVisitor::doVisit(Layer* layer) {}
 
@@ -34,8 +37,32 @@ namespace TrenchBroom {
         void FindGroupVisitor::doVisit(Entity* entity) {}
         void FindGroupVisitor::doVisit(Brush* brush) {}
 
+        // FindOutermostClosedGroupVisitor
+
+        void FindOutermostClosedGroupVisitor::doVisit(World* world) {}
+        void FindOutermostClosedGroupVisitor::doVisit(Layer* layer) {}
+
+        void FindOutermostClosedGroupVisitor::doVisit(Group* group) {
+            const bool closed = !(group->opened() || group->hasOpenedDescendant());
+
+            if (closed) {
+                setResult(group);
+            }
+        }
+
+        void FindOutermostClosedGroupVisitor::doVisit(Entity* entity) {}
+        void FindOutermostClosedGroupVisitor::doVisit(Brush* brush) {}
+
+        // Helper functions
+
         Model::Group* findGroup(Model::Node* node) {
             FindGroupVisitor visitor;
+            node->escalate(visitor);
+            return visitor.hasResult() ? visitor.result() : nullptr;
+        }
+
+        Model::Group* outermostClosedGroup(Model::Node* node) {
+            FindOutermostClosedGroupVisitor visitor;
             node->escalate(visitor);
             return visitor.hasResult() ? visitor.result() : nullptr;
         }

@@ -171,6 +171,12 @@ namespace TrenchBroom {
         }
 
         void Group::doPick(const vm::ray3& ray, PickResult& pickResult) const {
+            // For composite nodes (Groups, brush entities), pick rays don't hit the group
+            // but instead just the primitives inside (brushes, point entities).
+            // This avoids a potential performance trap where we'd have to exhaustively
+            // test many objects if most of the map was inside groups, but it means
+            // the pick results need to be postprocessed to account for groups (if desired).
+            // See: https://github.com/kduske/TrenchBroom/issues/2742
         }
 
         void Group::doFindNodesContaining(const vm::vec3& point, NodeList& result) {

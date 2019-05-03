@@ -35,13 +35,6 @@ namespace TrenchBroom {
         class InputState;
 
         /**
-         * Searches the ancestor chain of `node` for the outermost closed group and returns
-         * it if one is found, otherwise returns nullptr.
-         * The search stops when hitting an open group.
-         */
-        Model::Group* outermostClosedGroup(Model::Node* node);
-
-        /**
          * Implements the Group picking logic: if `node` is inside a (possibly nested chain of)
          * closed group(s), the outermost closed group is returned. Otherwise, `node` itself is returned.
          *
