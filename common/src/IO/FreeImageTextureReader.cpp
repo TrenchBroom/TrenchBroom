@@ -73,11 +73,10 @@ namespace TrenchBroom {
                   auto* imageMemory     = FreeImage_OpenMemory(imageBegin, static_cast<DWORD>(imageSize));
             const auto  imageFormat     = FreeImage_GetFileTypeFromMemory(imageMemory);
                   auto* image           = FreeImage_LoadFromMemory(imageFormat, imageMemory);
-            const auto  imageName       = path.filename();
 
             if (image == nullptr) {
                 FreeImage_CloseMemory(imageMemory);
-                return new Assets::Texture(textureName(imageName, path), 64, 64);
+                return new Assets::Texture(textureName(path), 64, 64);
             }
 
             const auto imageWidth      = static_cast<size_t>(FreeImage_GetWidth(image));
@@ -85,7 +84,7 @@ namespace TrenchBroom {
 
             if (!checkTextureDimensions(imageWidth, imageHeight)) {
                 FreeImage_CloseMemory(imageMemory);
-                return new Assets::Texture(textureName(imageName, path), 64, 64);
+                return new Assets::Texture(textureName(path), 64, 64);
             }
 
             const auto imageColourType = FreeImage_GetColorType(image);
@@ -117,7 +116,7 @@ namespace TrenchBroom {
             FreeImage_CloseMemory(imageMemory);
 
             const auto textureType = Assets::Texture::selectTextureType(masked);
-            return new Assets::Texture(textureName(imageName, path), imageWidth, imageHeight, Color(), buffers, format, textureType);
+            return new Assets::Texture(textureName(path), imageWidth, imageHeight, Color(), buffers, format, textureType);
         }
     }
 }
