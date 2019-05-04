@@ -36,6 +36,7 @@
 #include "Model/World.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
+#include "View/SelectionTool.h"
 
 #include <vecmath/bbox.h>
 #include <vecmath/scalar.h>
@@ -676,18 +677,15 @@ namespace TrenchBroom {
             Model::PickResult pickResult;
             document->pick(vm::ray3(vm::vec3(-32, 0, 0), vm::vec3::pos_x), pickResult);
 
-            // picking a grouped object when the containing group is closed should return both the object and the group
+            // picking a grouped object when the containing group is closed should return the object,
+            // which is converted to the group when hitsToNodesWithGroupPicking() is used.
             auto hits = pickResult.query().type(Model::Brush::BrushHit).all();
             ASSERT_EQ(1u, hits.size());
 
             ASSERT_EQ(brush1->findFace(vm::vec3::neg_x), hits.front().target<Model::BrushFace*>());
             ASSERT_DOUBLE_EQ(32.0, hits.front().distance());
 
-            hits = pickResult.query().type(Model::Group::GroupHit).all();
-            ASSERT_EQ(1u, hits.size());
-
-            ASSERT_EQ(group, hits.front().target<Model::Group*>());
-            ASSERT_DOUBLE_EQ(32.0, hits.front().distance());
+            ASSERT_EQ(Model::NodeList{ group }, hitsToNodesWithGroupPicking(hits));
 
             // hitting both objects in the group should return the group only once
             pickResult.clear();
@@ -696,17 +694,13 @@ namespace TrenchBroom {
             hits = pickResult.query().type(Model::Brush::BrushHit).all();
             ASSERT_EQ(2u, hits.size());
 
-            hits = pickResult.query().type(Model::Group::GroupHit).all();
-            ASSERT_EQ(1u, hits.size());
+            ASSERT_EQ(Model::NodeList{ group }, hitsToNodesWithGroupPicking(hits));
 
             // hitting the group bounds doesn't count as a hit
             pickResult.clear();
             document->pick(vm::ray3(vm::vec3(-32, 0, 96), vm::vec3::pos_x), pickResult);
 
             hits = pickResult.query().type(Model::Brush::BrushHit).all();
-            ASSERT_TRUE(hits.empty());
-
-            hits = pickResult.query().type(Model::Group::GroupHit).all();
             ASSERT_TRUE(hits.empty());
 
             // hitting a grouped object when the containing group is open should return the object only
@@ -721,8 +715,7 @@ namespace TrenchBroom {
             ASSERT_EQ(brush1->findFace(vm::vec3::neg_x), hits.front().target<Model::BrushFace*>());
             ASSERT_DOUBLE_EQ(32.0, hits.front().distance());
 
-            hits = pickResult.query().type(Model::Group::GroupHit).all();
-            ASSERT_TRUE(hits.empty());
+            ASSERT_EQ(Model::NodeList{ brush1 }, hitsToNodesWithGroupPicking(hits));
         }
 
         TEST_F(MapDocumentTest, pickNestedGroup) {
@@ -809,10 +802,9 @@ namespace TrenchBroom {
             ASSERT_EQ(brush3->findFace(vm::vec3::neg_x), hits.front().target<Model::BrushFace*>());
             ASSERT_DOUBLE_EQ(32.0, hits.front().distance());
 
-            hits = pickResult.query().type(Model::Group::GroupHit).all();
-            ASSERT_TRUE(hits.empty());
+            ASSERT_EQ(Model::NodeList{ brush3 }, hitsToNodesWithGroupPicking(hits));
 
-            // hitting the brush in the inner group should return the inner group and the brush
+            // hitting the brush in the inner group should return the inner group when hitsToNodesWithGroupPicking() is used 
             pickResult.clear();
             document->pick(lowRay, pickResult);
 
@@ -821,14 +813,9 @@ namespace TrenchBroom {
 
             ASSERT_EQ(brush1->findFace(vm::vec3::neg_x), hits.front().target<Model::BrushFace*>());
             ASSERT_DOUBLE_EQ(32.0, hits.front().distance());
+            ASSERT_EQ(Model::NodeList{ inner }, hitsToNodesWithGroupPicking(hits));
 
-            hits = pickResult.query().type(Model::Group::GroupHit).all();
-            ASSERT_EQ(1u, hits.size());
-
-            ASSERT_EQ(inner, hits.front().target<Model::Group*>());
-            ASSERT_DOUBLE_EQ(32.0, hits.front().distance());
-
-            // open the inner group, too
+            // open the inner group, too. hitsToNodesWithGroupPicking() should no longer return groups, since all groups are open.
             document->openGroup(inner);
 
             /*
@@ -840,6 +827,10 @@ namespace TrenchBroom {
              *   * brush3
              */
 
+            ASSERT_TRUE(inner->opened());
+            ASSERT_FALSE(outer->opened());
+            ASSERT_TRUE(outer->hasOpenedDescendant());
+
             // pick a brush in the outer group
             pickResult.clear();
             document->pick(highRay, pickResult);
@@ -849,9 +840,7 @@ namespace TrenchBroom {
 
             ASSERT_EQ(brush3->findFace(vm::vec3::neg_x), hits.front().target<Model::BrushFace*>());
             ASSERT_DOUBLE_EQ(32.0, hits.front().distance());
-
-            hits = pickResult.query().type(Model::Group::GroupHit).all();
-            ASSERT_TRUE(hits.empty());
+            ASSERT_EQ(Model::NodeList{ brush3 }, hitsToNodesWithGroupPicking(hits));
 
             // pick a brush in the inner group
             pickResult.clear();
@@ -862,9 +851,7 @@ namespace TrenchBroom {
 
             ASSERT_EQ(brush1->findFace(vm::vec3::neg_x), hits.front().target<Model::BrushFace*>());
             ASSERT_DOUBLE_EQ(32.0, hits.front().distance());
-
-            hits = pickResult.query().type(Model::Group::GroupHit).all();
-            ASSERT_TRUE(hits.empty());
+            ASSERT_EQ(Model::NodeList{ brush1 }, hitsToNodesWithGroupPicking(hits));
         }
 
         TEST_F(MapDocumentTest, pickBrushEntity) {

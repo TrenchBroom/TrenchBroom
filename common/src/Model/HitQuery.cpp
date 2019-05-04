@@ -85,6 +85,11 @@ namespace TrenchBroom {
             return *this;
         }
 
+        HitQuery& HitQuery::transitivelySelected() {
+            m_include = new HitFilterChain(new Model::TransitivelySelectedHitFilter(), m_include);
+            return *this;
+        }
+
         HitQuery& HitQuery::minDistance(const FloatType minDistance) {
             m_include = new HitFilterChain(new Model::MinDistanceHitFilter(minDistance), m_include);
             return *this;

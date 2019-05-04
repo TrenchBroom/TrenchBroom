@@ -71,6 +71,12 @@ namespace TrenchBroom {
             bool doMatches(const Hit& hit) const override;
         };
 
+        class TransitivelySelectedHitFilter : public HitFilter {
+        private:
+            HitFilter* doClone() const override;
+            bool doMatches(const Hit& hit) const override;
+        };
+
         class MinDistanceHitFilter : public HitFilter {
         private:
             FloatType m_minDistance;

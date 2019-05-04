@@ -34,6 +34,21 @@ namespace TrenchBroom {
     namespace View {
         class InputState;
 
+        /**
+         * Implements the Group picking logic: if `node` is inside a (possibly nested chain of)
+         * closed group(s), the outermost closed group is returned. Otherwise, `node` itself is returned.
+         *
+         * This is used to implement the UI where clicking on a brush inside a group selects the group.
+         */
+        Model::Node* findOutermostClosedGroupOrNode(Model::Node* node);
+
+        /**
+         * Applies the group picking logic of findOutermostClosedGroupOrNode() to a list of hits.
+         * The order of the hits is preserved, but if multiple hits map to the same group, that group
+         * will only be listed once in the output.
+         */
+        Model::NodeList hitsToNodesWithGroupPicking(const Model::Hit::List& hits);
+
         class SelectionTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
         private:
             MapDocumentWPtr m_document;

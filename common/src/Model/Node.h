@@ -248,7 +248,6 @@ namespace TrenchBroom {
         public: // picking
             void pick(const vm::ray3& ray, PickResult& result) const;
             void findNodesContaining(const vm::vec3& point, NodeList& result);
-            FloatType intersectWithRay(const vm::ray3& ray) const;
         public: // file position
             size_t lineNumber() const;
             void setFilePosition(size_t lineNumber, size_t lineCount);
@@ -442,7 +441,6 @@ namespace TrenchBroom {
 
             virtual void doPick(const vm::ray3& ray, PickResult& pickResult) const = 0;
             virtual void doFindNodesContaining(const vm::vec3& point, NodeList& result) = 0;
-            virtual FloatType doIntersectWithRay(const vm::ray3& ray) const = 0;
 
             virtual void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) = 0;
 

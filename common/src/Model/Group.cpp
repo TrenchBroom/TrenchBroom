@@ -31,7 +31,6 @@
 #include "Model/FindGroupVisitor.h"
 #include "Model/FindLayerVisitor.h"
 #include "Model/GroupSnapshot.h"
-#include "Model/IntersectNodeWithRayVisitor.h"
 #include "Model/IssueGenerator.h"
 #include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
@@ -43,8 +42,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        const Hit::HitType Group::GroupHit = Hit::freeHitType();
-
         Group::Group(const String& name) :
         m_name(name),
         m_editState(Edit_Closed),
@@ -174,16 +171,12 @@ namespace TrenchBroom {
         }
 
         void Group::doPick(const vm::ray3& ray, PickResult& pickResult) const {
-            // A group can only be picked if and only if all of the following conditions are met
-            // * it is closed or has no open descendant
-            // * it is top level or has an open parent
-            if ((!opened() && !hasOpenedDescendant()) && groupOpened()) {
-                const auto distance = intersectWithRay(ray);
-                if (!vm::isnan(distance)) {
-                    const auto hitPoint = ray.pointAtDistance(distance);
-                    pickResult.addHit(Hit(GroupHit, distance, hitPoint, this));
-                }
-            }
+            // For composite nodes (Groups, brush entities), pick rays don't hit the group
+            // but instead just the primitives inside (brushes, point entities).
+            // This avoids a potential performance trap where we'd have to exhaustively
+            // test many objects if most of the map was inside groups, but it means
+            // the pick results need to be postprocessed to account for groups (if desired).
+            // See: https://github.com/kduske/TrenchBroom/issues/2742
         }
 
         void Group::doFindNodesContaining(const vm::vec3& point, NodeList& result) {
@@ -193,21 +186,6 @@ namespace TrenchBroom {
 
             for (auto* child : Node::children()) {
                 child->findNodesContaining(point, result);
-            }
-        }
-
-        FloatType Group::doIntersectWithRay(const vm::ray3& ray) const {
-            const auto& myBounds = bounds();
-            if (!myBounds.contains(ray.origin) && vm::isnan(vm::intersectRayAndBBox(ray, myBounds))) {
-                return vm::nan<FloatType>();
-            }
-
-            IntersectNodeWithRayVisitor visitor(ray);
-            iterate(visitor);
-            if (!visitor.hasResult()) {
-                return vm::nan<FloatType>();
-            } else {
-                return visitor.result();
             }
         }
 

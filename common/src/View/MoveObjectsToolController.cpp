@@ -27,6 +27,7 @@
 #include "Model/Node.h"
 #include "Renderer/RenderContext.h"
 #include "View/MoveObjectsTool.h"
+#include "View/SelectionTool.h"
 
 #include <cassert>
 
@@ -55,8 +56,12 @@ namespace TrenchBroom {
                 !inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd | ModifierKeys::MKAlt))
                 return MoveInfo();
 
+            // The transitivelySelected() lets the hit query match entities/brushes inside a
+            // selected group, even though the entities/brushes aren't selected themselves.
+
             const Model::PickResult& pickResult = inputState.pickResult();
-            const Model::Hit& hit = pickResult.query().pickable().type(Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit).selected().occluded().first();
+            const Model::Hit& hit = pickResult.query().pickable().type(Model::Entity::EntityHit | Model::Brush::BrushHit).transitivelySelected().occluded().first();
+
             if (!hit.isMatch())
                 return MoveInfo();
 
