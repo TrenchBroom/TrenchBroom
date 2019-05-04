@@ -34,8 +34,6 @@ namespace TrenchBroom {
         class PickResult;
 
         class Group : public Node, public Object {
-        public:
-            static const Hit::HitType GroupHit;
         private:
             typedef enum {
                 Edit_Open,
@@ -53,6 +51,7 @@ namespace TrenchBroom {
             void setName(const String& name);
 
             bool opened() const;
+            bool hasOpenedDescendant() const;
             void open();
             void close();
         private:
@@ -61,8 +60,6 @@ namespace TrenchBroom {
             class SetEditStateVisitor;
             void openAncestors();
             void closeAncestors();
-
-            bool hasOpenedDescendant() const;
         private: // implement methods inherited from Node
             const String& doGetName() const override;
             const vm::bbox3& doGetBounds() const override;
@@ -86,7 +83,6 @@ namespace TrenchBroom {
 
             void doPick(const vm::ray3& ray, PickResult& pickResult) const override;
             void doFindNodesContaining(const vm::vec3& point, NodeList& result) override;
-            FloatType doIntersectWithRay(const vm::ray3& ray) const override;
 
             void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) override;
             void doAccept(NodeVisitor& visitor) override;

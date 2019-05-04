@@ -20,6 +20,7 @@
 #include <gtest/gtest.h>
 
 #include "CollectionUtils.h"
+#include "Logger.h"
 #include "IO/DiskIO.h"
 #include "IO/WadFileSystem.h"
 
@@ -27,7 +28,8 @@ namespace TrenchBroom {
     namespace IO {
         TEST(WadFileSystemTest, loadEntries) {
             const Path wadPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Wad/cr8_czg.wad");
-            WadFileSystem fs(wadPath);
+            NullLogger logger;
+            WadFileSystem fs(wadPath, logger);
             const IO::Path::List files = fs.findItems(IO::Path(""));
 
             ASSERT_EQ(21u, files.size());

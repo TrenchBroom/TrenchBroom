@@ -142,7 +142,6 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/Model/Hit.cpp
 	${COMMON_SOURCE_DIR}/Model/HitFilter.cpp
 	${COMMON_SOURCE_DIR}/Model/HitQuery.cpp
-	${COMMON_SOURCE_DIR}/Model/IntersectNodeWithRayVisitor.cpp
 	${COMMON_SOURCE_DIR}/Model/InvalidTextureScaleIssueGenerator.cpp
 	${COMMON_SOURCE_DIR}/Model/Issue.cpp
 	${COMMON_SOURCE_DIR}/Model/IssueGenerator.cpp
@@ -663,7 +662,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/Model/HitFilter.h
 	${COMMON_SOURCE_DIR}/Model/Hit.h
 	${COMMON_SOURCE_DIR}/Model/HitQuery.h
-	${COMMON_SOURCE_DIR}/Model/IntersectNodeWithRayVisitor.h
 	${COMMON_SOURCE_DIR}/Model/InvalidTextureScaleIssueGenerator.h
 	${COMMON_SOURCE_DIR}/Model/IssueGenerator.h
 	${COMMON_SOURCE_DIR}/Model/IssueGeneratorRegistry.h

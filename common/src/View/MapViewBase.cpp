@@ -62,6 +62,7 @@
 #include "View/MapViewToolBox.h"
 // FIXME:
 //#include "View/ToolBoxDropTarget.h"
+#include "View/SelectionTool.h"
 #include "View/ViewUtils.h"
 #include "View/wxUtils.h"
 
@@ -1198,9 +1199,9 @@ namespace TrenchBroom {
             Model::Node* newGroup = nullptr;
 
             MapDocumentSPtr document = lock(m_document);
-            const Model::Hit& hit = pickResult().query().pickable().type(Model::Group::GroupHit).first();
+            const Model::Hit& hit = pickResult().query().pickable().first();
             if (hit.isMatch())
-                newGroup = Model::hitToNode(hit);
+                newGroup = findOutermostClosedGroup(Model::hitToNode(hit));
 
             if (newGroup != nullptr && canReparentNodes(nodes, newGroup))
                 return newGroup;
@@ -1224,10 +1225,11 @@ namespace TrenchBroom {
             Model::Group* mergeTarget = nullptr;
 
             auto document = lock(m_document);
-            const Model::Hit& hit = pickResult().query().pickable().type(Model::Group::GroupHit).first();
+            const Model::Hit& hit = pickResult().query().pickable().first();
             if (hit.isMatch()) {
-                mergeTarget = Model::hitToGroup(hit);
-            } else {
+                mergeTarget = findOutermostClosedGroup(Model::hitToNode(hit));
+            }
+            if (mergeTarget == nullptr) {
                 return nullptr;
             }
 

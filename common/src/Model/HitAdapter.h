@@ -35,7 +35,6 @@ namespace TrenchBroom {
 
         Node* hitToNode(const Hit& hit);
         Object* hitToObject(const Hit& hit);
-        Group* hitToGroup(const Hit& hit);
         Entity* hitToEntity(const Hit& hit);
         Brush* hitToBrush(const Hit& hit);
         BrushFace* hitToFace(const Hit& hit);

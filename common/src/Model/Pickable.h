@@ -31,7 +31,6 @@ namespace TrenchBroom {
             virtual ~Pickable() {}
             virtual const vm::bbox3& bounds() const = 0;
             virtual void pick(const vm::ray3& ray, PickResult& pickResult) const = 0;
-            virtual FloatType intersectWithRay(const vm::ray3& ray) const = 0;
         };
     }
 }

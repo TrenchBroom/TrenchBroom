@@ -56,10 +56,6 @@ namespace TrenchBroom {
         }
 
         int CompareHitsByType::doCompare(const Hit& lhs, const Hit& rhs) const {
-            if (lhs.type() == Group::GroupHit)
-                return -1;
-            if (rhs.type() == Group::GroupHit)
-                return 1;
             if (lhs.type() == Brush::BrushHit)
                 return -1;
             if (rhs.type() == Brush::BrushHit)

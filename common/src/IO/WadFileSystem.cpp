@@ -19,6 +19,7 @@
 
 #include "WadFileSystem.h"
 
+#include "Logger.h"
 #include "IO/File.h"
 #include "IO/Reader.h"
 #include "IO/DiskIO.h"
@@ -48,11 +49,12 @@ namespace TrenchBroom {
             // static const char WEPalette   = '@';
         }
 
-        WadFileSystem::WadFileSystem(const Path& path) :
-        WadFileSystem(nullptr, path) {}
+        WadFileSystem::WadFileSystem(const Path& path, Logger& logger) :
+        WadFileSystem(nullptr, path, logger) {}
 
-        WadFileSystem::WadFileSystem(std::shared_ptr<FileSystem> next, const Path& path) :
-        ImageFileSystem(std::move(next), path) {
+        WadFileSystem::WadFileSystem(std::shared_ptr<FileSystem> next, const Path& path, Logger& logger) :
+        ImageFileSystem(std::move(next), path),
+        m_logger(logger) {
             initialize();
         }
 
@@ -94,11 +96,15 @@ namespace TrenchBroom {
                 }
 
                 reader.seekForward(WadLayout::DirEntryTypeOffset);
-                const auto entryType = reader.readChar<char>();
+                const auto entryType = reader.readString(1);
                 reader.seekForward(WadLayout::DirEntryNameOffset);
-                const auto entryName = reader.readString(WadLayout::DirEntryNameSize) + "." + entryType;
+                const auto entryName = reader.readString(WadLayout::DirEntryNameSize);
+                if (entryName.empty()) {
+                    m_logger.warn() << "Skipping WAD file entry with empty name at address " << entryAddress;
+                    continue;
+                }
 
-                const auto path = IO::Path(entryName);
+                const auto path = IO::Path(entryName).addExtension(entryType);
                 auto file = std::make_shared<FileView>(path, m_file, entryAddress, entrySize);
                 m_root.addFile(path, file);
             }

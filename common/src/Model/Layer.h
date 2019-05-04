@@ -54,8 +54,6 @@ namespace TrenchBroom {
             void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) override;
             void doAccept(NodeVisitor& visitor) override;
             void doAccept(ConstNodeVisitor& visitor) const override;
-
-            FloatType doIntersectWithRay(const vm::ray3& ray) const override;
         private:
             void invalidateBounds();
             void validateBounds() const;

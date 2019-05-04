@@ -27,9 +27,7 @@
 namespace TrenchBroom {
     namespace Model {
         Node* hitToNode(const Hit& hit) {
-            if (hit.type() == Group::GroupHit) {
-                return hit.target<Node*>();
-            } else if (hit.type() == Entity::EntityHit) {
+            if (hit.type() == Entity::EntityHit) {
                 return hit.target<Node*>();
             } else if (hit.type() == Brush::BrushHit) {
                 BrushFace* face = hit.target<BrushFace*>();
@@ -40,21 +38,11 @@ namespace TrenchBroom {
         }
 
         Object* hitToObject(const Hit& hit) {
-            if (hit.type() == Group::GroupHit) {
-                return hit.target<Object*>();
-            } else if (hit.type() == Entity::EntityHit) {
+            if (hit.type() == Entity::EntityHit) {
                 return hit.target<Object*>();
             } else if (hit.type() == Brush::BrushHit) {
                 BrushFace* face = hit.target<BrushFace*>();
                 return face->brush();
-            } else {
-                return nullptr;
-            }
-        }
-
-        Group* hitToGroup(const Hit& hit) {
-            if (hit.type() == Group::GroupHit) {
-                return hit.target<Group*>();
             } else {
                 return nullptr;
             }

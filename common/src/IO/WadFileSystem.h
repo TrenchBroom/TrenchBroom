@@ -26,11 +26,15 @@
 #include "IO/Path.h"
 
 namespace TrenchBroom {
+    class Logger;
+
     namespace IO {
         class WadFileSystem : public ImageFileSystem {
+        private:
+            Logger& m_logger;
         public:
-            WadFileSystem(const Path& path);
-            WadFileSystem(std::shared_ptr<FileSystem> next, const Path& path);
+            WadFileSystem(const Path& path, Logger& logger);
+            WadFileSystem(std::shared_ptr<FileSystem> next, const Path& path, Logger& logger);
         private:
             void doReadDirectory() override;
         };

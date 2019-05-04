@@ -300,7 +300,6 @@ namespace TrenchBroom {
         private: // implement Object interface
             void doPick(const vm::ray3& ray, PickResult& pickResult) const override;
             void doFindNodesContaining(const vm::vec3& point, NodeList& result) override;
-            FloatType doIntersectWithRay(const vm::ray3& ray) const override;
 
             struct BrushFaceHit {
                 BrushFace* face;

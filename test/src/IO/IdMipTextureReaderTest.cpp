@@ -19,6 +19,7 @@
 
 #include <gtest/gtest.h>
 
+#include "Logger.h"
 #include "Assets/Palette.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
@@ -48,7 +49,8 @@ namespace TrenchBroom {
             IdMipTextureReader textureLoader(nameStrategy, palette);
 
             const Path wadPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Wad/cr8_czg.wad");
-            WadFileSystem wadFS(wadPath);
+            NullLogger logger;
+            WadFileSystem wadFS(wadPath, logger);
 
             assertTexture("cr8_czg_1",          64,  64, wadFS, textureLoader);
             assertTexture("cr8_czg_2",          64,  64, wadFS, textureLoader);
