@@ -56,7 +56,7 @@ namespace TrenchBroom {
             return this;
         }
 
-        Model::Node* outermostClosedGroupOrNode(Model::Node* node) {
+        Model::Node* findOutermostClosedGroupOrNode(Model::Node* node) {
             Model::Group* group = findOutermostClosedGroup(node);
             if (group != nullptr) {
                 return group;
@@ -107,7 +107,7 @@ namespace TrenchBroom {
             } else {
                 const auto& hit = firstHit(inputState, Model::Entity::EntityHit | Model::Brush::BrushHit);
                 if (hit.isMatch()) {
-                    auto* node = outermostClosedGroupOrNode(Model::hitToNode(hit));
+                    auto* node = findOutermostClosedGroupOrNode(Model::hitToNode(hit));
                     if (editorContext.selectable(node)) {
                         if (isMultiClick(inputState)) {
                             if (node->selected()) {
@@ -291,7 +291,7 @@ namespace TrenchBroom {
             std::unordered_set<Model::Node*> duplicateCheck;
 
             for (const auto& hit : hits) {
-                Model::Node* node = outermostClosedGroupOrNode(Model::hitToNode(hit));
+                Model::Node* node = findOutermostClosedGroupOrNode(Model::hitToNode(hit));
 
                 if (duplicateCheck.find(node) != duplicateCheck.end()) {
                     continue;
@@ -309,7 +309,7 @@ namespace TrenchBroom {
             const auto hits = inputState.pickResult().query().pickable().type(Model::Entity::EntityHit | Model::Brush::BrushHit).occluded().all();
 
             // Hits may contain multiple brush/entity hits that are inside closed groups. These need to be converted
-            // to group hits using outermostClosedGroupOrNode() and multiple hits on the same Group need to be collapsed.
+            // to group hits using findOutermostClosedGroupOrNode() and multiple hits on the same Group need to be collapsed.
             const std::vector<Model::Node*> hitNodes = hitsToNodesWithGroupPicking(hits);
 
             auto document = lock(m_document);
@@ -360,7 +360,7 @@ namespace TrenchBroom {
                     return false;
                 }
 
-                auto* node = outermostClosedGroupOrNode(Model::hitToNode(hit));
+                auto* node = findOutermostClosedGroupOrNode(Model::hitToNode(hit));
                 if (editorContext.selectable(node)) {
                     document->beginTransaction("Drag Select Objects");
                     if (document->hasSelection() && !document->hasSelectedNodes()) {
@@ -391,7 +391,7 @@ namespace TrenchBroom {
                 assert(document->hasSelectedNodes());
                 const auto& hit = firstHit(inputState, Model::Entity::EntityHit | Model::Brush::BrushHit);
                 if (hit.isMatch()) {
-                    auto* node = outermostClosedGroupOrNode(Model::hitToNode(hit));
+                    auto* node = findOutermostClosedGroupOrNode(Model::hitToNode(hit));
                     if (!node->selected() && editorContext.selectable(node)) {
                         document->select(node);
                     }
@@ -414,7 +414,7 @@ namespace TrenchBroom {
             auto document = lock(m_document);
             const auto& hit = firstHit(inputState, Model::Entity::EntityHit | Model::Brush::BrushHit);
             if (hit.isMatch()) {
-                Model::Node* node = outermostClosedGroupOrNode(Model::hitToNode(hit));
+                Model::Node* node = findOutermostClosedGroupOrNode(Model::hitToNode(hit));
 
                 if (node->selected()) {
                     renderContext.setShowSelectionGuide();

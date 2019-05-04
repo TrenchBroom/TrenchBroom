@@ -40,10 +40,10 @@ namespace TrenchBroom {
          *
          * This is used to implement the UI where clicking on a brush inside a group selects the group.
          */
-        Model::Node* outermostClosedGroupOrNode(Model::Node* node);
+        Model::Node* findOutermostClosedGroupOrNode(Model::Node* node);
 
         /**
-         * Applies the group picking logic of outermostClosedGroupOrNode() to a list of hits.
+         * Applies the group picking logic of findOutermostClosedGroupOrNode() to a list of hits.
          * The order of the hits is preserved, but if multiple hits map to the same group, that group
          * will only be listed once in the output.
          */
