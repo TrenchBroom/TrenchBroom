@@ -57,7 +57,7 @@ namespace TrenchBroom {
         }
 
         Model::Node* outermostClosedGroupOrNode(Model::Node* node) {
-            Model::Group* group = outermostClosedGroup(node);
+            Model::Group* group = findOutermostClosedGroup(node);
             if (group != nullptr) {
                 return group;
             }
@@ -165,7 +165,7 @@ namespace TrenchBroom {
                     const auto hitInGroup = inGroup && hit.isMatch() && Model::hitToNode(hit)->isDescendantOf(document->currentGroup());
                     if (!inGroup || hitInGroup) {
                         // If the hit node is inside a closed group, treat it as a hit on the group insted
-                        auto* group = outermostClosedGroup(Model::hitToNode(hit));
+                        auto* group = findOutermostClosedGroup(Model::hitToNode(hit));
                         if (group != nullptr) {
                             if (editorContext.selectable(group)) {
                                 document->openGroup(group);

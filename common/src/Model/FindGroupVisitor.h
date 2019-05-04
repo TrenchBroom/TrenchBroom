@@ -49,7 +49,7 @@ namespace TrenchBroom {
          * Searches the ancestor chain of `node` for the outermost closed group and returns
          * it if one is found, otherwise returns nullptr.
          */
-        Model::Group* outermostClosedGroup(Model::Node* node);
+        Model::Group* findOutermostClosedGroup(Model::Node* node);
     }
 }
 

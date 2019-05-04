@@ -1434,7 +1434,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             const Model::Hit& hit = pickResult().query().pickable().first();
             if (hit.isMatch())
-                newGroup = outermostClosedGroup(Model::hitToNode(hit));
+                newGroup = findOutermostClosedGroup(Model::hitToNode(hit));
 
             if (newGroup != nullptr && canReparentNodes(nodes, newGroup))
                 return newGroup;
@@ -1460,7 +1460,7 @@ namespace TrenchBroom {
             auto document = lock(m_document);
             const Model::Hit& hit = pickResult().query().pickable().first();
             if (hit.isMatch()) {
-                mergeTarget = outermostClosedGroup(Model::hitToNode(hit));
+                mergeTarget = findOutermostClosedGroup(Model::hitToNode(hit));
             }
             if (mergeTarget == nullptr) {
                 return nullptr;

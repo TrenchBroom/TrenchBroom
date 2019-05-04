@@ -61,7 +61,7 @@ namespace TrenchBroom {
             return visitor.hasResult() ? visitor.result() : nullptr;
         }
 
-        Model::Group* outermostClosedGroup(Model::Node* node) {
+        Model::Group* findOutermostClosedGroup(Model::Node* node) {
             FindOutermostClosedGroupVisitor visitor;
             node->escalate(visitor);
             return visitor.hasResult() ? visitor.result() : nullptr;
