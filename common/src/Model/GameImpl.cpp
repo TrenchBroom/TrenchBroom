@@ -152,11 +152,9 @@ namespace TrenchBroom {
         }
 
         void GameImpl::doExportMap(World& world, const Model::ExportFormat format, const IO::Path& path) const {
-            IO::OpenFile open(path, true);
-
             switch (format) {
                 case Model::WavefrontObj:
-                    IO::NodeWriter(world, new IO::ObjFileSerializer(open.file)).writeMap();
+                    IO::NodeWriter(world, new IO::ObjFileSerializer(path)).writeMap();
                     break;
             }
         }

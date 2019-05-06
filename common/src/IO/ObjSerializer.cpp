@@ -20,11 +20,15 @@
 #include "ObjSerializer.h"
 
 #include "CollectionUtils.h"
+#include "IO/IOUtils.h"
+#include "IO/Path.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 
+#include <memory>
 #include <cassert>
+#include <set>
 
 namespace TrenchBroom {
     namespace IO {
@@ -33,15 +37,28 @@ namespace TrenchBroom {
         texCoords(i_texCoords),
         normal(i_normal) {}
 
-        ObjFileSerializer::ObjFileSerializer(FILE* stream) :
-        m_stream(stream),
+        ObjFileSerializer::Face::Face(IndexedVertexList i_verts, String i_texture) :
+        verts(std::move(i_verts)),
+        texture(std::move(i_texture)) {}
+
+        ObjFileSerializer::ObjFileSerializer(const Path& path) :
+        m_objPath(path),
+        m_mtlPath(path.replaceExtension("mtl")),
+        m_objFile(std::make_unique<IO::OpenFile>(m_objPath, true)),
+        m_mtlFile(std::make_unique<IO::OpenFile>(m_mtlPath, true)),
+        m_stream(m_objFile->file),
+        m_mtlStream(m_mtlFile->file),
         m_currentObject({ 0, 0, {} }) {
             ensure(m_stream != nullptr, "stream is null");
+            ensure(m_mtlStream != nullptr, "mtl stream is null");
         }
 
         void ObjFileSerializer::doBeginFile() {}
 
         void ObjFileSerializer::doEndFile() {
+            writeMtlFile();
+
+            std::fprintf(m_stream, "mtllib %s\n", m_mtlPath.filename().c_str());
             writeVertices();
             std::fprintf(m_stream, "\n");
             writeTexCoords();
@@ -49,6 +66,20 @@ namespace TrenchBroom {
             writeNormals();
             std::fprintf(m_stream, "\n");
             writeObjects();
+        }
+
+        void ObjFileSerializer::writeMtlFile() {
+            std::set<String> textureNames;
+
+            for (const Object& object : m_objects) {
+                for (const Face& face : object.faces) {
+                    textureNames.insert(face.texture);
+                }
+            }
+
+            for (const String& texture : textureNames) {
+                std::fprintf(m_mtlStream, "newmtl %s\n", texture.c_str());
+            }
         }
 
         void ObjFileSerializer::writeVertices() {
@@ -84,9 +115,10 @@ namespace TrenchBroom {
         }
 
         void ObjFileSerializer::writeFaces(const FaceList& faces) {
-            for (const IndexedVertexList& face : faces) {
+            for (const Face& face : faces) {
+                std::fprintf(m_stream, "usemtl %s\n", face.texture.c_str());
                 std::fprintf(m_stream, "f");
-                for (const IndexedVertex& vertex : face) {
+                for (const IndexedVertex& vertex : face.verts) {
                     std::fprintf(m_stream, " %lu/%lu/%lu",
                                  static_cast<unsigned long>(vertex.vertex) + 1,
                                  static_cast<unsigned long>(vertex.texCoords) + 1,
@@ -119,7 +151,6 @@ namespace TrenchBroom {
             indexedVertices.reserve(vertices.size());
 
             for (const Model::BrushVertex* vertex : vertices) {
-                Model::BrushFace::VertexList::const_iterator it, end;
                 const vm::vec3& position = vertex->position();
                 const vm::vec2f texCoords = face->textureCoords(position);
 
@@ -129,7 +160,7 @@ namespace TrenchBroom {
                 indexedVertices.push_back(IndexedVertex(vertexIndex, texCoordsIndex, normalIndex));
             }
 
-            m_currentObject.faces.push_back(indexedVertices);
+            m_currentObject.faces.push_back(Face(indexedVertices, face->textureName()));
         }
     }
 }
