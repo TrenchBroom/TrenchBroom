@@ -22,6 +22,8 @@
 
 #include "IO/NodeSerializer.h"
 #include "Model/ModelTypes.h"
+#include "IO/Path.h"
+#include "IO/IOUtils.h"
 
 #include <vecmath/forward.h>
 
@@ -32,6 +34,8 @@
 
 namespace TrenchBroom {
     namespace IO {
+        class OpenFile;
+
         class ObjFileSerializer : public NodeSerializer {
         private:
             template <typename V>
@@ -65,7 +69,15 @@ namespace TrenchBroom {
             };
 
             using IndexedVertexList = std::vector<IndexedVertex>;
-            using FaceList = std::list<IndexedVertexList>;
+            
+            struct Face {
+                IndexedVertexList verts;
+                String texture;
+                
+                Face(IndexedVertexList i_verts, String i_texture);
+            };
+
+            using FaceList = std::vector<Face>;
 
             struct Object {
                 size_t entityNo;
@@ -73,9 +85,16 @@ namespace TrenchBroom {
                 FaceList faces;
             };
 
-            using ObjectList = std::list<Object>;
+            using ObjectList = std::vector<Object>;
+
+            Path m_objPath;
+            Path m_mtlPath;
+
+            IO::OpenFile m_objFile;
+            IO::OpenFile m_mtlFile;
 
             FILE* m_stream;
+            FILE* m_mtlStream;
 
             IndexMap<vm::vec3> m_vertices;
             IndexMap<vm::vec2f> m_texCoords;
@@ -84,10 +103,12 @@ namespace TrenchBroom {
             Object m_currentObject;
             ObjectList m_objects;
         public:
-            explicit ObjFileSerializer(FILE* stream);
+            explicit ObjFileSerializer(const Path& path);
         private:
             void doBeginFile() override;
             void doEndFile() override;
+
+            void writeMtlFile();
 
             void writeVertices();
             void writeTexCoords();
