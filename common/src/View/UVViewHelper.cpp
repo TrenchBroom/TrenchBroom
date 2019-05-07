@@ -204,19 +204,21 @@ namespace TrenchBroom {
             assert(valid());
 
             const auto toTex = m_face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
-            const auto transformedVertices = toTex * m_face->vertexPositions();
+            const auto texVertices = toTex * m_face->vertexPositions();
 
             const auto fromTex = m_face->fromTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
             const auto toCam = vm::mat4x4(m_camera.viewMatrix());
+            const auto camVertices = toCam * m_face->vertexPositions();
 
-            auto originFace = transformedVertices[0];
-            auto originCam  = toCam * fromTex * transformedVertices[0];
-            for (size_t i = 1; i < transformedVertices.size(); ++i) {
-                auto vertexCam = toCam * fromTex * transformedVertices[i];
+            // The origin is at the "lower left" corner of the bounding box.
+            auto originFace = texVertices[0];
+            auto originCam  = camVertices[0];
+            for (size_t i = 1; i < texVertices.size(); ++i) {
+                auto vertexCam = camVertices[i];
                 for (size_t j = 0; j < 2; ++j) {
                     if (vertexCam[j] < originCam[j]) {
                         originCam[j] = vertexCam[j];
-                        originFace[j] = transformedVertices[i][j];
+                        originFace[j] = texVertices[i][j];
                     }
                 }
             }
