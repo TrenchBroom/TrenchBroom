@@ -206,7 +206,6 @@ namespace TrenchBroom {
             const auto toTex = m_face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
             const auto texVertices = toTex * m_face->vertexPositions();
 
-            const auto fromTex = m_face->fromTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
             const auto toCam = vm::mat4x4(m_camera.viewMatrix());
             const auto camVertices = toCam * m_face->vertexPositions();
 
