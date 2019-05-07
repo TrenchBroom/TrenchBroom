@@ -23,6 +23,7 @@
 #include "IO/NodeSerializer.h"
 #include "Model/ModelTypes.h"
 #include "IO/Path.h"
+#include "IO/IOUtils.h"
 
 #include <vecmath/forward.h>
 
@@ -89,8 +90,8 @@ namespace TrenchBroom {
             Path m_objPath;
             Path m_mtlPath;
 
-            std::unique_ptr<IO::OpenFile> m_objFile;
-            std::unique_ptr<IO::OpenFile> m_mtlFile;
+            IO::OpenFile m_objFile;
+            IO::OpenFile m_mtlFile;
 
             FILE* m_stream;
             FILE* m_mtlStream;

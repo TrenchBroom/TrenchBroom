@@ -20,13 +20,11 @@
 #include "ObjSerializer.h"
 
 #include "CollectionUtils.h"
-#include "IO/IOUtils.h"
 #include "IO/Path.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 
-#include <memory>
 #include <cassert>
 #include <set>
 
@@ -44,10 +42,10 @@ namespace TrenchBroom {
         ObjFileSerializer::ObjFileSerializer(const Path& path) :
         m_objPath(path),
         m_mtlPath(path.replaceExtension("mtl")),
-        m_objFile(std::make_unique<IO::OpenFile>(m_objPath, true)),
-        m_mtlFile(std::make_unique<IO::OpenFile>(m_mtlPath, true)),
-        m_stream(m_objFile->file),
-        m_mtlStream(m_mtlFile->file),
+        m_objFile(m_objPath, true),
+        m_mtlFile(m_mtlPath, true),
+        m_stream(m_objFile.file),
+        m_mtlStream(m_mtlFile.file),
         m_currentObject({ 0, 0, {} }) {
             ensure(m_stream != nullptr, "stream is null");
             ensure(m_mtlStream != nullptr, "mtl stream is null");
