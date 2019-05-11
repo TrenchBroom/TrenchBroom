@@ -30,16 +30,16 @@ namespace TrenchBroom {
     namespace Model {
         class PickResult;
     }
-    
+
     namespace Renderer {
         class RenderBatch;
         class RenderContext;
     }
-    
+
     namespace View {
         class InputState;
         class ScaleObjectsTool;
-        
+
         class ScaleObjectsToolController : public ToolControllerBase<PickingPolicy, KeyPolicy, MousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy> {
         protected:
             ScaleObjectsTool* m_tool;
@@ -51,12 +51,13 @@ namespace TrenchBroom {
             ~ScaleObjectsToolController() override;
         private:
             Tool* doGetTool() override;
+            const Tool* doGetTool() const override;
 
             void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
             virtual void doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera, Model::PickResult &pickResult) = 0;
 
             void doModifierKeyChange(const InputState& inputState) override;
-            
+
             void doMouseMove(const InputState& inputState) override;
 
             // RestrictedDragPolicy
@@ -74,14 +75,14 @@ namespace TrenchBroom {
         protected:
             bool handleInput(const InputState& inputState) const;
         };
-        
+
         class ScaleObjectsToolController2D : public ScaleObjectsToolController {
         public:
             explicit ScaleObjectsToolController2D(ScaleObjectsTool* tool, MapDocumentWPtr document);
         private:
             void doPick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) override;
         };
-        
+
         class ScaleObjectsToolController3D : public ScaleObjectsToolController {
         public:
             explicit ScaleObjectsToolController3D(ScaleObjectsTool* tool, MapDocumentWPtr document);

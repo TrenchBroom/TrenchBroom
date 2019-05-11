@@ -4,12 +4,19 @@ ELSE()
     cmake_minimum_required (VERSION 3.1)
 ENDIF()
 
+# Configure CCache if available
+find_program(CCACHE_FOUND ccache)
+if(CCACHE_FOUND)
+    MESSAGE(STATUS "Using CCache")
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
+endif(CCACHE_FOUND)
+
+
 # Fix warning with Ninja and cotire (see https://github.com/sakra/cotire/issues/81)
 if(POLICY CMP0058)
     cmake_policy(SET CMP0058 NEW)
 endif()
-
-include(cmake/cotire.cmake)
 
 # SET(CMAKE_VERBOSE_MAKEFILE ON)
 
@@ -57,6 +64,8 @@ IF(COMPILER_IS_CLANG)
     MESSAGE(STATUS "Compiler is Clang")
     SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Weverything -pedantic -Wno-format -Wno-variadic-macros -Wno-c99-extensions -Wno-padded -Wno-unused-parameter -Wno-global-constructors -Wno-exit-time-destructors -Wno-weak-vtables -Wno-weak-template-vtables -Wno-float-equal -Wno-used-but-marked-unused -Wno-format-nonliteral -Wno-missing-noreturn -Wno-unused-local-typedef -Wno-double-promotion -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-implicit-fallthrough -Wno-zero-as-null-pointer-constant")
+    # FIXME: Remove once we switch to Xcode 10
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-missing-braces")
 ELSEIF(COMPILER_IS_GNU)
     MESSAGE(STATUS "Compiler is GNU")
     SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
@@ -64,12 +73,12 @@ ELSEIF(COMPILER_IS_GNU)
 ELSEIF(COMPILER_IS_MSVC)
     MESSAGE(STATUS "Compiler is MSVC")
 
-	STRING(REGEX REPLACE "/W |/W$" "/W3" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-	STRING(REGEX REPLACE "/W |/W$" "/W3" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-	
+    STRING(REGEX REPLACE "/W |/W$" "/W3" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    STRING(REGEX REPLACE "/W |/W$" "/W3" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+
     SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Ox")
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /MP /D _CRT_SECURE_NO_DEPRECATE /D _CRT_NONSTDC_NO_DEPRECATE")
-	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /MP")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /MP /D _CRT_SECURE_NO_DEPRECATE /D _CRT_NONSTDC_NO_DEPRECATE")
+    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /MP")
 
     # Generate debug symbols even for Release; we build a stripped pdb in Release mode, see TrenchBroomApp.cmake
     SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /Zi")
@@ -104,7 +113,7 @@ ENDIF()
 
 # Set debug mode directives
 IF(CMAKE_BUILD_TYPE MATCHES "Debug")
-	ADD_DEFINITIONS(-DWXDEBUG -DDEBUG)
+    ADD_DEFINITIONS(-DWXDEBUG -DDEBUG)
 ENDIF()
 
 INCLUDE(cmake/wxWidgets.cmake)
@@ -115,9 +124,12 @@ INCLUDE(cmake/FreeImage.cmake)
 INCLUDE(cmake/GTest.cmake)
 INCLUDE(cmake/GMock.cmake)
 INCLUDE(cmake/Glew.cmake)
+INCLUDE(cmake/tinyxml2.cmake)
 INCLUDE(cmake/vecmath.cmake)
 INCLUDE(cmake/Common.cmake)
 INCLUDE(cmake/StackWalker.cmake)
+INCLUDE(cmake/miniz.cmake)
+INCLUDE(cmake/CppCheck.cmake)
 
 INCLUDE(cmake/TrenchBroomApp.cmake)
 INCLUDE(cmake/TrenchBroomTest.cmake)

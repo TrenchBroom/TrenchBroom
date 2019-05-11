@@ -21,6 +21,7 @@
 
 #include <vecmath/scalar.h>
 
+#include <array>
 #include <limits>
 
 namespace vm {
@@ -444,5 +445,110 @@ namespace vm {
     TEST(ScalarTest, nextgreater) {
         ASSERT_TRUE(+1.0 < nextgreater(+1.0));
         ASSERT_TRUE(-1.0 < nextgreater(-1.0));
+    }
+
+    template <size_t S>
+    void assertSolution(const std::tuple<size_t, std::array<double,S>>& expected, const std::tuple<size_t, std::array<double,S>>& actual);
+
+    TEST(ScalarTest, solveQuadratic) {
+        using c = constants<double>;
+
+        assertSolution(
+            { 2, { 2.0, -8.0 } },
+            solveQuadratic(1.0, 6.0, -16.0, c::almostZero())
+        );
+        assertSolution(
+            { 2, { -1.0, -9.0 } },
+            solveQuadratic(1.0, 10.0, 9.0, c::almostZero())
+        );
+        assertSolution(
+            { 2, { 7.0, -4.0 } },
+            solveQuadratic(0.5, -1.5, -14.0, c::almostZero())
+        );
+        assertSolution(
+            { 1, { 2.0, nan<double>() } },
+            solveQuadratic(1.0, -4.0, 4.0, c::almostZero())
+        );
+        assertSolution(
+            { 0, { nan<double>(), nan<double>() } },
+            solveQuadratic(1.0, 12.0, 37.0, c::almostZero())
+        );
+    }
+
+    TEST(ScalarTest, solveCubic) {
+        using c = constants<double>;
+
+        assertSolution(
+            { 1, { -2.0, nan<double>(), nan<double>() } },
+            solveCubic(1.0, 0.0, -2.0, 4.0, c::almostZero())
+        );
+        assertSolution(
+            { 1, { 7.0 / 9.0, nan<double>(), nan<double>() } },
+            solveCubic(9.0, -43.0, 145.0, -91.0, c::almostZero())
+        );
+        assertSolution(
+            { 3, { 4.464101615, 2.0, -2.464101615 } },
+            solveCubic(1.0, -4.0, -7.0, 22.0, c::almostZero())
+        );
+
+
+        // casus irreducibilis
+        assertSolution(
+            { 2, { -2.0, 1.0, nan<double>() } },
+            solveCubic(1.0, 0.0, -3.0, 2.0, c::almostZero())
+        );
+        assertSolution(
+            { 3, { 4.0 / 3.0, 1.0 / 3.0, -10.0 / 6.0 } },
+            solveCubic(1.0, 0.0, -7.0 / 3.0, 20.0 / 27.0, c::almostZero())
+        );
+    }
+
+    TEST(ScalarTest, solveQuartic) {
+        using c = constants<double>;
+
+        assertSolution(
+            { 0, { nan<double>(), nan<double>(), nan<double>(), nan<double>() } },
+            solveQuartic(1.0, 1.0, 1.0, 1.0, 1.0, c::almostZero())
+        );
+        assertSolution(
+            { 0, { nan<double>(), nan<double>(), nan<double>(), nan<double>() } },
+            solveQuartic(1.0, -1.0, 1.0, -1.0, 1.0, c::almostZero())
+        );
+        assertSolution(
+            { 4, { -0.203258341626567109, -4.91984728399109344, 2.76090563295441601, 0.362199992663244539 } },
+            solveQuartic(1.0, 2.0, -14.0, 2.0, 1.0, c::almostZero())
+        );
+        assertSolution(
+            { 2, { 1.5986745079, -1.0, nan<double>(), nan<double>() } },
+            solveQuartic(1.0, 3.0, 0.0, -8.0, -6.0, c::almostZero())
+        );
+        assertSolution(
+            { 2, { -1.0, -1.0, nan<double>(), nan<double>() } },
+            solveQuartic(1.0, 4.0, 6.0, 4.0, 1.0, c::almostZero())
+        );
+        assertSolution(
+            { 2, { -3.0, 2.0, nan<double>(), nan<double>() } },
+            solveQuartic(1.0, 2.0, -11.0, -12.0, 36.0, c::almostZero())
+        );
+        assertSolution(
+            { 4, {
+                -1.0 - std::sqrt(6.0),
+                -1.0 - std::sqrt(11.0),
+                std::sqrt(11.0) - 1.0,
+                std::sqrt(6.0) - 1.0
+            } },
+            solveQuartic(1.0, 4.0, -11.0, -30.0, 50.0, c::almostZero())
+        );
+    }
+
+    template <size_t S>
+    void assertSolution(const std::tuple<size_t, std::array<double,S>>& expected, const std::tuple<size_t, std::array<double,S>>& actual) {
+        const auto [expectedNum, expectedSol] = expected;
+        const auto [actualNum, actualSol] = actual;
+
+        ASSERT_EQ(expectedNum, actualNum);
+        for (size_t i = 0; i < expectedNum; ++i) {
+            ASSERT_NEAR(expectedSol[i], actualSol[i], 0.00000001);
+        }
     }
 }

@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -42,6 +42,10 @@
 
 #define assertResult(funexp) { const bool result = (funexp); unused(result); assert(result); }
 
-#define deleteCopyAndAssignment(classname) private: classname(const classname& other); classname& operator=(const classname& other);
+#define defineCopyAndMove(classname) public: classname(const classname& other) = default; classname(classname&& other) noexcept = default; classname& operator=(const classname& other) = default; classname& operator=(classname&& other) = default;
+
+#define deleteCopy(classname) public: classname(const classname& other) = delete; classname& operator=(const classname& other) = delete;
+#define deleteMove(classname) public: classname(classname&& other) = delete; classname& operator=(classname&& other) = delete;
+#define deleteCopyAndMove(classname) public: classname(const classname& other) = delete; classname(classname&& other) noexcept = delete; classname& operator=(const classname& other) = delete; classname& operator=(classname&& other) = delete;
 
 #endif

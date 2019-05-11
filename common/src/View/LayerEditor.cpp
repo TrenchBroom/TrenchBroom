@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -69,7 +69,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             const auto* layer = event.layer();
-            
+
             wxMenu popupMenu;
             popupMenu.Append(MoveSelectionToLayerCommandId, "Move selection to layer");
             popupMenu.Append(SelectAllInLayerCommandId, "Select all in layer");
@@ -78,7 +78,7 @@ namespace TrenchBroom {
             popupMenu.Append(ToggleLayerLockedCommandId, layer->locked() ? "Unlock layer" : "Lock layer");
             popupMenu.AppendSeparator();
             popupMenu.Append(RemoveLayerCommandId, "Remove layer");
-            
+
             popupMenu.Bind(wxEVT_MENU, &LayerEditor::OnMoveSelectionToLayer, this, MoveSelectionToLayerCommandId);
             popupMenu.Bind(wxEVT_UPDATE_UI, &LayerEditor::OnUpdateMoveSelectionToLayerUI, this, MoveSelectionToLayerCommandId);
             popupMenu.Bind(wxEVT_MENU, &LayerEditor::OnSelectAllInLayer, this, SelectAllInLayerCommandId);
@@ -88,7 +88,7 @@ namespace TrenchBroom {
             popupMenu.Bind(wxEVT_UPDATE_UI, &LayerEditor::OnUpdateToggleLayerLockedUI, this, ToggleLayerLockedCommandId);
             popupMenu.Bind(wxEVT_MENU, &LayerEditor::OnRemoveLayer, this, RemoveLayerCommandId);
             popupMenu.Bind(wxEVT_UPDATE_UI, &LayerEditor::OnUpdateRemoveLayerUI, this, RemoveLayerCommandId);
-            
+
             PopupMenu(&popupMenu);
         }
 
@@ -97,7 +97,7 @@ namespace TrenchBroom {
 
             toggleLayerVisible(m_layerList->selectedLayer());
         }
-        
+
         void LayerEditor::OnToggleLayerVisibleFromList(LayerCommand& event) {
             if (IsBeingDeleted()) return;
 
@@ -110,13 +110,13 @@ namespace TrenchBroom {
                 event.Enable(false);
                 return;
             }
-            
+
             auto document = lock(m_document);
             if (!layer->hidden() && layer == document->currentLayer()) {
                 event.Enable(false);
                 return;
             }
-            
+
             event.Enable(true);
         }
 
@@ -135,7 +135,7 @@ namespace TrenchBroom {
 
             toggleLayerLocked(m_layerList->selectedLayer());
         }
-        
+
         void LayerEditor::OnToggleLayerLockedFromList(LayerCommand& event) {
             if (IsBeingDeleted()) return;
 
@@ -148,13 +148,13 @@ namespace TrenchBroom {
                 event.Enable(false);
                 return;
             }
-            
+
             auto document = lock(m_document);
             if (!layer->locked() && layer == document->currentLayer()) {
                 event.Enable(false);
                 return;
             }
-            
+
             event.Enable(true);
         }
 
@@ -175,18 +175,18 @@ namespace TrenchBroom {
             Model::NodeSet m_moveNodes;
         public:
             CollectMoveableNodes(Model::World* world) : m_world(world) {}
-            
+
             const Model::NodeList selectNodes() const {
                 return Model::NodeList(std::begin(m_selectNodes), std::end(m_selectNodes));
             }
-            
+
             const Model::NodeList moveNodes() const {
                 return Model::NodeList(std::begin(m_moveNodes), std::end(m_moveNodes));
             }
         private:
             void doVisit(Model::World* world) override   {}
             void doVisit(Model::Layer* layer) override   {}
-            
+
             void doVisit(Model::Group* group) override   {
                 assert(group->selected());
 
@@ -195,16 +195,16 @@ namespace TrenchBroom {
                     m_selectNodes.insert(group);
                 }
             }
-            
+
             void doVisit(Model::Entity* entity) override {
                 assert(entity->selected());
-                
+
                 if (!entity->grouped()) {
                     m_moveNodes.insert(entity);
                     m_selectNodes.insert(entity);
                 }
             }
-            
+
             void doVisit(Model::Brush* brush) override   {
                 assert(brush->selected());
                 if (!brush->grouped()) {
@@ -221,7 +221,7 @@ namespace TrenchBroom {
                 }
             }
         };
-        
+
         void LayerEditor::OnMoveSelectionToLayer(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -232,7 +232,7 @@ namespace TrenchBroom {
             Transaction transaction(document, "Move Nodes to " + layer->name());
             moveSelectedNodesToLayer(document, layer);
         }
-        
+
         void LayerEditor::OnUpdateMoveSelectionToLayerUI(wxUpdateUIEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -264,21 +264,21 @@ namespace TrenchBroom {
                     return;
                 }
             }
-            
+
             event.Enable(false);
         }
-        
+
         void LayerEditor::OnSelectAllInLayer(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
             auto* layer = m_layerList->selectedLayer();
             ensure(layer != nullptr, "layer is null");
-            
+
             auto document = lock(m_document);
-            
+
             Model::CollectSelectableNodesVisitor visitor(document->editorContext());
             layer->recurse(visitor);
-            
+
             const auto& nodes = visitor.nodes();
             document->deselectAll();
             document->select(nodes);
@@ -292,14 +292,14 @@ namespace TrenchBroom {
                 auto document = lock(m_document);
                 auto* world = document->world();
                 auto* layer = world->createLayer(name, document->worldBounds());
-                
+
                 Transaction transaction(document, "Create Layer " + layer->name());
                 document->addNode(layer, world);
                 document->setCurrentLayer(layer);
                 m_layerList->setSelectedLayer(layer);
             }
         }
-        
+
         String LayerEditor::queryLayerName() {
             while (true) {
                 wxTextEntryDialog dialog(this, "Enter a name", "Layer Name", "Unnamed");
@@ -328,10 +328,10 @@ namespace TrenchBroom {
 
             auto* layer = m_layerList->selectedLayer();
             ensure(layer != nullptr, "layer is null");
-            
+
             auto document = lock(m_document);
             auto* defaultLayer = document->world()->defaultLayer();
-            
+
             Transaction transaction(document, "Remove Layer " + layer->name());
             document->deselectAll();
             if (layer->hasChildren()) {
@@ -342,7 +342,7 @@ namespace TrenchBroom {
             }
             document->removeNode(layer);
         }
-        
+
         void LayerEditor::OnUpdateRemoveLayerUI(wxUpdateUIEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -356,7 +356,7 @@ namespace TrenchBroom {
                 event.Enable(false);
                 return;
             }
-            
+
             auto document = lock(m_document);
             event.Enable(layer != document->world()->defaultLayer());
         }
@@ -381,19 +381,18 @@ namespace TrenchBroom {
                     return layer;
                 }
             }
-            
+
             return nullptr;
         }
 
         void LayerEditor::moveSelectedNodesToLayer(MapDocumentSPtr document, Model::Layer* layer) {
             const auto& selectedNodes = document->selectedNodes().nodes();
-            
+
             CollectMoveableNodes visitor(document->world());
             Model::Node::accept(std::begin(selectedNodes), std::end(selectedNodes), visitor);
-            
+
             const auto moveNodes = visitor.moveNodes();
             if (!moveNodes.empty()) {
-                const auto selectNodes = visitor.selectNodes();
                 document->deselectAll();
                 document->reparentNodes(layer, visitor.moveNodes());
                 if (!layer->hidden() && !layer->locked()) {
@@ -417,13 +416,13 @@ namespace TrenchBroom {
             removeLayerButton->Bind(wxEVT_BUTTON, &LayerEditor::OnRemoveLayer, this);
             removeLayerButton->Bind(wxEVT_UPDATE_UI, &LayerEditor::OnUpdateRemoveLayerUI, this);
             showAllLayersButton->Bind(wxEVT_BUTTON, &LayerEditor::OnShowAllLayers, this);
-            
+
             auto* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
             buttonSizer->Add(addLayerButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             buttonSizer->Add(removeLayerButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             buttonSizer->Add(showAllLayersButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             buttonSizer->AddStretchSpacer();
-            
+
             auto* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_layerList, 1, wxEXPAND);
             sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);

@@ -1,24 +1,26 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "MapFileSerializer.h"
+
 #include "Exceptions.h"
+#include "Macros.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/Path.h"
 #include "Model/BrushFace.h"
@@ -31,7 +33,11 @@ namespace TrenchBroom {
             String TextureInfoFormat;
         public:
             QuakeFileSerializer(FILE* stream) :
-            MapFileSerializer(stream) {
+            MapFileSerializer(stream),
+            FacePointFormat(getFacePointFormat()),
+            TextureInfoFormat(" %s %.6g %.6g %.6g %.6g %.6g") {}
+        private:
+            static String getFacePointFormat() {
                 StringStream str;
                 str <<
                 "( %." << FloatPrecision << "g " <<
@@ -43,9 +49,7 @@ namespace TrenchBroom {
                 "( %." << FloatPrecision << "g " <<
                 "%." << FloatPrecision << "g " <<
                 "%." << FloatPrecision << "g )";
-
-                FacePointFormat = str.str();
-                TextureInfoFormat = " %s %.6g %.6g %.6g %.6g %.6g";
+                return str.str();
             }
         private:
             size_t doWriteBrushFace(FILE* stream, Model::BrushFace* face) override {
@@ -87,9 +91,8 @@ namespace TrenchBroom {
             String SurfaceAttributesFormat;
         public:
             Quake2FileSerializer(FILE* stream) :
-            QuakeFileSerializer(stream) {
-                SurfaceAttributesFormat = " %d %d %.6g";
-            }
+            QuakeFileSerializer(stream),
+            SurfaceAttributesFormat(" %d %d %.6g") {}
         private:
             size_t doWriteBrushFace(FILE* stream, Model::BrushFace* face) override {
                 writeFacePoints(stream, face);
@@ -117,9 +120,8 @@ namespace TrenchBroom {
             String SurfaceColorFormat;
         public:
             DaikatanaFileSerializer(FILE* stream) :
-            Quake2FileSerializer(stream) {
-                SurfaceColorFormat = " %d %d %d";
-            }
+            Quake2FileSerializer(stream),
+            SurfaceColorFormat(" %d %d %d") {}
         private:
             size_t doWriteBrushFace(FILE* stream, Model::BrushFace* face) override {
                 writeFacePoints(stream, face);
@@ -156,7 +158,7 @@ namespace TrenchBroom {
                 return 1;
             }
         };
-        
+
         class ValveFileSerializer : public QuakeFileSerializer {
         private:
             String ValveTextureInfoFormat;
@@ -196,11 +198,14 @@ namespace TrenchBroom {
             }
         };
 
-        NodeSerializer::Ptr MapFileSerializer::create(const Model::MapFormat::Type format, FILE* stream) {
+        NodeSerializer::Ptr MapFileSerializer::create(const Model::MapFormat format, FILE* stream) {
             switch (format) {
                 case Model::MapFormat::Standard:
                     return NodeSerializer::Ptr(new QuakeFileSerializer(stream));
                 case Model::MapFormat::Quake2:
+                    // TODO 2427: Implement Quake3 serializers and use them
+                case Model::MapFormat::Quake3:
+                case Model::MapFormat::Quake3_Legacy:
                     return NodeSerializer::Ptr(new Quake2FileSerializer(stream));
                 case Model::MapFormat::Daikatana:
                     return NodeSerializer::Ptr(new DaikatanaFileSerializer(stream));
@@ -209,17 +214,17 @@ namespace TrenchBroom {
                 case Model::MapFormat::Hexen2:
                     return NodeSerializer::Ptr(new Hexen2FileSerializer(stream));
                 case Model::MapFormat::Unknown:
-                default:
                     throw FileFormatException("Unknown map file format");
+                switchDefault()
             }
         }
-        
+
         MapFileSerializer::MapFileSerializer(FILE* stream) :
         m_line(1),
         m_stream(stream) {
             ensure(m_stream != nullptr, "stream is null");
         }
-        
+
         void MapFileSerializer::doBeginFile() {}
         void MapFileSerializer::doEndFile() {}
 
@@ -230,20 +235,20 @@ namespace TrenchBroom {
             std::fprintf(m_stream, "{\n");
             ++m_line;
         }
-        
+
         void MapFileSerializer::doEndEntity(Model::Node* node) {
             std::fprintf(m_stream, "}\n");
             ++m_line;
             setFilePosition(node);
         }
-        
-        void MapFileSerializer::doEntityAttribute(const Model::EntityAttribute& attribute) { 
+
+        void MapFileSerializer::doEntityAttribute(const Model::EntityAttribute& attribute) {
             std::fprintf(m_stream, "\"%s\" \"%s\"\n",
                          escapeEntityAttribute( attribute.name()).c_str(),
                          escapeEntityAttribute(attribute.value()).c_str());
             ++m_line;
         }
-        
+
         void MapFileSerializer::doBeginBrush(const Model::Brush* brush) {
             std::fprintf(m_stream, "// brush %u\n", brushNo());
             ++m_line;
@@ -251,19 +256,19 @@ namespace TrenchBroom {
             std::fprintf(m_stream, "{\n");
             ++m_line;
         }
-        
+
         void MapFileSerializer::doEndBrush(Model::Brush* brush) {
             std::fprintf(m_stream, "}\n");
             ++m_line;
             setFilePosition(brush);
         }
-        
+
         void MapFileSerializer::doBrushFace(Model::BrushFace* face) {
             const size_t lines = doWriteBrushFace(m_stream, face);
             face->setFilePosition(m_line, lines);
             m_line += lines;
         }
-        
+
         void MapFileSerializer::setFilePosition(Model::Node* node) {
             const size_t start = startLine();
             node->setFilePosition(start, m_line - start);

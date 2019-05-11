@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -31,10 +31,10 @@ namespace TrenchBroom {
     namespace Model {
         class ModelFactory;
     }
-    
+
     namespace IO {
         class ParserStatus;
-        
+
         class MapReader : public StandardMapParser {
         protected:
             class ParentInfo {
@@ -44,7 +44,7 @@ namespace TrenchBroom {
                     Type_Group,
                     Type_None
                 } Type;
-                
+
                 Type m_type;
                 Model::IdType m_id;
             public:
@@ -64,34 +64,34 @@ namespace TrenchBroom {
                 EntityType_Worldspawn,
                 EntityType_Default
             } EntityType;
-            
-            typedef std::map<Model::IdType, Model::Layer*> LayerMap;
-            typedef std::map<Model::IdType, Model::Group*> GroupMap;
-            
-            typedef std::pair<Model::Node*, ParentInfo> NodeParentPair;
-            typedef std::vector<NodeParentPair> NodeParentList;
-            
+
+            using LayerMap = std::map<Model::IdType, Model::Layer*>;
+            using GroupMap = std::map<Model::IdType, Model::Group*>;
+
+            using NodeParentPair = std::pair<Model::Node*, ParentInfo>;
+            using NodeParentList = std::vector<NodeParentPair>;
+
             vm::bbox3 m_worldBounds;
             Model::ModelFactory* m_factory;
-            
+
             Model::Node* m_brushParent;
             Model::Node* m_currentNode;
             Model::BrushFaceList m_faces;
-            
+
             LayerMap m_layers;
             GroupMap m_groups;
             NodeParentList m_unresolvedNodes;
         protected:
             MapReader(const char* begin, const char* end);
-            MapReader(const String& str);
-            
-            void readEntities(Model::MapFormat::Type format, const vm::bbox3& worldBounds, ParserStatus& status);
-            void readBrushes(Model::MapFormat::Type format, const vm::bbox3& worldBounds, ParserStatus& status);
-            void readBrushFaces(Model::MapFormat::Type format, const vm::bbox3& worldBounds, ParserStatus& status);
+            explicit MapReader(const String& str);
+
+            void readEntities(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status);
+            void readBrushes(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status);
+            void readBrushFaces(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status);
         public:
-            virtual ~MapReader() override;
+            ~MapReader() override;
         private: // implement MapParser interface
-            void onFormatSet(Model::MapFormat::Type format) override;
+            void onFormatSet(Model::MapFormat format) override;
             void onBeginEntity(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) override;
             void onEndEntity(size_t startLine, size_t lineCount, ParserStatus& status) override;
             void onBeginBrush(size_t line, ParserStatus& status) override;
@@ -105,17 +105,17 @@ namespace TrenchBroom {
 
             ParentInfo::Type storeNode(Model::Node* node, const Model::EntityAttribute::List& attributes, ParserStatus& status);
             void stripParentAttributes(Model::AttributableNode* attributable, ParentInfo::Type parentType);
-            
+
             void resolveNodes(ParserStatus& status);
             Model::Node* resolveParent(const ParentInfo& parentInfo) const;
-            
+
             EntityType entityType(const Model::EntityAttribute::List& attributes) const;
-            
+
             void setFilePosition(Model::Node* node, size_t startLine, size_t lineCount);
         protected:
             void setExtraAttributes(Model::Node* node, const ExtraAttributes& extraAttributes);
         private: // subclassing interface
-            virtual Model::ModelFactory* initialize(Model::MapFormat::Type format, const vm::bbox3& worldBounds) = 0;
+            virtual Model::ModelFactory& initialize(Model::MapFormat format, const vm::bbox3& worldBounds) = 0;
             virtual Model::Node* onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) = 0;
             virtual void onWorldspawnFilePosition(size_t startLine, size_t lineCount, ParserStatus& status) = 0;
             virtual void onLayer(Model::Layer* layer, ParserStatus& status) = 0;

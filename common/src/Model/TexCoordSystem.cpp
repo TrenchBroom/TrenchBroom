@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -27,30 +27,30 @@ namespace TrenchBroom {
     namespace Model {
         TexCoordSystemSnapshot::~TexCoordSystemSnapshot() = default;
 
-        void TexCoordSystemSnapshot::restore(TexCoordSystem* coordSystem) const {
-            coordSystem->doRestoreSnapshot(*this);
+        void TexCoordSystemSnapshot::restore(TexCoordSystem& coordSystem) const {
+            coordSystem.doRestoreSnapshot(*this);
         }
 
-        TexCoordSystemSnapshot* TexCoordSystemSnapshot::clone() const {
+        std::unique_ptr<TexCoordSystemSnapshot> TexCoordSystemSnapshot::clone() const {
             return doClone();
         }
-        
+
         TexCoordSystem::TexCoordSystem() = default;
 
         TexCoordSystem::~TexCoordSystem() = default;
-        
-        TexCoordSystem* TexCoordSystem::clone() const {
+
+        std::unique_ptr<TexCoordSystem> TexCoordSystem::clone() const {
             return doClone();
         }
 
-        TexCoordSystemSnapshot* TexCoordSystem::takeSnapshot() {
+        std::unique_ptr<TexCoordSystemSnapshot> TexCoordSystem::takeSnapshot() {
             return doTakeSnapshot();
         }
 
         vm::vec3 TexCoordSystem::xAxis() const {
             return getXAxis();
         }
-        
+
         vm::vec3 TexCoordSystem::yAxis() const {
             return getYAxis();
         }
@@ -62,23 +62,23 @@ namespace TrenchBroom {
         void TexCoordSystem::resetTextureAxes(const vm::vec3& normal) {
             doResetTextureAxes(normal);
         }
-        
+
         void TexCoordSystem::resetTextureAxesToParaxial(const vm::vec3& normal, const float angle) {
             doResetTextureAxesToParaxial(normal, angle);
         }
-        
+
         void TexCoordSystem::resetTextureAxesToParallel(const vm::vec3& normal, const float angle) {
             doResetTextureAxesToParaxial(normal, angle);
         }
-        
+
         vm::vec2f TexCoordSystem::getTexCoords(const vm::vec3& point, const BrushFaceAttributes& attribs) const {
             return doGetTexCoords(point, attribs);
         }
-        
+
         void TexCoordSystem::setRotation(const vm::vec3& normal, const float oldAngle, const float newAngle) {
             doSetRotation(normal, oldAngle, newAngle);
         }
-        
+
         void TexCoordSystem::transform(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const vm::mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vm::vec3& invariant) {
             doTransform(oldBoundary, newBoundary, transformation, attribs, lockTexture, invariant);
         }
@@ -107,7 +107,7 @@ namespace TrenchBroom {
             vm::vec3 vAxis, hAxis;
             size_t xIndex = 0;
             size_t yIndex = 0;
-            
+
             // we prefer to use the texture axis which is closer to the XY plane for horizontal movement
             if (std::abs(texX.z()) < std::abs(texY.z())) {
                 hAxis = texX;
@@ -122,7 +122,7 @@ namespace TrenchBroom {
             } else {
                 // both texture axes have the same absolute angle towards the XY plane, prefer the one that is closer
                 // to the right view axis for horizontal movement
-                
+
                 if (std::abs(dot(right, texX)) > std::abs(dot(right, texY))) {
                     // the right view axis is closer to the X texture axis
                     hAxis = texX;
@@ -156,7 +156,7 @@ namespace TrenchBroom {
                     }
                 }
             }
-            
+
             vm::vec2f actualOffset;
             if (dot(right, hAxis) >= 0.0) {
                 actualOffset[xIndex] = -offset.x();
@@ -186,7 +186,7 @@ namespace TrenchBroom {
             const vm::vec3 x = safeScaleAxis(getXAxis(), s.x());
             const vm::vec3 y = safeScaleAxis(getYAxis(), s.y());
             const vm::vec3 z = getZAxis();
-            
+
             return vm::mat4x4(x[0], x[1], x[2], o[0],
                           y[0], y[1], y[2], o[1],
                           z[0], z[1], z[2],  0.0,
@@ -198,7 +198,7 @@ namespace TrenchBroom {
             assert(invertible); unused(invertible);
             return result;
         }
-        
+
         float TexCoordSystem::measureAngle(const float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const {
             return doMeasureAngle(currentAngle, center, point);
         }
@@ -207,6 +207,6 @@ namespace TrenchBroom {
             return vm::vec2f(dot(point, safeScaleAxis(getXAxis(), scale.x())),
                          dot(point, safeScaleAxis(getYAxis(), scale.y())));
         }
-        
+
     }
 }

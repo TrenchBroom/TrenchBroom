@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -41,15 +41,15 @@ namespace TrenchBroom {
             IssueType doGetType() const override {
                 return Type;
             }
-            
+
             const String doGetDescription() const override {
                 const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
                 return attributableNode->classname() + " not found in entity definitions";
             }
         };
-        
+
         const IssueType MissingDefinitionIssueGenerator::MissingDefinitionIssue::Type = Issue::freeType();
-        
+
         class MissingDefinitionIssueGenerator::MissingDefinitionIssueQuickFix : public IssueQuickFix {
         public:
             MissingDefinitionIssueQuickFix() :
@@ -59,12 +59,12 @@ namespace TrenchBroom {
                 facade->deleteObjects();
             }
         };
-        
+
         MissingDefinitionIssueGenerator::MissingDefinitionIssueGenerator() :
         IssueGenerator(MissingDefinitionIssue::Type, "Missing entity definition") {
             addQuickFix(new MissingDefinitionIssueQuickFix());
         }
-        
+
         void MissingDefinitionIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
             if (node->definition() == nullptr)
                 issues.push_back(new MissingDefinitionIssue(node));

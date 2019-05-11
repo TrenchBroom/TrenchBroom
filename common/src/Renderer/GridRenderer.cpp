@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -35,8 +35,6 @@ namespace TrenchBroom {
         m_vertexArray(VertexArray::copy(vertices(camera, worldBounds))) {}
 
         GridRenderer::Vertex::List GridRenderer::vertices(const OrthographicCamera& camera, const vm::bbox3& worldBounds) {
-            Vertex::List result(4);
-            
             const Camera::Viewport& viewport = camera.zoomedViewport();
             const float w = float(viewport.width) / 2.0f;
             const float h = float(viewport.height) / 2.0f;
@@ -44,32 +42,36 @@ namespace TrenchBroom {
             const vm::vec3f& p = camera.position();
             switch (firstComponent(camera.direction())) {
                 case vm::axis::x:
-                    result[0] = Vertex(vm::vec3f(float(worldBounds.min.x()), p.y() - w, p.z() - h));
-                    result[1] = Vertex(vm::vec3f(float(worldBounds.min.x()), p.y() - w, p.z() + h));
-                    result[2] = Vertex(vm::vec3f(float(worldBounds.min.x()), p.y() + w, p.z() + h));
-                    result[3] = Vertex(vm::vec3f(float(worldBounds.min.x()), p.y() + w, p.z() - h));
-                    break;
+                    return Vertex::List({
+                        Vertex(vm::vec3f(float(worldBounds.min.x()), p.y() - w, p.z() - h)),
+                        Vertex(vm::vec3f(float(worldBounds.min.x()), p.y() - w, p.z() + h)),
+                        Vertex(vm::vec3f(float(worldBounds.min.x()), p.y() + w, p.z() + h)),
+                        Vertex(vm::vec3f(float(worldBounds.min.x()), p.y() + w, p.z() - h))
+                    });
                 case vm::axis::y:
-                    result[0] = Vertex(vm::vec3f(p.x() - w, float(worldBounds.max.y()), p.z() - h));
-                    result[1] = Vertex(vm::vec3f(p.x() - w, float(worldBounds.max.y()), p.z() + h));
-                    result[2] = Vertex(vm::vec3f(p.x() + w, float(worldBounds.max.y()), p.z() + h));
-                    result[3] = Vertex(vm::vec3f(p.x() + w, float(worldBounds.max.y()), p.z() - h));
-                    break;
+                    return Vertex::List({
+                        Vertex(vm::vec3f(p.x() - w, float(worldBounds.max.y()), p.z() - h)),
+                        Vertex(vm::vec3f(p.x() - w, float(worldBounds.max.y()), p.z() + h)),
+                        Vertex(vm::vec3f(p.x() + w, float(worldBounds.max.y()), p.z() + h)),
+                        Vertex(vm::vec3f(p.x() + w, float(worldBounds.max.y()), p.z() - h))
+                    });
                 case vm::axis::z:
-                    result[0] = Vertex(vm::vec3f(p.x() - w, p.y() - h, float(worldBounds.min.z())));
-                    result[1] = Vertex(vm::vec3f(p.x() - w, p.y() + h, float(worldBounds.min.z())));
-                    result[2] = Vertex(vm::vec3f(p.x() + w, p.y() + h, float(worldBounds.min.z())));
-                    result[3] = Vertex(vm::vec3f(p.x() + w, p.y() - h, float(worldBounds.min.z())));
-                    break;
+                    return Vertex::List({
+                        Vertex(vm::vec3f(p.x() - w, p.y() - h, float(worldBounds.min.z()))),
+                        Vertex(vm::vec3f(p.x() - w, p.y() + h, float(worldBounds.min.z()))),
+                        Vertex(vm::vec3f(p.x() + w, p.y() + h, float(worldBounds.min.z()))),
+                        Vertex(vm::vec3f(p.x() + w, p.y() - h, float(worldBounds.min.z())))
+                    });
+                default:
+                    // Should not happen.
+                    return Vertex::List();
             }
-
-            return result;
         }
 
         void GridRenderer::doPrepareVertices(Vbo& vertexVbo) {
             m_vertexArray.prepare(vertexVbo);
         }
-        
+
         void GridRenderer::doRender(RenderContext& renderContext) {
             if (renderContext.showGrid()) {
                 const Camera& camera = renderContext.camera();

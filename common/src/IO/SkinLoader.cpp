@@ -22,6 +22,7 @@
 #include "Exceptions.h"
 #include "Assets/Palette.h"
 #include "Assets/Texture.h"
+#include "IO/File.h"
 #include "IO/FreeImageTextureReader.h"
 #include "IO/IdMipTextureReader.h"
 #include "IO/Path.h"
@@ -29,23 +30,22 @@
 
 namespace TrenchBroom {
     namespace IO {
-        Assets::Texture* loadSkin(const IO::MappedFile::Ptr file) {
+        Assets::Texture* loadSkin(std::shared_ptr<File> file) {
             return loadSkin(file, Assets::Palette());
         }
 
-        Assets::Texture* loadSkin(const IO::MappedFile::Ptr file, const Assets::Palette& palette) {
+        Assets::Texture* loadSkin(std::shared_ptr<File> file, const Assets::Palette& palette) {
             try {
                 ensure(file.get() != nullptr, "file is null");
 
                 const Path path = file->path();
-                const String textureName = path.lastComponent().asString();
                 const String extension = StringUtils::toLower(path.extension());
 
                 if (extension == "wal") {
-                    IO::WalTextureReader reader(IO::TextureReader::PathSuffixNameStrategy(1, true), palette);
+                    WalTextureReader reader(TextureReader::PathSuffixNameStrategy(1, true), palette);
                     return reader.readTexture(file);
                 } else {
-                    IO::FreeImageTextureReader reader(IO::TextureReader::PathSuffixNameStrategy(1, true), 1);
+                    FreeImageTextureReader reader(TextureReader::PathSuffixNameStrategy(1, true));
                     return reader.readTexture(file);
                 }
             } catch (FileSystemException& e) {

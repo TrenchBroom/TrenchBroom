@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -24,27 +24,11 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        VertexArray::BaseHolder::~BaseHolder() = default;
+
         VertexArray::VertexArray() :
         m_prepared(false),
         m_setup(false) {}
-        
-        VertexArray::VertexArray(const VertexArray& other) :
-        m_holder(other.m_holder),
-        m_prepared(other.m_prepared),
-        m_setup(other.m_setup) {}
-
-        VertexArray& VertexArray::operator=(VertexArray other) {
-            using std::swap;
-            swap(*this, other);
-            return *this;
-        }
-        
-        void swap(VertexArray& left, VertexArray& right) {
-            using std::swap;
-            swap(left.m_holder, right.m_holder);
-            swap(left.m_prepared, right.m_prepared);
-            swap(left.m_setup, right.m_setup);
-        }
 
         bool VertexArray::empty() const {
             return vertexCount() == 0;
@@ -75,13 +59,13 @@ namespace TrenchBroom {
 
             assert(prepared());
             assert(!m_setup);
-            
-            
+
+
             m_holder->setup();
             m_setup = true;
             return true;
         }
-        
+
         void VertexArray::cleanup() {
             assert(m_setup);
             assert(!empty());
@@ -119,7 +103,7 @@ namespace TrenchBroom {
                 const auto* countArray = counts.data();
                 glAssert(glMultiDrawArrays(primType, indexArray, countArray, primCount));
             }
-            
+
         }
 
         void VertexArray::render(const PrimType primType, const GLIndices& indices, const GLsizei count) {

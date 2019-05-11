@@ -1,24 +1,26 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "Entity.h"
 
+#include "Assets/EntityModel.h"
+#include "Model/TagMatcher.h"
 #include "Model/BoundsContainsNodeVisitor.h"
 #include "Model/BoundsIntersectsNodeVisitor.h"
 #include "Model/Brush.h"
@@ -27,10 +29,10 @@
 #include "Model/FindContainerVisitor.h"
 #include "Model/FindGroupVisitor.h"
 #include "Model/FindLayerVisitor.h"
-#include "Model/IntersectNodeWithRayVisitor.h"
 #include "Model/IssueGenerator.h"
 #include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
+#include "Model/TagVisitor.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -48,7 +50,8 @@ namespace TrenchBroom {
         Entity::Entity() :
         AttributableNode(),
         Object(),
-        m_boundsValid(false) {
+        m_boundsValid(false),
+        m_modelFrame(nullptr) {
             cacheAttributes();
         }
 
@@ -59,7 +62,7 @@ namespace TrenchBroom {
         bool Entity::pointEntity() const {
             return !brushEntity();
         }
-        
+
         bool Entity::hasEntityDefinition() const {
             return m_definition != nullptr;
         }
@@ -71,17 +74,28 @@ namespace TrenchBroom {
         bool Entity::hasPointEntityDefinition() const {
             return hasEntityDefinition() && definition()->type() == Assets::EntityDefinition::Type_PointEntity;
         }
-        
+
         bool Entity::hasPointEntityModel() const {
-            return hasPointEntityDefinition();
+            return hasPointEntityDefinition() && m_modelFrame != nullptr;
         }
-        
+
+        const vm::bbox3& Entity::definitionBounds() const {
+            if (!m_boundsValid) {
+                validateBounds();
+            }
+            return m_definitionBounds;
+        }
+
         const vm::vec3& Entity::origin() const {
             return m_cachedOrigin;
         }
 
         const vm::mat4x4& Entity::rotation() const {
             return m_cachedRotation;
+        }
+
+        const vm::mat4x4 Entity::modelTransformation() const {
+            return vm::translationMatrix(origin()) * rotation();
         }
 
         FloatType Entity::area(vm::axis::type axis) const {
@@ -99,46 +113,70 @@ namespace TrenchBroom {
         }
 
         void Entity::cacheAttributes() {
-            m_cachedOrigin = vm::vec3::parse(attribute(AttributeNames::Origin, ""));
+            m_cachedOrigin = vm::vec3::parse(attribute(AttributeNames::Origin, ""), vm::vec3::zero);
+            if (vm::isNaN(m_cachedOrigin)) {
+                m_cachedOrigin = vm::vec3::zero;
+            }
             m_cachedRotation = EntityRotationPolicy::getRotation(this);
         }
 
         void Entity::setOrigin(const vm::vec3& origin) {
             addOrUpdateAttribute(AttributeNames::Origin, StringUtils::toString(round(origin)));
         }
-        
+
         void Entity::applyRotation(const vm::mat4x4& transformation) {
             EntityRotationPolicy::applyRotation(this, transformation);
         }
 
         Assets::ModelSpecification Entity::modelSpecification() const {
-            if (!hasPointEntityModel())
+            if (!hasPointEntityDefinition()) {
                 return Assets::ModelSpecification();
-            Assets::PointEntityDefinition* pointDefinition = static_cast<Assets::PointEntityDefinition*>(m_definition);
-            return pointDefinition->model(m_attributes);
+            } else {
+                auto* pointDefinition = static_cast<Assets::PointEntityDefinition*>(m_definition);
+                return pointDefinition->model(m_attributes);
+            }
+        }
+
+        const vm::bbox3& Entity::modelBounds() const {
+            if (!m_boundsValid) {
+                validateBounds();
+            }
+            return m_modelBounds;
+        }
+
+        const Assets::EntityModelFrame* Entity::modelFrame() const {
+            return m_modelFrame;
+        }
+
+        void Entity::setModelFrame(const Assets::EntityModelFrame* modelFrame) {
+            const auto oldBounds = bounds();
+            m_modelFrame = modelFrame;
+            nodeBoundsDidChange(oldBounds);
+            cacheAttributes();
         }
 
         const vm::bbox3& Entity::doGetBounds() const {
             if (!m_boundsValid) {
                 validateBounds();
             }
-            return m_bounds;
+            return m_totalBounds;
         }
-        
+
         Node* Entity::doClone(const vm::bbox3& worldBounds) const {
             auto* entity = new Entity();
             cloneAttributes(entity);
             entity->setDefinition(definition());
             entity->setAttributes(attributes());
+            entity->setModelFrame(m_modelFrame);
             return entity;
         }
 
         NodeSnapshot* Entity::doTakeSnapshot() {
             const EntityAttribute origin(AttributeNames::Origin, attribute(AttributeNames::Origin), nullptr);
-            
+
             const AttributeName rotationName = EntityRotationPolicy::getAttribute(this);
             const EntityAttribute rotation(rotationName, attribute(rotationName), nullptr);
-            
+
             return new EntitySnapshot(this, origin, rotation);
         }
 
@@ -156,19 +194,23 @@ namespace TrenchBroom {
             child->accept(visitor);
             return visitor.result();
         }
-        
+
         bool Entity::doCanRemoveChild(const Node* child) const {
             return true;
         }
-        
+
         bool Entity::doRemoveIfEmpty() const {
+            return true;
+        }
+
+        bool Entity::doShouldAddToSpacialIndex() const {
             return true;
         }
 
         void Entity::doChildWasAdded(Node* node) {
             nodeBoundsDidChange(bounds());
         }
-        
+
         void Entity::doChildWasRemoved(Node* node) {
             nodeBoundsDidChange(bounds());
         }
@@ -176,7 +218,7 @@ namespace TrenchBroom {
         void Entity::doNodeBoundsDidChange(const vm::bbox3& oldBounds) {
             invalidateBounds();
         }
-        
+
         void Entity::doChildBoundsDidChange(Node* node, const vm::bbox3& oldBounds) {
             const vm::bbox3 myOldBounds = bounds();
             invalidateBounds();
@@ -191,17 +233,36 @@ namespace TrenchBroom {
 
         void Entity::doPick(const vm::ray3& ray, PickResult& pickResult) const {
             if (!hasChildren()) {
-                const vm::bbox3& myBounds = bounds();
+                const vm::bbox3& myBounds = definitionBounds();
                 if (!myBounds.contains(ray.origin)) {
-                    const FloatType distance = intersect(ray, myBounds);
+                    const FloatType distance = vm::intersectRayAndBBox(ray, myBounds);
                     if (!vm::isnan(distance)) {
                         const vm::vec3 hitPoint = ray.pointAtDistance(distance);
                         pickResult.addHit(Hit(EntityHit, distance, hitPoint, this));
+                        return;
+                    }
+                }
+
+                // only if the bbox hit test failed do we hit test the model
+                if (m_modelFrame != nullptr) {
+                    // we transform the ray into the model's space
+                    const auto transform = modelTransformation();
+                    const auto [invertible, inverse] = vm::invert(transform);
+                    if (invertible) {
+                        const auto transformedRay = ray.transform(inverse);
+                        const auto distance = m_modelFrame->intersect(vm::ray3f(transformedRay));
+                        if (!vm::isnan(distance)) {
+                            // transform back to world space
+                            const auto transformedHitPoint = vm::vec3(transformedRay.pointAtDistance(distance));
+                            const auto hitPoint = transform * transformedHitPoint;
+                            pickResult.addHit(Hit(EntityHit, distance, hitPoint, this));
+                            return;
+                        }
                     }
                 }
             }
         }
-        
+
         void Entity::doFindNodesContaining(const vm::vec3& point, NodeList& result) {
             if (hasChildren()) {
                 for (Node* child : Node::children())
@@ -212,38 +273,14 @@ namespace TrenchBroom {
             }
         }
 
-        FloatType Entity::doIntersectWithRay(const vm::ray3& ray) const {
-            if (hasChildren()) {
-                const vm::bbox3& myBounds = bounds();
-                if (!myBounds.contains(ray.origin) && vm::isnan(intersect(ray, myBounds))) {
-                    return vm::nan<FloatType>();
-                }
-
-                IntersectNodeWithRayVisitor visitor(ray);
-                iterate(visitor);
-                if (!visitor.hasResult()) {
-                    return vm::nan<FloatType>();
-                } else {
-                    return visitor.result();
-                }
-            } else {
-                const auto& myBounds = bounds();
-                if (!myBounds.contains(ray.origin)) {
-                    return intersect(ray, myBounds);
-                } else {
-                    return vm::nan<FloatType>();
-                }
-            }
-        }
-
         void Entity::doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {
             generator->generate(this, issues);
         }
-        
+
         void Entity::doAccept(NodeVisitor& visitor) {
             visitor.visit(this);
         }
-        
+
         void Entity::doAccept(ConstNodeVisitor& visitor) const {
             visitor.visit(this);
         }
@@ -256,7 +293,7 @@ namespace TrenchBroom {
                 return NodeList{this};
             }
         }
-        
+
         void Entity::doAttributesDidChange(const vm::bbox3& oldBounds) {
             // update m_cachedOrigin and m_cachedRotation. Must be done first because nodeBoundsDidChange() might
             // call origin()
@@ -267,11 +304,11 @@ namespace TrenchBroom {
             // needs to be called again because the calculated rotation will be different after calling nodeBoundsDidChange()
             cacheAttributes();
         }
-        
+
         bool Entity::doIsAttributeNameMutable(const AttributeName& name) const {
             return true;
         }
-        
+
         bool Entity::doIsAttributeValueMutable(const AttributeName& name) const {
             return true;
         }
@@ -279,7 +316,7 @@ namespace TrenchBroom {
         vm::vec3 Entity::doGetLinkSourceAnchor() const {
             return bounds().center();
         }
-        
+
         vm::vec3 Entity::doGetLinkTargetAnchor() const {
             return bounds().center();
         }
@@ -295,7 +332,7 @@ namespace TrenchBroom {
             escalate(visitor);
             return visitor.hasResult() ? visitor.result() : nullptr;
         }
-        
+
         Group* Entity::doGetGroup() const {
             FindGroupVisitor visitor;
             escalate(visitor);
@@ -331,7 +368,7 @@ namespace TrenchBroom {
                 const auto offset = center - origin();
                 const auto transformedCenter = transformation * center;
                 setOrigin(transformedCenter - offset);
-                
+
                 // applying rotation has side effects (e.g. normalizing "angles")
                 // so only do it if there is actually some rotation.
                 const auto rotation = vm::stripTranslation(transformation);
@@ -340,14 +377,14 @@ namespace TrenchBroom {
                 }
             }
         }
-        
+
         bool Entity::doContains(const Node* node) const {
             BoundsContainsNodeVisitor contains(bounds());
             node->accept(contains);
             assert(contains.hasResult());
             return contains.result();
         }
-        
+
         bool Entity::doIntersects(const Node* node) const {
             BoundsIntersectsNodeVisitor intersects(bounds());
             node->accept(intersects);
@@ -358,21 +395,41 @@ namespace TrenchBroom {
         void Entity::invalidateBounds() {
             m_boundsValid = false;
         }
-        
+
         void Entity::validateBounds() const {
-            const Assets::EntityDefinition* def = definition();
+            if (hasPointEntityDefinition()) {
+                const Assets::EntityDefinition* def = definition();
+                m_definitionBounds = static_cast<const Assets::PointEntityDefinition*>(def)->bounds();
+                m_definitionBounds = m_definitionBounds.translate(origin());
+            } else {
+                m_definitionBounds = DefaultBounds.translate(origin());
+            }
+            if (hasPointEntityModel()) {
+                m_modelBounds = vm::bbox3(m_modelFrame->bounds()).transform(modelTransformation());
+            } else {
+                m_modelBounds = DefaultBounds.transform(modelTransformation());
+            }
+
             if (hasChildren()) {
                 ComputeNodeBoundsVisitor visitor(DefaultBounds);
                 iterate(visitor);
-                m_bounds = visitor.bounds();
-            } else if (def != nullptr && def->type() == Assets::EntityDefinition::Type_PointEntity) {
-                m_bounds = static_cast<const Assets::PointEntityDefinition*>(def)->bounds();
-                m_bounds = m_bounds.translate(origin());
+                m_totalBounds = visitor.bounds();
             } else {
-                m_bounds = DefaultBounds;
-                m_bounds = m_bounds.translate(origin());
+                if (hasPointEntityModel()) {
+                    m_totalBounds = vm::merge(m_definitionBounds, m_modelBounds);
+                } else {
+                    m_totalBounds = m_definitionBounds;
+                }
             }
             m_boundsValid = true;
+        }
+
+        void Entity::doAcceptTagVisitor(TagVisitor& visitor) {
+            visitor.visit(*this);
+        }
+
+        void Entity::doAcceptTagVisitor(ConstTagVisitor& visitor) const {
+            visitor.visit(*this);
         }
     }
 }

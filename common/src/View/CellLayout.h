@@ -65,6 +65,14 @@ namespace TrenchBroom {
                 return m_y + m_height;
             }
 
+            vm::vec2f topLeft() const {
+                return vm::vec2f(left(), top());
+            }
+
+            vm::vec2f bottomLeft() const {
+                return vm::vec2f(left(), bottom());
+            }
+
             float midX() const {
                 return m_x + m_width / 2.0f;
             }
@@ -72,7 +80,7 @@ namespace TrenchBroom {
             float midY() const {
                 return m_y + m_height / 2.0f;
             }
-            
+
             float width() const {
                 return m_width;
             }
@@ -106,7 +114,7 @@ namespace TrenchBroom {
             LayoutBounds m_cellBounds;
             LayoutBounds m_itemBounds;
             LayoutBounds m_titleBounds;
-            
+
             void doLayout(const float maxUpScale,
                                  const float minWidth, const float maxWidth,
                                  const float minHeight, const float maxHeight) {
@@ -122,7 +130,7 @@ namespace TrenchBroom {
                 const float cellWidth = std::max(minWidth, std::max(scaledItemWidth, clippedTitleWidth));
                 const float cellHeight = std::max(minHeight, std::max(minHeight, scaledItemHeight) + m_titleHeight + m_titleMargin);
                 const float itemY = m_y + std::max(0.0f, cellHeight - m_titleHeight - scaledItemHeight - m_titleMargin);
-                    
+
                 m_cellBounds = LayoutBounds(m_x,
                                             m_y,
                                             cellWidth,
@@ -157,17 +165,17 @@ namespace TrenchBroom {
             }
 
             bool hitTest(const float x, const float y) const {
-                return m_itemBounds.containsPoint(x, y) || m_titleBounds.containsPoint(x, y);
+                return bounds().containsPoint(x, y);
             }
 
             float scale() const {
                 return m_scale;
             }
-            
+
             const LayoutBounds& bounds() const {
                 return cellBounds();
             }
-            
+
             const LayoutBounds& cellBounds() const {
                 return m_cellBounds;
             }
@@ -195,8 +203,8 @@ namespace TrenchBroom {
         template <typename CellType>
         class LayoutRow {
         public:
-            typedef LayoutCell<CellType> Cell;
-            typedef std::vector<Cell> CellList;
+            using Cell = LayoutCell<CellType>;
+            using CellList = std::vector<Cell>;
         private:
             float m_cellMargin;
             float m_titleMargin;
@@ -265,7 +273,7 @@ namespace TrenchBroom {
                     assert(m_minCellHeight <= m_maxCellHeight);
                     readjustItems();
                 }
-                
+
                 m_bounds = LayoutBounds(m_bounds.left(), m_bounds.top(), width, std::max(m_bounds.height(), cell.cellBounds().height()));
 
                 m_cells.push_back(cell);
@@ -309,8 +317,8 @@ namespace TrenchBroom {
         template <typename CellType, typename GroupType>
         class LayoutGroup {
         public:
-            typedef LayoutRow<CellType> Row;
-            typedef std::vector<Row> RowList;
+            using Row = LayoutRow<CellType>;
+            using RowList = std::vector<Row>;
         private:
             GroupType m_item;
             float m_cellMargin;
@@ -408,19 +416,19 @@ namespace TrenchBroom {
                     if (y < rowBounds.bottom())
                         return i;
                 }
-                
+
                 return m_rows.size();
             }
-            
+
             bool rowAt(const float y, const Row** result) const {
                 size_t index = indexOfRowAt(y);
                 if (index == m_rows.size())
                     return false;
-                
+
                 *result = &m_rows[index];
                 return true;
             }
-            
+
             bool cellAt(const float x, const float y, const typename Row::Cell** result) const {
                 for (size_t i = 0; i < m_rows.size(); ++i) {
                     const Row& row = m_rows[i];
@@ -477,8 +485,8 @@ namespace TrenchBroom {
         template <typename CellType, typename GroupType>
         class CellLayout {
         public:
-            typedef LayoutGroup<CellType, GroupType> Group;
-            typedef std::vector<Group> GroupList;
+            using Group = LayoutGroup<CellType, GroupType>;
+            using GroupList = std::vector<Group>;
         private:
             float m_width;
             float m_cellMargin;
@@ -558,7 +566,7 @@ namespace TrenchBroom {
                 m_cellMargin = cellMargin;
                 invalidate();
             }
-            
+
             void setTitleMargin(const float titleMargin) {
                 if (m_titleMargin == titleMargin)
                     return;
@@ -684,10 +692,10 @@ namespace TrenchBroom {
 
                 if (groupIndex == m_groups.size())
                     return y;
-                
+
                 if (offset == 0)
                     return y;
-                
+
                 size_t rowIndex = m_groups[groupIndex].indexOfRowAt(y);
                 int newIndex = static_cast<int>(rowIndex) + offset;
                 if (newIndex < 0) {
@@ -697,7 +705,7 @@ namespace TrenchBroom {
                     while (newIndex >= static_cast<int>(m_groups[groupIndex].size()) && groupIndex < m_groups.size() - 1)
                         newIndex -= m_groups[groupIndex++].size();
                 }
-                
+
                 if (groupIndex < m_groups.size()) {
                     if (newIndex >= 0) {
                         rowIndex = static_cast<size_t>(newIndex);
@@ -706,11 +714,11 @@ namespace TrenchBroom {
                         }
                     }
                 }
-                
-                
+
+
                 return y;
             }
-            
+
             size_t size() {
                 if (!m_valid)
                     validate();
@@ -731,41 +739,41 @@ namespace TrenchBroom {
             float minCellWidth() const {
                 return m_minCellWidth;
             }
-            
+
             float maxCellWidth() const {
                 return m_maxCellWidth;
             }
-            
+
             void setCellWidth(const float minCellWidth, const float maxCellWidth) {
                 assert(0.0f < minCellWidth);
                 assert(minCellWidth <= maxCellWidth);
-                
+
                 if (m_minCellWidth == minCellWidth && m_maxCellWidth == maxCellWidth)
                     return;
                 m_minCellWidth = minCellWidth;
                 m_maxCellWidth = maxCellWidth;
                 invalidate();
             }
-            
+
             float minCellHeight() const {
                 return m_minCellHeight;
             }
-            
+
             float maxCellHeight() const {
                 return m_maxCellHeight;
             }
-            
+
             void setCellHeight(const float minCellHeight, const float maxCellHeight) {
                 assert(0.0f < minCellHeight);
                 assert(minCellHeight <= maxCellHeight);
-                
+
                 if (m_minCellHeight == minCellHeight && m_maxCellHeight == maxCellHeight)
                     return;
                 m_minCellHeight = minCellHeight;
                 m_maxCellHeight = maxCellHeight;
                 invalidate();
             }
-            
+
             void setMaxUpScale(const float maxUpScale) {
                 if (m_maxUpScale == maxUpScale)
                     return;
@@ -782,19 +790,19 @@ namespace TrenchBroom {
                     validate();
                 return m_height;
             }
-            
+
             float outerMargin() const {
                 return m_outerMargin;
             }
-            
+
             float groupMargin() const {
                 return m_groupMargin;
             }
-            
+
             float rowMargin() const {
                 return m_rowMargin;
             }
-            
+
             float cellMargin() const {
                 return m_cellMargin;
             }

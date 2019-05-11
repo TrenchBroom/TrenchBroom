@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -24,18 +24,57 @@
 
 namespace TrenchBroom {
     namespace Model {
-        namespace MapFormat {
-            typedef size_t Type;
-            static const Type Unknown   = 1 << 0;
-            static const Type Standard  = 1 << 1;
-            static const Type Quake2    = 1 << 2;
-            static const Type Valve     = 1 << 3;
-            static const Type Hexen2    = 1 << 4;
-            static const Type Daikatana = 1 << 5;
-        }
-        
-        MapFormat::Type mapFormat(const String& formatName);
-        String formatName(MapFormat::Type format);
+        enum class MapFormat {
+            /**
+             * Unknown map format.
+             */
+            Unknown,
+            /**
+             * Standard Quake 1 map format.
+             */
+            Standard,
+            /**
+             * Quake 2 map format.
+             */
+            Quake2,
+            /**
+             * Valve 220 map format.
+             */
+            Valve,
+            /**
+             * Hexen 2 map format.
+             */
+            Hexen2,
+            /**
+             * Daikatana map format.
+             */
+            Daikatana,
+            /**
+             * Quake 3 legacy format (like Quake 2, no brush primitives)
+             */
+            Quake3_Legacy,
+            /**
+             * Quake 3 with brush primitives, also allows Quake 2 brushes
+             */
+            Quake3
+        };
+
+        /**
+         * Returns the map format enum value with the given name. If the given name is not recognized, MapFormat::Unknown
+         * is returned.
+         *
+         * @param formatName the name
+         * @return the enum value
+         */
+        MapFormat mapFormat(const String& formatName);
+
+        /**
+         * Returns the name of the given map format enum value.
+         *
+         * @param format the enum value
+         * @return the name
+         */
+        String formatName(MapFormat format);
     }
 }
 

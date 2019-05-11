@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -48,16 +48,16 @@ namespace TrenchBroom {
             world->iterate(*this);
             deleteNode(world);
         }
-        
+
         void MergeNodesIntoWorldVisitor::doVisit(Layer* layer) {
             layer->iterate(*this);
             deleteNode(layer);
         }
-        
+
         void MergeNodesIntoWorldVisitor::doVisit(Group* group) {
             addNode(group);
         }
-        
+
         void MergeNodesIntoWorldVisitor::doVisit(Entity* entity) {
             if (isWorldspawn(entity->classname(), entity->attributes())) {
                 entity->iterate(*this);
@@ -66,7 +66,7 @@ namespace TrenchBroom {
                 addNode(entity);
             }
         }
-        
+
         void MergeNodesIntoWorldVisitor::doVisit(Brush* brush) {
             addNode(brush);
         }
@@ -90,7 +90,7 @@ namespace TrenchBroom {
         void MergeNodesIntoWorldVisitor::deleteNodes() const {
             VectorUtils::clearAndDelete(m_nodesToDelete);
         }
-        
+
         void MergeNodesIntoWorldVisitor::detachNodes() const {
             for (Node* node : m_nodesToDetach) {
                 Node* parent = node->parent();

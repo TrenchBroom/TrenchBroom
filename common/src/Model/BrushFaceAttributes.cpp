@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -34,7 +34,7 @@ namespace TrenchBroom {
         m_surfaceContents(0),
         m_surfaceFlags(0),
         m_surfaceValue(0.0f) {}
-        
+
         BrushFaceAttributes::BrushFaceAttributes(const BrushFaceAttributes& other) :
         m_textureName(other.m_textureName),
         m_texture(other.m_texture),
@@ -49,7 +49,7 @@ namespace TrenchBroom {
                 m_texture->incUsageCount();
             }
         }
-        
+
         BrushFaceAttributes::~BrushFaceAttributes() {
             if (m_texture != nullptr) {
                 m_texture->decUsageCount();
@@ -90,11 +90,11 @@ namespace TrenchBroom {
         const String& BrushFaceAttributes::textureName() const {
             return m_textureName;
         }
-        
+
         Assets::Texture* BrushFaceAttributes::texture() const {
             return m_texture;
         }
-        
+
         vm::vec2f BrushFaceAttributes::textureSize() const {
             if (m_texture == nullptr) {
                 return vm::vec2f::one;
@@ -103,51 +103,51 @@ namespace TrenchBroom {
             const float h = m_texture->height() == 0 ? 1.0f : static_cast<float>(m_texture->height());
             return vm::vec2f(w, h);
         }
-        
+
         const vm::vec2f& BrushFaceAttributes::offset() const {
             return m_offset;
         }
-        
+
         float BrushFaceAttributes::xOffset() const {
             return m_offset.x();
         }
-        
+
         float BrushFaceAttributes::yOffset() const {
             return m_offset.y();
         }
-        
+
         vm::vec2f BrushFaceAttributes::modOffset(const vm::vec2f& offset) const {
             return offset - snapDown(offset, textureSize());
         }
-        
+
         const vm::vec2f& BrushFaceAttributes::scale() const {
             return m_scale;
         }
-        
+
         float BrushFaceAttributes::xScale() const {
             return m_scale.x();
         }
-        
+
         float BrushFaceAttributes::yScale() const {
             return m_scale.y();
         }
-        
+
         float BrushFaceAttributes::rotation() const {
             return m_rotation;
         }
-        
+
         int BrushFaceAttributes::surfaceContents() const {
             return m_surfaceContents;
         }
-        
+
         int BrushFaceAttributes::surfaceFlags() const {
             return m_surfaceFlags;
         }
-        
+
         float BrushFaceAttributes::surfaceValue() const {
             return m_surfaceValue;
         }
-        
+
         void BrushFaceAttributes::setTexture(Assets::Texture* texture) {
             if (m_texture != nullptr) {
                 m_texture->decUsageCount();
@@ -158,7 +158,7 @@ namespace TrenchBroom {
                 m_textureName = m_texture->name();
             }
         }
-        
+
         void BrushFaceAttributes::unsetTexture() {
             if (m_texture != nullptr) {
                 m_texture->decUsageCount();
@@ -167,42 +167,46 @@ namespace TrenchBroom {
             m_textureName = BrushFace::NoTextureName;
         }
 
+        bool BrushFaceAttributes::valid() const {
+            return !vm::isZero(m_scale.x(), vm::Cf::almostZero()) && !vm::isZero(m_scale.y(), vm::Cf::almostZero());
+        }
+
         void BrushFaceAttributes::setOffset(const vm::vec2f& offset) {
             m_offset = offset;
         }
-        
+
         void BrushFaceAttributes::setXOffset(const float xOffset) {
             m_offset[0] = xOffset;
         }
-        
+
         void BrushFaceAttributes::setYOffset(const float yOffset) {
             m_offset[1] = yOffset;
         }
-        
+
         void BrushFaceAttributes::setScale(const vm::vec2f& scale) {
             m_scale = scale;
         }
-        
+
         void BrushFaceAttributes::setXScale(const float xScale) {
             m_scale[0] = xScale;
         }
-        
+
         void BrushFaceAttributes::setYScale(const float yScale) {
             m_scale[1] = yScale;
         }
-        
+
         void BrushFaceAttributes::setRotation(const float rotation) {
             m_rotation = rotation;
         }
-        
+
         void BrushFaceAttributes::setSurfaceContents(const int surfaceContents) {
             m_surfaceContents = surfaceContents;
         }
-        
+
         void BrushFaceAttributes::setSurfaceFlags(const int surfaceFlags) {
             m_surfaceFlags = surfaceFlags;
         }
-        
+
         void BrushFaceAttributes::setSurfaceValue(const float surfaceValue) {
             m_surfaceValue = surfaceValue;
         }

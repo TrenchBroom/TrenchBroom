@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -22,11 +22,12 @@
 #include "TestUtils.h"
 
 #include "Assets/Texture.h"
+#include "IO/DiskIO.h"
 #include "IO/NodeReader.h"
+#include "IO/Path.h"
 #include "IO/TestParserStatus.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
-#include "Model/BrushContentTypeBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushSnapshot.h"
 #include "Model/Hit.h"
@@ -37,10 +38,13 @@
 
 #include <vecmath/vec.h>
 #include <vecmath/polygon.h>
+#include <vecmath/ray.h>
 
 #include <algorithm>
+#include <fstream>
 #include <iterator>
 #include <memory>
+#include <sstream>
 
 namespace TrenchBroom {
     namespace Model {
@@ -97,6 +101,9 @@ namespace TrenchBroom {
 
             Brush brush(worldBounds, faces);
             assert(brush.fullySpecified());
+
+            // sort the faces by the weight of their plane normals like QBSP does
+            Model::BrushFace::sortFaces(faces);
 
             const BrushFaceList& brushFaces = brush.faces();
             ASSERT_EQ(6u, brushFaces.size());
@@ -295,7 +302,7 @@ namespace TrenchBroom {
              See https://github.com/kduske/TrenchBroom/issues/1153
              The faces have been reordered according to Model::BrushFace::sortFaces and all non-interesting faces
              have been removed from the brush.
-             
+
              {
              ( 624 688 -456 ) ( 656 760 -480 ) ( 624 680 -480 ) face7 8 0 180 1 -1
              ( 536 792 -480 ) ( 536 792 -432 ) ( 488 720 -480 ) face12 48 0 180 1 -1
@@ -330,9 +337,9 @@ namespace TrenchBroom {
         TEST(BrushTest, constructBrushAfterRotateFail) {
             /*
              See https://github.com/kduske/TrenchBroom/issues/1173
-             
+
              This is the brush after rotation. Rebuilding the geometry should assert.
-             
+
              {
              (-729.68857812925364 -128 2061.2927432882448) (-910.70791411301013 128 2242.3120792720015) (-820.19824612113155 -128 1970.7830752963655) 0 0 0 5 5
              (-639.17891013737574 -640 1970.7830752963669) (-729.68857812925364 -128 2061.2927432882448) (-729.68857812925364 -640 1880.2734073044885) 0 0 0 5 5
@@ -375,10 +382,10 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             const NodeList nodes = reader.read(worldBounds, status);
             ASSERT_EQ(1u, nodes.size());
@@ -387,7 +394,7 @@ namespace TrenchBroom {
         TEST(BrushTest, buildBrushFail2) {
             /*
              See https://github.com/kduske/TrenchBroom/issues/1185
-             
+
              The cause for the endless loop was, like above, the vertex correction in Polyhedron::Edge::split.
              */
 
@@ -400,10 +407,10 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             const NodeList nodes = reader.read(worldBounds, status);
             ASSERT_EQ(1u, nodes.size());
@@ -415,6 +422,11 @@ namespace TrenchBroom {
             /*
              This brush is broken beyond repair. When building the polyhedron, we run into problems where no seam can be
              computed. We opt to just throw an exception that case and expect it to fail without crashing.
+             */
+
+            /*
+             Update after fixing issue https://github.com/kduske/TrenchBroom/issues/2611
+             With the revised face sort order (sort by normal), this brush can now be built.
              */
 
             const String data("{\n"
@@ -502,13 +514,13 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Valve, nullptr, worldBounds);
+            World world(MapFormat::Valve, worldBounds);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             const NodeList nodes = reader.read(worldBounds, status);
-            ASSERT_EQ(0u, nodes.size());
+            ASSERT_EQ(1u, nodes.size());
         }
 
         TEST(BrushTest, buildBrushWithShortEdges) {
@@ -525,10 +537,10 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             const NodeList nodes = reader.read(worldBounds, status);
             ASSERT_TRUE(nodes.empty());
@@ -845,7 +857,7 @@ namespace TrenchBroom {
 
         TEST(BrushTest, moveVertex) {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom");
@@ -889,7 +901,7 @@ namespace TrenchBroom {
 
         TEST(BrushTest, moveTetrahedronVertexToOpposideSide) {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             const vm::vec3 top(0.0, 0.0, +16.0);
 
@@ -914,7 +926,7 @@ namespace TrenchBroom {
 
         TEST(BrushTest, moveEdge) {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom");
@@ -969,7 +981,7 @@ namespace TrenchBroom {
 
         TEST(BrushTest, moveFace) {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createCube(64.0, "asdf");
@@ -1000,12 +1012,12 @@ namespace TrenchBroom {
             delete brush;
         }
 
-        class UVLockTest : public ::testing::TestWithParam<MapFormat::Type> {
+        class UVLockTest : public ::testing::TestWithParam<MapFormat> {
         };
 
         TEST_P(UVLockTest, moveFaceWithUVLock) {
             const vm::bbox3 worldBounds(4096.0);
-            World world(GetParam(), nullptr, worldBounds);
+            World world(GetParam(), worldBounds);
 
             Assets::Texture testTexture("testTexture", 64, 64);
 
@@ -1074,7 +1086,7 @@ namespace TrenchBroom {
 
         TEST(BrushTest, moveFaceDownFailure) {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFace::NoTextureName);
@@ -1218,7 +1230,7 @@ namespace TrenchBroom {
         // point moves that flip the normal of the remaining polygon
         TEST(BrushTest, movePointRemainingPolygon) {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             const vm::vec3 peakPosition(0.0, 0.0, +64.0);
             const std::vector<vm::vec3> baseQuadVertexPositions{
@@ -1272,7 +1284,7 @@ namespace TrenchBroom {
 
         TEST(BrushTest, movePointRemainingPolyhedron) {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             const vm::vec3 peakPosition(0.0, 0.0, 128.0);
             const std::vector<vm::vec3> vertexPositions {
@@ -1301,7 +1313,7 @@ namespace TrenchBroom {
 
         TEST(BrushTest, moveEdgeRemainingPolyhedron) {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             // Taller than the cube, starts to the left of the +-64 unit cube
             const vm::segment3 edge(vm::vec3(-128, 0, -128), vm::vec3(-128, 0, +128));
@@ -1327,7 +1339,7 @@ namespace TrenchBroom {
         // Same as above, but moving 2 edges
         TEST(BrushTest, moveEdgesRemainingPolyhedron) {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             // Taller than the cube, starts to the left of the +-64 unit cube
             const vm::segment3 edge1(vm::vec3(-128, -32, -128), vm::vec3(-128, -32, +128));
@@ -1358,7 +1370,7 @@ namespace TrenchBroom {
 
         TEST(BrushTest, movePolygonRemainingPoint) {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             const std::vector<vm::vec3> vertexPositions{
                     vm::vec3(-64.0, -64.0, +64.0), // top quad
@@ -1379,7 +1391,7 @@ namespace TrenchBroom {
 
         TEST(BrushTest, movePolygonRemainingEdge) {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             const std::vector<vm::vec3> vertexPositions{
                     vm::vec3(-64.0, -64.0, +64.0), // top quad
@@ -1401,7 +1413,7 @@ namespace TrenchBroom {
 
         TEST(BrushTest, movePolygonRemainingPolygon) {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createCube(128.0, Model::BrushFace::NoTextureName);
@@ -1413,7 +1425,7 @@ namespace TrenchBroom {
 
         TEST(BrushTest, movePolygonRemainingPolygon2) {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             // Same brush as movePolygonRemainingPolygon, but this particular order of vertices triggers a failure in Brush::doCanMoveVertices
             // where the polygon inserted into the "remaining" BrushGeometry gets the wrong normal.
@@ -1438,7 +1450,7 @@ namespace TrenchBroom {
 
         TEST(BrushTest, movePolygonRemainingPolygon_DisallowVertexCombining) {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             //       z = +192  //
             // |\              //
@@ -1477,7 +1489,7 @@ namespace TrenchBroom {
 
         TEST(BrushTest, movePolygonRemainingPolyhedron) {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             //   _   z = +64   //
             //  / \            //
@@ -1532,7 +1544,7 @@ namespace TrenchBroom {
 
         TEST(BrushTest, moveTwoFaces) {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             //               //
             // |\    z = 64  //
@@ -1584,7 +1596,7 @@ namespace TrenchBroom {
 
         TEST(BrushTest, movePolyhedronRemainingEdge) {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             // Edge to the left of the cube, shorter, extends down to Z=-256
             const vm::segment3 edge(vm::vec3(-128, 0, -256), vm::vec3(-128, 0, 0));
@@ -1665,7 +1677,7 @@ namespace TrenchBroom {
             points.push_back(p12);
 
             const vm::bbox3 worldBounds(8192.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(points, "asdf");
@@ -1703,10 +1715,10 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             const NodeList nodes = reader.read(worldBounds, status);
             assert(nodes.size() == 1);
@@ -1741,7 +1753,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p8);
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(oldPositions, "texture");
@@ -1813,7 +1825,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p8);
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(oldPositions, "texture");
@@ -1884,7 +1896,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p8);
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(oldPositions, "texture");
@@ -1953,7 +1965,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p8);
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(oldPositions, "texture");
@@ -2020,7 +2032,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p8);
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(oldPositions, "texture");
@@ -2085,7 +2097,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p8);
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(oldPositions, "texture");
@@ -2149,7 +2161,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p8);
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(oldPositions, "texture");
@@ -2216,7 +2228,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p8);
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(oldPositions, "texture");
@@ -2279,7 +2291,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p8);
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(oldPositions, "texture");
@@ -2343,7 +2355,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p8);
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(oldPositions, "texture");
@@ -2408,7 +2420,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p8);
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(oldPositions, "texture");
@@ -2473,7 +2485,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p8);
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(oldPositions, "texture");
@@ -2540,7 +2552,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p9);
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(oldPositions, "texture");
@@ -2595,7 +2607,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p4);
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(oldPositions, "texture");
@@ -2611,7 +2623,7 @@ namespace TrenchBroom {
 
         TEST(BrushTest, subtractCuboidFromCuboid) {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             const String minuendTexture("minuend");
             const String subtrahendTexture("subtrahend");
@@ -2694,22 +2706,22 @@ namespace TrenchBroom {
             delete subtrahend;
             VectorUtils::deleteAll(result);
         }
-        
+
         TEST(BrushTest, subtractDisjoint) {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
-            
+            World world(MapFormat::Standard, worldBounds);
+
             const vm::bbox3 brush1Bounds(vm::vec3::fill(-8.0), vm::vec3::fill(+8.0));
             const vm::bbox3 brush2Bounds(vm::vec3(124.0, 124.0, -4.0), vm::vec3(132.0, 132.0, +4.0));
             ASSERT_FALSE(brush1Bounds.intersects(brush2Bounds));
-            
+
             BrushBuilder builder(&world, worldBounds);
             Brush* brush1 = builder.createCuboid(brush1Bounds, "texture");
             Brush* brush2 = builder.createCuboid(brush2Bounds, "texture");
-            
+
             BrushList result = brush1->subtract(world, worldBounds, "texture", brush2);
             ASSERT_EQ(1u, result.size());
-            
+
             Brush* subtraction = result.at(0);
             ASSERT_EQ(SetUtils::makeSet(brush1->vertexPositions()), SetUtils::makeSet(subtraction->vertexPositions()));
 
@@ -2718,23 +2730,23 @@ namespace TrenchBroom {
 
         TEST(BrushTest, subtractEnclosed) {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
-            
+            World world(MapFormat::Standard, worldBounds);
+
             const vm::bbox3 brush1Bounds(vm::vec3::fill(-8.0), vm::vec3::fill(+8.0));
             const vm::bbox3 brush2Bounds(vm::vec3::fill(-9.0), vm::vec3::fill(+9.0));
             ASSERT_TRUE(brush1Bounds.intersects(brush2Bounds));
-            
+
             BrushBuilder builder(&world, worldBounds);
             Brush* brush1 = builder.createCuboid(brush1Bounds, "texture");
             Brush* brush2 = builder.createCuboid(brush2Bounds, "texture");
-            
+
             BrushList result = brush1->subtract(world, worldBounds, "texture", brush2);
             ASSERT_EQ(0u, result.size());
-            
+
             VectorUtils::deleteAll(result);
         }
 
-        
+
         TEST(BrushTest, subtractTruncatedCones) {
             // https://github.com/kduske/TrenchBroom/issues/1469
 
@@ -2797,17 +2809,49 @@ namespace TrenchBroom {
                                        "}\n");
 
             const vm::bbox3 worldBounds(8192.0);
-            World world(MapFormat::Valve, nullptr, worldBounds);
+            World world(MapFormat::Valve, worldBounds);
 
             IO::TestParserStatus status;
-            Brush* minuend = static_cast<Brush*>(IO::NodeReader::read(minuendStr, &world, worldBounds, status).front());
-            Brush* subtrahend = static_cast<Brush*>(IO::NodeReader::read(subtrahendStr, &world, worldBounds, status).front());
+            Brush* minuend = static_cast<Brush*>(IO::NodeReader::read(minuendStr, world, worldBounds, status).front());
+            Brush* subtrahend = static_cast<Brush*>(IO::NodeReader::read(subtrahendStr, world, worldBounds, status).front());
 
             const BrushList result = minuend->subtract(world, worldBounds, "some_texture", subtrahend);
             ASSERT_FALSE(result.empty());
 
             delete minuend;
             delete subtrahend;
+            VectorUtils::deleteAll(result);
+        }
+
+        TEST(BrushTest, subtractDome) {
+            // see https://github.com/kduske/TrenchBroom/issues/2707
+
+            const String minuendStr(R"({
+                ( -1598.09391534391647838 -277.57717407067275417 -20 ) ( -1598.09391534391647838 54.02274375211438695 -20 ) ( -1598.09391534391647838 -277.57717407067275417 -12 ) 128_gold_2 -14.94120025634765625 -108 -0 0.72087001800537109 1
+                ( -1178.96031746031826515 -277.57717407067275417 -20 ) ( -1598.09391534391647838 -277.57717407067275417 -20 ) ( -1178.96031746031826515 -277.57717407067275417 -12 ) 128_gold_2 28.92790031433105469 -108 -0 0.8250659704208374 1
+                ( -1178.96031746031826515 54.02274375211438695 -20 ) ( -1598.09391534391647838 54.02274375211438695 -20 ) ( -1178.96031746031826515 -277.57717407067275417 -20 ) 128_gold_2 -28.98690032958984375 -4.01778984069824219 -0 0.77968800067901611 0.65970498323440552
+                ( -1178.96031746031826515 -277.57717407067275417 -12 ) ( -1598.09391534391647838 -277.57717407067275417 -12 ) ( -1178.96031746031826515 54.02274375211438695 -12 ) 128_gold_2 -28.98690032958984375 -4.01778984069824219 -0 0.77968800067901611 0.65970498323440552
+                ( -1598.09391534391647838 54.02274375211438695 -20 ) ( -1178.96031746031826515 54.02274375211438695 -20 ) ( -1598.09391534391647838 54.02274375211438695 -12 ) 128_gold_2 28.92790031433105469 -108 -0 0.8250659704208374 1
+                ( -1178 54.02274375211438695 -20 ) ( -1178 -277.57717407067275417 -20 ) ( -1178 54.02274375211438695 -12 ) 128_gold_2 -14.94120025634765625 -108 -0 0.72087001800537109 1
+            })");
+
+
+            const auto subtrahendPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/Model/Brush/subtrahend.map");
+            std::ifstream stream(subtrahendPath.asString());
+            std::stringstream subtrahendStr;
+            subtrahendStr << stream.rdbuf();
+
+            const vm::bbox3 worldBounds(8192.0);
+            World world(MapFormat::Standard, worldBounds);
+
+            IO::TestParserStatus status;
+            const auto* minuend = static_cast<Brush*>(IO::NodeReader::read(minuendStr, world, worldBounds, status).front());
+            const auto subtrahend = VectorUtils::cast<Brush*>(IO::NodeReader::read(subtrahendStr.str(), world, worldBounds, status));
+
+            const auto result = minuend->subtract(world, worldBounds, "some_texture", subtrahend);
+
+            delete minuend;
+            VectorUtils::deleteAll(subtrahend);
             VectorUtils::deleteAll(result);
         }
 
@@ -2839,11 +2883,11 @@ namespace TrenchBroom {
 
 
             const vm::bbox3 worldBounds(8192.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             IO::TestParserStatus status;
-            Brush* minuend = static_cast<Brush*>(IO::NodeReader::read(minuendStr, &world, worldBounds, status).front());
-            Brush* subtrahend = static_cast<Brush*>(IO::NodeReader::read(subtrahendStr, &world, worldBounds, status).front());
+            Brush* minuend = static_cast<Brush*>(IO::NodeReader::read(minuendStr, world, worldBounds, status).front());
+            Brush* subtrahend = static_cast<Brush*>(IO::NodeReader::read(subtrahendStr, world, worldBounds, status).front());
 
             const BrushList result = minuend->subtract(world, worldBounds, "some_texture", subtrahend);
             ASSERT_EQ(8u, result.size());
@@ -2866,10 +2910,10 @@ namespace TrenchBroom {
             // This brush is almost degenerate. It should be rejected by the map loader.
 
             const vm::bbox3 worldBounds(8192.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             const NodeList nodes = reader.read(worldBounds, status);
             ASSERT_EQ(0, nodes.size());
@@ -2877,10 +2921,10 @@ namespace TrenchBroom {
 
         static void assertCannotSnapTo(const String& data, size_t gridSize) {
             const vm::bbox3 worldBounds(8192.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             const NodeList nodes = reader.read(worldBounds, status);
             ASSERT_EQ(1, nodes.size());
@@ -2895,10 +2939,10 @@ namespace TrenchBroom {
 
         static void assertSnapTo(const String& data, size_t gridSize) {
             const vm::bbox3 worldBounds(8192.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             const NodeList nodes = reader.read(worldBounds, status);
             ASSERT_EQ(1, nodes.size());
@@ -3118,10 +3162,10 @@ namespace TrenchBroom {
                               "}");
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             NodeList nodes = reader.read(worldBounds, status); // assertion failure
             VectorUtils::clearAndDelete(nodes);
@@ -3169,10 +3213,10 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             NodeList nodes = reader.read(worldBounds, status); // assertion failure
             VectorUtils::clearAndDelete(nodes);
@@ -3196,10 +3240,10 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             NodeList nodes = reader.read(worldBounds, status); // assertion failure
             VectorUtils::clearAndDelete(nodes);
@@ -3224,7 +3268,7 @@ namespace TrenchBroom {
 
         TEST(BrushTest, removeSingleVertex) {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createCube(64.0, "asdf");
@@ -3293,7 +3337,7 @@ namespace TrenchBroom {
 
         TEST(BrushTest, removeMultipleVertices) {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
             BrushBuilder builder(&world, worldBounds);
 
             std::vector<vm::vec3> vertices;
@@ -3332,7 +3376,7 @@ namespace TrenchBroom {
 
         TEST(BrushTest, snapshotTextureTest) {
             const vm::bbox3 worldBounds(8192.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
             const BrushBuilder builder(&world, worldBounds);
 
             Brush* cube = builder.createCube(128.0, "");
@@ -3375,7 +3419,7 @@ namespace TrenchBroom {
 
         TEST(BrushTest, resizePastWorldBounds) {
             const vm::bbox3 worldBounds(8192.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
             const BrushBuilder builder(&world, worldBounds);
 
             Model::Brush* brush1 = builder.createBrush(std::vector<vm::vec3>{vm::vec3(64, -64, 16), vm::vec3(64, 64, 16), vm::vec3(64, -64, -16), vm::vec3(64, 64, -16), vm::vec3(48, 64, 16), vm::vec3(48, 64, -16)}, "texture");
@@ -3389,7 +3433,7 @@ namespace TrenchBroom {
 
         TEST(BrushTest, moveVerticesPastWorldBounds) {
             const vm::bbox3 worldBounds(8192.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
             const BrushBuilder builder(&world, worldBounds);
 
             Model::Brush* brush1 = builder.createCube(128.0, "texture");
@@ -3446,10 +3490,10 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(8192.0);
-            World world(MapFormat::Valve, nullptr, worldBounds);
+            World world(MapFormat::Valve, worldBounds);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             NodeList nodes = reader.read(worldBounds, status);
             ASSERT_EQ(1, nodes.size());
@@ -3467,7 +3511,7 @@ namespace TrenchBroom {
             // see https://github.com/kduske/TrenchBroom/issues/2082
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Valve, nullptr, worldBounds);
+            World world(MapFormat::Valve, worldBounds);
 
             const String data = R"(
 {
@@ -3485,7 +3529,7 @@ namespace TrenchBroom {
 )";
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             NodeList nodes = reader.read(worldBounds, status);
             ASSERT_EQ(1, nodes.size());
@@ -3548,42 +3592,42 @@ namespace TrenchBroom {
 
             delete brush;
         }
-        
+
         TEST(BrushTest, expand) {
             const vm::bbox3 worldBounds(8192.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
             const BrushBuilder builder(&world, worldBounds);
-            
+
             Model::Brush *brush1 = builder.createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture");
             EXPECT_TRUE(brush1->canExpand(worldBounds, 6, true));
             EXPECT_TRUE(brush1->expand(worldBounds, 6, true));
-            
+
             const vm::bbox3 expandedBBox(vm::vec3(-70, -70, -70), vm::vec3(70, 70, 70));
-            
+
             EXPECT_EQ(expandedBBox, brush1->bounds());
             EXPECT_EQ(SetUtils::makeSet(expandedBBox.vertices()), SetUtils::makeSet(brush1->vertexPositions()));
         }
-        
+
         TEST(BrushTest, contract) {
             const vm::bbox3 worldBounds(8192.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
             const BrushBuilder builder(&world, worldBounds);
-            
+
             Model::Brush *brush1 = builder.createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture");
             EXPECT_TRUE(brush1->canExpand(worldBounds, -32, true));
             EXPECT_TRUE(brush1->expand(worldBounds, -32, true));
-            
+
             const vm::bbox3 expandedBBox(vm::vec3(-32, -32, -32), vm::vec3(32, 32, 32));
-            
+
             EXPECT_EQ(expandedBBox, brush1->bounds());
             EXPECT_EQ(SetUtils::makeSet(expandedBBox.vertices()), SetUtils::makeSet(brush1->vertexPositions()));
         }
-        
+
         TEST(BrushTest, contractToZero) {
             const vm::bbox3 worldBounds(8192.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
             const BrushBuilder builder(&world, worldBounds);
-            
+
             Model::Brush *brush1 = builder.createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture");
             EXPECT_FALSE(brush1->canExpand(worldBounds, -64, true));
             EXPECT_FALSE(brush1->expand(worldBounds, -64, true));
@@ -3592,7 +3636,7 @@ namespace TrenchBroom {
         TEST(BrushTest, moveVerticesFail_2158) {
             // see https://github.com/kduske/TrenchBroom/issues/2158
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             const String data = R"(
 {
@@ -3637,7 +3681,7 @@ namespace TrenchBroom {
 )";
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             auto nodes = reader.read(worldBounds, status);
             ASSERT_EQ(1, nodes.size());
@@ -3659,7 +3703,7 @@ namespace TrenchBroom {
             // see https://github.com/kduske/TrenchBroom/issues/2361
 
             const vm::bbox3 worldBounds(8192.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             const String data = R"(
 {
@@ -3737,7 +3781,7 @@ namespace TrenchBroom {
 )";
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
 
             auto nodes = reader.read(worldBounds, status);
             ASSERT_EQ(1, nodes.size());
@@ -3756,7 +3800,7 @@ namespace TrenchBroom {
             // see https://github.com/kduske/TrenchBroom/pull/2372#issuecomment-432893836
 
             const vm::bbox3 worldBounds(8192.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
+            World world(MapFormat::Standard, worldBounds);
 
             const String data = R"(
 {
@@ -3837,7 +3881,71 @@ namespace TrenchBroom {
 )";
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, &world);
+            IO::NodeReader reader(data, world);
+
+            ASSERT_NO_THROW(reader.read(worldBounds, status));
+        }
+
+        TEST(BrushTest, loadBrushFail_2491) {
+            // see https://github.com/kduske/TrenchBroom/issues/2491
+
+            const vm::bbox3 worldBounds(8192.0);
+            World world(MapFormat::Standard, worldBounds);
+
+            const String data = R"(
+            {
+                ( -179 -179 -63 ) ( -158 -158 -69 ) ( 1.055125500745701e+154 1.0551255007456758e+154 -5.2756275037285048e+153 ) _core/tangerine -2.82843 -0 -0 0.0625 0.0625
+                ( -132 -126.3431457505086 -60 ) ( -132 188 -60 ) ( -132 -126.34314575050865 -64 ) _core/tangerine 0 0 0 0.0625 0.0625
+                ( -188 188 -60 ) ( -188 -182.34314575050769 -60 ) ( -188 188 -64 ) _core/tangerine 0 0 0 0.0625 0.0625
+                ( -132 192 -60 ) ( -188 192 -60 ) ( -132 192 -64 ) _core/tangerine -0 -0 -0 0.0625 0.0625
+                ( -188 188 -60 ) ( -132 188 -60 ) ( -188 -182.34314575050769 -60 ) _core/tangerine 32 -112 -0 0.0625 0.0625
+                ( -132 188 -64 ) ( -188 188 -64 ) ( -132 -126.34314575050865 -64 ) _core/tangerine 32 -112 -0 0.0625 0.0625
+            }
+            )";
+
+            IO::TestParserStatus status;
+            IO::NodeReader reader(data, world);
+
+            ASSERT_NO_THROW(reader.read(worldBounds, status));
+        }
+
+        TEST(BrushTest, loadBrushFail_2686) {
+            // see https://github.com/kduske/TrenchBroom/issues/2686
+
+            const vm::bbox3 worldBounds(8192.0);
+            World world(MapFormat::Valve, worldBounds);
+
+            const String data = R"(
+{
+( -751 -623.07933525052886 159.27097151882481 ) ( -753.39055027600557 -658.05150554216561 45.762341114124865 ) ( -752.04220703008457 -655.64774857459861 45.762340887734425 ) wood1_1 [ -0.499995 -0.836519 0.224145 8.59912 ] [ -0.0094517 -0.253533 -0.967281 -43.4648 ] 346.992 1 1
+( -746.54446646023075 -654.12665614912589 45.762340832676934 ) ( -743.99141084100086 -655.64759047173152 45.762340853972965 ) ( -746.90192378883967 -622.0185651831514 158.98673884436587 ) wood1_1 [ -0.866028 0.482959 -0.129408 -4.96463 ] [ 0.00536862 -0.249822 -0.968277 -43.5033 ] 7.53177 1 1
+( -746.90192378883967 -622.0185651831514 158.98673884436587 ) ( -743.99141084100086 -655.64759047173152 45.762340853972965 ) ( -745 -623.0792133033973 159.27093866053934 ) wood1_1 [ -0.866028 0.482959 -0.129408 -4.96463 ] [ 0.00536862 -0.249822 -0.968277 -43.5033 ] 7.53177 1 1
+( -745 -623.0792133033973 159.27093866053934 ) ( -743.99141084100086 -655.64759047173152 45.762340853972965 ) ( -742.51072427503652 -658.28759504188008 45.762340891699573 ) wood1_1 [ -0.499995 0.836519 -0.224145 -8.59909 ] [ 0.00925779 -0.253641 -0.967254 -43.4641 ] 13.0082 1 1
+( -753.39055027600557 -658.05150554216561 45.762341114124865 ) ( -752 -627.20176933038158 160.37557439373654 ) ( -753.40030222000973 -661.5816915717096 45.76234097597262 ) wood1_1 [ 0 -0.965926 0.258819 9.92938 ] [ -0.0106727 -0.258804 -0.965871 -43.4111 ] 345 1 1
+( -753.40030222000973 -661.5816915717096 45.76234097597262 ) ( -752 -627.20176933038158 160.37557439373654 ) ( -751 -628.8747682432919 160.82385299770002 ) wood1_1 [ 0.500008 -0.836512 0.224143 8.59901 ] [ -0.0094517 -0.264075 -0.964456 -43.3565 ] 346.992 1 1
+( -743.90192378794575 -624.91635477344664 159.76319924922808 ) ( -745 -623.0792133033973 159.27093866053934 ) ( -742.51072427503652 -658.28759504188008 45.762340891699573 ) wood1_1 [ -0.499995 0.836519 -0.224145 -8.59909 ] [ 0.00925779 -0.253641 -0.967254 -43.4641 ] 13.0082 1 1
+( -752.04220703008457 -655.64774857459861 45.762340887734425 ) ( -749.09793039137571 -622.01856518315344 158.98673884435811 ) ( -751 -623.07933525052886 159.27097151882481 ) wood1_1 [ -0.866028 -0.482959 0.129408 4.96466 ] [ -0.00543319 -0.249714 -0.968304 -43.5042 ] 352.468 1 1
+( -751 -623.07933525052886 159.27097151882481 ) ( -752 -624.75226938818867 159.71923270135312 ) ( -753.39055027600557 -658.05150554216561 45.762341114124865 ) wood1_1 [ -0.499995 -0.836519 0.224145 8.59912 ] [ -0.0094517 -0.253533 -0.967281 -43.4648 ] 346.992 1 1
+( -753.39055027600557 -658.05150554216561 45.762341114124865 ) ( -752 -624.75226938818867 159.71923270135312 ) ( -752 -627.20176933038158 160.37557439373654 ) wood1_1 [ 0 -0.965926 0.258819 9.92938 ] [ -0.0106727 -0.258804 -0.965871 -43.4111 ] 345 1 1
+( -746.90207063287346 -629.93555546737525 161.10809006388723 ) ( -745 -628.87474788883753 160.82384752100626 ) ( -743.97456390268746 -664 45.762340974536315 ) wood1_1 [ 0.866016 0.482978 -0.129414 -4.96484 ] [ 0.00536892 -0.267786 -0.963463 -43.3186 ] 7.53207 1 1
+( -743.90192378813185 -627.03768398273758 160.33160771552403 ) ( -745 -628.87474788883753 160.82384752100626 ) ( -746.90207063287346 -629.93555546737525 161.10809006388723 ) wood1_1 [ 1 0 0 -0 ] [ 0 -0.965926 0.258819 9.92938 ] -0 1 1
+( -751 -628.8747682432919 160.82385299770002 ) ( -749.09792934966106 -629.93555547773678 161.10809006665528 ) ( -752.05952711953228 -664 45.762340944544121 ) wood1_1 [ 0.866016 -0.482978 0.129414 4.96484 ] [ -0.00543343 -0.267894 -0.963433 -43.3173 ] 352.468 1 1
+( -752.05952711953228 -664 45.762340944544121 ) ( -749.09792934966106 -629.93555547773678 161.10809006665528 ) ( -749.49773869956948 -665.53645570829394 45.762340998099269 ) wood1_1 [ 0.866016 -0.482978 0.129414 4.96484 ] [ -0.00543343 -0.267894 -0.963433 -43.3173 ] 352.468 1 1
+( -746.90192378883967 -622.0185651831514 158.98673884436587 ) ( -749.09793039137571 -622.01856518315344 158.98673884435811 ) ( -749.4887863191035 -654.12665614891398 45.762340833436674 ) wood1_1 [ -1 0 0 -0 ] [ 0 -0.24837 -0.968665 -43.5181 ] -0 1 1
+( -749.4887863191035 -654.12665614891398 45.762340833436674 ) ( -749.09793039137571 -622.01856518315344 158.98673884435811 ) ( -752.04220703008457 -655.64774857459861 45.762340887734425 ) wood1_1 [ -0.866028 -0.482959 0.129408 4.96466 ] [ -0.00543319 -0.249714 -0.968304 -43.5042 ] 352.468 1 1
+( -743.90192378813185 -627.03768398273758 160.33160771552403 ) ( -743.90192378794575 -624.91635477344664 159.76319924922808 ) ( -742.51072427503652 -658.28759504188008 45.762340891699573 ) wood1_1 [ 0 0.965926 -0.258819 -9.92938 ] [ 0.0106727 -0.258804 -0.965871 -43.4111 ] 15 1 1
+( -751 -628.8747682432919 160.82385299770002 ) ( -752.05952711953228 -664 45.762340944544121 ) ( -753.40030222000973 -661.5816915717096 45.76234097597262 ) wood1_1 [ 0.500008 -0.836512 0.224143 8.59901 ] [ -0.0094517 -0.264075 -0.964456 -43.3565 ] 346.992 1 1
+( -743.97456390268746 -664 45.762340974536315 ) ( -746.53638375403534 -665.53645569340722 45.762340997376214 ) ( -746.90207063287346 -629.93555546737525 161.10809006388723 ) wood1_1 [ 0.866016 0.482978 -0.129414 -4.96484 ] [ 0.00536892 -0.267786 -0.963463 -43.3186 ] 7.53207 1 1
+( -746.90207063287346 -629.93555546737525 161.10809006388723 ) ( -746.53638375403534 -665.53645569340722 45.762340997376214 ) ( -749.49773869956948 -665.53645570829394 45.762340998099269 ) wood1_1 [ 1 0 0 -0 ] [ 0 -0.269238 -0.963074 -43.3036 ] -0 1 1
+( -742.51072427503652 -658.28759504188008 45.762340891699573 ) ( -742.50227651731177 -661.34478591957327 45.762340935828185 ) ( -743.90192378813185 -627.03768398273758 160.33160771552403 ) wood1_1 [ 0 0.965926 -0.258819 -9.92938 ] [ 0.0106727 -0.258804 -0.965871 -43.4111 ] 15 1 1
+( -743.90192378813185 -627.03768398273758 160.33160771552403 ) ( -742.50227651731177 -661.34478591957327 45.762340935828185 ) ( -745 -628.87474788883753 160.82384752100626 ) wood1_1 [ 0.499998 0.836517 -0.224144 -8.59906 ] [ 0.00925781 -0.263967 -0.964487 -43.358 ] 13.0082 1 1
+( -745 -628.87474788883753 160.82384752100626 ) ( -742.50227651731177 -661.34478591957327 45.762340935828185 ) ( -743.97456390268746 -664 45.762340974536315 ) wood1_1 [ 0.499998 0.836517 -0.224144 -8.59906 ] [ 0.00925781 -0.263967 -0.964487 -43.358 ] 13.0082 1 1
+( -743.97456390268746 -664 45.762340974536315 ) ( -742.50227651731177 -661.34478591957327 45.762340935828185 ) ( -742.51072427503652 -658.28759504188008 45.762340891699573 ) wood1_1 [ -1 0 0 -0 ] [ 0 -1 0 9.92938 ] -0 1 1
+}
+            )";
+
+            IO::TestParserStatus status;
+            IO::NodeReader reader(data, world);
 
             ASSERT_NO_THROW(reader.read(worldBounds, status));
         }

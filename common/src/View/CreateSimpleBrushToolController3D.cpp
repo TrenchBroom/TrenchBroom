@@ -55,6 +55,10 @@ namespace TrenchBroom {
             return m_tool;
         }
 
+        const Tool* CreateSimpleBrushToolController3D::doGetTool() const {
+            return m_tool;
+        }
+
         void CreateSimpleBrushToolController3D::doModifierKeyChange(const InputState& inputState) {
             if (thisToolDragging()) {
                 if (inputState.modifierKeys() == ModifierKeys::MKAlt) {
@@ -88,22 +92,22 @@ namespace TrenchBroom {
 
             updateBounds(m_initialPoint, vm::vec3(inputState.camera().position()));
             refreshViews();
-                
-            
+
+
             const vm::plane3 plane = vm::plane3(m_initialPoint, vm::vec3::pos_z);
             return DragInfo(new PlaneDragRestricter(plane), new NoDragSnapper(), m_initialPoint);
         }
-        
+
         RestrictedDragPolicy::DragResult CreateSimpleBrushToolController3D::doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) {
             updateBounds(nextHandlePosition, vm::vec3(inputState.camera().position()));
             refreshViews();
             return DR_Continue;
         }
-        
+
         void CreateSimpleBrushToolController3D::doEndDrag(const InputState& inputState) {
             m_tool->createBrush();
         }
-        
+
         void CreateSimpleBrushToolController3D::doCancelDrag() {
             m_tool->cancel();
         }
@@ -118,22 +122,22 @@ namespace TrenchBroom {
             return false;
         }
 
-        void CreateSimpleBrushToolController3D::updateBounds(const vm::vec3& point, const vm::vec3 cameraPosition) {
+        void CreateSimpleBrushToolController3D::updateBounds(const vm::vec3& point, const vm::vec3& cameraPosition) {
             vm::bbox3 bounds;
-            
+
             bounds.min = min(m_initialPoint, point);
             bounds.max = max(m_initialPoint, point);
-            
+
             auto document = lock(m_document);
             const auto& grid = document->grid();
 
             // prevent flickering due to very small rounding errors
             bounds.min = correct(bounds.min);
             bounds.max = correct(bounds.max);
-            
+
             bounds.min = grid.snapDown(bounds.min);
             bounds.max = grid.snapUp(bounds.max);
-            
+
             for (size_t i = 0; i < 3; i++) {
                 if (bounds.max[i] <= bounds.min[i]) {
                     if (bounds.min[i] < cameraPosition[i]) {

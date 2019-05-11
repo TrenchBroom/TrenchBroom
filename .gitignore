@@ -8,12 +8,16 @@ Thumbs.db
 /build-debug
 /build-release
 /codeblocks
-/Xcode
+/Xcode*
 /vs2010
 /vs2012
 /vs2013
 /vs2015
 /vs2017
 /.idea
+/coverity
 
 app/resources/documentation/help/index.html
+
+app/resources/games-testing/Wrath
+app/resources/games-testing/SteelStorm

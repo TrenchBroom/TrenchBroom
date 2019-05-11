@@ -30,6 +30,8 @@ using VEC = vm::vec<AABB::FloatType, AABB::Components>;
 
 void assertTree(const std::string& exp, const AABB& actual);
 void assertIntersectors(const AABB& tree, const RAY& ray, std::initializer_list<AABB::DataType> items);
+void assertTreeContains(const AABB& tree, const BOX& box, AABB::DataType data);
+void assertTreeDoesNotContain(const AABB& tree, const BOX& box, AABB::DataType data);
 
 TEST(AABBTreeTest, createEmptyTree) {
     AABB tree;
@@ -53,7 +55,20 @@ L [ ( 0 0 0 ) ( 2 1 1 ) ]: 1
 
     ASSERT_FALSE(tree.empty());
     ASSERT_EQ(bounds, tree.bounds());
-    ASSERT_TRUE(tree.contains(bounds, 1u));
+    assertTreeContains(tree, bounds, 1u);
+}
+
+TEST(AABBTreeTest, insertDuplicateNode) {
+    const BOX bounds(VEC(0.0, 0.0, 0.0), VEC(2.0, 1.0, 1.0));
+
+    AABB tree;
+    tree.insert(bounds, 1u);
+
+    ASSERT_THROW(tree.insert(bounds, 1u), NodeTreeException);
+
+    ASSERT_FALSE(tree.empty());
+    ASSERT_EQ(bounds, tree.bounds());
+    assertTreeContains(tree, bounds, 1u);
 }
 
 TEST(AABBTreeTest, insertTwoNodes) {
@@ -72,8 +87,8 @@ O [ ( -1 -1 -1 ) ( 2 1 1 ) ]
 
     ASSERT_FALSE(tree.empty());
     ASSERT_EQ(merge(bounds1, bounds2), tree.bounds());
-    ASSERT_TRUE(tree.contains(bounds1, 1u));
-    ASSERT_TRUE(tree.contains(bounds2, 2u));
+    assertTreeContains(tree, bounds1, 1u);
+    assertTreeContains(tree, bounds2, 2u);
 }
 
 TEST(AABBTreeTest, insertThreeNodes) {
@@ -96,9 +111,9 @@ O [ ( -2 -2 -1 ) ( 2 1 1 ) ]
 
     ASSERT_FALSE(tree.empty());
     ASSERT_EQ(merge(merge(bounds1, bounds2), bounds3), tree.bounds());
-    ASSERT_TRUE(tree.contains(bounds1, 1u));
-    ASSERT_TRUE(tree.contains(bounds2, 2u));
-    ASSERT_TRUE(tree.contains(bounds3, 3u));
+    assertTreeContains(tree, bounds1, 1u);
+    assertTreeContains(tree, bounds2, 2u);
+    assertTreeContains(tree, bounds3, 3u);
 }
 
 TEST(AABBTreeTest, removeLeafsInInverseInsertionOrder) {
@@ -111,9 +126,9 @@ TEST(AABBTreeTest, removeLeafsInInverseInsertionOrder) {
     tree.insert(bounds2, 2u);
     tree.insert(bounds3, 3u);
 
-    ASSERT_TRUE(tree.contains(bounds1, 1u));
-    ASSERT_TRUE(tree.contains(bounds2, 2u));
-    ASSERT_TRUE(tree.contains(bounds3, 3u));
+    assertTreeContains(tree, bounds1, 1u);
+    assertTreeContains(tree, bounds2, 2u);
+    assertTreeContains(tree, bounds3, 3u);
 
     assertTree(R"(
 O [ ( -2 -2 -1 ) ( 2 1 1 ) ]
@@ -123,11 +138,11 @@ O [ ( -2 -2 -1 ) ( 2 1 1 ) ]
     L [ ( -2 -2 -1 ) ( 0 0 1 ) ]: 3
 )" , tree);
 
-    ASSERT_TRUE(tree.remove(bounds3, 3u));
+    ASSERT_TRUE(tree.remove(3u));
 
-    ASSERT_TRUE(tree.contains(bounds1, 1u));
-    ASSERT_TRUE(tree.contains(bounds2, 2u));
-    ASSERT_FALSE(tree.contains(bounds3, 3u));
+    assertTreeContains(tree, bounds1, 1u);
+    assertTreeContains(tree, bounds2, 2u);
+    assertTreeDoesNotContain(tree, bounds3, 3u);
 
     assertTree(R"(
 O [ ( -1 -1 -1 ) ( 2 1 1 ) ]
@@ -138,12 +153,12 @@ O [ ( -1 -1 -1 ) ( 2 1 1 ) ]
     ASSERT_FALSE(tree.empty());
     ASSERT_EQ(merge(bounds1, bounds2), tree.bounds());
 
-    ASSERT_FALSE(tree.remove(bounds3, 3u));
-    ASSERT_TRUE(tree.remove(bounds2, 2u));
+    ASSERT_FALSE(tree.remove(3u));
+    ASSERT_TRUE(tree.remove(2u));
 
-    ASSERT_TRUE(tree.contains(bounds1, 1u));
-    ASSERT_FALSE(tree.contains(bounds2, 2u));
-    ASSERT_FALSE(tree.contains(bounds3, 3u));
+    assertTreeContains(tree, bounds1, 1u);
+    assertTreeDoesNotContain(tree, bounds2, 2u);
+    assertTreeDoesNotContain(tree, bounds3, 3u);
 
     assertTree(R"(
 L [ ( 0 0 0 ) ( 2 1 1 ) ]: 1
@@ -152,22 +167,22 @@ L [ ( 0 0 0 ) ( 2 1 1 ) ]: 1
     ASSERT_FALSE(tree.empty());
     ASSERT_EQ(bounds1, tree.bounds());
 
-    ASSERT_FALSE(tree.remove(bounds3, 3u));
-    ASSERT_FALSE(tree.remove(bounds2, 2u));
-    ASSERT_TRUE(tree.remove(bounds1, 1u));
+    ASSERT_FALSE(tree.remove(3u));
+    ASSERT_FALSE(tree.remove(2u));
+    ASSERT_TRUE(tree.remove(1u));
 
-    ASSERT_FALSE(tree.contains(bounds1, 1u));
-    ASSERT_FALSE(tree.contains(bounds2, 2u));
-    ASSERT_FALSE(tree.contains(bounds3, 3u));
+    assertTreeDoesNotContain(tree, bounds1, 1u);
+    assertTreeDoesNotContain(tree, bounds2, 2u);
+    assertTreeDoesNotContain(tree, bounds3, 3u);
 
     assertTree(R"(
 )" , tree);
 
     ASSERT_TRUE(tree.empty());
 
-    ASSERT_FALSE(tree.remove(bounds3, 3u));
-    ASSERT_FALSE(tree.remove(bounds2, 2u));
-    ASSERT_FALSE(tree.remove(bounds1, 1u));
+    ASSERT_FALSE(tree.remove(3u));
+    ASSERT_FALSE(tree.remove(2u));
+    ASSERT_FALSE(tree.remove(1u));
 }
 
 TEST(AABBTreeTest, removeLeafsInInsertionOrder) {
@@ -180,9 +195,9 @@ TEST(AABBTreeTest, removeLeafsInInsertionOrder) {
     tree.insert(bounds2, 2u);
     tree.insert(bounds3, 3u);
 
-    ASSERT_TRUE(tree.contains(bounds1, 1u));
-    ASSERT_TRUE(tree.contains(bounds2, 2u));
-    ASSERT_TRUE(tree.contains(bounds3, 3u));
+    assertTreeContains(tree, bounds1, 1u);
+    assertTreeContains(tree, bounds2, 2u);
+    assertTreeContains(tree, bounds3, 3u);
 
     assertTree(R"(
 O [ ( -2 -2 -1 ) ( 2 1 1 ) ]
@@ -192,11 +207,11 @@ O [ ( -2 -2 -1 ) ( 2 1 1 ) ]
     L [ ( -2 -2 -1 ) ( 0 0 1 ) ]: 3
 )" , tree);
 
-    ASSERT_TRUE(tree.remove(bounds1, 1u));
+    ASSERT_TRUE(tree.remove(1u));
 
-    ASSERT_FALSE(tree.contains(bounds1, 1u));
-    ASSERT_TRUE(tree.contains(bounds2, 2u));
-    ASSERT_TRUE(tree.contains(bounds3, 3u));
+    assertTreeDoesNotContain(tree, bounds1, 1u);
+    assertTreeContains(tree, bounds2, 2u);
+    assertTreeContains(tree, bounds3, 3u);
 
     assertTree(R"(
 O [ ( -2 -2 -1 ) ( 1 1 1 ) ]
@@ -207,12 +222,12 @@ O [ ( -2 -2 -1 ) ( 1 1 1 ) ]
     ASSERT_FALSE(tree.empty());
     ASSERT_EQ(merge(bounds2, bounds3), tree.bounds());
 
-    ASSERT_FALSE(tree.remove(bounds1, 1u));
-    ASSERT_TRUE(tree.remove(bounds2, 2u));
+    ASSERT_FALSE(tree.remove(1u));
+    ASSERT_TRUE(tree.remove(2u));
 
-    ASSERT_FALSE(tree.contains(bounds1, 1u));
-    ASSERT_FALSE(tree.contains(bounds2, 2u));
-    ASSERT_TRUE(tree.contains(bounds3, 3u));
+    assertTreeDoesNotContain(tree, bounds1, 1u);
+    assertTreeDoesNotContain(tree, bounds2, 2u);
+    assertTreeContains(tree, bounds3, 3u);
 
     assertTree(R"(
 L [ ( -2 -2 -1 ) ( 0 0 1 ) ]: 3
@@ -221,22 +236,22 @@ L [ ( -2 -2 -1 ) ( 0 0 1 ) ]: 3
     ASSERT_FALSE(tree.empty());
     ASSERT_EQ(bounds3, tree.bounds());
 
-    ASSERT_FALSE(tree.remove(bounds1, 1u));
-    ASSERT_FALSE(tree.remove(bounds2, 2u));
-    ASSERT_TRUE(tree.remove(bounds3, 3u));
+    ASSERT_FALSE(tree.remove(1u));
+    ASSERT_FALSE(tree.remove(2u));
+    ASSERT_TRUE(tree.remove(3u));
 
-    ASSERT_FALSE(tree.contains(bounds1, 1u));
-    ASSERT_FALSE(tree.contains(bounds2, 2u));
-    ASSERT_FALSE(tree.contains(bounds3, 3u));
+    assertTreeDoesNotContain(tree, bounds1, 1u);
+    assertTreeDoesNotContain(tree, bounds2, 2u);
+    assertTreeDoesNotContain(tree, bounds3, 3u);
 
     assertTree(R"(
 )" , tree);
 
     ASSERT_TRUE(tree.empty());
 
-    ASSERT_FALSE(tree.remove(bounds3, 3u));
-    ASSERT_FALSE(tree.remove(bounds2, 2u));
-    ASSERT_FALSE(tree.remove(bounds1, 1u));
+    ASSERT_FALSE(tree.remove(3u));
+    ASSERT_FALSE(tree.remove(2u));
+    ASSERT_FALSE(tree.remove(1u));
 }
 
 TEST(AABBTreeTest, insertFourContainedNodes) {
@@ -261,10 +276,10 @@ O [ ( -4 -4 -4 ) ( 4 4 4 ) ]
 
     assertTree(R"(
 O [ ( -4 -4 -4 ) ( 4 4 4 ) ]
-  L [ ( -4 -4 -4 ) ( 4 4 4 ) ]: 1
-  O [ ( -3 -3 -3 ) ( 3 3 3 ) ]
-    L [ ( -3 -3 -3 ) ( 3 3 3 ) ]: 2
+  O [ ( -4 -4 -4 ) ( 4 4 4 ) ]
+    L [ ( -4 -4 -4 ) ( 4 4 4 ) ]: 1
     L [ ( -2 -2 -2 ) ( 2 2 2 ) ]: 3
+  L [ ( -3 -3 -3 ) ( 3 3 3 ) ]: 2
 )" , tree);
 
     ASSERT_EQ(bounds1, tree.bounds());
@@ -275,18 +290,18 @@ O [ ( -4 -4 -4 ) ( 4 4 4 ) ]
 O [ ( -4 -4 -4 ) ( 4 4 4 ) ]
   O [ ( -4 -4 -4 ) ( 4 4 4 ) ]
     L [ ( -4 -4 -4 ) ( 4 4 4 ) ]: 1
-    L [ ( -1 -1 -1 ) ( 1 1 1 ) ]: 4
+    L [ ( -2 -2 -2 ) ( 2 2 2 ) ]: 3
   O [ ( -3 -3 -3 ) ( 3 3 3 ) ]
     L [ ( -3 -3 -3 ) ( 3 3 3 ) ]: 2
-    L [ ( -2 -2 -2 ) ( 2 2 2 ) ]: 3
+    L [ ( -1 -1 -1 ) ( 1 1 1 ) ]: 4
 )" , tree);
 
     ASSERT_EQ(bounds1, tree.bounds());
 
-    ASSERT_TRUE(tree.contains(bounds1, 1u));
-    ASSERT_TRUE(tree.contains(bounds2, 2u));
-    ASSERT_TRUE(tree.contains(bounds3, 3u));
-    ASSERT_TRUE(tree.contains(bounds4, 4u));
+    assertTreeContains(tree, bounds1, 1u);
+    assertTreeContains(tree, bounds2, 2u);
+    assertTreeContains(tree, bounds3, 3u);
+    assertTreeContains(tree, bounds4, 4u);
 }
 
 TEST(AABBTreeTest, insertFourContainedNodesInverse) {
@@ -334,10 +349,10 @@ O [ ( -4 -4 -4 ) ( 4 4 4 ) ]
     ASSERT_FALSE(tree.empty());
     ASSERT_EQ(bounds4, tree.bounds());
 
-    ASSERT_TRUE(tree.contains(bounds1, 1u));
-    ASSERT_TRUE(tree.contains(bounds2, 2u));
-    ASSERT_TRUE(tree.contains(bounds3, 3u));
-    ASSERT_TRUE(tree.contains(bounds4, 4u));
+    assertTreeContains(tree, bounds1, 1u);
+    assertTreeContains(tree, bounds2, 2u);
+    assertTreeContains(tree, bounds3, 3u);
+    assertTreeContains(tree, bounds4, 4u);
 }
 
 TEST(AABBTreeTest, removeFourContainedNodes) {
@@ -352,10 +367,10 @@ TEST(AABBTreeTest, removeFourContainedNodes) {
     tree.insert(bounds3, 3u);
     tree.insert(bounds4, 4u);
 
-    ASSERT_TRUE(tree.contains(bounds1, 1u));
-    ASSERT_TRUE(tree.contains(bounds2, 2u));
-    ASSERT_TRUE(tree.contains(bounds3, 3u));
-    ASSERT_TRUE(tree.contains(bounds4, 4u));
+    assertTreeContains(tree, bounds1, 1u);
+    assertTreeContains(tree, bounds2, 2u);
+    assertTreeContains(tree, bounds3, 3u);
+    assertTreeContains(tree, bounds4, 4u);
 
     assertTree(R"(
 O [ ( -4 -4 -4 ) ( 4 4 4 ) ]
@@ -368,7 +383,7 @@ O [ ( -4 -4 -4 ) ( 4 4 4 ) ]
 )" , tree);
 
 
-    tree.remove(bounds4, 4u);
+    tree.remove(4u);
     assertTree(R"(
 O [ ( -3 -3 -3 ) ( 3 3 3 ) ]
   L [ ( -1 -1 -1 ) ( 1 1 1 ) ]: 1
@@ -378,12 +393,12 @@ O [ ( -3 -3 -3 ) ( 3 3 3 ) ]
 )" , tree);
 
 
-    ASSERT_TRUE(tree.contains(bounds1, 1u));
-    ASSERT_TRUE(tree.contains(bounds2, 2u));
-    ASSERT_TRUE(tree.contains(bounds3, 3u));
-    ASSERT_FALSE(tree.contains(bounds4, 4u));
+    assertTreeContains(tree, bounds1, 1u);
+    assertTreeContains(tree, bounds2, 2u);
+    assertTreeContains(tree, bounds3, 3u);
+    assertTreeDoesNotContain(tree, bounds4, 4u);
 
-    tree.remove(bounds3, 3u);
+    tree.remove(3u);
     assertTree(R"(
 O [ ( -2 -2 -2 ) ( 2 2 2 ) ]
   L [ ( -1 -1 -1 ) ( 1 1 1 ) ]: 1
@@ -391,30 +406,30 @@ O [ ( -2 -2 -2 ) ( 2 2 2 ) ]
 )" , tree);
 
 
-    ASSERT_TRUE(tree.contains(bounds1, 1u));
-    ASSERT_TRUE(tree.contains(bounds2, 2u));
-    ASSERT_FALSE(tree.contains(bounds3, 3u));
-    ASSERT_FALSE(tree.contains(bounds4, 4u));
+    assertTreeContains(tree, bounds1, 1u);
+    assertTreeContains(tree, bounds2, 2u);
+    assertTreeDoesNotContain(tree, bounds3, 3u);
+    assertTreeDoesNotContain(tree, bounds4, 4u);
 
-    tree.remove(bounds2, 2u);
+    tree.remove(2u);
     assertTree(R"(
 L [ ( -1 -1 -1 ) ( 1 1 1 ) ]: 1
 )" , tree);
 
 
-    ASSERT_TRUE(tree.contains(bounds1, 1u));
-    ASSERT_FALSE(tree.contains(bounds2, 2u));
-    ASSERT_FALSE(tree.contains(bounds3, 3u));
-    ASSERT_FALSE(tree.contains(bounds4, 4u));
+    assertTreeContains(tree, bounds1, 1u);
+    assertTreeDoesNotContain(tree, bounds2, 2u);
+    assertTreeDoesNotContain(tree, bounds3, 3u);
+    assertTreeDoesNotContain(tree, bounds4, 4u);
 
-    tree.remove(bounds1, 1u);
+    tree.remove(1u);
     assertTree(R"(
 )" , tree);
 
-    ASSERT_FALSE(tree.contains(bounds1, 1u));
-    ASSERT_FALSE(tree.contains(bounds2, 2u));
-    ASSERT_FALSE(tree.contains(bounds3, 3u));
-    ASSERT_FALSE(tree.contains(bounds4, 4u));
+    assertTreeDoesNotContain(tree, bounds1, 1u);
+    assertTreeDoesNotContain(tree, bounds2, 2u);
+    assertTreeDoesNotContain(tree, bounds3, 3u);
+    assertTreeDoesNotContain(tree, bounds4, 4u);
 
 }
 
@@ -481,4 +496,34 @@ void assertIntersectors(const AABB& tree, const RAY& ray, std::initializer_list<
     tree.findIntersectors(ray, std::inserter(actual, std::end(actual)));
 
     ASSERT_EQ(expected, actual);
+}
+
+void assertTreeContains(const AABB& tree, const BOX& box, AABB::DataType data) {
+    ASSERT_TRUE(tree.contains(data));
+
+    // Check that the the AABB tree can retrieve `data` by doing a spatial search
+    bool found = false;
+    for (const AABB::DataType dataAtBoxCenter : tree.findContainers(box.center())) {
+        if (dataAtBoxCenter == data) {
+            found = true;
+            break;
+        }
+    }
+    ASSERT_TRUE(found);
+
+    // Check that a spatial search of a point outside `box` doesn't return `data`
+    const auto pointOutsideBox = box.center() + box.size();
+    ASSERT_FALSE(box.contains(pointOutsideBox));
+    for (const AABB::DataType dataOutsideBox : tree.findContainers(pointOutsideBox)) {
+        ASSERT_FALSE(dataOutsideBox == data);
+    }
+}
+
+void assertTreeDoesNotContain(const AABB& tree, const BOX& box, AABB::DataType data) {
+    ASSERT_FALSE(tree.contains(data));
+
+    // Check that a spatial search doesn't return `data`
+    for (const AABB::DataType dataAtBoxCenter : tree.findContainers(box.center())) {
+        ASSERT_NE(dataAtBoxCenter, data);
+    }
 }

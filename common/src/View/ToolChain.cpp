@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -28,7 +28,7 @@ namespace TrenchBroom {
         ToolChain::ToolChain() :
         m_tool(nullptr),
         m_suffix(nullptr) {}
-        
+
         ToolChain::~ToolChain() {
             delete m_suffix;
             delete m_tool;
@@ -46,7 +46,7 @@ namespace TrenchBroom {
             }
             assert(checkInvariant());
         }
-        
+
         void ToolChain::pick(const InputState& inputState, Model::PickResult& pickResult) {
             assert(checkInvariant());
             if (!chainEndsHere()) {
@@ -54,7 +54,7 @@ namespace TrenchBroom {
                 m_suffix->pick(inputState, pickResult);
             }
         }
-        
+
         void ToolChain::modifierKeyChange(const InputState& inputState) {
             assert(checkInvariant());
             if (!chainEndsHere()) {
@@ -62,7 +62,7 @@ namespace TrenchBroom {
                 m_suffix->modifierKeyChange(inputState);
             }
         }
-        
+
         void ToolChain::mouseDown(const InputState& inputState) {
             assert(checkInvariant());
             if (!chainEndsHere()) {
@@ -70,7 +70,7 @@ namespace TrenchBroom {
                 m_suffix->mouseDown(inputState);
             }
         }
-        
+
         void ToolChain::mouseUp(const InputState& inputState) {
             assert(checkInvariant());
             if (!chainEndsHere()) {
@@ -78,7 +78,7 @@ namespace TrenchBroom {
                 m_suffix->mouseUp(inputState);
             }
         }
-        
+
         bool ToolChain::mouseClick(const InputState& inputState) {
             assert(checkInvariant());
             if (chainEndsHere())
@@ -96,7 +96,7 @@ namespace TrenchBroom {
                 return true;
             return m_suffix->mouseDoubleClick(inputState);
         }
-        
+
         void ToolChain::mouseScroll(const InputState& inputState) {
             assert(checkInvariant());
             if (!chainEndsHere()) {
@@ -104,7 +104,7 @@ namespace TrenchBroom {
                 m_suffix->mouseScroll(inputState);
             }
         }
-        
+
         void ToolChain::mouseMove(const InputState& inputState) {
             assert(checkInvariant());
             if (!chainEndsHere()) {
@@ -112,7 +112,7 @@ namespace TrenchBroom {
                 m_suffix->mouseMove(inputState);
             }
         }
-        
+
         ToolController* ToolChain::startMouseDrag(const InputState& inputState) {
             assert(checkInvariant());
             if (chainEndsHere())
@@ -121,7 +121,7 @@ namespace TrenchBroom {
                 return m_tool;
             return m_suffix->startMouseDrag(inputState);
         }
-        
+
         ToolController* ToolChain::dragEnter(const InputState& inputState, const String& payload) {
             assert(checkInvariant());
             if (chainEndsHere())
@@ -130,7 +130,7 @@ namespace TrenchBroom {
                 return m_tool;
             return m_suffix->dragEnter(inputState, payload);
         }
-        
+
         void ToolChain::setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
             assert(checkInvariant());
             if (!chainEndsHere()) {
@@ -138,7 +138,7 @@ namespace TrenchBroom {
                 m_suffix->setRenderOptions(inputState, renderContext);
             }
         }
-        
+
         void ToolChain::render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             assert(checkInvariant());
             if (!chainEndsHere()) {
@@ -146,7 +146,7 @@ namespace TrenchBroom {
                 m_suffix->render(inputState, renderContext, renderBatch);
             }
         }
-        
+
         bool ToolChain::cancel() {
             assert(checkInvariant());
             if (chainEndsHere())

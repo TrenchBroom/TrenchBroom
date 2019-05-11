@@ -88,12 +88,15 @@ namespace TrenchBroom {
         m_frameManager(nullptr),
         m_autosaver(nullptr),
         m_autosaveTimer(nullptr),
+        m_hSplitter(nullptr),
+        m_vSplitter(nullptr),
         m_contextManager(nullptr),
         m_mapView(nullptr),
         m_console(nullptr),
         m_inspector(nullptr),
         m_lastFocus(nullptr),
         m_gridChoice(nullptr),
+        m_statusBar(nullptr),
         m_compilationDialog(nullptr),
         m_updateLocker(nullptr) {}
 
@@ -102,12 +105,15 @@ namespace TrenchBroom {
         m_frameManager(nullptr),
         m_autosaver(nullptr),
         m_autosaveTimer(nullptr),
+        m_hSplitter(nullptr),
+        m_vSplitter(nullptr),
         m_contextManager(nullptr),
         m_mapView(nullptr),
         m_console(nullptr),
         m_inspector(nullptr),
         m_lastFocus(nullptr),
         m_gridChoice(nullptr),
+        m_statusBar(nullptr),
         m_compilationDialog(nullptr),
         m_updateLocker(nullptr) {
             Create(frameManager, document);
@@ -128,7 +134,7 @@ namespace TrenchBroom {
             createMenuBar();
             createStatusBar();
 
-            m_document->setParentLogger(logger());
+            m_document->setParentLogger(m_console);
             m_document->setViewEffectsService(m_mapView);
 
             m_autosaveTimer = new wxTimer(this);
@@ -138,19 +144,19 @@ namespace TrenchBroom {
             bindEvents();
 
             clearDropTarget();
-            
+
             m_updateLocker = new CommandWindowUpdateLocker(this, m_document);
 #ifdef __APPLE__
             m_updateLocker->Start();
 #endif
         }
-        
+
         static RenderView* FindChildRenderView(wxWindow *current) {
             for (wxWindow *child : current->GetChildren()) {
                 RenderView *canvas = wxDynamicCast(child, RenderView);
                 if (canvas != nullptr)
                     return canvas;
-                
+
                 canvas = FindChildRenderView(child);
                 if (canvas != nullptr)
                     return canvas;
@@ -176,13 +182,13 @@ namespace TrenchBroom {
             SendDestroyEvent();
 
             m_mapView->deactivateTool();
-            
+
             unbindObservers();
             removeRecentDocumentsMenu(GetMenuBar());
 
             delete m_updateLocker;
             m_updateLocker = nullptr;
-            
+
             delete m_autosaveTimer;
             m_autosaveTimer = nullptr;
 
@@ -193,7 +199,7 @@ namespace TrenchBroom {
             // need the context manager (and its embedded VBO) to clean up their resources.
 
             DestroyChildren(); // Destroy the children first because they might still access document resources.
-            
+
             m_document->setViewEffectsService(nullptr);
             m_document.reset();
 
@@ -225,8 +231,8 @@ namespace TrenchBroom {
             return m_document;
         }
 
-        Logger* MapFrame::logger() const {
-            return m_console;
+        Logger& MapFrame::logger() const {
+            return *m_console;
         }
 
         void MapFrame::setToolBoxDropTarget() {
@@ -239,14 +245,14 @@ namespace TrenchBroom {
             SetDropTarget(new MapFrameDropTarget(m_document, this));
         }
 
-        bool MapFrame::newDocument(Model::GameSPtr game, const Model::MapFormat::Type mapFormat) {
+        bool MapFrame::newDocument(Model::GameSPtr game, const Model::MapFormat mapFormat) {
             if (!confirmOrDiscardChanges())
                 return false;
             m_document->newDocument(mapFormat, MapDocument::DefaultWorldBounds, game);
             return true;
         }
 
-        bool MapFrame::openDocument(Model::GameSPtr game, const Model::MapFormat::Type mapFormat, const IO::Path& path) {
+        bool MapFrame::openDocument(Model::GameSPtr game, const Model::MapFormat mapFormat, const IO::Path& path) {
             if (!confirmOrDiscardChanges())
                 return false;
             m_document->loadDocument(mapFormat, MapDocument::DefaultWorldBounds, game, path);
@@ -257,7 +263,7 @@ namespace TrenchBroom {
             try {
                 if (m_document->persistent()) {
                     m_document->saveDocument();
-                    logger()->info("Saved " + m_document->path().asString());
+                    logger().info() << "Saved " << m_document->path();
                     return true;
                 }
                 return saveDocumentAs();
@@ -281,7 +287,7 @@ namespace TrenchBroom {
 
                 const IO::Path path(saveDialog.GetPath().ToStdString());
                 m_document->saveDocumentAs(path);
-                logger()->info("Saved " + m_document->path().asString());
+                logger().info() << "Saved " << m_document->path();
                 return true;
             } catch (const FileSystemException& e) {
                 ::wxMessageBox(e.what(), "", wxOK | wxICON_ERROR, this);
@@ -296,19 +302,18 @@ namespace TrenchBroom {
             const IO::Path& originalPath = m_document->path();
             const IO::Path directory = originalPath.deleteLastComponent();
             const IO::Path filename = originalPath.lastComponent().replaceExtension("obj");
-            wxString wildcard;
-            
+
             wxFileDialog saveDialog(this, "Export Wavefront OBJ file", directory.asString(), filename.asString(), "Wavefront OBJ files (*.obj)|*.obj", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
             if (saveDialog.ShowModal() == wxID_CANCEL)
                 return false;
-            
+
             return exportDocument(Model::WavefrontObj, IO::Path(saveDialog.GetPath().ToStdString()));
         }
 
         bool MapFrame::exportDocument(const Model::ExportFormat format, const IO::Path& path) {
             try {
                 m_document->exportDocumentAs(format, path);
-                logger()->info("Exported " + path.asString());
+                logger().info() << "Exported " << path;
                 return true;
             } catch (const FileSystemException& e) {
                 ::wxMessageBox(e.what(), "", wxOK | wxICON_ERROR, this);
@@ -452,9 +457,9 @@ namespace TrenchBroom {
         }
 
         void MapFrame::createToolBar() {
-            wxToolBar* toolBar = CreateToolBar(wxTB_DEFAULT_STYLE | 
+            wxToolBar* toolBar = CreateToolBar(wxTB_DEFAULT_STYLE |
 #if !defined _WIN32
-				wxTB_NODIVIDER | 
+				wxTB_NODIVIDER |
 #endif
 				wxTB_FLAT);
             toolBar->SetMargins(2, 2);
@@ -473,27 +478,28 @@ namespace TrenchBroom {
             toolBar->AddTool(CommandIds::Actions::FlipObjectsVertically, "Flip Vertically", IO::loadImageResource("FlipVertically.png"), wxNullBitmap, wxITEM_NORMAL, "Flip Vertically");
             toolBar->AddSeparator();
             toolBar->AddCheckTool(CommandIds::Menu::EditToggleTextureLock, "Texture Lock", textureLockBitmap(), wxNullBitmap, "Toggle Texture Lock");
+            toolBar->AddCheckTool(CommandIds::Menu::EditToggleUVLock, "UV Lock", UVLockBitmap(), wxNullBitmap, "Toggle UV Lock");
             toolBar->AddSeparator();
 
             const wxString gridSizes[12] = { "Grid 0.125", "Grid 0.25", "Grid 0.5", "Grid 1", "Grid 2", "Grid 4", "Grid 8", "Grid 16", "Grid 32", "Grid 64", "Grid 128", "Grid 256" };
             m_gridChoice = new wxChoice(toolBar, wxID_ANY, wxDefaultPosition, wxDefaultSize, 12, gridSizes);
             m_gridChoice->SetSelection(indexForGridSize(m_document->grid().size()));
             toolBar->AddControl(m_gridChoice);
-            
+
             toolBar->Realize();
         }
-        
+
         void MapFrame::createStatusBar() {
             m_statusBar = CreateStatusBar();
         }
-        
+
         static Model::AttributableNode* commonEntityForBrushList(const Model::BrushList& list) {
             if (list.empty())
                 return nullptr;
-            
+
             Model::AttributableNode* firstEntity = list.front()->entity();
             bool multipleEntities = false;
-            
+
             for (const Model::Brush* brush : list) {
                 if (brush->entity() != firstEntity) {
                     multipleEntities = true;
@@ -506,40 +512,40 @@ namespace TrenchBroom {
                 return firstEntity;
             }
         }
-        
+
         static String commonClassnameForEntityList(const Model::EntityList& list) {
             if (list.empty())
                 return "";
-            
+
             const String firstClassname = list.front()->classname();
             bool multipleClassnames = false;
-            
+
             for (const Model::Entity* entity : list) {
                 if (entity->classname() != firstClassname) {
                     multipleClassnames = true;
                 }
             }
-            
+
             if (multipleClassnames) {
                 return "";
             } else {
                 return firstClassname;
             }
         }
-        
+
         static String numberWithSuffix(size_t count, const String &singular, const String &plural) {
             return std::to_string(count) + " " + StringUtils::safePlural(count, singular, plural);
         }
-        
+
         static wxString describeSelection(const MapDocument* document) {
             const wxString DblArrow = wxString(" ") + wxString(wxUniChar(0x00BB)) + wxString(" ");
             const wxString Arrow = wxString(" ") + wxString(wxUniChar(0x203A)) + wxString(" ");
-            
+
             wxString result;
-            
+
             // current layer
             result << document->currentLayer()->name() << DblArrow;
-            
+
             // open groups
             std::list<Model::Group*> groups;
             for (Model::Group* group = document->currentGroup(); group != nullptr; group = group->group()) {
@@ -548,16 +554,16 @@ namespace TrenchBroom {
             for (Model::Group* group : groups) {
                 result << group->name() << Arrow;
             }
-            
+
             // build a vector of strings describing the things that are selected
             StringList tokens;
-            
+
             const auto &selectedNodes = document->selectedNodes();
-            
+
             // selected brushes
             if (!selectedNodes.brushes().empty()) {
                 Model::AttributableNode *commonEntity = commonEntityForBrushList(selectedNodes.brushes());
-                
+
                 // if all selected brushes are from the same entity, print the entity name
                 String token = numberWithSuffix(selectedNodes.brushes().size(), "brush", "brushes");
                 if (commonEntity) {
@@ -567,11 +573,17 @@ namespace TrenchBroom {
                 }
                 tokens.push_back(token);
             }
-            
+
+            // selected brush faces
+            if (document->hasSelectedBrushFaces()) {
+                const auto token = numberWithSuffix(document->selectedBrushFaces().size(), "face", "faces");
+                tokens.push_back(token);
+            }
+
             // entities
             if (!selectedNodes.entities().empty()) {
                 String commonClassname = commonClassnameForEntityList(selectedNodes.entities());
-                
+
                 String token = numberWithSuffix(selectedNodes.entities().size(), "entity", "entities");
                 if (commonClassname != "") {
                     token += " (" + commonClassname + ")";
@@ -580,31 +592,31 @@ namespace TrenchBroom {
                 }
                 tokens.push_back(token);
             }
-            
+
             // groups
             if (!selectedNodes.groups().empty()) {
                 tokens.push_back(numberWithSuffix(selectedNodes.groups().size(), "group", "groups"));
             }
-            
+
             // layers
             if (!selectedNodes.layers().empty()) {
                 tokens.push_back(numberWithSuffix(selectedNodes.layers().size(), "layer", "layers"));
             }
-            
-            if (selectedNodes.empty()) {
+
+            if (tokens.empty()) {
                 tokens.push_back("nothing");
             }
-            
+
             // now, turn `tokens` into a comma-separated string
             result << StringUtils::join(tokens, ", ", ", and ", " and ") << " selected";
-            
+
             return result;
         }
-        
+
         void MapFrame::updateStatusBar() {
             m_statusBar->SetStatusText(describeSelection(m_document.get()));
         }
-        
+
         void MapFrame::bindObservers() {
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &MapFrame::preferenceDidChange);
@@ -618,7 +630,7 @@ namespace TrenchBroom {
             m_document->currentLayerDidChangeNotifier.addObserver(this, &MapFrame::currentLayerDidChange);
             m_document->groupWasOpenedNotifier.addObserver(this, &MapFrame::groupWasOpened);
             m_document->groupWasClosedNotifier.addObserver(this, &MapFrame::groupWasClosed);
-            
+
             Grid& grid = m_document->grid();
             grid.gridDidChangeNotifier.addObserver(this, &MapFrame::gridDidChange);
         }
@@ -636,7 +648,7 @@ namespace TrenchBroom {
             m_document->currentLayerDidChangeNotifier.removeObserver(this, &MapFrame::currentLayerDidChange);
             m_document->groupWasOpenedNotifier.removeObserver(this, &MapFrame::groupWasOpened);
             m_document->groupWasClosedNotifier.removeObserver(this, &MapFrame::groupWasClosed);
-            
+
             Grid& grid = m_document->grid();
             grid.gridDidChangeNotifier.removeObserver(this, &MapFrame::gridDidChange);
         }
@@ -666,19 +678,19 @@ namespace TrenchBroom {
             const Grid& grid = m_document->grid();
             m_gridChoice->SetSelection(indexForGridSize(grid.size()));
         }
-        
+
         void MapFrame::selectionDidChange(const Selection& selection) {
             updateStatusBar();
         }
-        
+
         void MapFrame::currentLayerDidChange(const TrenchBroom::Model::Layer* layer) {
             updateStatusBar();
         }
-        
+
         void MapFrame::groupWasOpened(Model::Group* group) {
             updateStatusBar();
         }
-        
+
         void MapFrame::groupWasClosed(Model::Group* group) {
             updateStatusBar();
         }
@@ -693,6 +705,8 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnFileLoadPortalFile, this, CommandIds::Menu::FileLoadPortalFile);
             Bind(wxEVT_MENU, &MapFrame::OnFileReloadPortalFile, this, CommandIds::Menu::FileReloadPortalFile);
             Bind(wxEVT_MENU, &MapFrame::OnFileUnloadPortalFile, this, CommandIds::Menu::FileUnloadPortalFile);
+            Bind(wxEVT_MENU, &MapFrame::OnFileReloadTextureCollections, this, CommandIds::Menu::FileReloadTextureCollections);
+            Bind(wxEVT_MENU, &MapFrame::OnFileReloadEntityDefinitions, this, CommandIds::Menu::FileReloadEntityDefinitions);
             Bind(wxEVT_MENU, &MapFrame::OnFileClose, this, wxID_CLOSE);
 
             Bind(wxEVT_MENU, &MapFrame::OnEditUndo, this, wxID_UNDO);
@@ -732,9 +746,10 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnEditCsgSubtract, this, CommandIds::Menu::EditCsgSubtract);
             Bind(wxEVT_MENU, &MapFrame::OnEditCsgIntersect, this, CommandIds::Menu::EditCsgIntersect);
             Bind(wxEVT_MENU, &MapFrame::OnEditCsgHollow, this, CommandIds::Menu::EditCsgHollow);
-            
+
             Bind(wxEVT_MENU, &MapFrame::OnEditReplaceTexture, this, CommandIds::Menu::EditReplaceTexture);
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleTextureLock, this, CommandIds::Menu::EditToggleTextureLock);
+            Bind(wxEVT_MENU, &MapFrame::OnEditToggleUVLock, this, CommandIds::Menu::EditToggleUVLock);
             Bind(wxEVT_MENU, &MapFrame::OnEditSnapVerticesToInteger, this, CommandIds::Menu::EditSnapVerticesToInteger);
             Bind(wxEVT_MENU, &MapFrame::OnEditSnapVerticesToGrid, this, CommandIds::Menu::EditSnapVerticesToGrid);
 
@@ -748,7 +763,7 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnViewMoveCameraToPreviousPoint, this, CommandIds::Menu::ViewMoveCameraToPreviousPoint);
             Bind(wxEVT_MENU, &MapFrame::OnViewFocusCameraOnSelection, this, CommandIds::Menu::ViewFocusCameraOnSelection);
             Bind(wxEVT_MENU, &MapFrame::OnViewMoveCameraToPosition, this, CommandIds::Menu::ViewMoveCameraToPosition);
-            
+
             Bind(wxEVT_MENU, &MapFrame::OnViewHideSelectedObjects, this, CommandIds::Menu::ViewHideSelection);
             Bind(wxEVT_MENU, &MapFrame::OnViewIsolateSelectedObjects, this, CommandIds::Menu::ViewIsolateSelection);
             Bind(wxEVT_MENU, &MapFrame::OnViewShowHiddenObjects, this, CommandIds::Menu::ViewUnhideAll);
@@ -763,7 +778,7 @@ namespace TrenchBroom {
 
             Bind(wxEVT_MENU, &MapFrame::OnRunCompile, this, CommandIds::Menu::RunCompile);
             Bind(wxEVT_MENU, &MapFrame::OnRunLaunch, this, CommandIds::Menu::RunLaunch);
-            
+
             Bind(wxEVT_MENU, &MapFrame::OnDebugPrintVertices, this, CommandIds::Menu::DebugPrintVertices);
             Bind(wxEVT_MENU, &MapFrame::OnDebugCreateBrush, this, CommandIds::Menu::DebugCreateBrush);
             Bind(wxEVT_MENU, &MapFrame::OnDebugCreateCube, this, CommandIds::Menu::DebugCreateCube);
@@ -815,13 +830,13 @@ namespace TrenchBroom {
 
         void MapFrame::OnFileExportObj(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            
+
             exportDocumentAsObj();
         }
 
         void MapFrame::OnFileLoadPointFile(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            
+
             wxString defaultDir;
             if (!m_document->path().isEmpty())
                 defaultDir = m_document->path().deleteLastComponent().asString();
@@ -844,16 +859,16 @@ namespace TrenchBroom {
             if (canUnloadPointFile())
                 m_document->unloadPointFile();
         }
-        
+
         void MapFrame::OnFileLoadPortalFile(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            
+
             wxString defaultDir;
             if (!m_document->path().isEmpty()) {
                 defaultDir = m_document->path().deleteLastComponent().asString();
             }
             wxFileDialog browseDialog(this, "Load Portal File", defaultDir, wxEmptyString, "Portal files (*.prt)|*.prt|Any files (*.*)|*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
-            
+
             if (browseDialog.ShowModal() == wxID_OK) {
                 m_document->loadPortalFile(IO::Path(browseDialog.GetPath().ToStdString()));
             }
@@ -869,10 +884,22 @@ namespace TrenchBroom {
 
         void MapFrame::OnFileUnloadPortalFile(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            
+
             if (canUnloadPortalFile()) {
                 m_document->unloadPortalFile();
             }
+        }
+
+        void MapFrame::OnFileReloadTextureCollections(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            m_document->reloadTextureCollections();
+        }
+
+        void MapFrame::OnFileReloadEntityDefinitions(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            m_document->reloadEntityDefinitions();
         }
 
         void MapFrame::OnFileClose(wxCommandEvent& event) {
@@ -962,13 +989,13 @@ namespace TrenchBroom {
         PasteType MapFrame::paste() {
             OpenClipboard openClipboard;
             if (!wxTheClipboard->IsOpened() || !wxTheClipboard->IsSupported(wxDF_TEXT)) {
-                logger()->error("Clipboard is empty");
+                logger().error() << "Clipboard is empty";
                 return PT_Failed;
             }
 
             wxTextDataObject textData;
             if (!wxTheClipboard->GetData(textData)) {
-                logger()->error("Could not get clipboard contents");
+                logger().error() << "Could not get clipboard contents";
                 return PT_Failed;
             }
 
@@ -1035,7 +1062,7 @@ namespace TrenchBroom {
 
         void MapFrame::OnEditSelectTall(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            
+
             if (canSelectTall()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_mapView->selectTall();
             }
@@ -1106,62 +1133,86 @@ namespace TrenchBroom {
         void MapFrame::OnEditToggleCreateComplexBrushTool(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            m_mapView->toggleCreateComplexBrushTool();
+            if (m_mapView->canToggleCreateComplexBrushTool()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+                m_mapView->toggleCreateComplexBrushTool();
+            }
         }
 
         void MapFrame::OnEditToggleClipTool(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            m_mapView->toggleClipTool();
+            if (m_mapView->canToggleClipTool()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+                m_mapView->toggleClipTool();
+            }
         }
 
         void MapFrame::OnEditToggleRotateObjectsTool(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            m_mapView->toggleRotateObjectsTool();
+            if (m_mapView->canToggleRotateObjectsTool()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+                m_mapView->toggleRotateObjectsTool();
+            }
         }
 
         void MapFrame::OnEditToggleScaleObjectsTool(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            
-            m_mapView->toggleScaleObjectsTool();
+
+            if (m_mapView->canToggleScaleObjectsTool()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+                m_mapView->toggleScaleObjectsTool();
+            }
         }
 
         void MapFrame::OnEditToggleShearObjectsTool(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            m_mapView->toggleShearObjectsTool();
+            if (m_mapView->canToggleShearObjectsTool()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+                m_mapView->toggleShearObjectsTool();
+            }
         }
-        
+
         void MapFrame::OnEditToggleVertexTool(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            
-            m_mapView->toggleVertexTool();
+
+            if (m_mapView->canToggleVertexTools()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+                m_mapView->toggleVertexTool();
+            }
         }
-        
+
         void MapFrame::OnEditToggleEdgeTool(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            
-            m_mapView->toggleEdgeTool();
+
+            if (m_mapView->canToggleVertexTools()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+                m_mapView->toggleEdgeTool();
+            }
         }
-        
+
         void MapFrame::OnEditToggleFaceTool(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            
-            m_mapView->toggleFaceTool();
+
+            if (m_mapView->canToggleVertexTools()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+                m_mapView->toggleFaceTool();
+            }
         }
 
         void MapFrame::OnEditCsgConvexMerge(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
             if (canDoCsgConvexMerge()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
-                m_document->csgConvexMerge();
+                if (m_mapView->vertexToolActive() && m_mapView->vertexTool()->canDoCsgConvexMerge()) {
+                    m_mapView->vertexTool()->csgConvexMerge();
+                } else if (m_mapView->edgeToolActive() && m_mapView->edgeTool()->canDoCsgConvexMerge()) {
+                    m_mapView->edgeTool()->csgConvexMerge();
+                } else if (m_mapView->faceToolActive() && m_mapView->faceTool()->canDoCsgConvexMerge()) {
+                    m_mapView->faceTool()->csgConvexMerge();
+                } else {
+                    m_document->csgConvexMerge();
+                }
             }
         }
 
         void MapFrame::OnEditCsgSubtract(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            
+
             if (canDoCsgSubtract()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->csgSubtract();
             }
@@ -1169,7 +1220,7 @@ namespace TrenchBroom {
 
         void MapFrame::OnEditCsgIntersect(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            
+
             if (canDoCsgIntersect()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->csgIntersect();
             }
@@ -1177,7 +1228,7 @@ namespace TrenchBroom {
 
         void MapFrame::OnEditCsgHollow(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            
+
             if (canDoCsgHollow()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->csgHollow();
             }
@@ -1188,24 +1239,43 @@ namespace TrenchBroom {
 
             PreferenceManager::instance().set(Preferences::TextureLock, !pref(Preferences::TextureLock));
             PreferenceManager::instance().saveChanges();
-            
+
             GetToolBar()->SetToolNormalBitmap(CommandIds::Menu::EditToggleTextureLock, textureLockBitmap());
         }
 
         wxBitmap MapFrame::textureLockBitmap() {
-            if (pref(Preferences::TextureLock))
+            if (pref(Preferences::TextureLock)) {
                 return IO::loadImageResource("TextureLockOn.png");
-            return IO::loadImageResource("TextureLockOff.png");
+            } else {
+                return IO::loadImageResource("TextureLockOff.png");
+            }
+        }
+
+        void MapFrame::OnEditToggleUVLock(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            PreferenceManager::instance().set(Preferences::UVLock, !pref(Preferences::UVLock));
+            PreferenceManager::instance().saveChanges();
+
+            GetToolBar()->SetToolNormalBitmap(CommandIds::Menu::EditToggleUVLock, UVLockBitmap());
+        }
+
+        wxBitmap MapFrame::UVLockBitmap() {
+            if (pref(Preferences::UVLock)) {
+                return IO::loadImageResource("UVLockOn.png");
+            } else {
+                return IO::loadImageResource("UVLockOff.png");
+            }
         }
 
         void MapFrame::OnEditSnapVerticesToInteger(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            
+
             if (canSnapVertices()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->snapVertices(1u);
             }
         }
-        
+
         void MapFrame::OnEditSnapVerticesToGrid(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -1282,26 +1352,26 @@ namespace TrenchBroom {
                 m_mapView->moveCameraToPosition(position, true);
             }
         }
-        
+
         void MapFrame::OnViewHideSelectedObjects(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            
+
             if (canHide()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->hideSelection();
             }
         }
-        
+
         void MapFrame::OnViewIsolateSelectedObjects(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            
+
             if (canIsolate()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->isolate(m_document->selectedNodes().nodes());
             }
         }
-        
+
         void MapFrame::OnViewShowHiddenObjects(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            
+
             m_document->showAll();
         }
 
@@ -1335,7 +1405,7 @@ namespace TrenchBroom {
 
         void MapFrame::OnViewToggleMaximizeCurrentView(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-         
+
             m_mapView->toggleMaximizeCurrentView();
         }
 
@@ -1359,7 +1429,7 @@ namespace TrenchBroom {
 
         void MapFrame::OnRunCompile(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            
+
             if (m_compilationDialog == nullptr) {
                 m_compilationDialog = new CompilationDialog(this);
                 m_compilationDialog->Show();
@@ -1374,20 +1444,20 @@ namespace TrenchBroom {
 
         void MapFrame::OnRunLaunch(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            
+
             LaunchGameEngineDialog dialog(this, m_document);
             dialog.ShowModal();
         }
-        
+
         void MapFrame::OnDebugPrintVertices(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            
+
             m_document->printVertices();
         }
 
         void MapFrame::OnDebugCreateBrush(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            
+
             wxTextEntryDialog dialog(this, "Enter a list of at least 4 points (x y z) (x y z) ...", "Create Brush", "");
             if (dialog.ShowModal() == wxID_OK) {
                 const wxString str = dialog.GetValue();
@@ -1399,7 +1469,7 @@ namespace TrenchBroom {
 
         void MapFrame::OnDebugCreateCube(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            
+
             wxTextEntryDialog dialog(this, "Enter bounding box size", "Create Cube", "");
             if (dialog.ShowModal() == wxID_OK) {
                 const auto str = dialog.GetValue();
@@ -1410,10 +1480,10 @@ namespace TrenchBroom {
                 m_document->createBrush(posList);
             }
         }
-        
+
         void MapFrame::OnDebugClipBrush(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            
+
             wxTextEntryDialog dialog(this, "Enter face points ( x y z ) ( x y z ) ( x y z )", "Clip Brush", "");
             if (dialog.ShowModal() == wxID_OK) {
                 const wxString str = dialog.GetValue();
@@ -1426,7 +1496,7 @@ namespace TrenchBroom {
 
         void MapFrame::OnDebugCopyJSShortcutMap(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            
+
             OpenClipboard openClipboard;
             if (wxTheClipboard->IsOpened()) {
                 const String str = ActionManager::instance().getJSTable();
@@ -1455,7 +1525,7 @@ namespace TrenchBroom {
 
         void MapFrame::OnDebugCrash(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            
+
             wxString crashTypes[2] = { "Null pointer dereference", "Unhandled exception" };
 
             wxSingleChoiceDialog d(nullptr, "Choose a crash type", "Crash", 2, crashTypes);
@@ -1503,7 +1573,8 @@ namespace TrenchBroom {
         void MapFrame::OnUpdateUI(wxUpdateUIEvent& event) {
             if (IsBeingDeleted()) return;
 
-            const ActionManager& actionManager = ActionManager::instance();
+            const auto& actionManager = ActionManager::instance();
+            const auto& grid = m_document->grid();
 
             switch (event.GetId()) {
                 case wxID_OPEN:
@@ -1531,6 +1602,10 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::Menu::FileUnloadPortalFile:
                     event.Enable(canUnloadPortalFile());
+                    break;
+                case CommandIds::Menu::FileReloadTextureCollections:
+                case CommandIds::Menu::FileReloadEntityDefinitions:
+                    event.Enable(true);
                     break;
                 case wxID_UNDO: {
                     const ActionMenuItem* item = actionManager.findMenuItem(wxID_UNDO);
@@ -1663,13 +1738,17 @@ namespace TrenchBroom {
                     event.Enable(true);
                     event.Check(pref(Preferences::TextureLock));
                     break;
+                case CommandIds::Menu::EditToggleUVLock:
+                    event.Enable(true);
+                    event.Check(pref(Preferences::UVLock));
+                    break;
                 case CommandIds::Menu::ViewToggleShowGrid:
                     event.Enable(true);
-                    event.Check(m_document->grid().visible());
+                    event.Check(grid.visible());
                     break;
                 case CommandIds::Menu::ViewToggleSnapToGrid:
                     event.Enable(true);
-                    event.Check(m_document->grid().snap());
+                    event.Check(grid.snap());
                     break;
                 case CommandIds::Menu::ViewIncGridSize:
                     event.Enable(canIncGridSize());
@@ -1679,51 +1758,51 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::Menu::ViewSetGridSize0Point125:
                     event.Enable(true);
-                    event.Check(m_document->grid().size() == -3);
+                    event.Check(grid.size() == -3);
                     break;
                 case CommandIds::Menu::ViewSetGridSize0Point25:
                     event.Enable(true);
-                    event.Check(m_document->grid().size() == -2);
+                    event.Check(grid.size() == -2);
                     break;
                 case CommandIds::Menu::ViewSetGridSize0Point5:
                     event.Enable(true);
-                    event.Check(m_document->grid().size() == -1);
+                    event.Check(grid.size() == -1);
                     break;
                 case CommandIds::Menu::ViewSetGridSize1:
                     event.Enable(true);
-                    event.Check(m_document->grid().size() == 0);
+                    event.Check(grid.size() == 0);
                     break;
                 case CommandIds::Menu::ViewSetGridSize2:
                     event.Enable(true);
-                    event.Check(m_document->grid().size() == 1);
+                    event.Check(grid.size() == 1);
                     break;
                 case CommandIds::Menu::ViewSetGridSize4:
                     event.Enable(true);
-                    event.Check(m_document->grid().size() == 2);
+                    event.Check(grid.size() == 2);
                     break;
                 case CommandIds::Menu::ViewSetGridSize8:
                     event.Enable(true);
-                    event.Check(m_document->grid().size() == 3);
+                    event.Check(grid.size() == 3);
                     break;
                 case CommandIds::Menu::ViewSetGridSize16:
                     event.Enable(true);
-                    event.Check(m_document->grid().size() == 4);
+                    event.Check(grid.size() == 4);
                     break;
                 case CommandIds::Menu::ViewSetGridSize32:
                     event.Enable(true);
-                    event.Check(m_document->grid().size() == 5);
+                    event.Check(grid.size() == 5);
                     break;
                 case CommandIds::Menu::ViewSetGridSize64:
                     event.Enable(true);
-                    event.Check(m_document->grid().size() == 6);
+                    event.Check(grid.size() == 6);
                     break;
                 case CommandIds::Menu::ViewSetGridSize128:
                     event.Enable(true);
-                    event.Check(m_document->grid().size() == 7);
+                    event.Check(grid.size() == 7);
                     break;
                 case CommandIds::Menu::ViewSetGridSize256:
                     event.Enable(true);
-                    event.Check(m_document->grid().size() == 8);
+                    event.Check(grid.size() == 8);
                     break;
                 case CommandIds::Menu::ViewMoveCameraToNextPoint:
                     event.Enable(canMoveCameraToNextPoint());
@@ -1870,7 +1949,7 @@ namespace TrenchBroom {
         bool MapFrame::canPaste() const {
             if (!m_mapView->isCurrent())
                 return false;
-            
+
             OpenClipboard openClipboard;
             return wxTheClipboard->IsOpened() && wxTheClipboard->IsSupported(wxDF_TEXT);
         }
@@ -1934,11 +2013,14 @@ namespace TrenchBroom {
 
         bool MapFrame::canDoCsgConvexMerge() const {
             return (m_document->hasSelectedBrushFaces() && m_document->selectedBrushFaces().size() > 1) ||
-                   (m_document->selectedNodes().hasOnlyBrushes() && m_document->selectedNodes().brushCount() > 1);
+                   (m_document->selectedNodes().hasOnlyBrushes() && m_document->selectedNodes().brushCount() > 1) ||
+                   (m_mapView->vertexToolActive() && m_mapView->vertexTool()->canDoCsgConvexMerge()) ||
+                   (m_mapView->edgeToolActive() && m_mapView->edgeTool()->canDoCsgConvexMerge()) ||
+                   (m_mapView->faceToolActive() && m_mapView->faceTool()->canDoCsgConvexMerge());
         }
 
         bool MapFrame::canDoCsgSubtract() const {
-            return m_document->selectedNodes().hasOnlyBrushes() && m_document->selectedNodes().brushCount() > 1;
+            return m_document->selectedNodes().hasOnlyBrushes() && m_document->selectedNodes().brushCount() >= 1;
         }
 
         bool MapFrame::canDoCsgIntersect() const {
@@ -2000,18 +2082,18 @@ namespace TrenchBroom {
 
             m_autosaver->triggerAutosave(logger());
         }
-        
+
         int MapFrame::indexForGridSize(const int gridSize) {
             return gridSize - Grid::MinSize;
         }
-        
+
         int MapFrame::gridSizeForIndex(const int index) {
             const int size = index + Grid::MinSize;
             assert(size <= Grid::MaxSize);
             assert(size >= Grid::MinSize);
             return size;
         }
-        
+
         int MapFrame::gridSizeForMenuId(const int menuId) {
             const int size = menuId - CommandIds::Menu::ViewSetGridSize1;
             assert(size <= Grid::MaxSize);

@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -39,6 +39,7 @@
 #include <vecmath/bbox.h>
 #include <vecmath/util.h>
 
+#include <list>
 #include <memory>
 
 class Color;
@@ -48,7 +49,7 @@ namespace TrenchBroom {
         class EntityModelManager;
         class TextureManager;
     }
-    
+
     namespace Model {
         class BrushFaceAttributes;
         class ChangeBrushFaceAttributesRequest;
@@ -57,8 +58,10 @@ namespace TrenchBroom {
         class PickResult;
         class PointFile;
         class PortalFile;
+        class TagManager;
+        class SmartTag;
     }
-    
+
     namespace View {
         class Command;
         class Grid;
@@ -66,7 +69,7 @@ namespace TrenchBroom {
         class Selection;
         class UndoableCommand;
         class ViewEffectsService;
-        
+
         class MapDocument : public Model::MapFacade, public CachingLogger {
         public:
             static const vm::bbox3 DefaultWorldBounds;
@@ -74,21 +77,22 @@ namespace TrenchBroom {
         protected:
             vm::bbox3 m_worldBounds;
             Model::GameSPtr m_game;
-            Model::World* m_world;
-            Model::Layer* m_currentLayer;
+            std::unique_ptr<Model::World> m_world;
+
             std::unique_ptr<Model::PointFile> m_pointFile;
             std::unique_ptr<Model::PortalFile> m_portalFile;
             IO::Path m_pointFilePath;
             IO::Path m_portalFilePath;
-            Model::EditorContext* m_editorContext;
-            
-            Assets::EntityDefinitionManager* m_entityDefinitionManager;
-            Assets::EntityModelManager* m_entityModelManager;
-            Assets::TextureManager* m_textureManager;
-            
-            MapViewConfig* m_mapViewConfig;
-            Grid* m_grid;
-            
+
+            std::unique_ptr<Assets::EntityDefinitionManager> m_entityDefinitionManager;
+            std::unique_ptr<Assets::EntityModelManager> m_entityModelManager;
+            std::unique_ptr<Assets::TextureManager> m_textureManager;
+            std::unique_ptr<Model::TagManager> m_tagManager;
+
+            std::unique_ptr<Model::EditorContext> m_editorContext;
+            std::unique_ptr<MapViewConfig> m_mapViewConfig;
+            std::unique_ptr<Grid> m_grid;
+
             IO::Path m_path;
             size_t m_lastSaveModificationCount;
             size_t m_modificationCount;
@@ -96,94 +100,97 @@ namespace TrenchBroom {
             Model::NodeCollection m_partiallySelectedNodes;
             Model::NodeCollection m_selectedNodes;
             Model::BrushFaceList m_selectedBrushFaces;
-            
+
+            Model::Layer* m_currentLayer;
             String m_currentTextureName;
             vm::bbox3 m_lastSelectionBounds;
             mutable vm::bbox3 m_selectionBounds;
             mutable bool m_selectionBoundsValid;
-            
+
             ViewEffectsService* m_viewEffectsService;
         public: // notification
-            Notifier1<Command::Ptr> commandDoNotifier;
-            Notifier1<Command::Ptr> commandDoneNotifier;
-            Notifier1<Command::Ptr> commandDoFailedNotifier;
-            Notifier1<UndoableCommand::Ptr> commandUndoNotifier;
-            Notifier1<UndoableCommand::Ptr> commandUndoneNotifier;
-            Notifier1<UndoableCommand::Ptr> commandUndoFailedNotifier;
-            
-            Notifier1<MapDocument*> documentWillBeClearedNotifier;
-            Notifier1<MapDocument*> documentWasClearedNotifier;
-            Notifier1<MapDocument*> documentWasNewedNotifier;
-            Notifier1<MapDocument*> documentWasLoadedNotifier;
-            Notifier1<MapDocument*> documentWasSavedNotifier;
-            Notifier0 documentModificationStateDidChangeNotifier;
-            
-            Notifier0 editorContextDidChangeNotifier;
-            Notifier0 mapViewConfigDidChangeNotifier;
-            Notifier1<const Model::Layer*> currentLayerDidChangeNotifier;
-            Notifier1<const String&> currentTextureNameDidChangeNotifier;
-            
-            Notifier0 selectionWillChangeNotifier;
-            Notifier1<const Selection&> selectionDidChangeNotifier;
-            
-            Notifier1<const Model::NodeList&> nodesWereAddedNotifier;
-            Notifier1<const Model::NodeList&> nodesWillBeRemovedNotifier;
-            Notifier1<const Model::NodeList&> nodesWereRemovedNotifier;
-            Notifier1<const Model::NodeList&> nodesWillChangeNotifier;
-            Notifier1<const Model::NodeList&> nodesDidChangeNotifier;
-            
-            Notifier1<const Model::NodeList&> nodeVisibilityDidChangeNotifier;
-            Notifier1<const Model::NodeList&> nodeLockingDidChangeNotifier;
-            
-            Notifier1<Model::Group*> groupWasOpenedNotifier;
-            Notifier1<Model::Group*> groupWasClosedNotifier;
-            
-            Notifier1<const Model::BrushFaceList&> brushFacesDidChangeNotifier;
+            Notifier<Command::Ptr> commandDoNotifier;
+            Notifier<Command::Ptr> commandDoneNotifier;
+            Notifier<Command::Ptr> commandDoFailedNotifier;
+            Notifier<UndoableCommand::Ptr> commandUndoNotifier;
+            Notifier<UndoableCommand::Ptr> commandUndoneNotifier;
+            Notifier<UndoableCommand::Ptr> commandUndoFailedNotifier;
 
-            Notifier0 textureCollectionsWillChangeNotifier;
-            Notifier0 textureCollectionsDidChangeNotifier;
+            Notifier<MapDocument*> documentWillBeClearedNotifier;
+            Notifier<MapDocument*> documentWasClearedNotifier;
+            Notifier<MapDocument*> documentWasNewedNotifier;
+            Notifier<MapDocument*> documentWasLoadedNotifier;
+            Notifier<MapDocument*> documentWasSavedNotifier;
+            Notifier<> documentModificationStateDidChangeNotifier;
 
-            Notifier0 entityDefinitionsDidChangeNotifier;
-            Notifier0 modsDidChangeNotifier;
-            
-            Notifier0 pointFileWasLoadedNotifier;
-            Notifier0 pointFileWasUnloadedNotifier;
-            
-            Notifier0 portalFileWasLoadedNotifier;
-            Notifier0 portalFileWasUnloadedNotifier;
+            Notifier<> editorContextDidChangeNotifier;
+            Notifier<> mapViewConfigDidChangeNotifier;
+            Notifier<const Model::Layer*> currentLayerDidChangeNotifier;
+            Notifier<const String&> currentTextureNameDidChangeNotifier;
+
+            Notifier<> selectionWillChangeNotifier;
+            Notifier<const Selection&> selectionDidChangeNotifier;
+
+            Notifier<const Model::NodeList&> nodesWereAddedNotifier;
+            Notifier<const Model::NodeList&> nodesWillBeRemovedNotifier;
+            Notifier<const Model::NodeList&> nodesWereRemovedNotifier;
+            Notifier<const Model::NodeList&> nodesWillChangeNotifier;
+            Notifier<const Model::NodeList&> nodesDidChangeNotifier;
+
+            Notifier<const Model::NodeList&> nodeVisibilityDidChangeNotifier;
+            Notifier<const Model::NodeList&> nodeLockingDidChangeNotifier;
+
+            Notifier<Model::Group*> groupWasOpenedNotifier;
+            Notifier<Model::Group*> groupWasClosedNotifier;
+
+            Notifier<const Model::BrushFaceList&> brushFacesDidChangeNotifier;
+
+            Notifier<> textureCollectionsWillChangeNotifier;
+            Notifier<> textureCollectionsDidChangeNotifier;
+
+            Notifier<> entityDefinitionsDidChangeNotifier;
+            Notifier<> modsDidChangeNotifier;
+
+            Notifier<> pointFileWasLoadedNotifier;
+            Notifier<> pointFileWasUnloadedNotifier;
+
+            Notifier<> portalFileWasLoadedNotifier;
+            Notifier<> portalFileWasUnloadedNotifier;
         protected:
             MapDocument();
         public:
-            virtual ~MapDocument() override;
+            ~MapDocument() override;
         public: // accessors and such
-            Model::GameSPtr game() const;
+            Logger& logger();
+
+            Model::GameSPtr game() const override;
             const vm::bbox3& worldBounds() const;
             Model::World* world() const;
 
             bool isGamePathPreference(const IO::Path& path) const;
-            
-            Model::Layer* currentLayer() const;
+
+            Model::Layer* currentLayer() const override;
             void setCurrentLayer(Model::Layer* currentLayer);
-            
-            Model::Group* currentGroup() const;
-            Model::Node* currentParent() const;
-            
+
+            Model::Group* currentGroup() const override;
+            Model::Node* currentParent() const override;
+
             Model::EditorContext& editorContext() const;
-            
-            Assets::EntityDefinitionManager& entityDefinitionManager();
-            Assets::EntityModelManager& entityModelManager();
-            Assets::TextureManager& textureManager();
-            
+
+            Assets::EntityDefinitionManager& entityDefinitionManager() override;
+            Assets::EntityModelManager& entityModelManager() override;
+            Assets::TextureManager& textureManager() override;
+
             MapViewConfig& mapViewConfig() const;
             Grid& grid() const;
-            
+
             Model::PointFile* pointFile() const;
             Model::PortalFile* portalFile() const;
-            
+
             void setViewEffectsService(ViewEffectsService* viewEffectsService);
         public: // new, load, save document
-            void newDocument(Model::MapFormat::Type mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game);
-            void loadDocument(Model::MapFormat::Type mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game, const IO::Path& path);
+            void newDocument(Model::MapFormat mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game);
+            void loadDocument(Model::MapFormat mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game, const IO::Path& path);
             void saveDocument();
             void saveDocumentAs(const IO::Path& path);
             void saveDocumentTo(const IO::Path& path);
@@ -194,7 +201,7 @@ namespace TrenchBroom {
         public: // copy and paste
             String serializeSelectedNodes();
             String serializeSelectedBrushFaces();
-            
+
             PasteType paste(const String& str);
         private:
             bool pasteNodes(const Model::NodeList& nodes);
@@ -226,7 +233,7 @@ namespace TrenchBroom {
             const vm::bbox3& selectionBounds() const override;
             const String& currentTextureName() const override;
             void setCurrentTextureName(const String& currentTextureName);
-            
+
             void selectAllNodes() override;
             void selectSiblings() override;
             void selectTouching(bool del) override;
@@ -237,7 +244,7 @@ namespace TrenchBroom {
             void select(const Model::BrushFaceList& faces) override;
             void select(Model::BrushFace* face) override;
             void convertToFaceSelection() override;
-            
+
             void deselectAll() override;
             void deselect(Model::Node* node) override;
             void deselect(const Model::NodeList& nodes) override;
@@ -254,14 +261,14 @@ namespace TrenchBroom {
 
             Model::NodeList addNodes(const Model::ParentChildrenMap& nodes) override;
             Model::NodeList addNodes(const Model::NodeList& nodes, Model::Node* parent) override;
-            
+
             void removeNodes(const Model::NodeList& nodes) override;
         private:
             Model::ParentChildrenMap collectRemovableParents(const Model::ParentChildrenMap& nodes) const;
-            
+
             struct CompareByAncestry;
             Model::NodeList removeImplicitelyRemovedNodes(Model::NodeList nodes) const;
-            
+
             void closeRemovedGroups(const Model::ParentChildrenMap& toRemove);
         public:
             bool reparentNodes(Model::Node* newParent, const Model::NodeList& children) override;
@@ -272,8 +279,8 @@ namespace TrenchBroom {
             bool deleteObjects() override;
             bool duplicateObjects() override;
         public: // entity management
-            Model::Entity* createPointEntity(const Assets::PointEntityDefinition* definition, const vm::vec3& delta);
-            Model::Entity* createBrushEntity(const Assets::BrushEntityDefinition* definition);
+            Model::Entity* createPointEntity(const Assets::PointEntityDefinition* definition, const vm::vec3& delta) override;
+            Model::Entity* createBrushEntity(const Assets::BrushEntityDefinition* definition) override;
         public: // group management
             Model::Group* groupSelection(const String& name);
             void mergeSelectedGroupsWithGroup(Model::Group* group);
@@ -283,18 +290,18 @@ namespace TrenchBroom {
         public:
             void ungroupSelection();
             void renameGroups(const String& name);
-            
+
             void openGroup(Model::Group* group);
             void closeGroup();
         public: // modifying transient node attributes, declared in MapFacade interface
             void isolate(const Model::NodeList& nodes);
-            void hide(const Model::NodeList nodes) override; // Don't take the nodes by reference!
+            void hide(Model::NodeList nodes) override; // Don't take the nodes by reference!
             void hideSelection();
             void show(const Model::NodeList& nodes) override;
             void showAll();
             void ensureVisible(const Model::NodeList& nodes);
             void resetVisibility(const Model::NodeList& nodes) override;
-            
+
             void lock(const Model::NodeList& nodes) override;
             void unlock(const Model::NodeList& nodes) override;
             void resetLock(const Model::NodeList& nodes) override;
@@ -305,19 +312,19 @@ namespace TrenchBroom {
             bool scaleObjects(const vm::vec3& center, const vm::vec3& scaleFactors) override;
             bool shearObjects(const vm::bbox3& box, const vm::vec3& sideToShear, const vm::vec3& delta) override;
             bool flipObjects(const vm::vec3& center, vm::axis::type axis) override;
-        public:
+        public: // CSG operations, declared in MapFacade interface
             bool createBrush(const std::vector<vm::vec3>& points);
             bool csgConvexMerge();
             bool csgSubtract();
             bool csgIntersect();
             bool csgHollow();
-        public:
+        public: // Clipping operations, declared in MapFacade interface
             bool clipBrushes(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3);
         public: // modifying entity attributes, declared in MapFacade interface
             bool setAttribute(const Model::AttributeName& name, const Model::AttributeValue& value) override;
             bool renameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName) override;
             bool removeAttribute(const Model::AttributeName& name) override;
-            
+
             bool convertEntityColorRange(const Model::AttributeName& name, Assets::ColorRange::Type range) override;
             bool updateSpawnflag(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag) override;
         public: // brush resizing, declared in MapFacade interface
@@ -329,20 +336,20 @@ namespace TrenchBroom {
         public:
             bool setFaceAttributes(const Model::BrushFaceAttributes& attributes) override;
             bool setFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request) override;
-            bool copyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot* coordSystemSnapshot, const Model::BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const Model::WrapStyle wrapStyle);
+            bool copyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot& coordSystemSnapshot, const Model::BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const Model::WrapStyle wrapStyle);
             bool moveTextures(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta) override;
             bool rotateTextures(float angle) override;
             bool shearTextures(const vm::vec2f& factors) override;
         public: // modifying vertices, declared in MapFacade interface
             void rebuildBrushGeometry(const Model::BrushList& brushes) override;
-            
+
             bool snapVertices(FloatType snapTo) override;
             bool findPlanePoints() override;
-            
+
             MoveVerticesResult moveVertices(const Model::VertexToBrushesMap& vertices, const vm::vec3& delta) override;
             bool moveEdges(const Model::EdgeToBrushesMap& edges, const vm::vec3& delta) override;
             bool moveFaces(const Model::FaceToBrushesMap& faces, const vm::vec3& delta) override;
-            
+
             bool addVertices(const Model::VertexToBrushesMap& vertices);
             bool removeVertices(const Model::VertexToBrushesMap& vertices);
             bool removeEdges(const Model::EdgeToBrushesMap& edges);
@@ -378,7 +385,7 @@ namespace TrenchBroom {
             virtual void doRedoNextCommand() = 0;
             virtual bool doRepeatLastCommands() = 0;
             virtual void doClearRepeatableCommands() = 0;
-            
+
             virtual void doBeginTransaction(const String& name) = 0;
             virtual void doEndTransaction() = 0;
             virtual void doRollbackTransaction() = 0;
@@ -391,8 +398,8 @@ namespace TrenchBroom {
             void pick(const vm::ray3& pickRay, Model::PickResult& pickResult) const;
             Model::NodeList findNodesContaining(const vm::vec3& point) const;
         private: // world management
-            void createWorld(Model::MapFormat::Type mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game);
-            void loadWorld(Model::MapFormat::Type mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game, const IO::Path& path);
+            void createWorld(Model::MapFormat mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game);
+            void loadWorld(Model::MapFormat mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game, const IO::Path& path);
             void clearWorld();
         public: // asset management
             Assets::EntityDefinitionFileSpec entityDefinitionFile() const;
@@ -406,33 +413,46 @@ namespace TrenchBroom {
             IO::Path::List availableTextureCollections() const;
             void setEnabledTextureCollections(const IO::Path::List& paths);
             void reloadTextureCollections();
+
+            void reloadEntityDefinitions();
         private:
             void loadAssets();
             void unloadAssets();
-            
+
             void loadEntityDefinitions();
             void unloadEntityDefinitions();
-            
+
             void loadEntityModels();
             void unloadEntityModels();
         protected:
+            void reloadTextures();
             void loadTextures();
             void unloadTextures();
 
+            class SetTextures;
+            class UnsetTextures;
+            void setTextures();
+            void setTextures(const Model::NodeList& nodes);
+            void setTextures(const Model::BrushFaceList& faces);
+            void unsetTextures();
+            void unsetTextures(const Model::NodeList& nodes);
+
+            class SetEntityDefinitions;
+            class UnsetEntityDefinitions;
             void setEntityDefinitions();
             void setEntityDefinitions(const Model::NodeList& nodes);
             void unsetEntityDefinitions();
             void unsetEntityDefinitions(const Model::NodeList& nodes);
-            void reloadEntityDefinitions();
-            
+            void reloadEntityDefinitionsInternal();
+
             void clearEntityModels();
 
-            void setTextures();
-            void setTextures(const Model::NodeList& nodes);
-            void setTextures(const Model::BrushFaceList& faces);
-            
-            void unsetTextures();
-            void unsetTextures(const Model::NodeList& nodes);
+            class SetEntityModels;
+            class UnsetEntityModels;
+            void setEntityModels();
+            void setEntityModels(const Model::NodeList& nodes);
+            void unsetEntityModels();
+            void unsetEntityModels(const Model::NodeList& nodes);
         protected: // search paths and mods
             IO::Path::List externalSearchPaths() const;
             void updateGameSearchPaths();
@@ -446,6 +466,24 @@ namespace TrenchBroom {
             void setIssueHidden(Model::Issue* issue, bool hidden);
         private:
             virtual void doSetIssueHidden(Model::Issue* issue, bool hidden) = 0;
+        public: // tag management
+            void registerSmartTags(); // public for testing
+            const std::list<Model::SmartTag>& smartTags() const;
+            bool isRegisteredSmartTag(const String& name) const;
+            const Model::SmartTag& smartTag(const String& name) const;
+            bool isRegisteredSmartTag(size_t index) const;
+            const Model::SmartTag& smartTag(size_t index) const;
+        private:
+            class InitializeNodeTagsVisitor;
+            class ClearNodeTagsVisitor;
+            void initializeNodeTags(MapDocument* document);
+            void initializeNodeTags(const Model::NodeList& nodes);
+            void clearNodeTags(const Model::NodeList& nodes);
+            void updateNodeTags(const Model::NodeList& nodes);
+
+            class InitializeFaceTagsVisitor;
+            void updateFaceTags(const Model::BrushFaceList& faces);
+            void updateAllFaceTags();
         public: // document path
             bool persistent() const;
             String filename() const;
@@ -471,11 +509,11 @@ namespace TrenchBroom {
             MapDocument* m_document;
             bool m_cancelled;
         public:
-            Transaction(MapDocumentWPtr document, const String& name = "");
-            Transaction(MapDocumentSPtr document, const String& name = "");
-            Transaction(MapDocument* document, const String& name = "");
+            explicit Transaction(MapDocumentWPtr document, const String& name = "");
+            explicit Transaction(MapDocumentSPtr document, const String& name = "");
+            explicit Transaction(MapDocument* document, const String& name = "");
             ~Transaction();
-            
+
             void rollback();
             void cancel();
         private:

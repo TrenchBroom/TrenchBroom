@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -59,28 +59,28 @@ namespace TrenchBroom {
 
                 m_nameText = new wxStaticText(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_END);
                 m_taskCountText = new wxStaticText(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_MIDDLE);
-                
+
                 m_nameText->SetFont(m_nameText->GetFont().Bold());
                 m_taskCountText->SetForegroundColour(makeLighter(m_taskCountText->GetForegroundColour()));
 #ifndef _WIN32
                 m_taskCountText->SetWindowVariant(wxWINDOW_VARIANT_SMALL);
 #endif
-                
+
                 wxSizer* vSizer = new wxBoxSizer(wxVERTICAL);
                 vSizer->Add(m_nameText, wxSizerFlags().Expand());
                 vSizer->Add(m_taskCountText, wxSizerFlags().Expand());
-                
+
                 wxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
                 hSizer->AddSpacer(margins.x);
                 hSizer->Add(vSizer, wxSizerFlags().Expand().Proportion(1).Border(wxTOP | wxBOTTOM, margins.y));
                 hSizer->AddSpacer(margins.x);
 
                 SetSizer(hSizer);
-                
+
                 refresh();
                 addObservers();
             }
-            
+
             ~ProfileItem() override {
                 if (m_profile != nullptr)
                     removeObservers();
@@ -90,23 +90,23 @@ namespace TrenchBroom {
                 m_profile->profileWillBeRemoved.addObserver(this, &ProfileItem::profileWillBeRemoved);
                 m_profile->profileDidChange.addObserver(this, &ProfileItem::profileDidChange);
             }
-            
+
             void removeObservers() {
                 m_profile->profileWillBeRemoved.removeObserver(this, &ProfileItem::profileWillBeRemoved);
                 m_profile->profileDidChange.removeObserver(this, &ProfileItem::profileDidChange);
             }
-            
+
             void profileWillBeRemoved() {
                 if (m_profile != nullptr) {
                     removeObservers();
                     m_profile = nullptr;
                 }
             }
-            
+
             void profileDidChange() {
                 refresh();
             }
-            
+
             void refresh() {
                 if (m_profile == nullptr) {
                     m_nameText->SetLabel("");

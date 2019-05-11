@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -45,7 +45,7 @@ namespace TrenchBroom {
                 m_worldBounds = vm::bbox3d(8192.0);
                 m_entity = new Entity();
                 m_entity->addOrUpdateAttribute(AttributeNames::Classname, TestClassname);
-                m_world = new World(MapFormat::Standard, nullptr, m_worldBounds);
+                m_world = new World(MapFormat::Standard, m_worldBounds);
             }
 
             void TearDown() override {
@@ -121,6 +121,68 @@ namespace TrenchBroom {
 
             m_entity->transform(vm::translationMatrix(vm::vec3d(100.0, 0.0, 0.0)), true, m_worldBounds);
             EXPECT_EQ(rotMat, m_entity->rotation());
+        }
+
+        TEST_F(EntityTest, rotationMatrixToEulerAngles) {
+            const auto roll  = vm::toRadians(12.0);
+            const auto pitch = vm::toRadians(13.0);
+            const auto yaw   = vm::toRadians(14.0);
+
+            const auto rotMat = vm::rotationMatrix(roll, pitch, yaw);
+
+            const auto yawPitchRoll = EntityRotationPolicy::getYawPitchRoll(vm::mat4x4::identity, rotMat);
+
+            EXPECT_DOUBLE_EQ(12.0, yawPitchRoll.z());
+            EXPECT_DOUBLE_EQ(13.0, yawPitchRoll.y());
+            EXPECT_DOUBLE_EQ(14.0, yawPitchRoll.x());
+        }
+
+        TEST_F(EntityTest, rotationMatrixToEulerAngles_uniformScale) {
+            const auto roll = vm::toRadians(12.0);
+            const auto pitch = vm::toRadians(13.0);
+            const auto yaw = vm::toRadians(14.0);
+
+            const auto scaleMat = vm::scalingMatrix(vm::vec3(2.0, 2.0, 2.0));
+            const auto rotMat = vm::rotationMatrix(roll, pitch, yaw);
+
+            const auto yawPitchRoll = EntityRotationPolicy::getYawPitchRoll(scaleMat, rotMat);
+
+            // The uniform scale has no effect
+            EXPECT_DOUBLE_EQ(12.0, yawPitchRoll.z());
+            EXPECT_DOUBLE_EQ(13.0, yawPitchRoll.y());
+            EXPECT_DOUBLE_EQ(14.0, yawPitchRoll.x());
+        }
+
+        TEST_F(EntityTest, rotationMatrixToEulerAngles_nonUniformScale) {
+            const auto roll = vm::toRadians(0.0);
+            const auto pitch = vm::toRadians(45.0);
+            const auto yaw = vm::toRadians(0.0);
+
+            const auto scaleMat = vm::scalingMatrix(vm::vec3(2.0, 1.0, 1.0));
+            const auto rotMat = vm::rotationMatrix(roll, pitch, yaw);
+
+            const auto yawPitchRoll = EntityRotationPolicy::getYawPitchRoll(scaleMat, rotMat);
+
+            const auto expectedPitch = vm::toDegrees(std::atan(0.5)); // ~= 26.57 degrees
+
+            EXPECT_DOUBLE_EQ(0.0, yawPitchRoll.z());
+            EXPECT_DOUBLE_EQ(expectedPitch, yawPitchRoll.y());
+            EXPECT_DOUBLE_EQ(0.0, yawPitchRoll.x());
+        }
+
+        TEST_F(EntityTest, rotationMatrixToEulerAngles_flip) {
+            const auto roll = vm::toRadians(10.0);
+            const auto pitch = vm::toRadians(45.0);
+            const auto yaw = vm::toRadians(0.0);
+
+            const auto scaleMat = vm::scalingMatrix(vm::vec3(-1.0, 1.0, 1.0));
+            const auto rotMat = vm::rotationMatrix(roll, pitch, yaw);
+
+            const auto yawPitchRoll = EntityRotationPolicy::getYawPitchRoll(scaleMat, rotMat);
+
+            EXPECT_DOUBLE_EQ(-10.0, yawPitchRoll.z());
+            EXPECT_DOUBLE_EQ(45.0, yawPitchRoll.y());
+            EXPECT_DOUBLE_EQ(180.0, yawPitchRoll.x());
         }
     }
 }

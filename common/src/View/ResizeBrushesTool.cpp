@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -59,7 +59,7 @@ namespace TrenchBroom {
         m_dragging(false) {
             bindObservers();
         }
-        
+
         ResizeBrushesTool::~ResizeBrushesTool() {
             unbindObservers();
         }
@@ -68,7 +68,7 @@ namespace TrenchBroom {
             auto document = lock(m_document);
             return document->selectedNodes().hasBrushes();
         }
-        
+
         Model::Hit ResizeBrushesTool::pick2D(const vm::ray3& pickRay, const Model::PickResult& pickResult) {
             auto document = lock(m_document);
             const auto& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().selected().first();
@@ -78,7 +78,7 @@ namespace TrenchBroom {
                 return pickProximateFace(ResizeHit2D, pickRay);
             }
         }
-        
+
         Model::Hit ResizeBrushesTool::pick3D(const vm::ray3& pickRay, const Model::PickResult& pickResult) {
             auto document = lock(m_document);
             const auto& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().selected().first();
@@ -88,7 +88,7 @@ namespace TrenchBroom {
                 return pickProximateFace(ResizeHit3D, pickRay);
             }
         }
-        
+
         class ResizeBrushesTool::PickProximateFace : public Model::ConstNodeVisitor, public Model::NodeQuery<Model::Hit> {
         private:
             const Model::Hit::HitType m_hitType;
@@ -109,13 +109,13 @@ namespace TrenchBroom {
                 for (const auto edge : brush->edges())
                     visitEdge(edge);
             }
-            
+
             void visitEdge(Model::BrushEdge* edge) {
                 auto* left = edge->firstFace()->payload();
                 auto* right = edge->secondFace()->payload();
                 const auto leftDot  = dot(left->boundary().normal,  m_pickRay.direction);
                 const auto rightDot = dot(right->boundary().normal, m_pickRay.direction);
-                
+
                 if ((leftDot > 0.0) != (rightDot > 0.0)) {
                     const auto result = vm::distance(m_pickRay, vm::segment3(edge->firstVertex()->position(), edge->secondVertex()->position()));
                     if (!vm::isnan(result.distance) && result.distance < m_closest) {
@@ -144,14 +144,14 @@ namespace TrenchBroom {
                 }
             }
         };
-        
+
         Model::Hit ResizeBrushesTool::pickProximateFace(const Model::Hit::HitType hitType, const vm::ray3& pickRay) const {
             PickProximateFace visitor(hitType, pickRay);
-            
+
             auto document = lock(m_document);
             const auto& nodes = document->selectedNodes().nodes();
             Model::Node::accept(std::begin(nodes), std::end(nodes), visitor);
-            
+
             if (!visitor.hasResult()) {
                 return Model::Hit::NoHit;
             } else {
@@ -162,7 +162,7 @@ namespace TrenchBroom {
         bool ResizeBrushesTool::hasDragFaces() const {
             return !m_dragHandles.empty();
         }
-        
+
         Model::BrushFaceList ResizeBrushesTool::dragFaces() const {
             Model::BrushFaceList result;
             for (const auto& handle : m_dragHandles) {
@@ -174,7 +174,7 @@ namespace TrenchBroom {
             }
             return result;
         }
-        
+
         void ResizeBrushesTool::updateDragFaces(const Model::PickResult& pickResult) {
             const auto& hit = pickResult.query().type(ResizeHit2D | ResizeHit3D).occluded().first();
             auto newDragHandles = getDragHandles(hit);
@@ -202,7 +202,7 @@ namespace TrenchBroom {
             m_reference(reference) {
                 ensure(m_reference != nullptr, "reference is null");
             }
-            
+
             bool operator()(Model::BrushFace* face) const {
                 return face != m_reference && isEqual(face->boundary(), m_reference->boundary(), vm::C::almostZero());
             }
@@ -211,7 +211,7 @@ namespace TrenchBroom {
         std::vector<ResizeBrushesTool::FaceHandle> ResizeBrushesTool::collectDragHandles(const Model::Hit& hit) const {
             assert(hit.isMatch());
             assert(hit.type() == ResizeHit2D || hit.type() == ResizeHit3D);
-            
+
             Model::BrushFaceList result;
             if (hit.type() == ResizeHit2D) {
                 const Model::BrushFaceList& faces = hit.target<Model::BrushFaceList>();
@@ -232,7 +232,7 @@ namespace TrenchBroom {
 
         Model::BrushFaceList ResizeBrushesTool::collectDragFaces(Model::BrushFace* face) const {
             Model::CollectMatchingBrushFacesVisitor<MatchFaceBoundary> visitor((MatchFaceBoundary(face)));
-            
+
             MapDocumentSPtr document = lock(m_document);
             const Model::NodeList& nodes = document->selectedNodes().nodes();
             Model::Node::accept(std::begin(nodes), std::end(nodes), visitor);
@@ -265,7 +265,7 @@ namespace TrenchBroom {
 
         bool ResizeBrushesTool::resize(const vm::ray3& pickRay, const Renderer::Camera& camera) {
             assert(hasDragFaces());
-            
+
             auto* dragFace = dragFaces().front();
             const auto& faceNormal = dragFace->boundary().normal;
 
@@ -275,12 +275,12 @@ namespace TrenchBroom {
             }
 
             const auto dragDist = dist.position2;
-            
+
             auto document = lock(m_document);
             const auto& grid = document->grid();
             const auto relativeFaceDelta = grid.snap(dragDist) * faceNormal;
             const auto absoluteFaceDelta = grid.moveDelta(dragFace, faceNormal * dragDist);
-            
+
             const auto faceDelta = selectDelta(relativeFaceDelta, absoluteFaceDelta, dragDist);
             if (isZero(faceDelta, vm::C::almostZero())) {
                 return true;
@@ -298,10 +298,10 @@ namespace TrenchBroom {
                     m_dragOrigin = m_dragOrigin + faceDelta;
                 }
             }
-            
+
             return true;
         }
-        
+
         vm::vec3 ResizeBrushesTool::selectDelta(const vm::vec3& relativeDelta, const vm::vec3& absoluteDelta, const FloatType mouseDistance) const {
             // select the delta that is closest to the actual delta indicated by the mouse cursor
             const auto mouseDistance2 = mouseDistance * mouseDistance;
@@ -329,7 +329,7 @@ namespace TrenchBroom {
 
         bool ResizeBrushesTool::move(const vm::ray3& pickRay, const Renderer::Camera& camera) {
             const auto dragPlane = vm::plane3(m_dragOrigin, vm::vec3(camera.direction()));
-            const auto hitDist = vm::intersect(pickRay, dragPlane);
+            const auto hitDist = vm::intersectRayAndPlane(pickRay, dragPlane);
             if (vm::isnan(hitDist)) {
                 return true;
             }
@@ -366,7 +366,7 @@ namespace TrenchBroom {
             m_dragHandles.clear();
             m_dragging = false;
         }
-        
+
         void ResizeBrushesTool::cancel() {
             auto document = lock(m_document);
             document->cancelTransaction();
@@ -378,7 +378,7 @@ namespace TrenchBroom {
             auto document = lock(m_document);
             const vm::bbox3& worldBounds = document->worldBounds();
             const bool lockTextures = pref(Preferences::TextureLock);
-            
+
             // First ensure that the drag can be applied at all. For this, check whether each drag handle is moved
             // "up" along its normal.
             if (!std::all_of(std::begin(m_dragHandles), std::end(m_dragHandles), [&delta](const auto& handle) {
@@ -399,7 +399,7 @@ namespace TrenchBroom {
                 auto* newDragFace = findMatchingFace(newBrush, dragFace);
 
                 newBrushes.push_back(newBrush);
-                newDragHandles.push_back(std::make_tuple(newDragFace->brush(), newDragFace->boundary().normal));
+                newDragHandles.emplace_back(newDragFace->brush(), newDragFace->boundary().normal);
 
                 if (!newBrush->canMoveBoundary(worldBounds, newDragFace, delta)) {
                     // There is a brush for which the move is not applicable. Abort.
@@ -425,8 +425,8 @@ namespace TrenchBroom {
             document->deselectAll();
             const auto addedNodes = document->addNodes(newNodes);
             document->select(addedNodes);
-            m_dragHandles = newDragHandles;
-            
+            m_dragHandles = std::move(newDragHandles);
+
             return true;
         }
 
@@ -456,7 +456,7 @@ namespace TrenchBroom {
             document->nodesWillBeRemovedNotifier.addObserver(this, &ResizeBrushesTool::nodesDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &ResizeBrushesTool::selectionDidChange);
         }
-        
+
         void ResizeBrushesTool::unbindObservers() {
             if (!expired(m_document)) {
                 auto document = lock(m_document);

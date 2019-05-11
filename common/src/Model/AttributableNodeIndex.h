@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -29,9 +29,9 @@
 
 namespace TrenchBroom {
     namespace Model {
-        typedef StringMultiMapValueContainer<AttributableNode*> AttributableNodeIndexValueContainer;
-        typedef StringMap<AttributableNode*, AttributableNodeIndexValueContainer> AttributableNodeStringIndex;
-        
+        using AttributableNodeIndexValueContainer = StringMultiMapValueContainer<AttributableNode*>;
+        using AttributableNodeStringIndex = StringMap<AttributableNode*, AttributableNodeIndexValueContainer>;
+
         class AttributableNodeIndexQuery {
         public:
             typedef enum {
@@ -55,7 +55,7 @@ namespace TrenchBroom {
         private:
             AttributableNodeIndexQuery(Type type, const String& pattern = "");
         };
-        
+
         class AttributableNodeIndex {
         private:
             AttributableNodeStringIndex m_nameIndex;
@@ -63,10 +63,10 @@ namespace TrenchBroom {
         public:
             void addAttributableNode(AttributableNode* attributable);
             void removeAttributableNode(AttributableNode* attributable);
-            
+
             void addAttribute(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
             void removeAttribute(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
-            
+
             AttributableNodeList findAttributableNodes(const AttributableNodeIndexQuery& keyQuery, const AttributeValue& value) const;
             StringList allNames() const;
             StringList allValuesForNames(const AttributableNodeIndexQuery& keyQuery) const;

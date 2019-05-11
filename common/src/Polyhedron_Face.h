@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -54,7 +54,7 @@ m_link(this)
 {
     using std::swap;
     swap(m_boundary, boundary);
-    
+
     assert(m_boundary.size() >= 3);
     setBoundaryFaces();
 }
@@ -339,7 +339,7 @@ void Polyhedron<T,FP,VP>::Face::insertIntoBoundaryBefore(HalfEdge* before, HalfE
     ensure(edge != nullptr, "edge is null");
     assert(before->face() == this);
     assert(edge->face() == nullptr);
-    
+
     edge->setFace(this);
     m_boundary.insertBefore(before, edge, 1);
 }
@@ -350,7 +350,7 @@ void Polyhedron<T,FP,VP>::Face::insertIntoBoundaryAfter(HalfEdge* after, HalfEdg
     ensure(edge != nullptr, "edge is null");
     assert(after->face() == this);
     assert(edge->face() == nullptr);
-    
+
     edge->setFace(this);
     m_boundary.insertAfter(after, edge, 1);
 }
@@ -361,7 +361,7 @@ size_t Polyhedron<T,FP,VP>::Face::removeFromBoundary(HalfEdge* from, HalfEdge* t
     ensure(to != nullptr, "to is null");
     assert(from->face() == this);
     assert(to->face() == this);
-    
+
     const auto removeCount = countAndUnsetFace(from, to->next());
     m_boundary.remove(from, to, removeCount);
     return removeCount;
@@ -386,7 +386,7 @@ size_t Polyhedron<T,FP,VP>::Face::replaceBoundary(HalfEdge* from, HalfEdge* to, 
     assert(from->face() == this);
     assert(to->face() == this);
     assert(with->face() == nullptr);
-    
+
     const auto removeCount = countAndUnsetFace(from, to->next());
     const auto insertCount = countAndSetFace(with, with, this);
     m_boundary.replace(from, to, removeCount, with, insertCount);
@@ -396,7 +396,7 @@ size_t Polyhedron<T,FP,VP>::Face::replaceBoundary(HalfEdge* from, HalfEdge* to, 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::Face::replaceEntireBoundary(HalfEdgeList& newBoundary) {
     using std::swap;
-    
+
     unsetBoundaryFaces();
     swap(m_boundary, newBoundary);
     setBoundaryFaces();
@@ -479,10 +479,10 @@ private:
         Type_Back  = 2,
         Type_None  = 3
     } Type;
-    
+
     Type m_type;
     T m_distance;
-    
+
     RayIntersection(const Type type, const T distance) :
     m_type(type),
     m_distance(distance) {
@@ -500,19 +500,19 @@ public:
     static RayIntersection None() {
         return RayIntersection(Type_None, vm::nan<T>());
     }
-    
+
     bool front() const {
         return m_type == Type_Front;
     }
-    
+
     bool back() const {
         return m_type == Type_Back;
     }
-    
+
     bool none() const {
         return m_type == Type_None;
     }
-    
+
     T distance() const {
         return m_distance;
     }
@@ -522,12 +522,12 @@ template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Face::RayIntersection Polyhedron<T,FP,VP>::Face::intersectWithRay(const vm::ray<T,3>& ray) const {
     const vm::plane<T,3> plane(origin(), normal());
     const auto cos = dot(plane.normal, ray.direction);
-    
+
     if (vm::isZero(cos, vm::constants<T>::almostZero())) {
         return RayIntersection::None();
     }
 
-    const auto distance = vm::intersect(ray, plane, std::begin(m_boundary), std::end(m_boundary), GetVertexPosition());
+    const auto distance = vm::intersectRayAndPolygon(ray, plane, std::begin(m_boundary), std::end(m_boundary), GetVertexPosition());
     if (vm::isnan(distance)) {
         return RayIntersection::None();
     } else if (cos < 0.0) {

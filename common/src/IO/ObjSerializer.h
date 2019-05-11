@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -22,6 +22,8 @@
 
 #include "IO/NodeSerializer.h"
 #include "Model/ModelTypes.h"
+#include "IO/Path.h"
+#include "IO/IOUtils.h"
 
 #include <vecmath/forward.h>
 
@@ -32,21 +34,23 @@
 
 namespace TrenchBroom {
     namespace IO {
+        class OpenFile;
+
         class ObjFileSerializer : public NodeSerializer {
         private:
             template <typename V>
             class IndexMap {
             public:
-                typedef std::vector<V> List;
+                using List = std::vector<V>;
             private:
-                typedef std::map<V, size_t> Map;
+                using Map = std::map<V, size_t>;
                 Map m_map;
                 List m_list;
             public:
                 const List& list() const {
                     return m_list;
                 }
-                
+
                 size_t index(const V& v) {
                     typename Map::iterator indexIt = MapUtils::findOrInsert(m_map, v, m_list.size());
                     const size_t index = indexIt->second;
@@ -63,19 +67,34 @@ namespace TrenchBroom {
 
                 IndexedVertex(size_t i_vertex, size_t i_texCoords, size_t i_normal);
             };
+
+            using IndexedVertexList = std::vector<IndexedVertex>;
             
-            typedef std::vector<IndexedVertex> IndexedVertexList;
-            typedef std::list<IndexedVertexList> FaceList;
+            struct Face {
+                IndexedVertexList verts;
+                String texture;
+                
+                Face(IndexedVertexList i_verts, String i_texture);
+            };
+
+            using FaceList = std::vector<Face>;
 
             struct Object {
                 size_t entityNo;
                 size_t brushNo;
                 FaceList faces;
             };
-            
-            typedef std::list<Object> ObjectList;
-            
+
+            using ObjectList = std::vector<Object>;
+
+            Path m_objPath;
+            Path m_mtlPath;
+
+            IO::OpenFile m_objFile;
+            IO::OpenFile m_mtlFile;
+
             FILE* m_stream;
+            FILE* m_mtlStream;
 
             IndexMap<vm::vec3> m_vertices;
             IndexMap<vm::vec2f> m_texCoords;
@@ -84,21 +103,23 @@ namespace TrenchBroom {
             Object m_currentObject;
             ObjectList m_objects;
         public:
-            ObjFileSerializer(FILE* stream);
+            explicit ObjFileSerializer(const Path& path);
         private:
             void doBeginFile() override;
             void doEndFile() override;
-            
+
+            void writeMtlFile();
+
             void writeVertices();
             void writeTexCoords();
             void writeNormals();
             void writeObjects();
             void writeFaces(const FaceList& faces);
-            
+
             void doBeginEntity(const Model::Node* node) override;
             void doEndEntity(Model::Node* node) override;
             void doEntityAttribute(const Model::EntityAttribute& attribute) override;
-            
+
             void doBeginBrush(const Model::Brush* brush) override;
             void doEndBrush(Model::Brush* brush) override;
             void doBrushFace(Model::BrushFace* face) override;

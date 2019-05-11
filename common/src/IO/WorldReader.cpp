@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -26,33 +26,28 @@
 
 namespace TrenchBroom {
     namespace IO {
-        WorldReader::WorldReader(const char* begin, const char* end, const Model::BrushContentTypeBuilder* brushContentTypeBuilder) :
-        MapReader(begin, end),
-        m_brushContentTypeBuilder(brushContentTypeBuilder),
-        m_world(nullptr) {}
-        
-        WorldReader::WorldReader(const String& str, const Model::BrushContentTypeBuilder* brushContentTypeBuilder) :
-        MapReader(str),
-        m_brushContentTypeBuilder(brushContentTypeBuilder),
-        m_world(nullptr) {}
-        
-        Model::World* WorldReader::read(Model::MapFormat::Type format, const vm::bbox3& worldBounds, ParserStatus& status) {
+        WorldReader::WorldReader(const char* begin, const char* end) :
+        MapReader(begin, end) {}
+
+        WorldReader::WorldReader(const String& str) :
+        MapReader(str) {}
+
+        std::unique_ptr<Model::World> WorldReader::read(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status) {
             readEntities(format, worldBounds, status);
             m_world->rebuildNodeTree();
             m_world->enableNodeTreeUpdates();
-            return m_world;
+            return std::move(m_world);
         }
 
-        Model::ModelFactory* WorldReader::initialize(const Model::MapFormat::Type format, const vm::bbox3& worldBounds) {
-            assert(m_world == nullptr);
-            m_world = new Model::World(format, m_brushContentTypeBuilder, worldBounds);
+        Model::ModelFactory& WorldReader::initialize(const Model::MapFormat format, const vm::bbox3& worldBounds) {
+            m_world = std::make_unique<Model::World>(format, worldBounds);
             m_world->disableNodeTreeUpdates();
-            return m_world;
+            return *m_world;
         }
-        
+
         Model::Node* WorldReader::onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
             m_world->setAttributes(attributes);
-            setExtraAttributes(m_world, extraAttributes);
+            setExtraAttributes(m_world.get(), extraAttributes);
             return m_world->defaultLayer();
         }
 
@@ -63,14 +58,15 @@ namespace TrenchBroom {
         void WorldReader::onLayer(Model::Layer* layer, ParserStatus& status) {
             m_world->addChild(layer);
         }
-        
+
         void WorldReader::onNode(Model::Node* parent, Model::Node* node, ParserStatus& status) {
-            if (parent != nullptr)
+            if (parent != nullptr) {
                 parent->addChild(node);
-            else
+            } else {
                 m_world->defaultLayer()->addChild(node);
+            }
         }
-        
+
         void WorldReader::onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node, ParserStatus& status) {
             if (parentInfo.layer()) {
                 StringStream msg;
@@ -83,12 +79,13 @@ namespace TrenchBroom {
             }
             m_world->defaultLayer()->addChild(node);
         }
-        
+
         void WorldReader::onBrush(Model::Node* parent, Model::Brush* brush, ParserStatus& status) {
-            if (parent != nullptr)
+            if (parent != nullptr) {
                 parent->addChild(brush);
-            else
+            } else {
                 m_world->defaultLayer()->addChild(brush);
+            }
         }
     }
 }

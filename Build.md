@@ -9,20 +9,27 @@
 - Generally, the cmake scripts don't handle paths with spaces very well, so make sure that you check out the TrenchBroom source repository somewhere on a path without any spaces.
 - For Visual Studio:
     - VS2017 is required. The community edition works fine.
-    - For VS2017, in the Visual Studio Installer, in the "Individual Components" tab, under the "Compilers, Build Tools, and Runtimes" heading, select the following components:
-      - VC++ 2017 v141 toolset for desktop (x86,x64)
-      - Windows XP support for C++
-
+    - In the Visual Studio Installer, you'll need to install:
+      - Workloads 
+        - **Desktop development with C++**
+      - Individual components
+        - **VC++ 2017 version 15.9 v14.16 latest v141 tools**
+        - **Windows Universal CRT SDK**
+        - **Windows XP support for C++**
     - Download the following wxWidgets binary packages:
         - [wxWidgets-3.1.1-headers.7z](https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxWidgets-3.1.1-headers.7z)
         - [wxMSW-3.1.1_vc141_Dev.7z](https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxMSW-3.1.1_vc141_Dev.7z)
         - [wxMSW-3.1.1_vc141_ReleaseDLL.7z](https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxMSW-3.1.1_vc141_ReleaseDLL.7z)
         - [wxMSW-3.1.1_vc141_ReleasePDB.7z](https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxMSW-3.1.1_vc141_ReleasePDB.7z)
 
-    - Unpack all files into `c:\wxWidgets-<version>` so that `include` and `lib` directories are at the same level after unpacking.
+    - Unpack the 4 wxWidgets archives into a `wxWidgets-<version>` directory next to your `TrenchBroom` directory
     - The directory layout should look like this:
 
       ```
+      TrenchBroom
+        \app
+        \benchmark
+        <other subdirectories and files>
       wxWidgets-3.1.1
         \include
             \msvc
@@ -34,26 +41,21 @@
             <wxwidgets libraries>
       ```
 
-    - Set a new environment variable `WXWIN=C:\wxWidgets-<version>` (replace the path with the path where you unpacked wxWidgets).
-    - If you want to run the binaries without using the installer, add `%WXWIN%\lib\vc141_dll` to your path. The relevant parts of my `PATH` variable look something like this:
-
-      ```
-      C:\Program Files (x86)\CMake 2.8\bin;c:\wxWidgets-3.1.1\lib\vc141_dll;
-      ```
-
   - Download and install [CMake](http://www.cmake.org) for Windows
   - Open a command prompt and change into the directory where you unpacked the TrenchBroom sources.
   - Create a new directory, e.g. "build", and change into it.
   - Run the following two commands
 
     ```
-    cmake .. -T v141_xp -DCMAKE_BUILD_TYPE=Release
+    cmake .. -T v141_xp -DCMAKE_BUILD_TYPE=Release -DwxWidgets_ROOT_DIR=%cd%/../../wxWidgets-3.1.1
     cmake --build . --config Release --target TrenchBroom
     ```
 
     The `-T` option selects the "platform toolset" for the Visual Studio generator, which determines which C++ compiler and runtime the project will use. `v141_xp` is the _Visual Studio 2017_ runtime, with compatibility down to Windows XP. TrenchBroom releases and CI builds use `v141_xp`; earlier versions won't be able to compile TrenchBroom.
 
     You can replace "Release" with "Debug" if you want to create a debug build. This is also recommended if you want to work on the source in Visual Studio.
+
+  - **Note:** due to current limitations of the TrenchBroom build system, you must specify CMAKE_BUILD_TYPE when invoking cmake, and can't change between Release and Debug from Visual Studio
 
 ## Linux
 ### Dependencies
@@ -82,7 +84,7 @@ Compiling and linking TrenchBroom requires a working OpenGL installation. [This 
   - Apply the patches in `TrenchBroom/patches/wxWidgets` as follows:
 
     ```
-    patch -p0 < <path_to_trenchbroom_directory>/patches/wxWidgets/*.patch
+    for PATCHFILE in <path to TrenchBroom>/patches/wxWidgets/*.patch; do patch -p0 < "$PATCHFILE"; done
     ```
 
   - Create two directories: `build-release` and `build-debug` (don't rename those!)
@@ -90,7 +92,7 @@ Compiling and linking TrenchBroom requires a working OpenGL installation. [This 
   - Run 
 
     ```
-    ../configure --disable-shared --with-opengl --with-gtk=2 --prefix=$(pwd)/install
+    ../configure --disable-shared --with-opengl --with-gtk=2 --with-libpng=builtin --without-libtiff --with-libjpeg=builtin --prefix=$(pwd)/install
     ```
 
   - Run
@@ -104,7 +106,7 @@ Compiling and linking TrenchBroom requires a working OpenGL installation. [This 
   - Run 
 
     ```
-    ../configure --enable-debug --with-opengl --with-gtk=2 --prefix=$(pwd)/install
+    ../configure --enable-debug --with-opengl --with-gtk=2 --with-libpng=builtin --without-libtiff --with-libjpeg=builtin --prefix=$(pwd)/install
     ```
 
   - Run 
@@ -185,7 +187,7 @@ Compiling and linking TrenchBroom requires a working OpenGL installation. [This 
     - Apply the patches in `TrenchBroom/patches/wxWidgets` as follows:
 
       ```
-      patch -p0 < <path_to_trenchbroom_directory>/patches/wxWidgets/*.patch
+      for PATCHFILE in <path to TrenchBroom>/patches/wxWidgets/*.patch; do patch -p0 < "$PATCHFILE"; done
       ```
 
     - Create two directories: `build-release` and `build-debug` (don't rename those!)
@@ -193,7 +195,7 @@ Compiling and linking TrenchBroom requires a working OpenGL installation. [This 
     - Run
 
       ```
-      ../configure --with-osx_cocoa --disable-shared --disable-mediactrl --with-opengl --with-macosx-version-min=10.9 --with-cxx=17 --prefix=$(pwd)/install
+      ../configure --with-osx_cocoa --disable-shared --disable-mediactrl --with-opengl --with-macosx-version-min=10.9 --with-cxx=17 --with-libpng=builtin --without-libtiff --with-libjpeg=builtin --prefix=$(pwd)/install
       ```
 
     - Run
@@ -207,7 +209,7 @@ Compiling and linking TrenchBroom requires a working OpenGL installation. [This 
     - Run 
 
       ```
-      ../configure --enable-debug --with-osx_cocoa --disable-mediactrl --with-opengl --with-macosx-version-min=10.9 --with-cxx=17 --prefix=$(pwd)/install
+      ../configure --enable-debug --with-osx_cocoa --disable-mediactrl --with-opengl --with-macosx-version-min=10.9 --with-cxx=17 --with-libpng=builtin --without-libtiff --with-libjpeg=builtin --prefix=$(pwd)/install
       ```
 
     - Run
@@ -241,4 +243,4 @@ Compiling and linking TrenchBroom requires a working OpenGL installation. [This 
 ### Notes
 - You can install your preferred wxWidgets configuration using `make install`. If you wish to do this, then you can omit specifying the `wxWidgets_PREFIX` variable when generating the build configs with Cmake.
 - The changelog is generated with `git log --oneline --decorate <LAST_REL_TAG>..HEAD`, where <LAST_REL_TAG> is replaced by whatever tag marks the last release. The generated log is then manually cleaned up.
-- To create a release, push the appropriate tag, e.g. `git tag -a v2.0.0-RC5 -m "This tag marks TrenchBroom 2 release candidate 5."`, then `git push origin v2.0.0-RC5`.
+- To create a release, push the appropriate tag, e.g. `git tag -a v2019.1 -m "This tag marks TrenchBroom 2019.1."`, then `git push origin v2019.1`.

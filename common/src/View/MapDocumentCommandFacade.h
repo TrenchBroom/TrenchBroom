@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -34,7 +34,7 @@ namespace TrenchBroom {
         class ChangeBrushFaceAttributesRequest;
         class Snapshot;
     }
-    
+
     namespace View {
         class MapDocumentCommandFacade : public MapDocument {
         private:
@@ -49,7 +49,7 @@ namespace TrenchBroom {
             void performSelectAllNodes();
             void performSelectAllBrushFaces();
             void performConvertToBrushFaceSelection();
-            
+
             void performDeselect(const Model::NodeList& nodes);
             void performDeselect(const Model::BrushFaceList& faces);
             void performDeselectAll();
@@ -71,7 +71,7 @@ namespace TrenchBroom {
         public:
             Model::GroupNameMap performRenameGroups(const String& newName);
             void performUndoRenameGroups(const Model::GroupNameMap& newNames);
-            
+
             void performPushGroup(Model::Group* group);
             void performPopGroup();
         public: // transformation
@@ -93,7 +93,7 @@ namespace TrenchBroom {
             void performMoveTextures(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta);
             void performRotateTextures(float angle);
             void performShearTextures(const vm::vec2f& factors);
-            void performCopyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot* coordSystemSnapshot, const Model::BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const Model::WrapStyle wrapStyle);
+            void performCopyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot& coordSystemSnapshot, const Model::BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const Model::WrapStyle wrapStyle);
             void performChangeBrushFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request);
         public: // vertices
             bool performFindPlanePoints();
@@ -131,7 +131,7 @@ namespace TrenchBroom {
             void doRedoNextCommand() override;
             bool doRepeatLastCommands() override;
             void doClearRepeatableCommands() override;
-            
+
             void doBeginTransaction(const String& name) override;
             void doEndTransaction() override;
             void doRollbackTransaction() override;

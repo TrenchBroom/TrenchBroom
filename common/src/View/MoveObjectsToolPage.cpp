@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -39,18 +39,18 @@ namespace TrenchBroom {
             wxStaticText* text = new wxStaticText(this, wxID_ANY, "Move objects by");
             m_offset = new wxTextCtrl(this, wxID_ANY, "0.0 0.0 0.0", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
             m_button = new wxButton(this, wxID_ANY, "Apply", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
-         
+
             m_button->Bind(wxEVT_UPDATE_UI, &MoveObjectsToolPage::OnUpdateButton, this);
             m_button->Bind(wxEVT_BUTTON, &MoveObjectsToolPage::OnApply, this);
             m_offset->Bind(wxEVT_TEXT_ENTER, &MoveObjectsToolPage::OnApply, this);
-            
+
             wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
             sizer->Add(text, 0, wxALIGN_CENTER_VERTICAL);
             sizer->AddSpacer(LayoutConstants::NarrowHMargin);
             sizer->Add(m_offset, 0, wxALIGN_CENTER_VERTICAL);
             sizer->AddSpacer(LayoutConstants::NarrowHMargin);
             sizer->Add(m_button, 0, wxALIGN_CENTER_VERTICAL);
-            
+
             SetSizer(sizer);
         }
 

@@ -1,0 +1,13 @@
+Q3A Shader Syntax
+
+Shader        = Name Block
+Name          = String
+Block         = "{" { Statement | Block } "}"
+Statement     = Name [ Specification ] NL
+Specification = Value | Function
+Value         = Variable | String | Number | "-"
+Function      = Name Value { Value }
+
+Variable = "$" String
+String = \w\S+
+Number = floating point number

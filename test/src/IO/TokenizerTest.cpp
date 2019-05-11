@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -25,7 +25,7 @@
 namespace TrenchBroom {
     namespace IO {
         namespace SimpleToken {
-            typedef unsigned int Type;
+            using Type = unsigned int;
             static const Type Integer       = 1 <<  0; // integer number
             static const Type Decimal       = 1 <<  1; // decimal number
             static const Type String        = 1 <<  2; // string
@@ -35,11 +35,11 @@ namespace TrenchBroom {
             static const Type Semicolon     = 1 <<  6; // semicolon: ;
             static const Type Eof           = 1 <<  7; // end of file
         }
-        
-        
+
+
         class SimpleTokenizer : public Tokenizer<SimpleToken::Type> {
         public:
-            typedef Tokenizer<SimpleToken::Type>::Token Token;
+            using Token = Tokenizer<SimpleToken::Type>::Token;
         private:
             Token emitToken() override {
                 while (!eof()) {
@@ -82,33 +82,33 @@ namespace TrenchBroom {
             SimpleTokenizer(const String& str) :
             Tokenizer<SimpleToken::Type>(str, "", 0) {}
         };
-        
+
         TEST(TokenizerTest, simpleLanguageEmptyString) {
             const String testString("");
             SimpleTokenizer tokenizer(testString);
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
-        
+
         TEST(TokenizerTest, simpleLanguageBlankString) {
             const String testString("\n  \t ");
             SimpleTokenizer tokenizer(testString);
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
-        
+
         TEST(TokenizerTest, simpleLanguageEmptyBlock) {
             const String testString("{"
                                     "}");
-            
+
             SimpleTokenizer tokenizer(testString);
             ASSERT_EQ(SimpleToken::OBrace, tokenizer.nextToken().type());
             ASSERT_EQ(SimpleToken::CBrace, tokenizer.nextToken().type());
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
-        
+
         TEST(TokenizerTest, simpleLanguagePushPeekPopToken) {
             const String testString("{\n"
                                     "}");
-            
+
             SimpleTokenizer tokenizer(testString);
             SimpleTokenizer::Token token;
             ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.peekToken()).type());
@@ -122,18 +122,18 @@ namespace TrenchBroom {
         TEST(TokenizerTest, simpleLanguageEmptyBlockWithLeadingAndTrailingWhitespace) {
             const String testString(" \t{"
                                     " }  ");
-            
+
             SimpleTokenizer tokenizer(testString);
             ASSERT_EQ(SimpleToken::OBrace, tokenizer.nextToken().type());
             ASSERT_EQ(SimpleToken::CBrace, tokenizer.nextToken().type());
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
-        
+
         TEST(TokenizerTest, simpleLanguageBlockWithStringAttribute) {
             const String testString("{\n"
                                     "    attribute =value;\n"
                                     "}\n");
-            
+
             SimpleTokenizer tokenizer(testString);
             SimpleTokenizer::Token token;
             ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.nextToken()).type());
@@ -153,7 +153,7 @@ namespace TrenchBroom {
             const String testString("{"
                                     "    attribute =  12328;"
                                     "}");
-            
+
             SimpleTokenizer tokenizer(testString);
             SimpleTokenizer::Token token;
             ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.nextToken()).type());
@@ -166,12 +166,12 @@ namespace TrenchBroom {
             ASSERT_EQ(SimpleToken::CBrace, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
-        
+
         TEST(TokenizerTest, simpleLanguageBlockWithNegativeIntegerAttribute) {
             const String testString("{"
                                     "    attribute =  -12328;"
                                     "}");
-            
+
             SimpleTokenizer tokenizer(testString);
             SimpleTokenizer::Token token;
             ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.nextToken()).type());
@@ -189,7 +189,7 @@ namespace TrenchBroom {
             const String testString("{"
                                     "    attribute =  12328.38283;"
                                     "}");
-            
+
             SimpleTokenizer tokenizer(testString);
             SimpleTokenizer::Token token;
             ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.nextToken()).type());
@@ -202,12 +202,12 @@ namespace TrenchBroom {
             ASSERT_EQ(SimpleToken::CBrace, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
-        
+
         TEST(TokenizerTest, simpleLanguageBlockWithDecimalAttributeStartingWithDot) {
             const String testString("{"
                                     "    attribute =  .38283;"
                                     "}");
-            
+
             SimpleTokenizer tokenizer(testString);
             SimpleTokenizer::Token token;
             ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.nextToken()).type());
@@ -220,12 +220,12 @@ namespace TrenchBroom {
             ASSERT_EQ(SimpleToken::CBrace, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
-        
+
         TEST(TokenizerTest, simpleLanguageBlockWithNegativeDecimalAttribute) {
             const String testString("{"
                                     "    attribute =  -343.38283;"
                                     "}");
-            
+
             SimpleTokenizer tokenizer(testString);
             SimpleTokenizer::Token token;
             ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.nextToken()).type());

@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -24,7 +24,6 @@
 #include "Hit.h"
 #include "ProjectingSequence.h"
 #include "Polyhedron_Matcher.h"
-#include "Model/BrushContentType.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Node.h"
 #include "Model/Object.h"
@@ -32,7 +31,7 @@
 #include "Renderer/VertexListBuilder.h"
 #include "Renderer/TexturedIndexArrayMap.h"
 #include "Renderer/IndexArrayMapBuilder.h"
-#include "Renderer/TexturedIndexArrayBuilder.h"
+#include "Renderer/TexturedIndexArrayMapBuilder.h"
 #include "Renderer/BrushRendererBrushCache.h"
 
 #include <vecmath/forward.h>
@@ -46,7 +45,6 @@
 namespace TrenchBroom {
     namespace Model {
         struct BrushAlgorithmResult;
-        class BrushContentTypeBuilder;
         class ModelFactory;
         class PickResult;
         class BrushRendererBrushCache;
@@ -69,22 +67,19 @@ namespace TrenchBroom {
             class HealEdgesCallback;
             class AddFacesToGeometry;
             class MoveVerticesCallback;
-            typedef MoveVerticesCallback RemoveVertexCallback;
+            using RemoveVertexCallback = MoveVerticesCallback;
             class QueryCallback;
 
             using VertexSet = std::set<vm::vec3>;
         public:
-            typedef ConstProjectingSequence<BrushVertexList, ProjectToVertex> VertexList;
-            typedef ConstProjectingSequence<BrushEdgeList, ProjectToEdge> EdgeList;
+            using VertexList = ConstProjectingSequence<BrushVertexList, ProjectToVertex>;
+            using EdgeList = ConstProjectingSequence<BrushEdgeList, ProjectToEdge>;
 
         private:
             BrushFaceList m_faces;
             BrushGeometry* m_geometry;
 
-            const BrushContentTypeBuilder* m_contentTypeBuilder;
-            mutable BrushContentType::FlagType m_contentType;
             mutable bool m_transparent;
-            mutable bool m_contentTypeValid;
             mutable Renderer::BrushRendererBrushCache m_brushRendererBrushCache;
         public:
             Brush(const vm::bbox3& worldBounds, const BrushFaceList& faces);
@@ -99,8 +94,8 @@ namespace TrenchBroom {
             BrushFace* findFace(const String& textureName) const;
             BrushFace* findFace(const vm::vec3& normal) const;
             BrushFace* findFace(const vm::plane3& boundary) const;
-            BrushFace* findFace(const vm::polygon3& vertices) const;
-            BrushFace* findFace(const std::vector<vm::polygon3>& candidates) const;
+            BrushFace* findFace(const vm::polygon3& vertices, FloatType epsilon = static_cast<FloatType>(0.0)) const;
+            BrushFace* findFace(const std::vector<vm::polygon3>& candidates, FloatType epsilon = static_cast<FloatType>(0.0)) const;
 
             size_t faceCount() const;
             const BrushFaceList& faces() const;
@@ -124,7 +119,7 @@ namespace TrenchBroom {
 
             template <typename I>
             void removeFaces(I cur, I end) {
-                BrushFaceList::iterator rem = std::end(m_faces);
+                auto rem = std::end(m_faces);
                 while (cur != end) {
                     rem = doRemoveFace(std::begin(m_faces), rem, *cur);
                     ++cur;
@@ -162,7 +157,7 @@ namespace TrenchBroom {
             vm::vec3 findClosestVertexPosition(const vm::vec3& position) const;
 
             bool hasVertex(const vm::vec3& position, FloatType epsilon = static_cast<FloatType>(0.0)) const;
-            bool hasVertices(const std::vector<vm::vec3> positions, FloatType epsilon = static_cast<FloatType>(0.0)) const;
+            bool hasVertices(const std::vector<vm::vec3>& positions, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             bool hasEdge(const vm::segment3& edge, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             bool hasEdges(const std::vector<vm::segment3>& edges, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             bool hasFace(const vm::polygon3& face, FloatType epsilon = static_cast<FloatType>(0.0)) const;
@@ -189,7 +184,7 @@ namespace TrenchBroom {
             void removeVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions);
 
             bool canSnapVertices(const vm::bbox3& worldBounds, FloatType snapTo);
-            void snapVertices(const vm::bbox3& worldBounds, FloatType snapTo);
+            void snapVertices(const vm::bbox3& worldBounds, FloatType snapTo, bool uvLock = false);
 
             // edge operations
             bool canMoveEdges(const vm::bbox3& worldBounds, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta) const;
@@ -247,13 +242,32 @@ namespace TrenchBroom {
             static VertexSet createVertexSet(const std::vector<vm::vec3>& vertices = std::vector<vm::vec3>(0));
         public:
             // CSG operations
-            BrushList subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const Brush* subtrahend) const;
+            /**
+             * Subtracts the given subtrahends from `this`, returning the result but without modifying `this`.
+             *
+             * @param subtrahends brushes to subtract from `this`. The passed-in brushes are not modified.
+             * @return the subtraction result
+             */
+            BrushList subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const BrushList& subtrahends) const;
+            BrushList subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, Brush* subtrahend) const;
             void intersect(const vm::bbox3& worldBounds, const Brush* brush);
 
             // transformation
             bool canTransform(const vm::mat4x4& transformation, const vm::bbox3& worldBounds) const;
         private:
-            Brush* createBrush(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const BrushGeometry& geometry, const Brush* subtrahend) const;
+            /**
+             * Final step of CSG subtraction; takes the geometry that is the result of the subtraction, and turns it
+             * into a Brush by copying texturing from `this` (for un-clipped faces) or the brushes in `subtrahends`
+             * (for clipped faces).
+             *
+             * @param factory the model factory
+             * @param worldBounds the world bounds
+             * @param defaultTextureName default texture name
+             * @param geometry the geometry for the newly created brush
+             * @param subtrahends used as a source of texture alignment only
+             * @return the newly created brush
+             */
+            Brush* createBrush(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const BrushGeometry& geometry, const BrushList& subtrahends) const;
         private:
             void updateFacesFromGeometry(const vm::bbox3& worldBounds, const BrushGeometry& geometry);
             void updatePointsFromVertices(const vm::bbox3& worldBounds);
@@ -265,15 +279,6 @@ namespace TrenchBroom {
             bool checkGeometry() const;
         public:
             void findIntegerPlanePoints(const vm::bbox3& worldBounds);
-        public: // content type
-            bool transparent() const;
-            bool hasContentType(const BrushContentType& contentType) const;
-            bool hasContentType(BrushContentType::FlagType contentTypeMask) const;
-            void setContentTypeBuilder(const BrushContentTypeBuilder* contentTypeBuilder);
-        private:
-            BrushContentType::FlagType contentTypeFlags() const;
-            void invalidateContentType();
-            void validateContentType() const;
         private: // implement Node interface
             const String& doGetName() const override;
             const vm::bbox3& doGetBounds() const override;
@@ -285,7 +290,7 @@ namespace TrenchBroom {
             bool doCanRemoveChild(const Node* child) const override;
             bool doRemoveIfEmpty() const override;
 
-            void doParentDidChange() override;
+            bool doShouldAddToSpacialIndex() const override;
 
             bool doSelectable() const override;
 
@@ -295,12 +300,11 @@ namespace TrenchBroom {
         private: // implement Object interface
             void doPick(const vm::ray3& ray, PickResult& pickResult) const override;
             void doFindNodesContaining(const vm::vec3& point, NodeList& result) override;
-            FloatType doIntersectWithRay(const vm::ray3& ray) const override;
 
             struct BrushFaceHit {
                 BrushFace* face;
                 FloatType distance;
-				BrushFaceHit();
+                BrushFaceHit();
                 BrushFaceHit(BrushFace* i_face, FloatType i_distance);
             };
 
@@ -317,16 +321,44 @@ namespace TrenchBroom {
 
             class Intersects;
             bool doIntersects(const Node* node) const override;
-        private:
-            Brush(const Brush&);
-            Brush& operator=(const Brush&);
-
         public: // renderer cache
             /**
              * Only exposed to be called by BrushFace
              */
             void invalidateVertexCache();
             Renderer::BrushRendererBrushCache& brushRendererBrushCache() const;
+        private: // implement Taggable interface
+        public:
+            void initializeTags(TagManager& tagManager) override;
+            void clearTags() override;
+
+            /**
+             * Indicates whether all of the faces of this brush have any of the given tags.
+             *
+             * @param tagMask the tags to check
+             * @return true whether all faces of this brush have any of the given tags
+             */
+            bool allFacesHaveAnyTagInMask(Tag::TagType tagMask) const;
+
+            /**
+             * Indicates whether any of the faces of this brush have any tags.
+             *
+             * @return true whether any faces of this brush have any tags
+             */
+            bool anyFaceHasAnyTag() const;
+
+            /**
+             * Indicates whether any of the faces of this brush have any of the given tags.
+             *
+             * @param tagMask the tags to check
+             * @return true whether any faces of this brush have any of the given tags
+             */
+            bool anyFacesHaveAnyTagInMask(Tag::TagType tagMask) const;
+        private:
+            void doAcceptTagVisitor(TagVisitor& visitor) override;
+            void doAcceptTagVisitor(ConstTagVisitor& visitor) const override;
+        private:
+            deleteCopyAndMove(Brush)
         };
     }
 }

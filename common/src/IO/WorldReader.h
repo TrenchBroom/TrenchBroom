@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -22,25 +22,21 @@
 
 #include "IO/MapReader.h"
 
+#include <memory>
+
 namespace TrenchBroom {
-    namespace Model {
-        class BrushContentTypeBuilder;
-    }
-    
     namespace IO {
         class ParserStatus;
-        
-        class WorldReader : public MapReader {
-        private:
-            const Model::BrushContentTypeBuilder* m_brushContentTypeBuilder;
-            Model::World* m_world;
-        public:
-            WorldReader(const char* begin, const char* end, const Model::BrushContentTypeBuilder* brushContentTypeBuilder);
-            WorldReader(const String& str, const Model::BrushContentTypeBuilder* brushContentTypeBuilder);
 
-            Model::World* read(Model::MapFormat::Type format, const vm::bbox3& worldBounds, ParserStatus& status);
+        class WorldReader : public MapReader {
+            std::unique_ptr<Model::World> m_world;
+        public:
+            WorldReader(const char* begin, const char* end);
+            WorldReader(const String& str);
+
+            std::unique_ptr<Model::World> read(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status);
         private: // implement MapReader interface
-            Model::ModelFactory* initialize(Model::MapFormat::Type format, const vm::bbox3& worldBounds) override;
+            Model::ModelFactory& initialize(Model::MapFormat format, const vm::bbox3& worldBounds) override;
             Model::Node* onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) override;
             void onWorldspawnFilePosition(size_t lineNumber, size_t lineCount, ParserStatus& status) override;
             void onLayer(Model::Layer* layer, ParserStatus& status) override;

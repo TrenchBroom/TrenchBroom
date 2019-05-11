@@ -1,23 +1,25 @@
 /*
  Copyright (C) 2018 Eric Wasylishen
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <gtest/gtest.h>
+
+#include "BenchmarkUtils.h"
 
 #include "CollectionUtils.h"
 #include "Assets/Texture.h"
@@ -53,7 +55,7 @@ namespace TrenchBroom {
 
             // make brushes, cycling through the textures for each face
             const vm::bbox3 worldBounds(4096.0);
-            Model::World world(Model::MapFormat::Standard, nullptr, worldBounds);
+            Model::World world(Model::MapFormat::Standard, worldBounds);
 
             Model::BrushBuilder builder(&world, worldBounds);
 
@@ -71,7 +73,7 @@ namespace TrenchBroom {
             // we're not benchmarking that, so we don't
             // want it mixed into the timing
 
-            BrushRenderer tempRenderer(false);
+            BrushRenderer tempRenderer;
             tempRenderer.addBrushes(result);
             tempRenderer.validate();
             tempRenderer.clear();
@@ -79,29 +81,12 @@ namespace TrenchBroom {
             return {result, textures};
         }
 
-#ifdef __GNUC__
-#define TB_NOINLINE __attribute__((noinline))
-#else
-#define TB_NOINLINE
-#endif
-
-        // the noinline is so you can see the timeLambda when profiling
-        template<class L>
-        TB_NOINLINE static void timeLambda(L&& lambda, const std::string& message) {
-            const auto start = std::chrono::high_resolution_clock::now();
-            lambda();
-            const auto end = std::chrono::high_resolution_clock::now();
-
-            printf("Time elapsed for '%s': %fms\n", message.c_str(),
-                   std::chrono::duration<double>(end - start).count() * 1000.0);
-        }
-
         TEST(BrushRendererBenchmark, benchBrushRenderer) {
             auto brushesTextures = makeBrushes();
             std::vector<Model::Brush*> brushes = brushesTextures.first;
             std::vector<Assets::Texture*> textures = brushesTextures.second;
 
-            BrushRenderer r(false);
+            BrushRenderer r;
 
             timeLambda([&](){ r.addBrushes(brushes); }, "add " + std::to_string(brushes.size()) + " brushes to BrushRenderer");
             timeLambda([&](){

@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -21,7 +21,6 @@
 #define TrenchBroom_World
 
 #include "TrenchBroom.h"
-#include "AABBTree.h"
 #include "Model/AttributableNode.h"
 #include "Model/AttributableNodeIndex.h"
 #include "Model/IssueGeneratorRegistry.h"
@@ -30,11 +29,13 @@
 #include "Model/ModelFactoryImpl.h"
 #include "Model/Node.h"
 
+template <typename T, size_t S, typename U>
+class AABBTree;
+
 namespace TrenchBroom {
     namespace Model {
-        class BrushContentTypeBuilder;
         class PickResult;
-        
+
         class World : public AttributableNode, public ModelFactory {
         private:
             ModelFactoryImpl m_factory;
@@ -43,10 +44,11 @@ namespace TrenchBroom {
             IssueGeneratorRegistry m_issueGeneratorRegistry;
 
             using NodeTree = AABBTree<FloatType, 3, Node*>;
-            NodeTree m_nodeTree;
+            std::unique_ptr<NodeTree> m_nodeTree;
             bool m_updateNodeTree;
         public:
-            World(MapFormat::Type mapFormat, const BrushContentTypeBuilder* brushContentTypeBuilder, const vm::bbox3& worldBounds);
+            World(MapFormat mapFormat, const vm::bbox3& worldBounds);
+            ~World() override;
         public: // layer management
             Layer* defaultLayer() const;
             LayerList allLayers() const;
@@ -80,6 +82,7 @@ namespace TrenchBroom {
             bool doCanAddChild(const Node* child) const override;
             bool doCanRemoveChild(const Node* child) const override;
             bool doRemoveIfEmpty() const override;
+            bool doShouldAddToSpacialIndex() const override;
 
             void doDescendantWasAdded(Node* node, size_t depth) override;
             void doDescendantWillBeRemoved(Node* node, size_t depth) override;
@@ -88,7 +91,6 @@ namespace TrenchBroom {
             bool doSelectable() const override;
             void doPick(const vm::ray3& ray, PickResult& pickResult) const override;
             void doFindNodesContaining(const vm::vec3& point, NodeList& result) override;
-            FloatType doIntersectWithRay(const vm::ray3& ray) const override;
             void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) override;
             void doAccept(NodeVisitor& visitor) override;
             void doAccept(ConstNodeVisitor& visitor) const override;
@@ -103,7 +105,7 @@ namespace TrenchBroom {
             vm::vec3 doGetLinkSourceAnchor() const override;
             vm::vec3 doGetLinkTargetAnchor() const override;
         private: // implement ModelFactory interface
-            MapFormat::Type doGetFormat() const override;
+            MapFormat doGetFormat() const override;
             World* doCreateWorld(const vm::bbox3& worldBounds) const override;
             Layer* doCreateLayer(const String& name, const vm::bbox3& worldBounds) const override;
             Group* doCreateGroup(const String& name) const override;
@@ -111,9 +113,11 @@ namespace TrenchBroom {
             Brush* doCreateBrush(const vm::bbox3& worldBounds, const BrushFaceList& faces) const override;
             BrushFace* doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const override;
             BrushFace* doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const override;
+        private: // implement Taggable interface
+            void doAcceptTagVisitor(TagVisitor& visitor) override;
+            void doAcceptTagVisitor(ConstTagVisitor& visitor) const override;
         private:
-            World(const World&);
-            World& operator=(const World&);
+            deleteCopyAndMove(World)
         };
     }
 }

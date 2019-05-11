@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -30,30 +30,30 @@ namespace TrenchBroom {
     namespace Assets {
         class Palette;
         class PaletteLoader;
-        
+
         class Texture;
-        typedef std::vector<Texture*> TextureList;
-        
+        using TextureList = std::vector<Texture*>;
+
         class TextureCollection;
-        typedef std::vector<TextureCollection*> TextureCollectionList;
-        
+        using TextureCollectionList = std::vector<TextureCollection*>;
+
         class EntityDefinition;
         class PointEntityDefinition;
         class BrushEntityDefinition;
-        typedef std::vector<EntityDefinition*> EntityDefinitionList;
-        
+        using EntityDefinitionList = std::vector<EntityDefinition*>;
+
         class EntityDefinitionFileSpec;
-        
+
         class AttributeDefinition;
-        typedef std::shared_ptr<AttributeDefinition> AttributeDefinitionPtr;
-        typedef std::vector<AttributeDefinitionPtr> AttributeDefinitionList;
-        typedef std::map<String, AttributeDefinitionPtr> AttributeDefinitionMap;
-        
+        using AttributeDefinitionPtr = std::shared_ptr<AttributeDefinition>;
+        using AttributeDefinitionList = std::vector<AttributeDefinitionPtr>;
+        using AttributeDefinitionMap = std::map<String, AttributeDefinitionPtr>;
+
         class ModelDefinition;
-        
+
         class EntityModelManager;
         class EntityModel;
-        typedef std::vector<EntityModel*> EntityModelList;
+        using EntityModelList = std::vector<EntityModel*>;
     }
 }
 

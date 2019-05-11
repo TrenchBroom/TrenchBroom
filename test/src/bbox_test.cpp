@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -256,5 +256,41 @@ namespace vm {
         ASSERT_TRUE(bounds1.intersects(bounds3));
         ASSERT_FALSE(bounds1.intersects(bounds4));
         ASSERT_FALSE(bounds1.intersects(bounds5));
+    }
+
+    TEST(bboxbuilder_test, empty) {
+        vm::bbox3f::builder builder;
+        ASSERT_EQ(vm::bbox3f(), builder.bounds());
+    }
+
+    TEST(bboxbuilder_test, onePoint) {
+        const auto point = vm::vec3f(10.0f, 20.0f, 30.0f);
+
+        vm::bbox3f::builder builder;
+        builder.add(point);
+
+        ASSERT_EQ(vm::bbox3f(point, point), builder.bounds());
+    }
+
+    TEST(bboxbuilder_test, twoPoints) {
+        const auto point1 = vm::vec3f(10.0f, 20.0f, 30.0f);
+        const auto point2 = vm::vec3f(100.0f, 200.0f, 300.0f);
+
+        vm::bbox3f::builder builder;
+        builder.add(point1);
+        builder.add(point2);
+
+        ASSERT_EQ(vm::bbox3f(point1, point2), builder.bounds());
+    }
+
+    TEST(bboxbuilder_test, twoPointsReverseOrder) {
+        const auto point1 = vm::vec3f(10.0f, 20.0f, 30.0f);
+        const auto point2 = vm::vec3f(100.0f, 200.0f, 300.0f);
+
+        vm::bbox3f::builder builder;
+        builder.add(point2);
+        builder.add(point1);
+
+        ASSERT_EQ(vm::bbox3f(point1, point2), builder.bounds());
     }
 }

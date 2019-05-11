@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -33,9 +33,9 @@ namespace TrenchBroom {
 
     namespace View {
         class MapFrame;
-        
-        typedef std::list<MapFrame*> FrameList;
-        
+
+        using FrameList = std::list<MapFrame*>;
+
         class FrameManager {
         private:
             bool m_singleFrame;
@@ -43,21 +43,21 @@ namespace TrenchBroom {
         public:
             FrameManager(bool singleFrame);
             ~FrameManager();
-            
+
             MapFrame* newFrame();
             bool closeAllFrames();
 
             FrameList frames() const;
             MapFrame* topFrame() const;
             bool allFramesClosed() const;
-            
+
             void OnFrameActivate(wxActivateEvent& event);
         private:
             MapFrame* createOrReuseFrame();
             MapFrame* createFrame(MapDocumentSPtr document);
             bool closeAllFrames(bool force);
             void removeAndDestroyFrame(MapFrame* frame);
-            
+
             friend class MapFrame;
         };
     }

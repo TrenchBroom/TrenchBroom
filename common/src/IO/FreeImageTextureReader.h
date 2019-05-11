@@ -23,17 +23,17 @@
 
 #include "IO/TextureReader.h"
 
+#include <memory>
+
 namespace TrenchBroom {
     namespace IO {
-        class Path;
+        class File;
 
         class FreeImageTextureReader : public TextureReader {
-        private:
-            size_t m_mipCount;
         public:
-            FreeImageTextureReader(const NameStrategy& nameStrategy, size_t mipCount);
+            FreeImageTextureReader(const NameStrategy& nameStrategy);
         private:
-            Assets::Texture* doReadTexture(const char* const begin, const char* const end, const Path& path) const override;
+            Assets::Texture* doReadTexture(std::shared_ptr<File> file) const override;
         };
     }
 }

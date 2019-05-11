@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -31,9 +31,11 @@
 
 #include <wx/button.h>
 #include <wx/choice.h>
+#include <wx/simplebook.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
 #include <wx/combobox.h>
+#include <wx/simplebook.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -79,7 +81,7 @@ namespace TrenchBroom {
 
             m_button->Bind(wxEVT_UPDATE_UI, &ScaleObjectsToolPage::OnUpdateButton, this);
             m_button->Bind(wxEVT_BUTTON, &ScaleObjectsToolPage::OnApply, this);
-            
+
             wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
             sizer->Add(text, 0, wxALIGN_CENTER_VERTICAL);
             sizer->AddSpacer(LayoutConstants::NarrowHMargin);
@@ -88,7 +90,7 @@ namespace TrenchBroom {
             sizer->Add(m_book, 0, wxALIGN_CENTER_VERTICAL);
             sizer->AddSpacer(LayoutConstants::NarrowHMargin);
             sizer->Add(m_button, 0, wxALIGN_CENTER_VERTICAL);
-            
+
             SetSizer(sizer);
         }
 
@@ -98,7 +100,7 @@ namespace TrenchBroom {
 
         void ScaleObjectsToolPage::OnUpdateButton(wxUpdateUIEvent& event) {
             if (IsBeingDeleted()) return;
-            
+
             event.Enable(canScale());
         }
 

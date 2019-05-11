@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -45,13 +45,13 @@ namespace TrenchBroom {
                 }
             }
         }
-        
+
         void VertexHandleManager::addHandles(const Model::Brush* brush) {
             for (const Model::BrushVertex* vertex : brush->vertices()) {
                 add(vertex->position());
             }
         }
-        
+
         void VertexHandleManager::removeHandles(const Model::Brush* brush) {
             for (const Model::BrushVertex* vertex : brush->vertices()) {
                 assertResult(remove(vertex->position()));
@@ -127,10 +127,10 @@ namespace TrenchBroom {
                     continue;
                 }
 
-                const auto distance = vm::intersect(pickRay, plane, std::begin(position), std::end(position));
+                const auto distance = vm::intersectRayAndPolygon(pickRay, plane, std::begin(position), std::end(position));
                 if (!vm::isnan(distance)) {
                     const auto pointHandle = grid.snap(pickRay.pointAtDistance(distance), plane);
-                    
+
                     const auto pointDist = camera.pickPointHandle(pickRay, pointHandle, pref(Preferences::HandleRadius));
                     if (!vm::isnan(pointDist)) {
                         const auto hitPoint = pickRay.pointAtDistance(pointDist);
@@ -158,7 +158,7 @@ namespace TrenchBroom {
                 add(face->polygon());
             }
         }
-        
+
         void FaceHandleManager::removeHandles(const Model::Brush* brush) {
             for (const Model::BrushFace* face : brush->faces()) {
                 assertResult(remove(face->polygon()));

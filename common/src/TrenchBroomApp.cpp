@@ -86,14 +86,176 @@ namespace TrenchBroom {
 
             // always set this locale so that we can properly parse floats from text files regardless of the platforms locale
             std::setlocale(LC_NUMERIC, "C");
+        }
 
-            // load image handlers
-            wxImage::AddHandler(new wxPNGHandler());
+        void TrenchBroomApp::detectAndSetupUbuntu() {
+            // detect Ubuntu Linux and set the UBUNTU_MENUPROXY environment variable if necessary
+#ifdef __WXGTK20__
+            static const wxString varName("UBUNTU_MENUPROXY");
+            if (!wxGetEnv(varName, nullptr)) {
+                const wxLinuxDistributionInfo distr = wxGetLinuxDistributionInfo();
+                if (distr.Id.Lower().Find("ubuntu") != wxNOT_FOUND)
+                    wxSetEnv(varName, "1");
+            }
+#endif
+        }
 
+        wxAppTraits* TrenchBroomApp::CreateTraits() {
+            return new TrenchBroomAppTraits();
+        }
+
+        FrameManager* TrenchBroomApp::frameManager() {
+            return m_frameManager;
+        }
+
+         const IO::Path::List& TrenchBroomApp::recentDocuments() const {
+            return m_recentDocuments->recentDocuments();
+        }
+
+        void TrenchBroomApp::addRecentDocumentMenu(wxMenu* menu) {
+            m_recentDocuments->addMenu(menu);
+        }
+
+        void TrenchBroomApp::removeRecentDocumentMenu(wxMenu* menu) {
+            m_recentDocuments->removeMenu(menu);
+        }
+
+        void TrenchBroomApp::updateRecentDocument(const IO::Path& path) {
+            m_recentDocuments->updatePath(path);
+        }
+
+        bool TrenchBroomApp::newDocument() {
+            MapFrame* frame = nullptr;
+
+            try {
+                String gameName;
+                Model::MapFormat mapFormat = Model::MapFormat::Unknown;
+                if (!GameDialog::showNewDocumentDialog(nullptr, gameName, mapFormat))
+                    return false;
+
+                frame = m_frameManager->newFrame();
+
+                Model::GameFactory &gameFactory = Model::GameFactory::instance();
+                Model::GameSPtr game = gameFactory.createGame(gameName, frame->logger());
+                ensure(game.get() != nullptr, "game is null");
+
+                frame->newDocument(game, mapFormat);
+                return true;
+            } catch (const RecoverableException& e) {
+                if (frame != nullptr)
+                    frame->Close();
+
+                return recoverFromException(e, [this](){ return this->newDocument(); });
+            } catch (const Exception& e) {
+                if (frame != nullptr)
+                    frame->Close();
+                ::wxMessageBox(e.what(), "TrenchBroom");
+                return false;
+            }
+        }
+
+        bool TrenchBroomApp::openDocument(const String& pathStr) {
+            MapFrame* frame = nullptr;
+            const IO::Path path(pathStr);
+            try {
+                String gameName = "";
+                Model::MapFormat mapFormat = Model::MapFormat::Unknown;
+
+                Model::GameFactory& gameFactory = Model::GameFactory::instance();
+                std::tie(gameName, mapFormat) = gameFactory.detectGame(path);
+
+                if (gameName.empty() || mapFormat == Model::MapFormat::Unknown) {
+                    if (!GameDialog::showOpenDocumentDialog(nullptr, gameName, mapFormat))
+                        return false;
+                }
+
+                frame = m_frameManager->newFrame();
+
+                Model::GameSPtr game = gameFactory.createGame(gameName, frame->logger());
+                ensure(game.get() != nullptr, "game is null");
+
+                frame->openDocument(game, mapFormat, path);
+                return true;
+            } catch (const FileNotFoundException& e) {
+                m_recentDocuments->removePath(IO::Path(path));
+                if (frame != nullptr)
+                    frame->Close();
+                ::wxMessageBox(e.what(), "TrenchBroom");
+                return false;
+            } catch (const RecoverableException& e) {
+                if (frame != nullptr)
+                    frame->Close();
+
+                return recoverFromException(e, [this, &pathStr](){ return this->openDocument(pathStr); });
+            } catch (const Exception& e) {
+                if (frame != nullptr)
+                    frame->Close();
+                ::wxMessageBox(e.what(), "TrenchBroom");
+                return false;
+            } catch (...) {
+                if (frame != nullptr)
+                    frame->Close();
+                ::wxMessageBox(pathStr + " could not be opened.", "TrenchBroom");
+                return false;
+            }
+        }
+
+        bool TrenchBroomApp::recoverFromException(const RecoverableException &e, const std::function<bool()>& op) {
+            // Guard against recursion. It's ok to use a static here since the functions calling this are not reentrant.
+            static bool recovering = false;
+
+            if (!recovering) {
+                StringStream message;
+                message << e.what() << "\n\n" << e.query();
+                if (::wxMessageBox(message.str(), "TrenchBroom", wxYES_NO, nullptr) == wxYES) {
+                    TemporarilySetBool setRecovering(recovering);
+                    e.recover();
+                    return op(); // Recursive call here.
+                } else {
+                    return false;
+                }
+            } else {
+                ::wxMessageBox(e.what(), "TrenchBroom");
+                return false;
+            }
+        }
+
+        // returns the topmost MapDocument as a shared pointer, or the empty shared pointer
+        static MapDocumentSPtr topDocument() {
+            FrameManager *fm = TrenchBroomApp::instance().frameManager();
+            if (fm == nullptr)
+                return MapDocumentSPtr();
+
+            MapFrame *frame = fm->topFrame();
+            if (frame == nullptr)
+                return MapDocumentSPtr();
+
+            return frame->document();
+        }
+
+        void TrenchBroomApp::openPreferences() {
+            PreferenceDialog dialog(topDocument());
+            dialog.ShowModal();
+        }
+
+        void TrenchBroomApp::openAbout() {
+            AboutDialog::showAboutDialog();
+        }
+
+        bool TrenchBroomApp::OnInit() {
             SetAppName("TrenchBroom");
             SetAppDisplayName("TrenchBroom");
             SetVendorDisplayName("Kristian Duske");
             SetVendorName("Kristian Duske");
+
+#if defined(_WIN32)
+            // Make wxStandardPaths return the actual executable directory, without stripping off the "Debug" or "Release" directory
+            // See: https://github.com/kduske/TrenchBroom/issues/1605
+            wxStandardPaths::Get().DontIgnoreAppSubDir();
+#endif
+
+            // load image handlers
+            wxImage::AddHandler(new wxPNGHandler());
 
             // these must be initialized here and not earlier
             m_frameManager = new FrameManager(useSDI());
@@ -138,178 +300,44 @@ namespace TrenchBroom {
             Bind(EXECUTABLE_EVENT, &TrenchBroomApp::OnExecutableEvent, this);
 
             m_recentDocuments->didChangeNotifier.addObserver(recentDocumentsDidChangeNotifier);
+
+            try {
+                auto& gameFactory = Model::GameFactory::instance();
+                gameFactory.initialize();
+            } catch (const std::exception& e) {
+                wxLogError(e.what());
+                return false;
+            } catch (const StringList& errors) {
+                StringStream str;
+                if (errors.size() == 1) {
+                    str << "An error occurred while loading the game configuration files:\n\n";
+                    str << StringUtils::join(errors, "\n\n");
+                    str << "\n\nThis file has been ignored.";
+                } else {
+                    str << "Multiple errors occurred while loading the game configuration files:\n\n";
+                    str << StringUtils::join(errors, "\n\n");
+                    str << "\n\nThese files have been ignored.";
+                }
+
+                ::wxMessageBox(str.str(), "TrenchBroom");
+            }
+
+            return wxApp::OnInit();
         }
 
-        TrenchBroomApp::~TrenchBroomApp() {
+        int TrenchBroomApp::OnExit() {
             wxImage::CleanUpHandlers();
-            
+
             delete m_frameManager;
             m_frameManager = nullptr;
 
             m_recentDocuments->didChangeNotifier.removeObserver(recentDocumentsDidChangeNotifier);
             delete m_recentDocuments;
             m_recentDocuments = nullptr;
+
+            return wxApp::OnExit();
         }
 
-        void TrenchBroomApp::detectAndSetupUbuntu() {
-            // detect Ubuntu Linux and set the UBUNTU_MENUPROXY environment variable if necessary
-#ifdef __WXGTK20__
-            static const wxString varName("UBUNTU_MENUPROXY");
-            if (!wxGetEnv(varName, nullptr)) {
-                const wxLinuxDistributionInfo distr = wxGetLinuxDistributionInfo();
-                if (distr.Id.Lower().Find("ubuntu") != wxNOT_FOUND)
-                    wxSetEnv(varName, "1");
-            }
-#endif
-        }
-
-        wxAppTraits* TrenchBroomApp::CreateTraits() {
-            return new TrenchBroomAppTraits();
-        }
-
-        FrameManager* TrenchBroomApp::frameManager() {
-            return m_frameManager;
-        }
-
-         const IO::Path::List& TrenchBroomApp::recentDocuments() const {
-            return m_recentDocuments->recentDocuments();
-        }
-
-        void TrenchBroomApp::addRecentDocumentMenu(wxMenu* menu) {
-            m_recentDocuments->addMenu(menu);
-        }
-
-        void TrenchBroomApp::removeRecentDocumentMenu(wxMenu* menu) {
-            m_recentDocuments->removeMenu(menu);
-        }
-
-        void TrenchBroomApp::updateRecentDocument(const IO::Path& path) {
-            m_recentDocuments->updatePath(path);
-        }
-
-        bool TrenchBroomApp::newDocument() {
-            MapFrame* frame = nullptr;
-
-            try {
-                String gameName;
-                Model::MapFormat::Type mapFormat = Model::MapFormat::Unknown;
-                if (!GameDialog::showNewDocumentDialog(nullptr, gameName, mapFormat))
-                    return false;
-
-                frame = m_frameManager->newFrame();
-
-                Model::GameFactory &gameFactory = Model::GameFactory::instance();
-                Model::GameSPtr game = gameFactory.createGame(gameName, frame->logger());
-                ensure(game.get() != nullptr, "game is null");
-
-                frame->newDocument(game, mapFormat);
-                return true;
-            } catch (const RecoverableException& e) {
-                if (frame != nullptr)
-                    frame->Close();
-
-                return recoverFromException(e, [this](){ return this->newDocument(); });
-            } catch (const Exception& e) {
-                if (frame != nullptr)
-                    frame->Close();
-                ::wxMessageBox(e.what(), "TrenchBroom", wxOK, nullptr);
-                return false;
-            }
-        }
-
-        bool TrenchBroomApp::openDocument(const String& pathStr) {
-            MapFrame* frame = nullptr;
-            const IO::Path path(pathStr);
-            try {
-                String gameName = "";
-                Model::MapFormat::Type mapFormat = Model::MapFormat::Unknown;
-                
-                Model::GameFactory& gameFactory = Model::GameFactory::instance();
-                std::tie(gameName, mapFormat) = gameFactory.detectGame(path);
-                
-                if (gameName.empty() || mapFormat == Model::MapFormat::Unknown) {
-                    if (!GameDialog::showOpenDocumentDialog(nullptr, gameName, mapFormat))
-                        return false;
-                }
-
-                frame = m_frameManager->newFrame();
-
-                Model::GameSPtr game = gameFactory.createGame(gameName, frame->logger());
-                ensure(game.get() != nullptr, "game is null");
-
-                frame->openDocument(game, mapFormat, path);
-                return true;
-            } catch (const FileNotFoundException& e) {
-                m_recentDocuments->removePath(IO::Path(path));
-                if (frame != nullptr)
-                    frame->Close();
-                ::wxMessageBox(e.what(), "TrenchBroom", wxOK, nullptr);
-                return false;
-            } catch (const RecoverableException& e) {
-                if (frame != nullptr)
-                    frame->Close();
-
-                return recoverFromException(e, [this, &pathStr](){ return this->openDocument(pathStr); });
-            } catch (const Exception& e) {
-                if (frame != nullptr)
-                    frame->Close();
-                ::wxMessageBox(e.what(), "TrenchBroom", wxOK, nullptr);
-                return false;
-            } catch (...) {
-                if (frame != nullptr)
-                    frame->Close();
-                ::wxMessageBox(pathStr + " could not be opened.", "TrenchBroom", wxOK, nullptr);
-                return false;
-            }
-        }
-
-        bool TrenchBroomApp::recoverFromException(const RecoverableException &e, const std::function<bool()>& op) {
-            // Guard against recursion. It's ok to use a static here since the functions calling this are not reentrant.
-            static bool recovering = false;
-
-            if (!recovering) {
-                StringStream message;
-                message << e.what() << "\n\n" << e.query();
-                if (::wxMessageBox(message.str(), "TrenchBroom", wxYES_NO, nullptr) == wxYES) {
-                    TemporarilySetBool setRecovering(recovering);
-                    e.recover();
-                    return op(); // Recursive call here.
-                } else {
-                    return false;
-                }
-            } else {
-                ::wxMessageBox(e.what(), "TrenchBroom", wxOK, nullptr);
-                return false;
-            }
-        }
-
-        void TrenchBroomApp::openPreferences() {
-            PreferenceDialog dialog;
-            dialog.ShowModal();
-        }
-
-        void TrenchBroomApp::openAbout() {
-            AboutDialog::showAboutDialog();
-        }
-
-        bool TrenchBroomApp::OnInit() {
-#if defined(_WIN32)
-            // Make wxStandardPaths return the actual executable directory, without stripping off the "Debug" or "Release" directory
-            // See: https://github.com/kduske/TrenchBroom/issues/1605
-            wxStandardPaths::Get().DontIgnoreAppSubDir();
-#endif
-
-            if (!wxApp::OnInit())
-                return false;
-
-            SetAppName("TrenchBroom");
-            SetAppDisplayName("TrenchBroom");
-            SetVendorDisplayName("Kristian Duske");
-            SetVendorName("Kristian Duske");
-
-            return true;
-        }
-        
         static String makeCrashReport(const String &stacktrace, const String &reason) {
             StringStream ss;
             ss << "OS:\t" << wxGetOsDescription() << std::endl;
@@ -324,37 +352,24 @@ namespace TrenchBroom {
             ss << stacktrace << std::endl;
             return ss.str();
         }
-        
-        // returns the topmost MapDocument as a shared pointer, or the empty shared pointer
-        static MapDocumentSPtr topDocument() {
-            FrameManager *fm = TrenchBroomApp::instance().frameManager();
-            if (fm == nullptr)
-                return MapDocumentSPtr();
-            
-            MapFrame *frame = fm->topFrame();
-            if (frame == nullptr)
-                return MapDocumentSPtr();
-            
-            return frame->document();
-        }
-        
+
         // returns the empty path for unsaved maps, or if we can't determine the current map
         static IO::Path savedMapPath() {
             MapDocumentSPtr doc = topDocument();
             if (doc.get() == nullptr)
                 return IO::Path();
-            
+
             IO::Path mapPath = doc->path();
             if (!mapPath.isAbsolute())
                 return IO::Path();
-            
+
             return mapPath;
         }
 
         static IO::Path crashReportBasePath() {
             IO::Path mapPath = savedMapPath();
             IO::Path crashLogPath;
-            
+
             if (mapPath.isEmpty()) {
                 IO::Path docsDir(wxStandardPaths::Get().GetDocumentsDir().ToStdString());
                 crashLogPath = docsDir + IO::Path("trenchbroom-crash.txt");
@@ -362,21 +377,21 @@ namespace TrenchBroom {
                 String crashFileName = mapPath.lastComponent().deleteExtension().asString() + "-crash.txt";
                 crashLogPath = mapPath.deleteLastComponent() + IO::Path(crashFileName);
             }
-            
+
             // ensure it doesn't exist
             int index = 0;
             IO::Path testCrashLogPath = crashLogPath;
             while (wxFileExists(testCrashLogPath.asString())) {
                 index++;
-                
+
                 StringStream testCrashLogName;
                 testCrashLogName << crashLogPath.lastComponent().deleteExtension().asString() << "-" << index << ".txt";
-                
+
                 testCrashLogPath = crashLogPath.deleteLastComponent() + IO::Path(testCrashLogName.str());
             }
             return testCrashLogPath.deleteExtension();
         }
-        
+
         static bool inReportCrashAndExit = false;
         static bool crashReportGuiEnabled = true;
 
@@ -388,23 +403,23 @@ namespace TrenchBroom {
             // just abort if we reenter reportCrashAndExit (i.e. if it crashes)
             if (inReportCrashAndExit)
                 wxAbort();
-            
+
             inReportCrashAndExit = true;
-            
+
             // get the crash report as a string
             const String report = makeCrashReport(stacktrace, reason);
-            
+
             // write it to the crash log file
             const IO::Path basePath = crashReportBasePath();
             IO::Path reportPath = basePath.addExtension("txt");
             IO::Path mapPath = basePath.addExtension("map");
             IO::Path logPath = basePath.addExtension("log");
-            
+
             std::ofstream reportStream(reportPath.asString().c_str());
             reportStream << report;
             reportStream.close();
             std::cerr << "wrote crash log to " << reportPath.asString() << std::endl;
-            
+
             // save the map
             MapDocumentSPtr doc = topDocument();
             if (doc.get() != nullptr) {
@@ -417,7 +432,7 @@ namespace TrenchBroom {
             // Copy the log file
             if (!wxCopyFile(IO::SystemPaths::logFilePath().asString(), logPath.asString()))
                 logPath = IO::Path();
-            
+
             // write the crash log to stdout
             std::cerr << "crash log:" << std::endl;
             std::cerr << report << std::endl;
@@ -427,14 +442,14 @@ namespace TrenchBroom {
                 dialog.Create(reportPath, mapPath, logPath);
                 dialog.ShowModal();
             }
-            
+
             wxAbort();
         }
 
         bool isReportingCrash() {
             return inReportCrashAndExit;
         }
-        
+
         void TrenchBroomApp::OnUnhandledException() {
             handleException();
         }
@@ -447,14 +462,14 @@ namespace TrenchBroom {
         void TrenchBroomApp::OnFatalException() {
             reportCrashAndExit(TrenchBroomStackWalker::getStackTrace(), "OnFatalException");
         }
-        
+
 #if defined(_WIN32) && defined(_MSC_VER)
         LONG WINAPI TrenchBroomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionPtrs) {
             reportCrashAndExit(TrenchBroomStackWalker::getStackTraceFromContext(pExceptionPtrs->ContextRecord), "TrenchBroomUnhandledExceptionFilter");
             return EXCEPTION_EXECUTE_HANDLER;
         }
 #endif
-        
+
         void TrenchBroomApp::handleException() {
             try {
                 throw;
@@ -519,7 +534,7 @@ namespace TrenchBroom {
             const IO::Path reportPath(IO::SystemPaths::userDataDirectory() + IO::Path("crashreport.txt"));
             const IO::Path mapPath(IO::SystemPaths::userDataDirectory() + IO::Path("crashreport.map"));
             const IO::Path logPath(IO::SystemPaths::userDataDirectory() + IO::Path("crashreport.log"));
-            
+
             CrashDialog dialog;
             dialog.Create(reportPath, mapPath, logPath);
             dialog.ShowModal();
@@ -568,7 +583,7 @@ namespace TrenchBroom {
                     break;
                 default:
                     if (event.GetId() >= CommandIds::Menu::FileRecentDocuments &&
-                        event.GetId() < CommandIds::Menu::FileRecentDocuments + 10)
+                        event.GetId() <= CommandIds::Menu::FileRecentDocumentsLast)
                         event.Enable(true);
                     else if (m_frameManager->allFramesClosed())
                         event.Enable(false);

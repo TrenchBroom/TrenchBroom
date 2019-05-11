@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -30,12 +30,12 @@ namespace TrenchBroom {
         class GridSearchCursor {
         private:
             static const size_t Center = 4;
-            
+
             static const vm::vec2 MoveOffsets[];
-            
+
             const vm::plane3& m_plane;
             const FloatType m_frequency;
-            
+
             vm::vec2 m_position;
             FloatType m_errors[9];
         public:
@@ -46,7 +46,7 @@ namespace TrenchBroom {
                     m_errors[i] = 0.0;
                 }
             }
-            
+
             vm::vec3 findMinimum(const vm::vec3& initialPosition) {
                 for (size_t i = 0; i < 2; ++i) {
                     m_position[i] = vm::round(initialPosition[i]);
@@ -55,10 +55,10 @@ namespace TrenchBroom {
                 findLocalMinimum();
                 const auto localMinPos = m_position;
                 const auto localMinErr = m_errors[Center];
-                
+
                 auto globalMinPos = localMinPos;
                 auto globalMinErr = localMinErr;
-                
+
                 if (globalMinErr > 0.0) {
                     // To escape local minima, let's search some adjacent quadrants
                     // The number of extra quadrants should depend on the frequency: The higher the frequency, the
@@ -76,36 +76,36 @@ namespace TrenchBroom {
                         }
                     }
                 }
-                
+
                 return vm::vec3(globalMinPos.x(), globalMinPos.y(), vm::round(m_plane.zAt(globalMinPos)));
             }
         private:
             void findLocalMinimum() {
                 updateErrors();
-                
+
                 size_t smallestError = findSmallestError();
                 while (smallestError != Center) {
                     smallestError = moveCursor(smallestError);
                 }
             }
-            
+
             size_t moveCursor(const size_t direction) {
                 m_position = m_position + MoveOffsets[direction];
                 updateErrors();
                 return findSmallestError();
             }
-            
+
             void updateErrors() {
                 for (size_t i = 0; i < 9; ++i) {
                     m_errors[i] = computeError(i);
                 }
             }
-            
+
             FloatType computeError(const size_t location) const {
                 const auto z = m_plane.zAt(m_position + MoveOffsets[location]);
                 return std::abs(z - vm::round(z));
             }
-            
+
             size_t findSmallestError() {
                 auto smallest = Center;
                 for (size_t i = 0; i < 9; ++i) {
@@ -128,14 +128,14 @@ namespace TrenchBroom {
 
         FloatType computePlaneFrequency(const vm::plane3& plane) {
             static const auto c = FloatType(1.0) - std::sin(vm::C::pi() / FloatType(4.0));
-            
+
             const auto& axis = firstAxis(plane.normal);
             const auto cos = dot(plane.normal, axis);
             assert(cos != FloatType(0.0));
-            
+
             return (FloatType(1.0) - cos) / c;
         }
-        
+
         void setDefaultPlanePoints(const vm::plane3& plane, BrushFace::Points& points) {
             points[0] = round(plane.anchor());
             switch (firstComponent(plane.normal)) {
@@ -171,9 +171,9 @@ namespace TrenchBroom {
 
         void PlanePointFinder::findPoints(const vm::plane3& plane, BrushFace::Points& points, const size_t numPoints) {
             using std::swap;
-            
+
             assert(numPoints <= 3);
-            
+
             if (numPoints == 3 && isIntegral(points[0]) && isIntegral(points[1]) && isIntegral(points[2])) {
                 return;
             }
@@ -183,7 +183,7 @@ namespace TrenchBroom {
                 setDefaultPlanePoints(plane, points);
                 return;
             }
-            
+
             const auto axis = firstComponent(plane.normal);
             const auto swizzledPlane = vm::plane3(plane.distance, swizzle(plane.normal, axis));
             for (size_t i = 0; i < 3; ++i) {
@@ -192,7 +192,7 @@ namespace TrenchBroom {
 
             const auto waveLength = FloatType(1.0) / frequency;
             const auto pointDistance = std::min(FloatType(64.0), waveLength);
-            
+
             auto multiplier = FloatType(10.0);
             auto cursor = GridSearchCursor(swizzledPlane, frequency);
             if (numPoints == 0) {
@@ -215,7 +215,7 @@ namespace TrenchBroom {
                 multiplier *= FloatType(1.5);
                 ++count;
             } while (vm::isnan(cos) || std::abs(cos) > FloatType(0.9));
-            
+
             v1 = cross(v1, v2);
             if ((v1.z() > 0.0) != (swizzledPlane.normal.z() > FloatType(0.0))) {
                 swap(points[0], points[2]);

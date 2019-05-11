@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -34,9 +34,9 @@ public:
         Item* m_previous;
         Item* m_next;
     public:
-        Link(Item* item):
-                m_previous(item),
-                m_next(item) {
+        explicit Link(Item* item):
+        m_previous(item),
+        m_next(item) {
             ensure(item != nullptr, "item is null");
         }
 
@@ -58,14 +58,6 @@ public:
             m_next = next;
         }
 
-        bool selfLoop(Item* item) const {
-            return m_previous == item && m_next == item;
-        }
-
-        void unlink(Item* item) {
-            m_previous = m_next = item;
-        }
-
         void flip() {
             using std::swap;
             swap(m_previous, m_next);
@@ -85,11 +77,11 @@ private:
     private:
         size_t m_listVersion;
     protected:
-        iterator_delegate_base(ListType& list) :
-                m_list(&list),
-                m_listVersion(m_list->m_version) {}
+        explicit iterator_delegate_base(ListType& list) :
+        m_list(&list),
+        m_listVersion(m_list->m_version) {}
     public:
-        virtual ~iterator_delegate_base() {}
+        virtual ~iterator_delegate_base() = default;
     public:
         iterator_delegate_base* clone() const { return doClone(); }
 
@@ -122,9 +114,9 @@ private:
         size_t m_index;
     public:
         iterator_delegate_item(ListType& list, ItemType item, const size_t index) :
-                base(list),
-                m_item(item),
-                m_index(index) {}
+        base(list),
+        m_item(item),
+        m_index(index) {}
     private:
         base* doClone() const override {
             return new iterator_delegate_item(*base::m_list, m_item, m_index);
@@ -152,8 +144,8 @@ private:
     private:
         using base = iterator_delegate_base<ListType, ItemType, LinkType>;
     public:
-        iterator_delegate_end(ListType& list) :
-                base(list) {}
+        explicit iterator_delegate_end(ListType& list) :
+        base(list) {}
     private:
         base* doClone() const override {
             return new iterator_delegate_end(*base::m_list);
@@ -185,7 +177,7 @@ public:
         using delegate = iterator_delegate_base<ListType, ItemType, LinkType>;
         delegate* m_delegate;
     public:
-        iterator_base(delegate* delegate = nullptr) : m_delegate(delegate) {}
+        explicit iterator_base(delegate* delegate = nullptr) : m_delegate(delegate) {}
         iterator_base(const iterator_base& other) : m_delegate(other.m_delegate->clone()) {}
         ~iterator_base() { delete m_delegate; }
 
@@ -202,8 +194,10 @@ public:
         }
 
         iterator_base& operator=(const iterator_base& other) {
-            delete m_delegate;
-            m_delegate = other.m_delegate->clone();
+            if (this != &other) {
+                delete m_delegate;
+                m_delegate = other.m_delegate->clone();
+            }
             return *this;
         }
 
@@ -219,7 +213,7 @@ public:
         }
 
         // postfix increment
-        iterator_base operator++(int) {
+        const iterator_base operator++(int) {
             iterator_base result(*this);
             m_delegate->increment();
             return result;
@@ -251,16 +245,16 @@ private:
     size_t m_version;
 public:
     DoublyLinkedList() :
-            m_getLink(),
-            m_head(nullptr),
-            m_size(0),
-            m_version(0) {}
+    m_getLink(),
+    m_head(nullptr),
+    m_size(0),
+    m_version(0) {}
 
-    DoublyLinkedList(DoublyLinkedList&& other) :
-            m_getLink(std::move(other.m_getLink)),
-            m_head(other.m_head),
-            m_size(other.m_size),
-            m_version(other.m_version) {
+    DoublyLinkedList(DoublyLinkedList&& other) noexcept :
+    m_getLink(std::move(other.m_getLink)),
+    m_head(other.m_head),
+    m_size(other.m_size),
+    m_version(other.m_version) {
         other.m_head = nullptr;
         other.m_size = 0;
         other.m_version += 1;
@@ -286,6 +280,7 @@ public:
         other.m_head = nullptr;
         other.m_size = 0;
         other.m_version += 1;
+        return *this;
     }
 public:
     // Copying is not allowed since this is an intrusive list.

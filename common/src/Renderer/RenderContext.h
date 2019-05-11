@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -33,7 +33,7 @@ namespace TrenchBroom {
         class FontManager;
         class Renderable;
         class ShaderManager;
-        
+
         class RenderContext {
         public:
             typedef enum {
@@ -47,7 +47,7 @@ namespace TrenchBroom {
                 ShowSelectionGuide_ForceShow,
                 ShowSelectionGuide_ForceHide
             } ShowSelectionGuide;
-            
+
             // general context for any rendering view
             RenderMode m_renderMode;
             const Camera& m_camera;
@@ -60,7 +60,7 @@ namespace TrenchBroom {
             bool m_showFaces;
             bool m_showEdges;
             bool m_shadeFaces;
-            
+
             bool m_showPointEntities;
             bool m_showPointEntityModels;
             bool m_showEntityClassnames;
@@ -68,45 +68,45 @@ namespace TrenchBroom {
             bool m_showGroupBounds;
             bool m_showBrushEntityBounds;
             bool m_showPointEntityBounds;
-            
+
             bool m_showFog;
-            
+
             bool m_showGrid;
             FloatType m_gridSize;
-            
+
             bool m_hideSelection;
             bool m_tintSelection;
-            
+
             ShowSelectionGuide m_showSelectionGuide;
         public:
             RenderContext(RenderMode renderMode, const Camera& camera, FontManager& fontManager, ShaderManager& shaderManager);
 
             bool render2D() const;
             bool render3D() const;
-            
+
             const Camera& camera() const;
             Transformation& transformation();
             FontManager& fontManager();
             ShaderManager& shaderManager();
-            
+
             bool showTextures() const;
             void setShowTextures(bool showTextures);
 
             bool showFaces() const;
             void setShowFaces(bool showFaces);
-            
+
             bool showEdges() const;
             void setShowEdges(bool showEdges);
-            
+
             bool shadeFaces() const;
             void setShadeFaces(bool shadeFaces);
-            
+
             bool showPointEntities() const;
             void setShowPointEntities(bool showPointEntities);
-            
+
             bool showPointEntityModels() const;
             void setShowPointEntityModels(bool showPointEntityModels);
-            
+
             bool showEntityClassnames() const;
             void setShowEntityClassnames(bool showEntityClassnames);
 
@@ -118,22 +118,22 @@ namespace TrenchBroom {
 
             bool showPointEntityBounds() const;
             void setShowPointEntityBounds(bool showPointEntityBounds);
-            
+
             bool showFog() const;
             void setShowFog(bool showFog);
-            
+
             bool showGrid() const;
             void setShowGrid(bool showGrid);
-            
+
             FloatType gridSize() const;
             void setGridSize(FloatType gridSize);
-            
+
             bool hideSelection() const;
             void setHideSelection();
-            
+
             bool tintSelection() const;
             void clearTintSelection();
-            
+
             bool showSelectionGuide() const;
             void setShowSelectionGuide();
             void setHideSelectionGuide();

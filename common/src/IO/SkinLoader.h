@@ -20,7 +20,7 @@
 #ifndef TRENCHBROOM_SKINLOADER_H
 #define TRENCHBROOM_SKINLOADER_H
 
-#include "IO/MappedFile.h"
+#include <memory>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -29,8 +29,10 @@ namespace TrenchBroom {
     }
 
     namespace IO {
-        Assets::Texture* loadSkin(const IO::MappedFile::Ptr file);
-        Assets::Texture* loadSkin(const IO::MappedFile::Ptr file, const Assets::Palette& palette);
+        class File;
+
+        Assets::Texture* loadSkin(std::shared_ptr<File> file);
+        Assets::Texture* loadSkin(std::shared_ptr<File> file, const Assets::Palette& palette);
     }
 }
 

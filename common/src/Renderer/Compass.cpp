@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -31,9 +31,9 @@
 #include "Renderer/Shader.h"
 #include "Renderer/Transformation.h"
 #include "Renderer/IndexRangeMapBuilder.h"
-#include "Renderer/Vertex.h"
+#include "Renderer/GLVertex.h"
 #include "Renderer/VertexArray.h"
-#include "Renderer/VertexSpec.h"
+#include "Renderer/GLVertexType.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -55,9 +55,9 @@ namespace TrenchBroom {
             makeArrows();
             makeBackground();
         }
-        
+
         Compass::~Compass() = default;
-        
+
         void Compass::render(RenderBatch& renderBatch) {
             renderBatch.add(this);
         }
@@ -70,13 +70,13 @@ namespace TrenchBroom {
                 m_prepared = true;
             }
         }
-        
+
         void Compass::doRender(RenderContext& renderContext) {
             const auto& camera = renderContext.camera();
             const auto& viewport = camera.viewport();
             const auto viewWidth = viewport.width;
             const auto viewHeight = viewport.height;
-            
+
             const auto projection = vm::orthoMatrix(0.0f, 1000.0f, -viewWidth / 2.0f, viewHeight / 2.0f, viewWidth / 2.0f, -viewHeight / 2.0f);
             const auto view = vm::viewMatrix(vm::vec3f::pos_y, vm::vec3f::pos_z) * translationMatrix(500.0f * vm::vec3f::pos_y);
             const ReplaceTransformation ortho(renderContext.transformation(), projection, view);
@@ -96,7 +96,7 @@ namespace TrenchBroom {
         void Compass::makeArrows() {
             const vm::vec3f shaftOffset(0.0f, 0.0f, -(m_shaftLength + m_headLength) / 2.0f + 2.0f);
             const vm::vec3f headOffset = vm::vec3f(0.0f, 0.0f, m_shaftLength) + shaftOffset;
-            
+
             VertsAndNormals shaft = cylinder3D(m_shaftRadius, m_shaftLength, m_segments);
             for (size_t i = 0; i < shaft.vertices.size(); ++i) {
                 shaft.vertices[i] = shaft.vertices[i] + shaftOffset;
@@ -112,26 +112,26 @@ namespace TrenchBroom {
                 shaftCap.vertices[i] = vm::mat4x4f::rot_180_x * shaftCap.vertices[i] + shaftOffset;
                 shaftCap.normals[i] = vm::mat4x4f::rot_180_x * shaftCap.normals[i];
             }
-            
+
             VertsAndNormals headCap = circle3D(m_headRadius, m_segments);
             for (size_t i = 0; i < headCap.vertices.size(); ++i) {
                 headCap.vertices[i] = vm::mat4x4f::rot_180_x * headCap.vertices[i] + headOffset;
                 headCap.normals[i] = vm::mat4x4f::rot_180_x * headCap.normals[i];
             }
-            
-            typedef VertexSpecs::P3N::Vertex Vertex;
-            Vertex::List shaftVertices    = Vertex::toList(std::begin(shaft.vertices), std::begin(shaft.normals), shaft.vertices.size());
-            Vertex::List headVertices     = Vertex::toList(std::begin(head.vertices),  std::begin(head.normals),  head.vertices.size());
-            Vertex::List shaftCapVertices = Vertex::toList(std::begin(shaftCap.vertices), std::begin(shaftCap.normals), shaftCap.vertices.size());
-            Vertex::List headCapVertices  = Vertex::toList(std::begin(headCap.vertices),  std::begin(headCap.normals),  headCap.vertices.size());
+
+            using Vertex = GLVertexTypes::P3N::Vertex;
+            Vertex::List shaftVertices    = Vertex::toList(shaft.vertices.size(), std::begin(shaft.vertices), std::begin(shaft.normals));
+            Vertex::List headVertices     = Vertex::toList(head.vertices.size(), std::begin(head.vertices),  std::begin(head.normals));
+            Vertex::List shaftCapVertices = Vertex::toList(shaftCap.vertices.size(), std::begin(shaftCap.vertices), std::begin(shaftCap.normals));
+            Vertex::List headCapVertices  = Vertex::toList(headCap.vertices.size(), std::begin(headCap.vertices),  std::begin(headCap.normals));
 
             const size_t vertexCount = shaftVertices.size() + headVertices.size() + shaftCapVertices.size() + headCapVertices.size();
             IndexRangeMap::Size indexArraySize;
             indexArraySize.inc(GL_TRIANGLE_STRIP);
             indexArraySize.inc(GL_TRIANGLE_FAN, 2);
             indexArraySize.inc(GL_TRIANGLES, headVertices.size() / 3);
-            
-            IndexRangeMapBuilder<Vertex::Spec> builder(vertexCount, indexArraySize);
+
+            IndexRangeMapBuilder<Vertex::Type> builder(vertexCount, indexArraySize);
             builder.addTriangleStrip(shaftVertices);
             builder.addTriangleFan(shaftCapVertices);
             builder.addTriangleFan(headCapVertices);
@@ -139,26 +139,26 @@ namespace TrenchBroom {
 
             m_arrowRenderer = IndexRangeRenderer(builder);
         }
-        
+
         void Compass::makeBackground() {
-            typedef VertexSpecs::P2::Vertex Vertex;
+            using Vertex = GLVertexTypes::P2::Vertex;
             std::vector<vm::vec2f> circ = circle2D((m_shaftLength + m_headLength) / 2.0f + 5.0f, 0.0f, vm::Cf::twoPi(), m_segments);
-            Vertex::List verts = Vertex::toList(std::begin(circ), circ.size());
-            
+            Vertex::List verts = Vertex::toList(circ.size(), std::begin(circ));
+
             IndexRangeMap::Size backgroundSize;
             backgroundSize.inc(GL_TRIANGLE_FAN);
-            
-            IndexRangeMapBuilder<Vertex::Spec> backgroundBuilder(verts.size(), backgroundSize);
+
+            IndexRangeMapBuilder<Vertex::Type> backgroundBuilder(verts.size(), backgroundSize);
             backgroundBuilder.addTriangleFan(verts);
-            
+
             m_backgroundRenderer = IndexRangeRenderer(backgroundBuilder);
-            
+
             IndexRangeMap::Size outlineSize;
             outlineSize.inc(GL_LINE_LOOP);
-            
-            IndexRangeMapBuilder<Vertex::Spec> outlineBuilder(verts.size(), outlineSize);
+
+            IndexRangeMapBuilder<Vertex::Type> outlineBuilder(verts.size(), outlineSize);
             outlineBuilder.addLineLoop(verts);
-            
+
             m_backgroundOutlineRenderer = IndexRangeRenderer(outlineBuilder);
         }
 
@@ -192,23 +192,23 @@ namespace TrenchBroom {
             shader.set("LightSpecular", Color(0.3f, 0.3f, 0.3f, 1.0f));
             shader.set("GlobalAmbient", Color(0.2f, 0.2f, 0.2f, 1.0f));
             shader.set("MaterialShininess", 32.0f);
-            
+
             shader.set("MaterialDiffuse", color);
             shader.set("MaterialAmbient", color);
             shader.set("MaterialSpecular", color);
-            
+
             renderAxis(renderContext, transformation);
         }
-        
+
         void Compass::renderAxisOutline(RenderContext& renderContext, const vm::mat4x4f& transformation, const Color& color) {
             glAssert(glDepthMask(GL_FALSE));
             glAssert(glLineWidth(3.0f));
             glAssert(glPolygonMode(GL_FRONT, GL_LINE));
-            
+
             ActiveShader shader(renderContext.shaderManager(), Shaders::CompassOutlineShader);
             shader.set("Color", color);
             renderAxis(renderContext, transformation);
-            
+
             glAssert(glDepthMask(GL_TRUE));
             glAssert(glLineWidth(1.0f));
             glAssert(glPolygonMode(GL_FRONT, GL_FILL));

@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -34,13 +34,13 @@ namespace TrenchBroom {
                 resetKey();
                 resetModifiers();
             }
-            
+
             KeyboardShortcut::sortModifierKeys(m_modifiers[0], m_modifiers[1], m_modifiers[2]);
             const auto label = KeyboardShortcut::shortcutDisplayString(m_key, m_modifiers[0], m_modifiers[1], m_modifiers[2]);
             m_shortcutLabel->SetLabel(label);
             Refresh();
         }
-        
+
         KeyboardShortcutEditor::KeyboardShortcutEditor(wxWindow* parent, wxWindowID windowId, const wxPoint& pos, const wxSize& size, long style, const wxValidator& validator, const wxString& name) :
         wxControl(parent, windowId, pos, size, style | wxTAB_TRAVERSAL | wxWANTS_CHARS, validator, name),
         m_panel(new wxPanel(this)),
@@ -48,7 +48,7 @@ namespace TrenchBroom {
         m_resetOnNextKey(false) {
             resetKey();
             resetModifiers();
-            
+
             auto* panelSizer = new wxBoxSizer(wxVERTICAL);
             panelSizer->Add(m_shortcutLabel, 0, wxEXPAND);
             m_panel->SetSizer(panelSizer);
@@ -56,21 +56,21 @@ namespace TrenchBroom {
             auto* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_panel, 1, wxEXPAND);
             SetSizer(sizer);
-            
+
             Bind(wxEVT_PAINT, &KeyboardShortcutEditor::OnPaint, this);
             Bind(wxEVT_SET_FOCUS, &KeyboardShortcutEditor::OnSetFocus, this);
             Bind(wxEVT_KILL_FOCUS, &KeyboardShortcutEditor::OnKillFocus, this);
             Bind(wxEVT_KEY_DOWN, &KeyboardShortcutEditor::OnKeyDown, this);
             Bind(wxEVT_KEY_UP, &KeyboardShortcutEditor::OnKeyUp, this);
-            
+
             Bind(wxEVT_LEFT_DOWN, &KeyboardShortcutEditor::OnMouseDown, this);
             Bind(wxEVT_RIGHT_DOWN, &KeyboardShortcutEditor::OnMouseDown, this);
             Bind(wxEVT_LEFT_DCLICK, &KeyboardShortcutEditor::OnMouseDown, this);
-            
+
             m_panel->Bind(wxEVT_LEFT_DOWN, &KeyboardShortcutEditor::OnMouseDown, this);
             m_panel->Bind(wxEVT_RIGHT_DOWN, &KeyboardShortcutEditor::OnMouseDown, this);
             m_panel->Bind(wxEVT_LEFT_DCLICK, &KeyboardShortcutEditor::OnMouseDown, this);
-            
+
             m_shortcutLabel->Bind(wxEVT_LEFT_DOWN, &KeyboardShortcutEditor::OnMouseDown, this);
             m_shortcutLabel->Bind(wxEVT_RIGHT_DOWN, &KeyboardShortcutEditor::OnMouseDown, this);
             m_shortcutLabel->Bind(wxEVT_LEFT_DCLICK, &KeyboardShortcutEditor::OnMouseDown, this);
@@ -79,19 +79,19 @@ namespace TrenchBroom {
         int KeyboardShortcutEditor::key() const {
             return m_key;
         }
-        
+
         int KeyboardShortcutEditor::modifier1() const {
             return m_modifiers[0];
         }
-        
+
         int KeyboardShortcutEditor::modifier2() const {
             return m_modifiers[1];
         }
-        
+
         int KeyboardShortcutEditor::modifier3() const {
             return m_modifiers[2];
         }
-        
+
         void KeyboardShortcutEditor::SetShortcut(const KeyboardShortcut& shortcut) {
             SetShortcut(shortcut.key(), shortcut.modifier1(), shortcut.modifier2(), shortcut.modifier3());
         }
@@ -111,7 +111,7 @@ namespace TrenchBroom {
             /*
             if (HasFocus()) {
                 wxDelegateRendererNative renderer;
-                
+
                 wxPaintDC dc(this);
                 renderer.DrawFocusRect(this, dc, GetClientRect());
             }
@@ -126,7 +126,7 @@ namespace TrenchBroom {
             Refresh();
             event.Skip();
         }
-        
+
         void KeyboardShortcutEditor::OnKillFocus(wxFocusEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -146,7 +146,7 @@ namespace TrenchBroom {
                 SetShortcut();
                 m_resetOnNextKey = false;
             }
-            
+
             const auto key = event.GetKeyCode();
             switch (key) {
                 case WXK_SHIFT:
@@ -181,7 +181,7 @@ namespace TrenchBroom {
             }
             update();
         }
-        
+
         void KeyboardShortcutEditor::OnKeyUp(wxKeyEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -202,7 +202,7 @@ namespace TrenchBroom {
             }
             update();
         }
-        
+
         void KeyboardShortcutEditor::OnMouseDown(wxMouseEvent& event) {
             if (IsBeingDeleted()) return;
 

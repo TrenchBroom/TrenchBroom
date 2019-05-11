@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -30,12 +30,12 @@
 namespace TrenchBroom {
     namespace Renderer {
         class VboBlock;
-        
+
         class CompareVboBlocksByCapacity {
         public:
             bool operator() (const VboBlock* lhs, const VboBlock* rhs) const;
         };
-        
+
         class Vbo;
         class ActivateVbo {
         private:
@@ -45,10 +45,10 @@ namespace TrenchBroom {
             ActivateVbo(Vbo& vbo);
             ~ActivateVbo();
         };
-        
+
         class Vbo {
         public:
-            typedef std::shared_ptr<Vbo> Ptr;
+            using Ptr = std::shared_ptr<Vbo>;
         private:
             typedef enum {
                 State_Inactive = 0,
@@ -57,9 +57,9 @@ namespace TrenchBroom {
                 State_FullyMapped = 3
             } State;
         private:
-            typedef std::vector<VboBlock*> VboBlockList;
+            using VboBlockList = std::vector<VboBlock*>;
             static const float GrowthFactor;
-            
+
             size_t m_totalCapacity;
             size_t m_freeCapacity;
             VboBlockList m_freeBlocks;
@@ -73,7 +73,7 @@ namespace TrenchBroom {
         public:
             Vbo(size_t initialCapacity, GLenum type = GL_ARRAY_BUFFER, GLenum usage = GL_DYNAMIC_DRAW);
             ~Vbo();
-            
+
             VboBlock* allocateBlock(size_t capacity);
 
             bool active() const;
@@ -84,7 +84,7 @@ namespace TrenchBroom {
             friend class VboBlock;
 
             GLenum type() const;
-            
+
             void free();
             void freeBlock(VboBlock* block);
 
@@ -98,7 +98,7 @@ namespace TrenchBroom {
             bool partiallyMapped() const;
             void mapPartially();
             void unmapPartially();
-            
+
             bool fullyMapped() const;
             unsigned char* map();
             void unmap();

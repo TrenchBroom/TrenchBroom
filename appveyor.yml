@@ -2,6 +2,7 @@ image: Visual Studio 2017
 version: 2.0.0-appveyor-{build}
 install:
 - cinst pandoc
+- cinst cppcheck
 - ps: Invoke-WebRequest 'https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxWidgets-3.1.1-headers.7z' -OutFile 'headers.7z'
 - ps: Invoke-WebRequest 'https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxMSW-3.1.1_vc141_Dev.7z' -OutFile 'dev.7z'
 - ps: Invoke-WebRequest 'https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxMSW-3.1.1_vc141_ReleaseDLL.7z' -OutFile 'dll.7z'

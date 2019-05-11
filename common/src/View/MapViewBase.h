@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -36,13 +36,15 @@
 
 #include <memory>
 
+wxDECLARE_EVENT(SHOW_POPUP_MENU_EVENT, wxCommandEvent);
+
 namespace TrenchBroom {
     class Logger;
-    
+
     namespace IO {
         class Path;
     }
-    
+
     namespace Renderer {
         class Camera;
         class Compass;
@@ -52,7 +54,7 @@ namespace TrenchBroom {
         class RenderContext;
         class Vbo;
     }
-    
+
     namespace View {
         class AnimationManager;
         class Command;
@@ -62,7 +64,7 @@ namespace TrenchBroom {
         class MovementRestriction;
         class Selection;
         class Tool;
-        
+
         class MapViewBase : public MapView, public RenderView, public ToolBoxConnector, public CameraLinkableView {
         public:
             static const wxString &glRendererString();
@@ -70,11 +72,11 @@ namespace TrenchBroom {
             static const wxString &glVersionString();
         protected:
             static const wxLongLong DefaultCameraAnimationDuration;
-            
+
             Logger* m_logger;
             MapDocumentWPtr m_document;
             MapViewToolBox& m_toolBox;
-            
+
             AnimationManager* m_animationManager;
         private:
             Renderer::MapRenderer& m_renderer;
@@ -82,14 +84,14 @@ namespace TrenchBroom {
             std::unique_ptr<Renderer::PrimitiveRenderer> m_portalFileRenderer;
         protected:
             MapViewBase(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager);
-            
+
             void setCompass(Renderer::Compass* compass);
         public:
-            virtual ~MapViewBase() override;
+            ~MapViewBase() override;
         private:
             void bindObservers();
             void unbindObservers();
-            
+
             void nodesDidChange(const Model::NodeList& nodes);
             void toolChanged(Tool* tool);
             void commandDone(Command::Ptr command);
@@ -107,31 +109,31 @@ namespace TrenchBroom {
             void documentDidChange(MapDocument* document);
         private: // interaction events
             void bindEvents();
-            
+
             void OnMoveObjectsForward(wxCommandEvent& event);
             void OnMoveObjectsBackward(wxCommandEvent& event);
             void OnMoveObjectsLeft(wxCommandEvent& event);
             void OnMoveObjectsRight(wxCommandEvent& event);
             void OnMoveObjectsUp(wxCommandEvent& event);
             void OnMoveObjectsDown(wxCommandEvent& event);
-            
+
             void OnDuplicateObjectsForward(wxCommandEvent& event);
             void OnDuplicateObjectsBackward(wxCommandEvent& event);
             void OnDuplicateObjectsLeft(wxCommandEvent& event);
             void OnDuplicateObjectsRight(wxCommandEvent& event);
             void OnDuplicateObjectsUp(wxCommandEvent& event);
             void OnDuplicateObjectsDown(wxCommandEvent& event);
-            
+
             void OnRollObjectsCW(wxCommandEvent& event);
             void OnRollObjectsCCW(wxCommandEvent& event);
             void OnPitchObjectsCW(wxCommandEvent& event);
             void OnPitchObjectsCCW(wxCommandEvent& event);
             void OnYawObjectsCW(wxCommandEvent& event);
             void OnYawObjectsCCW(wxCommandEvent& event);
-            
+
             void OnFlipObjectsH(wxCommandEvent& event);
             void OnFlipObjectsV(wxCommandEvent& event);
-            
+
             void duplicateAndMoveObjects(vm::direction direction);
             void duplicateObjects();
             void moveObjects(vm::direction direction);
@@ -147,13 +149,13 @@ namespace TrenchBroom {
             void OnMoveRotationCenterUp(wxCommandEvent& event);
             void OnMoveRotationCenterDown(wxCommandEvent& event);
             void moveRotationCenter(vm::direction direction);
-            
+
             void OnToggleScaleObjectsTool(wxCommandEvent& event);
             void OnToggleShearObjectsTool(wxCommandEvent& event);
-            
+
             void OnToggleClipSide(wxCommandEvent& event);
             void OnPerformClip(wxCommandEvent& event);
-            
+
             void OnMoveVerticesForward(wxCommandEvent& event);
             void OnMoveVerticesBackward(wxCommandEvent& event);
             void OnMoveVerticesLeft(wxCommandEvent& event);
@@ -161,11 +163,10 @@ namespace TrenchBroom {
             void OnMoveVerticesUp(wxCommandEvent& event);
             void OnMoveVerticesDown(wxCommandEvent& event);
             void moveVertices(vm::direction direction);
-            void OnToggleUVLock(wxCommandEvent& event);
-            
+
             void OnCancel(wxCommandEvent& event);
             bool cancel();
-            
+
             void OnDeactivateTool(wxCommandEvent& event);
         private: // group management
             void OnGroupSelectedObjects(wxCommandEvent& event);
@@ -175,7 +176,7 @@ namespace TrenchBroom {
             void OnAddObjectsToGroup(wxCommandEvent& event);
             void OnRemoveObjectsFromGroup(wxCommandEvent& event);
             Model::Node* findNewGroupForObjects(const Model::NodeList& nodes) const;
-            
+
             void OnMergeGroups(wxCommandEvent& event);
             Model::Group* findGroupToMergeGroupsInto(const Model::NodeCollection& selectedNodes) const;
 
@@ -187,21 +188,60 @@ namespace TrenchBroom {
              * @return true if the given node can be reparented under the given new parent, and false otherwise
              */
             bool canReparentNode(const Model::Node* node, const Model::Node* newParent) const;
-            
+
             void OnMoveBrushesTo(wxCommandEvent& event);
             Model::Node* findNewParentEntityForBrushes(const Model::NodeList& nodes) const;
-            
+
             bool canReparentNodes(const Model::NodeList& nodes, const Model::Node* newParent) const;
+            /**
+             * Reparents nodes, and deselects everything as a side effect.
+             *
+             * @param nodes the nodes to reparent
+             * @param newParent the new parent
+             * @param preserveEntities if true, if `nodes` contains brushes belonging to an entity, the whole
+             *                         entity and all brushes it contains are also reparented.
+             *                         if false, only the brushes listed in `nodes` are reparented, not any
+             *                         parent entities.
+             */
             void reparentNodes(const Model::NodeList& nodes, Model::Node* newParent, bool preserveEntities);
             Model::NodeList collectReparentableNodes(const Model::NodeList& nodes, const Model::Node* newParent) const;
-            
+
             void OnCreatePointEntity(wxCommandEvent& event);
             void OnCreateBrushEntity(wxCommandEvent& event);
-            
+
             Assets::EntityDefinition* findEntityDefinition(Assets::EntityDefinition::Type type, size_t index) const;
             void createPointEntity(const Assets::PointEntityDefinition* definition);
             void createBrushEntity(const Assets::BrushEntityDefinition* definition);
             bool canCreateBrushEntity();
+        private: // tags
+            void OnToggleTagVisible(wxCommandEvent& event);
+
+            class EnableDisableTagCallback;
+            void OnEnableTag(wxCommandEvent& event);
+            void OnDisableTag(wxCommandEvent& event);
+        private: // make structural
+            void OnMakeStructural(wxCommandEvent& event);
+        private: // entity definitions
+            void OnToggleEntityDefinitionVisible(wxCommandEvent& event);
+            void OnCreateEntity(wxCommandEvent& event);
+        private: // view filters
+            void OnToggleShowEntityClassnames(wxCommandEvent& event);
+            void OnToggleShowGroupBounds(wxCommandEvent& event);
+            void OnToggleShowBrushEntityBounds(wxCommandEvent& event);
+            void OnToggleShowPointEntityBounds(wxCommandEvent& event);
+            void OnToggleShowPointEntities(wxCommandEvent& event);
+            void OnToggleShowPointEntityModels(wxCommandEvent& event);
+            void OnToggleShowBrushes(wxCommandEvent& event);
+            void OnRenderModeShowTextures(wxCommandEvent& event);
+            void OnRenderModeHideTextures(wxCommandEvent& event);
+            void OnRenderModeHideFaces(wxCommandEvent& event);
+            void OnRenderModeShadeFaces(wxCommandEvent& event);
+            void OnRenderModeUseFog(wxCommandEvent& event);
+            void OnRenderModeShowEdges(wxCommandEvent& event);
+            void OnRenderModeShowAllEntityLinks(wxCommandEvent& event);
+            void OnRenderModeShowTransitiveEntityLinks(wxCommandEvent& event);
+            void OnRenderModeShowDirectEntityLinks(wxCommandEvent& event);
+            void OnRenderModeHideEntityLinks(wxCommandEvent& event);
         private: // other events
             void OnSetFocus(wxFocusEvent& event);
             void OnKillFocus(wxFocusEvent& event);
@@ -234,16 +274,22 @@ namespace TrenchBroom {
             void validatePortalFileRenderer(Renderer::RenderContext& renderContext);
 
             void renderCompass(Renderer::RenderBatch& renderBatch);
+        public: // implement InputEventProcessor interface
+            void processEvent(const KeyEvent& event) override;
+            void processEvent(const MouseEvent& event) override;
+            void processEvent(const CancelEvent& event) override;
         private: // implement ToolBoxConnector
             void doShowPopupMenu() override;
+            void OnShowPopupMenu(wxCommandEvent& event);
+
             wxMenu* makeEntityGroupsMenu(Assets::EntityDefinition::Type type, int id);
-            
+
             void OnUpdatePopupMenuItem(wxUpdateUIEvent& event);
             void updateGroupObjectsMenuItem(wxUpdateUIEvent& event) const;
             void updateUngroupObjectsMenuItem(wxUpdateUIEvent& event) const;
             void updateMergeGroupsMenuItem(wxUpdateUIEvent& event) const;
             void updateRenameGroupsMenuItem(wxUpdateUIEvent& event) const;
-            void updateMoveBrushesToWorldMenuItem(wxUpdateUIEvent& event) const;
+            void updateMakeStructuralMenuItem(wxUpdateUIEvent& event) const;
         private: // subclassing interface
             virtual vm::vec3 doGetMoveDirection(vm::direction direction) const = 0;
             virtual vm::vec3 doComputePointEntityPosition(const vm::bbox3& bounds) const = 0;
@@ -251,14 +297,15 @@ namespace TrenchBroom {
             virtual ActionContext doGetActionContext() const = 0;
             virtual wxAcceleratorTable doCreateAccelerationTable(ActionContext context) const = 0;
             virtual bool doCancel() = 0;
-            
+
             virtual Renderer::RenderContext::RenderMode doGetRenderMode() = 0;
             virtual Renderer::Camera& doGetCamera() = 0;
+            virtual void doPreRender();
             virtual void doRenderGrid(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
             virtual void doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
             virtual void doRenderTools(MapViewToolBox& toolBox, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
             virtual void doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-            
+
             virtual bool doBeforePopupMenu();
             virtual void doAfterPopupMenu();
         };

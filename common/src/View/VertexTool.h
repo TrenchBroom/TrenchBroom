@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -29,19 +29,19 @@ namespace TrenchBroom {
     namespace Model {
         class PickResult;
     }
-    
+
     namespace Renderer {
         class Camera;
         class RenderContext;
         class RenderBatch;
         class RenderService;
     }
-    
+
     namespace View {
         class Grid;
         class Lasso;
         class Selection;
-        
+
         class VertexTool : public VertexToolBase<vm::vec3> {
         private:
             typedef enum {
@@ -49,7 +49,7 @@ namespace TrenchBroom {
                 Mode_Split_Edge,
                 Mode_Split_Face
             } Mode;
-            
+
             Mode m_mode;
 
             VertexHandleManager m_vertexHandles;
@@ -80,7 +80,7 @@ namespace TrenchBroom {
 
             const vm::vec3& getHandlePosition(const Model::Hit& hit) const override;
             String actionName() const override;
-            
+
             void removeSelection();
         public: // Rendering
             void renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vm::vec3& position) const override;

@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -34,7 +34,7 @@
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Transformation.h"
-#include "Renderer/VertexSpec.h"
+#include "Renderer/GLVertexType.h"
 #include "View/InputState.h"
 #include "View/UVViewHelper.h"
 
@@ -60,7 +60,11 @@ namespace TrenchBroom {
         Tool* UVOriginTool::doGetTool() {
             return this;
         }
-        
+
+        const Tool* UVOriginTool::doGetTool() const {
+            return this;
+        }
+
         void UVOriginTool::doPick(const InputState& inputState, Model::PickResult& pickResult) {
             if (m_helper.valid()) {
                 vm::line3 xHandle, yHandle;
@@ -69,7 +73,7 @@ namespace TrenchBroom {
                 const auto* face = m_helper.face();
                 const auto fromTex = face->fromTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
                 const auto origin = fromTex * vm::vec3(m_helper.originInFaceCoords());
-                
+
                 const auto& pickRay = inputState.pickRay();
                 const auto oDistance = vm::distance(pickRay, origin);
                 if (oDistance.distance <= OriginHandleRadius / m_helper.cameraZoom()) {
@@ -82,13 +86,13 @@ namespace TrenchBroom {
 
                     assert(!xDistance.parallel);
                     assert(!yDistance.parallel);
-                    
+
                     const auto maxDistance  = MaxPickDistance / m_helper.cameraZoom();
                     if (xDistance.distance <= maxDistance) {
                         const auto hitPoint = pickRay.pointAtDistance(xDistance.position1);
                         pickResult.addHit(Model::Hit(XHandleHit, xDistance.position1, hitPoint, xHandle, xDistance.distance));
                     }
-                    
+
                     if (yDistance.distance <= maxDistance) {
                         const auto hitPoint = pickRay.pointAtDistance(yDistance.position1);
                         pickResult.addHit(Model::Hit(YHandleHit, yDistance.position1, hitPoint, yHandle, yDistance.distance));
@@ -100,17 +104,17 @@ namespace TrenchBroom {
         void UVOriginTool::computeOriginHandles(vm::line3& xHandle, vm::line3& yHandle) const {
             const auto* face = m_helper.face();
             const auto toWorld = face->fromTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
-            
+
             const auto origin = vm::vec3(m_helper.originInFaceCoords());
             xHandle.point = yHandle.point = toWorld * origin;
-            
+
             xHandle.direction = normalize(toWorld * (origin + vm::vec3::pos_y) - xHandle.point);
             yHandle.direction = (toWorld * (origin + vm::vec3::pos_x) - yHandle.point);
         }
 
         bool UVOriginTool::doStartMouseDrag(const InputState& inputState) {
             assert(m_helper.valid());
-            
+
             if (!inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
                 !inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
                 return false;
@@ -139,12 +143,12 @@ namespace TrenchBroom {
             m_lastPoint = computeHitPoint(inputState.pickRay());
             return true;
         }
-        
+
         bool UVOriginTool::doMouseDrag(const InputState& inputState) {
             const auto curPoint = computeHitPoint(inputState.pickRay());
 
             const auto delta = curPoint - m_lastPoint;
-            
+
             const auto snapped = snapDelta(delta * m_selector);
             if (isZero(snapped, vm::Cf::almostZero())) {
                 return true;
@@ -155,11 +159,11 @@ namespace TrenchBroom {
                 return true;
             }
         }
-        
+
         vm::vec2f UVOriginTool::computeHitPoint(const vm::ray3& ray) const {
             const auto* face = m_helper.face();
             const auto& boundary = face->boundary();
-            const auto distance = vm::intersect(ray, boundary);
+            const auto distance = vm::intersectRayAndPlane(ray, boundary);
             const auto hitPoint = ray.pointAtDistance(distance);
 
             const auto transform = face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
@@ -173,23 +177,23 @@ namespace TrenchBroom {
 
             const auto* face = m_helper.face();
             ensure(face != nullptr, "face is null");
-            
+
             // The delta is given in non-translated and non-scaled texture coordinates because that's how the origin
             // is stored. We have to convert to translated and scaled texture coordinates to do our snapping because
             // that's how the helper computes the distance to the texture grid.
             // Finally, we will convert the distance back to non-translated and non-scaled texture coordinates and
             // snap the delta to the distance.
-            
+
             const auto w2fTransform = face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
             const auto w2tTransform = face->toTexCoordSystemMatrix(face->offset(), face->scale(), true);
             const auto f2wTransform = face->fromTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
             const auto t2wTransform = face->fromTexCoordSystemMatrix(face->offset(), face->scale(), true);
             const auto f2tTransform = w2tTransform * f2wTransform;
             const auto t2fTransform = w2fTransform * t2wTransform;
-            
+
             const auto newOriginInFaceCoords = m_helper.originInFaceCoords() + delta;
             const auto newOriginInTexCoords  = vm::vec2f(f2tTransform * vm::vec3(newOriginInFaceCoords));
-            
+
             // now snap to the vertices
             // TODO: this actually doesn't work because we're snapping to the X or Y coordinate of the vertices
             // instead, we must snap to the edges!
@@ -217,7 +221,7 @@ namespace TrenchBroom {
 
         void UVOriginTool::doEndMouseDrag(const InputState& inputState) {}
         void UVOriginTool::doCancelMouseDrag() {}
-        
+
         void UVOriginTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             if (!m_helper.valid())
                 return;
@@ -227,9 +231,7 @@ namespace TrenchBroom {
         }
 
         void UVOriginTool::renderLineHandles(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            EdgeVertex::List vertices = getHandleVertices(inputState);
-            
-            Renderer::DirectEdgeRenderer edgeRenderer(Renderer::VertexArray::swap(vertices), GL_LINES);
+            Renderer::DirectEdgeRenderer edgeRenderer(Renderer::VertexArray::move(getHandleVertices(inputState)), GL_LINES);
             edgeRenderer.renderOnTop(renderBatch, 0.25f);
         }
 
@@ -237,22 +239,22 @@ namespace TrenchBroom {
             const Model::PickResult& pickResult = inputState.pickResult();
             const Model::Hit& xHandleHit = pickResult.query().type(XHandleHit).occluded().first();
             const Model::Hit& yHandleHit = pickResult.query().type(YHandleHit).occluded().first();
-            
+
             const bool highlightXHandle = (thisToolDragging() && m_selector.x() > 0.0) || (!thisToolDragging() && xHandleHit.isMatch());
             const bool highlightYHandle = (thisToolDragging() && m_selector.y() > 0.0) || (!thisToolDragging() && yHandleHit.isMatch());
-            
+
             const Color xColor = highlightXHandle ? Color(1.0f, 0.0f, 0.0f, 1.0f) : Color(0.7f, 0.0f, 0.0f, 1.0f);
             const Color yColor = highlightYHandle ? Color(1.0f, 0.0f, 0.0f, 1.0f) : Color(0.7f, 0.0f, 0.0f, 1.0f);
-            
+
             vm::vec3 x1, x2, y1, y2;
             m_helper.computeOriginHandleVertices(x1, x2, y1, y2);
 
-            EdgeVertex::List vertices(4);
-            vertices[0] = EdgeVertex(vm::vec3f(x1), xColor);
-            vertices[1] = EdgeVertex(vm::vec3f(x2), xColor);
-            vertices[2] = EdgeVertex(vm::vec3f(y1), yColor);
-            vertices[3] = EdgeVertex(vm::vec3f(y2), yColor);
-            return vertices;
+            return EdgeVertex::List({
+                EdgeVertex(vm::vec3f(x1), xColor),
+                EdgeVertex(vm::vec3f(x2), xColor),
+                EdgeVertex(vm::vec3f(y1), yColor),
+                EdgeVertex(vm::vec3f(y2), yColor)
+            });
         }
 
         class UVOriginTool::RenderOrigin : public Renderer::DirectRenderable {
@@ -274,11 +276,11 @@ namespace TrenchBroom {
             void doPrepareVertices(Renderer::Vbo& vertexVbo) override {
                 m_originHandle.prepare(vertexVbo);
             }
-            
+
             void doRender(Renderer::RenderContext& renderContext) override {
                 const auto* face = m_helper.face();
                 const auto fromFace = face->fromTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
-                
+
                 const auto& boundary = face->boundary();
                 const auto toPlane = planeProjectionMatrix(boundary.distance, boundary.normal);
                 const auto [invertible, fromPlane] = invert(toPlane);
@@ -291,13 +293,13 @@ namespace TrenchBroom {
                 const Renderer::MultiplyModelMatrix toWorldTransform(renderContext.transformation(), vm::mat4x4f(fromPlane));
                 const auto translation = vm::translationMatrix(vm::vec3(originPosition));
                 const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), vm::mat4x4f(translation));
-                
+
                 Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
                 shader.set("Color", m_highlight ? highlightColor : handleColor);
                 m_originHandle.render();
             }
         };
-        
+
         void UVOriginTool::renderOriginHandle(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             const auto highlight = renderHighlight(inputState);
             renderBatch.addOneShot(new RenderOrigin(m_helper, OriginHandleRadius, highlight));

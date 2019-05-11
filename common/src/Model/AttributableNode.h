@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -53,54 +53,54 @@ namespace TrenchBroom {
             Assets::EntityDefinition* definition() const;
             void setDefinition(Assets::EntityDefinition* definition);
         public: // notification
-            typedef Notifier2<AttributableNode*, const AttributeName&> AttributeNotifier;
-            
+            using AttributeNotifier = Notifier<AttributableNode*, const AttributeName&>;
+
             AttributeNotifier attributeWasAddedNotifier;
             AttributeNotifier attributeWillBeRemovedNotifier;
             AttributeNotifier attributeWillChangeNotifier;
             AttributeNotifier attributeDidChangeNotifier;
         public: // attribute management
             const Assets::AttributeDefinition* attributeDefinition(const AttributeName& name) const;
-            
+
             const EntityAttribute::List& attributes() const;
             void setAttributes(const EntityAttribute::List& attributes);
 
             AttributeNameSet attributeNames() const;
-            
+
             bool hasAttribute(const AttributeName& name) const;
             bool hasAttribute(const AttributeName& name, const AttributeValue& value) const;
             bool hasAttributeWithPrefix(const AttributeName& prefix, const AttributeValue& value) const;
             bool hasNumberedAttribute(const AttributeName& prefix, const AttributeValue& value) const;
-            
+
             EntityAttribute::List attributeWithName(const AttributeName& name) const;
             EntityAttribute::List attributesWithPrefix(const AttributeName& prefix) const;
             EntityAttribute::List numberedAttributes(const String& prefix) const;
-            
+
             const AttributeValue& attribute(const AttributeName& name, const AttributeValue& defaultValue = DefaultAttributeValue) const;
             const AttributeValue& classname(const AttributeValue& defaultClassname = AttributeValues::NoClassname) const;
-            
+
             EntityAttributeSnapshot attributeSnapshot(const AttributeName& name) const;
-            
+
             template <typename T>
             void addOrUpdateAttribute(const AttributeName& name, const T& value) {
                 addOrUpdateAttribute(name, convertValue(value));
             }
-            
+
             template <typename T, size_t S>
             void addOrUpdateAttribute(const AttributeName& name, const vm::vec<T,S>& value) {
                 addOrUpdateAttribute(name, StringUtils::toString(value));
             }
-            
+
             bool canAddOrUpdateAttribute(const AttributeName& name, const AttributeValue& value) const;
             bool addOrUpdateAttribute(const AttributeName& name, const AttributeValue& value);
-            
+
             bool canRenameAttribute(const AttributeName& name, const AttributeName& newName) const;
             void renameAttribute(const AttributeName& name, const AttributeName& newName);
-            
+
             bool canRemoveAttribute(const AttributeName& name) const;
             void removeAttribute(const AttributeName& name);
             void removeNumberedAttribute(const AttributeName& prefix);
-            
+
             bool isAttributeNameMutable(const AttributeName& name) const;
             bool isAttributeValueMutable(const AttributeName& name) const;
         private: // attribute management internals
@@ -111,7 +111,7 @@ namespace TrenchBroom {
                 str << value;
                 return str.str();
             }
-            
+
             class NotifyAttributeChange {
             private:
                 NotifyNodeChange m_nodeChange;
@@ -121,16 +121,16 @@ namespace TrenchBroom {
                 NotifyAttributeChange(AttributableNode* node);
                 ~NotifyAttributeChange();
             };
-            
+
             void attributesWillChange();
             void attributesDidChange(const vm::bbox3& oldBounds);
-            
+
             void updateClassname();
         private: // search index management
             void addAttributesToIndex();
             void removeAttributesFromIndex();
             void updateAttributeIndex(const EntityAttribute::List& newAttributes);
-            
+
             void addAttributeToIndex(const AttributeName& name, const AttributeValue& value);
             void removeAttributeFromIndex(const AttributeName& name, const AttributeValue& value);
             void updateAttributeIndex(const AttributeName& oldName, const AttributeValue& oldValue, const AttributeName& newName, const AttributeValue& newValue);
@@ -139,23 +139,23 @@ namespace TrenchBroom {
             const AttributableNodeList& linkTargets() const;
             const AttributableNodeList& killSources() const;
             const AttributableNodeList& killTargets() const;
-            
+
             vm::vec3 linkSourceAnchor() const;
             vm::vec3 linkTargetAnchor() const;
-            
+
             bool hasMissingSources() const;
             AttributeNameList findMissingLinkTargets() const;
             AttributeNameList findMissingKillTargets() const;
         private: // link management internals
             void findMissingTargets(const AttributeName& prefix, AttributeNameList& result) const;
-            
+
             void addLinks(const AttributeName& name, const AttributeValue& value);
             void removeLinks(const AttributeName& name, const AttributeValue& value);
             void updateLinks(const AttributeName& oldName, const AttributeName& oldValue, const AttributeName& newName, const AttributeValue& newValue);
-            
+
             void addLinkTargets(const AttributeValue& targetname);
             void addKillTargets(const AttributeValue& targetname);
-            
+
             void removeLinkTargets(const AttributeValue& targetname);
             void removeKillTargets(const AttributeValue& targetname);
 
@@ -163,25 +163,25 @@ namespace TrenchBroom {
             void addAllLinkTargets();
             void addAllKillSources(const AttributeValue& targetname);
             void addAllKillTargets();
-            
+
             void addLinkTargets(const AttributableNodeList& targets);
             void addKillTargets(const AttributableNodeList& targets);
             void addLinkSources(const AttributableNodeList& sources);
             void addKillSources(const AttributableNodeList& sources);
-            
+
             void removeAllLinkSources();
             void removeAllLinkTargets();
             void removeAllKillSources();
             void removeAllKillTargets();
-            
+
             void removeAllLinks();
             void addAllLinks();
-            
+
             void addLinkSource(AttributableNode* attributable);
             void addLinkTarget(AttributableNode* attributable);
             void addKillSource(AttributableNode* attributable);
             void addKillTarget(AttributableNode* attributable);
-            
+
             void removeLinkSource(AttributableNode* attributable);
             void removeLinkTarget(AttributableNode* attributable);
             void removeKillSource(AttributableNode* attributable);

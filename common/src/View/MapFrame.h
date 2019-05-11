@@ -71,11 +71,11 @@ namespace TrenchBroom {
             wxWindow* m_lastFocus;
 
             wxChoice* m_gridChoice;
-            
+
             wxStatusBar* m_statusBar;
-            
+
             wxDialog* m_compilationDialog;
-            
+
             CommandWindowUpdateLocker* m_updateLocker;
         public:
             MapFrame();
@@ -86,13 +86,13 @@ namespace TrenchBroom {
             void positionOnScreen(wxFrame* reference);
             MapDocumentSPtr document() const;
         public: // getters and such
-            Logger* logger() const;
+            Logger& logger() const;
         public: // drop targets
             void setToolBoxDropTarget();
             void clearDropTarget();
         public: // document management
-            bool newDocument(Model::GameSPtr game, Model::MapFormat::Type mapFormat);
-            bool openDocument(Model::GameSPtr game, Model::MapFormat::Type mapFormat, const IO::Path& path);
+            bool newDocument(Model::GameSPtr game, Model::MapFormat mapFormat);
+            bool openDocument(Model::GameSPtr game, Model::MapFormat mapFormat, const IO::Path& path);
         private:
             bool saveDocument();
             bool saveDocumentAs();
@@ -145,6 +145,8 @@ namespace TrenchBroom {
             void OnFileLoadPortalFile(wxCommandEvent& event);
             void OnFileReloadPortalFile(wxCommandEvent& event);
             void OnFileUnloadPortalFile(wxCommandEvent& event);
+            void OnFileReloadTextureCollections(wxCommandEvent& event);
+            void OnFileReloadEntityDefinitions(wxCommandEvent& event);
             void OnFileClose(wxCommandEvent& event);
 
             void OnEditUndo(wxCommandEvent& event);
@@ -158,7 +160,7 @@ namespace TrenchBroom {
 
             void OnEditPaste(wxCommandEvent& event);
             void OnEditPasteAtOriginalPosition(wxCommandEvent& event);
-            
+
             PasteType paste();
 
             void OnEditDelete(wxCommandEvent& event);
@@ -194,6 +196,8 @@ namespace TrenchBroom {
 
             void OnEditToggleTextureLock(wxCommandEvent& event);
             wxBitmap textureLockBitmap();
+            void OnEditToggleUVLock(wxCommandEvent& event);
+            wxBitmap UVLockBitmap();
 
             void OnEditSnapVerticesToInteger(wxCommandEvent& event);
             void OnEditSnapVerticesToGrid(wxCommandEvent& event);
@@ -212,14 +216,14 @@ namespace TrenchBroom {
             void OnViewHideSelectedObjects(wxCommandEvent& event);
             void OnViewIsolateSelectedObjects(wxCommandEvent& event);
             void OnViewShowHiddenObjects(wxCommandEvent& event);
-            
+
             void OnViewSwitchToMapInspector(wxCommandEvent& event);
             void OnViewSwitchToEntityInspector(wxCommandEvent& event);
             void OnViewSwitchToFaceInspector(wxCommandEvent& event);
 
             void switchToInspectorPage(Inspector::InspectorPage page);
             void ensureInspectorVisible();
-            
+
             void OnViewToggleMaximizeCurrentView(wxCommandEvent& event);
             void OnViewToggleInfoPanel(wxCommandEvent& event);
             void OnViewToggleInspector(wxCommandEvent& event);
@@ -238,7 +242,7 @@ namespace TrenchBroom {
             void OnDebugCrash(wxCommandEvent& event);
             void OnDebugThrowExceptionDuringCommand(wxCommandEvent& event);
             void OnDebugSetWindowSize(wxCommandEvent& event);
-            
+
             void OnFlipObjectsHorizontally(wxCommandEvent& event);
             void OnFlipObjectsVertically(wxCommandEvent& event);
 

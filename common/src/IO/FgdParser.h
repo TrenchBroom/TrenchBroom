@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -26,7 +26,7 @@
 #include "Assets/AssetTypes.h"
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/EntityDefinitionParser.h"
-#include "IO/FileSystemHierarchy.h"
+#include "IO/FileSystem.h"
 #include "IO/Parser.h"
 #include "IO/Token.h"
 #include "IO/Tokenizer.h"
@@ -34,11 +34,12 @@
 #include <vecmath/forward.h>
 
 #include <list>
+#include <optional-lite/optional.hpp>
 
 namespace TrenchBroom {
     namespace IO {
         namespace FgdToken {
-            typedef unsigned int Type;
+            using Type = unsigned int;
             static const Type Integer           = 1 <<  0; // integer number
             static const Type Decimal           = 1 <<  1; // decimal number
             static const Type Word              = 1 <<  2; // letter or digits, no whitespace
@@ -53,11 +54,11 @@ namespace TrenchBroom {
             static const Type Plus              = 1 << 11; // plus: + (not used in string continuations)
             static const Type Eof               = 1 << 12; // end of file
         }
-        
+
         class FgdTokenizer : public Tokenizer<FgdToken::Type> {
         public:
             FgdTokenizer(const char* begin, const char* end);
-            FgdTokenizer(const String& str);
+            explicit FgdTokenizer(const String& str);
         private:
             static const String WordDelims;
             Token emitToken() override;
@@ -65,21 +66,12 @@ namespace TrenchBroom {
 
         class FgdParser : public EntityDefinitionParser, public Parser<FgdToken::Type> {
         private:
-            typedef FgdTokenizer::Token Token;
-            
-            template <typename T>
-            struct DefaultValue {
-                bool present;
-                T value;
-                
-                DefaultValue() : present(false) {}
-                explicit DefaultValue(const T& i_value) : present(true), value(i_value) {}
-            };
-            
+            using Token = FgdTokenizer::Token;
+
             Color m_defaultEntityColor;
 
             std::list<Path> m_paths;
-            FileSystemHierarchy m_fileSystem;
+            std::shared_ptr<FileSystem> m_fs;
 
             FgdTokenizer m_tokenizer;
             EntityDefinitionClassInfoMap m_baseClasses;
@@ -104,12 +96,12 @@ namespace TrenchBroom {
             EntityDefinitionClassInfo parseBaseClass(ParserStatus& status);
             EntityDefinitionClassInfo parseClass(ParserStatus& status);
             void skipMainClass(ParserStatus& status);
-            
+
             StringList parseSuperClasses(ParserStatus& status);
             Assets::ModelDefinition parseModel(ParserStatus& status);
             String parseNamedValue(ParserStatus& status, const String& name);
             void skipClassAttribute(ParserStatus& status);
-            
+
             Assets::AttributeDefinitionMap parseProperties(ParserStatus& status);
             Assets::AttributeDefinitionPtr parseTargetSourceAttribute(ParserStatus& status, const String& name);
             Assets::AttributeDefinitionPtr parseTargetDestinationAttribute(ParserStatus& status, const String& name);
@@ -122,10 +114,11 @@ namespace TrenchBroom {
 
             bool parseReadOnlyFlag(ParserStatus& status);
             String parseAttributeDescription(ParserStatus& status);
-            DefaultValue<String> parseDefaultStringValue(ParserStatus& status);
-            DefaultValue<int> parseDefaultIntegerValue(ParserStatus& status);
-            DefaultValue<float> parseDefaultFloatValue(ParserStatus& status);
-            
+            nonstd::optional<String> parseDefaultStringValue(ParserStatus& status);
+            nonstd::optional<int> parseDefaultIntegerValue(ParserStatus& status);
+            nonstd::optional<float> parseDefaultFloatValue(ParserStatus& status);
+            nonstd::optional<String> parseDefaultChoiceValue(ParserStatus& status);
+
             vm::vec3 parseVector(ParserStatus& status);
             vm::bbox3 parseSize(ParserStatus& status);
             Color parseColor(ParserStatus& status);
