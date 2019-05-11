@@ -22,8 +22,10 @@
 
 #include "TrenchBroom.h"
 #include "View/ViewEffectsService.h"
+#include "Model/PickResult.h"
 
 #include <vecmath/scalar.h>
+#include <vecmath/ray.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -43,7 +45,8 @@ namespace TrenchBroom {
             bool canFlipObjects() const;
             void flipObjects(vm::direction direction);
 
-            vm::vec3 pasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const;
+            std::tuple<vm::ray3, Model::PickResult> pickForPaste() const;
+            vm::vec3 pasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds, const vm::ray3& pickRay, const Model::PickResult& pickResult) const;
 
             void focusCameraOnSelection(bool animate);
             void moveCameraToPosition(const vm::vec3& position, bool animate);
@@ -63,7 +66,8 @@ namespace TrenchBroom {
             virtual bool doCanFlipObjects() const = 0;
             virtual void doFlipObjects(vm::direction direction) = 0;
 
-            virtual vm::vec3 doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const = 0;
+            virtual std::tuple<vm::ray3, Model::PickResult> doPickForPaste() const = 0;
+            virtual vm::vec3 doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds, const vm::ray3& pickRay, const Model::PickResult& pickResult) const = 0;
 
             virtual void doFocusCameraOnSelection(bool animate) = 0;
             virtual void doMoveCameraToPosition(const vm::vec3& position, bool animate) = 0;

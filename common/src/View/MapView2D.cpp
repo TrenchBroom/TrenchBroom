@@ -162,12 +162,16 @@ namespace TrenchBroom {
             m_camera.setViewport(Renderer::Camera::Viewport(x, y, width, height));
         }
 
-        vm::vec3 MapView2D::doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const {
+        std::tuple<vm::ray3, Model::PickResult> MapView2D::doPickForPaste() const {
+            const auto pickRay = MapView2D::pickRay();
+
+            return { pickRay, Model::PickResult() };
+        }
+
+        vm::vec3 MapView2D::doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds, const vm::ray3& pickRay, const Model::PickResult& pickResult) const {
             auto document = lock(m_document);
             const auto& grid = document->grid();
             const auto& worldBounds = document->worldBounds();
-
-            const auto& pickRay = MapView2D::pickRay();
 
             const auto toMin = referenceBounds.min - pickRay.origin;
             const auto toMax = referenceBounds.max - pickRay.origin;

@@ -89,7 +89,8 @@ namespace TrenchBroom {
         private: // implement RenderView interface
             void doUpdateViewport(int x, int y, int width, int height) override;
         private: // implement MapView interface
-            vm::vec3 doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const override;
+            std::tuple<vm::ray3, Model::PickResult> doPickForPaste() const override;
+            vm::vec3 doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds, const vm::ray3& pickRay, const Model::PickResult& pickResult) const override;
 
             bool doCanSelectTall() override;
             void doSelectTall() override;

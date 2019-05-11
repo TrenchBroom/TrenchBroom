@@ -320,7 +320,7 @@ namespace TrenchBroom {
             m_camera.setViewport(Renderer::Camera::Viewport(x, y, width, height));
         }
 
-        vm::vec3 MapView3D::doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const {
+        std::tuple<vm::ray3, Model::PickResult> MapView3D::doPickForPaste() const {
             auto document = lock(m_document);
             const auto& grid = document->grid();
 
@@ -334,6 +334,19 @@ namespace TrenchBroom {
                 auto pickResult = Model::PickResult::byDistance(editorContext);
 
                 document->pick(pickRay, pickResult);
+
+                return { pickRay, pickResult };
+            } else {
+                // Mouse is not in the map view; return a null ray to indicate this.
+                return { vm::ray3(), Model::PickResult() };
+            }
+        }
+
+        vm::vec3 MapView3D::doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds, const vm::ray3& pickRay, const Model::PickResult& pickResult) const {
+            auto document = lock(m_document);
+            const auto& grid = document->grid();
+
+            if (pickRay.direction != vm::vec3::zero) {
                 const auto& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).first();
 
                 if (hit.isMatch()) {
@@ -346,6 +359,7 @@ namespace TrenchBroom {
                     return grid.moveDeltaForBounds(dragPlane, bounds, document->worldBounds(), pickRay, point);
                 }
             } else {
+                // There was no pick ray because the mouse was not in the map view
                 const auto oldMin = bounds.min;
                 const auto oldCenter = bounds.center();
                 const auto newCenter = vm::vec3(m_camera.defaultPoint());

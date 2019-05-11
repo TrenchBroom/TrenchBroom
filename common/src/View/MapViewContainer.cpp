@@ -54,10 +54,16 @@ namespace TrenchBroom {
             current->flipObjects(direction);
         }
 
-        vm::vec3 MapViewContainer::doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const {
+        std::tuple<vm::ray3, Model::PickResult> MapViewContainer::doPickForPaste() const {
             MapView* current = currentMapView();
             ensure(current != nullptr, "current is nullptr");
-            return current->pasteObjectsDelta(bounds, referenceBounds);
+            return current->pickForPaste();
+        }
+
+        vm::vec3 MapViewContainer::doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds, const vm::ray3& pickRay, const Model::PickResult& pickResult) const {
+            MapView* current = currentMapView();
+            ensure(current != nullptr, "current is nullptr");
+            return current->pasteObjectsDelta(bounds, referenceBounds, pickRay, pickResult);
         }
 
         MapView* MapViewContainer::currentMapView() const {

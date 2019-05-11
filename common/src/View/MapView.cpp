@@ -20,6 +20,7 @@
 #include "MapView.h"
 
 #include "TrenchBroom.h"
+#include "Model/PickResult.h"
 
 #include <cassert>
 
@@ -56,8 +57,12 @@ namespace TrenchBroom {
             doFlipObjects(direction);
         }
 
-        vm::vec3 MapView::pasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const {
-            return doGetPasteObjectsDelta(bounds, referenceBounds);
+        std::tuple<vm::ray3, Model::PickResult> MapView::pickForPaste() const {
+            return doPickForPaste();
+        }
+
+        vm::vec3 MapView::pasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds, const vm::ray3& pickRay, const Model::PickResult& pickResult) const {
+            return doGetPasteObjectsDelta(bounds, referenceBounds, pickRay, pickResult);
         }
 
         void MapView::focusCameraOnSelection(const bool animate) {

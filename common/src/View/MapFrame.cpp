@@ -968,11 +968,14 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             if (canPaste()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+                // Pick before the objects are pasted because the pasted objects could interfere with the pick rays
+                auto[pickRay, pickResult] = m_mapView->pickForPaste();
+
                 const vm::bbox3 referenceBounds = m_document->referenceBounds();
                 Transaction transaction(m_document);
                 if (paste() == PT_Node && m_document->hasSelectedNodes()) {
                     const vm::bbox3 bounds = m_document->selectionBounds();
-                    const vm::vec3 delta = m_mapView->pasteObjectsDelta(bounds, referenceBounds);
+                    const vm::vec3 delta = m_mapView->pasteObjectsDelta(bounds, referenceBounds, pickRay, pickResult);
                     m_document->translateObjects(delta);
                 }
             }
