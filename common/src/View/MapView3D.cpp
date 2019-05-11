@@ -322,7 +322,6 @@ namespace TrenchBroom {
 
         std::tuple<vm::ray3, Model::PickResult> MapView3D::doPickForPaste() const {
             auto document = lock(m_document);
-            const auto& grid = document->grid();
 
             const auto mouseState = wxGetMouseState();
             const auto clientCoords = ScreenToClient(mouseState.GetPosition());
