@@ -28,6 +28,10 @@ namespace TrenchBroom {
         class File;
         class Path;
 
+        namespace MipLayout {
+            const size_t TextureNameLength = 16;
+        }
+
         class MipTextureReader : public TextureReader {
         protected:
             explicit MipTextureReader(const NameStrategy& nameStrategy);
