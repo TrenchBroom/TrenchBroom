@@ -26,8 +26,8 @@
 namespace TrenchBroom {
     namespace Model {
         ComputeNodeBoundsVisitor::ComputeNodeBoundsVisitor(const BoundsType type, const vm::bbox3& defaultBounds) :
-        m_boundsType(type),
         m_initialized(false),
+        m_boundsType(type),
         m_bounds(defaultBounds) {}
 
         const vm::bbox3& ComputeNodeBoundsVisitor::bounds() const {
