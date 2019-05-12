@@ -99,7 +99,7 @@ namespace TrenchBroom {
         }
 
         FloatType Entity::area(vm::axis::type axis) const {
-            const vm::vec3 size = bounds().size();
+            const vm::vec3 size = cullingBounds().size();
             switch (axis) {
                 case vm::axis::x:
                     return size.y() * size.z();

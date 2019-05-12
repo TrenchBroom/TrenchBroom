@@ -59,22 +59,22 @@ namespace TrenchBroom {
                 if (!m_tree.empty()) {
                     const auto oldBounds = m_tree.bounds();
 
-                    m_tree.insert(node->bounds(), node);
-                    m_bounds = merge(m_bounds, node->bounds());
+                    m_tree.insert(node->cullingBounds(), node);
+                    m_bounds = merge(m_bounds, node->cullingBounds());
 
                     if (!m_tree.bounds().contains(oldBounds)) {
                         cancel();
                         ASSERT_TRUE(m_tree.bounds().contains(oldBounds)) << "Node at line " << node->lineNumber() << " decreased tree bounds: " << oldBounds << " -> " << m_tree.bounds();
                     }
                 } else {
-                    m_tree.insert(node->bounds(), node);
-                    m_bounds = node->bounds();
+                    m_tree.insert(node->cullingBounds(), node);
+                    m_bounds = node->cullingBounds();
                 }
 
                 if (!m_tree.contains(node)) {
                     cancel();
                     m_tree.print(std::cout);
-                    ASSERT_TRUE(m_tree.contains(node)) << "Node " << node << " with bounds " << node->bounds() << " at line " << node->lineNumber() << " not found in tree after insertion";
+                    ASSERT_TRUE(m_tree.contains(node)) << "Node " << node << " with bounds " << node->cullingBounds() << " at line " << node->lineNumber() << " not found in tree after insertion";
                 }
 
                 if (m_bounds != m_tree.bounds()) {
