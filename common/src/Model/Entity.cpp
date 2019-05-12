@@ -149,7 +149,7 @@ namespace TrenchBroom {
         }
 
         void Entity::setModelFrame(const Assets::EntityModelFrame* modelFrame) {
-            const auto oldBounds = bounds();
+            const auto oldBounds = cullingBounds();
             m_modelFrame = modelFrame;
             nodeBoundsDidChange(oldBounds);
             cacheAttributes();
@@ -159,7 +159,14 @@ namespace TrenchBroom {
             if (!m_boundsValid) {
                 validateBounds();
             }
-            return m_totalBounds;
+            return m_bounds;
+        }
+
+        const vm::bbox3& Entity::doGetCullingBounds() const {
+            if (!m_boundsValid) {
+                validateBounds();
+            }
+            return m_cullingBounds;
         }
 
         Node* Entity::doClone(const vm::bbox3& worldBounds) const {
@@ -208,11 +215,11 @@ namespace TrenchBroom {
         }
 
         void Entity::doChildWasAdded(Node* node) {
-            nodeBoundsDidChange(bounds());
+            nodeBoundsDidChange(cullingBounds());
         }
 
         void Entity::doChildWasRemoved(Node* node) {
-            nodeBoundsDidChange(bounds());
+            nodeBoundsDidChange(cullingBounds());
         }
 
         void Entity::doNodeBoundsDidChange(const vm::bbox3& oldBounds) {
@@ -220,9 +227,9 @@ namespace TrenchBroom {
         }
 
         void Entity::doChildBoundsDidChange(Node* node, const vm::bbox3& oldBounds) {
-            const vm::bbox3 myOldBounds = bounds();
+            const vm::bbox3 myOldBounds = cullingBounds();
             invalidateBounds();
-            if (bounds() != myOldBounds) {
+            if (cullingBounds() != myOldBounds) {
                 nodeBoundsDidChange(myOldBounds);
             }
         }
@@ -411,16 +418,22 @@ namespace TrenchBroom {
             }
 
             if (hasChildren()) {
-                ComputeNodeBoundsVisitor visitor(DefaultBounds);
+                ComputeNodeBoundsVisitor visitor(BoundsType::Regular, vm::bbox3(0.0));
                 iterate(visitor);
-                m_totalBounds = visitor.bounds();
+                m_bounds = visitor.bounds();
+
+                ComputeNodeBoundsVisitor cullingBoundsVisitor(BoundsType::Culling, vm::bbox3(0.0));
+                iterate(cullingBoundsVisitor);
+                m_cullingBounds = cullingBoundsVisitor.bounds();
             } else {
+                m_bounds = m_definitionBounds;
                 if (hasPointEntityModel()) {
-                    m_totalBounds = vm::merge(m_definitionBounds, m_modelBounds);
+                    m_cullingBounds = vm::merge(m_definitionBounds, m_modelBounds);
                 } else {
-                    m_totalBounds = m_definitionBounds;
+                    m_cullingBounds = m_definitionBounds;
                 }
             }
+
             m_boundsValid = true;
         }
 

@@ -44,6 +44,7 @@ namespace TrenchBroom {
             String m_name;
             EditState m_editState;
             mutable vm::bbox3 m_bounds;
+            mutable vm::bbox3 m_cullingBounds;
             mutable bool m_boundsValid;
         public:
             Group(const String& name);
@@ -63,6 +64,7 @@ namespace TrenchBroom {
         private: // implement methods inherited from Node
             const String& doGetName() const override;
             const vm::bbox3& doGetBounds() const override;
+            const vm::bbox3& doGetCullingBounds() const override;
 
             Node* doClone(const vm::bbox3& worldBounds) const override;
             NodeSnapshot* doTakeSnapshot() override;

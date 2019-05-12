@@ -28,12 +28,18 @@
 
 namespace TrenchBroom {
     namespace Model {
+        enum class BoundsType {
+            Regular,
+            Culling
+        };
+
         class ComputeNodeBoundsVisitor : public ConstNodeVisitor {
         private:
             bool m_initialized;
+            BoundsType m_boundsType;
         public:
             vm::bbox3 m_bounds;
-            explicit ComputeNodeBoundsVisitor(const vm::bbox3& defaultBounds = vm::bbox3());
+            explicit ComputeNodeBoundsVisitor(BoundsType type, const vm::bbox3& defaultBounds = vm::bbox3());
             const vm::bbox3& bounds() const;
         private:
             void doVisit(const World* world) override;
@@ -48,7 +54,16 @@ namespace TrenchBroom {
 
         template <typename I>
         vm::bbox3 computeBounds(I cur, I end) {
-            ComputeNodeBoundsVisitor visitor;
+            auto visitor = ComputeNodeBoundsVisitor(BoundsType::Regular);
+            Node::accept(cur, end, visitor);
+            return visitor.bounds();
+        }
+
+        vm::bbox3 computeCullingBounds(const Model::NodeList& nodes);
+
+        template <typename I>
+        vm::bbox3 computeCullingBounds(I cur, I end) {
+            auto visitor = ComputeNodeBoundsVisitor(BoundsType::Culling);
             Node::accept(cur, end, visitor);
             return visitor.bounds();
         }

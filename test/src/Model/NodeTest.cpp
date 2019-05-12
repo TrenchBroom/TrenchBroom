@@ -45,6 +45,11 @@ namespace TrenchBroom {
                 return bounds;
             }
 
+            const vm::bbox3& doGetCullingBounds() const override {
+                static const vm::bbox3 bounds;
+                return bounds;
+            }
+
             bool doCanAddChild(const Node* child) const override {
                 return mockDoCanAddChild(child);
             }
@@ -131,6 +136,11 @@ namespace TrenchBroom {
             }
 
             const vm::bbox3& doGetBounds() const override {
+                static const vm::bbox3 bounds;
+                return bounds;
+            }
+
+            const vm::bbox3& doGetCullingBounds() const override {
                 static const vm::bbox3 bounds;
                 return bounds;
             }

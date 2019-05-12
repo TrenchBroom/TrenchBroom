@@ -31,6 +31,7 @@ namespace TrenchBroom {
             String m_name;
 
             mutable vm::bbox3 m_bounds;
+            mutable vm::bbox3 m_cullingBounds;
             mutable bool m_boundsValid;
         public:
             Layer(const String& name, const vm::bbox3& worldBounds);
@@ -39,6 +40,7 @@ namespace TrenchBroom {
         private: // implement Node interface
             const String& doGetName() const override;
             const vm::bbox3& doGetBounds() const override;
+            const vm::bbox3& doGetCullingBounds() const override;
 
             Node* doClone(const vm::bbox3& worldBounds) const override;
             bool doCanAddChild(const Node* child) const override;

@@ -49,6 +49,13 @@ namespace TrenchBroom {
             return m_bounds;
         }
 
+        const vm::bbox3& Layer::doGetCullingBounds() const {
+            if (!m_boundsValid) {
+                validateBounds();
+            }
+            return m_cullingBounds;
+        }
+
         Node* Layer::doClone(const vm::bbox3& worldBounds) const {
             Layer* layer = new Layer(m_name, worldBounds);
             cloneAttributes(layer);
@@ -115,9 +122,14 @@ namespace TrenchBroom {
         }
 
         void Layer::validateBounds() const {
-            ComputeNodeBoundsVisitor visitor(vm::bbox3(0.0));
+            ComputeNodeBoundsVisitor visitor(BoundsType::Regular, vm::bbox3(0.0));
             iterate(visitor);
             m_bounds = visitor.bounds();
+
+            ComputeNodeBoundsVisitor cullingBoundsVisitor(BoundsType::Culling, vm::bbox3(0.0));
+            iterate(cullingBoundsVisitor);
+            m_cullingBounds = cullingBoundsVisitor.bounds();
+
             m_boundsValid = true;
         }
 

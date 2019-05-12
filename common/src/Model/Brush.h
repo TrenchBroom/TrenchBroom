@@ -282,6 +282,7 @@ namespace TrenchBroom {
         private: // implement Node interface
             const String& doGetName() const override;
             const vm::bbox3& doGetBounds() const override;
+            const vm::bbox3& doGetCullingBounds() const override;
 
             Node* doClone(const vm::bbox3& worldBounds) const override;
             NodeSnapshot* doTakeSnapshot() override;

@@ -57,6 +57,7 @@ namespace TrenchBroom {
         public: // getters
             const String& name() const;
             const vm::bbox3& bounds() const;
+            const vm::bbox3& cullingBounds() const;
         public: // cloning and snapshots
             Node* clone(const vm::bbox3& worldBounds) const;
             Node* cloneRecursively(const vm::bbox3& worldBounds) const;
@@ -401,6 +402,7 @@ namespace TrenchBroom {
         private: // subclassing interface
             virtual const String& doGetName() const = 0;
             virtual const vm::bbox3& doGetBounds() const = 0;
+            virtual const vm::bbox3& doGetCullingBounds() const = 0;
 
             virtual Node* doClone(const vm::bbox3& worldBounds) const = 0;
             virtual Node* doCloneRecursively(const vm::bbox3& worldBounds) const;

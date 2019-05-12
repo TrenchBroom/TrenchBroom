@@ -46,7 +46,8 @@ namespace TrenchBroom {
         private:
             mutable vm::bbox3 m_definitionBounds;
             mutable vm::bbox3 m_modelBounds;
-            mutable vm::bbox3 m_totalBounds;
+            mutable vm::bbox3 m_bounds;
+            mutable vm::bbox3 m_cullingBounds;
             mutable bool m_boundsValid;
             mutable vm::vec3 m_cachedOrigin;
             mutable vm::mat4x4 m_cachedRotation;
@@ -79,6 +80,7 @@ namespace TrenchBroom {
             void setModelFrame(const Assets::EntityModelFrame* modelFrame);
         private: // implement Node interface
             const vm::bbox3& doGetBounds() const override;
+            const vm::bbox3& doGetCullingBounds() const override;
 
             Node* doClone(const vm::bbox3& worldBounds) const override;
             NodeSnapshot* doTakeSnapshot() override;

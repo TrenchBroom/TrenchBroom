@@ -25,7 +25,8 @@
 
 namespace TrenchBroom {
     namespace Model {
-        ComputeNodeBoundsVisitor::ComputeNodeBoundsVisitor(const vm::bbox3& defaultBounds) :
+        ComputeNodeBoundsVisitor::ComputeNodeBoundsVisitor(const BoundsType type, const vm::bbox3& defaultBounds) :
+        m_boundsType(type),
         m_initialized(false),
         m_bounds(defaultBounds) {}
 
@@ -37,15 +38,28 @@ namespace TrenchBroom {
         void ComputeNodeBoundsVisitor::doVisit(const Layer* layer) {}
 
         void ComputeNodeBoundsVisitor::doVisit(const Group* group) {
-            mergeWith(group->bounds());
+            if (m_boundsType == BoundsType::Culling) {
+                mergeWith(group->cullingBounds());
+            } else {
+                mergeWith(group->bounds());
+            }
         }
 
         void ComputeNodeBoundsVisitor::doVisit(const Entity* entity) {
-            mergeWith(entity->bounds());
+            if (m_boundsType == BoundsType::Culling) {
+                mergeWith(entity->cullingBounds());
+            }
+            else {
+                mergeWith(entity->bounds());
+            }
         }
 
         void ComputeNodeBoundsVisitor::doVisit(const Brush* brush) {
-            mergeWith(brush->bounds());
+            if (m_boundsType == BoundsType::Culling) {
+                mergeWith(brush->cullingBounds());
+            } else {
+                mergeWith(brush->bounds());
+            }
         }
 
         void ComputeNodeBoundsVisitor::mergeWith(const vm::bbox3& bounds) {
@@ -59,6 +73,10 @@ namespace TrenchBroom {
 
         vm::bbox3 computeBounds(const Model::NodeList& nodes) {
             return computeBounds(std::begin(nodes), std::end(nodes));
+        }
+
+        vm::bbox3 computeCullingBounds(const Model::NodeList& nodes) {
+            return computeCullingBounds(std::begin(nodes), std::end(nodes));
         }
     }
 }

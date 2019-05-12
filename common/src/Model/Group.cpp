@@ -109,6 +109,13 @@ namespace TrenchBroom {
             return m_bounds;
         }
 
+        const vm::bbox3& Group::doGetCullingBounds() const {
+            if (!m_boundsValid) {
+                validateBounds();
+            }
+            return m_cullingBounds;
+        }
+
         Node* Group::doClone(const vm::bbox3& worldBounds) const {
             Group* group = new Group(m_name);
             cloneAttributes(group);
@@ -147,11 +154,11 @@ namespace TrenchBroom {
         }
 
         void Group::doChildWasAdded(Node* node) {
-            nodeBoundsDidChange(bounds());
+            nodeBoundsDidChange(cullingBounds());
         }
 
         void Group::doChildWasRemoved(Node* node) {
-            nodeBoundsDidChange(bounds());
+            nodeBoundsDidChange(cullingBounds());
         }
 
         void Group::doNodeBoundsDidChange(const vm::bbox3& oldBounds) {
@@ -159,9 +166,9 @@ namespace TrenchBroom {
         }
 
         void Group::doChildBoundsDidChange(Node* node, const vm::bbox3& oldBounds) {
-            const vm::bbox3 myOldBounds = bounds();
+            const vm::bbox3 myOldBounds = cullingBounds();
             invalidateBounds();
-            if (bounds() != myOldBounds) {
+            if (cullingBounds() != myOldBounds) {
                 nodeBoundsDidChange(myOldBounds);
             }
         }
@@ -243,9 +250,14 @@ namespace TrenchBroom {
         }
 
         void Group::validateBounds() const {
-            ComputeNodeBoundsVisitor visitor(vm::bbox3(0.0));
+            ComputeNodeBoundsVisitor visitor(BoundsType::Regular, vm::bbox3(0.0));
             iterate(visitor);
             m_bounds = visitor.bounds();
+
+            ComputeNodeBoundsVisitor cullingBoundsVisitor(BoundsType::Culling, vm::bbox3(0.0));
+            iterate(cullingBoundsVisitor);
+            m_cullingBounds = cullingBoundsVisitor.bounds();
+
             m_boundsValid = true;
         }
 
