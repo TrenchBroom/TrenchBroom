@@ -24,6 +24,7 @@
 #include "Assets/Palette.h"
 #include "IO/File.h"
 #include "IO/Reader.h"
+#include "IO/MipTextureReader.h"
 #include "IO/IdMipTextureReader.h"
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/TexturedIndexRangeMapBuilder.h"
@@ -160,9 +161,16 @@ namespace TrenchBroom {
 
                 auto subReader = reader.subReaderFromBegin(static_cast<size_t>(textureOffset)).buffer();
 
+                // MipTextureReader::doReadTexture requires a texture name to be provided in the File's Path.
+                // So we must peek into the mip data to get a name.
+                auto texturePath = Path(MipTextureReader::getTextureName(subReader));
+                if (texturePath.isEmpty()) {
+                    texturePath = Path("unknown");
+                }
+
                 // We can't easily tell where the texture ends without duplicating all of the parsing code (including HlMip) here.
                 // Just prevent the texture reader from reading past the end of the .bsp file.
-                auto fileView = std::make_shared<NonOwningBufferFile>(Path(), subReader.begin(), subReader.end());
+                auto fileView = std::make_shared<NonOwningBufferFile>(texturePath, subReader.begin(), subReader.end());
                 result[i] = textureReader.readTexture(fileView);
             }
 

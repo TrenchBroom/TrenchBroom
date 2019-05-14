@@ -30,7 +30,7 @@
 namespace TrenchBroom {
     namespace IO {
         namespace MipLayout {
-            static const size_t TextureNameLength = 16;
+            static constexpr size_t TextureNameLength = 16;
         }
 
         MipTextureReader::MipTextureReader(const NameStrategy& nameStrategy) :
@@ -46,6 +46,15 @@ namespace TrenchBroom {
             return result;
         }
 
+        String MipTextureReader::getTextureName(const BufferedReader& reader) {
+            try {
+                auto nameReader = reader.buffer();
+                return nameReader.readString(MipLayout::TextureNameLength);
+            } catch (const ReaderException&) {
+                return "";
+            }
+        }
+
         Assets::Texture* MipTextureReader::doReadTexture(std::shared_ptr<File> file) const {
             static const size_t MipLevels = 4;
 
@@ -53,11 +62,16 @@ namespace TrenchBroom {
             Assets::TextureBuffer::List buffers(MipLevels);
             size_t offset[MipLevels];
 
+            ensure(!file->path().isEmpty(), "MipTextureReader::doReadTexture requires a path");
+
             const auto path = file->path();
             const auto basename = path.lastComponent().deleteExtension().asString();
             const auto name = textureName(basename, path);
             try {
                 auto reader = file->reader().buffer();
+                
+                // This is unused, we use the one from the wad directory (they're usually the same,
+                // but could be different in broken .wad's.)
                 reader.readString(MipLayout::TextureNameLength);
 
                 const auto width = reader.readSize<int32_t>();
