@@ -37,8 +37,9 @@ namespace TrenchBroom {
         private:
             bool m_initialized;
             BoundsType m_boundsType;
+            vm::bbox3 m_defaultBounds;
+            vm::bbox3::builder m_builder;
         public:
-            vm::bbox3 m_bounds;
             explicit ComputeNodeBoundsVisitor(BoundsType type, const vm::bbox3& defaultBounds = vm::bbox3());
             const vm::bbox3& bounds() const;
         private:

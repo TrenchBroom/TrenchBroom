@@ -42,7 +42,7 @@ namespace vm {
     class bbox {
     public:
         /**
-         * Helper to build a bounding box from points.
+         * Helper to build a bounding box from points or other bounding boxes.
          */
         class builder {
         private:
@@ -62,6 +62,13 @@ namespace vm {
                 return m_bounds;
             }
 
+            /**
+             * Returns whether anything has been added to this builder.
+             */
+            bool initialized() const {
+                return m_initialized;
+            }
+
             template <typename I, typename G = vm::identity>
             void add(I cur, I end, G get = G()) {
                 while (cur != end) {
@@ -79,6 +86,18 @@ namespace vm {
                     m_initialized = true;
                 } else {
                     m_bounds = merge(m_bounds, point);
+                }
+            }
+
+            /**
+             * Adds the given box.
+             */
+            void add(const bbox& box) {
+                if (!m_initialized) {
+                    m_bounds = box;
+                    m_initialized = true;
+                } else {
+                    m_bounds = merge(m_bounds, box);
                 }
             }
         };

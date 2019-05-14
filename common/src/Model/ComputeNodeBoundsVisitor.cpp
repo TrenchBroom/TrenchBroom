@@ -28,10 +28,14 @@ namespace TrenchBroom {
         ComputeNodeBoundsVisitor::ComputeNodeBoundsVisitor(const BoundsType type, const vm::bbox3& defaultBounds) :
         m_initialized(false),
         m_boundsType(type),
-        m_bounds(defaultBounds) {}
+        m_defaultBounds(defaultBounds) {}
 
         const vm::bbox3& ComputeNodeBoundsVisitor::bounds() const {
-            return m_bounds;
+            if (m_builder.initialized()) {
+                return m_builder.bounds();
+            } else {
+                return m_defaultBounds;
+            }
         }
 
         void ComputeNodeBoundsVisitor::doVisit(const World* world) {}
@@ -39,35 +43,25 @@ namespace TrenchBroom {
 
         void ComputeNodeBoundsVisitor::doVisit(const Group* group) {
             if (m_boundsType == BoundsType::Culling) {
-                mergeWith(group->cullingBounds());
+                m_builder.add(group->cullingBounds());
             } else {
-                mergeWith(group->bounds());
+                m_builder.add(group->bounds());
             }
         }
 
         void ComputeNodeBoundsVisitor::doVisit(const Entity* entity) {
             if (m_boundsType == BoundsType::Culling) {
-                mergeWith(entity->cullingBounds());
-            }
-            else {
-                mergeWith(entity->bounds());
+                m_builder.add(entity->cullingBounds());
+            } else {
+                m_builder.add(entity->bounds());
             }
         }
 
         void ComputeNodeBoundsVisitor::doVisit(const Brush* brush) {
             if (m_boundsType == BoundsType::Culling) {
-                mergeWith(brush->cullingBounds());
+                m_builder.add(brush->cullingBounds());
             } else {
-                mergeWith(brush->bounds());
-            }
-        }
-
-        void ComputeNodeBoundsVisitor::mergeWith(const vm::bbox3& bounds) {
-            if (!m_initialized) {
-                m_bounds = bounds;
-                m_initialized = true;
-            } else {
-                m_bounds = merge(m_bounds, bounds);
+                m_builder.add(brush->bounds());
             }
         }
 
