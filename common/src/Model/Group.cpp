@@ -150,7 +150,7 @@ namespace TrenchBroom {
         }
 
         bool Group::doShouldAddToSpacialIndex() const {
-            return true;
+            return false;
         }
 
         void Group::doChildWasAdded(Node* node) {

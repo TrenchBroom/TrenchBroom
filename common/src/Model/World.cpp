@@ -94,7 +94,7 @@ namespace TrenchBroom {
         private:
             void doVisit(World* world) override   {}
             void doVisit(Layer* layer) override   {}
-            void doVisit(Group* group) override   { m_nodeTree.insert(group->cullingBounds(), group); }
+            void doVisit(Group* group) override   {}
             void doVisit(Entity* entity) override { m_nodeTree.insert(entity->cullingBounds(), entity); }
             void doVisit(Brush* brush) override   { m_nodeTree.insert(brush->cullingBounds(), brush); }
         };
@@ -108,7 +108,7 @@ namespace TrenchBroom {
         private:
             void doVisit(World* world) override   {}
             void doVisit(Layer* layer) override   {}
-            void doVisit(Group* group) override   { doRemove(group, group->cullingBounds()); }
+            void doVisit(Group* group) override   {}
             void doVisit(Entity* entity) override { doRemove(entity, entity->cullingBounds()); }
             void doVisit(Brush* brush) override   { doRemove(brush, brush->cullingBounds()); }
 
@@ -130,7 +130,7 @@ namespace TrenchBroom {
         private:
             void doVisit(World* world) override   {}
             void doVisit(Layer* layer) override   {}
-            void doVisit(Group* group) override   { m_nodeTree.update(group->cullingBounds(), group); }
+            void doVisit(Group* group) override   {}
             void doVisit(Entity* entity) override { m_nodeTree.update(entity->cullingBounds(), entity); }
             void doVisit(Brush* brush) override   { m_nodeTree.update(brush->cullingBounds(), brush); }
         };
