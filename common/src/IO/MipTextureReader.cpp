@@ -29,6 +29,10 @@
 
 namespace TrenchBroom {
     namespace IO {
+        namespace MipLayout {
+            static constexpr size_t TextureNameLength = 16;
+        }
+
         MipTextureReader::MipTextureReader(const NameStrategy& nameStrategy) :
         TextureReader(nameStrategy) {}
 
@@ -40,6 +44,15 @@ namespace TrenchBroom {
                 result += mipSize(width, height, i);
             }
             return result;
+        }
+
+        String MipTextureReader::getTextureName(const BufferedReader& reader) {
+            try {
+                auto nameReader = reader.buffer();
+                return nameReader.readString(MipLayout::TextureNameLength);
+            } catch (const ReaderException&) {
+                return "";
+            }
         }
 
         Assets::Texture* MipTextureReader::doReadTexture(std::shared_ptr<File> file) const {

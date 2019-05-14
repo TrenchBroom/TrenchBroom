@@ -163,11 +163,8 @@ namespace TrenchBroom {
 
                 // MipTextureReader::doReadTexture requires a texture name to be provided in the File's Path.
                 // So we must peek into the mip data to get a name.
-                Path texturePath;
-                try {
-                    auto nameReader = subReader.buffer();
-                    texturePath = Path(nameReader.readString(MipLayout::TextureNameLength));
-                } catch (const ReaderException&) {
+                auto texturePath = Path(MipTextureReader::getTextureName(subReader));
+                if (texturePath.isEmpty()) {
                     texturePath = Path("unknown");
                 }
 
