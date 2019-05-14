@@ -133,6 +133,8 @@ namespace TrenchBroom {
         void ObjFileSerializer::doBeginBrush(const Model::Brush* /* brush */) {
             m_currentObject.entityNo = entityNo();
             m_currentObject.brushNo = brushNo();
+            // Vertex positions inserted from now on should get new indices
+            m_vertices.forgetInsertedValues();
         }
 
         void ObjFileSerializer::doEndBrush(Model::Brush* /* brush */) {
