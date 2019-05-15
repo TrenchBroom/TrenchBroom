@@ -29,7 +29,13 @@
 namespace TrenchBroom {
     namespace Model {
         enum class BoundsType {
+            /**
+             * See Node::logicalBounds()
+             */
             Logical,
+            /**
+             * See Node::physicalBounds()
+             */
             Physical
         };
 
@@ -51,19 +57,19 @@ namespace TrenchBroom {
             void mergeWith(const vm::bbox3& bounds);
         };
 
-        vm::bbox3 computeBounds(const Model::NodeList& nodes);
+        vm::bbox3 computeLogicalBounds(const Model::NodeList& nodes);
 
         template <typename I>
-        vm::bbox3 computeBounds(I cur, I end) {
+        vm::bbox3 computeLogicalBounds(I cur, I end) {
             auto visitor = ComputeNodeBoundsVisitor(BoundsType::Logical);
             Node::accept(cur, end, visitor);
             return visitor.bounds();
         }
 
-        vm::bbox3 computeCullingBounds(const Model::NodeList& nodes);
+        vm::bbox3 computePhysicalBounds(const Model::NodeList& nodes);
 
         template <typename I>
-        vm::bbox3 computeCullingBounds(I cur, I end) {
+        vm::bbox3 computePhysicalBounds(I cur, I end) {
             auto visitor = ComputeNodeBoundsVisitor(BoundsType::Physical);
             Node::accept(cur, end, visitor);
             return visitor.bounds();

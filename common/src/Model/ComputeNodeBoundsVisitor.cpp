@@ -65,12 +65,12 @@ namespace TrenchBroom {
             }
         }
 
-        vm::bbox3 computeBounds(const Model::NodeList& nodes) {
-            return computeBounds(std::begin(nodes), std::end(nodes));
+        vm::bbox3 computeLogicalBounds(const Model::NodeList& nodes) {
+            return computeLogicalBounds(std::begin(nodes), std::end(nodes));
         }
 
-        vm::bbox3 computeCullingBounds(const Model::NodeList& nodes) {
-            return computeCullingBounds(std::begin(nodes), std::end(nodes));
+        vm::bbox3 computePhysicalBounds(const Model::NodeList& nodes) {
+            return computePhysicalBounds(std::begin(nodes), std::end(nodes));
         }
     }
 }

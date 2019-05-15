@@ -270,20 +270,20 @@ namespace TrenchBroom {
         AttributableNode::NotifyAttributeChange::NotifyAttributeChange(AttributableNode* node) :
         m_nodeChange(node),
         m_node(node),
-        m_oldBounds(node->physicalBounds()) {
+        m_oldPhysicalBounds(node->physicalBounds()) {
             ensure(m_node != nullptr, "node is null");
             m_node->attributesWillChange();
         }
 
         AttributableNode::NotifyAttributeChange::~NotifyAttributeChange() {
-            m_node->attributesDidChange(m_oldBounds);
+            m_node->attributesDidChange(m_oldPhysicalBounds);
         }
 
         void AttributableNode::attributesWillChange() {}
 
-        void AttributableNode::attributesDidChange(const vm::bbox3& oldBounds) {
+        void AttributableNode::attributesDidChange(const vm::bbox3& oldPhysicalBounds) {
             updateClassname();
-            doAttributesDidChange(oldBounds);
+            doAttributesDidChange(oldPhysicalBounds);
         }
 
         void AttributableNode::updateClassname() {

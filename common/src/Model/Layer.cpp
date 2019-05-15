@@ -126,9 +126,9 @@ namespace TrenchBroom {
             iterate(visitor);
             m_logicalBounds = visitor.bounds();
 
-            ComputeNodeBoundsVisitor cullingBoundsVisitor(BoundsType::Physical, vm::bbox3(0.0));
-            iterate(cullingBoundsVisitor);
-            m_physicalBounds = cullingBoundsVisitor.bounds();
+            ComputeNodeBoundsVisitor physicalBoundsVisitor(BoundsType::Physical, vm::bbox3(0.0));
+            iterate(physicalBoundsVisitor);
+            m_physicalBounds = physicalBoundsVisitor.bounds();
 
             m_boundsValid = true;
         }
