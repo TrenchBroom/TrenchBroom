@@ -2313,14 +2313,15 @@ Open the "About TrenchBroom" dialog from the menu. The light gray text on the le
 
 # References and Links {#references_and_links}
 
-- [TrenchBroom on github] - TrenchBroom's github page
+- [TrenchBroom on GitHub] - TrenchBroom's GitHub page
 - [func_msgboard] - Quake Mapping Forum
 - [Quake Tools] - Quake tools by Joshua Skelton
 - [Tutorials by dumptruck_ds] - Video Tutorial Series
+- [Quake Level Design Starter Kit] - Ready-to-Use Starter Kit
 - [Quake Mapping Discord] - Quake Mapping Discord
 - [Tome of Preach] - Quake Map Hacks and QuakeC Hacks
 
-[TrenchBroom on github]: http://github.com/kduske/TrenchBroom/
+[TrenchBroom on GitHub]: http://github.com/kduske/TrenchBroom/
 [TrenchBroom issue tracker]: http://github.com/kduske/TrenchBroom/issues/
 [TrenchBroom Discord]: https://discord.gg/n7K8Cps
 [func_msgboard]: http://celephais.net/board/
@@ -2328,5 +2329,6 @@ Open the "About TrenchBroom" dialog from the menu. The light gray text on the le
 [Tome of Preach]: https://tomeofpreach.wordpress.com/
 [FGD File Format]: http://developer.valvesoftware.com/wiki/FGD
 [Tutorials by dumptruck_ds]: https://www.youtube.com/watch?v=gONePWocbqA
+[Quake Level Design Starter Kit]: https://github.com/jonathanlinat/quake-leveldesign-starterkit
 [Quake Mapping Discord]: https://discordapp.com/invite/f5Y99aM
 [FreeIamge Library]: http://freeimage.sourceforge.net/

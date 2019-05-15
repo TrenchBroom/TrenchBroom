@@ -16,6 +16,8 @@ $endif$
 $if(keywords)$
 <meta name="keywords" content="$for(keywords)$$keywords$$sep$, $endfor$">
 $endif$
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="images/icon.png">
 <title>$if(title-prefix)$$title-prefix$ – $endif$$pagetitle$</title>
 $if(highlighting-css)$
 <style>
@@ -37,17 +39,21 @@ $for(include-before)$
 $include-before$
 $endfor$
 $if(toc)$
-<section id="$idprefix$TOC">
-<div id="$idprefix$TOC_INNER">
-<header id="$idprefix$TOC_HEADER">
+<section id="toc_toggler">
+<img src="images/icon.png" alt="TrenchBroom Icon">
+<a href="#toc"><span>&#9776;</span></a>
+</section>
+<nav id="$idprefix$toc">
+<div id="$idprefix$toc_inner">
+<header id="$idprefix$toc_inner_header">
 <img src="images/icon.png" alt="TrenchBroom Icon">
 <h2>Table of Contents</h2>
 </header>
 $toc$
 </div>
-</section>
+</nav>
 $endif$
-<main id="$idprefix$CONTENT">
+<main id="$idprefix$content">
 $body$
 </main>
 $for(include-after)$
