@@ -63,7 +63,7 @@ namespace TrenchBroom {
                  * Values inserted after this is called will not reuse indices from before this
                  * is called.
                  */
-                void forgetInsertedValues() {
+                void clearIndices() {
                     m_map.clear();
                 }
             };
