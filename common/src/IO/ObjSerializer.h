@@ -58,6 +58,14 @@ namespace TrenchBroom {
                         m_list.push_back(v);
                     return index;
                 }
+
+                /**
+                 * Values inserted after this is called will not reuse indices from before this
+                 * is called.
+                 */
+                void clearIndices() {
+                    m_map.clear();
+                }
             };
 
             struct IndexedVertex {
