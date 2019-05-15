@@ -337,10 +337,10 @@ namespace TrenchBroom {
         }
 
         // notice that we take a copy here so that we can safely propagate the old bounds up
-        void Node::nodeBoundsDidChange(const vm::bbox3 oldBounds) {
-            doNodeBoundsDidChange(oldBounds);
+        void Node::nodePhysicalBoundsDidChange(const vm::bbox3 oldBounds) {
+            doNodePhysicalBoundsDidChange(oldBounds);
             if (m_parent != nullptr)
-                m_parent->childBoundsDidChange(this, oldBounds);
+                m_parent->childPhysicalBoundsDidChange(this, oldBounds);
         }
 
         void Node::childWillChange(Node* node) {
@@ -369,21 +369,21 @@ namespace TrenchBroom {
             invalidateIssues();
         }
 
-        void Node::childBoundsDidChange(Node* node, const vm::bbox3& oldBounds) {
+        void Node::childPhysicalBoundsDidChange(Node* node, const vm::bbox3& oldBounds) {
             const vm::bbox3 myOldBounds = physicalBounds();
             if (!myOldBounds.encloses(oldBounds) && !myOldBounds.encloses(node->physicalBounds())) {
                 // Our bounds will change only if the child's bounds potentially contributed to our own bounds.
-                nodeBoundsDidChange(myOldBounds);
+                nodePhysicalBoundsDidChange(myOldBounds);
             }
 
-            doChildBoundsDidChange(node, oldBounds);
-            descendantBoundsDidChange(node, oldBounds, 1);
+            doChildPhysicalBoundsDidChange(node, oldBounds);
+            descendantPhysicalBoundsDidChange(node, oldBounds, 1);
         }
 
-        void Node::descendantBoundsDidChange(Node* node, const vm::bbox3& oldBounds, const size_t depth) {
-            doDescendantBoundsDidChange(node, oldBounds, depth);
+        void Node::descendantPhysicalBoundsDidChange(Node* node, const vm::bbox3& oldBounds, const size_t depth) {
+            doDescendantPhysicalBoundsDidChange(node, oldBounds, depth);
             if (shouldPropagateDescendantEvents() && m_parent != nullptr) {
-                m_parent->descendantBoundsDidChange(node, oldBounds, depth + 1);
+                m_parent->descendantPhysicalBoundsDidChange(node, oldBounds, depth + 1);
             }
         }
 
@@ -651,9 +651,9 @@ namespace TrenchBroom {
         void Node::doAncestorWillChange() {}
         void Node::doAncestorDidChange() {}
 
-        void Node::doNodeBoundsDidChange(const vm::bbox3& oldBounds) {}
-        void Node::doChildBoundsDidChange(Node* node, const vm::bbox3& oldBounds) {}
-        void Node::doDescendantBoundsDidChange(Node* node, const vm::bbox3& oldBounds, const size_t depth) {}
+        void Node::doNodePhysicalBoundsDidChange(const vm::bbox3& oldBounds) {}
+        void Node::doChildPhysicalBoundsDidChange(Node* node, const vm::bbox3& oldBounds) {}
+        void Node::doDescendantPhysicalBoundsDidChange(Node* node, const vm::bbox3& oldBounds, const size_t depth) {}
 
         void Node::doChildWillChange(Node* node) {}
         void Node::doChildDidChange(Node* node) {}

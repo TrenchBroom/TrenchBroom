@@ -414,7 +414,7 @@ namespace TrenchBroom {
             addFaces(faces);
 
             buildGeometry(worldBounds);
-            nodeBoundsDidChange(oldBounds);
+            nodePhysicalBoundsDidChange(oldBounds);
         }
 
         bool Brush::closed() const {
@@ -1276,7 +1276,7 @@ namespace TrenchBroom {
             const vm::bbox3 oldBounds = physicalBounds();
             deleteGeometry();
             buildGeometry(worldBounds);
-            nodeBoundsDidChange(oldBounds);
+            nodePhysicalBoundsDidChange(oldBounds);
         }
 
         void Brush::buildGeometry(const vm::bbox3& worldBounds) {

@@ -265,7 +265,7 @@ namespace TrenchBroom {
             }
         }
 
-        void World::doDescendantBoundsDidChange(Node* node, const vm::bbox3& oldBounds, const size_t depth) {
+        void World::doDescendantPhysicalBoundsDidChange(Node* node, const vm::bbox3& oldBounds, const size_t depth) {
             if (m_updateNodeTree && node->shouldAddToSpacialIndex()) {
                 UpdateNodeInNodeTree visitor(*m_nodeTree);
                 node->accept(visitor);

@@ -78,8 +78,8 @@ namespace TrenchBroom {
             void doChildWasAdded(Node* node) override;
             void doChildWasRemoved(Node* node) override;
 
-            void doNodeBoundsDidChange(const vm::bbox3& oldBounds) override;
-            void doChildBoundsDidChange(Node* node, const vm::bbox3& oldBounds) override;
+            void doNodePhysicalBoundsDidChange(const vm::bbox3& oldBounds) override;
+            void doChildPhysicalBoundsDidChange(Node* node, const vm::bbox3& oldBounds) override;
 
             bool doSelectable() const override;
 

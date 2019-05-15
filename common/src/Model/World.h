@@ -87,7 +87,7 @@ namespace TrenchBroom {
 
             void doDescendantWasAdded(Node* node, size_t depth) override;
             void doDescendantWillBeRemoved(Node* node, size_t depth) override;
-            void doDescendantBoundsDidChange(Node* node, const vm::bbox3& oldBounds, size_t depth) override;
+            void doDescendantPhysicalBoundsDidChange(Node* node, const vm::bbox3& oldBounds, size_t depth) override;
 
             bool doSelectable() const override;
             void doPick(const vm::ray3& ray, PickResult& pickResult) const override;

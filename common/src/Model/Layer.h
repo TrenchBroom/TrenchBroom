@@ -47,7 +47,7 @@ namespace TrenchBroom {
             bool doCanRemoveChild(const Node* child) const override;
             bool doRemoveIfEmpty() const override;
             bool doShouldAddToSpacialIndex() const override;
-            void doNodeBoundsDidChange(const vm::bbox3& oldBounds) override;
+            void doNodePhysicalBoundsDidChange(const vm::bbox3& oldBounds) override;
             bool doSelectable() const override;
 
             void doPick(const vm::ray3& ray, PickResult& pickResult) const override;

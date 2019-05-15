@@ -90,7 +90,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        void Layer::doNodeBoundsDidChange(const vm::bbox3& oldBounds) {
+        void Layer::doNodePhysicalBoundsDidChange(const vm::bbox3& oldBounds) {
             invalidateBounds();
         }
 

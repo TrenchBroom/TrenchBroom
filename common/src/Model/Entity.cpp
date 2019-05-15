@@ -151,7 +151,7 @@ namespace TrenchBroom {
         void Entity::setModelFrame(const Assets::EntityModelFrame* modelFrame) {
             const auto oldBounds = physicalBounds();
             m_modelFrame = modelFrame;
-            nodeBoundsDidChange(oldBounds);
+            nodePhysicalBoundsDidChange(oldBounds);
             cacheAttributes();
         }
 
@@ -215,22 +215,22 @@ namespace TrenchBroom {
         }
 
         void Entity::doChildWasAdded(Node* node) {
-            nodeBoundsDidChange(physicalBounds());
+            nodePhysicalBoundsDidChange(physicalBounds());
         }
 
         void Entity::doChildWasRemoved(Node* node) {
-            nodeBoundsDidChange(physicalBounds());
+            nodePhysicalBoundsDidChange(physicalBounds());
         }
 
-        void Entity::doNodeBoundsDidChange(const vm::bbox3& oldBounds) {
+        void Entity::doNodePhysicalBoundsDidChange(const vm::bbox3& oldBounds) {
             invalidateBounds();
         }
 
-        void Entity::doChildBoundsDidChange(Node* node, const vm::bbox3& oldBounds) {
+        void Entity::doChildPhysicalBoundsDidChange(Node* node, const vm::bbox3& oldBounds) {
             const vm::bbox3 myOldBounds = physicalBounds();
             invalidateBounds();
             if (physicalBounds() != myOldBounds) {
-                nodeBoundsDidChange(myOldBounds);
+                nodePhysicalBoundsDidChange(myOldBounds);
             }
         }
 
@@ -302,13 +302,13 @@ namespace TrenchBroom {
         }
 
         void Entity::doAttributesDidChange(const vm::bbox3& oldBounds) {
-            // update m_cachedOrigin and m_cachedRotation. Must be done first because nodeBoundsDidChange() might
+            // update m_cachedOrigin and m_cachedRotation. Must be done first because nodePhysicalBoundsDidChange() might
             // call origin()
             cacheAttributes();
 
-            nodeBoundsDidChange(oldBounds);
+            nodePhysicalBoundsDidChange(oldBounds);
 
-            // needs to be called again because the calculated rotation will be different after calling nodeBoundsDidChange()
+            // needs to be called again because the calculated rotation will be different after calling nodePhysicalBoundsDidChange()
             cacheAttributes();
         }
 

@@ -154,22 +154,22 @@ namespace TrenchBroom {
         }
 
         void Group::doChildWasAdded(Node* node) {
-            nodeBoundsDidChange(physicalBounds());
+            nodePhysicalBoundsDidChange(physicalBounds());
         }
 
         void Group::doChildWasRemoved(Node* node) {
-            nodeBoundsDidChange(physicalBounds());
+            nodePhysicalBoundsDidChange(physicalBounds());
         }
 
-        void Group::doNodeBoundsDidChange(const vm::bbox3& oldBounds) {
+        void Group::doNodePhysicalBoundsDidChange(const vm::bbox3& oldBounds) {
             invalidateBounds();
         }
 
-        void Group::doChildBoundsDidChange(Node* node, const vm::bbox3& oldBounds) {
+        void Group::doChildPhysicalBoundsDidChange(Node* node, const vm::bbox3& oldBounds) {
             const vm::bbox3 myOldBounds = physicalBounds();
             invalidateBounds();
             if (physicalBounds() != myOldBounds) {
-                nodeBoundsDidChange(myOldBounds);
+                nodePhysicalBoundsDidChange(myOldBounds);
             }
         }
 
