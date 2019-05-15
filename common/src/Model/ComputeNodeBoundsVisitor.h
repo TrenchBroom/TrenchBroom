@@ -29,8 +29,8 @@
 namespace TrenchBroom {
     namespace Model {
         enum class BoundsType {
-            Regular,
-            Culling
+            Logical,
+            Physical
         };
 
         class ComputeNodeBoundsVisitor : public ConstNodeVisitor {
@@ -55,7 +55,7 @@ namespace TrenchBroom {
 
         template <typename I>
         vm::bbox3 computeBounds(I cur, I end) {
-            auto visitor = ComputeNodeBoundsVisitor(BoundsType::Regular);
+            auto visitor = ComputeNodeBoundsVisitor(BoundsType::Logical);
             Node::accept(cur, end, visitor);
             return visitor.bounds();
         }
@@ -64,7 +64,7 @@ namespace TrenchBroom {
 
         template <typename I>
         vm::bbox3 computeCullingBounds(I cur, I end) {
-            auto visitor = ComputeNodeBoundsVisitor(BoundsType::Culling);
+            auto visitor = ComputeNodeBoundsVisitor(BoundsType::Physical);
             Node::accept(cur, end, visitor);
             return visitor.bounds();
         }

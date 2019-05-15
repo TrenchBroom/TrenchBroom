@@ -43,8 +43,8 @@ namespace TrenchBroom {
 
             String m_name;
             EditState m_editState;
-            mutable vm::bbox3 m_bounds;
-            mutable vm::bbox3 m_cullingBounds;
+            mutable vm::bbox3 m_logicalBounds;
+            mutable vm::bbox3 m_physicalBounds;
             mutable bool m_boundsValid;
         public:
             Group(const String& name);

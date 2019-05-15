@@ -46,8 +46,8 @@ namespace TrenchBroom {
         private:
             mutable vm::bbox3 m_definitionBounds;
             mutable vm::bbox3 m_modelBounds;
-            mutable vm::bbox3 m_bounds;
-            mutable vm::bbox3 m_cullingBounds;
+            mutable vm::bbox3 m_logicalBounds;
+            mutable vm::bbox3 m_physicalBounds;
             mutable bool m_boundsValid;
             mutable vm::vec3 m_cachedOrigin;
             mutable vm::mat4x4 m_cachedRotation;

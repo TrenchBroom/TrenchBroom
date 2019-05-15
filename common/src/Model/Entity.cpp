@@ -159,14 +159,14 @@ namespace TrenchBroom {
             if (!m_boundsValid) {
                 validateBounds();
             }
-            return m_bounds;
+            return m_logicalBounds;
         }
 
         const vm::bbox3& Entity::doGetPhysicalBounds() const {
             if (!m_boundsValid) {
                 validateBounds();
             }
-            return m_cullingBounds;
+            return m_physicalBounds;
         }
 
         Node* Entity::doClone(const vm::bbox3& worldBounds) const {
@@ -418,19 +418,19 @@ namespace TrenchBroom {
             }
 
             if (hasChildren()) {
-                ComputeNodeBoundsVisitor visitor(BoundsType::Regular, vm::bbox3(0.0));
+                ComputeNodeBoundsVisitor visitor(BoundsType::Logical, vm::bbox3(0.0));
                 iterate(visitor);
-                m_bounds = visitor.bounds();
+                m_logicalBounds = visitor.bounds();
 
-                ComputeNodeBoundsVisitor cullingBoundsVisitor(BoundsType::Culling, vm::bbox3(0.0));
+                ComputeNodeBoundsVisitor cullingBoundsVisitor(BoundsType::Physical, vm::bbox3(0.0));
                 iterate(cullingBoundsVisitor);
-                m_cullingBounds = cullingBoundsVisitor.bounds();
+                m_physicalBounds = cullingBoundsVisitor.bounds();
             } else {
-                m_bounds = m_definitionBounds;
+                m_logicalBounds = m_definitionBounds;
                 if (hasPointEntityModel()) {
-                    m_cullingBounds = vm::merge(m_definitionBounds, m_modelBounds);
+                    m_physicalBounds = vm::merge(m_definitionBounds, m_modelBounds);
                 } else {
-                    m_cullingBounds = m_definitionBounds;
+                    m_physicalBounds = m_definitionBounds;
                 }
             }
 

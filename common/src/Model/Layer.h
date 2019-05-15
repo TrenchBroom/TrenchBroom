@@ -30,8 +30,8 @@ namespace TrenchBroom {
         private:
             String m_name;
 
-            mutable vm::bbox3 m_bounds;
-            mutable vm::bbox3 m_cullingBounds;
+            mutable vm::bbox3 m_logicalBounds;
+            mutable vm::bbox3 m_physicalBounds;
             mutable bool m_boundsValid;
         public:
             Layer(const String& name, const vm::bbox3& worldBounds);
