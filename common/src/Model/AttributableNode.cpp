@@ -270,7 +270,7 @@ namespace TrenchBroom {
         AttributableNode::NotifyAttributeChange::NotifyAttributeChange(AttributableNode* node) :
         m_nodeChange(node),
         m_node(node),
-        m_oldBounds(node->cullingBounds()) {
+        m_oldBounds(node->physicalBounds()) {
             ensure(m_node != nullptr, "node is null");
             m_node->attributesWillChange();
         }

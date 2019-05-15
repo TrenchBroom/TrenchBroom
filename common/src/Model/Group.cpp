@@ -109,7 +109,7 @@ namespace TrenchBroom {
             return m_bounds;
         }
 
-        const vm::bbox3& Group::doGetCullingBounds() const {
+        const vm::bbox3& Group::doGetPhysicalBounds() const {
             if (!m_boundsValid) {
                 validateBounds();
             }
@@ -154,11 +154,11 @@ namespace TrenchBroom {
         }
 
         void Group::doChildWasAdded(Node* node) {
-            nodeBoundsDidChange(cullingBounds());
+            nodeBoundsDidChange(physicalBounds());
         }
 
         void Group::doChildWasRemoved(Node* node) {
-            nodeBoundsDidChange(cullingBounds());
+            nodeBoundsDidChange(physicalBounds());
         }
 
         void Group::doNodeBoundsDidChange(const vm::bbox3& oldBounds) {
@@ -166,9 +166,9 @@ namespace TrenchBroom {
         }
 
         void Group::doChildBoundsDidChange(Node* node, const vm::bbox3& oldBounds) {
-            const vm::bbox3 myOldBounds = cullingBounds();
+            const vm::bbox3 myOldBounds = physicalBounds();
             invalidateBounds();
-            if (cullingBounds() != myOldBounds) {
+            if (physicalBounds() != myOldBounds) {
                 nodeBoundsDidChange(myOldBounds);
             }
         }

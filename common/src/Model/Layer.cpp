@@ -49,7 +49,7 @@ namespace TrenchBroom {
             return m_bounds;
         }
 
-        const vm::bbox3& Layer::doGetCullingBounds() const {
+        const vm::bbox3& Layer::doGetPhysicalBounds() const {
             if (!m_boundsValid) {
                 validateBounds();
             }

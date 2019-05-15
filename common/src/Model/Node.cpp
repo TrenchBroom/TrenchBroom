@@ -54,8 +54,8 @@ namespace TrenchBroom {
             return doGetBounds();
         }
 
-        const vm::bbox3& Node::cullingBounds() const {
-            return doGetCullingBounds();
+        const vm::bbox3& Node::physicalBounds() const {
+            return doGetPhysicalBounds();
         }
 
         Node* Node::clone(const vm::bbox3& worldBounds) const {
@@ -370,8 +370,8 @@ namespace TrenchBroom {
         }
 
         void Node::childBoundsDidChange(Node* node, const vm::bbox3& oldBounds) {
-            const vm::bbox3 myOldBounds = cullingBounds();
-            if (!myOldBounds.encloses(oldBounds) && !myOldBounds.encloses(node->cullingBounds())) {
+            const vm::bbox3 myOldBounds = physicalBounds();
+            if (!myOldBounds.encloses(oldBounds) && !myOldBounds.encloses(node->physicalBounds())) {
                 // Our bounds will change only if the child's bounds potentially contributed to our own bounds.
                 nodeBoundsDidChange(myOldBounds);
             }

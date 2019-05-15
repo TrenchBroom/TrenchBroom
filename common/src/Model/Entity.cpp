@@ -99,7 +99,7 @@ namespace TrenchBroom {
         }
 
         FloatType Entity::area(vm::axis::type axis) const {
-            const vm::vec3 size = cullingBounds().size();
+            const vm::vec3 size = physicalBounds().size();
             switch (axis) {
                 case vm::axis::x:
                     return size.y() * size.z();
@@ -149,7 +149,7 @@ namespace TrenchBroom {
         }
 
         void Entity::setModelFrame(const Assets::EntityModelFrame* modelFrame) {
-            const auto oldBounds = cullingBounds();
+            const auto oldBounds = physicalBounds();
             m_modelFrame = modelFrame;
             nodeBoundsDidChange(oldBounds);
             cacheAttributes();
@@ -162,7 +162,7 @@ namespace TrenchBroom {
             return m_bounds;
         }
 
-        const vm::bbox3& Entity::doGetCullingBounds() const {
+        const vm::bbox3& Entity::doGetPhysicalBounds() const {
             if (!m_boundsValid) {
                 validateBounds();
             }
@@ -215,11 +215,11 @@ namespace TrenchBroom {
         }
 
         void Entity::doChildWasAdded(Node* node) {
-            nodeBoundsDidChange(cullingBounds());
+            nodeBoundsDidChange(physicalBounds());
         }
 
         void Entity::doChildWasRemoved(Node* node) {
-            nodeBoundsDidChange(cullingBounds());
+            nodeBoundsDidChange(physicalBounds());
         }
 
         void Entity::doNodeBoundsDidChange(const vm::bbox3& oldBounds) {
@@ -227,9 +227,9 @@ namespace TrenchBroom {
         }
 
         void Entity::doChildBoundsDidChange(Node* node, const vm::bbox3& oldBounds) {
-            const vm::bbox3 myOldBounds = cullingBounds();
+            const vm::bbox3 myOldBounds = physicalBounds();
             invalidateBounds();
-            if (cullingBounds() != myOldBounds) {
+            if (physicalBounds() != myOldBounds) {
                 nodeBoundsDidChange(myOldBounds);
             }
         }

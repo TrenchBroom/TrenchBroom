@@ -406,7 +406,7 @@ namespace TrenchBroom {
         void Brush::setFaces(const vm::bbox3& worldBounds, const BrushFaceList& faces) {
             const NotifyNodeChange nodeChange(this);
 
-            const vm::bbox3 oldBounds = cullingBounds();
+            const vm::bbox3 oldBounds = physicalBounds();
             deleteGeometry();
 
             detachFaces(m_faces);
@@ -1273,7 +1273,7 @@ namespace TrenchBroom {
         }
 
         void Brush::rebuildGeometry(const vm::bbox3& worldBounds) {
-            const vm::bbox3 oldBounds = cullingBounds();
+            const vm::bbox3 oldBounds = physicalBounds();
             deleteGeometry();
             buildGeometry(worldBounds);
             nodeBoundsDidChange(oldBounds);
@@ -1348,7 +1348,7 @@ namespace TrenchBroom {
             return m_geometry->bounds();
         }
 
-        const vm::bbox3& Brush::doGetCullingBounds() const {
+        const vm::bbox3& Brush::doGetPhysicalBounds() const {
             return bounds();
         }
 

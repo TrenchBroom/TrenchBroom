@@ -43,7 +43,7 @@ namespace TrenchBroom {
 
         void ComputeNodeBoundsVisitor::doVisit(const Group* group) {
             if (m_boundsType == BoundsType::Culling) {
-                m_builder.add(group->cullingBounds());
+                m_builder.add(group->physicalBounds());
             } else {
                 m_builder.add(group->bounds());
             }
@@ -51,7 +51,7 @@ namespace TrenchBroom {
 
         void ComputeNodeBoundsVisitor::doVisit(const Entity* entity) {
             if (m_boundsType == BoundsType::Culling) {
-                m_builder.add(entity->cullingBounds());
+                m_builder.add(entity->physicalBounds());
             } else {
                 m_builder.add(entity->bounds());
             }
@@ -59,7 +59,7 @@ namespace TrenchBroom {
 
         void ComputeNodeBoundsVisitor::doVisit(const Brush* brush) {
             if (m_boundsType == BoundsType::Culling) {
-                m_builder.add(brush->cullingBounds());
+                m_builder.add(brush->physicalBounds());
             } else {
                 m_builder.add(brush->bounds());
             }

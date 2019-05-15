@@ -60,7 +60,7 @@ namespace TrenchBroom {
              * Returns a box that encloses the node and its children. These are the bounds that are relevant
              * for gameplay (for entities, the bounds specified in the entity definition file), and used
              * for grid snapping, for example.
-             * Nodes can render or hit test outside of these bounds if necessary (see `cullingBounds()`).
+             * Nodes can render or hit test outside of these bounds if necessary (see `physicalBounds()`).
              */
             const vm::bbox3& bounds() const;
             /**
@@ -69,7 +69,7 @@ namespace TrenchBroom {
              * Currently, the only case where this differs from `bounds()` is with entity models that extend
              * beyond the bounds specified in the .fgd.
              */
-            const vm::bbox3& cullingBounds() const;
+            const vm::bbox3& physicalBounds() const;
         public: // cloning and snapshots
             Node* clone(const vm::bbox3& worldBounds) const;
             Node* cloneRecursively(const vm::bbox3& worldBounds) const;
@@ -414,7 +414,7 @@ namespace TrenchBroom {
         private: // subclassing interface
             virtual const String& doGetName() const = 0;
             virtual const vm::bbox3& doGetBounds() const = 0;
-            virtual const vm::bbox3& doGetCullingBounds() const = 0;
+            virtual const vm::bbox3& doGetPhysicalBounds() const = 0;
 
             virtual Node* doClone(const vm::bbox3& worldBounds) const = 0;
             virtual Node* doCloneRecursively(const vm::bbox3& worldBounds) const;

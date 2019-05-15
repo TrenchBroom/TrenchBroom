@@ -45,7 +45,7 @@ namespace TrenchBroom {
                 return bounds;
             }
 
-            const vm::bbox3& doGetCullingBounds() const override {
+            const vm::bbox3& doGetPhysicalBounds() const override {
                 static const vm::bbox3 bounds;
                 return bounds;
             }
@@ -140,7 +140,7 @@ namespace TrenchBroom {
                 return bounds;
             }
 
-            const vm::bbox3& doGetCullingBounds() const override {
+            const vm::bbox3& doGetPhysicalBounds() const override {
                 static const vm::bbox3 bounds;
                 return bounds;
             }
