@@ -40,7 +40,7 @@ namespace TrenchBroom {
                 return name;
             }
 
-            const vm::bbox3& doGetBounds() const override {
+            const vm::bbox3& doGetLogicalBounds() const override {
                 static const vm::bbox3 bounds;
                 return bounds;
             }
@@ -135,7 +135,7 @@ namespace TrenchBroom {
                 return name;
             }
 
-            const vm::bbox3& doGetBounds() const override {
+            const vm::bbox3& doGetLogicalBounds() const override {
                 static const vm::bbox3 bounds;
                 return bounds;
             }

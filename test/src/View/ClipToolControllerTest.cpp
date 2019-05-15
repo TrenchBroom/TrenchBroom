@@ -128,7 +128,7 @@ namespace TrenchBroom {
             auto* brush = dynamic_cast<Model::Brush*>(objects.at(0));
             ASSERT_NE(nullptr, brush);
 
-            ASSERT_EQ(vm::bbox3(vm::vec3(-16, -16, 52), vm::vec3(20, 16, 72)), brush->bounds());
+            ASSERT_EQ(vm::bbox3(vm::vec3(-16, -16, 52), vm::vec3(20, 16, 72)), brush->logicalBounds());
         }
     }
 }

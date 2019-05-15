@@ -155,7 +155,7 @@ namespace TrenchBroom {
             cacheAttributes();
         }
 
-        const vm::bbox3& Entity::doGetBounds() const {
+        const vm::bbox3& Entity::doGetLogicalBounds() const {
             if (!m_boundsValid) {
                 validateBounds();
             }
@@ -275,7 +275,7 @@ namespace TrenchBroom {
                 for (Node* child : Node::children())
                     child->findNodesContaining(point, result);
             } else {
-                if (bounds().contains(point))
+                if (logicalBounds().contains(point))
                     result.push_back(this);
             }
         }
@@ -321,11 +321,11 @@ namespace TrenchBroom {
         }
 
         vm::vec3 Entity::doGetLinkSourceAnchor() const {
-            return bounds().center();
+            return logicalBounds().center();
         }
 
         vm::vec3 Entity::doGetLinkTargetAnchor() const {
-            return bounds().center();
+            return logicalBounds().center();
         }
 
         Node* Entity::doGetContainer() const {
@@ -371,7 +371,7 @@ namespace TrenchBroom {
                 iterate(visitor);
             } else {
                 // node change is called by setOrigin already
-                const auto center = bounds().center();
+                const auto center = logicalBounds().center();
                 const auto offset = center - origin();
                 const auto transformedCenter = transformation * center;
                 setOrigin(transformedCenter - offset);
@@ -386,14 +386,14 @@ namespace TrenchBroom {
         }
 
         bool Entity::doContains(const Node* node) const {
-            BoundsContainsNodeVisitor contains(bounds());
+            BoundsContainsNodeVisitor contains(logicalBounds());
             node->accept(contains);
             assert(contains.hasResult());
             return contains.result();
         }
 
         bool Entity::doIntersects(const Node* node) const {
-            BoundsIntersectsNodeVisitor intersects(bounds());
+            BoundsIntersectsNodeVisitor intersects(logicalBounds());
             node->accept(intersects);
             assert(intersects.hasResult());
             return intersects.result();

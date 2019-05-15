@@ -63,7 +63,7 @@ namespace TrenchBroom {
             void closeAncestors();
         private: // implement methods inherited from Node
             const String& doGetName() const override;
-            const vm::bbox3& doGetBounds() const override;
+            const vm::bbox3& doGetLogicalBounds() const override;
             const vm::bbox3& doGetPhysicalBounds() const override;
 
             Node* doClone(const vm::bbox3& worldBounds) const override;

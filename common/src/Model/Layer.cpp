@@ -42,7 +42,7 @@ namespace TrenchBroom {
             return m_name;
         }
 
-        const vm::bbox3& Layer::doGetBounds() const {
+        const vm::bbox3& Layer::doGetLogicalBounds() const {
             if (!m_boundsValid) {
                 validateBounds();
             }

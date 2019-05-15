@@ -102,7 +102,7 @@ namespace TrenchBroom {
             return m_name;
         }
 
-        const vm::bbox3& Group::doGetBounds() const {
+        const vm::bbox3& Group::doGetLogicalBounds() const {
             if (!m_boundsValid) {
                 validateBounds();
             }
@@ -187,7 +187,7 @@ namespace TrenchBroom {
         }
 
         void Group::doFindNodesContaining(const vm::vec3& point, NodeList& result) {
-            if (bounds().contains(point)) {
+            if (logicalBounds().contains(point)) {
                 result.push_back(this);
             }
 
@@ -232,14 +232,14 @@ namespace TrenchBroom {
         }
 
         bool Group::doContains(const Node* node) const {
-            BoundsContainsNodeVisitor contains(bounds());
+            BoundsContainsNodeVisitor contains(logicalBounds());
             node->accept(contains);
             assert(contains.hasResult());
             return contains.result();
         }
 
         bool Group::doIntersects(const Node* node) const {
-            BoundsIntersectsNodeVisitor intersects(bounds());
+            BoundsIntersectsNodeVisitor intersects(logicalBounds());
             node->accept(intersects);
             assert(intersects.hasResult());
             return intersects.result();

@@ -173,14 +173,14 @@ namespace TrenchBroom {
             acceptAndRecurse(visitor);
         }
 
-        const vm::bbox3& World::doGetBounds() const {
-            // TODO: this should probably return the world bounds, as it does in Layer::doGetBounds
+        const vm::bbox3& World::doGetLogicalBounds() const {
+            // TODO: this should probably return the world bounds, as it does in Layer::doGetLogicalBounds
             static const vm::bbox3 bounds;
             return bounds;
         }
 
         const vm::bbox3& World::doGetPhysicalBounds() const {
-            return bounds();
+            return logicalBounds();
         }
 
         Node* World::doClone(const vm::bbox3& worldBounds) const {

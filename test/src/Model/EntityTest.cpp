@@ -61,7 +61,7 @@ namespace TrenchBroom {
             EXPECT_EQ(vm::vec3::zero, m_entity->origin());
             EXPECT_EQ(vm::mat4x4::identity, m_entity->rotation());
             EXPECT_TRUE(m_entity->pointEntity());
-            EXPECT_EQ(Entity::DefaultBounds, m_entity->bounds());
+            EXPECT_EQ(Entity::DefaultBounds, m_entity->logicalBounds());
         }
 
         TEST_F(EntityTest, originUpdateWithSetAttributes) {
@@ -71,7 +71,7 @@ namespace TrenchBroom {
 
             m_entity->setAttributes({EntityAttribute("origin", "10 20 30")});
             EXPECT_EQ(newOrigin, m_entity->origin());
-            EXPECT_EQ(newBounds, m_entity->bounds());
+            EXPECT_EQ(newBounds, m_entity->logicalBounds());
         }
 
         TEST_F(EntityTest, originUpdateWithAddOrUpdateAttributes) {
@@ -81,7 +81,7 @@ namespace TrenchBroom {
 
             m_entity->addOrUpdateAttribute("origin", "10 20 30");
             EXPECT_EQ(newOrigin, m_entity->origin());
-            EXPECT_EQ(newBounds, m_entity->bounds());
+            EXPECT_EQ(newBounds, m_entity->logicalBounds());
         }
 
         // Same as above, but add the entity to a world
@@ -94,7 +94,7 @@ namespace TrenchBroom {
 
             m_entity->addOrUpdateAttribute("origin", "10 20 30");
             EXPECT_EQ(newOrigin, m_entity->origin());
-            EXPECT_EQ(newBounds, m_entity->bounds());
+            EXPECT_EQ(newBounds, m_entity->logicalBounds());
         }
 
         TEST_F(EntityTest, requiresClassnameForRotation) {

@@ -552,7 +552,7 @@ namespace TrenchBroom {
 
             try {
                 const auto testBrush = Brush(worldBounds, testFaces);
-                const auto inWorldBounds = worldBounds.contains(testBrush.bounds());
+                const auto inWorldBounds = worldBounds.contains(testBrush.logicalBounds());
                 const auto closed = testBrush.closed();
                 const auto allFaces = testBrush.faceCount() == testFaces.size();
 
@@ -685,7 +685,7 @@ namespace TrenchBroom {
         }
 
         bool Brush::containsPoint(const vm::vec3& point) const {
-            if (!bounds().contains(point)) {
+            if (!logicalBounds().contains(point)) {
                 return false;
             } else {
                 for (const auto* face : m_faces) {
@@ -1343,13 +1343,13 @@ namespace TrenchBroom {
             return name;
         }
 
-        const vm::bbox3& Brush::doGetBounds() const {
+        const vm::bbox3& Brush::doGetLogicalBounds() const {
             ensure(m_geometry != nullptr, "geometry is null");
             return m_geometry->bounds();
         }
 
         const vm::bbox3& Brush::doGetPhysicalBounds() const {
-            return bounds();
+            return logicalBounds();
         }
 
         Node* Brush::doClone(const vm::bbox3& worldBounds) const {
@@ -1417,7 +1417,7 @@ namespace TrenchBroom {
         Brush::BrushFaceHit::BrushFaceHit(BrushFace* i_face, const FloatType i_distance) : face(i_face), distance(i_distance) {}
 
         Brush::BrushFaceHit Brush::findFaceHit(const vm::ray3& ray) const {
-            if (vm::isnan(vm::intersectRayAndBBox(ray, bounds()))) {
+            if (vm::isnan(vm::intersectRayAndBBox(ray, logicalBounds()))) {
                 return BrushFaceHit();
             }
 
@@ -1467,12 +1467,12 @@ namespace TrenchBroom {
         private:
             void doVisit(const World* world) override   { setResult(false); }
             void doVisit(const Layer* layer) override   { setResult(false); }
-            void doVisit(const Group* group) override   { setResult(contains(group->bounds())); }
-            void doVisit(const Entity* entity) override { setResult(contains(entity->bounds())); }
+            void doVisit(const Group* group) override   { setResult(contains(group->logicalBounds())); }
+            void doVisit(const Entity* entity) override { setResult(contains(entity->logicalBounds())); }
             void doVisit(const Brush* brush) override   { setResult(contains(brush)); }
 
             bool contains(const vm::bbox3& bounds) const {
-                if (m_this->bounds().contains(bounds)) {
+                if (m_this->logicalBounds().contains(bounds)) {
                     return true;
                 }
 
@@ -1506,12 +1506,12 @@ namespace TrenchBroom {
         private:
             void doVisit(const World* world) override   { setResult(false); }
             void doVisit(const Layer* layer) override   { setResult(false); }
-            void doVisit(const Group* group) override   { setResult(intersects(group->bounds())); }
-            void doVisit(const Entity* entity) override { setResult(intersects(entity->bounds())); }
+            void doVisit(const Group* group) override   { setResult(intersects(group->logicalBounds())); }
+            void doVisit(const Entity* entity) override { setResult(intersects(entity->logicalBounds())); }
             void doVisit(const Brush* brush) override   { setResult(intersects(brush)); }
 
             bool intersects(const vm::bbox3& bounds) const {
-                return m_this->bounds().intersects(bounds);
+                return m_this->logicalBounds().intersects(bounds);
             }
 
             bool intersects(const Brush* brush) {

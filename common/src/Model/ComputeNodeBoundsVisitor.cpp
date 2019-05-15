@@ -45,7 +45,7 @@ namespace TrenchBroom {
             if (m_boundsType == BoundsType::Culling) {
                 m_builder.add(group->physicalBounds());
             } else {
-                m_builder.add(group->bounds());
+                m_builder.add(group->logicalBounds());
             }
         }
 
@@ -53,7 +53,7 @@ namespace TrenchBroom {
             if (m_boundsType == BoundsType::Culling) {
                 m_builder.add(entity->physicalBounds());
             } else {
-                m_builder.add(entity->bounds());
+                m_builder.add(entity->logicalBounds());
             }
         }
 
@@ -61,7 +61,7 @@ namespace TrenchBroom {
             if (m_boundsType == BoundsType::Culling) {
                 m_builder.add(brush->physicalBounds());
             } else {
-                m_builder.add(brush->bounds());
+                m_builder.add(brush->logicalBounds());
             }
         }
 

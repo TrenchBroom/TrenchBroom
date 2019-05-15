@@ -57,17 +57,17 @@ namespace TrenchBroom {
         public: // getters
             const String& name() const;
             /**
-             * Returns a box that encloses the node and its children. These are the bounds that are relevant
-             * for gameplay (for entities, the bounds specified in the entity definition file), and used
+             * Returns a box that encloses the node and its children. These are the logicalBounds that are relevant
+             * for gameplay (for entities, the logicalBounds specified in the entity definition file), and used
              * for grid snapping, for example.
-             * Nodes can render or hit test outside of these bounds if necessary (see `physicalBounds()`).
+             * Nodes can render or hit test outside of these logicalBounds if necessary (see `physicalBounds()`).
              */
-            const vm::bbox3& bounds() const;
+            const vm::bbox3& logicalBounds() const;
             /**
              * Returns a box that encloses all rendering and hit testing for this node and its children.
-             * Equal to or larger than `bounds()`.
-             * Currently, the only case where this differs from `bounds()` is with entity models that extend
-             * beyond the bounds specified in the .fgd.
+             * Equal to or larger than `logicalBounds()`.
+             * Currently, the only case where this differs from `logicalBounds()` is with entity models that extend
+             * beyond the logicalBounds specified in the .fgd.
              */
             const vm::bbox3& physicalBounds() const;
         public: // cloning and snapshots
@@ -413,7 +413,7 @@ namespace TrenchBroom {
             void removeFromIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
         private: // subclassing interface
             virtual const String& doGetName() const = 0;
-            virtual const vm::bbox3& doGetBounds() const = 0;
+            virtual const vm::bbox3& doGetLogicalBounds() const = 0;
             virtual const vm::bbox3& doGetPhysicalBounds() const = 0;
 
             virtual Node* doClone(const vm::bbox3& worldBounds) const = 0;

@@ -50,8 +50,8 @@ namespace TrenchBroom {
             return doGetName();
         }
 
-        const vm::bbox3& Node::bounds() const {
-            return doGetBounds();
+        const vm::bbox3& Node::logicalBounds() const {
+            return doGetLogicalBounds();
         }
 
         const vm::bbox3& Node::physicalBounds() const {

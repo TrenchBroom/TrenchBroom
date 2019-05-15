@@ -79,7 +79,7 @@ namespace TrenchBroom {
             const Assets::EntityModelFrame* modelFrame() const;
             void setModelFrame(const Assets::EntityModelFrame* modelFrame);
         private: // implement Node interface
-            const vm::bbox3& doGetBounds() const override;
+            const vm::bbox3& doGetLogicalBounds() const override;
             const vm::bbox3& doGetPhysicalBounds() const override;
 
             Node* doClone(const vm::bbox3& worldBounds) const override;

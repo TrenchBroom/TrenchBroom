@@ -68,12 +68,12 @@ namespace TrenchBroom {
         }
 
         void WorldBoundsIssueGenerator::doGenerate(Entity* entity, IssueList& issues) const {
-            if (!m_bounds.contains(entity->bounds()))
+            if (!m_bounds.contains(entity->logicalBounds()))
                 issues.push_back(new WorldBoundsIssue(entity));
         }
 
         void WorldBoundsIssueGenerator::doGenerate(Brush* brush, IssueList& issues) const {
-            if (!m_bounds.contains(brush->bounds()))
+            if (!m_bounds.contains(brush->logicalBounds()))
                 issues.push_back(new WorldBoundsIssue(brush));
         }
     }

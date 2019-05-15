@@ -76,7 +76,7 @@ namespace TrenchBroom {
             class InvalidateAllIssuesVisitor;
             void invalidateAllIssues();
         private: // implement Node interface
-            const vm::bbox3& doGetBounds() const override;
+            const vm::bbox3& doGetLogicalBounds() const override;
             const vm::bbox3& doGetPhysicalBounds() const override;
             Node* doClone(const vm::bbox3& worldBounds) const override;
             Node* doCloneRecursively(const vm::bbox3& worldBounds) const override;
