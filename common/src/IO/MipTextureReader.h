@@ -35,6 +35,11 @@ namespace TrenchBroom {
             ~MipTextureReader() override;
         public:
             static size_t mipFileSize(size_t width, size_t height, size_t mipLevels);
+            /**
+             * Reads the texture name or returns an empty string in case of error.
+             * Doesn't modify the provided reader.
+             */
+            static String getTextureName(const BufferedReader& reader);
         protected:
             Assets::Texture* doReadTexture(std::shared_ptr<File> file) const override;
             virtual Assets::Palette doGetPalette(Reader& reader, const size_t offset[], size_t width, size_t height) const = 0;
