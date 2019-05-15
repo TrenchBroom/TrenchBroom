@@ -57,8 +57,8 @@ namespace TrenchBroom {
         public: // getters
             const String& name() const;
             /**
-             * Returns a box that encloses the node and its children. These are the logicalBounds that are relevant
-             * for gameplay (for entities, the logicalBounds specified in the entity definition file), and used
+             * Returns a box that encloses the "logical" part of this node and its children; these are the bounds that are
+             * used in game (for entities, the bounds specified in the entity definition file), and used
              * for grid snapping, for example.
              * Nodes can render or hit test outside of these logicalBounds if necessary (see `physicalBounds()`).
              */
@@ -67,7 +67,7 @@ namespace TrenchBroom {
              * Returns a box that encloses all rendering and hit testing for this node and its children.
              * Equal to or larger than `logicalBounds()`.
              * Currently, the only case where this differs from `logicalBounds()` is with entity models that extend
-             * beyond the logicalBounds specified in the .fgd.
+             * beyond the bounds specified in the .fgd.
              */
             const vm::bbox3& physicalBounds() const;
         public: // cloning and snapshots
