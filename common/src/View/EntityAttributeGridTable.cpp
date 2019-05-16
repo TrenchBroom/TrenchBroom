@@ -542,6 +542,8 @@ namespace TrenchBroom {
                     return arrayString(allSortedValuesForAttributeNames(document, StringList{Model::AttributeNames::Targetname}));
                 } else if (name == Model::AttributeNames::Targetname) {
                     return arrayString(allSortedValuesForAttributeNames(document, StringList{Model::AttributeNames::Target, Model::AttributeNames::Killtarget}));
+                } else if (name == Model::AttributeNames::Classname) {
+                    return arrayString(allSortedClassnames(document));
                 }
             }
 
@@ -576,6 +578,22 @@ namespace TrenchBroom {
                 const StringList values = index.allValuesForNames(Model::AttributableNodeIndexQuery::numbered(name));
                 for (const auto& value : values) {
                     valueset.insert(value);
+                }
+            }
+
+            valueset.erase("");
+
+            return valueset;
+        }
+
+        StringSet EntityAttributeGridTable::allSortedClassnames(MapDocumentSPtr document) {
+            // Start with classnames in use in the map
+            StringSet valueset = allSortedValuesForAttributeNames(document, StringList{ Model::AttributeNames::Classname });
+
+            // Also add keys from all loaded entity definitions
+            for (const auto& group : document->entityDefinitionManager().groups()) {
+                for (const auto entityDefinition : group.definitions()) {
+                    valueset.insert(entityDefinition->name());
                 }
             }
 

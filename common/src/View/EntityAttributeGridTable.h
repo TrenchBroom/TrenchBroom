@@ -139,6 +139,10 @@ namespace TrenchBroom {
         private:
             static StringSet allSortedAttributeNames(MapDocumentSPtr document);
             static StringSet allSortedValuesForAttributeNames(MapDocumentSPtr document, const StringList& names);
+            /**
+             * Returns classnames in use in the map, as well as all classnames in loaded entity definitions.
+             */
+            static StringSet allSortedClassnames(MapDocumentSPtr document);
             static wxArrayString arrayString(const StringSet& set);
         private:
             void renameAttribute(size_t rowIndex, const String& newName, const Model::AttributableNodeList& attributables);
