@@ -281,7 +281,8 @@ namespace TrenchBroom {
             void findIntegerPlanePoints(const vm::bbox3& worldBounds);
         private: // implement Node interface
             const String& doGetName() const override;
-            const vm::bbox3& doGetBounds() const override;
+            const vm::bbox3& doGetLogicalBounds() const override;
+            const vm::bbox3& doGetPhysicalBounds() const override;
 
             Node* doClone(const vm::bbox3& worldBounds) const override;
             NodeSnapshot* doTakeSnapshot() override;

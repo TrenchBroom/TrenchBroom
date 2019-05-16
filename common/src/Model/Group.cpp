@@ -102,11 +102,18 @@ namespace TrenchBroom {
             return m_name;
         }
 
-        const vm::bbox3& Group::doGetBounds() const {
+        const vm::bbox3& Group::doGetLogicalBounds() const {
             if (!m_boundsValid) {
                 validateBounds();
             }
-            return m_bounds;
+            return m_logicalBounds;
+        }
+
+        const vm::bbox3& Group::doGetPhysicalBounds() const {
+            if (!m_boundsValid) {
+                validateBounds();
+            }
+            return m_physicalBounds;
         }
 
         Node* Group::doClone(const vm::bbox3& worldBounds) const {
@@ -143,26 +150,26 @@ namespace TrenchBroom {
         }
 
         bool Group::doShouldAddToSpacialIndex() const {
-            return true;
+            return false;
         }
 
         void Group::doChildWasAdded(Node* node) {
-            nodeBoundsDidChange(bounds());
+            nodePhysicalBoundsDidChange(physicalBounds());
         }
 
         void Group::doChildWasRemoved(Node* node) {
-            nodeBoundsDidChange(bounds());
+            nodePhysicalBoundsDidChange(physicalBounds());
         }
 
-        void Group::doNodeBoundsDidChange(const vm::bbox3& oldBounds) {
+        void Group::doNodePhysicalBoundsDidChange(const vm::bbox3& oldBounds) {
             invalidateBounds();
         }
 
-        void Group::doChildBoundsDidChange(Node* node, const vm::bbox3& oldBounds) {
-            const vm::bbox3 myOldBounds = bounds();
+        void Group::doChildPhysicalBoundsDidChange(Node* node, const vm::bbox3& oldBounds) {
+            const vm::bbox3 myOldBounds = physicalBounds();
             invalidateBounds();
-            if (bounds() != myOldBounds) {
-                nodeBoundsDidChange(myOldBounds);
+            if (physicalBounds() != myOldBounds) {
+                nodePhysicalBoundsDidChange(myOldBounds);
             }
         }
 
@@ -180,7 +187,7 @@ namespace TrenchBroom {
         }
 
         void Group::doFindNodesContaining(const vm::vec3& point, NodeList& result) {
-            if (bounds().contains(point)) {
+            if (logicalBounds().contains(point)) {
                 result.push_back(this);
             }
 
@@ -225,14 +232,14 @@ namespace TrenchBroom {
         }
 
         bool Group::doContains(const Node* node) const {
-            BoundsContainsNodeVisitor contains(bounds());
+            BoundsContainsNodeVisitor contains(logicalBounds());
             node->accept(contains);
             assert(contains.hasResult());
             return contains.result();
         }
 
         bool Group::doIntersects(const Node* node) const {
-            BoundsIntersectsNodeVisitor intersects(bounds());
+            BoundsIntersectsNodeVisitor intersects(logicalBounds());
             node->accept(intersects);
             assert(intersects.hasResult());
             return intersects.result();
@@ -243,9 +250,14 @@ namespace TrenchBroom {
         }
 
         void Group::validateBounds() const {
-            ComputeNodeBoundsVisitor visitor(vm::bbox3(0.0));
+            ComputeNodeBoundsVisitor visitor(BoundsType::Logical, vm::bbox3(0.0));
             iterate(visitor);
-            m_bounds = visitor.bounds();
+            m_logicalBounds = visitor.bounds();
+
+            ComputeNodeBoundsVisitor physicalBoundsVisitor(BoundsType::Physical, vm::bbox3(0.0));
+            iterate(physicalBoundsVisitor);
+            m_physicalBounds = physicalBoundsVisitor.bounds();
+
             m_boundsValid = true;
         }
 

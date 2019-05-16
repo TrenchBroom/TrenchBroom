@@ -39,8 +39,8 @@ namespace TrenchBroom {
             m_group(group) {}
         private:
             vm::vec3f basePosition() const override {
-                auto position = vm::vec3f(m_group->bounds().center());
-                position[2] = float(m_group->bounds().max.z());
+                auto position = vm::vec3f(m_group->logicalBounds().center());
+                position[2] = float(m_group->logicalBounds().max.z());
                 position[2] += 2.0f;
                 return position;
             }
@@ -180,7 +180,7 @@ namespace TrenchBroom {
                 BuildBoundsVertices boundsBuilder(vertices);
                 for (const Model::Group* group : m_groups) {
                     if (shouldRenderGroup(group)) {
-                        group->bounds().forEachEdge(boundsBuilder);
+                        group->logicalBounds().forEachEdge(boundsBuilder);
                     }
                 }
 
@@ -192,7 +192,7 @@ namespace TrenchBroom {
                 for (const Model::Group* group : m_groups) {
                     if (shouldRenderGroup(group)) {
                         BuildColoredBoundsVertices boundsBuilder(vertices, boundsColor(group));
-                        group->bounds().forEachEdge(boundsBuilder);
+                        group->logicalBounds().forEachEdge(boundsBuilder);
                     }
                 }
 

@@ -21,7 +21,6 @@
 
 #include "TrenchBroom.h"
 #include "Model/Brush.h"
-#include "Model/ComputeNodeBoundsVisitor.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
 #include "Model/HitAdapter.h"

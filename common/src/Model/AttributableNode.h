@@ -116,14 +116,14 @@ namespace TrenchBroom {
             private:
                 NotifyNodeChange m_nodeChange;
                 AttributableNode* m_node;
-                vm::bbox3 m_oldBounds;
+                vm::bbox3 m_oldPhysicalBounds;
             public:
                 NotifyAttributeChange(AttributableNode* node);
                 ~NotifyAttributeChange();
             };
 
             void attributesWillChange();
-            void attributesDidChange(const vm::bbox3& oldBounds);
+            void attributesDidChange(const vm::bbox3& oldPhysicalBounds);
 
             void updateClassname();
         private: // search index management

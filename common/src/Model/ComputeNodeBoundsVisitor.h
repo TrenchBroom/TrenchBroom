@@ -28,12 +28,25 @@
 
 namespace TrenchBroom {
     namespace Model {
+        enum class BoundsType {
+            /**
+             * See Node::logicalBounds()
+             */
+            Logical,
+            /**
+             * See Node::physicalBounds()
+             */
+            Physical
+        };
+
         class ComputeNodeBoundsVisitor : public ConstNodeVisitor {
         private:
             bool m_initialized;
+            BoundsType m_boundsType;
+            vm::bbox3 m_defaultBounds;
+            vm::bbox3::builder m_builder;
         public:
-            vm::bbox3 m_bounds;
-            explicit ComputeNodeBoundsVisitor(const vm::bbox3& defaultBounds = vm::bbox3());
+            explicit ComputeNodeBoundsVisitor(BoundsType type, const vm::bbox3& defaultBounds = vm::bbox3());
             const vm::bbox3& bounds() const;
         private:
             void doVisit(const World* world) override;
@@ -44,11 +57,20 @@ namespace TrenchBroom {
             void mergeWith(const vm::bbox3& bounds);
         };
 
-        vm::bbox3 computeBounds(const Model::NodeList& nodes);
+        vm::bbox3 computeLogicalBounds(const Model::NodeList& nodes);
 
         template <typename I>
-        vm::bbox3 computeBounds(I cur, I end) {
-            ComputeNodeBoundsVisitor visitor;
+        vm::bbox3 computeLogicalBounds(I cur, I end) {
+            auto visitor = ComputeNodeBoundsVisitor(BoundsType::Logical);
+            Node::accept(cur, end, visitor);
+            return visitor.bounds();
+        }
+
+        vm::bbox3 computePhysicalBounds(const Model::NodeList& nodes);
+
+        template <typename I>
+        vm::bbox3 computePhysicalBounds(I cur, I end) {
+            auto visitor = ComputeNodeBoundsVisitor(BoundsType::Physical);
             Node::accept(cur, end, visitor);
             return visitor.bounds();
         }

@@ -1026,7 +1026,14 @@ namespace TrenchBroom {
                 Transaction transaction(m_document);
                 if (paste() == PT_Node && m_document->hasSelectedNodes()) {
                     const vm::bbox3 bounds = m_document->selectionBounds();
+
+                    // The pasted objects must be hidden to prevent the picking done in pasteObjectsDelta
+                    // from hitting them (https://github.com/kduske/TrenchBroom/issues/2755)
+                    const Model::NodeList nodes = m_document->selectedNodes().nodes();
+                    m_document->hide(nodes);
                     const vm::vec3 delta = m_mapView->pasteObjectsDelta(bounds, referenceBounds);
+                    m_document->show(nodes);
+                    m_document->select(nodes); // Hiding deselected the nodes, so reselect them
                     m_document->translateObjects(delta);
                 }
             }

@@ -204,26 +204,25 @@ namespace TrenchBroom {
             assert(valid());
 
             const auto toTex = m_face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
-            const auto transformedVertices = toTex * m_face->vertexPositions();
-            const auto bounds = vm::bbox3::mergeAll(std::begin(transformedVertices), std::end(transformedVertices));
+            const auto texVertices = toTex * m_face->vertexPositions();
 
-            const vm::vec3 vertices[] = {
-                bounds.corner(vm::bbox3::Corner::min, vm::bbox3::Corner::min, vm::bbox3::Corner::min),
-                bounds.corner(vm::bbox3::Corner::min, vm::bbox3::Corner::max, vm::bbox3::Corner::min),
-                bounds.corner(vm::bbox3::Corner::max, vm::bbox3::Corner::max, vm::bbox3::Corner::min),
-                bounds.corner(vm::bbox3::Corner::max, vm::bbox3::Corner::min, vm::bbox3::Corner::min)
-            };
-
-            const auto fromTex = m_face->fromTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
             const auto toCam = vm::mat4x4(m_camera.viewMatrix());
+            const auto camVertices = toCam * m_face->vertexPositions();
 
-            for (size_t i = 0; i < 4; ++i) {
-                const auto vertex = toCam * fromTex * vertices[i];
-                if (vertex.x() < 0.0 && vertex.y() < 0.0) {
-                    setOriginInFaceCoords(vm::vec2f(vertices[i]));
-                    break;
+            // The origin is at the "lower left" corner of the bounding box.
+            auto originFace = texVertices[0];
+            auto originCam  = camVertices[0];
+            for (size_t i = 1; i < texVertices.size(); ++i) {
+                auto vertexCam = camVertices[i];
+                for (size_t j = 0; j < 2; ++j) {
+                    if (vertexCam[j] < originCam[j]) {
+                        originCam[j] = vertexCam[j];
+                        originFace[j] = texVertices[i][j];
+                    }
                 }
             }
+
+            setOriginInFaceCoords(vm::vec2f(originFace));
         }
 
         void UVViewHelper::resetCamera() {

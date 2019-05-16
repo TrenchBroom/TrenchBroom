@@ -656,7 +656,7 @@ namespace TrenchBroom {
         }
 
         void MapDocument::validateSelectionBounds() const {
-            Model::ComputeNodeBoundsVisitor visitor;
+            Model::ComputeNodeBoundsVisitor visitor(Model::BoundsType::Logical);
             Model::Node::accept(std::begin(m_selectedNodes), std::end(m_selectedNodes), visitor);
             m_selectionBounds = visitor.bounds();
             m_selectionBoundsValid = true;

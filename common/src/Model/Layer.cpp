@@ -42,11 +42,18 @@ namespace TrenchBroom {
             return m_name;
         }
 
-        const vm::bbox3& Layer::doGetBounds() const {
+        const vm::bbox3& Layer::doGetLogicalBounds() const {
             if (!m_boundsValid) {
                 validateBounds();
             }
-            return m_bounds;
+            return m_logicalBounds;
+        }
+
+        const vm::bbox3& Layer::doGetPhysicalBounds() const {
+            if (!m_boundsValid) {
+                validateBounds();
+            }
+            return m_physicalBounds;
         }
 
         Node* Layer::doClone(const vm::bbox3& worldBounds) const {
@@ -83,7 +90,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        void Layer::doNodeBoundsDidChange(const vm::bbox3& oldBounds) {
+        void Layer::doNodePhysicalBoundsDidChange(const vm::bbox3& oldBounds) {
             invalidateBounds();
         }
 
@@ -115,9 +122,14 @@ namespace TrenchBroom {
         }
 
         void Layer::validateBounds() const {
-            ComputeNodeBoundsVisitor visitor(vm::bbox3(0.0));
+            ComputeNodeBoundsVisitor visitor(BoundsType::Logical, vm::bbox3(0.0));
             iterate(visitor);
-            m_bounds = visitor.bounds();
+            m_logicalBounds = visitor.bounds();
+
+            ComputeNodeBoundsVisitor physicalBoundsVisitor(BoundsType::Physical, vm::bbox3(0.0));
+            iterate(physicalBoundsVisitor);
+            m_physicalBounds = physicalBoundsVisitor.bounds();
+
             m_boundsValid = true;
         }
 

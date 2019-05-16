@@ -99,7 +99,7 @@ namespace TrenchBroom {
         }
 
         FloatType Entity::area(vm::axis::type axis) const {
-            const vm::vec3 size = bounds().size();
+            const vm::vec3 size = physicalBounds().size();
             switch (axis) {
                 case vm::axis::x:
                     return size.y() * size.z();
@@ -149,17 +149,24 @@ namespace TrenchBroom {
         }
 
         void Entity::setModelFrame(const Assets::EntityModelFrame* modelFrame) {
-            const auto oldBounds = bounds();
+            const auto oldBounds = physicalBounds();
             m_modelFrame = modelFrame;
-            nodeBoundsDidChange(oldBounds);
+            nodePhysicalBoundsDidChange(oldBounds);
             cacheAttributes();
         }
 
-        const vm::bbox3& Entity::doGetBounds() const {
+        const vm::bbox3& Entity::doGetLogicalBounds() const {
             if (!m_boundsValid) {
                 validateBounds();
             }
-            return m_totalBounds;
+            return m_logicalBounds;
+        }
+
+        const vm::bbox3& Entity::doGetPhysicalBounds() const {
+            if (!m_boundsValid) {
+                validateBounds();
+            }
+            return m_physicalBounds;
         }
 
         Node* Entity::doClone(const vm::bbox3& worldBounds) const {
@@ -208,22 +215,22 @@ namespace TrenchBroom {
         }
 
         void Entity::doChildWasAdded(Node* node) {
-            nodeBoundsDidChange(bounds());
+            nodePhysicalBoundsDidChange(physicalBounds());
         }
 
         void Entity::doChildWasRemoved(Node* node) {
-            nodeBoundsDidChange(bounds());
+            nodePhysicalBoundsDidChange(physicalBounds());
         }
 
-        void Entity::doNodeBoundsDidChange(const vm::bbox3& oldBounds) {
+        void Entity::doNodePhysicalBoundsDidChange(const vm::bbox3& oldBounds) {
             invalidateBounds();
         }
 
-        void Entity::doChildBoundsDidChange(Node* node, const vm::bbox3& oldBounds) {
-            const vm::bbox3 myOldBounds = bounds();
+        void Entity::doChildPhysicalBoundsDidChange(Node* node, const vm::bbox3& oldBounds) {
+            const vm::bbox3 myOldBounds = physicalBounds();
             invalidateBounds();
-            if (bounds() != myOldBounds) {
-                nodeBoundsDidChange(myOldBounds);
+            if (physicalBounds() != myOldBounds) {
+                nodePhysicalBoundsDidChange(myOldBounds);
             }
         }
 
@@ -268,7 +275,7 @@ namespace TrenchBroom {
                 for (Node* child : Node::children())
                     child->findNodesContaining(point, result);
             } else {
-                if (bounds().contains(point))
+                if (logicalBounds().contains(point))
                     result.push_back(this);
             }
         }
@@ -295,13 +302,13 @@ namespace TrenchBroom {
         }
 
         void Entity::doAttributesDidChange(const vm::bbox3& oldBounds) {
-            // update m_cachedOrigin and m_cachedRotation. Must be done first because nodeBoundsDidChange() might
+            // update m_cachedOrigin and m_cachedRotation. Must be done first because nodePhysicalBoundsDidChange() might
             // call origin()
             cacheAttributes();
 
-            nodeBoundsDidChange(oldBounds);
+            nodePhysicalBoundsDidChange(oldBounds);
 
-            // needs to be called again because the calculated rotation will be different after calling nodeBoundsDidChange()
+            // needs to be called again because the calculated rotation will be different after calling nodePhysicalBoundsDidChange()
             cacheAttributes();
         }
 
@@ -314,11 +321,11 @@ namespace TrenchBroom {
         }
 
         vm::vec3 Entity::doGetLinkSourceAnchor() const {
-            return bounds().center();
+            return logicalBounds().center();
         }
 
         vm::vec3 Entity::doGetLinkTargetAnchor() const {
-            return bounds().center();
+            return logicalBounds().center();
         }
 
         Node* Entity::doGetContainer() const {
@@ -364,7 +371,7 @@ namespace TrenchBroom {
                 iterate(visitor);
             } else {
                 // node change is called by setOrigin already
-                const auto center = bounds().center();
+                const auto center = logicalBounds().center();
                 const auto offset = center - origin();
                 const auto transformedCenter = transformation * center;
                 setOrigin(transformedCenter - offset);
@@ -379,14 +386,14 @@ namespace TrenchBroom {
         }
 
         bool Entity::doContains(const Node* node) const {
-            BoundsContainsNodeVisitor contains(bounds());
+            BoundsContainsNodeVisitor contains(logicalBounds());
             node->accept(contains);
             assert(contains.hasResult());
             return contains.result();
         }
 
         bool Entity::doIntersects(const Node* node) const {
-            BoundsIntersectsNodeVisitor intersects(bounds());
+            BoundsIntersectsNodeVisitor intersects(logicalBounds());
             node->accept(intersects);
             assert(intersects.hasResult());
             return intersects.result();
@@ -411,16 +418,22 @@ namespace TrenchBroom {
             }
 
             if (hasChildren()) {
-                ComputeNodeBoundsVisitor visitor(DefaultBounds);
+                ComputeNodeBoundsVisitor visitor(BoundsType::Logical, vm::bbox3(0.0));
                 iterate(visitor);
-                m_totalBounds = visitor.bounds();
+                m_logicalBounds = visitor.bounds();
+
+                ComputeNodeBoundsVisitor physicalBoundsVisitor(BoundsType::Physical, vm::bbox3(0.0));
+                iterate(physicalBoundsVisitor);
+                m_physicalBounds = physicalBoundsVisitor.bounds();
             } else {
+                m_logicalBounds = m_definitionBounds;
                 if (hasPointEntityModel()) {
-                    m_totalBounds = vm::merge(m_definitionBounds, m_modelBounds);
+                    m_physicalBounds = vm::merge(m_definitionBounds, m_modelBounds);
                 } else {
-                    m_totalBounds = m_definitionBounds;
+                    m_physicalBounds = m_definitionBounds;
                 }
             }
+
             m_boundsValid = true;
         }
 

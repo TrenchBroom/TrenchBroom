@@ -82,7 +82,7 @@ namespace TrenchBroom {
             m_brushRenderer->setBrushes(Model::BrushList(1, m_brush));
             m_brushRenderer->render(renderContext, renderBatch);
 
-            Renderer::SelectionBoundsRenderer boundsRenderer(m_brush->bounds());
+            Renderer::SelectionBoundsRenderer boundsRenderer(m_brush->logicalBounds());
             boundsRenderer.render(renderContext, renderBatch);
         }
 

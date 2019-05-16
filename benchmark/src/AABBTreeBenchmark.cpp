@@ -57,7 +57,7 @@ namespace TrenchBroom {
         }
 
         void doInsert(Model::Node* node) {
-            m_tree.insert(node->bounds(), node);
+            m_tree.insert(node->physicalBounds(), node);
         }
     };
 
