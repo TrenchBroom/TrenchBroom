@@ -334,7 +334,7 @@ namespace TrenchBroom {
                 auto pickResult = Model::PickResult::byDistance(editorContext);
 
                 document->pick(pickRay, pickResult);
-                const auto& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).first();
+                const auto& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().first();
 
                 if (hit.isMatch()) {
                     const auto* face = Model::hitToFace(hit);
