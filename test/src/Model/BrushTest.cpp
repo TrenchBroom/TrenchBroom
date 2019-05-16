@@ -852,7 +852,7 @@ namespace TrenchBroom {
 
             brush.moveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, 1.0), false);
             ASSERT_EQ(6u, brush.faces().size());
-            ASSERT_DOUBLE_EQ(7.0, brush.bounds().size().z());
+            ASSERT_DOUBLE_EQ(7.0, brush.logicalBounds().size().z());
         }
 
         TEST(BrushTest, moveVertex) {
@@ -1039,7 +1039,7 @@ namespace TrenchBroom {
             [[maybe_unused]] auto result2 = changedWithUVLock->moveFaces(worldBounds, {polygonToMove}, delta, true);
 
             // The move should be equivalent to shearing by this matrix
-            const auto M = shearBBoxMatrix(brush->bounds(), vm::vec3::pos_z, delta);
+            const auto M = shearBBoxMatrix(brush->logicalBounds(), vm::vec3::pos_z, delta);
 
             for (auto* oldFace : brush->faces()) {
                 const auto oldTexCoords = VectorUtils::map(oldFace->vertexPositions(), [&](auto x){ return oldFace->textureCoords(x); });
@@ -1441,7 +1441,7 @@ namespace TrenchBroom {
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
-            ASSERT_EQ(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), brush->bounds());
+            ASSERT_EQ(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), brush->logicalBounds());
 
             assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
 
@@ -3604,7 +3604,7 @@ namespace TrenchBroom {
 
             const vm::bbox3 expandedBBox(vm::vec3(-70, -70, -70), vm::vec3(70, 70, 70));
 
-            EXPECT_EQ(expandedBBox, brush1->bounds());
+            EXPECT_EQ(expandedBBox, brush1->logicalBounds());
             EXPECT_EQ(SetUtils::makeSet(expandedBBox.vertices()), SetUtils::makeSet(brush1->vertexPositions()));
         }
 
@@ -3619,7 +3619,7 @@ namespace TrenchBroom {
 
             const vm::bbox3 expandedBBox(vm::vec3(-32, -32, -32), vm::vec3(32, 32, 32));
 
-            EXPECT_EQ(expandedBBox, brush1->bounds());
+            EXPECT_EQ(expandedBBox, brush1->logicalBounds());
             EXPECT_EQ(SetUtils::makeSet(expandedBBox.vertices()), SetUtils::makeSet(brush1->vertexPositions()));
         }
 

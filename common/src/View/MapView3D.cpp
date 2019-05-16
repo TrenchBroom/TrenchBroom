@@ -393,7 +393,7 @@ namespace TrenchBroom {
 
             void doVisit(const Model::Entity* entity) override {
                 if (!entity->hasChildren()) {
-                    const auto& bounds = entity->bounds();
+                    const auto& bounds = entity->logicalBounds();
                     bounds.forEachVertex([&](const vm::vec3& v) { addPoint(v); });
                 }
             }
@@ -437,7 +437,7 @@ namespace TrenchBroom {
 
             void doVisit(const Model::Entity* entity) override {
                 if (!entity->hasChildren()) {
-                    const auto& bounds = entity->bounds();
+                    const auto& bounds = entity->logicalBounds();
                     bounds.forEachVertex([&](const vm::vec3& v) {
                         for (size_t j = 0; j < 4; ++j) {
                             addPoint(vm::vec3f(v), m_frustumPlanes[j]);

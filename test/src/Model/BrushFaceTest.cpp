@@ -402,7 +402,7 @@ namespace TrenchBroom {
         }
 
         static void checkTextureLockOffWithScale(const Brush* cube) {
-            const vm::vec3 mins(cube->bounds().min);
+            const vm::vec3 mins(cube->logicalBounds().min);
 
             // translate the cube mins to the origin, scale by 2 in the X axis, then translate back
             const vm::mat4x4 transform = vm::translationMatrix(mins) * vm::scalingMatrix(vm::vec3(2.0, 1.0, 1.0)) * vm::translationMatrix(-1.0 * mins);
@@ -419,8 +419,8 @@ namespace TrenchBroom {
             EXPECT_TC_EQ(left_origTC, left_transformedTC);
 
             // get UVs at mins, plus the X size of the cube
-            const vm::vec2f right_origTC = origFace->textureCoords(mins + vm::vec3(cube->bounds().size().x(), 0, 0));
-            const vm::vec2f right_transformedTC = face->textureCoords(mins + vm::vec3(2.0 * cube->bounds().size().x(), 0, 0));
+            const vm::vec2f right_origTC = origFace->textureCoords(mins + vm::vec3(cube->logicalBounds().size().x(), 0, 0));
+            const vm::vec2f right_transformedTC = face->textureCoords(mins + vm::vec3(2.0 * cube->logicalBounds().size().x(), 0, 0));
 
             // this assumes that the U axis of the texture was scaled (i.e. the texture is oriented upright)
             const vm::vec2f orig_U_width = right_origTC - left_origTC;

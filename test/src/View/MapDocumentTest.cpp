@@ -91,8 +91,8 @@ namespace TrenchBroom {
         }
 
         static void checkBoundsIntegral(const Model::Brush *brush) {
-            ASSERT_POINT_INTEGRAL(brush->bounds().min);
-            ASSERT_POINT_INTEGRAL(brush->bounds().max);
+            ASSERT_POINT_INTEGRAL(brush->logicalBounds().min);
+            ASSERT_POINT_INTEGRAL(brush->logicalBounds().max);
         }
 
         static void checkBrushIntegral(const Model::Brush *brush) {
@@ -125,8 +125,8 @@ namespace TrenchBroom {
             checkBrushIntegral(brush1);
             checkBrushIntegral(brush2);
 
-            ASSERT_EQ(vm::bbox3(vm::vec3(1.0, 0.0, 0.0), vm::vec3(31.0, 31.0, 31.0)), brush1->bounds());
-            ASSERT_EQ(vm::bbox3(vm::vec3(0.0, 0.0, 0.0), vm::vec3(1.0, 31.0, 31.0)), brush2->bounds());
+            ASSERT_EQ(vm::bbox3(vm::vec3(1.0, 0.0, 0.0), vm::vec3(31.0, 31.0, 31.0)), brush1->logicalBounds());
+            ASSERT_EQ(vm::bbox3(vm::vec3(0.0, 0.0, 0.0), vm::vec3(1.0, 31.0, 31.0)), brush2->logicalBounds());
         }
 
         TEST_F(MapDocumentTest, rotate) {
@@ -158,8 +158,8 @@ namespace TrenchBroom {
             const vm::bbox3 brush2ExpectedBounds(vm::vec3(0.0, 30.0, 0.0), vm::vec3(31.0, 31.0, 31.0));
 
             // these should be exactly integral
-            ASSERT_EQ(brush1ExpectedBounds, brush1->bounds());
-            ASSERT_EQ(brush2ExpectedBounds, brush2->bounds());
+            ASSERT_EQ(brush1ExpectedBounds, brush1->logicalBounds());
+            ASSERT_EQ(brush2ExpectedBounds, brush2->logicalBounds());
         }
 
         TEST_F(MapDocumentTest, shearCube) {
@@ -255,16 +255,16 @@ namespace TrenchBroom {
             document->addNode(brush1, document->currentParent());
             document->select(Model::NodeList{brush1});
 
-            ASSERT_EQ(vm::vec3(200,200,200), brush1->bounds().size());
+            ASSERT_EQ(vm::vec3(200,200,200), brush1->logicalBounds().size());
             ASSERT_EQ(vm::plane3(100.0, vm::vec3::pos_z), brush1->findFace(vm::vec3::pos_z)->boundary());
 
             // attempting an invalid scale has no effect
             ASSERT_FALSE(document->scaleObjects(initialBBox, invalidBBox));
-            ASSERT_EQ(vm::vec3(200,200,200), brush1->bounds().size());
+            ASSERT_EQ(vm::vec3(200,200,200), brush1->logicalBounds().size());
             ASSERT_EQ(vm::plane3(100.0, vm::vec3::pos_z), brush1->findFace(vm::vec3::pos_z)->boundary());
 
             ASSERT_TRUE(document->scaleObjects(initialBBox, doubleBBox));
-            ASSERT_EQ(vm::vec3(400,400,400), brush1->bounds().size());
+            ASSERT_EQ(vm::vec3(400,400,400), brush1->logicalBounds().size());
             ASSERT_EQ(vm::plane3(200.0, vm::vec3::pos_z), brush1->findFace(vm::vec3::pos_z)->boundary());
         }
 
@@ -282,10 +282,10 @@ namespace TrenchBroom {
 
             // attempting an invalid scale has no effect
             ASSERT_FALSE(document->scaleObjects(initialBBox, invalidBBox));
-            ASSERT_EQ(vm::vec3(200, 200, 200), brush1->bounds().size());
+            ASSERT_EQ(vm::vec3(200, 200, 200), brush1->logicalBounds().size());
 
             ASSERT_TRUE(document->scaleObjects(initialBBox, doubleBBox));
-            ASSERT_EQ(vm::vec3(400, 400, 400), brush1->bounds().size());
+            ASSERT_EQ(vm::vec3(400, 400, 400), brush1->logicalBounds().size());
         }
 
         TEST_F(MapDocumentTest, scaleObjectsWithCenter) {
@@ -300,7 +300,7 @@ namespace TrenchBroom {
 
             const vm::vec3 boundsCenter = initialBBox.center();
             ASSERT_TRUE(document->scaleObjects(boundsCenter, vm::vec3(2.0, 1.0, 1.0)));
-            ASSERT_EQ(expectedBBox, brush1->bounds());
+            ASSERT_EQ(expectedBBox, brush1->logicalBounds());
         }
 
         TEST_F(MapDocumentTest, csgConvexMergeBrushes) {
@@ -320,7 +320,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1, entity->children().size()); // added to the parent of the first brush
 
             auto* brush3 = entity->children().front();
-            ASSERT_EQ(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), brush3->bounds());
+            ASSERT_EQ(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), brush3->logicalBounds());
         }
 
         TEST_F(MapDocumentTest, csgConvexMergeFaces) {
@@ -356,7 +356,7 @@ namespace TrenchBroom {
                 vm::bbox3::mergeAll(std::begin(face2Verts), std::end(face2Verts), vm::identity())
             );
 
-            ASSERT_EQ(bounds, brush3->bounds());
+            ASSERT_EQ(bounds, brush3->logicalBounds());
         }
 
         TEST_F(MapDocumentTest, setTextureNull) {
@@ -421,7 +421,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1, entity->children().size());
 
             Model::Brush* brush3 = static_cast<Model::Brush*>(entity->children()[0]);
-            ASSERT_EQ(vm::bbox3(vm::vec3(0, 0, 32), vm::vec3(64, 64, 64)), brush3->bounds());
+            ASSERT_EQ(vm::bbox3(vm::vec3(0, 0, 32), vm::vec3(64, 64, 64)), brush3->logicalBounds());
 
             // the texture alignment from the top of brush2 should have transferred
             // to the bottom face of brush3
@@ -456,12 +456,12 @@ namespace TrenchBroom {
             const auto expectedBBox1 = vm::bbox3(vm::vec3(0, 32, 0), vm::vec3(32, 64, 64));
             const auto expectedBBox2 = vm::bbox3(vm::vec3(32, 0, 0), vm::vec3(64, 32, 64));
 
-            if (remainder1->bounds() != expectedBBox1) {
+            if (remainder1->logicalBounds() != expectedBBox1) {
                 std::swap(remainder1, remainder2);
             }
 
-            EXPECT_EQ(expectedBBox1, remainder1->bounds());
-            EXPECT_EQ(expectedBBox2, remainder2->bounds());
+            EXPECT_EQ(expectedBBox1, remainder1->logicalBounds());
+            EXPECT_EQ(expectedBBox2, remainder2->logicalBounds());
         }
 
         TEST_F(MapDocumentTest, csgSubtractAndUndoRestoresSelection) {
@@ -640,7 +640,7 @@ namespace TrenchBroom {
             document->addNode(ent1, document->currentParent());
 
             const auto origin = ent1->origin();
-            const auto bounds = ent1->bounds();
+            const auto bounds = ent1->logicalBounds();
 
             const auto rayOrigin = origin + vm::vec3(-32.0, bounds.size().y() / 2.0, bounds.size().z() / 2.0);
 

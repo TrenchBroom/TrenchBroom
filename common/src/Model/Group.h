@@ -43,7 +43,8 @@ namespace TrenchBroom {
 
             String m_name;
             EditState m_editState;
-            mutable vm::bbox3 m_bounds;
+            mutable vm::bbox3 m_logicalBounds;
+            mutable vm::bbox3 m_physicalBounds;
             mutable bool m_boundsValid;
         public:
             Group(const String& name);
@@ -62,7 +63,8 @@ namespace TrenchBroom {
             void closeAncestors();
         private: // implement methods inherited from Node
             const String& doGetName() const override;
-            const vm::bbox3& doGetBounds() const override;
+            const vm::bbox3& doGetLogicalBounds() const override;
+            const vm::bbox3& doGetPhysicalBounds() const override;
 
             Node* doClone(const vm::bbox3& worldBounds) const override;
             NodeSnapshot* doTakeSnapshot() override;
@@ -76,8 +78,8 @@ namespace TrenchBroom {
             void doChildWasAdded(Node* node) override;
             void doChildWasRemoved(Node* node) override;
 
-            void doNodeBoundsDidChange(const vm::bbox3& oldBounds) override;
-            void doChildBoundsDidChange(Node* node, const vm::bbox3& oldBounds) override;
+            void doNodePhysicalBoundsDidChange(const vm::bbox3& oldBounds) override;
+            void doChildPhysicalBoundsDidChange(Node* node, const vm::bbox3& oldBounds) override;
 
             bool doSelectable() const override;
 

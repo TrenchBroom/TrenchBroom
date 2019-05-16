@@ -94,9 +94,9 @@ namespace TrenchBroom {
         private:
             void doVisit(World* world) override   {}
             void doVisit(Layer* layer) override   {}
-            void doVisit(Group* group) override   { m_nodeTree.insert(group->bounds(), group); }
-            void doVisit(Entity* entity) override { m_nodeTree.insert(entity->bounds(), entity); }
-            void doVisit(Brush* brush) override   { m_nodeTree.insert(brush->bounds(), brush); }
+            void doVisit(Group* group) override   {}
+            void doVisit(Entity* entity) override { m_nodeTree.insert(entity->physicalBounds(), entity); }
+            void doVisit(Brush* brush) override   { m_nodeTree.insert(brush->physicalBounds(), brush); }
         };
 
         class World::RemoveNodeFromNodeTree : public NodeVisitor {
@@ -108,9 +108,9 @@ namespace TrenchBroom {
         private:
             void doVisit(World* world) override   {}
             void doVisit(Layer* layer) override   {}
-            void doVisit(Group* group) override   { doRemove(group, group->bounds()); }
-            void doVisit(Entity* entity) override { doRemove(entity, entity->bounds()); }
-            void doVisit(Brush* brush) override   { doRemove(brush, brush->bounds()); }
+            void doVisit(Group* group) override   {}
+            void doVisit(Entity* entity) override { doRemove(entity, entity->physicalBounds()); }
+            void doVisit(Brush* brush) override   { doRemove(brush, brush->physicalBounds()); }
 
             void doRemove(Node* node, const vm::bbox3& bounds) {
                 if (!m_nodeTree.remove(node)) {
@@ -130,9 +130,9 @@ namespace TrenchBroom {
         private:
             void doVisit(World* world) override   {}
             void doVisit(Layer* layer) override   {}
-            void doVisit(Group* group) override   { m_nodeTree.update(group->bounds(), group); }
-            void doVisit(Entity* entity) override { m_nodeTree.update(entity->bounds(), entity); }
-            void doVisit(Brush* brush) override   { m_nodeTree.update(brush->bounds(), brush); }
+            void doVisit(Group* group) override   {}
+            void doVisit(Entity* entity) override { m_nodeTree.update(entity->physicalBounds(), entity); }
+            void doVisit(Brush* brush) override   { m_nodeTree.update(brush->physicalBounds(), brush); }
         };
 
         class World::MatchTreeNodes {
@@ -154,7 +154,7 @@ namespace TrenchBroom {
             CollectTreeNodes collect;
             acceptAndRecurse(collect);
 
-            m_nodeTree->clearAndBuild(collect.nodes(), [](const auto* node){ return node->bounds(); });
+            m_nodeTree->clearAndBuild(collect.nodes(), [](const auto* node){ return node->physicalBounds(); });
         }
 
         class World::InvalidateAllIssuesVisitor : public NodeVisitor {
@@ -173,10 +173,14 @@ namespace TrenchBroom {
             acceptAndRecurse(visitor);
         }
 
-        const vm::bbox3& World::doGetBounds() const {
-            // TODO: this should probably return the world bounds, as it does in Layer::doGetBounds
+        const vm::bbox3& World::doGetLogicalBounds() const {
+            // TODO: this should probably return the world bounds, as it does in Layer::doGetLogicalBounds
             static const vm::bbox3 bounds;
             return bounds;
+        }
+
+        const vm::bbox3& World::doGetPhysicalBounds() const {
+            return logicalBounds();
         }
 
         Node* World::doClone(const vm::bbox3& worldBounds) const {
@@ -261,7 +265,7 @@ namespace TrenchBroom {
             }
         }
 
-        void World::doDescendantBoundsDidChange(Node* node, const vm::bbox3& oldBounds, const size_t depth) {
+        void World::doDescendantPhysicalBoundsDidChange(Node* node, const vm::bbox3& oldBounds, const size_t depth) {
             if (m_updateNodeTree && node->shouldAddToSpacialIndex()) {
                 UpdateNodeInNodeTree visitor(*m_nodeTree);
                 node->accept(visitor);

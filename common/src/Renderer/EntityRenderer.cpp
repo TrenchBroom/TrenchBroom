@@ -56,8 +56,8 @@ namespace TrenchBroom {
             m_entity(entity) {}
         private:
             vm::vec3f basePosition() const override {
-                auto position = vm::vec3f(m_entity->bounds().center());
-                position[2] = float(m_entity->bounds().max.z());
+                auto position = vm::vec3f(m_entity->logicalBounds().center());
+                position[2] = float(m_entity->logicalBounds().max.z());
                 position[2] += 2.0f;
                 return position;
             }
@@ -249,7 +249,7 @@ namespace TrenchBroom {
 
                 const auto rotation = vm::mat4x4f(entity->rotation());
                 const auto direction = rotation * vm::vec3f::pos_x;
-                const auto center = vm::vec3f(entity->bounds().center());
+                const auto center = vm::vec3f(entity->logicalBounds().center());
 
                 const auto toCam = renderContext.camera().position() - center;
                 // only distance cull for perspective camera, since the 2D one is always very far from the level
@@ -350,12 +350,12 @@ namespace TrenchBroom {
                         if (pointEntity) {
                             entity->definitionBounds().forEachEdge(pointEntityWireframeBoundsBuilder);
                         } else {
-                            entity->bounds().forEachEdge(brushEntityWireframeBoundsBuilder);
+                            entity->logicalBounds().forEachEdge(brushEntityWireframeBoundsBuilder);
                         }
 
                         if (pointEntity && !entity->hasPointEntityModel()) {
                             BuildColoredSolidBoundsVertices solidBoundsBuilder(solidVertices, boundsColor(entity));
-                            entity->bounds().forEachFace(solidBoundsBuilder);
+                            entity->logicalBounds().forEachFace(solidBoundsBuilder);
                         }
                     }
                 }
@@ -383,7 +383,7 @@ namespace TrenchBroom {
                             if (pointEntity) {
                                 entity->definitionBounds().forEachEdge(pointEntityWireframeBoundsBuilder);
                             } else {
-                                entity->bounds().forEachEdge(brushEntityWireframeBoundsBuilder);
+                                entity->logicalBounds().forEachEdge(brushEntityWireframeBoundsBuilder);
                             }
                         }
                     }

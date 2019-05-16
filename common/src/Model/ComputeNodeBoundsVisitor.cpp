@@ -25,40 +25,52 @@
 
 namespace TrenchBroom {
     namespace Model {
-        ComputeNodeBoundsVisitor::ComputeNodeBoundsVisitor(const vm::bbox3& defaultBounds) :
+        ComputeNodeBoundsVisitor::ComputeNodeBoundsVisitor(const BoundsType type, const vm::bbox3& defaultBounds) :
         m_initialized(false),
-        m_bounds(defaultBounds) {}
+        m_boundsType(type),
+        m_defaultBounds(defaultBounds) {}
 
         const vm::bbox3& ComputeNodeBoundsVisitor::bounds() const {
-            return m_bounds;
+            if (m_builder.initialized()) {
+                return m_builder.bounds();
+            } else {
+                return m_defaultBounds;
+            }
         }
 
         void ComputeNodeBoundsVisitor::doVisit(const World* world) {}
         void ComputeNodeBoundsVisitor::doVisit(const Layer* layer) {}
 
         void ComputeNodeBoundsVisitor::doVisit(const Group* group) {
-            mergeWith(group->bounds());
-        }
-
-        void ComputeNodeBoundsVisitor::doVisit(const Entity* entity) {
-            mergeWith(entity->bounds());
-        }
-
-        void ComputeNodeBoundsVisitor::doVisit(const Brush* brush) {
-            mergeWith(brush->bounds());
-        }
-
-        void ComputeNodeBoundsVisitor::mergeWith(const vm::bbox3& bounds) {
-            if (!m_initialized) {
-                m_bounds = bounds;
-                m_initialized = true;
+            if (m_boundsType == BoundsType::Physical) {
+                m_builder.add(group->physicalBounds());
             } else {
-                m_bounds = merge(m_bounds, bounds);
+                m_builder.add(group->logicalBounds());
             }
         }
 
-        vm::bbox3 computeBounds(const Model::NodeList& nodes) {
-            return computeBounds(std::begin(nodes), std::end(nodes));
+        void ComputeNodeBoundsVisitor::doVisit(const Entity* entity) {
+            if (m_boundsType == BoundsType::Physical) {
+                m_builder.add(entity->physicalBounds());
+            } else {
+                m_builder.add(entity->logicalBounds());
+            }
+        }
+
+        void ComputeNodeBoundsVisitor::doVisit(const Brush* brush) {
+            if (m_boundsType == BoundsType::Physical) {
+                m_builder.add(brush->physicalBounds());
+            } else {
+                m_builder.add(brush->logicalBounds());
+            }
+        }
+
+        vm::bbox3 computeLogicalBounds(const Model::NodeList& nodes) {
+            return computeLogicalBounds(std::begin(nodes), std::end(nodes));
+        }
+
+        vm::bbox3 computePhysicalBounds(const Model::NodeList& nodes) {
+            return computePhysicalBounds(std::begin(nodes), std::end(nodes));
         }
     }
 }
