@@ -557,11 +557,9 @@ namespace TrenchBroom {
             StringSet keySet = SetUtils::makeSet(names);
 
             // also add keys from all loaded entity definitions
-            for (const auto& group : document->entityDefinitionManager().groups()) {
-                for (const auto entityDefinition : group.definitions()) {
-                    for (const auto& attribute : entityDefinition->attributeDefinitions()) {
-                        keySet.insert(attribute->name());
-                    }
+            for (const auto entityDefinition : document->entityDefinitionManager().definitions()) {
+                for (const auto& attribute : entityDefinition->attributeDefinitions()) {
+                    keySet.insert(attribute->name());
                 }
             }
 
@@ -591,10 +589,8 @@ namespace TrenchBroom {
             StringSet valueset = allSortedValuesForAttributeNames(document, StringList{ Model::AttributeNames::Classname });
 
             // Also add keys from all loaded entity definitions
-            for (const auto& group : document->entityDefinitionManager().groups()) {
-                for (const auto entityDefinition : group.definitions()) {
-                    valueset.insert(entityDefinition->name());
-                }
+            for (const auto entityDefinition : document->entityDefinitionManager().definitions()) {
+                valueset.insert(entityDefinition->name());
             }
 
             valueset.erase("");
