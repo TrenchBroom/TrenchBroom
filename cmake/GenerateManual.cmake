@@ -15,6 +15,7 @@ FIX_WIN32_PATH(PANDOC_TEMPLATE_PATH)
 FIX_WIN32_PATH(PANDOC_INPUT_PATH)
 FIX_WIN32_PATH(PANDOC_OUTPUT_PATH)
 
+# Create directories
 ADD_CUSTOM_COMMAND(OUTPUT "${DOC_MANUAL_TARGET_DIR}"
     COMMAND ${CMAKE_COMMAND} -E make_directory "${DOC_MANUAL_TARGET_DIR}"
 )
@@ -23,13 +24,22 @@ ADD_CUSTOM_COMMAND(OUTPUT "${DOC_MANUAL_IMAGES_TARGET_DIR}"
     COMMAND ${CMAKE_COMMAND} -E make_directory "${DOC_MANUAL_IMAGES_TARGET_DIR}"
 )
 
+# Generate manual
+# 1. Run pandoc to create a temporary HTML file
+# 2. Run AddVersionToManual.cmake on the temporary HTML file
+# 3. Run TransformKeyboardShortcuts.cmake on the temporary HTML file
+# 4. Copy the temporary HTML file to its target
+# 4. Remove the temporary HTML file
 ADD_CUSTOM_COMMAND(OUTPUT "${INDEX_OUTPUT_PATH}"
     COMMAND pandoc --standalone --toc --toc-depth=2 --template "${PANDOC_TEMPLATE_PATH}" --from=markdown --to=html5 -o "${PANDOC_OUTPUT_PATH}" "${PANDOC_INPUT_PATH}"
-    COMMAND ${CMAKE_COMMAND} -DINPUT="${PANDOC_OUTPUT_PATH}" -DOUTPUT="${INDEX_OUTPUT_PATH}" -P "${CMAKE_SOURCE_DIR}/cmake/TransformKeyboardShortcuts.cmake"
+    COMMAND ${CMAKE_COMMAND} -DINPUT="${PANDOC_OUTPUT_PATH}" -DOUTPUT="${PANDOC_OUTPUT_PATH}" -P "${CMAKE_SOURCE_DIR}/cmake/AddVersionToManual.cmake"
+    COMMAND ${CMAKE_COMMAND} -DINPUT="${PANDOC_OUTPUT_PATH}" -DOUTPUT="${PANDOC_OUTPUT_PATH}" -P "${CMAKE_SOURCE_DIR}/cmake/TransformKeyboardShortcuts.cmake"
+    COMMAND ${CMAKE_COMMAND} -E copy "${PANDOC_OUTPUT_PATH}" "${INDEX_OUTPUT_PATH}"
     COMMAND ${CMAKE_COMMAND} -E remove "${PANDOC_OUTPUT_PATH}"
-    DEPENDS "${DOC_MANUAL_TARGET_DIR}" "${PANDOC_TEMPLATE_PATH}" "${PANDOC_INPUT_PATH}" "${CMAKE_SOURCE_DIR}/cmake/TransformKeyboardShortcuts.cmake"
+    DEPENDS "${DOC_MANUAL_TARGET_DIR}" "${PANDOC_TEMPLATE_PATH}" "${PANDOC_INPUT_PATH}" "${CMAKE_SOURCE_DIR}/cmake/TransformKeyboardShortcuts.cmake" "${CMAKE_SOURCE_DIR}/cmake/AddVersionToManual.cmake"
 )
 
+# Collect resources and copy them to the correct locations
 SET(DOC_MANUAL_TARGET_FILES "${INDEX_OUTPUT_PATH}")
 
 FILE(GLOB DOC_MANUAL_SOURCE_FILES

@@ -89,7 +89,7 @@ namespace TrenchBroom {
                                         "Matthew Borkowski (CSG merging enhancements)\n"
                                         "Rohit Nirmal (Bug fixes)\n"
                                         "negke (FGD files)\n"
-                                        "Jonathan Linat (Documentation)\n"
+                                        "Jonathan Linat (Manual)\n"
                                         "Yuki Raven (Font size preference)\n"
                                         "mankeli (Bug fixes)\n"
                                         "Jonas Lund (Bug fixes)\n\n"
