@@ -64,4 +64,17 @@ body
       display: inline-block
       margin-top: ($default-space-value / 2)
 
+    &_version
+      p
+        font-size: .75rem
+        text-align: right
+        color: $default-version-color
+
+        span
+          &::before
+            content: ' - '
+          
+          &:first-child::before
+            content: unset
+
 @import 'responsive/layout'
