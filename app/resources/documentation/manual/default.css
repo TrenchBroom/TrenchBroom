@@ -216,8 +216,7 @@ dl, figure, h1, h2, h3, h4, img, ol, p, pre, table, ul {
 		max-width: max-content;
 		margin-left: auto;
 		margin-right: auto;
-	};
-
+	}
 }
 
 body {
@@ -303,10 +302,16 @@ body #content h1, body #content h2, body #content h3, body #content h4 {
 	margin-top: 10px;
 }
 
+body #content_version {
+	padding-bottom: 10px;
+	border-bottom: 1px solid #eee;
+}
+
 body #content_version p {
 	font-size: .75rem;
 	text-align: right;
 	color: #999;
+	margin: unset;
 }
 
 body #content_version p span::before {
@@ -355,5 +360,5 @@ body #content_version p span:first-child::before {
 
 	body #content_version p span::before {
 		content: unset;
-	};
+	}
 }
