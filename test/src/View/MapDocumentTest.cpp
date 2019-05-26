@@ -919,5 +919,34 @@ namespace TrenchBroom {
             EXPECT_EQ(nullptr, brush1->parent());
             EXPECT_EQ(nullptr, brush2->parent());
         }
+
+        // https://github.com/kduske/TrenchBroom/issues/2776
+        TEST_F(MapDocumentTest, pasteAndTranslateGroup) {
+            // delete default brush
+            document->selectAllNodes();
+            document->deleteObjects();
+
+            const Model::BrushBuilder builder(document->world(), document->worldBounds());
+            const auto box = vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64));
+
+            auto *brush1 = builder.createCuboid(box, "texture");
+            document->addNode(brush1, document->currentParent());
+            document->select(brush1);
+
+            const auto groupName = String("testGroup");
+
+            auto* group = document->groupSelection(groupName);
+            ASSERT_NE(nullptr, group);
+            document->select(group);
+
+            const String copied = document->serializeSelectedNodes();
+
+            const auto delta = vm::vec3(16, 16, 16);
+            ASSERT_EQ(PT_Node, document->paste(copied));
+            ASSERT_EQ(1, document->selectedNodes().groupCount());
+            ASSERT_EQ(groupName, document->selectedNodes().groups().at(0)->name());
+            ASSERT_TRUE(document->translateObjects(delta));
+            ASSERT_EQ(box.translate(delta), document->selectionBounds());
+        }
     }
 }
