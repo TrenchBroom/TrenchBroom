@@ -402,7 +402,7 @@ namespace TrenchBroom {
         }
 
         bool Camera::isValidZoom(const float zoom) const {
-            return true;
+            return zoom >= 0.02f && zoom <= 100.0f;
         }
     }
 }
