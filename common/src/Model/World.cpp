@@ -252,21 +252,24 @@ namespace TrenchBroom {
         }
 
         void World::doDescendantWasAdded(Node* node, const size_t depth) {
-            if (m_updateNodeTree && node->shouldAddToSpacialIndex()) {
+            // NOTE: `node` is just the root of a subtree that is being connected to this World.
+            // In some cases, (e.g. if `node` is a Group), `node` will not be added to the spatial index, but some of its descendants may be.
+            // We need to recursively search the `node` being connected and add it or any descendants that need to be added.
+            if (m_updateNodeTree) {
                 AddNodeToNodeTree visitor(*m_nodeTree);
                 node->acceptAndRecurse(visitor);
             }
         }
 
         void World::doDescendantWillBeRemoved(Node* node, const size_t depth) {
-            if (m_updateNodeTree && node->shouldAddToSpacialIndex()) {
+            if (m_updateNodeTree) {
                 RemoveNodeFromNodeTree visitor(*m_nodeTree);
                 node->acceptAndRecurse(visitor);
             }
         }
 
         void World::doDescendantPhysicalBoundsDidChange(Node* node, const vm::bbox3& oldBounds, const size_t depth) {
-            if (m_updateNodeTree && node->shouldAddToSpacialIndex()) {
+            if (m_updateNodeTree) {
                 UpdateNodeInNodeTree visitor(*m_nodeTree);
                 node->accept(visitor);
             }
