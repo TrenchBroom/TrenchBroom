@@ -78,7 +78,7 @@ namespace TrenchBroom {
         };
 
         InvalidTextureScaleIssueGenerator::InvalidTextureScaleIssueGenerator() :
-        IssueGenerator(InvalidTextureScaleIssue::Type, "Non-integer vertices") {
+        IssueGenerator(InvalidTextureScaleIssue::Type, "Invalid texture scale") {
             addQuickFix(new InvalidTextureScaleIssueQuickFix());
         }
 
