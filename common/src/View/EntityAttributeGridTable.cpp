@@ -895,6 +895,8 @@ namespace TrenchBroom {
                     return arrayString(allSortedValuesForAttributeNames(document, StringList{Model::AttributeNames::Targetname}));
                 } else if (name == Model::AttributeNames::Targetname) {
                     return arrayString(allSortedValuesForAttributeNames(document, StringList{Model::AttributeNames::Target, Model::AttributeNames::Killtarget}));
+                } else if (name == Model::AttributeNames::Classname) {
+                    return arrayString(allSortedClassnames(document));
                 }
             }
 
@@ -908,11 +910,9 @@ namespace TrenchBroom {
             StringSet keySet = SetUtils::makeSet(names);
 
             // also add keys from all loaded entity definitions
-            for (const auto& group : document->entityDefinitionManager().groups()) {
-                for (const auto entityDefinition : group.definitions()) {
-                    for (const auto& attribute : entityDefinition->attributeDefinitions()) {
-                        keySet.insert(attribute->name());
-                    }
+            for (const auto entityDefinition : document->entityDefinitionManager().definitions()) {
+                for (const auto& attribute : entityDefinition->attributeDefinitions()) {
+                    keySet.insert(attribute->name());
                 }
             }
 
@@ -937,8 +937,22 @@ namespace TrenchBroom {
             return valueset;
         }
 
-        QStringList EntityAttributeGridTable::arrayString(const StringSet& set) {
-            QStringList result;
+        StringSet EntityAttributeGridTable::allSortedClassnames(MapDocumentSPtr document) {
+            // Start with classnames in use in the map
+            StringSet valueset = allSortedValuesForAttributeNames(document, StringList{ Model::AttributeNames::Classname });
+
+            // Also add keys from all loaded entity definitions
+            for (const auto entityDefinition : document->entityDefinitionManager().definitions()) {
+                valueset.insert(entityDefinition->name());
+            }
+
+            valueset.erase("");
+
+            return valueset;
+        }
+
+        wxArrayString EntityAttributeGridTable::arrayString(const StringSet& set) {
+            wxArrayString result;
             for (const String& string : set)
                 result.Add(QString(string));
             return result;
