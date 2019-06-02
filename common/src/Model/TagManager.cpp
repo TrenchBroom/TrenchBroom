@@ -45,9 +45,6 @@ namespace TrenchBroom {
             }
         };
 
-        TagManager::TagManager() :
-        m_currentTagTypeIndex(0) {}
-
         const std::list<SmartTag>& TagManager::smartTags() const {
             return m_smartTags;
         }
@@ -108,9 +105,9 @@ namespace TrenchBroom {
 
         size_t TagManager::freeTagIndex() {
             static const size_t Bits = (sizeof(Tag::TagType) * 8);
-
-            ensure(m_currentTagTypeIndex <= Bits, "no more tag types");
-            return m_currentTagTypeIndex++;
+            const auto index = m_smartTags.size();
+            ensure(index <= Bits, "no more tag types");
+            return index;
         }
     }
 }
