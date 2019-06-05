@@ -36,7 +36,6 @@ namespace TrenchBroom {
         class WelcomeFrame : public QMainWindow {
             Q_OBJECT
         private:
-            // FIXME: add
             RecentDocumentListBox* m_recentDocumentListBox;
             QPushButton* m_createNewDocumentButton;
             QPushButton* m_openOtherDocumentButton;

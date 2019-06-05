@@ -25,14 +25,14 @@
 #include "Model/GameFactory.h"
 #include "View/BorderLine.h"
 #include "View/GameListBox.h"
-#include "View/GameSelectionCommand.h"
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
-#include <wx/button.h>
-#include <wx/choice.h>
-#include <wx/sizer.h>
+#include <QBoxLayout>
+#include <QComboBox>
+#include <QDialogButtonBox>
 #include <QLabel>
+#include <QPushButton>
 
 #include <cassert>
 
@@ -43,143 +43,127 @@ namespace TrenchBroom {
         }
 
         bool GameDialog::showNewDocumentDialog(QWidget* parent, String& gameName, Model::MapFormat& mapFormat) {
-            GameDialog dialog;
-            dialog.createDialog(parent, "Select Game", "Select a game from the list on the right, then click OK. Once the new document is created, you can set up mod directories, entity definitions and textures by going to the map inspector, the entity inspector and the face inspector, respectively.");
-            if (dialog.ShowModal() != wxID_OK)
+            GameDialog dialog("Select Game", "Select a game from the list on the right, then click OK. Once the new document is created, you can set up mod directories, entity definitions and textures by going to the map inspector, the entity inspector and the face inspector, respectively.", parent);
+            if (dialog.exec() == QDialog::Rejected) {
                 return false;
-            gameName = dialog.selectedGameName();
-            mapFormat = dialog.selectedMapFormat();
-            return true;
+            } else {
+                gameName = dialog.currentGameName();
+                mapFormat = dialog.currentMapFormat();
+                return true;
+            }
         }
 
         bool GameDialog::showOpenDocumentDialog(QWidget* parent, String& gameName, Model::MapFormat& mapFormat) {
-            GameDialog dialog;
-            dialog.createDialog(parent, "Select Game", "TrenchBroom was unable to detect the game for the map document. Please choose a game in the game list and click OK.");
-            if (dialog.ShowModal() != wxID_OK)
+            GameDialog dialog("Select Game",
+                "TrenchBroom was unable to detect the game for the map document. Please choose a game in the game list and click OK.",
+                parent);
+            if (dialog.exec() == QDialog::Rejected) {
                 return false;
-            gameName = dialog.selectedGameName();
-            mapFormat = dialog.selectedMapFormat();
-            return true;        }
+            } else {
+                gameName = dialog.currentGameName();
+                mapFormat = dialog.currentMapFormat();
+                return true;
+            }
+        }
 
-        String GameDialog::selectedGameName() const {
+        String GameDialog::currentGameName() const {
             return m_gameListBox->selectedGameName();
         }
 
-        Model::MapFormat GameDialog::selectedMapFormat() const {
-            assert(!m_mapFormatChoice->IsEmpty());
-
-            const auto index = m_mapFormatChoice->GetSelection();
-            assert(index >= 0);
-
-            const auto formatName = m_mapFormatChoice->GetString(static_cast<unsigned int>(index)).ToStdString();
-            return Model::mapFormat(formatName);
+        Model::MapFormat GameDialog::currentMapFormat() const {
+            const auto formatName = m_mapFormatComboBox->currentText();
+            assert(!formatName.isEmpty());
+            return Model::mapFormat(formatName.toStdString());
         }
 
-        void GameDialog::OnGameSelectionChanged(GameSelectionCommand& command) {
-
-
-            gameSelectionChanged(command.gameName());
+        void GameDialog::currentGameChanged(const QString& gameName) {
+            updateMapFormats(gameName.toStdString());
+            m_okButton->setEnabled(!gameName.isEmpty());
         }
 
-        void GameDialog::OnGameSelected(GameSelectionCommand& command) {
-
-
-            gameSelected(command.gameName());
+        void GameDialog::gameSelected(const QString& gameName) {
+            accept();
         }
 
-        void GameDialog::OnUpdateMapFormatChoice() {
-
-
-            event.Enable(m_mapFormatChoice->GetCount() > 1);
-        }
-
-        void GameDialog::OnOpenPreferencesClicked() {
-
-
+        void GameDialog::openPreferencesClicked() {
             auto& app = TrenchBroomApp::instance();
             app.openPreferences();
         }
 
-        void GameDialog::OnUpdateOkButton() {
-
-
-            event.Enable(isOkEnabled());
-        }
-
-        void GameDialog::OnClose(wxCloseEvent& event) {
-            if (GetParent() != nullptr)
-                GetParent()->Raise();
-            event.Skip();
-        }
-
-        GameDialog::GameDialog() :
-        wxDialog(),
+        GameDialog::GameDialog(const QString& title, const QString& infoText, QWidget* parent) :
+        QDialog(parent),
         m_gameListBox(nullptr),
-        m_mapFormatChoice(nullptr),
-        m_openPreferencesButton(nullptr) {}
-
-        void GameDialog::createDialog(QWidget* parent, const QString& title, const QString& infoText) {
-            Create(wxGetTopLevelParent(parent), wxID_ANY, title);
+        m_mapFormatComboBox(nullptr),
+        m_openPreferencesButton(nullptr),
+        m_okButton(nullptr) {
             createGui(title, infoText);
+            updateMapFormats("");
             bindObservers();
-            CentreOnParent();
         }
 
         void GameDialog::createGui(const QString& title, const QString& infoText) {
+            setWindowTitle(title);
             setWindowIconTB(this);
 
             auto* infoPanel = createInfoPanel(this, title, infoText);
             auto* selectionPanel = createSelectionPanel(this);
+            selectionPanel->setMinimumWidth(300);
 
-            auto* innerSizer = new QHBoxLayout();
-            innerSizer->addWidget(infoPanel, wxSizerFlags().Expand());
-            innerSizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Vertical), wxSizerFlags().Expand());
-            innerSizer->addWidget(selectionPanel, wxSizerFlags().Expand().Proportion(1));
-            innerSizer->SetItemMinSize(selectionPanel, 300, wxDefaultSize.y);
+            auto* innerLayout = new QHBoxLayout();
+            innerLayout->setContentsMargins(QMargins());
+            innerLayout->setSpacing(0);
+            innerLayout->addWidget(infoPanel, 1);
+            innerLayout->addWidget(new BorderLine(BorderLine::Direction_Vertical), 1);
+            innerLayout->addWidget(selectionPanel, 1);
 
-            auto* buttonSizer = CreateStdDialogButtonSizer(wxOK | wxCANCEL);
+            auto* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
+            connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+            connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-            auto* outerSizer = new QVBoxLayout();
+            m_okButton = buttonBox->button(QDialogButtonBox::Ok);
+            m_okButton->setEnabled(false);
+
+            auto* outerLayout = new QVBoxLayout();
+            outerLayout->setContentsMargins(QMargins());
+            outerLayout->setSpacing(0);
 #if !defined __APPLE__
-			outerSizer->addWidget(new BorderLine(nullptr), wxSizerFlags().Expand());
+            outerLayout->addWidget(new BorderLine(), 1);
 #endif
-			outerSizer->addWidget(innerSizer, wxSizerFlags().Expand().Proportion(1));
-            outerSizer->addWidget(wrapDialogButtonSizer(buttonSizer, this), wxSizerFlags().Expand());
-            setLayout(outerSizer);
-
-            FindWindow(wxID_OK)->Bind(wxEVT_UPDATE_UI, &GameDialog::OnUpdateOkButton, this);
-
-            Bind(wxEVT_CLOSE_WINDOW, &GameDialog::OnClose, this);
+            outerLayout->addLayout(innerLayout, 1);
+            outerLayout->addLayout(wrapDialogButtonBox(buttonBox), 1);
+            setLayout(outerLayout);
         }
 
         QWidget* GameDialog::createInfoPanel(QWidget* parent, const QString& title, const QString& infoText) {
             auto* infoPanel = new QWidget(parent);
 
-            auto* header = new QLabel(infoPanel, wxID_ANY, title);
-            header->SetFont(header->GetFont().Larger().Larger().Bold());
+            auto* header = new QLabel(title);
+            makeHeader(header);
 
-            auto* info = new QLabel(infoPanel, wxID_ANY, infoText);
-            info->Wrap(250);
+            auto* info = new QLabel(infoText);
+            info->setWordWrap(true);
 
-            auto* setupMsg = new QLabel(infoPanel, wxID_ANY, "To set up the game paths, click on the button below to open the preferences dialog.");
-            setupMsg->Wrap(250);
+            auto* setupMsg = new QLabel("To set up the game paths, click on the button below to open the preferences dialog.");
+            setupMsg->setWordWrap(true);
 
-            m_openPreferencesButton = new wxButton(infoPanel, wxID_ANY, "Open preferences...");
+            m_openPreferencesButton = new QPushButton("Open preferences...");
             m_openPreferencesButton->setToolTip("Open the preferences dialog to manage game paths,");
 
-            auto* sizer = new QVBoxLayout();
-            sizer->addSpacing(20);
-            sizer->addWidget(header, wxSizerFlags().Border(wxLEFT | wxRIGHT, 20));
-            sizer->addSpacing(20);
-            sizer->addWidget(info, wxSizerFlags().Border(wxLEFT | wxRIGHT, 20));
-            sizer->addSpacing(10);
-            sizer->addWidget(setupMsg, wxSizerFlags().Border(wxLEFT | wxRIGHT, 20));
-            sizer->addSpacing(10);
-            sizer->addWidget(m_openPreferencesButton, wxSizerFlags().CenterHorizontal().Border(wxLEFT | wxRIGHT, 20));
-            sizer->addSpacing(20);
-            infoPanel->setLayout(sizer);
+            auto* layout = new QVBoxLayout();
+            layout->setSpacing(0);
+            layout->setContentsMargins(20, 20, 20, 20);
 
-            m_openPreferencesButton->Bind(&QAbstractButton::clicked, &GameDialog::OnOpenPreferencesClicked, this);
+            layout->addWidget(header);
+            layout->addSpacing(20);
+            layout->addWidget(info);
+            layout->addSpacing(10);
+            layout->addWidget(setupMsg);
+            layout->addSpacing(10);
+            layout->addWidget(m_openPreferencesButton, 0, Qt::AlignHCenter);
+            infoPanel->setLayout(layout);
+            infoPanel->setMaximumWidth(350);
+
+            connect(m_openPreferencesButton, &QPushButton::clicked, this, &GameDialog::openPreferencesClicked);
 
             return infoPanel;
         }
@@ -187,58 +171,48 @@ namespace TrenchBroom {
         QWidget* GameDialog::createSelectionPanel(QWidget* parent) {
             auto* panel = new QWidget(parent);
 
-            m_gameListBox = new GameListBox(panel);
+            m_gameListBox = new GameListBox();
             m_gameListBox->setToolTip("Double click on a game to select it");
-            m_gameListBox->Bind(GAME_SELECTION_CHANGE_EVENT, &GameDialog::OnGameSelectionChanged, this);
-            m_gameListBox->Bind(GAME_SELECTION_DBLCLICK_EVENT, &GameDialog::OnGameSelected, this);
 
-            auto* header = new QLabel(panel, wxID_ANY, "Map Format");
-            header->SetFont(header->GetFont().Bold());
+            auto* label = new QLabel("Map Format");
+            makeEmphasized(label);
 
-            m_mapFormatChoice = new wxChoice(panel, wxID_ANY);
-            m_mapFormatChoice->Bind(wxEVT_UPDATE_UI, &GameDialog::OnUpdateMapFormatChoice, this);
+            m_mapFormatComboBox = new QComboBox();
+            m_mapFormatComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
-            auto* mapFormatSizer = new QHBoxLayout();
-            mapFormatSizer->addSpacing(LayoutConstants::WideHMargin);
-            mapFormatSizer->addWidget(header, wxSizerFlags().CenterVertical());
-            mapFormatSizer->addSpacing(LayoutConstants::WideHMargin);
-            mapFormatSizer->addSpacing(LayoutConstants::ChoiceLeftMargin);
-            mapFormatSizer->addWidget(m_mapFormatChoice, wxSizerFlags().Border(wxTOP, LayoutConstants::ChoiceTopMargin));
-            mapFormatSizer->addSpacing(LayoutConstants::WideHMargin);
+            auto* mapFormatLayout = new QHBoxLayout();
+            mapFormatLayout->setContentsMargins(LayoutConstants::WideHMargin, LayoutConstants::NarrowVMargin, LayoutConstants::WideHMargin, LayoutConstants::NarrowVMargin);
+            mapFormatLayout->setSpacing(LayoutConstants::WideHMargin);
+            mapFormatLayout->addWidget(label, 0, Qt::AlignRight | Qt::AlignVCenter);
+            mapFormatLayout->addWidget(m_mapFormatComboBox, 1, Qt::AlignLeft | Qt::AlignVCenter);
 
             auto* outerSizer = new QVBoxLayout();
-            outerSizer->addWidget(m_gameListBox, wxSizerFlags().Expand().Proportion(1));
-            outerSizer->addWidget(new BorderLine(panel, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
-            outerSizer->addSpacing(LayoutConstants::WideVMargin);
-            outerSizer->addWidget(mapFormatSizer);
-            outerSizer->addSpacing(LayoutConstants::WideVMargin);
+            outerSizer->setContentsMargins(QMargins());
+            outerSizer->setSpacing(0);
+            outerSizer->addWidget(m_gameListBox, 1);
+            outerSizer->addWidget(new BorderLine(BorderLine::Direction_Horizontal), 1);
+            outerSizer->addLayout(mapFormatLayout);
             panel->setLayout(outerSizer);
 
+            connect(m_gameListBox, &GameListBox::currentGameChanged, this, &GameDialog::currentGameChanged);
+            connect(m_gameListBox, &GameListBox::selectCurrentGame, this, &GameDialog::gameSelected);
+
             return panel;
-        }
-
-        bool GameDialog::isOkEnabled() const {
-            return m_gameListBox->GetSelection() != wxNOT_FOUND;
-        }
-
-        void GameDialog::gameSelectionChanged(const String& gameName) {
-            updateMapFormats(gameName);
         }
 
         void GameDialog::updateMapFormats(const String& gameName) {
             const auto& gameFactory = Model::GameFactory::instance();
             const auto& fileFormats = gameName.empty() ? EmptyStringList : gameFactory.fileFormats(gameName);
 
-            m_mapFormatChoice->Clear();
-            for (size_t i = 0; i < fileFormats.size(); ++i)
-                m_mapFormatChoice->Append(fileFormats[i]);
+            m_mapFormatComboBox->clear();
+            for (const auto& fileFormat : fileFormats) {
+                m_mapFormatComboBox->addItem(QString::fromStdString(fileFormat));
+            }
 
-            if (!m_mapFormatChoice->IsEmpty())
-                m_mapFormatChoice->SetSelection(0);
-        }
-
-        void GameDialog::gameSelected(const String& gameName) {
-            EndModal(wxID_OK);
+            m_mapFormatComboBox->setEnabled(m_mapFormatComboBox->count() > 1);
+            if (m_mapFormatComboBox->count() > 0) {
+                m_mapFormatComboBox->setCurrentIndex(0);
+            }
         }
 
         void GameDialog::bindObservers() {

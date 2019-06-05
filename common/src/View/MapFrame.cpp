@@ -800,7 +800,7 @@ namespace TrenchBroom {
                     return saveDocumentAs();
                 }
             } catch (const FileSystemException& e) {
-                QMessageBox::critical(this, "", e.what(), QMessageBox::Ok);
+                QMessageBox::critical(this, "", e.what());
                 return false;
             } catch (...) {
                 QMessageBox::critical(this, "", QString::fromStdString("Unknown error while saving " + m_document->path().asString()), QMessageBox::Ok);
@@ -824,7 +824,7 @@ namespace TrenchBroom {
                 logger().info() << "Saved " << m_document->path();
                 return true;
             } catch (const FileSystemException& e) {
-                QMessageBox::critical(this, "", e.what(), QMessageBox::Ok);
+                QMessageBox::critical(this, "", e.what());
                 return false;
             } catch (...) {
                 QMessageBox::critical(this, "", QString::fromStdString("Unknown error while saving " + m_document->filename()), QMessageBox::Ok);
@@ -849,7 +849,7 @@ namespace TrenchBroom {
                 logger().info() << "Exported " << path;
                 return true;
             } catch (const FileSystemException& e) {
-                QMessageBox::critical(this, "", e.what(), QMessageBox::Ok);
+                QMessageBox::critical(this, "", e.what());
                 return false;
             } catch (...) {
                 QMessageBox::critical(this, "", QString::fromStdString("Unknown error while exporting " + path.asString()), QMessageBox::Ok);

@@ -36,8 +36,10 @@
 namespace TrenchBroom {
     namespace View {
         WelcomeFrame::WelcomeFrame() :
-        QMainWindow() {
-            //nullptr, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxCAPTION | wxCLOSE_BOX | wxCLIP_CHILDREN) {
+        QMainWindow(),
+        m_recentDocumentListBox(nullptr),
+        m_createNewDocumentButton(nullptr),
+        m_openOtherDocumentButton(nullptr) {
             createGui();
             bindEvents();
             centerOnScreen(this);
@@ -48,7 +50,6 @@ namespace TrenchBroom {
             setWindowIconTB(this);
             setWindowTitle("Welcome to TrenchBroom");
 
-            // FIXME:
             m_recentDocumentListBox = new RecentDocumentListBox();
             m_recentDocumentListBox->setToolTip("Double click on a file to open it");
             m_recentDocumentListBox->setFixedWidth(300);
@@ -142,9 +143,6 @@ namespace TrenchBroom {
         void WelcomeFrame::bindEvents() {
             connect(m_createNewDocumentButton, &QPushButton::clicked, this, &WelcomeFrame::onCreateNewDocumentClicked);
             connect(m_openOtherDocumentButton, &QPushButton::clicked, this, &WelcomeFrame::onOpenOtherDocumentClicked);
-
-            // FIXME: implement
-//            m_recentDocumentListBox->Bind(RECENT_DOCUMENT_SELECTED_EVENT, &WelcomeFrame::OnRecentDocumentSelected, this);
         }
     }
 }

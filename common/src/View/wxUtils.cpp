@@ -86,7 +86,7 @@ namespace TrenchBroom {
             ctrl->setPlaceholderText(hint);
         }
 
-        void centerOnScreen(QMainWindow* window) {
+        void centerOnScreen(QWidget* window) {
             window->setGeometry(
                 QStyle::alignedRect(
                     Qt::LeftToRight,

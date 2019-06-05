@@ -25,6 +25,7 @@
 namespace TrenchBroom {
     namespace View {
         class AboutDialog : public QDialog {
+            Q_OBJECT
         private:
             static AboutDialog* instance;
         public:

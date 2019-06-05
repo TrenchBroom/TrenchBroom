@@ -57,8 +57,10 @@ namespace TrenchBroom {
             QString subtitle(size_t index) const override;
 
             void selectedRowChanged(int index) override;
+            void doubleClicked(size_t index) override;
         signals:
             void currentGameChanged(const QString& gameName);
+            void selectCurrentGame(const QString& gameName);
         };
     }
 }

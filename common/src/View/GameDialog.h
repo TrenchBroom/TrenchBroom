@@ -23,10 +23,10 @@
 #include "StringUtils.h"
 #include "Model/MapFormat.h"
 
-#include <wx/dialog.h>
+#include <QDialog>
 
-class wxButton;
-class wxChoice;
+class QComboBox;
+class QPushButton;
 class QWidget;
 
 namespace TrenchBroom {
@@ -38,40 +38,33 @@ namespace TrenchBroom {
         class GameListBox;
         class GameSelectionCommand;
 
-        class GameDialog : public wxDialog {
+        class GameDialog : public QDialog {
+            Q_OBJECT
         protected:
             GameListBox* m_gameListBox;
-            wxChoice* m_mapFormatChoice;
-            wxButton* m_openPreferencesButton;
+            QComboBox* m_mapFormatComboBox;
+            QPushButton* m_openPreferencesButton;
+            QPushButton* m_okButton;
         public:
-            virtual ~GameDialog();
+            ~GameDialog() override;
 
             static bool showNewDocumentDialog(QWidget* parent, String& gameName, Model::MapFormat& mapFormat);
             static bool showOpenDocumentDialog(QWidget* parent, String& gameName, Model::MapFormat& mapFormat);
 
-            String selectedGameName() const;
-            Model::MapFormat selectedMapFormat() const;
-        private:
-            void OnGameSelectionChanged(GameSelectionCommand& command);
-            void OnGameSelected(GameSelectionCommand& command);
-            void OnUpdateMapFormatChoice();
-
-            void OnOpenPreferencesClicked();
-            void OnUpdateOkButton();
-
-            void OnClose(wxCloseEvent& event);
+            String currentGameName() const;
+            Model::MapFormat currentMapFormat() const;
+        private slots:
+            void currentGameChanged(const QString& gameName);
+            void gameSelected(const QString& gameName);
+            void openPreferencesClicked();
         protected:
-            GameDialog();
-            void createDialog(QWidget* parent, const QString& title, const QString& infoText);
+            GameDialog(const QString& title, const QString& infoText, QWidget* parent = nullptr);
 
             void createGui(const QString& title, const QString& infoText);
             virtual QWidget* createInfoPanel(QWidget* parent, const QString& title, const QString& infoText);
             virtual QWidget* createSelectionPanel(QWidget* parent);
         private:
-            bool isOkEnabled() const;
-            void gameSelectionChanged(const String& gameName);
             void updateMapFormats(const String& gameName);
-            void gameSelected(const String& gameName);
 
             void bindObservers();
             void unbindObservers();

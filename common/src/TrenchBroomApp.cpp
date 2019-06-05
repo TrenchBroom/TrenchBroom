@@ -43,7 +43,7 @@
 #include "View/AboutDialog.h"
 // FIXME:
 //#include "View/CrashDialog.h"
-//#include "View/GameDialog.h"
+#include "View/GameDialog.h"
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
 #include "View/PreferenceDialog.h"
@@ -460,11 +460,7 @@ namespace TrenchBroom {
         }
 
         bool TrenchBroomApp::newDocument() {
-            qDebug("FIXME: show newDocument frame");
-            return false;
-#if 0
             MapFrame* frame = nullptr;
-
             try {
                 String gameName;
                 Model::MapFormat mapFormat = Model::MapFormat::Unknown;
@@ -480,17 +476,13 @@ namespace TrenchBroom {
                 frame->newDocument(game, mapFormat);
                 return true;
             } catch (const RecoverableException& e) {
-                if (frame != nullptr)
-                    frame->close();
-
+                frame->close();
                 return recoverFromException(e, [this](){ return this->newDocument(); });
             } catch (const Exception& e) {
-                if (frame != nullptr)
-                    frame->Close();
-                ::wxMessageBox(e.what(), "TrenchBroom");
+                frame->close();
+                QMessageBox::critical(nullptr, "", e.what());
                 return false;
             }
-#endif
         }
 
         void TrenchBroomApp::openDocument() {

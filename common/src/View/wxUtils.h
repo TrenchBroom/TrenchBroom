@@ -103,7 +103,7 @@ namespace TrenchBroom {
 #endif
 
         void setHint(QLineEdit* ctrl, const char* hint);
-        void centerOnScreen(QMainWindow* window);
+        void centerOnScreen(QWidget* window);
 
         QWidget* makeDefault(QWidget* widget);
         QWidget* makeEmphasized(QWidget* widget);
