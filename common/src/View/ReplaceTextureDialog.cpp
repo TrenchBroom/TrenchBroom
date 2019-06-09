@@ -30,26 +30,25 @@
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
-#include <wx/button.h>
-#include <wx/msgdlg.h>
-#include <wx/sizer.h>
+#include <QDialogButtonBox>
+#include <QMessageBox>
+#include <QPushButton>
 
 #include <algorithm>
 #include <iterator>
 
 namespace TrenchBroom {
     namespace View {
-        ReplaceTextureDialog::ReplaceTextureDialog(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
-        wxDialog(parent, wxID_ANY, "Replace Texture", wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER),
+        ReplaceTextureDialog::ReplaceTextureDialog(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent) :
+        QDialog(parent),
         m_document(document),
         m_subjectBrowser(nullptr),
-        m_replacementBrowser(nullptr) {
+        m_replacementBrowser(nullptr),
+        m_replaceButton(nullptr) {
             createGui(contextManager);
         }
 
-        void ReplaceTextureDialog::OnReplace() {
-
-
+        void ReplaceTextureDialog::accept() {
             const Assets::Texture* subject = m_subjectBrowser->selectedTexture();
             ensure(subject != nullptr, "subject is null");
 
@@ -60,7 +59,7 @@ namespace TrenchBroom {
             const Model::BrushFaceList faces = getApplicableFaces();
 
             if (faces.empty()) {
-                wxMessageBox("None of the selected faces has the selected texture", "Replace Failed", wxOK | wxCENTRE, this);
+                QMessageBox::warning(this, "Replace Failed", "None of the selected faces has the selected texture");
                 return;
             }
 
@@ -70,7 +69,8 @@ namespace TrenchBroom {
 
             StringStream msg;
             msg << "Replaced texture '" << subject->name() << "' with '" << replacement->name() << "' on " << faces.size() << " faces.";
-            wxMessageBox(msg.str(), "Replace succeeded", wxOK | wxCENTRE, this);
+
+            QMessageBox::information(this, "Replace Succeeded", QString::fromStdString(msg.str()));
         }
 
         Model::BrushFaceList ReplaceTextureDialog::getApplicableFaces() const {
@@ -90,58 +90,71 @@ namespace TrenchBroom {
             return result;
         }
 
-        void ReplaceTextureDialog::OnUpdateReplaceButton() {
-
-
-            const Assets::Texture* subject = m_subjectBrowser->selectedTexture();
-            const Assets::Texture* replacement = m_replacementBrowser->selectedTexture();
-            event.Enable(subject != nullptr && replacement != nullptr);
-        }
-
         void ReplaceTextureDialog::createGui(GLContextManager& contextManager) {
             setWindowIconTB(this);
+            setWindowTitle("Replace Texture");
 
-            TitledPanel* subjectPanel = new TitledPanel(this, "Find");
+            auto* subjectPanel = new TitledPanel(this, "Find");
             m_subjectBrowser = new TextureBrowser(subjectPanel->getPanel(), m_document, contextManager);
             m_subjectBrowser->setHideUnused(true);
+            connect(m_subjectBrowser, &TextureBrowser::textureSelected, this, &ReplaceTextureDialog::subjectSelected);
 
-            auto* subjectPanelSizer = new QVBoxLayout();
-            subjectPanelSizer->addWidget(m_subjectBrowser, 1, wxEXPAND);
-            subjectPanel->getPanel()->setLayout(subjectPanelSizer);
+            auto* subjectPanelLayout = new QVBoxLayout();
+            subjectPanelLayout->setContentsMargins(QMargins());
+            subjectPanelLayout->setSpacing(0);
+            subjectPanelLayout->addWidget(m_subjectBrowser);
+            subjectPanel->getPanel()->setLayout(subjectPanelLayout);
 
-            TitledPanel* replacementPanel = new TitledPanel(this, "Replace with");
+            auto* replacementPanel = new TitledPanel(this, "Replace with");
             m_replacementBrowser = new TextureBrowser(replacementPanel->getPanel(), m_document, contextManager);
             m_replacementBrowser->setSelectedTexture(nullptr); // Override the current texture.
+            connect(m_replacementBrowser, &TextureBrowser::textureSelected, this, &ReplaceTextureDialog::replacementSelected);
 
-            auto* replacementPanelSizer = new QVBoxLayout();
-            replacementPanelSizer->addWidget(m_replacementBrowser, 1, wxEXPAND);
-            replacementPanel->getPanel()->setLayout(replacementPanelSizer);
+            auto* replacementPanelLayout = new QVBoxLayout();
+            replacementPanelLayout->setContentsMargins(QMargins());
+            replacementPanelLayout->setSpacing(0);
+            replacementPanelLayout->addWidget(m_replacementBrowser, 1);
+            replacementPanel->getPanel()->setLayout(replacementPanelLayout);
 
-            auto* upperSizer = new QHBoxLayout();
-            upperSizer->addWidget(subjectPanel, 1, wxEXPAND);
-            upperSizer->addWidget(new BorderLine(nullptr, BorderLine::Direction_Vertical), 0, wxEXPAND);
-            upperSizer->addWidget(replacementPanel, 1, wxEXPAND);
+            auto* upperLayout = new QHBoxLayout();
+            upperLayout->setContentsMargins(QMargins());
+            upperLayout->setSpacing(0);
+            upperLayout->addWidget(subjectPanel, 1);
+            upperLayout->addWidget(new BorderLine(BorderLine::Direction_Vertical), 0);
+            upperLayout->addWidget(replacementPanel, 1);
 
-            wxButton* replaceButton = new wxButton(this, wxID_OK, "Replace");
-            replaceButton->setToolTip("Perform replacement on all selected faces");
-            wxButton* closeButton = new wxButton(this, wxID_CANCEL, "Close");
+            auto* buttonBox = new QDialogButtonBox(this);
+            m_replaceButton = buttonBox->addButton("Replace", QDialogButtonBox::AcceptRole);
+            m_replaceButton->setToolTip("Perform replacement on all selected faces");
+            m_replaceButton->setEnabled(false);
+            auto* closeButton = buttonBox->addButton("Close", QDialogButtonBox::RejectRole);
             closeButton->setToolTip("Close this window");
 
-            replaceButton->Bind(&QAbstractButton::clicked, &ReplaceTextureDialog::OnReplace, this);
-            replaceButton->Bind(wxEVT_UPDATE_UI, &ReplaceTextureDialog::OnUpdateReplaceButton, this);
+            connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+            connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-            wxStdDialogButtonSizer* buttonSizer = new wxStdDialogButtonSizer();
-            buttonSizer->SetAffirmativeButton(replaceButton);
-            buttonSizer->SetCancelButton(closeButton);
-            buttonSizer->Realize();
+            auto* outerLayout = new QVBoxLayout();
+            outerLayout->setContentsMargins(QMargins());
+            outerLayout->setSpacing(0);
+            outerLayout->addLayout(upperLayout, 1);
+            outerLayout->addLayout(wrapDialogButtonBox(buttonBox), 0);
+            setLayout(outerLayout);
 
-            auto* outerSizer = new QVBoxLayout();
-            outerSizer->addWidget(upperSizer, 1, wxEXPAND);
-            outerSizer->addWidget(wrapDialogButtonSizer(buttonSizer, this), 0, wxEXPAND);
-            setLayout(outerSizer);
+            setMinimumSize(650, 450);
+        }
 
-            SetMinSize(wxSize(650, 450));
-            SetSize(wxSize(650, 450));
+        void ReplaceTextureDialog::subjectSelected(Assets::Texture* subject) {
+            updateReplaceButton();
+        }
+
+        void ReplaceTextureDialog::replacementSelected(Assets::Texture* replacement) {
+            updateReplaceButton();
+        }
+
+        void ReplaceTextureDialog::updateReplaceButton() {
+            const Assets::Texture* subject = m_subjectBrowser->selectedTexture();
+            const Assets::Texture* replacement = m_replacementBrowser->selectedTexture();
+            m_replaceButton->setEnabled(subject != nullptr && replacement != nullptr);
         }
     }
 }

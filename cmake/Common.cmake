@@ -407,7 +407,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/RenameGroupsCommand.cpp
 	${COMMON_SOURCE_DIR}/View/RenderView.cpp
 	${COMMON_SOURCE_DIR}/View/ReparentNodesCommand.cpp
-#	${COMMON_SOURCE_DIR}/View/ReplaceTextureDialog.cpp
+	${COMMON_SOURCE_DIR}/View/ReplaceTextureDialog.cpp
 	${COMMON_SOURCE_DIR}/View/ResizeBrushesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/ResizeBrushesToolController.cpp
 	${COMMON_SOURCE_DIR}/View/ResizeBrushesTool.cpp

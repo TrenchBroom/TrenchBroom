@@ -23,29 +23,37 @@
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
 
-#include <wx/dialog.h>
+#include <QDialog>
+
+class QPushButton;
 
 namespace TrenchBroom {
+    namespace Assets {
+        class Texture;
+    }
+
     namespace View {
         class GLContextManager;
         class TextureBrowser;
 
-        class ReplaceTextureDialog : public wxDialog {
+        class ReplaceTextureDialog : public QDialog {
+            Q_OBJECT
         private:
             MapDocumentWPtr m_document;
 
             TextureBrowser* m_subjectBrowser;
             TextureBrowser* m_replacementBrowser;
+            QPushButton* m_replaceButton;
         public:
-            ReplaceTextureDialog(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
-
-            void OnReplace();
+            ReplaceTextureDialog(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent = nullptr);
         private:
+            virtual void accept() override;
             Model::BrushFaceList getApplicableFaces() const;
-        public:
-            void OnUpdateReplaceButton();
-        private:
             void createGui(GLContextManager& contextManager);
+        private slots:
+            void subjectSelected(Assets::Texture* subject);
+            void replacementSelected(Assets::Texture* replacement);
+            void updateReplaceButton();
         };
     }
 }

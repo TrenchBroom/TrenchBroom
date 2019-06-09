@@ -53,7 +53,7 @@
 #include "View/MapDocument.h"
 //#include "View/MapFrameDropTarget.h"
 #include "View/RenderView.h"
-//#include "View/ReplaceTextureDialog.h"
+#include "View/ReplaceTextureDialog.h"
 #include "View/SwitchableMapViewContainer.h"
 #include "View/VertexTool.h"
 #include "View/ViewUtils.h"
@@ -1227,12 +1227,8 @@ namespace TrenchBroom {
         }
 
         void MapFrame::replaceTexture() {
-            // FIXME:
-#if 0
-            ReplaceTextureDialog dialog(this, m_document, *m_contextManager);
-            dialog.CenterOnParent();
-            dialog.ShowModal();
-#endif
+            ReplaceTextureDialog dialog(m_document, *m_contextManager, this);
+            dialog.exec();
         }
 
         void MapFrame::toggleCreateComplexBrushTool() {
