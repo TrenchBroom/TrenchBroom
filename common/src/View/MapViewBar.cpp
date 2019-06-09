@@ -29,6 +29,7 @@
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QResizeEvent>
 #include <QStackedLayout>
 
 namespace TrenchBroom {

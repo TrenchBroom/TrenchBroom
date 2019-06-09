@@ -49,13 +49,23 @@ namespace TrenchBroom {
             MapInspector* m_mapInspector;
             EntityInspector* m_entityInspector;
             FaceInspector* m_faceInspector;
+
+            QWidget* m_topWidgetMaster;
         public:
             Inspector(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
             void connectTopWidgets(QWidget* master);
             void switchToPage(InspectorPage page);
             bool cancelMouseDrag();
         private:
-            void OnTopWidgetSize();
+            /**
+             * Event filter used to capture resize events of the top widget, used to synchronize the inspectors tab bar
+             * height to the height of the map view's top bar.
+             *
+             * @param target the target that receives an event
+             * @param event the event
+             * @return true if the event should not be propagated to the target and false otherwise
+             */
+            bool eventFilter(QObject* target, QEvent* event) override;
         };
     }
 }

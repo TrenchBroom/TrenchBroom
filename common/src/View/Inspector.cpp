@@ -25,6 +25,8 @@
 #include "View/TabBook.h"
 #include "View/TabBar.h"
 
+#include <QEvent>
+#include <QResizeEvent>
 #include <QVBoxLayout>
 
 namespace TrenchBroom {
@@ -34,7 +36,8 @@ namespace TrenchBroom {
         m_tabBook(nullptr),
         m_mapInspector(nullptr),
         m_entityInspector(nullptr),
-        m_faceInspector(nullptr) {
+        m_faceInspector(nullptr),
+        m_topWidgetMaster(nullptr) {
 
             m_tabBook = new TabBook(this);
 
@@ -53,8 +56,13 @@ namespace TrenchBroom {
         }
 
         void Inspector::connectTopWidgets(QWidget* master) {
-            // FIXME: Not sure how to do this in Qt
-            //master->Bind(wxEVT_SIZE, &Inspector::OnTopWidgetSize, this);
+            if (m_topWidgetMaster != nullptr) {
+                m_topWidgetMaster->removeEventFilter(this);
+            }
+            m_topWidgetMaster = master;
+            if (m_topWidgetMaster != nullptr) {
+                m_topWidgetMaster->installEventFilter(this);
+            }
         }
 
         void Inspector::switchToPage(const InspectorPage page) {
@@ -65,10 +73,14 @@ namespace TrenchBroom {
             return false; // FIXME: m_faceInspector->cancelMouseDrag();
         }
 
-        void Inspector::OnTopWidgetSize() {
-//
-//            m_tabBook->setTabBarHeight(event.GetSize().y);
-//            event.Skip();
+        bool Inspector::eventFilter(QObject* target, QEvent* event) {
+            if (target == m_topWidgetMaster && event->type() == QEvent::Resize) {
+                auto* sizeEvent = static_cast<QResizeEvent*>(event);
+                m_tabBook->setTabBarHeight(sizeEvent->size().height());
+                return false;
+            } else {
+                return QObject::eventFilter(target, event);
+            }
         }
     }
 }

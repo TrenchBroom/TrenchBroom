@@ -440,21 +440,21 @@ namespace TrenchBroom {
             m_hSplitter->setSizes(QList<int>{1'000'000, 1});
             m_vSplitter->setSizes(QList<int>{1'000'000, 1});
 
-            QVBoxLayout* frameSizer = new QVBoxLayout();
-            frameSizer->setContentsMargins(0, 0, 0, 0);
-            frameSizer->setSpacing(0); // no space between BorderLine and m_hSplitter
+            auto* frameLayout = new QVBoxLayout();
+            frameLayout->setContentsMargins(0, 0, 0, 0);
+            frameLayout->setSpacing(0); // no space between BorderLine and m_hSplitter
 #if !defined __APPLE__
-            frameSizer->addWidget(new BorderLine());
+            frameLayout->addWidget(new BorderLine());
 #endif
-            frameSizer->addWidget(m_hSplitter);
+            frameLayout->addWidget(m_hSplitter);
 
             // FIXME:
 //            wxPersistenceManager::Get().RegisterAndRestore(m_hSplitter);
 //            wxPersistenceManager::Get().RegisterAndRestore(m_vSplitter);
 
             // NOTE: you can't set the layout of a QMainWindow, so make another widget to wrap this layout in
-            QWidget* layoutWrapper = new QWidget();
-            layoutWrapper->setLayout(frameSizer);
+            auto* layoutWrapper = new QWidget();
+            layoutWrapper->setLayout(frameLayout);
 
             setCentralWidget(layoutWrapper);
         }
