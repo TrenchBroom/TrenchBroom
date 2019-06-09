@@ -49,10 +49,10 @@ namespace TrenchBroom {
             m_tabBook->addPage(m_entityInspector, "Entity");
             m_tabBook->addPage(m_faceInspector, "Face");
 
-            auto* sizer = new QVBoxLayout();
-            sizer->setContentsMargins(0, 0, 0, 0);
-            sizer->addWidget(m_tabBook);
-            setLayout(sizer);
+            auto* layout = new QVBoxLayout();
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->addWidget(m_tabBook);
+            setLayout(layout);
         }
 
         void Inspector::connectTopWidgets(QWidget* master) {

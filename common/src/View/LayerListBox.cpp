@@ -40,7 +40,7 @@ namespace TrenchBroom {
 
         LayerListBoxWidget::LayerListBoxWidget(QWidget* parent, MapDocumentWPtr document, Model::Layer* layer) :
         QWidget(parent),
-        m_document(document),
+        m_document(std::move(document)),
         m_layer(layer) {
             m_nameText = new QLabel(QString::fromStdString(m_layer->name()));
             // Ignore the label's minimum width, this prevents a horizontal scroll bar from appearing on the list widget,
@@ -60,25 +60,27 @@ namespace TrenchBroom {
                 emit layerLockToggled(m_layer);
             });
 
-            auto* itemPanelBottomSizer = new QHBoxLayout();
-            itemPanelBottomSizer->setContentsMargins(0, 0, 0, 0);
-            itemPanelBottomSizer->setSpacing(0);
+            auto* itemPanelBottomLayout = new QHBoxLayout();
+            itemPanelBottomLayout->setContentsMargins(0, 0, 0, 0);
+            itemPanelBottomLayout->setSpacing(0);
 
-            itemPanelBottomSizer->addWidget(m_hiddenButton, 0, Qt::AlignVCenter);
-            itemPanelBottomSizer->addWidget(m_lockButton, 0, Qt::AlignVCenter);
-            itemPanelBottomSizer->addWidget(m_infoText, 0, Qt::AlignVCenter);
-            itemPanelBottomSizer->addStretch(1);
-            itemPanelBottomSizer->addSpacing(LayoutConstants::NarrowHMargin);
+            itemPanelBottomLayout->addWidget(m_hiddenButton, 0, Qt::AlignVCenter);
+            itemPanelBottomLayout->addWidget(m_lockButton, 0, Qt::AlignVCenter);
+            itemPanelBottomLayout->addWidget(m_infoText, 0, Qt::AlignVCenter);
+            itemPanelBottomLayout->addStretch(1);
+            itemPanelBottomLayout->addSpacing(LayoutConstants::NarrowHMargin);
 
-            auto* itemPanelSizer = new QVBoxLayout();
-            itemPanelSizer->setContentsMargins(0, 0, 0, 0);
-            itemPanelSizer->setSpacing(0);
+            auto* itemPanelLayout = new QVBoxLayout();
+            itemPanelLayout->setContentsMargins(
+                LayoutConstants::NarrowHMargin, LayoutConstants::NarrowVMargin,
+                LayoutConstants::NarrowHMargin, LayoutConstants::NarrowVMargin);
+            itemPanelLayout->setSpacing(0);
 
-            itemPanelSizer->addSpacing(LayoutConstants::NarrowVMargin);
-            itemPanelSizer->addWidget(m_nameText);
-            itemPanelSizer->addLayout(itemPanelBottomSizer);
-            itemPanelSizer->addSpacing(LayoutConstants::NarrowVMargin);
-            setLayout(itemPanelSizer);
+            itemPanelLayout->addSpacing(LayoutConstants::NarrowVMargin);
+            itemPanelLayout->addWidget(m_nameText);
+            itemPanelLayout->addLayout(itemPanelBottomLayout);
+            itemPanelLayout->addSpacing(LayoutConstants::NarrowVMargin);
+            setLayout(itemPanelLayout);
 
             refresh();
         }
@@ -90,14 +92,15 @@ namespace TrenchBroom {
         void LayerListBoxWidget::refresh() {
             // Update labels
             m_nameText->setText(QString::fromStdString(m_layer->name()));
-            if (lock(m_document)->currentLayer() == m_layer)
+            if (lock(m_document)->currentLayer() == m_layer) {
                 m_nameText->setStyleSheet("font-weight: bold");
-            else
+            } else {
                 m_nameText->setStyleSheet("");
+            }
 
             const QString info = tr("%1 %2").arg(m_layer->childCount()).arg(QString::fromStdString(StringUtils::safePlural(m_layer->childCount(), "object", "objects")));
             m_infoText->setText(info);
-        
+
             // Update buttons
             m_lockButton->setChecked(m_layer->locked());
             m_hiddenButton->setChecked(m_layer->hidden());
@@ -117,7 +120,8 @@ namespace TrenchBroom {
 
         LayerListBox::LayerListBox(QWidget* parent, MapDocumentWPtr document) :
         QWidget(parent),
-        m_document(document) {
+        m_document(document),
+        m_list(nullptr) {
             createGui();
             bindObservers();
             bindEvents();
@@ -156,12 +160,15 @@ namespace TrenchBroom {
 
         void LayerListBox::createGui() {
             m_list = new QListWidget();
+            m_list->setObjectName("layerListBox_listWidget");
             m_list->setSelectionMode(QAbstractItemView::SingleSelection);
 
             auto* layout = new QVBoxLayout();
             layout->setContentsMargins(0, 0, 0, 0);
             layout->addWidget(m_list, 1);
             setLayout(layout);
+
+            setStyleSheet("QListWidget#layerListBox_listWidget { border: none; }");
         }
 
         void LayerListBox::bindObservers() {
