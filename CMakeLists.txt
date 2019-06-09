@@ -117,8 +117,8 @@ IF(CMAKE_BUILD_TYPE MATCHES "Debug")
 ENDIF()
 
 # Qt
-find_package(Qt5Widgets)
-set(CMAKE_AUTOMOC ON)
+FIND_PACKAGE(Qt5Widgets REQUIRED)
+SET(CMAKE_AUTOMOC ON)
 
 #INCLUDE(cmake/wxWidgets.cmake)
 INCLUDE(cmake/FreeType.cmake)
