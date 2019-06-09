@@ -37,7 +37,14 @@ namespace TrenchBroom {
     namespace View {
         TextureBrowser::TextureBrowser(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
         QWidget(parent),
-        m_document(document) {
+        m_document(std::move(document)),
+        m_sortOrderChoice(nullptr),
+        m_groupButton(nullptr),
+        m_usedButton(nullptr),
+        m_filterBox(nullptr),
+        m_scrollBar(nullptr),
+        m_view(nullptr),
+        m_windowContainer(nullptr) {
             createGui(contextManager);
             bindEvents();
             bindObservers();
@@ -83,11 +90,6 @@ namespace TrenchBroom {
         void TextureBrowser::setFilterText(const String& filterText) {
             m_view->setFilterText(filterText);
             m_filterBox->setText(QString::fromStdString(filterText));
-        }
-
-        void TextureBrowser::OnTextureSelected(Assets::Texture* texture) {
-            // let the event bubble up to our own listeners
-            emit textureSelected(texture);
         }
 
         /**
@@ -141,8 +143,8 @@ namespace TrenchBroom {
             });
 
             auto* controlSizer = new QHBoxLayout();
-            controlSizer->setContentsMargins(0, 0, 0, 0);
-            controlSizer->setSpacing(0);
+            controlSizer->setContentsMargins(LayoutConstants::NarrowHMargin, LayoutConstants::NarrowVMargin, LayoutConstants::NarrowHMargin, LayoutConstants::NarrowVMargin);
+            controlSizer->setSpacing(LayoutConstants::NarrowHMargin);
             controlSizer->addWidget(m_sortOrderChoice);
             controlSizer->addWidget(m_groupButton);
             controlSizer->addWidget(m_usedButton);
@@ -158,7 +160,7 @@ namespace TrenchBroom {
         }
 
         void TextureBrowser::bindEvents() {
-            connect(m_view, &TextureBrowserView::textureSelected, this, &TextureBrowser::OnTextureSelected);
+            connect(m_view, &TextureBrowserView::textureSelected, this, &TextureBrowser::textureSelected);
 
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &TextureBrowser::preferenceDidChange);

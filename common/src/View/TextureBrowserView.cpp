@@ -513,11 +513,11 @@ namespace TrenchBroom {
                 if (!cellData(*result).texture->overridden()) {
                     auto* texture = cellData(*result).texture;
 
-                    emit textureSelected(texture);
-
                     // NOTE: wx had the ability for the textureSelected event to veto the selection, but it
                     // wasn't used.
                     setSelectedTexture(texture);
+
+                    emit textureSelected(texture);
 
                     Refresh();
                 }

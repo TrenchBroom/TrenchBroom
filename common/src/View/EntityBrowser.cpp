@@ -37,7 +37,14 @@ namespace TrenchBroom {
     namespace View {
         EntityBrowser::EntityBrowser(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
         QWidget(parent),
-        m_document(document) {
+        m_document(std::move(document)),
+        m_sortOrderChoice(nullptr),
+        m_groupButton(nullptr),
+        m_usedButton(nullptr),
+        m_filterBox(nullptr),
+        m_scrollBar(nullptr),
+        m_view(nullptr),
+        m_windowContainer(nullptr) {
             createGui(contextManager);
             bindObservers();
         }
@@ -72,7 +79,7 @@ namespace TrenchBroom {
             browserPanelSizer->addWidget(m_windowContainer, 1);
             browserPanelSizer->addWidget(m_scrollBar, 0);
 
-            QWidget* browserPanel = new QWidget(this);
+            auto* browserPanel = new QWidget(this);
             browserPanel->setLayout(browserPanelSizer);
 
             m_sortOrderChoice = new QComboBox();
@@ -106,6 +113,8 @@ namespace TrenchBroom {
             });
 
             auto* controlSizer = new QHBoxLayout();
+            controlSizer->setContentsMargins(LayoutConstants::NarrowHMargin, LayoutConstants::NarrowVMargin, LayoutConstants::NarrowHMargin, LayoutConstants::NarrowVMargin);
+            controlSizer->setSpacing(LayoutConstants::NarrowHMargin);
             controlSizer->addWidget(m_sortOrderChoice, 0);
             controlSizer->addWidget(m_groupButton, 0);
             controlSizer->addWidget(m_usedButton, 0);

@@ -55,10 +55,6 @@ namespace TrenchBroom {
             ~EntityBrowser() override;
 
             void reload();
-
-            void OnGroupButtonToggled();
-            void OnUsedButtonToggled();
-            void OnFilterPatternChanged();
         private:
             void createGui(GLContextManager& contextManager);
 

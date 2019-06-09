@@ -44,7 +44,6 @@ namespace TrenchBroom {
     namespace View {
         class GLContextManager;
         class TextureBrowserView;
-        class TextureSelectedCommand;
 
         class TextureBrowser : public QWidget {
             Q_OBJECT
@@ -59,7 +58,7 @@ namespace TrenchBroom {
             QWidget* m_windowContainer;
         public:
             TextureBrowser(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
-            ~TextureBrowser();
+            ~TextureBrowser() override;
 
             Assets::Texture* selectedTexture() const;
             void setSelectedTexture(Assets::Texture* selectedTexture);
@@ -68,12 +67,6 @@ namespace TrenchBroom {
             void setGroup(bool group);
             void setHideUnused(bool hideUnused);
             void setFilterText(const String& filterText);
-
-            void OnSortOrderChanged();
-            void OnGroupButtonToggled();
-            void OnUsedButtonToggled();
-            void OnFilterPatternChanged();
-            void OnTextureSelected(Assets::Texture* texture);
         signals:
             void textureSelected(Assets::Texture* texture);
         private:
