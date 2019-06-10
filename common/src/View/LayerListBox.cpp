@@ -36,10 +36,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        // LayerListBoxWidget
-
-        LayerListBoxWidget::LayerListBoxWidget(QWidget* parent, MapDocumentWPtr document, Model::Layer* layer) :
-        QWidget(parent),
+        LayerListBoxWidget::LayerListBoxWidget(MapDocumentWPtr document, Model::Layer* layer, QWidget* parent) :
+        ControlListBoxItemRenderer(parent),
         m_document(std::move(document)),
         m_layer(layer) {
             m_nameText = new QLabel(QString::fromStdString(m_layer->name()));
@@ -59,6 +57,10 @@ namespace TrenchBroom {
             connect(m_lockButton, &QAbstractButton::clicked, this, [this]() {
                 emit layerLockToggled(m_layer);
             });
+
+            installEventFilter(this);
+            m_nameText->installEventFilter(this);
+            m_infoText->installEventFilter(this);
 
             auto* itemPanelBottomLayout = new QHBoxLayout();
             itemPanelBottomLayout->setContentsMargins(0, 0, 0, 0);
@@ -85,6 +87,20 @@ namespace TrenchBroom {
             refresh();
         }
 
+        void LayerListBoxWidget::update(const size_t index) {
+            refresh();
+        }
+
+        void LayerListBoxWidget::setSelected(bool selected) {
+            if (selected) {
+                makeSelected(m_nameText);
+                makeSelected(m_infoText);
+            } else {
+                makeUnselected(m_nameText);
+                makeUnselected(m_infoText);
+            }
+        }
+
         Model::Layer* LayerListBoxWidget::layer() const {
             return m_layer;
         }
@@ -93,12 +109,12 @@ namespace TrenchBroom {
             // Update labels
             m_nameText->setText(QString::fromStdString(m_layer->name()));
             if (lock(m_document)->currentLayer() == m_layer) {
-                m_nameText->setStyleSheet("font-weight: bold");
+                makeEmphasized(m_nameText);
             } else {
-                m_nameText->setStyleSheet("");
+                makeUnemphasized(m_nameText);
             }
 
-            const QString info = tr("%1 %2").arg(m_layer->childCount()).arg(QString::fromStdString(StringUtils::safePlural(m_layer->childCount(), "object", "objects")));
+            const auto info = tr("%1 %2").arg(m_layer->childCount()).arg(QString::fromStdString(StringUtils::safePlural(m_layer->childCount(), "object", "objects")));
             m_infoText->setText(info);
 
             // Update buttons
@@ -110,21 +126,29 @@ namespace TrenchBroom {
             m_hiddenButton->setEnabled(m_layer->hidden() || m_layer != document->currentLayer());
         }
 
-        void LayerListBoxWidget::mouseReleaseEvent(QMouseEvent* event) {
-            if (event->button() == Qt::RightButton) {
-                emit layerRightClicked(m_layer);
+        bool LayerListBoxWidget::eventFilter(QObject* target, QEvent* event) {
+            if (event->type() == QEvent::MouseButtonDblClick) {
+                auto* mouseEvent = static_cast<QMouseEvent*>(event);
+                if (mouseEvent->button() == Qt::LeftButton) {
+                    emit layerDoubleClicked(m_layer);
+                    return false;
+                }
+            } else if (event->type() == QEvent::MouseButtonRelease) {
+                auto* mouseEvent = static_cast<QMouseEvent*>(event);
+                if (mouseEvent->button() == Qt::RightButton) {
+                    emit layerRightClicked(m_layer);
+                    return false;
+                }
             }
+            return QObject::eventFilter(target, event);
         }
 
         // LayerListBox
 
-        LayerListBox::LayerListBox(QWidget* parent, MapDocumentWPtr document) :
-        QWidget(parent),
-        m_document(document),
-        m_list(nullptr) {
-            createGui();
+        LayerListBox::LayerListBox(MapDocumentWPtr document, QWidget* parent) :
+        ControlListBox("", parent),
+        m_document(std::move(document)) {
             bindObservers();
-            bindEvents();
         }
 
         LayerListBox::~LayerListBox() {
@@ -132,43 +156,17 @@ namespace TrenchBroom {
         }
 
         Model::Layer* LayerListBox::selectedLayer() const {
-            if (m_list->selectedItems().isEmpty())
-                return nullptr;
-
-            const Model::World* world = lock(m_document)->world();
-            const Model::LayerList layers = world->allLayers();
-
-            const size_t index = static_cast<size_t>(m_list->currentRow());
-            ensure(index < layers.size(), "index out of range");
-            return layers[index];
+            return layerForRow(currentRow());
         }
 
         void LayerListBox::setSelectedLayer(Model::Layer* layer) {
-            m_list->clearSelection();
-
-            const int count = m_list->count();
-            for (int i = 0; i < count; ++i) {
-                QListWidgetItem* item = m_list->item(i);
-                LayerListBoxWidget* widget = widgetAtRow(i);
-
-                if (widget->layer() == layer) {
-                    m_list->setItemSelected(item, true);
+            for (int i = 0; i < count(); ++i) {
+                if (layerForRow(i) == layer) {
+                    setCurrentRow(i);
                     break;
                 }
             }
-        }
-
-        void LayerListBox::createGui() {
-            m_list = new QListWidget();
-            m_list->setObjectName("layerListBox_listWidget");
-            m_list->setSelectionMode(QAbstractItemView::SingleSelection);
-
-            auto* layout = new QVBoxLayout();
-            layout->setContentsMargins(0, 0, 0, 0);
-            layout->addWidget(m_list, 1);
-            setLayout(layout);
-
-            setStyleSheet("QListWidget#layerListBox_listWidget { border: none; }");
+            setCurrentRow(-1);
         }
 
         void LayerListBox::bindObservers() {
@@ -190,100 +188,84 @@ namespace TrenchBroom {
                 document->documentWasLoadedNotifier.removeObserver(this, &LayerListBox::documentDidChange);
                 document->documentWasClearedNotifier.removeObserver(this, &LayerListBox::documentDidChange);
                 document->currentLayerDidChangeNotifier.removeObserver(this, &LayerListBox::currentLayerDidChange);
-                document->nodesWereAddedNotifier.removeObserver(this, &LayerListBox::nodesDidChange);
-                document->nodesWereRemovedNotifier.removeObserver(this, &LayerListBox::nodesDidChange);
+                document->nodesWereAddedNotifier.removeObserver(this, &LayerListBox::nodesWereAddedOrRemoved);
+                document->nodesWereRemovedNotifier.removeObserver(this, &LayerListBox::nodesWereAddedOrRemoved);
                 document->nodesDidChangeNotifier.removeObserver(this, &LayerListBox::nodesDidChange);
                 document->nodeVisibilityDidChangeNotifier.removeObserver(this, &LayerListBox::nodesDidChange);
             }
         }
 
         void LayerListBox::documentDidChange(MapDocument* document) {
-            refreshList();
+            reload();
+        }
+
+        void LayerListBox::nodesWereAddedOrRemoved(const Model::NodeList& nodes) {
+            for (const auto* node : nodes) {
+                if (node->depth() == 1) {
+                    reload();
+                    break;
+                }
+            }
+            updateItems();
         }
 
         void LayerListBox::nodesDidChange(const Model::NodeList& nodes) {
-            refreshList();
+            updateItems();
         }
 
         void LayerListBox::currentLayerDidChange(const Model::Layer* layer) {
-            refreshList();
+            updateItems();
         }
 
-        void LayerListBox::bindEvents() {
-            connect(m_list, &QListWidget::currentItemChanged, this, [this](QListWidgetItem* currentItem, QListWidgetItem* previousItem){
-                Model::Layer* layer = layerForItem(currentItem);
-                emit layerSelected(layer);
-            });
-            connect(m_list, &QListWidget::itemDoubleClicked, this, [this](QListWidgetItem* item){
-                Model::Layer* layer = layerForItem(item);
+        size_t LayerListBox::itemCount() const {
+            MapDocumentSPtr document = lock(m_document);
+            const auto* world = document->world();
+            return world->allLayers().size();
+        }
+
+        ControlListBoxItemRenderer* LayerListBox::createItemRenderer(QWidget* parent, const size_t index) {
+            MapDocumentSPtr document = lock(m_document);
+            const auto* world = document->world();
+            const auto layers = world->allLayers();
+            auto* layer = layers[index];
+            auto* renderer = new LayerListBoxWidget(document, layer, this);
+
+            connect(renderer, &LayerListBoxWidget::layerDoubleClicked, this, [this](auto* layer){
                 emit layerSetCurrent(layer);
             });
+            connect(renderer, &LayerListBoxWidget::layerRightClicked, this, [this](auto* layer) {
+                emit layerRightClicked(layer);
+            });
+            connect(renderer, &LayerListBoxWidget::layerVisibilityToggled, this, [this](auto* layer) {
+                emit layerVisibilityToggled(layer);
+            });
+            connect(renderer, &LayerListBoxWidget::layerLockToggled, this, [this](auto* layer) {
+                emit layerLockToggled(layer);
+            });
+
+            return renderer;
         }
 
-        void LayerListBox::refreshList() {
-            MapDocumentSPtr document = lock(m_document);
-            const Model::World* world = document->world();
-
-            const Model::LayerList worldLayers = world->allLayers();
-
-            // Fast path: check if the widgets represent the same layers in the same order
-            if (worldLayers == m_layersInUi) {
-                // Same list of Layers. Just refresh the widgets
-                for (int i = 0; i < m_list->count(); ++i) {
-                    auto* layerWidget = widgetAtRow(i);
-                    layerWidget->refresh();
-                }
-                return;
-            }
-
-            // Slow path: rebuild the list including QWidgets from scratch.
-            m_list->clear();
-            m_layersInUi.clear();
-
-            for (Model::Layer* layer : worldLayers) {
-                auto* layerWidget = new LayerListBoxWidget(nullptr, document, layer);
-                connect(layerWidget, &LayerListBoxWidget::layerRightClicked, this, &LayerListBox::layerRightClicked);
-                connect(layerWidget, &LayerListBoxWidget::layerVisibilityToggled, this, &LayerListBox::layerVisibilityToggled);
-                connect(layerWidget, &LayerListBoxWidget::layerLockToggled, this, &LayerListBox::layerLockToggled);
-
-                auto* item = new QListWidgetItem();
-
-                item->setSizeHint(layerWidget->minimumSizeHint());
-                //item->setSizeHint(QSize(-1, layerWidget->minimumSizeHint().height()));
-
-                m_list->addItem(item);
-                m_list->setItemWidget(item, layerWidget);
-            }
-
-            m_layersInUi = worldLayers;
+        void LayerListBox::selectedRowChanged(const int index) {
+            emit layerSelected(layerForRow(index));
         }
 
-        LayerListBoxWidget* LayerListBox::widgetAtRow(int row) {
-            QListWidgetItem* item = m_list->item(row);
-            if (item == nullptr) {
+        const LayerListBoxWidget* LayerListBox::widgetAtRow(const int row) const {
+            auto* renderer = this->renderer(row);
+            if (renderer == nullptr) {
                 return nullptr;
+            } else {
+                return static_cast<const LayerListBoxWidget*>(renderer);
             }
-
-            auto* widget = dynamic_cast<LayerListBoxWidget*>(m_list->itemWidget(item));
-            return widget;
         }
 
-        Model::Layer* LayerListBox::layerForItem(QListWidgetItem* item) {
-            auto* widget = dynamic_cast<LayerListBoxWidget*>(m_list->itemWidget(item));
+        Model::Layer* LayerListBox::layerForRow(const int row) const {
+            const auto* widget = widgetAtRow(row);
             if (widget == nullptr) {
                 return nullptr;
+            } else {
+                return widget->layer();
             }
-
-            return widget->layer();
-        }
-
-        Model::Layer* LayerListBox::layerForRow(int row) {
-            LayerListBoxWidget* widget = widgetAtRow(row);
-            if (widget == nullptr) {
-                return nullptr;
-            }
-
-            return widget->layer();
         }
     }
 }

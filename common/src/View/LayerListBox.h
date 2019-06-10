@@ -32,7 +32,7 @@ class QListWidget;
 
 namespace TrenchBroom {
     namespace View {
-        class LayerListBoxWidget : public QWidget {
+        class LayerListBoxWidget : public ControlListBoxItemRenderer {
             Q_OBJECT
         private:
             MapDocumentWPtr m_document;
@@ -41,55 +41,57 @@ namespace TrenchBroom {
             QLabel* m_infoText;
             QAbstractButton* m_hiddenButton;
             QAbstractButton* m_lockButton;
-
         public:
-            LayerListBoxWidget(QWidget* parent, MapDocumentWPtr document, Model::Layer* layer);
+            LayerListBoxWidget(MapDocumentWPtr document, Model::Layer* layer, QWidget* parent = nullptr);
+
+            void update(size_t index) override;
+            void setSelected(bool selected) override;
+
             Model::Layer* layer() const;
-            void refresh();
-
         private:
-            void mouseReleaseEvent(QMouseEvent* event) override;
-
+            void refresh();
+            bool eventFilter(QObject* target, QEvent* event) override;
         signals:
             void layerVisibilityToggled(Model::Layer* layer);
             void layerLockToggled(Model::Layer* layer);
+            void layerDoubleClicked(Model::Layer* layer);
             void layerRightClicked(Model::Layer* layer);
         };
 
-        class LayerListBox : public QWidget {
+        class LayerListBox : public ControlListBox {
             Q_OBJECT
         private:
             MapDocumentWPtr m_document;
-            QListWidget* m_list;
-            Model::LayerList m_layersInUi;
         public:
-            LayerListBox(QWidget* parent, MapDocumentWPtr document);
+            explicit LayerListBox(MapDocumentWPtr document, QWidget* parent = nullptr);
             ~LayerListBox() override;
 
             Model::Layer* selectedLayer() const;
             void setSelectedLayer(Model::Layer* layer);
+        private:
+            size_t itemCount() const override;
 
+            ControlListBoxItemRenderer* createItemRenderer(QWidget* parent, size_t index) override;
+
+            void selectedRowChanged(int index) override;
+
+        private:
+            void bindObservers();
+            void unbindObservers();
+
+            void documentDidChange(MapDocument* document);
+            void nodesWereAddedOrRemoved(const Model::NodeList& nodes);
+            void nodesDidChange(const Model::NodeList& nodes);
+            void currentLayerDidChange(const Model::Layer* layer);
+
+            const LayerListBoxWidget* widgetAtRow(int row) const;
+            Model::Layer* layerForRow(int row) const;
         signals:
             void layerSelected(Model::Layer* layer);
             void layerSetCurrent(Model::Layer* layer);
             void layerRightClicked(Model::Layer* layer);
             void layerVisibilityToggled(Model::Layer* layer);
             void layerLockToggled(Model::Layer* layer);
-        private:
-            void createGui();
-            void bindObservers();
-            void unbindObservers();
-
-            void documentDidChange(MapDocument* document);
-            void nodesDidChange(const Model::NodeList& nodes);
-            void currentLayerDidChange(const Model::Layer* layer);
-
-            void bindEvents();
-            void refreshList();
-
-            LayerListBoxWidget* widgetAtRow(int row);
-            Model::Layer* layerForItem(QListWidgetItem* item);
-            Model::Layer* layerForRow(int row);
         };
     }
 }

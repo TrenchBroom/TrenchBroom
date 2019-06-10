@@ -104,11 +104,14 @@ namespace TrenchBroom {
         }
 
         QWidget* makeEmphasized(QWidget* widget) {
-            makeDefault(widget);
-
             QFont font;
             font.setBold(true);
             widget->setFont(font);
+            return widget;
+        }
+
+        QWidget* makeUnemphasized(QWidget* widget) {
+            widget->setFont(QFont());
             return widget;
         }
 
@@ -149,6 +152,11 @@ namespace TrenchBroom {
             palette.setColor(QPalette::Normal, QPalette::WindowText, palette.color(QPalette::Normal, QPalette::HighlightedText));
             palette.setColor(QPalette::Normal, QPalette::Text, palette.color(QPalette::Normal, QPalette::HighlightedText));
             widget->setPalette(palette);
+            return widget;
+        }
+
+        QWidget* makeUnselected(QWidget* widget) {
+            widget->setPalette(QPalette());
             return widget;
         }
 

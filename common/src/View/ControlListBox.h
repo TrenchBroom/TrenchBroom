@@ -58,11 +58,13 @@ namespace TrenchBroom {
              */
             void reload();
 
-            /*
+            /**
              * Updates the information displayed by the items of this list box. Iterates over all items in this list box
              * and updates the displayed information by creating new renderers.
              */
             void updateItems();
+
+            const ControlListBoxItemRenderer* renderer(int i) const;
         private:
             void addItemRenderer(ControlListBoxItemRenderer* renderer);
             void setItemRenderer(QListWidgetItem* widgetItem, ControlListBoxItemRenderer* renderer);

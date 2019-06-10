@@ -116,6 +116,14 @@ namespace TrenchBroom {
             setUpdatesEnabled(true);
         }
 
+        const ControlListBoxItemRenderer* ControlListBox::renderer(const int i) const {
+            if (i < 0 || i >= count()) {
+                return nullptr;
+            }
+            auto* widgetItem = m_listWidget->item(i);
+            return static_cast<ControlListBoxItemRenderer*>(m_listWidget->itemWidget(widgetItem));
+        }
+
         void ControlListBox::addItemRenderer(ControlListBoxItemRenderer* renderer) {
             renderer->setContentsMargins(LayoutConstants::MediumHMargin, LayoutConstants::NarrowVMargin, LayoutConstants::MediumHMargin, LayoutConstants::NarrowVMargin);
             auto* widgetItem = new QListWidgetItem(m_listWidget);
