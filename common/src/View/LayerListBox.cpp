@@ -73,9 +73,7 @@ namespace TrenchBroom {
             itemPanelBottomLayout->addSpacing(LayoutConstants::NarrowHMargin);
 
             auto* itemPanelLayout = new QVBoxLayout();
-            itemPanelLayout->setContentsMargins(
-                LayoutConstants::NarrowHMargin, LayoutConstants::NarrowVMargin,
-                LayoutConstants::NarrowHMargin, LayoutConstants::NarrowVMargin);
+            itemPanelLayout->setContentsMargins(0, 0, 0, 0);
             itemPanelLayout->setSpacing(0);
 
             itemPanelLayout->addSpacing(LayoutConstants::NarrowVMargin);
@@ -131,13 +129,13 @@ namespace TrenchBroom {
                 auto* mouseEvent = static_cast<QMouseEvent*>(event);
                 if (mouseEvent->button() == Qt::LeftButton) {
                     emit layerDoubleClicked(m_layer);
-                    return false;
+                    return true;
                 }
             } else if (event->type() == QEvent::MouseButtonRelease) {
                 auto* mouseEvent = static_cast<QMouseEvent*>(event);
                 if (mouseEvent->button() == Qt::RightButton) {
                     emit layerRightClicked(m_layer);
-                    return false;
+                    return true;
                 }
             }
             return QObject::eventFilter(target, event);
