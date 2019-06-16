@@ -121,6 +121,7 @@ namespace TrenchBroom {
         void setWindowIconTB(QWidget* window);
         void setDebugBackgroundColor(QWidget* widget, const QColor& color);
 
+        void setDefaultWindowColor(QWidget* widget);
         void setBaseWindowColor(QWidget* widget);
 
         QLineEdit* createSearchBox();

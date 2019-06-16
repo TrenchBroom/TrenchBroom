@@ -53,19 +53,16 @@ namespace TrenchBroom {
             virtual void accept(const CompilationTaskConstVisitor& visitor) = 0;
             virtual void accept(const ConstCompilationTaskConstVisitor& visitor) const = 0;
 
-            CompilationTask* clone() const;
-        private:
-            virtual CompilationTask* doClone() const = 0;
-        private:
-            CompilationTask(const CompilationTask& other);
-            CompilationTask& operator=(const CompilationTask& other);
+            virtual CompilationTask* clone() const = 0;
+
+            deleteCopyAndMove(CompilationTask)
         };
 
         class CompilationExportMap : public CompilationTask {
         private:
             String m_targetSpec;
         public:
-            CompilationExportMap(const String& targetSpec);
+            explicit CompilationExportMap(const String& targetSpec);
 
             void accept(CompilationTaskVisitor& visitor) override;
             void accept(ConstCompilationTaskVisitor& visitor) const override;
@@ -75,11 +72,10 @@ namespace TrenchBroom {
             const String& targetSpec() const;
 
             void setTargetSpec(const String& targetSpec);
-        private:
-            CompilationTask* doClone() const override;
-        private:
-            CompilationExportMap(const CompilationExportMap& other);
-            CompilationExportMap& operator=(const CompilationExportMap& other);
+
+            CompilationExportMap* clone() const override;
+
+            deleteCopyAndMove(CompilationExportMap)
         };
 
         class CompilationCopyFiles : public CompilationTask {
@@ -99,11 +95,10 @@ namespace TrenchBroom {
 
             void setSourceSpec(const String& sourceSpec);
             void setTargetSpec(const String& targetSpec);
-        private:
-            CompilationTask* doClone() const override;
-        private:
-            CompilationCopyFiles(const CompilationCopyFiles& other);
-            CompilationCopyFiles& operator=(const CompilationCopyFiles& other);
+
+            CompilationCopyFiles* clone() const override;
+
+            deleteCopyAndMove(CompilationCopyFiles)
         };
 
         class CompilationRunTool : public CompilationTask {
@@ -123,47 +118,46 @@ namespace TrenchBroom {
 
             void setToolSpec(const String& toolSpec);
             void setParameterSpec(const String& parameterSpec);
-        private:
-            CompilationTask* doClone() const override;
-        private:
-            CompilationRunTool(const CompilationRunTool& other);
-            CompilationRunTool& operator=(const CompilationRunTool& other);
+
+            CompilationRunTool* clone() const override;
+
+            deleteCopyAndMove(CompilationRunTool)
         };
 
         class CompilationTaskVisitor {
         public:
             virtual ~CompilationTaskVisitor();
 
-            virtual void visit(CompilationExportMap* task) = 0;
-            virtual void visit(CompilationCopyFiles* task) = 0;
-            virtual void visit(CompilationRunTool* task) = 0;
+            virtual void visit(CompilationExportMap& task) = 0;
+            virtual void visit(CompilationCopyFiles& task) = 0;
+            virtual void visit(CompilationRunTool& task) = 0;
         };
 
         class ConstCompilationTaskVisitor {
         public:
             virtual ~ConstCompilationTaskVisitor();
 
-            virtual void visit(const CompilationExportMap* task) = 0;
-            virtual void visit(const CompilationCopyFiles* task) = 0;
-            virtual void visit(const CompilationRunTool* task) = 0;
+            virtual void visit(const CompilationExportMap& task) = 0;
+            virtual void visit(const CompilationCopyFiles& task) = 0;
+            virtual void visit(const CompilationRunTool& task) = 0;
         };
 
         class CompilationTaskConstVisitor {
         public:
             virtual ~CompilationTaskConstVisitor();
 
-            virtual void visit(CompilationExportMap* task) const = 0;
-            virtual void visit(CompilationCopyFiles* task) const = 0;
-            virtual void visit(CompilationRunTool* task) const = 0;
+            virtual void visit(CompilationExportMap& task) const = 0;
+            virtual void visit(CompilationCopyFiles& task) const = 0;
+            virtual void visit(CompilationRunTool& task) const = 0;
         };
 
         class ConstCompilationTaskConstVisitor {
         public:
             virtual ~ConstCompilationTaskConstVisitor();
 
-            virtual void visit(const CompilationExportMap* task) const = 0;
-            virtual void visit(const CompilationCopyFiles* task) const = 0;
-            virtual void visit(const CompilationRunTool* task) const = 0;
+            virtual void visit(const CompilationExportMap& task) const = 0;
+            virtual void visit(const CompilationCopyFiles& task) const = 0;
+            virtual void visit(const CompilationRunTool& task) const = 0;
         };
     }
 }

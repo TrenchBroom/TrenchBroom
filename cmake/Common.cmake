@@ -287,15 +287,15 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/ColorTable.cpp
 	${COMMON_SOURCE_DIR}/View/Command.cpp
 	${COMMON_SOURCE_DIR}/View/CommandProcessor.cpp
-#	${COMMON_SOURCE_DIR}/View/CompilationContext.cpp
-#	${COMMON_SOURCE_DIR}/View/CompilationDialog.cpp
-#	${COMMON_SOURCE_DIR}/View/CompilationProfileEditor.cpp
-#	${COMMON_SOURCE_DIR}/View/CompilationProfileListBox.cpp
-#	${COMMON_SOURCE_DIR}/View/CompilationProfileManager.cpp
-#	${COMMON_SOURCE_DIR}/View/CompilationRun.cpp
-#	${COMMON_SOURCE_DIR}/View/CompilationRunner.cpp
-#	${COMMON_SOURCE_DIR}/View/CompilationTaskList.cpp
-#	${COMMON_SOURCE_DIR}/View/CompilationVariables.cpp
+	${COMMON_SOURCE_DIR}/View/CompilationContext.cpp
+	${COMMON_SOURCE_DIR}/View/CompilationDialog.cpp
+	${COMMON_SOURCE_DIR}/View/CompilationProfileEditor.cpp
+	${COMMON_SOURCE_DIR}/View/CompilationProfileListBox.cpp
+	${COMMON_SOURCE_DIR}/View/CompilationProfileManager.cpp
+	${COMMON_SOURCE_DIR}/View/CompilationRun.cpp
+	${COMMON_SOURCE_DIR}/View/CompilationRunner.cpp
+	${COMMON_SOURCE_DIR}/View/CompilationTaskList.cpp
+	${COMMON_SOURCE_DIR}/View/CompilationVariables.cpp
 	${COMMON_SOURCE_DIR}/View/Console.cpp
 	${COMMON_SOURCE_DIR}/View/ControlListBox.cpp
 	${COMMON_SOURCE_DIR}/View/ContainerBar.cpp
@@ -837,15 +837,15 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/ColorTable.h
 	${COMMON_SOURCE_DIR}/View/Command.h
 	${COMMON_SOURCE_DIR}/View/CommandProcessor.h
-#	${COMMON_SOURCE_DIR}/View/CompilationContext.h
-#	${COMMON_SOURCE_DIR}/View/CompilationDialog.h
-#	${COMMON_SOURCE_DIR}/View/CompilationProfileEditor.h
-#	${COMMON_SOURCE_DIR}/View/CompilationProfileListBox.h
-#	${COMMON_SOURCE_DIR}/View/CompilationProfileManager.h
-#	${COMMON_SOURCE_DIR}/View/CompilationRun.h
-#	${COMMON_SOURCE_DIR}/View/CompilationRunner.h
-#	${COMMON_SOURCE_DIR}/View/CompilationTaskList.h
-#	${COMMON_SOURCE_DIR}/View/CompilationVariables.h
+	${COMMON_SOURCE_DIR}/View/CompilationContext.h
+	${COMMON_SOURCE_DIR}/View/CompilationDialog.h
+	${COMMON_SOURCE_DIR}/View/CompilationProfileEditor.h
+	${COMMON_SOURCE_DIR}/View/CompilationProfileListBox.h
+	${COMMON_SOURCE_DIR}/View/CompilationProfileManager.h
+	${COMMON_SOURCE_DIR}/View/CompilationRun.h
+	${COMMON_SOURCE_DIR}/View/CompilationRunner.h
+	${COMMON_SOURCE_DIR}/View/CompilationTaskList.h
+	${COMMON_SOURCE_DIR}/View/CompilationVariables.h
 	${COMMON_SOURCE_DIR}/View/Console.h
 	${COMMON_SOURCE_DIR}/View/ContainerBar.h
 	${COMMON_SOURCE_DIR}/View/ControlListBox.h

@@ -28,371 +28,326 @@
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
 
-#include <wx/button.h>
-#include <wx/filedlg.h>
-#include <wx/gbsizer.h>
-#include <wx/sizer.h>
+#include <QBoxLayout>
+#include <QCompleter>
+#include <QFileDialog>
+#include <QFormLayout>
 #include <QLabel>
-#include <wx/textctrl.h>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QStringListModel>
 
 namespace TrenchBroom {
     namespace View {
-        template <typename T>
-        class CompilationTaskList::TaskEditor : public Item {
-        protected:
-            const wxSize m_margins;
-            const String m_title;
-            MapDocumentWPtr m_document;
-            Model::CompilationProfile* m_profile;
-            T* m_task;
-            TitledPanel* m_panel;
+        CompilationTaskEditorBase::CompilationTaskEditorBase(const QString& title, MapDocumentWPtr document, Model::CompilationProfile& profile, Model::CompilationTask& task, QWidget* parent) :
+        ControlListBoxItemRenderer(parent),
+        m_title(title),
+        m_document(document),
+        m_profile(&profile),
+        m_task(&task),
+        m_panel(nullptr) {
+            m_panel = new TitledPanel(this, m_title);
 
-            using AutoCompleteTextControlList = std::list<AutoCompleteTextControl*>;
-            AutoCompleteTextControlList m_autoCompleteTextControls;
-        protected:
-            TaskEditor(QWidget* parent, const wxSize& margins, const String& title, MapDocumentWPtr document, Model::CompilationProfile* profile, T* task) :
-            Item(parent),
-            m_margins(margins),
-            m_title(title),
-            m_document(document),
-            m_profile(profile),
-            m_task(task),
-            m_panel(nullptr) {
-                ensure(m_profile != nullptr, "profile is null");
-                ensure(m_task != nullptr, "task is null");
-            }
-        public:
-            void initialize() {
-                m_panel = new TitledPanel(this, m_title);
-                QWidget* editor = createGui(m_panel->getPanel());
+            auto* layout = new QVBoxLayout();
+            layout->addWidget(m_panel);
+            setLayout(layout);
 
-                auto* editorSizer = new QVBoxLayout();
-                editorSizer->addSpacing(m_margins.y);
-                editorSizer->addWidget(editor, wxSizerFlags().Expand().Border(wxLEFT | wxRIGHT, m_margins.x));
-                editorSizer->addSpacing(m_margins.y);
-                m_panel->getPanel()->setLayout(editorSizer);
+            addProfileObservers();
+            addTaskObservers();
+        }
 
-                auto* panelSizer = new QVBoxLayout();
-                panelSizer->addWidget(m_panel, wxSizerFlags().Expand());
-                setLayout(panelSizer);
+        CompilationTaskEditorBase::~CompilationTaskEditorBase() {
+            removeProfileObservers();
+            removeTaskObservers();
+        }
 
-                refresh();
-                addProfileObservers();
-                addTaskObservers();
-            }
-        public:
-            ~TaskEditor() override {
-                removeProfileObservers();
-                removeTaskObservers();
-            }
-        private:
-            void setSelectionColours(const wxColour& foreground, const wxColour& background) override {
-                setColours(m_panel->getPanel(), foreground, background);
+        void CompilationTaskEditorBase::setupAutoCompletion(QLineEdit* lineEdit) {
+
+            auto* completer = new QCompleter();
+            completer->setCaseSensitivity(Qt::CaseInsensitive);
+            lineEdit->setCompleter(completer);
+
+            auto* model = new QStringListModel();
+            m_completerModels.push_back(model);
+            updateAutoComplete(model);
+        }
+
+        void CompilationTaskEditorBase::updateAutoComplete(QStringListModel* model) {
+            const auto workDir = EL::interpolate(m_profile->workDirSpec(), CompilationWorkDirVariables(lock(m_document)));
+            const auto variables = CompilationVariables(lock(m_document), workDir);
+
+            auto completions = QStringList();
+            for (const auto& name : variables.names()) {
+                completions.append(QString::fromStdString(name));
             }
 
-            void setDefaultColours(const wxColour& foreground, const wxColour& background) override {
-                setColours(m_panel->getPanel(), foreground, background);
+            model->setStringList(completions);
+        }
+
+        void CompilationTaskEditorBase::addProfileObservers() {
+            m_profile->profileWillBeRemoved.addObserver(this, &CompilationTaskEditorBase::profileWillBeRemoved);
+            m_profile->profileDidChange.addObserver(this, &CompilationTaskEditorBase::profileDidChange);
+        }
+
+        void CompilationTaskEditorBase::removeProfileObservers() {
+            if (m_profile != nullptr) {
+                m_profile->profileWillBeRemoved.removeObserver(this, &CompilationTaskEditorBase::profileWillBeRemoved);
+                m_profile->profileDidChange.removeObserver(this, &CompilationTaskEditorBase::profileDidChange);
             }
-        protected:
-            void enableAutoComplete(AutoCompleteTextControl* control) {
-                updateAutoComplete(control);
-                m_autoCompleteTextControls.push_back(control);
+        }
+
+        void CompilationTaskEditorBase::addTaskObservers() {
+            m_task->taskWillBeRemoved.addObserver(this, &CompilationTaskEditorBase::taskWillBeRemoved);
+            m_task->taskDidChange.addObserver(this, &CompilationTaskEditorBase::taskDidChange);
+        }
+
+        void CompilationTaskEditorBase::removeTaskObservers() {
+            if (m_task != nullptr) {
+                m_task->taskWillBeRemoved.removeObserver(this, &CompilationTaskEditorBase::taskWillBeRemoved);
+                m_task->taskDidChange.removeObserver(this, &CompilationTaskEditorBase::taskDidChange);
             }
-        private:
-            void updateAutoComplete(AutoCompleteTextControl* control) {
-                const String workDir = EL::interpolate(m_profile->workDirSpec(), CompilationWorkDirVariables(lock(m_document)));
-                const CompilationVariables variables(lock(m_document), workDir);
+        }
 
-                control->SetHelper(new ELAutoCompleteHelper(variables));
+        void CompilationTaskEditorBase::profileWillBeRemoved() {
+            removeProfileObservers();
+            removeTaskObservers();
+            m_task = nullptr;
+            m_profile = nullptr;
+        }
+
+        void CompilationTaskEditorBase::profileDidChange() {
+            for (auto* model : m_completerModels) {
+                updateAutoComplete(model);
             }
-        private:
-            void addProfileObservers() {
-                m_profile->profileWillBeRemoved.addObserver(this, &TaskEditor::profileWillBeRemoved);
-                m_profile->profileDidChange.addObserver(this, &TaskEditor::profileDidChange);
+        }
+
+        void CompilationTaskEditorBase::taskWillBeRemoved() {
+            removeTaskObservers();
+            m_task = nullptr;
+        }
+
+        void CompilationTaskEditorBase::taskDidChange() {
+            if (m_task != nullptr) {
+                updateTask();
             }
+        }
 
-            void removeProfileObservers() {
-                if (m_profile != nullptr) {
-                    m_profile->profileWillBeRemoved.removeObserver(this, &TaskEditor::profileWillBeRemoved);
-                    m_profile->profileDidChange.removeObserver(this, &TaskEditor::profileDidChange);
-                }
+        void CompilationTaskEditorBase::update(const size_t index) {
+            updateTask();
+        }
+
+        CompilationExportMapTaskEditor::CompilationExportMapTaskEditor(MapDocumentWPtr document, Model::CompilationProfile& profile, Model::CompilationExportMap& task, QWidget* parent) :
+        CompilationTaskEditorBase("Export Map", document, profile, task, parent),
+        m_targetEditor(nullptr) {
+            auto* formLayout = new QFormLayout();
+            formLayout->setContentsMargins(LayoutConstants::WideHMargin, LayoutConstants::WideVMargin, LayoutConstants::WideHMargin, LayoutConstants::WideVMargin);
+            formLayout->setVerticalSpacing(LayoutConstants::NarrowVMargin);
+            formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+            m_panel->getPanel()->setLayout(formLayout);
+
+            m_targetEditor = new QLineEdit();
+            setupAutoCompletion(m_targetEditor);
+            formLayout->addRow("Target", m_targetEditor);
+
+            connect(m_targetEditor, &QLineEdit::textEdited, this, &CompilationExportMapTaskEditor::targetSpecChanged);
+        }
+
+        void CompilationExportMapTaskEditor::updateTask() {
+            const auto targetSpec = QString::fromStdString(task().targetSpec());
+            if (m_targetEditor->text() != targetSpec) {
+                m_targetEditor->setText(targetSpec);
             }
+        }
 
-            void addTaskObservers() {
-                m_task->taskWillBeRemoved.addObserver(this, &TaskEditor::taskWillBeRemoved);
-                m_task->taskDidChange.addObserver(this, &TaskEditor::taskDidChange);
-            }
+        Model::CompilationExportMap& CompilationExportMapTaskEditor::task() {
+            // This is safe because we know what type of task the editor was initialized with.
+            // We have to do this to avoid using a template as the base class.
+            return static_cast<Model::CompilationExportMap&>(*m_task);
+        }
 
-            void removeTaskObservers() {
-                if (m_task != nullptr) {
-                    m_task->taskWillBeRemoved.removeObserver(this, &TaskEditor::taskWillBeRemoved);
-                    m_task->taskDidChange.removeObserver(this, &TaskEditor::taskDidChange);
-                }
-            }
+        void CompilationExportMapTaskEditor::targetSpecChanged(const QString& text) {
+            task().setTargetSpec(text.toStdString());
+        }
 
-            void taskWillBeRemoved() {
-                removeTaskObservers();
-                m_task = nullptr;
-            }
+        CompilationCopyFilesTaskEditor::CompilationCopyFilesTaskEditor(MapDocumentWPtr document, Model::CompilationProfile& profile, Model::CompilationCopyFiles& task, QWidget* parent) :
+        CompilationTaskEditorBase("Copy Files", document, profile, task, parent),
+        m_sourceEditor(nullptr),
+        m_targetEditor(nullptr) {
+            auto* formLayout = new QFormLayout();
+            formLayout->setContentsMargins(LayoutConstants::WideHMargin, LayoutConstants::WideVMargin, LayoutConstants::WideHMargin, LayoutConstants::WideVMargin);
+            formLayout->setVerticalSpacing(LayoutConstants::NarrowVMargin);
+            formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+            m_panel->getPanel()->setLayout(formLayout);
 
-            void taskDidChange() {
-                if (m_task != nullptr)
-                    refresh();
-            }
+            m_sourceEditor = new QLineEdit();
+            setupAutoCompletion(m_sourceEditor);
+            formLayout->addRow("Source", m_sourceEditor);
 
-            void profileWillBeRemoved() {
-                removeProfileObservers();
-                removeTaskObservers();
-                m_task = nullptr;
-                m_profile = nullptr;
-            }
+            m_targetEditor = new QLineEdit();
+            setupAutoCompletion(m_targetEditor);
+            formLayout->addRow("Target", m_targetEditor);
 
-            void profileDidChange() {
-                for (AutoCompleteTextControl* control : m_autoCompleteTextControls)
-                    updateAutoComplete(control);
-            }
+            connect(m_sourceEditor, &QLineEdit::textEdited, this, &CompilationCopyFilesTaskEditor::sourceSpecChanged);
+            connect(m_targetEditor, &QLineEdit::textEdited, this, &CompilationCopyFilesTaskEditor::targetSpecChanged);
+        }
 
-            virtual QWidget* createGui(QWidget* parent) = 0;
-            virtual void refresh() = 0;
-        };
-
-        class CompilationTaskList::ExportMapTaskEditor : public TaskEditor<Model::CompilationExportMap> {
-        private:
-            AutoCompleteTextControl* m_targetEditor;
-        public:
-            ExportMapTaskEditor(QWidget* parent, const wxSize& margins, MapDocumentWPtr document, Model::CompilationProfile* profile, Model::CompilationExportMap* task) :
-            TaskEditor(parent, margins, "Export Map", document, profile, task),
-            m_targetEditor(nullptr) {}
-        private:
-            QWidget* createGui(QWidget* parent) override {
-                QWidget* container = new QWidget(parent);
-
-                QLabel* targetLabel = new QLabel(container, wxID_ANY, "Target");
-                m_targetEditor = new AutoCompleteTextControl(container, wxID_ANY);
-                m_targetEditor->Bind(wxEVT_TEXT, &ExportMapTaskEditor::OnTargetSpecChanged, this);
-                enableAutoComplete(m_targetEditor);
-
-                const int LabelFlags   = wxALIGN_RIGHT | Qt::AlignVCenter | wxRIGHT;
-                const int EditorFlags  = Qt::AlignVCenter | wxEXPAND;
-                const int LabelMargin  = LayoutConstants::NarrowHMargin;
-
-                wxGridBagSizer* sizer = new wxGridBagSizer(LayoutConstants::NarrowVMargin);
-                sizer->addWidget(targetLabel,     wxGBPosition(0, 0), wxDefaultSpan, LabelFlags, LabelMargin);
-                sizer->addWidget(m_targetEditor,  wxGBPosition(0, 1), wxDefaultSpan, EditorFlags);
-
-                sizer->AddGrowableCol(1);
-                container->setLayout(sizer);
-                return container;
-            }
-
-            void OnTargetSpecChanged() {
-                m_task->setTargetSpec(m_targetEditor->GetValue().ToStdString());
-            }
-
-            void refresh() override {
-                if (m_targetEditor->GetValue().ToStdString() != m_task->targetSpec()) {
-                    m_targetEditor->ChangeValue(m_task->targetSpec());
-                }
-            }
-        };
-
-        class CompilationTaskList::CopyFilesTaskEditor : public TaskEditor<Model::CompilationCopyFiles> {
-        private:
-            AutoCompleteTextControl* m_sourceEditor;
-            AutoCompleteTextControl* m_targetEditor;
-        public:
-            CopyFilesTaskEditor(QWidget* parent, const wxSize& margins, MapDocumentWPtr document, Model::CompilationProfile* profile, Model::CompilationCopyFiles* task) :
-            TaskEditor(parent, margins, "Copy Files", document, profile, task),
-            m_sourceEditor(nullptr),
-            m_targetEditor(nullptr) {}
-        private:
-            QWidget* createGui(QWidget* parent) override {
-                QWidget* container = new QWidget(parent);
-
-                QLabel* sourceLabel = new QLabel(container, wxID_ANY, "Source");
-                m_sourceEditor = new AutoCompleteTextControl(container, wxID_ANY);
-                m_sourceEditor->Bind(wxEVT_TEXT, &CopyFilesTaskEditor::OnSourceSpecChanged, this);
-                enableAutoComplete(m_sourceEditor);
-
-                QLabel* targetLabel = new QLabel(container, wxID_ANY, "Target");
-                m_targetEditor = new AutoCompleteTextControl(container, wxID_ANY);
-                m_targetEditor->Bind(wxEVT_TEXT, &CopyFilesTaskEditor::OnTargetSpecChanged, this);
-                enableAutoComplete(m_targetEditor);
-
-                const int LabelFlags   = wxALIGN_RIGHT | Qt::AlignVCenter | wxRIGHT;
-                const int EditorFlags  = Qt::AlignVCenter | wxEXPAND;
-                const int LabelMargin  = LayoutConstants::NarrowHMargin;
-
-                wxGridBagSizer* sizer = new wxGridBagSizer(LayoutConstants::NarrowVMargin);
-                sizer->addWidget(sourceLabel,     wxGBPosition(0, 0), wxDefaultSpan, LabelFlags, LabelMargin);
-                sizer->addWidget(m_sourceEditor,  wxGBPosition(0, 1), wxDefaultSpan, EditorFlags);
-                sizer->addWidget(targetLabel,     wxGBPosition(1, 0), wxDefaultSpan, LabelFlags, LabelMargin);
-                sizer->addWidget(m_targetEditor,  wxGBPosition(1, 1), wxDefaultSpan, EditorFlags);
-
-                sizer->AddGrowableCol(1);
-                container->setLayout(sizer);
-                return container;
+        void CompilationCopyFilesTaskEditor::updateTask() {
+            const auto sourceSpec = QString::fromStdString(task().sourceSpec());
+            if (m_sourceEditor->text() != sourceSpec) {
+                m_sourceEditor->setText(sourceSpec);
             }
 
-            void OnSourceSpecChanged() {
-                m_task->setSourceSpec(m_sourceEditor->GetValue().ToStdString());
+            const auto targetSpec = QString::fromStdString(task().targetSpec());
+            if (m_targetEditor->text() != targetSpec) {
+                m_targetEditor->setText(targetSpec);
+            }
+        }
+
+        Model::CompilationCopyFiles& CompilationCopyFilesTaskEditor::task() {
+            // This is safe because we know what type of task the editor was initialized with.
+            // We have to do this to avoid using a template as the base class.
+            return static_cast<Model::CompilationCopyFiles&>(*m_task);
+        }
+
+        void CompilationCopyFilesTaskEditor::sourceSpecChanged(const QString& text) {
+            task().setSourceSpec(text.toStdString());
+        }
+
+        void CompilationCopyFilesTaskEditor::targetSpecChanged(const QString& text) {
+            task().setTargetSpec(text.toStdString());
+        }
+
+        CompilationRunToolTaskEditor::CompilationRunToolTaskEditor(MapDocumentWPtr document, Model::CompilationProfile& profile, Model::CompilationRunTool& task, QWidget* parent) :
+        CompilationTaskEditorBase("Run Tool", document, profile, task, parent),
+        m_toolEditor(nullptr),
+        m_parametersEditor(nullptr) {
+            auto* formLayout = new QFormLayout();
+            formLayout->setContentsMargins(LayoutConstants::WideHMargin, LayoutConstants::WideVMargin, LayoutConstants::WideHMargin, LayoutConstants::WideVMargin);
+            formLayout->setVerticalSpacing(LayoutConstants::NarrowVMargin);
+            formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+            m_panel->getPanel()->setLayout(formLayout);
+
+            m_toolEditor = new QLineEdit();
+            setupAutoCompletion(m_toolEditor);
+
+            auto* browseToolButton = new QPushButton("...");
+            browseToolButton->setToolTip("Click to browse");
+
+            auto* toolLayout = new QHBoxLayout();
+            toolLayout->setContentsMargins(0, 0, 0, 0);
+            toolLayout->setSpacing(LayoutConstants::NarrowHMargin);
+            toolLayout->addWidget(m_toolEditor, 1);
+            toolLayout->addWidget(browseToolButton);
+
+            formLayout->addRow("Tool", toolLayout);
+
+            m_parametersEditor = new QLineEdit();
+            setupAutoCompletion(m_parametersEditor);
+            formLayout->addRow("Parameters", m_parametersEditor);
+
+            connect(m_toolEditor, &QLineEdit::textEdited, this, &CompilationRunToolTaskEditor::toolSpecChanged);
+            connect(browseToolButton, &QPushButton::clicked, this, &CompilationRunToolTaskEditor::browseTool);
+            connect(m_parametersEditor, &QLineEdit::textEdited, this, &CompilationRunToolTaskEditor::parameterSpecChanged);
+        }
+
+        void CompilationRunToolTaskEditor::updateTask() {
+            const auto toolSpec = QString::fromStdString(task().toolSpec());
+            if (m_toolEditor->text() != toolSpec) {
+                m_toolEditor->setText(toolSpec);
             }
 
-            void OnTargetSpecChanged() {
-                m_task->setTargetSpec(m_targetEditor->GetValue().ToStdString());
+            const auto parametersSpec = QString::fromStdString(task().parameterSpec());
+            if (m_parametersEditor->text() != parametersSpec) {
+                m_parametersEditor->setText(parametersSpec);
             }
+        }
 
-            void refresh() override {
-                // call ChangeValue to avoid sending a change event
-                if (m_sourceEditor->GetValue().ToStdString() != m_task->sourceSpec()) {
-                    m_sourceEditor->ChangeValue(m_task->sourceSpec());
-                }
-                if (m_targetEditor->GetValue().ToStdString() != m_task->targetSpec()) {
-                    m_targetEditor->ChangeValue(m_task->targetSpec());
-                }
+        Model::CompilationRunTool& CompilationRunToolTaskEditor::task() {
+            // This is safe because we know what type of task the editor was initialized with.
+            // We have to do this to avoid using a template as the base class.
+            return static_cast<Model::CompilationRunTool&>(*m_task);
+        }
+
+        void CompilationRunToolTaskEditor::browseTool() {
+            const QString fileName = QFileDialog::getOpenFileName(this, "Select Tool");
+            if (!fileName.isEmpty()) {
+                task().setToolSpec(fileName.toStdString());
             }
-        };
+        }
 
-        class CompilationTaskList::RunToolTaskEditor : public TaskEditor<Model::CompilationRunTool> {
-        private:
-            AutoCompleteTextControl* m_toolEditor;
-            AutoCompleteTextControl* m_parametersEditor;
-        public:
-            RunToolTaskEditor(QWidget* parent, const wxSize& margins, MapDocumentWPtr document, Model::CompilationProfile* profile, Model::CompilationRunTool* task) :
-            TaskEditor(parent, margins, "Run Tool", document, profile, task),
-            m_toolEditor(nullptr),
-            m_parametersEditor(nullptr) {}
-        private:
-            QWidget* createGui(QWidget* parent) override {
-                QWidget* container = new QWidget(parent);
+        void CompilationRunToolTaskEditor::toolSpecChanged(const QString& text) {
+            task().setToolSpec(m_toolEditor->text().toStdString());
+        }
 
-                QLabel* toolLabel = new QLabel(container, wxID_ANY, "Tool");
-                m_toolEditor = new AutoCompleteTextControl(container, wxID_ANY);
-                m_toolEditor->Bind(wxEVT_TEXT, &RunToolTaskEditor::OnToolSpecChanged, this);
-                enableAutoComplete(m_toolEditor);
+        void CompilationRunToolTaskEditor::parameterSpecChanged(const QString& text) {
+            task().setParameterSpec(m_parametersEditor->text().toStdString());
+        }
 
-                wxButton* browseToolButton = new wxButton(container, wxID_ANY, "...", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
-                browseToolButton->Bind(&QAbstractButton::clicked, &RunToolTaskEditor::OnBrowseTool, this);
-
-                QLabel* parameterLabel = new QLabel(container, wxID_ANY, "Parameters");
-                m_parametersEditor = new AutoCompleteTextControl(container, wxID_ANY);
-                m_parametersEditor->Bind(wxEVT_TEXT, &RunToolTaskEditor::OnParameterSpecChanged, this);
-                enableAutoComplete(m_parametersEditor);
-
-                const int LabelFlags   = wxALIGN_RIGHT | Qt::AlignVCenter | wxRIGHT;
-                const int EditorFlags  = Qt::AlignVCenter | wxEXPAND;
-                const int LabelMargin  = LayoutConstants::NarrowHMargin;
-
-                wxGridBagSizer* sizer = new wxGridBagSizer(LayoutConstants::NarrowVMargin);
-                sizer->addWidget(toolLabel,           wxGBPosition(0, 0), wxDefaultSpan, LabelFlags, LabelMargin);
-                sizer->addWidget(m_toolEditor,        wxGBPosition(0, 1), wxDefaultSpan, EditorFlags);
-                sizer->addWidget(browseToolButton,    wxGBPosition(0, 2), wxDefaultSpan, wxLEFT, LabelMargin);
-                sizer->addWidget(parameterLabel,      wxGBPosition(1, 0), wxDefaultSpan, LabelFlags, LabelMargin);
-                sizer->addWidget(m_parametersEditor,  wxGBPosition(1, 1), wxGBSpan(1, 2), EditorFlags);
-
-                sizer->AddGrowableCol(1);
-
-                container->setLayout(sizer);
-                return container;
-            }
-
-            void OnBrowseTool() {
-                wxFileDialog browseDialog(this, "Select Tool", wxEmptyString, wxEmptyString, wxFileSelectorDefaultWildcardStr, wxFD_OPEN | wxFD_FILE_MUST_EXIST);
-                if (browseDialog.ShowModal() == wxID_OK)
-                    m_task->setToolSpec(browseDialog.GetPath().ToStdString());
-            }
-
-            void OnToolSpecChanged() {
-                m_task->setToolSpec(m_toolEditor->GetValue().ToStdString());
-            }
-
-            void OnParameterSpecChanged() {
-                m_task->setParameterSpec(m_parametersEditor->GetValue().ToStdString());
-            }
-
-            void refresh() override {
-                if (m_toolEditor->GetValue().ToStdString() != m_task->toolSpec()) {
-                    m_toolEditor->ChangeValue(m_task->toolSpec());
-                }
-                if (m_parametersEditor->GetValue().ToStdString() != m_task->parameterSpec()) {
-                    m_parametersEditor->ChangeValue(m_task->parameterSpec());
-                }
-            }
-        };
-
-        CompilationTaskList::CompilationTaskList(QWidget* parent, MapDocumentWPtr document) :
-        ControlListBox(parent, true, "Click the '+' button to create a task."),
+        CompilationTaskList::CompilationTaskList(MapDocumentWPtr document, QWidget* parent) :
+        ControlListBox("Click the '+' button to create a task.", parent),
         m_document(document),
         m_profile(nullptr) {}
 
         CompilationTaskList::~CompilationTaskList() {
-            if (m_profile != nullptr)
+            if (m_profile != nullptr) {
                 m_profile->profileDidChange.removeObserver(this, &CompilationTaskList::profileDidChange);
+            }
         }
 
         void CompilationTaskList::setProfile(Model::CompilationProfile* profile) {
-            if (m_profile != nullptr)
+            if (m_profile != nullptr) {
                 m_profile->profileDidChange.removeObserver(this, &CompilationTaskList::profileDidChange);
+            }
             m_profile = profile;
-            if (m_profile != nullptr)
+            if (m_profile != nullptr) {
                 m_profile->profileDidChange.addObserver(this, &CompilationTaskList::profileDidChange);
-            refresh();
+            }
+            reload();
         }
 
         void CompilationTaskList::profileDidChange() {
-            refresh();
-        }
-
-        void CompilationTaskList::refresh() {
-            if (m_profile == nullptr)
-                SetItemCount(0);
-            else
-                SetItemCount(m_profile->taskCount());
+            reload();
         }
 
         class CompilationTaskList::CompilationTaskEditorFactory : public Model::CompilationTaskVisitor {
         private:
-            QWidget* m_parent;
-            const wxSize m_margins;
             MapDocumentWPtr m_document;
-            Model::CompilationProfile* m_profile;
-            Item* m_result;
+            Model::CompilationProfile& m_profile;
+            QWidget* m_parent;
+            ControlListBoxItemRenderer* m_result;
         public:
-            CompilationTaskEditorFactory(QWidget* parent, const wxSize& margins, MapDocumentWPtr document, Model::CompilationProfile* profile) :
-            m_parent(parent),
-            m_margins(margins),
+            CompilationTaskEditorFactory(MapDocumentWPtr document, Model::CompilationProfile& profile, QWidget* parent) :
             m_document(document),
             m_profile(profile),
+            m_parent(parent),
             m_result(nullptr) {}
 
-            Item* result() const {
+            ControlListBoxItemRenderer* result() const {
                 return m_result;
             }
 
-            void visit(Model::CompilationExportMap* task) override {
-                TaskEditor<Model::CompilationExportMap>* editor = new ExportMapTaskEditor(m_parent, m_margins, m_document, m_profile, task);
-                editor->initialize();
-                m_result = editor;
+            void visit(Model::CompilationExportMap& task) override {
+                m_result = new CompilationExportMapTaskEditor(m_document, m_profile, task, m_parent);
             }
 
-            void visit(Model::CompilationCopyFiles* task) override {
-                TaskEditor<Model::CompilationCopyFiles>* editor = new CopyFilesTaskEditor(m_parent, m_margins, m_document, m_profile, task);
-                editor->initialize();
-                m_result = editor;
+            void visit(Model::CompilationCopyFiles& task) override {
+                m_result = new CompilationCopyFilesTaskEditor(m_document, m_profile, task, m_parent);
             }
 
-            void visit(Model::CompilationRunTool* task) override {
-                TaskEditor<Model::CompilationRunTool>* editor = new RunToolTaskEditor(m_parent, m_margins, m_document, m_profile, task);
-                editor->initialize();
-                m_result = editor;
+            void visit(Model::CompilationRunTool& task) override {
+                m_result = new CompilationRunToolTaskEditor(m_document, m_profile, task, m_parent);
             }
         };
 
-        ControlListBox::Item* CompilationTaskList::createItem(QWidget* parent, const wxSize& margins, const size_t index) {
+        size_t CompilationTaskList::itemCount() const {
+            return m_profile->taskCount();
+        }
+
+        ControlListBoxItemRenderer* CompilationTaskList::createItemRenderer(QWidget* parent, const size_t index) {
             ensure(m_profile != nullptr, "profile is null");
 
-            CompilationTaskEditorFactory factory(parent, margins, m_document, m_profile);
-            Model::CompilationTask* task = m_profile->task(index);
+            CompilationTaskEditorFactory factory(m_document, *m_profile, parent);
+            auto* task = m_profile->task(index);
             task->accept(factory);
             return factory.result();
         }

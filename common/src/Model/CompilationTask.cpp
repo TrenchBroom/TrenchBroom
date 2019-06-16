@@ -21,31 +21,27 @@
 
 namespace TrenchBroom {
     namespace Model {
-        CompilationTask::CompilationTask() {}
+        CompilationTask::CompilationTask() = default;
 
-        CompilationTask::~CompilationTask() {}
-
-        CompilationTask* CompilationTask::clone() const {
-            return doClone();
-        }
+        CompilationTask::~CompilationTask() = default;
 
         CompilationExportMap::CompilationExportMap(const String& targetSpec) :
         m_targetSpec(targetSpec) {}
 
         void CompilationExportMap::accept(CompilationTaskVisitor& visitor) {
-            visitor.visit(this);
+            visitor.visit(*this);
         }
 
         void CompilationExportMap::accept(ConstCompilationTaskVisitor& visitor) const {
-            visitor.visit(this);
+            visitor.visit(*this);
         }
 
         void CompilationExportMap::accept(const CompilationTaskConstVisitor& visitor) {
-            visitor.visit(this);
+            visitor.visit(*this);
         }
 
         void CompilationExportMap::accept(const ConstCompilationTaskConstVisitor& visitor) const {
-            visitor.visit(this);
+            visitor.visit(*this);
         }
 
         const String& CompilationExportMap::targetSpec() const {
@@ -57,7 +53,7 @@ namespace TrenchBroom {
             taskDidChange();
         }
 
-        CompilationTask* CompilationExportMap::doClone() const {
+        CompilationExportMap* CompilationExportMap::clone() const {
             return new CompilationExportMap(m_targetSpec);
         }
 
@@ -67,19 +63,19 @@ namespace TrenchBroom {
         m_targetSpec(targetSpec) {}
 
         void CompilationCopyFiles::accept(CompilationTaskVisitor& visitor) {
-            visitor.visit(this);
+            visitor.visit(*this);
         }
 
         void CompilationCopyFiles::accept(ConstCompilationTaskVisitor& visitor) const {
-            visitor.visit(this);
+            visitor.visit(*this);
         }
 
         void CompilationCopyFiles::accept(const CompilationTaskConstVisitor& visitor) {
-            visitor.visit(this);
+            visitor.visit(*this);
         }
 
         void CompilationCopyFiles::accept(const ConstCompilationTaskConstVisitor& visitor) const {
-            visitor.visit(this);
+            visitor.visit(*this);
         }
 
         const String& CompilationCopyFiles::sourceSpec() const {
@@ -100,7 +96,7 @@ namespace TrenchBroom {
             taskDidChange();
         }
 
-        CompilationTask* CompilationCopyFiles::doClone() const {
+        CompilationCopyFiles* CompilationCopyFiles::clone() const {
             return new CompilationCopyFiles(m_sourceSpec, m_targetSpec);
         }
 
@@ -110,19 +106,19 @@ namespace TrenchBroom {
         m_parameterSpec(parameterSpec) {}
 
         void CompilationRunTool::accept(CompilationTaskVisitor& visitor) {
-            visitor.visit(this);
+            visitor.visit(*this);
         }
 
         void CompilationRunTool::accept(ConstCompilationTaskVisitor& visitor) const {
-            visitor.visit(this);
+            visitor.visit(*this);
         }
 
         void CompilationRunTool::accept(const CompilationTaskConstVisitor& visitor) {
-            visitor.visit(this);
+            visitor.visit(*this);
         }
 
         void CompilationRunTool::accept(const ConstCompilationTaskConstVisitor& visitor) const {
-            visitor.visit(this);
+            visitor.visit(*this);
         }
 
         const String& CompilationRunTool::toolSpec() const {
@@ -143,13 +139,13 @@ namespace TrenchBroom {
             taskDidChange();
         }
 
-        CompilationTask* CompilationRunTool::doClone() const {
+        CompilationRunTool* CompilationRunTool::clone() const {
             return new CompilationRunTool(m_toolSpec, m_parameterSpec);
         }
 
-        CompilationTaskVisitor::~CompilationTaskVisitor() {}
-        ConstCompilationTaskVisitor::~ConstCompilationTaskVisitor() {}
-        CompilationTaskConstVisitor::~CompilationTaskConstVisitor() {}
-        ConstCompilationTaskConstVisitor::~ConstCompilationTaskConstVisitor() {}
+        CompilationTaskVisitor::~CompilationTaskVisitor() = default;
+        ConstCompilationTaskVisitor::~ConstCompilationTaskVisitor() = default;
+        CompilationTaskConstVisitor::~CompilationTaskConstVisitor() = default;
+        ConstCompilationTaskConstVisitor::~ConstCompilationTaskConstVisitor() = default;
     }
 }

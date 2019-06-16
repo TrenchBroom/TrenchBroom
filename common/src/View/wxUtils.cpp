@@ -365,6 +365,13 @@ namespace TrenchBroom {
             widget->setPalette(p);
         }
 
+        void setDefaultWindowColor(QWidget* widget) {
+            auto palette = QPalette();
+            palette.setColor(QPalette::Window, palette.color(QPalette::Normal, QPalette::Window));
+            widget->setAutoFillBackground(true);
+            widget->setPalette(palette);
+        }
+
         void setBaseWindowColor(QWidget* widget) {
             auto palette = QPalette();
             palette.setColor(QPalette::Window, palette.color(QPalette::Normal, QPalette::Base));

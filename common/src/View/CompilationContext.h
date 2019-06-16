@@ -26,9 +26,6 @@
 #include "View/TextCtrlOutputAdapter.h"
 #include "View/ViewTypes.h"
 
-#include <wx/string.h>
-#include <wx/thread.h>
-
 namespace TrenchBroom {
     namespace View {
         class CompilationContext {

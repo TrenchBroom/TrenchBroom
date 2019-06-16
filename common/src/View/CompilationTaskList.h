@@ -23,16 +23,104 @@
 #include "View/ControlListBox.h"
 #include "View/ViewTypes.h"
 
+class QLineEdit;
+class QStringListModel;
 class QWidget;
 
 namespace TrenchBroom {
     namespace Model {
         class CompilationProfile;
         class CompilationTask;
+        class CompilationExportMap;
+        class CompilationCopyFiles;
+        class CompilationRunTool;
     }
 
     namespace View {
+        class TitledPanel;
+
+        class CompilationTaskEditorBase : public ControlListBoxItemRenderer {
+            Q_OBJECT
+        protected:
+            const QString m_title;
+            MapDocumentWPtr m_document;
+            Model::CompilationProfile* m_profile;
+            Model::CompilationTask* m_task;
+            TitledPanel* m_panel;
+
+            using CompleterModels = std::list<QStringListModel*>;
+            CompleterModels m_completerModels;
+        protected:
+            CompilationTaskEditorBase(const QString& title, MapDocumentWPtr document, Model::CompilationProfile& profile, Model::CompilationTask& task, QWidget* parent);
+        public:
+            ~CompilationTaskEditorBase() override;
+        protected:
+            void setupAutoCompletion(QLineEdit* lineEdit);
+        private:
+            void updateAutoComplete(QStringListModel* model);
+        private:
+            void addProfileObservers();
+            void removeProfileObservers();
+            void addTaskObservers();
+            void removeTaskObservers();
+
+            void profileWillBeRemoved();
+            void profileDidChange();
+
+            void taskWillBeRemoved();
+            void taskDidChange();
+        private:
+            void update(size_t index) override;
+        private:
+            virtual void updateTask() = 0;
+        };
+
+        class CompilationExportMapTaskEditor : public CompilationTaskEditorBase {
+            Q_OBJECT
+        private:
+            QLineEdit* m_targetEditor;
+        public:
+            CompilationExportMapTaskEditor(MapDocumentWPtr document, Model::CompilationProfile& profile, Model::CompilationExportMap& task, QWidget* parent = nullptr);
+        private:
+            void updateTask() override;
+            Model::CompilationExportMap& task();
+        private slots:
+            void targetSpecChanged(const QString& text);
+        };
+
+        class CompilationCopyFilesTaskEditor : public CompilationTaskEditorBase {
+            Q_OBJECT
+        private:
+            QLineEdit* m_sourceEditor;
+            QLineEdit* m_targetEditor;
+        public:
+            CompilationCopyFilesTaskEditor(MapDocumentWPtr document, Model::CompilationProfile& profile, Model::CompilationCopyFiles& task, QWidget* parent = nullptr);
+        private:
+            void updateTask() override;
+            Model::CompilationCopyFiles& task();
+        private slots:
+            void sourceSpecChanged(const QString& text);
+            void targetSpecChanged(const QString& text);
+        };
+
+        class CompilationRunToolTaskEditor : public CompilationTaskEditorBase {
+            Q_OBJECT
+        private:
+            QLineEdit* m_toolEditor;
+            QLineEdit* m_parametersEditor;
+        public:
+            CompilationRunToolTaskEditor(MapDocumentWPtr document, Model::CompilationProfile& profile, Model::CompilationRunTool& task, QWidget* parent = nullptr);
+        private:
+            void updateTask() override;
+            Model::CompilationRunTool& task();
+        private slots:
+            void browseTool();
+            void toolSpecChanged(const QString& text);
+            void parameterSpecChanged(const QString& text);
+        };
+
         class CompilationTaskList : public ControlListBox {
+            Q_OBJECT
         private:
             template <typename T> class TaskEditor;
             class ExportMapTaskEditor;
@@ -42,16 +130,16 @@ namespace TrenchBroom {
             MapDocumentWPtr m_document;
             Model::CompilationProfile* m_profile;
         public:
-            CompilationTaskList(QWidget* parent, MapDocumentWPtr document);
+            explicit CompilationTaskList(MapDocumentWPtr document, QWidget* parent = nullptr);
             ~CompilationTaskList() override;
 
             void setProfile(Model::CompilationProfile* profile);
         private:
             void profileDidChange();
-            void refresh();
         private:
             class CompilationTaskEditorFactory;
-            Item* createItem(QWidget* parent, const wxSize& margins, size_t index) override;
+            size_t itemCount() const override;
+            ControlListBoxItemRenderer* createItemRenderer(QWidget* parent, size_t index) override;
         };
     }
 }

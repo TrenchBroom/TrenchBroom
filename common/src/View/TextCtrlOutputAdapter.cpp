@@ -114,10 +114,10 @@ namespace TrenchBroom {
                         m_textCtrl->Remove(from, to);
                         l = i;
                     } else if (c == '\n') {
-						const QString text = str.Mid(l, i-l+1);
+                        const QString text = str.Mid(l, i-l+1);
                         m_textCtrl->AppendText(text);
 #ifndef __APPLE__
-						m_textCtrl->ScrollLines(5);
+                        m_textCtrl->ScrollLines(5);
 #endif
                         m_lastNewLine = static_cast<size_t>(m_textCtrl->GetLastPosition());
                         l = i+1;

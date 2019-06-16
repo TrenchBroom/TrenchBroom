@@ -49,7 +49,7 @@ namespace TrenchBroom {
             m_listWidget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
             // m_listWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-            connect(m_listWidget, &QListWidget::itemSelectionChanged, this, &ControlListBox::itemSelectionChanged);
+            connect(m_listWidget, &QListWidget::itemSelectionChanged, this, &ControlListBox::listItemSelectionChanged);
 
             m_emptyTextLabel->setWordWrap(true);
             m_emptyTextLabel->setDisabled(true);
@@ -142,7 +142,7 @@ namespace TrenchBroom {
 
         void ControlListBox::selectedRowChanged(const int index) {}
 
-        void ControlListBox::itemSelectionChanged() {
+        void ControlListBox::listItemSelectionChanged() {
             for (int row = 0; row < count(); ++row) {
                 auto* listItem = m_listWidget->item(row);
                 auto* renderer = static_cast<ControlListBoxItemRenderer*>(m_listWidget->itemWidget(listItem));
@@ -151,6 +151,8 @@ namespace TrenchBroom {
                     selectedRowChanged(row);
                 }
             }
+
+            emit itemSelectionChanged();
         }
     }
 }

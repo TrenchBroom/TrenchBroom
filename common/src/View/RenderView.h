@@ -25,12 +25,13 @@
 #include "Renderer/Vbo.h"
 #include "View/InputEvent.h"
 
+#include <QElapsedTimer>
+#include <QOpenGLWindow>
+
 #include <GL/glew.h>
 #undef Bool
 #undef Status
 #undef CursorShape
-#include <QElapsedTimer>
-#include <QOpenGLWindow>
 
 namespace TrenchBroom {
     namespace Renderer {

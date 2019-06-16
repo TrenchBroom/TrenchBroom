@@ -73,6 +73,8 @@ namespace TrenchBroom {
             virtual ControlListBoxItemRenderer* createItemRenderer(QWidget* parent, size_t index) = 0;
             virtual void selectedRowChanged(int index);
         private slots:
+            void listItemSelectionChanged();
+        signals:
             void itemSelectionChanged();
         };
     }
