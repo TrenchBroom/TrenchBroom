@@ -445,7 +445,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/SwitchableMapViewContainer.cpp
 	${COMMON_SOURCE_DIR}/View/TabBar.cpp
 	${COMMON_SOURCE_DIR}/View/TabBook.cpp
-#	${COMMON_SOURCE_DIR}/View/TextCtrlOutputAdapter.cpp
+	${COMMON_SOURCE_DIR}/View/TextOutputAdapter.cpp
 	${COMMON_SOURCE_DIR}/View/TextureBrowser.cpp
 	${COMMON_SOURCE_DIR}/View/TextureBrowserView.cpp
 	${COMMON_SOURCE_DIR}/View/TextureCollectionEditor.cpp
@@ -997,7 +997,7 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/SwitchableMapViewContainer.h
 	${COMMON_SOURCE_DIR}/View/TabBar.h
 	${COMMON_SOURCE_DIR}/View/TabBook.h
-	${COMMON_SOURCE_DIR}/View/TextCtrlOutputAdapter.h
+	${COMMON_SOURCE_DIR}/View/TextOutputAdapter.h
 	${COMMON_SOURCE_DIR}/View/TextureBrowser.h
 	${COMMON_SOURCE_DIR}/View/TextureBrowserView.h
 	${COMMON_SOURCE_DIR}/View/TextureCollectionEditor.h

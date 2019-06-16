@@ -20,6 +20,7 @@
 #include "ControlListBox.h"
 
 #include "View/ViewConstants.h"
+#include "View/wxUtils.h"
 
 #include <QLabel>
 #include <QListWidget>
@@ -87,7 +88,7 @@ namespace TrenchBroom {
         }
 
         void ControlListBox::reload() {
-            setUpdatesEnabled(false);
+            DisableWindowUpdates disableUpdates(this);
 
             m_listWidget->clear();
 
@@ -102,18 +103,15 @@ namespace TrenchBroom {
                 m_listWidget->hide();
                 m_emptyTextContainer->show();
             }
-
-            setUpdatesEnabled(true);
         }
 
         void ControlListBox::updateItems() {
-            setUpdatesEnabled(false);
+            DisableWindowUpdates disableUpdates(this);
             for (int i = 0; i < m_listWidget->count(); ++i) {
                 auto* widgetItem = m_listWidget->item(i);
                 auto* renderer = static_cast<ControlListBoxItemRenderer*>(m_listWidget->itemWidget(widgetItem));
                 renderer->update(static_cast<size_t>(i));
             }
-            setUpdatesEnabled(true);
         }
 
         const ControlListBoxItemRenderer* ControlListBox::renderer(const int i) const {

@@ -53,6 +53,15 @@
 
 namespace TrenchBroom {
     namespace View {
+        DisableWindowUpdates::DisableWindowUpdates(QWidget* widget) :
+        m_widget(widget) {
+            m_widget->setUpdatesEnabled(false);
+        }
+
+        DisableWindowUpdates::~DisableWindowUpdates() {
+            m_widget->setUpdatesEnabled(true);
+        }
+
         MapFrame* findMapFrame(QWidget* widget) {
             return dynamic_cast<MapFrame*>(widget->window());
         }

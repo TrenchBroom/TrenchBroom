@@ -47,8 +47,15 @@ class QButtonGroup;
 
 namespace TrenchBroom {
     namespace View {
-        class MapFrame;
+        class DisableWindowUpdates {
+        private:
+            QWidget* m_widget;
+        public:
+            DisableWindowUpdates(QWidget* widget);
+            ~DisableWindowUpdates();
+        };
 
+        class MapFrame;
         MapFrame* findMapFrame(QWidget* widget);
 #if 0
         wxFrame* findFrame(QWidget* window);

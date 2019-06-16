@@ -26,7 +26,7 @@
 #include "View/CompilationRunner.h"
 #include "View/CompilationVariables.h"
 #include "View/MapDocument.h"
-#include "View/TextCtrlOutputAdapter.h"
+#include "View/TextOutputAdapter.h"
 
 #include <wx/textctrl.h>
 #include <wx/thread.h>
@@ -79,7 +79,7 @@ namespace TrenchBroom {
 
             CompilationVariables variables(document, buildWorkDir(profile, document));
 
-            m_currentRun = new CompilationRunner(new CompilationContext(document, variables, TextCtrlOutputAdapter(currentOutput), test), profile);
+            m_currentRun = new CompilationRunner(new CompilationContext(document, variables, TextOutputAdapter(currentOutput), test), profile);
             m_currentRun->Bind(wxEVT_COMPILATION_START, &CompilationRun::OnCompilationStart, this);
             m_currentRun->Bind(wxEVT_COMPILATION_END, &CompilationRun::OnCompilationStart, this);
             m_currentRun->execute();
