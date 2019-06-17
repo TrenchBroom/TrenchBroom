@@ -39,17 +39,17 @@ namespace TrenchBroom {
 
         class CommonVariables : public EL::VariableTable {
         protected:
-            CommonVariables(MapDocumentSPtr document);
+            explicit CommonVariables(MapDocumentSPtr document);
         };
 
         class CommonCompilationVariables : public CommonVariables {
         protected:
-            CommonCompilationVariables(MapDocumentSPtr document);
+            explicit CommonCompilationVariables(MapDocumentSPtr document);
         };
 
         class CompilationWorkDirVariables : public CommonCompilationVariables {
         public:
-            CompilationWorkDirVariables(MapDocumentSPtr document);
+            explicit CompilationWorkDirVariables(MapDocumentSPtr document);
         };
 
         class CompilationVariables : public CommonCompilationVariables {
@@ -59,7 +59,7 @@ namespace TrenchBroom {
 
         class LaunchGameEngineVariables : public CommonVariables {
         public:
-            LaunchGameEngineVariables(MapDocumentSPtr document);
+            explicit LaunchGameEngineVariables(MapDocumentSPtr document);
         };
     }
 }

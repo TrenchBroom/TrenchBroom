@@ -20,17 +20,16 @@
 #include "CompilationProfileEditor.h"
 
 #include "Model/CompilationProfile.h"
-#include "View/AutoCompleteTextControl.h"
-#include "View/ELAutoCompleteHelper.h"
 #include "View/BorderLine.h"
-#include "View/CompilationTaskList.h"
+#include "View/CompilationTaskListBox.h"
 #include "View/CompilationVariables.h"
+#include "View/VariableStoreModel.h"
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
 #include <QAbstractButton>
+#include <QCompleter>
 #include <QFormLayout>
-#include <QLabel>
 #include <QLineEdit>
 #include <QMenu>
 #include <QStackedWidget>
@@ -56,6 +55,8 @@ namespace TrenchBroom {
             m_stackedWidget->addWidget(createEditorPage(m_stackedWidget));
 
             auto* layout = new QHBoxLayout();
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(0);
             layout->addWidget(m_stackedWidget);
             setLayout(layout);
         }
@@ -72,27 +73,24 @@ namespace TrenchBroom {
             auto* upperPanel = new QWidget(containerPanel);
             setDefaultWindowColor(upperPanel);
 
-            auto* nameLabel = new QLabel("Name");
-            auto* workDirLabel = new QLabel("Working Directory");
-
             m_nameTxt = new QLineEdit();
             m_workDirTxt = new QLineEdit();
 
-            /* Fixme: autocompletion
-            CompilationWorkDirVariables workDirVariables(lock(m_document));
-            m_workDirTxt->SetHelper(new ELAutoCompleteHelper(workDirVariables));
-             */
+            const auto variables = CompilationWorkDirVariables(lock(m_document));
+            auto* completer = new QCompleter(new VariableStoreModel(variables));
+            completer->setCaseSensitivity(Qt::CaseInsensitive);
+            m_workDirTxt->setCompleter(completer);
 
             auto* upperLayout = new QFormLayout();
             upperLayout->setContentsMargins(LayoutConstants::MediumHMargin, LayoutConstants::WideVMargin, LayoutConstants::MediumHMargin, LayoutConstants::WideVMargin);
             upperLayout->setHorizontalSpacing(LayoutConstants::MediumHMargin);
             upperLayout->setVerticalSpacing(0);
             upperLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-            upperLayout->addRow(nameLabel, m_nameTxt);
-            upperLayout->addRow(workDirLabel, m_workDirTxt);
+            upperLayout->addRow("Name", m_nameTxt);
+            upperLayout->addRow("Working Directory", m_workDirTxt);
             upperPanel->setLayout(upperLayout);
 
-            m_taskList = new CompilationTaskList(m_document, containerPanel);
+            m_taskList = new CompilationTaskListBox(m_document, containerPanel);
 
             m_addTaskButton = createBitmapButton("Add.png", "Add task");
             m_removeTaskButton = createBitmapButton("Remove.png", "Remove the selected task");
@@ -112,8 +110,8 @@ namespace TrenchBroom {
 
             containerPanel->setLayout(layout);
 
-            connect(m_nameTxt, &QLineEdit::textEdited, this, &CompilationProfileEditor::nameChanged);
-            connect(m_workDirTxt, &QLineEdit::textEdited, this, &CompilationProfileEditor::workDirChanged);
+            connect(m_nameTxt, &QLineEdit::textChanged, this, &CompilationProfileEditor::nameChanged);
+            connect(m_workDirTxt, &QLineEdit::textChanged, this, &CompilationProfileEditor::workDirChanged);
             connect(m_taskList, &ControlListBox::itemSelectionChanged, this, &CompilationProfileEditor::taskSelectionChanged);
             connect(m_addTaskButton, &QAbstractButton::clicked, this, &CompilationProfileEditor::addTask);
             connect(m_removeTaskButton, &QAbstractButton::clicked, this, &CompilationProfileEditor::removeTask);
@@ -125,12 +123,18 @@ namespace TrenchBroom {
 
         void CompilationProfileEditor::nameChanged(const QString& text) {
             ensure(m_profile != nullptr, "profile is null");
-            m_profile->setName(text.toStdString());
+            const auto name = text.toStdString();
+            if (m_profile->name() != name) {
+                m_profile->setName(name);
+            }
         }
 
         void CompilationProfileEditor::workDirChanged(const QString& text) {
             ensure(m_profile != nullptr, "profile is null");
-            m_profile->setWorkDirSpec(text.toStdString());
+            const auto workDirSpec = text.toStdString();
+            if (m_profile->workDirSpec() != workDirSpec) {
+                m_profile->setWorkDirSpec(workDirSpec);
+            }
         }
 
         void CompilationProfileEditor::addTask() {

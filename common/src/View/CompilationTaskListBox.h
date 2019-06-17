@@ -23,8 +23,8 @@
 #include "View/ControlListBox.h"
 #include "View/ViewTypes.h"
 
+class QCompleter;
 class QLineEdit;
-class QStringListModel;
 class QWidget;
 
 namespace TrenchBroom {
@@ -48,16 +48,16 @@ namespace TrenchBroom {
             Model::CompilationTask* m_task;
             TitledPanel* m_panel;
 
-            using CompleterModels = std::list<QStringListModel*>;
-            CompleterModels m_completerModels;
+            using Completers = std::list<QCompleter*>;
+            Completers m_completers;
         protected:
             CompilationTaskEditorBase(const QString& title, MapDocumentWPtr document, Model::CompilationProfile& profile, Model::CompilationTask& task, QWidget* parent);
         public:
             ~CompilationTaskEditorBase() override;
         protected:
-            void setupAutoCompletion(QLineEdit* lineEdit);
+            void setupCompleter(QLineEdit* lineEdit);
         private:
-            void updateAutoComplete(QStringListModel* model);
+            void updateCompleter(QCompleter* completer);
         private:
             void addProfileObservers();
             void removeProfileObservers();
@@ -119,19 +119,14 @@ namespace TrenchBroom {
             void parameterSpecChanged(const QString& text);
         };
 
-        class CompilationTaskList : public ControlListBox {
+        class CompilationTaskListBox : public ControlListBox {
             Q_OBJECT
-        private:
-            template <typename T> class TaskEditor;
-            class ExportMapTaskEditor;
-            class CopyFilesTaskEditor;
-            class RunToolTaskEditor;
         private:
             MapDocumentWPtr m_document;
             Model::CompilationProfile* m_profile;
         public:
-            explicit CompilationTaskList(MapDocumentWPtr document, QWidget* parent = nullptr);
-            ~CompilationTaskList() override;
+            explicit CompilationTaskListBox(MapDocumentWPtr document, QWidget* parent = nullptr);
+            ~CompilationTaskListBox() override;
 
             void setProfile(Model::CompilationProfile* profile);
         private:

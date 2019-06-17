@@ -243,7 +243,7 @@ namespace TrenchBroom {
             m_bounds(x, y, 0.0f, 0.0f) {}
 
             const Cell& operator[] (const size_t index) const {
-                ensure(index >= 0 && index < m_cells.size(), "index out of range");
+                ensure(index < m_cells.size(), "index out of range");
                 return m_cells[index];
             }
 
@@ -335,7 +335,7 @@ namespace TrenchBroom {
             std::vector<Row> m_rows;
         public:
             const Row& operator[] (const size_t index) const {
-                ensure(index >= 0 && index < m_rows.size(), "index out of range");
+                ensure(index < m_rows.size(), "index out of range");
                 return m_rows[index];
             }
 
@@ -534,7 +534,7 @@ namespace TrenchBroom {
             }
         public:
             const Group& operator[] (const size_t index) {
-                ensure(index >= 0 && index < m_groups.size(), "index out of range");
+                ensure(index < m_groups.size(), "index out of range");
                 if (!m_valid)
                     validate();
                 return m_groups[index];
@@ -651,7 +651,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            bool groupAt(const float x, const float y, Group* result) {
+            bool groupAt(const float x, const float y, Group*& result) {
                 if (!m_valid)
                     validate();
 

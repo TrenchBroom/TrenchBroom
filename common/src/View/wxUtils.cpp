@@ -278,7 +278,7 @@ namespace TrenchBroom {
             slider->setValue(int(value));
         }
 
-        QLayout* wrapDialogButtonBox(QDialogButtonBox* buttonBox) {
+        QLayout* wrapDialogButtonBox(QWidget* buttonBox) {
             auto* innerLayout = new QHBoxLayout();
             innerLayout->setContentsMargins(
                 LayoutConstants::DialogButtonLeftMargin,
@@ -287,6 +287,25 @@ namespace TrenchBroom {
                 LayoutConstants::DialogButtonBottomMargin);
             innerLayout->setSpacing(0);
             innerLayout->addWidget(buttonBox);
+
+            auto* outerLayout = new QVBoxLayout();
+            outerLayout->setContentsMargins(QMargins());
+            outerLayout->setSpacing(0);
+            outerLayout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
+            outerLayout->addLayout(innerLayout);
+
+            return outerLayout;
+        }
+
+        QLayout* wrapDialogButtonBox(QLayout* buttonBox) {
+            auto* innerLayout = new QHBoxLayout();
+            innerLayout->setContentsMargins(
+                LayoutConstants::DialogButtonLeftMargin,
+                LayoutConstants::DialogButtonTopMargin,
+                LayoutConstants::DialogButtonRightMargin,
+                LayoutConstants::DialogButtonBottomMargin);
+            innerLayout->setSpacing(0);
+            innerLayout->addLayout(buttonBox);
 
             auto* outerLayout = new QVBoxLayout();
             outerLayout->setContentsMargins(QMargins());

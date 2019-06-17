@@ -23,7 +23,7 @@
 #include "Model/Game.h"
 #include "View/MapDocument.h"
 
-#include <wx/thread.h>
+#include <thread>
 
 namespace TrenchBroom {
     namespace View {
@@ -72,8 +72,10 @@ namespace TrenchBroom {
 
         CompilationVariables::CompilationVariables(MapDocumentSPtr document, const String& workDir) :
         CommonCompilationVariables(document) {
+            const auto cpuCount = static_cast<size_t>(std::max(std::thread::hardware_concurrency(), 1u));
+
             using namespace CompilationVariableNames;
-            declare(CPU_COUNT, EL::Value(wxThread::GetCPUCount()));
+            declare(CPU_COUNT, EL::Value(cpuCount));
             declare(WORK_DIR_PATH, EL::Value(workDir));
         }
 

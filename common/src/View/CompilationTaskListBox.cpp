@@ -17,15 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CompilationTaskList.h"
+#include "CompilationTaskListBox.h"
 
 #include "EL/Interpolator.h"
 #include "Model/CompilationProfile.h"
-#include "View/AutoCompleteTextControl.h"
-#include "View/ELAutoCompleteHelper.h"
 #include "View/BorderLine.h"
 #include "View/CompilationVariables.h"
 #include "View/TitledPanel.h"
+#include "View/VariableStoreModel.h"
 #include "View/ViewConstants.h"
 
 #include <QBoxLayout>
@@ -61,27 +60,19 @@ namespace TrenchBroom {
             removeTaskObservers();
         }
 
-        void CompilationTaskEditorBase::setupAutoCompletion(QLineEdit* lineEdit) {
-
+        void CompilationTaskEditorBase::setupCompleter(QLineEdit* lineEdit) {
             auto* completer = new QCompleter();
             completer->setCaseSensitivity(Qt::CaseInsensitive);
             lineEdit->setCompleter(completer);
 
-            auto* model = new QStringListModel();
-            m_completerModels.push_back(model);
-            updateAutoComplete(model);
+            m_completers.push_back(completer);
+            updateCompleter(completer);
         }
 
-        void CompilationTaskEditorBase::updateAutoComplete(QStringListModel* model) {
+        void CompilationTaskEditorBase::updateCompleter(QCompleter* completer) {
             const auto workDir = EL::interpolate(m_profile->workDirSpec(), CompilationWorkDirVariables(lock(m_document)));
             const auto variables = CompilationVariables(lock(m_document), workDir);
-
-            auto completions = QStringList();
-            for (const auto& name : variables.names()) {
-                completions.append(QString::fromStdString(name));
-            }
-
-            model->setStringList(completions);
+            completer->setModel(new VariableStoreModel(variables));
         }
 
         void CompilationTaskEditorBase::addProfileObservers() {
@@ -116,8 +107,8 @@ namespace TrenchBroom {
         }
 
         void CompilationTaskEditorBase::profileDidChange() {
-            for (auto* model : m_completerModels) {
-                updateAutoComplete(model);
+            for (auto* completer : m_completers) {
+                updateCompleter(completer);
             }
         }
 
@@ -146,10 +137,10 @@ namespace TrenchBroom {
             m_panel->getPanel()->setLayout(formLayout);
 
             m_targetEditor = new QLineEdit();
-            setupAutoCompletion(m_targetEditor);
+            setupCompleter(m_targetEditor);
             formLayout->addRow("Target", m_targetEditor);
 
-            connect(m_targetEditor, &QLineEdit::textEdited, this, &CompilationExportMapTaskEditor::targetSpecChanged);
+            connect(m_targetEditor, &QLineEdit::textChanged, this, &CompilationExportMapTaskEditor::targetSpecChanged);
         }
 
         void CompilationExportMapTaskEditor::updateTask() {
@@ -180,15 +171,15 @@ namespace TrenchBroom {
             m_panel->getPanel()->setLayout(formLayout);
 
             m_sourceEditor = new QLineEdit();
-            setupAutoCompletion(m_sourceEditor);
+            setupCompleter(m_sourceEditor);
             formLayout->addRow("Source", m_sourceEditor);
 
             m_targetEditor = new QLineEdit();
-            setupAutoCompletion(m_targetEditor);
+            setupCompleter(m_targetEditor);
             formLayout->addRow("Target", m_targetEditor);
 
-            connect(m_sourceEditor, &QLineEdit::textEdited, this, &CompilationCopyFilesTaskEditor::sourceSpecChanged);
-            connect(m_targetEditor, &QLineEdit::textEdited, this, &CompilationCopyFilesTaskEditor::targetSpecChanged);
+            connect(m_sourceEditor, &QLineEdit::textChanged, this, &CompilationCopyFilesTaskEditor::sourceSpecChanged);
+            connect(m_targetEditor, &QLineEdit::textChanged, this, &CompilationCopyFilesTaskEditor::targetSpecChanged);
         }
 
         void CompilationCopyFilesTaskEditor::updateTask() {
@@ -210,11 +201,17 @@ namespace TrenchBroom {
         }
 
         void CompilationCopyFilesTaskEditor::sourceSpecChanged(const QString& text) {
-            task().setSourceSpec(text.toStdString());
+            const auto sourceSpec = text.toStdString();
+            if (task().sourceSpec() != sourceSpec) {
+                task().setSourceSpec(sourceSpec);
+            }
         }
 
         void CompilationCopyFilesTaskEditor::targetSpecChanged(const QString& text) {
-            task().setTargetSpec(text.toStdString());
+            const auto targetSpec = text.toStdString();
+            if (task().targetSpec() != targetSpec) {
+                task().setTargetSpec(targetSpec);
+            }
         }
 
         CompilationRunToolTaskEditor::CompilationRunToolTaskEditor(MapDocumentWPtr document, Model::CompilationProfile& profile, Model::CompilationRunTool& task, QWidget* parent) :
@@ -228,7 +225,7 @@ namespace TrenchBroom {
             m_panel->getPanel()->setLayout(formLayout);
 
             m_toolEditor = new QLineEdit();
-            setupAutoCompletion(m_toolEditor);
+            setupCompleter(m_toolEditor);
 
             auto* browseToolButton = new QPushButton("...");
             browseToolButton->setToolTip("Click to browse");
@@ -242,12 +239,12 @@ namespace TrenchBroom {
             formLayout->addRow("Tool", toolLayout);
 
             m_parametersEditor = new QLineEdit();
-            setupAutoCompletion(m_parametersEditor);
+            setupCompleter(m_parametersEditor);
             formLayout->addRow("Parameters", m_parametersEditor);
 
-            connect(m_toolEditor, &QLineEdit::textEdited, this, &CompilationRunToolTaskEditor::toolSpecChanged);
+            connect(m_toolEditor, &QLineEdit::textChanged, this, &CompilationRunToolTaskEditor::toolSpecChanged);
             connect(browseToolButton, &QPushButton::clicked, this, &CompilationRunToolTaskEditor::browseTool);
-            connect(m_parametersEditor, &QLineEdit::textEdited, this, &CompilationRunToolTaskEditor::parameterSpecChanged);
+            connect(m_parametersEditor, &QLineEdit::textChanged, this, &CompilationRunToolTaskEditor::parameterSpecChanged);
         }
 
         void CompilationRunToolTaskEditor::updateTask() {
@@ -283,33 +280,33 @@ namespace TrenchBroom {
             task().setParameterSpec(m_parametersEditor->text().toStdString());
         }
 
-        CompilationTaskList::CompilationTaskList(MapDocumentWPtr document, QWidget* parent) :
+        CompilationTaskListBox::CompilationTaskListBox(MapDocumentWPtr document, QWidget* parent) :
         ControlListBox("Click the '+' button to create a task.", parent),
         m_document(document),
         m_profile(nullptr) {}
 
-        CompilationTaskList::~CompilationTaskList() {
+        CompilationTaskListBox::~CompilationTaskListBox() {
             if (m_profile != nullptr) {
-                m_profile->profileDidChange.removeObserver(this, &CompilationTaskList::profileDidChange);
+                m_profile->profileDidChange.removeObserver(this, &CompilationTaskListBox::profileDidChange);
             }
         }
 
-        void CompilationTaskList::setProfile(Model::CompilationProfile* profile) {
+        void CompilationTaskListBox::setProfile(Model::CompilationProfile* profile) {
             if (m_profile != nullptr) {
-                m_profile->profileDidChange.removeObserver(this, &CompilationTaskList::profileDidChange);
+                m_profile->profileDidChange.removeObserver(this, &CompilationTaskListBox::profileDidChange);
             }
             m_profile = profile;
             if (m_profile != nullptr) {
-                m_profile->profileDidChange.addObserver(this, &CompilationTaskList::profileDidChange);
+                m_profile->profileDidChange.addObserver(this, &CompilationTaskListBox::profileDidChange);
             }
             reload();
         }
 
-        void CompilationTaskList::profileDidChange() {
+        void CompilationTaskListBox::profileDidChange() {
             reload();
         }
 
-        class CompilationTaskList::CompilationTaskEditorFactory : public Model::CompilationTaskVisitor {
+        class CompilationTaskListBox::CompilationTaskEditorFactory : public Model::CompilationTaskVisitor {
         private:
             MapDocumentWPtr m_document;
             Model::CompilationProfile& m_profile;
@@ -339,11 +336,11 @@ namespace TrenchBroom {
             }
         };
 
-        size_t CompilationTaskList::itemCount() const {
+        size_t CompilationTaskListBox::itemCount() const {
             return m_profile->taskCount();
         }
 
-        ControlListBoxItemRenderer* CompilationTaskList::createItemRenderer(QWidget* parent, const size_t index) {
+        ControlListBoxItemRenderer* CompilationTaskListBox::createItemRenderer(QWidget* parent, const size_t index) {
             ensure(m_profile != nullptr, "profile is null");
 
             CompilationTaskEditorFactory factory(m_document, *m_profile, parent);

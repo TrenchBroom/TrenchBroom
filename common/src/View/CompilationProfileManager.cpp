@@ -50,16 +50,22 @@ namespace TrenchBroom {
             auto* buttonLayout = createMiniToolBarLayout(addProfileButton, m_removeProfileButton);
 
             auto* listLayout = new QVBoxLayout();
+            listLayout->setContentsMargins(0, 0, 0, 0);
+            listLayout->setSpacing(0);
             listLayout->addWidget(m_profileList, 1);
             listLayout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
             listLayout->addLayout(buttonLayout);
             listPanel->getPanel()->setLayout(listLayout);
 
-            auto* editorSizer = new QVBoxLayout();
-            editorSizer->addWidget(m_profileEditor);
-            editorPanel->getPanel()->setLayout(editorSizer);
+            auto* editorLayout = new QVBoxLayout();
+            editorLayout->setContentsMargins(0, 0, 0, 0);
+            editorLayout->setSpacing(0);
+            editorLayout->addWidget(m_profileEditor);
+            editorPanel->getPanel()->setLayout(editorLayout);
 
             auto* outerLayout = new QHBoxLayout();
+            outerLayout->setContentsMargins(0, 0, 0, 0);
+            outerLayout->setSpacing(0);
             outerLayout->addWidget(listPanel);
             outerLayout->addWidget(new BorderLine(BorderLine::Direction_Vertical));
             outerLayout->addWidget(editorPanel, 1);
@@ -113,6 +119,8 @@ namespace TrenchBroom {
                 m_profileEditor->setProfile(nullptr);
                 m_removeProfileButton->setEnabled(false);
             }
+
+            emit selectedProfileChanged();
         }
     }
 }

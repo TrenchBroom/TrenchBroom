@@ -51,7 +51,7 @@ namespace TrenchBroom {
         private:
             QWidget* m_widget;
         public:
-            DisableWindowUpdates(QWidget* widget);
+            explicit DisableWindowUpdates(QWidget* widget);
             ~DisableWindowUpdates();
         };
 
@@ -80,7 +80,8 @@ namespace TrenchBroom {
         float getSliderRatio(const QSlider* slider);
         void setSliderRatio(QSlider* slider, float ratio);
 
-        QLayout* wrapDialogButtonBox(QDialogButtonBox* buttonBox);
+        QLayout* wrapDialogButtonBox(QWidget* buttonBox);
+        QLayout* wrapDialogButtonBox(QLayout* buttonBox);
 
         template <typename Button>
         void addToMiniToolBarLayout(QBoxLayout* layout, Button* button) {

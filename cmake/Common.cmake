@@ -267,7 +267,6 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/Animation.cpp
 	${COMMON_SOURCE_DIR}/View/AnimationCurve.cpp
 	${COMMON_SOURCE_DIR}/View/AppInfoPanel.cpp
-#	${COMMON_SOURCE_DIR}/View/AutoCompleteTextControl.cpp
 	${COMMON_SOURCE_DIR}/View/Autosaver.cpp
 	${COMMON_SOURCE_DIR}/View/BorderLine.cpp
 	${COMMON_SOURCE_DIR}/View/BorderPanel.cpp
@@ -294,7 +293,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/CompilationProfileManager.cpp
 	${COMMON_SOURCE_DIR}/View/CompilationRun.cpp
 	${COMMON_SOURCE_DIR}/View/CompilationRunner.cpp
-	${COMMON_SOURCE_DIR}/View/CompilationTaskList.cpp
+	${COMMON_SOURCE_DIR}/View/CompilationTaskListBox.cpp
 	${COMMON_SOURCE_DIR}/View/CompilationVariables.cpp
 	${COMMON_SOURCE_DIR}/View/Console.cpp
 	${COMMON_SOURCE_DIR}/View/ControlListBox.cpp
@@ -319,7 +318,6 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/DuplicateNodesCommand.cpp
 	${COMMON_SOURCE_DIR}/View/EdgeToolController.cpp
 	${COMMON_SOURCE_DIR}/View/EdgeTool.cpp
-#	${COMMON_SOURCE_DIR}/View/ELAutoCompleteHelper.cpp
 	${COMMON_SOURCE_DIR}/View/ElidedLabel.cpp
 	${COMMON_SOURCE_DIR}/View/EnableDisableTagCallback.cpp
 	${COMMON_SOURCE_DIR}/View/EntityAttributeEditor.cpp
@@ -470,6 +468,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/UVShearTool.cpp
 	${COMMON_SOURCE_DIR}/View/UVView.cpp
 	${COMMON_SOURCE_DIR}/View/UVViewHelper.cpp
+	${COMMON_SOURCE_DIR}/View/VariableStoreModel.cpp
 	${COMMON_SOURCE_DIR}/View/VertexCommand.cpp
 	${COMMON_SOURCE_DIR}/View/VertexHandleManager.cpp
 	${COMMON_SOURCE_DIR}/View/VertexToolController.cpp
@@ -816,7 +815,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/AnimationCurve.h
 	${COMMON_SOURCE_DIR}/View/Animation.h
 	${COMMON_SOURCE_DIR}/View/AppInfoPanel.h
-#	${COMMON_SOURCE_DIR}/View/AutoCompleteTextControl.h
 	${COMMON_SOURCE_DIR}/View/Autosaver.h
 	${COMMON_SOURCE_DIR}/View/BorderLine.h
 	${COMMON_SOURCE_DIR}/View/BorderPanel.h
@@ -844,7 +842,7 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/CompilationProfileManager.h
 	${COMMON_SOURCE_DIR}/View/CompilationRun.h
 	${COMMON_SOURCE_DIR}/View/CompilationRunner.h
-	${COMMON_SOURCE_DIR}/View/CompilationTaskList.h
+	${COMMON_SOURCE_DIR}/View/CompilationTaskListBox.h
 	${COMMON_SOURCE_DIR}/View/CompilationVariables.h
 	${COMMON_SOURCE_DIR}/View/Console.h
 	${COMMON_SOURCE_DIR}/View/ContainerBar.h
@@ -868,7 +866,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/DuplicateNodesCommand.h
 	${COMMON_SOURCE_DIR}/View/EdgeToolController.h
 	${COMMON_SOURCE_DIR}/View/EdgeTool.h
-	${COMMON_SOURCE_DIR}/View/ELAutoCompleteHelper.h
 	${COMMON_SOURCE_DIR}/View/ElidedLabel.h
 	${COMMON_SOURCE_DIR}/View/EnableDisableTagCallback.h
 	${COMMON_SOURCE_DIR}/View/EntityAttributeEditor.h
@@ -1022,6 +1019,7 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/UVShearTool.h
 	${COMMON_SOURCE_DIR}/View/UVView.h
 	${COMMON_SOURCE_DIR}/View/UVViewHelper.h
+	${COMMON_SOURCE_DIR}/View/VariableStoreModel.h
 	${COMMON_SOURCE_DIR}/View/VertexCommand.h
 	${COMMON_SOURCE_DIR}/View/VertexHandleManager.h
 	${COMMON_SOURCE_DIR}/View/VertexToolBase.h

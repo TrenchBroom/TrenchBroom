@@ -22,10 +22,11 @@
 
 #include "View/CompilationRun.h"
 
-#include <wx/dialog.h>
+#include <QDialog>
 
 class QLabel;
-class wxTextCtrl;
+class QPushButton;
+class QTextEdit;
 
 namespace TrenchBroom {
     namespace View {
@@ -33,30 +34,38 @@ namespace TrenchBroom {
         class CompilationRunner;
         class MapFrame;
 
-        class CompilationDialog : public wxDialog {
+        class CompilationDialog : public QDialog {
+            Q_OBJECT
         private:
             MapFrame* m_mapFrame;
             CompilationProfileManager* m_profileManager;
+            QPushButton* m_launchButton;
+            QPushButton* m_compileButton;
+            QPushButton* m_closeButton;
             QLabel* m_currentRunLabel;
-            wxTextCtrl* m_output;
+            QTextEdit* m_output;
             CompilationRun m_run;
         public:
-            CompilationDialog(MapFrame* mapFrame);
+            explicit CompilationDialog(MapFrame* mapFrame);
         private:
             void createGui();
 
-            void OnLaunchClicked();
-            void OnUpdateLaunchButtonUI();
-
-            void OnToggleCompileClicked();
-            void OnUpdateCompileButtonUI();
-
-			void OnCloseButtonClicked();
-            void OnClose(wxCloseEvent& event);
-
-            void OnCompilationEnd(wxEvent& event);
-
+            void keyPressEvent(QKeyEvent* event) override;
+            void keyReleaseEvent(QKeyEvent* event) override;
+            void focusInEvent(QFocusEvent* event) override;
+            void focusOutEvent(QFocusEvent* event) override;
+            void updateCompileButton();
             bool testRun() const;
+
+            void closeEvent(QCloseEvent* event) override;
+        private slots:
+            void launchEngine();
+            void toggleCompile();
+
+            void compilationStarted();
+            void compilationEnded();
+
+            void selectedProfileChanged();
         };
     }
 }

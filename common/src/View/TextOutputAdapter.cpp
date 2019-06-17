@@ -32,9 +32,9 @@ namespace TrenchBroom {
             ensure(m_textEdit != nullptr, "textEdit is null");
         }
 
-        void TextOutputAdapter::appendString(const QString& str) {
+        void TextOutputAdapter::appendString(const String& str) {
             const auto cStr = compressString(str);
-            if (!str.isEmpty()) {
+            if (!str.empty()) {
                 DisableWindowUpdates disableUpdates(m_textEdit);
 
                 auto l = 0;
@@ -54,20 +54,20 @@ namespace TrenchBroom {
                         cursor.removeSelectedText();
                         l = i;
                     } else if (c == '\n') {
-                        const auto text = str.mid(l, i - l + 1);
+                        const auto text = str.substr(l, i - l + 1);
                         appendToTextEdit(text + '\n');
                     }
                 }
-                appendToTextEdit(str.mid(l));
+                appendToTextEdit(str.substr(l));
             }
         }
 
-        QString TextOutputAdapter::compressString(const QString& str) {
-            QString fullStr = m_remainder + str;
-            QString result;
+        String TextOutputAdapter::compressString(const String& str) {
+            String fullStr = m_remainder + str;
+            StringStream result;
             int chunkStart = 0;
             int previousChunkStart = 0;
-            for (int i = 0; i < fullStr.length(); ++i) {
+            for (int i = 0; i < static_cast<int>(fullStr.length()); ++i) {
                 const QChar c = fullStr[i];
                 const QChar n = i < fullStr.length() - 1 ? fullStr[i+1] : QChar(0);
                 if (c == '\r' && n == '\n') {
@@ -76,23 +76,23 @@ namespace TrenchBroom {
                     previousChunkStart = chunkStart;
                     chunkStart = i;
                 } else if (c == '\n') {
-                    result += fullStr.mid(chunkStart, i - chunkStart + 1);
+                    result << fullStr.substr(chunkStart, i - chunkStart + 1);
                     chunkStart = previousChunkStart = i+1;
                 }
             }
             if (previousChunkStart < chunkStart) {
-                const QString chunk = fullStr.mid(previousChunkStart, chunkStart - previousChunkStart);
-                result += chunk;
+                const auto chunk = fullStr.substr(previousChunkStart, chunkStart - previousChunkStart);
+                result << chunk;
             }
-            m_remainder = fullStr.mid(chunkStart);
-            return result;
+            m_remainder = fullStr.substr(chunkStart);
+            return result.str();
         }
 
-        void TextOutputAdapter::appendToTextEdit(const QString& str) {
+        void TextOutputAdapter::appendToTextEdit(const String& str) {
             QTextCursor cursor(m_textEdit->document());
             cursor.clearSelection();
             cursor.movePosition(QTextCursor::MoveOperation::End);
-            cursor.insertText(str);
+            cursor.insertText(QString::fromStdString(str));
             cursor.movePosition(QTextCursor::MoveOperation::End);
             m_textEdit->ensureCursorVisible();
         }

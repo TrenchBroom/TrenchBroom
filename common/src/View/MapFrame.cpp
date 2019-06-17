@@ -40,8 +40,7 @@
 #include "View/CachingLogger.h"
 #include "FileLogger.h"
 #include "View/ClipTool.h"
-// FIXME:
-//#include "View/CompilationDialog.h"
+#include "View/CompilationDialog.h"
 #include "View/Console.h"
 #include "View/EdgeTool.h"
 #include "View/FaceTool.h"
@@ -49,8 +48,10 @@
 #include "View/Grid.h"
 #include "View/InfoPanel.h"
 #include "View/Inspector.h"
+// FIXME:
 //#include "View/LaunchGameEngineDialog.h"
 #include "View/MapDocument.h"
+// FIXME:
 //#include "View/MapFrameDropTarget.h"
 #include "View/RenderView.h"
 #include "View/ReplaceTextureDialog.h"
@@ -103,6 +104,7 @@ namespace TrenchBroom {
         m_inspector(nullptr),
         m_gridChoice(nullptr),
         m_statusBarLabel(nullptr),
+        m_compilationDialog(nullptr),
         m_recentDocumentsMenu(nullptr),
         m_undoAction(nullptr),
         m_redoAction(nullptr),
@@ -123,6 +125,7 @@ namespace TrenchBroom {
         m_inspector(nullptr),
         m_gridChoice(nullptr),
         m_statusBarLabel(nullptr),
+        m_compilationDialog(nullptr),
         m_recentDocumentsMenu(nullptr),
         m_undoAction(nullptr),
         m_redoAction(nullptr),
@@ -1550,18 +1553,16 @@ namespace TrenchBroom {
         }
 
         void MapFrame::showCompileDialog() {
-            // FIXME:
-//            if (m_compilationDialog == nullptr) {
-//                m_compilationDialog = new CompilationDialog(this);
-//                m_compilationDialog->Show();
-//            } else {
-//                m_compilationDialog->Raise();
-//            }
+            if (m_compilationDialog == nullptr) {
+                m_compilationDialog = new CompilationDialog(this);
+                m_compilationDialog->show();
+            } else {
+                m_compilationDialog->raise();
+            }
         }
 
         void MapFrame::compilationDialogWillClose() {
-            // FIXME:
-//            m_compilationDialog = nullptr;
+            m_compilationDialog = nullptr;
         }
 
         void MapFrame::showLaunchEngineDialog() {

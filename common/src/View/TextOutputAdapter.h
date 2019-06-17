@@ -38,7 +38,7 @@ namespace TrenchBroom {
         private:
             QTextEdit* m_textEdit;
             size_t m_lastNewLine;
-            QString m_remainder;
+            String m_remainder;
         public:
             explicit TextOutputAdapter(QTextEdit* textEdit);
 
@@ -63,9 +63,9 @@ namespace TrenchBroom {
              */
             template <typename T>
             TextOutputAdapter& append(const T& t) {
-                QString str;
+                StringStream str;
                 str << t;
-                appendString(str);
+                appendString(str.str());
                 return *this;
             }
         private:
@@ -77,7 +77,7 @@ namespace TrenchBroom {
              *
              * @param str the string to append
              */
-            void appendString(const QString& str);
+            void appendString(const String& str);
 
             /**
              * Interprets some control characters in the given string line by line. If the string ends with an
@@ -87,14 +87,14 @@ namespace TrenchBroom {
              * @param str the string to compress
              * @return the compressed string
              */
-            QString compressString(const QString& str);
+            String compressString(const String& str);
 
             /**
              * Appends the given string to the contents of the QTextEdit widget.
              *
              * @param str the string to append
              */
-            void appendToTextEdit(const QString& str);
+            void appendToTextEdit(const String& str);
         };
     }
 }

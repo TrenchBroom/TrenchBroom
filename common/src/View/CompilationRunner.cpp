@@ -210,8 +210,8 @@ namespace TrenchBroom {
             explicit CreateTaskRunnerVisitor(CompilationContext& context) :
             m_context(context) {}
 
-            const TaskRunnerList& runners() {
-                return m_runners;
+            TaskRunnerList&& runners() {
+                return std::move(m_runners);
             }
 
             void visit(const Model::CompilationExportMap& task) override {
@@ -228,11 +228,11 @@ namespace TrenchBroom {
 
         private:
             void appendRunner(std::unique_ptr<CompilationTaskRunner> runner) {
-                m_runners.emplace_back(runner);
+                m_runners.emplace_back(std::move(runner));
             }
         };
 
-        CompilationRunner::TaskRunnerList CompilationRunner::createTaskRunners(CompilationContext& context, const Model::CompilationProfile* profile) {
+        CompilationRunner::TaskRunnerList&& CompilationRunner::createTaskRunners(CompilationContext& context, const Model::CompilationProfile* profile) {
             CreateTaskRunnerVisitor visitor(context);
             profile->accept(visitor);
             return visitor.runners();
