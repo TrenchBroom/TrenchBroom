@@ -40,7 +40,6 @@ namespace TrenchBroom {
             ImageListBoxItemRenderer(size_t index, const QString& title, const QString& subtitle, const QPixmap& image, QWidget* parent) ;
 
             void update(size_t index) override;
-            void setSelected(bool selected) override;
         private:
             void createGui(const QString& title, const QString& subtitle, const QPixmap& image);
         protected:

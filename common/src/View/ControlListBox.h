@@ -20,6 +20,8 @@
 #ifndef ControlListBox_h
 #define ControlListBox_h
 
+#include "View/ViewConstants.h"
+
 #include <QWidget>
 
 class QLabel;
@@ -44,15 +46,18 @@ namespace TrenchBroom {
             QListWidget* m_listWidget;
             QWidget* m_emptyTextContainer;
             QLabel* m_emptyTextLabel;
+            QMargins m_itemMargins;
         public:
+            ControlListBox(const QString& emptyText, const QMargins itemMargins, QWidget* parent = nullptr);
             explicit ControlListBox(const QString& emptyText, QWidget* parent = nullptr);
+
+            void setEmptyText(const QString& emptyText);
+            void setItemMarings(const QMargins& itemMargins);
 
             int count() const;
             int currentRow() const;
             void setCurrentRow(int currentRow);
         protected:
-            void setEmptyText(const QString& emptyText);
-
             /**
              * Reloads the contents of this list box. The list box will be cleared and its items will be recreated.
              */

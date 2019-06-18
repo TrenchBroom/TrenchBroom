@@ -126,7 +126,7 @@ namespace TrenchBroom {
                 throw;
             }
 
-            return wxPaths.size();
+            return static_cast<size_t>(wxPaths.size());
         }
 
         String queryGroupName(QWidget* parent) {

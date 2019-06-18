@@ -59,6 +59,12 @@ namespace TrenchBroom {
             loadGameConfigs();
         }
 
+        void GameFactory::saveConfigs(const String& gameName) {
+            const auto& config = gameConfig(gameName);
+            writeCompilationConfig(config);
+            writeGameEngineConfig(config);
+        }
+
         const StringList& GameFactory::gameList() const {
             return m_names;
         }
@@ -189,8 +195,8 @@ namespace TrenchBroom {
         }
 
         void GameFactory::doLoadGameConfig(const IO::Path& path) {
-                const auto configFile = m_configFS->openFile(path);
-                const auto absolutePath = m_configFS->makeAbsolute(path);
+            const auto configFile = m_configFS->openFile(path);
+            const auto absolutePath = m_configFS->makeAbsolute(path);
             auto reader = configFile->reader().buffer();
             IO::GameConfigParser parser(std::begin(reader), std::end(reader), absolutePath);
             GameConfig config = parser.parse();

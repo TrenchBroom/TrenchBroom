@@ -78,7 +78,6 @@ namespace TrenchBroom {
         public:
             bool newDocument();
             void openDocument();
-            void OnFileOpenRecent();
             void showManual();
             void showPreferences();
             void showAboutDialog();

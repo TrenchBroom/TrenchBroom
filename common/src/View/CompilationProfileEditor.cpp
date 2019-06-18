@@ -23,6 +23,7 @@
 #include "View/BorderLine.h"
 #include "View/CompilationTaskListBox.h"
 #include "View/CompilationVariables.h"
+#include "View/MultiCompletionLineEdit.h"
 #include "View/VariableStoreModel.h"
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
@@ -73,13 +74,16 @@ namespace TrenchBroom {
             auto* upperPanel = new QWidget(containerPanel);
             setDefaultWindowColor(upperPanel);
 
+
             m_nameTxt = new QLineEdit();
-            m_workDirTxt = new QLineEdit();
+            m_workDirTxt = new MultiCompletionLineEdit();
 
             const auto variables = CompilationWorkDirVariables(lock(m_document));
             auto* completer = new QCompleter(new VariableStoreModel(variables));
             completer->setCaseSensitivity(Qt::CaseInsensitive);
-            m_workDirTxt->setCompleter(completer);
+
+            m_workDirTxt->setMultiCompleter(completer);
+            m_workDirTxt->setWordDelimiters(QRegularExpression("\\$"), QRegularExpression("\\}"));
 
             auto* upperLayout = new QFormLayout();
             upperLayout->setContentsMargins(LayoutConstants::MediumHMargin, LayoutConstants::WideVMargin, LayoutConstants::MediumHMargin, LayoutConstants::WideVMargin);
@@ -192,7 +196,7 @@ namespace TrenchBroom {
 
         void CompilationProfileEditor::moveTaskDown() {
             const int index = m_taskList->currentRow();
-            assert(index >= 0 && index < m_profile->taskCount() - 1);
+            assert(index >= 0 && index < static_cast<int>(m_profile->taskCount()) - 1);
             m_profile->moveTaskDown(static_cast<size_t>(index));
             m_taskList->setCurrentRow(index + 1);
         }

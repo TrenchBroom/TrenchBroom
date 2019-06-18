@@ -494,11 +494,6 @@ namespace TrenchBroom {
             }
         }
 
-        void TrenchBroomApp::OnFileOpenRecent() {
-            // FIXME: get document selected from menu
-            // openDocument("");
-        }
-
         void TrenchBroomApp::showManual() {
             const IO::Path manualPath = IO::SystemPaths::findResourceFile(IO::Path("manual/index.html"));
             const String manualPathString = manualPath.asString();

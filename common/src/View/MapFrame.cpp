@@ -28,6 +28,8 @@
 #include "Model/Brush.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
+#include "Model/Game.h"
+#include "Model/GameFactory.h"
 #include "Model/Group.h"
 #include "Model/Layer.h"
 #include "Model/Node.h"
@@ -1562,6 +1564,10 @@ namespace TrenchBroom {
         }
 
         void MapFrame::compilationDialogWillClose() {
+            // Save the compilation and engine configurations just in case:
+            const auto& gameName = m_document->game()->gameName();
+            auto& gameFactory = Model::GameFactory::instance();
+            gameFactory.saveConfigs(gameName);
             m_compilationDialog = nullptr;
         }
 
@@ -1569,6 +1575,10 @@ namespace TrenchBroom {
             // FIXME:
 //            LaunchGameEngineDialog dialog(this, m_document);
 //            dialog.ShowModal();
+
+            const auto& gameName = m_document->game()->gameName();
+            auto& gameFactory = Model::GameFactory::instance();
+            gameFactory.saveConfigs(gameName);
         }
 
         void MapFrame::debugPrintVertices() {

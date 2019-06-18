@@ -389,6 +389,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/MoveObjectsTool.cpp
 	${COMMON_SOURCE_DIR}/View/MoveObjectsToolPage.cpp
 	${COMMON_SOURCE_DIR}/View/MoveTexturesCommand.cpp
+	${COMMON_SOURCE_DIR}/View/MultiCompletionLineEdit.cpp
 	${COMMON_SOURCE_DIR}/View/MultiMapView.cpp
 	${COMMON_SOURCE_DIR}/View/OnePaneMapView.cpp
 	${COMMON_SOURCE_DIR}/View/PickRequest.cpp
@@ -939,6 +940,7 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/MoveObjectsToolPage.h
 	${COMMON_SOURCE_DIR}/View/MoveTexturesCommand.h
 	${COMMON_SOURCE_DIR}/View/MoveToolController.h
+	${COMMON_SOURCE_DIR}/View/MultiCompletionLineEdit.h
 	${COMMON_SOURCE_DIR}/View/MultiMapView.h
 	${COMMON_SOURCE_DIR}/View/OnePaneMapView.h
 	${COMMON_SOURCE_DIR}/View/PickRequest.h

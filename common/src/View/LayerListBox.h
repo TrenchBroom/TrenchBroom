@@ -45,7 +45,6 @@ namespace TrenchBroom {
             LayerListBoxWidget(MapDocumentWPtr document, Model::Layer* layer, QWidget* parent = nullptr);
 
             void update(size_t index) override;
-            void setSelected(bool selected) override;
 
             Model::Layer* layer() const;
         private:

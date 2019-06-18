@@ -38,13 +38,24 @@ namespace TrenchBroom {
 
         void ControlListBoxItemRenderer::update(const size_t index) {}
 
-        void ControlListBoxItemRenderer::setSelected(const bool selected) {}
+        void ControlListBoxItemRenderer::setSelected(const bool selected) {
+            // by default, we just change the appearance of all labels
+            auto children = findChildren<QLabel*>();
+            for (auto* child : children) {
+                if (selected) {
+                    makeSelected(child);
+                } else {
+                    makeUnselected(child);
+                }
+            }
+        }
 
-        ControlListBox::ControlListBox(const QString& emptyText, QWidget* parent) :
+        ControlListBox::ControlListBox(const QString& emptyText, const QMargins itemMargins, QWidget* parent) :
         QWidget(parent),
         m_listWidget(new QListWidget()),
         m_emptyTextContainer(new QWidget()),
-        m_emptyTextLabel(new QLabel(emptyText)) {
+        m_emptyTextLabel(new QLabel(emptyText)),
+        m_itemMargins(itemMargins) {
             m_listWidget->setObjectName("controlListBox_listWidget");
             m_listWidget->hide();
             m_listWidget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
@@ -71,6 +82,18 @@ namespace TrenchBroom {
             setStyleSheet("QListWidget#controlListBox_listWidget { border: none; }");
         }
 
+        ControlListBox::ControlListBox(const QString& emptyText, QWidget* parent) :
+        ControlListBox(emptyText, QMargins(LayoutConstants::MediumHMargin, LayoutConstants::NarrowVMargin, LayoutConstants::MediumHMargin, LayoutConstants::NarrowVMargin), parent) {}
+
+        void ControlListBox::setEmptyText(const QString& emptyText) {
+            m_emptyTextLabel->setText(emptyText);
+        }
+
+        void ControlListBox::setItemMarings(const QMargins& itemMargins) {
+            m_itemMargins = itemMargins;
+            reload();
+        }
+
         int ControlListBox::count() const {
             return m_listWidget->count();
         }
@@ -81,10 +104,6 @@ namespace TrenchBroom {
 
         void ControlListBox::setCurrentRow(const int currentRow) {
             m_listWidget->setCurrentRow(currentRow);
-        }
-
-        void ControlListBox::setEmptyText(const QString& emptyText) {
-            m_emptyTextLabel->setText(emptyText);
         }
 
         void ControlListBox::reload() {
@@ -123,7 +142,7 @@ namespace TrenchBroom {
         }
 
         void ControlListBox::addItemRenderer(ControlListBoxItemRenderer* renderer) {
-            renderer->setContentsMargins(LayoutConstants::MediumHMargin, LayoutConstants::NarrowVMargin, LayoutConstants::MediumHMargin, LayoutConstants::NarrowVMargin);
+            renderer->setContentsMargins(m_itemMargins);
             auto* widgetItem = new QListWidgetItem(m_listWidget);
             m_listWidget->addItem(widgetItem);
             setItemRenderer(widgetItem, renderer);

@@ -55,16 +55,6 @@ namespace TrenchBroom {
             }
         }
 
-        void ImageListBoxItemRenderer::setSelected(const bool selected) {
-            if (selected) {
-                makeSelected(m_titleLabel);
-                makeSelected(m_subtitleLabel);
-            } else {
-                makeEmphasized(m_titleLabel);
-                makeInfo(m_subtitleLabel);
-            }
-        }
-
         void ImageListBoxItemRenderer::createGui(const QString& title, const QString& subtitle, const QPixmap& image) {
             m_titleLabel = new ElidedLabel(title, Qt::ElideRight);
             makeEmphasized(m_titleLabel);

@@ -35,6 +35,7 @@ namespace TrenchBroom {
 
     namespace View {
         class CompilationTaskListBox;
+        class MultiCompletionLineEdit;
 
         class CompilationProfileEditor : public QWidget {
             Q_OBJECT
@@ -43,7 +44,7 @@ namespace TrenchBroom {
             Model::CompilationProfile* m_profile;
             QStackedWidget* m_stackedWidget;
             QLineEdit* m_nameTxt;
-            QLineEdit* m_workDirTxt;
+            MultiCompletionLineEdit* m_workDirTxt;
             CompilationTaskListBox* m_taskList;
             QAbstractButton* m_addTaskButton;
             QAbstractButton* m_removeTaskButton;

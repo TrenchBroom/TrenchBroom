@@ -34,6 +34,7 @@
 #include <vector>
 
 class QAbstractButton;
+class QCompleter;
 class QDialogButtonBox;
 class QFont;
 class QLayout;

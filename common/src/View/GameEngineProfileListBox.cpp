@@ -49,16 +49,6 @@ namespace TrenchBroom {
             refresh();
         }
 
-        void GameEngineProfileItemRenderer::setSelected(const bool selected) {
-            if (selected) {
-                makeSelected(m_nameLabel);
-                makeSelected(m_pathLabel);
-            } else {
-                makeEmphasized(m_nameLabel);
-                makeInfo(m_pathLabel);
-            }
-        }
-
         void GameEngineProfileItemRenderer::createGui() {
             m_nameLabel = new ElidedLabel("not set", Qt::ElideRight);
             m_pathLabel = new ElidedLabel("not set", Qt::ElideMiddle);

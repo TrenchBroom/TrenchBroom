@@ -89,16 +89,6 @@ namespace TrenchBroom {
             refresh();
         }
 
-        void LayerListBoxWidget::setSelected(bool selected) {
-            if (selected) {
-                makeSelected(m_nameText);
-                makeSelected(m_infoText);
-            } else {
-                makeUnselected(m_nameText);
-                makeUnselected(m_infoText);
-            }
-        }
-
         Model::Layer* LayerListBoxWidget::layer() const {
             return m_layer;
         }

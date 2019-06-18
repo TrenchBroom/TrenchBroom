@@ -50,7 +50,6 @@ namespace TrenchBroom {
             void updateItem();
         private:
             void update(size_t index) override;
-            void setSelected(bool selected) override;
         };
 
         class CompilationProfileListBox : public ControlListBox {

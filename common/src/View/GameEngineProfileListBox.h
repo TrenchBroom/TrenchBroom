@@ -42,7 +42,6 @@ namespace TrenchBroom {
             ~GameEngineProfileItemRenderer() override;
 
             void update(size_t index) override;
-            void setSelected(bool selected) override;
         private:
             void createGui();
             void refresh();
