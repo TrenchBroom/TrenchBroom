@@ -63,6 +63,7 @@ namespace TrenchBroom {
 
         void CompilationRun::run(const Model::CompilationProfile* profile, MapDocumentSPtr document, QTextEdit* currentOutput, const bool test) {
             ensure(profile != nullptr, "profile is null");
+            ensure(profile->taskCount() > 0, "profile has no tasks");
             ensure(document != nullptr, "document is null");
             ensure(currentOutput != nullptr, "currentOutput is null");
 

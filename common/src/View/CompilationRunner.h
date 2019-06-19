@@ -124,7 +124,7 @@ namespace TrenchBroom {
             CompilationRunner(std::unique_ptr<CompilationContext> context, const Model::CompilationProfile* profile);
         private:
             class CreateTaskRunnerVisitor;
-            static TaskRunnerList&& createTaskRunners(CompilationContext& context, const Model::CompilationProfile* profile);
+            static TaskRunnerList createTaskRunners(CompilationContext& context, const Model::CompilationProfile* profile);
         public:
             void execute();
             void terminate();

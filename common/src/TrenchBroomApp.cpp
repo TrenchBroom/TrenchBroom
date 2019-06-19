@@ -195,17 +195,16 @@ namespace TrenchBroom {
         bool TrenchBroomApp::openDocument(const IO::Path& path) {
             MapFrame* frame = nullptr;
             try {
-                String gameName = "";
+                String gameName;
                 Model::MapFormat mapFormat = Model::MapFormat::Unknown;
 
                 Model::GameFactory& gameFactory = Model::GameFactory::instance();
                 std::tie(gameName, mapFormat) = gameFactory.detectGame(path);
 
                 if (gameName.empty() || mapFormat == Model::MapFormat::Unknown) {
-                    qDebug("FIXME: show game dialog");
-                    return false;
-                    //if (!GameDialog::showOpenDocumentDialog(nullptr, gameName, mapFormat))
-                    //    return false;
+                    if (!GameDialog::showOpenDocumentDialog(nullptr, gameName, mapFormat)) {
+                        return false;
+                    }
                 }
 
                 frame = m_frameManager->newFrame();
@@ -217,23 +216,26 @@ namespace TrenchBroom {
                 return true;
             } catch (const FileNotFoundException& e) {
                 m_recentDocuments->removePath(IO::Path(path));
-                if (frame != nullptr)
+                if (frame != nullptr) {
                     frame->close();
+                }
                 QMessageBox::critical(nullptr, "TrenchBroom", e.what(), QMessageBox::Ok);
                 return false;
             } catch (const RecoverableException& e) {
-                if (frame != nullptr)
+                if (frame != nullptr) {
                     frame->close();
-
+                }
                 return recoverFromException(e, [this, &path](){ return this->openDocument(path); });
             } catch (const Exception& e) {
-                if (frame != nullptr)
+                if (frame != nullptr) {
                     frame->close();
+                }
                 QMessageBox::critical(nullptr, "TrenchBroom", e.what(), QMessageBox::Ok);
                 return false;
             } catch (...) {
-                if (frame != nullptr)
+                if (frame != nullptr) {
                     frame->close();
+                }
                 QMessageBox::critical(nullptr, "TrenchBroom", QString::fromStdString(path.asString()) + " could not be opened.", QMessageBox::Ok);
                 return false;
             }

@@ -34,13 +34,13 @@ namespace TrenchBroom {
 
         void TextOutputAdapter::appendString(const String& str) {
             const auto cStr = compressString(str);
-            if (!str.empty()) {
+            if (!cStr.empty()) {
                 DisableWindowUpdates disableUpdates(m_textEdit);
 
-                auto l = 0;
-                for (int i = 0; i < cStr.length(); ++i) {
+                size_t l = 0;
+                for (size_t i = 0; i < cStr.length(); ++i) {
                     const auto c = cStr[i];
-                    const auto n = i < str.length() - 1 ? str[i + 1] : QChar(0);
+                    const auto n = i < cStr.length() - 1 ? cStr[i + 1] : decltype(c)(0);
                     if (c == '\r' && n == '\n') {
                         continue;
                     } else if (c == '\r') {
@@ -54,22 +54,24 @@ namespace TrenchBroom {
                         cursor.removeSelectedText();
                         l = i;
                     } else if (c == '\n') {
-                        const auto text = str.substr(l, i - l + 1);
-                        appendToTextEdit(text + '\n');
+                        const auto text = cStr.substr(l, i - l + 1);
+                        appendToTextEdit(text);
+                        m_lastNewLine = m_textEdit->textCursor().position();
+                        l = i+1;
                     }
                 }
-                appendToTextEdit(str.substr(l));
+                appendToTextEdit(cStr.substr(l));
             }
         }
 
         String TextOutputAdapter::compressString(const String& str) {
             String fullStr = m_remainder + str;
             StringStream result;
-            int chunkStart = 0;
-            int previousChunkStart = 0;
-            for (int i = 0; i < static_cast<int>(fullStr.length()); ++i) {
-                const QChar c = fullStr[i];
-                const QChar n = i < fullStr.length() - 1 ? fullStr[i+1] : QChar(0);
+            size_t chunkStart = 0;
+            size_t previousChunkStart = 0;
+            for (size_t i = 0; i < fullStr.length(); ++i) {
+                const auto c = fullStr[i];
+                const auto n = i < fullStr.length() - 1 ? fullStr[i+1] : decltype(c)(0);
                 if (c == '\r' && n == '\n') {
                     continue;
                 } else if (c == '\r') {

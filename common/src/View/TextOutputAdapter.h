@@ -37,7 +37,7 @@ namespace TrenchBroom {
         class TextOutputAdapter {
         private:
             QTextEdit* m_textEdit;
-            size_t m_lastNewLine;
+            int m_lastNewLine;
             String m_remainder;
         public:
             explicit TextOutputAdapter(QTextEdit* textEdit);

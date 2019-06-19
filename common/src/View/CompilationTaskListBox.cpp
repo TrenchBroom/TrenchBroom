@@ -67,6 +67,7 @@ namespace TrenchBroom {
             auto* completer = new QCompleter();
             completer->setCaseSensitivity(Qt::CaseInsensitive);
             lineEdit->setMultiCompleter(completer);
+            lineEdit->setWordDelimiters(QRegularExpression("\\$"), QRegularExpression("\\}"));
 
             m_completers.push_back(completer);
             updateCompleter(completer);
@@ -144,6 +145,8 @@ namespace TrenchBroom {
             formLayout->addRow("Target", m_targetEditor);
 
             connect(m_targetEditor, &QLineEdit::textChanged, this, &CompilationExportMapTaskEditor::targetSpecChanged);
+
+            updateTask();
         }
 
         void CompilationExportMapTaskEditor::updateTask() {
@@ -162,7 +165,7 @@ namespace TrenchBroom {
         void CompilationExportMapTaskEditor::targetSpecChanged(const QString& text) {
             const auto targetSpec = text.toStdString();
             if (task().targetSpec() != targetSpec) {
-                task().setTargetSpec(text.toStdString());
+                task().setTargetSpec(targetSpec);
             }
         }
 
@@ -186,6 +189,8 @@ namespace TrenchBroom {
 
             connect(m_sourceEditor, &QLineEdit::textChanged, this, &CompilationCopyFilesTaskEditor::sourceSpecChanged);
             connect(m_targetEditor, &QLineEdit::textChanged, this, &CompilationCopyFilesTaskEditor::targetSpecChanged);
+
+            updateTask();
         }
 
         void CompilationCopyFilesTaskEditor::updateTask() {
@@ -251,6 +256,8 @@ namespace TrenchBroom {
             connect(m_toolEditor, &QLineEdit::textChanged, this, &CompilationRunToolTaskEditor::toolSpecChanged);
             connect(browseToolButton, &QPushButton::clicked, this, &CompilationRunToolTaskEditor::browseTool);
             connect(m_parametersEditor, &QLineEdit::textChanged, this, &CompilationRunToolTaskEditor::parameterSpecChanged);
+
+            updateTask();
         }
 
         void CompilationRunToolTaskEditor::updateTask() {
@@ -282,14 +289,14 @@ namespace TrenchBroom {
         void CompilationRunToolTaskEditor::toolSpecChanged(const QString& text) {
             const auto toolSpec = text.toStdString();
             if (task().toolSpec() != toolSpec) {
-                task().setToolSpec(m_toolEditor->text().toStdString());
+                task().setToolSpec(toolSpec);
             }
         }
 
         void CompilationRunToolTaskEditor::parameterSpecChanged(const QString& text) {
             const auto parameterSpec = text.toStdString();
             if (task().parameterSpec() != parameterSpec) {
-                task().setParameterSpec(m_parametersEditor->text().toStdString());
+                task().setParameterSpec(parameterSpec);
             }
         }
 

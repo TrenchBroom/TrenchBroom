@@ -54,6 +54,7 @@ namespace TrenchBroom {
             createGui();
             setMinimumSize(600, 300);
             resize(800, 600);
+            updateCompileButton(false);
         }
 
         void CompilationDialog::createGui() {
@@ -115,30 +116,34 @@ namespace TrenchBroom {
 
         void CompilationDialog::keyPressEvent(QKeyEvent* event) {
             QDialog::keyPressEvent(event);
-            updateCompileButton();
+            const auto test = (event->modifiers() &Qt::AltModifier);
+            updateCompileButton(test);
         }
 
         void CompilationDialog::keyReleaseEvent(QKeyEvent* event) {
             QWidget::keyReleaseEvent(event);
-            updateCompileButton();
+            const auto test = (event->modifiers() &Qt::AltModifier);
+            updateCompileButton(test);
         }
 
         void CompilationDialog::focusInEvent(QFocusEvent* event) {
             QWidget::focusInEvent(event);
-            updateCompileButton();
+            const auto test = (QApplication::keyboardModifiers() == Qt::AltModifier);
+            updateCompileButton(test);
         }
 
         void CompilationDialog::focusOutEvent(QFocusEvent* event) {
             QWidget::focusOutEvent(event);
-            updateCompileButton();
+            const auto test = (QApplication::keyboardModifiers() == Qt::AltModifier);
+            updateCompileButton(test);
         }
 
-        void CompilationDialog::updateCompileButton() {
+        void CompilationDialog::updateCompileButton(const bool test) {
             if (m_run.running()) {
                 m_compileButton->setText("Stop");
                 m_compileButton->setEnabled(true);
             } else {
-                if (testRun()) {
+                if (test) {
                     m_compileButton->setText("Test");
                 } else {
                     m_compileButton->setText("Compile");
@@ -146,10 +151,6 @@ namespace TrenchBroom {
                 const auto* profile = m_profileManager->selectedProfile();
                 m_compileButton->setEnabled(profile != nullptr && profile->taskCount() > 0);
             }
-        }
-
-        bool CompilationDialog::testRun() const {
-            return QApplication::keyboardModifiers() == Qt::AltModifier;
         }
 
         void CompilationDialog::closeEvent(QCloseEvent* event) {
@@ -183,13 +184,14 @@ namespace TrenchBroom {
             if (m_run.running()) {
                 m_run.terminate();
             } else {
-                const Model::CompilationProfile* profile = m_profileManager->selectedProfile();
+                const auto* profile = m_profileManager->selectedProfile();
                 ensure(profile != nullptr, "profile is null");
                 ensure(profile->taskCount() > 0, "profile has no tasks");
 
                 m_output->setText("");
 
-                if (testRun()) {
+                const auto test = (QApplication::keyboardModifiers() == Qt::AltModifier);
+                if (test) {
                     m_run.test(profile, m_mapFrame->document(), m_output);
                 } else {
                     m_run.run(profile, m_mapFrame->document(), m_output);
@@ -201,17 +203,19 @@ namespace TrenchBroom {
 
         void CompilationDialog::compilationStarted() {
             m_launchButton->setEnabled(false);
-            updateCompileButton();
+            updateCompileButton(false);
         }
 
         void CompilationDialog::compilationEnded() {
             m_launchButton->setEnabled(true);
             m_currentRunLabel->setText("");
-            updateCompileButton();
+            const auto test = (QApplication::keyboardModifiers() == Qt::AltModifier);
+            updateCompileButton(test);
         }
 
         void CompilationDialog::selectedProfileChanged() {
-            updateCompileButton();
+            const auto test = (QApplication::keyboardModifiers() == Qt::AltModifier);
+            updateCompileButton(test);
         }
     }
 }

@@ -123,7 +123,7 @@ namespace TrenchBroom {
         m_terminated(false) {}
 
         void CompilationRunToolTaskRunner::doExecute() {
-            start();
+            startProcess();
         }
 
         void CompilationRunToolTaskRunner::doTerminate() {
@@ -210,7 +210,7 @@ namespace TrenchBroom {
             explicit CreateTaskRunnerVisitor(CompilationContext& context) :
             m_context(context) {}
 
-            TaskRunnerList&& runners() {
+            TaskRunnerList runners() {
                 return std::move(m_runners);
             }
 
@@ -232,7 +232,7 @@ namespace TrenchBroom {
             }
         };
 
-        CompilationRunner::TaskRunnerList&& CompilationRunner::createTaskRunners(CompilationContext& context, const Model::CompilationProfile* profile) {
+        CompilationRunner::TaskRunnerList CompilationRunner::createTaskRunners(CompilationContext& context, const Model::CompilationProfile* profile) {
             CreateTaskRunnerVisitor visitor(context);
             profile->accept(visitor);
             return visitor.runners();
@@ -242,7 +242,7 @@ namespace TrenchBroom {
             assert(!running());
             m_currentTask = std::begin(m_taskRunners);
             bindEvents(m_currentTask->get());
-            (*m_currentTask)->execute();
+            m_currentTask->get()->execute();
 
             emit compilationStarted();
         }
@@ -250,7 +250,7 @@ namespace TrenchBroom {
         void CompilationRunner::terminate() {
             assert(running());
             unbindEvents(m_currentTask->get());
-            (*m_currentTask)->terminate();
+            m_currentTask->get()->terminate();
             m_currentTask = std::end(m_taskRunners);
 
             emit compilationEnded();
@@ -283,7 +283,7 @@ namespace TrenchBroom {
                 ++m_currentTask;
                 if (m_currentTask != std::end(m_taskRunners)) {
                     bindEvents(m_currentTask->get());
-                    (*m_currentTask)->execute();
+                    m_currentTask->get()->execute();
                 } else {
                     emit compilationEnded();
                 }
