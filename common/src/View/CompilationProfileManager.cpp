@@ -43,7 +43,7 @@ namespace TrenchBroom {
             auto* editorPanel = new TitledPanel(this, "Details");
 
             m_profileList = new CompilationProfileListBox(m_config, listPanel->getPanel());
-            m_profileEditor = new CompilationProfileEditor(document, editorPanel->getPanel());
+            m_profileEditor = new CompilationProfileEditor(std::move(document), editorPanel->getPanel());
 
             auto* addProfileButton = createBitmapButton("Add.png", "Add profile");
             m_removeProfileButton = createBitmapButton("Remove.png", "Remove the selected profile");
@@ -76,6 +76,10 @@ namespace TrenchBroom {
             connect(m_profileList, &ControlListBox::itemSelectionChanged, this, &CompilationProfileManager::profileSelectionChanged);
             connect(addProfileButton, &QAbstractButton::clicked, this, &CompilationProfileManager::addProfile);
             connect(m_removeProfileButton, &QAbstractButton::clicked, this, &CompilationProfileManager::removeProfile);
+
+            if (m_profileList->count() > 0) {
+                m_profileList->setCurrentRow(0);
+            }
         }
 
         const Model::CompilationProfile* CompilationProfileManager::selectedProfile() const {

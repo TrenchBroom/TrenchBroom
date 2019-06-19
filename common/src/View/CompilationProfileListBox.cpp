@@ -91,10 +91,6 @@ namespace TrenchBroom {
             }
         }
 
-        void CompilationProfileItemRenderer::update(const size_t index) {
-            updateItem();
-        }
-
         CompilationProfileListBox::CompilationProfileListBox(const Model::CompilationConfig& config, QWidget* parent) :
         ControlListBox("Click the '+' button to create a compilation profile.", parent),
         m_config(config) {

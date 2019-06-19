@@ -44,11 +44,10 @@ namespace TrenchBroom {
         public:
             LayerListBoxWidget(MapDocumentWPtr document, Model::Layer* layer, QWidget* parent = nullptr);
 
-            void update(size_t index) override;
+            void updateItem() override;
 
             Model::Layer* layer() const;
         private:
-            void refresh();
             bool eventFilter(QObject* target, QEvent* event) override;
         signals:
             void layerVisibilityToggled(Model::Layer* layer);

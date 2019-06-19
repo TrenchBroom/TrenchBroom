@@ -82,18 +82,10 @@ namespace TrenchBroom {
             itemPanelLayout->addSpacing(LayoutConstants::NarrowVMargin);
             setLayout(itemPanelLayout);
 
-            refresh();
+            updateItem();
         }
 
-        void LayerListBoxWidget::update(const size_t index) {
-            refresh();
-        }
-
-        Model::Layer* LayerListBoxWidget::layer() const {
-            return m_layer;
-        }
-
-        void LayerListBoxWidget::refresh() {
+        void LayerListBoxWidget::updateItem() {
             // Update labels
             m_nameText->setText(QString::fromStdString(m_layer->name()));
             if (lock(m_document)->currentLayer() == m_layer) {
@@ -112,6 +104,10 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             m_lockButton->setEnabled(m_layer->locked() || m_layer != document->currentLayer());
             m_hiddenButton->setEnabled(m_layer->hidden() || m_layer != document->currentLayer());
+        }
+
+        Model::Layer* LayerListBoxWidget::layer() const {
+            return m_layer;
         }
 
         bool LayerListBoxWidget::eventFilter(QObject* target, QEvent* event) {
@@ -215,8 +211,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             const auto* world = document->world();
             const auto layers = world->allLayers();
-            auto* layer = layers[index];
-            auto* renderer = new LayerListBoxWidget(document, layer, this);
+            auto* renderer = new LayerListBoxWidget(document, layers[index], this);
 
             connect(renderer, &LayerListBoxWidget::layerDoubleClicked, this, [this](auto* layer){
                 emit layerSetCurrent(layer);

@@ -123,12 +123,8 @@ namespace TrenchBroom {
 
         void CompilationTaskEditorBase::taskDidChange() {
             if (m_task != nullptr) {
-                updateTask();
+                updateItem();
             }
-        }
-
-        void CompilationTaskEditorBase::update(const size_t /* index */) {
-            updateTask();
         }
 
         CompilationExportMapTaskEditor::CompilationExportMapTaskEditor(MapDocumentWPtr document, Model::CompilationProfile& profile, Model::CompilationExportMap& task, QWidget* parent) :
@@ -146,10 +142,10 @@ namespace TrenchBroom {
 
             connect(m_targetEditor, &QLineEdit::textChanged, this, &CompilationExportMapTaskEditor::targetSpecChanged);
 
-            updateTask();
+            updateItem();
         }
 
-        void CompilationExportMapTaskEditor::updateTask() {
+        void CompilationExportMapTaskEditor::updateItem() {
             const auto targetSpec = QString::fromStdString(task().targetSpec());
             if (m_targetEditor->text() != targetSpec) {
                 m_targetEditor->setText(targetSpec);
@@ -190,10 +186,10 @@ namespace TrenchBroom {
             connect(m_sourceEditor, &QLineEdit::textChanged, this, &CompilationCopyFilesTaskEditor::sourceSpecChanged);
             connect(m_targetEditor, &QLineEdit::textChanged, this, &CompilationCopyFilesTaskEditor::targetSpecChanged);
 
-            updateTask();
+            updateItem();
         }
 
-        void CompilationCopyFilesTaskEditor::updateTask() {
+        void CompilationCopyFilesTaskEditor::updateItem() {
             const auto sourceSpec = QString::fromStdString(task().sourceSpec());
             if (m_sourceEditor->text() != sourceSpec) {
                 m_sourceEditor->setText(sourceSpec);
@@ -257,10 +253,10 @@ namespace TrenchBroom {
             connect(browseToolButton, &QPushButton::clicked, this, &CompilationRunToolTaskEditor::browseTool);
             connect(m_parametersEditor, &QLineEdit::textChanged, this, &CompilationRunToolTaskEditor::parameterSpecChanged);
 
-            updateTask();
+            updateItem();
         }
 
-        void CompilationRunToolTaskEditor::updateTask() {
+        void CompilationRunToolTaskEditor::updateItem() {
             const auto toolSpec = QString::fromStdString(task().toolSpec());
             if (m_toolEditor->text() != toolSpec) {
                 m_toolEditor->setText(toolSpec);

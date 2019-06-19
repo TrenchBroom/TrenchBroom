@@ -24,6 +24,7 @@
 
 #include <QLabel>
 #include <QListWidget>
+#include <QMouseEvent>
 #include <QSizePolicy>
 #include <QVBoxLayout>
 
@@ -32,11 +33,23 @@
 namespace TrenchBroom {
     namespace View {
         ControlListBoxItemRenderer::ControlListBoxItemRenderer(QWidget* parent) :
-        QWidget(parent) {}
+        QWidget(parent),
+        m_index(0) {}
 
         ControlListBoxItemRenderer::~ControlListBoxItemRenderer() = default;
 
-        void ControlListBoxItemRenderer::update(const size_t index) {}
+        void ControlListBoxItemRenderer::setIndex(const size_t index) {
+            m_index = index;
+        }
+
+        void ControlListBoxItemRenderer::mouseDoubleClickEvent(QMouseEvent* event) {
+            QWidget::mouseDoubleClickEvent(event);
+            if (event->button() == Qt::LeftButton) {
+                emit doubleClicked(m_index);
+            }
+        }
+
+        void ControlListBoxItemRenderer::updateItem() {}
 
         void ControlListBoxItemRenderer::setSelected(const bool selected) {
             // by default, we just change the appearance of all labels
@@ -50,7 +63,7 @@ namespace TrenchBroom {
             }
         }
 
-        ControlListBox::ControlListBox(const QString& emptyText, const QMargins itemMargins, QWidget* parent) :
+        ControlListBox::ControlListBox(const QString& emptyText, const QMargins& itemMargins, QWidget* parent) :
         QWidget(parent),
         m_listWidget(new QListWidget()),
         m_emptyTextContainer(new QWidget()),
@@ -89,7 +102,7 @@ namespace TrenchBroom {
             m_emptyTextLabel->setText(emptyText);
         }
 
-        void ControlListBox::setItemMarings(const QMargins& itemMargins) {
+        void ControlListBox::setItemMargins(const QMargins& itemMargins) {
             m_itemMargins = itemMargins;
             reload();
         }
@@ -129,7 +142,7 @@ namespace TrenchBroom {
             for (int i = 0; i < m_listWidget->count(); ++i) {
                 auto* widgetItem = m_listWidget->item(i);
                 auto* renderer = static_cast<ControlListBoxItemRenderer*>(m_listWidget->itemWidget(widgetItem));
-                renderer->update(static_cast<size_t>(i));
+                renderer->update();
             }
         }
 
@@ -142,7 +155,11 @@ namespace TrenchBroom {
         }
 
         void ControlListBox::addItemRenderer(ControlListBoxItemRenderer* renderer) {
+            const auto index = static_cast<size_t>(count());
+            renderer->setIndex(index);
             renderer->setContentsMargins(m_itemMargins);
+            connect(renderer, &ControlListBoxItemRenderer::doubleClicked, this, &ControlListBox::doubleClicked);
+
             auto* widgetItem = new QListWidgetItem(m_listWidget);
             m_listWidget->addItem(widgetItem);
             setItemRenderer(widgetItem, renderer);
@@ -152,12 +169,15 @@ namespace TrenchBroom {
             if (m_listWidget->itemWidget(widgetItem) != nullptr) {
                 m_listWidget->removeItemWidget(widgetItem);
             }
+
             m_listWidget->setItemWidget(widgetItem, renderer);
             widgetItem->setSizeHint(renderer->minimumSizeHint());
             renderer->setSelected(m_listWidget->currentItem() == widgetItem);
         }
 
         void ControlListBox::selectedRowChanged(const int index) {}
+
+        void ControlListBox::doubleClicked(const size_t index) {}
 
         void ControlListBox::listItemSelectionChanged() {
             for (int row = 0; row < count(); ++row) {

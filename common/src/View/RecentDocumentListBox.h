@@ -47,7 +47,7 @@ namespace TrenchBroom {
             QPixmap image(size_t index) const override;
             QString title(size_t index) const override;
             QString subtitle(size_t index) const override;
-        private:
+
             void doubleClicked(size_t index) override;
         signals:
             void loadRecentDocument(const IO::Path& path);

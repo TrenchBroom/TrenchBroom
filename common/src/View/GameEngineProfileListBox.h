@@ -41,7 +41,7 @@ namespace TrenchBroom {
             explicit GameEngineProfileItemRenderer(Model::GameEngineProfile* profile, QWidget* parent = nullptr);
             ~GameEngineProfileItemRenderer() override;
 
-            void update(size_t index) override;
+            void updateItem() override;
         private:
             void createGui();
             void refresh();
@@ -66,8 +66,10 @@ namespace TrenchBroom {
             size_t itemCount() const override;
             ControlListBoxItemRenderer* createItemRenderer(QWidget* parent, size_t index) override;
             void selectedRowChanged(int index) override;
+            void doubleClicked(size_t index) override;
         signals:
             void currentProfileChanged(Model::GameEngineProfile* profile);
+            void profileSelected(Model::GameEngineProfile* profile);
         };
     }
 }

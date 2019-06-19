@@ -45,7 +45,7 @@ namespace TrenchBroom {
             }
         }
 
-        void GameEngineProfileItemRenderer::update(const size_t index) {
+        void GameEngineProfileItemRenderer::updateItem() {
             refresh();
         }
 
@@ -135,6 +135,12 @@ namespace TrenchBroom {
                 emit currentProfileChanged(m_config.profile(static_cast<size_t>(index)));
             } else {
                 emit currentProfileChanged(nullptr);
+            }
+        }
+
+        void GameEngineProfileListBox::doubleClicked(const size_t index) {
+            if (index < static_cast<size_t>(count())) {
+                emit profileSelected(m_config.profile(index));
             }
         }
     }

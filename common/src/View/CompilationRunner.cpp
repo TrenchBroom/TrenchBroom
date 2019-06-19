@@ -67,8 +67,9 @@ namespace TrenchBroom {
 
                     if (!m_context.test()) {
                         const IO::Path directoryPath = targetPath.deleteLastComponent();
-                        if (!IO::Disk::directoryExists(directoryPath))
+                        if (!IO::Disk::directoryExists(directoryPath)) {
                             IO::Disk::createDirectory(directoryPath);
+                        }
 
                         const MapDocumentSPtr document = m_context.document();
                         document->saveDocumentTo(targetPath);

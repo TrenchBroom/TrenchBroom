@@ -70,10 +70,6 @@ namespace TrenchBroom {
 
             void taskWillBeRemoved();
             void taskDidChange();
-        private:
-            void update(size_t index) override;
-        private:
-            virtual void updateTask() = 0;
         };
 
         class CompilationExportMapTaskEditor : public CompilationTaskEditorBase {
@@ -83,7 +79,7 @@ namespace TrenchBroom {
         public:
             CompilationExportMapTaskEditor(MapDocumentWPtr document, Model::CompilationProfile& profile, Model::CompilationExportMap& task, QWidget* parent = nullptr);
         private:
-            void updateTask() override;
+            void updateItem() override;
             Model::CompilationExportMap& task();
         private slots:
             void targetSpecChanged(const QString& text);
@@ -97,7 +93,7 @@ namespace TrenchBroom {
         public:
             CompilationCopyFilesTaskEditor(MapDocumentWPtr document, Model::CompilationProfile& profile, Model::CompilationCopyFiles& task, QWidget* parent = nullptr);
         private:
-            void updateTask() override;
+            void updateItem() override;
             Model::CompilationCopyFiles& task();
         private slots:
             void sourceSpecChanged(const QString& text);
@@ -112,7 +108,7 @@ namespace TrenchBroom {
         public:
             CompilationRunToolTaskEditor(MapDocumentWPtr document, Model::CompilationProfile& profile, Model::CompilationRunTool& task, QWidget* parent = nullptr);
         private:
-            void updateTask() override;
+            void updateItem() override;
             Model::CompilationRunTool& task();
         private slots:
             void browseTool();

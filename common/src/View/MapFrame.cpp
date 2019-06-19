@@ -50,8 +50,7 @@
 #include "View/Grid.h"
 #include "View/InfoPanel.h"
 #include "View/Inspector.h"
-// FIXME:
-//#include "View/LaunchGameEngineDialog.h"
+#include "View/LaunchGameEngineDialog.h"
 #include "View/MapDocument.h"
 // FIXME:
 //#include "View/MapFrameDropTarget.h"
@@ -1572,9 +1571,8 @@ namespace TrenchBroom {
         }
 
         void MapFrame::showLaunchEngineDialog() {
-            // FIXME:
-//            LaunchGameEngineDialog dialog(this, m_document);
-//            dialog.ShowModal();
+            LaunchGameEngineDialog dialog(m_document, this);
+            dialog.exec();
 
             const auto& gameName = m_document->game()->gameName();
             auto& gameFactory = Model::GameFactory::instance();

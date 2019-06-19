@@ -24,8 +24,7 @@
 #include "View/CompilationContext.h"
 #include "View/CompilationProfileManager.h"
 #include "View/CompilationRunner.h"
-// FIXME
-// #include "View/LaunchGameEngineDialog.h"
+#include "View/LaunchGameEngineDialog.h"
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
 #include "View/TitledPanel.h"
@@ -88,10 +87,6 @@ namespace TrenchBroom {
             m_closeButton = buttonBox->addButton("Close", QDialogButtonBox::RejectRole);
             m_launchButton = new QPushButton("Launch...");
 
-            connect(m_compileButton, &QPushButton::clicked, this, &CompilationDialog::toggleCompile);
-            connect(m_launchButton, &QPushButton::clicked, this, &CompilationDialog::launchEngine);
-            connect(m_closeButton, &QPushButton::clicked, this, &CompilationDialog::close);
-
             m_currentRunLabel = new QLabel("");
             m_currentRunLabel->setAlignment(Qt::AlignRight);
 
@@ -112,6 +107,10 @@ namespace TrenchBroom {
             connect(&m_run, &CompilationRun::compilationStarted, this, &CompilationDialog::compilationStarted);
             connect(&m_run, &CompilationRun::compilationEnded, this, &CompilationDialog::compilationEnded);
             connect(m_profileManager, &CompilationProfileManager::selectedProfileChanged, this, &CompilationDialog::selectedProfileChanged);
+
+            connect(m_compileButton, &QPushButton::clicked, this, &CompilationDialog::toggleCompile);
+            connect(m_launchButton, &QPushButton::clicked, this, &CompilationDialog::launchEngine);
+            connect(m_closeButton, &QPushButton::clicked, this, &CompilationDialog::close);
         }
 
         void CompilationDialog::keyPressEvent(QKeyEvent* event) {
@@ -174,10 +173,8 @@ namespace TrenchBroom {
         }
 
         void CompilationDialog::launchEngine() {
-            /* FIXME
-            LaunchGameEngineDialog dialog(this, m_mapFrame->document());
-            dialog.ShowModal();
-             */
+            LaunchGameEngineDialog dialog(m_mapFrame->document(), this);
+            dialog.exec();
         }
 
         void CompilationDialog::toggleCompile() {

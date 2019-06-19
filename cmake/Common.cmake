@@ -363,7 +363,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/KeyboardShortcutItemDelegate.cpp
 	${COMMON_SOURCE_DIR}/View/KeyboardShortcutModel.cpp
 	${COMMON_SOURCE_DIR}/View/Lasso.cpp
-#	${COMMON_SOURCE_DIR}/View/LaunchGameEngineDialog.cpp
+	${COMMON_SOURCE_DIR}/View/LaunchGameEngineDialog.cpp
 	${COMMON_SOURCE_DIR}/View/LayerEditor.cpp
 	${COMMON_SOURCE_DIR}/View/LayerListBox.cpp
 	${COMMON_SOURCE_DIR}/View/LimitedKeySequenceEdit.cpp
