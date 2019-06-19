@@ -33,8 +33,9 @@ namespace TrenchBroom {
             QRegularExpression m_leftDelimiter;
             QRegularExpression m_rightDelimiter;
         public:
-            explicit MultiCompletionLineEdit(QCompleter* completer = nullptr, QWidget* parent = nullptr);
-            explicit MultiCompletionLineEdit(const QString& contents, QCompleter* completer = nullptr, QWidget* parent = nullptr);
+            explicit MultiCompletionLineEdit(QWidget* parent = nullptr);
+            explicit MultiCompletionLineEdit(const QString& contents, QWidget* parent = nullptr);
+            ~MultiCompletionLineEdit() override;
         public:
             void setWordDelimiter(const QRegularExpression& leftDelimiter);
             void setWordDelimiters(const QRegularExpression& leftDelimiter, const QRegularExpression& rightDelimiter);
@@ -42,12 +43,15 @@ namespace TrenchBroom {
         protected:
             void keyPressEvent(QKeyEvent* event) override;
         private:
+            void updateCompleter(bool showCompleter);
+
             int findLeftBoundary() const;
             int findRightBoundary() const;
 
             int findFirstMatch(const QString& str, const QRegularExpression& expression) const;
             int findLastMatch(const QString& str, const QRegularExpression& expression) const;
         private slots:
+            void triggerCompletion();
             void insertCompletion(const QString& string);
         };
     }

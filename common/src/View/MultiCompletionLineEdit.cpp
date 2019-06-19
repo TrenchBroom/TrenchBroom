@@ -21,21 +21,32 @@
 
 #include <QAbstractItemView>
 #include <QCompleter>
-#include <QDebug>
+#include <QKeyEvent>
+#include <QKeySequence>
 #include <QScrollBar>
+#include <QShortcut>
 
 namespace TrenchBroom {
     namespace View {
-        MultiCompletionLineEdit::MultiCompletionLineEdit(QCompleter* completer, QWidget* parent) :
-        QLineEdit(parent),
-        m_multiCompleter(nullptr) {
-            setMultiCompleter(completer);
-        }
+        MultiCompletionLineEdit::MultiCompletionLineEdit(QWidget* parent) :
+        MultiCompletionLineEdit(QString(), parent) {}
 
-        MultiCompletionLineEdit::MultiCompletionLineEdit(const QString& contents, QCompleter* completer, QWidget* parent) :
+        MultiCompletionLineEdit::MultiCompletionLineEdit(const QString& contents, QWidget* parent) :
         QLineEdit(contents, parent),
         m_multiCompleter(nullptr)  {
-            setMultiCompleter(completer);
+            auto* shortcut = new QShortcut(QKeySequence(
+#ifdef __APPLE__
+                Qt::META
+#else
+                Qt::CTRL
+#endif
+                + Qt::Key_Space), this);
+            connect(shortcut, &QShortcut::activated, this, &MultiCompletionLineEdit::triggerCompletion);
+        }
+
+        MultiCompletionLineEdit::~MultiCompletionLineEdit() {
+            delete m_multiCompleter;
+            m_multiCompleter = nullptr;
         }
 
         void MultiCompletionLineEdit::setWordDelimiter(const QRegularExpression& delimiters) {
@@ -48,9 +59,7 @@ namespace TrenchBroom {
         }
 
         void MultiCompletionLineEdit::setMultiCompleter(QCompleter* completer) {
-            if (m_multiCompleter != nullptr) {
-                delete m_multiCompleter;
-            }
+            delete m_multiCompleter;
             m_multiCompleter = completer;
             if (m_multiCompleter != nullptr) {
                 m_multiCompleter->setWidget(this);
@@ -61,14 +70,17 @@ namespace TrenchBroom {
         void MultiCompletionLineEdit::keyPressEvent(QKeyEvent* event) {
             QLineEdit::keyPressEvent(event);
 
+            const auto t = event->text();
+            updateCompleter(!t.isEmpty() && t[0].isPrint());
+        }
+
+        void MultiCompletionLineEdit::updateCompleter(const bool showCompleter) {
             if (!m_multiCompleter) {
                 return;
             }
 
             const auto leftBoundary = findLeftBoundary();
             const auto rightBoundary = findRightBoundary();
-
-            qDebug() << "left: " << leftBoundary << " right: " << rightBoundary;
 
             if (leftBoundary > rightBoundary) {
                 return;
@@ -77,17 +89,17 @@ namespace TrenchBroom {
             const auto& t = this->text();
             const auto completionPrefix = t.mid(leftBoundary, cursorPosition() - leftBoundary);
 
-            qDebug() << completionPrefix;
-
             m_multiCompleter->setCompletionPrefix(completionPrefix);
             if (m_multiCompleter->completionPrefix().length() < 1) {
                 m_multiCompleter->popup()->hide();
                 return;
             }
 
-            QRect cr = cursorRect();
-            cr.setWidth(m_multiCompleter->popup()->sizeHintForColumn(0) + m_multiCompleter->popup()->verticalScrollBar()->sizeHint().width());
-            m_multiCompleter->complete(cr);
+            if (showCompleter) {
+                QRect cr = cursorRect();
+                cr.setWidth(m_multiCompleter->popup()->sizeHintForColumn(0) + m_multiCompleter->popup()->verticalScrollBar()->sizeHint().width());
+                m_multiCompleter->complete(cr);
+            }
         }
 
         int MultiCompletionLineEdit::findLeftBoundary() const {
@@ -156,6 +168,10 @@ namespace TrenchBroom {
             return lastMatch.capturedStart();
         }
 
+        void MultiCompletionLineEdit::triggerCompletion() {
+            updateCompleter(true);
+        }
+
         void MultiCompletionLineEdit::insertCompletion(const QString& string) {
             const auto leftBoundary = findLeftBoundary();
             const auto rightBoundary = findRightBoundary();
@@ -163,8 +179,6 @@ namespace TrenchBroom {
             if (leftBoundary > rightBoundary) {
                 return;
             }
-
-            qDebug() << "left: " << leftBoundary << " right: " << rightBoundary;
 
             auto oldText = this->text();
             setText(oldText.replace(leftBoundary, rightBoundary - leftBoundary, string));

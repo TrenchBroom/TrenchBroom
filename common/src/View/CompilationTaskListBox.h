@@ -37,6 +37,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class MultiCompletionLineEdit;
         class TitledPanel;
 
         class CompilationTaskEditorBase : public ControlListBoxItemRenderer {
@@ -55,7 +56,7 @@ namespace TrenchBroom {
         public:
             ~CompilationTaskEditorBase() override;
         protected:
-            void setupCompleter(QLineEdit* lineEdit);
+            void setupCompleter(MultiCompletionLineEdit* lineEdit);
         private:
             void updateCompleter(QCompleter* completer);
         private:
@@ -78,7 +79,7 @@ namespace TrenchBroom {
         class CompilationExportMapTaskEditor : public CompilationTaskEditorBase {
             Q_OBJECT
         private:
-            QLineEdit* m_targetEditor;
+            MultiCompletionLineEdit* m_targetEditor;
         public:
             CompilationExportMapTaskEditor(MapDocumentWPtr document, Model::CompilationProfile& profile, Model::CompilationExportMap& task, QWidget* parent = nullptr);
         private:
@@ -91,8 +92,8 @@ namespace TrenchBroom {
         class CompilationCopyFilesTaskEditor : public CompilationTaskEditorBase {
             Q_OBJECT
         private:
-            QLineEdit* m_sourceEditor;
-            QLineEdit* m_targetEditor;
+            MultiCompletionLineEdit* m_sourceEditor;
+            MultiCompletionLineEdit* m_targetEditor;
         public:
             CompilationCopyFilesTaskEditor(MapDocumentWPtr document, Model::CompilationProfile& profile, Model::CompilationCopyFiles& task, QWidget* parent = nullptr);
         private:
@@ -106,8 +107,8 @@ namespace TrenchBroom {
         class CompilationRunToolTaskEditor : public CompilationTaskEditorBase {
             Q_OBJECT
         private:
-            QLineEdit* m_toolEditor;
-            QLineEdit* m_parametersEditor;
+            MultiCompletionLineEdit* m_toolEditor;
+            MultiCompletionLineEdit* m_parametersEditor;
         public:
             CompilationRunToolTaskEditor(MapDocumentWPtr document, Model::CompilationProfile& profile, Model::CompilationRunTool& task, QWidget* parent = nullptr);
         private:

@@ -23,6 +23,7 @@
 #include "Model/CompilationProfile.h"
 #include "View/BorderLine.h"
 #include "View/CompilationVariables.h"
+#include "View/MultiCompletionLineEdit.h"
 #include "View/TitledPanel.h"
 #include "View/VariableStoreModel.h"
 #include "View/ViewConstants.h"
@@ -62,10 +63,10 @@ namespace TrenchBroom {
             removeTaskObservers();
         }
 
-        void CompilationTaskEditorBase::setupCompleter(QLineEdit* lineEdit) {
+        void CompilationTaskEditorBase::setupCompleter(MultiCompletionLineEdit* lineEdit) {
             auto* completer = new QCompleter();
             completer->setCaseSensitivity(Qt::CaseInsensitive);
-            lineEdit->setCompleter(completer);
+            lineEdit->setMultiCompleter(completer);
 
             m_completers.push_back(completer);
             updateCompleter(completer);
@@ -138,7 +139,7 @@ namespace TrenchBroom {
             formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
             m_panel->getPanel()->setLayout(formLayout);
 
-            m_targetEditor = new QLineEdit();
+            m_targetEditor = new MultiCompletionLineEdit();
             setupCompleter(m_targetEditor);
             formLayout->addRow("Target", m_targetEditor);
 
@@ -175,11 +176,11 @@ namespace TrenchBroom {
             formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
             m_panel->getPanel()->setLayout(formLayout);
 
-            m_sourceEditor = new QLineEdit();
+            m_sourceEditor = new MultiCompletionLineEdit();
             setupCompleter(m_sourceEditor);
             formLayout->addRow("Source", m_sourceEditor);
 
-            m_targetEditor = new QLineEdit();
+            m_targetEditor = new MultiCompletionLineEdit();
             setupCompleter(m_targetEditor);
             formLayout->addRow("Target", m_targetEditor);
 
@@ -229,7 +230,7 @@ namespace TrenchBroom {
             formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
             m_panel->getPanel()->setLayout(formLayout);
 
-            m_toolEditor = new QLineEdit();
+            m_toolEditor = new MultiCompletionLineEdit();
             setupCompleter(m_toolEditor);
 
             auto* browseToolButton = new QPushButton("...");
@@ -243,7 +244,7 @@ namespace TrenchBroom {
 
             formLayout->addRow("Tool", toolLayout);
 
-            m_parametersEditor = new QLineEdit();
+            m_parametersEditor = new MultiCompletionLineEdit();
             setupCompleter(m_parametersEditor);
             formLayout->addRow("Parameters", m_parametersEditor);
 
