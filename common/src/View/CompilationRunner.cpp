@@ -129,6 +129,8 @@ namespace TrenchBroom {
 
         void CompilationRunToolTaskRunner::doTerminate() {
             if (m_process != nullptr) {
+                disconnect(m_process.get(), &QProcess::errorOccurred, this, &CompilationRunToolTaskRunner::processErrorOccurred);
+                disconnect(m_process.get(), QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &CompilationRunToolTaskRunner::processFinished);
                 m_process->kill();
                 m_process.reset();
                 m_context << "\n\n#### Terminated\n";
@@ -167,18 +169,18 @@ namespace TrenchBroom {
         }
 
         void CompilationRunToolTaskRunner::processErrorOccurred(const QProcess::ProcessError processError) {
-            ensure(m_process != nullptr, "process is null");
-
-            m_process.reset();
+            if (m_process != nullptr) {
+                m_process.reset();
+            }
             m_context << "#### Error " << processError << " occurred when communicating with process\n\n";
 
             emit error();
         }
 
         void CompilationRunToolTaskRunner::processFinished(const int exitCode, const QProcess::ExitStatus exitStatus) {
-            ensure(m_process != nullptr, "process is null");
-
-            m_process.reset();
+            if (m_process != nullptr) {
+                m_process.reset();
+            }
             m_context << "#### Finished with exit status " << exitCode << "\n\n";
 
             emit end();
