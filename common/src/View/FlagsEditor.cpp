@@ -67,13 +67,13 @@ namespace TrenchBroom {
                 for (size_t col = 0; col < m_numCols; ++col) {
                     const size_t index = col * numRows + row;
                     if (index < count) {
-                        auto* checkBox = new QCheckBox();
-                        m_checkBoxes[index] = checkBox;
-                        m_values[index] = values[index];
-
                         const int indexInt = static_cast<int>(index);
                         const int rowInt = static_cast<int>(row);
                         const int colInt = static_cast<int>(col);
+
+                        auto* checkBox = new QCheckBox();
+                        m_checkBoxes[index] = checkBox;
+                        m_values[index] = values[indexInt];
 
                         checkBox->setText(indexInt < labels.size() ? labels[indexInt] : QString::number(1 << index));
                         checkBox->setToolTip(indexInt < tooltips.size() ? tooltips[indexInt] : "");

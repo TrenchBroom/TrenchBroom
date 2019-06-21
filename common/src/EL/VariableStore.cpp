@@ -24,10 +24,6 @@
 
 namespace TrenchBroom {
     namespace EL {
-        VariableStore::VariableStore() = default;
-
-        VariableStore::~VariableStore() = default;
-
         VariableStore* VariableStore::clone() const {
             return doClone();
         }

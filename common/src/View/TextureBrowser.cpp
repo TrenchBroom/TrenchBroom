@@ -94,8 +94,6 @@ namespace TrenchBroom {
 
         /**
          * See EntityBrowser::createGui
-         *
-         * @param contextManager
          */
         void TextureBrowser::createGui(GLContextManager& contextManager) {
             auto* browserPanel = new QWidget();

@@ -55,13 +55,12 @@ namespace TrenchBroom {
             const int cols = computeCols(virtualSize.width());
             const int rows = computeRows(cols);
 
-            const QPoint viewStart = QPoint(0, 0);
-
             const int startX = m_margin;
             int x = startX;
             int y = m_margin;
 
             QPainter dc(this);
+            // FIXME: what about this?
 //            dc.setPen(QColor(Qt::transparent));
 //            dc.setBrush(wxBrush(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX)));
 //            dc.drawRect(0, 0, virtualSize.x, virtualSize.y);

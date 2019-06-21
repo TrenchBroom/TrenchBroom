@@ -27,6 +27,15 @@
 
 namespace TrenchBroom {
     namespace IO {
+        const char* buff();
+        std::shared_ptr<File> file();
+        void createEmpty(Reader&& r);
+        void createNonEmpty(Reader&& r);
+        void seekFromBegin(Reader&& r);
+        void seekFromEnd(Reader&& r);
+        void seekForward(Reader&& r);
+        void subReader(Reader&& r);
+
         const char* buff() {
             static const auto* result = "abcdefghij_";
             return result;
@@ -36,7 +45,6 @@ namespace TrenchBroom {
             static auto result = Disk::openFile(Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Reader/10byte"));
             return result;
         }
-
 
         void createEmpty(Reader&& r) {
             EXPECT_EQ(0U, r.size());

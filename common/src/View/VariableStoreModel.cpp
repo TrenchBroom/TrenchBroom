@@ -39,7 +39,7 @@ namespace TrenchBroom {
                 return QVariant();
             }
 
-            const auto& name = m_variableNames[index.row()];
+            const auto& name = m_variableNames[static_cast<size_t>(index.row())];
             if (index.column() == 0) {
                 if (role == Qt::EditRole) {
                     return QString::fromStdString("${" + name + "}");

@@ -70,15 +70,15 @@ namespace TrenchBroom {
             ensure(m_tabBook != nullptr, "tabBook is null");
             connect(m_tabBook, &TabBook::pageChanged, this, &TabBar::OnTabBookPageChanged);
 
-            m_controlSizer = new QHBoxLayout();
-            m_controlSizer->setContentsMargins(0, LayoutConstants::NarrowHMargin, 0, LayoutConstants::NarrowHMargin);
-            m_controlSizer->addSpacing(LayoutConstants::TabBarBarLeftMargin);
-            m_controlSizer->addStretch(1);
-            m_controlSizer->addLayout(m_barBook, 0);
-            assert(m_controlSizer->setAlignment(m_barBook, Qt::AlignVCenter));
-            m_controlSizer->addSpacing(LayoutConstants::NarrowHMargin);
+            m_controlLayout = new QHBoxLayout();
+            m_controlLayout->setContentsMargins(0, LayoutConstants::NarrowHMargin, 0, LayoutConstants::NarrowHMargin);
+            m_controlLayout->addSpacing(LayoutConstants::TabBarBarLeftMargin);
+            m_controlLayout->addStretch(1);
+            m_controlLayout->addLayout(m_barBook, 0);
+            assert(m_controlLayout->setAlignment(m_barBook, Qt::AlignVCenter));
+            m_controlLayout->addSpacing(LayoutConstants::NarrowHMargin);
 
-            setLayout(m_controlSizer);
+            setLayout(m_controlLayout);
         }
 
         void TabBar::addTab(TabBookPage* bookPage, const QString& title) {
@@ -89,9 +89,9 @@ namespace TrenchBroom {
             button->setPressed(m_buttons.empty());
             m_buttons.push_back(button);
 
-            const size_t sizerIndex = 2 * (m_buttons.size() - 1) + 1;
-            m_controlSizer->insertWidget(sizerIndex, button, 0, Qt::AlignVCenter);
-            m_controlSizer->insertSpacing(sizerIndex + 1, LayoutConstants::WideHMargin);
+            const auto sizerIndex = static_cast<int>(2 * (m_buttons.size() - 1) + 1);
+            m_controlLayout->insertWidget(sizerIndex, button, 0, Qt::AlignVCenter);
+            m_controlLayout->insertSpacing(sizerIndex + 1, LayoutConstants::WideHMargin);
 
             QWidget* barPage = bookPage->createTabBarPage(nullptr);
             m_barBook->addWidget(barPage);
@@ -101,7 +101,7 @@ namespace TrenchBroom {
             QWidget* button = dynamic_cast<QWidget*>(QObject::sender());
             const size_t index = findButtonIndex(button);
             ensure(index < m_buttons.size(), "index out of range");
-            m_tabBook->switchToPage(index);
+            m_tabBook->switchToPage(static_cast<int>(index));
         }
 
         void TabBar::OnTabBookPageChanged(const int newIndex) {

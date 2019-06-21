@@ -135,16 +135,17 @@ namespace TrenchBroom {
 
         bool EntityAttributeGrid::canRemoveSelectedAttributes() const {
             return true;
-
+            /* FIXME:
             const auto rows = selectedRowsAndCursorRow();
             if (rows.empty())
                 return false;
 
             for (const int row : rows) {
-//                if (!m_table->canRemove(row))
-//                    return false;
+                if (!m_table->canRemove(row))
+                    return false;
             }
             return true;
+             */
         }
 
         std::set<int> EntityAttributeGrid::selectedRowsAndCursorRow() const {

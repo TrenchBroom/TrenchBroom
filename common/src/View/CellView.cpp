@@ -218,7 +218,8 @@ namespace TrenchBroom {
                     QDrag* drag = new QDrag(this);
                     drag->setMimeData(mimeData);
 
-                    Qt::DropAction dropAction = drag->exec(Qt::CopyAction);
+                    // FIXME: is this complete and working?
+                    /* Qt::DropAction dropAction = */ drag->exec(Qt::CopyAction);
                 }
             }
         }

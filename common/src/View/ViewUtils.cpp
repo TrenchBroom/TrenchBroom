@@ -45,14 +45,6 @@ namespace TrenchBroom {
             }
         }
 
-        size_t loadDroppedFiles(MapDocumentWPtr document, QWidget* parent, const QStringList& wxPaths) {
-            size_t count = 0;
-            count += loadTextureCollections(document, parent, wxPaths);
-            if (loadEntityDefinitionFile(document, parent, wxPaths) < wxPaths.size())
-                ++count;
-            return count > 0;
-        }
-
         bool loadTextureCollection(MapDocumentWPtr document, QWidget* parent, const QString& wxPath) {
             QStringList wxPaths;
             wxPaths.append(wxPath);
@@ -60,8 +52,9 @@ namespace TrenchBroom {
         }
 
         size_t loadTextureCollections(MapDocumentWPtr i_document, QWidget* parent, const QStringList& wxPaths) {
-            if (wxPaths.empty())
+            if (wxPaths.empty()) {
                 return 0;
+            }
 
             size_t count = 0;
 
@@ -73,7 +66,7 @@ namespace TrenchBroom {
             const IO::Path gamePath = gameFactory.gamePath(game->gameName());
             const IO::Path docPath = document->path();
 
-            for (size_t i = 0; i < wxPaths.size(); ++i) {
+            for (int i = 0; i < wxPaths.size(); ++i) {
                 const QString& wxPath = wxPaths[i];
                 const IO::Path absPath(wxPath.toStdString());
                 if (game->isTextureCollection(absPath)) {
@@ -110,7 +103,7 @@ namespace TrenchBroom {
             const IO::Path docPath = document->path();
 
             try {
-                for (size_t i = 0; i < wxPaths.size(); ++i) {
+                for (int i = 0; i < wxPaths.size(); ++i) {
                     const QString& wxPath = wxPaths[i];
                     const IO::Path absPath(wxPath.toStdString());
                     if (game->isEntityDefinitionFile(absPath)) {
@@ -118,7 +111,7 @@ namespace TrenchBroom {
                         if (pathDialog.exec() == QDialog::Accepted) {
                             const Assets::EntityDefinitionFileSpec spec = Assets::EntityDefinitionFileSpec::external(pathDialog.path());
                             document->setEntityDefinitionFile(spec);
-                            return i;
+                            return static_cast<size_t>(i);
                         }
                     }
                 }

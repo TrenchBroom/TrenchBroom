@@ -39,8 +39,6 @@ namespace TrenchBroom {
     namespace View {
         void combineFlags(size_t numFlags, int newFlagValue, int& setFlags, int& mixedFlags);
 
-        size_t loadDroppedFiles(MapDocumentWPtr document, QWidget* parent, const QStringList& wxPaths);
-
         bool loadTextureCollection(MapDocumentWPtr document, QWidget* parent, const QString& wxPath);
         size_t loadTextureCollections(MapDocumentWPtr document, QWidget* parent, const QStringList& wxPaths);
 

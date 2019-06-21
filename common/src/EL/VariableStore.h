@@ -20,6 +20,7 @@
 #ifndef VariableStore_h
 #define VariableStore_h
 
+#include "Macros.h"
 #include "StringUtils.h"
 #include "EL/Value.h"
 
@@ -27,8 +28,13 @@ namespace TrenchBroom {
     namespace EL {
         class VariableStore {
         public:
-            VariableStore();
-            virtual ~VariableStore();
+            VariableStore() = default;
+            VariableStore(const VariableStore& other) = default;
+            VariableStore(VariableStore&& other) noexcept = default;
+            virtual ~VariableStore() = default;
+
+            VariableStore& operator=(const VariableStore& other) = default;
+            VariableStore& operator=(VariableStore&& other) noexcept = default;
 
             VariableStore* clone() const;
             size_t size() const;

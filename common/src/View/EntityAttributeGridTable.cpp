@@ -157,12 +157,13 @@ namespace TrenchBroom {
 
         // EntityAttributeGridTable
 
-        EntityAttributeGridTable::EntityAttributeGridTable(MapDocumentWPtr document, QObject* parent)
-                : QAbstractTableModel(parent),
-                  m_document(document) {
+        EntityAttributeGridTable::EntityAttributeGridTable(MapDocumentWPtr document, QObject* parent) :
+        QAbstractTableModel(parent),
+        m_document(document) {
             updateFromMapDocument();
         }
 
+        /* FIXME: remove if unused
         static auto buildMap(const std::vector<AttributeRow>& rows) {
             std::map<String, AttributeRow> result;
             for (auto& row : rows) {
@@ -170,6 +171,7 @@ namespace TrenchBroom {
             }
             return result;
         }
+         */
 
         static auto buildVec(const std::map<String, AttributeRow>& rows) {
             std::vector<AttributeRow> result;
@@ -181,10 +183,9 @@ namespace TrenchBroom {
 
         static auto buildAttributeToRowIndexMap(const std::vector<AttributeRow>& rows) {
             std::map<String, int> result;
-            for (int i = 0; i < static_cast<int>(rows.size()); ++i) {
+            for (size_t i = 0; i < rows.size(); ++i) {
                 const AttributeRow& row = rows[i];
-
-                result[row.name()] = i;
+                result[row.name()] = static_cast<int>(i);
             }
             return result;
         }
@@ -207,7 +208,7 @@ namespace TrenchBroom {
             const QModelIndexList oldPersistentIndices = persistentIndexList();
             QModelIndexList newPersistentIndices;
 
-            for (const auto oldPersistentIndex : oldPersistentIndices) {
+            for (const auto& oldPersistentIndex : oldPersistentIndices) {
                 if (!oldPersistentIndex.isValid()) {
                     // Shouldn't ever happen, but handle it anyway
                     newPersistentIndices.push_back(QModelIndex());

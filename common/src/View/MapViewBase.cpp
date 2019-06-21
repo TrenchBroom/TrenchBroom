@@ -446,8 +446,10 @@ namespace TrenchBroom {
                     return vm::vec2f(-moveTextureDistance(), 0.0f);
                 case vm::direction::right:
                     return vm::vec2f(moveTextureDistance(), 0.0f);
-                default:
+                case vm::direction::forward:
+                case vm::direction::backward:
                     return vm::vec2f();
+                switchDefault()
             }
         }
 
@@ -764,8 +766,6 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::onActiveChanged() {
-            qDebug("MapViewBase::onActiveChanged: is active: %d, is focus window: %d has focus %d",
-                (int)isActive(), (int)(QGuiApplication::focusWindow() == this), (int) hasFocus());
             requestUpdate(); // show/hide focus rectangle
             updateActionStates();  // enable/disable QShortcut's to reflect whether we have focus (needed because of QOpenGLWindow; see comment in createAndRegisterShortcut)
 
@@ -1091,7 +1091,6 @@ namespace TrenchBroom {
                     break;
                 }
                 case QEvent::DragLeave: {
-                    auto* dragLeaveEvent = static_cast<QDragLeaveEvent *>(ev);
                     dragLeave();
                     break;
                 }

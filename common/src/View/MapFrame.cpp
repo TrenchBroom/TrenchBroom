@@ -1617,9 +1617,8 @@ namespace TrenchBroom {
         }
 
         void MapFrame::debugCopyJSShortcutMap() {
-            QClipboard *clipboard = QApplication::clipboard();
-
             // FIXME: reimplement
+//            QClipboard *clipboard = QApplication::clipboard();
 //            const String str = ActionManager::instance().getJSTable();
 //            clipboard->setText(QString::fromStdString(str));
         }

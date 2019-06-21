@@ -45,7 +45,7 @@ namespace TrenchBroom {
             explicit TabBook(QWidget* parent = nullptr);
 
             void addPage(TabBookPage* page, const QString& title);
-            void switchToPage(size_t index);
+            void switchToPage(int index);
             void setTabBarHeight(int height);
 
         signals:

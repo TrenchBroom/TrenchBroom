@@ -309,6 +309,7 @@ namespace TrenchBroom {
             return true;
         }
 
+        /* FIXME: crash reporting
         static String makeCrashReport(const String &stacktrace, const String &reason) {
             StringStream ss;
             ss << "OS:\t" << QSysInfo::prettyProductName().toStdString() << std::endl;
@@ -363,6 +364,7 @@ namespace TrenchBroom {
             }
             return testCrashLogPath.deleteExtension();
         }
+         */
 
         static bool inReportCrashAndExit = false;
         static bool crashReportGuiEnabled = true;

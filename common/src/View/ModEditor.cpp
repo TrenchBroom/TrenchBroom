@@ -96,15 +96,15 @@ namespace TrenchBroom {
             auto document = lock(m_document);
             auto mods = document->mods();
 
-            const int index = m_enabledModList->row(selections.first());
-            ensure(index > 0 && index < mods.size(), "index out of range");
+            const size_t index = static_cast<size_t>(m_enabledModList->row(selections.first()));
+            ensure(index < mods.size(), "index out of range");
 
             using std::swap;
             swap(mods[index - 1], mods[index]);
             document->setMods(mods);
 
             m_enabledModList->clearSelection();
-            m_enabledModList->setItemSelected(m_enabledModList->item(index - 1), true);
+            m_enabledModList->setItemSelected(m_enabledModList->item(static_cast<int>(index - 1)), true);
         }
 
         void ModEditor::OnMoveModDownClicked() {
@@ -114,7 +114,7 @@ namespace TrenchBroom {
             auto document = lock(m_document);
             auto mods = document->mods();
 
-            const int index = m_enabledModList->row(selections.first());
+            const auto index = static_cast<size_t>(m_enabledModList->row(selections.first()));
             ensure(index < mods.size() - 1, "index out of range");
 
             using std::swap;
@@ -122,7 +122,7 @@ namespace TrenchBroom {
             document->setMods(mods);
 
             m_enabledModList->clearSelection();
-            m_enabledModList->setItemSelected(m_enabledModList->item(index + 1), true);
+            m_enabledModList->setItemSelected(m_enabledModList->item(static_cast<int>(index + 1)), true);
         }
 
         bool ModEditor::canEnableAddButton() const {

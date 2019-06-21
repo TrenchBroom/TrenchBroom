@@ -68,7 +68,7 @@ namespace TrenchBroom {
         void LayerEditor::OnLayerRightClick(Model::Layer* layer) {
             QMenu popupMenu;
             QAction* moveSelectionToLayerAction = popupMenu.addAction(tr("Move selection to layer"), this, &LayerEditor::OnMoveSelectionToLayer);
-            QAction* selectAllInLayerAction = popupMenu.addAction(tr("Select all in layer"), this, &LayerEditor::OnSelectAllInLayer);
+            popupMenu.addAction(tr("Select all in layer"), this, &LayerEditor::OnSelectAllInLayer);
             popupMenu.addSeparator();
             QAction* toggleLayerVisibleAction = popupMenu.addAction(layer->hidden() ? tr("Show layer") : tr("Hide layer"), this, &LayerEditor::OnToggleLayerVisibleFromMenu);
             QAction* toggleLayerLockedAction = popupMenu.addAction(layer->locked() ? tr("Unlock layer") : tr("Lock layer"), this, &LayerEditor::OnToggleLayerLockedFromMenu);

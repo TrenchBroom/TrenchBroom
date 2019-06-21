@@ -59,7 +59,7 @@ namespace TrenchBroom {
             m_tabBook->addWidget(page);
         }
 
-        void TabBook::switchToPage(const size_t index) {
+        void TabBook::switchToPage(const int index) {
             assert(index < m_tabBook->count());
             m_tabBook->setCurrentIndex(index);
         }
