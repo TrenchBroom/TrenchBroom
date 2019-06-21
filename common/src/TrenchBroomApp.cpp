@@ -164,10 +164,6 @@ namespace TrenchBroom {
             openFilesOrWelcomeFrame(parser.positionalArguments());
         }
 
-        TrenchBroomApp::~TrenchBroomApp() {
-            m_recentDocuments->didChangeNotifier.removeObserver(recentDocumentsDidChangeNotifier);
-        }
-
         QSettings& TrenchBroom::View::TrenchBroomApp::settings() {
             return getSettings();
         }
