@@ -371,7 +371,7 @@ namespace TrenchBroom {
             m_removeLayerButton = createBitmapButton("Remove.png",
                                                      "Remove the selected layer and move its objects to the default layer",
                                                      this);
-            m_showAllLayersButton = createBitmapButton("Visible.png", "Show all layers", this);
+            m_showAllLayersButton = createBitmapButton("Hidden_off.png", "Show all layers", this);
 
             connect(m_addLayerButton, &QAbstractButton::pressed, this, &LayerEditor::OnAddLayer);
             connect(m_removeLayerButton, &QAbstractButton::pressed, this, &LayerEditor::OnRemoveLayer);

@@ -219,6 +219,8 @@ namespace TrenchBroom {
         }
 
         QAbstractButton* createBitmapButton(const QIcon& icon, const QString& tooltip, QWidget* parent) {
+            ensure(!icon.availableSizes().empty(), "expected a non-empty icon. Fails when the image file couldn't be found.");
+            
             // NOTE: according to http://doc.qt.io/qt-5/qpushbutton.html this would be more correctly
             // be a QToolButton, but the QToolButton doesn't have a flat style on macOS
             auto* button = new QToolButton(parent);
