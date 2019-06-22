@@ -5,6 +5,9 @@ set -o verbose
 brew update
 brew install cmake p7zip pandoc cppcheck qt5
 
+# Sometimes homebrew complains that cmake is already installed, but we need the latest version.
+brew upgrade cmake
+
 # Build TB
 
 BUILD_TYPE_VALUE="Release"
@@ -27,7 +30,7 @@ cpack -C $BUILD_TYPE_VALUE || exit 1
 
 ./generate_checksum.sh
 
-cd "$BUILD_TYPE_VALUE" 
+cd "$BUILD_TYPE_VALUE"
 ./TrenchBroom-Test || exit 1
 ./TrenchBroom-Benchmark || exit 1
 
