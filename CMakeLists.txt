@@ -1,5 +1,8 @@
-# Using TARGET_LINK_LIBRARY to link an object library to qt requires 3.12
-CMAKE_MINIMUM_REQUIRED(VERSION 3.12)
+IF(MSVC EQUAL 1)
+    cmake_minimum_required (VERSION 3.10)
+ELSE()
+    cmake_minimum_required (VERSION 3.1)
+ENDIF()
 
 # Configure CCache if available
 find_program(CCACHE_FOUND ccache)

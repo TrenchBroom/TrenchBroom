@@ -8,8 +8,9 @@ brew install cmake p7zip pandoc cppcheck qt5
 # Sometimes homebrew complains that cmake is already installed, but we need the latest version.
 brew upgrade cmake
 
-# Check Qt version
+# Check versions
 qmake -v
+cmake --version
 
 # Build TB
 

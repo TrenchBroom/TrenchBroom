@@ -10,14 +10,15 @@ else
     export CXX=g++-7
 fi
 
-# Check Qt version
-qmake -v
+# Check versions
+/opt/qt59/bin/qmake -v
+cmake --version
 
 # Build TB
 
 mkdir build
 cd build
-cmake .. -GNinja -DQt5Widgets_DIR=/opt/qt59/lib/cmake/Qt5Widgets/ -DCMAKE_BUILD_TYPE=Release || exit 1 # FIXME: restore "-DCMAKE_CXX_FLAGS=-Werror"
+cmake .. -GNinja -DCMAKE_PREFIX_PATH=/opt/qt59 -DCMAKE_BUILD_TYPE=Release || exit 1 # FIXME: restore "-DCMAKE_CXX_FLAGS=-Werror"
 cmake --build . --target cppcheck || exit 1
 cmake --build . --config Release || exit 1
 cpack || exit 1
