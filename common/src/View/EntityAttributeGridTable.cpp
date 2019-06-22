@@ -221,8 +221,8 @@ namespace TrenchBroom {
                 const String oldKey = m_rows.at(static_cast<size_t>(oldRow)).name();
 
                 // see if there is a corresponding new row
-
-                if (auto it = newRowIndexMap.find(oldKey); it != newRowIndexMap.end()) {
+                auto it = newRowIndexMap.find(oldKey);
+                if (it != newRowIndexMap.end()) {
                     const int newRow = it->second;
                     newPersistentIndices.push_back(index(newRow, oldColumn));
                 } else {

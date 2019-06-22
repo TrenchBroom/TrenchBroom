@@ -13,8 +13,8 @@ LIST(APPEND CPPCHECK_ARGS
 )
 
 LIST(APPEND CPPCHECK_HTMLREPORT_ARGS
-    --file err.xml 
-    --report-dir=cppcheck_report 
+    --file err.xml
+    --report-dir=cppcheck_report
     --source-dir=${CMAKE_SOURCE_DIR}
 )
 

@@ -43,7 +43,7 @@ namespace TrenchBroom {
             FrameList m_frames;
         public:
             explicit FrameManager(bool singleFrame);
-            ~FrameManager();
+            ~FrameManager() override;
 
             MapFrame* newFrame();
             bool closeAllFrames();
