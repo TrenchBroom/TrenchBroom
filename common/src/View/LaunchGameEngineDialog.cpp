@@ -183,13 +183,13 @@ namespace TrenchBroom {
 
         void LaunchGameEngineDialog::launchEngine() {
             try {
-                const Model::GameEngineProfile* profile = m_gameEngineList->selectedProfile();
+                const auto* profile = m_gameEngineList->selectedProfile();
                 ensure(profile != nullptr, "profile is null");
 
                 const auto& executablePath = profile->path();
 
-                const String& parameterSpec = profile->parameterSpec();
-                const String parameters = EL::interpolate(parameterSpec, variables());
+                const auto& parameterSpec = profile->parameterSpec();
+                const auto parameters = EL::interpolate(parameterSpec, variables());
 
                 QString program;
                 QStringList arguments;
@@ -204,14 +204,10 @@ namespace TrenchBroom {
 #endif
                 arguments.append(QString::fromStdString(parameters));
 
-                QProcess process;
-                process.setWorkingDirectory(QString::fromStdString(executablePath.deleteLastComponent().asString()));
-                process.setProgram(program);
-                process.setArguments(arguments);
+                const auto workDir = QString::fromStdString(executablePath.deleteLastComponent().asString());
 
-                if (!process.startDetached()) {
-                    const auto error = QString::fromLocal8Bit(process.readAllStandardError());
-                    throw Exception(error.toStdString());
+                if (!QProcess::startDetached(program, arguments, workDir)) {
+                    throw Exception("Unknown error");
                 }
                 accept();
             } catch (const Exception& e) {

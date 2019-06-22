@@ -40,7 +40,7 @@ namespace TrenchBroom {
                 size_t l = 0;
                 for (size_t i = 0; i < cStr.length(); ++i) {
                     const auto c = cStr[i];
-                    const auto n = i < cStr.length() - 1 ? cStr[i + 1] : decltype(c)(0);
+                    const auto n = i < cStr.length() - 1 ? cStr[i + 1] : 0;
                     if (c == '\r' && n == '\n') {
                         continue;
                     } else if (c == '\r') {
@@ -71,7 +71,7 @@ namespace TrenchBroom {
             size_t previousChunkStart = 0;
             for (size_t i = 0; i < fullStr.length(); ++i) {
                 const auto c = fullStr[i];
-                const auto n = i < fullStr.length() - 1 ? fullStr[i+1] : decltype(c)(0);
+                const auto n = i < fullStr.length() - 1 ? fullStr[i+1] : 0;
                 if (c == '\r' && n == '\n') {
                     continue;
                 } else if (c == '\r') {

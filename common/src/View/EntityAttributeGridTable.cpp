@@ -19,6 +19,7 @@
 
 #include "EntityAttributeGridTable.h"
 
+#include "Macros.h"
 #include "Assets/AttributeDefinition.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionManager.h"
@@ -176,6 +177,7 @@ namespace TrenchBroom {
         static auto buildVec(const std::map<String, AttributeRow>& rows) {
             std::vector<AttributeRow> result;
             for (auto& [key, row] : rows) {
+                unused(key);
                 result.push_back(row);
             }
             return result;
