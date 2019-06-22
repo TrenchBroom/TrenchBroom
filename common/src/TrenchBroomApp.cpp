@@ -19,19 +19,6 @@
 
 #include "TrenchBroomApp.h"
 
-#include <clocale>
-#include <fstream>
-
-#include <QCommandLineParser>
-#include <QUrl>
-#include <QDesktopServices>
-#include <QFileDialog>
-#include <QMessageBox>
-#include <QFile>
-#include <QStandardPaths>
-#include <QSysInfo>
-#include <QtDebug>
-
 #include "Macros.h"
 #include "RecoverableExceptions.h"
 #include "TrenchBroomStackWalker.h"
@@ -51,6 +38,20 @@
 #include "View/GetVersion.h"
 #include "View/MapViewBase.h"
 #include "View/wxUtils.h"
+
+#include <QCommandLineParser>
+#include <QUrl>
+#include <QDesktopServices>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QFile>
+#include <QStandardPaths>
+#include <QSysInfo>
+#include <QtDebug>
+
+#include <clocale>
+#include <cstdlib>
+#include <fstream>
 
 namespace TrenchBroom {
     namespace View {
@@ -415,7 +416,7 @@ namespace TrenchBroom {
             }
 #endif
             // FIXME:
-            abort();
+            std::abort();
         }
 
         bool isReportingCrash() {
