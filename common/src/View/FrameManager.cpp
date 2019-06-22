@@ -67,8 +67,9 @@ namespace TrenchBroom {
 
             // The QApplication::focusChanged signal also notifies us of focus changes between child widgets, so
             // get the top-level widget with QWidget::window()
-            if (MapFrame* frame = dynamic_cast<MapFrame*>(now->window()); frame) {
-                FrameList::iterator it = std::find(std::begin(m_frames), std::end(m_frames), frame);
+            auto* frame = dynamic_cast<MapFrame*>(now->window());
+            if (frame != nullptr) {
+                auto it = std::find(std::begin(m_frames), std::end(m_frames), frame);
                 assert(it != std::end(m_frames));
                 if (it != std::begin(m_frames)) {
                     assert(topFrame() != frame);

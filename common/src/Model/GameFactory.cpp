@@ -156,7 +156,7 @@ namespace TrenchBroom {
             // a higher priority than the actual resources directory (TrenchBroom.app/Contents/Resources)
             // when searching for resources.
             const IO::Path userGameDir = IO::SystemPaths::userDataDirectory() + IO::Path("gameUserData");
-            if (IO::Disk::directoryExists(resourceGameDir)) {
+            if (!resourceGameDir.isEmpty() &&IO::Disk::directoryExists(resourceGameDir)) {
                 auto resourceFS = std::make_shared<IO::DiskFileSystem>(resourceGameDir);
                 m_configFS = std::make_unique<IO::WritableDiskFileSystem>(std::move(resourceFS), userGameDir, true);
             } else {

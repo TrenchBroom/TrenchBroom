@@ -61,8 +61,8 @@ namespace TrenchBroom {
             GameDialog(const QString& title, const QString& infoText, QWidget* parent = nullptr);
 
             void createGui(const QString& title, const QString& infoText);
-            virtual QWidget* createInfoPanel(QWidget* parent, const QString& title, const QString& infoText);
-            virtual QWidget* createSelectionPanel(QWidget* parent);
+            QWidget* createInfoPanel(QWidget* parent, const QString& title, const QString& infoText);
+            QWidget* createSelectionPanel(QWidget* parent);
         private:
             void updateMapFormats(const String& gameName);
 

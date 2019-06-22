@@ -27,7 +27,7 @@
 #include <functional>
 #include <list>
 #include <memory>
-#include <optional>
+#include <optional-lite/optional.hpp>
 #include <vector>
 
 #include <QKeySequence>

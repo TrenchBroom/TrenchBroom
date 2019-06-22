@@ -25,42 +25,44 @@
 #include <QColorDialog>
 #include <QPushButton>
 
-namespace TrenchBroom::View {
-    ColorButton::ColorButton(QWidget* parent) :
-    QWidget(parent),
-    m_colorIndicator(nullptr),
-    m_button(nullptr) {
-        m_colorIndicator = new QWidget();
-        m_button = new QPushButton("...");
+namespace TrenchBroom {
+    namespace View {
+        ColorButton::ColorButton(QWidget* parent) :
+        QWidget(parent),
+        m_colorIndicator(nullptr),
+        m_button(nullptr) {
+            m_colorIndicator = new QWidget();
+            m_button = new QPushButton("...");
 
-        m_colorIndicator->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred));
-        m_colorIndicator->setMinimumSize(20, 15);
+            m_colorIndicator->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred));
+            m_colorIndicator->setMinimumSize(20, 15);
 
-        auto* layout = new QHBoxLayout();
-        layout->setContentsMargins(QMargins());
-        layout->setSpacing(LayoutConstants::MediumHMargin);
-        layout->addWidget(m_colorIndicator);
-        layout->addWidget(m_button);
-        layout->addStretch();
-        setLayout(layout);
+            auto* layout = new QHBoxLayout();
+            layout->setContentsMargins(QMargins());
+            layout->setSpacing(LayoutConstants::MediumHMargin);
+            layout->addWidget(m_colorIndicator);
+            layout->addWidget(m_button);
+            layout->addStretch();
+            setLayout(layout);
 
-        connect(m_button, &QPushButton::clicked, this, &ColorButton::clicked);
-    }
-
-    void ColorButton::setColor(const QColor& color) {
-        if (color != m_color) {
-            m_color = color;
-            m_colorIndicator->setStyleSheet("QWidget { background-color: " + m_color.name() + "; border-radius: 3px; border: 1px solid " + Colors::borderColor().name() + ";}");
-
-            update();
-            emit colorChanged(m_color);
+            connect(m_button, &QPushButton::clicked, this, &ColorButton::clicked);
         }
-    }
 
-    void ColorButton::clicked() {
-        const auto color = QColorDialog::getColor(m_color, this);
-        if (color.isValid()) {
-            setColor(color);
+        void ColorButton::setColor(const QColor& color) {
+            if (color != m_color) {
+                m_color = color;
+                m_colorIndicator->setStyleSheet("QWidget { background-color: " + m_color.name() + "; border-radius: 3px; border: 1px solid " + Colors::borderColor().name() + ";}");
+
+                update();
+                emit colorChanged(m_color);
+            }
+        }
+
+        void ColorButton::clicked() {
+            const auto color = QColorDialog::getColor(m_color, this);
+            if (color.isValid()) {
+                setColor(color);
+            }
         }
     }
 }

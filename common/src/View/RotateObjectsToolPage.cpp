@@ -30,6 +30,7 @@
 #include <vecmath/vec.h>
 #include <vecmath/util.h>
 
+#include <QtGlobal>
 #include <QAbstractButton>
 #include <QHBoxLayout>
 #include <QLabel>

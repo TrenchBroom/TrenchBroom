@@ -1,8 +1,5 @@
-IF(MSVC EQUAL 1)
-    cmake_minimum_required (VERSION 3.10)
-ELSE()
-    cmake_minimum_required (VERSION 3.1)
-ENDIF()
+# Using TARGET_LINK_LIBRARY to link an object library to qt requires 3.12
+CMAKE_MINIMUM_REQUIRED(VERSION 3.12)
 
 # Configure CCache if available
 find_program(CCACHE_FOUND ccache)
@@ -71,7 +68,8 @@ IF(COMPILER_IS_CLANG)
 ELSEIF(COMPILER_IS_GNU)
     MESSAGE(STATUS "Compiler is GNU")
     SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -Wno-format -Wno-variadic-macros -Wno-padded -Wno-unused-parameter -Wno-float-equal -Wno-format-nonliteral -Wno-missing-noreturn -Wno-zero-as-null-pointer-constant -Wno-error=maybe-uninitialized")
+    # FIXME: enable -Wcpp once we found a workaround for glew / QOpenGLWindow problem, see RenderView.h
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -Wno-format -Wno-variadic-macros -Wno-padded -Wno-unused-parameter -Wno-float-equal -Wno-format-nonliteral -Wno-missing-noreturn -Wno-zero-as-null-pointer-constant -Wno-error=maybe-uninitialized -Wno-cpp")
 ELSEIF(COMPILER_IS_MSVC)
     MESSAGE(STATUS "Compiler is MSVC")
 

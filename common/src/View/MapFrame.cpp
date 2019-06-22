@@ -64,6 +64,7 @@
 
 #include <vecmath/util.h>
 
+#include <QtGlobal>
 #include <QTimer>
 #include <QLabel>
 #include <QString>

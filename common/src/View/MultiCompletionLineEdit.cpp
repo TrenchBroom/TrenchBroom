@@ -19,6 +19,7 @@
 
 #include "MultiCompletionLineEdit.h"
 
+#include <QtGlobal>
 #include <QAbstractItemView>
 #include <QCompleter>
 #include <QKeyEvent>

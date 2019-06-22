@@ -37,12 +37,25 @@
  *
  * Since including glew before QOpenGLWindow only generates a warning and does not seem to incur any ill effects,
  * we silence the warning here.
+ *
+ * Note that GCC does not let us silence this warning using diagnostic pragmas, so it is disabled in the CXX_FLAGS!
  */
 
+#if defined(__clang__)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-W#warnings"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wcpp"
+#endif
+
 #include <QOpenGLWindow>
+
+#if defined(__clang__)
 #pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
 #include <QElapsedTimer>
 

@@ -69,6 +69,7 @@
 #include <vecmath/polygon.h>
 #include <vecmath/util.h>
 
+#include <QtGlobal>
 #include <QShortcut>
 #include <QMenu>
 #include <QString>
