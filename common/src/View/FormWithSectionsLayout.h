@@ -22,24 +22,26 @@
 
 #include <QFormLayout>
 
-namespace TrenchBroom::View {
-    class FormWithSectionsLayout : public QFormLayout {
-    public:
-        using QFormLayout::QFormLayout;
+namespace TrenchBroom {
+    namespace View {
+        class FormWithSectionsLayout : public QFormLayout {
+        public:
+            using QFormLayout::QFormLayout;
 
-        void addSection(const QString& title);
+            void addSection(const QString& title);
 
-        // Since these functions are not virtual, we can only hide the inherited ones.
-        void addRow(QWidget* label, QWidget* field);
-        void addRow(QWidget* label, QLayout* field);
-        void addRow(const QString& labelText, QWidget* field);
-        void addRow(const QString& labelText, QLayout* field);
+            // Since these functions are not virtual, we can only hide the inherited ones.
+            void addRow(QWidget* label, QWidget* field);
+            void addRow(QWidget* label, QLayout* field);
+            void addRow(const QString& labelText, QWidget* field);
+            void addRow(const QString& labelText, QLayout* field);
 
-        void insertRow(int row, QWidget* label, QWidget* field);
-        void insertRow(int row, QWidget* label, QLayout* field);
-        void insertRow(int row, const QString& labelText, QWidget* field);
-        void insertRow(int row, const QString& labelText, QLayout* field);
-    };
+            void insertRow(int row, QWidget* label, QWidget* field);
+            void insertRow(int row, QWidget* label, QLayout* field);
+            void insertRow(int row, const QString& labelText, QWidget* field);
+            void insertRow(int row, const QString& labelText, QLayout* field);
+        };
+    }
 }
 
 #endif /* FormWithSectionsLayout_hpp */
