@@ -14,9 +14,8 @@ fi
 
 mkdir build
 cd build
-cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release || exit 1 # FIXME: restore "-DCMAKE_CXX_FLAGS=-Werror"
-# disable cppcheck on linux because the binary is outdated and detects to many false positives
-# cmake --build . --target cppcheck || exit 1
+cmake .. -GNinja -DQt5Widgets_DIR=/opt/qt59/lib/cmake/Qt5Widgets/ -DCMAKE_BUILD_TYPE=Release || exit 1 # FIXME: restore "-DCMAKE_CXX_FLAGS=-Werror"
+cmake --build . --target cppcheck || exit 1
 cmake --build . --config Release || exit 1
 cpack || exit 1
 
