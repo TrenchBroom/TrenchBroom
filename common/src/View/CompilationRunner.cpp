@@ -29,6 +29,8 @@
 #include "View/CompilationVariables.h"
 #include "View/MapDocument.h"
 
+#include <QtGlobal>
+
 namespace TrenchBroom {
     namespace View {
         CompilationTaskRunner::CompilationTaskRunner(CompilationContext& context) :

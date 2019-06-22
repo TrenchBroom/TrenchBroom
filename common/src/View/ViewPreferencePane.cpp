@@ -32,6 +32,7 @@
 
 #include "Renderer/GL.h"
 
+#include <QtGlobal>
 #include <QBoxLayout>
 #include <QCheckBox>
 #include <QComboBox>

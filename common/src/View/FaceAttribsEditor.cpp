@@ -39,6 +39,7 @@
 #include "View/ViewUtils.h"
 #include "View/wxUtils.h"
 
+#include <QtGlobal>
 #include <QLabel>
 #include <QLineEdit>
 #include <QVBoxLayout>

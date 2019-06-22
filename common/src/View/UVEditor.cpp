@@ -24,6 +24,7 @@
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
+#include <QtGlobal>
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QVBoxLayout>

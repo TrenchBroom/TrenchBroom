@@ -26,6 +26,7 @@
 #include "View/ViewConstants.h"
 #include "View/MapDocument.h"
 
+#include <QtGlobal>
 #include <QPushButton>
 #include <QComboBox>
 #include <QLineEdit>

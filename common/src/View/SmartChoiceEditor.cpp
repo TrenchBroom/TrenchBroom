@@ -23,6 +23,7 @@
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 
+#include <QtGlobal>
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QComboBox>
