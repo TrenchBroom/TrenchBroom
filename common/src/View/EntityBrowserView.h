@@ -60,7 +60,7 @@ namespace TrenchBroom {
             EntityCellData(const Assets::PointEntityDefinition* i_entityDefinition, EntityRenderer* i_modelRenderer, const Renderer::FontDescriptor& i_fontDescriptor, const vm::bbox3f& i_bounds);
         };
 
-        class EntityBrowserView : public CellView/*<EntityCellData, EntityGroupData>*/ {
+        class EntityBrowserView : public CellView {
         private:
             using EntityRenderer = Renderer::TexturedRenderer;
 

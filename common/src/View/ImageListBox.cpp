@@ -26,46 +26,16 @@
 #include <QBoxLayout>
 #include <QImage>
 #include <QLabel>
-#include <QMouseEvent>
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace View {
-        ImageListBoxItemRenderer::ImageListBoxItemRenderer(size_t index, const QString& title, const QString& subtitle, const QPixmap& image, QWidget* parent)  :
+        ImageListBoxItemRenderer::ImageListBoxItemRenderer(const QString& title, const QString& subtitle, const QPixmap& image, QWidget* parent)  :
         ControlListBoxItemRenderer(parent),
-        m_index(index),
         m_titleLabel(nullptr),
         m_subtitleLabel(nullptr),
         m_imageLabel(nullptr) {
-            createGui(title, subtitle, image);
-        }
-
-        void ImageListBoxItemRenderer::update(size_t index) {
-            QObject* element = this->parent();
-            ImageListBox* listBox = nullptr;
-            do {
-                listBox = dynamic_cast<ImageListBox*>(element);
-                element = element->parent();
-            } while (listBox == nullptr && element != nullptr);
-            if (listBox != nullptr) {
-                m_titleLabel->setText(listBox->title(index));
-                m_subtitleLabel->setText(listBox->subtitle(index));
-                m_imageLabel->setPixmap(listBox->image(index));
-            }
-        }
-
-        void ImageListBoxItemRenderer::setSelected(const bool selected) {
-            if (selected) {
-                makeSelected(m_titleLabel);
-                makeSelected(m_subtitleLabel);
-            } else {
-                makeEmphasized(m_titleLabel);
-                makeInfo(m_subtitleLabel);
-            }
-        }
-
-        void ImageListBoxItemRenderer::createGui(const QString& title, const QString& subtitle, const QPixmap& image) {
             m_titleLabel = new ElidedLabel(title, Qt::ElideRight);
             makeEmphasized(m_titleLabel);
 
@@ -73,7 +43,7 @@ namespace TrenchBroom {
             makeInfo(m_subtitleLabel);
 
             auto* imageAndTextLayout = new QHBoxLayout();
-            imageAndTextLayout->setContentsMargins(QMargins());
+            imageAndTextLayout->setContentsMargins(0, 0, 0, 0);
             imageAndTextLayout->setSpacing(LayoutConstants::NarrowHMargin);
             setLayout(imageAndTextLayout);
 
@@ -82,7 +52,7 @@ namespace TrenchBroom {
             m_imageLabel->setPixmap(image);
 
             auto* textLayout = new QVBoxLayout();
-            textLayout->setContentsMargins(QMargins());
+            textLayout->setContentsMargins(0, 0, 0, 0);
             textLayout->setSpacing(0);
             textLayout->addWidget(m_titleLabel);
             textLayout->addWidget(m_subtitleLabel);
@@ -90,9 +60,17 @@ namespace TrenchBroom {
             imageAndTextLayout->addLayout(textLayout, 1);
         }
 
-        void ImageListBoxItemRenderer::mouseDoubleClickEvent(QMouseEvent* event) {
-            if (event->button() == Qt::LeftButton) {
-                emit doubleClicked(m_index);
+        void ImageListBoxItemRenderer::updateItem() {
+            QObject* element = this->parent();
+            ImageListBox* listBox = nullptr;
+            do {
+                listBox = dynamic_cast<ImageListBox*>(element);
+                element = element->parent();
+            } while (listBox == nullptr && element != nullptr);
+            if (listBox != nullptr) {
+                m_titleLabel->setText(listBox->title(m_index));
+                m_subtitleLabel->setText(listBox->subtitle(m_index));
+                m_imageLabel->setPixmap(listBox->image(m_index));
             }
         }
 
@@ -100,15 +78,11 @@ namespace TrenchBroom {
         ControlListBox(emptyText, parent) {}
 
         ControlListBoxItemRenderer* ImageListBox::createItemRenderer(QWidget* parent, const size_t index) {
-            auto* result = new ImageListBoxItemRenderer(index, title(index), subtitle(index), image(index), parent);
-            connect(result, &ImageListBoxItemRenderer::doubleClicked, this, &ImageListBox::doubleClicked);
-            return result;
+            return new ImageListBoxItemRenderer(title(index), subtitle(index), image(index), parent);
         }
 
         QPixmap ImageListBox::image(const size_t index) const {
             return QPixmap();
         }
-
-        void ImageListBox::doubleClicked(size_t index) {}
     }
 }

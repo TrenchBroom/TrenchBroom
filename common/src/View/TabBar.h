@@ -62,7 +62,7 @@ namespace TrenchBroom {
             TabBook* m_tabBook;
 
             QStackedLayout* m_barBook;
-            QHBoxLayout* m_controlSizer;
+            QHBoxLayout* m_controlLayout;
             ButtonList m_buttons;
         public:
             explicit TabBar(TabBook* tabBook);

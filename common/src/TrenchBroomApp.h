@@ -49,8 +49,6 @@ namespace TrenchBroom {
             static TrenchBroomApp& instance();
 
             TrenchBroomApp(int& argc, char** argv);
-            ~TrenchBroomApp() override;
-
         public:
             void parseCommandLineAndShowFrame();
             QSettings& settings();
@@ -78,7 +76,6 @@ namespace TrenchBroom {
         public:
             bool newDocument();
             void openDocument();
-            void OnFileOpenRecent();
             void showManual();
             void showPreferences();
             void showAboutDialog();

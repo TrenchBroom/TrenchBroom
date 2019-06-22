@@ -22,15 +22,14 @@
 #include <QColor>
 #include <QPalette>
 #include <QFont>
+#include <QFontDatabase>
 #include <QWidget>
 
 namespace TrenchBroom {
     namespace View {
         namespace Fonts {
             QFont fixedWidthFont() {
-                QFont result("Courier", 10);
-                result.setStyleHint(QFont::TypeWriter);
-                return result;
+                return QFontDatabase::systemFont(QFontDatabase::FixedFont);
             }
         }
 

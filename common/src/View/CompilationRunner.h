@@ -20,12 +20,19 @@
 #ifndef CompilationRunner_h
 #define CompilationRunner_h
 
-#include <wx/event.h>
+#include "Macros.h"
+#include "StringUtils.h"
+
+#include "Model/CompilationTask.h"
+#include "View/CompilationContext.h"
+
+#include <QObject>
+#include <QProcess>
 
 #include <list>
+#include <memory>
 
-wxDECLARE_EVENT(wxEVT_COMPILATION_START, wxNotifyEvent);
-wxDECLARE_EVENT(wxEVT_COMPILATION_END, wxNotifyEvent);
+class QProcess;
 
 namespace TrenchBroom {
     namespace Model {
@@ -33,23 +40,88 @@ namespace TrenchBroom {
     }
 
     namespace View {
-        class CompilationContext;
+        class CompilationTaskRunner : public QObject {
+            Q_OBJECT
+        protected:
+            CompilationContext& m_context;
+        protected:
+            explicit CompilationTaskRunner(CompilationContext& context);
+        public:
+            ~CompilationTaskRunner() override;
 
-        class CompilationRunner : public wxEvtHandler {
+            void execute();
+            void terminate();
+        signals:
+            void start();
+            void error();
+            void end();
+        protected:
+            String interpolate(const String& spec);
         private:
-            class TaskRunner;
-            class ExportMapRunner;
-            class CopyFilesRunner;
-            class RunToolRunner;
+            virtual void doExecute() = 0;
+            virtual void doTerminate() = 0;
 
-            using TaskRunnerList = std::list<TaskRunner*>;
+            deleteCopyAndMove(CompilationTaskRunner)
+        };
 
-            CompilationContext* m_context;
+        class CompilationExportMapTaskRunner : public CompilationTaskRunner {
+            Q_OBJECT
+        private:
+            std::unique_ptr<const Model::CompilationExportMap> m_task;
+        public:
+            CompilationExportMapTaskRunner(CompilationContext& context, const Model::CompilationExportMap& task);
+        private:
+            void doExecute() override;
+            void doTerminate() override;
+
+            deleteCopyAndMove(CompilationExportMapTaskRunner)
+        };
+
+        class CompilationCopyFilesTaskRunner : public CompilationTaskRunner {
+            Q_OBJECT
+        private:
+            std::unique_ptr<const Model::CompilationCopyFiles> m_task;
+        public:
+            CompilationCopyFilesTaskRunner(CompilationContext& context, const Model::CompilationCopyFiles& task);
+        private:
+            void doExecute() override;
+            void doTerminate() override;
+
+            deleteCopyAndMove(CompilationCopyFilesTaskRunner)
+        };
+
+        class CompilationRunToolTaskRunner : public CompilationTaskRunner {
+            Q_OBJECT
+        private:
+            std::unique_ptr<const Model::CompilationRunTool> m_task;
+            std::unique_ptr<QProcess> m_process;
+            bool m_terminated;
+        public:
+            CompilationRunToolTaskRunner(CompilationContext& context, const Model::CompilationRunTool& task);
+        private:
+            void doExecute() override;
+            void doTerminate() override;
+        private:
+            void startProcess();
+        private slots:
+            void processErrorOccurred(QProcess::ProcessError processError);
+            void processFinished(int exitCode, QProcess::ExitStatus exitStatus);
+            void processReadyReadStandardError();
+            void processReadyReadStandardOutput();
+
+            deleteCopyAndMove(CompilationRunToolTaskRunner)
+        };
+
+        class CompilationRunner : public QObject {
+            Q_OBJECT
+        private:
+            using TaskRunnerList = std::list<std::unique_ptr<CompilationTaskRunner>>;
+
+            std::unique_ptr<CompilationContext> m_context;
             TaskRunnerList m_taskRunners;
             TaskRunnerList::iterator m_currentTask;
         public:
-            CompilationRunner(CompilationContext* context, const Model::CompilationProfile* profile);
-            ~CompilationRunner();
+            CompilationRunner(std::unique_ptr<CompilationContext> context, const Model::CompilationProfile* profile);
         private:
             class CreateTaskRunnerVisitor;
             static TaskRunnerList createTaskRunners(CompilationContext& context, const Model::CompilationProfile* profile);
@@ -58,14 +130,16 @@ namespace TrenchBroom {
             void terminate();
             bool running() const;
         private:
-            void OnTaskError(wxEvent& event);
-            void OnTaskEnd(wxEvent& event);
+            void bindEvents(CompilationTaskRunner* runner);
+            void unbindEvents(CompilationTaskRunner* runner);
+        private slots:
+            void taskError();
+            void taskEnd();
+        signals:
+            void compilationStarted();
+            void compilationEnded();
 
-            void bindEvents(TaskRunner* runner);
-            void unbindEvents(TaskRunner* runner);
-        private:
-            CompilationRunner(const CompilationRunner& other);
-            CompilationRunner& operator=(const CompilationRunner& other);
+            deleteCopyAndMove(CompilationRunner)
         };
     }
 }

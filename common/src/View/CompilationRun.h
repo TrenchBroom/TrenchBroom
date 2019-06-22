@@ -23,11 +23,10 @@
 #include "StringUtils.h"
 #include "View/ViewTypes.h"
 
-#include <wx/event.h>
-#include <wx/string.h>
-#include <wx/thread.h>
+#include <QObject>
+#include <QTextEdit>
 
-class wxTextCtrl;
+#include <memory>
 
 namespace TrenchBroom {
     class VariableTable;
@@ -39,28 +38,29 @@ namespace TrenchBroom {
     namespace View {
         class CompilationRunner;
 
-        class CompilationRun : public wxEvtHandler {
+        class CompilationRun : public QObject {
+            Q_OBJECT
         private:
-            CompilationRunner* m_currentRun;
-            mutable wxCriticalSection m_currentRunSection;
+            std::unique_ptr<CompilationRunner> m_currentRun;
         public:
             CompilationRun();
-            ~CompilationRun();
+            ~CompilationRun() override;
 
             bool running() const;
-            void run(const Model::CompilationProfile* profile, MapDocumentSPtr document, wxTextCtrl* currentOutput);
-            void test(const Model::CompilationProfile* profile, MapDocumentSPtr document, wxTextCtrl* currentOutput);
+            void run(const Model::CompilationProfile* profile, MapDocumentSPtr document, QTextEdit* currentOutput);
+            void test(const Model::CompilationProfile* profile, MapDocumentSPtr document, QTextEdit* currentOutput);
             void terminate();
         private:
             bool doIsRunning() const;
-            void run(const Model::CompilationProfile* profile, MapDocumentSPtr document, wxTextCtrl* currentOutput, bool test);
+            void run(const Model::CompilationProfile* profile, MapDocumentSPtr document, QTextEdit* currentOutput, bool test);
         private:
             String buildWorkDir(const Model::CompilationProfile* profile, MapDocumentSPtr document);
-
-            void OnCompilationStart(wxEvent& event);
-            void OnCompilationEnd(wxEvent& event);
-
             void cleanup();
+        private slots:
+            void _compilationEnded();
+        signals:
+            void compilationStarted();
+            void compilationEnded();
         };
     }
 }

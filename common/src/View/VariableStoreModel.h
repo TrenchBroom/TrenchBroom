@@ -17,24 +17,33 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_TitledPanel
-#define TrenchBroom_TitledPanel
+#ifndef TRENCHBROOM_VARIABLESTOREMODEL_H
+#define TRENCHBROOM_VARIABLESTOREMODEL_H
 
-#include <QWidget>
+#include "StringUtils.h"
+
+#include <QAbstractListModel>
+
+#include <memory>
 
 namespace TrenchBroom {
+    namespace EL {
+        class VariableStore;
+    }
     namespace View {
-        class TitledPanel : public QWidget {
+        class VariableStoreModel : public QAbstractListModel {
             Q_OBJECT
         private:
-            QWidget* m_panel;
+            std::unique_ptr<EL::VariableStore> m_variables;
+            StringList m_variableNames;
         public:
-            // FIXME: Change parameter order, parent should be last with default to nullptr
-            TitledPanel(QWidget* parent, const QString& title, bool showDivider = true, bool boldTitle = true);
+            explicit VariableStoreModel(const EL::VariableStore& variables);
 
-            QWidget* getPanel() const;
+            int rowCount(const QModelIndex& parent) const override;
+            QVariant data(const QModelIndex& index, int role) const override;
         };
     }
 }
 
-#endif /* defined(TrenchBroom_TitledPanel) */
+
+#endif //TRENCHBROOM_VARIABLESTOREMODEL_H

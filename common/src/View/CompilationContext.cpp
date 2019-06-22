@@ -23,7 +23,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        CompilationContext::CompilationContext(MapDocumentWPtr document, const EL::VariableTable& variables, const TextCtrlOutputAdapter& output, bool test) :
+        CompilationContext::CompilationContext(MapDocumentWPtr document, const EL::VariableTable& variables, const TextOutputAdapter& output, bool test) :
         m_document(document),
         m_variables(variables),
         m_output(output),

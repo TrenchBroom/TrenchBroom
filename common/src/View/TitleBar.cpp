@@ -30,17 +30,19 @@ namespace TrenchBroom {
     namespace View {
         TitleBar::TitleBar(const QString& title, QWidget* parent, int hMargin, int vMargin, bool boldTitle) :
         QWidget(parent),
-        m_titleText(new QLabel(title)) {
+        m_titleText(nullptr) {
+            // FIXME: Should always force this color, but doesn't work in ControlListBox
+            setDefaultWindowColor(this);
+
+            m_titleText = new QLabel(title);
+
             if (boldTitle) {
                 makeEmphasized(m_titleText);
             }
 
-            auto* layout = new QHBoxLayout();
-            layout->setContentsMargins(QMargins());
-            layout->addSpacing(hMargin);
-            layout->addWidget(m_titleText, 0);
-            layout->addStretch(1);
-            layout->addSpacing(hMargin);
+            auto* layout = new QVBoxLayout();
+            layout->setContentsMargins(hMargin, vMargin, hMargin, vMargin);
+            layout->addWidget(m_titleText);
             setLayout(layout);
         }
     }

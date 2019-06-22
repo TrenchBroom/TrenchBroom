@@ -32,21 +32,12 @@ namespace TrenchBroom {
         class ImageListBoxItemRenderer : public ControlListBoxItemRenderer {
             Q_OBJECT
         private:
-            size_t m_index;
             ElidedLabel* m_titleLabel;
             ElidedLabel* m_subtitleLabel;
             QLabel* m_imageLabel;
         public:
-            ImageListBoxItemRenderer(size_t index, const QString& title, const QString& subtitle, const QPixmap& image, QWidget* parent) ;
-
-            void update(size_t index) override;
-            void setSelected(bool selected) override;
-        private:
-            void createGui(const QString& title, const QString& subtitle, const QPixmap& image);
-        protected:
-            void mouseDoubleClickEvent(QMouseEvent* event) override;
-        signals:
-            void doubleClicked(size_t index);
+            ImageListBoxItemRenderer(const QString& title, const QString& subtitle, const QPixmap& image, QWidget* parent) ;
+            void updateItem() override;
         };
 
         class ImageListBox : public ControlListBox {
@@ -61,8 +52,6 @@ namespace TrenchBroom {
             virtual QPixmap image(size_t index) const;
             virtual QString title(size_t index) const = 0;
             virtual QString subtitle(size_t index) const = 0;
-
-            virtual void doubleClicked(size_t index);
         };
     }
 }

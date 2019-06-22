@@ -23,11 +23,8 @@
 #include "EL.h"
 #include "Logger.h"
 #include "StringUtils.h"
-#include "View/TextCtrlOutputAdapter.h"
+#include "View/TextOutputAdapter.h"
 #include "View/ViewTypes.h"
-
-#include <wx/string.h>
-#include <wx/thread.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -36,10 +33,10 @@ namespace TrenchBroom {
             MapDocumentWPtr m_document;
             EL::VariableTable m_variables;
 
-            TextCtrlOutputAdapter m_output;
+            TextOutputAdapter m_output;
             bool m_test;
         public:
-            CompilationContext(MapDocumentWPtr document, const EL::VariableTable& variables, const TextCtrlOutputAdapter& output, bool test);
+            CompilationContext(MapDocumentWPtr document, const EL::VariableTable& variables, const TextOutputAdapter& output, bool test);
 
             MapDocumentSPtr document() const;
             bool test() const;

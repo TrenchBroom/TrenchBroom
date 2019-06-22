@@ -45,18 +45,8 @@ namespace TrenchBroom {
             }
         }
 
-        void GameEngineProfileItemRenderer::update(const size_t index) {
+        void GameEngineProfileItemRenderer::updateItem() {
             refresh();
-        }
-
-        void GameEngineProfileItemRenderer::setSelected(const bool selected) {
-            if (selected) {
-                makeSelected(m_nameLabel);
-                makeSelected(m_pathLabel);
-            } else {
-                makeEmphasized(m_nameLabel);
-                makeInfo(m_pathLabel);
-            }
         }
 
         void GameEngineProfileItemRenderer::createGui() {
@@ -145,6 +135,12 @@ namespace TrenchBroom {
                 emit currentProfileChanged(m_config.profile(static_cast<size_t>(index)));
             } else {
                 emit currentProfileChanged(nullptr);
+            }
+        }
+
+        void GameEngineProfileListBox::doubleClicked(const size_t index) {
+            if (index < static_cast<size_t>(count())) {
+                emit profileSelected(m_config.profile(index));
             }
         }
     }

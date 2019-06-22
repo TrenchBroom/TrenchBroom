@@ -28,6 +28,8 @@
 #include "Model/Brush.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
+#include "Model/Game.h"
+#include "Model/GameFactory.h"
 #include "Model/Group.h"
 #include "Model/Layer.h"
 #include "Model/Node.h"
@@ -40,8 +42,7 @@
 #include "View/CachingLogger.h"
 #include "FileLogger.h"
 #include "View/ClipTool.h"
-// FIXME:
-//#include "View/CompilationDialog.h"
+#include "View/CompilationDialog.h"
 #include "View/Console.h"
 #include "View/EdgeTool.h"
 #include "View/FaceTool.h"
@@ -49,8 +50,9 @@
 #include "View/Grid.h"
 #include "View/InfoPanel.h"
 #include "View/Inspector.h"
-//#include "View/LaunchGameEngineDialog.h"
+#include "View/LaunchGameEngineDialog.h"
 #include "View/MapDocument.h"
+// FIXME:
 //#include "View/MapFrameDropTarget.h"
 #include "View/RenderView.h"
 #include "View/ReplaceTextureDialog.h"
@@ -103,6 +105,7 @@ namespace TrenchBroom {
         m_inspector(nullptr),
         m_gridChoice(nullptr),
         m_statusBarLabel(nullptr),
+        m_compilationDialog(nullptr),
         m_recentDocumentsMenu(nullptr),
         m_undoAction(nullptr),
         m_redoAction(nullptr),
@@ -123,6 +126,7 @@ namespace TrenchBroom {
         m_inspector(nullptr),
         m_gridChoice(nullptr),
         m_statusBarLabel(nullptr),
+        m_compilationDialog(nullptr),
         m_recentDocumentsMenu(nullptr),
         m_undoAction(nullptr),
         m_redoAction(nullptr),
@@ -1550,24 +1554,29 @@ namespace TrenchBroom {
         }
 
         void MapFrame::showCompileDialog() {
-            // FIXME:
-//            if (m_compilationDialog == nullptr) {
-//                m_compilationDialog = new CompilationDialog(this);
-//                m_compilationDialog->Show();
-//            } else {
-//                m_compilationDialog->Raise();
-//            }
+            if (m_compilationDialog == nullptr) {
+                m_compilationDialog = new CompilationDialog(this);
+                m_compilationDialog->show();
+            } else {
+                m_compilationDialog->raise();
+            }
         }
 
         void MapFrame::compilationDialogWillClose() {
-            // FIXME:
-//            m_compilationDialog = nullptr;
+            // Save the compilation and engine configurations just in case:
+            const auto& gameName = m_document->game()->gameName();
+            auto& gameFactory = Model::GameFactory::instance();
+            gameFactory.saveConfigs(gameName);
+            m_compilationDialog = nullptr;
         }
 
         void MapFrame::showLaunchEngineDialog() {
-            // FIXME:
-//            LaunchGameEngineDialog dialog(this, m_document);
-//            dialog.ShowModal();
+            LaunchGameEngineDialog dialog(m_document, this);
+            dialog.exec();
+
+            const auto& gameName = m_document->game()->gameName();
+            auto& gameFactory = Model::GameFactory::instance();
+            gameFactory.saveConfigs(gameName);
         }
 
         void MapFrame::debugPrintVertices() {
@@ -1608,9 +1617,8 @@ namespace TrenchBroom {
         }
 
         void MapFrame::debugCopyJSShortcutMap() {
-            QClipboard *clipboard = QApplication::clipboard();
-
             // FIXME: reimplement
+//            QClipboard *clipboard = QApplication::clipboard();
 //            const String str = ActionManager::instance().getJSTable();
 //            clipboard->setText(QString::fromStdString(str));
         }

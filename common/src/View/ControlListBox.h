@@ -20,6 +20,8 @@
 #ifndef ControlListBox_h
 #define ControlListBox_h
 
+#include "View/ViewConstants.h"
+
 #include <QWidget>
 
 class QLabel;
@@ -30,12 +32,20 @@ namespace TrenchBroom {
     namespace View {
         class ControlListBoxItemRenderer : public QWidget {
             Q_OBJECT
+        protected:
+            size_t m_index;
         public:
             explicit ControlListBoxItemRenderer(QWidget* parent = nullptr);
             ~ControlListBoxItemRenderer() override;
 
-            virtual void update(size_t index);
+            void setIndex(size_t index);
+        protected:
+            void mouseDoubleClickEvent(QMouseEvent* event) override;
+        public:
+            virtual void updateItem();
             virtual void setSelected(bool selected);
+        signals:
+            void doubleClicked(size_t index);
         };
 
         class ControlListBox : public QWidget {
@@ -44,15 +54,18 @@ namespace TrenchBroom {
             QListWidget* m_listWidget;
             QWidget* m_emptyTextContainer;
             QLabel* m_emptyTextLabel;
+            QMargins m_itemMargins;
         public:
+            ControlListBox(const QString& emptyText, const QMargins& itemMargins, QWidget* parent = nullptr);
             explicit ControlListBox(const QString& emptyText, QWidget* parent = nullptr);
+
+            void setEmptyText(const QString& emptyText);
+            void setItemMargins(const QMargins& itemMargins);
 
             int count() const;
             int currentRow() const;
             void setCurrentRow(int currentRow);
         protected:
-            void setEmptyText(const QString& emptyText);
-
             /**
              * Reloads the contents of this list box. The list box will be cleared and its items will be recreated.
              */
@@ -72,7 +85,10 @@ namespace TrenchBroom {
             virtual size_t itemCount() const = 0;
             virtual ControlListBoxItemRenderer* createItemRenderer(QWidget* parent, size_t index) = 0;
             virtual void selectedRowChanged(int index);
+            virtual void doubleClicked(size_t index);
         private slots:
+            void listItemSelectionChanged();
+        signals:
             void itemSelectionChanged();
         };
     }

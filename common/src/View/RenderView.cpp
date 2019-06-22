@@ -222,11 +222,11 @@ namespace TrenchBroom {
             const Color& inner = m_focusColor;
 
             const QSize clientSize = size();
+            glAssert(glViewport(0, 0, clientSize.width(), clientSize.height()));
+
             const auto w = static_cast<float>(clientSize.width());
             const auto h = static_cast<float>(clientSize.height());
             const auto t = 1.0f;
-
-            glAssert(glViewport(0, 0, w, h));
 
             const auto projection = vm::orthoMatrix(-1.0f, 1.0f, 0.0f, 0.0f, w, h);
             Renderer::Transformation transformation(projection, vm::mat4x4f::identity);

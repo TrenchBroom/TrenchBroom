@@ -31,9 +31,10 @@ namespace TrenchBroom {
         private:
             const EntityAttributes& m_attributes;
         public:
-            EntityAttributesVariableStore(const EntityAttributes& attributes);
+            explicit EntityAttributesVariableStore(const EntityAttributes& attributes);
         private:
             VariableStore* doClone() const override;
+            size_t doGetSize() const override;
             EL::Value doGetValue(const String& name) const override;
             StringSet doGetNames() const override;
             void doDeclare(const String& name, const EL::Value& value) override;

@@ -20,17 +20,35 @@
 #ifndef TrenchBroom_RenderView
 #define TrenchBroom_RenderView
 
-
 #include "Color.h"
 #include "Renderer/Vbo.h"
 #include "View/InputEvent.h"
 
-#include <GL/glew.h>
+/*
+ * - glew requires it is included before <OpenGL/gl.h>
+ *
+ * - Qt requires that glew is included after <qopengl.h> and <QOpenGLFunctions>
+ * - QOpenGLWindow includes <qopengl.h> (via QOpenGLContext)
+ * - qopengl.h includes OpenGL/gl.h
+ *
+ * therefore
+ * - glew wants to be included first
+ * - and so does QOpenGLWindow
+ *
+ * Since including glew before QOpenGLWindow only generates a warning and does not seem to incur any ill effects,
+ * we silence the warning here.
+ */
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-W#warnings"
+#include <QOpenGLWindow>
+#pragma clang diagnostic pop
+
+#include <QElapsedTimer>
+
 #undef Bool
 #undef Status
 #undef CursorShape
-#include <QElapsedTimer>
-#include <QOpenGLWindow>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -41,7 +59,6 @@ namespace TrenchBroom {
 
     namespace View {
         class GLContextManager;
-        class RenderWindow;
 
         class RenderView : public QOpenGLWindow, public InputEventProcessor {
             Q_OBJECT
@@ -49,7 +66,6 @@ namespace TrenchBroom {
             Color m_focusColor;
             GLContextManager* m_glContext;
             InputEventRecorder m_eventRecorder;
-
         private: // FPS counter
             // stats since the last counter update
             int m_framesRendered;
@@ -63,7 +79,7 @@ namespace TrenchBroom {
         private:
             QWidget* m_windowContainer;
         protected:
-            RenderView(GLContextManager& contextManager);
+            explicit RenderView(GLContextManager& contextManager);
         public:
             ~RenderView() override;
         protected: // QWindow overrides

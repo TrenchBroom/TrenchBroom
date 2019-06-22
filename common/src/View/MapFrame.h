@@ -32,6 +32,7 @@
 
 class QAction;
 class QComboBox;
+class QDialog;
 class QDropEvent;
 class QMenuBar;
 class QLabel;
@@ -76,6 +77,8 @@ namespace TrenchBroom {
 
             QComboBox* m_gridChoice;
             QLabel* m_statusBarLabel;
+
+            QDialog* m_compilationDialog;
         private: // shortcuts
             using ActionMap = std::vector<std::pair<QAction*, const Action*>>;
             ActionMap m_actionMap;
@@ -85,9 +88,6 @@ namespace TrenchBroom {
             QAction* m_redoAction;
             QAction* m_pasteAction;
             QAction* m_pasteAtOriginalPositionAction;
-#if 0
-            wxDialog* m_compilationDialog;
-#endif
         public:
             MapFrame();
             MapFrame(FrameManager* frameManager, MapDocumentSPtr document);

@@ -34,6 +34,7 @@
 #include <vector>
 
 class QAbstractButton;
+class QCompleter;
 class QDialogButtonBox;
 class QFont;
 class QLayout;
@@ -47,8 +48,15 @@ class QButtonGroup;
 
 namespace TrenchBroom {
     namespace View {
-        class MapFrame;
+        class DisableWindowUpdates {
+        private:
+            QWidget* m_widget;
+        public:
+            explicit DisableWindowUpdates(QWidget* widget);
+            ~DisableWindowUpdates();
+        };
 
+        class MapFrame;
         MapFrame* findMapFrame(QWidget* widget);
 #if 0
         wxFrame* findFrame(QWidget* window);
@@ -73,7 +81,8 @@ namespace TrenchBroom {
         float getSliderRatio(const QSlider* slider);
         void setSliderRatio(QSlider* slider, float ratio);
 
-        QLayout* wrapDialogButtonBox(QDialogButtonBox* buttonBox);
+        QLayout* wrapDialogButtonBox(QWidget* buttonBox);
+        QLayout* wrapDialogButtonBox(QLayout* buttonBox);
 
         template <typename Button>
         void addToMiniToolBarLayout(QBoxLayout* layout, Button* button) {
@@ -121,6 +130,7 @@ namespace TrenchBroom {
         void setWindowIconTB(QWidget* window);
         void setDebugBackgroundColor(QWidget* widget, const QColor& color);
 
+        void setDefaultWindowColor(QWidget* widget);
         void setBaseWindowColor(QWidget* widget);
 
         QLineEdit* createSearchBox();

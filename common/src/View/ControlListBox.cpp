@@ -20,9 +20,11 @@
 #include "ControlListBox.h"
 
 #include "View/ViewConstants.h"
+#include "View/wxUtils.h"
 
 #include <QLabel>
 #include <QListWidget>
+#include <QMouseEvent>
 #include <QSizePolicy>
 #include <QVBoxLayout>
 
@@ -31,25 +33,48 @@
 namespace TrenchBroom {
     namespace View {
         ControlListBoxItemRenderer::ControlListBoxItemRenderer(QWidget* parent) :
-        QWidget(parent) {}
+        QWidget(parent),
+        m_index(0) {}
 
         ControlListBoxItemRenderer::~ControlListBoxItemRenderer() = default;
 
-        void ControlListBoxItemRenderer::update(const size_t index) {}
+        void ControlListBoxItemRenderer::setIndex(const size_t index) {
+            m_index = index;
+        }
 
-        void ControlListBoxItemRenderer::setSelected(const bool selected) {}
+        void ControlListBoxItemRenderer::mouseDoubleClickEvent(QMouseEvent* event) {
+            QWidget::mouseDoubleClickEvent(event);
+            if (event->button() == Qt::LeftButton) {
+                emit doubleClicked(m_index);
+            }
+        }
 
-        ControlListBox::ControlListBox(const QString& emptyText, QWidget* parent) :
+        void ControlListBoxItemRenderer::updateItem() {}
+
+        void ControlListBoxItemRenderer::setSelected(const bool selected) {
+            // by default, we just change the appearance of all labels
+            auto children = findChildren<QLabel*>();
+            for (auto* child : children) {
+                if (selected) {
+                    makeSelected(child);
+                } else {
+                    makeUnselected(child);
+                }
+            }
+        }
+
+        ControlListBox::ControlListBox(const QString& emptyText, const QMargins& itemMargins, QWidget* parent) :
         QWidget(parent),
         m_listWidget(new QListWidget()),
         m_emptyTextContainer(new QWidget()),
-        m_emptyTextLabel(new QLabel(emptyText)) {
+        m_emptyTextLabel(new QLabel(emptyText)),
+        m_itemMargins(itemMargins) {
             m_listWidget->setObjectName("controlListBox_listWidget");
             m_listWidget->hide();
             m_listWidget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
             // m_listWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-            connect(m_listWidget, &QListWidget::itemSelectionChanged, this, &ControlListBox::itemSelectionChanged);
+            connect(m_listWidget, &QListWidget::itemSelectionChanged, this, &ControlListBox::listItemSelectionChanged);
 
             m_emptyTextLabel->setWordWrap(true);
             m_emptyTextLabel->setDisabled(true);
@@ -70,6 +95,18 @@ namespace TrenchBroom {
             setStyleSheet("QListWidget#controlListBox_listWidget { border: none; }");
         }
 
+        ControlListBox::ControlListBox(const QString& emptyText, QWidget* parent) :
+        ControlListBox(emptyText, QMargins(LayoutConstants::MediumHMargin, LayoutConstants::NarrowVMargin, LayoutConstants::MediumHMargin, LayoutConstants::NarrowVMargin), parent) {}
+
+        void ControlListBox::setEmptyText(const QString& emptyText) {
+            m_emptyTextLabel->setText(emptyText);
+        }
+
+        void ControlListBox::setItemMargins(const QMargins& itemMargins) {
+            m_itemMargins = itemMargins;
+            reload();
+        }
+
         int ControlListBox::count() const {
             return m_listWidget->count();
         }
@@ -82,12 +119,8 @@ namespace TrenchBroom {
             m_listWidget->setCurrentRow(currentRow);
         }
 
-        void ControlListBox::setEmptyText(const QString& emptyText) {
-            m_emptyTextLabel->setText(emptyText);
-        }
-
         void ControlListBox::reload() {
-            setUpdatesEnabled(false);
+            DisableWindowUpdates disableUpdates(this);
 
             m_listWidget->clear();
 
@@ -102,18 +135,15 @@ namespace TrenchBroom {
                 m_listWidget->hide();
                 m_emptyTextContainer->show();
             }
-
-            setUpdatesEnabled(true);
         }
 
         void ControlListBox::updateItems() {
-            setUpdatesEnabled(false);
+            DisableWindowUpdates disableUpdates(this);
             for (int i = 0; i < m_listWidget->count(); ++i) {
                 auto* widgetItem = m_listWidget->item(i);
                 auto* renderer = static_cast<ControlListBoxItemRenderer*>(m_listWidget->itemWidget(widgetItem));
-                renderer->update(static_cast<size_t>(i));
+                renderer->update();
             }
-            setUpdatesEnabled(true);
         }
 
         const ControlListBoxItemRenderer* ControlListBox::renderer(const int i) const {
@@ -125,7 +155,11 @@ namespace TrenchBroom {
         }
 
         void ControlListBox::addItemRenderer(ControlListBoxItemRenderer* renderer) {
-            renderer->setContentsMargins(LayoutConstants::MediumHMargin, LayoutConstants::NarrowVMargin, LayoutConstants::MediumHMargin, LayoutConstants::NarrowVMargin);
+            const auto index = static_cast<size_t>(count());
+            renderer->setIndex(index);
+            renderer->setContentsMargins(m_itemMargins);
+            connect(renderer, &ControlListBoxItemRenderer::doubleClicked, this, &ControlListBox::doubleClicked);
+
             auto* widgetItem = new QListWidgetItem(m_listWidget);
             m_listWidget->addItem(widgetItem);
             setItemRenderer(widgetItem, renderer);
@@ -135,6 +169,7 @@ namespace TrenchBroom {
             if (m_listWidget->itemWidget(widgetItem) != nullptr) {
                 m_listWidget->removeItemWidget(widgetItem);
             }
+
             m_listWidget->setItemWidget(widgetItem, renderer);
             widgetItem->setSizeHint(renderer->minimumSizeHint());
             renderer->setSelected(m_listWidget->currentItem() == widgetItem);
@@ -142,7 +177,9 @@ namespace TrenchBroom {
 
         void ControlListBox::selectedRowChanged(const int index) {}
 
-        void ControlListBox::itemSelectionChanged() {
+        void ControlListBox::doubleClicked(const size_t index) {}
+
+        void ControlListBox::listItemSelectionChanged() {
             for (int row = 0; row < count(); ++row) {
                 auto* listItem = m_listWidget->item(row);
                 auto* renderer = static_cast<ControlListBoxItemRenderer*>(m_listWidget->itemWidget(listItem));
@@ -151,6 +188,8 @@ namespace TrenchBroom {
                     selectedRowChanged(row);
                 }
             }
+
+            emit itemSelectionChanged();
         }
     }
 }

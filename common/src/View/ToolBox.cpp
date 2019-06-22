@@ -63,12 +63,10 @@ namespace TrenchBroom {
                 case QEvent::Leave:
                     OnLeaveWindow();
                     break;
+                // FIXME: handle ToolBoxConnector::OnMouseCaptureLost?
                 default:
                     break;
-                    // FIXME: handle ToolBoxConnector::OnMouseCaptureLost?
             }
-
-            // Continue normal Qt event handling
             return QObject::eventFilter(obj, ev);
         }
 

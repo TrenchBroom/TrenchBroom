@@ -110,9 +110,9 @@ namespace TrenchBroom {
             }
         }
 
-        void GameListBox::doubleClicked(size_t index) {
+        void GameListBox::doubleClicked(const size_t index) {
             if (index < static_cast<size_t>(count())) {
-                emit selectCurrentGame(QString::fromStdString(m_gameInfos[static_cast<size_t>(index)].name));
+                emit selectCurrentGame(QString::fromStdString(m_gameInfos[index].name));
             }
         }
     }

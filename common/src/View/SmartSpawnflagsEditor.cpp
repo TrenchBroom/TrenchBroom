@@ -137,7 +137,8 @@ namespace TrenchBroom {
             for (size_t i = 0; i < NumFlags; ++i) {
                 bool firstPass = true;
                 for (const Model::AttributableNode* attributable : attributables) {
-                    QString label = defaultLabels[i];
+                    const int indexI = static_cast<int>(i);
+                    QString label = defaultLabels[indexI];
                     QString tooltip = "";
 
                     const Assets::FlagsAttributeOption* flagDef = Assets::EntityDefinition::safeGetSpawnflagsAttributeOption(attributable->definition(), i);
@@ -147,13 +148,13 @@ namespace TrenchBroom {
                     }
 
                     if (firstPass) {
-                        labels[i] = label;
-                        tooltips[i] = tooltip;
+                        labels[indexI] = label;
+                        tooltips[indexI] = tooltip;
                         firstPass = false;
                     } else {
-                        if (labels[i] != label) {
-                            labels[i] = defaultLabels[i];
-                            tooltips[i].clear();
+                        if (labels[indexI] != label) {
+                            labels[indexI] = defaultLabels[indexI];
+                            tooltips[indexI].clear();
                         }
                     }
                 }

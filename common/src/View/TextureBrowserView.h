@@ -53,7 +53,7 @@ namespace TrenchBroom {
             Renderer::FontDescriptor subTitleFont;
         };
 
-        class TextureBrowserView : public CellView/*<TextureCellData, TextureGroupData>*/ {
+        class TextureBrowserView : public CellView {
             Q_OBJECT
         public:
             typedef enum {

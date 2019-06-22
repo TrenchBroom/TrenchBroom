@@ -38,7 +38,6 @@ namespace TrenchBroom {
             assert(!m_documentIcon.isNull());
             TrenchBroomApp& app = View::TrenchBroomApp::instance();
             app.recentDocumentsDidChangeNotifier.addObserver(this, &RecentDocumentListBox::recentDocumentsDidChange);
-
             reload();
         }
 
@@ -75,7 +74,7 @@ namespace TrenchBroom {
             return QString::fromStdString(recentDocuments[index].asString());
         }
 
-        void RecentDocumentListBox::doubleClicked(size_t index) {
+        void RecentDocumentListBox::doubleClicked(const size_t index) {
             auto& app = View::TrenchBroomApp::instance();
             const IO::Path::List& recentDocuments = app.recentDocuments();
 

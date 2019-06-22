@@ -50,13 +50,11 @@ namespace TrenchBroom {
         }
 
         bool KeyboardShortcut::matchesKeyUp(const QKeyEvent* event) const {
-           const Qt::KeyboardModifiers AllModifiers =
-                   Qt::ShiftModifier
-                   | Qt::ControlModifier
-                   | Qt::AltModifier
-                   | Qt::MetaModifier
-                   | Qt::KeypadModifier
-                   | Qt::GroupSwitchModifier;
+            const auto AllModifiers =
+                Qt::Key_Shift
+                | Qt::Key_Control
+                | Qt::Key_Alt
+                | Qt::Key_Meta;
 
             const auto ourKey = keySequence();
             if (ourKey.isEmpty()) {
@@ -71,7 +69,7 @@ namespace TrenchBroom {
             }
 
             // if any of the modifiers were released, it matches
-            const auto releasedModifiers = event->key() & AllModifiers;
+            const auto releasedModifiers = theirKeyInt & AllModifiers;
             const auto ourModifiers = ourKeyInt & AllModifiers;
             return (releasedModifiers & ourModifiers) != 0;
         }
