@@ -353,6 +353,9 @@ namespace TrenchBroom {
         };
 
         size_t CompilationTaskListBox::itemCount() const {
+            if (m_profile == nullptr) {
+                return 0;
+            }
             return m_profile->taskCount();
         }
 
