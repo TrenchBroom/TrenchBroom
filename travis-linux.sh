@@ -10,8 +10,12 @@ else
     export CXX=g++-7
 fi
 
+# so CPack finds Qt
+export LD_LIBRARY_PATH=/opt/qt59/lib:${LD_LIBRARY_PATH}
+export PATH=/opt/qt59/bin:${PATH}
+
 # Check versions
-/opt/qt59/bin/qmake -v
+qmake -v
 cmake --version
 
 # Build TB
@@ -19,6 +23,7 @@ cmake --version
 mkdir build
 cd build
 cmake .. -GNinja -DCMAKE_PREFIX_PATH=/opt/qt59 -DCMAKE_BUILD_TYPE=Release || exit 1 # FIXME: restore "-DCMAKE_CXX_FLAGS=-Werror"
+# Ubuntu's cppcheck is too old
 #cmake --build . --target cppcheck || exit 1
 cmake --build . --config Release || exit 1
 cpack || exit 1
