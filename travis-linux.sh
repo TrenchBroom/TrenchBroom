@@ -10,6 +10,9 @@ else
     export CXX=g++-7
 fi
 
+# Check Qt version
+qmake -v
+
 # Build TB
 
 mkdir build

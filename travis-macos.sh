@@ -5,6 +5,9 @@ set -o verbose
 brew update
 brew install cmake p7zip pandoc cppcheck qt5
 
+# Check Qt version
+qmake -v
+
 # Build TB
 
 BUILD_TYPE_VALUE="Release"
