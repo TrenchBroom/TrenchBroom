@@ -1066,7 +1066,7 @@ ADD_LIBRARY(common ${TB_COMMON_LIBRARY_TYPE} ${COMMON_SOURCE} ${COMMON_HEADER})
 SET_XCODE_ATTRIBUTES(common)
 
 # Configure dependencies if building a shared library.
-get_target_property(common_TYPE common TYPE)
+GET_TARGET_PROPERTY(common_TYPE common TYPE)
 IF(common_TYPE STREQUAL "SHARED_LIBRARY")
     IF(COMPILER_IS_GNU AND TB_ENABLE_ASAN)
         TARGET_LINK_LIBRARIES(common asan)
