@@ -210,6 +210,9 @@ namespace TrenchBroom {
             void copyFile(const Path& sourcePath, const Path& destPath, const bool overwrite) {
                 const Path fixedSourcePath = fixPath(sourcePath);
                 Path fixedDestPath = fixPath(destPath);
+                if (directoryExists(fixedDestPath)) {
+                    fixedDestPath = fixedDestPath + sourcePath.lastComponent();
+                }
                 const bool exists = fileExists(fixedDestPath);
                 if (!overwrite && exists)
                     throw FileSystemException("Could not copy file '" + fixedSourcePath.asString() + "' to '" + fixedDestPath.asString() + "': file already exists");
@@ -218,8 +221,6 @@ namespace TrenchBroom {
                         throw FileSystemException("Could not copy file '" + fixedSourcePath.asString() + "' to '" + fixedDestPath.asString() + "': couldn't remove destination");
                     }
                 }
-                if (directoryExists(fixedDestPath))
-                    fixedDestPath = fixedDestPath + sourcePath.lastComponent();
                 // NOTE: QFile::copy will not overwrite the dest
                 if (!QFile::copy(fixedSourcePath.asQString(), fixedDestPath.asQString()))
                     throw FileSystemException("Could not copy file '" + fixedSourcePath.asString() + "' to '" + fixedDestPath.asString() + "'");
