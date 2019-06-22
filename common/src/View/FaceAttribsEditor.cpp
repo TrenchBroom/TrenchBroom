@@ -88,7 +88,7 @@ namespace TrenchBroom {
             }
 
             if (!document->setFaceAttributes(request)) {
-                ; //event.Veto(); // FIXME: What to do?
+                //event.Veto(); // FIXME: What to do?
             }
         }
 
@@ -101,8 +101,9 @@ namespace TrenchBroom {
                 return;
             }
 
-            if (!document->setFaceAttributes(request))
-                ; //event.Veto(); // FIXME: What to do?
+            if (!document->setFaceAttributes(request)) {
+                //event.Veto(); // FIXME: What to do?
+            }
         }
 
         void FaceAttribsEditor::OnRotationChanged(double value) {
@@ -114,8 +115,9 @@ namespace TrenchBroom {
                 return;
             }
 
-            if (!document->setFaceAttributes(request))
-                ; //event.Veto(); // FIXME: What to do?
+            if (!document->setFaceAttributes(request)) {
+                //event.Veto(); // FIXME: What to do?
+            }
         }
 
         void FaceAttribsEditor::OnXScaleChanged(double value) {
@@ -127,8 +129,9 @@ namespace TrenchBroom {
                 return;
             }
 
-            if (!document->setFaceAttributes(request))
-                ; //event.Veto(); // FIXME: What to do?
+            if (!document->setFaceAttributes(request)) {
+                //event.Veto(); // FIXME: What to do?
+            }
         }
 
         void FaceAttribsEditor::OnYScaleChanged(double value) {
@@ -140,8 +143,9 @@ namespace TrenchBroom {
                 return;
             }
 
-            if (!document->setFaceAttributes(request))
-                ; //event.Veto(); // FIXME: What to do?
+            if (!document->setFaceAttributes(request)) {
+                //event.Veto(); // FIXME: What to do?
+            }
         }
 
         void FaceAttribsEditor::OnSurfaceFlagChanged(size_t index, int setFlag, int mixedFlag) {
@@ -156,8 +160,9 @@ namespace TrenchBroom {
                 return;
             }
 
-            if (!document->setFaceAttributes(request))
-                ; //event.Veto(); // FIXME: What to do?
+            if (!document->setFaceAttributes(request)) {
+                //event.Veto(); // FIXME: What to do?
+            }
         }
 
         void FaceAttribsEditor::OnContentFlagChanged(size_t index, int setFlag, int mixedFlag) {
@@ -172,8 +177,9 @@ namespace TrenchBroom {
                 return;
             }
 
-            if (!document->setFaceAttributes(request))
-                ; //event.Veto(); // FIXME: What to do?
+            if (!document->setFaceAttributes(request)) {
+                //event.Veto(); // FIXME: What to do?
+            }
         }
 
         void FaceAttribsEditor::OnSurfaceValueChanged(double value) {
@@ -185,8 +191,9 @@ namespace TrenchBroom {
                 return;
             }
 
-            if (!document->setFaceAttributes(request))
-                ; //event.Veto(); // FIXME: What to do?
+            if (!document->setFaceAttributes(request)) {
+                //event.Veto(); // FIXME: What to do?
+            }
         }
 
         void FaceAttribsEditor::OnColorValueChanged(const QString& text) {
