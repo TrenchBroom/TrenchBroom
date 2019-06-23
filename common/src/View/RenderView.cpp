@@ -221,14 +221,14 @@ namespace TrenchBroom {
             const Color& outer = m_focusColor;
             const Color& inner = m_focusColor;
 
-            const QSize clientSize = size();
-            glAssert(glViewport(0, 0, clientSize.width(), clientSize.height()));
+            const qreal r = devicePixelRatioF();
+            const auto w = static_cast<int>(width() * r);
+            const auto h = static_cast<int>(height() * r);
+            glAssert(glViewport(0, 0, w, h));
 
-            const auto w = static_cast<float>(clientSize.width());
-            const auto h = static_cast<float>(clientSize.height());
             const auto t = 1.0f;
 
-            const auto projection = vm::orthoMatrix(-1.0f, 1.0f, 0.0f, 0.0f, w, h);
+            const auto projection = vm::orthoMatrix(-1.0f, 1.0f, 0.0f, 0.0f, static_cast<float>(w), static_cast<float>(h));
             Renderer::Transformation transformation(projection, vm::mat4x4f::identity);
 
             glAssert(glDisable(GL_DEPTH_TEST));
