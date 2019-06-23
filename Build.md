@@ -23,17 +23,18 @@
   - To generate a VS solution (if you want to work on TrenchBroom), run the following command:
 
     ```
-    cmake .. -T v141_xp -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=C:\Qt\5.13.0\msvc2017
+    cmake .. -T v141 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=C:\Qt\5.13.0\msvc2017
     ```
 
     Finally, open `build\TrenchBroom.sln`.
 
-    The `-T` option selects the "platform toolset" for the Visual Studio generator, which determines which C++ compiler and runtime the project will use. `v141_xp` is the _Visual Studio 2017_ runtime, with compatibility down to Windows XP. TrenchBroom releases and CI builds use `v141_xp`; earlier versions won't be able to compile TrenchBroom.
+    The `-T` option selects the "platform toolset" for the Visual Studio generator, which determines which C++ compiler and runtime the project will use. `v141` is the _Visual Studio 2017_ runtime. 
+    TrenchBroom releases and CI builds use `v141`; earlier versions won't be able to compile TrenchBroom.
 
   - For a release build, instead run:
 
     ```
-    cmake .. -T v141_xp -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=C:\Qt\5.13.0\msvc2017
+    cmake .. -T v141 -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=C:\Qt\5.13.0\msvc2017
     cmake --build . --config Release --target TrenchBroom
     ```
 
