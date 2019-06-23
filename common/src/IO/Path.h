@@ -65,6 +65,7 @@ namespace TrenchBroom {
             Path(bool absolute, const StringList& components);
         public:
             explicit Path(const String& path = "");
+            static Path fromQString(const QString& path);
 
             Path operator+(const Path& rhs) const;
             int compare(const Path& rhs, bool caseSensitive = true) const;
