@@ -55,15 +55,19 @@ namespace TrenchBroom {
 
             ClickableLabel* version = new ClickableLabel(QString(tr("Version ")) % getBuildVersion());
             ClickableLabel* build = new ClickableLabel(QString(tr("Build ")) % getBuildIdStr());
-
+            ClickableLabel* qtVersion = new ClickableLabel(QString(tr("Qt ")) % QString::fromLocal8Bit(qVersion()));
             makeInfo(version);
             makeInfo(build);
+            makeInfo(qtVersion);
 
-            version->setToolTip("Click to copy to clipboard");
-            build->setToolTip("Click to copy to clipboard");
+            const auto tooltip = tr("Click to copy to clipboard");
+            version->setToolTip(tooltip);
+            build->setToolTip(tooltip);
+            qtVersion->setToolTip(tooltip);
 
             connect(version, &ClickableLabel::clicked, this, &AppInfoPanel::OnClickVersionInfo);
             connect(build, &ClickableLabel::clicked, this, &AppInfoPanel::OnClickVersionInfo);
+            connect(qtVersion, &ClickableLabel::clicked, this, &AppInfoPanel::OnClickVersionInfo);
 
             auto* layout = new QVBoxLayout();
             layout->setContentsMargins(20, 20, 20, 20);
@@ -75,6 +79,7 @@ namespace TrenchBroom {
             layout->addWidget(appClaim, 0, Qt::AlignHCenter);
             layout->addWidget(version, 0, Qt::AlignHCenter);
             layout->addWidget(build, 0, Qt::AlignHCenter);
+            layout->addWidget(qtVersion, 0, Qt::AlignHCenter);
             layout->addStretch();
 
             setLayout(layout);
