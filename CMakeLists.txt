@@ -44,7 +44,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Mac OS X specific configuration. In theory must be done before the PROJECT directive, but that doesn't actually work.
 # These settings are ignored on other platforms
-set(CMAKE_OSX_DEPLOYMENT_TARGET 10.9)
+# We are using deployment target 10.12 because recent Qt versions (e.g. 5.12) have this as
+# their minimum, see: https://doc.qt.io/qt-5.12/macos.html
+set(CMAKE_OSX_DEPLOYMENT_TARGET 10.12)
 
 # Library configuration
 SET(LIB_DIR "${CMAKE_SOURCE_DIR}/lib")
