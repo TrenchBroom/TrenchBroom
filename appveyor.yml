@@ -1,5 +1,8 @@
 image: Visual Studio 2017
 version: 2.0.0-appveyor-{build}
+environment:
+  QT5_INSTALL_DIR: 'C:\Qt\5.9.7\msvc2015'
+  PATH: '%Qt5_INSTALL_DIR%\bin;%PATH%'
 install:
 - cinst pandoc
 - cinst cppcheck
