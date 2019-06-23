@@ -39,5 +39,4 @@ xvfb-run -a ./TrenchBroom-Benchmark || exit 1
 echo "Shared libraries used:"
 ldd --verbose ./trenchbroom
 
-echo "Debian dependencies:"
-./print_debian_dependencies.sh
+./print_linux_package_info.sh
