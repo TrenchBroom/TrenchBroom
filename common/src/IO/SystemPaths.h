@@ -20,20 +20,31 @@
 #ifndef TrenchBroom_SystemPaths_h
 #define TrenchBroom_SystemPaths_h
 
-#include "StringUtils.h"
+#include "IO/Path.h"
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
-        class Path;
-
         namespace SystemPaths {
+            /**
+             * Returns the directory containing the TrenchBroom executable (this will be inside the .app bundle on macOS).
+             */
             Path appDirectory();
+            /**
+             * Returns the directory where configs should be written
+             * e.g. "C:\Users\<user>\AppData\Roaming\TrenchBroom"
+             */
             Path userDataDirectory();
 
             Path logFilePath();
 
             Path findResourceFile(const Path& file);
-            Path findResourceDirectory(const Path& directory);
+            /**
+             * Returns the possible search paths for the requested directory name.
+             * They may or may not exist.
+             */
+            std::vector<Path> findResourceDirectories(const Path& directory);
         }
     }
 }

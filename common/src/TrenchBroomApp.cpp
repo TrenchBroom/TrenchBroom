@@ -98,7 +98,9 @@ namespace TrenchBroom {
             std::setlocale(LC_NUMERIC, "C");
 
             setApplicationName("TrenchBroom");
-            setOrganizationName("Kristian Duske");
+            // Needs to be "" otherwise Qt adds this to the paths returned by QStandardPaths
+            // which would cause preferences to move from where they were with wx
+            setOrganizationName(""); 
             setOrganizationDomain("com.kristianduske");
 
             if (!initializeGameFactory()) {

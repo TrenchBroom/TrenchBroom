@@ -19,7 +19,6 @@
 
 #include "SystemPaths.h"
 
-#include "IO/Path.h"
 #include "IO/DiskIO.h"
 
 #include <QCoreApplication>
@@ -31,11 +30,11 @@ namespace TrenchBroom {
     namespace IO {
         namespace SystemPaths {
             Path appDirectory() {
-                return IO::Path(QCoreApplication::applicationDirPath().toStdString());
+                return IO::Path::fromQString(QCoreApplication::applicationDirPath());
             }
 
             Path userDataDirectory() {
-                return IO::Path(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation).toStdString());
+                return IO::Path::fromQString(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
             }
 
             Path logFilePath() {
@@ -43,28 +42,29 @@ namespace TrenchBroom {
             }
 
             Path findResourceFile(const Path &file) {
+                // Special case for running debug builds on Linux, we want to search
+                // next to the executable for resources
                 const auto relativeToExecutable = appDirectory() + file;
                 if (Disk::fileExists(relativeToExecutable)) {
-                    // This is for running debug builds on Linux
                     return relativeToExecutable;
                 }
 
-                return IO::Path(QStandardPaths::locate(QStandardPaths::AppDataLocation,
-                                                       file.asQString(),
-                                                       QStandardPaths::LocateOption::LocateFile).toStdString());
+                return IO::Path::fromQString(QStandardPaths::locate(QStandardPaths::AppDataLocation,
+                                                                    file.asQString(),
+                                                                    QStandardPaths::LocateOption::LocateFile));
             }
 
-            Path findResourceDirectory(const Path &directory) {
-                const auto relativeToExecutable = appDirectory() + directory;
-                if (Disk::directoryExists(relativeToExecutable)) {
-                    // This is for running debug builds on Linux
-                    return relativeToExecutable;
-                }
+            std::vector<Path> findResourceDirectories(const Path& directory) {
+                std::vector<Path> result;
 
-                // FIXME: confirm against wx
-                return IO::Path(QStandardPaths::locate(QStandardPaths::AppDataLocation,
-                                                       directory.asQString(),
-                                                       QStandardPaths::LocateOption::LocateDirectory).toStdString());
+                // Special case for running debug builds on Linux
+                result.push_back(appDirectory() + directory);
+
+                const QStringList dirs = QStandardPaths::locateAll(QStandardPaths::AppDataLocation, directory.asQString(), QStandardPaths::LocateOption::LocateDirectory);
+                for (const QString& dir : dirs) {
+                    result.push_back(IO::Path::fromQString(dir));
+                }
+                return result;
             }
         }
     }
