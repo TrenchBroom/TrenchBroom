@@ -1084,26 +1084,33 @@ namespace TrenchBroom {
         /**
          * Forward drag and drop events from QOpenGLWindow to ToolBoxConnector
          */
-        bool MapViewBase::event(QEvent *ev) {
+        bool MapViewBase::event(QEvent* ev) {
             switch (ev->type()) {
                 case QEvent::DragEnter: {
                     auto* dragEnterEvent = static_cast<QDragEnterEvent *>(ev);
                     dragEnter(dragEnterEvent->pos().x(), dragEnterEvent->pos().y(), dragEnterEvent->mimeData()->text().toStdString());
-                    break;
+                    dragEnterEvent->accept();
+                    dragEnterEvent->acceptProposedAction();
+                    return true;
                 }
                 case QEvent::DragLeave: {
                     dragLeave();
-                    break;
+                    ev->accept();
+                    return true;
                 }
                 case QEvent::DragMove: {
                     auto* dragMoveEvent = static_cast<QDragMoveEvent *>(ev);
                     dragMove(dragMoveEvent->pos().x(), dragMoveEvent->pos().y(), dragMoveEvent->mimeData()->text().toStdString());
-                    break;
+                    dragMoveEvent->accept();
+                    dragMoveEvent->acceptProposedAction();
+                    return true;
                 }
                 case QEvent::Drop: {
                     auto* dropEvent = static_cast<QDropEvent *>(ev);
                     dragDrop(dropEvent->pos().x(), dropEvent->pos().y(), dropEvent->mimeData()->text().toStdString());
-                    break;
+                    dropEvent->accept();
+                    dropEvent->acceptProposedAction();
+                    return true;
                 }
                 default:
                     break;

@@ -52,8 +52,6 @@
 #include "View/Inspector.h"
 #include "View/LaunchGameEngineDialog.h"
 #include "View/MapDocument.h"
-// FIXME:
-//#include "View/MapFrameDropTarget.h"
 #include "View/RenderView.h"
 #include "View/ReplaceTextureDialog.h"
 #include "View/SwitchableMapViewContainer.h"
