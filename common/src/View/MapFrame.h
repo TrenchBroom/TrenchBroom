@@ -89,7 +89,6 @@ namespace TrenchBroom {
             QAction* m_pasteAction;
             QAction* m_pasteAtOriginalPositionAction;
         public:
-            MapFrame();
             MapFrame(FrameManager* frameManager, MapDocumentSPtr document);
             ~MapFrame() override;
 
@@ -337,8 +336,9 @@ namespace TrenchBroom {
         private:
             bool canCompile() const;
             bool canLaunch() const;
-        private: // other event handlers
-  //          void OnClose(wxCloseEvent& event);
+        protected: // other event handlers
+            void closeEvent(QCloseEvent* event) override;
+        private:
             void triggerAutosave();
         };
     }

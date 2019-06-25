@@ -122,14 +122,16 @@ namespace TrenchBroom {
             // this is called from MapFrame::~MapFrame
 
             FrameList::iterator it = std::find(std::begin(m_frames), std::end(m_frames), frame);
-            if (it == std::end(m_frames))
+            if (it == std::end(m_frames)) {
                 // On OS X, we sometimes get two close events for a frame when terminating the app from the dock.
                 return;
+            }
 
             m_frames.erase(it);
 
-            if (m_frames.empty() || qApp->quitOnLastWindowClosed())
+            if (m_frames.empty() || qApp->quitOnLastWindowClosed()) {
                 AboutDialog::closeAboutDialog();
+            }
 
             // MapFrame uses Qt::WA_DeleteOnClose so we don't delete it here
         }

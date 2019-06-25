@@ -56,6 +56,9 @@ namespace TrenchBroom {
             ~DisableWindowUpdates();
         };
 
+        void saveWindowSettings(QMainWindow* window);
+        void restoreWindowSettings(QMainWindow* window);
+
         class MapFrame;
         MapFrame* findMapFrame(QWidget* widget);
 #if 0

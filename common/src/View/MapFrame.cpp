@@ -90,30 +90,10 @@
 
 namespace TrenchBroom {
     namespace View {
-        MapFrame::MapFrame() :
-        QMainWindow(),
-        m_frameManager(nullptr),
-        m_autosaver(nullptr),
-        m_autosaveTimer(nullptr),
-        m_hSplitter(nullptr),
-        m_vSplitter(nullptr),
-        m_contextManager(nullptr),
-        m_mapView(nullptr),
-        m_infoPanel(nullptr),
-        m_console(nullptr),
-        m_inspector(nullptr),
-        m_gridChoice(nullptr),
-        m_statusBarLabel(nullptr),
-        m_compilationDialog(nullptr),
-        m_recentDocumentsMenu(nullptr),
-        m_undoAction(nullptr),
-        m_redoAction(nullptr),
-        m_pasteAction(nullptr),
-        m_pasteAtOriginalPositionAction(nullptr) {}
-
         MapFrame::MapFrame(FrameManager* frameManager, MapDocumentSPtr document) :
         QMainWindow(),
         m_frameManager(frameManager),
+        m_document(std::move(document)),
         m_autosaver(nullptr),
         m_autosaveTimer(nullptr),
         m_hSplitter(nullptr),
@@ -131,15 +111,12 @@ namespace TrenchBroom {
         m_redoAction(nullptr),
         m_pasteAction(nullptr),
         m_pasteAtOriginalPositionAction(nullptr) {
-            setAttribute(Qt::WA_DeleteOnClose);
+            ensure(m_frameManager != nullptr, "frameManager is null");
+            ensure(m_document != nullptr, "document is null");
 
-            ensure(frameManager != nullptr, "frameManager is null");
-            ensure(document.get() != nullptr, "document is null");
+            setObjectName("MapFrame");
 
-            m_frameManager = frameManager;
-            m_document = document;
             m_autosaver = new Autosaver(m_document);
-
             m_contextManager = new GLContextManager();
 
             createGui();
@@ -162,28 +139,22 @@ namespace TrenchBroom {
 
             clearDropTarget();
             setAcceptDrops(true);
+
+            restoreWindowSettings(this);
         }
 
         MapFrame::~MapFrame() {
-            // FIXME: necessary in Qt?
-#if 0
-            // Search for a RenderView (wxGLCanvas subclass) and make it current.
-            RenderView* canvas = FindChildRenderView(this);
-            if (canvas != nullptr && m_contextManager != nullptr) {
-                wxGLContext* mainContext = m_contextManager->mainContext();
-                if (mainContext != nullptr)
-                    mainContext->SetCurrent(*canvas);
+            // Search for a RenderView (QOpenGLWindow subclass) and make it current in order to allow for calling
+            // OpenGL methods in destructors.
+            auto* renderView = findChild<RenderView*>();
+            if (renderView != nullptr) {
+                renderView->makeCurrent();
             }
-#endif
 
             // The MapDocument's CachingLogger has a pointer to m_console, which
             // is about to be destroyed (DestroyChildren()). Clear the pointer
             // so we don't try to log to a dangling pointer (#1885).
             m_document->setParentLogger(nullptr);
-
-            // Makes IsBeingDeleted() return true
-            // FIXME: necessary in Qt?
-//            SendDestroyEvent();
 
             m_mapView->deactivateTool();
 
@@ -206,13 +177,9 @@ namespace TrenchBroom {
         }
 
         void MapFrame::positionOnScreen(QWidget* reference) {
-            // FIXME: Restore saved size from preferences here?
-
-            resize(1024, 768);
+            restoreWindowSettings(this);
             if (reference) {
                 move(reference->pos() + QPoint(23, 23));
-            } else {
-                // FIXME: Should we bother centering it on screen like the wx version did?
             }
         }
 
@@ -500,6 +467,7 @@ namespace TrenchBroom {
 
         void MapFrame::createToolBar() {
             QToolBar* toolBar = addToolBar("Toolbar");
+            toolBar->setObjectName("MapFrameToolBar");
             toolBar->setFloatable(false);
             toolBar->setMovable(false);
 
@@ -756,7 +724,6 @@ namespace TrenchBroom {
             // FIXME:
 #if 0
 
-            Bind(wxEVT_CLOSE_WINDOW, &MapFrame::OnClose, this);
             Bind(wxEVT_CHILD_FOCUS, &MapFrame::OnChildFocus, this);
 
 #if defined(_WIN32)
@@ -1955,23 +1922,22 @@ namespace TrenchBroom {
             return m_document->persistent();
         }
 
-#if 0
-        void MapFrame::OnClose(wxCloseEvent& event) {
-            // FIXME: implement
-
-            if (!IsBeingDeleted()) {
-                if (m_compilationDialog != nullptr && !m_compilationDialog->Close()) {
-                    event.Veto();
+        void MapFrame::closeEvent(QCloseEvent* event) {
+            if (m_compilationDialog != nullptr && !m_compilationDialog->close()) {
+                event->ignore();
+            } else {
+                ensure(m_frameManager != nullptr, "frameManager is null");
+                if (!confirmOrDiscardChanges()) {
+                    event->ignore();
                 } else {
-                    ensure(m_frameManager != nullptr, "frameManager is null");
-                    if (event.CanVeto() && !confirmOrDiscardChanges())
-                        event.Veto();
-                    else
-                        m_frameManager->removeAndDestroyFrame(this);
+                    saveWindowSettings(this);
+                    m_frameManager->removeAndDestroyFrame(this);
+                    event->accept();
                 }
             }
+            QWidget::closeEvent(event);
         }
-#endif
+
         void MapFrame::triggerAutosave() {
             m_autosaver->triggerAutosave(logger());
         }

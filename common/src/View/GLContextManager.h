@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_GLContextManager
 #define TrenchBroom_GLContextManager
 
+#include "Macros.h"
+
 namespace TrenchBroom {
     namespace Renderer {
         class FontManager;
@@ -47,9 +49,8 @@ namespace TrenchBroom {
             Renderer::Vbo& indexVbo();
             Renderer::FontManager& fontManager();
             Renderer::ShaderManager& shaderManager();
-        private:
-            GLContextManager(const GLContextManager& other);
-            GLContextManager& operator=(const GLContextManager& other);
+
+            deleteCopyAndMove(GLContextManager)
         };
     }
 }

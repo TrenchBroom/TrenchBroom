@@ -62,6 +62,21 @@ namespace TrenchBroom {
             m_widget->setUpdatesEnabled(true);
         }
 
+        void saveWindowSettings(QMainWindow* window) {
+            assert(window != nullptr);
+
+            QSettings settings;
+            settings.setValue("Windows/" + window->objectName() + "/Geometry", window->saveGeometry());
+            settings.setValue("Windows/" + window->objectName() + "/State", window->saveState());
+        }
+        void restoreWindowSettings(QMainWindow* window) {
+            assert(window != nullptr);
+
+            QSettings settings;
+            window->restoreGeometry(settings.value("Windows/" + window->objectName() + "/Geometry").toByteArray());
+            window->restoreState(settings.value("Windows/" + window->objectName() + "/State").toByteArray());
+        }
+
         MapFrame* findMapFrame(QWidget* widget) {
             return dynamic_cast<MapFrame*>(widget->window());
         }
@@ -229,7 +244,7 @@ namespace TrenchBroom {
 
         QAbstractButton* createBitmapButton(const QIcon& icon, const QString& tooltip, QWidget* parent) {
             ensure(!icon.availableSizes().empty(), "expected a non-empty icon. Fails when the image file couldn't be found.");
-            
+
             // NOTE: according to http://doc.qt.io/qt-5/qpushbutton.html this would be more correctly
             // be a QToolButton, but the QToolButton doesn't have a flat style on macOS
             auto* button = new QToolButton(parent);
