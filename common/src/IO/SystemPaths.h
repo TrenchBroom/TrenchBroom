@@ -24,6 +24,7 @@
 
 #include <vector>
 
+
 namespace TrenchBroom {
     namespace IO {
         namespace SystemPaths {
@@ -33,7 +34,7 @@ namespace TrenchBroom {
             Path appDirectory();
             /**
              * Returns the directory where configs should be written
-             * e.g. "C:\Users\<user>\AppData\Roaming\TrenchBroom"
+             * e.g. `C:\\Users\\<user>\\AppData\\Roaming\\TrenchBroom`
              */
             Path userDataDirectory();
 
