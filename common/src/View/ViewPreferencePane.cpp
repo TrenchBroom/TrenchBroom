@@ -97,10 +97,13 @@ namespace TrenchBroom {
             m_layoutCombo->addItem("Four Panes");
 
             m_brightnessSlider = new SliderWithLabel(0, 100);
+            m_brightnessSlider->setMaximumWidth(400);
             m_brightnessSlider->setToolTip("Sets the brightness for textures and model skins in the 3D editing view.");
             m_gridAlphaSlider = new SliderWithLabel(0, 100);
+            m_gridAlphaSlider->setMaximumWidth(400);
             m_gridAlphaSlider->setToolTip("Sets the visibility of the grid lines in the 3D editing view.");
             m_fovSlider = new SliderWithLabel(50, 150);
+            m_fovSlider->setMaximumWidth(400);
             m_fovSlider->setToolTip("Sets the field of vision in the 3D editing view.");
 
             m_showAxes = new QCheckBox();
@@ -132,29 +135,7 @@ namespace TrenchBroom {
             m_rendererFontSizeCombo = new QComboBox();
             m_rendererFontSizeCombo->setEditable(true);
             m_rendererFontSizeCombo->setToolTip("Sets the font size for various labels in the editing views.");
-            m_rendererFontSizeCombo->addItem("8");
-            m_rendererFontSizeCombo->addItem("9");
-            m_rendererFontSizeCombo->addItem("10");
-            m_rendererFontSizeCombo->addItem("11");
-            m_rendererFontSizeCombo->addItem("12");
-            m_rendererFontSizeCombo->addItem("13");
-            m_rendererFontSizeCombo->addItem("14");
-            m_rendererFontSizeCombo->addItem("15");
-            m_rendererFontSizeCombo->addItem("16");
-            m_rendererFontSizeCombo->addItem("17");
-            m_rendererFontSizeCombo->addItem("18");
-            m_rendererFontSizeCombo->addItem("20");
-            m_rendererFontSizeCombo->addItem("22");
-            m_rendererFontSizeCombo->addItem("24");
-            m_rendererFontSizeCombo->addItem("26");
-            m_rendererFontSizeCombo->addItem("28");
-            m_rendererFontSizeCombo->addItem("32");
-            m_rendererFontSizeCombo->addItem("36");
-            m_rendererFontSizeCombo->addItem("40");
-            m_rendererFontSizeCombo->addItem("48");
-            m_rendererFontSizeCombo->addItem("56");
-            m_rendererFontSizeCombo->addItem("64");
-            m_rendererFontSizeCombo->addItem("72");
+            m_rendererFontSizeCombo->addItems({ "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "22", "24", "26", "28", "32", "36", "40", "48", "56", "64", "72" });
             m_rendererFontSizeCombo->setValidator(new QIntValidator(1, 96));
 
             auto* layout = new FormWithSectionsLayout();

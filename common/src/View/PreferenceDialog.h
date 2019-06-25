@@ -51,14 +51,13 @@ namespace TrenchBroom {
             QDialogButtonBox* m_buttonBox;
         public:
             explicit PreferenceDialog(MapDocumentSPtr document, QWidget* parent = nullptr);
-        private:
-            void accept() override;
-            void reject() override;
+
+        protected:
+            void closeEvent(QCloseEvent* event) override;
         private:
             void createGui();
             void switchToPane(PrefPane pane);
             PreferencePane* currentPane() const;
-            PrefPane currentPaneId() const;
         private slots:
             void resetToDefaults();
         };

@@ -61,14 +61,17 @@ namespace TrenchBroom {
 
         void MousePreferencePane::createGui() {
             m_lookSpeedSlider = new SliderWithLabel(1, 100);
+            m_lookSpeedSlider->setMaximumWidth(400);
             m_invertLookHAxisCheckBox = new QCheckBox("Invert X axis");
             m_invertLookVAxisCheckBox = new QCheckBox("Invert Y axis");
 
             m_panSpeedSlider = new SliderWithLabel(1, 100);
+            m_panSpeedSlider->setMaximumWidth(400);
             m_invertPanHAxisCheckBox = new QCheckBox("Invert X axis");
             m_invertPanVAxisCheckBox = new QCheckBox("Invert Y axis");
 
             m_moveSpeedSlider = new SliderWithLabel(1, 100);
+            m_moveSpeedSlider->setMaximumWidth(400);
             m_invertMouseWheelCheckBox = new QCheckBox("Invert mouse wheel");
             m_enableAltMoveCheckBox = new QCheckBox("Alt + middle mouse drag to move camera");
             m_invertAltMoveAxisCheckBox = new QCheckBox("Invert Z axis in Alt + middle mouse drag");
@@ -88,6 +91,7 @@ namespace TrenchBroom {
             m_downKeyEditor->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
 
             m_flyMoveSpeedSlider = new SliderWithLabel(256, 512);
+            m_flyMoveSpeedSlider->setMaximumWidth(400);
 
             auto* layout = new FormWithSectionsLayout();
             layout->setContentsMargins(0, LayoutConstants::MediumVMargin, 0, 0);
@@ -170,14 +174,12 @@ namespace TrenchBroom {
             prefs.resetToDefault(Preferences::CameraAltMoveInvert);
             prefs.resetToDefault(Preferences::CameraMoveInCursorDir);
 
-            /* FIXME: keyboard shortcuts
             prefs.resetToDefault(Preferences::CameraFlyForward);
             prefs.resetToDefault(Preferences::CameraFlyBackward);
             prefs.resetToDefault(Preferences::CameraFlyLeft);
             prefs.resetToDefault(Preferences::CameraFlyRight);
             prefs.resetToDefault(Preferences::CameraFlyUp);
             prefs.resetToDefault(Preferences::CameraFlyDown);
-             */
 
             prefs.resetToDefault(Preferences::CameraFlyMoveSpeed);
         }

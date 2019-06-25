@@ -33,6 +33,7 @@
 #include "View/wxUtils.h"
 
 #include <QBoxLayout>
+#include <QCloseEvent>
 #include <QDialogButtonBox>
 #include <QPushButton>
 #include <QStackedWidget>
@@ -42,7 +43,7 @@ namespace TrenchBroom {
     namespace View {
         PreferenceDialog::PreferenceDialog(MapDocumentSPtr document, QWidget* parent) :
         QDialog(parent),
-        m_document(document),
+        m_document(std::move(document)),
         m_toolBar(nullptr),
         m_stackedWidget(nullptr),
         m_buttonBox(nullptr) {
@@ -53,21 +54,9 @@ namespace TrenchBroom {
             currentPane()->updateControls();
         }
 
-        void PreferenceDialog::accept() {
+        void PreferenceDialog::closeEvent(QCloseEvent* event) {
             if (!currentPane()->validate()) {
-                return;
-            }
-
-            auto& prefs = PreferenceManager::instance();
-            if (!prefs.saveInstantly()) {
-                prefs.saveChanges();
-            }
-
-            QDialog::accept();
-        }
-
-        void PreferenceDialog::reject() {
-            if (!currentPane()->validate()) {
+                event->ignore();
                 return;
             }
 
@@ -76,27 +65,8 @@ namespace TrenchBroom {
                 prefs.discardChanges();
             }
 
-            QDialog::reject();
+            event->accept();
         }
-
-        /* FIXME
-        void PreferenceDialog::OnClose(wxCloseEvent& event) {
-            if (!currentPane()->validate()) {
-                event.Veto();
-            }
-
-            wxConfigBase* conf = wxConfig::Get();
-            if (conf != nullptr) {
-                conf->Flush();
-            }
-
-            if (GetParent() != nullptr) {
-                GetParent()->Raise();
-            }
-
-            event.Skip();
-        }
-         */
 
         void PreferenceDialog::createGui() {
             const auto gamesImage    = IO::loadIconResourceQt(IO::Path("GeneralPreferences.png"));
@@ -129,7 +99,7 @@ namespace TrenchBroom {
             connect(resetButton, &QPushButton::clicked, this, &PreferenceDialog::resetToDefaults);
 
             auto* layout = new QVBoxLayout();
-            layout->setContentsMargins(QMargins());
+            layout->setContentsMargins(0, 0, 0, 0);
             layout->setSpacing(0);
             setLayout(layout);
 
@@ -154,30 +124,10 @@ namespace TrenchBroom {
 
             auto* resetButton = m_buttonBox->button(QDialogButtonBox::RestoreDefaults);
             resetButton->setEnabled(currentPane()->canResetToDefaults());
-
-
-            /* FIXME
-            GetSizer()->SetItemMinSize(m_book, currentPane()->GetMinSize());
-            Fit();
-
-#ifdef __APPLE__
-            updateAcceleratorTable(pane);
-#endif
-
-            if (pane == PrefPane_Keyboard) {
-                SetEscapeId(wxID_NONE);
-            } else {
-                SetEscapeId(wxID_ANY);
-            }
-             */
         }
 
         PreferencePane* PreferenceDialog::currentPane() const {
             return static_cast<PreferencePane*>(m_stackedWidget->currentWidget());
-        }
-
-        PreferenceDialog::PrefPane PreferenceDialog::currentPaneId() const {
-            return static_cast<PrefPane>(m_stackedWidget->currentIndex());
         }
 
         void PreferenceDialog::resetToDefaults() {
