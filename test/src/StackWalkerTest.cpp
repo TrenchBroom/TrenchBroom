@@ -28,7 +28,6 @@ namespace TrenchBroom {
     TEST(StackWalkerTest, testStackTraceSymbols) {
         const std::string stackTrace = TrenchBroomStackWalker::getStackTrace();
 
-        // FIXME: doesn't work on CI right now
-        // EXPECT_THAT(stackTrace, HasSubstr("testStackTraceSymbols"));
+        EXPECT_THAT(stackTrace, HasSubstr("testStackTraceSymbols"));
     }
 }
