@@ -68,14 +68,6 @@ namespace TrenchBroom {
             void onScrollBarValueChanged();
             void onScrollBarActionTriggered(int action);
         public:
-            class DndHelper {
-            private:
-                CellView& m_cellView;
-            public:
-                explicit DndHelper(CellView& cellView);
-                ~DndHelper();
-            };
-
             void mousePressEvent(QMouseEvent* event) override;
             void mouseReleaseEvent(QMouseEvent* event) override;
             void mouseMoveEvent(QMouseEvent* event) override;
@@ -95,8 +87,6 @@ namespace TrenchBroom {
             virtual void doLeftClick(Layout& layout, float x, float y);
 
             virtual bool dndEnabled();
-            virtual void dndWillStart();
-            virtual void dndDidEnd();
             virtual QPixmap dndImage(const Cell& cell);
             virtual QString dndData(const Cell& cell);
             virtual QString tooltip(const Cell& cell);

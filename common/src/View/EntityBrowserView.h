@@ -96,8 +96,6 @@ namespace TrenchBroom {
             void doReloadLayout(Layout& layout) override;
 
             bool dndEnabled() override;
-            void dndWillStart() override;
-            void dndDidEnd() override;
             QString dndData(const Cell& cell) override;
 
             void addEntityToLayout(Layout& layout, const Assets::PointEntityDefinition* definition, const Renderer::FontDescriptor& font);

@@ -812,16 +812,6 @@ namespace TrenchBroom {
             return hasFocus();
         }
 
-        void MapViewBase::doSetToolBoxDropTarget() {
-            // FIXME: DND
-            //SetDropTarget(new ToolBoxDropTarget(this, this));
-        }
-
-        void MapViewBase::doClearDropTarget() {
-            // FIXME: DND
-            //SetDropTarget(nullptr);
-        }
-
         bool MapViewBase::doCancelMouseDrag() {
             return ToolBoxConnector::cancelDrag();
         }

@@ -311,14 +311,6 @@ namespace TrenchBroom {
             return m_mapView->isCurrent();
         }
 
-        void SwitchableMapViewContainer::doSetToolBoxDropTarget() {
-            m_mapView->setToolBoxDropTarget();
-        }
-
-        void SwitchableMapViewContainer::doClearDropTarget() {
-            m_mapView->clearDropTarget();
-        }
-
         bool SwitchableMapViewContainer::doCanSelectTall() {
             return m_mapView->canSelectTall();
         }

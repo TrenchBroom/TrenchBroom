@@ -91,18 +91,6 @@ namespace TrenchBroom {
             return m_currentMapView->isCurrent();
         }
 
-        void CyclingMapView::doSetToolBoxDropTarget() {
-            for (size_t i = 0; i < m_mapViews.size(); ++i) {
-                m_mapViews[i]->setToolBoxDropTarget();
-            }
-        }
-
-        void CyclingMapView::doClearDropTarget() {
-            for (size_t i = 0; i < m_mapViews.size(); ++i) {
-                m_mapViews[i]->clearDropTarget();
-            }
-        }
-
         bool CyclingMapView::doCanSelectTall() {
             return m_currentMapView->canSelectTall();
         }

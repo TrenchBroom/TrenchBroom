@@ -235,8 +235,6 @@ namespace TrenchBroom {
             void doFlashSelection() override;
         private: // implement MapView interface
             bool doGetIsCurrent() const override;
-            void doSetToolBoxDropTarget() override;
-            void doClearDropTarget() override;
             bool doCancelMouseDrag() override;
             void doRefreshViews() override;
         protected: // RenderView overrides

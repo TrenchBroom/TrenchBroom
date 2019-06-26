@@ -40,8 +40,6 @@ namespace TrenchBroom {
             void setContainer(MapViewContainer* container);
 
             bool isCurrent() const;
-            void setToolBoxDropTarget();
-            void clearDropTarget();
 
             bool canSelectTall();
             void selectTall();
@@ -63,9 +61,6 @@ namespace TrenchBroom {
             void refreshViews();
         private:
             virtual bool doGetIsCurrent() const = 0;
-
-            virtual void doSetToolBoxDropTarget() = 0;
-            virtual void doClearDropTarget() = 0;
 
             virtual bool doCanSelectTall() = 0;
             virtual void doSelectTall() = 0;

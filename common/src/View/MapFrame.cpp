@@ -137,7 +137,6 @@ namespace TrenchBroom {
             bindObservers();
             bindEvents();
 
-            clearDropTarget();
             setAcceptDrops(true);
 
             restoreWindowSettings(this);
@@ -191,20 +190,8 @@ namespace TrenchBroom {
             return *m_console;
         }
 
-        void MapFrame::setToolBoxDropTarget() {
-            // FIXME:
-            //SetDropTarget(nullptr);
-            m_mapView->setToolBoxDropTarget();
-        }
-
-        void MapFrame::clearDropTarget() {
-            m_mapView->clearDropTarget();
-            // FIXME:
-            //SetDropTarget(new MapFrameDropTarget(m_document, this));
-        }
-
         void MapFrame::dragEnterEvent(QDragEnterEvent* event) {
-            // TODO: Also need this for MapViewBase, and the texture / entity browser too maybe.
+            // FIXME: Also need this for MapViewBase, and the texture / entity browser too maybe.
             // See if it can be factored out into an event filter object?
             if (event->mimeData()->hasUrls()) {
                 event->acceptProposedAction();

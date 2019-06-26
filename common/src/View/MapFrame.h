@@ -96,9 +96,6 @@ namespace TrenchBroom {
             MapDocumentSPtr document() const;
         public: // getters and such
             Logger& logger() const;
-        public: // drop targets
-            void setToolBoxDropTarget();
-            void clearDropTarget();
         protected:
             void dragEnterEvent(QDragEnterEvent* event) override;
             void dropEvent(QDropEvent* event) override;

@@ -39,14 +39,6 @@ namespace TrenchBroom {
             return doGetIsCurrent();
         }
 
-        void MapView::setToolBoxDropTarget() {
-            doSetToolBoxDropTarget();
-        }
-
-        void MapView::clearDropTarget() {
-            doClearDropTarget();
-        }
-
         bool MapView::canSelectTall() {
             return doCanSelectTall();
         }

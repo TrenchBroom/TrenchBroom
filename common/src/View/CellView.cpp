@@ -128,17 +128,6 @@ namespace TrenchBroom {
             }
         }
 
-        // DndHelper
-
-        CellView::DndHelper::DndHelper(CellView& cellView) :
-        m_cellView(cellView) {
-            m_cellView.dndWillStart();
-        }
-
-        CellView::DndHelper::~DndHelper() {
-            m_cellView.dndDidEnd();
-        }
-
         // CellView
 
         void CellView::mousePressEvent(QMouseEvent* event) {
@@ -209,7 +198,6 @@ namespace TrenchBroom {
                      int yOffset = event.GetY() - static_cast<int>(cell->itemBounds().top()) + top;
                      */
 
-                    const DndHelper dndHelper(*this);
                     const QString dropData = dndData(*cell);
 
                     QMimeData* mimeData = new QMimeData();
@@ -285,8 +273,6 @@ namespace TrenchBroom {
         void CellView::doLeftClick(Layout& layout, float x, float y) {}
 
         bool CellView::dndEnabled() { return false; }
-        void CellView::dndWillStart() {}
-        void CellView::dndDidEnd() {}
         QPixmap CellView::dndImage(const Cell& cell) { assert(false); return QPixmap(); }
         QString CellView::dndData(const Cell& cell) { assert(false); return ""; }
         QString CellView::tooltip(const Cell& cell) { return ""; }

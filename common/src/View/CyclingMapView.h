@@ -72,8 +72,6 @@ namespace TrenchBroom {
             void doFlashSelection() override;
         private: // implement MapView interface
             bool doGetIsCurrent() const override;
-            void doSetToolBoxDropTarget() override;
-            void doClearDropTarget() override;
             bool doCanSelectTall() override;
             void doSelectTall() override;
             void doFocusCameraOnSelection(bool animate) override;

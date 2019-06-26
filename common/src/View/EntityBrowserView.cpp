@@ -167,22 +167,6 @@ namespace TrenchBroom {
             return true;
         }
 
-        void EntityBrowserView::dndWillStart() {
-#if 0 // FIXME:DND
-            MapFrame* mapFrame = findMapFrame(this);
-            ensure(mapFrame != nullptr, "mapFrame is null");
-            mapFrame->setToolBoxDropTarget();
-#endif
-        }
-
-        void EntityBrowserView::dndDidEnd() {
-#if 0 // FIXME:DND
-            MapFrame* mapFrame = findMapFrame(this);
-            ensure(mapFrame != nullptr, "mapFrame is null");
-            mapFrame->clearDropTarget();
-#endif
-        }
-
         QString EntityBrowserView::dndData(const Cell& cell) {
             const QString prefix("entity:");
             const QString name = QString::fromStdString(cellData(cell).entityDefinition->name());

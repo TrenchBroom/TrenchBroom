@@ -125,8 +125,6 @@ namespace TrenchBroom {
             void refreshViews(Tool* tool);
         private: // implement MapView interface
             bool doGetIsCurrent() const override;
-            void doSetToolBoxDropTarget() override;
-            void doClearDropTarget() override;
             bool doCanSelectTall() override;
             void doSelectTall() override;
             vm::vec3 doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const override;

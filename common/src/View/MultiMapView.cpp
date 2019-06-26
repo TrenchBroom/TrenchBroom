@@ -50,16 +50,6 @@ namespace TrenchBroom {
             return false;
         }
 
-        void MultiMapView::doSetToolBoxDropTarget() {
-            for (MapView* mapView : m_mapViews)
-                mapView->setToolBoxDropTarget();
-        }
-
-        void MultiMapView::doClearDropTarget() {
-            for (MapView* mapView : m_mapViews)
-                mapView->clearDropTarget();
-        }
-
         bool MultiMapView::doCanSelectTall() {
             if (currentMapView() == nullptr)
                 return false;
