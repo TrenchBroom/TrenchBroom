@@ -22,6 +22,7 @@
 #include "IO/DiskIO.h"
 
 #include <QCoreApplication>
+#include <QDir>
 #include <QProcessEnvironment>
 #include <QString>
 #include <QStandardPaths>
@@ -34,7 +35,12 @@ namespace TrenchBroom {
             }
 
             Path userDataDirectory() {
+#if defined __linux__ || defined __FreeBSD__
+                // Compatibility with wxWidgets
+                return IO::Path::fromQString(QDir::homePath()) + IO::Path(".TrenchBroom");
+#else
                 return IO::Path::fromQString(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
+#endif
             }
 
             Path logFilePath() {
@@ -49,6 +55,12 @@ namespace TrenchBroom {
                     return relativeToExecutable;
                 }
 
+                // Compatibility with wxWidgets
+                const auto inUserDataDir = userDataDirectory() + file;
+                if (Disk::fileExists(inUserDataDir)) {
+                    return inUserDataDir;
+                }
+
                 return IO::Path::fromQString(QStandardPaths::locate(QStandardPaths::AppDataLocation,
                                                                     file.asQString(),
                                                                     QStandardPaths::LocateOption::LocateFile));
@@ -59,6 +71,9 @@ namespace TrenchBroom {
 
                 // Special case for running debug builds on Linux
                 result.push_back(appDirectory() + directory);
+
+                // Compatibility with wxWidgets
+                result.push_back(userDataDirectory() + directory);
 
                 const QStringList dirs = QStandardPaths::locateAll(QStandardPaths::AppDataLocation, directory.asQString(), QStandardPaths::LocateOption::LocateDirectory);
                 for (const QString& dir : dirs) {
