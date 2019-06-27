@@ -45,6 +45,7 @@ namespace TrenchBroom {
          * smart editor, and documentation text view.
          */
         class EntityAttributeEditor : public QWidget {
+            Q_OBJECT
         private:
             View::MapDocumentWPtr m_document;
             EntityAttributeGrid* m_attributeGrid;
