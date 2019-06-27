@@ -54,8 +54,11 @@ namespace TrenchBroom {
 
             void pollAndUpdate();
         public:
-            bool keyDown(QKeyEvent* event);
-            bool keyUp(QKeyEvent* event);
+            void keyDown(QKeyEvent* event);
+            void keyUp(QKeyEvent* event);
+            /**
+             * Returns whether the camera is currently moving due to a fly key being held down.
+             */
             bool anyKeyDown() const;
             void resetKeys();
         private:

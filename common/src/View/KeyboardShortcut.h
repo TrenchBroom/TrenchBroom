@@ -36,9 +36,6 @@ namespace TrenchBroom {
             friend bool operator==(const KeyboardShortcut& lhs, const KeyboardShortcut& rhs);
 
             QKeySequence keySequence() const;
-
-            bool matchesKeyDown(const QKeyEvent* event) const;
-            bool matchesKeyUp(const QKeyEvent* event) const;
         };
 
         int wxModifierToQt(int wxMod);
