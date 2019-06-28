@@ -178,7 +178,8 @@ namespace TrenchBroom {
         void MapFrame::positionOnScreen(QWidget* reference) {
             restoreWindowSettings(this);
             if (reference) {
-                move(reference->pos() + QPoint(23, 23));
+                const auto offset =  QApplication::style()->pixelMetric(QStyle::PM_TitleBarHeight);
+                move(reference->pos() + QPoint(offset, offset));
             }
         }
 
