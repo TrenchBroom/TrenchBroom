@@ -29,6 +29,7 @@
 #include <memory>
 #include <optional-lite/optional.hpp>
 #include <vector>
+#include <map>
 
 #include <QKeySequence>
 
@@ -189,7 +190,7 @@ namespace TrenchBroom {
             /**
              * All actions which are used either in a menu, a tool bar or as a shortcut.
              */
-            std::vector<std::unique_ptr<const Action>> m_actions;
+            std::map<String, std::unique_ptr<Action>> m_actions;
 
             /**
              * The main menu for the map editing window.
@@ -221,6 +222,7 @@ namespace TrenchBroom {
             void createViewActions();
             void createMenu();
             void createFileMenu();
+            void createToolbar();
 
             const Action* createMenuAction(const String& name, int key, const Action::ExecuteFn& execute, const Action::EnabledFn& enabled);
             const Action* createMenuAction(const String& name, int key, const Action::ExecuteFn& execute, const Action::EnabledFn& enabled, const Action::CheckedFn& checked);
@@ -234,6 +236,8 @@ namespace TrenchBroom {
                                        const Action::CheckedFn& checked, const IO::Path& iconPath = IO::Path());
 
             Menu& createMainMenu(const String& name);
+
+            const Action* existingAction(const String& name) const;
 
             deleteCopyAndMove(ActionManager)
 

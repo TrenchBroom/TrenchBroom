@@ -302,6 +302,7 @@ namespace TrenchBroom {
         void ActionManager::initialize() {
             createViewActions();
             createMenu();
+            createToolbar();
         }
 
         void ActionManager::createViewActions() {
@@ -1364,6 +1365,17 @@ namespace TrenchBroom {
                 }));
         }
 
+        void ActionManager::createToolbar() {
+            m_toolBar = std::make_unique<Menu>("Toolbar", MenuEntryType::Menu_None);
+            m_toolBar->addItem(existingAction("Brush Tool"));
+            m_toolBar->addItem(existingAction("Rotate Tool"));
+            m_toolBar->addItem(existingAction("Scale Tool"));
+            m_toolBar->addItem(existingAction("Shear Tool"));
+            m_toolBar->addItem(existingAction("Vertex Tool"));
+            m_toolBar->addItem(existingAction("Edge Tool"));
+            m_toolBar->addItem(existingAction("Face Tool"));
+        }
+
         const Action* ActionManager::createMenuAction(const String& name, const int key, const Action::ExecuteFn& execute,
                                                       const Action::EnabledFn& enabled) {
             return createAction(name, ActionContext::Any, QKeySequence(key), execute, enabled);
@@ -1391,28 +1403,36 @@ namespace TrenchBroom {
         const Action* ActionManager::createAction(const String& name, const int actionContext,
             const QKeySequence& defaultShortcut, const Action::ExecuteFn& execute, const Action::EnabledFn& enabled,
             const IO::Path& iconPath) {
-            m_actions.emplace_back(std::make_unique<Action>(
+            auto action = std::make_unique<Action>(
                 name,
                 actionContext,
                 KeyboardShortcut(defaultShortcut),
                 execute,
                 enabled,
-                iconPath));
-            return m_actions.back().get();
+                iconPath);
+
+            const Action* actionPtr = action.get();
+            m_actions[name] = std::move(action);
+
+            return actionPtr;
         }
 
         const Action* ActionManager::createAction(const String& name, const int actionContext,
             const QKeySequence& defaultShortcut, const Action::ExecuteFn& execute, const Action::EnabledFn& enabled,
             const Action::CheckedFn& checked, const IO::Path& iconPath) {
-            m_actions.emplace_back(std::make_unique<Action>(
+            auto action = std::make_unique<Action>(
                 name,
                 actionContext,
                 KeyboardShortcut(defaultShortcut),
                 execute,
                 enabled,
                 checked,
-                iconPath));
-            return m_actions.back().get();
+                iconPath);
+
+            const Action* actionPtr = action.get();
+            m_actions[name] = std::move(action);
+
+            return actionPtr;
         }
 
         Menu& ActionManager::createMainMenu(const String& name) {
@@ -1420,6 +1440,12 @@ namespace TrenchBroom {
             auto* result = menu.get();
             m_mainMenu.emplace_back(std::move(menu));
             return *result;
+        }
+
+        const Action* ActionManager::existingAction(const String& name) const {
+            auto it = m_actions.find(name);
+            ensure(it != m_actions.end(), "couldn't find action");
+            return it->second.get();
         }
     }
 }

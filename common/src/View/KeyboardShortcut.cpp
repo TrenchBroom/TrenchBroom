@@ -38,42 +38,6 @@ namespace TrenchBroom {
             return QKeySequence(m_qtKey);
         }
 
-        bool KeyboardShortcut::matchesKeyDown(const QKeyEvent* event) const {
-            const auto ourKey = keySequence();
-            if (ourKey.isEmpty()) {
-                return false;
-            }
-
-            const auto theirKeyInt = event->key();
-            const auto ourKeyInt = keySequence()[0];
-            return ourKeyInt == theirKeyInt;
-        }
-
-        bool KeyboardShortcut::matchesKeyUp(const QKeyEvent* event) const {
-            const auto AllModifiers =
-                Qt::Key_Shift
-                | Qt::Key_Control
-                | Qt::Key_Alt
-                | Qt::Key_Meta;
-
-            const auto ourKey = keySequence();
-            if (ourKey.isEmpty()) {
-                return false;
-            }
-
-            const auto theirKeyInt = event->key();
-            const auto ourKeyInt = keySequence()[0];
-
-            if (ourKeyInt == theirKeyInt) {
-                return true;
-            }
-
-            // if any of the modifiers were released, it matches
-            const auto releasedModifiers = theirKeyInt & AllModifiers;
-            const auto ourModifiers = ourKeyInt & AllModifiers;
-            return (releasedModifiers & ourModifiers) != 0;
-        }
-
         int wxModifierToQt(const int wxMod) {
             const auto wxMOD_ALT         = 0x0001;
             const auto wxMOD_CONTROL     = 0x0002; // Command key on macOS

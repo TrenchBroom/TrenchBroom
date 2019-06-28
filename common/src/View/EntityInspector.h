@@ -31,6 +31,7 @@ namespace TrenchBroom {
         class GLContextManager;
 
         class EntityInspector : public TabBookPage {
+            Q_OBJECT
         private:
             EntityAttributeEditor* m_attributeEditor;
             EntityBrowser* m_entityBrowser;

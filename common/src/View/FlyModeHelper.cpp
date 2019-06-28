@@ -65,7 +65,19 @@ namespace TrenchBroom {
             }
         }
 
-        bool FlyModeHelper::keyDown(QKeyEvent* event) {
+        static bool eventMatchesShortcut(const KeyboardShortcut& shortcut, QKeyEvent* event) {
+            if (shortcut.keySequence().isEmpty()) {
+                return false;
+            }
+
+            // NOTE: For triggering fly mode we only support single keys.
+            // e.g. you can't bind Shift+W to fly forward, only Shift or W.
+            const int ourKey = shortcut.keySequence()[0];
+            const int theirKey = event->key();
+            return ourKey == theirKey;
+        }
+
+        void FlyModeHelper::keyDown(QKeyEvent* event) {
             const KeyboardShortcut& forward = pref(Preferences::CameraFlyForward);
             const KeyboardShortcut& backward = pref(Preferences::CameraFlyBackward);
             const KeyboardShortcut& left = pref(Preferences::CameraFlyLeft);
@@ -74,41 +86,33 @@ namespace TrenchBroom {
             const KeyboardShortcut& down = pref(Preferences::CameraFlyDown);
 
             const auto wasAnyKeyDown = anyKeyDown();
-            auto anyMatch = false;
-            if (forward.matchesKeyDown(event)) {
+
+            if (eventMatchesShortcut(forward, event)) {
                 m_forward = true;
-                anyMatch = true;
             }
-            if (backward.matchesKeyDown(event)) {
+            if (eventMatchesShortcut(backward, event)) {
                 m_backward = true;
-                anyMatch = true;
             }
-            if (left.matchesKeyDown(event)) {
+            if (eventMatchesShortcut(left, event)) {
                 m_left = true;
-                anyMatch = true;
             }
-            if (right.matchesKeyDown(event)) {
+            if (eventMatchesShortcut(right, event)) {
                 m_right = true;
-                anyMatch = true;
             }
-            if (up.matchesKeyDown(event)) {
+            if (eventMatchesShortcut(up, event)) {
                 m_up = true;
-                anyMatch = true;
             }
-            if (down.matchesKeyDown(event)) {
+            if (eventMatchesShortcut(down, event)) {
                 m_down = true;
-                anyMatch = true;
             }
 
             if (anyKeyDown() && !wasAnyKeyDown) {
                 // Reset the last polling time, otherwise the view will jump!
                 m_lastPollTime = msecsSinceReference();
             }
-
-            return anyMatch;
         }
 
-        bool FlyModeHelper::keyUp(QKeyEvent* event) {
+        void FlyModeHelper::keyUp(QKeyEvent* event) {
             const KeyboardShortcut& forward = pref(Preferences::CameraFlyForward);
             const KeyboardShortcut& backward = pref(Preferences::CameraFlyBackward);
             const KeyboardShortcut& left = pref(Preferences::CameraFlyLeft);
@@ -116,40 +120,30 @@ namespace TrenchBroom {
             const KeyboardShortcut& up = pref(Preferences::CameraFlyUp);
             const KeyboardShortcut& down = pref(Preferences::CameraFlyDown);
 
-            const bool forwardMatch = forward.matchesKeyUp(event);
-            const bool backwardMatch = backward.matchesKeyUp(event);
-            const bool leftMatch = left.matchesKeyUp(event);
-            const bool rightMatch = right.matchesKeyUp(event);
-            const bool upMatch = up.matchesKeyUp(event);
-            const bool downMatch = down.matchesKeyUp(event);
-
-            const bool anyMatch = (forwardMatch || backwardMatch || leftMatch || rightMatch || upMatch || downMatch);
-
             if (event->isAutoRepeat()) {
                 // If it's an auto-repeat event, exit early without clearing the key down state.
                 // Otherwise, the fake keyUp()/keyDown() calls would introduce movement stutters.
-                return anyMatch;
+                return;
             }
 
-            if (forwardMatch) {
+            if (eventMatchesShortcut(forward, event)) {
                 m_forward = false;
             }
-            if (backwardMatch) {
+            if (eventMatchesShortcut(backward, event)) {
                 m_backward = false;
             }
-            if (leftMatch) {
+            if (eventMatchesShortcut(left, event)) {
                 m_left = false;
             }
-            if (rightMatch) {
+            if (eventMatchesShortcut(right, event)) {
                 m_right = false;
             }
-            if (upMatch) {
+            if (eventMatchesShortcut(up, event)) {
                 m_up = false;
             }
-            if (downMatch) {
+            if (eventMatchesShortcut(down, event)) {
                 m_down = false;
             }
-            return anyMatch;
         }
 
         bool FlyModeHelper::anyKeyDown() const {

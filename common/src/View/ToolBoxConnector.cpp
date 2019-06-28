@@ -118,7 +118,10 @@ namespace TrenchBroom {
         }
 
         ModifierKeyState ToolBoxConnector::modifierKeys() {
-            const Qt::KeyboardModifiers mouseState = QGuiApplication::keyboardModifiers();
+            // QGuiApplication::queryKeyboardModifiers() is needed instead of QGuiApplication::keyboardModifiers(),
+            // because when a modifier (e.g. Shift) is pressed, QGuiApplication::keyboardModifiers() isn't updated
+            // soon enough.
+            const Qt::KeyboardModifiers mouseState = QGuiApplication::queryKeyboardModifiers();
 
             ModifierKeyState state = ModifierKeys::MKNone;
             if (mouseState & Qt::ControlModifier)
@@ -130,6 +133,10 @@ namespace TrenchBroom {
             return state;
         }
 
+        /**
+         * Updates the TB modifier key state from the Qt state.
+         * Returns whether the TB modifier key state changed from its previously cached value.
+         */
         bool ToolBoxConnector::setModifierKeys() {
             const ModifierKeyState keys = modifierKeys();
             if (keys != m_inputState.modifierKeys()) {

@@ -175,28 +175,26 @@ namespace TrenchBroom {
                     if (attributeHasDocs) {
                         // e.g. "Attribute "delay" (Attenuation formula)", in bold
                         {
-                            m_documentationText->setCurrentCharFormat(boldFormat);
-                            m_documentationText->append("Attribute \"");
-                            m_documentationText->append(attributeDefinition->name().c_str());
-                            m_documentationText->append("\"");
+                            QString title = tr("Attribute \"%1\"")
+                                .arg(QString::fromStdString(attributeDefinition->name()));
                             if (!attributeDefinition->shortDescription().empty()) {
-                                m_documentationText->append(" (");
-                                m_documentationText->append(attributeDefinition->shortDescription().c_str());
-                                m_documentationText->append(")");
+                                title += tr(" (%1)").arg(QString::fromStdString(attributeDefinition->shortDescription()));
                             }
-                            m_documentationText->append("\n");
+
+                            m_documentationText->setCurrentCharFormat(boldFormat);
+                            m_documentationText->append(title);
                             m_documentationText->setCurrentCharFormat(normalFormat);
                         }
 
                         if (!attributeDefinition->longDescription().empty()) {
-                            m_documentationText->append("\n");
+                            m_documentationText->append("");
                             m_documentationText->append(attributeDefinition->longDescription().c_str());
-                            m_documentationText->append("\n");
                         }
 
                         if (!optionsDescription.isEmpty()) {
-                            m_documentationText->append("\nOptions:\n");
-                            m_documentationText->append(optionsDescription); // ends with a newline
+                            m_documentationText->append("");
+                            m_documentationText->append("Options:");
+                            m_documentationText->append(optionsDescription);
                         }
                     }
                 }
@@ -205,21 +203,20 @@ namespace TrenchBroom {
                 if (!entityDefinition->description().empty()) {
                     // add space after attribute text
                     if (!m_documentationText->document()->isEmpty()) {
-                        m_documentationText->append("\n");
+                        m_documentationText->append("");
                     }
 
                     // e.g. "Class "func_door"", in bold
                     {
                         m_documentationText->setCurrentCharFormat(boldFormat);
-                        m_documentationText->append("Class \"");
-                        m_documentationText->append(entityDefinition->name().c_str());
-                        m_documentationText->append("\"\n");
+                        m_documentationText->append(tr("Class \"%1\"")
+                            .arg(QString::fromStdString(entityDefinition->name())));
                         m_documentationText->setCurrentCharFormat(normalFormat);
                     }
 
-                    m_documentationText->append("\n");
+                    m_documentationText->append("");
                     m_documentationText->append(entityDefinition->description().c_str());
-                    m_documentationText->append("\n");
+                    m_documentationText->append("");
                 }
             }
 
