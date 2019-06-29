@@ -41,6 +41,8 @@
 
 namespace TrenchBroom {
     namespace View {
+        // ActionExecutionContext
+
         ActionExecutionContext::ActionExecutionContext(MapFrame* mapFrame, MapViewBase* mapView) :
         m_actionContext(mapView != nullptr ? mapView->actionContext() : ActionContext::Any), // cache here for performance reasons
         m_frame(mapFrame),
@@ -68,6 +70,7 @@ namespace TrenchBroom {
 
         MapViewBase* ActionExecutionContext::view() {
             assert(hasDocument());
+            assert(m_mapView != nullptr);
             return m_mapView;
         }
 
@@ -75,6 +78,8 @@ namespace TrenchBroom {
             assert(hasDocument());
             return m_frame->document().get();
         }
+
+        // Action
 
         Action::Action(const String& name, const ActionContext::Type actionContext, const KeyboardShortcut& defaultShortcut,
             const Action::ExecuteFn& execute, const Action::EnabledFn& enabled, const IO::Path& iconPath) :
@@ -148,7 +153,11 @@ namespace TrenchBroom {
             return m_iconPath;
         }
 
+        // MenuVisitor
+
         MenuVisitor::~MenuVisitor() = default;
+
+        // MenuEntry
 
         MenuEntry::MenuEntry(const MenuEntryType entryType) :
         m_entryType(entryType) {}
@@ -159,12 +168,16 @@ namespace TrenchBroom {
             return m_entryType;
         }
 
+        // MenuSeparatorItem
+
         MenuSeparatorItem::MenuSeparatorItem() :
         MenuEntry(MenuEntryType::Menu_None) {}
 
         void MenuSeparatorItem::accept(MenuVisitor& menuVisitor) const {
             menuVisitor.visit(*this);
         }
+
+        // MenuActionItem
 
         MenuActionItem::MenuActionItem(const Action* action, const MenuEntryType entryType) :
         MenuEntry(entryType),
@@ -181,6 +194,8 @@ namespace TrenchBroom {
         void MenuActionItem::accept(MenuVisitor& menuVisitor) const {
             menuVisitor.visit(*this);
         }
+
+        // Menu
 
         Menu::Menu(const String& name, const MenuEntryType entryType) :
         MenuEntry(entryType),
@@ -208,13 +223,13 @@ namespace TrenchBroom {
             visitor.visit(*this);
         }
 #
-
-
         void Menu::visitEntries(MenuVisitor& visitor) const {
             for (const auto& entry : m_entries) {
                 entry->accept(visitor);
             }
         }
+
+        // ActionManager
 
         ActionManager::ActionManager() {
             initialize();
@@ -455,13 +470,15 @@ namespace TrenchBroom {
                     [](ActionExecutionContext& context) {
                         context.view()->flipObjects(vm::direction::left);
                     },
-                    [](ActionExecutionContext& context) { return context.hasDocument() && context.view()->canFlipObjects(); }));
+                    [](ActionExecutionContext& context) { return context.hasDocument() && context.view()->canFlipObjects(); },
+                    IO::Path("FlipHorizontally.png")));
             m_mapViewActions.push_back(
                 createAction("Flip Vertically", ActionContext::AnyView | ActionContext::NodeSelection, QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_F),
                     [](ActionExecutionContext& context) {
                         context.view()->flipObjects(vm::direction::up);
                     },
-                    [](ActionExecutionContext& context) { return context.hasDocument() && context.view()->canFlipObjects(); }));
+                    [](ActionExecutionContext& context) { return context.hasDocument() && context.view()->canFlipObjects(); },
+                    IO::Path("FlipVertically.png")));
 
             /* ========== Texturing ========== */
             m_mapViewActions.push_back(
@@ -572,7 +589,8 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) { return context.hasDocument(); }));
             m_mapViewActions.push_back(createAction("Deactivate Current Tool", ActionContext::AnyView | ActionContext::AnyTool, QKeySequence(Qt::CTRL + Qt::Key_Escape),
                 [](ActionExecutionContext& context) { context.view()->deactivateTool(); },
-                [](ActionExecutionContext& context) { return context.hasDocument(); }));
+                [](ActionExecutionContext& context) { return context.hasDocument(); },
+                IO::Path("NoTool.png")));
         }
 
         void ActionManager::createMenu() {
@@ -745,7 +763,8 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->canDuplicateSelectino();
-                }));
+                },
+                IO::Path("DuplicateObjects.png")));
             editMenu.addItem(createAction("Delete", ActionContext::Any, QKeySequence(
 #ifdef __APPLE__
                 Qt::Key_Backspace
@@ -839,7 +858,8 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->createComplexBrushToolActive();
-                }));
+                },
+                IO::Path("BrushTool.png")));
             toolMenu.addItem(createMenuAction("Clip Tool", Qt::Key_C,
                 [](ActionExecutionContext& context) {
                     context.frame()->toggleClipTool();
@@ -849,7 +869,8 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->clipToolActive();
-                }));
+                },
+                IO::Path("ClipTool.png")));
             toolMenu.addItem(createMenuAction("Rotate Tool", Qt::Key_R,
                 [](ActionExecutionContext& context) {
                     context.frame()->toggleRotateObjectsTool();
@@ -859,7 +880,8 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->rotateObjectsToolActive();
-                }));
+                },
+                IO::Path("RotateTool.png")));
             toolMenu.addItem(createMenuAction("Scale Tool", Qt::Key_T,
                 [](ActionExecutionContext& context) {
                     context.frame()->toggleScaleObjectsTool();
@@ -869,7 +891,8 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->scaleObjectsToolActive();
-                }));
+                },
+                IO::Path("ScaleTool.png")));
             toolMenu.addItem(createMenuAction("Shear Tool", Qt::Key_G,
                 [](ActionExecutionContext& context) {
                     context.frame()->toggleShearObjectsTool();
@@ -879,7 +902,8 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->shearObjectsToolActive();
-                }));
+                },
+                IO::Path("ShearTool.png")));
             toolMenu.addItem(createMenuAction("Vertex Tool", Qt::Key_V,
                 [](ActionExecutionContext& context) {
                     context.frame()->toggleVertexTool();
@@ -889,7 +913,8 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->vertexToolActive();
-                }));
+                },
+                IO::Path("VertexTool.png")));
             toolMenu.addItem(createMenuAction("Edge Tool", Qt::Key_E,
                 [](ActionExecutionContext& context) {
                     context.frame()->toggleEdgeTool();
@@ -899,7 +924,8 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->edgeToolActive();
-                }));
+                },
+                IO::Path("EdgeTool.png")));
             toolMenu.addItem(createMenuAction("Face Tool", Qt::Key_F,
                 [](ActionExecutionContext& context) {
                     context.frame()->toggleFaceTool();
@@ -909,7 +935,8 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->faceToolActive();
-                }));
+                },
+                IO::Path("FaceTool.png")));
 
             auto& csgMenu = editMenu.addMenu("CSG");
             csgMenu.addItem(createMenuAction("Convex Merge", Qt::CTRL + Qt::Key_J,
@@ -966,7 +993,8 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return pref(Preferences::TextureLock);
-                }));
+                },
+                IO::Path("TextureLock.png")));
             editMenu.addItem(createMenuAction("UV Lock", Qt::Key_U,
                 [](ActionExecutionContext& context) {
                     context.frame()->toggleUVLock();
@@ -976,7 +1004,8 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return pref(Preferences::UVLock);
-                }));
+                },
+                IO::Path("UVLock.png")));
             editMenu.addSeparator();
             editMenu.addItem(createMenuAction("Replace Texture...", 0,
                 [](ActionExecutionContext& context) {
@@ -1366,38 +1395,55 @@ namespace TrenchBroom {
         }
 
         void ActionManager::createToolbar() {
+            // FIXME: Add commented out actions. It's a bit complicated because the ActionExecutionContext created in MapFrame needs
+            // to pass a MapViewBase for these, and currently there's no way to get one.
+
             m_toolBar = std::make_unique<Menu>("Toolbar", MenuEntryType::Menu_None);
+            //m_toolBar->addItem(existingAction("Deactivate Current Tool"));
             m_toolBar->addItem(existingAction("Brush Tool"));
-            m_toolBar->addItem(existingAction("Rotate Tool"));
-            m_toolBar->addItem(existingAction("Scale Tool"));
-            m_toolBar->addItem(existingAction("Shear Tool"));
+            m_toolBar->addItem(existingAction("Clip Tool"));
             m_toolBar->addItem(existingAction("Vertex Tool"));
             m_toolBar->addItem(existingAction("Edge Tool"));
             m_toolBar->addItem(existingAction("Face Tool"));
+            m_toolBar->addItem(existingAction("Rotate Tool"));
+            m_toolBar->addItem(existingAction("Scale Tool"));
+            m_toolBar->addItem(existingAction("Shear Tool"));
+            m_toolBar->addSeparator();
+            m_toolBar->addItem(existingAction("Duplicate"));
+            //m_toolBar->addItem(existingAction("Flip Horizontally"));
+            //m_toolBar->addItem(existingAction("Flip Vertically"));
+            m_toolBar->addSeparator();
+            m_toolBar->addItem(existingAction("Texture Lock"));
+            m_toolBar->addItem(existingAction("UV Lock"));
+            m_toolBar->addSeparator();
         }
 
         const Action* ActionManager::createMenuAction(const String& name, const int key, const Action::ExecuteFn& execute,
-                                                      const Action::EnabledFn& enabled) {
-            return createAction(name, ActionContext::Any, QKeySequence(key), execute, enabled);
+                                                      const Action::EnabledFn& enabled,
+                                                      const IO::Path& iconPath) {
+            return createAction(name, ActionContext::Any, QKeySequence(key), execute, enabled, iconPath);
         }
 
-        const Action* ActionManager::createMenuAction(const String& name, int key, const Action::ExecuteFn& execute,
+        const Action* ActionManager::createMenuAction(const String& name, const int key, const Action::ExecuteFn& execute,
                                                       const Action::EnabledFn& enabled,
-                                                      const Action::CheckedFn& checked) {
-            return createAction(name, ActionContext::Any, QKeySequence(key), execute, enabled, checked);
+                                                      const Action::CheckedFn& checked,
+                                                      const IO::Path& iconPath) {
+            return createAction(name, ActionContext::Any, QKeySequence(key), execute, enabled, checked, iconPath);
         }
 
         const Action* ActionManager::createMenuAction(const String& name, const QKeySequence::StandardKey key,
                                                       const Action::ExecuteFn& execute,
-                                                      const Action::EnabledFn& enabled) {
-            return createAction(name, ActionContext::Any, QKeySequence(key), execute, enabled);
+                                                      const Action::EnabledFn& enabled,
+                                                      const IO::Path& iconPath) {
+            return createAction(name, ActionContext::Any, QKeySequence(key), execute, enabled, iconPath);
         }
 
         const Action* ActionManager::createMenuAction(const String& name, QKeySequence::StandardKey key,
                                                       const Action::ExecuteFn& execute,
                                                       const Action::EnabledFn& enabled,
-                                                      const Action::CheckedFn& checked) {
-            return createAction(name, ActionContext::Any, QKeySequence(key), execute, enabled, checked);
+                                                      const Action::CheckedFn& checked,
+                                                      const IO::Path& iconPath) {
+            return createAction(name, ActionContext::Any, QKeySequence(key), execute, enabled, checked, iconPath);
         }
 
         const Action* ActionManager::createAction(const String& name, const int actionContext,

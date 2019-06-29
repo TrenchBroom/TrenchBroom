@@ -224,10 +224,10 @@ namespace TrenchBroom {
             void createFileMenu();
             void createToolbar();
 
-            const Action* createMenuAction(const String& name, int key, const Action::ExecuteFn& execute, const Action::EnabledFn& enabled);
-            const Action* createMenuAction(const String& name, int key, const Action::ExecuteFn& execute, const Action::EnabledFn& enabled, const Action::CheckedFn& checked);
-            const Action* createMenuAction(const String& name, QKeySequence::StandardKey key, const Action::ExecuteFn& execute, const Action::EnabledFn& enabled);
-            const Action* createMenuAction(const String& name, QKeySequence::StandardKey key, const Action::ExecuteFn& execute, const Action::EnabledFn& enabled, const Action::CheckedFn& checked);
+            const Action* createMenuAction(const String& name, int key, const Action::ExecuteFn& execute, const Action::EnabledFn& enabled, const IO::Path& iconPath = IO::Path());
+            const Action* createMenuAction(const String& name, int key, const Action::ExecuteFn& execute, const Action::EnabledFn& enabled, const Action::CheckedFn& checked, const IO::Path& iconPath = IO::Path());
+            const Action* createMenuAction(const String& name, QKeySequence::StandardKey key, const Action::ExecuteFn& execute, const Action::EnabledFn& enabled, const IO::Path& iconPath = IO::Path());
+            const Action* createMenuAction(const String& name, QKeySequence::StandardKey key, const Action::ExecuteFn& execute, const Action::EnabledFn& enabled, const Action::CheckedFn& checked, const IO::Path& iconPath = IO::Path());
             const Action* createAction(const String& name, int actionContext, const QKeySequence& defaultShortcut,
                                        const Action::ExecuteFn& execute, const Action::EnabledFn& enabled,
                                        const IO::Path& iconPath = IO::Path());
