@@ -32,15 +32,9 @@ namespace TrenchBroom {
          */
         class TagManager {
         private:
-            size_t m_currentTagTypeIndex;
             std::list<SmartTag> m_smartTags;
             class TagCmp;
         public:
-            /**
-             * Creates a new instance.
-             */
-            TagManager();
-
             /**
              * Returns a vector containing all smart tags registered with this manager.
              */
