@@ -29,6 +29,7 @@ namespace TrenchBroom {
     namespace View {
         class CameraLinkHelper;
         class MapViewContainer;
+        class MapViewBase;
 
         class MapView : public ViewEffectsService {
         private:
@@ -40,6 +41,7 @@ namespace TrenchBroom {
             void setContainer(MapViewContainer* container);
 
             bool isCurrent() const;
+            MapViewBase* currentMapViewBase();
 
             bool canSelectTall();
             void selectTall();
@@ -61,6 +63,7 @@ namespace TrenchBroom {
             void refreshViews();
         private:
             virtual bool doGetIsCurrent() const = 0;
+            virtual MapViewBase* doGetCurrentMapViewBase() = 0;
 
             virtual bool doCanSelectTall() = 0;
             virtual void doSelectTall() = 0;

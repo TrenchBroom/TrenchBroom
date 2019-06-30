@@ -46,6 +46,7 @@ namespace TrenchBroom {
         class Inspector;
         class MapViewContainer;
         class MapViewBar;
+        class MapViewBase;
         class MapViewToolBox;
         class Tool;
         class VertexTool;
@@ -125,6 +126,7 @@ namespace TrenchBroom {
             void refreshViews(Tool* tool);
         private: // implement MapView interface
             bool doGetIsCurrent() const override;
+            MapViewBase* doGetCurrentMapViewBase() override;
             bool doCanSelectTall() override;
             void doSelectTall() override;
             vm::vec3 doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const override;

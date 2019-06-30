@@ -56,6 +56,7 @@ namespace TrenchBroom {
         class Inspector;
         class SwitchableMapViewContainer;
         class Tool;
+        class MapViewBase;
 
         class MapFrame : public QMainWindow {
             Q_OBJECT
@@ -330,6 +331,8 @@ namespace TrenchBroom {
             void debugSetWindowSize();
 
             void focusChange(QWidget* old, QWidget* now);
+
+            MapViewBase* currentMapViewBase();
         private:
             bool canCompile() const;
             bool canLaunch() const;

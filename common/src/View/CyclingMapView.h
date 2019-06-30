@@ -86,6 +86,7 @@ namespace TrenchBroom {
             void doRefreshViews() override;
         private: // implement MapViewContainer interface
             MapView* doGetCurrentMapView() const override;
+            MapViewBase* doGetCurrentMapViewBase() override;
         private: // implement CameraLinkableView interface
             void doLinkCamera(CameraLinkHelper& linkHelper) override;
         };

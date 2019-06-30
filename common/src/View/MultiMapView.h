@@ -46,6 +46,7 @@ namespace TrenchBroom {
             void doFlashSelection() override;
         private: // implement MapView interface
             bool doGetIsCurrent() const override;
+            MapViewBase* doGetCurrentMapViewBase() override;
             bool doCanSelectTall() override;
             void doSelectTall() override;
             void doFocusCameraOnSelection(bool animate) override;

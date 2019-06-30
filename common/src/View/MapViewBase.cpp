@@ -809,7 +809,16 @@ namespace TrenchBroom {
         }
 
         bool MapViewBase::doGetIsCurrent() const {
+            // FIXME: This should probably be removed and tracked by MapFrame?
+            // "Current" should mean "last focused", and MapFrame should always have a non-null "current" map view.
             return hasFocus();
+        }
+
+        MapViewBase* MapViewBase::doGetCurrentMapViewBase() {
+            if (doGetIsCurrent()) {
+                return this;
+            }
+            return nullptr;
         }
 
         bool MapViewBase::doCancelMouseDrag() {

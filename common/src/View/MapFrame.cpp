@@ -1902,6 +1902,10 @@ namespace TrenchBroom {
             updateActionState();
         }
 
+        MapViewBase* MapFrame::currentMapViewBase() {
+            return m_mapView->currentMapViewBase();
+        }
+
         bool MapFrame::canCompile() const {
             return m_document->persistent();
         }

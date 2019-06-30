@@ -50,6 +50,16 @@ namespace TrenchBroom {
             return false;
         }
 
+        MapViewBase* MultiMapView::doGetCurrentMapViewBase() {
+            for (MapView* mapView : m_mapViews) {
+                if (mapView->isCurrent()) {
+                    // NOTE: This assumes that isCurrent() is true on a container when some descendant is current.
+                    return mapView->currentMapViewBase();
+                }
+            }
+            return nullptr;
+        }
+
         bool MultiMapView::doCanSelectTall() {
             if (currentMapView() == nullptr)
                 return false;

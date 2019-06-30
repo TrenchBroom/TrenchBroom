@@ -91,6 +91,10 @@ namespace TrenchBroom {
             return m_currentMapView->isCurrent();
         }
 
+        MapViewBase* CyclingMapView::doGetCurrentMapViewBase() {
+            return m_currentMapView;
+        }
+
         bool CyclingMapView::doCanSelectTall() {
             return m_currentMapView->canSelectTall();
         }
