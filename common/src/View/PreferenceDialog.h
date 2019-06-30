@@ -52,7 +52,7 @@ namespace TrenchBroom {
         public:
             explicit PreferenceDialog(MapDocumentSPtr document, QWidget* parent = nullptr);
 
-        protected:
+        protected: // QWidget overrides
             void closeEvent(QCloseEvent* event) override;
         private:
             void createGui();
