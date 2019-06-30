@@ -44,6 +44,7 @@ namespace TrenchBroom {
         class SplitterWindow2;
 
         class ThreePaneMapView : public MultiMapView {
+            Q_OBJECT
         private:
             static const char* HSaveStateKey;
             static const char* VSaveStateKey;

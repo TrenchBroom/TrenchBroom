@@ -53,6 +53,8 @@ namespace TrenchBroom {
             // See comment in CyclingMapView::createGui
             m_splitter = new QSplitter();
             QHBoxLayout* layout = new QHBoxLayout();
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(0);
             setLayout(layout);
             layout->addWidget(m_splitter);
 

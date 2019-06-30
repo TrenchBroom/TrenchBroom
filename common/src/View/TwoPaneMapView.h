@@ -43,6 +43,7 @@ namespace TrenchBroom {
         class SplitterWindow2;
 
         class TwoPaneMapView : public MultiMapView {
+            Q_OBJECT
         private:
             static const char* SaveStateKey;
         private:
