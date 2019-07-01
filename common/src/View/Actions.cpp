@@ -1399,11 +1399,8 @@ namespace TrenchBroom {
         }
 
         void ActionManager::createToolbar() {
-            // FIXME: Add commented out actions. It's a bit complicated because the ActionExecutionContext created in MapFrame needs
-            // to pass a MapViewBase for these, and currently there's no way to get one.
-
             m_toolBar = std::make_unique<Menu>("Toolbar", MenuEntryType::Menu_None);
-            //m_toolBar->addItem(existingAction("Deactivate Current Tool"));
+            m_toolBar->addItem(existingAction("Deactivate Current Tool"));
             m_toolBar->addItem(existingAction("Brush Tool"));
             m_toolBar->addItem(existingAction("Clip Tool"));
             m_toolBar->addItem(existingAction("Vertex Tool"));
