@@ -219,16 +219,34 @@ namespace TrenchBroom {
             setWindowFilePath(QString::fromStdString(m_document->path().asString()));
         }
 
+        QAction* MapFrame::findOrCreateQAction(const Action* tAction) {
+            // Check if it already exists
+            if (auto it = m_actionMap.find(tAction); it != m_actionMap.end()) {
+                return it->second;
+            }
+
+            QAction* qAction = new QAction(QString::fromStdString(tAction->name()), this);
+            qAction->setCheckable(tAction->checkable());
+            if (tAction->hasIcon()) {
+                qAction->setIcon(IO::loadIconResourceQt(tAction->iconPath()));
+            }
+
+            connect(qAction, &QAction::triggered, this, [this, tAction](){
+                this->triggerAction(*tAction);
+            });
+
+            m_actionMap[tAction] = qAction;
+            return qAction;
+        }
+
         class MapFrame::MenuBuilder : public MenuVisitor {
         private:
             MapFrame* m_frame;
-            ActionMap& m_actionMap;
             QMenuBar* m_menuBar;
             QMenu* m_currentMenu;
         public:
-            explicit MenuBuilder(MapFrame* frame, ActionMap& actionMap) :
+            explicit MenuBuilder(MapFrame* frame) :
             m_frame(frame),
-            m_actionMap(actionMap),
             m_menuBar(m_frame->menuBar()),
             m_currentMenu(nullptr) {
                 assert(m_frame != nullptr);
@@ -260,12 +278,8 @@ namespace TrenchBroom {
             void visit(const MenuActionItem& item) override {
                 assert(m_currentMenu != nullptr);
                 const auto& tAction = item.action();
-                auto* qAction = m_currentMenu->addAction(QString::fromStdString(tAction.name()));
-                qAction->setCheckable(tAction.checkable());
-
-                auto* frame = m_frame;
-                connect(qAction, &QAction::triggered, m_frame, [frame, &tAction]() { frame->triggerAction(tAction); });
-                m_actionMap.emplace_back(qAction, &tAction);
+                QAction* qAction = m_frame->findOrCreateQAction(&tAction);
+                m_currentMenu->addAction(qAction);
 
                 if (item.entryType() == MenuEntryType::Menu_Undo) {
                     m_frame->m_undoAction = qAction;
@@ -280,7 +294,7 @@ namespace TrenchBroom {
         };
 
         void MapFrame::createMenus() {
-            MenuBuilder menuBuilder(this, m_actionMap);
+            MenuBuilder menuBuilder(this);
             const auto& actionManager = ActionManager::instance();
             actionManager.visitMainMenu(menuBuilder);
 
@@ -288,7 +302,7 @@ namespace TrenchBroom {
         }
 
         void MapFrame::updateShortcuts() {
-            for (auto [qAction, tAction] : m_actionMap) {
+            for (auto [tAction, qAction] : m_actionMap) {
                 qAction->setShortcut(tAction->keySequence());
             }
         }
@@ -297,7 +311,7 @@ namespace TrenchBroom {
             // FIXME: Do we need to do this more fine grained? Right now we just update all actions whenever anything
             // changes.
             ActionExecutionContext context(this, m_currentMapView);
-            for (auto [qAction, tAction] : m_actionMap) {
+            for (auto [tAction, qAction] : m_actionMap) {
                 if (qAction == m_undoAction || qAction == m_redoAction ||
                     qAction == m_pasteAction || qAction == m_pasteAtOriginalPositionAction) {
                     // These are handled specially for performance reasons.
@@ -424,12 +438,10 @@ namespace TrenchBroom {
         class MapFrame::ToolBarBuilder : public MenuVisitor {
         private:
             MapFrame* m_frame;
-            ActionMap& m_actionMap;
             QToolBar* m_toolBar;
         public:
-            explicit ToolBarBuilder(MapFrame* frame, ActionMap& actionMap, QToolBar* toolBar) :
+            explicit ToolBarBuilder(MapFrame* frame, QToolBar* toolBar) :
                 m_frame(frame),
-                m_actionMap(actionMap),
                 m_toolBar(toolBar) {
                 assert(m_frame != nullptr);
                 assert(m_toolBar != nullptr);
@@ -445,15 +457,8 @@ namespace TrenchBroom {
 
             void visit(const MenuActionItem& item) override {
                 const auto& tAction = item.action();
-                auto* qAction = m_toolBar->addAction(QString::fromStdString(tAction.name()));
-                qAction->setCheckable(tAction.checkable());
-                if (tAction.hasIcon()) {
-                    qAction->setIcon(IO::loadIconResourceQt(tAction.iconPath()));
-                }
-
-                auto* frame = m_frame;
-                connect(qAction, &QAction::triggered, m_frame, [frame, &tAction]() { frame->triggerAction(tAction); });
-                m_actionMap.emplace_back(qAction, &tAction);
+                QAction* qAction = m_frame->findOrCreateQAction(&tAction);
+                m_toolBar->addAction(qAction);
             }
         };
 
@@ -463,7 +468,7 @@ namespace TrenchBroom {
             toolBar->setFloatable(false);
             toolBar->setMovable(false);
 
-            ToolBarBuilder builder(this, m_actionMap, toolBar);
+            ToolBarBuilder builder(this, toolBar);
             auto& actionManager = ActionManager::instance();
             actionManager.visitToolBarActions(builder);
 

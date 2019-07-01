@@ -29,6 +29,7 @@
 #include <QMainWindow>
 
 #include <utility>
+#include <map>
 
 class QAction;
 class QComboBox;
@@ -85,7 +86,7 @@ namespace TrenchBroom {
 
             QDialog* m_compilationDialog;
         private: // shortcuts
-            using ActionMap = std::vector<std::pair<QAction*, const Action*>>;
+            using ActionMap = std::map<const Action*, QAction*>;
             ActionMap m_actionMap;
         private: // special menu entries
             QMenu* m_recentDocumentsMenu;
@@ -107,6 +108,7 @@ namespace TrenchBroom {
         private: // title bar contents
             void updateTitle();
         private: // menu bar
+            QAction* findOrCreateQAction(const Action* tAction);
             class MenuBuilder;
             void createMenus();
             void updateShortcuts();
