@@ -45,7 +45,7 @@ echo "TB_ENABLE_ASAN: $TB_ENABLE_ASAN_VALUE"
 mkdir build
 cd build
 cmake .. -GXcode -DCMAKE_BUILD_TYPE="$BUILD_TYPE_VALUE" -DCMAKE_CXX_FLAGS="-Werror" -DTB_ENABLE_ASAN="$TB_ENABLE_ASAN_VALUE" -DwxWidgets_PREFIX=$WX_CACHE_FULLPATH || exit 1
-cmake --build . --target cppcheck || exit 1
+cmake --build . --target cppcheck || cat cppcheck-errors.txt; exit 1
 cmake --build . --config "$BUILD_TYPE_VALUE" || exit 1
 cpack -C $BUILD_TYPE_VALUE || exit 1
 
