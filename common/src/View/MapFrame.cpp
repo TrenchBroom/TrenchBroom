@@ -446,7 +446,7 @@ namespace TrenchBroom {
             void visit(const MenuActionItem& item) override {
                 const auto& tAction = item.action();
                 auto* qAction = m_toolBar->addAction(QString::fromStdString(tAction.name()));
-                qAction->setChecked(tAction.checkable());
+                qAction->setCheckable(tAction.checkable());
                 if (tAction.hasIcon()) {
                     qAction->setIcon(IO::loadIconResourceQt(tAction.iconPath()));
                 }

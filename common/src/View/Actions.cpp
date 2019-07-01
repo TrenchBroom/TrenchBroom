@@ -226,7 +226,7 @@ namespace TrenchBroom {
         void Menu::accept(MenuVisitor& visitor) const {
             visitor.visit(*this);
         }
-#
+
         void Menu::visitEntries(MenuVisitor& visitor) const {
             for (const auto& entry : m_entries) {
                 entry->accept(visitor);
