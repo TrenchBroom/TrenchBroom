@@ -91,7 +91,7 @@ namespace TrenchBroom {
             return m_currentMapView->isCurrent();
         }
 
-        MapViewBase* CyclingMapView::doGetCurrentMapViewBase() {
+        MapViewBase* CyclingMapView::doGetFirstMapViewBase() {
             return m_currentMapView;
         }
 

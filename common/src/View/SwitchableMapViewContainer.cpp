@@ -311,8 +311,8 @@ namespace TrenchBroom {
             return m_mapView->isCurrent();
         }
 
-        MapViewBase* SwitchableMapViewContainer::doGetCurrentMapViewBase() {
-            return m_mapView->currentMapViewBase();
+        MapViewBase* SwitchableMapViewContainer::doGetFirstMapViewBase() {
+            return m_mapView->firstMapViewBase();
         }
 
         bool SwitchableMapViewContainer::doCanSelectTall() {

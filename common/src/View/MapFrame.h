@@ -72,6 +72,10 @@ namespace TrenchBroom {
 
             GLContextManager* m_contextManager;
             SwitchableMapViewContainer* m_mapView;
+            /**
+             * Last focused MapViewBase.
+             */
+            MapViewBase* m_currentMapView;
             InfoPanel* m_infoPanel;
             Console* m_console;
             Inspector* m_inspector;
@@ -330,7 +334,7 @@ namespace TrenchBroom {
             void debugThrowExceptionDuringCommand();
             void debugSetWindowSize();
 
-            void focusChange(QWidget* old, QWidget* now);
+            void focusChange(QWindow* newFocus);
 
             MapViewBase* currentMapViewBase();
         private:

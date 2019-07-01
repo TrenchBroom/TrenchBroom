@@ -40,6 +40,7 @@
 #include "View/Autosaver.h"
 #include "View/BorderLine.h"
 #include "View/CachingLogger.h"
+#include "View/MapViewBase.h"
 #include "FileLogger.h"
 #include "View/ClipTool.h"
 #include "View/CompilationDialog.h"
@@ -100,6 +101,7 @@ namespace TrenchBroom {
         m_vSplitter(nullptr),
         m_contextManager(nullptr),
         m_mapView(nullptr),
+        m_currentMapView(nullptr),
         m_infoPanel(nullptr),
         m_console(nullptr),
         m_inspector(nullptr),
@@ -294,7 +296,7 @@ namespace TrenchBroom {
         void MapFrame::updateActionState() {
             // FIXME: Do we need to do this more fine grained? Right now we just update all actions whenever anything
             // changes.
-            ActionExecutionContext context(this, nullptr);
+            ActionExecutionContext context(this, m_currentMapView);
             for (auto [qAction, tAction] : m_actionMap) {
                 if (qAction == m_undoAction || qAction == m_redoAction ||
                     qAction == m_pasteAction || qAction == m_pasteAtOriginalPositionAction) {
@@ -375,6 +377,8 @@ namespace TrenchBroom {
             m_console = m_infoPanel->console();
 
             m_mapView = new SwitchableMapViewContainer(nullptr, m_console, m_document, *m_contextManager);
+            m_currentMapView = m_mapView->firstMapViewBase();
+            ensure(m_currentMapView != nullptr, "SwitchableMapViewContainer should have constructed a MapViewBase");
 
             m_inspector = new Inspector(nullptr, m_document, *m_contextManager);
 
@@ -708,27 +712,17 @@ namespace TrenchBroom {
         }
 
         void MapFrame::bindEvents() {
-
-            // FIXME:
-#if 0
-
-            Bind(wxEVT_CHILD_FOCUS, &MapFrame::OnChildFocus, this);
-
-#if defined(_WIN32)
-            Bind(wxEVT_ACTIVATE, &MapFrame::OnActivate, this);
-#endif
-
-#endif
             connect(m_autosaveTimer, &QTimer::timeout, this, &MapFrame::triggerAutosave);
 
-            connect(qApp, &QApplication::focusChanged, this, &MapFrame::focusChange);
+            connect(qGuiApp, &QGuiApplication::focusWindowChanged, this, &MapFrame::focusChange);
+
             connect(m_gridChoice, QOverload<int>::of(&QComboBox::activated), this, [this](const int index) { setGridSize(index + Grid::MinSize); });
 
             connect(QApplication::clipboard(), &QClipboard::dataChanged, this, &MapFrame::updatePasteActions);
         }
 
         void MapFrame::triggerAction(const Action& action) {
-            ActionExecutionContext context(this, nullptr);
+            ActionExecutionContext context(this, m_currentMapView);
             action.execute(context);
         }
 
@@ -1898,12 +1892,20 @@ namespace TrenchBroom {
         }
 #endif
 
-        void MapFrame::focusChange(QWidget* old, QWidget* now) {
+        void MapFrame::focusChange(QWindow* newFocus) {
+            if (auto newMapView = dynamic_cast<MapViewBase*>(newFocus); newMapView != nullptr) {
+                m_currentMapView = newMapView;
+                qDebug() << "Current map view changed to " << m_currentMapView;
+            } else {
+                ; // leave the current map view as-is
+            }
+
             updateActionState();
         }
 
         MapViewBase* MapFrame::currentMapViewBase() {
-            return m_mapView->currentMapViewBase();
+            assert(m_currentMapView);
+            return m_currentMapView;
         }
 
         bool MapFrame::canCompile() const {
