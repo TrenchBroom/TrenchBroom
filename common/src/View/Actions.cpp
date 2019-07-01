@@ -1438,7 +1438,7 @@ namespace TrenchBroom {
             return createAction(name, ActionContext::Any, QKeySequence(key), execute, enabled, iconPath);
         }
 
-        const Action* ActionManager::createMenuAction(const String& name, QKeySequence::StandardKey key,
+        const Action* ActionManager::createMenuAction(const String& name, const QKeySequence::StandardKey key,
                                                       const Action::ExecuteFn& execute,
                                                       const Action::EnabledFn& enabled,
                                                       const Action::CheckedFn& checked,
