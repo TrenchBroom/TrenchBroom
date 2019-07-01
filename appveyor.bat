@@ -11,7 +11,7 @@ IF ERRORLEVEL 1 GOTO ERROR
 
 cmake --build . --target cppcheck
 
-IF ERRORLEVEL 1 GOTO ERROR
+IF ERRORLEVEL 1 GOTO ERROR_CPPCHECK
 
 cmake --build . --config Release
 
@@ -32,6 +32,10 @@ Release\TrenchBroom-Benchmark.exe
 IF ERRORLEVEL 1 GOTO ERROR
 
 GOTO END
+
+:ERROR_CPPCHECK
+
+type cppcheck-errors.txt
 
 :ERROR
 
