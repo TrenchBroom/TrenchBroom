@@ -28,18 +28,22 @@ IF (CPPCHECK_EXE STREQUAL "CPPCHECK_EXE-NOTFOUND")
     )
 ELSE()
     MESSAGE(STATUS "Using cppcheck found at ${CPPCHECK_EXE}")
+    STRING (REPLACE ";" " " CPPCHECK_ARGS_STR "${CPPCHECK_ARGS}")
     ADD_CUSTOM_TARGET(
         cppcheck
+        COMMAND ${CPPCHECK_EXE} "--version"
         COMMAND ${CPPCHECK_EXE} ${CPPCHECK_ARGS}
-        COMMENT "running cppcheck"
+        COMMENT "running ${CPPCHECK_EXE} ${CPPCHECK_ARGS_STR}"
     )
 
     FIND_PROGRAM(CPPCHECK_HTMLREPORT_EXE cppcheck-htmlreport)
     IF (NOT CPPCHECK_HTMLREPORT_EXE STREQUAL "CPPCHECK_HTMLREPORT_EXE-NOTFOUND")
+        MESSAGE(STATUS "Using cppcheck-htmlreport found at ${CPPCHECK_HTMLREPORT_EXE}")
+        STRING (REPLACE ";" " " CPPCHECK_HTMLREPORT_ARGS_STR "${CPPCHECK_HTMLREPORT_ARGS}")
         ADD_CUSTOM_TARGET(
             cppcheck-report
             COMMAND ${CPPCHECK_HTMLREPORT_EXE} ${CPPCHECK_HTMLREPORT_ARGS}
-            COMMENT "running cppcheck-htmlreport"
+            COMMENT "running ${CPPCHECK_HTMLREPORT_EXE} ${CPPCHECK_HTMLREPORT_ARGS_STR}"
         )
     ENDIF()
 ENDIF()
