@@ -27,6 +27,8 @@ namespace TrenchBroom {
         EvaluationContext::EvaluationContext(const VariableStore& store) :
         m_store(store.clone()) {}
 
+        EvaluationContext::~EvaluationContext() = default;
+
         Value EvaluationContext::variableValue(const String& name) const {
             return m_store->value(name);
         }

@@ -33,6 +33,7 @@ namespace TrenchBroom {
         public:
             EvaluationContext();
             explicit EvaluationContext(const VariableStore& store);
+            virtual ~EvaluationContext();
 
             virtual Value variableValue(const String& name) const;
             virtual void declareVariable(const String& name, const Value& value);
