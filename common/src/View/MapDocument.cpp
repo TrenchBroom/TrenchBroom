@@ -1537,7 +1537,7 @@ namespace TrenchBroom {
             if (m_world != nullptr) {
                 return m_game->extractEntityDefinitionFile(*m_world);
             } else {
-                Assets::EntityDefinitionFileSpec();
+                return Assets::EntityDefinitionFileSpec();
             }
         }
 
