@@ -98,6 +98,21 @@ namespace TrenchBroom {
             auto* resetButton = m_buttonBox->button(QDialogButtonBox::RestoreDefaults);
             connect(resetButton, &QPushButton::clicked, this, &PreferenceDialog::resetToDefaults);
 
+#if !defined __APPLE__
+            connect(m_buttonBox->button(QDialogButtonBox::Ok), &QPushButton::clicked, this, [this]() {
+                auto& prefs = PreferenceManager::instance();
+                prefs.saveChanges();
+                this->close();
+            });
+            connect(m_buttonBox->button(QDialogButtonBox::Apply), &QPushButton::clicked, this, [this]() {
+                auto& prefs = PreferenceManager::instance();
+                prefs.saveChanges();
+            });
+            connect(m_buttonBox->button(QDialogButtonBox::Cancel), &QPushButton::clicked, this, [this]() {
+                this->close();
+            });
+#endif
+
             auto* layout = new QVBoxLayout();
             layout->setContentsMargins(0, 0, 0, 0);
             layout->setSpacing(0);
@@ -109,9 +124,6 @@ namespace TrenchBroom {
 #endif
             layout->addWidget(m_stackedWidget, 1);
             layout->addLayout(wrapDialogButtonBox(m_buttonBox));
-
-            connect(m_buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
-            connect(m_buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
         }
 
         void PreferenceDialog::switchToPane(const PrefPane pane) {
