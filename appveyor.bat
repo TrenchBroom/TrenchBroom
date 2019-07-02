@@ -1,11 +1,11 @@
-PATH=%PATH%;c:\wxWidgets-3.1.1\lib\vc141_dll
 PATH=%PATH%;C:\Program Files (x86)\Pandoc;C:\Program Files\Cppcheck
-SET WXWIN="c:\wxWidgets-3.1.1"
 
 mkdir cmakebuild
 cd cmakebuild
 
-cmake .. -G"Visual Studio 15 2017" -T v141_xp -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=/WX
+cmake .. -G"Visual Studio 15 2017" -DCMAKE_PREFIX_PATH="%QT5_INSTALL_DIR%" -T v141 -DCMAKE_BUILD_TYPE=Release
+
+REM  -DCMAKE_CXX_FLAGS=/WX
 
 IF ERRORLEVEL 1 GOTO ERROR
 
@@ -35,7 +35,13 @@ GOTO END
 
 :ERROR_CPPCHECK
 
+echo.
+echo "cppcheck detected issues, see below"
+echo.
+
 type cppcheck-errors.txt
+
+echo.
 
 :ERROR
 
