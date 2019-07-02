@@ -25,28 +25,19 @@
 namespace TrenchBroom {
     namespace Renderer {
         FontManager::FontManager() :
-        m_factory(new FreeTypeFontFactory()) {}
-
-        FontManager::~FontManager() {
-            MapUtils::clearAndDelete(m_cache);
-            delete m_factory;
-            m_factory = nullptr;
-        }
-
+        m_factory(std::make_unique<FreeTypeFontFactory>()) {}
 
         void FontManager::clearCache() {
-            MapUtils::clearAndDelete(m_cache);
-            m_cache = FontCache();
+            m_cache.clear();
         }
 
         TextureFont& FontManager::font(const FontDescriptor& fontDescriptor) {
-            FontCache::iterator it = m_cache.lower_bound(fontDescriptor);
-            if (it != std::end(m_cache) && it->first.compare(fontDescriptor) == 0)
-                return *it->second;
+            auto it = m_cache.lower_bound(fontDescriptor);
+            if (it == std::end(m_cache) || it->first.compare(fontDescriptor) != 0) {
+                it = m_cache.insert(it, std::make_pair(fontDescriptor, m_factory->createFont(fontDescriptor)));
+            }
 
-            TextureFont* font = m_factory->createFont(fontDescriptor);;
-            m_cache.insert(it, std::make_pair(fontDescriptor, font));
-            return *font;
+            return *it->second;
         }
 
         FontDescriptor FontManager::selectFontSize(const FontDescriptor& fontDescriptor, const String& string, const float maxWidth, const size_t minFontSize) {

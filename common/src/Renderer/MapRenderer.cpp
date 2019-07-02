@@ -127,7 +127,7 @@ namespace TrenchBroom {
         m_defaultRenderer(createDefaultRenderer(m_document)),
         m_selectionRenderer(createSelectionRenderer(m_document)),
         m_lockedRenderer(createLockRenderer(m_document)),
-        m_entityLinkRenderer(new EntityLinkRenderer(m_document)) {
+        m_entityLinkRenderer(std::make_unique<EntityLinkRenderer>(m_document)) {
             bindObservers();
             setupRenderers();
         }
@@ -135,28 +135,27 @@ namespace TrenchBroom {
         MapRenderer::~MapRenderer() {
             unbindObservers();
             clear();
-            delete m_entityLinkRenderer;
-            delete m_lockedRenderer;
-            delete m_selectionRenderer;
-            delete m_defaultRenderer;
         }
 
-        ObjectRenderer* MapRenderer::createDefaultRenderer(View::MapDocumentWPtr document) {
-            return new ObjectRenderer(lock(document)->entityModelManager(),
-                                      lock(document)->editorContext(),
-                                      UnselectedBrushRendererFilter(lock(document)->editorContext()));
+        std::unique_ptr<ObjectRenderer> MapRenderer::createDefaultRenderer(View::MapDocumentWPtr document) {
+            return std::make_unique<ObjectRenderer>(
+                lock(document)->entityModelManager(),
+                lock(document)->editorContext(),
+                UnselectedBrushRendererFilter(lock(document)->editorContext()));
         }
 
-        ObjectRenderer* MapRenderer::createSelectionRenderer(View::MapDocumentWPtr document) {
-            return new ObjectRenderer(lock(document)->entityModelManager(),
-                                      lock(document)->editorContext(),
-                                      SelectedBrushRendererFilter(lock(document)->editorContext()));
+        std::unique_ptr<ObjectRenderer> MapRenderer::createSelectionRenderer(View::MapDocumentWPtr document) {
+            return std::make_unique<ObjectRenderer>(
+                lock(document)->entityModelManager(),
+                lock(document)->editorContext(),
+                SelectedBrushRendererFilter(lock(document)->editorContext()));
         }
 
-        ObjectRenderer* MapRenderer::createLockRenderer(View::MapDocumentWPtr document) {
-            return new ObjectRenderer(lock(document)->entityModelManager(),
-                                      lock(document)->editorContext(),
-                                      LockedBrushRendererFilter(lock(document)->editorContext()));
+        std::unique_ptr<ObjectRenderer> MapRenderer::createLockRenderer(View::MapDocumentWPtr document) {
+            return std::make_unique<ObjectRenderer>(
+                lock(document)->entityModelManager(),
+                lock(document)->editorContext(),
+                LockedBrushRendererFilter(lock(document)->editorContext()));
         }
 
         void MapRenderer::clear() {
@@ -178,7 +177,7 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::restoreSelectionColors() {
-            setupSelectionRenderer(m_selectionRenderer);
+            setupSelectionRenderer(*m_selectionRenderer);
         }
 
         void MapRenderer::render(RenderContext& renderContext, RenderBatch& renderBatch) {
@@ -252,66 +251,66 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::setupRenderers() {
-            setupDefaultRenderer(m_defaultRenderer);
-            setupSelectionRenderer(m_selectionRenderer);
-            setupLockedRenderer(m_lockedRenderer);
+            setupDefaultRenderer(*m_defaultRenderer);
+            setupSelectionRenderer(*m_selectionRenderer);
+            setupLockedRenderer(*m_lockedRenderer);
             setupEntityLinkRenderer();
         }
 
-        void MapRenderer::setupDefaultRenderer(ObjectRenderer* renderer) {
-            renderer->setEntityOverlayTextColor(pref(Preferences::InfoOverlayTextColor));
-            renderer->setGroupOverlayTextColor(pref(Preferences::GroupInfoOverlayTextColor));
-            renderer->setOverlayBackgroundColor(pref(Preferences::InfoOverlayBackgroundColor));
-            renderer->setTint(false);
-            renderer->setTransparencyAlpha(pref(Preferences::TransparentFaceAlpha));
+        void MapRenderer::setupDefaultRenderer(ObjectRenderer& renderer) {
+            renderer.setEntityOverlayTextColor(pref(Preferences::InfoOverlayTextColor));
+            renderer.setGroupOverlayTextColor(pref(Preferences::GroupInfoOverlayTextColor));
+            renderer.setOverlayBackgroundColor(pref(Preferences::InfoOverlayBackgroundColor));
+            renderer.setTint(false);
+            renderer.setTransparencyAlpha(pref(Preferences::TransparentFaceAlpha));
 
-            renderer->setGroupBoundsColor(pref(Preferences::DefaultGroupColor));
-            renderer->setEntityBoundsColor(pref(Preferences::UndefinedEntityColor));
+            renderer.setGroupBoundsColor(pref(Preferences::DefaultGroupColor));
+            renderer.setEntityBoundsColor(pref(Preferences::UndefinedEntityColor));
 
-            renderer->setBrushFaceColor(pref(Preferences::FaceColor));
-            renderer->setBrushEdgeColor(pref(Preferences::EdgeColor));
+            renderer.setBrushFaceColor(pref(Preferences::FaceColor));
+            renderer.setBrushEdgeColor(pref(Preferences::EdgeColor));
         }
 
-        void MapRenderer::setupSelectionRenderer(ObjectRenderer* renderer) {
-            renderer->setEntityOverlayTextColor(pref(Preferences::SelectedInfoOverlayTextColor));
-            renderer->setGroupOverlayTextColor(pref(Preferences::SelectedInfoOverlayTextColor));
-            renderer->setOverlayBackgroundColor(pref(Preferences::SelectedInfoOverlayBackgroundColor));
-            renderer->setShowBrushEdges(true);
-            renderer->setShowOccludedObjects(true);
-            renderer->setOccludedEdgeColor(pref(Preferences::OccludedSelectedEdgeColor));
-            renderer->setTint(true);
-            renderer->setTintColor(pref(Preferences::SelectedFaceColor));
+        void MapRenderer::setupSelectionRenderer(ObjectRenderer& renderer) {
+            renderer.setEntityOverlayTextColor(pref(Preferences::SelectedInfoOverlayTextColor));
+            renderer.setGroupOverlayTextColor(pref(Preferences::SelectedInfoOverlayTextColor));
+            renderer.setOverlayBackgroundColor(pref(Preferences::SelectedInfoOverlayBackgroundColor));
+            renderer.setShowBrushEdges(true);
+            renderer.setShowOccludedObjects(true);
+            renderer.setOccludedEdgeColor(pref(Preferences::OccludedSelectedEdgeColor));
+            renderer.setTint(true);
+            renderer.setTintColor(pref(Preferences::SelectedFaceColor));
 
-            renderer->setOverrideGroupBoundsColor(true);
-            renderer->setGroupBoundsColor(pref(Preferences::SelectedEdgeColor));
+            renderer.setOverrideGroupBoundsColor(true);
+            renderer.setGroupBoundsColor(pref(Preferences::SelectedEdgeColor));
 
-            renderer->setOverrideEntityBoundsColor(true);
-            renderer->setEntityBoundsColor(pref(Preferences::SelectedEdgeColor));
-            renderer->setShowEntityAngles(true);
-            renderer->setEntityAngleColor(pref(Preferences::AngleIndicatorColor));
+            renderer.setOverrideEntityBoundsColor(true);
+            renderer.setEntityBoundsColor(pref(Preferences::SelectedEdgeColor));
+            renderer.setShowEntityAngles(true);
+            renderer.setEntityAngleColor(pref(Preferences::AngleIndicatorColor));
 
-            renderer->setBrushFaceColor(pref(Preferences::FaceColor));
-            renderer->setBrushEdgeColor(pref(Preferences::SelectedEdgeColor));
+            renderer.setBrushFaceColor(pref(Preferences::FaceColor));
+            renderer.setBrushEdgeColor(pref(Preferences::SelectedEdgeColor));
         }
 
-        void MapRenderer::setupLockedRenderer(ObjectRenderer* renderer) {
-            renderer->setEntityOverlayTextColor(pref(Preferences::LockedInfoOverlayTextColor));
-            renderer->setGroupOverlayTextColor(pref(Preferences::LockedInfoOverlayTextColor));
-            renderer->setOverlayBackgroundColor(pref(Preferences::LockedInfoOverlayBackgroundColor));
-            renderer->setShowOccludedObjects(false);
-            renderer->setTint(true);
-            renderer->setTintColor(pref(Preferences::LockedFaceColor));
-            renderer->setTransparencyAlpha(pref(Preferences::TransparentFaceAlpha));
+        void MapRenderer::setupLockedRenderer(ObjectRenderer& renderer) {
+            renderer.setEntityOverlayTextColor(pref(Preferences::LockedInfoOverlayTextColor));
+            renderer.setGroupOverlayTextColor(pref(Preferences::LockedInfoOverlayTextColor));
+            renderer.setOverlayBackgroundColor(pref(Preferences::LockedInfoOverlayBackgroundColor));
+            renderer.setShowOccludedObjects(false);
+            renderer.setTint(true);
+            renderer.setTintColor(pref(Preferences::LockedFaceColor));
+            renderer.setTransparencyAlpha(pref(Preferences::TransparentFaceAlpha));
 
-            renderer->setOverrideGroupBoundsColor(true);
-            renderer->setGroupBoundsColor(pref(Preferences::LockedEdgeColor));
+            renderer.setOverrideGroupBoundsColor(true);
+            renderer.setGroupBoundsColor(pref(Preferences::LockedEdgeColor));
 
-            renderer->setOverrideEntityBoundsColor(true);
-            renderer->setEntityBoundsColor(pref(Preferences::LockedEdgeColor));
-            renderer->setShowEntityAngles(false);
+            renderer.setOverrideEntityBoundsColor(true);
+            renderer.setEntityBoundsColor(pref(Preferences::LockedEdgeColor));
+            renderer.setShowEntityAngles(false);
 
-            renderer->setBrushFaceColor(pref(Preferences::FaceColor));
-            renderer->setBrushEdgeColor(pref(Preferences::LockedEdgeColor));
+            renderer.setBrushFaceColor(pref(Preferences::FaceColor));
+            renderer.setBrushEdgeColor(pref(Preferences::LockedEdgeColor));
         }
 
         void MapRenderer::setupEntityLinkRenderer() {

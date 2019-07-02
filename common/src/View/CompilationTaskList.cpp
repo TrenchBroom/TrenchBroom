@@ -100,7 +100,7 @@ namespace TrenchBroom {
             }
         private:
             void updateAutoComplete(AutoCompleteTextControl* control) {
-                const String workDir = EL::interpolate(m_profile->workDirSpec(), CompilationWorkDirVariables(lock(m_document)));
+                const String workDir = EL::interpolate(m_profile->workDirSpec(), EL::EvaluationContext(CompilationWorkDirVariables(lock(m_document))));
                 const CompilationVariables variables(lock(m_document), workDir);
 
                 control->SetHelper(new ELAutoCompleteHelper(variables));

@@ -19,19 +19,13 @@
 
 #include "EvaluationContext.h"
 
-#include "EL/VariableStore.h"
-
 namespace TrenchBroom {
     namespace EL {
         EvaluationContext::EvaluationContext() :
-        m_store(new VariableTable()) {}
+        m_store(std::make_unique<VariableTable>()) {}
 
         EvaluationContext::EvaluationContext(const VariableStore& store) :
         m_store(store.clone()) {}
-
-        EvaluationContext::~EvaluationContext() {
-            delete m_store;
-        }
 
         Value EvaluationContext::variableValue(const String& name) const {
             return m_store->value(name);
@@ -46,9 +40,11 @@ namespace TrenchBroom {
 
         Value EvaluationStack::variableValue(const String& name) const {
             const Value& value = EvaluationContext::variableValue(name);
-            if (value != Value::Undefined)
+            if (value != Value::Undefined) {
                 return value;
-            return m_next.variableValue(name);
+            } else {
+                return m_next.variableValue(name);
+            }
         }
     }
 }

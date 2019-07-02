@@ -20,6 +20,7 @@
 #ifndef VariableStore_h
 #define VariableStore_h
 
+#include "Macros.h"
 #include "StringUtils.h"
 #include "EL/Value.h"
 
@@ -27,17 +28,23 @@ namespace TrenchBroom {
     namespace EL {
         class VariableStore {
         public:
-            VariableStore();
-            VariableStore(const VariableStore &other);
-            virtual ~VariableStore();
+            VariableStore() = default;
+            VariableStore(const VariableStore& other) = default;
+            VariableStore(VariableStore&& other) noexcept = default;
+            virtual ~VariableStore() = default;
+
+            VariableStore& operator=(const VariableStore& other) = default;
+            VariableStore& operator=(VariableStore&& other) noexcept = default;
 
             VariableStore* clone() const;
+            size_t size() const;
             Value value(const String& name) const;
             const StringSet names() const;
             void declare(const String& name, const Value& value = Value::Undefined);
             void assign(const String& name, const Value& value);
         private:
             virtual VariableStore* doClone() const = 0;
+            virtual size_t doGetSize() const = 0;
             virtual Value doGetValue(const String& name) const = 0;
             virtual StringSet doGetNames() const = 0;
             virtual void doDeclare(const String& name, const Value& value) = 0;
@@ -50,9 +57,10 @@ namespace TrenchBroom {
             Table m_variables;
         public:
             VariableTable();
-            VariableTable(const Table& variables);
+            explicit VariableTable(const Table& variables);
         private:
             VariableStore* doClone() const override;
+            size_t doGetSize() const override;
             Value doGetValue(const String& name) const override;
             StringSet doGetNames() const override;
             void doDeclare(const String& name, const Value& value) override;
@@ -64,6 +72,7 @@ namespace TrenchBroom {
             NullVariableStore();
         private:
             VariableStore* doClone() const override;
+            size_t doGetSize() const override;
             Value doGetValue(const String& name) const override;
             StringSet doGetNames() const override;
             void doDeclare(const String& name, const Value& value) override;
