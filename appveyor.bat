@@ -46,5 +46,6 @@ echo.
 :ERROR
 
 echo "Building TrenchBroom failed"
+exit /b 1
 
 :END
