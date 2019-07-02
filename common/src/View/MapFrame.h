@@ -27,6 +27,7 @@
 #include "View/ViewTypes.h"
 
 #include <QMainWindow>
+#include <QPointer>
 
 #include <utility>
 #include <map>
@@ -74,9 +75,9 @@ namespace TrenchBroom {
             GLContextManager* m_contextManager;
             SwitchableMapViewContainer* m_mapView;
             /**
-             * Last focused MapViewBase.
+             * Last focused MapViewBase. It's a QPointer to handle changing from e.g. a 2-pane map view to 1-pane.
              */
-            MapViewBase* m_currentMapView;
+            QPointer<MapViewBase> m_currentMapView;
             InfoPanel* m_infoPanel;
             Console* m_console;
             Inspector* m_inspector;

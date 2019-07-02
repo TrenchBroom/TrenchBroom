@@ -310,7 +310,7 @@ namespace TrenchBroom {
         void MapFrame::updateActionState() {
             // FIXME: Do we need to do this more fine grained? Right now we just update all actions whenever anything
             // changes.
-            ActionExecutionContext context(this, m_currentMapView);
+            ActionExecutionContext context(this, currentMapViewBase());
             for (auto [tAction, qAction] : m_actionMap) {
                 if (qAction == m_undoAction || qAction == m_redoAction ||
                     qAction == m_pasteAction || qAction == m_pasteAtOriginalPositionAction) {
@@ -727,7 +727,7 @@ namespace TrenchBroom {
         }
 
         void MapFrame::triggerAction(const Action& action) {
-            ActionExecutionContext context(this, m_currentMapView);
+            ActionExecutionContext context(this, currentMapViewBase());
             action.execute(context);
         }
 
@@ -1909,7 +1909,11 @@ namespace TrenchBroom {
         }
 
         MapViewBase* MapFrame::currentMapViewBase() {
-            assert(m_currentMapView);
+            if (!m_currentMapView) {
+                // This happens when the current map view is deleted (e.g. 4-pane to 1-pane layout)
+                m_currentMapView = m_mapView->firstMapViewBase();
+                ensure(m_currentMapView != nullptr, "SwitchableMapViewContainer should have constructed a MapViewBase");
+            }
             return m_currentMapView;
         }
 
