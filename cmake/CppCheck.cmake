@@ -11,6 +11,7 @@ ELSE()
         --enable=warning,performance,portability
         --verbose
         --suppressions-list=${CMAKE_SOURCE_DIR}/cppcheck.suppr
+        --inline-suppr
         --std=c++11
         --language=c++
         -DMAIN=main
