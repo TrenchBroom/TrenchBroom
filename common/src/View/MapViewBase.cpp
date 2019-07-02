@@ -814,11 +814,8 @@ namespace TrenchBroom {
             return hasFocus();
         }
 
-        MapViewBase* MapViewBase::doGetCurrentMapViewBase() {
-            if (doGetIsCurrent()) {
-                return this;
-            }
-            return nullptr;
+        MapViewBase* MapViewBase::doGetFirstMapViewBase() {
+            return this;
         }
 
         bool MapViewBase::doCancelMouseDrag() {

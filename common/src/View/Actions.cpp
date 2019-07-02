@@ -46,7 +46,11 @@ namespace TrenchBroom {
         ActionExecutionContext::ActionExecutionContext(MapFrame* mapFrame, MapViewBase* mapView) :
         m_actionContext(mapView != nullptr ? mapView->actionContext() : ActionContext::Any), // cache here for performance reasons
         m_frame(mapFrame),
-        m_mapView(mapView) {}
+        m_mapView(mapView) {
+            if (m_frame != nullptr) {
+                assert(m_mapView != nullptr);
+            }
+        }
 
         bool ActionExecutionContext::hasDocument() const {
             return m_frame != nullptr;
@@ -222,7 +226,7 @@ namespace TrenchBroom {
         void Menu::accept(MenuVisitor& visitor) const {
             visitor.visit(*this);
         }
-#
+
         void Menu::visitEntries(MenuVisitor& visitor) const {
             for (const auto& entry : m_entries) {
                 entry->accept(visitor);
@@ -1395,11 +1399,8 @@ namespace TrenchBroom {
         }
 
         void ActionManager::createToolbar() {
-            // FIXME: Add commented out actions. It's a bit complicated because the ActionExecutionContext created in MapFrame needs
-            // to pass a MapViewBase for these, and currently there's no way to get one.
-
             m_toolBar = std::make_unique<Menu>("Toolbar", MenuEntryType::Menu_None);
-            //m_toolBar->addItem(existingAction("Deactivate Current Tool"));
+            m_toolBar->addItem(existingAction("Deactivate Current Tool"));
             m_toolBar->addItem(existingAction("Brush Tool"));
             m_toolBar->addItem(existingAction("Clip Tool"));
             m_toolBar->addItem(existingAction("Vertex Tool"));
@@ -1410,8 +1411,8 @@ namespace TrenchBroom {
             m_toolBar->addItem(existingAction("Shear Tool"));
             m_toolBar->addSeparator();
             m_toolBar->addItem(existingAction("Duplicate"));
-            //m_toolBar->addItem(existingAction("Flip Horizontally"));
-            //m_toolBar->addItem(existingAction("Flip Vertically"));
+            m_toolBar->addItem(existingAction("Flip Horizontally"));
+            m_toolBar->addItem(existingAction("Flip Vertically"));
             m_toolBar->addSeparator();
             m_toolBar->addItem(existingAction("Texture Lock"));
             m_toolBar->addItem(existingAction("UV Lock"));
@@ -1457,10 +1458,9 @@ namespace TrenchBroom {
                 enabled,
                 iconPath);
 
-            const Action* actionPtr = action.get();
-            m_actions[name] = std::move(action);
-
-            return actionPtr;
+            auto [it, didInsert] = m_actions.insert({name, std::move(action)});
+            ensure(didInsert, "duplicate action name");
+            return it->second.get();
         }
 
         const Action* ActionManager::createAction(const String& name, const int actionContext,
@@ -1475,10 +1475,9 @@ namespace TrenchBroom {
                 checked,
                 iconPath);
 
-            const Action* actionPtr = action.get();
-            m_actions[name] = std::move(action);
-
-            return actionPtr;
+            auto [it, didInsert] = m_actions.insert({name, std::move(action)});
+            ensure(didInsert, "duplicate action name");
+            return it->second.get();
         }
 
         Menu& ActionManager::createMainMenu(const String& name) {

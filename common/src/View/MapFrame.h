@@ -29,6 +29,7 @@
 #include <QMainWindow>
 
 #include <utility>
+#include <map>
 
 class QAction;
 class QComboBox;
@@ -72,6 +73,10 @@ namespace TrenchBroom {
 
             GLContextManager* m_contextManager;
             SwitchableMapViewContainer* m_mapView;
+            /**
+             * Last focused MapViewBase.
+             */
+            MapViewBase* m_currentMapView;
             InfoPanel* m_infoPanel;
             Console* m_console;
             Inspector* m_inspector;
@@ -81,7 +86,7 @@ namespace TrenchBroom {
 
             QDialog* m_compilationDialog;
         private: // shortcuts
-            using ActionMap = std::vector<std::pair<QAction*, const Action*>>;
+            using ActionMap = std::map<const Action*, QAction*>;
             ActionMap m_actionMap;
         private: // special menu entries
             QMenu* m_recentDocumentsMenu;
@@ -103,6 +108,7 @@ namespace TrenchBroom {
         private: // title bar contents
             void updateTitle();
         private: // menu bar
+            QAction* findOrCreateQAction(const Action* tAction);
             class MenuBuilder;
             void createMenus();
             void updateShortcuts();
@@ -330,7 +336,7 @@ namespace TrenchBroom {
             void debugThrowExceptionDuringCommand();
             void debugSetWindowSize();
 
-            void focusChange(QWidget* old, QWidget* now);
+            void focusChange(QWindow* newFocus);
 
             MapViewBase* currentMapViewBase();
         private:

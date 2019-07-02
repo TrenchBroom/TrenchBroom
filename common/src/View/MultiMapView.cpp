@@ -50,14 +50,9 @@ namespace TrenchBroom {
             return false;
         }
 
-        MapViewBase* MultiMapView::doGetCurrentMapViewBase() {
-            for (MapView* mapView : m_mapViews) {
-                if (mapView->isCurrent()) {
-                    // NOTE: This assumes that isCurrent() is true on a container when some descendant is current.
-                    return mapView->currentMapViewBase();
-                }
-            }
-            return nullptr;
+        MapViewBase* MultiMapView::doGetFirstMapViewBase() {
+            ensure(!m_mapViews.empty(), "MultiMapView empty in doGetFirstMapViewBase()");
+            return m_mapViews.at(0)->firstMapViewBase();
         }
 
         bool MultiMapView::doCanSelectTall() {

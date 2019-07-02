@@ -39,8 +39,8 @@ namespace TrenchBroom {
             return doGetIsCurrent();
         }
 
-        MapViewBase* MapView::currentMapViewBase() {
-            return doGetCurrentMapViewBase();
+        MapViewBase* MapView::firstMapViewBase() {
+            return doGetFirstMapViewBase();
         }
 
         bool MapView::canSelectTall() {

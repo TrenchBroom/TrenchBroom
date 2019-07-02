@@ -41,7 +41,7 @@ namespace TrenchBroom {
             void setContainer(MapViewContainer* container);
 
             bool isCurrent() const;
-            MapViewBase* currentMapViewBase();
+            MapViewBase* firstMapViewBase();
 
             bool canSelectTall();
             void selectTall();
@@ -63,7 +63,7 @@ namespace TrenchBroom {
             void refreshViews();
         private:
             virtual bool doGetIsCurrent() const = 0;
-            virtual MapViewBase* doGetCurrentMapViewBase() = 0;
+            virtual MapViewBase* doGetFirstMapViewBase() = 0;
 
             virtual bool doCanSelectTall() = 0;
             virtual void doSelectTall() = 0;
