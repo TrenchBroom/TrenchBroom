@@ -10,7 +10,6 @@ ELSE()
     LIST(APPEND CPPCHECK_COMMON_ARGS
         --enable=warning,performance,portability
         --verbose
-        --suppressions-list=${CMAKE_SOURCE_DIR}/cppcheck.suppr
         --inline-suppr
         --std=c++11
         --language=c++
