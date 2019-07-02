@@ -9,7 +9,7 @@ brew install cmake p7zip pandoc cppcheck
 
 export WX_CACHE_FULLPATH="${TRAVIS_BUILD_DIR}/wx-install-cache"
 
-if [[ ! -e wx-install-cache/bin/wx-config ]]; then
+if [[ ! -e wx-install-cache/bin/wx-config ]] ; then
     echo "wxwidgets cache directory invalid. Building wxwidgets..."
 
     wget https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxWidgets-3.1.1.7z
@@ -47,12 +47,14 @@ cd build
 cmake .. -GXcode -DCMAKE_BUILD_TYPE="$BUILD_TYPE_VALUE" -DCMAKE_CXX_FLAGS="-Werror" -DTB_ENABLE_ASAN="$TB_ENABLE_ASAN_VALUE" -DwxWidgets_PREFIX=$WX_CACHE_FULLPATH || exit 1
 
 cmake --build . --target cppcheck
-if [ $? -ne 0 ]
+if [[ $? -ne 0 ]] ; then
     echo
     echo "cppcheck detected issues, see below"
     echo
+    
     cat cppcheck-errors.txt
     echo
+
     exit 1
 fi
 
