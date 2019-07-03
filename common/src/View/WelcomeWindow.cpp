@@ -24,8 +24,6 @@
 #include "View/BorderLine.h"
 #include "View/ViewConstants.h"
 #include "View/RecentDocumentListBox.h"
-// FIXME:
-//#include "View/RecentDocumentSelectedCommand.h"
 #include "View/wxUtils.h"
 
 #include <QVBoxLayout>
