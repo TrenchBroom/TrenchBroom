@@ -25,8 +25,6 @@
 #include "IO/ResourceUtils.h"
 #include "Model/GameConfig.h"
 #include "Model/GameFactory.h"
-// FIXME:
-// #include "View/RecentDocumentSelectedCommand.h"
 
 #include <cassert>
 

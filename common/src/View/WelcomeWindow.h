@@ -41,14 +41,13 @@ namespace TrenchBroom {
             QPushButton* m_openOtherDocumentButton;
         public:
             WelcomeFrame();
-
-            void onCreateNewDocumentClicked();
-            void onOpenOtherDocumentClicked();
-            void onRecentDocumentSelected(const IO::Path& documentPath);
         private:
             void createGui();
             QWidget* createAppPanel();
-            void bindEvents();
+        private slots:
+            void createNewDocument();
+            void openOtherDocument();
+            void openDocument(const IO::Path& path);
         };
     }
 }

@@ -41,7 +41,6 @@ namespace TrenchBroom {
         m_createNewDocumentButton(nullptr),
         m_openOtherDocumentButton(nullptr) {
             createGui();
-            bindEvents();
             centerOnScreen(this);
         }
 
@@ -54,7 +53,8 @@ namespace TrenchBroom {
             m_recentDocumentListBox->setToolTip("Double click on a file to open it");
             m_recentDocumentListBox->setFixedWidth(300);
             m_recentDocumentListBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-            connect(m_recentDocumentListBox, &RecentDocumentListBox::loadRecentDocument, this, &WelcomeFrame::onRecentDocumentSelected);
+
+            connect(m_recentDocumentListBox, &RecentDocumentListBox::loadRecentDocument, this, &WelcomeFrame::openDocument);
 
             auto* innerLayout = new QHBoxLayout();
             innerLayout->setContentsMargins(QMargins());
@@ -79,41 +79,6 @@ namespace TrenchBroom {
             setFixedSize(700, 500);
         }
 
-        void WelcomeFrame::onCreateNewDocumentClicked() {
-            hide();
-            TrenchBroomApp& app = TrenchBroomApp::instance();
-            if (app.newDocument()) {
-                close();
-            } else {
-                show();
-            }
-        }
-
-        void WelcomeFrame::onOpenOtherDocumentClicked() {
-            const auto pathStr = QFileDialog::getOpenFileName(nullptr, "Open Map", "", "Map files (*.map);;Any files (*.*)");
-            const auto path = IO::Path(pathStr.toStdString());
-
-            if (!path.isEmpty()) {
-                hide();
-                TrenchBroomApp& app = TrenchBroomApp::instance();
-                if (app.openDocument(path)) {
-                    close();
-                } else {
-                    show();
-                }
-            }
-        }
-
-        void WelcomeFrame::onRecentDocumentSelected(const IO::Path& path) {
-            hide();
-            TrenchBroomApp& app = TrenchBroomApp::instance();
-            if (app.openDocument(path)) {
-                close();
-            } else {
-                show();
-            }
-        }
-
         QWidget* WelcomeFrame::createAppPanel() {
             auto* appPanel = new QWidget();
             auto* infoPanel = new AppInfoPanel(appPanel);
@@ -123,26 +88,56 @@ namespace TrenchBroom {
             m_openOtherDocumentButton = new QPushButton("Browse...");
             m_openOtherDocumentButton->setToolTip("Open an existing map document");
 
-            auto* buttonSizer = new QHBoxLayout();
-            buttonSizer->addStretch();
-            buttonSizer->addWidget(m_createNewDocumentButton);
-            buttonSizer->addSpacing(LayoutConstants::WideHMargin);
-            buttonSizer->addWidget(m_openOtherDocumentButton);
-            buttonSizer->addStretch();
+            connect(m_createNewDocumentButton, &QPushButton::clicked, this, &WelcomeFrame::createNewDocument);
+            connect(m_openOtherDocumentButton, &QPushButton::clicked, this, &WelcomeFrame::openOtherDocument);
 
-            auto* outerSizer = new QVBoxLayout();
-            outerSizer->addWidget(infoPanel, 0, Qt::AlignHCenter);
-            outerSizer->addSpacing(20);
-            outerSizer->addLayout(buttonSizer);
-            outerSizer->addSpacing(20);
-            appPanel->setLayout(outerSizer);
+            auto* buttonLayout = new QHBoxLayout();
+            buttonLayout->setContentsMargins(0, 0, 0, 0);
+            buttonLayout->setSpacing(LayoutConstants::WideHMargin);
+            buttonLayout->addStretch();
+            buttonLayout->addWidget(m_createNewDocumentButton);
+            buttonLayout->addWidget(m_openOtherDocumentButton);
+            buttonLayout->addStretch();
+
+            auto* outerLayout = new QVBoxLayout();
+            outerLayout->setContentsMargins(0, 0, 0, 0);
+            outerLayout->setSpacing(0);
+            outerLayout->addWidget(infoPanel, 0, Qt::AlignHCenter);
+            outerLayout->addSpacing(20);
+            outerLayout->addLayout(buttonLayout);
+            outerLayout->addSpacing(20);
+            appPanel->setLayout(outerLayout);
 
             return appPanel;
         }
 
-        void WelcomeFrame::bindEvents() {
-            connect(m_createNewDocumentButton, &QPushButton::clicked, this, &WelcomeFrame::onCreateNewDocumentClicked);
-            connect(m_openOtherDocumentButton, &QPushButton::clicked, this, &WelcomeFrame::onOpenOtherDocumentClicked);
+        void WelcomeFrame::createNewDocument() {
+            hide();
+            TrenchBroomApp& app = TrenchBroomApp::instance();
+            if (app.newDocument()) {
+                close();
+            } else {
+                show();
+            }
+        }
+
+        void WelcomeFrame::openOtherDocument() {
+            const auto pathStr = QFileDialog::getOpenFileName(nullptr, "Open Map", "", "Map files (*.map);;Any files (*.*)");
+            const auto path = IO::Path(pathStr.toStdString());
+
+            if (!path.isEmpty()) {
+                openDocument(path);
+            }
+        }
+
+        void WelcomeFrame::openDocument(const IO::Path& path) {
+            hide();
+            TrenchBroomApp& app = TrenchBroomApp::instance();
+            if (app.openDocument(path)) {
+                close();
+            } else {
+                show();
+            }
         }
     }
 }
