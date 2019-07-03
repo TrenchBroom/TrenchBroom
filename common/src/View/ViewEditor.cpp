@@ -125,10 +125,11 @@ namespace TrenchBroom {
         }
 
         void EntityDefinitionCheckBoxList::createGui() {
-            QScrollArea* scrollWindow = new QScrollArea();
+            auto* scrollWidgetLayout = new QVBoxLayout();
+            scrollWidgetLayout->setContentsMargins(0, 0, 0, 0);
+            scrollWidgetLayout->setSpacing(0);
+            scrollWidgetLayout->addSpacing(1);
 
-            auto* scrollWindowSizer = new QVBoxLayout();
-            scrollWindowSizer->addSpacing(1);
             const Assets::EntityDefinitionGroup::List& groups = m_entityDefinitionManager.groups();
             for (size_t i = 0; i < groups.size(); ++i) {
                 const Assets::EntityDefinitionGroup& group = groups[i];
@@ -143,7 +144,7 @@ namespace TrenchBroom {
                 });
                 m_groupCheckBoxes.push_back(groupCB);
 
-                scrollWindowSizer->addWidget(groupCB);
+                scrollWidgetLayout->addWidget(groupCB);
 
                 Assets::EntityDefinitionList::const_iterator defIt, defEnd;
                 for (defIt = std::begin(definitions), defEnd = std::end(definitions); defIt != defEnd; ++defIt) {
@@ -158,18 +159,17 @@ namespace TrenchBroom {
                     });
 
                     m_defCheckBoxes.push_back(defCB);
-                    scrollWindowSizer->addWidget(defCB);
+                    scrollWidgetLayout->addWidget(defCB);
                 }
             }
 
-            scrollWindowSizer->addSpacing(1);
+            scrollWidgetLayout->addSpacing(1);
 
-            QWidget* scrollCanvas = new QWidget();
-            scrollCanvas->setLayout(scrollWindowSizer);
-            scrollWindow->setWidget(scrollCanvas);
+            auto* scrollWidget = new QWidget();
+            scrollWidget->setLayout(scrollWidgetLayout);
 
-            // FIXME:
-            //scrollWindow->SetScrollRate(1, checkBoxHeight);
+            auto* scrollArea = new QScrollArea();
+            scrollArea->setWidget(scrollWidget);
 
             auto* showAllButton = new QPushButton(tr("Show all"));
             makeEmphasized(showAllButton);
@@ -179,26 +179,40 @@ namespace TrenchBroom {
             connect(showAllButton, &QAbstractButton::clicked, this, &EntityDefinitionCheckBoxList::OnShowAllClicked);
             connect(hideAllButton, &QAbstractButton::clicked, this, &EntityDefinitionCheckBoxList::OnHideAllClicked);
 
-            auto* buttonSizer = new QHBoxLayout();
-            buttonSizer->addStretch(1);
-            buttonSizer->addSpacing(LayoutConstants::NarrowHMargin);
-            buttonSizer->addWidget(showAllButton);
-            buttonSizer->addSpacing(LayoutConstants::NarrowHMargin);
-            buttonSizer->addWidget(hideAllButton);
-            buttonSizer->addSpacing(LayoutConstants::NarrowHMargin);
-            buttonSizer->addStretch(1);
+            auto* buttonLayout = new QHBoxLayout();
+            buttonLayout->setContentsMargins(0, 0, 0, 0);
+            buttonLayout->setSpacing(LayoutConstants::NarrowHMargin);
+            buttonLayout->addStretch(1);
+            buttonLayout->addWidget(showAllButton);
+            buttonLayout->addWidget(hideAllButton);
+            buttonLayout->addStretch(1);
 
-            auto* outerSizer = new QVBoxLayout();
-            outerSizer->addWidget(scrollWindow, 1);
-            outerSizer->addLayout(buttonSizer);
-            setLayout(outerSizer);
+            auto* outerLayout = new QVBoxLayout();
+            outerLayout->setContentsMargins(0, 0, 0, 0);
+            outerLayout->setSpacing(LayoutConstants::MediumVMargin);
+            outerLayout->addWidget(scrollArea, 1);
+            outerLayout->addLayout(buttonLayout);
+            setLayout(outerLayout);
         }
 
         // ViewEditor
 
         ViewEditor::ViewEditor(QWidget* parent, MapDocumentWPtr document) :
         QWidget(parent),
-        m_document(document) {
+        m_document(std::move(document)),
+        m_showEntityClassnamesCheckBox(nullptr),
+        m_showGroupBoundsCheckBox(nullptr),
+        m_showBrushEntityBoundsCheckBox(nullptr),
+        m_showPointEntityBoundsCheckBox(nullptr),
+        m_showPointEntitiesCheckBox(nullptr),
+        m_showPointEntityModelsCheckBox(nullptr),
+        m_entityDefinitionCheckBoxList(nullptr),
+        m_showBrushesCheckBox(nullptr),
+        m_renderModeRadioGroup(nullptr),
+        m_shadeFacesCheckBox(nullptr),
+        m_showFogCheckBox(nullptr),
+        m_showEdgesCheckBox(nullptr),
+        m_entityLinkRadioGroup(nullptr) {
             bindObservers();
         }
 
@@ -366,6 +380,13 @@ namespace TrenchBroom {
             setLayout(nullptr);
 
             auto* sizer = new QGridLayout();
+            sizer->setContentsMargins(
+                LayoutConstants::WideHMargin,
+                LayoutConstants::WideVMargin,
+                LayoutConstants::WideHMargin,
+                LayoutConstants::WideVMargin);
+            sizer->setHorizontalSpacing(LayoutConstants::WideHMargin);
+            sizer->setVerticalSpacing(LayoutConstants::WideVMargin);
             sizer->addWidget(createEntityDefinitionsPanel(this), 0,0,3,1);
             sizer->addWidget(createEntitiesPanel(this),          0,1);
             sizer->addWidget(createBrushesPanel(this),           1,1);
@@ -383,10 +404,12 @@ namespace TrenchBroom {
             Model::EditorContext& editorContext = document->editorContext();
             m_entityDefinitionCheckBoxList = new EntityDefinitionCheckBoxList(panel->getPanel(), entityDefinitionManager, editorContext);
 
-            auto* panelSizer = new QVBoxLayout();
-            panelSizer->addWidget(m_entityDefinitionCheckBoxList, 1);
-            m_entityDefinitionCheckBoxList->setMinimumSize(250, -1);
-            panel->getPanel()->setLayout(panelSizer);
+            auto* layout = new QVBoxLayout();
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(0);
+            layout->addWidget(m_entityDefinitionCheckBoxList, 1);
+            m_entityDefinitionCheckBoxList->setMinimumWidth(250);
+            panel->getPanel()->setLayout(layout);
 
             return panel;
         }
@@ -409,15 +432,17 @@ namespace TrenchBroom {
             connect(m_showPointEntitiesCheckBox, &QAbstractButton::clicked, this, &ViewEditor::OnShowPointEntitiesChanged);
             connect(m_showPointEntityModelsCheckBox, &QAbstractButton::clicked, this, &ViewEditor::OnShowPointEntityModelsChanged);
 
-            auto* sizer = new QVBoxLayout();
-            sizer->addWidget(m_showEntityClassnamesCheckBox);
-            sizer->addWidget(m_showGroupBoundsCheckBox);
-            sizer->addWidget(m_showBrushEntityBoundsCheckBox);
-            sizer->addWidget(m_showPointEntityBoundsCheckBox);
-            sizer->addWidget(m_showPointEntitiesCheckBox);
-            sizer->addWidget(m_showPointEntityModelsCheckBox);
+            auto* layout = new QVBoxLayout();
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(0);
+            layout->addWidget(m_showEntityClassnamesCheckBox);
+            layout->addWidget(m_showGroupBoundsCheckBox);
+            layout->addWidget(m_showBrushEntityBoundsCheckBox);
+            layout->addWidget(m_showPointEntityBoundsCheckBox);
+            layout->addWidget(m_showPointEntitiesCheckBox);
+            layout->addWidget(m_showPointEntityModelsCheckBox);
 
-            panel->getPanel()->setLayout(sizer);
+            panel->getPanel()->setLayout(layout);
             return panel;
         }
 
@@ -450,30 +475,33 @@ namespace TrenchBroom {
 
         void ViewEditor::createEmptyTagFilter(QWidget* parent) {
             auto* msg = new QLabel(tr("No tags found"));
-            makeInfo(msg); // msg->SetForegroundColour(*wxLIGHT_GREY);
+            makeInfo(msg);
 
-            auto* sizer = new QHBoxLayout();
-            sizer->addSpacing(LayoutConstants::WideHMargin);
-            sizer->addWidget(msg);
-            sizer->addSpacing(LayoutConstants::WideHMargin);
+            auto* layout = new QHBoxLayout();
+            layout->setContentsMargins(0, LayoutConstants::WideVMargin, 0, LayoutConstants::WideVMargin);
+            layout->setSpacing(0);
+            layout->addWidget(msg);
 
-            parent->setLayout(sizer);
+            parent->setLayout(layout);
         }
 
         void ViewEditor::createTagFilter(QWidget* parent, const std::list<Model::SmartTag>& tags) {
             assert(!tags.empty());
 
-            auto* sizer = new QVBoxLayout();
+            auto* layout = new QVBoxLayout();
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(0);
+
             for (const auto& tag : tags) {
                 const QString label = QString::fromLatin1("Show %1").arg(QString::fromStdString(tag.name()).toLower());
 
                 auto* checkBox = new QCheckBox(label);
                 m_tagCheckBoxes.push_back(checkBox);
 
-                sizer->addWidget(checkBox);
+                layout->addWidget(checkBox);
                 connect(checkBox, &QAbstractButton::clicked, this, &ViewEditor::OnShowTagChanged);
             }
-            parent->setLayout(sizer);
+            parent->setLayout(layout);
         }
 
         QWidget* ViewEditor::createRendererPanel(QWidget* parent) {
@@ -509,18 +537,23 @@ namespace TrenchBroom {
             connect(m_renderModeRadioGroup, static_cast<void(QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this, &ViewEditor::OnFaceRenderModeChanged);
             connect(m_entityLinkRadioGroup, static_cast<void(QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this, &ViewEditor::OnEntityLinkModeChanged);
 
-            auto* sizer = new QVBoxLayout();
+            auto* layout = new QVBoxLayout();
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(0);
+
             for (auto* button : m_renderModeRadioGroup->buttons()) {
-                sizer->addWidget(button);
-            }
-            sizer->addWidget(m_shadeFacesCheckBox);
-            sizer->addWidget(m_showFogCheckBox);
-            sizer->addWidget(m_showEdgesCheckBox);
-            for (auto* button : m_entityLinkRadioGroup->buttons()) {
-                sizer->addWidget(button);
+                layout->addWidget(button);
             }
 
-            inner->setLayout(sizer);
+            layout->addWidget(m_shadeFacesCheckBox);
+            layout->addWidget(m_showFogCheckBox);
+            layout->addWidget(m_showEdgesCheckBox);
+
+            for (auto* button : m_entityLinkRadioGroup->buttons()) {
+                layout->addWidget(button);
+            }
+
+            inner->setLayout(layout);
             return panel;
         }
 

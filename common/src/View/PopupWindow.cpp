@@ -47,8 +47,10 @@ namespace TrenchBroom {
                 y = refWidgetRectOnScreen.bottom();
             } else if (refWidgetRectOnScreen.top() - ourSize.height() >= 0) { // fits above?
                 y = refWidgetRectOnScreen.top() - ourSize.height();
-            } else { // otherwise, center vertically on screen
-                y = refWidgetRectOnScreen.center().y() - (ourSize.height() / 2);
+            } else { // otherwise put it as low as possible, but make sure the top is visible
+                const auto bottom = std::min(refWidgetRectOnScreen.bottom() + ourSize.height(), screenGeom.bottom());
+                const auto top    = bottom - ourSize.height();
+                y = std::max(top, 0);
             }
 
             // Figure out the x position on screen
@@ -57,8 +59,8 @@ namespace TrenchBroom {
                 x = refWidgetRectOnScreen.right() - ourSize.width();
             } else if (refWidgetRectOnScreen.left() + ourSize.width() <= screenGeom.right()) { // fits right?
                 x = refWidgetRectOnScreen.left();
-            } else { // center horizontally on screen
-                x = refWidgetRectOnScreen.center().x() - (ourSize.width() / 2);
+            } else { // otherwise put it as far to the left as possible, but make sure the left is visible
+                y = std::max(refWidgetRectOnScreen.left() - ourSize.width(), 0);
             }
 
             // Now map x, y from global to our parent's coordinates

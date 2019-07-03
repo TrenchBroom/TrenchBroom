@@ -60,6 +60,7 @@ namespace TrenchBroom {
 
             void refresh();
 
+            // FIXME: turn into slots, rename to camelCase, remove "on" prefix
             void OnGroupCheckBoxChanged(size_t groupIndex, bool checked);
             void OnDefCheckBoxChanged(const Assets::EntityDefinition* definition, bool checked);
             void OnShowAllClicked();
@@ -100,6 +101,7 @@ namespace TrenchBroom {
             ViewEditor(QWidget* parent, MapDocumentWPtr document);
             ~ViewEditor() override;
 
+            // FIXME: turn into slots, rename to camelCase, remove "on" prefix
             void OnShowEntityClassnamesChanged(bool checked);
             void OnShowGroupBoundsChanged(bool checked);
             void OnShowBrushEntityBoundsChanged(bool checked);
