@@ -95,7 +95,9 @@ namespace TrenchBroom {
                 m_maximizedView = nullptr;
             } else {
                 m_maximizedView = currentMapView();
-                doMaximizeView(m_maximizedView);
+                if (m_maximizedView != nullptr) {
+                    doMaximizeView(m_maximizedView);
+                }
             }
         }
 
