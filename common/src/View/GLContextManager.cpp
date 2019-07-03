@@ -28,17 +28,12 @@ namespace TrenchBroom {
     namespace View {
         GLContextManager::GLContextManager() :
         m_initialized(false),
-        m_vertexVbo(new Renderer::Vbo(0xFFFFFF)),
-        m_indexVbo(new Renderer::Vbo(0xFFFFF, GL_ELEMENT_ARRAY_BUFFER)),
-        m_fontManager(new Renderer::FontManager()),
-        m_shaderManager(new Renderer::ShaderManager()) {}
+        m_vertexVbo(std::make_unique<Renderer::Vbo>(0xFFFFFF)),
+        m_indexVbo(std::make_unique<Renderer::Vbo>(0xFFFFF, GL_ELEMENT_ARRAY_BUFFER)),
+        m_fontManager(std::make_unique<Renderer::FontManager>()),
+        m_shaderManager(std::make_unique<Renderer::ShaderManager>()) {}
 
-        GLContextManager::~GLContextManager() {
-            delete m_vertexVbo;
-            delete m_indexVbo;
-            delete m_fontManager;
-            delete m_shaderManager;
-        }
+        GLContextManager::~GLContextManager() = default;
 
         bool GLContextManager::initialized() const {
             return m_initialized;

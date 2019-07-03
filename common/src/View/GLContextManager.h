@@ -22,6 +22,8 @@
 
 #include "Macros.h"
 
+#include <memory>
+
 namespace TrenchBroom {
     namespace Renderer {
         class FontManager;
@@ -34,10 +36,10 @@ namespace TrenchBroom {
         private:
             bool m_initialized;
 
-            Renderer::Vbo* m_vertexVbo;
-            Renderer::Vbo* m_indexVbo;
-            Renderer::FontManager* m_fontManager;
-            Renderer::ShaderManager* m_shaderManager;
+            std::unique_ptr<Renderer::Vbo> m_vertexVbo;
+            std::unique_ptr<Renderer::Vbo> m_indexVbo;
+            std::unique_ptr<Renderer::FontManager> m_fontManager;
+            std::unique_ptr<Renderer::ShaderManager> m_shaderManager;
         public:
             GLContextManager();
             ~GLContextManager();
