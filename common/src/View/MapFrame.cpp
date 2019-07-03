@@ -221,8 +221,11 @@ namespace TrenchBroom {
 
         QAction* MapFrame::findOrCreateQAction(const Action* tAction) {
             // Check if it already exists
-            if (auto it = m_actionMap.find(tAction); it != m_actionMap.end()) {
-                return it->second;
+            {
+                auto it = m_actionMap.find(tAction);
+                if (it != m_actionMap.end()) {
+                    return it->second;
+                }
             }
 
             QAction* qAction = new QAction(QString::fromStdString(tAction->name()), this);
@@ -1899,7 +1902,8 @@ namespace TrenchBroom {
 #endif
 
         void MapFrame::focusChange(QWindow* newFocus) {
-            if (auto newMapView = dynamic_cast<MapViewBase*>(newFocus); newMapView != nullptr) {
+            auto newMapView = dynamic_cast<MapViewBase*>(newFocus);
+            if (newMapView != nullptr) {
                 m_currentMapView = newMapView;
                 qDebug() << "Current map view changed to " << m_currentMapView;
             } else {
