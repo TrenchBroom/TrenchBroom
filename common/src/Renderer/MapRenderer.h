@@ -23,8 +23,6 @@
 #include "Color.h"
 #include "Macros.h"
 #include "Model/ModelTypes.h"
-#include "Renderer/EntityLinkRenderer.h"
-#include "Renderer/ObjectRenderer.h"
 #include "View/ViewTypes.h"
 
 #include <map>
@@ -40,7 +38,9 @@ namespace TrenchBroom {
     }
 
     namespace Renderer {
+        class EntityLinkRenderer;
         class FontManager;
+        class ObjectRenderer;
         class RenderBatch;
         class RenderContext;
 

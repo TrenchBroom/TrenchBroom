@@ -27,6 +27,8 @@ namespace TrenchBroom {
         FontManager::FontManager() :
         m_factory(std::make_unique<FreeTypeFontFactory>()) {}
 
+        FontManager::~FontManager() = default;
+
         void FontManager::clearCache() {
             m_cache.clear();
         }

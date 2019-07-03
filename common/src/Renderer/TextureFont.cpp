@@ -35,6 +35,8 @@ namespace TrenchBroom {
         m_firstChar(firstChar),
         m_charCount(charCount) {}
 
+        TextureFont::~TextureFont() = default;
+
         class MeasureString : public AttrString::LineFunc {
         private:
             const TextureFont& m_font;
