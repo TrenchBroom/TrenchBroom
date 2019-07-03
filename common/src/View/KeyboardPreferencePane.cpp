@@ -52,15 +52,22 @@ namespace TrenchBroom {
 
             m_table->setItemDelegate(new KeyboardShortcutItemDelegate());
 
-            auto* infoLabel = new QLabel("Doubleclick on a key combination to edit the shortcut.");
+            auto* infoLabel = new QLabel("Doubleclick on a key combination, then click into the shortcut editor to edit the shortcut.");
             makeInfo(infoLabel);
 
+            auto* infoLabelLayout = new QHBoxLayout();
+            infoLabelLayout->setContentsMargins(
+                LayoutConstants::WideHMargin,
+                LayoutConstants::WideVMargin,
+                LayoutConstants::WideHMargin,
+                LayoutConstants::WideVMargin);
+            infoLabelLayout->addWidget(infoLabel);
+
             auto* layout = new QVBoxLayout();
-            layout->setContentsMargins(QMargins());
-            layout->setSpacing(LayoutConstants::WideVMargin);
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(0);
             layout->addWidget(m_table, 1);
-            layout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
-            layout->addWidget(infoLabel);
+            layout->addLayout(infoLabelLayout);
             setLayout(layout);
 
             setMinimumSize(900, 550);

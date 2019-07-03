@@ -120,7 +120,7 @@ namespace TrenchBroom {
         QKeySequence Action::keySequence() const {
             auto& prefs = PreferenceManager::instance();
             const auto& pref = prefs.dynamicPreference(m_preferencePath, KeyboardShortcut(m_defaultShortcut));
-            return pref.value().keySequence();
+            return prefs.get(pref).keySequence();
         }
 
         void Action::setKeySequence(const QKeySequence& keySequence) const {
