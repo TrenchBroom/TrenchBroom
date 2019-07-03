@@ -18,7 +18,7 @@ ELSE()
 
     LIST(APPEND CPPCHECK_ARGS
         ${CPPCHECK_COMMON_ARGS}
-        --quiet
+        --verbose
         --error-exitcode=1
         ${COMMON_SOURCE_DIR}
         2> ./cppcheck-errors.txt
