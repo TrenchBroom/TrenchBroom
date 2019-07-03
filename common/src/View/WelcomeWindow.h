@@ -33,14 +33,14 @@ namespace TrenchBroom {
     namespace View {
         class RecentDocumentListBox;
 
-        class WelcomeFrame : public QMainWindow {
+        class WelcomeWindow : public QMainWindow {
             Q_OBJECT
         private:
             RecentDocumentListBox* m_recentDocumentListBox;
             QPushButton* m_createNewDocumentButton;
             QPushButton* m_openOtherDocumentButton;
         public:
-            WelcomeFrame();
+            WelcomeWindow();
         private:
             void createGui();
             QWidget* createAppPanel();

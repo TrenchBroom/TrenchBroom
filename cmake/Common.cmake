@@ -479,7 +479,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/ViewEffectsService.cpp
 	${COMMON_SOURCE_DIR}/View/ViewPreferencePane.cpp
 	${COMMON_SOURCE_DIR}/View/ViewUtils.cpp
-	${COMMON_SOURCE_DIR}/View/WelcomeFrame.cpp
+	${COMMON_SOURCE_DIR}/View/WelcomeWindow.cpp
 	${COMMON_SOURCE_DIR}/View/wxUtils.cpp
 	${COMMON_SOURCE_DIR}/Assets/Quake3Shader.cpp
 	${COMMON_SOURCE_DIR}/IO/Quake3ShaderFileSystem.cpp
@@ -1034,7 +1034,7 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/ViewPreferencePane.h
 	${COMMON_SOURCE_DIR}/View/ViewTypes.h
 	${COMMON_SOURCE_DIR}/View/ViewUtils.h
-	${COMMON_SOURCE_DIR}/View/WelcomeFrame.h
+	${COMMON_SOURCE_DIR}/View/WelcomeWindow.h
 	${COMMON_SOURCE_DIR}/View/wxUtils.h
 	${COMMON_SOURCE_DIR}/Assets/Quake3Shader.h
 	${COMMON_SOURCE_DIR}/IO/Quake3ShaderFileSystem.h

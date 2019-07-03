@@ -34,7 +34,7 @@
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
 #include "View/PreferenceDialog.h"
-#include "View/WelcomeFrame.h"
+#include "View/WelcomeWindow.h"
 #include "View/GetVersion.h"
 #include "View/MapViewBase.h"
 #include "View/wxUtils.h"
@@ -602,7 +602,7 @@ namespace TrenchBroom {
         }
 
         void TrenchBroomApp::showWelcomeFrame() {
-            WelcomeFrame* welcomeFrame = new WelcomeFrame();
+            WelcomeWindow* welcomeFrame = new WelcomeWindow();
             welcomeFrame->show();
         }
     }
