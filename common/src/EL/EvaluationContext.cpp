@@ -19,6 +19,8 @@
 
 #include "EvaluationContext.h"
 
+#include "EL/VariableStore.h"
+
 namespace TrenchBroom {
     namespace EL {
         EvaluationContext::EvaluationContext() :

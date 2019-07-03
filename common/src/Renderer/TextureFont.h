@@ -25,7 +25,6 @@
 #include "Macros.h"
 #include "Renderer/FontGlyph.h"
 #include "Renderer/FontGlyphBuilder.h"
-#include "Renderer/FontTexture.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -35,6 +34,8 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        class FontTexture;
+
         class TextureFont {
         public:
         private:
@@ -46,6 +47,7 @@ namespace TrenchBroom {
             unsigned char m_charCount;
         public:
             TextureFont(std::unique_ptr<FontTexture> texture, const FontGlyph::List& glyphs, size_t lineHeight, unsigned char firstChar, unsigned char charCount);
+            ~TextureFont();
 
             deleteCopyAndMove(TextureFont)
 
