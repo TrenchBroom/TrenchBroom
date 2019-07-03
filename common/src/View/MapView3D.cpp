@@ -469,17 +469,6 @@ namespace TrenchBroom {
             return ActionView_Map3D;
         }
 
-        // FIXME: Port to Qt
-#if 0
-        wxAcceleratorTable MapView3D::doCreateAccelerationTable(ActionContext context) const {
-            auto document = lock(m_document);
-            const auto& tags = document->smartTags();
-            const auto& entityDefinitions = document->entityDefinitionManager().definitions();
-            auto& actionManager = ActionManager::instance();
-            return actionManager.createViewAcceleratorTable(context, ActionView_Map3D, tags, entityDefinitions);
-        }
-#endif
-
         bool MapView3D::doCancel() {
             return false;
         }
