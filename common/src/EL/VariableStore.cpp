@@ -24,14 +24,12 @@
 
 namespace TrenchBroom {
     namespace EL {
-        VariableStore::VariableStore() {}
-
-        VariableStore::VariableStore(const VariableStore &other) {}
-
-        VariableStore::~VariableStore() {}
-
         VariableStore* VariableStore::clone() const {
             return doClone();
+        }
+
+        size_t VariableStore::size() const {
+            return doGetSize();
         }
 
         Value VariableStore::value(const String& name) const {
@@ -50,20 +48,25 @@ namespace TrenchBroom {
             doAssign(name, value);
         }
 
-        VariableTable::VariableTable() {}
+        VariableTable::VariableTable() = default;
 
         VariableTable::VariableTable(const Table& variables) :
-        m_variables(variables) {}
+            m_variables(variables) {}
 
         VariableStore* VariableTable::doClone() const {
             return new VariableTable(m_variables);
         }
 
+        size_t VariableTable::doGetSize() const {
+            return m_variables.size();
+        }
         Value VariableTable::doGetValue(const String& name) const {
-            Table::const_iterator it = m_variables.find(name);
-            if (it != std::end(m_variables))
+            auto it = m_variables.find(name);
+            if (it != std::end(m_variables)) {
                 return it->second;
-            return Value::Undefined;
+            } else {
+                return Value::Undefined;
+            }
         }
 
         StringSet VariableTable::doGetNames() const {
@@ -71,21 +74,28 @@ namespace TrenchBroom {
         }
 
         void VariableTable::doDeclare(const String& name, const Value& value) {
-            if (!MapUtils::insertOrFail(m_variables, name, value))
+            if (!MapUtils::insertOrFail(m_variables, name, value)) {
                 throw EvaluationError("Variable '" + name + "' already declared");
+            }
         }
 
         void VariableTable::doAssign(const String& name, const Value& value) {
-            Table::iterator it = m_variables.find(name);
-            if (it == std::end(m_variables))
+            auto it = m_variables.find(name);
+            if (it == std::end(m_variables)) {
                 throw EvaluationError("Cannot assign to undeclared variable '" + name + "'");
-            it->second = value;
+            } else {
+                it->second = value;
+            }
         }
 
-        NullVariableStore::NullVariableStore() {}
+        NullVariableStore::NullVariableStore() = default;
 
         VariableStore* NullVariableStore::doClone() const {
             return new NullVariableStore();
+        }
+
+        size_t NullVariableStore::doGetSize() const {
+            return 0;
         }
 
         Value NullVariableStore::doGetValue(const String& name) const {

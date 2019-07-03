@@ -30,6 +30,10 @@ namespace TrenchBroom {
             return new EntityAttributesVariableStore(m_attributes);
         }
 
+        size_t EntityAttributesVariableStore::doGetSize() const {
+            return m_attributes.attributes().size();
+        }
+
         EL::Value EntityAttributesVariableStore::doGetValue(const String& name) const {
             static const EL::Value DefaultValue("");
             const AttributeValue* value = m_attributes.attribute(name);

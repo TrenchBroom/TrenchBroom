@@ -188,7 +188,7 @@ namespace TrenchBroom {
                 const String escapedExecutablePath = "\"" + executablePath.asString() + "\"";
 
                 const String& parameterSpec = profile->parameterSpec();
-                const String parameters = EL::interpolate(parameterSpec, variables());
+                const String parameters = EL::interpolate(parameterSpec, EL::EvaluationContext(variables()));
 
                 wxString launchStr;
 #ifdef __APPLE__

@@ -49,9 +49,9 @@ namespace TrenchBroom {
             }
         }
 
-        TextureFont* FreeTypeFontFactory::doCreateFont(const FontDescriptor& fontDescriptor) {
+        std::unique_ptr<TextureFont> FreeTypeFontFactory::doCreateFont(const FontDescriptor& fontDescriptor) {
             FT_Face face = loadFont(fontDescriptor);
-            TextureFont* font = buildFont(face, fontDescriptor.minChar(), fontDescriptor.charCount());
+            auto font = buildFont(face, fontDescriptor.minChar(), fontDescriptor.charCount());
             FT_Done_Face(face);
 
             return font;
@@ -74,27 +74,30 @@ namespace TrenchBroom {
             return face;
         }
 
-        TextureFont* FreeTypeFontFactory::buildFont(FT_Face face, const unsigned char firstChar, const unsigned char charCount) {
+        std::unique_ptr<TextureFont> FreeTypeFontFactory::buildFont(FT_Face face, const unsigned char firstChar, const unsigned char charCount) {
             const Metrics metrics = computeMetrics(face, firstChar, charCount);
 
-            FontTexture* texture = new FontTexture(charCount, metrics.cellSize, metrics.lineHeight);
+            std::unique_ptr<FontTexture> texture = std::make_unique<FontTexture>(charCount, metrics.cellSize, metrics.lineHeight);
             FontGlyphBuilder glyphBuilder(metrics.maxAscend, metrics.cellSize, 3, *texture);
 
             FT_GlyphSlot glyph = face->glyph;
             FontGlyph::List glyphs;
             for (unsigned char c = firstChar; c < firstChar + charCount; ++c) {
                 FT_Error error = FT_Load_Char(face, static_cast<FT_ULong>(c), FT_LOAD_RENDER);
-                if (error != 0)
+                if (error != 0) {
                     glyphs.push_back(FontGlyph(0, 0, 0, 0, 0));
-                else
-                    glyphs.push_back(glyphBuilder.createGlyph(static_cast<size_t>(glyph->bitmap_left),  static_cast<size_t>(glyph->bitmap_top),
-                                                              static_cast<size_t>(glyph->bitmap.width), static_cast<size_t>(glyph->bitmap.rows),
-                                                              static_cast<size_t>(glyph->advance.x >> 6),
-                                                              reinterpret_cast<char*>(glyph->bitmap.buffer),
-                                                              static_cast<size_t>(glyph->bitmap.pitch)));
+                } else {
+                    glyphs.push_back(glyphBuilder.createGlyph(
+                        static_cast<size_t>(glyph->bitmap_left),
+                        static_cast<size_t>(glyph->bitmap_top),
+                        static_cast<size_t>(glyph->bitmap.width), static_cast<size_t>(glyph->bitmap.rows),
+                        static_cast<size_t>(glyph->advance.x >> 6),
+                        reinterpret_cast<char*>(glyph->bitmap.buffer),
+                        static_cast<size_t>(glyph->bitmap.pitch)));
+                }
             }
 
-            return new TextureFont(texture, glyphs, metrics.lineHeight, firstChar, charCount);
+            return std::make_unique<TextureFont>(std::move(texture), glyphs, metrics.lineHeight, firstChar, charCount);
         }
 
         FreeTypeFontFactory::Metrics FreeTypeFontFactory::computeMetrics(FT_Face face, const unsigned char firstChar, const unsigned char charCount) const {

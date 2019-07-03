@@ -21,10 +21,14 @@
 #define TrenchBroom_MapRenderer
 
 #include "Color.h"
+#include "Macros.h"
 #include "Model/ModelTypes.h"
+#include "Renderer/EntityLinkRenderer.h"
+#include "Renderer/ObjectRenderer.h"
 #include "View/ViewTypes.h"
 
 #include <map>
+#include <memory>
 
 namespace TrenchBroom {
     namespace IO {
@@ -36,9 +40,7 @@ namespace TrenchBroom {
     }
 
     namespace Renderer {
-        class EntityLinkRenderer;
         class FontManager;
-        class ObjectRenderer;
         class RenderBatch;
         class RenderContext;
 
@@ -52,17 +54,19 @@ namespace TrenchBroom {
 
             View::MapDocumentWPtr m_document;
 
-            ObjectRenderer* m_defaultRenderer;
-            ObjectRenderer* m_selectionRenderer;
-            ObjectRenderer* m_lockedRenderer;
-            EntityLinkRenderer* m_entityLinkRenderer;
+            std::unique_ptr<ObjectRenderer> m_defaultRenderer;
+            std::unique_ptr<ObjectRenderer> m_selectionRenderer;
+            std::unique_ptr<ObjectRenderer> m_lockedRenderer;
+            std::unique_ptr<EntityLinkRenderer> m_entityLinkRenderer;
         public:
-            MapRenderer(View::MapDocumentWPtr document);
+            explicit MapRenderer(View::MapDocumentWPtr document);
             ~MapRenderer();
+
+            deleteCopyAndMove(MapRenderer)
         private:
-            static ObjectRenderer* createDefaultRenderer(View::MapDocumentWPtr document);
-            static ObjectRenderer* createSelectionRenderer(View::MapDocumentWPtr document);
-            static ObjectRenderer* createLockRenderer(View::MapDocumentWPtr document);
+            static std::unique_ptr<ObjectRenderer> createDefaultRenderer(View::MapDocumentWPtr document);
+            static std::unique_ptr<ObjectRenderer> createSelectionRenderer(View::MapDocumentWPtr document);
+            static std::unique_ptr<ObjectRenderer> createLockRenderer(View::MapDocumentWPtr document);
             void clear();
         public: // color config
             void overrideSelectionColors(const Color& color, float mix);
@@ -81,9 +85,9 @@ namespace TrenchBroom {
             void renderEntityLinks(RenderContext& renderContext, RenderBatch& renderBatch);
 
             void setupRenderers();
-            void setupDefaultRenderer(ObjectRenderer* renderer);
-            void setupSelectionRenderer(ObjectRenderer* renderer);
-            void setupLockedRenderer(ObjectRenderer* renderer);
+            void setupDefaultRenderer(ObjectRenderer& renderer);
+            void setupSelectionRenderer(ObjectRenderer& renderer);
+            void setupLockedRenderer(ObjectRenderer& renderer);
             void setupEntityLinkRenderer();
 
             typedef enum {

@@ -1534,7 +1534,11 @@ namespace TrenchBroom {
         }
 
         Assets::EntityDefinitionFileSpec MapDocument::entityDefinitionFile() const {
-            return m_game->extractEntityDefinitionFile(*m_world);
+            if (m_world != nullptr) {
+                return m_game->extractEntityDefinitionFile(*m_world);
+            } else {
+                return Assets::EntityDefinitionFileSpec();
+            }
         }
 
         Assets::EntityDefinitionFileSpec::List MapDocument::allEntityDefinitionFiles() const {

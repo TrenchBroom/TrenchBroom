@@ -23,6 +23,8 @@
 #include "FreeType.h"
 #include "Renderer/FontFactory.h"
 
+#include <memory>
+
 namespace TrenchBroom {
     namespace Renderer {
         class FontDescriptor;
@@ -35,10 +37,10 @@ namespace TrenchBroom {
             FreeTypeFontFactory();
             ~FreeTypeFontFactory() override;
         private:
-            TextureFont* doCreateFont(const FontDescriptor& fontDescriptor) override;
+            std::unique_ptr<TextureFont> doCreateFont(const FontDescriptor& fontDescriptor) override;
 
             FT_Face loadFont(const FontDescriptor& fontDescriptor);
-            TextureFont* buildFont(FT_Face face, unsigned char firstChar, unsigned char charCount);
+            std::unique_ptr<TextureFont> buildFont(FT_Face face, unsigned char firstChar, unsigned char charCount);
 
             Metrics computeMetrics(FT_Face face, unsigned char firstChar, unsigned char charCount) const;
         };

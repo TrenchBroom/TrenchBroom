@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_Vbo
 #define TrenchBroom_Vbo
 
+#include "Macros.h"
 #include "SharedPointer.h"
 #include "Renderer/GL.h"
 
@@ -42,7 +43,7 @@ namespace TrenchBroom {
             Vbo& m_vbo;
             bool m_wasActive;
         public:
-            ActivateVbo(Vbo& vbo);
+            explicit ActivateVbo(Vbo& vbo);
             ~ActivateVbo();
         };
 
@@ -71,8 +72,10 @@ namespace TrenchBroom {
             GLenum m_usage;
             GLuint m_vboId;
         public:
-            Vbo(size_t initialCapacity, GLenum type = GL_ARRAY_BUFFER, GLenum usage = GL_DYNAMIC_DRAW);
+            explicit Vbo(size_t initialCapacity, GLenum type = GL_ARRAY_BUFFER, GLenum usage = GL_DYNAMIC_DRAW);
             ~Vbo();
+
+            deleteCopyAndMove(Vbo)
 
             VboBlock* allocateBlock(size_t capacity);
 

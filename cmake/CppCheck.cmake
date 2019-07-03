@@ -9,7 +9,6 @@ IF (CPPCHECK_EXE STREQUAL "CPPCHECK_EXE-NOTFOUND")
 ELSE()
     LIST(APPEND CPPCHECK_COMMON_ARGS
         --enable=warning,performance,portability
-        --verbose
         --inline-suppr
         --std=c++11
         --language=c++
@@ -19,6 +18,7 @@ ELSE()
 
     LIST(APPEND CPPCHECK_ARGS
         ${CPPCHECK_COMMON_ARGS}
+        --quiet
         --error-exitcode=1
         ${COMMON_SOURCE_DIR}
         2> ./cppcheck-errors.txt
@@ -35,12 +35,20 @@ ELSE()
 
     FIND_PROGRAM(CPPCHECK_HTMLREPORT_EXE cppcheck-htmlreport)
     IF (NOT CPPCHECK_HTMLREPORT_EXE STREQUAL "CPPCHECK_HTMLREPORT_EXE-NOTFOUND")
-        LIST(APPEND CPPCHECK_REP_ARGS
+        LIST(APPEND CPPCHECK_XML_ARGS
             ${CPPCHECK_COMMON_ARGS}
             --error-exitcode=0
             --xml
             ${COMMON_SOURCE_DIR}
             2> ./cppcheck-errors.xml
+        )
+
+        STRING (REPLACE ";" " " CPPCHECK_XML_ARGS_STR "${CPPCHECK_XML_ARGS}")
+        ADD_CUSTOM_TARGET(
+            cppcheck-xml
+            COMMAND ${CPPCHECK_EXE} "--version"
+            COMMAND ${CPPCHECK_EXE} ${CPPCHECK_XML_ARGS}
+            COMMENT "running ${CPPCHECK_EXE} ${CPPCHECK_XML_ARGS_STR}"
         )
 
         LIST(APPEND CPPCHECK_HTMLREPORT_ARGS
@@ -53,9 +61,10 @@ ELSE()
         STRING (REPLACE ";" " " CPPCHECK_HTMLREPORT_ARGS_STR "${CPPCHECK_HTMLREPORT_ARGS}")
         ADD_CUSTOM_TARGET(
             cppcheck-report
-            COMMAND ${CPPCHECK_EXE} ${CPPCHECK_REP_ARGS}
             COMMAND ${CPPCHECK_HTMLREPORT_EXE} ${CPPCHECK_HTMLREPORT_ARGS}
             COMMENT "running ${CPPCHECK_HTMLREPORT_EXE} ${CPPCHECK_HTMLREPORT_ARGS_STR}"
         )
+
+        ADD_DEPENDENCIES(cppcheck-report cppcheck-xml)
     ENDIF()
 ENDIF()

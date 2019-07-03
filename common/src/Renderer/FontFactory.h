@@ -20,7 +20,10 @@
 #ifndef TrenchBroom_FontFactory
 #define TrenchBroom_FontFactory
 
+#include "Renderer/TextureFont.h"
+
 #include <iostream>
+#include <memory>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -37,9 +40,9 @@ namespace TrenchBroom {
         public:
             virtual ~FontFactory();
 
-            TextureFont* createFont(const FontDescriptor& fontDescriptor);
+            std::unique_ptr<TextureFont> createFont(const FontDescriptor& fontDescriptor);
         private:
-            virtual TextureFont* doCreateFont(const FontDescriptor& fontDescriptor) = 0;
+            virtual std::unique_ptr<TextureFont> doCreateFont(const FontDescriptor& fontDescriptor) = 0;
         };
     }
 }

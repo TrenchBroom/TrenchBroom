@@ -21,6 +21,7 @@
 #define TrenchBroom_RenderService
 
 #include "AttrString.h"
+#include "Macros.h"
 #include "TrenchBroom.h"
 #include "Color.h"
 #include "Renderer/PrimitiveRenderer.h"
@@ -30,10 +31,10 @@
 #include <vecmath/polygon.h>
 #include <vecmath/util.h>
 
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
-
     namespace Renderer {
         class FontDescriptor;
         class PointHandleRenderer;
@@ -52,9 +53,9 @@ namespace TrenchBroom {
 
             RenderContext& m_renderContext;
             RenderBatch& m_renderBatch;
-            TextRenderer* m_textRenderer;
-            PointHandleRenderer* m_pointHandleRenderer;
-            PrimitiveRenderer* m_primitiveRenderer;
+            std::unique_ptr<TextRenderer> m_textRenderer;
+            std::unique_ptr<PointHandleRenderer> m_pointHandleRenderer;
+            std::unique_ptr<PrimitiveRenderer> m_primitiveRenderer;
 
             Color m_foregroundColor;
             Color m_backgroundColor;
@@ -64,6 +65,8 @@ namespace TrenchBroom {
         public:
             RenderService(RenderContext& renderContext, RenderBatch& renderBatch);
             ~RenderService();
+
+            deleteCopyAndMove(RenderService)
 
             void setForegroundColor(const Color& foregroundColor);
             void setBackgroundColor(const Color& backgroundColor);

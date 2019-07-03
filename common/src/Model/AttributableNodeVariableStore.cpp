@@ -33,6 +33,10 @@ namespace TrenchBroom {
             return new AttributableNodeVariableStore(m_node);
         }
 
+        size_t AttributableNodeVariableStore::doGetSize() const {
+            return m_node->attributes().size();
+        }
+
         EL::Value AttributableNodeVariableStore::doGetValue(const String& name) const {
             if (!m_node->hasAttribute(name))
                 return EL::Value::Undefined;
