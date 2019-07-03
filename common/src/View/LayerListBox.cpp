@@ -204,6 +204,9 @@ namespace TrenchBroom {
         size_t LayerListBox::itemCount() const {
             MapDocumentSPtr document = lock(m_document);
             const auto* world = document->world();
+            if (world == nullptr) {
+                return 0;
+            }
             return world->allLayers().size();
         }
 
