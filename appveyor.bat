@@ -35,10 +35,17 @@ GOTO END
 
 :ERROR_CPPCHECK
 
+echo.
+echo "cppcheck detected issues, see below"
+echo.
+
 type cppcheck-errors.txt
+
+echo.
 
 :ERROR
 
 echo "Building TrenchBroom failed"
+exit /b 1
 
 :END

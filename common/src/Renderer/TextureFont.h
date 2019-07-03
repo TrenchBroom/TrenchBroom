@@ -25,28 +25,29 @@
 #include "Macros.h"
 #include "Renderer/FontGlyph.h"
 #include "Renderer/FontGlyphBuilder.h"
+#include "Renderer/FontTexture.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
-        class FontTexture;
-
         class TextureFont {
         public:
         private:
-            FontTexture* m_texture;
+            std::unique_ptr<FontTexture> m_texture;
             FontGlyph::List m_glyphs;
             size_t m_lineHeight;
 
             unsigned char m_firstChar;
             unsigned char m_charCount;
         public:
-            TextureFont(FontTexture* texture, const FontGlyph::List& glyphs, size_t lineHeight, unsigned char firstChar, unsigned char charCount);
-            ~TextureFont();
+            TextureFont(std::unique_ptr<FontTexture> texture, const FontGlyph::List& glyphs, size_t lineHeight, unsigned char firstChar, unsigned char charCount);
+
+            deleteCopyAndMove(TextureFont)
 
             std::vector<vm::vec2f> quads(const AttrString& string, bool clockwise, const vm::vec2f& offset = vm::vec2f::zero) const;
             vm::vec2f measure(const AttrString& string) const;
@@ -56,8 +57,6 @@ namespace TrenchBroom {
 
             void activate();
             void deactivate();
-
-            deleteCopyAndMove(TextureFont)
         };
     }
 }

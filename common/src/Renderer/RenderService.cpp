@@ -65,9 +65,9 @@ namespace TrenchBroom {
         RenderService::RenderService(RenderContext& renderContext, RenderBatch& renderBatch) :
         m_renderContext(renderContext),
         m_renderBatch(renderBatch),
-        m_textRenderer(new TextRenderer(makeRenderServiceFont())),
-        m_pointHandleRenderer(new PointHandleRenderer()),
-        m_primitiveRenderer(new PrimitiveRenderer()),
+        m_textRenderer(std::make_unique<TextRenderer>(makeRenderServiceFont())),
+        m_pointHandleRenderer(std::make_unique<PointHandleRenderer>()),
+        m_primitiveRenderer(std::make_unique<PrimitiveRenderer>()),
         m_foregroundColor(1.0f, 1.0f, 1.0f, 1.0f),
         m_backgroundColor(0.0f, 0.0f, 0.0f, 1.0f),
         m_lineWidth(1.0f),
@@ -115,10 +115,11 @@ namespace TrenchBroom {
         }
 
         void RenderService::renderString(const AttrString& string, const TextAnchor& position) {
-            if (m_occlusionPolicy != PrimitiveRenderer::OP_Hide)
+            if (m_occlusionPolicy != PrimitiveRenderer::OP_Hide) {
                 m_textRenderer->renderStringOnTop(m_renderContext, m_foregroundColor, m_backgroundColor, string, position);
-            else
+            } else {
                 m_textRenderer->renderString(m_renderContext, m_foregroundColor, m_backgroundColor, string, position);
+            }
         }
 
         void RenderService::renderHeadsUp(const AttrString& string) {
@@ -262,9 +263,9 @@ namespace TrenchBroom {
         }
 
         void RenderService::flush() {
-            m_renderBatch.addOneShot(m_primitiveRenderer);
-            m_renderBatch.addOneShot(m_pointHandleRenderer);
-            m_renderBatch.addOneShot(m_textRenderer);
+            m_renderBatch.addOneShot(m_primitiveRenderer.release());
+            m_renderBatch.addOneShot(m_pointHandleRenderer.release());
+            m_renderBatch.addOneShot(m_textRenderer.release());
         }
     }
 }

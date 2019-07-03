@@ -188,8 +188,8 @@ namespace TrenchBroom {
 
                 const auto& executablePath = profile->path();
 
-                const auto& parameterSpec = profile->parameterSpec();
-                const auto parameters = EL::interpolate(parameterSpec, variables());
+                const String& parameterSpec = profile->parameterSpec();
+                const String parameters = EL::interpolate(parameterSpec, EL::EvaluationContext(variables()));
 
                 QString program;
                 QStringList arguments;

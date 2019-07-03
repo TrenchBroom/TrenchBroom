@@ -20,6 +20,7 @@
 #ifndef FileLogger_h
 #define FileLogger_h
 
+#include "Macros.h"
 #include "Logger.h"
 
 #include <cstdio>
@@ -33,13 +34,15 @@ namespace TrenchBroom {
     private:
         FILE* m_file;
     public:
-        FileLogger(const IO::Path& filePath);
+        explicit FileLogger(const IO::Path& filePath);
         ~FileLogger() override;
 
         static FileLogger& instance();
     private:
         void doLog(LogLevel level, const String& message) override;
         void doLog(LogLevel level, const QString& message) override;
+
+        deleteCopyAndMove(FileLogger)
     };
 }
 

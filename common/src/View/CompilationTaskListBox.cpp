@@ -74,7 +74,7 @@ namespace TrenchBroom {
         }
 
         void CompilationTaskEditorBase::updateCompleter(QCompleter* completer) {
-            const auto workDir = EL::interpolate(m_profile->workDirSpec(), CompilationWorkDirVariables(lock(m_document)));
+            const auto workDir = EL::interpolate(m_profile->workDirSpec(), EL::EvaluationContext(CompilationWorkDirVariables(lock(m_document))));
             const auto variables = CompilationVariables(lock(m_document), workDir);
             completer->setModel(new VariableStoreModel(variables));
         }

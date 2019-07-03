@@ -80,7 +80,7 @@ namespace TrenchBroom {
         }
 
         String CompilationRun::buildWorkDir(const Model::CompilationProfile* profile, MapDocumentSPtr document) {
-            return EL::interpolate(profile->workDirSpec(), CompilationWorkDirVariables(std::move(document)));
+            return EL::interpolate(profile->workDirSpec(), EL::EvaluationContext(CompilationWorkDirVariables(document)));
         }
 
         void CompilationRun::cleanup() {

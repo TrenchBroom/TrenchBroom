@@ -57,6 +57,8 @@ namespace TrenchBroom {
         m_type(type),
         m_usage(usage),
         m_vboId(0) {
+            // cppcheck-suppress noCopyConstructor
+            // cppcheck-suppress noOperatorEq
             m_lastBlock = m_firstBlock = new VboBlock(*this, 0, m_totalCapacity, nullptr, nullptr);
             m_freeBlocks.push_back(m_firstBlock);
             assert(checkBlockChain());

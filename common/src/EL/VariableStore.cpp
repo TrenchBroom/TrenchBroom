@@ -51,7 +51,7 @@ namespace TrenchBroom {
         VariableTable::VariableTable() = default;
 
         VariableTable::VariableTable(const Table& variables) :
-        m_variables(variables) {}
+            m_variables(variables) {}
 
         VariableStore* VariableTable::doClone() const {
             return new VariableTable(m_variables);

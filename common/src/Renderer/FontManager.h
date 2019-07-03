@@ -20,28 +20,30 @@
 #ifndef TrenchBroom_FontManager
 #define TrenchBroom_FontManager
 
+#include "Macros.h"
 #include "Renderer/FontDescriptor.h"
+#include "Renderer/FontFactory.h"
+#include "Renderer/TextureFont.h"
 
 #include <map>
+#include <memory>
 
 namespace TrenchBroom {
     namespace Renderer {
-        class FontFactory;
-        class TextureFont;
-
         class FontManager {
         private:
-            using FontCache = std::map<FontDescriptor, TextureFont*>;
+            using FontCache = std::map<FontDescriptor, std::unique_ptr<TextureFont>>;
 
-            FontFactory* m_factory;
+            std::unique_ptr<FontFactory> m_factory;
             FontCache m_cache;
         public:
             FontManager();
-            ~FontManager();
 
             TextureFont& font(const FontDescriptor& fontDescriptor);
-            FontDescriptor selectFontSize(const FontDescriptor& fontDescriptor, const String& string, const float maxWidth, const size_t minFontSize);
+            FontDescriptor selectFontSize(const FontDescriptor& fontDescriptor, const String& string, float maxWidth, size_t minFontSize);
             void clearCache();
+
+            deleteCopyAndMove(FontManager)
         };
     }
 }

@@ -258,7 +258,9 @@ namespace vm {
         vec(U1 i_x, U2 i_y, U3 i_z, typename std::enable_if<SS >= 3>::type* = 0) {
             static_assert(S >= 3, "vector must have at least three components");
             v[0] = static_cast<T>(i_x);
+            // cppcheck-suppress arrayIndexOutOfBounds
             v[1] = static_cast<T>(i_y);
+            // cppcheck-suppress arrayIndexOutOfBounds
             v[2] = static_cast<T>(i_z);
             for (size_t i = 3; i < S; ++i) {
                 v[i] = static_cast<T>(0.0);
@@ -285,8 +287,11 @@ namespace vm {
         vec(U1 i_x, U2 i_y, U3 i_z, U4 i_w, typename std::enable_if<SS >= 4>::type* = 0) {
             static_assert(S >= 4, "vector must have at least four components");
             v[0] = static_cast<T>(i_x);
+            // cppcheck-suppress arrayIndexOutOfBounds
             v[1] = static_cast<T>(i_y);
+            // cppcheck-suppress arrayIndexOutOfBounds
             v[2] = static_cast<T>(i_z);
+            // cppcheck-suppress arrayIndexOutOfBounds
             v[3] = static_cast<T>(i_w);
             for (size_t i = 4; i < S; ++i) {
                 v[i] = static_cast<T>(0.0);
@@ -391,6 +396,7 @@ namespace vm {
         template <size_t SS = S>
         T z (typename std::enable_if<SS >= 3>::type* = 0) const {
             static_assert(S > 2);
+            // cppcheck-suppress arrayIndexOutOfBounds
             return v[2];
         }
 
@@ -402,6 +408,7 @@ namespace vm {
         template <size_t SS = S>
         T w(typename std::enable_if<SS >= 4>::type* = 0) const {
             static_assert(S > 3);
+            // cppcheck-suppress arrayIndexOutOfBounds
             return v[3];
         }
 

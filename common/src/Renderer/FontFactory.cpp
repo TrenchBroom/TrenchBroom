@@ -21,9 +21,9 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        FontFactory::~FontFactory() {}
+        FontFactory::~FontFactory() = default;
 
-        TextureFont* FontFactory::createFont(const FontDescriptor& fontDescriptor) {
+        std::unique_ptr<TextureFont> FontFactory::createFont(const FontDescriptor& fontDescriptor) {
             return doCreateFont(fontDescriptor);
         }
     }
