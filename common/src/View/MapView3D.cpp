@@ -141,32 +141,6 @@ namespace TrenchBroom {
             }
         }
 
-        void MapView3D::initializeGL() {
-            MapViewBase::initializeGL();
-            setCompass(new Renderer::Compass3D());
-        }
-
-        void MapView3D::bindEvents() {
-            // FIXME: implement these
-#if 0
-            Bind(wxEVT_MENU, &MapView3D::OnResetZoom,                    this, CommandIds::Actions::ResetZoom);
-
-            wxFrame* frame = findFrame(this);
-            frame->Bind(wxEVT_ACTIVATE, &MapView3D::OnActivateFrame, this);
-
-            Bind(wxEVT_IDLE, &MapView3D::OnIdle, this);
-#endif
-
-            // Fly mode animation
-            connect(this, &QOpenGLWindow::frameSwapped, this, &MapView3D::OnFrameSwapped);
-        }
-
-        void MapView3D::OnFrameSwapped() {
-            if (m_flyModeHelper->anyKeyDown()) {
-                requestUpdate();
-            }
-        }
-
         void MapView3D::keyPressEvent(QKeyEvent* event) {
             m_flyModeHelper->keyDown(event);
 
@@ -185,11 +159,25 @@ namespace TrenchBroom {
             MapViewBase::focusOutEvent(event);
         }
 
-        void MapView3D::OnActivateFrame() {
-            // FIXME: Hook up OnActivateFrame?
+        void MapView3D::initializeGL() {
+            MapViewBase::initializeGL();
+            setCompass(new Renderer::Compass3D());
+        }
 
+        void MapView3D::bindEvents() {
+            // Fly mode animation
+            connect(this, &QOpenGLWindow::frameSwapped, this, &MapView3D::updateFlyMode);
+            connect(this, &QOpenGLWindow::activeChanged, this, &MapView3D::resetFlyModeKeys);
+        }
+
+        void MapView3D::updateFlyMode() {
+            if (m_flyModeHelper->anyKeyDown()) {
+                requestUpdate();
+            }
+        }
+
+        void MapView3D::resetFlyModeKeys() {
             m_flyModeHelper->resetKeys();
-            //event.Skip();
         }
 
         PickRequest MapView3D::doGetPickRequest(const int x, const int y) const {

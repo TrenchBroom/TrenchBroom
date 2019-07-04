@@ -29,10 +29,13 @@ namespace TrenchBroom {
         QWidget(parent),
         m_label(new QLabel(this)),
         m_elideMode(elideMode) {
-            setContentsMargins(QMargins());
+            setContentsMargins(0, 0, 0, 0);
             setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
             setText(text);
         }
+
+        ElidedLabel::ElidedLabel(const Qt::TextElideMode elideMode, QWidget* parent) :
+        ElidedLabel("", elideMode, parent) {}
 
         const QString& ElidedLabel::text() const {
             return m_fullText;
@@ -40,7 +43,6 @@ namespace TrenchBroom {
 
         void ElidedLabel::setText(const QString& text) {
             m_fullText = text;
-            m_fullTextSize = fontMetrics().boundingRect(m_fullText).size();
             updateElidedText(width());
         }
 

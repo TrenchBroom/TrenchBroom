@@ -229,76 +229,65 @@ namespace TrenchBroom {
             m_uvEditor = new UVEditor(this, m_document, contextManager);
 
             QLabel* textureNameLabel = new QLabel("Texture");
-            // FIXME: fonts
-            //textureNameLabel->SetFont(textureNameLabel->GetFont().Bold());
+            makeEmphasized(textureNameLabel);
             m_textureName = new QLabel("none");
 
             QLabel* textureSizeLabel = new QLabel("Size");
-            // FIXME: fonts
-//            textureSizeLabel->SetFont(textureSizeLabel->GetFont().Bold());
+            makeEmphasized(textureSizeLabel);
             m_textureSize = new QLabel("");
 
             const double max = std::numeric_limits<double>::max();
             const double min = -max;
 
             QLabel* xOffsetLabel = new QLabel("X Offset");
-            // FIXME: fonts
-//            xOffsetLabel->SetFont(xOffsetLabel->GetFont().Bold());
+            makeEmphasized(xOffsetLabel);
             m_xOffsetEditor = new SpinControl();
             m_xOffsetEditor->SetRange(min, max);
             m_xOffsetEditor->SetDigits(0, 6);
 
             QLabel* yOffsetLabel = new QLabel("Y Offset");
-            // FIXME: fonts
-//            yOffsetLabel->SetFont(yOffsetLabel->GetFont().Bold());
+            makeEmphasized(yOffsetLabel);
             m_yOffsetEditor = new SpinControl();
             m_yOffsetEditor->SetRange(min, max);
             m_yOffsetEditor->SetDigits(0, 6);
 
             QLabel* xScaleLabel = new QLabel("X Scale");
-            // FIXME: fonts
-//            xScaleLabel->SetFont(xScaleLabel->GetFont().Bold());
+            makeEmphasized(xScaleLabel);
             m_xScaleEditor = new SpinControl();
             m_xScaleEditor->SetRange(min, max);
             m_xScaleEditor->SetIncrements(0.1, 0.25, 0.01);
             m_xScaleEditor->SetDigits(0, 6);
 
             QLabel* yScaleLabel = new QLabel("Y Scale");
-            // FIXME: fonts
-//            yScaleLabel->SetFont(yScaleLabel->GetFont().Bold());
+            makeEmphasized(yScaleLabel);
             m_yScaleEditor = new SpinControl();
             m_yScaleEditor->SetRange(min, max);
             m_yScaleEditor->SetIncrements(0.1, 0.25, 0.01);
             m_yScaleEditor->SetDigits(0, 6);
 
             QLabel* rotationLabel = new QLabel("Angle");
-            // FIXME: fonts
-//            rotationLabel->SetFont(rotationLabel->GetFont().Bold());
+            makeEmphasized(rotationLabel);
             m_rotationEditor = new SpinControl();
             m_rotationEditor->SetRange(min, max);
             m_rotationEditor->SetDigits(0, 6);
 
             m_surfaceValueLabel = new QLabel("Value");
-            // FIXME: fonts
-//            m_surfaceValueLabel->SetFont(m_surfaceValueLabel->GetFont().Bold());
+            makeEmphasized(m_surfaceValueLabel);
             m_surfaceValueEditor = new SpinControl();
             m_surfaceValueEditor->SetRange(min, max);
             m_surfaceValueEditor->SetIncrements(1.0, 10.0, 100.0);
             m_surfaceValueEditor->SetDigits(0, 6);
 
             m_surfaceFlagsLabel = new QLabel("Surface");
-            // FIXME: fonts
-//            m_surfaceFlagsLabel->SetFont(m_surfaceFlagsLabel->GetFont().Bold());
-            m_surfaceFlagsEditor = new FlagsPopupEditor(this, 2);
+            makeEmphasized(m_surfaceFlagsLabel);
+            m_surfaceFlagsEditor = new FlagsPopupEditor(2, this);
 
             m_contentFlagsLabel = new QLabel("Content");
-            // FIXME: fonts
-//            m_contentFlagsLabel->SetFont(m_contentFlagsLabel->GetFont().Bold());
-            m_contentFlagsEditor = new FlagsPopupEditor(this, 2);
+            makeEmphasized(m_contentFlagsLabel);
+            m_contentFlagsEditor = new FlagsPopupEditor(2, this);
 
             m_colorLabel = new QLabel("Color");
-            // FIXME: fonts
-//            m_colorLabel->SetFont(m_colorLabel->GetFont().Bold());
+            makeEmphasized(m_colorLabel);
             m_colorEditor = new QLineEdit();
 
 //            const int LabelMargin  = LayoutConstants::NarrowHMargin;

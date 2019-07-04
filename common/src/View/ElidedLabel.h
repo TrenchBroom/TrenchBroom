@@ -31,10 +31,10 @@ namespace TrenchBroom {
             QLabel* m_label;
             Qt::TextElideMode m_elideMode;
             QString m_fullText;
-            QSize m_fullTextSize;
             QString m_elidedText;
         public:
-            explicit ElidedLabel(const QString& text, Qt::TextElideMode elideMode, QWidget* parent = nullptr);
+            ElidedLabel(const QString& text, Qt::TextElideMode elideMode, QWidget* parent = nullptr);
+            explicit ElidedLabel(Qt::TextElideMode elideMode, QWidget* parent = nullptr);
 
             const QString& text() const;
         public slots:

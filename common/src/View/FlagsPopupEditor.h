@@ -22,13 +22,12 @@
 
 #include <QWidget>
 
-class QLabel;
 class QWidget;
 
 namespace TrenchBroom {
     namespace View {
+        class ElidedLabel;
         class FlagsEditor;
-        class FlagChangedCommand;
         class PopupButton;
 
         /**
@@ -37,11 +36,11 @@ namespace TrenchBroom {
         class FlagsPopupEditor : public QWidget {
             Q_OBJECT
         private:
-            QLabel* m_flagsTxt;
+            ElidedLabel* m_flagsTxt;
             PopupButton* m_button;
             FlagsEditor* m_editor;
         public:
-            FlagsPopupEditor(QWidget* parent, size_t numCols, const QString& buttonLabel = "...", bool showFlagsText = true);
+            explicit FlagsPopupEditor(size_t numCols, QWidget* parent = nullptr, const QString& buttonLabel = "...", bool showFlagsText = true);
 
             void setFlags(const QStringList& labels, const QStringList& tooltips = QStringList(0));
             void setFlags(const QList<int>& values, const QStringList& labels, const QStringList& tooltips = QStringList(0));

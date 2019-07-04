@@ -68,11 +68,9 @@ namespace TrenchBroom {
             void initializeGL() override;
         private: // interaction events
             void bindEvents();
-
-            void OnFrameSwapped();
         private: // other events
-
-            void OnActivateFrame();
+            void updateFlyMode();
+            void resetFlyModeKeys();
         private: // implement ToolBoxConnector interface
             PickRequest doGetPickRequest(int x, int y) const override;
             Model::PickResult doPick(const vm::ray3& pickRay) const override;

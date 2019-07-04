@@ -18,6 +18,7 @@
  */
 
 #include "FlagsPopupEditor.h"
+#include "View/ElidedLabel.h"
 #include "View/FlagsEditor.h"
 #include "View/ViewConstants.h"
 #include "View/PopupButton.h"
@@ -27,7 +28,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        FlagsPopupEditor::FlagsPopupEditor(QWidget* parent, const size_t numCols, const QString& buttonLabel , const bool showFlagsText) :
+        FlagsPopupEditor::FlagsPopupEditor(size_t numCols, QWidget* parent, const QString& buttonLabel, const bool showFlagsText) :
         QWidget(parent),
         m_flagsTxt(nullptr),
         m_button(nullptr),
@@ -36,8 +37,7 @@ namespace TrenchBroom {
             if (showFlagsText) {
                 flagsPanel = new QWidget();
 
-                // FIXME: ellipsize?
-                m_flagsTxt = new QLabel();
+                m_flagsTxt = new ElidedLabel(Qt::ElideRight);
 
                 auto* flagsPanelSizer = new QVBoxLayout();
                 flagsPanelSizer->addStretch();
@@ -102,9 +102,11 @@ namespace TrenchBroom {
         }
 #endif
 
+        // FIXME: somehow this doesn't work, the label does not show anything (on Ubuntu / gnome)
         void FlagsPopupEditor::updateFlagsText() {
-            if (m_flagsTxt == nullptr)
+            if (m_flagsTxt == nullptr) {
                 return;
+            }
 
             if (!isEnabled()) {
                 m_flagsTxt->setDisabled(true);
@@ -121,18 +123,20 @@ namespace TrenchBroom {
                     label = "multi";
                     mixed = true;
                 } else if (m_editor->isFlagSet(i)) {
-                    if (!first)
+                    if (!first) {
                         label += ", ";
+                    }
                     label += m_editor->getFlagLabel(i);
                     first = false;
                 }
             }
 
             m_flagsTxt->setText(label);
-            if (!first)
+            if (!first) {
                 m_flagsTxt->setToolTip(label);
-            else
+            } else {
                 m_flagsTxt->setToolTip("");
+            }
 
             m_flagsTxt->setDisabled(mixed);
 
