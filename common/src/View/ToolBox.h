@@ -28,9 +28,9 @@
 
 #include <QObject>
 
-class QWidget;
+class QWindow;
 class QFocusEvent;
-class QEnterEvent;
+class QMouseEvent;
 
 namespace TrenchBroom {
     namespace Model {
@@ -48,7 +48,12 @@ namespace TrenchBroom {
         class ToolController;
         class ToolChain;
 
+        /**
+         * This uses a Qt event filter to implement focus-follows-mouse for MapViewBase when used in a multi-pane layout.
+         * FIXME: Describe the other purposes of this class.
+         */
         class ToolBox : public QObject {
+            Q_OBJECT
         private:
             ToolController* m_dragReceiver;
             ToolController* m_dropReceiver;
@@ -59,7 +64,7 @@ namespace TrenchBroom {
             using ToolMap = std::map<Tool*, ToolList>;
             ToolMap m_deactivateWhen;
 
-            std::vector<QWidget*> m_focusGroup;
+            std::vector<QWindow*> m_focusGroup;
 
             bool m_clickToActivate;
             bool m_ignoreNextClick;
@@ -73,15 +78,14 @@ namespace TrenchBroom {
         public:
             ToolBox();
         public: // focus window management
-            void addWindow(QWidget* window);
-            void removeWindow(QWidget* window);
+            void addWindow(QWindow* window);
+            void removeWindow(QWindow* window);
         protected: // QObject overrides
             bool eventFilter(QObject *obj, QEvent *ev) override;
         private:
             void OnSetFocus(QFocusEvent* event);
             void OnKillFocus(QFocusEvent* event);
-            void OnEnterWindow(QEnterEvent* event, QWidget* enteredWidget);
-            void OnLeaveWindow();
+            void OnMouseMove(QMouseEvent* event, QWindow* enteredWidget);
             void setFocusCursor();
             void clearFocusCursor();
         protected:

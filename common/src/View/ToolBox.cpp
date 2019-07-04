@@ -29,7 +29,7 @@
 #include <QEvent>
 #include <QFocusEvent>
 #include <QEnterEvent>
-#include <QWidget>
+#include <QWindow>
 #include <QDateTime>
 
 #include <cassert>
@@ -47,37 +47,36 @@ namespace TrenchBroom {
         m_enabled(true) {}
 
         bool ToolBox::eventFilter(QObject *obj, QEvent *ev) {
-            QWidget* observedWidget = dynamic_cast<QWidget*>(obj);
-            ensure(observedWidget != nullptr, "expected a QWidget");
+            QWindow* observedWidget = dynamic_cast<QWindow*>(obj);
+            ensure(observedWidget != nullptr, "expected a QWindow");
 
             switch (ev->type()) {
                 case QEvent::FocusIn:
-                    OnSetFocus(static_cast<QFocusEvent *>(ev));
+                    OnSetFocus(static_cast<QFocusEvent*>(ev));
                     break;
                 case QEvent::FocusOut:
-                    OnKillFocus(static_cast<QFocusEvent *>(ev));
+                    OnKillFocus(static_cast<QFocusEvent*>(ev));
                     break;
-                case QEvent::Enter:
-                    OnEnterWindow(static_cast<QEnterEvent *>(ev), observedWidget);
-                    break;
-                case QEvent::Leave:
-                    OnLeaveWindow();
+                case QEvent::MouseMove:
+                    OnMouseMove(static_cast<QMouseEvent*>(ev), observedWidget);
                     break;
                 // FIXME: handle ToolBoxConnector::OnMouseCaptureLost?
                 default:
                     break;
             }
+
+            // NOTE: In all cases, we don't consume the event but let Qt continue processing it
             return QObject::eventFilter(obj, ev);
         }
 
-        void ToolBox::addWindow(QWidget* window) {
+        void ToolBox::addWindow(QWindow* window) {
             ensure(window != nullptr, "window is null");
 
             window->installEventFilter(this);
             m_focusGroup.push_back(window);
         }
 
-        void ToolBox::removeWindow(QWidget* window) {
+        void ToolBox::removeWindow(QWindow* window) {
             window->removeEventFilter(this);
             VectorUtils::erase(m_focusGroup, window);
         }
@@ -91,7 +90,7 @@ namespace TrenchBroom {
         void ToolBox::OnKillFocus(QFocusEvent* /*event*/) {
             if (m_clickToActivate) {
                 // FIXME: Check that this returns the right thing, since we're in a state when we're being notified of a widget losing focus.
-                const QWidget* focusedWindow = QApplication::focusWidget();
+                const QWindow* focusedWindow = QGuiApplication::focusWindow();
                 if (!VectorUtils::contains(m_focusGroup, focusedWindow)) {
                     m_ignoreNextClick = true;
                     setFocusCursor();
@@ -99,15 +98,19 @@ namespace TrenchBroom {
             }
         }
 
-        void ToolBox::OnEnterWindow(QEnterEvent* /*event*/, QWidget* enteredWidget) {
-            QWidget* newFocus = enteredWidget;
-            QWidget* currentFocus = QApplication::focusWidget();
-            // FIXME: not sure about Qt equivalent for this
-            if (VectorUtils::contains(m_focusGroup, currentFocus)/* && !currentFocus->HasCapture()*/)
-                newFocus->setFocus();
-        }
+        void ToolBox::OnMouseMove(QMouseEvent* /*event*/, QWindow* enteredWidget) {
+            QWindow* newFocus = enteredWidget;
+            QWindow* currentFocus = QGuiApplication::focusWindow();
 
-        void ToolBox::OnLeaveWindow() {
+            // If this was QWidget we could use https://doc.qt.io/qt-5/qwidget.html#enterEvent to get notified when the mouse enters
+            // a widget. There's no equivalent for QWindow so we need to do it ourselves by listening to every mouse move event.
+            if (currentFocus == newFocus) {
+                return;
+            }
+
+            if (VectorUtils::contains(m_focusGroup, currentFocus)) {
+                newFocus->requestActivate();
+            }
         }
 
         void ToolBox::setFocusCursor() {

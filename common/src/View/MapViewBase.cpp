@@ -106,7 +106,7 @@ namespace TrenchBroom {
         m_compass(nullptr),
         m_portalFileRenderer(nullptr) {
             setToolBox(toolBox);
-            toolBox.addWindow(this->widgetContainer());
+            toolBox.addWindow(this);
             bindEvents();
             bindObservers();
         }
@@ -123,7 +123,7 @@ namespace TrenchBroom {
             // see: http://doc.qt.io/qt-5/qopenglwidget.html#resource-initialization-and-cleanup
             makeCurrent();
 
-            m_toolBox.removeWindow(this->widgetContainer());
+            m_toolBox.removeWindow(this);
             unbindObservers();
             delete m_compass;
         }
