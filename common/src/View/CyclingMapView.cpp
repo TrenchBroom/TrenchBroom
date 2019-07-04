@@ -34,10 +34,12 @@
 
 namespace TrenchBroom {
     namespace View {
-        CyclingMapView::CyclingMapView(QWidget* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, const View views) :
+        CyclingMapView::CyclingMapView(MapDocumentWPtr document, MapViewToolBox& toolBox,
+                                       Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager,
+                                       const View views, Logger* logger, QWidget* parent) :
         MapViewContainer(parent),
         m_logger(logger),
-        m_document(document),
+        m_document(std::move(document)),
         m_currentMapView(nullptr),
         m_layout(nullptr) {
             createGui(toolBox, mapRenderer, contextManager, views);
@@ -45,16 +47,16 @@ namespace TrenchBroom {
 
         void CyclingMapView::createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, const View views) {
             if (views & View_3D) {
-                addMapView(new MapView3D(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager));
+                addMapView(new MapView3D(m_document, toolBox, mapRenderer, contextManager, m_logger));
             }
             if (views & View_XY) {
-                addMapView(new MapView2D(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XY));
+                addMapView(new MapView2D(m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XY, m_logger));
             }
             if (views & View_XZ) {
-                addMapView(new MapView2D(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XZ));
+                addMapView(new MapView2D(m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XZ, m_logger));
             }
             if (views & View_YZ) {
-                addMapView(new MapView2D(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_YZ));
+                addMapView(new MapView2D(m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_YZ, m_logger));
             }
 
             m_layout = new QStackedLayout();

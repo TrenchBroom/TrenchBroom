@@ -36,7 +36,9 @@ namespace TrenchBroom {
         const char* ThreePaneMapView::HSaveStateKey = "3PaneMapViewHSplitter";
         const char* ThreePaneMapView::VSaveStateKey = "3PaneMapViewVSplitter";
 
-        ThreePaneMapView::ThreePaneMapView(QWidget* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) :
+        ThreePaneMapView::ThreePaneMapView(MapDocumentWPtr document, MapViewToolBox& toolBox,
+                                           Renderer::MapRenderer& mapRenderer,
+                                           GLContextManager& contextManager, Logger* logger, QWidget* parent) :
         MultiMapView(parent),
         m_logger(logger),
         m_document(document),
@@ -56,9 +58,11 @@ namespace TrenchBroom {
             m_hSplitter = new QSplitter();
             m_vSplitter = new QSplitter(Qt::Vertical);
 
-            m_mapView3D = new MapView3D(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager);
-            m_mapViewXY = new MapView2D(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XY);
-            m_mapViewZZ = new CyclingMapView(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager, CyclingMapView::View_ZZ);
+            m_mapView3D = new MapView3D(m_document, toolBox, mapRenderer, contextManager, m_logger, nullptr);
+            m_mapViewXY = new MapView2D(m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XY,
+                m_logger, nullptr);
+            m_mapViewZZ = new CyclingMapView(m_document, toolBox, mapRenderer, contextManager,
+                CyclingMapView::View_ZZ, m_logger, nullptr);
 
             m_mapView3D->linkCamera(m_linkHelper);
             m_mapViewXY->linkCamera(m_linkHelper);

@@ -34,7 +34,9 @@ namespace TrenchBroom {
         const char* FourPaneMapView::HSaveStateKey = "4PaneMapViewHSplitter";
         const char* FourPaneMapView::VSaveStateKey = "4PaneMapViewVSplitter";
 
-        FourPaneMapView::FourPaneMapView(QWidget* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) :
+        FourPaneMapView::FourPaneMapView(MapDocumentWPtr document, MapViewToolBox& toolBox,
+                                         Renderer::MapRenderer& mapRenderer,
+                                         GLContextManager& contextManager, Logger* logger, QWidget* parent) :
         MultiMapView(parent),
         m_logger(logger),
         m_document(document),
@@ -54,10 +56,13 @@ namespace TrenchBroom {
             m_leftVSplitter = new QSplitter(Qt::Vertical);
             m_rightVSplitter = new QSplitter(Qt::Vertical);
 
-            m_mapView3D = new MapView3D(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager);
-            m_mapViewXY = new MapView2D(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XY);
-            m_mapViewXZ = new MapView2D(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XZ);
-            m_mapViewYZ = new MapView2D(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_YZ);
+            m_mapView3D = new MapView3D(m_document, toolBox, mapRenderer, contextManager, m_logger, nullptr);
+            m_mapViewXY = new MapView2D(m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XY,
+                m_logger, nullptr);
+            m_mapViewXZ = new MapView2D(m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XZ,
+                m_logger, nullptr);
+            m_mapViewYZ = new MapView2D(m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_YZ,
+                m_logger, nullptr);
 
             m_mapView3D->linkCamera(m_linkHelper);
             m_mapViewXY->linkCamera(m_linkHelper);

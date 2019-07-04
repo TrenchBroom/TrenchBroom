@@ -70,7 +70,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        MapView3D::MapView3D(QWidget* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager) :
+        MapView3D::MapView3D(MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer,
+                             GLContextManager& contextManager, Logger* logger, QWidget* parent) :
         MapViewBase(parent, logger, document, toolBox, renderer, contextManager),
         m_flyModeHelper(new FlyModeHelper(m_camera)),
         m_ignoreCameraChangeEvents(false) {

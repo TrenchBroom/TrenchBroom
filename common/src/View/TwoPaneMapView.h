@@ -55,7 +55,8 @@ namespace TrenchBroom {
             MapView3D* m_mapView3D;
             CyclingMapView* m_mapView2D;
         public:
-            TwoPaneMapView(QWidget* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager);
+            TwoPaneMapView(MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer,
+                           GLContextManager& contextManager, Logger* logger, QWidget* parent = nullptr);
             ~TwoPaneMapView() override;
         private:
             void createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager);

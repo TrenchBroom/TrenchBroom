@@ -82,26 +82,23 @@ namespace TrenchBroom {
                 m_mapView = nullptr;
             }
 
-            switch (viewId) {
-                case MapViewLayout_1Pane:
-                    // FIXME: Can we pass nullptr as the parent here, since it's added to `this` down below?
-                    m_mapView = new CyclingMapView(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, m_contextManager, CyclingMapView::View_ALL);
-                    break;
-                case MapViewLayout_2Pane:
-                    m_mapView = new TwoPaneMapView(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, m_contextManager);
-                    break;
-                case MapViewLayout_3Pane:
-                    m_mapView = new ThreePaneMapView(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, m_contextManager);
-                    break;
-                case MapViewLayout_4Pane:
-                    m_mapView = new FourPaneMapView(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, m_contextManager);
-                    break;
+            if (layout()) {
+                delete layout();
             }
 
-            // FIXME: not sure about this, delete it before the widget that's deleted at the top of this function? Reuse layout?
-            // delete the old sizer first
-            if (layout() != nullptr) {
-                delete layout();
+            switch (viewId) {
+                case MapViewLayout_1Pane:
+                    m_mapView = new CyclingMapView(m_document, *m_toolBox, *m_mapRenderer, m_contextManager, CyclingMapView::View_ALL, m_logger);
+                    break;
+                case MapViewLayout_2Pane:
+                    m_mapView = new TwoPaneMapView(m_document, *m_toolBox, *m_mapRenderer, m_contextManager, m_logger);
+                    break;
+                case MapViewLayout_3Pane:
+                    m_mapView = new ThreePaneMapView(m_document, *m_toolBox, *m_mapRenderer, m_contextManager, m_logger);
+                    break;
+                case MapViewLayout_4Pane:
+                    m_mapView = new FourPaneMapView(m_document, *m_toolBox, *m_mapRenderer, m_contextManager, m_logger);
+                    break;
             }
 
             auto* layout = new QVBoxLayout();

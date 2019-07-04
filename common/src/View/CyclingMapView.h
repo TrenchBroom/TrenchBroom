@@ -62,7 +62,9 @@ namespace TrenchBroom {
             MapViewBase* m_currentMapView;
             QStackedLayout* m_layout;
         public:
-            CyclingMapView(QWidget* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, View views);
+            CyclingMapView(MapDocumentWPtr document, MapViewToolBox& toolBox,
+                           Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager,
+                           View views, Logger* logger, QWidget* parent = nullptr);
         private:
             void createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, View views);
             void addMapView(MapViewBase* mapView);

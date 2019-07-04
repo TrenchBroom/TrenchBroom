@@ -34,7 +34,9 @@ namespace TrenchBroom {
     namespace View {
         const char* TwoPaneMapView::SaveStateKey = "2PaneMapViewHSplitter";
 
-        TwoPaneMapView::TwoPaneMapView(QWidget* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) :
+        TwoPaneMapView::TwoPaneMapView(MapDocumentWPtr document, MapViewToolBox& toolBox,
+                                       Renderer::MapRenderer& mapRenderer,
+                                       GLContextManager& contextManager, Logger* logger, QWidget* parent) :
         MultiMapView(parent),
         m_logger(logger),
         m_document(document),
@@ -58,8 +60,9 @@ namespace TrenchBroom {
             setLayout(layout);
             layout->addWidget(m_splitter);
 
-            m_mapView3D = new MapView3D(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager);
-            m_mapView2D = new CyclingMapView(nullptr, m_logger, m_document, toolBox, mapRenderer, contextManager, CyclingMapView::View_2D);
+            m_mapView3D = new MapView3D(m_document, toolBox, mapRenderer, contextManager, m_logger, nullptr);
+            m_mapView2D = new CyclingMapView(m_document, toolBox, mapRenderer, contextManager,
+                CyclingMapView::View_2D, m_logger, nullptr);
 
             m_mapView3D->linkCamera(m_linkHelper);
             m_mapView2D->linkCamera(m_linkHelper);
