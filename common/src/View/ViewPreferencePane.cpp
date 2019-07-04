@@ -189,6 +189,7 @@ namespace TrenchBroom {
 
         void ViewPreferencePane::doResetToDefaults() {
             auto& prefs = PreferenceManager::instance();
+            prefs.resetToDefault(Preferences::MapViewLayout);
             prefs.resetToDefault(Preferences::Brightness);
             prefs.resetToDefault(Preferences::GridAlpha);
             prefs.resetToDefault(Preferences::CameraFov);
