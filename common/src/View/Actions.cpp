@@ -585,7 +585,7 @@ namespace TrenchBroom {
             m_mapViewActions.push_back(createAction("Cycle View", ActionContext::Any, QKeySequence(Qt::Key_Space),
                 [](ActionExecutionContext& context) { context.view()->cycleMapView(); },
                 [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(createAction("Reset Camera Zoom", ActionContext::View3D, QKeySequence(Qt::SHIFT + Qt::Key_Escape),
+            m_mapViewActions.push_back(createAction("Reset Camera Zoom", ActionContext::View3D | ActionContext::AnyTool | ActionContext::AnySelection, QKeySequence(Qt::SHIFT + Qt::Key_Escape),
                 [](ActionExecutionContext& context) { context.view()->resetCameraZoom(); },
                 [](ActionExecutionContext& context) { return context.hasDocument(); }));
             m_mapViewActions.push_back(createAction("Cancel", ActionContext::Any, QKeySequence(Qt::Key_Escape),
