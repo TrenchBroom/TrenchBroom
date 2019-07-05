@@ -27,9 +27,8 @@ namespace TrenchBroom {
     namespace View {
         class AppInfoPanel : public QWidget {
             Q_OBJECT
-
         public:
-            explicit AppInfoPanel(QWidget* parent);
+            explicit AppInfoPanel(QWidget* parent = nullptr);
         private:
             void createGui();
 
@@ -38,7 +37,6 @@ namespace TrenchBroom {
 
         class ClickableLabel : public QLabel {
             Q_OBJECT
-
         public:
             explicit ClickableLabel(const QString& text, QWidget* parent = nullptr);
 

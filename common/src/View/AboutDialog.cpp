@@ -88,8 +88,8 @@ namespace TrenchBroom {
                                              "Pandoc (Universal document converter)\n"
                                              "Source Sans Pro (Font)\n").replace("\n", "<br/>");
 
-            auto* infoPanel = new AppInfoPanel(this);
-            auto* creditsText = new QLabel(creditsString, this);
+            auto* infoPanel = new AppInfoPanel();
+            auto* creditsText = new QLabel(creditsString);
 
             auto* layout = new QHBoxLayout();
             layout->setSizeConstraint(QLayout::SetFixedSize);
