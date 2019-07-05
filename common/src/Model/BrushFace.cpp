@@ -324,8 +324,13 @@ namespace TrenchBroom {
             return m_attribs.color();
         }
 
-        void BrushFace::setColor(const Color& color) {
+        bool BrushFace::setColor(const Color& color) {
+            if (color == m_attribs.color()) {
+                return false;
+            }
+
             m_attribs.setColor(color);
+            return true;
         }
 
         void BrushFace::updateTexture(Assets::TextureManager& textureManager) {
@@ -333,88 +338,120 @@ namespace TrenchBroom {
             setTexture(texture);
         }
 
-        void BrushFace::setTexture(Assets::Texture* texture) {
-            if (texture != m_attribs.texture()) {
-                m_attribs.setTexture(texture);
-                updateBrush();
+        bool BrushFace::setTexture(Assets::Texture* texture) {
+            if (texture == m_attribs.texture()) {
+                return false;
             }
+
+            m_attribs.setTexture(texture);
+            updateBrush();
+            return true;
         }
 
-        void BrushFace::unsetTexture() {
-            if (m_attribs.texture() != nullptr) {
-                m_attribs.unsetTexture();
-                updateBrush();
+        bool BrushFace::unsetTexture() {
+            if (m_attribs.texture() == nullptr) {
+                return false;
             }
+
+            m_attribs.unsetTexture();
+            updateBrush();
+            return true;
         }
 
-        void BrushFace::setXOffset(const float i_xOffset) {
-            if (i_xOffset != xOffset()) {
-                m_attribs.setXOffset(i_xOffset);
-                updateBrush();
+        bool BrushFace::setXOffset(const float i_xOffset) {
+            if (i_xOffset == xOffset()) {
+                return false;
             }
+
+            m_attribs.setXOffset(i_xOffset);
+            updateBrush();
+            return true;
         }
 
-        void BrushFace::setYOffset(const float i_yOffset) {
-            if (i_yOffset != yOffset()) {
-                m_attribs.setYOffset(i_yOffset);
-                updateBrush();
+        bool BrushFace::setYOffset(const float i_yOffset) {
+            if (i_yOffset == yOffset()) {
+                return false;
             }
+
+            m_attribs.setYOffset(i_yOffset);
+            updateBrush();
+            return true;
         }
 
-        void BrushFace::setXScale(const float i_xScale) {
-            if (i_xScale != xScale()) {
-                m_attribs.setXScale(i_xScale);
-                updateBrush();
+        bool BrushFace::setXScale(const float i_xScale) {
+            if (i_xScale == xScale()) {
+                return false;
             }
+
+            m_attribs.setXScale(i_xScale);
+            updateBrush();
+            return true;
         }
 
-        void BrushFace::setYScale(const float i_yScale) {
-            if (i_yScale != yScale()) {
-                m_attribs.setYScale(i_yScale);
-                updateBrush();
+        bool BrushFace::setYScale(const float i_yScale) {
+            if (i_yScale == yScale()) {
+                return false;
             }
+
+            m_attribs.setYScale(i_yScale);
+            updateBrush();
+            return true;
         }
 
-        void BrushFace::setRotation(const float rotation) {
-            if (rotation != m_attribs.rotation()) {
-                const float oldRotation = m_attribs.rotation();
-                m_attribs.setRotation(rotation);
-                m_texCoordSystem->setRotation(m_boundary.normal, oldRotation, rotation);
-                updateBrush();
+        bool BrushFace::setRotation(const float rotation) {
+            if (rotation == m_attribs.rotation()) {
+                return false;
             }
+
+            const auto oldRotation = m_attribs.rotation();
+            m_attribs.setRotation(rotation);
+            m_texCoordSystem->setRotation(m_boundary.normal, oldRotation, rotation);
+            updateBrush();
+            return true;
         }
 
-        void BrushFace::setSurfaceContents(const int surfaceContents) {
-            if (surfaceContents != m_attribs.surfaceContents()) {
-                m_attribs.setSurfaceContents(surfaceContents);
-                updateBrush();
+        bool BrushFace::setSurfaceContents(const int surfaceContents) {
+            if (surfaceContents == m_attribs.surfaceContents()) {
+                return false;
             }
+
+            m_attribs.setSurfaceContents(surfaceContents);
+            updateBrush();
+            return true;
         }
 
-        void BrushFace::setSurfaceFlags(const int surfaceFlags) {
-            if (surfaceFlags != m_attribs.surfaceFlags()) {
-                m_attribs.setSurfaceFlags(surfaceFlags);
-                updateBrush();
+        bool BrushFace::setSurfaceFlags(const int surfaceFlags) {
+            if (surfaceFlags == m_attribs.surfaceFlags()) {
+                return false;
             }
+
+            m_attribs.setSurfaceFlags(surfaceFlags);
+            updateBrush();
+            return true;
         }
 
-        void BrushFace::setSurfaceValue(const float surfaceValue) {
-            if (surfaceValue != m_attribs.surfaceValue()) {
-                m_attribs.setSurfaceValue(surfaceValue);
-                updateBrush();
+        bool BrushFace::setSurfaceValue(const float surfaceValue) {
+            if (surfaceValue == m_attribs.surfaceValue()) {
+                return false;
             }
+
+            m_attribs.setSurfaceValue(surfaceValue);
+            updateBrush();
+            return true;
         }
 
-        void BrushFace::setAttributes(const BrushFace* other) {
-            setTexture(other->texture());
-            setXOffset(other->xOffset());
-            setYOffset(other->yOffset());
-            setRotation(other->rotation());
-            setXScale(other->xScale());
-            setYScale(other->yScale());
-            setSurfaceContents(other->surfaceContents());
-            setSurfaceFlags(other->surfaceFlags());
-            setSurfaceValue(other->surfaceValue());
+        bool BrushFace::setAttributes(const BrushFace* other) {
+            auto result = false;
+            result |= setTexture(other->texture());
+            result |= setXOffset(other->xOffset());
+            result |= setYOffset(other->yOffset());
+            result |= setRotation(other->rotation());
+            result |= setXScale(other->xScale());
+            result |= setYScale(other->yScale());
+            result |= setSurfaceContents(other->surfaceContents());
+            result |= setSurfaceFlags(other->surfaceFlags());
+            result |= setSurfaceValue(other->surfaceValue());
+            return result;
         }
 
         vm::vec3 BrushFace::textureXAxis() const {

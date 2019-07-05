@@ -41,7 +41,7 @@ namespace TrenchBroom {
         public:
             static Ptr command(const Model::ChangeBrushFaceAttributesRequest& request);
         private:
-            ChangeBrushFaceAttributesCommand(const Model::ChangeBrushFaceAttributesRequest& request);
+            explicit ChangeBrushFaceAttributesCommand(const Model::ChangeBrushFaceAttributesRequest& request);
         public:
             ~ChangeBrushFaceAttributesCommand() override;
         private:

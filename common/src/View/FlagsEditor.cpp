@@ -29,7 +29,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        FlagsEditor::FlagsEditor(QWidget* parent, const size_t numCols) :
+        FlagsEditor::FlagsEditor(size_t numCols, QWidget* parent) :
         QWidget(parent),
         m_numCols(numCols) {
             assert(m_numCols > 0);
@@ -46,22 +46,24 @@ namespace TrenchBroom {
         }
 
         void FlagsEditor::setFlags(const QList<int>& values, const QStringList& labels, const QStringList& tooltips) {
-            const size_t count = static_cast<size_t>(values.size());
+            const auto count = static_cast<size_t>(values.size());
+            const auto numRows = count / m_numCols;
 
-            const size_t numRows = count / m_numCols;
+            if (layout() != nullptr) {
+                delete layout();
+            }
 
-            auto* sizer = new QGridLayout();
-            // deletes the old checkboxes
-            setLayout(sizer);
+            auto* layout = new QGridLayout();
 
-            sizer->setHorizontalSpacing(LayoutConstants::WideHMargin);
-            sizer->setVerticalSpacing(0);
+            layout->setHorizontalSpacing(LayoutConstants::WideHMargin);
+            layout->setVerticalSpacing(0);
 
+            // I don't know why we have to delete these, they should be deleted by the layout!
+            VectorUtils::clearAndDelete(m_checkBoxes);
             m_values.clear();
-            m_checkBoxes.clear();
 
-            m_values.resize(count);
             m_checkBoxes.resize(count);
+            m_values.resize(count);
 
             for (size_t row = 0; row < numRows; ++row) {
                 for (size_t col = 0; col < m_numCols; ++col) {
@@ -71,20 +73,21 @@ namespace TrenchBroom {
                         const int rowInt = static_cast<int>(row);
                         const int colInt = static_cast<int>(col);
 
-                        auto* checkBox = new QCheckBox();
-                        m_checkBoxes[index] = checkBox;
+                        m_checkBoxes[index] = new QCheckBox();
                         m_values[index] = values[indexInt];
 
-                        checkBox->setText(indexInt < labels.size() ? labels[indexInt] : QString::number(1 << index));
-                        checkBox->setToolTip(indexInt < tooltips.size() ? tooltips[indexInt] : "");
-                        connect(checkBox, &QCheckBox::stateChanged, this, [=](int state){
+                        m_checkBoxes[index]->setText(indexInt < labels.size() ? labels[indexInt] : QString::number(1 << index));
+                        m_checkBoxes[index]->setToolTip(indexInt < tooltips.size() ? tooltips[indexInt] : "");
+                        connect(m_checkBoxes[index], &QCheckBox::clicked, this, [index, this](){
                             emit flagChanged(index, this->getSetFlagValue(), this->getMixedFlagValue());
                         });
 
-                        sizer->addWidget(checkBox, rowInt, colInt);
+                        layout->addWidget(m_checkBoxes[index], rowInt, colInt);
                     }
                 }
             }
+
+            setLayout(layout);
         }
 
         void FlagsEditor::setFlagValue(const int on, const int mixed) {
@@ -93,12 +96,13 @@ namespace TrenchBroom {
                 const int value = m_values[i];
                 const bool isMixed = (mixed & value) != 0;
                 const bool isChecked = (on & value) != 0;
-                if (isMixed)
+                if (isMixed) {
                     checkBox->setCheckState(Qt::PartiallyChecked);
-                else if (isChecked)
+                } else if (isChecked) {
                     checkBox->setCheckState(Qt::Checked);
-                else
+                } else {
                     checkBox->setCheckState(Qt::Unchecked);
+                }
             }
         }
 
@@ -119,8 +123,9 @@ namespace TrenchBroom {
         int FlagsEditor::getSetFlagValue() const {
             int value = 0;
             for (size_t i = 0; i < m_checkBoxes.size(); ++i) {
-                if (isFlagSet(i))
+                if (isFlagSet(i)) {
                     value |= m_values[i];
+                }
             }
             return value;
         }
@@ -128,8 +133,9 @@ namespace TrenchBroom {
         int FlagsEditor::getMixedFlagValue() const {
             int value = 0;
             for (size_t i = 0; i < m_checkBoxes.size(); ++i) {
-                if (isFlagMixed(i))
+                if (isFlagMixed(i)) {
                     value |= m_values[i];
+                }
             }
             return value;
         }

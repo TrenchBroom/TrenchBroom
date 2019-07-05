@@ -711,9 +711,10 @@ namespace TrenchBroom {
 
         void MapDocumentCommandFacade::performChangeBrushFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request) {
             const auto& faces = allSelectedBrushFaces();
-            request.evaluate(faces);
-            setTextures(faces);
-            brushFacesDidChangeNotifier(faces);
+            if (request.evaluate(faces)) {
+                setTextures(faces);
+                brushFacesDidChangeNotifier(faces);
+            }
         }
 
         bool MapDocumentCommandFacade::performFindPlanePoints() {

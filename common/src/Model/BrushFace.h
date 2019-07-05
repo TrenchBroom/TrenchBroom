@@ -147,21 +147,21 @@ namespace TrenchBroom {
 
             bool hasColor() const;
             const Color& color() const;
-            void setColor(const Color& color);
+            bool setColor(const Color& color);
 
             void updateTexture(Assets::TextureManager& textureManager);
-            void setTexture(Assets::Texture* texture);
-            void unsetTexture();
+            bool setTexture(Assets::Texture* texture);
+            bool unsetTexture();
 
-            void setXOffset(float xOffset);
-            void setYOffset(float yOffset);
-            void setXScale(float xScale);
-            void setYScale(float yScale);
-            void setRotation(float rotation);
-            void setSurfaceContents(int surfaceContents);
-            void setSurfaceFlags(int surfaceFlags);
-            void setSurfaceValue(float surfaceValue);
-            void setAttributes(const BrushFace* other);
+            bool setXOffset(float xOffset);
+            bool setYOffset(float yOffset);
+            bool setXScale(float xScale);
+            bool setYScale(float yScale);
+            bool setRotation(float rotation);
+            bool setSurfaceContents(int surfaceContents);
+            bool setSurfaceFlags(int surfaceFlags);
+            bool setSurfaceValue(float surfaceValue);
+            bool setAttributes(const BrushFace* other);
 
             vm::vec3 textureXAxis() const;
             vm::vec3 textureYAxis() const;

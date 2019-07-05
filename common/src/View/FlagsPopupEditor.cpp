@@ -23,6 +23,7 @@
 #include "View/ViewConstants.h"
 #include "View/PopupButton.h"
 
+#include <QDebug>
 #include <QLabel>
 #include <QHBoxLayout>
 
@@ -33,40 +34,38 @@ namespace TrenchBroom {
         m_flagsTxt(nullptr),
         m_button(nullptr),
         m_editor(nullptr) {
-            QWidget* flagsPanel = nullptr;
             if (showFlagsText) {
-                flagsPanel = new QWidget();
-
                 m_flagsTxt = new ElidedLabel(Qt::ElideRight);
-
-                auto* flagsPanelSizer = new QVBoxLayout();
-                flagsPanelSizer->addStretch();
-                flagsPanelSizer->addWidget(m_flagsTxt);
-                flagsPanelSizer->addStretch();
-                flagsPanel->setLayout(flagsPanelSizer);
             }
 
             m_button = new PopupButton(this, buttonLabel);
             m_button->setToolTip("Click to edit flags");
 
             auto* editorContainer = new QWidget();
-            m_editor = new FlagsEditor(editorContainer, numCols);
+            m_editor = new FlagsEditor(numCols, editorContainer);
 
-            auto* editorContainerSizer = new QVBoxLayout();
-            editorContainerSizer->addWidget(m_editor);
-            editorContainer->setLayout(editorContainerSizer);
+            auto* editorContainerLayout = new QVBoxLayout();
+            editorContainerLayout->setContentsMargins(0, 0, 0, 0);
+            editorContainerLayout->setSpacing(0);
+            editorContainerLayout->addWidget(m_editor);
+            editorContainer->setLayout(editorContainerLayout);
 
-            auto* popupSizer = new QVBoxLayout();
-            popupSizer->addWidget(editorContainer);
-            m_button->GetPopupWindow()->setLayout(popupSizer);
+            auto* popupLayout = new QVBoxLayout();
+            popupLayout->setContentsMargins(0, 0, 0, 0);
+            popupLayout->setSpacing(0);
+            popupLayout->addWidget(editorContainer);
+            m_button->GetPopupWindow()->setLayout(popupLayout);
 
-            auto* sizer = new QHBoxLayout();
-            if (flagsPanel != nullptr) {
-                sizer->addWidget(flagsPanel);
-                sizer->addSpacing(LayoutConstants::MediumHMargin);
+            auto* layout = new QHBoxLayout();
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(LayoutConstants::MediumHMargin);
+
+            if (m_flagsTxt != nullptr) {
+                layout->addWidget(m_flagsTxt, 1, Qt::AlignVCenter);
             }
-            sizer->addWidget(m_button, 0, Qt::AlignVCenter);
-            setLayout(sizer);
+
+            layout->addWidget(m_button, 0, Qt::AlignVCenter);
+            setLayout(layout);
 
             connect(m_editor, &FlagsEditor::flagChanged, this, [this](size_t index, int setFlag, int mixedFlag){
                 updateFlagsText();
@@ -102,7 +101,6 @@ namespace TrenchBroom {
         }
 #endif
 
-        // FIXME: somehow this doesn't work, the label does not show anything (on Ubuntu / gnome)
         void FlagsPopupEditor::updateFlagsText() {
             if (m_flagsTxt == nullptr) {
                 return;

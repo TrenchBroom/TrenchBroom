@@ -39,7 +39,7 @@ namespace TrenchBroom {
             CheckBoxList m_checkBoxes;
             ValueList m_values;
         public:
-            FlagsEditor(QWidget* parent, size_t numCols);
+            explicit FlagsEditor(size_t numCols, QWidget* parent = nullptr);
 
             void setFlags(const QStringList& labels, const QStringList& tooltips = QStringList());
             void setFlags(const QList<int>& values, const QStringList& labels, const QStringList& tooltips = QStringList());

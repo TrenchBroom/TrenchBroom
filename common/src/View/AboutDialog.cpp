@@ -88,20 +88,18 @@ namespace TrenchBroom {
                                              "Pandoc (Universal document converter)\n"
                                              "Source Sans Pro (Font)\n").replace("\n", "<br/>");
 
-            AppInfoPanel* infoPanel = new AppInfoPanel(nullptr);
+            auto* infoPanel = new AppInfoPanel(this);
+            auto* creditsText = new QLabel(creditsString, this);
 
-            QLabel* creditsText = new QLabel();
-            creditsText->setText(creditsString);
-
-            QHBoxLayout* outerSizer = new QHBoxLayout();
-            outerSizer->setSizeConstraint(QLayout::SetFixedSize);
-            outerSizer->setContentsMargins(0, 20, 0, 20);
-            outerSizer->addSpacing(50);
-            outerSizer->addWidget(infoPanel);
-            outerSizer->addSpacing(50);
-            outerSizer->addWidget(creditsText);
-            outerSizer->addSpacing(50);
-            setLayout(outerSizer);
+            auto* layout = new QHBoxLayout();
+            layout->setSizeConstraint(QLayout::SetFixedSize);
+            layout->setContentsMargins(0, 20, 0, 20);
+            layout->addSpacing(50);
+            layout->addWidget(infoPanel);
+            layout->addSpacing(50);
+            layout->addWidget(creditsText);
+            layout->addSpacing(50);
+            setLayout(layout);
         }
     }
 }
