@@ -100,18 +100,6 @@ namespace TrenchBroom {
             updateFlagsText();
         }
 
-        // FIXME: do we need to call updateFlagsText() when the popup is shown?
-#if 0
-        bool FlagsPopupEditor::Enable(bool enable) {
-            if (QWidget::Enable(enable)) {
-                m_button->Enable(enable);
-                updateFlagsText();
-                return true;
-            }
-            return false;
-        }
-#endif
-
         void FlagsPopupEditor::updateFlagsText() {
             if (m_flagsTxt == nullptr) {
                 return;
@@ -148,15 +136,6 @@ namespace TrenchBroom {
             }
 
             m_flagsTxt->setDisabled(mixed);
-
-            if (mixed) {
-                // FIXME: confirm this works, factor out? Can we just disable the label instead to get the same effect?
-                QPalette pal = this->palette();
-                pal.setColor(QPalette::WindowText, pal.color(QPalette::Disabled, QPalette::WindowText));
-                m_flagsTxt->setPalette(pal);
-            } else {
-                m_flagsTxt->setPalette(this->palette());
-            }
         }
     }
 }
