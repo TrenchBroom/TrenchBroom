@@ -44,9 +44,6 @@ namespace TrenchBroom {
         class FourPaneMapView : public MultiMapView {
             Q_OBJECT
         private:
-            static const char* HSaveStateKey;
-            static const char* VSaveStateKey;
-        private:
             Logger* m_logger;
             MapDocumentWPtr m_document;
 
@@ -65,7 +62,6 @@ namespace TrenchBroom {
             ~FourPaneMapView() override;
         private:
             void createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager);
-            void saveLayoutToPrefs();
         private: // event handlers
             void onSplitterMoved(int pos, int index);
         private: // implement MultiMapView subclassing interface

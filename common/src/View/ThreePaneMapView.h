@@ -41,13 +41,9 @@ namespace TrenchBroom {
         class MapView2D;
         class MapView3D;
         class MapViewToolBox;
-        class SplitterWindow2;
 
         class ThreePaneMapView : public MultiMapView {
             Q_OBJECT
-        private:
-            static const char* HSaveStateKey;
-            static const char* VSaveStateKey;
         private:
             Logger* m_logger;
             MapDocumentWPtr m_document;
@@ -64,7 +60,6 @@ namespace TrenchBroom {
             ~ThreePaneMapView() override;
         private:
             void createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager);
-            void saveLayoutToPrefs();
         private: // implement MultiMapView subclassing interface
             void doMaximizeView(MapView* view) override;
             void doRestoreViews() override;

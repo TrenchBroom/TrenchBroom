@@ -24,6 +24,7 @@
 #include "View/MapDocument.h"
 #include "View/MapView2D.h"
 #include "View/MapView3D.h"
+#include "View/wxUtils.h"
 
 #include <QSplitter>
 #include <QHBoxLayout>
@@ -31,15 +32,15 @@
 
 namespace TrenchBroom {
     namespace View {
-        const char* FourPaneMapView::HSaveStateKey = "4PaneMapViewHSplitter";
-        const char* FourPaneMapView::VSaveStateKey = "4PaneMapViewVSplitter";
-
         FourPaneMapView::FourPaneMapView(MapDocumentWPtr document, MapViewToolBox& toolBox,
                                          Renderer::MapRenderer& mapRenderer,
                                          GLContextManager& contextManager, Logger* logger, QWidget* parent) :
         MultiMapView(parent),
         m_logger(logger),
-        m_document(document),
+        m_document(std::move(document)),
+        m_hSplitter(nullptr),
+        m_leftVSplitter(nullptr),
+        m_rightVSplitter(nullptr),
         m_mapView3D(nullptr),
         m_mapViewXY(nullptr),
         m_mapViewXZ(nullptr),
@@ -48,21 +49,25 @@ namespace TrenchBroom {
         }
 
         FourPaneMapView::~FourPaneMapView() {
-            saveLayoutToPrefs();
+            saveWindowState(m_hSplitter);
+            saveWindowState(m_leftVSplitter);
+            saveWindowState(m_rightVSplitter);
         }
 
         void FourPaneMapView::createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) {
             m_hSplitter = new QSplitter();
-            m_leftVSplitter = new QSplitter(Qt::Vertical);
-            m_rightVSplitter = new QSplitter(Qt::Vertical);
+            m_hSplitter->setObjectName("FourPaneMapView_HorizontalSplitter");
 
-            m_mapView3D = new MapView3D(m_document, toolBox, mapRenderer, contextManager, m_logger, nullptr);
-            m_mapViewXY = new MapView2D(m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XY,
-                m_logger, nullptr);
-            m_mapViewXZ = new MapView2D(m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XZ,
-                m_logger, nullptr);
-            m_mapViewYZ = new MapView2D(m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_YZ,
-                m_logger, nullptr);
+            m_leftVSplitter = new QSplitter(Qt::Vertical);
+            m_leftVSplitter->setObjectName("FourPaneMapView_LeftVerticalSplitter");
+
+            m_rightVSplitter = new QSplitter(Qt::Vertical);
+            m_rightVSplitter->setObjectName("FourPaneMapView_RightVerticalSplitter");
+
+            m_mapView3D = new MapView3D(m_document, toolBox, mapRenderer, contextManager, m_logger);
+            m_mapViewXY = new MapView2D(m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XY, m_logger);
+            m_mapViewXZ = new MapView2D(m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XZ, m_logger);
+            m_mapViewYZ = new MapView2D(m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_YZ, m_logger);
 
             m_mapView3D->linkCamera(m_linkHelper);
             m_mapViewXY->linkCamera(m_linkHelper);
@@ -102,25 +107,17 @@ namespace TrenchBroom {
             m_leftVSplitter->setSizes(QList<int>{1, 1});
             m_rightVSplitter->setSizes(QList<int>{1, 1});
 
-            // Load from preferences
-            QSettings settings;
-            m_hSplitter->restoreState(settings.value(HSaveStateKey).toByteArray());
-            m_leftVSplitter->restoreState(settings.value(VSaveStateKey).toByteArray());
-            m_rightVSplitter->restoreState(settings.value(VSaveStateKey).toByteArray());
+            restoreWindowState(m_hSplitter);
+            restoreWindowState(m_leftVSplitter);
+            restoreWindowState(m_rightVSplitter);
 
             connect(m_leftVSplitter, &QSplitter::splitterMoved, this, &FourPaneMapView::onSplitterMoved);
             connect(m_rightVSplitter, &QSplitter::splitterMoved, this, &FourPaneMapView::onSplitterMoved);
         }
 
-        void FourPaneMapView::saveLayoutToPrefs() {
-            QSettings settings;
-            settings.setValue(HSaveStateKey, m_hSplitter->saveState());
-            settings.setValue(VSaveStateKey, m_leftVSplitter->saveState());
-        }
-
         void FourPaneMapView::onSplitterMoved(int pos, int index) {
-            QSplitter* moved = qobject_cast<QSplitter*>(QObject::sender());
-            QSplitter* other = (moved == m_leftVSplitter) ? m_rightVSplitter : m_leftVSplitter;
+            auto* moved = qobject_cast<QSplitter*>(QObject::sender());
+            auto* other = (moved == m_leftVSplitter) ? m_rightVSplitter : m_leftVSplitter;
 
             assert(index == 1);
             assert(moved == m_leftVSplitter || moved == m_rightVSplitter);

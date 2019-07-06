@@ -29,6 +29,7 @@
 
 #include <QApplication>
 #include <QBoxLayout>
+#include <QDebug>
 #include <QDesktopWidget>
 #include <QDialogButtonBox>
 #include <QDir>
@@ -40,6 +41,7 @@
 #include <QSettings>
 #include <QSizePolicy>
 #include <QSlider>
+#include <QSplitter>
 #include <QStandardPaths>
 #include <QString>
 #include <QStringBuilder>
@@ -62,19 +64,31 @@ namespace TrenchBroom {
             m_widget->setUpdatesEnabled(true);
         }
 
-        void saveWindowSettings(QMainWindow* window) {
-            assert(window != nullptr);
+        QString windowSettingsPath(const QWidget* window, const QString& suffix) {
+            ensure(window != nullptr, "window must not be null");
+            ensure(!window->objectName().isEmpty(), "window name must not be empty");
 
-            QSettings settings;
-            settings.setValue("Windows/" + window->objectName() + "/Geometry", window->saveGeometry());
-            settings.setValue("Windows/" + window->objectName() + "/State", window->saveState());
+            return "Windows/" + window->objectName() + "/" + suffix;
         }
-        void restoreWindowSettings(QMainWindow* window) {
-            assert(window != nullptr);
+
+        void saveWindowGeometry(QWidget* window) {
+            ensure(window != nullptr, "window must not be null");
+
+            const auto path = windowSettingsPath(window, "Geometry");
+            qDebug() << "Saving window geometry for " << path;
 
             QSettings settings;
-            window->restoreGeometry(settings.value("Windows/" + window->objectName() + "/Geometry").toByteArray());
-            window->restoreState(settings.value("Windows/" + window->objectName() + "/State").toByteArray());
+            settings.setValue(path, window->saveGeometry());
+        }
+
+        void restoreWindowGeometry(QWidget* window) {
+            ensure(window != nullptr, "window must not be null");
+
+            const auto path = windowSettingsPath(window, "Geometry");
+            qDebug() << "Restoring window geometry for " << path;
+
+            QSettings settings;
+            window->restoreGeometry(settings.value(path).toByteArray());
         }
 
         MapFrame* findMapFrame(QWidget* widget) {

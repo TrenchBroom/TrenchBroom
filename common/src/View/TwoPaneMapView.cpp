@@ -25,6 +25,7 @@
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/MapView3D.h"
+#include "View/wxUtils.h"
 
 #include <QSplitter>
 #include <QHBoxLayout>
@@ -32,14 +33,12 @@
 
 namespace TrenchBroom {
     namespace View {
-        const char* TwoPaneMapView::SaveStateKey = "2PaneMapViewHSplitter";
-
         TwoPaneMapView::TwoPaneMapView(MapDocumentWPtr document, MapViewToolBox& toolBox,
                                        Renderer::MapRenderer& mapRenderer,
                                        GLContextManager& contextManager, Logger* logger, QWidget* parent) :
         MultiMapView(parent),
         m_logger(logger),
-        m_document(document),
+        m_document(std::move(document)),
         m_splitter(nullptr),
         m_mapView3D(nullptr),
         m_mapView2D(nullptr) {
@@ -47,14 +46,16 @@ namespace TrenchBroom {
         }
 
         TwoPaneMapView::~TwoPaneMapView() {
-            saveLayoutToPrefs();
+            saveWindowState(m_splitter);
         }
 
         void TwoPaneMapView::createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) {
 
             // See comment in CyclingMapView::createGui
             m_splitter = new QSplitter();
-            QHBoxLayout* layout = new QHBoxLayout();
+            m_splitter->setObjectName("TwoPaneMapView_Splitter");
+
+            auto* layout = new QHBoxLayout();
             layout->setContentsMargins(0, 0, 0, 0);
             layout->setSpacing(0);
             setLayout(layout);
@@ -78,14 +79,7 @@ namespace TrenchBroom {
             m_mapView3D->widgetContainer()->setMinimumSize(100, 100);
             m_splitter->setSizes(QList<int>{1, 1});
 
-            // Load from preferences
-            QSettings settings;
-            m_splitter->restoreState(settings.value(SaveStateKey).toByteArray());
-        }
-
-        void TwoPaneMapView::saveLayoutToPrefs() {
-            QSettings settings;
-            settings.setValue(SaveStateKey, m_splitter->saveState());
+            restoreWindowState(m_splitter);
         }
 
         void TwoPaneMapView::doMaximizeView(MapView* view) {

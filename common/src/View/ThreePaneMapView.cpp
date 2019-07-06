@@ -26,6 +26,7 @@
 #include "View/MapDocument.h"
 #include "View/MapView2D.h"
 #include "View/MapView3D.h"
+#include "View/wxUtils.h"
 
 #include <QSplitter>
 #include <QHBoxLayout>
@@ -33,9 +34,6 @@
 
 namespace TrenchBroom {
     namespace View {
-        const char* ThreePaneMapView::HSaveStateKey = "3PaneMapViewHSplitter";
-        const char* ThreePaneMapView::VSaveStateKey = "3PaneMapViewVSplitter";
-
         ThreePaneMapView::ThreePaneMapView(MapDocumentWPtr document, MapViewToolBox& toolBox,
                                            Renderer::MapRenderer& mapRenderer,
                                            GLContextManager& contextManager, Logger* logger, QWidget* parent) :
@@ -51,12 +49,16 @@ namespace TrenchBroom {
         }
 
         ThreePaneMapView::~ThreePaneMapView() {
-            saveLayoutToPrefs();
+            saveWindowState(m_hSplitter);
+            saveWindowState(m_vSplitter);
         }
 
         void ThreePaneMapView::createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) {
             m_hSplitter = new QSplitter();
+            m_hSplitter->setObjectName("ThreePaneMapView_HorizontalSplitter");
+
             m_vSplitter = new QSplitter(Qt::Vertical);
+            m_vSplitter->setObjectName("ThreePaneMapView_VerticalSplitter");
 
             m_mapView3D = new MapView3D(m_document, toolBox, mapRenderer, contextManager, m_logger, nullptr);
             m_mapViewXY = new MapView2D(m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XY,
@@ -94,16 +96,8 @@ namespace TrenchBroom {
             m_hSplitter->setSizes(QList<int>{1, 1});
             m_vSplitter->setSizes(QList<int>{1, 1});
 
-            // Load from preferences
-            QSettings settings;
-            m_hSplitter->restoreState(settings.value(HSaveStateKey).toByteArray());
-            m_vSplitter->restoreState(settings.value(VSaveStateKey).toByteArray());
-        }
-
-        void ThreePaneMapView::saveLayoutToPrefs() {
-            QSettings settings;
-            settings.setValue(HSaveStateKey, m_hSplitter->saveState());
-            settings.setValue(VSaveStateKey, m_vSplitter->saveState());
+            restoreWindowState(m_hSplitter);
+            restoreWindowState(m_vSplitter);
         }
 
         void ThreePaneMapView::doMaximizeView(MapView* view) {

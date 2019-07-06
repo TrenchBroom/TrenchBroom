@@ -42,15 +42,16 @@
 
 namespace TrenchBroom {
     namespace View {
-        SwitchableMapViewContainer::SwitchableMapViewContainer(QWidget* parent, Logger* logger, MapDocumentWPtr document, GLContextManager& contextManager) :
+        SwitchableMapViewContainer::SwitchableMapViewContainer(Logger* logger, MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent) :
         QWidget(parent),
         m_logger(logger),
-        m_document(document),
+        m_document(std::move(document)),
         m_contextManager(contextManager),
         m_mapViewBar(new MapViewBar(this, m_document)),
         m_toolBox(new MapViewToolBox(m_document, m_mapViewBar->toolBook())),
         m_mapRenderer(new Renderer::MapRenderer(m_document)),
         m_mapView(nullptr) {
+            setObjectName("SwitchableMapViewContainer");
             switchToMapView(static_cast<MapViewLayout>(pref(Preferences::MapViewLayout)));
             bindObservers();
         }

@@ -67,7 +67,7 @@ namespace TrenchBroom {
 
             MapViewContainer* m_mapView;
         public:
-            SwitchableMapViewContainer(QWidget* parent, Logger* logger, MapDocumentWPtr document, GLContextManager& contextManager);
+            SwitchableMapViewContainer(Logger* logger, MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent = nullptr);
             ~SwitchableMapViewContainer() override;
 
             void connectTopWidgets(Inspector* inspector);

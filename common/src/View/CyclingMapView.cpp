@@ -42,6 +42,7 @@ namespace TrenchBroom {
         m_document(std::move(document)),
         m_currentMapView(nullptr),
         m_layout(nullptr) {
+            setObjectName("CyclingMapView");
             createGui(toolBox, mapRenderer, contextManager, views);
         }
 

@@ -34,7 +34,7 @@ namespace TrenchBroom {
             QToolButton* m_button;
             PopupWindow* m_window;
         public:
-            PopupButton(QWidget* parent = nullptr, const QString& caption = "");
+            explicit PopupButton(QWidget* parent = nullptr, const QString& caption = "");
 
             QWidget* GetPopupWindow() const;
 

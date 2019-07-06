@@ -30,6 +30,9 @@
 
 #include <QBoxLayout>
 #include <QColor>
+#include <QDebug>
+#include <QObject>
+#include <QSettings>
 
 #include <vector>
 
@@ -43,6 +46,7 @@ class QMainWindow;
 class QPalette;
 class QSettings;
 class QSlider;
+class QSplitter;
 class QWidget;
 class QButtonGroup;
 
@@ -56,8 +60,32 @@ namespace TrenchBroom {
             ~DisableWindowUpdates();
         };
 
-        void saveWindowSettings(QMainWindow* window);
-        void restoreWindowSettings(QMainWindow* window);
+        QString windowSettingsPath(const QWidget* window, const QString& suffix = "");
+
+        void saveWindowGeometry(QWidget* window);
+        void restoreWindowGeometry(QWidget* window);
+
+        template <typename T>
+        void saveWindowState(const T* window) {
+            ensure(window != nullptr, "window must not be null");
+
+            const auto path = windowSettingsPath(window, "State");
+            qDebug() << "Saving window state for " << path;
+
+            QSettings settings;
+            settings.setValue(path, window->saveState());
+        }
+
+        template <typename T>
+        void restoreWindowState(T* window) {
+            ensure(window != nullptr, "window must not be null");
+
+            const auto path = windowSettingsPath(window, "State");
+            qDebug() << "Restoring window state for " << path;
+
+            QSettings settings;
+            window->restoreState(settings.value(path).toByteArray());
+        }
 
         class MapFrame;
         MapFrame* findMapFrame(QWidget* widget);

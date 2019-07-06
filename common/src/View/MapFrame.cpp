@@ -116,6 +116,7 @@ namespace TrenchBroom {
             ensure(m_frameManager != nullptr, "frameManager is null");
             ensure(m_document != nullptr, "document is null");
 
+            setAttribute(Qt::WA_DeleteOnClose);
             setObjectName("MapFrame");
 
             m_autosaver = new Autosaver(m_document);
@@ -141,7 +142,8 @@ namespace TrenchBroom {
 
             setAcceptDrops(true);
 
-            restoreWindowSettings(this);
+            restoreWindowGeometry(this);
+            restoreWindowState(this);
         }
 
         MapFrame::~MapFrame() {
@@ -168,7 +170,10 @@ namespace TrenchBroom {
             // The order of deletion here is important because both the document and the children
             // need the context manager (and its embedded VBO) to clean up their resources.
 
-            destroy(false, true); // Destroy the children first because they might still access document resources.
+            // Destroy the children first because they might still access document resources.
+            // The children must be deleted in reverse order!
+            const auto children = this->children();
+            qDeleteAll(std::rbegin(children), std::rend(children));
 
             m_document->setViewEffectsService(nullptr);
             m_document.reset();
@@ -178,7 +183,8 @@ namespace TrenchBroom {
         }
 
         void MapFrame::positionOnScreen(QWidget* reference) {
-            restoreWindowSettings(this);
+            restoreWindowGeometry(this);
+            restoreWindowState(this);
             if (reference) {
                 const auto offset =  QApplication::style()->pixelMetric(QStyle::PM_TitleBarHeight);
                 move(reference->pos() + QPoint(offset, offset));
@@ -381,19 +387,19 @@ namespace TrenchBroom {
             setWindowIconTB(this);
             setWindowTitle("TrenchBroom");
 
-            // FIXME: handle sash gravity, persistence
+            // FIXME: handle sash gravity
             m_hSplitter = new QSplitter(Qt::Horizontal);
             m_hSplitter->setChildrenCollapsible(false);
-            //m_hSplitter->SetName("MapFrameHSplitter");
+            m_hSplitter->setObjectName("MapFrame_HorizontalSplitter");
 
             m_vSplitter = new QSplitter(Qt::Vertical);
             m_vSplitter->setChildrenCollapsible(false);
-            //m_vSplitter->SetName("MapFrameVSplitter");
+            m_vSplitter->setObjectName("MapFrame_VerticalSplitterSplitter");
 
             m_infoPanel = new InfoPanel(nullptr, m_document);
             m_console = m_infoPanel->console();
 
-            m_mapView = new SwitchableMapViewContainer(nullptr, m_console, m_document, *m_contextManager);
+            m_mapView = new SwitchableMapViewContainer(m_console, m_document, *m_contextManager);
             m_currentMapView = m_mapView->firstMapViewBase();
             ensure(m_currentMapView != nullptr, "SwitchableMapViewContainer should have constructed a MapViewBase");
 
@@ -436,6 +442,9 @@ namespace TrenchBroom {
             layoutWrapper->setLayout(frameLayout);
 
             setCentralWidget(layoutWrapper);
+
+            restoreWindowState(m_hSplitter);
+            restoreWindowState(m_vSplitter);
         }
 
         class MapFrame::ToolBarBuilder : public MenuVisitor {
@@ -1664,7 +1673,11 @@ namespace TrenchBroom {
                 if (!confirmOrDiscardChanges()) {
                     event->ignore();
                 } else {
-                    saveWindowSettings(this);
+                    saveWindowGeometry(this);
+                    saveWindowState(this);
+                    saveWindowState(m_hSplitter);
+                    saveWindowState(m_vSplitter);
+
                     m_frameManager->removeAndDestroyFrame(this);
                     event->accept();
                 }
