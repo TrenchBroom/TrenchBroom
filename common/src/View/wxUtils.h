@@ -30,8 +30,6 @@
 
 #include <QBoxLayout>
 #include <QColor>
-#include <QDebug>
-#include <QObject>
 #include <QSettings>
 
 #include <vector>
@@ -70,8 +68,6 @@ namespace TrenchBroom {
             ensure(window != nullptr, "window must not be null");
 
             const auto path = windowSettingsPath(window, "State");
-            qDebug() << "Saving window state for " << path;
-
             QSettings settings;
             settings.setValue(path, window->saveState());
         }
@@ -81,8 +77,6 @@ namespace TrenchBroom {
             ensure(window != nullptr, "window must not be null");
 
             const auto path = windowSettingsPath(window, "State");
-            qDebug() << "Restoring window state for " << path;
-
             QSettings settings;
             window->restoreState(settings.value(path).toByteArray());
         }

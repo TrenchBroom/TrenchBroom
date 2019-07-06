@@ -75,8 +75,6 @@ namespace TrenchBroom {
             ensure(window != nullptr, "window must not be null");
 
             const auto path = windowSettingsPath(window, "Geometry");
-            qDebug() << "Saving window geometry for " << path;
-
             QSettings settings;
             settings.setValue(path, window->saveGeometry());
         }
@@ -85,8 +83,6 @@ namespace TrenchBroom {
             ensure(window != nullptr, "window must not be null");
 
             const auto path = windowSettingsPath(window, "Geometry");
-            qDebug() << "Restoring window geometry for " << path;
-
             QSettings settings;
             window->restoreGeometry(settings.value(path).toByteArray());
         }
