@@ -127,9 +127,8 @@ namespace TrenchBroom {
             connect(m_rotateTextureCCWButton, &QAbstractButton::clicked, this, &UVEditor::OnRotateTextureCCW);
             connect(m_rotateTextureCWButton, &QAbstractButton::clicked, this, &UVEditor::OnRotateTextureCW);
 
-            QLabel* gridLabel = new QLabel("Grid ");
-            // FIXME:
-//            gridLabel->SetFont(gridLabel->GetFont().Bold());
+            auto* gridLabel = new QLabel("Grid ");
+            makeEmphasized(gridLabel);
             m_xSubDivisionEditor = new QSpinBox(); //(this, wxID_ANY, "1", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS | wxTE_PROCESS_ENTER | wxALIGN_RIGHT);
             m_xSubDivisionEditor->setRange(1, 16);
             m_xSubDivisionEditor->setValue(1);
@@ -141,29 +140,28 @@ namespace TrenchBroom {
             connect(m_xSubDivisionEditor, QOverload<int>::of(&QSpinBox::valueChanged), this, &UVEditor::OnSubDivisionChanged);
             connect(m_ySubDivisionEditor, QOverload<int>::of(&QSpinBox::valueChanged), this, &UVEditor::OnSubDivisionChanged);
 
-            auto* bottomSizer = new QHBoxLayout();
-            bottomSizer->addWidget(m_resetTextureButton,                   0, Qt::AlignVCenter);// | wxRIGHT, LayoutConstants::NarrowHMargin);
-            bottomSizer->addWidget(m_flipTextureHButton,                   0, Qt::AlignVCenter);// | wxRIGHT, LayoutConstants::NarrowHMargin);
-            bottomSizer->addWidget(m_flipTextureVButton,                   0, Qt::AlignVCenter);// | wxRIGHT, LayoutConstants::NarrowHMargin);
-            bottomSizer->addWidget(m_rotateTextureCCWButton,               0, Qt::AlignVCenter);// | wxRIGHT, LayoutConstants::NarrowHMargin);
-            bottomSizer->addWidget(m_rotateTextureCWButton,                0, Qt::AlignVCenter);// | wxRIGHT, LayoutConstants::NarrowHMargin);
-            bottomSizer->addStretch(1);
-            bottomSizer->addWidget(gridLabel,                              0, Qt::AlignVCenter);
-            bottomSizer->addWidget(new QLabel("X:"), 0, Qt::AlignVCenter);// | wxRIGHT, LayoutConstants::NarrowHMargin);
-            bottomSizer->addWidget(m_xSubDivisionEditor,                   0, Qt::AlignVCenter);// | wxRIGHT, LayoutConstants::MediumHMargin);
-            bottomSizer->addWidget(new QLabel("Y:"), 0, Qt::AlignVCenter);// | wxRIGHT, LayoutConstants::NarrowHMargin);
-            bottomSizer->addWidget(m_ySubDivisionEditor,                   0, Qt::AlignVCenter);
-//            bottomSizer->SetItemMinSize(m_xSubDivisionEditor, 50, m_xSubDivisionEditor->GetSize().y);
-//            bottomSizer->SetItemMinSize(m_ySubDivisionEditor, 50, m_ySubDivisionEditor->GetSize().y);
+            auto* bottomLayout = new QHBoxLayout();
+            bottomLayout->setContentsMargins(LayoutConstants::NarrowHMargin, 0, LayoutConstants::NarrowHMargin, 0);
+            bottomLayout->setSpacing(LayoutConstants::NarrowHMargin);
+            bottomLayout->addWidget(m_resetTextureButton);
+            bottomLayout->addWidget(m_flipTextureHButton);
+            bottomLayout->addWidget(m_flipTextureVButton);
+            bottomLayout->addWidget(m_rotateTextureCCWButton);
+            bottomLayout->addWidget(m_rotateTextureCWButton);
+            bottomLayout->addStretch();
+            bottomLayout->addWidget(gridLabel);
+            bottomLayout->addWidget(new QLabel("X:"));
+            bottomLayout->addWidget(m_xSubDivisionEditor);
+            bottomLayout->addSpacing(LayoutConstants::MediumHMargin - LayoutConstants::NarrowHMargin);
+            bottomLayout->addWidget(new QLabel("Y:"));
+            bottomLayout->addWidget(m_ySubDivisionEditor);
 
-            auto* outerSizer = new QVBoxLayout();
-            outerSizer->setContentsMargins(0, 0, 0, 0);
-            outerSizer->addWidget(m_windowContainer, 1); //, wxEXPAND);
-//            outerSizer->addSpacing(LayoutConstants::NarrowVMargin);
-            outerSizer->addLayout(bottomSizer); //, wxLEFT | wxRIGHT | wxEXPAND, LayoutConstants::MediumHMargin);
-//            outerSizer->addSpacing(LayoutConstants::NarrowVMargin);
-
-            setLayout(outerSizer);
+            auto* outerLayout = new QVBoxLayout();
+            outerLayout->setContentsMargins(0, 0, 0, 0);
+            outerLayout->setSpacing(LayoutConstants::NarrowVMargin);
+            outerLayout->addWidget(m_windowContainer, 1);
+            outerLayout->addLayout(bottomLayout);
+            setLayout(outerLayout);
 
             updateButtons();
         }

@@ -58,7 +58,7 @@ namespace TrenchBroom {
         m_rotationEditor(nullptr),
         m_surfaceValueLabel(nullptr),
         m_surfaceValueEditor(nullptr),
-        m_faceAttribsSizer(nullptr),
+        m_faceAttribsLayout(nullptr),
         m_surfaceFlagsLabel(nullptr),
         m_surfaceFlagsEditor(nullptr),
         m_contentFlagsLabel(nullptr),
@@ -228,44 +228,44 @@ namespace TrenchBroom {
         void FaceAttribsEditor::createGui(GLContextManager& contextManager) {
             m_uvEditor = new UVEditor(this, m_document, contextManager);
 
-            QLabel* textureNameLabel = new QLabel("Texture");
+            auto* textureNameLabel = new QLabel("Texture");
             makeEmphasized(textureNameLabel);
             m_textureName = new QLabel("none");
 
-            QLabel* textureSizeLabel = new QLabel("Size");
+            auto* textureSizeLabel = new QLabel("Size");
             makeEmphasized(textureSizeLabel);
             m_textureSize = new QLabel("");
 
-            const double max = std::numeric_limits<double>::max();
-            const double min = -max;
+            const auto max = std::numeric_limits<double>::max();
+            const auto min = -max;
 
-            QLabel* xOffsetLabel = new QLabel("X Offset");
+            auto* xOffsetLabel = new QLabel("X Offset");
             makeEmphasized(xOffsetLabel);
             m_xOffsetEditor = new SpinControl();
             m_xOffsetEditor->SetRange(min, max);
             m_xOffsetEditor->SetDigits(0, 6);
 
-            QLabel* yOffsetLabel = new QLabel("Y Offset");
+            auto* yOffsetLabel = new QLabel("Y Offset");
             makeEmphasized(yOffsetLabel);
             m_yOffsetEditor = new SpinControl();
             m_yOffsetEditor->SetRange(min, max);
             m_yOffsetEditor->SetDigits(0, 6);
 
-            QLabel* xScaleLabel = new QLabel("X Scale");
+            auto* xScaleLabel = new QLabel("X Scale");
             makeEmphasized(xScaleLabel);
             m_xScaleEditor = new SpinControl();
             m_xScaleEditor->SetRange(min, max);
             m_xScaleEditor->SetIncrements(0.1, 0.25, 0.01);
             m_xScaleEditor->SetDigits(0, 6);
 
-            QLabel* yScaleLabel = new QLabel("Y Scale");
+            auto* yScaleLabel = new QLabel("Y Scale");
             makeEmphasized(yScaleLabel);
             m_yScaleEditor = new SpinControl();
             m_yScaleEditor->SetRange(min, max);
             m_yScaleEditor->SetIncrements(0.1, 0.25, 0.01);
             m_yScaleEditor->SetDigits(0, 6);
 
-            QLabel* rotationLabel = new QLabel("Angle");
+            auto* rotationLabel = new QLabel("Angle");
             makeEmphasized(rotationLabel);
             m_rotationEditor = new SpinControl();
             m_rotationEditor->SetRange(min, max);
@@ -290,75 +290,65 @@ namespace TrenchBroom {
             makeEmphasized(m_colorLabel);
             m_colorEditor = new QLineEdit();
 
-//            const int LabelMargin  = LayoutConstants::NarrowHMargin;
-//            const int EditorMargin = LayoutConstants::WideHMargin;
-//            const int RowMargin    = LayoutConstants::NarrowVMargin;
-
-            const Qt::Alignment LabelFlags   = Qt::AlignVCenter | Qt::AlignRight; // wxALIGN_RIGHT | Qt::AlignVCenter | wxRIGHT;
-            const Qt::Alignment ValueFlags   = Qt::AlignVCenter; //Qt::AlignVCenter | wxRIGHT;
+            const Qt::Alignment LabelFlags   = Qt::AlignVCenter | Qt::AlignRight;
+            const Qt::Alignment ValueFlags   = Qt::AlignVCenter;
             const Qt::Alignment Editor1Flags = 0;
             const Qt::Alignment Editor2Flags = 0;
 
             int r = 0;
             int c = 0;
 
-            m_faceAttribsSizer = new QGridLayout();
-            m_faceAttribsSizer->addWidget(textureNameLabel,     r,c++, LabelFlags);
-            m_faceAttribsSizer->addWidget(m_textureName,        r,c++, ValueFlags);
-            m_faceAttribsSizer->addWidget(textureSizeLabel,     r,c++, LabelFlags);
-            m_faceAttribsSizer->addWidget(m_textureSize,        r,c++, ValueFlags);
+            m_faceAttribsLayout = new QGridLayout();
+            m_faceAttribsLayout->setContentsMargins(0, 0, 0, 0);
+            m_faceAttribsLayout->setHorizontalSpacing(LayoutConstants::NarrowHMargin);
+            m_faceAttribsLayout->setVerticalSpacing(LayoutConstants::NarrowVMargin);
+
+            m_faceAttribsLayout->addWidget(m_uvEditor,           r,c,1,4);
             ++r; c = 0;
 
-            m_faceAttribsSizer->addWidget(xOffsetLabel,         r,c++, LabelFlags);
-            m_faceAttribsSizer->addWidget(m_xOffsetEditor,      r,c++, Editor1Flags);
-            m_faceAttribsSizer->addWidget(yOffsetLabel,         r,c++, LabelFlags);
-            m_faceAttribsSizer->addWidget(m_yOffsetEditor,      r,c++, Editor2Flags);
+            m_faceAttribsLayout->addWidget(new BorderLine(),     r,c,1,4);
             ++r; c = 0;
 
-            m_faceAttribsSizer->addWidget(xScaleLabel,          r,c++, LabelFlags);
-            m_faceAttribsSizer->addWidget(m_xScaleEditor,       r,c++, Editor1Flags);
-            m_faceAttribsSizer->addWidget(yScaleLabel,          r,c++, LabelFlags);
-            m_faceAttribsSizer->addWidget(m_yScaleEditor,       r,c++, Editor2Flags);
+            m_faceAttribsLayout->addWidget(textureNameLabel,     r,c++, LabelFlags);
+            m_faceAttribsLayout->addWidget(m_textureName,        r,c++, ValueFlags);
+            m_faceAttribsLayout->addWidget(textureSizeLabel,     r,c++, LabelFlags);
+            m_faceAttribsLayout->addWidget(m_textureSize,        r,c++, ValueFlags);
             ++r; c = 0;
 
-            m_faceAttribsSizer->addWidget(rotationLabel,        r,c++, LabelFlags);
-            m_faceAttribsSizer->addWidget(m_rotationEditor,     r,c++, Editor1Flags);
-            m_faceAttribsSizer->addWidget(m_surfaceValueLabel,  r,c++, LabelFlags);
-            m_faceAttribsSizer->addWidget(m_surfaceValueEditor, r,c++, Editor2Flags);
+            m_faceAttribsLayout->addWidget(xOffsetLabel,         r,c++, LabelFlags);
+            m_faceAttribsLayout->addWidget(m_xOffsetEditor,      r,c++, Editor1Flags);
+            m_faceAttribsLayout->addWidget(yOffsetLabel,         r,c++, LabelFlags);
+            m_faceAttribsLayout->addWidget(m_yOffsetEditor,      r,c++, Editor2Flags);
             ++r; c = 0;
 
-            m_faceAttribsSizer->addWidget(m_surfaceFlagsLabel,  r,c++, LabelFlags);
-            m_faceAttribsSizer->addWidget(m_surfaceFlagsEditor, r,c++, 1,3, Editor2Flags);
+            m_faceAttribsLayout->addWidget(xScaleLabel,          r,c++, LabelFlags);
+            m_faceAttribsLayout->addWidget(m_xScaleEditor,       r,c++, Editor1Flags);
+            m_faceAttribsLayout->addWidget(yScaleLabel,          r,c++, LabelFlags);
+            m_faceAttribsLayout->addWidget(m_yScaleEditor,       r,c++, Editor2Flags);
             ++r; c = 0;
 
-            m_faceAttribsSizer->addWidget(m_contentFlagsLabel,  r,c++, LabelFlags);
-            m_faceAttribsSizer->addWidget(m_contentFlagsEditor, r,c++, 1,3, Editor2Flags);
+            m_faceAttribsLayout->addWidget(rotationLabel,        r,c++, LabelFlags);
+            m_faceAttribsLayout->addWidget(m_rotationEditor,     r,c++, Editor1Flags);
+            m_faceAttribsLayout->addWidget(m_surfaceValueLabel,  r,c++, LabelFlags);
+            m_faceAttribsLayout->addWidget(m_surfaceValueEditor, r,c++, Editor2Flags);
             ++r; c = 0;
 
-            m_faceAttribsSizer->addWidget(m_colorLabel,         r,c++, LabelFlags);
-            m_faceAttribsSizer->addWidget(m_colorEditor,        r,c++, 1,3, Editor2Flags);
+            m_faceAttribsLayout->addWidget(m_surfaceFlagsLabel,  r,c++, LabelFlags);
+            m_faceAttribsLayout->addWidget(m_surfaceFlagsEditor, r,c++, 1,3, Editor2Flags);
             ++r; c = 0;
 
-            m_faceAttribsSizer->setColumnStretch(1, 1);
-            m_faceAttribsSizer->setColumnStretch(3, 1);
+            m_faceAttribsLayout->addWidget(m_contentFlagsLabel,  r,c++, LabelFlags);
+            m_faceAttribsLayout->addWidget(m_contentFlagsEditor, r,c++, 1,3, Editor2Flags);
+            ++r; c = 0;
 
-//            m_faceAttribsSizer->SetItemMinSize(m_uvEditor, 100, 100);
-//            m_faceAttribsSizer->SetItemMinSize(m_xOffsetEditor, 50, m_xOffsetEditor->GetSize().y);
-//            m_faceAttribsSizer->SetItemMinSize(m_yOffsetEditor, 50, m_yOffsetEditor->GetSize().y);
-//            m_faceAttribsSizer->SetItemMinSize(m_xScaleEditor, 50, m_xScaleEditor->GetSize().y);
-//            m_faceAttribsSizer->SetItemMinSize(m_yScaleEditor, 50, m_yScaleEditor->GetSize().y);
-//            m_faceAttribsSizer->SetItemMinSize(m_rotationEditor, 50, m_rotationEditor->GetSize().y);
-//            m_faceAttribsSizer->SetItemMinSize(m_surfaceValueEditor, 50, m_rotationEditor->GetSize().y);
+            m_faceAttribsLayout->addWidget(m_colorLabel,         r,c++, LabelFlags);
+            m_faceAttribsLayout->addWidget(m_colorEditor,        r,c++, 1,3, Editor2Flags);
+            ++r; c = 0;
 
-            auto* outerSizer = new QVBoxLayout();
-            outerSizer->setContentsMargins(0, 0, 0, 0);
-            outerSizer->addWidget(m_uvEditor, 1);
-            outerSizer->addWidget(new BorderLine(BorderLine::Direction_Horizontal)); //, 0, wxEXPAND);
-//            outerSizer->addSpacing(LayoutConstants::MediumVMargin);
-            outerSizer->addLayout(m_faceAttribsSizer); //, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::MediumHMargin);
-//            outerSizer->addSpacing(LayoutConstants::MediumVMargin);
+            m_faceAttribsLayout->setColumnStretch(1, 1);
+            m_faceAttribsLayout->setColumnStretch(3, 1);
 
-            setLayout(outerSizer);
+            setLayout(m_faceAttribsLayout);
         }
 
         void FaceAttribsEditor::bindEvents() {
