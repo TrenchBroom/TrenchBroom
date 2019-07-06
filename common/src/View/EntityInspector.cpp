@@ -28,6 +28,7 @@
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
 #include "View/MapDocument.h"
+#include "View/wxUtils.h"
 
 #include <QVBoxLayout>
 #include <QSplitter>
@@ -35,17 +36,25 @@
 namespace TrenchBroom {
     namespace View {
         EntityInspector::EntityInspector(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
-        TabBookPage(parent) {
-            createGui(document, contextManager);
+        TabBookPage(parent),
+        m_splitter(nullptr),
+        m_attributeEditor(nullptr),
+        m_entityBrowser(nullptr),
+        m_entityDefinitionFileChooser(nullptr) {
+            createGui(std::move(document), contextManager);
+        }
+
+        EntityInspector::~EntityInspector() {
+            saveWindowState(m_splitter);
         }
 
         void EntityInspector::createGui(MapDocumentWPtr document, GLContextManager& contextManager) {
-            QSplitter* splitter = new QSplitter(Qt::Vertical);
-            //splitter->setSashGravity(0.0);
-            //splitter->SetName("EntityInspectorSplitter");
+            m_splitter = new QSplitter(Qt::Vertical);
+            m_splitter->setObjectName("EntityInspector_Splitter");
+            //m_splitter->setSashGravity(0.0);
 
-            splitter->addWidget(createAttributeEditor(splitter, document));
-            splitter->addWidget(createEntityBrowser(splitter, document, contextManager));
+            m_splitter->addWidget(createAttributeEditor(m_splitter, document));
+            m_splitter->addWidget(createEntityBrowser(m_splitter, document, contextManager));
 
             m_attributeEditor->setMinimumSize(100, 150);
             m_entityBrowser->setMinimumSize(100, 150);
@@ -53,13 +62,12 @@ namespace TrenchBroom {
             auto* outerSizer = new QVBoxLayout();
             outerSizer->setContentsMargins(0, 0, 0, 0);
             outerSizer->setSpacing(0);
-            outerSizer->addWidget(splitter, 1);
+            outerSizer->addWidget(m_splitter, 1);
             outerSizer->addWidget(new BorderLine(BorderLine::Direction_Horizontal), 0);
             outerSizer->addWidget(createEntityDefinitionFileChooser(this, document), 0);
             setLayout(outerSizer);
 
-            // FIXME: persist
-            //wxPersistenceManager::Get().RegisterAndRestore(splitter);
+            restoreWindowState(m_splitter);
         }
 
         QWidget* EntityInspector::createAttributeEditor(QWidget* parent, MapDocumentWPtr document) {

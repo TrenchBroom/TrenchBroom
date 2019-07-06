@@ -38,9 +38,16 @@ namespace TrenchBroom {
     namespace View {
         FaceInspector::FaceInspector(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
         TabBookPage(parent),
-        m_document(document) {
+        m_document(document),
+        m_splitter(nullptr),
+        m_faceAttribsEditor(nullptr),
+        m_textureBrowser(nullptr) {
             createGui(document, contextManager);
             bindEvents();
+        }
+
+        FaceInspector::~FaceInspector() {
+            saveWindowState(m_splitter);
         }
 
         bool FaceInspector::cancelMouseDrag() {
@@ -53,12 +60,12 @@ namespace TrenchBroom {
         }
 
         void FaceInspector::createGui(MapDocumentWPtr document, GLContextManager& contextManager) {
-            auto* splitter = new QSplitter(Qt::Vertical);
-//            splitter->setSashGravity(0.0);
-//            splitter->SetName("FaceInspectorSplitter");
+            m_splitter = new QSplitter(Qt::Vertical);
+            m_splitter->setObjectName("FaceInspector_Splitter");
+//            m_splitter->setSashGravity(0.0);
 
-            splitter->addWidget(createFaceAttribsEditor(splitter, document, contextManager));
-            splitter->addWidget(createTextureBrowser(splitter, document, contextManager));
+            m_splitter->addWidget(createFaceAttribsEditor(m_splitter, document, contextManager));
+            m_splitter->addWidget(createTextureBrowser(m_splitter, document, contextManager));
 
             // FIXME: size limit
             //wxSize(100, 200), wxSize(100, 200));
@@ -66,13 +73,12 @@ namespace TrenchBroom {
             auto* outerSizer = new QVBoxLayout();
             outerSizer->setContentsMargins(0, 0, 0, 0);
             outerSizer->setSpacing(0);
-            outerSizer->addWidget(splitter, 1);
+            outerSizer->addWidget(m_splitter, 1);
             outerSizer->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
             outerSizer->addWidget(createTextureCollectionEditor(this, document));
             setLayout(outerSizer);
 
-            // FIXME:
-            //wxPersistenceManager::Get().RegisterAndRestore(splitter);
+            restoreWindowState(m_splitter);
         }
 
         QWidget* FaceInspector::createFaceAttribsEditor(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) {

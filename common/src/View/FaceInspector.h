@@ -23,6 +23,7 @@
 #include "View/TabBook.h"
 #include "View/ViewTypes.h"
 
+class QSplitter;
 class QWidget;
 
 namespace TrenchBroom {
@@ -41,17 +42,17 @@ namespace TrenchBroom {
         class GLContextManager;
         class TextureBrowser;
         class FileTextureCollectionEditor;
-        class TextureSelectedCommand;
 
         class FaceInspector : public TabBookPage {
             Q_OBJECT
         private:
             MapDocumentWPtr m_document;
-
+            QSplitter* m_splitter;
             FaceAttribsEditor* m_faceAttribsEditor;
             TextureBrowser* m_textureBrowser;
         public:
             FaceInspector(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
+            ~FaceInspector() override;
 
             bool cancelMouseDrag();
         private:

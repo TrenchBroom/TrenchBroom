@@ -19,13 +19,14 @@
 
 #include "EntityAttributeEditor.h"
 
+#include "Assets/AttributeDefinition.h"
+#include "Assets/EntityDefinition.h"
+#include "Model/AttributableNode.h"
 #include "View/EntityAttributeGrid.h"
-#include "View/ViewConstants.h"
 #include "View/MapDocument.h"
 #include "View/SmartAttributeEditorManager.h"
-#include "Model/AttributableNode.h"
-#include "Assets/EntityDefinition.h"
-#include "Assets/AttributeDefinition.h"
+#include "View/ViewConstants.h"
+#include "View/wxUtils.h"
 
 #include <QSplitter>
 #include <QVBoxLayout>
@@ -39,6 +40,10 @@ namespace TrenchBroom {
         EntityAttributeEditor::EntityAttributeEditor(QWidget* parent, MapDocumentWPtr document) :
         QWidget(parent),
         m_document(document),
+        m_splitter(nullptr),
+        m_attributeGrid(nullptr),
+        m_smartEditorManager(nullptr),
+        m_documentationText(nullptr),
         m_currentDefinition(nullptr) {
             createGui(this, document);
             bindObservers();
@@ -46,6 +51,7 @@ namespace TrenchBroom {
 
         EntityAttributeEditor::~EntityAttributeEditor() {
             unbindObservers();
+            saveWindowState(m_splitter);
         }
 
         void EntityAttributeEditor::OnCurrentRowChanged() {
@@ -124,7 +130,7 @@ namespace TrenchBroom {
                     std::map<int, QString> flagDescriptors;
                     for (auto& option : flagsDef.options()) {
                         QString line;
-                        QTextStream stream(&line);                       
+                        QTextStream stream(&line);
                         stream << bullet << option.value() << " = " << option.shortDescription().c_str();
                         if (!option.longDescription().empty()) {
                             stream << " (" << option.longDescription().c_str() << ")";
@@ -225,20 +231,20 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeEditor::createGui(QWidget* parent, MapDocumentWPtr document) {
-            auto* splitter = new QSplitter(Qt::Vertical);
+            m_splitter = new QSplitter(Qt::Vertical);
+            m_splitter->setObjectName("EntityAttributeEditor_Splitter");
 
             // Configure the sash gravity so the first widget gets most of the space
-            splitter->setSizes(QList<int>{1'000'000, 1});
-            //splitter->SetName("EntityAttributeEditorSplitter");
+            m_splitter->setSizes(QList<int>{1'000'000, 1});
 
             m_attributeGrid = new EntityAttributeGrid(nullptr, document);
             m_smartEditorManager = new SmartAttributeEditorManager(nullptr, document);
             m_documentationText = new QTextEdit();
             m_documentationText->setReadOnly(true);
 
-            splitter->addWidget(m_attributeGrid);
-            splitter->addWidget(m_smartEditorManager);
-            splitter->addWidget(m_documentationText);
+            m_splitter->addWidget(m_attributeGrid);
+            m_splitter->addWidget(m_smartEditorManager);
+            m_splitter->addWidget(m_documentationText);
 
             m_attributeGrid->setMinimumSize(100, 50);
             m_smartEditorManager->setMinimumSize(100, 50);
@@ -246,13 +252,12 @@ namespace TrenchBroom {
 
             auto* sizer = new QVBoxLayout();
             sizer->setContentsMargins(0, 0, 0, 0);
-            sizer->addWidget(splitter, 1);
+            sizer->addWidget(m_splitter, 1);
             setLayout(sizer);
 
             connect(m_attributeGrid, &EntityAttributeGrid::selectedRow, this, &EntityAttributeEditor::OnCurrentRowChanged);
 
-            // FIXME:
-            //wxPersistenceManager::Get().RegisterAndRestore(splitter);
+            restoreWindowState(m_splitter);
         }
     }
 }

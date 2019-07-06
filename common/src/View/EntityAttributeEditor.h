@@ -48,6 +48,7 @@ namespace TrenchBroom {
             Q_OBJECT
         private:
             View::MapDocumentWPtr m_document;
+            QSplitter* m_splitter;
             EntityAttributeGrid* m_attributeGrid;
             SmartAttributeEditorManager* m_smartEditorManager;
             QTextEdit* m_documentationText;

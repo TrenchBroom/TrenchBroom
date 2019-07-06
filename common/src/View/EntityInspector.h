@@ -23,6 +23,8 @@
 #include "View/TabBook.h"
 #include "View/ViewTypes.h"
 
+class QSplitter;
+
 namespace TrenchBroom {
     namespace View {
         class EntityBrowser;
@@ -33,11 +35,13 @@ namespace TrenchBroom {
         class EntityInspector : public TabBookPage {
             Q_OBJECT
         private:
+            QSplitter* m_splitter;
             EntityAttributeEditor* m_attributeEditor;
             EntityBrowser* m_entityBrowser;
             EntityDefinitionFileChooser* m_entityDefinitionFileChooser;
         public:
             EntityInspector(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
+            ~EntityInspector() override;
         private:
             void createGui(MapDocumentWPtr document, GLContextManager& contextManager);
             QWidget* createAttributeEditor(QWidget* parent, MapDocumentWPtr document);
