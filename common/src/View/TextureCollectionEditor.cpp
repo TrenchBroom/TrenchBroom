@@ -30,26 +30,20 @@ namespace TrenchBroom {
     namespace View {
         TextureCollectionEditor::TextureCollectionEditor(QWidget* parent, MapDocumentWPtr document) :
         QWidget(parent),
-        m_document(document) {
-            MapDocumentSPtr doc = lock(m_document);
-            doc->documentWasNewedNotifier.addObserver(this, &TextureCollectionEditor::documentWasNewed);
-            doc->documentWasLoadedNotifier.addObserver(this, &TextureCollectionEditor::documentWasLoaded);
+        m_document(std::move(document)) {
+            auto doc = lock(m_document);
+            doc->documentWasNewedNotifier.addObserver(this, &TextureCollectionEditor::documentWasNewedOrLoaded);
         }
 
         TextureCollectionEditor::~TextureCollectionEditor() {
             if (!expired(m_document)) {
-                MapDocumentSPtr document = lock(m_document);
-                document->documentWasNewedNotifier.removeObserver(this, &TextureCollectionEditor::documentWasNewed);
-                document->documentWasLoadedNotifier.removeObserver(this, &TextureCollectionEditor::documentWasLoaded);
+                auto document = lock(m_document);
+                document->documentWasNewedNotifier.removeObserver(this, &TextureCollectionEditor::documentWasNewedOrLoaded);
             }
         }
 
-        void TextureCollectionEditor::documentWasNewed(MapDocument* document) {
-            delete layout();
-            createGui();
-        }
-
-        void TextureCollectionEditor::documentWasLoaded(MapDocument* document) {
+        void TextureCollectionEditor::documentWasNewedOrLoaded(MapDocument* document) {
+            qDeleteAll(children());
             delete layout();
             createGui();
         }
@@ -58,7 +52,7 @@ namespace TrenchBroom {
             QWidget* collectionEditor = nullptr;
 
             auto document = lock(m_document);
-            const Model::Game::TexturePackageType type = document->game()->texturePackageType();
+            const auto type = document->game()->texturePackageType();
             switch (type) {
                 case Model::Game::TexturePackageType::File:
                     collectionEditor = new FileTextureCollectionEditor(nullptr, m_document);
@@ -68,11 +62,11 @@ namespace TrenchBroom {
                     break;
             }
 
-            auto* sizer = new QVBoxLayout();
-            sizer->setContentsMargins(0, 0, 0, 0);
-            sizer->addWidget(collectionEditor, 1);
-
-            setLayout(sizer);
+            auto* layout = new QVBoxLayout();
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(0);
+            layout->addWidget(collectionEditor, 1);
+            setLayout(layout);
         }
     }
 }

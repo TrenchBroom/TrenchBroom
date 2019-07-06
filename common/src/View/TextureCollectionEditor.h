@@ -34,8 +34,7 @@ namespace TrenchBroom {
             TextureCollectionEditor(QWidget* parent, MapDocumentWPtr document);
             ~TextureCollectionEditor() override ;
         private:
-            void documentWasNewed(MapDocument* document);
-            void documentWasLoaded(MapDocument* document);
+            void documentWasNewedOrLoaded(MapDocument* document);
 
             void createGui();
         };

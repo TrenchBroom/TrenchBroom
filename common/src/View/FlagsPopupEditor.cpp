@@ -24,6 +24,7 @@
 #include "View/PopupButton.h"
 
 #include <QDebug>
+#include <QFrame>
 #include <QLabel>
 #include <QHBoxLayout>
 
@@ -34,8 +35,18 @@ namespace TrenchBroom {
         m_flagsTxt(nullptr),
         m_button(nullptr),
         m_editor(nullptr) {
+            QFrame* flagsFrame = nullptr;
             if (showFlagsText) {
                 m_flagsTxt = new ElidedLabel(Qt::ElideRight);
+
+                flagsFrame = new QFrame();
+                flagsFrame->setFrameShape(QFrame::Panel);
+
+                auto* layout = new QHBoxLayout();
+                layout->setContentsMargins(LayoutConstants::NarrowHMargin, 0, LayoutConstants::NarrowHMargin, 0);
+                layout->setSpacing(0);
+                layout->addWidget(m_flagsTxt);
+                flagsFrame->setLayout(layout);
             }
 
             m_button = new PopupButton(this, buttonLabel);
@@ -60,8 +71,8 @@ namespace TrenchBroom {
             layout->setContentsMargins(0, 0, 0, 0);
             layout->setSpacing(LayoutConstants::MediumHMargin);
 
-            if (m_flagsTxt != nullptr) {
-                layout->addWidget(m_flagsTxt, 1, Qt::AlignVCenter);
+            if (flagsFrame != nullptr) {
+                layout->addWidget(flagsFrame, 1, Qt::AlignVCenter);
             }
 
             layout->addWidget(m_button, 0, Qt::AlignVCenter);

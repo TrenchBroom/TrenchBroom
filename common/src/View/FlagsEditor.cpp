@@ -49,13 +49,13 @@ namespace TrenchBroom {
             const auto count = static_cast<size_t>(values.size());
             const auto numRows = count / m_numCols;
 
-            // I don't know why we have to delete these, they should be deleted by the layout!
-            VectorUtils::clearAndDelete(m_checkBoxes);
+            m_checkBoxes.clear();
             m_values.clear();
 
             m_checkBoxes.resize(count, nullptr);
             m_values.resize(count, 0);
 
+            qDeleteAll(children());
             if (layout() != nullptr) {
                 delete layout();
             }
