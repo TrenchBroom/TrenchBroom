@@ -45,9 +45,12 @@ namespace TrenchBroom {
             DirectoryTextureCollectionEditor(QWidget* parent, MapDocumentWPtr document);
             ~DirectoryTextureCollectionEditor() override;
         private:
-            void OnAddTextureCollections();
-            void OnRemoveTextureCollections();
-            void OnReloadTextureCollections();
+            void addSelectedTextureCollections();
+            void removeSelectedTextureCollections();
+            void reloadTextureCollections();
+            void availableTextureCollectionSelectionChanged();
+            void enabledTextureCollectionSelectionChanged();
+
             bool canAddTextureCollections() const;
             bool canRemoveTextureCollections() const;
             bool canReloadTextureCollections() const;
@@ -62,8 +65,7 @@ namespace TrenchBroom {
             void modsDidChange();
             void preferenceDidChange(const IO::Path& path);
 
-            // FIXME: Name clash with Qt
-            void update();
+            void updateAllTextureCollections();
             void updateAvailableTextureCollections();
             void updateEnabledTextureCollections();
             void updateListBox(QListWidget* box, const IO::Path::List& paths);
