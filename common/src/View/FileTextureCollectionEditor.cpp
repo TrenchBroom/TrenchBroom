@@ -38,9 +38,15 @@
 
 namespace TrenchBroom {
     namespace View {
-        FileTextureCollectionEditor::FileTextureCollectionEditor(QWidget* parent, MapDocumentWPtr document) :
+        FileTextureCollectionEditor::FileTextureCollectionEditor(MapDocumentWPtr document, QWidget* parent) :
         QWidget(parent),
-        m_document(document) {
+        m_document(std::move(document)),
+        m_collections(nullptr),
+        m_addTextureCollectionsButton(nullptr),
+        m_removeTextureCollectionsButton(nullptr),
+        m_moveTextureCollectionUpButton(nullptr),
+        m_moveTextureCollectionDownButton(nullptr),
+        m_reloadTextureCollectionsButton(nullptr) {
             createGui();
             bindObservers();
             updateControls();
@@ -201,16 +207,11 @@ namespace TrenchBroom {
             m_collections = new QListWidget();
             m_collections->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-            m_addTextureCollectionsButton = createBitmapButton("Add.png",
-                                                               "Add texture collections from the file system", this);
-            m_removeTextureCollectionsButton = createBitmapButton("Remove.png",
-                                                                  "Remove the selected texture collections", this);
-            m_moveTextureCollectionUpButton = createBitmapButton("Up.png", "Move the selected texture collection up",
-                                                                 this);
-            m_moveTextureCollectionDownButton = createBitmapButton("Down.png",
-                                                                   "Move the selected texture collection down", this);
-            m_reloadTextureCollectionsButton = createBitmapButton("Refresh.png", "Reload all texture collections",
-                                                                  this);
+            m_addTextureCollectionsButton = createBitmapButton("Add.png", "Add texture collections from the file system", this);
+            m_removeTextureCollectionsButton = createBitmapButton("Remove.png", "Remove the selected texture collections", this);
+            m_moveTextureCollectionUpButton = createBitmapButton("Up.png", "Move the selected texture collection up", this);
+            m_moveTextureCollectionDownButton = createBitmapButton("Down.png", "Move the selected texture collection down", this);
+            m_reloadTextureCollectionsButton = createBitmapButton("Refresh.png", "Reload all texture collections", this);
 
             connect(m_addTextureCollectionsButton, &QAbstractButton::clicked, this, &FileTextureCollectionEditor::OnAddTextureCollectionsClicked);
             connect(m_removeTextureCollectionsButton, &QAbstractButton::clicked, this, &FileTextureCollectionEditor::OnRemoveTextureCollectionsClicked);
@@ -235,9 +236,8 @@ namespace TrenchBroom {
             sizer->setContentsMargins(0, 0, 0, 0);
             sizer->setSpacing(0);
             sizer->addWidget(m_collections, 1);
-            sizer->addWidget(new BorderLine(BorderLine::Direction_Horizontal), 0); //, wxEXPAND);
-            sizer->addLayout(buttonSizer, 0); //, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
-            //sizer->SetItemMinSize(m_collections, 100, 70);
+            sizer->addWidget(new BorderLine(BorderLine::Direction_Horizontal), 0);
+            sizer->addLayout(buttonSizer, 0);
 
             setLayout(sizer);
         }

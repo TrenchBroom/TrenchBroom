@@ -46,7 +46,7 @@ namespace TrenchBroom {
             QAbstractButton* m_moveTextureCollectionDownButton;
             QAbstractButton* m_reloadTextureCollectionsButton;
         public:
-            FileTextureCollectionEditor(QWidget* parent, MapDocumentWPtr document);
+            explicit FileTextureCollectionEditor(MapDocumentWPtr document, QWidget* parent = nullptr);
             ~FileTextureCollectionEditor() override;
 
             bool debugUIConsistency() const;

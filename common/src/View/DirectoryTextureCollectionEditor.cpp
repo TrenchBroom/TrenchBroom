@@ -36,7 +36,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        DirectoryTextureCollectionEditor::DirectoryTextureCollectionEditor(QWidget* parent, MapDocumentWPtr document) :
+        DirectoryTextureCollectionEditor::DirectoryTextureCollectionEditor(MapDocumentWPtr document, QWidget* parent) :
         QWidget(parent),
         m_document(std::move(document)),
         m_availableCollectionsList(nullptr),

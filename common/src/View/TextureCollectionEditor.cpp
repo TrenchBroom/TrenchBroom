@@ -55,10 +55,10 @@ namespace TrenchBroom {
             const auto type = document->game()->texturePackageType();
             switch (type) {
                 case Model::Game::TexturePackageType::File:
-                    collectionEditor = new FileTextureCollectionEditor(nullptr, m_document);
+                    collectionEditor = new FileTextureCollectionEditor(m_document);
                     break;
                 case Model::Game::TexturePackageType::Directory:
-                    collectionEditor = new DirectoryTextureCollectionEditor(nullptr, m_document);
+                    collectionEditor = new DirectoryTextureCollectionEditor(m_document);
                     break;
             }
 

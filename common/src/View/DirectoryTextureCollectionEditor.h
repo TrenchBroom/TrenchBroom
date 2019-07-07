@@ -42,7 +42,7 @@ namespace TrenchBroom {
             QAbstractButton* m_removeCollectionsButton;
             QAbstractButton* m_reloadCollectionsButton;
         public:
-            DirectoryTextureCollectionEditor(QWidget* parent, MapDocumentWPtr document);
+            explicit DirectoryTextureCollectionEditor(MapDocumentWPtr document, QWidget* parent = nullptr);
             ~DirectoryTextureCollectionEditor() override;
         private:
             void addSelectedTextureCollections();
