@@ -82,8 +82,9 @@ namespace TrenchBroom {
         }
 
         void ToolBox::OnSetFocus(QFocusEvent* /*event*/) {
-            if ((QDateTime::currentMSecsSinceEpoch() - m_lastActivation) < 100)
+            if ((QDateTime::currentMSecsSinceEpoch() - m_lastActivation) < 100) {
                 m_ignoreNextClick = false;
+            }
             clearFocusCursor();
         }
 

@@ -57,7 +57,7 @@ namespace TrenchBroom {
             MapFrame* createOrReuseFrame();
             MapFrame* createFrame(MapDocumentSPtr document);
             bool closeAllFrames(bool force);
-            void removeAndDestroyFrame(MapFrame* frame);
+            void removeFrame(MapFrame* frame);
 
             friend class MapFrame;
         };

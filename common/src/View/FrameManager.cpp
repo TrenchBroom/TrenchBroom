@@ -89,17 +89,8 @@ namespace TrenchBroom {
         }
 
         MapFrame* FrameManager::createFrame(MapDocumentSPtr document) {
-            MapFrame* frame = new MapFrame(this, document);
-            // FIXME: SetName is something for wx persistence?
-            //frame->SetName("MapFrame");
+            MapFrame* frame = new MapFrame(this, std::move(document));
             frame->positionOnScreen(topFrame());
-
-#if 0
-            if (m_frames.empty())
-                wxPersistenceManager::Get().RegisterAndRestore(frame);
-            else
-                wxPersistenceManager::Get().Register(frame);
-#endif
             m_frames.push_front(frame);
 
             frame->show();
@@ -118,22 +109,21 @@ namespace TrenchBroom {
             return true;
         }
 
-        void FrameManager::removeAndDestroyFrame(MapFrame* frame) {
+        void FrameManager::removeFrame(MapFrame* frame) {
             // this is called from MapFrame::~MapFrame
 
-            FrameList::iterator it = std::find(std::begin(m_frames), std::end(m_frames), frame);
+            auto it = std::find(std::begin(m_frames), std::end(m_frames), frame);
             if (it == std::end(m_frames)) {
                 // On OS X, we sometimes get two close events for a frame when terminating the app from the dock.
                 return;
             }
 
             m_frames.erase(it);
-
             if (m_frames.empty() || qApp->quitOnLastWindowClosed()) {
                 AboutDialog::closeAboutDialog();
             }
 
-            // MapFrame uses Qt::WA_DeleteOnClose so we don't delete it here
+            // MapFrame uses Qt::WA_DeleteOnClose so we don't need to delete it here
         }
     }
 }

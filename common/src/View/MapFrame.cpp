@@ -1678,7 +1678,7 @@ namespace TrenchBroom {
                     saveWindowState(m_hSplitter);
                     saveWindowState(m_vSplitter);
 
-                    m_frameManager->removeAndDestroyFrame(this);
+                    m_frameManager->removeFrame(this);
                     event->accept();
                 }
             }

@@ -58,7 +58,7 @@ namespace TrenchBroom {
 
     class TemporarilySetBool : public TemporarilySetAny<bool> {
     public:
-        TemporarilySetBool(bool& value, bool newValue = true);
+        explicit TemporarilySetBool(bool& value, bool newValue = true);
     };
 
     template <typename R>

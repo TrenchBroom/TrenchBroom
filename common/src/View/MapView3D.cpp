@@ -80,9 +80,6 @@ namespace TrenchBroom {
             initializeCamera();
             initializeToolChain(toolBox);
 
-            // FIXME: Replace
-            //SetName("MapView3D");
-
             m_camera.setFov(pref(Preferences::CameraFov));
         }
 
