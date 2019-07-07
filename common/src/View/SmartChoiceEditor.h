@@ -39,11 +39,12 @@ namespace TrenchBroom {
             Q_OBJECT
         private:
             QComboBox* m_comboBox;
+            bool m_ignoreEditTextChanged;
         public:
             SmartChoiceEditor(QWidget* parent, View::MapDocumentWPtr document);
 
-            void OnComboBox(int index);
-            void OnTextEnter(const QString &text);
+            void comboBoxActivated(int index);
+            void comboBoxEditTextChanged(const QString& text);
         private:
             void createGui();
             void doUpdateVisual(const Model::AttributableNodeList& attributables) override;

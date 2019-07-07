@@ -18,6 +18,7 @@
  */
 
 #include "SmartChoiceEditor.h"
+#include "TemporarilySetAny.h"
 #include "Assets/AttributeDefinition.h"
 #include "Model/AttributableNode.h"
 #include "View/MapDocument.h"
@@ -34,60 +35,69 @@
 namespace TrenchBroom {
     namespace View {
         SmartChoiceEditor::SmartChoiceEditor(QWidget* parent, View::MapDocumentWPtr document) :
-        SmartAttributeEditor(parent, document),
-        m_comboBox(nullptr) {
+        SmartAttributeEditor(parent, std::move(document)),
+        m_comboBox(nullptr),
+        m_ignoreEditTextChanged(false) {
             createGui();
         }
 
-        void SmartChoiceEditor::OnComboBox(int index) {
-            const String valueDescStr = m_comboBox->currentText().toStdString();
-            const String valueStr = valueDescStr.substr(0, valueDescStr.find_first_of(':') - 1);
+        void SmartChoiceEditor::comboBoxActivated(int index) {
+            TemporarilySetBool ignoreTextChanged(m_ignoreEditTextChanged);
+
+            const auto valueDescStr = m_comboBox->currentText().toStdString();
+            const auto valueStr = valueDescStr.substr(0, valueDescStr.find_first_of(':') - 1);
             document()->setAttribute(name(), valueStr);
         }
 
-        void SmartChoiceEditor::OnTextEnter(const QString &text) {
-            qDebug() << "OnTextEnter " << text;
-            // FIXME:
-            //document()->setAttribute(name(), text.toStdString());
+        void SmartChoiceEditor::comboBoxEditTextChanged(const QString& text) {
+            if (!m_ignoreEditTextChanged) {
+                document()->setAttribute(name(), text.toStdString());
+            }
         }
 
         void SmartChoiceEditor::createGui() {
             assert(m_comboBox == nullptr);
 
-            QLabel* infoText = new QLabel(tr("Select a choice option:"));
+            auto* infoText = new QLabel(tr("Select a choice option:"));
 
             m_comboBox = new QComboBox();
             m_comboBox->setEditable(true);
-            connect(m_comboBox, QOverload<int>::of(&QComboBox::activated), this, &SmartChoiceEditor::OnComboBox);
-            connect(m_comboBox, &QComboBox::currentTextChanged, this, &SmartChoiceEditor::OnTextEnter);
+            connect(m_comboBox, QOverload<int>::of(&QComboBox::activated), this, &SmartChoiceEditor::comboBoxActivated);
+            connect(m_comboBox, &QComboBox::editTextChanged, this, &SmartChoiceEditor::comboBoxEditTextChanged);
 
-            auto* sizer = new QVBoxLayout();
-            sizer->addSpacing(LayoutConstants::MediumVMargin);
-            sizer->addWidget(infoText, 0);
-            sizer->addSpacing(LayoutConstants::MediumVMargin);
-            sizer->addWidget(m_comboBox, 0);
-            sizer->addStretch(1);
+            auto* layout = new QVBoxLayout();
+            layout->setContentsMargins(
+                LayoutConstants::WideHMargin,
+                LayoutConstants::WideVMargin,
+                LayoutConstants::WideHMargin,
+                LayoutConstants::WideVMargin);
+            layout->setSpacing(LayoutConstants::NarrowVMargin);
+            layout->addWidget(infoText);
+            layout->addWidget(m_comboBox);
+            layout->addStretch(1);
 
-            setLayout(sizer);
+            setLayout(layout);
         }
 
         void SmartChoiceEditor::doUpdateVisual(const Model::AttributableNodeList& attributables) {
             ensure(m_comboBox != nullptr, "comboBox is null");
 
+            TemporarilySetBool ignoreTextChanged(m_ignoreEditTextChanged);
             m_comboBox->clear();
 
-            const Assets::AttributeDefinition* attrDef = Model::AttributableNode::selectAttributeDefinition(name(), attributables);
+            const auto* attrDef = Model::AttributableNode::selectAttributeDefinition(name(), attributables);
             if (attrDef == nullptr || attrDef->type() != Assets::AttributeDefinition::Type_ChoiceAttribute) {
                 m_comboBox->setDisabled(true);
             } else {
                 m_comboBox->setDisabled(false);
-                const Assets::ChoiceAttributeDefinition* choiceDef = static_cast<const Assets::ChoiceAttributeDefinition*>(attrDef);
-                const Assets::ChoiceAttributeOption::List& options = choiceDef->options();
+                const auto* choiceDef = static_cast<const Assets::ChoiceAttributeDefinition*>(attrDef);
+                const auto& options = choiceDef->options();
 
-                for (const Assets::ChoiceAttributeOption& option : options)
+                for (const Assets::ChoiceAttributeOption& option : options) {
                     m_comboBox->addItem(QString::fromStdString(option.value() + " : " + option.description()));
+                }
 
-                const Model::AttributeValue value = Model::AttributableNode::selectAttributeValue(name(), attributables);
+                const auto value = Model::AttributableNode::selectAttributeValue(name(), attributables);
                 m_comboBox->setCurrentText(QString::fromStdString(value));
             }
         }
