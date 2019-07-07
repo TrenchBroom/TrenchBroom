@@ -42,7 +42,6 @@ namespace TrenchBroom {
         public:
             Notifier<> didChangeNotifier;
         public:
-            // FIXME: Remove baseId?
             explicit RecentDocuments(size_t maxSize);
 
             const IO::Path::List& recentDocuments() const;

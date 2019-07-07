@@ -44,7 +44,7 @@ namespace TrenchBroom {
 
             auto* imageAndTextLayout = new QHBoxLayout();
             imageAndTextLayout->setContentsMargins(0, 0, 0, 0);
-            imageAndTextLayout->setSpacing(LayoutConstants::NarrowHMargin);
+            imageAndTextLayout->setSpacing(LayoutConstants::MediumHMargin);
             setLayout(imageAndTextLayout);
 
             m_imageLabel = new QLabel(this);
