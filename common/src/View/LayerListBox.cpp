@@ -82,10 +82,17 @@ namespace TrenchBroom {
             itemPanelLayout->addSpacing(LayoutConstants::NarrowVMargin);
             setLayout(itemPanelLayout);
 
-            updateItem();
+            updateLayerItem();
         }
 
         void LayerListBoxWidget::updateItem() {
+            updateLayerItem();
+        }
+
+        /**
+         * This is factored out from updateItem() so the constructor can call it without doing a virtual function call
+         */
+        void LayerListBoxWidget::updateLayerItem() {
             // Update labels
             m_nameText->setText(QString::fromStdString(m_layer->name()));
             if (lock(m_document)->currentLayer() == m_layer) {
