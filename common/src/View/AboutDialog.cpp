@@ -54,6 +54,7 @@ namespace TrenchBroom {
         }
 
         void AboutDialog::createGui() {
+            setWindowIconTB(this);
             const QString creditsString = tr("github.com/kduske/TrenchBroom\n\n"
                                              "<b>Developers</b>\n"
                                              "Kristian Duske\n"
@@ -74,7 +75,7 @@ namespace TrenchBroom {
                                              "mankeli (Bug fixes)\n"
                                              "Jonas Lund (Bug fixes)\n\n"
                                              "<b>3rd Party Libraries, Tools and Assets</b>\n"
-                                             "wxWidgets (Cross platform GUI library)\n"
+                                             "Qt (Cross platform GUI library)\n"
                                              "FreeType (Font rendering library)\n"
                                              "FreeImage (Image loading & manipulation library)\n"
                                              "GLEW (OpenGL extension library)\n"
