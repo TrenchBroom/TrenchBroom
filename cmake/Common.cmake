@@ -992,7 +992,6 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/SnapBrushVerticesCommand.h
 	${COMMON_SOURCE_DIR}/View/SnapshotCommand.h
 	${COMMON_SOURCE_DIR}/View/SpinControl.h
-	${COMMON_SOURCE_DIR}/View/SplitterWindow4.h
 	${COMMON_SOURCE_DIR}/View/SwitchableMapViewContainer.h
 	${COMMON_SOURCE_DIR}/View/TabBar.h
 	${COMMON_SOURCE_DIR}/View/TabBook.h

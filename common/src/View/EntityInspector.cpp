@@ -51,10 +51,13 @@ namespace TrenchBroom {
         void EntityInspector::createGui(MapDocumentWPtr document, GLContextManager& contextManager) {
             m_splitter = new QSplitter(Qt::Vertical);
             m_splitter->setObjectName("EntityInspector_Splitter");
-            //m_splitter->setSashGravity(0.0);
 
             m_splitter->addWidget(createAttributeEditor(m_splitter, document));
             m_splitter->addWidget(createEntityBrowser(m_splitter, document, contextManager));
+
+            // when the window resizes, keep the attribute editor size constant
+            m_splitter->setStretchFactor(0, 0);
+            m_splitter->setStretchFactor(1, 1);
 
             m_attributeEditor->setMinimumSize(100, 150);
             m_entityBrowser->setMinimumSize(100, 150);

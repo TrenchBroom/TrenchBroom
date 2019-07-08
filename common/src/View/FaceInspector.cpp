@@ -62,33 +62,33 @@ namespace TrenchBroom {
         void FaceInspector::createGui(MapDocumentWPtr document, GLContextManager& contextManager) {
             m_splitter = new QSplitter(Qt::Vertical);
             m_splitter->setObjectName("FaceInspector_Splitter");
-//            m_splitter->setSashGravity(0.0);
 
             m_splitter->addWidget(createFaceAttribsEditor(m_splitter, document, contextManager));
             m_splitter->addWidget(createTextureBrowser(m_splitter, document, contextManager));
 
-            // FIXME: size limit
-            //wxSize(100, 200), wxSize(100, 200));
+            // when the window resizes, the browser should get extra space
+            m_splitter->setStretchFactor(0, 0);
+            m_splitter->setStretchFactor(1, 1);
 
-            auto* outerSizer = new QVBoxLayout();
-            outerSizer->setContentsMargins(0, 0, 0, 0);
-            outerSizer->setSpacing(0);
-            outerSizer->addWidget(m_splitter, 1);
-            outerSizer->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
-            outerSizer->addWidget(createTextureCollectionEditor(this, document));
-            setLayout(outerSizer);
+            auto* layout = new QVBoxLayout();
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(0);
+            layout->addWidget(m_splitter, 1);
+            layout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
+            layout->addWidget(createTextureCollectionEditor(this, document));
+            setLayout(layout);
 
             restoreWindowState(m_splitter);
         }
 
         QWidget* FaceInspector::createFaceAttribsEditor(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) {
-            m_faceAttribsEditor = new FaceAttribsEditor(parent, document, contextManager);
+            m_faceAttribsEditor = new FaceAttribsEditor(parent, std::move(document), contextManager);
             return m_faceAttribsEditor;
         }
 
         QWidget* FaceInspector::createTextureBrowser(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) {
             TitledPanel* panel = new TitledPanel("Texture Browser", parent);
-            m_textureBrowser = new TextureBrowser(panel->getPanel(), document, contextManager);
+            m_textureBrowser = new TextureBrowser(panel->getPanel(), std::move(document), contextManager);
 
             auto* sizer = new QVBoxLayout();
             sizer->setContentsMargins(0, 0, 0, 0);

@@ -234,9 +234,6 @@ namespace TrenchBroom {
             m_splitter = new QSplitter(Qt::Vertical);
             m_splitter->setObjectName("EntityAttributeEditor_Splitter");
 
-            // Configure the sash gravity so the first widget gets most of the space
-            m_splitter->setSizes(QList<int>{1'000'000, 1});
-
             m_attributeGrid = new EntityAttributeGrid(nullptr, document);
             m_smartEditorManager = new SmartAttributeEditorManager(nullptr, document);
             m_documentationText = new QTextEdit();
@@ -249,6 +246,14 @@ namespace TrenchBroom {
             m_attributeGrid->setMinimumSize(100, 50);
             m_smartEditorManager->setMinimumSize(100, 50);
             m_documentationText->setMinimumSize(100, 50);
+
+            // resize only the attribute grid when the container resizes
+            m_splitter->setStretchFactor(0, 1);
+            m_splitter->setStretchFactor(1, 0);
+            m_splitter->setStretchFactor(2, 0);
+
+            // give most space to the attribute grid
+            m_splitter->setSizes(QList<int>{1'000'000, 1, 1});
 
             auto* sizer = new QVBoxLayout();
             sizer->setContentsMargins(0, 0, 0, 0);

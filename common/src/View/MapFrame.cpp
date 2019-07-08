@@ -387,7 +387,6 @@ namespace TrenchBroom {
             setWindowIconTB(this);
             setWindowTitle("TrenchBroom");
 
-            // FIXME: handle sash gravity
             m_hSplitter = new QSplitter(Qt::Horizontal);
             m_hSplitter->setChildrenCollapsible(false);
             m_hSplitter->setObjectName("MapFrame_HorizontalSplitter");
@@ -414,14 +413,20 @@ namespace TrenchBroom {
             m_hSplitter->addWidget(m_vSplitter);
             m_hSplitter->addWidget(m_inspector);
 
-            // Configure minimum sizes
+            // configure minimum sizes
             m_mapView->setMinimumSize(100, 100);
             m_infoPanel->setMinimumSize(100, 100);
 
             m_vSplitter->setMinimumSize(100, 100);
             m_inspector->setMinimumSize(350, 100);
 
-            // Configure the sash gravity so the first widget gets most of the space
+            // resize only the map view when the window resizes
+            m_vSplitter->setStretchFactor(0, 1);
+            m_vSplitter->setStretchFactor(1, 0);
+            m_hSplitter->setStretchFactor(0, 1);
+            m_hSplitter->setStretchFactor(1, 0);
+
+            // give most of the space to the map view
             m_hSplitter->setSizes(QList<int>{1'000'000, 1});
             m_vSplitter->setSizes(QList<int>{1'000'000, 1});
 
