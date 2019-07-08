@@ -52,7 +52,7 @@ namespace TrenchBroom {
             updateButtons();
         }
 
-        void LayerEditor::OnSetCurrentLayer(Model::Layer* layer) {
+        void LayerEditor::onSetCurrentLayer(Model::Layer* layer) {
             auto document = lock(m_document);
             if (layer->locked()) {
                 document->resetLock(Model::NodeList(1, layer));
@@ -65,15 +65,15 @@ namespace TrenchBroom {
             updateButtons();
         }
 
-        void LayerEditor::OnLayerRightClick(Model::Layer* layer) {
+        void LayerEditor::onLayerRightClick(Model::Layer* layer) {
             QMenu popupMenu;
-            QAction* moveSelectionToLayerAction = popupMenu.addAction(tr("Move selection to layer"), this, &LayerEditor::OnMoveSelectionToLayer);
-            popupMenu.addAction(tr("Select all in layer"), this, &LayerEditor::OnSelectAllInLayer);
+            QAction* moveSelectionToLayerAction = popupMenu.addAction(tr("Move selection to layer"), this, &LayerEditor::onMoveSelectionToLayer);
+            popupMenu.addAction(tr("Select all in layer"), this, &LayerEditor::onSelectAllInLayer);
             popupMenu.addSeparator();
-            QAction* toggleLayerVisibleAction = popupMenu.addAction(layer->hidden() ? tr("Show layer") : tr("Hide layer"), this, &LayerEditor::OnToggleLayerVisibleFromMenu);
-            QAction* toggleLayerLockedAction = popupMenu.addAction(layer->locked() ? tr("Unlock layer") : tr("Lock layer"), this, &LayerEditor::OnToggleLayerLockedFromMenu);
+            QAction* toggleLayerVisibleAction = popupMenu.addAction(layer->hidden() ? tr("Show layer") : tr("Hide layer"), this, &LayerEditor::onToggleLayerVisibleFromMenu);
+            QAction* toggleLayerLockedAction = popupMenu.addAction(layer->locked() ? tr("Unlock layer") : tr("Lock layer"), this, &LayerEditor::onToggleLayerLockedFromMenu);
             popupMenu.addSeparator();
-            QAction* removeLayerAction = popupMenu.addAction(tr("Remove layer"), this, &LayerEditor::OnRemoveLayer);
+            QAction* removeLayerAction = popupMenu.addAction(tr("Remove layer"), this, &LayerEditor::onRemoveLayer);
 
             moveSelectionToLayerAction->setEnabled(canMoveSelectionToLayer());
             toggleLayerVisibleAction->setEnabled(canToggleLayerVisible());
@@ -83,11 +83,11 @@ namespace TrenchBroom {
             popupMenu.exec(QCursor::pos());
         }
 
-        void LayerEditor::OnToggleLayerVisibleFromMenu() {
+        void LayerEditor::onToggleLayerVisibleFromMenu() {
             toggleLayerVisible(m_layerList->selectedLayer());
         }
 
-        void LayerEditor::OnToggleLayerVisibleFromList(Model::Layer* layer) {
+        void LayerEditor::onToggleLayerVisibleFromList(Model::Layer* layer) {
             toggleLayerVisible(layer);
         }
 
@@ -115,11 +115,11 @@ namespace TrenchBroom {
             }
         }
 
-        void LayerEditor::OnToggleLayerLockedFromMenu() {
+        void LayerEditor::onToggleLayerLockedFromMenu() {
             toggleLayerLocked(m_layerList->selectedLayer());
         }
 
-        void LayerEditor::OnToggleLayerLockedFromList(Model::Layer* layer) {
+        void LayerEditor::onToggleLayerLockedFromList(Model::Layer* layer) {
             toggleLayerLocked(layer);
         }
 
@@ -201,7 +201,7 @@ namespace TrenchBroom {
             }
         };
 
-        void LayerEditor::OnMoveSelectionToLayer() {
+        void LayerEditor::onMoveSelectionToLayer() {
             auto* layer = m_layerList->selectedLayer();
             ensure(layer != nullptr, "layer is null");
 
@@ -239,7 +239,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        void LayerEditor::OnSelectAllInLayer() {
+        void LayerEditor::onSelectAllInLayer() {
             auto* layer = m_layerList->selectedLayer();
             ensure(layer != nullptr, "layer is null");
 
@@ -253,7 +253,7 @@ namespace TrenchBroom {
             document->select(nodes);
         }
 
-        void LayerEditor::OnAddLayer() {
+        void LayerEditor::onAddLayer() {
             const String name = queryLayerName();
             if (!name.empty()) {
                 auto document = lock(m_document);
@@ -290,7 +290,7 @@ namespace TrenchBroom {
             }
         }
 
-        void LayerEditor::OnRemoveLayer() {
+        void LayerEditor::onRemoveLayer() {
             auto* layer = m_layerList->selectedLayer();
             ensure(layer != nullptr, "layer is null");
 
@@ -322,7 +322,7 @@ namespace TrenchBroom {
             return (layer != document->world()->defaultLayer());
         }
 
-        void LayerEditor::OnShowAllLayers() {
+        void LayerEditor::onShowAllLayers() {
             auto document = lock(m_document);
             const auto layers = document->world()->allLayers();
             document->resetVisibility(Model::NodeList(std::begin(layers), std::end(layers)));
@@ -362,25 +362,24 @@ namespace TrenchBroom {
 
         void LayerEditor::createGui() {
             m_layerList = new LayerListBox(m_document, this);
-            connect(m_layerList, &LayerListBox::layerSetCurrent, this, &LayerEditor::OnSetCurrentLayer);
-            connect(m_layerList, &LayerListBox::layerRightClicked, this, &LayerEditor::OnLayerRightClick);
-            connect(m_layerList, &LayerListBox::layerVisibilityToggled, this, &LayerEditor::OnToggleLayerVisibleFromList);
-            connect(m_layerList, &LayerListBox::layerLockToggled, this, &LayerEditor::OnToggleLayerLockedFromList);
+            connect(m_layerList, &LayerListBox::layerSetCurrent, this, &LayerEditor::onSetCurrentLayer);
+            connect(m_layerList, &LayerListBox::layerRightClicked, this, &LayerEditor::onLayerRightClick);
+            connect(m_layerList, &LayerListBox::layerVisibilityToggled, this, &LayerEditor::onToggleLayerVisibleFromList);
+            connect(m_layerList, &LayerListBox::layerLockToggled, this, &LayerEditor::onToggleLayerLockedFromList);
+            connect(m_layerList, &LayerListBox::itemSelectionChanged, this, &LayerEditor::updateButtons);
 
-            m_addLayerButton = createBitmapButton("Add.png", "Add a new layer from the current selection", this);
-            m_removeLayerButton = createBitmapButton("Remove.png",
-                                                     "Remove the selected layer and move its objects to the default layer",
-                                                     this);
-            m_showAllLayersButton = createBitmapButton("Hidden_off.png", "Show all layers", this);
+            m_addLayerButton = createBitmapButton("Add.png", tr("Add a new layer from the current selection"));
+            m_removeLayerButton = createBitmapButton("Remove.png", tr("Remove the selected layer and move its objects to the default layer"));
+            m_showAllLayersButton = createBitmapButton("Hidden_off.png", tr("Show all layers"));
 
-            connect(m_addLayerButton, &QAbstractButton::pressed, this, &LayerEditor::OnAddLayer);
-            connect(m_removeLayerButton, &QAbstractButton::pressed, this, &LayerEditor::OnRemoveLayer);
-            connect(m_showAllLayersButton, &QAbstractButton::pressed, this, &LayerEditor::OnShowAllLayers);
+            connect(m_addLayerButton, &QAbstractButton::pressed, this, &LayerEditor::onAddLayer);
+            connect(m_removeLayerButton, &QAbstractButton::pressed, this, &LayerEditor::onRemoveLayer);
+            connect(m_showAllLayersButton, &QAbstractButton::pressed, this, &LayerEditor::onShowAllLayers);
 
             auto* buttonSizer = new QHBoxLayout();
             buttonSizer->addWidget(m_addLayerButton);
             buttonSizer->addWidget(m_removeLayerButton);
-            buttonSizer->addWidget(m_showAllLayersButton); //, 0, Qt::AlignVCenter | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->addWidget(m_showAllLayersButton);
             buttonSizer->addStretch(1);
 
             auto* sizer = new QVBoxLayout();

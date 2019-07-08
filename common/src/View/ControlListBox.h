@@ -69,13 +69,16 @@ namespace TrenchBroom {
             void setCurrentRow(int currentRow);
         protected:
             /**
-             * Reloads the contents of this list box. The list box will be cleared and its items will be recreated.
+             * Deletes all item renderers, re-fetches the item count from `itemCount()`, and
+             * rebuilds the item renderers using `createItemRenderer()`.
              */
             void reload();
 
             /**
-             * Updates the information displayed by the items of this list box. Iterates over all items in this list box
-             * and updates the displayed information by creating new renderers.
+             * Calls updateItem() on each ControlListBoxItemRenderer in the list box.
+             * 
+             * You should call this when you know that the order and number of items hasn't changed, but
+             * you want to update the details displayed in the item renderers (e.g. if the labels changed.)
              */
             void updateItems();
 

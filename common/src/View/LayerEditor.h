@@ -44,36 +44,37 @@ namespace TrenchBroom {
         public:
             LayerEditor(QWidget* parent, MapDocumentWPtr document);
         private:
-            void OnSetCurrentLayer(Model::Layer* layer);
-            void OnLayerRightClick(Model::Layer* layer);
+            void onSetCurrentLayer(Model::Layer* layer);
+            void onLayerRightClick(Model::Layer* layer);
 
             class CollectMoveableNodes;
-            void OnMoveSelectionToLayer();
+            void onMoveSelectionToLayer();
             bool canMoveSelectionToLayer() const;
 
-            void OnToggleLayerVisibleFromMenu();
-            void OnToggleLayerVisibleFromList(Model::Layer* layer);
+            void onToggleLayerVisibleFromMenu();
+            void onToggleLayerVisibleFromList(Model::Layer* layer);
             bool canToggleLayerVisible() const;
             void toggleLayerVisible(Model::Layer* layer);
 
-            void OnToggleLayerLockedFromMenu();
-            void OnToggleLayerLockedFromList(Model::Layer* layer);
+            void onToggleLayerLockedFromMenu();
+            void onToggleLayerLockedFromList(Model::Layer* layer);
             bool canToggleLayerLocked() const;
             void toggleLayerLocked(Model::Layer* layer);
 
-            void OnSelectAllInLayer();
+            void onSelectAllInLayer();
 
-            void OnAddLayer();
+            void onAddLayer();
             String queryLayerName();
 
-            void OnRemoveLayer();
+            void onRemoveLayer();
             bool canRemoveLayer() const;
 
-            void OnShowAllLayers();
+            void onShowAllLayers();
         private:
             Model::Layer* findVisibleAndUnlockedLayer(const Model::Layer* except) const;
             void moveSelectedNodesToLayer(MapDocumentSPtr document, Model::Layer* layer);
             void createGui();
+        private slots:
             void updateButtons();
         };
     }

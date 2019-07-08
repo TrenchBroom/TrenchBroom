@@ -146,7 +146,7 @@ namespace TrenchBroom {
             for (int i = 0; i < m_listWidget->count(); ++i) {
                 auto* widgetItem = m_listWidget->item(i);
                 auto* renderer = static_cast<ControlListBoxItemRenderer*>(m_listWidget->itemWidget(widgetItem));
-                renderer->update();
+                renderer->updateItem();
             }
         }
 

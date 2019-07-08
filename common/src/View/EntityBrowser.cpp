@@ -107,8 +107,7 @@ namespace TrenchBroom {
                 m_view->setHideUnused(m_usedButton->isChecked());
             });
 
-            m_filterBox = new QLineEdit();
-            m_filterBox->setClearButtonEnabled(true);
+            m_filterBox = createSearchBox();
             connect(m_filterBox, &QLineEdit::textEdited, this, [=](){
                 m_view->setFilterText(m_filterBox->text().toStdString());
             });

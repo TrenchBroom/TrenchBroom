@@ -393,7 +393,7 @@ namespace TrenchBroom {
 
         void setWindowIconTB(QWidget* window) {
             ensure(window != nullptr, "window is null");
-            window->setWindowIcon(IO::loadIconResourceQt(IO::Path("Resources/WindowIcon")));
+            window->setWindowIcon(IO::loadIconResourceQt(IO::Path("AppIcon.png")));
         }
 
 #if 0

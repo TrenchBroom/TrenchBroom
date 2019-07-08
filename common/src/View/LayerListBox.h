@@ -45,7 +45,9 @@ namespace TrenchBroom {
             LayerListBoxWidget(MapDocumentWPtr document, Model::Layer* layer, QWidget* parent = nullptr);
 
             void updateItem() override;
-
+        private:
+            void updateLayerItem();
+        public:
             Model::Layer* layer() const;
         private:
             bool eventFilter(QObject* target, QEvent* event) override;

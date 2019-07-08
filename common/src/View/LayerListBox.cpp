@@ -82,10 +82,17 @@ namespace TrenchBroom {
             itemPanelLayout->addSpacing(LayoutConstants::NarrowVMargin);
             setLayout(itemPanelLayout);
 
-            updateItem();
+            updateLayerItem();
         }
 
         void LayerListBoxWidget::updateItem() {
+            updateLayerItem();
+        }
+
+        /**
+         * This is factored out from updateItem() so the constructor can call it without doing a virtual function call
+         */
+        void LayerListBoxWidget::updateLayerItem() {
             // Update labels
             m_nameText->setText(QString::fromStdString(m_layer->name()));
             if (lock(m_document)->currentLayer() == m_layer) {
@@ -159,8 +166,8 @@ namespace TrenchBroom {
             document->documentWasLoadedNotifier.addObserver(this, &LayerListBox::documentDidChange);
             document->documentWasClearedNotifier.addObserver(this, &LayerListBox::documentDidChange);
             document->currentLayerDidChangeNotifier.addObserver(this, &LayerListBox::currentLayerDidChange);
-            document->nodesWereAddedNotifier.addObserver(this, &LayerListBox::nodesDidChange);
-            document->nodesWereRemovedNotifier.addObserver(this, &LayerListBox::nodesDidChange);
+            document->nodesWereAddedNotifier.addObserver(this, &LayerListBox::nodesWereAddedOrRemoved);
+            document->nodesWereRemovedNotifier.addObserver(this, &LayerListBox::nodesWereAddedOrRemoved);
             document->nodesDidChangeNotifier.addObserver(this, &LayerListBox::nodesDidChange);
             document->nodeVisibilityDidChangeNotifier.addObserver(this, &LayerListBox::nodesDidChange);
         }
@@ -185,9 +192,10 @@ namespace TrenchBroom {
 
         void LayerListBox::nodesWereAddedOrRemoved(const Model::NodeList& nodes) {
             for (const auto* node : nodes) {
-                if (node->depth() == 1) {
+                if (dynamic_cast<const Model::Layer*>(node) != nullptr) {
+                    // A layer was added or removed, so we need to clear and repopulate the list
                     reload();
-                    break;
+                    return;
                 }
             }
             updateItems();
