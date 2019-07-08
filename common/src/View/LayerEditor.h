@@ -74,6 +74,7 @@ namespace TrenchBroom {
             Model::Layer* findVisibleAndUnlockedLayer(const Model::Layer* except) const;
             void moveSelectedNodesToLayer(MapDocumentSPtr document, Model::Layer* layer);
             void createGui();
+        private slots:
             void updateButtons();
         };
     }

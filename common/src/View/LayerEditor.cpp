@@ -366,6 +366,7 @@ namespace TrenchBroom {
             connect(m_layerList, &LayerListBox::layerRightClicked, this, &LayerEditor::onLayerRightClick);
             connect(m_layerList, &LayerListBox::layerVisibilityToggled, this, &LayerEditor::onToggleLayerVisibleFromList);
             connect(m_layerList, &LayerListBox::layerLockToggled, this, &LayerEditor::onToggleLayerLockedFromList);
+            connect(m_layerList, &LayerListBox::itemSelectionChanged, this, &LayerEditor::updateButtons);
 
             m_addLayerButton = createBitmapButton("Add.png", tr("Add a new layer from the current selection"));
             m_removeLayerButton = createBitmapButton("Remove.png", tr("Remove the selected layer and move its objects to the default layer"));
