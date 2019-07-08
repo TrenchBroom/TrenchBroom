@@ -40,8 +40,8 @@ namespace TrenchBroom {
         m_profileList(nullptr),
         m_profileEditor(nullptr),
         m_removeProfileButton(nullptr) {
-            auto* listPanel = new TitledPanel(this, "Profiles");
-            auto* editorPanel = new TitledPanel(this, "Details");
+            auto* listPanel = new TitledPanel("Profiles");
+            auto* editorPanel = new TitledPanel("Details");
 
             m_profileList = new GameEngineProfileListBox(m_config, listPanel->getPanel());
             m_profileEditor = new GameEngineProfileEditor(editorPanel->getPanel());

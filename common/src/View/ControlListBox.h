@@ -50,6 +50,8 @@ namespace TrenchBroom {
 
         class ControlListBox : public QWidget {
             Q_OBJECT
+        public:
+            static constexpr auto LabelColorShouldNotUpdateWhenSelected = "LabelColorShouldNotUpdateWhenSelected";
         private:
             QListWidget* m_listWidget;
             QWidget* m_emptyTextContainer;

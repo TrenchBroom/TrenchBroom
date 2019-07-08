@@ -24,6 +24,7 @@
 #include "View/BorderLine.h"
 #include "View/CompilationVariables.h"
 #include "View/MultiCompletionLineEdit.h"
+#include "View/TitleBar.h"
 #include "View/TitledPanel.h"
 #include "View/VariableStoreModel.h"
 #include "View/ViewConstants.h"
@@ -46,12 +47,18 @@ namespace TrenchBroom {
         m_profile(&profile),
         m_task(&task),
         m_panel(nullptr) {
-            m_panel = new TitledPanel(this, m_title);
+            m_panel = new TitledPanel(m_title);
+
+            // TitleBar uses QPalette::Base to draw itself when used as a list item widget, so we set that here
+            auto palette = m_panel->getTitleBar()->palette();
+            palette.setColor(QPalette::Base, palette.color(QPalette::Normal, QPalette::Window));
+            m_panel->getTitleBar()->setPalette(palette);
 
             auto* layout = new QVBoxLayout();
             layout->setContentsMargins(0, 0, 0, 0);
             layout->setSpacing(0);
             layout->addWidget(m_panel);
+            layout->addWidget(new BorderLine());
             setLayout(layout);
 
             addProfileObservers();

@@ -87,7 +87,7 @@ namespace TrenchBroom {
         }
 
         QWidget* FaceInspector::createTextureBrowser(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) {
-            TitledPanel* panel = new TitledPanel(parent, "Texture Browser");
+            TitledPanel* panel = new TitledPanel("Texture Browser", parent);
             m_textureBrowser = new TextureBrowser(panel->getPanel(), document, contextManager);
 
             auto* sizer = new QVBoxLayout();

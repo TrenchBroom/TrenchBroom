@@ -55,6 +55,10 @@ namespace TrenchBroom {
             // by default, we just change the appearance of all labels
             auto children = findChildren<QLabel*>();
             for (auto* child : children) {
+                const auto dontUpdate = child->property(ControlListBox::LabelColorShouldNotUpdateWhenSelected);
+                if (dontUpdate.isValid() && dontUpdate.canConvert(QMetaType::Bool) && dontUpdate.toBool()) {
+                    continue;
+                }
                 if (selected) {
                     makeSelected(child);
                 } else {
@@ -82,7 +86,7 @@ namespace TrenchBroom {
             m_emptyTextLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
 
             auto* outerLayout = new QVBoxLayout();
-            outerLayout->setContentsMargins(QMargins());
+            outerLayout->setContentsMargins(0, 0, 0, 0);
             setLayout(outerLayout);
 
             outerLayout->addWidget(m_listWidget, 1);

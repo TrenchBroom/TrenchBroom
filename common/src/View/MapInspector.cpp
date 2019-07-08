@@ -47,7 +47,7 @@ namespace TrenchBroom {
         }
 
         QWidget* MapInspector::createLayerEditor(QWidget* parent, MapDocumentWPtr document) {
-            TitledPanel* titledPanel = new TitledPanel(parent, tr("Layers"));
+            TitledPanel* titledPanel = new TitledPanel(tr("Layers"), parent);
             LayerEditor* layerEditor = new LayerEditor(titledPanel->getPanel(), document);
 
             auto* sizer = new QVBoxLayout();

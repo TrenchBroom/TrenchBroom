@@ -60,8 +60,6 @@
 #include "View/MapFrame.h"
 #include "View/MapViewConfig.h"
 #include "View/MapViewToolBox.h"
-// FIXME:
-//#include "View/ToolBoxDropTarget.h"
 #include "View/SelectionTool.h"
 #include "View/ViewUtils.h"
 #include "View/wxUtils.h"

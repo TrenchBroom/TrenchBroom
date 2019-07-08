@@ -19,6 +19,7 @@
 
 #include "TitleBar.h"
 
+#include "View/ControlListBox.h"
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
@@ -28,13 +29,16 @@
 
 namespace TrenchBroom {
     namespace View {
-        TitleBar::TitleBar(const QString& title, QWidget* parent, int hMargin, int vMargin, bool boldTitle) :
+        TitleBar::TitleBar(const QString& title, QWidget* parent, const int hMargin, const int vMargin, const bool boldTitle) :
         QWidget(parent),
         m_titleText(nullptr) {
-            // FIXME: Should always force this color, but doesn't work in ControlListBox
             setDefaultWindowColor(this);
 
             m_titleText = new QLabel(title);
+
+            // Tell ControlListBox to not update the title label's color when the selection changes, in case this widget
+            // is used inside of a ControlListBox.
+            m_titleText->setProperty(ControlListBox::LabelColorShouldNotUpdateWhenSelected, true);
 
             if (boldTitle) {
                 makeEmphasized(m_titleText);
@@ -45,5 +49,8 @@ namespace TrenchBroom {
             layout->addWidget(m_titleText);
             setLayout(layout);
         }
+
+        TitleBar::TitleBar(const QString& title, const int hMargin, const int vMargin, const bool boldTitle) :
+        TitleBar(title, nullptr, hMargin, vMargin, boldTitle) {}
     }
 }

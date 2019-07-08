@@ -76,7 +76,7 @@ namespace TrenchBroom {
         }
 
         QWidget* EntityInspector::createEntityBrowser(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) {
-            auto* panel = new TitledPanel(parent, tr("Entity Browser"));
+            auto* panel = new TitledPanel(tr("Entity Browser"), parent);
             m_entityBrowser = new EntityBrowser(nullptr, document, contextManager);
 
             auto* sizer = new QVBoxLayout();

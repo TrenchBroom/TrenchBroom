@@ -39,8 +39,8 @@ namespace TrenchBroom {
         m_profileEditor() {
             setBaseWindowColor(this);
 
-            auto* listPanel = new TitledPanel(this, "Profiles");
-            auto* editorPanel = new TitledPanel(this, "Details");
+            auto* listPanel = new TitledPanel("Profiles");
+            auto* editorPanel = new TitledPanel("Details");
 
             m_profileList = new CompilationProfileListBox(m_config, listPanel->getPanel());
             m_profileEditor = new CompilationProfileEditor(std::move(document), editorPanel->getPanel());

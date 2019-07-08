@@ -116,7 +116,7 @@ namespace TrenchBroom {
          * See ModEditor::createGui
          */
         void DirectoryTextureCollectionEditor::createGui() {
-            auto* availableCollectionsContainer = new TitledPanel(this, "Available", false);
+            auto* availableCollectionsContainer = new TitledPanel("Available");
 
             m_availableCollectionsList = new QListWidget();
             m_availableCollectionsList->setSelectionMode(QAbstractItemView::ExtendedSelection);
@@ -127,7 +127,7 @@ namespace TrenchBroom {
             availableModContainerLayout->addWidget(m_availableCollectionsList);
             availableCollectionsContainer->getPanel()->setLayout(availableModContainerLayout);
 
-            auto* enabledCollectionsContainer = new TitledPanel(this, "Enabled", false);
+            auto* enabledCollectionsContainer = new TitledPanel("Enabled");
 //            enabledCollectionsContainer->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             m_enabledCollectionsList = new QListWidget();
             m_enabledCollectionsList->setSelectionMode(QAbstractItemView::ExtendedSelection);

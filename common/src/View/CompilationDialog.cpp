@@ -66,7 +66,7 @@ namespace TrenchBroom {
 
             m_profileManager = new CompilationProfileManager(document , compilationConfig);
 
-            auto* outputPanel = new TitledPanel(nullptr, "Output");
+            auto* outputPanel = new TitledPanel("Output");
             m_output = new QTextEdit();
             m_output->setReadOnly(true);
             m_output->setFont(Fonts::fixedWidthFont());

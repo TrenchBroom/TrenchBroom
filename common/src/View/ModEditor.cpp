@@ -148,7 +148,7 @@ namespace TrenchBroom {
         }
 
         void ModEditor::createGui() {
-            auto* availableModContainer = new TitledPanel(nullptr, "Available", false);
+            auto* availableModContainer = new TitledPanel("Available");
 //            availableModContainer->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             m_availableModList = new QListWidget(); //(availableModContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxLB_MULTIPLE | wxBORDER_NONE);
             m_availableModList->setSelectionMode(QAbstractItemView::ExtendedSelection);
@@ -168,7 +168,7 @@ namespace TrenchBroom {
             filterBoxSizer->addWidget(m_filterBox, 1);
 //            filterBoxSizer->addSpacing(LayoutConstants::NarrowVMargin);
 
-            auto* enabledModContainer = new TitledPanel(nullptr, "Enabled", false);
+            auto* enabledModContainer = new TitledPanel("Enabled");
 //            enabledModContainer->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             m_enabledModList = new QListWidget(); //enabledModContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxLB_MULTIPLE | wxBORDER_NONE);
             m_enabledModList->setSelectionMode(QAbstractItemView::ExtendedSelection);

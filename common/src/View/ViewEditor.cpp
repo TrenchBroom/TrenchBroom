@@ -396,7 +396,7 @@ namespace TrenchBroom {
         }
 
         QWidget* ViewEditor::createEntityDefinitionsPanel(QWidget* parent) {
-            TitledPanel* panel = new TitledPanel(parent, "Entity Definitions", false);
+            TitledPanel* panel = new TitledPanel("Entity Definitions", parent);
 
             MapDocumentSPtr document = lock(m_document);
             Assets::EntityDefinitionManager& entityDefinitionManager = document->entityDefinitionManager();
@@ -415,7 +415,7 @@ namespace TrenchBroom {
         }
 
         QWidget* ViewEditor::createEntitiesPanel(QWidget* parent) {
-            TitledPanel* panel = new TitledPanel(parent, "Entities", false);
+            TitledPanel* panel = new TitledPanel("Entities", parent);
 
             m_showEntityClassnamesCheckBox = new QCheckBox(tr("Show entity classnames"));
             m_showGroupBoundsCheckBox = new QCheckBox(tr("Show group bounds"));
@@ -447,7 +447,7 @@ namespace TrenchBroom {
         }
 
         QWidget* ViewEditor::createBrushesPanel(QWidget* parent) {
-            TitledPanel* panel = new TitledPanel(parent, "Brushes", false);
+            TitledPanel* panel = new TitledPanel("Brushes", parent);
             auto* inner = panel->getPanel();
             createTagFilter(inner);
 
@@ -505,7 +505,7 @@ namespace TrenchBroom {
         }
 
         QWidget* ViewEditor::createRendererPanel(QWidget* parent) {
-            TitledPanel* panel = new TitledPanel(parent, "Renderer", false);
+            TitledPanel* panel = new TitledPanel("Renderer", parent);
             QWidget* inner = panel->getPanel();
 
             const QList<QString> FaceRenderModes = { "Show textures", "Hide textures", "Hide faces" };

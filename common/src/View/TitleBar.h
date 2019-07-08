@@ -30,7 +30,8 @@ namespace TrenchBroom {
         protected:
             QLabel* m_titleText;
         public:
-            TitleBar(const QString& title, QWidget* parent = nullptr, int hMargin = 0, int vMargin = 0, bool boldTitle = true);
+            TitleBar(const QString& title, QWidget* parent, int hMargin = 0, int vMargin = 0, bool boldTitle = true);
+            explicit TitleBar(const QString& title, int hMargin = 0, int vMargin = 0, bool boldTitle = true);
         };
     }
 }

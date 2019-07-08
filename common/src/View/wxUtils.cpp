@@ -138,7 +138,7 @@ namespace TrenchBroom {
         }
 
         QWidget* makeEmphasized(QWidget* widget) {
-            QFont font;
+            auto font = widget->font();
             font.setBold(true);
             widget->setFont(font);
             return widget;
@@ -152,13 +152,14 @@ namespace TrenchBroom {
         QWidget* makeInfo(QWidget* widget) {
             makeDefault(widget);
 
-            QFont font;
+            auto font = widget->font();
             font.setPointSize(font.pointSize() - 2);
             widget->setFont(font);
 
-            QPalette palette;
-            palette.setColor(QPalette::Normal, QPalette::WindowText, palette.color(QPalette::Disabled, QPalette::WindowText));
-            palette.setColor(QPalette::Normal, QPalette::Text, palette.color(QPalette::Disabled, QPalette::WindowText));
+            const auto defaultPalette = QPalette();
+            auto palette = widget->palette();
+            palette.setColor(QPalette::Normal, QPalette::WindowText, defaultPalette.color(QPalette::Disabled, QPalette::WindowText));
+            palette.setColor(QPalette::Normal, QPalette::Text, defaultPalette.color(QPalette::Disabled, QPalette::WindowText));
             widget->setPalette(palette);
             return widget;
         }
@@ -166,7 +167,7 @@ namespace TrenchBroom {
         QWidget* makeHeader(QWidget* widget) {
             makeDefault(widget);
 
-            QFont font;
+            auto font = widget->font();
             font.setPointSize(2 * font.pointSize());
             font.setBold(true);
             widget->setFont(font);
@@ -174,7 +175,7 @@ namespace TrenchBroom {
         }
 
         QWidget* makeError(QWidget* widget) {
-            QPalette palette;
+            auto palette = widget->palette();
             palette.setColor(QPalette::Normal, QPalette::WindowText, Qt::red);
             palette.setColor(QPalette::Normal, QPalette::Text, Qt::red);
             widget->setPalette(palette);
@@ -182,15 +183,20 @@ namespace TrenchBroom {
         }
 
         QWidget* makeSelected(QWidget* widget) {
-            QPalette palette;
-            palette.setColor(QPalette::Normal, QPalette::WindowText, palette.color(QPalette::Normal, QPalette::HighlightedText));
-            palette.setColor(QPalette::Normal, QPalette::Text, palette.color(QPalette::Normal, QPalette::HighlightedText));
+            const auto defaultPalette = QPalette();
+            auto palette = widget->palette();
+            palette.setColor(QPalette::Normal, QPalette::WindowText, defaultPalette.color(QPalette::Normal, QPalette::HighlightedText));
+            palette.setColor(QPalette::Normal, QPalette::Text, defaultPalette.color(QPalette::Normal, QPalette::HighlightedText));
             widget->setPalette(palette);
             return widget;
         }
 
         QWidget* makeUnselected(QWidget* widget) {
-            widget->setPalette(QPalette());
+            const auto defaultPalette = QPalette();
+            auto palette = widget->palette();
+            palette.setColor(QPalette::Normal, QPalette::WindowText, defaultPalette.color(QPalette::Normal, QPalette::WindowText));
+            palette.setColor(QPalette::Normal, QPalette::Text, defaultPalette.color(QPalette::Normal, QPalette::Text));
+            widget->setPalette(palette);
             return widget;
         }
 

@@ -94,7 +94,7 @@ namespace TrenchBroom {
             setWindowIconTB(this);
             setWindowTitle("Replace Texture");
 
-            auto* subjectPanel = new TitledPanel(this, "Find");
+            auto* subjectPanel = new TitledPanel("Find");
             m_subjectBrowser = new TextureBrowser(subjectPanel->getPanel(), m_document, contextManager);
             m_subjectBrowser->setHideUnused(true);
             connect(m_subjectBrowser, &TextureBrowser::textureSelected, this, &ReplaceTextureDialog::subjectSelected);
@@ -105,7 +105,7 @@ namespace TrenchBroom {
             subjectPanelLayout->addWidget(m_subjectBrowser);
             subjectPanel->getPanel()->setLayout(subjectPanelLayout);
 
-            auto* replacementPanel = new TitledPanel(this, "Replace with");
+            auto* replacementPanel = new TitledPanel("Replace with");
             m_replacementBrowser = new TextureBrowser(replacementPanel->getPanel(), m_document, contextManager);
             m_replacementBrowser->setSelectedTexture(nullptr); // Override the current texture.
             connect(m_replacementBrowser, &TextureBrowser::textureSelected, this, &ReplaceTextureDialog::replacementSelected);
