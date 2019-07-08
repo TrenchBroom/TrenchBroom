@@ -192,9 +192,10 @@ namespace TrenchBroom {
 
         void LayerListBox::nodesWereAddedOrRemoved(const Model::NodeList& nodes) {
             for (const auto* node : nodes) {
-                if (node->depth() == 1) {
+                if (dynamic_cast<const Model::Layer*>(node) != nullptr) {
+                    // A layer was added or removed, so we need to clear and repopulate the list
                     reload();
-                    break;
+                    return;
                 }
             }
             updateItems();
