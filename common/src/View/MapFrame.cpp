@@ -831,6 +831,9 @@ namespace TrenchBroom {
             }
         }
 
+        /**
+         * Returns whether the window should close.
+         */
         bool MapFrame::confirmOrDiscardChanges() {
             if (!m_document->modified())
                 return true;
@@ -1687,7 +1690,7 @@ namespace TrenchBroom {
                     event->accept();
                 }
             }
-            QWidget::closeEvent(event);
+            // Don't call superclass implementation
         }
 
         void MapFrame::triggerAutosave() {
