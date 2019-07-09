@@ -32,6 +32,8 @@
 
 namespace TrenchBroom {
     namespace View {
+        // ControlListBoxItemRenderer
+
         ControlListBoxItemRenderer::ControlListBoxItemRenderer(QWidget* parent) :
         QWidget(parent),
         m_index(0) {}
@@ -66,6 +68,8 @@ namespace TrenchBroom {
                 }
             }
         }
+
+        // ControlListBox
 
         ControlListBox::ControlListBox(const QString& emptyText, const QMargins& itemMargins, QWidget* parent) :
         QWidget(parent),
@@ -125,6 +129,17 @@ namespace TrenchBroom {
 
         void ControlListBox::reload() {
             DisableWindowUpdates disableUpdates(this);
+
+            // WARNING: At this point, the ControlListBoxItemRenderer's might
+            // contain dangling pointers to model objects (if
+            // MapDocument::clearWorld world is called, e.g. when opening a new map).
+            //
+            // The clear() call below causes QListWidget::itemSelectionChanged
+            // to be emitted, before the widgets are cleared.
+            // This was causing a crash in LayerListBox's selectedRowChanged() override
+            // if you clicked on a layer and then opened a new map on Windows.
+            // As a workaround, unset the current row before clearing the list.
+            m_listWidget->setCurrentRow(-1);
 
             m_listWidget->clear();
 
